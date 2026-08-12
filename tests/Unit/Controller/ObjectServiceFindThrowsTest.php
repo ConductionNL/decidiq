@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Unknown-id handling across controllers that call ObjectService::find().
  *
@@ -62,170 +63,159 @@ use PHPUnit\Framework\TestCase;
  * server error, so the narrow arm cannot quietly widen into a catch-all that
  * hides a real outage behind a tidy 404.
  */
-final class ObjectServiceFindThrowsTest extends TestCase
-{
+final class ObjectServiceFindThrowsTest extends TestCase {
 
+	/**
+	 * Build a MinutesCorrectionController whose find() throws.
+	 *
+	 * @return MinutesCorrectionController
+	 */
+	private function minutesControllerWithThrowingFind(\Throwable $toThrow): MinutesCorrectionController {
+		$objectService = $this->createMock(ObjectService::class);
+		$objectService->method('find')->willThrowException($toThrow);
 
-    /**
-     * Build a MinutesCorrectionController whose find() throws.
-     *
-     * @return MinutesCorrectionController
-     */
-    private function minutesControllerWithThrowingFind(\Throwable $toThrow): MinutesCorrectionController
-    {
-        $objectService = $this->createMock(ObjectService::class);
-        $objectService->method('find')->willThrowException($toThrow);
+		// The access guard answers "allowed" so the test reaches the lookup
+		// rather than stopping at authorisation — otherwise a 403 would mask
+		// whatever the lookup does and the test would prove nothing.
+		$guard = $this->createMock(MinutesAccessGuard::class);
+		$guard->method('requireParticipant')->willReturn(null);
+		$guard->method('requireChairOrAdmin')->willReturn(null);
 
-        // The access guard answers "allowed" so the test reaches the lookup
-        // rather than stopping at authorisation — otherwise a 403 would mask
-        // whatever the lookup does and the test would prove nothing.
-        $guard = $this->createMock(MinutesAccessGuard::class);
-        $guard->method('requireParticipant')->willReturn(null);
-        $guard->method('requireChairOrAdmin')->willReturn(null);
+		$request = $this->createMock(IRequest::class);
+		$request->method('getParam')->willReturnCallback(
+			static function (string $key, mixed $default = null): mixed {
+				return match ($key) {
+					'text' => 'A suggested correction.',
+					'status' => 'accepted',
+					default => $default,
+				};
+			}
+		);
 
-        $request = $this->createMock(IRequest::class);
-        $request->method('getParam')->willReturnCallback(
-            static function (string $key, mixed $default=null): mixed {
-                return match ($key) {
-                    'text'   => 'A suggested correction.',
-                    'status' => 'accepted',
-                    default  => $default,
-                };
-            }
-        );
+		return new MinutesCorrectionController(
+			request: $request,
+			accessGuard: $guard,
+			objectService: $objectService,
+			userSession: $this->createMock(IUserSession::class),
+		);
 
-        return new MinutesCorrectionController(
-            request: $request,
-            accessGuard: $guard,
-            objectService: $objectService,
-            userSession: $this->createMock(IUserSession::class),
-        );
+	}//end minutesControllerWithThrowingFind()
 
-    }//end minutesControllerWithThrowingFind()
+	/**
+	 * Suggesting a correction on unknown minutes is 404, not 500.
+	 *
+	 * @spec openspec/specs/resolution-minutes/spec.md
+	 *
+	 * @return void
+	 */
+	public function testAddCorrectionAnswersNotFoundForAnUnknownId(): void {
+		$controller = $this->minutesControllerWithThrowingFind(
+			new DoesNotExistException('no such minutes')
+		);
 
+		$response = $controller->addCorrection(minutesId: 'missing-uuid');
 
-    /**
-     * Suggesting a correction on unknown minutes is 404, not 500.
-     *
-     * @spec openspec/specs/resolution-minutes/spec.md
-     *
-     * @return void
-     */
-    public function testAddCorrectionAnswersNotFoundForAnUnknownId(): void
-    {
-        $controller = $this->minutesControllerWithThrowingFind(
-            new DoesNotExistException('no such minutes')
-        );
+		self::assertSame(
+			Http::STATUS_NOT_FOUND,
+			$response->getStatus(),
+			'an unknown minutes id owes 404; 500 means DoesNotExistException fell through to the broad Exception arm'
+		);
 
-        $response = $controller->addCorrection(minutesId: 'missing-uuid');
+	}//end testAddCorrectionAnswersNotFoundForAnUnknownId()
 
-        self::assertSame(
-            Http::STATUS_NOT_FOUND,
-            $response->getStatus(),
-            'an unknown minutes id owes 404; 500 means DoesNotExistException fell through to the broad Exception arm'
-        );
+	/**
+	 * Resolving a correction on unknown minutes is 404, not 500.
+	 *
+	 * @spec openspec/specs/resolution-minutes/spec.md
+	 *
+	 * @return void
+	 */
+	public function testResolveCorrectionAnswersNotFoundForAnUnknownId(): void {
+		$controller = $this->minutesControllerWithThrowingFind(
+			new DoesNotExistException('no such minutes')
+		);
 
-    }//end testAddCorrectionAnswersNotFoundForAnUnknownId()
+		$response = $controller->resolveCorrection(
+			minutesId: 'missing-uuid',
+			correctionId: 'correction-1'
+		);
 
+		self::assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
 
-    /**
-     * Resolving a correction on unknown minutes is 404, not 500.
-     *
-     * @spec openspec/specs/resolution-minutes/spec.md
-     *
-     * @return void
-     */
-    public function testResolveCorrectionAnswersNotFoundForAnUnknownId(): void
-    {
-        $controller = $this->minutesControllerWithThrowingFind(
-            new DoesNotExistException('no such minutes')
-        );
+	}//end testResolveCorrectionAnswersNotFoundForAnUnknownId()
 
-        $response = $controller->resolveCorrection(
-            minutesId: 'missing-uuid',
-            correctionId: 'correction-1'
-        );
+	/**
+	 * A failure that is NOT an unknown id is still a server error.
+	 *
+	 * Keeps the narrow catch honest. If it widened to `\Throwable`, an
+	 * OpenRegister outage would be reported to the caller — and to
+	 * monitoring — as a tidy 404, which is worse than the 500 it replaced.
+	 *
+	 * @spec openspec/specs/resolution-minutes/spec.md
+	 *
+	 * @return void
+	 */
+	public function testAnUnrelatedFailureIsStillAServerError(): void {
+		$controller = $this->minutesControllerWithThrowingFind(
+			new \RuntimeException('OpenRegister is unreachable')
+		);
 
-        self::assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
+		$response = $controller->addCorrection(minutesId: 'any-uuid');
 
-    }//end testResolveCorrectionAnswersNotFoundForAnUnknownId()
+		self::assertSame(
+			Http::STATUS_INTERNAL_SERVER_ERROR,
+			$response->getStatus(),
+			'a broken data layer must not be disguised as a 404'
+		);
 
+	}//end testAnUnrelatedFailureIsStillAServerError()
 
-    /**
-     * A failure that is NOT an unknown id is still a server error.
-     *
-     * Keeps the narrow catch honest. If it widened to `\Throwable`, an
-     * OpenRegister outage would be reported to the caller — and to
-     * monitoring — as a tidy 404, which is worse than the 500 it replaced.
-     *
-     * @spec openspec/specs/resolution-minutes/spec.md
-     *
-     * @return void
-     */
-    public function testAnUnrelatedFailureIsStillAServerError(): void
-    {
-        $controller = $this->minutesControllerWithThrowingFind(
-            new \RuntimeException('OpenRegister is unreachable')
-        );
+	/**
+	 * Setting retention on an unknown governance body is 404, not an
+	 * uncaught 500.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 *
+	 * @return void
+	 */
+	public function testRetentionConfigAnswersNotFoundForAnUnknownBody(): void {
+		// The lookup now lives behind TranscriptionService/TranscriptRepository,
+		// which converts an absent object into the app's own
+		// MissingObjectException. Asserting on the CONTROLLER's status is still
+		// the point: it is the thing the caller receives.
+		$transcriptionService = $this->createMock(TranscriptionService::class);
+		$transcriptionService->method('setRetentionPolicy')
+			->willThrowException(new MissingObjectException('Governance body "missing-uuid" not found.'));
 
-        $response = $controller->addCorrection(minutesId: 'any-uuid');
+		$staffGuard = $this->createMock(TranscriptionStaffGuard::class);
+		$staffGuard->method('forBody')->willReturn(null);
 
-        self::assertSame(
-            Http::STATUS_INTERNAL_SERVER_ERROR,
-            $response->getStatus(),
-            'a broken data layer must not be disguised as a 404'
-        );
+		$request = $this->createMock(IRequest::class);
+		$request->method('getParam')->willReturnCallback(
+			static function (string $key, mixed $default = null): mixed {
+				return match ($key) {
+					'policy' => 'delete-both',
+					'days' => 30,
+					default => $default,
+				};
+			}
+		);
 
-    }//end testAnUnrelatedFailureIsStillAServerError()
+		$controller = new TranscriptionController(
+			request: $request,
+			transcriptionService: $transcriptionService,
+			minutesDraftService: $this->createMock(MinutesDraftService::class),
+			staffGuard: $staffGuard,
+			queue: $this->createMock(TranscriptionQueue::class),
+		);
 
+		$response = $controller->retentionConfig(bodyId: 'missing-uuid');
 
-    /**
-     * Setting retention on an unknown governance body is 404, not an
-     * uncaught 500.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     *
-     * @return void
-     */
-    public function testRetentionConfigAnswersNotFoundForAnUnknownBody(): void
-    {
-        // The lookup now lives behind TranscriptionService/TranscriptRepository,
-        // which converts an absent object into the app's own
-        // MissingObjectException. Asserting on the CONTROLLER's status is still
-        // the point: it is the thing the caller receives.
-        $transcriptionService = $this->createMock(TranscriptionService::class);
-        $transcriptionService->method('setRetentionPolicy')
-            ->willThrowException(new MissingObjectException('Governance body "missing-uuid" not found.'));
+		self::assertSame(
+			Http::STATUS_NOT_FOUND,
+			$response->getStatus(),
+			'this method has no try/catch of its own, so before the fix the exception escaped the controller entirely'
+		);
 
-        $staffGuard = $this->createMock(TranscriptionStaffGuard::class);
-        $staffGuard->method('forBody')->willReturn(null);
-
-        $request = $this->createMock(IRequest::class);
-        $request->method('getParam')->willReturnCallback(
-            static function (string $key, mixed $default=null): mixed {
-                return match ($key) {
-                    'policy' => 'delete-both',
-                    'days'   => 30,
-                    default  => $default,
-                };
-            }
-        );
-
-        $controller = new TranscriptionController(
-            request: $request,
-            transcriptionService: $transcriptionService,
-            minutesDraftService: $this->createMock(MinutesDraftService::class),
-            staffGuard: $staffGuard,
-            queue: $this->createMock(TranscriptionQueue::class),
-        );
-
-        $response = $controller->retentionConfig(bodyId: 'missing-uuid');
-
-        self::assertSame(
-            Http::STATUS_NOT_FOUND,
-            $response->getStatus(),
-            'this method has no try/catch of its own, so before the fix the exception escaped the controller entirely'
-        );
-
-    }//end testRetentionConfigAnswersNotFoundForAnUnknownBody()
+	}//end testRetentionConfigAnswersNotFoundForAnUnknownBody()
 }//end class

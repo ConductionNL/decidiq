@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Unit tests for GovernanceScopeGuard — OR-projected signatory/chair scope
  * consumer (consume-or-rbac-authorization). Proves the migrated signing
@@ -37,196 +38,187 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/consume-or-rbac-authorization/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-002-signatory-authorization-is-an-openregister-rbac-rule-not-an-app-local-service
  */
-class GovernanceScopeGuardTest extends TestCase
-{
+class GovernanceScopeGuardTest extends TestCase {
 
-    /**
-     * The scope group id follows the canonical per-body convention.
-     *
-     * @return void
-     */
-    public function testScopeGroupIdConvention(): void
-    {
-        $guard = new GovernanceScopeGuard(
-            $this->createMock(ContainerInterface::class),
-            $this->createMock(IGroupManager::class),
-            $this->createMock(LoggerInterface::class)
-        );
+	/**
+	 * The scope group id follows the canonical per-body convention.
+	 *
+	 * @return void
+	 */
+	public function testScopeGroupIdConvention(): void {
+		$guard = new GovernanceScopeGuard(
+			$this->createMock(ContainerInterface::class),
+			$this->createMock(IGroupManager::class),
+			$this->createMock(LoggerInterface::class)
+		);
 
-        $this->assertSame(
-            'decidesk:body:body-1:signatory',
-            $guard->scopeGroupId('body-1', GovernanceScopeGuard::SCOPE_SIGNATORY)
-        );
-        $this->assertSame(
-            'decidesk:body:body-1:chair',
-            $guard->scopeGroupId('body-1', GovernanceScopeGuard::SCOPE_CHAIR)
-        );
-    }//end testScopeGroupIdConvention()
+		$this->assertSame(
+			'decidesk:body:body-1:signatory',
+			$guard->scopeGroupId('body-1', GovernanceScopeGuard::SCOPE_SIGNATORY)
+		);
+		$this->assertSame(
+			'decidesk:body:body-1:chair',
+			$guard->scopeGroupId('body-1', GovernanceScopeGuard::SCOPE_CHAIR)
+		);
+	}//end testScopeGroupIdConvention()
 
-    /**
-     * isInBodyScope delegates to the NC group manager for the canonical group.
-     *
-     * @return void
-     */
-    public function testIsInBodyScopeConsultsProjectedGroup(): void
-    {
-        $groupManager = $this->createMock(IGroupManager::class);
-        $groupManager->expects($this->once())
-            ->method('isInGroup')
-            ->with('alice', 'decidesk:body:body-1:signatory')
-            ->willReturn(true);
+	/**
+	 * isInBodyScope delegates to the NC group manager for the canonical group.
+	 *
+	 * @return void
+	 */
+	public function testIsInBodyScopeConsultsProjectedGroup(): void {
+		$groupManager = $this->createMock(IGroupManager::class);
+		$groupManager->expects($this->once())
+			->method('isInGroup')
+			->with('alice', 'decidesk:body:body-1:signatory')
+			->willReturn(true);
 
-        $guard = new GovernanceScopeGuard(
-            $this->createMock(ContainerInterface::class),
-            $groupManager,
-            $this->createMock(LoggerInterface::class)
-        );
+		$guard = new GovernanceScopeGuard(
+			$this->createMock(ContainerInterface::class),
+			$groupManager,
+			$this->createMock(LoggerInterface::class)
+		);
 
-        $this->assertTrue($guard->isInBodyScope('alice', 'body-1', GovernanceScopeGuard::SCOPE_SIGNATORY));
-    }//end testIsInBodyScopeConsultsProjectedGroup()
+		$this->assertTrue($guard->isInBodyScope('alice', 'body-1', GovernanceScopeGuard::SCOPE_SIGNATORY));
+	}//end testIsInBodyScopeConsultsProjectedGroup()
 
-    /**
-     * isInBodyScope fails closed on empty user or empty body (never consults).
-     *
-     * @return void
-     */
-    public function testIsInBodyScopeFailsClosedOnEmptyArgs(): void
-    {
-        $groupManager = $this->createMock(IGroupManager::class);
-        $groupManager->expects($this->never())->method('isInGroup');
+	/**
+	 * isInBodyScope fails closed on empty user or empty body (never consults).
+	 *
+	 * @return void
+	 */
+	public function testIsInBodyScopeFailsClosedOnEmptyArgs(): void {
+		$groupManager = $this->createMock(IGroupManager::class);
+		$groupManager->expects($this->never())->method('isInGroup');
 
-        $guard = new GovernanceScopeGuard(
-            $this->createMock(ContainerInterface::class),
-            $groupManager,
-            $this->createMock(LoggerInterface::class)
-        );
+		$guard = new GovernanceScopeGuard(
+			$this->createMock(ContainerInterface::class),
+			$groupManager,
+			$this->createMock(LoggerInterface::class)
+		);
 
-        $this->assertFalse($guard->isInBodyScope('', 'body-1', GovernanceScopeGuard::SCOPE_CHAIR));
-        $this->assertFalse($guard->isInBodyScope('alice', '', GovernanceScopeGuard::SCOPE_CHAIR));
-    }//end testIsInBodyScopeFailsClosedOnEmptyArgs()
+		$this->assertFalse($guard->isInBodyScope('', 'body-1', GovernanceScopeGuard::SCOPE_CHAIR));
+		$this->assertFalse($guard->isInBodyScope('alice', '', GovernanceScopeGuard::SCOPE_CHAIR));
+	}//end testIsInBodyScopeFailsClosedOnEmptyArgs()
 
-    /**
-     * A signatory (member of the body's signatory scope) may initiate signing.
-     *
-     * @return void
-     */
-    public function testCanInitiateSigningAllowsSignatory(): void
-    {
-        $groupManager = $this->createMock(IGroupManager::class);
-        $groupManager->method('isInGroup')
-            ->with('alice', 'decidesk:body:body-9:signatory')
-            ->willReturn(true);
+	/**
+	 * A signatory (member of the body's signatory scope) may initiate signing.
+	 *
+	 * @return void
+	 */
+	public function testCanInitiateSigningAllowsSignatory(): void {
+		$groupManager = $this->createMock(IGroupManager::class);
+		$groupManager->method('isInGroup')
+			->with('alice', 'decidesk:body:body-9:signatory')
+			->willReturn(true);
 
-        $guard = new GovernanceScopeGuard(
-            $this->makeContainer('body-9'),
-            $groupManager,
-            $this->createMock(LoggerInterface::class)
-        );
+		$guard = new GovernanceScopeGuard(
+			$this->makeContainer('body-9'),
+			$groupManager,
+			$this->createMock(LoggerInterface::class)
+		);
 
-        $this->assertTrue($guard->canInitiateSigning('alice', 'min-1'));
-    }//end testCanInitiateSigningAllowsSignatory()
+		$this->assertTrue($guard->canInitiateSigning('alice', 'min-1'));
+	}//end testCanInitiateSigningAllowsSignatory()
 
-    /**
-     * A non-signatory is denied — OR-projected scope returns no membership.
-     *
-     * @return void
-     */
-    public function testCanInitiateSigningDeniesNonSignatory(): void
-    {
-        $groupManager = $this->createMock(IGroupManager::class);
-        $groupManager->method('isInGroup')->willReturn(false);
+	/**
+	 * A non-signatory is denied — OR-projected scope returns no membership.
+	 *
+	 * @return void
+	 */
+	public function testCanInitiateSigningDeniesNonSignatory(): void {
+		$groupManager = $this->createMock(IGroupManager::class);
+		$groupManager->method('isInGroup')->willReturn(false);
 
-        $guard = new GovernanceScopeGuard(
-            $this->makeContainer('body-9'),
-            $groupManager,
-            $this->createMock(LoggerInterface::class)
-        );
+		$guard = new GovernanceScopeGuard(
+			$this->makeContainer('body-9'),
+			$groupManager,
+			$this->createMock(LoggerInterface::class)
+		);
 
-        $this->assertFalse($guard->canInitiateSigning('mallory', 'min-1'));
-    }//end testCanInitiateSigningDeniesNonSignatory()
+		$this->assertFalse($guard->canInitiateSigning('mallory', 'min-1'));
+	}//end testCanInitiateSigningDeniesNonSignatory()
 
-    /**
-     * Fail-closed: when the owning body cannot be resolved (missing Meeting or
-     * body relation) signing is denied and the scope is never consulted.
-     *
-     * @return void
-     */
-    public function testCanInitiateSigningFailsClosedWhenBodyUnresolved(): void
-    {
-        $groupManager = $this->createMock(IGroupManager::class);
-        $groupManager->expects($this->never())->method('isInGroup');
+	/**
+	 * Fail-closed: when the owning body cannot be resolved (missing Meeting or
+	 * body relation) signing is denied and the scope is never consulted.
+	 *
+	 * @return void
+	 */
+	public function testCanInitiateSigningFailsClosedWhenBodyUnresolved(): void {
+		$groupManager = $this->createMock(IGroupManager::class);
+		$groupManager->expects($this->never())->method('isInGroup');
 
-        // Minutes with no Meeting relation -> body cannot be resolved.
-        $guard = new GovernanceScopeGuard(
-            $this->makeContainer(null),
-            $groupManager,
-            $this->createMock(LoggerInterface::class)
-        );
+		// Minutes with no Meeting relation -> body cannot be resolved.
+		$guard = new GovernanceScopeGuard(
+			$this->makeContainer(null),
+			$groupManager,
+			$this->createMock(LoggerInterface::class)
+		);
 
-        $this->assertFalse($guard->canInitiateSigning('alice', 'min-1'));
-    }//end testCanInitiateSigningFailsClosedWhenBodyUnresolved()
+		$this->assertFalse($guard->canInitiateSigning('alice', 'min-1'));
+	}//end testCanInitiateSigningFailsClosedWhenBodyUnresolved()
 
-    /**
-     * Fail-closed: an OpenRegister error while resolving denies (no fail-open),
-     * and it is logged rather than treated as "check skipped".
-     *
-     * @return void
-     */
-    public function testCanInitiateSigningFailsClosedOnException(): void
-    {
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())->method('warning');
+	/**
+	 * Fail-closed: an OpenRegister error while resolving denies (no fail-open),
+	 * and it is logged rather than treated as "check skipped".
+	 *
+	 * @return void
+	 */
+	public function testCanInitiateSigningFailsClosedOnException(): void {
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects($this->once())->method('warning');
 
-        $container = $this->createMock(ContainerInterface::class);
-        $container->method('get')->willThrowException(new \RuntimeException('OR unavailable'));
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willThrowException(new \RuntimeException('OR unavailable'));
 
-        $guard = new GovernanceScopeGuard(
-            $container,
-            $this->createMock(IGroupManager::class),
-            $logger
-        );
+		$guard = new GovernanceScopeGuard(
+			$container,
+			$this->createMock(IGroupManager::class),
+			$logger
+		);
 
-        $this->assertFalse($guard->canInitiateSigning('alice', 'min-1'));
-    }//end testCanInitiateSigningFailsClosedOnException()
+		$this->assertFalse($guard->canInitiateSigning('alice', 'min-1'));
+	}//end testCanInitiateSigningFailsClosedOnException()
 
-    /**
-     * Build a container whose ObjectService resolves Minutes -> Meeting ->
-     * GovernanceBody to the given body id (or leaves it unresolvable when null).
-     *
-     * @param string|null $bodyId GovernanceBody UUID to resolve, or null for unresolvable
-     *
-     * @return ContainerInterface
-     */
-    private function makeContainer(?string $bodyId): ContainerInterface
-    {
-        $minutesRow = ['id' => 'min-1', 'relations' => ['Meeting' => 'meet-1']];
-        $meetingRow = ['id' => 'meet-1'];
-        if ($bodyId !== null) {
-            $meetingRow['relations'] = ['GovernanceBody' => $bodyId];
-        }
+	/**
+	 * Build a container whose ObjectService resolves Minutes -> Meeting ->
+	 * GovernanceBody to the given body id (or leaves it unresolvable when null).
+	 *
+	 * @param string|null $bodyId GovernanceBody UUID to resolve, or null for unresolvable
+	 *
+	 * @return ContainerInterface
+	 */
+	private function makeContainer(?string $bodyId): ContainerInterface {
+		$minutesRow = ['id' => 'min-1', 'relations' => ['Meeting' => 'meet-1']];
+		$meetingRow = ['id' => 'meet-1'];
+		if ($bodyId !== null) {
+			$meetingRow['relations'] = ['GovernanceBody' => $bodyId];
+		}
 
-        $objectService = $this->createMock(ObjectService::class);
-        $objectService->method('find')->willReturnCallback(
-            function (mixed $id, mixed $register=null, mixed $schema=null) use ($minutesRow, $meetingRow): ?ObjectEntity {
-                $row = null;
-                if ((string) $id === 'min-1') {
-                    $row = $minutesRow;
-                } else if ((string) $id === 'meet-1') {
-                    $row = $meetingRow;
-                }
+		$objectService = $this->createMock(ObjectService::class);
+		$objectService->method('find')->willReturnCallback(
+			function (mixed $id, mixed $register = null, mixed $schema = null) use ($minutesRow, $meetingRow): ?ObjectEntity {
+				$row = null;
+				if ((string)$id === 'min-1') {
+					$row = $minutesRow;
+				} elseif ((string)$id === 'meet-1') {
+					$row = $meetingRow;
+				}
 
-                if ($row === null) {
-                    return null;
-                }
+				if ($row === null) {
+					return null;
+				}
 
-                $entity = $this->createMock(ObjectEntity::class);
-                $entity->method('jsonSerialize')->willReturn($row);
-                return $entity;
-            }
-        );
+				$entity = $this->createMock(ObjectEntity::class);
+				$entity->method('jsonSerialize')->willReturn($row);
+				return $entity;
+			}
+		);
 
-        $container = $this->createMock(ContainerInterface::class);
-        $container->method('get')->willReturn($objectService);
-        return $container;
-    }//end makeContainer()
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willReturn($objectService);
+		return $container;
+	}//end makeContainer()
 }//end class

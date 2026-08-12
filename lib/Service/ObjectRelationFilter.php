@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Object Relation Filter
  *
@@ -61,99 +62,93 @@ namespace OCA\Decidesk\Service;
  *
  * @spec openspec/specs/voting-system/spec.md
  */
-class ObjectRelationFilter
-{
-    /**
-     * The `_relations` field name that matches decidesk's structured relation writes.
-     *
-     * See the class docblock: relations written as
-     * `['relations' => [['schema' => …, 'id' => $id]]]` land in the `_relations`
-     * JSONB under `relations.<n>.id`, so `relations` is the only field name a
-     * `_relations.<field>` filter can match them by. A schema slug never can.
-     *
-     * @var string
-     */
-    public const RELATION_FILTER_FIELD = '_relations.relations';
+class ObjectRelationFilter {
+	/**
+	 * The `_relations` field name that matches decidesk's structured relation writes.
+	 *
+	 * See the class docblock: relations written as
+	 * `['relations' => [['schema' => …, 'id' => $id]]]` land in the `_relations`
+	 * JSONB under `relations.<n>.id`, so `relations` is the only field name a
+	 * `_relations.<field>` filter can match them by. A schema slug never can.
+	 *
+	 * @var string
+	 */
+	public const RELATION_FILTER_FIELD = '_relations.relations';
 
-    /**
-     * Build the OpenRegister findAll() filter that matches objects referencing $targetId.
-     *
-     * @param string $targetId The related object UUID that must be referenced
-     *
-     * @return array<string,string> The filter fragment to merge into a findAll() query
-     *
-     * @spec openspec/specs/voting-system/spec.md
-     */
-    public function filterFor(string $targetId): array
-    {
-        return [self::RELATION_FILTER_FIELD => $targetId];
-    }//end filterFor()
+	/**
+	 * Build the OpenRegister findAll() filter that matches objects referencing $targetId.
+	 *
+	 * @param string $targetId The related object UUID that must be referenced
+	 *
+	 * @return array<string,string> The filter fragment to merge into a findAll() query
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	public function filterFor(string $targetId): array {
+		return [self::RELATION_FILTER_FIELD => $targetId];
+	}//end filterFor()
 
-    /**
-     * Keep only the entities that actually reference $targetId.
-     *
-     * Both the structured (`[{ 'id' => ..., 'schema' => ... }, ...]`) and the
-     * legacy flat (`'<field>' => '<id>'`) relation shapes are honoured.
-     *
-     * @param array<int, mixed> $entities The ObjectEntity result set from findAll()
-     * @param string            $schema   The related schema slug (e.g. 'voting-round')
-     * @param string            $targetId The related object UUID that must be referenced
-     *
-     * @return array<int, mixed> Entities that genuinely reference $targetId
-     *
-     * @spec openspec/specs/voting-system/spec.md
-     */
-    public function matching(array $entities, string $schema, string $targetId): array
-    {
-        $matched = [];
-        foreach ($entities as $entity) {
-            $object    = $entity->jsonSerialize();
-            $relations = ($object['@self']['relations'] ?? ($object['relations'] ?? []));
-            if (is_array($relations) === false) {
-                continue;
-            }
+	/**
+	 * Keep only the entities that actually reference $targetId.
+	 *
+	 * Both the structured (`[{ 'id' => ..., 'schema' => ... }, ...]`) and the
+	 * legacy flat (`'<field>' => '<id>'`) relation shapes are honoured.
+	 *
+	 * @param array<int, mixed> $entities The ObjectEntity result set from findAll()
+	 * @param string $schema The related schema slug (e.g. 'voting-round')
+	 * @param string $targetId The related object UUID that must be referenced
+	 *
+	 * @return array<int, mixed> Entities that genuinely reference $targetId
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	public function matching(array $entities, string $schema, string $targetId): array {
+		$matched = [];
+		foreach ($entities as $entity) {
+			$object = $entity->jsonSerialize();
+			$relations = ($object['@self']['relations'] ?? ($object['relations'] ?? []));
+			if (is_array($relations) === false) {
+				continue;
+			}
 
-            if ($this->references(relations: $relations, schema: $schema, targetId: $targetId) === true) {
-                $matched[] = $entity;
-            }
-        }
+			if ($this->references(relations: $relations, schema: $schema, targetId: $targetId) === true) {
+				$matched[] = $entity;
+			}
+		}
 
-        return $matched;
+		return $matched;
+	}//end matching()
 
-    }//end matching()
+	/**
+	 * Determine whether a serialised relations structure references $targetId.
+	 *
+	 * @param array<mixed> $relations The object's relations structure
+	 * @param string $schema The expected related schema slug
+	 * @param string $targetId The related UUID to look for
+	 *
+	 * @return bool True when $targetId is referenced by the relations
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	private function references(array $relations, string $schema, string $targetId): bool {
+		// Structured list form: [{ 'id' => ..., 'schema' => ... }, ...].
+		foreach ($relations as $value) {
+			if (is_array($value) === true) {
+				$relSchema = ($value['schema'] ?? null);
+				$relId = ($value['id'] ?? null);
+				if ($relId === $targetId && ($relSchema === null || $relSchema === $schema)) {
+					return true;
+				}
 
-    /**
-     * Determine whether a serialised relations structure references $targetId.
-     *
-     * @param array<mixed> $relations The object's relations structure
-     * @param string       $schema    The expected related schema slug
-     * @param string       $targetId  The related UUID to look for
-     *
-     * @return bool True when $targetId is referenced by the relations
-     *
-     * @spec openspec/specs/voting-system/spec.md
-     */
-    private function references(array $relations, string $schema, string $targetId): bool
-    {
-        // Structured list form: [{ 'id' => ..., 'schema' => ... }, ...].
-        foreach ($relations as $value) {
-            if (is_array($value) === true) {
-                $relSchema = ($value['schema'] ?? null);
-                $relId     = ($value['id'] ?? null);
-                if ($relId === $targetId && ($relSchema === null || $relSchema === $schema)) {
-                    return true;
-                }
+				continue;
+			}
 
-                continue;
-            }
+			// Flat scalar form: '<field>' => '<id>' or 'relations.N.id' => '<id>'.
+			if (is_string($value) === true && $value === $targetId) {
+				return true;
+			}
+		}
 
-            // Flat scalar form: '<field>' => '<id>' or 'relations.N.id' => '<id>'.
-            if (is_string($value) === true && $value === $targetId) {
-                return true;
-            }
-        }
-
-        return false;
-
-    }//end references()
+		return false;
+	}//end references()
 }//end class

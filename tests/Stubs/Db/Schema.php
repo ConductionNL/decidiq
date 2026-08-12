@@ -39,63 +39,55 @@ use OCP\AppFramework\Db\Entity;
  * @method string|null getUuid()
  * @method string|null getSlug()
  */
-class Schema extends Entity implements JsonSerializable
-{
+class Schema extends Entity implements JsonSerializable {
 
-    /**
-     * Unique identifier for the schema.
-     *
-     * @var string|null
-     */
-    protected ?string $uuid = null;
+	/**
+	 * Unique identifier for the schema.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $uuid = null;
 
-    /**
-     * URL-friendly identifier for the schema.
-     *
-     * @var string|null
-     */
-    protected ?string $slug = null;
+	/**
+	 * URL-friendly identifier for the schema.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $slug = null;
 
+	/**
+	 * Register the field types, as the production entity does.
+	 */
+	public function __construct() {
+		$this->addType('uuid', 'string');
+		$this->addType('slug', 'string');
 
-    /**
-     * Register the field types, as the production entity does.
-     */
-    public function __construct()
-    {
-        $this->addType('uuid', 'string');
-        $this->addType('slug', 'string');
+	}//end __construct()
 
-    }//end __construct()
+	/**
+	 * Set the slug. Concrete in production (lib/Db/Schema.php:1714).
+	 *
+	 * @param string|null $slug The slug to set
+	 *
+	 * @return void
+	 */
+	public function setSlug(?string $slug): void {
+		$this->slug = $slug;
+		$this->markFieldUpdated(attribute: 'slug');
 
+	}//end setSlug()
 
-    /**
-     * Set the slug. Concrete in production (lib/Db/Schema.php:1714).
-     *
-     * @param string|null $slug The slug to set
-     *
-     * @return void
-     */
-    public function setSlug(?string $slug): void
-    {
-        $this->slug = $slug;
-        $this->markFieldUpdated(attribute: 'slug');
+	/**
+	 * Return a JSON-serialisable representation of the schema.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function jsonSerialize(): array {
+		return [
+			'id' => $this->uuid,
+			'slug' => $this->slug,
+		];
 
-    }//end setSlug()
-
-
-    /**
-     * Return a JSON-serialisable representation of the schema.
-     *
-     * @return array<string,mixed>
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'id'   => $this->uuid,
-            'slug' => $this->slug,
-        ];
-
-    }//end jsonSerialize()
-
+	}//end jsonSerialize()
 
 }//end class

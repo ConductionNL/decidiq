@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Minutes Draft Composer
  *
@@ -36,386 +37,370 @@ namespace OCA\Decidesk\Service;
  *
  * @spec openspec/specs/meeting-transcription/spec.md
  */
-class MinutesDraftComposer
-{
-    /**
-     * Build the per-section draft (or a flat whole-meeting section).
-     *
-     * Sections are produced per agenda item when the transcript carries an
-     * agenda-item timeline AND agenda items are known; otherwise a single flat
-     * whole-meeting section is returned.
-     *
-     * @param array<int,array<string,mixed>> $segments     Aligned transcript segments.
-     * @param array<int,array<string,mixed>> $agendaItems  Agenda items.
-     * @param array<int,array<string,mixed>> $votingRounds Recorded voting rounds.
-     * @param array<int,array<string,mixed>> $decisions    Recorded decisions.
-     * @param string                         $providerId   AI provider id (provenance).
-     * @param string                         $generatedAt  Generation timestamp (provenance).
-     * @param callable                       $run          Prompt runner.
-     *
-     * @return array<int,array<string,mixed>> The draft sections.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    public function buildSections(
-        array $segments,
-        array $agendaItems,
-        array $votingRounds,
-        array $decisions,
-        string $providerId,
-        string $generatedAt,
-        callable $run
-    ): array {
-        if ($agendaItems === [] || $this->hasTimeline(segments: $segments) === false) {
-            // Flat whole-meeting fallback.
-            $title = 'Volledige vergadering';
+class MinutesDraftComposer {
+	/**
+	 * Build the per-section draft (or a flat whole-meeting section).
+	 *
+	 * Sections are produced per agenda item when the transcript carries an
+	 * agenda-item timeline AND agenda items are known; otherwise a single flat
+	 * whole-meeting section is returned.
+	 *
+	 * @param array<int,array<string,mixed>> $segments Aligned transcript segments.
+	 * @param array<int,array<string,mixed>> $agendaItems Agenda items.
+	 * @param array<int,array<string,mixed>> $votingRounds Recorded voting rounds.
+	 * @param array<int,array<string,mixed>> $decisions Recorded decisions.
+	 * @param string $providerId AI provider id (provenance).
+	 * @param string $generatedAt Generation timestamp (provenance).
+	 * @param callable $run Prompt runner.
+	 *
+	 * @return array<int,array<string,mixed>> The draft sections.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	public function buildSections(
+		array $segments,
+		array $agendaItems,
+		array $votingRounds,
+		array $decisions,
+		string $providerId,
+		string $generatedAt,
+		callable $run,
+	): array {
+		if ($agendaItems === [] || $this->hasTimeline(segments: $segments) === false) {
+			// Flat whole-meeting fallback.
+			$title = 'Volledige vergadering';
 
-            return [
-                $this->buildSection(
-                    agendaItem: '',
-                    title: $title,
-                    summary: $run(
-                        $this->assemblePrompt(
-                            title: $title,
-                            segments: $segments,
-                            votes: $votingRounds,
-                            decisions: $decisions
-                        )
-                    ),
-                    votingRounds: $votingRounds,
-                    decisions: $decisions,
-                    providerId: $providerId,
-                    generatedAt: $generatedAt
-                ),
-            ];
-        }//end if
+			return [
+				$this->buildSection(
+					agendaItem: '',
+					title: $title,
+					summary: $run(
+						$this->assemblePrompt(
+							title: $title,
+							segments: $segments,
+							votes: $votingRounds,
+							decisions: $decisions
+						)
+					),
+					votingRounds: $votingRounds,
+					decisions: $decisions,
+					providerId: $providerId,
+					generatedAt: $generatedAt
+				),
+			];
+		}//end if
 
-        $sections = [];
-        foreach ($agendaItems as $item) {
-            $sections[] = $this->buildItemSection(
-                item: $item,
-                segments: $segments,
-                votingRounds: $votingRounds,
-                decisions: $decisions,
-                providerId: $providerId,
-                generatedAt: $generatedAt,
-                run: $run
-            );
-        }
+		$sections = [];
+		foreach ($agendaItems as $item) {
+			$sections[] = $this->buildItemSection(
+				item: $item,
+				segments: $segments,
+				votingRounds: $votingRounds,
+				decisions: $decisions,
+				providerId: $providerId,
+				generatedAt: $generatedAt,
+				run: $run
+			);
+		}
 
-        return $sections;
+		return $sections;
+	}//end buildSections()
 
-    }//end buildSections()
+	/**
+	 * Whether any segment is aligned to an agenda item.
+	 *
+	 * @param array<int,array<string,mixed>> $segments Aligned transcript segments.
+	 *
+	 * @return bool True when at least one segment carries an agendaItem.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	private function hasTimeline(array $segments): bool {
+		foreach ($segments as $segment) {
+			if (is_array($segment) === true && ($segment['agendaItem'] ?? '') !== '') {
+				return true;
+			}
+		}
 
-    /**
-     * Whether any segment is aligned to an agenda item.
-     *
-     * @param array<int,array<string,mixed>> $segments Aligned transcript segments.
-     *
-     * @return bool True when at least one segment carries an agendaItem.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function hasTimeline(array $segments): bool
-    {
-        foreach ($segments as $segment) {
-            if (is_array($segment) === true && ($segment['agendaItem'] ?? '') !== '') {
-                return true;
-            }
-        }
+		return false;
+	}//end hasTimeline()
 
-        return false;
+	/**
+	 * Build one agenda-item section from the material scoped to that item.
+	 *
+	 * @param array<string,mixed> $item The agenda item.
+	 * @param array<int,array<string,mixed>> $segments All aligned segments.
+	 * @param array<int,array<string,mixed>> $votingRounds All recorded voting rounds.
+	 * @param array<int,array<string,mixed>> $decisions All recorded decisions.
+	 * @param string $providerId AI provider id (provenance).
+	 * @param string $generatedAt Generation timestamp (provenance).
+	 * @param callable $run Prompt runner.
+	 *
+	 * @return array<string,mixed> The section.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	private function buildItemSection(
+		array $item,
+		array $segments,
+		array $votingRounds,
+		array $decisions,
+		string $providerId,
+		string $generatedAt,
+		callable $run,
+	): array {
+		$itemId = (string)($item['id'] ?? ($item['uuid'] ?? ''));
+		$itemTitle = (string)($item['title'] ?? ($item['name'] ?? 'Agendapunt'));
+		$itemSegs = $this->segmentsForItem(segments: $segments, agendaItemId: $itemId);
+		$itemVotes = $this->recordForItem(records: $votingRounds, agendaItemId: $itemId);
+		$itemDec = $this->recordForItem(records: $decisions, agendaItemId: $itemId);
 
-    }//end hasTimeline()
+		return $this->buildSection(
+			agendaItem: $itemId,
+			title: $itemTitle,
+			summary: $run(
+				$this->assemblePrompt(
+					title: $itemTitle,
+					segments: $itemSegs,
+					votes: $itemVotes,
+					decisions: $itemDec
+				)
+			),
+			votingRounds: $itemVotes,
+			decisions: $itemDec,
+			providerId: $providerId,
+			generatedAt: $generatedAt
+		);
 
-    /**
-     * Build one agenda-item section from the material scoped to that item.
-     *
-     * @param array<string,mixed>            $item         The agenda item.
-     * @param array<int,array<string,mixed>> $segments     All aligned segments.
-     * @param array<int,array<string,mixed>> $votingRounds All recorded voting rounds.
-     * @param array<int,array<string,mixed>> $decisions    All recorded decisions.
-     * @param string                         $providerId   AI provider id (provenance).
-     * @param string                         $generatedAt  Generation timestamp (provenance).
-     * @param callable                       $run          Prompt runner.
-     *
-     * @return array<string,mixed> The section.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function buildItemSection(
-        array $item,
-        array $segments,
-        array $votingRounds,
-        array $decisions,
-        string $providerId,
-        string $generatedAt,
-        callable $run
-    ): array {
-        $itemId    = (string) ($item['id'] ?? ($item['uuid'] ?? ''));
-        $itemTitle = (string) ($item['title'] ?? ($item['name'] ?? 'Agendapunt'));
-        $itemSegs  = $this->segmentsForItem(segments: $segments, agendaItemId: $itemId);
-        $itemVotes = $this->recordForItem(records: $votingRounds, agendaItemId: $itemId);
-        $itemDec   = $this->recordForItem(records: $decisions, agendaItemId: $itemId);
+	}//end buildItemSection()
 
-        return $this->buildSection(
-            agendaItem: $itemId,
-            title: $itemTitle,
-            summary: $run(
-                $this->assemblePrompt(
-                    title: $itemTitle,
-                    segments: $itemSegs,
-                    votes: $itemVotes,
-                    decisions: $itemDec
-                )
-            ),
-            votingRounds: $itemVotes,
-            decisions: $itemDec,
-            providerId: $providerId,
-            generatedAt: $generatedAt
-        );
+	/**
+	 * Build one provenance-stamped section with cross-checked suggestions.
+	 *
+	 * @param string $agendaItem Agenda item UUID ('' for flat).
+	 * @param string $title Section title.
+	 * @param string $summary AI-generated summary text.
+	 * @param array<int,array<string,mixed>> $votingRounds Recorded voting rounds in scope.
+	 * @param array<int,array<string,mixed>> $decisions Recorded decisions in scope.
+	 * @param string $providerId AI provider id.
+	 * @param string $generatedAt Generation timestamp.
+	 *
+	 * @return array<string,mixed> The section.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	private function buildSection(
+		string $agendaItem,
+		string $title,
+		string $summary,
+		array $votingRounds,
+		array $decisions,
+		string $providerId,
+		string $generatedAt,
+	): array {
+		return [
+			'agendaItem' => $agendaItem,
+			'title' => $title,
+			'summary' => $summary,
+			'suggestions' => $this->crossCheck(summary: $summary, votingRounds: $votingRounds, decisions: $decisions),
+			'provenance' => [
+				'aiGenerated' => true,
+				'providerId' => $providerId,
+				'generatedAt' => $generatedAt,
+			],
+		];
 
-    }//end buildItemSection()
+	}//end buildSection()
 
-    /**
-     * Build one provenance-stamped section with cross-checked suggestions.
-     *
-     * @param string                         $agendaItem   Agenda item UUID ('' for flat).
-     * @param string                         $title        Section title.
-     * @param string                         $summary      AI-generated summary text.
-     * @param array<int,array<string,mixed>> $votingRounds Recorded voting rounds in scope.
-     * @param array<int,array<string,mixed>> $decisions    Recorded decisions in scope.
-     * @param string                         $providerId   AI provider id.
-     * @param string                         $generatedAt  Generation timestamp.
-     *
-     * @return array<string,mixed> The section.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function buildSection(
-        string $agendaItem,
-        string $title,
-        string $summary,
-        array $votingRounds,
-        array $decisions,
-        string $providerId,
-        string $generatedAt
-    ): array {
-        return [
-            'agendaItem'  => $agendaItem,
-            'title'       => $title,
-            'summary'     => $summary,
-            'suggestions' => $this->crossCheck(summary: $summary, votingRounds: $votingRounds, decisions: $decisions),
-            'provenance'  => [
-                'aiGenerated' => true,
-                'providerId'  => $providerId,
-                'generatedAt' => $generatedAt,
-            ],
-        ];
+	/**
+	 * Cross-check the AI summary's suggested outcomes against the recorded record.
+	 *
+	 * For each recorded decision/voting outcome whose title appears in the
+	 * summary, emit a `matched` suggestion that links to the record; when the
+	 * summary mentions an outcome with no recorded match it is emitted
+	 * `unverified`. The heuristic is intentionally conservative — unverified is
+	 * the safe default.
+	 *
+	 * @param string $summary The AI summary text.
+	 * @param array<int,array<string,mixed>> $votingRounds Recorded voting rounds.
+	 * @param array<int,array<string,mixed>> $decisions Recorded decisions.
+	 *
+	 * @return array<int,array<string,mixed>> Suggestions with match/unverified flags.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	public function crossCheck(string $summary, array $votingRounds, array $decisions): array {
+		$lowerSummary = mb_strtolower($summary);
+		$suggestions = [];
 
-    }//end buildSection()
+		foreach ($this->collectRecords(votingRounds: $votingRounds, decisions: $decisions) as $record) {
+			$data = $record['data'];
+			$title = (string)($data['title'] ?? ($data['name'] ?? ''));
+			if ($title === '') {
+				continue;
+			}
 
-    /**
-     * Cross-check the AI summary's suggested outcomes against the recorded record.
-     *
-     * For each recorded decision/voting outcome whose title appears in the
-     * summary, emit a `matched` suggestion that links to the record; when the
-     * summary mentions an outcome with no recorded match it is emitted
-     * `unverified`. The heuristic is intentionally conservative — unverified is
-     * the safe default.
-     *
-     * @param string                         $summary      The AI summary text.
-     * @param array<int,array<string,mixed>> $votingRounds Recorded voting rounds.
-     * @param array<int,array<string,mixed>> $decisions    Recorded decisions.
-     *
-     * @return array<int,array<string,mixed>> Suggestions with match/unverified flags.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    public function crossCheck(string $summary, array $votingRounds, array $decisions): array
-    {
-        $lowerSummary = mb_strtolower($summary);
-        $suggestions  = [];
+			$matched = (mb_strtolower($title) !== '' && str_contains($lowerSummary, mb_strtolower($title)) === true);
+			$linkedId = '';
+			if ($matched === true) {
+				$linkedId = (string)($data['id'] ?? ($data['uuid'] ?? ''));
+			}
 
-        foreach ($this->collectRecords(votingRounds: $votingRounds, decisions: $decisions) as $record) {
-            $data  = $record['data'];
-            $title = (string) ($data['title'] ?? ($data['name'] ?? ''));
-            if ($title === '') {
-                continue;
-            }
+			$suggestions[] = [
+				'title' => $title,
+				'recordType' => $record['type'],
+				'linkedId' => $linkedId,
+				'unverified' => ($matched === false),
+			];
+		}//end foreach
 
-            $matched  = (mb_strtolower($title) !== '' && str_contains($lowerSummary, mb_strtolower($title)) === true);
-            $linkedId = '';
-            if ($matched === true) {
-                $linkedId = (string) ($data['id'] ?? ($data['uuid'] ?? ''));
-            }
+		return $suggestions;
+	}//end crossCheck()
 
-            $suggestions[] = [
-                'title'      => $title,
-                'recordType' => $record['type'],
-                'linkedId'   => $linkedId,
-                'unverified' => ($matched === false),
-            ];
-        }//end foreach
+	/**
+	 * Flatten decisions and voting rounds into one type-tagged record list.
+	 *
+	 * Decisions are listed before voting rounds — the order the suggestions are
+	 * emitted in.
+	 *
+	 * @param array<int,array<string,mixed>> $votingRounds Recorded voting rounds.
+	 * @param array<int,array<string,mixed>> $decisions Recorded decisions.
+	 *
+	 * @return array<int,array<string,mixed>> Records as {type, data}.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	private function collectRecords(array $votingRounds, array $decisions): array {
+		$records = [];
 
-        return $suggestions;
+		foreach ($decisions as $decision) {
+			if (is_array($decision) === true) {
+				$records[] = ['type' => 'decision', 'data' => $decision];
+			}
+		}
 
-    }//end crossCheck()
+		foreach ($votingRounds as $round) {
+			if (is_array($round) === true) {
+				$records[] = ['type' => 'voting-round', 'data' => $round];
+			}
+		}
 
-    /**
-     * Flatten decisions and voting rounds into one type-tagged record list.
-     *
-     * Decisions are listed before voting rounds — the order the suggestions are
-     * emitted in.
-     *
-     * @param array<int,array<string,mixed>> $votingRounds Recorded voting rounds.
-     * @param array<int,array<string,mixed>> $decisions    Recorded decisions.
-     *
-     * @return array<int,array<string,mixed>> Records as {type, data}.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function collectRecords(array $votingRounds, array $decisions): array
-    {
-        $records = [];
+		return $records;
+	}//end collectRecords()
 
-        foreach ($decisions as $decision) {
-            if (is_array($decision) === true) {
-                $records[] = ['type' => 'decision', 'data' => $decision];
-            }
-        }
+	/**
+	 * Assemble the prompt for one agenda item (or the whole meeting).
+	 *
+	 * @param string $title Section title.
+	 * @param array<int,array<string,mixed>> $segments Segments in scope.
+	 * @param array<int,array<string,mixed>> $votes Voting rounds in scope.
+	 * @param array<int,array<string,mixed>> $decisions Decisions in scope.
+	 *
+	 * @return string The assembled prompt.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	public function assemblePrompt(string $title, array $segments, array $votes, array $decisions): string {
+		$lines = [];
+		$lines[] = 'Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. '
+			. 'Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.';
+		$lines[] = '';
+		$lines[] = 'Agendapunt: ' . $title;
+		$lines[] = '';
+		$lines[] = 'Transcript:';
 
-        foreach ($votingRounds as $round) {
-            if (is_array($round) === true) {
-                $records[] = ['type' => 'voting-round', 'data' => $round];
-            }
-        }
+		foreach ($segments as $segment) {
+			$label = (string)($segment['speakerLabel'] ?? '');
+			$text = (string)($segment['text'] ?? '');
+			$prefix = '';
+			if ($label !== '') {
+				$prefix = $label . ': ';
+			}
 
-        return $records;
+			$lines[] = $prefix . $text;
+		}
 
-    }//end collectRecords()
+		if ($votes !== [] || $decisions !== []) {
+			$lines[] = '';
+			$lines[] = 'Vastgelegde uitkomsten (ter referentie, niet verzinnen):';
+			$lines = array_merge($lines, $this->outcomeLines(votes: $votes, decisions: $decisions));
+		}
 
-    /**
-     * Assemble the prompt for one agenda item (or the whole meeting).
-     *
-     * @param string                         $title     Section title.
-     * @param array<int,array<string,mixed>> $segments  Segments in scope.
-     * @param array<int,array<string,mixed>> $votes     Voting rounds in scope.
-     * @param array<int,array<string,mixed>> $decisions Decisions in scope.
-     *
-     * @return string The assembled prompt.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    public function assemblePrompt(string $title, array $segments, array $votes, array $decisions): string
-    {
-        $lines   = [];
-        $lines[] = 'Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. '
-            .'Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.';
-        $lines[] = '';
-        $lines[] = 'Agendapunt: '.$title;
-        $lines[] = '';
-        $lines[] = 'Transcript:';
+		return implode("\n", $lines);
+	}//end assemblePrompt()
 
-        foreach ($segments as $segment) {
-            $label  = (string) ($segment['speakerLabel'] ?? '');
-            $text   = (string) ($segment['text'] ?? '');
-            $prefix = '';
-            if ($label !== '') {
-                $prefix = $label.': ';
-            }
+	/**
+	 * Render the "recorded outcomes" reference block of the prompt.
+	 *
+	 * @param array<int,array<string,mixed>> $votes Voting rounds in scope.
+	 * @param array<int,array<string,mixed>> $decisions Decisions in scope.
+	 *
+	 * @return array<int,string> The rendered lines.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	private function outcomeLines(array $votes, array $decisions): array {
+		$lines = [];
 
-            $lines[] = $prefix.$text;
-        }
+		foreach ($decisions as $decision) {
+			if (is_array($decision) === true) {
+				$lines[] = '- Besluit: ' . ((string)($decision['title'] ?? ''));
+			}
+		}
 
-        if ($votes !== [] || $decisions !== []) {
-            $lines[] = '';
-            $lines[] = 'Vastgelegde uitkomsten (ter referentie, niet verzinnen):';
-            $lines   = array_merge($lines, $this->outcomeLines(votes: $votes, decisions: $decisions));
-        }
+		foreach ($votes as $vote) {
+			if (is_array($vote) === true) {
+				$lines[] = '- Stemming: ' . ((string)($vote['title'] ?? '')) . ' (' . ((string)($vote['result'] ?? ($vote['outcome'] ?? ''))) . ')';
+			}
+		}
 
-        return implode("\n", $lines);
+		return $lines;
+	}//end outcomeLines()
 
-    }//end assemblePrompt()
+	/**
+	 * Segments aligned to a given agenda item.
+	 *
+	 * @param array<int,array<string,mixed>> $segments All segments.
+	 * @param string $agendaItemId Agenda item UUID.
+	 *
+	 * @return array<int,array<string,mixed>> Matching segments.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	private function segmentsForItem(array $segments, string $agendaItemId): array {
+		$result = [];
+		foreach ($segments as $segment) {
+			if (is_array($segment) === true && (string)($segment['agendaItem'] ?? '') === $agendaItemId) {
+				$result[] = $segment;
+			}
+		}
 
-    /**
-     * Render the "recorded outcomes" reference block of the prompt.
-     *
-     * @param array<int,array<string,mixed>> $votes     Voting rounds in scope.
-     * @param array<int,array<string,mixed>> $decisions Decisions in scope.
-     *
-     * @return array<int,string> The rendered lines.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function outcomeLines(array $votes, array $decisions): array
-    {
-        $lines = [];
+		return $result;
+	}//end segmentsForItem()
 
-        foreach ($decisions as $decision) {
-            if (is_array($decision) === true) {
-                $lines[] = '- Besluit: '.((string) ($decision['title'] ?? ''));
-            }
-        }
+	/**
+	 * Records (votes/decisions) linked to a given agenda item.
+	 *
+	 * @param array<int,array<string,mixed>> $records Records.
+	 * @param string $agendaItemId Agenda item UUID.
+	 *
+	 * @return array<int,array<string,mixed>> Matching records.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	private function recordForItem(array $records, string $agendaItemId): array {
+		$result = [];
+		foreach ($records as $record) {
+			$linked = ($record['agendaItem'] ?? ($record['relations']['agendaItem'] ?? ($record['relations']['agenda-item'] ?? null)));
+			if (is_array($linked) === true) {
+				$linked = ($linked['id'] ?? ($linked[0] ?? null));
+			}
 
-        foreach ($votes as $vote) {
-            if (is_array($vote) === true) {
-                $lines[] = '- Stemming: '.((string) ($vote['title'] ?? '')).' ('.((string) ($vote['result'] ?? ($vote['outcome'] ?? ''))).')';
-            }
-        }
+			if ((string)$linked === $agendaItemId) {
+				$result[] = $record;
+			}
+		}
 
-        return $lines;
-
-    }//end outcomeLines()
-
-    /**
-     * Segments aligned to a given agenda item.
-     *
-     * @param array<int,array<string,mixed>> $segments     All segments.
-     * @param string                         $agendaItemId Agenda item UUID.
-     *
-     * @return array<int,array<string,mixed>> Matching segments.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function segmentsForItem(array $segments, string $agendaItemId): array
-    {
-        $result = [];
-        foreach ($segments as $segment) {
-            if (is_array($segment) === true && (string) ($segment['agendaItem'] ?? '') === $agendaItemId) {
-                $result[] = $segment;
-            }
-        }
-
-        return $result;
-
-    }//end segmentsForItem()
-
-    /**
-     * Records (votes/decisions) linked to a given agenda item.
-     *
-     * @param array<int,array<string,mixed>> $records      Records.
-     * @param string                         $agendaItemId Agenda item UUID.
-     *
-     * @return array<int,array<string,mixed>> Matching records.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function recordForItem(array $records, string $agendaItemId): array
-    {
-        $result = [];
-        foreach ($records as $record) {
-            $linked = ($record['agendaItem'] ?? ($record['relations']['agendaItem'] ?? ($record['relations']['agenda-item'] ?? null)));
-            if (is_array($linked) === true) {
-                $linked = ($linked['id'] ?? ($linked[0] ?? null));
-            }
-
-            if ((string) $linked === $agendaItemId) {
-                $result[] = $record;
-            }
-        }
-
-        return $result;
-
-    }//end recordForItem()
+		return $result;
+	}//end recordForItem()
 }//end class

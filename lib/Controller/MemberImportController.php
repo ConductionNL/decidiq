@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Member Import Controller
  *
@@ -43,94 +44,90 @@ use OCP\IRequest;
  *
  * @spec openspec/specs/admin-settings/spec.md
  */
-class MemberImportController extends Controller
-{
-    /**
-     * Constructor.
-     *
-     * @param IRequest            $request             The request object.
-     * @param MemberImportService $memberImportService The member import service.
-     */
-    public function __construct(
-        IRequest $request,
-        private MemberImportService $memberImportService,
-    ) {
-        parent::__construct(appName: Application::APP_ID, request: $request);
-    }//end __construct()
+class MemberImportController extends Controller {
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request The request object.
+	 * @param MemberImportService $memberImportService The member import service.
+	 */
+	public function __construct(
+		IRequest $request,
+		private MemberImportService $memberImportService,
+	) {
+		parent::__construct(appName: Application::APP_ID, request: $request);
+	}//end __construct()
 
-    /**
-     * List all Nextcloud groups (id, display name, member count).
-     *
-     * Admin-only: enumerating groups is directory disclosure.
-     *
-     * @spec openspec/specs/admin-settings/spec.md
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function groups(): JSONResponse
-    {
-        return new JSONResponse(
-            ['groups' => $this->memberImportService->listGroups()]
-        );
-    }//end groups()
+	/**
+	 * List all Nextcloud groups (id, display name, member count).
+	 *
+	 * Admin-only: enumerating groups is directory disclosure.
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function groups(): JSONResponse {
+		return new JSONResponse(
+			['groups' => $this->memberImportService->listGroups()]
+		);
+	}//end groups()
 
-    /**
-     * List the members of one Nextcloud group (uid, display name, email).
-     *
-     * Admin-only: enumerating group membership is directory disclosure.
-     *
-     * @param string $groupId The Nextcloud group id.
-     *
-     * @spec openspec/specs/admin-settings/spec.md
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function groupMembers(string $groupId): JSONResponse
-    {
-        $members = $this->memberImportService->getGroupMembers($groupId);
-        if ($members === null) {
-            return new JSONResponse(
-                ['message' => 'Group not found'],
-                Http::STATUS_NOT_FOUND
-            );
-        }
+	/**
+	 * List the members of one Nextcloud group (uid, display name, email).
+	 *
+	 * Admin-only: enumerating group membership is directory disclosure.
+	 *
+	 * @param string $groupId The Nextcloud group id.
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function groupMembers(string $groupId): JSONResponse {
+		$members = $this->memberImportService->getGroupMembers($groupId);
+		if ($members === null) {
+			return new JSONResponse(
+				['message' => 'Group not found'],
+				Http::STATUS_NOT_FOUND
+			);
+		}
 
-        return new JSONResponse(['members' => $members]);
-    }//end groupMembers()
+		return new JSONResponse(['members' => $members]);
+	}//end groupMembers()
 
-    /**
-     * Match CSV emails to Nextcloud accounts.
-     *
-     * Validates each email shape and caps the batch server-side at
-     * MemberImportService::MAX_MATCH_ROWS (413 beyond the cap, 422 when the
-     * payload is not a list of emails).
-     *
-     * @spec openspec/specs/admin-settings/spec.md
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function match(): JSONResponse
-    {
-        $emails = $this->request->getParam('emails');
-        if (is_array($emails) === false) {
-            return new JSONResponse(
-                ['message' => 'emails must be an array'],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        }
+	/**
+	 * Match CSV emails to Nextcloud accounts.
+	 *
+	 * Validates each email shape and caps the batch server-side at
+	 * MemberImportService::MAX_MATCH_ROWS (413 beyond the cap, 422 when the
+	 * payload is not a list of emails).
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function match(): JSONResponse {
+		$emails = $this->request->getParam('emails');
+		if (is_array($emails) === false) {
+			return new JSONResponse(
+				['message' => 'emails must be an array'],
+				Http::STATUS_UNPROCESSABLE_ENTITY
+			);
+		}
 
-        try {
-            $matches = $this->memberImportService->matchEmails($emails);
-        } catch (\InvalidArgumentException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_REQUEST_ENTITY_TOO_LARGE
-            );
-        }
+		try {
+			$matches = $this->memberImportService->matchEmails($emails);
+		} catch (\InvalidArgumentException $e) {
+			return new JSONResponse(
+				['message' => $e->getMessage()],
+				Http::STATUS_REQUEST_ENTITY_TOO_LARGE
+			);
+		}
 
-        return new JSONResponse(['matches' => $matches]);
-    }//end match()
+		return new JSONResponse(['matches' => $matches]);
+	}//end match()
 }//end class

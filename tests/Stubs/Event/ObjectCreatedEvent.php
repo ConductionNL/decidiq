@@ -20,18 +20,15 @@ use OCP\EventDispatcher\Event;
 /**
  * Stub implementation of ObjectCreatedEvent for unit testing.
  */
-class ObjectCreatedEvent extends Event
-{
-    private ?ObjectEntity $object;
+class ObjectCreatedEvent extends Event {
+	private ?ObjectEntity $object;
 
-    public function __construct(?ObjectEntity $object = null)
-    {
-        parent::__construct();
-        $this->object = $object;
-    }
+	public function __construct(?ObjectEntity $object = null) {
+		parent::__construct();
+		$this->object = $object;
+	}
 
-    public function getObject(): ?ObjectEntity
-    {
-        return $this->object;
-    }
+	public function getObject(): ?ObjectEntity {
+		return $this->object;
+	}
 }

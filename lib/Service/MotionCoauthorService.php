@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Motion Coauthor Service
  *
@@ -42,490 +43,468 @@ use Throwable;
  *
  * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
  */
-class MotionCoauthorService
-{
-    /**
-     * Construct the MotionCoauthorService.
-     *
-     * @param ContainerInterface $container DI container (lazy-loads OR services)
-     * @param LoggerInterface    $logger    Logger interface
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
-     */
-    public function __construct(
-        private readonly ContainerInterface $container,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+class MotionCoauthorService {
+	/**
+	 * Construct the MotionCoauthorService.
+	 *
+	 * @param ContainerInterface $container DI container (lazy-loads OR services)
+	 * @param LoggerInterface $logger Logger interface
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 */
+	public function __construct(
+		private readonly ContainerInterface $container,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Get the OpenRegister ObjectService from the container.
-     *
-     * @return object
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
-     */
-    private function getObjectService(): object
-    {
-        return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+	/**
+	 * Get the OpenRegister ObjectService from the container.
+	 *
+	 * @return object
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 */
+	private function getObjectService(): object {
+		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+	}//end getObjectService()
 
-    }//end getObjectService()
+	/**
+	 * Find a motion by UUID.
+	 *
+	 * Uses jsonSerialize() (not getObject()) so that @self metadata —
+	 * including @self.owner (the NC UID of the creator) — is included in the
+	 * returned array. The IDOR guard in checkMotionAccess() depends on @self.owner.
+	 *
+	 * @param string $motionId Motion UUID
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @throws RuntimeException When the motion cannot be found
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 */
+	private function findMotion(string $motionId): array {
+		$objectService = $this->getObjectService();
+		// M4: use named-arg find() instead of setRegister/setSchema pattern.
+		// ADR-005: motions live in the unified `decision` schema, so the id
+		// lookup no longer proves the type — `decisionType` does.
+		$entity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'decision');
+		$motion = [];
+		if ($entity !== null) {
+			$motion = $entity->jsonSerialize();
+		}
 
-    /**
-     * Find a motion by UUID.
-     *
-     * Uses jsonSerialize() (not getObject()) so that @self metadata —
-     * including @self.owner (the NC UID of the creator) — is included in the
-     * returned array. The IDOR guard in checkMotionAccess() depends on @self.owner.
-     *
-     * @param string $motionId Motion UUID
-     *
-     * @return array<string, mixed>
-     *
-     * @throws RuntimeException When the motion cannot be found
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
-     */
-    private function findMotion(string $motionId): array
-    {
-        $objectService = $this->getObjectService();
-        // M4: use named-arg find() instead of setRegister/setSchema pattern.
-        // ADR-005: motions live in the unified `decision` schema, so the id
-        // lookup no longer proves the type — `decisionType` does.
-        $entity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'decision');
-        $motion = [];
-        if ($entity !== null) {
-            $motion = $entity->jsonSerialize();
-        }
+		if ($entity === null
+			|| ($motion['decisionType'] ?? null) !== 'motion'
+		) {
+			throw new RuntimeException("Motion $motionId not found");
+		}
 
-        if ($entity === null
-            || ($motion['decisionType'] ?? null) !== 'motion'
-        ) {
-            throw new RuntimeException("Motion $motionId not found");
-        }
+		return $motion;
+	}//end findMotion()
 
-        return $motion;
+	/**
+	 * Resolve the OpenRegister participant UUID for a given Nextcloud user ID.
+	 *
+	 * Returns null when no participant record is linked to this user.
+	 *
+	 * @param string $nextcloudUid Nextcloud UID
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 */
+	private function resolveParticipantUuid(string $nextcloudUid): ?string {
+		$objectService = $this->getObjectService();
+		$objectService->setRegister('decidesk');
+		$objectService->setSchema('participant');
+		$entities = $objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
 
-    }//end findMotion()
+		foreach ($entities as $participantEntity) {
+			$participant = $participantEntity->jsonSerialize();
+			return ($participant['uuid'] ?? $participant['id'] ?? null);
+		}
 
-    /**
-     * Resolve the OpenRegister participant UUID for a given Nextcloud user ID.
-     *
-     * Returns null when no participant record is linked to this user.
-     *
-     * @param string $nextcloudUid Nextcloud UID
-     *
-     * @return string|null
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
-     */
-    private function resolveParticipantUuid(string $nextcloudUid): ?string
-    {
-        $objectService = $this->getObjectService();
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('participant');
-        $entities = $objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
+		return null;
+	}//end resolveParticipantUuid()
 
-        foreach ($entities as $participantEntity) {
-            $participant = $participantEntity->jsonSerialize();
-            return ($participant['uuid'] ?? $participant['id'] ?? null);
-        }
+	/**
+	 * Assert the caller is allowed to mutate a motion's co-author list or text.
+	 *
+	 * A caller is allowed when:
+	 *   (a) callerUid is null — caller has already been authorised (admin path), OR
+	 *   (b) $callerIsAdmin === true, OR
+	 *   (c) the motion's @self.owner field matches the callerUid (proposer = creator), OR
+	 *   (d) the caller's participant UUID is in the motion's coAuthors list.
+	 *
+	 * Throws \InvalidArgumentException on access denied.
+	 *
+	 * @param array<string,mixed> $motion Serialised motion object (with @self)
+	 * @param string|null $callerUid NC UID of the requester (null = skip check)
+	 * @param bool $callerIsAdmin Whether the caller is an NC admin
+	 *
+	 * @return void
+	 *
+	 * @throws \InvalidArgumentException When the caller is not authorised
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 */
+	private function checkMotionAccess(array $motion, ?string $callerUid, bool $callerIsAdmin): void {
+		if ($callerUid === null || $callerIsAdmin === true) {
+			return;
+		}
 
-        return null;
+		// Check whether caller is the motion's owner (proposer, stored in @self.owner).
+		$owner = (string)($motion['@self']['owner'] ?? $motion['owner'] ?? '');
+		if ($owner !== '' && $owner === $callerUid) {
+			return;
+		}
 
-    }//end resolveParticipantUuid()
+		// Check whether caller's participant UUID is listed as a coAuthor.
+		$participantUuid = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
+		$coauthors = ($motion['coAuthors'] ?? []);
+		if ($participantUuid !== null && in_array($participantUuid, $coauthors, true) === true) {
+			return;
+		}
 
-    /**
-     * Assert the caller is allowed to mutate a motion's co-author list or text.
-     *
-     * A caller is allowed when:
-     *   (a) callerUid is null — caller has already been authorised (admin path), OR
-     *   (b) $callerIsAdmin === true, OR
-     *   (c) the motion's @self.owner field matches the callerUid (proposer = creator), OR
-     *   (d) the caller's participant UUID is in the motion's coAuthors list.
-     *
-     * Throws \InvalidArgumentException on access denied.
-     *
-     * @param array<string,mixed> $motion        Serialised motion object (with @self)
-     * @param string|null         $callerUid     NC UID of the requester (null = skip check)
-     * @param bool                $callerIsAdmin Whether the caller is an NC admin
-     *
-     * @return void
-     *
-     * @throws \InvalidArgumentException When the caller is not authorised
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
-     */
-    private function checkMotionAccess(array $motion, ?string $callerUid, bool $callerIsAdmin): void
-    {
-        if ($callerUid === null || $callerIsAdmin === true) {
-            return;
-        }
+		throw new InvalidArgumentException(
+			'Only the motion proposer or an existing co-author may modify this motion'
+		);
 
-        // Check whether caller is the motion's owner (proposer, stored in @self.owner).
-        $owner = (string) ($motion['@self']['owner'] ?? $motion['owner'] ?? '');
-        if ($owner !== '' && $owner === $callerUid) {
-            return;
-        }
+	}//end checkMotionAccess()
 
-        // Check whether caller's participant UUID is listed as a coAuthor.
-        $participantUuid = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
-        $coauthors       = ($motion['coAuthors'] ?? []);
-        if ($participantUuid !== null && in_array($participantUuid, $coauthors, true) === true) {
-            return;
-        }
+	/**
+	 * Add a co-author to a motion.
+	 *
+	 * Only the motion proposer (owner), an existing co-author, or an admin may
+	 * add co-authors (OWASP A01:2021 — Broken Access Control).
+	 * Pass `$callerUid = null` to bypass the ownership check (admin/background-job paths).
+	 *
+	 * @param string $motionId Motion UUID
+	 * @param string $personId Person UUID to add as co-author
+	 * @param string|null $callerUid NC UID of the requester (null = skip access check)
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @throws \InvalidArgumentException When caller is not authorised
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 */
+	public function addCoauthor(
+		string $motionId,
+		string $personId,
+		?string $callerUid = null,
+	): array {
+		$motion = $this->findMotion(motionId: $motionId);
+		$this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: false);
 
-        throw new InvalidArgumentException(
-            'Only the motion proposer or an existing co-author may modify this motion'
-        );
+		$coauthors = ($motion['coAuthors'] ?? []);
 
-    }//end checkMotionAccess()
+		if (in_array($personId, $coauthors, true) === false) {
+			$coauthors[] = $personId;
+			$motion['coAuthors'] = $coauthors;
 
-    /**
-     * Add a co-author to a motion.
-     *
-     * Only the motion proposer (owner), an existing co-author, or an admin may
-     * add co-authors (OWASP A01:2021 — Broken Access Control).
-     * Pass `$callerUid = null` to bypass the ownership check (admin/background-job paths).
-     *
-     * @param string      $motionId  Motion UUID
-     * @param string      $personId  Person UUID to add as co-author
-     * @param string|null $callerUid NC UID of the requester (null = skip access check)
-     *
-     * @return array<string, mixed>
-     *
-     * @throws \InvalidArgumentException When caller is not authorised
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
-     */
-    public function addCoauthor(
-        string $motionId,
-        string $personId,
-        ?string $callerUid=null,
-    ): array {
-        $motion = $this->findMotion(motionId: $motionId);
-        $this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: false);
+			$objectService = $this->getObjectService();
+			$objectService->saveObject(
+				object: $motion,
+				register: 'decidesk',
+				schema: 'decision',
+				uuid: $motionId,
+			);
 
-        $coauthors = ($motion['coAuthors'] ?? []);
+			$this->logger->info(
+				'Decidesk: Motion coauthor added',
+				['motionId' => $motionId, 'personId' => $personId]
+			);
+		}
 
-        if (in_array($personId, $coauthors, true) === false) {
-            $coauthors[]         = $personId;
-            $motion['coAuthors'] = $coauthors;
+		return $motion;
+	}//end addCoauthor()
 
-            $objectService = $this->getObjectService();
-            $objectService->saveObject(
-                object: $motion,
-                register: 'decidesk',
-                schema: 'decision',
-                uuid: $motionId,
-            );
+	/**
+	 * Remove a co-author from a motion.
+	 *
+	 * Only the motion proposer (owner), an existing co-author, or an admin may
+	 * remove co-authors (OWASP A01:2021 — Broken Access Control).
+	 * Pass `$callerUid = null` to bypass the ownership check (admin/background-job paths).
+	 *
+	 * @param string $motionId Motion UUID
+	 * @param string $personId Person UUID to remove
+	 * @param string|null $callerUid NC UID of the requester (null = skip access check)
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @throws \InvalidArgumentException When caller is not authorised
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 */
+	public function removeCoauthor(
+		string $motionId,
+		string $personId,
+		?string $callerUid = null,
+	): array {
+		$motion = $this->findMotion(motionId: $motionId);
+		$this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: false);
+		$coauthors = ($motion['coAuthors'] ?? []);
+		$motion['coAuthors'] = array_values(
+			array_filter(
+				$coauthors,
+				static fn ($id) => $id !== $personId
+			)
+		);
 
-            $this->logger->info(
-                'Decidesk: Motion coauthor added',
-                ['motionId' => $motionId, 'personId' => $personId]
-            );
-        }
+		$objectService = $this->getObjectService();
+		$objectService->saveObject(
+			object: $motion,
+			register: 'decidesk',
+			schema: 'decision',
+			uuid: $motionId,
+		);
 
-        return $motion;
+		return $motion;
+	}//end removeCoauthor()
 
-    }//end addCoauthor()
+	/**
+	 * Update the motion text and capture a new version snapshot.
+	 *
+	 * Detects overlapping edits with the previous version: if any paragraph
+	 * (split by double newline) is changed twice within 5 minutes by different
+	 * authors, the operation throws a RuntimeException with the conflict
+	 * marker so the caller can prompt for manual resolution.
+	 *
+	 * Only the motion proposer (owner), an existing co-author, or an admin may
+	 * update the text (OWASP A01:2021 — Broken Access Control).
+	 *
+	 * @param string $motionId Motion UUID
+	 * @param string $newText New motion text
+	 * @param string $author NC UID of the author making the change (recorded in history)
+	 * @param string $changeSummary Human-readable change summary
+	 * @param string|null $callerUid NC UID to check for access (null = skip check for admin paths)
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @throws \InvalidArgumentException When the caller is not authorised
+	 * @throws RuntimeException When an overlapping edit conflict is detected
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 */
+	public function updateMotionText(
+		string $motionId,
+		string $newText,
+		string $author,
+		string $changeSummary,
+		?string $callerUid = null,
+	): array {
+		$motion = $this->findMotion(motionId: $motionId);
+		$this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: false);
+		$previousText = (string)($motion['text'] ?? '');
+		$previousHistory = ($motion['versionHistory'] ?? []);
 
-    /**
-     * Remove a co-author from a motion.
-     *
-     * Only the motion proposer (owner), an existing co-author, or an admin may
-     * remove co-authors (OWASP A01:2021 — Broken Access Control).
-     * Pass `$callerUid = null` to bypass the ownership check (admin/background-job paths).
-     *
-     * @param string      $motionId  Motion UUID
-     * @param string      $personId  Person UUID to remove
-     * @param string|null $callerUid NC UID of the requester (null = skip access check)
-     *
-     * @return array<string, mixed>
-     *
-     * @throws \InvalidArgumentException When caller is not authorised
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
-     */
-    public function removeCoauthor(
-        string $motionId,
-        string $personId,
-        ?string $callerUid=null,
-    ): array {
-        $motion = $this->findMotion(motionId: $motionId);
-        $this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: false);
-        $coauthors           = ($motion['coAuthors'] ?? []);
-        $motion['coAuthors'] = array_values(
-            array_filter(
-                $coauthors,
-                static fn($id) => $id !== $personId
-            )
-        );
+		$conflict = $this->detectParagraphConflict(
+			previousText: $previousText,
+			newText: $newText,
+			history: $previousHistory,
+			currentAuthor: $author,
+		);
 
-        $objectService = $this->getObjectService();
-        $objectService->saveObject(
-            object: $motion,
-            register: 'decidesk',
-            schema: 'decision',
-            uuid: $motionId,
-        );
+		if ($conflict !== null) {
+			$this->logger->warning(
+				'Decidesk: Motion edit conflict detected',
+				['motionId' => $motionId, 'paragraph' => $conflict]
+			);
+			throw new RuntimeException(
+				"Overlapping edit conflict on paragraph: $conflict"
+			);
+		}
 
-        return $motion;
+		$previousHistory[] = [
+			'author' => $author,
+			'timestamp' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
+			'text' => $previousText,
+			'summary' => $changeSummary,
+		];
 
-    }//end removeCoauthor()
+		$motion['text'] = $newText;
+		$motion['versionHistory'] = $previousHistory;
 
-    /**
-     * Update the motion text and capture a new version snapshot.
-     *
-     * Detects overlapping edits with the previous version: if any paragraph
-     * (split by double newline) is changed twice within 5 minutes by different
-     * authors, the operation throws a RuntimeException with the conflict
-     * marker so the caller can prompt for manual resolution.
-     *
-     * Only the motion proposer (owner), an existing co-author, or an admin may
-     * update the text (OWASP A01:2021 — Broken Access Control).
-     *
-     * @param string      $motionId      Motion UUID
-     * @param string      $newText       New motion text
-     * @param string      $author        NC UID of the author making the change (recorded in history)
-     * @param string      $changeSummary Human-readable change summary
-     * @param string|null $callerUid     NC UID to check for access (null = skip check for admin paths)
-     *
-     * @return array<string, mixed>
-     *
-     * @throws \InvalidArgumentException When the caller is not authorised
-     * @throws RuntimeException          When an overlapping edit conflict is detected
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
-     */
-    public function updateMotionText(
-        string $motionId,
-        string $newText,
-        string $author,
-        string $changeSummary,
-        ?string $callerUid=null,
-    ): array {
-        $motion = $this->findMotion(motionId: $motionId);
-        $this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: false);
-        $previousText    = (string) ($motion['text'] ?? '');
-        $previousHistory = ($motion['versionHistory'] ?? []);
+		$objectService = $this->getObjectService();
+		$objectService->saveObject(
+			object: $motion,
+			register: 'decidesk',
+			schema: 'decision',
+			uuid: $motionId,
+		);
 
-        $conflict = $this->detectParagraphConflict(
-            previousText: $previousText,
-            newText: $newText,
-            history: $previousHistory,
-            currentAuthor: $author,
-        );
+		$this->logger->info(
+			'Decidesk: Motion text updated',
+			['motionId' => $motionId, 'author' => $author]
+		);
 
-        if ($conflict !== null) {
-            $this->logger->warning(
-                'Decidesk: Motion edit conflict detected',
-                ['motionId' => $motionId, 'paragraph' => $conflict]
-            );
-            throw new RuntimeException(
-                "Overlapping edit conflict on paragraph: $conflict"
-            );
-        }
+		return $motion;
+	}//end updateMotionText()
 
-        $previousHistory[] = [
-            'author'    => $author,
-            'timestamp' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
-            'text'      => $previousText,
-            'summary'   => $changeSummary,
-        ];
+	/**
+	 * Detect paragraph-level conflicts between previous and new text.
+	 *
+	 * Compares paragraphs (split by double newline) — if the same paragraph
+	 * was changed by another author in the last 5 minutes, returns a short
+	 * conflict marker for the calling layer to surface to the user.
+	 *
+	 * @param string $previousText Previous full text
+	 * @param string $newText New full text
+	 * @param array<int, array<string, mixed>> $history Existing version history
+	 * @param string $currentAuthor Author of the new change
+	 *
+	 * @return string|null Paragraph conflict marker, or null when none
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.6
+	 */
+	private function detectParagraphConflict(
+		string $previousText,
+		string $newText,
+		array $history,
+		string $currentAuthor,
+	): ?string {
+		if ($this->isConcurrentForeignEdit(history: $history, currentAuthor: $currentAuthor) === false) {
+			return null;
+		}
 
-        $motion['text']           = $newText;
-        $motion['versionHistory'] = $previousHistory;
+		// Within 5 min, different author — diff paragraphs.
+		return $this->firstChangedParagraph(previousText: $previousText, newText: $newText);
+	}//end detectParagraphConflict()
 
-        $objectService = $this->getObjectService();
-        $objectService->saveObject(
-            object: $motion,
-            register: 'decidesk',
-            schema: 'decision',
-            uuid: $motionId,
-        );
+	/**
+	 * Whether the latest history entry is another author's edit within 5 minutes.
+	 *
+	 * `$history` is declared as `array<int, mixed>` rather than
+	 * `array<int, array<string, mixed>>` on purpose: it arrives as
+	 * `$motion['versionHistory']`, straight off an OpenRegister object, so an
+	 * entry that is not an array is a shape the store can actually hand us.
+	 * The narrower docblock made the `is_array()` guard below provably dead —
+	 * phpstan reported it as a comparison that can never be true — which is a
+	 * docblock that over-promises, not a guard that is redundant.
+	 *
+	 * @param array<int, mixed> $history Existing version history
+	 * @param string $currentAuthor Author of the new change
+	 *
+	 * @return bool True when the new change collides with a recent foreign edit.
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.6
+	 */
+	private function isConcurrentForeignEdit(array $history, string $currentAuthor): bool {
+		if (count($history) === 0) {
+			return false;
+		}
 
-        $this->logger->info(
-            'Decidesk: Motion text updated',
-            ['motionId' => $motionId, 'author' => $author]
-        );
+		$latest = end($history);
+		if (is_array($latest) === false) {
+			return false;
+		}
 
-        return $motion;
+		$latestTimestamp = ($latest['timestamp'] ?? null);
+		if (($latest['author'] ?? '') === $currentAuthor || $latestTimestamp === null) {
+			return false;
+		}
 
-    }//end updateMotionText()
+		try {
+			$latestTime = new DateTimeImmutable((string)$latestTimestamp);
+		} catch (Throwable $e) {
+			return false;
+		}
 
-    /**
-     * Detect paragraph-level conflicts between previous and new text.
-     *
-     * Compares paragraphs (split by double newline) — if the same paragraph
-     * was changed by another author in the last 5 minutes, returns a short
-     * conflict marker for the calling layer to surface to the user.
-     *
-     * @param string                           $previousText  Previous full text
-     * @param string                           $newText       New full text
-     * @param array<int, array<string, mixed>> $history       Existing version history
-     * @param string                           $currentAuthor Author of the new change
-     *
-     * @return string|null Paragraph conflict marker, or null when none
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.6
-     */
-    private function detectParagraphConflict(
-        string $previousText,
-        string $newText,
-        array $history,
-        string $currentAuthor
-    ): ?string {
-        if ($this->isConcurrentForeignEdit(history: $history, currentAuthor: $currentAuthor) === false) {
-            return null;
-        }
+		return ((new DateTimeImmutable())->getTimestamp() - $latestTime->getTimestamp()) <= 300;
+	}//end isConcurrentForeignEdit()
 
-        // Within 5 min, different author — diff paragraphs.
-        return $this->firstChangedParagraph(previousText: $previousText, newText: $newText);
+	/**
+	 * The index and opening snippet of the first paragraph that differs.
+	 *
+	 * @param string $previousText Previous full text
+	 * @param string $newText New full text
+	 *
+	 * @return string|null The "<index>:<snippet>" marker, or null when identical.
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.6
+	 */
+	private function firstChangedParagraph(string $previousText, string $newText): ?string {
+		$prevPars = $this->paragraphs(text: $previousText);
+		$newPars = $this->paragraphs(text: $newText);
+		$count = max(count($prevPars), count($newPars));
 
-    }//end detectParagraphConflict()
+		for ($i = 0; $i < $count; $i++) {
+			$current = ($newPars[$i] ?? '');
+			if (($prevPars[$i] ?? '') !== $current) {
+				return $i . ':' . substr(trim($current), 0, 60);
+			}
+		}
 
-    /**
-     * Whether the latest history entry is another author's edit within 5 minutes.
-     *
-     * `$history` is declared as `array<int, mixed>` rather than
-     * `array<int, array<string, mixed>>` on purpose: it arrives as
-     * `$motion['versionHistory']`, straight off an OpenRegister object, so an
-     * entry that is not an array is a shape the store can actually hand us.
-     * The narrower docblock made the `is_array()` guard below provably dead —
-     * phpstan reported it as a comparison that can never be true — which is a
-     * docblock that over-promises, not a guard that is redundant.
-     *
-     * @param array<int, mixed> $history       Existing version history
-     * @param string            $currentAuthor Author of the new change
-     *
-     * @return bool True when the new change collides with a recent foreign edit.
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.6
-     */
-    private function isConcurrentForeignEdit(array $history, string $currentAuthor): bool
-    {
-        if (count($history) === 0) {
-            return false;
-        }
+		return null;
+	}//end firstChangedParagraph()
 
-        $latest = end($history);
-        if (is_array($latest) === false) {
-            return false;
-        }
+	/**
+	 * Split a text into paragraphs on blank lines.
+	 *
+	 * @param string $text The full text
+	 *
+	 * @return array<int, string> The paragraphs.
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.6
+	 */
+	private function paragraphs(string $text): array {
+		$paragraphs = preg_split('/\n\s*\n/', $text);
+		if ($paragraphs === false) {
+			return [];
+		}
 
-        $latestTimestamp = ($latest['timestamp'] ?? null);
-        if (($latest['author'] ?? '') === $currentAuthor || $latestTimestamp === null) {
-            return false;
-        }
+		return $paragraphs;
+	}//end paragraphs()
 
-        try {
-            $latestTime = new DateTimeImmutable((string) $latestTimestamp);
-        } catch (Throwable $e) {
-            return false;
-        }
+	/**
+	 * Capture a manual version snapshot without changing the text.
+	 *
+	 * @param string $motionId Motion UUID
+	 * @param string $author Author UUID
+	 * @param string $changeSummary Human-readable summary
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 */
+	public function captureVersion(string $motionId, string $author, string $changeSummary): array {
+		$motion = $this->findMotion(motionId: $motionId);
+		$history = ($motion['versionHistory'] ?? []);
 
-        return ((new DateTimeImmutable())->getTimestamp() - $latestTime->getTimestamp()) <= 300;
+		$history[] = [
+			'author' => $author,
+			'timestamp' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
+			'text' => (string)($motion['text'] ?? ''),
+			'summary' => $changeSummary,
+		];
 
-    }//end isConcurrentForeignEdit()
+		$motion['versionHistory'] = $history;
 
-    /**
-     * The index and opening snippet of the first paragraph that differs.
-     *
-     * @param string $previousText Previous full text
-     * @param string $newText      New full text
-     *
-     * @return string|null The "<index>:<snippet>" marker, or null when identical.
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.6
-     */
-    private function firstChangedParagraph(string $previousText, string $newText): ?string
-    {
-        $prevPars = $this->paragraphs(text: $previousText);
-        $newPars  = $this->paragraphs(text: $newText);
-        $count    = max(count($prevPars), count($newPars));
+		$objectService = $this->getObjectService();
+		$objectService->saveObject(
+			object: $motion,
+			register: 'decidesk',
+			schema: 'decision',
+			uuid: $motionId,
+		);
 
-        for ($i = 0; $i < $count; $i++) {
-            $current = ($newPars[$i] ?? '');
-            if (($prevPars[$i] ?? '') !== $current) {
-                return $i.':'.substr(trim($current), 0, 60);
-            }
-        }
+		return $motion;
+	}//end captureVersion()
 
-        return null;
-
-    }//end firstChangedParagraph()
-
-    /**
-     * Split a text into paragraphs on blank lines.
-     *
-     * @param string $text The full text
-     *
-     * @return array<int, string> The paragraphs.
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.6
-     */
-    private function paragraphs(string $text): array
-    {
-        $paragraphs = preg_split('/\n\s*\n/', $text);
-        if ($paragraphs === false) {
-            return [];
-        }
-
-        return $paragraphs;
-
-    }//end paragraphs()
-
-    /**
-     * Capture a manual version snapshot without changing the text.
-     *
-     * @param string $motionId      Motion UUID
-     * @param string $author        Author UUID
-     * @param string $changeSummary Human-readable summary
-     *
-     * @return array<string, mixed>
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
-     */
-    public function captureVersion(string $motionId, string $author, string $changeSummary): array
-    {
-        $motion  = $this->findMotion(motionId: $motionId);
-        $history = ($motion['versionHistory'] ?? []);
-
-        $history[] = [
-            'author'    => $author,
-            'timestamp' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
-            'text'      => (string) ($motion['text'] ?? ''),
-            'summary'   => $changeSummary,
-        ];
-
-        $motion['versionHistory'] = $history;
-
-        $objectService = $this->getObjectService();
-        $objectService->saveObject(
-            object: $motion,
-            register: 'decidesk',
-            schema: 'decision',
-            uuid: $motionId,
-        );
-
-        return $motion;
-
-    }//end captureVersion()
-
-    /**
-     * Get the version history of a motion.
-     *
-     * @param string $motionId Motion UUID
-     *
-     * @return array<int, array<string, mixed>>
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
-     */
-    public function getHistory(string $motionId): array
-    {
-        $motion = $this->findMotion(motionId: $motionId);
-        return ($motion['versionHistory'] ?? []);
-
-    }//end getHistory()
+	/**
+	 * Get the version history of a motion.
+	 *
+	 * @param string $motionId Motion UUID
+	 *
+	 * @return array<int, array<string, mixed>>
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 */
+	public function getHistory(string $motionId): array {
+		$motion = $this->findMotion(motionId: $motionId);
+		return ($motion['versionHistory'] ?? []);
+	}//end getHistory()
 }//end class

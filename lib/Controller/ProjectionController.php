@@ -37,49 +37,46 @@ use OCP\IRequest;
  *
  * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2
  */
-class ProjectionController extends Controller
-{
-    /**
-     * Constructor for ProjectionController.
-     *
-     * @param IRequest      $request       The request object
-     * @param VotingService $votingService The voting service
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly VotingService $votingService,
-    ) {
-        parent::__construct(appName: Application::APP_ID, request: $request);
+class ProjectionController extends Controller {
+	/**
+	 * Constructor for ProjectionController.
+	 *
+	 * @param IRequest $request The request object
+	 * @param VotingService $votingService The voting service
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly VotingService $votingService,
+	) {
+		parent::__construct(appName: Application::APP_ID, request: $request);
 
-    }//end __construct()
+	}//end __construct()
 
-    /**
-     * Get public-state for a VotingRound for projection display.
-     *
-     * Returns aggregate vote counts and preselected option, with no individual vote
-     * values or participant identities. Accessible without authentication.
-     *
-     * @param string $id The voting round UUID
-     *
-     * @return JSONResponse The public-state array or error
-     *
-     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2
-     */
-    #[PublicPage]
-    #[NoCSRFRequired]
-    public function publicState(string $id): JSONResponse
-    {
-        $state = $this->votingService->getPublicState(votingRoundId: $id);
+	/**
+	 * Get public-state for a VotingRound for projection display.
+	 *
+	 * Returns aggregate vote counts and preselected option, with no individual vote
+	 * values or participant identities. Accessible without authentication.
+	 *
+	 * @param string $id The voting round UUID
+	 *
+	 * @return JSONResponse The public-state array or error
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2
+	 */
+	#[PublicPage]
+	#[NoCSRFRequired]
+	public function publicState(string $id): JSONResponse {
+		$state = $this->votingService->getPublicState(votingRoundId: $id);
 
-        if ($state === null) {
-            return new JSONResponse(['message' => 'VotingRound not found'], Http::STATUS_NOT_FOUND);
-        }
+		if ($state === null) {
+			return new JSONResponse(['message' => 'VotingRound not found'], Http::STATUS_NOT_FOUND);
+		}
 
-        return new JSONResponse($state);
-
-    }//end publicState()
+		return new JSONResponse($state);
+	}//end publicState()
 }//end class

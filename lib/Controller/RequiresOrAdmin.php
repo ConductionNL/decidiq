@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk RequiresOrAdmin trait
  *
@@ -43,29 +44,27 @@ use OCP\AppFramework\Http\JSONResponse;
  *
  * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-004-the-duplicated-admin-guards-consume-openregister-s-admin-determination
  */
-trait RequiresOrAdmin
-{
-    /**
-     * Deny the request unless the caller is a Nextcloud admin.
-     *
-     * Returns a 401 JSONResponse when unauthenticated, a 403 when authenticated
-     * but not an admin, or null when the caller is an admin (proceed).
-     *
-     * @return JSONResponse|null
-     *
-     * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-004-the-duplicated-admin-guards-consume-openregister-s-admin-determination
-     */
-    private function requireAdmin(): ?JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
-        }
+trait RequiresOrAdmin {
+	/**
+	 * Deny the request unless the caller is a Nextcloud admin.
+	 *
+	 * Returns a 401 JSONResponse when unauthenticated, a 403 when authenticated
+	 * but not an admin, or null when the caller is an admin (proceed).
+	 *
+	 * @return JSONResponse|null
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-004-the-duplicated-admin-guards-consume-openregister-s-admin-determination
+	 */
+	private function requireAdmin(): ?JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        if ($this->groupManager->isAdmin($user->getUID()) === false) {
-            return new JSONResponse(['message' => 'Administrator role required.'], Http::STATUS_FORBIDDEN);
-        }
+		if ($this->groupManager->isAdmin($user->getUID()) === false) {
+			return new JSONResponse(['message' => 'Administrator role required.'], Http::STATUS_FORBIDDEN);
+		}
 
-        return null;
-    }//end requireAdmin()
+		return null;
+	}//end requireAdmin()
 }//end trait

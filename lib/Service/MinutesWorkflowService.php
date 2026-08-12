@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Minutes Workflow Service
  *
@@ -41,130 +42,123 @@ use RuntimeException;
  *
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
  */
-class MinutesWorkflowService
-{
-    /**
-     * Constructor.
-     *
-     * @param ObjectService               $objectService     The OpenRegister object service
-     * @param ActionItemExtractionService $extractionService Extracts and persists action items
-     * @param MinutesService              $minutesService    Sends the approval notifications
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
-     */
-    public function __construct(
-        private readonly ObjectService $objectService,
-        private readonly ActionItemExtractionService $extractionService,
-        private readonly MinutesService $minutesService,
-    ) {
-    }//end __construct()
+class MinutesWorkflowService {
+	/**
+	 * Constructor.
+	 *
+	 * @param ObjectService $objectService The OpenRegister object service
+	 * @param ActionItemExtractionService $extractionService Extracts and persists action items
+	 * @param MinutesService $minutesService Sends the approval notifications
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+	 */
+	public function __construct(
+		private readonly ObjectService $objectService,
+		private readonly ActionItemExtractionService $extractionService,
+		private readonly MinutesService $minutesService,
+	) {
+	}//end __construct()
 
-    /**
-     * Extract action item candidates from the minutes content.
-     *
-     * @param string $minutesId The Minutes ID
-     *
-     * @return array<int,array<string,mixed>> The extracted candidates
-     *
-     * @throws MissingObjectException When the Minutes record does not exist
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
-     */
-    public function extractActionItems(string $minutesId): array
-    {
-        $minutes = $this->requireMinutes(minutesId: $minutesId);
+	/**
+	 * Extract action item candidates from the minutes content.
+	 *
+	 * @param string $minutesId The Minutes ID
+	 *
+	 * @return array<int,array<string,mixed>> The extracted candidates
+	 *
+	 * @throws MissingObjectException When the Minutes record does not exist
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+	 */
+	public function extractActionItems(string $minutesId): array {
+		$minutes = $this->requireMinutes(minutesId: $minutesId);
 
-        return $this->extractionService->extractFromContent(content: ($minutes['content'] ?? ''));
+		return $this->extractionService->extractFromContent(content: ($minutes['content'] ?? ''));
+	}//end extractActionItems()
 
-    }//end extractActionItems()
+	/**
+	 * Persist the action items a user confirmed.
+	 *
+	 * @param string $minutesId The Minutes ID
+	 * @param array<int,mixed> $confirmed The confirmed candidates
+	 *
+	 * @return int The count of action items saved
+	 *
+	 * @throws MissingObjectException When the Minutes record does not exist
+	 * @throws RuntimeException When the Minutes have already been published (HTTP 400)
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+	 */
+	public function saveExtractedActionItems(string $minutesId, array $confirmed): int {
+		$minutes = $this->requireMinutes(minutesId: $minutesId);
 
-    /**
-     * Persist the action items a user confirmed.
-     *
-     * @param string           $minutesId The Minutes ID
-     * @param array<int,mixed> $confirmed The confirmed candidates
-     *
-     * @return int The count of action items saved
-     *
-     * @throws MissingObjectException When the Minutes record does not exist
-     * @throws RuntimeException       When the Minutes have already been published (HTTP 400)
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
-     */
-    public function saveExtractedActionItems(string $minutesId, array $confirmed): int
-    {
-        $minutes = $this->requireMinutes(minutesId: $minutesId);
+		if (($minutes['lifecycle'] ?? null) === 'published') {
+			throw new RuntimeException('Cannot save action items for published minutes.', 400);
+		}
 
-        if (($minutes['lifecycle'] ?? null) === 'published') {
-            throw new RuntimeException('Cannot save action items for published minutes.', 400);
-        }
+		return $this->extractionService->saveExtracted(
+			minutesId: $minutesId,
+			confirmed: $confirmed
+		);
 
-        return $this->extractionService->saveExtracted(
-            minutesId: $minutesId,
-            confirmed: $confirmed
-        );
+	}//end saveExtractedActionItems()
 
-    }//end saveExtractedActionItems()
+	/**
+	 * Move draft Minutes into review and notify the approvers.
+	 *
+	 * @param string $minutesId The Minutes ID
+	 * @param string $actorId The Nextcloud UID submitting for approval
+	 *
+	 * @return array{lifecycle:string,notified:int} The new lifecycle and notification count
+	 *
+	 * @throws MissingObjectException When the Minutes record does not exist
+	 * @throws RuntimeException When the Minutes are not in draft (HTTP 409)
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.2
+	 */
+	public function submitForApproval(string $minutesId, string $actorId): array {
+		$minutes = $this->requireMinutes(minutesId: $minutesId);
 
-    /**
-     * Move draft Minutes into review and notify the approvers.
-     *
-     * @param string $minutesId The Minutes ID
-     * @param string $actorId   The Nextcloud UID submitting for approval
-     *
-     * @return array{lifecycle:string,notified:int} The new lifecycle and notification count
-     *
-     * @throws MissingObjectException When the Minutes record does not exist
-     * @throws RuntimeException       When the Minutes are not in draft (HTTP 409)
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.2
-     */
-    public function submitForApproval(string $minutesId, string $actorId): array
-    {
-        $minutes = $this->requireMinutes(minutesId: $minutesId);
+		if (($minutes['lifecycle'] ?? null) !== 'draft') {
+			throw new RuntimeException('Minutes must be in draft state to submit for approval.', 409);
+		}
 
-        if (($minutes['lifecycle'] ?? null) !== 'draft') {
-            throw new RuntimeException('Minutes must be in draft state to submit for approval.', 409);
-        }
+		$minutes['lifecycle'] = 'review';
+		$this->objectService->saveObject(
+			register: 'decidesk',
+			schema: 'minutes',
+			object: $minutes
+		);
 
-        $minutes['lifecycle'] = 'review';
-        $this->objectService->saveObject(
-            register: 'decidesk',
-            schema: 'minutes',
-            object: $minutes
-        );
+		$notified = $this->minutesService->notifyApproversOnSubmit(
+			minutesId: $minutesId,
+			actorId: $actorId
+		);
 
-        $notified = $this->minutesService->notifyApproversOnSubmit(
-            minutesId: $minutesId,
-            actorId: $actorId
-        );
+		return [
+			'lifecycle' => 'review',
+			'notified' => $notified,
+		];
 
-        return [
-            'lifecycle' => 'review',
-            'notified'  => $notified,
-        ];
+	}//end submitForApproval()
 
-    }//end submitForApproval()
+	/**
+	 * Fetch a Minutes record or fail with a 404-shaped exception.
+	 *
+	 * @param string $minutesId The Minutes ID
+	 *
+	 * @return array<string,mixed> The Minutes data
+	 *
+	 * @throws MissingObjectException When the Minutes record does not exist
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+	 */
+	private function requireMinutes(string $minutesId): array {
+		$entity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
+		if ($entity === null) {
+			throw new MissingObjectException(message: 'Minutes not found.');
+		}
 
-    /**
-     * Fetch a Minutes record or fail with a 404-shaped exception.
-     *
-     * @param string $minutesId The Minutes ID
-     *
-     * @return array<string,mixed> The Minutes data
-     *
-     * @throws MissingObjectException When the Minutes record does not exist
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
-     */
-    private function requireMinutes(string $minutesId): array
-    {
-        $entity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
-        if ($entity === null) {
-            throw new MissingObjectException(message: 'Minutes not found.');
-        }
-
-        return $entity->jsonSerialize();
-
-    }//end requireMinutes()
+		return $entity->jsonSerialize();
+	}//end requireMinutes()
 }//end class

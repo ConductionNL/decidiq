@@ -53,205 +53,191 @@ use ReflectionClass;
  * @spec openspec/specs/admin-settings/spec.md#requirement-organization-configuration
  * @spec openspec/specs/apphost-adoption/spec.md#requirement-boilerplate-delegation
  */
-class SettingsControllerWriteTest extends TestCase
-{
+class SettingsControllerWriteTest extends TestCase {
 
-    /**
-     * The mocked request.
-     *
-     * @var IRequest&MockObject
-     */
-    private IRequest&MockObject $request;
+	/**
+	 * The mocked request.
+	 *
+	 * @var IRequest&MockObject
+	 */
+	private IRequest&MockObject $request;
 
-    /**
-     * The mocked settings service.
-     *
-     * @var SettingsService&MockObject
-     */
-    private SettingsService&MockObject $settingsService;
+	/**
+	 * The mocked settings service.
+	 *
+	 * @var SettingsService&MockObject
+	 */
+	private SettingsService&MockObject $settingsService;
 
+	/**
+	 * Set up the mocks shared by every test.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-    /**
-     * Set up the mocks shared by every test.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+		$this->request = $this->createMock(IRequest::class);
+		$this->settingsService = $this->createMock(SettingsService::class);
+	}//end setUp()
 
-        $this->request         = $this->createMock(IRequest::class);
-        $this->settingsService = $this->createMock(SettingsService::class);
-    }//end setUp()
+	/**
+	 * Build the controller under test with the collaborators mocked.
+	 *
+	 * @return SettingsController The controller under test.
+	 */
+	private function controller(): SettingsController {
+		return new SettingsController(
+			request: $this->request,
+			settingsService: $this->settingsService,
+			userSession: $this->createMock(IUserSession::class),
+			publicationConfig: $this->createMock(PublicationConfigService::class)
+		);
+	}//end controller()
 
+	/**
+	 * PUT /api/settings must persist the request parameters and return the
+	 * refreshed settings map the service actually stored.
+	 *
+	 * @return void
+	 */
+	public function testUpdatePersistsTheRequestParametersAndReturnsTheStoredConfig(): void {
+		$submitted = ['organisation_name' => 'Vereniging De Harmonie'];
+		$stored = [
+			'organisation_name' => 'Vereniging De Harmonie',
+			'organisation_timezone' => 'Europe/Amsterdam',
+			'organisatie_modus' => 'gov',
+		];
 
-    /**
-     * Build the controller under test with the collaborators mocked.
-     *
-     * @return SettingsController The controller under test.
-     */
-    private function controller(): SettingsController
-    {
-        return new SettingsController(
-            request: $this->request,
-            settingsService: $this->settingsService,
-            userSession: $this->createMock(IUserSession::class),
-            publicationConfig: $this->createMock(PublicationConfigService::class)
-        );
-    }//end controller()
+		$this->request->method('getParams')->willReturn($submitted);
 
+		// The ITEM: the write reaches the service, with the submitted params.
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($submitted)
+			->willReturn($stored);
 
-    /**
-     * PUT /api/settings must persist the request parameters and return the
-     * refreshed settings map the service actually stored.
-     *
-     * @return void
-     */
-    public function testUpdatePersistsTheRequestParametersAndReturnsTheStoredConfig(): void
-    {
-        $submitted = ['organisation_name' => 'Vereniging De Harmonie'];
-        $stored    = [
-            'organisation_name'     => 'Vereniging De Harmonie',
-            'organisation_timezone' => 'Europe/Amsterdam',
-            'organisatie_modus'     => 'gov',
-        ];
+		$response = $this->controller()->update();
 
-        $this->request->method('getParams')->willReturn($submitted);
+		$this->assertSame(
+			[
+				'success' => true,
+				'config' => $stored,
+			],
+			$response->getData(),
+			'update() must return the refreshed config the service stored, not the submission'
+		);
+	}//end testUpdatePersistsTheRequestParametersAndReturnsTheStoredConfig()
 
-        // The ITEM: the write reaches the service, with the submitted params.
-        $this->settingsService->expects($this->once())
-            ->method('updateSettings')
-            ->with($submitted)
-            ->willReturn($stored);
+	/**
+	 * POST /api/settings is the legacy alias and must write identically.
+	 *
+	 * `src/store/modules/settings.js::saveSettings()` still POSTs here and
+	 * unwraps the `{success, config}` envelope, so the alias staying a real
+	 * write — not an empty success — is load-bearing.
+	 *
+	 * @return void
+	 */
+	public function testCreateDelegatesToUpdateAndStillWrites(): void {
+		$submitted = ['email_voting_enabled' => 'true'];
+		$stored = ['email_voting_enabled' => 'true'];
 
-        $response = $this->controller()->update();
+		$this->request->method('getParams')->willReturn($submitted);
 
-        $this->assertSame(
-            [
-                'success' => true,
-                'config'  => $stored,
-            ],
-            $response->getData(),
-            'update() must return the refreshed config the service stored, not the submission'
-        );
-    }//end testUpdatePersistsTheRequestParametersAndReturnsTheStoredConfig()
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($submitted)
+			->willReturn($stored);
 
+		$response = $this->controller()->create();
 
-    /**
-     * POST /api/settings is the legacy alias and must write identically.
-     *
-     * `src/store/modules/settings.js::saveSettings()` still POSTs here and
-     * unwraps the `{success, config}` envelope, so the alias staying a real
-     * write — not an empty success — is load-bearing.
-     *
-     * @return void
-     */
-    public function testCreateDelegatesToUpdateAndStillWrites(): void
-    {
-        $submitted = ['email_voting_enabled' => 'true'];
-        $stored    = ['email_voting_enabled' => 'true'];
+		$this->assertSame(
+			[
+				'success' => true,
+				'config' => $stored,
+			],
+			$response->getData(),
+			'create() must produce the same written result as update()'
+		);
+	}//end testCreateDelegatesToUpdateAndStillWrites()
 
-        $this->request->method('getParams')->willReturn($submitted);
+	/**
+	 * The write must not be skipped when the submission is empty.
+	 *
+	 * An early return on an empty payload would look identical to a
+	 * successful no-op write from the caller's side.
+	 *
+	 * @return void
+	 */
+	public function testEmptySubmissionStillReachesTheService(): void {
+		$this->request->method('getParams')->willReturn([]);
 
-        $this->settingsService->expects($this->once())
-            ->method('updateSettings')
-            ->with($submitted)
-            ->willReturn($stored);
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with([])
+			->willReturn(['unchanged' => true]);
 
-        $response = $this->controller()->create();
+		$response = $this->controller()->update();
 
-        $this->assertSame(
-            [
-                'success' => true,
-                'config'  => $stored,
-            ],
-            $response->getData(),
-            'create() must produce the same written result as update()'
-        );
-    }//end testCreateDelegatesToUpdateAndStillWrites()
+		$this->assertSame(
+			[
+				'success' => true,
+				'config' => ['unchanged' => true],
+			],
+			$response->getData()
+		);
+	}//end testEmptySubmissionStillReachesTheService()
 
+	/**
+	 * Both write methods must carry the admin posture.
+	 *
+	 * Nextcloud's middleware evaluates auth attributes on the DISPATCHED
+	 * method only, so `create()` delegating to `update()` does NOT inherit
+	 * `update()`'s posture — each needs its own attribute. And because
+	 * `SettingsService::updateSettings()` writes instance-wide `IAppConfig`,
+	 * neither may carry the `#[NoAdminRequired]` posture of the read routes
+	 * (`index()`, `getPublicationConfig()`).
+	 *
+	 * @return void
+	 */
+	public function testBothWriteMethodsRequireAdmin(): void {
+		$reflection = new ReflectionClass(SettingsController::class);
+		$checked = 0;
 
-    /**
-     * The write must not be skipped when the submission is empty.
-     *
-     * An early return on an empty payload would look identical to a
-     * successful no-op write from the caller's side.
-     *
-     * @return void
-     */
-    public function testEmptySubmissionStillReachesTheService(): void
-    {
-        $this->request->method('getParams')->willReturn([]);
+		foreach (['update', 'create'] as $methodName) {
+			$method = $reflection->getMethod($methodName);
 
-        $this->settingsService->expects($this->once())
-            ->method('updateSettings')
-            ->with([])
-            ->willReturn(['unchanged' => true]);
+			$attributeNames = array_map(
+				static fn ($attribute) => $attribute->getName(),
+				$method->getAttributes()
+			);
 
-        $response = $this->controller()->update();
+			$this->assertContains(
+				AuthorizedAdminSetting::class,
+				$attributeNames,
+				sprintf(
+					'SettingsController::%s() writes instance-wide app config and MUST carry '
+					. '#[AuthorizedAdminSetting]. The middleware only reads the dispatched '
+					. 'method, so delegation does not inherit the posture.',
+					$methodName
+				)
+			);
 
-        $this->assertSame(
-            [
-                'success' => true,
-                'config'  => ['unchanged' => true],
-            ],
-            $response->getData()
-        );
-    }//end testEmptySubmissionStillReachesTheService()
+			$this->assertNotContains(
+				'OCP\\AppFramework\\Http\\Attribute\\NoAdminRequired',
+				$attributeNames,
+				sprintf(
+					'SettingsController::%s() is a write; #[NoAdminRequired] here would open '
+					. 'instance-wide app config to any authenticated user.',
+					$methodName
+				)
+			);
 
+			$checked++;
+		}//end foreach
 
-    /**
-     * Both write methods must carry the admin posture.
-     *
-     * Nextcloud's middleware evaluates auth attributes on the DISPATCHED
-     * method only, so `create()` delegating to `update()` does NOT inherit
-     * `update()`'s posture — each needs its own attribute. And because
-     * `SettingsService::updateSettings()` writes instance-wide `IAppConfig`,
-     * neither may carry the `#[NoAdminRequired]` posture of the read routes
-     * (`index()`, `getPublicationConfig()`).
-     *
-     * @return void
-     */
-    public function testBothWriteMethodsRequireAdmin(): void
-    {
-        $reflection = new ReflectionClass(SettingsController::class);
-        $checked    = 0;
-
-        foreach (['update', 'create'] as $methodName) {
-            $method = $reflection->getMethod($methodName);
-
-            $attributeNames = array_map(
-                static fn ($attribute) => $attribute->getName(),
-                $method->getAttributes()
-            );
-
-            $this->assertContains(
-                AuthorizedAdminSetting::class,
-                $attributeNames,
-                sprintf(
-                    'SettingsController::%s() writes instance-wide app config and MUST carry '
-                    .'#[AuthorizedAdminSetting]. The middleware only reads the dispatched '
-                    .'method, so delegation does not inherit the posture.',
-                    $methodName
-                )
-            );
-
-            $this->assertNotContains(
-                'OCP\\AppFramework\\Http\\Attribute\\NoAdminRequired',
-                $attributeNames,
-                sprintf(
-                    'SettingsController::%s() is a write; #[NoAdminRequired] here would open '
-                    .'instance-wide app config to any authenticated user.',
-                    $methodName
-                )
-            );
-
-            $checked++;
-        }//end foreach
-
-        // Positive control: the loop must have actually reflected something.
-        $this->assertSame(2, $checked, 'Both write methods must have been inspected');
-    }//end testBothWriteMethodsRequireAdmin()
-
+		// Positive control: the loop must have actually reflected something.
+		$this->assertSame(2, $checked, 'Both write methods must have been inspected');
+	}//end testBothWriteMethodsRequireAdmin()
 
 }//end class

@@ -47,39 +47,32 @@ declare(strict_types=1);
 namespace OCA\OpenRegister\Service;
 
 if (class_exists(CalendarEventService::class) === false) {
-    /**
-     * Stub for OpenRegister CalendarEventService — used only in standalone unit tests.
-     */
-    class CalendarEventService
-    {
+	/**
+	 * Stub for OpenRegister CalendarEventService — used only in standalone unit tests.
+	 */
+	class CalendarEventService {
 
+		/**
+		 * Return the calendar events linked to an object.
+		 *
+		 * @param string $objectUuid UUID of the object
+		 *
+		 * @return array<int,array<string,mixed>>
+		 */
+		public function getEventsForObject(string $objectUuid): array {
+			return [];
+		}//end getEventsForObject()
 
-        /**
-         * Return the calendar events linked to an object.
-         *
-         * @param string $objectUuid UUID of the object
-         *
-         * @return array<int,array<string,mixed>>
-         */
-        public function getEventsForObject(string $objectUuid): array
-        {
-            return [];
+		/**
+		 * Remove every calendar link for an object.
+		 *
+		 * @param string $objectUuid UUID of the object
+		 *
+		 * @return void
+		 */
+		public function unlinkEventsForObject(string $objectUuid): void {
 
-        }//end getEventsForObject()
+		}//end unlinkEventsForObject()
 
-
-        /**
-         * Remove every calendar link for an object.
-         *
-         * @param string $objectUuid UUID of the object
-         *
-         * @return void
-         */
-        public function unlinkEventsForObject(string $objectUuid): void
-        {
-
-        }//end unlinkEventsForObject()
-
-
-    }//end class
+	}//end class
 }//end if

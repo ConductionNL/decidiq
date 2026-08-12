@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk MCP Meeting Scope Resolver
  *
@@ -40,165 +41,157 @@ use Throwable;
  *
  * @spec openspec/specs/mcp-tools/spec.md
  */
-class McpMeetingScopeResolver
-{
-    /**
-     * Constructor for the McpMeetingScopeResolver.
-     *
-     * @param ContainerInterface $container    DI container used to reach OpenRegister
-     * @param IGroupManager      $groupManager Group manager backing the admin gate
-     * @param LoggerInterface    $logger       Logger for the fail-closed path
-     *
-     * @return void
-     */
-    public function __construct(
-        private readonly ContainerInterface $container,
-        private readonly IGroupManager $groupManager,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+class McpMeetingScopeResolver {
+	/**
+	 * Constructor for the McpMeetingScopeResolver.
+	 *
+	 * @param ContainerInterface $container DI container used to reach OpenRegister
+	 * @param IGroupManager $groupManager Group manager backing the admin gate
+	 * @param LoggerInterface $logger Logger for the fail-closed path
+	 *
+	 * @return void
+	 */
+	public function __construct(
+		private readonly ContainerInterface $container,
+		private readonly IGroupManager $groupManager,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Return the set of meeting UUIDs the caller is a participant of.
-     *
-     * Used to scope `scope=all` MCP tool results to meetings the calling
-     * user legitimately participates in, preventing cross-governance-body
-     * data exposure (OWASP A01:2021 - Broken Access Control / ADR-005).
-     *
-     * Admins receive null (no restriction - all meetings visible).
-     *
-     * @param string $userId Nextcloud UID of the caller
-     *
-     * @return array<string>|null Set of meeting UUIDs, or null for unrestricted admin
-     *
-     * @spec openspec/specs/mcp-tools/spec.md
-     */
-    public function callerMeetingUuids(string $userId): ?array
-    {
-        if ($this->groupManager->isAdmin($userId) === true) {
-            return null;
-        }
+	/**
+	 * Return the set of meeting UUIDs the caller is a participant of.
+	 *
+	 * Used to scope `scope=all` MCP tool results to meetings the calling
+	 * user legitimately participates in, preventing cross-governance-body
+	 * data exposure (OWASP A01:2021 - Broken Access Control / ADR-005).
+	 *
+	 * Admins receive null (no restriction - all meetings visible).
+	 *
+	 * @param string $userId Nextcloud UID of the caller
+	 *
+	 * @return array<string>|null Set of meeting UUIDs, or null for unrestricted admin
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md
+	 */
+	public function callerMeetingUuids(string $userId): ?array {
+		if ($this->groupManager->isAdmin($userId) === true) {
+			return null;
+		}
 
-        try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		try {
+			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-            // Find all participant records for this Nextcloud user.
-            $participants = $objectService->findAll(
-                [
-                    'filters' => [
-                        'register'        => 'decidesk',
-                        'schema'          => 'participant',
-                        'nextcloudUserId' => $userId,
-                    ],
-                ]
-            );
+			// Find all participant records for this Nextcloud user.
+			$participants = $objectService->findAll(
+				[
+					'filters' => [
+						'register' => 'decidesk',
+						'schema' => 'participant',
+						'nextcloudUserId' => $userId,
+					],
+				]
+			);
 
-            // Participants have no direct meeting relation; canonical path is
-            // participant -> governance-body -> meeting (ParticipantResolver docblock).
-            $meetingUuids = [];
-            foreach ($participants as $raw) {
-                $bodyId = $this->governanceBodyId(participant: $this->toArray(item: $raw));
-                if ($bodyId === null) {
-                    continue;
-                }
+			// Participants have no direct meeting relation; canonical path is
+			// participant -> governance-body -> meeting (ParticipantResolver docblock).
+			$meetingUuids = [];
+			foreach ($participants as $raw) {
+				$bodyId = $this->governanceBodyId(participant: $this->toArray(item: $raw));
+				if ($bodyId === null) {
+					continue;
+				}
 
-                $meetingUuids = array_merge(
-                    $meetingUuids,
-                    $this->meetingUuidsForBody(objectService: $objectService, bodyId: $bodyId)
-                );
-            }
+				$meetingUuids = array_merge(
+					$meetingUuids,
+					$this->meetingUuidsForBody(objectService: $objectService, bodyId: $bodyId)
+				);
+			}
 
-            return array_unique(array_filter($meetingUuids));
-        } catch (Throwable $e) {
-            $this->logger->warning(
-                'Decidesk MCP: could not resolve caller meeting UUIDs, defaulting to empty',
-                ['userId' => $userId, 'error' => $e->getMessage()]
-            );
-            // Fail closed: if we can't determine memberships, return no meetings.
-            return [];
-        }//end try
+			return array_unique(array_filter($meetingUuids));
+		} catch (Throwable $e) {
+			$this->logger->warning(
+				'Decidesk MCP: could not resolve caller meeting UUIDs, defaulting to empty',
+				['userId' => $userId, 'error' => $e->getMessage()]
+			);
+			// Fail closed: if we can't determine memberships, return no meetings.
+			return [];
+		}//end try
 
-    }//end callerMeetingUuids()
+	}//end callerMeetingUuids()
 
-    /**
-     * Pick the governance-body id out of a participant's relations.
-     *
-     * @param array<string, mixed> $participant The normalised participant object
-     *
-     * @return string|null The governance-body UUID, or null when absent.
-     */
-    private function governanceBodyId(array $participant): ?string
-    {
-        foreach (($participant['relations'] ?? []) as $rel) {
-            if (is_array($rel) === true && ($rel['schema'] ?? '') === 'governance-body') {
-                $bodyId = ($rel['id'] ?? null);
-                if ($bodyId === null) {
-                    return null;
-                }
+	/**
+	 * Pick the governance-body id out of a participant's relations.
+	 *
+	 * @param array<string, mixed> $participant The normalised participant object
+	 *
+	 * @return string|null The governance-body UUID, or null when absent.
+	 */
+	private function governanceBodyId(array $participant): ?string {
+		foreach (($participant['relations'] ?? []) as $rel) {
+			if (is_array($rel) === true && ($rel['schema'] ?? '') === 'governance-body') {
+				$bodyId = ($rel['id'] ?? null);
+				if ($bodyId === null) {
+					return null;
+				}
 
-                return (string) $bodyId;
-            }
-        }
+				return (string)$bodyId;
+			}
+		}
 
-        return null;
+		return null;
+	}//end governanceBodyId()
 
-    }//end governanceBodyId()
+	/**
+	 * List the meeting UUIDs linked to one governance body.
+	 *
+	 * @param object $objectService The OpenRegister ObjectService
+	 * @param string $bodyId The governance-body UUID
+	 *
+	 * @return array<string> The meeting UUIDs.
+	 */
+	private function meetingUuidsForBody(object $objectService, string $bodyId): array {
+		$meetingEntities = $objectService->findAll(
+			[
+				'filters' => [
+					'register' => 'decidesk',
+					'schema' => 'meeting',
+					'_relations.governance-body' => $bodyId,
+				],
+			]
+		);
 
-    /**
-     * List the meeting UUIDs linked to one governance body.
-     *
-     * @param object $objectService The OpenRegister ObjectService
-     * @param string $bodyId        The governance-body UUID
-     *
-     * @return array<string> The meeting UUIDs.
-     */
-    private function meetingUuidsForBody(object $objectService, string $bodyId): array
-    {
-        $meetingEntities = $objectService->findAll(
-            [
-                'filters' => [
-                    'register'                   => 'decidesk',
-                    'schema'                     => 'meeting',
-                    '_relations.governance-body' => $bodyId,
-                ],
-            ]
-        );
+		$uuids = [];
+		foreach ($meetingEntities as $meetingRaw) {
+			$meeting = $this->toArray(item: $meetingRaw);
+			$meetingId = ($meeting['id'] ?? ($meeting['uuid'] ?? null));
+			if ($meetingId !== null) {
+				$uuids[] = (string)$meetingId;
+			}
+		}
 
-        $uuids = [];
-        foreach ($meetingEntities as $meetingRaw) {
-            $meeting   = $this->toArray(item: $meetingRaw);
-            $meetingId = ($meeting['id'] ?? ($meeting['uuid'] ?? null));
-            if ($meetingId !== null) {
-                $uuids[] = (string) $meetingId;
-            }
-        }
+		return $uuids;
+	}//end meetingUuidsForBody()
 
-        return $uuids;
+	/**
+	 * Normalise an OpenRegister result item to a plain array.
+	 *
+	 * @param mixed $item The raw item returned by findAll()
+	 *
+	 * @return array<string, mixed> The normalised array.
+	 */
+	private function toArray(mixed $item): array {
+		if (is_array(value: $item) === true) {
+			return $item;
+		}
 
-    }//end meetingUuidsForBody()
+		if (is_object(value: $item) === true && method_exists($item, 'getObject') === true) {
+			return $item->getObject();
+		}
 
-    /**
-     * Normalise an OpenRegister result item to a plain array.
-     *
-     * @param mixed $item The raw item returned by findAll()
-     *
-     * @return array<string, mixed> The normalised array.
-     */
-    private function toArray(mixed $item): array
-    {
-        if (is_array(value: $item) === true) {
-            return $item;
-        }
+		if (is_object(value: $item) === true && method_exists($item, 'jsonSerialize') === true) {
+			return $item->jsonSerialize();
+		}
 
-        if (is_object(value: $item) === true && method_exists($item, 'getObject') === true) {
-            return $item->getObject();
-        }
-
-        if (is_object(value: $item) === true && method_exists($item, 'jsonSerialize') === true) {
-            return $item->jsonSerialize();
-        }
-
-        return (array) $item;
-
-    }//end toArray()
+		return (array)$item;
+	}//end toArray()
 }//end class

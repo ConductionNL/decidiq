@@ -317,27 +317,32 @@ export default {
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
+
 .decidesk-tab__header-actions {
 	display: flex;
 	gap: var(--default-grid-baseline);
 	flex-wrap: wrap;
 }
+
 .decidesk-tab__statutory-list {
 	margin: 0;
 	padding-inline-start: calc(var(--default-grid-baseline) * 4);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk MissingObjectException
  *
@@ -26,6 +27,5 @@ namespace OCA\Decidesk\Exception;
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  */
-class MissingObjectException extends \InvalidArgumentException
-{
+class MissingObjectException extends \InvalidArgumentException {
 }//end class

@@ -370,17 +370,20 @@ export default {
 	gap: calc(var(--default-grid-baseline) * 2);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-tab__actions {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__list {
 	list-style: none;
 	margin: 0;
@@ -389,6 +392,7 @@ export default {
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__history-row {
 	display: flex;
 	gap: var(--default-grid-baseline);
@@ -396,6 +400,7 @@ export default {
 	padding: 4px 0;
 	border-bottom: 1px solid var(--color-border);
 }
+
 .decidesk-tab__meta {
 	color: var(--color-text-maxcontrast);
 	margin: 0;

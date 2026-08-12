@@ -20,15 +20,13 @@ use PHPUnit\Framework\TestCase;
 /**
  * Placeholder unit test — replace with real tests for your app logic.
  */
-class DecideskTest extends TestCase
-{
-    /**
-     * Placeholder test; remove once real tests are in place.
-     *
-     * @return void
-     */
-    public function testPlaceholder(): void
-    {
-        $this->assertTrue(condition: true);
-    }//end testPlaceholder()
+class DecideskTest extends TestCase {
+	/**
+	 * Placeholder test; remove once real tests are in place.
+	 *
+	 * @return void
+	 */
+	public function testPlaceholder(): void {
+		$this->assertTrue(condition: true);
+	}//end testPlaceholder()
 }//end class

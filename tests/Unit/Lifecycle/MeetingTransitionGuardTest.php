@@ -33,106 +33,100 @@ use PHPUnit\Framework\TestCase;
  *
  * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-4
  */
-class MeetingTransitionGuardTest extends TestCase
-{
+class MeetingTransitionGuardTest extends TestCase {
 
-    /**
-     * Guard under test.
-     *
-     * @var MeetingTransitionGuard
-     */
-    private MeetingTransitionGuard $guard;
+	/**
+	 * Guard under test.
+	 *
+	 * @var MeetingTransitionGuard
+	 */
+	private MeetingTransitionGuard $guard;
 
-    /**
-     * Set up test fixtures.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->guard = new MeetingTransitionGuard();
+	/**
+	 * Set up test fixtures.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		$this->guard = new MeetingTransitionGuard();
 
-    }//end setUp()
+	}//end setUp()
 
-    /**
-     * Meeting with quorumMet = true allows the open transition.
-     *
-     * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-4
-     *
-     * @return void
-     */
-    public function testOpenAllowedWhenQuorumMet(): void
-    {
-        $meeting = [
-            'id'             => 'aaa-001',
-            'lifecycle'      => 'scheduled',
-            'quorumRequired' => 5,
-            'quorumMet'      => true,
-        ];
+	/**
+	 * Meeting with quorumMet = true allows the open transition.
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-4
+	 *
+	 * @return void
+	 */
+	public function testOpenAllowedWhenQuorumMet(): void {
+		$meeting = [
+			'id' => 'aaa-001',
+			'lifecycle' => 'scheduled',
+			'quorumRequired' => 5,
+			'quorumMet' => true,
+		];
 
-        self::assertTrue(condition: $this->guard->isOpenAllowed(meeting: $meeting));
+		self::assertTrue(condition: $this->guard->isOpenAllowed(meeting: $meeting));
 
-    }//end testOpenAllowedWhenQuorumMet()
+	}//end testOpenAllowedWhenQuorumMet()
 
-    /**
-     * Meeting with quorumMet = false blocks the open transition.
-     *
-     * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-4
-     *
-     * @return void
-     */
-    public function testOpenBlockedWhenQuorumNotMet(): void
-    {
-        $meeting = [
-            'id'             => 'aaa-002',
-            'lifecycle'      => 'scheduled',
-            'quorumRequired' => 5,
-            'quorumMet'      => false,
-        ];
+	/**
+	 * Meeting with quorumMet = false blocks the open transition.
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-4
+	 *
+	 * @return void
+	 */
+	public function testOpenBlockedWhenQuorumNotMet(): void {
+		$meeting = [
+			'id' => 'aaa-002',
+			'lifecycle' => 'scheduled',
+			'quorumRequired' => 5,
+			'quorumMet' => false,
+		];
 
-        self::assertFalse(condition: $this->guard->isOpenAllowed(meeting: $meeting));
+		self::assertFalse(condition: $this->guard->isOpenAllowed(meeting: $meeting));
 
-    }//end testOpenBlockedWhenQuorumNotMet()
+	}//end testOpenBlockedWhenQuorumNotMet()
 
-    /**
-     * Meeting with quorumRequired = null and quorumMet = true allows open.
-     *
-     * When no quorum rule is configured, the x-openregister-calculations
-     * expression sets quorumMet = true. The guard honours that signal.
-     *
-     * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-4
-     *
-     * @return void
-     */
-    public function testOpenAllowedWhenNoQuorumRequired(): void
-    {
-        $meeting = [
-            'id'             => 'aaa-003',
-            'lifecycle'      => 'scheduled',
-            'quorumRequired' => null,
-            'quorumMet'      => true,
-        ];
+	/**
+	 * Meeting with quorumRequired = null and quorumMet = true allows open.
+	 *
+	 * When no quorum rule is configured, the x-openregister-calculations
+	 * expression sets quorumMet = true. The guard honours that signal.
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-4
+	 *
+	 * @return void
+	 */
+	public function testOpenAllowedWhenNoQuorumRequired(): void {
+		$meeting = [
+			'id' => 'aaa-003',
+			'lifecycle' => 'scheduled',
+			'quorumRequired' => null,
+			'quorumMet' => true,
+		];
 
-        self::assertTrue(condition: $this->guard->isOpenAllowed(meeting: $meeting));
+		self::assertTrue(condition: $this->guard->isOpenAllowed(meeting: $meeting));
 
-    }//end testOpenAllowedWhenNoQuorumRequired()
+	}//end testOpenAllowedWhenNoQuorumRequired()
 
-    /**
-     * Meeting without quorumMet key defaults to false (safe default).
-     *
-     * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-4
-     *
-     * @return void
-     */
-    public function testOpenBlockedWhenQuorumMetMissing(): void
-    {
-        $meeting = [
-            'id'        => 'aaa-004',
-            'lifecycle' => 'scheduled',
-        ];
+	/**
+	 * Meeting without quorumMet key defaults to false (safe default).
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-4
+	 *
+	 * @return void
+	 */
+	public function testOpenBlockedWhenQuorumMetMissing(): void {
+		$meeting = [
+			'id' => 'aaa-004',
+			'lifecycle' => 'scheduled',
+		];
 
-        self::assertFalse(condition: $this->guard->isOpenAllowed(meeting: $meeting));
+		self::assertFalse(condition: $this->guard->isOpenAllowed(meeting: $meeting));
 
-    }//end testOpenBlockedWhenQuorumMetMissing()
+	}//end testOpenBlockedWhenQuorumMetMissing()
 }//end class

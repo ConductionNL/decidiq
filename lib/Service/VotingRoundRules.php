@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Voting Round Rules
  *
@@ -37,28 +38,27 @@ namespace OCA\Decidesk\Service;
  * @spec openspec/specs/voting-system/spec.md
  * @spec openspec/specs/process-configuration/spec.md
  */
-final class VotingRoundRules
-{
-    /**
-     * Constructor for VotingRoundRules.
-     *
-     * @param string|null $voteThreshold      Majority rule (see VotingService::VOTE_THRESHOLDS); null = body template default, then simple-majority
-     * @param string|null $abstentionHandling Abstention mode (see VotingService::ABSTENTION_MODES); null = body template default, then exclude
-     * @param string|null $tieBreakRule       Tie-break rule (see VotingService::TIE_BREAK_RULES); null = body template default, then rejected
-     * @param string      $subjectType        What is being voted: 'motion' (default) or 'amendment' (fail closed)
-     * @param string|null $governanceBodyId   Body opening the round; when set, its process template supplies rule defaults
-     *
-     * @return void
-     *
-     * @spec openspec/specs/process-configuration/spec.md
-     */
-    public function __construct(
-        public readonly ?string $voteThreshold=null,
-        public readonly ?string $abstentionHandling=null,
-        public readonly ?string $tieBreakRule=null,
-        public readonly string $subjectType='motion',
-        public readonly ?string $governanceBodyId=null,
-    ) {
+final class VotingRoundRules {
+	/**
+	 * Constructor for VotingRoundRules.
+	 *
+	 * @param string|null $voteThreshold Majority rule (see VotingService::VOTE_THRESHOLDS); null = body template default, then simple-majority
+	 * @param string|null $abstentionHandling Abstention mode (see VotingService::ABSTENTION_MODES); null = body template default, then exclude
+	 * @param string|null $tieBreakRule Tie-break rule (see VotingService::TIE_BREAK_RULES); null = body template default, then rejected
+	 * @param string $subjectType What is being voted: 'motion' (default) or 'amendment' (fail closed)
+	 * @param string|null $governanceBodyId Body opening the round; when set, its process template supplies rule defaults
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/process-configuration/spec.md
+	 */
+	public function __construct(
+		public readonly ?string $voteThreshold = null,
+		public readonly ?string $abstentionHandling = null,
+		public readonly ?string $tieBreakRule = null,
+		public readonly string $subjectType = 'motion',
+		public readonly ?string $governanceBodyId = null,
+	) {
 
-    }//end __construct()
+	}//end __construct()
 }//end class

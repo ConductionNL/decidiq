@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Transcription Queue
  *
@@ -34,33 +35,31 @@ use OCP\BackgroundJob\IJobList;
  *
  * @spec openspec/specs/meeting-transcription/spec.md
  */
-class TranscriptionQueue
-{
-    /**
-     * Construct the queue.
-     *
-     * @param IJobList $jobList Background job queue.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    public function __construct(
-        private readonly IJobList $jobList,
-    ) {
-        // All state is injected; nothing to initialise.
-    }//end __construct()
+class TranscriptionQueue {
+	/**
+	 * Construct the queue.
+	 *
+	 * @param IJobList $jobList Background job queue.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	public function __construct(
+		private readonly IJobList $jobList,
+	) {
+		// All state is injected; nothing to initialise.
+	}//end __construct()
 
-    /**
-     * Schedule asynchronous transcription for a Transcript.
-     *
-     * @param string $transcriptId Transcript UUID.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    public function enqueue(string $transcriptId): void
-    {
-        $this->jobList->add(TranscriptionJob::class, ['transcriptId' => $transcriptId]);
+	/**
+	 * Schedule asynchronous transcription for a Transcript.
+	 *
+	 * @param string $transcriptId Transcript UUID.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	public function enqueue(string $transcriptId): void {
+		$this->jobList->add(TranscriptionJob::class, ['transcriptId' => $transcriptId]);
 
-    }//end enqueue()
+	}//end enqueue()
 }//end class

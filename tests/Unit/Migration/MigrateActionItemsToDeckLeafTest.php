@@ -36,145 +36,128 @@ use PHPUnit\Framework\TestCase;
  *
  * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
  */
-class MigrateActionItemsToDeckLeafTest extends TestCase
-{
+class MigrateActionItemsToDeckLeafTest extends TestCase {
 
-    /**
-     * Mock IOutput.
-     *
-     * @var IOutput&MockObject
-     */
-    private IOutput&MockObject $output;
+	/**
+	 * Mock IOutput.
+	 *
+	 * @var IOutput&MockObject
+	 */
+	private IOutput&MockObject $output;
 
-    /**
-     * The repair step under test.
-     *
-     * @var MigrateActionItemsToDeckLeaf
-     */
-    private MigrateActionItemsToDeckLeaf $migration;
+	/**
+	 * The repair step under test.
+	 *
+	 * @var MigrateActionItemsToDeckLeaf
+	 */
+	private MigrateActionItemsToDeckLeaf $migration;
 
-    /**
-     * Set up test fixtures.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->output    = $this->createMock(IOutput::class);
-        $this->migration = new MigrateActionItemsToDeckLeaf();
+	/**
+	 * Set up test fixtures.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		$this->output = $this->createMock(IOutput::class);
+		$this->migration = new MigrateActionItemsToDeckLeaf();
 
-    }//end setUp()
+	}//end setUp()
 
+	/**
+	 * The step name mentions Task and Deck for traceability.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
+	 */
+	public function testGetNameReturnsDescription(): void {
+		$name = $this->migration->getName();
+		self::assertStringContainsString(needle: 'Task', haystack: $name);
+		self::assertStringContainsString(needle: 'Deck', haystack: $name);
 
-    /**
-     * The step name mentions Task and Deck for traceability.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
-     */
-    public function testGetNameReturnsDescription(): void
-    {
-        $name = $this->migration->getName();
-        self::assertStringContainsString(needle: 'Task', haystack: $name);
-        self::assertStringContainsString(needle: 'Deck', haystack: $name);
+	}//end testGetNameReturnsDescription()
 
-    }//end testGetNameReturnsDescription()
+	/**
+	 * The step runs without throwing and outputs an info message.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
+	 */
+	public function testRunSkipsWhenOpenRegisterUnavailable(): void {
+		// The retired step ignores OpenRegister availability entirely.
+		$this->output->expects($this->atLeastOnce())->method('info');
+		$this->migration->run(output: $this->output);
 
+	}//end testRunSkipsWhenOpenRegisterUnavailable()
 
-    /**
-     * The step runs without throwing and outputs an info message.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
-     */
-    public function testRunSkipsWhenOpenRegisterUnavailable(): void
-    {
-        // The retired step ignores OpenRegister availability entirely.
-        $this->output->expects($this->atLeastOnce())->method('info');
-        $this->migration->run(output: $this->output);
+	/**
+	 * The step is idempotent — running it multiple times is safe.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
+	 */
+	public function testRunNoOpWhenLegacySchemasAbsent(): void {
+		$this->output->expects($this->atLeastOnce())->method('info');
+		$this->migration->run(output: $this->output);
 
-    }//end testRunSkipsWhenOpenRegisterUnavailable()
+	}//end testRunNoOpWhenLegacySchemasAbsent()
 
+	/**
+	 * Already-migrated tasks are not re-processed (no-op skips everything).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
+	 */
+	public function testRunSkipsAlreadyMigratedTask(): void {
+		$this->output->expects($this->atLeastOnce())->method('info');
+		$this->migration->run(output: $this->output);
+		self::assertTrue(true);
 
-    /**
-     * The step is idempotent — running it multiple times is safe.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
-     */
-    public function testRunNoOpWhenLegacySchemasAbsent(): void
-    {
-        $this->output->expects($this->atLeastOnce())->method('info');
-        $this->migration->run(output: $this->output);
+	}//end testRunSkipsAlreadyMigratedTask()
 
-    }//end testRunNoOpWhenLegacySchemasAbsent()
+	/**
+	 * Projection does not persist task objects (no-op).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
+	 */
+	public function testRunProjectsAndArchivesTask(): void {
+		$this->output->expects($this->atLeastOnce())->method('info');
+		$this->migration->run(output: $this->output);
+		self::assertTrue(true);
 
+	}//end testRunProjectsAndArchivesTask()
 
-    /**
-     * Already-migrated tasks are not re-processed (no-op skips everything).
-     *
-     * @return void
-     *
-     * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
-     */
-    public function testRunSkipsAlreadyMigratedTask(): void
-    {
-        $this->output->expects($this->atLeastOnce())->method('info');
-        $this->migration->run(output: $this->output);
-        self::assertTrue(true);
+	/**
+	 * Reclaimed delegation replay is not performed (no-op).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
+	 */
+	public function testRunReplaysReclaimedDelegationOntoActionItem(): void {
+		$this->output->expects($this->atLeastOnce())->method('info');
+		$this->migration->run(output: $this->output);
+		self::assertTrue(true);
 
-    }//end testRunSkipsAlreadyMigratedTask()
+	}//end testRunReplaysReclaimedDelegationOntoActionItem()
 
+	/**
+	 * ObjectService being unavailable is handled gracefully (no-op never calls it).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
+	 */
+	public function testRunExitsGracefullyWhenObjectServiceUnavailable(): void {
+		$this->output->expects($this->atLeastOnce())->method('info');
+		$this->migration->run(output: $this->output);
 
-    /**
-     * Projection does not persist task objects (no-op).
-     *
-     * @return void
-     *
-     * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
-     */
-    public function testRunProjectsAndArchivesTask(): void
-    {
-        $this->output->expects($this->atLeastOnce())->method('info');
-        $this->migration->run(output: $this->output);
-        self::assertTrue(true);
-
-    }//end testRunProjectsAndArchivesTask()
-
-
-    /**
-     * Reclaimed delegation replay is not performed (no-op).
-     *
-     * @return void
-     *
-     * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
-     */
-    public function testRunReplaysReclaimedDelegationOntoActionItem(): void
-    {
-        $this->output->expects($this->atLeastOnce())->method('info');
-        $this->migration->run(output: $this->output);
-        self::assertTrue(true);
-
-    }//end testRunReplaysReclaimedDelegationOntoActionItem()
-
-
-    /**
-     * ObjectService being unavailable is handled gracefully (no-op never calls it).
-     *
-     * @return void
-     *
-     * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
-     */
-    public function testRunExitsGracefullyWhenObjectServiceUnavailable(): void
-    {
-        $this->output->expects($this->atLeastOnce())->method('info');
-        $this->migration->run(output: $this->output);
-
-    }//end testRunExitsGracefullyWhenObjectServiceUnavailable()
-
+	}//end testRunExitsGracefullyWhenObjectServiceUnavailable()
 
 }//end class

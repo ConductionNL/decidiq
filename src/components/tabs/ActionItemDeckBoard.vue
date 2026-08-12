@@ -358,33 +358,39 @@ export default {
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
+
 .ai-deck-board__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
+
 .ai-deck-board__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .ai-deck-board__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
+
 .ai-deck-board__lanes {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	gap: var(--default-grid-baseline);
 }
+
 .ai-deck-lane {
 	background: var(--color-background-hover);
 	border-radius: var(--border-radius-large);
 	padding: var(--default-grid-baseline);
 	min-height: 80px;
 }
+
 .ai-deck-lane__header {
 	display: flex;
 	align-items: center;
@@ -392,10 +398,12 @@ export default {
 	font-weight: bold;
 	margin-bottom: var(--default-grid-baseline);
 }
+
 .ai-deck-lane__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 }
+
 .ai-deck-lane__cards {
 	display: flex;
 	flex-direction: column;
@@ -404,23 +412,27 @@ export default {
 	margin: 0;
 	padding: 0;
 }
+
 .ai-deck-lane__empty {
 	color: var(--color-text-maxcontrast);
 	font-style: italic;
 	padding: 4px;
 }
+
 .ai-deck-card {
 	background: var(--color-main-background);
 	border: 1px solid var(--color-border);
 	border-radius: var(--border-radius);
 	padding: 8px;
 }
+
 .ai-deck-card__head {
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
 	gap: 4px;
 }
+
 .ai-deck-card__title {
 	font-weight: 500;
 	background: none;
@@ -431,13 +443,16 @@ export default {
 	color: var(--color-main-text);
 	font-size: inherit;
 }
+
 .ai-deck-card__title:hover {
 	text-decoration: underline;
 }
+
 .ai-deck-card__meta {
 	color: var(--color-text-maxcontrast);
 	font-size: 0.85rem;
 }
+
 .ai-deck-card__footer {
 	display: flex;
 	align-items: center;
@@ -445,9 +460,11 @@ export default {
 	gap: var(--default-grid-baseline);
 	margin-top: 6px;
 }
+
 .ai-deck-card__move {
 	min-width: 140px;
 }
+
 .ai-deck-card__link {
 	color: var(--color-primary-element);
 	white-space: nowrap;

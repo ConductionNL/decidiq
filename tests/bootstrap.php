@@ -18,33 +18,33 @@ define('PHPUNIT_RUN', 1);
 
 // Include Composer's autoloader.
 // Also register OCP namespace from vendor for standalone runs (no Nextcloud server present).
-$autoloader = require __DIR__.'/../vendor/autoload.php';
+$autoloader = require __DIR__ . '/../vendor/autoload.php';
 // OpenRegister test stubs are registered here (test-time only), NOT via composer
 // autoload-dev — a dev-built vendor would otherwise bake these OCA\OpenRegister\*
 // stubs into the runtime classmap and shadow the real classes (openregister#2036).
-$autoloader->addPsr4('OCA\\OpenRegister\\', __DIR__.'/Stubs/');
-if (is_dir(__DIR__.'/../vendor/nextcloud/ocp/OCP') === true) {
-    $autoloader->addPsr4('OCP\\', __DIR__.'/../vendor/nextcloud/ocp/OCP/');
-    $autoloader->addPsr4('NCU\\', __DIR__.'/../vendor/nextcloud/ocp/NCU/');
+$autoloader->addPsr4('OCA\\OpenRegister\\', __DIR__ . '/Stubs/');
+if (is_dir(__DIR__ . '/../vendor/nextcloud/ocp/OCP') === true) {
+	$autoloader->addPsr4('OCP\\', __DIR__ . '/../vendor/nextcloud/ocp/OCP/');
+	$autoloader->addPsr4('NCU\\', __DIR__ . '/../vendor/nextcloud/ocp/NCU/');
 }
 
 // Bootstrap Nextcloud only when the config file is readable (i.e., in a properly
 // provisioned CI environment). Skip silently in standalone mode — OCP stubs are
 // sufficient for unit-only test suites.
-$ncBase   = __DIR__.'/../../../lib/base.php';
-$ncConfig = __DIR__.'/../../../config/config.php';
+$ncBase = __DIR__ . '/../../../lib/base.php';
+$ncConfig = __DIR__ . '/../../../config/config.php';
 if (defined('OC_CONSOLE') === false && is_readable($ncConfig) === true) {
-    if (file_exists($ncBase) === true) {
-        include_once $ncBase;
-    }
+	if (file_exists($ncBase) === true) {
+		include_once $ncBase;
+	}
 
-    if (file_exists(__DIR__.'/../../../tests/autoload.php') === true) {
-        include_once __DIR__.'/../../../tests/autoload.php';
-    }
+	if (file_exists(__DIR__ . '/../../../tests/autoload.php') === true) {
+		include_once __DIR__ . '/../../../tests/autoload.php';
+	}
 
-    \OC_App::loadApps();
-    \OC_App::loadApp('decidesk');
-    OC_Hook::clear();
+	\OC_App::loadApps();
+	\OC_App::loadApp('decidesk');
+	OC_Hook::clear();
 }
 
 // Load test stubs AFTER Nextcloud bootstrap so that OCP\EventDispatcher\Event
@@ -54,7 +54,7 @@ if (defined('OC_CONSOLE') === false && is_readable($ncConfig) === true) {
 // The stubs are also registered via autoload-dev PSR-4 in composer.json so that
 // Composer's autoloader can find them without needing Nextcloud to be bootstrapped.
 if (class_exists(\OCA\OpenRegister\Event\DeepLinkRegistrationEvent::class) === false) {
-    include_once __DIR__.'/Stubs/Event/DeepLinkRegistrationEvent.php';
+	include_once __DIR__ . '/Stubs/Event/DeepLinkRegistrationEvent.php';
 }
 
 // ObjectService, ObjectEntity, Register and Schema need no include_once: the
@@ -63,5 +63,5 @@ if (class_exists(\OCA\OpenRegister\Event\DeepLinkRegistrationEvent::class) === f
 // app when it is present. See tests/Stubs/Service/ObjectService.php for the
 // signature-parity contract these stubs are held to (#399).
 if (class_exists(\OCA\OpenRegister\Service\CalendarEventService::class) === false) {
-    include_once __DIR__.'/Stubs/OpenRegisterServices.php';
+	include_once __DIR__ . '/Stubs/OpenRegisterServices.php';
 }

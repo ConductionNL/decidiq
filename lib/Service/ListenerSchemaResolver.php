@@ -62,228 +62,217 @@ use Throwable;
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
-class ListenerSchemaResolver
-{
+class ListenerSchemaResolver {
 
-    /**
-     * FQCN of OpenRegister's schema mapper.
-     *
-     * Referenced as a string, never imported: the class only exists when
-     * openregister is installed.
-     *
-     * @var string
-     */
-    private const SCHEMA_MAPPER = 'OCA\\OpenRegister\\Db\\SchemaMapper';
+	/**
+	 * FQCN of OpenRegister's schema mapper.
+	 *
+	 * Referenced as a string, never imported: the class only exists when
+	 * openregister is installed.
+	 *
+	 * @var string
+	 */
+	private const SCHEMA_MAPPER = 'OCA\\OpenRegister\\Db\\SchemaMapper';
 
-    /**
-     * Row keys that may carry the schema, in precedence order.
-     *
-     * `_schemaSlug` is a slug by name; `_schema` is the raw database column and
-     * holds an id. Both are normalised by {@see schemaSlug()} rather than
-     * trusted as slugs.
-     *
-     * @var string[]
-     */
-    private const ROW_KEYS = [
-        '_schemaSlug',
-        '_schema',
-        'schema',
-    ];
+	/**
+	 * Row keys that may carry the schema, in precedence order.
+	 *
+	 * `_schemaSlug` is a slug by name; `_schema` is the raw database column and
+	 * holds an id. Both are normalised by {@see schemaSlug()} rather than
+	 * trusted as slugs.
+	 *
+	 * @var string[]
+	 */
+	private const ROW_KEYS = [
+		'_schemaSlug',
+		'_schema',
+		'schema',
+	];
 
-    /**
-     * Per-request memo of schema id to slug.
-     *
-     * The unfiltered-registration fallback in ObjectListenerRegistrar invokes a
-     * listener on every object write instance-wide, so an unmemoised lookup
-     * would be a database read per write.
-     *
-     * @var array<string, string>
-     */
-    private array $slugById = [];
+	/**
+	 * Per-request memo of schema id to slug.
+	 *
+	 * The unfiltered-registration fallback in ObjectListenerRegistrar invokes a
+	 * listener on every object write instance-wide, so an unmemoised lookup
+	 * would be a database read per write.
+	 *
+	 * @var array<string, string>
+	 */
+	private array $slugById = [];
 
-    /**
-     * Constructor.
-     *
-     * @param ContainerInterface $container DI container — OpenRegister's mapper is
-     *                                      resolved lazily so decidesk boots without it
-     * @param LoggerInterface    $logger    Logger for fail-soft diagnostics
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     */
-    public function __construct(
-        private readonly ContainerInterface $container,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param ContainerInterface $container DI container — OpenRegister's mapper is
+	 *                                      resolved lazily so decidesk boots without it
+	 * @param LoggerInterface $logger Logger for fail-soft diagnostics
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 */
+	public function __construct(
+		private readonly ContainerInterface $container,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Resolve the schema slug of an OpenRegister object entity.
-     *
-     * @param object|null          $entity The OpenRegister ObjectEntity from the event
-     * @param array<string, mixed> $row    Serialised payload, when the caller already has one
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     *
-     * @return string The lower-cased schema slug, or '' when unresolvable
-     */
-    public function schemaSlug(?object $entity, array $row=[]): string
-    {
-        $raw = $this->rawSchema(entity: $entity, row: $row);
-        if ($raw === '') {
-            return '';
-        }
+	/**
+	 * Resolve the schema slug of an OpenRegister object entity.
+	 *
+	 * @param object|null $entity The OpenRegister ObjectEntity from the event
+	 * @param array<string, mixed> $row Serialised payload, when the caller already has one
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 *
+	 * @return string The lower-cased schema slug, or '' when unresolvable
+	 */
+	public function schemaSlug(?object $entity, array $row = []): string {
+		$raw = $this->rawSchema(entity: $entity, row: $row);
+		if ($raw === '') {
+			return '';
+		}
 
-        // A wholly numeric value is OpenRegister's schema id (an all-digit slug
-        // is not a shape its slug generator produces, and ObjectEventSubscription
-        // makes the same classification). Anything else already IS the slug —
-        // a hand-built entity, a fixture, or a future OpenRegister that stops
-        // stamping ids.
-        if (ctype_digit($raw) === false) {
-            return strtolower($raw);
-        }
+		// A wholly numeric value is OpenRegister's schema id (an all-digit slug
+		// is not a shape its slug generator produces, and ObjectEventSubscription
+		// makes the same classification). Anything else already IS the slug —
+		// a hand-built entity, a fixture, or a future OpenRegister that stops
+		// stamping ids.
+		if (ctype_digit($raw) === false) {
+			return strtolower($raw);
+		}
 
-        return strtolower($this->resolveSlug(id: $raw));
+		return strtolower($this->resolveSlug(id: $raw));
+	}//end schemaSlug()
 
-    }//end schemaSlug()
+	/**
+	 * Whether an entity belongs to the named schema.
+	 *
+	 * @param object|null $entity The OpenRegister ObjectEntity from the event
+	 * @param string $expectedSlug The schema slug to match
+	 * @param array<string, mixed> $row Serialised payload, when the caller already has one
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 *
+	 * @return boolean True when the entity is an instance of that schema
+	 */
+	public function matchesSchema(?object $entity, string $expectedSlug, array $row = []): bool {
+		if ($expectedSlug === '') {
+			return false;
+		}
 
-    /**
-     * Whether an entity belongs to the named schema.
-     *
-     * @param object|null          $entity       The OpenRegister ObjectEntity from the event
-     * @param string               $expectedSlug The schema slug to match
-     * @param array<string, mixed> $row          Serialised payload, when the caller already has one
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     *
-     * @return boolean True when the entity is an instance of that schema
-     */
-    public function matchesSchema(?object $entity, string $expectedSlug, array $row=[]): bool
-    {
-        if ($expectedSlug === '') {
-            return false;
-        }
+		return $this->schemaSlug(entity: $entity, row: $row) === strtolower($expectedSlug);
+	}//end matchesSchema()
 
-        return $this->schemaSlug(entity: $entity, row: $row) === strtolower($expectedSlug);
+	/**
+	 * Read a scalar off an entity through an accessor that may be magic.
+	 *
+	 * `method_exists()` answers false for every accessor `Entity::__call()`
+	 * serves — including `getId()` and `getUuid()` — so it cannot be used to
+	 * decide whether the read is available. `Entity::__call()` delegates to
+	 * `Entity::getter()`, which throws `BadFunctionCallException` unless
+	 * `property_exists()` holds; asking that question first keeps a normal miss
+	 * off the exception path, and the try/catch covers everything else (a
+	 * property the subclass declares but refuses to serve, a mapper entity with
+	 * its own getter override).
+	 *
+	 * @param object|null $entity The entity to read from
+	 * @param string $getter The accessor name, e.g. 'getSchema'
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 *
+	 * @return string The value as a string, or '' when unavailable
+	 */
+	public function readValue(?object $entity, string $getter): string {
+		if ($entity === null || str_starts_with($getter, 'get') === false) {
+			return '';
+		}
 
-    }//end matchesSchema()
+		$property = lcfirst(substr($getter, 3));
+		if (method_exists($entity, $getter) === false
+			&& property_exists($entity, $property) === false
+		) {
+			return '';
+		}
 
-    /**
-     * Read a scalar off an entity through an accessor that may be magic.
-     *
-     * `method_exists()` answers false for every accessor `Entity::__call()`
-     * serves — including `getId()` and `getUuid()` — so it cannot be used to
-     * decide whether the read is available. `Entity::__call()` delegates to
-     * `Entity::getter()`, which throws `BadFunctionCallException` unless
-     * `property_exists()` holds; asking that question first keeps a normal miss
-     * off the exception path, and the try/catch covers everything else (a
-     * property the subclass declares but refuses to serve, a mapper entity with
-     * its own getter override).
-     *
-     * @param object|null $entity The entity to read from
-     * @param string      $getter The accessor name, e.g. 'getSchema'
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     *
-     * @return string The value as a string, or '' when unavailable
-     */
-    public function readValue(?object $entity, string $getter): string
-    {
-        if ($entity === null || str_starts_with($getter, 'get') === false) {
-            return '';
-        }
+		try {
+			$value = $entity->{$getter}();
+		} catch (Throwable $e) {
+			return '';
+		}
 
-        $property = lcfirst(substr($getter, 3));
-        if (method_exists($entity, $getter) === false
-            && property_exists($entity, $property) === false
-        ) {
-            return '';
-        }
+		if (is_scalar($value) === false) {
+			return '';
+		}
 
-        try {
-            $value = $entity->{$getter}();
-        } catch (Throwable $e) {
-            return '';
-        }
+		return (string)$value;
+	}//end readValue()
 
-        if (is_scalar($value) === false) {
-            return '';
-        }
+	/**
+	 * Collect the schema value from the row, then from the entity.
+	 *
+	 * @param object|null $entity The OpenRegister ObjectEntity from the event
+	 * @param array<string, mixed> $row Serialised payload
+	 *
+	 * @return string The raw schema value (a slug or an id), or '' when absent
+	 */
+	private function rawSchema(?object $entity, array $row): string {
+		foreach (self::ROW_KEYS as $key) {
+			$candidate = ($row[$key] ?? null);
+			if (is_string($candidate) === true && $candidate !== '') {
+				return $candidate;
+			}
 
-        return (string) $value;
+			if (is_int($candidate) === true) {
+				return (string)$candidate;
+			}
+		}
 
-    }//end readValue()
+		// No OpenRegister version shipped to date declares getSchemaSlug(), on
+		// the entity or in its docblock, so this resolves nothing today. It is
+		// consulted first so that an OpenRegister which adds it wins over the
+		// id round-trip below without another change here.
+		$slug = $this->readValue(entity: $entity, getter: 'getSchemaSlug');
+		if ($slug !== '') {
+			return $slug;
+		}
 
-    /**
-     * Collect the schema value from the row, then from the entity.
-     *
-     * @param object|null          $entity The OpenRegister ObjectEntity from the event
-     * @param array<string, mixed> $row    Serialised payload
-     *
-     * @return string The raw schema value (a slug or an id), or '' when absent
-     */
-    private function rawSchema(?object $entity, array $row): string
-    {
-        foreach (self::ROW_KEYS as $key) {
-            $candidate = ($row[$key] ?? null);
-            if (is_string($candidate) === true && $candidate !== '') {
-                return $candidate;
-            }
+		return $this->readValue(entity: $entity, getter: 'getSchema');
+	}//end rawSchema()
 
-            if (is_int($candidate) === true) {
-                return (string) $candidate;
-            }
-        }
+	/**
+	 * Look a schema's slug up by id through OpenRegister's SchemaMapper.
+	 *
+	 * @param string $id The schema id
+	 *
+	 * @return string The slug, or '' when unresolvable or OpenRegister is absent
+	 */
+	private function resolveSlug(string $id): string {
+		if (array_key_exists($id, $this->slugById) === true) {
+			return $this->slugById[$id];
+		}
 
-        // No OpenRegister version shipped to date declares getSchemaSlug(), on
-        // the entity or in its docblock, so this resolves nothing today. It is
-        // consulted first so that an OpenRegister which adds it wins over the
-        // id round-trip below without another change here.
-        $slug = $this->readValue(entity: $entity, getter: 'getSchemaSlug');
-        if ($slug !== '') {
-            return $slug;
-        }
+		$slug = '';
+		try {
+			// One positional argument only. `find()` declares
+			// `(string|int $id, ?array $_extend, bool $_rbac, bool $_multitenancy)`
+			// and slot 3 is a bool, so a second positional argument is a
+			// signature-drift fatal waiting to happen.
+			$schema = $this->container->get(self::SCHEMA_MAPPER)->find($id);
 
-        return $this->readValue(entity: $entity, getter: 'getSchema');
+			// Schema::getSlug() is magic too — an `@method` tag over
+			// `protected ?string $slug`.
+			$slug = $this->readValue(entity: $schema, getter: 'getSlug');
+		} catch (Throwable $e) {
+			$this->logger->debug(
+				'Decidesk: could not resolve an OpenRegister schema slug for a listener guard',
+				[
+					'schemaId' => $id,
+					'exception' => $e->getMessage(),
+				]
+			);
+		}//end try
 
-    }//end rawSchema()
+		$this->slugById[$id] = $slug;
 
-    /**
-     * Look a schema's slug up by id through OpenRegister's SchemaMapper.
-     *
-     * @param string $id The schema id
-     *
-     * @return string The slug, or '' when unresolvable or OpenRegister is absent
-     */
-    private function resolveSlug(string $id): string
-    {
-        if (array_key_exists($id, $this->slugById) === true) {
-            return $this->slugById[$id];
-        }
-
-        $slug = '';
-        try {
-            // One positional argument only. `find()` declares
-            // `(string|int $id, ?array $_extend, bool $_rbac, bool $_multitenancy)`
-            // and slot 3 is a bool, so a second positional argument is a
-            // signature-drift fatal waiting to happen.
-            $schema = $this->container->get(self::SCHEMA_MAPPER)->find($id);
-
-            // Schema::getSlug() is magic too — an `@method` tag over
-            // `protected ?string $slug`.
-            $slug = $this->readValue(entity: $schema, getter: 'getSlug');
-        } catch (Throwable $e) {
-            $this->logger->debug(
-                'Decidesk: could not resolve an OpenRegister schema slug for a listener guard',
-                [
-                    'schemaId'  => $id,
-                    'exception' => $e->getMessage(),
-                ]
-            );
-        }//end try
-
-        $this->slugById[$id] = $slug;
-
-        return $slug;
-
-    }//end resolveSlug()
+		return $slug;
+	}//end resolveSlug()
 }//end class

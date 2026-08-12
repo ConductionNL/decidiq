@@ -43,60 +43,57 @@ use OCP\IUserSession;
  *
  * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
  */
-class AnalyticsController extends Controller
-{
-    /**
-     * Constructor for AnalyticsController.
-     *
-     * @param IRequest                   $request          The HTTP request
-     * @param ActionItemAnalyticsService $analyticsService The analytics service
-     * @param IUserSession               $userSession      The current user session
-     *
-     * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
-     */
-    public function __construct(
-        IRequest $request,
-        private ActionItemAnalyticsService $analyticsService,
-        private IUserSession $userSession,
-    ) {
-        parent::__construct(appName: Application::APP_ID, request: $request);
-    }//end __construct()
+class AnalyticsController extends Controller {
+	/**
+	 * Constructor for AnalyticsController.
+	 *
+	 * @param IRequest $request The HTTP request
+	 * @param ActionItemAnalyticsService $analyticsService The analytics service
+	 * @param IUserSession $userSession The current user session
+	 *
+	 * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
+	 */
+	public function __construct(
+		IRequest $request,
+		private ActionItemAnalyticsService $analyticsService,
+		private IUserSession $userSession,
+	) {
+		parent::__construct(appName: Application::APP_ID, request: $request);
+	}//end __construct()
 
-    /**
-     * Get action items assigned to the current user.
-     *
-     * GET /api/analytics/action-items/my-items
-     *
-     * Returns { "overdue": [...], "thisWeek": [...], "later": [...] }
-     *
-     * @return JSONResponse Grouped action items
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.2
-     */
-    #[NoAdminRequired]
-    public function getMyItems(): JSONResponse
-    {
-        $user = $this->requireAuthenticatedUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], 401);
-        }
+	/**
+	 * Get action items assigned to the current user.
+	 *
+	 * GET /api/analytics/action-items/my-items
+	 *
+	 * Returns { "overdue": [...], "thisWeek": [...], "later": [...] }
+	 *
+	 * @return JSONResponse Grouped action items
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.2
+	 */
+	#[NoAdminRequired]
+	public function getMyItems(): JSONResponse {
+		$user = $this->requireAuthenticatedUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], 401);
+		}
 
-        // Use the Nextcloud UID (unique per user), not the display name which is
-        // user-settable and non-unique — display name spoofing would leak other
-        // users' action items (PII + workflow data).
-        $nextcloudUid = $user->getUID();
-        $items        = $this->analyticsService->getMyItems($nextcloudUid);
+		// Use the Nextcloud UID (unique per user), not the display name which is
+		// user-settable and non-unique — display name spoofing would leak other
+		// users' action items (PII + workflow data).
+		$nextcloudUid = $user->getUID();
+		$items = $this->analyticsService->getMyItems($nextcloudUid);
 
-        return new JSONResponse($items);
-    }//end getMyItems()
+		return new JSONResponse($items);
+	}//end getMyItems()
 
-    /**
-     * Ensure a user is authenticated; returns the current user or null.
-     *
-     * @return \OCP\IUser|null The authenticated user, or null
-     */
-    private function requireAuthenticatedUser(): ?\OCP\IUser
-    {
-        return $this->userSession->getUser();
-    }//end requireAuthenticatedUser()
+	/**
+	 * Ensure a user is authenticated; returns the current user or null.
+	 *
+	 * @return \OCP\IUser|null The authenticated user, or null
+	 */
+	private function requireAuthenticatedUser(): ?\OCP\IUser {
+		return $this->userSession->getUser();
+	}//end requireAuthenticatedUser()
 }//end class

@@ -43,267 +43,246 @@ use Psr\Log\NullLogger;
  *
  * @spec openspec/specs/motion-amendment/spec.md
  */
-class SubmissionDeadlineListenerTest extends TestCase
-{
+class SubmissionDeadlineListenerTest extends TestCase {
 
+	/**
+	 * Build a listener over an in-memory object store double.
+	 *
+	 * @param array<string, array<string, mixed>> $store Seed objects by id (raw payloads)
+	 *
+	 * @return SubmissionDeadlineListener
+	 */
+	private function buildListener(array $store): SubmissionDeadlineListener {
+		$storeRef = new \ArrayObject($store);
 
-    /**
-     * Build a listener over an in-memory object store double.
-     *
-     * @param array<string, array<string, mixed>> $store Seed objects by id (raw payloads)
-     *
-     * @return SubmissionDeadlineListener
-     */
-    private function buildListener(array $store): SubmissionDeadlineListener
-    {
-        $storeRef = new \ArrayObject($store);
+		$objectService = new class($storeRef) {
 
-        $objectService = new class($storeRef) {
+			/**
+			 * Constructor.
+			 *
+			 * @param \ArrayObject $store In-memory object store
+			 */
+			public function __construct(
+				private \ArrayObject $store,
+			) {
+			}
 
-            /**
-             * Constructor.
-             *
-             * @param \ArrayObject $store In-memory object store
-             */
-            public function __construct(private \ArrayObject $store)
-            {
-            }
+			/**
+			 * Find an object by id, returning an entity-like wrapper.
+			 *
+			 * @param int|string $id Object id
+			 * @param string|int|null $register Register slug
+			 * @param string|int|null $schema Schema slug
+			 *
+			 * @return object|null
+			 */
+			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
+				$payload = ($this->store[(string)$id] ?? null);
+				if ($payload === null) {
+					return null;
+				}
 
-            /**
-             * Find an object by id, returning an entity-like wrapper.
-             *
-             * @param int|string      $id       Object id
-             * @param string|int|null $register Register slug
-             * @param string|int|null $schema   Schema slug
-             *
-             * @return object|null
-             */
-            public function find(int|string $id, string|int|null $register=null, string|int|null $schema=null): ?object
-            {
-                $payload = ($this->store[(string) $id] ?? null);
-                if ($payload === null) {
-                    return null;
-                }
+				return new class($payload) {
+					/**
+					 * Constructor.
+					 *
+					 * @param array<string, mixed> $object The payload
+					 */
+					public function __construct(
+						private array $object,
+					) {
+					}
 
-                return new class($payload) {
+					/**
+					 * Serialize like an ObjectEntity.
+					 *
+					 * @return array<string, mixed>
+					 */
+					public function jsonSerialize(): array {
+						return $this->object;
+					}
+				};
+			}
+		};
 
-                    /**
-                     * Constructor.
-                     *
-                     * @param array<string, mixed> $object The payload
-                     */
-                    public function __construct(private array $object)
-                    {
-                    }
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willReturnCallback(
+			static function (string $id) use ($objectService): object {
+				if ($id === 'OCA\OpenRegister\Service\ObjectService') {
+					return $objectService;
+				}
 
-                    /**
-                     * Serialize like an ObjectEntity.
-                     *
-                     * @return array<string, mixed>
-                     */
-                    public function jsonSerialize(): array
-                    {
-                        return $this->object;
-                    }
-                };
-            }
-        };
+				throw new \RuntimeException('not wired in test: ' . $id);
+			}
+		);
 
-        $container = $this->createMock(ContainerInterface::class);
-        $container->method('get')->willReturnCallback(
-            static function (string $id) use ($objectService): object {
-                if ($id === 'OCA\OpenRegister\Service\ObjectService') {
-                    return $objectService;
-                }
+		return new SubmissionDeadlineListener(
+			container: $container,
+			logger: new NullLogger(),
+		);
 
-                throw new \RuntimeException('not wired in test: '.$id);
-            }
-        );
+	}//end buildListener()
 
-        return new SubmissionDeadlineListener(
-            container: $container,
-            logger: new NullLogger(),
-        );
+	/**
+	 * Build an ObjectCreatingEvent carrying an entity that serialises to $row.
+	 *
+	 * @param array<string, mixed> $row The object payload being created
+	 *
+	 * @return ObjectCreatingEvent
+	 */
+	private function eventFor(array $row): ObjectCreatingEvent {
+		$entity = $this->createMock(ObjectEntity::class);
+		$entity->method('getObject')->willReturn($row);
+		$entity->method('jsonSerialize')->willReturn($row);
 
-    }//end buildListener()
+		return new ObjectCreatingEvent($entity);
+	}//end eventFor()
 
+	/**
+	 * A motion created after the meeting's deadline is rejected.
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return void
+	 */
+	public function testLateMotionRejected(): void {
+		$pastDeadline = (new \DateTimeImmutable('-1 day'))->format(\DateTimeInterface::ATOM);
+		$listener = $this->buildListener(
+			['meeting-1' => ['id' => 'meeting-1', 'submissionDeadline' => $pastDeadline]]
+		);
 
-    /**
-     * Build an ObjectCreatingEvent carrying an entity that serialises to $row.
-     *
-     * @param array<string, mixed> $row The object payload being created
-     *
-     * @return ObjectCreatingEvent
-     */
-    private function eventFor(array $row): ObjectCreatingEvent
-    {
-        $entity = $this->createMock(ObjectEntity::class);
-        $entity->method('getObject')->willReturn($row);
-        $entity->method('jsonSerialize')->willReturn($row);
+		$event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'motion', 'meeting' => 'meeting-1']);
+		$listener->handle($event);
 
-        return new ObjectCreatingEvent($entity);
+		self::assertTrue($event->isPropagationStopped());
+		self::assertSame(SubmissionDeadlineListener::REJECTION_MESSAGE, $event->getErrors()['message']);
 
-    }//end eventFor()
+	}//end testLateMotionRejected()
 
+	/**
+	 * A motion created before the deadline is allowed.
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return void
+	 */
+	public function testOnTimeMotionAllowed(): void {
+		$futureDeadline = (new \DateTimeImmutable('+1 day'))->format(\DateTimeInterface::ATOM);
+		$listener = $this->buildListener(
+			['meeting-1' => ['id' => 'meeting-1', 'submissionDeadline' => $futureDeadline]]
+		);
 
-    /**
-     * A motion created after the meeting's deadline is rejected.
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return void
-     */
-    public function testLateMotionRejected(): void
-    {
-        $pastDeadline = (new \DateTimeImmutable('-1 day'))->format(\DateTimeInterface::ATOM);
-        $listener     = $this->buildListener(
-            ['meeting-1' => ['id' => 'meeting-1', 'submissionDeadline' => $pastDeadline]]
-        );
+		$event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'motion', 'meeting' => 'meeting-1']);
+		$listener->handle($event);
 
-        $event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'motion', 'meeting' => 'meeting-1']);
-        $listener->handle($event);
+		self::assertFalse($event->isPropagationStopped());
 
-        self::assertTrue($event->isPropagationStopped());
-        self::assertSame(SubmissionDeadlineListener::REJECTION_MESSAGE, $event->getErrors()['message']);
+	}//end testOnTimeMotionAllowed()
 
-    }//end testLateMotionRejected()
+	/**
+	 * No deadline configured = the gate is opt-in, so creation is allowed.
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return void
+	 */
+	public function testNoDeadlineAllowed(): void {
+		$listener = $this->buildListener(['meeting-1' => ['id' => 'meeting-1']]);
 
+		$event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'motion', 'meeting' => 'meeting-1']);
+		$listener->handle($event);
 
-    /**
-     * A motion created before the deadline is allowed.
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return void
-     */
-    public function testOnTimeMotionAllowed(): void
-    {
-        $futureDeadline = (new \DateTimeImmutable('+1 day'))->format(\DateTimeInterface::ATOM);
-        $listener       = $this->buildListener(
-            ['meeting-1' => ['id' => 'meeting-1', 'submissionDeadline' => $futureDeadline]]
-        );
+		self::assertFalse($event->isPropagationStopped());
 
-        $event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'motion', 'meeting' => 'meeting-1']);
-        $listener->handle($event);
+	}//end testNoDeadlineAllowed()
 
-        self::assertFalse($event->isPropagationStopped());
+	/**
+	 * An amendment resolves its meeting through the parent motion and is
+	 * rejected when that meeting's deadline has passed.
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return void
+	 */
+	public function testLateAmendmentRejectedViaParentMotion(): void {
+		$pastDeadline = (new \DateTimeImmutable('-1 hour'))->format(\DateTimeInterface::ATOM);
+		$listener = $this->buildListener(
+			[
+				'meeting-1' => ['id' => 'meeting-1', 'submissionDeadline' => $pastDeadline],
+				'motion-1' => ['id' => 'motion-1', 'meeting' => 'meeting-1'],
+			]
+		);
 
-    }//end testOnTimeMotionAllowed()
+		$event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'amendment', 'amends' => 'motion-1']);
+		$listener->handle($event);
 
+		self::assertTrue($event->isPropagationStopped());
 
-    /**
-     * No deadline configured = the gate is opt-in, so creation is allowed.
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return void
-     */
-    public function testNoDeadlineAllowed(): void
-    {
-        $listener = $this->buildListener(['meeting-1' => ['id' => 'meeting-1']]);
+	}//end testLateAmendmentRejectedViaParentMotion()
 
-        $event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'motion', 'meeting' => 'meeting-1']);
-        $listener->handle($event);
+	/**
+	 * A decision whose decisionType is neither motion nor amendment is ignored
+	 * entirely.
+	 *
+	 * ADR-005 folded motion/amendment into `decision`, so the schema slug alone
+	 * no longer narrows this listener — the discriminator does. `meeting-outcome`
+	 * is the Decision schema's own default decisionType, which is exactly the
+	 * value a non-motion decision carries.
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return void
+	 */
+	public function testOtherDecisionTypeIgnored(): void {
+		$pastDeadline = (new \DateTimeImmutable('-1 day'))->format(\DateTimeInterface::ATOM);
+		$listener = $this->buildListener(
+			['meeting-1' => ['id' => 'meeting-1', 'submissionDeadline' => $pastDeadline]]
+		);
 
-        self::assertFalse($event->isPropagationStopped());
+		$event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'meeting-outcome', 'meeting' => 'meeting-1']);
+		$listener->handle($event);
 
-    }//end testNoDeadlineAllowed()
+		self::assertFalse($event->isPropagationStopped());
 
+	}//end testOtherDecisionTypeIgnored()
 
-    /**
-     * An amendment resolves its meeting through the parent motion and is
-     * rejected when that meeting's deadline has passed.
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return void
-     */
-    public function testLateAmendmentRejectedViaParentMotion(): void
-    {
-        $pastDeadline = (new \DateTimeImmutable('-1 hour'))->format(\DateTimeInterface::ATOM);
-        $listener     = $this->buildListener(
-            [
-                'meeting-1' => ['id' => 'meeting-1', 'submissionDeadline' => $pastDeadline],
-                'motion-1'  => ['id' => 'motion-1', 'meeting' => 'meeting-1'],
-            ]
-        );
+	/**
+	 * A non-ObjectCreatingEvent is ignored.
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return void
+	 */
+	public function testNonMatchingEventIgnored(): void {
+		$listener = $this->buildListener([]);
+		$event = new Event();
 
-        $event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'amendment', 'amends' => 'motion-1']);
-        $listener->handle($event);
+		$listener->handle($event);
 
-        self::assertTrue($event->isPropagationStopped());
+		self::assertFalse($event->isPropagationStopped());
 
-    }//end testLateAmendmentRejectedViaParentMotion()
+	}//end testNonMatchingEventIgnored()
 
+	/**
+	 * An infrastructure failure during lookup fails soft (no throw, allowed).
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return void
+	 */
+	public function testInfrastructureFailureFailsSoft(): void {
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willThrowException(new \RuntimeException('OR unavailable'));
 
-    /**
-     * A decision whose decisionType is neither motion nor amendment is ignored
-     * entirely.
-     *
-     * ADR-005 folded motion/amendment into `decision`, so the schema slug alone
-     * no longer narrows this listener — the discriminator does. `meeting-outcome`
-     * is the Decision schema's own default decisionType, which is exactly the
-     * value a non-motion decision carries.
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return void
-     */
-    public function testOtherDecisionTypeIgnored(): void
-    {
-        $pastDeadline = (new \DateTimeImmutable('-1 day'))->format(\DateTimeInterface::ATOM);
-        $listener     = $this->buildListener(
-            ['meeting-1' => ['id' => 'meeting-1', 'submissionDeadline' => $pastDeadline]]
-        );
+		$listener = new SubmissionDeadlineListener(
+			container: $container,
+			logger: new NullLogger(),
+		);
 
-        $event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'meeting-outcome', 'meeting' => 'meeting-1']);
-        $listener->handle($event);
+		$event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'motion', 'meeting' => 'meeting-1']);
+		$listener->handle($event);
 
-        self::assertFalse($event->isPropagationStopped());
+		self::assertFalse($event->isPropagationStopped());
 
-    }//end testOtherDecisionTypeIgnored()
-
-
-    /**
-     * A non-ObjectCreatingEvent is ignored.
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return void
-     */
-    public function testNonMatchingEventIgnored(): void
-    {
-        $listener = $this->buildListener([]);
-        $event    = new Event();
-
-        $listener->handle($event);
-
-        self::assertFalse($event->isPropagationStopped());
-
-    }//end testNonMatchingEventIgnored()
-
-
-    /**
-     * An infrastructure failure during lookup fails soft (no throw, allowed).
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return void
-     */
-    public function testInfrastructureFailureFailsSoft(): void
-    {
-        $container = $this->createMock(ContainerInterface::class);
-        $container->method('get')->willThrowException(new \RuntimeException('OR unavailable'));
-
-        $listener = new SubmissionDeadlineListener(
-            container: $container,
-            logger: new NullLogger(),
-        );
-
-        $event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'motion', 'meeting' => 'meeting-1']);
-        $listener->handle($event);
-
-        self::assertFalse($event->isPropagationStopped());
-
-    }//end testInfrastructureFailureFailsSoft()
+	}//end testInfrastructureFailureFailsSoft()
 }//end class

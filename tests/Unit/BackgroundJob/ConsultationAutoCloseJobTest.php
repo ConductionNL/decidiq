@@ -38,84 +38,80 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
  */
-class ConsultationAutoCloseJobTest extends TestCase
-{
+class ConsultationAutoCloseJobTest extends TestCase {
 
-    /**
-     * Build an ObjectEntity mock serialising to the given array.
-     *
-     * @param array<string, mixed> $data Payload.
-     *
-     * @return ObjectEntity&MockObject
-     */
-    private function entity(array $data): ObjectEntity&MockObject
-    {
-        $entity = $this->createMock(ObjectEntity::class);
-        $entity->method('jsonSerialize')->willReturn($data);
-        return $entity;
+	/**
+	 * Build an ObjectEntity mock serialising to the given array.
+	 *
+	 * @param array<string, mixed> $data Payload.
+	 *
+	 * @return ObjectEntity&MockObject
+	 */
+	private function entity(array $data): ObjectEntity&MockObject {
+		$entity = $this->createMock(ObjectEntity::class);
+		$entity->method('jsonSerialize')->willReturn($data);
+		return $entity;
+	}//end entity()
 
-    }//end entity()
+	/**
+	 * Run the job and assert only past-deadline consultations are closed.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+	 */
+	public function testClosesPastDeadlineConsultations(): void {
+		$past = (new \DateTimeImmutable('-1 day'))->format(\DateTimeInterface::ATOM);
+		$future = (new \DateTimeImmutable('+1 day'))->format(\DateTimeInterface::ATOM);
 
-    /**
-     * Run the job and assert only past-deadline consultations are closed.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
-     */
-    public function testClosesPastDeadlineConsultations(): void
-    {
-        $past   = (new \DateTimeImmutable('-1 day'))->format(\DateTimeInterface::ATOM);
-        $future = (new \DateTimeImmutable('+1 day'))->format(\DateTimeInterface::ATOM);
+		$objectService = $this->createMock(ObjectService::class);
+		$objectService->method('setRegister')->willReturnSelf();
+		$objectService->method('setSchema')->willReturnSelf();
+		// First page returns two open consultations; subsequent pages empty.
+		$objectService->method('findAll')->willReturnOnConsecutiveCalls(
+			[
+				$this->entity(['id' => 'c-past', 'status' => 'open', 'submissionDeadline' => $past]),
+				$this->entity(['id' => 'c-future', 'status' => 'open', 'submissionDeadline' => $future]),
+			],
+			[]
+		);
 
-        $objectService = $this->createMock(ObjectService::class);
-        $objectService->method('setRegister')->willReturnSelf();
-        $objectService->method('setSchema')->willReturnSelf();
-        // First page returns two open consultations; subsequent pages empty.
-        $objectService->method('findAll')->willReturnOnConsecutiveCalls(
-            [
-                $this->entity(['id' => 'c-past', 'status' => 'open', 'submissionDeadline' => $past]),
-                $this->entity(['id' => 'c-future', 'status' => 'open', 'submissionDeadline' => $future]),
-            ],
-            []
-        );
+		$lifecycle = $this->createMock(ParticipationLifecycleService::class);
+		$closed = [];
+		$lifecycle->method('transitionConsultation')->willReturnCallback(
+			function (string $consultationId, string $newStatus) use (&$closed) {
+				$closed[] = $consultationId;
+				return ['id' => $consultationId, 'status' => $newStatus];
+			}
+		);
 
-        $lifecycle = $this->createMock(ParticipationLifecycleService::class);
-        $closed    = [];
-        $lifecycle->method('transitionConsultation')->willReturnCallback(
-            function (string $consultationId, string $newStatus) use (&$closed) {
-                $closed[] = $consultationId;
-                return ['id' => $consultationId, 'status' => $newStatus];
-            }
-        );
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willReturnCallback(
+			function (string $id) use ($objectService, $lifecycle) {
+				if ($id === ParticipationLifecycleService::class) {
+					return $lifecycle;
+				}
 
-        $container = $this->createMock(ContainerInterface::class);
-        $container->method('get')->willReturnCallback(
-            function (string $id) use ($objectService, $lifecycle) {
-                if ($id === ParticipationLifecycleService::class) {
-                    return $lifecycle;
-                }
+				return $objectService;
+			}
+		);
 
-                return $objectService;
-            }
-        );
+		$timeFactory = $this->createMock(ITimeFactory::class);
+		$timeFactory->method('getTime')->willReturn(time());
 
-        $timeFactory = $this->createMock(ITimeFactory::class);
-        $timeFactory->method('getTime')->willReturn(time());
+		$job = new ConsultationAutoCloseJob(
+			time: $timeFactory,
+			container: $container,
+			logger: $this->createMock(LoggerInterface::class),
+		);
 
-        $job = new ConsultationAutoCloseJob(
-            time: $timeFactory,
-            container: $container,
-            logger: $this->createMock(LoggerInterface::class),
-        );
+		$method = new \ReflectionMethod($job, 'run');
+		$method->setAccessible(true);
+		$method->invoke($job, null);
 
-        $method = new \ReflectionMethod($job, 'run');
-        $method->setAccessible(true);
-        $method->invoke($job, null);
+		self::assertContains('c-past', $closed);
+		self::assertNotContains('c-future', $closed);
 
-        self::assertContains('c-past', $closed);
-        self::assertNotContains('c-future', $closed);
-
-    }//end testClosesPastDeadlineConsultations()
+	}//end testClosesPastDeadlineConsultations()
 
 }//end class

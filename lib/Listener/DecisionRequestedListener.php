@@ -50,127 +50,123 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/decidesk-decision-events/spec.md
  */
-class DecisionRequestedListener implements IEventListener
-{
+class DecisionRequestedListener implements IEventListener {
 
-    /**
-     * Body payload keys forwarded onto the decision-data array.
-     *
-     * @var list<string>
-     */
-    private const BODY_FIELDS = ['title', 'text', 'decisionDate', 'outcome'];
+	/**
+	 * Body payload keys forwarded onto the decision-data array.
+	 *
+	 * @var list<string>
+	 */
+	private const BODY_FIELDS = ['title', 'text', 'decisionDate', 'outcome'];
 
-    /**
-     * Constructor.
-     *
-     * @param DecisionIntegrationService $integrationService The reused create-decision service
-     * @param LoggerInterface            $logger             Logger
-     */
-    public function __construct(
-        private readonly DecisionIntegrationService $integrationService,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param DecisionIntegrationService $integrationService The reused create-decision service
+	 * @param LoggerInterface $logger Logger
+	 */
+	public function __construct(
+		private readonly DecisionIntegrationService $integrationService,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Handle a DecisionRequestedEvent.
-     *
-     * @param Event $event The dispatched event
-     *
-     * @spec openspec/specs/decidesk-decision-events/spec.md
-     *
-     * @return void
-     */
-    public function handle(Event $event): void
-    {
-        if ($event instanceof DecisionRequestedEvent === false) {
-            return;
-        }
+	/**
+	 * Handle a DecisionRequestedEvent.
+	 *
+	 * @param Event $event The dispatched event
+	 *
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
+	 *
+	 * @return void
+	 */
+	public function handle(Event $event): void {
+		if ($event instanceof DecisionRequestedEvent === false) {
+			return;
+		}
 
-        try {
-            $decisionData = $this->buildDecisionData(event: $event);
+		try {
+			$decisionData = $this->buildDecisionData(event: $event);
 
-            $result = $this->integrationService->createDecision(
-                $decisionData,
-                $event->getActorId()
-            );
+			$result = $this->integrationService->createDecision(
+				$decisionData,
+				$event->getActorId()
+			);
 
-            if ($result['success'] === true) {
-                $decisionId = (string) ($result['decisionId'] ?? '');
-                if ($decisionId !== '') {
-                    $event->setDecisionId($decisionId);
-                }
+			if ($result['success'] === true) {
+				$decisionId = (string)($result['decisionId'] ?? '');
+				if ($decisionId !== '') {
+					$event->setDecisionId($decisionId);
+				}
 
-                $event->setHandled(true);
-                $this->logger->info(
-                    'Decidesk: handled DecisionRequestedEvent',
-                    [
-                        'sourceApp'  => $event->getSourceApp(),
-                        'subjectId'  => $event->getSubjectId(),
-                        'decisionId' => $decisionId,
-                        'created'    => ($result['created'] ?? null),
-                    ]
-                );
-                return;
-            }
+				$event->setHandled(true);
+				$this->logger->info(
+					'Decidesk: handled DecisionRequestedEvent',
+					[
+						'sourceApp' => $event->getSourceApp(),
+						'subjectId' => $event->getSubjectId(),
+						'decisionId' => $decisionId,
+						'created' => ($result['created'] ?? null),
+					]
+				);
+				return;
+			}
 
-            // Non-success service result: leave the event unhandled (the producer
-            // sees isHandled() === false) and log the reason. Never throw.
-            $this->logger->warning(
-                'Decidesk: DecisionRequestedEvent not handled',
-                [
-                    'sourceApp' => $event->getSourceApp(),
-                    'subjectId' => $event->getSubjectId(),
-                    'message'   => ($result['message'] ?? 'unknown'),
-                ]
-            );
-        } catch (\Throwable $e) {
-            // The event bus must never surface a decidesk failure as an exception
-            // to the dispatching consumer; log and leave unhandled.
-            $this->logger->error(
-                'Decidesk: DecisionRequestedListener failed',
-                [
-                    'sourceApp' => $event->getSourceApp(),
-                    'subjectId' => $event->getSubjectId(),
-                    'exception' => $e->getMessage(),
-                ]
-            );
-        }//end try
+			// Non-success service result: leave the event unhandled (the producer
+			// sees isHandled() === false) and log the reason. Never throw.
+			$this->logger->warning(
+				'Decidesk: DecisionRequestedEvent not handled',
+				[
+					'sourceApp' => $event->getSourceApp(),
+					'subjectId' => $event->getSubjectId(),
+					'message' => ($result['message'] ?? 'unknown'),
+				]
+			);
+		} catch (\Throwable $e) {
+			// The event bus must never surface a decidesk failure as an exception
+			// to the dispatching consumer; log and leave unhandled.
+			$this->logger->error(
+				'Decidesk: DecisionRequestedListener failed',
+				[
+					'sourceApp' => $event->getSourceApp(),
+					'subjectId' => $event->getSubjectId(),
+					'exception' => $e->getMessage(),
+				]
+			);
+		}//end try
 
-    }//end handle()
+	}//end handle()
 
-    /**
-     * Build the decision-data array createDecision() expects from the event.
-     *
-     * @param DecisionRequestedEvent $event The request event
-     *
-     * @spec openspec/specs/decidesk-decision-events/spec.md
-     *
-     * @return array<string, mixed>
-     */
-    private function buildDecisionData(DecisionRequestedEvent $event): array
-    {
-        $decisionData = [
-            'decisionType'      => $event->getDecisionType(),
-            'sourceApp'         => $event->getSourceApp(),
-            'subjectRegister'   => $event->getSubjectRegister(),
-            'subjectSchema'     => $event->getSubjectSchema(),
-            'subjectId'         => $event->getSubjectId(),
-            'subjectLabel'      => $event->getSubjectLabel(),
-            'externalReference' => $event->getExternalReference(),
-        ];
+	/**
+	 * Build the decision-data array createDecision() expects from the event.
+	 *
+	 * @param DecisionRequestedEvent $event The request event
+	 *
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function buildDecisionData(DecisionRequestedEvent $event): array {
+		$decisionData = [
+			'decisionType' => $event->getDecisionType(),
+			'sourceApp' => $event->getSourceApp(),
+			'subjectRegister' => $event->getSubjectRegister(),
+			'subjectSchema' => $event->getSubjectSchema(),
+			'subjectId' => $event->getSubjectId(),
+			'subjectLabel' => $event->getSubjectLabel(),
+			'externalReference' => $event->getExternalReference(),
+		];
 
-        // Forward recognised body fields from the request payload (title/text/
-        // decisionDate/outcome); the service applies its own defaults for any
-        // absent value.
-        $payload = $event->getPayload();
-        foreach (self::BODY_FIELDS as $field) {
-            if (array_key_exists($field, $payload) === true) {
-                $decisionData[$field] = $payload[$field];
-            }
-        }
+		// Forward recognised body fields from the request payload (title/text/
+		// decisionDate/outcome); the service applies its own defaults for any
+		// absent value.
+		$payload = $event->getPayload();
+		foreach (self::BODY_FIELDS as $field) {
+			if (array_key_exists($field, $payload) === true) {
+				$decisionData[$field] = $payload[$field];
+			}
+		}
 
-        return $decisionData;
-
-    }//end buildDecisionData()
+		return $decisionData;
+	}//end buildDecisionData()
 }//end class

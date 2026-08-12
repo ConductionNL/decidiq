@@ -274,31 +274,37 @@ export default {
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
+
 .decidesk-tab__hint {
 	margin: 0;
 	color: var(--color-text-maxcontrast);
 	font-size: 0.9rem;
 }
+
 .decidesk-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
+
 .amendment-order__list {
 	list-style: none;
 	margin: 0;
@@ -307,6 +313,7 @@ export default {
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 }
+
 .amendment-order__item {
 	display: flex;
 	align-items: center;
@@ -316,10 +323,12 @@ export default {
 	border-radius: var(--border-radius);
 	background-color: var(--color-main-background);
 }
+
 .amendment-order__position {
 	font-weight: bold;
 	min-width: 1.5rem;
 }
+
 .amendment-order__label {
 	flex: 1;
 	display: flex;
@@ -327,10 +336,12 @@ export default {
 	gap: var(--default-grid-baseline);
 	min-width: 0;
 }
+
 .amendment-order__actions {
 	display: flex;
 	gap: 2px;
 }
+
 .amendment-order__footer {
 	display: flex;
 	gap: var(--default-grid-baseline);

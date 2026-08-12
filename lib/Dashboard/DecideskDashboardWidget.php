@@ -50,260 +50,241 @@ use OCP\IURLGenerator;
  *
  * @spec openspec/specs/dashboard/spec.md
  */
-class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidget
-{
-    /**
-     * Constructor.
-     *
-     * @param IL10N                  $l10n          App-scoped translation
-     * @param IURLGenerator          $urlGenerator  URL generator (deep links)
-     * @param ITimeFactory           $timeFactory   Clock source
-     * @param DashboardWidgetService $widgetService Per-user summary resolver
-     */
-    public function __construct(
-        private readonly IL10N $l10n,
-        private readonly IURLGenerator $urlGenerator,
-        private readonly ITimeFactory $timeFactory,
-        private readonly DashboardWidgetService $widgetService,
-    ) {
-    }//end __construct()
+class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidget {
+	/**
+	 * Constructor.
+	 *
+	 * @param IL10N $l10n App-scoped translation
+	 * @param IURLGenerator $urlGenerator URL generator (deep links)
+	 * @param ITimeFactory $timeFactory Clock source
+	 * @param DashboardWidgetService $widgetService Per-user summary resolver
+	 */
+	public function __construct(
+		private readonly IL10N $l10n,
+		private readonly IURLGenerator $urlGenerator,
+		private readonly ITimeFactory $timeFactory,
+		private readonly DashboardWidgetService $widgetService,
+	) {
+	}//end __construct()
 
-    /**
-     * Unique widget id.
-     *
-     * @spec openspec/specs/dashboard/spec.md
-     *
-     * @return string The widget id
-     */
-    public function getId(): string
-    {
-        return 'decidesk';
+	/**
+	 * Unique widget id.
+	 *
+	 * @spec openspec/specs/dashboard/spec.md
+	 *
+	 * @return string The widget id
+	 */
+	public function getId(): string {
+		return 'decidesk';
+	}//end getId()
 
-    }//end getId()
+	/**
+	 * Human-readable widget title.
+	 *
+	 * @spec openspec/specs/dashboard/spec.md
+	 *
+	 * @return string The translated title
+	 */
+	public function getTitle(): string {
+		return $this->l10n->t('Decidesk');
+	}//end getTitle()
 
-    /**
-     * Human-readable widget title.
-     *
-     * @spec openspec/specs/dashboard/spec.md
-     *
-     * @return string The translated title
-     */
-    public function getTitle(): string
-    {
-        return $this->l10n->t('Decidesk');
+	/**
+	 * Sort order among dashboard widgets.
+	 *
+	 * @spec openspec/specs/dashboard/spec.md
+	 *
+	 * @return int The order weight
+	 */
+	public function getOrder(): int {
+		return 20;
+	}//end getOrder()
 
-    }//end getTitle()
+	/**
+	 * CSS icon class (rendered before the icon url loads).
+	 *
+	 * @spec openspec/specs/dashboard/spec.md
+	 *
+	 * @return string The icon class
+	 */
+	public function getIconClass(): string {
+		return 'icon-decidesk';
+	}//end getIconClass()
 
-    /**
-     * Sort order among dashboard widgets.
-     *
-     * @spec openspec/specs/dashboard/spec.md
-     *
-     * @return int The order weight
-     */
-    public function getOrder(): int
-    {
-        return 20;
+	/**
+	 * Absolute icon url for the widget header.
+	 *
+	 * @spec openspec/specs/dashboard/spec.md
+	 *
+	 * @return string The icon url
+	 */
+	public function getIconUrl(): string {
+		return $this->urlGenerator->getAbsoluteURL(
+			$this->urlGenerator->imagePath('decidesk', 'app-dark.svg')
+		);
 
-    }//end getOrder()
+	}//end getIconUrl()
 
-    /**
-     * CSS icon class (rendered before the icon url loads).
-     *
-     * @spec openspec/specs/dashboard/spec.md
-     *
-     * @return string The icon class
-     */
-    public function getIconClass(): string
-    {
-        return 'icon-decidesk';
+	/**
+	 * Deep link opened when the widget header is clicked.
+	 *
+	 * @spec openspec/specs/dashboard/spec.md
+	 *
+	 * @return string|null The Decidesk app url
+	 */
+	public function getUrl(): ?string {
+		return $this->appUrl();
+	}//end getUrl()
 
-    }//end getIconClass()
+	/**
+	 * No server-side asset loading is required for this widget.
+	 *
+	 * @spec openspec/specs/dashboard/spec.md
+	 *
+	 * @return void
+	 */
+	public function load(): void {
+		// The IAPIWidgetV2 path renders items server-side; no JS/CSS to load.
+	}//end load()
 
-    /**
-     * Absolute icon url for the widget header.
-     *
-     * @spec openspec/specs/dashboard/spec.md
-     *
-     * @return string The icon url
-     */
-    public function getIconUrl(): string
-    {
-        return $this->urlGenerator->getAbsoluteURL(
-            $this->urlGenerator->imagePath('decidesk', 'app-dark.svg')
-        );
+	/**
+	 * Header buttons — a single "Open Decidesk" deep-link button.
+	 *
+	 * @param string $userId Current Nextcloud user id (unused — link is static)
+	 *
+	 * @spec openspec/specs/dashboard/spec.md
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 *
+	 * @return WidgetButton[] The widget buttons
+	 */
+	public function getWidgetButtons(string $userId): array {
+		return [
+			new WidgetButton(
+				WidgetButton::TYPE_MORE,
+				$this->appUrl(),
+				$this->l10n->t('Open Decidesk')
+			),
+		];
 
-    }//end getIconUrl()
+	}//end getWidgetButtons()
 
-    /**
-     * Deep link opened when the widget header is clicked.
-     *
-     * @spec openspec/specs/dashboard/spec.md
-     *
-     * @return string|null The Decidesk app url
-     */
-    public function getUrl(): ?string
-    {
-        return $this->appUrl();
+	/**
+	 * Per-user widget items: pending votes count + next upcoming meeting.
+	 *
+	 * Fail-soft: the underlying service never throws, so a broken or absent
+	 * register yields an empty item set with an empty-content message.
+	 *
+	 * @param string $userId Current Nextcloud user id (platform-resolved)
+	 * @param string|null $since Pagination cursor (unused — fixed summary)
+	 * @param int $limit Max items (unused — at most two summary items)
+	 *
+	 * @spec openspec/specs/dashboard/spec.md
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 *
+	 * @return WidgetItems The widget items
+	 */
+	public function getItemsV2(string $userId, ?string $since = null, int $limit = 7): WidgetItems {
+		$summary = $this->widgetService->getUserSummary(
+			userId: $userId,
+			now: $this->timeFactory->getTime()
+		);
 
-    }//end getUrl()
+		$appUrl = $this->appUrl();
+		$iconUrl = $this->getIconUrl();
+		$items = [];
 
-    /**
-     * No server-side asset loading is required for this widget.
-     *
-     * @spec openspec/specs/dashboard/spec.md
-     *
-     * @return void
-     */
-    public function load(): void
-    {
-        // The IAPIWidgetV2 path renders items server-side; no JS/CSS to load.
-    }//end load()
+		$pending = $summary['pendingVotes'];
+		$items[] = new WidgetItem(
+			$this->l10n->t('Pending votes: %s', [(string)$pending]),
+			$this->l10n->t('Decisions awaiting your vote'),
+			$appUrl,
+			$iconUrl,
+			'decidesk-pending-votes'
+		);
 
-    /**
-     * Header buttons — a single "Open Decidesk" deep-link button.
-     *
-     * @param string $userId Current Nextcloud user id (unused — link is static)
-     *
-     * @spec openspec/specs/dashboard/spec.md
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
-     * @return WidgetButton[] The widget buttons
-     */
-    public function getWidgetButtons(string $userId): array
-    {
-        return [
-            new WidgetButton(
-                WidgetButton::TYPE_MORE,
-                $this->appUrl(),
-                $this->l10n->t('Open Decidesk')
-            ),
-        ];
+		$items[] = $this->buildNextMeetingItem(
+			nextMeeting: ($summary['nextMeeting'] ?? null),
+			appUrl: $appUrl,
+			iconUrl: $iconUrl
+		);
 
-    }//end getWidgetButtons()
+		return new WidgetItems(
+			$items,
+			$this->l10n->t('You are all caught up'),
+		);
 
-    /**
-     * Per-user widget items: pending votes count + next upcoming meeting.
-     *
-     * Fail-soft: the underlying service never throws, so a broken or absent
-     * register yields an empty item set with an empty-content message.
-     *
-     * @param string      $userId Current Nextcloud user id (platform-resolved)
-     * @param string|null $since  Pagination cursor (unused — fixed summary)
-     * @param int         $limit  Max items (unused — at most two summary items)
-     *
-     * @spec openspec/specs/dashboard/spec.md
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
-     * @return WidgetItems The widget items
-     */
-    public function getItemsV2(string $userId, ?string $since=null, int $limit=7): WidgetItems
-    {
-        $summary = $this->widgetService->getUserSummary(
-            userId: $userId,
-            now: $this->timeFactory->getTime()
-        );
+	}//end getItemsV2()
 
-        $appUrl  = $this->appUrl();
-        $iconUrl = $this->getIconUrl();
-        $items   = [];
+	/**
+	 * Build the next-meeting widget item, or its "nothing scheduled" placeholder.
+	 *
+	 * @param mixed $nextMeeting The summary's nextMeeting entry (a meeting array, or null/absent)
+	 * @param string $appUrl Deep link to the Decidesk app root
+	 * @param string $iconUrl Widget icon url
+	 *
+	 * @spec openspec/specs/dashboard/spec.md
+	 *
+	 * @return WidgetItem The next-meeting item
+	 */
+	private function buildNextMeetingItem(mixed $nextMeeting, string $appUrl, string $iconUrl): WidgetItem {
+		if (is_array($nextMeeting) === false) {
+			return new WidgetItem(
+				$this->l10n->t('No upcoming meetings'),
+				'',
+				$appUrl,
+				$iconUrl,
+				'decidesk-next-meeting'
+			);
+		}
 
-        $pending = $summary['pendingVotes'];
-        $items[] = new WidgetItem(
-            $this->l10n->t('Pending votes: %s', [(string) $pending]),
-            $this->l10n->t('Decisions awaiting your vote'),
-            $appUrl,
-            $iconUrl,
-            'decidesk-pending-votes'
-        );
+		return new WidgetItem(
+			(string)($nextMeeting['title'] ?? ($nextMeeting['name'] ?? $this->l10n->t('Next meeting'))),
+			$this->formatMeetingSubtitle(scheduledDate: (string)($nextMeeting['scheduledDate'] ?? '')),
+			$appUrl,
+			$iconUrl,
+			'decidesk-next-meeting'
+		);
 
-        $items[] = $this->buildNextMeetingItem(
-            nextMeeting: ($summary['nextMeeting'] ?? null),
-            appUrl: $appUrl,
-            iconUrl: $iconUrl
-        );
+	}//end buildNextMeetingItem()
 
-        return new WidgetItems(
-            $items,
-            $this->l10n->t('You are all caught up'),
-        );
+	/**
+	 * Absolute url to the Decidesk app root (in-app dashboard).
+	 *
+	 * @spec openspec/specs/dashboard/spec.md
+	 *
+	 * @return string The deep-link url
+	 */
+	private function appUrl(): string {
+		try {
+			return $this->urlGenerator->linkToRouteAbsolute('decidesk.dashboard.page');
+		} catch (\Throwable) {
+			return $this->urlGenerator->getAbsoluteURL('/apps/decidesk/');
+		}
 
-    }//end getItemsV2()
+	}//end appUrl()
 
-    /**
-     * Build the next-meeting widget item, or its "nothing scheduled" placeholder.
-     *
-     * @param mixed  $nextMeeting The summary's nextMeeting entry (a meeting array, or null/absent)
-     * @param string $appUrl      Deep link to the Decidesk app root
-     * @param string $iconUrl     Widget icon url
-     *
-     * @spec openspec/specs/dashboard/spec.md
-     *
-     * @return WidgetItem The next-meeting item
-     */
-    private function buildNextMeetingItem(mixed $nextMeeting, string $appUrl, string $iconUrl): WidgetItem
-    {
-        if (is_array($nextMeeting) === false) {
-            return new WidgetItem(
-                $this->l10n->t('No upcoming meetings'),
-                '',
-                $appUrl,
-                $iconUrl,
-                'decidesk-next-meeting'
-            );
-        }
+	/**
+	 * Format the next-meeting subtitle from its scheduledDate.
+	 *
+	 * @param string $scheduledDate ISO-8601 scheduled date
+	 *
+	 * @spec openspec/specs/dashboard/spec.md
+	 *
+	 * @return string The subtitle (formatted date, or a fallback label)
+	 */
+	private function formatMeetingSubtitle(string $scheduledDate): string {
+		if ($scheduledDate === '') {
+			return $this->l10n->t('Your next meeting');
+		}
 
-        return new WidgetItem(
-            (string) ($nextMeeting['title'] ?? ($nextMeeting['name'] ?? $this->l10n->t('Next meeting'))),
-            $this->formatMeetingSubtitle(scheduledDate: (string) ($nextMeeting['scheduledDate'] ?? '')),
-            $appUrl,
-            $iconUrl,
-            'decidesk-next-meeting'
-        );
+		try {
+			$date = new DateTimeImmutable($scheduledDate);
+		} catch (\Throwable) {
+			return $this->l10n->t('Your next meeting');
+		}
 
-    }//end buildNextMeetingItem()
-
-    /**
-     * Absolute url to the Decidesk app root (in-app dashboard).
-     *
-     * @spec openspec/specs/dashboard/spec.md
-     *
-     * @return string The deep-link url
-     */
-    private function appUrl(): string
-    {
-        try {
-            return $this->urlGenerator->linkToRouteAbsolute('decidesk.dashboard.page');
-        } catch (\Throwable) {
-            return $this->urlGenerator->getAbsoluteURL('/apps/decidesk/');
-        }
-
-    }//end appUrl()
-
-    /**
-     * Format the next-meeting subtitle from its scheduledDate.
-     *
-     * @param string $scheduledDate ISO-8601 scheduled date
-     *
-     * @spec openspec/specs/dashboard/spec.md
-     *
-     * @return string The subtitle (formatted date, or a fallback label)
-     */
-    private function formatMeetingSubtitle(string $scheduledDate): string
-    {
-        if ($scheduledDate === '') {
-            return $this->l10n->t('Your next meeting');
-        }
-
-        try {
-            $date = new DateTimeImmutable($scheduledDate);
-        } catch (\Throwable) {
-            return $this->l10n->t('Your next meeting');
-        }
-
-        return $date->format('Y-m-d H:i');
-
-    }//end formatMeetingSubtitle()
+		return $date->format('Y-m-d H:i');
+	}//end formatMeetingSubtitle()
 }//end class

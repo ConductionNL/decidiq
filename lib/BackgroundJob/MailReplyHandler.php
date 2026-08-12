@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Mail Reply Handler Background Job
  *
@@ -54,151 +55,143 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
  */
-class MailReplyHandler extends TimedJob
-{
-    /**
-     * Constructor for MailReplyHandler.
-     *
-     * @param ITimeFactory           $time      Nextcloud time factory
-     * @param IAppConfig             $appConfig The app config
-     * @param ContainerInterface     $container The DI container
-     * @param LoggerInterface        $logger    The logger
-     * @param MailVoteSigner         $signer    Signs and verifies _mail entries
-     * @param MailVoteReplyProcessor $processor Turns _mail entries into votes
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
-     */
-    public function __construct(
-        ITimeFactory $time,
-        private readonly IAppConfig $appConfig,
-        private readonly ContainerInterface $container,
-        private readonly LoggerInterface $logger,
-        private readonly MailVoteSigner $signer,
-        private readonly MailVoteReplyProcessor $processor,
-    ) {
-        parent::__construct(time: $time);
-        // Run every 5 minutes.
-        $this->setInterval(seconds: 300);
+class MailReplyHandler extends TimedJob {
+	/**
+	 * Constructor for MailReplyHandler.
+	 *
+	 * @param ITimeFactory $time Nextcloud time factory
+	 * @param IAppConfig $appConfig The app config
+	 * @param ContainerInterface $container The DI container
+	 * @param LoggerInterface $logger The logger
+	 * @param MailVoteSigner $signer Signs and verifies _mail entries
+	 * @param MailVoteReplyProcessor $processor Turns _mail entries into votes
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 */
+	public function __construct(
+		ITimeFactory $time,
+		private readonly IAppConfig $appConfig,
+		private readonly ContainerInterface $container,
+		private readonly LoggerInterface $logger,
+		private readonly MailVoteSigner $signer,
+		private readonly MailVoteReplyProcessor $processor,
+	) {
+		parent::__construct(time: $time);
+		// Run every 5 minutes.
+		$this->setInterval(seconds: 300);
 
-    }//end __construct()
+	}//end __construct()
 
-    /**
-     * Compute the HMAC for a _mail entry.
-     *
-     * @param string $participantId The participant UUID
-     * @param string $roundId       The VotingRound UUID
-     * @param string $timestamp     ISO 8601 timestamp written by the ingestion path
-     *
-     * @return string The hex HMAC
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
-     */
-    public function computeMailHmac(string $participantId, string $roundId, string $timestamp): string
-    {
-        return $this->signer->compute(
-            participantId: $participantId,
-            roundId: $roundId,
-            timestamp: $timestamp
-        );
+	/**
+	 * Compute the HMAC for a _mail entry.
+	 *
+	 * @param string $participantId The participant UUID
+	 * @param string $roundId The VotingRound UUID
+	 * @param string $timestamp ISO 8601 timestamp written by the ingestion path
+	 *
+	 * @return string The hex HMAC
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 */
+	public function computeMailHmac(string $participantId, string $roundId, string $timestamp): string {
+		return $this->signer->compute(
+			participantId: $participantId,
+			roundId: $roundId,
+			timestamp: $timestamp
+		);
 
-    }//end computeMailHmac()
+	}//end computeMailHmac()
 
-    /**
-     * Sign a _mail entry array and return it with the hmac field set.
-     *
-     * The ingestion path (SMTP webhook, future API) MUST call this method before
-     * writing a _mail entry to the VotingRound object. Any entry lacking a valid
-     * hmac field is rejected by MailVoteReplyProcessor before counting.
-     *
-     * @param array<string,mixed> $entry   The raw _mail entry (must contain participantId and timestamp)
-     * @param string              $roundId The VotingRound UUID (used to derive the secret)
-     *
-     * @return array<string,mixed> The entry with hmac appended
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
-     */
-    public function signMailEntry(array $entry, string $roundId): array
-    {
-        return $this->signer->sign(entry: $entry, roundId: $roundId);
+	/**
+	 * Sign a _mail entry array and return it with the hmac field set.
+	 *
+	 * The ingestion path (SMTP webhook, future API) MUST call this method before
+	 * writing a _mail entry to the VotingRound object. Any entry lacking a valid
+	 * hmac field is rejected by MailVoteReplyProcessor before counting.
+	 *
+	 * @param array<string,mixed> $entry The raw _mail entry (must contain participantId and timestamp)
+	 * @param string $roundId The VotingRound UUID (used to derive the secret)
+	 *
+	 * @return array<string,mixed> The entry with hmac appended
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 */
+	public function signMailEntry(array $entry, string $roundId): array {
+		return $this->signer->sign(entry: $entry, roundId: $roundId);
+	}//end signMailEntry()
 
-    }//end signMailEntry()
+	/**
+	 * Parse the first non-empty line of an email reply for a vote keyword.
+	 *
+	 * Returns the canonical vote value (for/against/abstain) or null if unrecognised.
+	 *
+	 * @param string $body The email reply body
+	 *
+	 * @return string|null The canonical vote value or null
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 */
+	public function parseVoteKeyword(string $body): ?string {
+		return $this->processor->parseVoteKeyword(body: $body);
+	}//end parseVoteKeyword()
 
-    /**
-     * Parse the first non-empty line of an email reply for a vote keyword.
-     *
-     * Returns the canonical vote value (for/against/abstain) or null if unrecognised.
-     *
-     * @param string $body The email reply body
-     *
-     * @return string|null The canonical vote value or null
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
-     */
-    public function parseVoteKeyword(string $body): ?string
-    {
-        return $this->processor->parseVoteKeyword(body: $body);
+	/**
+	 * Run the background job: poll email replies and process votes.
+	 *
+	 * @param mixed $argument The job argument (unused)
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is mandated by
+	 * the OCP\BackgroundJob\Job::run() signature this method overrides. The job
+	 * carries no argument, but the parameter cannot be dropped without breaking
+	 * the parent contract.
+	 */
+	protected function run(mixed $argument): void {
+		$emailVotingEnabled = $this->appConfig->getValueString(Application::APP_ID, 'email_voting_enabled', '0');
+		if ($emailVotingEnabled !== '1') {
+			return;
+		}
 
-    }//end parseVoteKeyword()
+		try {
+			$this->processOpenRounds();
+		} catch (\Throwable $e) {
+			$this->logger->error('Decidesk: MailReplyHandler failed', ['error' => $e->getMessage()]);
+		}
 
-    /**
-     * Run the background job: poll email replies and process votes.
-     *
-     * @param mixed $argument The job argument (unused)
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is mandated by
-     * the OCP\BackgroundJob\Job::run() signature this method overrides. The job
-     * carries no argument, but the parameter cannot be dropped without breaking
-     * the parent contract.
-     */
-    protected function run(mixed $argument): void
-    {
-        $emailVotingEnabled = $this->appConfig->getValueString(Application::APP_ID, 'email_voting_enabled', '0');
-        if ($emailVotingEnabled !== '1') {
-            return;
-        }
+	}//end run()
 
-        try {
-            $this->processOpenRounds();
-        } catch (\Throwable $e) {
-            $this->logger->error('Decidesk: MailReplyHandler failed', ['error' => $e->getMessage()]);
-        }
+	/**
+	 * Find open VotingRounds and process their email reply metadata.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 */
+	private function processOpenRounds(): void {
+		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-    }//end run()
+		$objectService->setRegister('decidesk');
+		$objectService->setSchema('voting-round');
+		$roundEntities = $objectService->findAll(['filters' => ['closedAt' => null, 'openedAt' => ['!=' => null]]]);
 
-    /**
-     * Find open VotingRounds and process their email reply metadata.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
-     */
-    private function processOpenRounds(): void
-    {
-        $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		foreach ($roundEntities as $roundEntity) {
+			$round = $roundEntity->jsonSerialize();
+			$roundId = ($round['uuid'] ?? $round['id'] ?? null);
+			if ($roundId === null) {
+				continue;
+			}
 
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('voting-round');
-        $roundEntities = $objectService->findAll(['filters' => ['closedAt' => null, 'openedAt' => ['!=' => null]]]);
+			$this->processor->processRound(
+				objectService: $objectService,
+				round: $round,
+				roundId: $roundId
+			);
+		}
 
-        foreach ($roundEntities as $roundEntity) {
-            $round   = $roundEntity->jsonSerialize();
-            $roundId = ($round['uuid'] ?? $round['id'] ?? null);
-            if ($roundId === null) {
-                continue;
-            }
-
-            $this->processor->processRound(
-                objectService: $objectService,
-                round: $round,
-                roundId: $roundId
-            );
-        }
-
-    }//end processOpenRounds()
+	}//end processOpenRounds()
 }//end class
