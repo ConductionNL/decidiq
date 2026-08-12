@@ -17,7 +17,7 @@
 - **spec_ref**: `openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-002-governingdocumentversie-traced-to-its-enacting-decision`
 - **files**: `lib/Settings/register.d/55-governing-documents-register.json` (x-openregister.seedData block)
 - **acceptance_criteria**:
-  - GIVEN a clean install WHEN seed data is planted THEN the three governing documents from the design Seed Data tables exist (statuten-vng with `isPublic=true`, reglement-van-orde-gemeenteraad-amsterdam, splitsingsakte-vve-parkstaete) plus the `vve-parkstaete` governance body
+  - GIVEN a clean install WHEN seed data is planted THEN the three governing documents from the design Seed Data tables exist (statuten-vng with `isPublic=true`, reglement-van-orde-raad-amsterdam, splitsingsakte-vve-parkstaete) plus the `vve-parkstaete` governance body
   - GIVEN the four seed versions WHEN inspected THEN the statuten chain v1(`vervangen`, constitutive with aktedatum/notaris)→v2(`in-werking`, vastgesteldDoor `besluit-statutenwijziging-vng-2021`) resolves, rvo-amsterdam-v1 traces to `besluit-vaststelling-rvo-amsterdam`, and the splitsingsakte v1 carries notarial metadata without a decision link
   - GIVEN the seeded statutenwijziging decision WHEN its detail is opened THEN its `citesGoverningDocuments` entry renders as a link to the statuten
 - [ ] Implement

@@ -20,6 +20,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "bevoegdheidstoedeling",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Delegatie- en mandaatregister index (REQ-DMR-004). Columns type/delegans/delegataris/onderwerp/geldigVanaf/geldigTot/status; quick filters on status and type. Per-delegans (body or role), per-delegataris (body, function, or person), full-text search over onderwerp/beperkingen/delegataris description, and the 'geldig op' in-force-on-date filter (status van-kracht AND geldigVanaf <= X AND (geldigTot empty OR geldigTot >= X)) are wired as a pure OR list query by Task 4 — no per-row resolution service, no N+1. CSV export via the shared ExportService + CnMassExportDialog (mass-export exposed by the index chrome) includes type, delegans, delegataris, onderwerp, financieelPlafond, wettelijke grondslag, besluit, geldigheid, and status.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -38,7 +40,7 @@
 					{ "key": "type", "label": "Type", "widget": "badge" },
 					{ "key": "delegans", "label": "Delegans" },
 					{ "key": "delegatarisFunctie", "label": "Delegataris" },
-					{ "key": "onderwerp", "label": "Subject", "widget": "link" },
+					{ "key": "subject", "label": "Subject", "widget": "link" },
 					{ "key": "geldigVanaf", "label": "Valid from" },
 					{ "key": "geldigTot", "label": "Valid until" },
 					{ "key": "status", "label": "Status", "widget": "badge" }
@@ -60,9 +62,9 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "bevoegdheidstoedeling",
-				"_note": "BevoegdheidstoedelingDetail (REQ-DMR-003/004/005/006). Toedeling data leads 8-wide, publication stacked right; the linked delegans/delegatarisBody/delegatarisPersoon/besluit/ingetrokkenDoor/parentToedeling render as resolved references in the data + Related widgets. The Related widget also surfaces the ondermandaat chain (parent link + list of ondermandaten, keyboard-navigable, depth walked from the loaded chain — never stored) and the reverse lookup of decisions referencing this toedeling as bevoegdheidsgrondslag (REQ-DMR-006). Files leaf for the scanned mandaatbesluit PDF. Audit trail is a sidebar tab. The publish/withdraw actions (setting publicatiedatum/depublicatiedatum) and the chain display are wired by Tasks 4-5.",
+				"_note": "BevoegdheidstoedelingDetail (REQ-DMR-003/004/005/006). Toedeling data leads 8-wide, publication stacked right; the linked delegans/delegatarisBody/delegatarisPersoon/besluit/ingetrokkenDoor/parentToedeling render as resolved references in the data + Related widgets. The Related widget also surfaces the ondermandaat chain (parent link + list of ondermandaten, keyboard-navigable, depth walked from the loaded chain — never stored) and the reverse lookup of decisions referencing this toedeling as bevoegdheidsgrondslag (REQ-DMR-006). Files leaf for the scanned mandaatbesluit PDF. Audit trail is a sidebar tab. The publish/withdraw actions (setting publicationDate/depublicationDate) and the chain display are wired by Tasks 4-5.",
 				"widgets": [
-					{ "id": "toedeling-data", "type": "data", "title": "Delegation / mandate", "icon": "AccountKeyOutline", "content": { "columns": 2 } },
+					{ "id": "toedeling-data", "type": "data", "title": "Delegation / mandate", "icon": "ShieldCheckOutline", "content": { "columns": 2 } },
 					{ "id": "toedeling-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "toedeling-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],

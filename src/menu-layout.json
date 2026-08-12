@@ -6,8 +6,6 @@
 	},
 	"relocations": {},
 	"removals": [],
-	"settingsSection": [
-		"SettingsMenu"
-	],
-	"_settingsSectionNote": "Promoted into the NC settings foldout (the bottom-left gear, OUTSIDE the scrollable nav) by buildManifest. SettingsMenu is the app's configuration page (type:'settings' Settings) — genuinely admin/config, so it lives under the gear rather than as a top-level leaf. The operational surfaces (Dashboard, Meetings, Decisions, ActionItems, GovernanceBodies) stay top-level. Documentation and FeaturesRoadmapMenu stay in the footer section (help links, not settings)."
+	"settingsSection": [],
+	"_settingsSectionNote": "EMPTY BY DECISION, not by omission (ADR-079 D1). This list used to hold `SettingsMenu`, the in-app `type:'settings'` page at /settings. App-level configuration now has exactly ONE address — the Nextcloud settings framework at /settings/admin/decidesk, rendered by lib/Settings/AdminSettings.php and authorized SERVER-SIDE before the section renders. The in-app twin was authorized only by whatever the app remembered to check, and it also produced the `Settings › Settings` collision ADR-079 Context (4) describes: the gear foldout button is itself labelled 'Settings'. The gear now carries only per-user entries plus nc-vue's admin link-out. The operational surfaces (Dashboard, Meetings, Decisions, ActionItems, GovernanceBodies) stay top-level; Documentation and FeaturesRoadmapMenu stay in the footer section (help links, not settings)."
 }

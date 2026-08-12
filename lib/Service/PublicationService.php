@@ -3,7 +3,7 @@
  * Decidesk Publication Service
  *
  * Orchestrates the public-publication flow: eligibility, payload construction,
- * setting the OpenRegister published-predicate (publicatiedatum), OpenCatalogi
+ * setting the OpenRegister published-predicate (publicationDate), OpenCatalogi
  * routing, PublicationRecord lifecycle, and the source-object audit trail.
  * Covers publish, withdraw, and rectify.
  *
@@ -37,10 +37,10 @@ use Psr\Log\LoggerInterface;
  *
  * Anonymous read of published data happens EXCLUSIVELY through OpenRegister's
  * RBAC published-predicate surface and OpenCatalogi — never through an app-local
- * route. "Publish" means setting `publicatiedatum` on the derived payload object
+ * route. "Publish" means setting `publicationDate` on the derived payload object
  * via the normal OR object API; the PublicationPayload schema's
  * `authorization.read` rule then grants the public group read access while
- * `publicatiedatum <= $now` (and no `depublicatiedatum` in the past). When
+ * `publicationDate <= $now` (and no `depublicationDate` in the past). When
  * OpenCatalogi is absent the catalog step is skipped and the service degrades
  * gracefully with a staff-visible warning. It shares OriPublicationService's
  * graceful-degrade posture.
@@ -89,7 +89,7 @@ class PublicationService
      * Publish an eligible governance object.
      *
      * Runs the deny-list + eligibility gates, builds the allow-list payload,
-     * persists it as an immutable PublicationPayload, sets `publicatiedatum` so
+     * persists it as an immutable PublicationPayload, sets `publicationDate` so
      * the public-group RBAC rule makes it anonymously readable, routes into the
      * configured OpenCatalogi catalog, writes the PublicationRecord, and appends
      * a publish audit entry.
@@ -110,14 +110,14 @@ class PublicationService
         $version = 1;
         $payload = $this->payloadService->build($sourceType, $source, $bodyId, $version);
 
-        // Set publicatiedatum on the payload so OR's public-group RBAC rule
-        // (publicatiedatum <= $now) makes it anonymously readable through the
+        // Set publicationDate on the payload so OR's public-group RBAC rule
+        // (publicationDate <= $now) makes it anonymously readable through the
         // published-predicate surface. This is a normal field on a register-owned
         // object — written on the standard saveObject path, not a magic predicate.
         $publishedAt = $this->now();
 
-        $payload['publicatiedatum']   = $publishedAt;
-        $payload['depublicatiedatum'] = null;
+        $payload['publicationDate']   = $publishedAt;
+        $payload['depublicationDate'] = null;
         $payloadId = $this->repository->persistPayload(payload: $payload);
 
         $warnings = [];
@@ -182,7 +182,7 @@ class PublicationService
     /**
      * Withdraw a publication with a mandatory reason.
      *
-     * Sets `depublicatiedatum` on the payload (removing it from the public-group
+     * Sets `depublicationDate` on the payload (removing it from the public-group
      * RBAC surface), retracts the OpenCatalogi publication (surfacing + marking
      * pending on failure — never a silent success), resets the source object's
      * published state, records actor/reason/timestamp on the record and in the
@@ -209,9 +209,9 @@ class PublicationService
 
         $warnings = [];
 
-        // Set depublicatiedatum on the payload first so the public-group RBAC
-        // rule stops returning it (publicatiedatum <= $now is no longer the only
-        // gate once depublicatiedatum is in the past) — the data stops being
+        // Set depublicationDate on the payload first so the public-group RBAC
+        // rule stops returning it (publicationDate <= $now is no longer the only
+        // gate once depublicationDate is in the past) — the data stops being
         // anonymously readable even if the remote retraction fails.
         $this->repository->setDepublicationDate(
             payloadId: (string) $record['payloadObject'],
@@ -285,8 +285,8 @@ class PublicationService
         $publishedAt = $this->now();
 
         $payload = $this->payloadService->build($sourceType, $source, $bodyId, $newVersion);
-        $payload['publicatiedatum']   = $publishedAt;
-        $payload['depublicatiedatum'] = null;
+        $payload['publicationDate']   = $publishedAt;
+        $payload['depublicationDate'] = null;
         $payloadId = $this->repository->persistPayload(payload: $payload);
 
         $warnings = [];

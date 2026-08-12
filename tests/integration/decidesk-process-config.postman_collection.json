@@ -5,6 +5,30 @@
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"auth": { "type": "noauth" },
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Newman keeps ONE cookie jar per host, shared by every request in the run.",
+					"// Nextcloud resolves a logged-in session from that jar BEFORE it reads the",
+					"// Basic auth header, so a request carrying both runs as whoever authenticated",
+					"// last — not as the account in its own Authorization header.",
+					"//",
+					"// That is decidesk#443: three '403' assertions here saw 200/201 because the",
+					"// admin session from the setup requests was still in the jar, and were read as",
+					"// a missing admin gate. It cuts the other way too: once the non-admin has a",
+					"// session, the teardown DELETE runs as the non-admin and 403s.",
+					"//",
+					"// Every request in this collection asserts on WHO is calling, so the jar is",
+					"// dropped before each one and the Basic credentials are the only identity",
+					"// on the wire. The 'Identity guard' request proves this holds.",
+					"pm.cookies.jar().clear(pm.variables.replaceIn('{{baseUrl}}'), function () {});"
+				]
+			}
+		}
+	],
 	"variable": [
 		{ "key": "baseUrl", "value": "http://localhost:8080" },
 		{ "key": "noAuthBase", "value": "http://127.0.0.1:8080" },
@@ -138,6 +162,24 @@
 					] } } ]
 				},
 				{
+					"name": "Identity guard: the probe requests really run as the non-admin",
+					"request": {
+						"method": "GET",
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{nonAdminUser}}", "type": "string" }, { "key": "password", "value": "{{nonAdminPass}}", "type": "string" } ] },
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/ocs/v2.php/cloud/user?format=json", "host": [ "{{baseUrl}}" ], "path": [ "ocs", "v2.php", "cloud", "user" ], "query": [ { "key": "format", "value": "json" } ] }
+					},
+					"event": [
+						{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+							"pm.test('identity guard: whoami read succeeded (200)', () => pm.response.to.have.status(200));",
+							"const who = pm.response.json()?.ocs?.data?.id;",
+							"pm.test('identity guard: probe requests act as the non-admin, not admin', () => {",
+							"    pm.expect(who, 'authenticated account id').to.eql(pm.variables.replaceIn('{{nonAdminUser}}'));",
+							"});"
+						] } }
+					]
+				},
+				{
 					"name": "GET process-templates as non-admin (403)",
 					"request": {
 						"method": "GET",
@@ -145,9 +187,11 @@
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates" ] }
 					},
-					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
-						"pm.test('non-admin list is forbidden (403)', () => pm.response.to.have.status(403));"
-					] } } ]
+					"event": [
+						{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+							"pm.test('non-admin list is forbidden (403)', () => pm.response.to.have.status(403));"
+						] } }
+					]
 				},
 				{
 					"name": "POST create as non-admin (403)",
@@ -158,9 +202,11 @@
 						"body": { "mode": "raw", "raw": "{\"name\":\"hacker\",\"initialState\":\"draft\",\"stateMachine\":{\"states\":[{\"name\":\"draft\"}],\"transitions\":[]}}" },
 						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates" ] }
 					},
-					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
-						"pm.test('non-admin create is forbidden (403)', () => pm.response.to.have.status(403));"
-					] } } ]
+					"event": [
+						{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+							"pm.test('non-admin create is forbidden (403)', () => pm.response.to.have.status(403));"
+						] } }
+					]
 				},
 				{
 					"name": "POST validate as non-admin (403)",
@@ -171,9 +217,11 @@
 						"body": { "mode": "raw", "raw": "{\"initialState\":\"draft\",\"stateMachine\":{\"states\":[{\"name\":\"draft\"}],\"transitions\":[]}}" },
 						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates/validate", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates", "validate" ] }
 					},
-					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
-						"pm.test('non-admin validate is forbidden (403)', () => pm.response.to.have.status(403));"
-					] } } ]
+					"event": [
+						{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+							"pm.test('non-admin validate is forbidden (403)', () => pm.response.to.have.status(403));"
+						] } }
+					]
 				}
 			]
 		},

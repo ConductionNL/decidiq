@@ -20,6 +20,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "termijnagenda-item",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Termijnagenda index (REQ-LTA-007). Columns onderwerp/governanceBody/plannedPeriod/expectedType/ownerType/lifecycle; quick filters on lifecycle (expectedType, governanceBody and plannedPeriod are facetable and available via the index sidebar facets). CSV export via the shared ExportService + CnMassExportDialog. The overdue-KPI deep-link (deferred Dashboard widget, design D6) targets this page pre-filtered to non-terminal lifecycle.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -31,7 +33,7 @@
 					{ "label": "Lapsed", "filter": { "lifecycle": "vervallen" } }
 				],
 				"columns": [
-					{ "key": "onderwerp", "label": "Subject", "widget": "link" },
+					{ "key": "subject", "label": "Subject", "widget": "link" },
 					{ "key": "governanceBody", "label": "Governance body" },
 					{ "key": "plannedPeriod", "label": "Planned period" },
 					{ "key": "expectedType", "label": "Expected type", "widget": "badge" },
@@ -57,7 +59,7 @@
 				"schema": "termijnagenda-item",
 				"_note": "TermijnagendaDetail (REQ-LTA-006/007). Plan data leads 8-wide, publication stacked right; governanceBody/owner and the origin links (originToezegging/originMotie/originDecision) and realisation links (realisedAgendaItem/realisedDecision) render as resolved references in the data + Related widgets. verschuifHistorie (shift history) renders in the data widget as an embedded array. Files leaf for a startnotitie. Audit trail is a sidebar tab. Execution narrative for a linked motion stays on that motion's UitvoeringsUpdate log — never duplicated here (REQ-LTA-006).",
 				"widgets": [
-					{ "id": "termijnagenda-data", "type": "data", "title": "Long-term agenda item", "icon": "CalendarClockOutline", "content": { "columns": 2 } },
+					{ "id": "termijnagenda-data", "type": "data", "title": "Long-term agenda item", "icon": "Calendar", "content": { "columns": 2 } },
 					{ "id": "termijnagenda-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "termijnagenda-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],

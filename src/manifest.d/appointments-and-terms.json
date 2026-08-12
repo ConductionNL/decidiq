@@ -35,6 +35,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "voordracht",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "kandidaten is a structured array (design D1) so the primary link column uses motivering; candidates render in the detail data widget.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -72,7 +74,7 @@
 				"register": "decidesk",
 				"schema": "voordracht",
 				"widgets": [
-					{ "id": "voordracht-data", "type": "data", "title": "Nomination", "icon": "AccountMultiplePlusOutline", "content": { "columns": 2 } },
+					{ "id": "voordracht-data", "type": "data", "title": "Nomination", "icon": "AccountGroup", "content": { "columns": 2 } },
 					{ "id": "voordracht-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "voordracht-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
@@ -96,10 +98,12 @@
 			"route": "/roosters",
 			"type": "index",
 			"title": "Retirement schedules",
-			"_note": "spec: openspec/changes/appointments-and-terms/specs/appointments-and-terms/spec.md (REQ-APT-007/009/012). One rooster van aftreden per governance body. Columns body (link) / gegenereerdOp / publicatiedatum; regenerate, CSV export, and publication actions live on the detail page (imperative RoosterService endpoints, out of scope for this declarative core).",
+			"_note": "spec: openspec/changes/appointments-and-terms/specs/appointments-and-terms/spec.md (REQ-APT-007/009/012). One rooster van aftreden per governance body. Columns body (link) / gegenereerdOp / publicationDate; regenerate, CSV export, and publication actions live on the detail page (imperative RoosterService endpoints, out of scope for this declarative core).",
 			"config": {
 				"register": "decidesk",
 				"schema": "rooster-van-aftreden",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": false,
 				"quickFilters": [
@@ -108,7 +112,7 @@
 				"columns": [
 					{ "key": "body", "label": "Governance body", "widget": "link" },
 					{ "key": "gegenereerdOp", "label": "Generated at" },
-					{ "key": "publicatiedatum", "label": "Published" }
+					{ "key": "publicationDate", "label": "Published" }
 				],
 				"actions": [
 					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "RoosterDetail", "primary": true }
@@ -128,7 +132,7 @@
 				"register": "decidesk",
 				"schema": "rooster-van-aftreden",
 				"widgets": [
-					{ "id": "rooster-data", "type": "data", "title": "Retirement schedule", "icon": "CalendarMonthOutline", "content": { "columns": 2 } },
+					{ "id": "rooster-data", "type": "data", "title": "Retirement schedule", "icon": "Calendar", "content": { "columns": 2 } },
 					{ "id": "rooster-related", "type": "related", "title": "Term entries", "icon": "LinkVariant" }
 				],
 				"layout": [
@@ -154,6 +158,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "rooster-regel",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
 				"quickFilters": [
@@ -187,7 +193,7 @@
 				"register": "decidesk",
 				"schema": "rooster-regel",
 				"widgets": [
-					{ "id": "regel-data", "type": "data", "title": "Term entry", "icon": "CalendarClock", "content": { "columns": 2 } },
+					{ "id": "regel-data", "type": "data", "title": "Term entry", "icon": "Calendar", "content": { "columns": 2 } },
 					{ "id": "regel-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
 				"layout": [
@@ -213,6 +219,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "termijn-regeling",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
 				"quickFilters": [
@@ -245,7 +253,7 @@
 				"register": "decidesk",
 				"schema": "termijn-regeling",
 				"widgets": [
-					{ "id": "regeling-data", "type": "data", "title": "Term rule", "icon": "CalendarClockOutline", "content": { "columns": 2 } },
+					{ "id": "regeling-data", "type": "data", "title": "Term rule", "icon": "Calendar", "content": { "columns": 2 } },
 					{ "id": "regeling-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
 				"layout": [

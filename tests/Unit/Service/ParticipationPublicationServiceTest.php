@@ -33,7 +33,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Tests the PII-free reaction digest, setting the RBAC published predicate
- * (publicatiedatum), and the OpenCatalogi-absent graceful degradation.
+ * (publicationDate), and the OpenCatalogi-absent graceful degradation.
  *
  * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
  */
@@ -166,7 +166,7 @@ class ParticipationPublicationServiceTest extends TestCase
     }//end testReactionDigestIsPiiFree()
 
     /**
-     * Publishing consultation results sets publicatiedatum (the RBAC published
+     * Publishing consultation results sets publicationDate (the RBAC published
      * predicate), reports anonVisibilityVerified=true, and degrades with a
      * warning when OpenCatalogi is absent.
      *
@@ -188,20 +188,33 @@ class ParticipationPublicationServiceTest extends TestCase
 
         $result = $this->makeService(openCatalogi: false)->publishConsultationResults(consultationId: 'c1', staffResponse: 'Thanks');
         self::assertTrue($result['publishedPredicateSet']);
-        // RBAC model: publicatiedatum <= $now makes the object anon-readable.
+        // RBAC model: publicationDate <= $now makes the object anon-readable.
         self::assertTrue($result['anonVisibilityVerified']);
         self::assertFalse($result['openCatalogiInstalled']);
         self::assertFalse($result['openCatalogiRouted']);
         self::assertNotNull($result['warning']);
-        // The RBAC published predicate (publicatiedatum) was set on the source
+        // The RBAC published predicate (publicationDate) was set on the source
         // object as a normal field, in the past so the public-group rule matches.
-        self::assertArrayHasKey('publicatiedatum', $captured);
+        self::assertArrayHasKey('publicationDate', $captured);
         self::assertLessThanOrEqual(
             (new \DateTimeImmutable())->getTimestamp(),
-            (new \DateTimeImmutable((string) $captured['publicatiedatum']))->getTimestamp()
+            (new \DateTimeImmutable((string) $captured['publicationDate']))->getTimestamp()
         );
-        self::assertArrayHasKey('depublicatiedatum', $captured);
-        self::assertNull($captured['depublicatiedatum']);
+        // This used to assert the depublication key was present AND null — i.e. it
+        // pinned the call the code happened to make, and stayed green for exactly as
+        // long as the defect lived. OpenRegister declares the property
+        // `type: "string", format: "date-time"` and NOT nullable, and its validator
+        // rejects an explicit null rather than reading it as "absent", so writing the
+        // key failed the whole saveObject; the service's `catch (\Throwable)` logged a
+        // warning and the endpoint still answered 200 with publishedPredicateSet=false.
+        // "Not depublished" is spelled by the ABSENCE of the key.
+        //
+        // Asserted under BOTH spellings on purpose. The English one is what this
+        // branch's code writes; the Dutch one guards the merge itself, since a
+        // resolution that kept the rename but lost the unset() would leave
+        // `depublicatiedatum` behind and this line is what would catch it.
+        self::assertArrayNotHasKey('depublicationDate', $captured);
+        self::assertArrayNotHasKey('depublicatiedatum', $captured);
         // No legacy @self.published predicate is written anymore.
         self::assertArrayNotHasKey('@self', $captured);
         // The summary stored on the object is PII-free (no submitter ids).
@@ -223,5 +236,121 @@ class ParticipationPublicationServiceTest extends TestCase
         $this->makeService(openCatalogi: false)->publishReaction(reactionId: 'r1');
 
     }//end testPublishReactionRefusesNonApproved()
+
+    /**
+     * OpenRegister hands `scoreSummary` back ALREADY PARSED as an array even though
+     * the schema declares it `type: "string"`. The service used to do
+     * `(string) $evaluation['scoreSummary']`, which on an array yields the literal
+     * "Array"; `json_decode` then returned null and EVERY aggregate fell back to
+     * null, so a published board evaluation carried `overallScore: null` while the
+     * stored object held a real score. And the array was written straight back,
+     * failing validation for the whole object.
+     *
+     * The double returns the shape the COLLABORATOR really produces (an array), not
+     * the shape the caller was written to expect (a string) — mirroring the caller's
+     * expectation instead is how this stayed green in the first place.
+     *
+     * @return void
+     *
+     * @spec openspec/specs/board-self-evaluation/spec.md
+     */
+    public function testPublishEvaluationReadsAnAlreadyParsedScoreSummary(): void
+    {
+        $this->objectService->method('find')->willReturn(
+            $this->entity(
+                [
+                    'id'           => 'be1',
+                    'lifecycle'    => 'closed',
+                    'cycleLabel'   => 'E2E-Aggregate',
+                    // The shape OpenRegister actually returns: an ARRAY.
+                    'scoreSummary' => [
+                        'overallScore'    => 4,
+                        'respondentCount' => 3,
+                        'dimensionScores' => ['chair-effectiveness' => 4],
+                        'suppressed'      => false,
+                    ],
+                ]
+            )
+        );
+        $this->objectService->method('findAll')->willReturn([]);
+        $captured = [];
+        $this->objectService->method('saveObject')->willReturnCallback(
+            function (...$args) use (&$captured) {
+                $captured = $args[0] ?? [];
+                return $this->entity($captured);
+            }
+        );
+
+        $result = $this->makeService(openCatalogi: false)->publishEvaluationResults(evaluationId: 'be1');
+
+        // The aggregate is READ, not lost to a cast.
+        self::assertSame(4, $result['summary']['overallScore']);
+        self::assertSame(3, $result['summary']['respondentCount']);
+        self::assertFalse($result['summary']['suppressed']);
+
+        // The predicate write happened, so the object really is published.
+        self::assertTrue($result['publishedPredicateSet']);
+        self::assertArrayHasKey('publicationDate', $captured);
+        self::assertSame('published', $captured['lifecycle']);
+
+        // ...and it went back in the DECLARED shape: a JSON string, not an array.
+        self::assertIsString($captured['scoreSummary']);
+        self::assertSame(4, json_decode((string) $captured['scoreSummary'], true)['overallScore']);
+
+    }//end testPublishEvaluationReadsAnAlreadyParsedScoreSummary()
+
+    /**
+     * A `scoreSummary` that really is a JSON string still decodes — the fix accepts
+     * both shapes rather than swapping one bet for the other.
+     *
+     * @return void
+     *
+     * @spec openspec/specs/board-self-evaluation/spec.md
+     */
+    public function testPublishEvaluationStillReadsAJsonStringScoreSummary(): void
+    {
+        $this->objectService->method('find')->willReturn(
+            $this->entity(
+                [
+                    'id'           => 'be2',
+                    'lifecycle'    => 'closed',
+                    'scoreSummary' => json_encode(['overallScore' => 2.5, 'respondentCount' => 2, 'suppressed' => true]),
+                ]
+            )
+        );
+        $this->objectService->method('findAll')->willReturn([]);
+        $this->objectService->method('saveObject')->willReturnCallback(fn (...$args) => $this->entity($args[0] ?? []));
+
+        $result = $this->makeService(openCatalogi: false)->publishEvaluationResults(evaluationId: 'be2');
+        self::assertSame(2.5, $result['summary']['overallScore']);
+        self::assertTrue($result['summary']['suppressed']);
+
+    }//end testPublishEvaluationStillReadsAJsonStringScoreSummary()
+
+    /**
+     * A failed predicate write must be VISIBLE. It is caught on purpose — a catalog
+     * flow should not 500 because the save failed — but as a bare warning with no
+     * reader it made a total failure indistinguishable from success at HTTP 200.
+     *
+     * @return void
+     *
+     * @spec openspec/specs/citizen-participation/spec.md
+     */
+    public function testAFailedPredicateWriteIsReportedInTheWarning(): void
+    {
+        $this->objectService->method('find')->willReturn($this->entity(['id' => 'c9', 'title' => 'Visie', 'status' => 'closed']));
+        $this->objectService->method('findAll')->willReturn([]);
+        $this->objectService->method('saveObject')->willThrowException(
+            new \RuntimeException("Property 'depublicationDate' should be type 'string' but is 'null'.")
+        );
+
+        $result = $this->makeService(openCatalogi: false)->publishConsultationResults(consultationId: 'c9', staffResponse: 'Thanks');
+
+        self::assertFalse($result['publishedPredicateSet']);
+        self::assertFalse($result['anonVisibilityVerified']);
+        self::assertStringContainsString('NOT publicly readable', (string) $result['warning']);
+        self::assertStringContainsString("should be type 'string'", (string) $result['warning']);
+
+    }//end testAFailedPredicateWriteIsReportedInTheWarning()
 
 }//end class

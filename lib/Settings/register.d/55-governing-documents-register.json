@@ -1,7 +1,7 @@
 {
   "x-openregister": {
     "seedData": {
-      "description": "Seed objects for the governing-documents register (constitutive/internal governing documents — statuten, reglement van orde, splitsingsakte). Objects grouped by schema slug (governing-document, governing-document-versie), plus one new governance-body (vve-parkstaete) and two enacting Decisions merged additively into the existing decision seed set. References resolve by slug against existing decidesk seed objects (governance-body ledenraad-vng and gemeenteraad-amsterdam from decidesk_register.json; the two same-fragment Decisions for the amendment versions' vastgesteldDoor). Chain: statuten-vng carries v1 (vervangen, constitutive — no vastgesteldDoor, notarial-deed metadata documents its origin) → v2 (in-werking, traced to besluit-statutenwijziging-vng-2021) to demonstrate in-force resolution (REQ-GDR-004) and seal-on-effective immutability (REQ-GDR-003); statuten-vng has isPublic=true so the public predicate is demonstrable on a fresh install (REQ-GDR-007). reglement-van-orde-gemeenteraad-amsterdam has one vastgesteld-by-decision version (rvo-amsterdam-v1, traced to besluit-vaststelling-rvo-amsterdam). splitsingsakte-vve-parkstaete has one constitutive notarial version (no decision link). The statutenwijziging Decision carries a citesGoverningDocuments entry (document statuten-vng, artikel 'art. 20') so the citation UI is demoable on install (REQ-GDR-005). NOTE (app-wide limitation, consistent with sibling fragments 45/54): relation refs stored as slugs may not resolve on detail pages until the register import maps them to UUIDs.",
+      "description": "Seed objects for the governing-documents register (constitutive/internal governing documents — statuten, reglement van orde, splitsingsakte). Objects grouped by schema slug (governing-document, governing-document-versie), plus one new governance-body (vve-parkstaete) and two enacting Decisions merged additively into the existing decision seed set. References resolve by slug against existing decidesk seed objects (governance-body ledenraad-vng and gemeenteraad-amsterdam from decidesk_register.json; the two same-fragment Decisions for the amendment versions' vastgesteldDoor). Chain: statuten-vng carries v1 (vervangen, constitutive — no vastgesteldDoor, notarial-deed metadata documents its origin) → v2 (in-werking, traced to besluit-statutenwijziging-vng-2021) to demonstrate in-force resolution (REQ-GDR-004) and seal-on-effective immutability (REQ-GDR-003); statuten-vng has isPublic=true so the public predicate is demonstrable on a fresh install (REQ-GDR-007). reglement-van-orde-raad-amsterdam has one vastgesteld-by-decision version (rvo-amsterdam-v1, traced to besluit-vaststelling-rvo-amsterdam). splitsingsakte-vve-parkstaete has one constitutive notarial version (no decision link). The statutenwijziging Decision carries a citesGoverningDocuments entry (document statuten-vng, artikel 'art. 20') so the citation UI is demoable on install (REQ-GDR-005). NOTE (app-wide limitation, consistent with sibling fragments 45/54): relation refs stored as slugs may not resolve on detail pages until the register import maps them to UUIDs.",
       "objects": {
         "governance-body": [
           {
@@ -18,16 +18,16 @@
             "slug": "statuten-vng",
             "type": "statuten",
             "citeertitel": "Statuten Vereniging van Nederlandse Gemeenten",
-            "omschrijving": "Statuten van de vereniging (BW 2:27), constitutief bij notariële akte en gewijzigd bij besluit tot statutenwijziging van de ledenraad.",
+            "description": "Statuten van de vereniging (BW 2:27), constitutief bij notariële akte en gewijzigd bij besluit tot statutenwijziging van de ledenraad.",
             "governingBody": "ledenraad-vng",
             "isPublic": true,
             "status": "geldend"
           },
           {
-            "slug": "reglement-van-orde-gemeenteraad-amsterdam",
+            "slug": "reglement-van-orde-raad-amsterdam",
             "type": "reglement-van-orde",
             "citeertitel": "Reglement van orde gemeenteraad Amsterdam",
-            "omschrijving": "Reglement van orde van de gemeenteraad (Gemeentewet art. 16), vastgesteld bij raadsbesluit.",
+            "description": "Reglement van orde van de gemeenteraad (Gemeentewet art. 16), vastgesteld bij raadsbesluit.",
             "governingBody": "gemeenteraad-amsterdam",
             "isPublic": false,
             "status": "geldend"
@@ -36,7 +36,7 @@
             "slug": "splitsingsakte-vve-parkstaete",
             "type": "splitsingsakte",
             "citeertitel": "Splitsingsakte VvE Parkstaete",
-            "omschrijving": "Splitsingsakte (BW 5:111), constitutief bij notariële akte; geen verband met een besluit.",
+            "description": "Splitsingsakte (BW 5:111), constitutief bij notariële akte; geen verband met een besluit.",
             "governingBody": "vve-parkstaete",
             "isPublic": false,
             "status": "geldend"
@@ -48,7 +48,7 @@
             "document": "statuten-vng",
             "versienummer": 1,
             "inwerkingtreding": "1990-05-01",
-            "toelichting": "Constitutieve versie bij oprichting van de vereniging; opgericht bij notariële akte, geen verband met een besluit in decidesk.",
+            "notes": "Constitutieve versie bij oprichting van de vereniging; opgericht bij notariële akte, geen verband met een besluit in decidesk.",
             "aktedatum": "1990-04-12",
             "notaris": "mr. C. van Dam",
             "status": "vervangen"
@@ -59,18 +59,18 @@
             "versienummer": 2,
             "vastgesteldDoor": "besluit-statutenwijziging-vng-2021",
             "inwerkingtreding": "2022-01-01",
-            "toelichting": "Statutenwijziging 2021: aanpassing van de bevoegdheden van de ledenraad (art. 20).",
+            "notes": "Statutenwijziging 2021: aanpassing van de bevoegdheden van de ledenraad (art. 20).",
             "aktedatum": "2021-12-15",
             "notaris": "mr. A. de Wit",
             "status": "in-werking"
           },
           {
             "slug": "rvo-amsterdam-v1",
-            "document": "reglement-van-orde-gemeenteraad-amsterdam",
+            "document": "reglement-van-orde-raad-amsterdam",
             "versienummer": 1,
             "vastgesteldDoor": "besluit-vaststelling-rvo-amsterdam",
             "inwerkingtreding": "2023-03-01",
-            "toelichting": "Vaststelling van het reglement van orde door de gemeenteraad.",
+            "notes": "Vaststelling van het reglement van orde door de gemeenteraad.",
             "status": "in-werking"
           },
           {
@@ -78,7 +78,7 @@
             "document": "splitsingsakte-vve-parkstaete",
             "versienummer": 1,
             "inwerkingtreding": "2005-06-01",
-            "toelichting": "Constitutieve splitsingsakte bij notariële akte; geen verband met een besluit.",
+            "notes": "Constitutieve splitsingsakte bij notariële akte; geen verband met een besluit.",
             "aktedatum": "2005-05-20",
             "notaris": "mr. B. Jansen",
             "status": "in-werking"
@@ -185,7 +185,7 @@
             "description": "The document's citable name (citeertitel). Required.",
             "example": "Statuten Vereniging van Nederlandse Gemeenten"
           },
-          "omschrijving": {
+          "description": {
             "title": "Description",
             "type": "string",
             "description": "Optional description of the document."
@@ -342,7 +342,7 @@
             "description": "Optional date on which this version ceases to be in force. Empty means it stays in force until superseded by a later version.",
             "example": "2030-01-01"
           },
-          "toelichting": {
+          "notes": {
             "title": "Explanatory note",
             "type": "string",
             "description": "Summary of what this version changes relative to the previous one; for a constitutive first version, documents its origin. Internal annotation — never exposed in the public payload (REQ-GDR-007)."

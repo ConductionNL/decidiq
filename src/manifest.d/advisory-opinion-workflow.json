@@ -21,6 +21,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "adviesaanvraag",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
 				"quickFilters": [
@@ -58,7 +60,7 @@
 				"register": "decidesk",
 				"schema": "adviesaanvraag",
 				"widgets": [
-					{ "id": "adviesaanvraag-data", "type": "data", "title": "Advisory opinion", "icon": "AccountQuestionOutline", "content": { "columns": 2 } },
+					{ "id": "adviesaanvraag-data", "type": "data", "title": "Advisory opinion", "icon": "MessageTextOutline", "content": { "columns": 2 } },
 					{ "id": "adviesaanvraag-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "adviesaanvraag-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],

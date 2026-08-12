@@ -13,6 +13,7 @@
 // vue-material-design-icons.
 
 import Account from 'vue-material-design-icons/Account.vue'
+import AccountArrowRightOutline from 'vue-material-design-icons/AccountArrowRightOutline.vue'
 import AccountBoxOutline from 'vue-material-design-icons/AccountBoxOutline.vue'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
 import AccountGroupOutline from 'vue-material-design-icons/AccountGroupOutline.vue'
@@ -32,6 +33,7 @@ import BellCogOutline from 'vue-material-design-icons/BellCogOutline.vue'
 import BellOutline from 'vue-material-design-icons/BellOutline.vue'
 import BookOpenVariant from 'vue-material-design-icons/BookOpenVariant.vue'
 import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
+import Briefcase from 'vue-material-design-icons/Briefcase.vue'
 import BriefcaseAccountOutline from 'vue-material-design-icons/BriefcaseAccountOutline.vue'
 import BriefcaseOutline from 'vue-material-design-icons/BriefcaseOutline.vue'
 import BullhornOutline from 'vue-material-design-icons/BullhornOutline.vue'
@@ -95,6 +97,7 @@ import NoteTextOutline from 'vue-material-design-icons/NoteTextOutline.vue'
 import NotebookOutline from 'vue-material-design-icons/NotebookOutline.vue'
 import OfficeBuilding from 'vue-material-design-icons/OfficeBuilding.vue'
 import OfficeBuildingOutline from 'vue-material-design-icons/OfficeBuildingOutline.vue'
+import Package from 'vue-material-design-icons/Package.vue'
 import PackageVariantClosed from 'vue-material-design-icons/PackageVariantClosed.vue'
 import ReceiptOutline from 'vue-material-design-icons/ReceiptOutline.vue'
 import ScaleBalance from 'vue-material-design-icons/ScaleBalance.vue'
@@ -116,6 +119,7 @@ import Web from 'vue-material-design-icons/Web.vue'
 
 export default {
 	Account,
+	AccountArrowRightOutline,
 	AccountBoxOutline,
 	AccountGroup,
 	AccountGroupOutline,
@@ -135,6 +139,7 @@ export default {
 	BellOutline,
 	BookOpenVariant,
 	BookOpenVariantOutline,
+	Briefcase,
 	BriefcaseAccountOutline,
 	BriefcaseOutline,
 	BullhornOutline,
@@ -198,6 +203,7 @@ export default {
 	NotebookOutline,
 	OfficeBuilding,
 	OfficeBuildingOutline,
+	Package,
 	PackageVariantClosed,
 	ReceiptOutline,
 	ScaleBalance,

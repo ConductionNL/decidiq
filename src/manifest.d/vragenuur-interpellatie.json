@@ -28,11 +28,13 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "mondelinge-vraag",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Mondelinge vragen index (REQ-VRI-008). Columns vraagNummer/onderwerp/indiener/fractie/portefeuillehouder/targetMeeting/lifecycle; quick filters on lifecycle (and fractie/portefeuillehouder via the standard facet chrome); index _search matches vraagNummer and onderwerp. CSV export via the shared ExportService + CnMassExportDialog. Sorted by vraagNummer so duplicate numbers are immediately visible.",
 				"search": true,
 				"searchFields": [
 					"vraagNummer",
-					"onderwerp"
+					"subject"
 				],
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -48,9 +50,9 @@
 				],
 				"columns": [
 					{ "key": "vraagNummer", "label": "Number", "widget": "link" },
-					{ "key": "onderwerp", "label": "Subject" },
+					{ "key": "subject", "label": "Subject" },
 					{ "key": "indiener", "label": "Submitter" },
-					{ "key": "fractie", "label": "Fraction" },
+					{ "key": "politicalGroup", "label": "Fraction" },
 					{ "key": "portefeuillehouder", "label": "Portefeuillehouder" },
 					{ "key": "targetMeeting", "label": "Meeting" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
@@ -74,7 +76,7 @@
 				"schema": "mondelinge-vraag",
 				"_note": "MondelingeVraagDetail (REQ-VRI-008). Question data leads 8-wide, admission/scheduling/answer actions stacked right; the linked indiener/fractie/portefeuillehouder/governanceBody/targetMeeting/vragenuurAgendaItem/beantwoordDoor/vervolgToezegging/bronSchriftelijkeVraag/vervolgSchriftelijkeVraag render as resolved references in the data + Related widgets (navigable links, REQ-VRI-006/REQ-VRI-005 link back to the written question and the toezegging). Files leaf for the original schriftelijke-vraag PDF. Audit trail is a sidebar tab. Submission/admission/scheduling/answer run in dedicated dialogs (modal-isolation gate) wired to OralQuestionService.",
 				"widgets": [
-					{ "id": "mv-data", "type": "data", "title": "Oral question", "icon": "CommentQuestionOutline", "content": { "columns": 2 } },
+					{ "id": "mv-data", "type": "data", "title": "Oral question", "icon": "MessageTextOutline", "content": { "columns": 2 } },
 					{ "id": "mv-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "mv-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
@@ -102,11 +104,13 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "interpellatieverzoek",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Interpellaties index (REQ-VRI-014). Columns verzoekNummer/onderwerp/verzoeker/fractie/portefeuillehouder/lifecycle; the support status against the body threshold is a client-side computed display on the detail page (REQ-VRI-011), not a stored column. Quick filters on lifecycle (and fractie via facet chrome); index _search matches verzoekNummer and onderwerp. CSV export via ExportService + CnMassExportDialog. Sorted by verzoekNummer.",
 				"search": true,
 				"searchFields": [
 					"verzoekNummer",
-					"onderwerp"
+					"subject"
 				],
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -121,9 +125,9 @@
 				],
 				"columns": [
 					{ "key": "verzoekNummer", "label": "Number", "widget": "link" },
-					{ "key": "onderwerp", "label": "Subject" },
+					{ "key": "subject", "label": "Subject" },
 					{ "key": "verzoeker", "label": "Requester" },
-					{ "key": "fractie", "label": "Fraction" },
+					{ "key": "politicalGroup", "label": "Fraction" },
 					{ "key": "portefeuillehouder", "label": "Portefeuillehouder" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 				],
@@ -146,7 +150,7 @@
 				"schema": "interpellatieverzoek",
 				"_note": "InterpellatieverzoekDetail (REQ-VRI-011/REQ-VRI-012/REQ-VRI-013/REQ-VRI-014). Request data leads 8-wide, admission/scheduling/treatment actions stacked right; the linked verzoeker/fractie/portefeuillehouder/governanceBody/behandeldIn/agendaItem render as resolved references in the data + Related widgets (navigable links). Support recording (steunbetuigingen) runs in a dedicated dialog while ingediend; the support status ('N of M required', ceil) is computed client-side from VragenuurConfiguratie and the body's member count and informs, never gates. Files leaf for the written interpellation request PDF. Audit trail is a sidebar tab. Actions wired to OralQuestionService (modal-isolation gate).",
 				"widgets": [
-					{ "id": "int-data", "type": "data", "title": "Interpellation request", "icon": "AccountVoice", "content": { "columns": 2 } },
+					{ "id": "int-data", "type": "data", "title": "Interpellation request", "icon": "MessageTextOutline", "content": { "columns": 2 } },
 					{ "id": "int-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "int-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],

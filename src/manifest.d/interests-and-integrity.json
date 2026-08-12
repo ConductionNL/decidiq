@@ -34,6 +34,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "nevenfunctie",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Current-user filtering (own declarations only) is applied client-side / via OR owner-scoped RBAC; the manifest cannot express a 'current user' filter token declaratively.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -68,6 +70,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "nevenfunctie",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
 				"quickFilters": [
@@ -104,7 +108,7 @@
 				"register": "decidesk",
 				"schema": "nevenfunctie",
 				"widgets": [
-					{ "id": "nevenfunctie-data", "type": "data", "title": "Other position", "icon": "BriefcaseAccountOutline", "content": { "columns": 2 } },
+					{ "id": "nevenfunctie-data", "type": "data", "title": "Other position", "icon": "Briefcase", "content": { "columns": 2 } },
 					{ "id": "nevenfunctie-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
 				"layout": [
@@ -130,6 +134,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "geschenk",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
 				"quickFilters": [
@@ -144,7 +150,7 @@
 					{ "key": "recipient", "label": "Recipient", "widget": "link" },
 					{ "key": "type", "label": "Type", "widget": "badge" },
 					{ "key": "gever", "label": "Giver" },
-					{ "key": "omschrijving", "label": "Description" },
+					{ "key": "description", "label": "Description" },
 					{ "key": "geschatteWaarde", "label": "Value (EUR)" },
 					{ "key": "besluit", "label": "Decision", "widget": "badge" }
 				],
@@ -166,7 +172,7 @@
 				"register": "decidesk",
 				"schema": "geschenk",
 				"widgets": [
-					{ "id": "geschenk-data", "type": "data", "title": "Gift", "icon": "GiftOutline", "content": { "columns": 2 } },
+					{ "id": "geschenk-data", "type": "data", "title": "Gift", "icon": "Package", "content": { "columns": 2 } },
 					{ "id": "geschenk-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
 				"layout": [

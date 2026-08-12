@@ -256,15 +256,31 @@ export default {
 			}
 		},
 		/**
-		 * Parse the materialised scoreSummary JSON, if present.
+		 * Read the materialised scoreSummary, whichever shape it arrives in.
+		 *
+		 * The schema declares `scoreSummary` as a `string` holding JSON, and
+		 * BoardEvaluationScoreService writes it as one — but OpenRegister hands
+		 * it back to the client ALREADY PARSED, as an object. `JSON.parse()` on
+		 * that object stringifies it to "[object Object]" first, throws, and the
+		 * catch turned every real score summary into `null`: the results block
+		 * is `v-if`'d on this method, so a closed cycle with a perfectly good
+		 * summary — including the seeded 2025 comparison cycle — rendered no
+		 * score at all, with no error anywhere. Measured on a live instance:
+		 * `GET /api/objects/decidesk/board-evaluation` returns
+		 * `scoreSummary: {overallScore: 3.6, …}`, an object.
+		 *
+		 * Accept both shapes rather than betting on one.
 		 *
 		 * @param {object} evaluation The BoardEvaluation object.
-		 * @return {object|null} The parsed summary, or null.
+		 * @return {object|null} The summary, or null when absent/unreadable.
+		 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
 		 */
 		scoreSummaryFor(evaluation) {
-			if (!evaluation.scoreSummary) return null
+			const summary = evaluation.scoreSummary
+			if (!summary) return null
+			if (typeof summary === 'object') return summary
 			try {
-				return JSON.parse(evaluation.scoreSummary)
+				return JSON.parse(summary)
 			} catch {
 				return null
 			}

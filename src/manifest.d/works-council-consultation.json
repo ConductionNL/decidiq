@@ -21,6 +21,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "consultation-request",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "WOR-trajecten index (REQ-WCC-008). Columns subject/type/worArticle/bestuurder/receivedDate/requestedResponseDate/lifecycle; quick filters on type and lifecycle (governance-body filter available via the sidebar/facets). Non-public confidential list; schema ref BY SLUG consultation-request.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -66,7 +68,7 @@
 				"schema": "consultation-request",
 				"_note": "WorTrajectDetail (REQ-WCC-008). Traject data leads 8-wide, Files stacked right; the linked bestuurder/governanceBody/overlegvergadering/agendaItem/achterbanraadpleging/relatedDecision/responseDocument render as resolved references in the data + Related widgets. Files leaf for the adviesaanvraag-brief / concept-regeling / generated advies document. Audit trail is a sidebar tab. No comms leaf: the schema declares no email/calendar linkedType.",
 				"widgets": [
-					{ "id": "wor-traject-data", "type": "data", "title": "Works-council consultation", "icon": "ClipboardTextClockOutline", "content": { "columns": 2 } },
+					{ "id": "wor-traject-data", "type": "data", "title": "Works-council consultation", "icon": "ClipboardList", "content": { "columns": 2 } },
 					{ "id": "wor-traject-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "wor-traject-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],

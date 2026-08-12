@@ -160,7 +160,7 @@ class PortalContributionProvider
      * - `citizenReactions` (`consultation-reaction`, scope `submitterId`) — the
      *   citizen's own consultation reactions, projected to their own content +
      *   own-submission status; the staff-set `moderationReason` and the WOO/DIWOO
-     *   moderator publication controls (`publicatiedatum`, `depublicatiedatum`)
+     *   moderator publication controls (`publicationDate`, `depublicationDate`)
      *   are dropped.
      * - `citizenVotes` (`citizen-vote`, scope `voterId`) — the citizen's own
      *   advisory votes; the schema carries no staff/moderation column.
@@ -188,7 +188,7 @@ class PortalContributionProvider
      *   `status: 'submission'`.
      *
      * Neither whitelist EVER carries the scope field or a lifecycle/staff-only
-     * field (`moderationReason`, `publicatiedatum`, `depublicatiedatum`,
+     * field (`moderationReason`, `publicationDate`, `depublicationDate`,
      * `voteCount`, `votesFor`, `votesAgainst`) — closing the write-IDOR class
      * filed as portaliq#16. Portaliq's shared create receiver (contract v2.2)
      * consumes `scopeField` + `defaults`; it does not read `parentConstraint`, so

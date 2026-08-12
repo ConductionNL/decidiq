@@ -21,11 +21,13 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "raadsinformatiebrief",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Raadsinformatiebrieven index (REQ-RIB-007). Columns number/onderwerp/portefeuillehouder/category/sentAt/lifecycle; quick filters on lifecycle, category, governance body and portefeuillehouder; index _search matches number and onderwerp. CSV export via the shared ExportService + CnMassExportDialog (mass-export exposed by the index chrome) including number/onderwerp/portefeuillehouder/category/sentAt/lifecycle. Sorted by number so duplicate letter numbers are immediately visible (design D5).",
 				"search": true,
 				"searchFields": [
 					"number",
-					"onderwerp"
+					"subject"
 				],
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -37,7 +39,7 @@
 				],
 				"columns": [
 					{ "key": "number", "label": "Number", "widget": "link" },
-					{ "key": "onderwerp", "label": "Subject" },
+					{ "key": "subject", "label": "Subject" },
 					{ "key": "portefeuillehouder", "label": "Portefeuillehouder" },
 					{ "key": "category", "label": "Category", "widget": "badge" },
 					{ "key": "sentAt", "label": "Sent" },
@@ -60,16 +62,16 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "raadsinformatiebrief",
-				"_note": "RaadsinformatiebriefDetail (REQ-RIB-004/REQ-RIB-007). Letter data leads 8-wide, publication actions stacked right; letterDocument + bijlagen render via the Files leaf; the linked portefeuillehouder/directedTo/agendaItem/afgedaneToezegging/relatedDossier/relatedDecision/relatedMotion render as resolved references in the data + Related widgets (navigable links, REQ-RIB-003 links back to the toezegging). The technische-vragen thread is a related-objects widget scoped to technische-vraag filtered on rib=@objectId, in question order — add-question and record-answer run in dedicated dialogs (modal-isolation gate). Publish/withdraw set publicatiedatum/depublicatiedatum through the standard object save. Audit trail is a sidebar tab.",
+				"_note": "RaadsinformatiebriefDetail (REQ-RIB-004/REQ-RIB-007). Letter data leads 8-wide, publication actions stacked right; letterDocument + bijlagen render via the Files leaf; the linked portefeuillehouder/directedTo/agendaItem/afgedaneToezegging/relatedDossier/relatedDecision/relatedMotion render as resolved references in the data + Related widgets (navigable links, REQ-RIB-003 links back to the toezegging). The technische-vragen thread is a related-objects widget scoped to technische-vraag filtered on rib=@objectId, in question order — add-question and record-answer run in dedicated dialogs (modal-isolation gate). Publish/withdraw set publicationDate/depublicationDate through the standard object save. Audit trail is a sidebar tab.",
 				"widgets": [
-					{ "id": "rib-data", "type": "data", "title": "Council information letter", "icon": "EmailArrowRightOutline", "content": { "columns": 2 } },
+					{ "id": "rib-data", "type": "data", "title": "Council information letter", "icon": "Email", "content": { "columns": 2 } },
 					{ "id": "rib-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "rib-related", "type": "related", "title": "Related", "icon": "LinkVariant" },
 					{
 						"id": "rib-technische-vragen",
 						"type": "related",
 						"title": "Technical questions",
-						"icon": "CommentQuestionOutline",
+						"icon": "MessageTextOutline",
 						"content": {
 							"register": "decidesk",
 							"schema": "technische-vraag",
@@ -78,7 +80,7 @@
 							"columns": [
 								{ "key": "vraag", "label": "Question" },
 								{ "key": "gesteldDoor", "label": "Asked by" },
-								{ "key": "fractie", "label": "Fraction" },
+								{ "key": "politicalGroup", "label": "Fraction" },
 								{ "key": "gesteldOp", "label": "Asked on" },
 								{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 							]

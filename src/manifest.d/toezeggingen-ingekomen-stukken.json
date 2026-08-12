@@ -28,6 +28,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "toezegging",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Toezeggingenlijst (REQ-006). Columns text/madeBy/directedTo/deadline/lifecycle; quick filters on lifecycle and governance body. CSV export via the shared ExportService + CnMassExportDialog (mass-export exposed by the index chrome). The overdue-KPI deep-link (Dashboard) targets this page pre-filtered to non-terminal lifecycle (design D6).",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -92,6 +94,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "ingekomen-stuk",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Lijst ingekomen stukken (REQ-006). Columns title/sender/category/receivedAt/routingAdvice/lifecycle; quick filters on lifecycle, category and governance body. CSV export via ExportService + CnMassExportDialog.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -130,7 +134,7 @@
 				"schema": "ingekomen-stuk",
 				"_note": "IngekomenStukDetail (REQ-006). Document data leads 8-wide; the routing advice/decision, the linked listAgendaItem/targetAgendaItem and their meeting, and directedTo render as resolved references in the data + Related widgets. Files leaf for the scanned letter/petition PDF. Audit trail is a sidebar tab (REQ-006).",
 				"widgets": [
-					{ "id": "stuk-data", "type": "data", "title": "Incoming document", "icon": "EmailArrowLeftOutline", "content": { "columns": 2 } },
+					{ "id": "stuk-data", "type": "data", "title": "Incoming document", "icon": "Email", "content": { "columns": 2 } },
 					{ "id": "stuk-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "stuk-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],

@@ -21,6 +21,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "proxyAuthorization",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Proxy authorizations list (REQ-MPA-004). Columns grantor/holder/meeting/signatureStatus (badge); quick filters on signatureStatus so unsigned proxies are immediately distinguishable (WCAG 2.1 AA — status never by colour alone). CSV export via the shared ExportService + CnMassExportDialog. The per-meeting proxy register view and its document export (REQ-MPA-008) are surfaced imperatively on the meeting detail page, not here.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,

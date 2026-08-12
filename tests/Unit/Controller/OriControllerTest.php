@@ -36,8 +36,8 @@ use Psr\Log\LoggerInterface;
  *
  * publish-decisions-via-opencatalogi task 5.2 — the harvest feed must surface a
  * PublicationPayload only inside its RBAC published-predicate window: visible
- * once `publicatiedatum <= now`, never before that date, and gone once
- * `depublicatiedatum` is in the past. The feed must self-declare each item's ORI
+ * once `publicationDate <= now`, never before that date, and gone once
+ * `depublicationDate` is in the past. The feed must self-declare each item's ORI
  * `@type` from the payload `oriType` and carry only the allow-list, PII-free
  * fields the payload schema constructs.
  *
@@ -162,7 +162,7 @@ class OriControllerTest extends TestCase
                         'outcome'         => 'adopted',
                         'voteTotals'      => ['for' => 30, 'against' => 5, 'abstain' => 0],
                         'bodyName'        => 'Gemeenteraad Amsterdam',
-                        'publicatiedatum' => $past,
+                        'publicationDate' => $past,
                     ]
                 ),
             ]
@@ -193,7 +193,7 @@ class OriControllerTest extends TestCase
 
 
     /**
-     * A future-dated publication (publicatiedatum in the future) is NOT visible
+     * A future-dated publication (publicationDate in the future) is NOT visible
      * on the anonymous harvest feed.
      *
      * @return void
@@ -211,7 +211,7 @@ class OriControllerTest extends TestCase
                         'uuid'            => 'pub-future',
                         'oriType'         => 'Besluit',
                         'title'           => 'Embargoed decision',
-                        'publicatiedatum' => $future,
+                        'publicationDate' => $future,
                     ]
                 ),
             ]
@@ -227,8 +227,8 @@ class OriControllerTest extends TestCase
 
 
     /**
-     * A depublished publication (depublicatiedatum in the past) is gone from the
-     * harvest feed even though publicatiedatum is in the past.
+     * A depublished publication (depublicationDate in the past) is gone from the
+     * harvest feed even though publicationDate is in the past.
      *
      * @return void
      *
@@ -246,8 +246,8 @@ class OriControllerTest extends TestCase
                         'uuid'              => 'pub-withdrawn',
                         'oriType'           => 'Verslag',
                         'title'             => 'Withdrawn minutes',
-                        'publicatiedatum'   => $past,
-                        'depublicatiedatum' => $depublishPast,
+                        'publicationDate'   => $past,
+                        'depublicationDate' => $depublishPast,
                     ]
                 ),
             ]
@@ -282,8 +282,8 @@ class OriControllerTest extends TestCase
                         'title'             => 'Agenda with scheduled depublication',
                         'meetingDate'       => $past,
                         'agendaItems'       => [['oriType' => 'AgendaPunt', 'title' => 'Item 1']],
-                        'publicatiedatum'   => $past,
-                        'depublicatiedatum' => $future,
+                        'publicationDate'   => $past,
+                        'depublicationDate' => $future,
                     ]
                 ),
             ]
@@ -302,7 +302,7 @@ class OriControllerTest extends TestCase
 
 
     /**
-     * A payload with no publicatiedatum at all (never published) is not visible.
+     * A payload with no publicationDate at all (never published) is not visible.
      *
      * @return void
      *
@@ -346,7 +346,7 @@ class OriControllerTest extends TestCase
                     'uuid'            => 'pub-future',
                     'oriType'         => 'Besluit',
                     'title'           => 'Embargoed',
-                    'publicatiedatum' => $future,
+                    'publicationDate' => $future,
                 ]
             )
         );
@@ -355,6 +355,36 @@ class OriControllerTest extends TestCase
         self::assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
 
     }//end testShowFutureDatedPayloadIs404()
+
+
+    /**
+     * show() returns 404 — not 500 — when OpenRegister's published-predicate RBAC
+     * hides the payload by making find() THROW instead of returning null.
+     *
+     * The test above only covers the case where the row comes back and the
+     * not-live branch rejects it. On a real instance the anonymous caller never
+     * gets the row at all: find() raises DoesNotExistException, which the blanket
+     * Throwable catch turned into HTTP 500. A 500 is itself a disclosure here — it
+     * separates "exists but hidden" from "unknown id", which is exactly what this
+     * endpoint must never confirm.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     */
+    public function testShowIs404WhenFindThrowsDoesNotExist(): void
+    {
+        $this->objectService->method('find')->willThrowException(
+            new \OCP\AppFramework\Db\DoesNotExistException(
+                "Object with identifier 'pub-hidden' not found in any magic table"
+            )
+        );
+
+        $response = $this->controller->show(resource: 'publications', id: 'pub-hidden');
+        self::assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
+        self::assertSame('Not found', $response->getData()['message']);
+
+    }//end testShowIs404WhenFindThrowsDoesNotExist()
 
 
     /**
@@ -374,7 +404,7 @@ class OriControllerTest extends TestCase
                     'uuid'            => 'pub-live',
                     'oriType'         => 'Besluit',
                     'title'           => 'Live decision',
-                    'publicatiedatum' => $past,
+                    'publicationDate' => $past,
                 ]
             )
         );
@@ -403,6 +433,77 @@ class OriControllerTest extends TestCase
         self::assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
 
     }//end testUnknownResourceIs404()
+
+
+    /**
+     * Read the headers the controller itself set on a response.
+     *
+     * `Response::getHeaders()` merges in framework headers by asking
+     * `\OC::$server` for the request, and `\OC` does not exist in a standalone
+     * unit run. For a CORS preflight the status is not the contract, so this
+     * reads the private `headers` array that `Response::addHeader()` writes to.
+     *
+     * @param \OCP\AppFramework\Http\Response $response The response to inspect.
+     *
+     * @return array<string, string> The controller-set headers.
+     */
+    private function controllerHeaders(\OCP\AppFramework\Http\Response $response): array
+    {
+        $property = new \ReflectionProperty(\OCP\AppFramework\Http\Response::class, 'headers');
+        $property->setAccessible(true);
+
+        return (array) $property->getValue($response);
+
+    }//end controllerHeaders()
+
+
+    /**
+     * The harvest-feed list preflight answers 200 with an empty body and the
+     * full CORS header triple.
+     *
+     * The ORI feed exists to be read cross-origin by harvesters and by
+     * browser-based catalogue clients; without these headers the preflight
+     * succeeds at the status line and the real GET is never sent.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+     */
+    public function testPreflightReturnsCorsHeaders(): void
+    {
+        $response = $this->controller->preflight(resource: 'publications');
+
+        self::assertSame(Http::STATUS_OK, $response->getStatus());
+        self::assertSame([], $response->getData());
+
+        $headers = $this->controllerHeaders($response);
+        self::assertSame('https://gemeente.example', $headers['Access-Control-Allow-Origin']);
+        self::assertSame('GET, OPTIONS', $headers['Access-Control-Allow-Methods']);
+        self::assertStringContainsString('Authorization', $headers['Access-Control-Allow-Headers']);
+
+    }//end testPreflightReturnsCorsHeaders()
+
+
+    /**
+     * The item preflight (`/api/ori/v1/{resource}/{id}`) carries the same
+     * header triple as the list preflight.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+     */
+    public function testPreflightItemReturnsCorsHeaders(): void
+    {
+        $response = $this->controller->preflightItem(resource: 'publications', id: 'pub-1');
+
+        self::assertSame(Http::STATUS_OK, $response->getStatus());
+        self::assertSame([], $response->getData());
+
+        $headers = $this->controllerHeaders($response);
+        self::assertSame('https://gemeente.example', $headers['Access-Control-Allow-Origin']);
+        self::assertSame('GET, OPTIONS', $headers['Access-Control-Allow-Methods']);
+
+    }//end testPreflightItemReturnsCorsHeaders()
 
 
 }//end class

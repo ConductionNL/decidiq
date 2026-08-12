@@ -21,6 +21,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "member-consultation",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Raadplegingen index (REQ-CCO-008). Columns question/audienceType/agendaItem/closesAt/lifecycle; quick filters on lifecycle and audience type. Non-binding member poll — never a VotingRound, never a public surface (REQ-CCO-005).",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -31,7 +33,7 @@
 					{ "label": "Closed", "filter": { "lifecycle": "gesloten" } },
 					{ "label": "Processed", "filter": { "lifecycle": "verwerkt" } },
 					{ "label": "Body members", "filter": { "audienceType": "body-members" } },
-					{ "label": "Fractie", "filter": { "audienceType": "fractie" } },
+					{ "label": "Fractie", "filter": { "audienceType": "politicalGroup" } },
 					{ "label": "NC group", "filter": { "audienceType": "nc-group" } }
 				],
 				"columns": [
@@ -60,7 +62,7 @@
 				"schema": "member-consultation",
 				"_note": "RaadplegingDetail (REQ-CCO-008). Consultation data leads 8-wide; results summary stacked right. The linked agendaItem/decision and (per-response) member-consultation-response objects render as resolved references in the data and Related widgets. Audit trail is a sidebar tab. 'niet-bindende raadpleging' label shown (REQ-CCO-005).",
 				"widgets": [
-					{ "id": "raadpleging-data", "type": "data", "title": "Consultation", "icon": "AccountQuestionOutline", "content": { "columns": 2 } },
+					{ "id": "raadpleging-data", "type": "data", "title": "Consultation", "icon": "MessageTextOutline", "content": { "columns": 2 } },
 					{ "id": "raadpleging-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
 				"layout": [

@@ -30,6 +30,7 @@ namespace OCA\Decidesk\Controller;
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\OriSerializer;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
@@ -74,7 +75,7 @@ class OriController extends Controller
         // single ORI surface a national/OAI-PMH harvester can poll to discover all
         // published decisions/agendas/minutes without per-type endpoints. Visibility
         // is gated by the same RBAC published-predicate the payload schema declares
-        // (publicatiedatum <= $now, not depublished).
+        // (publicationDate <= $now, not depublished).
         'publications'  => 'publication-payload',
     ];
 
@@ -236,7 +237,7 @@ class OriController extends Controller
             // Publish-decisions-via-opencatalogi task 5.2 — the PublicationPayload
             // feed has no `lifecycle`/`isPublished` field; its anonymous visibility
             // is governed solely by the RBAC published-predicate the schema declares
-            // (public group when publicatiedatum <= $now). OR enforces that rule for
+            // (public group when publicationDate <= $now). OR enforces that rule for
             // anonymous callers; the serializer additionally filters the window in
             // PHP (defence-in-depth so a misconfigured RBAC rule cannot leak
             // future-dated or depublished payloads through the harvest feed).
@@ -323,6 +324,15 @@ class OriController extends Controller
             }
 
             $object = $this->narrowToDecisionType(resource: $resource, object: $object);
+        } catch (DoesNotExistException $e) {
+            // OpenRegister's published-predicate RBAC hides a future-dated or
+            // depublished payload from an anonymous caller by making find() THROW,
+            // not by returning null — so the not-live 404 branch below was never
+            // reached and the blanket Throwable catch turned it into a 500. A 500
+            // is itself a disclosure (it separates "exists but hidden" from
+            // "unknown id"), which is exactly what this endpoint must not do.
+            // An id we cannot read is not-found, full stop.
+            return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
         } catch (Throwable $e) {
             $this->logger->error(message: 'OriController show failed', context: ['resource' => $resource, 'id' => $id, 'exception' => $e]);
             return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -336,7 +346,7 @@ class OriController extends Controller
 
         if ($resource === self::PUBLICATIONS) {
             // PublicationPayload visibility is the RBAC published-predicate window
-            // (publicatiedatum <= $now, not depublished). A future-dated or
+            // (publicationDate <= $now, not depublished). A future-dated or
             // depublished payload is not-found for anonymous callers — return 404
             // (not 403) so the endpoint never confirms an unpublished payload exists.
             if ($this->serializer->isPayloadLive(object: (array) $object) === false) {

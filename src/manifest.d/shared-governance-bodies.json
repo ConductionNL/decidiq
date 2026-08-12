@@ -28,6 +28,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "zienswijzeronde",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Zienswijzerondes list (REQ-SGB-010 (2)). Columns title/sharedBody/subjectType/deadline/status; quick filters on subjectType and status; filterable on sharedBody. Schema ref by slug (zienswijzeronde). CSV export via the shared ExportService + CnMassExportDialog.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -72,7 +74,7 @@
 				"schema": "zienswijzeronde",
 				"_note": "ZienswijzerondeDetail (REQ-SGB-004/007). Ronde data leads 8-wide; the subject document(s) attach via the Files leaf (OR file abstraction). The Related widget surfaces the aggregated overview of all its Zienswijze objects (reverse lookup on ronde) with participant/status/standpunt/ingediendDatum/verwerking, plus the resolved sharedBody, cyclusStap (soft), and closing decision (vaststellingsbesluit) references — read from the declared x-openregister-relations, no bespoke aggregation endpoint. Status is declared in x-openregister-lifecycle. Audit trail is a sidebar tab. Schema ref by slug (zienswijzeronde).",
 				"widgets": [
-					{ "id": "ronde-data", "type": "data", "title": "Zienswijzeronde", "icon": "CommentQuoteOutline", "content": { "columns": 2 } },
+					{ "id": "ronde-data", "type": "data", "title": "Zienswijzeronde", "icon": "MessageTextOutline", "content": { "columns": 2 } },
 					{ "id": "ronde-files", "type": "integration", "integrationId": "files", "title": "Subject documents", "icon": "FolderOutline" },
 					{ "id": "ronde-related", "type": "related", "title": "Zienswijzen & references", "icon": "LinkVariant" }
 				],
@@ -100,6 +102,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "zienswijze",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Zienswijzen list (REQ-SGB-010 (3)). Filterable on participant organisation and status so each organisation sees its open zienswijze obligations; the Dashboard 'Openstaande zienswijzen' KPI (base src/manifest.json) deep-links here pre-filtered to the open set (status uitstaand/in-voorbereiding), where the participant filter gives the per-organisation view. Columns ronde/participant/standpunt/deadline/status. Schema ref by slug (zienswijze).",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,

@@ -91,7 +91,7 @@ Realistic Dutch municipal examples (fictional municipality, consistent with sibl
 
 | Field | Object 1 | Object 2 | Object 3 |
 |-------|----------|----------|----------|
-| slug | rib-2026-012-wachtlijsten-jeugdzorg | rib-2026-013-stand-van-zaken-energietransitie | rib-2026-014-afdoening-motie-fietsveiligheid |
+| slug | rib-2026-012-wachtlijsten-jeugdzorg | rib-2026-013-energietransitie | rib-2026-014-afdoening-motie-fietsveiligheid |
 | number | RIB-2026-012 | RIB-2026-013 | RIB-2026-014 |
 | onderwerp | "Wachtlijsten jeugdzorg: stand van zaken en maatregelen" | "Voortgang energietransitie gebouwde omgeving" | "Afdoening motie Fietsveiligheid schoolroutes" |
 | portefeuillehouder | (Person: wethouder, nil-UUID placeholder) | (Person: wethouder, nil-UUID placeholder) | (Person: wethouder, nil-UUID placeholder) |

@@ -182,7 +182,7 @@ final class PortalContributionProviderTest extends TestCase
             expected: ['body', 'submittedAt', 'moderationStatus', 'voteCount', 'proposalTitle', 'proposalAmount'],
             actual: $byId['citizenReactions']['fields']
         );
-        foreach (['moderationReason', 'publicatiedatum', 'depublicatiedatum', 'submitterId'] as $forbidden) {
+        foreach (['moderationReason', 'publicationDate', 'depublicationDate', 'submitterId'] as $forbidden) {
             self::assertNotContains(needle: $forbidden, haystack: $byId['citizenReactions']['fields'], message: "Reactions must drop {$forbidden}");
         }
 
@@ -269,7 +269,7 @@ final class PortalContributionProviderTest extends TestCase
         self::assertArrayHasKey(key: 'submittedAt', array: $action['defaults']);
         self::assertNotSame(expected: '', actual: $action['defaults']['submittedAt']);
 
-        foreach (['submitterId', 'moderationStatus', 'moderationReason', 'publicatiedatum', 'depublicatiedatum', 'voteCount'] as $forbidden) {
+        foreach (['submitterId', 'moderationStatus', 'moderationReason', 'publicationDate', 'depublicationDate', 'voteCount'] as $forbidden) {
             self::assertNotContains(needle: $forbidden, haystack: $action['fields'], message: "createReaction must never client-whitelist {$forbidden}");
         }
 
@@ -330,7 +330,7 @@ final class PortalContributionProviderTest extends TestCase
      */
     public function testScopeAndStaffFieldsAreNeverClientWhitelisted(): void
     {
-        $staffOnly = ['moderationReason', 'publicatiedatum', 'depublicatiedatum', 'voteCount', 'votesFor', 'votesAgainst'];
+        $staffOnly = ['moderationReason', 'publicationDate', 'depublicationDate', 'voteCount', 'votesFor', 'votesAgainst'];
 
         foreach ($this->actionsById() as $actionId => $action) {
             self::assertNotContains(

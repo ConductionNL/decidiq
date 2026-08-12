@@ -348,6 +348,18 @@ class BudgetVotingService
     /**
      * Fetch all validated/awarded proposals for a round.
      *
+     * A BudgetProposal names its round through the FLAT `participatoryBudget`
+     * property — that is the field the portal contribution provider writes
+     * (`PortalContributionProvider::citizenActions()`, createBudgetProposal) and
+     * the one `resolveBudgetId()` falls back to. OpenRegister keys the
+     * `_relations` JSONB by that same property name, so `participatoryBudget` is
+     * the filter that matches. `_relations.participatory-budget` — the schema
+     * SLUG, which this call site used to hand-write — matches no key at all and
+     * returned zero rows on a healthy HTTP 200, so calculateAllocation() ranked an
+     * empty list and publishBudgetResults() published `proposals: []` with
+     * `participationCount: 0` for every round. relatesToBudget() below still
+     * re-checks each row, so the structured-relations write shape is not lost.
+     *
      * @param string $budgetId The round UUID.
      *
      * @return array<int, array<string, mixed>> The proposal objects.
@@ -359,7 +371,7 @@ class BudgetVotingService
         $objectService = $this->objectService();
         $objectService->setRegister('decidesk');
         $objectService->setSchema('budget-proposal');
-        $entities = $objectService->findAll(['filters' => ['_relations.participatory-budget' => $budgetId]]);
+        $entities = $objectService->findAll(['filters' => ['participatoryBudget' => $budgetId]]);
 
         $result = [];
         foreach ($entities as $entity) {

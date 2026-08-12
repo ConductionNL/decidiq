@@ -54,16 +54,78 @@ class BoardEvaluationResponseService
     /**
      * Constructor.
      *
-     * @param ContainerInterface $container The DI container (lazy ObjectService lookup)
-     * @param IAppConfig         $appConfig App configuration (shared HMAC secret)
-     * @param LoggerInterface    $logger    Diagnostic logger
+     * @param ContainerInterface    $container    The DI container (lazy ObjectService lookup)
+     * @param IAppConfig            $appConfig    App configuration (shared HMAC secret)
+     * @param LoggerInterface       $logger       Diagnostic logger
+     * @param ParticipantUuidLookup $participants Nextcloud UID -> Participant UUID resolution
      */
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly IAppConfig $appConfig,
         private readonly LoggerInterface $logger,
+        private readonly ParticipantUuidLookup $participants,
     ) {
     }//end __construct()
+
+    /**
+     * Resolve which Participant the logged-in user is FOR THIS EVALUATION.
+     *
+     * The identity a response is checked against is per-body, not per-person: a
+     * member who serves on two boards has two Participant objects, and an
+     * unscoped UID lookup returns whichever one the store lists first. Feeding
+     * that into submitResponse() compares an identity from one body against the
+     * invited roster of another, so the roster check rejects a genuinely
+     * invited member and the cycle's completion count never moves — with no
+     * error the member can act on, because the rejection is a legitimate-looking
+     * "not invited to this cycle".
+     *
+     * Scope to the evaluation's own governance body. Only when the evaluation
+     * carries no body at all does the unscoped lookup stand in; the roster check
+     * in submitResponse() remains the gate either way.
+     *
+     * @param string $evaluationId UUID of the BoardEvaluation
+     * @param string $nextcloudUid The logged-in Nextcloud UID
+     *
+     * @return string|null The responding participant's UUID, or null when the
+     *                     user is not a participant of the evaluation's body
+     *
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+     */
+    public function resolveResponder(string $evaluationId, string $nextcloudUid): ?string
+    {
+        if ($evaluationId === '' || $nextcloudUid === '') {
+            return null;
+        }
+
+        $governanceBodyId = '';
+        try {
+            $entity = $this->objectService()->find(
+                id: $evaluationId,
+                register: 'decidesk',
+                schema: 'board-evaluation'
+            );
+            if ($entity !== null) {
+                $evaluation       = $entity->jsonSerialize();
+                $relations        = (array) ($evaluation['@self']['relations'] ?? []);
+                $governanceBodyId = (string) ($evaluation['governanceBody'] ?? ($relations['governanceBody'] ?? ''));
+            }
+        } catch (\Throwable $e) {
+            $this->logger->warning(
+                'Decidesk: resolving the evaluation governance body failed',
+                ['evaluationId' => $evaluationId, 'error' => $e->getMessage()]
+            );
+        }
+
+        if ($governanceBodyId === '') {
+            return $this->participants->forNextcloudUser(nextcloudUid: $nextcloudUid);
+        }
+
+        return $this->participants->forNextcloudUserInBody(
+            nextcloudUid: $nextcloudUid,
+            governanceBodyId: $governanceBodyId
+        );
+
+    }//end resolveResponder()
 
     /**
      * Submit (or idempotently re-submit) one member's anonymous response.
@@ -174,13 +236,33 @@ class BoardEvaluationResponseService
                 $freeText = (string) $freeText;
             }
 
-            $sanitised[] = [
-                'questionId'  => (string) ($answer['questionId'] ?? ''),
-                'dimension'   => (string) ($answer['dimension'] ?? ''),
-                'likertValue' => $likertValue,
-                'freeText'    => $freeText,
+            // OpenRegister declares `answers.items.likertValue` as `integer` and
+            // `answers.items.freeText` as `string`, neither of them nullable, and its
+            // validator rejects an explicit null for a typed property outright — it
+            // does NOT treat null as "absent". Writing the key with a null value
+            // therefore failed the WHOLE saveObject with
+            // `Property 'answers.0.freeText' should be type 'string' but is 'null'`,
+            // which this service catches and returns as a 422. Every likert answer
+            // carries a null freeText, so no likert response could EVER be stored:
+            // `recordCompletion()` was never reached and `respondedCount` stayed 0
+            // while the UI showed no error (the NoteCard renders outside the card the
+            // count lives in). Omit the key instead — an absent optional property is
+            // what the schema expects, and it is the fleet-standing rule for OR.
+            $entry = [
+                'questionId' => (string) ($answer['questionId'] ?? ''),
+                'dimension'  => (string) ($answer['dimension'] ?? ''),
             ];
-        }
+
+            if ($likertValue !== null) {
+                $entry['likertValue'] = $likertValue;
+            }
+
+            if ($freeText !== null) {
+                $entry['freeText'] = $freeText;
+            }
+
+            $sanitised[] = $entry;
+        }//end foreach
 
         return $sanitised;
 

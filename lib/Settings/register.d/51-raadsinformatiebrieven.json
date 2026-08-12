@@ -7,7 +7,7 @@
           {
             "slug": "rib-2026-012-wachtlijsten-jeugdzorg",
             "number": "RIB-2026-012",
-            "onderwerp": "Wachtlijsten jeugdzorg: stand van zaken en maatregelen",
+            "subject": "Wachtlijsten jeugdzorg: stand van zaken en maatregelen",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "category": "toezegging-afdoening",
             "sentAt": "2026-02-20",
@@ -19,12 +19,12 @@
             "agendaItem": "lijst-ingekomen-stukken-2025-01-15",
             "afgedaneToezegging": "toezegging-raadsbrief-jeugdzorg",
             "lifecycle": "geagendeerd",
-            "publicatiedatum": "2026-02-21T09:00:00Z"
+            "publicationDate": "2026-02-21T09:00:00Z"
           },
           {
-            "slug": "rib-2026-013-stand-van-zaken-energietransitie",
+            "slug": "rib-2026-013-energietransitie",
             "number": "RIB-2026-013",
-            "onderwerp": "Voortgang energietransitie gebouwde omgeving",
+            "subject": "Voortgang energietransitie gebouwde omgeving",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "category": "actieve-informatieplicht",
             "sentAt": "2026-03-05",
@@ -35,7 +35,7 @@
           {
             "slug": "rib-2026-014-afdoening-motie-fietsveiligheid",
             "number": "RIB-2026-014",
-            "onderwerp": "Afdoening motie Fietsveiligheid schoolroutes",
+            "subject": "Afdoening motie Fietsveiligheid schoolroutes",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "category": "motie-afdoening",
             "sentAt": "2026-03-12",
@@ -44,7 +44,7 @@
             "agendaItem": "lijst-ingekomen-stukken-2025-01-15",
             "relatedMotion": "00000000-0000-0000-0000-000000000000",
             "lifecycle": "betrokken-bij-behandeling",
-            "publicatiedatum": "2026-03-13T09:00:00Z"
+            "publicationDate": "2026-03-13T09:00:00Z"
           }
         ],
         "technische-vraag": [
@@ -53,29 +53,29 @@
             "rib": "rib-2026-012-wachtlijsten-jeugdzorg",
             "vraag": "Hoe verhoudt de genoemde gemiddelde doorlooptijd zich tot de landelijke norm?",
             "gesteldDoor": "00000000-0000-0000-0000-000000000000",
-            "fractie": "GroenLinks",
+            "politicalGroup": "GroenLinks",
             "gesteldOp": "2026-02-24",
             "antwoord": "De doorlooptijd ligt 12% boven de landelijke norm; het plan van aanpak voorziet in een reductie naar de norm binnen twee kwartalen.",
             "beantwoordDoor": "Afdeling Sociaal Domein",
             "beantwoordOp": "2026-03-02",
             "lifecycle": "beantwoord",
-            "publicatiedatum": "2026-03-03T09:00:00Z"
+            "publicationDate": "2026-03-03T09:00:00Z"
           },
           {
             "slug": "tv-rib-2026-012-regiocijfers",
             "rib": "rib-2026-012-wachtlijsten-jeugdzorg",
             "vraag": "Kunnen de wachtlijstcijfers worden uitgesplitst per regiogemeente?",
             "gesteldDoor": "00000000-0000-0000-0000-000000000000",
-            "fractie": "VVD",
+            "politicalGroup": "VVD",
             "gesteldOp": "2026-02-25",
             "lifecycle": "gesteld"
           },
           {
             "slug": "tv-rib-2026-013-netcapaciteit",
-            "rib": "rib-2026-013-stand-van-zaken-energietransitie",
+            "rib": "rib-2026-013-energietransitie",
             "vraag": "Welke wijken lopen vertraging op door netcapaciteit?",
             "gesteldDoor": "00000000-0000-0000-0000-000000000000",
-            "fractie": "D66",
+            "politicalGroup": "D66",
             "gesteldOp": "2026-03-08",
             "lifecycle": "gesteld"
           }
@@ -90,7 +90,7 @@
         "icon": "EmailArrowRightOutline",
         "version": "0.1.0",
         "title": "Raadsinformatiebrief",
-        "description": "A raadsinformatiebrief (RIB / collegebrief): the college's formal outbound information letter to the council under its actieve informatieplicht (Gemeentewet art. 169), tracked from verzending through optional agendering ter kennisname to betrokken-bij-behandeling, with a per-RIB technische-vragen thread (TechnischeVraag), an optional toezegging-afdoening cross-reference, and WOO-aware public publication via the OpenRegister published-predicate. A RIB is outbound and college-issued — it is explicitly NOT an IngekomenStuk (ingekomen-stukken-register owns inbound external mail) and college-internal drafting/parafering stays out of decidesk (procest domain); decidesk registers the sent letter only. CONSTRAINT (design D4): this schema contains ONLY publishable fields by construction (no drafts, no parafen, no addresses, no citizen PII) — portefeuillehouders are public officeholders. Adding ANY non-public property requires revisiting the public-predicate design in D4, because the whole live object is exposed through the public-group authorization.read rule when publicatiedatum <= $now.",
+        "description": "A raadsinformatiebrief (RIB / collegebrief): the college's formal outbound information letter to the council under its actieve informatieplicht (Gemeentewet art. 169), tracked from verzending through optional agendering ter kennisname to betrokken-bij-behandeling, with a per-RIB technische-vragen thread (TechnischeVraag), an optional toezegging-afdoening cross-reference, and WOO-aware public publication via the OpenRegister published-predicate. A RIB is outbound and college-issued — it is explicitly NOT an IngekomenStuk (ingekomen-stukken-register owns inbound external mail) and college-internal drafting/parafering stays out of decidesk (procest domain); decidesk registers the sent letter only. CONSTRAINT (design D4): this schema contains ONLY publishable fields by construction (no drafts, no parafen, no addresses, no citizen PII) — portefeuillehouders are public officeholders. Adding ANY non-public property requires revisiting the public-predicate design in D4, because the whole live object is exposed through the public-group authorization.read rule when publicationDate <= $now.",
         "type": "object",
         "x-schema-org": "schema:Message",
         "x-openregister": {
@@ -160,7 +160,7 @@
             {
               "group": "public",
               "match": {
-                "publicatiedatum": {
+                "publicationDate": {
                   "$lte": "$now"
                 }
               }
@@ -170,7 +170,7 @@
         },
         "required": [
           "number",
-          "onderwerp",
+          "subject",
           "portefeuillehouder",
           "category",
           "sentAt",
@@ -187,7 +187,7 @@
             "description": "Human-readable letter number in the format RIB-{jaar}-{volgnummer} (schema-validated by pattern). Required and unique per year — often assigned by the college's own systems before the letter reaches the griffie, so decidesk accepts an externally given number rather than force-generating one (design D5). The creation dialog pre-fills the next free volgnummer for the current year; uniqueness is a review/validation concern (OR has no cross-object unique constraint) and the index sorts by number so duplicates are immediately visible.",
             "example": "RIB-2026-014"
           },
-          "onderwerp": {
+          "subject": {
             "title": "Subject",
             "type": "string",
             "description": "Subject of the raadsinformatiebrief. Required.",
@@ -253,9 +253,8 @@
           "relatedDossier": {
             "title": "Related dossier",
             "type": "string",
-            "format": "uuid",
             "nullable": true,
-            "description": "Optional reference to an archival dossier (targets the ArchivalDossier planned in records-management-archiving). Nullable — until that change lands it degrades to a plain link (design D6). Tightening it to a hard $ref later is an additive schema-version bump."
+            "description": "Optional reference to an archival dossier (targets the ArchivalDossier planned in records-management-archiving). Nullable — until that change lands it degrades to a plain link (design D6). Tightening it to a hard $ref later is an additive schema-version bump. Declared WITHOUT format:uuid for the same reason: format:uuid plus a relation description with no $ref is a relation-shaped property that ADR-062 rule 7 rejects, and the $ref has no target to point at yet. Restore format:uuid + $ref together in the commit that introduces ArchivalDossier."
           },
           "relatedDecision": {
             "title": "Related decision",
@@ -283,14 +282,14 @@
             ],
             "example": "verzonden"
           },
-          "publicatiedatum": {
+          "publicationDate": {
             "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
-            "description": "Publication date (WOO/DIWOO). When set in the past, the live RIB is anonymously readable through the OpenRegister published-predicate (public-group authorization.read rule publicatiedatum <= $now). Publish is an explicit staff action; because the predicate sits on the live object the public list reflects lifecycle changes (agendering/behandeling) without republication (REQ-RIB-006 / design D4). A confidential RIB is handled by simply never setting this predicate."
+            "description": "Publication date (WOO/DIWOO). When set in the past, the live RIB is anonymously readable through the OpenRegister published-predicate (public-group authorization.read rule publicationDate <= $now). Publish is an explicit staff action; because the predicate sits on the live object the public list reflects lifecycle changes (agendering/behandeling) without republication (REQ-RIB-006 / design D4). A confidential RIB is handled by simply never setting this predicate."
           },
-          "depublicatiedatum": {
+          "depublicationDate": {
             "title": "Depublication date",
             "type": "string",
             "format": "date-time",
@@ -304,7 +303,7 @@
         "icon": "CommentQuestionOutline",
         "version": "0.1.0",
         "title": "TechnischeVraag",
-        "description": "A technische vraag: a short informational Q&A entry scoped to one raadsinformatiebrief — a brief question from a council member and the organisation's answer, rendered as a thread on the RIB detail. A technische vraag is explicitly NOT the formal art. 33 schriftelijke-vragen instrument (the planned SchriftelijkeVraag of fractievoorzitter-fractie-koppeling owns that): it carries NO answer deadlines/termijnbewaking, NO college-workflow states, and NO fractie-quorum machinery, and it is never auto-converted — escalation is a manual re-filing once SchriftelijkeVraag lands (REQ-RIB-005). CONSTRAINT (design D4): only publishable fields by construction (council members are public officeholders); an answered question is anonymously readable through the compound published-predicate (publicatiedatum <= $now AND lifecycle = beantwoord), so an unanswered question is never exposed even if its predicate is set prematurely.",
+        "description": "A technische vraag: a short informational Q&A entry scoped to one raadsinformatiebrief — a brief question from a council member and the organisation's answer, rendered as a thread on the RIB detail. A technische vraag is explicitly NOT the formal art. 33 schriftelijke-vragen instrument (the planned SchriftelijkeVraag of fractievoorzitter-fractie-koppeling owns that): it carries NO answer deadlines/termijnbewaking, NO college-workflow states, and NO fractie-quorum machinery, and it is never auto-converted — escalation is a manual re-filing once SchriftelijkeVraag lands (REQ-RIB-005). CONSTRAINT (design D4): only publishable fields by construction (council members are public officeholders); an answered question is anonymously readable through the compound published-predicate (publicationDate <= $now AND lifecycle = beantwoord), so an unanswered question is never exposed even if its predicate is set prematurely.",
         "type": "object",
         "x-schema-org": "schema:Question",
         "x-openregister": {
@@ -337,7 +336,7 @@
             {
               "group": "public",
               "match": {
-                "publicatiedatum": {
+                "publicationDate": {
                   "$lte": "$now"
                 },
                 "lifecycle": "beantwoord"
@@ -374,7 +373,7 @@
             "$ref": "Person",
             "description": "Reference to the council member (raadslid) who asked the question. Required. A public officeholder — WOO-conformant to publish (design D4)."
           },
-          "fractie": {
+          "politicalGroup": {
             "title": "Fraction",
             "type": "string",
             "facetable": true,
@@ -420,14 +419,14 @@
             ],
             "example": "gesteld"
           },
-          "publicatiedatum": {
+          "publicationDate": {
             "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
-            "description": "Publication date (WOO/DIWOO). When set in the past AND the lifecycle is beantwoord, the answered question is anonymously readable through the OpenRegister compound published-predicate (public-group authorization.read rule publicatiedatum <= $now AND lifecycle = beantwoord). The structural lifecycle condition guarantees a mistakenly set predicate can never expose an unanswered question (REQ-RIB-006 / design D4). Publish is an explicit staff action offered only on beantwoord questions."
+            "description": "Publication date (WOO/DIWOO). When set in the past AND the lifecycle is beantwoord, the answered question is anonymously readable through the OpenRegister compound published-predicate (public-group authorization.read rule publicationDate <= $now AND lifecycle = beantwoord). The structural lifecycle condition guarantees a mistakenly set predicate can never expose an unanswered question (REQ-RIB-006 / design D4). Publish is an explicit staff action offered only on beantwoord questions."
           },
-          "depublicatiedatum": {
+          "depublicationDate": {
             "title": "Depublication date",
             "type": "string",
             "format": "date-time",

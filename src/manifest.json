@@ -91,14 +91,6 @@
 			"order": 90
 		},
 		{
-			"id": "SettingsMenu",
-			"label": "Settings",
-			"icon": "CogOutline",
-			"route": "Settings",
-			"section": "settings",
-			"order": 99
-		},
-		{
 			"id": "FeaturesRoadmapMenu",
 			"label": "Features & roadmap",
 			"icon": "MapMarkerPath",
@@ -342,6 +334,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "governance-body",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"columns": [
 					"name",
 					"bodyType",
@@ -409,6 +403,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "meeting",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"columns": [
 					"title",
 					"meetingType",
@@ -522,7 +518,6 @@
 			"route": "/decisions/:id/integrations",
 			"type": "detail",
 			"title": "Decision integrations",
-			"component": "DecisionIntegrations",
 			"config": {
 				"register": "decidesk",
 				"schema": "decision",
@@ -552,7 +547,6 @@
 			"route": "/agenda-items/:id/integrations",
 			"type": "detail",
 			"title": "Agenda item integrations",
-			"component": "AgendaItemIntegrations",
 			"config": {
 				"register": "decidesk",
 				"schema": "agenda-item",
@@ -593,6 +587,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "participant",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"columns": [
 					"displayName",
 					"role",
@@ -643,6 +639,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "agenda-item",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"columns": [
 					"orderNumber",
 					"title",
@@ -714,6 +712,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "decision",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"filter": {
 					"decisionType": "motion"
 				},
@@ -849,6 +849,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "minutes",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"columns": [
 					"title",
 					"lifecycle",
@@ -909,6 +911,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "decision",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"quickFilters": [
 					{
 						"label": "Decisions",
@@ -1054,6 +1058,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "action-item",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"columns": [
 					"title",
 					"assignee",
@@ -1108,6 +1114,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "engagement-record",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"columns": [
 					"meeting",
 					"participant",
@@ -1122,189 +1130,6 @@
 					"useRegistry": true
 				},
 				"documentationUrl": "https://decidesk.conduction.nl"
-			}
-		},
-		{
-			"id": "Settings",
-			"route": "/settings",
-			"type": "settings",
-			"title": "Settings",
-			"config": {
-				"saveEndpoint": "/index.php/apps/decidesk/api/settings",
-				"sections": [
-					{
-						"title": "Version",
-						"widgets": [
-							{
-								"type": "version-info",
-								"props": {
-									"appName": "Decidesk",
-									"showUpdateButton": true,
-									"isUpToDate": true,
-									"title": "Version Information",
-									"description": "Information about the current Decidesk installation"
-								}
-							}
-						]
-					},
-					{
-						"title": "Registers",
-						"widgets": [
-							{
-								"type": "register-mapping",
-								"props": {
-									"name": "Register Configuration",
-									"description": "Configure the OpenRegister schema mappings for all Decidesk object types.",
-									"showReimportButton": true,
-									"groups": [
-										{
-											"name": "Decidesk",
-											"types": [
-												{
-													"slug": "governance-body",
-													"label": "Governance Bodies"
-												},
-												{
-													"slug": "meeting",
-													"label": "Meetings"
-												},
-												{
-													"slug": "participant",
-													"label": "Participants"
-												},
-												{
-													"slug": "agenda-item",
-													"label": "Agenda Items"
-												},
-												{
-													"slug": "motion",
-													"label": "Motions"
-												},
-												{
-													"slug": "amendment",
-													"label": "Amendments"
-												},
-												{
-													"slug": "voting-round",
-													"label": "Voting Rounds"
-												},
-												{
-													"slug": "vote",
-													"label": "Votes"
-												},
-												{
-													"slug": "decision",
-													"label": "Decisions"
-												},
-												{
-													"slug": "action-item",
-													"label": "Action Items"
-												},
-												{
-													"slug": "minutes",
-													"label": "Minutes"
-												},
-												{
-													"slug": "digital-document",
-													"label": "Digital Documents"
-												},
-												{
-													"slug": "monetary-amount",
-													"label": "Monetary Amounts"
-												},
-												{
-													"slug": "offer",
-													"label": "Offers"
-												},
-												{
-													"slug": "order",
-													"label": "Orders"
-												},
-												{
-													"slug": "product",
-													"label": "Products"
-												},
-												{
-													"slug": "report",
-													"label": "Reports"
-												},
-												{
-													"slug": "task",
-													"label": "Tasks (archived — read-only)"
-												},
-												{
-													"slug": "delegation",
-													"label": "Delegations (archived — read-only)"
-												},
-												{
-													"slug": "comment",
-													"label": "Comments (archived — read-only)"
-												},
-												{
-													"slug": "notification-preference",
-													"label": "Notification Preferences"
-												},
-												{
-													"slug": "engagement-record",
-													"label": "Engagement Records"
-												},
-												{
-													"slug": "collaboration-workspace",
-													"label": "Collaboration Workspaces (archived — read-only)"
-												}
-											]
-										}
-									]
-								}
-							}
-						]
-					},
-					{
-						"title": "Advanced",
-						"fields": [
-							{
-								"key": "organisatie_modus",
-								"type": "select",
-								"label": "Organisation mode",
-								"help": "Controls mode-specific labels across the app (e.g. Bodies label). Default: gov.",
-								"options": [
-									{
-										"value": "gov",
-										"label": "Government (gov)"
-									},
-									{
-										"value": "corp",
-										"label": "Corporate (corp)"
-									},
-									{
-										"value": "assoc",
-										"label": "Association (assoc)"
-									},
-									{
-										"value": "ops",
-										"label": "Operations (ops)"
-									},
-									{
-										"value": "citizen",
-										"label": "Citizen portal (citizen)"
-									}
-								]
-							},
-							{
-								"key": "ori_endpoint",
-								"type": "string",
-								"label": "ORI endpoint",
-								"help": "ORI API endpoint URL for publishing voting results"
-							},
-							{
-								"key": "email_voting_enabled",
-								"type": "boolean",
-								"label": "Enable email voting",
-								"help": "Enable email reply voting"
-							}
-						]
-					}
-				]
 			}
 		},
 		{
