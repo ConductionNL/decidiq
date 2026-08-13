@@ -19,8 +19,16 @@ import {
 
 describe('itemNotes helpers', () => {
 	it('returns empty defaults for an agenda item without notes', () => {
-		expect(getItemNote(undefined, 'ai-1')).toEqual({ agendaItem: 'ai-1', notes: '', decisions: '' })
-		expect(getItemNote([], 'ai-1')).toEqual({ agendaItem: 'ai-1', notes: '', decisions: '' })
+		expect(getItemNote(undefined, 'ai-1')).toEqual({
+			agendaItem: 'ai-1',
+			notes: '',
+			decisions: '',
+		})
+		expect(getItemNote([], 'ai-1')).toEqual({
+			agendaItem: 'ai-1',
+			notes: '',
+			decisions: '',
+		})
 	})
 
 	it('finds the entry for the requested agenda item', () => {
@@ -34,13 +42,17 @@ describe('itemNotes helpers', () => {
 	it('merges a patch immutably, preserving other items', () => {
 		const original = [{ agendaItem: 'ai-1', notes: 'Old', decisions: 'Keep' }]
 		const merged = mergeItemNote(original, 'ai-1', { notes: 'New' })
-		expect(merged).toEqual([{ agendaItem: 'ai-1', notes: 'New', decisions: 'Keep' }])
+		expect(merged).toEqual([
+			{ agendaItem: 'ai-1', notes: 'New', decisions: 'Keep' },
+		])
 		expect(original[0].notes).toBe('Old')
 	})
 
 	it('creates an entry when the agenda item had none yet', () => {
 		const merged = mergeItemNote([], 'ai-3', { decisions: 'Postponed' })
-		expect(merged).toEqual([{ agendaItem: 'ai-3', notes: '', decisions: 'Postponed' }])
+		expect(merged).toEqual([
+			{ agendaItem: 'ai-3', notes: '', decisions: 'Postponed' },
+		])
 	})
 
 	it('drops an entry once both notes and decisions are empty', () => {
@@ -49,7 +61,9 @@ describe('itemNotes helpers', () => {
 			{ agendaItem: 'ai-2', notes: 'keep', decisions: '' },
 		]
 		const merged = mergeItemNote(original, 'ai-1', { notes: '' })
-		expect(merged).toEqual([{ agendaItem: 'ai-2', notes: 'keep', decisions: '' }])
+		expect(merged).toEqual([
+			{ agendaItem: 'ai-2', notes: 'keep', decisions: '' },
+		])
 	})
 })
 
@@ -107,8 +121,14 @@ describe('createAutosaver (debounce, queueing, dirty/flush)', () => {
 
 	it('queues a payload scheduled while a save is in flight (no concurrent writes)', async () => {
 		let resolveFirst
-		const save = vi.fn()
-			.mockImplementationOnce(() => new Promise((resolve) => { resolveFirst = resolve }))
+		const save = vi
+			.fn()
+			.mockImplementationOnce(
+				() =>
+					new Promise((resolve) => {
+						resolveFirst = resolve
+					}),
+			)
 			.mockResolvedValue()
 		const autosaver = createAutosaver({ save, delay: 100 })
 
@@ -154,15 +174,21 @@ describe('createAutosaver (debounce, queueing, dirty/flush)', () => {
 
 describe('corrections state helpers', () => {
 	it('counts corrections by status', () => {
-		expect(correctionCounts([
-			{ status: 'proposed' },
-			{ status: 'proposed' },
-			{ status: 'accepted' },
-			{ status: 'rejected' },
-			{ status: 'weird' },
-			null,
-		])).toEqual({ proposed: 2, accepted: 1, rejected: 1 })
-		expect(correctionCounts(undefined)).toEqual({ proposed: 0, accepted: 0, rejected: 0 })
+		expect(
+			correctionCounts([
+				{ status: 'proposed' },
+				{ status: 'proposed' },
+				{ status: 'accepted' },
+				{ status: 'rejected' },
+				{ status: 'weird' },
+				null,
+			]),
+		).toEqual({ proposed: 2, accepted: 1, rejected: 1 })
+		expect(correctionCounts(undefined)).toEqual({
+			proposed: 0,
+			accepted: 0,
+			rejected: 0,
+		})
 	})
 
 	it('allows suggestions only while draft or review', () => {
@@ -176,11 +202,19 @@ describe('corrections state helpers', () => {
 
 describe('workflow actions', () => {
 	it('exposes the five lifecycle stages in forward order', () => {
-		expect(LIFECYCLE_STAGES).toEqual(['draft', 'review', 'approved', 'signed', 'published'])
+		expect(LIFECYCLE_STAGES).toEqual([
+			'draft',
+			'review',
+			'approved',
+			'signed',
+			'published',
+		])
 	})
 
 	it('offers submit from draft', () => {
-		expect(availableWorkflowActions('draft')).toEqual([{ action: 'submit', target: 'review' }])
+		expect(availableWorkflowActions('draft')).toEqual([
+			{ action: 'submit', target: 'review' },
+		])
 	})
 
 	it('offers approve and reject from review (the guarded backward step)', () => {
@@ -191,8 +225,12 @@ describe('workflow actions', () => {
 	})
 
 	it('offers sign from approved and publish from signed', () => {
-		expect(availableWorkflowActions('approved')).toEqual([{ action: 'sign', target: 'signed' }])
-		expect(availableWorkflowActions('signed')).toEqual([{ action: 'publish', target: 'published' }])
+		expect(availableWorkflowActions('approved')).toEqual([
+			{ action: 'sign', target: 'signed' },
+		])
+		expect(availableWorkflowActions('signed')).toEqual([
+			{ action: 'publish', target: 'published' },
+		])
 	})
 
 	it('offers nothing from published or unknown states', () => {

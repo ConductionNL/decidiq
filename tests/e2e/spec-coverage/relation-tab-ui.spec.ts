@@ -23,7 +23,10 @@ import { BASE_URL as BASE } from '../base-url'
 /**
  * Helper: get first object of given schema from OR API.
  */
-async function getFirstObject(page: import('@playwright/test').Page, schema: string) {
+async function getFirstObject(
+	page: import('@playwright/test').Page,
+	schema: string,
+) {
 	const resp = await page.request.get(
 		`${BASE}/index.php/apps/openregister/api/objects/decidesk/${schema}?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
@@ -37,7 +40,9 @@ async function getFirstObject(page: import('@playwright/test').Page, schema: str
 // @e2e openspec/specs/relation-tab-ui/spec.md#add-a-motion-from-the-agenda-item-motions-tab
 // @e2e openspec/specs/relation-tab-ui/spec.md#delete-a-child-object-refreshes-the-list
 // @e2e openspec/specs/relation-tab-ui/spec.md#empty-parent-issues-no-fetch
-test('agenda item detail page renders with motions sidebar tab', async ({ page }) => {
+test('agenda item detail page renders with motions sidebar tab', async ({
+	page,
+}) => {
 	const first = await getFirstObject(page, 'agenda-item')
 	test.skip(!first, 'No agenda-item objects found')
 	const itemId = first.id ?? first['@self']?.id

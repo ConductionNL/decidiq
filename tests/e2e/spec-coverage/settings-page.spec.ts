@@ -37,7 +37,9 @@ async function openAdminSettings(page: Page): Promise<void> {
 }
 
 // @e2e openspec/specs/admin-settings/spec.md#configure-organization-defaults
-test('Admin settings: the Nextcloud admin section mounts with the app configuration sections', async ({ page }) => {
+test('Admin settings: the Nextcloud admin section mounts with the app configuration sections', async ({
+	page,
+}) => {
 	await openAdminSettings(page)
 
 	await expect(page).toHaveURL(/\/settings\/admin\/decidesk/)
@@ -71,7 +73,9 @@ test('Admin settings: the Nextcloud admin section mounts with the app configurat
 // reading the label in the SPA proves persistence AND the relabel in one
 // navigation. Mutating that map to any other string fails this test and no
 // other, which is the control that makes the anchor honest.
-test('Admin settings: organisation mode saves, reaches the SPA and relabels the nav', async ({ page }) => {
+test('Admin settings: organisation mode saves, reaches the SPA and relabels the nav', async ({
+	page,
+}) => {
 	await openAdminSettings(page)
 
 	const section = page.getByTestId('organisation-mode-settings')
@@ -88,7 +92,10 @@ test('Admin settings: organisation mode saves, reaches the SPA and relabels the 
 	//    space at the split point — an option named "Association (assoc)" never
 	//    exists. Match on text content instead, which is unaffected.
 	await section.locator('[data-testid="organisation-mode"] input').first().click()
-	await page.getByRole('option').filter({ hasText: /^Association \(assoc\)$/ }).click()
+	await page
+		.getByRole('option')
+		.filter({ hasText: /^Association \(assoc\)$/ })
+		.click()
 	await section.getByTestId('organisation-mode-save').click()
 
 	// The round trip is proven against a DIFFERENT consumer, which is both
@@ -106,7 +113,8 @@ test('Admin settings: organisation mode saves, reaches the SPA and relabels the 
 	// navigation, never to widen the timeout.
 	await page.goto(`${BASE}/apps/decidesk/`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
-	const bodiesEntry = page.getByTestId('cn-nav-entry-GovernanceBodies')
+	const bodiesEntry = page
+		.getByTestId('cn-nav-entry-GovernanceBodies')
 		.or(page.getByRole('link', { name: /^Factions & (bodies|committees)$/ }))
 		.first()
 	// Asserting the gov label is ABSENT as well as the assoc label present is
@@ -118,39 +126,60 @@ test('Admin settings: organisation mode saves, reaches the SPA and relabels the 
 	// any later spec that reads the mode. Cleanup goes through the API on
 	// purpose: it is not the thing under test, and a third SPA boot is what
 	// broke this test's budget.
-	const restore = await page.request.put(`${BASE}/index.php/apps/decidesk/api/settings`, {
-		headers: {
-			'Content-Type': 'application/json',
-			requesttoken: (await (await page.request.get(`${BASE}/index.php/csrftoken`)).json()).token,
+	const restore = await page.request.put(
+		`${BASE}/index.php/apps/decidesk/api/settings`,
+		{
+			headers: {
+				'Content-Type': 'application/json',
+				requesttoken: (
+					await (
+						await page.request.get(`${BASE}/index.php/csrftoken`)
+					).json()
+				).token,
+			},
+			data: { organisatie_modus: 'gov' },
 		},
-		data: { organisatie_modus: 'gov' },
-	})
+	)
 	expect(restore.status(), 'restoring organisatie_modus=gov').toBeLessThan(300)
 })
 
 // @e2e openspec/specs/openregister-integration/spec.md#configure-register-mapping
-test('Admin settings: register mapping exposes its configuration actions', async ({ page }) => {
+test('Admin settings: register mapping exposes its configuration actions', async ({
+	page,
+}) => {
 	await openAdminSettings(page)
 
 	// CnAdminSettingsShell renders the register/schema mapping for the app.
 	// These are the actions the old in-app page could never paint.
-	await expect(page.getByRole('button', { name: /Re-?import configuration/i }).first()).toBeVisible()
+	await expect(
+		page.getByRole('button', { name: /Re-?import configuration/i }).first(),
+	).toBeVisible()
 })
 
 // @e2e openspec/specs/admin-settings/spec.md#configure-organization-defaults
-test('Admin settings: no decidesk-origin 5xx and no decidesk console error on load', async ({ page }) => {
+test('Admin settings: no decidesk-origin 5xx and no decidesk console error on load', async ({
+	page,
+}) => {
 	const serverErrors: string[] = []
 	const consoleErrors: string[] = []
-	page.on('response', r => {
-		if (r.status() >= 500 && /decidesk/i.test(r.url())) serverErrors.push(`HTTP ${r.status()} ${r.url()}`)
+	page.on('response', (r) => {
+		if (r.status() >= 500 && /decidesk/i.test(r.url()))
+			serverErrors.push(`HTTP ${r.status()} ${r.url()}`)
 	})
-	page.on('console', m => {
-		if (m.type() === 'error' && /decidesk/i.test(m.location().url ?? '')) consoleErrors.push(m.text())
+	page.on('console', (m) => {
+		if (m.type() === 'error' && /decidesk/i.test(m.location().url ?? ''))
+			consoleErrors.push(m.text())
 	})
 
 	await openAdminSettings(page)
 	await expect(page.getByTestId('organisation-settings')).toBeVisible()
 
-	expect(serverErrors, `decidesk 5xx on admin settings:\n${serverErrors.join('\n')}`).toHaveLength(0)
-	expect(consoleErrors, `decidesk console errors on admin settings:\n${consoleErrors.join('\n')}`).toHaveLength(0)
+	expect(
+		serverErrors,
+		`decidesk 5xx on admin settings:\n${serverErrors.join('\n')}`,
+	).toHaveLength(0)
+	expect(
+		consoleErrors,
+		`decidesk console errors on admin settings:\n${consoleErrors.join('\n')}`,
+	).toHaveLength(0)
 })

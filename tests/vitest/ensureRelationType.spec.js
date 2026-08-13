@@ -18,11 +18,15 @@ let settingsData = {}
 
 vi.mock('../../src/store/store.js', () => ({
 	useObjectStore: () => ({
-		get objectTypeRegistry() { return objectTypeRegistry },
+		get objectTypeRegistry() {
+			return objectTypeRegistry
+		},
 		registerObjectType,
 	}),
 	useSettingsStore: () => ({
-		get getSettings() { return settingsData },
+		get getSettings() {
+			return settingsData
+		},
 	}),
 }))
 
@@ -38,25 +42,41 @@ describe('ensureRelationType', () => {
 	it('resolves the schema slug from the matching settings key', () => {
 		settingsData = { meetingSchema: 'meeting-123', register: 'decidesk' }
 		ensureRelationType('meeting')
-		expect(registerObjectType).toHaveBeenCalledWith('meeting', 'meeting-123', 'decidesk')
+		expect(registerObjectType).toHaveBeenCalledWith(
+			'meeting',
+			'meeting-123',
+			'decidesk',
+		)
 	})
 
 	it('falls back to the literal type slug when the settings key is unset', () => {
 		settingsData = { register: 'decidesk' }
 		ensureRelationType('amendment')
-		expect(registerObjectType).toHaveBeenCalledWith('amendment', 'amendment', 'decidesk')
+		expect(registerObjectType).toHaveBeenCalledWith(
+			'amendment',
+			'amendment',
+			'decidesk',
+		)
 	})
 
 	it('falls back to the "decidesk" register when settings has none', () => {
 		settingsData = {}
 		ensureRelationType('motion')
-		expect(registerObjectType).toHaveBeenCalledWith('motion', 'motion', 'decidesk')
+		expect(registerObjectType).toHaveBeenCalledWith(
+			'motion',
+			'motion',
+			'decidesk',
+		)
 	})
 
 	it('honours a custom register from settings', () => {
 		settingsData = { register: 'gov', votingRoundSchema: 'vr-9' }
 		ensureRelationType('voting-round')
-		expect(registerObjectType).toHaveBeenCalledWith('voting-round', 'vr-9', 'gov')
+		expect(registerObjectType).toHaveBeenCalledWith(
+			'voting-round',
+			'vr-9',
+			'gov',
+		)
 	})
 
 	it('is idempotent — does not re-register an already-registered type', () => {

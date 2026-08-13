@@ -19,7 +19,9 @@
  @spec openspec/specs/relation-tab-ui/spec.md
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--related" data-testid="related-decisions-tab">
+	<div
+		class="decidesk-tab decidesk-tab--related"
+		data-testid="related-decisions-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Related decisions') }}
@@ -53,27 +55,38 @@
 				type="info"
 				data-testid="related-decisions-empty"
 				:title="t('decidesk', 'No related decisions')">
-				{{ t('decidesk', 'This decision has no typed links to other decisions yet.') }}
+				{{
+					t(
+						'decidesk',
+						'This decision has no typed links to other decisions yet.',
+					)
+				}}
 			</CnNoteCard>
 
 			<!-- Outgoing groups (removable). -->
-			<section v-for="group in outgoingGroups"
+			<section
+				v-for="group in outgoingGroups"
 				v-show="group.rows.length"
 				:key="'out-' + group.type"
 				class="decidesk-related__group"
 				:data-testid="'related-out-' + group.type">
 				<h4 class="decidesk-related__group-title">{{ group.label }}</h4>
 				<ul class="decidesk-related__list">
-					<li v-for="row in group.rows"
+					<li
+						v-for="row in group.rows"
 						:key="group.type + '-' + (row.id || row.uuid)"
 						class="decidesk-related__row"
 						:data-testid="'related-row-' + (row.id || row.uuid)">
-						<button class="decidesk-related__link"
+						<button
+							class="decidesk-related__link"
 							type="button"
 							@click="openDecision(row)">
-							{{ row.title || (row.id || row.uuid) }}
+							{{ row.title || row.id || row.uuid }}
 						</button>
-						<CnStatusBadge v-if="row.lifecycle" :label="row.lifecycle" :color-map="{}" />
+						<CnStatusBadge
+							v-if="row.lifecycle"
+							:label="row.lifecycle"
+							:color-map="{}" />
 						<NcButton
 							variant="tertiary"
 							:aria-label="t('decidesk', 'Remove relation')"
@@ -88,23 +101,29 @@
 			</section>
 
 			<!-- Incoming groups (read-only). -->
-			<section v-for="group in incomingGroups"
+			<section
+				v-for="group in incomingGroups"
 				v-show="group.rows.length"
 				:key="'in-' + group.type"
 				class="decidesk-related__group"
 				:data-testid="'related-in-' + group.type">
 				<h4 class="decidesk-related__group-title">{{ group.label }}</h4>
 				<ul class="decidesk-related__list">
-					<li v-for="row in group.rows"
+					<li
+						v-for="row in group.rows"
 						:key="'in-' + group.type + '-' + (row.id || row.uuid)"
 						class="decidesk-related__row decidesk-related__row--incoming"
 						:data-testid="'related-incoming-' + (row.id || row.uuid)">
-						<button class="decidesk-related__link"
+						<button
+							class="decidesk-related__link"
 							type="button"
 							@click="openDecision(row)">
-							{{ row.title || (row.id || row.uuid) }}
+							{{ row.title || row.id || row.uuid }}
 						</button>
-						<CnStatusBadge v-if="row.lifecycle" :label="row.lifecycle" :color-map="{}" />
+						<CnStatusBadge
+							v-if="row.lifecycle"
+							:label="row.lifecycle"
+							:color-map="{}" />
 					</li>
 				</ul>
 			</section>
@@ -144,7 +163,15 @@ const RELATION_TYPES = ['supersedes', 'repeals', 'amends', 'implements', 'refers
 
 export default {
 	name: 'RelatedDecisionsTab',
-	components: { CnDeleteDialog, CnNoteCard, CnStatusBadge, NcButton, Plus, TrashCanOutline, RelatedDecisionAddModal },
+	components: {
+		CnDeleteDialog,
+		CnNoteCard,
+		CnStatusBadge,
+		NcButton,
+		Plus,
+		TrashCanOutline,
+		RelatedDecisionAddModal,
+	},
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
@@ -162,7 +189,10 @@ export default {
 	computed: {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		typeOptions() {
-			return RELATION_TYPES.map((type) => ({ value: type, label: this.outgoingLabel(type) }))
+			return RELATION_TYPES.map((type) => ({
+				value: type,
+				label: this.outgoingLabel(type),
+			}))
 		},
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		outgoingGroups() {
@@ -181,14 +211,19 @@ export default {
 			}))
 		},
 		hasAnyRelation() {
-			return this.outgoingGroups.some((g) => g.rows.length) || this.incomingGroups.some((g) => g.rows.length)
+			return (
+				this.outgoingGroups.some((g) => g.rows.length)
+				|| this.incomingGroups.some((g) => g.rows.length)
+			)
 		},
 	},
 	watch: {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/relation-tab-ui/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 	methods: {
@@ -214,7 +249,7 @@ export default {
 		},
 		refId(ref) {
 			if (!ref) return ''
-			return typeof ref === 'object' ? (ref.id || ref.uuid || '') : ref
+			return typeof ref === 'object' ? ref.id || ref.uuid || '' : ref
 		},
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async refresh() {
@@ -227,17 +262,22 @@ export default {
 			try {
 				const store = ensureRelationType('decision')
 				this.decision = await store.fetchObject('decision', this.objectId)
-				const selfId = this.decision?.id || this.decision?.uuid || String(this.objectId)
+				const selfId =
+					this.decision?.id || this.decision?.uuid || String(this.objectId)
 
 				// Outgoing: resolve each id in the relation arrays to its decision.
-				const allDecisions = await store.fetchCollection('decision', { _limit: 500 })
+				const allDecisions = await store.fetchCollection('decision', {
+					_limit: 500,
+				})
 				const byId = new Map()
-				for (const d of (allDecisions || [])) byId.set(d.id || d.uuid, d)
+				for (const d of allDecisions || []) byId.set(d.id || d.uuid, d)
 
 				const out = {}
 				const inc = {}
 				for (const type of RELATION_TYPES) {
-					const refs = Array.isArray(this.decision?.[type]) ? this.decision[type] : []
+					const refs = Array.isArray(this.decision?.[type])
+						? this.decision[type]
+						: []
 					out[type] = refs
 						.map((r) => byId.get(this.refId(r)))
 						.filter(Boolean)
@@ -250,7 +290,9 @@ export default {
 				this.outgoing = out
 				this.incoming = inc
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load related decisions.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Failed to load related decisions.')
 			} finally {
 				this.loading = false
 			}
@@ -261,7 +303,8 @@ export default {
 			const params = { _limit: 25 }
 			if (query) params._search = query
 			const results = await store.fetchCollection('decision', params)
-			const selfId = this.decision?.id || this.decision?.uuid || String(this.objectId)
+			const selfId =
+				this.decision?.id || this.decision?.uuid || String(this.objectId)
 			// Exclude self so the obvious self-reference cannot be picked.
 			return (results || []).filter((d) => (d.id || d.uuid) !== selfId)
 		},
@@ -273,23 +316,38 @@ export default {
 		async onAddConfirm({ type, target }) {
 			const targetId = this.refId(target)
 			if (!targetId || !type) {
-				this.$refs.addModal?.setError(this.t('decidesk', 'Select a relation type and a target decision.'))
+				this.$refs.addModal?.setError(
+					this.t(
+						'decidesk',
+						'Select a relation type and a target decision.',
+					),
+				)
 				return
 			}
 			try {
 				const store = ensureRelationType('decision')
-				const existing = Array.isArray(this.decision?.[type]) ? this.decision[type].map((r) => this.refId(r)) : []
+				const existing = Array.isArray(this.decision?.[type])
+					? this.decision[type].map((r) => this.refId(r))
+					: []
 				if (existing.includes(targetId)) {
-					this.$refs.addModal?.setError(this.t('decidesk', 'That relation already exists.'))
+					this.$refs.addModal?.setError(
+						this.t('decidesk', 'That relation already exists.'),
+					)
 					return
 				}
 				const next = [...existing, targetId]
-				await store.saveObject('decision', { id: this.objectId, [type]: next })
+				await store.saveObject('decision', {
+					id: this.objectId,
+					[type]: next,
+				})
 				this.addOpen = false
 				await this.refresh()
 			} catch (e) {
 				// Surface the server's validation (self-reference, cycle, authority) inline.
-				this.$refs.addModal?.setError(e?.message || this.t('decidesk', 'The server rejected this relation.'))
+				this.$refs.addModal?.setError(
+					e?.message
+						|| this.t('decidesk', 'The server rejected this relation.'),
+				)
 			}
 		},
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
@@ -302,15 +360,22 @@ export default {
 			const rowId = row.id || row.uuid
 			try {
 				const store = ensureRelationType('decision')
-				const next = (Array.isArray(this.decision?.[type]) ? this.decision[type] : [])
+				const next = (
+					Array.isArray(this.decision?.[type]) ? this.decision[type] : []
+				)
 					.map((r) => this.refId(r))
 					.filter((id) => id !== rowId)
-				await store.saveObject('decision', { id: this.objectId, [type]: next })
+				await store.saveObject('decision', {
+					id: this.objectId,
+					[type]: next,
+				})
 				this.$refs.removeDialog?.setResult({ success: true })
 				this.removeTarget = null
 				await this.refresh()
 			} catch (e) {
-				this.$refs.removeDialog?.setResult({ error: e?.message || this.t('decidesk', 'Remove failed.') })
+				this.$refs.removeDialog?.setResult({
+					error: e?.message || this.t('decidesk', 'Remove failed.'),
+				})
 			}
 		},
 		/** @spec openspec/specs/relation-tab-ui/spec.md */

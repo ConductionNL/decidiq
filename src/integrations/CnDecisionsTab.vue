@@ -21,7 +21,10 @@
 <template>
 	<div class="cn-sidebar-tab cn-decisions-tab" data-testid="decisions-leaf-tab">
 		<div class="cn-decisions-tab__actions">
-			<NcButton variant="primary" :disabled="!hostObjectId" @click="openCreate">
+			<NcButton
+				variant="primary"
+				:disabled="!hostObjectId"
+				@click="openCreate">
 				<template #icon>
 					<Plus :size="18" />
 				</template>
@@ -41,7 +44,9 @@
 			{{ error }}
 		</div>
 
-		<div v-else-if="decisions.length === 0" class="cn-sidebar-tab__empty cn-decisions-tab__empty">
+		<div
+			v-else-if="decisions.length === 0"
+			class="cn-sidebar-tab__empty cn-decisions-tab__empty">
 			<Gavel :size="32" class="cn-decisions-tab__empty-icon" />
 			<p>{{ emptyLabel }}</p>
 		</div>
@@ -52,7 +57,10 @@
 				:key="group.key"
 				class="cn-decisions-tab__group">
 				<h4 class="cn-decisions-tab__group-title">
-					{{ group.label }} <span class="cn-decisions-tab__group-count">({{ group.items.length }})</span>
+					{{ group.label }}
+					<span class="cn-decisions-tab__group-count"
+						>({{ group.items.length }})</span
+					>
 				</h4>
 				<ul class="cn-decisions-tab__list">
 					<NcListItem
@@ -74,13 +82,17 @@
 									size="small"
 									:variant="lifecycleVariant(decision)"
 									:label="lifecycleLabel(decision)" />
-								<span v-if="decisionDate(decision)" class="cn-decisions-tab__when">
+								<span
+									v-if="decisionDate(decision)"
+									class="cn-decisions-tab__when">
 									· {{ decisionDate(decision) }}
 								</span>
 							</span>
 						</template>
 						<template #actions>
-							<NcActionButton :close-after-click="true" @click="openDecision(decision)">
+							<NcActionButton
+								:close-after-click="true"
+								@click="openDecision(decision)">
 								<template #icon>
 									<OpenInNew :size="20" />
 								</template>
@@ -125,7 +137,17 @@ import {
 export default {
 	name: 'CnDecisionsTab',
 
-	components: { CnStatusBadge, CnFormDialog, NcActionButton, NcButton, NcListItem, NcLoadingIcon, Gavel, OpenInNew, Plus },
+	components: {
+		CnStatusBadge,
+		CnFormDialog,
+		NcActionButton,
+		NcButton,
+		NcListItem,
+		NcLoadingIcon,
+		Gavel,
+		OpenInNew,
+		Plus,
+	},
 
 	props: {
 		/** Stable integration id (forwarded from the registry — always `'decidesk-decisions'`). */
@@ -195,9 +217,21 @@ export default {
 				buckets[decisionBucket(decision)].push(decision)
 			}
 			return [
-				{ key: 'proposals', label: t('decidesk', 'Proposals'), items: buckets.proposals },
-				{ key: 'advice', label: t('decidesk', 'Advice'), items: buckets.advice },
-				{ key: 'decisions', label: t('decidesk', 'Decisions'), items: buckets.decisions },
+				{
+					key: 'proposals',
+					label: t('decidesk', 'Proposals'),
+					items: buckets.proposals,
+				},
+				{
+					key: 'advice',
+					label: t('decidesk', 'Advice'),
+					items: buckets.advice,
+				},
+				{
+					key: 'decisions',
+					label: t('decidesk', 'Decisions'),
+					items: buckets.decisions,
+				},
 			]
 		},
 
@@ -212,11 +246,21 @@ export default {
 				title: t('decidesk', 'Proposal'),
 				properties: {
 					title: { type: 'string', title: t('decidesk', 'Title') },
-					text: { type: 'string', title: t('decidesk', 'Rationale'), widget: 'textarea' },
+					text: {
+						type: 'string',
+						title: t('decidesk', 'Rationale'),
+						widget: 'textarea',
+					},
 					decisionType: {
 						type: 'string',
 						title: t('decidesk', 'Type'),
-						enum: ['motion', 'policy', 'report-adoption', 'appointment', 'meeting-outcome'],
+						enum: [
+							'motion',
+							'policy',
+							'report-adoption',
+							'appointment',
+							'meeting-outcome',
+						],
 						default: 'motion',
 					},
 				},
@@ -226,8 +270,17 @@ export default {
 	},
 
 	watch: {
-		objectId: { immediate: true, handler() { this.refresh() } },
-		integrationContext: { handler() { this.refresh() } },
+		objectId: {
+			immediate: true,
+			handler() {
+				this.refresh()
+			},
+		},
+		integrationContext: {
+			handler() {
+				this.refresh()
+			},
+		},
 	},
 
 	methods: {
@@ -238,7 +291,10 @@ export default {
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — list-row title fallback. */
 		rowTitle(decision) {
-			return String(decision?.title ?? decision?.data?.title ?? '').trim() || t('decidesk', 'Untitled decision')
+			return (
+				String(decision?.title ?? decision?.data?.title ?? '').trim()
+				|| t('decidesk', 'Untitled decision')
+			)
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — format decision date for display. */
@@ -248,7 +304,9 @@ export default {
 				return ''
 			}
 			const d = new Date(raw)
-			return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString(undefined, { dateStyle: 'medium' })
+			return Number.isNaN(d.getTime())
+				? ''
+				: d.toLocaleDateString(undefined, { dateStyle: 'medium' })
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-003 outcome/lifecycle label. */
@@ -256,13 +314,20 @@ export default {
 			if (isProposal(decision)) {
 				return t('decidesk', 'Proposal')
 			}
-			const lifecycle = String(decision?.lifecycle ?? decision?.data?.lifecycle ?? 'decided')
+			const lifecycle = String(
+				decision?.lifecycle ?? decision?.data?.lifecycle ?? 'decided',
+			)
 			switch (lifecycle) {
-			case 'decided': return t('decidesk', 'Decided')
-			case 'enacted': return t('decidesk', 'Enacted')
-			case 'archived': return t('decidesk', 'Archived')
-			case 'withdrawn': return t('decidesk', 'Withdrawn')
-			default: return lifecycle
+				case 'decided':
+					return t('decidesk', 'Decided')
+				case 'enacted':
+					return t('decidesk', 'Enacted')
+				case 'archived':
+					return t('decidesk', 'Archived')
+				case 'withdrawn':
+					return t('decidesk', 'Withdrawn')
+				default:
+					return lifecycle
 			}
 		},
 
@@ -271,19 +336,26 @@ export default {
 			if (isProposal(decision)) {
 				return 'info'
 			}
-			const lifecycle = String(decision?.lifecycle ?? decision?.data?.lifecycle ?? '')
+			const lifecycle = String(
+				decision?.lifecycle ?? decision?.data?.lifecycle ?? '',
+			)
 			switch (lifecycle) {
-			case 'decided':
-			case 'enacted': return 'success'
-			case 'withdrawn': return 'error'
-			default: return 'default'
+				case 'decided':
+				case 'enacted':
+					return 'success'
+				case 'withdrawn':
+					return 'error'
+				default:
+					return 'default'
 			}
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 deep-link to a decision. */
 		decisionUrl(decision) {
 			const id = objId(decision)
-			return id ? generateUrl(`/apps/decidesk/decisions/${encodeURIComponent(id)}`) : this.appUrl
+			return id
+				? generateUrl(`/apps/decidesk/decisions/${encodeURIComponent(id)}`)
+				: this.appUrl
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 open a decision in decidesk. */
@@ -318,7 +390,8 @@ export default {
 			try {
 				this.decisions = await listHostDecisions(this.hostObjectId, 100)
 			} catch (e) {
-				this.error = e?.message || t('decidesk', 'Could not load decision-making.')
+				this.error =
+					e?.message || t('decidesk', 'Could not load decision-making.')
 			} finally {
 				this.loading = false
 			}
@@ -348,7 +421,8 @@ export default {
 				this.createOpen = false
 				await this.refresh()
 			} catch (e) {
-				this.error = e?.message || t('decidesk', 'Could not create proposal.')
+				this.error =
+					e?.message || t('decidesk', 'Could not create proposal.')
 			} finally {
 				this.creating = false
 			}

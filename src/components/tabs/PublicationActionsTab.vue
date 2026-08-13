@@ -15,7 +15,9 @@
  @spec openspec/specs/public-publication/spec.md
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--publication" data-testid="publication-actions-tab">
+	<div
+		class="decidesk-tab decidesk-tab--publication"
+		data-testid="publication-actions-tab">
 		<CnNoteCard
 			v-if="error"
 			type="error"
@@ -39,12 +41,21 @@
 				{{ t('decidesk', 'Public publication') }}
 			</h3>
 
-			<p v-if="activeRecord" class="decidesk-tab__meta" data-testid="publication-status">
-				{{ t('decidesk', 'Published as {oriType} (version {version}) on {date}', {
-					oriType: activeRecord.oriType,
-					version: activeRecord.payloadVersion,
-					date: activeRecord.publishedAt,
-				}) }}
+			<p
+				v-if="activeRecord"
+				class="decidesk-tab__meta"
+				data-testid="publication-status">
+				{{
+					t(
+						'decidesk',
+						'Published as {oriType} (version {version}) on {date}',
+						{
+							oriType: activeRecord.oriType,
+							version: activeRecord.payloadVersion,
+							date: activeRecord.publishedAt,
+						},
+					)
+				}}
 			</p>
 			<p v-else class="decidesk-tab__meta" data-testid="publication-status">
 				{{ t('decidesk', 'Not published.') }}
@@ -76,18 +87,28 @@
 				</NcButton>
 			</div>
 
-			<div v-if="history.length" class="decidesk-tab__history" data-testid="publication-history">
+			<div
+				v-if="history.length"
+				class="decidesk-tab__history"
+				data-testid="publication-history">
 				<h3 class="decidesk-tab__title">
 					{{ t('decidesk', 'Publication history') }}
 				</h3>
 				<ul class="decidesk-tab__list" role="list">
-					<li v-for="record in history"
+					<li
+						v-for="record in history"
 						:key="record.id"
 						class="decidesk-tab__history-row"
 						role="listitem">
-						<span>{{ t('decidesk', 'v{version}', { version: record.payloadVersion }) }}</span>
+						<span>{{
+							t('decidesk', 'v{version}', {
+								version: record.payloadVersion,
+							})
+						}}</span>
 						<span>{{ statusLabel(record.status) }}</span>
-						<span class="decidesk-tab__meta">{{ record.withdrawReason || '' }}</span>
+						<span class="decidesk-tab__meta">{{
+							record.withdrawReason || ''
+						}}</span>
 					</li>
 				</ul>
 			</div>
@@ -171,18 +192,21 @@ export default {
 			const context = this.cnObjectContext
 			// Vue unwraps an injected ref for the Options API, but the compat
 			// build can hand back the ref itself — accept both shapes.
-			const value = (context && typeof context === 'object' && 'value' in context)
-				? context.value
-				: context
-			return (value && value.objectId) ? String(value.objectId) : ''
+			const value =
+				context && typeof context === 'object' && 'value' in context
+					? context.value
+					: context
+			return value && value.objectId ? String(value.objectId) : ''
 		},
 		/** @spec openspec/specs/public-publication/spec.md */
 		records_sorted() {
-			return [...this.records].sort((a, b) => (b.payloadVersion || 0) - (a.payloadVersion || 0))
+			return [...this.records].sort(
+				(a, b) => (b.payloadVersion || 0) - (a.payloadVersion || 0),
+			)
 		},
 		/** @spec openspec/specs/public-publication/spec.md */
 		activeRecord() {
-			return this.records_sorted.find(r => r.status === 'published') || null
+			return this.records_sorted.find((r) => r.status === 'published') || null
 		},
 		/** @spec openspec/specs/public-publication/spec.md */
 		history() {
@@ -201,10 +225,17 @@ export default {
 				return ['decided', 'enacted'].includes(this.source.lifecycle)
 			}
 			if (this.sourceType === 'agenda') {
-				return this.source.isPublic === true && !!(this.source.convocationSentAt || this.source.convocationSent)
+				return (
+					this.source.isPublic === true
+					&& !!(
+						this.source.convocationSentAt || this.source.convocationSent
+					)
+				)
 			}
 			if (this.sourceType === 'minutes') {
-				return ['approved', 'signed', 'published'].includes(this.source.lifecycle)
+				return ['approved', 'signed', 'published'].includes(
+					this.source.lifecycle,
+				)
 			}
 			return false
 		},
@@ -213,7 +244,9 @@ export default {
 		sourceObjectId: {
 			immediate: true,
 			/** @spec openspec/specs/public-publication/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 	methods: {
@@ -241,10 +274,22 @@ export default {
 		 */
 		warningLabel(code) {
 			const labels = {
-				'opencatalogi-absent': this.t('decidesk', 'OpenCatalogi is not installed — the record received the public predicate but was not routed to a catalog.'),
-				'catalog-publish-failed': this.t('decidesk', 'Publishing to the OpenCatalogi catalog failed.'),
-				'catalog-retraction-failed': this.t('decidesk', 'Retraction from the OpenCatalogi catalog failed and is pending retry — the record is no longer publicly readable but the catalog still lists it.'),
-				'predicate-unavailable': this.t('decidesk', 'The published predicate could not be set on this OpenRegister version — anonymous read is not yet available.'),
+				'opencatalogi-absent': this.t(
+					'decidesk',
+					'OpenCatalogi is not installed — the record received the public predicate but was not routed to a catalog.',
+				),
+				'catalog-publish-failed': this.t(
+					'decidesk',
+					'Publishing to the OpenCatalogi catalog failed.',
+				),
+				'catalog-retraction-failed': this.t(
+					'decidesk',
+					'Retraction from the OpenCatalogi catalog failed and is pending retry — the record is no longer publicly readable but the catalog still lists it.',
+				),
+				'predicate-unavailable': this.t(
+					'decidesk',
+					'The published predicate could not be set on this OpenRegister version — anonymous read is not yet available.',
+				),
 			}
 			return labels[code] || code
 		},
@@ -255,15 +300,21 @@ export default {
 			this.error = ''
 			try {
 				const sourceStore = ensureRelationType(this.sourceSchemaType())
-				this.source = await sourceStore.fetchObject(this.sourceSchemaType(), this.sourceObjectId)
+				this.source = await sourceStore.fetchObject(
+					this.sourceSchemaType(),
+					this.sourceObjectId,
+				)
 
 				const recordStore = ensureRelationType('publication-record')
-				this.records = (await recordStore.fetchCollection('publication-record', {
-					sourceObject: this.sourceObjectId,
-					_limit: 100,
-				})) || []
+				this.records =
+					(await recordStore.fetchCollection('publication-record', {
+						sourceObject: this.sourceObjectId,
+						_limit: 100,
+					})) || []
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load publication state.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Failed to load publication state.')
 			} finally {
 				this.loading = false
 			}
@@ -296,7 +347,9 @@ export default {
 			})
 			const data = await response.json().catch(() => ({}))
 			if (!response.ok) {
-				throw new Error(data.message || this.t('decidesk', 'The action failed.'))
+				throw new Error(
+					data.message || this.t('decidesk', 'The action failed.'),
+				)
 			}
 			return data
 		},
@@ -306,7 +359,10 @@ export default {
 			this.error = ''
 			this.warnings = []
 			try {
-				const result = await this.callApi('/publications', { sourceType: this.sourceType, sourceId: this.sourceObjectId })
+				const result = await this.callApi('/publications', {
+					sourceType: this.sourceType,
+					sourceId: this.sourceObjectId,
+				})
 				this.warnings = result?.warnings || []
 				await this.refresh()
 			} catch (e) {
@@ -328,7 +384,10 @@ export default {
 			this.error = ''
 			this.warnings = []
 			try {
-				const result = await this.callApi(`/publications/${this.activeRecord.id}/withdraw`, { reason })
+				const result = await this.callApi(
+					`/publications/${this.activeRecord.id}/withdraw`,
+					{ reason },
+				)
 				this.warnings = result?.warnings || []
 				await this.refresh()
 			} catch (e) {
@@ -350,7 +409,10 @@ export default {
 			this.error = ''
 			this.warnings = []
 			try {
-				const result = await this.callApi(`/publications/${this.activeRecord.id}/rectify`, { reason })
+				const result = await this.callApi(
+					`/publications/${this.activeRecord.id}/rectify`,
+					{ reason },
+				)
 				this.warnings = result?.warnings || []
 				await this.refresh()
 			} catch (e) {

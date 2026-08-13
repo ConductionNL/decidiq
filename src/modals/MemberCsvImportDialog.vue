@@ -21,15 +21,25 @@
 		data-testid="member-csv-import-dialog"
 		@closing="$emit('close')">
 		<template #default>
-			<p>{{ t('decidesk', 'Upload a CSV file with the columns: name, email, role.') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'Upload a CSV file with the columns: name, email, role.',
+					)
+				}}
+			</p>
 			<input
 				type="file"
 				accept=".csv,text/csv"
 				:aria-label="t('decidesk', 'CSV file')"
 				data-testid="csv-import-file"
-				@change="onFile">
+				@change="onFile" />
 
-			<table v-if="preview.length" class="csv-import__table" data-testid="csv-import-preview">
+			<table
+				v-if="preview.length"
+				class="csv-import__table"
+				data-testid="csv-import-preview">
 				<thead>
 					<tr>
 						<th scope="col">
@@ -60,12 +70,21 @@
 						<td>{{ row.role }}</td>
 						<td>
 							<span v-if="row.matchedUid">{{ row.matchedUid }}</span>
-							<span v-else-if="row.status === 'ok'" class="csv-import__unmatched">
-								{{ t('decidesk', 'No account — manual linking needed') }}
+							<span
+								v-else-if="row.status === 'ok'"
+								class="csv-import__unmatched">
+								{{
+									t(
+										'decidesk',
+										'No account — manual linking needed',
+									)
+								}}
 							</span>
 						</td>
 						<td>
-							<span :class="'csv-import__status--' + row.status">{{ statusLabel(row) }}</span>
+							<span :class="'csv-import__status--' + row.status">{{
+								statusLabel(row)
+							}}</span>
 						</td>
 					</tr>
 				</tbody>
@@ -74,7 +93,10 @@
 			<p v-if="error" class="csv-import__error" data-testid="csv-import-error">
 				{{ error }}
 			</p>
-			<p v-if="doneMessage" class="csv-import__done" data-testid="csv-import-done">
+			<p
+				v-if="doneMessage"
+				class="csv-import__done"
+				data-testid="csv-import-done">
 				{{ doneMessage }}
 			</p>
 		</template>
@@ -84,9 +106,13 @@
 				:disabled="importing || importableCount === 0"
 				data-testid="csv-import-submit"
 				@click="runImport">
-				{{ importing
-					? t('decidesk', 'Importing…')
-					: t('decidesk', 'Import {count} members', { count: importableCount }) }}
+				{{
+					importing
+						? t('decidesk', 'Importing…')
+						: t('decidesk', 'Import {count} members', {
+								count: importableCount,
+							})
+				}}
 			</NcButton>
 			<NcButton data-testid="csv-import-cancel" @click="$emit('close')">
 				{{ t('decidesk', 'Close') }}
@@ -100,7 +126,11 @@ import { NcButton, NcDialog } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
 import { getRequestToken } from '@nextcloud/auth'
 import { ensureRelationType } from '../components/tabs/useRelationStore.js'
-import { parseMemberCsv, validateMemberRows, MAX_IMPORT_ROWS } from '../utils/memberImport.js'
+import {
+	parseMemberCsv,
+	validateMemberRows,
+	MAX_IMPORT_ROWS,
+} from '../utils/memberImport.js'
 
 export default {
 	name: 'MemberCsvImportDialog',
@@ -168,11 +198,18 @@ export default {
 			const text = await file.text()
 			const { rows, error } = parseMemberCsv(text)
 			if (error === 'header') {
-				this.error = this.t('decidesk', 'The CSV must have a header row with name and email columns.')
+				this.error = this.t(
+					'decidesk',
+					'The CSV must have a header row with name and email columns.',
+				)
 				return
 			}
 			if (error === 'too-many-rows') {
-				this.error = this.t('decidesk', 'At most {max} rows can be imported at once.', { max: MAX_IMPORT_ROWS })
+				this.error = this.t(
+					'decidesk',
+					'At most {max} rows can be imported at once.',
+					{ max: MAX_IMPORT_ROWS },
+				)
 				return
 			}
 			if (error === 'empty' || rows.length === 0) {
@@ -195,23 +232,35 @@ export default {
 				return rows.map((r) => ({ ...r, matchedUid: '' }))
 			}
 			try {
-				const response = await fetch(generateUrl('/apps/decidesk/api/member-import/match'), {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						requesttoken: getRequestToken(),
+				const response = await fetch(
+					generateUrl('/apps/decidesk/api/member-import/match'),
+					{
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: getRequestToken(),
+						},
+						body: JSON.stringify({ emails }),
 					},
-					body: JSON.stringify({ emails }),
-				})
+				)
 				if (!response.ok) {
-					throw new Error(this.t('decidesk', 'Account matching failed (admin access required).'))
+					throw new Error(
+						this.t(
+							'decidesk',
+							'Account matching failed (admin access required).',
+						),
+					)
 				}
 				const data = await response.json()
 				const matches = data?.matches || {}
-				return rows.map((r) => ({ ...r, matchedUid: matches[r.email]?.uid || '' }))
+				return rows.map((r) => ({
+					...r,
+					matchedUid: matches[r.email]?.uid || '',
+				}))
 			} catch (e) {
 				// Matching is best-effort: rows import unlinked when it fails.
-				this.error = e?.message || this.t('decidesk', 'Account matching failed.')
+				this.error =
+					e?.message || this.t('decidesk', 'Account matching failed.')
 				return rows.map((r) => ({ ...r, matchedUid: '' }))
 			}
 		},
@@ -232,14 +281,16 @@ export default {
 						governanceBody: this.bodyId,
 					})
 				}
-				this.doneMessage = this.t('decidesk', '{count} members imported.', { count: rows.length })
+				this.doneMessage = this.t('decidesk', '{count} members imported.', {
+					count: rows.length,
+				})
 				this.$emit('imported')
 				// Mark imported rows so a second click cannot double-import.
-				this.preview = this.preview.map((row) => (
+				this.preview = this.preview.map((row) =>
 					row.status === 'ok'
 						? { ...row, status: 'duplicate', reason: 'already-member' }
-						: row
-				))
+						: row,
+				)
 			} catch (e) {
 				this.error = e?.message || this.t('decidesk', 'Import failed.')
 			} finally {

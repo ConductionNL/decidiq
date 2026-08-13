@@ -30,7 +30,10 @@ const base = '/apps/decidesk/api/board-evaluations'
  * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
  */
 export async function respondToEvaluation(evaluationId, answers) {
-	const { data } = await axios.post(generateUrl(`${base}/${evaluationId}/respond`), { answers })
+	const { data } = await axios.post(
+		generateUrl(`${base}/${evaluationId}/respond`),
+		{ answers },
+	)
 	return data
 }
 

@@ -17,16 +17,25 @@
  @spec openspec/specs/motion-amendment/spec.md
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--amendment-order" data-testid="motion-amendment-order-tab">
+	<div
+		class="decidesk-tab decidesk-tab--amendment-order"
+		data-testid="motion-amendment-order-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Voting order') }}
-				<span v-if="!loading" class="decidesk-tab__count">({{ rows.length }})</span>
+				<span v-if="!loading" class="decidesk-tab__count"
+					>({{ rows.length }})</span
+				>
 			</h3>
 		</div>
 
 		<p class="decidesk-tab__hint">
-			{{ t('decidesk', 'Amendments are voted before the main motion, most far-reaching first. Only the chair can save the order.') }}
+			{{
+				t(
+					'decidesk',
+					'Amendments are voted before the main motion, most far-reaching first. Only the chair can save the order.',
+				)
+			}}
 		</p>
 
 		<CnNoteCard
@@ -49,14 +58,18 @@
 
 		<template v-else>
 			<ol class="amendment-order__list" data-testid="amendment-order-list">
-				<li v-for="(row, index) in rows"
+				<li
+					v-for="(row, index) in rows"
 					:key="row.id"
 					class="amendment-order__item"
 					:data-testid="`amendment-order-item-${index}`">
 					<span class="amendment-order__position">{{ index + 1 }}.</span>
 					<span class="amendment-order__label">
 						{{ row.title || row.id }}
-						<CnStatusBadge v-if="row.lifecycle" :label="row.lifecycle" :color-map="lifecycleColors" />
+						<CnStatusBadge
+							v-if="row.lifecycle"
+							:label="row.lifecycle"
+							:color-map="lifecycleColors" />
 					</span>
 					<span class="amendment-order__actions">
 						<NcButton
@@ -72,7 +85,9 @@
 						<NcButton
 							variant="tertiary"
 							:aria-label="t('decidesk', 'Move amendment down')"
-							:disabled="busy || index === rows.length - 1 || isDecided(row)"
+							:disabled="
+								busy || index === rows.length - 1 || isDecided(row)
+							"
 							:data-testid="`amendment-order-down-${index}`"
 							@click="move(index, 1)">
 							<template #icon>
@@ -88,7 +103,9 @@
 					variant="secondary"
 					data-testid="amendment-order-suggest"
 					:disabled="busy"
-					:aria-label="t('decidesk', 'Suggest order, most far-reaching first')"
+					:aria-label="
+						t('decidesk', 'Suggest order, most far-reaching first')
+					"
 					@click="suggest">
 					{{ t('decidesk', 'Suggest order') }}
 				</NcButton>
@@ -156,7 +173,9 @@ export default {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/motion-amendment/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 	methods: {
@@ -174,8 +193,20 @@ export default {
 		 */
 		sortByVotingOrder(amendments) {
 			return [...amendments].sort((a, b) => {
-				const rankA = Number.isFinite(Number(a?.votingOrder)) && a?.votingOrder !== null && a?.votingOrder !== undefined && a?.votingOrder !== '' ? Number(a.votingOrder) : Number.MAX_SAFE_INTEGER
-				const rankB = Number.isFinite(Number(b?.votingOrder)) && b?.votingOrder !== null && b?.votingOrder !== undefined && b?.votingOrder !== '' ? Number(b.votingOrder) : Number.MAX_SAFE_INTEGER
+				const rankA =
+					Number.isFinite(Number(a?.votingOrder))
+					&& a?.votingOrder !== null
+					&& a?.votingOrder !== undefined
+					&& a?.votingOrder !== ''
+						? Number(a.votingOrder)
+						: Number.MAX_SAFE_INTEGER
+				const rankB =
+					Number.isFinite(Number(b?.votingOrder))
+					&& b?.votingOrder !== null
+					&& b?.votingOrder !== undefined
+					&& b?.votingOrder !== ''
+						? Number(b.votingOrder)
+						: Number.MAX_SAFE_INTEGER
 				if (rankA !== rankB) return rankA - rankB
 				const subA = String(a?.submittedAt || '')
 				const subB = String(b?.submittedAt || '')
@@ -203,7 +234,8 @@ export default {
 				})
 				this.rows = this.sortByVotingOrder(items || [])
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load amendments.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load amendments.')
 			} finally {
 				this.loading = false
 			}
@@ -212,7 +244,11 @@ export default {
 		move(index, delta) {
 			const target = index + delta
 			if (target < 0 || target >= this.rows.length) return
-			if (this.isDecided(this.rows[index]) || this.isDecided(this.rows[target])) return
+			if (
+				this.isDecided(this.rows[index])
+				|| this.isDecided(this.rows[target])
+			)
+				return
 			const next = [...this.rows]
 			const [row] = next.splice(index, 1)
 			next.splice(target, 0, row)
@@ -237,7 +273,9 @@ export default {
 			this.saved = false
 			try {
 				const res = await fetch(
-					generateUrl(`/apps/decidesk/api/motions/${this.objectId}/amendment-order`),
+					generateUrl(
+						`/apps/decidesk/api/motions/${this.objectId}/amendment-order`,
+					),
 					{
 						method: 'POST',
 						headers: {
@@ -245,12 +283,18 @@ export default {
 							'Content-Type': 'application/json',
 							requesttoken: OC.requestToken,
 						},
-						body: JSON.stringify({ orderedAmendmentIds: this.rows.map((row) => String(row.id)) }),
+						body: JSON.stringify({
+							orderedAmendmentIds: this.rows.map((row) =>
+								String(row.id),
+							),
+						}),
 					},
 				)
 				const body = await res.json()
 				if (!res.ok) {
-					this.saveError = body?.message || this.t('decidesk', 'Saving the order failed.')
+					this.saveError =
+						body?.message
+						|| this.t('decidesk', 'Saving the order failed.')
 					return
 				}
 				this.saved = true
@@ -258,7 +302,8 @@ export default {
 				await this.refresh()
 				this.saved = true
 			} catch (e) {
-				this.saveError = e?.message || this.t('decidesk', 'Saving the order failed.')
+				this.saveError =
+					e?.message || this.t('decidesk', 'Saving the order failed.')
 			} finally {
 				this.busy = false
 			}

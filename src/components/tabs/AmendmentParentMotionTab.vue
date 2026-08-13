@@ -14,7 +14,9 @@
  @spec openspec/changes/decidesk-manifest-v1/design.md (open question 3)
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--parent-motion" data-testid="amendment-parent-tab">
+	<div
+		class="decidesk-tab decidesk-tab--parent-motion"
+		data-testid="amendment-parent-tab">
 		<h3 class="decidesk-tab__title">
 			{{ t('decidesk', 'Parent motion') }}
 		</h3>
@@ -56,7 +58,11 @@
 			v-else
 			type="warning"
 			:title="t('decidesk', 'Parent motion not found')">
-			{{ t('decidesk', 'The referenced motion ({id}) could not be loaded.', { id: parentMotionId }) }}
+			{{
+				t('decidesk', 'The referenced motion ({id}) could not be loaded.', {
+					id: parentMotionId,
+				})
+			}}
 		</CnNoteCard>
 	</div>
 </template>
@@ -94,10 +100,19 @@ export default {
 			if (!this.motion) return []
 			return [
 				{ label: this.t('decidesk', 'Title'), value: this.motion.title },
-				{ label: this.t('decidesk', 'Proposer'), value: this.motion.proposer },
+				{
+					label: this.t('decidesk', 'Proposer'),
+					value: this.motion.proposer,
+				},
 				{ label: this.t('decidesk', 'Type'), value: this.motion.motionType },
-				{ label: this.t('decidesk', 'Status'), value: this.motion.lifecycle },
-				{ label: this.t('decidesk', 'Submitted'), value: this.motion.submittedAt },
+				{
+					label: this.t('decidesk', 'Status'),
+					value: this.motion.lifecycle,
+				},
+				{
+					label: this.t('decidesk', 'Submitted'),
+					value: this.motion.submittedAt,
+				},
 			]
 		},
 	},
@@ -105,7 +120,9 @@ export default {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/relation-tab-ui/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 	methods: {
@@ -117,13 +134,20 @@ export default {
 			this.motion = null
 			try {
 				const amendmentStore = ensureRelationType('amendment')
-				this.amendment = await amendmentStore.fetchObject('amendment', this.objectId)
+				this.amendment = await amendmentStore.fetchObject(
+					'amendment',
+					this.objectId,
+				)
 				if (this.parentMotionId) {
 					const motionStore = ensureRelationType('motion')
-					this.motion = await motionStore.fetchObject('motion', this.parentMotionId)
+					this.motion = await motionStore.fetchObject(
+						'motion',
+						this.parentMotionId,
+					)
 				}
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load parent motion.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load parent motion.')
 			} finally {
 				this.loading = false
 			}
@@ -131,7 +155,10 @@ export default {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		openParent() {
 			if (!this.parentMotionId) return
-			this.$router.push({ name: 'MotionDetail', params: { id: this.parentMotionId } })
+			this.$router.push({
+				name: 'MotionDetail',
+				params: { id: this.parentMotionId },
+			})
 		},
 	},
 }

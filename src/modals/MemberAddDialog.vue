@@ -18,7 +18,14 @@
 		data-testid="member-add-dialog"
 		@closing="$emit('close')">
 		<template #default>
-			<p>{{ t('decidesk', 'Pick a participant to link to this governance body.') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'Pick a participant to link to this governance body.',
+					)
+				}}
+			</p>
 			<div v-if="loading" class="member-add__loading">
 				{{ t('decidesk', 'Loading participants…') }}
 			</div>
@@ -83,8 +90,12 @@ export default {
 				const store = ensureRelationType('participant')
 				// The OpenRegister API has no negation filter, so fetch a page
 				// of all participants and filter client-side.
-				const items = await store.fetchCollection('participant', { _limit: 100 })
-				this.candidates = (items || []).filter((p) => p.governanceBody !== this.bodyId)
+				const items = await store.fetchCollection('participant', {
+					_limit: 100,
+				})
+				this.candidates = (items || []).filter(
+					(p) => p.governanceBody !== this.bodyId,
+				)
 			} catch {
 				this.candidates = []
 			} finally {
@@ -97,11 +108,15 @@ export default {
 			this.error = ''
 			try {
 				const store = ensureRelationType('participant')
-				await store.saveObject('participant', { ...participant, governanceBody: this.bodyId })
+				await store.saveObject('participant', {
+					...participant,
+					governanceBody: this.bodyId,
+				})
 				this.$emit('linked')
 				this.$emit('close')
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to link participant.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to link participant.')
 			} finally {
 				this.linking = false
 			}

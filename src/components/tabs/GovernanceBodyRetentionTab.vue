@@ -15,19 +15,29 @@
  @spec openspec/specs/meeting-transcription/spec.md
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--retention" data-testid="body-retention-tab">
+	<div
+		class="decidesk-tab decidesk-tab--retention"
+		data-testid="body-retention-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Recording retention') }}
 			</h3>
 		</div>
 
-		<CnNoteCard v-if="error" type="error" :title="t('decidesk', 'Could not save retention policy')">
+		<CnNoteCard
+			v-if="error"
+			type="error"
+			:title="t('decidesk', 'Could not save retention policy')">
 			{{ error }}
 		</CnNoteCard>
 
 		<p class="decidesk-tab__hint">
-			{{ t('decidesk', 'Choose what happens to this body\'s meeting recordings and raw transcripts after the minutes are approved. The approved minutes always remain the official record.') }}
+			{{
+				t(
+					'decidesk',
+					"Choose what happens to this body's meeting recordings and raw transcripts after the minutes are approved. The approved minutes always remain the official record.",
+				)
+			}}
 		</p>
 
 		<!--
@@ -89,13 +99,24 @@ export default {
 		policyOptions() {
 			return [
 				{ id: 'keep', label: this.t('decidesk', 'Keep everything') },
-				{ id: 'delete-recording', label: this.t('decidesk', 'Delete recording only') },
-				{ id: 'delete-both', label: this.t('decidesk', 'Delete recording and transcript') },
+				{
+					id: 'delete-recording',
+					label: this.t('decidesk', 'Delete recording only'),
+				},
+				{
+					id: 'delete-both',
+					label: this.t('decidesk', 'Delete recording and transcript'),
+				},
 			]
 		},
 	},
 	watch: {
-		objectId: { immediate: true, handler() { this.load() } },
+		objectId: {
+			immediate: true,
+			handler() {
+				this.load()
+			},
+		},
 	},
 	methods: {
 		/**
@@ -108,8 +129,15 @@ export default {
 			let policy = 'delete-both'
 			let days = 30
 			try {
-				policy = loadState('decidesk', 'transcriptRetentionDefaultPolicy', 'delete-both')
-				days = Number(loadState('decidesk', 'transcriptRetentionDefaultDays', 30)) || 30
+				policy = loadState(
+					'decidesk',
+					'transcriptRetentionDefaultPolicy',
+					'delete-both',
+				)
+				days =
+					Number(
+						loadState('decidesk', 'transcriptRetentionDefaultDays', 30),
+					) || 30
 			} catch (e) {
 				// Initial state not provided (e.g. in-app context) — use safe defaults.
 			}
@@ -121,14 +149,23 @@ export default {
 			this.error = ''
 			try {
 				const store = ensureRelationType('governance-body')
-				const items = await store.fetchCollection('governance-body', { id: this.objectId, _limit: 1 })
+				const items = await store.fetchCollection('governance-body', {
+					id: this.objectId,
+					_limit: 1,
+				})
 				const body = (items && items[0]) || null
-				const current = (body && body.transcriptRetentionPolicy) || this.defaultPolicy
-				this.selectedPolicy = this.policyOptions.find((o) => o.id === current) || this.policyOptions[2]
-				if (body && body.transcriptRetentionDays) this.days = body.transcriptRetentionDays
+				const current =
+					(body && body.transcriptRetentionPolicy) || this.defaultPolicy
+				this.selectedPolicy =
+					this.policyOptions.find((o) => o.id === current)
+					|| this.policyOptions[2]
+				if (body && body.transcriptRetentionDays)
+					this.days = body.transcriptRetentionDays
 			} catch (e) {
 				// Fall back to the default policy selection.
-				this.selectedPolicy = this.policyOptions.find((o) => o.id === this.defaultPolicy) || this.policyOptions[2]
+				this.selectedPolicy =
+					this.policyOptions.find((o) => o.id === this.defaultPolicy)
+					|| this.policyOptions[2]
 			}
 		},
 		/**
@@ -147,22 +184,35 @@ export default {
 			this.error = ''
 			try {
 				const response = await fetch(
-					generateUrl(`/apps/decidesk/api/governance-bodies/${this.objectId}/retention-config`),
+					generateUrl(
+						`/apps/decidesk/api/governance-bodies/${this.objectId}/retention-config`,
+					),
 					{
 						method: 'PUT',
 						headers: {
 							'Content-Type': 'application/json',
 							requesttoken: window.OC?.requestToken,
 						},
-						body: JSON.stringify({ policy: this.selectedPolicy.id, days: Number(this.days) }),
+						body: JSON.stringify({
+							policy: this.selectedPolicy.id,
+							days: Number(this.days),
+						}),
 					},
 				)
 				const data = await response.json().catch(() => ({}))
 				if (!response.ok) {
-					throw new Error(data.message || this.t('decidesk', 'Could not save the retention policy.'))
+					throw new Error(
+						data.message
+							|| this.t(
+								'decidesk',
+								'Could not save the retention policy.',
+							),
+					)
 				}
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Could not save the retention policy.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Could not save the retention policy.')
 			} finally {
 				this.saving = false
 			}

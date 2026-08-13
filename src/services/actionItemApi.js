@@ -38,7 +38,10 @@ export async function createActionItem(payload) {
  * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
  */
 export async function updateActionItem(uid, changes) {
-	const { data } = await axios.put(generateUrl(`${base}/${encodeURIComponent(uid)}`), changes)
+	const { data } = await axios.put(
+		generateUrl(`${base}/${encodeURIComponent(uid)}`),
+		changes,
+	)
 	return data
 }
 
@@ -50,6 +53,8 @@ export async function updateActionItem(uid, changes) {
  * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
  */
 export async function deleteActionItem(uid) {
-	const { data } = await axios.delete(generateUrl(`${base}/${encodeURIComponent(uid)}`))
+	const { data } = await axios.delete(
+		generateUrl(`${base}/${encodeURIComponent(uid)}`),
+	)
 	return data
 }

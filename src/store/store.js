@@ -93,13 +93,25 @@ export async function initializeStores() {
 		['vote', settings.voteSchema || 'vote'],
 		// meeting-efficiency: engagement records back the speaking-time
 		// distribution on the GovernanceBodyEfficiencyTab analytics surface.
-		['engagement-record', settings.engagementRecordSchema || 'engagement-record'],
+		[
+			'engagement-record',
+			settings.engagementRecordSchema || 'engagement-record',
+		],
 		// citizen-participation: public consultations, reactions, participatory
 		// budgeting and advisory citizen votes (read/write via the object store;
 		// lifecycle/intake/moderation/voting/publish go through the controller).
-		['public-consultation', settings.publicConsultationSchema || 'public-consultation'],
-		['consultation-reaction', settings.consultationReactionSchema || 'consultation-reaction'],
-		['participatory-budget', settings.participatoryBudgetSchema || 'participatory-budget'],
+		[
+			'public-consultation',
+			settings.publicConsultationSchema || 'public-consultation',
+		],
+		[
+			'consultation-reaction',
+			settings.consultationReactionSchema || 'consultation-reaction',
+		],
+		[
+			'participatory-budget',
+			settings.participatoryBudgetSchema || 'participatory-budget',
+		],
 		['budget-proposal', settings.budgetProposalSchema || 'budget-proposal'],
 		['citizen-vote', settings.citizenVoteSchema || 'citizen-vote'],
 	]

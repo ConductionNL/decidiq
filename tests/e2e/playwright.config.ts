@@ -115,14 +115,26 @@ export default defineConfig({
 	// message and the source location.
 	reporter: process.env.CI
 		? [
-			['github'],
-			['list'],
-			['html', { open: 'never', outputFolder: path.join(APP_ROOT, 'playwright-report') }],
-		]
+				['github'],
+				['list'],
+				[
+					'html',
+					{
+						open: 'never',
+						outputFolder: path.join(APP_ROOT, 'playwright-report'),
+					},
+				],
+			]
 		: [
-			['html', { open: 'never', outputFolder: path.join(APP_ROOT, 'playwright-report') }],
-			['list'],
-		],
+				[
+					'html',
+					{
+						open: 'never',
+						outputFolder: path.join(APP_ROOT, 'playwright-report'),
+					},
+				],
+				['list'],
+			],
 	outputDir: path.join(APP_ROOT, 'test-results'),
 
 	use: {

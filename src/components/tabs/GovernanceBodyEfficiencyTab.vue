@@ -14,7 +14,9 @@
  (vitest-covered). Charts are dependency-free CSS bars.
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--efficiency" data-testid="body-efficiency-tab">
+	<div
+		class="decidesk-tab decidesk-tab--efficiency"
+		data-testid="body-efficiency-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Efficiency') }}
@@ -40,122 +42,213 @@
 
 		<template v-else>
 			<!-- Duration trend -->
-			<section class="efficiency-section" data-testid="body-efficiency-duration">
+			<section
+				class="efficiency-section"
+				data-testid="body-efficiency-duration">
 				<h4>{{ t('decidesk', 'Meeting duration') }}</h4>
 				<p class="efficiency-section__summary">
-					{{ t('decidesk', 'Average actual duration: {minutes} min', { minutes: duration.averageActualMinutes }) }}
-					<span v-if="duration.overrunCount > 0" class="efficiency-section__flag">
-						{{ t('decidesk', '{n} meeting(s) exceeded the scheduled time', { n: duration.overrunCount }) }}
+					{{
+						t('decidesk', 'Average actual duration: {minutes} min', {
+							minutes: duration.averageActualMinutes,
+						})
+					}}
+					<span
+						v-if="duration.overrunCount > 0"
+						class="efficiency-section__flag">
+						{{
+							t(
+								'decidesk',
+								'{n} meeting(s) exceeded the scheduled time',
+								{ n: duration.overrunCount },
+							)
+						}}
 					</span>
 				</p>
 				<ul class="efficiency-bars" role="list">
-					<li v-for="p in duration.points"
+					<li
+						v-for="p in duration.points"
 						:key="p.id"
 						class="efficiency-bars__row"
 						role="listitem">
-						<span class="efficiency-bars__label">{{ p.title || t('decidesk', 'Meeting') }}</span>
+						<span class="efficiency-bars__label">{{
+							p.title || t('decidesk', 'Meeting')
+						}}</span>
 						<span class="efficiency-bars__track">
 							<span
 								class="efficiency-bars__fill"
 								:class="{ 'efficiency-bars__fill--over': p.overrun }"
-								:style="{ width: barWidth(p.actualMinutes, maxDurationMinutes) }" />
+								:style="{
+									width: barWidth(
+										p.actualMinutes,
+										maxDurationMinutes,
+									),
+								}" />
 						</span>
-						<span class="efficiency-bars__value">{{ formatMinutes(p.actualMinutes) }}</span>
+						<span class="efficiency-bars__value">{{
+							formatMinutes(p.actualMinutes)
+						}}</span>
 					</li>
 				</ul>
 			</section>
 
 			<!-- Agenda completion -->
-			<section class="efficiency-section" data-testid="body-efficiency-completion">
+			<section
+				class="efficiency-section"
+				data-testid="body-efficiency-completion">
 				<h4>{{ t('decidesk', 'Agenda completion') }}</h4>
 				<p class="efficiency-section__summary">
-					{{ t('decidesk', '{completed} of {total} agenda items completed ({percent}%)', {
-						completed: completion.completed,
-						total: completion.total,
-						percent: Math.round(completion.rate * 100),
-					}) }}
+					{{
+						t(
+							'decidesk',
+							'{completed} of {total} agenda items completed ({percent}%)',
+							{
+								completed: completion.completed,
+								total: completion.total,
+								percent: Math.round(completion.rate * 100),
+							},
+						)
+					}}
 				</p>
 			</section>
 
 			<!-- Speaking-time distribution -->
-			<section v-if="speaking.rows.length" class="efficiency-section" data-testid="body-efficiency-speaking">
+			<section
+				v-if="speaking.rows.length"
+				class="efficiency-section"
+				data-testid="body-efficiency-speaking">
 				<h4>{{ t('decidesk', 'Speaking-time distribution') }}</h4>
 				<ul class="efficiency-bars" role="list">
-					<li v-for="row in speaking.rows"
+					<li
+						v-for="row in speaking.rows"
 						:key="row.participantId"
 						class="efficiency-bars__row"
 						role="listitem">
-						<span class="efficiency-bars__label">{{ row.displayName }}</span>
+						<span class="efficiency-bars__label">{{
+							row.displayName
+						}}</span>
 						<span class="efficiency-bars__track">
-							<span class="efficiency-bars__fill" :style="{ width: percentWidth(row.share) }" />
+							<span
+								class="efficiency-bars__fill"
+								:style="{ width: percentWidth(row.share) }" />
 						</span>
-						<span class="efficiency-bars__value">{{ Math.round(row.share * 100) }}%</span>
+						<span class="efficiency-bars__value"
+							>{{ Math.round(row.share * 100) }}%</span
+						>
 					</li>
 				</ul>
 			</section>
 
 			<!-- Cost trend -->
-			<section v-if="cost.points.length" class="efficiency-section" data-testid="body-efficiency-cost">
+			<section
+				v-if="cost.points.length"
+				class="efficiency-section"
+				data-testid="body-efficiency-cost">
 				<h4>{{ t('decidesk', 'Cost trend') }}</h4>
 				<p class="efficiency-section__summary">
-					{{ t('decidesk', 'Total: {total} · Average per meeting: {average}', {
-						total: formatEur(cost.total),
-						average: formatEur(cost.average),
-					}) }}
+					{{
+						t(
+							'decidesk',
+							'Total: {total} · Average per meeting: {average}',
+							{
+								total: formatEur(cost.total),
+								average: formatEur(cost.average),
+							},
+						)
+					}}
 				</p>
 				<ul class="efficiency-bars" role="list">
-					<li v-for="p in cost.points"
+					<li
+						v-for="p in cost.points"
 						:key="p.id"
 						class="efficiency-bars__row"
 						role="listitem">
-						<span class="efficiency-bars__label">{{ p.title || t('decidesk', 'Meeting') }}</span>
+						<span class="efficiency-bars__label">{{
+							p.title || t('decidesk', 'Meeting')
+						}}</span>
 						<span class="efficiency-bars__track">
-							<span class="efficiency-bars__fill" :style="{ width: barWidth(p.cost, maxCost) }" />
+							<span
+								class="efficiency-bars__fill"
+								:style="{ width: barWidth(p.cost, maxCost) }" />
 						</span>
-						<span class="efficiency-bars__value">{{ formatEur(p.cost) }}</span>
+						<span class="efficiency-bars__value">{{
+							formatEur(p.cost)
+						}}</span>
 					</li>
 				</ul>
 			</section>
 
 			<!-- Per-agenda-item cost breakdown (most recent meeting with data) -->
-			<section v-if="itemCostBreakdown.length" class="efficiency-section" data-testid="body-efficiency-item-cost">
+			<section
+				v-if="itemCostBreakdown.length"
+				class="efficiency-section"
+				data-testid="body-efficiency-item-cost">
 				<h4>{{ t('decidesk', 'Cost per agenda item') }}</h4>
 				<p class="efficiency-section__summary">
-					{{ t('decidesk', 'Latest meeting: {title}', { title: latestCostMeetingTitle }) }}
+					{{
+						t('decidesk', 'Latest meeting: {title}', {
+							title: latestCostMeetingTitle,
+						})
+					}}
 				</p>
 				<ul class="efficiency-bars" role="list">
-					<li v-for="row in itemCostBreakdown"
+					<li
+						v-for="row in itemCostBreakdown"
 						:key="row.id"
 						class="efficiency-bars__row"
 						role="listitem">
-						<span class="efficiency-bars__label" :class="{ 'efficiency-bars__label--flag': row.mostExpensive }">
+						<span
+							class="efficiency-bars__label"
+							:class="{
+								'efficiency-bars__label--flag': row.mostExpensive,
+							}">
 							{{ row.title || t('decidesk', 'Item') }}
 						</span>
 						<span class="efficiency-bars__track">
 							<span
 								class="efficiency-bars__fill"
-								:class="{ 'efficiency-bars__fill--over': row.mostExpensive }"
-								:style="{ width: barWidth(row.cost, maxItemCost) }" />
+								:class="{
+									'efficiency-bars__fill--over': row.mostExpensive,
+								}"
+								:style="{
+									width: barWidth(row.cost, maxItemCost),
+								}" />
 						</span>
-						<span class="efficiency-bars__value">{{ formatEur(row.cost) }}</span>
+						<span class="efficiency-bars__value">{{
+							formatEur(row.cost)
+						}}</span>
 					</li>
 				</ul>
 			</section>
 
 			<!-- Time allocation accuracy + recommendations -->
-			<section v-if="accuracy.length" class="efficiency-section" data-testid="body-efficiency-accuracy">
+			<section
+				v-if="accuracy.length"
+				class="efficiency-section"
+				data-testid="body-efficiency-accuracy">
 				<h4>{{ t('decidesk', 'Time allocation accuracy') }}</h4>
 				<ul class="efficiency-accuracy" role="list">
-					<li v-for="row in accuracy"
+					<li
+						v-for="row in accuracy"
 						:key="row.itemType"
 						class="efficiency-accuracy__row"
 						role="listitem">
-						<strong>{{ row.itemType }}</strong>:
-						{{ t('decidesk', 'avg {actual} min actual vs {estimated} min allocated', {
-							actual: row.avgActual,
-							estimated: row.avgEstimated,
-						}) }}
-						<em v-if="row.recommendation" class="efficiency-accuracy__rec">{{ row.recommendation }}</em>
+						<strong>{{ row.itemType }}</strong
+						>:
+						{{
+							t(
+								'decidesk',
+								'avg {actual} min actual vs {estimated} min allocated',
+								{
+									actual: row.avgActual,
+									estimated: row.avgEstimated,
+								},
+							)
+						}}
+						<em
+							v-if="row.recommendation"
+							class="efficiency-accuracy__rec"
+							>{{ row.recommendation }}</em
+						>
 					</li>
 				</ul>
 			</section>
@@ -238,7 +331,10 @@ export default {
 		},
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		maxDurationMinutes() {
-			return this.duration.points.reduce((m, p) => Math.max(m, p.actualMinutes || 0), 0)
+			return this.duration.points.reduce(
+				(m, p) => Math.max(m, p.actualMinutes || 0),
+				0,
+			)
 		},
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		maxCost() {
@@ -251,11 +347,18 @@ export default {
 		 * @spec openspec/specs/meeting-efficiency/spec.md
 		 */
 		latestCostMeeting() {
-			const withCost = this.meetings.filter(m => Number(m.meetingCost) > 0)
+			const withCost = this.meetings.filter((m) => Number(m.meetingCost) > 0)
 			if (!withCost.length) return null
 			return withCost.reduce((latest, m) => {
-				const d = Date.parse(m.closedAt ?? m.openedAt ?? m.scheduledDate ?? 0) || 0
-				const ld = Date.parse(latest.closedAt ?? latest.openedAt ?? latest.scheduledDate ?? 0) || 0
+				const d =
+					Date.parse(m.closedAt ?? m.openedAt ?? m.scheduledDate ?? 0) || 0
+				const ld =
+					Date.parse(
+						latest.closedAt
+							?? latest.openedAt
+							?? latest.scheduledDate
+							?? 0,
+					) || 0
 				return d >= ld ? m : latest
 			})
 		},
@@ -272,16 +375,20 @@ export default {
 		itemCostBreakdown() {
 			const meeting = this.latestCostMeeting
 			if (!meeting) return []
-			const items = this.agendaItems.filter(i =>
-				i?.meeting === meeting.id
-				|| i?.['@self']?.relations?.meeting === meeting.id,
+			const items = this.agendaItems.filter(
+				(i) =>
+					i?.meeting === meeting.id
+					|| i?.['@self']?.relations?.meeting === meeting.id,
 			)
 			const attendeeCount = this.participants.length || 1
 			return agendaItemCostBreakdown(items, attendeeCount, this.hourlyRate)
 		},
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		maxItemCost() {
-			return this.itemCostBreakdown.reduce((m, r) => Math.max(m, r.cost || 0), 0)
+			return this.itemCostBreakdown.reduce(
+				(m, r) => Math.max(m, r.cost || 0),
+				0,
+			)
 		},
 	},
 
@@ -289,7 +396,9 @@ export default {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/meeting-efficiency/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 
@@ -305,9 +414,10 @@ export default {
 		 * @spec openspec/specs/meeting-efficiency/spec.md
 		 */
 		forThisBody(collection) {
-			return (collection || []).filter(o =>
-				o?.governanceBody === this.objectId
-				|| o?.['@self']?.relations?.governanceBody === this.objectId,
+			return (collection || []).filter(
+				(o) =>
+					o?.governanceBody === this.objectId
+					|| o?.['@self']?.relations?.governanceBody === this.objectId,
 			)
 		},
 		/**
@@ -325,7 +435,10 @@ export default {
 				// The body's own hourlyRate drives the per-item cost breakdown.
 				const bodyStore = ensureRelationType('governance-body')
 				try {
-					const body = await bodyStore.fetchObject('governance-body', this.objectId)
+					const body = await bodyStore.fetchObject(
+						'governance-body',
+						this.objectId,
+					)
 					const rate = Number(body?.hourlyRate)
 					this.hourlyRate = Number.isFinite(rate) && rate > 0 ? rate : 0
 				} catch (bodyError) {
@@ -333,30 +446,45 @@ export default {
 				}
 
 				const meetingStore = ensureRelationType('meeting')
-				const meetings = await meetingStore.fetchCollection('meeting', { _limit: 200 })
+				const meetings = await meetingStore.fetchCollection('meeting', {
+					_limit: 200,
+				})
 				this.meetings = this.forThisBody(meetings)
-				const meetingIds = new Set(this.meetings.map(m => m.id))
+				const meetingIds = new Set(this.meetings.map((m) => m.id))
 
 				const itemStore = ensureRelationType('agenda-item')
-				const items = await itemStore.fetchCollection('agenda-item', { _limit: 500 })
-				this.agendaItems = (items || []).filter(i =>
-					meetingIds.has(i?.meeting)
-					|| meetingIds.has(i?.['@self']?.relations?.meeting),
+				const items = await itemStore.fetchCollection('agenda-item', {
+					_limit: 500,
+				})
+				this.agendaItems = (items || []).filter(
+					(i) =>
+						meetingIds.has(i?.meeting)
+						|| meetingIds.has(i?.['@self']?.relations?.meeting),
 				)
 
 				const participantStore = ensureRelationType('participant')
-				const participants = await participantStore.fetchCollection('participant', { _limit: 500 })
-				this.participants = (participants || []).filter(p =>
-					p?.governanceBody === this.objectId
-					|| meetingIds.has(p?.meeting)
-					|| meetingIds.has(p?.['@self']?.relations?.meeting),
+				const participants = await participantStore.fetchCollection(
+					'participant',
+					{ _limit: 500 },
+				)
+				this.participants = (participants || []).filter(
+					(p) =>
+						p?.governanceBody === this.objectId
+						|| meetingIds.has(p?.meeting)
+						|| meetingIds.has(p?.['@self']?.relations?.meeting),
 				)
 
 				const engagementStore = ensureRelationType('engagement-record')
-				const records = await engagementStore.fetchCollection('engagement-record', { _limit: 1000 })
-				this.engagementRecords = (records || []).filter(r => meetingIds.has(r?.meeting))
+				const records = await engagementStore.fetchCollection(
+					'engagement-record',
+					{ _limit: 1000 },
+				)
+				this.engagementRecords = (records || []).filter((r) =>
+					meetingIds.has(r?.meeting),
+				)
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load analytics.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load analytics.')
 			} finally {
 				this.loading = false
 			}
@@ -367,7 +495,8 @@ export default {
 		 * @spec openspec/specs/meeting-efficiency/spec.md
 		 */
 		barWidth(value, max) {
-			if (!Number.isFinite(value) || !Number.isFinite(max) || max <= 0) return '0%'
+			if (!Number.isFinite(value) || !Number.isFinite(max) || max <= 0)
+				return '0%'
 			return `${Math.round((value / max) * 100)}%`
 		},
 		/**
@@ -382,7 +511,9 @@ export default {
 		 * @spec openspec/specs/meeting-efficiency/spec.md
 		 */
 		formatMinutes(minutes) {
-			return Number.isFinite(minutes) ? this.t('decidesk', '{m} min', { m: minutes }) : '—'
+			return Number.isFinite(minutes)
+				? this.t('decidesk', '{m} min', { m: minutes })
+				: '—'
 		},
 		/** @spec exclude thin re-export of the pure formatter for template use */
 		formatEur,

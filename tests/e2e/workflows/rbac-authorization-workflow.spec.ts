@@ -45,14 +45,28 @@ import { BASE } from './governance-fixture'
 // denied (401/403) on every one; the guard is now the shared RequiresOrAdmin
 // trait consuming OpenRegister's admin determination.
 const ADMIN_GATED_ENDPOINTS = [
-	{ name: 'GovernanceReport', url: '/apps/decidesk/api/governance-report/generate', verb: 'POST' },
-	{ name: 'MultilingualReconciliation', url: '/apps/decidesk/api/multilingual/reconcile', verb: 'POST' },
+	{
+		name: 'GovernanceReport',
+		url: '/apps/decidesk/api/governance-report/generate',
+		verb: 'POST',
+	},
+	{
+		name: 'MultilingualReconciliation',
+		url: '/apps/decidesk/api/multilingual/reconcile',
+		verb: 'POST',
+	},
 	{ name: 'AuditLog', url: '/apps/decidesk/api/audit-log', verb: 'GET' },
-	{ name: 'RegulatorExport', url: '/apps/decidesk/api/regulator-export', verb: 'POST' },
+	{
+		name: 'RegulatorExport',
+		url: '/apps/decidesk/api/regulator-export',
+		verb: 'POST',
+	},
 ]
 
 test.describe('consume-or-rbac-authorization — who-may-act preserved via OR RBAC', () => {
-	test('a signatory may initiate signing; a non-signatory is denied (403)', async ({ page }) => {
+	test('a signatory may initiate signing; a non-signatory is denied (403)', async ({
+		page,
+	}) => {
 		// Deferred live run: requires decidesk deployed with a Minutes record on a
 		// body whose signatory scope (decidesk:body:{id}:signatory) is populated by
 		// the role projector. A signatory's POST to
@@ -60,33 +74,51 @@ test.describe('consume-or-rbac-authorization — who-may-act preserved via OR RB
 		// non-signatory's is rejected (403) and initializeSigningRequest is never
 		// reached. Asserted at unit level in EIDASSignatureControllerTest +
 		// GovernanceScopeGuardTest.
-		test.skip(true, 'decidesk not deployed on the shared instance — live-run deferred (unit-proven)')
+		test.skip(
+			true,
+			'decidesk not deployed on the shared instance — live-run deferred (unit-proven)',
+		)
 		expect(BASE).toBeTruthy()
 	})
 
-	test('only the chair may run a chair-only lifecycle transition', async ({ page }) => {
+	test('only the chair may run a chair-only lifecycle transition', async ({
+		page,
+	}) => {
 		// Deferred live run: a chair-only transition (e.g. legislative opened→adjourned)
 		// succeeds for a member of decidesk:body:{id}:chair and is refused for a
 		// non-chair with "Only the meeting chair may perform this transition."
 		// Asserted at unit level in MeetingServiceTest (chair allow / non-chair deny
 		// / fail-closed when the body scope is unresolvable).
-		test.skip(true, 'decidesk not deployed on the shared instance — live-run deferred (unit-proven)')
+		test.skip(
+			true,
+			'decidesk not deployed on the shared instance — live-run deferred (unit-proven)',
+		)
 		expect(BASE).toBeTruthy()
 	})
 
-	test('a disallowed domain transition is refused independent of actor scope', async ({ page }) => {
+	test('a disallowed domain transition is refused independent of actor scope', async ({
+		page,
+	}) => {
 		// Deferred live run: a domain whose workflow sets allowPause:false refuses
 		// opened→paused for the chair too (workflow policy, not actor auth). Asserted
 		// at unit level in MeetingServiceTest testDomainDisallowedTransitionReturnsFailure.
-		test.skip(true, 'decidesk not deployed on the shared instance — live-run deferred (unit-proven)')
+		test.skip(
+			true,
+			'decidesk not deployed on the shared instance — live-run deferred (unit-proven)',
+		)
 		expect(BASE).toBeTruthy()
 	})
 
-	test('a non-admin is denied on every previously admin-gated surface; an admin is allowed', async ({ page }) => {
+	test('a non-admin is denied on every previously admin-gated surface; an admin is allowed', async ({
+		page,
+	}) => {
 		// Deferred live run: as a non-admin, each ADMIN_GATED_ENDPOINTS call returns
 		// 401/403 from the shared RequiresOrAdmin trait; as an admin each is permitted.
 		// Asserted at unit level in AuditLogControllerTest (admin allow / non-admin deny).
-		test.skip(true, 'decidesk not deployed on the shared instance — live-run deferred (unit-proven)')
+		test.skip(
+			true,
+			'decidesk not deployed on the shared instance — live-run deferred (unit-proven)',
+		)
 		expect(ADMIN_GATED_ENDPOINTS.length).toBe(4)
 	})
 })

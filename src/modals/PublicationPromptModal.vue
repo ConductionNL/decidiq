@@ -16,7 +16,14 @@
 		data-testid="publication-prompt-modal"
 		@closing="$emit('dismiss')">
 		<template #default>
-			<p>{{ t('decidesk', 'This decision has been enacted and the governance body is configured to prompt for publication. Publishing makes a derived public record available through OpenCatalogi. You can also publish later from the Publication tab.') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'This decision has been enacted and the governance body is configured to prompt for publication. Publishing makes a derived public record available through OpenCatalogi. You can also publish later from the Publication tab.',
+					)
+				}}
+			</p>
 		</template>
 		<template #actions>
 			<NcButton

@@ -79,10 +79,15 @@ function recordTraffic(page): ApiCall[] {
 	page.on('response', async (res) => {
 		if (!res.url().includes('/apps/openregister/api/')) return
 		// Match the newest still-unanswered request for this URL.
-		const entry = [...calls].reverse().find((c) => c.url === res.url() && c.status === undefined)
+		const entry = [...calls]
+			.reverse()
+			.find((c) => c.url === res.url() && c.status === undefined)
 		if (!entry) return
 		entry.status = res.status()
-		entry.response = await res.text().then((t) => t.slice(0, 1200)).catch(() => '<body unreadable>')
+		entry.response = await res
+			.text()
+			.then((t) => t.slice(0, 1200))
+			.catch(() => '<body unreadable>')
 	})
 	page.on('console', (msg) => {
 		if (msg.type() !== 'error') return
@@ -108,14 +113,21 @@ test.beforeEach(({ page }) => {
 test.afterEach(async ({}, testInfo) => {
 	if (testInfo.status === testInfo.expectedStatus) return
 	const dump = traffic
-		.map((c) => (c.method.endsWith('ERROR')
-			? `  ${c.method}: ${c.url}`
-			: `  ${c.method} ${c.url} -> ${c.status ?? '(no response)'}`
-				+ (c.body ? `\n      request: ${c.body}` : '')
-				+ (c.response ? `\n      response: ${c.response}` : '')))
+		.map((c) =>
+			c.method.endsWith('ERROR')
+				? `  ${c.method}: ${c.url}`
+				: `  ${c.method} ${c.url} -> ${c.status ?? '(no response)'}`
+					+ (c.body ? `\n      request: ${c.body}` : '')
+					+ (c.response ? `\n      response: ${c.response}` : ''),
+		)
 		.join('\n')
-	console.log(`\n[diag] OpenRegister traffic for "${testInfo.title}":\n${dump || '  (none recorded)'}\n`)
-	await testInfo.attach('openregister-traffic.txt', { body: dump, contentType: 'text/plain' })
+	console.log(
+		`\n[diag] OpenRegister traffic for "${testInfo.title}":\n${dump || '  (none recorded)'}\n`,
+	)
+	await testInfo.attach('openregister-traffic.txt', {
+		body: dump,
+		contentType: 'text/plain',
+	})
 })
 
 /**
@@ -126,34 +138,48 @@ test.afterEach(async ({}, testInfo) => {
  */
 async function dumpListWindow(page, schema: string, needle: string): Promise<void> {
 	const url = `${BASE}/index.php/apps/openregister/api/objects/decidesk/${schema}?_limit=20&_page=1`
-	const resp = await page.request.get(url, { headers: { Accept: 'application/json' } }).catch(() => null)
+	const resp = await page.request
+		.get(url, { headers: { Accept: 'application/json' } })
+		.catch(() => null)
 	if (!resp) {
 		console.log(`[diag] ${schema}: list probe request failed outright`)
 		return
 	}
 	const body = await resp.json().catch(() => null)
 	const rows = body?.results ?? body?.items ?? []
-	const names = rows.map((o: any) => o?.title ?? o?.name ?? o?.['@self']?.id ?? o?.id)
+	const names = rows.map(
+		(o: any) => o?.title ?? o?.name ?? o?.['@self']?.id ?? o?.id,
+	)
 	console.log(
 		`[diag] ${schema} first UI page (${url}) -> HTTP ${resp.status()}`
-		+ ` total=${body?.total ?? body?.pagination?.total ?? 'n/a'}`
-		+ ` pages=${body?.pages ?? body?.pagination?.pages ?? 'n/a'}`
-		+ ` returned=${rows.length}`
-		+ ` containsNeedle=${names.some((n: any) => String(n).includes(needle))}`,
+			+ ` total=${body?.total ?? body?.pagination?.total ?? 'n/a'}`
+			+ ` pages=${body?.pages ?? body?.pagination?.pages ?? 'n/a'}`
+			+ ` returned=${rows.length}`
+			+ ` containsNeedle=${names.some((n: any) => String(n).includes(needle))}`,
 	)
 	console.log(`[diag] ${schema} first-page names: ${JSON.stringify(names)}`)
 
 	// And what the TABLE actually rendered. "the object is not in the collection",
 	// "it is, but the table drew zero rows" and "the table drew rows but not this
 	// one" are three different bugs that the row locator reports identically.
-	const rendered = await page.getByTestId('cn-object-row').count().catch(() => -1)
-	const emptyState = await page.getByTestId('cn-object-list-empty').count().catch(() => -1)
-	const rowText = await page.getByTestId('cn-object-row').allInnerTexts()
-		.then((t: string[]) => t.slice(0, 25).map((s) => s.replace(/\s+/g, ' ').slice(0, 120)))
+	const rendered = await page
+		.getByTestId('cn-object-row')
+		.count()
+		.catch(() => -1)
+	const emptyState = await page
+		.getByTestId('cn-object-list-empty')
+		.count()
+		.catch(() => -1)
+	const rowText = await page
+		.getByTestId('cn-object-row')
+		.allInnerTexts()
+		.then((t: string[]) =>
+			t.slice(0, 25).map((s) => s.replace(/\s+/g, ' ').slice(0, 120)),
+		)
 		.catch(() => ['<unreadable>'])
 	console.log(
 		`[diag] ${schema} table: cn-object-row count=${rendered}`
-		+ ` cn-object-list-empty count=${emptyState}`,
+			+ ` cn-object-list-empty count=${emptyState}`,
 	)
 	console.log(`[diag] ${schema} rendered rows: ${JSON.stringify(rowText)}`)
 }
@@ -168,7 +194,9 @@ async function gotoList(page, path: string) {
 /** Delete a tracked row through the UI row-action menu + confirm dialog. */
 async function deleteRowViaUi(page, title: string): Promise<void> {
 	const row = page.getByTestId('cn-object-row').filter({ hasText: title }).first()
-	await expect(row, `row "${title}" should be present before delete`).toBeVisible({ timeout: 10_000 })
+	await expect(row, `row "${title}" should be present before delete`).toBeVisible({
+		timeout: 10_000,
+	})
 	await row.getByTestId('cn-row-actions').locator('button').first().click()
 	await page.getByRole('menuitem', { name: 'Delete' }).click()
 	const confirm = page.getByRole('dialog')
@@ -186,8 +214,11 @@ async function deleteRowViaUi(page, title: string): Promise<void> {
 	// a dialog stuck in `phase=confirm` or showing an error NoteCard now fails
 	// HERE, naming the phase) and then dismiss it the way a user does, instead
 	// of waiting for the timer to do it.
-	await expect(page.locator('[data-testid-modal="cn-delete-dialog"][data-testid-phase="result"]'))
-		.toBeVisible({ timeout: 8_000 })
+	await expect(
+		page.locator(
+			'[data-testid-modal="cn-delete-dialog"][data-testid-phase="result"]',
+		),
+	).toBeVisible({ timeout: 8_000 })
 	await expect(page.getByRole('dialog')).toContainText('successfully deleted')
 	// TWO buttons in this dialog answer to the accessible name "Close": the
 	// action-footer button CnDeleteDialog renders in the result phase
@@ -204,7 +235,8 @@ async function deleteRowViaUi(page, title: string): Promise<void> {
 	// button named "Close" would still raise. `exact: true` because `name` matches a
 	// SUBSTRING by default, so the loose form would also accept a future
 	// "Close cycle"-style button.
-	await page.getByRole('dialog')
+	await page
+		.getByRole('dialog')
 		.getByRole('button', { name: 'Close', exact: true })
 		.and(page.locator(':not(.modal-container__close)'))
 		.click()
@@ -219,12 +251,18 @@ async function deleteRowViaUi(page, title: string): Promise<void> {
 		// error NoteCard. Those are different bugs and the bare
 		// "expected hidden, got visible" cannot tell them apart — so read the
 		// phase marker and the dialog copy before re-raising. Timeout unchanged.
-		const phase = await page.locator('[data-testid-modal="cn-delete-dialog"]')
-			.getAttribute('data-testid-phase').catch(() => null)
-		const text = await page.getByRole('dialog').first().innerText().catch(() => '')
+		const phase = await page
+			.locator('[data-testid-modal="cn-delete-dialog"]')
+			.getAttribute('data-testid-phase')
+			.catch(() => null)
+		const text = await page
+			.getByRole('dialog')
+			.first()
+			.innerText()
+			.catch(() => '')
 		console.log(
 			`[diag] delete dialog for "${title}" did not close.`
-			+ ` phase=${phase ?? '<marker absent>'} text=${JSON.stringify(text.slice(0, 600))}`,
+				+ ` phase=${phase ?? '<marker absent>'} text=${JSON.stringify(text.slice(0, 600))}`,
 		)
 		throw err
 	}
@@ -233,7 +271,9 @@ async function deleteRowViaUi(page, title: string): Promise<void> {
 // ── MEETING: full CRUD-with-persistence ──────────────────────────────────────
 
 // @e2e openspec/specs/meeting-management/spec.md#create-a-board-meeting-with-physical-location
-test('Meeting: create persists, appears in list, detail shows values, delete removes it', async ({ page }) => {
+test('Meeting: create persists, appears in list, detail shows values, delete removes it', async ({
+	page,
+}) => {
 	const tag = `e2e-${ledger.runId}`
 	const title = `${tag}-meeting-crud`
 
@@ -255,7 +295,10 @@ test('Meeting: create persists, appears in list, detail shows values, delete rem
 	await gotoList(page, 'meetings')
 	const row = page.getByTestId('cn-object-row').filter({ hasText: title }).first()
 	try {
-		await expect(row, 'newly created meeting row should appear in the list').toBeVisible({ timeout: 10_000 })
+		await expect(
+			row,
+			'newly created meeting row should appear in the list',
+		).toBeVisible({ timeout: 10_000 })
 	} catch (err) {
 		await dumpListWindow(page, 'meeting', title)
 		throw err
@@ -267,7 +310,9 @@ test('Meeting: create persists, appears in list, detail shows values, delete rem
 	await expect(page.getByText(title).first()).toBeVisible({ timeout: 10_000 })
 	// Persisted enum + scalar values surface somewhere in the detail view.
 	await expect(page.getByText('committee', { exact: false }).first()).toBeVisible()
-	await expect(page.getByText('Council Chamber A', { exact: false }).first()).toBeVisible()
+	await expect(
+		page.getByText('Council Chamber A', { exact: false }).first(),
+	).toBeVisible()
 
 	// Re-assert persistence at the source of truth.
 	const fetched = await getObject(page, 'meeting', id)
@@ -306,7 +351,9 @@ test('Meeting: create persists, appears in list, detail shows values, delete rem
 
 	// DELETE: remove through the UI and assert the row + object are gone.
 	await deleteRowViaUi(page, newTitle)
-	await expect(page.getByTestId('cn-object-row').filter({ hasText: newTitle })).toHaveCount(0, { timeout: 10_000 })
+	await expect(
+		page.getByTestId('cn-object-row').filter({ hasText: newTitle }),
+	).toHaveCount(0, { timeout: 10_000 })
 	const gone = await getObject(page, 'meeting', id)
 	expect(gone, 'deleted meeting should no longer exist in the backend').toBeNull()
 })
@@ -320,7 +367,9 @@ test('Meeting: create persists, appears in list, detail shows values, delete rem
 // that blocks Save, even when the user only changes the title. Re-entering the
 // datetime-local value does not clear it (the control does not rebind the model
 // value). Un-fixme once the edit form normalises / accepts the stored date-time.
-test('Meeting edit dialog saves a title change without a scheduledDate format error', async ({ page }) => {
+test('Meeting edit dialog saves a title change without a scheduledDate format error', async ({
+	page,
+}) => {
 	const tag = `e2e-${ledger.runId}`
 	const title = `${tag}-meeting-editbug`
 	const created = await createObject(page, ledger, 'meeting', {
@@ -337,7 +386,9 @@ test('Meeting edit dialog saves a title change without a scheduledDate format er
 	await page.getByRole('menuitem', { name: 'Edit' }).click()
 	const editDialog = page.getByRole('dialog')
 	await expect(editDialog).toBeVisible({ timeout: 8_000 })
-	await editDialog.locator('input[placeholder="Meeting title"]').fill(`${title}-edited`)
+	await editDialog
+		.locator('input[placeholder="Meeting title"]')
+		.fill(`${title}-edited`)
 	// EXPECTED once fixed: no format alert, Save enabled, save succeeds.
 	await expect(editDialog.getByRole('alert')).toHaveCount(0)
 	await editDialog.getByRole('button', { name: /Save|Update/ }).click()
@@ -349,7 +400,9 @@ test('Meeting edit dialog saves a title change without a scheduledDate format er
 // ── DECISION: full CRUD-with-persistence ─────────────────────────────────────
 
 // @e2e openspec/specs/decision-management/spec.md#create-a-standalone-decision-outside-a-meeting
-test('Decision: create persists, appears in list, detail shows values, delete removes it', async ({ page }) => {
+test('Decision: create persists, appears in list, detail shows values, delete removes it', async ({
+	page,
+}) => {
 	const tag = `e2e-${ledger.runId}`
 	const title = `${tag}-decision-crud`
 
@@ -437,8 +490,13 @@ test('Decision: create persists, appears in list, detail shows values, delete re
 	// out of clock, at `gotoList`'s app-root wait rather than at anything it
 	// asserts. The Meeting test above deletes from the list it is already on.
 	await deleteRowViaUi(page, newTitle)
-	await expect(page.getByTestId('cn-object-row').filter({ hasText: newTitle })).toHaveCount(0, { timeout: 10_000 })
-	expect(await getObject(page, 'decision', id), 'deleted decision should be gone').toBeNull()
+	await expect(
+		page.getByTestId('cn-object-row').filter({ hasText: newTitle }),
+	).toHaveCount(0, { timeout: 10_000 })
+	expect(
+		await getObject(page, 'decision', id),
+		'deleted decision should be gone',
+	).toBeNull()
 })
 
 // ── BUG: UI Create dialog cannot submit (required NcSelect never commits) ─────
@@ -451,13 +509,17 @@ test('Decision: create persists, appears in list, detail shows values, delete re
 // and pre-filtered search all fail to commit the enum value to the form model,
 // so a meeting/decision with required enum fields cannot be created through the
 // UI at all. Un-fixme once the NcSelect value binds to the create-form model.
-test('Meeting Create dialog submit enables once required enums are selected', async ({ page }) => {
+test('Meeting Create dialog submit enables once required enums are selected', async ({
+	page,
+}) => {
 	await gotoList(page, 'meetings')
 	await page.getByTestId('cn-cta-primary').click()
 	const dialog = page.getByRole('dialog')
 	await expect(dialog).toBeVisible({ timeout: 8_000 })
 
-	await dialog.locator('input[placeholder="Meeting title"]').fill(`e2e-${ledger.runId}-ui-create`)
+	await dialog
+		.locator('input[placeholder="Meeting title"]')
+		.fill(`e2e-${ledger.runId}-ui-create`)
 	// Fill the REQUIRED scheduledDate datetime field by its id (the form also
 	// renders an optional `endDate` datetime, so target this one explicitly).
 	await dialog.locator('#cn-form-scheduledDate').fill('2026-09-01T10:00')
@@ -491,7 +553,9 @@ test('Meeting Create dialog submit enables once required enums are selected', as
 		await page.getByRole('option', { name: option, exact: true }).click()
 	}
 	// EXPECTED once fixed: the selected enums commit, so the Create button enables.
-	await expect(dialog.getByRole('button', { name: 'Create' })).toBeEnabled({ timeout: 5_000 })
+	await expect(dialog.getByRole('button', { name: 'Create' })).toBeEnabled({
+		timeout: 5_000,
+	})
 })
 
 // @e2e openspec/specs/decision-management/spec.md#create-a-standalone-decision-outside-a-meeting
@@ -501,7 +565,9 @@ test('Meeting Create dialog submit enables once required enums are selected', as
 // values, raising format alerts (e.g. "'case' should match format 'uuid'") that
 // block Save. Un-fixme once the decision edit form binds title correctly and
 // stops rejecting its own persisted relation/date values.
-test('Decision edit dialog saves a title change without a format error', async ({ page }) => {
+test('Decision edit dialog saves a title change without a format error', async ({
+	page,
+}) => {
 	const tag = `e2e-${ledger.runId}`
 	const title = `${tag}-decision-editbug`
 	const created = await createObject(page, ledger, 'decision', {
@@ -522,8 +588,10 @@ test('Decision edit dialog saves a title change without a format error', async (
 	// CRUD test above hits. Naming it here keeps the two failures legible as one
 	// cause instead of two.
 	try {
-		await expect(row, `decision row "${title}" should be in the list before editing`)
-			.toBeVisible({ timeout: 10_000 })
+		await expect(
+			row,
+			`decision row "${title}" should be in the list before editing`,
+		).toBeVisible({ timeout: 10_000 })
 	} catch (err) {
 		await dumpListWindow(page, 'decision', title)
 		throw err

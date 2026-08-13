@@ -10,11 +10,15 @@
  removes them from the meeting (without deleting the participant).
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--participants" data-testid="meeting-participants-tab">
+	<div
+		class="decidesk-tab decidesk-tab--participants"
+		data-testid="meeting-participants-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Participants') }}
-				<span v-if="!loading" class="decidesk-tab__count">({{ rows.length }})</span>
+				<span v-if="!loading" class="decidesk-tab__count"
+					>({{ rows.length }})</span
+				>
 			</h3>
 			<NcButton
 				variant="primary"
@@ -40,7 +44,9 @@
 			:rows="rows"
 			:loading="loading"
 			row-key="id"
-			:empty-text="t('decidesk', 'No participants linked to this meeting yet.')"
+			:empty-text="
+				t('decidesk', 'No participants linked to this meeting yet.')
+			"
 			:loading-text="t('decidesk', 'Loading participants…')">
 			<template #row-actions="{ row }">
 				<CnRowActions :row="row" :actions="rowActions" />
@@ -66,7 +72,12 @@
 </template>
 
 <script>
-import { CnDataTable, CnDeleteDialog, CnNoteCard, CnRowActions } from '@conduction/nextcloud-vue'
+import {
+	CnDataTable,
+	CnDeleteDialog,
+	CnNoteCard,
+	CnRowActions,
+} from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import LinkOff from 'vue-material-design-icons/LinkOff.vue'
@@ -75,7 +86,15 @@ import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'MeetingParticipantsTab',
-	components: { CnDataTable, CnDeleteDialog, CnNoteCard, CnRowActions, MeetingParticipantAddDialog, NcButton, Plus },
+	components: {
+		CnDataTable,
+		CnDeleteDialog,
+		CnNoteCard,
+		CnRowActions,
+		MeetingParticipantAddDialog,
+		NcButton,
+		Plus,
+	},
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
@@ -106,7 +125,9 @@ export default {
 					label: this.t('decidesk', 'Remove from meeting'),
 					icon: LinkOff,
 					destructive: true,
-					handler: (row) => { this.removeTarget = { ...row } },
+					handler: (row) => {
+						this.removeTarget = { ...row }
+					},
 				},
 			]
 		},
@@ -115,7 +136,9 @@ export default {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/relation-tab-ui/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		addDialogOpen(open) {
@@ -127,7 +150,9 @@ export default {
 		hasMeeting(participant, meetingId) {
 			const list = participant?.meetings
 			if (!Array.isArray(list)) return false
-			return list.some(m => (typeof m === 'object' ? (m.id || m.uuid) : m) === meetingId)
+			return list.some(
+				(m) => (typeof m === 'object' ? m.id || m.uuid : m) === meetingId,
+			)
 		},
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async refresh() {
@@ -143,10 +168,13 @@ export default {
 					meetings: this.objectId,
 					_limit: 200,
 				})
-				const filtered = (items || []).filter(p => this.hasMeeting(p, this.objectId))
-				this.rows = filtered.length ? filtered : (items || [])
+				const filtered = (items || []).filter((p) =>
+					this.hasMeeting(p, this.objectId),
+				)
+				this.rows = filtered.length ? filtered : items || []
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load participants.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load participants.')
 			} finally {
 				this.loading = false
 			}
@@ -156,8 +184,12 @@ export default {
 			this.loadingCandidates = true
 			try {
 				const store = ensureRelationType('participant')
-				const items = await store.fetchCollection('participant', { _limit: 200 })
-				this.candidates = (items || []).filter(p => !this.hasMeeting(p, this.objectId))
+				const items = await store.fetchCollection('participant', {
+					_limit: 200,
+				})
+				this.candidates = (items || []).filter(
+					(p) => !this.hasMeeting(p, this.objectId),
+				)
 			} catch {
 				this.candidates = []
 			} finally {
@@ -167,7 +199,9 @@ export default {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async linkParticipant(participant) {
 			const store = ensureRelationType('participant')
-			const meetings = Array.isArray(participant.meetings) ? participant.meetings.slice() : []
+			const meetings = Array.isArray(participant.meetings)
+				? participant.meetings.slice()
+				: []
 			meetings.push(this.objectId)
 			await store.saveObject('participant', { ...participant, meetings })
 			this.addDialogOpen = false
@@ -177,14 +211,20 @@ export default {
 		async confirmRemove() {
 			const store = ensureRelationType('participant')
 			const target = this.removeTarget
-			const meetings = (Array.isArray(target.meetings) ? target.meetings : [])
-				.filter(m => (typeof m === 'object' ? (m.id || m.uuid) : m) !== this.objectId)
+			const meetings = (
+				Array.isArray(target.meetings) ? target.meetings : []
+			).filter(
+				(m) =>
+					(typeof m === 'object' ? m.id || m.uuid : m) !== this.objectId,
+			)
 			try {
 				await store.saveObject('participant', { ...target, meetings })
 				this.$refs.removeDialog?.setResult({ success: true })
 				this.refresh()
 			} catch (e) {
-				this.$refs.removeDialog?.setResult({ error: e?.message || this.t('decidesk', 'Remove failed.') })
+				this.$refs.removeDialog?.setResult({
+					error: e?.message || this.t('decidesk', 'Remove failed.'),
+				})
 			}
 		},
 	},

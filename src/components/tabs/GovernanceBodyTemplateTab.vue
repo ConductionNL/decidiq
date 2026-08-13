@@ -51,7 +51,12 @@
 				multiple
 				data-testid="body-template-specialized" />
 			<p class="decidesk-tab__hint">
-				{{ t('decidesk', 'Specialized templates apply to specific decision types; the default applies when none is chosen.') }}
+				{{
+					t(
+						'decidesk',
+						'Specialized templates apply to specific decision types; the default applies when none is chosen.',
+					)
+				}}
 			</p>
 
 			<div class="decidesk-tab__footer">
@@ -62,7 +67,10 @@
 					@click="save">
 					{{ saving ? t('decidesk', 'Saving…') : t('decidesk', 'Save') }}
 				</NcButton>
-				<span v-if="savedMessage" class="decidesk-tab__saved" data-testid="body-template-saved">
+				<span
+					v-if="savedMessage"
+					class="decidesk-tab__saved"
+					data-testid="body-template-saved">
 					{{ savedMessage }}
 				</span>
 			</div>
@@ -104,14 +112,18 @@ export default {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		specializedOptions() {
 			// The default template is not offered again as a specialized one.
-			return this.templateOptions.filter((tpl) => tpl.id !== this.defaultTemplate?.id)
+			return this.templateOptions.filter(
+				(tpl) => tpl.id !== this.defaultTemplate?.id,
+			)
 		},
 	},
 	watch: {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/admin-settings/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 	methods: {
@@ -122,14 +134,24 @@ export default {
 			this.error = ''
 			try {
 				const store = ensureRelationType('governance-body')
-				const body = await store.fetchObject('governance-body', this.objectId)
+				const body = await store.fetchObject(
+					'governance-body',
+					this.objectId,
+				)
 				this.body = body || null
 				const templates = this.templateOptions
-				this.defaultTemplate = templates.find((tpl) => tpl.id === body?.processTemplate) || null
-				const assigned = Array.isArray(body?.additionalTemplates) ? body.additionalTemplates : []
-				this.specializedTemplates = templates.filter((tpl) => assigned.includes(tpl.id))
+				this.defaultTemplate =
+					templates.find((tpl) => tpl.id === body?.processTemplate) || null
+				const assigned = Array.isArray(body?.additionalTemplates)
+					? body.additionalTemplates
+					: []
+				this.specializedTemplates = templates.filter((tpl) =>
+					assigned.includes(tpl.id),
+				)
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load the governance body.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Failed to load the governance body.')
 			} finally {
 				this.loading = false
 			}
@@ -145,11 +167,15 @@ export default {
 					...(this.body || {}),
 					id: this.objectId,
 					processTemplate: this.defaultTemplate?.id || '',
-					additionalTemplates: this.specializedTemplates.map((tpl) => tpl.id),
+					additionalTemplates: this.specializedTemplates.map(
+						(tpl) => tpl.id,
+					),
 				})
 				this.savedMessage = this.t('decidesk', 'Template assignment saved')
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to save the template assignment.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Failed to save the template assignment.')
 			} finally {
 				this.saving = false
 			}

@@ -24,7 +24,8 @@
 		</NcEmptyContent>
 
 		<ul v-else class="dashboard-list-widget__list">
-			<li v-for="item in rows"
+			<li
+				v-for="item in rows"
 				:key="item.id"
 				:class="{ 'dashboard-list-widget__row--overdue': item._overdue }"
 				:data-testid="`my-action-item-row-${item.id}`"
@@ -35,15 +36,22 @@
 				@keydown.enter.prevent="openItem(item)"
 				@keydown.space.prevent="openItem(item)">
 				<div class="dashboard-list-widget__main">
-					<span class="dashboard-list-widget__title">{{ item.title || item.name }}</span>
-					<span class="dashboard-list-widget__meta">{{ formatDate(item.dueDate) }}</span>
+					<span class="dashboard-list-widget__title">{{
+						item.title || item.name
+					}}</span>
+					<span class="dashboard-list-widget__meta">{{
+						formatDate(item.dueDate)
+					}}</span>
 				</div>
 				<div class="dashboard-list-widget__aside">
-					<span v-if="item._overdue"
+					<span
+						v-if="item._overdue"
 						class="dashboard-list-widget__badge dashboard-list-widget__badge--overdue">
 						{{ t('decidesk', 'Overdue') }}
 					</span>
-					<span class="dashboard-list-widget__badge">{{ item.taskStatus }}</span>
+					<span class="dashboard-list-widget__badge">{{
+						item.taskStatus
+					}}</span>
 				</div>
 			</li>
 		</ul>
@@ -125,7 +133,7 @@ export default {
 		 */
 		formatDate(value) {
 			const d = new Date(value)
-			return Number.isNaN(d.getTime()) ? (value || '') : d.toLocaleDateString()
+			return Number.isNaN(d.getTime()) ? value || '' : d.toLocaleDateString()
 		},
 
 		/**
@@ -135,7 +143,10 @@ export default {
 		 * @return {void}
 		 */
 		openItem(item) {
-			this.$router.push({ name: 'ActionItemDetail', params: { id: String(item.id) } })
+			this.$router.push({
+				name: 'ActionItemDetail',
+				params: { id: String(item.id) },
+			})
 		},
 	},
 }

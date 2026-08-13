@@ -19,11 +19,17 @@ import {
 
 describe('parseCsv', () => {
 	it('parses simple rows with LF endings', () => {
-		expect(parseCsv('a,b,c\nd,e,f\n')).toEqual([['a', 'b', 'c'], ['d', 'e', 'f']])
+		expect(parseCsv('a,b,c\nd,e,f\n')).toEqual([
+			['a', 'b', 'c'],
+			['d', 'e', 'f'],
+		])
 	})
 
 	it('parses CRLF endings and skips blank lines', () => {
-		expect(parseCsv('a,b\r\n\r\nc,d\r\n')).toEqual([['a', 'b'], ['c', 'd']])
+		expect(parseCsv('a,b\r\n\r\nc,d\r\n')).toEqual([
+			['a', 'b'],
+			['c', 'd'],
+		])
 	})
 
 	it('handles quoted fields with commas, newlines and escaped quotes', () => {
@@ -35,7 +41,10 @@ describe('parseCsv', () => {
 	})
 
 	it('strips a UTF-8 BOM', () => {
-		expect(parseCsv('﻿name,email\na,b')).toEqual([['name', 'email'], ['a', 'b']])
+		expect(parseCsv('﻿name,email\na,b')).toEqual([
+			['name', 'email'],
+			['a', 'b'],
+		])
 	})
 
 	it('returns [] for empty input', () => {
@@ -48,7 +57,9 @@ describe('parseMemberCsv', () => {
 	it('maps header columns case-insensitively and in any order', () => {
 		const { rows, error } = parseMemberCsv('Email,Role,Name\na@x.nl,chair,Anna')
 		expect(error).toBeNull()
-		expect(rows).toEqual([{ name: 'Anna', email: 'a@x.nl', role: 'chair', line: 2 }])
+		expect(rows).toEqual([
+			{ name: 'Anna', email: 'a@x.nl', role: 'chair', line: 2 },
+		])
 	})
 
 	it('defaults a missing role column to empty string', () => {
@@ -84,7 +95,13 @@ describe('parseMemberCsv', () => {
 })
 
 describe('validateMemberRows', () => {
-	const row = (over = {}) => ({ name: 'Anna', email: 'a@x.nl', role: 'chair', line: 2, ...over })
+	const row = (over = {}) => ({
+		name: 'Anna',
+		email: 'a@x.nl',
+		role: 'chair',
+		line: 2,
+		...over,
+	})
 
 	it('accepts a valid row', () => {
 		const [out] = validateMemberRows([row()])
@@ -126,7 +143,10 @@ describe('validateMemberRows', () => {
 	it('flags duplicates within the file', () => {
 		const [first, second] = validateMemberRows([row(), row({ line: 3 })])
 		expect(first.status).toBe('ok')
-		expect(second).toMatchObject({ status: 'duplicate', reason: 'duplicate-in-file' })
+		expect(second).toMatchObject({
+			status: 'duplicate',
+			reason: 'duplicate-in-file',
+		})
 	})
 
 	it('an invalid row does not claim its email for duplicate detection', () => {
@@ -137,7 +157,10 @@ describe('validateMemberRows', () => {
 })
 
 describe('markGroupDuplicates', () => {
-	const members = [{ uid: 'anna', displayName: 'Anna', email: 'a@x.nl' }, { uid: 'bram', displayName: 'Bram', email: '' }]
+	const members = [
+		{ uid: 'anna', displayName: 'Anna', email: 'a@x.nl' },
+		{ uid: 'bram', displayName: 'Bram', email: '' },
+	]
 
 	it('marks duplicates by Nextcloud uid', () => {
 		const out = markGroupDuplicates(members, [{ nextcloudUserId: 'anna' }])
@@ -146,7 +169,9 @@ describe('markGroupDuplicates', () => {
 	})
 
 	it('marks duplicates by email when the uid differs', () => {
-		const out = markGroupDuplicates(members, [{ nextcloudUserId: 'other', email: 'A@x.nl' }])
+		const out = markGroupDuplicates(members, [
+			{ nextcloudUserId: 'other', email: 'A@x.nl' },
+		])
 		expect(out[0].duplicate).toBe(true)
 	})
 

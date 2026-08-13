@@ -14,12 +14,24 @@
 		data-testid="publication-withdraw-modal"
 		@closing="$emit('close')">
 		<template #default>
-			<p>{{ t('decidesk', 'Withdrawing removes the published record from the public surface and retracts the OpenCatalogi publication. A reason is required and recorded in the audit trail (WOO correction duty).') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'Withdrawing removes the published record from the public surface and retracts the OpenCatalogi publication. A reason is required and recorded in the audit trail (WOO correction duty).',
+					)
+				}}
+			</p>
 			<NcTextArea
 				v-model="reason"
 				data-testid="publication-withdraw-reason"
 				:label="t('decidesk', 'Withdraw reason')"
-				:placeholder="t('decidesk', 'e.g. Contained an error, corrected version follows')"
+				:placeholder="
+					t(
+						'decidesk',
+						'e.g. Contained an error, corrected version follows',
+					)
+				"
 				resize="vertical" />
 		</template>
 		<template #actions>

@@ -21,7 +21,13 @@
  * @e2e openspec/specs/voting-system/spec.md#configure-voting-rules-when-opening-a-round
  * @e2e openspec/specs/voting-system/spec.md#display-active-rules-and-computed-base
  */
-import { test, expect, request as pwRequest, type APIRequestContext, type Page } from '@playwright/test'
+import {
+	test,
+	expect,
+	request as pwRequest,
+	type APIRequestContext,
+	type Page,
+} from '@playwright/test'
 
 import { BASE_URL as BASE } from '../base-url'
 import { MOTION_SCHEMA } from '../workflows/governance-fixture'
@@ -56,20 +62,35 @@ async function newApiContext(): Promise<APIRequestContext> {
  * A seed that cannot succeed must fail loudly, with the status and the body, the
  * way tests/e2e/workflows/governance-fixture.ts already does.
  */
-async function createObject(api: APIRequestContext, schema: string, body: object): Promise<string | null> {
-	const resp = await api.post(`/index.php/apps/openregister/api/objects/decidesk/${schema}`, { data: body })
+async function createObject(
+	api: APIRequestContext,
+	schema: string,
+	body: object,
+): Promise<string | null> {
+	const resp = await api.post(
+		`/index.php/apps/openregister/api/objects/decidesk/${schema}`,
+		{ data: body },
+	)
 	if (!resp.ok()) {
-		throw new Error(`createObject(${schema}) failed ${resp.status()}: ${await resp.text()}`)
+		throw new Error(
+			`createObject(${schema}) failed ${resp.status()}: ${await resp.text()}`,
+		)
 	}
 	const json = await resp.json()
 	return json?.['@self']?.id ?? json?.id ?? null
 }
 
 /** Best-effort fixture teardown. */
-async function deleteObject(api: APIRequestContext, schema: string, id: string | null): Promise<void> {
+async function deleteObject(
+	api: APIRequestContext,
+	schema: string,
+	id: string | null,
+): Promise<void> {
 	if (!id) return
 	try {
-		await api.delete(`/index.php/apps/openregister/api/objects/decidesk/${schema}/${id}`)
+		await api.delete(
+			`/index.php/apps/openregister/api/objects/decidesk/${schema}/${id}`,
+		)
 	} catch {
 		// Teardown is best-effort; leftover fixtures are namespaced ("E2E VR …").
 	}
@@ -84,7 +105,9 @@ async function openVotingRoundTab(page: Page, motionId: string): Promise<boolean
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	// The sidebar tab is rendered from the manifest's MotionDetail sidebarTabs.
-	const tab = page.getByRole('tab', { name: 'Voting round' }).or(page.getByText('Voting round', { exact: true }))
+	const tab = page
+		.getByRole('tab', { name: 'Voting round' })
+		.or(page.getByText('Voting round', { exact: true }))
 	try {
 		await tab.first().waitFor({ state: 'visible', timeout: 10_000 })
 	} catch {
@@ -92,7 +115,9 @@ async function openVotingRoundTab(page: Page, motionId: string): Promise<boolean
 	}
 	await tab.first().click()
 	try {
-		await page.locator('[data-testid="motion-voting-round-tab"]').waitFor({ state: 'visible', timeout: 10_000 })
+		await page
+			.locator('[data-testid="motion-voting-round-tab"]')
+			.waitFor({ state: 'visible', timeout: 10_000 })
 		return true
 	} catch {
 		return false
@@ -100,7 +125,9 @@ async function openVotingRoundTab(page: Page, motionId: string): Promise<boolean
 }
 
 // @e2e openspec/specs/voting-system/spec.md#configure-voting-rules-when-opening-a-round
-test('open-round dialog offers threshold, abstention and tie-break selectors with the documented defaults', async ({ page }) => {
+test('open-round dialog offers threshold, abstention and tie-break selectors with the documented defaults', async ({
+	page,
+}) => {
 	// Headroom: seeding (2 API creates) + navigation + the tab-detection waits
 	// can exceed the default 30s under shared-instance load, which would hard-fail
 	// the test before its defensive test.skip (deploy-mismatch) path completes.
@@ -138,18 +165,26 @@ test('open-round dialog offers threshold, abstention and tie-break selectors wit
 		})
 		expect(motionId, 'the seeded motion Decision must carry an id').toBeTruthy()
 
-		test.skip(!(await openVotingRoundTab(page, motionId as string)),
-			'Voting round tab not deployed on this instance (deploy mismatch)')
+		test.skip(
+			!(await openVotingRoundTab(page, motionId as string)),
+			'Voting round tab not deployed on this instance (deploy mismatch)',
+		)
 
 		// The motion is in debating with a linked meeting → the chair can open a
 		// round. Match both locales ('Stemronde openen' is the i18n key; the
 		// English catalogue renders it as 'Open voting round').
-		const openButton = page.getByRole('button', { name: /Stemronde openen|Open voting round/ })
-		test.skip(!(await openButton.isVisible().catch(() => false)),
-			'Open-round button not available (round already open or panel not deployed)')
+		const openButton = page.getByRole('button', {
+			name: /Stemronde openen|Open voting round/,
+		})
+		test.skip(
+			!(await openButton.isVisible().catch(() => false)),
+			'Open-round button not available (round already open or panel not deployed)',
+		)
 		await openButton.click()
 
-		const dialog = page.getByRole('dialog', { name: /Stemronde openen|Open voting round/ })
+		const dialog = page.getByRole('dialog', {
+			name: /Stemronde openen|Open voting round/,
+		})
 		await expect(dialog).toBeVisible({ timeout: 8_000 })
 
 		// The three rule selectors render with the documented defaults:
@@ -183,7 +218,9 @@ test('open-round dialog offers threshold, abstention and tie-break selectors wit
 })
 
 // @e2e openspec/specs/voting-system/spec.md#display-active-rules-and-computed-base
-test('closed-round result shows the active rules and the computed base', async ({ page }) => {
+test('closed-round result shows the active rules and the computed base', async ({
+	page,
+}) => {
 	test.setTimeout(90_000)
 	const api = await newApiContext()
 	let motionId: string | null = null
@@ -221,8 +258,10 @@ test('closed-round result shows the active rules and the computed base', async (
 		})
 		test.skip(!roundId, 'OpenRegister seeding API unavailable on this instance')
 
-		test.skip(!(await openVotingRoundTab(page, motionId as string)),
-			'Voting round tab not deployed on this instance (deploy mismatch)')
+		test.skip(
+			!(await openVotingRoundTab(page, motionId as string)),
+			'Voting round tab not deployed on this instance (deploy mismatch)',
+		)
 
 		// The closed-round result block shows the applied rules + computed base.
 		const rules = page.locator('[data-testid="result-voting-rules"]')
@@ -238,7 +277,9 @@ test('closed-round result shows the active rules and the computed base', async (
 })
 
 // @e2e openspec/specs/voting-system/spec.md#display-active-rules-and-computed-base
-test('live tally shows the active rules and the computed base while the round is open', async ({ page }) => {
+test('live tally shows the active rules and the computed base while the round is open', async ({
+	page,
+}) => {
 	test.setTimeout(90_000)
 	const api = await newApiContext()
 	let motionId: string | null = null
@@ -272,8 +313,10 @@ test('live tally shows the active rules and the computed base while the round is
 		})
 		test.skip(!roundId, 'OpenRegister seeding API unavailable on this instance')
 
-		test.skip(!(await openVotingRoundTab(page, motionId as string)),
-			'Voting round tab not deployed on this instance (deploy mismatch)')
+		test.skip(
+			!(await openVotingRoundTab(page, motionId as string)),
+			'Voting round tab not deployed on this instance (deploy mismatch)',
+		)
 
 		const rules = page.locator('[data-testid="active-voting-rules"]')
 		await expect(rules).toBeVisible({ timeout: 10_000 })

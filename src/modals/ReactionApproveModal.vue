@@ -15,7 +15,14 @@
 		data-testid="reaction-approve-modal"
 		@closing="$emit('close')">
 		<template #default>
-			<p>{{ t('decidesk', 'Approving counts this reaction toward the consultation and allows it to be published.') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'Approving counts this reaction toward the consultation and allows it to be published.',
+					)
+				}}
+			</p>
 			<NcTextArea
 				v-model="note"
 				data-testid="reaction-approve-note"

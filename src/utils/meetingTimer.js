@@ -34,9 +34,10 @@
  * @spec openspec/specs/meeting-efficiency/spec.md
  */
 export function createTimer(allocatedSeconds = null) {
-	const allocated = Number.isFinite(allocatedSeconds) && allocatedSeconds > 0
-		? Math.floor(allocatedSeconds)
-		: null
+	const allocated =
+		Number.isFinite(allocatedSeconds) && allocatedSeconds > 0
+			? Math.floor(allocatedSeconds)
+			: null
 	return {
 		allocatedSeconds: allocated,
 		startedAt: null,
@@ -116,10 +117,18 @@ export function resumeTimer(state, now) {
  * @spec openspec/specs/meeting-efficiency/spec.md
  */
 export function extendTimer(state, seconds) {
-	if (state.allocatedSeconds === null || state.finished || !Number.isFinite(seconds) || seconds <= 0) {
+	if (
+		state.allocatedSeconds === null
+		|| state.finished
+		|| !Number.isFinite(seconds)
+		|| seconds <= 0
+	) {
 		return state
 	}
-	return { ...state, extensionsSeconds: state.extensionsSeconds + Math.floor(seconds) }
+	return {
+		...state,
+		extensionsSeconds: state.extensionsSeconds + Math.floor(seconds),
+	}
 }
 
 /**
@@ -187,7 +196,8 @@ export function pausedSeconds(state, now) {
 	if (state.finished) {
 		return state.finishedPausedSeconds ?? 0
 	}
-	const openPauseMs = state.pausedAt !== null ? Math.max(0, now - state.pausedAt) : 0
+	const openPauseMs =
+		state.pausedAt !== null ? Math.max(0, now - state.pausedAt) : 0
 	return Math.floor((state.pausedTotalMs + openPauseMs) / 1000)
 }
 
@@ -206,7 +216,9 @@ export function remainingSeconds(state, now) {
 	if (state.allocatedSeconds === null) {
 		return null
 	}
-	return state.allocatedSeconds + state.extensionsSeconds - elapsedSeconds(state, now)
+	return (
+		state.allocatedSeconds + state.extensionsSeconds - elapsedSeconds(state, now)
+	)
 }
 
 /**

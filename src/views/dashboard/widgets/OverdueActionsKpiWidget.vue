@@ -76,7 +76,9 @@ export default {
 			this.loading = true
 			this.error = null
 			try {
-				this.items = await getActionItems({ taskStatus: ['open', 'in-progress'] })
+				this.items = await getActionItems({
+					taskStatus: ['open', 'in-progress'],
+				})
 			} catch (e) {
 				console.error('[decidesk] OverdueActionsKpiWidget load failed', e)
 				this.error = e

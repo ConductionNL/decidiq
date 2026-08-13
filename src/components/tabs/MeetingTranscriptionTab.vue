@@ -14,14 +14,19 @@
  @spec openspec/specs/meeting-transcription/spec.md
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--transcription" data-testid="meeting-transcription-tab">
+	<div
+		class="decidesk-tab decidesk-tab--transcription"
+		data-testid="meeting-transcription-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Transcription') }}
 			</h3>
 		</div>
 
-		<CnNoteCard v-if="error" type="error" :title="t('decidesk', 'Transcription error')">
+		<CnNoteCard
+			v-if="error"
+			type="error"
+			:title="t('decidesk', 'Transcription error')">
 			{{ error }}
 		</CnNoteCard>
 
@@ -31,12 +36,19 @@
 			type="warning"
 			data-testid="transcription-unavailable"
 			:title="t('decidesk', 'Transcription unavailable')">
-			{{ t('decidesk', 'No speech-to-text provider is installed on this instance. You can still attach a recording and record consent; transcription becomes available once a provider (e.g. a local Whisper app) is installed.') }}
+			{{
+				t(
+					'decidesk',
+					'No speech-to-text provider is installed on this instance. You can still attach a recording and record consent; transcription becomes available once a provider (e.g. a local Whisper app) is installed.',
+				)
+			}}
 		</CnNoteCard>
 
 		<!-- Attach a source. -->
 		<section class="decidesk-transcription__attach">
-			<label class="decidesk-transcription__label" for="transcription-source-select">
+			<label
+				class="decidesk-transcription__label"
+				for="transcription-source-select">
 				{{ t('decidesk', 'Recording source') }}
 			</label>
 			<!--
@@ -57,8 +69,15 @@
 				:model-value="selectedSource"
 				label="label"
 				@update:model-value="onSelectSource" />
-			<p v-if="loaded && sourceOptions.length === 0" class="decidesk-transcription__hint">
-				{{ t('decidesk', 'No audio files found in this meeting\'s folder. Upload a recording to the meeting folder, then refresh.') }}
+			<p
+				v-if="loaded && sourceOptions.length === 0"
+				class="decidesk-transcription__hint">
+				{{
+					t(
+						'decidesk',
+						"No audio files found in this meeting's folder. Upload a recording to the meeting folder, then refresh.",
+					)
+				}}
 			</p>
 			<NcButton
 				variant="primary"
@@ -70,9 +89,14 @@
 		</section>
 
 		<!-- Existing transcript + lifecycle. -->
-		<section v-if="transcript" class="decidesk-transcription__status" data-testid="transcription-status">
+		<section
+			v-if="transcript"
+			class="decidesk-transcription__status"
+			data-testid="transcription-status">
 			<CnStatusBadge :label="statusLabel" :color-map="statusColors" />
-			<p v-if="transcript.status === 'failed' && transcript.failureReason" class="decidesk-transcription__hint">
+			<p
+				v-if="transcript.status === 'failed' && transcript.failureReason"
+				class="decidesk-transcription__hint">
 				{{ t('decidesk', 'Reason:') }} {{ transcript.failureReason }}
 			</p>
 			<NcButton
@@ -81,7 +105,11 @@
 				data-testid="transcription-transcribe"
 				:disabled="working"
 				@click="transcribe">
-				{{ transcript.status === 'failed' ? t('decidesk', 'Retry transcription') : t('decidesk', 'Transcribe') }}
+				{{
+					transcript.status === 'failed'
+						? t('decidesk', 'Retry transcription')
+						: t('decidesk', 'Transcribe')
+				}}
 			</NcButton>
 			<NcButton
 				v-if="transcript.status === 'done'"
@@ -94,23 +122,35 @@
 		</section>
 
 		<!-- Transcript grouped per agenda item. -->
-		<section v-if="transcript && transcript.status === 'done'" class="decidesk-transcription__transcript" data-testid="transcript-view">
+		<section
+			v-if="transcript && transcript.status === 'done'"
+			class="decidesk-transcription__transcript"
+			data-testid="transcript-view">
 			<div
 				v-for="group in groupedSegments"
 				:key="group.key"
 				class="decidesk-transcription__group"
-				:data-testid="group.key === 'unassigned' ? 'transcript-group-unassigned' : 'transcript-group'">
+				:data-testid="
+					group.key === 'unassigned'
+						? 'transcript-group-unassigned'
+						: 'transcript-group'
+				">
 				<h4 class="decidesk-transcription__group-title">
 					{{ group.title }}
 				</h4>
-				<p v-for="(seg, i) in group.segments" :key="i" class="decidesk-transcription__segment">
+				<p
+					v-for="(seg, i) in group.segments"
+					:key="i"
+					class="decidesk-transcription__segment">
 					<strong>{{ seg.speakerLabel }}:</strong> {{ seg.text }}
 				</p>
 			</div>
 		</section>
 
 		<!-- Generate draft (hidden without an AI provider). -->
-		<section v-if="transcript && transcript.status === 'done' && aiAvailable" class="decidesk-transcription__draft">
+		<section
+			v-if="transcript && transcript.status === 'done' && aiAvailable"
+			class="decidesk-transcription__draft">
 			<NcButton
 				variant="primary"
 				data-testid="transcription-generate-draft"
@@ -121,16 +161,29 @@
 		</section>
 
 		<!-- Draft review banner + per-section markers. -->
-		<section v-if="draft" class="decidesk-transcription__draft-review" data-testid="draft-review">
-			<CnNoteCard type="info" data-testid="draft-provenance-banner" :title="t('decidesk', 'AI-generated draft')">
-				{{ t('decidesk', 'This draft was generated by AI from the transcript. Review every section before it enters the minutes. AI never approves or publishes minutes — the normal approval workflow is unchanged.') }}
+		<section
+			v-if="draft"
+			class="decidesk-transcription__draft-review"
+			data-testid="draft-review">
+			<CnNoteCard
+				type="info"
+				data-testid="draft-provenance-banner"
+				:title="t('decidesk', 'AI-generated draft')">
+				{{
+					t(
+						'decidesk',
+						'This draft was generated by AI from the transcript. Review every section before it enters the minutes. AI never approves or publishes minutes — the normal approval workflow is unchanged.',
+					)
+				}}
 			</CnNoteCard>
 
 			<div
 				v-for="(section, idx) in draft.sections"
 				:key="idx"
 				class="decidesk-transcription__section"
-				:data-testid="section.discarded ? 'draft-section-discarded' : 'draft-section'">
+				:data-testid="
+					section.discarded ? 'draft-section-discarded' : 'draft-section'
+				">
 				<div class="decidesk-transcription__section-head">
 					<h4>{{ section.title }}</h4>
 					<span
@@ -148,16 +201,33 @@
 					resize="vertical"
 					@update:model-value="markEdited(section)" />
 				<p v-else class="decidesk-transcription__hint">
-					{{ t('decidesk', 'Section discarded — write your own text in the minutes editor.') }}
+					{{
+						t(
+							'decidesk',
+							'Section discarded — write your own text in the minutes editor.',
+						)
+					}}
 				</p>
 
-				<ul v-if="!section.discarded && section.suggestions && section.suggestions.length" class="decidesk-transcription__suggestions">
+				<ul
+					v-if="
+						!section.discarded
+						&& section.suggestions
+						&& section.suggestions.length
+					"
+					class="decidesk-transcription__suggestions">
 					<li
 						v-for="(sug, sIdx) in section.suggestions"
 						:key="sIdx"
-						:data-testid="sug.unverified ? 'suggestion-unverified' : 'suggestion-matched'">
+						:data-testid="
+							sug.unverified
+								? 'suggestion-unverified'
+								: 'suggestion-matched'
+						">
 						{{ sug.title }}
-						<span v-if="sug.unverified" class="decidesk-transcription__unverified">
+						<span
+							v-if="sug.unverified"
+							class="decidesk-transcription__unverified">
 							{{ t('decidesk', 'unverified — no recorded outcome') }}
 						</span>
 						<span v-else class="decidesk-transcription__verified">
@@ -166,8 +236,13 @@
 					</li>
 				</ul>
 
-				<div v-if="!section.discarded" class="decidesk-transcription__section-actions">
-					<NcButton variant="tertiary" :data-testid="'draft-section-discard'" @click="discardSection(section)">
+				<div
+					v-if="!section.discarded"
+					class="decidesk-transcription__section-actions">
+					<NcButton
+						variant="tertiary"
+						:data-testid="'draft-section-discard'"
+						@click="discardSection(section)">
 						{{ t('decidesk', 'Discard section') }}
 					</NcButton>
 				</div>
@@ -190,7 +265,14 @@ import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'MeetingTranscriptionTab',
-	components: { CnNoteCard, CnStatusBadge, NcButton, NcSelect, NcTextArea, TranscriptionConsentModal },
+	components: {
+		CnNoteCard,
+		CnStatusBadge,
+		NcButton,
+		NcSelect,
+		NcTextArea,
+		TranscriptionConsentModal,
+	},
 	inject: {
 		/**
 		 * CnDetailPage's reactive `{ objectId, object, register, schema }`
@@ -242,14 +324,20 @@ export default {
 			const context = this.cnObjectContext
 			// Vue unwraps an injected ref for the Options API, but the compat
 			// build can hand back the ref itself — accept both shapes.
-			const value = (context && typeof context === 'object' && 'value' in context)
-				? context.value
-				: context
-			return (value && value.objectId) ? String(value.objectId) : ''
+			const value =
+				context && typeof context === 'object' && 'value' in context
+					? context.value
+					: context
+			return value && value.objectId ? String(value.objectId) : ''
 		},
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		statusColors() {
-			return { pending: 'primary', processing: 'warning', done: 'success', failed: 'error' }
+			return {
+				pending: 'primary',
+				processing: 'warning',
+				done: 'success',
+				failed: 'error',
+			}
 		},
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		statusLabel() {
@@ -263,8 +351,11 @@ export default {
 		},
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		canTranscribe() {
-			return this.providerAvailable && this.transcript
+			return (
+				this.providerAvailable
+				&& this.transcript
 				&& ['pending', 'failed'].includes(this.transcript.status)
+			)
 		},
 		/**
 		 * Segments grouped per agenda item, with an unassigned group last.
@@ -282,9 +373,11 @@ export default {
 					groups[key] = {
 						key: key === 'unassigned' ? 'unassigned' : 'item',
 						id: key,
-						title: key === 'unassigned'
-							? this.t('decidesk', 'Unassigned')
-							: (this.agendaTitles[key] || this.t('decidesk', 'Agenda item')),
+						title:
+							key === 'unassigned'
+								? this.t('decidesk', 'Unassigned')
+								: this.agendaTitles[key]
+									|| this.t('decidesk', 'Agenda item'),
 						segments: [],
 					}
 					order.push(key)
@@ -293,12 +386,20 @@ export default {
 			})
 			// Unassigned last.
 			return order
-				.sort((a, b) => (a === 'unassigned' ? 1 : 0) - (b === 'unassigned' ? 1 : 0))
+				.sort(
+					(a, b) =>
+						(a === 'unassigned' ? 1 : 0) - (b === 'unassigned' ? 1 : 0),
+				)
 				.map((k) => groups[k])
 		},
 	},
 	watch: {
-		resolvedObjectId: { immediate: true, handler() { this.refresh() } },
+		resolvedObjectId: {
+			immediate: true,
+			handler() {
+				this.refresh()
+			},
+		},
 	},
 	methods: {
 		/** @spec openspec/specs/meeting-transcription/spec.md */
@@ -306,7 +407,11 @@ export default {
 			if (!this.resolvedObjectId) return
 			this.error = ''
 			try {
-				const data = await this.callApi(`/meetings/${this.resolvedObjectId}/transcription/sources`, {}, 'GET')
+				const data = await this.callApi(
+					`/meetings/${this.resolvedObjectId}/transcription/sources`,
+					{},
+					'GET',
+				)
 				this.providerAvailable = !!data.providerAvailable
 				this.aiAvailable = !!data.aiAvailable
 				this.sourceOptions = (data.sources || []).map((s) => ({
@@ -316,7 +421,9 @@ export default {
 				await this.loadExistingTranscript()
 				await this.loadAgendaTitles()
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Could not load transcription state.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Could not load transcription state.')
 			} finally {
 				this.loaded = true
 			}
@@ -325,7 +432,10 @@ export default {
 		async loadExistingTranscript() {
 			try {
 				const store = ensureRelationType('transcript')
-				const items = await store.fetchCollection('transcript', { meeting: this.resolvedObjectId, _limit: 1 })
+				const items = await store.fetchCollection('transcript', {
+					meeting: this.resolvedObjectId,
+					_limit: 1,
+				})
 				this.transcript = (items && items[0]) || null
 			} catch (e) {
 				this.transcript = null
@@ -335,9 +445,14 @@ export default {
 		async loadAgendaTitles() {
 			try {
 				const store = ensureRelationType('agenda-item')
-				const items = await store.fetchCollection('agenda-item', { meeting: this.resolvedObjectId, _limit: 200 })
+				const items = await store.fetchCollection('agenda-item', {
+					meeting: this.resolvedObjectId,
+					_limit: 200,
+				})
 				const map = {}
-				;(items || []).forEach((it) => { map[it.id || it.uuid] = it.title || it.name })
+				;(items || []).forEach((it) => {
+					map[it.id || it.uuid] = it.title || it.name
+				})
 				this.agendaTitles = map
 			} catch (e) {
 				this.agendaTitles = {}
@@ -373,7 +488,9 @@ export default {
 					},
 				)
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Could not attach the recording.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Could not attach the recording.')
 			} finally {
 				this.working = false
 			}
@@ -387,7 +504,9 @@ export default {
 				await this.callApi(`/transcripts/${this.transcriptId()}/transcribe`)
 				if (this.transcript) this.transcript.status = 'processing'
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Could not start transcription.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Could not start transcription.')
 			} finally {
 				this.working = false
 			}
@@ -398,9 +517,13 @@ export default {
 			this.working = true
 			this.error = ''
 			try {
-				this.transcript = await this.callApi(`/transcripts/${this.transcriptId()}/re-align`)
+				this.transcript = await this.callApi(
+					`/transcripts/${this.transcriptId()}/re-align`,
+				)
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Could not re-align the transcript.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Could not re-align the transcript.')
 			} finally {
 				this.working = false
 			}
@@ -411,13 +534,20 @@ export default {
 			this.working = true
 			this.error = ''
 			try {
-				const draft = await this.callApi(`/transcripts/${this.transcriptId()}/generate-draft`)
+				const draft = await this.callApi(
+					`/transcripts/${this.transcriptId()}/generate-draft`,
+				)
 				this.draft = {
 					...draft,
-					sections: (draft.sections || []).map((s) => ({ ...s, discarded: false, edited: false })),
+					sections: (draft.sections || []).map((s) => ({
+						...s,
+						discarded: false,
+						edited: false,
+					})),
 				}
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Could not generate the draft.')
+				this.error =
+					e?.message || this.t('decidesk', 'Could not generate the draft.')
 			} finally {
 				this.working = false
 			}
@@ -462,10 +592,15 @@ export default {
 				},
 			}
 			if (method !== 'GET') opts.body = JSON.stringify(body)
-			const response = await fetch(generateUrl(`/apps/decidesk/api${path}`), opts)
+			const response = await fetch(
+				generateUrl(`/apps/decidesk/api${path}`),
+				opts,
+			)
 			const data = await response.json().catch(() => ({}))
 			if (!response.ok) {
-				throw new Error(data.message || this.t('decidesk', 'The action failed.'))
+				throw new Error(
+					data.message || this.t('decidesk', 'The action failed.'),
+				)
 			}
 			return data
 		},

@@ -20,7 +20,9 @@
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Votes') }}
-				<span v-if="!loading" class="decidesk-tab__count">({{ rounds.length }})</span>
+				<span v-if="!loading" class="decidesk-tab__count"
+					>({{ rounds.length }})</span
+				>
 			</h3>
 		</div>
 
@@ -52,7 +54,10 @@
 			:empty-text="t('decidesk', 'No voting recorded for this meeting.')"
 			@row-click="openMotion">
 			<template #column-result="{ value }">
-				<CnStatusBadge v-if="value" :label="value" :color-map="resultColors" />
+				<CnStatusBadge
+					v-if="value"
+					:label="value"
+					:color-map="resultColors" />
 			</template>
 		</CnDataTable>
 	</div>
@@ -99,7 +104,9 @@ export default {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 	methods: {
@@ -114,10 +121,13 @@ export default {
 			this.error = ''
 			try {
 				const agendaStore = ensureRelationType('agenda-item')
-				const agendaItems = await agendaStore.fetchCollection('agenda-item', {
-					meeting: this.objectId,
-					_limit: 200,
-				})
+				const agendaItems = await agendaStore.fetchCollection(
+					'agenda-item',
+					{
+						meeting: this.objectId,
+						_limit: 200,
+					},
+				)
 				if (!Array.isArray(agendaItems) || !agendaItems.length) {
 					this.rounds = []
 					return
@@ -137,15 +147,19 @@ export default {
 					for (const motion of motions || []) {
 						const motionId = motion?.id || motion?.uuid
 						if (!motionId) continue
-						const rounds = await roundStore.fetchCollection('voting-round', {
-							motion: motionId,
-							_limit: 50,
-						})
+						const rounds = await roundStore.fetchCollection(
+							'voting-round',
+							{
+								motion: motionId,
+								_limit: 50,
+							},
+						)
 						for (const round of rounds || []) {
 							collected.push({
 								id: round.id || round.uuid,
 								motionId,
-								motionTitle: motion.title || this.t('decidesk', 'Motion'),
+								motionTitle:
+									motion.title || this.t('decidesk', 'Motion'),
 								motionType: motion.motionType || '',
 								votesFor: round.votesFor ?? 0,
 								votesAgainst: round.votesAgainst ?? 0,
@@ -158,7 +172,9 @@ export default {
 				}
 				this.rounds = collected
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load voting overview.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Failed to load voting overview.')
 			} finally {
 				this.loading = false
 			}

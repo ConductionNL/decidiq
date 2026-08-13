@@ -128,13 +128,20 @@ const SURFACES = ['decision', 'motion', 'agendaItem'] as const
  * so every navigation blocks on a settings round-trip; waiting for `app-root`
  * is waiting for that, not for the view.
  */
-async function openIntegrations(page: Page, route: string, id: string): Promise<void> {
+async function openIntegrations(
+	page: Page,
+	route: string,
+	id: string,
+): Promise<void> {
 	await page.goto(`${BASE}/apps/decidesk/${route}/${id}/integrations`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 20_000 })
 }
 
 /** Assert we are on `expected` and on none of its two siblings. */
-async function expectOnlyThisSurface(page: Page, expected: typeof SURFACES[number]): Promise<void> {
+async function expectOnlyThisSurface(
+	page: Page,
+	expected: (typeof SURFACES)[number],
+): Promise<void> {
 	await expect(handle(page, expected)).toBeVisible({ timeout: 20_000 })
 	for (const other of SURFACES) {
 		if (other === expected) continue
@@ -166,12 +173,17 @@ test.describe('per-object integration surfaces', () => {
 			if (expected.type === 'detail') {
 				// A detail page must actually carry the declarative body it is
 				// served from, or "no component" means "no page".
-				expect(page.config?.widgets?.length, `${id}.config.widgets`).toBeGreaterThan(0)
+				expect(
+					page.config?.widgets?.length,
+					`${id}.config.widgets`,
+				).toBeGreaterThan(0)
 			}
 		}
 	})
 
-	test('decision integrations surface renders its own body and returns to the decision', async ({ page }) => {
+	test('decision integrations surface renders its own body and returns to the decision', async ({
+		page,
+	}) => {
 		const decision = await createObject(page, ledger, 'decision', {
 			title: 'E2E integrations decision',
 			text: 'Decision used to prove the integrations surface renders.',
@@ -185,19 +197,25 @@ test.describe('per-object integration surfaces', () => {
 		await openIntegrations(page, 'decisions', id)
 		await expectOnlyThisSurface(page, 'decision')
 		// The seeded object is resolved, not just the page shell.
-		await expect(page.getByRole('heading', { name: 'E2E integrations decision' }))
-			.toBeVisible({ timeout: 20_000 })
+		await expect(
+			page.getByRole('heading', { name: 'E2E integrations decision' }),
+		).toBeVisible({ timeout: 20_000 })
 		// Body copy the DECISION page's manifest entry declares and no other
 		// page does — "the Action items board (Deck)" appears only here.
-		await expect(page.getByRole('main'))
-			.toContainText(/linked Emails, the Action items board \(Deck\) and files/i)
+		await expect(page.getByRole('main')).toContainText(
+			/linked Emails, the Action items board \(Deck\) and files/i,
+		)
 		// All three declared widgets are laid out, not just the first.
 		for (const widgetId of ['di-email', 'di-deck', 'di-files']) {
-			await expect(page.getByRole('group', { name: widgetId, exact: true })).toBeVisible()
+			await expect(
+				page.getByRole('group', { name: widgetId, exact: true }),
+			).toBeVisible()
 		}
 	})
 
-	test('motion integrations surface renders its own body and returns to the motion', async ({ page }) => {
+	test('motion integrations surface renders its own body and returns to the motion', async ({
+		page,
+	}) => {
 		// ADR-005: a motion is a Decision carrying decisionType 'motion'; there
 		// is no `motion` schema (addressing one 404s "Schema not found").
 		const motion = await createObject(page, ledger, 'decision', {
@@ -216,17 +234,22 @@ test.describe('per-object integration surfaces', () => {
 		// src/registry.js records as having once rendered NOTHING because the
 		// manifest named a component the registry never registered, so a
 		// distinguishing assertion is the whole point of the test.
-		await expect(page.getByTestId('motion-integrations'))
-			.toContainText(/Discussion tab is provided by the Talk integration leaf/i)
+		await expect(page.getByTestId('motion-integrations')).toContainText(
+			/Discussion tab is provided by the Talk integration leaf/i,
+		)
 
 		// Exercise the control, do not merely find it: it pushes a NAMED route,
 		// and a name that no longer resolves is invisible to a visibility check.
 		await page.getByTestId('motion-integrations-back').click()
-		await expect(page).toHaveURL(new RegExp(`/motions/${id}$`), { timeout: 20_000 })
+		await expect(page).toHaveURL(new RegExp(`/motions/${id}$`), {
+			timeout: 20_000,
+		})
 		await expect(page.getByTestId('motion-integrations')).toHaveCount(0)
 	})
 
-	test('agenda-item integrations surface renders its declared widget body', async ({ page }) => {
+	test('agenda-item integrations surface renders its declared widget body', async ({
+		page,
+	}) => {
 		const item = await createObject(page, ledger, 'agenda-item', {
 			title: 'E2E integrations agenda item',
 			itemType: 'discussion',
@@ -236,13 +259,17 @@ test.describe('per-object integration surfaces', () => {
 
 		await openIntegrations(page, 'agenda-items', id)
 		await expectOnlyThisSurface(page, 'agendaItem')
-		await expect(page.getByRole('heading', { name: 'E2E integrations agenda item' }))
-			.toBeVisible({ timeout: 20_000 })
+		await expect(
+			page.getByRole('heading', { name: 'E2E integrations agenda item' }),
+		).toBeVisible({ timeout: 20_000 })
 		// Copy the AGENDA-ITEM page's manifest entry declares and no other does.
-		await expect(page.getByRole('main'))
-			.toContainText(/linked Emails, files and tasks surface on the body/i)
+		await expect(page.getByRole('main')).toContainText(
+			/linked Emails, files and tasks surface on the body/i,
+		)
 		for (const widgetId of ['ai-email', 'ai-files', 'ai-tasks']) {
-			await expect(page.getByRole('group', { name: widgetId, exact: true })).toBeVisible()
+			await expect(
+				page.getByRole('group', { name: widgetId, exact: true }),
+			).toBeVisible()
 		}
 	})
 })

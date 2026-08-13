@@ -15,7 +15,9 @@
  @spec openspec/specs/resolution-minutes/spec.md
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--documents" data-testid="minutes-document-tab">
+	<div
+		class="decidesk-tab decidesk-tab--documents"
+		data-testid="minutes-document-tab">
 		<CnNoteCard
 			v-if="error"
 			type="error"
@@ -54,26 +56,41 @@
 				:title="t('decidesk', 'Markdown fallback')">
 				{{ lastResult.note }}
 			</CnNoteCard>
-			<p v-else-if="lastResult" class="decidesk-tab__meta" data-testid="minutes-document-result">
-				{{ t('decidesk', 'Document stored at {path}', { path: lastResult.path }) }}
+			<p
+				v-else-if="lastResult"
+				class="decidesk-tab__meta"
+				data-testid="minutes-document-result">
+				{{
+					t('decidesk', 'Document stored at {path}', {
+						path: lastResult.path,
+					})
+				}}
 			</p>
 
 			<div class="decidesk-tab__documents">
 				<h3 class="decidesk-tab__title">
 					{{ t('decidesk', 'Generated documents') }}
-					<span class="decidesk-tab__count">({{ generatedDocuments.length }})</span>
+					<span class="decidesk-tab__count"
+						>({{ generatedDocuments.length }})</span
+					>
 				</h3>
-				<p v-if="generatedDocuments.length === 0" class="decidesk-tab__empty">
+				<p
+					v-if="generatedDocuments.length === 0"
+					class="decidesk-tab__empty">
 					{{ t('decidesk', 'No documents generated yet.') }}
 				</p>
 				<ul v-else class="decidesk-tab__list" role="list">
-					<li v-for="(doc, index) in generatedDocuments"
+					<li
+						v-for="(doc, index) in generatedDocuments"
 						:key="index"
 						class="decidesk-tab__document"
 						role="listitem">
-						<span class="decidesk-tab__document-path">{{ doc.path }}</span>
+						<span class="decidesk-tab__document-path">{{
+							doc.path
+						}}</span>
 						<span class="decidesk-tab__meta">
-							{{ doc.format }} — {{ doc.generatedAt }} — {{ doc.generatedBy }}
+							{{ doc.format }} — {{ doc.generatedAt }} —
+							{{ doc.generatedBy }}
 						</span>
 					</li>
 				</ul>
@@ -84,7 +101,12 @@
 					{{ t('decidesk', 'Notarial proof package') }}
 				</h3>
 				<p class="decidesk-tab__meta">
-					{{ t('decidesk', 'Assembles convocation, quorum, voting results, and the adopted decision texts into a tamper-evident package in the meeting folder.') }}
+					{{
+						t(
+							'decidesk',
+							'Assembles convocation, quorum, voting results, and the adopted decision texts into a tamper-evident package in the meeting folder.',
+						)
+					}}
 				</p>
 				<NcButton
 					data-testid="minutes-proof-package"
@@ -93,10 +115,22 @@
 					{{ t('decidesk', 'Generate proof package') }}
 				</NcButton>
 				<p v-if="!meetingId" class="decidesk-tab__empty">
-					{{ t('decidesk', 'No meeting is linked to these minutes — the proof package needs a meeting.') }}
+					{{
+						t(
+							'decidesk',
+							'No meeting is linked to these minutes — the proof package needs a meeting.',
+						)
+					}}
 				</p>
-				<p v-if="proofResult" class="decidesk-tab__meta" data-testid="minutes-proof-result">
-					{{ t('decidesk', 'Proof package sealed (SHA-256 {hash}).', { hash: proofResult.sha256 }) }}
+				<p
+					v-if="proofResult"
+					class="decidesk-tab__meta"
+					data-testid="minutes-proof-result">
+					{{
+						t('decidesk', 'Proof package sealed (SHA-256 {hash}).', {
+							hash: proofResult.sha256,
+						})
+					}}
 				</p>
 			</div>
 		</template>
@@ -136,12 +170,17 @@ export default {
 		formatOptions() {
 			return [
 				{ id: 'markdown', label: this.t('decidesk', 'Markdown') },
-				{ id: 'pdf', label: this.t('decidesk', 'PDF (via Docudesk when available)') },
+				{
+					id: 'pdf',
+					label: this.t('decidesk', 'PDF (via Docudesk when available)'),
+				},
 			]
 		},
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		generatedDocuments() {
-			return Array.isArray(this.minutes?.generatedDocuments) ? this.minutes.generatedDocuments : []
+			return Array.isArray(this.minutes?.generatedDocuments)
+				? this.minutes.generatedDocuments
+				: []
 		},
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		meetingId() {
@@ -155,7 +194,9 @@ export default {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/resolution-minutes/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 	/** @spec exclude lifecycle wiring; seeds the default format option only */
@@ -172,7 +213,8 @@ export default {
 				const store = ensureRelationType('minutes')
 				this.minutes = await store.fetchObject('minutes', this.objectId)
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load the minutes.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load the minutes.')
 			} finally {
 				this.loading = false
 			}
@@ -196,7 +238,9 @@ export default {
 			})
 			const data = await response.json().catch(() => ({}))
 			if (!response.ok) {
-				throw new Error(data.message || this.t('decidesk', 'The action failed.'))
+				throw new Error(
+					data.message || this.t('decidesk', 'The action failed.'),
+				)
 			}
 			return data
 		},
@@ -223,7 +267,9 @@ export default {
 			this.error = ''
 			this.proofResult = null
 			try {
-				this.proofResult = await this.callApi(`/meetings/${this.meetingId}/proof-package`)
+				this.proofResult = await this.callApi(
+					`/meetings/${this.meetingId}/proof-package`,
+				)
 			} catch (e) {
 				this.error = e.message
 			} finally {

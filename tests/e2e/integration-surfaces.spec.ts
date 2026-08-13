@@ -66,7 +66,10 @@ async function resolveObjectId(
 	const resp = await page.request.get(`${OR}/${schema}?_limit=50`, {
 		headers: { Accept: 'application/json' },
 	})
-	expect(resp.ok(), `GET ${OR}/${schema} must answer 2xx (got ${resp.status()})`).toBe(true)
+	expect(
+		resp.ok(),
+		`GET ${OR}/${schema} must answer 2xx (got ${resp.status()})`,
+	).toBe(true)
 	const body = await resp.json()
 	const results: Record<string, unknown>[] = body.results ?? body.items ?? []
 	const picked = (prefer ? results.find(prefer) : undefined) ?? results[0]
@@ -74,8 +77,8 @@ async function resolveObjectId(
 	expect(
 		id,
 		`no '${schema}' object to drive the integrations surface with — `
-		+ `tests/e2e/ci-seed.sh seeds this schema, so an empty listing means the `
-		+ `seed did not run, not that the surface is untestable`,
+			+ `tests/e2e/ci-seed.sh seeds this schema, so an empty listing means the `
+			+ `seed did not run, not that the surface is untestable`,
 	).toBeTruthy()
 	return id
 }
@@ -135,7 +138,9 @@ const SURFACES: Surface[] = [
 
 test.describe('Integration surfaces — per-object integration pages render', () => {
 	for (const surface of SURFACES) {
-		test(`${surface.name} (${surface.component}) renders its body and back-link`, async ({ page }) => {
+		test(`${surface.name} (${surface.component}) renders its body and back-link`, async ({
+			page,
+		}) => {
 			const id = await resolveObjectId(page, surface.schema, surface.prefer)
 
 			await page.goto(surface.route.replace('{id}', id))
@@ -143,7 +148,9 @@ test.describe('Integration surfaces — per-object integration pages render', ()
 			// The view's OWN body block — declared by the component under test,
 			// not by CnDetailPage or the registry sidebar.
 			const body = page.locator(`[data-testid="${surface.testId}"]`)
-			await expect(body, `${surface.name} body block must mount`).toBeVisible({ timeout: 15_000 })
+			await expect(body, `${surface.name} body block must mount`).toBeVisible({
+				timeout: 15_000,
+			})
 
 			// It carries the explanatory copy every one of these surfaces ships;
 			// an empty shell is a regression this spec must catch.

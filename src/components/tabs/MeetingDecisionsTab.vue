@@ -16,11 +16,15 @@
  @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#requirement-per-meeting-besluiten-authoring-tab
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--decisions" data-testid="meeting-decisions-tab">
+	<div
+		class="decidesk-tab decidesk-tab--decisions"
+		data-testid="meeting-decisions-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Decisions') }}
-				<span v-if="!loading" class="decidesk-tab__count">({{ rows.length }})</span>
+				<span v-if="!loading" class="decidesk-tab__count"
+					>({{ rows.length }})</span
+				>
 			</h3>
 			<NcButton
 				variant="primary"
@@ -51,7 +55,10 @@
 			:loading-text="t('decidesk', 'Loading decisions…')"
 			@row-click="openDetail">
 			<template #column-outcome="{ value }">
-				<CnStatusBadge v-if="value" :label="value" :color-map="outcomeColors" />
+				<CnStatusBadge
+					v-if="value"
+					:label="value"
+					:color-map="outcomeColors" />
 			</template>
 		</CnDataTable>
 	</div>
@@ -101,7 +108,9 @@ export default {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 	methods: {
@@ -118,7 +127,8 @@ export default {
 				})
 				this.rows = items || []
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load decisions.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load decisions.')
 			} finally {
 				this.loading = false
 			}
@@ -138,7 +148,8 @@ export default {
 				await this.refresh()
 				if (newId) this.openDetail({ id: newId })
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Could not create decision.')
+				this.error =
+					e?.message || this.t('decidesk', 'Could not create decision.')
 			} finally {
 				this.creating = false
 			}

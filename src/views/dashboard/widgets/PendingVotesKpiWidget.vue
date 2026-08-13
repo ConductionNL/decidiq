@@ -30,8 +30,16 @@ import { getCurrentUser } from '@nextcloud/auth'
 import { CnStatsBlock } from '@conduction/nextcloud-vue'
 import VoteOutline from 'vue-material-design-icons/VoteOutline.vue'
 import dashboardRefreshMixin from './dashboardRefreshMixin.js'
-import { resolveParticipantId, pendingVotingRounds, pendingInRange } from './widgetLogic.js'
-import { getParticipants, getVotingRounds, getVotes } from '../../../services/dashboardData.js'
+import {
+	resolveParticipantId,
+	pendingVotingRounds,
+	pendingInRange,
+} from './widgetLogic.js'
+import {
+	getParticipants,
+	getVotingRounds,
+	getVotes,
+} from '../../../services/dashboardData.js'
 
 export default {
 	name: 'PendingVotesKpiWidget',
@@ -69,7 +77,7 @@ export default {
 			if (!r) {
 				return null
 			}
-			return (typeof r === 'object' && 'value' in r) ? r.value : r
+			return typeof r === 'object' && 'value' in r ? r.value : r
 		},
 
 		/**

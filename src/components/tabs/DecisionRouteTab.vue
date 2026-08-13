@@ -52,7 +52,9 @@
 				variant="tertiary"
 				class="decidesk-route__banner-link"
 				data-testid="effective-status-navigate"
-				:aria-label="t('decidesk', 'Open the decision that replaced this one')"
+				:aria-label="
+					t('decidesk', 'Open the decision that replaced this one')
+				"
 				@click="openDecision(effectingDecision)">
 				{{ effectingDecision.title || t('decidesk', 'View decision') }}
 			</NcButton>
@@ -69,55 +71,109 @@
 				type="info"
 				:title="t('decidesk', 'No staged route configured')"
 				data-testid="route-empty">
-				{{ t('decidesk', 'This decision has no staged route. A stageless decision is valid.') }}
+				{{
+					t(
+						'decidesk',
+						'This decision has no staged route. A stageless decision is valid.',
+					)
+				}}
 			</CnNoteCard>
 
 			<template v-else>
 				<div class="decidesk-route__progress" data-testid="route-progress">
 					<span class="decidesk-route__progress-dots" aria-hidden="true">
-						<span v-for="(s, i) in stages"
+						<span
+							v-for="(s, i) in stages"
 							:key="'dot-' + i"
 							class="decidesk-route__progress-dot"
-							:class="{ 'decidesk-route__progress-dot--done': s.status === 'decided' || s.status === 'skipped' }" />
+							:class="{
+								'decidesk-route__progress-dot--done':
+									s.status === 'decided' || s.status === 'skipped',
+							}" />
 					</span>
 					<span class="decidesk-route__progress-label">
-						{{ t('decidesk', '{decided} of {total} stages decided', { decided: decidedCount, total: stages.length }) }}
+						{{
+							t('decidesk', '{decided} of {total} stages decided', {
+								decided: decidedCount,
+								total: stages.length,
+							})
+						}}
 					</span>
 				</div>
 
 				<ol class="decidesk-route__timeline" data-testid="route-timeline">
-					<li v-for="stage in stages"
+					<li
+						v-for="stage in stages"
 						:key="stage.id"
 						class="decidesk-route__step"
-						:class="{ 'decidesk-route__step--current': isCurrent(stage) }"
+						:class="{
+							'decidesk-route__step--current': isCurrent(stage),
+						}"
 						:data-testid="'route-stage-' + stage.sequence">
-						<span class="decidesk-route__marker"
+						<span
+							class="decidesk-route__marker"
 							:class="'decidesk-route__marker--' + stage.status"
 							aria-hidden="true" />
 						<div class="decidesk-route__body">
 							<div class="decidesk-route__line1">
-								<span class="decidesk-route__seq">{{ t('decidesk', 'seq {n}', { n: stage.sequence }) }}</span>
-								<span class="decidesk-route__maker">{{ makerName(stage) }}</span>
-								<span class="decidesk-route__meta">{{ stageTypeLabel(stage.stageType) }} · {{ methodLabel(stage.method) }}</span>
+								<span class="decidesk-route__seq">{{
+									t('decidesk', 'seq {n}', { n: stage.sequence })
+								}}</span>
+								<span class="decidesk-route__maker">{{
+									makerName(stage)
+								}}</span>
+								<span class="decidesk-route__meta"
+									>{{ stageTypeLabel(stage.stageType) }} ·
+									{{ methodLabel(stage.method) }}</span
+								>
 								<CnStatusBadge
 									v-if="isCurrent(stage)"
 									:label="t('decidesk', 'Current')"
-									:color-map="{ [t('decidesk', 'Current')]: 'primary' }" />
+									:color-map="{
+										[t('decidesk', 'Current')]: 'primary',
+									}" />
 							</div>
 							<div class="decidesk-route__line2">
-								<CnStatusBadge :label="statusLabel(stage.status)" :color-map="statusColors" />
-								<span v-if="stage.outcome" class="decidesk-route__outcome">{{ outcomeLabel(stage.outcome) }}</span>
-								<span v-if="stage.decidedAt" class="decidesk-route__date">{{ formatDate(stage.decidedAt) }}</span>
-								<span v-if="stage.label" class="decidesk-route__stage-label">{{ stage.label }}</span>
+								<CnStatusBadge
+									:label="statusLabel(stage.status)"
+									:color-map="statusColors" />
+								<span
+									v-if="stage.outcome"
+									class="decidesk-route__outcome"
+									>{{ outcomeLabel(stage.outcome) }}</span
+								>
+								<span
+									v-if="stage.decidedAt"
+									class="decidesk-route__date"
+									>{{ formatDate(stage.decidedAt) }}</span
+								>
+								<span
+									v-if="stage.label"
+									class="decidesk-route__stage-label"
+									>{{ stage.label }}</span
+								>
 							</div>
 						</div>
 					</li>
 				</ol>
 
-				<p v-if="currentStageObj" class="decidesk-route__todo" data-testid="route-todo">
-					{{ t('decidesk', 'Still to do: stage {seq} ({maker})', { seq: currentStageObj.sequence, maker: makerName(currentStageObj) }) }}
+				<p
+					v-if="currentStageObj"
+					class="decidesk-route__todo"
+					data-testid="route-todo">
+					{{
+						t('decidesk', 'Still to do: stage {seq} ({maker})', {
+							seq: currentStageObj.sequence,
+							maker: makerName(currentStageObj),
+						})
+					}}
 					<span v-if="openActionItemCount > 0">
-						· {{ t('decidesk', '{n} open action items', { n: openActionItemCount }) }}
+						·
+						{{
+							t('decidesk', '{n} open action items', {
+								n: openActionItemCount,
+							})
+						}}
 					</span>
 				</p>
 			</template>
@@ -151,7 +207,9 @@ export default {
 	computed: {
 		/** @spec openspec/specs/decision-route/spec.md */
 		decidedCount() {
-			return this.stages.filter((s) => s.status === 'decided' || s.status === 'skipped').length
+			return this.stages.filter(
+				(s) => s.status === 'decided' || s.status === 'skipped',
+			).length
 		},
 		/** @spec openspec/specs/decision-route/spec.md */
 		currentStageObj() {
@@ -185,24 +243,40 @@ export default {
 				: this.t('decidesk', 'Superseded')
 		},
 		effectiveStatusMessage() {
-			const date = this.effectingDecision?.enactedAt || this.effectingDecision?.decisionDate
+			const date =
+				this.effectingDecision?.enactedAt
+				|| this.effectingDecision?.decisionDate
 			const when = date ? this.formatDate(date) : ''
 			return this.effectiveStatus === 'repealed'
-				? this.t('decidesk', 'This decision was repealed{by}.', { by: when ? ' ' + this.t('decidesk', 'on {date}', { date: when }) : '' })
-				: this.t('decidesk', 'This decision was superseded{by}.', { by: when ? ' ' + this.t('decidesk', 'on {date}', { date: when }) : '' })
+				? this.t('decidesk', 'This decision was repealed{by}.', {
+						by: when
+							? ' ' + this.t('decidesk', 'on {date}', { date: when })
+							: '',
+					})
+				: this.t('decidesk', 'This decision was superseded{by}.', {
+						by: when
+							? ' ' + this.t('decidesk', 'on {date}', { date: when })
+							: '',
+					})
 		},
 	},
 	watch: {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/decision-route/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 	methods: {
 		/** @spec openspec/specs/decision-route/spec.md */
 		isCurrent(stage) {
-			return !!this.currentStage && (stage.id === this.currentStage || stage.uuid === this.currentStage)
+			return (
+				!!this.currentStage
+				&& (stage.id === this.currentStage
+					|| stage.uuid === this.currentStage)
+			)
 		},
 		stateLabel(state) {
 			const labels = {
@@ -257,9 +331,18 @@ export default {
 		},
 		/** @spec openspec/specs/decision-route/spec.md */
 		makerName(stage) {
-			const ref = stage?.decisionMakerType === 'person' ? stage.assignedPerson : stage.assignedBody
+			const ref =
+				stage?.decisionMakerType === 'person'
+					? stage.assignedPerson
+					: stage.assignedBody
 			if (!ref) return this.t('decidesk', 'Unassigned')
-			if (typeof ref === 'object') return ref.name || ref.title || ref.displayName || this.t('decidesk', 'Unassigned')
+			if (typeof ref === 'object')
+				return (
+					ref.name
+					|| ref.title
+					|| ref.displayName
+					|| this.t('decidesk', 'Unassigned')
+				)
 			// Reference is an id we did not expand; show a stable fallback.
 			return this.t('decidesk', 'Decision maker')
 		},
@@ -278,7 +361,10 @@ export default {
 			this.effectiveStatus = ''
 			try {
 				const decisionStore = ensureRelationType('decision')
-				const decision = await decisionStore.fetchObject('decision', this.objectId)
+				const decision = await decisionStore.fetchObject(
+					'decision',
+					this.objectId,
+				)
 				this.lifecycle = decision?.lifecycle || ''
 				this.currentStage = decision?.currentStage || ''
 
@@ -287,12 +373,15 @@ export default {
 					decision: this.objectId,
 					_limit: 100,
 				})
-				this.stages = (stages || []).slice().sort((a, b) => (a.sequence || 0) - (b.sequence || 0))
+				this.stages = (stages || [])
+					.slice()
+					.sort((a, b) => (a.sequence || 0) - (b.sequence || 0))
 
 				await this.deriveEffectiveStatus(decision)
 				await this.countOpenActionItems()
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load route.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load route.')
 			} finally {
 				this.loading = false
 			}
@@ -314,8 +403,11 @@ export default {
 				lifecycle: ['decided', 'enacted'],
 				_limit: 200,
 			})
-			const containsSelf = (rel) => Array.isArray(rel)
-				&& rel.some((r) => (typeof r === 'object' ? (r.id || r.uuid) : r) === selfId)
+			const containsSelf = (rel) =>
+				Array.isArray(rel)
+				&& rel.some(
+					(r) => (typeof r === 'object' ? r.id || r.uuid : r) === selfId,
+				)
 
 			const repealer = (candidates || []).find((d) => containsSelf(d.repeals))
 			if (repealer) {
@@ -323,7 +415,9 @@ export default {
 				this.effectingDecision = repealer
 				return
 			}
-			const superseder = (candidates || []).find((d) => containsSelf(d.supersedes))
+			const superseder = (candidates || []).find((d) =>
+				containsSelf(d.supersedes),
+			)
 			if (superseder) {
 				this.effectiveStatus = 'superseded'
 				this.effectingDecision = superseder
@@ -337,7 +431,10 @@ export default {
 					decision: this.objectId,
 					_limit: 100,
 				})
-				this.openActionItemCount = (items || []).filter((i) => i.status && i.status !== 'done' && i.status !== 'completed').length
+				this.openActionItemCount = (items || []).filter(
+					(i) =>
+						i.status && i.status !== 'done' && i.status !== 'completed',
+				).length
 			} catch (e) {
 				// Action-item count is supplementary; never block the timeline.
 				this.openActionItemCount = 0

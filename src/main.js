@@ -4,7 +4,11 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { setActivePinia } from 'pinia'
-import { translate as t, translatePlural as n, loadTranslations } from '@nextcloud/l10n'
+import {
+	translate as t,
+	translatePlural as n,
+	loadTranslations,
+} from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import {
 	CnPageRenderer,
@@ -67,7 +71,10 @@ try {
 } catch (e) {
 	// Non-fatal — lib translations fall back to English source.
 	// eslint-disable-next-line no-console
-	console.warn('[decidesk] registerTranslations failed; falling back to English', e)
+	console.warn(
+		'[decidesk] registerTranslations failed; falling back to English',
+		e,
+	)
 }
 
 // Fire-and-forget translation load. Some Nextcloud installs (including
@@ -82,7 +89,10 @@ function tryLoadTranslations() {
 	try {
 		const result = loadTranslations('decidesk', () => {})
 		if (result && typeof result.then === 'function') {
-			result.then(() => {}, () => {})
+			result.then(
+				() => {},
+				() => {},
+			)
 		}
 	} catch {
 		// no-op
@@ -110,7 +120,10 @@ const RoutePageRenderer = { ...CnPageRenderer }
 // by this app's own webpack build, so it stays app-local — then hand the base
 // manifest, fragments, and menu-layout to the shared pipeline.
 const fragmentCtx = require.context('./manifest.d/', false, /\.json$/)
-const fragments = fragmentCtx.keys().sort().map((key) => fragmentCtx(key))
+const fragments = fragmentCtx
+	.keys()
+	.sort()
+	.map((key) => fragmentCtx(key))
 const mergedManifest = buildManifest(bundledManifest, fragments, menuLayout)
 
 function routesFromManifest(manifest) {

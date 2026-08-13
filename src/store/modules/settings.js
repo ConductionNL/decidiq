@@ -20,9 +20,12 @@ export const useSettingsStore = defineStore('settings', {
 		async fetchSettings() {
 			this.loading = true
 			try {
-				const response = await fetch(generateUrl('/apps/decidesk/api/settings'), {
-					headers: { requesttoken: getRequestToken() },
-				})
+				const response = await fetch(
+					generateUrl('/apps/decidesk/api/settings'),
+					{
+						headers: { requesttoken: getRequestToken() },
+					},
+				)
 				if (response.ok) {
 					const data = await response.json()
 					this.settings = data
@@ -42,14 +45,17 @@ export const useSettingsStore = defineStore('settings', {
 		async saveSettings(settings) {
 			this.loading = true
 			try {
-				const response = await fetch(generateUrl('/apps/decidesk/api/settings'), {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						requesttoken: getRequestToken(),
+				const response = await fetch(
+					generateUrl('/apps/decidesk/api/settings'),
+					{
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: getRequestToken(),
+						},
+						body: JSON.stringify(settings),
 					},
-					body: JSON.stringify(settings),
-				})
+				)
 				if (response.ok) {
 					const data = await response.json()
 					// settings#create wraps the settings in a {success, config}

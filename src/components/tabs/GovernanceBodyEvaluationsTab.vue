@@ -17,7 +17,9 @@
  @spec openspec/specs/board-self-evaluation/spec.md
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--evaluations" data-testid="body-evaluations-tab">
+	<div
+		class="decidesk-tab decidesk-tab--evaluations"
+		data-testid="body-evaluations-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Self-evaluation') }}
@@ -48,20 +50,25 @@
 		</template>
 
 		<ul v-else class="evaluation-list" role="list">
-			<li v-for="evaluation in sortedEvaluations"
+			<li
+				v-for="evaluation in sortedEvaluations"
 				:key="evaluation.id"
 				class="evaluation-card"
 				:data-testid="`evaluation-card-${evaluation.id}`">
 				<div class="evaluation-card__header">
 					<strong>{{ evaluation.cycleLabel }}</strong>
-					<span class="evaluation-card__status">{{ evaluation.lifecycle }}</span>
+					<span class="evaluation-card__status">{{
+						evaluation.lifecycle
+					}}</span>
 				</div>
 
 				<p class="evaluation-card__meta">
-					{{ t('decidesk', '{responded} of {invited} responded', {
-						responded: evaluation.respondedCount || 0,
-						invited: evaluation.invitedMemberCount || 0,
-					}) }}
+					{{
+						t('decidesk', '{responded} of {invited} responded', {
+							responded: evaluation.respondedCount || 0,
+							invited: evaluation.invitedMemberCount || 0,
+						})
+					}}
 				</p>
 
 				<div class="evaluation-card__actions">
@@ -90,30 +97,55 @@
 						{{ t('decidesk', 'Publish summary') }}
 					</NcButton>
 					<NcButton
-						v-if="evaluation.lifecycle === 'closed' || evaluation.lifecycle === 'published'"
+						v-if="
+							evaluation.lifecycle === 'closed'
+							|| evaluation.lifecycle === 'published'
+						"
 						data-testid="evaluation-report"
 						@click="generateReport(evaluation)">
 						{{ t('decidesk', 'Generate report') }}
 					</NcButton>
 				</div>
 
-				<div v-if="scoreSummaryFor(evaluation)" class="evaluation-card__results" :data-testid="`evaluation-results-${evaluation.id}`">
+				<div
+					v-if="scoreSummaryFor(evaluation)"
+					class="evaluation-card__results"
+					:data-testid="`evaluation-results-${evaluation.id}`">
 					<p class="evaluation-card__overall">
-						{{ t('decidesk', 'Overall score: {score}', { score: scoreSummaryFor(evaluation).overallScore ?? '—' }) }}
+						{{
+							t('decidesk', 'Overall score: {score}', {
+								score:
+									scoreSummaryFor(evaluation).overallScore ?? '—',
+							})
+						}}
 					</p>
 
-					<p v-if="scoreSummaryFor(evaluation).suppressed" class="evaluation-card__suppressed" data-testid="evaluation-suppressed-note">
-						{{ t('decidesk', 'Per-dimension and free-text breakdowns are hidden: too few respondents to protect anonymity.') }}
+					<p
+						v-if="scoreSummaryFor(evaluation).suppressed"
+						class="evaluation-card__suppressed"
+						data-testid="evaluation-suppressed-note">
+						{{
+							t(
+								'decidesk',
+								'Per-dimension and free-text breakdowns are hidden: too few respondents to protect anonymity.',
+							)
+						}}
 					</p>
 
 					<ul v-else class="efficiency-bars" role="list">
-						<li v-for="(score, dimension) in scoreSummaryFor(evaluation).dimensionScores"
+						<li
+							v-for="(score, dimension) in scoreSummaryFor(evaluation)
+								.dimensionScores"
 							:key="dimension"
 							class="efficiency-bars__row"
 							role="listitem">
-							<span class="efficiency-bars__label">{{ dimension }}</span>
+							<span class="efficiency-bars__label">{{
+								dimension
+							}}</span>
 							<span class="efficiency-bars__track">
-								<span class="efficiency-bars__fill" :style="{ width: barWidth(score, 5) }" />
+								<span
+									class="efficiency-bars__fill"
+									:style="{ width: barWidth(score, 5) }" />
 							</span>
 							<span class="efficiency-bars__value">{{ score }}</span>
 						</li>
@@ -203,19 +235,24 @@ export default {
 			const context = this.cnObjectContext
 			// Vue unwraps an injected ref for the Options API, but the compat
 			// build can hand back the ref itself — accept both shapes.
-			const value = (context && typeof context === 'object' && 'value' in context)
-				? context.value
-				: context
-			return (value && value.objectId) ? String(value.objectId) : ''
+			const value =
+				context && typeof context === 'object' && 'value' in context
+					? context.value
+					: context
+			return value && value.objectId ? String(value.objectId) : ''
 		},
 		/** @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-001-board-evaluation-cycle-bound-to-a-governance-body */
 		sortedEvaluations() {
-			return [...this.evaluations].sort((a, b) => (b.cycleLabel || '').localeCompare(a.cycleLabel || ''))
+			return [...this.evaluations].sort((a, b) =>
+				(b.cycleLabel || '').localeCompare(a.cycleLabel || ''),
+			)
 		},
 		/** @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-002-reusable-questionnaire-template-organised-by-effectiveness-dimensions */
 		activeTemplateQuestions() {
 			if (!this.activeEvaluation) return []
-			const template = this.templates.find((tpl) => tpl.id === this.activeEvaluation.template)
+			const template = this.templates.find(
+				(tpl) => tpl.id === this.activeEvaluation.template,
+			)
 			return (template && template.questions) || []
 		},
 	},
@@ -224,7 +261,9 @@ export default {
 		resolvedObjectId: {
 			immediate: true,
 			/** @spec openspec/specs/board-self-evaluation/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 
@@ -237,20 +276,33 @@ export default {
 			this.error = ''
 			try {
 				const evaluationStore = ensureRelationType('board-evaluation')
-				const evaluations = await evaluationStore.fetchCollection('board-evaluation', { _limit: 100 })
-				this.evaluations = (evaluations || []).filter((e) =>
-					e?.governanceBody === bodyId
-					|| e?.['@self']?.relations?.governanceBody === bodyId,
+				const evaluations = await evaluationStore.fetchCollection(
+					'board-evaluation',
+					{ _limit: 100 },
+				)
+				this.evaluations = (evaluations || []).filter(
+					(e) =>
+						e?.governanceBody === bodyId
+						|| e?.['@self']?.relations?.governanceBody === bodyId,
 				)
 
 				const templateStore = ensureRelationType('evaluation-template')
-				this.templates = await templateStore.fetchCollection('evaluation-template', { _limit: 100 })
+				this.templates = await templateStore.fetchCollection(
+					'evaluation-template',
+					{ _limit: 100 },
+				)
 
 				const participantStore = ensureRelationType('participant')
-				const participants = await participantStore.fetchCollection('participant', { _limit: 500 })
-				this.participants = (participants || []).filter((p) => p?.governanceBody === bodyId)
+				const participants = await participantStore.fetchCollection(
+					'participant',
+					{ _limit: 500 },
+				)
+				this.participants = (participants || []).filter(
+					(p) => p?.governanceBody === bodyId,
+				)
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load evaluations.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load evaluations.')
 			} finally {
 				this.loading = false
 			}
@@ -291,7 +343,8 @@ export default {
 		 * @return {string} A CSS width percentage.
 		 */
 		barWidth(value, max) {
-			if (!Number.isFinite(value) || !Number.isFinite(max) || max <= 0) return '0%'
+			if (!Number.isFinite(value) || !Number.isFinite(max) || max <= 0)
+				return '0%'
 			return `${Math.round((value / max) * 100)}%`
 		},
 		/**
@@ -306,7 +359,9 @@ export default {
 			const template = this.templates[0]
 			if (!template) return
 
-			const chair = this.participants.find((p) => ['chair', 'chairman'].includes(p.role))
+			const chair = this.participants.find((p) =>
+				['chair', 'chairman'].includes(p.role),
+			)
 			const secretary = this.participants.find((p) => p.role === 'secretary')
 			const invitedParticipantIds = this.participants.map((p) => p.id)
 
@@ -326,7 +381,9 @@ export default {
 				})
 				await this.refresh()
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to start the evaluation.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Failed to start the evaluation.')
 			}
 		},
 		/**
@@ -343,7 +400,12 @@ export default {
 				})
 				await this.refresh()
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Only the chair or secretary can open this cycle.')
+				this.error =
+					e?.message
+					|| this.t(
+						'decidesk',
+						'Only the chair or secretary can open this cycle.',
+					)
 			}
 		},
 		/** @param {object} evaluation The open BoardEvaluation to respond to. */
@@ -362,7 +424,10 @@ export default {
 				await respondToEvaluation(this.activeEvaluation.id, answers)
 				await this.refresh()
 			} catch (e) {
-				this.error = e?.response?.data?.message || e?.message || this.t('decidesk', 'Failed to submit your response.')
+				this.error =
+					e?.response?.data?.message
+					|| e?.message
+					|| this.t('decidesk', 'Failed to submit your response.')
 			}
 		},
 		/**
@@ -374,7 +439,10 @@ export default {
 				await closeEvaluationApi(evaluation.id)
 				await this.refresh()
 			} catch (e) {
-				this.error = e?.response?.data?.message || e?.message || this.t('decidesk', 'Failed to close the cycle.')
+				this.error =
+					e?.response?.data?.message
+					|| e?.message
+					|| this.t('decidesk', 'Failed to close the cycle.')
 			}
 		},
 		/**
@@ -386,7 +454,10 @@ export default {
 				await publishEvaluation(evaluation.id)
 				await this.refresh()
 			} catch (e) {
-				this.error = e?.response?.data?.message || e?.message || this.t('decidesk', 'Failed to publish the summary.')
+				this.error =
+					e?.response?.data?.message
+					|| e?.message
+					|| this.t('decidesk', 'Failed to publish the summary.')
 			}
 		},
 		/**
@@ -397,7 +468,10 @@ export default {
 			try {
 				await generateEvaluationReport(evaluation.id)
 			} catch (e) {
-				this.error = e?.response?.data?.message || e?.message || this.t('decidesk', 'Failed to generate the report.')
+				this.error =
+					e?.response?.data?.message
+					|| e?.message
+					|| this.t('decidesk', 'Failed to generate the report.')
 			}
 		},
 	},

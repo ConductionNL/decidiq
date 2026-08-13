@@ -31,7 +31,9 @@ test('motions list renders with Add Motion button', async ({ page }) => {
 
 // @e2e openspec/specs/motion-amendment/spec.md#submit-a-motion-with-co-signers
 // @e2e openspec/specs/motion-amendment/spec.md#reject-motion-below-minimum-co-signer-threshold
-test('Add Motion dialog opens with co-signers and lifecycle fields', async ({ page }) => {
+test('Add Motion dialog opens with co-signers and lifecycle fields', async ({
+	page,
+}) => {
 	await page.goto(`${BASE}/apps/decidesk/motions`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
@@ -48,7 +50,9 @@ test('Add Motion dialog opens with co-signers and lifecycle fields', async ({ pa
 	// Asserting "Create Motion" asserted a string the product has never
 	// produced. Tracked separately: CnIndexPage has no way to label the create
 	// dialog of a filtered projection of a supertype.
-	await expect(dialog.getByRole('heading', { name: 'Create Decision' })).toBeVisible()
+	await expect(
+		dialog.getByRole('heading', { name: 'Create Decision' }),
+	).toBeVisible()
 
 	// Assert the real motion form fields render.
 	//
@@ -63,9 +67,13 @@ test('Add Motion dialog opens with co-signers and lifecycle fields', async ({ pa
 	// decision-management spec already corrected for `decisionDate`/`outcome`.
 	await expect(dialog.getByText('Title *', { exact: true })).toBeVisible()
 	await expect(dialog.getByText('Proposer', { exact: true }).first()).toBeVisible()
-	await expect(dialog.getByText('Motion type', { exact: true }).first()).toBeVisible()
+	await expect(
+		dialog.getByText('Motion type', { exact: true }).first(),
+	).toBeVisible()
 	// coSigners drives the co-signer threshold scenario
-	await expect(dialog.getByText('Co-signers', { exact: true }).first()).toBeVisible()
+	await expect(
+		dialog.getByText('Co-signers', { exact: true }).first(),
+	).toBeVisible()
 	// lifecycle is on the form, optional
 	await expect(dialog.getByText('Status', { exact: true }).first()).toBeVisible()
 
@@ -97,7 +105,9 @@ test('motions list shows existing motions', async ({ page }) => {
 // @e2e openspec/specs/motion-amendment/spec.md#submit-an-amendment-to-a-pending-motion
 // @e2e openspec/specs/motion-amendment/spec.md#submit-multiple-amendments-to-the-same-motion
 // Amendments are added via the MotionAmendmentsTab on a motion detail page.
-test('motion detail route renders with amendments tab accessible', async ({ page }) => {
+test('motion detail route renders with amendments tab accessible', async ({
+	page,
+}) => {
 	// ADR-005 (accepted): the standalone `motion` schema was folded into the
 	// `Decision` supertype under `decisionType: 'motion'`. Addressing
 	// /objects/decidesk/motion returns 404 "Schema not found: 'motion'", which is
@@ -107,10 +117,16 @@ test('motion detail route renders with amendments tab accessible', async ({ page
 		`${BASE}/index.php/apps/openregister/api/objects/decidesk/decision?decisionType=motion&_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
-	expect(resp.ok(), `motion listing must be readable (HTTP ${resp.status()})`).toBe(true)
+	expect(
+		resp.ok(),
+		`motion listing must be readable (HTTP ${resp.status()})`,
+	).toBe(true)
 	const body = await resp.json()
 	const first = (body.results ?? body.items ?? [])[0]
-	expect(first, 'at least one decisionType=motion Decision must be seeded').toBeTruthy()
+	expect(
+		first,
+		'at least one decisionType=motion Decision must be seeded',
+	).toBeTruthy()
 	const motionId = first.id ?? first['@self']?.id
 	expect(motionId, 'the seeded motion must carry an id').toBeTruthy()
 
@@ -131,10 +147,16 @@ test('amendment detail route renders for the diff view', async ({ page }) => {
 		`${BASE}/index.php/apps/openregister/api/objects/decidesk/decision?decisionType=amendment&_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
-	expect(resp.ok(), `amendment listing must be readable (HTTP ${resp.status()})`).toBe(true)
+	expect(
+		resp.ok(),
+		`amendment listing must be readable (HTTP ${resp.status()})`,
+	).toBe(true)
 	const body = await resp.json()
 	const first = (body.results ?? body.items ?? [])[0]
-	expect(first, 'at least one decisionType=amendment Decision must be seeded').toBeTruthy()
+	expect(
+		first,
+		'at least one decisionType=amendment Decision must be seeded',
+	).toBeTruthy()
 	const amendmentId = first.id ?? first['@self']?.id
 	expect(amendmentId, 'the seeded amendment must carry an id').toBeTruthy()
 
@@ -154,7 +176,9 @@ test('amendment detail route renders for the diff view', async ({ page }) => {
 // Amendment voting order and live voting require a live meeting context with an active
 // voting round — these are VotingRoundPanel behaviors in the LiveMeeting view.
 // Verified via the live meeting view mounting.
-test('live meeting view shows motions context for in-meeting motion submission', async ({ page }) => {
+test('live meeting view shows motions context for in-meeting motion submission', async ({
+	page,
+}) => {
 	const resp = await page.request.get(
 		`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting?_limit=1`,
 		{ headers: { Accept: 'application/json' } },

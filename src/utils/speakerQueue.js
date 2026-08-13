@@ -115,11 +115,11 @@ export function startSpeaker(queue, participantId, now) {
 	const { queue: afterStop, stopped } = current
 		? stopSpeaker(queue, now)
 		: { queue, stopped: null }
-	const next = afterStop.map((e) => (
+	const next = afterStop.map((e) =>
 		e.participantId === participantId
 			? { ...e, speaking: true, startedAt: now }
-			: e
-	))
+			: e,
+	)
 	return { queue: next, stopped }
 }
 
@@ -140,12 +140,18 @@ export function stopSpeaker(queue, now) {
 	if (!current) {
 		return { queue, stopped: null }
 	}
-	const turnMs = current.startedAt !== null ? Math.max(0, now - current.startedAt) : 0
-	const next = queue.map((e) => (
+	const turnMs =
+		current.startedAt !== null ? Math.max(0, now - current.startedAt) : 0
+	const next = queue.map((e) =>
 		e.participantId === current.participantId
-			? { ...e, speaking: false, startedAt: null, spokenMs: e.spokenMs + turnMs }
-			: e
-	))
+			? {
+					...e,
+					speaking: false,
+					startedAt: null,
+					spokenMs: e.spokenMs + turnMs,
+				}
+			: e,
+	)
 	return {
 		queue: next,
 		stopped: {
@@ -182,9 +188,10 @@ export function speakerElapsedSeconds(entry, now) {
 	if (!entry) {
 		return 0
 	}
-	const runningMs = entry.speaking && entry.startedAt !== null
-		? Math.max(0, now - entry.startedAt)
-		: 0
+	const runningMs =
+		entry.speaking && entry.startedAt !== null
+			? Math.max(0, now - entry.startedAt)
+			: 0
 	return Math.floor((entry.spokenMs + runningMs) / 1000)
 }
 

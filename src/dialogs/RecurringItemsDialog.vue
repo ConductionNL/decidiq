@@ -16,8 +16,12 @@
 		data-testid="recurring-items-dialog"
 		@closing="$emit('close')">
 		<template #default>
-			<ul v-if="recurringItems.length > 0" class="recurring-dialog__list" role="list">
-				<li v-for="rItem in recurringItems"
+			<ul
+				v-if="recurringItems.length > 0"
+				class="recurring-dialog__list"
+				role="list">
+				<li
+					v-for="rItem in recurringItems"
 					:key="rItem.id"
 					class="recurring-dialog__item"
 					role="listitem">
@@ -41,7 +45,9 @@
 			</p>
 		</template>
 		<template #actions>
-			<NcButton :disabled="selected.length === 0" @click="$emit('add', selected.slice())">
+			<NcButton
+				:disabled="selected.length === 0"
+				@click="$emit('add', selected.slice())">
 				{{ t('decidesk', 'Add selected') }}
 			</NcButton>
 		</template>

@@ -63,15 +63,23 @@ async function openPublicationTab(page, schema: string, route: string, id: strin
 	if (await tab.count()) {
 		await tab.click()
 	}
-	await page.waitForSelector('[data-testid="publication-actions-tab"]', { timeout: 15_000 })
+	await page.waitForSelector('[data-testid="publication-actions-tab"]', {
+		timeout: 15_000,
+	})
 }
 
 test.describe('public publication flow', () => {
-	test('staff publishes an enacted decision; publish absent on draft', async ({ page }) => {
+	test('staff publishes an enacted decision; publish absent on draft', async ({
+		page,
+	}) => {
 		// Seed an enacted, eligible decision.
 		const enacted = await createObject(page, ledger, 'decision', {
-			title: 'E2E enacted decision', text: 'body', outcome: 'adopted',
-			decisionType: 'meeting-outcome', decisionDate: '2025-04-10T20:00:00Z', lifecycle: 'enacted',
+			title: 'E2E enacted decision',
+			text: 'body',
+			outcome: 'adopted',
+			decisionType: 'meeting-outcome',
+			decisionDate: '2025-04-10T20:00:00Z',
+			lifecycle: 'enacted',
 		})
 		await openPublicationTab(page, 'decision', 'decisions', objId(enacted))
 		// Publish action visible when eligible.
@@ -79,22 +87,35 @@ test.describe('public publication flow', () => {
 		await expect(publishBtn).toBeVisible({ timeout: 10_000 })
 		await publishBtn.click()
 		// After publish, status flips and a PublicationRecord exists.
-		await expect(page.getByTestId('publication-status')).toContainText(/Published|Besluit/i, { timeout: 15_000 })
+		await expect(page.getByTestId('publication-status')).toContainText(
+			/Published|Besluit/i,
+			{ timeout: 15_000 },
+		)
 
 		// A draft decision offers NO publish action.
 		const draft = await createObject(page, ledger, 'decision', {
-			title: 'E2E draft decision', text: 'body', outcome: 'adopted',
-			decisionType: 'motion', decisionDate: '2025-04-10T20:00:00Z', lifecycle: 'draft',
+			title: 'E2E draft decision',
+			text: 'body',
+			outcome: 'adopted',
+			decisionType: 'motion',
+			decisionDate: '2025-04-10T20:00:00Z',
+			lifecycle: 'draft',
 		})
 		await openPublicationTab(page, 'decision', 'decisions', objId(draft))
 		await expect(page.getByTestId('publication-publish')).toHaveCount(0)
-		await expect(page.getByTestId('publication-status')).toContainText(/Not published/i)
+		await expect(page.getByTestId('publication-status')).toContainText(
+			/Not published/i,
+		)
 	})
 
 	test('OpenCatalogi-absent shows a graceful warning', async ({ page }) => {
 		const enacted = await createObject(page, ledger, 'decision', {
-			title: 'E2E degrade decision', text: 'body', outcome: 'adopted',
-			decisionType: 'meeting-outcome', decisionDate: '2025-04-10T20:00:00Z', lifecycle: 'enacted',
+			title: 'E2E degrade decision',
+			text: 'body',
+			outcome: 'adopted',
+			decisionType: 'meeting-outcome',
+			decisionDate: '2025-04-10T20:00:00Z',
+			lifecycle: 'enacted',
 		})
 		await openPublicationTab(page, 'decision', 'decisions', objId(enacted))
 		await page.getByTestId('publication-publish').click()
@@ -108,12 +129,18 @@ test.describe('public publication flow', () => {
 
 	test('withdraw a published decision with a reason', async ({ page }) => {
 		const enacted = await createObject(page, ledger, 'decision', {
-			title: 'E2E withdraw decision', text: 'body', outcome: 'adopted',
-			decisionType: 'meeting-outcome', decisionDate: '2025-04-10T20:00:00Z', lifecycle: 'enacted',
+			title: 'E2E withdraw decision',
+			text: 'body',
+			outcome: 'adopted',
+			decisionType: 'meeting-outcome',
+			decisionDate: '2025-04-10T20:00:00Z',
+			lifecycle: 'enacted',
 		})
 		await openPublicationTab(page, 'decision', 'decisions', objId(enacted))
 		await page.getByTestId('publication-publish').click()
-		await expect(page.getByTestId('publication-withdraw')).toBeVisible({ timeout: 15_000 })
+		await expect(page.getByTestId('publication-withdraw')).toBeVisible({
+			timeout: 15_000,
+		})
 		await page.getByTestId('publication-withdraw').click()
 		// Reason is mandatory: confirm stays disabled until filled.
 		await expect(page.getByTestId('publication-withdraw-confirm')).toBeDisabled()
@@ -123,23 +150,36 @@ test.describe('public publication flow', () => {
 		// no wrapper to descend through, and `.locator('textarea')` can never
 		// resolve. citizen-participation-workflow.spec.ts and
 		// resolution-minutes.spec.ts already address these controls this way.
-		await page.getByTestId('publication-withdraw-reason').fill('Contained an error')
+		await page
+			.getByTestId('publication-withdraw-reason')
+			.fill('Contained an error')
 		await page.getByTestId('publication-withdraw-confirm').click()
-		await expect(page.getByTestId('publication-status')).toContainText(/Not published/i, { timeout: 15_000 })
+		await expect(page.getByTestId('publication-status')).toContainText(
+			/Not published/i,
+			{ timeout: 15_000 },
+		)
 	})
 
 	test('rectify a published decision', async ({ page }) => {
 		const enacted = await createObject(page, ledger, 'decision', {
-			title: 'E2E rectify decision', text: 'body', outcome: 'adopted',
-			decisionType: 'meeting-outcome', decisionDate: '2025-04-10T20:00:00Z', lifecycle: 'enacted',
+			title: 'E2E rectify decision',
+			text: 'body',
+			outcome: 'adopted',
+			decisionType: 'meeting-outcome',
+			decisionDate: '2025-04-10T20:00:00Z',
+			lifecycle: 'enacted',
 		})
 		await openPublicationTab(page, 'decision', 'decisions', objId(enacted))
 		await page.getByTestId('publication-publish').click()
-		await expect(page.getByTestId('publication-rectify')).toBeVisible({ timeout: 15_000 })
+		await expect(page.getByTestId('publication-rectify')).toBeVisible({
+			timeout: 15_000,
+		})
 		await page.getByTestId('publication-rectify').click()
 		await page.getByTestId('publication-rectify-confirm').click()
 		// History now shows more than one version.
-		await expect(page.getByTestId('publication-history')).toBeVisible({ timeout: 15_000 })
+		await expect(page.getByTestId('publication-history')).toBeVisible({
+			timeout: 15_000,
+		})
 	})
 
 	test('mixed agenda publish strips the confidential item', async ({ page }) => {
@@ -147,36 +187,64 @@ test.describe('public publication flow', () => {
 		// association, corporate-board, operational, citizen-panel,
 		// supervisory-board, executive-board, advisory-body, works-council,
 		// shared-body), and `domain` is required — both are hard 400s.
-		const body = await createObject(page, ledger, 'governance-body', { name: 'E2E Council', bodyType: 'legislative', domain: 'municipal' })
+		const body = await createObject(page, ledger, 'governance-body', {
+			name: 'E2E Council',
+			bodyType: 'legislative',
+			domain: 'municipal',
+		})
 		// `physical` is NOT in Meeting.meetingMode's enum either — the register
 		// declares `in-person | digital | hybrid`. Note the 400 this produced
 		// rendered the allowed set as EMPTY ("should be one of: , but is
 		// 'physical'"), so the message named the offending value but not the
 		// legal ones; the enum above is read from decidesk_register.json.
 		const meeting = await createObject(page, ledger, 'meeting', {
-			title: 'E2E public meeting', meetingType: 'regular', meetingMode: 'in-person',
-			scheduledDate: '2025-05-01T19:00:00Z', lifecycle: 'scheduled',
-			isPublic: true, convocationSentAt: '2025-04-20T10:00:00Z',
+			title: 'E2E public meeting',
+			meetingType: 'regular',
+			meetingMode: 'in-person',
+			scheduledDate: '2025-05-01T19:00:00Z',
+			lifecycle: 'scheduled',
+			isPublic: true,
+			convocationSentAt: '2025-04-20T10:00:00Z',
 			governanceBody: objId(body),
 		})
-		await createObject(page, ledger, 'agenda-item', { title: 'Public opening', itemType: 'informational', orderNumber: 1, meeting: objId(meeting) })
-		await createObject(page, ledger, 'agenda-item', { title: 'Secret personnel matter', itemType: 'discussion', orderNumber: 2, isConfidential: true, meeting: objId(meeting) })
+		await createObject(page, ledger, 'agenda-item', {
+			title: 'Public opening',
+			itemType: 'informational',
+			orderNumber: 1,
+			meeting: objId(meeting),
+		})
+		await createObject(page, ledger, 'agenda-item', {
+			title: 'Secret personnel matter',
+			itemType: 'discussion',
+			orderNumber: 2,
+			isConfidential: true,
+			meeting: objId(meeting),
+		})
 		await openPublicationTab(page, 'meeting', 'meetings', objId(meeting))
 		const publishBtn = page.getByTestId('publication-publish')
 		if (await publishBtn.count()) {
 			await publishBtn.click()
-			await expect(page.getByTestId('publication-status')).toContainText(/Published|Vergadering/i, { timeout: 15_000 })
+			await expect(page.getByTestId('publication-status')).toContainText(
+				/Published|Vergadering/i,
+				{ timeout: 15_000 },
+			)
 		}
 	})
 
 	test('admin configures a catalog target + policy', async ({ page }) => {
 		await page.goto(`${BASE}/settings/admin/decidesk`)
-		await page.waitForSelector('[data-testid="publication-settings"]', { timeout: 15_000 })
-		const firstCatalog = page.locator('[data-testid^="publication-catalog-"]').first()
+		await page.waitForSelector('[data-testid="publication-settings"]', {
+			timeout: 15_000,
+		})
+		const firstCatalog = page
+			.locator('[data-testid^="publication-catalog-"]')
+			.first()
 		if (await firstCatalog.count()) {
 			await firstCatalog.fill('e2e-catalog')
 			await page.getByTestId('publication-settings-save').click()
-			await expect(page.getByText(/Saved|opgeslagen/i)).toBeVisible({ timeout: 15_000 })
+			await expect(page.getByText(/Saved|opgeslagen/i)).toBeVisible({
+				timeout: 15_000,
+			})
 		}
 	})
 })

@@ -20,14 +20,23 @@
 	<div class="participation-page" data-testid="participation-page">
 		<header class="participation-page__header">
 			<h2>{{ t('decidesk', 'Citizen participation') }}</h2>
-			<p>{{ t('decidesk', 'Open consultations and participatory budget rounds for your governance body.') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'Open consultations and participatory budget rounds for your governance body.',
+					)
+				}}
+			</p>
 		</header>
 
 		<NcLoadingIcon v-if="loading" :size="44" />
 
 		<template v-else>
 			<!-- Open consultations -->
-			<section class="participation-page__section" data-testid="participation-consultations">
+			<section
+				class="participation-page__section"
+				data-testid="participation-consultations">
 				<h3>{{ t('decidesk', 'Open consultations') }}</h3>
 				<NcEmptyContent
 					v-if="openConsultations.length === 0"
@@ -52,10 +61,14 @@
 						{{ t('decidesk', 'Submit reaction') }}
 					</NcButton>
 					<div v-if="isStaff" class="participation-card__staff">
-						<NcButton data-testid="consultation-close" @click="transitionC(c, 'closed')">
+						<NcButton
+							data-testid="consultation-close"
+							@click="transitionC(c, 'closed')">
 							{{ t('decidesk', 'Close') }}
 						</NcButton>
-						<NcButton data-testid="consultation-publish" @click="publishC(c)">
+						<NcButton
+							data-testid="consultation-publish"
+							@click="publishC(c)">
 							{{ t('decidesk', 'Publish results') }}
 						</NcButton>
 					</div>
@@ -63,7 +76,9 @@
 			</section>
 
 			<!-- Budget rounds -->
-			<section class="participation-page__section" data-testid="participation-budgets">
+			<section
+				class="participation-page__section"
+				data-testid="participation-budgets">
 				<h3>{{ t('decidesk', 'Participatory budget rounds') }}</h3>
 				<NcEmptyContent
 					v-if="budgetRounds.length === 0"
@@ -74,7 +89,10 @@
 					class="participation-card"
 					data-testid="budget-card">
 					<h4>{{ b.name }}</h4>
-					<p>{{ formatAmount(b.totalAmount, b.currency) }} · {{ phaseLabel(b.status) }}</p>
+					<p>
+						{{ formatAmount(b.totalAmount, b.currency) }} ·
+						{{ phaseLabel(b.status) }}
+					</p>
 
 					<!-- Proposal submission (submission phase) -->
 					<form
@@ -103,21 +121,32 @@
 					</form>
 
 					<!-- Voting cards (voting phase) -->
-					<div v-else-if="b.status === 'voting'" data-testid="voting-cards">
+					<div
+						v-else-if="b.status === 'voting'"
+						data-testid="voting-cards">
 						<NcEmptyContent
 							v-if="(votableProposals[b.id] || []).length === 0"
 							:name="t('decidesk', 'No proposals to vote on yet')" />
 						<div
-							v-for="p in (votableProposals[b.id] || [])"
+							v-for="p in votableProposals[b.id] || []"
 							:key="p.id"
 							class="voting-card"
 							data-testid="voting-card">
 							<span class="voting-card__title">{{ p.title }}</span>
-							<span class="voting-card__tally">{{ p.votesFor || 0 }} / {{ p.votesAgainst || 0 }}</span>
-							<NcButton variant="success" data-testid="vote-voor" @click="vote(p, 'voor')">
+							<span class="voting-card__tally"
+								>{{ p.votesFor || 0 }} /
+								{{ p.votesAgainst || 0 }}</span
+							>
+							<NcButton
+								variant="success"
+								data-testid="vote-voor"
+								@click="vote(p, 'voor')">
 								{{ t('decidesk', 'For') }}
 							</NcButton>
-							<NcButton variant="error" data-testid="vote-tegen" @click="vote(p, 'tegen')">
+							<NcButton
+								variant="error"
+								data-testid="vote-tegen"
+								@click="vote(p, 'tegen')">
 								{{ t('decidesk', 'Against') }}
 							</NcButton>
 						</div>
@@ -151,7 +180,14 @@
 </template>
 
 <script>
-import { NcButton, NcEmptyContent, NcLoadingIcon, NcNoteCard, NcTextArea, NcTextField } from '@nextcloud/vue'
+import {
+	NcButton,
+	NcEmptyContent,
+	NcLoadingIcon,
+	NcNoteCard,
+	NcTextArea,
+	NcTextField,
+} from '@nextcloud/vue'
 import { showError, showSuccess } from '@nextcloud/dialogs'
 import { useObjectStore, useSettingsStore } from '../../store/store.js'
 import {
@@ -173,7 +209,14 @@ const NEXT_BUDGET_PHASE = {
 
 export default {
 	name: 'ParticipationPage',
-	components: { NcButton, NcEmptyContent, NcLoadingIcon, NcNoteCard, NcTextArea, NcTextField },
+	components: {
+		NcButton,
+		NcEmptyContent,
+		NcLoadingIcon,
+		NcNoteCard,
+		NcTextArea,
+		NcTextField,
+	},
 	data() {
 		return {
 			loading: true,
@@ -193,7 +236,9 @@ export default {
 			await settingsStore.fetchSettings()
 			// UI hint only — every staff action is independently authorized
 			// server-side by ParticipationController::requireStaff().
-			this.isStaff = !!(settingsStore.getSettings && settingsStore.getSettings.isAdmin)
+			this.isStaff = !!(
+				settingsStore.getSettings && settingsStore.getSettings.isAdmin
+			)
 		} catch (e) {
 			this.isStaff = false
 		}
@@ -205,16 +250,29 @@ export default {
 			this.loading = true
 			try {
 				const store = useObjectStore()
-				const consultations = await store.fetchCollection('public-consultation', { status: 'open', _limit: 100 })
-				this.openConsultations = (Array.isArray(consultations) ? consultations : []).filter((c) => c.status === 'open')
+				const consultations = await store.fetchCollection(
+					'public-consultation',
+					{ status: 'open', _limit: 100 },
+				)
+				this.openConsultations = (
+					Array.isArray(consultations) ? consultations : []
+				).filter((c) => c.status === 'open')
 				for (const c of this.openConsultations) {
 					this.reactionDrafts[c.id] = ''
 				}
 
-				const rounds = await store.fetchCollection('participatory-budget', { _limit: 100 })
-				this.budgetRounds = (Array.isArray(rounds) ? rounds : []).filter((b) => ['submission', 'voting', 'closed'].includes(b.status))
+				const rounds = await store.fetchCollection('participatory-budget', {
+					_limit: 100,
+				})
+				this.budgetRounds = (Array.isArray(rounds) ? rounds : []).filter(
+					(b) => ['submission', 'voting', 'closed'].includes(b.status),
+				)
 				for (const b of this.budgetRounds) {
-					this.proposalDrafts[b.id] = { title: '', description: '', amount: '' }
+					this.proposalDrafts[b.id] = {
+						title: '',
+						description: '',
+						amount: '',
+					}
 					if (b.status === 'voting') {
 						await this.loadVotable(b)
 					}
@@ -229,8 +287,13 @@ export default {
 		async loadVotable(round) {
 			try {
 				const store = useObjectStore()
-				const proposals = await store.fetchCollection('budget-proposal', { status: 'validated', _limit: 200 })
-				this.votableProposals[round.id] = (Array.isArray(proposals) ? proposals : []).filter((p) => p.status === 'validated')
+				const proposals = await store.fetchCollection('budget-proposal', {
+					status: 'validated',
+					_limit: 200,
+				})
+				this.votableProposals[round.id] = (
+					Array.isArray(proposals) ? proposals : []
+				).filter((p) => p.status === 'validated')
 			} catch (e) {
 				this.votableProposals[round.id] = []
 			}
@@ -238,11 +301,21 @@ export default {
 		/** @spec openspec/specs/citizen-participation/spec.md */
 		async sendReaction(consultation) {
 			try {
-				await submitReaction(consultation.id, this.reactionDrafts[consultation.id])
-				showSuccess(t('decidesk', 'Your reaction was submitted for moderation'))
+				await submitReaction(
+					consultation.id,
+					this.reactionDrafts[consultation.id],
+				)
+				showSuccess(
+					t('decidesk', 'Your reaction was submitted for moderation'),
+				)
 				this.reactionDrafts[consultation.id] = ''
 			} catch (e) {
-				showError(this.apiError(e, t('decidesk', 'Could not submit your reaction')))
+				showError(
+					this.apiError(
+						e,
+						t('decidesk', 'Could not submit your reaction'),
+					),
+				)
 			}
 		},
 		/** @spec openspec/specs/citizen-participation/spec.md */
@@ -255,9 +328,18 @@ export default {
 					amount: Number(draft.amount) || 0,
 				})
 				showSuccess(t('decidesk', 'Proposal submitted'))
-				this.proposalDrafts[round.id] = { title: '', description: '', amount: '' }
+				this.proposalDrafts[round.id] = {
+					title: '',
+					description: '',
+					amount: '',
+				}
 			} catch (e) {
-				showError(this.apiError(e, t('decidesk', 'Could not submit your proposal')))
+				showError(
+					this.apiError(
+						e,
+						t('decidesk', 'Could not submit your proposal'),
+					),
+				)
 			}
 		},
 		/** @spec openspec/specs/citizen-participation/spec.md */
@@ -268,7 +350,9 @@ export default {
 				proposal.votesAgainst = result.votesAgainst
 				showSuccess(t('decidesk', 'Your vote was recorded'))
 			} catch (e) {
-				showError(this.apiError(e, t('decidesk', 'Could not record your vote')))
+				showError(
+					this.apiError(e, t('decidesk', 'Could not record your vote')),
+				)
 			}
 		},
 		/** @spec openspec/specs/citizen-participation/spec.md */
@@ -341,7 +425,9 @@ export default {
 		},
 		/** @spec openspec/specs/citizen-participation/spec.md */
 		apiError(e, fallback) {
-			return (e && e.response && e.response.data && e.response.data.message) ? e.response.data.message : fallback
+			return e && e.response && e.response.data && e.response.data.message
+				? e.response.data.message
+				: fallback
 		},
 	},
 }

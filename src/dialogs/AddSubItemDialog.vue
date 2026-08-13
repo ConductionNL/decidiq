@@ -18,7 +18,11 @@
 		@closing="$emit('close')">
 		<template #default>
 			<p>
-				{{ t('decidesk', 'Add a sub-item under "{title}".', { title: parentTitle }) }}
+				{{
+					t('decidesk', 'Add a sub-item under "{title}".', {
+						title: parentTitle,
+					})
+				}}
 			</p>
 			<NcTextField
 				v-model="title"
@@ -85,7 +89,8 @@ export default {
 			this.$emit('submit', {
 				title: this.title,
 				itemType: this.itemType,
-				estimatedDuration: Number.isFinite(duration) && duration > 0 ? duration : null,
+				estimatedDuration:
+					Number.isFinite(duration) && duration > 0 ? duration : null,
 			})
 		},
 	},

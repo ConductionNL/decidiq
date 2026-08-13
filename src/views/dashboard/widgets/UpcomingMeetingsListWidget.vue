@@ -23,7 +23,8 @@
 		</NcEmptyContent>
 
 		<ul v-else class="dashboard-list-widget__list">
-			<li v-for="meeting in rows"
+			<li
+				v-for="meeting in rows"
 				:key="meeting.id"
 				:class="{ 'dashboard-list-widget__row--urgent': meeting._urgent }"
 				:data-testid="`upcoming-meeting-row-${meeting.id}`"
@@ -34,15 +35,26 @@
 				@keydown.enter.prevent="openMeeting(meeting)"
 				@keydown.space.prevent="openMeeting(meeting)">
 				<div class="dashboard-list-widget__main">
-					<span class="dashboard-list-widget__title">{{ meeting.title || meeting.name }}</span>
-					<span class="dashboard-list-widget__meta">{{ bodyName(meeting) }}</span>
+					<span class="dashboard-list-widget__title">{{
+						meeting.title || meeting.name
+					}}</span>
+					<span class="dashboard-list-widget__meta">{{
+						bodyName(meeting)
+					}}</span>
 				</div>
 				<div class="dashboard-list-widget__aside">
-					<span class="dashboard-list-widget__date">{{ formatDate(meeting.scheduledDate) }}</span>
+					<span class="dashboard-list-widget__date">{{
+						formatDate(meeting.scheduledDate)
+					}}</span>
 					<span class="dashboard-list-widget__meta">
-						{{ t('decidesk', '{n} agenda items', { n: agendaCount(meeting) }) }}
+						{{
+							t('decidesk', '{n} agenda items', {
+								n: agendaCount(meeting),
+							})
+						}}
 					</span>
-					<span v-if="meeting._urgent"
+					<span
+						v-if="meeting._urgent"
 						class="dashboard-list-widget__badge dashboard-list-widget__badge--urgent">
 						{{ countdownLabel(meeting) }}
 					</span>
@@ -120,7 +132,7 @@ export default {
 			if (!body) {
 				return ''
 			}
-			return typeof body === 'object' ? (body.name || '') : String(body)
+			return typeof body === 'object' ? body.name || '' : String(body)
 		},
 
 		/**
@@ -130,7 +142,9 @@ export default {
 		 * @return {number} Agenda-item count.
 		 */
 		agendaCount(meeting) {
-			return Array.isArray(meeting.agendaItems) ? meeting.agendaItems.length : 0
+			return Array.isArray(meeting.agendaItems)
+				? meeting.agendaItems.length
+				: 0
 		},
 
 		/**
@@ -158,7 +172,7 @@ export default {
 		 */
 		formatDate(value) {
 			const d = new Date(value)
-			return Number.isNaN(d.getTime()) ? (value || '') : d.toLocaleString()
+			return Number.isNaN(d.getTime()) ? value || '' : d.toLocaleString()
 		},
 
 		/**
@@ -168,7 +182,10 @@ export default {
 		 * @return {void}
 		 */
 		openMeeting(meeting) {
-			this.$router.push({ name: 'MeetingDetail', params: { id: String(meeting.id) } })
+			this.$router.push({
+				name: 'MeetingDetail',
+				params: { id: String(meeting.id) },
+			})
 		},
 	},
 }

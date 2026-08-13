@@ -9,14 +9,22 @@
  @spec openspec/specs/user-settings/spec.md
 -->
 <template>
-	<div class="decidesk-personal-settings section" data-testid="decidesk-personal-settings">
+	<div
+		class="decidesk-personal-settings section"
+		data-testid="decidesk-personal-settings">
 		<h2>{{ t('decidesk', 'Decidesk personal settings') }}</h2>
 		<NcLoadingIcon v-if="loading" :size="32" />
 		<template v-else>
-			<NotificationPreferencesSection :preference="preference" @updated="preference = $event" />
+			<NotificationPreferencesSection
+				:preference="preference"
+				@updated="preference = $event" />
 			<DisplayPreferencesSection />
-			<DelegationSection :preference="preference" @updated="preference = $event" />
-			<CommunicationSection :preference="preference" @updated="preference = $event" />
+			<DelegationSection
+				:preference="preference"
+				@updated="preference = $event" />
+			<CommunicationSection
+				:preference="preference"
+				@updated="preference = $event" />
 		</template>
 	</div>
 </template>

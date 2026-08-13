@@ -13,7 +13,14 @@
 	<div class="moderation-queue" data-testid="moderation-queue-page">
 		<header class="moderation-queue__header">
 			<h2>{{ t('decidesk', 'Reaction moderation queue') }}</h2>
-			<p>{{ t('decidesk', 'Approve or reject citizen reactions before they count toward a consultation.') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'Approve or reject citizen reactions before they count toward a consultation.',
+					)
+				}}
+			</p>
 		</header>
 
 		<ConsultationReactionsTab />

@@ -17,13 +17,23 @@
 		@closing="$emit('close')">
 		<template #default>
 			<p>
-				{{ t('decidesk', 'Attaching a recording for transcription requires confirming that all participants were informed that the meeting was recorded (AVG/GDPR). The recording and raw transcript stay restricted to this governance body and are never published.') }}
+				{{
+					t(
+						'decidesk',
+						'Attaching a recording for transcription requires confirming that all participants were informed that the meeting was recorded (AVG/GDPR). The recording and raw transcript stay restricted to this governance body and are never published.',
+					)
+				}}
 			</p>
 			<NcCheckboxRadioSwitch
 				v-model="confirmed"
 				data-testid="transcription-consent-checkbox"
 				type="checkbox">
-				{{ t('decidesk', 'I confirm participants were informed of the recording.') }}
+				{{
+					t(
+						'decidesk',
+						'I confirm participants were informed of the recording.',
+					)
+				}}
 			</NcCheckboxRadioSwitch>
 		</template>
 		<template #actions>

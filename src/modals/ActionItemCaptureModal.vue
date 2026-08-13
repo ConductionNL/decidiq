@@ -54,12 +54,24 @@
 </template>
 
 <script>
-import { NcButton, NcDateTimePickerNative, NcDialog, NcSelect, NcTextField } from '@nextcloud/vue'
+import {
+	NcButton,
+	NcDateTimePickerNative,
+	NcDialog,
+	NcSelect,
+	NcTextField,
+} from '@nextcloud/vue'
 import { createActionItem } from '../services/actionItemApi.js'
 
 export default {
 	name: 'ActionItemCaptureModal',
-	components: { NcButton, NcDateTimePickerNative, NcDialog, NcSelect, NcTextField },
+	components: {
+		NcButton,
+		NcDateTimePickerNative,
+		NcDialog,
+		NcSelect,
+		NcTextField,
+	},
 	props: {
 		meetingId: { type: String, required: true },
 		agendaItem: { type: Object, default: null },
@@ -78,7 +90,7 @@ export default {
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		assigneeOptions() {
 			return this.participants
-				.map(p => p.displayName || p.name)
+				.map((p) => p.displayName || p.name)
 				.filter(Boolean)
 		},
 	},
@@ -115,7 +127,9 @@ export default {
 				this.$emit('saved')
 				this.$emit('close')
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Could not create the action item.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Could not create the action item.')
 			} finally {
 				this.saving = false
 			}

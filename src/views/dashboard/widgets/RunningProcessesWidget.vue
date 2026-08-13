@@ -24,16 +24,21 @@
 		</NcEmptyContent>
 
 		<template v-else>
-			<section v-for="stage in stages"
+			<section
+				v-for="stage in stages"
 				v-show="groups[stage.key].length > 0"
 				:key="stage.key"
 				class="running-processes__stage"
 				:data-testid="`running-processes-stage-${stage.key}`">
 				<h3 class="running-processes__stage-title">
-					{{ stage.label }} <span class="running-processes__count">{{ groups[stage.key].length }}</span>
+					{{ stage.label }}
+					<span class="running-processes__count">{{
+						groups[stage.key].length
+					}}</span>
 				</h3>
 				<ul class="running-processes__list">
-					<li v-for="motion in groups[stage.key]"
+					<li
+						v-for="motion in groups[stage.key]"
 						:key="motion.id"
 						:data-testid="`running-motion-row-${motion.id}`"
 						class="running-processes__row"
@@ -89,7 +94,10 @@ export default {
 				deliberating: t('decidesk', 'Under discussion'),
 				voting: t('decidesk', 'Voting'),
 			}
-			return RUNNING_MOTION_LIFECYCLES.map((key) => ({ key, label: labels[key] }))
+			return RUNNING_MOTION_LIFECYCLES.map((key) => ({
+				key,
+				label: labels[key],
+			}))
 		},
 
 		/**
@@ -121,7 +129,9 @@ export default {
 			this.loading = true
 			this.error = null
 			try {
-				this.motions = await getMotions({ lifecycle: RUNNING_MOTION_LIFECYCLES })
+				this.motions = await getMotions({
+					lifecycle: RUNNING_MOTION_LIFECYCLES,
+				})
 			} catch (e) {
 				console.error('[decidesk] RunningProcessesWidget load failed', e)
 				this.error = e
@@ -138,7 +148,10 @@ export default {
 		 * @return {void}
 		 */
 		openMotion(motion) {
-			this.$router.push({ name: 'MotionDetail', params: { id: String(motion.id) } })
+			this.$router.push({
+				name: 'MotionDetail',
+				params: { id: String(motion.id) },
+			})
 		},
 	},
 }

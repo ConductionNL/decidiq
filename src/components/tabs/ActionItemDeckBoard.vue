@@ -21,7 +21,9 @@
 		<div class="ai-deck-board__header">
 			<h3 class="ai-deck-board__title">
 				{{ t('decidesk', 'Action items') }}
-				<span v-if="!loading" class="ai-deck-board__count">({{ rows.length }})</span>
+				<span v-if="!loading" class="ai-deck-board__count"
+					>({{ rows.length }})</span
+				>
 			</h3>
 			<div class="ai-deck-board__actions">
 				<NcButton
@@ -48,10 +50,16 @@
 			</div>
 		</div>
 
-		<CnNoteCard v-if="error" type="error" :title="t('decidesk', 'Deck board error')">
+		<CnNoteCard
+			v-if="error"
+			type="error"
+			:title="t('decidesk', 'Deck board error')">
 			{{ error }}
 		</CnNoteCard>
-		<CnNoteCard v-if="notice" type="success" :title="t('decidesk', 'Projected to Deck')">
+		<CnNoteCard
+			v-if="notice"
+			type="success"
+			:title="t('decidesk', 'Projected to Deck')">
 			{{ notice }}
 		</CnNoteCard>
 
@@ -72,7 +80,9 @@
 						class="ai-deck-card"
 						data-testid="action-item-card">
 						<div class="ai-deck-card__head">
-							<button class="ai-deck-card__title" @click="openEdit(item)">
+							<button
+								class="ai-deck-card__title"
+								@click="openEdit(item)">
 								{{ item.title || t('decidesk', 'Untitled') }}
 							</button>
 							<NcButton
@@ -84,8 +94,12 @@
 								</template>
 							</NcButton>
 						</div>
-						<div v-if="item.assignee" class="ai-deck-card__meta">{{ item.assignee }}</div>
-						<div v-if="item.dueDate" class="ai-deck-card__meta">{{ item.dueDate }}</div>
+						<div v-if="item.assignee" class="ai-deck-card__meta">
+							{{ item.assignee }}
+						</div>
+						<div v-if="item.dueDate" class="ai-deck-card__meta">
+							{{ item.dueDate }}
+						</div>
 						<div class="ai-deck-card__footer">
 							<!--
 								v9 model pair (`modelValue` /
@@ -99,7 +113,12 @@
 								:options="laneOptions"
 								:clearable="false"
 								:input-label="t('decidesk', 'Status')"
-								:aria-label-combobox="t('decidesk', 'Move action item to another status')"
+								:aria-label-combobox="
+									t(
+										'decidesk',
+										'Move action item to another status',
+									)
+								"
 								class="ai-deck-card__move"
 								@update:model-value="(opt) => moveTo(item, opt)" />
 							<a
@@ -125,7 +144,11 @@
 			ref="formDialog"
 			:schema="actionItemSchema"
 			:item="editTarget"
-			:dialog-title="editTarget ? t('decidesk', 'Edit action item') : t('decidesk', 'Add action item')"
+			:dialog-title="
+				editTarget
+					? t('decidesk', 'Edit action item')
+					: t('decidesk', 'Add action item')
+			"
 			:exclude-fields="excludedFields"
 			@confirm="onConfirm"
 			@close="formOpen = false" />
@@ -150,8 +173,17 @@ import Plus from 'vue-material-design-icons/Plus.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import { ensureRelationType } from './useRelationStore.js'
 import { useSettingsStore } from '../../store/store.js'
-import { createActionItem, updateActionItem, deleteActionItem } from '../../services/actionItemApi.js'
-import { LANES, statusToLane, projectActionItems, itemUid } from '../../services/deckProjection.js'
+import {
+	createActionItem,
+	updateActionItem,
+	deleteActionItem,
+} from '../../services/actionItemApi.js'
+import {
+	LANES,
+	statusToLane,
+	projectActionItems,
+	itemUid,
+} from '../../services/deckProjection.js'
 
 const LANE_LABELS = {
 	open: 'Open',
@@ -161,7 +193,17 @@ const LANE_LABELS = {
 
 export default {
 	name: 'ActionItemDeckBoard',
-	components: { CnDeleteDialog, CnFormDialog, CnNoteCard, NcButton, NcLoadingIcon, NcSelect, Plus, TrashCanOutline, ViewColumnOutline },
+	components: {
+		CnDeleteDialog,
+		CnFormDialog,
+		CnNoteCard,
+		NcButton,
+		NcLoadingIcon,
+		NcSelect,
+		Plus,
+		TrashCanOutline,
+		ViewColumnOutline,
+	},
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
@@ -199,7 +241,10 @@ export default {
 		},
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-3 */
 		laneOptions() {
-			return LANES.map((key) => ({ id: key, label: this.t('decidesk', LANE_LABELS[key]) }))
+			return LANES.map((key) => ({
+				id: key,
+				label: this.t('decidesk', LANE_LABELS[key]),
+			}))
 		},
 		/** Deck app root — used for the per-card "In Deck" link. */
 		deckCardUrl() {
@@ -213,11 +258,15 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 	methods: {
-		uidOf(item) { return itemUid(item) },
+		uidOf(item) {
+			return itemUid(item)
+		},
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-3 */
 		laneOption(item) {
 			const key = statusToLane(item.taskStatus)
@@ -230,11 +279,16 @@ export default {
 			this.error = ''
 			try {
 				const store = ensureRelationType('action-item')
-				if (!this.actionItemSchema) this.actionItemSchema = await store.fetchSchema('action-item')
-				const items = await store.fetchCollection('action-item', { decision: this.objectId, _limit: 100 })
+				if (!this.actionItemSchema)
+					this.actionItemSchema = await store.fetchSchema('action-item')
+				const items = await store.fetchCollection('action-item', {
+					decision: this.objectId,
+					_limit: 100,
+				})
 				this.rows = items || []
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load action items.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load action items.')
 			} finally {
 				this.loading = false
 			}
@@ -246,7 +300,8 @@ export default {
 		 */
 		async openCreate() {
 			const store = ensureRelationType('action-item')
-			if (!this.actionItemSchema) this.actionItemSchema = await store.fetchSchema('action-item')
+			if (!this.actionItemSchema)
+				this.actionItemSchema = await store.fetchSchema('action-item')
 			this.editTarget = null
 			this.formOpen = true
 		},
@@ -258,7 +313,8 @@ export default {
 		 */
 		async openEdit(item) {
 			const store = ensureRelationType('action-item')
-			if (!this.actionItemSchema) this.actionItemSchema = await store.fetchSchema('action-item')
+			if (!this.actionItemSchema)
+				this.actionItemSchema = await store.fetchSchema('action-item')
 			this.editTarget = { ...item }
 			this.formOpen = true
 		},
@@ -273,14 +329,19 @@ export default {
 			try {
 				const uid = this.editTarget && itemUid(this.editTarget)
 				if (uid) {
-					await updateActionItem(uid, { ...formData, decision: this.objectId })
+					await updateActionItem(uid, {
+						...formData,
+						decision: this.objectId,
+					})
 				} else {
 					await createActionItem({ ...formData, decision: this.objectId })
 				}
 				this.$refs.formDialog?.setResult({ success: true })
 				this.refresh()
 			} catch (e) {
-				this.$refs.formDialog?.setResult({ error: e?.message || this.t('decidesk', 'Save failed.') })
+				this.$refs.formDialog?.setResult({
+					error: e?.message || this.t('decidesk', 'Save failed.'),
+				})
 			}
 		},
 		/**
@@ -294,7 +355,9 @@ export default {
 				this.$refs.deleteDialog?.setResult({ success: true })
 				this.refresh()
 			} catch (e) {
-				this.$refs.deleteDialog?.setResult({ error: e?.message || this.t('decidesk', 'Delete failed.') })
+				this.$refs.deleteDialog?.setResult({
+					error: e?.message || this.t('decidesk', 'Delete failed.'),
+				})
 			}
 		},
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
@@ -310,11 +373,26 @@ export default {
 					items: this.rows,
 				})
 				const parts = []
-				if (result.created) parts.push(this.t('decidesk', '{n} card(s) created', { n: result.created }))
-				if (result.skipped) parts.push(this.t('decidesk', '{n} already on Deck', { n: result.skipped }))
-				this.notice = parts.join(' · ') || this.t('decidesk', 'Nothing to project.')
+				if (result.created)
+					parts.push(
+						this.t('decidesk', '{n} card(s) created', {
+							n: result.created,
+						}),
+					)
+				if (result.skipped)
+					parts.push(
+						this.t('decidesk', '{n} already on Deck', {
+							n: result.skipped,
+						}),
+					)
+				this.notice =
+					parts.join(' · ') || this.t('decidesk', 'Nothing to project.')
 				if (result.errors && result.errors.length) {
-					this.error = this.t('decidesk', '{n} item(s) could not be projected.', { n: result.errors.length })
+					this.error = this.t(
+						'decidesk',
+						'{n} item(s) could not be projected.',
+						{ n: result.errors.length },
+					)
 				}
 				await this.refresh()
 			} catch (e) {
@@ -344,7 +422,8 @@ export default {
 				await updateActionItem(uid, { taskStatus: newLane })
 			} catch (e) {
 				item.taskStatus = previous
-				this.error = e?.message || this.t('decidesk', 'Could not update status.')
+				this.error =
+					e?.message || this.t('decidesk', 'Could not update status.')
 			}
 		},
 	},

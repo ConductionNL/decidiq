@@ -15,7 +15,14 @@
 		data-testid="publication-rectify-modal"
 		@closing="$emit('close')">
 		<template #default>
-			<p>{{ t('decidesk', 'Rectification publishes a corrected new version and withdraws the current one in a single operation. The new version references the version it corrects.') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'Rectification publishes a corrected new version and withdraws the current one in a single operation. The new version references the version it corrects.',
+					)
+				}}
+			</p>
 			<NcTextArea
 				v-model="reason"
 				data-testid="publication-rectify-reason"

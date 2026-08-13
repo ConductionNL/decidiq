@@ -14,7 +14,14 @@
 		data-testid="minutes-reject-modal"
 		@closing="$emit('close')">
 		<template #default>
-			<p>{{ t('decidesk', 'The minutes return to draft so the secretary can rework them. A comment explaining the rejection is required.') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'The minutes return to draft so the secretary can rework them. A comment explaining the rejection is required.',
+					)
+				}}
+			</p>
 			<NcTextArea
 				v-model="comment"
 				data-testid="minutes-reject-comment"

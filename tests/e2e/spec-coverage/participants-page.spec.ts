@@ -17,14 +17,18 @@ import { test, expect, type Page } from '@playwright/test'
 import { BASE_URL as BASE } from '../base-url'
 
 async function dismissSupportDialog(page: Page): Promise<void> {
-	const dialog = page.locator('.cn-support-dialog, [data-testid^="cn-support-dialog"]').first()
+	const dialog = page
+		.locator('.cn-support-dialog, [data-testid^="cn-support-dialog"]')
+		.first()
 	if (await dialog.isVisible().catch(() => false)) {
 		await page.keyboard.press('Escape').catch(() => {})
 	}
 }
 
 // @e2e openspec/specs/participant-management/spec.md#view-the-participants-list
-test('Participants: index renders heading, object-list table and Add CTA', async ({ page }) => {
+test('Participants: index renders heading, object-list table and Add CTA', async ({
+	page,
+}) => {
 	await page.goto(`${BASE}/apps/decidesk/participants`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await dismissSupportDialog(page)
@@ -38,7 +42,9 @@ test('Participants: index renders heading, object-list table and Add CTA', async
 })
 
 // @e2e openspec/specs/participant-management/spec.md#add-a-participant
-test('Participants: Add Participant opens a real create form dialog', async ({ page }) => {
+test('Participants: Add Participant opens a real create form dialog', async ({
+	page,
+}) => {
 	await page.goto(`${BASE}/apps/decidesk/participants`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await dismissSupportDialog(page)
@@ -46,7 +52,9 @@ test('Participants: Add Participant opens a real create form dialog', async ({ p
 	await page.getByRole('button', { name: 'Add Participant' }).click()
 	const dialog = page.getByRole('dialog')
 	await expect(dialog).toBeVisible({ timeout: 8_000 })
-	await expect(dialog.getByRole('heading', { name: /Create\s+Participant/i })).toBeVisible()
+	await expect(
+		dialog.getByRole('heading', { name: /Create\s+Participant/i }),
+	).toBeVisible()
 	await expect(dialog.getByRole('button', { name: 'Create' })).toBeVisible()
 
 	await dialog.getByRole('button', { name: 'Cancel' }).click()
@@ -54,20 +62,30 @@ test('Participants: Add Participant opens a real create form dialog', async ({ p
 })
 
 // @e2e openspec/specs/participant-management/spec.md#view-the-participants-list
-test('Participants: no decidesk-origin console error or 500 on load', async ({ page }) => {
+test('Participants: no decidesk-origin console error or 500 on load', async ({
+	page,
+}) => {
 	const appErrors: string[] = []
-	page.on('console', m => {
+	page.on('console', (m) => {
 		const t = m.text()
-		if (m.type() === 'error' && !/user_status|heartbeat|user status/i.test(t) && /decidesk/i.test(t)) {
+		if (
+			m.type() === 'error'
+			&& !/user_status|heartbeat|user status/i.test(t)
+			&& /decidesk/i.test(t)
+		) {
 			appErrors.push(t)
 		}
 	})
-	page.on('response', r => {
-		if (r.status() >= 500 && /decidesk/i.test(r.url())) appErrors.push(`HTTP ${r.status()} ${r.url()}`)
+	page.on('response', (r) => {
+		if (r.status() >= 500 && /decidesk/i.test(r.url()))
+			appErrors.push(`HTTP ${r.status()} ${r.url()}`)
 	})
 
 	await page.goto(`${BASE}/apps/decidesk/participants`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await expect(page.getByTestId('cn-object-list-table')).toBeVisible()
-	expect(appErrors, `decidesk errors on Participants:\n${appErrors.join('\n')}`).toHaveLength(0)
+	expect(
+		appErrors,
+		`decidesk errors on Participants:\n${appErrors.join('\n')}`,
+	).toHaveLength(0)
 })

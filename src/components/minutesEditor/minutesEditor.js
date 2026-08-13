@@ -11,7 +11,13 @@
 /**
  * Lifecycle states a Minutes record moves through (forward order).
  */
-export const LIFECYCLE_STAGES = ['draft', 'review', 'approved', 'signed', 'published']
+export const LIFECYCLE_STAGES = [
+	'draft',
+	'review',
+	'approved',
+	'signed',
+	'published',
+]
 
 /**
  * Read the note entry for an agenda item from a Minutes `itemNotes` array.
@@ -180,18 +186,18 @@ export function canSuggestCorrections(lifecycle) {
  */
 export function availableWorkflowActions(lifecycle) {
 	switch (lifecycle) {
-	case 'draft':
-		return [{ action: 'submit', target: 'review' }]
-	case 'review':
-		return [
-			{ action: 'approve', target: 'approved' },
-			{ action: 'reject', target: 'draft' },
-		]
-	case 'approved':
-		return [{ action: 'sign', target: 'signed' }]
-	case 'signed':
-		return [{ action: 'publish', target: 'published' }]
-	default:
-		return []
+		case 'draft':
+			return [{ action: 'submit', target: 'review' }]
+		case 'review':
+			return [
+				{ action: 'approve', target: 'approved' },
+				{ action: 'reject', target: 'draft' },
+			]
+		case 'approved':
+			return [{ action: 'sign', target: 'signed' }]
+		case 'signed':
+			return [{ action: 'publish', target: 'published' }]
+		default:
+			return []
 	}
 }

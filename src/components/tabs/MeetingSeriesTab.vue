@@ -17,14 +17,15 @@
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Recurring series') }}
-				<span v-if="!loading && instances.length > 0" class="decidesk-tab__count">({{ instances.length }})</span>
+				<span
+					v-if="!loading && instances.length > 0"
+					class="decidesk-tab__count"
+					>({{ instances.length }})</span
+				>
 			</h3>
 		</div>
 
-		<CnNoteCard
-			v-if="error"
-			type="error"
-			:title="t('decidesk', 'Series error')">
+		<CnNoteCard v-if="error" type="error" :title="t('decidesk', 'Series error')">
 			{{ error }}
 		</CnNoteCard>
 
@@ -36,7 +37,10 @@
 		</CnNoteCard>
 
 		<!-- Pattern form -->
-		<form class="series-form" data-testid="series-pattern-form" @submit.prevent="generate">
+		<form
+			class="series-form"
+			data-testid="series-pattern-form"
+			@submit.prevent="generate">
 			<NcSelect
 				v-model="frequency"
 				:input-label="t('decidesk', 'Frequency')"
@@ -55,14 +59,23 @@
 			<NcTextField
 				v-model="exceptions"
 				:label="t('decidesk', 'Exception dates')"
-				:placeholder="t('decidesk', 'Comma-separated dates, e.g. 2026-07-14, 2026-08-11')" />
+				:placeholder="
+					t(
+						'decidesk',
+						'Comma-separated dates, e.g. 2026-07-14, 2026-08-11',
+					)
+				" />
 
 			<p
 				v-if="preview.error === null"
 				class="series-form__preview"
 				data-testid="series-preview"
 				aria-live="polite">
-				{{ t('decidesk', 'This pattern creates {n} meeting(s).', { n: preview.dates.length }) }}
+				{{
+					t('decidesk', 'This pattern creates {n} meeting(s).', {
+						n: preview.dates.length,
+					})
+				}}
 				<span v-if="preview.truncated">
 					{{ t('decidesk', 'The series is capped at 52 instances.') }}
 				</span>
@@ -72,15 +85,29 @@
 				variant="primary"
 				type="submit"
 				data-testid="series-generate"
-				:disabled="generating || preview.error !== null || preview.dates.length === 0"
+				:disabled="
+					generating
+					|| preview.error !== null
+					|| preview.dates.length === 0
+				"
 				:aria-label="t('decidesk', 'Generate meeting series')">
-				{{ generating ? t('decidesk', 'Generating…') : t('decidesk', 'Generate series') }}
+				{{
+					generating
+						? t('decidesk', 'Generating…')
+						: t('decidesk', 'Generate series')
+				}}
 			</NcButton>
 		</form>
 
 		<!-- Existing instances -->
 		<div v-if="meeting && meeting.series" class="series-instances">
-			<h4>{{ t('decidesk', 'Instances in series {series}', { series: meeting.series }) }}</h4>
+			<h4>
+				{{
+					t('decidesk', 'Instances in series {series}', {
+						series: meeting.series,
+					})
+				}}
+			</h4>
 			<CnDataTable
 				:columns="columns"
 				:rows="instances"
@@ -128,7 +155,10 @@ export default {
 		/** @spec openspec/specs/meeting-management/spec.md */
 		columns() {
 			return [
-				{ key: 'scheduledDate', label: this.t('decidesk', 'Scheduled date') },
+				{
+					key: 'scheduledDate',
+					label: this.t('decidesk', 'Scheduled date'),
+				},
 				{ key: 'title', label: this.t('decidesk', 'Title') },
 				{ key: 'lifecycle', label: this.t('decidesk', 'Lifecycle') },
 			]
@@ -142,8 +172,8 @@ export default {
 				until: this.until,
 				exceptions: this.exceptions
 					.split(',')
-					.map(d => d.trim())
-					.filter(d => d !== ''),
+					.map((d) => d.trim())
+					.filter((d) => d !== ''),
 			}
 		},
 
@@ -159,7 +189,9 @@ export default {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/meeting-management/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 	methods: {
@@ -173,7 +205,8 @@ export default {
 				this.meeting = await store.fetchObject('meeting', this.objectId)
 				await this.loadInstances()
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load the meeting.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load the meeting.')
 			} finally {
 				this.loading = false
 			}
@@ -192,7 +225,11 @@ export default {
 			})
 			this.instances = (rows || [])
 				.slice()
-				.sort((a, b) => String(a.scheduledDate || '').localeCompare(String(b.scheduledDate || '')))
+				.sort((a, b) =>
+					String(a.scheduledDate || '').localeCompare(
+						String(b.scheduledDate || ''),
+					),
+				)
 		},
 
 		/** @spec openspec/specs/meeting-management/spec.md */
@@ -202,7 +239,9 @@ export default {
 			this.successMessage = ''
 			try {
 				const response = await fetch(
-					generateUrl(`/apps/decidesk/api/meetings/${this.objectId}/series`),
+					generateUrl(
+						`/apps/decidesk/api/meetings/${this.objectId}/series`,
+					),
 					{
 						method: 'POST',
 						headers: {
@@ -215,13 +254,16 @@ export default {
 				)
 				const payload = await response.json()
 				if (!response.ok || payload?.success === false) {
-					this.error = payload?.message || this.t('decidesk', 'Series generation failed.')
+					this.error =
+						payload?.message
+						|| this.t('decidesk', 'Series generation failed.')
 					return
 				}
 				this.successMessage = payload.message
 				await this.refresh()
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Series generation failed.')
+				this.error =
+					e?.message || this.t('decidesk', 'Series generation failed.')
 			} finally {
 				this.generating = false
 			}

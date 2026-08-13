@@ -78,7 +78,9 @@ function mount(el, props) {
 	if (el === undefined || el === null || mountedApps.has(el) === true) {
 		return
 	}
-	const app = createApp(componentForSurface(props && props.surface), { ...(props || {}) })
+	const app = createApp(componentForSurface(props && props.surface), {
+		...(props || {}),
+	})
 	// Global t/n install contract (ADR-066): the tab/widget SFCs call
 	// `this.t(...)`. In the app bundle main.js installs these; the leaf mounts
 	// its own app instance, so install them here too.
@@ -152,7 +154,11 @@ export function registerDecisionsLeaf(globalRef) {
 	const current = target.OCA.OpenRegister.integrations
 
 	// Real registry installed (has register(), no _queue) → register live.
-	if (current && typeof current.register === 'function' && current._queue === undefined) {
+	if (
+		current
+		&& typeof current.register === 'function'
+		&& current._queue === undefined
+	) {
 		try {
 			current.register(decisionsLeafDescriptor)
 		} catch (e) {

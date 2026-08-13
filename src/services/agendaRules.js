@@ -27,12 +27,41 @@ export const MAX_SERIES_INSTANCES = 52
  */
 export const STATUTORY_ALV_ITEMS = [
 	{ id: 'opening', label: 'Opening', synonyms: ['opening'] },
-	{ id: 'previous-minutes', label: 'Approval of previous minutes', synonyms: ['previous minutes', 'minutes', 'notulen'] },
-	{ id: 'annual-report', label: 'Annual report', synonyms: ['annual report', 'jaarverslag'] },
-	{ id: 'financial-statements', label: 'Financial statements', synonyms: ['financial statements', 'jaarrekening', 'financieel verslag'] },
-	{ id: 'kascommissie-report', label: 'Kascommissie report', synonyms: ['kascommissie', 'audit committee report', 'kascontrole'] },
-	{ id: 'board-elections', label: 'Board elections', synonyms: ['board election', 'bestuursverkiezing', 'verkiezing bestuur', 'benoeming bestuur'] },
-	{ id: 'any-other-business', label: 'Any other business', synonyms: ['any other business', 'rondvraag', 'w.v.t.t.k', 'wvttk'] },
+	{
+		id: 'previous-minutes',
+		label: 'Approval of previous minutes',
+		synonyms: ['previous minutes', 'minutes', 'notulen'],
+	},
+	{
+		id: 'annual-report',
+		label: 'Annual report',
+		synonyms: ['annual report', 'jaarverslag'],
+	},
+	{
+		id: 'financial-statements',
+		label: 'Financial statements',
+		synonyms: ['financial statements', 'jaarrekening', 'financieel verslag'],
+	},
+	{
+		id: 'kascommissie-report',
+		label: 'Kascommissie report',
+		synonyms: ['kascommissie', 'audit committee report', 'kascontrole'],
+	},
+	{
+		id: 'board-elections',
+		label: 'Board elections',
+		synonyms: [
+			'board election',
+			'bestuursverkiezing',
+			'verkiezing bestuur',
+			'benoeming bestuur',
+		],
+	},
+	{
+		id: 'any-other-business',
+		label: 'Any other business',
+		synonyms: ['any other business', 'rondvraag', 'w.v.t.t.k', 'wvttk'],
+	},
 	{ id: 'closing', label: 'Closing', synonyms: ['closing', 'sluiting'] },
 ]
 
@@ -54,9 +83,12 @@ export function missingStatutoryItems(meetingType, items) {
 	if (meetingType !== 'general_assembly') {
 		return []
 	}
-	const titles = (items || []).map(i => String(i?.title || '').toLowerCase())
-	return STATUTORY_ALV_ITEMS.filter(required =>
-		!titles.some(title => required.synonyms.some(synonym => title.includes(synonym))),
+	const titles = (items || []).map((i) => String(i?.title || '').toLowerCase())
+	return STATUTORY_ALV_ITEMS.filter(
+		(required) =>
+			!titles.some((title) =>
+				required.synonyms.some((synonym) => title.includes(synonym)),
+			),
 	)
 }
 
@@ -74,8 +106,10 @@ export function missingStatutoryItems(meetingType, items) {
  * @spec openspec/specs/agenda-management/spec.md
  */
 export function buildAgendaTree(items) {
-	const list = (items || []).slice().sort((a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0))
-	const byId = new Map(list.map(item => [String(item.id), item]))
+	const list = (items || [])
+		.slice()
+		.sort((a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0))
+	const byId = new Map(list.map((item) => [String(item.id), item]))
 
 	const topLevel = []
 	const childrenByParent = new Map()
@@ -92,7 +126,7 @@ export function buildAgendaTree(items) {
 		}
 	}
 
-	return topLevel.map(item => ({
+	return topLevel.map((item) => ({
 		item,
 		children: childrenByParent.get(String(item.id)) || [],
 	}))
@@ -111,7 +145,7 @@ export function buildAgendaTree(items) {
  */
 export function flattenTree(tree) {
 	const flat = []
-	for (const node of (tree || [])) {
+	for (const node of tree || []) {
 		flat.push(node.item)
 		for (const child of node.children) {
 			flat.push(child)
@@ -151,7 +185,9 @@ export function expandRecurrence(startDate, pattern) {
 		return { dates: [], truncated: false, error: 'date' }
 	}
 
-	const exceptions = new Set((pattern.exceptions || []).map(e => String(e).slice(0, 10)))
+	const exceptions = new Set(
+		(pattern.exceptions || []).map((e) => String(e).slice(0, 10)),
+	)
 	const dates = []
 	let truncated = false
 
@@ -160,14 +196,31 @@ export function expandRecurrence(startDate, pattern) {
 	if (frequency === 'monthly') {
 		const dayOfMonth = start.getUTCDate()
 		for (let offset = 0; ; offset += interval) {
-			const firstOfMonth = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + offset, 1))
+			const firstOfMonth = new Date(
+				Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + offset, 1),
+			)
 			if (firstOfMonth > until) break
-			const daysInMonth = new Date(Date.UTC(firstOfMonth.getUTCFullYear(), firstOfMonth.getUTCMonth() + 1, 0)).getUTCDate()
+			const daysInMonth = new Date(
+				Date.UTC(
+					firstOfMonth.getUTCFullYear(),
+					firstOfMonth.getUTCMonth() + 1,
+					0,
+				),
+			).getUTCDate()
 			if (dayOfMonth > daysInMonth) continue
-			const occurrence = new Date(Date.UTC(firstOfMonth.getUTCFullYear(), firstOfMonth.getUTCMonth(), dayOfMonth))
+			const occurrence = new Date(
+				Date.UTC(
+					firstOfMonth.getUTCFullYear(),
+					firstOfMonth.getUTCMonth(),
+					dayOfMonth,
+				),
+			)
 			if (occurrence > until) break
 			if (exceptions.has(isoDay(occurrence))) continue
-			if (dates.length >= MAX_SERIES_INSTANCES) { truncated = true; break }
+			if (dates.length >= MAX_SERIES_INSTANCES) {
+				truncated = true
+				break
+			}
 			dates.push(isoDay(occurrence))
 		}
 	} else {
@@ -176,7 +229,10 @@ export function expandRecurrence(startDate, pattern) {
 			const occurrence = new Date(start.getTime() + step * stepDays * 86400000)
 			if (occurrence > until) break
 			if (exceptions.has(isoDay(occurrence))) continue
-			if (dates.length >= MAX_SERIES_INSTANCES) { truncated = true; break }
+			if (dates.length >= MAX_SERIES_INSTANCES) {
+				truncated = true
+				break
+			}
 			dates.push(isoDay(occurrence))
 		}
 	}

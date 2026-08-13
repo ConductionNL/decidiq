@@ -14,7 +14,14 @@
 		data-testid="reaction-reject-modal"
 		@closing="$emit('close')">
 		<template #default>
-			<p>{{ t('decidesk', 'The reaction is retained for audit but never counts toward the consultation. A reason is required.') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'The reaction is retained for audit but never counts toward the consultation. A reason is required.',
+					)
+				}}
+			</p>
 			<NcTextArea
 				v-model="reason"
 				data-testid="reaction-reject-reason"

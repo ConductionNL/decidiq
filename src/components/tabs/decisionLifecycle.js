@@ -48,6 +48,6 @@ export function buildTimeline(current) {
 	const idx = STATES.indexOf(current)
 	return STATES.map((state, i) => ({
 		state,
-		status: idx === -1 || i > idx ? 'upcoming' : (i === idx ? 'current' : 'done'),
+		status: idx === -1 || i > idx ? 'upcoming' : i === idx ? 'current' : 'done',
 	}))
 }

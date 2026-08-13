@@ -63,8 +63,22 @@ async function seedTemplate(page) {
 		title: 'E2E effectiveness template',
 		dimensions: ['strategy-and-oversight', 'chair-effectiveness'],
 		questions: [
-			{ id: 'q-strategy-likert', dimension: 'strategy-and-oversight', prompt: 'Strategy question', type: 'likert', scaleMin: 1, scaleMax: 5 },
-			{ id: 'q-chair-likert', dimension: 'chair-effectiveness', prompt: 'Chair question', type: 'likert', scaleMin: 1, scaleMax: 5 },
+			{
+				id: 'q-strategy-likert',
+				dimension: 'strategy-and-oversight',
+				prompt: 'Strategy question',
+				type: 'likert',
+				scaleMin: 1,
+				scaleMax: 5,
+			},
+			{
+				id: 'q-chair-likert',
+				dimension: 'chair-effectiveness',
+				prompt: 'Chair question',
+				type: 'likert',
+				scaleMin: 1,
+				scaleMax: 5,
+			},
 		],
 	})
 }
@@ -77,18 +91,39 @@ async function openEvaluationsTab(page, bodyId: string) {
 	if (await tab.count()) {
 		await tab.click()
 	}
-	await page.waitForSelector('[data-testid="body-evaluations-tab"]', { timeout: 15_000 })
+	await page.waitForSelector('[data-testid="body-evaluations-tab"]', {
+		timeout: 15_000,
+	})
 }
 
 test.describe('board self-evaluation flow', () => {
-	test('a body opens an evaluation cycle and members submit anonymously; completion tracks without de-anonymising', async ({ page }) => {
+	test('a body opens an evaluation cycle and members submit anonymously; completion tracks without de-anonymising', async ({
+		page,
+	}) => {
 		// `domain` is in GovernanceBody's `required` list — omitting it is a hard
 		// 400 from OpenRegister, which reads as a broken evaluation flow rather
 		// than an incomplete fixture.
-		const body = await createObject(page, ledger, 'governance-body', { name: 'E2E Evaluation Board', bodyType: 'supervisory-board', domain: 'corporate' })
-		const chair = await createObject(page, ledger, 'participant', { displayName: 'E2E Chair', role: 'chair', nextcloudUserId: 'admin', governanceBody: objId(body) })
-		const memberTwo = await createObject(page, ledger, 'participant', { displayName: 'E2E Member Two', role: 'member', governanceBody: objId(body) })
-		const memberThree = await createObject(page, ledger, 'participant', { displayName: 'E2E Member Three', role: 'member', governanceBody: objId(body) })
+		const body = await createObject(page, ledger, 'governance-body', {
+			name: 'E2E Evaluation Board',
+			bodyType: 'supervisory-board',
+			domain: 'corporate',
+		})
+		const chair = await createObject(page, ledger, 'participant', {
+			displayName: 'E2E Chair',
+			role: 'chair',
+			nextcloudUserId: 'admin',
+			governanceBody: objId(body),
+		})
+		const memberTwo = await createObject(page, ledger, 'participant', {
+			displayName: 'E2E Member Two',
+			role: 'member',
+			governanceBody: objId(body),
+		})
+		const memberThree = await createObject(page, ledger, 'participant', {
+			displayName: 'E2E Member Three',
+			role: 'member',
+			governanceBody: objId(body),
+		})
 		const template = await seedTemplate(page)
 
 		// Chair creates + opens a cycle (draft -> open). invitedParticipantIds
@@ -99,7 +134,11 @@ test.describe('board self-evaluation flow', () => {
 			openedAt: new Date().toISOString(),
 			invitedMemberCount: 3,
 			respondedCount: 0,
-			invitedParticipantIds: [objId(chair), objId(memberTwo), objId(memberThree)],
+			invitedParticipantIds: [
+				objId(chair),
+				objId(memberTwo),
+				objId(memberThree),
+			],
 			respondedParticipantIds: [],
 			chairUserId: 'admin',
 			governanceBody: objId(body),
@@ -107,32 +146,57 @@ test.describe('board self-evaluation flow', () => {
 		})
 
 		await openEvaluationsTab(page, objId(body))
-		await expect(page.getByTestId(`evaluation-card-${objId(evaluation)}`)).toBeVisible({ timeout: 15_000 })
-		await expect(page.getByTestId(`evaluation-card-${objId(evaluation)}`)).toContainText('E2E-2026')
+		await expect(
+			page.getByTestId(`evaluation-card-${objId(evaluation)}`),
+		).toBeVisible({ timeout: 15_000 })
+		await expect(
+			page.getByTestId(`evaluation-card-${objId(evaluation)}`),
+		).toContainText('E2E-2026')
 
 		// Respond anonymously as the logged-in admin (mapped to the chair participant).
 		await page.getByTestId('evaluation-respond').click()
-		await page.waitForSelector('[data-testid="evaluation-respond-modal"]', { timeout: 10_000 })
-		await page.getByTestId('evaluation-respond-likert-q-strategy-likert-4').click()
+		await page.waitForSelector('[data-testid="evaluation-respond-modal"]', {
+			timeout: 10_000,
+		})
+		await page
+			.getByTestId('evaluation-respond-likert-q-strategy-likert-4')
+			.click()
 		await page.getByTestId('evaluation-respond-likert-q-chair-likert-3').click()
 		await page.getByTestId('evaluation-respond-submit').click()
 
 		// Completion advances (respondedCount) WITHOUT the response content ever
 		// carrying the responding member's identity — verified server-side.
-		await expect(page.getByTestId(`evaluation-card-${objId(evaluation)}`)).toContainText('1 of 3 responded', { timeout: 15_000 })
+		await expect(
+			page.getByTestId(`evaluation-card-${objId(evaluation)}`),
+		).toContainText('1 of 3 responded', { timeout: 15_000 })
 
 		// A response cannot be traced to its author: the completion roster
 		// (respondedParticipantIds) proves the chair responded, while the
 		// response content itself (asserted server-side by
 		// BoardEvaluationScoreServiceTest::testAnonymityNoMemberIdentityRecoverable)
 		// never carries that identity.
-		const updatedEvaluation = await getObject(page, 'board-evaluation', objId(evaluation))
+		const updatedEvaluation = await getObject(
+			page,
+			'board-evaluation',
+			objId(evaluation),
+		)
 		expect(updatedEvaluation?.respondedParticipantIds).toContain(objId(chair))
 	})
 
-	test('closing a cycle computes scores; small-body breakdown is suppressed below threshold', async ({ page }) => {
-		const body = await createObject(page, ledger, 'governance-body', { name: 'E2E Suppression Board', bodyType: 'supervisory-board', domain: 'corporate' })
-		const chair = await createObject(page, ledger, 'participant', { displayName: 'E2E Chair', role: 'chair', nextcloudUserId: 'admin', governanceBody: objId(body) })
+	test('closing a cycle computes scores; small-body breakdown is suppressed below threshold', async ({
+		page,
+	}) => {
+		const body = await createObject(page, ledger, 'governance-body', {
+			name: 'E2E Suppression Board',
+			bodyType: 'supervisory-board',
+			domain: 'corporate',
+		})
+		const chair = await createObject(page, ledger, 'participant', {
+			displayName: 'E2E Chair',
+			role: 'chair',
+			nextcloudUserId: 'admin',
+			governanceBody: objId(body),
+		})
 		const template = await seedTemplate(page)
 
 		// Only 1 respondent, threshold default 3: closing must suppress breakdowns.
@@ -152,24 +216,51 @@ test.describe('board self-evaluation flow', () => {
 
 		await openEvaluationsTab(page, objId(body))
 		await page.getByTestId('evaluation-respond').click()
-		await page.waitForSelector('[data-testid="evaluation-respond-modal"]', { timeout: 10_000 })
-		await page.getByTestId('evaluation-respond-likert-q-strategy-likert-4').click()
+		await page.waitForSelector('[data-testid="evaluation-respond-modal"]', {
+			timeout: 10_000,
+		})
+		await page
+			.getByTestId('evaluation-respond-likert-q-strategy-likert-4')
+			.click()
 		await page.getByTestId('evaluation-respond-likert-q-chair-likert-2').click()
 		await page.getByTestId('evaluation-respond-submit').click()
-		await expect(page.getByTestId(`evaluation-card-${objId(evaluation)}`)).toContainText('1 of 3 responded', { timeout: 15_000 })
+		await expect(
+			page.getByTestId(`evaluation-card-${objId(evaluation)}`),
+		).toContainText('1 of 3 responded', { timeout: 15_000 })
 
 		// Chair closes the cycle -> scoring runs (Scores are computed on close).
 		await page.getByTestId('evaluation-close').click()
-		await expect(page.getByTestId(`evaluation-results-${objId(evaluation)}`)).toBeVisible({ timeout: 15_000 })
+		await expect(
+			page.getByTestId(`evaluation-results-${objId(evaluation)}`),
+		).toBeVisible({ timeout: 15_000 })
 		// Small-body breakdown is suppressed: only the aggregate note shows.
 		await expect(page.getByTestId('evaluation-suppressed-note')).toBeVisible()
 	})
 
-	test('results render on the GovernanceBody results tab; publishing exposes only the aggregate', async ({ page }) => {
-		const body = await createObject(page, ledger, 'governance-body', { name: 'E2E Publish Board', bodyType: 'supervisory-board', domain: 'corporate' })
-		const chair = await createObject(page, ledger, 'participant', { displayName: 'E2E Chair', role: 'chair', nextcloudUserId: 'admin', governanceBody: objId(body) })
-		const memberTwo = await createObject(page, ledger, 'participant', { displayName: 'E2E Member Two', role: 'member', governanceBody: objId(body) })
-		const memberThree = await createObject(page, ledger, 'participant', { displayName: 'E2E Member Three', role: 'member', governanceBody: objId(body) })
+	test('results render on the GovernanceBody results tab; publishing exposes only the aggregate', async ({
+		page,
+	}) => {
+		const body = await createObject(page, ledger, 'governance-body', {
+			name: 'E2E Publish Board',
+			bodyType: 'supervisory-board',
+			domain: 'corporate',
+		})
+		const chair = await createObject(page, ledger, 'participant', {
+			displayName: 'E2E Chair',
+			role: 'chair',
+			nextcloudUserId: 'admin',
+			governanceBody: objId(body),
+		})
+		const memberTwo = await createObject(page, ledger, 'participant', {
+			displayName: 'E2E Member Two',
+			role: 'member',
+			governanceBody: objId(body),
+		})
+		const memberThree = await createObject(page, ledger, 'participant', {
+			displayName: 'E2E Member Three',
+			role: 'member',
+			governanceBody: objId(body),
+		})
 		const template = await seedTemplate(page)
 
 		// Pre-closed with a materialised (above-threshold) scoreSummary so the
@@ -189,14 +280,30 @@ test.describe('board self-evaluation flow', () => {
 			invitedMemberCount: 3,
 			respondedCount: 3,
 			minRespondentThreshold: 3,
-			invitedParticipantIds: [objId(chair), objId(memberTwo), objId(memberThree)],
-			respondedParticipantIds: [objId(chair), objId(memberTwo), objId(memberThree)],
+			invitedParticipantIds: [
+				objId(chair),
+				objId(memberTwo),
+				objId(memberThree),
+			],
+			respondedParticipantIds: [
+				objId(chair),
+				objId(memberTwo),
+				objId(memberThree),
+			],
 			chairUserId: 'admin',
 			scoreSummary: JSON.stringify({
-				overallScore: 4.0, respondentCount: 3, invitedMemberCount: 3, minRespondentThreshold: 3,
-				thresholdMet: true, suppressed: false,
-				dimensionScores: { 'strategy-and-oversight': 4.0, 'chair-effectiveness': 4.0 },
-				themes: {}, computedAt: new Date().toISOString(),
+				overallScore: 4.0,
+				respondentCount: 3,
+				invitedMemberCount: 3,
+				minRespondentThreshold: 3,
+				thresholdMet: true,
+				suppressed: false,
+				dimensionScores: {
+					'strategy-and-oversight': 4.0,
+					'chair-effectiveness': 4.0,
+				},
+				themes: {},
+				computedAt: new Date().toISOString(),
 			}),
 			governanceBody: objId(body),
 			template: objId(template),
@@ -206,21 +313,37 @@ test.describe('board self-evaluation flow', () => {
 		// Results render via the Analytics leaf (this app's established
 		// client-side CSS-bar rendering convention for leaf-attributed tabs,
 		// mirroring GovernanceBodyEfficiencyTab).
-		await expect(page.getByTestId(`evaluation-results-${objId(evaluation)}`)).toBeVisible({ timeout: 15_000 })
-		await expect(page.getByTestId(`evaluation-results-${objId(evaluation)}`)).toContainText('4')
+		await expect(
+			page.getByTestId(`evaluation-results-${objId(evaluation)}`),
+		).toBeVisible({ timeout: 15_000 })
+		await expect(
+			page.getByTestId(`evaluation-results-${objId(evaluation)}`),
+		).toContainText('4')
 
 		// Publish: only the aggregate summary enters the public window.
 		await page.getByTestId('evaluation-publish').click()
-		await expect(page.getByTestId(`evaluation-card-${objId(evaluation)}`)).toContainText(/published/i, { timeout: 15_000 })
+		await expect(
+			page.getByTestId(`evaluation-card-${objId(evaluation)}`),
+		).toContainText(/published/i, { timeout: 15_000 })
 
-		const published = await getObject(page, 'board-evaluation', objId(evaluation))
+		const published = await getObject(
+			page,
+			'board-evaluation',
+			objId(evaluation),
+		)
 		expect(published?.publicationDate).toBeTruthy()
 		// No raw EvaluationResponse ever appears on the published object.
 		expect(JSON.stringify(published)).not.toContain('freeText')
 	})
 
-	test('lifecycle gating is OpenRegister RBAC, not app-local: a non-chair/secretary is denied', async ({ page }) => {
-		const body = await createObject(page, ledger, 'governance-body', { name: 'E2E RBAC Board', bodyType: 'supervisory-board', domain: 'corporate' })
+	test('lifecycle gating is OpenRegister RBAC, not app-local: a non-chair/secretary is denied', async ({
+		page,
+	}) => {
+		const body = await createObject(page, ledger, 'governance-body', {
+			name: 'E2E RBAC Board',
+			bodyType: 'supervisory-board',
+			domain: 'corporate',
+		})
 		const template = await seedTemplate(page)
 
 		// chairUserId deliberately set to someone other than the logged-in admin
@@ -243,6 +366,8 @@ test.describe('board self-evaluation flow', () => {
 		await openEvaluationsTab(page, objId(body))
 		await page.getByTestId('evaluation-open').click()
 		// The write is denied server-side; the cycle stays in `draft`.
-		await expect(page.getByTestId(`evaluation-card-${objId(evaluation)}`)).toContainText('draft', { timeout: 15_000 })
+		await expect(
+			page.getByTestId(`evaluation-card-${objId(evaluation)}`),
+		).toContainText('draft', { timeout: 15_000 })
 	})
 })
