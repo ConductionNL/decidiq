@@ -49,18 +49,22 @@ function ensureBundleBuilt(): void {
 		return
 	}
 	// eslint-disable-next-line no-console
-	console.log(`[playwright globalSetup] bundle missing at ${BUNDLE_PATH}; running 'npm run build' once…`)
+	console.log(
+		`[playwright globalSetup] bundle missing at ${BUNDLE_PATH}; running 'npm run build' once…`,
+	)
 	execSync('npm run build', { cwd: APP_ROOT, stdio: 'inherit' })
 }
 
 async function ensureNextcloudReachable(baseURL: string): Promise<void> {
 	const ctx = await request.newContext()
 	try {
-		const res = await ctx.get(`${baseURL}/status.php`, { failOnStatusCode: false })
+		const res = await ctx.get(`${baseURL}/status.php`, {
+			failOnStatusCode: false,
+		})
 		if (!res.ok()) {
 			throw new Error(
-				`Nextcloud status.php returned ${res.status()} at ${baseURL}. ` +
-				`Make sure the docker container is running and reachable.`,
+				`Nextcloud status.php returned ${res.status()} at ${baseURL}. `
+					+ `Make sure the docker container is running and reachable.`,
 			)
 		}
 		const body = await res.json().catch(() => ({}))
@@ -80,8 +84,8 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 	// declares none. The old chain ended in a bare `?? 'http://localhost:8080'`,
 	// which silently pointed a login + storageState write at the SHARED dev
 	// container whenever the env was unset. See tests/e2e/base-url.ts.
-	const baseURL = (config.projects[0]?.use?.baseURL as string | undefined)
-		?? BASE_URL
+	const baseURL =
+		(config.projects[0]?.use?.baseURL as string | undefined) ?? BASE_URL
 	const username = process.env.NC_ADMIN_USER ?? 'admin'
 	const password = process.env.NC_ADMIN_PASS ?? 'admin'
 
@@ -106,8 +110,8 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 	const currentUrl = page.url()
 	if (/\/login(\?|$|\/)/.test(currentUrl)) {
 		throw new Error(
-			`Login appears to have failed — still on ${currentUrl}. ` +
-			`Check NC_ADMIN_USER / NC_ADMIN_PASS (defaults admin/admin).`,
+			`Login appears to have failed — still on ${currentUrl}. `
+				+ `Check NC_ADMIN_USER / NC_ADMIN_PASS (defaults admin/admin).`,
 		)
 	}
 

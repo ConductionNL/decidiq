@@ -20,20 +20,31 @@
 		@closing="$emit('close')">
 		<template #default>
 			<p class="evaluation-respond__intro">
-				{{ t('decidesk', 'Your response is anonymous. It cannot be traced back to you, even by an administrator.') }}
+				{{
+					t(
+						'decidesk',
+						'Your response is anonymous. It cannot be traced back to you, even by an administrator.',
+					)
+				}}
 			</p>
 
-			<div v-for="question in questions" :key="question.id" class="evaluation-respond__question">
+			<div
+				v-for="question in questions"
+				:key="question.id"
+				class="evaluation-respond__question">
 				<p class="evaluation-respond__prompt">{{ question.prompt }}</p>
 
-				<div v-if="question.type === 'likert'"
+				<div
+					v-if="question.type === 'likert'"
 					class="evaluation-respond__likert"
 					role="radiogroup"
 					:aria-label="question.prompt">
 					<NcButton
 						v-for="value in likertRange(question)"
 						:key="value"
-						:variant="answers[question.id] === value ? 'primary' : 'secondary'"
+						:variant="
+							answers[question.id] === value ? 'primary' : 'secondary'
+						"
 						:data-testid="`evaluation-respond-likert-${question.id}-${value}`"
 						@click="setLikert(question.id, value)">
 						{{ value }}
@@ -120,12 +131,26 @@ export default {
 		},
 		/** Build the answers[] payload and emit confirm — no identity anywhere in it. */
 		submit() {
-			const answers = this.questions.map((question) => {
-				if (question.type === 'likert') {
-					return { questionId: question.id, dimension: question.dimension, likertValue: this.answers[question.id] }
-				}
-				return { questionId: question.id, dimension: question.dimension, freeText: this.freeTexts[question.id] || '' }
-			}).filter((answer) => answer.likertValue !== undefined || (answer.freeText && answer.freeText.trim() !== ''))
+			const answers = this.questions
+				.map((question) => {
+					if (question.type === 'likert') {
+						return {
+							questionId: question.id,
+							dimension: question.dimension,
+							likertValue: this.answers[question.id],
+						}
+					}
+					return {
+						questionId: question.id,
+						dimension: question.dimension,
+						freeText: this.freeTexts[question.id] || '',
+					}
+				})
+				.filter(
+					(answer) =>
+						answer.likertValue !== undefined
+						|| (answer.freeText && answer.freeText.trim() !== ''),
+				)
 
 			this.$emit('confirm', answers)
 		},

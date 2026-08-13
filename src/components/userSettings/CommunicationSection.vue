@@ -13,7 +13,12 @@
 	<div class="user-settings-section" data-testid="communication-section">
 		<h3>{{ t('decidesk', 'Communication preferences') }}</h3>
 		<p class="user-settings-section__hint">
-			{{ t('decidesk', 'Where Decidesk sends governance communications such as convocations, minutes and reminders.') }}
+			{{
+				t(
+					'decidesk',
+					'Where Decidesk sends governance communications such as convocations, minutes and reminders.',
+				)
+			}}
 		</p>
 
 		<div class="user-settings-section__field">
@@ -24,7 +29,9 @@
 				type="email"
 				data-testid="communication-email" />
 			<p class="user-settings-section__hint">
-				{{ t('decidesk', 'Leave empty to use your Nextcloud account email.') }}
+				{{
+					t('decidesk', 'Leave empty to use your Nextcloud account email.')
+				}}
 			</p>
 		</div>
 
@@ -56,7 +63,11 @@
 				:disabled="saving || !!validationError"
 				data-testid="communication-save"
 				@click="save">
-				{{ saving ? t('decidesk', 'Saving …') : t('decidesk', 'Save communication preferences') }}
+				{{
+					saving
+						? t('decidesk', 'Saving …')
+						: t('decidesk', 'Save communication preferences')
+				}}
 			</NcButton>
 		</div>
 		<NcNoteCard v-if="error" type="error">
@@ -114,12 +125,18 @@ export default {
 			}
 			return [
 				{ id: '', label: this.t('decidesk', 'Nextcloud locale (default)') },
-				...COMMUNICATION_LANGUAGES.map((id) => ({ id, label: names[id] || id })),
+				...COMMUNICATION_LANGUAGES.map((id) => ({
+					id,
+					label: names[id] || id,
+				})),
 			]
 		},
 		/** @spec openspec/specs/user-settings/spec.md */
 		accountEmailPlaceholder() {
-			return this.preference?.accountEmail || this.t('decidesk', 'Your Nextcloud account email')
+			return (
+				this.preference?.accountEmail
+				|| this.t('decidesk', 'Your Nextcloud account email')
+			)
 		},
 		/** @spec openspec/specs/user-settings/spec.md */
 		validationError() {
@@ -148,7 +165,10 @@ export default {
 			}
 			this.governanceEmail = pref.governanceEmail || ''
 			this.urgentPhone = pref.urgentPhone || ''
-			this.language = this.languageOptions.find((o) => o.id === (pref.communicationLanguage || '')) || this.languageOptions[0]
+			this.language =
+				this.languageOptions.find(
+					(o) => o.id === (pref.communicationLanguage || ''),
+				) || this.languageOptions[0]
 		},
 		/**
 		 * Persist the communication preferences via the per-user endpoint.

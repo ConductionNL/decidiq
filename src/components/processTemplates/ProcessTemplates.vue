@@ -12,7 +12,12 @@
 <template>
 	<CnSettingsSection
 		:name="t('decidesk', 'Process templates')"
-		:description="t('decidesk', 'Define the state machine, voting rule and quorum policy a governance body follows. Built-in templates are read-only but can be duplicated.')">
+		:description="
+			t(
+				'decidesk',
+				'Define the state machine, voting rule and quorum policy a governance body follows. Built-in templates are read-only but can be duplicated.',
+			)
+		">
 		<div data-testid="process-templates">
 			<NcButton
 				variant="primary"
@@ -27,14 +32,23 @@
 				{{ store.error }}
 			</p>
 
-			<ul v-if="!store.loading" class="template-list" data-testid="process-template-list">
-				<li v-for="tpl in store.templates"
+			<ul
+				v-if="!store.loading"
+				class="template-list"
+				data-testid="process-template-list">
+				<li
+					v-for="tpl in store.templates"
 					:key="tpl.id || tpl.slug"
 					class="template-row"
 					data-testid="process-template-item">
 					<div class="template-meta">
 						<strong>{{ tpl.name }}</strong>
-						<span v-if="tpl.builtIn" class="builtin-badge" data-testid="process-template-builtin">{{ t('decidesk', 'Built-in') }}</span>
+						<span
+							v-if="tpl.builtIn"
+							class="builtin-badge"
+							data-testid="process-template-builtin"
+							>{{ t('decidesk', 'Built-in') }}</span
+						>
 						<span class="context">{{ tpl.context }}</span>
 					</div>
 					<div class="template-actions">
@@ -80,7 +94,12 @@ import { useProcessTemplatesStore } from '../../store/modules/processTemplates.j
 
 export default {
 	name: 'ProcessTemplates',
-	components: { NcButton, NcLoadingIcon, CnSettingsSection, ProcessTemplateEditModal },
+	components: {
+		NcButton,
+		NcLoadingIcon,
+		CnSettingsSection,
+		ProcessTemplateEditModal,
+	},
 	data() {
 		return {
 			store: useProcessTemplatesStore(),
@@ -111,7 +130,10 @@ export default {
 		 * @spec openspec/specs/process-configuration/spec.md
 		 */
 		async duplicate(tpl) {
-			await this.store.duplicateTemplate(tpl.id || tpl.slug, (tpl.name || 'Template') + ' (copy)')
+			await this.store.duplicateTemplate(
+				tpl.id || tpl.slug,
+				(tpl.name || 'Template') + ' (copy)',
+			)
 		},
 		/**
 		 * @param tpl

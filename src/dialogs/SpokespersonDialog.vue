@@ -16,8 +16,12 @@
 		data-testid="spokesperson-dialog"
 		@closing="$emit('close')">
 		<template #default>
-			<ul v-if="participants.length > 0" class="spokesperson-dialog__list" role="list">
-				<li v-for="p in participants"
+			<ul
+				v-if="participants.length > 0"
+				class="spokesperson-dialog__list"
+				role="list">
+				<li
+					v-for="p in participants"
 					:key="p.id"
 					class="spokesperson-dialog__item"
 					role="listitem">

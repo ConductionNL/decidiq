@@ -5,7 +5,11 @@
 // templates/settings/personal.php at /settings/user/decidesk.
 
 import { createApp } from 'vue'
-import { translate as t, translatePlural as n, loadTranslations } from '@nextcloud/l10n'
+import {
+	translate as t,
+	translatePlural as n,
+	loadTranslations,
+} from '@nextcloud/l10n'
 import PersonalRoot from './views/settings/PersonalRoot.vue'
 
 loadTranslations('decidesk', () => {

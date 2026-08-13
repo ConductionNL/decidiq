@@ -57,7 +57,10 @@ export const PROPOSAL_LIFECYCLE = ['draft', 'proposed', 'deliberating', 'voting'
  * @return {string} The resolved `/apps/openregister/api/objects/decidesk/decision` URL.
  */
 function decisionsUrl() {
-	return generateUrl('/apps/openregister/api/objects/{register}/{schema}', { register: 'decidesk', schema: 'decision' })
+	return generateUrl('/apps/openregister/api/objects/{register}/{schema}', {
+		register: 'decidesk',
+		schema: 'decision',
+	})
 }
 
 /**
@@ -78,7 +81,9 @@ function decisionsUrl() {
  */
 export async function listHostDecisions(subjectId, limit = 100) {
 	if (!subjectId) return []
-	const res = await axios.get(decisionsUrl(), { params: { subjectId, _limit: limit } })
+	const res = await axios.get(decisionsUrl(), {
+		params: { subjectId, _limit: limit },
+	})
 	const data = res && res.data
 	if (Array.isArray(data)) return data
 	if (data && Array.isArray(data.results)) return data.results
@@ -125,7 +130,9 @@ export function decisionBucket(decision) {
  * @return {boolean} True when lifecycle reads as a draft proposal.
  */
 export function isProposal(decision) {
-	const lifecycle = String(decision?.lifecycle ?? decision?.data?.lifecycle ?? 'draft')
+	const lifecycle = String(
+		decision?.lifecycle ?? decision?.data?.lifecycle ?? 'draft',
+	)
 	return PROPOSAL_LIFECYCLE.includes(lifecycle)
 }
 
@@ -137,5 +144,7 @@ export function isProposal(decision) {
  * @return {string} The id, or '' when absent.
  */
 export function objId(obj) {
-	return String(obj?.id ?? obj?.uuid ?? obj?.['@self']?.id ?? obj?.['@self']?.uuid ?? '')
+	return String(
+		obj?.id ?? obj?.uuid ?? obj?.['@self']?.id ?? obj?.['@self']?.uuid ?? '',
+	)
 }

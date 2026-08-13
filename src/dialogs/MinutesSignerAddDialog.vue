@@ -16,7 +16,11 @@
 		data-testid="minutes-signer-add-dialog"
 		@closing="$emit('close')">
 		<template #default>
-			<p>{{ t('decidesk', 'Pick a participant to request a signature from.') }}</p>
+			<p>
+				{{
+					t('decidesk', 'Pick a participant to request a signature from.')
+				}}
+			</p>
 			<div v-if="loading" class="decidesk-tab__loading">
 				{{ t('decidesk', 'Loading participants…') }}
 			</div>

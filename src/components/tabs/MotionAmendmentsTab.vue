@@ -11,11 +11,15 @@
  standalone /amendments/:id detail page.
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--amendments" data-testid="motion-amendments-tab">
+	<div
+		class="decidesk-tab decidesk-tab--amendments"
+		data-testid="motion-amendments-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Amendments') }}
-				<span v-if="!loading" class="decidesk-tab__count">({{ rows.length }})</span>
+				<span v-if="!loading" class="decidesk-tab__count"
+					>({{ rows.length }})</span
+				>
 			</h3>
 			<NcButton
 				variant="primary"
@@ -45,7 +49,10 @@
 			:loading-text="t('decidesk', 'Loading amendments…')"
 			@row-click="openEdit">
 			<template #column-lifecycle="{ value }">
-				<CnStatusBadge v-if="value" :label="value" :color-map="lifecycleColors" />
+				<CnStatusBadge
+					v-if="value"
+					:label="value"
+					:color-map="lifecycleColors" />
 			</template>
 			<template #row-actions="{ row }">
 				<CnRowActions :row="row" :actions="rowActions" />
@@ -57,7 +64,11 @@
 			ref="formDialog"
 			:schema="amendmentSchema"
 			:item="editTarget"
-			:dialog-title="editTarget ? t('decidesk', 'Edit amendment') : t('decidesk', 'Submit amendment')"
+			:dialog-title="
+				editTarget
+					? t('decidesk', 'Edit amendment')
+					: t('decidesk', 'Submit amendment')
+			"
 			:exclude-fields="excludedFields"
 			@confirm="onConfirm"
 			@close="formOpen = false" />
@@ -74,7 +85,14 @@
 </template>
 
 <script>
-import { CnDataTable, CnDeleteDialog, CnFormDialog, CnNoteCard, CnRowActions, CnStatusBadge } from '@conduction/nextcloud-vue'
+import {
+	CnDataTable,
+	CnDeleteDialog,
+	CnFormDialog,
+	CnNoteCard,
+	CnRowActions,
+	CnStatusBadge,
+} from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
@@ -84,7 +102,16 @@ import { DECISION_LIFECYCLE_COLORS } from '../../constants/decisionLifecycle.js'
 
 export default {
 	name: 'MotionAmendmentsTab',
-	components: { CnDataTable, CnDeleteDialog, CnFormDialog, CnNoteCard, CnRowActions, CnStatusBadge, NcButton, Plus },
+	components: {
+		CnDataTable,
+		CnDeleteDialog,
+		CnFormDialog,
+		CnNoteCard,
+		CnRowActions,
+		CnStatusBadge,
+		NcButton,
+		Plus,
+	},
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
@@ -115,8 +142,19 @@ export default {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		rowActions() {
 			return [
-				{ label: this.t('decidesk', 'Edit'), icon: Pencil, handler: (row) => this.openEdit(row) },
-				{ label: this.t('decidesk', 'Delete'), icon: TrashCanOutline, destructive: true, handler: (row) => { this.deleteTarget = { ...row } } },
+				{
+					label: this.t('decidesk', 'Edit'),
+					icon: Pencil,
+					handler: (row) => this.openEdit(row),
+				},
+				{
+					label: this.t('decidesk', 'Delete'),
+					icon: TrashCanOutline,
+					destructive: true,
+					handler: (row) => {
+						this.deleteTarget = { ...row }
+					},
+				},
 			]
 		},
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
@@ -128,7 +166,9 @@ export default {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/relation-tab-ui/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 	methods: {
@@ -139,7 +179,8 @@ export default {
 			this.error = ''
 			try {
 				const store = ensureRelationType('amendment')
-				if (!this.amendmentSchema) this.amendmentSchema = await store.fetchSchema('amendment')
+				if (!this.amendmentSchema)
+					this.amendmentSchema = await store.fetchSchema('amendment')
 				const items = await store.fetchCollection('amendment', {
 					decisionType: 'amendment',
 					amends: this.objectId,
@@ -147,7 +188,8 @@ export default {
 				})
 				this.rows = items || []
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load amendments.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load amendments.')
 			} finally {
 				this.loading = false
 			}
@@ -155,14 +197,16 @@ export default {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async openCreate() {
 			const store = ensureRelationType('amendment')
-			if (!this.amendmentSchema) this.amendmentSchema = await store.fetchSchema('amendment')
+			if (!this.amendmentSchema)
+				this.amendmentSchema = await store.fetchSchema('amendment')
 			this.editTarget = null
 			this.formOpen = true
 		},
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async openEdit(row) {
 			const store = ensureRelationType('amendment')
-			if (!this.amendmentSchema) this.amendmentSchema = await store.fetchSchema('amendment')
+			if (!this.amendmentSchema)
+				this.amendmentSchema = await store.fetchSchema('amendment')
 			this.editTarget = { ...row }
 			this.formOpen = true
 		},
@@ -170,11 +214,17 @@ export default {
 		async onConfirm(formData) {
 			const store = ensureRelationType('amendment')
 			try {
-				await store.saveObject('amendment', { ...formData, decisionType: 'amendment', amends: this.objectId })
+				await store.saveObject('amendment', {
+					...formData,
+					decisionType: 'amendment',
+					amends: this.objectId,
+				})
 				this.$refs.formDialog?.setResult({ success: true })
 				this.refresh()
 			} catch (e) {
-				this.$refs.formDialog?.setResult({ error: e?.message || this.t('decidesk', 'Save failed.') })
+				this.$refs.formDialog?.setResult({
+					error: e?.message || this.t('decidesk', 'Save failed.'),
+				})
 			}
 		},
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
@@ -185,7 +235,9 @@ export default {
 				this.$refs.deleteDialog?.setResult({ success: true })
 				this.refresh()
 			} catch (e) {
-				this.$refs.deleteDialog?.setResult({ error: e?.message || this.t('decidesk', 'Delete failed.') })
+				this.$refs.deleteDialog?.setResult({
+					error: e?.message || this.t('decidesk', 'Delete failed.'),
+				})
 			}
 		},
 	},

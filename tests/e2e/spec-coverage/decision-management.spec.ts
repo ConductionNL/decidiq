@@ -44,7 +44,9 @@ test('Add Decision dialog opens', async ({ page }) => {
 	await page.getByTestId('cn-cta-primary').click()
 	const dialog = page.getByRole('dialog')
 	await expect(dialog).toBeVisible({ timeout: 8_000 })
-	await expect(dialog.getByRole('heading', { name: 'Create Decision' })).toBeVisible()
+	await expect(
+		dialog.getByRole('heading', { name: 'Create Decision' }),
+	).toBeVisible()
 
 	// Assert the real decision form fields render (not just that a dialog opened).
 	//
@@ -82,7 +84,9 @@ test('Add Decision dialog opens', async ({ page }) => {
 	// decisionDate is a datetime-picker that renders two labels for the same
 	// field (the form `<label>` plus the native picker's own), so it needs
 	// `.first()` now that the asterisk no longer disambiguates them.
-	await expect(dialog.getByText('Decision date', { exact: true }).first()).toBeVisible()
+	await expect(
+		dialog.getByText('Decision date', { exact: true }).first(),
+	).toBeVisible()
 	await expect(dialog.getByText('Outcome', { exact: true }).first()).toBeVisible()
 
 	// Create button is present
@@ -118,7 +122,9 @@ test('decisions list page title is correct', async ({ page }) => {
 
 // @e2e openspec/specs/decision-management/spec.md#state-machine-visualization-highlights-the-current-state
 // @e2e openspec/specs/decision-management/spec.md#available-transitions-are-exposed-for-the-current-state
-test('lifecycle tab renders the 7-state timeline with current state and actions', async ({ page }) => {
+test('lifecycle tab renders the 7-state timeline with current state and actions', async ({
+	page,
+}) => {
 	const resp = await page.request.get(
 		`${BASE}/index.php/apps/openregister/api/objects/decidesk/decision?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
@@ -140,13 +146,25 @@ test('lifecycle tab renders the 7-state timeline with current state and actions'
 	// `role=tab` control to click and there must not be one — a tab role without
 	// a tablist/tabpanel is a WCAG 4.1.2 regression, not a fix. So assert the
 	// widget the user actually lands on, then keep every check below unchanged.
-	await expect(page.getByRole('heading', { name: 'Lifecycle', exact: true }).first()).toBeVisible()
-	await page.waitForSelector('[data-testid="decision-lifecycle-tab"]', { timeout: 15_000 })
+	await expect(
+		page.getByRole('heading', { name: 'Lifecycle', exact: true }).first(),
+	).toBeVisible()
+	await page.waitForSelector('[data-testid="decision-lifecycle-tab"]', {
+		timeout: 15_000,
+	})
 
 	// All seven states render in machine order.
 	const timeline = page.getByTestId('lifecycle-timeline')
 	await expect(timeline).toBeVisible()
-	for (const state of ['draft', 'proposed', 'deliberating', 'voting', 'decided', 'enacted', 'archived']) {
+	for (const state of [
+		'draft',
+		'proposed',
+		'deliberating',
+		'voting',
+		'decided',
+		'enacted',
+		'archived',
+	]) {
 		await expect(page.getByTestId(`lifecycle-step-${state}`)).toBeVisible()
 	}
 
@@ -156,8 +174,10 @@ test('lifecycle tab renders the 7-state timeline with current state and actions'
 	// Allowed next transitions are presented as actions (or the empty notice).
 	const buttons = page.locator('[data-testid^="lifecycle-action-"]')
 	const noneNotice = page.getByText('No transitions available from this state.')
-	expect((await buttons.count()) > 0 || (await noneNotice.count()) > 0,
-		'Lifecycle tab must show transition actions or the explicit empty state').toBe(true)
+	expect(
+		(await buttons.count()) > 0 || (await noneNotice.count()) > 0,
+		'Lifecycle tab must show transition actions or the explicit empty state',
+	).toBe(true)
 })
 
 // @e2e openspec/specs/decision-management/spec.md#view-decision-detail-with-voting-results
@@ -179,8 +199,12 @@ test('voting results tab renders on decision detail', async ({ page }) => {
 
 	// Voting results is a BODY WIDGET (ADR-062), not a sidebar tab — see the
 	// note on the lifecycle test above. Assert it is on the page as rendered.
-	await expect(page.getByRole('heading', { name: 'Voting results', exact: true }).first()).toBeVisible()
-	await page.waitForSelector('[data-testid="decision-voting-tab"]', { timeout: 15_000 })
+	await expect(
+		page.getByRole('heading', { name: 'Voting results', exact: true }).first(),
+	).toBeVisible()
+	await page.waitForSelector('[data-testid="decision-voting-tab"]', {
+		timeout: 15_000,
+	})
 
 	// Tally rounds, the votes table, or the explicit no-motion notice render.
 	const tab = page.getByTestId('decision-voting-tab')
@@ -188,8 +212,12 @@ test('voting results tab renders on decision detail', async ({ page }) => {
 	const rounds = page.getByTestId('decision-voting-round')
 	const noMotion = page.getByTestId('decision-voting-none')
 	const table = tab.locator('table')
-	expect((await rounds.count()) > 0 || (await noMotion.count()) > 0 || (await table.count()) > 0,
-		'Voting tab must render rounds, the votes table, or the no-motion notice').toBe(true)
+	expect(
+		(await rounds.count()) > 0
+			|| (await noMotion.count()) > 0
+			|| (await table.count()) > 0,
+		'Voting tab must render rounds, the votes table, or the no-motion notice',
+	).toBe(true)
 })
 
 // @e2e openspec/specs/decision-management/spec.md#view-the-complete-history-of-a-decision

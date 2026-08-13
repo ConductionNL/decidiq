@@ -27,13 +27,15 @@ describe('missingStatutoryItems', () => {
 	it('returns nothing for non-ALV meeting types', () => {
 		expect(missingStatutoryItems('regular', [])).toEqual([])
 		expect(missingStatutoryItems('', [])).toEqual([])
-		expect(missingStatutoryItems('committee', [{ title: 'Opening' }])).toEqual([])
+		expect(missingStatutoryItems('committee', [{ title: 'Opening' }])).toEqual(
+			[],
+		)
 	})
 
 	it('reports all eight statutory items for an empty ALV agenda', () => {
 		const missing = missingStatutoryItems('general_assembly', [])
 		expect(missing).toHaveLength(STATUTORY_ALV_ITEMS.length)
-		expect(missing.map(m => m.id)).toContain('kascommissie-report')
+		expect(missing.map((m) => m.id)).toContain('kascommissie-report')
 	})
 
 	it('matches case-insensitively on en + nl synonyms', () => {
@@ -56,7 +58,7 @@ describe('missingStatutoryItems', () => {
 			{ title: 'Annual report 2025' },
 			{ title: 'Closing' },
 		]
-		const ids = missingStatutoryItems('general_assembly', items).map(m => m.id)
+		const ids = missingStatutoryItems('general_assembly', items).map((m) => m.id)
 		expect(ids).toContain('financial-statements')
 		expect(ids).toContain('kascommissie-report')
 		expect(ids).toContain('board-elections')
@@ -77,27 +79,34 @@ describe('buildAgendaTree / flattenTree', () => {
 
 	it('nests children under their parent, both levels ordered', () => {
 		const tree = buildAgendaTree(items)
-		expect(tree.map(n => n.item.id)).toEqual(['a', 'b', 'c'])
-		expect(tree[1].children.map(c => c.id)).toEqual(['b1', 'b2'])
+		expect(tree.map((n) => n.item.id)).toEqual(['a', 'b', 'c'])
+		expect(tree[1].children.map((c) => c.id)).toEqual(['b1', 'b2'])
 		expect(tree[0].children).toEqual([])
 	})
 
 	it('degrades unknown parents to top-level (no orphan loss)', () => {
 		const tree = buildAgendaTree([
-			{ id: 'x', title: 'Orphan', orderNumber: 1, parentItem: 'does-not-exist' },
+			{
+				id: 'x',
+				title: 'Orphan',
+				orderNumber: 1,
+				parentItem: 'does-not-exist',
+			},
 			{ id: 'y', title: 'Top', orderNumber: 2 },
 		])
-		expect(tree.map(n => n.item.id)).toEqual(['x', 'y'])
+		expect(tree.map((n) => n.item.id)).toEqual(['x', 'y'])
 	})
 
 	it('ignores self-referencing parents', () => {
-		const tree = buildAgendaTree([{ id: 's', title: 'Self', orderNumber: 1, parentItem: 's' }])
-		expect(tree.map(n => n.item.id)).toEqual(['s'])
+		const tree = buildAgendaTree([
+			{ id: 's', title: 'Self', orderNumber: 1, parentItem: 's' },
+		])
+		expect(tree.map((n) => n.item.id)).toEqual(['s'])
 	})
 
 	it('flattens back to parent→children order', () => {
 		const flat = flattenTree(buildAgendaTree(items))
-		expect(flat.map(i => i.id)).toEqual(['a', 'b', 'b1', 'b2', 'c'])
+		expect(flat.map((i) => i.id)).toEqual(['a', 'b', 'b1', 'b2', 'c'])
 	})
 
 	it('keeps children grouped under their parent after a top-level move', () => {
@@ -105,7 +114,7 @@ describe('buildAgendaTree / flattenTree', () => {
 		// Move "Closing" above "Committee Reports".
 		;[tree[1], tree[2]] = [tree[2], tree[1]]
 		const flat = flattenTree(tree)
-		expect(flat.map(i => i.id)).toEqual(['a', 'c', 'b', 'b1', 'b2'])
+		expect(flat.map((i) => i.id)).toEqual(['a', 'c', 'b', 'b1', 'b2'])
 	})
 
 	it('handles empty and null input', () => {
@@ -135,7 +144,12 @@ describe('expandRecurrence (frontend mirror of MeetingSeriesService::expandPatte
 			until: '2026-06-30',
 			exceptions: ['2026-06-15'],
 		})
-		expect(result.dates).toEqual(['2026-06-01', '2026-06-08', '2026-06-22', '2026-06-29'])
+		expect(result.dates).toEqual([
+			'2026-06-01',
+			'2026-06-08',
+			'2026-06-22',
+			'2026-06-29',
+		])
 	})
 
 	it('skips months lacking the template day-of-month', () => {
@@ -164,14 +178,39 @@ describe('expandRecurrence (frontend mirror of MeetingSeriesService::expandPatte
 			interval: 7,
 			until: '2026-01-22',
 		})
-		expect(result.dates).toEqual(['2026-01-01', '2026-01-08', '2026-01-15', '2026-01-22'])
+		expect(result.dates).toEqual([
+			'2026-01-01',
+			'2026-01-08',
+			'2026-01-15',
+			'2026-01-22',
+		])
 	})
 
 	it('reports validation errors instead of throwing', () => {
-		expect(expandRecurrence('2026-01-01', { frequency: 'yearly', until: '2027-01-01' }).error).toBe('frequency')
-		expect(expandRecurrence('2026-01-01', { frequency: 'daily', interval: 0, until: '2027-01-01' }).error).toBe('interval')
-		expect(expandRecurrence('2026-01-01', { frequency: 'daily', interval: 1 }).error).toBe('until')
-		expect(expandRecurrence('not-a-date', { frequency: 'daily', interval: 1, until: '2027-01-01' }).error).toBe('date')
+		expect(
+			expandRecurrence('2026-01-01', {
+				frequency: 'yearly',
+				until: '2027-01-01',
+			}).error,
+		).toBe('frequency')
+		expect(
+			expandRecurrence('2026-01-01', {
+				frequency: 'daily',
+				interval: 0,
+				until: '2027-01-01',
+			}).error,
+		).toBe('interval')
+		expect(
+			expandRecurrence('2026-01-01', { frequency: 'daily', interval: 1 })
+				.error,
+		).toBe('until')
+		expect(
+			expandRecurrence('not-a-date', {
+				frequency: 'daily',
+				interval: 1,
+				until: '2027-01-01',
+			}).error,
+		).toBe('date')
 	})
 })
 
@@ -179,7 +218,10 @@ describe('getNoticeDeadlineInfo (frontend mirror of BoardMeetingService)', () =>
 	const now = new Date('2026-05-10T09:00:00Z')
 
 	it('computes the deadline from meetingDate minus noticePeriodDays', () => {
-		const info = getNoticeDeadlineInfo({ meetingDate: '2026-06-01', noticePeriodDays: 15 }, now)
+		const info = getNoticeDeadlineInfo(
+			{ meetingDate: '2026-06-01', noticePeriodDays: 15 },
+			now,
+		)
 		expect(info.deadline).toBe('2026-05-17')
 		expect(info.daysUntilDeadline).toBe(7)
 		expect(info.level).toBe('ok')
@@ -192,19 +234,27 @@ describe('getNoticeDeadlineInfo (frontend mirror of BoardMeetingService)', () =>
 	})
 
 	it('warns within 3 days of the deadline', () => {
-		const info = getNoticeDeadlineInfo({ meetingDate: '2026-05-27', noticePeriodDays: 15 }, now)
+		const info = getNoticeDeadlineInfo(
+			{ meetingDate: '2026-05-27', noticePeriodDays: 15 },
+			now,
+		)
 		expect(info.daysUntilDeadline).toBe(2)
 		expect(info.level).toBe('warning')
 	})
 
 	it('flags an overdue deadline', () => {
-		const info = getNoticeDeadlineInfo({ meetingDate: '2026-05-20', noticePeriodDays: 15 }, now)
+		const info = getNoticeDeadlineInfo(
+			{ meetingDate: '2026-05-20', noticePeriodDays: 15 },
+			now,
+		)
 		expect(info.daysUntilDeadline).toBeLessThan(0)
 		expect(info.level).toBe('overdue')
 	})
 
 	it('returns unknown when the meeting date is missing or invalid', () => {
 		expect(getNoticeDeadlineInfo({}, now).level).toBe('unknown')
-		expect(getNoticeDeadlineInfo({ meetingDate: 'garbage' }, now).level).toBe('unknown')
+		expect(getNoticeDeadlineInfo({ meetingDate: 'garbage' }, now).level).toBe(
+			'unknown',
+		)
 	})
 })

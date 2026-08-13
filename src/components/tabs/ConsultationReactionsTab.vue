@@ -33,7 +33,9 @@
 				class="consultation-reactions__item"
 				data-testid="consultation-reactions-item">
 				<p class="consultation-reactions__body">{{ reaction.body }}</p>
-				<p class="consultation-reactions__meta">{{ reaction.submittedAt }}</p>
+				<p class="consultation-reactions__meta">
+					{{ reaction.submittedAt }}
+				</p>
 				<div class="consultation-reactions__actions">
 					<NcButton
 						variant="success"
@@ -73,7 +75,14 @@ import { approveReaction, rejectReaction } from '../../services/participationApi
 
 export default {
 	name: 'ConsultationReactionsTab',
-	components: { NcButton, NcEmptyContent, NcLoadingIcon, CheckIcon, ReactionApproveModal, ReactionRejectModal },
+	components: {
+		NcButton,
+		NcEmptyContent,
+		NcLoadingIcon,
+		CheckIcon,
+		ReactionApproveModal,
+		ReactionRejectModal,
+	},
 	props: {
 		/** Consultation id to scope the queue to. Empty = hub-wide (all pending reactions). */
 		objectId: { type: [String, Number], default: '' },
@@ -111,9 +120,18 @@ export default {
 					// property — so scope via the relation filter key.
 					filter['_relations.public-consultation'] = this.objectId
 				}
-				const result = await store.fetchCollection('consultation-reaction', filter)
-				const list = Array.isArray(result) ? result : ((result && result.results) ? result.results : [])
-				this.pending = list.filter((r) => (r.moderationStatus || 'pending') === 'pending')
+				const result = await store.fetchCollection(
+					'consultation-reaction',
+					filter,
+				)
+				const list = Array.isArray(result)
+					? result
+					: result && result.results
+						? result.results
+						: []
+				this.pending = list.filter(
+					(r) => (r.moderationStatus || 'pending') === 'pending',
+				)
 			} catch (e) {
 				showError(t('decidesk', 'Could not load the moderation queue'))
 				this.pending = []

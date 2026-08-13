@@ -21,7 +21,9 @@
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Members') }}
-				<span v-if="!loading" class="decidesk-tab__count">({{ rows.length }})</span>
+				<span v-if="!loading" class="decidesk-tab__count"
+					>({{ rows.length }})</span
+				>
 			</h3>
 			<div class="decidesk-tab__actions">
 				<NcActions :aria-label="t('decidesk', 'Import members')">
@@ -75,9 +77,7 @@
 			:empty-text="t('decidesk', 'No members linked to this body yet.')"
 			:loading-text="t('decidesk', 'Loading members…')">
 			<template #row-actions="{ row }">
-				<CnRowActions
-					:row="row"
-					:actions="rowActions" />
+				<CnRowActions :row="row" :actions="rowActions" />
 			</template>
 		</CnDataTable>
 
@@ -119,7 +119,12 @@
 </template>
 
 <script>
-import { CnDataTable, CnDeleteDialog, CnNoteCard, CnRowActions } from '@conduction/nextcloud-vue'
+import {
+	CnDataTable,
+	CnDeleteDialog,
+	CnNoteCard,
+	CnRowActions,
+} from '@conduction/nextcloud-vue'
 import { NcActionButton, NcActions, NcButton } from '@nextcloud/vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import LinkOff from 'vue-material-design-icons/LinkOff.vue'
@@ -185,13 +190,17 @@ export default {
 				{
 					label: this.t('decidesk', 'Change role'),
 					icon: AccountEdit,
-					handler: (row) => { this.roleTarget = { ...row } },
+					handler: (row) => {
+						this.roleTarget = { ...row }
+					},
 				},
 				{
 					label: this.t('decidesk', 'Remove from body'),
 					icon: LinkOff,
 					destructive: true,
-					handler: (row) => { this.removeTarget = { ...row } },
+					handler: (row) => {
+						this.removeTarget = { ...row }
+					},
 				},
 			]
 		},
@@ -200,7 +209,9 @@ export default {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/admin-settings/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 	methods: {
@@ -217,7 +228,8 @@ export default {
 				})
 				this.rows = items || []
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load members.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load members.')
 			} finally {
 				this.loading = false
 			}
@@ -227,11 +239,16 @@ export default {
 			const store = ensureRelationType('participant')
 			const target = this.removeTarget
 			try {
-				await store.saveObject('participant', { ...target, governanceBody: null })
+				await store.saveObject('participant', {
+					...target,
+					governanceBody: null,
+				})
 				this.$refs.removeDialog?.setResult({ success: true })
 				this.refresh()
 			} catch (e) {
-				this.$refs.removeDialog?.setResult({ error: e?.message || this.t('decidesk', 'Remove failed.') })
+				this.$refs.removeDialog?.setResult({
+					error: e?.message || this.t('decidesk', 'Remove failed.'),
+				})
 			}
 		},
 	},

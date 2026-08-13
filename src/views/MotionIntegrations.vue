@@ -18,14 +18,24 @@
 <template>
 	<CnDetailPage
 		:title="t('decidesk', 'Motion integrations')"
-		:description="t('decidesk', 'External integrations linked to this motion — open the sidebar to browse the Discussion (Talk), files, notes, tags, tasks and the audit trail.')"
+		:description="
+			t(
+				'decidesk',
+				'External integrations linked to this motion — open the sidebar to browse the Discussion (Talk), files, notes, tags, tasks and the audit trail.',
+			)
+		"
 		icon="PuzzleOutline"
 		object-type="motion"
 		:object-id="id"
 		:sidebar="sidebarConfig">
 		<div class="motion-integrations__body" data-testid="motion-integrations">
 			<p>
-				{{ t('decidesk', 'This page is backed by the pluggable integration registry. The Discussion tab is provided by the Talk integration leaf — messages posted there are linked to this motion object and visible to all participants.') }}
+				{{
+					t(
+						'decidesk',
+						'This page is backed by the pluggable integration registry. The Discussion tab is provided by the Talk integration leaf — messages posted there are linked to this motion object and visible to all participants.',
+					)
+				}}
 			</p>
 			<NcButton
 				variant="tertiary"

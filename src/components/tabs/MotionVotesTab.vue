@@ -16,7 +16,9 @@
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Votes') }}
-				<span v-if="!loading" class="decidesk-tab__count">({{ votes.length }})</span>
+				<span v-if="!loading" class="decidesk-tab__count"
+					>({{ votes.length }})</span
+				>
 			</h3>
 		</div>
 
@@ -30,18 +32,26 @@
 		<div v-if="rounds.length" class="decidesk-tab__rounds">
 			<div v-for="round in rounds" :key="round.id" class="decidesk-tab__round">
 				<header class="decidesk-tab__round-header">
-					<strong>{{ round.votingMethod || t('decidesk', 'Voting round') }}</strong>
+					<strong>{{
+						round.votingMethod || t('decidesk', 'Voting round')
+					}}</strong>
 					<CnStatusBadge
 						v-if="round.result"
 						:label="round.result"
 						:color-map="roundColors" />
 				</header>
 				<p v-if="round.votesFor != null" class="decidesk-tab__round-tally">
-					{{ t('decidesk', 'For: {for} — Against: {against} — Abstain: {abstain}', {
-						for: round.votesFor || 0,
-						against: round.votesAgainst || 0,
-						abstain: round.votesAbstain || 0,
-					}) }}
+					{{
+						t(
+							'decidesk',
+							'For: {for} — Against: {against} — Abstain: {abstain}',
+							{
+								for: round.votesFor || 0,
+								against: round.votesAgainst || 0,
+								abstain: round.votesAbstain || 0,
+							},
+						)
+					}}
 				</p>
 			</div>
 		</div>
@@ -104,7 +114,9 @@ export default {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/relation-tab-ui/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 	methods: {
@@ -138,7 +150,8 @@ export default {
 				this.votes = all
 				await this.hydrateCasters(all)
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load votes.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load votes.')
 			} finally {
 				this.loading = false
 			}
@@ -168,7 +181,8 @@ export default {
 					if (!p) continue
 					const key = String(p.id ?? p.uuid ?? '')
 					if (!key) continue
-					map[key] = p.displayName || p.name || p.fullName || p.email || key
+					map[key] =
+						p.displayName || p.name || p.fullName || p.email || key
 				}
 				this.casterById = map
 			} catch {

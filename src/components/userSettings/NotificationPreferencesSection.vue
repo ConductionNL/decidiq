@@ -23,10 +23,17 @@
  @spec openspec/specs/user-settings/spec.md
 -->
 <template>
-	<div class="user-settings-section" data-testid="notification-preferences-section">
+	<div
+		class="user-settings-section"
+		data-testid="notification-preferences-section">
 		<h3>{{ t('decidesk', 'Notification preferences') }}</h3>
 		<p class="user-settings-section__hint">
-			{{ t('decidesk', 'Choose which Decidesk events notify you and how they are delivered.') }}
+			{{
+				t(
+					'decidesk',
+					'Choose which Decidesk events notify you and how they are delivered.',
+				)
+			}}
 		</p>
 
 		<fieldset class="user-settings-section__group">
@@ -59,14 +66,21 @@
 				{{ t('decidesk', 'Email') }}
 			</NcCheckboxRadioSwitch>
 			<NcNoteCard v-if="channelError" type="warning">
-				{{ t('decidesk', 'Keep at least one delivery channel enabled. Use the per-event switches to mute specific notifications.') }}
+				{{
+					t(
+						'decidesk',
+						'Keep at least one delivery channel enabled. Use the per-event switches to mute specific notifications.',
+					)
+				}}
 			</NcNoteCard>
 		</fieldset>
 
 		<fieldset class="user-settings-section__group">
 			<legend>{{ t('decidesk', 'Meeting reminder timing') }}</legend>
 			<p class="user-settings-section__hint">
-				{{ t('decidesk', 'Default: 24 hours and 1 hour before the meeting.') }}
+				{{
+					t('decidesk', 'Default: 24 hours and 1 hour before the meeting.')
+				}}
 			</p>
 			<NcCheckboxRadioSwitch
 				v-for="time in reminderOptions"
@@ -85,7 +99,11 @@
 				:disabled="saving || channelError"
 				data-testid="notification-preferences-save"
 				@click="save">
-				{{ saving ? t('decidesk', 'Saving …') : t('decidesk', 'Save notification preferences') }}
+				{{
+					saving
+						? t('decidesk', 'Saving …')
+						: t('decidesk', 'Save notification preferences')
+				}}
 			</NcButton>
 		</div>
 		<NcNoteCard v-if="error" type="error">
@@ -142,12 +160,27 @@ export default {
 		/** @spec openspec/specs/user-settings/spec.md */
 		eventToggles() {
 			return [
-				{ key: 'meetingCreated', label: this.t('decidesk', 'Meeting scheduled') },
+				{
+					key: 'meetingCreated',
+					label: this.t('decidesk', 'Meeting scheduled'),
+				},
 				{ key: 'votingOpened', label: this.t('decidesk', 'Pending vote') },
-				{ key: 'decisionPublished', label: this.t('decidesk', 'Decision published') },
-				{ key: 'taskAssigned', label: this.t('decidesk', 'Action item assigned') },
-				{ key: 'commentMention', label: this.t('decidesk', 'Mentioned in a comment') },
-				{ key: 'meetingReminder', label: this.t('decidesk', 'Meeting reminder') },
+				{
+					key: 'decisionPublished',
+					label: this.t('decidesk', 'Decision published'),
+				},
+				{
+					key: 'taskAssigned',
+					label: this.t('decidesk', 'Action item assigned'),
+				},
+				{
+					key: 'commentMention',
+					label: this.t('decidesk', 'Mentioned in a comment'),
+				},
+				{
+					key: 'meetingReminder',
+					label: this.t('decidesk', 'Meeting reminder'),
+				},
 			]
 		},
 		/** @spec openspec/specs/user-settings/spec.md */
@@ -159,7 +192,10 @@ export default {
 				'48h': this.t('decidesk', '48 hours before'),
 				'1w': this.t('decidesk', '1 week before'),
 			}
-			return REMINDER_TIME_OPTIONS.map((value) => ({ value, label: labels[value] || value }))
+			return REMINDER_TIME_OPTIONS.map((value) => ({
+				value,
+				label: labels[value] || value,
+			}))
 		},
 		/** @spec openspec/specs/user-settings/spec.md */
 		channelError() {
@@ -183,7 +219,14 @@ export default {
 			if (!pref || Object.keys(pref).length === 0) {
 				return
 			}
-			for (const key of ['meetingCreated', 'votingOpened', 'decisionPublished', 'taskAssigned', 'commentMention', 'meetingReminder']) {
+			for (const key of [
+				'meetingCreated',
+				'votingOpened',
+				'decisionPublished',
+				'taskAssigned',
+				'commentMention',
+				'meetingReminder',
+			]) {
 				if (typeof pref[key] === 'boolean') {
 					this.form[key] = pref[key]
 				}
@@ -207,7 +250,9 @@ export default {
 			} else {
 				set.delete(value)
 			}
-			this.form.reminderTimes = REMINDER_TIME_OPTIONS.filter((token) => set.has(token))
+			this.form.reminderTimes = REMINDER_TIME_OPTIONS.filter((token) =>
+				set.has(token),
+			)
 		},
 		/**
 		 * Persist the notification preferences via the per-user endpoint.

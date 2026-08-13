@@ -15,7 +15,12 @@
 	<div class="user-settings-section" data-testid="delegation-section">
 		<h3>{{ t('decidesk', 'Delegation and absence') }}</h3>
 		<p class="user-settings-section__hint">
-			{{ t('decidesk', 'During the configured period your delegate receives your Decidesk notifications and can follow your pending votes and action items.') }}
+			{{
+				t(
+					'decidesk',
+					'During the configured period your delegate receives your Decidesk notifications and can follow your pending votes and action items.',
+				)
+			}}
 		</p>
 
 		<div class="user-settings-section__field">
@@ -30,7 +35,9 @@
 		</div>
 
 		<div class="user-settings-section__field">
-			<label for="decidesk-delegation-from">{{ t('decidesk', 'Absent from') }}</label>
+			<label for="decidesk-delegation-from">{{
+				t('decidesk', 'Absent from')
+			}}</label>
 			<NcDateTimePickerNative
 				id="decidesk-delegation-from"
 				v-model="delegationFrom"
@@ -39,7 +46,9 @@
 		</div>
 
 		<div class="user-settings-section__field">
-			<label for="decidesk-delegation-until">{{ t('decidesk', 'Absent until (delegation expires automatically)') }}</label>
+			<label for="decidesk-delegation-until">{{
+				t('decidesk', 'Absent until (delegation expires automatically)')
+			}}</label>
 			<NcDateTimePickerNative
 				id="decidesk-delegation-until"
 				v-model="delegationUntil"
@@ -48,8 +57,18 @@
 		</div>
 
 		<NcNoteCard type="info" data-testid="delegation-proxy-note">
-			{{ t('decidesk', 'Delegation does not include voting rights. A formal proxy (volmacht) is required for voting.') }}
-			{{ t('decidesk', 'Proxies are granted per voting round from the voting panel.') }}
+			{{
+				t(
+					'decidesk',
+					'Delegation does not include voting rights. A formal proxy (volmacht) is required for voting.',
+				)
+			}}
+			{{
+				t(
+					'decidesk',
+					'Proxies are granted per voting round from the voting panel.',
+				)
+			}}
 		</NcNoteCard>
 
 		<NcNoteCard v-if="validationError" type="warning">
@@ -62,7 +81,11 @@
 				:disabled="saving || !!validationError"
 				data-testid="delegation-save"
 				@click="save">
-				{{ saving ? t('decidesk', 'Saving …') : t('decidesk', 'Save delegation') }}
+				{{
+					saving
+						? t('decidesk', 'Saving …')
+						: t('decidesk', 'Save delegation')
+				}}
 			</NcButton>
 			<NcButton
 				v-if="hasDelegation"
@@ -83,7 +106,12 @@
 </template>
 
 <script>
-import { NcButton, NcDateTimePickerNative, NcNoteCard, NcSelect } from '@nextcloud/vue'
+import {
+	NcButton,
+	NcDateTimePickerNative,
+	NcNoteCard,
+	NcSelect,
+} from '@nextcloud/vue'
 import {
 	saveNotificationPreference,
 	searchDelegateUsers,
@@ -148,10 +176,16 @@ export default {
 				delegationUntil: toIsoDate(this.delegationUntil),
 			})
 			if (code === 'expiry-required') {
-				return this.t('decidesk', 'A delegation needs an end date — it expires automatically.')
+				return this.t(
+					'decidesk',
+					'A delegation needs an end date — it expires automatically.',
+				)
 			}
 			if (code === 'inverted-period') {
-				return this.t('decidesk', 'The end date must not be before the start date.')
+				return this.t(
+					'decidesk',
+					'The end date must not be before the start date.',
+				)
 			}
 			return null
 		},
@@ -176,8 +210,12 @@ export default {
 			if (pref.delegate) {
 				this.delegate = { id: pref.delegate, label: pref.delegate }
 			}
-			this.delegationFrom = pref.delegationFrom ? new Date(`${pref.delegationFrom}T00:00:00`) : null
-			this.delegationUntil = pref.delegationUntil ? new Date(`${pref.delegationUntil}T00:00:00`) : null
+			this.delegationFrom = pref.delegationFrom
+				? new Date(`${pref.delegationFrom}T00:00:00`)
+				: null
+			this.delegationUntil = pref.delegationUntil
+				? new Date(`${pref.delegationUntil}T00:00:00`)
+				: null
 		},
 		/**
 		 * Debounced delegate search against the sharees endpoint.

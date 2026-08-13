@@ -37,12 +37,16 @@ beforeEach(() => {
 describe('dashboardData fetch helpers', () => {
 	it('getMeetings fetches the meeting type with the given params', async () => {
 		await getMeetings({ lifecycle: 'scheduled' })
-		expect(fetchCollection).toHaveBeenCalledWith('meeting', { lifecycle: 'scheduled' })
+		expect(fetchCollection).toHaveBeenCalledWith('meeting', {
+			lifecycle: 'scheduled',
+		})
 	})
 
 	it('getVotingRounds fetches the voting-round type', async () => {
 		await getVotingRounds({ lifecycle: 'open' })
-		expect(fetchCollection).toHaveBeenCalledWith('voting-round', { lifecycle: 'open' })
+		expect(fetchCollection).toHaveBeenCalledWith('voting-round', {
+			lifecycle: 'open',
+		})
 	})
 
 	it('getVotes fetches the vote type', async () => {
@@ -51,7 +55,10 @@ describe('dashboardData fetch helpers', () => {
 	})
 
 	it('getActionItems fetches the action-item type', async () => {
-		await getActionItems({ assignee: 'avries', taskStatus: ['open', 'in-progress'] })
+		await getActionItems({
+			assignee: 'avries',
+			taskStatus: ['open', 'in-progress'],
+		})
 		expect(fetchCollection).toHaveBeenCalledWith('action-item', {
 			assignee: 'avries',
 			taskStatus: ['open', 'in-progress'],
@@ -60,7 +67,9 @@ describe('dashboardData fetch helpers', () => {
 
 	it('getMotions fetches the motion type', async () => {
 		await getMotions({ lifecycle: ['submitted', 'voting'] })
-		expect(fetchCollection).toHaveBeenCalledWith('motion', { lifecycle: ['submitted', 'voting'] })
+		expect(fetchCollection).toHaveBeenCalledWith('motion', {
+			lifecycle: ['submitted', 'voting'],
+		})
 	})
 
 	it('getDecisions fetches the decision type', async () => {
@@ -75,7 +84,9 @@ describe('dashboardData fetch helpers', () => {
 
 	it('getMinutes fetches the minutes type', async () => {
 		await getMinutes({ lifecycle: 'review' })
-		expect(fetchCollection).toHaveBeenCalledWith('minutes', { lifecycle: 'review' })
+		expect(fetchCollection).toHaveBeenCalledWith('minutes', {
+			lifecycle: 'review',
+		})
 	})
 
 	it('getGovernanceBodies fetches the governance-body type', async () => {

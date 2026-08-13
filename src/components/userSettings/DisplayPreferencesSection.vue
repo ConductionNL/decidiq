@@ -15,7 +15,12 @@
 	<div class="user-settings-section" data-testid="display-preferences-section">
 		<h3>{{ t('decidesk', 'Display preferences') }}</h3>
 		<p class="user-settings-section__hint">
-			{{ t('decidesk', 'Control how Decidesk presents itself for your account.') }}
+			{{
+				t(
+					'decidesk',
+					'Control how Decidesk presents itself for your account.',
+				)
+			}}
 		</p>
 
 		<div class="user-settings-section__field">
@@ -51,7 +56,12 @@
 		</div>
 
 		<p class="user-settings-section__hint">
-			{{ t('decidesk', 'Interface language follows your Nextcloud account language.') }}
+			{{
+				t(
+					'decidesk',
+					'Interface language follows your Nextcloud account language.',
+				)
+			}}
 			<a :href="languageSettingsUrl" target="_blank" rel="noopener noreferrer">
 				{{ t('decidesk', 'Change it in your personal settings.') }}
 			</a>
@@ -63,7 +73,11 @@
 				:disabled="saving"
 				data-testid="display-preferences-save"
 				@click="save">
-				{{ saving ? t('decidesk', 'Saving …') : t('decidesk', 'Save display preferences') }}
+				{{
+					saving
+						? t('decidesk', 'Saving …')
+						: t('decidesk', 'Save display preferences')
+				}}
 			</NcButton>
 		</div>
 		<NcNoteCard v-if="error" type="error">
@@ -120,7 +134,10 @@ export default {
 		dateFormatOptions() {
 			return DATE_FORMAT_OPTIONS.map((id) => ({
 				id,
-				label: id === 'locale' ? this.t('decidesk', 'Nextcloud locale (default)') : id,
+				label:
+					id === 'locale'
+						? this.t('decidesk', 'Nextcloud locale (default)')
+						: id,
 			}))
 		},
 		/** @spec openspec/specs/user-settings/spec.md */
@@ -148,9 +165,15 @@ export default {
 					fetchDisplayPreference('items-per-page'),
 					fetchDisplayPreference('date-format'),
 				])
-				this.defaultView = this.viewOptions.find((o) => o.id === view) || this.viewOptions[0]
-				this.itemsPerPage = this.itemsPerPageOptions.includes(perPage) ? perPage : DISPLAY_DEFAULTS['items-per-page']
-				this.dateFormat = this.dateFormatOptions.find((o) => o.id === format) || this.dateFormatOptions[0]
+				this.defaultView =
+					this.viewOptions.find((o) => o.id === view)
+					|| this.viewOptions[0]
+				this.itemsPerPage = this.itemsPerPageOptions.includes(perPage)
+					? perPage
+					: DISPLAY_DEFAULTS['items-per-page']
+				this.dateFormat =
+					this.dateFormatOptions.find((o) => o.id === format)
+					|| this.dateFormatOptions[0]
 			} catch (e) {
 				this.defaultView = this.viewOptions[0]
 				this.dateFormat = this.dateFormatOptions[0]
@@ -167,9 +190,18 @@ export default {
 			this.error = null
 			try {
 				await Promise.all([
-					saveDisplayPreference('default-view', this.defaultView?.id || 'dashboard'),
-					saveDisplayPreference('items-per-page', this.itemsPerPage || DISPLAY_DEFAULTS['items-per-page']),
-					saveDisplayPreference('date-format', this.dateFormat?.id || 'locale'),
+					saveDisplayPreference(
+						'default-view',
+						this.defaultView?.id || 'dashboard',
+					),
+					saveDisplayPreference(
+						'items-per-page',
+						this.itemsPerPage || DISPLAY_DEFAULTS['items-per-page'],
+					),
+					saveDisplayPreference(
+						'date-format',
+						this.dateFormat?.id || 'locale',
+					),
 				])
 				this.saved = true
 			} catch (e) {

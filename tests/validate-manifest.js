@@ -36,8 +36,23 @@ const MANIFEST_PATH = path.join(REPO_ROOT, 'src', 'manifest.json')
 const SCHEMA_CANDIDATES = [
 	process.env.APP_MANIFEST_SCHEMA,
 	path.join(REPO_ROOT, 'tests', 'schemas', 'app-manifest-v2.schema.json'),
-	path.join(REPO_ROOT, 'node_modules', '@conduction', 'nextcloud-vue', 'src', 'schemas', 'app-manifest-v2.schema.json'),
-	path.join(REPO_ROOT, '..', 'nextcloud-vue', 'src', 'schemas', 'app-manifest-v2.schema.json'),
+	path.join(
+		REPO_ROOT,
+		'node_modules',
+		'@conduction',
+		'nextcloud-vue',
+		'src',
+		'schemas',
+		'app-manifest-v2.schema.json',
+	),
+	path.join(
+		REPO_ROOT,
+		'..',
+		'nextcloud-vue',
+		'src',
+		'schemas',
+		'app-manifest-v2.schema.json',
+	),
 ].filter(Boolean)
 
 function findSchemaPath() {
@@ -68,7 +83,15 @@ function loadAjv() {
 	let addFormats = null
 	const ajvCandidates = [
 		'ajv/dist/2020',
-		path.join(REPO_ROOT, 'node_modules', 'ajv-formats', 'node_modules', 'ajv', 'dist', '2020.js'),
+		path.join(
+			REPO_ROOT,
+			'node_modules',
+			'ajv-formats',
+			'node_modules',
+			'ajv',
+			'dist',
+			'2020.js',
+		),
 		'ajv',
 	]
 	for (const candidate of ajvCandidates) {
@@ -104,16 +127,30 @@ function loadAjv() {
 // reported `pages[25].type: "roadmap" not in v1.2 enum` against a manifest the
 // SAME FILE validates clean the moment Ajv is present. The literal survives
 // only as the last resort for a run that resolved no schema at all.
-const FALLBACK_PAGE_TYPES = ['index', 'detail', 'dashboard', 'logs', 'settings', 'chat', 'files', 'custom']
+const FALLBACK_PAGE_TYPES = [
+	'index',
+	'detail',
+	'dashboard',
+	'logs',
+	'settings',
+	'chat',
+	'files',
+	'custom',
+]
 
 function pageTypeEnum(schema) {
-	const fromSchema = schema
+	const fromSchema =
+		schema
 		&& schema.$defs
 		&& schema.$defs.page
 		&& schema.$defs.page.properties
 		&& schema.$defs.page.properties.type
 		&& schema.$defs.page.properties.type.enum
-	return new Set(Array.isArray(fromSchema) && fromSchema.length > 0 ? fromSchema : FALLBACK_PAGE_TYPES)
+	return new Set(
+		Array.isArray(fromSchema) && fromSchema.length > 0
+			? fromSchema
+			: FALLBACK_PAGE_TYPES,
+	)
 }
 
 function structuralLint(manifest, schema) {
@@ -121,8 +158,10 @@ function structuralLint(manifest, schema) {
 	if (!manifest.version || typeof manifest.version !== 'string') {
 		errors.push('top-level: version (string) is required')
 	}
-	if (!Array.isArray(manifest.menu)) errors.push('top-level: menu (array) is required')
-	if (!Array.isArray(manifest.pages)) errors.push('top-level: pages (array) is required')
+	if (!Array.isArray(manifest.menu))
+		errors.push('top-level: menu (array) is required')
+	if (!Array.isArray(manifest.pages))
+		errors.push('top-level: pages (array) is required')
 	const allowedTypes = pageTypeEnum(schema)
 	const seenIds = new Set()
 	for (let i = 0; i < (manifest.pages || []).length; i++) {
@@ -133,14 +172,19 @@ function structuralLint(manifest, schema) {
 		}
 		for (const required of ['id', 'route', 'type', 'title']) {
 			if (!page[required] || typeof page[required] !== 'string') {
-				errors.push(`pages[${i}]: missing required string field "${required}"`)
+				errors.push(
+					`pages[${i}]: missing required string field "${required}"`,
+				)
 			}
 		}
 		if (page.type && !allowedTypes.has(page.type)) {
-			errors.push(`pages[${i}].type: "${page.type}" not in the page-type enum (${[...allowedTypes].join(', ')})`)
+			errors.push(
+				`pages[${i}].type: "${page.type}" not in the page-type enum (${[...allowedTypes].join(', ')})`,
+			)
 		}
 		if (page.id) {
-			if (seenIds.has(page.id)) errors.push(`pages[${i}].id: duplicate "${page.id}"`)
+			if (seenIds.has(page.id))
+				errors.push(`pages[${i}].id: duplicate "${page.id}"`)
 			seenIds.add(page.id)
 		}
 		if (page.type === 'custom' && !page.component) {
@@ -163,7 +207,9 @@ function main() {
 
 	const schemaPath = findSchemaPath()
 	if (!schemaPath) {
-		console.warn('[validate-manifest] no schema candidate resolved; falling back to structural lint.')
+		console.warn(
+			'[validate-manifest] no schema candidate resolved; falling back to structural lint.',
+		)
 		const errors = structuralLint(manifest, null)
 		if (errors.length === 0) {
 			console.log('[validate-manifest] structural lint: PASS (0 issues)')
@@ -182,7 +228,9 @@ function main() {
 		// Lint against the enum of the schema we just loaded, not a frozen copy.
 		const errors = structuralLint(manifest, schema)
 		if (errors.length === 0) {
-			console.log('[validate-manifest] structural lint (no Ajv): PASS (0 issues)')
+			console.log(
+				'[validate-manifest] structural lint (no Ajv): PASS (0 issues)',
+			)
 			process.exit(0)
 		}
 		console.error('[validate-manifest] structural lint (no Ajv): FAIL')
@@ -195,7 +243,9 @@ function main() {
 		try {
 			addFormats(ajv)
 		} catch (err) {
-			console.warn(`[validate-manifest] ajv-formats failed to attach (${err.message}); continuing without format validation`)
+			console.warn(
+				`[validate-manifest] ajv-formats failed to attach (${err.message}); continuing without format validation`,
+			)
 		}
 	}
 	const validate = ajv.compile(schema)
@@ -206,7 +256,9 @@ function main() {
 	}
 	console.error('[validate-manifest] Ajv validation: FAIL')
 	for (const err of validate.errors || []) {
-		console.error(`  - ${err.instancePath || '(root)'} ${err.message} (keyword=${err.keyword})`)
+		console.error(
+			`  - ${err.instancePath || '(root)'} ${err.message} (keyword=${err.keyword})`,
+		)
 	}
 	process.exit(1)
 }

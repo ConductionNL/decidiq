@@ -82,7 +82,11 @@ export function resolveParticipantId(participants, uid) {
  * @return {Array<object>} Open rounds awaiting this participant's vote.
  */
 export function pendingVotingRounds(openRounds, votes, participantId) {
-	if (participantId === null || participantId === undefined || !Array.isArray(openRounds)) {
+	if (
+		participantId === null
+		|| participantId === undefined
+		|| !Array.isArray(openRounds)
+	) {
 		return []
 	}
 	const votedRoundIds = new Set(
@@ -126,7 +130,9 @@ export function withinDeadlineRange(round, range) {
  * @return {Array<object>} Rounds within the window (all when no range set).
  */
 export function pendingInRange(rounds, range) {
-	return (Array.isArray(rounds) ? rounds : []).filter((r) => withinDeadlineRange(r, range))
+	return (Array.isArray(rounds) ? rounds : []).filter((r) =>
+		withinDeadlineRange(r, range),
+	)
 }
 
 // --- Urgency / countdown (REQ-011 / REQ-012) ---------------------------------
@@ -289,7 +295,12 @@ export function groupMotionsByLifecycle(motions) {
  * @return {boolean} True when undecided.
  */
 export function isActiveDecision(decision) {
-	return !!decision && (decision.outcome === null || decision.outcome === undefined || decision.outcome === '')
+	return (
+		!!decision
+		&& (decision.outcome === null
+			|| decision.outcome === undefined
+			|| decision.outcome === '')
+	)
 }
 
 /**
@@ -300,7 +311,8 @@ export function isActiveDecision(decision) {
  * @return {number} How many have a null outcome.
  */
 export function activeDecisionCount(decisions) {
-	return (Array.isArray(decisions) ? decisions : []).filter(isActiveDecision).length
+	return (Array.isArray(decisions) ? decisions : []).filter(isActiveDecision)
+		.length
 }
 
 /**
@@ -327,16 +339,16 @@ export function recentDecisions(decisions, limit = 10) {
  */
 export function outcomeBadge(outcome) {
 	switch (outcome) {
-	case 'adopted':
-		return { label: 'Adopted', variant: 'success' }
-	case 'rejected':
-		return { label: 'Rejected', variant: 'error' }
-	case null:
-	case undefined:
-	case '':
-		return { label: 'Undecided', variant: 'default' }
-	default:
-		return { label: outcome, variant: 'default' }
+		case 'adopted':
+			return { label: 'Adopted', variant: 'success' }
+		case 'rejected':
+			return { label: 'Rejected', variant: 'error' }
+		case null:
+		case undefined:
+		case '':
+			return { label: 'Undecided', variant: 'default' }
+		default:
+			return { label: outcome, variant: 'default' }
 	}
 }
 
@@ -350,14 +362,14 @@ export function outcomeBadge(outcome) {
  */
 export function publicationBadge(isPublished) {
 	switch (isPublished) {
-	case 'internal':
-		return { label: 'Internal', variant: 'default' }
-	case 'public':
-		return { label: 'Public', variant: 'success' }
-	case 'confidential':
-		return { label: 'Confidential', variant: 'warning' }
-	default:
-		return { label: isPublished || '', variant: 'default' }
+		case 'internal':
+			return { label: 'Internal', variant: 'default' }
+		case 'public':
+			return { label: 'Public', variant: 'success' }
+		case 'confidential':
+			return { label: 'Confidential', variant: 'warning' }
+		default:
+			return { label: isPublished || '', variant: 'default' }
 	}
 }
 
@@ -372,10 +384,13 @@ export function publicationBadge(isPublished) {
  * @return {Array<object>} Up to 12 meetings with both metrics non-null.
  */
 export function healthDataPoints(meetings) {
-	const usable = (Array.isArray(meetings) ? meetings : []).filter((m) =>
-		m
-		&& m.quorumPercentage !== null && m.quorumPercentage !== undefined
-		&& m.actionItemCompletionRate !== null && m.actionItemCompletionRate !== undefined,
+	const usable = (Array.isArray(meetings) ? meetings : []).filter(
+		(m) =>
+			m
+			&& m.quorumPercentage !== null
+			&& m.quorumPercentage !== undefined
+			&& m.actionItemCompletionRate !== null
+			&& m.actionItemCompletionRate !== undefined,
 	)
 	return usable
 		.sort((a, b) => toTime(a.scheduledDate) - toTime(b.scheduledDate))
@@ -407,7 +422,10 @@ export function healthSeries(points) {
 	return {
 		series: [
 			{ name: 'Quorum %', data: rows.map((m) => m.quorumPercentage) },
-			{ name: 'Action item completion %', data: rows.map((m) => m.actionItemCompletionRate) },
+			{
+				name: 'Action item completion %',
+				data: rows.map((m) => m.actionItemCompletionRate),
+			},
 		],
 		categories: rows.map((m) => m.scheduledDate),
 	}

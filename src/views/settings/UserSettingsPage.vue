@@ -13,15 +13,28 @@
 	<div class="user-settings-page" data-testid="user-settings-page">
 		<header class="user-settings-page__header">
 			<h2>{{ t('decidesk', 'Personal settings') }}</h2>
-			<p>{{ t('decidesk', 'Notification, display, delegation and communication preferences for your account.') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'Notification, display, delegation and communication preferences for your account.',
+					)
+				}}
+			</p>
 		</header>
 
 		<NcLoadingIcon v-if="loading" :size="48" />
 		<template v-else>
-			<NotificationPreferencesSection :preference="preference" @updated="preference = $event" />
+			<NotificationPreferencesSection
+				:preference="preference"
+				@updated="preference = $event" />
 			<DisplayPreferencesSection />
-			<DelegationSection :preference="preference" @updated="preference = $event" />
-			<CommunicationSection :preference="preference" @updated="preference = $event" />
+			<DelegationSection
+				:preference="preference"
+				@updated="preference = $event" />
+			<CommunicationSection
+				:preference="preference"
+				@updated="preference = $event" />
 		</template>
 	</div>
 </template>

@@ -37,7 +37,8 @@
 				reaching it would not have helped. `.prevent` on space stops the
 				page scrolling instead of activating the row.
 			-->
-			<li v-for="decision in rows"
+			<li
+				v-for="decision in rows"
 				:key="decision.id"
 				:data-testid="`recent-decision-row-${decision.id}`"
 				class="dashboard-list-widget__row"
@@ -46,13 +47,17 @@
 				@click="openDecision(decision)"
 				@keydown.enter.prevent="openDecision(decision)"
 				@keydown.space.prevent="openDecision(decision)">
-				<span class="dashboard-list-widget__title">{{ decision.title || decision.name }}</span>
+				<span class="dashboard-list-widget__title">{{
+					decision.title || decision.name
+				}}</span>
 				<div class="dashboard-list-widget__aside">
-					<span :class="`dashboard-list-widget__badge--${outcome(decision).variant}`"
+					<span
+						:class="`dashboard-list-widget__badge--${outcome(decision).variant}`"
 						class="dashboard-list-widget__badge">
 						{{ t('decidesk', outcome(decision).label) }}
 					</span>
-					<span :class="`dashboard-list-widget__badge--${publication(decision).variant}`"
+					<span
+						:class="`dashboard-list-widget__badge--${publication(decision).variant}`"
 						class="dashboard-list-widget__badge">
 						{{ t('decidesk', publication(decision).label) }}
 					</span>
@@ -149,7 +154,10 @@ export default {
 		 * @return {void}
 		 */
 		openDecision(decision) {
-			this.$router.push({ name: 'DecisionDetail', params: { id: String(decision.id) } })
+			this.$router.push({
+				name: 'DecisionDetail',
+				params: { id: String(decision.id) },
+			})
 		},
 	},
 }

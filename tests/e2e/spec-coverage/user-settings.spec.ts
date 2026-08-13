@@ -75,8 +75,13 @@ async function setSwitch(page: Page, testId: string, on: boolean): Promise<void>
 }
 
 // @e2e openspec/specs/user-settings/spec.md#configure-vote-notification-preferences
-test('Notification preferences: enable Pending vote with both Nextcloud notification and email', async ({ page }) => {
-	test.skip(!(await openPersonalSettings(page)), 'decidesk personal settings panel not deployed on this instance')
+test('Notification preferences: enable Pending vote with both Nextcloud notification and email', async ({
+	page,
+}) => {
+	test.skip(
+		!(await openPersonalSettings(page)),
+		'decidesk personal settings panel not deployed on this instance',
+	)
 
 	await setSwitch(page, 'notification-toggle-votingOpened', true)
 	await setSwitch(page, 'channel-in-app', true)
@@ -87,36 +92,60 @@ test('Notification preferences: enable Pending vote with both Nextcloud notifica
 
 	// Persistence proof: a reload shows the same enabled state.
 	await page.reload()
-	await page.locator('[data-testid="decidesk-personal-settings"]').waitFor({ state: 'visible', timeout: 15_000 })
-	await expect(page.locator('[data-testid="notification-toggle-votingOpened"]').first()).toBeChecked()
+	await page
+		.locator('[data-testid="decidesk-personal-settings"]')
+		.waitFor({ state: 'visible', timeout: 15_000 })
+	await expect(
+		page.locator('[data-testid="notification-toggle-votingOpened"]').first(),
+	).toBeChecked()
 	await expect(page.locator('[data-testid="channel-email"]').first()).toBeChecked()
 })
 
 // @e2e openspec/specs/user-settings/spec.md#configure-vote-notification-preferences
-test('Notification preferences: both channels off is rejected client-side with a hint', async ({ page }) => {
-	test.skip(!(await openPersonalSettings(page)), 'decidesk personal settings panel not deployed on this instance')
+test('Notification preferences: both channels off is rejected client-side with a hint', async ({
+	page,
+}) => {
+	test.skip(
+		!(await openPersonalSettings(page)),
+		'decidesk personal settings panel not deployed on this instance',
+	)
 
 	await setSwitch(page, 'channel-in-app', false)
 	await setSwitch(page, 'channel-email', false)
 
-	await expect(page.getByText('Keep at least one delivery channel enabled', { exact: false })).toBeVisible()
-	await expect(page.locator('[data-testid="notification-preferences-save"]')).toBeDisabled()
+	await expect(
+		page.getByText('Keep at least one delivery channel enabled', {
+			exact: false,
+		}),
+	).toBeVisible()
+	await expect(
+		page.locator('[data-testid="notification-preferences-save"]'),
+	).toBeDisabled()
 
 	// Restore a sane state for the other specs.
 	await setSwitch(page, 'channel-in-app', true)
 })
 
 // @e2e openspec/specs/user-settings/spec.md#disable-meeting-reminder-notifications
-test('Meeting reminders: the toggle can be disabled and persists', async ({ page }) => {
-	test.skip(!(await openPersonalSettings(page)), 'decidesk personal settings panel not deployed on this instance')
+test('Meeting reminders: the toggle can be disabled and persists', async ({
+	page,
+}) => {
+	test.skip(
+		!(await openPersonalSettings(page)),
+		'decidesk personal settings panel not deployed on this instance',
+	)
 
 	await setSwitch(page, 'notification-toggle-meetingReminder', false)
 	await page.locator('[data-testid="notification-preferences-save"]').click()
 	await expect(page.getByText('Notification preferences saved.')).toBeVisible()
 
 	await page.reload()
-	await page.locator('[data-testid="decidesk-personal-settings"]').waitFor({ state: 'visible', timeout: 15_000 })
-	await expect(page.locator('[data-testid="notification-toggle-meetingReminder"]').first()).not.toBeChecked()
+	await page
+		.locator('[data-testid="decidesk-personal-settings"]')
+		.waitFor({ state: 'visible', timeout: 15_000 })
+	await expect(
+		page.locator('[data-testid="notification-toggle-meetingReminder"]').first(),
+	).not.toBeChecked()
 
 	// Restore the default for subsequent runs.
 	await setSwitch(page, 'notification-toggle-meetingReminder', true)
@@ -125,11 +154,18 @@ test('Meeting reminders: the toggle can be disabled and persists', async ({ page
 })
 
 // @e2e openspec/specs/user-settings/spec.md#configure-notification-timing-for-meeting-reminders
-test('Reminder timing: defaults to 24h + 1h and accepts 48h + 1h', async ({ page }) => {
-	test.skip(!(await openPersonalSettings(page)), 'decidesk personal settings panel not deployed on this instance')
+test('Reminder timing: defaults to 24h + 1h and accepts 48h + 1h', async ({
+	page,
+}) => {
+	test.skip(
+		!(await openPersonalSettings(page)),
+		'decidesk personal settings panel not deployed on this instance',
+	)
 
 	// The default hint documents the spec default (24h + 1h before).
-	await expect(page.getByText('Default: 24 hours and 1 hour before the meeting.')).toBeVisible()
+	await expect(
+		page.getByText('Default: 24 hours and 1 hour before the meeting.'),
+	).toBeVisible()
 
 	await setSwitch(page, 'notification-toggle-meetingReminder', true)
 	await setSwitch(page, 'reminder-time-48h', true)
@@ -140,10 +176,18 @@ test('Reminder timing: defaults to 24h + 1h and accepts 48h + 1h', async ({ page
 	await expect(page.getByText('Notification preferences saved.')).toBeVisible()
 
 	await page.reload()
-	await page.locator('[data-testid="decidesk-personal-settings"]').waitFor({ state: 'visible', timeout: 15_000 })
-	await expect(page.locator('[data-testid="reminder-time-48h"]').first()).toBeChecked()
-	await expect(page.locator('[data-testid="reminder-time-1h"]').first()).toBeChecked()
-	await expect(page.locator('[data-testid="reminder-time-24h"]').first()).not.toBeChecked()
+	await page
+		.locator('[data-testid="decidesk-personal-settings"]')
+		.waitFor({ state: 'visible', timeout: 15_000 })
+	await expect(
+		page.locator('[data-testid="reminder-time-48h"]').first(),
+	).toBeChecked()
+	await expect(
+		page.locator('[data-testid="reminder-time-1h"]').first(),
+	).toBeChecked()
+	await expect(
+		page.locator('[data-testid="reminder-time-24h"]').first(),
+	).not.toBeChecked()
 
 	// Restore the spec default.
 	await setSwitch(page, 'reminder-time-24h', true)
@@ -153,8 +197,13 @@ test('Reminder timing: defaults to 24h + 1h and accepts 48h + 1h', async ({ page
 })
 
 // @e2e openspec/specs/user-settings/spec.md#set-default-landing-page
-test('Display preferences: default view Meetings redirects the app root to the meetings list', async ({ page }) => {
-	test.skip(!(await openPersonalSettings(page)), 'decidesk personal settings panel not deployed on this instance')
+test('Display preferences: default view Meetings redirects the app root to the meetings list', async ({
+	page,
+}) => {
+	test.skip(
+		!(await openPersonalSettings(page)),
+		'decidesk personal settings panel not deployed on this instance',
+	)
 
 	// Pick "Meetings" in the default-view NcSelect.
 	const select = page.locator('[data-testid="display-default-view"]')
@@ -187,16 +236,30 @@ test('Display preferences: default view Meetings redirects the app root to the m
 	// `/index.php/csrftoken` handshake the workflow fixtures use). Housekeeping
 	// only — no acceptance criterion is asserted through the UI restore.
 	const csrf = await page.request.get(`${BASE}/index.php/csrftoken`)
-	const reset = await page.request.put(`${BASE}/apps/decidesk/api/preferences/default-view`, {
-		headers: { 'Content-Type': 'application/json', requesttoken: (await csrf.json()).token },
-		data: { value: 'dashboard' },
-	})
-	expect(reset.ok(), `restoring default-view returned HTTP ${reset.status()}`).toBeTruthy()
+	const reset = await page.request.put(
+		`${BASE}/apps/decidesk/api/preferences/default-view`,
+		{
+			headers: {
+				'Content-Type': 'application/json',
+				requesttoken: (await csrf.json()).token,
+			},
+			data: { value: 'dashboard' },
+		},
+	)
+	expect(
+		reset.ok(),
+		`restoring default-view returned HTTP ${reset.status()}`,
+	).toBeTruthy()
 })
 
 // @e2e openspec/specs/user-settings/spec.md#configure-date-format-preference
-test('Display preferences: date format DD-MM-YYYY previews and saves', async ({ page }) => {
-	test.skip(!(await openPersonalSettings(page)), 'decidesk personal settings panel not deployed on this instance')
+test('Display preferences: date format DD-MM-YYYY previews and saves', async ({
+	page,
+}) => {
+	test.skip(
+		!(await openPersonalSettings(page)),
+		'decidesk personal settings panel not deployed on this instance',
+	)
 
 	await page.locator('[data-testid="display-date-format"] input').first().click()
 	// ⚠️ Matched on the option's TEXT, not its accessible name. nc-vue renders
@@ -206,7 +269,10 @@ test('Display preferences: date format DD-MM-YYYY previews and saves', async ({ 
 	// literally named "DD-MM-YYYY" never exists. Playwright's own aria snapshot
 	// from the failing run records it verbatim: `option "DD-MM -YYYY"`. The
 	// element's text content is unaffected, so that is what this asserts on.
-	await page.getByRole('option').filter({ hasText: /^DD-MM-YYYY$/ }).click()
+	await page
+		.getByRole('option')
+		.filter({ hasText: /^DD-MM-YYYY$/ })
+		.click()
 
 	// The example preview renders in the chosen format (DD-MM-YYYY).
 	await expect(page.getByText(/Example: \d{2}-\d{2}-\d{4}/)).toBeVisible()
@@ -216,18 +282,28 @@ test('Display preferences: date format DD-MM-YYYY previews and saves', async ({ 
 
 	// Restore the locale default (the spec default).
 	await page.locator('[data-testid="display-date-format"] input').first().click()
-	await page.getByRole('option', { name: 'Nextcloud locale (default)', exact: true }).click()
+	await page
+		.getByRole('option', { name: 'Nextcloud locale (default)', exact: true })
+		.click()
 	await page.locator('[data-testid="display-preferences-save"]').click()
 	await expect(page.getByText('Display preferences saved.')).toBeVisible()
 })
 
 // @e2e openspec/specs/user-settings/spec.md#configure-absence-delegation
-test('Delegation: requires an expiry, shows the no-voting-rights notice, saves and clears', async ({ page }) => {
-	test.skip(!(await openPersonalSettings(page)), 'decidesk personal settings panel not deployed on this instance')
+test('Delegation: requires an expiry, shows the no-voting-rights notice, saves and clears', async ({
+	page,
+}) => {
+	test.skip(
+		!(await openPersonalSettings(page)),
+		'decidesk personal settings panel not deployed on this instance',
+	)
 
 	// The delegation section always explains that delegation ≠ proxy.
-	await expect(page.locator('[data-testid="delegation-proxy-note"]'))
-		.toContainText('Delegation does not include voting rights. A formal proxy (volmacht) is required for voting.')
+	await expect(
+		page.locator('[data-testid="delegation-proxy-note"]'),
+	).toContainText(
+		'Delegation does not include voting rights. A formal proxy (volmacht) is required for voting.',
+	)
 
 	// Pick the admin user itself as delegate (always present on the instance).
 	const delegateSelect = page.locator('[data-testid="delegation-delegate"]')
@@ -241,12 +317,24 @@ test('Delegation: requires an expiry, shows the no-voting-rights notice, saves a
 	await adminOption.click()
 
 	// Expiry is mandatory: without an end date the save is blocked.
-	await expect(page.getByText('A delegation needs an end date — it expires automatically.')).toBeVisible()
+	await expect(
+		page.getByText('A delegation needs an end date — it expires automatically.'),
+	).toBeVisible()
 	await expect(page.locator('[data-testid="delegation-save"]')).toBeDisabled()
 
 	// Configure the vacation window and save.
-	await page.locator('[data-testid="delegation-from"] input, input#decidesk-delegation-from').first().fill('2026-07-01')
-	await page.locator('[data-testid="delegation-until"] input, input#decidesk-delegation-until').first().fill('2026-07-14')
+	await page
+		.locator(
+			'[data-testid="delegation-from"] input, input#decidesk-delegation-from',
+		)
+		.first()
+		.fill('2026-07-01')
+	await page
+		.locator(
+			'[data-testid="delegation-until"] input, input#decidesk-delegation-until',
+		)
+		.first()
+		.fill('2026-07-14')
 	await page.locator('[data-testid="delegation-save"]').click()
 	await expect(page.getByText('Delegation saved.')).toBeVisible()
 
@@ -256,11 +344,18 @@ test('Delegation: requires an expiry, shows the no-voting-rights notice, saves a
 })
 
 // @e2e openspec/specs/user-settings/spec.md#set-preferred-contact-for-governance-communications
-test('Communication: governance email overrides the account default and saves', async ({ page }) => {
-	test.skip(!(await openPersonalSettings(page)), 'decidesk personal settings panel not deployed on this instance')
+test('Communication: governance email overrides the account default and saves', async ({
+	page,
+}) => {
+	test.skip(
+		!(await openPersonalSettings(page)),
+		'decidesk personal settings panel not deployed on this instance',
+	)
 
 	// The section documents the account-email default.
-	await expect(page.getByText('Leave empty to use your Nextcloud account email.')).toBeVisible()
+	await expect(
+		page.getByText('Leave empty to use your Nextcloud account email.'),
+	).toBeVisible()
 
 	// ⚠️ Same contract as the switches: NcTextField renders NcInputField, which
 	// declares `inheritAttrs: false` and merges `$attrs` onto its <input>, so
@@ -276,8 +371,12 @@ test('Communication: governance email overrides the account default and saves', 
 	await expect(page.getByText('Communication preferences saved.')).toBeVisible()
 
 	await page.reload()
-	await page.locator('[data-testid="decidesk-personal-settings"]').waitFor({ state: 'visible', timeout: 15_000 })
-	await expect(page.locator('[data-testid="communication-email"]').first()).toHaveValue('work@example.com')
+	await page
+		.locator('[data-testid="decidesk-personal-settings"]')
+		.waitFor({ state: 'visible', timeout: 15_000 })
+	await expect(
+		page.locator('[data-testid="communication-email"]').first(),
+	).toHaveValue('work@example.com')
 
 	// Restore the account default.
 	await page.locator('[data-testid="communication-email"]').first().fill('')
@@ -299,16 +398,23 @@ test('Communication: governance email overrides the account default and saves', 
 // having no e2e test while this test had been driving it all along. Recording an
 // existing truth, not waiving a gap — delete this note only together with the
 // test below.
-test('SPA mount: /apps/decidesk/user-settings renders the four sections without decidesk errors', async ({ page }) => {
+test('SPA mount: /apps/decidesk/user-settings renders the four sections without decidesk errors', async ({
+	page,
+}) => {
 	const appErrors: string[] = []
-	page.on('console', m => {
+	page.on('console', (m) => {
 		const t = m.text()
-		if (m.type() === 'error' && !/user_status|heartbeat|user status/i.test(t) && /decidesk/i.test(t)) {
+		if (
+			m.type() === 'error'
+			&& !/user_status|heartbeat|user status/i.test(t)
+			&& /decidesk/i.test(t)
+		) {
 			appErrors.push(t)
 		}
 	})
-	page.on('response', r => {
-		if (r.status() >= 500 && /decidesk/i.test(r.url())) appErrors.push(`HTTP ${r.status()} ${r.url()}`)
+	page.on('response', (r) => {
+		if (r.status() >= 500 && /decidesk/i.test(r.url()))
+			appErrors.push(`HTTP ${r.status()} ${r.url()}`)
 	})
 
 	await page.goto(`${BASE}/apps/decidesk/user-settings`)
@@ -316,12 +422,22 @@ test('SPA mount: /apps/decidesk/user-settings renders the four sections without 
 	try {
 		await spaPage.waitFor({ state: 'visible', timeout: 15_000 })
 	} catch {
-		test.skip(true, 'decidesk user-settings SPA page not deployed on this instance')
+		test.skip(
+			true,
+			'decidesk user-settings SPA page not deployed on this instance',
+		)
 	}
 
-	await expect(page.locator('[data-testid="notification-preferences-section"]')).toBeVisible()
-	await expect(page.locator('[data-testid="display-preferences-section"]')).toBeVisible()
+	await expect(
+		page.locator('[data-testid="notification-preferences-section"]'),
+	).toBeVisible()
+	await expect(
+		page.locator('[data-testid="display-preferences-section"]'),
+	).toBeVisible()
 	await expect(page.locator('[data-testid="delegation-section"]')).toBeVisible()
 	await expect(page.locator('[data-testid="communication-section"]')).toBeVisible()
-	expect(appErrors, `decidesk errors on user-settings:\n${appErrors.join('\n')}`).toHaveLength(0)
+	expect(
+		appErrors,
+		`decidesk errors on user-settings:\n${appErrors.join('\n')}`,
+	).toHaveLength(0)
 })

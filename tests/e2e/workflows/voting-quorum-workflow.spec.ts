@@ -84,7 +84,9 @@ test.afterAll(async ({ browser }) => {
 // asserts the guard is wired and fail-CLOSED (not fail-open): the caller is not
 // a resolvable chair/secretary of the meeting, so open is rejected with 403 and
 // NO voting-round is persisted.
-test('open voting round is blocked (403) when caller is not a meeting chair/secretary', async ({ page }) => {
+test('open voting round is blocked (403) when caller is not a meeting chair/secretary', async ({
+	page,
+}) => {
 	// Seed a meeting whose only members are plain members — the admin caller is
 	// NOT a chair/secretary of this body.
 	const s = await seedGovernanceScenario(page, ledger, {
@@ -112,7 +114,9 @@ test('open voting round is blocked (403) when caller is not a meeting chair/secr
 
 	// And crucially: no voting-round leaked into the store.
 	const after = (await listObjects(page, 'voting-round')).length
-	expect(after, 'no voting-round may be created when the guard blocks').toBe(before)
+	expect(after, 'no voting-round may be created when the guard blocks').toBe(
+		before,
+	)
 })
 
 // With the relation filter fixed (BUG-A), a participant seeded as chair (role=chair,
@@ -120,7 +124,9 @@ test('open voting round is blocked (403) when caller is not a meeting chair/secr
 // authorised chair to open the round. Combined with the fail-CLOSED test above (a
 // non-chair caller is rejected with 403), this proves the guard resolves the real
 // chair role rather than blanket-blocking or blanket-allowing.
-test('open voting round succeeds for a seeded meeting chair (guard resolves the chair)', async ({ page }) => {
+test('open voting round succeeds for a seeded meeting chair (guard resolves the chair)', async ({
+	page,
+}) => {
 	const s = await seedGovernanceScenario(page, ledger, {
 		quorumRequired: 0,
 		memberCount: 3,
@@ -138,7 +144,10 @@ test('open voting round succeeds for a seeded meeting chair (guard resolves the 
 	})
 
 	// The authorised chair must be allowed through (201), and a round must be created.
-	expect(resp.status(), `seeded chair must be allowed to open (got ${resp.status()})`).toBe(201)
+	expect(
+		resp.status(),
+		`seeded chair must be allowed to open (got ${resp.status()})`,
+	).toBe(201)
 	const round = await resp.json()
 	expect(objId(round), 'an opened round must be returned').toBeTruthy()
 })
@@ -151,7 +160,9 @@ test('open voting round succeeds for a seeded meeting chair (guard resolves the 
 // satisfy its preconditions MUST NOT produce a voting round. We seed a high
 // quorum requirement that the (broken-resolution) member set can never meet and
 // assert open is rejected and nothing is persisted.
-test('quorum-not-met / preconditions-unmet meeting cannot open a voting round', async ({ page }) => {
+test('quorum-not-met / preconditions-unmet meeting cannot open a voting round', async ({
+	page,
+}) => {
 	const s = await seedGovernanceScenario(page, ledger, {
 		quorumRequired: 99, // impossible to meet
 		memberCount: 3,
@@ -169,15 +180,24 @@ test('quorum-not-met / preconditions-unmet meeting cannot open a voting round', 
 		},
 	})
 
-	expect(resp.status(), 'open must be rejected when preconditions are unmet').toBeGreaterThanOrEqual(400)
+	expect(
+		resp.status(),
+		'open must be rejected when preconditions are unmet',
+	).toBeGreaterThanOrEqual(400)
 	const after = (await listObjects(page, 'voting-round')).length
-	expect(after, 'no voting-round may be created for a quorum-blocked meeting').toBe(before)
+	expect(
+		after,
+		'no voting-round may be created for a quorum-blocked meeting',
+	).toBe(before)
 
 	// The motion must NOT have been advanced to "voting" by a blocked open.
 	// ADR-005: a motion IS a Decision (decisionType='motion'); there is no
 	// standalone `motion` schema to read it back from.
 	const motion = await getObject(page, MOTION_SCHEMA, s.motionId)
-	expect(motion?.lifecycle, 'motion lifecycle must not advance on a blocked open').not.toBe('voting')
+	expect(
+		motion?.lifecycle,
+		'motion lifecycle must not advance on a blocked open',
+	).not.toBe('voting')
 })
 
 // ── TALLY MATH correctness — exact inputs → expected outcomes ─────────────────
@@ -228,10 +248,39 @@ interface TallyCase {
 // explicit `revote` must report `tied`. Either one alone can pass while the
 // tie branch is broken.
 const TALLY_CASES: TallyCase[] = [
-	{ name: 'majority for → adopted', votes: ['for', 'for', 'for', 'against', 'abstain'], expectedFor: 3, expectedAgainst: 1, expectedAbstain: 1, expectedResult: 'adopted' },
-	{ name: 'majority against → rejected', votes: ['against', 'against', 'against', 'for'], expectedFor: 1, expectedAgainst: 3, expectedAbstain: 0, expectedResult: 'rejected' },
-	{ name: 'equal for/against, default tie-break → rejected (abstain excluded from the comparison)', votes: ['for', 'for', 'against', 'against', 'abstain'], expectedFor: 2, expectedAgainst: 2, expectedAbstain: 1, expectedResult: 'rejected' },
-	{ name: 'equal for/against, tieBreakRule=revote → tied (abstain excluded from the comparison)', votes: ['for', 'for', 'against', 'against', 'abstain'], expectedFor: 2, expectedAgainst: 2, expectedAbstain: 1, expectedResult: 'tied', tieBreakRule: 'revote' },
+	{
+		name: 'majority for → adopted',
+		votes: ['for', 'for', 'for', 'against', 'abstain'],
+		expectedFor: 3,
+		expectedAgainst: 1,
+		expectedAbstain: 1,
+		expectedResult: 'adopted',
+	},
+	{
+		name: 'majority against → rejected',
+		votes: ['against', 'against', 'against', 'for'],
+		expectedFor: 1,
+		expectedAgainst: 3,
+		expectedAbstain: 0,
+		expectedResult: 'rejected',
+	},
+	{
+		name: 'equal for/against, default tie-break → rejected (abstain excluded from the comparison)',
+		votes: ['for', 'for', 'against', 'against', 'abstain'],
+		expectedFor: 2,
+		expectedAgainst: 2,
+		expectedAbstain: 1,
+		expectedResult: 'rejected',
+	},
+	{
+		name: 'equal for/against, tieBreakRule=revote → tied (abstain excluded from the comparison)',
+		votes: ['for', 'for', 'against', 'against', 'abstain'],
+		expectedFor: 2,
+		expectedAgainst: 2,
+		expectedAbstain: 1,
+		expectedResult: 'tied',
+		tieBreakRule: 'revote',
+	},
 ]
 
 for (const c of TALLY_CASES) {
@@ -250,7 +299,9 @@ for (const c of TALLY_CASES) {
 			// Spread, not a fixed key: a case that names no rule must persist NO
 			// tieBreakRule, so the assertion exercises the calculator's documented
 			// fallback rather than a value the test quietly supplied for it.
-			...(c.tieBreakRule !== undefined ? { tieBreakRule: c.tieBreakRule } : {}),
+			...(c.tieBreakRule !== undefined
+				? { tieBreakRule: c.tieBreakRule }
+				: {}),
 		})
 		const vrId = objId(vr)
 
@@ -259,7 +310,9 @@ for (const c of TALLY_CASES) {
 				value,
 				weight: 1,
 				castAt: '2026-09-01T10:05:00Z',
-				relations: [{ register: 'decidesk', schema: 'voting-round', id: vrId }],
+				relations: [
+					{ register: 'decidesk', schema: 'voting-round', id: vrId },
+				],
 			})
 		}
 
@@ -282,7 +335,9 @@ for (const c of TALLY_CASES) {
 // from saveObject() → TypeError 500. The exact expected tally math (for=5,
 // against=2 → adopted) is asserted here and will pass once the return type is
 // fixed to serialise the entity.
-test('show-of-hands tally math — for=5 against=2 abstain=1 → adopted', async ({ page }) => {
+test('show-of-hands tally math — for=5 against=2 abstain=1 → adopted', async ({
+	page,
+}) => {
 	const vr = await createObject(page, ledger, 'voting-round', {
 		votingMethod: 'show-of-hands',
 		isSecret: false,
@@ -303,7 +358,9 @@ test('show-of-hands tally math — for=5 against=2 abstain=1 → adopted', async
 
 // BUG-B (cast): castVote() has the same `: array` return-type defect — a real
 // vote cast 500s before the tally can ever be computed from cast votes.
-test('casting a vote returns the persisted vote (no return-type 500)', async ({ page }) => {
+test('casting a vote returns the persisted vote (no return-type 500)', async ({
+	page,
+}) => {
 	const s = await seedGovernanceScenario(page, ledger, {
 		quorumRequired: 0,
 		memberCount: 3,
@@ -314,14 +371,22 @@ test('casting a vote returns the persisted vote (no return-type 500)', async ({ 
 	// the persisted vote value.
 	const open = await page.request.post(`${API}/voting-rounds`, {
 		headers: await writeHeaders(page),
-		data: { motionId: s.motionId, meetingId: s.meetingId, votingMethod: 'for-against-abstain', isSecret: false },
+		data: {
+			motionId: s.motionId,
+			meetingId: s.meetingId,
+			votingMethod: 'for-against-abstain',
+			isSecret: false,
+		},
 	})
 	expect(open.status()).toBe(201)
 	const round = await open.json()
-	const cast = await page.request.post(`${API}/voting-rounds/${objId(round)}/cast`, {
-		headers: await writeHeaders(page),
-		data: { value: 'for' },
-	})
+	const cast = await page.request.post(
+		`${API}/voting-rounds/${objId(round)}/cast`,
+		{
+			headers: await writeHeaders(page),
+			data: { value: 'for' },
+		},
+	)
 	expect(cast.status(), 'cast must not 500 on a return-type error').toBe(201)
 	expect((await cast.json()).value).toBe('for')
 })

@@ -14,7 +14,9 @@
  @spec openspec/specs/resolution-minutes/spec.md
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--approval" data-testid="minutes-approval-tab">
+	<div
+		class="decidesk-tab decidesk-tab--approval"
+		data-testid="minutes-approval-tab">
 		<CnNoteCard
 			v-if="error"
 			type="error"
@@ -34,7 +36,9 @@
 				:current="currentStageIndex"
 				:aria-label="t('decidesk', 'Minutes lifecycle')" />
 
-			<div class="decidesk-tab__actions" data-testid="minutes-approval-actions">
+			<div
+				class="decidesk-tab__actions"
+				data-testid="minutes-approval-actions">
 				<template v-for="action in actions" :key="action.action">
 					<NcButton
 						:variant="action.action === 'reject' ? 'error' : 'primary'"
@@ -45,12 +49,22 @@
 					</NcButton>
 				</template>
 				<p v-if="minutes.approvedAt" class="decidesk-tab__meta">
-					{{ t('decidesk', 'Approved at {date} by {names}', { date: minutes.approvedAt, names: signedByLabel }) }}
+					{{
+						t('decidesk', 'Approved at {date} by {names}', {
+							date: minutes.approvedAt,
+							names: signedByLabel,
+						})
+					}}
 				</p>
 			</div>
 
-			<div v-if="lastRejection" class="decidesk-tab__rejection" data-testid="minutes-last-rejection">
-				<CnNoteCard type="warning" :title="t('decidesk', 'Returned to draft')">
+			<div
+				v-if="lastRejection"
+				class="decidesk-tab__rejection"
+				data-testid="minutes-last-rejection">
+				<CnNoteCard
+					type="warning"
+					:title="t('decidesk', 'Returned to draft')">
 					{{ lastRejection.comment }}
 				</CnNoteCard>
 			</div>
@@ -59,7 +73,9 @@
 				<div class="decidesk-tab__header">
 					<h3 class="decidesk-tab__title">
 						{{ t('decidesk', 'Correction suggestions') }}
-						<span class="decidesk-tab__count">({{ corrections.length }})</span>
+						<span class="decidesk-tab__count"
+							>({{ corrections.length }})</span
+						>
 					</h3>
 					<NcButton
 						v-if="canSuggest"
@@ -74,7 +90,8 @@
 					{{ t('decidesk', 'No corrections suggested.') }}
 				</p>
 				<ul v-else class="decidesk-tab__list" role="list">
-					<li v-for="correction in corrections"
+					<li
+						v-for="correction in corrections"
 						:key="correction.id"
 						class="decidesk-tab__correction"
 						role="listitem">
@@ -82,12 +99,16 @@
 							<CnStatusBadge
 								:label="statusLabel(correction.status)"
 								:color-map="correctionColors" />
-							<span class="decidesk-tab__correction-text">{{ correction.text }}</span>
+							<span class="decidesk-tab__correction-text">{{
+								correction.text
+							}}</span>
 							<span class="decidesk-tab__meta">
 								{{ correction.authorName || correction.author }}
 							</span>
 						</div>
-						<div v-if="correction.status === 'proposed'" class="decidesk-tab__correction-actions">
+						<div
+							v-if="correction.status === 'proposed'"
+							class="decidesk-tab__correction-actions">
 							<NcButton
 								size="small"
 								variant="primary"
@@ -121,7 +142,11 @@
 </template>
 
 <script>
-import { CnNoteCard, CnStatusBadge, CnTimelineStages } from '@conduction/nextcloud-vue'
+import {
+	CnNoteCard,
+	CnStatusBadge,
+	CnTimelineStages,
+} from '@conduction/nextcloud-vue'
 import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
 import MinutesRejectModal from '../../modals/MinutesRejectModal.vue'
@@ -160,11 +185,16 @@ export default {
 	computed: {
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		stages() {
-			return LIFECYCLE_STAGES.map(stage => ({ id: stage, label: this.statusLabel(stage) }))
+			return LIFECYCLE_STAGES.map((stage) => ({
+				id: stage,
+				label: this.statusLabel(stage),
+			}))
 		},
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		currentStageIndex() {
-			const index = LIFECYCLE_STAGES.indexOf(this.minutes?.lifecycle || 'draft')
+			const index = LIFECYCLE_STAGES.indexOf(
+				this.minutes?.lifecycle || 'draft',
+			)
 			return index === -1 ? 0 : index
 		},
 		/** @spec openspec/specs/resolution-minutes/spec.md */
@@ -173,7 +203,9 @@ export default {
 		},
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		corrections() {
-			return Array.isArray(this.minutes?.corrections) ? this.minutes.corrections : []
+			return Array.isArray(this.minutes?.corrections)
+				? this.minutes.corrections
+				: []
 		},
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		canSuggest() {
@@ -181,13 +213,17 @@ export default {
 		},
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		lastRejection() {
-			const comments = Array.isArray(this.minutes?.reviewComments) ? this.minutes.reviewComments : []
-			const rejections = comments.filter(c => c?.action === 'rejected')
+			const comments = Array.isArray(this.minutes?.reviewComments)
+				? this.minutes.reviewComments
+				: []
+			const rejections = comments.filter((c) => c?.action === 'rejected')
 			return rejections.length ? rejections[rejections.length - 1] : null
 		},
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		signedByLabel() {
-			const signers = Array.isArray(this.minutes?.signedBy) ? this.minutes.signedBy : []
+			const signers = Array.isArray(this.minutes?.signedBy)
+				? this.minutes.signedBy
+				: []
 			return signers.join(', ')
 		},
 		/** @spec openspec/specs/resolution-minutes/spec.md */
@@ -203,7 +239,9 @@ export default {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/resolution-minutes/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 	methods: {
@@ -253,7 +291,8 @@ export default {
 				const store = ensureRelationType('minutes')
 				this.minutes = await store.fetchObject('minutes', this.objectId)
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load the minutes.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load the minutes.')
 			} finally {
 				this.loading = false
 			}
@@ -278,7 +317,9 @@ export default {
 			})
 			const data = await response.json().catch(() => ({}))
 			if (!response.ok) {
-				throw new Error(data.message || this.t('decidesk', 'The action failed.'))
+				throw new Error(
+					data.message || this.t('decidesk', 'The action failed.'),
+				)
 			}
 			return data
 		},
@@ -297,9 +338,13 @@ export default {
 			this.working = true
 			try {
 				if (action.action === 'submit') {
-					await this.callApi(`/minutes/${this.objectId}/submit-for-approval`)
+					await this.callApi(
+						`/minutes/${this.objectId}/submit-for-approval`,
+					)
 				} else {
-					await this.callApi(`/minutes/${this.objectId}/transition`, { lifecycle: action.target })
+					await this.callApi(`/minutes/${this.objectId}/transition`, {
+						lifecycle: action.target,
+					})
 				}
 				await this.refresh()
 			} catch (e) {
@@ -357,7 +402,11 @@ export default {
 			this.working = true
 			this.error = ''
 			try {
-				await this.callApi(`/minutes/${this.objectId}/corrections/${correction.id}`, { status }, 'PUT')
+				await this.callApi(
+					`/minutes/${this.objectId}/corrections/${correction.id}`,
+					{ status },
+					'PUT',
+				)
 				await this.refresh()
 			} catch (e) {
 				this.error = e.message

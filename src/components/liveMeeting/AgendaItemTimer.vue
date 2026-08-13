@@ -21,20 +21,36 @@
 		<div
 			v-if="hasAllocation"
 			class="agenda-timer__clock"
-			:class="{ 'agenda-timer__clock--over': overTime, 'agenda-timer__clock--paused': isPaused }"
+			:class="{
+				'agenda-timer__clock--over': overTime,
+				'agenda-timer__clock--paused': isPaused,
+			}"
 			:role="overTime ? 'alert' : undefined"
-			:aria-label="t('decidesk', 'Time remaining for {title}', { title: item.title })"
+			:aria-label="
+				t('decidesk', 'Time remaining for {title}', { title: item.title })
+			"
 			data-testid="agenda-item-timer-clock">
 			{{ clockText }}
-			<span v-if="isPaused" class="agenda-timer__paused-tag" data-testid="agenda-item-timer-paused">
+			<span
+				v-if="isPaused"
+				class="agenda-timer__paused-tag"
+				data-testid="agenda-item-timer-paused">
 				{{ t('decidesk', 'Paused') }}
 			</span>
 			<span v-else-if="overTime" class="agenda-timer__over-tag">
 				{{ t('decidesk', 'Over time') }}
 			</span>
 		</div>
-		<p v-else class="agenda-timer__no-allocation" data-testid="agenda-item-timer-no-allocation">
-			{{ t('decidesk', 'No time allocated — elapsed time is tracked for analytics.') }}
+		<p
+			v-else
+			class="agenda-timer__no-allocation"
+			data-testid="agenda-item-timer-no-allocation">
+			{{
+				t(
+					'decidesk',
+					'No time allocated — elapsed time is tracked for analytics.',
+				)
+			}}
 			<span class="agenda-timer__elapsed">{{ elapsedText }}</span>
 		</p>
 
@@ -85,8 +101,15 @@
 					{{ t('decidesk', 'Close item') }}
 				</NcButton>
 			</template>
-			<span v-else class="agenda-timer__closed" data-testid="agenda-item-timer-closed">
-				{{ t('decidesk', 'Item closed ({minutes} min)', { minutes: closedMinutes }) }}
+			<span
+				v-else
+				class="agenda-timer__closed"
+				data-testid="agenda-item-timer-closed">
+				{{
+					t('decidesk', 'Item closed ({minutes} min)', {
+						minutes: closedMinutes,
+					})
+				}}
 			</span>
 		</div>
 	</div>
@@ -155,7 +178,11 @@ export default {
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		clockText() {
 			const remaining = remainingSeconds(this.timer, this.now)
-			return formatClock(remaining === null ? elapsedSeconds(this.timer, this.now) : remaining)
+			return formatClock(
+				remaining === null
+					? elapsedSeconds(this.timer, this.now)
+					: remaining,
+			)
 		},
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		elapsedText() {
@@ -177,7 +204,9 @@ export default {
 
 	/** @spec exclude lifecycle hook; starts the 1s render tick only */
 	mounted() {
-		this.intervalId = setInterval(() => { this.now = Date.now() }, 1000)
+		this.intervalId = setInterval(() => {
+			this.now = Date.now()
+		}, 1000)
 	},
 
 	/** @spec exclude lifecycle teardown; clears the render interval */
@@ -220,8 +249,12 @@ export default {
 		async close() {
 			this.now = Date.now()
 			this.timer = finishTimer(this.timer, this.now)
-			const actualDuration = Math.round(elapsedSeconds(this.timer, this.now) / 60)
-			const pausedDuration = Math.round(pausedSeconds(this.timer, this.now) / 60)
+			const actualDuration = Math.round(
+				elapsedSeconds(this.timer, this.now) / 60,
+			)
+			const pausedDuration = Math.round(
+				pausedSeconds(this.timer, this.now) / 60,
+			)
 			this.closing = true
 			try {
 				await this.objectStore.saveObject('agenda-item', {
@@ -229,7 +262,11 @@ export default {
 					actualDuration,
 					pausedDuration,
 				})
-				this.$emit('closed', { itemId: this.item.id, actualDuration, pausedDuration })
+				this.$emit('closed', {
+					itemId: this.item.id,
+					actualDuration,
+					pausedDuration,
+				})
 			} catch (e) {
 				console.error('Failed to persist agenda item duration:', e)
 			} finally {
@@ -267,8 +304,13 @@ export default {
 }
 
 @keyframes agenda-timer-pulse {
-	0%, 100% { opacity: 1; }
-	50% { opacity: 0.4; }
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.4;
+	}
 }
 
 /*

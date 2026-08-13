@@ -50,7 +50,8 @@ webpackConfig.output = { ...(webpackConfig.output || {}), publicPath: 'auto' }
 // Use local source when available (monorepo dev), otherwise fall back to npm package.
 // CN_NEXTCLOUD_VUE_SRC env override lets a sibling worktree pin a specific
 // nextcloud-vue source path (used when iterating on an unmerged nc-vue branch).
-const localLib = process.env.CN_NEXTCLOUD_VUE_SRC
+const localLib =
+	process.env.CN_NEXTCLOUD_VUE_SRC
 	|| path.resolve(__dirname, '../nextcloud-vue/src')
 const useLocalLib = process.env.USE_LOCAL_LIB !== 'false' && fs.existsSync(localLib)
 
@@ -72,20 +73,33 @@ webpackConfig.resolve = {
 		// a console warning while the 98-SFC sweep lands. The default build is
 		// PURE Vue 3 — the source is compat-free (no .sync/$set/observable/
 		// filters), so the compat runtime is not shipped in a release build.
-		'vue$': process.env.VUE_COMPAT === 'true'
-			? path.resolve(__dirname, 'node_modules/@vue/compat/dist/vue.runtime.esm-bundler.js')
-			: path.resolve(__dirname, 'node_modules/vue/dist/vue.runtime.esm-bundler.js'),
-		'pinia$': path.resolve(__dirname, 'node_modules/pinia'),
+		vue$:
+			process.env.VUE_COMPAT === 'true'
+				? path.resolve(
+						__dirname,
+						'node_modules/@vue/compat/dist/vue.runtime.esm-bundler.js',
+					)
+				: path.resolve(
+						__dirname,
+						'node_modules/vue/dist/vue.runtime.esm-bundler.js',
+					),
+		pinia$: path.resolve(__dirname, 'node_modules/pinia'),
 		// Dedupe vue-router to ONE copy (absolute file): the aliased lib
 		// worktree ships its own vue-router, so a per-importer resolve gives
 		// @nextcloud/vue's RouterLink a different router instance than
 		// app.use(router) provided → NcAppNavigationItem's <router-link> scoped
 		// slot gets undefined props. One copy = one router.
-		'vue-router$': path.resolve(__dirname, 'node_modules/vue-router/dist/vue-router.mjs'),
+		'vue-router$': path.resolve(
+			__dirname,
+			'node_modules/vue-router/dist/vue-router.mjs',
+		),
 		// v9 is ESM-only: exports maps '.' -> ./dist/index.mjs with no
 		// main/module, so a directory alias can't resolve it. Point at the
 		// explicit entry file (also dedupes the aliased lib worktree's copy).
-		'@nextcloud/vue$': path.resolve(__dirname, 'node_modules/@nextcloud/vue/dist/index.mjs'),
+		'@nextcloud/vue$': path.resolve(
+			__dirname,
+			'node_modules/@nextcloud/vue/dist/index.mjs',
+		),
 	},
 }
 
@@ -116,7 +130,9 @@ webpackConfig.module = {
 webpackConfig.plugins = [
 	new VueLoaderPlugin(),
 	new webpack.DefinePlugin({ appName: JSON.stringify(appId) }),
-	new webpack.DefinePlugin({ appVersion: JSON.stringify(process.env.npm_package_version) }),
+	new webpack.DefinePlugin({
+		appVersion: JSON.stringify(process.env.npm_package_version),
+	}),
 ]
 
 // PUBLISHED-DIST RUNTIME FIX (nc-vue "vue3 dist" gotcha — RUN the bundle, don't
@@ -154,8 +170,14 @@ webpackConfig.optimization = {
 // the aliased directory has nothing to resolve against and the build fails with
 // "…/node_modules/@nextcloud/dialogs doesn't exist"). Use an exact-match `$`
 // alias onto the explicit entry FILE, exactly as `@nextcloud/vue$` above does.
-webpackConfig.resolve.alias['@nextcloud/dialogs/style.css$'] = path.resolve(__dirname, 'node_modules/@nextcloud/dialogs/dist/style.css')
-webpackConfig.resolve.alias['@nextcloud/dialogs$'] = path.resolve(__dirname, 'node_modules/@nextcloud/dialogs/dist/index.mjs')
+webpackConfig.resolve.alias['@nextcloud/dialogs/style.css$'] = path.resolve(
+	__dirname,
+	'node_modules/@nextcloud/dialogs/dist/style.css',
+)
+webpackConfig.resolve.alias['@nextcloud/dialogs$'] = path.resolve(
+	__dirname,
+	'node_modules/@nextcloud/dialogs/dist/index.mjs',
+)
 
 // dialogs drags in a FilePicker chunk that imports node's `path`, and webpack 5 no
 // longer auto-polyfills node core modules — without this the bundle fails to emit with

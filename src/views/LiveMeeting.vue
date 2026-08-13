@@ -44,7 +44,8 @@
 				:aria-label="t('decidesk', 'Consent agenda items')">
 				<h3>{{ t('decidesk', 'Consent agenda items (hamerstukken)') }}</h3>
 				<ul class="live-meeting__hamerstukken-list" role="list">
-					<li v-for="item in hamerstukken"
+					<li
+						v-for="item in hamerstukken"
 						:key="item.id"
 						class="live-meeting__hamerstukken-item"
 						role="listitem">
@@ -52,7 +53,11 @@
 						<NcButton
 							v-if="isChair"
 							size="small"
-							:aria-label="t('decidesk', 'Remove {title} from consent agenda', { title: item.title })"
+							:aria-label="
+								t('decidesk', 'Remove {title} from consent agenda', {
+									title: item.title,
+								})
+							"
 							@click="removeFromHamerstukken(item)">
 							{{ t('decidesk', 'Remove from consent agenda') }}
 						</NcButton>
@@ -78,7 +83,9 @@
 			</section>
 
 			<!-- Regular agenda items -->
-			<section class="live-meeting__items" :aria-label="t('decidesk', 'Agenda items')">
+			<section
+				class="live-meeting__items"
+				:aria-label="t('decidesk', 'Agenda items')">
 				<h3>{{ t('decidesk', 'Agenda items') }}</h3>
 
 				<!-- Chair view: full edit controls -->
@@ -97,17 +104,32 @@
 				<!-- Non-chair: read-only list -->
 				<template v-else>
 					<ol class="live-meeting__readonly-list" role="list">
-						<li v-for="item in regularItems"
+						<li
+							v-for="item in regularItems"
 							:key="item.id"
 							class="live-meeting__readonly-item"
-							:class="{ 'live-meeting__readonly-item--active': activeItemId === item.id }"
+							:class="{
+								'live-meeting__readonly-item--active':
+									activeItemId === item.id,
+							}"
 							role="listitem"
-							:aria-current="activeItemId === item.id ? 'true' : undefined">
-							<span class="live-meeting__item-order" aria-hidden="true">{{ item.orderNumber }}</span>
+							:aria-current="
+								activeItemId === item.id ? 'true' : undefined
+							">
+							<span
+								class="live-meeting__item-order"
+								aria-hidden="true"
+								>{{ item.orderNumber }}</span
+							>
 							<CnStatusBadge :status="item.itemType" />
-							<span class="live-meeting__item-title">{{ item.title }}</span>
-							<span v-if="item.estimatedDuration" class="live-meeting__item-duration">
-								{{ item.estimatedDuration }} {{ t('decidesk', 'min') }}
+							<span class="live-meeting__item-title">{{
+								item.title
+							}}</span>
+							<span
+								v-if="item.estimatedDuration"
+								class="live-meeting__item-duration">
+								{{ item.estimatedDuration }}
+								{{ t('decidesk', 'min') }}
 							</span>
 						</li>
 					</ol>
@@ -119,7 +141,11 @@
 				v-if="activeItem"
 				class="live-meeting__active"
 				:aria-label="t('decidesk', 'Active agenda item')">
-				<h3>{{ t('decidesk', 'Active: {title}', { title: activeItem.title }) }}</h3>
+				<h3>
+					{{
+						t('decidesk', 'Active: {title}', { title: activeItem.title })
+					}}
+				</h3>
 
 				<!-- Agenda-item countdown timer (meeting-efficiency) -->
 				<AgendaItemTimer
@@ -130,15 +156,24 @@
 					@closed="refreshItems" />
 
 				<!-- BOB phase (discussion/decision only) -->
-				<template v-if="['discussion', 'decision'].includes(activeItem.itemType)">
+				<template
+					v-if="['discussion', 'decision'].includes(activeItem.itemType)">
 					<CnTimelineStages
 						:stages="bobStages"
 						:current="currentBobStageIndex(activeItem)"
-						:aria-label="t('decidesk', 'BOB phase for {title}', { title: activeItem.title })" />
+						:aria-label="
+							t('decidesk', 'BOB phase for {title}', {
+								title: activeItem.title,
+							})
+						" />
 					<NcButton
 						v-if="isChair && canAdvanceBob(activeItem)"
 						:loading="advancingBob"
-						:aria-label="t('decidesk', 'Advance to next BOB phase for {title}', { title: activeItem.title })"
+						:aria-label="
+							t('decidesk', 'Advance to next BOB phase for {title}', {
+								title: activeItem.title,
+							})
+						"
 						@click="advanceBobPhase(activeItem)">
 						{{ t('decidesk', 'Next phase') }}
 					</NcButton>
@@ -166,14 +201,21 @@
 				:aria-label="t('decidesk', 'Activate agenda item')">
 				<h4>{{ t('decidesk', 'Activate item') }}</h4>
 				<ul class="live-meeting__activate-list" role="list">
-					<li v-for="item in regularItems"
+					<li
+						v-for="item in regularItems"
 						:key="item.id"
 						class="live-meeting__activate-item"
 						role="listitem">
 						<NcButton
 							size="small"
-							:variant="activeItemId === item.id ? 'primary' : 'secondary'"
-							:aria-label="t('decidesk', 'Activate {title}', { title: item.title })"
+							:variant="
+								activeItemId === item.id ? 'primary' : 'secondary'
+							"
+							:aria-label="
+								t('decidesk', 'Activate {title}', {
+									title: item.title,
+								})
+							"
 							:aria-pressed="activeItemId === item.id"
 							@click="activateItem(item)">
 							{{ item.orderNumber }}. {{ item.title }}
@@ -275,14 +317,21 @@ export default {
 		 */
 		allItems() {
 			const collection = this.objectStore.collections?.['agenda-item'] ?? []
-			return collection.filter(i => i?.meeting === this.id
-				|| i?.['@self']?.relations?.meeting === this.id
-				|| i?.relations?.meeting === this.id)
+			return collection.filter(
+				(i) =>
+					i?.meeting === this.id
+					|| i?.['@self']?.relations?.meeting === this.id
+					|| i?.relations?.meeting === this.id,
+			)
 		},
 		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 		participants() {
 			const collection = this.objectStore.collections?.participant ?? []
-			return collection.filter(p => p?.['@self']?.relations?.meeting === this.id || p?.relations?.meeting === this.id)
+			return collection.filter(
+				(p) =>
+					p?.['@self']?.relations?.meeting === this.id
+					|| p?.relations?.meeting === this.id,
+			)
 		},
 
 		/**
@@ -292,7 +341,8 @@ export default {
 		 * @spec openspec/specs/meeting-efficiency/spec.md
 		 */
 		hourlyRate() {
-			const bodyId = this.meeting?.governanceBody
+			const bodyId =
+				this.meeting?.governanceBody
 				?? this.meeting?.['@self']?.relations?.governanceBody
 			if (!bodyId) return 0
 			const body = this.objectStore.objects?.['governance-body']?.[bodyId]
@@ -307,7 +357,9 @@ export default {
 			// nextcloudUserId is the canonical link (ParticipantResolver);
 			// owner is the legacy fallback for pre-migration records.
 			return this.participants.some(
-				p => (p.nextcloudUserId === currentUser.uid || (!p.nextcloudUserId && p.owner === currentUser.uid))
+				(p) =>
+					(p.nextcloudUserId === currentUser.uid
+						|| (!p.nextcloudUserId && p.owner === currentUser.uid))
 					&& p.role === 'chair',
 			)
 		},
@@ -324,31 +376,36 @@ export default {
 			if (!currentUser) return false
 			if (currentUser.isAdmin) return true
 			return this.participants.some(
-				p => (p.nextcloudUserId === currentUser.uid || (!p.nextcloudUserId && p.owner === currentUser.uid))
+				(p) =>
+					(p.nextcloudUserId === currentUser.uid
+						|| (!p.nextcloudUserId && p.owner === currentUser.uid))
 					&& ['chair', 'secretary'].includes(p.role),
 			)
 		},
 
 		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3 */
 		bobStages() {
-			return BOB_STAGES.map(s => ({ ...s, label: this.t('decidesk', s.label) }))
+			return BOB_STAGES.map((s) => ({
+				...s,
+				label: this.t('decidesk', s.label),
+			}))
 		},
 
 		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4 */
 		hamerstukken() {
-			return this.allItems.filter(i => (i.tags ?? []).includes('hamerstuk'))
+			return this.allItems.filter((i) => (i.tags ?? []).includes('hamerstuk'))
 		},
 
 		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 		regularItems() {
 			return this.allItems
-				.filter(i => !(i.tags ?? []).includes('hamerstuk'))
+				.filter((i) => !(i.tags ?? []).includes('hamerstuk'))
 				.sort((a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0))
 		},
 
 		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.2 */
 		activeItem() {
-			return this.allItems.find(i => i.id === this.activeItemId) ?? null
+			return this.allItems.find((i) => i.id === this.activeItemId) ?? null
 		},
 	},
 
@@ -356,7 +413,7 @@ export default {
 		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3 */
 		currentBobStageIndex(item) {
 			const status = item?.status ?? 'beeldvorming'
-			const idx = BOB_STAGES.findIndex(s => s.id === status)
+			const idx = BOB_STAGES.findIndex((s) => s.id === status)
 			return idx === -1 ? 0 : idx
 		},
 
@@ -375,7 +432,9 @@ export default {
 			this.advancingBob = true
 			try {
 				const response = await fetch(
-					OC.generateUrl(`/apps/decidesk/api/agenda-items/${item.id}/bob-phase`),
+					OC.generateUrl(
+						`/apps/decidesk/api/agenda-items/${item.id}/bob-phase`,
+					),
 					{
 						method: 'PUT',
 						headers: { requesttoken: OC.requestToken },
@@ -399,7 +458,9 @@ export default {
 			this.confirmHamerstukken = false
 			try {
 				const response = await fetch(
-					OC.generateUrl(`/apps/decidesk/api/agendas/${this.id}/hamerstukken`),
+					OC.generateUrl(
+						`/apps/decidesk/api/agendas/${this.id}/hamerstukken`,
+					),
 					{
 						method: 'POST',
 						headers: { requesttoken: OC.requestToken },
@@ -419,7 +480,7 @@ export default {
 
 		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4 */
 		async removeFromHamerstukken(item) {
-			const tags = (item.tags ?? []).filter(t => t !== 'hamerstuk')
+			const tags = (item.tags ?? []).filter((t) => t !== 'hamerstuk')
 			try {
 				await this.objectStore.saveObject('agenda-item', { ...item, tags })
 				await this.refreshItems()
@@ -479,7 +540,8 @@ export default {
 		 * @spec openspec/specs/meeting-efficiency/spec.md
 		 */
 		async fetchGovernanceBody() {
-			const bodyId = this.meeting?.governanceBody
+			const bodyId =
+				this.meeting?.governanceBody
 				?? this.meeting?.['@self']?.relations?.governanceBody
 			if (!bodyId) return
 			try {

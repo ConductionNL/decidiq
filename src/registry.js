@@ -235,50 +235,92 @@ export default {
 	// is empty. KPI cards are small (3×2); list/chart widgets and the empty
 	// state span wider.
 	PendingVotesKpiWidget: widget(PendingVotesKpiWidget, {
-		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
+		defaultSize: { w: 3, h: 2 },
+		minSize: { w: 2, h: 2 },
+		maxSize: { w: 4, h: 3 },
+		allowedSlots: ['dashboard', 'kpi'],
 	}),
 	// The other three KPI cards of the spec'd four-card Row 1. Same geometry as
 	// PendingVotesKpiWidget above — they are the same kind of card.
 	ActiveDecisionsKpiWidget: widget(ActiveDecisionsKpiWidget, {
-		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
+		defaultSize: { w: 3, h: 2 },
+		minSize: { w: 2, h: 2 },
+		maxSize: { w: 4, h: 3 },
+		allowedSlots: ['dashboard', 'kpi'],
 	}),
 	UpcomingMeetingsKpiWidget: widget(UpcomingMeetingsKpiWidget, {
-		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
+		defaultSize: { w: 3, h: 2 },
+		minSize: { w: 2, h: 2 },
+		maxSize: { w: 4, h: 3 },
+		allowedSlots: ['dashboard', 'kpi'],
 	}),
 	OverdueActionsKpiWidget: widget(OverdueActionsKpiWidget, {
-		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
+		defaultSize: { w: 3, h: 2 },
+		minSize: { w: 2, h: 2 },
+		maxSize: { w: 4, h: 3 },
+		allowedSlots: ['dashboard', 'kpi'],
 	}),
 	// List / chart widgets — same geometry as the already-registered
 	// PendingVotesListWidget they share a row with.
 	UpcomingMeetingsListWidget: widget(UpcomingMeetingsListWidget, {
-		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
+		defaultSize: { w: 6, h: 4 },
+		minSize: { w: 4, h: 3 },
+		maxSize: { w: 12, h: 8 },
+		allowedSlots: ['dashboard'],
 	}),
 	RecentDecisionsWidget: widget(RecentDecisionsWidget, {
-		defaultSize: { w: 12, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
+		defaultSize: { w: 12, h: 4 },
+		minSize: { w: 4, h: 3 },
+		maxSize: { w: 12, h: 8 },
+		allowedSlots: ['dashboard'],
 	}),
 	GovernanceHealthWidget: widget(GovernanceHealthWidget, {
-		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
+		defaultSize: { w: 6, h: 4 },
+		minSize: { w: 4, h: 3 },
+		maxSize: { w: 12, h: 8 },
+		allowedSlots: ['dashboard'],
 	}),
 	PendingVotesListWidget: widget(PendingVotesListWidget, {
-		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
+		defaultSize: { w: 6, h: 4 },
+		minSize: { w: 4, h: 3 },
+		maxSize: { w: 12, h: 8 },
+		allowedSlots: ['dashboard'],
 	}),
 	RunningProcessesWidget: widget(RunningProcessesWidget, {
-		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
+		defaultSize: { w: 6, h: 4 },
+		minSize: { w: 4, h: 3 },
+		maxSize: { w: 12, h: 8 },
+		allowedSlots: ['dashboard'],
 	}),
 	MyActionItemsWidget: widget(MyActionItemsWidget, {
-		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
+		defaultSize: { w: 6, h: 4 },
+		minSize: { w: 4, h: 3 },
+		maxSize: { w: 12, h: 8 },
+		allowedSlots: ['dashboard'],
 	}),
 	DashboardEmptyState: widget(DashboardEmptyState, {
-		defaultSize: { w: 12, h: 5 }, minSize: { w: 6, h: 4 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard', 'full'],
+		defaultSize: { w: 12, h: 5 },
+		minSize: { w: 6, h: 4 },
+		maxSize: { w: 12, h: 8 },
+		allowedSlots: ['dashboard', 'full'],
 	}),
 	CreateMeetingAction: widget(CreateMeetingAction, {
-		defaultSize: { w: 1, h: 1 }, minSize: { w: 1, h: 1 }, maxSize: { w: 2, h: 1 }, allowedSlots: ['dashboard'],
+		defaultSize: { w: 1, h: 1 },
+		minSize: { w: 1, h: 1 },
+		maxSize: { w: 2, h: 1 },
+		allowedSlots: ['dashboard'],
 	}),
 	StartProcessAction: widget(StartProcessAction, {
-		defaultSize: { w: 1, h: 1 }, minSize: { w: 1, h: 1 }, maxSize: { w: 2, h: 1 }, allowedSlots: ['dashboard'],
+		defaultSize: { w: 1, h: 1 },
+		minSize: { w: 1, h: 1 },
+		maxSize: { w: 2, h: 1 },
+		allowedSlots: ['dashboard'],
 	}),
 	DashboardQuickActions: widget(DashboardQuickActions, {
-		defaultSize: { w: 12, h: 1 }, minSize: { w: 3, h: 1 }, maxSize: { w: 12, h: 1 }, allowedSlots: ['dashboard'],
+		defaultSize: { w: 12, h: 1 },
+		minSize: { w: 3, h: 1 },
+		maxSize: { w: 12, h: 1 },
+		allowedSlots: ['dashboard'],
 	}),
 
 	// Decision state machine (decision-state-machine-v1): lifecycle

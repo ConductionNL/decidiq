@@ -31,7 +31,9 @@
 		<NcLoadingIcon v-if="loading" :size="32" />
 
 		<template v-else-if="!minutes">
-			<p>{{ t('decidesk', 'No draft minutes exist for this meeting yet.') }}</p>
+			<p>
+				{{ t('decidesk', 'No draft minutes exist for this meeting yet.') }}
+			</p>
 			<NcButton
 				variant="primary"
 				data-testid="minutes-panel-start"
@@ -47,7 +49,12 @@
 
 		<template v-else>
 			<p v-if="!editable" class="minutes-panel__locked">
-				{{ t('decidesk', 'The minutes are no longer in draft — editing is locked.') }}
+				{{
+					t(
+						'decidesk',
+						'The minutes are no longer in draft — editing is locked.',
+					)
+				}}
 			</p>
 			<p v-if="error" class="minutes-panel__error" role="alert">
 				{{ error }}
@@ -85,7 +92,11 @@
 					<NcButton
 						v-if="editable"
 						size="small"
-						:aria-label="t('decidesk', '+ Action item for {title}', { title: item.title })"
+						:aria-label="
+							t('decidesk', '+ Action item for {title}', {
+								title: item.title,
+							})
+						"
 						@click="actionItemTarget = item">
 						{{ t('decidesk', '+ Action item') }}
 					</NcButton>
@@ -112,7 +123,9 @@
 					:placeholder="t('decidesk', 'Decisions taken on this item…')"
 					:disabled="!editable"
 					resize="vertical"
-					@update:model-value="onNoteInput(item.id, 'decisions', $event)" />
+					@update:model-value="
+						onNoteInput(item.id, 'decisions', $event)
+					" />
 			</div>
 		</template>
 
@@ -154,7 +167,9 @@ export default {
 	computed: {
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		sortedItems() {
-			return [...this.agendaItems].sort((a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0))
+			return [...this.agendaItems].sort(
+				(a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0),
+			)
 		},
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		editable() {
@@ -163,15 +178,18 @@ export default {
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		saveStateLabel() {
 			switch (this.saveState) {
-			case 'pending':
-			case 'saving':
-				return this.t('decidesk', 'Saving…')
-			case 'saved':
-				return this.t('decidesk', 'All changes saved')
-			case 'error':
-				return this.t('decidesk', 'Autosave failed — retrying on next edit')
-			default:
-				return ''
+				case 'pending':
+				case 'saving':
+					return this.t('decidesk', 'Saving…')
+				case 'saved':
+					return this.t('decidesk', 'All changes saved')
+				case 'error':
+					return this.t(
+						'decidesk',
+						'Autosave failed — retrying on next edit',
+					)
+				default:
+					return ''
 			}
 		},
 	},
@@ -179,7 +197,9 @@ export default {
 	created() {
 		this.autosaver = createAutosaver({
 			save: (itemNotes) => this.persist(itemNotes),
-			onStateChange: (state) => { this.saveState = state },
+			onStateChange: (state) => {
+				this.saveState = state
+			},
 		})
 		this.fetchMinutes()
 	},
@@ -203,10 +223,14 @@ export default {
 					_limit: 100,
 				})
 				const list = items || []
-				this.minutes = list.find(m => m.lifecycle === 'draft') || list[0] || null
-				this.itemNotes = Array.isArray(this.minutes?.itemNotes) ? this.minutes.itemNotes : []
+				this.minutes =
+					list.find((m) => m.lifecycle === 'draft') || list[0] || null
+				this.itemNotes = Array.isArray(this.minutes?.itemNotes)
+					? this.minutes.itemNotes
+					: []
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load minutes.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load minutes.')
 			} finally {
 				this.loading = false
 			}
@@ -231,7 +255,8 @@ export default {
 				})
 				await this.fetchMinutes()
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Could not create minutes.')
+				this.error =
+					e?.message || this.t('decidesk', 'Could not create minutes.')
 			} finally {
 				this.creating = false
 			}
@@ -256,7 +281,9 @@ export default {
 		 */
 		onNoteInput(agendaItemId, field, value) {
 			if (!this.editable) return
-			this.itemNotes = mergeItemNote(this.itemNotes, agendaItemId, { [field]: value })
+			this.itemNotes = mergeItemNote(this.itemNotes, agendaItemId, {
+				[field]: value,
+			})
 			this.autosaver.schedule(this.itemNotes)
 		},
 		/**
@@ -268,7 +295,10 @@ export default {
 		async persist(itemNotes) {
 			if (!this.minutes) return
 			const store = ensureRelationType('minutes')
-			const saved = await store.saveObject('minutes', { ...this.minutes, itemNotes })
+			const saved = await store.saveObject('minutes', {
+				...this.minutes,
+				itemNotes,
+			})
 			if (saved) this.minutes = saved
 		},
 	},

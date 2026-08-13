@@ -30,7 +30,9 @@ async function gotoDashboard(page) {
 }
 
 // @e2e openspec/specs/dashboard/spec.md#default-grid-layout-on-first-load
-test('v2 grid renders the KPI row, list widgets and governance-health chart', async ({ page }) => {
+test('v2 grid renders the KPI row, list widgets and governance-health chart', async ({
+	page,
+}) => {
 	await gotoDashboard(page)
 
 	// Row 1 — four KPI cards (gridY=0, each gridWidth=3).
@@ -40,7 +42,9 @@ test('v2 grid renders the KPI row, list widgets and governance-health chart', as
 	await expect(page.locator('[data-testid="overdue-actions-kpi"]')).toBeVisible()
 
 	// Rows 2–4 — list / process widgets.
-	await expect(page.locator('[data-testid="upcoming-meetings-list"]')).toBeVisible()
+	await expect(
+		page.locator('[data-testid="upcoming-meetings-list"]'),
+	).toBeVisible()
 	await expect(page.locator('[data-testid="pending-votes-list"]')).toBeVisible()
 	await expect(page.locator('[data-testid="running-processes"]')).toBeVisible()
 	await expect(page.locator('[data-testid="my-action-items"]')).toBeVisible()
@@ -52,7 +56,9 @@ test('v2 grid renders the KPI row, list widgets and governance-health chart', as
 })
 
 // @e2e openspec/specs/dashboard/spec.md#display-active-decisions-count
-test('active-decisions KPI widget renders via its manifest slot', async ({ page }) => {
+test('active-decisions KPI widget renders via its manifest slot', async ({
+	page,
+}) => {
 	await gotoDashboard(page)
 	// ActiveDecisionsKpiWidget is wired through slots["widget-active-decisions"];
 	// it counts decisions whose outcome is null client-side.
@@ -78,7 +84,9 @@ test('overdue-actions KPI widget renders at gridX=9', async ({ page }) => {
 })
 
 // @e2e openspec/specs/dashboard/spec.md#empty-state-for-new-installation
-test('dashboard exposes the DashboardEmptyState welcome content for a fresh install', async ({ page }) => {
+test('dashboard exposes the DashboardEmptyState welcome content for a fresh install', async ({
+	page,
+}) => {
 	await gotoDashboard(page)
 	// DashboardEmptyState is declared in the manifest (widgets[] + slots) and is
 	// shown when no governance body exists. The welcome copy and quick actions

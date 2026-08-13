@@ -27,7 +27,8 @@
 		</NcEmptyContent>
 
 		<ul v-else class="dashboard-list-widget__list">
-			<li v-for="round in rows"
+			<li
+				v-for="round in rows"
 				:key="round.id"
 				:class="{ 'dashboard-list-widget__row--urgent': round._urgent }"
 				:data-testid="`pending-vote-row-${round.id}`"
@@ -38,11 +39,16 @@
 				@keydown.enter.prevent="openVote(round)"
 				@keydown.space.prevent="openVote(round)">
 				<div class="dashboard-list-widget__main">
-					<span class="dashboard-list-widget__title">{{ voteTitle(round) }}</span>
-					<span class="dashboard-list-widget__meta">{{ countdownLabel(round) }}</span>
+					<span class="dashboard-list-widget__title">{{
+						voteTitle(round)
+					}}</span>
+					<span class="dashboard-list-widget__meta">{{
+						countdownLabel(round)
+					}}</span>
 				</div>
 				<div class="dashboard-list-widget__aside">
-					<span v-if="round._urgent"
+					<span
+						v-if="round._urgent"
 						class="dashboard-list-widget__badge dashboard-list-widget__badge--urgent">
 						{{ t('decidesk', 'Urgent') }}
 					</span>
@@ -60,8 +66,17 @@ import { getCurrentUser } from '@nextcloud/auth'
 import { NcButton, NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
 import dashboardRefreshMixin from './dashboardRefreshMixin.js'
-import { resolveParticipantId, pendingVotingRounds, isUrgent, countdownBucket } from './widgetLogic.js'
-import { getParticipants, getVotingRounds, getVotes } from '../../../services/dashboardData.js'
+import {
+	resolveParticipantId,
+	pendingVotingRounds,
+	isUrgent,
+	countdownBucket,
+} from './widgetLogic.js'
+import {
+	getParticipants,
+	getVotingRounds,
+	getVotes,
+} from '../../../services/dashboardData.js'
 
 export default {
 	name: 'PendingVotesListWidget',
@@ -163,9 +178,13 @@ export default {
 		 */
 		openVote(round) {
 			const motion = round.motion
-			const motionId = motion && typeof motion === 'object' ? motion.id : motion
+			const motionId =
+				motion && typeof motion === 'object' ? motion.id : motion
 			if (motionId) {
-				this.$router.push({ name: 'MotionDetail', params: { id: String(motionId) } })
+				this.$router.push({
+					name: 'MotionDetail',
+					params: { id: String(motionId) },
+				})
 			}
 		},
 	},

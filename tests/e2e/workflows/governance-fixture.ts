@@ -72,7 +72,10 @@ async function requesttoken(page: Page): Promise<string> {
 
 /** Build the auth headers (CSRF requesttoken) for a write call. */
 export async function writeHeaders(page: Page): Promise<Record<string, string>> {
-	return { 'Content-Type': 'application/json', requesttoken: await requesttoken(page) }
+	return {
+		'Content-Type': 'application/json',
+		requesttoken: await requesttoken(page),
+	}
 }
 
 /** Pull the UUID out of an OR object response (covers both id shapes). */
@@ -95,7 +98,9 @@ export async function createObject(
 	const headers = await writeHeaders(page)
 	const resp = await page.request.post(`${OR}/${schema}`, { headers, data })
 	if (resp.status() >= 300) {
-		throw new Error(`createObject(${schema}) failed ${resp.status()}: ${await resp.text()}`)
+		throw new Error(
+			`createObject(${schema}) failed ${resp.status()}: ${await resp.text()}`,
+		)
 	}
 	const obj = await resp.json()
 	track(ledger, schema, objId(obj))
@@ -103,23 +108,39 @@ export async function createObject(
 }
 
 /** GET a single OR object by id. Returns null on 404. */
-export async function getObject(page: Page, schema: string, id: string): Promise<any | null> {
-	const resp = await page.request.get(`${OR}/${schema}/${id}`, { headers: { Accept: 'application/json' } })
+export async function getObject(
+	page: Page,
+	schema: string,
+	id: string,
+): Promise<any | null> {
+	const resp = await page.request.get(`${OR}/${schema}/${id}`, {
+		headers: { Accept: 'application/json' },
+	})
 	if (resp.status() === 404) return null
 	if (!resp.ok()) return null
 	return resp.json()
 }
 
 /** List OR objects for a schema (best-effort, limited). */
-export async function listObjects(page: Page, schema: string, limit = 200): Promise<any[]> {
-	const resp = await page.request.get(`${OR}/${schema}?_limit=${limit}`, { headers: { Accept: 'application/json' } })
+export async function listObjects(
+	page: Page,
+	schema: string,
+	limit = 200,
+): Promise<any[]> {
+	const resp = await page.request.get(`${OR}/${schema}?_limit=${limit}`, {
+		headers: { Accept: 'application/json' },
+	})
 	if (!resp.ok()) return []
 	const body = await resp.json()
 	return body.results ?? body.items ?? []
 }
 
 /** Delete one OR object (used by tests that delete through the API for setup). */
-export async function deleteObject(page: Page, schema: string, id: string): Promise<number> {
+export async function deleteObject(
+	page: Page,
+	schema: string,
+	id: string,
+): Promise<number> {
 	const headers = await writeHeaders(page)
 	const resp = await page.request.delete(`${OR}/${schema}/${id}`, { headers })
 	return resp.status()
@@ -145,8 +166,18 @@ export async function seedGovernanceScenario(
 		chairIsAdmin?: boolean
 		meetingLifecycle?: string
 	} = {},
-): Promise<{ governanceBodyId: string; meetingId: string; motionId: string; participantIds: string[] }> {
-	const { quorumRequired = 0, memberCount = 3, chairIsAdmin = true, meetingLifecycle = 'opened' } = opts
+): Promise<{
+	governanceBodyId: string
+	meetingId: string
+	motionId: string
+	participantIds: string[]
+}> {
+	const {
+		quorumRequired = 0,
+		memberCount = 3,
+		chairIsAdmin = true,
+		meetingLifecycle = 'opened',
+	} = opts
 	const tag = `e2e-${ledger.runId}`
 
 	const gb = await createObject(page, ledger, 'governance-body', {
@@ -235,12 +266,18 @@ export async function seedGovernanceScenario(
 const CLEANUP_CONCURRENCY = 8
 
 /** Issue DELETEs in bounded-concurrency batches. Best-effort, never throws. */
-async function deleteAll(page: Page, urls: string[], headers: Record<string, string>): Promise<void> {
+async function deleteAll(
+	page: Page,
+	urls: string[],
+	headers: Record<string, string>,
+): Promise<void> {
 	for (let i = 0; i < urls.length; i += CLEANUP_CONCURRENCY) {
 		await Promise.all(
-			urls.slice(i, i + CLEANUP_CONCURRENCY).map((url) =>
-				page.request.delete(url, { headers }).catch(() => undefined),
-			),
+			urls
+				.slice(i, i + CLEANUP_CONCURRENCY)
+				.map((url) =>
+					page.request.delete(url, { headers }).catch(() => undefined),
+				),
 		)
 	}
 }
@@ -253,24 +290,42 @@ export async function cleanupAll(page: Page, ledger: SeedLedger): Promise<void> 
 	// per-schema. Parallelism WITHIN a schema is safe; across schemas it is not.
 	for (const schema of TEARDOWN_ORDER) {
 		const ids = ledger.created[schema] ?? []
-		await deleteAll(page, ids.map((id) => `${OR}/${schema}/${id}`), headers)
+		await deleteAll(
+			page,
+			ids.map((id) => `${OR}/${schema}/${id}`),
+			headers,
+		)
 	}
 
 	// Sweep any stragglers tagged with this runId (e.g. votes/rounds created by
 	// the app under test, which the ledger never saw).
 	const tag = `e2e-${ledger.runId}`
-	const sweepSchemas = ['vote', 'voting-round', 'decision', 'participant', 'meeting', 'governance-body']
+	const sweepSchemas = [
+		'vote',
+		'voting-round',
+		'decision',
+		'participant',
+		'meeting',
+		'governance-body',
+	]
 
 	// The six listObjects() reads have no ordering constraint between them —
 	// only the deletes do — so they run concurrently and the per-schema deletes
 	// then proceed in dependency order as before.
 	const listings = await Promise.all(
-		sweepSchemas.map(async (schema) => ({ schema, objs: await listObjects(page, schema) })),
+		sweepSchemas.map(async (schema) => ({
+			schema,
+			objs: await listObjects(page, schema),
+		})),
 	)
 
 	for (const { schema, objs } of listings) {
 		const urls = objs
-			.filter((o) => String((o.title ?? o.name ?? o.displayName ?? '') as string).startsWith(tag))
+			.filter((o) =>
+				String(
+					(o.title ?? o.name ?? o.displayName ?? '') as string,
+				).startsWith(tag),
+			)
 			.map((o) => `${OR}/${schema}/${objId(o)}`)
 		await deleteAll(page, urls, headers)
 	}

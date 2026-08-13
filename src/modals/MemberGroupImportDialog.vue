@@ -33,7 +33,10 @@
 				{{ t('decidesk', 'Loading group members…') }}
 			</div>
 
-			<table v-else-if="preview.length" class="group-import__table" data-testid="group-import-preview">
+			<table
+				v-else-if="preview.length"
+				class="group-import__table"
+				data-testid="group-import-preview">
 				<thead>
 					<tr>
 						<th scope="col">
@@ -55,16 +58,24 @@
 							<span v-if="row.duplicate" class="group-import__dup">
 								{{ t('decidesk', 'Already a member — skipped') }}
 							</span>
-							<span v-else>{{ t('decidesk', 'Will be imported') }}</span>
+							<span v-else>{{
+								t('decidesk', 'Will be imported')
+							}}</span>
 						</td>
 					</tr>
 				</tbody>
 			</table>
 
-			<p v-if="error" class="group-import__error" data-testid="group-import-error">
+			<p
+				v-if="error"
+				class="group-import__error"
+				data-testid="group-import-error">
 				{{ error }}
 			</p>
-			<p v-if="doneMessage" class="group-import__done" data-testid="group-import-done">
+			<p
+				v-if="doneMessage"
+				class="group-import__done"
+				data-testid="group-import-done">
 				{{ doneMessage }}
 			</p>
 		</template>
@@ -74,9 +85,13 @@
 				:disabled="importing || importableCount === 0"
 				data-testid="group-import-submit"
 				@click="runImport">
-				{{ importing
-					? t('decidesk', 'Importing…')
-					: t('decidesk', 'Import {count} members', { count: importableCount }) }}
+				{{
+					importing
+						? t('decidesk', 'Importing…')
+						: t('decidesk', 'Import {count} members', {
+								count: importableCount,
+							})
+				}}
 			</NcButton>
 			<NcButton data-testid="group-import-cancel" @click="$emit('close')">
 				{{ t('decidesk', 'Close') }}
@@ -154,16 +169,25 @@ export default {
 			this.loadingGroups = true
 			this.error = ''
 			try {
-				const response = await fetch(generateUrl('/apps/decidesk/api/member-import/groups'), {
-					headers: { requesttoken: getRequestToken() },
-				})
+				const response = await fetch(
+					generateUrl('/apps/decidesk/api/member-import/groups'),
+					{
+						headers: { requesttoken: getRequestToken() },
+					},
+				)
 				if (!response.ok) {
-					throw new Error(this.t('decidesk', 'Could not load groups (admin access required).'))
+					throw new Error(
+						this.t(
+							'decidesk',
+							'Could not load groups (admin access required).',
+						),
+					)
 				}
 				const data = await response.json()
 				this.groups = data?.groups || []
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Could not load groups.')
+				this.error =
+					e?.message || this.t('decidesk', 'Could not load groups.')
 			} finally {
 				this.loadingGroups = false
 			}
@@ -183,14 +207,22 @@ export default {
 					'/apps/decidesk/api/member-import/groups/{groupId}/members',
 					{ groupId },
 				)
-				const response = await fetch(url, { headers: { requesttoken: getRequestToken() } })
+				const response = await fetch(url, {
+					headers: { requesttoken: getRequestToken() },
+				})
 				if (!response.ok) {
-					throw new Error(this.t('decidesk', 'Could not load group members.'))
+					throw new Error(
+						this.t('decidesk', 'Could not load group members.'),
+					)
 				}
 				const data = await response.json()
-				this.preview = markGroupDuplicates(data?.members || [], this.existingMembers)
+				this.preview = markGroupDuplicates(
+					data?.members || [],
+					this.existingMembers,
+				)
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Could not load group members.')
+				this.error =
+					e?.message || this.t('decidesk', 'Could not load group members.')
 				this.preview = []
 			} finally {
 				this.loadingMembers = false
@@ -213,10 +245,15 @@ export default {
 						governanceBody: this.bodyId,
 					})
 				}
-				this.doneMessage = this.t('decidesk', '{count} members imported.', { count: rows.length })
+				this.doneMessage = this.t('decidesk', '{count} members imported.', {
+					count: rows.length,
+				})
 				this.$emit('imported')
 				// Refresh duplicate flags so a second click cannot double-import.
-				this.preview = this.preview.map((row) => ({ ...row, duplicate: true }))
+				this.preview = this.preview.map((row) => ({
+					...row,
+					duplicate: true,
+				}))
 			} catch (e) {
 				this.error = e?.message || this.t('decidesk', 'Import failed.')
 			} finally {

@@ -10,11 +10,15 @@
  the MotionVotesTab pattern, anchored on the decision side.
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--decision-votes" data-testid="decision-voting-tab">
+	<div
+		class="decidesk-tab decidesk-tab--decision-votes"
+		data-testid="decision-voting-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Voting results') }}
-				<span v-if="!loading" class="decidesk-tab__count">({{ votes.length }})</span>
+				<span v-if="!loading" class="decidesk-tab__count"
+					>({{ votes.length }})</span
+				>
 			</h3>
 		</div>
 
@@ -25,28 +29,45 @@
 			{{ error }}
 		</CnNoteCard>
 
-		<p v-if="!loading && !error && !motionId" class="decidesk-tab__none" data-testid="decision-voting-none">
-			{{ t('decidesk', 'No motion is linked to this decision, so there are no voting results.') }}
+		<p
+			v-if="!loading && !error && !motionId"
+			class="decidesk-tab__none"
+			data-testid="decision-voting-none">
+			{{
+				t(
+					'decidesk',
+					'No motion is linked to this decision, so there are no voting results.',
+				)
+			}}
 		</p>
 
 		<div v-if="rounds.length" class="decidesk-tab__rounds">
-			<div v-for="round in rounds"
+			<div
+				v-for="round in rounds"
 				:key="round.id"
 				class="decidesk-tab__round"
 				data-testid="decision-voting-round">
 				<header class="decidesk-tab__round-header">
-					<strong>{{ round.votingMethod || t('decidesk', 'Voting round') }}</strong>
+					<strong>{{
+						round.votingMethod || t('decidesk', 'Voting round')
+					}}</strong>
 					<CnStatusBadge
 						v-if="round.result"
 						:label="round.result"
 						:color-map="roundColors" />
 				</header>
 				<p v-if="round.votesFor != null" class="decidesk-tab__round-tally">
-					{{ t('decidesk', 'For: {for} — Against: {against} — Abstain: {abstain}', {
-						for: round.votesFor || 0,
-						against: round.votesAgainst || 0,
-						abstain: round.votesAbstain || 0,
-					}) }}
+					{{
+						t(
+							'decidesk',
+							'For: {for} — Against: {against} — Abstain: {abstain}',
+							{
+								for: round.votesFor || 0,
+								against: round.votesAgainst || 0,
+								abstain: round.votesAbstain || 0,
+							},
+						)
+					}}
 				</p>
 			</div>
 		</div>
@@ -107,7 +128,9 @@ export default {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/decision-management/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 	methods: {
@@ -118,9 +141,14 @@ export default {
 			this.error = ''
 			try {
 				const decisionStore = ensureRelationType('decision')
-				const decision = await decisionStore.fetchObject('decision', this.objectId)
-				const rawMotion = decision && (decision.motion?.id || decision.motion)
-				this.motionId = rawMotion != null && rawMotion !== '' ? String(rawMotion) : ''
+				const decision = await decisionStore.fetchObject(
+					'decision',
+					this.objectId,
+				)
+				const rawMotion =
+					decision && (decision.motion?.id || decision.motion)
+				this.motionId =
+					rawMotion != null && rawMotion !== '' ? String(rawMotion) : ''
 
 				if (!this.motionId) {
 					this.rounds = []
@@ -151,7 +179,9 @@ export default {
 				}
 				this.votes = all
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load voting results.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Failed to load voting results.')
 			} finally {
 				this.loading = false
 			}

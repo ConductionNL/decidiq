@@ -134,7 +134,7 @@ export default {
 		 */
 		organisatieModus() {
 			const settingsStore = useSettingsStore()
-			return (settingsStore.getSettings?.organisatie_modus) || DEFAULT_MODE
+			return settingsStore.getSettings?.organisatie_modus || DEFAULT_MODE
 		},
 	},
 

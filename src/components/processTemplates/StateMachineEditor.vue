@@ -37,7 +37,8 @@
 		</div>
 
 		<h4>{{ t('decidesk', 'States') }}</h4>
-		<div v-for="(state, i) in modelValue.stateMachine.states"
+		<div
+			v-for="(state, i) in modelValue.stateMachine.states"
 			:key="'state-' + i"
 			class="row"
 			data-testid="state-row">
@@ -46,8 +47,11 @@
 				type="text"
 				:aria-label="t('decidesk', 'State name')"
 				:placeholder="t('decidesk', 'State name')"
-				@input="emit">
-			<NcButton variant="tertiary" :aria-label="t('decidesk', 'Remove state')" @click="removeState(i)">
+				@input="emit" />
+			<NcButton
+				variant="tertiary"
+				:aria-label="t('decidesk', 'Remove state')"
+				@click="removeState(i)">
 				{{ t('decidesk', 'Remove') }}
 			</NcButton>
 		</div>
@@ -56,7 +60,8 @@
 		</NcButton>
 
 		<h4>{{ t('decidesk', 'Transitions') }}</h4>
-		<div v-for="(tr, i) in modelValue.stateMachine.transitions"
+		<div
+			v-for="(tr, i) in modelValue.stateMachine.transitions"
 			:key="'tr-' + i"
 			class="row"
 			data-testid="transition-row">
@@ -71,10 +76,13 @@
 				:options="stateNames"
 				@input="emit" />
 			<label class="chair-only">
-				<input v-model="tr.chairOnly" type="checkbox" @change="emit">
+				<input v-model="tr.chairOnly" type="checkbox" @change="emit" />
 				{{ t('decidesk', 'Chair only') }}
 			</label>
-			<NcButton variant="tertiary" :aria-label="t('decidesk', 'Remove transition')" @click="removeTransition(i)">
+			<NcButton
+				variant="tertiary"
+				:aria-label="t('decidesk', 'Remove transition')"
+				@click="removeTransition(i)">
 				{{ t('decidesk', 'Remove') }}
 			</NcButton>
 		</div>
@@ -105,7 +113,9 @@ export default {
 	computed: {
 		/** @spec openspec/specs/process-configuration/spec.md */
 		stateNames() {
-			return (this.modelValue.stateMachine.states || []).map((s) => s.name).filter(Boolean)
+			return (this.modelValue.stateMachine.states || [])
+				.map((s) => s.name)
+				.filter(Boolean)
 		},
 		initialState: {
 			/** @spec openspec/specs/process-configuration/spec.md */
@@ -117,7 +127,10 @@ export default {
 			 * @spec openspec/specs/process-configuration/spec.md
 			 */
 			set(v) {
-				this.$emit('update:modelValue', { ...this.modelValue, initialState: v })
+				this.$emit('update:modelValue', {
+					...this.modelValue,
+					initialState: v,
+				})
 			},
 		},
 		/** @spec openspec/specs/process-configuration/spec.md */
@@ -149,7 +162,10 @@ export default {
 		},
 		/** @spec openspec/specs/process-configuration/spec.md */
 		addState() {
-			const states = [...(this.modelValue.stateMachine.states || []), { name: '' }]
+			const states = [
+				...(this.modelValue.stateMachine.states || []),
+				{ name: '' },
+			]
 			this.emitStateMachine({ states })
 		},
 		/**
@@ -157,12 +173,17 @@ export default {
 		 * @spec openspec/specs/process-configuration/spec.md
 		 */
 		removeState(i) {
-			const states = (this.modelValue.stateMachine.states || []).filter((_, idx) => idx !== i)
+			const states = (this.modelValue.stateMachine.states || []).filter(
+				(_, idx) => idx !== i,
+			)
 			this.emitStateMachine({ states })
 		},
 		/** @spec openspec/specs/process-configuration/spec.md */
 		addTransition() {
-			const transitions = [...(this.modelValue.stateMachine.transitions || []), { from: '', to: '', chairOnly: false }]
+			const transitions = [
+				...(this.modelValue.stateMachine.transitions || []),
+				{ from: '', to: '', chairOnly: false },
+			]
 			this.emitStateMachine({ transitions })
 		},
 		/**
@@ -170,7 +191,9 @@ export default {
 		 * @spec openspec/specs/process-configuration/spec.md
 		 */
 		removeTransition(i) {
-			const transitions = (this.modelValue.stateMachine.transitions || []).filter((_, idx) => idx !== i)
+			const transitions = (
+				this.modelValue.stateMachine.transitions || []
+			).filter((_, idx) => idx !== i)
 			this.emitStateMachine({ transitions })
 		},
 	},

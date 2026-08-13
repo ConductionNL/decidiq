@@ -19,7 +19,9 @@ import { test, expect } from '@playwright/test'
 import { BASE_URL as BASE } from '../base-url'
 
 // @e2e openspec/specs/admin-settings/spec.md#create-a-governing-body-for-an-association-board
-test('governance bodies list renders with Add GovernanceBody button', async ({ page }) => {
+test('governance bodies list renders with Add GovernanceBody button', async ({
+	page,
+}) => {
 	await page.goto(`${BASE}/apps/decidesk/governance-bodies`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
@@ -27,11 +29,15 @@ test('governance bodies list renders with Add GovernanceBody button', async ({ p
 	await expect(page.getByText('Showing')).toBeVisible()
 
 	// The create CTA is present
-	await expect(page.getByRole('button', { name: 'Add GovernanceBody' })).toBeVisible()
+	await expect(
+		page.getByRole('button', { name: 'Add GovernanceBody' }),
+	).toBeVisible()
 })
 
 // @e2e openspec/specs/admin-settings/spec.md#create-a-governing-body-for-an-association-board
-test('Create GovernanceBody dialog opens with name, bodyType and domain required fields', async ({ page }) => {
+test('Create GovernanceBody dialog opens with name, bodyType and domain required fields', async ({
+	page,
+}) => {
 	await page.goto(`${BASE}/apps/decidesk/governance-bodies`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
@@ -39,7 +45,9 @@ test('Create GovernanceBody dialog opens with name, bodyType and domain required
 
 	const dialog = page.getByRole('dialog')
 	await expect(dialog).toBeVisible({ timeout: 8_000 })
-	await expect(dialog.getByRole('heading', { name: 'Create GovernanceBody' })).toBeVisible()
+	await expect(
+		dialog.getByRole('heading', { name: 'Create GovernanceBody' }),
+	).toBeVisible()
 
 	// Required identity fields.
 	//
@@ -71,7 +79,9 @@ test('Create GovernanceBody dialog opens with name, bodyType and domain required
 })
 
 // @e2e openspec/specs/admin-settings/spec.md#configure-quorum-rules-for-a-body
-test('Create GovernanceBody dialog exposes the quorumRule configuration field', async ({ page }) => {
+test('Create GovernanceBody dialog exposes the quorumRule configuration field', async ({
+	page,
+}) => {
 	await page.goto(`${BASE}/apps/decidesk/governance-bodies`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
@@ -90,8 +100,12 @@ test('Create GovernanceBody dialog exposes the quorumRule configuration field', 
 	// of "quorum rule" — the space is the difference.
 	await expect(dialog.getByRole('textbox', { name: 'Quorum rule' })).toBeVisible()
 	// votingDefault and workflowTemplate are also configurable on the body
-	await expect(dialog.getByRole('textbox', { name: 'Default voting method' })).toBeVisible()
-	await expect(dialog.getByRole('textbox', { name: 'Workflow template' })).toBeVisible()
+	await expect(
+		dialog.getByRole('textbox', { name: 'Default voting method' }),
+	).toBeVisible()
+	await expect(
+		dialog.getByRole('textbox', { name: 'Workflow template' }),
+	).toBeVisible()
 
 	await dialog.getByRole('button', { name: 'Cancel' }).click()
 	await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 5_000 })

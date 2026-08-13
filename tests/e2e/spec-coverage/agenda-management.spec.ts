@@ -40,7 +40,9 @@ test('Add Agenda Item dialog opens with item type field', async ({ page }) => {
 	await page.getByTestId('cn-cta-primary').click()
 	const dialog = page.getByRole('dialog')
 	await expect(dialog).toBeVisible({ timeout: 8_000 })
-	await expect(dialog.getByRole('heading', { name: 'Create AgendaItem' })).toBeVisible()
+	await expect(
+		dialog.getByRole('heading', { name: 'Create AgendaItem' }),
+	).toBeVisible()
 
 	// Assert the real agenda-item form fields render.
 	//
@@ -67,7 +69,9 @@ test('Add Agenda Item dialog opens with item type field', async ({ page }) => {
 	// `orderNumber` carries the title "Order" (register: AgendaItem.orderNumber).
 	await expect(dialog.getByText('Order *', { exact: true })).toBeVisible()
 	// estimatedDuration supports the agenda-duration calculation scenario
-	await expect(dialog.getByText('Estimated duration', { exact: true })).toBeVisible()
+	await expect(
+		dialog.getByText('Estimated duration', { exact: true }),
+	).toBeVisible()
 
 	// Create button is present
 	await expect(dialog.getByRole('button', { name: 'Create' })).toBeVisible()
@@ -148,7 +152,9 @@ const ADMIN_PASS = process.env.NEXTCLOUD_PASS || 'admin'
 async function newApiContext(playwright: typeof import('@playwright/test')) {
 	return playwright.request.newContext({
 		extraHTTPHeaders: {
-			Authorization: 'Basic ' + Buffer.from(`${ADMIN_USER}:${ADMIN_PASS}`).toString('base64'),
+			Authorization:
+				'Basic '
+				+ Buffer.from(`${ADMIN_USER}:${ADMIN_PASS}`).toString('base64'),
 			'OCS-APIRequest': 'true',
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
@@ -162,7 +168,10 @@ function objectId(body: any): string | null {
 }
 
 // @e2e openspec/specs/agenda-management/spec.md#enforce-legally-required-alv-agenda-items
-test('general assembly agenda warns about missing statutory ALV items', async ({ page, playwright }) => {
+test('general assembly agenda warns about missing statutory ALV items', async ({
+	page,
+	playwright,
+}) => {
 	const api = await newApiContext(playwright)
 	let meetingId: string | null = null
 	try {
@@ -183,7 +192,10 @@ test('general assembly agenda warns about missing statutory ALV items', async ({
 				},
 			},
 		)
-		test.skip(!createResp.ok(), `Could not seed general_assembly meeting (HTTP ${createResp.status()})`)
+		test.skip(
+			!createResp.ok(),
+			`Could not seed general_assembly meeting (HTTP ${createResp.status()})`,
+		)
 		meetingId = objectId(await createResp.json())
 		test.skip(!meetingId, 'Seeded meeting has no id')
 
@@ -191,13 +203,23 @@ test('general assembly agenda warns about missing statutory ALV items', async ({
 		await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 		const agendaTab = page.getByRole('tab', { name: 'Agenda' })
-		const hasTab = await agendaTab.isVisible({ timeout: 10_000 }).catch(() => false)
-		test.skip(!hasTab, 'Agenda tab not present (deployed build predates sidebar tabs)')
+		const hasTab = await agendaTab
+			.isVisible({ timeout: 10_000 })
+			.catch(() => false)
+		test.skip(
+			!hasTab,
+			'Agenda tab not present (deployed build predates sidebar tabs)',
+		)
 		await agendaTab.click()
 
 		const warning = page.getByTestId('statutory-items-warning')
-		const hasWarning = await warning.isVisible({ timeout: 10_000 }).catch(() => false)
-		test.skip(!hasWarning, 'Statutory warning not rendered (deployed build predates meeting-agenda-gaps-v1)')
+		const hasWarning = await warning
+			.isVisible({ timeout: 10_000 })
+			.catch(() => false)
+		test.skip(
+			!hasWarning,
+			'Statutory warning not rendered (deployed build predates meeting-agenda-gaps-v1)',
+		)
 
 		// All eight statutory items are missing on an empty ALV agenda.
 		await expect(warning.getByText('Kascommissie report')).toBeVisible()
@@ -205,7 +227,11 @@ test('general assembly agenda warns about missing statutory ALV items', async ({
 		await expect(warning.getByText('Board elections')).toBeVisible()
 	} finally {
 		if (meetingId) {
-			await api.delete(`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting/${meetingId}`).catch(() => null)
+			await api
+				.delete(
+					`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting/${meetingId}`,
+				)
+				.catch(() => null)
 		}
 		await api.dispose()
 	}
@@ -213,7 +239,10 @@ test('general assembly agenda warns about missing statutory ALV items', async ({
 
 // @e2e openspec/specs/agenda-management/spec.md#group-agenda-items-with-sub-items
 // @e2e openspec/specs/agenda-management/spec.md#sub-items-stay-grouped-under-their-parent-when-reordering
-test('sub-items render nested under their parent in the agenda tab', async ({ page, playwright }) => {
+test('sub-items render nested under their parent in the agenda tab', async ({
+	page,
+	playwright,
+}) => {
 	const api = await newApiContext(playwright)
 	const created: string[] = []
 	let meetingId: string | null = null
@@ -232,7 +261,10 @@ test('sub-items render nested under their parent in the agenda tab', async ({ pa
 				},
 			},
 		)
-		test.skip(!meetingResp.ok(), `Could not seed meeting (HTTP ${meetingResp.status()})`)
+		test.skip(
+			!meetingResp.ok(),
+			`Could not seed meeting (HTTP ${meetingResp.status()})`,
+		)
 		meetingId = objectId(await meetingResp.json())
 		test.skip(!meetingId, 'Seeded meeting has no id')
 
@@ -247,7 +279,10 @@ test('sub-items render nested under their parent in the agenda tab', async ({ pa
 				},
 			},
 		)
-		test.skip(!parentResp.ok(), `Could not seed parent agenda item (HTTP ${parentResp.status()})`)
+		test.skip(
+			!parentResp.ok(),
+			`Could not seed parent agenda item (HTTP ${parentResp.status()})`,
+		)
 		const parentId = objectId(await parentResp.json())
 		test.skip(!parentId, 'Seeded parent item has no id')
 		created.push(parentId!)
@@ -264,7 +299,10 @@ test('sub-items render nested under their parent in the agenda tab', async ({ pa
 				},
 			},
 		)
-		test.skip(!childResp.ok(), `Could not seed sub-item (HTTP ${childResp.status()})`)
+		test.skip(
+			!childResp.ok(),
+			`Could not seed sub-item (HTTP ${childResp.status()})`,
+		)
 		const childId = objectId(await childResp.json())
 		if (childId) created.push(childId)
 
@@ -272,21 +310,39 @@ test('sub-items render nested under their parent in the agenda tab', async ({ pa
 		await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 		const agendaTab = page.getByRole('tab', { name: 'Agenda' })
-		const hasTab = await agendaTab.isVisible({ timeout: 10_000 }).catch(() => false)
-		test.skip(!hasTab, 'Agenda tab not present (deployed build predates sidebar tabs)')
+		const hasTab = await agendaTab
+			.isVisible({ timeout: 10_000 })
+			.catch(() => false)
+		test.skip(
+			!hasTab,
+			'Agenda tab not present (deployed build predates sidebar tabs)',
+		)
 		await agendaTab.click()
 
 		// The parent renders plain; the sub-item carries the nesting indicator.
 		const parentCell = page.getByText('Committee Reports', { exact: true })
-		const hasParent = await parentCell.isVisible({ timeout: 10_000 }).catch(() => false)
-		test.skip(!hasParent, 'Agenda rows not rendered (deployed build predates meeting-agenda-gaps-v1)')
+		const hasParent = await parentCell
+			.isVisible({ timeout: 10_000 })
+			.catch(() => false)
+		test.skip(
+			!hasParent,
+			'Agenda rows not rendered (deployed build predates meeting-agenda-gaps-v1)',
+		)
 		await expect(page.getByText('↳ Finance Committee')).toBeVisible()
 	} finally {
 		for (const id of created) {
-			await api.delete(`${BASE}/index.php/apps/openregister/api/objects/decidesk/agenda-item/${id}`).catch(() => null)
+			await api
+				.delete(
+					`${BASE}/index.php/apps/openregister/api/objects/decidesk/agenda-item/${id}`,
+				)
+				.catch(() => null)
 		}
 		if (meetingId) {
-			await api.delete(`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting/${meetingId}`).catch(() => null)
+			await api
+				.delete(
+					`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting/${meetingId}`,
+				)
+				.catch(() => null)
 		}
 		await api.dispose()
 	}
@@ -310,11 +366,19 @@ test('agenda tab offers the Assemble meeting package action', async ({ page }) =
 
 	const agendaTab = page.getByRole('tab', { name: 'Agenda' })
 	const hasTab = await agendaTab.isVisible({ timeout: 10_000 }).catch(() => false)
-	test.skip(!hasTab, 'Agenda tab not present (deployed build predates sidebar tabs)')
+	test.skip(
+		!hasTab,
+		'Agenda tab not present (deployed build predates sidebar tabs)',
+	)
 	await agendaTab.click()
 
 	const assembleButton = page.getByTestId('agenda-assemble-package')
-	const hasButton = await assembleButton.isVisible({ timeout: 10_000 }).catch(() => false)
-	test.skip(!hasButton, 'Assemble action not present (deployed build predates meeting-agenda-gaps-v1)')
+	const hasButton = await assembleButton
+		.isVisible({ timeout: 10_000 })
+		.catch(() => false)
+	test.skip(
+		!hasButton,
+		'Assemble action not present (deployed build predates meeting-agenda-gaps-v1)',
+	)
 	await expect(assembleButton).toBeEnabled()
 })

@@ -29,7 +29,10 @@
 				label="label"
 				:clearable="false"
 				data-testid="member-role-select" />
-			<p v-if="error" class="member-role__error" data-testid="member-role-error">
+			<p
+				v-if="error"
+				class="member-role__error"
+				data-testid="member-role-error">
 				{{ error }}
 			</p>
 		</template>
@@ -84,12 +87,16 @@ export default {
 				observer: this.t('decidesk', 'Observer'),
 				guest: this.t('decidesk', 'Guest'),
 			}
-			return MEMBER_ROLES.map((role) => ({ id: role, label: labels[role] || role }))
+			return MEMBER_ROLES.map((role) => ({
+				id: role,
+				label: labels[role] || role,
+			}))
 		},
 	},
 	/** @spec exclude lifecycle hook; only seeds the select with the current role */
 	created() {
-		this.selectedRole = this.roleOptions.find((o) => o.id === this.member.role) || null
+		this.selectedRole =
+			this.roleOptions.find((o) => o.id === this.member.role) || null
 	},
 	methods: {
 		/** @spec openspec/specs/admin-settings/spec.md */
@@ -101,11 +108,15 @@ export default {
 			this.error = ''
 			try {
 				const store = ensureRelationType('participant')
-				await store.saveObject('participant', { ...this.member, role: this.selectedRole.id })
+				await store.saveObject('participant', {
+					...this.member,
+					role: this.selectedRole.id,
+				})
 				this.$emit('saved')
 				this.$emit('close')
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to change role.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to change role.')
 			} finally {
 				this.saving = false
 			}

@@ -11,7 +11,9 @@
  tab never decides permissibility client-side.
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--lifecycle" data-testid="decision-lifecycle-tab">
+	<div
+		class="decidesk-tab decidesk-tab--lifecycle"
+		data-testid="decision-lifecycle-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Lifecycle') }}
@@ -25,14 +27,20 @@
 			{{ error }}
 		</CnNoteCard>
 
-		<ol v-if="!error" class="decidesk-lifecycle__timeline" data-testid="lifecycle-timeline">
-			<li v-for="step in timeline"
+		<ol
+			v-if="!error"
+			class="decidesk-lifecycle__timeline"
+			data-testid="lifecycle-timeline">
+			<li
+				v-for="step in timeline"
 				:key="step.state"
 				class="decidesk-lifecycle__step"
 				:class="'decidesk-lifecycle__step--' + step.status"
 				:data-testid="'lifecycle-step-' + step.state">
 				<span class="decidesk-lifecycle__marker" aria-hidden="true" />
-				<span class="decidesk-lifecycle__label">{{ stateLabel(step.state) }}</span>
+				<span class="decidesk-lifecycle__label">{{
+					stateLabel(step.state)
+				}}</span>
 				<CnStatusBadge
 					v-if="step.status === 'current'"
 					:label="t('decidesk', 'Current')"
@@ -48,14 +56,17 @@
 				{{ t('decidesk', 'No transitions available from this state.') }}
 			</p>
 			<div class="decidesk-lifecycle__buttons">
-				<NcButton v-for="action in actions"
+				<NcButton
+					v-for="action in actions"
 					:key="action.action"
 					:disabled="busy"
 					:data-testid="'lifecycle-action-' + action.action"
 					variant="secondary"
 					@click="applyTransition(action.action)">
 					{{ actionLabel(action.action) }}
-					<span v-if="action.chairOnly" class="decidesk-lifecycle__chair-hint">
+					<span
+						v-if="action.chairOnly"
+						class="decidesk-lifecycle__chair-hint">
 						({{ t('decidesk', 'chair only') }})
 					</span>
 				</NcButton>
@@ -110,7 +121,9 @@ export default {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/decision-management/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 	methods: {
@@ -146,18 +159,29 @@ export default {
 			this.error = ''
 			try {
 				const res = await fetch(
-					generateUrl(`/apps/decidesk/api/decisions/${this.objectId}/transitions`),
-					{ headers: { Accept: 'application/json', requesttoken: OC.requestToken } },
+					generateUrl(
+						`/apps/decidesk/api/decisions/${this.objectId}/transitions`,
+					),
+					{
+						headers: {
+							Accept: 'application/json',
+							requesttoken: OC.requestToken,
+						},
+					},
 				)
 				const body = await res.json()
 				if (!res.ok) {
-					this.error = body?.message || this.t('decidesk', 'Failed to load lifecycle state.')
+					this.error =
+						body?.message
+						|| this.t('decidesk', 'Failed to load lifecycle state.')
 					return
 				}
 				this.lifecycle = body.lifecycle || 'draft'
 				this.actions = Array.isArray(body.actions) ? body.actions : []
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load lifecycle state.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Failed to load lifecycle state.')
 			} finally {
 				this.loading = false
 			}
@@ -168,7 +192,9 @@ export default {
 			this.transitionError = ''
 			try {
 				const res = await fetch(
-					generateUrl(`/apps/decidesk/api/decisions/${this.objectId}/transition`),
+					generateUrl(
+						`/apps/decidesk/api/decisions/${this.objectId}/transition`,
+					),
 					{
 						method: 'POST',
 						headers: {
@@ -181,7 +207,8 @@ export default {
 				)
 				const body = await res.json()
 				if (!res.ok) {
-					this.transitionError = body?.message || this.t('decidesk', 'Transition failed.')
+					this.transitionError =
+						body?.message || this.t('decidesk', 'Transition failed.')
 					return
 				}
 				await this.refresh()
@@ -193,7 +220,8 @@ export default {
 					await this.maybePromptPublish()
 				}
 			} catch (e) {
-				this.transitionError = e?.message || this.t('decidesk', 'Transition failed.')
+				this.transitionError =
+					e?.message || this.t('decidesk', 'Transition failed.')
 			} finally {
 				this.busy = false
 			}
@@ -208,7 +236,8 @@ export default {
 			try {
 				const store = ensureRelationType('decision')
 				const decision = await store.fetchObject('decision', this.objectId)
-				let bodyId = decision?.governanceBody
+				let bodyId =
+					decision?.governanceBody
 					|| decision?.relations?.GovernanceBody
 					|| decision?.relations?.governanceBody
 				if (Array.isArray(bodyId)) bodyId = bodyId[0]
@@ -216,7 +245,12 @@ export default {
 
 				const res = await fetch(
 					generateUrl('/apps/decidesk/api/settings/publication-config'),
-					{ headers: { Accept: 'application/json', requesttoken: OC.requestToken } },
+					{
+						headers: {
+							Accept: 'application/json',
+							requesttoken: OC.requestToken,
+						},
+					},
 				)
 				if (!res.ok) return
 				const body = await res.json()
@@ -237,17 +271,22 @@ export default {
 		async promptPublish() {
 			this.publishPromptOpen = false
 			try {
-				await fetch(
-					generateUrl('/apps/decidesk/api/publications'),
-					{
-						method: 'POST',
-						headers: { Accept: 'application/json', 'Content-Type': 'application/json', requesttoken: OC.requestToken },
-						body: JSON.stringify({ sourceType: 'decision', sourceId: this.objectId }),
+				await fetch(generateUrl('/apps/decidesk/api/publications'), {
+					method: 'POST',
+					headers: {
+						Accept: 'application/json',
+						'Content-Type': 'application/json',
+						requesttoken: OC.requestToken,
 					},
-				)
+					body: JSON.stringify({
+						sourceType: 'decision',
+						sourceId: this.objectId,
+					}),
+				})
 				this.$emit('refresh')
 			} catch (e) {
-				this.transitionError = e?.message || this.t('decidesk', 'Publication failed.')
+				this.transitionError =
+					e?.message || this.t('decidesk', 'Publication failed.')
 			}
 		},
 	},

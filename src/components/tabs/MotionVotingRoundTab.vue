@@ -16,7 +16,9 @@
  @spec openspec/specs/voting-system/spec.md
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--voting-round" data-testid="motion-voting-round-tab">
+	<div
+		class="decidesk-tab decidesk-tab--voting-round"
+		data-testid="motion-voting-round-tab">
 		<p v-if="loading" class="decidesk-tab__empty">
 			{{ t('decidesk', 'Loading…') }}
 		</p>
@@ -50,7 +52,9 @@ export default {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/voting-system/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
 	methods: {
@@ -68,14 +72,20 @@ export default {
 					id: this.objectId,
 					_limit: 1,
 				})
-				const motion = (motions || []).find((m) => String(m?.id ?? m?.uuid ?? '') === String(this.objectId)) || (motions || [])[0]
+				const motion =
+					(motions || []).find(
+						(m) =>
+							String(m?.id ?? m?.uuid ?? '') === String(this.objectId),
+					) || (motions || [])[0]
 				this.motionLifecycle = motion?.lifecycle || ''
 				// The meeting link lives either as a flat foreign key or a relation entry.
 				this.meetingId = String(
 					motion?.meeting?.id
-					?? motion?.meeting
-					?? (motion?.relations || []).find((r) => (r?.schema || '') === 'meeting')?.id
-					?? '',
+						?? motion?.meeting
+						?? (motion?.relations || []).find(
+							(r) => (r?.schema || '') === 'meeting',
+						)?.id
+						?? '',
 				)
 			} catch (e) {
 				this.motionLifecycle = ''

@@ -25,7 +25,10 @@ const base = '/apps/decidesk/api/participation'
  * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function transitionConsultation(consultationId, status) {
-	const { data } = await axios.post(generateUrl(`${base}/consultations/${consultationId}/transition`), { status })
+	const { data } = await axios.post(
+		generateUrl(`${base}/consultations/${consultationId}/transition`),
+		{ status },
+	)
 	return data
 }
 
@@ -38,7 +41,10 @@ export async function transitionConsultation(consultationId, status) {
  * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function submitReaction(consultationId, body) {
-	const { data } = await axios.post(generateUrl(`${base}/consultations/${consultationId}/reactions`), { body })
+	const { data } = await axios.post(
+		generateUrl(`${base}/consultations/${consultationId}/reactions`),
+		{ body },
+	)
 	return data
 }
 
@@ -51,7 +57,10 @@ export async function submitReaction(consultationId, body) {
  * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function approveReaction(reactionId, reason = '') {
-	const { data } = await axios.post(generateUrl(`${base}/reactions/${reactionId}/approve`), { reason })
+	const { data } = await axios.post(
+		generateUrl(`${base}/reactions/${reactionId}/approve`),
+		{ reason },
+	)
 	return data
 }
 
@@ -64,7 +73,10 @@ export async function approveReaction(reactionId, reason = '') {
  * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function rejectReaction(reactionId, reason) {
-	const { data } = await axios.post(generateUrl(`${base}/reactions/${reactionId}/reject`), { reason })
+	const { data } = await axios.post(
+		generateUrl(`${base}/reactions/${reactionId}/reject`),
+		{ reason },
+	)
 	return data
 }
 
@@ -76,8 +88,14 @@ export async function rejectReaction(reactionId, reason) {
  * @return {Promise<object>} The publication result.
  * @spec openspec/specs/citizen-participation/spec.md
  */
-export async function publishConsultationResults(consultationId, staffResponse = '') {
-	const { data } = await axios.post(generateUrl(`${base}/consultations/${consultationId}/publish`), { staffResponse })
+export async function publishConsultationResults(
+	consultationId,
+	staffResponse = '',
+) {
+	const { data } = await axios.post(
+		generateUrl(`${base}/consultations/${consultationId}/publish`),
+		{ staffResponse },
+	)
 	return data
 }
 
@@ -90,7 +108,10 @@ export async function publishConsultationResults(consultationId, staffResponse =
  * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function transitionBudgetRound(budgetId, status) {
-	const { data } = await axios.post(generateUrl(`${base}/budgets/${budgetId}/transition`), { status })
+	const { data } = await axios.post(
+		generateUrl(`${base}/budgets/${budgetId}/transition`),
+		{ status },
+	)
 	return data
 }
 
@@ -103,7 +124,10 @@ export async function transitionBudgetRound(budgetId, status) {
  * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function submitProposal(budgetId, payload) {
-	const { data } = await axios.post(generateUrl(`${base}/budgets/${budgetId}/proposals`), payload)
+	const { data } = await axios.post(
+		generateUrl(`${base}/budgets/${budgetId}/proposals`),
+		payload,
+	)
 	return data
 }
 
@@ -116,7 +140,10 @@ export async function submitProposal(budgetId, payload) {
  * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function validateProposal(proposalId, approve) {
-	const { data } = await axios.post(generateUrl(`${base}/proposals/${proposalId}/validate`), { approve })
+	const { data } = await axios.post(
+		generateUrl(`${base}/proposals/${proposalId}/validate`),
+		{ approve },
+	)
 	return data
 }
 
@@ -129,7 +156,10 @@ export async function validateProposal(proposalId, approve) {
  * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function castAdvisoryVote(proposalId, value) {
-	const { data } = await axios.post(generateUrl(`${base}/proposals/${proposalId}/vote`), { value })
+	const { data } = await axios.post(
+		generateUrl(`${base}/proposals/${proposalId}/vote`),
+		{ value },
+	)
 	return data
 }
 
@@ -141,6 +171,9 @@ export async function castAdvisoryVote(proposalId, value) {
  * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function publishBudgetResults(budgetId) {
-	const { data } = await axios.post(generateUrl(`${base}/budgets/${budgetId}/publish`), {})
+	const { data } = await axios.post(
+		generateUrl(`${base}/budgets/${budgetId}/publish`),
+		{},
+	)
 	return data
 }

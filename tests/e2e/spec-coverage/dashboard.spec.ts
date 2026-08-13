@@ -35,8 +35,12 @@ test('dashboard renders KPI stat blocks', async ({ page }) => {
 	// accessible names that collide with the nav labels (e.g. "Upcoming
 	// meetings", and a "Decisions" KPI card whose name is exactly "Decisions"),
 	// so a page-wide getByRole('link', …) trips strict mode with 2 matches.
-	await expect(page.getByTestId('cn-nav-entry-Meetings').getByRole('link')).toBeVisible()
-	await expect(page.getByTestId('cn-nav-entry-Decisions').getByRole('link')).toBeVisible()
+	await expect(
+		page.getByTestId('cn-nav-entry-Meetings').getByRole('link'),
+	).toBeVisible()
+	await expect(
+		page.getByTestId('cn-nav-entry-Decisions').getByRole('link'),
+	).toBeVisible()
 })
 
 // @e2e openspec/specs/dashboard/spec.md#empty-state-for-new-installation
@@ -52,7 +56,9 @@ test('dashboard page loads at the root route', async ({ page }) => {
 })
 
 // @e2e openspec/specs/dashboard/spec.md#view-decidesk-widget-on-nextcloud-dashboard
-test('Nextcloud dashboard shows the decidesk app in the app bar', async ({ page }) => {
+test('Nextcloud dashboard shows the decidesk app in the app bar', async ({
+	page,
+}) => {
 	await page.goto(`${BASE}/apps/dashboard/`)
 	await page.waitForSelector('#header', { timeout: 15_000 })
 	// The decidesk app is accessible from the Nextcloud UI (either nav or apps list)

@@ -16,14 +16,21 @@
  @spec openspec/specs/agenda-management/spec.md
 -->
 <template>
-	<div class="agenda-builder" role="region" :aria-label="t('decidesk', 'Agenda builder')">
+	<div
+		class="agenda-builder"
+		role="region"
+		:aria-label="t('decidesk', 'Agenda builder')">
 		<!-- Header with total duration -->
 		<div class="agenda-builder__header">
 			<h3 class="agenda-builder__title">
 				{{ t('decidesk', 'Agenda builder') }}
 			</h3>
 			<span class="agenda-builder__duration" aria-live="polite">
-				{{ t('decidesk', 'Total duration: {min} min', { min: totalDuration }) }}
+				{{
+					t('decidesk', 'Total duration: {min} min', {
+						min: totalDuration,
+					})
+				}}
 			</span>
 			<div class="agenda-builder__actions">
 				<NcButton
@@ -31,9 +38,7 @@
 					@click="showRecurringDialog = true">
 					{{ t('decidesk', 'Add recurring items') }}
 				</NcButton>
-				<NcButton
-					v-if="canEdit"
-					@click="showProposeDialog = true">
+				<NcButton v-if="canEdit" @click="showProposeDialog = true">
 					{{ t('decidesk', 'Propose agenda item') }}
 				</NcButton>
 			</div>
@@ -44,7 +49,14 @@
 			v-if="missingStatutory.length > 0"
 			type="warning"
 			data-testid="statutory-items-warning">
-			<p>{{ t('decidesk', 'This general assembly agenda is missing legally required items:') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'This general assembly agenda is missing legally required items:',
+					)
+				}}
+			</p>
 			<ul class="agenda-builder__statutory-list">
 				<li v-for="required in missingStatutory" :key="required.id">
 					{{ t('decidesk', required.label) }}
@@ -53,23 +65,36 @@
 		</NcNoteCard>
 
 		<!-- Proposal inbox (chair only) -->
-		<div v-if="isChair && proposalItems.length > 0" class="agenda-builder__proposals">
+		<div
+			v-if="isChair && proposalItems.length > 0"
+			class="agenda-builder__proposals">
 			<h4>{{ t('decidesk', 'Proposed items') }}</h4>
 			<ul class="agenda-builder__proposal-list" role="list">
-				<li v-for="proposal in proposalItems"
+				<li
+					v-for="proposal in proposalItems"
 					:key="proposal.id"
 					class="agenda-builder__proposal-item"
 					role="listitem">
-					<span class="agenda-builder__proposal-title">{{ proposal.title }}</span>
+					<span class="agenda-builder__proposal-title">{{
+						proposal.title
+					}}</span>
 					<div class="agenda-builder__proposal-actions">
 						<NcButton
-							:aria-label="t('decidesk', 'Approve proposal {title}', { title: proposal.title })"
+							:aria-label="
+								t('decidesk', 'Approve proposal {title}', {
+									title: proposal.title,
+								})
+							"
 							variant="success"
 							@click="approveProposal(proposal)">
 							{{ t('decidesk', 'Approve') }}
 						</NcButton>
 						<NcButton
-							:aria-label="t('decidesk', 'Reject proposal {title}', { title: proposal.title })"
+							:aria-label="
+								t('decidesk', 'Reject proposal {title}', {
+									title: proposal.title,
+								})
+							"
 							variant="error"
 							@click="rejectProposal(proposal)">
 							{{ t('decidesk', 'Reject') }}
@@ -91,7 +116,12 @@
 				class="agenda-builder__item"
 				:draggable="isChair"
 				role="listitem"
-				:aria-label="t('decidesk', 'Agenda item {n}: {title}', { n: node.item.orderNumber, title: node.item.title })"
+				:aria-label="
+					t('decidesk', 'Agenda item {n}: {title}', {
+						n: node.item.orderNumber,
+						title: node.item.title,
+					})
+				"
 				@dragstart="isChair ? onDragStart($event, index) : null"
 				@dragover.prevent="isChair ? onDragOver($event, index) : null"
 				@drop="isChair ? onDrop($event, index) : null"
@@ -105,24 +135,40 @@
 
 					<CnStatusBadge
 						:status="node.item.itemType"
-						:aria-label="t('decidesk', 'Type: {type}', { type: node.item.itemType })" />
+						:aria-label="
+							t('decidesk', 'Type: {type}', {
+								type: node.item.itemType,
+							})
+						" />
 
-					<span class="agenda-builder__item-title">{{ node.item.title }}</span>
+					<span class="agenda-builder__item-title">{{
+						node.item.title
+					}}</span>
 
-					<span v-if="node.item.estimatedDuration" class="agenda-builder__item-duration">
+					<span
+						v-if="node.item.estimatedDuration"
+						class="agenda-builder__item-duration">
 						{{ node.item.estimatedDuration }} {{ t('decidesk', 'min') }}
 					</span>
 
 					<!-- Spokesperson -->
-					<span v-if="getSpokesperson(node.item)" class="agenda-builder__item-spokesperson">
-						<NcUserBubble :user="getSpokesperson(node.item)" :show-user-status="false" />
+					<span
+						v-if="getSpokesperson(node.item)"
+						class="agenda-builder__item-spokesperson">
+						<NcUserBubble
+							:user="getSpokesperson(node.item)"
+							:show-user-status="false" />
 					</span>
 
 					<!-- Attachment count -->
 					<span
 						v-if="(node.item.files || []).length > 0"
 						class="agenda-builder__item-attachments"
-						:aria-label="t('decidesk', '{n} attachment(s)', { n: (node.item.files || []).length })">
+						:aria-label="
+							t('decidesk', '{n} attachment(s)', {
+								n: (node.item.files || []).length,
+							})
+						">
 						📎 {{ (node.item.files || []).length }}
 					</span>
 
@@ -130,7 +176,13 @@
 					<span
 						v-if="coiCount(node.item) > 0"
 						class="agenda-builder__item-coi"
-						:aria-label="t('decidesk', '{n} conflict of interest declaration(s)', { n: coiCount(node.item) })">
+						:aria-label="
+							t(
+								'decidesk',
+								'{n} conflict of interest declaration(s)',
+								{ n: coiCount(node.item) },
+							)
+						">
 						{{ t('decidesk', 'COI ({n})', { n: coiCount(node.item) }) }}
 					</span>
 
@@ -138,9 +190,17 @@
 					<NcButton
 						v-if="isChair"
 						size="small"
-						:aria-label="t('decidesk', 'Assign spokesperson for {title}', { title: node.item.title })"
+						:aria-label="
+							t('decidesk', 'Assign spokesperson for {title}', {
+								title: node.item.title,
+							})
+						"
 						@click="openSpokespersonDialog(node.item)">
-						{{ getSpokesperson(node.item) ? t('decidesk', 'Change spokesperson') : t('decidesk', 'Assign spokesperson') }}
+						{{
+							getSpokesperson(node.item)
+								? t('decidesk', 'Change spokesperson')
+								: t('decidesk', 'Assign spokesperson')
+						}}
 					</NcButton>
 
 					<!-- Add sub-item (chair/secretary only) -->
@@ -148,7 +208,11 @@
 						v-if="isChair && !node.item.parentItem"
 						size="small"
 						data-testid="agenda-add-sub-item"
-						:aria-label="t('decidesk', 'Add sub-item under {title}', { title: node.item.title })"
+						:aria-label="
+							t('decidesk', 'Add sub-item under {title}', {
+								title: node.item.title,
+							})
+						"
 						@click="openAddSubItemDialog(node.item)">
 						{{ t('decidesk', 'Add sub-item') }}
 					</NcButton>
@@ -158,7 +222,11 @@
 						v-if="isChair"
 						size="small"
 						:disabled="index === 0"
-						:aria-label="t('decidesk', 'Move {title} up', { title: node.item.title })"
+						:aria-label="
+							t('decidesk', 'Move {title} up', {
+								title: node.item.title,
+							})
+						"
 						@click="moveTopLevel(index, -1)">
 						↑
 					</NcButton>
@@ -166,7 +234,11 @@
 						v-if="isChair"
 						size="small"
 						:disabled="index === agendaTree.length - 1"
-						:aria-label="t('decidesk', 'Move {title} down', { title: node.item.title })"
+						:aria-label="
+							t('decidesk', 'Move {title} down', {
+								title: node.item.title,
+							})
+						"
 						@click="moveTopLevel(index, 1)">
 						↓
 					</NcButton>
@@ -177,45 +249,81 @@
 					v-if="node.children.length > 0"
 					class="agenda-builder__sublist"
 					role="list"
-					:aria-label="t('decidesk', 'Sub-items of {title}', { title: node.item.title })">
+					:aria-label="
+						t('decidesk', 'Sub-items of {title}', {
+							title: node.item.title,
+						})
+					">
 					<li
 						v-for="(child, childIndex) in node.children"
 						:key="child.id"
 						class="agenda-builder__subitem"
 						data-testid="agenda-sub-item"
 						role="listitem"
-						:aria-label="t('decidesk', 'Sub-item: {title}', { title: child.title })"
+						:aria-label="
+							t('decidesk', 'Sub-item: {title}', {
+								title: child.title,
+							})
+						"
 						@keydown.up.prevent="moveChild(index, childIndex, -1)"
 						@keydown.down.prevent="moveChild(index, childIndex, 1)">
-						<span class="agenda-builder__subitem-marker" aria-hidden="true">↳</span>
+						<span
+							class="agenda-builder__subitem-marker"
+							aria-hidden="true"
+							>↳</span
+						>
 
 						<CnStatusBadge
 							:status="child.itemType"
-							:aria-label="t('decidesk', 'Type: {type}', { type: child.itemType })" />
+							:aria-label="
+								t('decidesk', 'Type: {type}', {
+									type: child.itemType,
+								})
+							" />
 
-						<span class="agenda-builder__item-title">{{ child.title }}</span>
+						<span class="agenda-builder__item-title">{{
+							child.title
+						}}</span>
 
-						<span v-if="child.estimatedDuration" class="agenda-builder__item-duration">
+						<span
+							v-if="child.estimatedDuration"
+							class="agenda-builder__item-duration">
 							{{ child.estimatedDuration }} {{ t('decidesk', 'min') }}
 						</span>
 
-						<span v-if="getSpokesperson(child)" class="agenda-builder__item-spokesperson">
-							<NcUserBubble :user="getSpokesperson(child)" :show-user-status="false" />
+						<span
+							v-if="getSpokesperson(child)"
+							class="agenda-builder__item-spokesperson">
+							<NcUserBubble
+								:user="getSpokesperson(child)"
+								:show-user-status="false" />
 						</span>
 
 						<NcButton
 							v-if="isChair"
 							size="small"
-							:aria-label="t('decidesk', 'Assign spokesperson for {title}', { title: child.title })"
+							:aria-label="
+								t('decidesk', 'Assign spokesperson for {title}', {
+									title: child.title,
+								})
+							"
 							@click="openSpokespersonDialog(child)">
-							{{ getSpokesperson(child) ? t('decidesk', 'Change spokesperson') : t('decidesk', 'Assign spokesperson') }}
+							{{
+								getSpokesperson(child)
+									? t('decidesk', 'Change spokesperson')
+									: t('decidesk', 'Assign spokesperson')
+							}}
 						</NcButton>
 
 						<NcButton
 							v-if="isChair"
 							size="small"
 							:disabled="childIndex === 0"
-							:aria-label="t('decidesk', 'Move {title} up', { title: child.title })"
+							:aria-label="
+								t('decidesk', 'Move {title} up', {
+									title: child.title,
+								})
+							"
 							@click="moveChild(index, childIndex, -1)">
 							↑
 						</NcButton>
@@ -223,7 +331,11 @@
 							v-if="isChair"
 							size="small"
 							:disabled="childIndex === node.children.length - 1"
-							:aria-label="t('decidesk', 'Move {title} down', { title: child.title })"
+							:aria-label="
+								t('decidesk', 'Move {title} down', {
+									title: child.title,
+								})
+							"
 							@click="moveChild(index, childIndex, 1)">
 							↓
 						</NcButton>
@@ -257,7 +369,9 @@
 		<!-- Add sub-item dialog -->
 		<AddSubItemDialog
 			v-if="addSubItemDialog.open"
-			:parent-title="addSubItemDialog.parent ? addSubItemDialog.parent.title : ''"
+			:parent-title="
+				addSubItemDialog.parent ? addSubItemDialog.parent.title : ''
+			"
 			@submit="createSubItem"
 			@close="addSubItemDialog.open = false" />
 	</div>
@@ -271,7 +385,11 @@ import AddSubItemDialog from '../dialogs/AddSubItemDialog.vue'
 import ProposeAgendaItemDialog from '../dialogs/ProposeAgendaItemDialog.vue'
 import RecurringItemsDialog from '../dialogs/RecurringItemsDialog.vue'
 import SpokespersonDialog from '../dialogs/SpokespersonDialog.vue'
-import { buildAgendaTree, flattenTree, missingStatutoryItems } from '../services/agendaRules.js'
+import {
+	buildAgendaTree,
+	flattenTree,
+	missingStatutoryItems,
+} from '../services/agendaRules.js'
 
 /**
  * @spec openspec/specs/agenda-management/spec.md
@@ -330,7 +448,9 @@ export default {
 	computed: {
 		/** @spec openspec/specs/agenda-management/spec.md */
 		agendaTree() {
-			return buildAgendaTree(this.localItems.filter(i => i.status !== 'voorstel'))
+			return buildAgendaTree(
+				this.localItems.filter((i) => i.status !== 'voorstel'),
+			)
 		},
 
 		/** @spec openspec/specs/agenda-management/spec.md */
@@ -348,7 +468,7 @@ export default {
 
 		/** @spec openspec/specs/agenda-management/spec.md */
 		proposalItems() {
-			return this.localItems.filter(i => i.status === 'voorstel')
+			return this.localItems.filter((i) => i.status === 'voorstel')
 		},
 
 		/** @spec openspec/specs/agenda-management/spec.md */
@@ -419,10 +539,16 @@ export default {
 		/** @spec openspec/specs/agenda-management/spec.md */
 		moveChild(parentIndex, childIndex, delta) {
 			const target = childIndex + delta
-			const tree = this.agendaTree.map(node => ({ item: node.item, children: node.children.slice() }))
+			const tree = this.agendaTree.map((node) => ({
+				item: node.item,
+				children: node.children.slice(),
+			}))
 			const siblings = tree[parentIndex]?.children
 			if (!siblings || target < 0 || target >= siblings.length) return
-			;[siblings[childIndex], siblings[target]] = [siblings[target], siblings[childIndex]]
+			;[siblings[childIndex], siblings[target]] = [
+				siblings[target],
+				siblings[childIndex],
+			]
 			this.applyTreeOrder(tree)
 		},
 
@@ -434,24 +560,34 @@ export default {
 		 */
 		applyTreeOrder(tree) {
 			const flat = flattenTree(tree)
-			flat.forEach((item, i) => { item.orderNumber = i + 1 })
+			flat.forEach((item, i) => {
+				item.orderNumber = i + 1
+			})
 			this.localItems = flat.concat(this.proposalItems)
-			this.persistReorder(flat.map(i => i.id))
+			this.persistReorder(flat.map((i) => i.id))
 		},
 
 		/** @spec openspec/specs/agenda-management/spec.md */
 		async persistReorder(ids) {
 			try {
 				const response = await fetch(
-					OC.generateUrl(`/apps/decidesk/api/agendas/${this.meetingId}/reorder`),
+					OC.generateUrl(
+						`/apps/decidesk/api/agendas/${this.meetingId}/reorder`,
+					),
 					{
 						method: 'PUT',
-						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: OC.requestToken,
+						},
 						body: JSON.stringify({ ids }),
 					},
 				)
 				if (!response.ok) {
-					console.error('Failed to persist agenda reorder:', response.status)
+					console.error(
+						'Failed to persist agenda reorder:',
+						response.status,
+					)
 					return
 				}
 				this.$emit('reordered', ids)
@@ -473,7 +609,10 @@ export default {
 		async createSubItem(payload) {
 			const parent = this.addSubItemDialog.parent
 			if (!parent) return
-			const maxOrder = this.localItems.reduce((max, i) => Math.max(max, i.orderNumber ?? 0), 0)
+			const maxOrder = this.localItems.reduce(
+				(max, i) => Math.max(max, i.orderNumber ?? 0),
+				0,
+			)
 			try {
 				await this.objectStore.saveObject('agenda-item', {
 					title: payload.title,
@@ -528,7 +667,10 @@ export default {
 			try {
 				const relations = { ...(item.relations ?? {}) }
 				delete relations.spokesperson
-				await this.objectStore.saveObject('agenda-item', { ...item, relations })
+				await this.objectStore.saveObject('agenda-item', {
+					...item,
+					relations,
+				})
 				this.$emit('item-updated', item.id)
 			} catch (e) {
 				console.error('Failed to remove spokesperson:', e)
@@ -544,7 +686,7 @@ export default {
 		/** @spec openspec/specs/agenda-management/spec.md */
 		coiCount(item) {
 			const notes = item?.notes ?? []
-			return notes.filter(n => (n.title ?? '').startsWith('COI:')).length
+			return notes.filter((n) => (n.title ?? '').startsWith('COI:')).length
 		},
 
 		// -----------------------------------------------------------------------
@@ -554,7 +696,9 @@ export default {
 		/** @spec openspec/specs/agenda-management/spec.md */
 		async loadRecurringItems() {
 			try {
-				const all = await this.objectStore.fetchCollection('agenda-item', { isRecurring: true })
+				const all = await this.objectStore.fetchCollection('agenda-item', {
+					isRecurring: true,
+				})
 				this.recurringItems = all ?? []
 			} catch (e) {
 				console.error('Failed to load recurring items:', e)
@@ -566,7 +710,7 @@ export default {
 			let order = this.localItems.length + 1
 
 			for (const srcId of selectedIds) {
-				const src = this.recurringItems.find(r => r.id === srcId)
+				const src = this.recurringItems.find((r) => r.id === srcId)
 				if (!src) continue
 
 				try {
@@ -594,7 +738,8 @@ export default {
 
 		/** @spec openspec/specs/agenda-management/spec.md */
 		async approveProposal(item) {
-			const nextOrder = this.localItems.filter(i => i.status !== 'voorstel').length + 1
+			const nextOrder =
+				this.localItems.filter((i) => i.status !== 'voorstel').length + 1
 			try {
 				await this.objectStore.saveObject('agenda-item', {
 					...item,
@@ -610,7 +755,10 @@ export default {
 		/** @spec openspec/specs/agenda-management/spec.md */
 		async rejectProposal(item) {
 			try {
-				await this.objectStore.saveObject('agenda-item', { ...item, status: 'afgewezen' })
+				await this.objectStore.saveObject('agenda-item', {
+					...item,
+					status: 'afgewezen',
+				})
 				this.$emit('item-updated', item.id)
 			} catch (e) {
 				console.error('Failed to reject proposal:', e)

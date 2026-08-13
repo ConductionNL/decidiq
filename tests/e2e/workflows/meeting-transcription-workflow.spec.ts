@@ -76,7 +76,11 @@ const DONE_TRANSCRIPT = {
 	id: 'e2e-transcript',
 	status: 'done',
 	segments: [
-		{ agendaItem: 'item-a', speakerLabel: 'Speaker 1', text: 'Bespreking agendapunt A.' },
+		{
+			agendaItem: 'item-a',
+			speakerLabel: 'Speaker 1',
+			text: 'Bespreking agendapunt A.',
+		},
 		{ agendaItem: '', speakerLabel: 'Speaker 2', text: 'Losse opmerking.' },
 	],
 }
@@ -108,32 +112,50 @@ async function seedMeeting(page: Page): Promise<string> {
  */
 async function mockTranscriptionApi(
 	page: Page,
-	opts: { providerAvailable: boolean; aiAvailable: boolean; existingTranscript?: boolean },
+	opts: {
+		providerAvailable: boolean
+		aiAvailable: boolean
+		existingTranscript?: boolean
+	},
 ): Promise<void> {
 	// Source list + provider availability.
-	await page.route('**/apps/decidesk/api/meetings/*/transcription/sources', (route) =>
-		route.fulfill({
-			status: 200,
-			contentType: 'application/json',
-			body: JSON.stringify({
-				providerAvailable: opts.providerAvailable,
-				aiAvailable: opts.aiAvailable,
-				sources: [{ type: 'uploaded-file', path: 'Decidesk/x/recording.mp3', name: 'recording.mp3' }],
+	await page.route(
+		'**/apps/decidesk/api/meetings/*/transcription/sources',
+		(route) =>
+			route.fulfill({
+				status: 200,
+				contentType: 'application/json',
+				body: JSON.stringify({
+					providerAvailable: opts.providerAvailable,
+					aiAvailable: opts.aiAvailable,
+					sources: [
+						{
+							type: 'uploaded-file',
+							path: 'Decidesk/x/recording.mp3',
+							name: 'recording.mp3',
+						},
+					],
+				}),
 			}),
-		}),
 	)
 
 	// Attach (consent precondition lives server-side; here we echo a done transcript).
-	await page.route('**/apps/decidesk/api/meetings/*/transcription/attach', (route) =>
-		route.fulfill({
-			status: 201,
-			contentType: 'application/json',
-			body: JSON.stringify(DONE_TRANSCRIPT),
-		}),
+	await page.route(
+		'**/apps/decidesk/api/meetings/*/transcription/attach',
+		(route) =>
+			route.fulfill({
+				status: 201,
+				contentType: 'application/json',
+				body: JSON.stringify(DONE_TRANSCRIPT),
+			}),
 	)
 
 	await page.route('**/apps/decidesk/api/transcripts/*/transcribe', (route) =>
-		route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ status: 'queued' }) }),
+		route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify({ status: 'queued' }),
+		}),
 	)
 
 	await page.route('**/apps/decidesk/api/transcripts/*/generate-draft', (route) =>
@@ -141,17 +163,35 @@ async function mockTranscriptionApi(
 			status: 200,
 			contentType: 'application/json',
 			body: JSON.stringify({
-				provenance: { aiGenerated: true, providerId: 'mock-llm', generatedAt: '2026-06-15T00:00:00Z' },
+				provenance: {
+					aiGenerated: true,
+					providerId: 'mock-llm',
+					generatedAt: '2026-06-15T00:00:00Z',
+				},
 				sections: [
 					{
 						agendaItem: 'item-a',
 						title: 'Budget 2026',
 						summary: 'De raad besprak het budget.',
 						suggestions: [
-							{ title: 'Budget aangenomen', recordType: 'decision', linkedId: 'd1', unverified: false },
-							{ title: 'Niet vastgelegd voorstel', recordType: 'decision', linkedId: '', unverified: true },
+							{
+								title: 'Budget aangenomen',
+								recordType: 'decision',
+								linkedId: 'd1',
+								unverified: false,
+							},
+							{
+								title: 'Niet vastgelegd voorstel',
+								recordType: 'decision',
+								linkedId: '',
+								unverified: true,
+							},
 						],
-						provenance: { aiGenerated: true, providerId: 'mock-llm', generatedAt: '2026-06-15T00:00:00Z' },
+						provenance: {
+							aiGenerated: true,
+							providerId: 'mock-llm',
+							generatedAt: '2026-06-15T00:00:00Z',
+						},
 					},
 				],
 			}),
@@ -159,19 +199,28 @@ async function mockTranscriptionApi(
 	)
 
 	// OR object reads the panel does (existing transcript + agenda titles).
-	await page.route('**/apps/openregister/api/objects/decidesk/transcript**', (route) =>
-		route.fulfill({
-			status: 200,
-			contentType: 'application/json',
-			body: JSON.stringify({ results: opts.existingTranscript === true ? [DONE_TRANSCRIPT] : [] }),
-		}),
+	await page.route(
+		'**/apps/openregister/api/objects/decidesk/transcript**',
+		(route) =>
+			route.fulfill({
+				status: 200,
+				contentType: 'application/json',
+				body: JSON.stringify({
+					results:
+						opts.existingTranscript === true ? [DONE_TRANSCRIPT] : [],
+				}),
+			}),
 	)
-	await page.route('**/apps/openregister/api/objects/decidesk/agenda-item**', (route) =>
-		route.fulfill({
-			status: 200,
-			contentType: 'application/json',
-			body: JSON.stringify({ results: [{ id: 'item-a', title: 'Budget 2026' }] }),
-		}),
+	await page.route(
+		'**/apps/openregister/api/objects/decidesk/agenda-item**',
+		(route) =>
+			route.fulfill({
+				status: 200,
+				contentType: 'application/json',
+				body: JSON.stringify({
+					results: [{ id: 'item-a', title: 'Budget 2026' }],
+				}),
+			}),
 	)
 }
 
@@ -185,7 +234,9 @@ async function mockTranscriptionApi(
 async function gotoTranscription(page: Page, meetingId: string): Promise<void> {
 	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 10_000 })
-	await page.waitForSelector('[data-testid="meeting-transcription-tab"]', { timeout: 10_000 })
+	await page.waitForSelector('[data-testid="meeting-transcription-tab"]', {
+		timeout: 10_000,
+	})
 }
 
 /**
@@ -198,7 +249,11 @@ async function gotoTranscription(page: Page, meetingId: string): Promise<void> {
  * `user-settings.spec.ts:171` hang on its own option lookup.
  */
 async function selectRecordingSource(page: Page): Promise<void> {
-	await page.getByTestId('transcription-source-select').locator('input').first().click()
+	await page
+		.getByTestId('transcription-source-select')
+		.locator('input')
+		.first()
+		.click()
 	const option = page.getByRole('option').first()
 	await expect(option).toContainText('recording.mp3')
 	await option.click()
@@ -208,18 +263,28 @@ async function selectRecordingSource(page: Page): Promise<void> {
 }
 
 test.describe('meeting transcription UI', () => {
-	test('provider-unavailable messaging is shown instead of an error', async ({ page }) => {
+	test('provider-unavailable messaging is shown instead of an error', async ({
+		page,
+	}) => {
 		const meetingId = await seedMeeting(page)
-		await mockTranscriptionApi(page, { providerAvailable: false, aiAvailable: false })
+		await mockTranscriptionApi(page, {
+			providerAvailable: false,
+			aiAvailable: false,
+		})
 		await gotoTranscription(page, meetingId)
 		// Graceful degradation: attach still possible, transcribe shown unavailable.
 		await expect(page.getByTestId('transcription-unavailable')).toBeVisible()
 		await expect(page.getByTestId('transcription-attach')).toBeVisible()
 	})
 
-	test('attach with consent, transcript grouped by agenda item, generate draft + markers', async ({ page }) => {
+	test('attach with consent, transcript grouped by agenda item, generate draft + markers', async ({
+		page,
+	}) => {
 		const meetingId = await seedMeeting(page)
-		await mockTranscriptionApi(page, { providerAvailable: true, aiAvailable: true })
+		await mockTranscriptionApi(page, {
+			providerAvailable: true,
+			aiAvailable: true,
+		})
 		await gotoTranscription(page, meetingId)
 
 		// Attach requires a chosen source AND the consent dialog (the consent
@@ -230,7 +295,9 @@ test.describe('meeting transcription UI', () => {
 		await page.getByTestId('transcription-attach').click()
 		await expect(page.getByTestId('transcription-consent-modal')).toBeVisible()
 		// Confirm button disabled until consent is checked.
-		await expect(page.getByTestId('transcription-consent-confirm')).toBeDisabled()
+		await expect(
+			page.getByTestId('transcription-consent-confirm'),
+		).toBeDisabled()
 		// `NcCheckboxRadioSwitch` merges `$attrs` onto the <input> itself, so this
 		// `data-testid` IS the input — and @nextcloud/vue 9.9.0 styles that input
 		// `position: absolute; z-index: -1; opacity: 0 !important` with its own
@@ -268,15 +335,23 @@ test.describe('meeting transcription UI', () => {
 
 		// Discard a section removes its AI content + marker.
 		await page.getByTestId('draft-section-discard').first().click()
-		await expect(page.getByTestId('draft-section-discarded').first()).toBeVisible()
+		await expect(
+			page.getByTestId('draft-section-discarded').first(),
+		).toBeVisible()
 	})
 
-	test('AI generation hidden when no AI provider is available', async ({ page }) => {
+	test('AI generation hidden when no AI provider is available', async ({
+		page,
+	}) => {
 		const meetingId = await seedMeeting(page)
 		// A finished transcript IS attached — otherwise `toHaveCount(0)` below
 		// would pass for the wrong reason (no transcript at all also hides the
 		// generate action), asserting nothing about AI-provider gating.
-		await mockTranscriptionApi(page, { providerAvailable: true, aiAvailable: false, existingTranscript: true })
+		await mockTranscriptionApi(page, {
+			providerAvailable: true,
+			aiAvailable: false,
+			existingTranscript: true,
+		})
 		await gotoTranscription(page, meetingId)
 		// Done transcript renders, but the generate-draft action is absent.
 		await expect(page.getByTestId('transcript-view')).toBeVisible()
