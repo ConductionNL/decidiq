@@ -79,7 +79,7 @@ class QuorumVerificationServiceTest extends TestCase {
 	public function testSimpleMajorityMet(): void {
 		$meeting = [
 			'id' => 'm1',
-			'boardKoppeling' => 'b1',
+			'boardIntegration' => 'b1',
 			'quorumRule' => 'simple-majority',
 			'attendance' => [
 				['boardMemberKoppeling' => 'p1', 'mode' => 'in-person'],
@@ -91,11 +91,11 @@ class QuorumVerificationServiceTest extends TestCase {
 		];
 
 		$members = [
-			['id' => 'p1', 'boardKoppeling' => 'b1'],
-			['id' => 'p2', 'boardKoppeling' => 'b1'],
-			['id' => 'p3', 'boardKoppeling' => 'b1'],
-			['id' => 'p4', 'boardKoppeling' => 'b1'],
-			['id' => 'p5', 'boardKoppeling' => 'b1'],
+			['id' => 'p1', 'boardIntegration' => 'b1'],
+			['id' => 'p2', 'boardIntegration' => 'b1'],
+			['id' => 'p3', 'boardIntegration' => 'b1'],
+			['id' => 'p4', 'boardIntegration' => 'b1'],
+			['id' => 'p5', 'boardIntegration' => 'b1'],
 		];
 
 		$service = $this->makeService($meeting, $members);
@@ -116,7 +116,7 @@ class QuorumVerificationServiceTest extends TestCase {
 	public function testTwoThirdsThresholdComputation(): void {
 		$meeting = [
 			'id' => 'm2',
-			'boardKoppeling' => 'b1',
+			'boardIntegration' => 'b1',
 			'quorumRule' => 'qualified-majority-two-thirds',
 			'attendance' => [
 				['boardMemberKoppeling' => 'p1', 'mode' => 'in-person'],
@@ -131,7 +131,7 @@ class QuorumVerificationServiceTest extends TestCase {
 
 		$members = [];
 		for ($i = 1; $i <= 7; $i++) {
-			$members[] = ['id' => 'p' . $i, 'boardKoppeling' => 'b1'];
+			$members[] = ['id' => 'p' . $i, 'boardIntegration' => 'b1'];
 		}
 
 		$service = $this->makeService($meeting, $members);
@@ -152,7 +152,7 @@ class QuorumVerificationServiceTest extends TestCase {
 	public function testExplicitQuorumRequiredOverridesRule(): void {
 		$meeting = [
 			'id' => 'm3',
-			'boardKoppeling' => 'b1',
+			'boardIntegration' => 'b1',
 			'quorumRule' => 'simple-majority',
 			'quorumRequired' => 2,
 			'attendance' => [
@@ -166,7 +166,7 @@ class QuorumVerificationServiceTest extends TestCase {
 
 		$members = [];
 		for ($i = 1; $i <= 5; $i++) {
-			$members[] = ['id' => 'p' . $i, 'boardKoppeling' => 'b1'];
+			$members[] = ['id' => 'p' . $i, 'boardIntegration' => 'b1'];
 		}
 
 		$service = $this->makeService($meeting, $members);
@@ -199,7 +199,7 @@ class QuorumVerificationServiceTest extends TestCase {
 	public function testUnanimousQuorumRule(): void {
 		$meeting = [
 			'id' => 'mu',
-			'boardKoppeling' => 'b1',
+			'boardIntegration' => 'b1',
 			'quorumRule' => 'unanimous',
 			'attendance' => [
 				['boardMemberKoppeling' => 'p1', 'mode' => 'in-person'],
@@ -209,9 +209,9 @@ class QuorumVerificationServiceTest extends TestCase {
 		];
 
 		$members = [
-			['id' => 'p1', 'boardKoppeling' => 'b1'],
-			['id' => 'p2', 'boardKoppeling' => 'b1'],
-			['id' => 'p3', 'boardKoppeling' => 'b1'],
+			['id' => 'p1', 'boardIntegration' => 'b1'],
+			['id' => 'p2', 'boardIntegration' => 'b1'],
+			['id' => 'p3', 'boardIntegration' => 'b1'],
 		];
 
 		$service = $this->makeService($meeting, $members);

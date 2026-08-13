@@ -174,15 +174,15 @@ class ProxyVoteService {
 	 */
 	private function isAuthorizedForTransition(array $proxy, string $callerUid): bool {
 		$callerParticipant = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
-		$grantorId = ($proxy['grantorKoppeling'] ?? null);
-		$holderId = ($proxy['holderKoppeling'] ?? null);
+		$grantorId = ($proxy['grantorIntegration'] ?? null);
+		$holderId = ($proxy['holderIntegration'] ?? null);
 		if ($callerParticipant !== null
 			&& ($callerParticipant === $grantorId || $callerParticipant === $holderId)
 		) {
 			return true;
 		}
 
-		$meetingId = (string)($proxy['meetingKoppeling'] ?? '');
+		$meetingId = (string)($proxy['meetingIntegration'] ?? '');
 		return $this->isChairOrClerk(meetingId: $meetingId, uid: $callerUid);
 	}//end isAuthorizedForTransition()
 
@@ -236,7 +236,7 @@ class ProxyVoteService {
 		$heldByHolder = count(
 			array_filter(
 				$existing['proxies'],
-				static fn (array $proxyRow): bool => (($proxyRow['holderKoppeling'] ?? null) === $holderId)
+				static fn (array $proxyRow): bool => (($proxyRow['holderIntegration'] ?? null) === $holderId)
 			)
 		);
 
@@ -251,9 +251,9 @@ class ProxyVoteService {
 		}
 
 		$row = [
-			'meetingKoppeling' => $meetingId,
-			'grantorKoppeling' => $grantorId,
-			'holderKoppeling' => $holderId,
+			'meetingIntegration' => $meetingId,
+			'grantorIntegration' => $grantorId,
+			'holderIntegration' => $holderId,
 			'scope' => (string)($extra['scope'] ?? 'all-resolutions'),
 			'expiresAt' => (string)($extra['expiresAt'] ?? ''),
 			'proxyStatus' => 'pending-approval',
@@ -398,7 +398,7 @@ class ProxyVoteService {
 					'filters' => [
 						'register' => 'decidesk',
 						'schema' => self::SCHEMA,
-						'meetingKoppeling' => $meetingId,
+						'meetingIntegration' => $meetingId,
 					],
 					'limit' => 1000,
 				]
@@ -421,7 +421,7 @@ class ProxyVoteService {
 				$row = (array)$row->jsonSerialize();
 			}
 
-			if (is_array($row) === false || ($row['meetingKoppeling'] ?? null) !== $meetingId) {
+			if (is_array($row) === false || ($row['meetingIntegration'] ?? null) !== $meetingId) {
 				continue;
 			}
 
@@ -531,7 +531,7 @@ class ProxyVoteService {
 			$this->auditLogService->append(
 				actor: $actor,
 				action: 'proxy-revoked',
-				objectUids: [$proxyId, (string)($current['meetingKoppeling'] ?? '')],
+				objectUids: [$proxyId, (string)($current['meetingIntegration'] ?? '')],
 				payload: ['previousStatus' => $previousStatus]
 			);
 		}

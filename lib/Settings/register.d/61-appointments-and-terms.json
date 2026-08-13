@@ -7,14 +7,14 @@
           {
             "slug": "termijn-regeling-auditcommissie",
             "body": "auditcommissie-provincie-nh",
-            "termijnDuurMaanden": 48,
+            "termDurationMonths": 48,
             "notes": "Benoeming voor de duur van de raadsperiode; geen maximum aan aansluitende termijnen."
           },
           {
             "slug": "termijn-regeling-rvc-acme",
             "body": "raad-van-commissarissen-acme-bv",
-            "termijnDuurMaanden": 48,
-            "maxAansluitendeTermijnen": 2,
+            "termDurationMonths": 48,
+            "maxConsecutivePeriods": 2,
             "notes": "Statutair: eenmaal herbenoembaar (art. 12 statuten)."
           }
         ],
@@ -25,15 +25,15 @@
             "targetRole": "member",
             "kandidaten": [
               {
-                "persoon": "marie-janssen",
+                "person": "marie-janssen",
                 "notes": "Financiële expertise gewenst in de auditcommissie."
               }
             ],
-            "voordragendePartij": {
+            "nominatingParty": {
               "type": "politicalGroup",
-              "naam": "D66"
+              "name": "D66"
             },
-            "motivering": "Financiële expertise gewenst.",
+            "rationale": "Financiële expertise gewenst.",
             "lifecycle": "ingediend"
           },
           {
@@ -42,19 +42,19 @@
             "targetRole": "member",
             "kandidaten": [
               {
-                "externeNaam": "Mw. J. van Duin",
+                "externeName": "Mw. J. van Duin",
                 "notes": "Externe werving; nog geen Person-registratie — wordt na benoeming aangemaakt."
               }
             ],
-            "voordragendePartij": {
+            "nominatingParty": {
               "type": "orgaan",
-              "naam": "Raad van Commissarissen (coöptatie-voordracht)"
+              "name": "Raad van Commissarissen (coöptatie-voordracht)"
             },
-            "motivering": "Herbenoeming niet mogelijk (rooster van aftreden); externe werving conform profielschets.",
+            "rationale": "Herbenoeming niet mogelijk (rooster van aftreden); externe werving conform profielschets.",
             "lifecycle": "benoemd",
-            "agendapunt": "00000000-0000-0000-0000-000000000000",
+            "agendaItem": "00000000-0000-0000-0000-000000000000",
             "votingRound": "stemming-investering-acme-rvb-geheim",
-            "besluit": "00000000-0000-0000-0000-000000000000",
+            "decision": "00000000-0000-0000-0000-000000000000",
             "membership": "00000000-0000-0000-0000-000000000000"
           },
           {
@@ -63,15 +63,15 @@
             "targetRole": "chair",
             "kandidaten": [
               {
-                "externeNaam": "K. Bakker",
+                "externeName": "K. Bakker",
                 "notes": "Kandidaat trekt zich terug voor behandeling."
               }
             ],
-            "voordragendePartij": {
+            "nominatingParty": {
               "type": "politicalGroup",
-              "naam": "GroenLinks"
+              "name": "GroenLinks"
             },
-            "motivering": "Kandidaat trekt zich terug.",
+            "rationale": "Kandidaat trekt zich terug.",
             "lifecycle": "ingetrokken"
           }
         ],
@@ -79,68 +79,68 @@
           {
             "slug": "rooster-rvc-acme",
             "body": "raad-van-commissarissen-acme-bv",
-            "gegenereerdOp": "2026-07-01T09:00:00Z",
-            "gegenereerdDoor": "Griffie",
+            "gegenereerdOn": "2026-07-01T09:00:00Z",
+            "gegenereerdBy": "Griffie",
             "publicationDate": "2026-07-02T09:00:00Z"
           },
           {
             "slug": "rooster-auditcommissie",
             "body": "auditcommissie-provincie-nh",
-            "gegenereerdOp": "2026-07-01T09:00:00Z",
-            "gegenereerdDoor": "Griffie"
+            "gegenereerdOn": "2026-07-01T09:00:00Z",
+            "gegenereerdBy": "Griffie"
           }
         ],
         "rooster-regel": [
           {
             "slug": "rooster-regel-rvc-vanduin",
-            "rooster": "rooster-rvc-acme",
+            "schedule": "rooster-rvc-acme",
             "membership": "00000000-0000-0000-0000-000000000000",
-            "persoonNaam": "J. van Duin",
+            "personName": "J. van Duin",
             "role": "member",
-            "termijnNummer": 1,
-            "eindeTermijnDatum": "2030-09-10",
-            "herbenoembaar": true
+            "termNumber": 1,
+            "endTermDate": "2030-09-10",
+            "reappointable": true
           },
           {
             "slug": "rooster-regel-rvc-dewit",
-            "rooster": "rooster-rvc-acme",
+            "schedule": "rooster-rvc-acme",
             "membership": "00000000-0000-0000-0000-000000000000",
-            "persoonNaam": "P. de Wit",
+            "personName": "P. de Wit",
             "role": "chair",
-            "termijnNummer": 2,
-            "eindeTermijnDatum": "2026-11-01",
-            "herbenoembaar": false,
+            "termNumber": 2,
+            "endTermDate": "2026-11-01",
+            "reappointable": false,
             "rappelStatus": "rappel-6-maanden"
           },
           {
             "slug": "rooster-regel-rvc-smit",
-            "rooster": "rooster-rvc-acme",
+            "schedule": "rooster-rvc-acme",
             "membership": "00000000-0000-0000-0000-000000000000",
-            "persoonNaam": "A. Smit",
+            "personName": "A. Smit",
             "role": "member",
-            "termijnNummer": 1,
-            "eindeTermijnDatum": "2028-03-15",
-            "herbenoembaar": true
+            "termNumber": 1,
+            "endTermDate": "2028-03-15",
+            "reappointable": true
           },
           {
             "slug": "rooster-regel-auditcommissie-jansen",
-            "rooster": "rooster-auditcommissie",
+            "schedule": "rooster-auditcommissie",
             "membership": "00000000-0000-0000-0000-000000000000",
-            "persoonNaam": "S. Jansen",
+            "personName": "S. Jansen",
             "role": "member",
-            "termijnNummer": 1,
-            "eindeTermijnDatum": "2030-09-10",
-            "herbenoembaar": true
+            "termNumber": 1,
+            "endTermDate": "2030-09-10",
+            "reappointable": true
           },
           {
             "slug": "rooster-regel-auditcommissie-bakker",
-            "rooster": "rooster-auditcommissie",
+            "schedule": "rooster-auditcommissie",
             "membership": "00000000-0000-0000-0000-000000000000",
-            "persoonNaam": "K. Bakker",
+            "personName": "K. Bakker",
             "role": "member",
-            "termijnNummer": 1,
-            "eindeTermijnDatum": "2027-05-01",
-            "herbenoembaar": true
+            "termNumber": 1,
+            "endTermDate": "2027-05-01",
+            "reappointable": true
           }
         ]
       }
@@ -248,7 +248,7 @@
               "type": "object",
               "title": "Candidate",
               "properties": {
-                "persoon": {
+                "person": {
                   "title": "Person",
                   "type": "string",
                   "format": "uuid",
@@ -256,7 +256,7 @@
                   "$ref": "Person",
                   "description": "Reference to the candidate's Person record (person-and-membership). Empty for an external candidate not yet registered — then externeNaam carries the name."
                 },
-                "externeNaam": {
+                "externeName": {
                   "title": "External name",
                   "type": "string",
                   "nullable": true,
@@ -271,7 +271,7 @@
               }
             }
           },
-          "voordragendePartij": {
+          "nominatingParty": {
             "title": "Nominating party",
             "type": "object",
             "description": "The nominating party (voordragende partij), structured. type is fractie/orgaan/persoon (vocabulary aligned with fractievoorzitter-fractie-koppeling); naam is the display name; referentie optionally points at a resolved object (Person/GovernanceBody) when one exists.",
@@ -283,16 +283,16 @@
                 "enum": [
                   "politicalGroup",
                   "orgaan",
-                  "persoon"
+                  "person"
                 ],
                 "example": "politicalGroup"
               },
-              "naam": {
+              "name": {
                 "title": "Name",
                 "type": "string",
                 "description": "Display name of the nominating party (e.g. the fractie name)."
               },
-              "referentie": {
+              "reference": {
                 "title": "Reference",
                 "type": "string",
                 "format": "uuid",
@@ -302,7 +302,7 @@
               }
             }
           },
-          "motivering": {
+          "rationale": {
             "title": "Motivation",
             "type": "string",
             "description": "Free-text motivation for the nomination. Also carries any explicit deviation from the rooster van aftreden / max-term rule (REQ-APT-006, design D5)."
@@ -321,7 +321,7 @@
             ],
             "example": "ingediend"
           },
-          "agendapunt": {
+          "agendaItem": {
             "title": "Agenda item",
             "type": "string",
             "format": "uuid",
@@ -335,7 +335,7 @@
             "$ref": "VotingRound",
             "description": "Reference to the VotingRound that decided the appointment (REQ-APT-003). Optional — empty for an uncontested appointment by acclamation. Ballot mechanics (incl. secret/preferential) stay entirely in voting-system/secret-ballot/preferential-ballot; the voordracht stores only this round reference and copies no vote data."
           },
-          "besluit": {
+          "decision": {
             "title": "Decision",
             "type": "string",
             "format": "uuid",
@@ -368,7 +368,7 @@
         },
         "required": [
           "body",
-          "termijnDuurMaanden"
+          "termDurationMonths"
         ],
         "properties": {
           "body": {
@@ -394,14 +394,14 @@
             ],
             "example": "chair"
           },
-          "termijnDuurMaanden": {
+          "termDurationMonths": {
             "title": "Term length (months)",
             "type": "integer",
             "minimum": 1,
             "description": "Term length in months (e.g. 48 for a 4-year term). Required, positive.",
             "example": 48
           },
-          "maxAansluitendeTermijnen": {
+          "maxConsecutivePeriods": {
             "title": "Max consecutive terms",
             "type": "integer",
             "minimum": 1,
@@ -455,7 +455,7 @@
             "$ref": "GovernanceBody",
             "description": "Reference to the GovernanceBody this rooster van aftreden belongs to (one live rooster per body). Required."
           },
-          "gegenereerdOp": {
+          "gegenereerdOn": {
             "title": "Generated at",
             "type": "string",
             "format": "date-time",
@@ -463,7 +463,7 @@
             "description": "Timestamp of the most recent generation/regeneration (REQ-APT-007). Shown prominently so a stale rooster is visibly stale, never silently wrong.",
             "example": "2026-07-01T09:00:00Z"
           },
-          "gegenereerdDoor": {
+          "gegenereerdBy": {
             "title": "Generated by",
             "type": "string",
             "description": "Who triggered the most recent generation (griffie/secretary). Allow-list metadata only."
@@ -507,7 +507,7 @@
               "type": "scheduled",
               "intervalSec": 15552000,
               "filter": {
-                "herbenoembaar": true
+                "reappointable": true
               }
             },
             "enabled": true,
@@ -537,7 +537,7 @@
               "type": "scheduled",
               "intervalSec": 7776000,
               "filter": {
-                "herbenoembaar": true
+                "reappointable": true
               }
             },
             "enabled": true,
@@ -577,14 +577,14 @@
           ]
         },
         "required": [
-          "rooster",
-          "persoonNaam",
+          "schedule",
+          "personName",
           "role",
-          "termijnNummer",
-          "eindeTermijnDatum"
+          "termNumber",
+          "endTermDate"
         ],
         "properties": {
-          "rooster": {
+          "schedule": {
             "title": "Rooster",
             "type": "string",
             "format": "uuid",
@@ -599,7 +599,7 @@
             "$ref": "Membership",
             "description": "Reference to the source Membership this regel was derived from (person-and-membership). Optional/nullable: a projection row may carry only the materialized persoonNaam when the Membership cannot be resolved at generation time (e.g. imported partial history)."
           },
-          "persoonNaam": {
+          "personName": {
             "title": "Member name",
             "type": "string",
             "description": "Materialized member name (allow-list projection field; safe for public publication). Required.",
@@ -621,7 +621,7 @@
             ],
             "example": "member"
           },
-          "termijnNummer": {
+          "termNumber": {
             "title": "Term number",
             "type": "integer",
             "minimum": 1,
@@ -629,7 +629,7 @@
             "description": "Derived 1-based count of the person's consecutive terms in the same body-role (REQ-APT-006). A reappointment without a gap increments; a gap or role change resets to 1. When it exceeds maxAansluitendeTermijnen an advisory warning is surfaced (non-blocking, design D5).",
             "example": 2
           },
-          "eindeTermijnDatum": {
+          "endTermDate": {
             "title": "End-of-term date",
             "type": "string",
             "format": "date",
@@ -637,7 +637,7 @@
             "description": "Derived end-of-term date: start of the current term plus termijnDuurMaanden (REQ-APT-006). Drives the declarative herbenoemingsrappels and the expiring-terms KPI, ordered ascending on the rooster. Required.",
             "example": "2026-11-01"
           },
-          "herbenoembaar": {
+          "reappointable": {
             "title": "Reappointable",
             "type": "boolean",
             "facetable": true,

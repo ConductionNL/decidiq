@@ -7,18 +7,18 @@
           {
             "slug": "beleid-gemeenteraad",
             "governanceBody": "gemeenteraad-amsterdam",
-            "nevenfunctieDisclosureDefault": "openbaar",
-            "geschenkDrempelbedrag": 50,
-            "geschenkenOpenbaar": true,
-            "integriteitsNotificatieGroep": "decidesk-burgemeester"
+            "ancillaryPositionDisclosureDefault": "openbaar",
+            "giftThresholdAmount": 50,
+            "giftsPublic": true,
+            "integrityNotificationGroep": "decidesk-burgemeester"
           },
           {
             "slug": "beleid-rvc-waterschap",
             "governanceBody": "rvc-waterschap-amstel",
-            "nevenfunctieDisclosureDefault": "intern",
-            "geschenkDrempelbedrag": 100,
-            "geschenkenOpenbaar": false,
-            "integriteitsNotificatieGroep": "decidesk-compliance"
+            "ancillaryPositionDisclosureDefault": "intern",
+            "giftThresholdAmount": 100,
+            "giftsPublic": false,
+            "integrityNotificationGroep": "decidesk-compliance"
           }
         ],
         "nevenfunctie": [
@@ -26,10 +26,10 @@
             "slug": "nf-bestuurslid-welzijn",
             "person": "marie-janssen",
             "governanceBody": "gemeenteraad-amsterdam",
-            "organisatie": "Stichting Welzijn Noord",
-            "functie": "bestuurslid",
+            "organisation": "Stichting Welzijn Noord",
+            "role": "bestuurslid",
             "bezoldigd": false,
-            "urenIndicatie": "4 uur/week",
+            "hoursIndication": "4 uur/week",
             "qualitateQua": false,
             "startDate": "2024-03-01",
             "declaredAt": "2024-03-05",
@@ -41,8 +41,8 @@
             "slug": "nf-gr-afvalschap-qq",
             "person": "jan-de-vries",
             "governanceBody": "gemeenteraad-amsterdam",
-            "organisatie": "Gemeenschappelijke Regeling Afvalschap",
-            "functie": "lid algemeen bestuur",
+            "organisation": "Gemeenschappelijke Regeling Afvalschap",
+            "role": "lid algemeen bestuur",
             "bezoldigd": false,
             "qualitateQua": true,
             "startDate": "2023-05-01",
@@ -55,10 +55,10 @@
             "slug": "nf-docent-hogeschool",
             "person": "marie-janssen",
             "governanceBody": "gemeenteraad-amsterdam",
-            "organisatie": "Hogeschool Amsterdam",
-            "functie": "docent bestuurskunde",
+            "organisation": "Hogeschool Amsterdam",
+            "role": "docent bestuurskunde",
             "bezoldigd": true,
-            "urenIndicatie": "8 uur/week",
+            "hoursIndication": "8 uur/week",
             "qualitateQua": false,
             "startDate": "2025-09-01",
             "declaredAt": "2025-09-03",
@@ -68,8 +68,8 @@
             "slug": "nf-rvc-stedin",
             "person": "janneke-de-bruin",
             "governanceBody": "rvc-waterschap-amstel",
-            "organisatie": "Stedin",
-            "functie": "RvC vice-voorzitter",
+            "organisation": "Stedin",
+            "role": "RvC vice-voorzitter",
             "bezoldigd": true,
             "qualitateQua": false,
             "startDate": "2022-01-01",
@@ -81,8 +81,8 @@
             "slug": "nf-adviseur-beeindigd",
             "person": "jan-de-vries",
             "governanceBody": "gemeenteraad-amsterdam",
-            "organisatie": "Adviesbureau De Kern",
-            "functie": "adviseur",
+            "organisation": "Adviesbureau De Kern",
+            "role": "adviseur",
             "bezoldigd": true,
             "qualitateQua": false,
             "startDate": "2021-06-01",
@@ -98,11 +98,11 @@
             "recipient": "marie-janssen",
             "governanceBody": "gemeenteraad-amsterdam",
             "type": "geschenk",
-            "gever": "Delegatie gemeente Aken",
+            "giver": "Delegatie gemeente Aken",
             "description": "Fotoboek stedenband",
-            "geschatteWaarde": 20,
-            "ontvangenOp": "2026-01-20",
-            "besluit": "aanvaard",
+            "estimatedValue": 20,
+            "ontvangenOn": "2026-01-20",
+            "decision": "aanvaard",
             "declaredAt": "2026-01-21",
             "publicationDate": "2026-01-25T09:00:00Z"
           },
@@ -111,11 +111,11 @@
             "recipient": "marie-janssen",
             "governanceBody": "gemeenteraad-amsterdam",
             "type": "uitnodiging",
-            "gever": "Projectontwikkelaar BV",
+            "giver": "Projectontwikkelaar BV",
             "description": "Diner nieuwjaarsreceptie",
-            "geschatteWaarde": 95,
-            "ontvangenOp": "2026-01-08",
-            "besluit": "geweigerd",
+            "estimatedValue": 95,
+            "ontvangenOn": "2026-01-08",
+            "decision": "geweigerd",
             "notes": "Boven het drempelbedrag; uitnodiging geweigerd conform gedragscode.",
             "declaredAt": "2026-01-09",
             "publicationDate": "2026-01-15T09:00:00Z"
@@ -125,11 +125,11 @@
             "recipient": "janneke-de-bruin",
             "governanceBody": "rvc-waterschap-amstel",
             "type": "uitnodiging",
-            "gever": "Brancheorganisatie Water",
+            "giver": "Brancheorganisatie Water",
             "description": "Congres met overnachting",
-            "geschatteWaarde": 400,
-            "ontvangenOp": "2026-02-03",
-            "besluit": "overgedragen",
+            "estimatedValue": 400,
+            "ontvangenOn": "2026-02-03",
+            "decision": "overgedragen",
             "notes": "Deelname overgedragen aan de organisatie; geen persoonlijk voordeel.",
             "declaredAt": "2026-02-04"
           }
@@ -284,8 +284,8 @@
         "required": [
           "person",
           "governanceBody",
-          "organisatie",
-          "functie",
+          "organisation",
+          "role",
           "bezoldigd",
           "startDate",
           "declaredAt",
@@ -306,14 +306,14 @@
             "$ref": "GovernanceBody",
             "description": "Reference to the GovernanceBody under whose disclosure regime the declaration is made (its Integriteitsbeleid sets the disclosure default and integrity recipient). Required — a person holding roles in two bodies faces two regimes and declares once per body (design D5)."
           },
-          "organisatie": {
+          "organisation": {
             "title": "Organisation",
             "type": "string",
             "facetable": true,
             "description": "Name of the organisation where the position is held. Required. A plain string (not a UID field) so the object stays fully publishable (design D4).",
             "example": "Stichting Welzijn Noord"
           },
-          "functie": {
+          "role": {
             "title": "Function",
             "type": "string",
             "description": "Description of the function / role held (e.g. bestuurslid, docent). Required.",
@@ -327,7 +327,7 @@
             "default": false,
             "example": false
           },
-          "urenIndicatie": {
+          "hoursIndication": {
             "title": "Hours indication",
             "type": "string",
             "description": "Free-text indication of the time commitment (e.g. '4 uur/week'). Optional.",
@@ -458,11 +458,11 @@
           "recipient",
           "governanceBody",
           "type",
-          "gever",
+          "giver",
           "description",
-          "geschatteWaarde",
-          "ontvangenOp",
-          "besluit",
+          "estimatedValue",
+          "ontvangenOn",
+          "decision",
           "declaredAt"
         ],
         "properties": {
@@ -491,7 +491,7 @@
             ],
             "example": "geschenk"
           },
-          "gever": {
+          "giver": {
             "title": "Giver",
             "type": "string",
             "description": "The giving party as a plain display string — NEVER a Person reference, so no external-party PII enters the people register (design D4 / security). Required.",
@@ -503,14 +503,14 @@
             "description": "Description of the gift or invitation. Required.",
             "example": "Fotoboek stedenband"
           },
-          "geschatteWaarde": {
+          "estimatedValue": {
             "title": "Estimated value (EUR)",
             "type": "number",
             "facetable": true,
             "description": "Estimated value in EUR. Required. Compared against the body's geschenkDrempelbedrag (policy or EUR 50 default): at-or-above-threshold drives the boven-drempel badge and integrity notification (REQ-INT-006). No remuneration/monetary sub-object — a plain number so the object stays publishable (design D4).",
             "example": 20
           },
-          "ontvangenOp": {
+          "ontvangenOn": {
             "title": "Received on",
             "type": "string",
             "format": "date",
@@ -518,7 +518,7 @@
             "description": "Date the gift/invitation was received. Required.",
             "example": "2026-01-20"
           },
-          "besluit": {
+          "decision": {
             "title": "Decision",
             "type": "string",
             "facetable": true,
@@ -576,7 +576,7 @@
         },
         "required": [
           "governanceBody",
-          "nevenfunctieDisclosureDefault"
+          "ancillaryPositionDisclosureDefault"
         ],
         "properties": {
           "governanceBody": {
@@ -586,7 +586,7 @@
             "$ref": "GovernanceBody",
             "description": "Reference to the GovernanceBody this policy governs (one Integriteitsbeleid object per body). Required."
           },
-          "nevenfunctieDisclosureDefault": {
+          "ancillaryPositionDisclosureDefault": {
             "title": "Nevenfunctie disclosure default",
             "type": "string",
             "facetable": true,
@@ -597,21 +597,21 @@
             ],
             "example": "openbaar"
           },
-          "geschenkDrempelbedrag": {
+          "giftThresholdAmount": {
             "title": "Gift threshold (EUR)",
             "type": "number",
             "description": "Gift threshold in EUR: geschenken with geschatteWaarde at or above this value are badged boven-drempel and trigger the integrity notification (REQ-INT-006). Defaults to EUR 50 (model-gedragscode) when no policy object exists for the body.",
             "default": 50,
             "example": 50
           },
-          "geschenkenOpenbaar": {
+          "giftsPublic": {
             "title": "Public gift register",
             "type": "boolean",
             "description": "Whether this body's geschenkenregister is public: when true, published geschenken are anonymously readable via the same public-predicate as nevenfuncties; when false (default) no publish action is offered and no geschenk of this body is anonymously readable (REQ-INT-005).",
             "default": false,
             "example": false
           },
-          "integriteitsNotificatieGroep": {
+          "integrityNotificationGroep": {
             "title": "Integrity notification group",
             "type": "string",
             "description": "The NC group receiving this body's integrity notifications (mapped to burgemeester, voorzitter, or compliance officer as configured per body). Optional. Note (design D3 / Risk 3): the x-openregister-notifications dialect cannot currently read this per-body value from the related policy object, so the notification triggers use one literal integrity group with per-body routing via group membership until a policy-object lookup is verified against OR.",

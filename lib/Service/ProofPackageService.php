@@ -284,7 +284,7 @@ class ProofPackageService {
 				'votesAgainst' => ($round['votesAgainst'] ?? null),
 				'votesAbstain' => ($round['votesAbstain'] ?? null),
 				'result' => (string)($round['result'] ?? ''),
-				'quorumMet' => ($round['quorumMet'] ?? null),
+				'quorumWith' => ($round['quorumWith'] ?? null),
 			];
 		}
 
@@ -352,9 +352,9 @@ class ProofPackageService {
 		$lines[] = '## 2. Quorum';
 		$lines[] = '';
 		$quorum = $package['quorum'];
-		$metLabel = 'NEE / niet vastgesteld';
+		$withLabel = 'NEE / niet vastgesteld';
 		if ($quorum['met'] === true) {
-			$metLabel = 'JA';
+			$withLabel = 'JA';
 		}
 
 		$lines[] = sprintf(
@@ -362,7 +362,7 @@ class ProofPackageService {
 			$quorum['present'],
 			$quorum['total'],
 			$quorum['required'],
-			$metLabel
+			$withLabel
 		);
 		if ($quorum['attendanceRecorded'] === false) {
 			$lines[] = '';

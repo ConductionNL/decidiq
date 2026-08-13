@@ -242,7 +242,7 @@ class OriPublicationService {
 				'votesAbstain' => $roundData['votesAbstain'] ?? 0,
 				'votingMethod' => $roundData['votingMethod'] ?? 'for-against-abstain',
 				'isSecret' => $roundData['isSecret'] ?? false,
-				'quorumMet' => $roundData['quorumMet'] ?? false,
+				'quorumWith' => $roundData['quorumWith'] ?? false,
 			],
 		];
 

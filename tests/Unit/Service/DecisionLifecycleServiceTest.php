@@ -225,7 +225,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 				}
 
 				if ($schema === 'meeting') {
-					return $this->entity(['id' => 'meet-1', 'quorumMet' => true]);
+					return $this->entity(['id' => 'meet-1', 'quorumWith' => true]);
 				}
 
 				return null;
@@ -253,7 +253,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 				}
 
 				if ($schema === 'meeting') {
-					return $this->entity(['id' => 'meet-1', 'quorumMet' => true, 'chair' => 'part-1']);
+					return $this->entity(['id' => 'meet-1', 'quorumWith' => true, 'chair' => 'part-1']);
 				}
 
 				if ($schema === 'participant') {
@@ -285,7 +285,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 				}
 
 				if ($schema === 'meeting') {
-					return $this->entity(['id' => 'meet-1', 'quorumMet' => false, 'chair' => 'part-1']);
+					return $this->entity(['id' => 'meet-1', 'quorumWith' => false, 'chair' => 'part-1']);
 				}
 
 				if ($schema === 'participant') {
@@ -606,7 +606,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 				}
 
 				if ($schema === 'meeting') {
-					return $this->entity(['id' => 'meet-1', 'quorumMet' => true]);
+					return $this->entity(['id' => 'meet-1', 'quorumWith' => true]);
 				}
 
 				return null;

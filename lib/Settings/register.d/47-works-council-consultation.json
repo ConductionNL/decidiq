@@ -6,48 +6,48 @@
         "consultation-request": [
           {
             "slug": "adviesaanvraag-reorganisatie-logistiek",
-            "type": "adviesaanvraag",
+            "type": "adviceRequest",
             "worArticle": "art. 25 lid 1 sub d WOR",
             "subject": "Voorgenomen reorganisatie afdeling logistiek (inkrimping 12 fte)",
-            "bestuurder": "00000000-0000-0000-0000-000000000000",
+            "director": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "receivedDate": "2026-05-12",
             "requestedResponseDate": "2026-06-30",
-            "overlegvergadering": "raadsvergadering-2025-01-15",
+            "consultationMeeting": "raadsvergadering-2025-01-15",
             "agendaItem": "begroting-2026-bespreking",
-            "lifecycle": "overlegvergadering"
+            "lifecycle": "consultationMeeting"
           },
           {
             "slug": "instemmingsverzoek-werktijdenregeling",
             "type": "instemmingsverzoek",
             "worArticle": "art. 27 lid 1 sub b WOR",
             "subject": "Wijziging werktijdenregeling: invoering zelfroosteren productie",
-            "bestuurder": "00000000-0000-0000-0000-000000000000",
+            "director": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "receivedDate": "2026-06-02",
             "requestedResponseDate": "2026-08-15",
-            "achterbanraadpleging": "00000000-0000-0000-0000-000000000000",
-            "lifecycle": "achterbanraadpleging"
+            "constituencyConsultation": "00000000-0000-0000-0000-000000000000",
+            "lifecycle": "constituencyConsultation"
           },
           {
             "slug": "adviesaanvraag-outsourcing-ict",
-            "type": "adviesaanvraag",
+            "type": "adviceRequest",
             "worArticle": "art. 25 lid 1 sub n WOR",
             "subject": "Uitbesteding ICT-beheer aan externe dienstverlener",
-            "bestuurder": "00000000-0000-0000-0000-000000000000",
+            "director": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "receivedDate": "2026-01-15",
             "requestedResponseDate": "2026-03-01",
-            "overlegvergadering": "raadsvergadering-2025-01-15",
+            "consultationMeeting": "raadsvergadering-2025-01-15",
             "agendaItem": "begroting-2026-bespreking",
             "responseOutcome": "advies-met-voorwaarden",
             "responseText": "De OR adviseert positief onder voorwaarde van een sociaal plan en een evaluatiemoment na 12 maanden.",
             "responseDate": "2026-02-24",
             "relatedDecision": "00000000-0000-0000-0000-000000000000",
-            "besluitOutcome": "afwijkend-van-advies",
-            "besluitText": "Bestuurder besluit tot uitbesteding zonder evaluatiemoment; sociaal plan wordt overgenomen.",
-            "besluitDate": "2026-03-10",
-            "opschortingTot": "2026-04-10",
+            "decisionOutcome": "afwijkend-van-advies",
+            "decisionText": "Bestuurder besluit tot uitbesteding zonder evaluatiemoment; sociaal plan wordt overgenomen.",
+            "decisionDate": "2026-03-10",
+            "suspensionTo": "2026-04-10",
             "lifecycle": "afgerond"
           }
         ]
@@ -77,8 +77,8 @@
           "states": [
             "ontvangen",
             "in-behandeling",
-            "achterbanraadpleging",
-            "overlegvergadering",
+            "constituencyConsultation",
+            "consultationMeeting",
             "vastgesteld",
             "verzonden",
             "besluit-ontvangen",
@@ -92,14 +92,14 @@
           "transitions": [
             { "from": "ontvangen", "to": "in-behandeling" },
             { "from": "ontvangen", "to": "ingetrokken" },
-            { "from": "in-behandeling", "to": "achterbanraadpleging" },
-            { "from": "in-behandeling", "to": "overlegvergadering" },
+            { "from": "in-behandeling", "to": "constituencyConsultation" },
+            { "from": "in-behandeling", "to": "consultationMeeting" },
             { "from": "in-behandeling", "to": "ingetrokken" },
-            { "from": "achterbanraadpleging", "to": "overlegvergadering" },
-            { "from": "achterbanraadpleging", "to": "ingetrokken" },
-            { "from": "overlegvergadering", "to": "vastgesteld" },
-            { "from": "overlegvergadering", "to": "in-behandeling" },
-            { "from": "overlegvergadering", "to": "ingetrokken" },
+            { "from": "constituencyConsultation", "to": "consultationMeeting" },
+            { "from": "constituencyConsultation", "to": "ingetrokken" },
+            { "from": "consultationMeeting", "to": "vastgesteld" },
+            { "from": "consultationMeeting", "to": "in-behandeling" },
+            { "from": "consultationMeeting", "to": "ingetrokken" },
             { "from": "vastgesteld", "to": "verzonden" },
             { "from": "vastgesteld", "to": "ingetrokken" },
             { "from": "verzonden", "to": "besluit-ontvangen" },
@@ -137,7 +137,7 @@
             "trigger": {
               "type": "updated",
               "filter": {
-                "besluitOutcome": "afwijkend-van-advies"
+                "decisionOutcome": "afwijkend-van-advies"
               }
             },
             "enabled": true,
@@ -170,8 +170,8 @@
                 "lifecycle": [
                   "ontvangen",
                   "in-behandeling",
-                  "achterbanraadpleging",
-                  "overlegvergadering",
+                  "constituencyConsultation",
+                  "consultationMeeting",
                   "vastgesteld"
                 ]
               }
@@ -206,8 +206,8 @@
                 "lifecycle": [
                   "ontvangen",
                   "in-behandeling",
-                  "achterbanraadpleging",
-                  "overlegvergadering",
+                  "constituencyConsultation",
+                  "consultationMeeting",
                   "vastgesteld"
                 ]
               }
@@ -271,7 +271,7 @@
           "type",
           "worArticle",
           "subject",
-          "bestuurder",
+          "director",
           "governanceBody",
           "receivedDate",
           "lifecycle"
@@ -283,10 +283,10 @@
             "facetable": true,
             "description": "The WOR request type. adviesaanvraag = advice request (art. 25 WOR); instemmingsverzoek = consent request (art. 27 WOR). Required. Drives the art. 25 lid 6 opschorting derivation (adviesaanvraag only, see opschortingTot).",
             "enum": [
-              "adviesaanvraag",
+              "adviceRequest",
               "instemmingsverzoek"
             ],
-            "example": "adviesaanvraag"
+            "example": "adviceRequest"
           },
           "worArticle": {
             "title": "WOR article",
@@ -300,7 +300,7 @@
             "description": "The subject of the request (the voorgenomen besluit put to the OR). Required.",
             "example": "Voorgenomen reorganisatie afdeling logistiek (inkrimping 12 fte)"
           },
-          "bestuurder": {
+          "director": {
             "title": "Bestuurder",
             "type": "string",
             "format": "uuid",
@@ -338,8 +338,8 @@
             "enum": [
               "ontvangen",
               "in-behandeling",
-              "achterbanraadpleging",
-              "overlegvergadering",
+              "constituencyConsultation",
+              "consultationMeeting",
               "vastgesteld",
               "verzonden",
               "besluit-ontvangen",
@@ -348,7 +348,7 @@
             ],
             "example": "ontvangen"
           },
-          "overlegvergadering": {
+          "consultationMeeting": {
             "title": "Overlegvergadering",
             "type": "string",
             "format": "uuid",
@@ -362,7 +362,7 @@
             "$ref": "AgendaItem",
             "description": "Optional reference to the AgendaItem under which the traject is treated in the overlegvergadering. Reuses the universal AgendaItem schema (REQ-WCC-004)."
           },
-          "achterbanraadpleging": {
+          "constituencyConsultation": {
             "title": "Achterbanraadpleging",
             "type": "string",
             "format": "uuid",
@@ -413,7 +413,7 @@
             "$ref": "Decision",
             "description": "Optional reference to a routed Decision when the underlying ondernemersbesluit is modelled as one (REQ-WCC-005). When set, the OR's formal response is recorded on that Decision's advisory DecisionStage per the existing decision-methods method=advice semantics (actor sets the non-binding 'advised' outcome directly); this capability introduces no new outcome-derivation mechanism."
           },
-          "besluitOutcome": {
+          "decisionOutcome": {
             "title": "Besluit outcome",
             "type": "string",
             "facetable": true,
@@ -426,14 +426,14 @@
             ],
             "example": "afwijkend-van-advies"
           },
-          "besluitText": {
+          "decisionText": {
             "title": "Besluit text",
             "type": "string",
             "nullable": true,
             "description": "The text of the bestuurder's decision / mededeling. Optional.",
             "example": "Bestuurder besluit tot uitbesteding zonder evaluatiemoment; sociaal plan wordt overgenomen."
           },
-          "besluitDate": {
+          "decisionDate": {
             "title": "Besluit date",
             "type": "string",
             "format": "date",
@@ -441,7 +441,7 @@
             "description": "Date the bestuurder recorded the decision. Optional. Basis for opschortingTot (besluitDate + 1 month) when the decision is an afwijkend besluit on an adviesaanvraag.",
             "example": "2026-03-10"
           },
-          "opschortingTot": {
+          "suspensionTo": {
             "title": "Opschorting until",
             "type": "string",
             "format": "date",

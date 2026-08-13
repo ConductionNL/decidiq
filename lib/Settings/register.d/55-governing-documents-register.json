@@ -46,29 +46,29 @@
           {
             "slug": "statuten-vng-v1",
             "document": "statuten-vng",
-            "versienummer": 1,
+            "versionNumber": 1,
             "inwerkingtreding": "1990-05-01",
             "notes": "Constitutieve versie bij oprichting van de vereniging; opgericht bij notariële akte, geen verband met een besluit in decidesk.",
-            "aktedatum": "1990-04-12",
+            "deedDate": "1990-04-12",
             "notaris": "mr. C. van Dam",
             "status": "vervangen"
           },
           {
             "slug": "statuten-vng-v2",
             "document": "statuten-vng",
-            "versienummer": 2,
-            "vastgesteldDoor": "besluit-statutenwijziging-vng-2021",
+            "versionNumber": 2,
+            "determinedBy": "besluit-statutenwijziging-vng-2021",
             "inwerkingtreding": "2022-01-01",
             "notes": "Statutenwijziging 2021: aanpassing van de bevoegdheden van de ledenraad (art. 20).",
-            "aktedatum": "2021-12-15",
+            "deedDate": "2021-12-15",
             "notaris": "mr. A. de Wit",
             "status": "in-werking"
           },
           {
             "slug": "rvo-amsterdam-v1",
             "document": "reglement-van-orde-raad-amsterdam",
-            "versienummer": 1,
-            "vastgesteldDoor": "besluit-vaststelling-rvo-amsterdam",
+            "versionNumber": 1,
+            "determinedBy": "besluit-vaststelling-rvo-amsterdam",
             "inwerkingtreding": "2023-03-01",
             "notes": "Vaststelling van het reglement van orde door de gemeenteraad.",
             "status": "in-werking"
@@ -76,10 +76,10 @@
           {
             "slug": "splitsingsakte-parkstaete-v1",
             "document": "splitsingsakte-vve-parkstaete",
-            "versienummer": 1,
+            "versionNumber": 1,
             "inwerkingtreding": "2005-06-01",
             "notes": "Constitutieve splitsingsakte bij notariële akte; geen verband met een besluit.",
-            "aktedatum": "2005-05-20",
+            "deedDate": "2005-05-20",
             "notaris": "mr. B. Jansen",
             "status": "in-werking"
           }
@@ -300,7 +300,7 @@
         },
         "required": [
           "document",
-          "versienummer",
+          "versionNumber",
           "status"
         ],
         "properties": {
@@ -312,14 +312,14 @@
             "$ref": "GoverningDocument",
             "description": "Required reference to the parent GoverningDocument this version belongs to."
           },
-          "versienummer": {
+          "versionNumber": {
             "title": "Version number",
             "type": "integer",
             "facetable": true,
             "description": "Positive integer version number, unique per document (uniqueness enforced save-time, not by a schema constraint). Required.",
             "example": 2
           },
-          "vastgesteldDoor": {
+          "determinedBy": {
             "title": "Enacted by",
             "type": "string",
             "format": "uuid",
@@ -334,7 +334,7 @@
             "description": "Date on which this version takes effect. REQUIRED before the version is sealed to in-werking (activation-time requirement, enforced save-time — not a create-time schema requirement, so a concept version may exist briefly without it). Drives the in-force resolution (REQ-GDR-004): the version in force on date X is the one with the latest inwerkingtreding <= X whose state is in-werking or vervangen-after-X and whose vervaldatum (if set) is after X.",
             "example": "2022-01-01"
           },
-          "vervaldatum": {
+          "expiryDate": {
             "title": "Expiry date",
             "type": "string",
             "format": "date",
@@ -347,7 +347,7 @@
             "type": "string",
             "description": "Summary of what this version changes relative to the previous one; for a constitutive first version, documents its origin. Internal annotation — never exposed in the public payload (REQ-GDR-007)."
           },
-          "aktedatum": {
+          "deedDate": {
             "title": "Deed date",
             "type": "string",
             "format": "date",
@@ -398,7 +398,7 @@
                   "$ref": "GoverningDocument",
                   "description": "Required reference to the cited GoverningDocument."
                 },
-                "versie": {
+                "version": {
                   "title": "Governing document version",
                   "type": "string",
                   "format": "uuid",

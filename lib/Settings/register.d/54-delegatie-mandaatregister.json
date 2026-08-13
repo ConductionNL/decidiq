@@ -11,13 +11,13 @@
             "delegatarisBody": "00000000-0000-0000-0000-000000000000",
             "subject": "Vaststellen van uitwerkingsplannen als bedoeld in art. 3.6 Wro",
             "beperkingen": "Uitsluitend binnen door de raad vastgestelde kaders",
-            "ondermandaatToegestaan": false,
-            "wettelijkeGrondslag": [
+            "subMandatePermitted": false,
+            "statutoryBasis": [
               "Awb art. 10:13",
               "Wro art. 3.6"
             ],
-            "besluit": "00000000-0000-0000-0000-000000000000",
-            "geldigVanaf": "2026-01-01",
+            "decision": "00000000-0000-0000-0000-000000000000",
+            "validFrom": "2026-01-01",
             "status": "van-kracht",
             "publicationDate": "2026-01-05T09:00:00Z"
           },
@@ -25,17 +25,17 @@
             "slug": "mandaat-subsidies-secretaris",
             "type": "mandaat",
             "delegans": "00000000-0000-0000-0000-000000000000",
-            "delegatarisFunctie": "gemeentesecretaris",
+            "delegatarisRole": "gemeentesecretaris",
             "subject": "Beslissen op subsidieaanvragen tot het genoemde plafond",
             "financieelPlafond": 25000,
             "beperkingen": "Geen subsidies met precedentwerking",
-            "ondermandaatToegestaan": true,
-            "wettelijkeGrondslag": [
+            "subMandatePermitted": true,
+            "statutoryBasis": [
               "Awb art. 10:3",
               "Asv 2026 art. 4"
             ],
-            "besluit": "00000000-0000-0000-0000-000000000000",
-            "geldigVanaf": "2026-01-01",
+            "decision": "00000000-0000-0000-0000-000000000000",
+            "validFrom": "2026-01-01",
             "status": "van-kracht",
             "publicationDate": "2026-01-05T09:00:00Z"
           },
@@ -43,18 +43,18 @@
             "slug": "ondermandaat-subsidies-samenleving",
             "type": "mandaat",
             "delegansOmschrijving": "gemeentesecretaris",
-            "delegatarisFunctie": "afdelingshoofd Samenleving",
+            "delegatarisRole": "afdelingshoofd Samenleving",
             "subject": "Beslissen op subsidieaanvragen binnen het programma Samenleving",
             "financieelPlafond": 5000,
             "beperkingen": "Uitsluitend reguliere subsidieregelingen",
-            "ondermandaatToegestaan": false,
-            "wettelijkeGrondslag": [
+            "subMandatePermitted": false,
+            "statutoryBasis": [
               "Awb art. 10:9"
             ],
-            "besluit": "00000000-0000-0000-0000-000000000000",
+            "decision": "00000000-0000-0000-0000-000000000000",
             "parentToedeling": "mandaat-subsidies-secretaris",
-            "geldigVanaf": "2026-02-01",
-            "geldigTot": "2026-08-15",
+            "validFrom": "2026-02-01",
+            "validTo": "2026-08-15",
             "status": "van-kracht",
             "publicationDate": "2026-02-05T09:00:00Z"
           },
@@ -62,35 +62,35 @@
             "slug": "volmacht-inkoop-teamleider",
             "type": "volmacht",
             "delegansOmschrijving": "burgemeester",
-            "delegatarisFunctie": "teamleider Inkoop",
+            "delegatarisRole": "teamleider Inkoop",
             "subject": "Aangaan van privaatrechtelijke rechtshandelingen voor inkoop",
             "financieelPlafond": 50000,
             "beperkingen": "Binnen het vastgestelde inkoopbeleid",
-            "ondermandaatToegestaan": false,
-            "wettelijkeGrondslag": [
+            "subMandatePermitted": false,
+            "statutoryBasis": [
               "BW art. 3:60",
               "Gemeentewet art. 171"
             ],
-            "besluit": "00000000-0000-0000-0000-000000000000",
-            "geldigVanaf": "2026-03-01",
+            "decision": "00000000-0000-0000-0000-000000000000",
+            "validFrom": "2026-03-01",
             "status": "concept"
           },
           {
             "slug": "machtiging-woo-vertegenwoordiging",
             "type": "machtiging",
             "delegans": "00000000-0000-0000-0000-000000000000",
-            "delegatarisFunctie": "juridisch adviseur team Recht",
-            "delegatarisPersoon": "00000000-0000-0000-0000-000000000000",
+            "delegatarisRole": "juridisch adviseur team Recht",
+            "delegatarisPerson": "00000000-0000-0000-0000-000000000000",
             "subject": "Vertegenwoordiging bij Woo-bezwaarprocedures",
-            "ondermandaatToegestaan": false,
-            "wettelijkeGrondslag": [
+            "subMandatePermitted": false,
+            "statutoryBasis": [
               "Awb art. 10:3"
             ],
-            "besluit": "00000000-0000-0000-0000-000000000000",
-            "geldigVanaf": "2025-01-01",
-            "geldigTot": "2026-01-01",
+            "decision": "00000000-0000-0000-0000-000000000000",
+            "validFrom": "2025-01-01",
+            "validTo": "2026-01-01",
             "status": "ingetrokken",
-            "ingetrokkenDoor": "00000000-0000-0000-0000-000000000000",
+            "withdrawnBy": "00000000-0000-0000-0000-000000000000",
             "publicationDate": "2025-01-10T09:00:00Z"
           }
         ]
@@ -221,8 +221,8 @@
         "required": [
           "type",
           "subject",
-          "besluit",
-          "geldigVanaf",
+          "decision",
+          "validFrom",
           "status"
         ],
         "properties": {
@@ -262,14 +262,14 @@
             "$ref": "GovernanceBody",
             "description": "Reference to the delegataris / gemandateerde as a GovernanceBody. At least one of delegatarisBody, delegatarisFunctie, or delegatarisPersoon MUST be present (schema-level anyOf)."
           },
-          "delegatarisFunctie": {
+          "delegatarisRole": {
             "title": "Delegataris (function)",
             "type": "string",
             "facetable": true,
             "description": "The delegataris / gemandateerde as a plain-text function/role description (e.g. 'afdelingshoofd Samenleving', 'teamleider Inkoop'). Plain text by design — HR/formatie management is out of scope so personnel churn never invalidates the register. At least one delegataris field MUST be present.",
             "example": "afdelingshoofd Samenleving"
           },
-          "delegatarisPersoon": {
+          "delegatarisPerson": {
             "title": "Delegataris (person)",
             "type": "string",
             "format": "uuid",
@@ -295,14 +295,14 @@
             "description": "Optional subject constraints / conditions on the assigned authority.",
             "example": "Geen subsidies met precedentwerking"
           },
-          "ondermandaatToegestaan": {
+          "subMandatePermitted": {
             "title": "Ondermandaat allowed",
             "type": "boolean",
             "facetable": true,
             "default": false,
             "description": "Whether ondermandaat (a further sub-assignment under this toedeling) is permitted. A child toedeling MAY reference this one via parentToedeling only when this flag is true — enforced server-side on save by OndermandaatGuardService (Tasks 3, imperative), not by a schema constraint."
           },
-          "wettelijkeGrondslag": {
+          "statutoryBasis": {
             "title": "Legal basis",
             "type": "array",
             "description": "Legal-basis citations for the assignment (same citation vocabulary as the verordeningenregister capability, e.g. 'Awb art. 10:3').",
@@ -314,7 +314,7 @@
               "Asv 2026 art. 4"
             ]
           },
-          "besluit": {
+          "decision": {
             "title": "Authorizing decision",
             "type": "string",
             "format": "uuid",
@@ -328,7 +328,7 @@
             "$ref": "Bevoegdheidstoedeling",
             "description": "Optional self-reference to the parent toedeling this one is an ondermandaat of (hoofdmandaat = no parent, depth 0). Accepted only when the parent exists and has ondermandaatToegestaan true, and only when the ancestor chain stays acyclic — both enforced server-side, fail-closed, by OndermandaatGuardService (Tasks 3, imperative; cross-object graph validation is not expressible as a schema constraint). Depth is displayed by walking the loaded chain, never stored."
           },
-          "geldigVanaf": {
+          "validFrom": {
             "title": "Valid from",
             "type": "string",
             "format": "date",
@@ -336,7 +336,7 @@
             "description": "Date from which the toedeling is valid. Required. Drives the 'geldig op' in-force-on-date register view.",
             "example": "2026-01-01"
           },
-          "geldigTot": {
+          "validTo": {
             "title": "Valid until",
             "type": "string",
             "format": "date",
@@ -344,7 +344,7 @@
             "description": "Optional date until which the toedeling is valid. Empty means open-ended. Drives the declarative expiry rappels (REQ-DMR-007) and the 'geldig op' view; a toedeling without geldigTot never triggers an expiry notification.",
             "example": "2026-08-15"
           },
-          "ingetrokkenDoor": {
+          "withdrawnBy": {
             "title": "Revoked by",
             "type": "string",
             "format": "uuid",

@@ -34,8 +34,8 @@
             "directedTo": "gemeenteraad-amsterdam",
             "deadline": "2026-06-30",
             "lifecycle": "afgedaan",
-            "afdoeningsToelichting": "Evaluatierapport aangeboden bij kadernota 2026; besproken in commissie Middelen.",
-            "afdoeningsBewijs": "https://gemeente-voorbeeldingen.nl/raadsbrieven/evaluatie-afvalbeleid-2026.pdf",
+            "afdoeningsNotes": "Evaluatierapport aangeboden bij kadernota 2026; besproken in commissie Middelen.",
+            "afdoeningsEvidence": "https://gemeente-voorbeeldingen.nl/raadsbrieven/evaluatie-afvalbeleid-2026.pdf",
             "relatedMotion": "00000000-0000-0000-0000-000000000000",
             "publicationDate": "2026-02-10T09:00:00Z"
           }
@@ -57,7 +57,7 @@
             "slug": "petitie-behoud-zwembad",
             "title": "Petitie behoud zwembad De Plons (1.243 ondertekenaars)",
             "sender": "Actiecomité De Plons",
-            "senderType": "organisatie",
+            "senderType": "organisation",
             "receivedAt": "2026-01-15",
             "category": "petitie",
             "routingAdvice": "betrekken-bij-agendapunt",
@@ -70,7 +70,7 @@
             "slug": "collegestuk-jaarverantwoording",
             "title": "Jaarverantwoording kinderopvang 2025",
             "sender": "College van B&W",
-            "senderType": "bestuursorgaan",
+            "senderType": "governingBody",
             "receivedAt": "2026-01-18",
             "category": "collegestuk",
             "routingAdvice": "voor-kennisgeving-aannemen",
@@ -82,7 +82,7 @@
             "slug": "uitnodiging-veiligheidsregio",
             "title": "Uitnodiging werkbezoek Veiligheidsregio",
             "sender": "Veiligheidsregio Midden-Nederland",
-            "senderType": "bestuursorgaan",
+            "senderType": "governingBody",
             "receivedAt": "2026-01-19",
             "category": "uitnodiging",
             "routingAdvice": "voor-kennisgeving-aannemen",
@@ -351,12 +351,12 @@
             ],
             "example": "open"
           },
-          "afdoeningsToelichting": {
+          "afdoeningsNotes": {
             "title": "Afdoening note",
             "type": "string",
             "description": "Note explaining how the commitment was settled (recorded when moving to afgedaan). Optional."
           },
-          "afdoeningsBewijs": {
+          "afdoeningsEvidence": {
             "title": "Afdoening evidence",
             "type": "string",
             "description": "Link or reference to evidence of afdoening (e.g. the raadsbrief). Optional. A plain URL/reference string — not a UID field — so the object stays fully publishable (design D4).",
@@ -470,10 +470,10 @@
             "description": "Nature of the sender — drives public anonymisation (natuurlijk-persoon is anonymised, organisatie/bestuursorgaan pass through). Required.",
             "enum": [
               "natuurlijk-persoon",
-              "organisatie",
-              "bestuursorgaan"
+              "organisation",
+              "governingBody"
             ],
-            "example": "organisatie"
+            "example": "organisation"
           },
           "receivedAt": {
             "title": "Received at",

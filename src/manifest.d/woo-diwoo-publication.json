@@ -90,7 +90,7 @@
 				"_note": "WooBestuursorgaan index (REQ-WOO-006 admin settings shape). Per-governance-body bestuursorgaan TOOI id override; the instance-wide default lives in app config. Columns governanceBody/bestuursorgaan/label/active; quick filters on active; index _search matches bestuursorgaan and label. Create/edit through OR's object API via useObjectStore — no pass-through controllers.",
 				"search": true,
 				"searchFields": [
-					"bestuursorgaan",
+					"governingBody",
 					"label"
 				],
 				"quickFilterMode": "dropdown",
@@ -102,7 +102,7 @@
 				],
 				"columns": [
 					{ "key": "governanceBody", "label": "Governance body", "widget": "link" },
-					{ "key": "bestuursorgaan", "label": "Bestuursorgaan (TOOI id)" },
+					{ "key": "governingBody", "label": "Bestuursorgaan (TOOI id)" },
 					{ "key": "label", "label": "Label" },
 					{ "key": "active", "label": "Active", "widget": "badge" }
 				],

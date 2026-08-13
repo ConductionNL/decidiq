@@ -13,16 +13,16 @@
             "ownerType": "college",
             "notes": "Voortkomend uit de aangenomen motie parkeerdruk; college bereidt een raadsvoorstel voor.",
             "lifecycle": "verschoven",
-            "verschuifHistorie": [
+            "shiftHistory": [
               {
                 "van": "2026-Q1",
                 "naar": "2026-Q2",
-                "reden": "Wacht op uitkomst parkeeronderzoek regio",
+                "reason": "Wacht op uitkomst parkeeronderzoek regio",
                 "door": "00000000-0000-0000-0000-000000000000",
                 "op": "2026-03-15T10:00:00Z"
               }
             ],
-            "originMotie": "00000000-0000-0000-0000-000000000000",
+            "originMotion": "00000000-0000-0000-0000-000000000000",
             "publicationDate": "2026-06-20T09:00:00Z"
           },
           {
@@ -35,8 +35,8 @@
             "owner": "00000000-0000-0000-0000-000000000000",
             "notes": "Toegezegde raadsinformatiebrief over de aanpak van de wachtlijsten jeugdzorg.",
             "lifecycle": "gepland",
-            "verschuifHistorie": [],
-            "originToezegging": "00000000-0000-0000-0000-000000000000",
+            "shiftHistory": [],
+            "originCommitment": "00000000-0000-0000-0000-000000000000",
             "publicationDate": "2026-06-20T09:00:00Z"
           },
           {
@@ -48,7 +48,7 @@
             "ownerType": "griffie",
             "notes": "Beeldvormende bijeenkomst ter voorbereiding op de warmtevisie.",
             "lifecycle": "gepland",
-            "verschuifHistorie": [],
+            "shiftHistory": [],
             "publicationDate": "2026-06-20T09:00:00Z"
           },
           {
@@ -60,7 +60,7 @@
             "ownerType": "college",
             "notes": "Reguliere jaarlijkse kadernota in de P&C-cyclus.",
             "lifecycle": "gepland",
-            "verschuifHistorie": [],
+            "shiftHistory": [],
             "originDecision": "00000000-0000-0000-0000-000000000000"
           },
           {
@@ -72,8 +72,8 @@
             "ownerType": "portefeuillehouder",
             "owner": "00000000-0000-0000-0000-000000000000",
             "lifecycle": "vervallen",
-            "verschuifHistorie": [],
-            "redenVervallen": "Opgegaan in de bredere herziening van de legesverordening",
+            "shiftHistory": [],
+            "reasonVervallen": "Opgegaan in de bredere herziening van de legesverordening",
             "publicationDate": "2026-06-20T09:00:00Z"
           }
         ]
@@ -268,7 +268,7 @@
             ],
             "example": "gepland"
           },
-          "verschuifHistorie": {
+          "shiftHistory": {
             "title": "Shift history",
             "type": "array",
             "description": "Append-only history of reschedules (REQ-LTA-004). Each reschedule appends one entry (previous period, new period, mandatory reason, acting user, timestamp); existing entries are never edited or removed by the reschedule flow. Part of the public record (transparency instrument, design D4). Embedded array, not a separate schema (design D1): a shift has no independent lifecycle and never travels outside its item.",
@@ -286,7 +286,7 @@
                   "type": "string",
                   "description": "The planned period after this reschedule (same pattern as plannedPeriod)."
                 },
-                "reden": {
+                "reason": {
                   "title": "Reason",
                   "type": "string",
                   "description": "Mandatory reason for the reschedule."
@@ -305,14 +305,14 @@
               }
             }
           },
-          "redenVervallen": {
+          "reasonVervallen": {
             "title": "Drop reason",
             "type": "string",
             "nullable": true,
             "description": "Reason the item was dropped (recorded when moving lifecycle to vervallen). REQUIRED when entering vervallen (REQ-LTA-003, enforced at the UI layer; not expressible as a state-dependent OR 'required' rule). Optional otherwise.",
             "example": "Onderwerp opgegaan in omgevingsvisie"
           },
-          "originToezegging": {
+          "originCommitment": {
             "title": "Origin commitment",
             "type": "string",
             "format": "uuid",
@@ -320,7 +320,7 @@
             "nullable": true,
             "description": "Optional reference to the Toezegging (toezeggingen-ingekomen-stukken) this planned item stems from. Renders as a navigable reference on the detail page (REQ-LTA-006). Nullable; degrades to an absent link if that change is not installed."
           },
-          "originMotie": {
+          "originMotion": {
             "title": "Origin motion",
             "type": "string",
             "format": "uuid",

@@ -272,7 +272,7 @@ class ProxyVoteServiceTest extends TestCase {
 
 		$this->assertTrue($result['success']);
 		$this->assertSame('pending-approval', $saved[0]['proxyStatus']);
-		$this->assertSame('m-1', $saved[0]['meetingKoppeling']);
+		$this->assertSame('m-1', $saved[0]['meetingIntegration']);
 
 		$calls = $this->auditCalls->getArrayCopy();
 		$this->assertCount(1, $calls);
@@ -290,9 +290,9 @@ class ProxyVoteServiceTest extends TestCase {
 		$rows = [
 			[
 				'id' => 'p-1',
-				'meetingKoppeling' => 'm-1',
-				'grantorKoppeling' => 'g-1',
-				'holderKoppeling' => 'h-1',
+				'meetingIntegration' => 'm-1',
+				'grantorIntegration' => 'g-1',
+				'holderIntegration' => 'h-1',
 				'proxyStatus' => 'active',
 			],
 		];
@@ -319,9 +319,9 @@ class ProxyVoteServiceTest extends TestCase {
 		$rows = [
 			[
 				'id' => 'p-1',
-				'meetingKoppeling' => 'm-1',
-				'grantorKoppeling' => 'g-1',
-				'holderKoppeling' => 'h-1',
+				'meetingIntegration' => 'm-1',
+				'grantorIntegration' => 'g-1',
+				'holderIntegration' => 'h-1',
 				'proxyStatus' => 'active',
 			],
 		];
@@ -365,9 +365,9 @@ class ProxyVoteServiceTest extends TestCase {
 	 */
 	public function testForMeetingReturnsRowsAndFilters(): void {
 		$rows = [
-			['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'proxyStatus' => 'active'],
-			['id' => 'p-2', 'meetingKoppeling' => 'm-1', 'proxyStatus' => 'revoked'],
-			['id' => 'p-3', 'meetingKoppeling' => 'm-2', 'proxyStatus' => 'active'],
+			['id' => 'p-1', 'meetingIntegration' => 'm-1', 'proxyStatus' => 'active'],
+			['id' => 'p-2', 'meetingIntegration' => 'm-1', 'proxyStatus' => 'revoked'],
+			['id' => 'p-3', 'meetingIntegration' => 'm-2', 'proxyStatus' => 'active'],
 		];
 		$saved = [];
 		$svc = $this->makeService($rows, $saved);
@@ -391,8 +391,8 @@ class ProxyVoteServiceTest extends TestCase {
 	 */
 	public function testRegisterRejectsHolderAtProxyCap(): void {
 		$rows = [
-			['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-1', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
-			['id' => 'p-2', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-2', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-1', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-1', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-2', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-2', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
 		];
 		$saved = [];
 		$svc = $this->makeService($rows, $saved);
@@ -415,12 +415,12 @@ class ProxyVoteServiceTest extends TestCase {
 	 */
 	public function testRegisterCapCountsOnlyActiveProxiesInMeetingForHolder(): void {
 		$rows = [
-			['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-1', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
-			['id' => 'p-2', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-2', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'revoked'],
-			['id' => 'p-3', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-3', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'suspended'],
-			['id' => 'p-4', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-4', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'pending-approval'],
-			['id' => 'p-5', 'meetingKoppeling' => 'm-2', 'grantorKoppeling' => 'g-5', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
-			['id' => 'p-6', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-6', 'holderKoppeling' => 'h-2', 'proxyStatus' => 'active'],
+			['id' => 'p-1', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-1', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-2', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-2', 'holderIntegration' => 'h-1', 'proxyStatus' => 'revoked'],
+			['id' => 'p-3', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-3', 'holderIntegration' => 'h-1', 'proxyStatus' => 'suspended'],
+			['id' => 'p-4', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-4', 'holderIntegration' => 'h-1', 'proxyStatus' => 'pending-approval'],
+			['id' => 'p-5', 'meetingIntegration' => 'm-2', 'grantorIntegration' => 'g-5', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-6', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-6', 'holderIntegration' => 'h-2', 'proxyStatus' => 'active'],
 		];
 		$saved = [];
 		$svc = $this->makeService($rows, $saved);
@@ -441,8 +441,8 @@ class ProxyVoteServiceTest extends TestCase {
 	 */
 	public function testRegisterCapIsConfigurable(): void {
 		$rows = [
-			['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-1', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
-			['id' => 'p-2', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-2', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-1', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-1', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-2', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-2', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
 		];
 		$saved = [];
 
@@ -453,8 +453,8 @@ class ProxyVoteServiceTest extends TestCase {
 
 		// A cap below 1 falls back to the default of 2 (never disables the limit).
 		$rows2 = [
-			['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-1', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
-			['id' => 'p-2', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-2', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-1', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-1', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-2', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-2', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
 		];
 		$saved2 = [];
 		$svc2 = $this->makeService($rows2, $saved2, 0);
@@ -583,8 +583,8 @@ class ProxyVoteServiceTest extends TestCase {
 	 */
 	public function testRevokeAllowsGrantorAndSuspendAllowsHolder(): void {
 		$rows = [
-			['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-1', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
-			['id' => 'p-2', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-2', 'holderKoppeling' => 'h-2', 'proxyStatus' => 'active'],
+			['id' => 'p-1', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-1', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-2', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-2', 'holderIntegration' => 'h-2', 'proxyStatus' => 'active'],
 		];
 		$saved = [];
 		$svc = $this->makeService(
@@ -614,7 +614,7 @@ class ProxyVoteServiceTest extends TestCase {
 	 */
 	public function testRevokeRejectsUnrelatedCallerAndLeavesStatusUnchanged(): void {
 		$rows = [
-			['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-1', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-1', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-1', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
 		];
 		$saved = [];
 		$svc = $this->makeService(
@@ -646,7 +646,7 @@ class ProxyVoteServiceTest extends TestCase {
 	 */
 	public function testSuspendAllowsChairOfMeeting(): void {
 		$rows = [
-			['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-1', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-1', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-1', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
 		];
 		$saved = [];
 		$svc = $this->makeService(

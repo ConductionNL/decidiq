@@ -40,7 +40,7 @@
             "participant": "gemeenteraad-noorderbrug",
             "seats": 2,
             "votingWeight": 2,
-            "toetredingsDatum": "2015-01-01T00:00:00Z",
+            "toetredingsDate": "2015-01-01T00:00:00Z",
             "label": "Deelnemer per oprichting"
           },
           {
@@ -49,7 +49,7 @@
             "participant": "gemeenteraad-oostwoud",
             "seats": 2,
             "votingWeight": 2,
-            "toetredingsDatum": "2015-01-01T00:00:00Z",
+            "toetredingsDate": "2015-01-01T00:00:00Z",
             "label": "Deelnemer per oprichting"
           },
           {
@@ -58,7 +58,7 @@
             "participant": "gemeenteraad-zuidermeer",
             "seats": 1,
             "votingWeight": 1,
-            "toetredingsDatum": "2015-01-01T00:00:00Z",
+            "toetredingsDate": "2015-01-01T00:00:00Z",
             "label": "Deelnemer per oprichting"
           }
         ],
@@ -104,8 +104,8 @@
             "subjectType": "ontwerpbegroting",
             "subjectDescription": "Ontwerpbegroting 2027, aangeboden aan de raden conform art. 35 Wgr.",
             "deadline": "2026-06-15",
-            "cyclusStap": "00000000-0000-0000-0000-000000000000",
-            "status": "verwerking"
+            "cyclusStep": "00000000-0000-0000-0000-000000000000",
+            "status": "processing"
           },
           {
             "slug": "zienswijzeronde-wijziging-gr-2026",
@@ -125,10 +125,10 @@
             "deadline": "2026-06-15",
             "standpunt": "positief-met-kanttekeningen",
             "text": "De raad stemt in met de ontwerpbegroting, met de kanttekening dat de indexatie van de gemeentelijke bijdrage maximaal 3% mag bedragen.",
-            "ingediendDatum": "2026-06-10T00:00:00Z",
+            "submittedDate": "2026-06-10T00:00:00Z",
             "decision": "00000000-0000-0000-0000-000000000000",
-            "verwerking": "gedeeltelijk-overgenomen",
-            "verwerkingsToelichting": "Indexatie verlaagd naar 3,2%; volledige inwilliging niet mogelijk binnen de CAO-ontwikkeling.",
+            "processing": "gedeeltelijk-overgenomen",
+            "verwerkingsNotes": "Indexatie verlaagd naar 3,2%; volledige inwilliging niet mogelijk binnen de CAO-ontwikkeling.",
             "status": "verwerkt"
           },
           {
@@ -138,9 +138,9 @@
             "deadline": "2026-06-15",
             "standpunt": "positief",
             "text": "De raad stemt zonder opmerkingen in met de ontwerpbegroting 2027.",
-            "ingediendDatum": "2026-06-02T00:00:00Z",
-            "verwerking": "overgenomen",
-            "verwerkingsToelichting": "Voor kennisgeving aangenomen.",
+            "submittedDate": "2026-06-02T00:00:00Z",
+            "processing": "overgenomen",
+            "verwerkingsNotes": "Voor kennisgeving aangenomen.",
             "status": "verwerkt"
           },
           {
@@ -213,7 +213,7 @@
             "description": "Org-level vote weight agreed in the regeling (master data, REQ-SGB-008). Surfaced as the suggested default when creating a Membership in the shared body; NEVER read by any vote-computation path.",
             "example": 2
           },
-          "toetredingsDatum": {
+          "toetredingsDate": {
             "title": "Accession date",
             "type": "string",
             "format": "date-time",
@@ -221,7 +221,7 @@
             "description": "Date-time of accession (toetreding) to the shared body.",
             "example": "2015-01-01T00:00:00Z"
           },
-          "uittredingsDatum": {
+          "uittredingsDate": {
             "title": "Withdrawal date",
             "type": "string",
             "format": "date-time",
@@ -257,7 +257,7 @@
           "states": [
             "concept",
             "geopend",
-            "verwerking",
+            "processing",
             "afgerond",
             "ingetrokken"
           ],
@@ -272,10 +272,10 @@
             },
             {
               "from": "geopend",
-              "to": "verwerking"
+              "to": "processing"
             },
             {
-              "from": "verwerking",
+              "from": "processing",
               "to": "afgerond"
             },
             {
@@ -340,7 +340,7 @@
             "description": "Date by which participating organisations must submit their zienswijze (Wgr art. 35). Required. Copied onto each generated Zienswijze at opening so the declarative rappels filter on the zienswijze's own field (D5).",
             "example": "2026-06-15"
           },
-          "cyclusStap": {
+          "cyclusStep": {
             "title": "P&C step",
             "type": "string",
             "format": "uuid",
@@ -362,7 +362,7 @@
             "enum": [
               "concept",
               "geopend",
-              "verwerking",
+              "processing",
               "afgerond",
               "ingetrokken"
             ],
@@ -565,7 +565,7 @@
             "type": "string",
             "description": "The wording of the zienswijze."
           },
-          "ingediendDatum": {
+          "submittedDate": {
             "title": "Submission date",
             "type": "string",
             "format": "date-time",
@@ -580,7 +580,7 @@
             "$ref": "Decision",
             "description": "Optional reference to the participant council's besluit adopting the zienswijze (the raadsbesluit)."
           },
-          "verwerking": {
+          "processing": {
             "title": "Verwerking",
             "type": "string",
             "facetable": true,
@@ -592,7 +592,7 @@
             ],
             "example": "gedeeltelijk-overgenomen"
           },
-          "verwerkingsToelichting": {
+          "verwerkingsNotes": {
             "title": "Verwerking note",
             "type": "string",
             "description": "Explanation of how the zienswijze was processed (recorded with verwerking)."

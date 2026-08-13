@@ -182,12 +182,12 @@ class RegulatorExportServiceTest extends TestCase {
 	public function testGenerateResolutionsPdf(): void {
 		$rows = [
 			'meeting' => [
-				['id' => 'm-1', 'boardKoppeling' => 'b-1', 'meetingDate' => '2026-03-15T10:00:00Z'],
+				['id' => 'm-1', 'boardIntegration' => 'b-1', 'meetingDate' => '2026-03-15T10:00:00Z'],
 			],
 			'decision' => [
 				[
 					'id' => 'r-1',
-					'meetingKoppeling' => 'm-1',
+					'meetingIntegration' => 'm-1',
 					'resolutionNumber' => 'R-2026-001',
 					'title' => 'Approve annual budget',
 					'type' => 'approval',
@@ -195,7 +195,7 @@ class RegulatorExportServiceTest extends TestCase {
 				],
 				[
 					'id' => 'r-2',
-					'meetingKoppeling' => 'm-9',
+					'meetingIntegration' => 'm-9',
 					'title' => 'Out of scope (other meeting)',
 				],
 			],
@@ -233,12 +233,12 @@ class RegulatorExportServiceTest extends TestCase {
 	public function testGenerateResolutionsCsv(): void {
 		$rows = [
 			'meeting' => [
-				['id' => 'm-1', 'boardKoppeling' => 'b-1'],
+				['id' => 'm-1', 'boardIntegration' => 'b-1'],
 			],
 			'decision' => [
 				[
 					'id' => 'r-1',
-					'meetingKoppeling' => 'm-1',
+					'meetingIntegration' => 'm-1',
 					'resolutionNumber' => 'R-2026-001',
 					'title' => 'Approve, budget',
 					'type' => 'approval',
@@ -253,7 +253,7 @@ class RegulatorExportServiceTest extends TestCase {
 
 		$this->assertTrue($result['success']);
 		$this->assertSame('text/csv', $result['contentType']);
-		$this->assertStringStartsWith('id,meetingKoppeling,resolutionNumber,title,type,status,voteThreshold,adoptionDate', $result['body']);
+		$this->assertStringStartsWith('id,meetingIntegration,resolutionNumber,title,type,status,voteThreshold,adoptionDate', $result['body']);
 		// Comma in the title field must be quoted.
 		$this->assertStringContainsString('"Approve, budget"', $result['body']);
 
@@ -312,15 +312,15 @@ class RegulatorExportServiceTest extends TestCase {
 	public function testDownloadRegeneratesPersistedExport(): void {
 		$rows = [
 			'meeting' => [
-				['id' => 'm-1', 'boardKoppeling' => 'b-1'],
+				['id' => 'm-1', 'boardIntegration' => 'b-1'],
 			],
 			'decision' => [
-				['id' => 'r-1', 'meetingKoppeling' => 'm-1', 'title' => 'R'],
+				['id' => 'r-1', 'meetingIntegration' => 'm-1', 'title' => 'R'],
 			],
 			RegulatorExportService::SCHEMA => [
 				[
 					'id' => 'exp-1',
-					'boardKoppeling' => 'b-1',
+					'boardIntegration' => 'b-1',
 					'scope' => 'resolutions',
 					'format' => 'csv',
 					'filename' => 'persisted.csv',
@@ -335,7 +335,7 @@ class RegulatorExportServiceTest extends TestCase {
 		$this->assertTrue($result['success']);
 		$this->assertSame('text/csv', $result['contentType']);
 		$this->assertSame('persisted.csv', $result['filename']);
-		$this->assertStringContainsString('id,meetingKoppeling', $result['body']);
+		$this->assertStringContainsString('id,meetingIntegration', $result['body']);
 
 	}//end testDownloadRegeneratesPersistedExport()
 
@@ -363,9 +363,9 @@ class RegulatorExportServiceTest extends TestCase {
 	public function testListExportsFiltersByBoard(): void {
 		$rows = [
 			RegulatorExportService::SCHEMA => [
-				['id' => 'e-1', 'boardKoppeling' => 'b-1'],
-				['id' => 'e-2', 'boardKoppeling' => 'b-2'],
-				['id' => 'e-3', 'boardKoppeling' => 'b-1'],
+				['id' => 'e-1', 'boardIntegration' => 'b-1'],
+				['id' => 'e-2', 'boardIntegration' => 'b-2'],
+				['id' => 'e-3', 'boardIntegration' => 'b-1'],
 			],
 		];
 		$saved = [];

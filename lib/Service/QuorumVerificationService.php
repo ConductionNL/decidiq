@@ -158,7 +158,7 @@ class QuorumVerificationService {
 			}
 
 			$meetingData = $this->toArray(row: $meeting);
-			$boardId = (string)($meetingData['boardKoppeling'] ?? '');
+			$boardId = (string)($meetingData['boardIntegration'] ?? '');
 
 			return [
 				'meeting' => $meetingData,
@@ -167,7 +167,7 @@ class QuorumVerificationService {
 					[
 						'register' => 'decidesk',
 						'schema' => 'membership',
-						'filters' => ['boardKoppeling' => $boardId],
+						'filters' => ['boardIntegration' => $boardId],
 						'limit' => 1000,
 					]
 				),
@@ -231,7 +231,7 @@ class QuorumVerificationService {
 
 			// Honour the boardKoppeling filter client-side in case the underlying
 			// findAll() implementation ignores the filters config (older stubs).
-			if ($boardId !== '' && isset($row['boardKoppeling']) === true && (string)$row['boardKoppeling'] !== $boardId) {
+			if ($boardId !== '' && isset($row['boardIntegration']) === true && (string)$row['boardIntegration'] !== $boardId) {
 				continue;
 			}
 

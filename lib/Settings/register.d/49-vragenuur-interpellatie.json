@@ -7,50 +7,50 @@
           {
             "slug": "vragenuur-configuratie-gemeenteraad",
             "governanceBody": "gemeenteraad-amsterdam",
-            "indieningstermijnUren": 24,
-            "interpellatieSteunDrempelType": "breukdeel",
-            "interpellatieSteunDrempelWaarde": 0.2
+            "submissionPeriodHours": 24,
+            "interpellationSteunThresholdType": "breukdeel",
+            "interpellationSteunThresholdValue": 0.2
           }
         ],
         "mondelinge-vraag": [
           {
             "slug": "mv-wachtlijsten-jeugdzorg",
-            "vraagNummer": "MV-2026-001",
+            "questionNumber": "MV-2026-001",
             "subject": "Wachtlijsten jeugdzorg na aanbesteding",
-            "motivering": "Na de recente aanbesteding jeugdhulp bereiken de fractie signalen van oplopende wachttijden. Graag een toelichting van de portefeuillehouder op de actuele stand en de te nemen maatregelen.",
-            "indiener": "00000000-0000-0000-0000-000000000000",
+            "rationale": "Na de recente aanbesteding jeugdhulp bereiken de fractie signalen van oplopende wachttijden. Graag een toelichting van de portefeuillehouder op de actuele stand en de te nemen maatregelen.",
+            "submitter": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "00000000-0000-0000-0000-000000000000",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "targetMeeting": "raadsvergadering-2025-01-15",
-            "vragenuurAgendaItem": "vragenuur-2025-01-15",
+            "questionHourAgendaItem": "vragenuur-2025-01-15",
             "volgorde": 1,
             "lifecycle": "beantwoord",
-            "antwoordSamenvatting": "Wethouder erkent oplopende wachttijden; raadsbrief met plan van aanpak toegezegd vóór 1 maart.",
-            "beantwoordDoor": "00000000-0000-0000-0000-000000000000",
-            "vervolgToezegging": "toezegging-raadsbrief-jeugdzorg",
-            "bronSchriftelijkeVraag": "00000000-0000-0000-0000-000000000000"
+            "answerSummary": "Wethouder erkent oplopende wachttijden; raadsbrief met plan van aanpak toegezegd vóór 1 maart.",
+            "answeredBy": "00000000-0000-0000-0000-000000000000",
+            "vervolgCommitment": "toezegging-raadsbrief-jeugdzorg",
+            "sourceWrittenQuestion": "00000000-0000-0000-0000-000000000000"
           },
           {
             "slug": "mv-verkeersveiligheid-lindelaan",
-            "vraagNummer": "MV-2026-002",
+            "questionNumber": "MV-2026-002",
             "subject": "Verkeersveiligheid schoolzone Lindelaan",
-            "motivering": "Ouders melden onveilige situaties tijdens de spits bij de schoolzone Lindelaan. Welke korte-termijnmaatregelen ziet het college?",
-            "indiener": "00000000-0000-0000-0000-000000000000",
+            "rationale": "Ouders melden onveilige situaties tijdens de spits bij de schoolzone Lindelaan. Welke korte-termijnmaatregelen ziet het college?",
+            "submitter": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "00000000-0000-0000-0000-000000000000",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "targetMeeting": "raadsvergadering-2025-01-15",
-            "vragenuurAgendaItem": "vragenuur-2025-01-15",
+            "questionHourAgendaItem": "vragenuur-2025-01-15",
             "volgorde": 2,
             "lifecycle": "ingepland"
           },
           {
             "slug": "mv-sluiting-zwembad",
-            "vraagNummer": "MV-2026-003",
+            "questionNumber": "MV-2026-003",
             "subject": "Voorgenomen sluiting zwembad De Plons",
-            "motivering": "In de media wordt gesproken over een voorgenomen sluiting van zwembad De Plons. Klopt dit en is de raad hierover tijdig geïnformeerd?",
-            "indiener": "00000000-0000-0000-0000-000000000000",
+            "rationale": "In de media wordt gesproken over een voorgenomen sluiting van zwembad De Plons. Klopt dit en is de raad hierover tijdig geïnformeerd?",
+            "submitter": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "00000000-0000-0000-0000-000000000000",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
@@ -59,26 +59,26 @@
           },
           {
             "slug": "mv-opvang-statushouders",
-            "vraagNummer": "MV-2026-004",
+            "questionNumber": "MV-2026-004",
             "subject": "Opvangcapaciteit statushouders Q3",
-            "motivering": "Graag inzicht in de opvangcapaciteit voor statushouders in het derde kwartaal en de gevolgen voor de taakstelling.",
-            "indiener": "00000000-0000-0000-0000-000000000000",
+            "rationale": "Graag inzicht in de opvangcapaciteit voor statushouders in het derde kwartaal en de gevolgen voor de taakstelling.",
+            "submitter": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "00000000-0000-0000-0000-000000000000",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "targetMeeting": "raadsvergadering-2025-01-15",
             "lifecycle": "afgewezen",
-            "afwijzingsReden": "Betreft een individuele casus, geen algemeen belang"
+            "rejectionReason": "Betreft een individuele casus, geen algemeen belang"
           }
         ],
         "interpellatieverzoek": [
           {
             "slug": "int-veiligheid-stationsgebied",
-            "verzoekNummer": "INT-2026-001",
+            "requestNumber": "INT-2026-001",
             "subject": "Veiligheid stationsgebied",
             "vragen": "1. Sinds wanneer was het college bekend met de toename van incidenten in het stationsgebied? 2. Welke maatregelen zijn getroffen en waarom is de raad hierover niet eerder geïnformeerd?",
-            "motivering": "De aanhoudende onveiligheid in het stationsgebied rechtvaardigt een interpellatiedebat buiten de orde van de dag.",
-            "verzoeker": "00000000-0000-0000-0000-000000000000",
+            "rationale": "De aanhoudende onveiligheid in het stationsgebied rechtvaardigt een interpellatiedebat buiten de orde van de dag.",
+            "requester": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "00000000-0000-0000-0000-000000000000",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
@@ -89,18 +89,18 @@
               "00000000-0000-0000-0000-000000000000"
             ],
             "lifecycle": "behandeld",
-            "raadsbesluitDatum": "2026-05-12",
+            "councilResolutionDate": "2026-05-12",
             "behandeldIn": "raadsvergadering-2025-01-15",
             "agendaItem": "interpellatie-stationsgebied-2025",
-            "behandelingVerslag": "Interpellatiedebat gevoerd; wethouder zegt extern onderzoek toe naar de veiligheidssituatie en informeert de raad per raadsbrief voor het zomerreces."
+            "handlingVerslag": "Interpellatiedebat gevoerd; wethouder zegt extern onderzoek toe naar de veiligheidssituatie en informeert de raad per raadsbrief voor het zomerreces."
           },
           {
             "slug": "int-jaarrekening-grondbedrijf",
-            "verzoekNummer": "INT-2026-002",
+            "requestNumber": "INT-2026-002",
             "subject": "Tekorten jaarrekening grondbedrijf",
             "vragen": "1. Waarom is de raad niet geïnformeerd over de tekorten in het grondbedrijf? 2. Welke gevolgen heeft dit voor de meerjarenbegroting?",
-            "motivering": "De omvang van de tekorten en het uitblijven van informatie aan de raad vragen om een interpellatie.",
-            "verzoeker": "00000000-0000-0000-0000-000000000000",
+            "rationale": "De omvang van de tekorten en het uitblijven van informatie aan de raad vragen om een interpellatie.",
+            "requester": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "00000000-0000-0000-0000-000000000000",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
@@ -112,11 +112,11 @@
           },
           {
             "slug": "int-subsidie-cultuurhuis",
-            "verzoekNummer": "INT-2026-003",
+            "requestNumber": "INT-2026-003",
             "subject": "Subsidieverlening cultuurhuis",
             "vragen": "1. Op welke grond is de subsidie aan het cultuurhuis verhoogd? 2. Voldoet de verhoging aan het geldende subsidiekader?",
-            "motivering": "De onderbouwing van de subsidieverhoging is voor de raad onvoldoende inzichtelijk.",
-            "verzoeker": "00000000-0000-0000-0000-000000000000",
+            "rationale": "De onderbouwing van de subsidieverhoging is voor de raad onvoldoende inzichtelijk.",
+            "requester": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "00000000-0000-0000-0000-000000000000",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
@@ -128,7 +128,7 @@
               "00000000-0000-0000-0000-000000000000"
             ],
             "lifecycle": "geagendeerd",
-            "raadsbesluitDatum": "2026-06-30",
+            "councilResolutionDate": "2026-06-30",
             "behandeldIn": "raadsvergadering-2025-01-15",
             "agendaItem": "interpellatie-cultuurhuis-2025-01-15"
           }
@@ -359,18 +359,18 @@
           }
         },
         "required": [
-          "vraagNummer",
-          "indiener",
+          "questionNumber",
+          "submitter",
           "politicalGroup",
           "subject",
-          "motivering",
+          "rationale",
           "portefeuillehouder",
           "governanceBody",
           "targetMeeting",
           "lifecycle"
         ],
         "properties": {
-          "vraagNummer": {
+          "questionNumber": {
             "title": "Question number",
             "type": "string",
             "facetable": true,
@@ -378,7 +378,7 @@
             "description": "Human-readable question number in the format MV-{jaar}-{volgnummer} (schema-validated by pattern), mirroring the SV-{jaar}-{volgnummer} pattern. Auto-assigned by OralQuestionService at submission (sequence per governance body per year — imperative, design D3); always present at save time. Uniqueness is a review/validation concern (OR has no cross-object unique constraint) and the index sorts by number so duplicates are visible.",
             "example": "MV-2026-001"
           },
-          "indiener": {
+          "submitter": {
             "title": "Submitter",
             "type": "string",
             "format": "uuid",
@@ -397,7 +397,7 @@
             "description": "Subject of the oral question. Required; max 200 characters.",
             "example": "Wachtlijsten jeugdzorg na aanbesteding"
           },
-          "motivering": {
+          "rationale": {
             "title": "Motivation",
             "type": "string",
             "description": "Motivation / body of the oral question (rich text). Required."
@@ -423,7 +423,7 @@
             "$ref": "Meeting",
             "description": "Reference to the Meeting whose vragenuur the question targets. Required at submission. The submission deadline is computed as targetMeeting.start − VragenuurConfiguratie.indieningstermijnUren (imperative, design D3)."
           },
-          "vragenuurAgendaItem": {
+          "questionHourAgendaItem": {
             "title": "Question-hour agenda item",
             "type": "string",
             "format": "uuid",
@@ -451,37 +451,37 @@
             ],
             "example": "ingediend"
           },
-          "afwijzingsReden": {
+          "rejectionReason": {
             "title": "Rejection reason",
             "type": "string",
             "description": "Reason the question was rejected (chair/griffier). Required when the lifecycle is afgewezen — a conditional-required rule enforced at save time, NOT in the schema 'required' array (no if/then dialect is used). Visible to the indiener.",
             "example": "Betreft een individuele casus, geen algemeen belang"
           },
-          "antwoordSamenvatting": {
+          "answerSummary": {
             "title": "Answer summary",
             "type": "string",
             "description": "Summary of the spoken answer (rich text; schema:Answer text / acceptedAnswer). Required at the transition to beantwoord (save-time enforced). The full spoken answer is not transcribed here."
           },
-          "beantwoordDoor": {
+          "answeredBy": {
             "title": "Answered by",
             "type": "string",
             "format": "uuid",
             "$ref": "Person",
             "description": "Reference to the college member (Person) who gave the spoken answer. Set at the transition to beantwoord. Optional."
           },
-          "vervolgToezegging": {
+          "vervolgCommitment": {
             "title": "Follow-up commitment",
             "type": "string",
             "format": "uuid",
             "$ref": "Toezegging",
             "description": "Optional reference to a Toezegging registered in the sibling toezeggingen register (toezeggingen-ingekomen-stukken) when a commitment is made during the answer. Afdoening and lifecycle live EXCLUSIVELY on that Toezegging (design D5, REQ-VRI-005); this register creates no execution-update log. Nullable/soft: degrades to a plain link if that change is delayed."
           },
-          "vervolgSchriftelijkeVraag": {
+          "vervolgWrittenQuestion": {
             "title": "Follow-up written question",
             "type": "string",
             "description": "Optional reference to a follow-up SchriftelijkeVraag (fractievoorzitter-fractie-koppeling) created from a niet-behandeld or beantwoord oral question. Its answering workflow stays in that change (REQ-VRI-006). Declared as a PLAIN STRING — see the note on MondelingeVraag.politicalGroup: the SchriftelijkeVraag schema does not exist in this register yet. Restore format:uuid + $ref in the commit that introduces it."
           },
-          "bronSchriftelijkeVraag": {
+          "sourceWrittenQuestion": {
             "title": "Source written question",
             "type": "string",
             "description": "Declared as a PLAIN STRING — see the note on MondelingeVraag.politicalGroup: the SchriftelijkeVraag schema does not exist in this register yet. Restore format:uuid + $ref in the commit that introduces it. Optional reference to the SchriftelijkeVraag this oral question escalates from (fractievoorzitter-fractie-koppeling). Set on written → oral escalation; when the oral question reaches beantwoord, OralQuestionService sets the linked SV to 'vervallen-door-mondelinge-beantwoording' via a PUT-semantic save carrying all other SV fields forward (design D6, REQ-VRI-006). No field mirroring or shared lifecycle."
@@ -667,8 +667,8 @@
           }
         },
         "required": [
-          "verzoekNummer",
-          "verzoeker",
+          "requestNumber",
+          "requester",
           "politicalGroup",
           "subject",
           "vragen",
@@ -677,7 +677,7 @@
           "lifecycle"
         ],
         "properties": {
-          "verzoekNummer": {
+          "requestNumber": {
             "title": "Request number",
             "type": "string",
             "facetable": true,
@@ -685,7 +685,7 @@
             "description": "Human-readable request number in the format INT-{jaar}-{volgnummer} (schema-validated by pattern), same per-body-per-year sequencing as MV/SV numbers. Auto-assigned by OralQuestionService at submission (imperative, design D3); always present at save time.",
             "example": "INT-2026-001"
           },
-          "verzoeker": {
+          "requester": {
             "title": "Requester",
             "type": "string",
             "format": "uuid",
@@ -710,7 +710,7 @@
             "description": "The questions to be put during the interpellation (rich text). Required.",
             "example": "1. Sinds wanneer was het college bekend met…"
           },
-          "motivering": {
+          "rationale": {
             "title": "Motivation",
             "type": "string",
             "description": "Motivation for the interpellation (rich text). Optional."
@@ -754,7 +754,7 @@
             ],
             "example": "ingediend"
           },
-          "raadsbesluitDatum": {
+          "councilResolutionDate": {
             "title": "Council decision date",
             "type": "string",
             "format": "date",
@@ -762,7 +762,7 @@
             "description": "Date of the council's admission decision (verlof) — recorded on toegelaten and afgewezen. Optional until decided.",
             "example": "2026-05-12"
           },
-          "afwijzingsReden": {
+          "rejectionReason": {
             "title": "Rejection reason",
             "type": "string",
             "description": "Reason the council rejected the request. Required when the lifecycle is afgewezen — a conditional-required rule enforced at save time, NOT in the schema 'required' array."
@@ -781,7 +781,7 @@
             "$ref": "AgendaItem",
             "description": "Reference to the interpellation's OWN AgendaItem (created via agenda-item-crud — a separate item, never merged into the vragenuur item, REQ-VRI-012). Set at scheduling (geagendeerd). Optional until scheduled."
           },
-          "behandelingVerslag": {
+          "handlingVerslag": {
             "title": "Treatment record",
             "type": "string",
             "description": "Record of the interpellation debate and the portefeuillehouder's answers (rich text). Required at the transition to behandeld (save-time enforced). May reference follow-up instruments (moties/toezeggingen) which live in their own registers — never duplicated here (REQ-VRI-013)."
@@ -814,14 +814,14 @@
             "$ref": "GovernanceBody",
             "description": "Reference to the GovernanceBody this configuration applies to (schema:StructuredValue). Required. At most one VragenuurConfiguratie per body — uniqueness is a review/validation concern (OR has no cross-object unique constraint)."
           },
-          "indieningstermijnUren": {
+          "submissionPeriodHours": {
             "title": "Submission deadline (hours)",
             "type": "integer",
             "default": 24,
             "description": "Number of hours before the target meeting's start by which oral questions must be submitted (Reglement van Orde). Default 24. Used by OralQuestionService to compute the deadline as targetMeeting.start − indieningstermijnUren; the griffier may override a late submission explicitly (REQ-VRI-003).",
             "example": 24
           },
-          "interpellatieSteunDrempelType": {
+          "interpellationSteunThresholdType": {
             "title": "Support threshold type",
             "type": "string",
             "description": "How the interpellation support threshold is expressed: 'breukdeel' (a fraction of the body's members, e.g. 0.2 = 1/5 per Reglement van Orde) or 'aantal' (an absolute number of supporters). Combined with interpellatieSteunDrempelWaarde. Informative only (REQ-VRI-011).",
@@ -831,7 +831,7 @@
             ],
             "example": "breukdeel"
           },
-          "interpellatieSteunDrempelWaarde": {
+          "interpellationSteunThresholdValue": {
             "title": "Support threshold value",
             "type": "number",
             "description": "The threshold value: a fraction (e.g. 0.2 for 1/5 of members) when interpellatieSteunDrempelType is 'breukdeel', or an absolute count when 'aantal'. When applied as a breukdeel of the member count the required number is rounded UP (ceil) — documented here so the rule travels with the schema (design risk: threshold rounding disputes).",

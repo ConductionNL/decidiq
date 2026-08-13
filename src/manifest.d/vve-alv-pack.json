@@ -208,7 +208,7 @@
 					{ "label": "Rejecting", "filter": { "verdict": "afkeurend" } }
 				],
 				"columns": [
-					{ "key": "boekjaar", "label": "Boekjaar", "widget": "link" },
+					{ "key": "financialYear", "label": "Boekjaar", "widget": "link" },
 					{ "key": "verdict", "label": "Verdict", "widget": "badge" },
 					{ "key": "governanceBody", "label": "Governance body" }
 				],

@@ -195,7 +195,7 @@ class QesGuard {
 			$resolutionRow = $resolution->getObject();
 		}
 
-		$meetingId = (string)($resolutionRow['meetingKoppeling'] ?? '');
+		$meetingId = (string)($resolutionRow['meetingIntegration'] ?? '');
 		if ($meetingId === '') {
 			return [];
 		}
@@ -204,14 +204,14 @@ class QesGuard {
 			[
 				'register' => 'decidesk',
 				'schema' => 'minutes',
-				'filters' => ['meetingKoppeling' => $meetingId],
+				'filters' => ['meetingIntegration' => $meetingId],
 				'limit' => 50,
 			]
 		);
 
 		foreach ((array)$minutesRows as $row) {
 			$minutes = $this->toArray(row: $row);
-			if (($minutes['meetingKoppeling'] ?? null) !== $meetingId) {
+			if (($minutes['meetingIntegration'] ?? null) !== $meetingId) {
 				continue;
 			}
 

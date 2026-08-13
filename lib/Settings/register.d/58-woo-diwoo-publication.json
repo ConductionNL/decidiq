@@ -73,7 +73,7 @@
           {
             "slug": "woo-bestuursorgaan-gemeenteraad-amsterdam",
             "governanceBody": "gemeenteraad-amsterdam",
-            "bestuursorgaan": "gm0344",
+            "governingBody": "gm0344",
             "label": "Gemeenteraad (example)",
             "active": true,
             "notes": "EXAMPLE bestuursorgaan TOOI gemeente-identificatie only (gm0344 is the id the records-management-archiving MDTO archiefvormer convention uses as its documented example). Replace with the real bestuursorgaan identifier of this governance body at implementation. The instance-wide default bestuursorgaan lives in app config (admin Woo section, REQ-WOO-006); this object is the per-governance-body override."
@@ -201,7 +201,7 @@
         },
         "required": [
           "governanceBody",
-          "bestuursorgaan",
+          "governingBody",
           "active"
         ],
         "properties": {
@@ -212,7 +212,7 @@
             "$ref": "GovernanceBody",
             "description": "Reference to the GovernanceBody this bestuursorgaan identifier applies to (REQ-WOO-006 per-body override). Required and unique per row (OR has no cross-object unique constraint — uniqueness is a review/validation concern)."
           },
-          "bestuursorgaan": {
+          "governingBody": {
             "title": "Bestuursorgaan (TOOI id)",
             "type": "string",
             "description": "TOOI organization identifier of the publishing governance body — the gemeente code convention (e.g. gm0344), the same convention the records-management-archiving MDTO archiefvormer uses. Statutory Dutch term kept (bestuursorgaan). SEEDS SHIP AN EXAMPLE id only; set the real bestuursorgaan identifier of this body at implementation. Required.",

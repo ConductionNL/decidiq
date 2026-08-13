@@ -65,7 +65,7 @@ class MeetingTransitionGuardTest extends TestCase {
 			'id' => 'aaa-001',
 			'lifecycle' => 'scheduled',
 			'quorumRequired' => 5,
-			'quorumMet' => true,
+			'quorumWith' => true,
 		];
 
 		self::assertTrue(condition: $this->guard->isOpenAllowed(meeting: $meeting));
@@ -84,7 +84,7 @@ class MeetingTransitionGuardTest extends TestCase {
 			'id' => 'aaa-002',
 			'lifecycle' => 'scheduled',
 			'quorumRequired' => 5,
-			'quorumMet' => false,
+			'quorumWith' => false,
 		];
 
 		self::assertFalse(condition: $this->guard->isOpenAllowed(meeting: $meeting));
@@ -106,7 +106,7 @@ class MeetingTransitionGuardTest extends TestCase {
 			'id' => 'aaa-003',
 			'lifecycle' => 'scheduled',
 			'quorumRequired' => null,
-			'quorumMet' => true,
+			'quorumWith' => true,
 		];
 
 		self::assertTrue(condition: $this->guard->isOpenAllowed(meeting: $meeting));

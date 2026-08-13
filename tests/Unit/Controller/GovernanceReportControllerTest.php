@@ -156,7 +156,7 @@ class GovernanceReportControllerTest extends TestCase {
 		$service->method('exportReport')->willReturn(
 			[
 				'success' => true,
-				'body' => json_encode(['boardKoppeling' => 'b-1', 'year' => 2026]),
+				'body' => json_encode(['boardIntegration' => 'b-1', 'year' => 2026]),
 				'contentType' => 'application/json',
 				'message' => 'ok',
 			]
@@ -166,7 +166,7 @@ class GovernanceReportControllerTest extends TestCase {
 		$response = $controller->show('rep-1');
 
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
-		$this->assertSame('b-1', $response->getData()['boardKoppeling']);
+		$this->assertSame('b-1', $response->getData()['boardIntegration']);
 
 	}//end testShowReturnsReportJson()
 

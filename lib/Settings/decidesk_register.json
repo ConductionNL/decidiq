@@ -430,7 +430,7 @@
             "isSecret": false,
             "openedAt": "2025-04-10T21:00:00Z",
             "closedAt": "2025-04-10T21:05:00Z",
-            "quorumMet": true,
+            "quorumWith": true,
             "result": "adopted",
             "votesFor": 28,
             "votesAgainst": 3,
@@ -442,7 +442,7 @@
             "isSecret": false,
             "openedAt": "2025-04-10T21:30:00Z",
             "closedAt": "2025-04-10T21:38:00Z",
-            "quorumMet": true,
+            "quorumWith": true,
             "result": "adopted",
             "votesFor": 25,
             "votesAgainst": 6,
@@ -454,7 +454,7 @@
             "isSecret": false,
             "openedAt": "2025-04-10T20:55:00Z",
             "closedAt": "2025-04-10T21:00:00Z",
-            "quorumMet": true,
+            "quorumWith": true,
             "result": "rejected",
             "votesFor": 11,
             "votesAgainst": 20,
@@ -466,7 +466,7 @@
             "isSecret": false,
             "openedAt": "2026-04-15T21:00:00Z",
             "closedAt": "2026-04-15T21:15:00Z",
-            "quorumMet": true,
+            "quorumWith": true,
             "result": "adopted",
             "votesFor": 28,
             "votesAgainst": 3,
@@ -481,7 +481,7 @@
             "isSecret": true,
             "openedAt": "2026-04-18T15:00:00Z",
             "closedAt": "2026-04-18T15:20:00Z",
-            "quorumMet": true,
+            "quorumWith": true,
             "result": "adopted",
             "votesFor": 3,
             "votesAgainst": 0,
@@ -1390,7 +1390,7 @@
         "schemas": [
           "action-item",
           "advies",
-          "adviesaanvraag",
+          "adviceRequest",
           "agenda-item",
           "bevoegdheidstoedeling",
           "board-evaluation",
@@ -2295,7 +2295,7 @@
               ]
             }
           },
-          "quorumMet": {
+          "quorumWith": {
             "type": "boolean",
             "materialise": true,
             "expression": {
@@ -2595,7 +2595,7 @@
             "format": "date-time",
             "description": "When voting closed"
           },
-          "quorumMet": {
+          "quorumWith": {
             "title": "Quorum met",
             "type": "boolean",
             "description": "Was quorum met"
@@ -2718,11 +2718,11 @@
           "mailEnabled": false
         },
         "required": [
-          "boardKoppeling",
+          "boardIntegration",
           "year"
         ],
         "properties": {
-          "boardKoppeling": {
+          "boardIntegration": {
             "title": "Board",
             "type": "string",
             "description": "Identifier of the governance body the report covers."
@@ -2795,23 +2795,23 @@
           "mailEnabled": false
         },
         "required": [
-          "meetingKoppeling",
-          "grantorKoppeling",
-          "holderKoppeling",
+          "meetingIntegration",
+          "grantorIntegration",
+          "holderIntegration",
           "proxyStatus"
         ],
         "properties": {
-          "meetingKoppeling": {
+          "meetingIntegration": {
             "title": "Meeting",
             "type": "string",
             "description": "Identifier of the meeting this proxy applies to. The per-holder cap is counted per meeting."
           },
-          "grantorKoppeling": {
+          "grantorIntegration": {
             "title": "Grantor",
             "type": "string",
             "description": "Identifier of the participant delegating their vote (the volmachtgever)."
           },
-          "holderKoppeling": {
+          "holderIntegration": {
             "title": "Holder",
             "type": "string",
             "description": "Identifier of the participant receiving the delegation (the gevolmachtigde)."

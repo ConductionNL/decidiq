@@ -37,7 +37,7 @@
 					{ "label": "All", "filter": {}, "default": true },
 					{ "label": "Concept", "filter": { "status": "concept" } },
 					{ "label": "Open", "filter": { "status": "geopend" } },
-					{ "label": "Processing", "filter": { "status": "verwerking" } },
+					{ "label": "Processing", "filter": { "status": "processing" } },
 					{ "label": "Closed", "filter": { "status": "afgerond" } },
 					{ "label": "Withdrawn", "filter": { "status": "ingetrokken" } },
 					{ "label": "Ontwerpbegroting", "filter": { "subjectType": "ontwerpbegroting" } },

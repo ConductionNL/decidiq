@@ -39,10 +39,10 @@
 				"columns": [
 					{ "key": "type", "label": "Type", "widget": "badge" },
 					{ "key": "delegans", "label": "Delegans" },
-					{ "key": "delegatarisFunctie", "label": "Delegataris" },
+					{ "key": "delegatarisRole", "label": "Delegataris" },
 					{ "key": "subject", "label": "Subject", "widget": "link" },
-					{ "key": "geldigVanaf", "label": "Valid from" },
-					{ "key": "geldigTot", "label": "Valid until" },
+					{ "key": "validFrom", "label": "Valid from" },
+					{ "key": "validTo", "label": "Valid until" },
 					{ "key": "status", "label": "Status", "widget": "badge" }
 				],
 				"actions": [

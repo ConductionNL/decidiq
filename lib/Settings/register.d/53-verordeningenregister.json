@@ -9,13 +9,13 @@
             "type": "verordening",
             "citeertitel": "Afvalstoffenverordening Amsterdam",
             "officieleTitel": "Verordening op de inzameling en verwerking van huishoudelijke afvalstoffen Amsterdam",
-            "wettelijkeGrondslag": [
+            "statutoryBasis": [
               "Gemeentewet art. 149",
               "Wet milieubeheer art. 10.23"
             ],
-            "vaststellendOrgaan": "gemeenteraad-amsterdam",
+            "vaststellendBody": "gemeenteraad-amsterdam",
             "cvdrIdentifier": "CVDR641871",
-            "currentVersienummer": 2,
+            "currentVersionNumber": 2,
             "currentInwerkingtreding": "2025-06-01",
             "status": "in-werking"
           },
@@ -24,11 +24,11 @@
             "type": "beleidsregel",
             "citeertitel": "Beleidsregel terrassen Amsterdam 2025",
             "officieleTitel": "Beleidsregel inzake terrasvergunningen Amsterdam 2025",
-            "wettelijkeGrondslag": [
+            "statutoryBasis": [
               "APV Amsterdam art. 3.17"
             ],
-            "vaststellendOrgaan": "gemeenteraad-amsterdam",
-            "currentVersienummer": 1,
+            "vaststellendBody": "gemeenteraad-amsterdam",
+            "currentVersionNumber": 1,
             "currentInwerkingtreding": "2025-03-01",
             "status": "in-werking"
           },
@@ -37,10 +37,10 @@
             "type": "reglement",
             "citeertitel": "Huishoudelijk reglement ledenraad VNG",
             "officieleTitel": "Huishoudelijk reglement van de ledenraad van de Vereniging van Nederlandse Gemeenten",
-            "wettelijkeGrondslag": [
+            "statutoryBasis": [
               "Statuten VNG art. 12"
             ],
-            "vaststellendOrgaan": "ledenraad-vng",
+            "vaststellendBody": "ledenraad-vng",
             "status": "vastgesteld"
           }
         ],
@@ -48,8 +48,8 @@
           {
             "slug": "afvalstoffen-v1",
             "regeling": "afvalstoffenverordening-amsterdam",
-            "versienummer": 1,
-            "vastgesteldDoor": "00000000-0000-0000-0000-000000000000",
+            "versionNumber": 1,
+            "determinedBy": "00000000-0000-0000-0000-000000000000",
             "inwerkingtreding": "2024-01-01",
             "notes": "Eerste vaststelling van de Afvalstoffenverordening Amsterdam.",
             "status": "vervangen"
@@ -57,8 +57,8 @@
           {
             "slug": "afvalstoffen-v2",
             "regeling": "afvalstoffenverordening-amsterdam",
-            "versienummer": 2,
-            "vastgesteldDoor": "00000000-0000-0000-0000-000000000000",
+            "versionNumber": 2,
+            "determinedBy": "00000000-0000-0000-0000-000000000000",
             "inwerkingtreding": "2025-06-01",
             "notes": "Wijziging 2025: gescheiden inzameling GFT-e uitgebreid naar het hele beheergebied.",
             "status": "in-werking"
@@ -66,8 +66,8 @@
           {
             "slug": "terrassen-v1",
             "regeling": "beleidsregel-terrassen-amsterdam",
-            "versienummer": 1,
-            "vastgesteldDoor": "00000000-0000-0000-0000-000000000000",
+            "versionNumber": 1,
+            "determinedBy": "00000000-0000-0000-0000-000000000000",
             "inwerkingtreding": "2025-03-01",
             "notes": "Vaststelling beleidsregel terrassen 2025.",
             "status": "in-werking"
@@ -75,8 +75,8 @@
           {
             "slug": "hr-vng-v1",
             "regeling": "huishoudelijk-reglement-vng",
-            "versienummer": 1,
-            "vastgesteldDoor": "00000000-0000-0000-0000-000000000000",
+            "versionNumber": 1,
+            "determinedBy": "00000000-0000-0000-0000-000000000000",
             "inwerkingtreding": "2026-09-01",
             "notes": "Concept eerste huishoudelijk reglement; treedt in werking na vaststelling door de ledenraad.",
             "status": "concept"
@@ -155,7 +155,7 @@
         "required": [
           "type",
           "citeertitel",
-          "vaststellendOrgaan",
+          "vaststellendBody",
           "status"
         ],
         "properties": {
@@ -185,7 +185,7 @@
             "description": "The full official title of the regulation. Optional.",
             "example": "Verordening op de inzameling en verwerking van huishoudelijke afvalstoffen Amsterdam"
           },
-          "wettelijkeGrondslag": {
+          "statutoryBasis": {
             "title": "Legal basis",
             "type": "array",
             "description": "Legal-basis citations for the regulation (same citation vocabulary as the delegatie-mandaatregister, e.g. 'Gemeentewet art. 149').",
@@ -197,7 +197,7 @@
               "Wet milieubeheer art. 10.23"
             ]
           },
-          "vaststellendOrgaan": {
+          "vaststellendBody": {
             "title": "Adopting body",
             "type": "string",
             "format": "uuid",
@@ -212,7 +212,7 @@
             "description": "The CVDR (Centrale Voorziening Decentrale Regelgeving) identifier assigned by the national register after first publication. Stored, never minted by decidesk — captured manually or from the DROP delivery acknowledgement (REQ-VOR-001/006). Optional (absent until first publication).",
             "example": "CVDR641871"
           },
-          "currentVersienummer": {
+          "currentVersionNumber": {
             "title": "Current version number",
             "type": "integer",
             "nullable": true,
@@ -348,8 +348,8 @@
         },
         "required": [
           "regeling",
-          "versienummer",
-          "vastgesteldDoor",
+          "versionNumber",
+          "determinedBy",
           "status"
         ],
         "properties": {
@@ -361,14 +361,14 @@
             "$ref": "Regeling",
             "description": "Reference to the parent Regeling (the work) this version is an expression of. Required."
           },
-          "versienummer": {
+          "versionNumber": {
             "title": "Version number",
             "type": "integer",
             "facetable": true,
             "description": "Positive integer version number, UNIQUE per regeling. Required. Uniqueness is a cross-object rule not expressible in the schema 'required' array (no per-scope-unique dialect is invented here); it is enforced at save time (REQ-VOR-002 scenario 'Version numbers are unique per regeling'). Immutable once the version is sealed (in-werking, REQ-VOR-003).",
             "example": 2
           },
-          "vastgesteldDoor": {
+          "determinedBy": {
             "title": "Enacted by (decision)",
             "type": "string",
             "format": "uuid",
@@ -383,7 +383,7 @@
             "description": "Date on which this version takes force. Required before activation (sealing to in-werking): a concept may be drafted before its date is fixed, so it is NOT in the create-time 'required' array; it is enforced at save time before the transition to in-werking, and the activation-ordering guard (REQ-VOR-004) refuses a date not after the latest sealed version's. Drives in-force resolution (REQ-VOR-004). Immutable once the version is sealed (REQ-VOR-003).",
             "example": "2025-06-01"
           },
-          "vervaldatum": {
+          "expiryDate": {
             "title": "Vervaldatum",
             "type": "string",
             "format": "date",
