@@ -2083,7 +2083,7 @@
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"meetingKoppeling\": \"{{vrMeetingId}}\",\n  \"grantorKoppeling\": \"newman-vr-grantor-1\",\n  \"holderKoppeling\": \"{{vrParticipantId}}\",\n  \"scope\": \"all-resolutions\",\n  \"proxyStatus\": \"active\",\n  \"registeredAt\": \"2026-06-19T09:00:00Z\"\n}"
+       "raw": "{\n  \"meetingIntegration\": \"{{vrMeetingId}}\",\n  \"grantorIntegration\": \"newman-vr-grantor-1\",\n  \"holderIntegration\": \"{{vrParticipantId}}\",\n  \"scope\": \"all-resolutions\",\n  \"proxyStatus\": \"active\",\n  \"registeredAt\": \"2026-06-19T09:00:00Z\"\n}"
       }
      }
     },
@@ -2152,7 +2152,7 @@
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"meetingKoppeling\": \"{{vrMeetingId}}\",\n  \"grantorKoppeling\": \"newman-vr-grantor-2\",\n  \"holderKoppeling\": \"{{vrParticipantId}}\",\n  \"scope\": \"all-resolutions\",\n  \"proxyStatus\": \"active\",\n  \"registeredAt\": \"2026-06-19T09:05:00Z\"\n}"
+       "raw": "{\n  \"meetingIntegration\": \"{{vrMeetingId}}\",\n  \"grantorIntegration\": \"newman-vr-grantor-2\",\n  \"holderIntegration\": \"{{vrParticipantId}}\",\n  \"scope\": \"all-resolutions\",\n  \"proxyStatus\": \"active\",\n  \"registeredAt\": \"2026-06-19T09:05:00Z\"\n}"
       }
      }
     },
