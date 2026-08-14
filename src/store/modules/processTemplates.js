@@ -8,9 +8,9 @@
 //
 // @spec openspec/specs/process-configuration/spec.md
 
-import { defineStore } from 'pinia'
 import { getRequestToken } from '@nextcloud/auth'
 import { generateUrl } from '@nextcloud/router'
+import { defineStore } from 'pinia'
 
 // Re-export the pure graph validation so callers can keep importing it from the
 // store; the implementation lives dependency-free in services/ for vitest.
@@ -64,7 +64,10 @@ export const useProcessTemplatesStore = defineStore('decidesk-process-templates'
 			return []
 		},
 
-		/** @spec openspec/specs/process-configuration/spec.md */
+		/**
+		 * @param template
+		 * @spec openspec/specs/process-configuration/spec.md
+		 */
 		async createTemplate(template) {
 			return this.write(
 				generateUrl('/apps/decidesk/api/process-templates'),
@@ -73,7 +76,11 @@ export const useProcessTemplatesStore = defineStore('decidesk-process-templates'
 			)
 		},
 
-		/** @spec openspec/specs/process-configuration/spec.md */
+		/**
+		 * @param id
+		 * @param template
+		 * @spec openspec/specs/process-configuration/spec.md
+		 */
 		async updateTemplate(id, template) {
 			return this.write(
 				generateUrl(
@@ -84,7 +91,11 @@ export const useProcessTemplatesStore = defineStore('decidesk-process-templates'
 			)
 		},
 
-		/** @spec openspec/specs/process-configuration/spec.md */
+		/**
+		 * @param id
+		 * @param name
+		 * @spec openspec/specs/process-configuration/spec.md
+		 */
 		async duplicateTemplate(id, name) {
 			return this.write(
 				generateUrl(
@@ -97,7 +108,10 @@ export const useProcessTemplatesStore = defineStore('decidesk-process-templates'
 			)
 		},
 
-		/** @spec openspec/specs/process-configuration/spec.md */
+		/**
+		 * @param id
+		 * @spec openspec/specs/process-configuration/spec.md
+		 */
 		async deleteTemplate(id) {
 			this.error = ''
 			try {
@@ -123,7 +137,12 @@ export const useProcessTemplatesStore = defineStore('decidesk-process-templates'
 			return false
 		},
 
-		/** @spec openspec/specs/process-configuration/spec.md */
+		/**
+		 * @param url
+		 * @param method
+		 * @param payload
+		 * @spec openspec/specs/process-configuration/spec.md
+		 */
 		async write(url, method, payload) {
 			this.error = ''
 			try {

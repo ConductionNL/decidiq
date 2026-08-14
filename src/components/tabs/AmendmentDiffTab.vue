@@ -58,8 +58,8 @@
 			</CnNoteCard>
 
 			<AmendmentDiffView
-				:original-text="originalText"
-				:proposed-text="proposedText" />
+				:originalText="originalText"
+				:proposedText="proposedText" />
 		</template>
 	</div>
 </template>
@@ -75,6 +75,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -83,6 +84,7 @@ export default {
 			motion: null,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		parentMotionId() {
@@ -98,19 +100,23 @@ export default {
 			if (typeof ref === 'object') return ref.id || ref.uuid || ''
 			return ref
 		},
+
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		hasProposedText() {
 			return Boolean(this.amendment?.proposedText)
 		},
+
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		originalText() {
 			return this.motion?.text || ''
 		},
+
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		proposedText() {
 			return this.amendment?.proposedText || this.amendment?.text || ''
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -120,6 +126,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		async refresh() {

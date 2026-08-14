@@ -4,12 +4,12 @@
 // Personal settings entry (user-settings spec) — mounted by
 // templates/settings/personal.php at /settings/user/decidesk.
 
-import { createApp } from 'vue'
 import {
-	translate as t,
-	translatePlural as n,
 	loadTranslations,
+	translatePlural as n,
+	translate as t,
 } from '@nextcloud/l10n'
+import { createApp } from 'vue'
 import PersonalRoot from './views/settings/PersonalRoot.vue'
 
 loadTranslations('decidesk', () => {

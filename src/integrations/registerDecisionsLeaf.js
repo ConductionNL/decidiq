@@ -17,8 +17,8 @@
 // installed (the common case in decidesk's own pages, where main.js calls
 // installIntegrationRegistry() first), register() lands live.
 
-import { createApp } from 'vue'
 import { translate as t } from '@nextcloud/l10n'
+import { createApp } from 'vue'
 import CnDecisionsTab from './CnDecisionsTab.vue'
 import CnDecisionsWidget from './CnDecisionsWidget.vue'
 

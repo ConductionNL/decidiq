@@ -62,6 +62,7 @@ export default {
 		/** The amendment's proposed replacement text. */
 		proposedText: { type: String, default: '' },
 	},
+
 	computed: {
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		segments() {

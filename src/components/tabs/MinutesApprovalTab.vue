@@ -98,7 +98,7 @@
 						<div class="decidesk-tab__correction-body">
 							<CnStatusBadge
 								:label="statusLabel(correction.status)"
-								:color-map="correctionColors" />
+								:colorMap="correctionColors" />
 							<span class="decidesk-tab__correction-text">{{
 								correction.text
 							}}</span>
@@ -147,16 +147,16 @@ import {
 	CnStatusBadge,
 	CnTimelineStages,
 } from '@conduction/nextcloud-vue'
-import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
-import MinutesRejectModal from '../../modals/MinutesRejectModal.vue'
+import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import MinutesCorrectionModal from '../../modals/MinutesCorrectionModal.vue'
-import { ensureRelationType } from './useRelationStore.js'
+import MinutesRejectModal from '../../modals/MinutesRejectModal.vue'
 import {
-	LIFECYCLE_STAGES,
 	availableWorkflowActions,
 	canSuggestCorrections,
+	LIFECYCLE_STAGES,
 } from '../minutesEditor/minutesEditor.js'
+import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'MinutesApprovalTab',
@@ -169,9 +169,11 @@ export default {
 		NcButton,
 		NcLoadingIcon,
 	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -182,6 +184,7 @@ export default {
 			correctionModalOpen: false,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		stages() {
@@ -190,6 +193,7 @@ export default {
 				label: this.statusLabel(stage),
 			}))
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		currentStageIndex() {
 			const index = LIFECYCLE_STAGES.indexOf(
@@ -197,20 +201,24 @@ export default {
 			)
 			return index === -1 ? 0 : index
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		actions() {
 			return availableWorkflowActions(this.minutes?.lifecycle || 'draft')
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		corrections() {
 			return Array.isArray(this.minutes?.corrections)
 				? this.minutes.corrections
 				: []
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		canSuggest() {
 			return canSuggestCorrections(this.minutes?.lifecycle || 'draft')
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		lastRejection() {
 			const comments = Array.isArray(this.minutes?.reviewComments)
@@ -219,6 +227,7 @@ export default {
 			const rejections = comments.filter((c) => c?.action === 'rejected')
 			return rejections.length ? rejections[rejections.length - 1] : null
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		signedByLabel() {
 			const signers = Array.isArray(this.minutes?.signedBy)
@@ -226,6 +235,7 @@ export default {
 				: []
 			return signers.join(', ')
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		correctionColors() {
 			return {
@@ -235,6 +245,7 @@ export default {
 			}
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -244,6 +255,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		/**
 		 * Translated label for a lifecycle or correction status value.
@@ -265,6 +277,7 @@ export default {
 			}
 			return labels[value] || value
 		},
+
 		/**
 		 * Translated button label for a workflow action.
 		 *
@@ -282,6 +295,7 @@ export default {
 			}
 			return labels[action] || action
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		async refresh() {
 			if (!this.objectId) return
@@ -297,6 +311,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/**
 		 * POST helper against the decidesk minutes API.
 		 *
@@ -323,6 +338,7 @@ export default {
 			}
 			return data
 		},
+
 		/**
 		 * Run a workflow action (reject opens the comment dialog instead).
 		 *
@@ -353,6 +369,7 @@ export default {
 				this.working = false
 			}
 		},
+
 		/**
 		 * Reject the minutes back to draft with the mandatory comment.
 		 *
@@ -372,6 +389,7 @@ export default {
 				this.working = false
 			}
 		},
+
 		/**
 		 * Submit a correction suggestion (author attributed server-side).
 		 *
@@ -391,6 +409,7 @@ export default {
 				this.working = false
 			}
 		},
+
 		/**
 		 * Accept or reject a correction suggestion (chair/secretary only).
 		 *

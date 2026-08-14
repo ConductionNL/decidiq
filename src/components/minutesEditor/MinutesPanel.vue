@@ -111,28 +111,26 @@
 					fired while the panel looked entirely healthy.
 				-->
 				<NcTextArea
-					:model-value="noteFor(item.id).notes"
+					:modelValue="noteFor(item.id).notes"
 					:label="t('decidesk', 'Discussion notes')"
 					:placeholder="t('decidesk', 'What was discussed…')"
 					:disabled="!editable"
 					resize="vertical"
-					@update:model-value="onNoteInput(item.id, 'notes', $event)" />
+					@update:modelValue="onNoteInput(item.id, 'notes', $event)" />
 				<NcTextArea
-					:model-value="noteFor(item.id).decisions"
+					:modelValue="noteFor(item.id).decisions"
 					:label="t('decidesk', 'Decisions')"
 					:placeholder="t('decidesk', 'Decisions taken on this item…')"
 					:disabled="!editable"
 					resize="vertical"
-					@update:model-value="
-						onNoteInput(item.id, 'decisions', $event)
-					" />
+					@update:modelValue="onNoteInput(item.id, 'decisions', $event)" />
 			</div>
 		</template>
 
 		<ActionItemCaptureModal
 			v-if="actionItemTarget"
-			:meeting-id="meetingId"
-			:agenda-item="actionItemTarget"
+			:meetingId="meetingId"
+			:agendaItem="actionItemTarget"
 			:participants="participants"
 			@close="actionItemTarget = null" />
 	</section>
@@ -152,6 +150,7 @@ export default {
 		agendaItems: { type: Array, default: () => [] },
 		participants: { type: Array, default: () => [] },
 	},
+
 	data() {
 		return {
 			loading: true,
@@ -164,6 +163,7 @@ export default {
 			autosaver: null,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		sortedItems() {
@@ -171,10 +171,12 @@ export default {
 				(a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0),
 			)
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		editable() {
 			return (this.minutes?.lifecycle || 'draft') === 'draft'
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		saveStateLabel() {
 			switch (this.saveState) {
@@ -193,6 +195,7 @@ export default {
 			}
 		},
 	},
+
 	/** @spec exclude lifecycle wiring; builds the autosaver and triggers the initial fetch only */
 	created() {
 		this.autosaver = createAutosaver({
@@ -203,10 +206,12 @@ export default {
 		})
 		this.fetchMinutes()
 	},
+
 	/** @spec exclude lifecycle teardown; flushes the pending autosave so no live notes are lost */
 	beforeUnmount() {
 		this.autosaver?.flush()
 	},
+
 	methods: {
 		/**
 		 * Locate the draft Minutes record linked to this meeting.
@@ -235,6 +240,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/**
 		 * Create the draft Minutes record pre-linked to the meeting.
 		 *
@@ -261,6 +267,7 @@ export default {
 				this.creating = false
 			}
 		},
+
 		/**
 		 * Read the buffered note entry for an agenda item.
 		 *
@@ -271,6 +278,7 @@ export default {
 		noteFor(agendaItemId) {
 			return getItemNote(this.itemNotes, agendaItemId)
 		},
+
 		/**
 		 * Buffer an edit and schedule the debounced autosave.
 		 *
@@ -286,6 +294,7 @@ export default {
 			})
 			this.autosaver.schedule(this.itemNotes)
 		},
+
 		/**
 		 * Persist the buffered itemNotes onto the draft Minutes object.
 		 *

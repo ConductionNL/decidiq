@@ -44,15 +44,15 @@
 			:columns="columns"
 			:rows="rows"
 			:loading="loading"
-			row-key="id"
-			:empty-text="t('decidesk', 'No amendments for this motion yet.')"
-			:loading-text="t('decidesk', 'Loading amendments…')"
-			@row-click="openEdit">
+			rowKey="id"
+			:emptyText="t('decidesk', 'No amendments for this motion yet.')"
+			:loadingText="t('decidesk', 'Loading amendments…')"
+			@rowClick="openEdit">
 			<template #column-lifecycle="{ value }">
 				<CnStatusBadge
 					v-if="value"
 					:label="value"
-					:color-map="lifecycleColors" />
+					:colorMap="lifecycleColors" />
 			</template>
 			<template #row-actions="{ row }">
 				<CnRowActions :row="row" :actions="rowActions" />
@@ -64,12 +64,12 @@
 			ref="formDialog"
 			:schema="amendmentSchema"
 			:item="editTarget"
-			:dialog-title="
+			:dialogTitle="
 				editTarget
 					? t('decidesk', 'Edit amendment')
 					: t('decidesk', 'Submit amendment')
 			"
-			:exclude-fields="excludedFields"
+			:excludeFields="excludedFields"
 			@confirm="onConfirm"
 			@close="formOpen = false" />
 
@@ -77,8 +77,8 @@
 			v-if="deleteTarget"
 			ref="deleteDialog"
 			:item="deleteTarget"
-			name-field="title"
-			:dialog-title="t('decidesk', 'Delete amendment')"
+			nameField="title"
+			:dialogTitle="t('decidesk', 'Delete amendment')"
 			@confirm="confirmDelete"
 			@close="deleteTarget = null" />
 	</div>
@@ -94,11 +94,11 @@ import {
 	CnStatusBadge,
 } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
-import Plus from 'vue-material-design-icons/Plus.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
+import Plus from 'vue-material-design-icons/Plus.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
-import { ensureRelationType } from './useRelationStore.js'
 import { DECISION_LIFECYCLE_COLORS } from '../../constants/decisionLifecycle.js'
+import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'MotionAmendmentsTab',
@@ -112,9 +112,11 @@ export default {
 		NcButton,
 		Plus,
 	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -126,6 +128,7 @@ export default {
 			deleteTarget: null,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		columns() {
@@ -135,10 +138,12 @@ export default {
 				{ key: 'lifecycle', label: this.t('decidesk', 'Status') },
 			]
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		lifecycleColors() {
 			return DECISION_LIFECYCLE_COLORS
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		rowActions() {
 			return [
@@ -157,11 +162,13 @@ export default {
 				},
 			]
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		excludedFields() {
 			return ['id', 'uuid', 'parentMotion', 'created', 'updated']
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -171,6 +178,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async refresh() {
@@ -194,6 +202,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async openCreate() {
 			const store = ensureRelationType('amendment')
@@ -202,7 +211,11 @@ export default {
 			this.editTarget = null
 			this.formOpen = true
 		},
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+
+		/**
+		 * @param row
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		async openEdit(row) {
 			const store = ensureRelationType('amendment')
 			if (!this.amendmentSchema)
@@ -210,7 +223,11 @@ export default {
 			this.editTarget = { ...row }
 			this.formOpen = true
 		},
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+
+		/**
+		 * @param formData
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		async onConfirm(formData) {
 			const store = ensureRelationType('amendment')
 			try {
@@ -227,6 +244,7 @@ export default {
 				})
 			}
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async confirmDelete() {
 			const store = ensureRelationType('amendment')

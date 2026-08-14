@@ -27,8 +27,8 @@
 // @spec openspec/specs/decidesk-store-migration/spec.md
 // @spec openspec/specs/decidesk-store-migration/spec.md
 
-import { generateUrl } from '@nextcloud/router'
 import { createObjectStore, liveUpdatesPlugin } from '@conduction/nextcloud-vue'
+import { generateUrl } from '@nextcloud/router'
 import { useSettingsStore } from './modules/settings.js'
 
 /**

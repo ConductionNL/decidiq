@@ -23,9 +23,42 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  */
 
-import LiveMeetingView from './views/LiveMeeting.vue'
-import MotionIntegrations from './views/MotionIntegrations.vue'
-
+import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
+import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
+import AgendaPublicationTab from './components/tabs/AgendaPublicationTab.vue'
+import AmendmentDiffTab from './components/tabs/AmendmentDiffTab.vue'
+import AmendmentParentMotionTab from './components/tabs/AmendmentParentMotionTab.vue'
+import ConsultationReactionsTab from './components/tabs/ConsultationReactionsTab.vue'
+import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue'
+import DecisionLifecycleTab from './components/tabs/DecisionLifecycleTab.vue'
+// Public-publication tabs (publish-decisions-via-opencatalogi): publish /
+// withdraw / rectify actions on the decision, meeting (agenda), and minutes
+// detail views. Three thin wrappers around the shared PublicationActionsTab.
+import DecisionPublicationTab from './components/tabs/DecisionPublicationTab.vue'
+import DecisionRouteTab from './components/tabs/DecisionRouteTab.vue'
+import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
+import GovernanceBodyEfficiencyTab from './components/tabs/GovernanceBodyEfficiencyTab.vue'
+import GovernanceBodyEvaluationsTab from './components/tabs/GovernanceBodyEvaluationsTab.vue'
+import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
+import GovernanceBodyRetentionTab from './components/tabs/GovernanceBodyRetentionTab.vue'
+import GovernanceBodyTemplateTab from './components/tabs/GovernanceBodyTemplateTab.vue'
+import MeetingAgendaTab from './components/tabs/MeetingAgendaTab.vue'
+import MeetingDecisionsTab from './components/tabs/MeetingDecisionsTab.vue'
+import MeetingMinutesTab from './components/tabs/MeetingMinutesTab.vue'
+import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue'
+import MeetingSeriesTab from './components/tabs/MeetingSeriesTab.vue'
+import MeetingTranscriptionTab from './components/tabs/MeetingTranscriptionTab.vue'
+import MeetingVotesTab from './components/tabs/MeetingVotesTab.vue'
+import MinutesApprovalTab from './components/tabs/MinutesApprovalTab.vue'
+import MinutesDocumentTab from './components/tabs/MinutesDocumentTab.vue'
+import MinutesPublicationTab from './components/tabs/MinutesPublicationTab.vue'
+import MinutesSignersTab from './components/tabs/MinutesSignersTab.vue'
+import MotionAmendmentOrderTab from './components/tabs/MotionAmendmentOrderTab.vue'
+import MotionAmendmentsTab from './components/tabs/MotionAmendmentsTab.vue'
+import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
+import MotionVotingRoundTab from './components/tabs/MotionVotingRoundTab.vue'
+import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
+import ActiveDecisionsKpiWidget from './views/dashboard/widgets/ActiveDecisionsKpiWidget.vue'
 // Dashboard v2 widgets (decidesk-dashboard-v2-widgets). Bespoke CnDashboardPage
 // slot components registered under kind: "widget".
 //
@@ -39,68 +72,30 @@ import MotionIntegrations from './views/MotionIntegrations.vue'
 // anywhere said so. All twelve are registered below; manifest.json now carries
 // the matching `slots` entries.
 import CreateMeetingAction from './views/dashboard/widgets/CreateMeetingAction.vue'
-import StartProcessAction from './views/dashboard/widgets/StartProcessAction.vue'
+import DashboardEmptyState from './views/dashboard/widgets/DashboardEmptyState.vue'
 import DashboardQuickActions from './views/dashboard/widgets/DashboardQuickActions.vue'
+import GovernanceHealthWidget from './views/dashboard/widgets/GovernanceHealthWidget.vue'
+import MyActionItemsWidget from './views/dashboard/widgets/MyActionItemsWidget.vue'
+import OverdueActionsKpiWidget from './views/dashboard/widgets/OverdueActionsKpiWidget.vue'
 import PendingVotesKpiWidget from './views/dashboard/widgets/PendingVotesKpiWidget.vue'
 import PendingVotesListWidget from './views/dashboard/widgets/PendingVotesListWidget.vue'
-import RunningProcessesWidget from './views/dashboard/widgets/RunningProcessesWidget.vue'
-import MyActionItemsWidget from './views/dashboard/widgets/MyActionItemsWidget.vue'
-import DashboardEmptyState from './views/dashboard/widgets/DashboardEmptyState.vue'
-import ActiveDecisionsKpiWidget from './views/dashboard/widgets/ActiveDecisionsKpiWidget.vue'
-import UpcomingMeetingsKpiWidget from './views/dashboard/widgets/UpcomingMeetingsKpiWidget.vue'
-import OverdueActionsKpiWidget from './views/dashboard/widgets/OverdueActionsKpiWidget.vue'
-import UpcomingMeetingsListWidget from './views/dashboard/widgets/UpcomingMeetingsListWidget.vue'
 import RecentDecisionsWidget from './views/dashboard/widgets/RecentDecisionsWidget.vue'
-import GovernanceHealthWidget from './views/dashboard/widgets/GovernanceHealthWidget.vue'
-
-import ConsultationReactionsTab from './components/tabs/ConsultationReactionsTab.vue'
-import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
-import GovernanceBodyTemplateTab from './components/tabs/GovernanceBodyTemplateTab.vue'
-import GovernanceBodyEfficiencyTab from './components/tabs/GovernanceBodyEfficiencyTab.vue'
-import GovernanceBodyEvaluationsTab from './components/tabs/GovernanceBodyEvaluationsTab.vue'
-import MeetingAgendaTab from './components/tabs/MeetingAgendaTab.vue'
-import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue'
-import MeetingSeriesTab from './components/tabs/MeetingSeriesTab.vue'
-import MeetingMinutesTab from './components/tabs/MeetingMinutesTab.vue'
-import MeetingTranscriptionTab from './components/tabs/MeetingTranscriptionTab.vue'
-import GovernanceBodyRetentionTab from './components/tabs/GovernanceBodyRetentionTab.vue'
-import MeetingDecisionsTab from './components/tabs/MeetingDecisionsTab.vue'
-import MeetingVotesTab from './components/tabs/MeetingVotesTab.vue'
-import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
-import MotionAmendmentsTab from './components/tabs/MotionAmendmentsTab.vue'
-import MotionAmendmentOrderTab from './components/tabs/MotionAmendmentOrderTab.vue'
-import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
-import MotionVotingRoundTab from './components/tabs/MotionVotingRoundTab.vue'
-import AmendmentParentMotionTab from './components/tabs/AmendmentParentMotionTab.vue'
-import AmendmentDiffTab from './components/tabs/AmendmentDiffTab.vue'
-import MinutesSignersTab from './components/tabs/MinutesSignersTab.vue'
-import MinutesApprovalTab from './components/tabs/MinutesApprovalTab.vue'
-import MinutesDocumentTab from './components/tabs/MinutesDocumentTab.vue'
-import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue'
-import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
-import DecisionLifecycleTab from './components/tabs/DecisionLifecycleTab.vue'
-import DecisionRouteTab from './components/tabs/DecisionRouteTab.vue'
-import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
-import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
-
-// Public-publication tabs (publish-decisions-via-opencatalogi): publish /
-// withdraw / rectify actions on the decision, meeting (agenda), and minutes
-// detail views. Three thin wrappers around the shared PublicationActionsTab.
-import DecisionPublicationTab from './components/tabs/DecisionPublicationTab.vue'
-import AgendaPublicationTab from './components/tabs/AgendaPublicationTab.vue'
-import MinutesPublicationTab from './components/tabs/MinutesPublicationTab.vue'
-
-// User settings (user-settings-v1): in-app mount of the personal settings
-// sections (notification / display / delegation / communication). The
-// canonical mount is the Nextcloud personal settings panel (ISettings).
-import UserSettingsPage from './views/settings/UserSettingsPage.vue'
-
+import RunningProcessesWidget from './views/dashboard/widgets/RunningProcessesWidget.vue'
+import StartProcessAction from './views/dashboard/widgets/StartProcessAction.vue'
+import UpcomingMeetingsKpiWidget from './views/dashboard/widgets/UpcomingMeetingsKpiWidget.vue'
+import UpcomingMeetingsListWidget from './views/dashboard/widgets/UpcomingMeetingsListWidget.vue'
+import LiveMeetingView from './views/LiveMeeting.vue'
+import MotionIntegrations from './views/MotionIntegrations.vue'
+import ModerationQueuePage from './views/participation/ModerationQueuePage.vue'
 // Citizen-participation pages (citizen-participation). The consultation/budget
 // list+detail pages are auto-rendered by CnPageRenderer from the manifest
 // schema config; these two are bespoke action surfaces (citizen + staff
 // participation, and the staff moderation queue).
 import ParticipationPage from './views/participation/ParticipationPage.vue'
-import ModerationQueuePage from './views/participation/ModerationQueuePage.vue'
+// User settings (user-settings-v1): in-app mount of the personal settings
+// sections (notification / display / delegation / communication). The
+// canonical mount is the Nextcloud personal settings panel (ISettings).
+import UserSettingsPage from './views/settings/UserSettingsPage.vue'
 
 /**
  * Wrap a Vue component into the v2 registry shape required by CnAppRoot's

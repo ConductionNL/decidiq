@@ -43,11 +43,9 @@
 			:columns="columns"
 			:rows="rows"
 			:loading="loading"
-			row-key="id"
-			:empty-text="
-				t('decidesk', 'No participants linked to this meeting yet.')
-			"
-			:loading-text="t('decidesk', 'Loading participants…')">
+			rowKey="id"
+			:emptyText="t('decidesk', 'No participants linked to this meeting yet.')"
+			:loadingText="t('decidesk', 'Loading participants…')">
 			<template #row-actions="{ row }">
 				<CnRowActions :row="row" :actions="rowActions" />
 			</template>
@@ -64,8 +62,8 @@
 			v-if="removeTarget"
 			ref="removeDialog"
 			:item="removeTarget"
-			name-field="displayName"
-			:dialog-title="t('decidesk', 'Remove from meeting')"
+			nameField="displayName"
+			:dialogTitle="t('decidesk', 'Remove from meeting')"
 			@confirm="confirmRemove"
 			@close="removeTarget = null" />
 	</div>
@@ -79,8 +77,8 @@ import {
 	CnRowActions,
 } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
-import Plus from 'vue-material-design-icons/Plus.vue'
 import LinkOff from 'vue-material-design-icons/LinkOff.vue'
+import Plus from 'vue-material-design-icons/Plus.vue'
 import MeetingParticipantAddDialog from '../../dialogs/MeetingParticipantAddDialog.vue'
 import { ensureRelationType } from './useRelationStore.js'
 
@@ -95,9 +93,11 @@ export default {
 		NcButton,
 		Plus,
 	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -109,6 +109,7 @@ export default {
 			removeTarget: null,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		columns() {
@@ -118,6 +119,7 @@ export default {
 				{ key: 'party', label: this.t('decidesk', 'Party') },
 			]
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		rowActions() {
 			return [
@@ -132,6 +134,7 @@ export default {
 			]
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -140,13 +143,22 @@ export default {
 				this.refresh()
 			},
 		},
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+
+		/**
+		 * @param open
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		addDialogOpen(open) {
 			if (open) this.loadCandidates()
 		},
 	},
+
 	methods: {
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+		/**
+		 * @param participant
+		 * @param meetingId
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		hasMeeting(participant, meetingId) {
 			const list = participant?.meetings
 			if (!Array.isArray(list)) return false
@@ -154,6 +166,7 @@ export default {
 				(m) => (typeof m === 'object' ? m.id || m.uuid : m) === meetingId,
 			)
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async refresh() {
 			if (!this.objectId) return
@@ -179,6 +192,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async loadCandidates() {
 			this.loadingCandidates = true
@@ -196,7 +210,11 @@ export default {
 				this.loadingCandidates = false
 			}
 		},
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+
+		/**
+		 * @param participant
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		async linkParticipant(participant) {
 			const store = ensureRelationType('participant')
 			const meetings = Array.isArray(participant.meetings)
@@ -207,6 +225,7 @@ export default {
 			this.addDialogOpen = false
 			this.refresh()
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async confirmRemove() {
 			const store = ensureRelationType('participant')

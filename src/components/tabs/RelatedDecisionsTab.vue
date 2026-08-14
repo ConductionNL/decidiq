@@ -86,7 +86,7 @@
 						<CnStatusBadge
 							v-if="row.lifecycle"
 							:label="row.lifecycle"
-							:color-map="{}" />
+							:colorMap="{}" />
 						<NcButton
 							variant="tertiary"
 							:aria-label="t('decidesk', 'Remove relation')"
@@ -123,7 +123,7 @@
 						<CnStatusBadge
 							v-if="row.lifecycle"
 							:label="row.lifecycle"
-							:color-map="{}" />
+							:colorMap="{}" />
 					</li>
 				</ul>
 			</section>
@@ -132,8 +132,8 @@
 		<RelatedDecisionAddModal
 			v-if="addOpen"
 			ref="addModal"
-			:type-options="typeOptions"
-			:search-fn="searchDecisions"
+			:typeOptions="typeOptions"
+			:searchFn="searchDecisions"
 			@confirm="onAddConfirm"
 			@close="addOpen = false" />
 
@@ -141,8 +141,8 @@
 			v-if="removeTarget"
 			ref="removeDialog"
 			:item="removeTarget.row"
-			name-field="title"
-			:dialog-title="t('decidesk', 'Remove relation')"
+			nameField="title"
+			:dialogTitle="t('decidesk', 'Remove relation')"
 			@confirm="confirmRemove"
 			@close="removeTarget = null" />
 	</div>
@@ -153,8 +153,8 @@ import { CnDeleteDialog, CnNoteCard, CnStatusBadge } from '@conduction/nextcloud
 import { NcButton } from '@nextcloud/vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
-import { ensureRelationType } from './useRelationStore.js'
 import RelatedDecisionAddModal from '../../modals/RelatedDecisionAddModal.vue'
+import { ensureRelationType } from './useRelationStore.js'
 
 // The five typed peer-relation fields on Decision (design D1). amends is the
 // existing relation (decision modifies decision); supersedes/repeals are
@@ -172,9 +172,11 @@ export default {
 		TrashCanOutline,
 		RelatedDecisionAddModal,
 	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -186,6 +188,7 @@ export default {
 			removeTarget: null,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		typeOptions() {
@@ -194,6 +197,7 @@ export default {
 				label: this.outgoingLabel(type),
 			}))
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		outgoingGroups() {
 			return RELATION_TYPES.map((type) => ({
@@ -202,6 +206,7 @@ export default {
 				rows: this.outgoing[type] || [],
 			}))
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		incomingGroups() {
 			return RELATION_TYPES.map((type) => ({
@@ -210,6 +215,7 @@ export default {
 				rows: this.incoming[type] || [],
 			}))
 		},
+
 		hasAnyRelation() {
 			return (
 				this.outgoingGroups.some((g) => g.rows.length)
@@ -217,6 +223,7 @@ export default {
 			)
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -226,6 +233,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		outgoingLabel(type) {
 			const labels = {
@@ -237,6 +245,7 @@ export default {
 			}
 			return labels[type] || type
 		},
+
 		incomingLabel(type) {
 			const labels = {
 				supersedes: this.t('decidesk', 'Superseded by'),
@@ -247,10 +256,12 @@ export default {
 			}
 			return labels[type] || type
 		},
+
 		refId(ref) {
 			if (!ref) return ''
 			return typeof ref === 'object' ? ref.id || ref.uuid || '' : ref
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async refresh() {
 			// Empty parent short-circuits without fetching (REQ-RTU-002).
@@ -297,7 +308,11 @@ export default {
 				this.loading = false
 			}
 		},
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+
+		/**
+		 * @param query
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		async searchDecisions(query) {
 			const store = ensureRelationType('decision')
 			const params = { _limit: 25 }
@@ -308,11 +323,18 @@ export default {
 			// Exclude self so the obvious self-reference cannot be picked.
 			return (results || []).filter((d) => (d.id || d.uuid) !== selfId)
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		openAdd() {
 			this.addOpen = true
 		},
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+
+		/**
+		 * @param root0
+		 * @param root0.type
+		 * @param root0.target
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		async onAddConfirm({ type, target }) {
 			const targetId = this.refId(target)
 			if (!targetId || !type) {
@@ -350,10 +372,16 @@ export default {
 				)
 			}
 		},
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+
+		/**
+		 * @param type
+		 * @param row
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		askRemove(type, row) {
 			this.removeTarget = { type, row }
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async confirmRemove() {
 			const { type, row } = this.removeTarget
@@ -378,7 +406,11 @@ export default {
 				})
 			}
 		},
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+
+		/**
+		 * @param row
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		openDecision(row) {
 			const id = row.id || row.uuid
 			if (!id) return

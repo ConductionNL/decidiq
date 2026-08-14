@@ -127,10 +127,10 @@
 
 <script>
 import { CnNoteCard } from '@conduction/nextcloud-vue'
-import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
-import PublicationWithdrawModal from '../../modals/PublicationWithdrawModal.vue'
+import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import PublicationRectifyModal from '../../modals/PublicationRectifyModal.vue'
+import PublicationWithdrawModal from '../../modals/PublicationWithdrawModal.vue'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -142,6 +142,7 @@ export default {
 		PublicationWithdrawModal,
 		PublicationRectifyModal,
 	},
+
 	inject: {
 		/**
 		 * CnDetailPage's reactive `{ objectId, object, register, schema }`
@@ -158,11 +159,13 @@ export default {
 		 */
 		cnObjectContext: { default: null },
 	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 		// The publication source type — set by the per-schema wrapper tab.
 		sourceType: { type: String, default: 'decision' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -175,6 +178,7 @@ export default {
 			rectifyModalOpen: false,
 		}
 	},
+
 	computed: {
 		/**
 		 * The object this tab acts on: the explicit `objectId` prop when the tab
@@ -198,20 +202,24 @@ export default {
 					: context
 			return value && value.objectId ? String(value.objectId) : ''
 		},
+
 		/** @spec openspec/specs/public-publication/spec.md */
 		records_sorted() {
 			return [...this.records].sort(
 				(a, b) => (b.payloadVersion || 0) - (a.payloadVersion || 0),
 			)
 		},
+
 		/** @spec openspec/specs/public-publication/spec.md */
 		activeRecord() {
 			return this.records_sorted.find((r) => r.status === 'published') || null
 		},
+
 		/** @spec openspec/specs/public-publication/spec.md */
 		history() {
 			return this.records_sorted
 		},
+
 		/**
 		 * Client-side eligibility mirror of the server gates — controls whether
 		 * the Publish action is offered. The server remains authoritative.
@@ -240,6 +248,7 @@ export default {
 			return false
 		},
 	},
+
 	watch: {
 		sourceObjectId: {
 			immediate: true,
@@ -249,6 +258,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		/**
 		 * Translated status label.
@@ -265,6 +275,7 @@ export default {
 			}
 			return labels[status] || status
 		},
+
 		/**
 		 * Translated label for a publication warning code.
 		 *
@@ -278,14 +289,17 @@ export default {
 					'decidesk',
 					'OpenCatalogi is not installed — the record received the public predicate but was not routed to a catalog.',
 				),
+
 				'catalog-publish-failed': this.t(
 					'decidesk',
 					'Publishing to the OpenCatalogi catalog failed.',
 				),
+
 				'catalog-retraction-failed': this.t(
 					'decidesk',
 					'Retraction from the OpenCatalogi catalog failed and is pending retry — the record is no longer publicly readable but the catalog still lists it.',
 				),
+
 				'predicate-unavailable': this.t(
 					'decidesk',
 					'The published predicate could not be set on this OpenRegister version — anonymous read is not yet available.',
@@ -293,6 +307,7 @@ export default {
 			}
 			return labels[code] || code
 		},
+
 		/** @spec openspec/specs/public-publication/spec.md */
 		async refresh() {
 			if (!this.sourceObjectId) return
@@ -319,6 +334,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/**
 		 * Map the publication source type to the OR schema relation type.
 		 *
@@ -328,6 +344,7 @@ export default {
 		sourceSchemaType() {
 			return this.sourceType === 'agenda' ? 'meeting' : this.sourceType
 		},
+
 		/**
 		 * POST helper against the decidesk publication API.
 		 *
@@ -353,6 +370,7 @@ export default {
 			}
 			return data
 		},
+
 		/** @spec openspec/specs/public-publication/spec.md */
 		async publish() {
 			this.working = true
@@ -371,6 +389,7 @@ export default {
 				this.working = false
 			}
 		},
+
 		/**
 		 * Withdraw the active publication with a mandatory reason.
 		 *
@@ -396,6 +415,7 @@ export default {
 				this.working = false
 			}
 		},
+
 		/**
 		 * Rectify the active publication (publish a corrected version).
 		 *

@@ -31,7 +31,7 @@
 				required />
 			<NcSelect
 				v-model="itemType"
-				:input-label="t('decidesk', 'Type')"
+				:inputLabel="t('decidesk', 'Type')"
 				:options="typeOptions"
 				:clearable="false" />
 			<NcTextField

@@ -72,14 +72,14 @@
 				<div class="form-group">
 					<NcSelect
 						v-model="form.organisation_timezone"
-						:input-label="t('decidesk', 'Timezone')"
+						:inputLabel="t('decidesk', 'Timezone')"
 						:options="timezoneOptions"
 						data-testid="organisation-timezone" />
 				</div>
 				<div class="form-group">
 					<NcSelect
 						v-model="form.organisation_locale"
-						:input-label="t('decidesk', 'Default language')"
+						:inputLabel="t('decidesk', 'Default language')"
 						:options="localeOptions"
 						label="label"
 						data-testid="organisation-locale" />
@@ -87,7 +87,7 @@
 				<div class="form-group">
 					<NcSelect
 						v-model="form.organisation_currency"
-						:input-label="t('decidesk', 'Currency')"
+						:inputLabel="t('decidesk', 'Currency')"
 						:options="currencyOptions"
 						data-testid="organisation-currency" />
 				</div>
@@ -150,9 +150,9 @@
 					<NcSelect
 						v-model="form.organisatie_modus"
 						:options="organisationModeOptions"
-						:input-label="t('decidesk', 'Organisation mode')"
+						:inputLabel="t('decidesk', 'Organisation mode')"
 						label="label"
-						track-by="id"
+						trackBy="id"
 						data-testid="organisation-mode" />
 				</div>
 
@@ -236,9 +236,9 @@
 					<NcSelect
 						v-model="form.participation_default_moderation_policy"
 						:options="moderationPolicyOptions"
-						:input-label="t('decidesk', 'Default moderation policy')"
+						:inputLabel="t('decidesk', 'Default moderation policy')"
 						label="label"
-						track-by="id"
+						trackBy="id"
 						data-testid="participation-moderation-policy" />
 				</div>
 				<div class="form-group">
@@ -283,10 +283,10 @@
 </template>
 
 <script>
-import { NcButton, NcSelect } from '@nextcloud/vue'
 import { CnSettingsSection } from '@conduction/nextcloud-vue'
-import { useSettingsStore } from '../../store/modules/settings.js'
+import { NcButton, NcSelect } from '@nextcloud/vue'
 import ProcessTemplates from '../../components/processTemplates/ProcessTemplates.vue'
+import { useSettingsStore } from '../../store/modules/settings.js'
 
 export default {
 	name: 'Settings',
@@ -296,6 +296,7 @@ export default {
 		CnSettingsSection,
 		ProcessTemplates,
 	},
+
 	data() {
 		return {
 			form: {
@@ -313,6 +314,7 @@ export default {
 				participation_catalog: '',
 				participation_anon_rate_limit: '',
 			},
+
 			saving: false,
 			savingOrganisationMode: false,
 			savingOri: false,
@@ -322,6 +324,7 @@ export default {
 			organisationMessage: '',
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		timezoneOptions() {
@@ -337,6 +340,7 @@ export default {
 				'UTC',
 			]
 		},
+
 		/** @spec openspec/specs/admin-settings/spec.md */
 		localeOptions() {
 			return [
@@ -344,10 +348,12 @@ export default {
 				{ id: 'en', label: this.t('decidesk', 'English') },
 			]
 		},
+
 		/** @spec openspec/specs/admin-settings/spec.md */
 		currencyOptions() {
 			return ['EUR', 'USD', 'GBP', 'CHF']
 		},
+
 		/**
 		 * The five organisatie_modus values, matching MODE_LABELS in
 		 * src/config/modeLabels.js and the `organisatie_modus` whitelist entry in
@@ -368,6 +374,7 @@ export default {
 				},
 			]
 		},
+
 		/** @spec openspec/specs/citizen-participation/spec.md */
 		moderationPolicyOptions() {
 			return [
@@ -388,6 +395,7 @@ export default {
 			]
 		},
 	},
+
 	/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10 */
 	created() {
 		const settingsStore = useSettingsStore()
@@ -421,6 +429,7 @@ export default {
 		this.form.participation_anon_rate_limit =
 			settings.participation_anon_rate_limit || ''
 	},
+
 	methods: {
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10 */
 		async save() {
@@ -438,6 +447,7 @@ export default {
 			}
 			this.saving = false
 		},
+
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async saveOrganisation() {
 			this.savingOrganisation = true
@@ -461,6 +471,7 @@ export default {
 			}
 			this.savingOrganisation = false
 		},
+
 		/** @spec openspec/specs/citizen-participation/spec.md */
 		async saveParticipation() {
 			this.savingParticipation = true
@@ -476,6 +487,7 @@ export default {
 			})
 			this.savingParticipation = false
 		},
+
 		/** @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting */
 		async saveOrganisationMode() {
 			this.savingOrganisationMode = true
@@ -485,6 +497,7 @@ export default {
 			})
 			this.savingOrganisationMode = false
 		},
+
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 */
 		async saveOri() {
 			this.savingOri = true
@@ -494,6 +507,7 @@ export default {
 			})
 			this.savingOri = false
 		},
+
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2 */
 		async saveEmailVoting() {
 			const settingsStore = useSettingsStore()

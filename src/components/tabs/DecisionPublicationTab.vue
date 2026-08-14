@@ -8,7 +8,7 @@
  @spec openspec/specs/public-publication/spec.md
 -->
 <template>
-	<PublicationActionsTab :object-id="objectId" source-type="decision" />
+	<PublicationActionsTab :objectId="objectId" sourceType="decision" />
 </template>
 
 <script>

@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
 
-import { createApp } from 'vue'
 import {
-	translate as t,
-	translatePlural as n,
 	loadTranslations,
+	translatePlural as n,
+	translate as t,
 } from '@nextcloud/l10n'
-import pinia from './pinia.js'
+import { createApp } from 'vue'
 import AdminRoot from './views/settings/AdminRoot.vue'
+import pinia from './pinia.js'
 
 loadTranslations('decidesk', () => {
 	const app = createApp(AdminRoot)

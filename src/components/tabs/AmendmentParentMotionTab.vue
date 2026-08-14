@@ -78,6 +78,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -86,6 +87,7 @@ export default {
 			motion: null,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		parentMotionId() {
@@ -95,6 +97,7 @@ export default {
 			if (typeof ref === 'object') return ref.id || ref.uuid || ''
 			return ref
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		propertyItems() {
 			if (!this.motion) return []
@@ -116,6 +119,7 @@ export default {
 			]
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -125,6 +129,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async refresh() {
@@ -152,6 +157,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		openParent() {
 			if (!this.parentMotionId) return

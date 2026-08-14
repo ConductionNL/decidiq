@@ -62,13 +62,13 @@
 				disabled forever.
 			-->
 			<NcSelect
-				input-id="transcription-source-select"
+				inputId="transcription-source-select"
 				data-testid="transcription-source-select"
-				:input-label="t('decidesk', 'Recording source')"
+				:inputLabel="t('decidesk', 'Recording source')"
 				:options="sourceOptions"
-				:model-value="selectedSource"
+				:modelValue="selectedSource"
 				label="label"
-				@update:model-value="onSelectSource" />
+				@update:modelValue="onSelectSource" />
 			<p
 				v-if="loaded && sourceOptions.length === 0"
 				class="decidesk-transcription__hint">
@@ -93,7 +93,7 @@
 			v-if="transcript"
 			class="decidesk-transcription__status"
 			data-testid="transcription-status">
-			<CnStatusBadge :label="statusLabel" :color-map="statusColors" />
+			<CnStatusBadge :label="statusLabel" :colorMap="statusColors" />
 			<p
 				v-if="transcript.status === 'failed' && transcript.failureReason"
 				class="decidesk-transcription__hint">
@@ -199,7 +199,7 @@
 					v-model="section.summary"
 					:label="t('decidesk', 'Section summary')"
 					resize="vertical"
-					@update:model-value="markEdited(section)" />
+					@update:modelValue="markEdited(section)" />
 				<p v-else class="decidesk-transcription__hint">
 					{{
 						t(
@@ -241,7 +241,7 @@
 					class="decidesk-transcription__section-actions">
 					<NcButton
 						variant="tertiary"
-						:data-testid="'draft-section-discard'"
+						data-testid="draft-section-discard"
 						@click="discardSection(section)">
 						{{ t('decidesk', 'Discard section') }}
 					</NcButton>
@@ -258,8 +258,8 @@
 
 <script>
 import { CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
-import { NcButton, NcSelect, NcTextArea } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
+import { NcButton, NcSelect, NcTextArea } from '@nextcloud/vue'
 import TranscriptionConsentModal from '../../modals/TranscriptionConsentModal.vue'
 import { ensureRelationType } from './useRelationStore.js'
 
@@ -273,6 +273,7 @@ export default {
 		NcTextArea,
 		TranscriptionConsentModal,
 	},
+
 	inject: {
 		/**
 		 * CnDetailPage's reactive `{ objectId, object, register, schema }`
@@ -289,9 +290,11 @@ export default {
 		 */
 		cnObjectContext: { default: null },
 	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loaded: false,
@@ -307,6 +310,7 @@ export default {
 			consentOpen: false,
 		}
 	},
+
 	computed: {
 		/**
 		 * The meeting this panel acts on: the explicit `objectId` prop when
@@ -330,6 +334,7 @@ export default {
 					: context
 			return value && value.objectId ? String(value.objectId) : ''
 		},
+
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		statusColors() {
 			return {
@@ -339,6 +344,7 @@ export default {
 				failed: 'error',
 			}
 		},
+
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		statusLabel() {
 			const map = {
@@ -349,6 +355,7 @@ export default {
 			}
 			return map[this.transcript?.status] || this.transcript?.status || ''
 		},
+
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		canTranscribe() {
 			return (
@@ -357,6 +364,7 @@ export default {
 				&& ['pending', 'failed'].includes(this.transcript.status)
 			)
 		},
+
 		/**
 		 * Segments grouped per agenda item, with an unassigned group last.
 		 *
@@ -393,6 +401,7 @@ export default {
 				.map((k) => groups[k])
 		},
 	},
+
 	watch: {
 		resolvedObjectId: {
 			immediate: true,
@@ -401,6 +410,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async refresh() {
@@ -428,6 +438,7 @@ export default {
 				this.loaded = true
 			}
 		},
+
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async loadExistingTranscript() {
 			try {
@@ -441,6 +452,7 @@ export default {
 				this.transcript = null
 			}
 		},
+
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async loadAgendaTitles() {
 			try {
@@ -458,6 +470,7 @@ export default {
 				this.agendaTitles = {}
 			}
 		},
+
 		/**
 		 * Set the selected recording source.
 		 *
@@ -467,11 +480,13 @@ export default {
 		onSelectSource(value) {
 			this.selectedSource = value
 		},
+
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		openConsent() {
 			if (!this.selectedSource) return
 			this.consentOpen = true
 		},
+
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async attachWithConsent() {
 			this.consentOpen = false
@@ -495,6 +510,7 @@ export default {
 				this.working = false
 			}
 		},
+
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async transcribe() {
 			if (!this.transcript) return
@@ -511,6 +527,7 @@ export default {
 				this.working = false
 			}
 		},
+
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async realign() {
 			if (!this.transcript) return
@@ -528,6 +545,7 @@ export default {
 				this.working = false
 			}
 		},
+
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async generateDraft() {
 			if (!this.transcript) return
@@ -552,6 +570,7 @@ export default {
 				this.working = false
 			}
 		},
+
 		/**
 		 * Discard a generated section (removes its AI content + marker).
 		 *
@@ -561,6 +580,7 @@ export default {
 		discardSection(section) {
 			section.discarded = true
 		},
+
 		/**
 		 * Mark a generated section as edited by the secretary.
 		 *
@@ -570,10 +590,12 @@ export default {
 		markEdited(section) {
 			section.edited = true
 		},
+
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		transcriptId() {
 			return this.transcript && (this.transcript.id || this.transcript.uuid)
 		},
+
 		/**
 		 * Call the decidesk transcription API.
 		 *

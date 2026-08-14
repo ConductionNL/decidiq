@@ -14,14 +14,14 @@
 -->
 <template>
 	<div class="action-items-surface" data-testid="action-items-surface">
-		<ActionItemDeckBoard v-if="deckAvailable" :object-id="objectId" />
-		<DecisionActionItemsTab v-else :object-id="objectId" />
+		<ActionItemDeckBoard v-if="deckAvailable" :objectId="objectId" />
+		<DecisionActionItemsTab v-else :objectId="objectId" />
 	</div>
 </template>
 
 <script>
-import DecisionActionItemsTab from './DecisionActionItemsTab.vue'
 import ActionItemDeckBoard from './ActionItemDeckBoard.vue'
+import DecisionActionItemsTab from './DecisionActionItemsTab.vue'
 import { isDeckAvailable } from '../../services/deckProjection.js'
 
 export default {
@@ -30,6 +30,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			// Default to the table until the capability probe resolves, so a
@@ -37,6 +38,7 @@ export default {
 			deckAvailable: false,
 		}
 	},
+
 	async created() {
 		try {
 			this.deckAvailable = await isDeckAvailable()

@@ -50,14 +50,14 @@
 			:columns="columns"
 			:rows="rounds"
 			:loading="loading"
-			row-key="id"
-			:empty-text="t('decidesk', 'No voting recorded for this meeting.')"
-			@row-click="openMotion">
+			rowKey="id"
+			:emptyText="t('decidesk', 'No voting recorded for this meeting.')"
+			@rowClick="openMotion">
 			<template #column-result="{ value }">
 				<CnStatusBadge
 					v-if="value"
 					:label="value"
-					:color-map="resultColors" />
+					:colorMap="resultColors" />
 			</template>
 		</CnDataTable>
 	</div>
@@ -73,6 +73,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -82,6 +83,7 @@ export default {
 			rounds: [],
 		}
 	},
+
 	computed: {
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting */
 		columns() {
@@ -95,11 +97,13 @@ export default {
 				{ key: 'timestamp', label: this.t('decidesk', 'When') },
 			]
 		},
+
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting */
 		resultColors() {
 			return { adopted: 'success', rejected: 'error', tied: 'warning' }
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -109,6 +113,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		// Read-only aggregate. Walks meeting → agenda-item → motion →
 		// voting-round (the chain AgendaMotionsTab/MotionVotesTab use);
@@ -179,6 +184,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/**
 		 * Deep-link to MotionDetail with the votes tab requested via query.
 		 *

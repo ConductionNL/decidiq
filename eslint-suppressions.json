@@ -1,0 +1,329 @@
+{
+  "src/components/AgendaBuilder.vue": {
+    "eqeqeq": {
+      "count": 1
+    },
+    "jsdoc/require-param-type": {
+      "count": 25
+    },
+    "no-console": {
+      "count": 10
+    },
+    "vue/custom-event-name-casing": {
+      "count": 7
+    }
+  },
+  "src/components/AmendmentDiffView.vue": {
+    "vue/no-useless-mustaches": {
+      "count": 1
+    }
+  },
+  "src/components/VotingRoundPanel.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 9
+    },
+    "jsdoc/require-param-type": {
+      "count": 1
+    }
+  },
+  "src/components/liveMeeting/AgendaItemTimer.vue": {
+    "jsdoc/require-param-type": {
+      "count": 2
+    },
+    "no-console": {
+      "count": 1
+    }
+  },
+  "src/components/liveMeeting/SpeakerQueuePanel.vue": {
+    "jsdoc/require-param-type": {
+      "count": 6
+    },
+    "no-console": {
+      "count": 1
+    },
+    "vue/custom-event-name-casing": {
+      "count": 1
+    }
+  },
+  "src/components/minutesEditor/minutesEditor.js": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/processTemplates/ProcessTemplates.vue": {
+    "jsdoc/require-param-type": {
+      "count": 3
+    }
+  },
+  "src/components/processTemplates/StateMachineEditor.vue": {
+    "jsdoc/require-param-type": {
+      "count": 4
+    }
+  },
+  "src/components/tabs/ActionItemDeckBoard.vue": {
+    "jsdoc/require-param-type": {
+      "count": 1
+    }
+  },
+  "src/components/tabs/ActionItemsSurface.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/tabs/AgendaMotionsTab.vue": {
+    "jsdoc/require-param-type": {
+      "count": 2
+    }
+  },
+  "src/components/tabs/ConsultationReactionsTab.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    }
+  },
+  "src/components/tabs/DecisionActionItemsTab.vue": {
+    "jsdoc/require-param-type": {
+      "count": 2
+    }
+  },
+  "src/components/tabs/DecisionLifecycleTab.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "jsdoc/require-param-type": {
+      "count": 3
+    }
+  },
+  "src/components/tabs/DecisionRouteTab.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "jsdoc/require-param-type": {
+      "count": 4
+    }
+  },
+  "src/components/tabs/DecisionVotingTab.vue": {
+    "eqeqeq": {
+      "count": 1
+    }
+  },
+  "src/components/tabs/GovernanceBodyEfficiencyTab.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "jsdoc/require-param-type": {
+      "count": 4
+    }
+  },
+  "src/components/tabs/GovernanceBodyRetentionTab.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/components/tabs/MeetingAgendaTab.vue": {
+    "jsdoc/require-param-type": {
+      "count": 2
+    },
+    "no-console": {
+      "count": 1
+    }
+  },
+  "src/components/tabs/MeetingParticipantsTab.vue": {
+    "jsdoc/require-param-type": {
+      "count": 4
+    }
+  },
+  "src/components/tabs/MeetingTranscriptionTab.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/components/tabs/MinutesSignersTab.vue": {
+    "jsdoc/require-param-type": {
+      "count": 3
+    }
+  },
+  "src/components/tabs/MotionAmendmentOrderTab.vue": {
+    "jsdoc/require-param-type": {
+      "count": 3
+    }
+  },
+  "src/components/tabs/MotionAmendmentsTab.vue": {
+    "jsdoc/require-param-type": {
+      "count": 2
+    }
+  },
+  "src/components/tabs/MotionVotesTab.vue": {
+    "eqeqeq": {
+      "count": 2
+    },
+    "jsdoc/require-param-type": {
+      "count": 2
+    }
+  },
+  "src/components/tabs/MotionVotingRoundTab.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/tabs/RelatedDecisionsTab.vue": {
+    "jsdoc/require-param-type": {
+      "count": 7
+    }
+  },
+  "src/components/userSettings/DisplayPreferencesSection.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/dialogs/MeetingParticipantAddDialog.vue": {
+    "jsdoc/require-param-type": {
+      "count": 1
+    }
+  },
+  "src/dialogs/MinutesSignerAddDialog.vue": {
+    "jsdoc/require-param-type": {
+      "count": 1
+    }
+  },
+  "src/dialogs/RecurringItemsDialog.vue": {
+    "jsdoc/require-param-type": {
+      "count": 1
+    }
+  },
+  "src/integrations/CnDecisionsTab.vue": {
+    "jsdoc/require-param-type": {
+      "count": 8
+    }
+  },
+  "src/integrations/CnDecisionsWidget.vue": {
+    "jsdoc/require-param-type": {
+      "count": 6
+    }
+  },
+  "src/main.js": {
+    "no-console": {
+      "count": 1
+    },
+    "no-undef": {
+      "count": 1
+    }
+  },
+  "src/modals/MemberAddDialog.vue": {
+    "jsdoc/require-param-type": {
+      "count": 2
+    }
+  },
+  "src/modals/ProcessTemplateEditModal.vue": {
+    "@nextcloud/l10n-enforce-ellipsis": {
+      "count": 1
+    },
+    "jsdoc/require-param-type": {
+      "count": 1
+    }
+  },
+  "src/modals/RelatedDecisionAddModal.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "jsdoc/require-param-type": {
+      "count": 1
+    }
+  },
+  "src/services/deckProjection.js": {
+    "no-unused-vars": {
+      "count": 3
+    }
+  },
+  "src/store/modules/settings.js": {
+    "no-console": {
+      "count": 2
+    }
+  },
+  "src/views/LiveMeeting.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "jsdoc/require-param-type": {
+      "count": 5
+    },
+    "no-console": {
+      "count": 8
+    }
+  },
+  "src/views/dashboard/widgets/ActiveDecisionsKpiWidget.vue": {
+    "no-console": {
+      "count": 1
+    }
+  },
+  "src/views/dashboard/widgets/GovernanceHealthWidget.vue": {
+    "no-console": {
+      "count": 1
+    }
+  },
+  "src/views/dashboard/widgets/MyActionItemsWidget.vue": {
+    "no-console": {
+      "count": 1
+    }
+  },
+  "src/views/dashboard/widgets/OverdueActionsKpiWidget.vue": {
+    "no-console": {
+      "count": 1
+    }
+  },
+  "src/views/dashboard/widgets/PendingVotesKpiWidget.vue": {
+    "no-console": {
+      "count": 1
+    }
+  },
+  "src/views/dashboard/widgets/PendingVotesListWidget.vue": {
+    "no-console": {
+      "count": 1
+    }
+  },
+  "src/views/dashboard/widgets/RecentDecisionsWidget.vue": {
+    "no-console": {
+      "count": 1
+    }
+  },
+  "src/views/dashboard/widgets/RunningProcessesWidget.vue": {
+    "no-console": {
+      "count": 1
+    }
+  },
+  "src/views/dashboard/widgets/UpcomingMeetingsKpiWidget.vue": {
+    "no-console": {
+      "count": 1
+    }
+  },
+  "src/views/dashboard/widgets/UpcomingMeetingsListWidget.vue": {
+    "no-console": {
+      "count": 1
+    }
+  },
+  "src/views/participation/ParticipationPage.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    },
+    "jsdoc/require-param-type": {
+      "count": 18
+    }
+  },
+  "src/views/settings/PersonalRoot.vue": {
+    "no-console": {
+      "count": 1
+    }
+  },
+  "src/views/settings/Settings.vue": {
+    "@nextcloud/l10n-enforce-ellipsis": {
+      "count": 5
+    },
+    "vue/multi-word-component-names": {
+      "count": 1
+    }
+  },
+  "src/views/settings/UserSettingsPage.vue": {
+    "no-console": {
+      "count": 1
+    }
+  }
+}

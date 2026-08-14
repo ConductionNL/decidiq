@@ -22,7 +22,7 @@
 		<template #default>
 			<NcSelect
 				v-model="selectedGroup"
-				:input-label="t('decidesk', 'Nextcloud group')"
+				:inputLabel="t('decidesk', 'Nextcloud group')"
 				:options="groupOptions"
 				label="label"
 				:loading="loadingGroups"
@@ -101,11 +101,11 @@
 </template>
 
 <script>
-import { NcButton, NcDialog, NcSelect } from '@nextcloud/vue'
-import { generateUrl } from '@nextcloud/router'
 import { getRequestToken } from '@nextcloud/auth'
+import { generateUrl } from '@nextcloud/router'
+import { NcButton, NcDialog, NcSelect } from '@nextcloud/vue'
 import { ensureRelationType } from '../components/tabs/useRelationStore.js'
-import { markGroupDuplicates, DEFAULT_ROLE } from '../utils/memberImport.js'
+import { DEFAULT_ROLE, markGroupDuplicates } from '../utils/memberImport.js'
 
 export default {
 	name: 'MemberGroupImportDialog',
@@ -116,6 +116,7 @@ export default {
 		/** Current members of the body (duplicate detection). */
 		existingMembers: { type: Array, default: () => [] },
 	},
+
 	emits: ['close', 'imported'],
 	data() {
 		return {
@@ -129,6 +130,7 @@ export default {
 			doneMessage: '',
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		groupOptions() {
@@ -137,11 +139,13 @@ export default {
 				label: `${g.displayName} (${g.userCount})`,
 			}))
 		},
+
 		/** @spec openspec/specs/admin-settings/spec.md */
 		importableCount() {
 			return this.preview.filter((row) => !row.duplicate).length
 		},
 	},
+
 	watch: {
 		/**
 		 * Load the chosen group's members, or clear the preview when cleared.
@@ -159,10 +163,12 @@ export default {
 			}
 		},
 	},
+
 	/** @spec exclude lifecycle hook; only triggers the group list fetch */
 	created() {
 		this.loadGroups()
 	},
+
 	methods: {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async loadGroups() {
@@ -192,6 +198,7 @@ export default {
 				this.loadingGroups = false
 			}
 		},
+
 		/**
 		 * Fetch a group's members and flag those already in the body.
 		 *
@@ -228,6 +235,7 @@ export default {
 				this.loadingMembers = false
 			}
 		},
+
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async runImport() {
 			this.importing = true

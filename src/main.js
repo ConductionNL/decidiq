@@ -1,40 +1,38 @@
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
 
-import { createApp } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
-import { setActivePinia } from 'pinia'
 import {
-	translate as t,
-	translatePlural as n,
-	loadTranslations,
-} from '@nextcloud/l10n'
-import { generateUrl } from '@nextcloud/router'
-import {
+	buildManifest,
 	CnPageRenderer,
 	defaultPageTypes,
-	registerIcons,
-	registerTranslations,
 	installIntegrationRegistry,
 	registerBuiltinIntegrations,
+	registerIcons,
 	registerLeafIntegrations,
-	buildManifest,
+	registerTranslations,
 } from '@conduction/nextcloud-vue'
-import pinia from './pinia.js'
+import {
+	loadTranslations,
+	translatePlural as n,
+	translate as t,
+} from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
+import { setActivePinia } from 'pinia'
+import { createApp } from 'vue'
+import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
+import appIcons from './icons.js'
+import { registerDecisionsLeaf } from './integrations/registerDecisionsLeaf.js'
 import bundledManifest from './manifest.json'
 import menuLayout from './menu-layout.json'
+import pinia from './pinia.js'
 import registry from './registry.js'
-import appIcons from './icons.js'
 import { initializeStores } from './store/store.js'
-import { registerDecisionsLeaf } from './integrations/registerDecisionsLeaf.js'
 
 // Library CSS — must be explicit import (webpack tree-shakes side-effect imports from aliased packages)
 import '@conduction/nextcloud-vue/css/index.css'
-
 // NL Design System token mapping (ADR-010)
 import './assets/nl-design.css'
-
 // Global (unscoped) app styles
 import './assets/app.css'
 
@@ -85,6 +83,9 @@ try {
 // its callback meant boot silently failed when translations couldn't
 // load. Strings just fall back to their English source on miss; boot
 // MUST not depend on this resolving.
+/**
+ *
+ */
 function tryLoadTranslations() {
 	try {
 		const result = loadTranslations('decidesk', () => {})
@@ -126,6 +127,10 @@ const fragments = fragmentCtx
 	.map((key) => fragmentCtx(key))
 const mergedManifest = buildManifest(bundledManifest, fragments, menuLayout)
 
+/**
+ *
+ * @param manifest
+ */
 function routesFromManifest(manifest) {
 	const routes = manifest.pages.map((page) => ({
 		name: page.id,

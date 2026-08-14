@@ -8,7 +8,7 @@
  @spec openspec/specs/public-publication/spec.md
 -->
 <template>
-	<PublicationActionsTab :object-id="objectId" source-type="agenda" />
+	<PublicationActionsTab :objectId="objectId" sourceType="agenda" />
 </template>
 
 <script>

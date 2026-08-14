@@ -1,6 +1,6 @@
-import { defineStore } from 'pinia'
 import { getRequestToken } from '@nextcloud/auth'
 import { generateUrl } from '@nextcloud/router'
+import { defineStore } from 'pinia'
 
 export const useSettingsStore = defineStore('settings', {
 	state: () => ({
@@ -41,7 +41,10 @@ export const useSettingsStore = defineStore('settings', {
 			return null
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10 */
+		/**
+		 * @param settings
+		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10
+		 */
 		async saveSettings(settings) {
 			this.loading = true
 			try {

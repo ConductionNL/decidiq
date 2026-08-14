@@ -45,14 +45,14 @@
 			:columns="columns"
 			:rows="signersWithName"
 			:loading="loading"
-			row-key="id"
-			:empty-text="t('decidesk', 'No signers added yet.')"
-			:loading-text="t('decidesk', 'Loading signers…')">
+			rowKey="id"
+			:emptyText="t('decidesk', 'No signers added yet.')"
+			:loadingText="t('decidesk', 'Loading signers…')">
 			<template #column-signedAt="{ value }">
 				<CnStatusBadge
 					v-if="value"
 					:label="t('decidesk', 'Signed')"
-					:color-map="{ Signed: 'success' }" />
+					:colorMap="{ Signed: 'success' }" />
 				<span v-else class="decidesk-tab__pending">
 					{{ t('decidesk', 'Pending') }}
 				</span>
@@ -82,8 +82,8 @@
 			v-if="removeTarget"
 			ref="removeDialog"
 			:item="removeTarget"
-			name-field="displayName"
-			:dialog-title="t('decidesk', 'Remove signer')"
+			nameField="displayName"
+			:dialogTitle="t('decidesk', 'Remove signer')"
 			@confirm="confirmRemove"
 			@close="removeTarget = null" />
 	</div>
@@ -97,11 +97,11 @@ import {
 	CnRowActions,
 	CnStatusBadge,
 } from '@conduction/nextcloud-vue'
-import { NcButton } from '@nextcloud/vue'
-import { generateUrl } from '@nextcloud/router'
 import { getCurrentUser } from '@nextcloud/auth'
-import Plus from 'vue-material-design-icons/Plus.vue'
+import { generateUrl } from '@nextcloud/router'
+import { NcButton } from '@nextcloud/vue'
 import LinkOff from 'vue-material-design-icons/LinkOff.vue'
+import Plus from 'vue-material-design-icons/Plus.vue'
 import MinutesSignerAddDialog from '../../dialogs/MinutesSignerAddDialog.vue'
 import { ensureRelationType } from './useRelationStore.js'
 
@@ -117,9 +117,11 @@ export default {
 		NcButton,
 		Plus,
 	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -133,6 +135,7 @@ export default {
 			signError: '',
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		columns() {
@@ -142,10 +145,12 @@ export default {
 				{ key: 'signedAt', label: this.t('decidesk', 'Status') },
 			]
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		rawSigners() {
 			return Array.isArray(this.minutes?.signers) ? this.minutes.signers : []
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		signersWithName() {
 			return this.rawSigners.map((entry) => {
@@ -164,6 +169,7 @@ export default {
 				}
 			})
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		canSignNow() {
 			const user = getCurrentUser()
@@ -177,6 +183,7 @@ export default {
 			)
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -185,13 +192,21 @@ export default {
 				this.refresh()
 			},
 		},
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+
+		/**
+		 * @param open
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		addDialogOpen(open) {
 			if (open) this.loadCandidates()
 		},
 	},
+
 	methods: {
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+		/**
+		 * @param row
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		rowActionsFor(row) {
 			return [
 				{
@@ -204,6 +219,7 @@ export default {
 				},
 			]
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async refresh() {
 			if (!this.objectId) return
@@ -241,6 +257,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async loadCandidates() {
 			this.loadingCandidates = true
@@ -263,7 +280,11 @@ export default {
 				this.loadingCandidates = false
 			}
 		},
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+
+		/**
+		 * @param participant
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		async addSigner(participant) {
 			const minutesStore = ensureRelationType('minutes')
 			const next = this.rawSigners
@@ -282,6 +303,7 @@ export default {
 					e?.message || this.t('decidesk', 'Failed to add signer.')
 			}
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async confirmRemove() {
 			const target = this.removeTarget
@@ -305,6 +327,7 @@ export default {
 				})
 			}
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async signNow() {
 			this.signError = ''

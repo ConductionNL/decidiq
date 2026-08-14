@@ -67,9 +67,9 @@
 <script>
 import { NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import CalendarBlankOutline from 'vue-material-design-icons/CalendarBlankOutline.vue'
-import dashboardRefreshMixin from './dashboardRefreshMixin.js'
-import { upcomingMeetings, isUrgent, countdownBucket } from './widgetLogic.js'
 import { getMeetings } from '../../../services/dashboardData.js'
+import dashboardRefreshMixin from './dashboardRefreshMixin.js'
+import { countdownBucket, isUrgent, upcomingMeetings } from './widgetLogic.js'
 
 export default {
 	name: 'UpcomingMeetingsListWidget',

@@ -62,9 +62,9 @@
 import { getCurrentUser } from '@nextcloud/auth'
 import { NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import ClipboardCheckOutline from 'vue-material-design-icons/ClipboardCheckOutline.vue'
-import dashboardRefreshMixin from './dashboardRefreshMixin.js'
-import { sortByDueDate, isOverdue } from './widgetLogic.js'
 import { getActionItems } from '../../../services/dashboardData.js'
+import dashboardRefreshMixin from './dashboardRefreshMixin.js'
+import { isOverdue, sortByDueDate } from './widgetLogic.js'
 
 export default {
 	name: 'MyActionItemsWidget',

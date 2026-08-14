@@ -36,7 +36,7 @@
 				<NcSelect
 					v-model="format"
 					data-testid="minutes-document-format"
-					:input-label="t('decidesk', 'Document format')"
+					:inputLabel="t('decidesk', 'Document format')"
 					:options="formatOptions"
 					:clearable="false"
 					label="label" />
@@ -139,8 +139,8 @@
 
 <script>
 import { CnNoteCard } from '@conduction/nextcloud-vue'
-import { NcButton, NcLoadingIcon, NcSelect } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
+import { NcButton, NcLoadingIcon, NcSelect } from '@nextcloud/vue'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -151,9 +151,11 @@ export default {
 		NcLoadingIcon,
 		NcSelect,
 	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -165,6 +167,7 @@ export default {
 			proofResult: null,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		formatOptions() {
@@ -176,12 +179,14 @@ export default {
 				},
 			]
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		generatedDocuments() {
 			return Array.isArray(this.minutes?.generatedDocuments)
 				? this.minutes.generatedDocuments
 				: []
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		meetingId() {
 			const relation = this.minutes?.meeting
@@ -190,6 +195,7 @@ export default {
 			return relation.id || ''
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -199,10 +205,12 @@ export default {
 			},
 		},
 	},
+
 	/** @spec exclude lifecycle wiring; seeds the default format option only */
 	created() {
 		this.format = this.formatOptions[0]
 	},
+
 	methods: {
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		async refresh() {
@@ -219,6 +227,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/**
 		 * POST helper against the decidesk API.
 		 *
@@ -244,6 +253,7 @@ export default {
 			}
 			return data
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		async generateDocument() {
 			this.working = true
@@ -261,6 +271,7 @@ export default {
 				this.working = false
 			}
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		async generateProofPackage() {
 			this.working = true

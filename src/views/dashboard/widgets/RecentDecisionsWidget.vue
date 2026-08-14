@@ -70,9 +70,9 @@
 <script>
 import { NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import GavelIcon from 'vue-material-design-icons/Gavel.vue'
-import dashboardRefreshMixin from './dashboardRefreshMixin.js'
-import { recentDecisions, outcomeBadge, publicationBadge } from './widgetLogic.js'
 import { getDecisions } from '../../../services/dashboardData.js'
+import dashboardRefreshMixin from './dashboardRefreshMixin.js'
+import { outcomeBadge, publicationBadge, recentDecisions } from './widgetLogic.js'
 
 export default {
 	name: 'RecentDecisionsWidget',

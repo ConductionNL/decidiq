@@ -28,7 +28,7 @@ export const DEFAULT_MODE = 'gov'
  * When a canonical label is absent from a mode's map the canonical label
  * itself is used as the t() key, which resolves to the standard l10n string.
  *
- * @type {Object.<string, Object.<string, string>>}
+ * @type {Object<string, Object<string, string>>}
  */
 export const MODE_LABELS = {
 	/**

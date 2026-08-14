@@ -24,7 +24,7 @@
 			</p>
 			<NcSelect
 				v-model="selectedRole"
-				:input-label="t('decidesk', 'Role')"
+				:inputLabel="t('decidesk', 'Role')"
 				:options="roleOptions"
 				label="label"
 				:clearable="false"
@@ -63,6 +63,7 @@ export default {
 		/** The participant (body member) whose role is being changed. */
 		member: { type: Object, required: true },
 	},
+
 	emits: ['close', 'saved'],
 	data() {
 		return {
@@ -71,11 +72,13 @@ export default {
 			error: '',
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		memberName() {
 			return this.member.displayName || this.member.name || this.member.id
 		},
+
 		/** @spec openspec/specs/admin-settings/spec.md */
 		roleOptions() {
 			const labels = {
@@ -93,11 +96,13 @@ export default {
 			}))
 		},
 	},
+
 	/** @spec exclude lifecycle hook; only seeds the select with the current role */
 	created() {
 		this.selectedRole =
 			this.roleOptions.find((o) => o.id === this.member.role) || null
 	},
+
 	methods: {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async save() {

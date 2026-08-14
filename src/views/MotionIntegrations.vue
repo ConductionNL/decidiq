@@ -25,8 +25,8 @@
 			)
 		"
 		icon="PuzzleOutline"
-		object-type="motion"
-		:object-id="id"
+		objectType="motion"
+		:objectId="id"
 		:sidebar="sidebarConfig">
 		<div class="motion-integrations__body" data-testid="motion-integrations">
 			<p>

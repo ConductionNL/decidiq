@@ -30,7 +30,7 @@
 			<CnStatusBadge
 				v-if="lifecycle"
 				:label="lifecycleLabel"
-				:color-map="lifecycleColors"
+				:colorMap="lifecycleColors"
 				data-testid="route-lifecycle-badge" />
 		</div>
 
@@ -129,14 +129,14 @@
 								<CnStatusBadge
 									v-if="isCurrent(stage)"
 									:label="t('decidesk', 'Current')"
-									:color-map="{
+									:colorMap="{
 										[t('decidesk', 'Current')]: 'primary',
 									}" />
 							</div>
 							<div class="decidesk-route__line2">
 								<CnStatusBadge
 									:label="statusLabel(stage.status)"
-									:color-map="statusColors" />
+									:colorMap="statusColors" />
 								<span
 									v-if="stage.outcome"
 									class="decidesk-route__outcome"
@@ -192,6 +192,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -204,6 +205,7 @@ export default {
 			openActionItemCount: 0,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/decision-route/spec.md */
 		decidedCount() {
@@ -211,13 +213,16 @@ export default {
 				(s) => s.status === 'decided' || s.status === 'skipped',
 			).length
 		},
+
 		/** @spec openspec/specs/decision-route/spec.md */
 		currentStageObj() {
 			return this.stages.find((s) => this.isCurrent(s)) || null
 		},
+
 		lifecycleLabel() {
 			return this.stateLabel(this.lifecycle)
 		},
+
 		lifecycleColors() {
 			return {
 				[this.stateLabel('draft')]: 'default',
@@ -229,6 +234,7 @@ export default {
 				[this.stateLabel('archived')]: 'default',
 			}
 		},
+
 		statusColors() {
 			return {
 				[this.statusLabel('pending')]: 'default',
@@ -237,11 +243,13 @@ export default {
 				[this.statusLabel('skipped')]: 'default',
 			}
 		},
+
 		effectiveStatusTitle() {
 			return this.effectiveStatus === 'repealed'
 				? this.t('decidesk', 'Repealed')
 				: this.t('decidesk', 'Superseded')
 		},
+
 		effectiveStatusMessage() {
 			const date =
 				this.effectingDecision?.enactedAt
@@ -260,6 +268,7 @@ export default {
 					})
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -269,8 +278,12 @@ export default {
 			},
 		},
 	},
+
 	methods: {
-		/** @spec openspec/specs/decision-route/spec.md */
+		/**
+		 * @param stage
+		 * @spec openspec/specs/decision-route/spec.md
+		 */
 		isCurrent(stage) {
 			return (
 				!!this.currentStage
@@ -278,6 +291,7 @@ export default {
 					|| stage.uuid === this.currentStage)
 			)
 		},
+
 		stateLabel(state) {
 			const labels = {
 				draft: this.t('decidesk', 'Draft'),
@@ -290,6 +304,7 @@ export default {
 			}
 			return labels[state] || state
 		},
+
 		stageTypeLabel(type) {
 			const labels = {
 				preparatory: this.t('decidesk', 'preparatory'),
@@ -299,6 +314,7 @@ export default {
 			}
 			return labels[type] || type || ''
 		},
+
 		methodLabel(method) {
 			const labels = {
 				manual: this.t('decidesk', 'manual'),
@@ -309,6 +325,7 @@ export default {
 			}
 			return labels[method] || method || ''
 		},
+
 		statusLabel(status) {
 			const labels = {
 				pending: this.t('decidesk', 'pending'),
@@ -318,6 +335,7 @@ export default {
 			}
 			return labels[status] || status || ''
 		},
+
 		outcomeLabel(outcome) {
 			const labels = {
 				for: this.t('decidesk', 'for'),
@@ -329,7 +347,11 @@ export default {
 			}
 			return labels[outcome] || outcome || ''
 		},
-		/** @spec openspec/specs/decision-route/spec.md */
+
+		/**
+		 * @param stage
+		 * @spec openspec/specs/decision-route/spec.md
+		 */
 		makerName(stage) {
 			const ref =
 				stage?.decisionMakerType === 'person'
@@ -346,12 +368,17 @@ export default {
 			// Reference is an id we did not expand; show a stable fallback.
 			return this.t('decidesk', 'Decision maker')
 		},
-		/** @spec openspec/specs/decision-route/spec.md */
+
+		/**
+		 * @param value
+		 * @spec openspec/specs/decision-route/spec.md
+		 */
 		formatDate(value) {
 			if (!value) return ''
 			const d = new Date(value)
 			return Number.isNaN(d.getTime()) ? String(value) : d.toLocaleDateString()
 		},
+
 		/** @spec openspec/specs/decision-route/spec.md */
 		async refresh() {
 			if (!this.objectId) return
@@ -386,6 +413,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/**
 		 * Client-side effective-status derivation (design D2): find a
 		 * decided/enacted decision whose supersedes/repeals array contains this
@@ -423,6 +451,7 @@ export default {
 				this.effectingDecision = superseder
 			}
 		},
+
 		/** @spec openspec/specs/decision-route/spec.md */
 		async countOpenActionItems() {
 			try {
@@ -440,7 +469,11 @@ export default {
 				this.openActionItemCount = 0
 			}
 		},
-		/** @spec openspec/specs/decision-route/spec.md */
+
+		/**
+		 * @param decision
+		 * @spec openspec/specs/decision-route/spec.md
+		 */
 		openDecision(decision) {
 			const id = decision?.id || decision?.uuid
 			if (!id) return

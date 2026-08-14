@@ -58,9 +58,9 @@
 <script>
 import { NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import CommentCheckOutline from 'vue-material-design-icons/CommentCheckOutline.vue'
+import { getMotions } from '../../../services/dashboardData.js'
 import dashboardRefreshMixin from './dashboardRefreshMixin.js'
 import { groupMotionsByLifecycle, RUNNING_MOTION_LIFECYCLES } from './widgetLogic.js'
-import { getMotions } from '../../../services/dashboardData.js'
 
 export default {
 	name: 'RunningProcessesWidget',

@@ -21,7 +21,7 @@
 				<NcSelect
 					v-model="selectedType"
 					data-testid="related-decision-type"
-					:input-label="t('decidesk', 'Relation type')"
+					:inputLabel="t('decidesk', 'Relation type')"
 					:options="typeOptions"
 					:reduce="(o) => o.value"
 					label="label"
@@ -30,7 +30,7 @@
 				<NcSelect
 					v-model="selectedTarget"
 					data-testid="related-decision-target"
-					:input-label="t('decidesk', 'Target decision')"
+					:inputLabel="t('decidesk', 'Target decision')"
 					:options="targetOptions"
 					:loading="searching"
 					:filterable="false"
@@ -72,6 +72,7 @@ export default {
 		/** Async search callback: (query) => Promise<object[]>. */
 		searchFn: { type: Function, required: true },
 	},
+
 	data() {
 		return {
 			selectedType: this.typeOptions[0]?.value || '',
@@ -82,8 +83,12 @@ export default {
 			error: '',
 		}
 	},
+
 	methods: {
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+		/**
+		 * @param query
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		async onSearch(query) {
 			this.searching = true
 			try {
@@ -94,6 +99,7 @@ export default {
 				this.searching = false
 			}
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		confirm() {
 			this.error = ''
@@ -103,6 +109,7 @@ export default {
 				target: this.selectedTarget,
 			})
 		},
+
 		/**
 		 * Called by the parent when the server rejects the relation.
 		 * Keeps the dialog open and shows the message inline.

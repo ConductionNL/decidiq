@@ -42,9 +42,9 @@
 				v-for="event in eventToggles"
 				:key="event.key"
 				type="switch"
-				:model-value="form[event.key]"
+				:modelValue="form[event.key]"
 				:data-testid="`notification-toggle-${event.key}`"
-				@update:model-value="form[event.key] = $event">
+				@update:modelValue="form[event.key] = $event">
 				{{ event.label }}
 			</NcCheckboxRadioSwitch>
 		</fieldset>
@@ -53,16 +53,16 @@
 			<legend>{{ t('decidesk', 'Delivery channels') }}</legend>
 			<NcCheckboxRadioSwitch
 				type="switch"
-				:model-value="channels.inApp"
+				:modelValue="channels.inApp"
 				data-testid="channel-in-app"
-				@update:model-value="channels.inApp = $event">
+				@update:modelValue="channels.inApp = $event">
 				{{ t('decidesk', 'Nextcloud notification') }}
 			</NcCheckboxRadioSwitch>
 			<NcCheckboxRadioSwitch
 				type="switch"
-				:model-value="channels.email"
+				:modelValue="channels.email"
 				data-testid="channel-email"
-				@update:model-value="channels.email = $event">
+				@update:modelValue="channels.email = $event">
 				{{ t('decidesk', 'Email') }}
 			</NcCheckboxRadioSwitch>
 			<NcNoteCard v-if="channelError" type="warning">
@@ -85,10 +85,10 @@
 			<NcCheckboxRadioSwitch
 				v-for="time in reminderOptions"
 				:key="time.value"
-				:model-value="form.reminderTimes.includes(time.value)"
+				:modelValue="form.reminderTimes.includes(time.value)"
 				:disabled="!form.meetingReminder"
 				:data-testid="`reminder-time-${time.value}`"
-				@update:model-value="toggleReminderTime(time.value, $event)">
+				@update:modelValue="toggleReminderTime(time.value, $event)">
 				{{ time.label }}
 			</NcCheckboxRadioSwitch>
 		</fieldset>
@@ -101,7 +101,7 @@
 				@click="save">
 				{{
 					saving
-						? t('decidesk', 'Saving …')
+						? t('decidesk', 'Saving …')
 						: t('decidesk', 'Save notification preferences')
 				}}
 			</NcButton>
@@ -118,10 +118,10 @@
 <script>
 import { NcButton, NcCheckboxRadioSwitch, NcNoteCard } from '@nextcloud/vue'
 import {
-	DEFAULT_REMINDER_TIMES,
-	REMINDER_TIME_OPTIONS,
 	channelsToDeliveryMethod,
+	DEFAULT_REMINDER_TIMES,
 	deliveryMethodToChannels,
+	REMINDER_TIME_OPTIONS,
 	saveNotificationPreference,
 } from './userPreferences.js'
 
@@ -132,6 +132,7 @@ export default {
 		NcCheckboxRadioSwitch,
 		NcNoteCard,
 	},
+
 	props: {
 		/** The defaults-merged preference object loaded by the parent mount. */
 		preference: {
@@ -139,6 +140,7 @@ export default {
 			default: () => ({}),
 		},
 	},
+
 	data() {
 		return {
 			form: {
@@ -150,12 +152,14 @@ export default {
 				meetingReminder: true,
 				reminderTimes: [...DEFAULT_REMINDER_TIMES],
 			},
+
 			channels: { inApp: true, email: false },
 			saving: false,
 			saved: false,
 			error: null,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/user-settings/spec.md */
 		eventToggles() {
@@ -183,6 +187,7 @@ export default {
 				},
 			]
 		},
+
 		/** @spec openspec/specs/user-settings/spec.md */
 		reminderOptions() {
 			const labels = {
@@ -197,17 +202,20 @@ export default {
 				label: labels[value] || value,
 			}))
 		},
+
 		/** @spec openspec/specs/user-settings/spec.md */
 		channelError() {
 			return !this.channels.inApp && !this.channels.email
 		},
 	},
+
 	watch: {
 		preference: {
 			immediate: true,
 			handler: 'applyPreference',
 		},
 	},
+
 	methods: {
 		/**
 		 * Hydrate the form from the loaded preference object.
@@ -236,6 +244,7 @@ export default {
 			}
 			this.channels = deliveryMethodToChannels(pref.deliveryMethod || 'in-app')
 		},
+
 		/**
 		 * Toggle one reminder-time token in the form.
 		 *
@@ -254,6 +263,7 @@ export default {
 				set.has(token),
 			)
 		},
+
 		/**
 		 * Persist the notification preferences via the per-user endpoint.
 		 *

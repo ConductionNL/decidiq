@@ -65,13 +65,13 @@
 </template>
 
 <script>
-import { NcButton, NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import { showError, showSuccess } from '@nextcloud/dialogs'
+import { NcButton, NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import CheckIcon from 'vue-material-design-icons/Check.vue'
 import ReactionApproveModal from '../../modals/ReactionApproveModal.vue'
 import ReactionRejectModal from '../../modals/ReactionRejectModal.vue'
-import { useObjectStore } from '../../store/store.js'
 import { approveReaction, rejectReaction } from '../../services/participationApi.js'
+import { useObjectStore } from '../../store/store.js'
 
 export default {
 	name: 'ConsultationReactionsTab',
@@ -83,6 +83,7 @@ export default {
 		ReactionApproveModal,
 		ReactionRejectModal,
 	},
+
 	props: {
 		/** Consultation id to scope the queue to. Empty = hub-wide (all pending reactions). */
 		objectId: { type: [String, Number], default: '' },
@@ -91,6 +92,7 @@ export default {
 		/** Schema slug (provided by the detail page; unused for the action endpoints). */
 		schema: { type: String, default: '' },
 	},
+
 	data() {
 		return {
 			loading: true,
@@ -99,14 +101,17 @@ export default {
 			rejecting: null,
 		}
 	},
+
 	watch: {
 		objectId() {
 			this.load()
 		},
 	},
+
 	mounted() {
 		this.load()
 	},
+
 	methods: {
 		/** Load pending reactions, scoped to this consultation when objectId is set. */
 		async load() {
@@ -139,12 +144,15 @@ export default {
 				this.loading = false
 			}
 		},
+
 		openApprove(reaction) {
 			this.approving = reaction
 		},
+
 		openReject(reaction) {
 			this.rejecting = reaction
 		},
+
 		async confirmApprove(note) {
 			const reaction = this.approving
 			this.approving = null
@@ -156,6 +164,7 @@ export default {
 				showError(t('decidesk', 'Could not approve the reaction'))
 			}
 		},
+
 		async confirmReject(reason) {
 			const reaction = this.rejecting
 			this.rejecting = null

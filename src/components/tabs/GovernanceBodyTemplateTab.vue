@@ -34,7 +34,7 @@
 		<template v-else>
 			<NcSelect
 				v-model="defaultTemplate"
-				:input-label="t('decidesk', 'Default process template')"
+				:inputLabel="t('decidesk', 'Default process template')"
 				:options="templateOptions"
 				label="label"
 				:clearable="true"
@@ -45,7 +45,7 @@
 
 			<NcSelect
 				v-model="specializedTemplates"
-				:input-label="t('decidesk', 'Specialized templates')"
+				:inputLabel="t('decidesk', 'Specialized templates')"
 				:options="specializedOptions"
 				label="label"
 				multiple
@@ -81,8 +81,8 @@
 <script>
 import { CnNoteCard } from '@conduction/nextcloud-vue'
 import { NcButton, NcSelect } from '@nextcloud/vue'
-import { ensureRelationType } from './useRelationStore.js'
 import { getProcessTemplates } from './processTemplates.js'
+import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'GovernanceBodyTemplateTab',
@@ -93,6 +93,7 @@ export default {
 		register: { type: String, default: '' },
 		schema: { type: String, default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -104,11 +105,13 @@ export default {
 			specializedTemplates: [],
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		templateOptions() {
 			return getProcessTemplates()
 		},
+
 		/** @spec openspec/specs/admin-settings/spec.md */
 		specializedOptions() {
 			// The default template is not offered again as a specialized one.
@@ -117,6 +120,7 @@ export default {
 			)
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -126,6 +130,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async refresh() {
@@ -156,6 +161,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async save() {
 			this.saving = true

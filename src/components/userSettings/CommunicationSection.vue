@@ -46,7 +46,7 @@
 		<div class="user-settings-section__field">
 			<NcSelect
 				v-model="language"
-				:input-label="t('decidesk', 'Preferred language for communications')"
+				:inputLabel="t('decidesk', 'Preferred language for communications')"
 				:options="languageOptions"
 				label="label"
 				:clearable="false"
@@ -65,7 +65,7 @@
 				@click="save">
 				{{
 					saving
-						? t('decidesk', 'Saving …')
+						? t('decidesk', 'Saving …')
 						: t('decidesk', 'Save communication preferences')
 				}}
 			</NcButton>
@@ -95,6 +95,7 @@ export default {
 		NcSelect,
 		NcTextField,
 	},
+
 	props: {
 		/** The defaults-merged preference object loaded by the parent mount. */
 		preference: {
@@ -102,6 +103,7 @@ export default {
 			default: () => ({}),
 		},
 	},
+
 	data() {
 		return {
 			governanceEmail: '',
@@ -112,6 +114,7 @@ export default {
 			error: null,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/user-settings/spec.md */
 		languageOptions() {
@@ -131,6 +134,7 @@ export default {
 				})),
 			]
 		},
+
 		/** @spec openspec/specs/user-settings/spec.md */
 		accountEmailPlaceholder() {
 			return (
@@ -138,6 +142,7 @@ export default {
 				|| this.t('decidesk', 'Your Nextcloud account email')
 			)
 		},
+
 		/** @spec openspec/specs/user-settings/spec.md */
 		validationError() {
 			if (this.governanceEmail && !isValidEmail(this.governanceEmail)) {
@@ -146,12 +151,14 @@ export default {
 			return null
 		},
 	},
+
 	watch: {
 		preference: {
 			immediate: true,
 			handler: 'applyPreference',
 		},
 	},
+
 	methods: {
 		/**
 		 * Hydrate the form from the loaded preference object.
@@ -170,6 +177,7 @@ export default {
 					(o) => o.id === (pref.communicationLanguage || ''),
 				) || this.languageOptions[0]
 		},
+
 		/**
 		 * Persist the communication preferences via the per-user endpoint.
 		 *

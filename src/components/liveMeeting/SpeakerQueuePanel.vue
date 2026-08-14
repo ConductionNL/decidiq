@@ -30,8 +30,8 @@
 				</label>
 				<NcTextField
 					id="speaker-queue-limit"
-					type="number"
 					v-model="limitMinutes"
+					type="number"
 					:label="t('decidesk', 'Speaking limit (min)')"
 					data-testid="speaker-queue-limit-input"
 					min="0" />
@@ -42,7 +42,7 @@
 			<NcSelect
 				v-model="selectedParticipant"
 				:options="participantOptions"
-				:input-label="t('decidesk', 'Add speaker to queue')"
+				:inputLabel="t('decidesk', 'Add speaker to queue')"
 				:placeholder="t('decidesk', 'Select a participant')"
 				label="label"
 				data-testid="speaker-queue-add-select" />
@@ -164,16 +164,16 @@
 
 <script>
 import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
+import { formatClock } from '../../utils/meetingTimer.js'
 import {
 	addSpeaker,
-	removeSpeaker,
+	isOverLimit,
 	moveSpeaker,
+	removeSpeaker,
+	speakerElapsedSeconds,
 	startSpeaker,
 	stopSpeaker,
-	speakerElapsedSeconds,
-	isOverLimit,
 } from '../../utils/speakerQueue.js'
-import { formatClock } from '../../utils/meetingTimer.js'
 
 /**
  * @spec openspec/specs/meeting-efficiency/spec.md
@@ -205,6 +205,7 @@ export default {
 			const m = Number(this.limitMinutes)
 			return Number.isFinite(m) && m > 0 ? m * 60 : null
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		participantOptions() {
 			const queued = new Set(this.queue.map((e) => e.participantId))
@@ -240,6 +241,7 @@ export default {
 			)
 			this.selectedParticipant = null
 		},
+
 		/**
 		 * @param participantId
 		 * @spec openspec/specs/meeting-efficiency/spec.md
@@ -247,6 +249,7 @@ export default {
 		remove(participantId) {
 			this.queue = removeSpeaker(this.queue, participantId)
 		},
+
 		/**
 		 * @param participantId
 		 * @param direction
@@ -255,6 +258,7 @@ export default {
 		move(participantId, direction) {
 			this.queue = moveSpeaker(this.queue, participantId, direction)
 		},
+
 		/**
 		 * @param participantId
 		 * @spec openspec/specs/meeting-efficiency/spec.md
@@ -268,12 +272,14 @@ export default {
 			this.queue = queue
 			if (stopped) this.recordSpeech(stopped)
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		stop() {
 			const { queue, stopped } = stopSpeaker(this.queue, Date.now())
 			this.queue = queue
 			if (stopped) this.recordSpeech(stopped)
 		},
+
 		/**
 		 * @param entry
 		 * @spec openspec/specs/meeting-efficiency/spec.md
@@ -281,6 +287,7 @@ export default {
 		elapsedText(entry) {
 			return formatClock(speakerElapsedSeconds(entry, this.now))
 		},
+
 		/**
 		 * @param entry
 		 * @spec openspec/specs/meeting-efficiency/spec.md
@@ -288,6 +295,7 @@ export default {
 		overLimit(entry) {
 			return isOverLimit(entry, this.limitSeconds, this.now)
 		},
+
 		/**
 		 * Persist a completed speech to the EngagementRecord aggregate via the
 		 * existing engagement endpoint (server-side chair/secretary/admin guard).
