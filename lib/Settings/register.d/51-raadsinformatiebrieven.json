@@ -8,7 +8,7 @@
             "slug": "rib-2026-012-wachtlijsten-jeugdzorg",
             "number": "RIB-2026-012",
             "subject": "Wachtlijsten jeugdzorg: stand van zaken en maatregelen",
-            "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
+            "portfolioHolder": "00000000-0000-0000-0000-000000000000",
             "category": "toezegging-afdoening",
             "sentAt": "2026-02-20",
             "directedTo": "gemeenteraad-amsterdam",
@@ -25,7 +25,7 @@
             "slug": "rib-2026-013-energietransitie",
             "number": "RIB-2026-013",
             "subject": "Voortgang energietransitie gebouwde omgeving",
-            "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
+            "portfolioHolder": "00000000-0000-0000-0000-000000000000",
             "category": "actieve-informatieplicht",
             "sentAt": "2026-03-05",
             "directedTo": "gemeenteraad-amsterdam",
@@ -36,7 +36,7 @@
             "slug": "rib-2026-014-afdoening-motie-fietsveiligheid",
             "number": "RIB-2026-014",
             "subject": "Afdoening motie Fietsveiligheid schoolroutes",
-            "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
+            "portfolioHolder": "00000000-0000-0000-0000-000000000000",
             "category": "motie-afdoening",
             "sentAt": "2026-03-12",
             "directedTo": "gemeenteraad-amsterdam",
@@ -171,7 +171,7 @@
         "required": [
           "number",
           "subject",
-          "portefeuillehouder",
+          "portfolioHolder",
           "category",
           "sentAt",
           "directedTo",
@@ -193,7 +193,7 @@
             "description": "Subject of the raadsinformatiebrief. Required.",
             "example": "Wachtlijsten jeugdzorg: stand van zaken en maatregelen"
           },
-          "portefeuillehouder": {
+          "portfolioHolder": {
             "title": "Portefeuillehouder",
             "type": "string",
             "format": "uuid",

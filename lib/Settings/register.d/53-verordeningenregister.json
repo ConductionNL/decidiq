@@ -3,12 +3,12 @@
     "seedData": {
       "description": "Seed objects for the verordeningenregister (local regulations register — regeling / regeling-versie / regeling-export-package). References resolve by slug against existing decidesk seed objects (governance-body gemeenteraad-amsterdam and ledenraad-vng from decidesk_register.json); the nil UUID 00000000-0000-0000-0000-000000000000 is an obvious placeholder resolved at import where no matching seed object exists (every vastgesteldDoor wijzigingsbesluit Decision — the DECLARATIVE-CORE change ships no Decision seeds of its own; the two extra wijzigingsbesluiten named in design.md Seed Data are added when the imperative slice lands). Two regelingen carry multi-version chains: afvalstoffenverordening-amsterdam has v1 (vervangen, inwerkingtreding 2024-01-01) → v2 (in-werking, 2025-06-01) so REQ-VOR-004 in-force resolution is demoable across a historical boundary on a fresh install (ADR-016); beleidsregel-terrassen-amsterdam has a single in-werking v1; huishoudelijk-reglement-vng is vastgesteld with a concept v1 dated in the future so the REQ-VOR-007 approaching-inwerkingtreding-without-published-text notification path and the 'draft never leaks' public exclusion are both demonstrable. One regeling-export-package in state ready demonstrates the honest-degradation download path (REQ-VOR-006); its STOP/TPOD build + OpenConnector delivery is the imperative slice, deferred. Objects grouped by schema slug (regeling / regeling-versie / regeling-export-package); the OR seedData import path resolves the schema from the object key.",
       "objects": {
-        "regeling": [
+        "regulation": [
           {
             "slug": "afvalstoffenverordening-amsterdam",
             "type": "verordening",
-            "citeertitel": "Afvalstoffenverordening Amsterdam",
-            "officieleTitel": "Verordening op de inzameling en verwerking van huishoudelijke afvalstoffen Amsterdam",
+            "citationTitle": "Afvalstoffenverordening Amsterdam",
+            "officialTitle": "Verordening op de inzameling en verwerking van huishoudelijke afvalstoffen Amsterdam",
             "statutoryBasis": [
               "Gemeentewet art. 149",
               "Wet milieubeheer art. 10.23"
@@ -16,27 +16,27 @@
             "determiningBody": "gemeenteraad-amsterdam",
             "cvdrIdentifier": "CVDR641871",
             "currentVersionNumber": 2,
-            "currentInwerkingtreding": "2025-06-01",
+            "currentEffectiveDate": "2025-06-01",
             "status": "in-werking"
           },
           {
             "slug": "beleidsregel-terrassen-amsterdam",
             "type": "beleidsregel",
-            "citeertitel": "Beleidsregel terrassen Amsterdam 2025",
-            "officieleTitel": "Beleidsregel inzake terrasvergunningen Amsterdam 2025",
+            "citationTitle": "Beleidsregel terrassen Amsterdam 2025",
+            "officialTitle": "Beleidsregel inzake terrasvergunningen Amsterdam 2025",
             "statutoryBasis": [
               "APV Amsterdam art. 3.17"
             ],
             "determiningBody": "gemeenteraad-amsterdam",
             "currentVersionNumber": 1,
-            "currentInwerkingtreding": "2025-03-01",
+            "currentEffectiveDate": "2025-03-01",
             "status": "in-werking"
           },
           {
             "slug": "huishoudelijk-reglement-vng",
             "type": "reglement",
-            "citeertitel": "Huishoudelijk reglement ledenraad VNG",
-            "officieleTitel": "Huishoudelijk reglement van de ledenraad van de Vereniging van Nederlandse Gemeenten",
+            "citationTitle": "Huishoudelijk reglement ledenraad VNG",
+            "officialTitle": "Huishoudelijk reglement van de ledenraad van de Vereniging van Nederlandse Gemeenten",
             "statutoryBasis": [
               "Statuten VNG art. 12"
             ],
@@ -47,37 +47,37 @@
         "regeling-versie": [
           {
             "slug": "afvalstoffen-v1",
-            "regeling": "afvalstoffenverordening-amsterdam",
+            "regulation": "afvalstoffenverordening-amsterdam",
             "versionNumber": 1,
             "determinedBy": "00000000-0000-0000-0000-000000000000",
-            "inwerkingtreding": "2024-01-01",
+            "effectiveDate": "2024-01-01",
             "notes": "Eerste vaststelling van de Afvalstoffenverordening Amsterdam.",
             "status": "vervangen"
           },
           {
             "slug": "afvalstoffen-v2",
-            "regeling": "afvalstoffenverordening-amsterdam",
+            "regulation": "afvalstoffenverordening-amsterdam",
             "versionNumber": 2,
             "determinedBy": "00000000-0000-0000-0000-000000000000",
-            "inwerkingtreding": "2025-06-01",
+            "effectiveDate": "2025-06-01",
             "notes": "Wijziging 2025: gescheiden inzameling GFT-e uitgebreid naar het hele beheergebied.",
             "status": "in-werking"
           },
           {
             "slug": "terrassen-v1",
-            "regeling": "beleidsregel-terrassen-amsterdam",
+            "regulation": "beleidsregel-terrassen-amsterdam",
             "versionNumber": 1,
             "determinedBy": "00000000-0000-0000-0000-000000000000",
-            "inwerkingtreding": "2025-03-01",
+            "effectiveDate": "2025-03-01",
             "notes": "Vaststelling beleidsregel terrassen 2025.",
             "status": "in-werking"
           },
           {
             "slug": "hr-vng-v1",
-            "regeling": "huishoudelijk-reglement-vng",
+            "regulation": "huishoudelijk-reglement-vng",
             "versionNumber": 1,
             "determinedBy": "00000000-0000-0000-0000-000000000000",
-            "inwerkingtreding": "2026-09-01",
+            "effectiveDate": "2026-09-01",
             "notes": "Concept eerste huishoudelijk reglement; treedt in werking na vaststelling door de ledenraad.",
             "status": "concept"
           }
@@ -85,7 +85,7 @@
         "regeling-export-package": [
           {
             "slug": "export-afvalstoffen-v2",
-            "regeling": "afvalstoffenverordening-amsterdam",
+            "regulation": "afvalstoffenverordening-amsterdam",
             "versies": [
               "afvalstoffen-v2"
             ],
@@ -154,7 +154,7 @@
         },
         "required": [
           "type",
-          "citeertitel",
+          "citationTitle",
           "determiningBody",
           "status"
         ],
@@ -173,13 +173,13 @@
             ],
             "example": "verordening"
           },
-          "citeertitel": {
+          "citationTitle": {
             "title": "Citeertitel",
             "type": "string",
             "description": "The citation title (citeertitel) by which the regulation is officially cited. Required (REQ-VOR-001 scenario 'Citeertitel is required').",
             "example": "Afvalstoffenverordening Amsterdam"
           },
-          "officieleTitel": {
+          "officialTitle": {
             "title": "Official title",
             "type": "string",
             "description": "The full official title of the regulation. Optional.",
@@ -218,7 +218,7 @@
             "nullable": true,
             "description": "Convenience field: the versienummer of the RegelingVersie currently in force (REQ-VOR-004). Intended to be maintained by the RegelingConsolidationService (imperative slice) so the register list page renders the current version without a per-row N+1 resolution. Null until a version is in force. NOTE: no x-openregister-calculations dialect is declared here (unproven in this register) — the field is populated by the imperative slice; see dialect-gaps note."
           },
-          "currentInwerkingtreding": {
+          "currentEffectiveDate": {
             "title": "Current inwerkingtreding",
             "type": "string",
             "format": "date",
@@ -347,13 +347,13 @@
           }
         },
         "required": [
-          "regeling",
+          "regulation",
           "versionNumber",
           "determinedBy",
           "status"
         ],
         "properties": {
-          "regeling": {
+          "regulation": {
             "title": "Regeling",
             "type": "string",
             "format": "uuid",
@@ -375,7 +375,7 @@
             "$ref": "Decision",
             "description": "Reference to the Decision (wijzigingsbesluit / vaststellingsbesluit / rectification decision) that enacted this version. Required — creating a version without a resolvable amending decision MUST be rejected (REQ-VOR-002 scenario 'Version without amending decision refused'). The besluit document itself stays in decision-management; this register holds only the enactment relation. Immutable once the version is sealed (REQ-VOR-003)."
           },
-          "inwerkingtreding": {
+          "effectiveDate": {
             "title": "Inwerkingtreding",
             "type": "string",
             "format": "date",
@@ -481,7 +481,7 @@
           "status"
         ],
         "properties": {
-          "regeling": {
+          "regulation": {
             "title": "Regeling",
             "type": "string",
             "format": "uuid",

@@ -16,7 +16,7 @@
             "shiftHistory": [
               {
                 "van": "2026-Q1",
-                "naar": "2026-Q2",
+                "toPeriod": "2026-Q2",
                 "reason": "Wacht op uitkomst parkeeronderzoek regio",
                 "door": "00000000-0000-0000-0000-000000000000",
                 "op": "2026-03-15T10:00:00Z"
@@ -281,7 +281,7 @@
                   "type": "string",
                   "description": "The planned period before this reschedule (same pattern as plannedPeriod)."
                 },
-                "naar": {
+                "toPeriod": {
                   "title": "To period",
                   "type": "string",
                   "description": "The planned period after this reschedule (same pattern as plannedPeriod)."

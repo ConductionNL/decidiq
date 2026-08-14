@@ -59,18 +59,18 @@
           {
             "slug": "advies-inkoopbeleid-wmo",
             "adviceRequest": "adviesaanvraag-inkoopbeleid-wmo",
-            "strekking": "positief-met-kanttekeningen",
+            "tenor": "positief-met-kanttekeningen",
             "summary": "De adviesraad adviseert positief, mits de continuïteit van lopende ondersteuning wordt geborgd en cliënten actief worden geïnformeerd.",
-            "adviesDate": "2026-04-10",
+            "adviceDate": "2026-04-10",
             "recordedBy": "00000000-0000-0000-0000-000000000000",
             "publicationDate": "2026-04-12T09:00:00Z"
           },
           {
             "slug": "advies-skatepark-locatie",
             "adviceRequest": "adviesaanvraag-skatepark-locatie",
-            "strekking": "negatief",
+            "tenor": "negatief",
             "summary": "De jongerenraad adviseert negatief over locatie B en positief over locatie A vanwege bereikbaarheid.",
-            "adviesDate": "2026-02-14",
+            "adviceDate": "2026-02-14",
             "recordedBy": "00000000-0000-0000-0000-000000000000",
             "publicationDate": "2026-03-25T09:00:00Z"
           }
@@ -435,9 +435,9 @@
         },
         "required": [
           "adviceRequest",
-          "strekking",
+          "tenor",
           "summary",
-          "adviesDate",
+          "adviceDate",
           "recordedBy"
         ],
         "properties": {
@@ -448,7 +448,7 @@
             "$ref": "Adviesaanvraag",
             "description": "Reference to the Adviesaanvraag this advice answers (many-to-one; an aanvraag can in principle carry more than one advies). Required."
           },
-          "strekking": {
+          "tenor": {
             "title": "Strekking",
             "type": "string",
             "facetable": true,
@@ -467,7 +467,7 @@
             "description": "Summary of the advice (samenvatting). Required.",
             "example": "De adviesraad adviseert positief, mits de continuïteit van lopende ondersteuning wordt geborgd."
           },
-          "adviesDate": {
+          "adviceDate": {
             "title": "Advice date",
             "type": "string",
             "format": "date",
@@ -482,7 +482,7 @@
             "$ref": "Person",
             "description": "Reference to the Person (the advisory body's secretary) who records the advice. The recording authority is the advisory body, not the requesting griffie (design D1). Required."
           },
-          "adviesDocument": {
+          "adviceDocument": {
             "title": "Advice document",
             "type": "string",
             "format": "uuid",

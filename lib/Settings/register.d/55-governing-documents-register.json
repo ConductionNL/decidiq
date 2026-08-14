@@ -17,7 +17,7 @@
           {
             "slug": "statuten-vng",
             "type": "statuten",
-            "citeertitel": "Statuten Vereniging van Nederlandse Gemeenten",
+            "citationTitle": "Statuten Vereniging van Nederlandse Gemeenten",
             "description": "Statuten van de vereniging (BW 2:27), constitutief bij notariële akte en gewijzigd bij besluit tot statutenwijziging van de ledenraad.",
             "governingBody": "ledenraad-vng",
             "isPublic": true,
@@ -26,7 +26,7 @@
           {
             "slug": "reglement-van-orde-raad-amsterdam",
             "type": "reglement-van-orde",
-            "citeertitel": "Reglement van orde gemeenteraad Amsterdam",
+            "citationTitle": "Reglement van orde gemeenteraad Amsterdam",
             "description": "Reglement van orde van de gemeenteraad (Gemeentewet art. 16), vastgesteld bij raadsbesluit.",
             "governingBody": "gemeenteraad-amsterdam",
             "isPublic": false,
@@ -35,7 +35,7 @@
           {
             "slug": "splitsingsakte-vve-parkstaete",
             "type": "splitsingsakte",
-            "citeertitel": "Splitsingsakte VvE Parkstaete",
+            "citationTitle": "Splitsingsakte VvE Parkstaete",
             "description": "Splitsingsakte (BW 5:111), constitutief bij notariële akte; geen verband met een besluit.",
             "governingBody": "vve-parkstaete",
             "isPublic": false,
@@ -47,10 +47,10 @@
             "slug": "statuten-vng-v1",
             "document": "statuten-vng",
             "versionNumber": 1,
-            "inwerkingtreding": "1990-05-01",
+            "effectiveDate": "1990-05-01",
             "notes": "Constitutieve versie bij oprichting van de vereniging; opgericht bij notariële akte, geen verband met een besluit in decidesk.",
             "deedDate": "1990-04-12",
-            "notaris": "mr. C. van Dam",
+            "notary": "mr. C. van Dam",
             "status": "vervangen"
           },
           {
@@ -58,10 +58,10 @@
             "document": "statuten-vng",
             "versionNumber": 2,
             "determinedBy": "besluit-statutenwijziging-vng-2021",
-            "inwerkingtreding": "2022-01-01",
+            "effectiveDate": "2022-01-01",
             "notes": "Statutenwijziging 2021: aanpassing van de bevoegdheden van de ledenraad (art. 20).",
             "deedDate": "2021-12-15",
-            "notaris": "mr. A. de Wit",
+            "notary": "mr. A. de Wit",
             "status": "in-werking"
           },
           {
@@ -69,7 +69,7 @@
             "document": "reglement-van-orde-raad-amsterdam",
             "versionNumber": 1,
             "determinedBy": "besluit-vaststelling-rvo-amsterdam",
-            "inwerkingtreding": "2023-03-01",
+            "effectiveDate": "2023-03-01",
             "notes": "Vaststelling van het reglement van orde door de gemeenteraad.",
             "status": "in-werking"
           },
@@ -77,10 +77,10 @@
             "slug": "splitsingsakte-parkstaete-v1",
             "document": "splitsingsakte-vve-parkstaete",
             "versionNumber": 1,
-            "inwerkingtreding": "2005-06-01",
+            "effectiveDate": "2005-06-01",
             "notes": "Constitutieve splitsingsakte bij notariële akte; geen verband met een besluit.",
             "deedDate": "2005-05-20",
-            "notaris": "mr. B. Jansen",
+            "notary": "mr. B. Jansen",
             "status": "in-werking"
           }
         ],
@@ -95,7 +95,7 @@
             "citesGoverningDocuments": [
               {
                 "document": "statuten-vng",
-                "artikel": "art. 20"
+                "article": "art. 20"
               }
             ]
           },
@@ -159,7 +159,7 @@
         },
         "required": [
           "type",
-          "citeertitel",
+          "citationTitle",
           "governingBody",
           "status"
         ],
@@ -179,7 +179,7 @@
             ],
             "example": "statuten"
           },
-          "citeertitel": {
+          "citationTitle": {
             "title": "Citeertitel",
             "type": "string",
             "description": "The document's citable name (citeertitel). Required.",
@@ -326,7 +326,7 @@
             "$ref": "Decision",
             "description": "Reference to the Decision that enacted this version (besluit tot statutenwijziging, vaststellingsbesluit, ALV-besluit). CONDITIONALLY REQUIRED (REQ-GDR-002): mandatory for every version of a document that already has at least one sealed version; only the first (constitutive/historical) version MAY omit it. This cross-object conditional-required cannot be expressed as a JSON Schema constraint (no anyOf/allOf/oneOf in an OR register schema), so it is enforced at save time by GoverningDocumentConsolidationService."
           },
-          "inwerkingtreding": {
+          "effectiveDate": {
             "title": "Effective date",
             "type": "string",
             "format": "date",
@@ -354,7 +354,7 @@
             "description": "Optional notarial-deed date, for notarially enacted documents (statuten, splitsingsakte). Plain metadata — no KNB/notary-system integration.",
             "example": "2021-12-15"
           },
-          "notaris": {
+          "notary": {
             "title": "Notary",
             "type": "string",
             "description": "Optional notary name (name only) for notarially enacted documents. PII — structurally stripped from any public payload (REQ-GDR-007).",
@@ -405,7 +405,7 @@
                   "$ref": "GoverningDocumentVersie",
                   "description": "Optional reference to a specific sealed GoverningDocumentVersie. Omitted means 'the version in force at reading time' per the in-force resolution (REQ-GDR-004); a pinned versie gives the immutable-content guarantee (REQ-GDR-003)."
                 },
-                "artikel": {
+                "article": {
                   "title": "Article",
                   "type": "string",
                   "description": "Optional plain-string article reference, e.g. 'art. 14 lid 3'.",

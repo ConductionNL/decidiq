@@ -20,11 +20,11 @@
             "rationale": "Na de recente aanbesteding jeugdhulp bereiken de fractie signalen van oplopende wachttijden. Graag een toelichting van de portefeuillehouder op de actuele stand en de te nemen maatregelen.",
             "submitter": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "00000000-0000-0000-0000-000000000000",
-            "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
+            "portfolioHolder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "targetMeeting": "raadsvergadering-2025-01-15",
             "questionHourAgendaItem": "vragenuur-2025-01-15",
-            "volgorde": 1,
+            "sortOrder": 1,
             "lifecycle": "beantwoord",
             "answerSummary": "Wethouder erkent oplopende wachttijden; raadsbrief met plan van aanpak toegezegd vóór 1 maart.",
             "answeredBy": "00000000-0000-0000-0000-000000000000",
@@ -38,11 +38,11 @@
             "rationale": "Ouders melden onveilige situaties tijdens de spits bij de schoolzone Lindelaan. Welke korte-termijnmaatregelen ziet het college?",
             "submitter": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "00000000-0000-0000-0000-000000000000",
-            "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
+            "portfolioHolder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "targetMeeting": "raadsvergadering-2025-01-15",
             "questionHourAgendaItem": "vragenuur-2025-01-15",
-            "volgorde": 2,
+            "sortOrder": 2,
             "lifecycle": "ingepland"
           },
           {
@@ -52,7 +52,7 @@
             "rationale": "In de media wordt gesproken over een voorgenomen sluiting van zwembad De Plons. Klopt dit en is de raad hierover tijdig geïnformeerd?",
             "submitter": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "00000000-0000-0000-0000-000000000000",
-            "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
+            "portfolioHolder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "targetMeeting": "raadsvergadering-2025-01-15",
             "lifecycle": "ingediend"
@@ -64,7 +64,7 @@
             "rationale": "Graag inzicht in de opvangcapaciteit voor statushouders in het derde kwartaal en de gevolgen voor de taakstelling.",
             "submitter": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "00000000-0000-0000-0000-000000000000",
-            "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
+            "portfolioHolder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "targetMeeting": "raadsvergadering-2025-01-15",
             "lifecycle": "afgewezen",
@@ -76,11 +76,11 @@
             "slug": "int-veiligheid-stationsgebied",
             "requestNumber": "INT-2026-001",
             "subject": "Veiligheid stationsgebied",
-            "vragen": "1. Sinds wanneer was het college bekend met de toename van incidenten in het stationsgebied? 2. Welke maatregelen zijn getroffen en waarom is de raad hierover niet eerder geïnformeerd?",
+            "questions": "1. Sinds wanneer was het college bekend met de toename van incidenten in het stationsgebied? 2. Welke maatregelen zijn getroffen en waarom is de raad hierover niet eerder geïnformeerd?",
             "rationale": "De aanhoudende onveiligheid in het stationsgebied rechtvaardigt een interpellatiedebat buiten de orde van de dag.",
             "requester": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "00000000-0000-0000-0000-000000000000",
-            "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
+            "portfolioHolder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "steunbetuigingen": [
               "00000000-0000-0000-0000-000000000000",
@@ -98,11 +98,11 @@
             "slug": "int-jaarrekening-grondbedrijf",
             "requestNumber": "INT-2026-002",
             "subject": "Tekorten jaarrekening grondbedrijf",
-            "vragen": "1. Waarom is de raad niet geïnformeerd over de tekorten in het grondbedrijf? 2. Welke gevolgen heeft dit voor de meerjarenbegroting?",
+            "questions": "1. Waarom is de raad niet geïnformeerd over de tekorten in het grondbedrijf? 2. Welke gevolgen heeft dit voor de meerjarenbegroting?",
             "rationale": "De omvang van de tekorten en het uitblijven van informatie aan de raad vragen om een interpellatie.",
             "requester": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "00000000-0000-0000-0000-000000000000",
-            "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
+            "portfolioHolder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "steunbetuigingen": [
               "00000000-0000-0000-0000-000000000000",
@@ -114,11 +114,11 @@
             "slug": "int-subsidie-cultuurhuis",
             "requestNumber": "INT-2026-003",
             "subject": "Subsidieverlening cultuurhuis",
-            "vragen": "1. Op welke grond is de subsidie aan het cultuurhuis verhoogd? 2. Voldoet de verhoging aan het geldende subsidiekader?",
+            "questions": "1. Op welke grond is de subsidie aan het cultuurhuis verhoogd? 2. Voldoet de verhoging aan het geldende subsidiekader?",
             "rationale": "De onderbouwing van de subsidieverhoging is voor de raad onvoldoende inzichtelijk.",
             "requester": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "00000000-0000-0000-0000-000000000000",
-            "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
+            "portfolioHolder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "steunbetuigingen": [
               "00000000-0000-0000-0000-000000000000",
@@ -364,7 +364,7 @@
           "politicalGroup",
           "subject",
           "rationale",
-          "portefeuillehouder",
+          "portfolioHolder",
           "governanceBody",
           "targetMeeting",
           "lifecycle"
@@ -402,7 +402,7 @@
             "type": "string",
             "description": "Motivation / body of the oral question (rich text). Required."
           },
-          "portefeuillehouder": {
+          "portfolioHolder": {
             "title": "Portefeuillehouder",
             "type": "string",
             "format": "uuid",
@@ -430,7 +430,7 @@
             "$ref": "AgendaItem",
             "description": "Reference to the vragenuur AgendaItem of the target meeting the question is scheduled into. An ordinary agenda item managed by agenda-item-crud; set at scheduling together with volgorde when the lifecycle moves to ingepland (REQ-VRI-004). Optional until scheduled."
           },
-          "volgorde": {
+          "sortOrder": {
             "title": "Order",
             "type": "integer",
             "description": "Order of the question within the vragenuur agenda item. Set at scheduling. Optional."
@@ -671,8 +671,8 @@
           "requester",
           "politicalGroup",
           "subject",
-          "vragen",
-          "portefeuillehouder",
+          "questions",
+          "portfolioHolder",
           "governanceBody",
           "lifecycle"
         ],
@@ -704,7 +704,7 @@
             "description": "Subject of the interpellation. Required; max 200 characters.",
             "example": "Veiligheid stationsgebied"
           },
-          "vragen": {
+          "questions": {
             "title": "Questions",
             "type": "string",
             "description": "The questions to be put during the interpellation (rich text). Required.",
@@ -715,7 +715,7 @@
             "type": "string",
             "description": "Motivation for the interpellation (rich text). Optional."
           },
-          "portefeuillehouder": {
+          "portfolioHolder": {
             "title": "Portefeuillehouder",
             "type": "string",
             "format": "uuid",
