@@ -22,7 +22,7 @@
                 "stepType": "beediging",
                 "title": "Beëdiging vastleggen",
                 "status": "afgerond",
-                "verplicht": true,
+                "mandatory": true,
                 "completedAt": "2026-03-26T20:15:00Z",
                 "completedBy": "griffier",
                 "reference": "raadsvergadering-2025-01-15",
@@ -32,7 +32,7 @@
                 "stepType": "account-koppeling",
                 "title": "Nextcloud-account koppelen",
                 "status": "afgerond",
-                "verplicht": true,
+                "mandatory": true,
                 "completedAt": "2026-03-27T09:00:00Z",
                 "completedBy": "griffier",
                 "reference": "mjanssen"
@@ -41,7 +41,7 @@
                 "stepType": "groepen-toewijzen",
                 "title": "Groepen en RBAC-scope toewijzen",
                 "status": "open",
-                "verplicht": true,
+                "mandatory": true,
                 "dueDate": "2026-06-01",
                 "note": "Wacht op bevestiging body-role→groep-mapping (drijft de overdue-KPI en het overdue-rappel)."
               },
@@ -49,7 +49,7 @@
                 "stepType": "introductiepakket",
                 "title": "Introductiepakket bezorgen",
                 "status": "open",
-                "verplicht": false,
+                "mandatory": false,
                 "dueDate": "2026-06-15",
                 "note": "iPad reserveren."
               },
@@ -57,14 +57,14 @@
                 "stepType": "nevenfuncties-intake",
                 "title": "Nevenfuncties uitvragen",
                 "status": "open",
-                "verplicht": true,
+                "mandatory": true,
                 "dueDate": "2026-06-15"
               },
               {
                 "stepType": "fractie-toewijzing",
                 "title": "Fractie toewijzen",
                 "status": "open",
-                "verplicht": false,
+                "mandatory": false,
                 "dueDate": "2026-06-15"
               }
             ]
@@ -81,42 +81,42 @@
                 "stepType": "beediging",
                 "title": "Beëdiging vastleggen",
                 "status": "open",
-                "verplicht": true,
+                "mandatory": true,
                 "dueDate": "2026-08-15"
               },
               {
                 "stepType": "account-koppeling",
                 "title": "Nextcloud-account koppelen",
                 "status": "open",
-                "verplicht": true,
+                "mandatory": true,
                 "dueDate": "2026-08-15"
               },
               {
                 "stepType": "groepen-toewijzen",
                 "title": "Groepen en RBAC-scope toewijzen",
                 "status": "open",
-                "verplicht": true,
+                "mandatory": true,
                 "dueDate": "2026-08-20"
               },
               {
                 "stepType": "introductiepakket",
                 "title": "Introductiepakket bezorgen",
                 "status": "open",
-                "verplicht": false,
+                "mandatory": false,
                 "dueDate": "2026-08-22"
               },
               {
                 "stepType": "nevenfuncties-intake",
                 "title": "Nevenfuncties uitvragen",
                 "status": "open",
-                "verplicht": true,
+                "mandatory": true,
                 "dueDate": "2026-08-22"
               },
               {
                 "stepType": "fractie-toewijzing",
                 "title": "Fractie toewijzen",
                 "status": "open",
-                "verplicht": false,
+                "mandatory": false,
                 "dueDate": "2026-08-22"
               }
             ]
@@ -138,7 +138,7 @@
                 "stepType": "beediging",
                 "title": "Beëdiging vastleggen",
                 "status": "afgerond",
-                "verplicht": true,
+                "mandatory": true,
                 "completedAt": "2025-11-10T20:00:00Z",
                 "completedBy": "griffier",
                 "reference": "raadsvergadering-2025-01-15",
@@ -148,7 +148,7 @@
                 "stepType": "account-koppeling",
                 "title": "Nextcloud-account koppelen",
                 "status": "afgerond",
-                "verplicht": true,
+                "mandatory": true,
                 "completedAt": "2025-11-11T09:00:00Z",
                 "completedBy": "griffier",
                 "reference": "jdebruin"
@@ -157,7 +157,7 @@
                 "stepType": "groepen-toewijzen",
                 "title": "Groepen en RBAC-scope toewijzen",
                 "status": "afgerond",
-                "verplicht": true,
+                "mandatory": true,
                 "completedAt": "2025-11-11T09:30:00Z",
                 "completedBy": "griffier",
                 "note": "Toegevoegd aan penningmeester-groep; RBAC-scope volgt via de role→scope-projectie."
@@ -166,7 +166,7 @@
                 "stepType": "introductiepakket",
                 "title": "Introductiepakket bezorgen",
                 "status": "afgerond",
-                "verplicht": false,
+                "mandatory": false,
                 "completedAt": "2025-11-12T10:00:00Z",
                 "completedBy": "griffier",
                 "reference": "/Introductiepakket-JdeBruin"
@@ -175,14 +175,14 @@
                 "stepType": "nevenfuncties-intake",
                 "title": "Nevenfuncties uitvragen",
                 "status": "overgeslagen",
-                "verplicht": false,
+                "mandatory": false,
                 "note": "Geen nevenfuncties opgegeven; stap overgeslagen (verplicht false)."
               },
               {
                 "stepType": "fractie-toewijzing",
                 "title": "Fractie toewijzen",
                 "status": "afgerond",
-                "verplicht": false,
+                "mandatory": false,
                 "completedAt": "2025-11-12T10:15:00Z",
                 "completedBy": "griffier"
               }
@@ -205,7 +205,7 @@
                 "stepType": "lidmaatschap-beeindigen",
                 "title": "Lidmaatschap einddateren",
                 "status": "afgerond",
-                "verplicht": true,
+                "mandatory": true,
                 "completedAt": "2026-03-29T18:00:00Z",
                 "completedBy": "griffier",
                 "note": "endDate = eindeDatum (person-and-membership)."
@@ -214,7 +214,7 @@
                 "stepType": "groepen-intrekken",
                 "title": "Groepen en RBAC-scope intrekken",
                 "status": "open",
-                "verplicht": true,
+                "mandatory": true,
                 "dueDate": "2026-03-30",
                 "note": "Fail-closed en altijd verplicht: traject kan niet naar afgerond zolang deze stap open is (REQ-MOB-008)."
               },
@@ -222,7 +222,7 @@
                 "stepType": "persoonsgegevens-notitie",
                 "title": "Persoonsgegevens-notitie (AVG)",
                 "status": "open",
-                "verplicht": true,
+                "mandatory": true,
                 "dueDate": "2026-04-05",
                 "note": "Verwijst naar de eigen-annotaties-export van document-annotations; geen eigen export."
               },
@@ -230,7 +230,7 @@
                 "stepType": "exit-bevestiging",
                 "title": "Exit bevestigen",
                 "status": "open",
-                "verplicht": true,
+                "mandatory": true,
                 "dueDate": "2026-04-05"
               }
             ]
@@ -251,7 +251,7 @@
                 "stepType": "lidmaatschap-beeindigen",
                 "title": "Lidmaatschap einddateren",
                 "status": "afgerond",
-                "verplicht": true,
+                "mandatory": true,
                 "completedAt": "2026-01-15T17:00:00Z",
                 "completedBy": "griffier"
               },
@@ -259,7 +259,7 @@
                 "stepType": "groepen-intrekken",
                 "title": "Groepen en RBAC-scope intrekken",
                 "status": "afgerond",
-                "verplicht": true,
+                "mandatory": true,
                 "completedAt": "2026-01-15T17:30:00Z",
                 "completedBy": "griffier",
                 "note": "Body-role-gemapte groepen verwijderd; niet-gerelateerde groepen ongemoeid."
@@ -268,7 +268,7 @@
                 "stepType": "persoonsgegevens-notitie",
                 "title": "Persoonsgegevens-notitie (AVG)",
                 "status": "afgerond",
-                "verplicht": true,
+                "mandatory": true,
                 "completedAt": "2026-01-18T11:00:00Z",
                 "completedBy": "griffier"
               },
@@ -276,7 +276,7 @@
                 "stepType": "exit-bevestiging",
                 "title": "Exit bevestigen",
                 "status": "afgerond",
-                "verplicht": true,
+                "mandatory": true,
                 "completedAt": "2026-01-20T14:00:00Z",
                 "completedBy": "griffier"
               }
@@ -526,7 +526,7 @@
                   ],
                   "example": "open"
                 },
-                "verplicht": {
+                "mandatory": {
                   "title": "Mandatory",
                   "type": "boolean",
                   "default": true,
@@ -879,7 +879,7 @@
                   ],
                   "example": "open"
                 },
-                "verplicht": {
+                "mandatory": {
                   "title": "Mandatory",
                   "type": "boolean",
                   "default": true,

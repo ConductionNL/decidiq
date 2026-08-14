@@ -224,7 +224,7 @@
             "deliveryDeadline": "2026-09-15",
             "technicalQuestionsStart": "2026-09-16",
             "technicalQuestionsEnd": "2026-10-05",
-            "behandelendeCommissie": "00000000-0000-0000-0000-000000000000",
+            "handlingCommittee": "00000000-0000-0000-0000-000000000000",
             "committeeDate": "2026-10-20",
             "decisionMakingBody": "gemeenteraad-amsterdam",
             "handlingDate": "2026-11-05",
@@ -696,7 +696,7 @@
             "description": "End of the technical-questions window. Optional.",
             "example": "2026-10-05"
           },
-          "behandelendeCommissie": {
+          "handlingCommittee": {
             "title": "Behandelende commissie",
             "type": "string",
             "format": "uuid",

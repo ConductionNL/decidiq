@@ -27,7 +27,7 @@
             "delegans": "00000000-0000-0000-0000-000000000000",
             "delegateRole": "gemeentesecretaris",
             "subject": "Beslissen op subsidieaanvragen tot het genoemde plafond",
-            "financieelPlafond": 25000,
+            "financialCeiling": 25000,
             "beperkingen": "Geen subsidies met precedentwerking",
             "subMandatePermitted": true,
             "statutoryBasis": [
@@ -42,17 +42,17 @@
           {
             "slug": "ondermandaat-subsidies-samenleving",
             "type": "mandaat",
-            "delegansOmschrijving": "gemeentesecretaris",
+            "delegansDescription": "gemeentesecretaris",
             "delegateRole": "afdelingshoofd Samenleving",
             "subject": "Beslissen op subsidieaanvragen binnen het programma Samenleving",
-            "financieelPlafond": 5000,
+            "financialCeiling": 5000,
             "beperkingen": "Uitsluitend reguliere subsidieregelingen",
             "subMandatePermitted": false,
             "statutoryBasis": [
               "Awb art. 10:9"
             ],
             "decision": "00000000-0000-0000-0000-000000000000",
-            "parentToedeling": "mandaat-subsidies-secretaris",
+            "parentAllocation": "mandaat-subsidies-secretaris",
             "validFrom": "2026-02-01",
             "validTo": "2026-08-15",
             "status": "van-kracht",
@@ -61,10 +61,10 @@
           {
             "slug": "volmacht-inkoop-teamleider",
             "type": "volmacht",
-            "delegansOmschrijving": "burgemeester",
+            "delegansDescription": "burgemeester",
             "delegateRole": "teamleider Inkoop",
             "subject": "Aangaan van privaatrechtelijke rechtshandelingen voor inkoop",
-            "financieelPlafond": 50000,
+            "financialCeiling": 50000,
             "beperkingen": "Binnen het vastgestelde inkoopbeleid",
             "subMandatePermitted": false,
             "statutoryBasis": [
@@ -247,7 +247,7 @@
             "$ref": "GovernanceBody",
             "description": "Reference to the delegans / mandaatgever as a GovernanceBody (the authority that assigns). At least one of delegans or delegansOmschrijving MUST be present (schema-level anyOf)."
           },
-          "delegansOmschrijving": {
+          "delegansDescription": {
             "title": "Delegans description",
             "type": "string",
             "facetable": true,
@@ -282,7 +282,7 @@
             "description": "The subject / scope of the assigned authority (what may be exercised). Required.",
             "example": "Beslissen op subsidieaanvragen tot het genoemde plafond"
           },
-          "financieelPlafond": {
+          "financialCeiling": {
             "title": "Financial ceiling",
             "type": "number",
             "facetable": true,
@@ -321,7 +321,7 @@
             "$ref": "Decision",
             "description": "Required reference to the authorizing delegatie-/mandaatbesluit (Decision). The besluit document itself (routes, content, publication) stays entirely in decision-management; this register holds only the relation the besluit establishes."
           },
-          "parentToedeling": {
+          "parentAllocation": {
             "title": "Parent toedeling",
             "type": "string",
             "format": "uuid",

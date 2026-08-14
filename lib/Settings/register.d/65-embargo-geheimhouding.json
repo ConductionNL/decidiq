@@ -10,7 +10,7 @@
             "citation": "Gemeentewet art. 87-89",
             "legacyCitation": "voorheen art. 25",
             "category": "gemeentewet",
-            "requiresBekrachtiging": true,
+            "requiresRatification": true,
             "description": "Geheimhouding opgelegd op stukken bestemd voor of behandeld door de raad. Onder het regime van de Wet bevorderen integriteit en functioneren decentraal bestuur (2023) geldt Gemeentewet art. 87-89; voorheen art. 25.",
             "builtIn": true,
             "active": true
@@ -21,7 +21,7 @@
             "citation": "Gemeentewet art. 87-89",
             "legacyCitation": "voorheen art. 55",
             "category": "gemeentewet",
-            "requiresBekrachtiging": false,
+            "requiresRatification": false,
             "description": "Geheimhouding opgelegd door of namens het college op collegestukken. Post-2023 Gemeentewet art. 87-89; voorheen art. 55.",
             "builtIn": true,
             "active": true
@@ -32,7 +32,7 @@
             "citation": "Gemeentewet art. 87-89",
             "legacyCitation": "voorheen art. 86",
             "category": "gemeentewet",
-            "requiresBekrachtiging": true,
+            "requiresRatification": true,
             "description": "Geheimhouding opgelegd in een raadscommissie op commissiestukken; bekrachtiging door de raad vereist. Post-2023 Gemeentewet art. 87-89; voorheen art. 86.",
             "builtIn": true,
             "active": true
@@ -43,7 +43,7 @@
             "citation": "Woo art. 5.1 lid 1",
             "legacyCitation": null,
             "category": "woo-absoluut",
-            "requiresBekrachtiging": false,
+            "requiresRatification": false,
             "description": "Absolute uitzonderingsgrond (Woo art. 5.1 lid 1): eenheid van de Kroon en veiligheid van de Staat.",
             "builtIn": true,
             "active": true
@@ -54,7 +54,7 @@
             "citation": "Woo art. 5.1 lid 1",
             "legacyCitation": null,
             "category": "woo-absoluut",
-            "requiresBekrachtiging": false,
+            "requiresRatification": false,
             "description": "Absolute uitzonderingsgrond (Woo art. 5.1 lid 1): vertrouwelijk aan de overheid meegedeelde bedrijfs- en fabricagegegevens.",
             "builtIn": true,
             "active": true
@@ -65,7 +65,7 @@
             "citation": "Woo art. 5.1 lid 2",
             "legacyCitation": null,
             "category": "woo-relatief",
-            "requiresBekrachtiging": false,
+            "requiresRatification": false,
             "description": "Relatieve uitzonderingsgrond (Woo art. 5.1 lid 2): eerbiediging van de persoonlijke levenssfeer.",
             "builtIn": true,
             "active": true
@@ -76,7 +76,7 @@
             "citation": "Woo art. 5.1 lid 2",
             "legacyCitation": null,
             "category": "woo-relatief",
-            "requiresBekrachtiging": false,
+            "requiresRatification": false,
             "description": "Relatieve uitzonderingsgrond (Woo art. 5.1 lid 2): financiële en economische belangen van het bestuursorgaan.",
             "builtIn": true,
             "active": true
@@ -87,7 +87,7 @@
             "citation": "statuten/reglement",
             "legacyCitation": null,
             "category": "overig",
-            "requiresBekrachtiging": true,
+            "requiresRatification": true,
             "description": "Vertrouwelijkheidsgrond voor niet-overheidsgremia (vereniging, RvC, coöperatie) op basis van statuten of huishoudelijk reglement. Illustreert dat het bekrachtigingsvereiste een eigenschap van de configureerbare grond is, niet van de wet.",
             "builtIn": true,
             "active": true
@@ -103,7 +103,7 @@
             "imposedByBody": "gemeenteraad-amsterdam",
             "imposedAt": "2026-06-08T10:00:00Z",
             "lifecycle": "opgelegd",
-            "bekrachtigingDeadline": "2026-09-30"
+            "ratificationDeadline": "2026-09-30"
           },
           {
             "slug": "geheimhouding-commissiestuk-vastgoed",
@@ -114,7 +114,7 @@
             "imposedByBody": "gemeenteraad-amsterdam",
             "imposedAt": "2026-03-02T13:30:00Z",
             "lifecycle": "opgelegd",
-            "bekrachtigingDeadline": "2026-04-01"
+            "ratificationDeadline": "2026-04-01"
           },
           {
             "slug": "geheimhouding-besluit-personeel",
@@ -126,8 +126,8 @@
             "imposedAt": "2026-01-19T09:00:00Z",
             "lifecycle": "opgeheven",
             "dissolutionDecision": "00000000-0000-0000-0000-000000000000",
-            "opheffingDate": "2026-06-25",
-            "opheffingConditions": "openbaar na afronding onderhandelingen"
+            "liftingDate": "2026-06-25",
+            "liftingConditions": "openbaar na afronding onderhandelingen"
           }
         ]
       }
@@ -159,7 +159,7 @@
           "name",
           "citation",
           "category",
-          "requiresBekrachtiging",
+          "requiresRatification",
           "active"
         ],
         "properties": {
@@ -196,7 +196,7 @@
             ],
             "example": "gemeentewet"
           },
-          "requiresBekrachtiging": {
+          "requiresRatification": {
             "title": "Requires bekrachtiging",
             "type": "boolean",
             "facetable": true,
@@ -426,7 +426,7 @@
             ],
             "example": "opgelegd"
           },
-          "bekrachtigingDeadline": {
+          "ratificationDeadline": {
             "title": "Bekrachtiging deadline",
             "type": "string",
             "format": "date",
@@ -443,7 +443,7 @@
             "nullable": true,
             "description": "Reference to the confirming body's Decision that bekrachtigt the geheimhouding. Set alongside the transition to bekrachtigd (REQ-EMB-003)."
           },
-          "bekrachtigingDate": {
+          "ratificationDate": {
             "title": "Bekrachtiging date",
             "type": "string",
             "format": "date-time",
@@ -451,7 +451,7 @@
             "nullable": true,
             "description": "Datetime the bekrachtigingsbesluit was recorded and the lifecycle transitioned to bekrachtigd."
           },
-          "bekrachtigingAgendaItem": {
+          "ratificationAgendaItem": {
             "title": "Bekrachtiging agenda item",
             "type": "string",
             "format": "uuid",
@@ -467,7 +467,7 @@
             "nullable": true,
             "description": "Reference to the opheffingsbesluit Decision by the imposing or confirming body (required to lift, REQ-EMB-004). Set alongside the transition to opgeheven; on opheffing the target becomes publication-ELIGIBLE again but is never auto-published."
           },
-          "opheffingDate": {
+          "liftingDate": {
             "title": "Opheffing date",
             "type": "string",
             "format": "date",
@@ -476,7 +476,7 @@
             "description": "Date the geheimhouding was lifted (Schema.org Action endTime). Set alongside the transition to opgeheven.",
             "example": "2026-06-25"
           },
-          "opheffingConditions": {
+          "liftingConditions": {
             "title": "Opheffing conditions",
             "type": "string",
             "nullable": true,

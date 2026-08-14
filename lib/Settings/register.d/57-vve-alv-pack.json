@@ -93,7 +93,7 @@
             "builtIn": true,
             "defaultVoteThreshold": "simple-majority",
             "defaultQuorumFraction": null,
-            "reglementSource": "BW 2:48/2:49"
+            "regulationSource": "BW 2:48/2:49"
           },
           {
             "slug": "vaststelling-jaarrekening",
@@ -104,7 +104,7 @@
             "builtIn": true,
             "defaultVoteThreshold": "simple-majority",
             "defaultQuorumFraction": null,
-            "reglementSource": "MR 2017 art. 14/15"
+            "regulationSource": "MR 2017 art. 14/15"
           },
           {
             "slug": "dotatie-reservefonds",
@@ -115,7 +115,7 @@
             "builtIn": true,
             "defaultVoteThreshold": "simple-majority",
             "defaultQuorumFraction": null,
-            "reglementSource": "Woningwet reservefonds (BW 5:126)"
+            "regulationSource": "Woningwet reservefonds (BW 5:126)"
           },
           {
             "slug": "vaststelling-mjop",
@@ -126,7 +126,7 @@
             "builtIn": true,
             "defaultVoteThreshold": "simple-majority",
             "defaultQuorumFraction": null,
-            "reglementSource": "MR 2017 art. 14 (MJOP-grondslag)"
+            "regulationSource": "MR 2017 art. 14 (MJOP-grondslag)"
           },
           {
             "slug": "machtiging-boven-drempel",
@@ -137,7 +137,7 @@
             "builtIn": true,
             "defaultVoteThreshold": "qualified-majority-two-thirds",
             "defaultQuorumFraction": "2/3",
-            "reglementSource": "MR 2017 art. 56 lid 5"
+            "regulationSource": "MR 2017 art. 56 lid 5"
           },
           {
             "slug": "wijziging-huishoudelijk-reglement",
@@ -148,22 +148,22 @@
             "builtIn": true,
             "defaultVoteThreshold": "qualified-majority-two-thirds",
             "defaultQuorumFraction": null,
-            "reglementSource": "MR 2017 art. 60"
+            "regulationSource": "MR 2017 art. 60"
           }
         ],
         "vve-configuration": [
           {
             "slug": "vve-zeewaarts-configuratie",
             "governanceBody": "00000000-0000-0000-0000-000000000000",
-            "modelreglement": "modelreglement-2017",
-            "breukdelenDenominator": 10000,
-            "splitsingsakteDocument": "00000000-0000-0000-0000-000000000000",
+            "modelRegulation": "modelreglement-2017",
+            "fractionDenominator": 10000,
+            "deedOfDivisionDocument": "00000000-0000-0000-0000-000000000000",
             "majorityOverrides": [
               {
                 "decisionCategory": "wijziging-huishoudelijk-reglement",
                 "voteThreshold": "qualified-majority-three-quarters",
                 "quorumFraction": null,
-                "akteArtikel": "splitsingsakte 2019 art. 62"
+                "deedArticle": "splitsingsakte 2019 art. 62"
               }
             ]
           }
@@ -207,8 +207,8 @@
         },
         "required": [
           "governanceBody",
-          "modelreglement",
-          "breukdelenDenominator"
+          "modelRegulation",
+          "fractionDenominator"
         ],
         "properties": {
           "governanceBody": {
@@ -218,21 +218,21 @@
             "$ref": "GovernanceBody",
             "description": "Reference to the GovernanceBody (the VvE) this configuration binds. Required; one configuration per body."
           },
-          "modelreglement": {
+          "modelRegulation": {
             "title": "Modelreglement preset",
             "type": "string",
             "format": "uuid",
             "$ref": "ModelreglementPreset",
             "description": "Reference to the ModelreglementPreset (1992/2006/2017) this VvE follows. Required; picked at body setup."
           },
-          "breukdelenDenominator": {
+          "fractionDenominator": {
             "title": "Breukdelen denominator",
             "type": "integer",
             "description": "The total number of breukdelen the appartementsrechten are divided into (the fraction denominator, e.g. 10000). Required; Membership.votingWeight values are numerators over this denominator.",
             "default": 10000,
             "example": 10000
           },
-          "splitsingsakteDocument": {
+          "deedOfDivisionDocument": {
             "title": "Splitsingsakte document",
             "type": "string",
             "description": "Reference to the splitsingsakte governing document registered by the governing-documents-register capability. Reference only — this pack never registers the document itself. A plain reference string (governing document uuid/slug); nil UUID placeholder until the sibling registration lands.",
@@ -278,7 +278,7 @@
                   "description": "Optional quorum fraction (e.g. '2/3') required for this category per the akte. Null means no quorum beyond the body default.",
                   "example": "2/3"
                 },
-                "akteArtikel": {
+                "deedArticle": {
                   "title": "Akte article",
                   "type": "string",
                   "description": "Free-text source note naming the splitsingsakte article this deviation stems from.",
@@ -367,7 +367,7 @@
             "description": "Optional default quorum fraction (e.g. '2/3'). Null means no quorum beyond the body default.",
             "example": "2/3"
           },
-          "reglementSource": {
+          "regulationSource": {
             "title": "Reglement source",
             "type": "string",
             "description": "Free text naming the modelreglement article (or BW/Woningwet source) this template's majority derives from. Flagged for juridical review before release.",

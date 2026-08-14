@@ -82,7 +82,7 @@
             "role": "chair",
             "person": "persoon-w-van-dam",
             "governanceBody": "bestuur-noz-organisatie",
-            "namens": "gemeenteraad-noorderbrug",
+            "onBehalfOf": "gemeenteraad-noorderbrug",
             "votingWeight": 2,
             "startDate": "2018-04-01"
           },
@@ -91,7 +91,7 @@
             "role": "member",
             "person": "persoon-a-terpstra",
             "governanceBody": "bestuur-noz-organisatie",
-            "namens": "gemeenteraad-zuidermeer",
+            "onBehalfOf": "gemeenteraad-zuidermeer",
             "votingWeight": 1,
             "startDate": "2018-04-01"
           }
@@ -123,7 +123,7 @@
             "ronde": "zienswijzeronde-begroting-2027",
             "participant": "gemeenteraad-noorderbrug",
             "deadline": "2026-06-15",
-            "standpunt": "positief-met-kanttekeningen",
+            "position": "positief-met-kanttekeningen",
             "text": "De raad stemt in met de ontwerpbegroting, met de kanttekening dat de indexatie van de gemeentelijke bijdrage maximaal 3% mag bedragen.",
             "submittedDate": "2026-06-10T00:00:00Z",
             "decision": "00000000-0000-0000-0000-000000000000",
@@ -136,7 +136,7 @@
             "ronde": "zienswijzeronde-begroting-2027",
             "participant": "gemeenteraad-oostwoud",
             "deadline": "2026-06-15",
-            "standpunt": "positief",
+            "position": "positief",
             "text": "De raad stemt zonder opmerkingen in met de ontwerpbegroting 2027.",
             "submittedDate": "2026-06-02T00:00:00Z",
             "processing": "overgenomen",
@@ -547,7 +547,7 @@
             "description": "Deadline copied from the ronde at generation (D5) so the declarative scheduled rappels filter on the object's own field.",
             "example": "2026-06-15"
           },
-          "standpunt": {
+          "position": {
             "title": "Standpunt",
             "type": "string",
             "facetable": true,
@@ -618,7 +618,7 @@
         "version": "0.2.0",
         "description": "Additive delta (ADR-037 fragment-located additive pattern, mirroring fragment 55's Decision delta): this fragment merges ONLY the optional namens property onto the existing membership schema (deep-merge unions it with the base Membership's existing properties). No required field is added and no existing property, enum value, or required-field set is modified, so memberships created before this change stay valid (REQ-SGB-002/003).",
         "properties": {
-          "namens": {
+          "onBehalfOf": {
             "title": "Namens",
             "type": "string",
             "format": "uuid",
