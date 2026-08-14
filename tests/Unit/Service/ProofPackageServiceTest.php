@@ -160,7 +160,7 @@ class ProofPackageServiceTest extends TestCase {
 								'votesAgainst' => 5,
 								'votesAbstain' => 1,
 								'result' => 'passed',
-								'quorumMet' => true,
+								'quorumWith' => true,
 							]
 						),
 					];

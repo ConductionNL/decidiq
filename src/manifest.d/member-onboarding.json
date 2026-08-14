@@ -109,8 +109,8 @@
 				"columns": [
 					{ "key": "person", "label": "Person", "widget": "link" },
 					{ "key": "body", "label": "Body" },
-					{ "key": "eindeReden", "label": "End reason", "widget": "badge" },
-					{ "key": "eindeDatum", "label": "End date" },
+					{ "key": "endReason", "label": "End reason", "widget": "badge" },
+					{ "key": "endDate", "label": "End date" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 				],
 				"actions": [

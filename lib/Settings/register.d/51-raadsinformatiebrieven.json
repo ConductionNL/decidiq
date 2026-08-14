@@ -13,11 +13,11 @@
             "sentAt": "2026-02-20",
             "directedTo": "gemeenteraad-amsterdam",
             "letterDocument": "Decidesk/Gemeenteraad Amsterdam/Raadsinformatiebrieven/RIB-2026-012 Wachtlijsten jeugdzorg.pdf",
-            "bijlagen": [
+            "attachments": [
               "Decidesk/Gemeenteraad Amsterdam/Raadsinformatiebrieven/RIB-2026-012 Bijlage rapportage wachtlijsten.pdf"
             ],
             "agendaItem": "lijst-ingekomen-stukken-2025-01-15",
-            "afgedaneToezegging": "toezegging-raadsbrief-jeugdzorg",
+            "afgedaneCommitment": "toezegging-raadsbrief-jeugdzorg",
             "lifecycle": "geagendeerd",
             "publicationDate": "2026-02-21T09:00:00Z"
           },
@@ -51,32 +51,32 @@
           {
             "slug": "tv-rib-2026-012-doorlooptijd",
             "rib": "rib-2026-012-wachtlijsten-jeugdzorg",
-            "vraag": "Hoe verhoudt de genoemde gemiddelde doorlooptijd zich tot de landelijke norm?",
-            "gesteldDoor": "00000000-0000-0000-0000-000000000000",
+            "question": "Hoe verhoudt de genoemde gemiddelde doorlooptijd zich tot de landelijke norm?",
+            "gesteldBy": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "GroenLinks",
-            "gesteldOp": "2026-02-24",
-            "antwoord": "De doorlooptijd ligt 12% boven de landelijke norm; het plan van aanpak voorziet in een reductie naar de norm binnen twee kwartalen.",
-            "beantwoordDoor": "Afdeling Sociaal Domein",
-            "beantwoordOp": "2026-03-02",
+            "gesteldOn": "2026-02-24",
+            "answer": "De doorlooptijd ligt 12% boven de landelijke norm; het plan van aanpak voorziet in een reductie naar de norm binnen twee kwartalen.",
+            "answeredBy": "Afdeling Sociaal Domein",
+            "answeredOn": "2026-03-02",
             "lifecycle": "beantwoord",
             "publicationDate": "2026-03-03T09:00:00Z"
           },
           {
             "slug": "tv-rib-2026-012-regiocijfers",
             "rib": "rib-2026-012-wachtlijsten-jeugdzorg",
-            "vraag": "Kunnen de wachtlijstcijfers worden uitgesplitst per regiogemeente?",
-            "gesteldDoor": "00000000-0000-0000-0000-000000000000",
+            "question": "Kunnen de wachtlijstcijfers worden uitgesplitst per regiogemeente?",
+            "gesteldBy": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "VVD",
-            "gesteldOp": "2026-02-25",
+            "gesteldOn": "2026-02-25",
             "lifecycle": "gesteld"
           },
           {
             "slug": "tv-rib-2026-013-netcapaciteit",
             "rib": "rib-2026-013-energietransitie",
-            "vraag": "Welke wijken lopen vertraging op door netcapaciteit?",
-            "gesteldDoor": "00000000-0000-0000-0000-000000000000",
+            "question": "Welke wijken lopen vertraging op door netcapaciteit?",
+            "gesteldBy": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "D66",
-            "gesteldOp": "2026-03-08",
+            "gesteldOn": "2026-03-08",
             "lifecycle": "gesteld"
           }
         ]
@@ -228,7 +228,7 @@
             "description": "File reference to the letter PDF in the object's NC Files folder via the existing Files leaf (no new document store). A file reference only; document content is never stored on this object, which keeps the object fully publishable. Required.",
             "example": "Decidesk/Gemeenteraad Amsterdam/Raadsinformatiebrieven/RIB-2026-012 Wachtlijsten jeugdzorg.pdf"
           },
-          "bijlagen": {
+          "attachments": {
             "title": "Attachments",
             "type": "array",
             "items": {
@@ -243,14 +243,14 @@
             "$ref": "AgendaItem",
             "description": "Reference to the AgendaItem recording the ter-kennisname placement (typically the lijst-ingekomen-stukken / LIS item or a dedicated RIB list item of a meeting). Set when the lifecycle moves to geagendeerd (REQ-RIB-002). Optional."
           },
-          "afgedaneToezegging": {
+          "afgedaneCommitment": {
             "title": "Settled commitment",
             "type": "string",
             "format": "uuid",
             "$ref": "Toezegging",
             "description": "Optional reference to a Toezegging this letter afdoet. Afdoening state and log live EXCLUSIVELY on the Toezegging (toezeggingen-register REQ-002); the ToezeggingDetail surfaces linked RIBs as afdoening evidence via a reverse-relation query, and the RIB detail links back. This register copies no afdoening state and creates no second afdoening log (REQ-RIB-003)."
           },
-          "relatedDossier": {
+          "relatedFile": {
             "title": "Related dossier",
             "type": "string",
             "nullable": true,
@@ -347,9 +347,9 @@
         },
         "required": [
           "rib",
-          "vraag",
-          "gesteldDoor",
-          "gesteldOp",
+          "question",
+          "gesteldBy",
+          "gesteldOn",
           "lifecycle"
         ],
         "properties": {
@@ -360,13 +360,13 @@
             "$ref": "Raadsinformatiebrief",
             "description": "Reference to the Raadsinformatiebrief this question is about (schema:Question aboutMode). Required — a technische vraag cannot exist without a RIB. The RIB detail renders the thread of questions filtered on this reference, in question order (no nested document)."
           },
-          "vraag": {
+          "question": {
             "title": "Question",
             "type": "string",
             "description": "The question text (schema:Question text). Required.",
             "example": "Hoe verhoudt de genoemde gemiddelde doorlooptijd zich tot de landelijke norm?"
           },
-          "gesteldDoor": {
+          "gesteldBy": {
             "title": "Asked by",
             "type": "string",
             "format": "uuid",
@@ -380,7 +380,7 @@
             "description": "The asking member's fraction, a plain string until the Fractie schema (fractievoorzitter-fractie-koppeling) lands — a hard reference now would create a blocking dependency on an unlanded change (design D6). Optional.",
             "example": "GroenLinks"
           },
-          "gesteldOp": {
+          "gesteldOn": {
             "title": "Asked on",
             "type": "string",
             "format": "date",
@@ -388,19 +388,19 @@
             "description": "Date the question was asked (schema:Question dateCreated). Required.",
             "example": "2026-02-24"
           },
-          "antwoord": {
+          "answer": {
             "title": "Answer",
             "type": "string",
             "description": "The answer text (schema:Answer text). Optional until answered; recorded when the lifecycle moves to beantwoord.",
             "example": "De doorlooptijd ligt 12% boven de landelijke norm; het plan van aanpak voorziet in een reductie naar de norm."
           },
-          "beantwoordDoor": {
+          "answeredBy": {
             "title": "Answered by",
             "type": "string",
             "description": "The answering organisational unit (afdeling), a plain string label — NOT a governance Person reference (design D6). Optional.",
             "example": "Afdeling Sociaal Domein"
           },
-          "beantwoordOp": {
+          "answeredOn": {
             "title": "Answered on",
             "type": "string",
             "format": "date",

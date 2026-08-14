@@ -157,7 +157,7 @@ class RegulatorExportService {
 		$filename = sprintf('decidesk-%s-%s-%s.%s', $scope, $boardId, substr($generatedAt, 0, 10), $format);
 
 		$exportRecord = [
-			'boardKoppeling' => $boardId,
+			'boardIntegration' => $boardId,
 			'scope' => $scope,
 			'format' => $format,
 			'recordCount' => count($rows),
@@ -274,7 +274,7 @@ class RegulatorExportService {
 			return $this->failureDownload(message: 'Failed to load export record.');
 		}//end try
 
-		$boardId = (string)($record['boardKoppeling'] ?? '');
+		$boardId = (string)($record['boardIntegration'] ?? '');
 		$scope = (string)($record['scope'] ?? '');
 		$format = (string)($record['format'] ?? 'pdf');
 
@@ -320,7 +320,7 @@ class RegulatorExportService {
 				[
 					'register' => 'decidesk',
 					'schema' => self::SCHEMA,
-					'filters' => ['boardKoppeling' => $boardId],
+					'filters' => ['boardIntegration' => $boardId],
 					'limit' => 500,
 				]
 			);
@@ -360,7 +360,7 @@ class RegulatorExportService {
 				[
 					'register' => 'decidesk',
 					'schema' => 'meeting',
-					'filters' => ['boardKoppeling' => $boardId],
+					'filters' => ['boardIntegration' => $boardId],
 					'limit' => 5000,
 				]
 			)
@@ -380,7 +380,7 @@ class RegulatorExportService {
 			return array_values(
 				array_filter(
 					$all,
-					static fn (array $r): bool => in_array((string)($r['meetingKoppeling'] ?? ''), $meetingIds, true)
+					static fn (array $r): bool => in_array((string)($r['meetingIntegration'] ?? ''), $meetingIds, true)
 				)
 			);
 		}
@@ -398,7 +398,7 @@ class RegulatorExportService {
 			return array_values(
 				array_filter(
 					$all,
-					static fn (array $row): bool => in_array((string)($row['meetingKoppeling'] ?? ''), $meetingIds, true)
+					static fn (array $row): bool => in_array((string)($row['meetingIntegration'] ?? ''), $meetingIds, true)
 				)
 			);
 		}

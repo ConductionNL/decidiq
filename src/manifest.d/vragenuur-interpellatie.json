@@ -33,7 +33,7 @@
 				"_note": "Mondelinge vragen index (REQ-VRI-008). Columns vraagNummer/onderwerp/indiener/fractie/portefeuillehouder/targetMeeting/lifecycle; quick filters on lifecycle (and fractie/portefeuillehouder via the standard facet chrome); index _search matches vraagNummer and onderwerp. CSV export via the shared ExportService + CnMassExportDialog. Sorted by vraagNummer so duplicate numbers are immediately visible.",
 				"search": true,
 				"searchFields": [
-					"vraagNummer",
+					"questionNumber",
 					"subject"
 				],
 				"quickFilterMode": "dropdown",
@@ -49,9 +49,9 @@
 					{ "label": "Withdrawn", "filter": { "lifecycle": "ingetrokken" } }
 				],
 				"columns": [
-					{ "key": "vraagNummer", "label": "Number", "widget": "link" },
+					{ "key": "questionNumber", "label": "Number", "widget": "link" },
 					{ "key": "subject", "label": "Subject" },
-					{ "key": "indiener", "label": "Submitter" },
+					{ "key": "submitter", "label": "Submitter" },
 					{ "key": "politicalGroup", "label": "Fraction" },
 					{ "key": "portefeuillehouder", "label": "Portefeuillehouder" },
 					{ "key": "targetMeeting", "label": "Meeting" },
@@ -109,7 +109,7 @@
 				"_note": "Interpellaties index (REQ-VRI-014). Columns verzoekNummer/onderwerp/verzoeker/fractie/portefeuillehouder/lifecycle; the support status against the body threshold is a client-side computed display on the detail page (REQ-VRI-011), not a stored column. Quick filters on lifecycle (and fractie via facet chrome); index _search matches verzoekNummer and onderwerp. CSV export via ExportService + CnMassExportDialog. Sorted by verzoekNummer.",
 				"search": true,
 				"searchFields": [
-					"verzoekNummer",
+					"requestNumber",
 					"subject"
 				],
 				"quickFilterMode": "dropdown",
@@ -124,9 +124,9 @@
 					{ "label": "Withdrawn", "filter": { "lifecycle": "ingetrokken" } }
 				],
 				"columns": [
-					{ "key": "verzoekNummer", "label": "Number", "widget": "link" },
+					{ "key": "requestNumber", "label": "Number", "widget": "link" },
 					{ "key": "subject", "label": "Subject" },
-					{ "key": "verzoeker", "label": "Requester" },
+					{ "key": "requester", "label": "Requester" },
 					{ "key": "politicalGroup", "label": "Fraction" },
 					{ "key": "portefeuillehouder", "label": "Portefeuillehouder" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }

@@ -49,12 +49,12 @@
 					{ "label": "Withdrawn", "filter": { "lifecycle": "ingetrokken" } }
 				],
 				"columns": [
-					{ "key": "motivering", "label": "Nomination", "widget": "link" },
+					{ "key": "rationale", "label": "Nomination", "widget": "link" },
 					{ "key": "body", "label": "Governance body" },
 					{ "key": "targetRole", "label": "Target role", "widget": "badge" },
-					{ "key": "voordragendePartij", "label": "Nominating party" },
+					{ "key": "nominatingParty", "label": "Nominating party" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" },
-					{ "key": "besluit", "label": "Decision" }
+					{ "key": "decision", "label": "Decision" }
 				],
 				"actions": [
 					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "VoordrachtDetail", "primary": true }
@@ -111,7 +111,7 @@
 				],
 				"columns": [
 					{ "key": "body", "label": "Governance body", "widget": "link" },
-					{ "key": "gegenereerdOp", "label": "Generated at" },
+					{ "key": "gegenereerdOn", "label": "Generated at" },
 					{ "key": "publicationDate", "label": "Published" }
 				],
 				"actions": [
@@ -164,15 +164,15 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Reappointable", "filter": { "herbenoembaar": true } },
-					{ "label": "At max term", "filter": { "herbenoembaar": false } }
+					{ "label": "Reappointable", "filter": { "reappointable": true } },
+					{ "label": "At max term", "filter": { "reappointable": false } }
 				],
 				"columns": [
-					{ "key": "persoonNaam", "label": "Member", "widget": "link" },
+					{ "key": "personName", "label": "Member", "widget": "link" },
 					{ "key": "role", "label": "Role", "widget": "badge" },
-					{ "key": "termijnNummer", "label": "Term no." },
-					{ "key": "eindeTermijnDatum", "label": "End of term" },
-					{ "key": "herbenoembaar", "label": "Reappointable", "widget": "badge" },
+					{ "key": "termNumber", "label": "Term no." },
+					{ "key": "endTermDate", "label": "End of term" },
+					{ "key": "reappointable", "label": "Reappointable", "widget": "badge" },
 					{ "key": "rappelStatus", "label": "Reminder", "widget": "badge" }
 				],
 				"actions": [
@@ -232,8 +232,8 @@
 				"columns": [
 					{ "key": "body", "label": "Governance body", "widget": "link" },
 					{ "key": "role", "label": "Role", "widget": "badge" },
-					{ "key": "termijnDuurMaanden", "label": "Term (months)" },
-					{ "key": "maxAansluitendeTermijnen", "label": "Max consecutive terms" }
+					{ "key": "termDurationMonths", "label": "Term (months)" },
+					{ "key": "maxConsecutivePeriods", "label": "Max consecutive terms" }
 				],
 				"actions": [
 					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "TermijnRegelingDetail", "primary": true }

@@ -14,8 +14,8 @@
                 "stepType": "jaarrekening",
                 "label": "Jaarrekening",
                 "subjectYearOffset": -1,
-                "aanleverDeadline": "04-15",
-                "behandelingDatum": "07-02",
+                "deliveryDeadline": "04-15",
+                "handlingDate": "07-02",
                 "documentSlots": [
                   { "name": "Jaarrekening", "required": true },
                   { "name": "Accountantsverslag", "required": true }
@@ -25,8 +25,8 @@
                 "stepType": "berap",
                 "label": "Eerste bestuursrapportage (berap-1)",
                 "subjectYearOffset": 0,
-                "aanleverDeadline": "05-01",
-                "behandelingDatum": "06-10",
+                "deliveryDeadline": "05-01",
+                "handlingDate": "06-10",
                 "documentSlots": [
                   { "name": "Bestuursrapportage", "required": true }
                 ]
@@ -35,8 +35,8 @@
                 "stepType": "kadernota",
                 "label": "Kadernota",
                 "subjectYearOffset": 1,
-                "aanleverDeadline": "05-15",
-                "behandelingDatum": "07-02",
+                "deliveryDeadline": "05-15",
+                "handlingDate": "07-02",
                 "documentSlots": [
                   { "name": "Kadernota", "required": true }
                 ]
@@ -45,8 +45,8 @@
                 "stepType": "berap",
                 "label": "Tweede bestuursrapportage (berap-2)",
                 "subjectYearOffset": 0,
-                "aanleverDeadline": "09-20",
-                "behandelingDatum": "11-04",
+                "deliveryDeadline": "09-20",
+                "handlingDate": "11-04",
                 "documentSlots": [
                   { "name": "Bestuursrapportage", "required": true }
                 ]
@@ -55,11 +55,11 @@
                 "stepType": "begroting",
                 "label": "Programmabegroting",
                 "subjectYearOffset": 1,
-                "aanleverDeadline": "09-15",
-                "technischeVragenStart": "09-16",
-                "technischeVragenEind": "10-05",
-                "commissieDatum": "10-20",
-                "behandelingDatum": "11-05",
+                "deliveryDeadline": "09-15",
+                "technicalVragenStart": "09-16",
+                "technicalVragenEnd": "10-05",
+                "commissieDate": "10-20",
+                "handlingDate": "11-05",
                 "documentSlots": [
                   { "name": "Programmabegroting", "required": true },
                   { "name": "Aanbiedingsbrief", "required": true },
@@ -78,8 +78,8 @@
                 "stepType": "jaarstukken",
                 "label": "Jaarstukken",
                 "subjectYearOffset": -1,
-                "aanleverDeadline": "03-01",
-                "behandelingDatum": "04-15",
+                "deliveryDeadline": "03-01",
+                "handlingDate": "04-15",
                 "documentSlots": [
                   { "name": "Jaarrekening", "required": true },
                   { "name": "Bestuursverslag", "required": true },
@@ -90,15 +90,15 @@
                 "stepType": "decharge",
                 "label": "Decharge bestuur",
                 "subjectYearOffset": -1,
-                "behandelingDatum": "04-15",
+                "handlingDate": "04-15",
                 "documentSlots": []
               },
               {
                 "stepType": "berap",
                 "label": "Tussenrapportage",
                 "subjectYearOffset": 0,
-                "aanleverDeadline": "05-15",
-                "behandelingDatum": "06-20",
+                "deliveryDeadline": "05-15",
+                "handlingDate": "06-20",
                 "documentSlots": [
                   { "name": "Tussenrapportage", "required": true }
                 ]
@@ -107,8 +107,8 @@
                 "stepType": "jaarplan",
                 "label": "Jaarplan",
                 "subjectYearOffset": 1,
-                "aanleverDeadline": "10-01",
-                "behandelingDatum": "11-25",
+                "deliveryDeadline": "10-01",
+                "handlingDate": "11-25",
                 "documentSlots": [
                   { "name": "Jaarplan", "required": true }
                 ]
@@ -117,8 +117,8 @@
                 "stepType": "begroting",
                 "label": "Begroting",
                 "subjectYearOffset": 1,
-                "aanleverDeadline": "10-01",
-                "behandelingDatum": "11-25",
+                "deliveryDeadline": "10-01",
+                "handlingDate": "11-25",
                 "documentSlots": [
                   { "name": "Begroting", "required": true }
                 ]
@@ -155,10 +155,10 @@
             "sequence": 1,
             "stepType": "jaarrekening",
             "label": "Jaarrekening",
-            "betreftJaar": 2025,
-            "aanleverDeadline": "2026-04-15",
-            "besluitvormendOrgaan": "gemeenteraad-amsterdam",
-            "behandelingDatum": "2026-07-02",
+            "betreftYear": 2025,
+            "deliveryDeadline": "2026-04-15",
+            "decisionMakingBody": "gemeenteraad-amsterdam",
+            "handlingDate": "2026-07-02",
             "documentSlots": [
               { "name": "Jaarrekening", "required": true, "file": "00000000-0000-0000-0000-000000000000" },
               { "name": "Accountantsverslag", "required": true }
@@ -174,10 +174,10 @@
             "sequence": 2,
             "stepType": "berap",
             "label": "Eerste bestuursrapportage (berap-1)",
-            "betreftJaar": 2026,
-            "aanleverDeadline": "2026-05-01",
-            "besluitvormendOrgaan": "gemeenteraad-amsterdam",
-            "behandelingDatum": "2026-06-10",
+            "betreftYear": 2026,
+            "deliveryDeadline": "2026-05-01",
+            "decisionMakingBody": "gemeenteraad-amsterdam",
+            "handlingDate": "2026-06-10",
             "documentSlots": [
               { "name": "Bestuursrapportage", "required": true }
             ],
@@ -189,10 +189,10 @@
             "sequence": 3,
             "stepType": "kadernota",
             "label": "Kadernota",
-            "betreftJaar": 2027,
-            "aanleverDeadline": "2026-05-15",
-            "besluitvormendOrgaan": "gemeenteraad-amsterdam",
-            "behandelingDatum": "2026-07-02",
+            "betreftYear": 2027,
+            "deliveryDeadline": "2026-05-15",
+            "decisionMakingBody": "gemeenteraad-amsterdam",
+            "handlingDate": "2026-07-02",
             "documentSlots": [
               { "name": "Kadernota", "required": true }
             ],
@@ -205,10 +205,10 @@
             "sequence": 4,
             "stepType": "berap",
             "label": "Tweede bestuursrapportage (berap-2)",
-            "betreftJaar": 2026,
-            "aanleverDeadline": "2026-07-10",
-            "besluitvormendOrgaan": "gemeenteraad-amsterdam",
-            "behandelingDatum": "2026-11-04",
+            "betreftYear": 2026,
+            "deliveryDeadline": "2026-07-10",
+            "decisionMakingBody": "gemeenteraad-amsterdam",
+            "handlingDate": "2026-11-04",
             "documentSlots": [
               { "name": "Bestuursrapportage", "required": true }
             ],
@@ -220,14 +220,14 @@
             "sequence": 5,
             "stepType": "begroting",
             "label": "Programmabegroting",
-            "betreftJaar": 2027,
-            "aanleverDeadline": "2026-09-15",
-            "technischeVragenStart": "2026-09-16",
-            "technischeVragenEind": "2026-10-05",
+            "betreftYear": 2027,
+            "deliveryDeadline": "2026-09-15",
+            "technicalVragenStart": "2026-09-16",
+            "technicalVragenEnd": "2026-10-05",
             "behandelendeCommissie": "00000000-0000-0000-0000-000000000000",
-            "commissieDatum": "2026-10-20",
-            "besluitvormendOrgaan": "gemeenteraad-amsterdam",
-            "behandelingDatum": "2026-11-05",
+            "commissieDate": "2026-10-20",
+            "decisionMakingBody": "gemeenteraad-amsterdam",
+            "handlingDate": "2026-11-05",
             "documentSlots": [
               { "name": "Programmabegroting", "required": true, "file": "Programmabegroting 2027 (concept).pdf" },
               { "name": "Aanbiedingsbrief", "required": true },
@@ -241,10 +241,10 @@
             "sequence": 1,
             "stepType": "jaarstukken",
             "label": "Jaarstukken",
-            "betreftJaar": 2025,
-            "aanleverDeadline": "2026-03-01",
-            "besluitvormendOrgaan": "00000000-0000-0000-0000-000000000000",
-            "behandelingDatum": "2026-04-15",
+            "betreftYear": 2025,
+            "deliveryDeadline": "2026-03-01",
+            "decisionMakingBody": "00000000-0000-0000-0000-000000000000",
+            "handlingDate": "2026-04-15",
             "documentSlots": [
               { "name": "Jaarrekening", "required": true, "file": "Jaarstukken 2025.pdf" },
               { "name": "Bestuursverslag", "required": true },
@@ -258,9 +258,9 @@
             "sequence": 2,
             "stepType": "decharge",
             "label": "Decharge bestuur",
-            "betreftJaar": 2025,
-            "besluitvormendOrgaan": "00000000-0000-0000-0000-000000000000",
-            "behandelingDatum": "2026-04-15",
+            "betreftYear": 2025,
+            "decisionMakingBody": "00000000-0000-0000-0000-000000000000",
+            "handlingDate": "2026-04-15",
             "documentSlots": [],
             "status": "gepland"
           },
@@ -270,10 +270,10 @@
             "sequence": 3,
             "stepType": "berap",
             "label": "Tussenrapportage",
-            "betreftJaar": 2026,
-            "aanleverDeadline": "2026-05-15",
-            "besluitvormendOrgaan": "00000000-0000-0000-0000-000000000000",
-            "behandelingDatum": "2026-06-20",
+            "betreftYear": 2026,
+            "deliveryDeadline": "2026-05-15",
+            "decisionMakingBody": "00000000-0000-0000-0000-000000000000",
+            "handlingDate": "2026-06-20",
             "documentSlots": [
               { "name": "Tussenrapportage", "required": true }
             ],
@@ -285,10 +285,10 @@
             "sequence": 4,
             "stepType": "jaarplan",
             "label": "Jaarplan",
-            "betreftJaar": 2027,
-            "aanleverDeadline": "2026-10-01",
-            "besluitvormendOrgaan": "00000000-0000-0000-0000-000000000000",
-            "behandelingDatum": "2026-11-25",
+            "betreftYear": 2027,
+            "deliveryDeadline": "2026-10-01",
+            "decisionMakingBody": "00000000-0000-0000-0000-000000000000",
+            "handlingDate": "2026-11-25",
             "documentSlots": [
               { "name": "Jaarplan", "required": true }
             ],
@@ -300,10 +300,10 @@
             "sequence": 5,
             "stepType": "begroting",
             "label": "Begroting",
-            "betreftJaar": 2027,
-            "aanleverDeadline": "2026-10-01",
-            "besluitvormendOrgaan": "00000000-0000-0000-0000-000000000000",
-            "behandelingDatum": "2026-11-25",
+            "betreftYear": 2027,
+            "deliveryDeadline": "2026-10-01",
+            "decisionMakingBody": "00000000-0000-0000-0000-000000000000",
+            "handlingDate": "2026-11-25",
             "documentSlots": [
               { "name": "Begroting", "required": true }
             ],
@@ -454,31 +454,31 @@
                   "default": 0,
                   "description": "Offset added to the cyclus execution year to derive betreftJaar (design D4). kadernota/begroting +1, berap 0, jaarrekening/jaarstukken/decharge -1."
                 },
-                "aanleverDeadline": {
+                "deliveryDeadline": {
                   "title": "Aanlever-deadline default",
                   "type": "string",
                   "nullable": true,
                   "description": "Default month/day (MM-DD) the organisation must deliver the documents; resolved into a concrete date within the cyclus year at generation. Optional (a decharge step may have none)."
                 },
-                "technischeVragenStart": {
+                "technicalVragenStart": {
                   "title": "Technische-vragen start default",
                   "type": "string",
                   "nullable": true,
                   "description": "Default month/day (MM-DD) the technical-questions window opens. Optional."
                 },
-                "technischeVragenEind": {
+                "technicalVragenEnd": {
                   "title": "Technische-vragen end default",
                   "type": "string",
                   "nullable": true,
                   "description": "Default month/day (MM-DD) the technical-questions window closes. Optional."
                 },
-                "commissieDatum": {
+                "commissieDate": {
                   "title": "Commissie date default",
                   "type": "string",
                   "nullable": true,
                   "description": "Default month/day (MM-DD) of the behandelende-commissie target. Optional."
                 },
-                "behandelingDatum": {
+                "handlingDate": {
                   "title": "Behandeling date default",
                   "type": "string",
                   "nullable": true,
@@ -664,14 +664,14 @@
             "description": "Human-readable step label. Required.",
             "example": "Programmabegroting"
           },
-          "betreftJaar": {
+          "betreftYear": {
             "title": "Subject year",
             "type": "integer",
             "facetable": true,
             "description": "Subject year the step concerns, derived at generation from the cyclus execution year + the template step's subjectYearOffset (design D4). E.g. in execution year 2026 a begroting step betreft 2027 and a jaarrekening step betreft 2025.",
             "example": 2027
           },
-          "aanleverDeadline": {
+          "deliveryDeadline": {
             "title": "Aanlever-deadline",
             "type": "string",
             "format": "date",
@@ -680,7 +680,7 @@
             "description": "Date by which the organisation must deliver the documents. Drives the late-aanlevering rappel and the overdue dashboard KPI. Optional (a decharge step may have none).",
             "example": "2026-09-15"
           },
-          "technischeVragenStart": {
+          "technicalVragenStart": {
             "title": "Technische-vragen start",
             "type": "string",
             "format": "date",
@@ -688,7 +688,7 @@
             "description": "Start of the technical-questions window. Optional.",
             "example": "2026-09-16"
           },
-          "technischeVragenEind": {
+          "technicalVragenEnd": {
             "title": "Technische-vragen end",
             "type": "string",
             "format": "date",
@@ -704,7 +704,7 @@
             "nullable": true,
             "description": "Optional reference to the GovernanceBody (commissie) that pre-advises on this step."
           },
-          "commissieDatum": {
+          "commissieDate": {
             "title": "Commissie date",
             "type": "string",
             "format": "date",
@@ -712,7 +712,7 @@
             "description": "Optional target date for the behandelende-commissie treatment.",
             "example": "2026-10-20"
           },
-          "besluitvormendOrgaan": {
+          "decisionMakingBody": {
             "title": "Besluitvormend orgaan",
             "type": "string",
             "format": "uuid",
@@ -720,7 +720,7 @@
             "nullable": true,
             "description": "Reference to the decision-making GovernanceBody (raad / ALV) that treats this step."
           },
-          "behandelingDatum": {
+          "handlingDate": {
             "title": "Behandeling date",
             "type": "string",
             "format": "date",

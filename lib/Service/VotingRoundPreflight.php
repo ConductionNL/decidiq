@@ -223,7 +223,7 @@ class VotingRoundPreflight {
 	 * @param string $votingMethod The voting method
 	 * @param bool $isSecret Whether the ballot is secret
 	 * @param string|null $closedAt Optional pre-defined close time
-	 * @param bool $quorumMet Whether quorum was met when the round opened
+	 * @param bool $quorumWith Whether quorum was met when the round opened
 	 * @param array<string> $rules The effective voting rules
 	 * @param string|null $revoteOfRoundId UUID of the tied round this round revotes, or null
 	 * @param array<string> $participantIds Eligible preset participant UUIDs
@@ -238,7 +238,7 @@ class VotingRoundPreflight {
 		string $votingMethod,
 		bool $isSecret,
 		?string $closedAt,
-		bool $quorumMet,
+		bool $quorumWith,
 		array $rules,
 		?string $revoteOfRoundId,
 		array $participantIds,
@@ -253,7 +253,7 @@ class VotingRoundPreflight {
 			'isSecret' => $isSecret,
 			'openedAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
 			'closedAt' => $closedAt,
-			'quorumMet' => $quorumMet,
+			'quorumWith' => $quorumWith,
 			'result' => null,
 			'votesFor' => 0,
 			'votesAgainst' => 0,

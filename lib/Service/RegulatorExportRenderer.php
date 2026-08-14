@@ -47,7 +47,7 @@ class RegulatorExportRenderer {
 	private const CSV_COLUMNS = [
 		'resolutions' => [
 			'id',
-			'meetingKoppeling',
+			'meetingIntegration',
 			'resolutionNumber',
 			'title',
 			'type',
@@ -57,7 +57,7 @@ class RegulatorExportRenderer {
 		],
 		'minutes' => [
 			'id',
-			'meetingKoppeling',
+			'meetingIntegration',
 			'language',
 			'version',
 			'preparedBy',

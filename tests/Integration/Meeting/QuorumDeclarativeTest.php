@@ -105,14 +105,14 @@ class QuorumDeclarativeTest extends TestCase {
 
 		$meeting = $this->fetchMeeting(meetingId: $meetingId);
 
-		if (isset($meeting['quorumMet']) === false) {
+		if (isset($meeting['quorumWith']) === false) {
 			$this->markTestSkipped(
 				message: 'Cross-schema aggregation engine did not materialise quorumMet — engine support gap.'
 			);
 		}
 
 		self::assertTrue(
-			condition: (bool)$meeting['quorumMet'],
+			condition: (bool)$meeting['quorumWith'],
 			message: 'quorumMet must be true when 3 present ≥ quorumRequired 3.'
 		);
 		self::assertSame(
@@ -161,14 +161,14 @@ class QuorumDeclarativeTest extends TestCase {
 
 		$meeting = $this->fetchMeeting(meetingId: $meetingId);
 
-		if (isset($meeting['quorumMet']) === false) {
+		if (isset($meeting['quorumWith']) === false) {
 			$this->markTestSkipped(
 				message: 'Cross-schema aggregation engine did not materialise quorumMet — engine support gap.'
 			);
 		}
 
 		self::assertFalse(
-			condition: (bool)$meeting['quorumMet'],
+			condition: (bool)$meeting['quorumWith'],
 			message: 'quorumMet must be false when 2 present < quorumRequired 3.'
 		);
 		self::assertEqualsWithDelta(
@@ -212,14 +212,14 @@ class QuorumDeclarativeTest extends TestCase {
 
 		$meeting = $this->fetchMeeting(meetingId: $meetingId);
 
-		if (isset($meeting['quorumMet']) === false) {
+		if (isset($meeting['quorumWith']) === false) {
 			$this->markTestSkipped(
 				message: 'Cross-schema aggregation engine did not materialise quorumMet — engine support gap.'
 			);
 		}
 
 		self::assertTrue(
-			condition: (bool)$meeting['quorumMet'],
+			condition: (bool)$meeting['quorumWith'],
 			message: 'quorumMet must be true when quorumRequired is null (quorum not required).'
 		);
 

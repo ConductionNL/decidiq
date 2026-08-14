@@ -76,12 +76,12 @@
 							"register": "decidesk",
 							"schema": "technische-vraag",
 							"filter": { "rib": "@objectId" },
-							"sort": { "gesteldOp": "asc" },
+							"sort": { "gesteldOn": "asc" },
 							"columns": [
-								{ "key": "vraag", "label": "Question" },
-								{ "key": "gesteldDoor", "label": "Asked by" },
+								{ "key": "question", "label": "Question" },
+								{ "key": "gesteldBy", "label": "Asked by" },
 								{ "key": "politicalGroup", "label": "Fraction" },
-								{ "key": "gesteldOp", "label": "Asked on" },
+								{ "key": "gesteldOn", "label": "Asked on" },
 								{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 							]
 						}

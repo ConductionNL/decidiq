@@ -262,7 +262,7 @@ class VotingRoundCloser {
 			// ADR-005: the motion is a `decision` discriminated by decisionType.
 			$motion = $this->findObject(objectId: $subject['id'], schema: 'decision');
 			$motionTitle = (string)($motion['title'] ?? $subject['id']);
-			$this->createDossierFolder(motionId: $subject['id'], motionTitle: $motionTitle);
+			$this->createFileFolder(motionId: $subject['id'], motionTitle: $motionTitle);
 		}
 
 		// Adopted AMENDMENT: incorporate it into the parent motion text
@@ -382,7 +382,7 @@ class VotingRoundCloser {
 	 *
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 */
-	private function createDossierFolder(string $motionId, string $motionTitle): void {
+	private function createFileFolder(string $motionId, string $motionTitle): void {
 		try {
 			$fileService = $this->container->get('OCA\OpenRegister\Service\FileService');
 			$slug = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', $motionTitle) ?? $motionId);

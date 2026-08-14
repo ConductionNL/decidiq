@@ -97,10 +97,10 @@ class QesGuardTest extends TestCase {
 	 */
 	public function testAllowsWhenAllSignersHaveValidQes(): void {
 		$guard = $this->makeGuard(
-			resolution: ['meetingKoppeling' => 'meet-1'],
+			resolution: ['meetingIntegration' => 'meet-1'],
 			minutesRows: [
 				[
-					'meetingKoppeling' => 'meet-1',
+					'meetingIntegration' => 'meet-1',
 					'version' => 'signed',
 					'signedBy' => [
 						['signerUuid' => 'm-1', 'certificateThumbprint' => 'thumb-a'],
@@ -129,10 +129,10 @@ class QesGuardTest extends TestCase {
 	 */
 	public function testBlocksWhenSignerMissing(): void {
 		$guard = $this->makeGuard(
-			resolution: ['meetingKoppeling' => 'meet-1'],
+			resolution: ['meetingIntegration' => 'meet-1'],
 			minutesRows: [
 				[
-					'meetingKoppeling' => 'meet-1',
+					'meetingIntegration' => 'meet-1',
 					'version' => 'signed',
 					'signedBy' => [
 						['signerUuid' => 'm-1', 'certificateThumbprint' => 'thumb-a'],
@@ -157,10 +157,10 @@ class QesGuardTest extends TestCase {
 	 */
 	public function testBlocksWhenCertChainInvalid(): void {
 		$guard = $this->makeGuard(
-			resolution: ['meetingKoppeling' => 'meet-1'],
+			resolution: ['meetingIntegration' => 'meet-1'],
 			minutesRows: [
 				[
-					'meetingKoppeling' => 'meet-1',
+					'meetingIntegration' => 'meet-1',
 					'version' => 'signed',
 					'signedBy' => [
 						['signerUuid' => 'm-1', 'certificateThumbprint' => 'thumb-a'],
@@ -203,10 +203,10 @@ class QesGuardTest extends TestCase {
 	 */
 	public function testTreatsMissingSignedMinutesAsAllMissing(): void {
 		$guard = $this->makeGuard(
-			resolution: ['meetingKoppeling' => 'meet-1'],
+			resolution: ['meetingIntegration' => 'meet-1'],
 			minutesRows: [
 				[
-					'meetingKoppeling' => 'meet-1',
+					'meetingIntegration' => 'meet-1',
 					'version' => 'draft',
 					'signedBy' => [],
 				],

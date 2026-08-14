@@ -99,7 +99,7 @@ class GovernanceReportingService {
 		$resolutionsInYear = array_values(
 			array_filter(
 				$resolutions,
-				static fn (array $r): bool => in_array((string)($r['meetingKoppeling'] ?? ''), array_map('strval', $meetingIdsInYear), true)
+				static fn (array $r): bool => in_array((string)($r['meetingIntegration'] ?? ''), array_map('strval', $meetingIdsInYear), true)
 			)
 		);
 		$resolutionIdsInYear = array_column($resolutionsInYear, 'id');
@@ -127,7 +127,7 @@ class GovernanceReportingService {
 		);
 
 		$report = [
-			'boardKoppeling' => $boardId,
+			'boardIntegration' => $boardId,
 			'year' => $year,
 			'meetingCount' => count($meetingsInYear),
 			'resolutionCount' => count($resolutionsInYear),
@@ -168,7 +168,7 @@ class GovernanceReportingService {
 						[
 							'register' => 'decidesk',
 							'schema' => 'meeting',
-							'filters' => ['boardKoppeling' => $boardId],
+							'filters' => ['boardIntegration' => $boardId],
 							'limit' => 5000,
 						]
 					)
@@ -196,7 +196,7 @@ class GovernanceReportingService {
 						[
 							'register' => 'decidesk',
 							'schema' => 'membership',
-							'filters' => ['boardKoppeling' => $boardId],
+							'filters' => ['boardIntegration' => $boardId],
 							'limit' => 1000,
 						]
 					)
@@ -311,7 +311,7 @@ class GovernanceReportingService {
 		if ($format === 'csv') {
 			$rows = [
 				'key,value',
-				'boardKoppeling,' . ((string)($report['boardKoppeling'] ?? '')),
+				'boardKoppeling,' . ((string)($report['boardIntegration'] ?? '')),
 				'year,' . ((string)($report['year'] ?? '')),
 				'meetingCount,' . ((string)($report['meetingCount'] ?? 0)),
 				'resolutionCount,' . ((string)($report['resolutionCount'] ?? 0)),
@@ -392,7 +392,7 @@ class GovernanceReportingService {
 				[
 					'register' => 'decidesk',
 					'schema' => self::SCHEMA,
-					'filters' => ['boardKoppeling' => $boardId],
+					'filters' => ['boardIntegration' => $boardId],
 					'limit' => 500,
 				]
 			);

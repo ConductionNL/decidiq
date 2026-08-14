@@ -191,10 +191,10 @@ class DecisionTransitionGuardTest extends TestCase {
 	 * @return void
 	 */
 	public function testIsVotingOpenAllowedReadsQuorumMet(): void {
-		self::assertTrue(condition: $this->guard->isVotingOpenAllowed(meeting: ['quorumMet' => true]));
-		self::assertFalse(condition: $this->guard->isVotingOpenAllowed(meeting: ['quorumMet' => false]));
+		self::assertTrue(condition: $this->guard->isVotingOpenAllowed(meeting: ['quorumWith' => true]));
+		self::assertFalse(condition: $this->guard->isVotingOpenAllowed(meeting: ['quorumWith' => false]));
 		self::assertFalse(condition: $this->guard->isVotingOpenAllowed(meeting: []));
-		self::assertFalse(condition: $this->guard->isVotingOpenAllowed(meeting: ['quorumMet' => 'yes']));
+		self::assertFalse(condition: $this->guard->isVotingOpenAllowed(meeting: ['quorumWith' => 'yes']));
 
 	}//end testIsVotingOpenAllowedReadsQuorumMet()
 

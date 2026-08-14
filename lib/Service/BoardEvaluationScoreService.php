@@ -129,7 +129,7 @@ class BoardEvaluationScoreService {
 	): array {
 		$respondentCount = count($responses);
 		$threshold = max(1, $minRespondents);
-		$thresholdMet = ($respondentCount >= $threshold);
+		$thresholdWith = ($respondentCount >= $threshold);
 
 		[$dimensionScores, $overallScore] = $this->computeDimensionScores(responses: $responses);
 		$themes = $this->computeThemes(responses: $responses);
@@ -139,7 +139,7 @@ class BoardEvaluationScoreService {
 		// board cannot de-anonymise an answer by inference (design D2).
 		$exposedScores = null;
 		$exposedThemes = null;
-		if ($thresholdMet === true) {
+		if ($thresholdWith === true) {
 			$exposedScores = $dimensionScores;
 			$exposedThemes = $themes;
 		}
@@ -149,8 +149,8 @@ class BoardEvaluationScoreService {
 			'respondentCount' => $respondentCount,
 			'invitedMemberCount' => $invitedMemberCount,
 			'minRespondentThreshold' => $threshold,
-			'thresholdMet' => $thresholdMet,
-			'suppressed' => ($thresholdMet === false),
+			'thresholdMet' => $thresholdWith,
+			'suppressed' => ($thresholdWith === false),
 			'dimensionScores' => $exposedScores,
 			'themes' => $exposedThemes,
 			'computedAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),

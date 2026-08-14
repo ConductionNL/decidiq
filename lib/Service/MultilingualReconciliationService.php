@@ -567,7 +567,7 @@ class MultilingualReconciliationService {
 		string $targetLocale,
 	): string {
 		$candidate = [
-			'meetingKoppeling' => (string)($sourceMinutes['meetingKoppeling'] ?? ''),
+			'meetingIntegration' => (string)($sourceMinutes['meetingIntegration'] ?? ''),
 			'language' => $targetLocale,
 			'version' => 'draft',
 			'content' => $translatedText,

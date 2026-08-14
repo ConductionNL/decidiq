@@ -311,7 +311,7 @@ class MultilingualReconciliationServiceTest extends TestCase {
 			'minutes' => [
 				[
 					'id' => 'min-1',
-					'meetingKoppeling' => 'meet-1',
+					'meetingIntegration' => 'meet-1',
 					'language' => 'nl',
 					'version' => 'final',
 					'content' => 'Vergaderingsnotulen.',
@@ -373,7 +373,7 @@ class MultilingualReconciliationServiceTest extends TestCase {
 			'minutes' => [
 				[
 					'id' => 'min-1',
-					'meetingKoppeling' => 'meet-1',
+					'meetingIntegration' => 'meet-1',
 					'language' => 'nl',
 					'content' => 'Body.',
 				],

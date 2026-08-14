@@ -47,8 +47,8 @@
 					{ "label": "Ended", "filter": { "lifecycle": "beëindigd" } }
 				],
 				"columns": [
-					{ "key": "organisatie", "label": "Organisation", "widget": "link" },
-					{ "key": "functie", "label": "Function" },
+					{ "key": "organisation", "label": "Organisation", "widget": "link" },
+					{ "key": "role", "label": "Function" },
 					{ "key": "governanceBody", "label": "Governance body" },
 					{ "key": "bezoldigd", "label": "Remunerated", "widget": "badge" },
 					{ "key": "reviewedAt", "label": "Reviewed" },
@@ -83,8 +83,8 @@
 				],
 				"columns": [
 					{ "key": "person", "label": "Person", "widget": "link" },
-					{ "key": "organisatie", "label": "Organisation" },
-					{ "key": "functie", "label": "Function" },
+					{ "key": "organisation", "label": "Organisation" },
+					{ "key": "role", "label": "Function" },
 					{ "key": "bezoldigd", "label": "Remunerated", "widget": "badge" },
 					{ "key": "qualitateQua", "label": "Ex officio", "widget": "badge" },
 					{ "key": "governanceBody", "label": "Governance body" },
@@ -142,17 +142,17 @@
 					{ "label": "All", "filter": {}, "default": true },
 					{ "label": "Gifts", "filter": { "type": "geschenk" } },
 					{ "label": "Invitations", "filter": { "type": "uitnodiging" } },
-					{ "label": "Accepted", "filter": { "besluit": "aanvaard" } },
-					{ "label": "Refused", "filter": { "besluit": "geweigerd" } },
-					{ "label": "Handed over", "filter": { "besluit": "overgedragen" } }
+					{ "label": "Accepted", "filter": { "decision": "aanvaard" } },
+					{ "label": "Refused", "filter": { "decision": "geweigerd" } },
+					{ "label": "Handed over", "filter": { "decision": "overgedragen" } }
 				],
 				"columns": [
 					{ "key": "recipient", "label": "Recipient", "widget": "link" },
 					{ "key": "type", "label": "Type", "widget": "badge" },
-					{ "key": "gever", "label": "Giver" },
+					{ "key": "giver", "label": "Giver" },
 					{ "key": "description", "label": "Description" },
-					{ "key": "geschatteWaarde", "label": "Value (EUR)" },
-					{ "key": "besluit", "label": "Decision", "widget": "badge" }
+					{ "key": "estimatedValue", "label": "Value (EUR)" },
+					{ "key": "decision", "label": "Decision", "widget": "badge" }
 				],
 				"actions": [
 					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "GeschenkDetail", "primary": true }

@@ -360,7 +360,7 @@ class DecisionTransitionGuard {
 	 * @return bool True when the meeting's quorum is met
 	 */
 	public function isVotingOpenAllowed(array $meeting): bool {
-		return ($meeting['quorumMet'] ?? false) === true;
+		return ($meeting['quorumWith'] ?? false) === true;
 	}//end isVotingOpenAllowed()
 
 	/**

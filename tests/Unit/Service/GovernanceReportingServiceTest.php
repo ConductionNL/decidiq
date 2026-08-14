@@ -141,16 +141,16 @@ class GovernanceReportingServiceTest extends TestCase {
 		// membership. The link/data field names are unchanged.
 		$rows = [
 			'meeting' => [
-				['id' => 'm-1', 'boardKoppeling' => 'b-1', 'meetingDate' => '2026-03-15T10:00:00Z'],
-				['id' => 'm-2', 'boardKoppeling' => 'b-1', 'meetingDate' => '2026-06-15T10:00:00Z'],
-				['id' => 'm-3', 'boardKoppeling' => 'b-1', 'meetingDate' => '2026-09-15T10:00:00Z'],
-				['id' => 'm-4', 'boardKoppeling' => 'b-1', 'meetingDate' => '2026-12-15T10:00:00Z'],
-				['id' => 'm-5', 'boardKoppeling' => 'b-1', 'meetingDate' => '2025-12-15T10:00:00Z'],
+				['id' => 'm-1', 'boardIntegration' => 'b-1', 'meetingDate' => '2026-03-15T10:00:00Z'],
+				['id' => 'm-2', 'boardIntegration' => 'b-1', 'meetingDate' => '2026-06-15T10:00:00Z'],
+				['id' => 'm-3', 'boardIntegration' => 'b-1', 'meetingDate' => '2026-09-15T10:00:00Z'],
+				['id' => 'm-4', 'boardIntegration' => 'b-1', 'meetingDate' => '2026-12-15T10:00:00Z'],
+				['id' => 'm-5', 'boardIntegration' => 'b-1', 'meetingDate' => '2025-12-15T10:00:00Z'],
 			],
 			'decision' => [
-				['id' => 'r-1', 'meetingKoppeling' => 'm-1', 'voteThreshold' => 'simple-majority'],
-				['id' => 'r-2', 'meetingKoppeling' => 'm-2', 'voteThreshold' => 'simple-majority'],
-				['id' => 'r-3', 'meetingKoppeling' => 'm-5', 'voteThreshold' => 'simple-majority'],
+				['id' => 'r-1', 'meetingIntegration' => 'm-1', 'voteThreshold' => 'simple-majority'],
+				['id' => 'r-2', 'meetingIntegration' => 'm-2', 'voteThreshold' => 'simple-majority'],
+				['id' => 'r-3', 'meetingIntegration' => 'm-5', 'voteThreshold' => 'simple-majority'],
 			],
 			'vote' => [
 				['id' => 'v-1', 'resolutionKoppeling' => 'r-1', 'vote' => 'in-favor'],
@@ -159,10 +159,10 @@ class GovernanceReportingServiceTest extends TestCase {
 				['id' => 'v-4', 'resolutionKoppeling' => 'r-3', 'vote' => 'in-favor'],
 			],
 			'membership' => [
-				['id' => 'bm-1', 'boardKoppeling' => 'b-1', 'independenceStatus' => 'independent'],
-				['id' => 'bm-2', 'boardKoppeling' => 'b-1', 'independenceStatus' => 'independent'],
-				['id' => 'bm-3', 'boardKoppeling' => 'b-1', 'independenceStatus' => 'non-independent'],
-				['id' => 'bm-4', 'boardKoppeling' => 'b-1', 'independenceStatus' => 'non-independent'],
+				['id' => 'bm-1', 'boardIntegration' => 'b-1', 'independenceStatus' => 'independent'],
+				['id' => 'bm-2', 'boardIntegration' => 'b-1', 'independenceStatus' => 'independent'],
+				['id' => 'bm-3', 'boardIntegration' => 'b-1', 'independenceStatus' => 'non-independent'],
+				['id' => 'bm-4', 'boardIntegration' => 'b-1', 'independenceStatus' => 'non-independent'],
 			],
 			'conflict-of-interest' => [
 				['id' => 'c-1', 'declarationTimestamp' => '2026-04-01T10:00:00Z'],
@@ -266,7 +266,7 @@ class GovernanceReportingServiceTest extends TestCase {
 			GovernanceReportingService::SCHEMA => [
 				[
 					'id' => 'rep-1',
-					'boardKoppeling' => 'b-1',
+					'boardIntegration' => 'b-1',
 					'year' => 2026,
 					'meetingCount' => 4,
 					'resolutionCount' => 8,
@@ -292,9 +292,9 @@ class GovernanceReportingServiceTest extends TestCase {
 	public function testListReportsFiltersByBoard(): void {
 		$rows = [
 			GovernanceReportingService::SCHEMA => [
-				['id' => 'rep-1', 'boardKoppeling' => 'b-1', 'year' => 2026],
-				['id' => 'rep-2', 'boardKoppeling' => 'b-2', 'year' => 2026],
-				['id' => 'rep-3', 'boardKoppeling' => 'b-1', 'year' => 2025],
+				['id' => 'rep-1', 'boardIntegration' => 'b-1', 'year' => 2026],
+				['id' => 'rep-2', 'boardIntegration' => 'b-2', 'year' => 2026],
+				['id' => 'rep-3', 'boardIntegration' => 'b-1', 'year' => 2025],
 			],
 		];
 		$saved = [];

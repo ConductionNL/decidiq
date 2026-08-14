@@ -49,6 +49,6 @@ class MeetingTransitionGuard {
 	 * @return bool True when quorum is met or no quorum is required, false otherwise
 	 */
 	public function isOpenAllowed(array $meeting): bool {
-		return ($meeting['quorumMet'] ?? false) === true;
+		return ($meeting['quorumWith'] ?? false) === true;
 	}//end isOpenAllowed()
 }//end class

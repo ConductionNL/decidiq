@@ -188,8 +188,8 @@ class VotingRoundOpener {
 			subjectType: $subjectType
 		);
 
-		$quorumMet = $this->checkQuorum(meetingId: $meetingId);
-		if ($quorumMet === false) {
+		$quorumWith = $this->checkQuorum(meetingId: $meetingId);
+		if ($quorumWith === false) {
 			throw new RuntimeException('Quorum niet bereikt');
 		}
 
@@ -216,7 +216,7 @@ class VotingRoundOpener {
 			votingMethod: $votingMethod,
 			isSecret: $isSecret,
 			closedAt: $closedAt,
-			quorumMet: $quorumMet,
+			quorumWith: $quorumWith,
 			rules: $rules,
 			revoteOfRoundId: $revoteOfRoundId,
 			participantIds: $presets['eligible']

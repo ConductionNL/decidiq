@@ -125,7 +125,7 @@
             "imposedByBody": "gemeenteraad-amsterdam",
             "imposedAt": "2026-01-19T09:00:00Z",
             "lifecycle": "opgeheven",
-            "opheffingsbesluit": "00000000-0000-0000-0000-000000000000",
+            "dissolutionDecision": "00000000-0000-0000-0000-000000000000",
             "opheffingDate": "2026-06-25",
             "opheffingConditions": "openbaar na afronding onderhandelingen"
           }
@@ -435,7 +435,7 @@
             "description": "Date by which the confirming body must bekrachtig the geheimhouding, defaulting to the confirming body's next scheduled meeting date (manually overridable). When it passes without a linked bekrachtigingsbesluit the geheimhouding is flagged overdue (fail-visible KPI + notification) and MUST NOT auto-lift or auto-expire (REQ-EMB-003). Only meaningful while lifecycle is opgelegd on a bekrachtiging-requiring ground.",
             "example": "2026-09-30"
           },
-          "bekrachtigingsbesluit": {
+          "ratificationDecision": {
             "title": "Bekrachtigingsbesluit",
             "type": "string",
             "format": "uuid",
@@ -459,7 +459,7 @@
             "nullable": true,
             "description": "Reference to the AgendaItem created on the confirming body's next scheduled meeting for the bekrachtiging (REQ-EMB-003, created imperatively by GeheimhoudingService). Its confidentiality respects the underlying stukken."
           },
-          "opheffingsbesluit": {
+          "dissolutionDecision": {
             "title": "Opheffingsbesluit",
             "type": "string",
             "format": "uuid",
