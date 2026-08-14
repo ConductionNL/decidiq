@@ -170,8 +170,26 @@
       "count": 7
     }
   },
+  "src/components/userSettings/CommunicationSection.vue": {
+    "@nextcloud/l10n-non-breaking-space": {
+      "count": 1
+    }
+  },
+  "src/components/userSettings/DelegationSection.vue": {
+    "@nextcloud/l10n-non-breaking-space": {
+      "count": 1
+    }
+  },
   "src/components/userSettings/DisplayPreferencesSection.vue": {
+    "@nextcloud/l10n-non-breaking-space": {
+      "count": 1
+    },
     "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/userSettings/NotificationPreferencesSection.vue": {
+    "@nextcloud/l10n-non-breaking-space": {
       "count": 1
     }
   },

@@ -75,7 +75,7 @@
 				@click="save">
 				{{
 					saving
-						? t('decidesk', 'Saving …')
+						? t('decidesk', 'Saving …')
 						: t('decidesk', 'Save display preferences')
 				}}
 			</NcButton>
