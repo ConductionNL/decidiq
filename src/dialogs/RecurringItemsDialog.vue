@@ -34,8 +34,8 @@
 					     fired — so toggling did nothing at all here. Same defect as the
 					     one fixed in userSettings/NotificationPreferencesSection.vue. -->
 					<NcCheckboxRadioSwitch
-						:model-value="selected.includes(rItem.id)"
-						@update:model-value="toggle(rItem.id)">
+						:modelValue="selected.includes(rItem.id)"
+						@update:modelValue="toggle(rItem.id)">
 						{{ rItem.title }}
 					</NcCheckboxRadioSwitch>
 				</li>
@@ -76,7 +76,10 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param id
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		toggle(id) {
 			const idx = this.selected.indexOf(id)
 			if (idx === -1) {

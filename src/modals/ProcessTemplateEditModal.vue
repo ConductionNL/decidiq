@@ -47,7 +47,7 @@
 			<div class="form-group">
 				<NcSelect
 					v-model="form.context"
-					:input-label="t('decidesk', 'Governance context')"
+					:inputLabel="t('decidesk', 'Governance context')"
 					:options="contextOptions"
 					data-testid="process-template-context" />
 			</div>
@@ -60,21 +60,21 @@
 			<div class="form-group">
 				<NcSelect
 					v-model="form.votingRule.voteThreshold"
-					:input-label="t('decidesk', 'Majority threshold')"
+					:inputLabel="t('decidesk', 'Majority threshold')"
 					:options="thresholdOptions"
 					data-testid="process-template-threshold" />
 			</div>
 			<div class="form-group">
 				<NcSelect
 					v-model="form.votingRule.abstentionHandling"
-					:input-label="t('decidesk', 'Abstention handling')"
+					:inputLabel="t('decidesk', 'Abstention handling')"
 					:options="abstentionOptions"
 					data-testid="process-template-abstention" />
 			</div>
 			<div class="form-group">
 				<NcSelect
 					v-model="form.votingRule.tieBreakRule"
-					:input-label="t('decidesk', 'Tie-break rule')"
+					:inputLabel="t('decidesk', 'Tie-break rule')"
 					:options="tieBreakOptions"
 					data-testid="process-template-tiebreak" />
 			</div>
@@ -116,8 +116,8 @@
 <script>
 import { NcButton, NcModal, NcSelect } from '@nextcloud/vue'
 import StateMachineEditor from '../components/processTemplates/StateMachineEditor.vue'
-import { useProcessTemplatesStore } from '../store/modules/processTemplates.js'
 import { validateStateMachineGraph } from '../services/processTemplateGraph.js'
+import { useProcessTemplatesStore } from '../store/modules/processTemplates.js'
 
 export default {
 	name: 'ProcessTemplateEditModal',
@@ -128,21 +128,25 @@ export default {
 			default: null,
 		},
 	},
+
 	data() {
 		return {
 			saving: false,
 			form: this.buildForm(this.template),
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/process-configuration/spec.md */
 		isEdit() {
 			return !!(this.template && this.template.id)
 		},
+
 		/** @spec openspec/specs/process-configuration/spec.md */
 		validation() {
 			return validateStateMachineGraph(this.form)
 		},
+
 		/** @spec openspec/specs/process-configuration/spec.md */
 		contextOptions() {
 			return [
@@ -153,6 +157,7 @@ export default {
 				'citizen',
 			]
 		},
+
 		/** @spec openspec/specs/process-configuration/spec.md */
 		thresholdOptions() {
 			return [
@@ -162,17 +167,23 @@ export default {
 				'unanimous',
 			]
 		},
+
 		/** @spec openspec/specs/process-configuration/spec.md */
 		abstentionOptions() {
 			return ['exclude', 'count']
 		},
+
 		/** @spec openspec/specs/process-configuration/spec.md */
 		tieBreakOptions() {
 			return ['rejected', 'chair-decides', 'revote']
 		},
 	},
+
 	methods: {
-		/** @spec openspec/specs/process-configuration/spec.md */
+		/**
+		 * @param template
+		 * @spec openspec/specs/process-configuration/spec.md
+		 */
 		buildForm(template) {
 			const t = template || {}
 			return {
@@ -188,6 +199,7 @@ export default {
 							{ name: 'decided' },
 						]
 					).map((s) => ({ ...s })),
+
 					transitions: (
 						t.stateMachine?.transitions || [
 							{ from: 'draft', to: 'proposed' },
@@ -195,16 +207,20 @@ export default {
 						]
 					).map((tr) => ({ ...tr })),
 				},
+
 				votingRule: {
 					voteThreshold: t.votingRule?.voteThreshold || 'simple-majority',
 					abstentionHandling:
 						t.votingRule?.abstentionHandling || 'exclude',
+
 					tieBreakRule: t.votingRule?.tieBreakRule || 'rejected',
 				},
+
 				quorumRequired: t.quorumRequired !== false,
 				allowDecideWithoutVote: t.allowDecideWithoutVote === true,
 			}
 		},
+
 		/** @spec openspec/specs/process-configuration/spec.md */
 		async save() {
 			if (!this.validation.valid) {

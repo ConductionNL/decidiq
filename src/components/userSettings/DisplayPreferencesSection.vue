@@ -26,7 +26,7 @@
 		<div class="user-settings-section__field">
 			<NcSelect
 				v-model="defaultView"
-				:input-label="t('decidesk', 'Default view')"
+				:inputLabel="t('decidesk', 'Default view')"
 				:options="viewOptions"
 				label="label"
 				:clearable="false"
@@ -36,7 +36,7 @@
 		<div class="user-settings-section__field">
 			<NcSelect
 				v-model="itemsPerPage"
-				:input-label="t('decidesk', 'Items per page')"
+				:inputLabel="t('decidesk', 'Items per page')"
 				:options="itemsPerPageOptions"
 				:clearable="false"
 				data-testid="display-items-per-page" />
@@ -45,7 +45,7 @@
 		<div class="user-settings-section__field">
 			<NcSelect
 				v-model="dateFormat"
-				:input-label="t('decidesk', 'Date format')"
+				:inputLabel="t('decidesk', 'Date format')"
 				:options="dateFormatOptions"
 				label="label"
 				:clearable="false"
@@ -107,6 +107,7 @@ export default {
 		NcNoteCard,
 		NcSelect,
 	},
+
 	data() {
 		return {
 			defaultView: null,
@@ -117,6 +118,7 @@ export default {
 			error: null,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/user-settings/spec.md */
 		viewOptions() {
@@ -126,10 +128,12 @@ export default {
 				{ id: 'decisions', label: this.t('decidesk', 'Decisions') },
 			]
 		},
+
 		/** @spec openspec/specs/user-settings/spec.md */
 		itemsPerPageOptions() {
 			return ['10', '25', '50', '100']
 		},
+
 		/** @spec openspec/specs/user-settings/spec.md */
 		dateFormatOptions() {
 			return DATE_FORMAT_OPTIONS.map((id) => ({
@@ -140,18 +144,22 @@ export default {
 						: id,
 			}))
 		},
+
 		/** @spec openspec/specs/user-settings/spec.md */
 		dateExample() {
 			return formatDate(new Date(), this.dateFormat?.id || 'locale')
 		},
+
 		/** @spec openspec/specs/user-settings/spec.md */
 		languageSettingsUrl() {
 			return generateUrl('/settings/user')
 		},
 	},
+
 	async created() {
 		await this.load()
 	},
+
 	methods: {
 		/**
 		 * Load the three display preferences from the per-user endpoints.
@@ -179,6 +187,7 @@ export default {
 				this.dateFormat = this.dateFormatOptions[0]
 			}
 		},
+
 		/**
 		 * Persist the three display preferences.
 		 *

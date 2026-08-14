@@ -11,11 +11,11 @@
 -->
 <template>
 	<CnAppRoot
-		:ai-companion="true"
+		:aiCompanion="true"
 		:manifest="manifest"
 		:registry="registry"
-		:page-types="pageTypes"
-		app-id="decidesk"
+		:pageTypes="pageTypes"
+		appId="decidesk"
 		data-testid="app-root"
 		:translate="translateForApp"
 		:permissions="permissions">
@@ -24,14 +24,14 @@
 				v-if="objectSidebarState.active"
 				:title="objectSidebarState.title"
 				:subtitle="objectSidebarState.subtitle"
-				:object-type="objectSidebarState.objectType"
-				:object-id="objectSidebarState.objectId"
+				:objectType="objectSidebarState.objectType"
+				:objectId="objectSidebarState.objectId"
 				:register="objectSidebarState.register"
 				:schema="objectSidebarState.schema"
-				:hidden-tabs="objectSidebarState.hiddenTabs"
+				:hiddenTabs="objectSidebarState.hiddenTabs"
 				:tabs="objectSidebarState.tabs"
-				:use-registry="objectSidebarState.useRegistry"
-				:exclude-integrations="objectSidebarState.excludeIntegrations"
+				:useRegistry="objectSidebarState.useRegistry"
+				:excludeIntegrations="objectSidebarState.excludeIntegrations"
 				:registry="registry"
 				:open="objectSidebarState.open"
 				@update:open="objectSidebarState.open = $event" />
@@ -40,11 +40,11 @@
 </template>
 
 <script>
-import { reactive } from 'vue'
-import { translate as ncT } from '@nextcloud/l10n'
 import { CnAppRoot, CnObjectSidebar } from '@conduction/nextcloud-vue'
+import { translate as ncT } from '@nextcloud/l10n'
+import { reactive } from 'vue'
+import { DEFAULT_MODE, MODE_LABELS } from './config/modeLabels.js'
 import { initializeStores, useSettingsStore } from './store/store.js'
-import { MODE_LABELS, DEFAULT_MODE } from './config/modeLabels.js'
 
 export default {
 	name: 'App',
@@ -73,6 +73,7 @@ export default {
 			type: Object,
 			required: true,
 		},
+
 		/**
 		 * v2 kind-tagged component registry (ADR-036). Passed as the `registry`
 		 * prop to CnAppRoot and CnObjectSidebar. Each entry is shaped as
@@ -85,6 +86,7 @@ export default {
 			type: Object,
 			default: () => ({}),
 		},
+
 		/**
 		 * Page-type registry — `{ index, detail, dashboard, settings, ... }`.
 		 * Wired through to descendant `CnPageRenderer` instances via

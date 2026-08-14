@@ -65,6 +65,7 @@ export default {
 		/** OR object id of the governance body the member is linked to. */
 		bodyId: { type: [String, Number], required: true },
 	},
+
 	emits: ['close', 'linked'],
 	data() {
 		return {
@@ -74,15 +75,21 @@ export default {
 			error: '',
 		}
 	},
+
 	/** @spec exclude lifecycle hook; only triggers the candidate fetch */
 	created() {
 		this.loadCandidates()
 	},
+
 	methods: {
-		/** @spec openspec/specs/admin-settings/spec.md */
+		/**
+		 * @param p
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
 		candidateLabel(p) {
 			return p.displayName || p.name || p.id
 		},
+
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async loadCandidates() {
 			this.loading = true
@@ -102,7 +109,11 @@ export default {
 				this.loading = false
 			}
 		},
-		/** @spec openspec/specs/admin-settings/spec.md */
+
+		/**
+		 * @param participant
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
 		async link(participant) {
 			this.linking = true
 			this.error = ''

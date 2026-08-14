@@ -17,7 +17,7 @@
  */
 
 import { getRequestToken } from '@nextcloud/auth'
-import { generateUrl, generateOcsUrl } from '@nextcloud/router'
+import { generateOcsUrl, generateUrl } from '@nextcloud/router'
 
 /** Notification event types (key = REST field). Labels are translated in the components. */
 export const EVENT_TYPES = [

@@ -101,25 +101,25 @@
 		<CnFormDialog
 			v-if="createOpen"
 			:schema="createSchema"
-			:dialog-title="createProposalLabel"
+			:dialogTitle="createProposalLabel"
 			@close="createOpen = false"
 			@confirm="onCreate" />
 	</CnDetailCard>
 </template>
 
 <script>
+import { CnDetailCard, CnFormDialog, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { translate as t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import Gavel from 'vue-material-design-icons/Gavel.vue'
 import OpenInNew from 'vue-material-design-icons/OpenInNew.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
-import { CnDetailCard, CnStatusBadge, CnFormDialog } from '@conduction/nextcloud-vue'
 import {
-	listHostDecisions,
 	createHostDecision,
 	decisionBucket,
 	isProposal,
+	listHostDecisions,
 	objId,
 } from './decisionLink.js'
 
@@ -284,6 +284,7 @@ export default {
 						title: t('decidesk', 'Rationale'),
 						widget: 'textarea',
 					},
+
 					decisionType: {
 						type: 'string',
 						title: t('decidesk', 'Type'),
@@ -294,9 +295,11 @@ export default {
 							'appointment',
 							'meeting-outcome',
 						],
+
 						default: 'motion',
 					},
 				},
+
 				required: ['title'],
 			}
 		},
@@ -309,6 +312,7 @@ export default {
 				this.refresh()
 			},
 		},
+
 		integrationContext: {
 			handler() {
 				this.refresh()
@@ -317,12 +321,18 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — stable list-row key. */
+		/**
+		 * @param decision
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — stable list-row key.
+		 */
 		rowKey(decision) {
 			return objId(decision)
 		},
 
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — list-row title fallback. */
+		/**
+		 * @param decision
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — list-row title fallback.
+		 */
 		rowTitle(decision) {
 			return (
 				String(decision?.title ?? decision?.data?.title ?? '').trim()
@@ -330,7 +340,10 @@ export default {
 			)
 		},
 
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-003 outcome/lifecycle label. */
+		/**
+		 * @param decision
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-003 outcome/lifecycle label.
+		 */
 		lifecycleLabel(decision) {
 			if (isProposal(decision)) {
 				return t('decidesk', 'Proposal')
@@ -352,7 +365,10 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-003 outcome/lifecycle badge variant. */
+		/**
+		 * @param decision
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-003 outcome/lifecycle badge variant.
+		 */
 		lifecycleVariant(decision) {
 			if (isProposal(decision)) {
 				return 'info'
@@ -371,7 +387,10 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 deep-link to a decision. */
+		/**
+		 * @param decision
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 deep-link to a decision.
+		 */
 		decisionUrl(decision) {
 			const id = objId(decision)
 			return id
@@ -411,7 +430,10 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create a decision pre-linked to the host. */
+		/**
+		 * @param formData
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create a decision pre-linked to the host.
+		 */
 		async onCreate(formData) {
 			if (!this.hostObjectId || this.creating) {
 				return

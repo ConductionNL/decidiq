@@ -163,16 +163,16 @@
 </template>
 
 <script>
-import { NcButton } from '@nextcloud/vue'
 import { CnNoteCard } from '@conduction/nextcloud-vue'
-import { ensureRelationType } from './useRelationStore.js'
+import { NcButton } from '@nextcloud/vue'
 import EvaluationRespondModal from '../../modals/EvaluationRespondModal.vue'
 import {
-	respondToEvaluation,
 	closeEvaluation as closeEvaluationApi,
-	publishEvaluation,
 	generateEvaluationReport,
+	publishEvaluation,
+	respondToEvaluation,
 } from '../../services/boardEvaluationApi.js'
+import { ensureRelationType } from './useRelationStore.js'
 
 /**
  * @spec openspec/specs/board-self-evaluation/spec.md
@@ -241,12 +241,14 @@ export default {
 					: context
 			return value && value.objectId ? String(value.objectId) : ''
 		},
+
 		/** @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-001-board-evaluation-cycle-bound-to-a-governance-body */
 		sortedEvaluations() {
 			return [...this.evaluations].sort((a, b) =>
 				(b.cycleLabel || '').localeCompare(a.cycleLabel || ''),
 			)
 		},
+
 		/** @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-002-reusable-questionnaire-template-organised-by-effectiveness-dimensions */
 		activeTemplateQuestions() {
 			if (!this.activeEvaluation) return []
@@ -307,6 +309,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/**
 		 * Read the materialised scoreSummary, whichever shape it arrives in.
 		 *
@@ -337,6 +340,7 @@ export default {
 				return null
 			}
 		},
+
 		/**
 		 * @param {number} value The score value.
 		 * @param {number} max The scale maximum.
@@ -347,6 +351,7 @@ export default {
 				return '0%'
 			return `${Math.round((value / max) * 100)}%`
 		},
+
 		/**
 		 * Create a draft BoardEvaluation for the default template, denormalising
 		 * the body's current chair/secretary NC UIDs onto chairUserId/
@@ -386,6 +391,7 @@ export default {
 					|| this.t('decidesk', 'Failed to start the evaluation.')
 			}
 		},
+
 		/**
 		 * @param {object} evaluation The draft BoardEvaluation to open.
 		 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-006-one-mode-adaptive-entity-across-governance-domains
@@ -408,11 +414,13 @@ export default {
 					)
 			}
 		},
+
 		/** @param {object} evaluation The open BoardEvaluation to respond to. */
 		beginRespond(evaluation) {
 			this.activeEvaluation = evaluation
 			this.showRespondModal = true
 		},
+
 		/**
 		 * @param {Array<object>} answers The answers[] payload from the modal.
 		 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
@@ -430,6 +438,7 @@ export default {
 					|| this.t('decidesk', 'Failed to submit your response.')
 			}
 		},
+
 		/**
 		 * @param {object} evaluation The open BoardEvaluation to close.
 		 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
@@ -445,6 +454,7 @@ export default {
 					|| this.t('decidesk', 'Failed to close the cycle.')
 			}
 		},
+
 		/**
 		 * @param {object} evaluation The closed BoardEvaluation to publish.
 		 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
@@ -460,6 +470,7 @@ export default {
 					|| this.t('decidesk', 'Failed to publish the summary.')
 			}
 		},
+
 		/**
 		 * @param {object} evaluation The closed/published BoardEvaluation.
 		 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces

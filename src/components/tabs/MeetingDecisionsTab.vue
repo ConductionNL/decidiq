@@ -50,15 +50,15 @@
 			:columns="columns"
 			:rows="rows"
 			:loading="loading"
-			row-key="id"
-			:empty-text="t('decidesk', 'No decisions yet for this meeting.')"
-			:loading-text="t('decidesk', 'Loading decisions…')"
-			@row-click="openDetail">
+			rowKey="id"
+			:emptyText="t('decidesk', 'No decisions yet for this meeting.')"
+			:loadingText="t('decidesk', 'Loading decisions…')"
+			@rowClick="openDetail">
 			<template #column-outcome="{ value }">
 				<CnStatusBadge
 					v-if="value"
 					:label="value"
-					:color-map="outcomeColors" />
+					:colorMap="outcomeColors" />
 			</template>
 		</CnDataTable>
 	</div>
@@ -76,6 +76,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -84,6 +85,7 @@ export default {
 			rows: [],
 		}
 	},
+
 	computed: {
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
 		columns() {
@@ -94,6 +96,7 @@ export default {
 				{ key: 'isPublished', label: this.t('decidesk', 'Published') },
 			]
 		},
+
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
 		outcomeColors() {
 			return {
@@ -104,6 +107,7 @@ export default {
 			}
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -113,6 +117,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
 		async refresh() {
@@ -133,6 +138,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-creating-a-decision-pre-fills-the-meeting-reference */
 		async createDecision() {
 			if (!this.objectId || this.creating) return
@@ -154,6 +160,7 @@ export default {
 				this.creating = false
 			}
 		},
+
 		/**
 		 * Navigate to the DecisionDetail page for a row.
 		 *

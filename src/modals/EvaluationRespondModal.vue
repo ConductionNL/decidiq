@@ -122,6 +122,7 @@ export default {
 			}
 			return range
 		},
+
 		/**
 		 * @param {string} questionId The question id.
 		 * @param {number} value The selected Likert value.
@@ -129,6 +130,7 @@ export default {
 		setLikert(questionId, value) {
 			this.answers[questionId] = value
 		},
+
 		/** Build the answers[] payload and emit confirm — no identity anywhere in it. */
 		submit() {
 			const answers = this.questions

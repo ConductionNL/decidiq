@@ -467,11 +467,11 @@ import { NcButton, NcTextField } from '@nextcloud/vue'
 import { useObjectStore, useSettingsStore } from '../store/store.js'
 import {
 	ABSTENTION_MODES,
-	TIE_BREAK_RULES,
-	VOTE_THRESHOLDS,
 	computeBase,
 	effectiveRules,
 	ruleLabels,
+	TIE_BREAK_RULES,
+	VOTE_THRESHOLDS,
 } from '../utils/votingRules.js'
 
 export default {
@@ -482,12 +482,14 @@ export default {
 		motionLifecycle: { type: String, default: '' },
 		meetingId: { type: String, default: '' },
 	},
+
 	/** @spec exclude setup() only wires the shared object + settings store refs; no domain logic */
 	setup() {
 		const objectStore = useObjectStore()
 		const settingsStore = useSettingsStore()
 		return { objectStore, settingsStore }
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -511,18 +513,21 @@ export default {
 				abstentionHandling: 'exclude',
 				tieBreakRule: 'rejected',
 			},
+
 			revoteOfRoundId: null,
 			chairCastingError: null,
 			pollInterval: null,
 			participantCount: 0,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
 		roundId() {
 			if (!this.currentRound) return null
 			return this.currentRound.id || this.currentRound.uuid || null
 		},
+
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
 		isRoundOpen() {
 			if (!this.currentRound) return false
@@ -531,6 +536,7 @@ export default {
 			if (closedAt && new Date(closedAt) <= new Date()) return false
 			return true
 		},
+
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 */
 		tallyTotal() {
 			if (!this.currentRound) return 0
@@ -540,33 +546,41 @@ export default {
 				+ (this.currentRound.votesAbstain || 0)
 			)
 		},
+
 		isChairOrSecretary() {
 			return this.settingsStore.isAdmin === true
 		},
+
 		/** Rule enum option lists for the open-round dialog. @spec openspec/specs/voting-system/spec.md */
 		voteThresholdOptions() {
 			return VOTE_THRESHOLDS
 		},
+
 		/** @spec openspec/specs/voting-system/spec.md */
 		abstentionModeOptions() {
 			return ABSTENTION_MODES
 		},
+
 		/** @spec openspec/specs/voting-system/spec.md */
 		tieBreakRuleOptions() {
 			return TIE_BREAK_RULES
 		},
+
 		/** Translated labels per rule enum value. @spec openspec/specs/voting-system/spec.md */
 		labels() {
 			return ruleLabels((text) => this.t('decidesk', text))
 		},
+
 		/** Effective rules of the displayed round (defaults applied). @spec openspec/specs/voting-system/spec.md */
 		activeRules() {
 			return effectiveRules(this.currentRound || {})
 		},
+
 		/** Computed calculation base of the displayed round. @spec openspec/specs/voting-system/spec.md */
 		computedBase() {
 			return computeBase(this.currentRound || {})
 		},
+
 		/** One-line summary of active rules + computed base. @spec openspec/specs/voting-system/spec.md */
 		activeRulesSummary() {
 			const rules = this.activeRules
@@ -582,6 +596,7 @@ export default {
 				},
 			)
 		},
+
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.5 */
 		oriStatusLabel() {
 			const labels = {
@@ -592,6 +607,7 @@ export default {
 			return labels[this.oriStatus] || this.oriStatus
 		},
 	},
+
 	/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 */
 	async mounted() {
 		await this.fetchCurrentRound()
@@ -602,12 +618,14 @@ export default {
 			}
 		}, 5000)
 	},
+
 	/** @spec exclude lifecycle teardown; only clears the polling interval started in mounted() */
 	beforeUnmount() {
 		if (this.pollInterval) {
 			clearInterval(this.pollInterval)
 		}
 	},
+
 	methods: {
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
 		async fetchCurrentRound() {
@@ -640,7 +658,11 @@ export default {
 				this.loading = false
 			}
 		},
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
+
+		/**
+		 * @param value
+		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1
+		 */
 		async castVote(value) {
 			this.castVoteError = null
 			try {
@@ -674,6 +696,7 @@ export default {
 				this.castVoteError = this.t('decidesk', 'Failed to cast vote')
 			}
 		},
+
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.3 */
 		async openRound() {
 			this.openingRound = true
@@ -720,6 +743,7 @@ export default {
 				this.openingRound = false
 			}
 		},
+
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.4 */
 		async closeRound() {
 			this.confirmCloseRound = false
@@ -743,6 +767,7 @@ export default {
 				// ignore
 			}
 		},
+
 		/**
 		 * Chair's casting vote resolving a tie under tieBreakRule chair-decides:
 		 * re-runs close with the explicit chairCasting value (chair-only, backend-guarded).
@@ -777,6 +802,7 @@ export default {
 				this.chairCastingError = this.t('decidesk', 'Casting vote failed')
 			}
 		},
+
 		/**
 		 * Start the single permitted revote of a tied round: prefill the open
 		 * dialog with the tied round's rules and link the new round via revoteOfRound.
@@ -788,6 +814,7 @@ export default {
 			this.newRound = {
 				votingMethod:
 					this.currentRound?.votingMethod || 'for-against-abstain',
+
 				isSecret: this.currentRound?.isSecret === true,
 				closedAt: '',
 				voteThreshold: rules.voteThreshold,
@@ -798,11 +825,13 @@ export default {
 			this.openRoundError = null
 			this.showOpenRoundDialog = true
 		},
+
 		/** @spec openspec/specs/voting-system/spec.md */
 		cancelRevote() {
 			this.showOpenRoundDialog = false
 			this.revoteOfRoundId = null
 		},
+
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.6 */
 		async saveShowOfHands() {
 			try {
@@ -830,6 +859,7 @@ export default {
 				// ignore
 			}
 		},
+
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7.1 */
 		async grantProxy() {
 			try {
@@ -857,6 +887,7 @@ export default {
 				// ignore
 			}
 		},
+
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7.2 */
 		async revokeProxy() {
 			try {
@@ -880,6 +911,7 @@ export default {
 				// ignore
 			}
 		},
+
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.5 */
 		async publishToOri() {
 			try {

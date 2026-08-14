@@ -15,31 +15,31 @@
 	<CnStatsBlock
 		:title="t('decidesk', 'Pending votes')"
 		:count="count"
-		:count-label="t('decidesk', 'votes')"
+		:countLabel="t('decidesk', 'votes')"
 		:icon="VoteOutline"
 		:variant="variant"
 		:loading="loading"
 		:route="{ name: 'Decisions' }"
-		show-zero-count
+		showZeroCount
 		horizontal
 		data-testid="pending-votes-kpi" />
 </template>
 
 <script>
-import { getCurrentUser } from '@nextcloud/auth'
 import { CnStatsBlock } from '@conduction/nextcloud-vue'
+import { getCurrentUser } from '@nextcloud/auth'
 import VoteOutline from 'vue-material-design-icons/VoteOutline.vue'
-import dashboardRefreshMixin from './dashboardRefreshMixin.js'
-import {
-	resolveParticipantId,
-	pendingVotingRounds,
-	pendingInRange,
-} from './widgetLogic.js'
 import {
 	getParticipants,
-	getVotingRounds,
 	getVotes,
+	getVotingRounds,
 } from '../../../services/dashboardData.js'
+import dashboardRefreshMixin from './dashboardRefreshMixin.js'
+import {
+	pendingInRange,
+	pendingVotingRounds,
+	resolveParticipantId,
+} from './widgetLogic.js'
 
 export default {
 	name: 'PendingVotesKpiWidget',

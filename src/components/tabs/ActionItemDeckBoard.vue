@@ -109,10 +109,10 @@
 								here silently moved no card at all.
 							-->
 							<NcSelect
-								:model-value="laneOption(item)"
+								:modelValue="laneOption(item)"
 								:options="laneOptions"
 								:clearable="false"
-								:input-label="t('decidesk', 'Status')"
+								:inputLabel="t('decidesk', 'Status')"
 								:aria-label-combobox="
 									t(
 										'decidesk',
@@ -120,7 +120,7 @@
 									)
 								"
 								class="ai-deck-card__move"
-								@update:model-value="(opt) => moveTo(item, opt)" />
+								@update:modelValue="(opt) => moveTo(item, opt)" />
 							<a
 								v-if="item.deckCardId"
 								:href="deckCardUrl"
@@ -144,12 +144,12 @@
 			ref="formDialog"
 			:schema="actionItemSchema"
 			:item="editTarget"
-			:dialog-title="
+			:dialogTitle="
 				editTarget
 					? t('decidesk', 'Edit action item')
 					: t('decidesk', 'Add action item')
 			"
-			:exclude-fields="excludedFields"
+			:excludeFields="excludedFields"
 			@confirm="onConfirm"
 			@close="formOpen = false" />
 
@@ -157,8 +157,8 @@
 			v-if="deleteTarget"
 			ref="deleteDialog"
 			:item="deleteTarget"
-			name-field="title"
-			:dialog-title="t('decidesk', 'Delete action item')"
+			nameField="title"
+			:dialogTitle="t('decidesk', 'Delete action item')"
 			@confirm="confirmDelete"
 			@close="deleteTarget = null" />
 	</div>
@@ -166,24 +166,24 @@
 
 <script>
 import { CnDeleteDialog, CnFormDialog, CnNoteCard } from '@conduction/nextcloud-vue'
-import { NcButton, NcLoadingIcon, NcSelect } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
-import ViewColumnOutline from 'vue-material-design-icons/ViewColumnOutline.vue'
+import { NcButton, NcLoadingIcon, NcSelect } from '@nextcloud/vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
-import { ensureRelationType } from './useRelationStore.js'
-import { useSettingsStore } from '../../store/store.js'
+import ViewColumnOutline from 'vue-material-design-icons/ViewColumnOutline.vue'
 import {
 	createActionItem,
-	updateActionItem,
 	deleteActionItem,
+	updateActionItem,
 } from '../../services/actionItemApi.js'
 import {
-	LANES,
-	statusToLane,
-	projectActionItems,
 	itemUid,
+	LANES,
+	projectActionItems,
+	statusToLane,
 } from '../../services/deckProjection.js'
+import { useSettingsStore } from '../../store/store.js'
+import { ensureRelationType } from './useRelationStore.js'
 
 const LANE_LABELS = {
 	open: 'Open',
@@ -204,9 +204,11 @@ export default {
 		TrashCanOutline,
 		ViewColumnOutline,
 	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -220,17 +222,20 @@ export default {
 			deleteTarget: null,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
 		register() {
 			const settings = useSettingsStore().getSettings || {}
 			return settings.register || 'decidesk'
 		},
+
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
 		schema() {
 			const settings = useSettingsStore().getSettings || {}
 			return settings.decisionSchema || 'decision'
 		},
+
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
 		lanes() {
 			return LANES.map((key) => ({
@@ -239,6 +244,7 @@ export default {
 				items: this.rows.filter((r) => statusToLane(r.taskStatus) === key),
 			}))
 		},
+
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-3 */
 		laneOptions() {
 			return LANES.map((key) => ({
@@ -246,15 +252,18 @@ export default {
 				label: this.t('decidesk', LANE_LABELS[key]),
 			}))
 		},
+
 		/** Deck app root — used for the per-card "In Deck" link. */
 		deckCardUrl() {
 			return generateUrl('/apps/deck/')
 		},
+
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-1 */
 		excludedFields() {
 			return ['id', 'uuid', 'decision', 'deckCardId', 'created', 'updated']
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -263,15 +272,21 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		uidOf(item) {
 			return itemUid(item)
 		},
-		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-3 */
+
+		/**
+		 * @param item
+		 * @spec openspec/changes/action-item-deck-board/tasks.md#task-3
+		 */
 		laneOption(item) {
 			const key = statusToLane(item.taskStatus)
 			return { id: key, label: this.t('decidesk', LANE_LABELS[key]) }
 		},
+
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
 		async refresh() {
 			if (!this.objectId) return
@@ -293,6 +308,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/**
 		 * Open the create dialog.
 		 *
@@ -305,6 +321,7 @@ export default {
 			this.editTarget = null
 			this.formOpen = true
 		},
+
 		/**
 		 * Open the edit dialog for a card.
 		 *
@@ -318,6 +335,7 @@ export default {
 			this.editTarget = { ...item }
 			this.formOpen = true
 		},
+
 		/**
 		 * Persist a create/edit through the authoritative VTODO endpoints
 		 * (action items are a read-only projection — never the object API).
@@ -344,6 +362,7 @@ export default {
 				})
 			}
 		},
+
 		/**
 		 * Delete an action item (VTODO).
 		 *
@@ -360,6 +379,7 @@ export default {
 				})
 			}
 		},
+
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
 		async sync() {
 			this.syncing = true
@@ -401,6 +421,7 @@ export default {
 				this.syncing = false
 			}
 		},
+
 		/**
 		 * Move an action item to another lane — writes the status through the
 		 * authoritative VTODO endpoint (optimistic, rolls back on error). The

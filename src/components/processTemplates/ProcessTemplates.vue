@@ -87,8 +87,8 @@
 </template>
 
 <script>
-import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import { CnSettingsSection } from '@conduction/nextcloud-vue'
+import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import ProcessTemplateEditModal from '../../modals/ProcessTemplateEditModal.vue'
 import { useProcessTemplatesStore } from '../../store/modules/processTemplates.js'
 
@@ -100,6 +100,7 @@ export default {
 		CnSettingsSection,
 		ProcessTemplateEditModal,
 	},
+
 	data() {
 		return {
 			store: useProcessTemplatesStore(),
@@ -107,16 +108,19 @@ export default {
 			editing: null,
 		}
 	},
+
 	/** @spec openspec/specs/process-configuration/spec.md */
 	created() {
 		this.store.fetchTemplates()
 	},
+
 	methods: {
 		/** @spec openspec/specs/process-configuration/spec.md */
 		openCreate() {
 			this.editing = null
 			this.showModal = true
 		},
+
 		/**
 		 * @param tpl
 		 * @spec openspec/specs/process-configuration/spec.md
@@ -125,6 +129,7 @@ export default {
 			this.editing = tpl
 			this.showModal = true
 		},
+
 		/**
 		 * @param tpl
 		 * @spec openspec/specs/process-configuration/spec.md
@@ -135,6 +140,7 @@ export default {
 				(tpl.name || 'Template') + ' (copy)',
 			)
 		},
+
 		/**
 		 * @param tpl
 		 * @spec openspec/specs/process-configuration/spec.md
@@ -142,6 +148,7 @@ export default {
 		async remove(tpl) {
 			await this.store.deleteTemplate(tpl.id || tpl.slug)
 		},
+
 		/** @spec openspec/specs/process-configuration/spec.md */
 		onSaved() {
 			this.showModal = false

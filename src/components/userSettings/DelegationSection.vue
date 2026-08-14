@@ -26,7 +26,7 @@
 		<div class="user-settings-section__field">
 			<NcSelect
 				v-model="delegate"
-				:input-label="t('decidesk', 'Delegate')"
+				:inputLabel="t('decidesk', 'Delegate')"
 				:options="delegateOptions"
 				label="label"
 				:loading="searching"
@@ -143,6 +143,7 @@ export default {
 		NcNoteCard,
 		NcSelect,
 	},
+
 	props: {
 		/** The defaults-merged preference object loaded by the parent mount. */
 		preference: {
@@ -150,6 +151,7 @@ export default {
 			default: () => ({}),
 		},
 	},
+
 	data() {
 		return {
 			delegate: null,
@@ -163,11 +165,13 @@ export default {
 			error: null,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/user-settings/spec.md */
 		hasDelegation() {
 			return !!(this.delegate?.id || this.preference?.delegate)
 		},
+
 		/** @spec openspec/specs/user-settings/spec.md */
 		validationError() {
 			const code = validateDelegation({
@@ -190,12 +194,14 @@ export default {
 			return null
 		},
 	},
+
 	watch: {
 		preference: {
 			immediate: true,
 			handler: 'applyPreference',
 		},
 	},
+
 	methods: {
 		/**
 		 * Hydrate the form from the loaded preference object.
@@ -217,6 +223,7 @@ export default {
 				? new Date(`${pref.delegationUntil}T00:00:00`)
 				: null
 		},
+
 		/**
 		 * Debounced delegate search against the sharees endpoint.
 		 *
@@ -237,6 +244,7 @@ export default {
 				}
 			}, 300)
 		},
+
 		/**
 		 * Persist the delegation (delegate + period) via the per-user endpoint.
 		 *
@@ -263,6 +271,7 @@ export default {
 				this.saving = false
 			}
 		},
+
 		/**
 		 * Clear the delegation entirely (empty delegate clears the period too).
 		 *

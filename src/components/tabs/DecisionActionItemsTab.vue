@@ -43,17 +43,17 @@
 			:columns="columns"
 			:rows="rows"
 			:loading="loading"
-			row-key="id"
-			:empty-text="
+			rowKey="id"
+			:emptyText="
 				t('decidesk', 'No action items spawned by this decision yet.')
 			"
-			:loading-text="t('decidesk', 'Loading action items…')"
-			@row-click="openEdit">
+			:loadingText="t('decidesk', 'Loading action items…')"
+			@rowClick="openEdit">
 			<template #column-taskStatus="{ value }">
 				<CnStatusBadge
 					v-if="value"
 					:label="value"
-					:color-map="statusColors" />
+					:colorMap="statusColors" />
 			</template>
 			<template #row-actions="{ row }">
 				<CnRowActions :row="row" :actions="rowActions" />
@@ -65,12 +65,12 @@
 			ref="formDialog"
 			:schema="actionItemSchema"
 			:item="editTarget"
-			:dialog-title="
+			:dialogTitle="
 				editTarget
 					? t('decidesk', 'Edit action item')
 					: t('decidesk', 'Add action item')
 			"
-			:exclude-fields="excludedFields"
+			:excludeFields="excludedFields"
 			@confirm="onConfirm"
 			@close="formOpen = false" />
 
@@ -78,8 +78,8 @@
 			v-if="deleteTarget"
 			ref="deleteDialog"
 			:item="deleteTarget"
-			name-field="title"
-			:dialog-title="t('decidesk', 'Delete action item')"
+			nameField="title"
+			:dialogTitle="t('decidesk', 'Delete action item')"
 			@confirm="confirmDelete"
 			@close="deleteTarget = null" />
 	</div>
@@ -95,15 +95,15 @@ import {
 	CnStatusBadge,
 } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
-import Plus from 'vue-material-design-icons/Plus.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
+import Plus from 'vue-material-design-icons/Plus.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
-import { ensureRelationType } from './useRelationStore.js'
 import {
 	createActionItem,
-	updateActionItem,
 	deleteActionItem,
+	updateActionItem,
 } from '../../services/actionItemApi.js'
+import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'DecisionActionItemsTab',
@@ -117,9 +117,11 @@ export default {
 		NcButton,
 		Plus,
 	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -131,6 +133,7 @@ export default {
 			deleteTarget: null,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		columns() {
@@ -141,6 +144,7 @@ export default {
 				{ key: 'taskStatus', label: this.t('decidesk', 'Status') },
 			]
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		statusColors() {
 			return {
@@ -150,6 +154,7 @@ export default {
 				overdue: 'error',
 			}
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		rowActions() {
 			return [
@@ -168,11 +173,13 @@ export default {
 				},
 			]
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		excludedFields() {
 			return ['id', 'uuid', 'decision', 'created', 'updated']
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -182,6 +189,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async refresh() {
@@ -204,6 +212,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async openCreate() {
 			const store = ensureRelationType('action-item')
@@ -212,7 +221,11 @@ export default {
 			this.editTarget = null
 			this.formOpen = true
 		},
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+
+		/**
+		 * @param row
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		async openEdit(row) {
 			const store = ensureRelationType('action-item')
 			if (!this.actionItemSchema)
@@ -220,7 +233,11 @@ export default {
 			this.editTarget = { ...row }
 			this.formOpen = true
 		},
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+
+		/**
+		 * @param formData
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		async onConfirm(formData) {
 			// Action items are read-only VTODO projections — write via the VTODO
 			// endpoints (action-items-vtodo-deck-reconcile), not the object API.
@@ -246,6 +263,7 @@ export default {
 				})
 			}
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async confirmDelete() {
 			try {

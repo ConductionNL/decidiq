@@ -54,7 +54,7 @@
 					<CnStatusBadge
 						v-if="round.result"
 						:label="round.result"
-						:color-map="roundColors" />
+						:colorMap="roundColors" />
 				</header>
 				<p v-if="round.votesFor != null" class="decidesk-tab__round-tally">
 					{{
@@ -77,11 +77,11 @@
 			:columns="columns"
 			:rows="votes"
 			:loading="loading"
-			row-key="id"
-			:empty-text="t('decidesk', 'No votes recorded for this decision yet.')"
-			:loading-text="t('decidesk', 'Loading voting results…')">
+			rowKey="id"
+			:emptyText="t('decidesk', 'No votes recorded for this decision yet.')"
+			:loadingText="t('decidesk', 'Loading voting results…')">
 			<template #column-value="{ value }">
-				<CnStatusBadge v-if="value" :label="value" :color-map="voteColors" />
+				<CnStatusBadge v-if="value" :label="value" :colorMap="voteColors" />
 			</template>
 		</CnDataTable>
 	</div>
@@ -97,6 +97,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -106,6 +107,7 @@ export default {
 			votes: [],
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/decision-management/spec.md */
 		columns() {
@@ -115,15 +117,18 @@ export default {
 				{ key: 'castAt', label: this.t('decidesk', 'Cast at') },
 			]
 		},
+
 		/** @spec openspec/specs/decision-management/spec.md */
 		voteColors() {
 			return { for: 'success', against: 'error', abstain: 'default' }
 		},
+
 		/** @spec openspec/specs/decision-management/spec.md */
 		roundColors() {
 			return { adopted: 'success', rejected: 'error', tied: 'warning' }
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -133,6 +138,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		/** @spec openspec/specs/decision-management/spec.md */
 		async refresh() {

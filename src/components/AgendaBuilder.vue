@@ -157,7 +157,7 @@
 						class="agenda-builder__item-spokesperson">
 						<NcUserBubble
 							:user="getSpokesperson(node.item)"
-							:show-user-status="false" />
+							:showUserStatus="false" />
 					</span>
 
 					<!-- Attachment count -->
@@ -296,7 +296,7 @@
 							class="agenda-builder__item-spokesperson">
 							<NcUserBubble
 								:user="getSpokesperson(child)"
-								:show-user-status="false" />
+								:showUserStatus="false" />
 						</span>
 
 						<NcButton
@@ -347,7 +347,7 @@
 		<!-- Recurring items dialog -->
 		<RecurringItemsDialog
 			v-if="showRecurringDialog"
-			:recurring-items="recurringItems"
+			:recurringItems="recurringItems"
 			@add="addSelectedRecurring"
 			@close="showRecurringDialog = false" />
 
@@ -361,7 +361,7 @@
 		<SpokespersonDialog
 			v-if="spokespersonDialog.open"
 			:participants="participants"
-			:has-spokesperson="!!getSpokesperson(spokespersonDialog.item)"
+			:hasSpokesperson="!!getSpokesperson(spokespersonDialog.item)"
 			@assign="assignSpokesperson(spokespersonDialog.item, $event)"
 			@remove="removeSpokesperson(spokespersonDialog.item)"
 			@close="spokespersonDialog.open = false" />
@@ -369,7 +369,7 @@
 		<!-- Add sub-item dialog -->
 		<AddSubItemDialog
 			v-if="addSubItemDialog.open"
-			:parent-title="
+			:parentTitle="
 				addSubItemDialog.parent ? addSubItemDialog.parent.title : ''
 			"
 			@submit="createSubItem"
@@ -378,9 +378,8 @@
 </template>
 
 <script>
-import { NcButton, NcNoteCard, NcUserBubble } from '@nextcloud/vue'
 import { CnStatusBadge } from '@conduction/nextcloud-vue'
-import { useObjectStore } from '../store/store.js'
+import { NcButton, NcNoteCard, NcUserBubble } from '@nextcloud/vue'
 import AddSubItemDialog from '../dialogs/AddSubItemDialog.vue'
 import ProposeAgendaItemDialog from '../dialogs/ProposeAgendaItemDialog.vue'
 import RecurringItemsDialog from '../dialogs/RecurringItemsDialog.vue'
@@ -390,6 +389,7 @@ import {
 	flattenTree,
 	missingStatutoryItems,
 } from '../services/agendaRules.js'
+import { useObjectStore } from '../store/store.js'
 
 /**
  * @spec openspec/specs/agenda-management/spec.md
@@ -486,11 +486,19 @@ export default {
 		items: {
 			immediate: true,
 			deep: true,
-			/** @spec openspec/specs/agenda-management/spec.md */
+			/**
+			 * @param val
+			 * @spec openspec/specs/agenda-management/spec.md
+			 */
 			handler(val) {
 				this.localItems = val ? val.slice() : []
 			},
 		},
+	},
+
+	/** @spec exclude lifecycle hook; body only calls the already-spec'd loadRecurringItems() */
+	created() {
+		this.loadRecurringItems()
 	},
 
 	methods: {
@@ -498,7 +506,11 @@ export default {
 		// Drag-and-drop helpers (top-level nodes; children follow their parent)
 		// -----------------------------------------------------------------------
 
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param event
+		 * @param index
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		onDragStart(event, index) {
 			this.dragIndex = index
 			if (event.dataTransfer) {
@@ -506,13 +518,21 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param event
+		 * @param index
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		onDragOver(event, index) {
 			if (this.dragIndex === null || this.dragIndex === index) return
 			event.preventDefault()
 		},
 
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param event
+		 * @param targetIndex
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		onDrop(event, targetIndex) {
 			if (this.dragIndex === null || this.dragIndex === targetIndex) return
 			const tree = this.agendaTree.slice()
@@ -527,7 +547,11 @@ export default {
 			this.dragIndex = null
 		},
 
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param index
+		 * @param delta
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		moveTopLevel(index, delta) {
 			const target = index + delta
 			if (target < 0 || target >= this.agendaTree.length) return
@@ -536,7 +560,12 @@ export default {
 			this.applyTreeOrder(tree)
 		},
 
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param parentIndex
+		 * @param childIndex
+		 * @param delta
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		moveChild(parentIndex, childIndex, delta) {
 			const target = childIndex + delta
 			const tree = this.agendaTree.map((node) => ({
@@ -567,7 +596,10 @@ export default {
 			this.persistReorder(flat.map((i) => i.id))
 		},
 
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param ids
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		async persistReorder(ids) {
 			try {
 				const response = await fetch(
@@ -600,12 +632,18 @@ export default {
 		// Sub-items
 		// -----------------------------------------------------------------------
 
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param parent
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		openAddSubItemDialog(parent) {
 			this.addSubItemDialog = { open: true, parent }
 		},
 
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param payload
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		async createSubItem(payload) {
 			const parent = this.addSubItemDialog.parent
 			if (!parent) return
@@ -634,17 +672,27 @@ export default {
 		// Spokesperson
 		// -----------------------------------------------------------------------
 
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param item
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		getSpokesperson(item) {
 			return item?.relations?.spokesperson?.[0]?.owner ?? null
 		},
 
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param item
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		openSpokespersonDialog(item) {
 			this.spokespersonDialog = { open: true, item }
 		},
 
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param item
+		 * @param participant
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		async assignSpokesperson(item, participant) {
 			try {
 				await this.objectStore.saveObject('agenda-item', {
@@ -662,7 +710,10 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param item
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		async removeSpokesperson(item) {
 			try {
 				const relations = { ...(item.relations ?? {}) }
@@ -683,7 +734,10 @@ export default {
 		// COI badge
 		// -----------------------------------------------------------------------
 
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param item
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		coiCount(item) {
 			const notes = item?.notes ?? []
 			return notes.filter((n) => (n.title ?? '').startsWith('COI:')).length
@@ -705,7 +759,10 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param selectedIds
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		async addSelectedRecurring(selectedIds) {
 			let order = this.localItems.length + 1
 
@@ -736,7 +793,10 @@ export default {
 		// Proposal inbox (chair)
 		// -----------------------------------------------------------------------
 
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param item
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		async approveProposal(item) {
 			const nextOrder =
 				this.localItems.filter((i) => i.status !== 'voorstel').length + 1
@@ -752,7 +812,10 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param item
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		async rejectProposal(item) {
 			try {
 				await this.objectStore.saveObject('agenda-item', {
@@ -769,7 +832,10 @@ export default {
 		// Submit proposal (all participants)
 		// -----------------------------------------------------------------------
 
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param payload
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		async submitProposal(payload) {
 			try {
 				await this.objectStore.saveObject('agenda-item', {
@@ -786,11 +852,6 @@ export default {
 				console.error('Failed to submit proposal:', e)
 			}
 		},
-	},
-
-	/** @spec exclude lifecycle hook; body only calls the already-spec'd loadRecurringItems() */
-	created() {
-		this.loadRecurringItems()
 	},
 }
 </script>

@@ -31,10 +31,10 @@
 
 <script>
 import { NcLoadingIcon } from '@nextcloud/vue'
-import NotificationPreferencesSection from '../../components/userSettings/NotificationPreferencesSection.vue'
-import DisplayPreferencesSection from '../../components/userSettings/DisplayPreferencesSection.vue'
-import DelegationSection from '../../components/userSettings/DelegationSection.vue'
 import CommunicationSection from '../../components/userSettings/CommunicationSection.vue'
+import DelegationSection from '../../components/userSettings/DelegationSection.vue'
+import DisplayPreferencesSection from '../../components/userSettings/DisplayPreferencesSection.vue'
+import NotificationPreferencesSection from '../../components/userSettings/NotificationPreferencesSection.vue'
 import { fetchNotificationPreference } from '../../components/userSettings/userPreferences.js'
 
 export default {
@@ -46,15 +46,18 @@ export default {
 		DelegationSection,
 		CommunicationSection,
 	},
+
 	data() {
 		return {
 			preference: {},
 			loading: true,
 		}
 	},
+
 	async created() {
 		await this.load()
 	},
+
 	methods: {
 		/**
 		 * Load the session user's preference object once for all sections.

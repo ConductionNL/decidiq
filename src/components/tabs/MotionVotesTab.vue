@@ -38,7 +38,7 @@
 					<CnStatusBadge
 						v-if="round.result"
 						:label="round.result"
-						:color-map="roundColors" />
+						:colorMap="roundColors" />
 				</header>
 				<p v-if="round.votesFor != null" class="decidesk-tab__round-tally">
 					{{
@@ -60,14 +60,14 @@
 			:columns="columns"
 			:rows="votes"
 			:loading="loading"
-			row-key="id"
-			:empty-text="t('decidesk', 'No votes recorded for this motion yet.')"
-			:loading-text="t('decidesk', 'Loading votes…')">
+			rowKey="id"
+			:emptyText="t('decidesk', 'No votes recorded for this motion yet.')"
+			:loadingText="t('decidesk', 'Loading votes…')">
 			<template #column-caster="{ row }">
 				{{ casterDisplayName(row) }}
 			</template>
 			<template #column-value="{ value }">
-				<CnStatusBadge v-if="value" :label="value" :color-map="voteColors" />
+				<CnStatusBadge v-if="value" :label="value" :colorMap="voteColors" />
 			</template>
 		</CnDataTable>
 	</div>
@@ -83,6 +83,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -92,6 +93,7 @@ export default {
 			casterById: Object.create(null),
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		columns() {
@@ -101,15 +103,18 @@ export default {
 				{ key: 'castAt', label: this.t('decidesk', 'Cast at') },
 			]
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		voteColors() {
 			return { for: 'success', against: 'error', abstain: 'default' }
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		roundColors() {
 			return { adopted: 'success', rejected: 'error', tied: 'warning' }
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -119,6 +124,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async refresh() {
@@ -156,11 +162,15 @@ export default {
 				this.loading = false
 			}
 		},
+
 		// Resolve raw `caster` foreign keys to participant display names.
 		// Builds a per-id lookup once per refresh; falls back to the raw
 		// value (or "—") when a participant can't be resolved (deleted /
 		// not in this register).
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+		/**
+		 * @param votes
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		async hydrateCasters(votes) {
 			const ids = new Set()
 			for (const v of votes) {
@@ -190,7 +200,11 @@ export default {
 				this.casterById = Object.create(null)
 			}
 		},
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+
+		/**
+		 * @param row
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		casterDisplayName(row) {
 			const raw = row && (row.caster?.id || row.caster)
 			if (raw == null || raw === '') return '—'

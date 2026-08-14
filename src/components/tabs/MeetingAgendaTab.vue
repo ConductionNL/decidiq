@@ -100,10 +100,10 @@
 			:columns="columns"
 			:rows="rows"
 			:loading="loading"
-			row-key="id"
-			:empty-text="t('decidesk', 'No agenda items yet for this meeting.')"
-			:loading-text="t('decidesk', 'Loading agenda…')"
-			@row-click="openEdit">
+			rowKey="id"
+			:emptyText="t('decidesk', 'No agenda items yet for this meeting.')"
+			:loadingText="t('decidesk', 'Loading agenda…')"
+			@rowClick="openEdit">
 			<template #row-actions="{ row }">
 				<CnRowActions :row="row" :actions="rowActions" />
 			</template>
@@ -114,12 +114,12 @@
 			ref="formDialog"
 			:schema="agendaSchema"
 			:item="editTarget"
-			:dialog-title="
+			:dialogTitle="
 				editTarget
 					? t('decidesk', 'Edit agenda item')
 					: t('decidesk', 'Add agenda item')
 			"
-			:exclude-fields="excludedFields"
+			:excludeFields="excludedFields"
 			@confirm="onConfirm"
 			@close="formOpen = false" />
 
@@ -127,8 +127,8 @@
 			v-if="deleteTarget"
 			ref="deleteDialog"
 			:item="deleteTarget"
-			name-field="title"
-			:dialog-title="t('decidesk', 'Delete agenda item')"
+			nameField="title"
+			:dialogTitle="t('decidesk', 'Delete agenda item')"
 			@confirm="confirmDelete"
 			@close="deleteTarget = null" />
 	</div>
@@ -142,17 +142,17 @@ import {
 	CnNoteCard,
 	CnRowActions,
 } from '@conduction/nextcloud-vue'
-import { NcButton } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
-import Plus from 'vue-material-design-icons/Plus.vue'
+import { NcButton } from '@nextcloud/vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
+import Plus from 'vue-material-design-icons/Plus.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
-import { ensureRelationType } from './useRelationStore.js'
 import {
 	buildAgendaTree,
 	flattenTree,
 	missingStatutoryItems,
 } from '../../services/agendaRules.js'
+import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'MeetingAgendaTab',
@@ -165,9 +165,11 @@ export default {
 		NcButton,
 		Plus,
 	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -183,6 +185,7 @@ export default {
 			packageError: '',
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		columns() {
@@ -215,6 +218,7 @@ export default {
 				+ encodeURIComponent(this.packageResult.path)
 			)
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		rowActions() {
 			return [
@@ -233,12 +237,14 @@ export default {
 				},
 			]
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		excludedFields() {
 			// Hide system / parent-link fields — we set `meeting` ourselves.
 			return ['id', 'uuid', 'meeting', 'created', 'updated']
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -248,6 +254,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		/** @spec openspec/specs/agenda-management/spec.md */
 		async refresh() {
@@ -336,6 +343,7 @@ export default {
 				this.assembling = false
 			}
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async openCreate() {
 			const store = ensureRelationType('agenda-item')
@@ -344,18 +352,26 @@ export default {
 			this.editTarget = null
 			this.formOpen = true
 		},
-		/** @spec openspec/specs/agenda-management/spec.md */
+
+		/**
+		 * @param row
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		async openEdit(row) {
 			const store = ensureRelationType('agenda-item')
 			if (!this.agendaSchema)
 				this.agendaSchema = await store.fetchSchema('agenda-item')
 			// Strip the presentation-only nesting indicator before editing.
-			// eslint-disable-next-line no-unused-vars
+
 			const { titleDisplay, ...item } = row
 			this.editTarget = item
 			this.formOpen = true
 		},
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+
+		/**
+		 * @param formData
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		async onConfirm(formData) {
 			const store = ensureRelationType('agenda-item')
 			try {
@@ -371,6 +387,7 @@ export default {
 				})
 			}
 		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async confirmDelete() {
 			const store = ensureRelationType('agenda-item')

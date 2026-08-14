@@ -258,16 +258,16 @@
 
 <script>
 import { CnNoteCard } from '@conduction/nextcloud-vue'
-import { ensureRelationType } from './useRelationStore.js'
 import {
-	meetingDurationStats,
 	agendaCompletionRate,
-	speakingDistribution,
-	costTrend,
 	agendaItemCostBreakdown,
+	costTrend,
+	meetingDurationStats,
+	speakingDistribution,
 	timeAllocationAccuracy,
 } from '../../utils/meetingAnalytics.js'
 import { formatEur } from '../../utils/meetingCost.js'
+import { ensureRelationType } from './useRelationStore.js'
 
 /**
  * @spec openspec/specs/meeting-efficiency/spec.md
@@ -301,6 +301,7 @@ export default {
 		hasData() {
 			return this.meetings.length > 0
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		nameMap() {
 			const map = {}
@@ -309,26 +310,32 @@ export default {
 			}
 			return map
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		duration() {
 			return meetingDurationStats(this.meetings)
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		completion() {
 			return agendaCompletionRate(this.agendaItems)
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		speaking() {
 			return speakingDistribution(this.engagementRecords, this.nameMap)
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		cost() {
 			return costTrend(this.meetings)
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		accuracy() {
 			return timeAllocationAccuracy(this.agendaItems)
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		maxDurationMinutes() {
 			return this.duration.points.reduce(
@@ -336,10 +343,12 @@ export default {
 				0,
 			)
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		maxCost() {
 			return this.cost.points.reduce((m, p) => Math.max(m, p.cost || 0), 0)
 		},
+
 		/**
 		 * The most recent meeting that has a recorded cost — the subject of the
 		 * per-agenda-item cost breakdown.
@@ -362,10 +371,12 @@ export default {
 				return d >= ld ? m : latest
 			})
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		latestCostMeetingTitle() {
 			return this.latestCostMeeting?.title || this.t('decidesk', 'Meeting')
 		},
+
 		/**
 		 * Per-agenda-item cost breakdown for the latest costed meeting, with the
 		 * most expensive item flagged.
@@ -383,6 +394,7 @@ export default {
 			const attendeeCount = this.participants.length || 1
 			return agendaItemCostBreakdown(items, attendeeCount, this.hourlyRate)
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		maxItemCost() {
 			return this.itemCostBreakdown.reduce(
@@ -420,6 +432,7 @@ export default {
 					|| o?.['@self']?.relations?.governanceBody === this.objectId,
 			)
 		},
+
 		/**
 		 * Load meetings, their agenda items + engagement records, and the body's
 		 * participants from the shared store, then let the computed aggregates do
@@ -489,6 +502,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/**
 		 * @param value
 		 * @param max
@@ -499,6 +513,7 @@ export default {
 				return '0%'
 			return `${Math.round((value / max) * 100)}%`
 		},
+
 		/**
 		 * @param share
 		 * @spec openspec/specs/meeting-efficiency/spec.md
@@ -506,6 +521,7 @@ export default {
 		percentWidth(share) {
 			return `${Math.round((Number.isFinite(share) ? share : 0) * 100)}%`
 		},
+
 		/**
 		 * @param minutes
 		 * @spec openspec/specs/meeting-efficiency/spec.md
@@ -515,6 +531,7 @@ export default {
 				? this.t('decidesk', '{m} min', { m: minutes })
 				: '—'
 		},
+
 		/** @spec exclude thin re-export of the pure formatter for template use */
 		formatEur,
 	},

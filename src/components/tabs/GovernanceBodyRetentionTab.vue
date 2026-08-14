@@ -46,19 +46,19 @@
 			looked healthy while no choice ever reached `onPolicy`.
 		-->
 		<NcSelect
-			input-id="retention-policy-select"
+			inputId="retention-policy-select"
 			data-testid="retention-policy-select"
-			:input-label="t('decidesk', 'Retention policy')"
+			:inputLabel="t('decidesk', 'Retention policy')"
 			:options="policyOptions"
-			:model-value="selectedPolicy"
+			:modelValue="selectedPolicy"
 			label="label"
-			@update:model-value="onPolicy" />
+			@update:modelValue="onPolicy" />
 
 		<NcTextField
+			v-model="days"
 			type="number"
 			data-testid="retention-days"
-			:label="t('decidesk', 'Days after approval')"
-			v-model="days" />
+			:label="t('decidesk', 'Days after approval')" />
 
 		<NcButton
 			variant="primary"
@@ -72,9 +72,9 @@
 
 <script>
 import { CnNoteCard } from '@conduction/nextcloud-vue'
-import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
-import { generateUrl } from '@nextcloud/router'
 import { loadState } from '@nextcloud/initial-state'
+import { generateUrl } from '@nextcloud/router'
+import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -83,6 +83,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		// Server-provided defaults via initial state (never DOM data-attributes).
 		const defaults = this.readDefaults()
@@ -94,6 +95,7 @@ export default {
 			defaultPolicy: defaults.policy,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		policyOptions() {
@@ -110,6 +112,7 @@ export default {
 			]
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -118,6 +121,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		/**
 		 * Read default retention values from server-provided initial state.
@@ -143,6 +147,7 @@ export default {
 			}
 			return { policy, days }
 		},
+
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async load() {
 			if (!this.objectId) return
@@ -168,6 +173,7 @@ export default {
 					|| this.policyOptions[2]
 			}
 		},
+
 		/**
 		 * Set the selected retention policy.
 		 *
@@ -177,6 +183,7 @@ export default {
 		onPolicy(value) {
 			this.selectedPolicy = value
 		},
+
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async save() {
 			if (!this.objectId || !this.selectedPolicy) return

@@ -119,16 +119,16 @@
 import { NcButton } from '@nextcloud/vue'
 import {
 	createTimer,
-	startTimer,
-	pauseTimer,
-	resumeTimer,
+	elapsedSeconds,
 	extendTimer,
 	finishTimer,
-	elapsedSeconds,
-	pausedSeconds,
-	remainingSeconds,
-	isOverTime,
 	formatClock,
+	isOverTime,
+	pausedSeconds,
+	pauseTimer,
+	remainingSeconds,
+	resumeTimer,
+	startTimer,
 } from '../../utils/meetingTimer.js'
 
 /**
@@ -159,22 +159,27 @@ export default {
 		hasAllocation() {
 			return this.timer.allocatedSeconds !== null
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		started() {
 			return this.timer.startedAt !== null
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		isPaused() {
 			return this.timer.pausedAt !== null
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		finished() {
 			return this.timer.finished
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		overTime() {
 			return isOverTime(this.timer, this.now)
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		clockText() {
 			const remaining = remainingSeconds(this.timer, this.now)
@@ -184,10 +189,12 @@ export default {
 					: remaining,
 			)
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		elapsedText() {
 			return formatClock(elapsedSeconds(this.timer, this.now))
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		closedMinutes() {
 			return Math.round(elapsedSeconds(this.timer, this.now) / 60)
@@ -196,7 +203,7 @@ export default {
 
 	watch: {
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
-		'item.id'() {
+		'item.id': function () {
 			// New active item: reset the timer to that item's allocation.
 			this.timer = createTimer(this.allocatedSeconds(this.item))
 		},
@@ -215,30 +222,41 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/specs/meeting-efficiency/spec.md */
+		/**
+		 * @param item
+		 * @spec openspec/specs/meeting-efficiency/spec.md
+		 */
 		allocatedSeconds(item) {
 			const minutes = Number(item?.estimatedDuration)
 			return Number.isFinite(minutes) && minutes > 0 ? minutes * 60 : null
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		start() {
 			this.now = Date.now()
 			this.timer = startTimer(this.timer, this.now)
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		pause() {
 			this.now = Date.now()
 			this.timer = pauseTimer(this.timer, this.now)
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		resume() {
 			this.now = Date.now()
 			this.timer = resumeTimer(this.timer, this.now)
 		},
-		/** @spec openspec/specs/meeting-efficiency/spec.md */
+
+		/**
+		 * @param minutes
+		 * @spec openspec/specs/meeting-efficiency/spec.md
+		 */
 		extend(minutes) {
 			this.timer = extendTimer(this.timer, minutes * 60)
 		},
+
 		/**
 		 * Close the item: freeze the timer, persist actualDuration and the
 		 * separately-recorded pausedDuration (minutes) to the agenda item, and

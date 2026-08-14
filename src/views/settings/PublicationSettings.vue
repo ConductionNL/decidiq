@@ -61,25 +61,25 @@
 				</label>
 				<NcSelect
 					v-model="config[body.id].policy.decision"
-					:input-label="t('decidesk', 'Decision policy')"
+					:inputLabel="t('decidesk', 'Decision policy')"
 					:options="policyOptions"
 					:reduce="(o) => o.value"
 					:data-testid="`publication-policy-decision-${body.id}`" />
 				<NcSelect
 					v-model="config[body.id].policy.agenda"
-					:input-label="t('decidesk', 'Agenda policy')"
+					:inputLabel="t('decidesk', 'Agenda policy')"
 					:options="policyOptions"
 					:reduce="(o) => o.value"
 					:data-testid="`publication-policy-agenda-${body.id}`" />
 				<NcSelect
 					v-model="config[body.id].policy.minutes"
-					:input-label="t('decidesk', 'Minutes policy')"
+					:inputLabel="t('decidesk', 'Minutes policy')"
 					:options="policyOptions"
 					:reduce="(o) => o.value"
 					:data-testid="`publication-policy-minutes-${body.id}`" />
 				<NcSelect
 					v-model="config[body.id].attendance"
-					:input-label="t('decidesk', 'Minutes attendance rendering')"
+					:inputLabel="t('decidesk', 'Minutes attendance rendering')"
 					:options="attendanceOptions"
 					:reduce="(o) => o.value"
 					:data-testid="`publication-attendance-${body.id}`" />
@@ -99,9 +99,9 @@
 
 <script>
 import { CnNoteCard } from '@conduction/nextcloud-vue'
-import { NcButton, NcLoadingIcon, NcSelect } from '@nextcloud/vue'
 import { loadState } from '@nextcloud/initial-state'
 import { generateUrl } from '@nextcloud/router'
+import { NcButton, NcLoadingIcon, NcSelect } from '@nextcloud/vue'
 import { ensureRelationType } from '../../components/tabs/useRelationStore.js'
 
 export default {
@@ -124,6 +124,7 @@ export default {
 			initialConfig: loadState('decidesk', 'publicationConfig', {}),
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/public-publication/spec.md */
 		policyOptions() {
@@ -133,6 +134,7 @@ export default {
 			}
 			return this.policyEnums.map((v) => ({ value: v, label: labels[v] || v }))
 		},
+
 		/** @spec openspec/specs/public-publication/spec.md */
 		attendanceOptions() {
 			const labels = {
@@ -145,10 +147,12 @@ export default {
 			}))
 		},
 	},
+
 	/** @spec exclude lifecycle hook; only loads bodies + seeds config, framework setup */
 	async mounted() {
 		await this.loadBodies()
 	},
+
 	methods: {
 		/** @spec openspec/specs/public-publication/spec.md */
 		async loadBodies() {
@@ -169,6 +173,7 @@ export default {
 							agenda: existing.policy?.agenda || 'manual-only',
 							minutes: existing.policy?.minutes || 'manual-only',
 						},
+
 						attendance: existing.attendance || 'counts',
 					}
 				}
@@ -181,6 +186,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/** @spec openspec/specs/public-publication/spec.md */
 		async save() {
 			this.saving = true

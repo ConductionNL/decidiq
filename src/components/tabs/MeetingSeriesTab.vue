@@ -43,7 +43,7 @@
 			@submit.prevent="generate">
 			<NcSelect
 				v-model="frequency"
-				:input-label="t('decidesk', 'Frequency')"
+				:inputLabel="t('decidesk', 'Frequency')"
 				:options="frequencyOptions"
 				:clearable="false" />
 			<NcTextField
@@ -112,19 +112,19 @@
 				:columns="columns"
 				:rows="instances"
 				:loading="loading"
-				row-key="id"
-				:empty-text="t('decidesk', 'No other meetings in this series yet.')"
-				:loading-text="t('decidesk', 'Loading series instances…')" />
+				rowKey="id"
+				:emptyText="t('decidesk', 'No other meetings in this series yet.')"
+				:loadingText="t('decidesk', 'Loading series instances…')" />
 		</div>
 	</div>
 </template>
 
 <script>
 import { CnDataTable, CnNoteCard } from '@conduction/nextcloud-vue'
-import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
-import { ensureRelationType } from './useRelationStore.js'
+import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
 import { expandRecurrence } from '../../services/agendaRules.js'
+import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'MeetingSeriesTab',
@@ -132,6 +132,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -146,6 +147,7 @@ export default {
 			exceptions: '',
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/meeting-management/spec.md */
 		frequencyOptions() {
@@ -185,6 +187,7 @@ export default {
 			return expandRecurrence(this.meeting.scheduledDate, this.pattern)
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -194,6 +197,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		/** @spec openspec/specs/meeting-management/spec.md */
 		async refresh() {

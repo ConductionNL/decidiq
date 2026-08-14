@@ -101,11 +101,13 @@ export default {
 		hasRate() {
 			return Number.isFinite(this.hourlyRate) && this.hourlyRate > 0
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		attendeeCount() {
 			const present = this.participants.filter((p) => p.present === true)
 			return present.length > 0 ? present.length : this.participants.length
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		elapsedSeconds() {
 			const openedAt = this.meeting?.openedAt
@@ -114,6 +116,7 @@ export default {
 			if (!Number.isFinite(startMs)) return 0
 			return Math.max(0, Math.floor((this.now - startMs) / 1000))
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		formattedCost() {
 			return formatEur(
@@ -124,6 +127,7 @@ export default {
 				),
 			)
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		formattedRate() {
 			return formatEur(this.hourlyRate)

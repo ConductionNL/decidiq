@@ -25,7 +25,7 @@
 					:placeholder="t('decidesk', 'e.g. Prepare budget proposal')" />
 				<NcSelect
 					v-model="assignee"
-					:input-label="t('decidesk', 'Owner')"
+					:inputLabel="t('decidesk', 'Owner')"
 					:options="assigneeOptions"
 					:placeholder="t('decidesk', 'Pick a participant')" />
 				<NcDateTimePickerNative
@@ -72,11 +72,13 @@ export default {
 		NcSelect,
 		NcTextField,
 	},
+
 	props: {
 		meetingId: { type: String, required: true },
 		agendaItem: { type: Object, default: null },
 		participants: { type: Array, default: () => [] },
 	},
+
 	data() {
 		return {
 			title: '',
@@ -86,6 +88,7 @@ export default {
 			error: '',
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		assigneeOptions() {
@@ -94,6 +97,7 @@ export default {
 				.filter(Boolean)
 		},
 	},
+
 	methods: {
 		/**
 		 * Persist the action item linked to the meeting and agenda item.

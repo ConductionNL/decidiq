@@ -35,7 +35,7 @@
 			<MeetingCostPanel
 				:meeting="meeting"
 				:participants="participants"
-				:hourly-rate="hourlyRate" />
+				:hourlyRate="hourlyRate" />
 
 			<!-- Hamerstukken section -->
 			<section
@@ -91,14 +91,14 @@
 				<!-- Chair view: full edit controls -->
 				<template v-if="isChair">
 					<AgendaBuilder
-						:meeting-id="id"
-						:is-chair="true"
+						:meetingId="id"
+						:isChair="true"
 						:lifecycle="meeting.lifecycle || 'opened'"
-						:meeting-type="meeting.meetingType || ''"
+						:meetingType="meeting.meetingType || ''"
 						:items="regularItems"
 						:participants="participants"
 						@reordered="refreshItems"
-						@item-updated="refreshItems" />
+						@itemUpdated="refreshItems" />
 				</template>
 
 				<!-- Non-chair: read-only list -->
@@ -151,8 +151,8 @@
 				<AgendaItemTimer
 					:key="activeItem.id"
 					:item="activeItem"
-					:is-chair="isChair"
-					:object-store="objectStore"
+					:isChair="isChair"
+					:objectStore="objectStore"
 					@closed="refreshItems" />
 
 				<!-- BOB phase (discussion/decision only) -->
@@ -183,15 +183,15 @@
 			<!-- Speaker queue (meeting-efficiency) -->
 			<SpeakerQueuePanel
 				v-if="activeItem"
-				:meeting-id="id"
+				:meetingId="id"
 				:participants="participants"
-				:is-chair="isChair" />
+				:isChair="isChair" />
 
 			<!-- Real-time minute taking (minutes-ui-v1) -->
 			<MinutesPanel
 				v-if="canTakeMinutes"
-				:meeting-id="id"
-				:agenda-items="regularItems"
+				:meetingId="id"
+				:agendaItems="regularItems"
 				:participants="participants" />
 
 			<!-- Chair: activate item controls -->
@@ -228,16 +228,16 @@
 </template>
 
 <script>
-import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import { CnStatusBadge, CnTimelineStages } from '@conduction/nextcloud-vue'
 import { getCurrentUser } from '@nextcloud/auth'
-import { useObjectStore } from '../store/store.js'
+import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import AgendaBuilder from '../components/AgendaBuilder.vue'
+import AgendaItemTimer from '../components/liveMeeting/AgendaItemTimer.vue'
+import MeetingCostPanel from '../components/liveMeeting/MeetingCostPanel.vue'
+import SpeakerQueuePanel from '../components/liveMeeting/SpeakerQueuePanel.vue'
 import MinutesPanel from '../components/minutesEditor/MinutesPanel.vue'
 import AdoptConsentAgendaDialog from '../dialogs/AdoptConsentAgendaDialog.vue'
-import AgendaItemTimer from '../components/liveMeeting/AgendaItemTimer.vue'
-import SpeakerQueuePanel from '../components/liveMeeting/SpeakerQueuePanel.vue'
-import MeetingCostPanel from '../components/liveMeeting/MeetingCostPanel.vue'
+import { useObjectStore } from '../store/store.js'
 
 const BOB_STAGES = [
 	{ id: 'beeldvorming', label: 'Beeldvorming' },
@@ -303,6 +303,7 @@ export default {
 		meeting() {
 			return this.objectStore.objects?.meeting?.[this.id] ?? {}
 		},
+
 		/**
 		 * Agenda items belonging to this meeting.
 		 *
@@ -324,6 +325,7 @@ export default {
 					|| i?.relations?.meeting === this.id,
 			)
 		},
+
 		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 		participants() {
 			const collection = this.objectStore.collections?.participant ?? []
@@ -409,25 +411,77 @@ export default {
 		},
 	},
 
+	/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
+	async created() {
+		await this.fetchData()
+
+		// Live updates: subscribe to the meeting object + the two
+		// collections the page renders. The store's subscribe() returns
+		// a handle and auto-refetches the affected resource when an OR
+		// notify_push event arrives. The plugin itself falls back to
+		// coalesced polling (30s collections / 60s objects) when
+		// notify_push is unavailable, so the page works on stacks with
+		// or without the WebSocket sidecar with no extra config.
+		//
+		// Why these three:
+		//   - meeting object: status / currentAgendaItem advance fires
+		//     or-object-{meetingUuid}; the page picks up the new active
+		//     agenda item and re-renders the chairperson controls.
+		//   - agenda-item collection: a new vote object created mid-meeting,
+		//     or an item removed/reordered, fires or-collection-... and
+		//     the items list refreshes.
+		//   - participant collection: late joiners / drop-offs surface
+		//     immediately so the chair indicator stays accurate.
+		this.liveSubs.push(await this.objectStore.subscribe('meeting', this.id))
+		this.liveSubs.push(await this.objectStore.subscribe('agenda-item'))
+		this.liveSubs.push(await this.objectStore.subscribe('participant'))
+	},
+
+	/** @spec exclude lifecycle teardown; only unsubscribes the live-update handles created in created() */
+	beforeUnmount() {
+		// Tear down all live-update subscriptions; refcount drops to 0 ->
+		// the underlying notify_push listener for each event key is removed.
+		for (const handle of this.liveSubs) {
+			try {
+				this.objectStore.unsubscribe(handle)
+			} catch (e) {
+				// best-effort cleanup
+			}
+		}
+		this.liveSubs = []
+	},
+
 	methods: {
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3 */
+		/**
+		 * @param item
+		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3
+		 */
 		currentBobStageIndex(item) {
 			const status = item?.status ?? 'beeldvorming'
 			const idx = BOB_STAGES.findIndex((s) => s.id === status)
 			return idx === -1 ? 0 : idx
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3 */
+		/**
+		 * @param item
+		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3
+		 */
 		canAdvanceBob(item) {
 			return item?.status !== BOB_FINAL && item?.itemType !== 'informational'
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.2 */
+		/**
+		 * @param item
+		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.2
+		 */
 		activateItem(item) {
 			this.activeItemId = item.id
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3 */
+		/**
+		 * @param item
+		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3
+		 */
 		async advanceBobPhase(item) {
 			this.advancingBob = true
 			try {
@@ -478,7 +532,10 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4 */
+		/**
+		 * @param item
+		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4
+		 */
 		async removeFromHamerstukken(item) {
 			const tags = (item.tags ?? []).filter((t) => t !== 'hamerstuk')
 			try {
@@ -564,46 +621,6 @@ export default {
 				console.error('Error refreshing items:', e)
 			}
 		},
-	},
-
-	/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
-	async created() {
-		await this.fetchData()
-
-		// Live updates: subscribe to the meeting object + the two
-		// collections the page renders. The store's subscribe() returns
-		// a handle and auto-refetches the affected resource when an OR
-		// notify_push event arrives. The plugin itself falls back to
-		// coalesced polling (30s collections / 60s objects) when
-		// notify_push is unavailable, so the page works on stacks with
-		// or without the WebSocket sidecar with no extra config.
-		//
-		// Why these three:
-		//   - meeting object: status / currentAgendaItem advance fires
-		//     or-object-{meetingUuid}; the page picks up the new active
-		//     agenda item and re-renders the chairperson controls.
-		//   - agenda-item collection: a new vote object created mid-meeting,
-		//     or an item removed/reordered, fires or-collection-... and
-		//     the items list refreshes.
-		//   - participant collection: late joiners / drop-offs surface
-		//     immediately so the chair indicator stays accurate.
-		this.liveSubs.push(await this.objectStore.subscribe('meeting', this.id))
-		this.liveSubs.push(await this.objectStore.subscribe('agenda-item'))
-		this.liveSubs.push(await this.objectStore.subscribe('participant'))
-	},
-
-	/** @spec exclude lifecycle teardown; only unsubscribes the live-update handles created in created() */
-	beforeUnmount() {
-		// Tear down all live-update subscriptions; refcount drops to 0 ->
-		// the underlying notify_push listener for each event key is removed.
-		for (const handle of this.liveSubs) {
-			try {
-				this.objectStore.unsubscribe(handle)
-			} catch (e) {
-				// best-effort cleanup
-			}
-		}
-		this.liveSubs = []
 	},
 }
 </script>

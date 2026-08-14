@@ -49,15 +49,15 @@
 			:columns="columns"
 			:rows="rows"
 			:loading="loading"
-			row-key="id"
-			:empty-text="t('decidesk', 'No minutes yet for this meeting.')"
-			:loading-text="t('decidesk', 'Loading minutes…')"
-			@row-click="openDetail">
+			rowKey="id"
+			:emptyText="t('decidesk', 'No minutes yet for this meeting.')"
+			:loadingText="t('decidesk', 'Loading minutes…')"
+			@rowClick="openDetail">
 			<template #column-lifecycle="{ value }">
 				<CnStatusBadge
 					v-if="value"
 					:label="value"
-					:color-map="lifecycleColors" />
+					:colorMap="lifecycleColors" />
 			</template>
 		</CnDataTable>
 	</div>
@@ -75,6 +75,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -83,6 +84,7 @@ export default {
 			rows: [],
 		}
 	},
+
 	computed: {
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
 		columns() {
@@ -93,6 +95,7 @@ export default {
 				{ key: 'approvedAt', label: this.t('decidesk', 'Approved') },
 			]
 		},
+
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
 		lifecycleColors() {
 			return {
@@ -104,6 +107,7 @@ export default {
 			}
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -113,6 +117,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
 		async refresh() {
@@ -133,6 +138,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-creating-minutes-pre-fills-the-meeting-reference */
 		async createMinutes() {
 			if (!this.objectId || this.creating) return
@@ -156,6 +162,7 @@ export default {
 				this.creating = false
 			}
 		},
+
 		/**
 		 * Navigate to the MinutesDetail page for a row.
 		 *

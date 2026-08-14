@@ -69,7 +69,7 @@
 						<CnStatusBadge
 							v-if="row.lifecycle"
 							:label="row.lifecycle"
-							:color-map="lifecycleColors" />
+							:colorMap="lifecycleColors" />
 					</span>
 					<span class="amendment-order__actions">
 						<NcButton
@@ -137,13 +137,13 @@
 
 <script>
 import { CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
-import { NcButton } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
-import ArrowUp from 'vue-material-design-icons/ArrowUp.vue'
+import { NcButton } from '@nextcloud/vue'
 import ArrowDown from 'vue-material-design-icons/ArrowDown.vue'
+import ArrowUp from 'vue-material-design-icons/ArrowUp.vue'
+import { DECISION_LIFECYCLE_COLORS } from '../../constants/decisionLifecycle.js'
 import { suggestVotingOrder } from '../../utils/textDiff.js'
 import { ensureRelationType } from './useRelationStore.js'
-import { DECISION_LIFECYCLE_COLORS } from '../../constants/decisionLifecycle.js'
 
 export default {
 	name: 'MotionAmendmentOrderTab',
@@ -151,6 +151,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -163,12 +164,14 @@ export default {
 			motionText: '',
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		lifecycleColors() {
 			return DECISION_LIFECYCLE_COLORS
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -178,11 +181,16 @@ export default {
 			},
 		},
 	},
+
 	methods: {
-		/** @spec openspec/specs/motion-amendment/spec.md */
+		/**
+		 * @param row
+		 * @spec openspec/specs/motion-amendment/spec.md
+		 */
 		isDecided(row) {
 			return ['adopted', 'rejected'].includes(row?.lifecycle)
 		},
+
 		/**
 		 * Sort amendments by the server's deterministic comparison:
 		 * votingOrder ascending (unordered last), submittedAt, id.
@@ -214,6 +222,7 @@ export default {
 				return String(a?.id || '') < String(b?.id || '') ? -1 : 1
 			})
 		},
+
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		async refresh() {
 			if (!this.objectId) return
@@ -240,7 +249,12 @@ export default {
 				this.loading = false
 			}
 		},
-		/** @spec openspec/specs/motion-amendment/spec.md */
+
+		/**
+		 * @param index
+		 * @param delta
+		 * @spec openspec/specs/motion-amendment/spec.md
+		 */
 		move(index, delta) {
 			const target = index + delta
 			if (target < 0 || target >= this.rows.length) return
@@ -256,6 +270,7 @@ export default {
 			this.dirty = true
 			this.saved = false
 		},
+
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		suggest() {
 			// Decided amendments keep their position; only the undecided tail is
@@ -266,6 +281,7 @@ export default {
 			this.dirty = true
 			this.saved = false
 		},
+
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		async save() {
 			this.busy = true

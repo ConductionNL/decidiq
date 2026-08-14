@@ -108,8 +108,8 @@
 							:label="t('decidesk', 'Description')"
 							resize="vertical" />
 						<NcTextField
-							type="number"
 							v-model="proposalDrafts[b.id].amount"
+							type="number"
 							:label="t('decidesk', 'Requested amount')" />
 						<NcButton
 							variant="primary"
@@ -180,6 +180,7 @@
 </template>
 
 <script>
+import { showError, showSuccess } from '@nextcloud/dialogs'
 import {
 	NcButton,
 	NcEmptyContent,
@@ -188,8 +189,6 @@ import {
 	NcTextArea,
 	NcTextField,
 } from '@nextcloud/vue'
-import { showError, showSuccess } from '@nextcloud/dialogs'
-import { useObjectStore, useSettingsStore } from '../../store/store.js'
 import {
 	castAdvisoryVote,
 	publishBudgetResults,
@@ -199,6 +198,7 @@ import {
 	transitionBudgetRound,
 	transitionConsultation,
 } from '../../services/participationApi.js'
+import { useObjectStore, useSettingsStore } from '../../store/store.js'
 
 const NEXT_BUDGET_PHASE = {
 	draft: 'submission',
@@ -217,6 +217,7 @@ export default {
 		NcTextArea,
 		NcTextField,
 	},
+
 	data() {
 		return {
 			loading: true,
@@ -229,6 +230,7 @@ export default {
 			catalogWarning: '',
 		}
 	},
+
 	/** @spec openspec/specs/citizen-participation/spec.md */
 	async mounted() {
 		try {
@@ -244,6 +246,7 @@ export default {
 		}
 		this.load()
 	},
+
 	methods: {
 		/** @spec openspec/specs/citizen-participation/spec.md */
 		async load() {
@@ -283,7 +286,11 @@ export default {
 				this.loading = false
 			}
 		},
-		/** @spec openspec/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param round
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		async loadVotable(round) {
 			try {
 				const store = useObjectStore()
@@ -298,7 +305,11 @@ export default {
 				this.votableProposals[round.id] = []
 			}
 		},
-		/** @spec openspec/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param consultation
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		async sendReaction(consultation) {
 			try {
 				await submitReaction(
@@ -318,7 +329,11 @@ export default {
 				)
 			}
 		},
-		/** @spec openspec/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param round
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		async sendProposal(round) {
 			const draft = this.proposalDrafts[round.id]
 			try {
@@ -342,7 +357,12 @@ export default {
 				)
 			}
 		},
-		/** @spec openspec/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param proposal
+		 * @param value
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		async vote(proposal, value) {
 			try {
 				const result = await castAdvisoryVote(proposal.id, value)
@@ -355,7 +375,12 @@ export default {
 				)
 			}
 		},
-		/** @spec openspec/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param consultation
+		 * @param status
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		async transitionC(consultation, status) {
 			try {
 				await transitionConsultation(consultation.id, status)
@@ -365,7 +390,12 @@ export default {
 				showError(this.apiError(e, t('decidesk', 'Transition failed')))
 			}
 		},
-		/** @spec openspec/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param round
+		 * @param status
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		async transitionB(round, status) {
 			try {
 				await transitionBudgetRound(round.id, status)
@@ -375,7 +405,11 @@ export default {
 				showError(this.apiError(e, t('decidesk', 'Transition failed')))
 			}
 		},
-		/** @spec openspec/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param consultation
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		async publishC(consultation) {
 			try {
 				const result = await publishConsultationResults(consultation.id, '')
@@ -384,7 +418,11 @@ export default {
 				showError(this.apiError(e, t('decidesk', 'Publication failed')))
 			}
 		},
-		/** @spec openspec/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param round
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		async publishB(round) {
 			try {
 				const result = await publishBudgetResults(round.id)
@@ -393,7 +431,11 @@ export default {
 				showError(this.apiError(e, t('decidesk', 'Publication failed')))
 			}
 		},
-		/** @spec openspec/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param result
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		reportPublication(result) {
 			if (result && result.warning) {
 				this.catalogWarning = result.warning
@@ -403,11 +445,19 @@ export default {
 				showSuccess(t('decidesk', 'Results published'))
 			}
 		},
-		/** @spec openspec/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param status
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		nextBudgetPhase(status) {
 			return NEXT_BUDGET_PHASE[status] || ''
 		},
-		/** @spec openspec/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param status
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		phaseLabel(status) {
 			const labels = {
 				draft: t('decidesk', 'Draft'),
@@ -418,12 +468,22 @@ export default {
 			}
 			return labels[status] || status
 		},
-		/** @spec openspec/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param amount
+		 * @param currency
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		formatAmount(amount, currency) {
 			const value = Number(amount) || 0
 			return `${value.toLocaleString()} ${currency || 'EUR'}`
 		},
-		/** @spec openspec/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param e
+		 * @param fallback
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		apiError(e, fallback) {
 			return e && e.response && e.response.data && e.response.data.message
 				? e.response.data.message

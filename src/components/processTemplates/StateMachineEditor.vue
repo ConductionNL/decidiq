@@ -31,7 +31,7 @@
 		<div class="form-group">
 			<NcSelect
 				v-model="initialState"
-				:input-label="t('decidesk', 'Initial state')"
+				:inputLabel="t('decidesk', 'Initial state')"
 				:options="stateNames"
 				data-testid="state-machine-initial" />
 		</div>
@@ -67,12 +67,12 @@
 			data-testid="transition-row">
 			<NcSelect
 				v-model="tr.from"
-				:input-label="t('decidesk', 'From')"
+				:inputLabel="t('decidesk', 'From')"
 				:options="stateNames"
 				@input="emit" />
 			<NcSelect
 				v-model="tr.to"
-				:input-label="t('decidesk', 'To')"
+				:inputLabel="t('decidesk', 'To')"
 				:options="stateNames"
 				@input="emit" />
 			<label class="chair-only">
@@ -109,6 +109,7 @@ export default {
 			required: true,
 		},
 	},
+
 	emits: ['update:modelValue'],
 	computed: {
 		/** @spec openspec/specs/process-configuration/spec.md */
@@ -117,11 +118,13 @@ export default {
 				.map((s) => s.name)
 				.filter(Boolean)
 		},
+
 		initialState: {
 			/** @spec openspec/specs/process-configuration/spec.md */
 			get() {
 				return this.modelValue.initialState
 			},
+
 			/**
 			 * @param v
 			 * @spec openspec/specs/process-configuration/spec.md
@@ -133,6 +136,7 @@ export default {
 				})
 			},
 		},
+
 		/** @spec openspec/specs/process-configuration/spec.md */
 		graphSummary() {
 			const transitions = this.modelValue.stateMachine.transitions || []
@@ -142,11 +146,13 @@ export default {
 			})
 		},
 	},
+
 	methods: {
 		/** @spec openspec/specs/process-configuration/spec.md */
 		emit() {
 			this.$emit('update:modelValue', { ...this.modelValue })
 		},
+
 		/**
 		 * @param stateMachine
 		 * @spec openspec/specs/process-configuration/spec.md
@@ -160,6 +166,7 @@ export default {
 				},
 			})
 		},
+
 		/** @spec openspec/specs/process-configuration/spec.md */
 		addState() {
 			const states = [
@@ -168,6 +175,7 @@ export default {
 			]
 			this.emitStateMachine({ states })
 		},
+
 		/**
 		 * @param i
 		 * @spec openspec/specs/process-configuration/spec.md
@@ -178,6 +186,7 @@ export default {
 			)
 			this.emitStateMachine({ states })
 		},
+
 		/** @spec openspec/specs/process-configuration/spec.md */
 		addTransition() {
 			const transitions = [
@@ -186,6 +195,7 @@ export default {
 			]
 			this.emitStateMachine({ transitions })
 		},
+
 		/**
 		 * @param i
 		 * @spec openspec/specs/process-configuration/spec.md

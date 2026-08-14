@@ -24,9 +24,9 @@
 		</p>
 		<template v-else>
 			<VotingRoundPanel
-				:motion-id="String(objectId)"
-				:motion-lifecycle="motionLifecycle"
-				:meeting-id="meetingId" />
+				:motionId="String(objectId)"
+				:motionLifecycle="motionLifecycle"
+				:meetingId="meetingId" />
 		</template>
 	</div>
 </template>
@@ -41,6 +41,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -48,6 +49,7 @@ export default {
 			meetingId: '',
 		}
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -57,6 +59,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		/**
 		 * Resolve the motion's lifecycle + linked meeting for the panel.

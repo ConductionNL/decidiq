@@ -65,18 +65,18 @@
 import { getCurrentUser } from '@nextcloud/auth'
 import { NcButton, NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
-import dashboardRefreshMixin from './dashboardRefreshMixin.js'
-import {
-	resolveParticipantId,
-	pendingVotingRounds,
-	isUrgent,
-	countdownBucket,
-} from './widgetLogic.js'
 import {
 	getParticipants,
-	getVotingRounds,
 	getVotes,
+	getVotingRounds,
 } from '../../../services/dashboardData.js'
+import dashboardRefreshMixin from './dashboardRefreshMixin.js'
+import {
+	countdownBucket,
+	isUrgent,
+	pendingVotingRounds,
+	resolveParticipantId,
+} from './widgetLogic.js'
 
 export default {
 	name: 'PendingVotesListWidget',

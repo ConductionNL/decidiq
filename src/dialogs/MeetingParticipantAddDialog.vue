@@ -52,7 +52,10 @@ export default {
 	emits: ['select', 'close'],
 
 	methods: {
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
+		/**
+		 * @param p
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		candidateLabel(p) {
 			return p.displayName || p.name || p.id
 		},

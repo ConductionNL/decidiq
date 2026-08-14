@@ -44,7 +44,7 @@
 				<CnStatusBadge
 					v-if="step.status === 'current'"
 					:label="t('decidesk', 'Current')"
-					:color-map="{ [t('decidesk', 'Current')]: 'primary' }" />
+					:colorMap="{ [t('decidesk', 'Current')]: 'primary' }" />
 			</li>
 		</ol>
 
@@ -87,11 +87,11 @@
 </template>
 
 <script>
-import { NcButton } from '@nextcloud/vue'
 import { CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
-import { buildTimeline } from './decisionLifecycle.js'
+import { NcButton } from '@nextcloud/vue'
 import PublicationPromptModal from '../../modals/PublicationPromptModal.vue'
+import { buildTimeline } from './decisionLifecycle.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -100,6 +100,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -111,12 +112,14 @@ export default {
 			publishPromptOpen: false,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/decision-management/spec.md */
 		timeline() {
 			return buildTimeline(this.lifecycle)
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -126,8 +129,12 @@ export default {
 			},
 		},
 	},
+
 	methods: {
-		/** @spec openspec/specs/decision-management/spec.md */
+		/**
+		 * @param state
+		 * @spec openspec/specs/decision-management/spec.md
+		 */
 		stateLabel(state) {
 			const labels = {
 				draft: this.t('decidesk', 'Draft'),
@@ -140,7 +147,11 @@ export default {
 			}
 			return labels[state] || state
 		},
-		/** @spec openspec/specs/decision-management/spec.md */
+
+		/**
+		 * @param action
+		 * @spec openspec/specs/decision-management/spec.md
+		 */
 		actionLabel(action) {
 			const labels = {
 				propose: this.t('decidesk', 'Propose'),
@@ -152,6 +163,7 @@ export default {
 			}
 			return labels[action] || action
 		},
+
 		/** @spec openspec/specs/decision-management/spec.md */
 		async refresh() {
 			if (!this.objectId) return
@@ -186,7 +198,11 @@ export default {
 				this.loading = false
 			}
 		},
-		/** @spec openspec/specs/decision-management/spec.md */
+
+		/**
+		 * @param action
+		 * @spec openspec/specs/decision-management/spec.md
+		 */
 		async applyTransition(action) {
 			this.busy = true
 			this.transitionError = ''
@@ -226,6 +242,7 @@ export default {
 				this.busy = false
 			}
 		},
+
 		/**
 		 * Open the non-blocking publish prompt when the decision's governance
 		 * body is configured with the `prompt-on-transition` policy for decisions.
@@ -262,6 +279,7 @@ export default {
 				// Prompt is best-effort; never block the transition on it.
 			}
 		},
+
 		/**
 		 * Publish from the prompt — calls the same authoritative publish endpoint
 		 * as the Publication tab.

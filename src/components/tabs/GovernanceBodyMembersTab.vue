@@ -32,7 +32,7 @@
 					</template>
 					<NcActionButton
 						data-testid="body-members-import-group"
-						close-after-click
+						closeAfterClick
 						@click="groupImportOpen = true">
 						<template #icon>
 							<AccountGroup :size="20" />
@@ -41,7 +41,7 @@
 					</NcActionButton>
 					<NcActionButton
 						data-testid="body-members-import-csv"
-						close-after-click
+						closeAfterClick
 						@click="csvImportOpen = true">
 						<template #icon>
 							<FileDelimited :size="20" />
@@ -73,9 +73,9 @@
 			:columns="columns"
 			:rows="rows"
 			:loading="loading"
-			row-key="id"
-			:empty-text="t('decidesk', 'No members linked to this body yet.')"
-			:loading-text="t('decidesk', 'Loading members…')">
+			rowKey="id"
+			:emptyText="t('decidesk', 'No members linked to this body yet.')"
+			:loadingText="t('decidesk', 'Loading members…')">
 			<template #row-actions="{ row }">
 				<CnRowActions :row="row" :actions="rowActions" />
 			</template>
@@ -83,7 +83,7 @@
 
 		<MemberAddDialog
 			v-if="addDialogOpen"
-			:body-id="objectId"
+			:bodyId="objectId"
 			@linked="refresh"
 			@close="addDialogOpen = false" />
 
@@ -95,15 +95,15 @@
 
 		<MemberGroupImportDialog
 			v-if="groupImportOpen"
-			:body-id="objectId"
-			:existing-members="rows"
+			:bodyId="objectId"
+			:existingMembers="rows"
 			@imported="refresh"
 			@close="groupImportOpen = false" />
 
 		<MemberCsvImportDialog
 			v-if="csvImportOpen"
-			:body-id="objectId"
-			:existing-members="rows"
+			:bodyId="objectId"
+			:existingMembers="rows"
 			@imported="refresh"
 			@close="csvImportOpen = false" />
 
@@ -111,8 +111,8 @@
 			v-if="removeTarget"
 			ref="removeDialog"
 			:item="removeTarget"
-			name-field="displayName"
-			:dialog-title="t('decidesk', 'Remove member')"
+			nameField="displayName"
+			:dialogTitle="t('decidesk', 'Remove member')"
 			@confirm="confirmRemove"
 			@close="removeTarget = null" />
 	</div>
@@ -126,12 +126,12 @@ import {
 	CnRowActions,
 } from '@conduction/nextcloud-vue'
 import { NcActionButton, NcActions, NcButton } from '@nextcloud/vue'
-import Plus from 'vue-material-design-icons/Plus.vue'
-import LinkOff from 'vue-material-design-icons/LinkOff.vue'
 import AccountEdit from 'vue-material-design-icons/AccountEdit.vue'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
 import AccountMultiplePlus from 'vue-material-design-icons/AccountMultiplePlus.vue'
 import FileDelimited from 'vue-material-design-icons/FileDelimited.vue'
+import LinkOff from 'vue-material-design-icons/LinkOff.vue'
+import Plus from 'vue-material-design-icons/Plus.vue'
 import MemberAddDialog from '../../modals/MemberAddDialog.vue'
 import MemberCsvImportDialog from '../../modals/MemberCsvImportDialog.vue'
 import MemberGroupImportDialog from '../../modals/MemberGroupImportDialog.vue'
@@ -157,12 +157,14 @@ export default {
 		NcButton,
 		Plus,
 	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 		objectType: { type: String, default: '' },
 		register: { type: String, default: '' },
 		schema: { type: String, default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -175,6 +177,7 @@ export default {
 			removeTarget: null,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		columns() {
@@ -184,6 +187,7 @@ export default {
 				{ key: 'party', label: this.t('decidesk', 'Party') },
 			]
 		},
+
 		/** @spec openspec/specs/admin-settings/spec.md */
 		rowActions() {
 			return [
@@ -205,6 +209,7 @@ export default {
 			]
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
@@ -214,6 +219,7 @@ export default {
 			},
 		},
 	},
+
 	methods: {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async refresh() {
@@ -234,6 +240,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async confirmRemove() {
 			const store = ensureRelationType('participant')

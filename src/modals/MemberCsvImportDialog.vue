@@ -122,14 +122,14 @@
 </template>
 
 <script>
-import { NcButton, NcDialog } from '@nextcloud/vue'
-import { generateUrl } from '@nextcloud/router'
 import { getRequestToken } from '@nextcloud/auth'
+import { generateUrl } from '@nextcloud/router'
+import { NcButton, NcDialog } from '@nextcloud/vue'
 import { ensureRelationType } from '../components/tabs/useRelationStore.js'
 import {
+	MAX_IMPORT_ROWS,
 	parseMemberCsv,
 	validateMemberRows,
-	MAX_IMPORT_ROWS,
 } from '../utils/memberImport.js'
 
 export default {
@@ -141,6 +141,7 @@ export default {
 		/** Current members of the body (duplicate detection). */
 		existingMembers: { type: Array, default: () => [] },
 	},
+
 	emits: ['close', 'imported'],
 	data() {
 		return {
@@ -150,12 +151,14 @@ export default {
 			doneMessage: '',
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		importableCount() {
 			return this.preview.filter((row) => row.status === 'ok').length
 		},
 	},
+
 	methods: {
 		/**
 		 * Translated status text for one previewed CSV row.
@@ -180,6 +183,7 @@ export default {
 			}
 			return reasons[row.reason] || this.t('decidesk', 'Invalid row')
 		},
+
 		/**
 		 * Parse, validate and account-match a newly chosen CSV file.
 		 *
@@ -219,6 +223,7 @@ export default {
 			const validated = validateMemberRows(rows, this.existingMembers)
 			this.preview = await this.matchAccounts(validated)
 		},
+
 		/**
 		 * Resolve each row's email to a Nextcloud account, best-effort.
 		 *
@@ -264,6 +269,7 @@ export default {
 				return rows.map((r) => ({ ...r, matchedUid: '' }))
 			}
 		},
+
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async runImport() {
 			this.importing = true

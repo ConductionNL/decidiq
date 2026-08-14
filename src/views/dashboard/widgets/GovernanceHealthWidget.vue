@@ -40,16 +40,16 @@
 </template>
 
 <script>
-import { NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import { CnChartWidget } from '@conduction/nextcloud-vue'
+import { NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import ChartLine from 'vue-material-design-icons/ChartLine.vue'
+import { getMeetings } from '../../../services/dashboardData.js'
 import dashboardRefreshMixin from './dashboardRefreshMixin.js'
 import {
-	healthDataPoints,
 	hasEnoughHealthData,
+	healthDataPoints,
 	healthSeries,
 } from './widgetLogic.js'
-import { getMeetings } from '../../../services/dashboardData.js'
 
 export default {
 	name: 'GovernanceHealthWidget',
