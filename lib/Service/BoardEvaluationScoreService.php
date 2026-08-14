@@ -35,6 +35,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Computes and materialises the `scoreSummary` on a BoardEvaluation.
@@ -99,6 +100,7 @@ class BoardEvaluationScoreService {
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -417,6 +419,6 @@ class BoardEvaluationScoreService {
 	 * @return object The ObjectService instance
 	 */
 	private function objectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end objectService()
 }//end class

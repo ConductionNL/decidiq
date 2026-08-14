@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use Psr\Container\ContainerInterface;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Stateless service computing voting behaviour statistics on-demand from Vote objects.
@@ -50,7 +50,7 @@ class VotingBehaviourService {
 	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -60,7 +60,7 @@ class VotingBehaviourService {
 	 * @return object
 	 */
 	private function objectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end objectService()
 
 	/**

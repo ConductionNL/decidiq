@@ -32,8 +32,8 @@ namespace OCA\Decidesk\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCP\IAppConfig;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Anonymous response collection + completion tracking for a BoardEvaluation.
@@ -59,10 +59,10 @@ class BoardEvaluationResponseService {
 	 * @param ParticipantUuidLookup $participants Nextcloud UID -> Participant UUID resolution
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly IAppConfig $appConfig,
 		private readonly LoggerInterface $logger,
 		private readonly ParticipantUuidLookup $participants,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -376,6 +376,6 @@ class BoardEvaluationResponseService {
 	 * @return object The ObjectService instance
 	 */
 	private function objectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end objectService()
 }//end class

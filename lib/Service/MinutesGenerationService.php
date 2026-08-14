@@ -25,10 +25,10 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Stateless service that generates an initial Dutch minutes draft from linked meeting data.
@@ -65,9 +65,9 @@ class MinutesGenerationService {
 	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	public function __construct(
-		private ContainerInterface $container,
 		private LoggerInterface $logger,
 		private MinutesDraftRenderer $renderer,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -482,7 +482,7 @@ class MinutesGenerationService {
 	 */
 	private function getObjectService(): object {
 		try {
-			return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+			return $this->objectService;
 		} catch (Throwable $e) {
 			throw new RuntimeException(
 				'OpenRegister ObjectService is not available. '

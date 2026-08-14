@@ -32,9 +32,9 @@ namespace OCA\Decidesk\Service;
 
 use InvalidArgumentException;
 use OCA\Decidesk\Lifecycle\ProcessTemplatePolicyResolver;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Service for process-template management and template-driven policy resolution.
@@ -62,10 +62,10 @@ class ProcessTemplateService {
 	 * @spec openspec/specs/process-configuration/spec.md
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly ProcessTemplatePolicyResolver $resolver,
 		private readonly StateMachineValidator $validator,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -77,7 +77,7 @@ class ProcessTemplateService {
 	 * @return object The OpenRegister ObjectService
 	 */
 	private function objectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end objectService()
 
 	/**

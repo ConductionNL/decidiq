@@ -34,8 +34,8 @@ namespace OCA\Decidesk\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
-use Psr\Container\ContainerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Advisory citizen votes on BudgetProposals, kept separate from the statutory
@@ -63,7 +63,7 @@ class AdvisoryVoteService {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
+		private readonly ObjectService $objectService,
 	) {
 		$this->relationFilter = new ObjectRelationFilter();
 
@@ -220,7 +220,7 @@ class AdvisoryVoteService {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function objectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end objectService()
 
 	/**

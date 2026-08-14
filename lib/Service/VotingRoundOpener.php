@@ -31,8 +31,8 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use InvalidArgumentException;
-use Psr\Container\ContainerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * The open-a-voting-round path, extracted from VotingService.
@@ -69,11 +69,11 @@ class VotingRoundOpener {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		MotionService $motionService,
 		private readonly ParticipantResolver $participantResolver,
 		private readonly VotingRoundPreflight $preflight,
 		private readonly VotingOpenedNotifier $notifier,
+		private readonly ObjectService $objectService,
 	) {
 		$this->amendmentOrder = new AmendmentOrderService(
 			container: $container,
@@ -258,6 +258,6 @@ class VotingRoundOpener {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function objectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end objectService()
 }//end class

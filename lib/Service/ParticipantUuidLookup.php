@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use Psr\Container\ContainerInterface;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Nextcloud UID -> Participant UUID resolution.
@@ -44,7 +44,7 @@ class ParticipantUuidLookup {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
+		private readonly ObjectService $objectService,
 	) {
 
 	}//end __construct()
@@ -62,10 +62,9 @@ class ParticipantUuidLookup {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function forNextcloudUser(string $nextcloudUid): ?string {
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		$objectService->setRegister('decidesk');
-		$objectService->setSchema('participant');
-		$entities = $objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
+		$this->objectService->setRegister('decidesk');
+		$this->objectService->setSchema('participant');
+		$entities = $this->objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
 
 		foreach ($entities as $participantEntity) {
 			$participant = $participantEntity->jsonSerialize();
@@ -105,10 +104,9 @@ class ParticipantUuidLookup {
 			return null;
 		}
 
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		$objectService->setRegister('decidesk');
-		$objectService->setSchema('participant');
-		$entities = $objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
+		$this->objectService->setRegister('decidesk');
+		$this->objectService->setSchema('participant');
+		$entities = $this->objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
 
 		foreach ($entities as $participantEntity) {
 			$participant = $participantEntity->jsonSerialize();

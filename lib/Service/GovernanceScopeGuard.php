@@ -47,8 +47,8 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use OCP\IGroupManager;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Consumes the OR-projected per-body governance scopes to authorize signatory
@@ -81,9 +81,9 @@ class GovernanceScopeGuard {
 	 * @param LoggerInterface $logger Diagnostic logger
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -168,9 +168,7 @@ class GovernanceScopeGuard {
 	 * @return string|null
 	 */
 	private function resolveBodyIdForMinutes(string $minutesId): ?string {
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
-		$minutesEntity = $objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
+		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
 		if ($minutesEntity === null) {
 			return null;
 		}
@@ -180,7 +178,7 @@ class GovernanceScopeGuard {
 			return null;
 		}
 
-		$meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
 		if ($meetingEntity === null) {
 			return null;
 		}

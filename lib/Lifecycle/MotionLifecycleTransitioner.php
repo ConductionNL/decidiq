@@ -35,6 +35,7 @@ use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Guarded lifecycle transitions for motion- and amendment-typed Decisions.
@@ -138,6 +139,7 @@ class MotionLifecycleTransitioner {
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly DecisionTransitionGuard $guard,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -172,9 +174,8 @@ class MotionLifecycleTransitioner {
 
 		$transitions = $this->transitionTableFor(objectType: $objectType);
 
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		$objectService->setRegister('decidesk');
-		$objectService->setSchema('decision');
+		$this->objectService->setRegister('decidesk');
+		$this->objectService->setSchema('decision');
 
 		$objectArray = $this->loadDecision(
 			objectService: $objectService,
@@ -207,7 +208,7 @@ class MotionLifecycleTransitioner {
 			outcome: $outcome
 		);
 
-		$objectService->saveObject(
+		$this->objectService->saveObject(
 			object: array_merge($payload, ['lifecycle' => $newState, 'status' => $newState]),
 			register: 'decidesk',
 			schema: 'decision',
@@ -271,7 +272,7 @@ class MotionLifecycleTransitioner {
 	 * @return array<string, mixed> The decision object array
 	 */
 	private function loadDecision(object $objectService, string $objectId, string $objectType): array {
-		$object = $objectService->find($objectId);
+		$object = $this->objectService->find($objectId);
 		$objectArray = [];
 		if ($object !== null) {
 			$objectArray = $object->getObject();

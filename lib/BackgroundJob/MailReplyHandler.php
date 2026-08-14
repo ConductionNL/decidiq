@@ -42,8 +42,8 @@ use OCA\Decidesk\Service\MailVoteSigner;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use OCP\IAppConfig;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Background job that polls for email vote replies on open VotingRounds.
@@ -73,10 +73,10 @@ class MailReplyHandler extends TimedJob {
 	public function __construct(
 		ITimeFactory $time,
 		private readonly IAppConfig $appConfig,
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly MailVoteSigner $signer,
 		private readonly MailVoteReplyProcessor $processor,
+		private readonly ObjectService $objectService,
 	) {
 		parent::__construct(time: $time);
 		// Run every 5 minutes.
@@ -173,11 +173,9 @@ class MailReplyHandler extends TimedJob {
 	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	private function processOpenRounds(): void {
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
-		$objectService->setRegister('decidesk');
-		$objectService->setSchema('voting-round');
-		$roundEntities = $objectService->findAll(['filters' => ['closedAt' => null, 'openedAt' => ['!=' => null]]]);
+		$this->objectService->setRegister('decidesk');
+		$this->objectService->setSchema('voting-round');
+		$roundEntities = $this->objectService->findAll(['filters' => ['closedAt' => null, 'openedAt' => ['!=' => null]]]);
 
 		foreach ($roundEntities as $roundEntity) {
 			$round = $roundEntity->jsonSerialize();

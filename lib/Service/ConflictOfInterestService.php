@@ -27,8 +27,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Service for managing conflict-of-interest declarations and their effect on
@@ -78,9 +78,9 @@ class ConflictOfInterestService {
 	 * @param AuditLogService $auditLogService Audit log dependency for material declarations
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly AuditLogService $auditLogService,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -122,8 +122,6 @@ class ConflictOfInterestService {
 		}
 
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
 			$row = [
 				'boardMemberKoppeling' => $boardMemberId,
 				'agendaItemKoppeling' => $agendaItemId,
@@ -134,7 +132,7 @@ class ConflictOfInterestService {
 				'declarationTimestamp' => gmdate('Y-m-d\TH:i:s\Z'),
 			];
 
-			$saved = $objectService->saveObject(
+			$saved = $this->objectService->saveObject(
 				object: $row,
 				register: 'decidesk',
 				schema: 'conflict-of-interest'
@@ -203,9 +201,7 @@ class ConflictOfInterestService {
 		}
 
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
-			$entity = $objectService->find(
+			$entity = $this->objectService->find(
 				id: $declarationId,
 				register: 'decidesk',
 				schema: 'conflict-of-interest'
@@ -226,7 +222,7 @@ class ConflictOfInterestService {
 
 			$updated = array_merge($current, ['actionTaken' => $actionTaken]);
 
-			$saved = $objectService->saveObject(
+			$saved = $this->objectService->saveObject(
 				object: $updated,
 				register: 'decidesk',
 				schema: 'conflict-of-interest',
@@ -303,9 +299,7 @@ class ConflictOfInterestService {
 	 */
 	private function findDeclarations(string $boardMemberId, string $agendaItemId): array {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
-			$rows = $objectService->findAll(
+			$rows = $this->objectService->findAll(
 				[
 					'register' => 'decidesk',
 					'schema' => 'conflict-of-interest',

@@ -28,8 +28,8 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Lifecycle;
 
 use OCA\Decidesk\Service\IEIDASSignatureService;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Guard QES presence + validity before Resolution.conclude promotes the
@@ -60,9 +60,9 @@ class QesGuard {
 	 * @param IEIDASSignatureService $signatureService eIDAS adapter
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly IEIDASSignatureService $signatureService,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -179,9 +179,7 @@ class QesGuard {
 	 * @return array<int, array<string, mixed>>
 	 */
 	private function loadSignedBy(string $resolutionId): array {
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
-		$resolution = $objectService->find(
+		$resolution = $this->objectService->find(
 			id: $resolutionId,
 			register: 'decidesk',
 			schema: 'decision'
@@ -200,7 +198,7 @@ class QesGuard {
 			return [];
 		}
 
-		$minutesRows = $objectService->findAll(
+		$minutesRows = $this->objectService->findAll(
 			[
 				'register' => 'decidesk',
 				'schema' => 'minutes',

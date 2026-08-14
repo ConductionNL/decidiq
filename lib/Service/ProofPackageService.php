@@ -31,9 +31,9 @@ namespace OCA\Decidesk\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidesk\Exception\MissingObjectException;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Notarial proof package assembly (resolution-minutes spec, "Provide proof of
@@ -68,10 +68,10 @@ class ProofPackageService {
 	 * @param MeetingFolderService $folderService Meeting Files folder writer
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly ParticipantResolver $participantResolver,
 		private readonly MeetingFolderService $folderService,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -557,7 +557,7 @@ class ProofPackageService {
 	 */
 	private function getObjectService(): object {
 		try {
-			return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+			return $this->objectService;
 		} catch (\Throwable $e) {
 			throw new RuntimeException(
 				'OpenRegister ObjectService is not available. '

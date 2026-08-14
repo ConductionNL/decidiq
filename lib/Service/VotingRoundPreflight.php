@@ -29,9 +29,9 @@ namespace OCA\Decidesk\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Fail-closed preflight for opening a voting round.
@@ -69,11 +69,11 @@ class VotingRoundPreflight {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly MotionService $motionService,
 		private readonly ParticipantResolver $participantResolver,
 		private readonly ProcessTemplateService $templateService,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -153,9 +153,7 @@ class VotingRoundPreflight {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function assertRevoteAllowed(string $revoteOfRoundId): void {
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
-		$originalEntity = $objectService->find(id: $revoteOfRoundId, register: 'decidesk', schema: 'voting-round');
+		$originalEntity = $this->objectService->find(id: $revoteOfRoundId, register: 'decidesk', schema: 'voting-round');
 		if ($originalEntity === null) {
 			throw new RuntimeException("Revote refused: round {$revoteOfRoundId} not found");
 		}
@@ -170,9 +168,9 @@ class VotingRoundPreflight {
 		}
 
 		// The "once" guarantee: no other round may already reference this round.
-		$objectService->setRegister('decidesk');
-		$objectService->setSchema('voting-round');
-		$existingRevotes = $objectService->findAll(['filters' => ['revoteOfRound' => $revoteOfRoundId]]);
+		$this->objectService->setRegister('decidesk');
+		$this->objectService->setSchema('voting-round');
+		$existingRevotes = $this->objectService->findAll(['filters' => ['revoteOfRound' => $revoteOfRoundId]]);
 		foreach ($existingRevotes as $revoteEntity) {
 			$revote = $revoteEntity->jsonSerialize();
 			if (($revote['revoteOfRound'] ?? null) === $revoteOfRoundId) {

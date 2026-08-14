@@ -33,6 +33,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Fail-closed eligibility rules for the vote-casting path.
@@ -73,6 +74,7 @@ class VoteCastGuard {
 		private readonly VoterTokenSecret $tokens,
 		private readonly ParticipantResolver $participantResolver,
 		private readonly AmendmentOrderService $amendmentOrder,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -88,8 +90,7 @@ class VoteCastGuard {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function loadOpenRound(string $votingRoundId): array {
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		$roundEntity = $objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
+		$roundEntity = $this->objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
 		$round = null;
 		if ($roundEntity !== null) {
 			$round = $roundEntity->jsonSerialize();
@@ -327,12 +328,11 @@ class VoteCastGuard {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function votesInRound(string $votingRoundId, array $extraFilters): array {
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		$objectService->setRegister('decidesk');
-		$objectService->setSchema('vote');
+		$this->objectService->setRegister('decidesk');
+		$this->objectService->setSchema('vote');
 
 		return $this->relationFilter->matching(
-			entities: $objectService->findAll(
+			entities: $this->objectService->findAll(
 				[
 					'filters' => array_merge(
 						$this->relationFilter->filterFor(targetId: $votingRoundId),

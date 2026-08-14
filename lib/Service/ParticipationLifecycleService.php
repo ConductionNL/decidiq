@@ -27,8 +27,8 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use InvalidArgumentException;
-use Psr\Container\ContainerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Stateless service implementing citizen-participation lifecycle rules.
@@ -78,7 +78,7 @@ class ParticipationLifecycleService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -90,7 +90,7 @@ class ParticipationLifecycleService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	private function objectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end objectService()
 
 	/**

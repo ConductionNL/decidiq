@@ -31,8 +31,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Tamper-evident append-only audit log service.
@@ -87,8 +87,8 @@ class AuditLogService {
 	 * @param LoggerInterface $logger The logger
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -118,8 +118,6 @@ class AuditLogService {
 		}
 
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
 			$previousHash = $this->resolvePreviousHash(objectService: $objectService);
 			$timestamp = gmdate('Y-m-d\TH:i:s\Z');
 
@@ -170,7 +168,7 @@ class AuditLogService {
 				'immutableBlob' => $blob,
 			];
 
-			$saved = $objectService->saveObject(
+			$saved = $this->objectService->saveObject(
 				object: $entry,
 				register: 'decidesk',
 				schema: 'audit-trail'
@@ -219,7 +217,6 @@ class AuditLogService {
 	 */
 	public function verify(?string $entryUuid = null): array {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$chain = $this->loadChain(objectService: $objectService);
 		} catch (\Throwable $e) {
 			$this->logger->error(
@@ -299,7 +296,6 @@ class AuditLogService {
 		}
 
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$chain = $this->loadChain(objectService: $objectService);
 		} catch (\Throwable $e) {
 			$this->logger->error(
@@ -381,7 +377,6 @@ class AuditLogService {
 	 */
 	public function query(array $filters = []): array {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$chain = $this->loadChain(objectService: $objectService);
 		} catch (\Throwable $e) {
 			$this->logger->error(
@@ -528,7 +523,7 @@ class AuditLogService {
 	 * @return array<string, mixed>|null
 	 */
 	private function loadLastEntry(object $objectService): ?array {
-		$rows = $objectService->findAll(
+		$rows = $this->objectService->findAll(
 			[
 				'register' => 'decidesk',
 				'schema' => 'audit-trail',
@@ -560,7 +555,7 @@ class AuditLogService {
 	 * @return array<int, array<string, mixed>>
 	 */
 	private function loadChain(object $objectService): array {
-		$rows = $objectService->findAll(
+		$rows = $this->objectService->findAll(
 			[
 				'register' => 'decidesk',
 				'schema' => 'audit-trail',

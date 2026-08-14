@@ -43,6 +43,7 @@ namespace OCA\Decidesk\Service;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Concrete eIDAS QES service that delegates to openconnector's e-sign source.
@@ -79,6 +80,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly AuditLogService $auditLogService,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -462,8 +464,6 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 */
 	public function resolveSignatureStage(string $minutesId, ?string $signingReference = null): void {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
 			// Find any DecisionStage with method=signature whose signedDocument
 			// points at this minutes record. Seeds and UI will wire the correct
 			// DigitalDocument UUID; the service resolves the stage it finds.
@@ -472,7 +472,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			// named parameter" and was swallowed by the catch below, so the
 			// signature stage was never resolved. Register/schema are read from
 			// inside `filters`.
-			$results = $objectService->findAll(
+			$results = $this->objectService->findAll(
 				[
 					'filters' => [
 						'register' => 'decidesk',
@@ -506,7 +506,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 					$patch['signingReference'] = $signingReference;
 				}
 
-				$objectService->saveObject(
+				$this->objectService->saveObject(
 					object: array_merge($current, $patch),
 					register: 'decidesk',
 					schema: 'decision-stage',
@@ -660,8 +660,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 */
 	private function updateMinutesRow(string $minutesId, array $patch): void {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(
+			$entity = $this->objectService->find(
 				id: $minutesId,
 				register: 'decidesk',
 				schema: 'minutes'
@@ -670,7 +669,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 				return;
 			}
 
-			$objectService->saveObject(
+			$this->objectService->saveObject(
 				object: array_merge($this->toObjectArray(entity: $entity), $patch),
 				register: 'decidesk',
 				schema: 'minutes',

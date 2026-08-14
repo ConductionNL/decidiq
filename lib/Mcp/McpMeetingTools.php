@@ -31,9 +31,9 @@ use OCA\Decidesk\Service\MeetingService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCP\IGroupManager;
 use OCP\IUserSession;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * The meeting half of the decidesk MCP tool catalogue.
@@ -81,11 +81,11 @@ class McpMeetingTools {
 	 */
 	public function __construct(
 		private readonly MeetingService $meetingService,
-		private readonly ContainerInterface $container,
 		IUserSession $userSession,
 		IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
 		ParticipantResolver $participantResolver,
+		private readonly ObjectService $objectService,
 	) {
 		$this->formatter = new McpSourceFormatter();
 		$this->validator = new McpArgumentValidator(formatter: $this->formatter);
@@ -248,8 +248,6 @@ class McpMeetingTools {
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	private function collectRecentMeetings(int $limit, string $statusFilter): array {
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
 		$filters = [
 			'register' => 'decidesk',
 			'schema' => 'meeting',
@@ -261,7 +259,7 @@ class McpMeetingTools {
 			$filters['lifecycle'] = $statusFilter;
 		}
 
-		$rawMeetings = $objectService->findAll(['filters' => $filters]);
+		$rawMeetings = $this->objectService->findAll(['filters' => $filters]);
 
 		$currentUserId = $this->gate->currentUserId();
 		$allowedUuids = null;
@@ -308,8 +306,6 @@ class McpMeetingTools {
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	private function collectMeetingDetails(string $meetingUuid, array $meeting): array {
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
 		$agenda = $this->relatedObjects(
 			objectService: $objectService,
 			meetingUuid: $meetingUuid,
@@ -380,7 +376,7 @@ class McpMeetingTools {
 		string $sourceType,
 		array $labels,
 	): array {
-		$raws = $objectService->findAll(
+		$raws = $this->objectService->findAll(
 			[
 				'filters' => [
 					'register' => 'decidesk',

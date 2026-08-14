@@ -33,6 +33,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Service for managing meeting lifecycle state transitions.
@@ -84,6 +85,7 @@ class MeetingService {
 		private readonly MeetingTransitionGuard $transitionGuard,
 		private readonly MeetingCostService $meetingCostService,
 		private readonly GovernanceScopeGuard $scopeGuard,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -169,13 +171,12 @@ class MeetingService {
 		 * @var \OCA\OpenRegister\Service\ObjectService $objectService
 		 */
 
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
 		// Object-level read ACL: OpenRegister's ObjectService::find() resolves the
 		// current Nextcloud session user and returns null when the caller lacks read
 		// access to the requested object (same behaviour as a missing object).
 		// This prevents callers without read access from probing meeting UUIDs.
-		$entity = $objectService->find(id: $meetingId);
+		$entity = $this->objectService->find(id: $meetingId);
 		if ($entity === null) {
 			return $this->refusal(message: "Meeting '$meetingId' not found.");
 		}
@@ -207,7 +208,7 @@ class MeetingService {
 		// before applying the patch. If the caller lacks write access an exception
 		// is thrown and caught by the \Throwable handler in transition(), returning
 		// a generic error response without leaking object details.
-		$updated = $objectService->saveObject(
+		$updated = $this->objectService->saveObject(
 			object: array_merge($meetingData, ['lifecycle' => $transition['to']], $efficiencyPatch),
 			register: 'decidesk',
 			schema: 'meeting',

@@ -37,6 +37,7 @@ namespace OCA\Decidesk\Service;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Proxy vote lifecycle service.
@@ -86,6 +87,7 @@ class ProxyVoteService {
 		private readonly LoggerInterface $logger,
 		private readonly AuditLogService $auditLogService,
 		private readonly ParticipantResolver $participantResolver,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -102,10 +104,9 @@ class ProxyVoteService {
 	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-1
 	 */
 	private function resolveParticipantUuid(string $nextcloudUid): ?string {
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		$objectService->setRegister('decidesk');
-		$objectService->setSchema('participant');
-		$entities = $objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
+		$this->objectService->setRegister('decidesk');
+		$this->objectService->setSchema('participant');
+		$entities = $this->objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
 
 		foreach ($entities as $participantEntity) {
 			$participant = $participantEntity->jsonSerialize();
@@ -261,8 +262,7 @@ class ProxyVoteService {
 		];
 
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$saved = $objectService->saveObject(
+			$saved = $this->objectService->saveObject(
 				object: $row,
 				register: 'decidesk',
 				schema: self::SCHEMA
@@ -385,7 +385,6 @@ class ProxyVoteService {
 	 */
 	public function forMeeting(string $meetingId, ?string $status = null): array {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			// ObjectService::prepareFindAllConfig() only reads the register/schema
 			// context from filters.register / filters.schema — a TOP-LEVEL
 			// 'register'/'schema' key is silently ignored, findAll() then runs with
@@ -393,7 +392,7 @@ class ProxyVoteService {
 			// throw, so the caller cannot tell "no proxies" from "never looked",
 			// and the per-holder cap below counted 0 every time (decidesk#443
 			// follow-up: a third proxy was accepted at a cap of 2).
-			$rows = $objectService->findAll(
+			$rows = $this->objectService->findAll(
 				[
 					'filters' => [
 						'register' => 'decidesk',
@@ -467,8 +466,7 @@ class ProxyVoteService {
 		}
 
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(
+			$entity = $this->objectService->find(
 				id: $proxyId,
 				register: 'decidesk',
 				schema: self::SCHEMA
@@ -504,7 +502,7 @@ class ProxyVoteService {
 				]
 			);
 
-			$saved = $objectService->saveObject(
+			$saved = $this->objectService->saveObject(
 				object: $merged,
 				register: 'decidesk',
 				schema: self::SCHEMA,

@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use Psr\Container\ContainerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Ordering rules and subject resolution for amendment voting.
@@ -87,8 +87,8 @@ class AmendmentOrderService {
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly MotionService $motionService,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -488,6 +488,6 @@ class AmendmentOrderService {
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 */
 	private function objectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end objectService()
 }//end class

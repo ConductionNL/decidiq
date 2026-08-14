@@ -36,6 +36,7 @@ use OCA\Decidesk\Exception\MissingRelationException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Generates and persists minutes documents (markdown canonical, Docudesk PDF
@@ -80,6 +81,7 @@ class MinutesDocumentService {
 		private readonly LoggerInterface $logger,
 		private readonly MinutesGenerationService $generationService,
 		private readonly MeetingFolderService $folderService,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -534,7 +536,7 @@ class MinutesDocumentService {
 	 */
 	private function getObjectService(): object {
 		try {
-			return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+			return $this->objectService;
 		} catch (\Throwable $e) {
 			throw new RuntimeException(
 				'OpenRegister ObjectService is not available. '

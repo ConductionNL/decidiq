@@ -29,8 +29,8 @@ namespace OCA\Decidesk\Mcp;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCP\IGroupManager;
 use OCP\IUserSession;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Loads a meeting and enforces per-object authorisation for MCP tools.
@@ -69,13 +69,13 @@ class McpMeetingGate {
 	 * @return void
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 		LoggerInterface $logger,
 		private readonly ParticipantResolver $participantResolver,
 		private readonly McpSourceFormatter $formatter,
 		private readonly McpArgumentValidator $validator,
+		private readonly ObjectService $objectService,
 	) {
 		$this->scopeResolver = new McpMeetingScopeResolver(
 			container: $container,
@@ -169,8 +169,7 @@ class McpMeetingGate {
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	public function loadMeeting(string $meetingUuid): ?array {
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		$meetingEntity = $objectService->find(id: $meetingUuid, register: 'decidesk', schema: 'meeting');
+		$meetingEntity = $this->objectService->find(id: $meetingUuid, register: 'decidesk', schema: 'meeting');
 		if ($meetingEntity === null) {
 			return null;
 		}

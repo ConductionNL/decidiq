@@ -33,6 +33,7 @@ use OCP\IUserSession;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * The action-item half of the decidesk MCP tool catalogue.
@@ -83,6 +84,7 @@ class McpActionItemTools {
 		IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
 		ParticipantResolver $participantResolver,
+		private readonly ObjectService $objectService,
 	) {
 		$this->formatter = new McpSourceFormatter();
 		$this->validator = new McpArgumentValidator(formatter: $this->formatter);
@@ -195,7 +197,6 @@ class McpActionItemTools {
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	private function collectOpenActionItems(string $scope, int $limit): array {
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 		$currentUserId = $this->gate->currentUserId();
 
 		$filters = [
@@ -209,7 +210,7 @@ class McpActionItemTools {
 			$filters['assignee'] = $currentUserId;
 		}
 
-		$rawItems = $objectService->findAll(['filters' => $filters]);
+		$rawItems = $this->objectService->findAll(['filters' => $filters]);
 
 		$allowedUuids = null;
 		if ($scope === 'all' && $currentUserId !== '') {

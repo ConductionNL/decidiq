@@ -28,8 +28,8 @@ namespace OCA\Decidesk\Listener;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Pre-save hook on OpenRegister's ObjectCreatingEvent: when a motion or
@@ -65,8 +65,8 @@ class SubmissionDeadlineListener implements IEventListener {
 	 * @param LoggerInterface $logger Logger
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -229,8 +229,7 @@ class SubmissionDeadlineListener implements IEventListener {
 			return null;
 		}
 
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		$motionEntity = $objectService->find(id: $parentMotionId, register: 'decidesk', schema: 'decision');
+		$motionEntity = $this->objectService->find(id: $parentMotionId, register: 'decidesk', schema: 'decision');
 		if ($motionEntity === null) {
 			return null;
 		}
@@ -285,8 +284,7 @@ class SubmissionDeadlineListener implements IEventListener {
 	 * @return int|null Deadline timestamp, or null when unset/unparseable/meeting missing
 	 */
 	private function resolveSubmissionDeadline(string $meetingId): ?int {
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		$meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
 		if ($meetingEntity === null) {
 			return null;
 		}

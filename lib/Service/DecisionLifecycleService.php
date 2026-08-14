@@ -32,8 +32,8 @@ use OCA\Decidesk\Event\DecisionConcludedEvent;
 use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Service for guarded decision lifecycle state transitions.
@@ -85,13 +85,13 @@ class DecisionLifecycleService {
 	 * @param IEventDispatcher $eventDispatcher Dispatches the DecisionConcludedEvent cross-app contract
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly DecisionTransitionGuard $transitionGuard,
 		private readonly AuditLogService $auditLogService,
 		private readonly ProcessTemplateService $templateService,
 		private readonly DecisionIntegrationService $integrationService,
 		private readonly IEventDispatcher $eventDispatcher,
+		private readonly ObjectService $objectService,
 	) {
 		$this->contextResolver = new DecisionContextResolver(logger: $logger);
 
@@ -113,8 +113,6 @@ class DecisionLifecycleService {
 	 */
 	public function getAvailableTransitions(string $decisionId): array {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
 			$decision = $this->contextResolver->loadDecision(objectService: $objectService, decisionId: $decisionId);
 			if ($decision === null) {
 				return [
@@ -212,8 +210,6 @@ class DecisionLifecycleService {
 		}
 
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
 			$decision = $this->contextResolver->loadDecision(objectService: $objectService, decisionId: $decisionId);
 			if ($decision === null) {
 				return [
@@ -251,7 +247,7 @@ class DecisionLifecycleService {
 
 			// Object-level write ACL: saveObject() throws when the session user lacks
 			// write access on this specific object (caught below, generic error).
-			$updated = $objectService->saveObject(
+			$updated = $this->objectService->saveObject(
 				object: array_merge($decision, $patch),
 				register: 'decidesk',
 				schema: 'decision',
@@ -698,7 +694,7 @@ class DecisionLifecycleService {
 				$resolution['meeting'] = $meetingId;
 			}
 
-			$objectService->saveObject(
+			$this->objectService->saveObject(
 				object: $resolution,
 				register: 'decidesk',
 				schema: 'decision'

@@ -35,6 +35,9 @@ namespace OCA\Decidesk\Service;
 use OCP\AppFramework\IAppContainer;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use OCA\OpenRegister\Service\TaskService;
+use OCA\OpenRegister\Db\RegisterMapper;
+use OCA\OpenRegister\Db\SchemaMapper;
 
 /**
  * Write path (create/update/delete) for VTODO-backed action items.
@@ -75,6 +78,9 @@ class ActionItemWriter {
 	public function __construct(
 		private readonly IAppContainer $container,
 		private readonly LoggerInterface $logger,
+		private readonly TaskService $taskService,
+		private readonly RegisterMapper $registerMapper,
+		private readonly SchemaMapper $schemaMapper,
 	) {
 	}//end __construct()
 
@@ -96,12 +102,11 @@ class ActionItemWriter {
 				return null;
 			}
 
-			$taskService = $this->container->get('OCA\OpenRegister\Service\TaskService');
 			$title = (string)($item['title'] ?? 'Action item');
 			$objectUuid = $this->uuidV4();
 			$data = $this->toTaskData(item: $item, title: $title);
 
-			return $taskService->createTask(
+			return $this->taskService->createTask(
 				registerId: $ids[0],
 				schemaId: $ids[1],
 				objectUuid: $objectUuid,
@@ -126,7 +131,6 @@ class ActionItemWriter {
 	 */
 	public function update(string $uid, array $changes): ?array {
 		try {
-			$taskService = $this->container->get('OCA\OpenRegister\Service\TaskService');
 			$located = $this->locate(uid: $uid);
 			if ($located === null) {
 				return null;
@@ -144,7 +148,7 @@ class ActionItemWriter {
 			$merged = array_merge($base, $changes);
 			$data = $this->toTaskData(item: $merged, title: (string)($merged['title'] ?? $merged['summary'] ?? 'Action item'));
 
-			return $taskService->updateTask(
+			return $this->taskService->updateTask(
 				calendarId: (string)$located['calendarId'],
 				taskUri: (string)$located['id'],
 				data: $data
@@ -166,13 +170,12 @@ class ActionItemWriter {
 	 */
 	public function delete(string $uid): bool {
 		try {
-			$taskService = $this->container->get('OCA\OpenRegister\Service\TaskService');
 			$located = $this->locate(uid: $uid);
 			if ($located === null) {
 				return false;
 			}
 
-			$taskService->deleteTask(calendarId: (string)$located['calendarId'], taskUri: (string)$located['id']);
+			$this->taskService->deleteTask(calendarId: (string)$located['calendarId'], taskUri: (string)$located['id']);
 			return true;
 		} catch (Throwable $e) {
 			$this->logger->warning('ActionItemWriter::delete failed: ' . $e->getMessage());
@@ -273,8 +276,7 @@ class ActionItemWriter {
 	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
 	 */
 	private function locate(string $uid): ?array {
-		$taskService = $this->container->get('OCA\OpenRegister\Service\TaskService');
-		$result = $taskService->getAllUserTasks(limit: 1000);
+		$result = $this->taskService->getAllUserTasks(limit: 1000);
 		foreach (($result['results'] ?? []) as $task) {
 			if ((string)($task['uid'] ?? '') === $uid || (string)($task['id'] ?? '') === $uid) {
 				return $task;
@@ -297,10 +299,8 @@ class ActionItemWriter {
 		}
 
 		try {
-			$registerMapper = $this->container->get('OCA\OpenRegister\Db\RegisterMapper');
-			$schemaMapper = $this->container->get('OCA\OpenRegister\Db\SchemaMapper');
-			$register = $registerMapper->find(self::REGISTER_SLUG);
-			$schema = $schemaMapper->find(self::SCHEMA_SLUG);
+			$register = $this->registerMapper->find(self::REGISTER_SLUG);
+			$schema = $this->schemaMapper->find(self::SCHEMA_SLUG);
 
 			$this->ids = [(int)$register->getId(), (int)$schema->getId()];
 			return $this->ids;

@@ -28,10 +28,10 @@ namespace OCA\Decidesk\Service;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCP\IAppConfig;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Stateless service handling ConsultationReaction intake and moderation.
@@ -63,10 +63,10 @@ class ReactionIntakeService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly IAppConfig $appConfig,
 		private readonly ParticipationLifecycleService $lifecycleService,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -78,7 +78,7 @@ class ReactionIntakeService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	private function objectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end objectService()
 
 	/**

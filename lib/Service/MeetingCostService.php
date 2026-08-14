@@ -30,9 +30,9 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use DateTimeImmutable;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use OCA\OpenRegister\Service\ObjectService;
 
 /**
  * Pure cost math plus server-side resolution of the inputs from OpenRegister.
@@ -49,8 +49,8 @@ class MeetingCostService {
 	 * @spec openspec/specs/meeting-efficiency/spec.md
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
@@ -62,7 +62,7 @@ class MeetingCostService {
 	 * @spec openspec/specs/meeting-efficiency/spec.md
 	 */
 	private function getObjectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end getObjectService()
 
 	/**
