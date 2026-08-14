@@ -43,6 +43,7 @@ namespace OCA\Decidesk\Controller;
 use OCA\Decidesk\AppInfo\Application;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\JSONResponse;
@@ -121,6 +122,9 @@ class HealthController extends Controller {
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
+	// Liveness/readiness probes, polled on a schedule by monitoring. Ceiling
+	// only — nothing here takes a credential, so there is no failure to count.
+	#[AnonRateLimit(limit: 120, period: 60)]
 	public function index(): JSONResponse {
 		$baseUrl = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '');
 
@@ -199,6 +203,7 @@ class HealthController extends Controller {
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
+	#[AnonRateLimit(limit: 120, period: 60)]
 	public function status(): JSONResponse {
 		return $this->index();
 	}//end status()
@@ -212,6 +217,7 @@ class HealthController extends Controller {
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
+	#[AnonRateLimit(limit: 120, period: 60)]
 	public function statusOptions(): JSONResponse {
 		$response = new JSONResponse([], Http::STATUS_OK);
 		$this->applyCorsHeaders(response: $response);
