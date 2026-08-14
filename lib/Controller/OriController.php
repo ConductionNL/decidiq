@@ -32,6 +32,7 @@ use OCA\Decidesk\Service\OriSerializer;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\JSONResponse;
@@ -170,6 +171,14 @@ class OriController extends Controller {
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
+	// ORI (Open Raads Informatie) is an OPEN DATA API by design: the ids are
+	// published resource identifiers, not credentials, and enumerating council
+	// decisions is the intended use rather than an attack. So these endpoints
+	// get a volume ceiling and deliberately NO #[BruteForceProtection] --
+	// there is no secret to guess, and a brute-force counter here would
+	// throttle exactly the consumers the standard exists to serve.
+	// See ADR-082 for the distinction.
+	#[AnonRateLimit(limit: 120, period: 60)]
 	public function index(string $resource): JSONResponse {
 		$schema = self::RESOURCE_MAP[$resource] ?? null;
 		if ($schema === null) {
@@ -302,6 +311,7 @@ class OriController extends Controller {
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
+	#[AnonRateLimit(limit: 120, period: 60)]
 	public function show(string $resource, string $id): JSONResponse {
 		$schema = self::RESOURCE_MAP[$resource] ?? null;
 		if ($schema === null) {
@@ -407,6 +417,7 @@ class OriController extends Controller {
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
+	#[AnonRateLimit(limit: 240, period: 60)]
 	public function preflight(string $resource): JSONResponse {
 		unset($resource);
 
@@ -428,6 +439,9 @@ class OriController extends Controller {
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
+	// CORS preflight — the browser sends one before each cross-origin call, so
+	// the ceiling is deliberately looser than the data endpoints it precedes.
+	#[AnonRateLimit(limit: 240, period: 60)]
 	public function preflightItem(string $resource, string $id): JSONResponse {
 		unset($resource, $id);
 
