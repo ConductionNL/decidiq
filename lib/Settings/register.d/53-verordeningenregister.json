@@ -13,7 +13,7 @@
               "Gemeentewet art. 149",
               "Wet milieubeheer art. 10.23"
             ],
-            "vaststellendBody": "gemeenteraad-amsterdam",
+            "determiningBody": "gemeenteraad-amsterdam",
             "cvdrIdentifier": "CVDR641871",
             "currentVersionNumber": 2,
             "currentInwerkingtreding": "2025-06-01",
@@ -27,7 +27,7 @@
             "statutoryBasis": [
               "APV Amsterdam art. 3.17"
             ],
-            "vaststellendBody": "gemeenteraad-amsterdam",
+            "determiningBody": "gemeenteraad-amsterdam",
             "currentVersionNumber": 1,
             "currentInwerkingtreding": "2025-03-01",
             "status": "in-werking"
@@ -40,7 +40,7 @@
             "statutoryBasis": [
               "Statuten VNG art. 12"
             ],
-            "vaststellendBody": "ledenraad-vng",
+            "determiningBody": "ledenraad-vng",
             "status": "vastgesteld"
           }
         ],
@@ -155,7 +155,7 @@
         "required": [
           "type",
           "citeertitel",
-          "vaststellendBody",
+          "determiningBody",
           "status"
         ],
         "properties": {
@@ -197,7 +197,7 @@
               "Wet milieubeheer art. 10.23"
             ]
           },
-          "vaststellendBody": {
+          "determiningBody": {
             "title": "Adopting body",
             "type": "string",
             "format": "uuid",

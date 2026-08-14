@@ -8,8 +8,8 @@
             "slug": "vragenuur-configuratie-gemeenteraad",
             "governanceBody": "gemeenteraad-amsterdam",
             "submissionPeriodHours": 24,
-            "interpellationSteunThresholdType": "breukdeel",
-            "interpellationSteunThresholdValue": 0.2
+            "interpellationSupportThresholdType": "breukdeel",
+            "interpellationSupportThresholdValue": 0.2
           }
         ],
         "mondelinge-vraag": [
@@ -28,7 +28,7 @@
             "lifecycle": "beantwoord",
             "answerSummary": "Wethouder erkent oplopende wachttijden; raadsbrief met plan van aanpak toegezegd vóór 1 maart.",
             "answeredBy": "00000000-0000-0000-0000-000000000000",
-            "vervolgCommitment": "toezegging-raadsbrief-jeugdzorg",
+            "followUpCommitment": "toezegging-raadsbrief-jeugdzorg",
             "sourceWrittenQuestion": "00000000-0000-0000-0000-000000000000"
           },
           {
@@ -92,7 +92,7 @@
             "councilResolutionDate": "2026-05-12",
             "behandeldIn": "raadsvergadering-2025-01-15",
             "agendaItem": "interpellatie-stationsgebied-2025",
-            "handlingVerslag": "Interpellatiedebat gevoerd; wethouder zegt extern onderzoek toe naar de veiligheidssituatie en informeert de raad per raadsbrief voor het zomerreces."
+            "handlingMinutes": "Interpellatiedebat gevoerd; wethouder zegt extern onderzoek toe naar de veiligheidssituatie en informeert de raad per raadsbrief voor het zomerreces."
           },
           {
             "slug": "int-jaarrekening-grondbedrijf",
@@ -469,14 +469,14 @@
             "$ref": "Person",
             "description": "Reference to the college member (Person) who gave the spoken answer. Set at the transition to beantwoord. Optional."
           },
-          "vervolgCommitment": {
+          "followUpCommitment": {
             "title": "Follow-up commitment",
             "type": "string",
             "format": "uuid",
             "$ref": "Toezegging",
             "description": "Optional reference to a Toezegging registered in the sibling toezeggingen register (toezeggingen-ingekomen-stukken) when a commitment is made during the answer. Afdoening and lifecycle live EXCLUSIVELY on that Toezegging (design D5, REQ-VRI-005); this register creates no execution-update log. Nullable/soft: degrades to a plain link if that change is delayed."
           },
-          "vervolgWrittenQuestion": {
+          "followUpWrittenQuestion": {
             "title": "Follow-up written question",
             "type": "string",
             "description": "Optional reference to a follow-up SchriftelijkeVraag (fractievoorzitter-fractie-koppeling) created from a niet-behandeld or beantwoord oral question. Its answering workflow stays in that change (REQ-VRI-006). Declared as a PLAIN STRING — see the note on MondelingeVraag.politicalGroup: the SchriftelijkeVraag schema does not exist in this register yet. Restore format:uuid + $ref in the commit that introduces it."
@@ -781,7 +781,7 @@
             "$ref": "AgendaItem",
             "description": "Reference to the interpellation's OWN AgendaItem (created via agenda-item-crud — a separate item, never merged into the vragenuur item, REQ-VRI-012). Set at scheduling (geagendeerd). Optional until scheduled."
           },
-          "handlingVerslag": {
+          "handlingMinutes": {
             "title": "Treatment record",
             "type": "string",
             "description": "Record of the interpellation debate and the portefeuillehouder's answers (rich text). Required at the transition to behandeld (save-time enforced). May reference follow-up instruments (moties/toezeggingen) which live in their own registers — never duplicated here (REQ-VRI-013)."
@@ -821,7 +821,7 @@
             "description": "Number of hours before the target meeting's start by which oral questions must be submitted (Reglement van Orde). Default 24. Used by OralQuestionService to compute the deadline as targetMeeting.start − indieningstermijnUren; the griffier may override a late submission explicitly (REQ-VRI-003).",
             "example": 24
           },
-          "interpellationSteunThresholdType": {
+          "interpellationSupportThresholdType": {
             "title": "Support threshold type",
             "type": "string",
             "description": "How the interpellation support threshold is expressed: 'breukdeel' (a fraction of the body's members, e.g. 0.2 = 1/5 per Reglement van Orde) or 'aantal' (an absolute number of supporters). Combined with interpellatieSteunDrempelWaarde. Informative only (REQ-VRI-011).",
@@ -831,7 +831,7 @@
             ],
             "example": "breukdeel"
           },
-          "interpellationSteunThresholdValue": {
+          "interpellationSupportThresholdValue": {
             "title": "Support threshold value",
             "type": "number",
             "description": "The threshold value: a fraction (e.g. 0.2 for 1/5 of members) when interpellatieSteunDrempelType is 'breukdeel', or an absolute count when 'aantal'. When applied as a breukdeel of the member count the required number is rounded UP (ceil) — documented here so the rule travels with the schema (design risk: threshold rounding disputes).",

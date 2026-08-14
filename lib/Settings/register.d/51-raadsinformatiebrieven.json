@@ -17,7 +17,7 @@
               "Decidesk/Gemeenteraad Amsterdam/Raadsinformatiebrieven/RIB-2026-012 Bijlage rapportage wachtlijsten.pdf"
             ],
             "agendaItem": "lijst-ingekomen-stukken-2025-01-15",
-            "afgedaneCommitment": "toezegging-raadsbrief-jeugdzorg",
+            "settledCommitment": "toezegging-raadsbrief-jeugdzorg",
             "lifecycle": "geagendeerd",
             "publicationDate": "2026-02-21T09:00:00Z"
           },
@@ -52,9 +52,9 @@
             "slug": "tv-rib-2026-012-doorlooptijd",
             "rib": "rib-2026-012-wachtlijsten-jeugdzorg",
             "question": "Hoe verhoudt de genoemde gemiddelde doorlooptijd zich tot de landelijke norm?",
-            "gesteldBy": "00000000-0000-0000-0000-000000000000",
+            "setBy": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "GroenLinks",
-            "gesteldOn": "2026-02-24",
+            "setOn": "2026-02-24",
             "answer": "De doorlooptijd ligt 12% boven de landelijke norm; het plan van aanpak voorziet in een reductie naar de norm binnen twee kwartalen.",
             "answeredBy": "Afdeling Sociaal Domein",
             "answeredOn": "2026-03-02",
@@ -65,18 +65,18 @@
             "slug": "tv-rib-2026-012-regiocijfers",
             "rib": "rib-2026-012-wachtlijsten-jeugdzorg",
             "question": "Kunnen de wachtlijstcijfers worden uitgesplitst per regiogemeente?",
-            "gesteldBy": "00000000-0000-0000-0000-000000000000",
+            "setBy": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "VVD",
-            "gesteldOn": "2026-02-25",
+            "setOn": "2026-02-25",
             "lifecycle": "gesteld"
           },
           {
             "slug": "tv-rib-2026-013-netcapaciteit",
             "rib": "rib-2026-013-energietransitie",
             "question": "Welke wijken lopen vertraging op door netcapaciteit?",
-            "gesteldBy": "00000000-0000-0000-0000-000000000000",
+            "setBy": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "D66",
-            "gesteldOn": "2026-03-08",
+            "setOn": "2026-03-08",
             "lifecycle": "gesteld"
           }
         ]
@@ -243,7 +243,7 @@
             "$ref": "AgendaItem",
             "description": "Reference to the AgendaItem recording the ter-kennisname placement (typically the lijst-ingekomen-stukken / LIS item or a dedicated RIB list item of a meeting). Set when the lifecycle moves to geagendeerd (REQ-RIB-002). Optional."
           },
-          "afgedaneCommitment": {
+          "settledCommitment": {
             "title": "Settled commitment",
             "type": "string",
             "format": "uuid",
@@ -348,8 +348,8 @@
         "required": [
           "rib",
           "question",
-          "gesteldBy",
-          "gesteldOn",
+          "setBy",
+          "setOn",
           "lifecycle"
         ],
         "properties": {
@@ -366,7 +366,7 @@
             "description": "The question text (schema:Question text). Required.",
             "example": "Hoe verhoudt de genoemde gemiddelde doorlooptijd zich tot de landelijke norm?"
           },
-          "gesteldBy": {
+          "setBy": {
             "title": "Asked by",
             "type": "string",
             "format": "uuid",
@@ -380,7 +380,7 @@
             "description": "The asking member's fraction, a plain string until the Fractie schema (fractievoorzitter-fractie-koppeling) lands — a hard reference now would create a blocking dependency on an unlanded change (design D6). Optional.",
             "example": "GroenLinks"
           },
-          "gesteldOn": {
+          "setOn": {
             "title": "Asked on",
             "type": "string",
             "format": "date",

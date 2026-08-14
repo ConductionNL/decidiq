@@ -10,7 +10,7 @@
             "ancillaryPositionDisclosureDefault": "openbaar",
             "giftThresholdAmount": 50,
             "giftsPublic": true,
-            "integrityNotificationGroep": "decidesk-burgemeester"
+            "integrityNotificationGroup": "decidesk-burgemeester"
           },
           {
             "slug": "beleid-rvc-waterschap",
@@ -18,7 +18,7 @@
             "ancillaryPositionDisclosureDefault": "intern",
             "giftThresholdAmount": 100,
             "giftsPublic": false,
-            "integrityNotificationGroep": "decidesk-compliance"
+            "integrityNotificationGroup": "decidesk-compliance"
           }
         ],
         "nevenfunctie": [
@@ -101,7 +101,7 @@
             "giver": "Delegatie gemeente Aken",
             "description": "Fotoboek stedenband",
             "estimatedValue": 20,
-            "ontvangenOn": "2026-01-20",
+            "receivedOn": "2026-01-20",
             "decision": "aanvaard",
             "declaredAt": "2026-01-21",
             "publicationDate": "2026-01-25T09:00:00Z"
@@ -114,7 +114,7 @@
             "giver": "Projectontwikkelaar BV",
             "description": "Diner nieuwjaarsreceptie",
             "estimatedValue": 95,
-            "ontvangenOn": "2026-01-08",
+            "receivedOn": "2026-01-08",
             "decision": "geweigerd",
             "notes": "Boven het drempelbedrag; uitnodiging geweigerd conform gedragscode.",
             "declaredAt": "2026-01-09",
@@ -128,7 +128,7 @@
             "giver": "Brancheorganisatie Water",
             "description": "Congres met overnachting",
             "estimatedValue": 400,
-            "ontvangenOn": "2026-02-03",
+            "receivedOn": "2026-02-03",
             "decision": "overgedragen",
             "notes": "Deelname overgedragen aan de organisatie; geen persoonlijk voordeel.",
             "declaredAt": "2026-02-04"
@@ -461,7 +461,7 @@
           "giver",
           "description",
           "estimatedValue",
-          "ontvangenOn",
+          "receivedOn",
           "decision",
           "declaredAt"
         ],
@@ -510,7 +510,7 @@
             "description": "Estimated value in EUR. Required. Compared against the body's geschenkDrempelbedrag (policy or EUR 50 default): at-or-above-threshold drives the boven-drempel badge and integrity notification (REQ-INT-006). No remuneration/monetary sub-object — a plain number so the object stays publishable (design D4).",
             "example": 20
           },
-          "ontvangenOn": {
+          "receivedOn": {
             "title": "Received on",
             "type": "string",
             "format": "date",
@@ -611,7 +611,7 @@
             "default": false,
             "example": false
           },
-          "integrityNotificationGroep": {
+          "integrityNotificationGroup": {
             "title": "Integrity notification group",
             "type": "string",
             "description": "The NC group receiving this body's integrity notifications (mapped to burgemeester, voorzitter, or compliance officer as configured per body). Optional. Note (design D3 / Risk 3): the x-openregister-notifications dialect cannot currently read this per-body value from the related policy object, so the notification triggers use one literal integrity group with per-body routing via group membership until a policy-object lookup is verified against OR.",

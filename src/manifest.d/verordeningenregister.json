@@ -41,7 +41,7 @@
 				"columns": [
 					{ "key": "citeertitel", "label": "Citeertitel", "widget": "link" },
 					{ "key": "type", "label": "Type", "widget": "badge" },
-					{ "key": "vaststellendBody", "label": "Adopting body" },
+					{ "key": "determiningBody", "label": "Adopting body" },
 					{ "key": "currentInwerkingtreding", "label": "In force since" },
 					{ "key": "cvdrIdentifier", "label": "CVDR" },
 					{ "key": "status", "label": "Status", "widget": "badge" }

@@ -14,9 +14,9 @@
             "lifecycle": "in-uitvoering",
             "ncAccount": "mjanssen",
             "membership": "00000000-0000-0000-0000-000000000000",
-            "beDigingsDate": "2026-03-26",
+            "swearingInDate": "2026-03-26",
             "beëdigingsType": "belofte",
-            "beDigingsMeeting": "raadsvergadering-2025-01-15",
+            "swearingInMeeting": "raadsvergadering-2025-01-15",
             "steps": [
               {
                 "stepType": "beediging",
@@ -130,9 +130,9 @@
             "lifecycle": "afgerond",
             "ncAccount": "jdebruin",
             "membership": "00000000-0000-0000-0000-000000000000",
-            "beDigingsDate": "2025-11-10",
+            "swearingInDate": "2025-11-10",
             "beëdigingsType": "eed",
-            "beDigingsMeeting": "raadsvergadering-2025-01-15",
+            "swearingInMeeting": "raadsvergadering-2025-01-15",
             "steps": [
               {
                 "stepType": "beediging",
@@ -244,8 +244,8 @@
             "endDate": "2026-01-15",
             "endReason": "ontslag-op-eigen-verzoek",
             "lifecycle": "afgerond",
-            "exitBevestigdBy": "griffier",
-            "exitBevestigdOn": "2026-01-20T14:00:00Z",
+            "exitConfirmedBy": "griffier",
+            "exitConfirmedOn": "2026-01-20T14:00:00Z",
             "steps": [
               {
                 "stepType": "lidmaatschap-beeindigen",
@@ -567,7 +567,7 @@
               }
             }
           },
-          "beDigingsDate": {
+          "swearingInDate": {
             "title": "Oath date",
             "type": "string",
             "format": "date",
@@ -586,7 +586,7 @@
             ],
             "example": "belofte"
           },
-          "beDigingsMeeting": {
+          "swearingInMeeting": {
             "title": "Oath meeting",
             "type": "string",
             "format": "uuid",
@@ -920,14 +920,14 @@
               }
             }
           },
-          "exitBevestigdBy": {
+          "exitConfirmedBy": {
             "title": "Exit confirmed by",
             "type": "string",
             "nullable": true,
             "description": "Nextcloud UID of the griffie member who confirmed the exit (REQ-MOB-002). Optional until confirmed.",
             "example": "griffier"
           },
-          "exitBevestigdOn": {
+          "exitConfirmedOn": {
             "title": "Exit confirmed at",
             "type": "string",
             "format": "date-time",
