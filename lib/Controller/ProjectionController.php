@@ -27,6 +27,7 @@ use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\VotingService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\JSONResponse;
@@ -70,6 +71,11 @@ class ProjectionController extends Controller {
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
+	// The voting round's state is explicitly public, so the id is not a
+	// credential and no brute-force counter applies. A ceiling still does: this
+	// is polled by a live results view, which is precisely the shape that turns
+	// into an accidental load generator when a tab is left open.
+	#[AnonRateLimit(limit: 120, period: 60)]
 	public function publicState(string $id): JSONResponse {
 		$state = $this->votingService->getPublicState(votingRoundId: $id);
 
