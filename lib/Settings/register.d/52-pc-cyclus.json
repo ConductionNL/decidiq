@@ -56,9 +56,9 @@
                 "label": "Programmabegroting",
                 "subjectYearOffset": 1,
                 "deliveryDeadline": "09-15",
-                "technicalVragenStart": "09-16",
-                "technicalVragenEnd": "10-05",
-                "commissieDate": "10-20",
+                "technicalQuestionsStart": "09-16",
+                "technicalQuestionsEnd": "10-05",
+                "committeeDate": "10-20",
                 "handlingDate": "11-05",
                 "documentSlots": [
                   { "name": "Programmabegroting", "required": true },
@@ -155,7 +155,7 @@
             "sequence": 1,
             "stepType": "jaarrekening",
             "label": "Jaarrekening",
-            "betreftYear": 2025,
+            "concernsYear": 2025,
             "deliveryDeadline": "2026-04-15",
             "decisionMakingBody": "gemeenteraad-amsterdam",
             "handlingDate": "2026-07-02",
@@ -174,7 +174,7 @@
             "sequence": 2,
             "stepType": "berap",
             "label": "Eerste bestuursrapportage (berap-1)",
-            "betreftYear": 2026,
+            "concernsYear": 2026,
             "deliveryDeadline": "2026-05-01",
             "decisionMakingBody": "gemeenteraad-amsterdam",
             "handlingDate": "2026-06-10",
@@ -189,7 +189,7 @@
             "sequence": 3,
             "stepType": "kadernota",
             "label": "Kadernota",
-            "betreftYear": 2027,
+            "concernsYear": 2027,
             "deliveryDeadline": "2026-05-15",
             "decisionMakingBody": "gemeenteraad-amsterdam",
             "handlingDate": "2026-07-02",
@@ -205,7 +205,7 @@
             "sequence": 4,
             "stepType": "berap",
             "label": "Tweede bestuursrapportage (berap-2)",
-            "betreftYear": 2026,
+            "concernsYear": 2026,
             "deliveryDeadline": "2026-07-10",
             "decisionMakingBody": "gemeenteraad-amsterdam",
             "handlingDate": "2026-11-04",
@@ -220,12 +220,12 @@
             "sequence": 5,
             "stepType": "begroting",
             "label": "Programmabegroting",
-            "betreftYear": 2027,
+            "concernsYear": 2027,
             "deliveryDeadline": "2026-09-15",
-            "technicalVragenStart": "2026-09-16",
-            "technicalVragenEnd": "2026-10-05",
+            "technicalQuestionsStart": "2026-09-16",
+            "technicalQuestionsEnd": "2026-10-05",
             "behandelendeCommissie": "00000000-0000-0000-0000-000000000000",
-            "commissieDate": "2026-10-20",
+            "committeeDate": "2026-10-20",
             "decisionMakingBody": "gemeenteraad-amsterdam",
             "handlingDate": "2026-11-05",
             "documentSlots": [
@@ -241,7 +241,7 @@
             "sequence": 1,
             "stepType": "jaarstukken",
             "label": "Jaarstukken",
-            "betreftYear": 2025,
+            "concernsYear": 2025,
             "deliveryDeadline": "2026-03-01",
             "decisionMakingBody": "00000000-0000-0000-0000-000000000000",
             "handlingDate": "2026-04-15",
@@ -258,7 +258,7 @@
             "sequence": 2,
             "stepType": "decharge",
             "label": "Decharge bestuur",
-            "betreftYear": 2025,
+            "concernsYear": 2025,
             "decisionMakingBody": "00000000-0000-0000-0000-000000000000",
             "handlingDate": "2026-04-15",
             "documentSlots": [],
@@ -270,7 +270,7 @@
             "sequence": 3,
             "stepType": "berap",
             "label": "Tussenrapportage",
-            "betreftYear": 2026,
+            "concernsYear": 2026,
             "deliveryDeadline": "2026-05-15",
             "decisionMakingBody": "00000000-0000-0000-0000-000000000000",
             "handlingDate": "2026-06-20",
@@ -285,7 +285,7 @@
             "sequence": 4,
             "stepType": "jaarplan",
             "label": "Jaarplan",
-            "betreftYear": 2027,
+            "concernsYear": 2027,
             "deliveryDeadline": "2026-10-01",
             "decisionMakingBody": "00000000-0000-0000-0000-000000000000",
             "handlingDate": "2026-11-25",
@@ -300,7 +300,7 @@
             "sequence": 5,
             "stepType": "begroting",
             "label": "Begroting",
-            "betreftYear": 2027,
+            "concernsYear": 2027,
             "deliveryDeadline": "2026-10-01",
             "decisionMakingBody": "00000000-0000-0000-0000-000000000000",
             "handlingDate": "2026-11-25",
@@ -460,19 +460,19 @@
                   "nullable": true,
                   "description": "Default month/day (MM-DD) the organisation must deliver the documents; resolved into a concrete date within the cyclus year at generation. Optional (a decharge step may have none)."
                 },
-                "technicalVragenStart": {
+                "technicalQuestionsStart": {
                   "title": "Technische-vragen start default",
                   "type": "string",
                   "nullable": true,
                   "description": "Default month/day (MM-DD) the technical-questions window opens. Optional."
                 },
-                "technicalVragenEnd": {
+                "technicalQuestionsEnd": {
                   "title": "Technische-vragen end default",
                   "type": "string",
                   "nullable": true,
                   "description": "Default month/day (MM-DD) the technical-questions window closes. Optional."
                 },
-                "commissieDate": {
+                "committeeDate": {
                   "title": "Commissie date default",
                   "type": "string",
                   "nullable": true,
@@ -664,7 +664,7 @@
             "description": "Human-readable step label. Required.",
             "example": "Programmabegroting"
           },
-          "betreftYear": {
+          "concernsYear": {
             "title": "Subject year",
             "type": "integer",
             "facetable": true,
@@ -680,7 +680,7 @@
             "description": "Date by which the organisation must deliver the documents. Drives the late-aanlevering rappel and the overdue dashboard KPI. Optional (a decharge step may have none).",
             "example": "2026-09-15"
           },
-          "technicalVragenStart": {
+          "technicalQuestionsStart": {
             "title": "Technische-vragen start",
             "type": "string",
             "format": "date",
@@ -688,7 +688,7 @@
             "description": "Start of the technical-questions window. Optional.",
             "example": "2026-09-16"
           },
-          "technicalVragenEnd": {
+          "technicalQuestionsEnd": {
             "title": "Technische-vragen end",
             "type": "string",
             "format": "date",
@@ -704,7 +704,7 @@
             "nullable": true,
             "description": "Optional reference to the GovernanceBody (commissie) that pre-advises on this step."
           },
-          "commissieDate": {
+          "committeeDate": {
             "title": "Commissie date",
             "type": "string",
             "format": "date",

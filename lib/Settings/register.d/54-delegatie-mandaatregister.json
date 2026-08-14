@@ -25,7 +25,7 @@
             "slug": "mandaat-subsidies-secretaris",
             "type": "mandaat",
             "delegans": "00000000-0000-0000-0000-000000000000",
-            "delegatarisRole": "gemeentesecretaris",
+            "delegateRole": "gemeentesecretaris",
             "subject": "Beslissen op subsidieaanvragen tot het genoemde plafond",
             "financieelPlafond": 25000,
             "beperkingen": "Geen subsidies met precedentwerking",
@@ -43,7 +43,7 @@
             "slug": "ondermandaat-subsidies-samenleving",
             "type": "mandaat",
             "delegansOmschrijving": "gemeentesecretaris",
-            "delegatarisRole": "afdelingshoofd Samenleving",
+            "delegateRole": "afdelingshoofd Samenleving",
             "subject": "Beslissen op subsidieaanvragen binnen het programma Samenleving",
             "financieelPlafond": 5000,
             "beperkingen": "Uitsluitend reguliere subsidieregelingen",
@@ -62,7 +62,7 @@
             "slug": "volmacht-inkoop-teamleider",
             "type": "volmacht",
             "delegansOmschrijving": "burgemeester",
-            "delegatarisRole": "teamleider Inkoop",
+            "delegateRole": "teamleider Inkoop",
             "subject": "Aangaan van privaatrechtelijke rechtshandelingen voor inkoop",
             "financieelPlafond": 50000,
             "beperkingen": "Binnen het vastgestelde inkoopbeleid",
@@ -79,8 +79,8 @@
             "slug": "machtiging-woo-vertegenwoordiging",
             "type": "machtiging",
             "delegans": "00000000-0000-0000-0000-000000000000",
-            "delegatarisRole": "juridisch adviseur team Recht",
-            "delegatarisPerson": "00000000-0000-0000-0000-000000000000",
+            "delegateRole": "juridisch adviseur team Recht",
+            "delegatePerson": "00000000-0000-0000-0000-000000000000",
             "subject": "Vertegenwoordiging bij Woo-bezwaarprocedures",
             "subMandatePermitted": false,
             "statutoryBasis": [
@@ -262,14 +262,14 @@
             "$ref": "GovernanceBody",
             "description": "Reference to the delegataris / gemandateerde as a GovernanceBody. At least one of delegatarisBody, delegatarisFunctie, or delegatarisPersoon MUST be present (schema-level anyOf)."
           },
-          "delegatarisRole": {
+          "delegateRole": {
             "title": "Delegataris (function)",
             "type": "string",
             "facetable": true,
             "description": "The delegataris / gemandateerde as a plain-text function/role description (e.g. 'afdelingshoofd Samenleving', 'teamleider Inkoop'). Plain text by design — HR/formatie management is out of scope so personnel churn never invalidates the register. At least one delegataris field MUST be present.",
             "example": "afdelingshoofd Samenleving"
           },
-          "delegatarisPerson": {
+          "delegatePerson": {
             "title": "Delegataris (person)",
             "type": "string",
             "format": "uuid",

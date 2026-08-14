@@ -73,7 +73,7 @@
             "owner": "00000000-0000-0000-0000-000000000000",
             "lifecycle": "vervallen",
             "shiftHistory": [],
-            "reasonVervallen": "Opgegaan in de bredere herziening van de legesverordening",
+            "reasonExpired": "Opgegaan in de bredere herziening van de legesverordening",
             "publicationDate": "2026-06-20T09:00:00Z"
           }
         ]
@@ -305,7 +305,7 @@
               }
             }
           },
-          "reasonVervallen": {
+          "reasonExpired": {
             "title": "Drop reason",
             "type": "string",
             "nullable": true,

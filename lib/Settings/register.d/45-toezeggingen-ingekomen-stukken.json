@@ -34,8 +34,8 @@
             "directedTo": "gemeenteraad-amsterdam",
             "deadline": "2026-06-30",
             "lifecycle": "afgedaan",
-            "afdoeningsNotes": "Evaluatierapport aangeboden bij kadernota 2026; besproken in commissie Middelen.",
-            "afdoeningsEvidence": "https://gemeente-voorbeeldingen.nl/raadsbrieven/evaluatie-afvalbeleid-2026.pdf",
+            "settlementNotes": "Evaluatierapport aangeboden bij kadernota 2026; besproken in commissie Middelen.",
+            "settlementEvidence": "https://gemeente-voorbeeldingen.nl/raadsbrieven/evaluatie-afvalbeleid-2026.pdf",
             "relatedMotion": "00000000-0000-0000-0000-000000000000",
             "publicationDate": "2026-02-10T09:00:00Z"
           }
@@ -351,12 +351,12 @@
             ],
             "example": "open"
           },
-          "afdoeningsNotes": {
+          "settlementNotes": {
             "title": "Afdoening note",
             "type": "string",
             "description": "Note explaining how the commitment was settled (recorded when moving to afgedaan). Optional."
           },
-          "afdoeningsEvidence": {
+          "settlementEvidence": {
             "title": "Afdoening evidence",
             "type": "string",
             "description": "Link or reference to evidence of afdoening (e.g. the raadsbrief). Optional. A plain URL/reference string — not a UID field — so the object stays fully publishable (design D4).",

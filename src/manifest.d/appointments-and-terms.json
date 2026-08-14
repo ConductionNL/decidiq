@@ -111,7 +111,7 @@
 				],
 				"columns": [
 					{ "key": "body", "label": "Governance body", "widget": "link" },
-					{ "key": "gegenereerdOn", "label": "Generated at" },
+					{ "key": "generatedOn", "label": "Generated at" },
 					{ "key": "publicationDate", "label": "Published" }
 				],
 				"actions": [

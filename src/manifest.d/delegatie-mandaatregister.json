@@ -39,7 +39,7 @@
 				"columns": [
 					{ "key": "type", "label": "Type", "widget": "badge" },
 					{ "key": "delegans", "label": "Delegans" },
-					{ "key": "delegatarisRole", "label": "Delegataris" },
+					{ "key": "delegateRole", "label": "Delegataris" },
 					{ "key": "subject", "label": "Subject", "widget": "link" },
 					{ "key": "validFrom", "label": "Valid from" },
 					{ "key": "validTo", "label": "Valid until" },
