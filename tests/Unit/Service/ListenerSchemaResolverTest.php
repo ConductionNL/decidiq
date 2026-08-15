@@ -6,10 +6,13 @@
  * These tests are deliberately built on the REAL stubs
  * (tests/Stubs/Db/ObjectEntity.php, tests/Stubs/Db/Schema.php), never on a
  * PHPUnit mock of them. Both stubs honour the decidesk#399 signature parity
- * contract — they declare their accessors only as `@method` docblock tags, so
- * `method_exists()` answers false for them exactly as it does in production.
- * A mock would let PHPUnit declare those accessors concretely and would invert
- * the very predicate under test.
+ * contract — they declare their accessors only as `@method` docblock tags. A
+ * mock would let PHPUnit declare those accessors concretely.
+ *
+ * That used to match production exactly. It no longer does: OpenRegister has
+ * since declared `getSchema()` for real on ObjectEntity, so where CI resolves
+ * the real class `method_exists()` is true and the stub's is false. Nothing
+ * here may assume either answer — see testGetSchemaIsReadableHoweverItIsDeclared.
  *
  * @category Test
  * @package  OCA\Decidesk\Tests\Unit\Service
