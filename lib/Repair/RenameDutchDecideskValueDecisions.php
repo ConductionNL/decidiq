@@ -1,0 +1,100 @@
+<?php
+
+/**
+ * The pure decisions behind RenameDutchDecideskValues.
+ *
+ * Separated for a reason this app makes unavoidable: decidesk's unit
+ * environment does not install doctrine/dbal, so `createMock(IDBConnection)`
+ * cannot even be generated — it fails on `Doctrine\DBAL\ParameterType` while
+ * building the double. The database half of a repair step is therefore
+ * genuinely untestable here, which makes it worth keeping as small as possible
+ * and putting every decision on this side of the line.
+ *
+ * @category  Repair
+ * @package   OCA\Decidesk\Repair
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ * @link      https://conduction.nl
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ */
+
+declare(strict_types=1);
+
+namespace OCA\Decidesk\Repair;
+
+/**
+ * Pure predicates for the stored-enum-value migration.
+ */
+class RenameDutchDecideskValueDecisions {
+
+	/**
+	 * Convert a property name to the column MagicMapper materialised.
+	 *
+	 * Mirrors `MagicMapper::sanitizeColumnName()`, which applies ONLY the
+	 * ([a-z0-9])([A-Z]) boundary — no acronym rule. A column spelled any other
+	 * way matches nothing and the migration is a silent no-op, not an error.
+	 *
+	 * @param string $name Property name.
+	 *
+	 * @return string Column name.
+	 */
+	public function columnFor(string $name): string {
+		$column = preg_replace('/([a-z0-9])([A-Z])/', '$1_$2', $name);
+		$column = strtolower((string)$column);
+		$column = preg_replace('/[^a-z0-9_]/', '_', $column);
+		$column = preg_replace('/_+/', '_', (string)$column);
+
+		return rtrim((string)$column, '_');
+	}//end columnFor()
+
+	/**
+	 * Work out which value rewrites a table actually needs.
+	 *
+	 * A property whose column the table does not have is skipped: shard tables
+	 * are per-schema, so most carry only a few of the mapped columns, and an
+	 * UPDATE against a missing column is an error rather than a no-op.
+	 *
+	 * @param array<string, array<string, string>> $valueMap Property => old => new.
+	 * @param array<int, string>                   $columns  Columns the table has.
+	 *
+	 * @return array<int, array{column: string, old: string, new: string}>
+	 */
+	public function plannedRewrites(array $valueMap, array $columns): array {
+		$planned = [];
+
+		foreach ($valueMap as $property => $values) {
+			$column = $this->columnFor(name: $property);
+			if (in_array($column, $columns, true) === false) {
+				continue;
+			}
+
+			foreach ($values as $old => $new) {
+				$planned[] = [
+					'column' => $column,
+					'old' => (string)$old,
+					'new' => $new,
+				];
+			}
+		}
+
+		return $planned;
+	}//end plannedRewrites()
+
+	/**
+	 * Pull a single column out of information_schema rows.
+	 *
+	 * Defensive: a null cell yields an empty string rather than a TypeError
+	 * inside a repair step, where an exception aborts the upgrade.
+	 *
+	 * @param array<int, array<string, mixed>> $rows Result rows.
+	 * @param string                           $key  Column to read.
+	 *
+	 * @return array<int, string>
+	 */
+	public function column(array $rows, string $key): array {
+		return array_map(static fn (array $row): string => (string)($row[$key] ?? ''), $rows);
+	}//end column()
+}//end class

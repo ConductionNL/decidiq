@@ -302,12 +302,14 @@ class RenameDutchDecideskValues implements IRepairStep {
 	/**
 	 * Constructor.
 	 *
-	 * @param IDBConnection   $db     Database connection.
-	 * @param LoggerInterface $logger Logger.
+	 * @param IDBConnection                        $db        Database connection.
+	 * @param LoggerInterface                      $logger    Logger.
+	 * @param RenameDutchDecideskValueDecisions    $decisions Pure predicates.
 	 */
 	public function __construct(
 		private readonly IDBConnection $db,
 		private readonly LoggerInterface $logger,
+		private readonly RenameDutchDecideskValueDecisions $decisions = new RenameDutchDecideskValueDecisions(),
 	) {
 	}//end __construct()
 
@@ -319,25 +321,6 @@ class RenameDutchDecideskValues implements IRepairStep {
 	public function getName(): string {
 		return 'Translate stored Dutch Decidesk enum values';
 	}//end getName()
-
-	/**
-	 * Convert a property name to the column MagicMapper materialised.
-	 *
-	 * Mirrors `MagicMapper::sanitizeColumnName()`, which applies ONLY the
-	 * ([a-z0-9])([A-Z]) boundary — no acronym rule. A column name spelled any
-	 * other way matches nothing and the migration is a silent no-op.
-	 *
-	 * @param string $name Property name.
-	 *
-	 * @return string Column name.
-	 */
-	private function columnFor(string $name): string {
-		$column = preg_replace('/([a-z0-9])([A-Z])/', '$1_$2', $name);
-		$column = strtolower((string)$column);
-		$column = preg_replace('/[^a-z0-9_]/', '_', $column);
-		$column = preg_replace('/_+/', '_', (string)$column);
-		return rtrim((string)$column, '_');
-	}//end columnFor()
 
 	/**
 	 * Rewrite the stored values, one column at a time.
@@ -355,16 +338,18 @@ class RenameDutchDecideskValues implements IRepairStep {
 
 		$updated = 0;
 		foreach ($tables as $table) {
-			$columns = $this->columnsOf(table: $table);
-			foreach (self::VALUE_MAP as $property => $values) {
-				$column = $this->columnFor(name: $property);
-				if (in_array($column, $columns, true) === false) {
-					continue;
-				}
+			$planned = $this->decisions->plannedRewrites(
+				valueMap: self::VALUE_MAP,
+				columns: $this->columnsOf(table: $table)
+			);
 
-				foreach ($values as $old => $new) {
-					$updated += $this->rewrite(table: $table, column: $column, old: $old, new: $new);
-				}
+			foreach ($planned as $job) {
+				$updated += $this->rewrite(
+					table: $table,
+					column: $job['column'],
+					old: $job['old'],
+					new: $job['new']
+				);
 			}
 		}
 
@@ -418,7 +403,7 @@ class RenameDutchDecideskValues implements IRepairStep {
 			return [];
 		}
 
-		return array_map(static fn (array $r): string => (string)$r['table_name'], $rows);
+		return $this->decisions->column(rows: $rows, key: 'table_name');
 	}//end shardTables()
 
 	/**
@@ -444,7 +429,7 @@ class RenameDutchDecideskValues implements IRepairStep {
 			return [];
 		}
 
-		return array_map(static fn (array $r): string => (string)$r['column_name'], $rows);
+		return $this->decisions->column(rows: $rows, key: 'column_name');
 	}//end columnsOf()
 
 	/**
