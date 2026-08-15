@@ -307,7 +307,7 @@ class McpMeetingTools {
 	 */
 	private function collectMeetingDetails(string $meetingUuid, array $meeting): array {
 		$agenda = $this->relatedObjects(
-			objectService: $objectService,
+			objectService: $this->objectService,
 			meetingUuid: $meetingUuid,
 			schema: 'agenda-item',
 			sourceType: 'decidesk.agendaItem',
@@ -315,7 +315,7 @@ class McpMeetingTools {
 		);
 
 		$decisions = $this->relatedObjects(
-			objectService: $objectService,
+			objectService: $this->objectService,
 			meetingUuid: $meetingUuid,
 			schema: 'decision',
 			sourceType: 'decidesk.decision',
@@ -323,7 +323,7 @@ class McpMeetingTools {
 		);
 
 		$actions = $this->relatedObjects(
-			objectService: $objectService,
+			objectService: $this->objectService,
 			meetingUuid: $meetingUuid,
 			schema: 'action-item',
 			sourceType: 'decidesk.actionItem',
@@ -359,7 +359,7 @@ class McpMeetingTools {
 	/**
 	 * Fetch every object of one schema related to a meeting, with its sources.
 	 *
-	 * @param object $objectService The OpenRegister ObjectService
+	 * @param object $this->objectService The OpenRegister ObjectService
 	 * @param string $meetingUuid The meeting UUID to filter on
 	 * @param string $schema The OpenRegister schema slug
 	 * @param string $sourceType The MCP source type for these objects

@@ -185,7 +185,7 @@ class MailReplyHandler extends TimedJob {
 			}
 
 			$this->processor->processRound(
-				objectService: $objectService,
+				objectService: $this->objectService,
 				round: $round,
 				roundId: $roundId
 			);

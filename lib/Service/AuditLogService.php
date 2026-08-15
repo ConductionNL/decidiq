@@ -118,7 +118,7 @@ class AuditLogService {
 		}
 
 		try {
-			$previousHash = $this->resolvePreviousHash(objectService: $objectService);
+			$previousHash = $this->resolvePreviousHash(objectService: $this->objectService);
 			$timestamp = gmdate('Y-m-d\TH:i:s\Z');
 
 			$canonicalObjectUids = array_values(array_map('strval', $objectUids));
@@ -217,7 +217,7 @@ class AuditLogService {
 	 */
 	public function verify(?string $entryUuid = null): array {
 		try {
-			$chain = $this->loadChain(objectService: $objectService);
+			$chain = $this->loadChain(objectService: $this->objectService);
 		} catch (\Throwable $e) {
 			$this->logger->error(
 				'Decidesk: failed to load audit log for verification',
@@ -296,7 +296,7 @@ class AuditLogService {
 		}
 
 		try {
-			$chain = $this->loadChain(objectService: $objectService);
+			$chain = $this->loadChain(objectService: $this->objectService);
 		} catch (\Throwable $e) {
 			$this->logger->error(
 				'Decidesk: failed to load audit log for export',
@@ -377,7 +377,7 @@ class AuditLogService {
 	 */
 	public function query(array $filters = []): array {
 		try {
-			$chain = $this->loadChain(objectService: $objectService);
+			$chain = $this->loadChain(objectService: $this->objectService);
 		} catch (\Throwable $e) {
 			$this->logger->error(
 				'Decidesk: failed to load audit log for query',
@@ -496,7 +496,7 @@ class AuditLogService {
 	 * and `export()` still use `loadChain()` because they legitimately need
 	 * the full ordered chain.
 	 *
-	 * @param object $objectService OpenRegister ObjectService instance
+	 * @param object $this->objectService OpenRegister ObjectService instance
 	 *
 	 * @spec openspec/changes/audit-log-chain-tail-hash/tasks.md#task-2
 	 *

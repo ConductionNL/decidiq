@@ -178,7 +178,7 @@ class MotionLifecycleTransitioner {
 		$this->objectService->setSchema('decision');
 
 		$objectArray = $this->loadDecision(
-			objectService: $objectService,
+			objectService: $this->objectService,
 			objectId: $objectId,
 			objectType: $objectType
 		);
@@ -261,7 +261,7 @@ class MotionLifecycleTransitioner {
 	 * this id is not one of these. An absent object has no discriminator, so
 	 * the single check covers both.
 	 *
-	 * @param object $objectService The OpenRegister object service
+	 * @param object $this->objectService The OpenRegister object service
 	 * @param string $objectId The decision UUID
 	 * @param string $objectType The expected decisionType discriminator
 	 *

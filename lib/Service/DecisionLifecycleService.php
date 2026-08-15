@@ -113,7 +113,7 @@ class DecisionLifecycleService {
 	 */
 	public function getAvailableTransitions(string $decisionId): array {
 		try {
-			$decision = $this->contextResolver->loadDecision(objectService: $objectService, decisionId: $decisionId);
+			$decision = $this->contextResolver->loadDecision(objectService: $this->objectService, decisionId: $decisionId);
 			if ($decision === null) {
 				return [
 					'success' => false,
@@ -126,7 +126,7 @@ class DecisionLifecycleService {
 			}
 
 			$lifecycle = (string)($decision['lifecycle'] ?? 'draft');
-			$meeting = $this->contextResolver->resolveLinkedMeeting(objectService: $objectService, decision: $decision);
+			$meeting = $this->contextResolver->resolveLinkedMeeting(objectService: $this->objectService, decision: $decision);
 			$domain = $this->contextResolver->resolveDomain(decision: $decision, meeting: $meeting);
 
 			// Process-configuration: when the decision's body has an assigned
@@ -210,7 +210,7 @@ class DecisionLifecycleService {
 		}
 
 		try {
-			$decision = $this->contextResolver->loadDecision(objectService: $objectService, decisionId: $decisionId);
+			$decision = $this->contextResolver->loadDecision(objectService: $this->objectService, decisionId: $decisionId);
 			if ($decision === null) {
 				return [
 					'success' => false,
@@ -225,7 +225,7 @@ class DecisionLifecycleService {
 			// quorum before `voting`, outcome before `enact`) reports through one
 			// rejection message; null means the transition may proceed.
 			$rejection = $this->resolveRejection(
-				objectService: $objectService,
+				objectService: $this->objectService,
 				decision: $decision,
 				transition: $transition,
 				action: $action,
@@ -255,7 +255,7 @@ class DecisionLifecycleService {
 			);
 
 			$this->applyPostTransitionEffects(
-				objectService: $objectService,
+				objectService: $this->objectService,
 				decision: array_merge($decision, $patch),
 				decisionId: $decisionId,
 				action: $action,
@@ -297,7 +297,7 @@ class DecisionLifecycleService {
 	 * policy, chair-only authorization (fail closed), then the state-entry
 	 * gates (quorum before `voting`, outcome before `enact`).
 	 *
-	 * @param object $objectService OpenRegister ObjectService instance
+	 * @param object $this->objectService OpenRegister ObjectService instance
 	 * @param array<string, mixed> $decision Decision object array
 	 * @param array<string, mixed> $transition Resolved transition descriptor (from/to)
 	 * @param string $action Requested transition action
@@ -516,7 +516,7 @@ class DecisionLifecycleService {
 	 * All of them are fail-soft — the lifecycle write already persisted, so a
 	 * failure here is logged loudly and never rolls the transition back.
 	 *
-	 * @param object $objectService OpenRegister ObjectService instance
+	 * @param object $this->objectService OpenRegister ObjectService instance
 	 * @param array<string, mixed> $decision Decision object array (post-transition)
 	 * @param string $decisionId UUID of the transitioned decision
 	 * @param string $action The applied transition action
@@ -667,7 +667,7 @@ class DecisionLifecycleService {
 	 * decision text as full text, legal basis, adoption and effective dates,
 	 * and the meeting link when present.
 	 *
-	 * @param object $objectService OpenRegister ObjectService instance
+	 * @param object $this->objectService OpenRegister ObjectService instance
 	 * @param array<string, mixed> $decision Decision object array (post-transition)
 	 * @param string $decisionId UUID of the enacted decision
 	 *

@@ -168,7 +168,7 @@ class MeetingService {
 		$transition = self::TRANSITIONS[$action];
 
 		/*
-		 * @var \OCA\OpenRegister\Contract\ObjectServiceInterface $objectService
+		 * @var \OCA\OpenRegister\Contract\ObjectServiceInterface $this->objectService
 		 */
 
 

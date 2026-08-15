@@ -263,7 +263,7 @@ class MinutesDocumentService {
 	 *
 	 * @param array<string,mixed> $minutes The Minutes object data
 	 * @param string $minutesId UUID of the Minutes object
-	 * @param object $objectService OpenRegister ObjectService
+	 * @param object $this->objectService OpenRegister ObjectService
 	 *
 	 * @return string Markdown document body
 	 *
@@ -455,7 +455,7 @@ class MinutesDocumentService {
 	 * @param array<string,mixed> $minutes The Minutes object data
 	 * @param string $minutesId UUID of the Minutes object
 	 * @param array<string,mixed> $record The generated-document record
-	 * @param object $objectService OpenRegister ObjectService
+	 * @param object $this->objectService OpenRegister ObjectService
 	 *
 	 * @return void
 	 */
