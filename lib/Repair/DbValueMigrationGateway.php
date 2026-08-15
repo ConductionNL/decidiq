@@ -51,6 +51,9 @@ class DbValueMigrationGateway implements ValueMigrationGateway {
 	 * {@inheritDoc}
 	 *
 	 * @return array<int, string>
+	 *
+	 * @spec exclude Database adapter for the Dutch-to-English vocabulary
+	 *  migration; no canonical spec covers it and it holds no business rule.
 	 */
 	public function shardTables(): array {
 		try {
@@ -74,6 +77,9 @@ class DbValueMigrationGateway implements ValueMigrationGateway {
 	 * @param string $table Table name.
 	 *
 	 * @return array<int, string>
+	 *
+	 * @spec exclude Database adapter for the Dutch-to-English vocabulary
+	 *  migration; no canonical spec covers it and it holds no business rule.
 	 */
 	public function columnsOf(string $table): array {
 		try {
@@ -100,6 +106,9 @@ class DbValueMigrationGateway implements ValueMigrationGateway {
 	 * @param string $new    English replacement.
 	 *
 	 * @return int
+	 *
+	 * @spec exclude Database adapter for the Dutch-to-English vocabulary
+	 *  migration; no canonical spec covers it and it holds no business rule.
 	 */
 	public function rewrite(string $table, string $column, string $old, string $new): int {
 		$quote = fn (string $identifier): string => $this->db->getDatabasePlatform()->quoteSingleIdentifier($identifier);

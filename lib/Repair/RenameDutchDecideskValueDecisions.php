@@ -40,6 +40,9 @@ class RenameDutchDecideskValueDecisions {
 	 * @param string $name Property name.
 	 *
 	 * @return string Column name.
+	 *
+	 * @spec exclude Predicate of the Dutch-to-English vocabulary migration; no
+	 *  canonical spec covers it.
 	 */
 	public function columnFor(string $name): string {
 		$column = preg_replace('/([a-z0-9])([A-Z])/', '$1_$2', $name);
@@ -61,6 +64,9 @@ class RenameDutchDecideskValueDecisions {
 	 * @param array<int, string>                   $columns  Columns the table has.
 	 *
 	 * @return array<int, array{column: string, old: string, new: string}>
+	 *
+	 * @spec exclude Predicate of the Dutch-to-English vocabulary migration; no
+	 *  canonical spec covers it.
 	 */
 	public function plannedRewrites(array $valueMap, array $columns): array {
 		$planned = [];
@@ -93,14 +99,21 @@ class RenameDutchDecideskValueDecisions {
 	 * @param string                           $key  Column to read.
 	 *
 	 * @return array<int, string>
+	 *
+	 * @spec exclude Predicate of the Dutch-to-English vocabulary migration; no
+	 *  canonical spec covers it.
 	 */
 	public function column(array $rows, string $key): array {
 		return array_map(static fn (array $row): string => (string)($row[$key] ?? ''), $rows);
 	}//end column()
+
 	/**
 	 * The line the step reports when there is nothing to migrate.
 	 *
 	 * @return string
+	 *
+	 * @spec exclude Operator-facing text of the vocabulary migration; no
+	 *  canonical spec covers it.
 	 */
 	public function nothingToDoMessage(): string {
 		return 'RenameDutchDecideskValues: no Decidesk shard tables on this install; nothing to do.';
@@ -115,6 +128,9 @@ class RenameDutchDecideskValueDecisions {
 	 * @param int $updated Rows rewritten.
 	 *
 	 * @return string
+	 *
+	 * @spec exclude Operator-facing text of the vocabulary migration; no
+	 *  canonical spec covers it.
 	 */
 	public function summaryMessage(int $updated): string {
 		return sprintf('RenameDutchDecideskValues: %d row value(s) translated.', $updated);

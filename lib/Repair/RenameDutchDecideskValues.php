@@ -328,6 +328,9 @@ class RenameDutchDecideskValues implements IRepairStep {
 	 * @param IOutput $output Repair output.
 	 *
 	 * @return void
+	 *
+	 * @spec exclude Data migration for the Dutch-to-English vocabulary change;
+	 *  no canonical spec covers it and it carries no business rule of its own.
 	 */
 	public function run(IOutput $output): void {
 		$tables = $this->gateway->shardTables();

@@ -37,6 +37,9 @@ interface ValueMigrationGateway {
 	 * The OpenRegister shard tables present on this install.
 	 *
 	 * @return array<int, string> Table names, empty when none or unreadable.
+	 *
+	 * @spec exclude Seam for the Dutch-to-English vocabulary migration; no
+	 *  canonical spec covers it and it declares no business rule.
 	 */
 	public function shardTables(): array;
 
@@ -46,6 +49,9 @@ interface ValueMigrationGateway {
 	 * @param string $table Table name.
 	 *
 	 * @return array<int, string> Column names, empty when unreadable.
+	 *
+	 * @spec exclude Seam for the Dutch-to-English vocabulary migration; no
+	 *  canonical spec covers it and it declares no business rule.
 	 */
 	public function columnsOf(string $table): array;
 
@@ -58,6 +64,9 @@ interface ValueMigrationGateway {
 	 * @param string $new    The English replacement.
 	 *
 	 * @return int Rows affected; 0 when the statement failed.
+	 *
+	 * @spec exclude Seam for the Dutch-to-English vocabulary migration; no
+	 *  canonical spec covers it and it declares no business rule.
 	 */
 	public function rewrite(string $table, string $column, string $old, string $new): int;
 }//end interface
