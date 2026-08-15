@@ -375,7 +375,7 @@ class McpMeetingTools {
 		string $sourceType,
 		array $labels,
 	): array {
-		$raws = $this->objectService->findAll(
+		$raws = $objectService->findAll(
 			[
 				'filters' => [
 					'register' => 'decidesk',

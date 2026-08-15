@@ -272,7 +272,7 @@ class MotionLifecycleTransitioner {
 	 * @return array<string, mixed> The decision object array
 	 */
 	private function loadDecision(object $objectService, string $objectId, string $objectType): array {
-		$object = $this->objectService->find($objectId);
+		$object = $objectService->find($objectId);
 		$objectArray = [];
 		if ($object !== null) {
 			$objectArray = $object->getObject();

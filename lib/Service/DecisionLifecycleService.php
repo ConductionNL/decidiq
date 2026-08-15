@@ -693,7 +693,7 @@ class DecisionLifecycleService {
 				$resolution['meeting'] = $meetingId;
 			}
 
-			$this->objectService->saveObject(
+			$objectService->saveObject(
 				object: $resolution,
 				register: 'decidesk',
 				schema: 'decision'

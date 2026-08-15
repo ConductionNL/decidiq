@@ -229,9 +229,9 @@ class MotionForwardingService {
 			),
 		];
 
-		$this->objectService->setRegister('decidesk');
-		$this->objectService->setSchema('decision');
-		$this->objectService->saveObject(
+		$objectService->setRegister('decidesk');
+		$objectService->setSchema('decision');
+		$objectService->saveObject(
 			object: $sourceMotionData,
 			register: 'decidesk',
 			schema: 'decision',

@@ -522,7 +522,7 @@ class AuditLogService {
 	 * @return array<string, mixed>|null
 	 */
 	private function loadLastEntry(object $objectService): ?array {
-		$rows = $this->objectService->findAll(
+		$rows = $objectService->findAll(
 			[
 				'register' => 'decidesk',
 				'schema' => 'audit-trail',
@@ -554,7 +554,7 @@ class AuditLogService {
 	 * @return array<int, array<string, mixed>>
 	 */
 	private function loadChain(object $objectService): array {
-		$rows = $this->objectService->findAll(
+		$rows = $objectService->findAll(
 			[
 				'register' => 'decidesk',
 				'schema' => 'audit-trail',
