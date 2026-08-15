@@ -230,7 +230,7 @@ class ReactionIntakeService {
 	 * the moderation flow.
 	 *
 	 * @param array<string,mixed> $reaction The approved reaction.
-	 * @param \OCA\OpenRegister\Service\ObjectServiceInterface $objectService The OR object service.
+	 * @param \OCA\OpenRegister\Contract\ObjectServiceInterface $objectService The OR object service.
 	 *
 	 * @return void
 	 *
