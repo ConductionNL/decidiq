@@ -76,48 +76,20 @@ class VotingServiceTallyMatrixTest extends TestCase {
 
 		return new VotingService(
 			opener: new VotingRoundOpener(
-				motionService: $motionService,
-				participantResolver: $participantResolver,
 				preflight: new VotingRoundPreflight(
-					logger: $logger,
-					motionService: $motionService,
-					participantResolver: $participantResolver,
-					templateService: $templateService,
-			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 				notifier: new VotingOpenedNotifier(
-					logger: $logger,
-					participantResolver: $participantResolver,
-			container: $this->createMock(ContainerInterface::class),
 		),
-			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 			caster: new VoteCastingService(
-				logger: $logger,
-				participantResolver: $participantResolver,
-				amendmentOrder: $amendmentOrder,
-				relationFilter: $relationFilter,
-			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 			closer: new VotingRoundCloser(
-				logger: $logger,
-				oriService: $this->createMock(OriPublicationService::class),
-				motionService: $motionService,
-				amendmentOrder: $amendmentOrder,
-				relationFilter: $relationFilter,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-			fileService: $this->createMock(FileService::class),
 		),
 			results: new VotingRoundResults(
-				motionService: $motionService,
-				participantResolver: $participantResolver,
-			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 			projection: new VotingRoundProjection(container: $container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 			participants: new ParticipantUuidLookup(container: $container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 		);
 

@@ -55,7 +55,6 @@ class ALVMinutesServiceTest extends TestCase {
 		$this->service = new ALVMinutesService(
 			$this->logger,
 			new MinutesContextResolver($this->container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 			new ParticipantNotifier($this->container, $this->logger),
 		);
