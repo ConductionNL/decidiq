@@ -38,7 +38,7 @@ function toMs(value) {
 
 /**
  * Whether an agenda item counts as completed for the completion-rate metric.
- * Completed = status 'afgerond' (final BOB stage) OR an actualDuration recorded.
+ * Completed = status 'completed' (final BOB stage) OR an actualDuration recorded.
  *
  * @param {object} item Agenda-item object.
  *
@@ -50,7 +50,7 @@ export function isItemCompleted(item) {
 	if (!item) {
 		return false
 	}
-	if (item.status === 'afgerond') {
+	if (item.status === 'completed') {
 		return true
 	}
 	return Number.isFinite(item.actualDuration) && item.actualDuration > 0

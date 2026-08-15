@@ -40,6 +40,9 @@ export const STATUTORY_ALV_ITEMS = [
 	{
 		id: 'financial-statements',
 		label: 'Financial statements',
+		// A SYNONYM list is deliberately Dutch — it exists to match Dutch agenda
+		// titles. The value pass rewrote `jaarrekening` here and broke exactly the
+		// test that checks nl matching.
 		synonyms: ['financial statements', 'jaarrekening', 'financieel verslag'],
 	},
 	{

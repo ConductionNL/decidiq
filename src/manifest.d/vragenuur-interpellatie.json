@@ -40,13 +40,13 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Submitted", "filter": { "lifecycle": "ingediend" } },
-					{ "label": "Admitted", "filter": { "lifecycle": "toegelaten" } },
-					{ "label": "Scheduled", "filter": { "lifecycle": "ingepland" } },
-					{ "label": "Answered", "filter": { "lifecycle": "beantwoord" } },
-					{ "label": "Not treated", "filter": { "lifecycle": "niet-behandeld" } },
-					{ "label": "Rejected", "filter": { "lifecycle": "afgewezen" } },
-					{ "label": "Withdrawn", "filter": { "lifecycle": "ingetrokken" } }
+					{ "label": "Submitted", "filter": { "lifecycle": "submitted" } },
+					{ "label": "Admitted", "filter": { "lifecycle": "admitted" } },
+					{ "label": "Scheduled", "filter": { "lifecycle": "scheduled" } },
+					{ "label": "Answered", "filter": { "lifecycle": "answered" } },
+					{ "label": "Not treated", "filter": { "lifecycle": "not-handled" } },
+					{ "label": "Rejected", "filter": { "lifecycle": "rejected" } },
+					{ "label": "Withdrawn", "filter": { "lifecycle": "withdrawn" } }
 				],
 				"columns": [
 					{ "key": "questionNumber", "label": "Number", "widget": "link" },
@@ -116,12 +116,12 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Submitted", "filter": { "lifecycle": "ingediend" } },
-					{ "label": "Admitted", "filter": { "lifecycle": "toegelaten" } },
-					{ "label": "Scheduled", "filter": { "lifecycle": "geagendeerd" } },
-					{ "label": "Treated", "filter": { "lifecycle": "behandeld" } },
-					{ "label": "Rejected", "filter": { "lifecycle": "afgewezen" } },
-					{ "label": "Withdrawn", "filter": { "lifecycle": "ingetrokken" } }
+					{ "label": "Submitted", "filter": { "lifecycle": "submitted" } },
+					{ "label": "Admitted", "filter": { "lifecycle": "admitted" } },
+					{ "label": "Scheduled", "filter": { "lifecycle": "agendised" } },
+					{ "label": "Treated", "filter": { "lifecycle": "handled" } },
+					{ "label": "Rejected", "filter": { "lifecycle": "rejected" } },
+					{ "label": "Withdrawn", "filter": { "lifecycle": "withdrawn" } }
 				],
 				"columns": [
 					{ "key": "requestNumber", "label": "Number", "widget": "link" },

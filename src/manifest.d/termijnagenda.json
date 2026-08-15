@@ -27,10 +27,10 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Planned", "filter": { "lifecycle": "gepland" } },
-					{ "label": "Shifted", "filter": { "lifecycle": "verschoven" } },
-					{ "label": "Realised", "filter": { "lifecycle": "gerealiseerd" } },
-					{ "label": "Lapsed", "filter": { "lifecycle": "vervallen" } }
+					{ "label": "Planned", "filter": { "lifecycle": "planned" } },
+					{ "label": "Shifted", "filter": { "lifecycle": "postponed" } },
+					{ "label": "Realised", "filter": { "lifecycle": "realised" } },
+					{ "label": "Lapsed", "filter": { "lifecycle": "lapsed" } }
 				],
 				"columns": [
 					{ "key": "subject", "label": "Subject", "widget": "link" },

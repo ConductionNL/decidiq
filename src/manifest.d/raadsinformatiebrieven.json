@@ -33,9 +33,9 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Sent", "filter": { "lifecycle": "verzonden" } },
-					{ "label": "On agenda", "filter": { "lifecycle": "geagendeerd" } },
-					{ "label": "In handling", "filter": { "lifecycle": "betrokken-bij-behandeling" } }
+					{ "label": "Sent", "filter": { "lifecycle": "sent" } },
+					{ "label": "On agenda", "filter": { "lifecycle": "agendised" } },
+					{ "label": "In handling", "filter": { "lifecycle": "involved-in-handling" } }
 				],
 				"columns": [
 					{ "key": "number", "label": "Number", "widget": "link" },

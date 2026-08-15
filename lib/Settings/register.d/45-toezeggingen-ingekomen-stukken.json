@@ -23,7 +23,7 @@
             "agendaItem": "rondvraag",
             "directedTo": "gemeenteraad-amsterdam",
             "deadline": "2026-05-15",
-            "lifecycle": "in-uitvoering",
+            "lifecycle": "in-execution",
             "publicationDate": "2026-02-10T09:00:00Z"
           },
           {
@@ -33,7 +33,7 @@
             "meeting": "raadsvergadering-2025-01-15",
             "directedTo": "gemeenteraad-amsterdam",
             "deadline": "2026-06-30",
-            "lifecycle": "afgedaan",
+            "lifecycle": "disposed",
             "settlementNotes": "Evaluatierapport aangeboden bij kadernota 2026; besproken in commissie Middelen.",
             "settlementEvidence": "https://gemeente-voorbeeldingen.nl/raadsbrieven/evaluatie-afvalbeleid-2026.pdf",
             "relatedMotion": "00000000-0000-0000-0000-000000000000",
@@ -45,13 +45,13 @@
             "slug": "brief-verkeersveiligheid-schoolzone",
             "title": "Brief inzake verkeersveiligheid schoolzone Lindelaan",
             "sender": "J. Jansen",
-            "senderType": "natuurlijk-persoon",
+            "senderType": "natural-person",
             "receivedAt": "2026-01-12",
-            "category": "brief-inwoner",
-            "routingAdvice": "in-handen-college-ter-afdoening",
+            "category": "letter-resident",
+            "routingAdvice": "referred-to-executive-board-for-disposal",
             "listAgendaItem": "lijst-ingekomen-stukken-2025-01-15",
             "directedTo": "gemeenteraad-amsterdam",
-            "lifecycle": "routering-vastgesteld"
+            "lifecycle": "routing-determined"
           },
           {
             "slug": "petitie-behoud-zwembad",
@@ -59,12 +59,12 @@
             "sender": "Actiecomité De Plons",
             "senderType": "organisation",
             "receivedAt": "2026-01-15",
-            "category": "petitie",
-            "routingAdvice": "betrekken-bij-agendapunt",
+            "category": "petition",
+            "routingAdvice": "include-with-agenda-item",
             "targetAgendaItem": "begroting-2026-bespreking",
             "listAgendaItem": "lijst-ingekomen-stukken-2025-01-15",
             "directedTo": "gemeenteraad-amsterdam",
-            "lifecycle": "geagendeerd"
+            "lifecycle": "agendised"
           },
           {
             "slug": "collegestuk-jaarverantwoording",
@@ -72,11 +72,11 @@
             "sender": "College van B&W",
             "senderType": "governingBody",
             "receivedAt": "2026-01-18",
-            "category": "collegestuk",
-            "routingAdvice": "voor-kennisgeving-aannemen",
+            "category": "executive-board-paper",
+            "routingAdvice": "noted-for-information",
             "listAgendaItem": "lijst-ingekomen-stukken-2025-01-15",
             "directedTo": "gemeenteraad-amsterdam",
-            "lifecycle": "routering-vastgesteld"
+            "lifecycle": "routing-determined"
           },
           {
             "slug": "uitnodiging-veiligheidsregio",
@@ -84,10 +84,10 @@
             "sender": "Veiligheidsregio Midden-Nederland",
             "senderType": "governingBody",
             "receivedAt": "2026-01-19",
-            "category": "uitnodiging",
-            "routingAdvice": "voor-kennisgeving-aannemen",
+            "category": "invitation",
+            "routingAdvice": "noted-for-information",
             "directedTo": "gemeenteraad-amsterdam",
-            "lifecycle": "geregistreerd"
+            "lifecycle": "registered"
           }
         ],
         "agenda-item": [
@@ -126,30 +126,30 @@
           "initial": "open",
           "states": [
             "open",
-            "in-uitvoering",
-            "afgedaan",
-            "vervallen"
+            "in-execution",
+            "disposed",
+            "lapsed"
           ],
           "terminal": [
-            "afgedaan",
-            "vervallen"
+            "disposed",
+            "lapsed"
           ],
           "transitions": [
             {
               "from": "open",
-              "to": "in-uitvoering"
+              "to": "in-execution"
             },
             {
               "from": "open",
-              "to": "vervallen"
+              "to": "lapsed"
             },
             {
-              "from": "in-uitvoering",
-              "to": "afgedaan"
+              "from": "in-execution",
+              "to": "disposed"
             },
             {
-              "from": "in-uitvoering",
-              "to": "vervallen"
+              "from": "in-execution",
+              "to": "lapsed"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-002). Canonical dialect verbatim from the Decision schema (keyword 'initial', never 'initialState'/'default'). open → in-uitvoering → afgedaan | vervallen; afgedaan and vervallen terminal. Afdoening (afgedaan) always passes through in-uitvoering; a not-yet-started commitment may lapse directly (open → vervallen). No app-side state machine."
@@ -184,7 +184,7 @@
             "trigger": {
               "type": "updated",
               "filter": {
-                "lifecycle": "afgedaan"
+                "lifecycle": "disposed"
               }
             },
             "enabled": true,
@@ -345,9 +345,9 @@
             "description": "Commitment status (declared in x-openregister-lifecycle, ADR-031): open → in-uitvoering → afgedaan | vervallen. afgedaan and vervallen are terminal. Marking afgedaan SHOULD carry an afdoeningsToelichting.",
             "enum": [
               "open",
-              "in-uitvoering",
-              "afgedaan",
-              "vervallen"
+              "in-execution",
+              "disposed",
+              "lapsed"
             ],
             "example": "open"
           },
@@ -402,41 +402,41 @@
         },
         "x-openregister-lifecycle": {
           "field": "lifecycle",
-          "initial": "geregistreerd",
+          "initial": "registered",
           "states": [
-            "geregistreerd",
-            "geagendeerd",
-            "routering-vastgesteld",
-            "afgedaan",
-            "aangehouden"
+            "registered",
+            "agendised",
+            "routing-determined",
+            "disposed",
+            "deferred"
           ],
           "terminal": [
-            "afgedaan"
+            "disposed"
           ],
           "transitions": [
             {
-              "from": "geregistreerd",
-              "to": "geagendeerd"
+              "from": "registered",
+              "to": "agendised"
             },
             {
-              "from": "geagendeerd",
-              "to": "routering-vastgesteld"
+              "from": "agendised",
+              "to": "routing-determined"
             },
             {
-              "from": "routering-vastgesteld",
-              "to": "afgedaan"
+              "from": "routing-determined",
+              "to": "disposed"
             },
             {
-              "from": "geagendeerd",
-              "to": "aangehouden"
+              "from": "agendised",
+              "to": "deferred"
             },
             {
-              "from": "routering-vastgesteld",
-              "to": "aangehouden"
+              "from": "routing-determined",
+              "to": "deferred"
             },
             {
-              "from": "aangehouden",
-              "to": "geagendeerd"
+              "from": "deferred",
+              "to": "agendised"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-002). geregistreerd → geagendeerd → routering-vastgesteld → afgedaan, plus aangehouden reachable from geagendeerd and routering-vastgesteld and returning to geagendeerd for a later meeting. afgedaan terminal. No app-side state machine."
@@ -469,7 +469,7 @@
             "facetable": true,
             "description": "Nature of the sender — drives public anonymisation (natuurlijk-persoon is anonymised, organisatie/bestuursorgaan pass through). Required.",
             "enum": [
-              "natuurlijk-persoon",
+              "natural-person",
               "organisation",
               "governingBody"
             ],
@@ -489,12 +489,12 @@
             "facetable": true,
             "description": "Document category. Required.",
             "enum": [
-              "brief-inwoner",
-              "brief-organisatie",
-              "collegestuk",
-              "petitie",
-              "uitnodiging",
-              "overig"
+              "letter-resident",
+              "letter-organisation",
+              "executive-board-paper",
+              "petition",
+              "invitation",
+              "other"
             ],
             "example": "brief-inwoner"
           },
@@ -509,10 +509,10 @@
             "facetable": true,
             "description": "Griffie routing advice for the document. Optional until advised. CONSTRAINT: when set to 'betrekken-bij-agendapunt', targetAgendaItem MUST be referenced — this conditional-required rule is NOT expressible in the OR schema 'required' array (no if/then dialect is used here to avoid inventing one); it is enforced at save time by IngekomenStukRoutingService (Tasks 5-8) and documented here per REQ-001.",
             "enum": [
-              "voor-kennisgeving-aannemen",
-              "in-handen-college-ter-afdoening",
-              "in-handen-college-ter-voorbereiding",
-              "betrekken-bij-agendapunt"
+              "noted-for-information",
+              "referred-to-executive-board-for-disposal",
+              "referred-to-executive-board-for-preparation",
+              "include-with-agenda-item"
             ],
             "example": "voor-kennisgeving-aannemen"
           },
@@ -543,11 +543,11 @@
             "facetable": true,
             "description": "Follow-up status (declared in x-openregister-lifecycle, ADR-031): geregistreerd → geagendeerd → routering-vastgesteld → afgedaan, with an aangehouden loop. afgedaan is terminal.",
             "enum": [
-              "geregistreerd",
-              "geagendeerd",
-              "routering-vastgesteld",
-              "afgedaan",
-              "aangehouden"
+              "registered",
+              "agendised",
+              "routing-determined",
+              "disposed",
+              "deferred"
             ],
             "example": "geregistreerd"
           }

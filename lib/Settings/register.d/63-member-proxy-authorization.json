@@ -11,10 +11,10 @@
             "meeting": "raadsvergadering-2025-01-15",
             "proxyVote": "stem-proxy-vandam-begroting",
             "document": "00000000-0000-0000-0000-000000000000",
-            "signatureStatus": "getekend",
+            "signatureStatus": "signed",
             "signedAt": "2026-06-02T09:15:00Z",
             "signingReference": "docudesk:sign:seed-vandam-begroting",
-            "countersignStatus": "getekend",
+            "countersignStatus": "signed",
             "countersignedAt": "2026-06-02T11:40:00Z"
           },
           {
@@ -22,7 +22,7 @@
             "grantor": "00000000-0000-0000-0000-000000000000",
             "holder": "marie-janssen",
             "meeting": "ledenvergadering-vng-voorjaar-2025",
-            "signatureStatus": "ongetekend"
+            "signatureStatus": "unsigned"
           },
           {
             "slug": "machtiging-devries-ingetrokken",
@@ -30,10 +30,10 @@
             "holder": "pieter-bakker",
             "meeting": "raadsvergadering-2025-01-15",
             "document": "00000000-0000-0000-0000-000000000000",
-            "signatureStatus": "getekend",
+            "signatureStatus": "signed",
             "signedAt": "2026-05-01T10:00:00Z",
             "revokedAt": "2026-05-20T14:30:00Z",
-            "revocationSignatureStatus": "getekend",
+            "revocationSignatureStatus": "signed",
             "revocationSigningReference": "docudesk:sign:seed-devries-revocatie"
           }
         ],
@@ -98,24 +98,24 @@
         },
         "x-openregister-lifecycle": {
           "field": "signatureStatus",
-          "initial": "ongetekend",
+          "initial": "unsigned",
           "states": [
-            "ongetekend",
-            "getekend",
-            "geweigerd"
+            "unsigned",
+            "signed",
+            "refused"
           ],
           "terminal": [
-            "getekend",
-            "geweigerd"
+            "signed",
+            "refused"
           ],
           "transitions": [
             {
-              "from": "ongetekend",
-              "to": "getekend"
+              "from": "unsigned",
+              "to": "signed"
             },
             {
-              "from": "ongetekend",
-              "to": "geweigerd"
+              "from": "unsigned",
+              "to": "refused"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-MPA-003). Canonical dialect verbatim from the Decision/Toezegging schemas (keyword 'initial', never the silently-ignored 'initialState'/'default' drift). ongetekend is the create-time state; a provider completion moves it to getekend, a provider refusal to geweigerd; both terminal. Backwards transitions (e.g. getekend -> ongetekend) are rejected by OpenRegister, which is the anti-signature-theatre guarantee: nothing but a provider completion reaches getekend and no path un-signs it. The countersign and revocation-signature machines run on the separate countersignStatus / revocationSignatureStatus fields and are resolved imperatively by ProxyAuthorizationService (a single lifecycle field cannot govern three independent signature tracks). No app-side state machine on signatureStatus."
@@ -150,7 +150,7 @@
             "trigger": {
               "type": "updated",
               "filter": {
-                "signatureStatus": "getekend"
+                "signatureStatus": "signed"
               }
             },
             "enabled": true,
@@ -237,9 +237,9 @@
             "facetable": true,
             "description": "Instrument signature status (declared in x-openregister-lifecycle, ADR-031): ongetekend -> getekend | geweigerd. getekend is writable ONLY from a signing-provider completion (REQ-MPA-003, fail closed — no provider leaves it ongetekend). Required; defaults to ongetekend at creation.",
             "enum": [
-              "ongetekend",
-              "getekend",
-              "geweigerd"
+              "unsigned",
+              "signed",
+              "refused"
             ],
             "default": "ongetekend",
             "example": "ongetekend"
@@ -262,9 +262,9 @@
             "facetable": true,
             "description": "Optional holder countersignature status through the same seam (REQ-MPA-003, provisionally optional). Same enum as signatureStatus; resolved imperatively (not the declarative lifecycle field, which governs signatureStatus only).",
             "enum": [
-              "ongetekend",
-              "getekend",
-              "geweigerd"
+              "unsigned",
+              "signed",
+              "refused"
             ]
           },
           "countersignedAt": {
@@ -285,9 +285,9 @@
             "facetable": true,
             "description": "Optional status of the revocation-act signature requested through the same seam (REQ-MPA-007). Same enum; its completion never further affects voting. No provider leaves it ongetekend with an honest notice.",
             "enum": [
-              "ongetekend",
-              "getekend",
-              "geweigerd"
+              "unsigned",
+              "signed",
+              "refused"
             ]
           },
           "revocationSigningReference": {

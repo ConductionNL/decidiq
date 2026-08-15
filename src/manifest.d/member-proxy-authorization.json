@@ -28,9 +28,9 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Unsigned", "filter": { "signatureStatus": "ongetekend" } },
-					{ "label": "Signed", "filter": { "signatureStatus": "getekend" } },
-					{ "label": "Refused", "filter": { "signatureStatus": "geweigerd" } }
+					{ "label": "Unsigned", "filter": { "signatureStatus": "unsigned" } },
+					{ "label": "Signed", "filter": { "signatureStatus": "signed" } },
+					{ "label": "Refused", "filter": { "signatureStatus": "refused" } }
 				],
 				"columns": [
 					{ "key": "grantor", "label": "Grantor", "widget": "link" },

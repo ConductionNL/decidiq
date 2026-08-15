@@ -36,9 +36,9 @@
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
 					{ "label": "Open", "filter": { "lifecycle": "open" } },
-					{ "label": "In progress", "filter": { "lifecycle": "in-uitvoering" } },
-					{ "label": "Settled", "filter": { "lifecycle": "afgedaan" } },
-					{ "label": "Lapsed", "filter": { "lifecycle": "vervallen" } }
+					{ "label": "In progress", "filter": { "lifecycle": "in-execution" } },
+					{ "label": "Settled", "filter": { "lifecycle": "disposed" } },
+					{ "label": "Lapsed", "filter": { "lifecycle": "lapsed" } }
 				],
 				"columns": [
 					{ "key": "text", "label": "Commitment", "widget": "link" },
@@ -101,11 +101,11 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Registered", "filter": { "lifecycle": "geregistreerd" } },
-					{ "label": "On agenda", "filter": { "lifecycle": "geagendeerd" } },
-					{ "label": "Routing confirmed", "filter": { "lifecycle": "routering-vastgesteld" } },
-					{ "label": "Held over", "filter": { "lifecycle": "aangehouden" } },
-					{ "label": "Settled", "filter": { "lifecycle": "afgedaan" } }
+					{ "label": "Registered", "filter": { "lifecycle": "registered" } },
+					{ "label": "On agenda", "filter": { "lifecycle": "agendised" } },
+					{ "label": "Routing confirmed", "filter": { "lifecycle": "routing-determined" } },
+					{ "label": "Held over", "filter": { "lifecycle": "deferred" } },
+					{ "label": "Settled", "filter": { "lifecycle": "disposed" } }
 				],
 				"columns": [
 					{ "key": "title", "label": "Title", "widget": "link" },

@@ -245,7 +245,7 @@ const BOB_STAGES = [
 	{ id: 'besluitvorming', label: 'Besluitvorming' },
 ]
 
-const BOB_FINAL = 'afgerond'
+const BOB_FINAL = 'completed'
 
 /**
  * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1

@@ -221,7 +221,7 @@ class AgendaServiceTest extends TestCase {
 			['from' => 'voorstel',        'to' => 'beeldvorming'],
 			['from' => 'beeldvorming',    'to' => 'oordeelsvorming'],
 			['from' => 'oordeelsvorming', 'to' => 'besluitvorming'],
-			['from' => 'besluitvorming',  'to' => 'afgerond'],
+			['from' => 'besluitvorming',  'to' => 'completed'],
 		];
 
 		foreach ($transitions as $t) {
@@ -297,7 +297,7 @@ class AgendaServiceTest extends TestCase {
 	}//end testAdvanceBobPhaseThrowsForInformationalItem()
 
 	/**
-	 * advanceBobPhase throws when item is already at final phase 'afgerond'.
+	 * advanceBobPhase throws when item is already at final phase 'completed'.
 	 *
 	 * @return void
 	 *
@@ -307,7 +307,7 @@ class AgendaServiceTest extends TestCase {
 		$this->markTestSkipped('See https://codeberg.org/Conduction/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
 		$itemId = 'item-final';
-		$itemData = ['id' => $itemId, 'itemType' => 'decision', 'status' => 'afgerond'];
+		$itemData = ['id' => $itemId, 'itemType' => 'decision', 'status' => 'completed'];
 
 		$this->objectService
 			->method('find')
@@ -358,7 +358,7 @@ class AgendaServiceTest extends TestCase {
 
 		$this->assertCount(2, $savedObjects);
 		foreach ($savedObjects as $saved) {
-			$this->assertSame('afgerond', $saved['status']);
+			$this->assertSame('completed', $saved['status']);
 		}
 
 	}//end testProcessHamerstukkenUpdatesTaggedItemsOnly()
