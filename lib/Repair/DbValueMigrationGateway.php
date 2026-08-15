@@ -102,7 +102,7 @@ class DbValueMigrationGateway implements ValueMigrationGateway {
 	 * @return int
 	 */
 	public function rewrite(string $table, string $column, string $old, string $new): int {
-		$quote = fn (string $i): string => $this->db->getDatabasePlatform()->quoteSingleIdentifier($i);
+		$quote = fn (string $identifier): string => $this->db->getDatabasePlatform()->quoteSingleIdentifier($identifier);
 		$sql = 'UPDATE ' . $quote($table) . ' SET ' . $quote($column) . ' = ? WHERE ' . $quote($column) . ' = ?';
 
 		try {
