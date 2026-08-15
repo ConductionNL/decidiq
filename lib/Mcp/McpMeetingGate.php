@@ -58,7 +58,6 @@ class McpMeetingGate {
 	/**
 	 * Constructor for the McpMeetingGate.
 	 *
-	 * @param ContainerInterface $container DI container used to reach OpenRegister
 	 * @param IUserSession $userSession The current user session
 	 * @param IGroupManager $groupManager The group manager (for admin checks)
 	 * @param LoggerInterface $logger The PSR-3 logger

@@ -46,7 +46,6 @@ class PublicationRepository {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container DI container (lazy ObjectService).
 	 * @param LoggerInterface $logger Logger.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md

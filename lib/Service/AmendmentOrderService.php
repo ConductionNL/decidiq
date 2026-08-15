@@ -81,7 +81,6 @@ class AmendmentOrderService {
 	/**
 	 * Constructor for AmendmentOrderService.
 	 *
-	 * @param ContainerInterface $container The DI container (lazy ObjectService)
 	 * @param MotionService $motionService The motion service (amendment lookup)
 	 *
 	 * @spec openspec/specs/motion-amendment/spec.md

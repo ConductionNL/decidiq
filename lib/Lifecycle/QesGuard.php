@@ -55,7 +55,6 @@ class QesGuard {
 	/**
 	 * Construct the guard.
 	 *
-	 * @param ContainerInterface $container DI container (lazy ObjectService lookup)
 	 * @param LoggerInterface $logger Logger
 	 * @param IEIDASSignatureService $signatureService eIDAS adapter
 	 */

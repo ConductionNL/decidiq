@@ -61,7 +61,6 @@ class SubmissionDeadlineListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container DI container (lazy-loads ObjectService)
 	 * @param LoggerInterface $logger Logger
 	 */
 	public function __construct(

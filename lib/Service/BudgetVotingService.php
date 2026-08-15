@@ -44,7 +44,6 @@ class BudgetVotingService {
 	/**
 	 * Constructor for BudgetVotingService.
 	 *
-	 * @param ContainerInterface $container DI container (lazy ObjectService)
 	 * @param ParticipationLifecycleService $lifecycleService Status/deadline guards
 	 * @param AdvisoryVoteService $advisoryVoteService Advisory citizen-vote tally machinery
 	 *

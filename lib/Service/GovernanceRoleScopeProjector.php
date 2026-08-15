@@ -74,7 +74,6 @@ class GovernanceRoleScopeProjector {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container DI container (lazy ObjectService)
 	 * @param IGroupManager $groupManager NC group manager (scope groups)
 	 * @param IUserManager $userManager NC user manager (uid -> IUser)
 	 * @param LoggerInterface $logger Diagnostic logger

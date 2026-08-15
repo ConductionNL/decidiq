@@ -83,7 +83,6 @@ class AuditLogService {
 	/**
 	 * Constructor for AuditLogService.
 	 *
-	 * @param ContainerInterface $container The DI container (used to retrieve ObjectService lazily)
 	 * @param LoggerInterface $logger The logger
 	 */
 	public function __construct(

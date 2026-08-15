@@ -43,7 +43,6 @@ class VotingBehaviourService {
 	/**
 	 * Constructor for VotingBehaviourService.
 	 *
-	 * @param ContainerInterface $container The DI container
 	 *
 	 * @return void
 	 *

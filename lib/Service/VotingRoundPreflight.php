@@ -60,7 +60,6 @@ class VotingRoundPreflight {
 	/**
 	 * Constructor for VotingRoundPreflight.
 	 *
-	 * @param ContainerInterface $container The DI container (lazy ObjectService)
 	 * @param LoggerInterface $logger The logger
 	 * @param MotionService $motionService The motion service for lifecycle transitions
 	 * @param ParticipantResolver $participantResolver Participant resolver for preset validation

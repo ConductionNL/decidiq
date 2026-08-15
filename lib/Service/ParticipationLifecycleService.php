@@ -71,7 +71,6 @@ class ParticipationLifecycleService {
 	/**
 	 * Constructor for ParticipationLifecycleService.
 	 *
-	 * @param ContainerInterface $container The DI container (lazy-loads ObjectService)
 	 *
 	 * @return void
 	 *

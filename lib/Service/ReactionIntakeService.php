@@ -53,7 +53,6 @@ class ReactionIntakeService {
 	/**
 	 * Constructor for ReactionIntakeService.
 	 *
-	 * @param ContainerInterface $container DI container (lazy ObjectService)
 	 * @param LoggerInterface $logger The logger
 	 * @param IAppConfig $appConfig App config (pseudonym secret)
 	 * @param ParticipationLifecycleService $lifecycleService Deadline/status guards

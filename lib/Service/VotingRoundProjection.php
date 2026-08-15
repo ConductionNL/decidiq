@@ -41,7 +41,6 @@ class VotingRoundProjection {
 	/**
 	 * Constructor for the VotingRoundProjection.
 	 *
-	 * @param ContainerInterface $container The DI container (for ObjectService)
 	 *
 	 * @return void
 	 */

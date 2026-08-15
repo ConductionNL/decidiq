@@ -42,7 +42,6 @@ class EngagementService {
 	/**
 	 * Construct the EngagementService.
 	 *
-	 * @param ContainerInterface $container DI container (lazy-loads OR services)
 	 * @param LoggerInterface $logger Logger interface
 	 *
 	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1

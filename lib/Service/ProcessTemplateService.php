@@ -54,7 +54,6 @@ class ProcessTemplateService {
 	/**
 	 * Constructor for ProcessTemplateService.
 	 *
-	 * @param ContainerInterface $container The DI container (lazy-loads OpenRegister's ObjectService)
 	 * @param LoggerInterface $logger The logger
 	 * @param ProcessTemplatePolicyResolver $resolver Pure template -> guard policy translator
 	 * @param StateMachineValidator $validator Pure transition-graph validator

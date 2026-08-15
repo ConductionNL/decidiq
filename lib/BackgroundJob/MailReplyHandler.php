@@ -61,7 +61,6 @@ class MailReplyHandler extends TimedJob {
 	 *
 	 * @param ITimeFactory $time Nextcloud time factory
 	 * @param IAppConfig $appConfig The app config
-	 * @param ContainerInterface $container The DI container
 	 * @param LoggerInterface $logger The logger
 	 * @param MailVoteSigner $signer Signs and verifies _mail entries
 	 * @param MailVoteReplyProcessor $processor Turns _mail entries into votes

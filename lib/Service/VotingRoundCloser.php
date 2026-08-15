@@ -50,7 +50,6 @@ class VotingRoundCloser {
 	/**
 	 * Constructor for the VotingRoundCloser.
 	 *
-	 * @param ContainerInterface $container The DI container (for ObjectService / FileService)
 	 * @param LoggerInterface $logger The logger
 	 * @param OriPublicationService $oriService The ORI publication service
 	 * @param MotionService $motionService Drives the subject lifecycle transition

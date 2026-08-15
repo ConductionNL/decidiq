@@ -47,7 +47,6 @@ class MotionCoauthorService {
 	/**
 	 * Construct the MotionCoauthorService.
 	 *
-	 * @param ContainerInterface $container DI container (lazy-loads OR services)
 	 * @param LoggerInterface $logger Logger interface
 	 *
 	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2

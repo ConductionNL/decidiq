@@ -56,7 +56,6 @@ class AdvisoryVoteService {
 	/**
 	 * Constructor for AdvisoryVoteService.
 	 *
-	 * @param ContainerInterface $container The DI container (OpenRegister is resolved lazily)
 	 *
 	 * @return void
 	 *

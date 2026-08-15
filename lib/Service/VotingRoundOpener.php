@@ -58,7 +58,6 @@ class VotingRoundOpener {
 	/**
 	 * Constructor for VotingRoundOpener.
 	 *
-	 * @param ContainerInterface $container The DI container
 	 * @param MotionService $motionService The motion service for lifecycle transitions
 	 * @param ParticipantResolver $participantResolver Participant resolver for the quorum count
 	 * @param VotingRoundPreflight $preflight Fail-closed preflight (rules, revote guard, presets)

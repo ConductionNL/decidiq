@@ -48,7 +48,6 @@ class ParticipantResolver {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container DI container (lazy-loads ObjectService)
 	 * @param LoggerInterface $logger PSR-3 logger
 	 */
 	public function __construct(

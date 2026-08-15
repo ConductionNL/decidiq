@@ -76,7 +76,6 @@ class GovernanceScopeGuard {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container DI container (lazy ObjectService)
 	 * @param IGroupManager $groupManager NC group manager (scope membership)
 	 * @param LoggerInterface $logger Diagnostic logger
 	 */

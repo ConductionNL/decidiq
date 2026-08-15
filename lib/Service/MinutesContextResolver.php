@@ -51,7 +51,6 @@ class MinutesContextResolver {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container The DI container (lazy-loads OpenRegister services)
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
 	 */

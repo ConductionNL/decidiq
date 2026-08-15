@@ -535,16 +535,9 @@ class MinutesDocumentService {
 	 * @return object The OpenRegister ObjectService instance
 	 */
 	private function getObjectService(): object {
-		try {
-			return $this->objectService;
-		} catch (\Throwable $e) {
-			throw new RuntimeException(
-				'OpenRegister ObjectService is not available. '
-				. 'Please ensure the OpenRegister app is installed and enabled.',
-				0,
-				$e
-			);
-		}
+		// Injected (ADR-083): a property read throws nothing, so the old
+		// catch was unreachable.
+		return $this->objectService;
 
 	}//end getObjectService()
 }//end class

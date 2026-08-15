@@ -48,7 +48,6 @@ class GovernanceReportingService {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container DI container
 	 * @param LoggerInterface $logger Logger
 	 */
 	public function __construct(

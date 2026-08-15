@@ -37,7 +37,6 @@ class ParticipantUuidLookup {
 	/**
 	 * Constructor for ParticipantUuidLookup.
 	 *
-	 * @param ContainerInterface $container The DI container (lazy ObjectService resolution)
 	 *
 	 * @return void
 	 *

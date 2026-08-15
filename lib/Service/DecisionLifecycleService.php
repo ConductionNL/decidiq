@@ -76,7 +76,6 @@ class DecisionLifecycleService {
 	/**
 	 * Constructor for DecisionLifecycleService.
 	 *
-	 * @param ContainerInterface $container The DI container (lazy-loads OpenRegister's ObjectService)
 	 * @param LoggerInterface $logger The logger
 	 * @param DecisionTransitionGuard $transitionGuard Pure transition map + per-domain policy guard
 	 * @param AuditLogService $auditLogService Hash-chained append-only audit log

@@ -65,7 +65,6 @@ class VoteCastingService {
 	/**
 	 * Constructor for the VoteCastingService.
 	 *
-	 * @param ContainerInterface $container The DI container (for ObjectService)
 	 * @param LoggerInterface $logger The logger
 	 * @param ParticipantResolver $participantResolver Resolves a meeting's participants
 	 * @param AmendmentOrderService $amendmentOrder Resolves the meeting behind a round

@@ -69,7 +69,6 @@ class VotingRoundResults {
 	/**
 	 * Constructor for VotingRoundResults.
 	 *
-	 * @param ContainerInterface $container The DI container
 	 * @param MotionService $motionService The motion service (subject chain resolution)
 	 * @param ParticipantResolver $participantResolver Meeting-attendance resolver
 	 *

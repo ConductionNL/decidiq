@@ -73,7 +73,6 @@ class ConflictOfInterestService {
 	/**
 	 * Constructor for ConflictOfInterestService.
 	 *
-	 * @param ContainerInterface $container The DI container (used to resolve ObjectService)
 	 * @param LoggerInterface $logger The logger
 	 * @param AuditLogService $auditLogService Audit log dependency for material declarations
 	 */

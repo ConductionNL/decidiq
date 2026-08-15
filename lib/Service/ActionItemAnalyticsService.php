@@ -44,7 +44,6 @@ class ActionItemAnalyticsService {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container The DI container
 	 * @param LoggerInterface $logger The logger
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
