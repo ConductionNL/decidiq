@@ -31,7 +31,7 @@ use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Amendment operations, extracted from MotionService.
@@ -56,7 +56,7 @@ class MotionAmendmentService {
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

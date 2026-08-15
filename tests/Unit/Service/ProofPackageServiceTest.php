@@ -27,6 +27,7 @@ use OCA\Decidesk\Service\MeetingFolderService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\ProofPackageService;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -45,7 +46,7 @@ class ProofPackageServiceTest extends TestCase {
 	/**
 	 * Mock ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
 	private ObjectService&MockObject $objectService;
 
@@ -80,7 +81,7 @@ class ProofPackageServiceTest extends TestCase {
 
 		// Mock the (stubbed) OpenRegister ObjectService class itself so that
 		// named-argument calls (find(id: ..., register: ...)) bind correctly.
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();

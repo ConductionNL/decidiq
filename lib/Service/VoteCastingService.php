@@ -27,7 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * The cast-a-vote path, extracted from VotingService.
@@ -78,7 +78,7 @@ class VoteCastingService {
 		ParticipantResolver $participantResolver,
 		AmendmentOrderService $amendmentOrder,
 		private readonly ObjectRelationFilter $relationFilter,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->tokens = new VoterTokenSecret(container: $container);
 		$this->ballots = new VoteBallotFactory(

@@ -31,7 +31,7 @@ use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service handling ConsultationReaction intake and moderation.
@@ -66,7 +66,7 @@ class ReactionIntakeService {
 		private readonly LoggerInterface $logger,
 		private readonly IAppConfig $appConfig,
 		private readonly ParticipationLifecycleService $lifecycleService,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -230,7 +230,7 @@ class ReactionIntakeService {
 	 * the moderation flow.
 	 *
 	 * @param array<string,mixed> $reaction The approved reaction.
-	 * @param \OCA\OpenRegister\Service\ObjectService $objectService The OR object service.
+	 * @param \OCA\OpenRegister\Service\ObjectServiceInterface $objectService The OR object service.
 	 *
 	 * @return void
 	 *

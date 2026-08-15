@@ -26,6 +26,7 @@ use OCA\Decidesk\Service\AgendaService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\CalendarEventService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\Notification\IManager as INotificationManager;
 use OCP\Notification\INotification;
@@ -51,7 +52,7 @@ class AgendaServiceTest extends TestCase {
 	/**
 	 * Mock ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
 	private ObjectService&MockObject $objectService;
 
@@ -91,7 +92,7 @@ class AgendaServiceTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->calendarEventService = $this->createMock(CalendarEventService::class);
 		$this->notificationManager = $this->createMock(INotificationManager::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
@@ -229,7 +230,7 @@ class AgendaServiceTest extends TestCase {
 			$itemData = ['id' => $itemId, 'itemType' => 'decision', 'status' => $t['from']];
 
 			// Use a fresh mock per iteration to prevent expectation accumulation.
-			$objectService = $this->createMock(ObjectService::class);
+			$objectService = $this->createMock(ObjectServiceInterface::class);
 			$objectService->method('find')->willReturn($itemData);
 			$objectService
 				->expects($this->once())

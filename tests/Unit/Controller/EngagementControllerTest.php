@@ -29,6 +29,7 @@ namespace OCA\Decidesk\Tests\Unit\Controller;
 use OCA\Decidesk\Controller\EngagementController;
 use OCA\Decidesk\Service\EngagementService;
 use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
@@ -77,7 +78,7 @@ class EngagementControllerTest extends TestCase {
 	/**
 	 * Mock ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
 	private ObjectService&MockObject $objectService;
 
@@ -100,7 +101,7 @@ class EngagementControllerTest extends TestCase {
 		$this->engagementService = $this->createMock(EngagementService::class);
 		$this->groupManager = $this->createMock(IGroupManager::class);
 		$this->container = $this->createMock(ContainerInterface::class);
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->participantResolver = $this->createMock(ParticipantResolver::class);
 
 		$this->container->method('get')

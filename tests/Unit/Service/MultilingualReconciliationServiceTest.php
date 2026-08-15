@@ -25,7 +25,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\ITranslationAdapter;
 use OCA\Decidesk\Service\MultilingualReconciliationService;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -48,7 +48,7 @@ class MultilingualReconciliationServiceTest extends TestCase {
 	private function makeService(array &$rowsBySchema, array &$saved): MultilingualReconciliationService {
 		$rowsRef = &$rowsBySchema;
 		$savedRef = &$saved;
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$objectService->method('findAll')->willReturnCallback(
 			static function (array $config) use (&$rowsRef): array {

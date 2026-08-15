@@ -31,7 +31,7 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Service for capturing and querying participant engagement data.
@@ -49,7 +49,7 @@ class EngagementService {
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

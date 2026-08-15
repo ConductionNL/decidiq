@@ -32,7 +32,7 @@ namespace OCA\Decidesk\Service;
 
 use InvalidArgumentException;
 use RuntimeException;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * The open-a-voting-round path, extracted from VotingService.
@@ -73,7 +73,7 @@ class VotingRoundOpener {
 		private readonly ParticipantResolver $participantResolver,
 		private readonly VotingRoundPreflight $preflight,
 		private readonly VotingOpenedNotifier $notifier,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->amendmentOrder = new AmendmentOrderService(
 			container: $container,

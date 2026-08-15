@@ -39,7 +39,7 @@ namespace OCA\Decidesk\Service;
 use OCP\IGroupManager;
 use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Reconciles per-body chair/signatory OR RBAC scopes from the Participant
@@ -85,7 +85,7 @@ class GovernanceRoleScopeProjector {
 		private readonly IUserManager $userManager,
 		private readonly LoggerInterface $logger,
 		private readonly GovernanceScopeGuard $scopeGuard,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

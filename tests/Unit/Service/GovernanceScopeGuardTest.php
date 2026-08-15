@@ -27,7 +27,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\GovernanceScopeGuard;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -197,7 +197,7 @@ class GovernanceScopeGuardTest extends TestCase {
 			$meetingRow['relations'] = ['GovernanceBody' => $bodyId];
 		}
 
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
 			function (mixed $id, mixed $register = null, mixed $schema = null) use ($minutesRow, $meetingRow): ?ObjectEntity {
 				$row = null;

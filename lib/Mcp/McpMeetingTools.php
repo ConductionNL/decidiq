@@ -33,7 +33,7 @@ use OCP\IGroupManager;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * The meeting half of the decidesk MCP tool catalogue.
@@ -85,7 +85,7 @@ class McpMeetingTools {
 		IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
 		ParticipantResolver $participantResolver,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->formatter = new McpSourceFormatter();
 		$this->validator = new McpArgumentValidator(formatter: $this->formatter);

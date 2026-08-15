@@ -33,7 +33,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
@@ -52,7 +52,7 @@ class AgendaAuthorizationGuard {
 	/**
 	 * Construct the AgendaAuthorizationGuard.
 	 *
-	 * @param ObjectService $objectService OpenRegister object service
+	 * @param ObjectServiceInterface $objectService OpenRegister object service
 	 * @param IUserSession $userSession The current user session
 	 * @param IGroupManager $groupManager Group manager for admin checks
 	 * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
@@ -60,7 +60,7 @@ class AgendaAuthorizationGuard {
 	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
 	 */
 	public function __construct(
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 		private readonly ParticipantResolver $participantResolver,

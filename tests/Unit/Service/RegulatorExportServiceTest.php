@@ -25,7 +25,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\AuditLogService;
 use OCA\Decidesk\Service\RegulatorExportService;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -53,7 +53,7 @@ class RegulatorExportServiceTest extends TestCase {
 	): RegulatorExportService {
 		$rowsRef = &$rowsBySchema;
 		$savedRef = &$saved;
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$objectService->method('findAll')->willReturnCallback(
 			static function (array $config) use (&$rowsRef): array {

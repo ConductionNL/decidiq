@@ -35,7 +35,7 @@ use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
 use OCA\OpenRegister\Service\FileService;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * The close-a-round path, extracted from VotingService.
@@ -66,7 +66,7 @@ class VotingRoundCloser {
 		private readonly AmendmentOrderService $amendmentOrder,
 		private readonly ObjectRelationFilter $relationFilter,
 		private readonly FileService $fileService,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

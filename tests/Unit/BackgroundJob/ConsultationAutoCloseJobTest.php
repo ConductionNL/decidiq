@@ -25,7 +25,7 @@ namespace OCA\Decidesk\Tests\Unit\BackgroundJob;
 use OCA\Decidesk\BackgroundJob\ConsultationAutoCloseJob;
 use OCA\Decidesk\Service\ParticipationLifecycleService;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -64,7 +64,7 @@ class ConsultationAutoCloseJobTest extends TestCase {
 		$past = (new \DateTimeImmutable('-1 day'))->format(\DateTimeInterface::ATOM);
 		$future = (new \DateTimeImmutable('+1 day'))->format(\DateTimeInterface::ATOM);
 
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('setRegister')->willReturnSelf();
 		$objectService->method('setSchema')->willReturnSelf();
 		// First page returns two open consultations; subsequent pages empty.

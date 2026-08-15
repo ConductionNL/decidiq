@@ -33,7 +33,7 @@ use OCP\IAppConfig;
 use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * The forward-a-motion path, extracted from MotionService.
@@ -56,7 +56,7 @@ class MotionForwardingService {
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly IUserManager $userManager,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

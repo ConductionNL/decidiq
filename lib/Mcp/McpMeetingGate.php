@@ -30,7 +30,7 @@ use OCA\Decidesk\Service\ParticipantResolver;
 use OCP\IGroupManager;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Loads a meeting and enforces per-object authorisation for MCP tools.
@@ -75,7 +75,7 @@ class McpMeetingGate {
 		private readonly ParticipantResolver $participantResolver,
 		private readonly McpSourceFormatter $formatter,
 		private readonly McpArgumentValidator $validator,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->scopeResolver = new McpMeetingScopeResolver(
 			container: $container,

@@ -45,7 +45,7 @@ use DomainException;
 use OCA\Decidesk\Exception\AccessDeniedException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service that decides whether a governance object is publishable.
@@ -142,7 +142,7 @@ class PublicationEligibilityService {
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

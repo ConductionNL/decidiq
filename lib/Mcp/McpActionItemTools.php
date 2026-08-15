@@ -33,7 +33,7 @@ use OCP\IUserSession;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * The action-item half of the decidesk MCP tool catalogue.
@@ -84,7 +84,7 @@ class McpActionItemTools {
 		IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
 		ParticipantResolver $participantResolver,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->formatter = new McpSourceFormatter();
 		$this->validator = new McpArgumentValidator(formatter: $this->formatter);

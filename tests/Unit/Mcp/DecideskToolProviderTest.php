@@ -32,7 +32,7 @@ use OCA\Decidesk\Mcp\DecideskToolProvider;
 use OCA\Decidesk\Service\MeetingService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserSession;
@@ -258,10 +258,10 @@ class DecideskToolProviderTest extends TestCase {
 	 * @param ObjectEntity&MockObject|null $meetingEntity Entity to return from find(), or null
 	 * @param callable|null $findAllCallback Optional callback for findAll responses
 	 *
-	 * @return ObjectService&MockObject
+	 * @return ObjectServiceInterface&MockObject
 	 */
 	private function mockObjectService(?MockObject $meetingEntity = null, ?callable $findAllCallback = null): MockObject {
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 
 		if ($meetingEntity !== null) {
 			$objectService->method('find')->willReturn($meetingEntity);
@@ -438,7 +438,7 @@ class DecideskToolProviderTest extends TestCase {
 	public function testListOpenActionItems_happyPath(): void {
 		$this->setCurrentUser('alice');
 
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('findAll')->willReturn(
 			[
 				['uuid' => 'ai-uuid-1', 'title' => 'Fix bug'],
@@ -504,7 +504,7 @@ class DecideskToolProviderTest extends TestCase {
 		// the meeting-UUID scoping filter is bypassed.
 		$this->setAdminUser('alice');
 
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('findAll')->willReturn(
 			[
 				['uuid' => 'mtg-uuid-2', 'title' => 'Newer meeting', 'scheduledDate' => '2026-05-10'],
@@ -542,7 +542,7 @@ class DecideskToolProviderTest extends TestCase {
 		$meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
 		$meetingEntity = $this->makeObjectEntityMock($meeting);
 
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturn($meetingEntity);
 		$objectService->method('findAll')->willReturnCallback(
 			function (array $config) {
@@ -634,7 +634,7 @@ class DecideskToolProviderTest extends TestCase {
 		$meetingEntity = $this->makeObjectEntityMock($meeting);
 
 		// Build an ObjectService mock that returns the meeting entity on find().
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturn($meetingEntity);
 		$objectService->method('findAll')->willReturn([]);
 
@@ -699,7 +699,7 @@ class DecideskToolProviderTest extends TestCase {
 		$meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice', ['bob']);
 		$meetingEntity = $this->makeObjectEntityMock($meeting);
 
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturn($meetingEntity);
 		// findAll should never be called — access is blocked after find().
 		$objectService->expects(self::never())->method('findAll');
@@ -822,7 +822,7 @@ class DecideskToolProviderTest extends TestCase {
 		$meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
 		$meetingEntity = $this->makeObjectEntityMock($meeting);
 
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturn($meetingEntity);
 
 		// 20 agenda items + 7 decisions + 7 action items = 34, +1 meeting = 35 total.

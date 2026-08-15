@@ -33,7 +33,7 @@ use OCA\Decidesk\Exception\AccessDeniedException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Service\PublicationEligibilityService;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -57,7 +57,7 @@ class PublicationEligibilityServiceTest extends TestCase {
 	private function makeService(?array $objectData): PublicationEligibilityService {
 		$logger = $this->createMock(LoggerInterface::class);
 
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($objectData): ?object {
 				if ($objectData === null) {

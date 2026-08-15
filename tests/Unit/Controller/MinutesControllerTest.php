@@ -34,6 +34,7 @@ use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\Decidesk\Service\MinutesWorkflowService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -103,7 +104,7 @@ class MinutesControllerTest extends TestCase {
 	/**
 	 * Mock ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
 	private ObjectService&MockObject $objectService;
 
@@ -149,7 +150,7 @@ class MinutesControllerTest extends TestCase {
 		$this->workflowService = $this->createMock(originalClassName: MinutesWorkflowService::class);
 		$this->userSession = $this->createMock(originalClassName: IUserSession::class);
 		$this->groupManager = $this->createMock(originalClassName: IGroupManager::class);
-		$this->objectService = $this->createMock(originalClassName: ObjectService::class);
+		$this->objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$this->user = $this->createMock(originalClassName: IUser::class);
 		$this->participantResolver = $this->createMock(originalClassName: ParticipantResolver::class);
 		$this->minutesDocumentService = $this->createMock(originalClassName: MinutesDocumentService::class);

@@ -30,7 +30,7 @@ namespace OCA\Decidesk\Service;
 
 use OCA\Decidesk\Exception\MissingObjectException;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * OpenRegister persistence gateway for the publication flow.
@@ -53,7 +53,7 @@ class PublicationRepository {
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

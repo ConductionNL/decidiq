@@ -29,7 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Governance reporting aggregation service.
@@ -53,7 +53,7 @@ class GovernanceReportingService {
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

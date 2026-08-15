@@ -43,7 +43,7 @@ namespace OCA\Decidesk\Service;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Concrete eIDAS QES service that delegates to openconnector's e-sign source.
@@ -80,7 +80,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly AuditLogService $auditLogService,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

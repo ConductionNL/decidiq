@@ -27,6 +27,7 @@ use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\MinutesService;
 use OCA\Decidesk\Service\MinutesWorkflowService;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -47,7 +48,7 @@ class MinutesWorkflowServiceTest extends TestCase {
 	/**
 	 * Mock ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
 	private ObjectService&MockObject $objectService;
 
@@ -80,7 +81,7 @@ class MinutesWorkflowServiceTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->objectService = $this->createMock(originalClassName: ObjectService::class);
+		$this->objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$this->extractionService = $this->createMock(originalClassName: ActionItemExtractionService::class);
 		$this->minutesService = $this->createMock(originalClassName: MinutesService::class);
 

@@ -33,7 +33,7 @@ use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Service for guarded decision lifecycle state transitions.
@@ -91,7 +91,7 @@ class DecisionLifecycleService {
 		private readonly ProcessTemplateService $templateService,
 		private readonly DecisionIntegrationService $integrationService,
 		private readonly IEventDispatcher $eventDispatcher,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->contextResolver = new DecisionContextResolver(logger: $logger);
 

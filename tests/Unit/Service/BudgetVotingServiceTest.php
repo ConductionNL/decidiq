@@ -23,6 +23,7 @@ use OCA\Decidesk\Service\AdvisoryVoteService;
 use OCA\Decidesk\Service\BudgetVotingService;
 use OCA\Decidesk\Service\ParticipationLifecycleService;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -45,7 +46,7 @@ class BudgetVotingServiceTest extends TestCase {
 	/**
 	 * Mock ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
 	private ObjectService&MockObject $objectService;
 
@@ -57,7 +58,7 @@ class BudgetVotingServiceTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		$container = $this->createMock(ContainerInterface::class);
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();
 		$container->method('get')->willReturn($this->objectService);

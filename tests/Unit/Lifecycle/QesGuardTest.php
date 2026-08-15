@@ -25,7 +25,7 @@ namespace OCA\Decidesk\Tests\Unit\Lifecycle;
 use OCA\Decidesk\Lifecycle\QesGuard;
 use OCA\Decidesk\Service\IEIDASSignatureService;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -47,7 +47,7 @@ class QesGuardTest extends TestCase {
 	 * @return QesGuard
 	 */
 	private function makeGuard(array $resolution, array $minutesRows, array $certResults): QesGuard {
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$resolutionEntity = $this->createMock(ObjectEntity::class);
 		$resolutionEntity->method('jsonSerialize')->willReturn($resolution);

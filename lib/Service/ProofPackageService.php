@@ -33,7 +33,7 @@ use DateTimeInterface;
 use OCA\Decidesk\Exception\MissingObjectException;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Notarial proof package assembly (resolution-minutes spec, "Provide proof of
@@ -71,7 +71,7 @@ class ProofPackageService {
 		private readonly LoggerInterface $logger,
 		private readonly ParticipantResolver $participantResolver,
 		private readonly MeetingFolderService $folderService,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

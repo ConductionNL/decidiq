@@ -35,7 +35,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
 use RuntimeException;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Advisory citizen votes on BudgetProposals, kept separate from the statutory
@@ -63,7 +63,7 @@ class AdvisoryVoteService {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function __construct(
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->relationFilter = new ObjectRelationFilter();
 

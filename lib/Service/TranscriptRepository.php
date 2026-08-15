@@ -30,7 +30,7 @@ namespace OCA\Decidesk\Service;
 use OCA\Decidesk\Exception\MissingObjectException;
 use RuntimeException;
 use OCA\OpenRegister\Service\FileService;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Object + file access for the meeting-transcription pipeline.
@@ -51,7 +51,7 @@ class TranscriptRepository {
 	 */
 	public function __construct(
 		private readonly FileService $fileService,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

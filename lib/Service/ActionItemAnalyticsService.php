@@ -26,7 +26,7 @@ namespace OCA\Decidesk\Service;
 
 use DateTime;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service providing personal action-item lists grouped by urgency.
@@ -51,7 +51,7 @@ class ActionItemAnalyticsService {
 	 */
 	public function __construct(
 		private LoggerInterface $logger,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

@@ -39,7 +39,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Proxy (volmacht) delegation on a VotingRound.
@@ -67,7 +67,7 @@ class ProxyDelegationService {
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 
 	}//end __construct()

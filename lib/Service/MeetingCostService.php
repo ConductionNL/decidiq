@@ -32,7 +32,7 @@ namespace OCA\Decidesk\Service;
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Pure cost math plus server-side resolution of the inputs from OpenRegister.
@@ -50,7 +50,7 @@ class MeetingCostService {
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

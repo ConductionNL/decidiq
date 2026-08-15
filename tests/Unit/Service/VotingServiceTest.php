@@ -34,6 +34,7 @@ use OCA\Decidesk\Service\VotingRoundPreflight;
 use OCA\Decidesk\Service\VotingRoundProjection;
 use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -85,7 +86,7 @@ class VotingServiceTest extends TestCase {
 	/**
 	 * Mock ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
 	private ObjectService&MockObject $objectService;
 
@@ -109,7 +110,7 @@ class VotingServiceTest extends TestCase {
 		$this->oriService = $this->createMock(OriPublicationService::class);
 		$this->motionService = $this->createMock(MotionService::class);
 
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();

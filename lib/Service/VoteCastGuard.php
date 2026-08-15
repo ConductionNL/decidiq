@@ -33,7 +33,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Fail-closed eligibility rules for the vote-casting path.
@@ -74,7 +74,7 @@ class VoteCastGuard {
 		private readonly VoterTokenSecret $tokens,
 		private readonly ParticipantResolver $participantResolver,
 		private readonly AmendmentOrderService $amendmentOrder,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

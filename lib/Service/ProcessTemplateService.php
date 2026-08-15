@@ -34,7 +34,7 @@ use InvalidArgumentException;
 use OCA\Decidesk\Lifecycle\ProcessTemplatePolicyResolver;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Service for process-template management and template-driven policy resolution.
@@ -65,7 +65,7 @@ class ProcessTemplateService {
 		private readonly LoggerInterface $logger,
 		private readonly ProcessTemplatePolicyResolver $resolver,
 		private readonly StateMachineValidator $validator,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

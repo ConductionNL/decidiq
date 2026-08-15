@@ -29,7 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use RuntimeException;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Rule-aware tallying for a voting round, extracted from VotingService.
@@ -80,7 +80,7 @@ class VotingRoundResults {
 	public function __construct(
 		MotionService $motionService,
 		private readonly ParticipantResolver $participantResolver,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->calculator = new VotingResultCalculator();
 		$this->relationFilter = new ObjectRelationFilter();

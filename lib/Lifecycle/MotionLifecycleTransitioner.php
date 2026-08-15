@@ -35,7 +35,7 @@ use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Guarded lifecycle transitions for motion- and amendment-typed Decisions.
@@ -139,7 +139,7 @@ class MotionLifecycleTransitioner {
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly DecisionTransitionGuard $guard,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

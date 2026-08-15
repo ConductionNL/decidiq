@@ -33,7 +33,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Service for managing meeting lifecycle state transitions.
@@ -85,7 +85,7 @@ class MeetingService {
 		private readonly MeetingTransitionGuard $transitionGuard,
 		private readonly MeetingCostService $meetingCostService,
 		private readonly GovernanceScopeGuard $scopeGuard,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -168,7 +168,7 @@ class MeetingService {
 		$transition = self::TRANSITIONS[$action];
 
 		/*
-		 * @var \OCA\OpenRegister\Service\ObjectService $objectService
+		 * @var \OCA\OpenRegister\Service\ObjectServiceInterface $objectService
 		 */
 
 

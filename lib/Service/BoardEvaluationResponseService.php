@@ -33,7 +33,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Anonymous response collection + completion tracking for a BoardEvaluation.
@@ -62,7 +62,7 @@ class BoardEvaluationResponseService {
 		private readonly IAppConfig $appConfig,
 		private readonly LoggerInterface $logger,
 		private readonly ParticipantUuidLookup $participants,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

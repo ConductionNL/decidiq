@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Nextcloud UID -> Participant UUID resolution.
@@ -44,7 +44,7 @@ class ParticipantUuidLookup {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function __construct(
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 
 	}//end __construct()

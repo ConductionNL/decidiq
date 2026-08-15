@@ -24,6 +24,7 @@ use OCA\Decidesk\Controller\AgendaController;
 use OCA\Decidesk\Service\AgendaAuthorizationGuard;
 use OCA\Decidesk\Service\AgendaService;
 use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -59,7 +60,7 @@ class AgendaControllerTest extends TestCase {
 	/**
 	 * Mock ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
 	private ObjectService&MockObject $objectService;
 
@@ -101,7 +102,7 @@ class AgendaControllerTest extends TestCase {
 
 		$this->request = $this->createMock(IRequest::class);
 		$this->agendaService = $this->createMock(AgendaService::class);
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->groupManager = $this->createMock(IGroupManager::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 		$this->participantResolver = $this->createMock(ParticipantResolver::class);

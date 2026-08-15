@@ -29,7 +29,7 @@ use OCA\Decidesk\Service\PublicationEligibilityService;
 use OCA\Decidesk\Service\PublicationPayloadService;
 use OCA\Decidesk\Service\PublicationService;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
 use PHPUnit\Framework\TestCase;
@@ -68,7 +68,7 @@ class PublicationServiceTest extends TestCase {
 	private function makeService(bool $openCatalogi = false, ?OpenCatalogiPublisher $catalogOverride = null): PublicationService {
 		$logger = $this->createMock(LoggerInterface::class);
 
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null): ?object {
 				if (isset($this->store[(string)$id]) === false) {

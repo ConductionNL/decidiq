@@ -31,7 +31,7 @@ use DateTimeInterface;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Fail-closed preflight for opening a voting round.
@@ -73,7 +73,7 @@ class VotingRoundPreflight {
 		private readonly MotionService $motionService,
 		private readonly ParticipantResolver $participantResolver,
 		private readonly ProcessTemplateService $templateService,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

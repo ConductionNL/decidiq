@@ -28,7 +28,7 @@ use OCA\Decidesk\Exception\MissingRelationException;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service that generates an initial Dutch minutes draft from linked meeting data.
@@ -67,7 +67,7 @@ class MinutesGenerationService {
 	public function __construct(
 		private LoggerInterface $logger,
 		private MinutesDraftRenderer $renderer,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

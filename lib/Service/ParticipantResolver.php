@@ -30,7 +30,7 @@ namespace OCA\Decidesk\Service;
 
 use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Resolves participants for a meeting through the canonical schema path.
@@ -53,7 +53,7 @@ class ParticipantResolver {
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

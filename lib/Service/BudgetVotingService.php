@@ -28,7 +28,7 @@ namespace OCA\Decidesk\Service;
 
 use InvalidArgumentException;
 use RuntimeException;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service for participatory-budget proposals + advisory voting.
@@ -55,7 +55,7 @@ class BudgetVotingService {
 	public function __construct(
 		private readonly ParticipationLifecycleService $lifecycleService,
 		private readonly AdvisoryVoteService $advisoryVoteService,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

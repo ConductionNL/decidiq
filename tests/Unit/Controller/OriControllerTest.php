@@ -22,6 +22,7 @@ namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\OriController;
 use OCA\Decidesk\Service\OriSerializer;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;
 use OCP\IConfig;
@@ -69,7 +70,7 @@ class OriControllerTest extends TestCase {
 	/**
 	 * Mock ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
 	private ObjectService&MockObject $objectService;
 
@@ -96,7 +97,7 @@ class OriControllerTest extends TestCase {
 		$this->request = $this->createMock(IRequest::class);
 		$this->config = $this->createMock(IConfig::class);
 		$this->container = $this->createMock(ContainerInterface::class);
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
 		$this->container->method('get')

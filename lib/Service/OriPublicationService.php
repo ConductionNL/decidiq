@@ -33,7 +33,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service that sends voting round results to the ORI 1.0 API endpoint
@@ -57,7 +57,7 @@ class OriPublicationService {
 		private readonly IAppConfig $appConfig,
 		private readonly IClientService $clientService,
 		private readonly LoggerInterface $logger,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

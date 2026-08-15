@@ -37,7 +37,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use OCA\OpenRegister\Service\FileService;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Generates + persists the board-evaluation report document.
@@ -55,7 +55,7 @@ class BoardEvaluationReportService {
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly FileService $fileService,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

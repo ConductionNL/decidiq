@@ -28,7 +28,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\GovernanceRoleScopeProjector;
 use OCA\Decidesk\Service\GovernanceScopeGuard;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroup;
 use OCP\IGroupManager;
 use OCP\IUser;
@@ -164,7 +164,7 @@ class GovernanceRoleScopeProjectorTest extends TestCase {
 	 * @return GovernanceRoleScopeProjector
 	 */
 	private function makeProjector(array $participants): GovernanceRoleScopeProjector {
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('setRegister');
 		$objectService->method('setSchema');
 		$objectService->method('findAll')->willReturnCallback(

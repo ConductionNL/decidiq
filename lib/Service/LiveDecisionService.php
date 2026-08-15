@@ -25,7 +25,7 @@ use Exception;
 use OCA\Decidesk\Exception\MissingObjectException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service that records decisions during active meetings.
@@ -47,7 +47,7 @@ class LiveDecisionService {
 	public function __construct(
 		private ContainerInterface $container,
 		private LoggerInterface $logger,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

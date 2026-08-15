@@ -29,7 +29,7 @@ namespace OCA\Decidesk\Lifecycle;
 
 use OCA\Decidesk\Service\IEIDASSignatureService;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Guard QES presence + validity before Resolution.conclude promotes the
@@ -62,7 +62,7 @@ class QesGuard {
 	public function __construct(
 		private readonly LoggerInterface $logger,
 		private readonly IEIDASSignatureService $signatureService,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

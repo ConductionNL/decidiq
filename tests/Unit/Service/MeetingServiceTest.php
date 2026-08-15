@@ -30,6 +30,7 @@ use OCA\Decidesk\Service\MeetingCostService;
 use OCA\Decidesk\Service\MeetingService;
 use OCA\Decidesk\Service\WorkflowService;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -68,7 +69,7 @@ class MeetingServiceTest extends TestCase {
 	/**
 	 * Mock ObjectService from OpenRegister.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
 	private ObjectService&MockObject $objectService;
 
@@ -111,7 +112,7 @@ class MeetingServiceTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->objectService = $this->createMock(originalClassName: ObjectService::class);
+		$this->objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$this->container = $this->createMock(originalClassName: ContainerInterface::class);
 		$this->logger = $this->createMock(originalClassName: LoggerInterface::class);
 		$this->workflowService = $this->createMock(originalClassName: WorkflowService::class);

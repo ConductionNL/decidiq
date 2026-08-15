@@ -43,7 +43,7 @@ use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Background job that polls for email vote replies on open VotingRounds.
@@ -76,7 +76,7 @@ class MailReplyHandler extends TimedJob {
 		private readonly LoggerInterface $logger,
 		private readonly MailVoteSigner $signer,
 		private readonly MailVoteReplyProcessor $processor,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 		parent::__construct(time: $time);
 		// Run every 5 minutes.

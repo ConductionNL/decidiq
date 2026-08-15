@@ -32,7 +32,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Resolves Minutes, Meeting, GovernanceBody and Participant context from OpenRegister.
@@ -56,7 +56,7 @@ class MinutesContextResolver {
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
 	 */
 	public function __construct(
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

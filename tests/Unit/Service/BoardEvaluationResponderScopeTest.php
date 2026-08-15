@@ -28,6 +28,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\BoardEvaluationResponseService;
 use OCA\Decidesk\Service\ParticipantUuidLookup;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\IAppConfig;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -43,9 +44,9 @@ final class BoardEvaluationResponderScopeTest extends TestCase {
 	/**
 	 * Mock OpenRegister ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
-	private ObjectService $objectService;
+	private ObjectServiceInterface $objectService;
 
 	/**
 	 * Mock participant lookup.
@@ -70,7 +71,7 @@ final class BoardEvaluationResponderScopeTest extends TestCase {
 		parent::setUp();
 
 		$container = $this->createMock(ContainerInterface::class);
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->participants = $this->createMock(ParticipantUuidLookup::class);
 
 		$container->method('get')->willReturn($this->objectService);

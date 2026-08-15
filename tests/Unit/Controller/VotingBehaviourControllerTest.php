@@ -21,6 +21,7 @@ namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\VotingBehaviourController;
 use OCA\Decidesk\Service\VotingBehaviourService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -76,7 +77,7 @@ class VotingBehaviourControllerTest extends TestCase {
 	/**
 	 * Mock ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
 	private ObjectService&MockObject $objectService;
 
@@ -99,7 +100,7 @@ class VotingBehaviourControllerTest extends TestCase {
 		$this->behaviourService = $this->createMock(VotingBehaviourService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->groupManager = $this->createMock(IGroupManager::class);
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->user = $this->createMock(IUser::class);
 
 		$this->user->method('getUID')->willReturn('user-1');

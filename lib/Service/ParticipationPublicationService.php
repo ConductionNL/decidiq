@@ -34,7 +34,7 @@ use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service building + publishing participation result summaries.
@@ -72,7 +72,7 @@ class ParticipationPublicationService {
 		private readonly IAppManager $appManager,
 		private readonly IAppConfig $appConfig,
 		private readonly BudgetVotingService $budgetService,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 

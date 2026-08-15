@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * The public projection view of a voting round, extracted from VotingService.
@@ -46,7 +46,7 @@ class VotingRoundProjection {
 	 * @return void
 	 */
 	public function __construct(
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
