@@ -72,7 +72,7 @@ final class ParticipantUuidLookupTest extends TestCase {
 		$container->method('get')->willReturn($this->objectService);
 
 		$this->lookup = new ParticipantUuidLookup($container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		);
 
 	}//end setUp()

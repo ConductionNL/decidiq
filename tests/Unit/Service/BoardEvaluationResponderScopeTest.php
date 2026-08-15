@@ -81,7 +81,7 @@ final class BoardEvaluationResponderScopeTest extends TestCase {
 			$this->createMock(IAppConfig::class),
 			$this->createMock(LoggerInterface::class),
 			$this->participants,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		);
 
 	}//end setUp()

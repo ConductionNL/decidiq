@@ -117,7 +117,7 @@ class PublicationServiceTest extends TestCase {
 		);
 
 		$eligibility = new PublicationEligibilityService($container, $logger,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 		$payload = new PublicationPayloadService($container, $logger, $configService);
 

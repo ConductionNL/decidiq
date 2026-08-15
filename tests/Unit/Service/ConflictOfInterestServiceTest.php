@@ -100,7 +100,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 		);
 
 		return new ConflictOfInterestService($container, $logger, $auditLog,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 	}//end makeService()
 

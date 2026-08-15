@@ -123,7 +123,7 @@ class VotingServicePhase0RegressionTest extends TestCase {
 		// where production relies on Nextcloud's constructor auto-wiring.
 		$amendmentOrder = new AmendmentOrderService(
 			motionService: $this->motionService,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		);
 		$relationFilter = new ObjectRelationFilter();
 
@@ -136,20 +136,20 @@ class VotingServicePhase0RegressionTest extends TestCase {
 					motionService: $this->motionService,
 					participantResolver: $this->participantResolver,
 					templateService: $templateService,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		),
 				notifier: new VotingOpenedNotifier(
 					logger: $this->logger,
 					participantResolver: $this->participantResolver
 				),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		),
 			caster: new VoteCastingService(
 				logger: $this->logger,
 				participantResolver: $this->participantResolver,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		),
 			closer: new VotingRoundCloser(
 				logger: $this->logger,
@@ -157,18 +157,18 @@ class VotingServicePhase0RegressionTest extends TestCase {
 				motionService: $this->motionService,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		),
 			results: new VotingRoundResults(
 				motionService: $this->motionService,
 				participantResolver: $this->participantResolver,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		),
 			projection: new VotingRoundProjection(container: $this->container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		),
 			participants: new ParticipantUuidLookup(container: $this->container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		),
 		);
 

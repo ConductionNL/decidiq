@@ -64,7 +64,7 @@ class VotingServiceAdvisoryTest extends TestCase {
 		$container->method('get')->willReturn($this->objectService);
 
 		$this->service = new AdvisoryVoteService(
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		);
 
 	}//end setUp()

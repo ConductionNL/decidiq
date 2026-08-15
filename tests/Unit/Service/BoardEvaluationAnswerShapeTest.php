@@ -109,7 +109,7 @@ final class BoardEvaluationAnswerShapeTest extends TestCase {
 			$this->createMock(IAppConfig::class),
 			$this->createMock(LoggerInterface::class),
 			$this->createMock(ParticipantUuidLookup::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		);
 
 	}//end setUp()

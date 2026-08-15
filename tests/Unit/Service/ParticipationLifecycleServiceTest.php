@@ -63,7 +63,7 @@ class ParticipationLifecycleServiceTest extends TestCase {
 		$container->method('get')->willReturn($this->objectService);
 
 		$this->service = new ParticipationLifecycleService(
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		);
 
 	}//end setUp()

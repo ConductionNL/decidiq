@@ -107,7 +107,7 @@ class GovernanceReportingServiceTest extends TestCase {
 
 		return new GovernanceReportingService(
 			logger: $this->createMock(LoggerInterface::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
 	}//end makeService()

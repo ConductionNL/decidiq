@@ -214,7 +214,7 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 						container: $container,
 						logger: new NullLogger(),
 						guard: new DecisionTransitionGuard(),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $default,
 		);
 				}
 
@@ -226,7 +226,7 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 			container: $container,
 			logger: new NullLogger(),
 			userManager: $this->createMock(IUserManager::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $default,
 		);
 
 	}//end buildService()

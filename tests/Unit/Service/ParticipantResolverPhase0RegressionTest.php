@@ -82,7 +82,7 @@ class ParticipantResolverPhase0RegressionTest extends TestCase {
 		$this->resolver = new ParticipantResolver(
 			$this->container,
 			$this->logger,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		);
 
 	}//end setUp()

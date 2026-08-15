@@ -77,7 +77,7 @@ class ProcessTemplateServiceTest extends TestCase {
 			logger: $this->createMock(LoggerInterface::class),
 			resolver: new ProcessTemplatePolicyResolver(),
 			validator: new StateMachineValidator(),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		);
 
 	}//end setUp()

@@ -217,9 +217,9 @@ class GovernanceRoleScopeProjectorTest extends TestCase {
 				$container,
 				$groupManager,
 				$this->createMock(LoggerInterface::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 	}//end makeProjector()
 

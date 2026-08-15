@@ -55,7 +55,7 @@ class ActionItemAnalyticsServiceTest extends TestCase {
 		$this->container = $this->createMock(ContainerInterface::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 		$this->service = new ActionItemAnalyticsService($this->container, $this->logger,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $items,
 		);
 	}//end setUp()
 

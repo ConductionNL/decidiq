@@ -50,7 +50,7 @@ class GovernanceScopeGuardTest extends TestCase {
 			$this->createMock(ContainerInterface::class),
 			$this->createMock(IGroupManager::class),
 			$this->createMock(LoggerInterface::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
 		$this->assertSame(
@@ -79,7 +79,7 @@ class GovernanceScopeGuardTest extends TestCase {
 			$this->createMock(ContainerInterface::class),
 			$groupManager,
 			$this->createMock(LoggerInterface::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
 		$this->assertTrue($guard->isInBodyScope('alice', 'body-1', GovernanceScopeGuard::SCOPE_SIGNATORY));
@@ -98,7 +98,7 @@ class GovernanceScopeGuardTest extends TestCase {
 			$this->createMock(ContainerInterface::class),
 			$groupManager,
 			$this->createMock(LoggerInterface::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
 		$this->assertFalse($guard->isInBodyScope('', 'body-1', GovernanceScopeGuard::SCOPE_CHAIR));
@@ -120,7 +120,7 @@ class GovernanceScopeGuardTest extends TestCase {
 			$this->makeContainer('body-9'),
 			$groupManager,
 			$this->createMock(LoggerInterface::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
 		$this->assertTrue($guard->canInitiateSigning('alice', 'min-1'));
@@ -139,7 +139,7 @@ class GovernanceScopeGuardTest extends TestCase {
 			$this->makeContainer('body-9'),
 			$groupManager,
 			$this->createMock(LoggerInterface::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
 		$this->assertFalse($guard->canInitiateSigning('mallory', 'min-1'));
@@ -160,7 +160,7 @@ class GovernanceScopeGuardTest extends TestCase {
 			$this->makeContainer(null),
 			$groupManager,
 			$this->createMock(LoggerInterface::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
 		$this->assertFalse($guard->canInitiateSigning('alice', 'min-1'));
@@ -183,7 +183,7 @@ class GovernanceScopeGuardTest extends TestCase {
 			$container,
 			$this->createMock(IGroupManager::class),
 			$logger,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
 		$this->assertFalse($guard->canInitiateSigning('alice', 'min-1'));
