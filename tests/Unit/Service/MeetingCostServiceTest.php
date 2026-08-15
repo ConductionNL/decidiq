@@ -57,7 +57,7 @@ class MeetingCostServiceTest extends TestCase {
 	 *
 	 * @var ObjectServiceInterface&MockObject
 	 */
-	private ObjectService&MockObject $objectService;
+	private ObjectServiceInterface&MockObject $objectService;
 
 	/**
 	 * Service under test.
