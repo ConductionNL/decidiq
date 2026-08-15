@@ -35,18 +35,18 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Concept", "filter": { "status": "concept" } },
-					{ "label": "Open", "filter": { "status": "geopend" } },
+					{ "label": "Concept", "filter": { "status": "draft" } },
+					{ "label": "Open", "filter": { "status": "opened" } },
 					{ "label": "Processing", "filter": { "status": "processing" } },
-					{ "label": "Closed", "filter": { "status": "afgerond" } },
-					{ "label": "Withdrawn", "filter": { "status": "ingetrokken" } },
-					{ "label": "Ontwerpbegroting", "filter": { "subjectType": "ontwerpbegroting" } },
-					{ "label": "Begrotingswijziging", "filter": { "subjectType": "begrotingswijziging" } },
-					{ "label": "Kadernota", "filter": { "subjectType": "kadernota" } },
-					{ "label": "Jaarrekening", "filter": { "subjectType": "jaarrekening" } },
-					{ "label": "Wijziging regeling", "filter": { "subjectType": "wijziging-regeling" } },
-					{ "label": "Toetreding/uittreding", "filter": { "subjectType": "toetreding-uittreding" } },
-					{ "label": "Overig", "filter": { "subjectType": "overig" } }
+					{ "label": "Closed", "filter": { "status": "completed" } },
+					{ "label": "Withdrawn", "filter": { "status": "withdrawn" } },
+					{ "label": "Ontwerpbegroting", "filter": { "subjectType": "draft-budget" } },
+					{ "label": "Begrotingswijziging", "filter": { "subjectType": "budget-amendment" } },
+					{ "label": "Kadernota", "filter": { "subjectType": "framework-memorandum" } },
+					{ "label": "Jaarrekening", "filter": { "subjectType": "annual-accounts" } },
+					{ "label": "Wijziging regeling", "filter": { "subjectType": "amendment-of-arrangement" } },
+					{ "label": "Toetreding/uittreding", "filter": { "subjectType": "accession-withdrawal" } },
+					{ "label": "Overig", "filter": { "subjectType": "other" } }
 				],
 				"columns": [
 					{ "key": "title", "label": "Title", "widget": "link" },
@@ -110,11 +110,11 @@
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
 					{ "label": "Open", "filter": { "status": [ "uitstaand", "in-voorbereiding" ] } },
-					{ "label": "Uitstaand", "filter": { "status": "uitstaand" } },
-					{ "label": "In voorbereiding", "filter": { "status": "in-voorbereiding" } },
-					{ "label": "Ingediend", "filter": { "status": "ingediend" } },
-					{ "label": "Verwerkt", "filter": { "status": "verwerkt" } },
-					{ "label": "Niet ingediend", "filter": { "status": "niet-ingediend" } }
+					{ "label": "Uitstaand", "filter": { "status": "outstanding" } },
+					{ "label": "In voorbereiding", "filter": { "status": "in-preparation" } },
+					{ "label": "Ingediend", "filter": { "status": "submitted" } },
+					{ "label": "Verwerkt", "filter": { "status": "processed" } },
+					{ "label": "Niet ingediend", "filter": { "status": "not-submitted" } }
 				],
 				"columns": [
 					{ "key": "ronde", "label": "Ronde", "widget": "link" },

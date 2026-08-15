@@ -16,30 +16,30 @@
         "governing-document": [
           {
             "slug": "statuten-vng",
-            "type": "statuten",
+            "type": "articles-of-association",
             "citationTitle": "Statuten Vereniging van Nederlandse Gemeenten",
             "description": "Statuten van de vereniging (BW 2:27), constitutief bij notariële akte en gewijzigd bij besluit tot statutenwijziging van de ledenraad.",
             "governingBody": "ledenraad-vng",
             "isPublic": true,
-            "status": "geldend"
+            "status": "in-force"
           },
           {
             "slug": "reglement-van-orde-raad-amsterdam",
-            "type": "reglement-van-orde",
+            "type": "rules-of-procedure",
             "citationTitle": "Reglement van orde gemeenteraad Amsterdam",
             "description": "Reglement van orde van de gemeenteraad (Gemeentewet art. 16), vastgesteld bij raadsbesluit.",
             "governingBody": "gemeenteraad-amsterdam",
             "isPublic": false,
-            "status": "geldend"
+            "status": "in-force"
           },
           {
             "slug": "splitsingsakte-vve-parkstaete",
-            "type": "splitsingsakte",
+            "type": "deed-of-division",
             "citationTitle": "Splitsingsakte VvE Parkstaete",
             "description": "Splitsingsakte (BW 5:111), constitutief bij notariële akte; geen verband met een besluit.",
             "governingBody": "vve-parkstaete",
             "isPublic": false,
-            "status": "geldend"
+            "status": "in-force"
           }
         ],
         "governing-document-versie": [
@@ -51,7 +51,7 @@
             "notes": "Constitutieve versie bij oprichting van de vereniging; opgericht bij notariële akte, geen verband met een besluit in decidesk.",
             "deedDate": "1990-04-12",
             "notary": "mr. C. van Dam",
-            "status": "vervangen"
+            "status": "replaced"
           },
           {
             "slug": "statuten-vng-v2",
@@ -62,7 +62,7 @@
             "notes": "Statutenwijziging 2021: aanpassing van de bevoegdheden van de ledenraad (art. 20).",
             "deedDate": "2021-12-15",
             "notary": "mr. A. de Wit",
-            "status": "in-werking"
+            "status": "in-effect"
           },
           {
             "slug": "rvo-amsterdam-v1",
@@ -71,7 +71,7 @@
             "determinedBy": "besluit-vaststelling-rvo-amsterdam",
             "effectiveDate": "2023-03-01",
             "notes": "Vaststelling van het reglement van orde door de gemeenteraad.",
-            "status": "in-werking"
+            "status": "in-effect"
           },
           {
             "slug": "splitsingsakte-parkstaete-v1",
@@ -81,7 +81,7 @@
             "notes": "Constitutieve splitsingsakte bij notariële akte; geen verband met een besluit.",
             "deedDate": "2005-05-20",
             "notary": "mr. B. Jansen",
-            "status": "in-werking"
+            "status": "in-effect"
           }
         ],
         "decision": [
@@ -130,18 +130,18 @@
         },
         "x-openregister-lifecycle": {
           "field": "status",
-          "initial": "geldend",
+          "initial": "in-force",
           "states": [
-            "geldend",
-            "vervallen"
+            "in-force",
+            "lapsed"
           ],
           "terminal": [
-            "vervallen"
+            "lapsed"
           ],
           "transitions": [
             {
-              "from": "geldend",
-              "to": "vervallen"
+              "from": "in-force",
+              "to": "lapsed"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-GDR-001). Canonical dialect (keyword 'initial', never 'initialState'/'default'). geldend initial, vervallen terminal; the only transition is geldend → vervallen. Transitions outside this map are rejected by OpenRegister; decidesk implements no parallel state machine. Drafting is a version-level concern (GoverningDocumentVersie concept state), so there is deliberately no document-level draft/concept state."
@@ -170,11 +170,11 @@
             "facetable": true,
             "description": "The kind of governing document. Required.",
             "enum": [
-              "statuten",
-              "huishoudelijk-reglement",
-              "reglement-van-orde",
-              "directiestatuut",
-              "splitsingsakte",
+              "articles-of-association",
+              "internal-regulations",
+              "rules-of-procedure",
+              "management-charter",
+              "deed-of-division",
               "other"
             ],
             "example": "statuten"
@@ -211,8 +211,8 @@
             "facetable": true,
             "description": "Document lifecycle status (declared in x-openregister-lifecycle, ADR-031): geldend → vervallen. vervallen is terminal.",
             "enum": [
-              "geldend",
-              "vervallen"
+              "in-force",
+              "lapsed"
             ],
             "example": "geldend"
           }
@@ -235,34 +235,34 @@
         },
         "x-openregister-lifecycle": {
           "field": "status",
-          "initial": "concept",
+          "initial": "draft",
           "states": [
-            "concept",
-            "vastgesteld",
-            "in-werking",
-            "vervangen",
-            "vervallen"
+            "draft",
+            "adopted",
+            "in-effect",
+            "replaced",
+            "lapsed"
           ],
           "terminal": [
-            "vervangen",
-            "vervallen"
+            "replaced",
+            "lapsed"
           ],
           "transitions": [
             {
-              "from": "concept",
-              "to": "vastgesteld"
+              "from": "draft",
+              "to": "adopted"
             },
             {
-              "from": "vastgesteld",
-              "to": "in-werking"
+              "from": "adopted",
+              "to": "in-effect"
             },
             {
-              "from": "in-werking",
-              "to": "vervangen"
+              "from": "in-effect",
+              "to": "replaced"
             },
             {
-              "from": "in-werking",
-              "to": "vervallen"
+              "from": "in-effect",
+              "to": "lapsed"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-GDR-002/003). Canonical dialect (keyword 'initial', never 'initialState'/'default'). concept → vastgesteld → in-werking → vervangen | vervallen; vervangen and vervallen terminal. The in-werking transition is the seal point (REQ-GDR-003): the new-effective-version notification fires here and the immutability guard applies from here. A superseded version moves in-werking → vervangen when its successor takes force; a version withdrawn without a successor moves in-werking → vervallen. No app-side state machine."
@@ -272,7 +272,7 @@
             "trigger": {
               "type": "updated",
               "filter": {
-                "status": "in-werking"
+                "status": "in-effect"
               }
             },
             "enabled": true,
@@ -366,11 +366,11 @@
             "facetable": true,
             "description": "Version lifecycle status (declared in x-openregister-lifecycle, ADR-031): concept → vastgesteld → in-werking → vervangen | vervallen. The in-werking transition seals the version (REQ-GDR-003) and fires the new-effective-version notification (REQ-GDR-008). vervangen and vervallen are terminal.",
             "enum": [
-              "concept",
-              "vastgesteld",
-              "in-werking",
-              "vervangen",
-              "vervallen"
+              "draft",
+              "adopted",
+              "in-effect",
+              "replaced",
+              "lapsed"
             ],
             "example": "in-werking"
           }

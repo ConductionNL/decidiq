@@ -29,16 +29,16 @@
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
 					{ "label": "Advice request", "filter": { "type": "adviceRequest" } },
-					{ "label": "Consent request", "filter": { "type": "instemmingsverzoek" } },
-					{ "label": "Received", "filter": { "lifecycle": "ontvangen" } },
-					{ "label": "In treatment", "filter": { "lifecycle": "in-behandeling" } },
+					{ "label": "Consent request", "filter": { "type": "consent-request" } },
+					{ "label": "Received", "filter": { "lifecycle": "received" } },
+					{ "label": "In treatment", "filter": { "lifecycle": "in-progress" } },
 					{ "label": "Constituency consultation", "filter": { "lifecycle": "constituencyConsultation" } },
 					{ "label": "Overlegvergadering", "filter": { "lifecycle": "consultationMeeting" } },
-					{ "label": "Adopted", "filter": { "lifecycle": "vastgesteld" } },
-					{ "label": "Sent", "filter": { "lifecycle": "verzonden" } },
-					{ "label": "Decision received", "filter": { "lifecycle": "besluit-ontvangen" } },
-					{ "label": "Completed", "filter": { "lifecycle": "afgerond" } },
-					{ "label": "Withdrawn", "filter": { "lifecycle": "ingetrokken" } }
+					{ "label": "Adopted", "filter": { "lifecycle": "adopted" } },
+					{ "label": "Sent", "filter": { "lifecycle": "sent" } },
+					{ "label": "Decision received", "filter": { "lifecycle": "decision-received" } },
+					{ "label": "Completed", "filter": { "lifecycle": "completed" } },
+					{ "label": "Withdrawn", "filter": { "lifecycle": "withdrawn" } }
 				],
 				"columns": [
 					{ "key": "subject", "label": "Subject", "widget": "link" },

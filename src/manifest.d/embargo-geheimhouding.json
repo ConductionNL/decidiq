@@ -34,9 +34,9 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Imposed", "filter": { "lifecycle": "opgelegd" } },
-					{ "label": "Confirmed", "filter": { "lifecycle": "bekrachtigd" } },
-					{ "label": "Lifted", "filter": { "lifecycle": "opgeheven" } }
+					{ "label": "Imposed", "filter": { "lifecycle": "imposed" } },
+					{ "label": "Confirmed", "filter": { "lifecycle": "ratified" } },
+					{ "label": "Lifted", "filter": { "lifecycle": "dissolved" } }
 				],
 				"columns": [
 					{ "key": "scope", "label": "Scope", "widget": "badge" },
@@ -98,10 +98,10 @@
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
 					{ "label": "Active", "filter": { "active": true } },
-					{ "label": "Gemeentewet", "filter": { "category": "gemeentewet" } },
-					{ "label": "Woo absolute", "filter": { "category": "woo-absoluut" } },
-					{ "label": "Woo relative", "filter": { "category": "woo-relatief" } },
-					{ "label": "Other", "filter": { "category": "overig" } }
+					{ "label": "Gemeentewet", "filter": { "category": "municipalities-act" } },
+					{ "label": "Woo absolute", "filter": { "category": "woo-absolute" } },
+					{ "label": "Woo relative", "filter": { "category": "woo-relative" } },
+					{ "label": "Other", "filter": { "category": "other" } }
 				],
 				"columns": [
 					{ "key": "name", "label": "Name", "widget": "link" },

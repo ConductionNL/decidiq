@@ -203,9 +203,9 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Approving", "filter": { "verdict": "goedkeurend" } },
-					{ "label": "With reservation", "filter": { "verdict": "met-voorbehoud" } },
-					{ "label": "Rejecting", "filter": { "verdict": "afkeurend" } }
+					{ "label": "Approving", "filter": { "verdict": "approving" } },
+					{ "label": "With reservation", "filter": { "verdict": "qualified" } },
+					{ "label": "Rejecting", "filter": { "verdict": "adverse" } }
 				],
 				"columns": [
 					{ "key": "financialYear", "label": "Boekjaar", "widget": "link" },

@@ -28,7 +28,7 @@ const iso = (minutes) => new Date(base + minutes * 60000).toISOString()
 
 describe('isItemCompleted', () => {
 	it('completed when status afgerond', () => {
-		expect(isItemCompleted({ status: 'afgerond' })).toBe(true)
+		expect(isItemCompleted({ status: 'completed' })).toBe(true)
 	})
 	it('completed when actualDuration recorded', () => {
 		expect(isItemCompleted({ actualDuration: 12 })).toBe(true)
@@ -102,7 +102,7 @@ describe('meetingDurationStats', () => {
 describe('agendaCompletionRate', () => {
 	it('computes the completed share', () => {
 		const r = agendaCompletionRate([
-			{ status: 'afgerond' },
+			{ status: 'completed' },
 			{ actualDuration: 10 },
 			{ status: 'beeldvorming' },
 			{ status: 'oordeelsvorming' },

@@ -41,10 +41,10 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Declared", "filter": { "lifecycle": "gemeld" } },
-					{ "label": "Public", "filter": { "lifecycle": "openbaar" } },
-					{ "label": "Internal", "filter": { "lifecycle": "intern" } },
-					{ "label": "Ended", "filter": { "lifecycle": "beëindigd" } }
+					{ "label": "Declared", "filter": { "lifecycle": "reported" } },
+					{ "label": "Public", "filter": { "lifecycle": "public" } },
+					{ "label": "Internal", "filter": { "lifecycle": "internal" } },
+					{ "label": "Ended", "filter": { "lifecycle": "ended" } }
 				],
 				"columns": [
 					{ "key": "organisation", "label": "Organisation", "widget": "link" },
@@ -76,10 +76,10 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Declared", "filter": { "lifecycle": "gemeld" } },
-					{ "label": "Public", "filter": { "lifecycle": "openbaar" } },
-					{ "label": "Internal", "filter": { "lifecycle": "intern" } },
-					{ "label": "Ended", "filter": { "lifecycle": "beëindigd" } }
+					{ "label": "Declared", "filter": { "lifecycle": "reported" } },
+					{ "label": "Public", "filter": { "lifecycle": "public" } },
+					{ "label": "Internal", "filter": { "lifecycle": "internal" } },
+					{ "label": "Ended", "filter": { "lifecycle": "ended" } }
 				],
 				"columns": [
 					{ "key": "person", "label": "Person", "widget": "link" },
@@ -140,11 +140,11 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Gifts", "filter": { "type": "geschenk" } },
-					{ "label": "Invitations", "filter": { "type": "uitnodiging" } },
-					{ "label": "Accepted", "filter": { "decision": "aanvaard" } },
-					{ "label": "Refused", "filter": { "decision": "geweigerd" } },
-					{ "label": "Handed over", "filter": { "decision": "overgedragen" } }
+					{ "label": "Gifts", "filter": { "type": "gift" } },
+					{ "label": "Invitations", "filter": { "type": "invitation" } },
+					{ "label": "Accepted", "filter": { "decision": "accepted" } },
+					{ "label": "Refused", "filter": { "decision": "refused" } },
+					{ "label": "Handed over", "filter": { "decision": "transferred" } }
 				],
 				"columns": [
 					{ "key": "recipient", "label": "Recipient", "widget": "link" },

@@ -11,19 +11,19 @@
             "builtIn": true,
             "categoryRules": [
               {
-                "decisionCategory": "machtiging-boven-drempel",
+                "decisionCategory": "authorisation-above-threshold",
                 "voteThreshold": "qualified-majority-three-quarters",
                 "quorumFraction": "2/3",
                 "article": "MR 1992 art. 38 lid 5"
               },
               {
-                "decisionCategory": "wijziging-huishoudelijk-reglement",
+                "decisionCategory": "amendment-internal-regulations",
                 "voteThreshold": "qualified-majority-two-thirds",
                 "quorumFraction": null,
                 "article": "MR 1992 art. 44"
               },
               {
-                "decisionCategory": "overige",
+                "decisionCategory": "other",
                 "voteThreshold": "simple-majority",
                 "quorumFraction": null,
                 "article": "MR 1992 hoofdregel gewone meerderheid"
@@ -37,19 +37,19 @@
             "builtIn": true,
             "categoryRules": [
               {
-                "decisionCategory": "machtiging-boven-drempel",
+                "decisionCategory": "authorisation-above-threshold",
                 "voteThreshold": "qualified-majority-two-thirds",
                 "quorumFraction": "2/3",
                 "article": "MR 2006 art. 52 lid 5"
               },
               {
-                "decisionCategory": "wijziging-huishoudelijk-reglement",
+                "decisionCategory": "amendment-internal-regulations",
                 "voteThreshold": "qualified-majority-two-thirds",
                 "quorumFraction": null,
                 "article": "MR 2006 art. 59"
               },
               {
-                "decisionCategory": "overige",
+                "decisionCategory": "other",
                 "voteThreshold": "simple-majority",
                 "quorumFraction": null,
                 "article": "MR 2006 hoofdregel gewone meerderheid"
@@ -63,19 +63,19 @@
             "builtIn": true,
             "categoryRules": [
               {
-                "decisionCategory": "machtiging-boven-drempel",
+                "decisionCategory": "authorisation-above-threshold",
                 "voteThreshold": "qualified-majority-two-thirds",
                 "quorumFraction": "2/3",
                 "article": "MR 2017 art. 56 lid 5"
               },
               {
-                "decisionCategory": "wijziging-huishoudelijk-reglement",
+                "decisionCategory": "amendment-internal-regulations",
                 "voteThreshold": "qualified-majority-two-thirds",
                 "quorumFraction": null,
                 "article": "MR 2017 art. 60"
               },
               {
-                "decisionCategory": "overige",
+                "decisionCategory": "other",
                 "voteThreshold": "simple-majority",
                 "quorumFraction": null,
                 "article": "MR 2017 hoofdregel gewone meerderheid"
@@ -88,7 +88,7 @@
             "slug": "decharge-bestuur",
             "name": "Decharge bestuur",
             "description": "Decharge van het bestuur over het afgelopen boekjaar door de algemene ledenvergadering.",
-            "decisionCategory": "decharge",
+            "decisionCategory": "discharge",
             "proposedText": "De vergadering verleent het bestuur decharge voor het gevoerde beleid en beheer over het boekjaar {boekjaar}, gehoord de verklaring van de kascommissie.",
             "builtIn": true,
             "defaultVoteThreshold": "simple-majority",
@@ -99,7 +99,7 @@
             "slug": "vaststelling-jaarrekening",
             "name": "Vaststelling jaarrekening",
             "description": "Vaststelling van de jaarrekening (exploitatie- en balansoverzicht) van het afgelopen boekjaar.",
-            "decisionCategory": "jaarrekening",
+            "decisionCategory": "annual-accounts",
             "proposedText": "De vergadering stelt de jaarrekening over het boekjaar {boekjaar} vast conform het door het bestuur aangeboden exploitatie- en balansoverzicht.",
             "builtIn": true,
             "defaultVoteThreshold": "simple-majority",
@@ -110,7 +110,7 @@
             "slug": "dotatie-reservefonds",
             "name": "Dotatie reservefonds",
             "description": "Besluit tot dotatie aan het reservefonds voor groot onderhoud.",
-            "decisionCategory": "reservefonds-dotatie",
+            "decisionCategory": "reserve-fund-contribution",
             "proposedText": "De vergadering besluit over het boekjaar {boekjaar} een bedrag te doteren aan het reservefonds ten behoeve van toekomstig groot onderhoud, conform de MJOP-grondslag.",
             "builtIn": true,
             "defaultVoteThreshold": "simple-majority",
@@ -121,7 +121,7 @@
             "slug": "vaststelling-mjop",
             "name": "Vaststelling/actualisatie MJOP",
             "description": "Vaststelling of actualisatie van het meerjarenonderhoudsplan (MJOP).",
-            "decisionCategory": "mjop-vaststelling",
+            "decisionCategory": "mjop-adoption",
             "proposedText": "De vergadering stelt het meerjarenonderhoudsplan (MJOP) {periode} vast, respectievelijk actualiseert het geldende MJOP conform het aangeboden concept.",
             "builtIn": true,
             "defaultVoteThreshold": "simple-majority",
@@ -132,7 +132,7 @@
             "slug": "machtiging-boven-drempel",
             "name": "Machtiging bestuur onderhoud boven drempel",
             "description": "Machtiging aan het bestuur voor onderhoudsuitgaven boven de in het reglement bepaalde drempel.",
-            "decisionCategory": "machtiging-boven-drempel",
+            "decisionCategory": "authorisation-above-threshold",
             "proposedText": "De vergadering machtigt het bestuur tot het aangaan van de onderhoudsverplichting {omschrijving} voor een bedrag van {bedrag}, welk bedrag de reglementaire drempel overschrijdt.",
             "builtIn": true,
             "defaultVoteThreshold": "qualified-majority-two-thirds",
@@ -143,7 +143,7 @@
             "slug": "wijziging-huishoudelijk-reglement",
             "name": "Wijziging huishoudelijk reglement",
             "description": "Wijziging van het huishoudelijk reglement van de vereniging van eigenaars.",
-            "decisionCategory": "wijziging-huishoudelijk-reglement",
+            "decisionCategory": "amendment-internal-regulations",
             "proposedText": "De vergadering besluit het huishoudelijk reglement te wijzigen conform het aangeboden voorstel {omschrijving}.",
             "builtIn": true,
             "defaultVoteThreshold": "qualified-majority-two-thirds",
@@ -160,7 +160,7 @@
             "deedOfDivisionDocument": "00000000-0000-0000-0000-000000000000",
             "majorityOverrides": [
               {
-                "decisionCategory": "wijziging-huishoudelijk-reglement",
+                "decisionCategory": "amendment-internal-regulations",
                 "voteThreshold": "qualified-majority-three-quarters",
                 "quorumFraction": null,
                 "deedArticle": "splitsingsakte 2019 art. 62"
@@ -172,7 +172,7 @@
           {
             "slug": "kascommissie-verklaring-2025",
             "financialYear": 2025,
-            "verdict": "goedkeurend",
+            "verdict": "approving",
             "notes": "Administratie ordelijk; reservefondsdotatie conform MJOP.",
             "agendaItem": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "00000000-0000-0000-0000-000000000000"
@@ -180,7 +180,7 @@
           {
             "slug": "kascommissie-verklaring-2024",
             "financialYear": 2024,
-            "verdict": "met-voorbehoud",
+            "verdict": "qualified",
             "notes": "Voorbehoud: onderhoudsfacturen Q3 ontbraken bij controle.",
             "governanceBody": "00000000-0000-0000-0000-000000000000"
           }
@@ -251,13 +251,13 @@
                   "type": "string",
                   "description": "The decision category this override applies to.",
                   "enum": [
-                    "decharge",
-                    "jaarrekening",
-                    "reservefonds-dotatie",
-                    "mjop-vaststelling",
-                    "machtiging-boven-drempel",
-                    "wijziging-huishoudelijk-reglement",
-                    "overige"
+                    "discharge",
+                    "annual-accounts",
+                    "reserve-fund-contribution",
+                    "mjop-adoption",
+                    "authorisation-above-threshold",
+                    "amendment-internal-regulations",
+                    "other"
                   ]
                 },
                 "voteThreshold": {
@@ -320,13 +320,13 @@
             "type": "string",
             "description": "The VvE statutory decision category this template represents. Required; drives majority resolution against the preset/override.",
             "enum": [
-              "decharge",
-              "jaarrekening",
-              "reservefonds-dotatie",
-              "mjop-vaststelling",
-              "machtiging-boven-drempel",
-              "wijziging-huishoudelijk-reglement",
-              "overige"
+              "discharge",
+              "annual-accounts",
+              "reserve-fund-contribution",
+              "mjop-adoption",
+              "authorisation-above-threshold",
+              "amendment-internal-regulations",
+              "other"
             ],
             "example": "decharge"
           },
@@ -425,13 +425,13 @@
                   "type": "string",
                   "description": "The decision category this rule maps ('overige' is the catch-all default).",
                   "enum": [
-                    "decharge",
-                    "jaarrekening",
-                    "reservefonds-dotatie",
-                    "mjop-vaststelling",
-                    "machtiging-boven-drempel",
-                    "wijziging-huishoudelijk-reglement",
-                    "overige"
+                    "discharge",
+                    "annual-accounts",
+                    "reserve-fund-contribution",
+                    "mjop-adoption",
+                    "authorisation-above-threshold",
+                    "amendment-internal-regulations",
+                    "other"
                   ]
                 },
                 "voteThreshold": {
@@ -496,9 +496,9 @@
             "facetable": true,
             "description": "The kascommissie's verdict on the administration. Required.",
             "enum": [
-              "goedkeurend",
-              "met-voorbehoud",
-              "afkeurend"
+              "approving",
+              "qualified",
+              "adverse"
             ],
             "example": "goedkeurend"
           },

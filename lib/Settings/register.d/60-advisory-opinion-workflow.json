@@ -26,7 +26,7 @@
             "advisoryBody": "jongerenraad",
             "sentDate": "2026-05-04",
             "requestedByDate": "2026-06-15",
-            "lifecycle": "in-behandeling"
+            "lifecycle": "in-progress"
           },
           {
             "slug": "adviesaanvraag-inkoopbeleid-wmo",
@@ -36,7 +36,7 @@
             "advisoryBody": "adviesraad-sociaal-domein",
             "sentDate": "2026-03-02",
             "requestedByDate": "2026-04-13",
-            "lifecycle": "advies-uitgebracht",
+            "lifecycle": "advice-issued",
             "relatedDecision": "00000000-0000-0000-0000-000000000000",
             "advisoryStage": "00000000-0000-0000-0000-000000000000"
           },
@@ -48,7 +48,7 @@
             "advisoryBody": "jongerenraad",
             "sentDate": "2026-01-12",
             "requestedByDate": "2026-02-16",
-            "lifecycle": "afgerond",
+            "lifecycle": "completed",
             "relatedDecision": "00000000-0000-0000-0000-000000000000",
             "accountabilityText": "De raad kiest locatie B in afwijking van het advies (locatie A) vanwege geluidsnormen; met de jongerenraad is een evaluatie na één jaar afgesproken.",
             "accountabilityDate": "2026-03-24",
@@ -59,7 +59,7 @@
           {
             "slug": "advies-inkoopbeleid-wmo",
             "adviceRequest": "adviesaanvraag-inkoopbeleid-wmo",
-            "tenor": "positief-met-kanttekeningen",
+            "tenor": "positive-with-reservations",
             "summary": "De adviesraad adviseert positief, mits de continuïteit van lopende ondersteuning wordt geborgd en cliënten actief worden geïnformeerd.",
             "adviceDate": "2026-04-10",
             "recordedBy": "00000000-0000-0000-0000-000000000000",
@@ -68,7 +68,7 @@
           {
             "slug": "advies-skatepark-locatie",
             "adviceRequest": "adviesaanvraag-skatepark-locatie",
-            "tenor": "negatief",
+            "tenor": "negative",
             "summary": "De jongerenraad adviseert negatief over locatie B en positief over locatie A vanwege bereikbaarheid.",
             "adviceDate": "2026-02-14",
             "recordedBy": "00000000-0000-0000-0000-000000000000",
@@ -97,47 +97,47 @@
         },
         "x-openregister-lifecycle": {
           "field": "lifecycle",
-          "initial": "verzonden",
+          "initial": "sent",
           "states": [
-            "verzonden",
-            "in-behandeling",
-            "advies-uitgebracht",
-            "verantwoord",
-            "afgerond",
-            "niet-uitgebracht"
+            "sent",
+            "in-progress",
+            "advice-issued",
+            "accounted-for",
+            "completed",
+            "not-issued"
           ],
           "terminal": [
-            "afgerond",
-            "niet-uitgebracht"
+            "completed",
+            "not-issued"
           ],
           "transitions": [
             {
-              "from": "verzonden",
-              "to": "in-behandeling"
+              "from": "sent",
+              "to": "in-progress"
             },
             {
-              "from": "verzonden",
-              "to": "niet-uitgebracht"
+              "from": "sent",
+              "to": "not-issued"
             },
             {
-              "from": "in-behandeling",
-              "to": "advies-uitgebracht"
+              "from": "in-progress",
+              "to": "advice-issued"
             },
             {
-              "from": "in-behandeling",
-              "to": "niet-uitgebracht"
+              "from": "in-progress",
+              "to": "not-issued"
             },
             {
-              "from": "advies-uitgebracht",
-              "to": "verantwoord"
+              "from": "advice-issued",
+              "to": "accounted-for"
             },
             {
-              "from": "advies-uitgebracht",
-              "to": "afgerond"
+              "from": "advice-issued",
+              "to": "completed"
             },
             {
-              "from": "verantwoord",
-              "to": "afgerond"
+              "from": "accounted-for",
+              "to": "completed"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-AOW-002). Canonical dialect verbatim from the Decision schema (keyword 'initial', never 'initialState'/'states'-only/'default'). verzonden → in-behandeling → advies-uitgebracht → verantwoord → afgerond, with the conform shortcut advies-uitgebracht → afgerond (no verantwoording needed) and niet-uitgebracht reachable from verzonden and in-behandeling (advisory body declines / request withdrawn / requested-by date lapses without advies). afgerond and niet-uitgebracht are terminal. The app does NOT implement an imperative state machine for this lifecycle; the REQ-AOW-005 guard blocks a Decision transition, it never drives this Adviesaanvraag lifecycle."
@@ -147,7 +147,7 @@
             "trigger": {
               "type": "updated",
               "filter": {
-                "lifecycle": "verantwoord"
+                "lifecycle": "accounted-for"
               }
             },
             "enabled": true,
@@ -310,12 +310,12 @@
             "facetable": true,
             "description": "Trajectory status (declared in x-openregister-lifecycle, ADR-031): verzonden → in-behandeling → advies-uitgebracht → verantwoord → afgerond, with the conform shortcut advies-uitgebracht → afgerond and niet-uitgebracht reachable from verzonden/in-behandeling. afgerond and niet-uitgebracht are terminal.",
             "enum": [
-              "verzonden",
-              "in-behandeling",
-              "advies-uitgebracht",
-              "verantwoord",
-              "afgerond",
-              "niet-uitgebracht"
+              "sent",
+              "in-progress",
+              "advice-issued",
+              "accounted-for",
+              "completed",
+              "not-issued"
             ],
             "example": "verzonden"
           },
@@ -454,10 +454,10 @@
             "facetable": true,
             "description": "The advice's overall thrust. Deviation from the decision outcome is sign-only (design D4): positief / positief-met-kanttekeningen with a rejected outcome, or negatief with an adopted outcome, triggers the DEFERRED verantwoording guard; geen-advies never blocks. Required.",
             "enum": [
-              "positief",
-              "positief-met-kanttekeningen",
-              "negatief",
-              "geen-advies"
+              "positive",
+              "positive-with-reservations",
+              "negative",
+              "no-advice"
             ],
             "example": "positief-met-kanttekeningen"
           },

@@ -40,7 +40,7 @@
             "opensAt": "2026-03-01T09:00:00Z",
             "closesAt": "2026-04-01T17:00:00Z",
             "anonymousResponses": true,
-            "lifecycle": "concept"
+            "lifecycle": "draft"
           },
           {
             "slug": "achterban-or-thuiswerkregeling",
@@ -53,7 +53,7 @@
             "opensAt": "2026-02-01T09:00:00Z",
             "closesAt": "2026-02-15T17:00:00Z",
             "anonymousResponses": true,
-            "lifecycle": "verwerkt",
+            "lifecycle": "processed",
             "results": {
               "audienceSize": 12,
               "responseCount": 9,
@@ -111,28 +111,28 @@
         },
         "x-openregister-lifecycle": {
           "field": "lifecycle",
-          "initial": "concept",
+          "initial": "draft",
           "states": [
-            "concept",
+            "draft",
             "open",
-            "gesloten",
-            "verwerkt"
+            "closed",
+            "processed"
           ],
           "terminal": [
-            "verwerkt"
+            "processed"
           ],
           "transitions": [
             {
-              "from": "concept",
+              "from": "draft",
               "to": "open"
             },
             {
               "from": "open",
-              "to": "gesloten"
+              "to": "closed"
             },
             {
-              "from": "gesloten",
-              "to": "verwerkt"
+              "from": "closed",
+              "to": "processed"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-CCO-003). Canonical dialect verbatim (keyword 'initial', never 'initialState'/'default'). concept → open → gesloten → verwerkt; verwerkt terminal. Responses are only accepted while lifecycle is 'open' AND now is within opensAt–closesAt; that response-window guard is enforced server-side on every response write independent of the stored status (ConsultationResponseService) — the lifecycle dialect governs the status machine only, not the time window. No app-side state machine for the lifecycle itself."
@@ -319,10 +319,10 @@
             "facetable": true,
             "description": "Consultation status (declared in x-openregister-lifecycle, ADR-031): concept → open → gesloten → verwerkt. verwerkt is terminal. Only the initiator or staff with governance-body authority may transition it.",
             "enum": [
-              "concept",
+              "draft",
               "open",
-              "gesloten",
-              "verwerkt"
+              "closed",
+              "processed"
             ],
             "example": "open"
           },

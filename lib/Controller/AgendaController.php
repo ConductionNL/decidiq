@@ -167,7 +167,7 @@ class AgendaController extends Controller {
 	/**
 	 * Process all hamerstukken (consent items) for a meeting.
 	 *
-	 * Sets status of all items tagged 'hamerstuk' to 'afgerond'.
+	 * Sets status of all items tagged 'hamerstuk' to 'completed'.
 	 *
 	 * @param string $meetingId UUID of the Meeting
 	 *
