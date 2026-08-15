@@ -11,22 +11,30 @@
  * fixing either alone leaves the listener dead (decidesk#471):
  *
  * 1. **The probe.** `OCA\OpenRegister\Db\ObjectEntity` extends
- *    `OCP\AppFramework\Db\Entity` and declares `getSchema()` only as an
- *    `@method` docblock tag; `Entity::__call()` serves it. `method_exists()` is
- *    therefore FALSE for it, so a `method_exists()`-guarded accessor read was
- *    skipped for every entity that actually has a schema.
+ *    `OCP\AppFramework\Db\Entity` and used to declare `getSchema()` only as an
+ *    `@method` docblock tag, with `Entity::__call()` serving it.
+ *    `method_exists()` was therefore FALSE for it, so a `method_exists()`-guarded
+ *    accessor read was skipped for every entity that actually has a schema.
  *    `is_callable()` is NOT the remedy: it is true for ANY name on a `__call`
  *    class, so swapping the probe makes the branch unconditionally true and the
  *    call then raises `BadFunctionCallException`. `Entity::__call()` routes
  *    `get*` to `Entity::getter()`, which decides on `property_exists()` — so
  *    `property_exists()` is the instrument the framework itself uses, and the
  *    call is additionally made exception-safe here.
+ *    OpenRegister has since published its ObjectService/ObjectEntity interfaces
+ *    and declared the getter for real, which makes this half moot on current
+ *    versions. `readValue()` needs no change and is deliberately left alone: it
+ *    probes `method_exists() || property_exists()` and so reads the value under
+ *    either shape, which is what keeps this working against both.
  * 2. **The value.** `MagicMapper` and `SaveObject` stamp the schema's numeric
  *    database **id** onto every entity they materialise
  *    (`$entity->setSchema((string) $schema->getId())`). An id can never equal a
  *    slug literal, so even a correctly-probed read returns something like
  *    `"93"` and the comparison still fails. The id is resolved back to its slug
  *    through OpenRegister's `SchemaMapper`.
+ *    This half is unchanged and is why this class still exists: a declared
+ *    getter returns the same numeric id the magic one did. Only if OpenRegister
+ *    began stamping the slug itself would this class become redundant.
  *
  * OpenRegister is a soft dependency: the mapper is pulled from the DI container
  * at call time and every failure degrades to `''`, which every caller reads as

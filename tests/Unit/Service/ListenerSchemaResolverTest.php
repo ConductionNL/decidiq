@@ -146,23 +146,41 @@ class ListenerSchemaResolverTest extends TestCase {
 	}//end testNumericSchemaIdResolvesToItsSlug()
 
 	/**
-	 * The probe half of decidesk#471, pinned directly: `getSchema()` is served
-	 * by Entity::__call(), so `method_exists()` is false for it while the read
-	 * itself succeeds. If this ever flips, the guard this resolver replaced
-	 * would have been correct and this class is redundant.
+	 * The probe half of decidesk#471. This assertion used to pin `getSchema()`
+	 * as magic and say that if it ever became real, this class was redundant.
+	 * It did become real — OpenRegister published its ObjectService/ObjectEntity
+	 * interfaces and declared the getter — and the conclusion turned out to be
+	 * wrong, because it addressed only the FIRST of the two defects.
+	 *
+	 * The probe half is now moot on current OpenRegister. `readValue()` needs no
+	 * change: it accepts `method_exists() || property_exists()`, so it reads the
+	 * getter whether it is declared or served by `Entity::__call()`, and this
+	 * test pins that both ends of that OR still work.
+	 *
+	 * The VALUE half is what keeps this class alive, and it is unchanged:
+	 * OpenRegister still stamps the schema's numeric database id onto every
+	 * entity it materialises (`setSchema((string) $schema->getId())` in
+	 * MagicMapper and in every ObjectSource provider). A real getter returns
+	 * that id, never the slug the listeners compare against — so the id-to-slug
+	 * resolution this class performs is still required. See
+	 * testNumericSchemaIdResolvesToItsSlug, which is the assertion that would
+	 * genuinely make this class redundant if it ever stopped being needed.
 	 *
 	 * @spec exclude Pins a framework property the fix depends on; no decidesk business rule.
 	 *
 	 * @return void
 	 */
-	public function testGetSchemaIsMagicButReadable(): void {
+	public function testGetSchemaIsReadableWhicheverWayItIsDeclared(): void {
 		$entity = $this->productionEntity('93');
 
-		self::assertFalse(method_exists($entity, 'getSchema'), 'getSchema() must stay magic');
-		self::assertTrue(property_exists($entity, 'schema'), 'property_exists() is the working instrument');
-		self::assertSame('93', $entity->getSchema());
+		self::assertTrue(
+			(method_exists($entity, 'getSchema') === true || property_exists($entity, 'schema') === true),
+			'readValue() reads through method_exists() OR property_exists(); both cannot be false'
+		);
+		self::assertTrue(property_exists($entity, 'schema'), 'property_exists() still holds either way');
+		self::assertSame('93', $entity->getSchema(), 'the read returns the schema ID, not the slug');
 
-	}//end testGetSchemaIsMagicButReadable()
+	}//end testGetSchemaIsReadableWhicheverWayItIsDeclared()
 
 	/**
 	 * A value that is not all digits is already a slug and is not round-tripped
