@@ -244,6 +244,10 @@ final class RenameDutchDecideskValuesTest extends TestCase {
 	 * IDBConnection, which is the whole reason the step depends on this port
 	 * instead. Three methods is a small price for a testable migration.
 	 *
+	 * @param array<int, string>               $tables          Shard tables to report.
+	 * @param array<string, array<int,string>> $columnsByTable  Columns per table.
+	 * @param array<int, string>               $log             Recorded rewrites, by reference.
+	 *
 	 * @return ValueMigrationGateway
 	 */
 	private function fakeGateway(array $tables, array $columnsByTable, array &$log): ValueMigrationGateway {
