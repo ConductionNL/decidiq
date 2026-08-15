@@ -200,7 +200,7 @@ class MotionForwardingService {
 	/**
 	 * Append the "forwarded to" audit note to the source motion and persist it.
 	 *
-	 * @param object $this->objectService The OpenRegister ObjectService
+	 * @param object $objectService The OpenRegister ObjectService
 	 * @param array<string,mixed> $sourceMotionData The source motion object
 	 * @param string $motionId The source motion UUID
 	 * @param string $targetBodyId The target governance body UUID

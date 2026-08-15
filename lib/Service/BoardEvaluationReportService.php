@@ -363,7 +363,7 @@ class BoardEvaluationReportService {
 	 * Resolve the owning GovernanceBody's display name.
 	 *
 	 * @param array<string, mixed> $evaluation The BoardEvaluation payload
-	 * @param object $this->objectService OpenRegister ObjectService
+	 * @param object $objectService OpenRegister ObjectService
 	 *
 	 * @return string Body name, or '' when not linked / not resolvable
 	 */

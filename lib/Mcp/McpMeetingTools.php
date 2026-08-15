@@ -359,7 +359,7 @@ class McpMeetingTools {
 	/**
 	 * Fetch every object of one schema related to a meeting, with its sources.
 	 *
-	 * @param object $this->objectService The OpenRegister ObjectService
+	 * @param object $objectService The OpenRegister ObjectService
 	 * @param string $meetingUuid The meeting UUID to filter on
 	 * @param string $schema The OpenRegister schema slug
 	 * @param string $sourceType The MCP source type for these objects

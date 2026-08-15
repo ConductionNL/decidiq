@@ -496,7 +496,7 @@ class AuditLogService {
 	 * and `export()` still use `loadChain()` because they legitimately need
 	 * the full ordered chain.
 	 *
-	 * @param object $this->objectService OpenRegister ObjectService instance
+	 * @param object $objectService OpenRegister ObjectService instance
 	 *
 	 * @spec openspec/changes/audit-log-chain-tail-hash/tasks.md#task-2
 	 *

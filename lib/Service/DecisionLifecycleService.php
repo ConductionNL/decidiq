@@ -297,7 +297,7 @@ class DecisionLifecycleService {
 	 * policy, chair-only authorization (fail closed), then the state-entry
 	 * gates (quorum before `voting`, outcome before `enact`).
 	 *
-	 * @param object $this->objectService OpenRegister ObjectService instance
+	 * @param object $objectService OpenRegister ObjectService instance
 	 * @param array<string, mixed> $decision Decision object array
 	 * @param array<string, mixed> $transition Resolved transition descriptor (from/to)
 	 * @param string $action Requested transition action
@@ -516,7 +516,7 @@ class DecisionLifecycleService {
 	 * All of them are fail-soft — the lifecycle write already persisted, so a
 	 * failure here is logged loudly and never rolls the transition back.
 	 *
-	 * @param object $this->objectService OpenRegister ObjectService instance
+	 * @param object $objectService OpenRegister ObjectService instance
 	 * @param array<string, mixed> $decision Decision object array (post-transition)
 	 * @param string $decisionId UUID of the transitioned decision
 	 * @param string $action The applied transition action
@@ -667,7 +667,7 @@ class DecisionLifecycleService {
 	 * decision text as full text, legal basis, adoption and effective dates,
 	 * and the meeting link when present.
 	 *
-	 * @param object $this->objectService OpenRegister ObjectService instance
+	 * @param object $objectService OpenRegister ObjectService instance
 	 * @param array<string, mixed> $decision Decision object array (post-transition)
 	 * @param string $decisionId UUID of the enacted decision
 	 *

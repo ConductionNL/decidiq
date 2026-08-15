@@ -496,7 +496,7 @@ class ProofPackageService {
 	/**
 	 * Fetch ALL objects of a schema linked to the meeting (paged).
 	 *
-	 * @param object $this->objectService OpenRegister ObjectService
+	 * @param object $objectService OpenRegister ObjectService
 	 * @param string $schema The schema slug
 	 * @param string $meetingId The meeting UUID
 	 *
