@@ -140,7 +140,6 @@ class VotingControllerTest extends TestCase {
 				groupManager: $this->groupManager,
 				appConfig: $this->appConfig,
 				participantResolver: $participantResolver,
-				container: $container
 			),
 			openHandler: new VotingOpenRequestHandler(votingService: $this->votingService),
 			proxyService: new ProxyDelegationService(container: $container, logger: $this->logger,

@@ -122,7 +122,6 @@ class VotingServicePhase0RegressionTest extends TestCase {
 		// single-purpose collaborator, so the graph is built explicitly here
 		// where production relies on Nextcloud's constructor auto-wiring.
 		$amendmentOrder = new AmendmentOrderService(
-			container: $this->container,
 			motionService: $this->motionService,
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
@@ -130,11 +129,9 @@ class VotingServicePhase0RegressionTest extends TestCase {
 
 		$this->service = new VotingService(
 			opener: new VotingRoundOpener(
-				container: $this->container,
 				motionService: $this->motionService,
 				participantResolver: $this->participantResolver,
 				preflight: new VotingRoundPreflight(
-					container: $this->container,
 					logger: $this->logger,
 					motionService: $this->motionService,
 					participantResolver: $this->participantResolver,
@@ -142,14 +139,12 @@ class VotingServicePhase0RegressionTest extends TestCase {
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 				notifier: new VotingOpenedNotifier(
-					container: $this->container,
 					logger: $this->logger,
 					participantResolver: $this->participantResolver
 				),
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 			caster: new VoteCastingService(
-				container: $this->container,
 				logger: $this->logger,
 				participantResolver: $this->participantResolver,
 				amendmentOrder: $amendmentOrder,
@@ -157,7 +152,6 @@ class VotingServicePhase0RegressionTest extends TestCase {
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 			closer: new VotingRoundCloser(
-				container: $this->container,
 				logger: $this->logger,
 				oriService: $this->oriService,
 				motionService: $this->motionService,
@@ -166,7 +160,6 @@ class VotingServicePhase0RegressionTest extends TestCase {
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 			results: new VotingRoundResults(
-				container: $this->container,
 				motionService: $this->motionService,
 				participantResolver: $this->participantResolver,
 			objectService: $this->createMock(ObjectServiceInterface::class),

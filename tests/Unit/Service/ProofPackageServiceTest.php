@@ -95,7 +95,6 @@ class ProofPackageServiceTest extends TestCase {
 			->willReturn($this->objectService);
 
 		$this->service = new ProofPackageService(
-			container: $container,
 			logger: $this->createMock(LoggerInterface::class),
 			participantResolver: $this->participantResolver,
 			folderService: $this->folderService,
@@ -356,7 +355,6 @@ class ProofPackageServiceTest extends TestCase {
 		$container->method('get')->willThrowException(new \Exception('Service not found'));
 
 		$service = new ProofPackageService(
-			container: $container,
 			logger: $this->createMock(LoggerInterface::class),
 			participantResolver: $this->participantResolver,
 			folderService: $this->folderService,

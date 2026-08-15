@@ -105,7 +105,6 @@ class DecisionLifecycleServiceTest extends TestCase {
 		$eventDispatcher = $this->createMock(IEventDispatcher::class);
 
 		$this->service = new DecisionLifecycleService(
-			container: $this->container,
 			logger: $this->createMock(LoggerInterface::class),
 			transitionGuard: new DecisionTransitionGuard(),
 			auditLogService: $this->auditLogService,

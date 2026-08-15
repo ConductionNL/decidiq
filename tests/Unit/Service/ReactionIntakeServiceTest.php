@@ -69,11 +69,9 @@ class ReactionIntakeServiceTest extends TestCase {
 		$appConfig->method('getValueString')->willReturn('test-secret');
 
 		$this->service = new ReactionIntakeService(
-			container: $container,
 			logger: $this->createMock(LoggerInterface::class),
 			appConfig: $appConfig,
 			lifecycleService: new ParticipationLifecycleService(
-				container: $container,
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 		);

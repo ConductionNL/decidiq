@@ -74,7 +74,6 @@ class ProcessTemplateServiceTest extends TestCase {
 		$this->container->method('get')->willReturn($this->objectService);
 
 		$this->service = new ProcessTemplateService(
-			container: $this->container,
 			logger: $this->createMock(LoggerInterface::class),
 			resolver: new ProcessTemplatePolicyResolver(),
 			validator: new StateMachineValidator(),

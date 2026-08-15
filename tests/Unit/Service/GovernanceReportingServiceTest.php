@@ -106,7 +106,6 @@ class GovernanceReportingServiceTest extends TestCase {
 		$container->method('get')->willReturn($objectService);
 
 		return new GovernanceReportingService(
-			container: $container,
 			logger: $this->createMock(LoggerInterface::class),
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		);

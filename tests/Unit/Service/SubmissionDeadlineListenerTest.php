@@ -118,7 +118,6 @@ class SubmissionDeadlineListenerTest extends TestCase {
 		);
 
 		return new SubmissionDeadlineListener(
-			container: $container,
 			logger: new NullLogger(),
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
@@ -277,7 +276,6 @@ class SubmissionDeadlineListenerTest extends TestCase {
 		$container->method('get')->willThrowException(new \RuntimeException('OR unavailable'));
 
 		$listener = new SubmissionDeadlineListener(
-			container: $container,
 			logger: new NullLogger(),
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		);

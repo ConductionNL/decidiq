@@ -83,7 +83,6 @@ class VotingBehaviourServiceTest extends TestCase {
 			->willReturn($this->objectService);
 
 		$this->service = new VotingBehaviourService(
-			container: $this->container,
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 

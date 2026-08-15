@@ -129,7 +129,6 @@ class VotingServiceTest extends TestCase {
 		// single-purpose collaborator, so the graph is built explicitly here
 		// where production relies on Nextcloud's constructor auto-wiring.
 		$amendmentOrder = new AmendmentOrderService(
-			container: $this->container,
 			motionService: $this->motionService,
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
@@ -137,11 +136,9 @@ class VotingServiceTest extends TestCase {
 
 		$this->service = new VotingService(
 			opener: new VotingRoundOpener(
-				container: $this->container,
 				motionService: $this->motionService,
 				participantResolver: $participantResolver,
 				preflight: new VotingRoundPreflight(
-					container: $this->container,
 					logger: $this->logger,
 					motionService: $this->motionService,
 					participantResolver: $participantResolver,
@@ -149,14 +146,12 @@ class VotingServiceTest extends TestCase {
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 				notifier: new VotingOpenedNotifier(
-					container: $this->container,
 					logger: $this->logger,
 					participantResolver: $participantResolver
 				),
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 			caster: new VoteCastingService(
-				container: $this->container,
 				logger: $this->logger,
 				participantResolver: $participantResolver,
 				amendmentOrder: $amendmentOrder,
@@ -164,7 +159,6 @@ class VotingServiceTest extends TestCase {
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 			closer: new VotingRoundCloser(
-				container: $this->container,
 				logger: $this->logger,
 				oriService: $this->oriService,
 				motionService: $this->motionService,
@@ -173,7 +167,6 @@ class VotingServiceTest extends TestCase {
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 			results: new VotingRoundResults(
-				container: $this->container,
 				motionService: $this->motionService,
 				participantResolver: $participantResolver,
 			objectService: $this->createMock(ObjectServiceInterface::class),

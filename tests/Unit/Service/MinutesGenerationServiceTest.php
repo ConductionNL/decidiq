@@ -97,7 +97,6 @@ class MinutesGenerationServiceTest extends TestCase {
 		// is used here: these tests assert on the rendered text, and a mock
 		// would only assert that a mock was called.
 		$this->service = new MinutesGenerationService(
-			container: $this->container,
 			logger: $this->logger,
 			renderer: new MinutesDraftRenderer(),
 			objectService: $this->createMock(ObjectServiceInterface::class),
@@ -274,7 +273,6 @@ class MinutesGenerationServiceTest extends TestCase {
 			->willThrowException(new \Exception('Service not found'));
 
 		$service = new MinutesGenerationService(
-			container: $containerNoOR,
 			logger: $this->logger,
 			renderer: new MinutesDraftRenderer(),
 			objectService: $this->createMock(ObjectServiceInterface::class),

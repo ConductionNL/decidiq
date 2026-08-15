@@ -82,7 +82,6 @@ class MeetingCostServiceTest extends TestCase {
 			->willReturn($this->objectService);
 
 		$this->service = new MeetingCostService(
-			container: $this->container,
 			logger: $this->logger,
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		);

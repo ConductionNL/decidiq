@@ -718,10 +718,8 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 		$templateService->method('resolveVotingRuleForBody')->willReturn([]);
 
 		return new VotingRoundPreflight(
-			container: $container,
 			logger: new NullLogger(),
 			motionService: new MotionService(
-				container: $container,
 				logger: new NullLogger(),
 				userManager: $this->createMock(IUserManager::class),
 			objectService: $this->createMock(ObjectServiceInterface::class),

@@ -82,7 +82,6 @@ class QesGuardTest extends TestCase {
 		);
 
 		return new QesGuard(
-			container: $container,
 			logger: $this->createMock(LoggerInterface::class),
 			signatureService: $signatureService,
 			objectService: $this->createMock(ObjectServiceInterface::class),

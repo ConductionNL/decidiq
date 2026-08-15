@@ -266,11 +266,9 @@ class VotingServiceCastAsTest extends TestCase {
 
 		return new VotingService(
 			opener: new VotingRoundOpener(
-				container: $container,
 				motionService: $this->motionService,
 				participantResolver: $participantResolver,
 				preflight: new VotingRoundPreflight(
-					container: $container,
 					logger: $logger,
 					motionService: $this->motionService,
 					participantResolver: $participantResolver,
@@ -278,14 +276,12 @@ class VotingServiceCastAsTest extends TestCase {
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 				notifier: new VotingOpenedNotifier(
-					container: $container,
 					logger: $logger,
 					participantResolver: $participantResolver
 				),
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 			caster: new VoteCastingService(
-				container: $container,
 				logger: $logger,
 				participantResolver: $participantResolver,
 				amendmentOrder: $amendmentOrder,
@@ -293,7 +289,6 @@ class VotingServiceCastAsTest extends TestCase {
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 			closer: new VotingRoundCloser(
-				container: $container,
 				logger: $logger,
 				oriService: $this->createMock(OriPublicationService::class),
 				motionService: $this->motionService,
@@ -302,7 +297,6 @@ class VotingServiceCastAsTest extends TestCase {
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 			results: new VotingRoundResults(
-				container: $container,
 				motionService: $this->motionService,
 				participantResolver: $participantResolver,
 			objectService: $this->createMock(ObjectServiceInterface::class),
