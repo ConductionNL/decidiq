@@ -28,13 +28,13 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "In force", "filter": { "status": "geldend" } },
-					{ "label": "Lapsed", "filter": { "status": "vervallen" } },
-					{ "label": "Statuten", "filter": { "type": "statuten" } },
-					{ "label": "Huishoudelijk reglement", "filter": { "type": "huishoudelijk-reglement" } },
-					{ "label": "Reglement van orde", "filter": { "type": "reglement-van-orde" } },
-					{ "label": "Directiestatuut", "filter": { "type": "directiestatuut" } },
-					{ "label": "Splitsingsakte", "filter": { "type": "splitsingsakte" } },
+					{ "label": "In force", "filter": { "status": "in-force" } },
+					{ "label": "Lapsed", "filter": { "status": "lapsed" } },
+					{ "label": "Statuten", "filter": { "type": "articles-of-association" } },
+					{ "label": "Huishoudelijk reglement", "filter": { "type": "internal-regulations" } },
+					{ "label": "Reglement van orde", "filter": { "type": "rules-of-procedure" } },
+					{ "label": "Directiestatuut", "filter": { "type": "management-charter" } },
+					{ "label": "Splitsingsakte", "filter": { "type": "deed-of-division" } },
 					{ "label": "Other", "filter": { "type": "other" } }
 				],
 				"columns": [

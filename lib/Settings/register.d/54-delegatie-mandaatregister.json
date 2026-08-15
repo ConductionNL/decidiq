@@ -6,7 +6,7 @@
         "bevoegdheidstoedeling": [
           {
             "slug": "delegatie-uitwerkingsplannen",
-            "type": "delegatie",
+            "type": "delegation",
             "delegans": "gemeenteraad-amsterdam",
             "delegatarisBody": "00000000-0000-0000-0000-000000000000",
             "subject": "Vaststellen van uitwerkingsplannen als bedoeld in art. 3.6 Wro",
@@ -18,12 +18,12 @@
             ],
             "decision": "00000000-0000-0000-0000-000000000000",
             "validFrom": "2026-01-01",
-            "status": "van-kracht",
+            "status": "effective",
             "publicationDate": "2026-01-05T09:00:00Z"
           },
           {
             "slug": "mandaat-subsidies-secretaris",
-            "type": "mandaat",
+            "type": "mandate",
             "delegans": "00000000-0000-0000-0000-000000000000",
             "delegateRole": "gemeentesecretaris",
             "subject": "Beslissen op subsidieaanvragen tot het genoemde plafond",
@@ -36,12 +36,12 @@
             ],
             "decision": "00000000-0000-0000-0000-000000000000",
             "validFrom": "2026-01-01",
-            "status": "van-kracht",
+            "status": "effective",
             "publicationDate": "2026-01-05T09:00:00Z"
           },
           {
             "slug": "ondermandaat-subsidies-samenleving",
-            "type": "mandaat",
+            "type": "mandate",
             "delegansDescription": "gemeentesecretaris",
             "delegateRole": "afdelingshoofd Samenleving",
             "subject": "Beslissen op subsidieaanvragen binnen het programma Samenleving",
@@ -55,12 +55,12 @@
             "parentAllocation": "mandaat-subsidies-secretaris",
             "validFrom": "2026-02-01",
             "validTo": "2026-08-15",
-            "status": "van-kracht",
+            "status": "effective",
             "publicationDate": "2026-02-05T09:00:00Z"
           },
           {
             "slug": "volmacht-inkoop-teamleider",
-            "type": "volmacht",
+            "type": "power-of-attorney",
             "delegansDescription": "burgemeester",
             "delegateRole": "teamleider Inkoop",
             "subject": "Aangaan van privaatrechtelijke rechtshandelingen voor inkoop",
@@ -73,11 +73,11 @@
             ],
             "decision": "00000000-0000-0000-0000-000000000000",
             "validFrom": "2026-03-01",
-            "status": "concept"
+            "status": "draft"
           },
           {
             "slug": "machtiging-woo-vertegenwoordiging",
-            "type": "machtiging",
+            "type": "authorisation",
             "delegans": "00000000-0000-0000-0000-000000000000",
             "delegateRole": "juridisch adviseur team Recht",
             "delegatePerson": "00000000-0000-0000-0000-000000000000",
@@ -89,7 +89,7 @@
             "decision": "00000000-0000-0000-0000-000000000000",
             "validFrom": "2025-01-01",
             "validTo": "2026-01-01",
-            "status": "ingetrokken",
+            "status": "withdrawn",
             "withdrawnBy": "00000000-0000-0000-0000-000000000000",
             "publicationDate": "2025-01-10T09:00:00Z"
           }
@@ -116,29 +116,29 @@
         },
         "x-openregister-lifecycle": {
           "field": "status",
-          "initial": "concept",
+          "initial": "draft",
           "states": [
-            "concept",
-            "van-kracht",
-            "ingetrokken",
-            "vervallen"
+            "draft",
+            "effective",
+            "withdrawn",
+            "lapsed"
           ],
           "terminal": [
-            "ingetrokken",
-            "vervallen"
+            "withdrawn",
+            "lapsed"
           ],
           "transitions": [
             {
-              "from": "concept",
-              "to": "van-kracht"
+              "from": "draft",
+              "to": "effective"
             },
             {
-              "from": "van-kracht",
-              "to": "ingetrokken"
+              "from": "effective",
+              "to": "withdrawn"
             },
             {
-              "from": "van-kracht",
-              "to": "vervallen"
+              "from": "effective",
+              "to": "lapsed"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-DMR-002). Canonical dialect verbatim from the sibling fragments (keyword 'initial', never 'initialState'/'default'). concept → van-kracht → ingetrokken | vervallen; ingetrokken and vervallen terminal. ingetrokken is an explicit intrekking (the UI action stores the revoking Decision in ingetrokkenDoor in the same save); vervallen records lapse by time (geldigTot passed) or by the underlying besluit expiring, without a revoking decision. No app-side state machine."
@@ -149,7 +149,7 @@
               "type": "scheduled",
               "intervalSec": 5184000,
               "filter": {
-                "status": "van-kracht"
+                "status": "effective"
               }
             },
             "enabled": true,
@@ -179,7 +179,7 @@
               "type": "scheduled",
               "intervalSec": 1209600,
               "filter": {
-                "status": "van-kracht"
+                "status": "effective"
               }
             },
             "enabled": true,
@@ -232,10 +232,10 @@
             "facetable": true,
             "description": "The nature of the authority assignment (Awb/BW). Required.",
             "enum": [
-              "delegatie",
-              "mandaat",
-              "volmacht",
-              "machtiging"
+              "delegation",
+              "mandate",
+              "power-of-attorney",
+              "authorisation"
             ],
             "example": "mandaat"
           },
@@ -357,10 +357,10 @@
             "facetable": true,
             "description": "Assignment status (declared in x-openregister-lifecycle, ADR-031): concept → van-kracht → ingetrokken | vervallen. ingetrokken and vervallen are terminal. Transitioning to ingetrokken SHOULD carry an ingetrokkenDoor reference.",
             "enum": [
-              "concept",
-              "van-kracht",
-              "ingetrokken",
-              "vervallen"
+              "draft",
+              "effective",
+              "withdrawn",
+              "lapsed"
             ],
             "example": "van-kracht"
           },

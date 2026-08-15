@@ -27,12 +27,12 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Sent", "filter": { "lifecycle": "verzonden" } },
-					{ "label": "In progress", "filter": { "lifecycle": "in-behandeling" } },
-					{ "label": "Advice issued", "filter": { "lifecycle": "advies-uitgebracht" } },
-					{ "label": "Accounted for", "filter": { "lifecycle": "verantwoord" } },
-					{ "label": "Completed", "filter": { "lifecycle": "afgerond" } },
-					{ "label": "No advice", "filter": { "lifecycle": "niet-uitgebracht" } }
+					{ "label": "Sent", "filter": { "lifecycle": "sent" } },
+					{ "label": "In progress", "filter": { "lifecycle": "in-progress" } },
+					{ "label": "Advice issued", "filter": { "lifecycle": "advice-issued" } },
+					{ "label": "Accounted for", "filter": { "lifecycle": "accounted-for" } },
+					{ "label": "Completed", "filter": { "lifecycle": "completed" } },
+					{ "label": "No advice", "filter": { "lifecycle": "not-issued" } }
 				],
 				"columns": [
 					{ "key": "subject", "label": "Subject", "widget": "link" },

@@ -165,7 +165,7 @@
             ],
             "agendaItem": "00000000-0000-0000-0000-000000000000",
             "decision": "00000000-0000-0000-0000-000000000000",
-            "status": "vastgesteld",
+            "status": "adopted",
             "outcome": "vastgesteld"
           },
           {
@@ -181,7 +181,7 @@
             "documentSlots": [
               { "name": "Bestuursrapportage", "required": true }
             ],
-            "status": "afgerond"
+            "status": "completed"
           },
           {
             "slug": "kadernota-2027-gemeenteraad",
@@ -197,7 +197,7 @@
               { "name": "Kadernota", "required": true }
             ],
             "agendaItem": "00000000-0000-0000-0000-000000000000",
-            "status": "in-behandeling"
+            "status": "in-progress"
           },
           {
             "slug": "berap-2-2026-gemeenteraad",
@@ -212,7 +212,7 @@
             "documentSlots": [
               { "name": "Bestuursrapportage", "required": true }
             ],
-            "status": "gepland"
+            "status": "planned"
           },
           {
             "slug": "begroting-2027-gemeenteraad",
@@ -233,7 +233,7 @@
               { "name": "Aanbiedingsbrief", "required": true },
               { "name": "Beantwoording technische vragen", "required": false }
             ],
-            "status": "gepland"
+            "status": "planned"
           },
           {
             "slug": "jaarstukken-2025-vereniging",
@@ -250,7 +250,7 @@
               { "name": "Bestuursverslag", "required": true },
               { "name": "Kascommissieverslag", "required": true }
             ],
-            "status": "stukken-ontvangen"
+            "status": "documents-received"
           },
           {
             "slug": "decharge-2025-vereniging",
@@ -262,7 +262,7 @@
             "decisionMakingBody": "00000000-0000-0000-0000-000000000000",
             "handlingDate": "2026-04-15",
             "documentSlots": [],
-            "status": "gepland"
+            "status": "planned"
           },
           {
             "slug": "tussenrapportage-2026-vereniging",
@@ -277,7 +277,7 @@
             "documentSlots": [
               { "name": "Tussenrapportage", "required": true }
             ],
-            "status": "gepland"
+            "status": "planned"
           },
           {
             "slug": "jaarplan-2027-vereniging",
@@ -292,7 +292,7 @@
             "documentSlots": [
               { "name": "Jaarplan", "required": true }
             ],
-            "status": "gepland"
+            "status": "planned"
           },
           {
             "slug": "begroting-2027-vereniging",
@@ -307,7 +307,7 @@
             "documentSlots": [
               { "name": "Begroting", "required": true }
             ],
-            "status": "gepland"
+            "status": "planned"
           }
         ]
       }
@@ -528,38 +528,38 @@
         },
         "x-openregister-lifecycle": {
           "field": "status",
-          "initial": "gepland",
+          "initial": "planned",
           "states": [
-            "gepland",
-            "stukken-ontvangen",
-            "in-behandeling",
-            "vastgesteld",
-            "afgerond"
+            "planned",
+            "documents-received",
+            "in-progress",
+            "adopted",
+            "completed"
           ],
           "terminal": [
-            "vastgesteld",
-            "afgerond"
+            "adopted",
+            "completed"
           ],
           "transitions": [
             {
-              "from": "gepland",
-              "to": "stukken-ontvangen"
+              "from": "planned",
+              "to": "documents-received"
             },
             {
-              "from": "stukken-ontvangen",
-              "to": "in-behandeling"
+              "from": "documents-received",
+              "to": "in-progress"
             },
             {
-              "from": "stukken-ontvangen",
-              "to": "afgerond"
+              "from": "documents-received",
+              "to": "completed"
             },
             {
-              "from": "in-behandeling",
-              "to": "vastgesteld"
+              "from": "in-progress",
+              "to": "adopted"
             },
             {
-              "from": "in-behandeling",
-              "to": "afgerond"
+              "from": "in-progress",
+              "to": "completed"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-PCC-005). Canonical dialect verbatim (keyword 'initial', never 'initialState'/'states'-only/'default'). gepland -> stukken-ontvangen -> in-behandeling -> vastgesteld | afgerond, plus stukken-ontvangen -> afgerond for steps without a formal vaststelling (e.g. a berap ter kennisname). vastgesteld and afgerond terminal. No app-side state machine."
@@ -570,7 +570,7 @@
               "type": "scheduled",
               "intervalSec": 604800,
               "filter": {
-                "status": "gepland"
+                "status": "planned"
               }
             },
             "enabled": true,
@@ -779,11 +779,11 @@
             "facetable": true,
             "description": "Step status (declared in x-openregister-lifecycle, ADR-031, REQ-PCC-005): gepland -> stukken-ontvangen -> in-behandeling -> vastgesteld | afgerond, plus stukken-ontvangen -> afgerond. vastgesteld and afgerond are terminal.",
             "enum": [
-              "gepland",
-              "stukken-ontvangen",
-              "in-behandeling",
-              "vastgesteld",
-              "afgerond"
+              "planned",
+              "documents-received",
+              "in-progress",
+              "adopted",
+              "completed"
             ],
             "example": "gepland"
           },

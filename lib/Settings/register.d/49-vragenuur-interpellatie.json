@@ -8,7 +8,7 @@
             "slug": "vragenuur-configuratie-gemeenteraad",
             "governanceBody": "gemeenteraad-amsterdam",
             "submissionPeriodHours": 24,
-            "interpellationSupportThresholdType": "breukdeel",
+            "interpellationSupportThresholdType": "fraction",
             "interpellationSupportThresholdValue": 0.2
           }
         ],
@@ -25,7 +25,7 @@
             "targetMeeting": "raadsvergadering-2025-01-15",
             "questionHourAgendaItem": "vragenuur-2025-01-15",
             "sortOrder": 1,
-            "lifecycle": "beantwoord",
+            "lifecycle": "answered",
             "answerSummary": "Wethouder erkent oplopende wachttijden; raadsbrief met plan van aanpak toegezegd vóór 1 maart.",
             "answeredBy": "00000000-0000-0000-0000-000000000000",
             "followUpCommitment": "toezegging-raadsbrief-jeugdzorg",
@@ -43,7 +43,7 @@
             "targetMeeting": "raadsvergadering-2025-01-15",
             "questionHourAgendaItem": "vragenuur-2025-01-15",
             "sortOrder": 2,
-            "lifecycle": "ingepland"
+            "lifecycle": "scheduled"
           },
           {
             "slug": "mv-sluiting-zwembad",
@@ -55,7 +55,7 @@
             "portfolioHolder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "targetMeeting": "raadsvergadering-2025-01-15",
-            "lifecycle": "ingediend"
+            "lifecycle": "submitted"
           },
           {
             "slug": "mv-opvang-statushouders",
@@ -67,7 +67,7 @@
             "portfolioHolder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "targetMeeting": "raadsvergadering-2025-01-15",
-            "lifecycle": "afgewezen",
+            "lifecycle": "rejected",
             "rejectionReason": "Betreft een individuele casus, geen algemeen belang"
           }
         ],
@@ -88,7 +88,7 @@
               "00000000-0000-0000-0000-000000000000",
               "00000000-0000-0000-0000-000000000000"
             ],
-            "lifecycle": "behandeld",
+            "lifecycle": "handled",
             "councilResolutionDate": "2026-05-12",
             "behandeldIn": "raadsvergadering-2025-01-15",
             "agendaItem": "interpellatie-stationsgebied-2025",
@@ -108,7 +108,7 @@
               "00000000-0000-0000-0000-000000000000",
               "00000000-0000-0000-0000-000000000000"
             ],
-            "lifecycle": "ingediend"
+            "lifecycle": "submitted"
           },
           {
             "slug": "int-subsidie-cultuurhuis",
@@ -127,7 +127,7 @@
               "00000000-0000-0000-0000-000000000000",
               "00000000-0000-0000-0000-000000000000"
             ],
-            "lifecycle": "geagendeerd",
+            "lifecycle": "agendised",
             "councilResolutionDate": "2026-06-30",
             "behandeldIn": "raadsvergadering-2025-01-15",
             "agendaItem": "interpellatie-cultuurhuis-2025-01-15"
@@ -184,61 +184,61 @@
         },
         "x-openregister-lifecycle": {
           "field": "lifecycle",
-          "initial": "ingediend",
+          "initial": "submitted",
           "states": [
-            "ingediend",
-            "toegelaten",
-            "afgewezen",
-            "ingepland",
-            "beantwoord",
-            "niet-behandeld",
-            "ingetrokken"
+            "submitted",
+            "admitted",
+            "rejected",
+            "scheduled",
+            "answered",
+            "not-handled",
+            "withdrawn"
           ],
           "terminal": [
-            "beantwoord",
-            "afgewezen",
-            "ingetrokken"
+            "answered",
+            "rejected",
+            "withdrawn"
           ],
           "transitions": [
             {
-              "from": "ingediend",
-              "to": "toegelaten"
+              "from": "submitted",
+              "to": "admitted"
             },
             {
-              "from": "ingediend",
-              "to": "afgewezen"
+              "from": "submitted",
+              "to": "rejected"
             },
             {
-              "from": "ingediend",
-              "to": "ingetrokken"
+              "from": "submitted",
+              "to": "withdrawn"
             },
             {
-              "from": "toegelaten",
-              "to": "ingepland"
+              "from": "admitted",
+              "to": "scheduled"
             },
             {
-              "from": "toegelaten",
-              "to": "ingetrokken"
+              "from": "admitted",
+              "to": "withdrawn"
             },
             {
-              "from": "ingepland",
-              "to": "beantwoord"
+              "from": "scheduled",
+              "to": "answered"
             },
             {
-              "from": "ingepland",
-              "to": "niet-behandeld"
+              "from": "scheduled",
+              "to": "not-handled"
             },
             {
-              "from": "ingepland",
-              "to": "ingetrokken"
+              "from": "scheduled",
+              "to": "withdrawn"
             },
             {
-              "from": "niet-behandeld",
-              "to": "ingepland"
+              "from": "not-handled",
+              "to": "scheduled"
             },
             {
-              "from": "niet-behandeld",
-              "to": "ingetrokken"
+              "from": "not-handled",
+              "to": "withdrawn"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-VRI-002). Canonical dialect verbatim from the Toezegging/Raadsinformatiebrief schemas (keyword 'initial', never 'initialState'/'states'-only/'default'). ingediend → toegelaten | afgewezen; toegelaten → ingepland; ingepland → beantwoord | niet-behandeld; niet-behandeld → ingepland (re-scheduled to a later vragenuur); ingediend | toegelaten | ingepland | niet-behandeld → ingetrokken. beantwoord, afgewezen and ingetrokken terminal. The admission decision (toegelaten/afgewezen) is recorded by chair/griffier; afwijzingsReden is required on afgewezen (save-time enforcement, not schema 'required', since it is conditional). No app-side state machine."
@@ -274,7 +274,7 @@
             "trigger": {
               "type": "updated",
               "filter": {
-                "lifecycle": "toegelaten"
+                "lifecycle": "admitted"
               }
             },
             "enabled": true,
@@ -303,7 +303,7 @@
             "trigger": {
               "type": "updated",
               "filter": {
-                "lifecycle": "afgewezen"
+                "lifecycle": "rejected"
               }
             },
             "enabled": true,
@@ -332,7 +332,7 @@
             "trigger": {
               "type": "updated",
               "filter": {
-                "lifecycle": "ingepland"
+                "lifecycle": "scheduled"
               }
             },
             "enabled": true,
@@ -441,13 +441,13 @@
             "facetable": true,
             "description": "Question status (declared in x-openregister-lifecycle, ADR-031, REQ-VRI-002): ingediend → toegelaten | afgewezen; toegelaten → ingepland; ingepland → beantwoord | niet-behandeld; niet-behandeld → ingepland; ingetrokken reachable from ingediend/toegelaten/ingepland/niet-behandeld. beantwoord, afgewezen and ingetrokken are terminal. afwijzingsReden is required when afgewezen; antwoordSamenvatting is required when beantwoord (both save-time enforced).",
             "enum": [
-              "ingediend",
-              "toegelaten",
-              "afgewezen",
-              "ingepland",
-              "beantwoord",
-              "niet-behandeld",
-              "ingetrokken"
+              "submitted",
+              "admitted",
+              "rejected",
+              "scheduled",
+              "answered",
+              "not-handled",
+              "withdrawn"
             ],
             "example": "ingediend"
           },
@@ -505,48 +505,48 @@
         },
         "x-openregister-lifecycle": {
           "field": "lifecycle",
-          "initial": "ingediend",
+          "initial": "submitted",
           "states": [
-            "ingediend",
-            "toegelaten",
-            "afgewezen",
-            "geagendeerd",
-            "behandeld",
-            "ingetrokken"
+            "submitted",
+            "admitted",
+            "rejected",
+            "agendised",
+            "handled",
+            "withdrawn"
           ],
           "terminal": [
-            "behandeld",
-            "afgewezen",
-            "ingetrokken"
+            "handled",
+            "rejected",
+            "withdrawn"
           ],
           "transitions": [
             {
-              "from": "ingediend",
-              "to": "toegelaten"
+              "from": "submitted",
+              "to": "admitted"
             },
             {
-              "from": "ingediend",
-              "to": "afgewezen"
+              "from": "submitted",
+              "to": "rejected"
             },
             {
-              "from": "ingediend",
-              "to": "ingetrokken"
+              "from": "submitted",
+              "to": "withdrawn"
             },
             {
-              "from": "toegelaten",
-              "to": "geagendeerd"
+              "from": "admitted",
+              "to": "agendised"
             },
             {
-              "from": "toegelaten",
-              "to": "ingetrokken"
+              "from": "admitted",
+              "to": "withdrawn"
             },
             {
-              "from": "geagendeerd",
-              "to": "behandeld"
+              "from": "agendised",
+              "to": "handled"
             },
             {
-              "from": "geagendeerd",
-              "to": "ingetrokken"
+              "from": "agendised",
+              "to": "withdrawn"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-VRI-010). Canonical dialect (keyword 'initial', never 'initialState'/'states'-only/'default'). ingediend → toegelaten | afgewezen (the council's admission decision); toegelaten → geagendeerd (scheduled as its own agenda item); geagendeerd → behandeld; ingediend | toegelaten | geagendeerd → ingetrokken. behandeld, afgewezen and ingetrokken terminal. Rejection carries afwijzingsReden; admission and rejection record raadsbesluitDatum (save-time enforced). No app-side state machine."
@@ -582,7 +582,7 @@
             "trigger": {
               "type": "updated",
               "filter": {
-                "lifecycle": "toegelaten"
+                "lifecycle": "admitted"
               }
             },
             "enabled": true,
@@ -611,7 +611,7 @@
             "trigger": {
               "type": "updated",
               "filter": {
-                "lifecycle": "afgewezen"
+                "lifecycle": "rejected"
               }
             },
             "enabled": true,
@@ -640,7 +640,7 @@
             "trigger": {
               "type": "updated",
               "filter": {
-                "lifecycle": "geagendeerd"
+                "lifecycle": "agendised"
               }
             },
             "enabled": true,
@@ -745,12 +745,12 @@
             "facetable": true,
             "description": "Request status (declared in x-openregister-lifecycle, ADR-031, REQ-VRI-010): ingediend → toegelaten | afgewezen; toegelaten → geagendeerd; geagendeerd → behandeld; ingetrokken reachable from ingediend/toegelaten/geagendeerd. behandeld, afgewezen and ingetrokken are terminal. afwijzingsReden required when afgewezen; behandelingVerslag required when behandeld (both save-time enforced).",
             "enum": [
-              "ingediend",
-              "toegelaten",
-              "afgewezen",
-              "geagendeerd",
-              "behandeld",
-              "ingetrokken"
+              "submitted",
+              "admitted",
+              "rejected",
+              "agendised",
+              "handled",
+              "withdrawn"
             ],
             "example": "ingediend"
           },
@@ -826,8 +826,8 @@
             "type": "string",
             "description": "How the interpellation support threshold is expressed: 'breukdeel' (a fraction of the body's members, e.g. 0.2 = 1/5 per Reglement van Orde) or 'aantal' (an absolute number of supporters). Combined with interpellatieSteunDrempelWaarde. Informative only (REQ-VRI-011).",
             "enum": [
-              "breukdeel",
-              "aantal"
+              "fraction",
+              "count"
             ],
             "example": "breukdeel"
           },

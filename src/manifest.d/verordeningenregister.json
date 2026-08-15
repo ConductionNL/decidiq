@@ -28,15 +28,15 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "In preparation", "filter": { "status": "in-voorbereiding" } },
-					{ "label": "Adopted", "filter": { "status": "vastgesteld" } },
-					{ "label": "In force", "filter": { "status": "in-werking" } },
-					{ "label": "Lapsed", "filter": { "status": "vervallen" } },
-					{ "label": "Verordening", "filter": { "type": "verordening" } },
-					{ "label": "Beleidsregel", "filter": { "type": "beleidsregel" } },
-					{ "label": "Nadere regel", "filter": { "type": "nadere-regel" } },
-					{ "label": "Reglement", "filter": { "type": "reglement" } },
-					{ "label": "Externe statuut", "filter": { "type": "statuut-extern" } }
+					{ "label": "In preparation", "filter": { "status": "in-preparation" } },
+					{ "label": "Adopted", "filter": { "status": "adopted" } },
+					{ "label": "In force", "filter": { "status": "in-effect" } },
+					{ "label": "Lapsed", "filter": { "status": "lapsed" } },
+					{ "label": "Verordening", "filter": { "type": "by-law" } },
+					{ "label": "Beleidsregel", "filter": { "type": "policy-rule" } },
+					{ "label": "Nadere regel", "filter": { "type": "detailed-rule" } },
+					{ "label": "Reglement", "filter": { "type": "regulations" } },
+					{ "label": "Externe statuut", "filter": { "type": "external-charter" } }
 				],
 				"columns": [
 					{ "key": "citeertitel", "label": "Citeertitel", "widget": "link" },

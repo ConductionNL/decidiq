@@ -58,7 +58,7 @@ class AgendaService {
 		'voorstel' => 'beeldvorming',
 		'beeldvorming' => 'oordeelsvorming',
 		'oordeelsvorming' => 'besluitvorming',
-		'besluitvorming' => 'afgerond',
+		'besluitvorming' => 'completed',
 	];
 
 	/**
@@ -285,7 +285,7 @@ class AgendaService {
 	 * Process all consent agenda items (hamerstukken) for a meeting.
 	 *
 	 * Fetches all AgendaItems for the meeting that have the 'hamerstuk' tag
-	 * and bulk-updates their status to 'afgerond' via ObjectService.
+	 * and bulk-updates their status to 'completed' via ObjectService.
 	 *
 	 * @param string $meetingId UUID of the Meeting
 	 *
@@ -321,7 +321,7 @@ class AgendaService {
 			$this->objectService->saveObject(
 				object: [
 					'id' => $itemId,
-					'status' => 'afgerond',
+					'status' => 'completed',
 				],
 				register: 'decidesk',
 				schema: 'agenda-item',

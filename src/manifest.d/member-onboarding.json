@@ -35,11 +35,11 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Started", "filter": { "lifecycle": "gestart" } },
-					{ "label": "In progress", "filter": { "lifecycle": "in-uitvoering" } },
-					{ "label": "Completed", "filter": { "lifecycle": "afgerond" } },
-					{ "label": "Lapsed", "filter": { "lifecycle": "vervallen" } },
-					{ "label": "Raadswisseling batch", "filter": { "trigger": "raadswisseling-batch" } }
+					{ "label": "Started", "filter": { "lifecycle": "started" } },
+					{ "label": "In progress", "filter": { "lifecycle": "in-execution" } },
+					{ "label": "Completed", "filter": { "lifecycle": "completed" } },
+					{ "label": "Lapsed", "filter": { "lifecycle": "lapsed" } },
+					{ "label": "Raadswisseling batch", "filter": { "trigger": "council-turnover-batch" } }
 				],
 				"columns": [
 					{ "key": "person", "label": "Person", "widget": "link" },
@@ -100,11 +100,11 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Started", "filter": { "lifecycle": "gestart" } },
-					{ "label": "In progress", "filter": { "lifecycle": "in-uitvoering" } },
-					{ "label": "Completed", "filter": { "lifecycle": "afgerond" } },
-					{ "label": "Lapsed", "filter": { "lifecycle": "vervallen" } },
-					{ "label": "Raadswisseling batch", "filter": { "trigger": "raadswisseling-batch" } }
+					{ "label": "Started", "filter": { "lifecycle": "started" } },
+					{ "label": "In progress", "filter": { "lifecycle": "in-execution" } },
+					{ "label": "Completed", "filter": { "lifecycle": "completed" } },
+					{ "label": "Lapsed", "filter": { "lifecycle": "lapsed" } },
+					{ "label": "Raadswisseling batch", "filter": { "trigger": "council-turnover-batch" } }
 				],
 				"columns": [
 					{ "key": "person", "label": "Person", "widget": "link" },

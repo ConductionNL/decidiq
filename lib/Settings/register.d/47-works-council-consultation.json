@@ -19,7 +19,7 @@
           },
           {
             "slug": "instemmingsverzoek-werktijdenregeling",
-            "type": "instemmingsverzoek",
+            "type": "consent-request",
             "worArticle": "art. 27 lid 1 sub b WOR",
             "subject": "Wijziging werktijdenregeling: invoering zelfroosteren productie",
             "director": "00000000-0000-0000-0000-000000000000",
@@ -40,15 +40,15 @@
             "requestedResponseDate": "2026-03-01",
             "consultationMeeting": "raadsvergadering-2025-01-15",
             "agendaItem": "begroting-2026-bespreking",
-            "responseOutcome": "advies-met-voorwaarden",
+            "responseOutcome": "advice-with-conditions",
             "responseText": "De OR adviseert positief onder voorwaarde van een sociaal plan en een evaluatiemoment na 12 maanden.",
             "responseDate": "2026-02-24",
             "relatedDecision": "00000000-0000-0000-0000-000000000000",
-            "decisionOutcome": "afwijkend-van-advies",
+            "decisionOutcome": "contrary-to-advice",
             "decisionText": "Bestuurder besluit tot uitbesteding zonder evaluatiemoment; sociaal plan wordt overgenomen.",
             "decisionDate": "2026-03-10",
             "suspensionTo": "2026-04-10",
-            "lifecycle": "afgerond"
+            "lifecycle": "completed"
           }
         ]
       }
@@ -73,37 +73,37 @@
         },
         "x-openregister-lifecycle": {
           "field": "lifecycle",
-          "initial": "ontvangen",
+          "initial": "received",
           "states": [
-            "ontvangen",
-            "in-behandeling",
+            "received",
+            "in-progress",
             "constituencyConsultation",
             "consultationMeeting",
-            "vastgesteld",
-            "verzonden",
-            "besluit-ontvangen",
-            "afgerond",
-            "ingetrokken"
+            "adopted",
+            "sent",
+            "decision-received",
+            "completed",
+            "withdrawn"
           ],
           "terminal": [
-            "afgerond",
-            "ingetrokken"
+            "completed",
+            "withdrawn"
           ],
           "transitions": [
-            { "from": "ontvangen", "to": "in-behandeling" },
-            { "from": "ontvangen", "to": "ingetrokken" },
-            { "from": "in-behandeling", "to": "constituencyConsultation" },
-            { "from": "in-behandeling", "to": "consultationMeeting" },
-            { "from": "in-behandeling", "to": "ingetrokken" },
+            { "from": "received", "to": "in-progress" },
+            { "from": "received", "to": "withdrawn" },
+            { "from": "in-progress", "to": "constituencyConsultation" },
+            { "from": "in-progress", "to": "consultationMeeting" },
+            { "from": "in-progress", "to": "withdrawn" },
             { "from": "constituencyConsultation", "to": "consultationMeeting" },
-            { "from": "constituencyConsultation", "to": "ingetrokken" },
-            { "from": "consultationMeeting", "to": "vastgesteld" },
-            { "from": "consultationMeeting", "to": "in-behandeling" },
-            { "from": "consultationMeeting", "to": "ingetrokken" },
-            { "from": "vastgesteld", "to": "verzonden" },
-            { "from": "vastgesteld", "to": "ingetrokken" },
-            { "from": "verzonden", "to": "besluit-ontvangen" },
-            { "from": "besluit-ontvangen", "to": "afgerond" }
+            { "from": "constituencyConsultation", "to": "withdrawn" },
+            { "from": "consultationMeeting", "to": "adopted" },
+            { "from": "consultationMeeting", "to": "in-progress" },
+            { "from": "consultationMeeting", "to": "withdrawn" },
+            { "from": "adopted", "to": "sent" },
+            { "from": "adopted", "to": "withdrawn" },
+            { "from": "sent", "to": "decision-received" },
+            { "from": "decision-received", "to": "completed" }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-WCC-002). Canonical dialect verbatim (keyword 'initial', never 'initialState'/'states'-only/'default'). ontvangen -> in-behandeling -> (achterbanraadpleging) -> overlegvergadering -> vastgesteld -> verzonden -> besluit-ontvangen -> afgerond. achterbanraadpleging is an optional step (in-behandeling goes to either achterbanraadpleging or directly to overlegvergadering; achterbanraadpleging -> overlegvergadering). overlegvergadering -> in-behandeling allows repeat overleg rounds. ingetrokken is reachable from every non-terminal state before verzonden (ontvangen/in-behandeling/achterbanraadpleging/overlegvergadering/vastgesteld) and, with afgerond, is terminal. No app-side state machine."
         },
@@ -137,7 +137,7 @@
             "trigger": {
               "type": "updated",
               "filter": {
-                "decisionOutcome": "afwijkend-van-advies"
+                "decisionOutcome": "contrary-to-advice"
               }
             },
             "enabled": true,
@@ -284,7 +284,7 @@
             "description": "The WOR request type. adviesaanvraag = advice request (art. 25 WOR); instemmingsverzoek = consent request (art. 27 WOR). Required. Drives the art. 25 lid 6 opschorting derivation (adviesaanvraag only, see opschortingTot).",
             "enum": [
               "adviceRequest",
-              "instemmingsverzoek"
+              "consent-request"
             ],
             "example": "adviceRequest"
           },
@@ -336,15 +336,15 @@
             "facetable": true,
             "description": "Traject status (declared in x-openregister-lifecycle, ADR-031): ontvangen -> in-behandeling -> (achterbanraadpleging) -> overlegvergadering -> vastgesteld -> verzonden -> besluit-ontvangen -> afgerond, with achterbanraadpleging optional, a repeat-overleg loop (overlegvergadering -> in-behandeling), and ingetrokken reachable before verzonden. afgerond and ingetrokken are terminal.",
             "enum": [
-              "ontvangen",
-              "in-behandeling",
+              "received",
+              "in-progress",
               "constituencyConsultation",
               "consultationMeeting",
-              "vastgesteld",
-              "verzonden",
-              "besluit-ontvangen",
-              "afgerond",
-              "ingetrokken"
+              "adopted",
+              "sent",
+              "decision-received",
+              "completed",
+              "withdrawn"
             ],
             "example": "ontvangen"
           },
@@ -376,11 +376,11 @@
             "facetable": true,
             "description": "The OR's formal response outcome. positief-advies / advies-met-voorwaarden / negatief-advies for an adviesaanvraag; instemming-verleend / instemming-geweigerd for an instemmingsverzoek. Optional until the response is recorded.",
             "enum": [
-              "positief-advies",
-              "advies-met-voorwaarden",
-              "negatief-advies",
-              "instemming-verleend",
-              "instemming-geweigerd"
+              "positive-advice",
+              "advice-with-conditions",
+              "negative-advice",
+              "consent-granted",
+              "consent-refused"
             ],
             "example": "advies-met-voorwaarden"
           },
@@ -419,10 +419,10 @@
             "facetable": true,
             "description": "The bestuurder's decision after the OR response (WOR art. 25 lid 5 schriftelijke mededeling). conform-advies / afwijkend-van-advies for an adviesaanvraag; conform-instemming for an instemmingsverzoek; niet-doorgezet when the request is dropped. Recording it accompanies the transition to besluit-ontvangen. afwijkend-van-advies on an adviesaanvraag triggers the art. 25 lid 6 opschortingstermijn (see opschortingTot) and the afwijkend-besluit notification.",
             "enum": [
-              "conform-advies",
-              "afwijkend-van-advies",
-              "conform-instemming",
-              "niet-doorgezet"
+              "in-line-with-advice",
+              "contrary-to-advice",
+              "in-line-with-consent",
+              "not-pursued"
             ],
             "example": "afwijkend-van-advies"
           },
