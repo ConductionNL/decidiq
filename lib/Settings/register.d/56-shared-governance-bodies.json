@@ -101,7 +101,7 @@
             "slug": "zienswijzeronde-begroting-2027",
             "title": "Zienswijzeronde ontwerpbegroting 2027 NOZ organisatie",
             "sharedBody": "bestuur-noz-organisatie",
-            "subjectType": "ontwerpbegroting",
+            "subjectType": "draft-budget",
             "subjectDescription": "Ontwerpbegroting 2027, aangeboden aan de raden conform art. 35 Wgr.",
             "deadline": "2026-06-15",
             "cyclusStep": "00000000-0000-0000-0000-000000000000",
@@ -111,10 +111,10 @@
             "slug": "zienswijzeronde-wijziging-gr-2026",
             "title": "Zienswijzeronde wijziging gemeenschappelijke regeling",
             "sharedBody": "bestuur-noz-organisatie",
-            "subjectType": "wijziging-regeling",
+            "subjectType": "amendment-of-arrangement",
             "subjectDescription": "Voorstel tot wijziging van de regeling i.v.m. taakuitbreiding vergunningverlening.",
             "deadline": "2026-09-30",
-            "status": "geopend"
+            "status": "opened"
           }
         ],
         "zienswijze": [
@@ -123,39 +123,39 @@
             "ronde": "zienswijzeronde-begroting-2027",
             "participant": "gemeenteraad-noorderbrug",
             "deadline": "2026-06-15",
-            "position": "positief-met-kanttekeningen",
+            "position": "positive-with-reservations",
             "text": "De raad stemt in met de ontwerpbegroting, met de kanttekening dat de indexatie van de gemeentelijke bijdrage maximaal 3% mag bedragen.",
             "submittedDate": "2026-06-10T00:00:00Z",
             "decision": "00000000-0000-0000-0000-000000000000",
-            "processing": "gedeeltelijk-overgenomen",
+            "processing": "partly-adopted",
             "processingNotes": "Indexatie verlaagd naar 3,2%; volledige inwilliging niet mogelijk binnen de CAO-ontwikkeling.",
-            "status": "verwerkt"
+            "status": "processed"
           },
           {
             "slug": "zienswijze-oostwoud-begroting-2027",
             "ronde": "zienswijzeronde-begroting-2027",
             "participant": "gemeenteraad-oostwoud",
             "deadline": "2026-06-15",
-            "position": "positief",
+            "position": "positive",
             "text": "De raad stemt zonder opmerkingen in met de ontwerpbegroting 2027.",
             "submittedDate": "2026-06-02T00:00:00Z",
-            "processing": "overgenomen",
+            "processing": "adopted",
             "processingNotes": "Voor kennisgeving aangenomen.",
-            "status": "verwerkt"
+            "status": "processed"
           },
           {
             "slug": "zienswijze-zuidermeer-begroting-2027",
             "ronde": "zienswijzeronde-begroting-2027",
             "participant": "gemeenteraad-zuidermeer",
             "deadline": "2026-06-15",
-            "status": "niet-ingediend"
+            "status": "not-submitted"
           },
           {
             "slug": "zienswijze-noorderbrug-wijziging-gr",
             "ronde": "zienswijzeronde-wijziging-gr-2026",
             "participant": "gemeenteraad-noorderbrug",
             "deadline": "2026-09-30",
-            "status": "uitstaand"
+            "status": "outstanding"
           }
         ]
       }
@@ -253,38 +253,38 @@
         },
         "x-openregister-lifecycle": {
           "field": "status",
-          "initial": "concept",
+          "initial": "draft",
           "states": [
-            "concept",
-            "geopend",
+            "draft",
+            "opened",
             "processing",
-            "afgerond",
-            "ingetrokken"
+            "completed",
+            "withdrawn"
           ],
           "terminal": [
-            "afgerond",
-            "ingetrokken"
+            "completed",
+            "withdrawn"
           ],
           "transitions": [
             {
-              "from": "concept",
-              "to": "geopend"
+              "from": "draft",
+              "to": "opened"
             },
             {
-              "from": "geopend",
+              "from": "opened",
               "to": "processing"
             },
             {
               "from": "processing",
-              "to": "afgerond"
+              "to": "completed"
             },
             {
-              "from": "concept",
-              "to": "ingetrokken"
+              "from": "draft",
+              "to": "withdrawn"
             },
             {
-              "from": "geopend",
-              "to": "ingetrokken"
+              "from": "opened",
+              "to": "withdrawn"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-SGB-004). Canonical dialect (keyword 'initial', never 'initialState'/'states'-only/'default'). concept -> geopend -> verwerking -> afgerond, plus concept -> ingetrokken and geopend -> ingetrokken; afgerond and ingetrokken terminal. The concept -> geopend transition is the fan-out point (ZienswijzerondeService::openRonde generates the per-participant zienswijzen). Transitions outside this map are rejected by OpenRegister; no app-side state machine."
@@ -317,13 +317,13 @@
             "facetable": true,
             "description": "The kind of subject the ronde concerns. Required.",
             "enum": [
-              "ontwerpbegroting",
-              "begrotingswijziging",
-              "kadernota",
-              "jaarrekening",
-              "wijziging-regeling",
-              "toetreding-uittreding",
-              "overig"
+              "draft-budget",
+              "budget-amendment",
+              "framework-memorandum",
+              "annual-accounts",
+              "amendment-of-arrangement",
+              "accession-withdrawal",
+              "other"
             ],
             "example": "ontwerpbegroting"
           },
@@ -360,11 +360,11 @@
             "facetable": true,
             "description": "Ronde lifecycle status (declared in x-openregister-lifecycle, ADR-031): concept -> geopend -> verwerking -> afgerond, plus concept/geopend -> ingetrokken. afgerond and ingetrokken are terminal.",
             "enum": [
-              "concept",
-              "geopend",
+              "draft",
+              "opened",
               "processing",
-              "afgerond",
-              "ingetrokken"
+              "completed",
+              "withdrawn"
             ],
             "example": "geopend"
           }
@@ -387,38 +387,38 @@
         },
         "x-openregister-lifecycle": {
           "field": "status",
-          "initial": "uitstaand",
+          "initial": "outstanding",
           "states": [
-            "uitstaand",
-            "in-voorbereiding",
-            "ingediend",
-            "verwerkt",
-            "niet-ingediend"
+            "outstanding",
+            "in-preparation",
+            "submitted",
+            "processed",
+            "not-submitted"
           ],
           "terminal": [
-            "verwerkt",
-            "niet-ingediend"
+            "processed",
+            "not-submitted"
           ],
           "transitions": [
             {
-              "from": "uitstaand",
-              "to": "in-voorbereiding"
+              "from": "outstanding",
+              "to": "in-preparation"
             },
             {
-              "from": "in-voorbereiding",
-              "to": "ingediend"
+              "from": "in-preparation",
+              "to": "submitted"
             },
             {
-              "from": "ingediend",
-              "to": "verwerkt"
+              "from": "submitted",
+              "to": "processed"
             },
             {
-              "from": "uitstaand",
-              "to": "niet-ingediend"
+              "from": "outstanding",
+              "to": "not-submitted"
             },
             {
-              "from": "in-voorbereiding",
-              "to": "niet-ingediend"
+              "from": "in-preparation",
+              "to": "not-submitted"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-SGB-005). Canonical dialect (keyword 'initial', never 'initialState'/'states'-only/'default'). uitstaand -> in-voorbereiding -> ingediend -> verwerkt, plus uitstaand/in-voorbereiding -> niet-ingediend (deadline lapsed without submission); verwerkt and niet-ingediend terminal. Transitions outside this map are rejected by OpenRegister; no app-side state machine."
@@ -553,10 +553,10 @@
             "facetable": true,
             "description": "The participant's position on the subject. Optional until recorded.",
             "enum": [
-              "positief",
-              "positief-met-kanttekeningen",
-              "negatief",
-              "geen-zienswijze"
+              "positive",
+              "positive-with-reservations",
+              "negative",
+              "no-view"
             ],
             "example": "positief-met-kanttekeningen"
           },
@@ -586,9 +586,9 @@
             "facetable": true,
             "description": "How the shared body processed this zienswijze. Set by the shared body during verwerking.",
             "enum": [
-              "overgenomen",
-              "gedeeltelijk-overgenomen",
-              "niet-overgenomen"
+              "adopted",
+              "partly-adopted",
+              "not-adopted"
             ],
             "example": "gedeeltelijk-overgenomen"
           },
@@ -603,11 +603,11 @@
             "facetable": true,
             "description": "Zienswijze lifecycle status (declared in x-openregister-lifecycle, ADR-031): uitstaand -> in-voorbereiding -> ingediend -> verwerkt, plus uitstaand/in-voorbereiding -> niet-ingediend. verwerkt and niet-ingediend are terminal.",
             "enum": [
-              "uitstaand",
-              "in-voorbereiding",
-              "ingediend",
-              "verwerkt",
-              "niet-ingediend"
+              "outstanding",
+              "in-preparation",
+              "submitted",
+              "processed",
+              "not-submitted"
             ],
             "example": "uitstaand"
           }

@@ -115,6 +115,14 @@ Vrij en open source onder de EUPL-1.2-licentie.
     <repair-steps>
         <post-migration>
             <step>OCA\Decidesk\Repair\InitializeSettings</step>
+            <!--
+                After InitializeSettings imports the register. The schema edit
+                changes the DECLARATION; every row already written still holds
+                the Dutch string, and a filter on the new value returns null
+                rather than an error. The Dutch legal terms themselves are not
+                lost — they live in l10n/nl.json against their English keys.
+            -->
+            <step>OCA\Decidesk\Repair\RenameDutchDecideskValues</step>
             <step>OCA\Decidesk\Migration\MigrateEmailLinksToRegistry</step>
             <step>OCA\Decidesk\Migration\MigrateCommentsToTalkLeaf</step>
             <step>OCA\Decidesk\Migration\MigrateActionItemsToDeckLeaf</step>
@@ -129,6 +137,14 @@ Vrij en open source onder de EUPL-1.2-licentie.
         </post-migration>
         <install>
             <step>OCA\Decidesk\Repair\InitializeSettings</step>
+            <!--
+                After InitializeSettings imports the register. The schema edit
+                changes the DECLARATION; every row already written still holds
+                the Dutch string, and a filter on the new value returns null
+                rather than an error. The Dutch legal terms themselves are not
+                lost — they live in l10n/nl.json against their English keys.
+            -->
+            <step>OCA\Decidesk\Repair\RenameDutchDecideskValues</step>
         </install>
     </repair-steps>
 

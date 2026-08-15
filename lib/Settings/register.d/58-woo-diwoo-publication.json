@@ -14,7 +14,7 @@
           },
           {
             "slug": "woo-map-besluitenlijst",
-            "objectType": "besluitenlijst",
+            "objectType": "decision-list",
             "informatiecategorie": "https://identifier.overheid.nl/tooi/def/thes/kern/c_PLACEHOLDER_vergaderstukken-decentrale-overheden",
             "informatiecategorieLabel": "Vergaderstukken decentrale overheden",
             "active": true,
@@ -38,7 +38,7 @@
           },
           {
             "slug": "woo-map-motie",
-            "objectType": "motie",
+            "objectType": "motion",
             "informatiecategorie": "https://identifier.overheid.nl/tooi/def/thes/kern/c_PLACEHOLDER_vergaderstukken-decentrale-overheden",
             "informatiecategorieLabel": "Vergaderstukken decentrale overheden",
             "active": true,
@@ -46,7 +46,7 @@
           },
           {
             "slug": "woo-map-toezegging",
-            "objectType": "toezegging",
+            "objectType": "commitment",
             "informatiecategorie": "https://identifier.overheid.nl/tooi/def/thes/kern/c_PLACEHOLDER_vergaderstukken-decentrale-overheden",
             "informatiecategorieLabel": "Vergaderstukken decentrale overheden",
             "active": true,
@@ -54,7 +54,7 @@
           },
           {
             "slug": "woo-map-raadsinformatiebrief",
-            "objectType": "raadsinformatiebrief",
+            "objectType": "council-information-letter",
             "informatiecategorie": "https://identifier.overheid.nl/tooi/def/thes/kern/c_PLACEHOLDER_vergaderstukken-decentrale-overheden",
             "informatiecategorieLabel": "Vergaderstukken decentrale overheden",
             "active": true,
@@ -62,7 +62,7 @@
           },
           {
             "slug": "woo-map-regeling",
-            "objectType": "regeling",
+            "objectType": "arrangement",
             "informatiecategorie": "https://identifier.overheid.nl/tooi/def/thes/kern/c_PLACEHOLDER_wetten-en-algemeen-verbindende-voorschriften",
             "informatiecategorieLabel": "Wetten en algemeen verbindende voorschriften",
             "active": true,
@@ -141,13 +141,13 @@
             "description": "The publishable object type this row maps, identified by schema slug or payload kind. Required and unique per row (OR has no cross-object unique constraint — uniqueness is a review/validation concern; the index sorts by objectType so duplicates are immediately visible). A row whose type schema is not installed is inert (REQ-WOO-001).",
             "enum": [
               "meeting-agenda",
-              "besluitenlijst",
+              "decision-list",
               "minutes",
               "decision",
-              "motie",
-              "toezegging",
-              "raadsinformatiebrief",
-              "regeling"
+              "motion",
+              "commitment",
+              "council-information-letter",
+              "arrangement"
             ],
             "example": "decision"
           },

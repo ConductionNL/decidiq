@@ -42,11 +42,11 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Submitted", "filter": { "lifecycle": "ingediend" } },
-					{ "label": "In treatment", "filter": { "lifecycle": "behandeld" } },
-					{ "label": "Appointed", "filter": { "lifecycle": "benoemd" } },
-					{ "label": "Not appointed", "filter": { "lifecycle": "niet-benoemd" } },
-					{ "label": "Withdrawn", "filter": { "lifecycle": "ingetrokken" } }
+					{ "label": "Submitted", "filter": { "lifecycle": "submitted" } },
+					{ "label": "In treatment", "filter": { "lifecycle": "handled" } },
+					{ "label": "Appointed", "filter": { "lifecycle": "appointed" } },
+					{ "label": "Not appointed", "filter": { "lifecycle": "not-appointed" } },
+					{ "label": "Withdrawn", "filter": { "lifecycle": "withdrawn" } }
 				],
 				"columns": [
 					{ "key": "rationale", "label": "Nomination", "widget": "link" },

@@ -67,7 +67,7 @@ function stackTitleToLane(title) {
 	if (
 		t.includes('done')
 		|| t.includes('complete')
-		|| t.includes('afgerond')
+		|| t.includes('completed')
 		|| t.includes('klaar')
 	)
 		return 'done'

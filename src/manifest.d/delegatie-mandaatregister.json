@@ -27,14 +27,14 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Concept", "filter": { "status": "concept" } },
-					{ "label": "In force", "filter": { "status": "van-kracht" } },
-					{ "label": "Revoked", "filter": { "status": "ingetrokken" } },
-					{ "label": "Lapsed", "filter": { "status": "vervallen" } },
-					{ "label": "Delegatie", "filter": { "type": "delegatie" } },
-					{ "label": "Mandaat", "filter": { "type": "mandaat" } },
-					{ "label": "Volmacht", "filter": { "type": "volmacht" } },
-					{ "label": "Machtiging", "filter": { "type": "machtiging" } }
+					{ "label": "Concept", "filter": { "status": "draft" } },
+					{ "label": "In force", "filter": { "status": "effective" } },
+					{ "label": "Revoked", "filter": { "status": "withdrawn" } },
+					{ "label": "Lapsed", "filter": { "status": "lapsed" } },
+					{ "label": "Delegatie", "filter": { "type": "delegation" } },
+					{ "label": "Mandaat", "filter": { "type": "mandate" } },
+					{ "label": "Volmacht", "filter": { "type": "power-of-attorney" } },
+					{ "label": "Machtiging", "filter": { "type": "authorisation" } }
 				],
 				"columns": [
 					{ "key": "type", "label": "Type", "widget": "badge" },
