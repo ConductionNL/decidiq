@@ -362,4 +362,34 @@ final class RenameDutchDecideskValuesTest extends TestCase {
 		self::assertNotSame($this->decisions->nothingToDoMessage(), $this->decisions->summaryMessage(0));
 
 	}//end testMessagesDistinguishNoRowsFromNoTables()
+	/**
+	 * No mapped value differs from its source by case alone.
+	 *
+	 * A case-only entry translates nothing and still produces a diff, so it
+	 * reads as a translation that was made. Where the source is an identifier
+	 * it renames the identifier instead: the same defect in shillinq's draft
+	 * map turned `ACMReport` into `aCMReport`, renaming an entity type.
+	 *
+	 * @return void
+	 *
+	 * @spec exclude Self-check on the vocabulary migration's own map.
+	 */
+	public function testMapContainsNoCaseOnlyEntries(): void {
+		self::assertSame(
+			[],
+			$this->decisions->caseOnlyEntries(\OCA\Decidesk\Repair\RenameDutchDecideskValues::VALUE_MAP)
+		);
+
+		// The detector must be able to FAIL, or an empty result above proves
+		// nothing about the map.
+		self::assertSame(
+			['entityType: ACMReport -> aCMReport'],
+			$this->decisions->caseOnlyEntries(['entityType' => ['ACMReport' => 'aCMReport']])
+		);
+		self::assertSame(
+			[],
+			$this->decisions->caseOnlyEntries(['state' => ['vastgesteld' => 'determined']])
+		);
+
+	}//end testMapContainsNoCaseOnlyEntries()
 }//end class
