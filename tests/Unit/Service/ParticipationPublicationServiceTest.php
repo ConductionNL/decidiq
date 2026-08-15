@@ -109,6 +109,7 @@ class ParticipationPublicationServiceTest extends TestCase {
 			appManager: $this->appManager,
 			appConfig: $this->createMock(IAppConfig::class),
 			budgetService: $this->createMock(BudgetVotingService::class),
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 	}//end makeService()

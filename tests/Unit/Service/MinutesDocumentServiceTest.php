@@ -123,6 +123,7 @@ class MinutesDocumentServiceTest extends TestCase {
 			logger: $this->createMock(LoggerInterface::class),
 			generationService: $this->generationService,
 			folderService: $this->folderService,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 	}//end setUp()

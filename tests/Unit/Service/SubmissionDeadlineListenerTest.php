@@ -31,6 +31,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Listener\SubmissionDeadlineListener;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCP\EventDispatcher\Event;
@@ -119,6 +120,7 @@ class SubmissionDeadlineListenerTest extends TestCase {
 		return new SubmissionDeadlineListener(
 			container: $container,
 			logger: new NullLogger(),
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 	}//end buildListener()
@@ -277,6 +279,7 @@ class SubmissionDeadlineListenerTest extends TestCase {
 		$listener = new SubmissionDeadlineListener(
 			container: $container,
 			logger: new NullLogger(),
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 		$event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'motion', 'meeting' => 'meeting-1']);

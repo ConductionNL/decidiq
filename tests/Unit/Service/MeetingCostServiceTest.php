@@ -84,6 +84,7 @@ class MeetingCostServiceTest extends TestCase {
 		$this->service = new MeetingCostService(
 			container: $this->container,
 			logger: $this->logger,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 	}//end setUp()

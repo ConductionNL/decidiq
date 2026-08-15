@@ -99,6 +99,7 @@ class ProofPackageServiceTest extends TestCase {
 			logger: $this->createMock(LoggerInterface::class),
 			participantResolver: $this->participantResolver,
 			folderService: $this->folderService,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 	}//end setUp()
@@ -359,6 +360,7 @@ class ProofPackageServiceTest extends TestCase {
 			logger: $this->createMock(LoggerInterface::class),
 			participantResolver: $this->participantResolver,
 			folderService: $this->folderService,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 		$this->expectException(\RuntimeException::class);

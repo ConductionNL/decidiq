@@ -222,6 +222,7 @@ class ProxyVoteServiceTest extends TestCase {
 			logger: $this->createMock(LoggerInterface::class),
 			auditLogService: $audit,
 			participantResolver: $participantResolver,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 	}//end makeService()

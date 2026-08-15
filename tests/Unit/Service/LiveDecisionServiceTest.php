@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\LiveDecisionService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -45,7 +46,9 @@ class LiveDecisionServiceTest extends TestCase {
 		parent::setUp();
 		$this->container = $this->createMock(ContainerInterface::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
-		$this->service = new LiveDecisionService($this->container, $this->logger);
+		$this->service = new LiveDecisionService($this->container, $this->logger,
+			objectService: $this->createMock(ObjectServiceInterface::class),
+		);
 	}
 
 	/**

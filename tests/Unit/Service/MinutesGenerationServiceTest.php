@@ -100,6 +100,7 @@ class MinutesGenerationServiceTest extends TestCase {
 			container: $this->container,
 			logger: $this->logger,
 			renderer: new MinutesDraftRenderer(),
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 	}//end setUp()
@@ -276,6 +277,7 @@ class MinutesGenerationServiceTest extends TestCase {
 			container: $containerNoOR,
 			logger: $this->logger,
 			renderer: new MinutesDraftRenderer(),
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 		$this->expectException(\RuntimeException::class);

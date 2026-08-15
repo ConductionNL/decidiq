@@ -65,6 +65,7 @@ class ProxyDelegationServiceTest extends TestCase {
 		$this->service = new ProxyDelegationService(
 			container: $container,
 			logger: $this->createMock(LoggerInterface::class),
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 	}//end setUp()

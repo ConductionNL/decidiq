@@ -104,6 +104,7 @@ class MotionServiceTest extends TestCase {
 			container: $this->container,
 			logger: $this->logger,
 			userManager: $this->userManager,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 	}//end setUp()

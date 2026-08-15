@@ -22,6 +22,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\ALVMinutesService;
 use OCA\Decidesk\Service\MinutesContextResolver;
 use OCA\Decidesk\Service\ParticipantNotifier;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -53,7 +54,9 @@ class ALVMinutesServiceTest extends TestCase {
 		// exercises the identical OpenRegister calls it always did.
 		$this->service = new ALVMinutesService(
 			$this->logger,
-			new MinutesContextResolver($this->container),
+			new MinutesContextResolver($this->container,
+			objectService: $this->createMock(ObjectServiceInterface::class),
+		),
 			new ParticipantNotifier($this->container, $this->logger),
 		);
 	}

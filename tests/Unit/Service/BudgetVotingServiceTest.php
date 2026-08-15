@@ -67,7 +67,8 @@ class BudgetVotingServiceTest extends TestCase {
 			container: $container,
 			lifecycleService: new ParticipationLifecycleService(
 				container: $container,
-			),
+			objectService: $this->createMock(ObjectServiceInterface::class),
+		),
 			advisoryVoteService: $this->createMock(AdvisoryVoteService::class),
 		);
 

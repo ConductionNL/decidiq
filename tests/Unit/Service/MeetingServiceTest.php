@@ -131,6 +131,7 @@ class MeetingServiceTest extends TestCase {
 			transitionGuard: $this->transitionGuard,
 			meetingCostService: $this->meetingCostService,
 			scopeGuard: $this->scopeGuard,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 	}//end setUp()
@@ -363,6 +364,7 @@ class MeetingServiceTest extends TestCase {
 			transitionGuard: $transitionGuard,
 			meetingCostService: $this->meetingCostService,
 			scopeGuard: $this->scopeGuard,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 		$result = $service->transition(meetingId: $uuid, action: 'pause');
@@ -406,6 +408,7 @@ class MeetingServiceTest extends TestCase {
 			transitionGuard: $transitionGuard,
 			meetingCostService: $this->meetingCostService,
 			scopeGuard: $scopeGuard,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 		// Caller is NOT the chair.
@@ -451,6 +454,7 @@ class MeetingServiceTest extends TestCase {
 			transitionGuard: $transitionGuard,
 			meetingCostService: $this->meetingCostService,
 			scopeGuard: $scopeGuard,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 		$result = $service->transition(meetingId: $uuid, action: 'adjourn', currentUserId: 'uid-chair');
@@ -498,6 +502,7 @@ class MeetingServiceTest extends TestCase {
 			transitionGuard: $transitionGuard,
 			meetingCostService: $this->meetingCostService,
 			scopeGuard: $scopeGuard,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 		// Caller IS the chair.
@@ -539,6 +544,7 @@ class MeetingServiceTest extends TestCase {
 			transitionGuard: $transitionGuard,
 			meetingCostService: $this->meetingCostService,
 			scopeGuard: $this->scopeGuard,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 		$result = $service->transition(meetingId: $uuid, action: 'open');

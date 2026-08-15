@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Integration\Service;
 
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -74,7 +75,9 @@ class ActionItemAnalyticsServiceIntegrationTest extends TestCase {
 			$this->objectService = \OC::$server->get(\OCA\OpenRegister\Service\ObjectService::class);
 			$container = \OC::$server->get(\Psr\Container\ContainerInterface::class);
 			$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
-			$this->service = new ActionItemAnalyticsService($container, $logger);
+			$this->service = new ActionItemAnalyticsService($container, $logger,
+			objectService: $this->createMock(ObjectServiceInterface::class),
+		);
 		} catch (\Throwable $e) {
 			$this->markTestSkipped(
 				message: 'Could not resolve dependencies from DI container: ' . $e->getMessage()

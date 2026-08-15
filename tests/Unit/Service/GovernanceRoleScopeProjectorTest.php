@@ -216,8 +216,10 @@ class GovernanceRoleScopeProjectorTest extends TestCase {
 			new GovernanceScopeGuard(
 				$container,
 				$groupManager,
-				$this->createMock(LoggerInterface::class)
-			)
+				$this->createMock(LoggerInterface::class),
+			objectService: $this->createMock(ObjectServiceInterface::class),
+		),
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 	}//end makeProjector()
 

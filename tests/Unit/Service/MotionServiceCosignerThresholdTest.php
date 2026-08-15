@@ -36,6 +36,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
 use OCA\Decidesk\Lifecycle\MotionLifecycleTransitioner;
 use OCA\Decidesk\Service\MotionService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use OCP\IUserManager;
 use PHPUnit\Framework\TestCase;
@@ -213,7 +214,8 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 						container: $container,
 						logger: new NullLogger(),
 						guard: new DecisionTransitionGuard(),
-					);
+			objectService: $this->createMock(ObjectServiceInterface::class),
+		);
 				}
 
 				throw new \RuntimeException('not wired in test: ' . $id);
@@ -224,6 +226,7 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 			container: $container,
 			logger: new NullLogger(),
 			userManager: $this->createMock(IUserManager::class),
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 	}//end buildService()

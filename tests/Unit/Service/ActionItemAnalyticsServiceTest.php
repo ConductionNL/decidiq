@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -53,7 +54,9 @@ class ActionItemAnalyticsServiceTest extends TestCase {
 		parent::setUp();
 		$this->container = $this->createMock(ContainerInterface::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
-		$this->service = new ActionItemAnalyticsService($this->container, $this->logger);
+		$this->service = new ActionItemAnalyticsService($this->container, $this->logger,
+			objectService: $this->createMock(ObjectServiceInterface::class),
+		);
 	}//end setUp()
 
 	/**
