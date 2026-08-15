@@ -8,6 +8,11 @@
  * rather than an error — so the feature reports "nothing found" instead of
  * failing. This rewrites the stored rows.
  *
+ * Every database call goes through ValueMigrationGateway, a three-method port.
+ * decidesk's unit environment has no doctrine/dbal, so IDBConnection cannot be
+ * doubled here at all — depending on that connection directly would make this
+ * step untestable by construction. Behind the port it is driven by a small fake.
+ *
  * Scoped by COLUMN, never by the value alone. The same string means different
  * things on different columns, and a migration matching on the string would
  * corrupt every column that shares it.
@@ -38,11 +43,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Repair;
 
-use OCP\DB\Exception;
-use OCP\IDBConnection;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
-use Psr\Log\LoggerInterface;
 
 /**
  * Migrates stored Dutch enum values to their English spelling.
@@ -302,13 +304,11 @@ class RenameDutchDecideskValues implements IRepairStep {
 	/**
 	 * Constructor.
 	 *
-	 * @param IDBConnection                        $db        Database connection.
-	 * @param LoggerInterface                      $logger    Logger.
-	 * @param RenameDutchDecideskValueDecisions    $decisions Pure predicates.
+	 * @param ValueMigrationGateway             $gateway   Database operations.
+	 * @param RenameDutchDecideskValueDecisions $decisions Pure predicates.
 	 */
 	public function __construct(
-		private readonly IDBConnection $db,
-		private readonly LoggerInterface $logger,
+		private readonly ValueMigrationGateway $gateway,
 		private readonly RenameDutchDecideskValueDecisions $decisions = new RenameDutchDecideskValueDecisions(),
 	) {
 	}//end __construct()
@@ -330,7 +330,7 @@ class RenameDutchDecideskValues implements IRepairStep {
 	 * @return void
 	 */
 	public function run(IOutput $output): void {
-		$tables = $this->shardTables();
+		$tables = $this->gateway->shardTables();
 		if ($tables === []) {
 			$output->info('RenameDutchDecideskValues: no Decidesk shard tables on this install; nothing to do.');
 			return;
@@ -340,11 +340,11 @@ class RenameDutchDecideskValues implements IRepairStep {
 		foreach ($tables as $table) {
 			$planned = $this->decisions->plannedRewrites(
 				valueMap: self::VALUE_MAP,
-				columns: $this->columnsOf(table: $table)
+				columns: $this->gateway->columnsOf(table: $table)
 			);
 
 			foreach ($planned as $job) {
-				$updated += $this->rewrite(
+				$updated += $this->gateway->rewrite(
 					table: $table,
 					column: $job['column'],
 					old: $job['old'],
@@ -355,91 +355,4 @@ class RenameDutchDecideskValues implements IRepairStep {
 
 		$output->info(sprintf('RenameDutchDecideskValues: %d row value(s) translated.', $updated));
 	}//end run()
-
-	/**
-	 * Rewrite one value in one column.
-	 *
-	 * @param string $table  Shard table.
-	 * @param string $column Column name.
-	 * @param string $old    Stored Dutch value.
-	 * @param string $new    English replacement.
-	 *
-	 * @return int Rows affected.
-	 */
-	private function rewrite(string $table, string $column, string $old, string $new): int {
-		$sql = 'UPDATE ' . $this->quote(identifier: $table)
-			. ' SET ' . $this->quote(identifier: $column) . ' = ?'
-			. ' WHERE ' . $this->quote(identifier: $column) . ' = ?';
-
-		try {
-			return $this->db->executeStatement($sql, [$new, $old]);
-		} catch (Exception $e) {
-			$this->logger->warning(
-				'RenameDutchDecideskValues: value rewrite failed.',
-				['table' => $table, 'column' => $column, 'exception' => $e->getMessage()]
-			);
-			return 0;
-		}
-	}//end rewrite()
-
-	/**
-	 * Discover this app's shard tables.
-	 *
-	 * @return array<int, string>
-	 */
-	private function shardTables(): array {
-		try {
-			$stmt = $this->db->prepare(
-				'SELECT table_name FROM information_schema.tables WHERE table_name LIKE :pattern'
-			);
-			$stmt->bindValue('pattern', '%openregister\_table\_%');
-			$stmt->execute();
-			$rows = $stmt->fetchAll();
-		} catch (\Throwable $e) {
-			$this->logger->warning(
-				'RenameDutchDecideskValues: could not list tables; skipping.',
-				['exception' => $e->getMessage()]
-			);
-			return [];
-		}
-
-		return $this->decisions->column(rows: $rows, key: 'table_name');
-	}//end shardTables()
-
-	/**
-	 * Read a table's column names.
-	 *
-	 * @param string $table Table name.
-	 *
-	 * @return array<int, string>
-	 */
-	private function columnsOf(string $table): array {
-		try {
-			$stmt = $this->db->prepare(
-				'SELECT column_name FROM information_schema.columns WHERE table_name = :table'
-			);
-			$stmt->bindValue('table', $table);
-			$stmt->execute();
-			$rows = $stmt->fetchAll();
-		} catch (\Throwable $e) {
-			$this->logger->warning(
-				'RenameDutchDecideskValues: could not read columns; skipping table.',
-				['table' => $table, 'exception' => $e->getMessage()]
-			);
-			return [];
-		}
-
-		return $this->decisions->column(rows: $rows, key: 'column_name');
-	}//end columnsOf()
-
-	/**
-	 * Quote an identifier for the active platform.
-	 *
-	 * @param string $identifier Table or column name.
-	 *
-	 * @return string
-	 */
-	private function quote(string $identifier): string {
-		return $this->db->getDatabasePlatform()->quoteSingleIdentifier($identifier);
-	}//end quote()
 }//end class

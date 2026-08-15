@@ -27,6 +27,7 @@ namespace OCA\Decidesk\Tests\Unit\Repair;
 
 use OCA\Decidesk\Repair\RenameDutchDecideskValueDecisions;
 use OCA\Decidesk\Repair\RenameDutchDecideskValues;
+use OCA\Decidesk\Repair\ValueMigrationGateway;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -40,6 +41,7 @@ use ReflectionClass;
  *
  * @covers \OCA\Decidesk\Repair\RenameDutchDecideskValueDecisions
  * @covers \OCA\Decidesk\Repair\RenameDutchDecideskValues
+ * @covers \OCA\Decidesk\Repair\DbValueMigrationGateway
  */
 final class RenameDutchDecideskValuesTest extends TestCase {
 
@@ -235,4 +237,107 @@ final class RenameDutchDecideskValuesTest extends TestCase {
 		self::assertStringContainsString('value', strtolower($class->newInstanceWithoutConstructor()->getName()));
 
 	}//end testIsARepairStepThatNamesItself()
+	/**
+	 * A gateway that records what the step asked it to do.
+	 *
+	 * Hand-written rather than mocked: decidesk cannot generate a double for
+	 * IDBConnection, which is the whole reason the step depends on this port
+	 * instead. Three methods is a small price for a testable migration.
+	 *
+	 * @return ValueMigrationGateway
+	 */
+	private function fakeGateway(array $tables, array $columnsByTable, array &$log): ValueMigrationGateway {
+		return new class($tables, $columnsByTable, $log) implements ValueMigrationGateway {
+
+			/**
+			 * @param array<int, string>              $tables  Shard tables.
+			 * @param array<string, array<int,string>> $columns Columns per table.
+			 * @param array<int, string>              $log     Recorded rewrites.
+			 */
+			public function __construct(
+				private array $tables,
+				private array $columns,
+				private array &$log,
+			) {
+			}
+
+			/**
+			 * @return array<int, string>
+			 */
+			public function shardTables(): array {
+				return $this->tables;
+			}
+
+			/**
+			 * @param string $table Table.
+			 *
+			 * @return array<int, string>
+			 */
+			public function columnsOf(string $table): array {
+				return ($this->columns[$table] ?? []);
+			}
+
+			/**
+			 * @param string $table  Table.
+			 * @param string $column Column.
+			 * @param string $old    Old value.
+			 * @param string $new    New value.
+			 *
+			 * @return int
+			 */
+			public function rewrite(string $table, string $column, string $old, string $new): int {
+				$this->log[] = $table . '.' . $column . ': ' . $old . ' -> ' . $new;
+				return 1;
+			}
+		};
+
+	}//end fakeGateway()
+
+	/**
+	 * The happy path rewrites every mapped value on a column the table HAS,
+	 * and nothing for a column it lacks.
+	 *
+	 * @return void
+	 *
+	 * @spec exclude No canonical spec covers the vocabulary migration.
+	 */
+	public function testRewritesOnlyTheColumnsATableActuallyHas(): void {
+		$log = [];
+		$step = new RenameDutchDecideskValues(
+			$this->fakeGateway(['oc_openregister_table_1_2'], ['oc_openregister_table_1_2' => ['verdict']], $log),
+			new RenameDutchDecideskValueDecisions()
+		);
+
+		$output = $this->createMock(\OCP\Migration\IOutput::class);
+		$expected = count(RenameDutchDecideskValues::VALUE_MAP['verdict']);
+		$output->expects(self::once())->method('info')
+			->with(self::stringContains((string)$expected . ' row value(s)'));
+
+		$step->run($output);
+
+		self::assertCount($expected, $log);
+		foreach ($log as $line) {
+			self::assertStringStartsWith('oc_openregister_table_1_2.verdict: ', $line);
+		}
+
+	}//end testRewritesOnlyTheColumnsATableActuallyHas()
+
+	/**
+	 * With no shard tables the step says so and rewrites nothing.
+	 *
+	 * @return void
+	 *
+	 * @spec exclude No canonical spec covers the vocabulary migration.
+	 */
+	public function testNoShardTablesIsANoOp(): void {
+		$log = [];
+		$step = new RenameDutchDecideskValues($this->fakeGateway([], [], $log), new RenameDutchDecideskValueDecisions());
+
+		$output = $this->createMock(\OCP\Migration\IOutput::class);
+		$output->expects(self::once())->method('info')->with(self::stringContains('nothing to do'));
+
+		$step->run($output);
+		self::assertSame([], $log);
+
+	}//end testNoShardTablesIsANoOp()
 }//end class
