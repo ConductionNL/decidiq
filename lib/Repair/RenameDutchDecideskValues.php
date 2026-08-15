@@ -332,7 +332,7 @@ class RenameDutchDecideskValues implements IRepairStep {
 	public function run(IOutput $output): void {
 		$tables = $this->gateway->shardTables();
 		if ($tables === []) {
-			$output->info('RenameDutchDecideskValues: no Decidesk shard tables on this install; nothing to do.');
+			$output->info($this->decisions->nothingToDoMessage());
 			return;
 		}
 
@@ -353,6 +353,6 @@ class RenameDutchDecideskValues implements IRepairStep {
 			}
 		}
 
-		$output->info(sprintf('RenameDutchDecideskValues: %d row value(s) translated.', $updated));
+		$output->info($this->decisions->summaryMessage(updated: $updated));
 	}//end run()
 }//end class

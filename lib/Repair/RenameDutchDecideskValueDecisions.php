@@ -97,4 +97,26 @@ class RenameDutchDecideskValueDecisions {
 	public function column(array $rows, string $key): array {
 		return array_map(static fn (array $row): string => (string)($row[$key] ?? ''), $rows);
 	}//end column()
+	/**
+	 * The line the step reports when there is nothing to migrate.
+	 *
+	 * @return string
+	 */
+	public function nothingToDoMessage(): string {
+		return 'RenameDutchDecideskValues: no Decidesk shard tables on this install; nothing to do.';
+	}//end nothingToDoMessage()
+
+	/**
+	 * The line the step reports after migrating.
+	 *
+	 * Here rather than inline because an operator reads this to decide whether
+	 * the migration did anything, and a message is worth asserting.
+	 *
+	 * @param int $updated Rows rewritten.
+	 *
+	 * @return string
+	 */
+	public function summaryMessage(int $updated): string {
+		return sprintf('RenameDutchDecideskValues: %d row value(s) translated.', $updated);
+	}//end summaryMessage()
 }//end class

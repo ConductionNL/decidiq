@@ -344,4 +344,22 @@ final class RenameDutchDecideskValuesTest extends TestCase {
 		self::assertSame([], $log);
 
 	}//end testNoShardTablesIsANoOp()
+	/**
+	 * The operator-facing messages say what happened.
+	 *
+	 * An operator reads these to decide whether the migration did anything, so
+	 * "0 row value(s)" and "nothing to do" must remain distinguishable — they
+	 * mean different things: no matching rows versus no tables at all.
+	 *
+	 * @return void
+	 *
+	 * @spec exclude No canonical spec covers the vocabulary migration.
+	 */
+	public function testMessagesDistinguishNoRowsFromNoTables(): void {
+		self::assertStringContainsString('nothing to do', $this->decisions->nothingToDoMessage());
+		self::assertStringContainsString('0 row value(s)', $this->decisions->summaryMessage(0));
+		self::assertStringContainsString('7 row value(s)', $this->decisions->summaryMessage(7));
+		self::assertNotSame($this->decisions->nothingToDoMessage(), $this->decisions->summaryMessage(0));
+
+	}//end testMessagesDistinguishNoRowsFromNoTables()
 }//end class
