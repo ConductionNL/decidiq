@@ -75,7 +75,7 @@ class ActionItemAnalyticsServiceIntegrationTest extends TestCase {
 			$this->objectService = \OC::$server->get(\OCA\OpenRegister\Service\ObjectService::class);
 			$container = \OC::$server->get(\Psr\Container\ContainerInterface::class);
 			$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
-			$this->service = new ActionItemAnalyticsService($container, $logger,
+			$this->service = new ActionItemAnalyticsService( $logger,
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 		} catch (\Throwable $e) {

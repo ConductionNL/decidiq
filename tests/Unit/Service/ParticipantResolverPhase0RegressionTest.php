@@ -80,7 +80,6 @@ class ParticipantResolverPhase0RegressionTest extends TestCase {
 		$this->container->method('get')->willReturn($this->objectService);
 
 		$this->resolver = new ParticipantResolver(
-			$this->container,
 			$this->logger,
 			objectService: $this->objectService,
 		);

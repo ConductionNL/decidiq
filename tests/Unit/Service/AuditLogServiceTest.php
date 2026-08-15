@@ -93,7 +93,7 @@ class AuditLogServiceTest extends TestCase {
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);
 
-		return new AuditLogService($container, $logger,
+		return new AuditLogService( $logger,
 			objectService: $objectService,
 		);
 	}//end makeService()
@@ -335,7 +335,7 @@ class AuditLogServiceTest extends TestCase {
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);
 
-		$service = new AuditLogService($container, $logger,
+		$service = new AuditLogService( $logger,
 			objectService: $objectService,
 		);
 		$result = $service->append(actor: 'bob', action: 'vote', objectUids: ['r1']);

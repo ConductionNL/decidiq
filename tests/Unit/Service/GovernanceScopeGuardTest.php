@@ -47,7 +47,6 @@ class GovernanceScopeGuardTest extends TestCase {
 	 */
 	public function testScopeGroupIdConvention(): void {
 		$guard = new GovernanceScopeGuard(
-			$this->createMock(ContainerInterface::class),
 			$this->createMock(IGroupManager::class),
 			$this->createMock(LoggerInterface::class),
 			objectService: $objectService,
@@ -76,7 +75,6 @@ class GovernanceScopeGuardTest extends TestCase {
 			->willReturn(true);
 
 		$guard = new GovernanceScopeGuard(
-			$this->createMock(ContainerInterface::class),
 			$groupManager,
 			$this->createMock(LoggerInterface::class),
 			objectService: $objectService,
@@ -95,7 +93,6 @@ class GovernanceScopeGuardTest extends TestCase {
 		$groupManager->expects($this->never())->method('isInGroup');
 
 		$guard = new GovernanceScopeGuard(
-			$this->createMock(ContainerInterface::class),
 			$groupManager,
 			$this->createMock(LoggerInterface::class),
 			objectService: $objectService,
@@ -117,7 +114,6 @@ class GovernanceScopeGuardTest extends TestCase {
 			->willReturn(true);
 
 		$guard = new GovernanceScopeGuard(
-			$this->makeContainer('body-9'),
 			$groupManager,
 			$this->createMock(LoggerInterface::class),
 			objectService: $objectService,
@@ -136,7 +132,6 @@ class GovernanceScopeGuardTest extends TestCase {
 		$groupManager->method('isInGroup')->willReturn(false);
 
 		$guard = new GovernanceScopeGuard(
-			$this->makeContainer('body-9'),
 			$groupManager,
 			$this->createMock(LoggerInterface::class),
 			objectService: $objectService,
@@ -157,7 +152,6 @@ class GovernanceScopeGuardTest extends TestCase {
 
 		// Minutes with no Meeting relation -> body cannot be resolved.
 		$guard = new GovernanceScopeGuard(
-			$this->makeContainer(null),
 			$groupManager,
 			$this->createMock(LoggerInterface::class),
 			objectService: $objectService,
@@ -180,7 +174,6 @@ class GovernanceScopeGuardTest extends TestCase {
 		$container->method('get')->willThrowException(new \RuntimeException('OR unavailable'));
 
 		$guard = new GovernanceScopeGuard(
-			$container,
 			$this->createMock(IGroupManager::class),
 			$logger,
 			objectService: $objectService,

@@ -71,7 +71,7 @@ final class ParticipantUuidLookupTest extends TestCase {
 		$this->objectService->method('setSchema')->willReturnSelf();
 		$container->method('get')->willReturn($this->objectService);
 
-		$this->lookup = new ParticipantUuidLookup($container,
+		$this->lookup = new ParticipantUuidLookup(
 			objectService: $this->objectService,
 		);
 

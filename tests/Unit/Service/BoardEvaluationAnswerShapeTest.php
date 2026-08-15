@@ -105,7 +105,6 @@ final class BoardEvaluationAnswerShapeTest extends TestCase {
 		);
 
 		$this->service = new BoardEvaluationResponseService(
-			$container,
 			$this->createMock(IAppConfig::class),
 			$this->createMock(LoggerInterface::class),
 			$this->createMock(ParticipantUuidLookup::class),

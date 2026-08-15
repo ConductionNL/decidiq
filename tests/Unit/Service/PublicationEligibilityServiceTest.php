@@ -73,7 +73,7 @@ class PublicationEligibilityServiceTest extends TestCase {
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);
 
-		return new PublicationEligibilityService($container, $logger,
+		return new PublicationEligibilityService( $logger,
 			objectService: $objectService,
 		);
 	}//end makeService()

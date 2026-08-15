@@ -209,7 +209,6 @@ class GovernanceRoleScopeProjectorTest extends TestCase {
 		);
 
 		return new GovernanceRoleScopeProjector(
-			$container,
 			$groupManager,
 			$userManager,
 			$this->createMock(LoggerInterface::class),

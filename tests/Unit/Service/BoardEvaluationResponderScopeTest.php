@@ -77,7 +77,6 @@ final class BoardEvaluationResponderScopeTest extends TestCase {
 		$container->method('get')->willReturn($this->objectService);
 
 		$this->service = new BoardEvaluationResponseService(
-			$container,
 			$this->createMock(IAppConfig::class),
 			$this->createMock(LoggerInterface::class),
 			$this->participants,

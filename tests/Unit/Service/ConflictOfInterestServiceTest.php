@@ -99,7 +99,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 			}
 		);
 
-		return new ConflictOfInterestService($container, $logger, $auditLog,
+		return new ConflictOfInterestService( $logger, $auditLog,
 			objectService: $objectService,
 		);
 	}//end makeService()

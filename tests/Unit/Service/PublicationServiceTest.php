@@ -116,7 +116,7 @@ class PublicationServiceTest extends TestCase {
 			}
 		);
 
-		$eligibility = new PublicationEligibilityService($container, $logger,
+		$eligibility = new PublicationEligibilityService( $logger,
 			objectService: $objectService,
 		);
 		$payload = new PublicationPayloadService($container, $logger, $configService);
