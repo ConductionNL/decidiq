@@ -118,20 +118,48 @@ class VotingServiceTemplateRuleTest extends TestCase {
 
 		return new VotingService(
 			opener: new VotingRoundOpener(
+				motionService: $motionService,
+				participantResolver: $participantResolver,
 				preflight: new VotingRoundPreflight(
+					logger: $logger,
+					motionService: $motionService,
+					participantResolver: $participantResolver,
+					templateService: $templateService,
+			objectService: $saved,
 		),
 				notifier: new VotingOpenedNotifier(
+					logger: $logger,
+					participantResolver: $participantResolver,
+			container: $this->createMock(ContainerInterface::class),
 		),
+			objectService: $saved,
 		),
 			caster: new VoteCastingService(
+				logger: $logger,
+				participantResolver: $participantResolver,
+				amendmentOrder: $amendmentOrder,
+				relationFilter: $relationFilter,
+			objectService: $saved,
 		),
 			closer: new VotingRoundCloser(
+				logger: $logger,
+				oriService: $this->createMock(OriPublicationService::class),
+				motionService: $motionService,
+				amendmentOrder: $amendmentOrder,
+				relationFilter: $relationFilter,
+			objectService: $saved,
+			fileService: $this->createMock(FileService::class),
 		),
 			results: new VotingRoundResults(
+				motionService: $motionService,
+				participantResolver: $participantResolver,
+			objectService: $saved,
 		),
 			projection: new VotingRoundProjection(container: $container,
+			objectService: $saved,
 		),
 			participants: new ParticipantUuidLookup(container: $container,
+			objectService: $saved,
 		),
 		);
 

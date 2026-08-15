@@ -136,20 +136,48 @@ class VotingServiceTest extends TestCase {
 
 		$this->service = new VotingService(
 			opener: new VotingRoundOpener(
+				motionService: $this->motionService,
+				participantResolver: $participantResolver,
 				preflight: new VotingRoundPreflight(
+					logger: $this->logger,
+					motionService: $this->motionService,
+					participantResolver: $participantResolver,
+					templateService: $templateService,
+			objectService: $this->objectService,
 		),
 				notifier: new VotingOpenedNotifier(
+					logger: $this->logger,
+					participantResolver: $participantResolver,
+			container: $this->createMock(ContainerInterface::class),
 		),
+			objectService: $this->objectService,
 		),
 			caster: new VoteCastingService(
+				logger: $this->logger,
+				participantResolver: $participantResolver,
+				amendmentOrder: $amendmentOrder,
+				relationFilter: $relationFilter,
+			objectService: $this->objectService,
 		),
 			closer: new VotingRoundCloser(
+				logger: $this->logger,
+				oriService: $this->oriService,
+				motionService: $this->motionService,
+				amendmentOrder: $amendmentOrder,
+				relationFilter: $relationFilter,
+			objectService: $this->objectService,
+			fileService: $this->createMock(FileService::class),
 		),
 			results: new VotingRoundResults(
+				motionService: $this->motionService,
+				participantResolver: $participantResolver,
+			objectService: $this->objectService,
 		),
 			projection: new VotingRoundProjection(container: $this->container,
+			objectService: $this->objectService,
 		),
 			participants: new ParticipantUuidLookup(container: $this->container,
+			objectService: $this->objectService,
 		),
 		);
 

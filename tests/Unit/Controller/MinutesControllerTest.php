@@ -169,7 +169,10 @@ class MinutesControllerTest extends TestCase {
 			workflowService: $this->workflowService,
 			userSession: $this->userSession,
 			accessGuard: new MinutesAccessGuard(
+				objectService: $this->objectService,
+				participantResolver: $this->participantResolver,
 				userSession: $this->userSession,
+				groupManager: $this->groupManager,
 			),
 			documentService: $this->minutesDocumentService,
 			responder: new MinutesResponder(),
@@ -183,7 +186,9 @@ class MinutesControllerTest extends TestCase {
 			request: $this->request,
 			accessGuard: new MinutesAccessGuard(
 				objectService: $this->objectService,
+				participantResolver: $this->participantResolver,
 				userSession: $this->userSession,
+				groupManager: $this->groupManager,
 			),
 			objectService: $this->objectService,
 			userSession: $this->userSession,
@@ -349,7 +354,10 @@ class MinutesControllerTest extends TestCase {
 			workflowService: $this->workflowService,
 			userSession: $unauthSession,
 			accessGuard: new MinutesAccessGuard(
+				objectService: $this->objectService,
+				participantResolver: $this->participantResolver,
 				userSession: $unauthSession,
+				groupManager: $this->groupManager,
 			),
 			documentService: $this->minutesDocumentService,
 			responder: new MinutesResponder(),
@@ -509,7 +517,10 @@ class MinutesControllerTest extends TestCase {
 			workflowService: $this->workflowService,
 			userSession: $unauthSession,
 			accessGuard: new MinutesAccessGuard(
+				objectService: $this->objectService,
+				participantResolver: $this->participantResolver,
 				userSession: $unauthSession,
+				groupManager: $this->groupManager,
 			),
 			documentService: $this->minutesDocumentService,
 			responder: new MinutesResponder(),
@@ -588,7 +599,10 @@ class MinutesControllerTest extends TestCase {
 			workflowService: $this->workflowService,
 			userSession: $unauthSession,
 			accessGuard: new MinutesAccessGuard(
+				objectService: $this->objectService,
+				participantResolver: $this->participantResolver,
 				userSession: $unauthSession,
+				groupManager: $this->groupManager,
 			),
 			documentService: $this->minutesDocumentService,
 			responder: new MinutesResponder(),

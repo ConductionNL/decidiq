@@ -144,6 +144,7 @@ class MeetingControllerTest extends TestCase {
 			packageService: $this->packageService,
 			userSession: $this->userSession,
 			roleGate: new MeetingRoleGate(
+				groupManager: $this->groupManager,
 				participantResolver: $this->participantResolver
 			),
 			proofPackageService: $this->proofPackageService,
@@ -274,6 +275,7 @@ class MeetingControllerTest extends TestCase {
 			packageService: $this->packageService,
 			userSession: $unauthSession,
 			roleGate: new MeetingRoleGate(
+				groupManager: $this->groupManager,
 				participantResolver: $this->participantResolver
 			),
 			proofPackageService: $this->proofPackageService,
@@ -386,6 +388,7 @@ class MeetingControllerTest extends TestCase {
 			packageService: $this->packageService,
 			userSession: $unauthSession,
 			roleGate: new MeetingRoleGate(
+				groupManager: $this->groupManager,
 				participantResolver: $this->participantResolver
 			),
 			proofPackageService: $this->proofPackageService,
@@ -504,6 +507,7 @@ class MeetingControllerTest extends TestCase {
 			packageService: $this->packageService,
 			userSession: $unauthSession,
 			roleGate: new MeetingRoleGate(
+				groupManager: $this->groupManager,
 				participantResolver: $this->participantResolver
 			),
 			proofPackageService: $this->proofPackageService,
@@ -611,6 +615,7 @@ class MeetingControllerTest extends TestCase {
 			packageService: $this->packageService,
 			userSession: $unauthSession,
 			roleGate: new MeetingRoleGate(
+				groupManager: $this->groupManager,
 				participantResolver: $this->participantResolver
 			),
 			proofPackageService: $this->proofPackageService,

@@ -721,7 +721,9 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 			logger: new NullLogger(),
 			motionService: new MotionService(
 				logger: new NullLogger(),
+				userManager: $this->createMock(IUserManager::class),
 			objectService: $this->createMock(ObjectServiceInterface::class),
+			container: $this->createMock(ContainerInterface::class),
 		),
 			participantResolver: $this->createMock(ParticipantResolver::class),
 			templateService: $templateService,
