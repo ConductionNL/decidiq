@@ -140,8 +140,9 @@ class VotingServicePhase0RegressionTest extends TestCase {
 		),
 				notifier: new VotingOpenedNotifier(
 					logger: $this->logger,
-					participantResolver: $this->participantResolver
-				),
+					participantResolver: $this->participantResolver,
+			container: $this->createMock(ContainerInterface::class),
+		),
 			objectService: $this->objectService,
 		),
 			caster: new VoteCastingService(
@@ -158,6 +159,7 @@ class VotingServicePhase0RegressionTest extends TestCase {
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
 			objectService: $this->objectService,
+			fileService: $this->createMock(FileService::class),
 		),
 			results: new VotingRoundResults(
 				motionService: $this->motionService,

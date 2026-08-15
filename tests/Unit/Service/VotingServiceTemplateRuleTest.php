@@ -129,8 +129,9 @@ class VotingServiceTemplateRuleTest extends TestCase {
 		),
 				notifier: new VotingOpenedNotifier(
 					logger: $logger,
-					participantResolver: $participantResolver
-				),
+					participantResolver: $participantResolver,
+			container: $this->createMock(ContainerInterface::class),
+		),
 			objectService: $saved,
 		),
 			caster: new VoteCastingService(
@@ -147,6 +148,7 @@ class VotingServiceTemplateRuleTest extends TestCase {
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
 			objectService: $saved,
+			fileService: $this->createMock(FileService::class),
 		),
 			results: new VotingRoundResults(
 				motionService: $motionService,

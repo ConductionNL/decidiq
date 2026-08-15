@@ -277,8 +277,9 @@ class VotingServiceCastAsTest extends TestCase {
 		),
 				notifier: new VotingOpenedNotifier(
 					logger: $logger,
-					participantResolver: $participantResolver
-				),
+					participantResolver: $participantResolver,
+			container: $this->createMock(ContainerInterface::class),
+		),
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		),
 			caster: new VoteCastingService(
@@ -295,6 +296,7 @@ class VotingServiceCastAsTest extends TestCase {
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
 			objectService: $this->createMock(ObjectServiceInterface::class),
+			fileService: $this->createMock(FileService::class),
 		),
 			results: new VotingRoundResults(
 				motionService: $this->motionService,
