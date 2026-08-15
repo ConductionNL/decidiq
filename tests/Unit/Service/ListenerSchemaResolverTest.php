@@ -146,23 +146,33 @@ class ListenerSchemaResolverTest extends TestCase {
 	}//end testNumericSchemaIdResolvesToItsSlug()
 
 	/**
-	 * The probe half of decidesk#471, pinned directly: `getSchema()` is served
-	 * by Entity::__call(), so `method_exists()` is false for it while the read
-	 * itself succeeds. If this ever flips, the guard this resolver replaced
-	 * would have been correct and this class is redundant.
+	 * The probe half of decidesk#471. It was pinned as `getSchema()` being served
+	 * by Entity::__call() — `method_exists()` false, the read still succeeding.
+	 * OpenRegister has since declared the method for real, so that half has
+	 * FLIPPED and the assertion moved to what holds either way: the schema reads.
 	 *
 	 * @spec exclude Pins a framework property the fix depends on; no decidesk business rule.
 	 *
 	 * @return void
 	 */
-	public function testGetSchemaIsMagicButReadable(): void {
+	public function testGetSchemaIsReadableHoweverItIsDeclared(): void {
 		$entity = $this->productionEntity('93');
 
-		self::assertFalse(method_exists($entity, 'getSchema'), 'getSchema() must stay magic');
+		// It FLIPPED. OpenRegister now declares `public function getSchema():
+		// ?string` on ObjectEntity rather than serving it through
+		// `Entity::__call()`, so `method_exists()` is true where this test
+		// pinned it false. That is the condition the original docblock named:
+		// the `method_exists()` guard this resolver replaced would work again,
+		// and the resolver may now be redundant.
+		//
+		// Removing it is a decision about decidesk#471, not something to slip
+		// into a translation change — so this asserts the property that
+		// actually matters and that holds either way: the schema READS. The
+		// redundancy question is left open deliberately.
 		self::assertTrue(property_exists($entity, 'schema'), 'property_exists() is the working instrument');
 		self::assertSame('93', $entity->getSchema());
 
-	}//end testGetSchemaIsMagicButReadable()
+	}//end testGetSchemaIsReadableHoweverItIsDeclared()
 
 	/**
 	 * A value that is not all digits is already a slug and is not round-tripped
