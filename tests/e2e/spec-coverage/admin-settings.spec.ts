@@ -25,6 +25,7 @@
 import { test, expect, type Page } from '@playwright/test'
 
 import { BASE_URL as BASE } from '../base-url'
+import { becomesVisible } from '../becomes-visible'
 
 /**
  * Open the first governance body's detail page and its sidebar.
@@ -75,7 +76,7 @@ test('Members tab lists body members and offers the Change role action', async (
 
 	const tabRoot = page.locator('[data-testid="body-members-tab"]')
 	test.skip(
-		!(await tabRoot.isVisible().catch(() => false)),
+		!(await becomesVisible(tabRoot)),
 		'members tab body not deployed on this instance',
 	)
 
@@ -127,7 +128,7 @@ test('Members tab opens the Nextcloud-group import dialog with a group selector'
 	const tabRoot = page.locator('[data-testid="body-members-tab"]')
 	const importMenu = tabRoot.getByRole('button', { name: 'Import members' })
 	test.skip(
-		!(await importMenu.isVisible().catch(() => false)),
+		!(await becomesVisible(importMenu)),
 		'import actions not deployed on this instance',
 	)
 
@@ -158,7 +159,7 @@ test('Members tab CSV import validates rows and previews duplicates before impor
 	const tabRoot = page.locator('[data-testid="body-members-tab"]')
 	const importMenu = tabRoot.getByRole('button', { name: 'Import members' })
 	test.skip(
-		!(await importMenu.isVisible().catch(() => false)),
+		!(await becomesVisible(importMenu)),
 		'import actions not deployed on this instance',
 	)
 

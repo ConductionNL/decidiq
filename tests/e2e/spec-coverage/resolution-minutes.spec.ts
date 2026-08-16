@@ -34,6 +34,7 @@ import {
 } from '../workflows/governance-fixture'
 
 import { BASE_URL as BASE } from '../base-url'
+import { becomesVisible } from '../becomes-visible'
 
 let ledger: SeedLedger
 let meetingId = ''
@@ -79,12 +80,7 @@ async function openMinutesTab(page: Page, tabLabel: string): Promise<boolean> {
 	const tab = page
 		.getByRole('tab', { name: tabLabel })
 		.or(page.getByRole('button', { name: tabLabel, exact: true }))
-	if (
-		!(await tab
-			.first()
-			.isVisible()
-			.catch(() => false))
-	) {
+	if (!(await becomesVisible(tab))) {
 		return false
 	}
 	await tab.first().click()
@@ -113,7 +109,7 @@ test('live meeting: minutes panel offers per-agenda-item notes with autosave', a
 
 	const panel = page.getByTestId('minutes-panel')
 	test.skip(
-		!(await panel.isVisible().catch(() => false)),
+		!(await becomesVisible(panel)),
 		'Deploy drift: the deployed decidesk predates minutes-ui-v1 (no minutes panel in LiveMeeting)',
 	)
 
@@ -151,7 +147,7 @@ test('live meeting: action-item capture shortcut creates a tracked action item',
 
 	const panel = page.getByTestId('minutes-panel')
 	test.skip(
-		!(await panel.isVisible().catch(() => false)),
+		!(await becomesVisible(panel)),
 		'Deploy drift: the deployed decidesk predates minutes-ui-v1 (no minutes panel in LiveMeeting)',
 	)
 
@@ -277,10 +273,7 @@ test('approval tab: approving review minutes locks editing and records the appro
 
 	// Reach review (the earlier reject test returned the record to draft).
 	if (
-		await tab
-			.getByTestId('minutes-action-submit')
-			.isVisible()
-			.catch(() => false)
+		await becomesVisible(tab.getByTestId('minutes-action-submit'), 5_000)
 	) {
 		await tab.getByTestId('minutes-action-submit').click()
 	}

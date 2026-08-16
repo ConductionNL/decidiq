@@ -30,6 +30,7 @@
 import { test, expect, type Page } from '@playwright/test'
 
 import { BASE_URL as BASE } from '../base-url'
+import { becomesVisible } from '../becomes-visible'
 
 async function dismissSupportDialog(page: Page): Promise<void> {
 	const dialog = page
@@ -57,17 +58,17 @@ async function openFirstLiveMeeting(page: Page): Promise<boolean> {
 		.locator('[data-testid="cn-nav"], #app-navigation-vue, .app-navigation')
 		.first()
 	const meetingsEntry = nav.getByTestId('cn-nav-entry-Meetings')
-	if (!(await meetingsEntry.isVisible().catch(() => false))) return false
+	if (!(await becomesVisible(meetingsEntry))) return false
 	await meetingsEntry.click()
 	// Open the first meeting row, then its live view if present.
 	const firstRow = page
 		.getByTestId('cn-object-list-table')
 		.locator('tbody tr')
 		.first()
-	if (!(await firstRow.isVisible().catch(() => false))) return false
+	if (!(await becomesVisible(firstRow))) return false
 	await firstRow.click()
 	const liveButton = page.getByRole('button', { name: /live|conduct/i }).first()
-	if (await liveButton.isVisible().catch(() => false)) {
+	if (await becomesVisible(liveButton, 5_000)) {
 		await liveButton.click()
 	}
 	return await page
@@ -88,10 +89,10 @@ test('LiveMeeting: cost panel toggles its running figure', async ({ page }) => {
 	await page.getByTestId('meeting-cost-toggle').click()
 	const figure = page.getByTestId('meeting-cost-figure')
 	const noRate = page.getByTestId('meeting-cost-no-rate')
-	const shown =
-		(await figure.isVisible().catch(() => false))
-		|| (await noRate.isVisible().catch(() => false))
-	expect(shown).toBeTruthy()
+	// `.or()` POLLS for either branch. The previous form read both with the
+	// non-waiting `isVisible()` on the tick after the click, so it could report
+	// "neither" purely because the toggle had not re-rendered yet.
+	await expect(figure.or(noRate).first()).toBeVisible({ timeout: 10_000 })
 })
 
 // @e2e openspec/specs/meeting-efficiency/spec.md#pause-timer-during-procedural-interruption
@@ -108,7 +109,7 @@ test('LiveMeeting: agenda-item timer renders for the active item', async ({
 		.getByTestId('meeting-live')
 		.getByRole('button', { name: /^1\./ })
 		.first()
-	if (!(await activate.isVisible().catch(() => false))) {
+	if (!(await becomesVisible(activate))) {
 		test.skip(
 			true,
 			'No activatable agenda item / not chair in this environment.',
@@ -121,10 +122,7 @@ test('LiveMeeting: agenda-item timer renders for the active item', async ({
 	// Either a countdown clock (allocated) or the no-allocation hint (informational).
 	const clock = page.getByTestId('agenda-item-timer-clock')
 	const noAlloc = page.getByTestId('agenda-item-timer-no-allocation')
-	const present =
-		(await clock.isVisible().catch(() => false))
-		|| (await noAlloc.isVisible().catch(() => false))
-	expect(present).toBeTruthy()
+	await expect(clock.or(noAlloc).first()).toBeVisible({ timeout: 10_000 })
 })
 
 // @e2e openspec/specs/meeting-efficiency/spec.md#manage-speaker-queue
@@ -139,7 +137,7 @@ test('LiveMeeting: speaker queue panel renders with an empty state', async ({
 		.getByTestId('meeting-live')
 		.getByRole('button', { name: /^1\./ })
 		.first()
-	if (!(await activate.isVisible().catch(() => false))) {
+	if (!(await becomesVisible(activate))) {
 		test.skip(
 			true,
 			'No activatable agenda item / not chair in this environment.',
@@ -151,10 +149,7 @@ test('LiveMeeting: speaker queue panel renders with an empty state', async ({
 	await expect(panel).toBeVisible()
 	const empty = page.getByTestId('speaker-queue-empty')
 	const list = page.getByTestId('speaker-queue-list')
-	const present =
-		(await empty.isVisible().catch(() => false))
-		|| (await list.isVisible().catch(() => false))
-	expect(present).toBeTruthy()
+	await expect(empty.or(list).first()).toBeVisible({ timeout: 10_000 })
 })
 
 // @e2e openspec/specs/meeting-efficiency/spec.md#view-meeting-duration-trends
@@ -171,7 +166,7 @@ test('GovernanceBody: Efficiency tab shows the analytics surface', async ({
 		.locator('[data-testid="cn-nav"], #app-navigation-vue, .app-navigation')
 		.first()
 	const bodiesEntry = nav.getByTestId('cn-nav-entry-GovernanceBodies')
-	if (!(await bodiesEntry.isVisible().catch(() => false))) {
+	if (!(await becomesVisible(bodiesEntry))) {
 		test.skip(true, 'No governance bodies nav entry in this environment.')
 		return
 	}
@@ -180,13 +175,13 @@ test('GovernanceBody: Efficiency tab shows the analytics surface', async ({
 		.getByTestId('cn-object-list-table')
 		.locator('tbody tr')
 		.first()
-	if (!(await firstRow.isVisible().catch(() => false))) {
+	if (!(await becomesVisible(firstRow))) {
 		test.skip(true, 'No governance body seeded in this environment.')
 		return
 	}
 	await firstRow.click()
 	const efficiencyTab = page.getByRole('tab', { name: 'Efficiency' }).first()
-	if (!(await efficiencyTab.isVisible().catch(() => false))) {
+	if (!(await becomesVisible(efficiencyTab))) {
 		test.skip(true, 'Efficiency tab not rendered (sidebar tabs unavailable).')
 		return
 	}
@@ -196,8 +191,5 @@ test('GovernanceBody: Efficiency tab shows the analytics surface', async ({
 	// Either the analytics sections or the honest empty state are shown.
 	const duration = page.getByTestId('body-efficiency-duration')
 	const empty = page.getByTestId('body-efficiency-empty')
-	const present =
-		(await duration.isVisible().catch(() => false))
-		|| (await empty.isVisible().catch(() => false))
-	expect(present).toBeTruthy()
+	await expect(duration.or(empty).first()).toBeVisible({ timeout: 10_000 })
 })

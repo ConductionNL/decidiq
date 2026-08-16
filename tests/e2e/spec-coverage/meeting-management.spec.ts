@@ -20,6 +20,7 @@
 import { test, expect } from '@playwright/test'
 
 import { BASE_URL as BASE } from '../base-url'
+import { becomesVisible } from '../becomes-visible'
 const TS = Date.now()
 
 // @e2e openspec/specs/meeting-management/spec.md#create-a-board-meeting-with-physical-location
@@ -204,7 +205,7 @@ test('meeting detail Series tab shows pattern form, preview and generate action'
 
 	// Activate the Series sidebar tab (defensive: older deployments lack it).
 	const seriesTab = page.getByRole('tab', { name: 'Series' })
-	const hasTab = await seriesTab.isVisible({ timeout: 10_000 }).catch(() => false)
+	const hasTab = await becomesVisible(seriesTab)
 	test.skip(
 		!hasTab,
 		'Series tab not present (deployed build predates meeting-agenda-gaps-v1)',
@@ -222,7 +223,7 @@ test('meeting detail Series tab shows pattern form, preview and generate action'
 	const untilField = page
 		.getByTestId('series-pattern-form')
 		.locator('input[type="date"]')
-	if (await untilField.isVisible().catch(() => false)) {
+	if (await becomesVisible(untilField, 5_000)) {
 		await untilField.fill('2027-12-31')
 		await expect(page.getByTestId('series-preview')).toBeVisible({
 			timeout: 5_000,
