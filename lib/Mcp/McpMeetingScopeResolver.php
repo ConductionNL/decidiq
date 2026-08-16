@@ -101,7 +101,7 @@ class McpMeetingScopeResolver {
 
 				$meetingUuids = array_merge(
 					$meetingUuids,
-					$this->meetingUuidsForBody(objectService: $objectService, bodyId: $bodyId)
+					$this->meetingUuidsForBody(objectService: $this->objectService, bodyId: $bodyId)
 				);
 			}
 
