@@ -36,7 +36,6 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCP\EventDispatcher\Event;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
 
 /**
@@ -56,70 +55,29 @@ class SubmissionDeadlineListenerTest extends TestCase {
 	private function buildListener(array $store): SubmissionDeadlineListener {
 		$storeRef = new \ArrayObject($store);
 
-		$objectService = new class($storeRef) {
-
-			/**
-			 * Constructor.
-			 *
-			 * @param \ArrayObject $store In-memory object store
-			 */
-			public function __construct(
-				private \ArrayObject $store,
-			) {
-			}
-
-			/**
-			 * Find an object by id, returning an entity-like wrapper.
-			 *
-			 * @param int|string $id Object id
-			 * @param string|int|null $register Register slug
-			 * @param string|int|null $schema Schema slug
-			 *
-			 * @return object|null
-			 */
-			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
-				$payload = ($this->store[(string)$id] ?? null);
+		// ADR-083/084: the listener is HANDED OpenRegister's published contract
+		// instead of resolving it from the container, so the in-memory store has
+		// to reach it through a double of that interface. The store itself is
+		// unchanged — find() still answers from $storeRef and still returns null
+		// for an unknown id, which is what the not-found branches exercise.
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('find')->willReturnCallback(
+			function (int|string $id) use ($storeRef): ?ObjectEntity {
+				$payload = ($storeRef[(string)$id] ?? null);
 				if ($payload === null) {
 					return null;
 				}
 
-				return new class($payload) {
-					/**
-					 * Constructor.
-					 *
-					 * @param array<string, mixed> $object The payload
-					 */
-					public function __construct(
-						private array $object,
-					) {
-					}
-
-					/**
-					 * Serialize like an ObjectEntity.
-					 *
-					 * @return array<string, mixed>
-					 */
-					public function jsonSerialize(): array {
-						return $this->object;
-					}
-				};
-			}
-		};
-
-		$container = $this->createMock(ContainerInterface::class);
-		$container->method('get')->willReturnCallback(
-			static function (string $id) use ($objectService): object {
-				if ($id === 'OCA\OpenRegister\Service\ObjectService') {
-					return $objectService;
-				}
-
-				throw new \RuntimeException('not wired in test: ' . $id);
+				$entity = $this->createMock(ObjectEntity::class);
+				$entity->method('jsonSerialize')->willReturn($payload);
+				$entity->method('getObject')->willReturn($payload);
+				return $entity;
 			}
 		);
 
 		return new SubmissionDeadlineListener(
 			logger: new NullLogger(),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
 	}//end buildListener()
@@ -272,12 +230,19 @@ class SubmissionDeadlineListenerTest extends TestCase {
 	 * @return void
 	 */
 	public function testInfrastructureFailureFailsSoft(): void {
-		$container = $this->createMock(ContainerInterface::class);
-		$container->method('get')->willThrowException(new \RuntimeException('OR unavailable'));
+		// Since ADR-083 an infrastructure failure can no longer arrive as a
+		// container that refuses to resolve OpenRegister — the contract is
+		// injected. It arrives as the lookup itself throwing, so that is what
+		// this double does. (Throwing from `find()` is the only shape that
+		// reaches the listener's `catch (\Throwable)`; an unconfigured mock
+		// returns null and would take the ordinary not-found branch, passing
+		// this assertion without ever entering the fail-soft path.)
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('find')->willThrowException(new \RuntimeException('OR unavailable'));
 
 		$listener = new SubmissionDeadlineListener(
 			logger: new NullLogger(),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
 		$event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'motion', 'meeting' => 'meeting-1']);

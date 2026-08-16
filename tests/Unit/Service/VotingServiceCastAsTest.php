@@ -6,10 +6,9 @@
  * closeVotingRound(), and the rule-validation + revote-once guard on
  * openVotingRound().
  *
- * Uses the anonymous-double container pattern from
- * VotingServiceDelegationGateTest — the OpenRegister ObjectService class is
- * never mocked directly, so the stub-vs-real signature mismatch of issue #90
- * cannot occur.
+ * Uses an in-memory double of OpenRegister's published ObjectServiceInterface
+ * (ADR-084) — the concrete OpenRegister ObjectService class is never mocked, so
+ * the stub-vs-real signature mismatch of issue #90 cannot occur.
  *
  * @category Test
  * @package  OCA\Decidesk\Tests\Unit\Service
@@ -45,7 +44,9 @@ use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingRoundRules;
 use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\FileService;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
@@ -87,157 +88,12 @@ class VotingServiceCastAsTest extends TestCase {
 		$saves = $this->saves;
 		$storeRef = new \ArrayObject($store);
 
-		$objectService = new class($storeRef, $saves) {
-
-			/**
-			 * Schema selected via setSchema().
-			 *
-			 * @var string
-			 */
-			private string $schema = '';
-
-			/**
-			 * Constructor.
-			 *
-			 * @param \ArrayObject $store In-memory object store
-			 * @param \ArrayObject $saves Captured saves
-			 */
-			public function __construct(
-				private \ArrayObject $store,
-				private \ArrayObject $saves,
-			) {
-			}
-
-			/**
-			 * Entity-like wrapper around an array payload.
-			 *
-			 * @param array<string, mixed> $object The payload
-			 *
-			 * @return object
-			 */
-			private function wrap(array $object): object {
-				return new class($object) {
-					/**
-					 * Constructor.
-					 *
-					 * @param array<string, mixed> $object The payload
-					 */
-					public function __construct(
-						private array $object,
-					) {
-					}
-
-					/**
-					 * Serialize like an ObjectEntity.
-					 *
-					 * @return array<string, mixed>
-					 */
-					public function jsonSerialize(): array {
-						return $this->object;
-					}
-				};
-			}
-
-			/**
-			 * Select register (fluent no-op).
-			 *
-			 * @param string $register Register slug
-			 *
-			 * @return static
-			 */
-			public function setRegister(string $register): static {
-				return $this;
-			}
-
-			/**
-			 * Select schema for findAll().
-			 *
-			 * @param string $schema Schema slug
-			 *
-			 * @return static
-			 */
-			public function setSchema(string $schema): static {
-				$this->schema = $schema;
-				return $this;
-			}
-
-			/**
-			 * Find an object by id.
-			 *
-			 * @param int|string $id Object id
-			 * @param string|int|null $register Register slug
-			 * @param string|int|null $schema Schema slug
-			 *
-			 * @return object|null
-			 */
-			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
-				$row = ($this->store[(string)$id] ?? null);
-				if ($row === null) {
-					return null;
-				}
-
-				if ($schema !== null && $row['schema'] !== $schema) {
-					return null;
-				}
-
-				return $this->wrap($row['object']);
-			}
-
-			/**
-			 * Find all objects of the selected schema matching plain-field filters.
-			 *
-			 * Relation filters (_relations.*) are presence-only, mirroring OR.
-			 *
-			 * @param array<string, mixed> $config Query config
-			 *
-			 * @return array<int, object>
-			 */
-			public function findAll(array $config = []): array {
-				$out = [];
-				foreach ($this->store as $row) {
-					if ($row['schema'] !== $this->schema) {
-						continue;
-					}
-
-					$matches = true;
-					foreach (($config['filters'] ?? []) as $key => $value) {
-						if (str_starts_with((string)$key, '_relations.') === true) {
-							continue;
-						}
-
-						if (($row['object'][$key] ?? null) !== $value) {
-							$matches = false;
-							break;
-						}
-					}
-
-					if ($matches === true) {
-						$out[] = $this->wrap($row['object']);
-					}
-				}
-
-				return $out;
-			}
-
-			/**
-			 * Record the save and upsert the store.
-			 *
-			 * @param string $register Register slug
-			 * @param string $schema Schema slug
-			 * @param array<string, mixed> $object Payload
-			 *
-			 * @return array<string, mixed>
-			 */
-			public function saveObject(string $register, string $schema, array $object): array {
-				$this->saves->append(['schema' => $schema, 'object' => $object]);
-				$id = (string)($object['id'] ?? $object['uuid'] ?? ('new-' . count($this->saves)));
-				$this->store[$id] = ['schema' => $schema, 'object' => $object];
-				return $object;
-			}
-		};
+		$objectService = $this->makeObjectService(store: $storeRef, saves: $saves);
 
 		$this->motionService = $this->createMock(MotionService::class);
 
+		// VoteBallotFactory (behind VoteCastingService) still resolves OpenRegister
+		// through the container, so the same double is served both ways.
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
 			static function (string $id) use ($objectService): object {
@@ -260,8 +116,9 @@ class VotingServiceCastAsTest extends TestCase {
 		// single-purpose collaborator, so the graph is built explicitly here
 		// where production relies on Nextcloud's constructor auto-wiring.
 		$logger = new NullLogger();
-		$amendmentOrder = new AmendmentOrderService(container: $container, motionService: $this->motionService,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+		$amendmentOrder = new AmendmentOrderService(
+			motionService: $this->motionService,
+			objectService: $objectService,
 		);
 		$relationFilter = new ObjectRelationFilter();
 
@@ -274,46 +131,158 @@ class VotingServiceCastAsTest extends TestCase {
 					motionService: $this->motionService,
 					participantResolver: $participantResolver,
 					templateService: $templateService,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+					objectService: $objectService,
+				),
 				notifier: new VotingOpenedNotifier(
 					logger: $logger,
 					participantResolver: $participantResolver,
-			container: $this->createMock(ContainerInterface::class),
-		),
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+					container: $container,
+				),
+				objectService: $objectService,
+			),
 			caster: new VoteCastingService(
 				logger: $logger,
 				participantResolver: $participantResolver,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-			container: $this->createMock(ContainerInterface::class),
-		),
+				objectService: $objectService,
+				container: $container,
+			),
 			closer: new VotingRoundCloser(
 				logger: $logger,
 				oriService: $this->createMock(OriPublicationService::class),
 				motionService: $this->motionService,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-			fileService: $this->createMock(FileService::class),
-		),
+				objectService: $objectService,
+				fileService: $this->createMock(FileService::class),
+			),
 			results: new VotingRoundResults(
 				motionService: $this->motionService,
 				participantResolver: $participantResolver,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
-			projection: new VotingRoundProjection(container: $container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
-			participants: new ParticipantUuidLookup(container: $container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+				objectService: $objectService,
+			),
+			projection: new VotingRoundProjection(
+				objectService: $objectService,
+			),
+			participants: new ParticipantUuidLookup(
+				objectService: $objectService,
+			),
 		);
 
 	}//end buildService()
+
+	/**
+	 * Build an in-memory ObjectServiceInterface double over the seeded store.
+	 *
+	 * ADR-084 injects OpenRegister's published contract directly, so the double
+	 * is a mock of that interface rather than the anonymous class this suite
+	 * previously served through the DI container.
+	 *
+	 * @param \ArrayObject $store In-memory object store keyed by id
+	 * @param \ArrayObject $saves Captured saveObject() payloads
+	 *
+	 * @return ObjectServiceInterface&MockObject
+	 */
+	private function makeObjectService(\ArrayObject $store, \ArrayObject $saves): ObjectServiceInterface {
+		$schema = '';
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+
+		$objectService->method('setRegister')->willReturnSelf();
+		$objectService->method('setSchema')->willReturnCallback(
+			function (string|int $slug) use (&$schema, $objectService): ObjectServiceInterface {
+				$schema = (string)$slug;
+				return $objectService;
+			}
+		);
+
+		$objectService->method('find')->willReturnCallback(
+			function (
+				int|string $id,
+				?array $_extend = [],
+				bool $files = false,
+				string|int|null $register = null,
+				string|int|null $schema = null,
+			) use ($store): ?ObjectEntity {
+				$row = ($store[(string)$id] ?? null);
+				if ($row === null) {
+					return null;
+				}
+
+				if ($schema !== null && $row['schema'] !== $schema) {
+					return null;
+				}
+
+				return $this->entity($row['object']);
+			}
+		);
+
+		$objectService->method('findAll')->willReturnCallback(
+			function (array $config = []) use ($store, &$schema): array {
+				$out = [];
+				foreach ($store as $row) {
+					if ($row['schema'] !== $schema) {
+						continue;
+					}
+
+					$matches = true;
+					foreach (($config['filters'] ?? []) as $key => $value) {
+						// Relation filters (_relations.*) are presence-only, mirroring OR.
+						if (str_starts_with((string)$key, '_relations.') === true) {
+							continue;
+						}
+
+						if (($row['object'][$key] ?? null) !== $value) {
+							$matches = false;
+							break;
+						}
+					}
+
+					if ($matches === true) {
+						$out[] = $this->entity($row['object']);
+					}
+				}
+
+				return $out;
+			}
+		);
+
+		$objectService->method('saveObject')->willReturnCallback(
+			function (
+				array $object,
+				?array $extend = [],
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				?string $uuid = null,
+			) use ($store, $saves): ObjectEntity {
+				$saves->append(['schema' => (string)$schema, 'object' => $object]);
+				$id = (string)($uuid ?? $object['id'] ?? $object['uuid'] ?? ('new-' . count($saves)));
+				$store[$id] = ['schema' => (string)$schema, 'object' => $object];
+				return $this->entity($object);
+			}
+		);
+
+		return $objectService;
+
+	}//end makeObjectService()
+
+	/**
+	 * Wrap a payload in an ObjectEntity double that serialises to it verbatim.
+	 *
+	 * @param array<string, mixed> $object The payload
+	 *
+	 * @return ObjectEntity
+	 */
+	private function entity(array $object): ObjectEntity {
+		$entity = $this->getMockBuilder(ObjectEntity::class)
+			->disableOriginalConstructor()
+			->onlyMethods(['jsonSerialize', 'getObject'])
+			->getMock();
+		$entity->method('jsonSerialize')->willReturn($object);
+		$entity->method('getObject')->willReturn($object);
+		return $entity;
+
+	}//end entity()
 
 	/**
 	 * An open round without motion relation (skips the membership branch).

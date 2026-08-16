@@ -29,7 +29,6 @@ use OCA\Decidesk\Service\MinutesDocumentService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -93,8 +92,8 @@ class MinutesDocumentServiceTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		// Mock the (stubbed) OpenRegister ObjectService class itself so that
-		// named-argument calls bind correctly.
+		// The OpenRegister object service is injected directly (ADR-083/084);
+		// the container is only consulted for the optional Docudesk PdfService.
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$this->objectService->method('setRegister')->willReturnSelf();
@@ -106,10 +105,6 @@ class MinutesDocumentServiceTest extends TestCase {
 		$this->container = $this->createMock(ContainerInterface::class);
 		$this->container->method('get')->willReturnCallback(
 			function (string $id): object {
-				if ($id === 'OCA\OpenRegister\Service\ObjectService') {
-					return $this->objectService;
-				}
-
 				if ($id === 'OCA\DocuDesk\Service\PdfService' && $this->pdfService !== null) {
 					return $this->pdfService;
 				}
@@ -123,7 +118,7 @@ class MinutesDocumentServiceTest extends TestCase {
 			logger: $this->createMock(LoggerInterface::class),
 			generationService: $this->generationService,
 			folderService: $this->folderService,
-			objectService: $object,
+			objectService: $this->objectService,
 		);
 
 	}//end setUp()

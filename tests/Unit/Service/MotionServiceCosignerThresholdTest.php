@@ -36,6 +36,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
 use OCA\Decidesk\Lifecycle\MotionLifecycleTransitioner;
 use OCA\Decidesk\Service\MotionService;
+use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use OCP\IUserManager;
@@ -70,7 +71,7 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 		$saves = $this->saves;
 		$storeRef = new \ArrayObject($store);
 
-		$objectService = new class($storeRef, $saves) {
+		$backend = new class($storeRef, $saves) {
 
 			/**
 			 * Constructor.
@@ -89,10 +90,10 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 			 *
 			 * @param array<string, mixed> $object The payload
 			 *
-			 * @return object
+			 * @return ObjectEntityInterface
 			 */
-			private function wrap(array $object): object {
-				return new class($object) {
+			private function wrap(array $object): ObjectEntityInterface {
+				return new class($object) implements ObjectEntityInterface, \JsonSerializable {
 					/**
 					 * Constructor.
 					 *
@@ -119,6 +120,51 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 					 */
 					public function jsonSerialize(): array {
 						return $this->object;
+					}
+
+					/**
+					 * The object's own identifier.
+					 *
+					 * @return string|null
+					 */
+					public function getUuid(): ?string {
+						return ($this->object['id'] ?? null);
+					}
+
+					/**
+					 * Register slug — every seeded row in this suite is decidesk.
+					 *
+					 * @return string|null
+					 */
+					public function getRegister(): ?string {
+						return 'decidesk';
+					}
+
+					/**
+					 * Schema slug — every seeded row in this suite is a decision.
+					 *
+					 * @return string|null
+					 */
+					public function getSchema(): ?string {
+						return 'decision';
+					}
+
+					/**
+					 * Organisation — not modelled by this in-memory store.
+					 *
+					 * @return string|null
+					 */
+					public function getOrganisation(): ?string {
+						return null;
+					}
+
+					/**
+					 * Owner — not modelled by this in-memory store.
+					 *
+					 * @return string|null
+					 */
+					public function getOwner(): ?string {
+						return null;
 					}
 				};
 			}
@@ -152,9 +198,9 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 			 * @param string|int|null $register Register slug
 			 * @param string|int|null $schema Schema slug
 			 *
-			 * @return object|null
+			 * @return ObjectEntityInterface|null
 			 */
-			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
+			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?ObjectEntityInterface {
 				$row = ($this->store[(string)$id] ?? null);
 				if ($row === null) {
 					return null;
@@ -171,13 +217,13 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 			 * @param string $schema Schema slug
 			 * @param string|null $uuid Target uuid for updates
 			 *
-			 * @return array<string, mixed>
+			 * @return ObjectEntityInterface
 			 */
-			public function saveObject(array $object = [], string $register = '', string $schema = '', ?string $uuid = null): array {
+			public function saveObject(array $object = [], string $register = '', string $schema = '', ?string $uuid = null): ObjectEntityInterface {
 				$this->saves->append($object);
 				$id = (string)($uuid ?? $object['id'] ?? $object['uuid'] ?? ('new-' . count($this->saves)));
 				$this->store[$id] = ['schema' => $schema, 'object' => $object];
-				return $object;
+				return $this->wrap($object);
 			}
 		};
 
@@ -189,6 +235,27 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 				}
 
 				return $default;
+			}
+		);
+
+		// ADR-083/084: the OpenRegister object service is injected as the
+		// published contract rather than pulled from the container, so the
+		// in-memory backend above is exposed through a contract double.
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('setRegister')->willReturnSelf();
+		$objectService->method('setSchema')->willReturnSelf();
+		$objectService->method('find')->willReturnCallback(
+			static fn (int|string $id): ?ObjectEntityInterface => $backend->find($id)
+		);
+		$objectService->method('saveObject')->willReturnCallback(
+			static function (
+				array $object,
+				?array $extend = [],
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				?string $uuid = null,
+			) use ($backend): ObjectEntityInterface {
+				return $backend->saveObject($object, (string)$register, (string)$schema, $uuid);
 			}
 		);
 
@@ -214,8 +281,8 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 						container: $container,
 						logger: new NullLogger(),
 						guard: new DecisionTransitionGuard(),
-			objectService: $default,
-		);
+						objectService: $objectService,
+					);
 				}
 
 				throw new \RuntimeException('not wired in test: ' . $id);
@@ -226,7 +293,7 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 			container: $container,
 			logger: new NullLogger(),
 			userManager: $this->createMock(IUserManager::class),
-			objectService: $default,
+			objectService: $objectService,
 		);
 
 	}//end buildService()

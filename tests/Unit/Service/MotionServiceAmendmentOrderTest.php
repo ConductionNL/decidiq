@@ -33,6 +33,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\MotionService;
+use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IUserManager;
 use PHPUnit\Framework\TestCase;
@@ -67,7 +68,7 @@ class MotionServiceAmendmentOrderTest extends TestCase {
 		$saves = $this->saves;
 		$storeRef = new \ArrayObject($store);
 
-		$objectService = new class($storeRef, $saves) {
+		$backend = new class($storeRef, $saves) {
 
 			/**
 			 * Schema selected via setSchema().
@@ -93,10 +94,10 @@ class MotionServiceAmendmentOrderTest extends TestCase {
 			 *
 			 * @param array<string, mixed> $object The payload
 			 *
-			 * @return object
+			 * @return ObjectEntityInterface
 			 */
-			private function wrap(array $object): object {
-				return new class($object) {
+			private function wrap(array $object): ObjectEntityInterface {
+				return new class($object) implements ObjectEntityInterface, \JsonSerializable {
 					/**
 					 * Constructor.
 					 *
@@ -123,6 +124,51 @@ class MotionServiceAmendmentOrderTest extends TestCase {
 					 */
 					public function getObject(): array {
 						return $this->object;
+					}
+
+					/**
+					 * The object's own identifier.
+					 *
+					 * @return string|null
+					 */
+					public function getUuid(): ?string {
+						return ($this->object['id'] ?? null);
+					}
+
+					/**
+					 * Register slug — not modelled by this in-memory store.
+					 *
+					 * @return string|null
+					 */
+					public function getRegister(): ?string {
+						return 'decidesk';
+					}
+
+					/**
+					 * Schema slug — every seeded row in this suite is a decision.
+					 *
+					 * @return string|null
+					 */
+					public function getSchema(): ?string {
+						return 'decision';
+					}
+
+					/**
+					 * Organisation — not modelled by this in-memory store.
+					 *
+					 * @return string|null
+					 */
+					public function getOrganisation(): ?string {
+						return null;
+					}
+
+					/**
+					 * Owner — not modelled by this in-memory store.
+					 *
+					 * @return string|null
+					 */
+					public function getOwner(): ?string {
+						return null;
 					}
 				};
 			}
@@ -157,9 +203,9 @@ class MotionServiceAmendmentOrderTest extends TestCase {
 			 * @param string|int|null $register Register slug
 			 * @param string|int|null $schema Schema slug
 			 *
-			 * @return object|null
+			 * @return ObjectEntityInterface|null
 			 */
-			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
+			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?ObjectEntityInterface {
 				$row = ($this->store[(string)$id] ?? null);
 				if ($row === null) {
 					return null;
@@ -237,15 +283,44 @@ class MotionServiceAmendmentOrderTest extends TestCase {
 			 * @param string $schema Schema slug
 			 * @param string|null $uuid Target uuid for updates
 			 *
-			 * @return array<string, mixed>
+			 * @return ObjectEntityInterface
 			 */
-			public function saveObject(array $object = [], string $register = '', string $schema = '', ?string $uuid = null): array {
+			public function saveObject(array $object = [], string $register = '', string $schema = '', ?string $uuid = null): ObjectEntityInterface {
 				$this->saves->append(['object' => $object, 'uuid' => $uuid]);
 				$id = (string)($uuid ?? $object['id'] ?? $object['uuid'] ?? ('new-' . count($this->saves)));
 				$this->store[$id] = ['schema' => $schema, 'object' => $object];
-				return $object;
+				return $this->wrap($object);
 			}
 		};
+
+		// ADR-083/084: the OpenRegister object service is injected as the
+		// published contract rather than pulled from the container, so the
+		// in-memory backend above is exposed through a contract double.
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('setRegister')->willReturnSelf();
+		$objectService->method('setSchema')->willReturnCallback(
+			static function (string|int $schema) use ($backend, &$objectService): object {
+				$backend->setSchema((string)$schema);
+				return $objectService;
+			}
+		);
+		$objectService->method('find')->willReturnCallback(
+			static fn (int|string $id): ?ObjectEntityInterface => $backend->find($id)
+		);
+		$objectService->method('findAll')->willReturnCallback(
+			static fn (array $config = []): array => $backend->findAll($config)
+		);
+		$objectService->method('saveObject')->willReturnCallback(
+			static function (
+				array $object,
+				?array $extend = [],
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				?string $uuid = null,
+			) use ($backend): ObjectEntityInterface {
+				return $backend->saveObject($object, (string)$register, (string)$schema, $uuid);
+			}
+		);
 
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
@@ -262,16 +337,6 @@ class MotionServiceAmendmentOrderTest extends TestCase {
 					return new \OCA\Decidesk\Service\MotionLinkResolver(container: $container);
 				}
 
-				// MotionService delegates amendment resolution / ordering /
-				// conflict detection to MotionAmendmentService; wiring the real
-				// one over the same container keeps this test end-to-end.
-				if ($id === \OCA\Decidesk\Service\MotionAmendmentService::class) {
-					return new \OCA\Decidesk\Service\MotionAmendmentService(
-						container: $container,
-						logger: new NullLogger(),
-					);
-				}
-
 				throw new \RuntimeException('not wired in test: ' . $id);
 			}
 		);
@@ -280,7 +345,7 @@ class MotionServiceAmendmentOrderTest extends TestCase {
 			container: $container,
 			logger: new NullLogger(),
 			userManager: $this->createMock(IUserManager::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
 	}//end buildService()
