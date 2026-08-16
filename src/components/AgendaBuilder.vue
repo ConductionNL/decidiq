@@ -389,6 +389,7 @@ import {
 	flattenTree,
 	missingStatutoryItems,
 } from '../services/agendaRules.js'
+import { fetchRecurringAgendaItems } from '../services/recurringAgendaItems.js'
 import { useObjectStore } from '../store/store.js'
 
 /**
@@ -747,13 +748,35 @@ export default {
 		// Recurring items
 		// -----------------------------------------------------------------------
 
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * Load the reusable "recurring" agenda-item templates for the
+		 * Add-recurring-items dialog.
+		 *
+		 * ⚠️ DO NOT PUT THIS BACK ON `objectStore.fetchCollection()`.
+		 * The shared object store keeps exactly ONE collection slot per type
+		 * (`this.collections = { ...this.collections, [type]: results }` in
+		 * `useObjectStore.fetchCollection`), so any differently-filtered fetch of
+		 * the same type OVERWRITES the previous one. This component is mounted by
+		 * LiveMeeting only for the chair, and its `created()` hook fired
+		 * `agenda-item?isRecurring=true` right after LiveMeeting's own
+		 * `agenda-item?meeting=<id>` — the recurring response landed last and
+		 * replaced the meeting's agenda in the cache with templates belonging to
+		 * other meetings. `LiveMeeting.allItems` then filtered them all away, so
+		 * the CHAIR saw an empty agenda and an empty "Activate item" list while a
+		 * non-chair (who never mounts this component) saw the agenda correctly.
+		 *
+		 * Measured on the dev instance, 2026-08-16: `agenda-item?meeting=<id>`
+		 * returned `total: 1`, `agenda-item?isRecurring=true` returned `total: 2`,
+		 * and `.live-meeting__activate-list` rendered as an empty `<ul>`.
+		 *
+		 * This is a read whose result is component-local (`recurringItems` feeds
+		 * one dialog), so it must not touch the shared cache at all.
+		 *
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		async loadRecurringItems() {
 			try {
-				const all = await this.objectStore.fetchCollection('agenda-item', {
-					isRecurring: true,
-				})
-				this.recurringItems = all ?? []
+				this.recurringItems = await fetchRecurringAgendaItems()
 			} catch (e) {
 				console.error('Failed to load recurring items:', e)
 			}
