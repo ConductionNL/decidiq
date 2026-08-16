@@ -23,10 +23,8 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\AdvisoryVoteService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 
 /**
  * Tests advisory tally reuse: value enum, duplicate rejection (shared dedup
@@ -57,11 +55,9 @@ class VotingServiceAdvisoryTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		$container = $this->createMock(ContainerInterface::class);
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();
-		$container->method('get')->willReturn($this->objectService);
 
 		$this->service = new AdvisoryVoteService(
 			objectService: $this->objectService,

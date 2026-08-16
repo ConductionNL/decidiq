@@ -70,7 +70,8 @@ class VotingServiceTallyMatrixTest extends TestCase {
 		$motionService = $this->createMock(MotionService::class);
 		$participantResolver = $this->createMock(ParticipantResolver::class);
 		$templateService = $this->createMock(ProcessTemplateService::class);
-		$amendmentOrder = new AmendmentOrderService(container: $container, motionService: $motionService,
+		$amendmentOrder = new AmendmentOrderService(
+			motionService: $motionService,
 			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 		$relationFilter = new ObjectRelationFilter();
@@ -84,43 +85,43 @@ class VotingServiceTallyMatrixTest extends TestCase {
 					motionService: $motionService,
 					participantResolver: $participantResolver,
 					templateService: $templateService,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+					objectService: $this->createMock(ObjectServiceInterface::class),
+				),
 				notifier: new VotingOpenedNotifier(
 					logger: $logger,
 					participantResolver: $participantResolver,
-			container: $this->createMock(ContainerInterface::class),
-		),
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+					container: $container,
+				),
+				objectService: $this->createMock(ObjectServiceInterface::class),
+			),
 			caster: new VoteCastingService(
 				logger: $logger,
 				participantResolver: $participantResolver,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-			container: $this->createMock(ContainerInterface::class),
-		),
+				objectService: $this->createMock(ObjectServiceInterface::class),
+				container: $container,
+			),
 			closer: new VotingRoundCloser(
 				logger: $logger,
 				oriService: $this->createMock(OriPublicationService::class),
 				motionService: $motionService,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-			fileService: $this->createMock(FileService::class),
-		),
+				objectService: $this->createMock(ObjectServiceInterface::class),
+				fileService: $this->createMock(FileService::class),
+			),
 			results: new VotingRoundResults(
 				motionService: $motionService,
 				participantResolver: $participantResolver,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
-			projection: new VotingRoundProjection(container: $container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
-			participants: new ParticipantUuidLookup(container: $container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+				objectService: $this->createMock(ObjectServiceInterface::class),
+			),
+			projection: new VotingRoundProjection(
+				objectService: $this->createMock(ObjectServiceInterface::class),
+			),
+			participants: new ParticipantUuidLookup(
+				objectService: $this->createMock(ObjectServiceInterface::class),
+			),
 		);
 
 	}//end buildService()

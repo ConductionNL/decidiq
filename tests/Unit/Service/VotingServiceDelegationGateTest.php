@@ -10,9 +10,9 @@
  * delegation the pre-existing generic rejection is preserved.
  *
  * Kept separate from VotingServiceTest (skipped pending issue #90) because
- * these cases avoid mocking the OpenRegister ObjectService class entirely —
- * the container serves a plain anonymous double, so no stub-vs-real
- * signature mismatch can occur.
+ * these cases avoid mocking the concrete OpenRegister ObjectService class
+ * entirely — they double OpenRegister's published ObjectServiceInterface
+ * (ADR-084), so no stub-vs-real signature mismatch can occur.
  *
  * @category Test
  * @package  OCA\Decidesk\Tests\Unit\Service
@@ -49,6 +49,7 @@ use OCA\Decidesk\Service\VotingRoundProjection;
 use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\FileService;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -79,53 +80,10 @@ class VotingServiceDelegationGateTest extends TestCase {
 			'notes' => [],
 		];
 
-		$roundEntity = new class($round) {
-
-			/**
-			 * Constructor.
-			 *
-			 * @param array<string, mixed> $round The round payload.
-			 */
-			public function __construct(
-				private array $round,
-			) {
-			}
-
-			/**
-			 * Serialize like an ObjectEntity.
-			 *
-			 * @return array<string, mixed>
-			 */
-			public function jsonSerialize(): array {
-				return $this->round;
-			}
-		};
-
-		$objectService = new class($roundEntity) {
-
-			/**
-			 * Constructor.
-			 *
-			 * @param object $roundEntity The round entity double.
-			 */
-			public function __construct(
-				private object $roundEntity,
-			) {
-			}
-
-			/**
-			 * Find returning the round entity for any id.
-			 *
-			 * @param int|string $id Object id.
-			 * @param string|int|null $register Register slug.
-			 * @param string|int|null $schema Schema slug.
-			 *
-			 * @return object|null
-			 */
-			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
-				return $this->roundEntity;
-			}
-		};
+		// find() answers the round for any id; the gate rejects before any
+		// findAll()/saveObject() path is reached.
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('find')->willReturn($this->entity($round));
 
 		$prefService = $this->createMock(NotificationPreferenceService::class);
 		$prefService->method('hasActiveDelegationTo')->willReturnCallback(
@@ -146,7 +104,7 @@ class VotingServiceDelegationGateTest extends TestCase {
 			}
 		);
 
-		return $this->assembleVotingService(container: $container);
+		return $this->assembleVotingService(container: $container, objectService: $objectService);
 	}//end buildService()
 
 	/**
@@ -157,16 +115,21 @@ class VotingServiceDelegationGateTest extends TestCase {
 	 * where production relies on Nextcloud's constructor auto-wiring.
 	 *
 	 * @param ContainerInterface $container The (mocked) DI container.
+	 * @param ObjectServiceInterface $objectService The OpenRegister double (ADR-084).
 	 *
 	 * @return VotingService
 	 */
-	private function assembleVotingService(ContainerInterface $container): VotingService {
+	private function assembleVotingService(
+		ContainerInterface $container,
+		ObjectServiceInterface $objectService,
+	): VotingService {
 		$logger = new NullLogger();
 		$motionService = $this->createMock(MotionService::class);
 		$participantResolver = $this->createMock(ParticipantResolver::class);
 		$templateService = $this->createMock(ProcessTemplateService::class);
-		$amendmentOrder = new AmendmentOrderService(container: $container, motionService: $motionService,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+		$amendmentOrder = new AmendmentOrderService(
+			motionService: $motionService,
+			objectService: $objectService,
 		);
 		$relationFilter = new ObjectRelationFilter();
 
@@ -179,46 +142,64 @@ class VotingServiceDelegationGateTest extends TestCase {
 					motionService: $motionService,
 					participantResolver: $participantResolver,
 					templateService: $templateService,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+					objectService: $objectService,
+				),
 				notifier: new VotingOpenedNotifier(
 					logger: $logger,
 					participantResolver: $participantResolver,
-			container: $this->createMock(ContainerInterface::class),
-		),
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+					container: $container,
+				),
+				objectService: $objectService,
+			),
 			caster: new VoteCastingService(
 				logger: $logger,
 				participantResolver: $participantResolver,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-			container: $this->createMock(ContainerInterface::class),
-		),
+				objectService: $objectService,
+				container: $container,
+			),
 			closer: new VotingRoundCloser(
 				logger: $logger,
 				oriService: $this->createMock(OriPublicationService::class),
 				motionService: $motionService,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-			fileService: $this->createMock(FileService::class),
-		),
+				objectService: $objectService,
+				fileService: $this->createMock(FileService::class),
+			),
 			results: new VotingRoundResults(
 				motionService: $motionService,
 				participantResolver: $participantResolver,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
-			projection: new VotingRoundProjection(container: $container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
-			participants: new ParticipantUuidLookup(container: $container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+				objectService: $objectService,
+			),
+			projection: new VotingRoundProjection(
+				objectService: $objectService,
+			),
+			participants: new ParticipantUuidLookup(
+				objectService: $objectService,
+			),
 		);
 
 	}//end assembleVotingService()
+
+	/**
+	 * Wrap a payload in an ObjectEntity double that serialises to it verbatim.
+	 *
+	 * @param array<string, mixed> $object The payload
+	 *
+	 * @return ObjectEntity
+	 */
+	private function entity(array $object): ObjectEntity {
+		$entity = $this->getMockBuilder(ObjectEntity::class)
+			->disableOriginalConstructor()
+			->onlyMethods(['jsonSerialize', 'getObject'])
+			->getMock();
+		$entity->method('jsonSerialize')->willReturn($object);
+		$entity->method('getObject')->willReturn($object);
+		return $entity;
+
+	}//end entity()
 
 	/**
 	 * An absence delegate without a formal proxy gets the spec-mandated rejection
@@ -310,99 +291,18 @@ class VotingServiceDelegationGateTest extends TestCase {
 			],
 		];
 
-		$roundEntity = new class($round) {
-
-			/**
-			 * Constructor.
-			 *
-			 * @param array<string, mixed> $round The round payload.
-			 */
-			public function __construct(
-				private array $round,
-			) {
+		// find() answers the round for any id; the dedup queries come back empty
+		// and saveObject() echoes the payload back as an entity.
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('find')->willReturn($this->entity($round));
+		$objectService->method('setRegister')->willReturnSelf();
+		$objectService->method('setSchema')->willReturnSelf();
+		$objectService->method('findAll')->willReturn([]);
+		$objectService->method('saveObject')->willReturnCallback(
+			function (array $object): ObjectEntity {
+				return $this->entity($object);
 			}
-
-			/**
-			 * Serialize like an ObjectEntity.
-			 *
-			 * @return array<string, mixed>
-			 */
-			public function jsonSerialize(): array {
-				return $this->round;
-			}
-		};
-
-		$objectService = new class($roundEntity) {
-
-			/**
-			 * Constructor.
-			 *
-			 * @param object $roundEntity The round entity double.
-			 */
-			public function __construct(
-				private object $roundEntity,
-			) {
-			}
-
-			/**
-			 * Find returning the round entity.
-			 *
-			 * @param int|string $id Object id.
-			 * @param string|int|null $register Register slug.
-			 * @param string|int|null $schema Schema slug.
-			 *
-			 * @return object|null
-			 */
-			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
-				return $this->roundEntity;
-			}
-
-			/**
-			 * Fluent register setter.
-			 *
-			 * @param string $register Register slug.
-			 *
-			 * @return static
-			 */
-			public function setRegister(string $register): static {
-				return $this;
-			}
-
-			/**
-			 * Fluent schema setter.
-			 *
-			 * @param string $schema Schema slug.
-			 *
-			 * @return static
-			 */
-			public function setSchema(string $schema): static {
-				return $this;
-			}
-
-			/**
-			 * Empty result set for the dedup queries.
-			 *
-			 * @param array<string, mixed> $config Query config.
-			 *
-			 * @return array<int, object>
-			 */
-			public function findAll(array $config = []): array {
-				return [];
-			}
-
-			/**
-			 * Echoing save.
-			 *
-			 * @param string|int|null $register Register slug.
-			 * @param string|int|null $schema Schema slug.
-			 * @param array<string, mixed> $object The object payload.
-			 *
-			 * @return array<string, mixed>
-			 */
-			public function saveObject(string|int|null $register = null, string|int|null $schema = null, array $object = []): array {
-				return $object;
-			}
-		};
+		);
 
 		$prefService = $this->createMock(NotificationPreferenceService::class);
 		$prefService->expects($this->never())->method('hasActiveDelegationTo');
@@ -419,7 +319,7 @@ class VotingServiceDelegationGateTest extends TestCase {
 			}
 		);
 
-		$service = $this->assembleVotingService(container: $container);
+		$service = $this->assembleVotingService(container: $container, objectService: $objectService);
 
 		$vote = $service->castVote(
 			votingRoundId: 'round-1',

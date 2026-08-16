@@ -93,12 +93,12 @@ class TranscriptionServiceTest extends TestCase {
 		// $this->container. Tests that assert on repository behaviour pass
 		// their own double; the rest get inert mocks.
 		return new TranscriptionService(
-			$this->container,
-			$this->logger,
-			$this->sourceResolver,
-			$this->folderService,
-			$fileService ?? $this->createMock(FileService::class),
-			$objectService ?? $this->createMock(ObjectServiceInterface::class)
+			container: $this->container,
+			logger: $this->logger,
+			sourceResolver: $this->sourceResolver,
+			folderService: $this->folderService,
+			fileService: $fileService ?? $this->createMock(FileService::class),
+			objectService: $objectService ?? $this->createMock(ObjectServiceInterface::class),
 		);
 
 	}//end service()
@@ -344,28 +344,29 @@ class TranscriptionServiceTest extends TestCase {
 		$sttManager->method('transcribeFile')->willThrowException(new \RuntimeException('engine down'));
 
 		// FileService whose folder resolution would work, but transcribeFile fails first.
+		// ADR-084: TranscriptRepository is handed this FileService directly, so the
+		// double has to be a FileService (and its folder an OCP Folder) rather than
+		// a stdClass parked on the container — production never asks the container
+		// for it, and an inert mock returns null from createFolder(), which fails
+		// with "Call to a member function get() on null" long before the STT error
+		// this test is about.
 		$fileNode = $this->createMock(\OCP\Files\File::class);
-		$fileService = $this->getMockBuilder(\stdClass::class)->addMethods(['createFolder'])->getMock();
-		$fileService->method('createFolder')->willReturn(
-			(function () use ($fileNode) {
-				$folder = $this->getMockBuilder(\stdClass::class)->addMethods(['get'])->getMock();
-				$folder->method('get')->willReturn($fileNode);
-				return $folder;
-			})()
-		);
+		$folder = $this->createMock(\OCP\Files\Folder::class);
+		$folder->method('get')->willReturn($fileNode);
+		$fileService = $this->createMock(FileService::class);
+		$fileService->method('createFolder')->willReturn($folder);
 
+		// The container still answers for the Nextcloud SpeechToText manager.
 		$this->container->method('get')->willReturnCallback(
-			function (string $id) use ($objectService, $sttManager, $fileService) {
+			function (string $id) use ($sttManager) {
 				return match ($id) {
-					'OCA\OpenRegister\Service\ObjectService' => $objectService,
-					'OCA\OpenRegister\Service\FileService' => $fileService,
 					ISpeechToTextManager::class => $sttManager,
 					default => throw new \RuntimeException('x'),
 				};
 			}
 		);
 
-		$result = $this->service(objectService: $objectService)->process(transcriptId: 't1');
+		$result = $this->service(objectService: $objectService, fileService: $fileService)->process(transcriptId: 't1');
 
 		self::assertSame('failed', $saved['status']);
 		self::assertStringContainsString('engine down', (string)$saved['failureReason']);

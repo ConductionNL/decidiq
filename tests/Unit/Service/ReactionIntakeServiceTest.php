@@ -23,11 +23,9 @@ use OCA\Decidesk\Service\ParticipationLifecycleService;
 use OCA\Decidesk\Service\ReactionIntakeService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Service\ObjectService;
 use OCP\IAppConfig;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -59,11 +57,9 @@ class ReactionIntakeServiceTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		$container = $this->createMock(ContainerInterface::class);
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();
-		$container->method('get')->willReturn($this->objectService);
 
 		$appConfig = $this->createMock(IAppConfig::class);
 		$appConfig->method('getValueString')->willReturn('test-secret');
@@ -72,8 +68,9 @@ class ReactionIntakeServiceTest extends TestCase {
 			logger: $this->createMock(LoggerInterface::class),
 			appConfig: $appConfig,
 			lifecycleService: new ParticipationLifecycleService(
+				objectService: $this->objectService,
+			),
 			objectService: $this->objectService,
-		),
 		);
 
 	}//end setUp()

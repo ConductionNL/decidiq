@@ -31,7 +31,6 @@ use OCA\Decidesk\Service\MeetingService;
 use OCA\Decidesk\Service\WorkflowService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -120,10 +119,6 @@ class MeetingServiceTest extends TestCase {
 		$this->meetingCostService = $this->createMock(originalClassName: MeetingCostService::class);
 		$this->scopeGuard = $this->createMock(originalClassName: GovernanceScopeGuard::class);
 
-		$this->container->method('get')
-			->with('OCA\OpenRegister\Service\ObjectService')
-			->willReturn($this->objectService);
-
 		$this->service = new MeetingService(
 			container: $this->container,
 			logger: $this->logger,
@@ -131,7 +126,7 @@ class MeetingServiceTest extends TestCase {
 			transitionGuard: $this->transitionGuard,
 			meetingCostService: $this->meetingCostService,
 			scopeGuard: $this->scopeGuard,
-			objectService: $entity,
+			objectService: $this->objectService,
 		);
 
 	}//end setUp()
@@ -364,7 +359,7 @@ class MeetingServiceTest extends TestCase {
 			transitionGuard: $transitionGuard,
 			meetingCostService: $this->meetingCostService,
 			scopeGuard: $this->scopeGuard,
-			objectService: $entity,
+			objectService: $this->objectService,
 		);
 
 		$result = $service->transition(meetingId: $uuid, action: 'pause');
@@ -408,7 +403,7 @@ class MeetingServiceTest extends TestCase {
 			transitionGuard: $transitionGuard,
 			meetingCostService: $this->meetingCostService,
 			scopeGuard: $scopeGuard,
-			objectService: $entity,
+			objectService: $this->objectService,
 		);
 
 		// Caller is NOT the chair.
@@ -454,7 +449,7 @@ class MeetingServiceTest extends TestCase {
 			transitionGuard: $transitionGuard,
 			meetingCostService: $this->meetingCostService,
 			scopeGuard: $scopeGuard,
-			objectService: $entity,
+			objectService: $this->objectService,
 		);
 
 		$result = $service->transition(meetingId: $uuid, action: 'adjourn', currentUserId: 'uid-chair');
@@ -502,7 +497,7 @@ class MeetingServiceTest extends TestCase {
 			transitionGuard: $transitionGuard,
 			meetingCostService: $this->meetingCostService,
 			scopeGuard: $scopeGuard,
-			objectService: $entity,
+			objectService: $this->objectService,
 		);
 
 		// Caller IS the chair.
@@ -544,7 +539,7 @@ class MeetingServiceTest extends TestCase {
 			transitionGuard: $transitionGuard,
 			meetingCostService: $this->meetingCostService,
 			scopeGuard: $this->scopeGuard,
-			objectService: $entity,
+			objectService: $this->objectService,
 		);
 
 		$result = $service->transition(meetingId: $uuid, action: 'open');

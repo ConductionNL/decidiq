@@ -105,6 +105,18 @@ class DecideskToolProviderTest extends TestCase {
 	private ParticipantResolver&MockObject $participantResolver;
 
 	/**
+	 * Mock of OpenRegister's published object-service contract.
+	 *
+	 * ADR-083/084: the provider is handed this directly instead of resolving
+	 * `OCA\OpenRegister\Service\ObjectService` from the container, so a test
+	 * must configure THIS instance — one parked on the container mock is never
+	 * consulted.
+	 *
+	 * @var ObjectServiceInterface&MockObject
+	 */
+	private ObjectServiceInterface&MockObject $objectService;
+
+	/**
 	 * The UUID fixture used in tests.
 	 *
 	 * @var string
@@ -132,6 +144,7 @@ class DecideskToolProviderTest extends TestCase {
 		$this->container = $this->createMock(ContainerInterface::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 		$this->participantResolver = $this->createMock(ParticipantResolver::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$this->provider = new DecideskToolProvider(
 			meetingService: $this->meetingService,
@@ -140,7 +153,7 @@ class DecideskToolProviderTest extends TestCase {
 			container: $this->container,
 			logger: $this->logger,
 			participantResolver: $this->participantResolver,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		);
 
 	}//end setUp()
@@ -251,7 +264,7 @@ class DecideskToolProviderTest extends TestCase {
 	}//end makeObjectEntityMock()
 
 	/**
-	 * Configure the container mock to return an ObjectService mock.
+	 * Configure the INJECTED object-service double.
 	 *
 	 * When $meetingEntity is provided, `find()` returns it (or null for not-found).
 	 * findAll() returns an empty array by default.
@@ -262,22 +275,19 @@ class DecideskToolProviderTest extends TestCase {
 	 * @return ObjectServiceInterface&MockObject
 	 */
 	private function mockObjectService(?MockObject $meetingEntity = null, ?callable $findAllCallback = null): MockObject {
-		$objectService = $this->createMock(ObjectServiceInterface::class);
-
 		if ($meetingEntity !== null) {
-			$objectService->method('find')->willReturn($meetingEntity);
+			$this->objectService->method('find')->willReturn($meetingEntity);
 		} else {
-			$objectService->method('find')->willReturn(null);
+			$this->objectService->method('find')->willReturn(null);
 		}
 
 		if ($findAllCallback !== null) {
-			$objectService->method('findAll')->willReturnCallback($findAllCallback);
+			$this->objectService->method('findAll')->willReturnCallback($findAllCallback);
 		} else {
-			$objectService->method('findAll')->willReturn([]);
+			$this->objectService->method('findAll')->willReturn([]);
 		}
 
-		$this->container->method('get')->willReturn($objectService);
-		return $objectService;
+		return $this->objectService;
 	}//end mockObjectService()
 
 	// =========================================================================
@@ -439,14 +449,12 @@ class DecideskToolProviderTest extends TestCase {
 	public function testListOpenActionItems_happyPath(): void {
 		$this->setCurrentUser('alice');
 
-		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('findAll')->willReturn(
+		$this->objectService->method('findAll')->willReturn(
 			[
 				['uuid' => 'ai-uuid-1', 'title' => 'Fix bug'],
 				['uuid' => 'ai-uuid-2', 'title' => 'Write docs'],
 			]
 		);
-		$this->container->method('get')->willReturn($objectService);
 
 		$result = $this->provider->invokeTool('decidesk.listOpenActionItems', ['scope' => 'mine', 'limit' => 10]);
 
@@ -505,14 +513,12 @@ class DecideskToolProviderTest extends TestCase {
 		// the meeting-UUID scoping filter is bypassed.
 		$this->setAdminUser('alice');
 
-		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('findAll')->willReturn(
+		$this->objectService->method('findAll')->willReturn(
 			[
 				['uuid' => 'mtg-uuid-2', 'title' => 'Newer meeting', 'scheduledDate' => '2026-05-10'],
 				['uuid' => 'mtg-uuid-1', 'title' => 'Older meeting', 'scheduledDate' => '2026-05-01'],
 			]
 		);
-		$this->container->method('get')->willReturn($objectService);
 
 		$result = $this->provider->invokeTool('decidesk.listRecentMeetings', ['limit' => 10]);
 
@@ -543,9 +549,8 @@ class DecideskToolProviderTest extends TestCase {
 		$meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
 		$meetingEntity = $this->makeObjectEntityMock($meeting);
 
-		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('find')->willReturn($meetingEntity);
-		$objectService->method('findAll')->willReturnCallback(
+		$this->objectService->method('find')->willReturn($meetingEntity);
+		$this->objectService->method('findAll')->willReturnCallback(
 			function (array $config) {
 				$schema = $config['filters']['schema'] ?? '';
 				if ($schema === 'agenda-item') {
@@ -563,7 +568,6 @@ class DecideskToolProviderTest extends TestCase {
 				return [];
 			}
 		);
-		$this->container->method('get')->willReturn($objectService);
 
 		$result = $this->provider->invokeTool(
 			'decidesk.getMeetingDetails',
@@ -634,10 +638,9 @@ class DecideskToolProviderTest extends TestCase {
 		$meeting = $this->makeMeeting($this->meetingUuid, 'opened', 'alice');
 		$meetingEntity = $this->makeObjectEntityMock($meeting);
 
-		// Build an ObjectService mock that returns the meeting entity on find().
-		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('find')->willReturn($meetingEntity);
-		$objectService->method('findAll')->willReturn([]);
+		// The injected object service returns the meeting entity on find().
+		$this->objectService->method('find')->willReturn($meetingEntity);
+		$this->objectService->method('findAll')->willReturn([]);
 
 		// The action item is now written via ActionItemWriter::create()
 		// (the action-item schema is a read-only VTODO projection; direct
@@ -652,13 +655,10 @@ class DecideskToolProviderTest extends TestCase {
 			->getMock();
 		$writerMock->method('create')->willReturn($savedActionItemArray);
 
-		// Wire the container to return the correct service for each key.
+		// The container is still consulted for the app-local ActionItemWriter;
+		// OpenRegister is no longer resolved through it (ADR-083).
 		$this->container->method('get')->willReturnCallback(
-			function (string $id) use ($objectService, $writerMock) {
-				if ($id === 'OCA\OpenRegister\Service\ObjectService') {
-					return $objectService;
-				}
-
+			function (string $id) use ($writerMock) {
 				if ($id === \OCA\Decidesk\Service\ActionItemWriter::class) {
 					return $writerMock;
 				}
@@ -700,11 +700,9 @@ class DecideskToolProviderTest extends TestCase {
 		$meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice', ['bob']);
 		$meetingEntity = $this->makeObjectEntityMock($meeting);
 
-		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('find')->willReturn($meetingEntity);
+		$this->objectService->method('find')->willReturn($meetingEntity);
 		// findAll should never be called — access is blocked after find().
-		$objectService->expects(self::never())->method('findAll');
-		$this->container->method('get')->willReturn($objectService);
+		$this->objectService->expects(self::never())->method('findAll');
 
 		$result = $this->provider->invokeTool(
 			'decidesk.getMeetingDetails',
@@ -823,8 +821,7 @@ class DecideskToolProviderTest extends TestCase {
 		$meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
 		$meetingEntity = $this->makeObjectEntityMock($meeting);
 
-		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('find')->willReturn($meetingEntity);
+		$this->objectService->method('find')->willReturn($meetingEntity);
 
 		// 20 agenda items + 7 decisions + 7 action items = 34, +1 meeting = 35 total.
 		$agendaItems = [];
@@ -842,7 +839,7 @@ class DecideskToolProviderTest extends TestCase {
 			$actionItems[] = ['uuid' => "act-{$i}", 'title' => "Action {$i}"];
 		}
 
-		$objectService->method('findAll')->willReturnCallback(
+		$this->objectService->method('findAll')->willReturnCallback(
 			function (array $config) use ($agendaItems, $decisions, $actionItems) {
 				$schema = $config['filters']['schema'] ?? '';
 				if ($schema === 'agenda-item') {
@@ -860,7 +857,6 @@ class DecideskToolProviderTest extends TestCase {
 				return [];
 			}
 		);
-		$this->container->method('get')->willReturn($objectService);
 
 		$result = $this->provider->invokeTool(
 			'decidesk.getMeetingDetails',

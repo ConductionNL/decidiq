@@ -52,6 +52,7 @@ use OCA\Decidesk\Service\ProcessTemplateService;
 use OCA\Decidesk\Service\VotingErrorResponder;
 use OCA\Decidesk\Service\VotingRoundPreflight;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -325,6 +326,87 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	}//end objectServiceDouble()
 
 	/**
+	 * The strict double, typed as OpenRegister's published contract.
+	 *
+	 * ADR-084 hands the ObjectService to the motion stack by injection instead of
+	 * resolving it from the container, and the injected parameter is typed
+	 * `ObjectServiceInterface` — so the double has to arrive as that type to be
+	 * injectable at all. The double above stays the authority on behaviour (the
+	 * schema vocabulary and the throwing `find()`); this adapter only forwards to
+	 * it and re-wraps its ObjectEntity-like results as the contract's
+	 * `ObjectEntityInterface`, which the interface's return types require.
+	 *
+	 * @param array<string, array<string, mixed>> $store Seed objects keyed by id
+	 *
+	 * @return ObjectServiceInterface The contract-typed ObjectService double
+	 */
+	private function objectServiceContract(array $store = []): ObjectServiceInterface {
+		$double = $this->objectServiceDouble($store);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+
+		$objectService->method('setRegister')->willReturnSelf();
+		$objectService->method('setSchema')->willReturnCallback(
+			function (string|int $schema) use ($double, &$objectService): ObjectServiceInterface {
+				$double->setSchema((string)$schema);
+				return $objectService;
+			}
+		);
+
+		$objectService->method('find')->willReturnCallback(
+			function (
+				int|string $id,
+				?array $_extend = [],
+				bool $files = false,
+				string|int|null $register = null,
+				string|int|null $schema = null
+			) use ($double): ?ObjectEntity {
+				$row = $double->find($id, $register, $schema);
+				if ($row === null) {
+					return null;
+				}
+
+				return $this->wrapObject($row->getObject());
+			}
+		);
+
+		$objectService->method('findAll')->willReturnCallback(
+			function (array $config = []) use ($double): array {
+				return array_map(
+					fn (object $row): ObjectEntity => $this->wrapObject($row->getObject()),
+					$double->findAll($config)
+				);
+			}
+		);
+
+		$objectService->method('saveObject')->willReturnCallback(
+			function (
+				array $object,
+				?array $extend = [],
+				string|int|null $register = null,
+				string|int|null $schema = null
+			) use ($double): ObjectEntity {
+				return $this->wrapObject($double->saveObject($object, (string)$register, (string)$schema));
+			}
+		);
+
+		return $objectService;
+	}//end objectServiceContract()
+
+	/**
+	 * Wrap a payload as an ObjectEntity — the entity type the contract returns.
+	 *
+	 * @param array<string, mixed> $object The payload
+	 *
+	 * @return ObjectEntity
+	 */
+	private function wrapObject(array $object): ObjectEntity {
+		$entity = $this->createMock(ObjectEntity::class);
+		$entity->method('jsonSerialize')->willReturn($object);
+		$entity->method('getObject')->willReturn($object);
+		return $entity;
+	}//end wrapObject()
+
+	/**
 	 * A DI container that dispatches on the requested id.
 	 *
 	 * Deliberately NOT a blanket "return one mock for everything" double: such a
@@ -386,11 +468,11 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 * a dependency the code gains later surfaces as a loud failure here instead
 	 * of being silently answered by a catch-all mock.
 	 *
-	 * @param object $objectService The OpenRegister ObjectService double
+	 * @param ObjectServiceInterface $objectService The OpenRegister ObjectService double
 	 *
 	 * @return ContainerInterface
 	 */
-	private function decideskContainer(object $objectService): ContainerInterface {
+	private function decideskContainer(ObjectServiceInterface $objectService): ContainerInterface {
 		$services = [
 			'OCA\OpenRegister\Service\ObjectService' => $objectService,
 			\OCA\Decidesk\Service\MotionNotifier::class => $this->createMock(
@@ -417,6 +499,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 			container: $self,
 			logger: new NullLogger(),
 			guard: new \OCA\Decidesk\Lifecycle\DecisionTransitionGuard(),
+			objectService: $objectService,
 		);
 
 		return $this->containerFor($services);
@@ -489,13 +572,14 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 * @return JSONResponse The controller's response
 	 */
 	private function callAmendmentOrder(string $motionId): JSONResponse {
-		$container = $this->decideskContainer($this->objectServiceDouble());
+		$objectService = $this->objectServiceContract();
+		$container = $this->decideskContainer($objectService);
 
 		$motionService = new MotionService(
 			container: $container,
 			logger: new NullLogger(),
 			userManager: $this->createMock(IUserManager::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
 		$request = $this->createMock(IRequest::class);
@@ -613,13 +697,14 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 * @return void
 	 */
 	public function testTransitionLifecycleRejectsAnUnknownObjectType(): void {
-		$container = $this->decideskContainer($this->objectServiceDouble());
+		$objectService = $this->objectServiceContract();
+		$container = $this->decideskContainer($objectService);
 
 		$motionService = new MotionService(
 			container: $container,
 			logger: new NullLogger(),
 			userManager: $this->createMock(IUserManager::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
 		$this->expectException(\InvalidArgumentException::class);
@@ -646,23 +731,22 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 * @return void
 	 */
 	public function testTransitionLifecycleRefusesADecisionOfAnotherType(): void {
-		$container = $this->decideskContainer(
-			$this->objectServiceDouble(
-				[
-					'decision-1' => [
-						'id' => 'decision-1',
-						'decisionType' => 'contract',
-						'lifecycle' => 'proposed',
-					],
-				]
-			)
+		$objectService = $this->objectServiceContract(
+			[
+				'decision-1' => [
+					'id' => 'decision-1',
+					'decisionType' => 'contract',
+					'lifecycle' => 'proposed',
+				],
+			]
 		);
+		$container = $this->decideskContainer($objectService);
 
 		$motionService = new MotionService(
 			container: $container,
 			logger: new NullLogger(),
 			userManager: $this->createMock(IUserManager::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
 		$this->expectException(\RuntimeException::class);
@@ -694,8 +778,8 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 */
 	public function testUnknownMeetingResolvesToNoGovernanceBodyNotAnEscapingError(): void {
 		$resolver = new \OCA\Decidesk\Service\ParticipantResolver(
-			container: $this->decideskContainer($this->objectServiceDouble()),
 			logger: new NullLogger(),
+			objectService: $this->objectServiceContract(),
 		);
 
 		self::assertNull(
@@ -712,7 +796,8 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 * @return VotingRoundPreflight
 	 */
 	private function buildPreflight(): VotingRoundPreflight {
-		$container = $this->decideskContainer($this->objectServiceDouble());
+		$objectService = $this->objectServiceContract();
+		$container = $this->decideskContainer($objectService);
 
 		$templateService = $this->createMock(ProcessTemplateService::class);
 		$templateService->method('resolveVotingRuleForBody')->willReturn([]);
@@ -720,13 +805,14 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 		return new VotingRoundPreflight(
 			logger: new NullLogger(),
 			motionService: new MotionService(
+				container: $container,
 				logger: new NullLogger(),
 				userManager: $this->createMock(IUserManager::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
-			container: $this->createMock(ContainerInterface::class),
-		),
+				objectService: $objectService,
+			),
 			participantResolver: $this->createMock(ParticipantResolver::class),
 			templateService: $templateService,
+			objectService: $objectService,
 		);
 
 	}//end buildPreflight()

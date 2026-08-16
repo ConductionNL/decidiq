@@ -24,7 +24,6 @@ use OCA\Decidesk\Service\ObjectRelationFilter;
 use OCA\Decidesk\Service\ParticipationPublicationService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Service\ObjectService;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -72,22 +71,19 @@ class ParticipationPublicationServiceTest extends TestCase {
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();
-		// The service resolves TWO distinct collaborators from the container:
-		// OpenRegister's ObjectService and decidesk's own ObjectRelationFilter.
-		// A blanket `willReturn($this->objectService)` handed the ObjectService
-		// mock back for BOTH ids, so the relation filter call landed on a mock
-		// that has no such method — "Call to undefined method
-		// MockObject_ObjectService::matching()". Dispatch on the requested id.
-		// ObjectRelationFilter is a dependency-free pure filter, so the real one
-		// is used: a mock here would assert nothing about the disclosure
-		// boundary that scoping enforces.
+		// Since ADR-083 the container resolves ONE collaborator here: decidesk's
+		// own ObjectRelationFilter. OpenRegister is injected instead (see
+		// makeService()), so a double parked on the container would never be
+		// consulted. ObjectRelationFilter is a dependency-free pure filter, so
+		// the real one is used: a mock here would assert nothing about the
+		// disclosure boundary that scoping enforces.
 		$this->container->method('get')->willReturnCallback(
 			function (string $id): object {
 				if ($id === ObjectRelationFilter::class) {
 					return new ObjectRelationFilter();
 				}
 
-				return $this->objectService;
+				throw new \RuntimeException("Unexpected container::get('{$id}')");
 			}
 		);
 		$this->appManager = $this->createMock(IAppManager::class);
@@ -109,7 +105,7 @@ class ParticipationPublicationServiceTest extends TestCase {
 			appManager: $this->appManager,
 			appConfig: $this->createMock(IAppConfig::class),
 			budgetService: $this->createMock(BudgetVotingService::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		);
 
 	}//end makeService()
