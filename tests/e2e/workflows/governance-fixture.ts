@@ -49,11 +49,21 @@ export interface SeedLedger {
  */
 export const MOTION_SCHEMA = 'decision'
 
-/** Schema slugs in safe teardown order (children before parents). */
+/**
+ * Schema slugs in safe teardown order (children before parents).
+ *
+ * ⚠️ A SCHEMA MISSING FROM THIS LIST LEAKS SILENTLY. `cleanupAll()` iterates
+ * THIS array, not `ledger.created`, so an object tracked under a slug that is
+ * absent here is never deleted and `cleanupAll()` still returns cleanly.
+ * `minutes` and `agenda-item` were both created by specs (resolution-minutes)
+ * and both absent, so every CI run left them behind.
+ */
 const TEARDOWN_ORDER = [
 	'vote',
 	'voting-round',
 	'decision',
+	'minutes',
+	'agenda-item',
 	'participant',
 	'meeting',
 	'governance-body',

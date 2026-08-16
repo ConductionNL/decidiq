@@ -15,9 +15,28 @@
  * reason-bearing `@e2e exclude` in the spec — they cannot be driven in
  * real time in a deterministic browser test.
  *
- * Defensive skips: when no meeting / governance body is seeded in the target
- * instance, the relevant test skips rather than failing — the spec is about
- * behaviour when the data exists, and the deploy reality varies per env.
+ * ⚠️ THE THREE LiveMeeting TESTS NO LONGER SKIP, AND THAT IS THE POINT.
+ * They used to lean on "the first meeting in the register", then skip with
+ * *"No activatable agenda item / not chair in this environment."* — a reason
+ * that read as an environment fact and was **false twice over**, measured on
+ * the dev instance 2026-08-16:
+ *
+ *   1. The chair gate opens fine once a Participant carrying the current
+ *      user's `nextcloudUserId` and `role: 'chair'` is linked to the meeting.
+ *      Nothing in CI was seeding one, so nothing was ever chair.
+ *   2. Even as chair the old locator could not match. The activate control is
+ *      `<NcButton :aria-label="Activate {title}">{{ orderNumber }}. {{ title }}</NcButton>`,
+ *      and an explicit `aria-label` REPLACES the text content in the
+ *      accessible name — so `getByRole('button', { name: /^1\./ })` matches
+ *      nothing no matter who is looking at the page. The skip could therefore
+ *      never fail to fire, which is an invisible pass.
+ *
+ * Both tests now seed their own fixture (meeting + agenda item + chair
+ * participant) and assert unconditionally. If the surface regresses they go
+ * RED; there is no "not applicable" branch left to hide in.
+ *
+ * Defensive skips: the GovernanceBody analytics test still skips when no
+ * governance body is seeded — that one is genuinely about pre-existing data.
  *
  * @e2e openspec/specs/meeting-efficiency/spec.md#pause-timer-during-procedural-interruption
  * @e2e openspec/specs/meeting-efficiency/spec.md#skip-timer-for-informational-items
@@ -28,9 +47,20 @@
  * @e2e openspec/specs/meeting-efficiency/spec.md#show-cost-per-agenda-item-in-analytics
  */
 import { test, expect, type Page } from '@playwright/test'
+import {
+	cleanupAll,
+	createObject,
+	newLedger,
+	objId,
+	type SeedLedger,
+} from '../workflows/governance-fixture'
 
 import { BASE_URL as BASE } from '../base-url'
 import { becomesVisible } from '../becomes-visible.js'
+
+let ledger: SeedLedger
+let meetingId = ''
+let itemTitle = ''
 
 async function dismissSupportDialog(page: Page): Promise<void> {
 	const dialog = page
@@ -52,60 +82,112 @@ async function openApp(page: Page): Promise<boolean> {
 }
 
 /**
- * Open the first live meeting. Returns false when none exists, so the caller
- * can skip for a reason that is true.
+ * Resolve the Nextcloud user id the suite is authenticated as.
  *
- * ⚠️ THIS USED TO WALK THE UI, AND THAT COULD NOT FIT IN THE TEST BUDGET.
- * The previous version clicked nav → Meetings → first row → "Live", guarding
- * each hop with a probe. Those probes were `isVisible()`, which does not wait,
- * so the helper returned false on the first tick and all three callers skipped
- * with "No live meeting seeded in this environment." — a reason that is FALSE.
- *
- * De-racing the probes exposed the second half of the problem: the click-path's
- * worst-case budget is 15s (app-root) + 10 + 10 + 5 (polls) + 10 (meeting-live)
- * = **50s against a 20s test timeout** (playwright.config.ts). So the tests
- * stopped skipping and started dying *inside this helper* at 20.5s, never
- * reaching an assertion or even their own `test.skip()`. A timeout is more
- * honest than a false skip, but it says nothing.
- *
- * 🔑 The fix is not a bigger timeout — it is the route the repo has already
- * proven. `meeting-management.spec.ts:165` ("live meeting view mounts for an
- * existing meeting") resolves the meeting through the OpenRegister object API
- * and navigates STRAIGHT to `/meetings/{id}/live`, and it passes in **6.6s**.
- * Same destination, one navigation, no dependence on nav labels, list ordering
- * or a "Live" button's accessible name.
- *
- * Budget here: ~5s API + 15s for `meeting-live` — inside the 20s cap, and the
- * remaining `test.skip()` now means what it says: no meeting objects exist.
+ * Hard-failing here is deliberate: the chair fixture is keyed on this value,
+ * so an unreadable response must not quietly seed a participant nobody
+ * matches — that would put the tests back on a permanently-false skip.
  */
-async function openFirstLiveMeeting(page: Page): Promise<boolean> {
-	const resp = await page.request
-		.get(
-			`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting?_limit=1`,
-			{ headers: { Accept: 'application/json' }, timeout: 5_000 },
+async function currentUserId(page: Page): Promise<string> {
+	const resp = await page.request.get(
+		`${BASE}/ocs/v2.php/cloud/user?format=json`,
+		{ headers: { 'OCS-APIRequest': 'true', Accept: 'application/json' } },
+	)
+	if (!resp.ok()) {
+		throw new Error(
+			`could not resolve the current user (HTTP ${resp.status()}) — the chair fixture cannot be seeded`,
 		)
-		.catch(() => null)
-	if (!resp || !resp.ok()) return false
-	const body = await resp.json().catch(() => null)
-	const first = (body?.results ?? body?.items ?? [])[0]
-	const meetingId = first?.id ?? first?.['@self']?.id
-	if (!meetingId) return false
-
-	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}/live`)
-	const mounted = await page
-		.waitForSelector('[data-testid="meeting-live"]', { timeout: 15_000 })
-		.then(() => true)
-		.catch(() => false)
-	if (mounted) await dismissSupportDialog(page)
-	return mounted
+	}
+	const uid = (await resp.json())?.ocs?.data?.id
+	if (!uid) {
+		throw new Error(
+			'the current-user response carried no ocs.data.id — the chair fixture cannot be seeded',
+		)
+	}
+	return uid
 }
+
+/**
+ * Seed one opened meeting with a single discussion agenda item and a
+ * Participant that makes the CI user the chair of it.
+ *
+ * `LiveMeeting.isChair` matches a participant on
+ * `nextcloudUserId === getCurrentUser().uid && role === 'chair'`, and
+ * `LiveMeeting.participants` scopes the participant collection by
+ * `@self.relations.meeting`. Participant declares no `meeting` property, but
+ * OpenRegister materialises a submitted `meeting` uuid into `@self.relations`
+ * anyway — verified on the dev instance: the seeded participant came back with
+ * `relations: { meeting: '<uuid>' }` and `.live-meeting__activate` rendered.
+ */
+async function seedChairedMeeting(page: Page): Promise<void> {
+	const uid = await currentUserId(page)
+	const tag = `e2e-efficiency-${ledger.runId}`
+	itemTitle = `${tag}-item`
+
+	const meeting = await createObject(page, ledger, 'meeting', {
+		title: `${tag}-meeting`,
+		meetingType: 'regular',
+		scheduledDate: '2026-09-01T10:00:00Z',
+		meetingMode: 'in-person',
+		lifecycle: 'opened',
+		quorumRequired: 0,
+	})
+	meetingId = objId(meeting)
+
+	await createObject(page, ledger, 'agenda-item', {
+		title: itemTitle,
+		itemType: 'discussion',
+		orderNumber: 1,
+		meeting: meetingId,
+	})
+
+	await createObject(page, ledger, 'participant', {
+		displayName: `${tag}-chair`,
+		role: 'chair',
+		nextcloudUserId: uid,
+		attendanceStatus: 'present',
+		meeting: meetingId,
+	})
+}
+
+/** Navigate straight to the seeded meeting's live view. */
+async function openSeededLiveMeeting(page: Page): Promise<void> {
+	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}/live`)
+	await expect(
+		page.getByTestId('meeting-live'),
+		'the live meeting view must mount for the seeded meeting',
+	).toBeVisible({ timeout: 15_000 })
+	await dismissSupportDialog(page)
+}
+
+/**
+ * The chair's "Activate item" control for the seeded agenda item.
+ *
+ * Located by its ACCESSIBLE NAME, which the explicit `:aria-label` sets to
+ * `Activate {title}` — the visible `1. {title}` text is not part of it.
+ */
+function activateControl(page: Page) {
+	return page
+		.getByTestId('meeting-live')
+		.getByRole('button', { name: `Activate ${itemTitle}` })
+}
+
+test.beforeAll(async ({ browser }) => {
+	ledger = newLedger()
+	const page = await browser.newPage()
+	await seedChairedMeeting(page)
+	await page.close()
+})
+
+test.afterAll(async ({ browser }) => {
+	const page = await browser.newPage()
+	await cleanupAll(page, ledger)
+	await page.close()
+})
 
 // @e2e openspec/specs/meeting-efficiency/spec.md#display-running-meeting-cost
 test('LiveMeeting: cost panel toggles its running figure', async ({ page }) => {
-	if (!(await openFirstLiveMeeting(page))) {
-		test.skip(true, 'No live meeting seeded in this environment.')
-		return
-	}
+	await openSeededLiveMeeting(page)
 	const panel = page.getByTestId('meeting-cost-panel')
 	await expect(panel).toBeVisible()
 	// Default hidden; toggle reveals either a figure or the no-rate hint.
@@ -123,22 +205,12 @@ test('LiveMeeting: cost panel toggles its running figure', async ({ page }) => {
 test('LiveMeeting: agenda-item timer renders for the active item', async ({
 	page,
 }) => {
-	if (!(await openFirstLiveMeeting(page))) {
-		test.skip(true, 'No live meeting seeded in this environment.')
-		return
-	}
-	// Activate the first agenda item if the chair controls are present.
-	const activate = page
-		.getByTestId('meeting-live')
-		.getByRole('button', { name: /^1\./ })
-		.first()
-	if (!(await becomesVisible(activate))) {
-		test.skip(
-			true,
-			'No activatable agenda item / not chair in this environment.',
-		)
-		return
-	}
+	await openSeededLiveMeeting(page)
+	const activate = activateControl(page)
+	await expect(
+		activate,
+		'the chair must get an "Activate <item>" control for the seeded agenda item',
+	).toBeVisible({ timeout: 15_000 })
 	await activate.click()
 	const timer = page.getByTestId('agenda-item-timer')
 	await expect(timer).toBeVisible()
@@ -152,21 +224,12 @@ test('LiveMeeting: agenda-item timer renders for the active item', async ({
 test('LiveMeeting: speaker queue panel renders with an empty state', async ({
 	page,
 }) => {
-	if (!(await openFirstLiveMeeting(page))) {
-		test.skip(true, 'No live meeting seeded in this environment.')
-		return
-	}
-	const activate = page
-		.getByTestId('meeting-live')
-		.getByRole('button', { name: /^1\./ })
-		.first()
-	if (!(await becomesVisible(activate))) {
-		test.skip(
-			true,
-			'No activatable agenda item / not chair in this environment.',
-		)
-		return
-	}
+	await openSeededLiveMeeting(page)
+	const activate = activateControl(page)
+	await expect(
+		activate,
+		'the chair must get an "Activate <item>" control for the seeded agenda item',
+	).toBeVisible({ timeout: 15_000 })
 	await activate.click()
 	const panel = page.getByTestId('speaker-queue-panel')
 	await expect(panel).toBeVisible()
