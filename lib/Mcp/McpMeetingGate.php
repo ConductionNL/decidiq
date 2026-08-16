@@ -77,7 +77,7 @@ class McpMeetingGate {
 		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->scopeResolver = new McpMeetingScopeResolver(
-			container: $container,
+			objectService: $objectService,
 			groupManager: $groupManager,
 			logger: $logger
 		);

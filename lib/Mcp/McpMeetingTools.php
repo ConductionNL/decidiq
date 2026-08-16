@@ -89,7 +89,7 @@ class McpMeetingTools {
 		$this->formatter = new McpSourceFormatter();
 		$this->validator = new McpArgumentValidator(formatter: $this->formatter);
 		$this->gate = new McpMeetingGate(
-			container: $container,
+			objectService: $objectService,
 			userSession: $userSession,
 			groupManager: $groupManager,
 			logger: $logger,

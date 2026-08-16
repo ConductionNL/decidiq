@@ -31,6 +31,7 @@ namespace OCA\Decidesk\Mcp;
 
 use OCA\Decidesk\Service\MeetingService;
 use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Mcp\IMcpToolProvider;
 use OCP\IGroupManager;
 use OCP\IUserSession;
@@ -198,9 +199,10 @@ class DecideskToolProvider implements IMcpToolProvider {
 	 * @param MeetingService $meetingService The meeting service
 	 * @param IUserSession $userSession The current user session
 	 * @param IGroupManager $groupManager The group manager (for admin checks)
-	 * @param ContainerInterface $container The DI container (for ObjectService)
+	 * @param ContainerInterface $container The DI container (McpActionItemTools resolves ActionItemWriter through it)
 	 * @param LoggerInterface $logger The PSR-3 logger
 	 * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object service (ADR-084)
 	 *
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
@@ -211,6 +213,7 @@ class DecideskToolProvider implements IMcpToolProvider {
 		ContainerInterface $container,
 		LoggerInterface $logger,
 		ParticipantResolver $participantResolver,
+		ObjectServiceInterface $objectService,
 	) {
 		$this->actionItemTools = new McpActionItemTools(
 			container: $container,
@@ -218,15 +221,16 @@ class DecideskToolProvider implements IMcpToolProvider {
 			groupManager: $groupManager,
 			logger: $logger,
 			participantResolver: $participantResolver,
+			objectService: $objectService,
 		);
 
 		$this->meetingTools = new McpMeetingTools(
 			meetingService: $meetingService,
-			container: $container,
 			userSession: $userSession,
 			groupManager: $groupManager,
 			logger: $logger,
 			participantResolver: $participantResolver,
+			objectService: $objectService,
 		);
 
 	}//end __construct()

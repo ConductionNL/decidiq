@@ -70,7 +70,7 @@ class McpActionItemTools {
 	/**
 	 * Constructor for the McpActionItemTools.
 	 *
-	 * @param ContainerInterface $container DI container used to reach OpenRegister
+	 * @param ContainerInterface $container DI container, used to resolve ActionItemWriter (OpenRegister now arrives as $objectService)
 	 * @param IUserSession $userSession The current user session
 	 * @param IGroupManager $groupManager The group manager (for admin checks)
 	 * @param LoggerInterface $logger The PSR-3 logger
@@ -89,7 +89,7 @@ class McpActionItemTools {
 		$this->formatter = new McpSourceFormatter();
 		$this->validator = new McpArgumentValidator(formatter: $this->formatter);
 		$this->gate = new McpMeetingGate(
-			container: $container,
+			objectService: $objectService,
 			userSession: $userSession,
 			groupManager: $groupManager,
 			logger: $logger,
