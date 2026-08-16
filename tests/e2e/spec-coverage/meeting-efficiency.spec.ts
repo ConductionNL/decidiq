@@ -51,30 +51,53 @@ async function openApp(page: Page): Promise<boolean> {
 	return ready
 }
 
-// Navigate to the first live meeting, if any exists. Returns false to skip.
+/**
+ * Open the first live meeting. Returns false when none exists, so the caller
+ * can skip for a reason that is true.
+ *
+ * ⚠️ THIS USED TO WALK THE UI, AND THAT COULD NOT FIT IN THE TEST BUDGET.
+ * The previous version clicked nav → Meetings → first row → "Live", guarding
+ * each hop with a probe. Those probes were `isVisible()`, which does not wait,
+ * so the helper returned false on the first tick and all three callers skipped
+ * with "No live meeting seeded in this environment." — a reason that is FALSE.
+ *
+ * De-racing the probes exposed the second half of the problem: the click-path's
+ * worst-case budget is 15s (app-root) + 10 + 10 + 5 (polls) + 10 (meeting-live)
+ * = **50s against a 20s test timeout** (playwright.config.ts). So the tests
+ * stopped skipping and started dying *inside this helper* at 20.5s, never
+ * reaching an assertion or even their own `test.skip()`. A timeout is more
+ * honest than a false skip, but it says nothing.
+ *
+ * 🔑 The fix is not a bigger timeout — it is the route the repo has already
+ * proven. `meeting-management.spec.ts:165` ("live meeting view mounts for an
+ * existing meeting") resolves the meeting through the OpenRegister object API
+ * and navigates STRAIGHT to `/meetings/{id}/live`, and it passes in **6.6s**.
+ * Same destination, one navigation, no dependence on nav labels, list ordering
+ * or a "Live" button's accessible name.
+ *
+ * Budget here: ~5s API + 15s for `meeting-live` — inside the 20s cap, and the
+ * remaining `test.skip()` now means what it says: no meeting objects exist.
+ */
 async function openFirstLiveMeeting(page: Page): Promise<boolean> {
-	if (!(await openApp(page))) return false
-	const nav = page
-		.locator('[data-testid="cn-nav"], #app-navigation-vue, .app-navigation')
-		.first()
-	const meetingsEntry = nav.getByTestId('cn-nav-entry-Meetings')
-	if (!(await becomesVisible(meetingsEntry))) return false
-	await meetingsEntry.click()
-	// Open the first meeting row, then its live view if present.
-	const firstRow = page
-		.getByTestId('cn-object-list-table')
-		.locator('tbody tr')
-		.first()
-	if (!(await becomesVisible(firstRow))) return false
-	await firstRow.click()
-	const liveButton = page.getByRole('button', { name: /live|conduct/i }).first()
-	if (await becomesVisible(liveButton, 5_000)) {
-		await liveButton.click()
-	}
-	return await page
-		.waitForSelector('[data-testid="meeting-live"]', { timeout: 10_000 })
+	const resp = await page.request
+		.get(
+			`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting?_limit=1`,
+			{ headers: { Accept: 'application/json' }, timeout: 5_000 },
+		)
+		.catch(() => null)
+	if (!resp || !resp.ok()) return false
+	const body = await resp.json().catch(() => null)
+	const first = (body?.results ?? body?.items ?? [])[0]
+	const meetingId = first?.id ?? first?.['@self']?.id
+	if (!meetingId) return false
+
+	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}/live`)
+	const mounted = await page
+		.waitForSelector('[data-testid="meeting-live"]', { timeout: 15_000 })
 		.then(() => true)
 		.catch(() => false)
+	if (mounted) await dismissSupportDialog(page)
+	return mounted
 }
 
 // @e2e openspec/specs/meeting-efficiency/spec.md#display-running-meeting-cost
