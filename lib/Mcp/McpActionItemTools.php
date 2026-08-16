@@ -70,12 +70,11 @@ class McpActionItemTools {
 	/**
 	 * Constructor for the McpActionItemTools.
 	 *
-	 * @param ContainerInterface $container DI container used to reach OpenRegister
+	 * @param ContainerInterface $container DI container, used to resolve ActionItemWriter (OpenRegister now arrives as $objectService)
 	 * @param IUserSession $userSession The current user session
 	 * @param IGroupManager $groupManager The group manager (for admin checks)
 	 * @param LoggerInterface $logger The PSR-3 logger
 	 * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
-	 * @param ObjectServiceInterface $objectService OpenRegister's published object contract
 	 *
 	 * @return void
 	 */

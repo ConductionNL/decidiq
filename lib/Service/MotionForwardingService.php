@@ -50,7 +50,6 @@ class MotionForwardingService {
 	 *
 	 * @param ContainerInterface $container The DI container (for ObjectService / IAppConfig / MotionNotifier)
 	 * @param IUserManager $userManager Nextcloud user manager for UID lookup
-	 * @param ObjectServiceInterface $objectService OpenRegister's published object contract
 	 *
 	 * @return void
 	 */
@@ -112,38 +111,34 @@ class MotionForwardingService {
 
 		$this->objectService->setRegister('decidesk');
 		$this->objectService->setSchema('decision');
-		// ADR-084: saveObject() now returns an ObjectEntityInterface, not the
-		// array the old container-resolved call yielded to the analyser as
-		// `mixed`. Array-indexing it (`$created['id']`) was silently wrong and
-		// `forwardMotion(): array` would have TypeError'd on the entity — the
-		// typed contract is what made both visible.
+		// saveObject() hands back an ObjectEntityInterface under ADR-084, and
+		// everything below this line reads the created motion as an array, so
+		// normalise once here rather than array-accessing an entity.
 		$created = $this->objectService->saveObject(
 			object: $forwardedMotion,
 			register: 'decidesk',
 			schema: 'decision',
-		);
-		$createdData = $created->getObject();
-		$createdId = ($created->getUuid() ?? ($createdData['id'] ?? null));
+		)->jsonSerialize();
 
 		$sourceMotionData = $this->noteForwarding(
 			objectService: $this->objectService,
 			sourceMotionData: $sourceMotionData,
 			motionId: $motionId,
 			targetBodyId: $targetBodyId,
-			forwardedMotionId: $createdId
+			forwardedMotionId: ($created['id'] ?? $created['uuid'] ?? null)
 		);
 
 		// Send notification if approval is required.
 		if ($appConfig->getValueBool('decidesk', 'motion_forwarding_requires_approval', false) === true) {
 			$this->notifyApprovalRequired(
 				actorId: $actorId,
-				forwardedMotionId: (string)($createdId ?? ''),
+				forwardedMotionId: (string)($created['id'] ?? $created['uuid'] ?? ''),
 				targetBodyId: $targetBodyId,
 				title: (string)($sourceMotionData['title'] ?? '')
 			);
 		}
 
-		return $createdData;
+		return $created;
 	}//end forward()
 
 	/**

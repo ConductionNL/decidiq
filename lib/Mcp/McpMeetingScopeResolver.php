@@ -45,7 +45,7 @@ class McpMeetingScopeResolver {
 	/**
 	 * Constructor for the McpMeetingScopeResolver.
 	 *
-	 * @param ObjectServiceInterface $objectService OpenRegister's published object contract
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object service (ADR-084)
 	 * @param IGroupManager $groupManager Group manager backing the admin gate
 	 * @param LoggerInterface $logger Logger for the fail-closed path
 	 *
@@ -79,10 +79,8 @@ class McpMeetingScopeResolver {
 		}
 
 		try {
-			$objectService = $this->objectService;
-
 			// Find all participant records for this Nextcloud user.
-			$participants = $objectService->findAll(
+			$participants = $this->objectService->findAll(
 				[
 					'filters' => [
 						'register' => 'decidesk',
@@ -103,7 +101,7 @@ class McpMeetingScopeResolver {
 
 				$meetingUuids = array_merge(
 					$meetingUuids,
-					$this->meetingUuidsForBody(objectService: $objectService, bodyId: $bodyId)
+					$this->meetingUuidsForBody(objectService: $this->objectService, bodyId: $bodyId)
 				);
 			}
 

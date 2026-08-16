@@ -70,9 +70,6 @@ class ActionItemWriter {
 	 * Constructor.
 	 *
 	 * @param LoggerInterface $logger Logger for write failures.
-	 * @param TaskService $taskService OpenRegister task service backing the VTODO writes.
-	 * @param RegisterMapper $registerMapper Resolves the action-item register by slug.
-	 * @param SchemaMapper $schemaMapper Resolves the action-item schema by slug.
 	 *
 	 * @return void
 	 */

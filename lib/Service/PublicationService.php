@@ -60,7 +60,6 @@ class PublicationService {
 	/**
 	 * Constructor.
 	 *
-	 * @param ObjectServiceInterface $objectService OpenRegister's published object contract, handed to the repository.
 	 * @param LoggerInterface $logger Logger, handed to the repository.
 	 * @param IAppManager $appManager Detects OpenCatalogi presence.
 	 * @param PublicationEligibilityService $eligibility Eligibility + deny-list gates.
@@ -68,11 +67,11 @@ class PublicationService {
 	 * @param PublicationConfigService $configService Per-body publication config.
 	 * @param OpenCatalogiPublisher $catalogPublisher OpenCatalogi catalog routing.
 	 * @param AuditLogService $auditLogService Immutable audit trail.
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object service, handed to the repository.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
 	public function __construct(
-		ObjectServiceInterface $objectService,
 		LoggerInterface $logger,
 		private readonly IAppManager $appManager,
 		private readonly PublicationEligibilityService $eligibility,
@@ -80,6 +79,7 @@ class PublicationService {
 		private readonly PublicationConfigService $configService,
 		private readonly OpenCatalogiPublisher $catalogPublisher,
 		private readonly AuditLogService $auditLogService,
+		ObjectServiceInterface $objectService,
 	) {
 		$this->repository = new PublicationRepository(logger: $logger, objectService: $objectService);
 

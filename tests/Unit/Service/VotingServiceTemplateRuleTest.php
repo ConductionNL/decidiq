@@ -140,6 +140,7 @@ class VotingServiceTemplateRuleTest extends TestCase {
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
 			objectService: $saved,
+			container: $this->createMock(ContainerInterface::class),
 		),
 			closer: new VotingRoundCloser(
 				logger: $logger,

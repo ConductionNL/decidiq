@@ -193,16 +193,16 @@ class DecideskToolProvider implements IMcpToolProvider {
 	 * Constructor for DecideskToolProvider.
 	 *
 	 * The two tool collaborators are built in the constructor body rather than
-	 * injected, so the DI signature other apps copy stays the seven framework
+	 * injected, so the DI signature other apps copy stays the six framework
 	 * services below.
 	 *
 	 * @param MeetingService $meetingService The meeting service
 	 * @param IUserSession $userSession The current user session
 	 * @param IGroupManager $groupManager The group manager (for admin checks)
-	 * @param ContainerInterface $container The DI container (McpActionItemTools reaches ActionItemWriter through it)
+	 * @param ContainerInterface $container The DI container (McpActionItemTools resolves ActionItemWriter through it)
 	 * @param LoggerInterface $logger The PSR-3 logger
 	 * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
-	 * @param ObjectServiceInterface $objectService OpenRegister's published object contract (ADR-084)
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object service (ADR-084)
 	 *
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */

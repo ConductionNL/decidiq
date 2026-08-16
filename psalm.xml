@@ -71,16 +71,11 @@
                 <referencedClass name="OCA\OpenRegister\Event\ObjectUpdatedEvent"/>
                 <referencedClass name="OCA\OpenRegister\Event\ObjectDeletedEvent"/>
                 <referencedClass name="OCA\OpenRegister\Service\ObjectService"/>
+                <referencedClass name="OCA\OpenRegister\Service\TaskService"/>
                 <referencedClass name="OCA\OpenRegister\Service\ConfigurationService"/>
                 <referencedClass name="OCA\OpenRegister\Service\RegisterService"/>
                 <referencedClass name="OCA\OpenRegister\Service\FileService"/>
                 <referencedClass name="OCA\OpenRegister\Service\CalendarEventService"/>
-                <!-- ADR-084 gave ActionItemWriter a typed TaskService in place of a
-                     string-keyed container lookup. Same dynamically-loaded
-                     cross-app shape as its siblings above; without this entry
-                     psalm reports five UndefinedClass errors for a class that
-                     exists at runtime whenever OpenRegister is installed. -->
-                <referencedClass name="OCA\OpenRegister\Service\TaskService"/>
                 <referencedClass name="OCA\OpenRegister\Mcp\IMcpToolProvider"/>
                 <referencedClass name="OCA\OpenRegister\AppHost\Controller\GenericDashboardController"/>
                 <referencedClass name="OCA\OpenRegister\AppHost\Controller\GenericHealthController"/>

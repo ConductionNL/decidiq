@@ -151,6 +151,7 @@ class VotingServicePhase0RegressionTest extends TestCase {
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
 			objectService: $this->objectService,
+			container: $this->createMock(ContainerInterface::class),
 		),
 			closer: new VotingRoundCloser(
 				logger: $this->logger,

@@ -30,6 +30,8 @@ namespace OCA\Decidesk\Service;
 use DomainException;
 use InvalidArgumentException;
 use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Service\FileService;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -47,21 +49,28 @@ use Psr\Log\LoggerInterface;
 class TranscriptionService {
 
 	/**
+	 * Object + file access for the transcription pipeline.
+	 *
+	 * @var TranscriptRepository
+	 */
+	private readonly TranscriptRepository $repository;
+
+	/**
+	 * Pure segment parsing / timeline alignment derivations.
+	 *
+	 * @var TranscriptAlignmentService
+	 */
+	private readonly TranscriptAlignmentService $aligner;
+
+	/**
 	 * Constructor.
 	 *
-	 * The repository and aligner are INJECTED rather than built here. ADR-084
-	 * gave TranscriptRepository a typed `FileService` + `ObjectServiceInterface`
-	 * signature in place of the container it used to resolve them from, and this
-	 * constructor still called it the old way. Naming those two OpenRegister
-	 * types here instead would have pushed CouplingBetweenObjects to the phpmd
-	 * threshold for a dependency this class never touches directly.
-	 *
-	 * @param ContainerInterface $container DI container (NC SpeechToText provider lookup).
+	 * @param ContainerInterface $container DI container (lazy OR + NC providers).
 	 * @param LoggerInterface $logger The logger.
 	 * @param TranscriptionSourceResolver $sourceResolver Candidate-source resolver.
 	 * @param MeetingFolderService $folderService Meeting folder + file writer.
-	 * @param TranscriptRepository $repository Object + file access for the transcription pipeline.
-	 * @param TranscriptAlignmentService $aligner Segment parsing / alignment.
+	 * @param FileService $fileService OpenRegister's file service, handed to the repository.
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object service, handed to the repository.
 	 *
 	 * @spec openspec/specs/meeting-transcription/spec.md
 	 */
@@ -70,9 +79,15 @@ class TranscriptionService {
 		private readonly LoggerInterface $logger,
 		private readonly TranscriptionSourceResolver $sourceResolver,
 		private readonly MeetingFolderService $folderService,
-		private readonly TranscriptRepository $repository,
-		private readonly TranscriptAlignmentService $aligner,
+		FileService $fileService,
+		ObjectServiceInterface $objectService,
 	) {
+		$this->repository = new TranscriptRepository(
+			fileService: $fileService,
+			objectService: $objectService
+		);
+		$this->aligner = new TranscriptAlignmentService(repository: $this->repository);
+
 	}//end __construct()
 
 	/**

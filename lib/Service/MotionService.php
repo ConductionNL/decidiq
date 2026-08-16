@@ -65,7 +65,6 @@ class MotionService {
 	 * @param ContainerInterface $container The DI container for lazy-loading OR services
 	 * @param LoggerInterface $logger Logger interface
 	 * @param IUserManager $userManager Nextcloud user manager for UID lookup
-	 * @param ObjectServiceInterface $objectService OpenRegister's published object contract
 	 *
 	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
 	 */

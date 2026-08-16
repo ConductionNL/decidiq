@@ -62,7 +62,7 @@ class VotingRoundOpener {
 	 * @param ParticipantResolver $participantResolver Participant resolver for the quorum count
 	 * @param VotingRoundPreflight $preflight Fail-closed preflight (rules, revote guard, presets)
 	 * @param VotingOpenedNotifier $notifier Fail-soft announcements for a freshly opened round
-	 * @param ObjectServiceInterface $objectService OpenRegister's published object contract
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object contract (ADR-084)
 	 *
 	 * @return void
 	 *
@@ -75,6 +75,13 @@ class VotingRoundOpener {
 		private readonly VotingOpenedNotifier $notifier,
 		private readonly ObjectServiceInterface $objectService,
 	) {
+		// ADR-084 replaced this class's `ContainerInterface $container`
+		// parameter with `ObjectServiceInterface $objectService`, and replaced
+		// AmendmentOrderService's `$container` with the same contract — but
+		// this call site kept passing `container: $container`, a variable that
+		// no longer exists. Constructing VotingRoundOpener therefore raised
+		// "Undefined variable: $container" at REQUEST time, which is why
+		// opening a round answered 500.
 		$this->amendmentOrder = new AmendmentOrderService(
 			motionService: $motionService,
 			objectService: $objectService
