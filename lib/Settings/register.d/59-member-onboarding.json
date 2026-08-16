@@ -9,19 +9,19 @@
             "person": "marie-janssen",
             "targetBody": "gemeenteraad-amsterdam",
             "targetRole": "member",
-            "trigger": "raadswisseling-batch",
+            "trigger": "council-turnover-batch",
             "batch": "raadswisseling-2026",
-            "lifecycle": "in-uitvoering",
+            "lifecycle": "in-execution",
             "ncAccount": "mjanssen",
             "membership": "00000000-0000-0000-0000-000000000000",
             "swearingInDate": "2026-03-26",
-            "beëdigingsType": "belofte",
+            "beëdigingsType": "affirmation",
             "swearingInMeeting": "raadsvergadering-2025-01-15",
             "steps": [
               {
-                "stepType": "beediging",
+                "stepType": "swearing-in",
                 "title": "Beëdiging vastleggen",
-                "status": "afgerond",
+                "status": "completed",
                 "mandatory": true,
                 "completedAt": "2026-03-26T20:15:00Z",
                 "completedBy": "griffier",
@@ -29,16 +29,16 @@
                 "note": "Belofte afgelegd tijdens de installatievergadering."
               },
               {
-                "stepType": "account-koppeling",
+                "stepType": "account-linking",
                 "title": "Nextcloud-account koppelen",
-                "status": "afgerond",
+                "status": "completed",
                 "mandatory": true,
                 "completedAt": "2026-03-27T09:00:00Z",
                 "completedBy": "griffier",
                 "reference": "mjanssen"
               },
               {
-                "stepType": "groepen-toewijzen",
+                "stepType": "assign-groups",
                 "title": "Groepen en RBAC-scope toewijzen",
                 "status": "open",
                 "mandatory": true,
@@ -46,7 +46,7 @@
                 "note": "Wacht op bevestiging body-role→groep-mapping (drijft de overdue-KPI en het overdue-rappel)."
               },
               {
-                "stepType": "introductiepakket",
+                "stepType": "induction-pack",
                 "title": "Introductiepakket bezorgen",
                 "status": "open",
                 "mandatory": false,
@@ -54,14 +54,14 @@
                 "note": "iPad reserveren."
               },
               {
-                "stepType": "nevenfuncties-intake",
+                "stepType": "ancillary-positions-intake",
                 "title": "Nevenfuncties uitvragen",
                 "status": "open",
                 "mandatory": true,
                 "dueDate": "2026-06-15"
               },
               {
-                "stepType": "fractie-toewijzing",
+                "stepType": "political-group-assignment",
                 "title": "Fractie toewijzen",
                 "status": "open",
                 "mandatory": false,
@@ -74,46 +74,46 @@
             "person": "jan-de-vries",
             "targetBody": "gemeenteraad-amsterdam",
             "targetRole": "member",
-            "trigger": "tussentijdse-opvolging",
-            "lifecycle": "gestart",
+            "trigger": "interim-succession",
+            "lifecycle": "started",
             "steps": [
               {
-                "stepType": "beediging",
+                "stepType": "swearing-in",
                 "title": "Beëdiging vastleggen",
                 "status": "open",
                 "mandatory": true,
                 "dueDate": "2026-08-15"
               },
               {
-                "stepType": "account-koppeling",
+                "stepType": "account-linking",
                 "title": "Nextcloud-account koppelen",
                 "status": "open",
                 "mandatory": true,
                 "dueDate": "2026-08-15"
               },
               {
-                "stepType": "groepen-toewijzen",
+                "stepType": "assign-groups",
                 "title": "Groepen en RBAC-scope toewijzen",
                 "status": "open",
                 "mandatory": true,
                 "dueDate": "2026-08-20"
               },
               {
-                "stepType": "introductiepakket",
+                "stepType": "induction-pack",
                 "title": "Introductiepakket bezorgen",
                 "status": "open",
                 "mandatory": false,
                 "dueDate": "2026-08-22"
               },
               {
-                "stepType": "nevenfuncties-intake",
+                "stepType": "ancillary-positions-intake",
                 "title": "Nevenfuncties uitvragen",
                 "status": "open",
                 "mandatory": true,
                 "dueDate": "2026-08-22"
               },
               {
-                "stepType": "fractie-toewijzing",
+                "stepType": "political-group-assignment",
                 "title": "Fractie toewijzen",
                 "status": "open",
                 "mandatory": false,
@@ -126,18 +126,18 @@
             "person": "janneke-de-bruin",
             "targetBody": "gemeenteraad-amsterdam",
             "targetRole": "treasurer",
-            "trigger": "nieuw-lid",
-            "lifecycle": "afgerond",
+            "trigger": "new-member",
+            "lifecycle": "completed",
             "ncAccount": "jdebruin",
             "membership": "00000000-0000-0000-0000-000000000000",
             "swearingInDate": "2025-11-10",
-            "beëdigingsType": "eed",
+            "beëdigingsType": "oath",
             "swearingInMeeting": "raadsvergadering-2025-01-15",
             "steps": [
               {
-                "stepType": "beediging",
+                "stepType": "swearing-in",
                 "title": "Beëdiging vastleggen",
-                "status": "afgerond",
+                "status": "completed",
                 "mandatory": true,
                 "completedAt": "2025-11-10T20:00:00Z",
                 "completedBy": "griffier",
@@ -145,43 +145,43 @@
                 "note": "Eed afgelegd bij aanvang bestuurslidmaatschap (ALV-gekozen — vereniging-analoog, demonstreert het niet-gemeentelijke domein)."
               },
               {
-                "stepType": "account-koppeling",
+                "stepType": "account-linking",
                 "title": "Nextcloud-account koppelen",
-                "status": "afgerond",
+                "status": "completed",
                 "mandatory": true,
                 "completedAt": "2025-11-11T09:00:00Z",
                 "completedBy": "griffier",
                 "reference": "jdebruin"
               },
               {
-                "stepType": "groepen-toewijzen",
+                "stepType": "assign-groups",
                 "title": "Groepen en RBAC-scope toewijzen",
-                "status": "afgerond",
+                "status": "completed",
                 "mandatory": true,
                 "completedAt": "2025-11-11T09:30:00Z",
                 "completedBy": "griffier",
                 "note": "Toegevoegd aan penningmeester-groep; RBAC-scope volgt via de role→scope-projectie."
               },
               {
-                "stepType": "introductiepakket",
+                "stepType": "induction-pack",
                 "title": "Introductiepakket bezorgen",
-                "status": "afgerond",
+                "status": "completed",
                 "mandatory": false,
                 "completedAt": "2025-11-12T10:00:00Z",
                 "completedBy": "griffier",
                 "reference": "/Introductiepakket-JdeBruin"
               },
               {
-                "stepType": "nevenfuncties-intake",
+                "stepType": "ancillary-positions-intake",
                 "title": "Nevenfuncties uitvragen",
-                "status": "overgeslagen",
+                "status": "skipped",
                 "mandatory": false,
                 "note": "Geen nevenfuncties opgegeven; stap overgeslagen (verplicht false)."
               },
               {
-                "stepType": "fractie-toewijzing",
+                "stepType": "political-group-assignment",
                 "title": "Fractie toewijzen",
-                "status": "afgerond",
+                "status": "completed",
                 "mandatory": false,
                 "completedAt": "2025-11-12T10:15:00Z",
                 "completedBy": "griffier"
@@ -195,23 +195,23 @@
             "person": "jan-de-vries",
             "body": "gemeenteraad-amsterdam",
             "membership": "00000000-0000-0000-0000-000000000000",
-            "trigger": "raadswisseling-batch",
+            "trigger": "council-turnover-batch",
             "batch": "raadswisseling-2026",
             "endDate": "2026-03-29",
-            "endReason": "einde-raadslidmaatschap",
-            "lifecycle": "in-uitvoering",
+            "endReason": "end-of-council-membership",
+            "lifecycle": "in-execution",
             "steps": [
               {
-                "stepType": "lidmaatschap-beeindigen",
+                "stepType": "end-membership",
                 "title": "Lidmaatschap einddateren",
-                "status": "afgerond",
+                "status": "completed",
                 "mandatory": true,
                 "completedAt": "2026-03-29T18:00:00Z",
                 "completedBy": "griffier",
                 "note": "endDate = eindeDatum (person-and-membership)."
               },
               {
-                "stepType": "groepen-intrekken",
+                "stepType": "revoke-groups",
                 "title": "Groepen en RBAC-scope intrekken",
                 "status": "open",
                 "mandatory": true,
@@ -219,7 +219,7 @@
                 "note": "Fail-closed en altijd verplicht: traject kan niet naar afgerond zolang deze stap open is (REQ-MOB-008)."
               },
               {
-                "stepType": "persoonsgegevens-notitie",
+                "stepType": "personal-data-note",
                 "title": "Persoonsgegevens-notitie (AVG)",
                 "status": "open",
                 "mandatory": true,
@@ -227,7 +227,7 @@
                 "note": "Verwijst naar de eigen-annotaties-export van document-annotations; geen eigen export."
               },
               {
-                "stepType": "exit-bevestiging",
+                "stepType": "exit-confirmation",
                 "title": "Exit bevestigen",
                 "status": "open",
                 "mandatory": true,
@@ -240,42 +240,42 @@
             "person": "janneke-de-bruin",
             "body": "gemeenteraad-amsterdam",
             "membership": "00000000-0000-0000-0000-000000000000",
-            "trigger": "individueel",
+            "trigger": "individual",
             "endDate": "2026-01-15",
-            "endReason": "ontslag-op-eigen-verzoek",
-            "lifecycle": "afgerond",
+            "endReason": "resignation",
+            "lifecycle": "completed",
             "exitConfirmedBy": "griffier",
             "exitConfirmedOn": "2026-01-20T14:00:00Z",
             "steps": [
               {
-                "stepType": "lidmaatschap-beeindigen",
+                "stepType": "end-membership",
                 "title": "Lidmaatschap einddateren",
-                "status": "afgerond",
+                "status": "completed",
                 "mandatory": true,
                 "completedAt": "2026-01-15T17:00:00Z",
                 "completedBy": "griffier"
               },
               {
-                "stepType": "groepen-intrekken",
+                "stepType": "revoke-groups",
                 "title": "Groepen en RBAC-scope intrekken",
-                "status": "afgerond",
+                "status": "completed",
                 "mandatory": true,
                 "completedAt": "2026-01-15T17:30:00Z",
                 "completedBy": "griffier",
                 "note": "Body-role-gemapte groepen verwijderd; niet-gerelateerde groepen ongemoeid."
               },
               {
-                "stepType": "persoonsgegevens-notitie",
+                "stepType": "personal-data-note",
                 "title": "Persoonsgegevens-notitie (AVG)",
-                "status": "afgerond",
+                "status": "completed",
                 "mandatory": true,
                 "completedAt": "2026-01-18T11:00:00Z",
                 "completedBy": "griffier"
               },
               {
-                "stepType": "exit-bevestiging",
+                "stepType": "exit-confirmation",
                 "title": "Exit bevestigen",
-                "status": "afgerond",
+                "status": "completed",
                 "mandatory": true,
                 "completedAt": "2026-01-20T14:00:00Z",
                 "completedBy": "griffier"
@@ -305,33 +305,33 @@
         },
         "x-openregister-lifecycle": {
           "field": "lifecycle",
-          "initial": "gestart",
+          "initial": "started",
           "states": [
-            "gestart",
-            "in-uitvoering",
-            "afgerond",
-            "vervallen"
+            "started",
+            "in-execution",
+            "completed",
+            "lapsed"
           ],
           "terminal": [
-            "afgerond",
-            "vervallen"
+            "completed",
+            "lapsed"
           ],
           "transitions": [
             {
-              "from": "gestart",
-              "to": "in-uitvoering"
+              "from": "started",
+              "to": "in-execution"
             },
             {
-              "from": "gestart",
-              "to": "vervallen"
+              "from": "started",
+              "to": "lapsed"
             },
             {
-              "from": "in-uitvoering",
-              "to": "afgerond"
+              "from": "in-execution",
+              "to": "completed"
             },
             {
-              "from": "in-uitvoering",
-              "to": "vervallen"
+              "from": "in-execution",
+              "to": "lapsed"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-MOB-003). Canonical dialect (keyword 'initial', never 'initialState'/'default'). gestart → in-uitvoering → afgerond | vervallen; afgerond and vervallen terminal. COMPLETION GUARD (REQ-MOB-003): a traject must NOT reach 'afgerond' while any non-optional (verplicht:true) step is not 'afgerond'. Whether the lifecycle dialect can express this as a property predicate over the steps array is an open question (design Open Questions); the spec permits a documented server-side validation on the transition action as the fallback — never a silent pass. No app-side state machine."
@@ -478,9 +478,9 @@
             "facetable": true,
             "description": "What triggered the onboarding. nieuw-lid = an individual new member; raadswisseling-batch = created by a raadswisseling run (shares a batch label); tussentijdse-opvolging = an interim successor. Required.",
             "enum": [
-              "nieuw-lid",
-              "raadswisseling-batch",
-              "tussentijdse-opvolging"
+              "new-member",
+              "council-turnover-batch",
+              "interim-succession"
             ],
             "example": "raadswisseling-batch"
           },
@@ -497,12 +497,12 @@
                   "type": "string",
                   "description": "Kind of onboarding step. beediging = record the oath; account-koppeling = link the Nextcloud account; groepen-toewijzen = provision body-role groups (imperative, deferred); introductiepakket = deliver the induction pack (imperative, deferred); nevenfuncties-intake = collect ancillary positions (interests-and-integrity, reference-only); fractie-toewijzing = assign the fractie (fractievoorzitter, reference-only); custom = a griffie-defined step.",
                   "enum": [
-                    "beediging",
-                    "account-koppeling",
-                    "groepen-toewijzen",
-                    "introductiepakket",
-                    "nevenfuncties-intake",
-                    "fractie-toewijzing",
+                    "swearing-in",
+                    "account-linking",
+                    "assign-groups",
+                    "induction-pack",
+                    "ancillary-positions-intake",
+                    "political-group-assignment",
                     "custom"
                   ],
                   "example": "beediging"
@@ -520,9 +520,9 @@
                   "description": "Per-step status. 'overgeslagen' is only valid when verplicht is false (enforced at save time, REQ-MOB-004).",
                   "enum": [
                     "open",
-                    "in-uitvoering",
-                    "afgerond",
-                    "overgeslagen"
+                    "in-execution",
+                    "completed",
+                    "skipped"
                   ],
                   "example": "open"
                 },
@@ -581,8 +581,8 @@
             "facetable": true,
             "description": "Whether the member swore an oath (eed) or made an affirmation (belofte). Required to complete the beediging step (REQ-MOB-005).",
             "enum": [
-              "eed",
-              "belofte"
+              "oath",
+              "affirmation"
             ],
             "example": "belofte"
           },
@@ -620,10 +620,10 @@
             "facetable": true,
             "description": "Traject status (declared in x-openregister-lifecycle, ADR-031): gestart → in-uitvoering → afgerond | vervallen. afgerond and vervallen are terminal. A traject cannot reach afgerond while a mandatory step is not afgerond (REQ-MOB-003).",
             "enum": [
-              "gestart",
-              "in-uitvoering",
-              "afgerond",
-              "vervallen"
+              "started",
+              "in-execution",
+              "completed",
+              "lapsed"
             ],
             "example": "gestart"
           }
@@ -646,33 +646,33 @@
         },
         "x-openregister-lifecycle": {
           "field": "lifecycle",
-          "initial": "gestart",
+          "initial": "started",
           "states": [
-            "gestart",
-            "in-uitvoering",
-            "afgerond",
-            "vervallen"
+            "started",
+            "in-execution",
+            "completed",
+            "lapsed"
           ],
           "terminal": [
-            "afgerond",
-            "vervallen"
+            "completed",
+            "lapsed"
           ],
           "transitions": [
             {
-              "from": "gestart",
-              "to": "in-uitvoering"
+              "from": "started",
+              "to": "in-execution"
             },
             {
-              "from": "gestart",
-              "to": "vervallen"
+              "from": "started",
+              "to": "lapsed"
             },
             {
-              "from": "in-uitvoering",
-              "to": "afgerond"
+              "from": "in-execution",
+              "to": "completed"
             },
             {
-              "from": "in-uitvoering",
-              "to": "vervallen"
+              "from": "in-execution",
+              "to": "lapsed"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-MOB-003). Canonical dialect (keyword 'initial'). gestart → in-uitvoering → afgerond | vervallen; afgerond and vervallen terminal. COMPLETION GUARD (REQ-MOB-003/008): a traject must NOT reach 'afgerond' while any verplicht step is not 'afgerond'; the groepen-intrekken revocation step is ALWAYS verplicht, so offboarding cannot complete without verified revocation. Expressibility in the lifecycle dialect is an open question; documented server-side transition validation is the permitted fallback, never a silent pass. No app-side state machine."
@@ -812,8 +812,8 @@
             "facetable": true,
             "description": "What triggered the offboarding. individueel = an individual departure; raadswisseling-batch = created by a raadswisseling run (shares a batch label). Required.",
             "enum": [
-              "individueel",
-              "raadswisseling-batch"
+              "individual",
+              "council-turnover-batch"
             ],
             "example": "individueel"
           },
@@ -831,11 +831,11 @@
             "facetable": true,
             "description": "Reason the membership ends, aligned with the fractievoorzitter-fractie-koppeling vocabulary. Required.",
             "enum": [
-              "einde-raadslidmaatschap",
-              "verhuizing",
-              "overlijden",
-              "ontslag-op-eigen-verzoek",
-              "einde-termijn"
+              "end-of-council-membership",
+              "relocation",
+              "death",
+              "resignation",
+              "end-of-term"
             ],
             "example": "einde-raadslidmaatschap"
           },
@@ -852,10 +852,10 @@
                   "type": "string",
                   "description": "Kind of offboarding step. lidmaatschap-beeindigen = end-date the Membership (imperative, deferred); groepen-intrekken = revoke body-role groups + RBAC scopes (imperative, deferred, always mandatory — REQ-MOB-008); persoonsgegevens-notitie = GDPR note referencing the document-annotations author export (reference-only); exit-bevestiging = griffie exit confirmation; custom = a griffie-defined step.",
                   "enum": [
-                    "lidmaatschap-beeindigen",
-                    "groepen-intrekken",
-                    "persoonsgegevens-notitie",
-                    "exit-bevestiging",
+                    "end-membership",
+                    "revoke-groups",
+                    "personal-data-note",
+                    "exit-confirmation",
                     "custom"
                   ],
                   "example": "groepen-intrekken"
@@ -873,9 +873,9 @@
                   "description": "Per-step status. 'overgeslagen' is only valid when verplicht is false (enforced at save time, REQ-MOB-004). The groepen-intrekken step is always verplicht and can never be skipped.",
                   "enum": [
                     "open",
-                    "in-uitvoering",
-                    "afgerond",
-                    "overgeslagen"
+                    "in-execution",
+                    "completed",
+                    "skipped"
                   ],
                   "example": "open"
                 },
@@ -947,10 +947,10 @@
             "facetable": true,
             "description": "Traject status (declared in x-openregister-lifecycle, ADR-031): gestart → in-uitvoering → afgerond | vervallen. afgerond and vervallen are terminal. Cannot reach afgerond while the always-mandatory groepen-intrekken step is not afgerond (REQ-MOB-003/008).",
             "enum": [
-              "gestart",
-              "in-uitvoering",
-              "afgerond",
-              "vervallen"
+              "started",
+              "in-execution",
+              "completed",
+              "lapsed"
             ],
             "example": "gestart"
           }

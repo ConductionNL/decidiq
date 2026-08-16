@@ -6,7 +6,7 @@
         "regulation": [
           {
             "slug": "afvalstoffenverordening-amsterdam",
-            "type": "verordening",
+            "type": "by-law",
             "citationTitle": "Afvalstoffenverordening Amsterdam",
             "officialTitle": "Verordening op de inzameling en verwerking van huishoudelijke afvalstoffen Amsterdam",
             "statutoryBasis": [
@@ -17,11 +17,11 @@
             "cvdrIdentifier": "CVDR641871",
             "currentVersionNumber": 2,
             "currentEffectiveDate": "2025-06-01",
-            "status": "in-werking"
+            "status": "in-effect"
           },
           {
             "slug": "beleidsregel-terrassen-amsterdam",
-            "type": "beleidsregel",
+            "type": "policy-rule",
             "citationTitle": "Beleidsregel terrassen Amsterdam 2025",
             "officialTitle": "Beleidsregel inzake terrasvergunningen Amsterdam 2025",
             "statutoryBasis": [
@@ -30,18 +30,18 @@
             "determiningBody": "gemeenteraad-amsterdam",
             "currentVersionNumber": 1,
             "currentEffectiveDate": "2025-03-01",
-            "status": "in-werking"
+            "status": "in-effect"
           },
           {
             "slug": "huishoudelijk-reglement-vng",
-            "type": "reglement",
+            "type": "regulations",
             "citationTitle": "Huishoudelijk reglement ledenraad VNG",
             "officialTitle": "Huishoudelijk reglement van de ledenraad van de Vereniging van Nederlandse Gemeenten",
             "statutoryBasis": [
               "Statuten VNG art. 12"
             ],
             "determiningBody": "ledenraad-vng",
-            "status": "vastgesteld"
+            "status": "adopted"
           }
         ],
         "regeling-versie": [
@@ -52,7 +52,7 @@
             "determinedBy": "00000000-0000-0000-0000-000000000000",
             "effectiveDate": "2024-01-01",
             "notes": "Eerste vaststelling van de Afvalstoffenverordening Amsterdam.",
-            "status": "vervangen"
+            "status": "replaced"
           },
           {
             "slug": "afvalstoffen-v2",
@@ -61,7 +61,7 @@
             "determinedBy": "00000000-0000-0000-0000-000000000000",
             "effectiveDate": "2025-06-01",
             "notes": "Wijziging 2025: gescheiden inzameling GFT-e uitgebreid naar het hele beheergebied.",
-            "status": "in-werking"
+            "status": "in-effect"
           },
           {
             "slug": "terrassen-v1",
@@ -70,7 +70,7 @@
             "determinedBy": "00000000-0000-0000-0000-000000000000",
             "effectiveDate": "2025-03-01",
             "notes": "Vaststelling beleidsregel terrassen 2025.",
-            "status": "in-werking"
+            "status": "in-effect"
           },
           {
             "slug": "hr-vng-v1",
@@ -79,7 +79,7 @@
             "determinedBy": "00000000-0000-0000-0000-000000000000",
             "effectiveDate": "2026-09-01",
             "notes": "Concept eerste huishoudelijk reglement; treedt in werking na vaststelling door de ledenraad.",
-            "status": "concept"
+            "status": "draft"
           }
         ],
         "regeling-export-package": [
@@ -115,28 +115,28 @@
         },
         "x-openregister-lifecycle": {
           "field": "status",
-          "initial": "in-voorbereiding",
+          "initial": "in-preparation",
           "states": [
-            "in-voorbereiding",
-            "vastgesteld",
-            "in-werking",
-            "vervallen"
+            "in-preparation",
+            "adopted",
+            "in-effect",
+            "lapsed"
           ],
           "terminal": [
-            "vervallen"
+            "lapsed"
           ],
           "transitions": [
             {
-              "from": "in-voorbereiding",
-              "to": "vastgesteld"
+              "from": "in-preparation",
+              "to": "adopted"
             },
             {
-              "from": "vastgesteld",
-              "to": "in-werking"
+              "from": "adopted",
+              "to": "in-effect"
             },
             {
-              "from": "in-werking",
-              "to": "vervallen"
+              "from": "in-effect",
+              "to": "lapsed"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-VOR-001). Canonical dialect verbatim from the sibling fragments (keyword 'initial', never 'initialState'/'default'/'states'-only). Linear chain in-voorbereiding → vastgesteld → in-werking → vervallen; vervallen terminal. A direct in-voorbereiding → vervallen jump is NOT in the map and MUST be rejected by OpenRegister (REQ-VOR-001 scenario 'Undeclared lifecycle transition rejected'). No app-side state machine."
@@ -146,7 +146,7 @@
             {
               "group": "public",
               "match": {
-                "status": "in-werking"
+                "status": "in-effect"
               }
             },
             "authenticated"
@@ -165,11 +165,11 @@
             "facetable": true,
             "description": "The kind of regulation. Required.",
             "enum": [
-              "verordening",
-              "beleidsregel",
-              "nadere-regel",
-              "reglement",
-              "statuut-extern"
+              "by-law",
+              "policy-rule",
+              "detailed-rule",
+              "regulations",
+              "external-charter"
             ],
             "example": "verordening"
           },
@@ -246,34 +246,34 @@
         },
         "x-openregister-lifecycle": {
           "field": "status",
-          "initial": "concept",
+          "initial": "draft",
           "states": [
-            "concept",
-            "vastgesteld",
-            "in-werking",
-            "vervangen",
-            "vervallen"
+            "draft",
+            "adopted",
+            "in-effect",
+            "replaced",
+            "lapsed"
           ],
           "terminal": [
-            "vervangen",
-            "vervallen"
+            "replaced",
+            "lapsed"
           ],
           "transitions": [
             {
-              "from": "concept",
-              "to": "vastgesteld"
+              "from": "draft",
+              "to": "adopted"
             },
             {
-              "from": "vastgesteld",
-              "to": "in-werking"
+              "from": "adopted",
+              "to": "in-effect"
             },
             {
-              "from": "in-werking",
-              "to": "vervangen"
+              "from": "in-effect",
+              "to": "replaced"
             },
             {
-              "from": "in-werking",
-              "to": "vervallen"
+              "from": "in-effect",
+              "to": "lapsed"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-VOR-002/003). concept → vastgesteld → in-werking → vervangen | vervallen; vervangen and vervallen terminal. A version replaced by a later in-force version transitions in-werking → vervangen (REQ-VOR-003 scenario 'Correction happens as a new version'); a version whose vervaldatum passes transitions in-werking → vervallen. DIALECT GAP (REQ-VOR-003): the seal — immutability of versienummer/vastgesteldDoor/inwerkingtreding/consolidated-text once in-werking — is intended to ride OpenRegister's immutable-after-state enforcement on the in-werking state, but no immutable-after-state keyword is exercised by any existing decidesk register fragment. This fragment does NOT invent a keyword (inventing an unproven dialect risks aborting the whole register import). The seal is documented here and MUST be confirmed against OR's lifecycle engine during live import; if OR offers no declarative seal, it becomes a save-time guard in the imperative slice. No app-side state machine for the transition map itself. Activation-ordering (a new version's inwerkingtreding must be after the latest sealed version's, REQ-VOR-004) is a cross-object guard in RegelingConsolidationService (imperative), not a schema constraint."
@@ -403,11 +403,11 @@
             "facetable": true,
             "description": "Version status (declared in x-openregister-lifecycle, ADR-031): concept → vastgesteld → in-werking → vervangen | vervallen. in-werking is the SEALED state (REQ-VOR-003). vervangen and vervallen are terminal. Only in-werking versions are anonymously readable via the published-predicate (REQ-VOR-005 — concept versions never leak).",
             "enum": [
-              "concept",
-              "vastgesteld",
-              "in-werking",
-              "vervangen",
-              "vervallen"
+              "draft",
+              "adopted",
+              "in-effect",
+              "replaced",
+              "lapsed"
             ],
             "example": "in-werking"
           }
@@ -417,7 +417,7 @@
             {
               "group": "public",
               "match": {
-                "status": "in-werking"
+                "status": "in-effect"
               }
             },
             "authenticated"

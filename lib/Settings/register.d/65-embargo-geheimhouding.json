@@ -9,7 +9,7 @@
             "name": "Geheimhouding raadsstukken",
             "citation": "Gemeentewet art. 87-89",
             "legacyCitation": "voorheen art. 25",
-            "category": "gemeentewet",
+            "category": "municipalities-act",
             "requiresRatification": true,
             "description": "Geheimhouding opgelegd op stukken bestemd voor of behandeld door de raad. Onder het regime van de Wet bevorderen integriteit en functioneren decentraal bestuur (2023) geldt Gemeentewet art. 87-89; voorheen art. 25.",
             "builtIn": true,
@@ -20,7 +20,7 @@
             "name": "Geheimhouding collegestukken",
             "citation": "Gemeentewet art. 87-89",
             "legacyCitation": "voorheen art. 55",
-            "category": "gemeentewet",
+            "category": "municipalities-act",
             "requiresRatification": false,
             "description": "Geheimhouding opgelegd door of namens het college op collegestukken. Post-2023 Gemeentewet art. 87-89; voorheen art. 55.",
             "builtIn": true,
@@ -31,7 +31,7 @@
             "name": "Geheimhouding commissiestukken",
             "citation": "Gemeentewet art. 87-89",
             "legacyCitation": "voorheen art. 86",
-            "category": "gemeentewet",
+            "category": "municipalities-act",
             "requiresRatification": true,
             "description": "Geheimhouding opgelegd in een raadscommissie op commissiestukken; bekrachtiging door de raad vereist. Post-2023 Gemeentewet art. 87-89; voorheen art. 86.",
             "builtIn": true,
@@ -42,7 +42,7 @@
             "name": "Eenheid van de Kroon / veiligheid van de Staat",
             "citation": "Woo art. 5.1 lid 1",
             "legacyCitation": null,
-            "category": "woo-absoluut",
+            "category": "woo-absolute",
             "requiresRatification": false,
             "description": "Absolute uitzonderingsgrond (Woo art. 5.1 lid 1): eenheid van de Kroon en veiligheid van de Staat.",
             "builtIn": true,
@@ -53,7 +53,7 @@
             "name": "Vertrouwelijk verstrekte bedrijfs- en fabricagegegevens",
             "citation": "Woo art. 5.1 lid 1",
             "legacyCitation": null,
-            "category": "woo-absoluut",
+            "category": "woo-absolute",
             "requiresRatification": false,
             "description": "Absolute uitzonderingsgrond (Woo art. 5.1 lid 1): vertrouwelijk aan de overheid meegedeelde bedrijfs- en fabricagegegevens.",
             "builtIn": true,
@@ -64,7 +64,7 @@
             "name": "Eerbiediging van de persoonlijke levenssfeer",
             "citation": "Woo art. 5.1 lid 2",
             "legacyCitation": null,
-            "category": "woo-relatief",
+            "category": "woo-relative",
             "requiresRatification": false,
             "description": "Relatieve uitzonderingsgrond (Woo art. 5.1 lid 2): eerbiediging van de persoonlijke levenssfeer.",
             "builtIn": true,
@@ -75,7 +75,7 @@
             "name": "Financiële en economische belangen van het bestuursorgaan",
             "citation": "Woo art. 5.1 lid 2",
             "legacyCitation": null,
-            "category": "woo-relatief",
+            "category": "woo-relative",
             "requiresRatification": false,
             "description": "Relatieve uitzonderingsgrond (Woo art. 5.1 lid 2): financiële en economische belangen van het bestuursorgaan.",
             "builtIn": true,
@@ -86,7 +86,7 @@
             "name": "Statutaire vertrouwelijkheid (niet-overheid)",
             "citation": "statuten/reglement",
             "legacyCitation": null,
-            "category": "overig",
+            "category": "other",
             "requiresRatification": true,
             "description": "Vertrouwelijkheidsgrond voor niet-overheidsgremia (vereniging, RvC, coöperatie) op basis van statuten of huishoudelijk reglement. Illustreert dat het bekrachtigingsvereiste een eigenschap van de configureerbare grond is, niet van de wet.",
             "builtIn": true,
@@ -99,10 +99,10 @@
             "scope": "document",
             "targetDocument": "00000000-0000-0000-0000-000000000000",
             "ground": "grond-raadsstukken",
-            "imposedBy": "college",
+            "imposedBy": "executive-board",
             "imposedByBody": "gemeenteraad-amsterdam",
             "imposedAt": "2026-06-08T10:00:00Z",
-            "lifecycle": "opgelegd",
+            "lifecycle": "imposed",
             "ratificationDeadline": "2026-09-30"
           },
           {
@@ -113,7 +113,7 @@
             "imposedBy": "chair",
             "imposedByBody": "gemeenteraad-amsterdam",
             "imposedAt": "2026-03-02T13:30:00Z",
-            "lifecycle": "opgelegd",
+            "lifecycle": "imposed",
             "ratificationDeadline": "2026-04-01"
           },
           {
@@ -124,7 +124,7 @@
             "imposedBy": "body",
             "imposedByBody": "gemeenteraad-amsterdam",
             "imposedAt": "2026-01-19T09:00:00Z",
-            "lifecycle": "opgeheven",
+            "lifecycle": "dissolved",
             "dissolutionDecision": "00000000-0000-0000-0000-000000000000",
             "liftingDate": "2026-06-25",
             "liftingConditions": "openbaar na afronding onderhandelingen"
@@ -189,10 +189,10 @@
             "facetable": true,
             "description": "Ground category: gemeentewet (Gemeentewet geheimhoudingsartikelen), woo-absoluut (Woo art. 5.1 lid 1 absolute gronden), woo-relatief (Woo art. 5.1 lid 2 relatieve gronden), overig (non-statutory, e.g. statutaire vertrouwelijkheid). Required.",
             "enum": [
-              "gemeentewet",
-              "woo-absoluut",
-              "woo-relatief",
-              "overig"
+              "municipalities-act",
+              "woo-absolute",
+              "woo-relative",
+              "other"
             ],
             "example": "gemeentewet"
           },
@@ -243,27 +243,27 @@
         },
         "x-openregister-lifecycle": {
           "field": "lifecycle",
-          "initial": "opgelegd",
+          "initial": "imposed",
           "states": [
-            "opgelegd",
-            "bekrachtigd",
-            "opgeheven"
+            "imposed",
+            "ratified",
+            "dissolved"
           ],
           "terminal": [
-            "opgeheven"
+            "dissolved"
           ],
           "transitions": [
             {
-              "from": "opgelegd",
-              "to": "bekrachtigd"
+              "from": "imposed",
+              "to": "ratified"
             },
             {
-              "from": "opgelegd",
-              "to": "opgeheven"
+              "from": "imposed",
+              "to": "dissolved"
             },
             {
-              "from": "bekrachtigd",
-              "to": "opgeheven"
+              "from": "ratified",
+              "to": "dissolved"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-EMB-001). Canonical dialect verbatim from the existing Decision schema (keyword 'initial', never 'initialState'/'default' — the silently-ignored drift dialect). opgelegd -> bekrachtigd -> opgeheven with the direct opgelegd -> opgeheven shortcut; opgeheven is terminal. LIMITATION: the map cannot itself restrict opgelegd -> opgeheven to grounds where requiresBekrachtiging is false (a transition guard cannot dereference the referenced GeheimhoudingGrond) — that conditional is a save-time check in the imperative GeheimhoudingService (REQ-EMB-001 scenario 'Lifecycle transitions are guarded declaratively' covers the map; the ground-conditional is the service's job). The app does NOT implement an imperative state machine for the transition map."
@@ -274,7 +274,7 @@
               "type": "scheduled",
               "intervalSec": 86400,
               "filter": {
-                "lifecycle": "opgelegd"
+                "lifecycle": "imposed"
               }
             },
             "enabled": true,
@@ -303,7 +303,7 @@
             "trigger": {
               "type": "updated",
               "filter": {
-                "lifecycle": "opgeheven"
+                "lifecycle": "dissolved"
               }
             },
             "enabled": true,
@@ -394,7 +394,7 @@
             "enum": [
               "body",
               "chair",
-              "college"
+              "executive-board"
             ],
             "example": "college"
           },
@@ -420,9 +420,9 @@
             "facetable": true,
             "description": "Geheimhouding state (declared in x-openregister-lifecycle, ADR-031): opgelegd -> bekrachtigd -> opgeheven, with the direct opgelegd -> opgeheven shortcut permitted only when the ground does not require bekrachtiging (save-time guard). opgeheven is terminal. An overdue bekrachtiging NEVER changes this state — it is flagged fail-visible, the organ decides.",
             "enum": [
-              "opgelegd",
-              "bekrachtigd",
-              "opgeheven"
+              "imposed",
+              "ratified",
+              "dissolved"
             ],
             "example": "opgelegd"
           },

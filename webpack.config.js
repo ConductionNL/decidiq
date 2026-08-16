@@ -47,13 +47,59 @@ webpackConfig.entry = {
 // the chunks load from the same directory the entry did.
 webpackConfig.output = { ...(webpackConfig.output || {}), publicPath: 'auto' }
 
-// Use local source when available (monorepo dev), otherwise fall back to npm package.
-// CN_NEXTCLOUD_VUE_SRC env override lets a sibling worktree pin a specific
-// nextcloud-vue source path (used when iterating on an unmerged nc-vue branch).
-const localLib =
-	process.env.CN_NEXTCLOUD_VUE_SRC
-	|| path.resolve(__dirname, '../nextcloud-vue/src')
-const useLocalLib = process.env.USE_LOCAL_LIB !== 'false' && fs.existsSync(localLib)
+// Use local source only when explicitly opted in, otherwise the npm package.
+//
+// USE_LOCAL_LIB is opt-IN (ADR-090): building against a developer's working
+// checkout is the wrong default for a build that can ship. This app previously
+// had NO version check at all, so an unset variable silently built from whatever
+// sibling happened to be on disk.
+//
+// The sibling must satisfy this app's own declared range. It is 2.0.5 today
+// against a declared 2.2.0-vue3.16 — a Vue 3 library, but not the version this
+// app asked for. That skew breaks the build in a non-obvious way: building from
+// the sibling's SOURCE also resolves packages out of the SIBLING's node_modules,
+// where a stale vue-demi shim (postinstall picks v2/v2.7/v3 and does not re-run
+// on `npm install`) yields
+//   export 'default' (imported as 'Vue') was not found in 'vue'
+//
+// The former CN_NEXTCLOUD_VUE_SRC override is gone. It pointed the build at an
+// arbitrary path AND skipped the version check for it, which is precisely the
+// hole this guard exists to close — an unmerged branch is exactly the sibling
+// most likely to be skewed. Iterating on an unmerged library branch now means
+// pointing this app's declared range at that version, so the intent is recorded
+// in package.json rather than in one developer's shell.
+//
+// Fail CLOSED: if the check cannot run, the sibling is refused.
+const localLib = path.resolve(__dirname, '../nextcloud-vue/src')
+let useLocalLib = process.env.USE_LOCAL_LIB === 'true' && fs.existsSync(localLib)
+if (useLocalLib) {
+	const localLibPkg = path.resolve(__dirname, '../nextcloud-vue/package.json')
+	let localVersion = 'unreadable'
+	let satisfied = false
+	try {
+		// eslint-disable-next-line n/no-extraneous-require
+		const semver = require('semver')
+		const required =
+			require('./package.json').dependencies['@conduction/nextcloud-vue']
+		localVersion = String(
+			JSON.parse(fs.readFileSync(localLibPkg, 'utf8')).version || '',
+		)
+		satisfied = semver.satisfies(localVersion, required, {
+			includePrerelease: true,
+		})
+	} catch (e) {
+		satisfied = false
+	}
+
+	if (!satisfied) {
+		// eslint-disable-next-line no-console
+		console.warn(
+			`[decidesk] IGNORING sibling @conduction/nextcloud-vue@${localVersion} — `
+				+ "it does not satisfy this app's declared range. Building against the npm dist.",
+		)
+		useLocalLib = false
+	}
+}
 
 webpackConfig.resolve = {
 	extensions: ['.vue', '.js'],

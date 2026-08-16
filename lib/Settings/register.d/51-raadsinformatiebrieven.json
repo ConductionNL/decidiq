@@ -18,7 +18,7 @@
             ],
             "agendaItem": "lijst-ingekomen-stukken-2025-01-15",
             "settledCommitment": "toezegging-raadsbrief-jeugdzorg",
-            "lifecycle": "geagendeerd",
+            "lifecycle": "agendised",
             "publicationDate": "2026-02-21T09:00:00Z"
           },
           {
@@ -30,7 +30,7 @@
             "sentAt": "2026-03-05",
             "directedTo": "gemeenteraad-amsterdam",
             "letterDocument": "Decidesk/Gemeenteraad Amsterdam/Raadsinformatiebrieven/RIB-2026-013 Voortgang energietransitie.pdf",
-            "lifecycle": "verzonden"
+            "lifecycle": "sent"
           },
           {
             "slug": "rib-2026-014-afdoening-motie-fietsveiligheid",
@@ -43,7 +43,7 @@
             "letterDocument": "Decidesk/Gemeenteraad Amsterdam/Raadsinformatiebrieven/RIB-2026-014 Afdoening motie fietsveiligheid.pdf",
             "agendaItem": "lijst-ingekomen-stukken-2025-01-15",
             "relatedMotion": "00000000-0000-0000-0000-000000000000",
-            "lifecycle": "betrokken-bij-behandeling",
+            "lifecycle": "involved-in-handling",
             "publicationDate": "2026-03-13T09:00:00Z"
           }
         ],
@@ -58,7 +58,7 @@
             "answer": "De doorlooptijd ligt 12% boven de landelijke norm; het plan van aanpak voorziet in een reductie naar de norm binnen twee kwartalen.",
             "answeredBy": "Afdeling Sociaal Domein",
             "answeredOn": "2026-03-02",
-            "lifecycle": "beantwoord",
+            "lifecycle": "answered",
             "publicationDate": "2026-03-03T09:00:00Z"
           },
           {
@@ -68,7 +68,7 @@
             "setBy": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "VVD",
             "setOn": "2026-02-25",
-            "lifecycle": "gesteld"
+            "lifecycle": "put"
           },
           {
             "slug": "tv-rib-2026-013-netcapaciteit",
@@ -77,7 +77,7 @@
             "setBy": "00000000-0000-0000-0000-000000000000",
             "politicalGroup": "D66",
             "setOn": "2026-03-08",
-            "lifecycle": "gesteld"
+            "lifecycle": "put"
           }
         ]
       }
@@ -102,27 +102,27 @@
         },
         "x-openregister-lifecycle": {
           "field": "lifecycle",
-          "initial": "verzonden",
+          "initial": "sent",
           "states": [
-            "verzonden",
-            "geagendeerd",
-            "betrokken-bij-behandeling"
+            "sent",
+            "agendised",
+            "involved-in-handling"
           ],
           "terminal": [
-            "betrokken-bij-behandeling"
+            "involved-in-handling"
           ],
           "transitions": [
             {
-              "from": "verzonden",
-              "to": "geagendeerd"
+              "from": "sent",
+              "to": "agendised"
             },
             {
-              "from": "geagendeerd",
-              "to": "betrokken-bij-behandeling"
+              "from": "agendised",
+              "to": "involved-in-handling"
             },
             {
-              "from": "verzonden",
-              "to": "betrokken-bij-behandeling"
+              "from": "sent",
+              "to": "involved-in-handling"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-RIB-002). Canonical dialect verbatim from the Toezegging/IngekomenStuk schemas (keyword 'initial', never 'initialState'/'default'). verzonden → geagendeerd → betrokken-bij-behandeling, with agendering optional (direct verzonden → betrokken-bij-behandeling allowed). betrokken-bij-behandeling terminal. Setting geagendeerd SHOULD carry the agendaItem reference recording the ter-kennisname placement. No app-side state machine."
@@ -276,9 +276,9 @@
             "facetable": true,
             "description": "Letter status (declared in x-openregister-lifecycle, ADR-031, REQ-RIB-002): verzonden → geagendeerd → betrokken-bij-behandeling, with agendering optional (direct skip allowed). betrokken-bij-behandeling is terminal.",
             "enum": [
-              "verzonden",
-              "geagendeerd",
-              "betrokken-bij-behandeling"
+              "sent",
+              "agendised",
+              "involved-in-handling"
             ],
             "example": "verzonden"
           },
@@ -315,18 +315,18 @@
         },
         "x-openregister-lifecycle": {
           "field": "lifecycle",
-          "initial": "gesteld",
+          "initial": "put",
           "states": [
-            "gesteld",
-            "beantwoord"
+            "put",
+            "answered"
           ],
           "terminal": [
-            "beantwoord"
+            "answered"
           ],
           "transitions": [
             {
-              "from": "gesteld",
-              "to": "beantwoord"
+              "from": "put",
+              "to": "answered"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-RIB-004). Canonical dialect (keyword 'initial', never 'initialState'/'default'). gesteld → beantwoord; beantwoord terminal. Deliberately bounded to two states — no deadline/termijn or college-workflow states (REQ-RIB-005 boundary away from the formal art. 33 instrument). No app-side state machine."
@@ -339,7 +339,7 @@
                 "publicationDate": {
                   "$lte": "$now"
                 },
-                "lifecycle": "beantwoord"
+                "lifecycle": "answered"
               }
             },
             "authenticated"
@@ -414,8 +414,8 @@
             "facetable": true,
             "description": "Question status (declared in x-openregister-lifecycle, ADR-031, REQ-RIB-004): gesteld → beantwoord. beantwoord is terminal. No states beyond these two (REQ-RIB-005 boundary).",
             "enum": [
-              "gesteld",
-              "beantwoord"
+              "put",
+              "answered"
             ],
             "example": "gesteld"
           },

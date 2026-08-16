@@ -34,7 +34,7 @@
               "name": "D66"
             },
             "rationale": "Financiële expertise gewenst.",
-            "lifecycle": "ingediend"
+            "lifecycle": "submitted"
           },
           {
             "slug": "voordracht-rvc-vanduin",
@@ -47,11 +47,11 @@
               }
             ],
             "nominatingParty": {
-              "type": "orgaan",
+              "type": "body",
               "name": "Raad van Commissarissen (coöptatie-voordracht)"
             },
             "rationale": "Herbenoeming niet mogelijk (rooster van aftreden); externe werving conform profielschets.",
-            "lifecycle": "benoemd",
+            "lifecycle": "appointed",
             "agendaItem": "00000000-0000-0000-0000-000000000000",
             "votingRound": "stemming-investering-acme-rvb-geheim",
             "decision": "00000000-0000-0000-0000-000000000000",
@@ -72,7 +72,7 @@
               "name": "GroenLinks"
             },
             "rationale": "Kandidaat trekt zich terug.",
-            "lifecycle": "ingetrokken"
+            "lifecycle": "withdrawn"
           }
         ],
         "rooster-van-aftreden": [
@@ -110,7 +110,7 @@
             "termNumber": 2,
             "endTermDate": "2026-11-01",
             "reappointable": false,
-            "rappelStatus": "rappel-6-maanden"
+            "rappelStatus": "reminder-6-months"
           },
           {
             "slug": "rooster-regel-rvc-smit",
@@ -165,39 +165,39 @@
         },
         "x-openregister-lifecycle": {
           "field": "lifecycle",
-          "initial": "ingediend",
+          "initial": "submitted",
           "states": [
-            "ingediend",
-            "behandeld",
-            "benoemd",
-            "niet-benoemd",
-            "ingetrokken"
+            "submitted",
+            "handled",
+            "appointed",
+            "not-appointed",
+            "withdrawn"
           ],
           "terminal": [
-            "benoemd",
-            "niet-benoemd",
-            "ingetrokken"
+            "appointed",
+            "not-appointed",
+            "withdrawn"
           ],
           "transitions": [
             {
-              "from": "ingediend",
-              "to": "behandeld"
+              "from": "submitted",
+              "to": "handled"
             },
             {
-              "from": "ingediend",
-              "to": "ingetrokken"
+              "from": "submitted",
+              "to": "withdrawn"
             },
             {
-              "from": "behandeld",
-              "to": "benoemd"
+              "from": "handled",
+              "to": "appointed"
             },
             {
-              "from": "behandeld",
-              "to": "niet-benoemd"
+              "from": "handled",
+              "to": "not-appointed"
             },
             {
-              "from": "behandeld",
-              "to": "ingetrokken"
+              "from": "handled",
+              "to": "withdrawn"
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-APT-002). Canonical dialect verbatim from the Decision schema (keyword 'initial', never 'initialState'/'default'). ingediend → behandeld → benoemd | niet-benoemd; ingetrokken reachable from ingediend and behandeld (withdraw before or during treatment). benoemd/niet-benoemd/ingetrokken terminal. DIALECT GAP: REQ-APT-002 also requires 'the transition to benoemd requires a besluit reference to be present' — the plain from/to transition dialect used here has no data-precondition guard slot (no if/then/requires keyword in the canonical lifecycle dialect), so this precondition is NOT expressible declaratively and is enforced imperatively by the state-change caller / BenoemingService per the design's imperative surface. No app-side state machine for the transition map itself."
@@ -282,7 +282,7 @@
                 "description": "Nature of the nominating party.",
                 "enum": [
                   "politicalGroup",
-                  "orgaan",
+                  "body",
                   "person"
                 ],
                 "example": "politicalGroup"
@@ -313,11 +313,11 @@
             "facetable": true,
             "description": "Nomination status (declared in x-openregister-lifecycle, ADR-031): ingediend → behandeld → benoemd | niet-benoemd, with ingetrokken reachable from ingediend and behandeld. benoemd/niet-benoemd/ingetrokken are terminal. The transition to benoemd requires a besluit reference (enforced imperatively — see lifecycle _note).",
             "enum": [
-              "ingediend",
-              "behandeld",
-              "benoemd",
-              "niet-benoemd",
-              "ingetrokken"
+              "submitted",
+              "handled",
+              "appointed",
+              "not-appointed",
+              "withdrawn"
             ],
             "example": "ingediend"
           },
@@ -649,9 +649,9 @@
             "facetable": true,
             "description": "Which herbenoemingsrappel windows have already fired for this regel (bookkeeping for the declarative rappels).",
             "enum": [
-              "geen",
-              "rappel-6-maanden",
-              "rappel-3-maanden"
+              "none",
+              "reminder-6-months",
+              "reminder-3-months"
             ],
             "example": "geen"
           }

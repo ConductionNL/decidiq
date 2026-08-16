@@ -28,10 +28,10 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Draft", "filter": { "lifecycle": "concept" } },
+					{ "label": "Draft", "filter": { "lifecycle": "draft" } },
 					{ "label": "Open", "filter": { "lifecycle": "open" } },
-					{ "label": "Closed", "filter": { "lifecycle": "gesloten" } },
-					{ "label": "Processed", "filter": { "lifecycle": "verwerkt" } },
+					{ "label": "Closed", "filter": { "lifecycle": "closed" } },
+					{ "label": "Processed", "filter": { "lifecycle": "processed" } },
 					{ "label": "Body members", "filter": { "audienceType": "body-members" } },
 					{ "label": "Fractie", "filter": { "audienceType": "politicalGroup" } },
 					{ "label": "NC group", "filter": { "audienceType": "nc-group" } }

@@ -88,6 +88,15 @@ class Application extends App implements IBootstrap {
 		// SettingsService stay bespoke.
 		(new AppHostRegistrar())->register(context: $context);
 
+		// The value migration talks to the database through a three-method port
+		// rather than IDBConnection, because decidesk's unit environment cannot
+		// double that connection at all (no doctrine/dbal). Bind the port here.
+		$context->registerService(
+			\OCA\Decidesk\Repair\ValueMigrationGateway::class,
+			static fn ($c): \OCA\Decidesk\Repair\ValueMigrationGateway
+				=> $c->get(\OCA\Decidesk\Repair\DbValueMigrationGateway::class)
+		);
+
 		// Decidesk domain bindings the autowiring container cannot infer:
 		// the delegated-decision event listener, the MCP tool-provider alias,
 		// the eIDAS QES resolver and the dormant translation adapter.

@@ -820,7 +820,7 @@ export default {
 			try {
 				await this.objectStore.saveObject('agenda-item', {
 					...item,
-					status: 'afgewezen',
+					status: 'rejected',
 				})
 				this.$emit('item-updated', item.id)
 			} catch (e) {
