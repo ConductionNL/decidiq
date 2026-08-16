@@ -49,6 +49,7 @@ use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingRoundRules;
 use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Service\FileService;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
