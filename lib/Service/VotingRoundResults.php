@@ -71,6 +71,7 @@ class VotingRoundResults {
 	 *
 	 * @param MotionService $motionService The motion service (subject chain resolution)
 	 * @param ParticipantResolver $participantResolver Meeting-attendance resolver
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object contract (ADR-084)
 	 *
 	 * @return void
 	 *
@@ -83,7 +84,14 @@ class VotingRoundResults {
 	) {
 		$this->calculator = new VotingResultCalculator();
 		$this->relationFilter = new ObjectRelationFilter();
-		$this->amendmentOrder = new AmendmentOrderService(container: $container, motionService: $motionService);
+		// Same ADR-084 leftover as VotingRoundOpener: `container: $container`
+		// named an argument AmendmentOrderService no longer declares AND a
+		// variable this constructor no longer receives, so every tally request
+		// fatalled on construction.
+		$this->amendmentOrder = new AmendmentOrderService(
+			motionService: $motionService,
+			objectService: $objectService
+		);
 		$this->normaliser = new SavedObjectNormaliser();
 
 	}//end __construct()
