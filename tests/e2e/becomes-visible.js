@@ -25,31 +25,31 @@
  * one than a stub assertion, because it renders in the report as "not
  * applicable" rather than as a gap, and the reason looks investigated. It also
  * inflates the skip count, which is the number that separates a flake from a
- * regression.
+ * regression. decidesk skipped 58 of 178.
  *
  * `waitFor` polls. **The skip that survives it is a real one.**
  *
  * The `test.skip()` calls are deliberately KEPT in place: the fix is not to
  * unskip, it is to make the gate tell the truth. A test that still skips after
  * this change is skipping for the reason it states.
+ *
+ * ℹ️ Written as `.js` with JSDoc types on purpose, and imported with an
+ * explicit `.js` extension, so the specifier resolves unambiguously and
+ * satisfies `import-extensions/extensions`.
  */
-import type { Locator } from '@playwright/test'
 
 /**
  * Wait up to `timeout` for a locator to become visible; return whether it did.
  *
- * @param locator The locator to poll. `.first()` is applied so a strict-mode
- *                violation on a multi-match selector cannot masquerade as an
- *                absence.
- * @param timeout Milliseconds to poll for. Default 10s — enough for a
- *                Nextcloud SPA route to mount and fetch.
- * @return `true` when the element became visible within `timeout`, else
- *         `false`. Never throws.
+ * @param {import('@playwright/test').Locator} locator The locator to poll.
+ *        `.first()` is applied so a strict-mode violation on a multi-match
+ *        selector cannot masquerade as an absence.
+ * @param {number} [timeout] Milliseconds to poll for. Default 10s — enough for
+ *        a Nextcloud SPA route to mount and fetch.
+ * @return {Promise<boolean>} `true` when the element became visible within
+ *         `timeout`, else `false`. Never throws.
  */
-export async function becomesVisible(
-	locator: Locator,
-	timeout = 10_000,
-): Promise<boolean> {
+export async function becomesVisible(locator, timeout = 10_000) {
 	return await locator
 		.first()
 		.waitFor({ state: 'visible', timeout })
