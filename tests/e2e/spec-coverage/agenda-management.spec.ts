@@ -17,6 +17,7 @@
 import { test, expect } from '@playwright/test'
 
 import { BASE_URL as BASE } from '../base-url'
+import { becomesVisible } from '../becomes-visible.js'
 
 // @e2e openspec/specs/agenda-management/spec.md#create-a-decision-agenda-item
 // @e2e openspec/specs/agenda-management/spec.md#create-an-informational-agenda-item-with-documents
@@ -203,9 +204,7 @@ test('general assembly agenda warns about missing statutory ALV items', async ({
 		await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 		const agendaTab = page.getByRole('tab', { name: 'Agenda' })
-		const hasTab = await agendaTab
-			.isVisible({ timeout: 10_000 })
-			.catch(() => false)
+		const hasTab = await becomesVisible(agendaTab)
 		test.skip(
 			!hasTab,
 			'Agenda tab not present (deployed build predates sidebar tabs)',
@@ -213,9 +212,7 @@ test('general assembly agenda warns about missing statutory ALV items', async ({
 		await agendaTab.click()
 
 		const warning = page.getByTestId('statutory-items-warning')
-		const hasWarning = await warning
-			.isVisible({ timeout: 10_000 })
-			.catch(() => false)
+		const hasWarning = await becomesVisible(warning)
 		test.skip(
 			!hasWarning,
 			'Statutory warning not rendered (deployed build predates meeting-agenda-gaps-v1)',
@@ -310,9 +307,7 @@ test('sub-items render nested under their parent in the agenda tab', async ({
 		await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 		const agendaTab = page.getByRole('tab', { name: 'Agenda' })
-		const hasTab = await agendaTab
-			.isVisible({ timeout: 10_000 })
-			.catch(() => false)
+		const hasTab = await becomesVisible(agendaTab)
 		test.skip(
 			!hasTab,
 			'Agenda tab not present (deployed build predates sidebar tabs)',
@@ -321,9 +316,7 @@ test('sub-items render nested under their parent in the agenda tab', async ({
 
 		// The parent renders plain; the sub-item carries the nesting indicator.
 		const parentCell = page.getByText('Committee Reports', { exact: true })
-		const hasParent = await parentCell
-			.isVisible({ timeout: 10_000 })
-			.catch(() => false)
+		const hasParent = await becomesVisible(parentCell)
 		test.skip(
 			!hasParent,
 			'Agenda rows not rendered (deployed build predates meeting-agenda-gaps-v1)',
@@ -365,7 +358,7 @@ test('agenda tab offers the Assemble meeting package action', async ({ page }) =
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	const agendaTab = page.getByRole('tab', { name: 'Agenda' })
-	const hasTab = await agendaTab.isVisible({ timeout: 10_000 }).catch(() => false)
+	const hasTab = await becomesVisible(agendaTab)
 	test.skip(
 		!hasTab,
 		'Agenda tab not present (deployed build predates sidebar tabs)',
@@ -373,9 +366,7 @@ test('agenda tab offers the Assemble meeting package action', async ({ page }) =
 	await agendaTab.click()
 
 	const assembleButton = page.getByTestId('agenda-assemble-package')
-	const hasButton = await assembleButton
-		.isVisible({ timeout: 10_000 })
-		.catch(() => false)
+	const hasButton = await becomesVisible(assembleButton)
 	test.skip(
 		!hasButton,
 		'Assemble action not present (deployed build predates meeting-agenda-gaps-v1)',

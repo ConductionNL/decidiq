@@ -22,6 +22,7 @@
 import { test, expect, type Page } from '@playwright/test'
 
 import { BASE_URL as BASE } from '../base-url'
+import { becomesVisible } from '../becomes-visible.js'
 
 /**
  * Open the Decidesk admin settings and wait for the process-templates section.
@@ -55,7 +56,7 @@ test('Template list shows built-in templates as read-only (duplicate, no delete)
 		})
 		.first()
 	test.skip(
-		!(await builtIn.isVisible().catch(() => false)),
+		!(await becomesVisible(builtIn)),
 		'no built-in templates seeded on this instance',
 	)
 
@@ -139,7 +140,7 @@ test('Duplicate action is available on every template row', async ({ page }) => 
 
 	const firstRow = page.locator('[data-testid="process-template-item"]').first()
 	test.skip(
-		!(await firstRow.isVisible().catch(() => false)),
+		!(await becomesVisible(firstRow)),
 		'no templates listed on this instance',
 	)
 

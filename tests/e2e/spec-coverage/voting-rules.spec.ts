@@ -30,6 +30,7 @@ import {
 } from '@playwright/test'
 
 import { BASE_URL as BASE } from '../base-url'
+import { becomesVisible } from '../becomes-visible.js'
 import { MOTION_SCHEMA } from '../workflows/governance-fixture'
 const ADMIN_USER = process.env.NC_ADMIN_USER || 'admin'
 const ADMIN_PASS = process.env.NC_ADMIN_PASS || 'admin'
@@ -177,7 +178,7 @@ test('open-round dialog offers threshold, abstention and tie-break selectors wit
 			name: /Stemronde openen|Open voting round/,
 		})
 		test.skip(
-			!(await openButton.isVisible().catch(() => false)),
+			!(await becomesVisible(openButton)),
 			'Open-round button not available (round already open or panel not deployed)',
 		)
 		await openButton.click()
