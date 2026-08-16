@@ -34,7 +34,7 @@ import {
 } from '../workflows/governance-fixture'
 
 import { BASE_URL as BASE } from '../base-url'
-import { becomesVisible } from '../becomes-visible'
+import { becomesVisible } from '../becomes-visible.js'
 
 let ledger: SeedLedger
 let meetingId = ''
@@ -272,9 +272,7 @@ test('approval tab: approving review minutes locks editing and records the appro
 	await expect(tab).toBeVisible()
 
 	// Reach review (the earlier reject test returned the record to draft).
-	if (
-		await becomesVisible(tab.getByTestId('minutes-action-submit'), 5_000)
-	) {
+	if (await becomesVisible(tab.getByTestId('minutes-action-submit'), 5_000)) {
 		await tab.getByTestId('minutes-action-submit').click()
 	}
 	await tab.getByTestId('minutes-action-approve').click()
