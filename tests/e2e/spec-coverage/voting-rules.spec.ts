@@ -30,7 +30,7 @@ import {
 } from '@playwright/test'
 
 import { BASE_URL as BASE } from '../base-url'
-import { becomesVisible } from '../becomes-visible'
+import { becomesVisible } from '../becomes-visible.js'
 import { MOTION_SCHEMA } from '../workflows/governance-fixture'
 const ADMIN_USER = process.env.NC_ADMIN_USER || 'admin'
 const ADMIN_PASS = process.env.NC_ADMIN_PASS || 'admin'

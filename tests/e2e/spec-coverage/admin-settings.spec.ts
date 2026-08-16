@@ -25,7 +25,7 @@
 import { test, expect, type Page } from '@playwright/test'
 
 import { BASE_URL as BASE } from '../base-url'
-import { becomesVisible } from '../becomes-visible'
+import { becomesVisible } from '../becomes-visible.js'
 
 /**
  * Open the first governance body's detail page and its sidebar.

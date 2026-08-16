@@ -22,7 +22,7 @@
 import { test, expect, type Page } from '@playwright/test'
 
 import { BASE_URL as BASE } from '../base-url'
-import { becomesVisible } from '../becomes-visible'
+import { becomesVisible } from '../becomes-visible.js'
 
 /**
  * Open the Decidesk admin settings and wait for the process-templates section.

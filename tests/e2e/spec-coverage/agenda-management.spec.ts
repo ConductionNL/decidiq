@@ -17,7 +17,7 @@
 import { test, expect } from '@playwright/test'
 
 import { BASE_URL as BASE } from '../base-url'
-import { becomesVisible } from '../becomes-visible'
+import { becomesVisible } from '../becomes-visible.js'
 
 // @e2e openspec/specs/agenda-management/spec.md#create-a-decision-agenda-item
 // @e2e openspec/specs/agenda-management/spec.md#create-an-informational-agenda-item-with-documents
