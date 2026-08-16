@@ -27,8 +27,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Mcp;
 
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -45,14 +45,14 @@ class McpMeetingScopeResolver {
 	/**
 	 * Constructor for the McpMeetingScopeResolver.
 	 *
-	 * @param ContainerInterface $container DI container used to reach OpenRegister
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object service (ADR-084)
 	 * @param IGroupManager $groupManager Group manager backing the admin gate
 	 * @param LoggerInterface $logger Logger for the fail-closed path
 	 *
 	 * @return void
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
+		private readonly ObjectServiceInterface $objectService,
 		private readonly IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
 	) {
@@ -79,10 +79,8 @@ class McpMeetingScopeResolver {
 		}
 
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
 			// Find all participant records for this Nextcloud user.
-			$participants = $objectService->findAll(
+			$participants = $this->objectService->findAll(
 				[
 					'filters' => [
 						'register' => 'decidesk',
@@ -103,7 +101,7 @@ class McpMeetingScopeResolver {
 
 				$meetingUuids = array_merge(
 					$meetingUuids,
-					$this->meetingUuidsForBody(objectService: $objectService, bodyId: $bodyId)
+					$this->meetingUuidsForBody(objectService: $this->objectService, bodyId: $bodyId)
 				);
 			}
 

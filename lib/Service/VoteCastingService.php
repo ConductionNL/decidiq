@@ -28,6 +28,7 @@ namespace OCA\Decidesk\Service;
 
 use Psr\Log\LoggerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use Psr\Container\ContainerInterface;
 
 /**
  * The cast-a-vote path, extracted from VotingService.
@@ -69,6 +70,8 @@ class VoteCastingService {
 	 * @param ParticipantResolver $participantResolver Resolves a meeting's participants
 	 * @param AmendmentOrderService $amendmentOrder Resolves the meeting behind a round
 	 * @param ObjectRelationFilter $relationFilter Exact-id scoping for relation-filtered result sets
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object service (ADR-084)
+	 * @param ContainerInterface $container DI container — VoterTokenSecret, VoteBallotFactory and VoteCastGuard still resolve through it
 	 *
 	 * @return void
 	 */
@@ -78,6 +81,7 @@ class VoteCastingService {
 		AmendmentOrderService $amendmentOrder,
 		private readonly ObjectRelationFilter $relationFilter,
 		private readonly ObjectServiceInterface $objectService,
+		ContainerInterface $container,
 	) {
 		$this->tokens = new VoterTokenSecret(container: $container);
 		$this->ballots = new VoteBallotFactory(
@@ -91,7 +95,8 @@ class VoteCastingService {
 			relationFilter: $relationFilter,
 			tokens: $this->tokens,
 			participantResolver: $participantResolver,
-			amendmentOrder: $amendmentOrder
+			amendmentOrder: $amendmentOrder,
+			objectService: $objectService
 		);
 
 	}//end __construct()

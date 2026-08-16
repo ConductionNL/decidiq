@@ -140,6 +140,7 @@ class DecideskToolProviderTest extends TestCase {
 			container: $this->container,
 			logger: $this->logger,
 			participantResolver: $this->participantResolver,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 	}//end setUp()

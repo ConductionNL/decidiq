@@ -32,7 +32,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use OCP\AppFramework\IAppContainer;
 use Psr\Log\LoggerInterface;
 use Throwable;
 use OCA\OpenRegister\Service\TaskService;
@@ -70,13 +69,11 @@ class ActionItemWriter {
 	/**
 	 * Constructor.
 	 *
-	 * @param IAppContainer $container Service locator for OpenRegister services.
 	 * @param LoggerInterface $logger Logger for write failures.
 	 *
 	 * @return void
 	 */
 	public function __construct(
-		private readonly IAppContainer $container,
 		private readonly LoggerInterface $logger,
 		private readonly TaskService $taskService,
 		private readonly RegisterMapper $registerMapper,
