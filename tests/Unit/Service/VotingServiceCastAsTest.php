@@ -44,7 +44,7 @@ use OCA\Decidesk\Service\VotingRoundProjection;
 use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingRoundRules;
 use OCA\Decidesk\Service\VotingService;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\Decidesk\Tests\Unit\Support\InMemoryObjectService;
 use OCA\OpenRegister\Service\FileService;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -56,6 +56,7 @@ use Psr\Log\NullLogger;
  * @spec openspec/specs/voting-system/spec.md
  */
 class VotingServiceCastAsTest extends TestCase {
+	use InMemoryObjectService;
 
 	/**
 	 * Captured saveObject() payloads keyed by schema slug.
@@ -87,157 +88,24 @@ class VotingServiceCastAsTest extends TestCase {
 		$saves = $this->saves;
 		$storeRef = new \ArrayObject($store);
 
-		$objectService = new class($storeRef, $saves) {
-
-			/**
-			 * Schema selected via setSchema().
-			 *
-			 * @var string
-			 */
-			private string $schema = '';
-
-			/**
-			 * Constructor.
-			 *
-			 * @param \ArrayObject $store In-memory object store
-			 * @param \ArrayObject $saves Captured saves
-			 */
-			public function __construct(
-				private \ArrayObject $store,
-				private \ArrayObject $saves,
-			) {
-			}
-
-			/**
-			 * Entity-like wrapper around an array payload.
-			 *
-			 * @param array<string, mixed> $object The payload
-			 *
-			 * @return object
-			 */
-			private function wrap(array $object): object {
-				return new class($object) {
-					/**
-					 * Constructor.
-					 *
-					 * @param array<string, mixed> $object The payload
-					 */
-					public function __construct(
-						private array $object,
-					) {
-					}
-
-					/**
-					 * Serialize like an ObjectEntity.
-					 *
-					 * @return array<string, mixed>
-					 */
-					public function jsonSerialize(): array {
-						return $this->object;
-					}
-				};
-			}
-
-			/**
-			 * Select register (fluent no-op).
-			 *
-			 * @param string $register Register slug
-			 *
-			 * @return static
-			 */
-			public function setRegister(string $register): static {
-				return $this;
-			}
-
-			/**
-			 * Select schema for findAll().
-			 *
-			 * @param string $schema Schema slug
-			 *
-			 * @return static
-			 */
-			public function setSchema(string $schema): static {
-				$this->schema = $schema;
-				return $this;
-			}
-
-			/**
-			 * Find an object by id.
-			 *
-			 * @param int|string $id Object id
-			 * @param string|int|null $register Register slug
-			 * @param string|int|null $schema Schema slug
-			 *
-			 * @return object|null
-			 */
-			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
-				$row = ($this->store[(string)$id] ?? null);
-				if ($row === null) {
-					return null;
-				}
-
-				if ($schema !== null && $row['schema'] !== $schema) {
-					return null;
-				}
-
-				return $this->wrap($row['object']);
-			}
-
-			/**
-			 * Find all objects of the selected schema matching plain-field filters.
-			 *
-			 * Relation filters (_relations.*) are presence-only, mirroring OR.
-			 *
-			 * @param array<string, mixed> $config Query config
-			 *
-			 * @return array<int, object>
-			 */
-			public function findAll(array $config = []): array {
-				$out = [];
-				foreach ($this->store as $row) {
-					if ($row['schema'] !== $this->schema) {
-						continue;
-					}
-
-					$matches = true;
-					foreach (($config['filters'] ?? []) as $key => $value) {
-						if (str_starts_with((string)$key, '_relations.') === true) {
-							continue;
-						}
-
-						if (($row['object'][$key] ?? null) !== $value) {
-							$matches = false;
-							break;
-						}
-					}
-
-					if ($matches === true) {
-						$out[] = $this->wrap($row['object']);
-					}
-				}
-
-				return $out;
-			}
-
-			/**
-			 * Record the save and upsert the store.
-			 *
-			 * @param string $register Register slug
-			 * @param string $schema Schema slug
-			 * @param array<string, mixed> $object Payload
-			 *
-			 * @return array<string, mixed>
-			 */
-			public function saveObject(string $register, string $schema, array $object): array {
-				$this->saves->append(['schema' => $schema, 'object' => $object]);
-				$id = (string)($object['id'] ?? $object['uuid'] ?? ('new-' . count($this->saves)));
-				$this->store[$id] = ['schema' => $schema, 'object' => $object];
-				return $object;
-			}
-		};
+		// ADR-084: every collaborator below takes ObjectServiceInterface directly.
+		// The anonymous class this replaces declared
+		// saveObject(string $register, string $schema, array $object) — three
+		// REQUIRED parameters in an order the contract has never had
+		// (ObjectServiceInterface.php:152 starts with `array $object`), so it
+		// could not have stood in for the real service under any call.
+		$objectService = $this->makeInMemoryObjectService($storeRef, $saves);
 
 		$this->motionService = $this->createMock(MotionService::class);
 
+		// ⚠️ ADR-084 is only half-adopted in this app: VoteBallotFactory::resolveCastAs()
+		// (lib/Service/VoteBallotFactory.php:237) still does
+		// $this->container->get('OCA\OpenRegister\Service\ObjectService'), as do 29
+		// other production sites. Until those are migrated the container really is
+		// consulted on this path, so it keeps serving the SAME double the injected
+		// arguments get — otherwise castAs silently degrades to 'unknown' and the
+		// stamping assertions below stop meaning anything.
+		// Notification/activity lookups are fail-soft in the service.
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
 			static function (string $id) use ($objectService): object {
@@ -245,7 +113,6 @@ class VotingServiceCastAsTest extends TestCase {
 					return $objectService;
 				}
 
-				// Notification/activity lookups are fail-soft in the service.
 				throw new \RuntimeException('not wired in test: ' . $id);
 			}
 		);
@@ -260,8 +127,9 @@ class VotingServiceCastAsTest extends TestCase {
 		// single-purpose collaborator, so the graph is built explicitly here
 		// where production relies on Nextcloud's constructor auto-wiring.
 		$logger = new NullLogger();
-		$amendmentOrder = new AmendmentOrderService(container: $container, motionService: $this->motionService,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+		$amendmentOrder = new AmendmentOrderService(
+			motionService: $this->motionService,
+			objectService: $objectService,
 		);
 		$relationFilter = new ObjectRelationFilter();
 
@@ -274,43 +142,43 @@ class VotingServiceCastAsTest extends TestCase {
 					motionService: $this->motionService,
 					participantResolver: $participantResolver,
 					templateService: $templateService,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+					objectService: $objectService,
+				),
 				notifier: new VotingOpenedNotifier(
+					container: $container,
 					logger: $logger,
 					participantResolver: $participantResolver,
-			container: $this->createMock(ContainerInterface::class),
-		),
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+				),
+				objectService: $objectService,
+			),
 			caster: new VoteCastingService(
 				logger: $logger,
 				participantResolver: $participantResolver,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-			container: $this->createMock(ContainerInterface::class),
-		),
+				objectService: $objectService,
+				container: $container,
+			),
 			closer: new VotingRoundCloser(
 				logger: $logger,
 				oriService: $this->createMock(OriPublicationService::class),
 				motionService: $this->motionService,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-			fileService: $this->createMock(FileService::class),
-		),
+				fileService: $this->createMock(FileService::class),
+				objectService: $objectService,
+			),
 			results: new VotingRoundResults(
 				motionService: $this->motionService,
 				participantResolver: $participantResolver,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
-			projection: new VotingRoundProjection(container: $container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
-			participants: new ParticipantUuidLookup(container: $container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+				objectService: $objectService,
+			),
+			projection: new VotingRoundProjection(
+				objectService: $objectService,
+			),
+			participants: new ParticipantUuidLookup(
+				objectService: $objectService,
+			),
 		);
 
 	}//end buildService()

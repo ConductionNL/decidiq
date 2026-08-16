@@ -19,6 +19,14 @@ define('PHPUNIT_RUN', 1);
 // Include Composer's autoloader and register OCP namespace for standalone test runs.
 $autoloader = require __DIR__ . '/../vendor/autoload.php';
 
+// Register the test namespace so shared test-only helpers (traits, fixtures)
+// under tests/ can be autoloaded by the classes that use them. PHPUnit itself
+// only loads files matching *Test.php, so a helper in tests/Unit/Support/ is
+// otherwise invisible. Registered here rather than via composer autoload-dev
+// for the same reason as the stubs below: a dev-built vendor bakes autoload-dev
+// into the runtime classmap.
+$autoloader->addPsr4('OCA\\Decidesk\\Tests\\', __DIR__ . '/');
+
 // Register the OpenRegister test-stub namespace at test time ONLY. These stubs are
 // deliberately NOT registered via composer autoload-dev: a dev-built vendor bakes
 // autoload-dev into the runtime classmap, and OCA\OpenRegister\* stubs then shadow

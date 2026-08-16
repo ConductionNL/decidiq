@@ -33,7 +33,9 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\MotionService;
+use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\IUserManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -67,126 +69,46 @@ class MotionServiceAmendmentOrderTest extends TestCase {
 		$saves = $this->saves;
 		$storeRef = new \ArrayObject($store);
 
-		$objectService = new class($storeRef, $saves) {
+		// ADR-084: MotionService and MotionAmendmentService both take
+		// ObjectServiceInterface directly now, so the store has to BE that
+		// interface. Generated from the contract rather than duck-typed, which
+		// is what makes the return shapes below enforceable: find() and
+		// saveObject() must hand back an ObjectEntityInterface, never the
+		// payload array the old double returned.
+		$selectedSchema = '';
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 
-			/**
-			 * Schema selected via setSchema().
-			 *
-			 * @var string
-			 */
-			private string $schema = '';
-
-			/**
-			 * Constructor.
-			 *
-			 * @param \ArrayObject $store In-memory object store
-			 * @param \ArrayObject $saves Captured saves
-			 */
-			public function __construct(
-				private \ArrayObject $store,
-				private \ArrayObject $saves,
-			) {
+		$objectService->method('setRegister')->willReturnSelf();
+		$objectService->method('setSchema')->willReturnCallback(
+			function (string|int $schema) use (&$selectedSchema, &$objectService): ObjectServiceInterface {
+				$selectedSchema = (string) $schema;
+				return $objectService;
 			}
+		);
 
-			/**
-			 * Entity-like wrapper around an array payload.
-			 *
-			 * @param array<string, mixed> $object The payload
-			 *
-			 * @return object
-			 */
-			private function wrap(array $object): object {
-				return new class($object) {
-					/**
-					 * Constructor.
-					 *
-					 * @param array<string, mixed> $object The payload
-					 */
-					public function __construct(
-						private array $object,
-					) {
-					}
-
-					/**
-					 * Serialize like an ObjectEntity.
-					 *
-					 * @return array<string, mixed>
-					 */
-					public function jsonSerialize(): array {
-						return $this->object;
-					}
-
-					/**
-					 * Raw payload like an ObjectEntity.
-					 *
-					 * @return array<string, mixed>
-					 */
-					public function getObject(): array {
-						return $this->object;
-					}
-				};
-			}
-
-			/**
-			 * Select register (fluent no-op).
-			 *
-			 * @param string $register Register slug
-			 *
-			 * @return static
-			 */
-			public function setRegister(string $register): static {
-				return $this;
-			}
-
-			/**
-			 * Select schema for findAll().
-			 *
-			 * @param string $schema Schema slug
-			 *
-			 * @return static
-			 */
-			public function setSchema(string $schema): static {
-				$this->schema = $schema;
-				return $this;
-			}
-
-			/**
-			 * Find an object by id.
-			 *
-			 * @param int|string $id Object id
-			 * @param string|int|null $register Register slug
-			 * @param string|int|null $schema Schema slug
-			 *
-			 * @return object|null
-			 */
-			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
-				$row = ($this->store[(string)$id] ?? null);
+		$objectService->method('find')->willReturnCallback(
+			function (int|string $id) use ($storeRef): ?ObjectEntityInterface {
+				$row = ($storeRef[(string) $id] ?? null);
 				if ($row === null) {
 					return null;
 				}
 
-				return $this->wrap($row['object']);
+				return $this->wrapAmendmentRow($row['object']);
 			}
+		);
 
-			/**
-			 * Find all objects of the selected schema matching the filters.
-			 *
-			 * Plain-field filters match the object property exactly. The dotted
-			 * `_relations.<field>` filter mirrors OpenRegister's
-			 * MagicSearchHandler::applyRelationFieldFilter(): it keys on the
-			 * RELATION PROPERTY name and requires the referenced id to MATCH the
-			 * filter value — it is not presence-only, and it is not keyed on a
-			 * schema slug. Both the flat `$ref` property and a `relations` list
-			 * entry satisfy it, which is how OpenRegister derives `_relations`.
-			 *
-			 * @param array<string, mixed> $config Query config
-			 *
-			 * @return array<int, object>
-			 */
-			public function findAll(array $config = []): array {
+		// Plain-field filters match the object property exactly. The dotted
+		// `_relations.<field>` filter mirrors OpenRegister's
+		// MagicSearchHandler::applyRelationFieldFilter(): it keys on the
+		// RELATION PROPERTY name and requires the referenced id to MATCH the
+		// filter value — it is not presence-only, and it is not keyed on a
+		// schema slug. Both the flat `$ref` property and a `relations` list
+		// entry satisfy it, which is how OpenRegister derives `_relations`.
+		$objectService->method('findAll')->willReturnCallback(
+			function (array $config = []) use ($storeRef, &$selectedSchema): array {
 				$out = [];
-				foreach ($this->store as $row) {
-					if ($row['schema'] !== $this->schema) {
+				foreach ($storeRef as $row) {
+					if ($row['schema'] !== $selectedSchema) {
 						continue;
 					}
 
@@ -222,30 +144,29 @@ class MotionServiceAmendmentOrderTest extends TestCase {
 					}
 
 					if ($matches === true) {
-						$out[] = $this->wrap($row['object']);
+						$out[] = $this->wrapAmendmentRow($row['object']);
 					}
 				}
 
 				return $out;
 			}
+		);
 
-			/**
-			 * Record the save and upsert the store.
-			 *
-			 * @param array<string, mixed> $object Payload
-			 * @param string $register Register slug
-			 * @param string $schema Schema slug
-			 * @param string|null $uuid Target uuid for updates
-			 *
-			 * @return array<string, mixed>
-			 */
-			public function saveObject(array $object = [], string $register = '', string $schema = '', ?string $uuid = null): array {
-				$this->saves->append(['object' => $object, 'uuid' => $uuid]);
-				$id = (string)($uuid ?? $object['id'] ?? $object['uuid'] ?? ('new-' . count($this->saves)));
-				$this->store[$id] = ['schema' => $schema, 'object' => $object];
-				return $object;
+		$objectService->method('saveObject')->willReturnCallback(
+			function (
+				array $object,
+				?array $extend = [],
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				?string $uuid = null,
+			) use ($storeRef, $saves, &$selectedSchema): ObjectEntityInterface {
+				$saves->append(['object' => $object, 'uuid' => $uuid]);
+				$id = (string)($uuid ?? $object['id'] ?? $object['uuid'] ?? ('new-' . count($saves)));
+				$slug = ($schema !== null) ? (string) $schema : $selectedSchema;
+				$storeRef[$id] = ['schema' => $slug, 'object' => $object];
+				return $this->wrapAmendmentRow($object);
 			}
-		};
+		);
 
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
@@ -269,6 +190,7 @@ class MotionServiceAmendmentOrderTest extends TestCase {
 					return new \OCA\Decidesk\Service\MotionAmendmentService(
 						container: $container,
 						logger: new NullLogger(),
+						objectService: $objectService,
 					);
 				}
 
@@ -280,10 +202,24 @@ class MotionServiceAmendmentOrderTest extends TestCase {
 			container: $container,
 			logger: new NullLogger(),
 			userManager: $this->createMock(IUserManager::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
 	}//end buildService()
+
+	/**
+	 * Wrap a payload in an ObjectEntityInterface double.
+	 *
+	 * @param array<string, mixed> $object The payload.
+	 *
+	 * @return ObjectEntityInterface
+	 */
+	private function wrapAmendmentRow(array $object): ObjectEntityInterface {
+		$entity = $this->createMock(ObjectEntity::class);
+		$entity->method('jsonSerialize')->willReturn($object);
+		$entity->method('getObject')->willReturn($object);
+		return $entity;
+	}//end wrapAmendmentRow()
 
 	/**
 	 * Resolution honours both the flat `amends` property and the structured

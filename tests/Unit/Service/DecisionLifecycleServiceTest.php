@@ -33,7 +33,6 @@ use OCA\OpenRegister\Service\ObjectService;
 use OCP\EventDispatcher\IEventDispatcher;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -51,13 +50,6 @@ class DecisionLifecycleServiceTest extends TestCase {
 	 * @var DecisionLifecycleService
 	 */
 	private DecisionLifecycleService $service;
-
-	/**
-	 * Mock DI container.
-	 *
-	 * @var ContainerInterface&MockObject
-	 */
-	private ContainerInterface&MockObject $container;
 
 	/**
 	 * Mock OpenRegister ObjectService.
@@ -80,13 +72,8 @@ class DecisionLifecycleServiceTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		$this->container = $this->createMock(ContainerInterface::class);
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->auditLogService = $this->createMock(AuditLogService::class);
-
-		$this->container->method('get')
-			->with('OCA\OpenRegister\Service\ObjectService')
-			->willReturn($this->objectService);
 
 		// Default: no body template assigned -> resolvePolicyForBody returns null,
 		// so the guard falls back to the built-in hardcoded domain policy and every
@@ -111,7 +98,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 			templateService: $templateService,
 			integrationService: $integrationService,
 			eventDispatcher: $eventDispatcher,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		);
 
 	}//end setUp()

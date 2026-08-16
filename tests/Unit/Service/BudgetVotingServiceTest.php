@@ -24,10 +24,8 @@ use OCA\Decidesk\Service\BudgetVotingService;
 use OCA\Decidesk\Service\ParticipationLifecycleService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 
 /**
  * Tests proposal submission/validation guards and greedy allocation.
@@ -57,17 +55,21 @@ class BudgetVotingServiceTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		$container = $this->createMock(ContainerInterface::class);
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();
-		$container->method('get')->willReturn($this->objectService);
 
+		// ADR-084: BudgetVotingService takes ObjectServiceInterface as its third
+		// constructor argument (lib/Service/BudgetVotingService.php:54) and
+		// ParticipationLifecycleService as its only one
+		// (lib/Service/ParticipationLifecycleService.php:79). No container is
+		// involved on either, so none is built here.
 		$this->service = new BudgetVotingService(
 			lifecycleService: new ParticipationLifecycleService(
-			objectService: $this->objectService,
-		),
+				objectService: $this->objectService,
+			),
 			advisoryVoteService: $this->createMock(AdvisoryVoteService::class),
+			objectService: $this->objectService,
 		);
 
 	}//end setUp()

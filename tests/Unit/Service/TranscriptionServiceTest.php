@@ -344,15 +344,17 @@ class TranscriptionServiceTest extends TestCase {
 		$sttManager->method('transcribeFile')->willThrowException(new \RuntimeException('engine down'));
 
 		// FileService whose folder resolution would work, but transcribeFile fails first.
+		// ADR-084: TranscriptRepository takes OpenRegister's FileService directly
+		// (lib/Service/TranscriptRepository.php:52) and calls
+		// createFolder($dir)->get($base) at line 323, so the double has to be a
+		// real FileService mock returning a real Folder — a stdClass with an
+		// added createFolder() cannot satisfy the type, and the container that
+		// used to serve it is no longer consulted for this dependency.
 		$fileNode = $this->createMock(\OCP\Files\File::class);
-		$fileService = $this->getMockBuilder(\stdClass::class)->addMethods(['createFolder'])->getMock();
-		$fileService->method('createFolder')->willReturn(
-			(function () use ($fileNode) {
-				$folder = $this->getMockBuilder(\stdClass::class)->addMethods(['get'])->getMock();
-				$folder->method('get')->willReturn($fileNode);
-				return $folder;
-			})()
-		);
+		$folder = $this->createMock(\OCP\Files\Folder::class);
+		$folder->method('get')->willReturn($fileNode);
+		$fileService = $this->createMock(FileService::class);
+		$fileService->method('createFolder')->willReturn($folder);
 
 		$this->container->method('get')->willReturnCallback(
 			function (string $id) use ($objectService, $sttManager, $fileService) {
@@ -365,7 +367,8 @@ class TranscriptionServiceTest extends TestCase {
 			}
 		);
 
-		$result = $this->service(objectService: $objectService)->process(transcriptId: 't1');
+		$result = $this->service(objectService: $objectService, fileService: $fileService)
+			->process(transcriptId: 't1');
 
 		self::assertSame('failed', $saved['status']);
 		self::assertStringContainsString('engine down', (string)$saved['failureReason']);

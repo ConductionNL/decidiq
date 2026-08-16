@@ -34,7 +34,6 @@ use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserManager;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -180,9 +179,6 @@ class GovernanceRoleScopeProjectorTest extends TestCase {
 			}
 		);
 
-		$container = $this->createMock(ContainerInterface::class);
-		$container->method('get')->willReturn($objectService);
-
 		// A user manager that resolves any uid to a stub IUser with that UID.
 		$userManager = $this->createMock(IUserManager::class);
 		$userManager->method('get')->willReturnCallback(
@@ -213,11 +209,10 @@ class GovernanceRoleScopeProjectorTest extends TestCase {
 			$userManager,
 			$this->createMock(LoggerInterface::class),
 			new GovernanceScopeGuard(
-				$container,
 				$groupManager,
 				$this->createMock(LoggerInterface::class),
-			objectService: $objectService,
-		),
+				objectService: $objectService,
+			),
 			objectService: $objectService,
 		);
 	}//end makeProjector()

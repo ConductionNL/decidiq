@@ -99,7 +99,7 @@ class MinutesGenerationServiceTest extends TestCase {
 		$this->service = new MinutesGenerationService(
 			logger: $this->logger,
 			renderer: new MinutesDraftRenderer(),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		);
 
 	}//end setUp()

@@ -31,12 +31,12 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Listener\SubmissionDeadlineListener;
+use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCP\EventDispatcher\Event;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
 
 /**
@@ -56,70 +56,30 @@ class SubmissionDeadlineListenerTest extends TestCase {
 	private function buildListener(array $store): SubmissionDeadlineListener {
 		$storeRef = new \ArrayObject($store);
 
-		$objectService = new class($storeRef) {
-
-			/**
-			 * Constructor.
-			 *
-			 * @param \ArrayObject $store In-memory object store
-			 */
-			public function __construct(
-				private \ArrayObject $store,
-			) {
-			}
-
-			/**
-			 * Find an object by id, returning an entity-like wrapper.
-			 *
-			 * @param int|string $id Object id
-			 * @param string|int|null $register Register slug
-			 * @param string|int|null $schema Schema slug
-			 *
-			 * @return object|null
-			 */
-			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
-				$payload = ($this->store[(string)$id] ?? null);
+		// ADR-084: SubmissionDeadlineListener takes ObjectServiceInterface as a
+		// constructor argument and no longer resolves it from the container, so
+		// the store is a double of the contract and is injected directly. The
+		// container mock this replaces was never consulted.
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('setRegister')->willReturnSelf();
+		$objectService->method('setSchema')->willReturnSelf();
+		$objectService->method('find')->willReturnCallback(
+			function (int|string $id) use ($storeRef): ?ObjectEntityInterface {
+				$payload = ($storeRef[(string)$id] ?? null);
 				if ($payload === null) {
 					return null;
 				}
 
-				return new class($payload) {
-					/**
-					 * Constructor.
-					 *
-					 * @param array<string, mixed> $object The payload
-					 */
-					public function __construct(
-						private array $object,
-					) {
-					}
-
-					/**
-					 * Serialize like an ObjectEntity.
-					 *
-					 * @return array<string, mixed>
-					 */
-					public function jsonSerialize(): array {
-						return $this->object;
-					}
-				};
-			}
-		};
-
-		$container = $this->createMock(ContainerInterface::class);
-		$container->method('get')->willReturnCallback(
-			static function (string $id) use ($objectService): object {
-				if ($id === 'OCA\OpenRegister\Service\ObjectService') {
-					return $objectService;
-				}
-
-				throw new \RuntimeException('not wired in test: ' . $id);
+				$entity = $this->createMock(ObjectEntity::class);
+				$entity->method('jsonSerialize')->willReturn($payload);
+				$entity->method('getObject')->willReturn($payload);
+				return $entity;
 			}
 		);
 
 		return new SubmissionDeadlineListener(
 			logger: new NullLogger(),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
 	}//end buildListener()
@@ -272,12 +232,17 @@ class SubmissionDeadlineListenerTest extends TestCase {
 	 * @return void
 	 */
 	public function testInfrastructureFailureFailsSoft(): void {
-		$container = $this->createMock(ContainerInterface::class);
-		$container->method('get')->willThrowException(new \RuntimeException('OR unavailable'));
+		// ADR-084: the infrastructure failure now originates inside the injected
+		// ObjectServiceInterface rather than in a container lookup, so the throw
+		// is configured on the double the listener actually calls.
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('setRegister')->willReturnSelf();
+		$objectService->method('setSchema')->willReturnSelf();
+		$objectService->method('find')->willThrowException(new \RuntimeException('OR unavailable'));
 
 		$listener = new SubmissionDeadlineListener(
 			logger: new NullLogger(),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
 		$event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'motion', 'meeting' => 'meeting-1']);

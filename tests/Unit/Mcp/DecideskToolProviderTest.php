@@ -133,6 +133,24 @@ class DecideskToolProviderTest extends TestCase {
 		$this->logger = $this->createMock(LoggerInterface::class);
 		$this->participantResolver = $this->createMock(ParticipantResolver::class);
 
+		$this->useObjectService($this->createMock(ObjectServiceInterface::class));
+
+	}//end setUp()
+
+	/**
+	 * (Re)build the provider around a given ObjectService double.
+	 *
+	 * ADR-084: DecideskToolProvider takes ObjectServiceInterface as its seventh
+	 * constructor argument (lib/Mcp/DecideskToolProvider.php:209) and hands it
+	 * straight to McpActionItemTools / McpMeetingTools. Nothing resolves it from
+	 * the container any more, so a double served by the container mock would
+	 * never be consulted — it has to be injected before the provider is built.
+	 *
+	 * @param ObjectServiceInterface $objectService The object-service double.
+	 *
+	 * @return void
+	 */
+	private function useObjectService(ObjectServiceInterface $objectService): void {
 		$this->provider = new DecideskToolProvider(
 			meetingService: $this->meetingService,
 			userSession: $this->userSession,
@@ -140,10 +158,10 @@ class DecideskToolProviderTest extends TestCase {
 			container: $this->container,
 			logger: $this->logger,
 			participantResolver: $this->participantResolver,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
-	}//end setUp()
+	}//end useObjectService()
 
 	/**
 	 * Build a mock IUser that returns the given UID.
@@ -276,7 +294,7 @@ class DecideskToolProviderTest extends TestCase {
 			$objectService->method('findAll')->willReturn([]);
 		}
 
-		$this->container->method('get')->willReturn($objectService);
+		$this->useObjectService($objectService);
 		return $objectService;
 	}//end mockObjectService()
 
@@ -446,7 +464,7 @@ class DecideskToolProviderTest extends TestCase {
 				['uuid' => 'ai-uuid-2', 'title' => 'Write docs'],
 			]
 		);
-		$this->container->method('get')->willReturn($objectService);
+		$this->useObjectService($objectService);
 
 		$result = $this->provider->invokeTool('decidesk.listOpenActionItems', ['scope' => 'mine', 'limit' => 10]);
 
@@ -512,7 +530,7 @@ class DecideskToolProviderTest extends TestCase {
 				['uuid' => 'mtg-uuid-1', 'title' => 'Older meeting', 'scheduledDate' => '2026-05-01'],
 			]
 		);
-		$this->container->method('get')->willReturn($objectService);
+		$this->useObjectService($objectService);
 
 		$result = $this->provider->invokeTool('decidesk.listRecentMeetings', ['limit' => 10]);
 
@@ -563,7 +581,7 @@ class DecideskToolProviderTest extends TestCase {
 				return [];
 			}
 		);
-		$this->container->method('get')->willReturn($objectService);
+		$this->useObjectService($objectService);
 
 		$result = $this->provider->invokeTool(
 			'decidesk.getMeetingDetails',
@@ -652,13 +670,10 @@ class DecideskToolProviderTest extends TestCase {
 			->getMock();
 		$writerMock->method('create')->willReturn($savedActionItemArray);
 
-		// Wire the container to return the correct service for each key.
+		// ADR-084: ObjectService is injected, not resolved. The container is
+		// still consulted for ActionItemWriter, so that branch stays.
 		$this->container->method('get')->willReturnCallback(
-			function (string $id) use ($objectService, $writerMock) {
-				if ($id === 'OCA\OpenRegister\Service\ObjectService') {
-					return $objectService;
-				}
-
+			static function (string $id) use ($writerMock) {
 				if ($id === \OCA\Decidesk\Service\ActionItemWriter::class) {
 					return $writerMock;
 				}
@@ -666,6 +681,7 @@ class DecideskToolProviderTest extends TestCase {
 				throw new \RuntimeException("Unexpected container::get('{$id}')");
 			}
 		);
+		$this->useObjectService($objectService);
 
 		$result = $this->provider->invokeTool(
 			'decidesk.addActionItem',
@@ -704,7 +720,7 @@ class DecideskToolProviderTest extends TestCase {
 		$objectService->method('find')->willReturn($meetingEntity);
 		// findAll should never be called — access is blocked after find().
 		$objectService->expects(self::never())->method('findAll');
-		$this->container->method('get')->willReturn($objectService);
+		$this->useObjectService($objectService);
 
 		$result = $this->provider->invokeTool(
 			'decidesk.getMeetingDetails',
@@ -860,7 +876,7 @@ class DecideskToolProviderTest extends TestCase {
 				return [];
 			}
 		);
-		$this->container->method('get')->willReturn($objectService);
+		$this->useObjectService($objectService);
 
 		$result = $this->provider->invokeTool(
 			'decidesk.getMeetingDetails',
