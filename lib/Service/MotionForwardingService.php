@@ -50,6 +50,7 @@ class MotionForwardingService {
 	 *
 	 * @param ContainerInterface $container The DI container (for ObjectService / IAppConfig / MotionNotifier)
 	 * @param IUserManager $userManager Nextcloud user manager for UID lookup
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object contract
 	 *
 	 * @return void
 	 */
@@ -111,31 +112,38 @@ class MotionForwardingService {
 
 		$this->objectService->setRegister('decidesk');
 		$this->objectService->setSchema('decision');
+		// ADR-084: saveObject() now returns an ObjectEntityInterface, not the
+		// array the old container-resolved call yielded to the analyser as
+		// `mixed`. Array-indexing it (`$created['id']`) was silently wrong and
+		// `forwardMotion(): array` would have TypeError'd on the entity — the
+		// typed contract is what made both visible.
 		$created = $this->objectService->saveObject(
 			object: $forwardedMotion,
 			register: 'decidesk',
 			schema: 'decision',
 		);
+		$createdData = $created->getObject();
+		$createdId = ($created->getUuid() ?? ($createdData['id'] ?? null));
 
 		$sourceMotionData = $this->noteForwarding(
 			objectService: $this->objectService,
 			sourceMotionData: $sourceMotionData,
 			motionId: $motionId,
 			targetBodyId: $targetBodyId,
-			forwardedMotionId: ($created['id'] ?? $created['uuid'] ?? null)
+			forwardedMotionId: $createdId
 		);
 
 		// Send notification if approval is required.
 		if ($appConfig->getValueBool('decidesk', 'motion_forwarding_requires_approval', false) === true) {
 			$this->notifyApprovalRequired(
 				actorId: $actorId,
-				forwardedMotionId: (string)($created['id'] ?? $created['uuid'] ?? ''),
+				forwardedMotionId: (string)($createdId ?? ''),
 				targetBodyId: $targetBodyId,
 				title: (string)($sourceMotionData['title'] ?? '')
 			);
 		}
 
-		return ($created ?? $forwardedMotion);
+		return $createdData;
 	}//end forward()
 
 	/**

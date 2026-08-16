@@ -64,6 +64,7 @@ class McpMeetingGate {
 	 * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
 	 * @param McpSourceFormatter $formatter Builds the error envelopes
 	 * @param McpArgumentValidator $validator Validates the meetingUuid argument
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object contract
 	 *
 	 * @return void
 	 */
@@ -77,7 +78,7 @@ class McpMeetingGate {
 		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->scopeResolver = new McpMeetingScopeResolver(
-			container: $container,
+			objectService: $objectService,
 			groupManager: $groupManager,
 			logger: $logger
 		);

@@ -65,6 +65,7 @@ class MotionService {
 	 * @param ContainerInterface $container The DI container for lazy-loading OR services
 	 * @param LoggerInterface $logger Logger interface
 	 * @param IUserManager $userManager Nextcloud user manager for UID lookup
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object contract
 	 *
 	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
 	 */
@@ -74,8 +75,16 @@ class MotionService {
 		private readonly IUserManager $userManager,
 		private readonly ObjectServiceInterface $objectService,
 	) {
-		$this->amendments = new MotionAmendmentService(container: $container, logger: $logger);
-		$this->forwarding = new MotionForwardingService(container: $container, userManager: $userManager);
+		$this->amendments = new MotionAmendmentService(
+			container: $container,
+			logger: $logger,
+			objectService: $objectService
+		);
+		$this->forwarding = new MotionForwardingService(
+			container: $container,
+			userManager: $userManager,
+			objectService: $objectService
+		);
 
 	}//end __construct()
 

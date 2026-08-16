@@ -26,7 +26,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use Psr\Log\LoggerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
@@ -42,58 +41,31 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 class VoteCastingService {
 
 	/**
-	 * Derives the secret-ballot voter and delegator tokens.
-	 *
-	 * @var VoterTokenSecret
-	 */
-	private readonly VoterTokenSecret $tokens;
-
-	/**
-	 * Fail-closed eligibility rules a cast must pass.
-	 *
-	 * @var VoteCastGuard
-	 */
-	private readonly VoteCastGuard $guard;
-
-	/**
-	 * Assembles the ballot payload.
-	 *
-	 * @var VoteBallotFactory
-	 */
-	private readonly VoteBallotFactory $ballots;
-
-	/**
 	 * Constructor for the VoteCastingService.
 	 *
-	 * @param LoggerInterface $logger The logger
-	 * @param ParticipantResolver $participantResolver Resolves a meeting's participants
-	 * @param AmendmentOrderService $amendmentOrder Resolves the meeting behind a round
+	 * The three collaborators are INJECTED rather than built here. They were
+	 * hand-constructed from a `ContainerInterface` this class no longer holds —
+	 * ADR-084 replaced that parameter with `ObjectServiceInterface`, leaving the
+	 * body referencing an undefined `$container`. Re-adding the container would
+	 * have restored a lazy service locator and pushed CouplingBetweenObjects to
+	 * the phpmd threshold; injecting the collaborators removes both problems and
+	 * drops the three parameters that existed only to feed them.
+	 *
+	 * @param VoterTokenSecret $tokens Derives the secret-ballot voter and delegator tokens
+	 * @param VoteBallotFactory $ballots Assembles the ballot payload
+	 * @param VoteCastGuard $guard Fail-closed eligibility rules a cast must pass
 	 * @param ObjectRelationFilter $relationFilter Exact-id scoping for relation-filtered result sets
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object contract
 	 *
 	 * @return void
 	 */
 	public function __construct(
-		LoggerInterface $logger,
-		ParticipantResolver $participantResolver,
-		AmendmentOrderService $amendmentOrder,
+		private readonly VoterTokenSecret $tokens,
+		private readonly VoteBallotFactory $ballots,
+		private readonly VoteCastGuard $guard,
 		private readonly ObjectRelationFilter $relationFilter,
 		private readonly ObjectServiceInterface $objectService,
 	) {
-		$this->tokens = new VoterTokenSecret(container: $container);
-		$this->ballots = new VoteBallotFactory(
-			container: $container,
-			logger: $logger,
-			tokens: $this->tokens
-		);
-		$this->guard = new VoteCastGuard(
-			container: $container,
-			logger: $logger,
-			relationFilter: $relationFilter,
-			tokens: $this->tokens,
-			participantResolver: $participantResolver,
-			amendmentOrder: $amendmentOrder
-		);
-
 	}//end __construct()
 
 	/**

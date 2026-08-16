@@ -62,6 +62,7 @@ class VotingRoundOpener {
 	 * @param ParticipantResolver $participantResolver Participant resolver for the quorum count
 	 * @param VotingRoundPreflight $preflight Fail-closed preflight (rules, revote guard, presets)
 	 * @param VotingOpenedNotifier $notifier Fail-soft announcements for a freshly opened round
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object contract
 	 *
 	 * @return void
 	 *
@@ -75,8 +76,8 @@ class VotingRoundOpener {
 		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->amendmentOrder = new AmendmentOrderService(
-			container: $container,
-			motionService: $motionService
+			motionService: $motionService,
+			objectService: $objectService
 		);
 
 		$this->normaliser = new SavedObjectNormaliser();

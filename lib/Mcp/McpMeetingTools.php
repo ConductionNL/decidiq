@@ -75,6 +75,7 @@ class McpMeetingTools {
 	 * @param IGroupManager $groupManager The group manager (for admin checks)
 	 * @param LoggerInterface $logger The PSR-3 logger
 	 * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object contract
 	 *
 	 * @return void
 	 */
@@ -89,7 +90,7 @@ class McpMeetingTools {
 		$this->formatter = new McpSourceFormatter();
 		$this->validator = new McpArgumentValidator(formatter: $this->formatter);
 		$this->gate = new McpMeetingGate(
-			container: $container,
+			objectService: $objectService,
 			userSession: $userSession,
 			groupManager: $groupManager,
 			logger: $logger,
