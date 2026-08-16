@@ -47,7 +47,6 @@ use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\FileService;
-use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -140,9 +139,9 @@ class VotingServicePhase0RegressionTest extends TestCase {
 					objectService: $this->objectService,
 				),
 				notifier: new VotingOpenedNotifier(
-					container: $this->container,
 					logger: $this->logger,
 					participantResolver: $this->participantResolver,
+					container: $this->container,
 				),
 				objectService: $this->objectService,
 			),
@@ -160,8 +159,8 @@ class VotingServicePhase0RegressionTest extends TestCase {
 				motionService: $this->motionService,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-				fileService: $this->createMock(FileService::class),
 				objectService: $this->objectService,
+				fileService: $this->createMock(FileService::class),
 			),
 			results: new VotingRoundResults(
 				motionService: $this->motionService,

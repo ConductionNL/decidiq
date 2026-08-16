@@ -10,9 +10,9 @@
  * delegation the pre-existing generic rejection is preserved.
  *
  * Kept separate from VotingServiceTest (skipped pending issue #90) because
- * these cases avoid mocking the OpenRegister ObjectService class entirely —
- * the container serves a plain anonymous double, so no stub-vs-real
- * signature mismatch can occur.
+ * these cases avoid mocking the concrete OpenRegister ObjectService class
+ * entirely — they double OpenRegister's published ObjectServiceInterface
+ * (ADR-084), so no stub-vs-real signature mismatch can occur.
  *
  * @category Test
  * @package  OCA\Decidesk\Tests\Unit\Service
@@ -48,7 +48,6 @@ use OCA\Decidesk\Service\VotingRoundPreflight;
 use OCA\Decidesk\Service\VotingRoundProjection;
 use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingService;
-use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\FileService;
@@ -81,20 +80,10 @@ class VotingServiceDelegationGateTest extends TestCase {
 			'notes' => [],
 		];
 
-		// ADR-084: VoteCastingService and its collaborators take
-		// ObjectServiceInterface directly, so the round has to be served by a
-		// double of that contract. The previous anonymous class had a bare
-		// `find(int|string $id, string|int|null $register, string|int|null $schema)`
-		// — the contract's find() (ObjectServiceInterface.php:191) has $_extend
-		// and $files in positions 2 and 3, so the two are not interchangeable.
-		$roundEntity = $this->createMock(ObjectEntity::class);
-		$roundEntity->method('jsonSerialize')->willReturn($round);
-		$roundEntity->method('getObject')->willReturn($round);
-
+		// find() answers the round for any id; the gate rejects before any
+		// findAll()/saveObject() path is reached.
 		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('setRegister')->willReturnSelf();
-		$objectService->method('setSchema')->willReturnSelf();
-		$objectService->method('find')->willReturn($roundEntity);
+		$objectService->method('find')->willReturn($this->entity($round));
 
 		$prefService = $this->createMock(NotificationPreferenceService::class);
 		$prefService->method('hasActiveDelegationTo')->willReturnCallback(
@@ -125,9 +114,8 @@ class VotingServiceDelegationGateTest extends TestCase {
 	 * single-purpose collaborator, so the graph has to be built explicitly here
 	 * where production relies on Nextcloud's constructor auto-wiring.
 	 *
-	 * @param ContainerInterface     $container     The (mocked) DI container.
-	 * @param ObjectServiceInterface $objectService The object-service double every
-	 *                                              collaborator is now handed directly.
+	 * @param ContainerInterface $container The (mocked) DI container.
+	 * @param ObjectServiceInterface $objectService The OpenRegister double (ADR-084).
 	 *
 	 * @return VotingService
 	 */
@@ -157,9 +145,9 @@ class VotingServiceDelegationGateTest extends TestCase {
 					objectService: $objectService,
 				),
 				notifier: new VotingOpenedNotifier(
-					container: $container,
 					logger: $logger,
 					participantResolver: $participantResolver,
+					container: $container,
 				),
 				objectService: $objectService,
 			),
@@ -177,8 +165,8 @@ class VotingServiceDelegationGateTest extends TestCase {
 				motionService: $motionService,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-				fileService: $this->createMock(FileService::class),
 				objectService: $objectService,
+				fileService: $this->createMock(FileService::class),
 			),
 			results: new VotingRoundResults(
 				motionService: $motionService,
@@ -194,6 +182,24 @@ class VotingServiceDelegationGateTest extends TestCase {
 		);
 
 	}//end assembleVotingService()
+
+	/**
+	 * Wrap a payload in an ObjectEntity double that serialises to it verbatim.
+	 *
+	 * @param array<string, mixed> $object The payload
+	 *
+	 * @return ObjectEntity
+	 */
+	private function entity(array $object): ObjectEntity {
+		$entity = $this->getMockBuilder(ObjectEntity::class)
+			->disableOriginalConstructor()
+			->onlyMethods(['jsonSerialize', 'getObject'])
+			->getMock();
+		$entity->method('jsonSerialize')->willReturn($object);
+		$entity->method('getObject')->willReturn($object);
+		return $entity;
+
+	}//end entity()
 
 	/**
 	 * An absence delegate without a formal proxy gets the spec-mandated rejection
@@ -285,26 +291,16 @@ class VotingServiceDelegationGateTest extends TestCase {
 			],
 		];
 
-		// ADR-084 (see buildService()): the store is a double of the contract.
-		// The anonymous class this replaces declared
-		// saveObject(string|int|null $register, string|int|null $schema, array $object)
-		// and returned its own argument — three parameters in an order the
-		// contract does not have, so no real call could have reached it.
-		$roundEntity = $this->createMock(ObjectEntity::class);
-		$roundEntity->method('jsonSerialize')->willReturn($round);
-		$roundEntity->method('getObject')->willReturn($round);
-
+		// find() answers the round for any id; the dedup queries come back empty
+		// and saveObject() echoes the payload back as an entity.
 		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('find')->willReturn($this->entity($round));
 		$objectService->method('setRegister')->willReturnSelf();
 		$objectService->method('setSchema')->willReturnSelf();
-		$objectService->method('find')->willReturn($roundEntity);
 		$objectService->method('findAll')->willReturn([]);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object): ObjectEntityInterface {
-				$stored = $this->createMock(ObjectEntity::class);
-				$stored->method('jsonSerialize')->willReturn($object);
-				$stored->method('getObject')->willReturn($object);
-				return $stored;
+			function (array $object): ObjectEntity {
+				return $this->entity($object);
 			}
 		);
 

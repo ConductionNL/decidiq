@@ -75,11 +75,13 @@ class VotingServiceTemplateRuleTest extends TestCase {
 		$meeting->method('jsonSerialize')->willReturn(['id' => 'meeting-1', 'quorumRequired' => 0]);
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('setRegister')->willReturnSelf();
+		$objectService->method('setSchema')->willReturnSelf();
 		$objectService->method('find')->willReturn($meeting);
 		$objectService->method('saveObject')->willReturnCallback(
-			// saveObject() is typed `: ObjectEntityInterface` in production and can
-			// never return the payload array it was handed (#399). Returning an
-			// entity double keeps VotingRoundOpener on its real normalisation path.
+			// saveObject() is typed `: ObjectEntity` in production and can never
+			// return the payload array it was handed (#399). Returning an entity
+			// double keeps VotingRoundOpener on its real normalisation path.
 			function (array $object): ObjectEntity {
 				$this->saved[] = $object;
 
@@ -130,9 +132,9 @@ class VotingServiceTemplateRuleTest extends TestCase {
 					objectService: $objectService,
 				),
 				notifier: new VotingOpenedNotifier(
-					container: $container,
 					logger: $logger,
 					participantResolver: $participantResolver,
+					container: $container,
 				),
 				objectService: $objectService,
 			),
@@ -150,8 +152,8 @@ class VotingServiceTemplateRuleTest extends TestCase {
 				motionService: $motionService,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-				fileService: $this->createMock(FileService::class),
 				objectService: $objectService,
+				fileService: $this->createMock(FileService::class),
 			),
 			results: new VotingRoundResults(
 				motionService: $motionService,

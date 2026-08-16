@@ -51,13 +51,9 @@ class ActionItemAnalyticsServiceTest extends TestCase {
 	}//end setUp()
 
 	/**
-	 * Build the service around a given ObjectService double.
+	 * Build the service under test around the given injected ObjectService.
 	 *
-	 * ADR-084: the service receives ObjectServiceInterface as a constructor
-	 * argument and never resolves it from the DI container, so the double has
-	 * to be injected per test rather than served by a container mock.
-	 *
-	 * @param ObjectServiceInterface $objectService The object-service double.
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service double
 	 *
 	 * @return ActionItemAnalyticsService
 	 */

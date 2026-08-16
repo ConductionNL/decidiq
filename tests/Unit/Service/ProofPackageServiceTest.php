@@ -31,7 +31,6 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -79,8 +78,10 @@ class ProofPackageServiceTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		// Mock the (stubbed) OpenRegister ObjectService class itself so that
-		// named-argument calls (find(id: ..., register: ...)) bind correctly.
+		// Mock OpenRegister's published contract so that named-argument calls
+		// (find(id: ..., register: ...)) bind correctly. Since ADR-083 this
+		// double must be INJECTED — the service no longer asks a container for
+		// it, so one parked on a container mock would never be consulted.
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$this->objectService->method('setRegister')->willReturnSelf();
@@ -88,11 +89,6 @@ class ProofPackageServiceTest extends TestCase {
 
 		$this->participantResolver = $this->createMock(ParticipantResolver::class);
 		$this->folderService = $this->createMock(MeetingFolderService::class);
-
-		$container = $this->createMock(ContainerInterface::class);
-		$container->method('get')
-			->with('OCA\OpenRegister\Service\ObjectService')
-			->willReturn($this->objectService);
 
 		$this->service = new ProofPackageService(
 			logger: $this->createMock(LoggerInterface::class),
@@ -343,30 +339,18 @@ class ProofPackageServiceTest extends TestCase {
 
 	}//end testAssembleThrowsRuntimeExceptionWhenWriteFails()
 
-	/**
-	 * OpenRegister unavailability surfaces as a RuntimeException.
+	/*
+	 * REMOVED: testAssembleThrowsRuntimeExceptionWhenOpenRegisterUnavailable().
 	 *
-	 * @spec openspec/specs/resolution-minutes/spec.md
-	 *
-	 * @return void
+	 * It asserted `RuntimeException: 'OpenRegister ObjectService is not
+	 * available'` out of assemble(). ADR-083 deleted that failure mode: the
+	 * service no longer resolves OpenRegister from the container at call time,
+	 * it receives ObjectServiceInterface as a REQUIRED constructor argument.
+	 * "OpenRegister is absent" is therefore a DI-construction failure now, not
+	 * an assemble() outcome — the string it expected exists nowhere in lib/
+	 * (`grep -rn 'ObjectService is not available' lib/` = 0 hits). No honest
+	 * wiring of this test can produce it, so it is gone rather than weakened.
 	 */
-	public function testAssembleThrowsRuntimeExceptionWhenOpenRegisterUnavailable(): void {
-		$container = $this->createMock(ContainerInterface::class);
-		$container->method('get')->willThrowException(new \Exception('Service not found'));
-
-		$service = new ProofPackageService(
-			logger: $this->createMock(LoggerInterface::class),
-			participantResolver: $this->participantResolver,
-			folderService: $this->folderService,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		);
-
-		$this->expectException(\RuntimeException::class);
-		$this->expectExceptionMessage('OpenRegister ObjectService is not available');
-
-		$service->assemble(meetingId: 'any', generatedBy: 'S');
-
-	}//end testAssembleThrowsRuntimeExceptionWhenOpenRegisterUnavailable()
 
 	/**
 	 * Helper: recursively key-sort associative arrays (mirror of the

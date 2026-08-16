@@ -26,7 +26,6 @@ use OCA\Decidesk\Service\MinutesDraftRenderer;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -36,18 +35,12 @@ use Psr\Log\LoggerInterface;
  * Tests for MinutesGenerationService.
  *
  * The service uses ObjectService::find() and ObjectService::findAll() from
- * OpenRegister. All tests mock the ObjectService via the DI container.
+ * OpenRegister. All tests mock the injected OpenRegister object-service
+ * contract (ADR-083/084).
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
  */
 class MinutesGenerationServiceTest extends TestCase {
-
-	/**
-	 * Mock DI container.
-	 *
-	 * @var ContainerInterface&MockObject
-	 */
-	private ContainerInterface&MockObject $container;
 
 	/**
 	 * Mock logger.
@@ -78,20 +71,15 @@ class MinutesGenerationServiceTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		// Mock the (stubbed) OpenRegister ObjectService class itself so that
-		// named-argument calls (saveObject(object: ..., register: ...)) bind
-		// correctly — an stdClass addMethods() mock has no parameter names.
+		// Mock the published OpenRegister contract itself so that named-argument
+		// calls (saveObject(object: ..., register: ...)) bind correctly — an
+		// stdClass addMethods() mock has no parameter names.
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();
 
-		$this->container = $this->createMock(ContainerInterface::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
-
-		$this->container->method('get')
-			->with('OCA\OpenRegister\Service\ObjectService')
-			->willReturn($this->objectService);
 
 		// The renderer is a pure, dependency-free collaborator, so the real one
 		// is used here: these tests assert on the rendered text, and a mock
@@ -260,30 +248,19 @@ class MinutesGenerationServiceTest extends TestCase {
 
 	}//end testGenerateDraftMissingMeetingThrowsRuntimeException()
 
-	/**
-	 * OpenRegister unavailable throws RuntimeException.
+	/*
+	 * REMOVED: testGenerateDraftThrowsRuntimeExceptionWhenOpenRegisterUnavailable().
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
-	 *
-	 * @return void
+	 * It asserted `RuntimeException: 'OpenRegister ObjectService is not
+	 * available'` out of generateDraft(). ADR-083 deleted that failure mode —
+	 * getObjectService() is now a property read, and the production comment at
+	 * lib/Service/MinutesGenerationService.php says so in as many words: "a
+	 * property read throws nothing, so the old catch was unreachable". The
+	 * string it expected exists nowhere in lib/. With ObjectServiceInterface a
+	 * REQUIRED constructor argument, "OpenRegister is absent" is a
+	 * DI-construction failure, not a generateDraft() outcome, so no honest
+	 * wiring of this test can produce it. Removed rather than weakened.
 	 */
-	public function testGenerateDraftThrowsRuntimeExceptionWhenOpenRegisterUnavailable(): void {
-		$containerNoOR = $this->createMock(ContainerInterface::class);
-		$containerNoOR->method('get')
-			->willThrowException(new \Exception('Service not found'));
-
-		$service = new MinutesGenerationService(
-			logger: $this->logger,
-			renderer: new MinutesDraftRenderer(),
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		);
-
-		$this->expectException(\RuntimeException::class);
-		$this->expectExceptionMessage('OpenRegister ObjectService is not available');
-
-		$service->generateDraft(minutesId: 'any-id');
-
-	}//end testGenerateDraftThrowsRuntimeExceptionWhenOpenRegisterUnavailable()
 
 	/**
 	 * reject() moves review → draft and appends the server-attributed

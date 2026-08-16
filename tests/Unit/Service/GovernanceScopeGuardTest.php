@@ -149,7 +149,7 @@ class GovernanceScopeGuardTest extends TestCase {
 		$groupManager = $this->createMock(IGroupManager::class);
 		$groupManager->expects($this->never())->method('isInGroup');
 
-		// Meeting carries no GovernanceBody relation -> body cannot be resolved.
+		// Meeting with no GovernanceBody relation -> body cannot be resolved.
 		$guard = new GovernanceScopeGuard(
 			$groupManager,
 			$this->createMock(LoggerInterface::class),
@@ -169,9 +169,6 @@ class GovernanceScopeGuardTest extends TestCase {
 		$logger = $this->createMock(LoggerInterface::class);
 		$logger->expects($this->once())->method('warning');
 
-		// ADR-084: the failure now originates inside the injected
-		// ObjectServiceInterface, not in a container lookup — resolveBodyIdForMinutes()
-		// calls find() directly (lib/Service/GovernanceScopeGuard.php:190).
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willThrowException(new \RuntimeException('OR unavailable'));
 
@@ -201,7 +198,7 @@ class GovernanceScopeGuardTest extends TestCase {
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id) use ($minutesRow, $meetingRow): ?ObjectEntity {
+			function (mixed $id, mixed $register = null, mixed $schema = null) use ($minutesRow, $meetingRow): ?ObjectEntity {
 				$row = null;
 				if ((string)$id === 'min-1') {
 					$row = $minutesRow;

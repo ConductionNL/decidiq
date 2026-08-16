@@ -10,9 +10,9 @@
  *   amendment lifecycle,
  * - an adopted amendment is incorporated into the parent motion text.
  *
- * Uses the anonymous-double container pattern from VotingServiceCastAsTest —
- * the OpenRegister ObjectService class is never mocked directly, so the
- * stub-vs-real signature mismatch of issue #90 cannot occur.
+ * Uses an in-memory double of OpenRegister's published ObjectServiceInterface
+ * (ADR-084) — the concrete OpenRegister ObjectService class is never mocked, so
+ * the stub-vs-real signature mismatch of issue #90 cannot occur.
  *
  * @category Test
  * @package  OCA\Decidesk\Tests\Unit\Service
@@ -48,8 +48,10 @@ use OCA\Decidesk\Service\VotingRoundProjection;
 use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingRoundRules;
 use OCA\Decidesk\Service\VotingService;
-use OCA\Decidesk\Tests\Unit\Support\InMemoryObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\FileService;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
@@ -60,7 +62,6 @@ use Psr\Log\NullLogger;
  * @spec openspec/specs/motion-amendment/spec.md
  */
 class VotingServiceAmendmentOrderTest extends TestCase {
-	use InMemoryObjectService;
 
 	/**
 	 * Captured saveObject() payloads keyed by schema slug.
@@ -88,22 +89,12 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 		$saves = $this->saves;
 		$storeRef = new \ArrayObject($store);
 
-		// ADR-084: every collaborator below takes ObjectServiceInterface directly,
-		// so the store has to BE that interface. The anonymous class this
-		// replaces declared saveObject(string $register, string $schema, array
-		// $object, ?string $uuid) — the contract's first parameter has always
-		// been `array $object` (ObjectServiceInterface.php:152), so it could
-		// never have stood in for the real service.
-		$objectService = $this->makeInMemoryObjectService($storeRef, $saves);
+		$objectService = $this->makeObjectService(store: $storeRef, saves: $saves);
 
 		$this->motionService = $this->createMock(MotionService::class);
 
-		// ⚠️ ADR-084 is only half-adopted in this app: 30 production sites still do
-		// $this->container->get('OCA\OpenRegister\Service\ObjectService') — among them
-		// VoteBallotFactory::resolveCastAs() and VotingRoundGuard. The container
-		// therefore keeps serving the SAME double the injected arguments get, so
-		// those paths reach the fixture instead of a fail-soft branch.
-		// Notification/activity lookups are fail-soft in the service.
+		// VoteBallotFactory (behind VoteCastingService) still resolves OpenRegister
+		// through the container, so the same double is served both ways.
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
 			static function (string $id) use ($objectService): object {
@@ -111,6 +102,7 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 					return $objectService;
 				}
 
+				// Notification/activity lookups are fail-soft in the service.
 				throw new \RuntimeException('not wired in test: ' . $id);
 			}
 		);
@@ -140,9 +132,9 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 					objectService: $objectService,
 				),
 				notifier: new VotingOpenedNotifier(
-					container: $container,
 					logger: $logger,
 					participantResolver: $participantResolver,
+					container: $container,
 				),
 				objectService: $objectService,
 			),
@@ -160,8 +152,8 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 				motionService: $this->motionService,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-				fileService: $this->createMock(FileService::class),
 				objectService: $objectService,
+				fileService: $this->createMock(FileService::class),
 			),
 			results: new VotingRoundResults(
 				motionService: $this->motionService,
@@ -177,6 +169,117 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 		);
 
 	}//end buildService()
+
+	/**
+	 * Build an in-memory ObjectServiceInterface double over the seeded store.
+	 *
+	 * ADR-084 injects OpenRegister's published contract directly, so the double
+	 * is a mock of that interface rather than the anonymous class this suite
+	 * previously served through the DI container.
+	 *
+	 * @param \ArrayObject $store In-memory object store keyed by id
+	 * @param \ArrayObject $saves Captured saveObject() payloads
+	 *
+	 * @return ObjectServiceInterface&MockObject
+	 */
+	private function makeObjectService(\ArrayObject $store, \ArrayObject $saves): ObjectServiceInterface {
+		$schema = '';
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+
+		$objectService->method('setRegister')->willReturnSelf();
+		$objectService->method('setSchema')->willReturnCallback(
+			function (string|int $slug) use (&$schema, $objectService): ObjectServiceInterface {
+				$schema = (string)$slug;
+				return $objectService;
+			}
+		);
+
+		$objectService->method('find')->willReturnCallback(
+			function (
+				int|string $id,
+				?array $_extend = [],
+				bool $files = false,
+				string|int|null $register = null,
+				string|int|null $schema = null,
+			) use ($store): ?ObjectEntity {
+				$row = ($store[(string)$id] ?? null);
+				if ($row === null) {
+					return null;
+				}
+
+				if ($schema !== null && $row['schema'] !== $schema) {
+					return null;
+				}
+
+				return $this->entity($row['object']);
+			}
+		);
+
+		$objectService->method('findAll')->willReturnCallback(
+			function (array $config = []) use ($store, &$schema): array {
+				$out = [];
+				foreach ($store as $row) {
+					if ($row['schema'] !== $schema) {
+						continue;
+					}
+
+					$matches = true;
+					foreach (($config['filters'] ?? []) as $key => $value) {
+						if (str_starts_with((string)$key, '_relations.') === true) {
+							continue;
+						}
+
+						if (($row['object'][$key] ?? null) !== $value) {
+							$matches = false;
+							break;
+						}
+					}
+
+					if ($matches === true) {
+						$out[] = $this->entity($row['object']);
+					}
+				}
+
+				return $out;
+			}
+		);
+
+		$objectService->method('saveObject')->willReturnCallback(
+			function (
+				array $object,
+				?array $extend = [],
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				?string $uuid = null,
+			) use ($store, $saves): ObjectEntity {
+				$saves->append(['schema' => (string)$schema, 'object' => $object]);
+				$id = (string)($uuid ?? $object['id'] ?? $object['uuid'] ?? ('new-' . count($saves)));
+				$store[$id] = ['schema' => (string)$schema, 'object' => $object];
+				return $this->entity($object);
+			}
+		);
+
+		return $objectService;
+
+	}//end makeObjectService()
+
+	/**
+	 * Wrap a payload in an ObjectEntity double that serialises to it verbatim.
+	 *
+	 * @param array<string, mixed> $object The payload
+	 *
+	 * @return ObjectEntity
+	 */
+	private function entity(array $object): ObjectEntity {
+		$entity = $this->getMockBuilder(ObjectEntity::class)
+			->disableOriginalConstructor()
+			->onlyMethods(['jsonSerialize', 'getObject'])
+			->getMock();
+		$entity->method('jsonSerialize')->willReturn($object);
+		$entity->method('getObject')->willReturn($object);
+		return $entity;
+
+	}//end entity()
 
 	/**
 	 * Base store: a meeting without quorum requirement plus a motion.

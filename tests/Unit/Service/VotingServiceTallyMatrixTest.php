@@ -88,9 +88,9 @@ class VotingServiceTallyMatrixTest extends TestCase {
 					objectService: $this->createMock(ObjectServiceInterface::class),
 				),
 				notifier: new VotingOpenedNotifier(
-					container: $container,
 					logger: $logger,
 					participantResolver: $participantResolver,
+					container: $container,
 				),
 				objectService: $this->createMock(ObjectServiceInterface::class),
 			),
@@ -108,8 +108,8 @@ class VotingServiceTallyMatrixTest extends TestCase {
 				motionService: $motionService,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-				fileService: $this->createMock(FileService::class),
 				objectService: $this->createMock(ObjectServiceInterface::class),
+				fileService: $this->createMock(FileService::class),
 			),
 			results: new VotingRoundResults(
 				motionService: $motionService,

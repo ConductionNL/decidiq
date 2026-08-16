@@ -29,7 +29,6 @@ use OCA\Decidesk\Service\DecisionLifecycleService;
 use OCA\Decidesk\Service\ProcessTemplateService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Service\ObjectService;
 use OCP\EventDispatcher\IEventDispatcher;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

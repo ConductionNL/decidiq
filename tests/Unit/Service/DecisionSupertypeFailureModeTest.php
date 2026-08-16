@@ -51,7 +51,6 @@ use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\ProcessTemplateService;
 use OCA\Decidesk\Service\VotingErrorResponder;
 use OCA\Decidesk\Service\VotingRoundPreflight;
-use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -125,54 +124,133 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 *
 	 * @return object The ObjectService double
 	 */
-	private function objectServiceDouble(array $store = []): ObjectServiceInterface {
+	private function objectServiceDouble(array $store = []): object {
 		$schemaCalls = $this->schemaCalls;
 		$liveSchemas = self::LIVE_SCHEMAS;
 		$storeRef = new \ArrayObject($store);
 
-		// ADR-084: this used to be a duck-typed anonymous class served through
-		// the container. Every consumer now type-hints
-		// OCA\OpenRegister\Contract\ObjectServiceInterface, so the double is
-		// generated from that interface instead — the strictness this file
-		// depends on (a retired schema slug THROWS, an unknown id THROWS) is
-		// preserved, and it is now impossible to model a method or a return
-		// shape the real service does not have.
-		$assertSchemaExists = static function (?string $schema) use ($schemaCalls, $liveSchemas): void {
-			if ($schema === null || $schema === '') {
-				return;
+		return new class($storeRef, $schemaCalls, $liveSchemas) {
+			/**
+			 * Currently selected schema slug.
+			 *
+			 * @var string
+			 */
+			private string $schema = '';
+
+			/**
+			 * Constructor.
+			 *
+			 * @param \ArrayObject $store Seed objects keyed by id
+			 * @param \ArrayObject $schemaCalls Recorder for requested schema slugs
+			 * @param string[] $live Schema slugs the register carries
+			 */
+			public function __construct(
+				private \ArrayObject $store,
+				private \ArrayObject $schemaCalls,
+				private array $live,
+			) {
 			}
 
-			$schemaCalls->append($schema);
-			if (in_array($schema, $liveSchemas, true) === false) {
-				throw new DoesNotExistException(
-					"Schema '{$schema}' not found in register 'decidesk'"
-				);
-			}
-		};
-
-		$objectService = $this->createMock(ObjectServiceInterface::class);
-
-		$objectService->method('setRegister')->willReturnSelf();
-		$objectService->method('setSchema')->willReturnCallback(
-			function (string|int $schema) use ($assertSchemaExists, &$objectService): ObjectServiceInterface {
-				$assertSchemaExists((string) $schema);
-				return $objectService;
-			}
-		);
-
-		$objectService->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($storeRef, $assertSchemaExists): ?ObjectEntityInterface {
-				if ($schema !== null) {
-					$assertSchemaExists((string) $schema);
+			/**
+			 * Reject a slug the register does not carry, as OpenRegister does.
+			 *
+			 * @param string|null $schema The requested schema slug
+			 *
+			 * @throws DoesNotExistException When the slug is not in the register
+			 *
+			 * @return void
+			 */
+			private function assertSchemaExists(?string $schema): void {
+				if ($schema === null || $schema === '') {
+					return;
 				}
 
-				$row = ($storeRef[(string) $id] ?? null);
+				$this->schemaCalls->append($schema);
+				if (in_array($schema, $this->live, true) === false) {
+					throw new DoesNotExistException(
+						"Schema '{$schema}' not found in register 'decidesk'"
+					);
+				}
+			}
+
+			/**
+			 * Select the register (fluent no-op).
+			 *
+			 * @param string $register Register slug
+			 *
+			 * @return static
+			 */
+			public function setRegister(string $register): static {
+				return $this;
+			}
+
+			/**
+			 * Select the schema, refusing retired slugs.
+			 *
+			 * @param string $schema Schema slug
+			 *
+			 * @return static
+			 */
+			public function setSchema(string $schema): static {
+				$this->assertSchemaExists($schema);
+				$this->schema = $schema;
+				return $this;
+			}
+
+			/**
+			 * Wrap a payload in an ObjectEntity-like object.
+			 *
+			 * @param array<string, mixed> $object The payload
+			 *
+			 * @return object
+			 */
+			private function wrap(array $object): object {
+				return new class($object) {
+					/**
+					 * Constructor.
+					 *
+					 * @param array<string, mixed> $object The payload
+					 */
+					public function __construct(
+						private array $object,
+					) {
+					}
+
+					/**
+					 * Serialize like an ObjectEntity.
+					 *
+					 * @return array<string, mixed>
+					 */
+					public function jsonSerialize(): array {
+						return $this->object;
+					}
+
+					/**
+					 * Raw payload like an ObjectEntity.
+					 *
+					 * @return array<string, mixed>
+					 */
+					public function getObject(): array {
+						return $this->object;
+					}
+				};
+			}
+
+			/**
+			 * Find one object by id.
+			 *
+			 * @param int|string $id Object id
+			 * @param string|int|null $register Register slug
+			 * @param string|int|null $schema Schema slug
+			 *
+			 * @return object|null
+			 */
+			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
+				if ($schema !== null) {
+					$this->assertSchemaExists((string)$schema);
+				}
+
+				$row = ($this->store[(string)$id] ?? null);
 				if ($row === null) {
 					// OpenRegister THROWS for an unknown id; it does not return
 					// null (MagicMapper::findInRegisterSchemaTable → "Object not
@@ -184,17 +262,22 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 					);
 				}
 
-				return $this->wrapSupertypeRow($row);
+				return $this->wrap($row);
 			}
-		);
 
-		$objectService->method('findAll')->willReturnCallback(
-			function (array $config = []) use ($storeRef, $assertSchemaExists): array {
+			/**
+			 * Find every object matching the filters.
+			 *
+			 * @param array<string, mixed> $config Query config
+			 *
+			 * @return array<int, object>
+			 */
+			public function findAll(array $config = []): array {
 				$filters = ($config['filters'] ?? []);
-				$assertSchemaExists(($filters['schema'] ?? null));
+				$this->assertSchemaExists(($filters['schema'] ?? null));
 
 				$out = [];
-				foreach ($storeRef as $row) {
+				foreach ($this->store as $row) {
 					$matches = true;
 					foreach ($filters as $key => $value) {
 						if (in_array($key, ['register', 'schema'], true) === true) {
@@ -218,11 +301,80 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 					}
 
 					if ($matches === true) {
-						$out[] = $this->wrapSupertypeRow($row);
+						$out[] = $this->wrap($row);
 					}
 				}
 
 				return $out;
+			}
+
+			/**
+			 * Persist an object.
+			 *
+			 * @param array<string, mixed> $object Payload
+			 * @param string $register Register slug
+			 * @param string $schema Schema slug
+			 * @param string|null $uuid Target uuid
+			 *
+			 * @return array<string, mixed>
+			 */
+			public function saveObject(array $object = [], string $register = '', string $schema = '', ?string $uuid = null): array {
+				$this->assertSchemaExists($schema);
+				return $object;
+			}
+		};
+	}//end objectServiceDouble()
+
+	/**
+	 * The strict double, typed as OpenRegister's published contract.
+	 *
+	 * ADR-084 hands the ObjectService to the motion stack by injection instead of
+	 * resolving it from the container, and the injected parameter is typed
+	 * `ObjectServiceInterface` — so the double has to arrive as that type to be
+	 * injectable at all. The double above stays the authority on behaviour (the
+	 * schema vocabulary and the throwing `find()`); this adapter only forwards to
+	 * it and re-wraps its ObjectEntity-like results as the contract's
+	 * `ObjectEntityInterface`, which the interface's return types require.
+	 *
+	 * @param array<string, array<string, mixed>> $store Seed objects keyed by id
+	 *
+	 * @return ObjectServiceInterface The contract-typed ObjectService double
+	 */
+	private function objectServiceContract(array $store = []): ObjectServiceInterface {
+		$double = $this->objectServiceDouble($store);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+
+		$objectService->method('setRegister')->willReturnSelf();
+		$objectService->method('setSchema')->willReturnCallback(
+			function (string|int $schema) use ($double, &$objectService): ObjectServiceInterface {
+				$double->setSchema((string)$schema);
+				return $objectService;
+			}
+		);
+
+		$objectService->method('find')->willReturnCallback(
+			function (
+				int|string $id,
+				?array $_extend = [],
+				bool $files = false,
+				string|int|null $register = null,
+				string|int|null $schema = null
+			) use ($double): ?ObjectEntity {
+				$row = $double->find($id, $register, $schema);
+				if ($row === null) {
+					return null;
+				}
+
+				return $this->wrapObject($row->getObject());
+			}
+		);
+
+		$objectService->method('findAll')->willReturnCallback(
+			function (array $config = []) use ($double): array {
+				return array_map(
+					fn (object $row): ObjectEntity => $this->wrapObject($row->getObject()),
+					$double->findAll($config)
+				);
 			}
 		);
 
@@ -231,29 +383,28 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 				array $object,
 				?array $extend = [],
 				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($assertSchemaExists): ObjectEntityInterface {
-				$assertSchemaExists(($schema !== null) ? (string) $schema : null);
-				return $this->wrapSupertypeRow($object);
+				string|int|null $schema = null
+			) use ($double): ObjectEntity {
+				return $this->wrapObject($double->saveObject($object, (string)$register, (string)$schema));
 			}
 		);
 
 		return $objectService;
-	}//end objectServiceDouble()
+	}//end objectServiceContract()
 
 	/**
-	 * Wrap a payload in an ObjectEntityInterface double.
+	 * Wrap a payload as an ObjectEntity — the entity type the contract returns.
 	 *
-	 * @param array<string, mixed> $object The payload.
+	 * @param array<string, mixed> $object The payload
 	 *
-	 * @return ObjectEntityInterface
+	 * @return ObjectEntity
 	 */
-	private function wrapSupertypeRow(array $object): ObjectEntityInterface {
+	private function wrapObject(array $object): ObjectEntity {
 		$entity = $this->createMock(ObjectEntity::class);
 		$entity->method('jsonSerialize')->willReturn($object);
 		$entity->method('getObject')->willReturn($object);
 		return $entity;
-	}//end wrapSupertypeRow()
+	}//end wrapObject()
 
 	/**
 	 * A DI container that dispatches on the requested id.
@@ -421,7 +572,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 * @return JSONResponse The controller's response
 	 */
 	private function callAmendmentOrder(string $motionId): JSONResponse {
-		$objectService = $this->objectServiceDouble();
+		$objectService = $this->objectServiceContract();
 		$container = $this->decideskContainer($objectService);
 
 		$motionService = new MotionService(
@@ -546,7 +697,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 * @return void
 	 */
 	public function testTransitionLifecycleRejectsAnUnknownObjectType(): void {
-		$objectService = $this->objectServiceDouble();
+		$objectService = $this->objectServiceContract();
 		$container = $this->decideskContainer($objectService);
 
 		$motionService = new MotionService(
@@ -580,7 +731,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 * @return void
 	 */
 	public function testTransitionLifecycleRefusesADecisionOfAnotherType(): void {
-		$objectService = $this->objectServiceDouble(
+		$objectService = $this->objectServiceContract(
 			[
 				'decision-1' => [
 					'id' => 'decision-1',
@@ -628,7 +779,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	public function testUnknownMeetingResolvesToNoGovernanceBodyNotAnEscapingError(): void {
 		$resolver = new \OCA\Decidesk\Service\ParticipantResolver(
 			logger: new NullLogger(),
-			objectService: $this->objectServiceDouble(),
+			objectService: $this->objectServiceContract(),
 		);
 
 		self::assertNull(
@@ -645,7 +796,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 * @return VotingRoundPreflight
 	 */
 	private function buildPreflight(): VotingRoundPreflight {
-		$objectService = $this->objectServiceDouble();
+		$objectService = $this->objectServiceContract();
 		$container = $this->decideskContainer($objectService);
 
 		$templateService = $this->createMock(ProcessTemplateService::class);

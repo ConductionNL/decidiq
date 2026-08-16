@@ -23,7 +23,6 @@ use OCA\Decidesk\Service\ParticipationLifecycleService;
 use OCA\Decidesk\Service\ReactionIntakeService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Service\ObjectService;
 use OCP\IAppConfig;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -65,11 +64,6 @@ class ReactionIntakeServiceTest extends TestCase {
 		$appConfig = $this->createMock(IAppConfig::class);
 		$appConfig->method('getValueString')->willReturn('test-secret');
 
-		// ADR-084: ReactionIntakeService takes ObjectServiceInterface as its
-		// fourth constructor argument (lib/Service/ReactionIntakeService.php:64)
-		// and ParticipationLifecycleService takes it as its only one
-		// (lib/Service/ParticipationLifecycleService.php:79). No container is
-		// involved on either, so none is built here.
 		$this->service = new ReactionIntakeService(
 			logger: $this->createMock(LoggerInterface::class),
 			appConfig: $appConfig,

@@ -48,20 +48,19 @@ class LiveDecisionServiceTest extends TestCase {
 	}
 
 	/**
-	 * Build the service around a given ObjectService double.
+	 * Build the service under test around the given injected ObjectService.
 	 *
-	 * ADR-084: LiveDecisionService receives ObjectServiceInterface as a
-	 * constructor argument (lib/Service/LiveDecisionService.php) rather than
-	 * resolving it from the container, so the per-test double has to be
-	 * injected — a container mock serving it is never consulted.
-	 *
-	 * @param ObjectServiceInterface $objectService The object-service double.
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service double
 	 *
 	 * @return LiveDecisionService
 	 */
 	private function makeService(ObjectServiceInterface $objectService): LiveDecisionService {
-		return new LiveDecisionService($this->container, $this->logger, objectService: $objectService);
-	}//end makeService()
+		return new LiveDecisionService(
+			container: $this->container,
+			logger: $this->logger,
+			objectService: $objectService,
+		);
+	}
 
 	/**
 	 * Build a mock entity that returns $data from jsonSerialize().

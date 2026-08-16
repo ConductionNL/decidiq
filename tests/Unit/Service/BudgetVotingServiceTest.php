@@ -59,11 +59,6 @@ class BudgetVotingServiceTest extends TestCase {
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();
 
-		// ADR-084: BudgetVotingService takes ObjectServiceInterface as its third
-		// constructor argument (lib/Service/BudgetVotingService.php:54) and
-		// ParticipationLifecycleService as its only one
-		// (lib/Service/ParticipationLifecycleService.php:79). No container is
-		// involved on either, so none is built here.
 		$this->service = new BudgetVotingService(
 			lifecycleService: new ParticipationLifecycleService(
 				objectService: $this->objectService,

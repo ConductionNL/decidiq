@@ -31,7 +31,6 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Listener\SubmissionDeadlineListener;
-use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
@@ -56,15 +55,14 @@ class SubmissionDeadlineListenerTest extends TestCase {
 	private function buildListener(array $store): SubmissionDeadlineListener {
 		$storeRef = new \ArrayObject($store);
 
-		// ADR-084: SubmissionDeadlineListener takes ObjectServiceInterface as a
-		// constructor argument and no longer resolves it from the container, so
-		// the store is a double of the contract and is injected directly. The
-		// container mock this replaces was never consulted.
+		// ADR-083/084: the listener is HANDED OpenRegister's published contract
+		// instead of resolving it from the container, so the in-memory store has
+		// to reach it through a double of that interface. The store itself is
+		// unchanged — find() still answers from $storeRef and still returns null
+		// for an unknown id, which is what the not-found branches exercise.
 		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('setRegister')->willReturnSelf();
-		$objectService->method('setSchema')->willReturnSelf();
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id) use ($storeRef): ?ObjectEntityInterface {
+			function (int|string $id) use ($storeRef): ?ObjectEntity {
 				$payload = ($storeRef[(string)$id] ?? null);
 				if ($payload === null) {
 					return null;
@@ -232,12 +230,14 @@ class SubmissionDeadlineListenerTest extends TestCase {
 	 * @return void
 	 */
 	public function testInfrastructureFailureFailsSoft(): void {
-		// ADR-084: the infrastructure failure now originates inside the injected
-		// ObjectServiceInterface rather than in a container lookup, so the throw
-		// is configured on the double the listener actually calls.
+		// Since ADR-083 an infrastructure failure can no longer arrive as a
+		// container that refuses to resolve OpenRegister — the contract is
+		// injected. It arrives as the lookup itself throwing, so that is what
+		// this double does. (Throwing from `find()` is the only shape that
+		// reaches the listener's `catch (\Throwable)`; an unconfigured mock
+		// returns null and would take the ordinary not-found branch, passing
+		// this assertion without ever entering the fail-soft path.)
 		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('setRegister')->willReturnSelf();
-		$objectService->method('setSchema')->willReturnSelf();
 		$objectService->method('find')->willThrowException(new \RuntimeException('OR unavailable'));
 
 		$listener = new SubmissionDeadlineListener(

@@ -38,7 +38,6 @@ use OCA\Decidesk\Lifecycle\MotionLifecycleTransitioner;
 use OCA\Decidesk\Service\MotionService;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\IAppConfig;
 use OCP\IUserManager;
 use PHPUnit\Framework\TestCase;
@@ -60,23 +59,6 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 	private \ArrayObject $saves;
 
 	/**
-	 * Wrap a payload in an ObjectEntity double.
-	 *
-	 * The stub OCA\OpenRegister\Db\ObjectEntity implements ObjectEntityInterface,
-	 * so this satisfies the return type production declares on find()/saveObject().
-	 *
-	 * @param array<string, mixed> $object The payload.
-	 *
-	 * @return ObjectEntityInterface
-	 */
-	private function wrapEntity(array $object): ObjectEntityInterface {
-		$entity = $this->createMock(ObjectEntity::class);
-		$entity->method('getObject')->willReturn($object);
-		$entity->method('jsonSerialize')->willReturn($object);
-		return $entity;
-	}//end wrapEntity()
-
-	/**
 	 * Build a MotionService over an in-memory object store double.
 	 *
 	 * @param array<string, array{schema: string, object: array<string, mixed>}> $store Seed objects by id
@@ -89,39 +71,161 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 		$saves = $this->saves;
 		$storeRef = new \ArrayObject($store);
 
-		// ADR-084: the double is generated from OCA\OpenRegister\Contract\
-		// ObjectServiceInterface itself (lib/Contract/ObjectServiceInterface.php,
-		// find() line 191, saveObject() line 152), so a signature that drifts
-		// upstream cannot be satisfied here — PHPUnit refuses to configure a
-		// method the interface does not declare, and the return types below are
-		// enforced. The previous anonymous duck-type could satisfy neither.
-		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('setRegister')->willReturnSelf();
-		$objectService->method('setSchema')->willReturnSelf();
-		$objectService->method('find')->willReturnCallback(
-			function (int|string $id) use ($storeRef): ?ObjectEntityInterface {
-				$row = ($storeRef[(string)$id] ?? null);
+		$backend = new class($storeRef, $saves) {
+
+			/**
+			 * Constructor.
+			 *
+			 * @param \ArrayObject $store In-memory object store
+			 * @param \ArrayObject $saves Captured saves
+			 */
+			public function __construct(
+				private \ArrayObject $store,
+				private \ArrayObject $saves,
+			) {
+			}
+
+			/**
+			 * Entity-like wrapper around an array payload.
+			 *
+			 * @param array<string, mixed> $object The payload
+			 *
+			 * @return ObjectEntityInterface
+			 */
+			private function wrap(array $object): ObjectEntityInterface {
+				return new class($object) implements ObjectEntityInterface, \JsonSerializable {
+					/**
+					 * Constructor.
+					 *
+					 * @param array<string, mixed> $object The payload
+					 */
+					public function __construct(
+						private array $object,
+					) {
+					}
+
+					/**
+					 * Raw payload like an ObjectEntity.
+					 *
+					 * @return array<string, mixed>
+					 */
+					public function getObject(): array {
+						return $this->object;
+					}
+
+					/**
+					 * Serialize like an ObjectEntity.
+					 *
+					 * @return array<string, mixed>
+					 */
+					public function jsonSerialize(): array {
+						return $this->object;
+					}
+
+					/**
+					 * The object's own identifier.
+					 *
+					 * @return string|null
+					 */
+					public function getUuid(): ?string {
+						return ($this->object['id'] ?? null);
+					}
+
+					/**
+					 * Register slug — every seeded row in this suite is decidesk.
+					 *
+					 * @return string|null
+					 */
+					public function getRegister(): ?string {
+						return 'decidesk';
+					}
+
+					/**
+					 * Schema slug — every seeded row in this suite is a decision.
+					 *
+					 * @return string|null
+					 */
+					public function getSchema(): ?string {
+						return 'decision';
+					}
+
+					/**
+					 * Organisation — not modelled by this in-memory store.
+					 *
+					 * @return string|null
+					 */
+					public function getOrganisation(): ?string {
+						return null;
+					}
+
+					/**
+					 * Owner — not modelled by this in-memory store.
+					 *
+					 * @return string|null
+					 */
+					public function getOwner(): ?string {
+						return null;
+					}
+				};
+			}
+
+			/**
+			 * Select register (fluent no-op).
+			 *
+			 * @param string $register Register slug
+			 *
+			 * @return static
+			 */
+			public function setRegister(string $register): static {
+				return $this;
+			}
+
+			/**
+			 * Select schema (fluent no-op).
+			 *
+			 * @param string $schema Schema slug
+			 *
+			 * @return static
+			 */
+			public function setSchema(string $schema): static {
+				return $this;
+			}
+
+			/**
+			 * Find an object by id.
+			 *
+			 * @param int|string $id Object id
+			 * @param string|int|null $register Register slug
+			 * @param string|int|null $schema Schema slug
+			 *
+			 * @return ObjectEntityInterface|null
+			 */
+			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?ObjectEntityInterface {
+				$row = ($this->store[(string)$id] ?? null);
 				if ($row === null) {
 					return null;
 				}
 
-				return $this->wrapEntity($row['object']);
+				return $this->wrap($row['object']);
 			}
-		);
-		$objectService->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use ($storeRef, $saves): ObjectEntityInterface {
-				$saves->append($object);
-				$id = (string)($uuid ?? $object['id'] ?? $object['uuid'] ?? ('new-' . count($saves)));
-				$storeRef[$id] = ['schema' => (string)$schema, 'object' => $object];
-				return $this->wrapEntity($object);
+
+			/**
+			 * Record the save and upsert the store.
+			 *
+			 * @param array<string, mixed> $object Payload
+			 * @param string $register Register slug
+			 * @param string $schema Schema slug
+			 * @param string|null $uuid Target uuid for updates
+			 *
+			 * @return ObjectEntityInterface
+			 */
+			public function saveObject(array $object = [], string $register = '', string $schema = '', ?string $uuid = null): ObjectEntityInterface {
+				$this->saves->append($object);
+				$id = (string)($uuid ?? $object['id'] ?? $object['uuid'] ?? ('new-' . count($this->saves)));
+				$this->store[$id] = ['schema' => $schema, 'object' => $object];
+				return $this->wrap($object);
 			}
-		);
+		};
 
 		$appConfig = $this->createMock(IAppConfig::class);
 		$appConfig->method('getValueString')->willReturnCallback(
@@ -131,6 +235,27 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 				}
 
 				return $default;
+			}
+		);
+
+		// ADR-083/084: the OpenRegister object service is injected as the
+		// published contract rather than pulled from the container, so the
+		// in-memory backend above is exposed through a contract double.
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('setRegister')->willReturnSelf();
+		$objectService->method('setSchema')->willReturnSelf();
+		$objectService->method('find')->willReturnCallback(
+			static fn (int|string $id): ?ObjectEntityInterface => $backend->find($id)
+		);
+		$objectService->method('saveObject')->willReturnCallback(
+			static function (
+				array $object,
+				?array $extend = [],
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				?string $uuid = null,
+			) use ($backend): ObjectEntityInterface {
+				return $backend->saveObject($object, (string)$register, (string)$schema, $uuid);
 			}
 		);
 
