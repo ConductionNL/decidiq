@@ -31,6 +31,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\ParticipantUuidLookup;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -44,9 +45,9 @@ final class ParticipantUuidLookupTest extends TestCase {
 	/**
 	 * Mock OpenRegister ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
-	private ObjectService $objectService;
+	private ObjectServiceInterface $objectService;
 
 	/**
 	 * The service under test.
@@ -64,13 +65,15 @@ final class ParticipantUuidLookupTest extends TestCase {
 		parent::setUp();
 
 		$container = $this->createMock(ContainerInterface::class);
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();
 		$container->method('get')->willReturn($this->objectService);
 
-		$this->lookup = new ParticipantUuidLookup($container);
+		$this->lookup = new ParticipantUuidLookup(
+			objectService: $this->objectService,
+		);
 
 	}//end setUp()
 

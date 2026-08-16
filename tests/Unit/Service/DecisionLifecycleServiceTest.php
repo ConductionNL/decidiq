@@ -28,6 +28,7 @@ use OCA\Decidesk\Service\DecisionIntegrationService;
 use OCA\Decidesk\Service\DecisionLifecycleService;
 use OCA\Decidesk\Service\ProcessTemplateService;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\EventDispatcher\IEventDispatcher;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -61,9 +62,9 @@ class DecisionLifecycleServiceTest extends TestCase {
 	/**
 	 * Mock OpenRegister ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
-	private ObjectService&MockObject $objectService;
+	private ObjectServiceInterface&MockObject $objectService;
 
 	/**
 	 * Mock audit log service.
@@ -80,7 +81,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		$this->container = $this->createMock(ContainerInterface::class);
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->auditLogService = $this->createMock(AuditLogService::class);
 
 		$this->container->method('get')
@@ -104,13 +105,13 @@ class DecisionLifecycleServiceTest extends TestCase {
 		$eventDispatcher = $this->createMock(IEventDispatcher::class);
 
 		$this->service = new DecisionLifecycleService(
-			container: $this->container,
 			logger: $this->createMock(LoggerInterface::class),
 			transitionGuard: new DecisionTransitionGuard(),
 			auditLogService: $this->auditLogService,
 			templateService: $templateService,
 			integrationService: $integrationService,
 			eventDispatcher: $eventDispatcher,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 	}//end setUp()

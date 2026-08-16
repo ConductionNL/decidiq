@@ -29,9 +29,9 @@ namespace OCA\Decidesk\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Service for capturing and querying participant engagement data.
@@ -42,14 +42,13 @@ class EngagementService {
 	/**
 	 * Construct the EngagementService.
 	 *
-	 * @param ContainerInterface $container DI container (lazy-loads OR services)
 	 * @param LoggerInterface $logger Logger interface
 	 *
 	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -61,7 +60,7 @@ class EngagementService {
 	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
 	 */
 	private function getObjectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end getObjectService()
 
 	/**

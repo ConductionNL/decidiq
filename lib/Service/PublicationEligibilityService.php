@@ -44,8 +44,8 @@ namespace OCA\Decidesk\Service;
 use DomainException;
 use OCA\Decidesk\Exception\AccessDeniedException;
 use OCA\Decidesk\Exception\MissingObjectException;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service that decides whether a governance object is publishable.
@@ -135,14 +135,13 @@ class PublicationEligibilityService {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container DI container (lazy ObjectService).
 	 * @param LoggerInterface $logger Logger.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -442,8 +441,7 @@ class PublicationEligibilityService {
 	 */
 	private function loadObject(string $schema, string $id): array {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(id: $id, register: 'decidesk', schema: $schema);
+			$entity = $this->objectService->find(id: $id, register: 'decidesk', schema: $schema);
 		} catch (\Throwable $e) {
 			$this->logger->error('Decidesk publication: failed to load source object', ['exception' => $e->getMessage()]);
 			throw new MissingObjectException(message: 'Source object could not be loaded.');

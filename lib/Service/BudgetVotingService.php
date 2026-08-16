@@ -27,8 +27,8 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use InvalidArgumentException;
-use Psr\Container\ContainerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service for participatory-budget proposals + advisory voting.
@@ -44,7 +44,6 @@ class BudgetVotingService {
 	/**
 	 * Constructor for BudgetVotingService.
 	 *
-	 * @param ContainerInterface $container DI container (lazy ObjectService)
 	 * @param ParticipationLifecycleService $lifecycleService Status/deadline guards
 	 * @param AdvisoryVoteService $advisoryVoteService Advisory citizen-vote tally machinery
 	 *
@@ -53,9 +52,9 @@ class BudgetVotingService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly ParticipationLifecycleService $lifecycleService,
 		private readonly AdvisoryVoteService $advisoryVoteService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -67,7 +66,7 @@ class BudgetVotingService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	private function objectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end objectService()
 
 	/**

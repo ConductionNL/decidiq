@@ -26,7 +26,7 @@ use OCA\Decidesk\Service\AuditLogService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\ProxyVoteService;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -68,7 +68,7 @@ class ProxyVoteServiceTest extends TestCase {
 		$rowsRef = &$rows;
 		$savedRef = &$saved;
 		$participantsRef = $participants;
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('findAll')->willReturnCallback(
 			function (array $config) use (&$rowsRef, $findAllFail, $participantsRef): array {
 				if ($findAllFail === true) {
@@ -222,6 +222,7 @@ class ProxyVoteServiceTest extends TestCase {
 			logger: $this->createMock(LoggerInterface::class),
 			auditLogService: $audit,
 			participantResolver: $participantResolver,
+			objectService: $out,
 		);
 
 	}//end makeService()

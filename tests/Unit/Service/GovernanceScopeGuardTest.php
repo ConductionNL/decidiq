@@ -27,7 +27,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\GovernanceScopeGuard;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -47,9 +47,9 @@ class GovernanceScopeGuardTest extends TestCase {
 	 */
 	public function testScopeGroupIdConvention(): void {
 		$guard = new GovernanceScopeGuard(
-			$this->createMock(ContainerInterface::class),
 			$this->createMock(IGroupManager::class),
-			$this->createMock(LoggerInterface::class)
+			$this->createMock(LoggerInterface::class),
+			objectService: $objectService,
 		);
 
 		$this->assertSame(
@@ -75,9 +75,9 @@ class GovernanceScopeGuardTest extends TestCase {
 			->willReturn(true);
 
 		$guard = new GovernanceScopeGuard(
-			$this->createMock(ContainerInterface::class),
 			$groupManager,
-			$this->createMock(LoggerInterface::class)
+			$this->createMock(LoggerInterface::class),
+			objectService: $objectService,
 		);
 
 		$this->assertTrue($guard->isInBodyScope('alice', 'body-1', GovernanceScopeGuard::SCOPE_SIGNATORY));
@@ -93,9 +93,9 @@ class GovernanceScopeGuardTest extends TestCase {
 		$groupManager->expects($this->never())->method('isInGroup');
 
 		$guard = new GovernanceScopeGuard(
-			$this->createMock(ContainerInterface::class),
 			$groupManager,
-			$this->createMock(LoggerInterface::class)
+			$this->createMock(LoggerInterface::class),
+			objectService: $objectService,
 		);
 
 		$this->assertFalse($guard->isInBodyScope('', 'body-1', GovernanceScopeGuard::SCOPE_CHAIR));
@@ -114,9 +114,9 @@ class GovernanceScopeGuardTest extends TestCase {
 			->willReturn(true);
 
 		$guard = new GovernanceScopeGuard(
-			$this->makeContainer('body-9'),
 			$groupManager,
-			$this->createMock(LoggerInterface::class)
+			$this->createMock(LoggerInterface::class),
+			objectService: $objectService,
 		);
 
 		$this->assertTrue($guard->canInitiateSigning('alice', 'min-1'));
@@ -132,9 +132,9 @@ class GovernanceScopeGuardTest extends TestCase {
 		$groupManager->method('isInGroup')->willReturn(false);
 
 		$guard = new GovernanceScopeGuard(
-			$this->makeContainer('body-9'),
 			$groupManager,
-			$this->createMock(LoggerInterface::class)
+			$this->createMock(LoggerInterface::class),
+			objectService: $objectService,
 		);
 
 		$this->assertFalse($guard->canInitiateSigning('mallory', 'min-1'));
@@ -152,9 +152,9 @@ class GovernanceScopeGuardTest extends TestCase {
 
 		// Minutes with no Meeting relation -> body cannot be resolved.
 		$guard = new GovernanceScopeGuard(
-			$this->makeContainer(null),
 			$groupManager,
-			$this->createMock(LoggerInterface::class)
+			$this->createMock(LoggerInterface::class),
+			objectService: $objectService,
 		);
 
 		$this->assertFalse($guard->canInitiateSigning('alice', 'min-1'));
@@ -174,9 +174,9 @@ class GovernanceScopeGuardTest extends TestCase {
 		$container->method('get')->willThrowException(new \RuntimeException('OR unavailable'));
 
 		$guard = new GovernanceScopeGuard(
-			$container,
 			$this->createMock(IGroupManager::class),
-			$logger
+			$logger,
+			objectService: $objectService,
 		);
 
 		$this->assertFalse($guard->canInitiateSigning('alice', 'min-1'));
@@ -197,7 +197,7 @@ class GovernanceScopeGuardTest extends TestCase {
 			$meetingRow['relations'] = ['GovernanceBody' => $bodyId];
 		}
 
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
 			function (mixed $id, mixed $register = null, mixed $schema = null) use ($minutesRow, $meetingRow): ?ObjectEntity {
 				$row = null;

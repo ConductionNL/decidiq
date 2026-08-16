@@ -28,8 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use Psr\Container\ContainerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Rule-aware tallying for a voting round, extracted from VotingService.
@@ -69,7 +69,6 @@ class VotingRoundResults {
 	/**
 	 * Constructor for VotingRoundResults.
 	 *
-	 * @param ContainerInterface $container The DI container
 	 * @param MotionService $motionService The motion service (subject chain resolution)
 	 * @param ParticipantResolver $participantResolver Meeting-attendance resolver
 	 *
@@ -78,9 +77,9 @@ class VotingRoundResults {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		MotionService $motionService,
 		private readonly ParticipantResolver $participantResolver,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->calculator = new VotingResultCalculator();
 		$this->relationFilter = new ObjectRelationFilter();
@@ -375,6 +374,6 @@ class VotingRoundResults {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function objectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end objectService()
 }//end class

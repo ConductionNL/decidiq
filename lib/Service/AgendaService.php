@@ -30,7 +30,7 @@ use DateTime;
 use InvalidArgumentException;
 use OCA\Decidesk\Exception\NotFoundException;
 use OCA\OpenRegister\Service\CalendarEventService;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -71,7 +71,7 @@ class AgendaService {
 	/**
 	 * Constructor for AgendaService.
 	 *
-	 * @param ObjectService $objectService OpenRegister object service
+	 * @param ObjectServiceInterface $objectService OpenRegister object service
 	 * @param CalendarEventService $calendarEventService OpenRegister calendar event service
 	 * @param INotificationManager $notificationManager Nextcloud notification manager
 	 * @param LoggerInterface $logger PSR-3 logger
@@ -82,7 +82,7 @@ class AgendaService {
 	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
 	 */
 	public function __construct(
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 		private readonly CalendarEventService $calendarEventService,
 		private readonly INotificationManager $notificationManager,
 		private readonly LoggerInterface $logger,

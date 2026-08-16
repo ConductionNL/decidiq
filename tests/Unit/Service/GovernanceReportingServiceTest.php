@@ -24,7 +24,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\GovernanceReportingService;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -47,7 +47,7 @@ class GovernanceReportingServiceTest extends TestCase {
 	private function makeService(array &$rowsBySchema, array &$saved): GovernanceReportingService {
 		$rowsRef = &$rowsBySchema;
 		$savedRef = &$saved;
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('findAll')->willReturnCallback(
 			static function (array $config) use (&$rowsRef): array {
 				$schema = (string)($config['schema'] ?? '');
@@ -106,8 +106,8 @@ class GovernanceReportingServiceTest extends TestCase {
 		$container->method('get')->willReturn($objectService);
 
 		return new GovernanceReportingService(
-			container: $container,
-			logger: $this->createMock(LoggerInterface::class)
+			logger: $this->createMock(LoggerInterface::class),
+			objectService: $objectService,
 		);
 
 	}//end makeService()

@@ -24,6 +24,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\MeetingCostService;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -54,9 +55,9 @@ class MeetingCostServiceTest extends TestCase {
 	/**
 	 * Mock ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
-	private ObjectService&MockObject $objectService;
+	private ObjectServiceInterface&MockObject $objectService;
 
 	/**
 	 * Service under test.
@@ -74,15 +75,15 @@ class MeetingCostServiceTest extends TestCase {
 		parent::setUp();
 		$this->container = $this->createMock(originalClassName: ContainerInterface::class);
 		$this->logger = $this->createMock(originalClassName: LoggerInterface::class);
-		$this->objectService = $this->createMock(originalClassName: ObjectService::class);
+		$this->objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 
 		$this->container->method('get')
 			->with('OCA\OpenRegister\Service\ObjectService')
 			->willReturn($this->objectService);
 
 		$this->service = new MeetingCostService(
-			container: $this->container,
 			logger: $this->logger,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 	}//end setUp()

@@ -28,8 +28,9 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use OCA\Decidesk\Exception\MissingObjectException;
-use Psr\Container\ContainerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Service\FileService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Object + file access for the meeting-transcription pipeline.
@@ -44,12 +45,12 @@ class TranscriptRepository {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container DI container (lazy-loads OpenRegister services).
 	 *
 	 * @spec openspec/specs/meeting-transcription/spec.md
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
+		private readonly FileService $fileService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -317,10 +318,9 @@ class TranscriptRepository {
 			throw new RuntimeException('Transcript has no source file path.');
 		}
 
-		$fileService = $this->container->get('OCA\OpenRegister\Service\FileService');
 		$dir = dirname($path);
 		$base = basename($path);
-		$folderNode = $fileService->createFolder($dir);
+		$folderNode = $this->fileService->createFolder($dir);
 		$node = $folderNode->get($base);
 
 		if (($node instanceof \OCP\Files\File) === false) {
@@ -340,11 +340,9 @@ class TranscriptRepository {
 	 * @spec openspec/specs/meeting-transcription/spec.md
 	 */
 	private function getObjectService(): object {
-		try {
-			return $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		} catch (\Throwable $e) {
-			throw new RuntimeException('OpenRegister ObjectService is not available.', 0, $e);
-		}
+		// Injected (ADR-083): a property read throws nothing, so the old
+		// catch was unreachable.
+		return $this->objectService;
 
 	}//end getObjectService()
 }//end class

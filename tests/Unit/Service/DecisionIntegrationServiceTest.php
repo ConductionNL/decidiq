@@ -25,6 +25,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\AuditLogService;
 use OCA\Decidesk\Service\DecisionIntegrationService;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -56,9 +57,9 @@ class DecisionIntegrationServiceTest extends TestCase {
 	/**
 	 * Mock OpenRegister ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
-	private ObjectService&MockObject $objectService;
+	private ObjectServiceInterface&MockObject $objectService;
 
 	/**
 	 * Mock audit log service.
@@ -75,7 +76,7 @@ class DecisionIntegrationServiceTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		$this->container = $this->createMock(ContainerInterface::class);
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->auditLog = $this->createMock(AuditLogService::class);
 
 		$this->container->method('get')

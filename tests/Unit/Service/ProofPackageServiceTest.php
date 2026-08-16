@@ -27,6 +27,7 @@ use OCA\Decidesk\Service\MeetingFolderService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\ProofPackageService;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -45,9 +46,9 @@ class ProofPackageServiceTest extends TestCase {
 	/**
 	 * Mock ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
-	private ObjectService&MockObject $objectService;
+	private ObjectServiceInterface&MockObject $objectService;
 
 	/**
 	 * Mock ParticipantResolver.
@@ -80,7 +81,7 @@ class ProofPackageServiceTest extends TestCase {
 
 		// Mock the (stubbed) OpenRegister ObjectService class itself so that
 		// named-argument calls (find(id: ..., register: ...)) bind correctly.
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();
@@ -94,10 +95,10 @@ class ProofPackageServiceTest extends TestCase {
 			->willReturn($this->objectService);
 
 		$this->service = new ProofPackageService(
-			container: $container,
 			logger: $this->createMock(LoggerInterface::class),
 			participantResolver: $this->participantResolver,
 			folderService: $this->folderService,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 	}//end setUp()
@@ -354,10 +355,10 @@ class ProofPackageServiceTest extends TestCase {
 		$container->method('get')->willThrowException(new \Exception('Service not found'));
 
 		$service = new ProofPackageService(
-			container: $container,
 			logger: $this->createMock(LoggerInterface::class),
 			participantResolver: $this->participantResolver,
 			folderService: $this->folderService,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 		$this->expectException(\RuntimeException::class);

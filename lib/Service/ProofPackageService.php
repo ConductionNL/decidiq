@@ -31,9 +31,9 @@ namespace OCA\Decidesk\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidesk\Exception\MissingObjectException;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Notarial proof package assembly (resolution-minutes spec, "Provide proof of
@@ -62,16 +62,15 @@ class ProofPackageService {
 	/**
 	 * Constructor for ProofPackageService.
 	 *
-	 * @param ContainerInterface $container DI container (lazy ObjectService lookup)
 	 * @param LoggerInterface $logger The logger
 	 * @param ParticipantResolver $participantResolver Canonical meeting → participants resolver
 	 * @param MeetingFolderService $folderService Meeting Files folder writer
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly ParticipantResolver $participantResolver,
 		private readonly MeetingFolderService $folderService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -556,16 +555,9 @@ class ProofPackageService {
 	 * @return object The OpenRegister ObjectService instance
 	 */
 	private function getObjectService(): object {
-		try {
-			return $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		} catch (\Throwable $e) {
-			throw new RuntimeException(
-				'OpenRegister ObjectService is not available. '
-				. 'Please ensure the OpenRegister app is installed and enabled.',
-				0,
-				$e
-			);
-		}
+		// Injected (ADR-083): a property read throws nothing, so the old
+		// catch was unreachable.
+		return $this->objectService;
 
 	}//end getObjectService()
 }//end class

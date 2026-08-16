@@ -22,6 +22,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\ProxyDelegationService;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -46,9 +47,9 @@ class ProxyDelegationServiceTest extends TestCase {
 	/**
 	 * Mock ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
-	private ObjectService&MockObject $objectService;
+	private ObjectServiceInterface&MockObject $objectService;
 
 	/**
 	 * Set up fixtures.
@@ -58,12 +59,13 @@ class ProxyDelegationServiceTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		$container = $this->createMock(ContainerInterface::class);
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$container->method('get')->willReturn($this->objectService);
 
 		$this->service = new ProxyDelegationService(
 			container: $container,
 			logger: $this->createMock(LoggerInterface::class),
+			objectService: $this->objectService,
 		);
 
 	}//end setUp()

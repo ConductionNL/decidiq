@@ -31,10 +31,11 @@ namespace OCA\Decidesk\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
+use OCA\OpenRegister\Service\FileService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * The close-a-round path, extracted from VotingService.
@@ -49,7 +50,6 @@ class VotingRoundCloser {
 	/**
 	 * Constructor for the VotingRoundCloser.
 	 *
-	 * @param ContainerInterface $container The DI container (for ObjectService / FileService)
 	 * @param LoggerInterface $logger The logger
 	 * @param OriPublicationService $oriService The ORI publication service
 	 * @param MotionService $motionService Drives the subject lifecycle transition
@@ -59,12 +59,13 @@ class VotingRoundCloser {
 	 * @return void
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly OriPublicationService $oriService,
 		private readonly MotionService $motionService,
 		private readonly AmendmentOrderService $amendmentOrder,
 		private readonly ObjectRelationFilter $relationFilter,
+		private readonly FileService $fileService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -384,10 +385,9 @@ class VotingRoundCloser {
 	 */
 	private function createFileFolder(string $motionId, string $motionTitle): void {
 		try {
-			$fileService = $this->container->get('OCA\OpenRegister\Service\FileService');
 			$slug = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', $motionTitle) ?? $motionId);
 			$folderPath = "motions/{$slug}-{$motionId}";
-			$fileService->createFolder($folderPath);
+			$this->fileService->createFolder($folderPath);
 			$this->logger->info('Decidesk: dossier folder created', ['path' => $folderPath, 'motionId' => $motionId]);
 		} catch (Throwable $e) {
 			$this->logger->warning(
@@ -477,6 +477,6 @@ class VotingRoundCloser {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function objectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end objectService()
 }//end class

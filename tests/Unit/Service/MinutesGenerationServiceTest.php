@@ -25,6 +25,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\MinutesDraftRenderer;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -58,9 +59,9 @@ class MinutesGenerationServiceTest extends TestCase {
 	/**
 	 * Mock ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
-	private ObjectService&MockObject $objectService;
+	private ObjectServiceInterface&MockObject $objectService;
 
 	/**
 	 * The service under test.
@@ -80,7 +81,7 @@ class MinutesGenerationServiceTest extends TestCase {
 		// Mock the (stubbed) OpenRegister ObjectService class itself so that
 		// named-argument calls (saveObject(object: ..., register: ...)) bind
 		// correctly — an stdClass addMethods() mock has no parameter names.
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();
@@ -96,9 +97,9 @@ class MinutesGenerationServiceTest extends TestCase {
 		// is used here: these tests assert on the rendered text, and a mock
 		// would only assert that a mock was called.
 		$this->service = new MinutesGenerationService(
-			container: $this->container,
 			logger: $this->logger,
 			renderer: new MinutesDraftRenderer(),
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 	}//end setUp()
@@ -272,9 +273,9 @@ class MinutesGenerationServiceTest extends TestCase {
 			->willThrowException(new \Exception('Service not found'));
 
 		$service = new MinutesGenerationService(
-			container: $containerNoOR,
 			logger: $this->logger,
 			renderer: new MinutesDraftRenderer(),
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 		$this->expectException(\RuntimeException::class);

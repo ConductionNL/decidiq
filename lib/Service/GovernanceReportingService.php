@@ -28,8 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Governance reporting aggregation service.
@@ -48,12 +48,11 @@ class GovernanceReportingService {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container DI container
 	 * @param LoggerInterface $logger Logger
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -160,11 +159,9 @@ class GovernanceReportingService {
 	 */
 	private function loadGovernanceData(string $boardId): ?array {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
 			return [
 				'meetings' => $this->normalize(
-					rows: $objectService->findAll(
+					rows: $this->objectService->findAll(
 						[
 							'register' => 'decidesk',
 							'schema' => 'meeting',
@@ -174,7 +171,7 @@ class GovernanceReportingService {
 					)
 				),
 				'resolutions' => $this->normalize(
-					rows: $objectService->findAll(
+					rows: $this->objectService->findAll(
 						[
 							'register' => 'decidesk',
 							'schema' => 'decision',
@@ -183,7 +180,7 @@ class GovernanceReportingService {
 					)
 				),
 				'votes' => $this->normalize(
-					rows: $objectService->findAll(
+					rows: $this->objectService->findAll(
 						[
 							'register' => 'decidesk',
 							'schema' => 'vote',
@@ -192,7 +189,7 @@ class GovernanceReportingService {
 					)
 				),
 				'members' => $this->normalize(
-					rows: $objectService->findAll(
+					rows: $this->objectService->findAll(
 						[
 							'register' => 'decidesk',
 							'schema' => 'membership',
@@ -202,7 +199,7 @@ class GovernanceReportingService {
 					)
 				),
 				'conflicts' => $this->normalize(
-					rows: $objectService->findAll(
+					rows: $this->objectService->findAll(
 						[
 							'register' => 'decidesk',
 							'schema' => 'conflict-of-interest',
@@ -235,8 +232,7 @@ class GovernanceReportingService {
 	 */
 	private function persistReport(array $report): array {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$saved = $objectService->saveObject(
+			$saved = $this->objectService->saveObject(
 				object: $report,
 				register: 'decidesk',
 				schema: self::SCHEMA
@@ -276,8 +272,7 @@ class GovernanceReportingService {
 		}
 
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(
+			$entity = $this->objectService->find(
 				id: $reportId,
 				register: 'decidesk',
 				schema: self::SCHEMA
@@ -387,8 +382,7 @@ class GovernanceReportingService {
 	 */
 	public function listReports(string $boardId): array {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$rows = $objectService->findAll(
+			$rows = $this->objectService->findAll(
 				[
 					'register' => 'decidesk',
 					'schema' => self::SCHEMA,

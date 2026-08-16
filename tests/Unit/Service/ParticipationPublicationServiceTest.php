@@ -23,6 +23,7 @@ use OCA\Decidesk\Service\BudgetVotingService;
 use OCA\Decidesk\Service\ObjectRelationFilter;
 use OCA\Decidesk\Service\ParticipationPublicationService;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
@@ -42,9 +43,9 @@ class ParticipationPublicationServiceTest extends TestCase {
 	/**
 	 * Mock ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
-	private ObjectService&MockObject $objectService;
+	private ObjectServiceInterface&MockObject $objectService;
 
 	/**
 	 * Mock app manager.
@@ -68,7 +69,7 @@ class ParticipationPublicationServiceTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		$this->container = $this->createMock(ContainerInterface::class);
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();
 		// The service resolves TWO distinct collaborators from the container:
@@ -108,6 +109,7 @@ class ParticipationPublicationServiceTest extends TestCase {
 			appManager: $this->appManager,
 			appConfig: $this->createMock(IAppConfig::class),
 			budgetService: $this->createMock(BudgetVotingService::class),
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 	}//end makeService()

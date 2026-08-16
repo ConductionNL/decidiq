@@ -28,10 +28,10 @@ namespace OCA\Decidesk\Service;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCP\IAppConfig;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service handling ConsultationReaction intake and moderation.
@@ -53,7 +53,6 @@ class ReactionIntakeService {
 	/**
 	 * Constructor for ReactionIntakeService.
 	 *
-	 * @param ContainerInterface $container DI container (lazy ObjectService)
 	 * @param LoggerInterface $logger The logger
 	 * @param IAppConfig $appConfig App config (pseudonym secret)
 	 * @param ParticipationLifecycleService $lifecycleService Deadline/status guards
@@ -63,10 +62,10 @@ class ReactionIntakeService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly IAppConfig $appConfig,
 		private readonly ParticipationLifecycleService $lifecycleService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -78,7 +77,7 @@ class ReactionIntakeService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	private function objectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end objectService()
 
 	/**
@@ -230,7 +229,7 @@ class ReactionIntakeService {
 	 * the moderation flow.
 	 *
 	 * @param array<string,mixed> $reaction The approved reaction.
-	 * @param \OCA\OpenRegister\Service\ObjectService $objectService The OR object service.
+	 * @param \OCA\OpenRegister\Contract\ObjectServiceInterface $objectService The OR object service.
 	 *
 	 * @return void
 	 *

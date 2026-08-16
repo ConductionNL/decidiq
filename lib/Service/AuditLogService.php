@@ -31,8 +31,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Tamper-evident append-only audit log service.
@@ -83,12 +83,11 @@ class AuditLogService {
 	/**
 	 * Constructor for AuditLogService.
 	 *
-	 * @param ContainerInterface $container The DI container (used to retrieve ObjectService lazily)
 	 * @param LoggerInterface $logger The logger
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -118,9 +117,7 @@ class AuditLogService {
 		}
 
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
-			$previousHash = $this->resolvePreviousHash(objectService: $objectService);
+			$previousHash = $this->resolvePreviousHash(objectService: $this->objectService);
 			$timestamp = gmdate('Y-m-d\TH:i:s\Z');
 
 			$canonicalObjectUids = array_values(array_map('strval', $objectUids));
@@ -170,7 +167,7 @@ class AuditLogService {
 				'immutableBlob' => $blob,
 			];
 
-			$saved = $objectService->saveObject(
+			$saved = $this->objectService->saveObject(
 				object: $entry,
 				register: 'decidesk',
 				schema: 'audit-trail'
@@ -219,8 +216,7 @@ class AuditLogService {
 	 */
 	public function verify(?string $entryUuid = null): array {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$chain = $this->loadChain(objectService: $objectService);
+			$chain = $this->loadChain(objectService: $this->objectService);
 		} catch (\Throwable $e) {
 			$this->logger->error(
 				'Decidesk: failed to load audit log for verification',
@@ -299,8 +295,7 @@ class AuditLogService {
 		}
 
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$chain = $this->loadChain(objectService: $objectService);
+			$chain = $this->loadChain(objectService: $this->objectService);
 		} catch (\Throwable $e) {
 			$this->logger->error(
 				'Decidesk: failed to load audit log for export',
@@ -381,8 +376,7 @@ class AuditLogService {
 	 */
 	public function query(array $filters = []): array {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$chain = $this->loadChain(objectService: $objectService);
+			$chain = $this->loadChain(objectService: $this->objectService);
 		} catch (\Throwable $e) {
 			$this->logger->error(
 				'Decidesk: failed to load audit log for query',

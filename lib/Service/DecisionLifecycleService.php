@@ -32,8 +32,8 @@ use OCA\Decidesk\Event\DecisionConcludedEvent;
 use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Service for guarded decision lifecycle state transitions.
@@ -76,7 +76,6 @@ class DecisionLifecycleService {
 	/**
 	 * Constructor for DecisionLifecycleService.
 	 *
-	 * @param ContainerInterface $container The DI container (lazy-loads OpenRegister's ObjectService)
 	 * @param LoggerInterface $logger The logger
 	 * @param DecisionTransitionGuard $transitionGuard Pure transition map + per-domain policy guard
 	 * @param AuditLogService $auditLogService Hash-chained append-only audit log
@@ -85,13 +84,13 @@ class DecisionLifecycleService {
 	 * @param IEventDispatcher $eventDispatcher Dispatches the DecisionConcludedEvent cross-app contract
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly DecisionTransitionGuard $transitionGuard,
 		private readonly AuditLogService $auditLogService,
 		private readonly ProcessTemplateService $templateService,
 		private readonly DecisionIntegrationService $integrationService,
 		private readonly IEventDispatcher $eventDispatcher,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->contextResolver = new DecisionContextResolver(logger: $logger);
 
@@ -113,9 +112,7 @@ class DecisionLifecycleService {
 	 */
 	public function getAvailableTransitions(string $decisionId): array {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
-			$decision = $this->contextResolver->loadDecision(objectService: $objectService, decisionId: $decisionId);
+			$decision = $this->contextResolver->loadDecision(objectService: $this->objectService, decisionId: $decisionId);
 			if ($decision === null) {
 				return [
 					'success' => false,
@@ -128,7 +125,7 @@ class DecisionLifecycleService {
 			}
 
 			$lifecycle = (string)($decision['lifecycle'] ?? 'draft');
-			$meeting = $this->contextResolver->resolveLinkedMeeting(objectService: $objectService, decision: $decision);
+			$meeting = $this->contextResolver->resolveLinkedMeeting(objectService: $this->objectService, decision: $decision);
 			$domain = $this->contextResolver->resolveDomain(decision: $decision, meeting: $meeting);
 
 			// Process-configuration: when the decision's body has an assigned
@@ -212,9 +209,7 @@ class DecisionLifecycleService {
 		}
 
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
-			$decision = $this->contextResolver->loadDecision(objectService: $objectService, decisionId: $decisionId);
+			$decision = $this->contextResolver->loadDecision(objectService: $this->objectService, decisionId: $decisionId);
 			if ($decision === null) {
 				return [
 					'success' => false,
@@ -229,7 +224,7 @@ class DecisionLifecycleService {
 			// quorum before `voting`, outcome before `enact`) reports through one
 			// rejection message; null means the transition may proceed.
 			$rejection = $this->resolveRejection(
-				objectService: $objectService,
+				objectService: $this->objectService,
 				decision: $decision,
 				transition: $transition,
 				action: $action,
@@ -251,7 +246,7 @@ class DecisionLifecycleService {
 
 			// Object-level write ACL: saveObject() throws when the session user lacks
 			// write access on this specific object (caught below, generic error).
-			$updated = $objectService->saveObject(
+			$updated = $this->objectService->saveObject(
 				object: array_merge($decision, $patch),
 				register: 'decidesk',
 				schema: 'decision',
@@ -259,7 +254,7 @@ class DecisionLifecycleService {
 			);
 
 			$this->applyPostTransitionEffects(
-				objectService: $objectService,
+				objectService: $this->objectService,
 				decision: array_merge($decision, $patch),
 				decisionId: $decisionId,
 				action: $action,

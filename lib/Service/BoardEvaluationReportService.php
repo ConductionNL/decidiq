@@ -36,6 +36,8 @@ use OCA\Decidesk\Exception\MissingObjectException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Service\FileService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Generates + persists the board-evaluation report document.
@@ -52,6 +54,8 @@ class BoardEvaluationReportService {
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
+		private readonly FileService $fileService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -313,8 +317,6 @@ class BoardEvaluationReportService {
 	 */
 	private function writeFile(string $bodyName, array $evaluation, string $fileName, string $content): ?string {
 		try {
-			$fileService = $this->container->get('OCA\OpenRegister\Service\FileService');
-
 			$bodyDisplayName = 'Governance body';
 			if ($bodyName !== '') {
 				$bodyDisplayName = $bodyName;
@@ -333,10 +335,10 @@ class BoardEvaluationReportService {
 					$path = $prefix . '/' . $segment;
 				}
 
-				$fileService->createFolder($path);
+				$this->fileService->createFolder($path);
 			}
 
-			$folderNode = $fileService->createFolder($path);
+			$folderNode = $this->fileService->createFolder($path);
 			$safeName = $this->sanitize(name: $fileName);
 
 			try {
@@ -413,6 +415,6 @@ class BoardEvaluationReportService {
 	 * @return object The ObjectService instance
 	 */
 	private function objectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end objectService()
 }//end class

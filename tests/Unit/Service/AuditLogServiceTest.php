@@ -24,7 +24,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\AuditLogService;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -51,7 +51,7 @@ class AuditLogServiceTest extends TestCase {
 	private function makeService(array &$existing, array &$saved): AuditLogService {
 		$logger = $this->createMock(LoggerInterface::class);
 
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('findAll')->willReturnCallback(
 			static function (array $config) use (&$existing): array {
 				// Honour 'order' (timestamp ASC/DESC, stable for ties per PHP 8
@@ -93,7 +93,9 @@ class AuditLogServiceTest extends TestCase {
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);
 
-		return new AuditLogService($container, $logger);
+		return new AuditLogService( $logger,
+			objectService: $objectService,
+		);
 	}//end makeService()
 
 	/**
@@ -309,7 +311,7 @@ class AuditLogServiceTest extends TestCase {
 			['id' => 'row-0', 'timestamp' => '2026-01-01T00:00:00Z', 'actorUuid' => 'alice', 'action' => 'vote', 'objectUids' => ['r1'], 'previousHash' => AuditLogService::GENESIS_HASH, 'currentHash' => str_repeat('a', 64)],
 		];
 		$observedLimits = [];
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('findAll')->willReturnCallback(
 			function (array $config) use (&$existing, &$observedLimits): array {
 				$observedLimits[] = ($config['limit'] ?? null);
@@ -333,7 +335,9 @@ class AuditLogServiceTest extends TestCase {
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);
 
-		$service = new AuditLogService($container, $logger);
+		$service = new AuditLogService( $logger,
+			objectService: $objectService,
+		);
 		$result = $service->append(actor: 'bob', action: 'vote', objectUids: ['r1']);
 
 		$this->assertTrue($result['success']);

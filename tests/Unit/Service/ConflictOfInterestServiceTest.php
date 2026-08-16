@@ -25,7 +25,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\AuditLogService;
 use OCA\Decidesk\Service\ConflictOfInterestService;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -49,7 +49,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 	private function makeService(array &$rows, array &$audited): ConflictOfInterestService {
 		$logger = $this->createMock(LoggerInterface::class);
 
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('findAll')->willReturnCallback(
 			static function (array $config) use (&$rows): array {
 				return $rows;
@@ -99,7 +99,9 @@ class ConflictOfInterestServiceTest extends TestCase {
 			}
 		);
 
-		return new ConflictOfInterestService($container, $logger, $auditLog);
+		return new ConflictOfInterestService( $logger, $auditLog,
+			objectService: $objectService,
+		);
 	}//end makeService()
 
 	/**

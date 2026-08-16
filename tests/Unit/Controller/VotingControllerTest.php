@@ -28,6 +28,7 @@ use OCA\Decidesk\Service\VotingErrorResponder;
 use OCA\Decidesk\Service\VotingOpenRequestHandler;
 use OCA\Decidesk\Service\VotingRoundGuard;
 use OCA\Decidesk\Service\VotingService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
@@ -139,10 +140,12 @@ class VotingControllerTest extends TestCase {
 				groupManager: $this->groupManager,
 				appConfig: $this->appConfig,
 				participantResolver: $participantResolver,
-				container: $container
-			),
+			container: $this->createMock(ContainerInterface::class),
+		),
 			openHandler: new VotingOpenRequestHandler(votingService: $this->votingService),
-			proxyService: new ProxyDelegationService(container: $container, logger: $this->logger),
+			proxyService: new ProxyDelegationService(container: $container, logger: $this->logger,
+			objectService: $this->createMock(ObjectServiceInterface::class),
+		),
 			errors: new VotingErrorResponder(logger: $this->logger),
 		);
 

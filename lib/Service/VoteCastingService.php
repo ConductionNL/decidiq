@@ -26,8 +26,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * The cast-a-vote path, extracted from VotingService.
@@ -65,7 +65,6 @@ class VoteCastingService {
 	/**
 	 * Constructor for the VoteCastingService.
 	 *
-	 * @param ContainerInterface $container The DI container (for ObjectService)
 	 * @param LoggerInterface $logger The logger
 	 * @param ParticipantResolver $participantResolver Resolves a meeting's participants
 	 * @param AmendmentOrderService $amendmentOrder Resolves the meeting behind a round
@@ -74,11 +73,11 @@ class VoteCastingService {
 	 * @return void
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		LoggerInterface $logger,
 		ParticipantResolver $participantResolver,
 		AmendmentOrderService $amendmentOrder,
 		private readonly ObjectRelationFilter $relationFilter,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->tokens = new VoterTokenSecret(container: $container);
 		$this->ballots = new VoteBallotFactory(
@@ -296,6 +295,6 @@ class VoteCastingService {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function objectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end objectService()
 }//end class

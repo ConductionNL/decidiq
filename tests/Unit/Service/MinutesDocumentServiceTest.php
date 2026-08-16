@@ -28,6 +28,7 @@ use OCA\Decidesk\Service\MeetingFolderService;
 use OCA\Decidesk\Service\MinutesDocumentService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -52,9 +53,9 @@ class MinutesDocumentServiceTest extends TestCase {
 	/**
 	 * Mock ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
-	private ObjectService&MockObject $objectService;
+	private ObjectServiceInterface&MockObject $objectService;
 
 	/**
 	 * Mock MinutesGenerationService.
@@ -94,7 +95,7 @@ class MinutesDocumentServiceTest extends TestCase {
 
 		// Mock the (stubbed) OpenRegister ObjectService class itself so that
 		// named-argument calls bind correctly.
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();
@@ -122,6 +123,7 @@ class MinutesDocumentServiceTest extends TestCase {
 			logger: $this->createMock(LoggerInterface::class),
 			generationService: $this->generationService,
 			folderService: $this->folderService,
+			objectService: $object,
 		);
 
 	}//end setUp()

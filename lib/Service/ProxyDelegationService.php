@@ -39,6 +39,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Proxy (volmacht) delegation on a VotingRound.
@@ -66,6 +67,7 @@ class ProxyDelegationService {
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 
 	}//end __construct()
@@ -245,6 +247,6 @@ class ProxyDelegationService {
 	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
 	 */
 	private function objectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end objectService()
 }//end class

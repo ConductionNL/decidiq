@@ -25,6 +25,7 @@ use Exception;
 use OCA\Decidesk\Exception\MissingObjectException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service that records decisions during active meetings.
@@ -46,6 +47,7 @@ class LiveDecisionService {
 	public function __construct(
 		private ContainerInterface $container,
 		private LoggerInterface $logger,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -71,10 +73,8 @@ class LiveDecisionService {
 	 */
 	public function recordDecision(string $meetingId, array $decisionData, string $actorId): string {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
 			// Fetch Meeting.
-			$meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+			$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
 			$meeting = null;
 			if ($meetingEntity !== null) {
 				$meeting = $meetingEntity->jsonSerialize();
@@ -111,7 +111,7 @@ class LiveDecisionService {
 				'Meeting' => [$meetingId],
 			];
 
-			$decisionEntity = $objectService->saveObject(
+			$decisionEntity = $this->objectService->saveObject(
 				register: 'decidesk',
 				schema: 'Decision',
 				object: $decisionToSave
@@ -162,16 +162,14 @@ class LiveDecisionService {
 	 */
 	private function ensureDraftMinutes(string $meetingId): string {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
 			// Check if Minutes already exist for this Meeting.
 			$params = [
 				'_limit' => 999,
 				'_offset' => 0,
 			];
-			$objectService->setRegister('decidesk');
-			$objectService->setSchema('minutes');
-			$existingMinutes = $objectService->findAll(['filters' => $params]);
+			$this->objectService->setRegister('decidesk');
+			$this->objectService->setSchema('minutes');
+			$existingMinutes = $this->objectService->findAll(['filters' => $params]);
 
 			foreach ($existingMinutes as $minutesEntity) {
 				$minutes = $minutesEntity->jsonSerialize();
@@ -186,7 +184,7 @@ class LiveDecisionService {
 			}
 
 			// No Minutes found, create one.
-			$meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+			$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
 			$meeting = null;
 			if ($meetingEntity !== null) {
 				$meeting = $meetingEntity->jsonSerialize();
@@ -206,7 +204,7 @@ class LiveDecisionService {
 				],
 			];
 
-			$minutesEntity = $objectService->saveObject(
+			$minutesEntity = $this->objectService->saveObject(
 				register: 'decidesk',
 				schema: 'Minutes',
 				object: $minutesToCreate

@@ -27,6 +27,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -51,9 +52,9 @@ class ParticipantResolverPhase0RegressionTest extends TestCase {
 	private LoggerInterface $logger;
 
 	/**
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
-	private ObjectService $objectService;
+	private ObjectServiceInterface $objectService;
 
 	/**
 	 * The service under test.
@@ -72,15 +73,15 @@ class ParticipantResolverPhase0RegressionTest extends TestCase {
 
 		$this->container = $this->createMock(ContainerInterface::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();
 		$this->container->method('get')->willReturn($this->objectService);
 
 		$this->resolver = new ParticipantResolver(
-			$this->container,
 			$this->logger,
+			objectService: $this->objectService,
 		);
 
 	}//end setUp()

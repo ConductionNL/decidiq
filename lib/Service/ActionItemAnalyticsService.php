@@ -25,8 +25,8 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use DateTime;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service providing personal action-item lists grouped by urgency.
@@ -44,14 +44,13 @@ class ActionItemAnalyticsService {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container The DI container
 	 * @param LoggerInterface $logger The logger
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function __construct(
-		private ContainerInterface $container,
 		private LoggerInterface $logger,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -75,16 +74,15 @@ class ActionItemAnalyticsService {
 	 */
 	public function getMyItems(string $nextcloudUid): array {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$today = new DateTime();
 			$weekAhead = new DateTime('+7 days');
 
 			// Resolve the Participant UUID for this Nextcloud user so we can filter
 			// action items by the participant UUID stored in the assignee field.
 			// This is the canonical pattern used by VotingController/VotingBehaviourController.
-			$objectService->setRegister('decidesk');
-			$objectService->setSchema('participant');
-			$participantEntities = $objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
+			$this->objectService->setRegister('decidesk');
+			$this->objectService->setSchema('participant');
+			$participantEntities = $this->objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
 
 			$participantId = null;
 			foreach ($participantEntities as $pEntity) {
@@ -114,9 +112,9 @@ class ActionItemAnalyticsService {
 				'_limit' => 999,
 				'_offset' => 0,
 			];
-			$objectService->setRegister('decidesk');
-			$objectService->setSchema('action-item');
-			$itemEntities = $objectService->findAll(['filters' => $params]);
+			$this->objectService->setRegister('decidesk');
+			$this->objectService->setSchema('action-item');
+			$itemEntities = $this->objectService->findAll(['filters' => $params]);
 
 			$grouped = [
 				'overdue' => [],

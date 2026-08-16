@@ -31,9 +31,9 @@ use OCA\Decidesk\Service\MeetingService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCP\IGroupManager;
 use OCP\IUserSession;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * The meeting half of the decidesk MCP tool catalogue.
@@ -71,7 +71,6 @@ class McpMeetingTools {
 	 * Constructor for the McpMeetingTools.
 	 *
 	 * @param MeetingService $meetingService The meeting service driving lifecycle transitions
-	 * @param ContainerInterface $container DI container used to reach OpenRegister
 	 * @param IUserSession $userSession The current user session
 	 * @param IGroupManager $groupManager The group manager (for admin checks)
 	 * @param LoggerInterface $logger The PSR-3 logger
@@ -81,11 +80,11 @@ class McpMeetingTools {
 	 */
 	public function __construct(
 		private readonly MeetingService $meetingService,
-		private readonly ContainerInterface $container,
 		IUserSession $userSession,
 		IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
 		ParticipantResolver $participantResolver,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->formatter = new McpSourceFormatter();
 		$this->validator = new McpArgumentValidator(formatter: $this->formatter);
@@ -248,8 +247,6 @@ class McpMeetingTools {
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	private function collectRecentMeetings(int $limit, string $statusFilter): array {
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
 		$filters = [
 			'register' => 'decidesk',
 			'schema' => 'meeting',
@@ -261,7 +258,7 @@ class McpMeetingTools {
 			$filters['lifecycle'] = $statusFilter;
 		}
 
-		$rawMeetings = $objectService->findAll(['filters' => $filters]);
+		$rawMeetings = $this->objectService->findAll(['filters' => $filters]);
 
 		$currentUserId = $this->gate->currentUserId();
 		$allowedUuids = null;
@@ -308,10 +305,8 @@ class McpMeetingTools {
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	private function collectMeetingDetails(string $meetingUuid, array $meeting): array {
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
 		$agenda = $this->relatedObjects(
-			objectService: $objectService,
+			objectService: $this->objectService,
 			meetingUuid: $meetingUuid,
 			schema: 'agenda-item',
 			sourceType: 'decidesk.agendaItem',
@@ -319,7 +314,7 @@ class McpMeetingTools {
 		);
 
 		$decisions = $this->relatedObjects(
-			objectService: $objectService,
+			objectService: $this->objectService,
 			meetingUuid: $meetingUuid,
 			schema: 'decision',
 			sourceType: 'decidesk.decision',
@@ -327,7 +322,7 @@ class McpMeetingTools {
 		);
 
 		$actions = $this->relatedObjects(
-			objectService: $objectService,
+			objectService: $this->objectService,
 			meetingUuid: $meetingUuid,
 			schema: 'action-item',
 			sourceType: 'decidesk.actionItem',

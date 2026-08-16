@@ -28,6 +28,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\AuditLogService;
 use OCA\Decidesk\Service\EIDASSignatureService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -167,7 +168,9 @@ class EIDASSignatureServiceTest extends TestCase {
 		$audit = $this->createMock(AuditLogService::class);
 		$audit->method('append')->willReturn(['success' => true, 'entry' => [], 'message' => 'ok']);
 
-		return new EIDASSignatureService(container: $container, logger: $logger, auditLogService: $audit);
+		return new EIDASSignatureService(container: $container, logger: $logger, auditLogService: $audit,
+			objectService: $this->createMock(ObjectServiceInterface::class),
+		);
 	}//end makeService()
 
 	/**

@@ -26,7 +26,7 @@ namespace OCA\Decidesk\Controller;
 use InvalidArgumentException;
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\VotingBehaviourService;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -49,7 +49,7 @@ class VotingBehaviourController extends Controller {
 	 * @param VotingBehaviourService $behaviourService The voting behaviour service
 	 * @param IUserSession $userSession The user session
 	 * @param IGroupManager $groupManager The group manager
-	 * @param ObjectService $objectService OpenRegister object service for participant lookup
+	 * @param ObjectServiceInterface $objectService OpenRegister object service for participant lookup
 	 *
 	 * @return void
 	 *
@@ -60,7 +60,7 @@ class VotingBehaviourController extends Controller {
 		private readonly VotingBehaviourService $behaviourService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 

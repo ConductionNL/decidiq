@@ -25,10 +25,10 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service that generates an initial Dutch minutes draft from linked meeting data.
@@ -58,16 +58,15 @@ class MinutesGenerationService {
 	/**
 	 * Constructor for MinutesGenerationService.
 	 *
-	 * @param ContainerInterface $container The DI container (lazy-loads OpenRegister services)
 	 * @param LoggerInterface $logger The logger
 	 * @param MinutesDraftRenderer $renderer Renders the gathered data into the Dutch template
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	public function __construct(
-		private ContainerInterface $container,
 		private LoggerInterface $logger,
 		private MinutesDraftRenderer $renderer,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -481,16 +480,9 @@ class MinutesGenerationService {
 	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function getObjectService(): object {
-		try {
-			return $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		} catch (Throwable $e) {
-			throw new RuntimeException(
-				'OpenRegister ObjectService is not available. '
-				. 'Please ensure the OpenRegister app is installed and enabled.',
-				0,
-				$e
-			);
-		}
+		// Injected (ADR-083): a property read throws nothing, so the old
+		// catch was unreachable.
+		return $this->objectService;
 
 	}//end getObjectService()
 }//end class

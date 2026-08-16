@@ -32,10 +32,10 @@ namespace OCA\Decidesk\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Service for motion co-authoring: members, text updates, version history,
@@ -47,14 +47,13 @@ class MotionCoauthorService {
 	/**
 	 * Construct the MotionCoauthorService.
 	 *
-	 * @param ContainerInterface $container DI container (lazy-loads OR services)
 	 * @param LoggerInterface $logger Logger interface
 	 *
 	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -66,7 +65,7 @@ class MotionCoauthorService {
 	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
 	 */
 	private function getObjectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end getObjectService()
 
 	/**

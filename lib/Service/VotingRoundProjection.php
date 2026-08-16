@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use Psr\Container\ContainerInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * The public projection view of a voting round, extracted from VotingService.
@@ -41,12 +41,11 @@ class VotingRoundProjection {
 	/**
 	 * Constructor for the VotingRoundProjection.
 	 *
-	 * @param ContainerInterface $container The DI container (for ObjectService)
 	 *
 	 * @return void
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -192,8 +191,7 @@ class VotingRoundProjection {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function findObject(string $objectId, string $schema): ?array {
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		$entity = $objectService->find(id: $objectId, register: 'decidesk', schema: $schema);
+		$entity = $this->objectService->find(id: $objectId, register: 'decidesk', schema: $schema);
 		if ($entity === null) {
 			return null;
 		}

@@ -30,7 +30,7 @@ use OCA\Decidesk\Service\MinutesDraftService;
 use OCA\Decidesk\Service\TranscriptionQueue;
 use OCA\Decidesk\Service\TranscriptionService;
 use OCA\Decidesk\Service\TranscriptionStaffGuard;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
@@ -71,7 +71,7 @@ final class ObjectServiceFindThrowsTest extends TestCase {
 	 * @return MinutesCorrectionController
 	 */
 	private function minutesControllerWithThrowingFind(\Throwable $toThrow): MinutesCorrectionController {
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willThrowException($toThrow);
 
 		// The access guard answers "allowed" so the test reaches the lookup

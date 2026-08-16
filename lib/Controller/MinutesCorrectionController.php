@@ -35,7 +35,7 @@ use DateTimeInterface;
 use Exception;
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\MinutesAccessGuard;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -55,7 +55,7 @@ class MinutesCorrectionController extends Controller {
 	 *
 	 * @param IRequest $request The HTTP request
 	 * @param MinutesAccessGuard $accessGuard Per-object minutes authorisation
-	 * @param ObjectService $objectService OR object service
+	 * @param ObjectServiceInterface $objectService OR object service
 	 * @param IUserSession $userSession The current user session
 	 *
 	 * @return void
@@ -65,7 +65,7 @@ class MinutesCorrectionController extends Controller {
 	public function __construct(
 		IRequest $request,
 		private readonly MinutesAccessGuard $accessGuard,
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 		private readonly IUserSession $userSession,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);

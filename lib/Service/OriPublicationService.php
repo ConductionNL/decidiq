@@ -33,6 +33,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service that sends voting round results to the ORI 1.0 API endpoint
@@ -56,6 +57,7 @@ class OriPublicationService {
 		private readonly IAppConfig $appConfig,
 		private readonly IClientService $clientService,
 		private readonly LoggerInterface $logger,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -153,10 +155,9 @@ class OriPublicationService {
 		}
 
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$objectService->setRegister('decidesk');
-			$objectService->setSchema('voting-round');
-			$roundObject = $objectService->find($votingRoundId);
+			$this->objectService->setRegister('decidesk');
+			$this->objectService->setSchema('voting-round');
+			$roundObject = $this->objectService->find($votingRoundId);
 
 			if ($roundObject === null) {
 				$this->logger->warning("Decidesk ORI: VotingRound $votingRoundId not found for publication");
@@ -197,7 +198,7 @@ class OriPublicationService {
 			);
 
 			// Stamp oriPublishedAt to distinguish "published" from merely "closed".
-			$objectService->saveObject(
+			$this->objectService->saveObject(
 				object: array_merge($roundData, ['oriPublishedAt' => (new DateTimeImmutable())->format(\DateTimeInterface::ATOM)]),
 				register: 'decidesk',
 				schema: 'voting-round',
@@ -267,10 +268,9 @@ class OriPublicationService {
 		}
 
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$objectService->setRegister('decidesk');
-			$objectService->setSchema('voting-round');
-			$roundObject = $objectService->find($votingRoundId);
+			$this->objectService->setRegister('decidesk');
+			$this->objectService->setSchema('voting-round');
+			$roundObject = $this->objectService->find($votingRoundId);
 
 			if ($roundObject === null) {
 				return 'pending';

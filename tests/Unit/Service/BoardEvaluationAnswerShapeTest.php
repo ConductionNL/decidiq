@@ -36,6 +36,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\BoardEvaluationResponseService;
 use OCA\Decidesk\Service\ParticipantUuidLookup;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\IAppConfig;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -51,9 +52,9 @@ final class BoardEvaluationAnswerShapeTest extends TestCase {
 	/**
 	 * Mock OpenRegister ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
-	private ObjectService $objectService;
+	private ObjectServiceInterface $objectService;
 
 	/**
 	 * The service under test.
@@ -78,7 +79,7 @@ final class BoardEvaluationAnswerShapeTest extends TestCase {
 		parent::setUp();
 
 		$container = $this->createMock(ContainerInterface::class);
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$container->method('get')->willReturn($this->objectService);
 
 		$this->objectService->method('find')->willReturn(
@@ -104,10 +105,10 @@ final class BoardEvaluationAnswerShapeTest extends TestCase {
 		);
 
 		$this->service = new BoardEvaluationResponseService(
-			$container,
 			$this->createMock(IAppConfig::class),
 			$this->createMock(LoggerInterface::class),
 			$this->createMock(ParticipantUuidLookup::class),
+			objectService: $this->objectService,
 		);
 
 	}//end setUp()

@@ -33,7 +33,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
@@ -48,7 +48,7 @@ class MinutesAccessGuard {
 	/**
 	 * Constructor for MinutesAccessGuard.
 	 *
-	 * @param ObjectService $objectService OR object service
+	 * @param ObjectServiceInterface $objectService OR object service
 	 * @param ParticipantResolver $participantResolver Role resolution
 	 * @param IUserSession $userSession Current user session
 	 * @param IGroupManager $groupManager Group manager for admin checks
@@ -58,7 +58,7 @@ class MinutesAccessGuard {
 	 * @spec openspec/specs/resolution-minutes/spec.md
 	 */
 	public function __construct(
-		private readonly ObjectService $objectService,
+		private readonly ObjectServiceInterface $objectService,
 		private readonly ParticipantResolver $participantResolver,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,

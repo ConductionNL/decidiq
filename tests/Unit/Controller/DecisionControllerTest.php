@@ -25,6 +25,7 @@ namespace OCA\Decidesk\Tests\Unit\Controller;
 use OCA\Decidesk\Controller\DecisionController;
 use OCA\Decidesk\Service\DecisionLifecycleService;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -96,9 +97,9 @@ class DecisionControllerTest extends TestCase {
 	/**
 	 * Mock ObjectService.
 	 *
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
-	private ObjectService&MockObject $objectService;
+	private ObjectServiceInterface&MockObject $objectService;
 
 	/**
 	 * Mock DecisionLifecycleService.
@@ -121,7 +122,7 @@ class DecisionControllerTest extends TestCase {
 		$this->groupManager = $this->createMock(IGroupManager::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 		$this->user = $this->createMock(IUser::class);
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->lifecycleService = $this->createMock(DecisionLifecycleService::class);
 
 		$this->user->method('getUID')->willReturn('admin');

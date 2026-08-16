@@ -45,6 +45,7 @@ use OCA\Decidesk\Service\VotingRoundProjection;
 use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -84,9 +85,9 @@ class VotingServicePhase0RegressionTest extends TestCase {
 	private ParticipantResolver $participantResolver;
 
 	/**
-	 * @var ObjectService&MockObject
+	 * @var ObjectServiceInterface&MockObject
 	 */
-	private ObjectService $objectService;
+	private ObjectServiceInterface $objectService;
 
 	/**
 	 * The service under test.
@@ -108,7 +109,7 @@ class VotingServicePhase0RegressionTest extends TestCase {
 		$this->oriService = $this->createMock(OriPublicationService::class);
 		$this->motionService = $this->createMock(MotionService::class);
 		$this->participantResolver = $this->createMock(ParticipantResolver::class);
-		$this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();
@@ -121,51 +122,56 @@ class VotingServicePhase0RegressionTest extends TestCase {
 		// single-purpose collaborator, so the graph is built explicitly here
 		// where production relies on Nextcloud's constructor auto-wiring.
 		$amendmentOrder = new AmendmentOrderService(
-			container: $this->container,
-			motionService: $this->motionService
+			motionService: $this->motionService,
+			objectService: $this->objectService,
 		);
 		$relationFilter = new ObjectRelationFilter();
 
 		$this->service = new VotingService(
 			opener: new VotingRoundOpener(
-				container: $this->container,
 				motionService: $this->motionService,
 				participantResolver: $this->participantResolver,
 				preflight: new VotingRoundPreflight(
-					container: $this->container,
 					logger: $this->logger,
 					motionService: $this->motionService,
 					participantResolver: $this->participantResolver,
-					templateService: $templateService
-				),
+					templateService: $templateService,
+			objectService: $this->objectService,
+		),
 				notifier: new VotingOpenedNotifier(
-					container: $this->container,
 					logger: $this->logger,
-					participantResolver: $this->participantResolver
-				)
-			),
+					participantResolver: $this->participantResolver,
+			container: $this->createMock(ContainerInterface::class),
+		),
+			objectService: $this->objectService,
+		),
 			caster: new VoteCastingService(
-				container: $this->container,
 				logger: $this->logger,
 				participantResolver: $this->participantResolver,
 				amendmentOrder: $amendmentOrder,
-				relationFilter: $relationFilter
-			),
+				relationFilter: $relationFilter,
+			objectService: $this->objectService,
+		),
 			closer: new VotingRoundCloser(
-				container: $this->container,
 				logger: $this->logger,
 				oriService: $this->oriService,
 				motionService: $this->motionService,
 				amendmentOrder: $amendmentOrder,
-				relationFilter: $relationFilter
-			),
+				relationFilter: $relationFilter,
+			objectService: $this->objectService,
+			fileService: $this->createMock(FileService::class),
+		),
 			results: new VotingRoundResults(
-				container: $this->container,
 				motionService: $this->motionService,
-				participantResolver: $this->participantResolver
-			),
-			projection: new VotingRoundProjection(container: $this->container),
-			participants: new ParticipantUuidLookup(container: $this->container),
+				participantResolver: $this->participantResolver,
+			objectService: $this->objectService,
+		),
+			projection: new VotingRoundProjection(container: $this->container,
+			objectService: $this->objectService,
+		),
+			participants: new ParticipantUuidLookup(container: $this->container,
+			objectService: $this->objectService,
+		),
 		);
 
 	}//end setUp()

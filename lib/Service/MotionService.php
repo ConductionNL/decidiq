@@ -32,6 +32,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service handling motion lifecycle transitions, co-signatory management,
@@ -71,6 +72,7 @@ class MotionService {
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly IUserManager $userManager,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->amendments = new MotionAmendmentService(container: $container, logger: $logger);
 		$this->forwarding = new MotionForwardingService(container: $container, userManager: $userManager);
@@ -85,7 +87,7 @@ class MotionService {
 	 * @return object
 	 */
 	private function getObjectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end getObjectService()
 
 	/**

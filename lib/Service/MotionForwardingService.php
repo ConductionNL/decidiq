@@ -33,6 +33,7 @@ use OCP\IAppConfig;
 use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * The forward-a-motion path, extracted from MotionService.
@@ -55,6 +56,7 @@ class MotionForwardingService {
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly IUserManager $userManager,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -82,13 +84,12 @@ class MotionForwardingService {
 			throw new RuntimeException("Actor {$actorId} not found");
 		}
 
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
 		// Fetch the source motion. ADR-005: motions are `decision` objects
 		// discriminated by decisionType=motion.
-		$objectService->setRegister('decidesk');
-		$objectService->setSchema('decision');
-		$sourceMotionObject = $objectService->find($motionId);
+		$this->objectService->setRegister('decidesk');
+		$this->objectService->setSchema('decision');
+		$sourceMotionObject = $this->objectService->find($motionId);
 		$sourceMotionData = [];
 		if ($sourceMotionObject !== null) {
 			$sourceMotionData = $sourceMotionObject->getObject();
@@ -108,16 +109,16 @@ class MotionForwardingService {
 			justification: $justification
 		);
 
-		$objectService->setRegister('decidesk');
-		$objectService->setSchema('decision');
-		$created = $objectService->saveObject(
+		$this->objectService->setRegister('decidesk');
+		$this->objectService->setSchema('decision');
+		$created = $this->objectService->saveObject(
 			object: $forwardedMotion,
 			register: 'decidesk',
 			schema: 'decision',
 		);
 
 		$sourceMotionData = $this->noteForwarding(
-			objectService: $objectService,
+			objectService: $this->objectService,
 			sourceMotionData: $sourceMotionData,
 			motionId: $motionId,
 			targetBodyId: $targetBodyId,

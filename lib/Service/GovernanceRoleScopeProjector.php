@@ -38,8 +38,8 @@ namespace OCA\Decidesk\Service;
 
 use OCP\IGroupManager;
 use OCP\IUserManager;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Reconciles per-body chair/signatory OR RBAC scopes from the Participant
@@ -74,18 +74,17 @@ class GovernanceRoleScopeProjector {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container DI container (lazy ObjectService)
 	 * @param IGroupManager $groupManager NC group manager (scope groups)
 	 * @param IUserManager $userManager NC user manager (uid -> IUser)
 	 * @param LoggerInterface $logger Diagnostic logger
 	 * @param GovernanceScopeGuard $scopeGuard Owner of the canonical scope-group naming
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly IGroupManager $groupManager,
 		private readonly IUserManager $userManager,
 		private readonly LoggerInterface $logger,
 		private readonly GovernanceScopeGuard $scopeGuard,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -157,10 +156,9 @@ class GovernanceRoleScopeProjector {
 	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
 	 */
 	public function reconcileAll(): int {
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		$objectService->setRegister('decidesk');
-		$objectService->setSchema('governancebody');
-		$bodies = $objectService->findAll(['filters' => ['_limit' => 9999]]);
+		$this->objectService->setRegister('decidesk');
+		$this->objectService->setSchema('governancebody');
+		$bodies = $this->objectService->findAll(['filters' => ['_limit' => 9999]]);
 
 		$count = 0;
 		foreach ($bodies as $bodyEntity) {
@@ -183,10 +181,9 @@ class GovernanceRoleScopeProjector {
 	 * @return array{0: string[], 1: string[]} [chairUids, signatoryUids]
 	 */
 	private function desiredMembers(string $bodyId): array {
-		$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		$objectService->setRegister('decidesk');
-		$objectService->setSchema('participant');
-		$participants = $objectService->findAll(
+		$this->objectService->setRegister('decidesk');
+		$this->objectService->setSchema('participant');
+		$participants = $this->objectService->findAll(
 			[
 				'filters' => [
 					'role' => self::SIGNATORY_ROLES,

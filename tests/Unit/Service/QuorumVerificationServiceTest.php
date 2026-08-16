@@ -24,7 +24,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\QuorumVerificationService;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -48,7 +48,7 @@ class QuorumVerificationServiceTest extends TestCase {
 	private function makeService(array $meeting, array $members): QuorumVerificationService {
 		$logger = $this->createMock(LoggerInterface::class);
 
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($meeting): ?ObjectEntity {
 				if ($schema === 'meeting' && (string)$id === (string)($meeting['id'] ?? '')) {

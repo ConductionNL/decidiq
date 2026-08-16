@@ -51,6 +51,7 @@ use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\ProcessTemplateService;
 use OCA\Decidesk\Service\VotingErrorResponder;
 use OCA\Decidesk\Service\VotingRoundPreflight;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -494,6 +495,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 			container: $container,
 			logger: new NullLogger(),
 			userManager: $this->createMock(IUserManager::class),
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 		$request = $this->createMock(IRequest::class);
@@ -617,6 +619,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 			container: $container,
 			logger: new NullLogger(),
 			userManager: $this->createMock(IUserManager::class),
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 		$this->expectException(\InvalidArgumentException::class);
@@ -659,6 +662,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 			container: $container,
 			logger: new NullLogger(),
 			userManager: $this->createMock(IUserManager::class),
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 		$this->expectException(\RuntimeException::class);
@@ -714,13 +718,13 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 		$templateService->method('resolveVotingRuleForBody')->willReturn([]);
 
 		return new VotingRoundPreflight(
-			container: $container,
 			logger: new NullLogger(),
 			motionService: new MotionService(
-				container: $container,
 				logger: new NullLogger(),
 				userManager: $this->createMock(IUserManager::class),
-			),
+			objectService: $this->createMock(ObjectServiceInterface::class),
+			container: $this->createMock(ContainerInterface::class),
+		),
 			participantResolver: $this->createMock(ParticipantResolver::class),
 			templateService: $templateService,
 		);

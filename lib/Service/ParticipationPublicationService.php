@@ -34,6 +34,7 @@ use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service building + publishing participation result summaries.
@@ -71,6 +72,7 @@ class ParticipationPublicationService {
 		private readonly IAppManager $appManager,
 		private readonly IAppConfig $appConfig,
 		private readonly BudgetVotingService $budgetService,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -82,7 +84,7 @@ class ParticipationPublicationService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	private function objectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end objectService()
 
 	/**

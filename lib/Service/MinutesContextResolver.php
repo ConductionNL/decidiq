@@ -32,7 +32,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use OCA\Decidesk\Exception\MissingObjectException;
-use Psr\Container\ContainerInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Resolves Minutes, Meeting, GovernanceBody and Participant context from OpenRegister.
@@ -51,12 +51,11 @@ class MinutesContextResolver {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container The DI container (lazy-loads OpenRegister services)
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
 	 */
 	public function __construct(
-		private ContainerInterface $container,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -311,6 +310,6 @@ class MinutesContextResolver {
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
 	 */
 	private function objectService(): object {
-		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return $this->objectService;
 	}//end objectService()
 }//end class
