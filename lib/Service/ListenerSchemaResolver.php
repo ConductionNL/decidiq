@@ -10,11 +10,26 @@
  * Two independent defects made every one of those comparisons impossible, and
  * fixing either alone leaves the listener dead (decidesk#471):
  *
+ * ⚠️ **The probe half is MOOT on current OpenRegister, and the class is still
+ * required.** OpenRegister published its ObjectService/ObjectEntity interfaces
+ * (ADR-084) and now DECLARES `getSchema()`, so `method_exists()` answers true
+ * where defect 1 below says it answers false. `testGetSchemaIsReadableHoweverItIsDeclared()`
+ * records that flip and deliberately leaves the redundancy question open. This
+ * is the answer to it: **defect 2 is untouched, so the class stays.**
+ * OpenRegister still stamps the schema's numeric id onto every entity it
+ * materialises — `setSchema((string) $schema->getId())` in MagicMapper and in
+ * every ObjectSource provider, verified 2026-08-16 — and a declared getter
+ * returns that id, never the slug the listeners compare against. Only if
+ * OpenRegister began stamping the slug itself would this class become
+ * redundant. `readValue()` needs no change either: it probes
+ * `method_exists() || property_exists()`, so it reads the value under both
+ * shapes, which is what keeps this working against old and new OpenRegister.
+ *
  * 1. **The probe.** `OCA\OpenRegister\Db\ObjectEntity` extends
- *    `OCP\AppFramework\Db\Entity` and declares `getSchema()` only as an
- *    `@method` docblock tag; `Entity::__call()` serves it. `method_exists()` is
- *    therefore FALSE for it, so a `method_exists()`-guarded accessor read was
- *    skipped for every entity that actually has a schema.
+ *    `OCP\AppFramework\Db\Entity` and USED TO declare `getSchema()` only as an
+ *    `@method` docblock tag, with `Entity::__call()` serving it.
+ *    `method_exists()` was therefore FALSE for it, so a `method_exists()`-guarded
+ *    accessor read was skipped for every entity that actually has a schema.
  *    `is_callable()` is NOT the remedy: it is true for ANY name on a `__call`
  *    class, so swapping the probe makes the branch unconditionally true and the
  *    call then raises `BadFunctionCallException`. `Entity::__call()` routes
@@ -27,6 +42,8 @@
  *    slug literal, so even a correctly-probed read returns something like
  *    `"93"` and the comparison still fails. The id is resolved back to its slug
  *    through OpenRegister's `SchemaMapper`.
+ *    **This half is unchanged and is why the class survives** — see the note
+ *    above. A declared getter returns the same numeric id the magic one did.
  *
  * OpenRegister is a soft dependency: the mapper is pulled from the DI container
  * at call time and every failure degrades to `''`, which every caller reads as
