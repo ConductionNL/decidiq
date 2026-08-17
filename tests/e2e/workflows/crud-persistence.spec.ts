@@ -274,19 +274,39 @@ async function deleteRowViaUi(page, title: string): Promise<void> {
 test('Meeting: create persists, appears in list, detail shows values, delete removes it', async ({
 	page,
 }) => {
-	// BUDGET, not a hang. This test performs THREE full SPA loads — the list
-	// (`gotoList`), the detail page (`page.goto`), and the list again after the
-	// edit — at ~3.7 s each (the figure measured in the Decision test below),
-	// so ~11 s is spent before any of its own assertions. On top of that sit 2
-	// writes, 3 `getObject` reads, a `toPass` poll capped at 10 s, and the
-	// multi-step delete dialog. The file-level 20 s in tests/e2e/playwright.config.ts:103
-	// was sized as "2.6x the slowest observed pass (7.6 s)" — and that 7.6 s
-	// sample was a ONE-page-load test, so the budget never covered this shape.
-	// The CI failure is `apiRequestContext.get: Test timeout of 20000ms
-	// exceeded`, i.e. the clock expired while an ordinary GET was in flight,
-	// not a GET that hung. Raising the budget for the two three-load tests
-	// keeps the list-reflects-the-edit coverage; trimming a load to fit would
-	// delete a real assertion to satisfy a stopwatch.
+	// BUDGET, not a hang — and the cap was sized from a sample that did not
+	// contain this test passing.
+	//
+	// This test performs THREE full SPA loads (the list via `gotoList`, the
+	// detail page, then the list again after the edit), on top of 2 writes,
+	// 3 `getObject` reads, a `toPass` poll capped at 10 s, and the multi-step
+	// delete dialog. It is the joint-heaviest test in the file.
+	//
+	// MEASURED, per-test durations from the list reporter in two CI runs of this
+	// same file (⚠️ read the whole table before concluding anything from the two
+	// failing cells — the controls are the point):
+	//
+	//                     274 Meeting  370 edit  403 Decision  512 dialog  568 edit   suite
+	//   run 31907724887      18.3s ✓     9.3s ✓     18.0s ✓      5.5s ✓     9.4s ✓   20.9m
+	//   run 31979999077      22.1s ✘    11.2s ✓     22.6s ✘      7.3s ✓    11.7s ✓   27.9m
+	//   factor                1.21       1.20        1.26         1.33      1.24      1.33
+	//
+	// EVERY test in the file — the three that keep passing as well as the two
+	// that fail — slowed by the SAME 1.20-1.33x factor, in step with total suite
+	// wall clock. That is CI runner speed, not a decidesk regression: a slow code
+	// path could not also make the 5.5 s dialog test a third slower.
+	//
+	// So these two are NOT structurally over budget. They sit 1.7-2.0 s UNDER a
+	// 20 s cap on a fast runner and 2.1-2.6 s OVER it on a slow one — a coin flip
+	// decided by the runner. The 20 s in tests/e2e/playwright.config.ts:103 was
+	// derived from run 31022933529, where "the slowest pass in the entire suite"
+	// was 7.6 s; that sample was taken while these two tests were still FAILING,
+	// so their real cost was never in the sample the cap was computed from.
+	//
+	// 45 s is ~2x the slowest observed run (22.6 s), which clears runner variance
+	// while still failing honestly if a request genuinely hangs. Trimming a load
+	// to fit 20 s would delete the list-reflects-the-edit assertion to satisfy a
+	// stopwatch.
 	test.setTimeout(45_000)
 
 	const tag = `e2e-${ledger.runId}`
@@ -418,12 +438,16 @@ test('Meeting edit dialog saves a title change without a scheduledDate format er
 test('Decision: create persists, appears in list, detail shows values, delete removes it', async ({
 	page,
 }) => {
-	// Same budget arithmetic as the Meeting test above, and the same three full
-	// SPA loads: the decisions list, the detail page, and the list again after
-	// the edit. The ~3.7 s per-load figure quoted throughout this file was
-	// measured here. An earlier fix removed ONE redundant load from this test
-	// and it still did not fit 20 s — which is the evidence that the remaining
-	// three loads ARE the budget, rather than the app having regressed.
+	// Same measurement as the Meeting test above — see the duration table there,
+	// which covers this test (column "403 Decision") and its three passing
+	// controls. Same three full SPA loads: the decisions list, the detail page,
+	// and the list again after the edit.
+	//
+	// ⚠️ Do NOT read this raise as "the app regressed". It did not: on run
+	// 31907724887 this test passed in 18.0 s under the same 20 s cap, and on the
+	// slower run 31979999077 it took 22.6 s while three tests that never came
+	// near the cap slowed by the same factor. The cap sits inside this test's
+	// normal run-to-run spread, which is the defect being fixed.
 	test.setTimeout(45_000)
 
 	const tag = `e2e-${ledger.runId}`
