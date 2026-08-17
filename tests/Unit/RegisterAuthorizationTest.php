@@ -185,6 +185,46 @@ class RegisterAuthorizationTest extends TestCase {
 	}//end testReadListAndCreateStayOpenToAuthenticatedUsers()
 
 	/**
+	 * The READ actions still name `public`, so anonymous reads are not collaterally closed.
+	 *
+	 * This test exists because CI found the omission and nothing local could. Before
+	 * any block existed, `hasGroupPermission()` took its default-OPEN branch for EVERY
+	 * principal, the anonymous one included — so a block that names only
+	 * `authenticated` on `read` does not preserve the status quo, it CLOSES anonymous
+	 * reads. Omission is the deny.
+	 *
+	 * The first version of this block omitted `public`, and all six PHPUnit legs
+	 * failed with `NotAuthorizedException: User 'Anonymous' does not have permission
+	 * to 'read' objects in schema 'Meeting'` — PHPUnit's CLI has no session, so it
+	 * exercises exactly the path a `#[PublicPage]` citizen-participation surface
+	 * takes. Closing anonymous reads may well be desirable, but it is a far larger
+	 * policy change than the write hole this block fixes and does not belong in it.
+	 *
+	 * Writes are asserted `public`-free separately, so this cannot drift into a
+	 * blanket anonymous grant.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-006-the-register-declares-an-authorization-baseline-so-an-absent-block-cannot-grant-writes
+	 */
+	public function testAnonymousReadsAreNotCollaterallyClosed(): void {
+		$authorization = $this->registerRow()['authorization'];
+
+		foreach (['read', 'list'] as $action) {
+			$this->assertContains(
+				'public',
+				$authorization[$action],
+				sprintf(
+					'`%s` must still name `public`. Before this block existed the default-OPEN branch '
+						. "granted it to the anonymous principal too, so dropping it 403s every "
+						. '#[PublicPage] surface — a policy change, not a security fix.',
+					$action
+				)
+			);
+		}
+	}//end testAnonymousReadsAreNotCollaterallyClosed()
+
+	/**
 	 * Update and delete are NOT granted to every authenticated user.
 	 *
 	 * This is the whole security change, and it is the assertion that would have
@@ -297,19 +337,30 @@ class RegisterAuthorizationTest extends TestCase {
 		$path = __DIR__ . '/../../appinfo/info.xml';
 		$this->assertFileExists($path);
 
-		$xml = simplexml_load_file($path);
-		$this->assertNotFalse($xml, 'appinfo/info.xml must be readable XML.');
+		$source = file_get_contents($path);
+		$this->assertIsString($source);
+
+		// Read as TEXT, not through SimpleXML. The first version of this test used
+		// `simplexml_load_file()`; it worked locally and returned FALSE on every CI
+		// leg, failing the whole suite on `appinfo/info.xml must be readable XML`.
+		// The assertion here is about one scalar in a file this repository owns, so
+		// it should not depend on an XML extension being present in the runner.
+		$this->assertSame(
+			1,
+			preg_match('#<version>([^<]+)</version>#', $source, $version),
+			'appinfo/info.xml must declare a <version>.'
+		);
 
 		$this->assertGreaterThan(
 			0,
-			version_compare((string)$xml->version, '0.4.6'),
+			version_compare(trim($version[1]), '0.4.6'),
 			'The app version must be greater than 0.4.6 (the last release with no authorization '
 				. 'block), or `occ upgrade` is a no-op and InitializeSettings never re-imports the register.'
 		);
 
-		// Positive control on the same reader: the file really was parsed, so a
-		// failure above means "not bumped", never "read an empty document".
-		$this->assertSame('decidesk', (string)$xml->id);
+		// Positive control on the same reader: the file really was read and matched,
+		// so a failure above means "not bumped", never "read an empty document".
+		$this->assertStringContainsString('<id>decidesk</id>', $source);
 	}//end testTheAppVersionMovedSoTheRepairStepRuns()
 
 	/**
