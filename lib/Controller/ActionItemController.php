@@ -64,6 +64,13 @@ class ActionItemController extends Controller {
 	 *
 	 * @return JSONResponse The created action item, or an error.
 	 *
+	 * @no-admin-idor-exempt Takes no caller-supplied object id at all. The VTODO
+	 *   uid is server-generated (ActionItemWriter::uuidV4()) and the task is
+	 *   written into the acting user's own calendar via
+	 *   OCA\OpenRegister\Service\TaskService::createTask(). There is no object
+	 *   reference a caller could point at someone else's data, so there is
+	 *   nothing for a per-object guard to scope.
+	 *
 	 * @spec openspec/specs/action-item-board-via-deck-leaf/spec.md
 	 */
 	#[NoAdminRequired]
@@ -92,6 +99,17 @@ class ActionItemController extends Controller {
 	 *
 	 * @return JSONResponse The updated action item, or an error.
 	 *
+	 * @no-admin-idor-exempt The caller-supplied uid is resolved ONLY inside the
+	 *   acting user's own calendars, so it can never name another user's task.
+	 *   ActionItemWriter::update() -> locate() (lib/Service/ActionItemWriter.php:275)
+	 *   calls OCA\OpenRegister\Service\TaskService::getAllUserTasks(), which at
+	 *   TaskService.php:126-132 resolves the session user, THROWS when anonymous,
+	 *   and reads only 'principals/users/' . $user->getUID(). An unmatched uid
+	 *   returns null, which this method answers as 404 — the existence-oracle-safe
+	 *   shape. gate-7 cannot see this because its Pattern 2b delegation closure is
+	 *   gated on the collaborator naming OpenRegister's ObjectService, and the
+	 *   enforcement here lives in TaskService instead.
+	 *
 	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
 	 */
 	#[NoAdminRequired]
@@ -118,6 +136,12 @@ class ActionItemController extends Controller {
 	 * @param string $uid The action item's VTODO uid.
 	 *
 	 * @return JSONResponse Success, or 404 when not found.
+	 *
+	 * @no-admin-idor-exempt Same enforcement as update(): ActionItemWriter::delete()
+	 *   -> locate() (lib/Service/ActionItemWriter.php:275) reaches storage only via
+	 *   OCA\OpenRegister\Service\TaskService::getAllUserTasks(), hard-scoped at
+	 *   TaskService.php:126-132 to 'principals/users/' . $user->getUID(). A uid the
+	 *   acting user does not own simply does not resolve, and the method answers 404.
 	 *
 	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
 	 */
