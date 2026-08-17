@@ -48,6 +48,7 @@ class MotionCoauthorService {
 	 * Construct the MotionCoauthorService.
 	 *
 	 * @param LoggerInterface $logger Logger interface
+	 * @param ObjectServiceInterface $objectService OpenRegister object service
 	 *
 	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
 	 */
@@ -496,14 +497,26 @@ class MotionCoauthorService {
 	/**
 	 * Get the version history of a motion.
 	 *
+	 * Only the motion proposer (owner), an existing co-author, or an admin may
+	 * read the history (OWASP A01:2021 — Broken Access Control). The history
+	 * carries every prior revision of the motion text plus the NC uid of each
+	 * editor, so it discloses strictly more than the motion's current body —
+	 * reading it is a privileged operation, exactly as changing it is.
+	 * Pass `$callerUid = null` to bypass the ownership check (admin/background-job paths),
+	 * which is the same contract `addCoauthor`/`removeCoauthor`/`updateMotionText` use.
+	 *
 	 * @param string $motionId Motion UUID
+	 * @param string|null $callerUid NC UID of the requester (null = skip access check)
 	 *
 	 * @return array<int, array<string, mixed>>
 	 *
+	 * @throws \InvalidArgumentException When caller is not authorised
+	 *
 	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
 	 */
-	public function getHistory(string $motionId): array {
+	public function getHistory(string $motionId, ?string $callerUid = null): array {
 		$motion = $this->findMotion(motionId: $motionId);
+		$this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: false);
 		return ($motion['versionHistory'] ?? []);
 	}//end getHistory()
 }//end class
