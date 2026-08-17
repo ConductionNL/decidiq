@@ -82,6 +82,7 @@ class DecisionLifecycleService {
 	 * @param ProcessTemplateService $templateService Resolves a body's process-template policy override (process-configuration)
 	 * @param DecisionIntegrationService $integrationService Builds the cross-app outcome envelope for concluded delegated decisions
 	 * @param IEventDispatcher $eventDispatcher Dispatches the DecisionConcludedEvent cross-app contract
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,

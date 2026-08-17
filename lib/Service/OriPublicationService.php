@@ -49,6 +49,7 @@ class OriPublicationService {
 	 * @param IAppConfig $appConfig App configuration for reading ORI endpoint
 	 * @param IClientService $clientService Nextcloud HTTP client service
 	 * @param LoggerInterface $logger Logger interface
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3
 	 */

@@ -75,6 +75,7 @@ class ConflictOfInterestService {
 	 *
 	 * @param LoggerInterface $logger The logger
 	 * @param AuditLogService $auditLogService Audit log dependency for material declarations
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,

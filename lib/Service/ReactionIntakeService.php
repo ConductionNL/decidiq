@@ -56,6 +56,7 @@ class ReactionIntakeService {
 	 * @param LoggerInterface $logger The logger
 	 * @param IAppConfig $appConfig App config (pseudonym secret)
 	 * @param ParticipationLifecycleService $lifecycleService Deadline/status guards
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @return void
 	 *

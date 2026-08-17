@@ -45,6 +45,7 @@ class ActionItemAnalyticsService {
 	 * Constructor.
 	 *
 	 * @param LoggerInterface $logger The logger
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */

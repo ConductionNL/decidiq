@@ -57,6 +57,7 @@ class QesGuard {
 	 *
 	 * @param LoggerInterface $logger Logger
 	 * @param IEIDASSignatureService $signatureService eIDAS adapter
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,

@@ -56,6 +56,7 @@ class AdvisoryVoteService {
 	/**
 	 * Constructor for AdvisoryVoteService.
 	 *
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @return void
 	 *

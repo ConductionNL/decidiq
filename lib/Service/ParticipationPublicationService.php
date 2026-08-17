@@ -61,6 +61,7 @@ class ParticipationPublicationService {
 	 * @param IAppManager $appManager Detects whether OpenCatalogi is installed
 	 * @param IAppConfig $appConfig Reads the target catalog config
 	 * @param BudgetVotingService $budgetService Allocation result computation
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @return void
 	 *

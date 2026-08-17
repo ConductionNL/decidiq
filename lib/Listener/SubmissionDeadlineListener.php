@@ -62,6 +62,7 @@ class SubmissionDeadlineListener implements IEventListener {
 	 * Constructor.
 	 *
 	 * @param LoggerInterface $logger Logger
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,

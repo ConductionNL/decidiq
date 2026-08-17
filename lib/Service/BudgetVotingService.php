@@ -46,6 +46,7 @@ class BudgetVotingService {
 	 *
 	 * @param ParticipationLifecycleService $lifecycleService Status/deadline guards
 	 * @param AdvisoryVoteService $advisoryVoteService Advisory citizen-vote tally machinery
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @return void
 	 *

@@ -57,6 +57,7 @@ class ProcessTemplateService {
 	 * @param LoggerInterface $logger The logger
 	 * @param ProcessTemplatePolicyResolver $resolver Pure template -> guard policy translator
 	 * @param StateMachineValidator $validator Pure transition-graph validator
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @spec openspec/specs/process-configuration/spec.md
 	 */

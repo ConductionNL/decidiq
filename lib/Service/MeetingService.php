@@ -73,6 +73,7 @@ class MeetingService {
 	 * @param MeetingTransitionGuard $transitionGuard Reads quorumMet field for the open transition
 	 * @param MeetingCostService $meetingCostService Computes the final meetingCost stamped on close (meeting-efficiency)
 	 * @param GovernanceScopeGuard $scopeGuard Consumes the OR-projected chair scope for chair-only transitions
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
 	 * @spec openspec/specs/meeting-management/spec.md

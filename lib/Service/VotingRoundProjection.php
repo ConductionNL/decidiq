@@ -41,6 +41,7 @@ class VotingRoundProjection {
 	/**
 	 * Constructor for the VotingRoundProjection.
 	 *
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @return void
 	 */

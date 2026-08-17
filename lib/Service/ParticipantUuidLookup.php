@@ -37,6 +37,7 @@ class ParticipantUuidLookup {
 	/**
 	 * Constructor for ParticipantUuidLookup.
 	 *
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @return void
 	 *

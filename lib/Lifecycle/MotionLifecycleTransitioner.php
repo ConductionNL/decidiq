@@ -132,6 +132,7 @@ class MotionLifecycleTransitioner {
 	 * @param ContainerInterface $container The DI container (lazy ObjectService / IAppConfig)
 	 * @param LoggerInterface $logger Logger interface
 	 * @param DecisionTransitionGuard $guard Shared terminal-completeness policy
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 */

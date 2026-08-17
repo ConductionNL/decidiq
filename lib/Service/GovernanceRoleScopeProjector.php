@@ -78,6 +78,7 @@ class GovernanceRoleScopeProjector {
 	 * @param IUserManager $userManager NC user manager (uid -> IUser)
 	 * @param LoggerInterface $logger Diagnostic logger
 	 * @param GovernanceScopeGuard $scopeGuard Owner of the canonical scope-group naming
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 */
 	public function __construct(
 		private readonly IGroupManager $groupManager,

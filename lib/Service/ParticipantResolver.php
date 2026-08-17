@@ -49,6 +49,7 @@ class ParticipantResolver {
 	 * Constructor.
 	 *
 	 * @param LoggerInterface $logger PSR-3 logger
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,

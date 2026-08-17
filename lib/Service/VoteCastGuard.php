@@ -64,6 +64,7 @@ class VoteCastGuard {
 	 * @param VoterTokenSecret $tokens Derives the secret-ballot delegator token
 	 * @param ParticipantResolver $participantResolver Resolves a meeting's participants
 	 * @param AmendmentOrderService $amendmentOrder Resolves the meeting behind a round
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @return void
 	 */

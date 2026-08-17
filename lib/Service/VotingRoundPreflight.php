@@ -64,6 +64,7 @@ class VotingRoundPreflight {
 	 * @param MotionService $motionService The motion service for lifecycle transitions
 	 * @param ParticipantResolver $participantResolver Participant resolver for preset validation
 	 * @param ProcessTemplateService $templateService Resolves a body's template voting-rule defaults
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
