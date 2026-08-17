@@ -84,6 +84,7 @@ class AuditLogService {
 	 * Constructor for AuditLogService.
 	 *
 	 * @param LoggerInterface $logger The logger
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,

@@ -60,11 +60,12 @@ class MotionService {
 	 * Construct the MotionService.
 	 *
 	 * The amendment collaborator is built in the constructor body rather than
-	 * injected, so the DI signature stays the three services below.
+	 * injected, so the DI signature stays the four services below.
 	 *
 	 * @param ContainerInterface $container The DI container for lazy-loading OR services
 	 * @param LoggerInterface $logger Logger interface
 	 * @param IUserManager $userManager Nextcloud user manager for UID lookup
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
 	 */

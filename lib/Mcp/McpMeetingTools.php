@@ -75,6 +75,7 @@ class McpMeetingTools {
 	 * @param IGroupManager $groupManager The group manager (for admin checks)
 	 * @param LoggerInterface $logger The PSR-3 logger
 	 * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @return void
 	 */

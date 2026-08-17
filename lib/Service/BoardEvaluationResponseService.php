@@ -56,6 +56,7 @@ class BoardEvaluationResponseService {
 	 * @param IAppConfig $appConfig App configuration (shared HMAC secret)
 	 * @param LoggerInterface $logger Diagnostic logger
 	 * @param ParticipantUuidLookup $participants Nextcloud UID -> Participant UUID resolution
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 */
 	public function __construct(
 		private readonly IAppConfig $appConfig,

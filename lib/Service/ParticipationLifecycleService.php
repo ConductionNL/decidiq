@@ -71,6 +71,7 @@ class ParticipationLifecycleService {
 	/**
 	 * Constructor for ParticipationLifecycleService.
 	 *
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @return void
 	 *

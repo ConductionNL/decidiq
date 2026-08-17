@@ -118,7 +118,13 @@ class ParticipationBudgetController extends Controller {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	#[NoAdminRequired]
-	public function submitProposal(string $budgetId, string $title = '', string $description = '', float $amount = 0, string $category = ''): JSONResponse {
+	public function submitProposal(
+		string $budgetId,
+		string $title = '',
+		string $description = '',
+		float $amount = 0,
+		string $category = '',
+	): JSONResponse {
 		return $this->responder->citizenAction(
 			operation: fn (string $uid): array => $this->budgetService->submitProposal(
 				budgetId: $budgetId,

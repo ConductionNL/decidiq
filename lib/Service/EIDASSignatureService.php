@@ -75,6 +75,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 * @param ContainerInterface $container DI container (lazy openconnector lookup)
 	 * @param LoggerInterface $logger Logger
 	 * @param AuditLogService $auditLogService Audit log dependency
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,

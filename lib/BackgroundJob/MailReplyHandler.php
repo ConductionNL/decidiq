@@ -64,6 +64,7 @@ class MailReplyHandler extends TimedJob {
 	 * @param LoggerInterface $logger The logger
 	 * @param MailVoteSigner $signer Signs and verifies _mail entries
 	 * @param MailVoteReplyProcessor $processor Turns _mail entries into votes
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @return void
 	 *

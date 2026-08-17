@@ -81,6 +81,7 @@ class ProxyVoteService {
 	 * @param LoggerInterface $logger Logger
 	 * @param AuditLogService $auditLogService Audit log dependency
 	 * @param ParticipantResolver $participantResolver Resolves chair/clerk role membership for the authorization guard
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,

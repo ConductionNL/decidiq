@@ -65,6 +65,7 @@ class ProofPackageService {
 	 * @param LoggerInterface $logger The logger
 	 * @param ParticipantResolver $participantResolver Canonical meeting → participants resolver
 	 * @param MeetingFolderService $folderService Meeting Files folder writer
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,

@@ -59,6 +59,7 @@ class ProxyDelegationService {
 	 *
 	 * @param ContainerInterface $container The DI container (OpenRegister is resolved lazily)
 	 * @param LoggerInterface $logger Logger for fail-soft notification failures
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @return void
 	 *

@@ -47,6 +47,7 @@ class PublicationRepository {
 	 * Constructor.
 	 *
 	 * @param LoggerInterface $logger Logger.
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 */

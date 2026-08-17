@@ -45,6 +45,8 @@ class TranscriptRepository {
 	/**
 	 * Constructor.
 	 *
+	 * @param FileService $fileService The OpenRegister file service
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @spec openspec/specs/meeting-transcription/spec.md
 	 */

@@ -78,6 +78,7 @@ class GovernanceScopeGuard {
 	 *
 	 * @param IGroupManager $groupManager NC group manager (scope membership)
 	 * @param LoggerInterface $logger Diagnostic logger
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 */
 	public function __construct(
 		private readonly IGroupManager $groupManager,
