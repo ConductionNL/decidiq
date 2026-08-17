@@ -25,6 +25,7 @@ namespace OCA\Decidesk\AppInfo;
 
 use OCA\Decidesk\AppInfo\Registrar\AppHostRegistrar;
 use OCA\Decidesk\AppInfo\Registrar\DomainServiceRegistrar;
+use OCA\Decidesk\AppInfo\Registrar\IntegrationLeafRegistrar;
 use OCA\Decidesk\AppInfo\Registrar\ObjectListenerRegistrar;
 use OCA\Decidesk\AppInfo\Registrar\PlatformIntegrationRegistrar;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -47,6 +48,7 @@ use OCP\Util;
  *   - {@see AppHostRegistrar}            AppHost boilerplate adoption (ADR-040 / ADR-022).
  *   - {@see DomainServiceRegistrar}      decision events, MCP tools, eIDAS, translation.
  *   - {@see PlatformIntegrationRegistrar} search, object-write guards, dashboard widget.
+ *   - {@see IntegrationLeafRegistrar}    server-side half of the OR integration leaves (ADR-066).
  *   - {@see ObjectListenerRegistrar}     boot()-time filtered object-lifecycle subscriptions.
  *
  * Decidesk's services, controllers and background jobs that are NOT listed in a
@@ -147,6 +149,13 @@ class Application extends App implements IBootstrap {
 		// target. @spec points at the CANONICAL spec that survived the change.
 		// @spec openspec/specs/decision-management/spec.md
 		(new PlatformIntegrationRegistrar())->register(context: $context);
+
+		// Server-side half of the `decidesk-decisions` integration leaf (ADR-066).
+		// The render half has always shipped from JS; without this the leaf renders
+		// but is invisible to the openregister.integrations.leaves capability, i.e.
+		// an orphan registration under ADR-066 decision 4.
+		// @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-008-the-decidesk-decisions-leaf-is-declared-on-both-layers
+		(new IntegrationLeafRegistrar())->register(context: $context);
 
 	}//end register()
 
