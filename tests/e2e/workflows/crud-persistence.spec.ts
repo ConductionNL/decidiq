@@ -274,6 +274,21 @@ async function deleteRowViaUi(page, title: string): Promise<void> {
 test('Meeting: create persists, appears in list, detail shows values, delete removes it', async ({
 	page,
 }) => {
+	// BUDGET, not a hang. This test performs THREE full SPA loads — the list
+	// (`gotoList`), the detail page (`page.goto`), and the list again after the
+	// edit — at ~3.7 s each (the figure measured in the Decision test below),
+	// so ~11 s is spent before any of its own assertions. On top of that sit 2
+	// writes, 3 `getObject` reads, a `toPass` poll capped at 10 s, and the
+	// multi-step delete dialog. The file-level 20 s in tests/e2e/playwright.config.ts:103
+	// was sized as "2.6x the slowest observed pass (7.6 s)" — and that 7.6 s
+	// sample was a ONE-page-load test, so the budget never covered this shape.
+	// The CI failure is `apiRequestContext.get: Test timeout of 20000ms
+	// exceeded`, i.e. the clock expired while an ordinary GET was in flight,
+	// not a GET that hung. Raising the budget for the two three-load tests
+	// keeps the list-reflects-the-edit coverage; trimming a load to fit would
+	// delete a real assertion to satisfy a stopwatch.
+	test.setTimeout(45_000)
+
 	const tag = `e2e-${ledger.runId}`
 	const title = `${tag}-meeting-crud`
 
@@ -403,6 +418,14 @@ test('Meeting edit dialog saves a title change without a scheduledDate format er
 test('Decision: create persists, appears in list, detail shows values, delete removes it', async ({
 	page,
 }) => {
+	// Same budget arithmetic as the Meeting test above, and the same three full
+	// SPA loads: the decisions list, the detail page, and the list again after
+	// the edit. The ~3.7 s per-load figure quoted throughout this file was
+	// measured here. An earlier fix removed ONE redundant load from this test
+	// and it still did not fit 20 s — which is the evidence that the remaining
+	// three loads ARE the budget, rather than the app having regressed.
+	test.setTimeout(45_000)
+
 	const tag = `e2e-${ledger.runId}`
 	const title = `${tag}-decision-crud`
 

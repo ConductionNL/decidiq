@@ -147,12 +147,40 @@ class DecisionController extends Controller {
 	 *
 	 * GET /api/decisions/{decisionId}/transitions
 	 *
-	 * Access control (OWASP A01 / ADR-005): per-object read authorization is
-	 * OpenRegister ObjectService RBAC inside DecisionLifecycleService —
-	 * find() returns null for objects the caller may not read, which renders
-	 * as 404 here (no UUID probing).
+	 * Access control (OWASP A01 / ADR-005): the read is performed through
+	 * OpenRegister's ObjectService with `_rbac` and `_multitenancy` left at
+	 * their defaults (both true), so this endpoint is exactly at parity with
+	 * what the same caller can already GET from OpenRegister's own object API
+	 * (`/apps/openregister/api/objects/decidesk/decision/{id}`) — which is the
+	 * route the frontend itself uses under ADR-022. It discloses strictly less
+	 * than that call: lifecycle state, domain, and the available action names.
+	 *
+	 * ⚠️ CORRECTION (measured 2026-08-17). This docblock previously asserted
+	 * that "find() returns null for objects the caller may not read". That is
+	 * NOT true for a Decision on this deployment, and nobody should rely on it.
+	 * The `Decision` schema declares no `authorization` block, and neither does
+	 * the `decidesk` register row. OpenRegister's
+	 * Service/Object/PermissionHandler::hasGroupPermission() treats an absent
+	 * block exactly as it treats an empty one — `empty($authorization)` is true
+	 * for both — and returns TRUE (see PermissionHandler.php:1227-1251,
+	 * "Default-OPEN behaviour preserved"). The `enforce_default_closed` app
+	 * config defaults to false, and even when it is ON it only closes
+	 * create/update/delete; `read` is granted regardless. So OpenRegister grants
+	 * every authenticated user read on every Decision, and the RBAC call here
+	 * refuses nothing. The breadth is a schema-level default-open, not an
+	 * omission in this method — closing it means declaring authorization on the
+	 * schema/register, which is an app-wide data change and is escalated, not
+	 * patched here.
 	 *
 	 * @param string $decisionId UUID of the Decision object
+	 *
+	 * @no-admin-idor-exempt Discloses a strict subset of what the same caller can
+	 *   already read directly from OpenRegister's object API for the same UUID,
+	 *   under the same RBAC and multitenancy scoping (defaults, both true). A
+	 *   per-object guard added HERE would refuse nothing that is not already
+	 *   served by /apps/openregister/api/objects/decidesk/decision/{id}, so it
+	 *   would be a guard that cannot say no. The real control is a schema-level
+	 *   `authorization` block on `Decision`; see the CORRECTION above.
 	 *
 	 * @spec openspec/specs/decision-management/spec.md
 	 *
@@ -165,8 +193,10 @@ class DecisionController extends Controller {
 			return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		// Per-object read authorization happens inside the service via
-		// ObjectService RBAC (find returns null without read access).
+		// The read goes through ObjectService with RBAC + multitenancy at their
+		// defaults. NOTE: with no `authorization` block on the Decision schema
+		// that grants read to every authenticated user — see the CORRECTION in
+		// this method's docblock. Do not read this call as a per-object guard.
 		$result = $this->lifecycleService->getAvailableTransitions(decisionId: $decisionId);
 
 		if ($result['success'] === false) {
