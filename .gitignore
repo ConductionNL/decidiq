@@ -159,3 +159,6 @@ openspec/test-site-results/**/*.jpeg
 openspec/test-site-results/**/*.gif
 openspec/test-site-results/**/*.webp
 /coverage-vitest/
+
+# Per-machine Claude Code permissions — local to a checkout, never shared.
+.claude/settings.local.json
