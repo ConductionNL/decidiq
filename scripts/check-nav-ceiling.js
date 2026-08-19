@@ -97,10 +97,26 @@ function mergeMenuItems(target, incoming) {
 	for (const item of incoming) {
 		const existing = target.find((t) => t.id === item.id)
 		if (!existing) {
-			target.push({ ...item, children: Array.isArray(item.children) ? [...item.children] : item.children })
+			target.push({
+				...item,
+				children: Array.isArray(item.children)
+					? [...item.children]
+					: item.children,
+			})
 			continue
 		}
-		for (const key of ['label', 'icon', 'route', 'order', 'section', 'featureFlag', 'permission', 'visibleIf', 'href', 'action']) {
+		for (const key of [
+			'label',
+			'icon',
+			'route',
+			'order',
+			'section',
+			'featureFlag',
+			'permission',
+			'visibleIf',
+			'href',
+			'action',
+		]) {
 			if (existing[key] === undefined && item[key] !== undefined) {
 				existing[key] = item[key]
 			}
@@ -140,7 +156,8 @@ function applyMenuRelocations(menu, relocations) {
 				const child = node.children[j]
 				const childTarget = relocations[child.id]
 				if (!childTarget) continue
-				if (childTarget === node.id && !Array.isArray(child.children)) continue
+				if (childTarget === node.id && !Array.isArray(child.children))
+					continue
 				node.children.splice(j, 1)
 				moves.push({ node: child, target: childTarget })
 			}
@@ -160,8 +177,13 @@ function applyMenuRelocations(menu, relocations) {
 			}
 		})
 	}
-	return menu.filter((m) => m.route || m.href || m.action
-		|| (Array.isArray(m.children) && m.children.length > 0))
+	return menu.filter(
+		(m) =>
+			m.route
+			|| m.href
+			|| m.action
+			|| (Array.isArray(m.children) && m.children.length > 0),
+	)
 }
 
 /**
@@ -176,19 +198,22 @@ function applyMenuRemovals(menu, removals) {
 	if (!Array.isArray(removals) || removals.length === 0) return menu
 	const drop = new Set(removals)
 	const wasGroup = (n) => Array.isArray(n.children) && n.children.length > 0
-	const isClickable = (n) => n.route !== undefined || n.href !== undefined || n.action !== undefined
-	const prune = (nodes) => nodes.reduce((acc, n) => {
-		if (drop.has(n.id) && !wasGroup(n)) return acc
-		if (Array.isArray(n.children)) {
-			const children = prune(n.children)
-			const hadChildren = wasGroup(n)
-			if (children.length === 0 && hadChildren && !isClickable(n)) return acc
-			acc.push({ ...n, children })
+	const isClickable = (n) =>
+		n.route !== undefined || n.href !== undefined || n.action !== undefined
+	const prune = (nodes) =>
+		nodes.reduce((acc, n) => {
+			if (drop.has(n.id) && !wasGroup(n)) return acc
+			if (Array.isArray(n.children)) {
+				const children = prune(n.children)
+				const hadChildren = wasGroup(n)
+				if (children.length === 0 && hadChildren && !isClickable(n))
+					return acc
+				acc.push({ ...n, children })
+				return acc
+			}
+			acc.push(n)
 			return acc
-		}
-		acc.push(n)
-		return acc
-	}, [])
+		}, [])
 	return prune(menu)
 }
 
@@ -204,23 +229,30 @@ function applyMenuRemovals(menu, removals) {
 function applySettingsSection(menu, settingsIds) {
 	if (!Array.isArray(settingsIds) || settingsIds.length === 0) return menu
 	const want = new Set(settingsIds)
-	const isClickable = (n) => n.route !== undefined || n.href !== undefined || n.action !== undefined
+	const isClickable = (n) =>
+		n.route !== undefined || n.href !== undefined || n.action !== undefined
 	const lifted = []
-	const strip = (nodes) => nodes.reduce((acc, n) => {
-		if (want.has(n.id)) {
-			const { children, ...leaf } = n
-			lifted.push({ ...leaf, section: 'settings' })
+	const strip = (nodes) =>
+		nodes.reduce((acc, n) => {
+			if (want.has(n.id)) {
+				const { children, ...leaf } = n
+				lifted.push({ ...leaf, section: 'settings' })
+				return acc
+			}
+			if (Array.isArray(n.children)) {
+				const children = strip(n.children)
+				if (
+					children.length === 0
+					&& n.children.length > 0
+					&& !isClickable(n)
+				)
+					return acc
+				acc.push({ ...n, children })
+				return acc
+			}
+			acc.push(n)
 			return acc
-		}
-		if (Array.isArray(n.children)) {
-			const children = strip(n.children)
-			if (children.length === 0 && n.children.length > 0 && !isClickable(n)) return acc
-			acc.push({ ...n, children })
-			return acc
-		}
-		acc.push(n)
-		return acc
-	}, [])
+		}, [])
 	const remaining = strip(menu)
 	return [...remaining, ...lifted]
 }
@@ -260,7 +292,9 @@ function buildEffectiveMenu(base, fragments = [], menuLayout = {}) {
  * @return {{failures: string[], primary: object[], footer: object[], settings: object[]}}
  */
 function evaluateCeiling(effectiveMenu, ceiling = CEILING) {
-	const primary = effectiveMenu.filter((m) => m.section !== 'footer' && m.section !== 'settings')
+	const primary = effectiveMenu.filter(
+		(m) => m.section !== 'footer' && m.section !== 'settings',
+	)
 	const footer = effectiveMenu.filter((m) => m.section === 'footer')
 	const settings = effectiveMenu.filter((m) => m.section === 'settings')
 	const failures = []
@@ -293,10 +327,12 @@ function evaluateFragmentPlacement(fragments, menuLayout = {}) {
 	let checked = 0
 	for (const frag of fragments) {
 		const label = frag && frag.file ? frag.file : '(fragment)'
-		for (const item of (frag && Array.isArray(frag.menu) ? frag.menu : [])) {
+		for (const item of frag && Array.isArray(frag.menu) ? frag.menu : []) {
 			checked++
-			const selfScoped = item.section === 'footer' || item.section === 'settings'
-			const placed = selfScoped
+			const selfScoped =
+				item.section === 'footer' || item.section === 'settings'
+			const placed =
+				selfScoped
 				|| relocated.has(item.id)
 				|| removed.has(item.id)
 				|| settingsIds.has(item.id)
@@ -323,13 +359,16 @@ function evaluateFragmentPlacement(fragments, menuLayout = {}) {
  */
 function loadFragments(manifestDDir) {
 	if (!fs.existsSync(manifestDDir)) return []
-	const files = fs.readdirSync(manifestDDir)
+	const files = fs
+		.readdirSync(manifestDDir)
 		.filter((f) => f.endsWith('.json'))
 		.sort()
 	return files.map((f) => {
 		const rel = path.join('src', 'manifest.d', f)
 		try {
-			const doc = JSON.parse(fs.readFileSync(path.join(manifestDDir, f), 'utf8'))
+			const doc = JSON.parse(
+				fs.readFileSync(path.join(manifestDDir, f), 'utf8'),
+			)
 			return { file: rel, menu: Array.isArray(doc.menu) ? doc.menu : [] }
 		} catch (e) {
 			return { file: rel, menu: [], parseError: e.message }
@@ -348,7 +387,9 @@ function main() {
 	const menuLayoutPath = path.join(REPO_ROOT, 'src', 'menu-layout.json')
 
 	if (!fs.existsSync(manifestPath)) {
-		console.error(`✗ nav-ceiling: base manifest not found at ${manifestPath} — nothing was checked. Refusing to report a pass.`)
+		console.error(
+			`✗ nav-ceiling: base manifest not found at ${manifestPath} — nothing was checked. Refusing to report a pass.`,
+		)
 		process.exit(1)
 	}
 
@@ -356,7 +397,9 @@ function main() {
 	try {
 		base = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
 	} catch (e) {
-		console.error(`✗ nav-ceiling: ${manifestPath} is not valid JSON (${e.message})`)
+		console.error(
+			`✗ nav-ceiling: ${manifestPath} is not valid JSON (${e.message})`,
+		)
 		process.exit(1)
 	}
 
@@ -365,12 +408,19 @@ function main() {
 		try {
 			const doc = JSON.parse(fs.readFileSync(menuLayoutPath, 'utf8'))
 			menuLayout = {
-				relocations: doc.relocations && typeof doc.relocations === 'object' ? doc.relocations : {},
+				relocations:
+					doc.relocations && typeof doc.relocations === 'object'
+						? doc.relocations
+						: {},
 				removals: Array.isArray(doc.removals) ? doc.removals : [],
-				settingsSection: Array.isArray(doc.settingsSection) ? doc.settingsSection : [],
+				settingsSection: Array.isArray(doc.settingsSection)
+					? doc.settingsSection
+					: [],
 			}
 		} catch (e) {
-			console.error(`✗ nav-ceiling: ${menuLayoutPath} is not valid JSON (${e.message})`)
+			console.error(
+				`✗ nav-ceiling: ${menuLayoutPath} is not valid JSON (${e.message})`,
+			)
 			process.exit(1)
 		}
 	}
@@ -385,17 +435,26 @@ function main() {
 	const ceilingResult = evaluateCeiling(effectiveMenu, CEILING)
 	const placementResult = evaluateFragmentPlacement(fragments, menuLayout)
 
-	const failures = [...parseErrors.map((f) => `✗ [parse] ${f.file}`), ...ceilingResult.failures, ...placementResult.failures]
-	const scope = `${fragments.length} fragment(s), ${placementResult.checked} fragment top-level menu entr(y/ies), `
+	const failures = [
+		...parseErrors.map((f) => `✗ [parse] ${f.file}`),
+		...ceilingResult.failures,
+		...placementResult.failures,
+	]
+	const scope =
+		`${fragments.length} fragment(s), ${placementResult.checked} fragment top-level menu entr(y/ies), `
 		+ `${ceilingResult.primary.length} primary / ${ceilingResult.footer.length} footer / `
 		+ `${ceilingResult.settings.length} settings top-level entries in the merged menu`
 
 	if (failures.length === 0) {
-		console.log(`✓ nav-ceiling: ${scope} — at or under the ADR-004 ceiling (${CEILING}), every fragment entry placed.`)
+		console.log(
+			`✓ nav-ceiling: ${scope} — at or under the ADR-004 ceiling (${CEILING}), every fragment entry placed.`,
+		)
 		process.exit(0)
 	}
 
-	console.error(`nav-ceiling gate FAILED — ${failures.length} violation(s) over ${scope}:`)
+	console.error(
+		`nav-ceiling gate FAILED — ${failures.length} violation(s) over ${scope}:`,
+	)
 	for (const f of failures) {
 		console.error(f)
 	}
