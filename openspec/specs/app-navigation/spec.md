@@ -1,5 +1,5 @@
 ---
-status: done
+status: in-progress
 ---
 
 # app-navigation Specification
@@ -7,7 +7,9 @@ status: done
 **Status**: in-progress
 **Scope**: decidesk
 **OpenSpec changes**:
-- ia-six-item-nav (active) — restructures the menu to ADR-004's six-item, mode-aware IA
+- ia-six-item-nav (archived) — restructures the menu to ADR-004's six-item, mode-aware IA
+- ia-six-clusters (active) — collapses the nav from 44 fragment-accreted top-level entries back to ADR-004's six-item ceiling (Dashboard, Meetings, Decisions, Tasks & Commitments, Organisation, Registers) via `src/menu-layout.json`'s relocation/removal/settings-lift mechanism
+- nav-ceiling-gate (active) — adds a CI gate enforcing the six-item ceiling and requiring every manifest.d fragment's top-level menu entry to be explicitly placed in menu-layout.json
 
 ## Purpose
 Defines the app shell layout, navigation menu, and routing. App.vue renders loading, no-OpenRegister, and ready states; the main menu presents ADR-004's six-item information architecture with mode-aware label resolution; the history-mode router exposes flat named routes (keeping demoted surfaces reachable by deep link); and store initialisation registers all entity types. It also surfaces Motions as a filtered view of Decisions rather than a standalone top-level item.

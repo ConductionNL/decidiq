@@ -1,11 +1,13 @@
 ---
 status: in-progress
 status-note: >-
-  Completed 2026-06-12 via decision-state-machine-v1 (guarded 7-state transition map + per-domain policy, lifecycle/voting detail tabs) on top of decision-evolution-and-cascade + p2-minutes-and-decisions. In progress 2026-06-14 via unify-decision-supertype (Decision becomes the universal supertype: decisionType discriminator, folded motion/amendment/resolution fields, declarative lifecycle, contract attachments).
+  Completed 2026-06-12 via decision-state-machine-v1 (guarded 7-state transition map + per-domain policy, lifecycle/voting detail tabs) on top of decision-evolution-and-cascade + p2-minutes-and-decisions. In progress 2026-06-14 via unify-decision-supertype (Decision becomes the universal supertype: decisionType discriminator, folded motion/amendment/resolution fields, declarative lifecycle, contract attachments). In progress 2026-08-19 via appointment-decision-type-schema + appointment-decision-type-membership (completes ADR-005's reserved-but-unimplemented decisionType=appointment: folded nomination fields, retirement of the parallel Voordracht schema/register.d/61, and imperative Membership materialization on adoption).
 openspec-changes:
   - unify-decision-supertype
   - decision-detail-fullpicture
   - urgent-decision-procedure
+  - appointment-decision-type-schema
+  - appointment-decision-type-membership
 ---
 
 # Decision Management Specification
