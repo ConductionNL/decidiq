@@ -722,6 +722,74 @@
             "isPublished": "internal"
           },
           {
+            "slug": "benoeming-lid-auditcommissie",
+            "decisionType": "appointment",
+            "title": "Benoeming lid auditcommissie",
+            "text": "Voordracht van mevrouw M. Janssen als lid van de auditcommissie, vanwege gewenste financiële expertise.",
+            "lifecycle": "proposed",
+            "targetBody": "auditcommissie-provincie-nh",
+            "targetPosts": [],
+            "targetRole": "member",
+            "candidates": [
+              {
+                "person": "marie-janssen",
+                "notes": "Financiële expertise gewenst in de auditcommissie."
+              }
+            ],
+            "nominatingParty": {
+              "type": "politicalGroup",
+              "name": "D66"
+            },
+            "appointedMemberships": [],
+            "isPublished": "internal"
+          },
+          {
+            "slug": "benoeming-lid-rvc-acme-van-duin",
+            "decisionType": "appointment",
+            "title": "Benoeming lid Raad van Commissarissen ACME B.V.",
+            "text": "Voordracht van mevrouw J. van Duin (externe werving) als lid van de Raad van Commissarissen, conform profielschets — herbenoeming van de huidige commissaris was niet mogelijk op grond van het rooster van aftreden.",
+            "lifecycle": "enacted",
+            "outcome": "adopted",
+            "decisionDate": "2026-04-10T19:00:00Z",
+            "targetBody": "raad-van-commissarissen-acme-bv",
+            "targetPosts": [],
+            "targetRole": "member",
+            "candidates": [
+              {
+                "externalName": "Mw. J. van Duin",
+                "notes": "Externe werving; nog geen Person-registratie — wordt na benoeming aangemaakt."
+              }
+            ],
+            "nominatingParty": {
+              "type": "body",
+              "name": "Raad van Commissarissen (coöptatie-voordracht)"
+            },
+            "appointedMemberships": [],
+            "isPublished": "internal"
+          },
+          {
+            "slug": "benoeming-voorzitter-auditcommissie-ingetrokken",
+            "decisionType": "appointment",
+            "title": "Benoeming voorzitter auditcommissie (ingetrokken)",
+            "text": "Voordracht van de heer K. Bakker als voorzitter van de auditcommissie; kandidaat heeft zich teruggetrokken voor behandeling.",
+            "lifecycle": "withdrawn",
+            "targetBody": "auditcommissie-provincie-nh",
+            "targetPosts": [],
+            "targetRole": "chair",
+            "candidates": [
+              {
+                "externalName": "K. Bakker",
+                "notes": "Kandidaat trekt zich terug voor behandeling."
+              }
+            ],
+            "nominatingParty": {
+              "type": "politicalGroup",
+              "name": "GroenLinks"
+            },
+            "appointedMemberships": [],
+            "isPublished": "internal"
+          },
+          {
             "slug": "mt-go-nogo-zonnepark",
             "decisionType": "management-point",
             "title": "Go/No-go zonnepark fase 2",
@@ -1461,7 +1529,6 @@
           "termijnagenda-item",
           "toezegging",
           "transcript",
-          "voordracht",
           "vote",
           "voting-round",
           "vragenuur-configuratie",
@@ -3140,7 +3207,7 @@
         },
         "slug": "decision",
         "icon": "Gavel",
-        "version": "0.7.0",
+        "version": "0.8.0",
         "title": "Decision",
         "description": "The universal governance-decision supertype (ADR-005). A single schema for every decision outcome — motion, amendment, resolution, contract, appointment, management point, policy and generic meeting outcome — distinguished by the required decisionType discriminator. Type-specific fields are folded in and revealed via progressive disclosure keyed on decisionType (ADR-006).",
         "type": "object",
@@ -3381,6 +3448,112 @@
             "type": "string",
             "format": "date",
             "description": "Revealed when decisionType=resolution. Date the resolution takes effect (folded from the retired Resolution schema)."
+          },
+          "targetBody": {
+            "title": "Target governance body",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "description": "Revealed when decisionType=appointment. Reference to the GovernanceBody the appointment is for (folded from the retired Voordracht schema's `body` field, renamed to avoid confusion with Decision's own `text`, which is the closest thing this schema has to a body-of-text field). Required for an appointment decision (enforced in the form)."
+          },
+          "targetPosts": {
+            "title": "Target posts",
+            "type": "array",
+            "description": "Revealed when decisionType=appointment. Zero or more references to the formal Post(s) the appointment targets (folded and pluralized from the retired Voordracht schema's single `post` field — the product decision requires one or more Posts). Optional.",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "Post"
+            }
+          },
+          "targetRole": {
+            "title": "Target role",
+            "type": "string",
+            "facetable": true,
+            "description": "Revealed when decisionType=appointment. The Membership role being appointed to (enum pinned to person-and-membership's Membership role enum; folded unchanged from the retired Voordracht schema's `targetRole` field). Required for an appointment decision (enforced in the form).",
+            "enum": [
+              "chair",
+              "vice-chair",
+              "secretary",
+              "treasurer",
+              "member",
+              "observer",
+              "guest"
+            ],
+            "example": "member"
+          },
+          "candidates": {
+            "title": "Candidates",
+            "type": "array",
+            "description": "Revealed when decisionType=appointment. One or more structured candidates, each carrying either a Person reference or a free-text externalName for a not-yet-registered candidate (folded and translated from the retired Voordracht schema's `kandidaten` field). Required, minimum one entry, before an appointment decision can be proposed (enforced in the form, not in this JSON-schema required[] — matching the established per-type required-field pattern, e.g. motion's proposer).",
+            "items": {
+              "type": "object",
+              "title": "Candidate",
+              "properties": {
+                "person": {
+                  "title": "Person",
+                  "type": "string",
+                  "format": "uuid",
+                  "nullable": true,
+                  "$ref": "Person",
+                  "description": "Reference to the candidate's Person record. Empty for an external candidate not yet registered — then externalName carries the name."
+                },
+                "externalName": {
+                  "title": "External name",
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Free-text name for a not-yet-registered candidate (typical for corporate RvC/RvT externals). Later linkable to a Person record without losing candidacy history."
+                },
+                "notes": {
+                  "title": "Note",
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Optional note motivating this candidate."
+                }
+              }
+            }
+          },
+          "nominatingParty": {
+            "title": "Nominating party",
+            "type": "object",
+            "description": "Revealed when decisionType=appointment. The nominating party (voordragende partij) that made the nomination, structured: `type` is politicalGroup/body/person; `name` is the display name; `reference` optionally points at a resolved object (Person/GovernanceBody) when one exists (folded unchanged from the retired Voordracht schema's `nominatingParty` field).",
+            "properties": {
+              "type": {
+                "title": "Party type",
+                "type": "string",
+                "description": "Nature of the nominating party.",
+                "enum": [
+                  "politicalGroup",
+                  "body",
+                  "person"
+                ],
+                "example": "politicalGroup"
+              },
+              "name": {
+                "title": "Name",
+                "type": "string",
+                "description": "Display name of the nominating party (e.g. the fractie name)."
+              },
+              "reference": {
+                "title": "Reference",
+                "type": "string",
+                "format": "uuid",
+                "nullable": true,
+                "x-relation-schema-field": "type",
+                "description": "Optional reference to a resolved object for the nominating party when one exists. Polymorphic: the sibling `type` names the target schema — person resolves against Person, politicalGroup/body against GovernanceBody — so a single $ref cannot express it without asserting one target for every row."
+              }
+            }
+          },
+          "appointedMemberships": {
+            "title": "Appointed memberships",
+            "type": "array",
+            "nullable": true,
+            "description": "Revealed when decisionType=appointment. Server-set, nullable list of Membership objects materialized when this appointment decision is adopted. Declared here so the appointment field group is complete in one place; populated by the imperative Membership-materialization service shipped in the dependent change appointment-decision-type-membership (ADR-031 lifecycle-guard exception) — this change ships no service code, so the field stays empty/absent until that dependent change lands.",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "Membership"
+            }
           },
           "sourceApp": {
             "title": "Source app",
