@@ -40,7 +40,18 @@ Vrij en open source onder de EUPL-1.2-licentie.
 
 **Ondersteuning:** Voor ondersteuning, neem contact op via support@conduction.nl.
     ]]></description>
-    <version>0.4.6</version>
+    <!--
+        Bumped for the register authorization baseline (0.7.0 -> 0.8.0 on the
+        register row). The <post-migration> repair steps below, InitializeSettings
+        among them, run only on `occ upgrade`, and `occ upgrade` is a NO-OP when
+        the app version has not moved — so without this bump the security fix
+        would sit in the JSON on every existing instance and never be imported.
+        The register's OWN version bump is separately required: ImportHandler's
+        register path (importRegister, ~line 879) skips outright when the incoming
+        version is <= the stored one, and unlike the SCHEMA path it has no
+        content-differs escape hatch to fall back on.
+    -->
+    <version>0.4.7</version>
     <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidesk</namespace>
