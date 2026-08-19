@@ -8,8 +8,8 @@
 - **acceptance_criteria**:
   - GIVEN the new addendum section WHEN read THEN it contains the pairwise field-overlap table (`PublicConsultation`∩`MemberConsultation` = 2/28 · 2/15; `PublicConsultation`∩`ConsultationRequest` = 2/28 · 2/20; `MemberConsultation`∩`ConsultationRequest` = 2/15 · 2/20), the four qualitative signals (authorization block, `x-schema-org` type, structural cross-reference, lifecycle shape), and the stated outcome (`PublicConsultation` unchanged as the sole discriminated concept; `MemberConsultation` and `ConsultationRequest` each independently exempted)
   - GIVEN the ADR file WHEN diffed THEN the existing "Decision" and "Consequences" sections are untouched — the addendum is additive only, appended after "## Consequences"
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 2: Cross-reference the addendum on PublicConsultation
 - **spec_ref**: `openspec/changes/consultation-discriminator/specs/citizen-participation/spec.md#requirement-consultation-family-discriminator-boundary-adr-006`
@@ -17,8 +17,8 @@
 - **acceptance_criteria**:
   - GIVEN `PublicConsultation`'s `description` WHEN read THEN it references the ADR-006 addendum, confirming `PublicConsultation` remains the sole discriminated concept for the public/market-consultation family
   - GIVEN the schema's `properties`, `required`, `authorization`, and `x-openregister-lifecycle` blocks WHEN diffed against the pre-change version THEN they are unchanged; only `description` and `version` (`0.3.0` → `0.3.1`) differ
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 3: Cross-reference the addendum on MemberConsultation and ConsultationRequest
 - **spec_ref**: `openspec/changes/consultation-discriminator/specs/citizen-participation/spec.md#requirement-consultation-family-discriminator-boundary-adr-006`
@@ -27,8 +27,8 @@
   - GIVEN `MemberConsultation`'s `description` WHEN read THEN it references the ADR-006 addendum, stating it is exempted from folding as a genuinely distinct concept; `version` bumped `0.1.0` → `0.1.1`; no other field, lifecycle, notification, or seed-data changes
   - GIVEN `ConsultationRequest`'s `description` WHEN read THEN it references the ADR-006 addendum, stating it is exempted from folding as a genuinely distinct concept; `version` bumped `0.1.0` → `0.1.1`; no other field, lifecycle, notification, or seed-data changes
   - GIVEN both files are owned by the still-open `constituency-consultation` and `works-council-consultation` OpenSpec changes WHEN this task's diff is checked immediately before commit THEN it touches only `description` and `version` on the `MemberConsultation`/`ConsultationRequest` schema objects — re-run `git diff` on both files right before committing to catch any concurrent edit from those sibling changes (proposal Risk 1)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 4: Verify the three DecisionDetail consultation widgets/pages need no change
 - **spec_ref**: `openspec/changes/consultation-discriminator/specs/citizen-participation/spec.md#requirement-consultation-family-discriminator-boundary-adr-006`
@@ -37,8 +37,8 @@
   - GIVEN `src/manifest.json` WHEN grepped for `decision-public-consultations`, `decision-member-consultations`, `decision-wor-consultations` THEN all three widgets still reference their original schema slugs (`public-consultation`, `member-consultation`, `consultation-request` respectively) — none retired or repointed
   - GIVEN `src/menu-layout.json` WHEN checked THEN `Raadplegingen`, `Consultations`, and `WorTrajecten` still map to the `Decisions` nav-ceiling cluster and no new top-level nav entry has been added
   - GIVEN this task makes no edits to any of the listed files THEN it is a verification-only task — record the grep output as evidence in the PR description rather than modifying these files
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ## Quality checklist
 
