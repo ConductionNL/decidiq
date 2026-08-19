@@ -75,6 +75,7 @@ class MinutesDocumentService {
 	 * @param LoggerInterface $logger The logger
 	 * @param MinutesGenerationService $generationService Draft generator (content fallback)
 	 * @param MeetingFolderService $folderService Meeting Files folder writer
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,

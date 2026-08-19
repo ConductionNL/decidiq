@@ -63,6 +63,11 @@ class ProjectionController extends Controller {
 	 * Returns aggregate vote counts and preselected option, with no individual vote
 	 * values or participant identities. Accessible without authentication.
 	 *
+	 * The voting round's state is explicitly public, so the id is not a
+	 * credential and no brute-force counter applies. A ceiling still does: this
+	 * is polled by a live results view, which is precisely the shape that turns
+	 * into an accidental load generator when a tab is left open.
+	 *
 	 * @param string $id The voting round UUID
 	 *
 	 * @return JSONResponse The public-state array or error
@@ -71,10 +76,6 @@ class ProjectionController extends Controller {
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
-	// The voting round's state is explicitly public, so the id is not a
-	// credential and no brute-force counter applies. A ceiling still does: this
-	// is polled by a live results view, which is precisely the shape that turns
-	// into an accidental load generator when a tab is left open.
 	#[AnonRateLimit(limit: 120, period: 60)]
 	public function publicState(string $id): JSONResponse {
 		$state = $this->votingService->getPublicState(votingRoundId: $id);

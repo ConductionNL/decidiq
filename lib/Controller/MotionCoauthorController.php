@@ -216,6 +216,11 @@ class MotionCoauthorController extends Controller {
 	 *
 	 * GET /api/motions/{id}/history
 	 *
+	 * Access control (OWASP A01:2021 / ADR-005): per-object, in
+	 * MotionCoauthorService::getHistory() via checkMotionAccess() — the same
+	 * guard addCoauthor/removeCoauthor/updateText already use. A caller who is
+	 * neither the proposer, a co-author, nor an admin gets 403.
+	 *
 	 * @param string $id Motion UUID
 	 *
 	 * @return JSONResponse
@@ -230,9 +235,22 @@ class MotionCoauthorController extends Controller {
 			return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
 		}
 
+		$callerUid = $user->getUID();
+		$callerIsAdmin = $this->groupManager->isAdmin($callerUid);
+		// Admins bypass ownership check; null callerUid skips the access check in the service.
+		$accessUid = $callerUid;
+		if ($callerIsAdmin === true) {
+			$accessUid = null;
+		}
+
 		try {
-			$history = $this->coauthorService->getHistory($id);
+			$history = $this->coauthorService->getHistory(
+				motionId: $id,
+				callerUid: $accessUid,
+			);
 			return new JSONResponse(['history' => $history]);
+		} catch (\InvalidArgumentException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_FORBIDDEN);
 		} catch (\RuntimeException $e) {
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
 		}

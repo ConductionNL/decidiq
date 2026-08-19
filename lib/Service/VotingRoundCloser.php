@@ -55,6 +55,8 @@ class VotingRoundCloser {
 	 * @param MotionService $motionService Drives the subject lifecycle transition
 	 * @param AmendmentOrderService $amendmentOrder Resolves an amendment's parent motion
 	 * @param ObjectRelationFilter $relationFilter Exact-id scoping for relation-filtered result sets
+	 * @param FileService $fileService The OpenRegister file service
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @return void
 	 */

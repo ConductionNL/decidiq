@@ -357,12 +357,15 @@ class MotionCoauthorControllerTest extends TestCase {
 	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.3
 	 */
 	public function testHistoryReturnsVersionList(): void {
-		$this->signIn();
+		$this->signIn(uid: 'raadslid');
 		$versions = [
 			['version' => 2, 'author' => 'raadslid', 'changeSummary' => 'Herformulering dictum'],
 			['version' => 1, 'author' => 'raadslid', 'changeSummary' => 'Eerste versie'],
 		];
-		$this->coauthorService->method('getHistory')->with('motion-1')->willReturn($versions);
+		$this->coauthorService->expects($this->once())
+			->method('getHistory')
+			->with(motionId: 'motion-1', callerUid: 'raadslid')
+			->willReturn($versions);
 
 		$response = $this->controller->history(id: 'motion-1');
 
@@ -370,6 +373,54 @@ class MotionCoauthorControllerTest extends TestCase {
 		self::assertSame($versions, $response->getData()['history']);
 
 	}//end testHistoryReturnsVersionList()
+
+	/**
+	 * Reading the history is privileged: a caller the service refuses gets 403,
+	 * not 404. The motion exists; this caller may not read its revisions.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.3
+	 */
+	public function testHistoryNonAuthorIs403(): void {
+		$this->signIn();
+		$this->coauthorService->method('getHistory')
+			->willThrowException(
+				new \InvalidArgumentException(
+					'Only the motion proposer or an existing co-author may modify this motion'
+				)
+			);
+
+		self::assertSame(
+			Http::STATUS_FORBIDDEN,
+			$this->controller->history(id: 'motion-1')->getStatus()
+		);
+
+	}//end testHistoryNonAuthorIs403()
+
+	/**
+	 * An instance admin reaches the service with a NULL caller uid, which is
+	 * how the service is told to skip the ownership check — the same contract
+	 * addCoauthor/removeCoauthor use.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.3
+	 */
+	public function testHistoryAsAdminBypassesOwnership(): void {
+		$this->signIn(uid: 'admin', isAdmin: true);
+
+		$this->coauthorService->expects($this->once())
+			->method('getHistory')
+			->with(motionId: 'motion-1', callerUid: null)
+			->willReturn([]);
+
+		self::assertSame(
+			Http::STATUS_OK,
+			$this->controller->history(id: 'motion-1')->getStatus()
+		);
+
+	}//end testHistoryAsAdminBypassesOwnership()
 
 	/**
 	 * history() on an unknown motion is 404.

@@ -82,6 +82,7 @@ class AmendmentOrderService {
 	 * Constructor for AmendmentOrderService.
 	 *
 	 * @param MotionService $motionService The motion service (amendment lookup)
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 */

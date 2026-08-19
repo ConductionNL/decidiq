@@ -60,6 +60,7 @@ class MinutesGenerationService {
 	 *
 	 * @param LoggerInterface $logger The logger
 	 * @param MinutesDraftRenderer $renderer Renders the gathered data into the Dutch template
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
 	 */

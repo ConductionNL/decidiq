@@ -44,6 +44,7 @@ class MeetingCostService {
 	 * Construct the MeetingCostService.
 	 *
 	 * @param LoggerInterface $logger PSR-3 logger
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @spec openspec/specs/meeting-efficiency/spec.md
 	 */

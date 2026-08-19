@@ -43,6 +43,7 @@ class VotingBehaviourService {
 	/**
 	 * Constructor for VotingBehaviourService.
 	 *
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @return void
 	 *

@@ -50,6 +50,7 @@ class MotionForwardingService {
 	 *
 	 * @param ContainerInterface $container The DI container (for ObjectService / IAppConfig / MotionNotifier)
 	 * @param IUserManager $userManager Nextcloud user manager for UID lookup
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @return void
 	 */
@@ -111,7 +112,7 @@ class MotionForwardingService {
 
 		$this->objectService->setRegister('decidesk');
 		$this->objectService->setSchema('decision');
-		// saveObject() hands back an ObjectEntityInterface under ADR-084, and
+		// Under ADR-084 saveObject() hands back an ObjectEntityInterface, and
 		// everything below this line reads the created motion as an array, so
 		// normalise once here rather than array-accessing an entity.
 		$created = $this->objectService->saveObject(

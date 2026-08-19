@@ -43,6 +43,7 @@ class EngagementService {
 	 * Construct the EngagementService.
 	 *
 	 * @param LoggerInterface $logger Logger interface
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
 	 */

@@ -162,6 +162,14 @@ class OriController extends Controller {
 	/**
 	 * List ORI resources.
 	 *
+	 * ORI (Open Raads Informatie) is an OPEN DATA API by design: the ids are
+	 * published resource identifiers, not credentials, and enumerating council
+	 * decisions is the intended use rather than an attack. So these endpoints
+	 * get a volume ceiling and deliberately NO #[BruteForceProtection] --
+	 * there is no secret to guess, and a brute-force counter here would
+	 * throttle exactly the consumers the standard exists to serve.
+	 * See ADR-082 for the distinction.
+	 *
 	 * @param string $resource The ORI resource slug (e.g. `events`)
 	 *
 	 * @return JSONResponse JSON-LD list envelope or error
@@ -171,13 +179,6 @@ class OriController extends Controller {
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
-	// ORI (Open Raads Informatie) is an OPEN DATA API by design: the ids are
-	// published resource identifiers, not credentials, and enumerating council
-	// decisions is the intended use rather than an attack. So these endpoints
-	// get a volume ceiling and deliberately NO #[BruteForceProtection] --
-	// there is no secret to guess, and a brute-force counter here would
-	// throttle exactly the consumers the standard exists to serve.
-	// See ADR-082 for the distinction.
 	#[AnonRateLimit(limit: 120, period: 60)]
 	public function index(string $resource): JSONResponse {
 		$schema = self::RESOURCE_MAP[$resource] ?? null;
@@ -430,6 +431,10 @@ class OriController extends Controller {
 	/**
 	 * CORS preflight handler for the item endpoint.
 	 *
+	 * The browser sends one preflight before each cross-origin call, so the
+	 * AnonRateLimit ceiling is deliberately looser than on the data endpoints
+	 * it precedes.
+	 *
 	 * @param string $resource The ORI resource slug
 	 * @param string $id The entity UUID
 	 *
@@ -439,8 +444,6 @@ class OriController extends Controller {
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
-	// CORS preflight — the browser sends one before each cross-origin call, so
-	// the ceiling is deliberately looser than the data endpoints it precedes.
 	#[AnonRateLimit(limit: 240, period: 60)]
 	public function preflightItem(string $resource, string $id): JSONResponse {
 		unset($resource, $id);

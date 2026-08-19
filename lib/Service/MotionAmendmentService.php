@@ -50,6 +50,7 @@ class MotionAmendmentService {
 	 *
 	 * @param ContainerInterface $container The DI container (for ObjectService / MotionLinkResolver)
 	 * @param LoggerInterface $logger The logger
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @return void
 	 */

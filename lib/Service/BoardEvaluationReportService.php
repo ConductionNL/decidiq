@@ -50,6 +50,8 @@ class BoardEvaluationReportService {
 	 *
 	 * @param ContainerInterface $container DI container (lazy ObjectService / Docudesk lookup)
 	 * @param LoggerInterface $logger Diagnostic logger
+	 * @param FileService $fileService The OpenRegister file service
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,

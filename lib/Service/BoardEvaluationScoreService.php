@@ -96,6 +96,7 @@ class BoardEvaluationScoreService {
 	 *
 	 * @param ContainerInterface $container The DI container (lazy ObjectService lookup)
 	 * @param LoggerInterface $logger Diagnostic logger
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
