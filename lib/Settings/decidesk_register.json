@@ -4073,6 +4073,14 @@
             "$ref": "Meeting",
             "title": "Meeting",
             "description": "Reference to the Meeting this action item stems from (many-to-one)."
+          },
+          "goal": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Goal",
+            "title": "Goal",
+            "nullable": true,
+            "description": "Optional reference to the organisation Goal (organisation-goals change) this action item serves. Round-trips through ActionItemWriter's generic non-core `fields` blob exactly like `decision`/`meeting` (goal is not in toTaskData()'s coreKeys) — no PHP change (organisation-goals REQ-007, design D4). When set, this action item is counted in that Goal's declarative linkedActionItemCount/completedActionItemCount rollup."
           }
         }
       },

@@ -159,26 +159,29 @@ surface (ADR-004 Rule 4, "Beheer is operator-only"). The list SHALL be:
 - WHEN a user navigates directly to that entry's page route
 - THEN the page renders identically to before the lift
 
-### Requirement: REQ-NAV-012 The settings gear carries exactly one Personal settings entry
+### Requirement: REQ-NAV-012 The settings gear carries no ambiguous duplicate entries
 
 `src/manifest.json` SHALL set `nav.includePersonalSettings: false` so
 `CnAppNav`'s auto-prepended generic "Personal settings" entry (which opens
-`NcAppSettingsDialog` via a route-less click handler) does not render
-alongside decidesk's own `UserSettingsMenu` fragment entry (a real
-`/user-settings` route rendering `UserSettingsPage`, decidesk's built
-per-user preference surface with notification/display/delegation/
-communication sections). The gear SHALL show exactly one entry labelled
-"Personal settings", resolving to the real page.
+`NcAppSettingsDialog` via a route-less `#` click handler) does not render.
+Nextcloud's own standard "Personal settings" link-out to `/settings/user`
+remains (it is shell-provided and not suppressible), so decidesk's own
+`UserSettingsMenu` fragment entry (the real `/user-settings` route
+rendering `UserSettingsPage` — notification/display/delegation/
+communication sections) SHALL be labelled **"Preferences"** so no two gear
+entries share a label. The gear SHALL therefore show at most one entry per
+label: "Personal settings" (Nextcloud, `/settings/user`), "Preferences"
+(decidesk, `/user-settings`), plus the admin-gated admin-settings link-out.
 
-#### Scenario: Only one Personal settings entry renders in the gear
+#### Scenario: No two gear entries share a label
 
 - WHEN the settings gear foldout is opened
-- THEN exactly one entry labelled "Personal settings" is present
-- AND clicking it navigates to `/user-settings`, not a generic dialog
+- THEN no two entries carry the same label
+- AND the entry labelled "Preferences" navigates to `/user-settings`
 
 #### Scenario: The generic auto-prepended entry is suppressed
 
 - GIVEN `nav.includePersonalSettings` is `false` in `src/manifest.json`
 - WHEN the merged manifest is built
-- THEN `CnAppNav` does not auto-prepend its own route-less "Personal
+- THEN `CnAppNav` does not auto-prepend its own route-less `#` "Personal
   settings" entry

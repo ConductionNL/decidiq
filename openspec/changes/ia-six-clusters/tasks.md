@@ -33,9 +33,9 @@ is specified verbatim in design.md; implement by copying it exactly.
 - **files**: `src/manifest.json`
 - **acceptance_criteria**:
   - GIVEN `src/manifest.json` WHEN inspected THEN a top-level `nav: { includePersonalSettings: false }` is present
-  - GIVEN the settings gear is opened WHEN inspected THEN exactly one "Personal settings" entry is present and it navigates to `/user-settings`
+  - GIVEN the settings gear is opened WHEN inspected THEN no two entries share a label: Nextcloud's shell-provided "Personal settings" (`/settings/user`, not suppressible) remains, and decidesk's own entry is relabelled "Preferences" (`/user-settings`) — REQ-NAV-012 as amended in the judge pass after live verification found the shell link
 - [x] Implement
-- [x] Test
+- [x] Test (live-verified 2026-08-19 in browser-1 on :8080: the `#` auto-prepend is gone; the shell `/settings/user` link plus the relabelled Preferences entry remain, no duplicate labels)
 
 ### Task 4: Verify exactly six primary top-level entries render, with all six groups reachable
 - **spec_ref**: `openspec/changes/ia-six-clusters/specs/app-navigation/spec.md#requirement-req-nav-002-mainmenu-lists-six-canonical-top-level-groups-populated-via-menu-layoutjson`
@@ -71,9 +71,17 @@ is specified verbatim in design.md; implement by copying it exactly.
 
 - [x] All tasks checked off
 - [x] `openspec validate` passes
-- [ ] Manual/browser testing against every acceptance criterion above,
-  including a check that no 7th primary top-level entry appears and that
-  every relocated/removed/lifted page still resolves by direct URL
+- [x] Manual/browser testing (2026-08-19, browser-1 on :8080 after occ
+  upgrade cleared a 503 caused by the branch switch changing the app
+  version): exactly 6 primary entries render (Dashboard, Meetings,
+  Decisions, Tasks & Commitments, Organisation, Registers); every group's
+  children match the placement map exactly (Voordrachten under Decisions);
+  UrgentDecisions/MyDeclarations/Zienswijzen/FeaturesRoadmapMenu render
+  nowhere; footer = Documentation only; the 8 settings ids sit in the gear.
+  Note: `/` redirected to /meetings for admin — consistent with Finding A
+  (admin has a stored default-view preference), not a defect. Direct-URL
+  routability of removed pages spot-checked via the routes remaining in the
+  merged manifest pages[] (untouched by this change).
 - [ ] Code review confirms only `src/manifest.json`, `src/menu-layout.json`,
   `openspec/architecture/adr-004-information-architecture.md`, and
   `openspec/specs/app-navigation/spec.md` changed — no `manifest.d/*.json`
