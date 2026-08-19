@@ -29,8 +29,8 @@ namespace OCA\Decidesk\Service;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\App\IAppManager;
+use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -60,6 +60,7 @@ class PublicationService {
 	/**
 	 * Constructor.
 	 *
+	 * @param ContainerInterface $container DI container, handed to the repository.
 	 * @param LoggerInterface $logger Logger, handed to the repository.
 	 * @param IAppManager $appManager Detects OpenCatalogi presence.
 	 * @param PublicationEligibilityService $eligibility Eligibility + deny-list gates.
@@ -67,11 +68,11 @@ class PublicationService {
 	 * @param PublicationConfigService $configService Per-body publication config.
 	 * @param OpenCatalogiPublisher $catalogPublisher OpenCatalogi catalog routing.
 	 * @param AuditLogService $auditLogService Immutable audit trail.
-	 * @param ObjectServiceInterface $objectService OpenRegister's published object service, handed to the repository.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
 	public function __construct(
+		ContainerInterface $container,
 		LoggerInterface $logger,
 		private readonly IAppManager $appManager,
 		private readonly PublicationEligibilityService $eligibility,
@@ -79,9 +80,8 @@ class PublicationService {
 		private readonly PublicationConfigService $configService,
 		private readonly OpenCatalogiPublisher $catalogPublisher,
 		private readonly AuditLogService $auditLogService,
-		ObjectServiceInterface $objectService,
 	) {
-		$this->repository = new PublicationRepository(logger: $logger, objectService: $objectService);
+		$this->repository = new PublicationRepository(container: $container, logger: $logger);
 
 	}//end __construct()
 

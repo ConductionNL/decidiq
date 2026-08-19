@@ -30,8 +30,6 @@ namespace OCA\Decidesk\Service;
 use DomainException;
 use InvalidArgumentException;
 use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Service\FileService;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -69,8 +67,6 @@ class TranscriptionService {
 	 * @param LoggerInterface $logger The logger.
 	 * @param TranscriptionSourceResolver $sourceResolver Candidate-source resolver.
 	 * @param MeetingFolderService $folderService Meeting folder + file writer.
-	 * @param FileService $fileService OpenRegister's file service, handed to the repository.
-	 * @param ObjectServiceInterface $objectService OpenRegister's published object service, handed to the repository.
 	 *
 	 * @spec openspec/specs/meeting-transcription/spec.md
 	 */
@@ -79,13 +75,8 @@ class TranscriptionService {
 		private readonly LoggerInterface $logger,
 		private readonly TranscriptionSourceResolver $sourceResolver,
 		private readonly MeetingFolderService $folderService,
-		FileService $fileService,
-		ObjectServiceInterface $objectService,
 	) {
-		$this->repository = new TranscriptRepository(
-			fileService: $fileService,
-			objectService: $objectService
-		);
+		$this->repository = new TranscriptRepository(container: $container);
 		$this->aligner = new TranscriptAlignmentService(repository: $this->repository);
 
 	}//end __construct()

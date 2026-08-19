@@ -74,16 +74,8 @@ class MotionService {
 		private readonly IUserManager $userManager,
 		private readonly ObjectServiceInterface $objectService,
 	) {
-		$this->amendments = new MotionAmendmentService(
-			container: $container,
-			logger: $logger,
-			objectService: $objectService
-		);
-		$this->forwarding = new MotionForwardingService(
-			container: $container,
-			userManager: $userManager,
-			objectService: $objectService
-		);
+		$this->amendments = new MotionAmendmentService(container: $container, logger: $logger);
+		$this->forwarding = new MotionForwardingService(container: $container, userManager: $userManager);
 
 	}//end __construct()
 
