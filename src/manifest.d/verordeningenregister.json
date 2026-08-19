@@ -23,7 +23,7 @@
 				"schema": "regeling",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
-				"_note": "Regelingen index (REQ-VOR-008). Columns citeertitel/type/vaststellendOrgaan/currentInwerkingtreding/status/cvdrIdentifier; quick filters on type and status, full-text search over citeertitel. currentInwerkingtreding renders the current-version date from the convenience field (maintained by RegelingConsolidationService, no per-row N+1). CSV export via the shared ExportService + CnMassExportDialog. The public register of regelingen in force (REQ-VOR-005) is not this page — it is the OpenRegister published-predicate surface (status in-werking).",
+				"_note": "Regelingen index (REQ-VOR-008). Columns citeertitel/type/vaststellendOrgaan/currentEffectiveDate/status/cvdrIdentifier; quick filters on type and status, full-text search over citeertitel. currentEffectiveDate renders the current-version date from the convenience field (maintained by RegelingConsolidationService, no per-row N+1). CSV export via the shared ExportService + CnMassExportDialog. The public register of regelingen in force (REQ-VOR-005) is not this page — it is the OpenRegister published-predicate surface (status in-werking).",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
 				"quickFilters": [
@@ -56,7 +56,7 @@
 					{ "key": "type", "label": "Type", "widget": "badge" },
 					{ "key": "determiningBody", "label": "Adopting body" },
 					{
-						"key": "currentInwerkingtreding",
+						"key": "currentEffectiveDate",
 						"label": "In force since",
 						"format": "date"
 					},
