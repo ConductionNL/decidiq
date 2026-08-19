@@ -545,21 +545,21 @@ export default {
 	opacity: 0.7;
 }
 
+/* Default = populated stage (success); pending and overdue override via
+   the cascade — no :not() chains, which prettier and stylelint wrap
+   incompatibly. */
 .cn-confidentiality-timeline__icon {
 	flex-shrink: 0;
 	margin-top: 2px;
+	color: var(--color-success);
+}
+
+.cn-confidentiality-timeline__item--pending .cn-confidentiality-timeline__icon {
 	color: var(--color-text-maxcontrast);
 }
 
 .cn-confidentiality-timeline__item--overdue .cn-confidentiality-timeline__icon {
 	color: var(--color-error);
-}
-
-.cn-confidentiality-timeline__item:not(
-		.cn-confidentiality-timeline__item--pending
-	):not(.cn-confidentiality-timeline__item--overdue)
-	.cn-confidentiality-timeline__icon {
-	color: var(--color-success);
 }
 
 .cn-confidentiality-timeline__body {
