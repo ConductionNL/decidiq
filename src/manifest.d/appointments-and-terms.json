@@ -1,15 +1,8 @@
 {
 	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
-	"_note": "Voordrachten (nominations) + Rooster van aftreden (retirement schedule) + Termijnregelingen (term rules) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages for voordracht, rooster-van-aftreden, and termijn-regeling, plus a rooster-regel index (the ordered per-body term view the dashboard expiring-terms KPI deep-links to). Schema refs BY SLUG (voordracht / termijn-regeling / rooster-van-aftreden / rooster-regel), never PascalCase. The Dashboard 'termijnen die binnen N maanden aflopen' KPI stat widget (REQ-APT-012) lives in the base src/manifest.json (design D6/mergePages replaces a same-id page wholesale, so a fragment cannot add one widget to Dashboard without duplicating it) — out of scope for this declarative-core fragment.",
+	"_note": "Rooster van aftreden (retirement schedule) + Termijnregelingen (term rules) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages for rooster-van-aftreden and termijn-regeling, plus a rooster-regel index (the ordered per-body term view the dashboard expiring-terms KPI deep-links to). Schema refs BY SLUG (termijn-regeling / rooster-van-aftreden / rooster-regel), never PascalCase. The Voordrachten/VoordrachtDetail pages and menu entry were removed by the appointment-decision-type-schema change — the retired voordracht schema is folded into Decision (decisionType=appointment); see that change's spec. The Dashboard 'termijnen die binnen N maanden aflopen' KPI stat widget (REQ-APT-012) lives in the base src/manifest.json (design D6/mergePages replaces a same-id page wholesale, so a fragment cannot add one widget to Dashboard without duplicating it) — out of scope for this declarative-core fragment.",
 	"_spec": "openspec/changes/appointments-and-terms/specs/appointments-and-terms/spec.md",
 	"menu": [
-		{
-			"id": "Voordrachten",
-			"label": "Nominations",
-			"icon": "Account",
-			"route": "Voordrachten",
-			"order": 55
-		},
 		{
 			"id": "Roosters",
 			"label": "Retirement schedules",
@@ -26,73 +19,6 @@
 		}
 	],
 	"pages": [
-		{
-			"id": "Voordrachten",
-			"route": "/voordrachten",
-			"type": "index",
-			"title": "Nominations",
-			"_note": "spec: openspec/changes/appointments-and-terms/specs/appointments-and-terms/spec.md (REQ-APT-012). Voordrachtenlijst. Columns motivering (link) / body / targetRole / voordragendePartij / lifecycle / besluit; quick filters on lifecycle (body + voordragende partij available via the sidebar facets). CSV export via the shared ExportService + CnMassExportDialog.",
-			"config": {
-				"register": "decidesk",
-				"schema": "voordracht",
-				"sortKey": "@self.created",
-				"sortOrder": "desc",
-				"_note": "kandidaten is a structured array (design D1) so the primary link column uses motivering; candidates render in the detail data widget.",
-				"quickFilterMode": "dropdown",
-				"quickFilterMultiple": true,
-				"quickFilters": [
-					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Submitted", "filter": { "lifecycle": "submitted" } },
-					{ "label": "In treatment", "filter": { "lifecycle": "handled" } },
-					{ "label": "Appointed", "filter": { "lifecycle": "appointed" } },
-					{ "label": "Not appointed", "filter": { "lifecycle": "not-appointed" } },
-					{ "label": "Withdrawn", "filter": { "lifecycle": "withdrawn" } }
-				],
-				"columns": [
-					{ "key": "rationale", "label": "Nomination", "widget": "link" },
-					{ "key": "body", "label": "Governance body" },
-					{ "key": "targetRole", "label": "Target role", "widget": "badge" },
-					{ "key": "nominatingParty", "label": "Nominating party" },
-					{ "key": "lifecycle", "label": "Status", "widget": "badge" },
-					{ "key": "decision", "label": "Decision" }
-				],
-				"actions": [
-					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "VoordrachtDetail", "primary": true }
-				],
-				"showMassExport": true,
-				"sidebar": { "enabled": true, "showMetadata": true },
-				"documentationUrl": "https://decidesk.conduction.nl"
-			}
-		},
-		{
-			"id": "VoordrachtDetail",
-			"route": "/voordrachten/:id",
-			"type": "detail",
-			"title": "Nomination",
-			"_note": "spec: openspec/changes/appointments-and-terms/specs/appointments-and-terms/spec.md (REQ-APT-012). Candidates + motivering lead 8-wide; the linked body / post / agendapunt / votingRound / besluit / membership render as resolved references in the data + Related widgets. Files leaf for supporting documents. Audit trail is a sidebar tab.",
-			"config": {
-				"register": "decidesk",
-				"schema": "voordracht",
-				"widgets": [
-					{ "id": "voordracht-data", "type": "data", "title": "Nomination", "icon": "AccountGroup", "content": { "columns": 2 } },
-					{ "id": "voordracht-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
-					{ "id": "voordracht-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
-				],
-				"layout": [
-					{ "id": "1", "widgetId": "voordracht-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
-					{ "id": "2", "widgetId": "voordracht-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
-					{ "id": "3", "widgetId": "voordracht-related", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 3 }
-				],
-				"sidebar": {
-					"enabled": true,
-					"showMetadata": true,
-					"tabs": [
-						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
-					]
-				},
-				"documentationUrl": "https://decidesk.conduction.nl"
-			}
-		},
 		{
 			"id": "Roosters",
 			"route": "/roosters",
