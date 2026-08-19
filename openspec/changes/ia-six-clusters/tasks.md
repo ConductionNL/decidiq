@@ -14,8 +14,8 @@ is specified verbatim in design.md; implement by copying it exactly.
   - GIVEN the target `removals` list WHEN the merged menu is built THEN `UrgentDecisions`, `MyDeclarations`, `Zienswijzen`, `FeaturesRoadmapMenu` render nowhere in the menu, and their pages remain routable by direct URL
   - GIVEN the target `settingsSection` list WHEN the merged menu is built THEN all 8 listed ids render inside the `NcAppNavigationSettings` gear foldout, not the primary nav
   - `_meta.description` and `_settingsSectionNote` are updated per design.md Decision 3 (explaining the populated state and the ADR-079 interim-placement rationale)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 2: Add the Registers group anchor and rename two labels in manifest.json
 - **spec_ref**: `openspec/changes/ia-six-clusters/specs/app-navigation/spec.md#requirement-req-nav-002-mainmenu-lists-six-canonical-top-level-groups-populated-via-menu-layoutjson`
@@ -25,8 +25,8 @@ is specified verbatim in design.md; implement by copying it exactly.
   - GIVEN the `ActionItems` entry WHEN inspected THEN its `label` is `"Tasks & Commitments"` and its `id`/`route`/`icon`/`order` are unchanged
   - GIVEN the `GovernanceBodies` entry WHEN inspected THEN its `label` is `"Organisation"` and its `id`/`route`/`icon`/`order` are unchanged
   - GIVEN the app renders WHEN the Registers item is clicked THEN its children expand/collapse and no navigation occurs
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 3: Dedupe the gear's Personal settings entries
 - **spec_ref**: `openspec/changes/ia-six-clusters/specs/app-navigation/spec.md#requirement-req-nav-012-the-settings-gear-carries-exactly-one-personal-settings-entry`
@@ -34,8 +34,8 @@ is specified verbatim in design.md; implement by copying it exactly.
 - **acceptance_criteria**:
   - GIVEN `src/manifest.json` WHEN inspected THEN a top-level `nav: { includePersonalSettings: false }` is present
   - GIVEN the settings gear is opened WHEN inspected THEN exactly one "Personal settings" entry is present and it navigates to `/user-settings`
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 4: Verify exactly six primary top-level entries render, with all six groups reachable
 - **spec_ref**: `openspec/changes/ia-six-clusters/specs/app-navigation/spec.md#requirement-req-nav-002-mainmenu-lists-six-canonical-top-level-groups-populated-via-menu-layoutjson`
@@ -44,8 +44,8 @@ is specified verbatim in design.md; implement by copying it exactly.
   - GIVEN the app in the ready state WHEN the primary nav is inspected THEN exactly 6 primary entries render: Dashboard, Meetings, Decisions, Tasks & Commitments, Organisation, Registers
   - GIVEN each of the five non-Dashboard primary entries WHEN expanded THEN its children match the placement map in design.md Decision 1 exactly (no extra, no missing)
   - GIVEN the app loads with no stored `default-view` preference WHEN the root route `/` is visited THEN the Dashboard page renders (not a redirect to `/meetings`) — closes design.md Finding A
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 5: Amend ADR-004 with the v2 navigation table
 - **spec_ref**: `openspec/changes/ia-six-clusters/design.md#decision-5-adr-004-v2-amendment-appended-v1-preserved`
@@ -53,8 +53,8 @@ is specified verbatim in design.md; implement by copying it exactly.
 - **acceptance_criteria**:
   - GIVEN the ADR WHEN read after this change THEN the original v1 "Top-level navigation (6, fixed)" list (lines 35–50) is unchanged/preserved
   - GIVEN the ADR WHEN read after this change THEN a new "Top-level navigation v2" subsection (exact text in design.md Decision 5) is appended, naming Dashboard/Meetings/Decisions/Tasks & Commitments/Organisation/Registers and cross-referencing ADR-079 for where Beheer now lives
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 6: Sync the app-navigation capability spec
 - **spec_ref**: `openspec/changes/ia-six-clusters/specs/app-navigation/spec.md`
@@ -64,13 +64,13 @@ is specified verbatim in design.md; implement by copying it exactly.
   - GIVEN the spec's `**Status**` (both frontmatter and body) WHEN read after this change THEN both read `in-progress`
   - GIVEN REQ-NAV-002 WHEN read after this change THEN its full text matches the MODIFIED block in this change's `specs/app-navigation/spec.md` delta
   - GIVEN the spec WHEN read after this change THEN it additionally contains REQ-NAV-009 through REQ-NAV-012 verbatim from this change's ADDED block
-- [ ] Implement
-- [ ] Test
+- [x] Implement (synced by the orchestrator in the judge pass: REQ-NAV-002 replaced with the MODIFIED text, REQ-NAV-009..012 appended; change-list line and status were already updated at artifact time. Note: nav-ceiling-gate's positive-control requirement was renumbered REQ-NAV-009→REQ-NAV-013 to clear a numbering collision with this change's REQ-NAV-009)
+- [x] Test (grep-verified: main spec now carries 10 REQ-NAV requirements, REQ-NAV-002 header matches the delta, 009..012 present once each)
 
 ## Verification
 
-- [ ] All tasks checked off
-- [ ] `openspec validate` passes
+- [x] All tasks checked off
+- [x] `openspec validate` passes
 - [ ] Manual/browser testing against every acceptance criterion above,
   including a check that no 7th primary top-level entry appears and that
   every relocated/removed/lifted page still resolves by direct URL

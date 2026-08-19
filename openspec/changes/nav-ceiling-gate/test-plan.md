@@ -38,7 +38,7 @@ regression from recurring, and each test case guards one way it could.
 - **test command**: `npm run test:unit -- navCeilingGate`
 
 ### TC-4: Positive control — an unplaced fragment entry fails the check
-- **spec_ref**: `openspec/changes/nav-ceiling-gate/specs/app-navigation/spec.md#requirement-req-nav-009-the-nav-ceiling-check-carries-a-positive-control`
+- **spec_ref**: `openspec/changes/nav-ceiling-gate/specs/app-navigation/spec.md#requirement-req-nav-013-the-nav-ceiling-check-carries-a-positive-control`
 - **type**: regression
 - **persona**: n/a
 - **preconditions**: A minimal fixture: base with 2 primary entries, one fragment declaring one new top-level entry (e.g. id `NewThing`), empty `menu-layout.json` (all three arrays empty/absent)
@@ -86,7 +86,7 @@ regression from recurring, and each test case guards one way it could.
 
 - REQ-NAV-007 (ceiling): TC-1, TC-2, TC-3 — covered
 - REQ-NAV-008 (fragment placement): TC-4, TC-5, TC-6, TC-7 — covered
-- REQ-NAV-009 (positive control): TC-4, TC-5 — covered
+- REQ-NAV-013 (positive control): TC-4, TC-5 — covered (renumbered from REQ-NAV-009 in the judge pass — ia-six-clusters' delta claims REQ-NAV-009 for relocations)
 
 ## Out of Scope
 

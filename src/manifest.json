@@ -4,6 +4,9 @@
 	"dependencies": [
 		"openregister"
 	],
+	"nav": {
+		"includePersonalSettings": false
+	},
 	"walkthrough": {
 		"enabled": true,
 		"version": 1,
@@ -70,17 +73,23 @@
 		},
 		{
 			"id": "ActionItems",
-			"label": "Action items",
+			"label": "Tasks & Commitments",
 			"icon": "FormatListChecks",
 			"route": "ActionItems",
 			"order": 40
 		},
 		{
 			"id": "GovernanceBodies",
-			"label": "Bodies",
+			"label": "Organisation",
 			"icon": "AccountGroupOutline",
 			"route": "GovernanceBodies",
 			"order": 60
+		},
+		{
+			"id": "Registers",
+			"label": "Registers",
+			"icon": "LibraryOutline",
+			"order": 70
 		},
 		{
 			"id": "Documentation",

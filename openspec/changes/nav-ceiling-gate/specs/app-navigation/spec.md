@@ -68,7 +68,7 @@ entry is a defect even while the count happens to stay at or under 6.
 - WHEN the nav-ceiling check runs
 - THEN that entry is treated as placed and does not trigger an unplaced-entry failure
 
-### Requirement: REQ-NAV-009 The nav-ceiling check carries a positive control
+### Requirement: REQ-NAV-013 The nav-ceiling check carries a positive control
 
 The nav-ceiling check's test suite SHALL include at least one fixture that
 proves the check can fail: an in-memory fragment fixture with an unplaced
