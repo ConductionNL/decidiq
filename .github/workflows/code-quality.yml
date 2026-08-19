@@ -181,7 +181,17 @@ jobs:
       # Measured on this tree before enabling: PASSES, 197 of 203 tracked
       # frontend files in scope (docs/ excluded via .prettierignore; build
       # output via .gitignore, which prettier 3 also reads).
-      frontend-checks: '["check:manifest", "test:l10n", "format"]'
+      # `check:nav-ceiling` (added with the nav-ceiling-gate change) enforces
+      # ADR-004's six-item top-level navigation ceiling: it rebuilds the
+      # effective menu the same way src/main.js's buildManifest pipeline
+      # does (base manifest + every manifest.d/*.json fragment + menu-
+      # layout.json) and fails on a primary-nav count over 6, or on any
+      # fragment top-level menu entry menu-layout.json never explicitly
+      # placed (relocation / removal / settingsSection lift). Without this,
+      # ADR-004's ceiling had no mechanical enforcement — 22 independent
+      # fragments each added their own top-level entry and the nav grew
+      # back to 44 items with no single commit that visibly broke the rule.
+      frontend-checks: '["check:manifest", "check:nav-ceiling", "test:l10n", "format"]'
 
       # ── Coverage ratchet ─────────────────────────────────────────────────
       # `enable-coverage-guard` defaults to FALSE, which is why both

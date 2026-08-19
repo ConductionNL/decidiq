@@ -1,9 +1,10 @@
 ---
-status: done
-status-note: In progress 2026-06-14 via popolo-decision-makers (ContactDetail Popolo schema added; Person + Membership become the governance-body decision-maker model per ADR-001/ADR-006). In progress 2026-06-14 via retire-board-portal (parallel Board schema + Board views retired per ADR-006; corporate boards become governance-body objects with bodyType=corporate-board and mode=corp labels).
+status: in-progress
+status-note: In progress 2026-06-14 via popolo-decision-makers (ContactDetail Popolo schema added; Person + Membership become the governance-body decision-maker model per ADR-001/ADR-006). In progress 2026-06-14 via retire-board-portal (parallel Board schema + Board views retired per ADR-006; corporate boards become governance-body objects with bodyType=corporate-board and mode=corp labels). In progress 2026-08-19 via organisation-facet-composition (bodyType gains a `faction` value + new `parentBody` self-reference per ADR-006, so a faction is an ordinary GovernanceBody rather than the parallel schema the stale fractievoorzitter-fractie-koppeling draft proposed).
 openspec-changes:
   - popolo-decision-makers
   - retire-board-portal
+  - organisation-facet-composition
 ---
 
 # governance-bodies Specification
