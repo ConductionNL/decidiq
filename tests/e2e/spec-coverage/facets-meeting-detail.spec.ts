@@ -1,0 +1,241 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * Gate-19 e2e coverage — MeetingDetail's five meeting-facet-composition
+ * facets: oral questions (vragenuur), interpellations, proxy authorizations,
+ * the assoc-mode-gated kascommissie verklaringen facet, and the read-only
+ * routed-incoming-documents facet. Before this file these five widgets
+ * (src/manifest.json:474-478) had no e2e coverage at all — a green suite
+ * proved nothing about whether they actually render.
+ *
+ * Fixtures (a meeting + one mondelinge-vraag) are seeded through the
+ * OpenRegister object API with Basic auth (CSRF-exempt, mirrors
+ * agenda-management.spec.ts's `newApiContext`) and deleted in a `finally`
+ * block — explicitly, by id, rather than via the workflows/governance-fixture
+ * TEARDOWN_ORDER list, because `mondelinge-vraag` is not a member of that
+ * list and would leak silently if routed through `cleanupAll()` (see that
+ * file's TEARDOWN_ORDER doc comment for the five schemas that already leaked
+ * this way).
+ *
+ * @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-oral-questions-scoped-to-the-current-meeting
+ * @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-interpellations-scheduled-at-the-current-meeting
+ * @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-proxy-authorizations-scoped-to-the-current-meeting
+ * @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-kascommissie-facet-hidden-outside-association-mode
+ * @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-documents-routed-onto-the-meetings-agenda
+ */
+import type { APIRequestContext, PlaywrightWorkerArgs } from '@playwright/test'
+
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from '../base-url.ts'
+
+const OR = `${BASE}/index.php/apps/openregister/api/objects/decidesk`
+const ADMIN_USER = process.env.NEXTCLOUD_USER || 'admin'
+const ADMIN_PASS = process.env.NEXTCLOUD_PASS || 'admin'
+
+/** A placeholder Person/Decision reference for required-but-irrelevant refs, matching the nil-UUID convention already used throughout lib/Settings seed data for unresolved references. */
+const NIL_UUID = '00000000-0000-0000-0000-000000000000'
+
+/**
+ * Basic-auth API context for seeding fixtures (session cookies would trip
+ * the CSRF check on writes) — same shape as agenda-management.spec.ts.
+ */
+async function newApiContext(
+	playwright: PlaywrightWorkerArgs['playwright'],
+): Promise<APIRequestContext> {
+	return playwright.request.newContext({
+		extraHTTPHeaders: {
+			Authorization:
+				'Basic '
+				+ Buffer.from(`${ADMIN_USER}:${ADMIN_PASS}`).toString('base64'),
+			'OCS-APIRequest': 'true',
+			Accept: 'application/json',
+			'Content-Type': 'application/json',
+		},
+	})
+}
+
+/** Extract the OR object id from a create response body. */
+function objectId(body: any): string | null {
+	return body?.id ?? body?.['@self']?.id ?? null
+}
+
+/** Find a seeded GovernanceBody's id by its exact `name`. */
+async function findGovernanceBodyId(
+	api: APIRequestContext,
+	name: string,
+): Promise<string | null> {
+	const resp = await api.get(`${OR}/governance-body?_limit=200`, {
+		headers: { Accept: 'application/json' },
+	})
+	if (!resp.ok()) return null
+	const body = await resp.json()
+	const rows = body.results ?? body.items ?? []
+	const match = rows.find((r: any) => r.name === name)
+	return match ? objectId(match) : null
+}
+
+// @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-oral-questions-scoped-to-the-current-meeting
+test('MeetingDetail: oral-questions facet lists a mondelinge-vraag created via API', async ({
+	page,
+	playwright,
+}) => {
+	// Detail pages are widget-heavy (five new facets on top of the existing
+	// twelve); 35s matches the established budget from
+	// agenda-management.spec.ts's meeting-facet-composition tests.
+	test.setTimeout(35_000)
+	const api = await newApiContext(playwright)
+	let meetingId: string | null = null
+	let questionId: string | null = null
+	try {
+		const governanceBodyId = await findGovernanceBodyId(
+			api,
+			'Gemeenteraad Amsterdam',
+		)
+		test.skip(
+			!governanceBodyId,
+			'Seed governance body "Gemeenteraad Amsterdam" not found',
+		)
+
+		const meetingResp = await api.post(`${OR}/meeting`, {
+			data: {
+				title: `E2E facet meeting (vragenuur) ${Date.now()}`,
+				meetingType: 'regular',
+				scheduledDate: '2027-02-01T10:00:00Z',
+				meetingMode: 'in-person',
+				lifecycle: 'scheduled',
+			},
+		})
+		test.skip(
+			!meetingResp.ok(),
+			`Could not seed meeting (HTTP ${meetingResp.status()})`,
+		)
+		meetingId = objectId(await meetingResp.json())
+		test.skip(!meetingId, 'Seeded meeting has no id')
+
+		const subject = `E2E facet oral question ${Date.now()}`
+		const questionResp = await api.post(`${OR}/mondelinge-vraag`, {
+			data: {
+				// Pattern-validated MV-{jaar}-{volgnummer}; a run-unique suffix
+				// avoids colliding with any other seeded/created question.
+				questionNumber: `MV-2026-${Date.now() % 100000}`,
+				submitter: NIL_UUID,
+				portfolioHolder: NIL_UUID,
+				politicalGroup: 'E2E test fraction',
+				subject,
+				rationale:
+					'E2E fixture rationale text for the oral-questions facet.',
+				governanceBody: governanceBodyId,
+				targetMeeting: meetingId,
+				lifecycle: 'submitted',
+			},
+		})
+		test.skip(
+			!questionResp.ok(),
+			`Could not seed mondelinge-vraag (HTTP ${questionResp.status()})`,
+		)
+		questionId = objectId(await questionResp.json())
+		test.skip(!questionId, 'Seeded mondelinge-vraag has no id')
+
+		await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
+		await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+
+		await expect(
+			page.getByRole('heading', { name: 'Oral questions', exact: true }),
+		).toBeVisible()
+		await expect(page.getByText(subject, { exact: true })).toBeVisible()
+	} finally {
+		if (questionId) {
+			await api
+				.delete(`${OR}/mondelinge-vraag/${questionId}`)
+				.catch(() => null)
+		}
+		if (meetingId) {
+			await api.delete(`${OR}/meeting/${meetingId}`).catch(() => null)
+		}
+		await api.dispose()
+	}
+})
+
+// @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-interpellations-scheduled-at-the-current-meeting
+// @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-proxy-authorizations-scoped-to-the-current-meeting
+// @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-documents-routed-onto-the-meetings-agenda
+// @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-kascommissie-facet-hidden-outside-association-mode
+test('MeetingDetail: interpellations, proxy-authorizations and routed-documents facets render their real empty states; kascommissie is absent in gov mode', async ({
+	page,
+	playwright,
+}) => {
+	test.setTimeout(35_000)
+	const api = await newApiContext(playwright)
+	let meetingId: string | null = null
+	try {
+		const meetingResp = await api.post(`${OR}/meeting`, {
+			data: {
+				title: `E2E facet meeting (empty facets) ${Date.now()}`,
+				meetingType: 'regular',
+				scheduledDate: '2027-02-02T10:00:00Z',
+				meetingMode: 'in-person',
+				lifecycle: 'scheduled',
+			},
+		})
+		test.skip(
+			!meetingResp.ok(),
+			`Could not seed meeting (HTTP ${meetingResp.status()})`,
+		)
+		meetingId = objectId(await meetingResp.json())
+		test.skip(!meetingId, 'Seeded meeting has no id')
+
+		await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
+		await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+
+		// Interpellations facet (object-list widget) — real declared empty state.
+		await expect(
+			page.getByRole('heading', { name: 'Interpellations', exact: true }),
+		).toBeVisible()
+		await expect(
+			page.getByText(
+				'No interpellation requests scheduled for this meeting.',
+				{
+					exact: true,
+				},
+			),
+		).toBeVisible()
+
+		// Proxy authorizations facet (object-list widget) — real declared empty state.
+		await expect(
+			page.getByRole('heading', { name: 'Proxy authorizations', exact: true }),
+		).toBeVisible()
+		await expect(
+			page.getByText(
+				'No proxy authorizations registered for this meeting yet.',
+				{ exact: true },
+			),
+		).toBeVisible()
+
+		// Routed incoming documents facet — custom two-hop-join widget
+		// (MeetingRoutedDocumentsTab), not an object-list widget.
+		const routedDocs = page.getByTestId('meeting-routed-documents-tab')
+		await expect(routedDocs).toBeVisible()
+		await expect(
+			routedDocs.getByText('Incoming documents', { exact: false }),
+		).toBeVisible()
+		await expect(
+			page.getByText('No incoming documents routed to this meeting yet.', {
+				exact: true,
+			}),
+		).toBeVisible()
+
+		// Kascommissie is assoc-mode-gated: the widget declaration stays on the
+		// page (a grid cell is still allocated) but renders NOTHING at all in
+		// the default 'gov' organisatie_modus — assert its data-testid is
+		// absent rather than forcing a mode switch. Checked last, after the
+		// routed-documents facet (which sits below it in gridY order), so by
+		// this point Vue has already decided whether to mount it.
+		await expect(page.getByTestId('meeting-kascommissie-tab')).toHaveCount(0)
+	} finally {
+		if (meetingId) {
+			await api.delete(`${OR}/meeting/${meetingId}`).catch(() => null)
+		}
+		await api.dispose()
+	}
+})
