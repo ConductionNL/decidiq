@@ -28,26 +28,50 @@
 				"quickFilterMultiple": true,
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "In preparation", "filter": { "status": "in-preparation" } },
+					{
+						"label": "In preparation",
+						"filter": { "status": "in-preparation" }
+					},
 					{ "label": "Adopted", "filter": { "status": "adopted" } },
 					{ "label": "In force", "filter": { "status": "in-effect" } },
 					{ "label": "Lapsed", "filter": { "status": "lapsed" } },
 					{ "label": "Verordening", "filter": { "type": "by-law" } },
 					{ "label": "Beleidsregel", "filter": { "type": "policy-rule" } },
-					{ "label": "Nadere regel", "filter": { "type": "detailed-rule" } },
+					{
+						"label": "Nadere regel",
+						"filter": { "type": "detailed-rule" }
+					},
 					{ "label": "Reglement", "filter": { "type": "regulations" } },
-					{ "label": "Externe statuut", "filter": { "type": "external-charter" } }
+					{
+						"label": "Externe statuut",
+						"filter": { "type": "external-charter" }
+					}
 				],
 				"columns": [
-					{ "key": "citeertitel", "label": "Citeertitel", "widget": "link" },
+					{
+						"key": "citeertitel",
+						"label": "Citeertitel",
+						"widget": "link"
+					},
 					{ "key": "type", "label": "Type", "widget": "badge" },
 					{ "key": "determiningBody", "label": "Adopting body" },
-					{ "key": "currentInwerkingtreding", "label": "In force since" },
+					{
+						"key": "currentInwerkingtreding",
+						"label": "In force since",
+						"format": "date"
+					},
 					{ "key": "cvdrIdentifier", "label": "CVDR" },
 					{ "key": "status", "label": "Status", "widget": "badge" }
 				],
 				"actions": [
-					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "RegelingDetail", "primary": true }
+					{
+						"id": "view",
+						"label": "View",
+						"icon": "EyeOutline",
+						"handler": "navigate",
+						"route": "RegelingDetail",
+						"primary": true
+					}
 				],
 				"showMassExport": true,
 				"sidebar": { "enabled": true, "showMetadata": true },
@@ -65,20 +89,97 @@
 				"schema": "regeling",
 				"_note": "RegelingDetail (REQ-VOR-004/008). Regeling metadata leads 8-wide, publication/CVDR stacked right; the linked vaststellendOrgaan renders as a resolved reference in the data + Related widgets. The Related widget surfaces the version timeline — every RegelingVersie (via its regeling ref) with versienummer, inwerkingtreding, state and its wijzigingsbesluit link to the Decision detail page — plus the current in-force version. The 'geldend op' date control driving REQ-VOR-004 resolution and the per-version export/publication state are wired by the imperative RegelingConsolidationService / RegelingExportService slices; this fragment provides the declarative skeleton. Files leaf for supporting documents. Audit trail is a sidebar tab.",
 				"widgets": [
-					{ "id": "regeling-data", "type": "data", "title": "Regulation", "icon": "ScaleBalance", "content": { "columns": 2 } },
-					{ "id": "regeling-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
-					{ "id": "regeling-related", "type": "related", "title": "Versions & related", "icon": "LinkVariant" }
+					{
+						"id": "regeling-data",
+						"type": "data",
+						"title": "Regulation",
+						"icon": "ScaleBalance",
+						"content": {
+							"columns": 2,
+							"overrides": {
+								"status": { "order": 1 },
+								"cvdrIdentifier": { "order": 2 }
+							}
+						}
+					},
+					{
+						"id": "regeling-files",
+						"type": "integration",
+						"integrationId": "files",
+						"title": "Documents",
+						"icon": "FolderOutline"
+					},
+					{
+						"id": "regeling-related",
+						"type": "related",
+						"title": "Related",
+						"icon": "LinkVariant"
+					},
+					{
+						"id": "regeling-versions",
+						"type": "version-timeline",
+						"title": "Version timeline",
+						"icon": "Timeline",
+						"_note": "register-detail-optimisation REQ-VOR-009: every regeling-versie whose regulation ref points at this regeling, ordered by effectiveDate, each linking to its enacting Decision (determinedBy).",
+						"content": {
+							"title": "Version timeline",
+							"icon": "Timeline",
+							"versionRegister": "decidesk",
+							"versionSchema": "regeling-versie",
+							"parentRefField": "regulation",
+							"effectiveDateField": "effectiveDate",
+							"lapseDateField": "expiryDate",
+							"versionNumberField": "versionNumber",
+							"statusField": "status",
+							"decisionRefField": "determinedBy",
+							"decisionRoute": "DecisionDetail"
+						}
+					}
 				],
 				"layout": [
-					{ "id": "1", "widgetId": "regeling-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
-					{ "id": "2", "widgetId": "regeling-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
-					{ "id": "3", "widgetId": "regeling-related", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 3 }
+					{
+						"id": "1",
+						"widgetId": "regeling-data",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 8,
+						"gridHeight": 6
+					},
+					{
+						"id": "2",
+						"widgetId": "regeling-files",
+						"gridX": 8,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 6
+					},
+					{
+						"id": "3",
+						"widgetId": "regeling-related",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 12,
+						"gridHeight": 3
+					},
+					{
+						"id": "4",
+						"widgetId": "regeling-versions",
+						"gridX": 0,
+						"gridY": 9,
+						"gridWidth": 12,
+						"gridHeight": 4
+					}
 				],
 				"sidebar": {
 					"enabled": true,
 					"showMetadata": true,
 					"tabs": [
-						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+						{
+							"id": "audit",
+							"label": "History",
+							"icon": "History",
+							"widgets": [{ "type": "audit" }]
+						}
 					]
 				},
 				"documentationUrl": "https://decidesk.conduction.nl"
@@ -95,20 +196,63 @@
 				"schema": "regeling-versie",
 				"_note": "RegelingVersieDetail (REQ-VOR-002/003). Version metadata leads 8-wide; the linked regeling (parent work) and vastgesteldDoor (wijzigingsbesluit Decision) render as resolved references in the data + Related widgets — the amending-decision link navigates to the existing Decision detail page (REQ-VOR-008). The consolidated-text document is the Files leaf (attached via the OR file abstraction, not a schema property). Once the version is in-werking it is sealed and immutable (REQ-VOR-003) — the seal is enforced server-side by OpenRegister, independent of this UI. Audit trail is a sidebar tab.",
 				"widgets": [
-					{ "id": "versie-data", "type": "data", "title": "Regulation version", "icon": "FileDocument", "content": { "columns": 2 } },
-					{ "id": "versie-files", "type": "integration", "integrationId": "files", "title": "Consolidated text", "icon": "FolderOutline" },
-					{ "id": "versie-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+					{
+						"id": "versie-data",
+						"type": "data",
+						"title": "Regulation version",
+						"icon": "FileDocument",
+						"content": { "columns": 2 }
+					},
+					{
+						"id": "versie-files",
+						"type": "integration",
+						"integrationId": "files",
+						"title": "Consolidated text",
+						"icon": "FolderOutline"
+					},
+					{
+						"id": "versie-related",
+						"type": "related",
+						"title": "Related",
+						"icon": "LinkVariant"
+					}
 				],
 				"layout": [
-					{ "id": "1", "widgetId": "versie-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
-					{ "id": "2", "widgetId": "versie-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
-					{ "id": "3", "widgetId": "versie-related", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 3 }
+					{
+						"id": "1",
+						"widgetId": "versie-data",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 8,
+						"gridHeight": 6
+					},
+					{
+						"id": "2",
+						"widgetId": "versie-files",
+						"gridX": 8,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 6
+					},
+					{
+						"id": "3",
+						"widgetId": "versie-related",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 12,
+						"gridHeight": 3
+					}
 				],
 				"sidebar": {
 					"enabled": true,
 					"showMetadata": true,
 					"tabs": [
-						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+						{
+							"id": "audit",
+							"label": "History",
+							"icon": "History",
+							"widgets": [{ "type": "audit" }]
+						}
 					]
 				},
 				"documentationUrl": "https://decidesk.conduction.nl"

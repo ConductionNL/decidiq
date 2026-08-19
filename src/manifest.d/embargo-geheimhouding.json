@@ -44,11 +44,22 @@
 					{ "key": "imposedBy", "label": "Imposed by" },
 					{ "key": "imposedByBody", "label": "Body" },
 					{ "key": "imposedAt", "label": "Imposed at" },
-					{ "key": "bekrachtigingDeadline", "label": "Bekrachtiging deadline" },
+					{
+						"key": "ratificationDeadline",
+						"label": "Bekrachtiging deadline",
+						"format": "date"
+					},
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 				],
 				"actions": [
-					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "GeheimhoudingDetail", "primary": true }
+					{
+						"id": "view",
+						"label": "View",
+						"icon": "EyeOutline",
+						"handler": "navigate",
+						"route": "GeheimhoudingDetail",
+						"primary": true
+					}
 				],
 				"showMassExport": true,
 				"sidebar": { "enabled": true, "showMetadata": true },
@@ -65,18 +76,69 @@
 				"register": "decidesk",
 				"schema": "geheimhouding",
 				"widgets": [
-					{ "id": "geheimhouding-data", "type": "data", "title": "Confidentiality", "icon": "ShieldCheckOutline", "content": { "columns": 2 } },
-					{ "id": "geheimhouding-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+					{
+						"id": "geheimhouding-data",
+						"type": "data",
+						"title": "Confidentiality",
+						"icon": "ShieldCheckOutline",
+						"content": { "columns": 2 }
+					},
+					{
+						"id": "geheimhouding-related",
+						"type": "related",
+						"title": "Related",
+						"icon": "LinkVariant"
+					},
+					{
+						"id": "geheimhouding-timeline",
+						"type": "confidentiality-status-timeline",
+						"title": "Confidentiality status timeline",
+						"icon": "ShieldLockOutline",
+						"_note": "register-detail-optimisation REQ-EMB-010/011/012: fixed 3-stage lifecycle (imposed / bekrachtiging / opheffing) with pending/overdue states, resolved ground (citation + legacyCitation), and resolved target reference (targetDocument/targetAgendaItem/targetDecision).",
+						"content": {
+							"title": "Confidentiality status timeline",
+							"icon": "ShieldLockOutline",
+							"register": "decidesk",
+							"groundSchema": "geheimhouding-grond"
+						}
+					}
 				],
 				"layout": [
-					{ "id": "1", "widgetId": "geheimhouding-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
-					{ "id": "2", "widgetId": "geheimhouding-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 }
+					{
+						"id": "1",
+						"widgetId": "geheimhouding-data",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 8,
+						"gridHeight": 6
+					},
+					{
+						"id": "2",
+						"widgetId": "geheimhouding-related",
+						"gridX": 8,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 6
+					},
+					{
+						"id": "3",
+						"widgetId": "geheimhouding-timeline",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 12,
+						"gridHeight": 4
+					}
 				],
 				"sidebar": {
 					"enabled": true,
 					"showMetadata": true,
 					"tabs": [
-						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+						{
+							"id": "audit",
+							"label": "History",
+							"icon": "History",
+							"widgets": [{ "type": "audit" }]
+						}
 					]
 				},
 				"documentationUrl": "https://decidesk.conduction.nl"
@@ -98,9 +160,18 @@
 				"quickFilters": [
 					{ "label": "All", "filter": {}, "default": true },
 					{ "label": "Active", "filter": { "active": true } },
-					{ "label": "Gemeentewet", "filter": { "category": "municipalities-act" } },
-					{ "label": "Woo absolute", "filter": { "category": "woo-absolute" } },
-					{ "label": "Woo relative", "filter": { "category": "woo-relative" } },
+					{
+						"label": "Gemeentewet",
+						"filter": { "category": "municipalities-act" }
+					},
+					{
+						"label": "Woo absolute",
+						"filter": { "category": "woo-absolute" }
+					},
+					{
+						"label": "Woo relative",
+						"filter": { "category": "woo-relative" }
+					},
 					{ "label": "Other", "filter": { "category": "other" } }
 				],
 				"columns": [
@@ -108,11 +179,22 @@
 					{ "key": "citation", "label": "Citation" },
 					{ "key": "legacyCitation", "label": "Legacy citation" },
 					{ "key": "category", "label": "Category", "widget": "badge" },
-					{ "key": "requiresBekrachtiging", "label": "Requires confirmation", "widget": "boolean" },
+					{
+						"key": "requiresBekrachtiging",
+						"label": "Requires confirmation",
+						"widget": "boolean"
+					},
 					{ "key": "active", "label": "Active", "widget": "boolean" }
 				],
 				"actions": [
-					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "GeheimhoudingGrondDetail", "primary": true }
+					{
+						"id": "view",
+						"label": "View",
+						"icon": "EyeOutline",
+						"handler": "navigate",
+						"route": "GeheimhoudingGrondDetail",
+						"primary": true
+					}
 				],
 				"showMassExport": true,
 				"sidebar": { "enabled": true, "showMetadata": true },
@@ -129,16 +211,34 @@
 				"register": "decidesk",
 				"schema": "geheimhouding-grond",
 				"widgets": [
-					{ "id": "geheimhouding-grond-data", "type": "data", "title": "Confidentiality ground", "icon": "ScaleBalance", "content": { "columns": 2 } }
+					{
+						"id": "geheimhouding-grond-data",
+						"type": "data",
+						"title": "Confidentiality ground",
+						"icon": "ScaleBalance",
+						"content": { "columns": 2 }
+					}
 				],
 				"layout": [
-					{ "id": "1", "widgetId": "geheimhouding-grond-data", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 6 }
+					{
+						"id": "1",
+						"widgetId": "geheimhouding-grond-data",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 6
+					}
 				],
 				"sidebar": {
 					"enabled": true,
 					"showMetadata": true,
 					"tabs": [
-						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+						{
+							"id": "audit",
+							"label": "History",
+							"icon": "History",
+							"widgets": [{ "type": "audit" }]
+						}
 					]
 				},
 				"documentationUrl": "https://decidesk.conduction.nl"
