@@ -23,6 +23,7 @@
 				"schema": "proxy-authorization",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
+				"subscribe": false,
 				"_note": "Proxy authorizations list (REQ-MPA-004). Columns grantor/holder/meeting/signatureStatus (badge); quick filters on signatureStatus so unsigned proxies are immediately distinguishable (WCAG 2.1 AA — status never by colour alone). CSV export via the shared ExportService + CnMassExportDialog. The per-meeting proxy register view and its document export (REQ-MPA-008) are surfaced imperatively on the meeting detail page, not here.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -33,9 +34,9 @@
 					{ "label": "Refused", "filter": { "signatureStatus": "refused" } }
 				],
 				"columns": [
-					{ "key": "grantor", "label": "Grantor", "widget": "link" },
-					{ "key": "holder", "label": "Holder" },
-					{ "key": "meeting", "label": "Meeting" },
+					{ "key": "grantor", "label": "Grantor", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
+					{ "key": "holder", "label": "Holder", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
+					{ "key": "meeting", "label": "Meeting", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "meeting", "labelField": "title" } },
 					{ "key": "signatureStatus", "label": "Signature", "widget": "badge" }
 				],
 				"actions": [

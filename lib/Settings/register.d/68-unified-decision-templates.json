@@ -694,9 +694,8 @@
               },
               "sourceUuid": {
                 "type": "string",
-                "format": "uuid",
-                "title": "Source UUID",
-                "description": "UUID of the source process-template/vve-decision-template object this decision-template was migrated from."
+                "title": "Source identifier",
+                "description": "Provenance marker: the identifier the migrated object carried in its superseded schema (see sourceSchema). Deliberately NOT a $ref and not uuid-formatted — the source schemas are retired (active:false), their objects stay inert as historical fixtures, and no live join should ever traverse this field (ADR-062 rule 7 provenance exemption)."
               }
             }
           }

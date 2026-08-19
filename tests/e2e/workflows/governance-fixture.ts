@@ -29,7 +29,7 @@
  */
 import type { Page } from '@playwright/test'
 
-import { BASE_URL as BASE } from '../base-url'
+import { BASE_URL as BASE } from '../base-url.ts'
 
 const OR = `${BASE}/index.php/apps/openregister/api/objects/decidesk`
 
@@ -56,7 +56,16 @@ export const MOTION_SCHEMA = 'decision'
  * THIS array, not `ledger.created`, so an object tracked under a slug that is
  * absent here is never deleted and `cleanupAll()` still returns cleanly.
  * `minutes` and `agenda-item` were both created by specs (resolution-minutes)
- * and both absent, so every CI run left them behind.
+ * and both absent, so every CI run left them behind. Repeat offenders found
+ * by the ux-debt-rendering fixture-pollution sweep (2026-08-19):
+ * `board-evaluation` + `evaluation-template` (board-evaluation-workflow) and
+ * `consultation-reaction` + `participatory-budget` + `budget-proposal`
+ * (citizen-participation-workflow) were all created via `createObject()` but
+ * absent from this array — every run of those two workflow specs leaked
+ * those objects onto the shared instance. `board-evaluation` and
+ * `budget-proposal` are ordered ahead of the parents they reference
+ * (`governance-body` / `evaluation-template` and `participatory-budget`
+ * respectively) so the child rows delete first.
  */
 const TEARDOWN_ORDER = [
 	'vote',
@@ -64,6 +73,11 @@ const TEARDOWN_ORDER = [
 	'decision',
 	'minutes',
 	'agenda-item',
+	'board-evaluation',
+	'consultation-reaction',
+	'budget-proposal',
+	'evaluation-template',
+	'participatory-budget',
 	'participant',
 	'meeting',
 	'governance-body',
@@ -314,6 +328,11 @@ export async function cleanupAll(page: Page, ledger: SeedLedger): Promise<void> 
 		'vote',
 		'voting-round',
 		'decision',
+		'board-evaluation',
+		'consultation-reaction',
+		'budget-proposal',
+		'evaluation-template',
+		'participatory-budget',
 		'participant',
 		'meeting',
 		'governance-body',
@@ -341,4 +360,4 @@ export async function cleanupAll(page: Page, ledger: SeedLedger): Promise<void> 
 	}
 }
 
-export { BASE, OR, objId }
+export { BASE, objId, OR }

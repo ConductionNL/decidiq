@@ -280,6 +280,7 @@ export default {
 	},
 
 	computed: {
+		/** @spec exclude config-merge helper (register/groundSchema defaults), no behavioural requirement of its own */
 		cfg() {
 			const c = this.content || {}
 			return {
@@ -288,34 +289,52 @@ export default {
 			}
 		},
 
+		/** @spec exclude widget-id plumbing for CnWidgetWrapper, no behavioural requirement of its own */
 		widgetId() {
 			return 'confidentiality-status-timeline'
 		},
 
+		/** @spec exclude defensive objectData accessor, no behavioural requirement of its own */
 		record() {
 			return this.objectData && typeof this.objectData === 'object'
 				? this.objectData
 				: {}
 		},
 
+		/**
+		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+		 */
 		stages() {
 			return buildConfidentialityStages(this.record, Date.now())
 		},
 
+		/**
+		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+		 */
 		decisionRoute() {
 			return 'DecisionDetail'
 		},
 
+		/**
+		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+		 */
 		agendaItemRoute() {
 			return 'AgendaItemDetail'
 		},
 
+		/**
+		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+		 */
 		imposedByLabel() {
 			const fn = IMPOSED_BY_LABELS[this.record.imposedBy]
 			return fn ? fn() : this.record.imposedBy || ''
 		},
 
-		/** Whichever of targetDocument/targetAgendaItem/targetDecision is set. */
+		/**
+		 * Whichever of targetDocument/targetAgendaItem/targetDecision is set.
+		 *
+		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 */
 		targetKind() {
 			if (this.record.targetDocument) return 'document'
 			if (this.record.targetAgendaItem) return 'item'
@@ -323,16 +342,25 @@ export default {
 			return ''
 		},
 
+		/**
+		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 */
 		targetId() {
 			const kind = TARGET_KINDS[this.targetKind]
 			return kind ? this.record[kind.field] : null
 		},
 
+		/**
+		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 */
 		targetRoute() {
 			const kind = TARGET_KINDS[this.targetKind]
 			return (kind && kind.route) || ''
 		},
 
+		/**
+		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 */
 		targetKindLabel() {
 			const labels = {
 				document: t('decidesk', 'Target document'),
@@ -346,6 +374,9 @@ export default {
 	watch: {
 		record: {
 			immediate: true,
+			/**
+			 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
+			 */
 			handler() {
 				this.resolveReferences()
 			},
@@ -355,6 +386,7 @@ export default {
 	methods: {
 		t,
 
+		/** @spec exclude store-resolution plumbing, no behavioural requirement of its own */
 		getStore() {
 			if (this.store) return this.store
 			try {
@@ -364,6 +396,11 @@ export default {
 			}
 		},
 
+		/**
+		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+		 * @param {string} key Stage key (imposed/ratification/dissolution).
+		 * @return {string}
+		 */
 		stageLabel(key) {
 			const labels = {
 				imposed: t('decidesk', 'Imposed'),
@@ -373,12 +410,22 @@ export default {
 			return labels[key] || key
 		},
 
+		/**
+		 * @spec exclude presentation helper for date formatting, no behavioural requirement of its own
+		 * @param {string} value ISO date string.
+		 * @return {string}
+		 */
 		formatDate(value) {
 			if (!value) return ''
 			const d = new Date(value)
 			return Number.isNaN(d.getTime()) ? String(value) : d.toLocaleDateString()
 		},
 
+		/**
+		 * @spec exclude presentation helper for date+time formatting, no behavioural requirement of its own
+		 * @param {string} value ISO date string.
+		 * @return {string}
+		 */
 		formatDateTime(value) {
 			if (!value) return ''
 			const d = new Date(value)
@@ -391,6 +438,8 @@ export default {
 		 * record (watch immediate); a missing store degrades to raw ids
 		 * rather than throwing.
 		 *
+		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
+		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
 		 * @return {Promise<void>}
 		 */
 		async resolveReferences() {
@@ -518,6 +567,12 @@ export default {
 			}
 		},
 
+		/**
+		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+		 * @param {string} routeName Vue-router route name.
+		 * @param {string} id Object id to navigate to.
+		 * @return {void}
+		 */
 		openRoute(routeName, id) {
 			if (!routeName || !id) return
 			this.$router.push({ name: routeName, params: { id } })

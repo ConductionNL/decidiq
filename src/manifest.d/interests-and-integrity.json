@@ -49,7 +49,7 @@
 				"columns": [
 					{ "key": "organisation", "label": "Organisation", "widget": "link" },
 					{ "key": "role", "label": "Function" },
-					{ "key": "governanceBody", "label": "Governance body" },
+					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "remunerated", "label": "Remunerated", "widget": "badge" },
 					{ "key": "reviewedAt", "label": "Reviewed" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
@@ -82,12 +82,12 @@
 					{ "label": "Ended", "filter": { "lifecycle": "ended" } }
 				],
 				"columns": [
-					{ "key": "person", "label": "Person", "widget": "link" },
+					{ "key": "person", "label": "Person", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
 					{ "key": "organisation", "label": "Organisation" },
 					{ "key": "role", "label": "Function" },
 					{ "key": "remunerated", "label": "Remunerated", "widget": "badge" },
 					{ "key": "qualitateQua", "label": "Ex officio", "widget": "badge" },
-					{ "key": "governanceBody", "label": "Governance body" },
+					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 				],
 				"actions": [
@@ -147,7 +147,7 @@
 					{ "label": "Handed over", "filter": { "decision": "transferred" } }
 				],
 				"columns": [
-					{ "key": "recipient", "label": "Recipient", "widget": "link" },
+					{ "key": "recipient", "label": "Recipient", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
 					{ "key": "type", "label": "Type", "widget": "badge" },
 					{ "key": "giver", "label": "Giver" },
 					{ "key": "description", "label": "Description" },

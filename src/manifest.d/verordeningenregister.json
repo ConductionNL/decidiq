@@ -49,12 +49,12 @@
 				],
 				"columns": [
 					{
-						"key": "citeertitel",
+						"key": "citationTitle",
 						"label": "Citeertitel",
 						"widget": "link"
 					},
 					{ "key": "type", "label": "Type", "widget": "badge" },
-					{ "key": "determiningBody", "label": "Adopting body" },
+					{ "key": "determiningBody", "label": "Adopting body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
 					{
 						"key": "currentEffectiveDate",
 						"label": "In force since",

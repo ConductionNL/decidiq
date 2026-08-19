@@ -44,7 +44,7 @@
 					{ "key": "subject", "label": "Subject", "widget": "link" },
 					{ "key": "type", "label": "Type", "widget": "badge" },
 					{ "key": "worArticle", "label": "WOR article" },
-					{ "key": "director", "label": "Bestuurder" },
+					{ "key": "director", "label": "Bestuurder", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
 					{ "key": "receivedDate", "label": "Received" },
 					{ "key": "requestedResponseDate", "label": "Requested response" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }

@@ -54,12 +54,12 @@
 				],
 				"columns": [
 					{
-						"key": "citeertitel",
+						"key": "citationTitle",
 						"label": "Citeertitel",
 						"widget": "link"
 					},
 					{ "key": "type", "label": "Type", "widget": "badge" },
-					{ "key": "governingBody", "label": "Governing body" },
+					{ "key": "governingBody", "label": "Governing body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "status", "label": "Status", "widget": "badge" }
 				],
 				"actions": [

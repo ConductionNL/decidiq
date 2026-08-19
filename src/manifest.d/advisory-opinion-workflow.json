@@ -36,8 +36,8 @@
 				],
 				"columns": [
 					{ "key": "subject", "label": "Subject", "widget": "link" },
-					{ "key": "advisoryBody", "label": "Advisory body" },
-					{ "key": "requestingBody", "label": "Requesting body" },
+					{ "key": "advisoryBody", "label": "Advisory body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "requestingBody", "label": "Requesting body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "sentDate", "label": "Sent" },
 					{ "key": "requestedByDate", "label": "Requested by" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }

@@ -148,9 +148,9 @@
 				"sortOrder": "desc",
 				"_note": "Schema ref by slug (vve-configuration), never PascalCase.",
 				"columns": [
-					{ "key": "governanceBody", "label": "Governance body", "widget": "link" },
-					{ "key": "modelreglement", "label": "Modelreglement" },
-					{ "key": "breukdelenDenominator", "label": "Denominator" }
+					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "modelRegulation", "label": "Modelreglement", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "modelreglement-preset", "labelField": "name" } },
+					{ "key": "fractionDenominator", "label": "Denominator" }
 				],
 				"actions": [
 					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "VveConfigurationDetail", "primary": true }
@@ -208,9 +208,9 @@
 					{ "label": "Rejecting", "filter": { "verdict": "adverse" } }
 				],
 				"columns": [
-					{ "key": "financialYear", "label": "Boekjaar", "widget": "link" },
+					{ "key": "financialYear", "label": "Boekjaar", "widget": "link", "formatter": "plainYear" },
 					{ "key": "verdict", "label": "Verdict", "widget": "badge" },
-					{ "key": "governanceBody", "label": "Governance body" }
+					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } }
 				],
 				"actions": [
 					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "KascommissieVerklaringDetail", "primary": true }

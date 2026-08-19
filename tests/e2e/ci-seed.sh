@@ -42,6 +42,42 @@
 #
 # It is idempotent: the import is idempotent server-side and re-running only
 # re-verifies.
+#
+# FIXTURE-MARKER CONVENTION FOR SPECS THAT CREATE OBJECTS DIRECTLY
+# ------------------------------------------------------------------
+# The register/schema import above is the ONLY legitimate seed source (the
+# `example` blocks in `lib/Settings/register.d/*.json`, versioned and
+# reproducible). Any Playwright spec under `tests/e2e/` that creates an
+# OpenRegister object directly — through the UI or the object REST API — is
+# NOT seeding; it is writing throwaway test debris onto the shared instance,
+# and MUST follow this convention (ux-debt-rendering REQ-008) instead of
+# leaving it behind for a human to find later:
+#
+#   1. MARK every object this creates with a stable, greppable prefix in its
+#      human-readable name/title field, e.g. `e2e-<runId>-...` (see
+#      `tests/e2e/workflows/governance-fixture.ts`'s `newLedger()` /
+#      `seedGovernanceScenario()` for the established helper — reuse it
+#      rather than inventing a second marker scheme).
+#   2. TRACK every created id (by the response's own id, never by
+#      query-by-marker) in a per-run ledger.
+#   3. DELETE everything the ledger tracked in an `afterAll` hook
+#      (`cleanupAll()` in the same helper), best-effort, children before
+#      parents.
+#   4. If you add a NEW schema to the ledger, add it to `TEARDOWN_ORDER` (and
+#      the marker-sweep `sweepSchemas` list) in governance-fixture.ts too — a
+#      schema present in `ledger.created` but absent from `TEARDOWN_ORDER`
+#      leaks silently, because `cleanupAll()` iterates the array, not the
+#      ledger. This is exactly how `board-evaluation`, `evaluation-template`,
+#      `consultation-reaction`, `budget-proposal` and `participatory-budget`
+#      leaked on every run before the ux-debt-rendering fixture-pollution
+#      sweep caught it (2026-08-19) — the ledger tracked them correctly, the
+#      teardown array simply never mentioned them.
+#
+# Never bulk-delete by marker outside a single run's own ledger — a scheduled
+# or ad-hoc "delete everything matching e2e-*" job is a standing risk if the
+# convention is ever violated by a future spec (hard safety rule). A manual,
+# marker-filtered cleanup remains something an operator can run deliberately,
+# never something automated.
 
 set -euo pipefail
 

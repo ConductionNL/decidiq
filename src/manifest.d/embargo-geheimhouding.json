@@ -40,9 +40,9 @@
 				],
 				"columns": [
 					{ "key": "scope", "label": "Scope", "widget": "badge" },
-					{ "key": "ground", "label": "Ground" },
+					{ "key": "ground", "label": "Ground", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "geheimhouding-grond", "labelField": "name" } },
 					{ "key": "imposedBy", "label": "Imposed by" },
-					{ "key": "imposedByBody", "label": "Body" },
+					{ "key": "imposedByBody", "label": "Body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "imposedAt", "label": "Imposed at" },
 					{
 						"key": "ratificationDeadline",
@@ -93,11 +93,11 @@
 						"id": "geheimhouding-timeline",
 						"type": "confidentiality-status-timeline",
 						"title": "Confidentiality status timeline",
-						"icon": "ShieldLockOutline",
+						"icon": "ShieldCheckOutline",
 						"_note": "register-detail-optimisation REQ-EMB-010/011/012: fixed 3-stage lifecycle (imposed / bekrachtiging / opheffing) with pending/overdue states, resolved ground (citation + legacyCitation), and resolved target reference (targetDocument/targetAgendaItem/targetDecision).",
 						"content": {
 							"title": "Confidentiality status timeline",
-							"icon": "ShieldLockOutline",
+							"icon": "ShieldCheckOutline",
 							"register": "decidesk",
 							"groundSchema": "geheimhouding-grond"
 						}

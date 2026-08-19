@@ -193,7 +193,11 @@ export default {
 	},
 
 	computed: {
-		/** Merged content config with defaults. */
+		/**
+		 * Merged content config with defaults.
+		 *
+		 * @spec exclude config-merge helper (field-name defaults), no behavioural requirement of its own
+		 */
 		cfg() {
 			const c = this.content || {}
 			return {
@@ -210,7 +214,11 @@ export default {
 			}
 		},
 
-		/** The current object's id — explicit prop wins, else derived from objectData. */
+		/**
+		 * The current object's id — explicit prop wins, else derived from objectData.
+		 *
+		 * @spec exclude defensive object-id accessor, no behavioural requirement of its own
+		 */
 		resolvedObjectId() {
 			const data =
 				this.objectData && typeof this.objectData === 'object'
@@ -220,10 +228,12 @@ export default {
 			return this.objectId || data.id || self.id || ''
 		},
 
+		/** @spec exclude widget-id plumbing for CnWidgetWrapper, no behavioural requirement of its own */
 		widgetId() {
 			return this.cfg.versionSchema || 'version-timeline'
 		},
 
+		/** @spec exclude presentation color-mapping helper for the status badge, no behavioural requirement of its own */
 		statusColorMap() {
 			return {
 				[STATUS_LABELS.draft()]: 'default',
@@ -234,6 +244,10 @@ export default {
 			}
 		},
 
+		/**
+		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 */
 		sortedVersions() {
 			return sortVersionsByEffectiveDate(
 				this.versions,
@@ -241,6 +255,10 @@ export default {
 			)
 		},
 
+		/**
+		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 */
 		rows() {
 			const {
 				versionNumberField,
@@ -273,6 +291,10 @@ export default {
 	watch: {
 		resolvedObjectId: {
 			immediate: true,
+			/**
+			 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+			 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+			 */
 			handler() {
 				this.load()
 			},
@@ -287,6 +309,7 @@ export default {
 		 * default instance (defensive fallback; CnDetailPage always forwards
 		 * one in practice).
 		 *
+		 * @spec exclude store-resolution plumbing, no behavioural requirement of its own
 		 * @return {object|null}
 		 */
 		getStore() {
@@ -302,6 +325,8 @@ export default {
 		 * Fetch the version collection filtered on `parentRefField == currentId`,
 		 * then batch-resolve the (deduplicated) Decision links.
 		 *
+		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 * @return {Promise<void>}
 		 */
 		async load() {
@@ -348,6 +373,8 @@ export default {
 		 * Batch-resolve every unique amending-Decision id referenced by the
 		 * loaded versions (single Promise.all pass, not one request per row).
 		 *
+		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 * @param {object} store The object store.
 		 * @return {Promise<void>}
 		 */
@@ -379,6 +406,7 @@ export default {
 		/**
 		 * Translated label for a version-lifecycle status value.
 		 *
+		 * @spec exclude presentation label helper for a status value, no behavioural requirement of its own
 		 * @param {string} status The raw status value.
 		 * @return {string}
 		 */
@@ -390,6 +418,7 @@ export default {
 		/**
 		 * Locale date, empty-safe (never a raw ISO string — REQ-VOR-011).
 		 *
+		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-011-computed-in-force-date-columns-render-formatted-not-raw
 		 * @param {string} value ISO date string.
 		 * @return {string}
 		 */
@@ -402,6 +431,7 @@ export default {
 		/**
 		 * Render an extraFields entry value, date-formatted when configured.
 		 *
+		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 * @param {string|number|null|undefined} value The raw field value.
 		 * @param {string} [format] `'date'` to format through formatDate.
 		 * @return {string}
@@ -414,6 +444,8 @@ export default {
 		/**
 		 * Navigate to the enacting Decision's detail page.
 		 *
+		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 * @param {string} decisionId The Decision id.
 		 * @return {void}
 		 */

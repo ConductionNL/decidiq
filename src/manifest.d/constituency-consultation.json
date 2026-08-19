@@ -39,7 +39,7 @@
 				"columns": [
 					{ "key": "question", "label": "Question", "widget": "link" },
 					{ "key": "audienceType", "label": "Audience", "widget": "badge" },
-					{ "key": "agendaItem", "label": "Agenda item" },
+					{ "key": "agendaItem", "label": "Agenda item", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "agenda-item", "labelField": "title" } },
 					{ "key": "closesAt", "label": "Closes" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 				],

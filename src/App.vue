@@ -15,6 +15,7 @@
 		:manifest="manifest"
 		:registry="registry"
 		:pageTypes="pageTypes"
+		:formatters="cellFormatters"
 		appId="decidesk"
 		data-testid="app-root"
 		:translate="translateForApp"
@@ -45,6 +46,7 @@ import { translate as ncT } from '@nextcloud/l10n'
 import { reactive } from 'vue'
 import { DEFAULT_MODE, MODE_LABELS } from './config/modeLabels.js'
 import { initializeStores, useSettingsStore } from './store/store.js'
+import cellFormatters from './utils/cellFormatters.js'
 
 export default {
 	name: 'App',
@@ -100,6 +102,12 @@ export default {
 
 	data() {
 		return {
+			/**
+			 * Cell-formatter registry passed to CnAppRoot's `formatters`
+			 * prop (see src/utils/cellFormatters.js). Static — no need to
+			 * be reactive.
+			 */
+			cellFormatters,
 			objectSidebarState: reactive({
 				active: false,
 				open: true,

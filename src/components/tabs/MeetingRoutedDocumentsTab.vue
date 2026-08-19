@@ -123,6 +123,7 @@ export default {
 			]
 		},
 
+		/** @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-documents-routed-onto-the-meetings-agenda */
 		typeColors() {
 			return {
 				Raadsinformatiebrief: 'info',
