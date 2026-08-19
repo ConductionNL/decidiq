@@ -82,6 +82,7 @@ class DecisionLifecycleService {
 	 * @param ProcessTemplateService $templateService Resolves a body's process-template policy override (process-configuration)
 	 * @param DecisionIntegrationService $integrationService Builds the cross-app outcome envelope for concluded delegated decisions
 	 * @param IEventDispatcher $eventDispatcher Dispatches the DecisionConcludedEvent cross-app contract
+	 * @param ObjectServiceInterface $objectService OpenRegister ObjectService contract (ADR-022/ADR-083)
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
@@ -412,7 +413,15 @@ class DecisionLifecycleService {
 
 	/**
 	 * Enforce the gates guarding entry into a specific lifecycle state:
-	 * quorum before `voting` and the adopted-outcome gate before `enacted`.
+	 * quorum before `voting`, the adopted-outcome gate before `enacted`, and
+	 * — for `decisionType=appointment` decisions entering `enacted` — the
+	 * posts/candidates pairing gate (design.md D1, appointment-decision-type-
+	 * membership): zero or exactly one `targetPosts` entry is never
+	 * ambiguous, but more than one entry MUST match `candidates`' length
+	 * exactly (paired by array index) or materializeAppointmentMemberships()
+	 * would have to guess the pairing — rejected here, fail closed, before
+	 * the lifecycle write happens. Non-appointment decisions never carry
+	 * `targetPosts`, so this branch never fires for them.
 	 *
 	 * @param array<string, mixed> $decision Decision object array
 	 * @param array<string, mixed>|null $meeting Linked meeting object array, when any
@@ -421,6 +430,7 @@ class DecisionLifecycleService {
 	 * @param array<string, mixed>|null $policyOverride Process-template policy override, when any
 	 *
 	 * @spec openspec/specs/decision-management/spec.md
+	 * @spec openspec/changes/appointment-decision-type-membership/specs/decision-management/spec.md#requirement-the-enact-transition-rejects-an-unpairable-candidatesposts-mismatch
 	 *
 	 * @return string|null Rejection message, or null when the state may be entered
 	 */
@@ -440,8 +450,28 @@ class DecisionLifecycleService {
 		}
 
 		// Outcome gate: only adopted decisions may be enacted.
-		if ($newState === 'enacted' && $this->transitionGuard->isEnactAllowed(decision: $decision) === false) {
-			return "Only decisions with outcome 'adopted' may be enacted.";
+		if ($newState === 'enacted') {
+			if ($this->transitionGuard->isEnactAllowed(decision: $decision) === false) {
+				return "Only decisions with outcome 'adopted' may be enacted.";
+			}
+
+			// Appointment posts/candidates pairing gate (decision-management,
+			// appointment-decision-type-membership, design.md D1): zero or
+			// exactly one `targetPosts` entry is never ambiguous (every
+			// candidate gets no post, or the same single post); more than one
+			// entry MUST match `candidates`' length exactly, paired by array
+			// index, or materializeAppointmentMemberships() would have to
+			// guess. Non-appointment decisions never carry `targetPosts`, so
+			// this never fires for them.
+			$targetPosts = (array)($decision['targetPosts'] ?? []);
+			if (($decision['decisionType'] ?? '') === 'appointment' && count($targetPosts) > 1) {
+				$candidateCount = count((array)($decision['candidates'] ?? []));
+				if (count($targetPosts) !== $candidateCount) {
+					return "Cannot enact: 'targetPosts' has " . count($targetPosts) . ' entries but '
+						. "'candidates' has " . $candidateCount . ' — provide zero, one, or exactly '
+						. 'one target post per candidate.';
+				}
+			}
 		}
 
 		// Terminal-state completeness. This gate is the reason `outcome` and
@@ -548,6 +578,20 @@ class DecisionLifecycleService {
 				decision: $decision,
 				decisionId: $decisionId
 			);
+
+			// Appointment adoption materializes Membership records
+			// (decision-management, appointment-decision-type-membership): the
+			// enact-time pairing gate above already guarantees an unambiguous
+			// targetPosts/candidates pairing, so this never has to guess.
+			if ((string)($decision['decisionType'] ?? '') === 'appointment'
+				&& (string)($decision['outcome'] ?? '') === 'adopted'
+			) {
+				$this->materializeAppointmentMemberships(
+					objectService: $objectService,
+					decision: $decision,
+					decisionId: $decisionId
+				);
+			}
 		}
 
 		// Hash-chained immutable audit entry for the transition (WBTR).
@@ -706,6 +750,106 @@ class DecisionLifecycleService {
 		}//end try
 
 	}//end generateResolutionRecord()
+
+	/**
+	 * Materialize one Membership per candidate when an appointment decision
+	 * is adopted and enacted, and write the created ids back onto the
+	 * decision's `appointedMemberships` field.
+	 *
+	 * Each Membership gets `role=targetRole`, `startDate=enactedAt`, the
+	 * paired `post` (design.md D1: no post when `targetPosts` is empty, the
+	 * one entry shared by every candidate when it has exactly one, else the
+	 * post at `index % count($targetPosts)` — a no-op modulo once the
+	 * enact-time pairing gate above has confirmed the lengths match, so
+	 * every candidate lands on its own index), `governanceBody=targetBody`
+	 * when resolvable, and either `person` (when the candidate carries one)
+	 * or `label=externalName` for a not-yet-registered candidate. Absent
+	 * fields are dropped rather than written as null (`array_filter`),
+	 * matching how every other guarded write in this file only sets what it
+	 * knows.
+	 *
+	 * Idempotency guard: skips when `appointedMemberships` is already
+	 * non-empty — `enacted` is not re-enterable through the transition
+	 * guard, so this is a defensive second layer (design.md Risk 2), not the
+	 * primary protection.
+	 *
+	 * Fail-soft, matching generateResolutionRecord(): the lifecycle write
+	 * already persisted, so a materialization failure is logged loudly and
+	 * never rolls the transition back.
+	 *
+	 * @param object $objectService OpenRegister ObjectService instance
+	 * @param array<string, mixed> $decision Decision object array (post-transition)
+	 * @param string $decisionId UUID of the enacted decision
+	 *
+	 * @spec openspec/changes/appointment-decision-type-membership/specs/decision-management/spec.md#requirement-appointment-adoption-materializes-membership-records
+	 *
+	 * @return void
+	 */
+	private function materializeAppointmentMemberships(object $objectService, array $decision, string $decisionId): void {
+		$candidates = (array)($decision['candidates'] ?? []);
+		if ($candidates === [] || (array)($decision['appointedMemberships'] ?? []) !== []) {
+			return;
+		}
+
+		try {
+			$targetPosts = (array)($decision['targetPosts'] ?? []);
+			$targetRole = (string)($decision['targetRole'] ?? '');
+			$targetBody = $this->contextResolver->resolveRelationId(value: ($decision['targetBody'] ?? null));
+			$enactedAt = (string)($decision['enactedAt'] ?? '');
+
+			$membershipIds = [];
+			foreach (array_values($candidates) as $index => $candidate) {
+				$candidate = (array)$candidate;
+
+				// D1 pairing: an empty `targetPosts` never has index 0, so the
+				// null-coalesce below is what makes the empty case a role-only
+				// Membership (no post) without a separate branch for it.
+				$post = $this->contextResolver->resolveRelationId(
+					value: ($targetPosts[($index % max(count($targetPosts), 1))] ?? null)
+				);
+
+				$personId = $this->contextResolver->resolveRelationId(value: ($candidate['person'] ?? null));
+
+				$label = null;
+				if ($personId === null) {
+					$label = (string)($candidate['externalName'] ?? '');
+				}
+
+				$membership = array_filter(
+					[
+						'role' => $targetRole,
+						'startDate' => $enactedAt,
+						'governanceBody' => $targetBody,
+						'post' => $post,
+						'person' => $personId,
+						'label' => $label,
+					],
+					static fn (mixed $value): bool => $value !== null
+				);
+
+				$created = $objectService->saveObject(
+					object: $membership,
+					register: 'decidesk',
+					schema: 'membership'
+				);
+
+				$membershipIds[] = (string)($created->jsonSerialize()['id'] ?? '');
+			}
+
+			$objectService->saveObject(
+				object: array_merge($decision, ['appointedMemberships' => $membershipIds]),
+				register: 'decidesk',
+				schema: 'decision',
+				uuid: $decisionId
+			);
+		} catch (\Throwable $e) {
+			$this->logger->error(
+				'Decidesk: decision enacted but appointment Membership materialization failed',
+				['id' => $decisionId, 'exception' => $e->getMessage()]
+			);
+		}//end try
+
+	}//end materializeAppointmentMemberships()
 
 	/**
 	 * Resolve the process-template policy override for a decision (process-configuration).
