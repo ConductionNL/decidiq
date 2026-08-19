@@ -69,7 +69,7 @@ transition time remains the documented imperative exception (lifecycle guard).
 ## Affected Projects
 
 - [ ] Project: `decidesk` — new `DecisionTemplate` schema
-  (`lib/Settings/register.d/67-unified-decision-templates.json`) seeded from
+  (`lib/Settings/register.d/68-unified-decision-templates.json`) seeded from
   `ProcessTemplate` (5), `VveDecisionTemplate` × `ModelreglementPreset` (6),
   and the `urgencyPolicy` delta (2 urgency-enabled seeds); `ProcessTemplate`,
   `VveDecisionTemplate`, `ModelreglementPreset` marked superseded
@@ -87,7 +87,7 @@ No other Conduction app changes. OpenRegister is consumed as-is.
 
 ### In Scope
 
-1. **`DecisionTemplate` schema** (`67-unified-decision-templates.json`):
+1. **`DecisionTemplate` schema** (`68-unified-decision-templates.json`):
    `decisionType` (optional — one of the existing `Decision.decisionType`
    enum values; absent = generic default for the `context`, mirroring
    `GovernanceBody.processTemplate`'s current default-template semantics),
@@ -135,7 +135,7 @@ No other Conduction app changes. OpenRegister is consumed as-is.
    (`lib/Migration/Version*.php`) that reads every live `process-template`
    and `vve-decision-template` object and creates the equivalent
    `decision-template` object (OR seed import is create-only — new seeds in
-   `67-unified-decision-templates.json` never touch objects an existing
+   `68-unified-decision-templates.json` never touch objects an existing
    install already created from `43-process-config-v1.json` /
    `57-vve-alv-pack.json`). Idempotent: re-running the migration on an
    already-migrated instance is a no-op (matched by source object UUID).
@@ -170,7 +170,7 @@ No other Conduction app changes. OpenRegister is consumed as-is.
 ## Approach
 
 Declare `DecisionTemplate` as a net-new schema in a new register fragment
-(`67-unified-decision-templates.json`, next free number after
+(`68-unified-decision-templates.json`, next free number after
 `66-organisation-goals.json`) rather than editing the three legacy fragments
 in place — `43-process-config-v1.json`, `46-urgency-policy.json`, and
 `57-vve-alv-pack.json` stay as historical record of what shipped, and the new
@@ -188,7 +188,7 @@ None.
 
 ## Impact
 
-- New: `lib/Settings/register.d/67-unified-decision-templates.json`,
+- New: `lib/Settings/register.d/68-unified-decision-templates.json`,
   `lib/Migration/Version0XXX0YYYYYYY.php` (repair migration).
 - Patched (via the new fragment's deep-merge, ADR-037 — no other file
   edited): `ProcessTemplate.x-openregister.active`,
@@ -232,7 +232,7 @@ safe to re-execute; validation queries are specified in migration.md.
 ## Rollback Strategy
 
 Revert the register fragment (delete
-`67-unified-decision-templates.json`) and the migration class, then run the
+`68-unified-decision-templates.json`) and the migration class, then run the
 migration's down-migration (deletes only the `decision-template` objects it
 created, matched by its own provenance marker — never touches
 `process-template`/`vve-decision-template`, which were never modified in

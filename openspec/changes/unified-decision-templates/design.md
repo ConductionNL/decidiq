@@ -33,7 +33,7 @@ because a "preset a template consults" and "the template's own default" are
 the same fact once VveDecisionTemplate and DecisionTemplate are one object:
 
 ```
-DecisionTemplate (67-unified-decision-templates.json)         — schema-declared here
+DecisionTemplate (68-unified-decision-templates.json)         — schema-declared here
   decisionType?  (Decision.decisionType enum, absent = generic default)
   context        (association|corporate|legislative|operations|citizen)
   templateCategory?  (finer narrower, e.g. VvE ALV categories)
@@ -214,7 +214,7 @@ OpenRegister object creation (repair), not a `changeSchema()` DDL step.
   plants the new seeds) — the same ordering constraint
   `RenameDutchDecideskValues` already documents inline ("After
   InitializeSettings imports the register").
-- **Register:** new fragment `lib/Settings/register.d/67-unified-decision-templates.json`,
+- **Register:** new fragment `lib/Settings/register.d/68-unified-decision-templates.json`,
   merged by the existing `SettingsService::deepMergeConfig()` /
   `ConfigurationService::importFromApp()` path (ADR-037) — no change to that
   merge machinery itself.
@@ -240,7 +240,7 @@ N/A — no Vue/frontend change in this slice.
 lib/
   Settings/
     register.d/
-      67-unified-decision-templates.json   (new — schema + seeds + supersession patches)
+      68-unified-decision-templates.json   (new — schema + seeds + supersession patches)
   Migration/
     MigrateLegacyTemplatesToDecisionTemplate.php   (new — IRepairStep, see
                                                      Nextcloud Integration)
@@ -356,7 +356,7 @@ deletes or edits. Safe to run on live data; safe to re-run.
 `migratedFrom` is populated (a query, not a schema change — the migration
 class's `down()`/reverse step, or a one-off admin script if the framework's
 migration base class has no reverse hook); delete the register fragment
-`67-unified-decision-templates.json`, which reverts `process-template` /
+`68-unified-decision-templates.json`, which reverts `process-template` /
 `vve-decision-template` / `modelreglement-preset` to `active: true`
 automatically (ADR-037 deep-merge).
 

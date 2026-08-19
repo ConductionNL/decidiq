@@ -80,9 +80,17 @@ consistency, no value-set change) are unaffected in shape.
 
 #### Scenario: VveConfiguration seed carries the plain version enum
 
-- **GIVEN** the seeded `vve-zeewaarts-configuratie` object
+- **GIVEN** a VveConfiguration object seeded by this delta
+  (`vve-parkstaete-configuratie`)
 - **WHEN** it is loaded after this delta
-- **THEN** `modelReglementVersion` reads `"2017"` (ported from the prior
-  `modelRegulation: "modelreglement-2017"` slug reference) and
+- **THEN** `modelReglementVersion` reads `"2017"` (the plain-enum successor
+  to the prior `modelRegulation: "modelreglement-2017"` slug reference) and
   `majorityOverrides[0].templateCategory` reads
   `"amendment-internal-regulations"`
+- **AND** the pre-existing `vve-zeewaarts-configuratie` object is left
+  untouched, still carrying only the legacy `modelRegulation` /
+  `decisionCategory` shape — OpenRegister's seed import is CREATE-ONLY, so a
+  patch to an already-imported object is inert on any live instance;
+  demonstrating the new fields on a NEW object is the only honest proof on a
+  fresh install, and migrating existing rows is the repair step's job, not
+  the seed's

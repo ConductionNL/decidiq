@@ -21,7 +21,7 @@ Every live `process-template` and `vve-decision-template` object (built-in
 seed or administrator-created custom) has exactly one corresponding
 `decision-template` object, tagged `migratedFrom: {sourceSchema, sourceUuid}`.
 The 13 new built-in `decision-template` seeds from
-`67-unified-decision-templates.json` (5 ported from `ProcessTemplate`, 2
+`68-unified-decision-templates.json` (5 ported from `ProcessTemplate`, 2
 ported from the urgency delta, 6 ported from `VveDecisionTemplate`) exist
 alongside the migrated objects — built-in seeds are NOT migration output,
 they are planted directly by `InitializeSettings`'s register import, so a
@@ -86,7 +86,7 @@ picks up exactly where it left off via the idempotency check in step 2).
    `vve-decision-template` object.
 2. Remove the `MigrateLegacyTemplatesToDecisionTemplate` `<step>` line from
    `appinfo/info.xml`.
-3. Delete `lib/Settings/register.d/67-unified-decision-templates.json`. On
+3. Delete `lib/Settings/register.d/68-unified-decision-templates.json`. On
    the next register reload, `process-template`, `vve-decision-template`,
    and `modelreglement-preset` revert to `x-openregister.active: true`
    automatically (ADR-037 deep-merge — no separate un-patch step), and the
