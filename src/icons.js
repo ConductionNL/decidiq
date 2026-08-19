@@ -55,6 +55,7 @@ import CheckboxMarkedOutline from 'vue-material-design-icons/CheckboxMarkedOutli
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
 import ClipboardCheckOutline from 'vue-material-design-icons/ClipboardCheckOutline.vue'
 import ClipboardList from 'vue-material-design-icons/ClipboardList.vue'
+import ClipboardListOutline from 'vue-material-design-icons/ClipboardListOutline.vue'
 import ClipboardTextClockOutline from 'vue-material-design-icons/ClipboardTextClockOutline.vue'
 import ClipboardTextOutline from 'vue-material-design-icons/ClipboardTextOutline.vue'
 import CloudUploadOutline from 'vue-material-design-icons/CloudUploadOutline.vue'
@@ -68,11 +69,13 @@ import CommentTextOutline from 'vue-material-design-icons/CommentTextOutline.vue
 import CurrencyEur from 'vue-material-design-icons/CurrencyEur.vue'
 import DatabaseOutline from 'vue-material-design-icons/DatabaseOutline.vue'
 import Domain from 'vue-material-design-icons/Domain.vue'
+import Earth from 'vue-material-design-icons/Earth.vue'
 import Email from 'vue-material-design-icons/Email.vue'
 import EmailArrowLeftOutline from 'vue-material-design-icons/EmailArrowLeftOutline.vue'
 import EmailArrowRightOutline from 'vue-material-design-icons/EmailArrowRightOutline.vue'
 import EmailOutline from 'vue-material-design-icons/EmailOutline.vue'
 import EyeOutline from 'vue-material-design-icons/EyeOutline.vue'
+import FileChartOutline from 'vue-material-design-icons/FileChartOutline.vue'
 import FileDocument from 'vue-material-design-icons/FileDocument.vue'
 import FileDocumentCheckOutline from 'vue-material-design-icons/FileDocumentCheckOutline.vue'
 import FileDocumentMultipleOutline from 'vue-material-design-icons/FileDocumentMultipleOutline.vue'
@@ -84,10 +87,13 @@ import FolderOutline from 'vue-material-design-icons/FolderOutline.vue'
 import FormatListChecks from 'vue-material-design-icons/FormatListChecks.vue'
 import FormatListNumbered from 'vue-material-design-icons/FormatListNumbered.vue'
 import ForumOutline from 'vue-material-design-icons/ForumOutline.vue'
+import Gauge from 'vue-material-design-icons/Gauge.vue'
 import Gavel from 'vue-material-design-icons/Gavel.vue'
 import GiftOutline from 'vue-material-design-icons/GiftOutline.vue'
 import HandshakeOutline from 'vue-material-design-icons/HandshakeOutline.vue'
 import History from 'vue-material-design-icons/History.vue'
+import LibraryOutline from 'vue-material-design-icons/LibraryOutline.vue'
+import Lightbulb from 'vue-material-design-icons/Lightbulb.vue'
 import LightbulbOnOutline from 'vue-material-design-icons/LightbulbOnOutline.vue'
 import LinkVariant from 'vue-material-design-icons/LinkVariant.vue'
 import MapMarkerPath from 'vue-material-design-icons/MapMarkerPath.vue'
@@ -109,6 +115,7 @@ import Star from 'vue-material-design-icons/Star.vue'
 import SwapHorizontal from 'vue-material-design-icons/SwapHorizontal.vue'
 import TableColumn from 'vue-material-design-icons/TableColumn.vue'
 import TagOutline from 'vue-material-design-icons/TagOutline.vue'
+import TargetVariant from 'vue-material-design-icons/TargetVariant.vue'
 import ThumbUpOutline from 'vue-material-design-icons/ThumbUpOutline.vue'
 import Timeline from 'vue-material-design-icons/Timeline.vue'
 import TransitConnectionVariant from 'vue-material-design-icons/TransitConnectionVariant.vue'
@@ -160,6 +167,7 @@ export default {
 	CheckCircleOutline,
 	CheckboxMarkedOutline,
 	ClipboardCheckOutline,
+	ClipboardListOutline,
 	ClipboardList,
 	ClipboardTextClockOutline,
 	ClipboardTextOutline,
@@ -174,11 +182,13 @@ export default {
 	CurrencyEur,
 	DatabaseOutline,
 	Domain,
+	Earth,
 	Email,
 	EmailArrowLeftOutline,
 	EmailArrowRightOutline,
 	EmailOutline,
 	EyeOutline,
+	FileChartOutline,
 	FileDocument,
 	FileDocumentCheckOutline,
 	FileDocumentMultipleOutline,
@@ -190,10 +200,13 @@ export default {
 	FormatListChecks,
 	FormatListNumbered,
 	ForumOutline,
+	Gauge,
 	Gavel,
 	GiftOutline,
 	HandshakeOutline,
 	History,
+	LibraryOutline,
+	Lightbulb,
 	LightbulbOnOutline,
 	LinkVariant,
 	MapMarkerPath,
@@ -215,6 +228,7 @@ export default {
 	SwapHorizontal,
 	TableColumn,
 	TagOutline,
+	TargetVariant,
 	ThumbUpOutline,
 	Timeline,
 	TransitConnectionVariant,

@@ -2099,7 +2099,7 @@
           }
         },
         "slug": "meeting",
-        "icon": "CalendarClock",
+        "icon": "CalendarAccountOutline",
         "version": "0.6.0",
         "title": "Meeting",
         "description": "A scheduled governance meeting with agenda, participants, and lifecycle",
@@ -4884,7 +4884,7 @@
       },
       "Order": {
         "slug": "order",
-        "icon": "CartOutline",
+        "icon": "ClipboardListOutline",
         "version": "0.1.0",
         "title": "Order",
         "description": "Schema.org Order for purchase order data",
@@ -5019,7 +5019,7 @@
       },
       "Report": {
         "slug": "report",
-        "icon": "ChartBoxOutline",
+        "icon": "FileChartOutline",
         "version": "0.1.0",
         "title": "Report",
         "description": "Schema.org Report for report metadata",
