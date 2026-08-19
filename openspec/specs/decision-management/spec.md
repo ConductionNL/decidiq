@@ -8,6 +8,7 @@ openspec-changes:
   - urgent-decision-procedure
   - appointment-decision-type-schema
   - appointment-decision-type-membership
+  - decision-facet-composition
 ---
 
 # Decision Management Specification
