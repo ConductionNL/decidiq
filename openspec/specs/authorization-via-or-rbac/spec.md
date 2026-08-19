@@ -118,3 +118,37 @@ caller as "check skipped".
 
 @e2e exclude fail-closed edge (unresolvable body scope) with no distinct UI flow; unit-proven in GovernanceScopeGuardTest (fails closed when the body is unresolvable / on OR error) and MeetingServiceTest (chair-only transition denied when the governanceBody cannot be resolved).
 
+
+### Requirement: REQ-RBAC-006 The register declares an authorization baseline so an absent block cannot grant writes
+The `decidesk` register row SHALL declare an `authorization` block naming EVERY canonical
+OpenRegister action (`read`, `list`, `create`, `update`, `delete`). `read`, `list` and `create`
+SHALL be granted to `authenticated`; `update` and `delete` SHALL NOT be, so that a user who is
+neither the object's owner, nor a Nextcloud admin, nor a member of the named administrator group
+cannot rewrite or destroy another user's decidesk object through OpenRegister's own
+`/apps/openregister/api/objects/decidesk/<schema>` API. Schemas that declare their own
+`authorization` block SHALL keep it — OpenRegister resolves the schema block first and falls back to
+the register's only when a schema has none — and those blocks SHALL continue to name read actions
+only. The register version, the configuration version and the app version SHALL all be bumped in the
+same change, because the register import skips on a non-newer version with no content fallback and
+the `<post-migration>` repair step that performs the import runs only on `occ upgrade`.
+
+#### Scenario: A non-owner cannot rewrite another user's object
+- **GIVEN** a Decision created by user A, and user B who is not an admin and not in the
+  administrator group
+- **WHEN** user B issues an update or delete against that Decision through OpenRegister's object API
+- **THEN** OpenRegister denies the write
+- **AND WHEN** user A issues the same write on their own object
+- **THEN** OpenRegister permits it via the unconditional owner bypass.
+
+#### Scenario: Reads and creates are unchanged
+- **GIVEN** any authenticated user
+- **WHEN** the user lists or reads decidesk objects, or creates a new one
+- **THEN** the action is permitted exactly as before the baseline was declared.
+
+#### Scenario: The baseline names every action
+- **GIVEN** the shipped register row
+- **WHEN** its `authorization` block is read
+- **THEN** every canonical action is named with a non-empty rule list, because OpenRegister denies
+  any action a non-empty block omits — an unnamed action would break the app rather than secure it.
+
+@e2e exclude The assertion is a per-user DENIAL by OpenRegister's own permission evaluator against a declaration this repo ships, and the owner bypass is unconditional and SQL-side — so a browser test driven by a single seeded (and therefore owning, usually admin) session cannot observe it at all, and would report success over the exact hole. Pinned by `tests/Unit/RegisterAuthorizationTest.php` on the declaration side; the per-user behaviour needs a two-account probe against a live instance, recorded in the PR as verification owed rather than claimed.

@@ -72,6 +72,8 @@ class DecideskToolProvider implements IMcpToolProvider {
 	private const TOOL_DESCRIPTORS = [
 		[
 			'id' => 'decidesk.listOpenActionItems',
+			'subject' => 'actionItem',
+			'action' => 'list',
 			'name' => 'List open action items',
 			'description' => 'List incomplete action items assigned to you (scope=mine) or all visible (scope=all).',
 			'inputSchema' => [
@@ -94,6 +96,8 @@ class DecideskToolProvider implements IMcpToolProvider {
 		],
 		[
 			'id' => 'decidesk.listRecentMeetings',
+			'subject' => 'meeting',
+			'action' => 'list',
 			'name' => 'List recent meetings',
 			'description' => 'List the caller\'s recent meetings, ordered by date descending.',
 			'inputSchema' => [
@@ -116,6 +120,8 @@ class DecideskToolProvider implements IMcpToolProvider {
 		],
 		[
 			'id' => 'decidesk.getMeetingDetails',
+			'subject' => 'meeting',
+			'action' => 'get',
 			'name' => 'Get meeting details',
 			'description' => 'Fetch a meeting with agenda items, decisions, and action items inlined.',
 			'inputSchema' => [
@@ -131,6 +137,11 @@ class DecideskToolProvider implements IMcpToolProvider {
 		],
 		[
 			'id' => 'decidesk.startMeeting',
+			// `start`, not `create`: it moves an existing meeting through a
+			// lifecycle transition, which is a different authority from
+			// bringing a meeting into existence.
+			'subject' => 'meeting',
+			'action' => 'start',
 			'name' => 'Start meeting',
 			'description' => 'Transition a scheduled meeting to in-progress. Chair or admin only.',
 			'inputSchema' => [
@@ -146,6 +157,8 @@ class DecideskToolProvider implements IMcpToolProvider {
 		],
 		[
 			'id' => 'decidesk.addActionItem',
+			'subject' => 'actionItem',
+			'action' => 'create',
 			'name' => 'Add action item',
 			'description' => 'Create an action item attached to a meeting. Participant or admin only.',
 			'inputSchema' => [
