@@ -68,13 +68,13 @@ class ConflictOfInterestControllerTest extends TestCase {
 	}//end makeController()
 
 	/**
-	 * declare requires boardMemberId + agendaItemId.
+	 * declare requires membershipId + agendaItemId.
 	 *
 	 * @return void
 	 */
 	public function testDeclareRequiresMemberAndAgenda(): void {
 		$service = $this->createMock(ConflictOfInterestService::class);
-		$controller = $this->makeController($service, requestParams: ['boardMemberId' => 'm1']);
+		$controller = $this->makeController($service, requestParams: ['membershipId' => 'm1']);
 
 		$this->assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $controller->declare()->getStatus());
 
@@ -101,7 +101,7 @@ class ConflictOfInterestControllerTest extends TestCase {
 		$controller = $this->makeController(
 			$service,
 			requestParams: [
-				'boardMemberId' => 'm1',
+				'membershipId' => 'm1',
 				'agendaItemId' => 'a1',
 				'declarationType' => 'financial-interest',
 				'description' => 'shares',

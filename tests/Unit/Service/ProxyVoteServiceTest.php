@@ -24,6 +24,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\AuditLogService;
 use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidesk\Service\ParticipantToPersonMembershipResolver;
 use OCA\Decidesk\Service\ProxyVoteService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -54,6 +55,11 @@ class ProxyVoteServiceTest extends TestCase {
 	 * @param bool $findAllFail When true the ObjectService::findAll() call throws (fail-closed path)
 	 * @param array<int, array<string, string>> $participants Fixture `participant` rows: ['uuid' => .., 'nextcloudUserId' => ..]
 	 * @param array<string, array<int, string>> $chairsByMeeting Map of meetingId => Nextcloud UIDs holding chair/secretary role
+	 * @param array<string, array{person: string, membership: string}|null> $crosswalk Non-identity Participant->Person/Membership map for
+	 *                                                                                  tests that need to prove resolution actually ran
+	 *                                                                                  (or fails); defaults to an identity map
+	 *                                                                                  (person = participantId) so every pre-existing
+	 *                                                                                  'g-1'/'h-1'-style assertion holds.
 	 *
 	 * @return ProxyVoteService
 	 */
@@ -64,6 +70,7 @@ class ProxyVoteServiceTest extends TestCase {
 		bool $findAllFail = false,
 		array $participants = [],
 		array $chairsByMeeting = [],
+		array $crosswalk = [],
 	): ProxyVoteService {
 		$rowsRef = &$rows;
 		$savedRef = &$saved;
@@ -217,12 +224,37 @@ class ProxyVoteServiceTest extends TestCase {
 			}
 		);
 
+		// Identity crosswalk double: person = participantId, so every existing
+		// assertion below that compares a `grantor`/`holder` value against the
+		// original 'g-1'/'h-1'-style Participant UUID still holds — the
+		// production resolver's own matching behaviour is covered by
+		// ParticipantToPersonMembershipResolverTest, not re-derived here.
+		$participantCrosswalk = $this->createMock(ParticipantToPersonMembershipResolver::class);
+		$participantCrosswalk->method('resolve')->willReturnCallback(
+			static function (string $participantId) use ($crosswalk): ?array {
+				if ($participantId === '') {
+					return null;
+				}
+
+				// array_key_exists, not ?? : a test may map an id explicitly to
+				// null (unresolvable) and ?? would silently fall through to the
+				// identity default for a null value, since isset() treats a
+				// stored null the same as "not set".
+				if (array_key_exists($participantId, $crosswalk) === true) {
+					return $crosswalk[$participantId];
+				}
+
+				return ['person' => $participantId, 'membership' => $participantId . '-membership'];
+			}
+		);
+
 		return new ProxyVoteService(
 			container: $container,
 			logger: $this->createMock(LoggerInterface::class),
 			auditLogService: $audit,
 			participantResolver: $participantResolver,
 			objectService: $objectService,
+			participantCrosswalk: $participantCrosswalk,
 		);
 
 	}//end makeService()
@@ -273,13 +305,69 @@ class ProxyVoteServiceTest extends TestCase {
 
 		$this->assertTrue($result['success']);
 		$this->assertSame('pending-approval', $saved[0]['proxyStatus']);
-		$this->assertSame('m-1', $saved[0]['meetingIntegration']);
+		$this->assertSame('unsigned', $saved[0]['signatureStatus']);
+		$this->assertSame('m-1', $saved[0]['meeting']);
 
 		$calls = $this->auditCalls->getArrayCopy();
 		$this->assertCount(1, $calls);
 		$this->assertSame('proxy-created', $calls[0]['action']);
 
 	}//end testRegisterStoresPendingAndAuditsCreated()
+
+	/**
+	 * register() writes the schema's own `proxy-authorization` grantor/holder
+	 * fields with the crosswalk-resolved PERSON uuids, not the caller-supplied
+	 * Participant uuids — proven with a non-identity crosswalk map so a
+	 * regression to writing the raw Participant id turns this test red.
+	 *
+	 * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 *
+	 * @return void
+	 */
+	public function testRegisterWritesCrosswalkResolvedPersonUuids(): void {
+		$rows = [];
+		$saved = [];
+		$svc = $this->makeService(
+			$rows,
+			$saved,
+			crosswalk: [
+				'g-1' => ['person' => 'person-grantor-1', 'membership' => 'membership-grantor-1'],
+				'h-1' => ['person' => 'person-holder-1', 'membership' => 'membership-holder-1'],
+			],
+		);
+
+		$result = $svc->register('m-1', 'g-1', 'h-1');
+
+		$this->assertTrue($result['success']);
+		$this->assertSame('person-grantor-1', $saved[0]['grantor']);
+		$this->assertSame('person-holder-1', $saved[0]['holder']);
+
+	}//end testRegisterWritesCrosswalkResolvedPersonUuids()
+
+	/**
+	 * register() fails closed when the grantor or holder Participant cannot
+	 * be resolved to a Person record.
+	 *
+	 * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 *
+	 * @return void
+	 */
+	public function testRegisterFailsWhenCrosswalkCannotResolveGrantorOrHolder(): void {
+		$rows = [];
+		$saved = [];
+		$svc = $this->makeService(
+			$rows,
+			$saved,
+			crosswalk: ['g-1' => null],
+		);
+
+		$result = $svc->register('m-1', 'g-1', 'h-1');
+
+		$this->assertFalse($result['success']);
+		$this->assertStringContainsString('Could not resolve', $result['message']);
+		$this->assertCount(0, $saved);
+
+	}//end testRegisterFailsWhenCrosswalkCannotResolveGrantorOrHolder()
 
 	/**
 	 * suspend transitions proxyStatus to 'suspended' and does NOT audit
@@ -291,9 +379,9 @@ class ProxyVoteServiceTest extends TestCase {
 		$rows = [
 			[
 				'id' => 'p-1',
-				'meetingIntegration' => 'm-1',
-				'grantorIntegration' => 'g-1',
-				'holderIntegration' => 'h-1',
+				'meeting' => 'm-1',
+				'grantor' => 'g-1',
+				'holder' => 'h-1',
 				'proxyStatus' => 'active',
 			],
 		];
@@ -320,9 +408,9 @@ class ProxyVoteServiceTest extends TestCase {
 		$rows = [
 			[
 				'id' => 'p-1',
-				'meetingIntegration' => 'm-1',
-				'grantorIntegration' => 'g-1',
-				'holderIntegration' => 'h-1',
+				'meeting' => 'm-1',
+				'grantor' => 'g-1',
+				'holder' => 'h-1',
 				'proxyStatus' => 'active',
 			],
 		];
@@ -366,9 +454,9 @@ class ProxyVoteServiceTest extends TestCase {
 	 */
 	public function testForMeetingReturnsRowsAndFilters(): void {
 		$rows = [
-			['id' => 'p-1', 'meetingIntegration' => 'm-1', 'proxyStatus' => 'active'],
-			['id' => 'p-2', 'meetingIntegration' => 'm-1', 'proxyStatus' => 'revoked'],
-			['id' => 'p-3', 'meetingIntegration' => 'm-2', 'proxyStatus' => 'active'],
+			['id' => 'p-1', 'meeting' => 'm-1', 'proxyStatus' => 'active'],
+			['id' => 'p-2', 'meeting' => 'm-1', 'proxyStatus' => 'revoked'],
+			['id' => 'p-3', 'meeting' => 'm-2', 'proxyStatus' => 'active'],
 		];
 		$saved = [];
 		$svc = $this->makeService($rows, $saved);
@@ -392,8 +480,8 @@ class ProxyVoteServiceTest extends TestCase {
 	 */
 	public function testRegisterRejectsHolderAtProxyCap(): void {
 		$rows = [
-			['id' => 'p-1', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-1', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
-			['id' => 'p-2', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-2', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-1', 'meeting' => 'm-1', 'grantor' => 'g-1', 'holder' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-2', 'meeting' => 'm-1', 'grantor' => 'g-2', 'holder' => 'h-1', 'proxyStatus' => 'active'],
 		];
 		$saved = [];
 		$svc = $this->makeService($rows, $saved);
@@ -416,12 +504,12 @@ class ProxyVoteServiceTest extends TestCase {
 	 */
 	public function testRegisterCapCountsOnlyActiveProxiesInMeetingForHolder(): void {
 		$rows = [
-			['id' => 'p-1', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-1', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
-			['id' => 'p-2', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-2', 'holderIntegration' => 'h-1', 'proxyStatus' => 'revoked'],
-			['id' => 'p-3', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-3', 'holderIntegration' => 'h-1', 'proxyStatus' => 'suspended'],
-			['id' => 'p-4', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-4', 'holderIntegration' => 'h-1', 'proxyStatus' => 'pending-approval'],
-			['id' => 'p-5', 'meetingIntegration' => 'm-2', 'grantorIntegration' => 'g-5', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
-			['id' => 'p-6', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-6', 'holderIntegration' => 'h-2', 'proxyStatus' => 'active'],
+			['id' => 'p-1', 'meeting' => 'm-1', 'grantor' => 'g-1', 'holder' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-2', 'meeting' => 'm-1', 'grantor' => 'g-2', 'holder' => 'h-1', 'proxyStatus' => 'revoked'],
+			['id' => 'p-3', 'meeting' => 'm-1', 'grantor' => 'g-3', 'holder' => 'h-1', 'proxyStatus' => 'suspended'],
+			['id' => 'p-4', 'meeting' => 'm-1', 'grantor' => 'g-4', 'holder' => 'h-1', 'proxyStatus' => 'pending-approval'],
+			['id' => 'p-5', 'meeting' => 'm-2', 'grantor' => 'g-5', 'holder' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-6', 'meeting' => 'm-1', 'grantor' => 'g-6', 'holder' => 'h-2', 'proxyStatus' => 'active'],
 		];
 		$saved = [];
 		$svc = $this->makeService($rows, $saved);
@@ -442,8 +530,8 @@ class ProxyVoteServiceTest extends TestCase {
 	 */
 	public function testRegisterCapIsConfigurable(): void {
 		$rows = [
-			['id' => 'p-1', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-1', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
-			['id' => 'p-2', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-2', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-1', 'meeting' => 'm-1', 'grantor' => 'g-1', 'holder' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-2', 'meeting' => 'm-1', 'grantor' => 'g-2', 'holder' => 'h-1', 'proxyStatus' => 'active'],
 		];
 		$saved = [];
 
@@ -454,8 +542,8 @@ class ProxyVoteServiceTest extends TestCase {
 
 		// A cap below 1 falls back to the default of 2 (never disables the limit).
 		$rows2 = [
-			['id' => 'p-1', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-1', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
-			['id' => 'p-2', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-2', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-1', 'meeting' => 'm-1', 'grantor' => 'g-1', 'holder' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-2', 'meeting' => 'm-1', 'grantor' => 'g-2', 'holder' => 'h-1', 'proxyStatus' => 'active'],
 		];
 		$saved2 = [];
 		$svc2 = $this->makeService($rows2, $saved2, 0);
@@ -584,8 +672,8 @@ class ProxyVoteServiceTest extends TestCase {
 	 */
 	public function testRevokeAllowsGrantorAndSuspendAllowsHolder(): void {
 		$rows = [
-			['id' => 'p-1', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-1', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
-			['id' => 'p-2', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-2', 'holderIntegration' => 'h-2', 'proxyStatus' => 'active'],
+			['id' => 'p-1', 'meeting' => 'm-1', 'grantor' => 'g-1', 'holder' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-2', 'meeting' => 'm-1', 'grantor' => 'g-2', 'holder' => 'h-2', 'proxyStatus' => 'active'],
 		];
 		$saved = [];
 		$svc = $this->makeService(
@@ -615,7 +703,7 @@ class ProxyVoteServiceTest extends TestCase {
 	 */
 	public function testRevokeRejectsUnrelatedCallerAndLeavesStatusUnchanged(): void {
 		$rows = [
-			['id' => 'p-1', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-1', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-1', 'meeting' => 'm-1', 'grantor' => 'g-1', 'holder' => 'h-1', 'proxyStatus' => 'active'],
 		];
 		$saved = [];
 		$svc = $this->makeService(
@@ -647,7 +735,7 @@ class ProxyVoteServiceTest extends TestCase {
 	 */
 	public function testSuspendAllowsChairOfMeeting(): void {
 		$rows = [
-			['id' => 'p-1', 'meetingIntegration' => 'm-1', 'grantorIntegration' => 'g-1', 'holderIntegration' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-1', 'meeting' => 'm-1', 'grantor' => 'g-1', 'holder' => 'h-1', 'proxyStatus' => 'active'],
 		];
 		$saved = [];
 		$svc = $this->makeService(

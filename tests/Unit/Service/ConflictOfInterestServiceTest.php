@@ -115,7 +115,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 		$service = $this->makeService($rows, $audited);
 
 		$result = $service->declare(
-			boardMemberId: 'member-1',
+			membershipId: 'member-1',
 			agendaItemId: 'agenda-1',
 			type: 'financial-interest',
 			description: 'Holds shares in proposed counterparty.',
@@ -140,7 +140,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 		$service = $this->makeService($rows, $audited);
 
 		$result = $service->declare(
-			boardMemberId: 'member-2',
+			membershipId: 'member-2',
 			agendaItemId: 'agenda-2',
 			type: 'personal-relationship',
 			description: 'Distant family member tangentially involved.',
@@ -176,9 +176,9 @@ class ConflictOfInterestServiceTest extends TestCase {
 	 */
 	public function testGetActiveConflictsReturnsMostRestrictive(): void {
 		$rows = [
-			['id' => 'd1', 'boardMemberKoppeling' => 'm1', 'agendaItemKoppeling' => 'a1', 'actionTaken' => 'disclosed-and-participated'],
-			['id' => 'd2', 'boardMemberKoppeling' => 'm1', 'agendaItemKoppeling' => 'a1', 'actionTaken' => 'recused-from-vote'],
-			['id' => 'd3', 'boardMemberKoppeling' => 'm1', 'agendaItemKoppeling' => 'a1', 'actionTaken' => 'no-action-needed'],
+			['id' => 'd1', 'boardMember' => 'm1', 'agendaItem' => 'a1', 'actionTaken' => 'disclosed-and-participated'],
+			['id' => 'd2', 'boardMember' => 'm1', 'agendaItem' => 'a1', 'actionTaken' => 'recused-from-vote'],
+			['id' => 'd3', 'boardMember' => 'm1', 'agendaItem' => 'a1', 'actionTaken' => 'no-action-needed'],
 		];
 		$audited = [];
 		$service = $this->makeService($rows, $audited);
@@ -197,7 +197,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 	 */
 	public function testRecordActionUpdatesExistingDeclaration(): void {
 		$rows = [
-			['id' => 'd1', 'boardMemberKoppeling' => 'm1', 'agendaItemKoppeling' => 'a1', 'actionTaken' => 'no-action-needed'],
+			['id' => 'd1', 'boardMember' => 'm1', 'agendaItem' => 'a1', 'actionTaken' => 'no-action-needed'],
 		];
 		$audited = [];
 		$service = $this->makeService($rows, $audited);

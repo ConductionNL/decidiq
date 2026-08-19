@@ -61,6 +61,7 @@ class ConflictOfInterestController extends Controller {
 	 * @NoAdminRequired
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.3
+	 * @spec openspec/changes/model-debt-cleanup-code/proposal.md#in-scope
 	 *
 	 * @return JSONResponse
 	 */
@@ -71,21 +72,21 @@ class ConflictOfInterestController extends Controller {
 			return $auth;
 		}
 
-		$boardMemberId = (string)$this->request->getParam('boardMemberId', '');
+		$membershipId = (string)$this->request->getParam('membershipId', '');
 		$agendaItemId = (string)$this->request->getParam('agendaItemId', '');
 		$type = (string)$this->request->getParam('declarationType', 'none');
 		$description = (string)$this->request->getParam('description', '');
 		$severity = (string)$this->request->getParam('severity', 'material');
 
-		if ($boardMemberId === '' || $agendaItemId === '') {
+		if ($membershipId === '' || $agendaItemId === '') {
 			return new JSONResponse(
-				['message' => "Missing required parameter 'boardMemberId' or 'agendaItemId'."],
+				['message' => "Missing required parameter 'membershipId' or 'agendaItemId'."],
 				Http::STATUS_UNPROCESSABLE_ENTITY
 			);
 		}
 
 		return $this->respondFromResult(
-			result: $this->conflictService->declare($boardMemberId, $agendaItemId, $type, $description, $severity),
+			result: $this->conflictService->declare($membershipId, $agendaItemId, $type, $description, $severity),
 			payloadKey: 'declaration',
 			successCode: Http::STATUS_CREATED
 		);
@@ -93,14 +94,15 @@ class ConflictOfInterestController extends Controller {
 	}//end declare()
 
 	/**
-	 * List active conflicts for a board member (optionally narrowed to one
-	 * agenda item).
+	 * List active conflicts for a member's Membership (optionally narrowed
+	 * to one agenda item).
 	 *
-	 * @param string $id UUID of the board member
+	 * @param string $id UUID of the Membership (was Participant)
 	 *
 	 * @NoAdminRequired
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.3
+	 * @spec openspec/changes/model-debt-cleanup-code/proposal.md#in-scope
 	 *
 	 * @return JSONResponse
 	 */

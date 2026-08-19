@@ -4,17 +4,21 @@
 <!--
  Sidebar tab: members of a Governance Body.
 
- Members are participant records that reference this governance body via
- their `governanceBody` field (a real Participant schema property since
- admin-settings-v1 — it used to live only in x-openregister-relations,
- which OpenRegister never materialises, so this tab rendered permanently
- empty). Adding a member rewrites the participant's `governanceBody`
- pointer; removal clears it; the role action assigns a role enum value.
- New members can be imported from a Nextcloud group or a CSV file.
+ Members are Popolo Membership objects (model-debt-cleanup-code) linking a
+ Person to this governance body via the Membership's `governanceBody`
+ field. The list is every active Membership (no `endDate`) for this body,
+ joined to each Membership's Person for the displayed name. Adding a
+ member creates/matches a Person and creates a Membership; "Remove from
+ body" sets the Membership's `endDate` to today (Popolo departure
+ semantics) rather than deleting or nulling a pointer; the role action
+ writes onto the Membership. New members can be imported from a Nextcloud
+ group or a CSV file. The deprecated flat `Participant` schema is no
+ longer read or written by this tab (see design.md's own status note: the
+ Members tab was root-caused once before, on the same deprecated schema).
 
  All dialogs live in src/modals/ (ADR-004 modal isolation).
 
- @spec openspec/specs/admin-settings/spec.md
+ @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
 -->
 <template>
 	<div class="decidesk-tab decidesk-tab--members" data-testid="body-members-tab">
@@ -136,7 +140,11 @@ import MemberAddDialog from '../../modals/MemberAddDialog.vue'
 import MemberCsvImportDialog from '../../modals/MemberCsvImportDialog.vue'
 import MemberGroupImportDialog from '../../modals/MemberGroupImportDialog.vue'
 import MemberRoleDialog from '../../modals/MemberRoleDialog.vue'
-import { ensureRelationType } from './useRelationStore.js'
+import {
+	buildMemberRows,
+	ensureRelationType,
+	isActiveMembership,
+} from './useRelationStore.js'
 
 export default {
 	name: 'GovernanceBodyMembersTab',
@@ -221,18 +229,37 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/specs/admin-settings/spec.md */
+		/**
+		 * Load every active Membership for this body and join each to its
+		 * Person for the displayed name (spec.md "Members tab lists active
+		 * memberships, not Participant rows").
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
 			this.error = ''
 			try {
-				const store = ensureRelationType('participant')
-				const items = await store.fetchCollection('participant', {
-					governanceBody: this.objectId,
-					_limit: 100,
+				const membershipStore = ensureRelationType('membership')
+				const personStore = ensureRelationType('person')
+				const memberships = await membershipStore.fetchCollection(
+					'membership',
+					{ governanceBody: this.objectId, _limit: 100 },
+				)
+				const active = (memberships || []).filter(isActiveMembership)
+				const personIds = [
+					...new Set(active.map((m) => m.person).filter(Boolean)),
+				]
+				const persons = await Promise.all(
+					personIds.map((id) => personStore.fetchObject('person', id)),
+				)
+				const personsById = {}
+				personIds.forEach((id, i) => {
+					personsById[id] = persons[i]
 				})
-				this.rows = items || []
+				this.rows = buildMemberRows(active, personsById)
 			} catch (e) {
 				this.error =
 					e?.message || this.t('decidesk', 'Failed to load members.')
@@ -241,14 +268,24 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/admin-settings/spec.md */
+		/**
+		 * "Remove from body": sets the Membership's endDate to today
+		 * (Popolo departure semantics) rather than deleting the row or
+		 * nulling a governanceBody pointer.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 */
 		async confirmRemove() {
-			const store = ensureRelationType('participant')
+			const store = ensureRelationType('membership')
 			const target = this.removeTarget
 			try {
-				await store.saveObject('participant', {
-					...target,
-					governanceBody: null,
+				await store.saveObject('membership', {
+					id: target.id,
+					person: target.person,
+					governanceBody: target.governanceBody,
+					role: target.role,
+					endDate: new Date().toISOString(),
 				})
 				this.$refs.removeDialog?.setResult({ success: true })
 				this.refresh()

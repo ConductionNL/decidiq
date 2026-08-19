@@ -8,11 +8,14 @@
  * suspended when the grantor joins the meeting remotely, and revoked either
  * at meeting close or by secretary action.
  *
- * Proxy rows are persisted on the `board-proxy` schema (meetingKoppeling /
- * grantorKoppeling / holderKoppeling / proxyStatus), which is what this service
- * has always written. It previously pointed at the `vote` schema, whose required
- * `value` + `castAt` are not part of a delegation, so every registration threw
- * and returned 422; `board-proxy` is the schema the row actually describes.
+ * Proxy rows are persisted on the `proxy-authorization` schema (meeting /
+ * grantor / holder / proxyStatus / signatureStatus), the schema `board-proxy`
+ * folds its approval-workflow concept into as of model-debt-cleanup-schema
+ * (REQ-SDM-024) — `board-proxy` is retired (kept, not deleted, as historical
+ * record; `MigrateBoardProxyToProxyAuthorization` migrates its existing rows).
+ * `grantor`/`holder` reference `Person`, not the deprecated `Participant`
+ * shim, so every write here resolves the caller-supplied Participant UUID
+ * through `ParticipantToPersonMembershipResolver` first (Decision 3).
  * Every transition is mirrored to the audit log (ADR-006).
  *
  * @category Service
@@ -27,6 +30,7 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+ * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -43,6 +47,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
  * Proxy vote lifecycle service.
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+ * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
  */
 class ProxyVoteService {
 
@@ -54,11 +59,12 @@ class ProxyVoteService {
 	public const STATUSES = ['pending-approval', 'active', 'suspended', 'revoked'];
 
 	/**
-	 * Slug of the OpenRegister schema storing proxy rows.
+	 * Slug of the OpenRegister schema storing proxy rows (was `board-proxy`
+	 * — REQ-SDM-024, model-debt-cleanup-code Decision 3).
 	 *
 	 * @var string
 	 */
-	public const SCHEMA = 'board-proxy';
+	public const SCHEMA = 'proxy-authorization';
 
 	/**
 	 * App config key holding the per-holder per-meeting ACTIVE-proxy cap.
@@ -82,6 +88,7 @@ class ProxyVoteService {
 	 * @param AuditLogService $auditLogService Audit log dependency
 	 * @param ParticipantResolver $participantResolver Resolves chair/clerk role membership for the authorization guard
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
+	 * @param ParticipantToPersonMembershipResolver $participantCrosswalk Resolves a Participant UUID to its Person/Membership pair (Decision 3)
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
@@ -89,6 +96,7 @@ class ProxyVoteService {
 		private readonly AuditLogService $auditLogService,
 		private readonly ParticipantResolver $participantResolver,
 		private readonly ObjectServiceInterface $objectService,
+		private readonly ParticipantToPersonMembershipResolver $participantCrosswalk,
 	) {
 	}//end __construct()
 
@@ -167,24 +175,36 @@ class ProxyVoteService {
 	 * proxy's grantor, the proxy's holder, a chair/clerk of the meeting's
 	 * GovernanceBody, or an admin (`$callerUid = null`).
 	 *
-	 * @param array<string, mixed> $proxy Serialised proxy row (grantorKoppeling/holderKoppeling/meetingKoppeling)
+	 * `grantor`/`holder` on the stored row are `Person` UUIDs
+	 * (model-debt-cleanup-code Decision 3); the caller's own identity is
+	 * still resolved from their Nextcloud UID via the `Participant` shim
+	 * (`resolveParticipantUuid()`, unchanged), so it is run back through the
+	 * same crosswalk before the comparison.
+	 *
+	 * @param array<string, mixed> $proxy Serialised proxy row (grantor/holder/meeting)
 	 * @param string $callerUid Nextcloud UID of the caller
 	 *
 	 * @return bool
 	 *
 	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-3
+	 * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
 	 */
 	private function isAuthorizedForTransition(array $proxy, string $callerUid): bool {
 		$callerParticipant = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
-		$grantorId = ($proxy['grantorIntegration'] ?? null);
-		$holderId = ($proxy['holderIntegration'] ?? null);
-		if ($callerParticipant !== null
-			&& ($callerParticipant === $grantorId || $callerParticipant === $holderId)
+		$callerPersonId = null;
+		if ($callerParticipant !== null) {
+			$callerPersonId = ($this->participantCrosswalk->resolve(participantId: $callerParticipant)['person'] ?? null);
+		}
+
+		$grantorId = ($proxy['grantor'] ?? null);
+		$holderId = ($proxy['holder'] ?? null);
+		if ($callerPersonId !== null
+			&& ($callerPersonId === $grantorId || $callerPersonId === $holderId)
 		) {
 			return true;
 		}
 
-		$meetingId = (string)($proxy['meetingIntegration'] ?? '');
+		$meetingId = (string)($proxy['meeting'] ?? '');
 		return $this->isChairOrClerk(meetingId: $meetingId, uid: $callerUid);
 	}//end isAuthorizedForTransition()
 
@@ -199,9 +219,16 @@ class ProxyVoteService {
 	 * closed: when the existing proxies cannot be counted, registration is
 	 * rejected rather than allowed through.
 	 *
+	 * `$grantorId`/`$holderId` are `Participant` UUIDs, same as before this
+	 * change (the authorization guard below still resolves the caller's own
+	 * identity through the `Participant` shim) — they are resolved to
+	 * `Person` UUIDs via `ParticipantToPersonMembershipResolver` before the
+	 * cap count and the write, so a freshly-registered `proxy-authorization`
+	 * row carries `Person` UUIDs from day one (Decision 3).
+	 *
 	 * @param string $meetingId UUID of the board meeting
-	 * @param string $grantorId UUID of the granting board member
-	 * @param string $holderId UUID of the receiving board member
+	 * @param string $grantorId UUID of the granting board member's Participant record
+	 * @param string $holderId UUID of the receiving board member's Participant record
 	 * @param array<string, mixed> $extra Optional fields: scope, expiresAt
 	 * @param string|null $callerUid Nextcloud UID of the caller; null bypasses the
 	 *                               authorization check (admin path, mirroring
@@ -210,6 +237,7 @@ class ProxyVoteService {
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
 	 * @spec openspec/specs/voting-system/spec.md
 	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+	 * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
 	 *
 	 * @return array{success: bool, proxy: array|null, message: string}
 	 */
@@ -223,6 +251,15 @@ class ProxyVoteService {
 		if ($rejection !== null) {
 			return $this->registerFailure(message: $rejection);
 		}
+
+		$grantorResolution = $this->participantCrosswalk->resolve(participantId: $grantorId);
+		$holderResolution = $this->participantCrosswalk->resolve(participantId: $holderId);
+		if ($grantorResolution === null || $holderResolution === null) {
+			return $this->registerFailure(message: 'Could not resolve the grantor or holder to a Person record.');
+		}
+
+		$grantorPersonId = $grantorResolution['person'];
+		$holderPersonId = $holderResolution['person'];
 
 		// Per-member proxy limit (voting-system spec): count the holder's ACTIVE
 		// proxies in this meeting and reject when the configured cap is reached.
@@ -238,7 +275,7 @@ class ProxyVoteService {
 		$heldByHolder = count(
 			array_filter(
 				$existing['proxies'],
-				static fn (array $proxyRow): bool => (($proxyRow['holderIntegration'] ?? null) === $holderId)
+				static fn (array $proxyRow): bool => (($proxyRow['holder'] ?? null) === $holderPersonId)
 			)
 		);
 
@@ -253,12 +290,16 @@ class ProxyVoteService {
 		}
 
 		$row = [
-			'meetingIntegration' => $meetingId,
-			'grantorIntegration' => $grantorId,
-			'holderIntegration' => $holderId,
+			'meeting' => $meetingId,
+			'grantor' => $grantorPersonId,
+			'holder' => $holderPersonId,
 			'scope' => (string)($extra['scope'] ?? 'all-resolutions'),
 			'expiresAt' => (string)($extra['expiresAt'] ?? ''),
 			'proxyStatus' => 'pending-approval',
+			// signatureStatus is required on proxy-authorization; a freshly
+			// registered proxy has no signed machtiging document yet, so it
+			// starts at the schema's own declared initial lifecycle state.
+			'signatureStatus' => 'unsigned',
 			'registeredAt' => gmdate('Y-m-d\TH:i:s\Z'),
 		];
 
@@ -282,10 +323,10 @@ class ProxyVoteService {
 		}
 
 		$this->auditLogService->append(
-			actor: $grantorId,
+			actor: $grantorPersonId,
 			action: 'proxy-created',
 			objectUids: [(string)($payload['id'] ?? $payload['uuid'] ?? ''), $meetingId],
-			payload: ['grantor' => $grantorId, 'holder' => $holderId]
+			payload: ['grantor' => $grantorPersonId, 'holder' => $holderPersonId]
 		);
 
 		return [
@@ -381,6 +422,7 @@ class ProxyVoteService {
 	 * @param string|null $status Filter by proxyStatus
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+	 * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
 	 *
 	 * @return array{success: bool, proxies: array, count: int}
 	 */
@@ -398,7 +440,7 @@ class ProxyVoteService {
 					'filters' => [
 						'register' => 'decidesk',
 						'schema' => self::SCHEMA,
-						'meetingIntegration' => $meetingId,
+						'meeting' => $meetingId,
 					],
 					'limit' => 1000,
 				]
@@ -421,7 +463,7 @@ class ProxyVoteService {
 				$row = (array)$row->jsonSerialize();
 			}
 
-			if (is_array($row) === false || ($row['meetingIntegration'] ?? null) !== $meetingId) {
+			if (is_array($row) === false || ($row['meeting'] ?? null) !== $meetingId) {
 				continue;
 			}
 
@@ -454,6 +496,7 @@ class ProxyVoteService {
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
 	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-3
+	 * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
 	 *
 	 * @return array{success: bool, proxy: array|null, message: string}
 	 */
@@ -530,7 +573,7 @@ class ProxyVoteService {
 			$this->auditLogService->append(
 				actor: $actor,
 				action: 'proxy-revoked',
-				objectUids: [$proxyId, (string)($current['meetingIntegration'] ?? '')],
+				objectUids: [$proxyId, (string)($current['meeting'] ?? '')],
 				payload: ['previousStatus' => $previousStatus]
 			);
 		}

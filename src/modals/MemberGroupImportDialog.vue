@@ -6,12 +6,14 @@
  isolation).
 
  Group + member listing comes from the admin-gated
- /apps/decidesk/api/member-import endpoints (AuthorizedAdminSetting);
- participant creation goes through the OpenRegister object API via the
- shared store. Members already linked to the body (by NC uid or email)
- are flagged as duplicates and skipped.
+ /apps/decidesk/api/member-import endpoints (AuthorizedAdminSetting).
+ model-debt-cleanup-code: each imported user becomes a Person (matched by
+ email against an existing Person, else created) + Membership pair, not a
+ Participant, going through the OpenRegister object API via the shared
+ store. Members already linked to the body (by NC uid or email) are
+ flagged as duplicates and skipped.
 
- @spec openspec/specs/admin-settings/spec.md
+ @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
 -->
 <template>
 	<NcDialog
@@ -104,7 +106,11 @@
 import { getRequestToken } from '@nextcloud/auth'
 import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcDialog, NcSelect } from '@nextcloud/vue'
-import { ensureRelationType } from '../components/tabs/useRelationStore.js'
+import {
+	buildMembershipPayload,
+	ensureRelationType,
+	resolveOrCreatePerson,
+} from '../components/tabs/useRelationStore.js'
 import { DEFAULT_ROLE, markGroupDuplicates } from '../utils/memberImport.js'
 
 export default {
@@ -236,22 +242,38 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/admin-settings/spec.md */
+		/**
+		 * Import the previewed group members: each becomes a Person
+		 * (matched by email, else created) + Membership pair.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 */
 		async runImport() {
 			this.importing = true
 			this.error = ''
 			try {
-				const store = ensureRelationType('participant')
+				const personStore = ensureRelationType('person')
+				const membershipStore = ensureRelationType('membership')
 				const rows = this.preview.filter((row) => !row.duplicate)
 				for (const row of rows) {
 					// Sequential on purpose: predictable ordering + no API hammering.
-					await store.saveObject('participant', {
-						displayName: row.displayName,
+					const person = await resolveOrCreatePerson(personStore, {
+						name: row.displayName,
 						email: row.email,
-						role: DEFAULT_ROLE,
 						nextcloudUserId: row.uid,
-						governanceBody: this.bodyId,
 					})
+					if (!person?.id) {
+						continue
+					}
+					await membershipStore.saveObject(
+						'membership',
+						buildMembershipPayload({
+							personId: person.id,
+							governanceBodyId: this.bodyId,
+							role: DEFAULT_ROLE,
+						}),
+					)
 				}
 				this.doneMessage = this.t('decidesk', '{count} members imported.', {
 					count: rows.length,

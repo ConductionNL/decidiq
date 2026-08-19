@@ -8,11 +8,13 @@
  client-side (src/utils/memberImport.js, capped at MAX_IMPORT_ROWS);
  only the email→Nextcloud-account matching round-trips to the
  admin-gated /api/member-import/match endpoint (which mirrors the row
- cap server-side). Valid, non-duplicate rows are batch-created through
- the OpenRegister object API; rows without a matching NC account are
- imported but flagged for manual linking.
+ cap server-side). model-debt-cleanup-code: valid, non-duplicate rows
+ each become a Person (matched by email against an existing Person, else
+ created) + Membership pair through the OpenRegister object API, not a
+ Participant; rows without a matching NC account are still imported but
+ flagged for manual linking, unchanged.
 
- @spec openspec/specs/admin-settings/spec.md
+ @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
 -->
 <template>
 	<NcDialog
@@ -125,7 +127,11 @@
 import { getRequestToken } from '@nextcloud/auth'
 import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcDialog } from '@nextcloud/vue'
-import { ensureRelationType } from '../components/tabs/useRelationStore.js'
+import {
+	buildMembershipPayload,
+	ensureRelationType,
+	resolveOrCreatePerson,
+} from '../components/tabs/useRelationStore.js'
 import {
 	MAX_IMPORT_ROWS,
 	parseMemberCsv,
@@ -270,22 +276,38 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/admin-settings/spec.md */
+		/**
+		 * Import the previewed CSV rows: each becomes a Person (matched by
+		 * email, else created) + Membership pair.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 */
 		async runImport() {
 			this.importing = true
 			this.error = ''
 			try {
-				const store = ensureRelationType('participant')
+				const personStore = ensureRelationType('person')
+				const membershipStore = ensureRelationType('membership')
 				const rows = this.preview.filter((row) => row.status === 'ok')
 				for (const row of rows) {
 					// Sequential on purpose: predictable ordering + no API hammering.
-					await store.saveObject('participant', {
-						displayName: row.name,
+					const person = await resolveOrCreatePerson(personStore, {
+						name: row.name,
 						email: row.email,
-						role: row.role,
 						nextcloudUserId: row.matchedUid || '',
-						governanceBody: this.bodyId,
 					})
+					if (!person?.id) {
+						continue
+					}
+					await membershipStore.saveObject(
+						'membership',
+						buildMembershipPayload({
+							personId: person.id,
+							governanceBodyId: this.bodyId,
+							role: row.role,
+						}),
+					)
 				}
 				this.doneMessage = this.t('decidesk', '{count} members imported.', {
 					count: rows.length,

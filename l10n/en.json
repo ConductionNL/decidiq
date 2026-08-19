@@ -1525,6 +1525,13 @@
         "Failed to load routed documents.": "Failed to load routed documents.",
         "Incoming documents": "Incoming documents",
         "Loading routed documents…": "Loading routed documents…",
-        "No incoming documents routed to this meeting yet.": "No incoming documents routed to this meeting yet."
+        "No incoming documents routed to this meeting yet.": "No incoming documents routed to this meeting yet.",
+        "Adding…": "Adding…",
+        "An existing person with this email will be reused; otherwise a new one is created.": "An existing person with this email will be reused; otherwise a new one is created.",
+        "Could not create or match a person.": "Could not create or match a person.",
+        "e.g. GroenLinks": "e.g. GroenLinks",
+        "e.g. Roos de Vries": "e.g. Roos de Vries",
+        "Failed to add member.": "Failed to add member.",
+        "name@example.org": "name@example.org"
     }
 }
