@@ -625,4 +625,368 @@ class DecisionLifecycleServiceTest extends TestCase {
 		self::assertNull(actual: $result['lifecycle']);
 
 	}//end testGetAvailableTransitionsNotFound()
+
+	/**
+	 * Wire `saveObject()` to bucket its calls by schema/uuid shape so
+	 * appointment-materialization tests can assert on the lifecycle write,
+	 * the generated resolution record, and the created Memberships
+	 * separately without over-fitting to call order.
+	 *
+	 * Returns an object (not an array) for the same reason captureSaves()
+	 * does: the mock's `willReturnCallback` closure captures it by handle,
+	 * so mutations made while the service under test runs stay visible on
+	 * the SAME instance the caller already holds. Returning a plain array
+	 * would hand the caller a value copied at THIS return statement — before
+	 * the transition (and its saveObject calls) has even happened — so every
+	 * bucket would read back empty regardless of what actually got saved.
+	 *
+	 * Membership saves are handed back a synthetic incrementing id
+	 * ('membership-1', 'membership-2', ...) so materializeAppointmentMemberships()
+	 * has something real to collect into `appointedMemberships`.
+	 *
+	 * @return object{decision: array<int, array<string, mixed>>, resolution: array<int, array<string, mixed>>, membership: array<int, array<string, mixed>>}
+	 */
+	private function captureBucketedSaves(): object {
+		$buckets = new class {
+			/**
+			 * uuid-bearing `decision` saves (lifecycle write, appointedMemberships patch).
+			 *
+			 * @var array<int, array<string, mixed>>
+			 */
+			public array $decision = [];
+
+			/**
+			 * uuid-less `decision` saves — the generated resolution record.
+			 *
+			 * @var array<int, array<string, mixed>>
+			 */
+			public array $resolution = [];
+
+			/**
+			 * `membership` schema saves — the materialized appointment Memberships.
+			 *
+			 * @var array<int, array<string, mixed>>
+			 */
+			public array $membership = [];
+		};
+
+		$this->objectService->method('saveObject')->willReturnCallback(
+			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use ($buckets) {
+				if ($schema === 'membership') {
+					$id = 'membership-' . (count($buckets->membership) + 1);
+					$buckets->membership[] = $object;
+					return $this->entity(array_merge(['id' => $id], $object));
+				}
+
+				if ($schema === 'decision' && (string)($uuid ?? '') !== '') {
+					$buckets->decision[] = $object;
+					return $this->entity($object);
+				}
+
+				$buckets->resolution[] = $object;
+				return $this->entity($object);
+			}
+		);
+		$this->auditLogService->method('append')->willReturn(['success' => true, 'entry' => [], 'message' => 'OK']);
+
+		return $buckets;
+	}//end captureBucketedSaves()
+
+	/**
+	 * A mismatched posts/candidates count blocks enactment (design.md D1;
+	 * fail-closed, same pattern as the outcome-before-`enact` gate).
+	 *
+	 * @spec openspec/changes/appointment-decision-type-membership/specs/decision-management/spec.md#requirement-the-enact-transition-rejects-an-unpairable-candidatesposts-mismatch
+	 *
+	 * @return void
+	 */
+	public function testEnactRejectsMismatchedPostsCandidatesCount(): void {
+		$this->objectService->method('find')->willReturn(
+			$this->entity(
+				[
+					'id' => 'dec-1',
+					'lifecycle' => 'decided',
+					'outcome' => 'adopted',
+					'decisionDate' => '2026-04-10T21:00:00Z',
+					'decisionType' => 'appointment',
+					'targetPosts' => ['post-1', 'post-2'],
+					'candidates' => [
+						['person' => 'person-1'],
+						['person' => 'person-2'],
+						['externalName' => 'Extern C'],
+					],
+				]
+			)
+		);
+
+		$saved = $this->captureSaves();
+
+		$result = $this->service->transition(decisionId: 'dec-1', action: 'enact', currentUserId: 'alice');
+
+		self::assertNull(
+			actual: $saved->value,
+			message: 'A decision with an unpairable posts/candidates count was written into "enacted".'
+		);
+		self::assertFalse(condition: $result['success']);
+		self::assertStringContainsString(needle: 'targetPosts', haystack: $result['message']);
+		self::assertStringContainsString(needle: 'candidates', haystack: $result['message']);
+
+	}//end testEnactRejectsMismatchedPostsCandidatesCount()
+
+	/**
+	 * A single-candidate, role-only appointment (no `targetPosts`)
+	 * materializes exactly one Membership carrying the candidate's person,
+	 * the target role/body and `startDate=enactedAt`, and patches
+	 * `appointedMemberships` onto the decision.
+	 *
+	 * @spec openspec/changes/appointment-decision-type-membership/specs/decision-management/spec.md#requirement-appointment-adoption-materializes-membership-records
+	 *
+	 * @return void
+	 */
+	public function testMaterializesSingleRoleOnlyMembershipForPersonCandidate(): void {
+		$this->objectService->method('find')->willReturn(
+			$this->entity(
+				[
+					'id' => 'dec-1',
+					'lifecycle' => 'decided',
+					'outcome' => 'adopted',
+					'decisionDate' => '2026-04-10T21:00:00Z',
+					'decisionType' => 'appointment',
+					'title' => 'Benoeming lid auditcommissie',
+					'targetBody' => 'body-1',
+					'targetRole' => 'member',
+					'targetPosts' => [],
+					'candidates' => [
+						['person' => 'person-1'],
+					],
+					'appointedMemberships' => [],
+				]
+			)
+		);
+
+		$buckets = $this->captureBucketedSaves();
+
+		$result = $this->service->transition(decisionId: 'dec-1', action: 'enact', currentUserId: 'alice');
+
+		self::assertTrue(condition: $result['success']);
+
+		self::assertCount(expectedCount: 1, haystack: $buckets->membership);
+		$membership = $buckets->membership[0];
+		self::assertSame(expected: 'person-1', actual: $membership['person']);
+		self::assertSame(expected: 'member', actual: $membership['role']);
+		self::assertSame(expected: 'body-1', actual: $membership['governanceBody']);
+		self::assertArrayNotHasKey(key: 'post', array: $membership);
+		self::assertArrayNotHasKey(key: 'label', array: $membership);
+
+		// Exactly two uuid-bearing decision saves: the lifecycle write
+		// (enacted + enactedAt), then the appointedMemberships patch.
+		self::assertCount(expectedCount: 2, haystack: $buckets->decision);
+		self::assertSame(expected: 'enacted', actual: $buckets->decision[0]['lifecycle']);
+		self::assertNotEmpty(actual: $buckets->decision[0]['enactedAt']);
+		self::assertSame(expected: $buckets->decision[0]['enactedAt'], actual: $membership['startDate']);
+		self::assertSame(expected: ['membership-1'], actual: $buckets->decision[1]['appointedMemberships']);
+
+	}//end testMaterializesSingleRoleOnlyMembershipForPersonCandidate()
+
+	/**
+	 * A not-yet-registered candidate (only `externalName`, no `person`) is
+	 * materialized by name: the Membership carries `label`, not `person`.
+	 *
+	 * @spec openspec/changes/appointment-decision-type-membership/specs/decision-management/spec.md#requirement-appointment-adoption-materializes-membership-records
+	 *
+	 * @return void
+	 */
+	public function testMaterializesExternalCandidateByLabel(): void {
+		$this->objectService->method('find')->willReturn(
+			$this->entity(
+				[
+					'id' => 'dec-1',
+					'lifecycle' => 'decided',
+					'outcome' => 'adopted',
+					'decisionDate' => '2026-04-10T19:00:00Z',
+					'decisionType' => 'appointment',
+					'targetBody' => 'body-2',
+					'targetRole' => 'member',
+					'targetPosts' => [],
+					'candidates' => [
+						['externalName' => 'Mw. J. van Duin'],
+					],
+					'appointedMemberships' => [],
+				]
+			)
+		);
+
+		$buckets = $this->captureBucketedSaves();
+
+		$result = $this->service->transition(decisionId: 'dec-1', action: 'enact', currentUserId: 'alice');
+
+		self::assertTrue(condition: $result['success']);
+		self::assertCount(expectedCount: 1, haystack: $buckets->membership);
+		self::assertSame(expected: 'Mw. J. van Duin', actual: $buckets->membership[0]['label']);
+		self::assertArrayNotHasKey(key: 'person', array: $buckets->membership[0]);
+
+	}//end testMaterializesExternalCandidateByLabel()
+
+	/**
+	 * Multiple candidates paired with multiple `targetPosts` by array index.
+	 *
+	 * @spec openspec/changes/appointment-decision-type-membership/specs/decision-management/spec.md#requirement-appointment-adoption-materializes-membership-records
+	 *
+	 * @return void
+	 */
+	public function testMaterializesMultipleCandidatesPairedByIndex(): void {
+		$this->objectService->method('find')->willReturn(
+			$this->entity(
+				[
+					'id' => 'dec-1',
+					'lifecycle' => 'decided',
+					'outcome' => 'adopted',
+					'decisionDate' => '2026-04-10T19:00:00Z',
+					'decisionType' => 'appointment',
+					'targetBody' => 'body-3',
+					'targetRole' => 'member',
+					'targetPosts' => ['post-a', 'post-b'],
+					'candidates' => [
+						['person' => 'person-a'],
+						['externalName' => 'Candidate B'],
+					],
+					'appointedMemberships' => [],
+				]
+			)
+		);
+
+		$buckets = $this->captureBucketedSaves();
+
+		$result = $this->service->transition(decisionId: 'dec-1', action: 'enact', currentUserId: 'alice');
+
+		self::assertTrue(condition: $result['success']);
+		self::assertCount(expectedCount: 2, haystack: $buckets->membership);
+		self::assertSame(expected: 'person-a', actual: $buckets->membership[0]['person']);
+		self::assertSame(expected: 'post-a', actual: $buckets->membership[0]['post']);
+		self::assertSame(expected: 'Candidate B', actual: $buckets->membership[1]['label']);
+		self::assertSame(expected: 'post-b', actual: $buckets->membership[1]['post']);
+		self::assertSame(expected: ['membership-1', 'membership-2'], actual: $buckets->decision[1]['appointedMemberships']);
+
+	}//end testMaterializesMultipleCandidatesPairedByIndex()
+
+	/**
+	 * Exactly one `targetPosts` entry is shared by every candidate — never
+	 * ambiguous, so the pairing guard does not reject it either.
+	 *
+	 * @spec openspec/changes/appointment-decision-type-membership/specs/decision-management/spec.md#requirement-appointment-adoption-materializes-membership-records
+	 *
+	 * @return void
+	 */
+	public function testMaterializesSharedPostForAllCandidatesWhenExactlyOneTargetPost(): void {
+		$this->objectService->method('find')->willReturn(
+			$this->entity(
+				[
+					'id' => 'dec-1',
+					'lifecycle' => 'decided',
+					'outcome' => 'adopted',
+					'decisionDate' => '2026-04-10T19:00:00Z',
+					'decisionType' => 'appointment',
+					'targetBody' => 'body-4',
+					'targetRole' => 'member',
+					'targetPosts' => ['post-shared'],
+					'candidates' => [
+						['person' => 'person-x'],
+						['person' => 'person-y'],
+					],
+					'appointedMemberships' => [],
+				]
+			)
+		);
+
+		$buckets = $this->captureBucketedSaves();
+
+		$result = $this->service->transition(decisionId: 'dec-1', action: 'enact', currentUserId: 'alice');
+
+		self::assertTrue(condition: $result['success']);
+		self::assertCount(expectedCount: 2, haystack: $buckets->membership);
+		self::assertSame(expected: 'post-shared', actual: $buckets->membership[0]['post']);
+		self::assertSame(expected: 'post-shared', actual: $buckets->membership[1]['post']);
+
+	}//end testMaterializesSharedPostForAllCandidatesWhenExactlyOneTargetPost()
+
+	/**
+	 * A rejected appointment never reaches `enacted` (the outcome gate
+	 * blocks `enact` outright), so no Membership is ever created for it —
+	 * demonstrated here via the `archive` transition (also reachable from
+	 * `decided`), which never runs the enact-only materialization branch.
+	 *
+	 * @spec openspec/changes/appointment-decision-type-membership/specs/decision-management/spec.md#requirement-appointment-adoption-materializes-membership-records
+	 *
+	 * @return void
+	 */
+	public function testRejectedOutcomeNeverMaterializesAMembership(): void {
+		$this->objectService->method('find')->willReturn(
+			$this->entity(
+				[
+					'id' => 'dec-1',
+					'lifecycle' => 'decided',
+					'outcome' => 'rejected',
+					'decisionDate' => '2026-04-10T19:00:00Z',
+					'decisionType' => 'appointment',
+					'targetBody' => 'body-5',
+					'targetRole' => 'member',
+					'targetPosts' => [],
+					'candidates' => [
+						['person' => 'person-z'],
+					],
+					'appointedMemberships' => [],
+				]
+			)
+		);
+
+		$buckets = $this->captureBucketedSaves();
+
+		$result = $this->service->transition(decisionId: 'dec-1', action: 'archive', currentUserId: 'alice');
+
+		self::assertTrue(condition: $result['success']);
+		self::assertCount(expectedCount: 0, haystack: $buckets->membership);
+
+	}//end testRejectedOutcomeNeverMaterializesAMembership()
+
+	/**
+	 * Idempotency guard: a decision whose `appointedMemberships` is already
+	 * non-empty materializes no additional Membership, even though the
+	 * decision is otherwise a fresh, valid appointment adoption.
+	 *
+	 * @spec openspec/changes/appointment-decision-type-membership/specs/decision-management/spec.md#requirement-appointment-adoption-materializes-membership-records
+	 *
+	 * @return void
+	 */
+	public function testMaterializationDoesNotRunTwice(): void {
+		$this->objectService->method('find')->willReturn(
+			$this->entity(
+				[
+					'id' => 'dec-1',
+					'lifecycle' => 'decided',
+					'outcome' => 'adopted',
+					'decisionDate' => '2026-04-10T19:00:00Z',
+					'decisionType' => 'appointment',
+					'targetBody' => 'body-6',
+					'targetRole' => 'member',
+					'targetPosts' => [],
+					'candidates' => [
+						['person' => 'person-already'],
+					],
+					'appointedMemberships' => ['existing-membership-1'],
+				]
+			)
+		);
+
+		$buckets = $this->captureBucketedSaves();
+
+		$result = $this->service->transition(decisionId: 'dec-1', action: 'enact', currentUserId: 'alice');
+
+		self::assertTrue(condition: $result['success']);
+		self::assertCount(expectedCount: 0, haystack: $buckets->membership);
+
+		// Only the lifecycle write — no appointedMemberships patch, since
+		// materialization returned before ever calling saveObject() again.
+		self::assertCount(expectedCount: 1, haystack: $buckets->decision);
+
+	}//end testMaterializationDoesNotRunTwice()
 }//end class
