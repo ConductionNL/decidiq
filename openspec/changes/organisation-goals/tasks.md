@@ -81,7 +81,7 @@
 - [x] All tasks checked off
 - [x] `openspec validate` passes — `openspec validate organisation-goals --strict` → valid
 - [x] Manual testing against acceptance criteria (test-plan.md TC-1 through TC-9) — TC-1/2/3/6/7/8/9 live-verified (see Tasks 1-5 notes); TC-4/TC-5 live-verified as non-functional on this OpenRegister build, a pre-existing platform gap not specific to this change (see Task 6)
-- [ ] Code review against spec requirements — not performed by a separate reviewer as part of this implementation pass
+- [x] Code review against spec requirements — performed 2026-08-19 by the orchestrating judge pass plus an independent verification agent (all 9 requirements re-evidenced against files and live HTTP round-trips; verdict PASS-WITH-NOTES, zero defects)
 
 ## Tests (company-wide ADR-009)
 <!-- Plain-text reminders, not tracked checkboxes (SKILL.md: quality checklist items stay plain text to keep the Hydra 20-checkbox cap). -->

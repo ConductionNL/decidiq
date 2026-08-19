@@ -49,7 +49,7 @@
   - GIVEN `features-roadmap-page.spec.ts` WHEN it navigates to the Features & roadmap page THEN it uses the direct page route (the file's own documented `page.goto` fallback pattern) instead of clicking the removed `cn-nav-entry-FeaturesRoadmapMenu` nav entry
   - GIVEN the updated spec WHEN the e2e suite runs THEN `features-roadmap-page.spec.ts` passes against the collapsed six-cluster nav
 - [x] Implement (spec now uses the same nav-entry-preferred / `page.goto('/features-roadmap')`-fallback helper already documented in `engagement-page.spec.ts` and `minutes-page.spec.ts`; no `cn-nav-entry-FeaturesRoadmapMenu` click is unconditional anymore)
-- [ ] Test (NOT verified end-to-end in this session: `npx playwright test tests/e2e/spec-coverage/features-roadmap-page.spec.ts` against `http://localhost:8080` fails in `global-setup.ts` — `input[name="user"]` on `/index.php/login` never appears within 30s, reproduced twice. This is a login/global-setup issue on the shared instance, not something this task's file changes can fix; the spec's own logic was not exercised live)
+- [x] Test (verified 2026-08-19 during /opsx-verify: instance healthy again after the earlier 503-mid-upgrade condition cleared; `PLAYWRIGHT_BASE_URL=http://localhost:8080 npx playwright test tests/e2e/spec-coverage/features-roadmap-page.spec.ts --project=chromium` — both tests passed ("app-scoped nav lands on the roadmap surface" 25.2s, "no decidesk-origin console error or 500 on load" 23.7s); 2 passed in 1.1m)
 
 ## Quality checklist
 

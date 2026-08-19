@@ -435,6 +435,22 @@ next build reverts to the 44-entry nav with no further action.
 - **[Trade-off] settingsSection is an interim home, not the ADR-079-ideal
   one** → accepted per Decision 3's note; tracked as follow-up.
 
+## Post-apply addenda (2026-08-19, judge pass after verification)
+
+- **`Voordrachten` relocation pruned.** Decision 1/3 describe relocating
+  `Voordrachten` under `Decisions`; the later-landing
+  `appointment-decision-type-schema` change retired that menu entry
+  entirely (the fold), turning the relocation into a dead no-op. It was
+  removed from `src/menu-layout.json` to keep the file legible; the JSON
+  blocks above reflect the state as designed, not as finally shipped.
+- **One fragment edit shipped after all** (Non-Goals said none):
+  `src/manifest.d/user-settings.json`'s menu label changed
+  "Personal settings" → "Preferences" as part of the REQ-NAV-012
+  amendment — live verification found Nextcloud's shell adds its own
+  non-suppressible "Personal settings" (`/settings/user`) link, so
+  label distinctness required touching the fragment. No other fragment
+  was modified.
+
 ## Open Questions
 
 See DEFERRED_QUESTIONS in this run's output for the three items requiring

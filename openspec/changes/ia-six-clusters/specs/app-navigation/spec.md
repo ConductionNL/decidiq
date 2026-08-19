@@ -71,16 +71,17 @@ leaf disappears from the primary top-level list. The mapping SHALL be:
 | Group (id) | Relocated leaf ids |
 |---|---|
 | `Meetings` | `MondelingeVragen`, `Interpellaties`, `IngekomenStukken`, `Raadsinformatiebrieven`, `KascommissieVerklaringen` |
-| `Decisions` | `Raadplegingen`, `Consultations`, `WorTrajecten`, `Adviesaanvragen`, `Zienswijzerondes`, `Voordrachten` |
+| `Decisions` | `Raadplegingen`, `Consultations`, `WorTrajecten`, `Adviesaanvragen`, `Zienswijzerondes` |
 | `ActionItems` | `Toezeggingen`, `Termijnagenda`, `PCCycli`, `Goals` |
 | `GovernanceBodies` | `Roosters`, `Nevenfuncties`, `Geschenken`, `OnboardingTrajecten`, `OffboardingTrajecten`, `ProxyAuthorizations` |
 | `Registers` | `Regelingen`, `GoverningDocuments`, `Bevoegdheidstoedelingen`, `Geheimhoudingen` |
 
-`Voordrachten` relocates under `Decisions` (not `GovernanceBodies`): per the
-product decision and ADR-005, a nomination IS a decision
-(`decisionType=appointment`, change `appointment-decision-type-schema`), so
-its register entry belongs with the decision surfaces until that chain
-retires it. `Goals` is a forward declaration: the id is introduced by the
+Nominations carry no relocation: the `Voordrachten` menu entry was retired
+outright by `appointment-decision-type-schema` (a nomination IS a decision,
+`decisionType=appointment` per ADR-005 — appointments live in the Decisions
+register as a typed filter, not as their own entry). A `Voordrachten`
+relocation existed briefly between the two changes landing and was pruned
+once the fold retired the entry. `Goals` is a forward declaration: the id is introduced by the
 parallel change `organisation-goals` (fragment
 `src/manifest.d/organisation-goals.json`); `applyMenuRelocations()` is a
 no-op for a source id absent from the merged menu, so declaring the

@@ -82,10 +82,13 @@ is specified verbatim in design.md; implement by copying it exactly.
   (admin has a stored default-view preference), not a defect. Direct-URL
   routability of removed pages spot-checked via the routes remaining in the
   merged manifest pages[] (untouched by this change).
-- [ ] Code review confirms only `src/manifest.json`, `src/menu-layout.json`,
-  `openspec/architecture/adr-004-information-architecture.md`, and
-  `openspec/specs/app-navigation/spec.md` changed — no `manifest.d/*.json`
-  fragment, PHP, Vue, or TypeScript file touched
+- [x] Code review (2026-08-19 verification pass): no PHP or Vue file
+  touched. The literal "only 4 files" claim does not hold as written —
+  the implementing commit also carried sibling-change files
+  (nav-ceiling-gate artifacts, the deferred e2e fix), and one
+  `manifest.d` fragment (`user-settings.json`, label-only) was edited
+  under the amended REQ-NAV-012 — see design.md "Post-apply addenda"
+  for both exceptions, each deliberate and documented.
 
 ## Tests (company-wide ADR-009)
 

@@ -8,7 +8,7 @@
  * src/manifest.json / src/menu-layout.json involved — see test-plan.md
  * "Out of Scope" for why the real repo state is deliberately not asserted
  * against here). TC-4/TC-5 are the change's POSITIVE CONTROL, required per
- * REQ-NAV-009: proof the gate can fail before it is trusted to say "pass".
+ * REQ-NAV-013: proof the gate can fail before it is trusted to say "pass".
  */
 
 import { describe, expect, it } from 'vitest'
@@ -57,7 +57,7 @@ describe('nav-ceiling gate: evaluateCeiling (REQ-NAV-007)', () => {
 	})
 })
 
-describe('nav-ceiling gate: evaluateFragmentPlacement (REQ-NAV-008, positive control REQ-NAV-009)', () => {
+describe('nav-ceiling gate: evaluateFragmentPlacement (REQ-NAV-008, positive control REQ-NAV-013)', () => {
 	const fragment = {
 		file: 'src/manifest.d/fixture-new-thing.json',
 		menu: [{ id: 'NewThing', label: 'New thing', route: 'NewThing', order: 200 }],
