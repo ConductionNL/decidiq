@@ -4,14 +4,18 @@ status: done
 
 # app-navigation Specification
 
-**Status**: in-progress
+**Status**: done
 **Scope**: decidesk
 **OpenSpec changes**:
-- ia-six-item-nav (active) — restructures the menu to ADR-004's six-item, mode-aware IA
+- ia-six-item-nav (archived) — restructures the menu to ADR-004's six-item, mode-aware IA
+- ia-six-clusters (archived) — collapses the nav from 44 fragment-accreted top-level entries back to ADR-004's six-item ceiling (Dashboard, Meetings, Decisions, Tasks & Commitments, Organisation, Registers) via `src/menu-layout.json`'s relocation/removal/settings-lift mechanism
+- nav-ceiling-gate (archived) — adds a CI gate enforcing the six-item ceiling and requiring every manifest.d fragment's top-level menu entry to be explicitly placed in menu-layout.json
 
 ## Purpose
 Defines the app shell layout, navigation menu, and routing. App.vue renders loading, no-OpenRegister, and ready states; the main menu presents ADR-004's six-item information architecture with mode-aware label resolution; the history-mode router exposes flat named routes (keeping demoted surfaces reachable by deep link); and store initialisation registers all entity types. It also surfaces Motions as a filtered view of Decisions rather than a standalone top-level item.
+
 ## Requirements
+
 ### Requirement: REQ-NAV-001 App.vue provides root layout with three states
 `App.vue` SHALL use `NcContent` as the root layout element and SHALL render one of three states: (1) loading — `NcLoadingIcon` while settings are fetched; (2) no-OpenRegister — `NcEmptyContent` if `openRegisters` is false; (3) ready — `MainMenu` + `NcAppContent` + `router-view` with optional `CnIndexSidebar`.
 
@@ -29,29 +33,53 @@ Defines the app shell layout, navigation menu, and routing. App.vue renders load
 
 ---
 
-### Requirement: REQ-NAV-002 MainMenu lists primary entity routes
+### Requirement: REQ-NAV-002 MainMenu lists six canonical top-level groups, populated via menu-layout.json
+
 `MainMenu` SHALL render the navigation via `CnAppRoot`/`CnAppNav` from the
-bundled manifest `menu`. The menu SHALL list ADR-004's six canonical working
-items plus a Dashboard landing item: Dashboard (landing, route `Dashboard`),
-Meetings (`Meetings`), Decisions (`Decisions`), Action items (`ActionItems`),
-Motions (`Motions`), Bodies (`GovernanceBodies`), and Beheer (the Settings entry,
-settings section). Minutes, Workspaces, and Engagement SHALL NOT appear as
-top-level menu items (their routes remain reachable). A settings link (Beheer)
-SHALL appear via the manifest `settings` section; Documentation and
-Features-roadmap SHALL remain in the `footer` section.
+merged manifest `menu` (`src/manifest.json` + every `src/manifest.d/*.json`
+fragment + `src/menu-layout.json`, per `buildManifest()`). The primary
+(non-footer, non-settings) top-level entries SHALL be exactly six, matching
+ADR-004's v2 table: **Dashboard** (landing, route `Dashboard`), **Meetings**
+(route `Meetings`), **Decisions** (route `Decisions`), **Tasks &
+Commitments** (id `ActionItems`, route `ActionItems` — label renamed from
+"Action items"), **Organisation** (id `GovernanceBodies`, route
+`GovernanceBodies` — label renamed from "Bodies"), and **Registers** (id
+`Registers`, a route-less group anchor — a pure expandable parent with no
+page of its own). Every fragment-declared top-level entry that is not one of
+these six base ids SHALL be relocated under one of them (or the settings
+gear, or removed) via `src/menu-layout.json`, never left as a 7th+ primary
+entry. Motions SHALL NOT appear as a standalone top-level item (unchanged
+from REQ-RMN-001). "Beheer" (operator-only configuration) is NOT a menu
+item in v2 — it is served by the Nextcloud settings framework
+(`/settings/admin/decidesk`, ADR-079 Decision 1) plus the `NcAppNavigationSettings`
+gear foldout (ADR-079 Decision 2), not a nav row.
 
-#### Scenario: Six working items plus Dashboard are rendered
-- WHEN the app is in the ready state
-- THEN the main menu shows Dashboard, Meetings, Decisions, Action items, Motions, and Bodies
-- AND Beheer (Settings) appears in the settings section
-- AND Minutes, Workspaces, and Engagement are NOT shown as top-level items
+#### Scenario: Exactly six primary top-level items are rendered
 
-#### Scenario: Bodies item is present and routes to GovernanceBodies
 - WHEN the app is in the ready state
-- THEN a Bodies navigation item is visible
-- AND clicking it navigates to the `GovernanceBodies` route (`/governance-bodies`)
+- THEN the main menu shows exactly six primary (non-footer, non-settings)
+  items: Dashboard, Meetings, Decisions, Tasks & Commitments, Organisation,
+  Registers
+- AND no 7th primary top-level item is present
+
+#### Scenario: Organisation item is present and routes to GovernanceBodies
+
+- WHEN the app is in the ready state
+- THEN an Organisation navigation item is visible
+- AND clicking it navigates to the `GovernanceBodies` route
+  (`/governance-bodies`)
+- AND its underlying menu id remains `GovernanceBodies` (label-only rename)
+
+#### Scenario: Registers is a route-less expandable group
+
+- WHEN the app is in the ready state
+- THEN a Registers navigation item is visible with no `route`/`href`/`action`
+  of its own
+- AND clicking its title toggles its children open/closed rather than
+  navigating
 
 #### Scenario: Active route is highlighted
+
 - WHEN the user is on the `/meetings` route
 - THEN the Meetings navigation item is marked as active
 
@@ -227,3 +255,217 @@ ADR-005).
 - WHEN the `decision` schema and its `decisionType` enum are inspected
 - THEN they are unchanged — Motions remain Decisions with `decisionType = motion`
 
+---
+
+### Requirement: REQ-NAV-009 Fragment leaf entries relocate into a canonical group via menu-layout.json relocations
+
+`src/menu-layout.json#relocations` SHALL map each fragment top-level menu
+entry id that belongs under an existing base group to that group's id, so
+`applyMenuRelocations()` re-homes the leaf as a child of the group and the
+leaf disappears from the primary top-level list. The mapping SHALL be:
+
+| Group (id) | Relocated leaf ids |
+|---|---|
+| `Meetings` | `MondelingeVragen`, `Interpellaties`, `IngekomenStukken`, `Raadsinformatiebrieven`, `KascommissieVerklaringen` |
+| `Decisions` | `Raadplegingen`, `Consultations`, `WorTrajecten`, `Adviesaanvragen`, `Zienswijzerondes` |
+| `ActionItems` | `Toezeggingen`, `Termijnagenda`, `PCCycli`, `Goals` |
+| `GovernanceBodies` | `Roosters`, `Nevenfuncties`, `Geschenken`, `OnboardingTrajecten`, `OffboardingTrajecten`, `ProxyAuthorizations` |
+| `Registers` | `Regelingen`, `GoverningDocuments`, `Bevoegdheidstoedelingen`, `Geheimhoudingen` |
+
+Nominations carry no relocation: the `Voordrachten` menu entry was retired
+outright by `appointment-decision-type-schema` (a nomination IS a decision,
+`decisionType=appointment` per ADR-005 — appointments live in the Decisions
+register as a typed filter, not as their own entry). A `Voordrachten`
+relocation existed briefly between the two changes landing and was pruned
+once the fold retired the entry. `Goals` is a forward declaration: the id is introduced by the
+parallel change `organisation-goals` (fragment
+`src/manifest.d/organisation-goals.json`); `applyMenuRelocations()` is a
+no-op for a source id absent from the merged menu, so declaring the
+placement before the fragment lands is safe and keeps the nav-ceiling gate
+green in either merge order.
+
+The relocated leaf's own page and route SHALL remain unchanged; only its
+position in the rendered menu changes.
+
+#### Scenario: A fragment leaf renders as a child of its target group
+
+- GIVEN `src/menu-layout.json#relocations` maps `MondelingeVragen` to
+  `Meetings`
+- WHEN the merged menu is built
+- THEN `MondelingeVragen` does not appear as a primary top-level entry
+- AND `MondelingeVragen` appears as a child of the `Meetings` group
+- AND navigating directly to its page route still renders the page
+
+#### Scenario: A relocated leaf's page stays routable
+
+- GIVEN any id listed as a relocation source
+- WHEN a user navigates directly to that entry's page route
+- THEN the page renders identically to before the relocation
+
+### Requirement: REQ-NAV-010 Duplicate or filter-chip nav rows are removed but stay routable
+
+`src/menu-layout.json#removals` SHALL list menu entry ids that are retired
+as top-level (or relocated) nav rows because they duplicate a filter,
+scope, or another entry's function, while their underlying page remains
+registered and reachable by direct route for deep links and e2e specs. The
+list SHALL be: `UrgentDecisions` (a filter chip on Decisions, not a
+distinct register), `MyDeclarations` (an unscoped duplicate of
+`Nevenfuncties`), `Zienswijzen` (a child facet of `Zienswijzerondes`), and
+`FeaturesRoadmapMenu` (footer entry retired from the nav; its `FeaturesRoadmap`
+page stays routable).
+
+#### Scenario: A removed entry does not render anywhere in the menu
+
+- GIVEN `FeaturesRoadmapMenu` is listed in `menu-layout.json#removals`
+- WHEN the merged menu is built
+- THEN no primary, footer, or settings entry with id `FeaturesRoadmapMenu`
+  is present
+
+#### Scenario: A removed entry's page remains routable
+
+- GIVEN `FeaturesRoadmapMenu` has been removed from the menu
+- WHEN a user navigates directly to the `FeaturesRoadmap` page route
+- THEN the page renders as before
+
+### Requirement: REQ-NAV-011 Operator/definition config entries lift into the settings gear foldout
+
+`src/menu-layout.json#settingsSection` SHALL list menu entry ids for
+operator-only definition/configuration surfaces that do not warrant a
+primary top-level slot, so `applySettingsSection()` tags each with
+`section: "settings"` and moves it into the `NcAppNavigationSettings` gear
+foldout rather than the scrollable primary nav — consistent with ADR-079's
+model of keeping non-operational configuration out of the primary working
+surface (ADR-004 Rule 4, "Beheer is operator-only"). The list SHALL be:
+`Termijnregelingen`, `VveDecisionTemplates`, `ModelreglementPresets`,
+`VveConfigurations`, `WooDiwoo`, `GeheimhoudingGronden`, `ModerationQueue`,
+`UserSettingsMenu`.
+
+#### Scenario: A listed entry renders inside the settings gear, not the primary nav
+
+- GIVEN `Termijnregelingen` is listed in
+  `menu-layout.json#settingsSection`
+- WHEN the merged menu is built
+- THEN `Termijnregelingen` does not appear as a primary top-level entry or
+  as a child of any primary group
+- AND `Termijnregelingen` appears inside the `NcAppNavigationSettings` gear
+  foldout
+
+#### Scenario: A lifted entry's page stays routable
+
+- GIVEN any id listed in `settingsSection`
+- WHEN a user navigates directly to that entry's page route
+- THEN the page renders identically to before the lift
+
+### Requirement: REQ-NAV-012 The settings gear carries no ambiguous duplicate entries
+
+`src/manifest.json` SHALL set `nav.includePersonalSettings: false` so
+`CnAppNav`'s auto-prepended generic "Personal settings" entry (which opens
+`NcAppSettingsDialog` via a route-less `#` click handler) does not render.
+Nextcloud's own standard "Personal settings" link-out to `/settings/user`
+remains (it is shell-provided and not suppressible), so decidesk's own
+`UserSettingsMenu` fragment entry (the real `/user-settings` route
+rendering `UserSettingsPage` — notification/display/delegation/
+communication sections) SHALL be labelled **"Preferences"** so no two gear
+entries share a label. The gear SHALL therefore show at most one entry per
+label: "Personal settings" (Nextcloud, `/settings/user`), "Preferences"
+(decidesk, `/user-settings`), plus the admin-gated admin-settings link-out.
+
+#### Scenario: No two gear entries share a label
+
+- WHEN the settings gear foldout is opened
+- THEN no two entries carry the same label
+- AND the entry labelled "Preferences" navigates to `/user-settings`
+
+#### Scenario: The generic auto-prepended entry is suppressed
+
+- GIVEN `nav.includePersonalSettings` is `false` in `src/manifest.json`
+- WHEN the merged manifest is built
+- THEN `CnAppNav` does not auto-prepend its own route-less `#` "Personal
+  settings" entry
+
+### Requirement: REQ-NAV-007 The primary top-level navigation is mechanically capped at the ADR-004 ceiling
+
+A CI check SHALL rebuild the effective top-level menu the same way
+`src/main.js`'s `buildManifest` pipeline does — merging `src/manifest.json`
+with every `src/manifest.d/*.json` fragment, then applying
+`src/menu-layout.json`'s relocations, removals, and settings-section lift —
+and SHALL fail when the number of primary top-level entries (entries with no
+`section`, i.e. neither `"footer"` nor `"settings"`) exceeds 6.
+
+#### Scenario: A merged menu at or under the ceiling passes
+
+- GIVEN the effective merged menu has 6 or fewer primary top-level entries
+- WHEN the nav-ceiling check runs
+- THEN it reports pass and prints the primary, footer, and settings entry counts
+
+#### Scenario: A merged menu over the ceiling fails
+
+- GIVEN the effective merged menu has 7 or more primary top-level entries
+- WHEN the nav-ceiling check runs
+- THEN it exits non-zero
+- AND the failure output names the ceiling (6), the actual primary count, and the offending entry ids
+
+#### Scenario: Footer and settings entries do not count against the ceiling
+
+- GIVEN the merged menu includes entries carrying `section: "footer"` or `section: "settings"`
+- WHEN the nav-ceiling check computes the primary count
+- THEN those entries are excluded from the primary count and reported separately
+
+### Requirement: REQ-NAV-008 Every fragment top-level menu entry must be explicitly placed
+
+For every `src/manifest.d/*.json` fragment, each entry in that fragment's
+top-level `menu` array SHALL be considered "placed" only if at least one of
+the following holds: (a) the entry itself declares `section: "footer"` or
+`section: "settings"`; (b) the entry's `id` is a key in
+`src/menu-layout.json#relocations`; (c) the entry's `id` is listed in
+`src/menu-layout.json#removals`; (d) the entry's `id` is listed in
+`src/menu-layout.json#settingsSection`. The nav-ceiling check SHALL fail when
+any fragment declares a top-level menu entry that is not placed, independent
+of whether the ceiling in REQ-NAV-007 is currently exceeded — an unplaced
+entry is a defect even while the count happens to stay at or under 6.
+
+#### Scenario: An unplaced fragment entry fails even under the ceiling
+
+- GIVEN a fragment declares a new top-level menu entry with an id that appears in none of `relocations`, `removals`, or `settingsSection`, and is not self-scoped to `section: "footer"`/`"settings"`
+- AND the resulting primary count is still 6 or fewer
+- WHEN the nav-ceiling check runs
+- THEN it exits non-zero and names the fragment file and the unplaced entry id
+
+#### Scenario: A relocated fragment entry is placed
+
+- GIVEN a fragment declares a top-level menu entry whose id is a key in `menu-layout.json#relocations`
+- WHEN the nav-ceiling check runs
+- THEN that entry is treated as placed and does not trigger an unplaced-entry failure
+
+#### Scenario: A removed fragment entry is placed
+
+- GIVEN a fragment declares a top-level menu entry whose id is listed in `menu-layout.json#removals`
+- WHEN the nav-ceiling check runs
+- THEN that entry is treated as placed and does not trigger an unplaced-entry failure
+
+#### Scenario: A settings-lifted fragment entry is placed
+
+- GIVEN a fragment declares a top-level menu entry whose id is listed in `menu-layout.json#settingsSection`, OR the entry itself declares `section: "settings"`
+- WHEN the nav-ceiling check runs
+- THEN that entry is treated as placed and does not trigger an unplaced-entry failure
+
+### Requirement: REQ-NAV-013 The nav-ceiling check carries a positive control
+
+The nav-ceiling check's test suite SHALL include at least one fixture that
+proves the check can fail: an in-memory fragment fixture with an unplaced
+top-level menu entry, asserted to produce a non-zero result naming that
+entry. A check whose test suite only ever exercises passing fixtures is
+unproven — a check that never ran would look identical.
+
+#### Scenario: The positive-control fixture fails the check
+
+- GIVEN the positive-control fixture (a base menu, one fragment with one unplaced top-level entry, and an empty `menu-layout.json`)
+- WHEN the check's evaluation function runs against that fixture
+- THEN it reports at least one failure naming the fixture's unplaced entry id
+
+#### Scenario: Placing the same entry clears the positive-control failure
+
+- GIVEN the positive-control fixture from the previous scenario
+- WHEN the fixture's unplaced entry id is added to `relocations`, `removals`, or `settingsSection`
+- AND the check's evaluation function runs again
+- THEN it reports no failure for that entry

@@ -217,3 +217,62 @@ case — owned by `shillinq-delegate-signing` and `procest-delegate-contract-dec
 - THEN decidesk emits the same outcome envelope to each, and each consumer (shillinq GL post, procest
   ZGW advance) owns its own downstream action
 
+---
+
+### Requirement: REQ-DCDH-008 — The `decidesk-decisions` leaf is declared on BOTH layers
+
+@e2e exclude The assertion is that two DECLARATIONS agree, and one of them is a PHP
+`LeafDescriptor` that no browser ever sees — there is no rendered state in which a
+Playwright test could observe the server half being absent, which is exactly why the
+halves drifted. Covered by PHPUnit
+(`tests/Unit/Listener/RegisterDecisionsLeafListenerTest.php`,
+`tests/Unit/Listener/DecisionsLeafParityTest.php`) and by gate-24 `integration-parity`.
+
+The "Besluitvorming" decision hub surface SHALL be registered on **both** halves of the
+ADR-066 leaf contract under the shared id `decidesk-decisions`: the client half through
+`registerIntegration()` on `window.OCA.OpenRegister.integrations`
+(`src/integrations/registerDecisionsLeaf.js`), and the server half as a
+`LeafDescriptor` contributed to OpenRegister's `RegisterLeafProvidersEvent`
+(`lib/Listener/RegisterDecisionsLeafListener.php`). The server half exists so a manifest
+app or admin UI can enumerate the leaf through the
+`openregister.integrations.leaves` capability **without loading decidesk's JS bundle**
+(ADR-066 Consequences → Cross-app / governance); a client-only registration renders but
+is invisible to every server-side consumer.
+
+The descriptor SHALL declare `kinds: ['render-surface']` only and SHALL contribute a
+**null** `IntegrationProvider`: the leaf reads and appends decisions through
+OpenRegister's own object API from the browser (ADR-022), so decidesk serves no
+app-local store behind it. The leaf SHALL expose no verb — raising a decision from
+another app remains the ADR-041 `DecisionRequestedEvent` path (REQ-DCDH-002), never the
+leaf seam (ADR-066 decision 2).
+
+Both halves SHALL declare the SAME `id`, `label` source string, `icon`, `group`,
+`requiredApp`, `referenceType`, `renderMode` and `surfaces`, each written out
+EXPLICITLY rather than left to a default — a half that declares a value by omission
+gives the cross-layer parity check nothing to compare, which is how two halves drift
+without either compiler noticing (ADR-066 decisions 4 and 7).
+
+#### Scenario: The leaf is discoverable server-side without loading decidesk's bundle
+
+- GIVEN OpenRegister collects its leaf catalogue by dispatching `RegisterLeafProvidersEvent`
+- WHEN decidesk's `RegisterDecisionsLeafListener` handles it
+- THEN exactly one leaf is contributed, with id `decidesk-decisions`, `requiredApp` `decidesk`,
+  kind `render-surface`, `renderMode` `mount`, and a null provider
+- AND the descriptor reaches the `openregister.integrations.leaves` capability, so a consumer
+  can enumerate the leaf without evaluating any decidesk JavaScript
+
+#### Scenario: A non-matching event contributes nothing
+
+- GIVEN some other event is dispatched to the same listener
+- WHEN it is not a `RegisterLeafProvidersEvent`
+- THEN no leaf is contributed and nothing is thrown
+
+#### Scenario: The two halves declare the same leaf
+
+- GIVEN the JS registration in `src/integrations/registerDecisionsLeaf.js`
+- AND the server descriptor built by `RegisterDecisionsLeafListener`
+- WHEN their `id`, `label`, `icon`, `group`, `requiredApp`, `referenceType`, `renderMode`
+  and `surfaces` declarations are compared
+- THEN every one of them is equal across the two layers
+- AND every declared surface is a member of OpenRegister's `VALID_SURFACES` vocabulary
+
