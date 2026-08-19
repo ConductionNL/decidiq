@@ -9,7 +9,9 @@ openspec-changes:
 
 ## Purpose
 Provides list, detail, create, edit, and delete operations for decision-maker records, with full-text search and role filtering. New decision makers are created as Popolo Person plus Membership pairs, while the legacy flat Participant schema is retained as a deprecated backward-compatibility shim so existing records, quorum aggregation, and vote-casting continue to function.
+
 ## Requirements
+
 ### Requirement: Participant list view
 The app SHALL display all Participant objects in a paginated, searchable list using `CnIndexPage` with `useListView`.
 
@@ -86,13 +88,20 @@ The app SHALL allow users to delete a Participant object with confirmation.
 - **THEN** the Participant is not deleted and the detail page remains
 
 ### Requirement: REQ-PCR-010 — Participant schema deprecated in favour of Person + Membership
+
 The system MUST annotate the `Participant` schema in
 `lib/Settings/decidesk_register.json` as deprecated (in its `description`), and MUST NOT
 create new decision-maker seed data as `Participant` objects. New person/relationship
 data MUST be modelled as `Person` + `Membership` per the `person-and-membership` spec.
 The `Participant` schema MUST remain active (not deleted) so existing references —
 the `Meeting` quorum aggregation (`totalParticipantCount`/`presentParticipantCount`),
-`VotingService::resolveParticipantUuid()`, and dependent specs — continue to function.
+`VotingService::resolveParticipantUuid()`, `Vote.participant`, `EngagementRecord.participant`,
+and dependent specs — continue to function. As of this change, `ConflictOfInterest.boardMember`
+and `ProxyAuthorization.grantor`/`holder` no longer `$ref: Participant` (retargeted to
+`Membership`/`Person` respectively — REQ-SDM-023/024); the schema's own description MUST
+name the narrowed, exact set of remaining `$ref: Participant` consumers rather than describe
+the shim's reach in general terms, so a future reader does not have to re-derive the current
+consumer set by grepping the register.
 
 #### Scenario: Participant marked deprecated
 - GIVEN the decidesk register is imported
@@ -109,3 +118,10 @@ the `Meeting` quorum aggregation (`totalParticipantCount`/`presentParticipantCou
 - WHEN those reads execute after this change
 - THEN the `Participant` schema is still present and queryable (the shim is retained)
 
+#### Scenario: Participant's description names its exact remaining consumers
+
+- **GIVEN** the decidesk register is imported after this change
+- **WHEN** the `Participant` schema description is inspected
+- **THEN** it names exactly `Vote.participant`, `EngagementRecord.participant`, the `Meeting` quorum
+  aggregation, and `VotingService::resolveParticipantUuid()` as the remaining shim consumers
+- **AND** it no longer implies `ConflictOfInterest` or `ProxyAuthorization` still reference it

@@ -154,3 +154,99 @@ When `id` equals `"new"`, the detail page SHALL render in create mode.
 - **GIVEN** the user navigates to `/meetings/abc-123`
 - **WHEN** the component mounts
 - **THEN** `isNew` is false and the view mode is displayed with data from the API
+
+### Requirement: REQ-MDV-009 — Oral questions (vragenuur) facet
+The Meeting detail page (`MeetingDetail`) SHALL show a facet listing the
+`mondelinge-vraag` objects whose `targetMeeting` equals the current
+meeting's object id, and SHALL let the user create a new oral question
+from that facet with `targetMeeting` pre-filled to the current meeting.
+
+#### Scenario: Oral questions scoped to the current meeting
+- GIVEN a meeting "Raadsvergadering 2025-01-15" with two `mondelinge-vraag`
+  objects whose `targetMeeting` is that meeting, and one `mondelinge-vraag`
+  object targeting a different meeting
+- WHEN the user opens the meeting's detail page
+- THEN the oral-questions facet lists exactly the two questions that
+  target this meeting
+- AND each row links to that question's detail page
+
+#### Scenario: Creating an oral question in context
+- GIVEN the user is on a meeting's detail page
+- WHEN the user creates a new oral question from the oral-questions facet
+- THEN the new `mondelinge-vraag` object is created with `targetMeeting`
+  set to the current meeting without the user having to select it
+
+### Requirement: REQ-MDV-010 — Interpellations facet
+The Meeting detail page SHALL show a facet listing the
+`interpellatieverzoek` objects whose `behandeldIn` equals the current
+meeting's object id.
+
+#### Scenario: Interpellations scheduled at the current meeting
+- GIVEN a meeting with one `interpellatieverzoek` object whose
+  `behandeldIn` is that meeting, and one `interpellatieverzoek` object
+  with no `behandeldIn` set (not yet scheduled)
+- WHEN the user opens the meeting's detail page
+- THEN the interpellations facet lists exactly the one request scheduled
+  at this meeting
+- AND the unscheduled request does not appear
+
+### Requirement: REQ-MDV-011 — Proxy authorizations (voting) facet
+The Meeting detail page SHALL show a facet listing the `proxyAuthorization`
+objects whose `meeting` equals the current meeting's object id, and SHALL
+let the user register a new proxy authorization from that facet with
+`meeting` pre-filled to the current meeting.
+
+#### Scenario: Proxy authorizations scoped to the current meeting
+- GIVEN a meeting with two `proxyAuthorization` objects whose `meeting` is
+  that meeting
+- WHEN the user opens the meeting's detail page
+- THEN the proxy-authorizations facet lists both, showing each one's
+  signature and countersign status
+
+#### Scenario: Registering a proxy authorization in context
+- GIVEN the user is on a meeting's detail page
+- WHEN the user registers a new proxy authorization from the facet
+- THEN the new `proxyAuthorization` object is created with `meeting` set
+  to the current meeting without the user having to select it
+
+### Requirement: REQ-MDV-012 — Kascommissie verklaringen facet (assoc mode only)
+The Meeting detail page SHALL show a facet listing `kascommissie-verklaring`
+objects whose `governanceBody` equals the current meeting's own
+`governanceBody`, and this facet SHALL be visible only when the tenant's
+active `organisatie_modus` setting is `assoc`. In every other mode the
+facet SHALL be hidden — the widget declaration itself is not removed from
+the page, only its rendered content is suppressed.
+
+#### Scenario: Kascommissie facet visible in association mode
+- GIVEN the tenant's `organisatie_modus` is `assoc`
+- AND the current meeting's `governanceBody` has one `kascommissie-verklaring`
+  object referencing it
+- WHEN the user opens the meeting's detail page
+- THEN the kascommissie facet renders and lists that statement
+
+#### Scenario: Kascommissie facet hidden outside association mode
+- GIVEN the tenant's `organisatie_modus` is `gov`
+- AND the current meeting's `governanceBody` has a `kascommissie-verklaring`
+  object referencing it
+- WHEN the user opens the meeting's detail page
+- THEN the kascommissie facet does not render any content
+- AND no other facet on the page is affected
+
+### Requirement: REQ-MDV-013 — Routed incoming documents facet (read-only)
+The Meeting detail page SHALL show a single read-only facet listing every
+`raadsinformatiebrief` object whose `agendaItem` resolves to one of the
+current meeting's own agenda items, and every `ingekomen-stuk` object
+whose `targetAgendaItem` or `listAgendaItem` resolves to one of the
+current meeting's own agenda items. The facet SHALL NOT offer a create
+affordance.
+
+#### Scenario: Documents routed onto the meeting's agenda
+- GIVEN a meeting with two agenda items, A1 and A2
+- AND one `raadsinformatiebrief` object with `agendaItem` = A1
+- AND one `ingekomen-stuk` object with `listAgendaItem` = A2
+- AND one `ingekomen-stuk` object with no agenda-item reference at all
+- WHEN the user opens the meeting's detail page
+- THEN the routed-documents facet lists the letter and the routed
+  incoming document
+- AND the unrouted incoming document does not appear
+- AND no create button is offered on this facet
