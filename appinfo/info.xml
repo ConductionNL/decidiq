@@ -145,6 +145,14 @@ Vrij en open source onder de EUPL-1.2-licentie.
                 exist in procest. Idempotent and non-destructive.
             -->
             <step>OCA\Decidesk\Repair\RenameDutchVocabularyColumns</step>
+            <!--
+                After InitializeSettings imports the register (68-unified-decision-templates.json's
+                decision-template schema + built-in seeds must already exist). Repairs live
+                process-template/vve-decision-template objects into decision-template objects
+                (unified-decision-templates, ADR-032 chain link 1 of 3). Idempotent (matched by
+                migratedFrom.sourceUuid) and non-destructive — never deletes or edits a source object.
+            -->
+            <step>OCA\Decidesk\Migration\MigrateLegacyTemplatesToDecisionTemplate</step>
         </post-migration>
         <install>
             <step>OCA\Decidesk\Repair\InitializeSettings</step>

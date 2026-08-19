@@ -704,6 +704,8 @@ The official record of a meeting. Minutes capture attendance, agenda items discu
 
 #### ProcessTemplate
 
+> **Superseded (unified-decision-templates, ADR-032 chain link 1 of 3):** route/voting/quorum/urgency, plus decision content (proposedText/regulationSource) and a new checklist, are now declared on the unified `DecisionTemplate` schema (`decision-template`, `lib/Settings/register.d/68-unified-decision-templates.json`), which also absorbs the formerly-separate `VveDecisionTemplate`/`ModelreglementPreset` VvE-ALV template family. `ProcessTemplate` is marked `x-openregister.active: false` (existing rows and every existing consumer — `ProcessTemplateService`, `ProcessTemplatePolicyResolver`, `DecisionTransitionGuard`, `ProcessTemplateController`, the admin Vue surface — are unaffected; this is a create-time guard, not a read guard). New template work should target `DecisionTemplate`; the section below documents the still-live legacy shape until `unified-decision-templates-consumer-rewrite` repoints the consumers and `unified-decision-templates-legacy-deletion` removes this schema.
+
 A configurable decision process definition using Symfony Workflow YAML structure. Templates encode the complete state machine for a decision lifecycle, including states, transitions, guards (quorum/majority rules), and role requirements.
 
 | Aspect | Decision | Rationale |
