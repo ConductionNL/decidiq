@@ -131,23 +131,26 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 		$skipped = 0;
 
 		foreach ((array)$rows as $entity) {
-			$row = $this->toArray(entity: $entity);
-			if ($row === null) {
+			$keys = $this->rowKeys(entity: $entity);
+			if ($keys === null) {
 				$skipped++;
 				continue;
 			}
 
-			$id = (string)($row['id'] ?? $row['uuid'] ?? '');
-			$boardMember = (string)($row['boardMember'] ?? '');
-			if ($id === '' || $boardMember === '') {
+			[$id, $boardMember, $row] = $keys;
+
+			$stillParticipant = $this->isParticipant(id: $boardMember);
+			if ($stillParticipant === null) {
+				// Unknown — the lookup itself failed. Count as skipped so the
+				// row stays eligible on the next run; never as already-migrated.
 				$skipped++;
 				continue;
 			}
 
-			if ($this->isParticipant(id: $boardMember) === false) {
-				// Either already migrated to a Membership UUID, or the value is
-				// otherwise unresolvable as a live Participant. Either way there
-				// is nothing this step can safely do — leave it alone.
+			if ($stillParticipant === false) {
+				// Already migrated to a Membership UUID, or otherwise not a live
+				// Participant. Either way there is nothing this step can safely
+				// do — leave it alone.
 				$alreadyMigrated++;
 				continue;
 			}
@@ -192,17 +195,52 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 	}//end run()
 
 	/**
+	 * Normalise one row and pull the two keys this step needs.
+	 *
+	 * @param mixed $entity One row as returned by ObjectService::findAll().
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/migration.md#ocadecideskrepairrepointconflictofinterestboardmember
+	 *
+	 * @return array{0: string, 1: string, 2: array<string, mixed>}|null [id, boardMember, row], or null when the row is unusable.
+	 */
+	private function rowKeys(mixed $entity): ?array {
+		$row = $this->toArray(entity: $entity);
+		if ($row === null) {
+			return null;
+		}
+
+		$id = (string)($row['id'] ?? $row['uuid'] ?? '');
+		$boardMember = (string)($row['boardMember'] ?? '');
+		if ($id === '' || $boardMember === '') {
+			return null;
+		}
+
+		return [$id, $boardMember, $row];
+
+	}//end rowKeys()
+
+	/**
 	 * Whether an id currently resolves to a live Participant object.
 	 *
 	 * @param string $id UUID to check
 	 *
 	 * @return bool
 	 */
-	private function isParticipant(string $id): bool {
+	private function isParticipant(string $id): ?bool {
 		try {
 			$entity = $this->objectService->find(id: $id, register: self::REGISTER, schema: self::PARTICIPANT_SCHEMA);
 		} catch (Throwable $e) {
-			return false;
+			// Null means UNKNOWN, not "no". A transient OpenRegister failure
+			// here used to be indistinguishable from "already migrated", so a
+			// row could be counted as done and silently never repointed — on a
+			// step whose whole value is that re-running it finishes the job.
+			// The caller now counts unknown as skipped, leaving the row
+			// eligible for the next run.
+			$this->logger->warning(
+				'Decidesk: RepointConflictOfInterestBoardMember could not determine whether a boardMember id is still a Participant',
+				['boardMemberId' => $id, 'exception' => $e->getMessage()]
+			);
+			return null;
 		}
 
 		return $entity !== null;

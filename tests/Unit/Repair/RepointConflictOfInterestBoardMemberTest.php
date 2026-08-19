@@ -601,7 +601,12 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 
 		$step->run(output: $output);
 
-		$this->assertStringContainsString(needle: '0 resolved, 1 already migrated, 0 skipped.', haystack: end($messages));
+		// A failed lookup is UNKNOWN, not "already migrated". Counting it as
+		// already-migrated would retire the row from a step whose whole value
+		// is that re-running it finishes the job, so a transient OpenRegister
+		// outage would leave rows permanently unrepointed. It must land in
+		// `skipped`, which keeps it eligible for the next run.
+		$this->assertStringContainsString(needle: '0 resolved, 0 already migrated, 1 skipped.', haystack: end($messages));
 
 	}//end testRunTreatsFindExceptionDuringParticipantCheckAsNotAParticipant()
 
