@@ -1,5 +1,7 @@
 # vve-alv-pack Specification
 
+@e2e exclude the spec's own Purpose states this delta is "a schema-declaration record, not a behavioural change to a live consumer" — `vve-alv-pack` remains `Status: planned` and grep confirms `VveDecisionTemplate`, `ModelreglementPreset`, `VveConfiguration` have zero PHP/Vue consumers today, so there is no UI surface for any scenario in this file to exercise. Whole-spec exclusion per this capability's own documented scope.
+
 ## Purpose
 Delta for the unified-decision-templates change: records that
 `VveDecisionTemplate` and `ModelreglementPreset` (REQ-VVE-001) are superseded

@@ -15,6 +15,8 @@ Provides list, detail, create, edit, and delete operations for decision-maker re
 ### Requirement: Participant list view
 The app SHALL display all Participant objects in a paginated, searchable list using `CnIndexPage` with `useListView`.
 
+@e2e exclude basic list rendering is exercised by tests/e2e/spec-coverage/participants-page.spec.ts ("Participants: index renders heading, object-list table and Add CTA"), but that test is tagged to a `participant-management` spec path (which does not exist under `openspec/specs/`) rather than this spec, and does not drive the search input or the role `CnFilterBar` — no e2e file carries an @e2e tag for these exact scenario ids; the search and filter halves are untested entirely.
+
 #### Scenario: User views participant list
 - **WHEN** the user navigates to `/participants`
 - **THEN** a list of Participant objects is shown with columns for displayName, role, party, and email
@@ -42,16 +44,24 @@ data. Existing `Participant` records remain readable and editable.
 - **WHEN** the record is created
 - **THEN** a `Person` (identity) and a `Membership` (role/party/votingWeight/body link) are persisted via `ObjectService.saveObject()`, not a flat Participant
 
+@e2e exclude the live `/participants` page's create dialog is still titled "Create Participant" and creates a flat Participant object (see tests/e2e/spec-coverage/participants-page.spec.ts's "Add Participant opens a real create form dialog" test) — the Person+Membership creation UI this scenario describes does not appear to be wired into that page yet; genuine coverage gap tracked as e2e debt rather than claimed coverage.
+
 #### Scenario: Participant creation path is deprecated
 - **WHEN** new decision-maker data is seeded or created by this change
 - **THEN** it is NOT created as a `Participant` object (the shim is retained for existing records only)
+
+@e2e exclude seed-data/schema-shape assertion — no UI surface distinct from the scenario above; checkable by inspecting the register's seed data directly.
 
 #### Scenario: Validation prevents save without required fields
 - **WHEN** the user submits the Person/Membership form with `name` (Person) or `role` (Membership) empty
 - **THEN** the form displays a validation error and the objects are not saved
 
+@e2e exclude depends on the same not-yet-wired Person+Membership create UI as the "New decision maker created as Person + Membership" scenario above; genuine coverage gap tracked as e2e debt.
+
 ### Requirement: View participant detail
 The app SHALL display a detail view for a single Participant showing all their properties.
+
+@e2e exclude no current e2e test clicks a participant row and asserts the detail page (route, GovernanceBody relation card, or CnObjectSidebar); tests/e2e/spec-coverage/participants-page.spec.ts covers only the list page — genuine coverage gap tracked as e2e debt.
 
 #### Scenario: User opens a participant detail page
 - **WHEN** the user clicks a row in the participants list
@@ -68,6 +78,8 @@ The app SHALL display a detail view for a single Participant showing all their p
 ### Requirement: Edit a participant
 The app SHALL allow users to edit an existing Participant object.
 
+@e2e exclude no current e2e test opens the Edit dialog on a Participant or asserts a persisted change; genuine coverage gap tracked as e2e debt.
+
 #### Scenario: User edits a participant
 - **WHEN** the user clicks the Edit button on the participant detail page
 - **THEN** a `CnFormDialog` opens pre-populated with the current participant data
@@ -78,6 +90,8 @@ The app SHALL allow users to edit an existing Participant object.
 
 ### Requirement: Delete a participant
 The app SHALL allow users to delete a Participant object with confirmation.
+
+@e2e exclude no current e2e test drives the delete (or delete-cancel) flow for a Participant; genuine coverage gap tracked as e2e debt.
 
 #### Scenario: User deletes a participant
 - **WHEN** the user clicks Delete and confirms in `CnDeleteDialog`
@@ -102,6 +116,8 @@ and `ProxyAuthorization.grantor`/`holder` no longer `$ref: Participant` (retarge
 name the narrowed, exact set of remaining `$ref: Participant` consumers rather than describe
 the shim's reach in general terms, so a future reader does not have to re-derive the current
 consumer set by grepping the register.
+
+@e2e exclude schema/register-shape assertions (the `Participant` schema's `description` text and the shim's continued queryability) — no UI surface; checkable directly by reading `lib/Settings/decidesk_register.json`'s `Participant.description`. All four scenarios under this requirement are of this kind.
 
 #### Scenario: Participant marked deprecated
 - GIVEN the decidesk register is imported

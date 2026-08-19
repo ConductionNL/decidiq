@@ -194,6 +194,8 @@ creates no new consumer — resolution against a `GovernanceBody` or a
 `Decision.decisionType` is unchanged and continues to use `ProcessTemplate`
 until the consumer-rewrite change lands.
 
+@e2e exclude schema/register-shape assertions (fragment declares the schema additively; a ported built-in's field values) — no UI surface, since "no consumer yet" is explicit in this requirement's own text (resolution still goes through `ProcessTemplate` until a future change); checkable directly by inspecting `lib/Settings/register.d/67-unified-decision-templates.json`.
+
 #### Scenario: Fragment adds DecisionTemplate without touching existing schemas
 
 - **GIVEN** the register fragment `67-unified-decision-templates.json` is loaded
@@ -240,6 +242,8 @@ every existing built-in. This requirement declares the checklist
 checklist-progress record (which items are ticked, by whom) is out of scope
 for this capability delta — see the proposal's Out of Scope.
 
+@e2e exclude schema-shape assertion — the first scenario explicitly describes "a future consumer-rewrite editor" that does not exist yet in this change (no UI ships here to add checklist items); the second is a ported-template byte-for-byte-parity assertion, also schema-level. No UI surface exists for either yet.
+
 #### Scenario: A template declares an ordered checklist
 
 - **GIVEN** an administrator (in a future consumer-rewrite editor) defining a
@@ -274,6 +278,8 @@ create-time guard), not whether existing objects remain readable or whether
 existing service code keeps working. No PHP or Vue file is edited by this
 requirement.
 
+@e2e exclude schema/register-shape assertions (an `x-openregister.active` flag flip and its ADR-037 deep-merge rollback semantics) — no UI surface; "No PHP or Vue file is edited by this requirement" is explicit in this requirement's own text, and the existing admin `ProcessTemplates.vue` surface it describes as unaffected is already exercised by tests/e2e/spec-coverage/process-configuration.spec.ts's pre-existing (covered) scenarios.
+
 #### Scenario: ProcessTemplate is marked inactive but remains fully functional
 
 - **GIVEN** the `67-unified-decision-templates.json` fragment is loaded
@@ -305,6 +311,8 @@ Re-running the migration on an already-migrated instance SHALL be a no-op
 (matched by the provenance marker) and SHALL create no duplicate objects.
 The migration SHALL never modify or delete the source `process-template` /
 `vve-decision-template` objects.
+
+@e2e exclude migration/repair-step behaviour verified by PHPUnit — tests/Unit/Migration/MigrateLegacyTemplatesToDecisionTemplateTest.php (testRunMigratesProcessTemplateFieldsVerbatim, testRunMapsVveDecisionTemplateFields, testRunSkipsAlreadyMigratedObject, testRunNeverDeletesSourceObjects) directly exercises both scenarios under this requirement; not independently UI-observable.
 
 #### Scenario: A live custom ProcessTemplate is repaired
 

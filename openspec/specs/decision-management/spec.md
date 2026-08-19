@@ -506,6 +506,8 @@ that made the nomination). These fields replace the retired `Voordracht` schema'
 `body`/`post`/`targetRole`/`kandidaten`/`nominatingParty` fields one-for-one
 (ADR-005, ADR-006 — one schema per concept, discriminator over parallel entity).
 
+@e2e exclude no current e2e test opens the decision form with `decisionType = appointment` and asserts field disclosure/validation; the sibling motion field-disclosure pattern is covered elsewhere but appointment-specific disclosure and the candidates-required-before-propose guard are untested — genuine coverage gap tracked as e2e debt.
+
 #### Scenario: Appointment fields appear only for an appointment decision
 
 - GIVEN the decision form
@@ -543,6 +545,8 @@ not-appointed`, `withdrawn`). This follows the same reuse decision the archived
 D2): the proven, already-declarative `x-openregister-lifecycle` block on
 `Decision` is not duplicated per type.
 
+@e2e exclude the shared lifecycle transition mechanism (draft→proposed→deliberating→voting→decided) is exercised generically for motion/resolution decisionTypes by tests/e2e/spec-coverage/decision-management.spec.ts (`transition-a-decision-from-draft-to-proposed`, `transition-a-decision-to-enacted-after-approval`), but no test creates a `decisionType = appointment` decision and drives it through the same transitions — no e2e file carries an @e2e tag for this exact scenario.
+
 #### Scenario: An appointment decision progresses through the shared lifecycle
 
 - GIVEN a `decisionType = appointment` decision in `lifecycle = draft`
@@ -568,6 +572,8 @@ place; it is populated by the imperative Membership-materialization service
 shipped in the dependent change `appointment-decision-type-membership`
 (`depends_on` this change) — no service code ships in this change.
 
+@e2e exclude schema/register-shape assertion (a nullable server-set field is present and empty pre-materialization) — no UI surface; the materialization service itself (once shipped) is verified by tests/Unit/Service/DecisionLifecycleServiceTest.php, see the requirement below.
+
 #### Scenario: The field exists and accepts no client writes before materialization ships
 
 - GIVEN a freshly-adopted `decisionType = appointment` decision, before the
@@ -587,6 +593,8 @@ shared `Decision` lifecycle (`submitted→proposed`, `handled→deliberating`,
 `RoosterVanAftreden`, and `RoosterRegel` in the same register fragment are
 **not** part of this requirement — they reference `Membership`, never
 `Voordracht`, and are unaffected.
+
+@e2e exclude schema/register-shape and manifest-shape assertions (schema removal, re-authored seeds, nav-entry removal) — checkable by inspecting `lib/Settings/register.d/61-appointments-and-terms.json` and `src/manifest.d/appointments-and-terms.json` directly; no dedicated PHPUnit or e2e test exists yet for this specific removal, and no UI surface distinct from existing decision e2e coverage exercises it — genuine coverage gap tracked as e2e debt.
 
 #### Scenario: Voordracht is absent from the register after this change
 
@@ -633,6 +641,8 @@ exactly one entry, every Membership is created with that Post. When
 `targetPosts` has more than one entry, its length MUST equal `candidates`'
 length and posts are paired to candidates by array index — see the transition
 guard requirement below for the enforcement point.
+
+@e2e exclude unit-level service/algorithm behaviour (Membership materialization + pairing logic in `DecisionLifecycleService`), covered by tests/Unit/Service/DecisionLifecycleServiceTest.php: testMaterializesSingleRoleOnlyMembershipForPersonCandidate, testMaterializesExternalCandidateByLabel, testMaterializesMultipleCandidatesPairedByIndex, testMaterializesSharedPostForAllCandidatesWhenExactlyOneTargetPost, testRejectedOutcomeNeverMaterializesAMembership, testMaterializationDoesNotRunTwice — not independently UI-observable beyond the existing enact-transition e2e coverage.
 
 #### Scenario: A single-candidate, role-only appointment materializes one Membership
 
@@ -685,6 +695,8 @@ one entry and its length does not equal `candidates`' length — before the
 lifecycle write happens, following the same fail-closed pattern as the
 existing quorum-before-`voting` and outcome-before-`enact` gates.
 
+@e2e exclude unit-level service/algorithm behaviour, covered by tests/Unit/Service/DecisionLifecycleServiceTest.php::testEnactRejectsMismatchedPostsCandidatesCount (mismatch case) and testMaterializesSharedPostForAllCandidatesWhenExactlyOneTargetPost / testMaterializesSingleRoleOnlyMembershipForPersonCandidate (zero/one-post cases that must NOT block) — not independently UI-observable.
+
 #### Scenario: A mismatched posts/candidates count blocks enactment
 
 - GIVEN a `decisionType = appointment` decision with 3 candidates and
@@ -709,6 +721,8 @@ decision's nomination data is visible without a bespoke Vue component — the
 same generic manifest-driven rendering that already shows `motionType`/
 `proposer` for `decisionType = motion` on this widget.
 
+@e2e exclude the generic `decision-content` widget rendering mechanism is exercised for `decisionType = motion` by tests/e2e/spec-coverage/decision-management.spec.ts (`view-decision-detail-with-voting-results`), but no test opens a `decisionType = appointment` decision and asserts `candidates`/`targetBody`/`targetPosts`/`nominatingParty`/`appointedMemberships` render — no e2e file carries an @e2e tag for this exact scenario.
+
 #### Scenario: An appointment decision's candidates are visible on its detail page
 
 - GIVEN a `decisionType = appointment` decision with `candidates` and
@@ -729,11 +743,15 @@ The Decision Detail page MUST render three declarative `object-list` widgets, ea
 - THEN the "Public consultations" widget lists that consultation
 - AND clicking the row navigates to `ConsultationDetail` for that consultation
 
+@e2e exclude tests/e2e/spec-coverage/facets-decision-detail.spec.ts only exercises this widget's EMPTY state ("No public consultations reference this decision yet."); this scenario's populated-list assertion (a real PublicConsultation linked and its row navigating to ConsultationDetail) is untested — genuine coverage gap tracked as e2e debt.
+
 #### Scenario: A decision with no member consultations
 
 - GIVEN Decision D has no `MemberConsultation` object referencing it
 - WHEN a user opens Decision D's detail page
 - THEN the "Member consultations" widget renders its configured empty-state text instead of an empty table
+
+@e2e exclude exercised by tests/e2e/spec-coverage/facets-decision-detail.spec.ts ("DecisionDetail: consultation, advisory-opinion, zienswijze and confidentiality facets render their real empty states" — asserts "No member consultations reference this decision yet."); that test's own @e2e anchor still targets the pre-archival openspec/changes/decision-facet-composition/... path so this gate does not match it — recorded here rather than reported as a gap.
 
 #### Scenario: A decision referenced by a WOR consultation request
 
@@ -741,6 +759,8 @@ The Decision Detail page MUST render three declarative `object-list` widgets, ea
 - WHEN a user opens Decision D's detail page
 - THEN the "Works council (WOR)" widget lists that request
 - AND clicking the row navigates to `WorTrajectDetail` for that request
+
+@e2e exclude tests/e2e/spec-coverage/facets-decision-detail.spec.ts only exercises this widget's EMPTY state ("No works-council consultation requests reference this decision yet."); this scenario's populated-list assertion (a real ConsultationRequest linked and its row navigating to WorTrajectDetail) is untested — genuine coverage gap tracked as e2e debt.
 
 ### Requirement: Decision detail surfaces advisory-opinion requests (REQ-DFC-002)
 
@@ -753,6 +773,8 @@ The Decision Detail page MUST render a declarative `object-list` widget listing 
 - THEN the "Advisory opinions" widget lists that request with its subject and lifecycle status
 - AND clicking the row navigates to `AdviesaanvraagDetail`
 
+@e2e exclude tests/e2e/spec-coverage/facets-decision-detail.spec.ts only exercises this widget's EMPTY state ("No advisory-opinion requests reference this decision yet."); this scenario's populated-list assertion (a real Adviesaanvraag linked and its row navigating to AdviesaanvraagDetail) is untested — genuine coverage gap tracked as e2e debt.
+
 ### Requirement: Decision detail surfaces zienswijzerondes and zienswijzen (REQ-DFC-003)
 
 The Decision Detail page MUST render two declarative `object-list` widgets: one listing `zienswijzeronde` objects whose `decision` property equals the current decision's id, and one listing `zienswijze` objects whose `decision` property equals the current decision's id. Both MUST link their rows to `ZienswijzerondeDetail` (zienswijze records have no standalone detail route in the shipped `shared-governance-bodies` fragment; they are viewed through their parent ronde, matching that fragment's own index-page convention).
@@ -763,12 +785,16 @@ The Decision Detail page MUST render two declarative `object-list` widgets: one 
 - WHEN a user opens Decision D's detail page
 - THEN the "Zienswijzerondes" widget lists that ronde
 
+@e2e exclude tests/e2e/spec-coverage/facets-decision-detail.spec.ts only exercises this widget's EMPTY state ("This decision is not a shared body's vaststellingsbesluit for any zienswijzeronde."); this scenario's populated-list assertion (a real Zienswijzeronde linked) is untested — genuine coverage gap tracked as e2e debt.
+
 #### Scenario: A decision is a participant council's raadsbesluit adopting a zienswijze
 
 - GIVEN a `Zienswijze` object whose `decision` field is set to Decision D
 - WHEN a user opens Decision D's detail page
 - THEN the "Zienswijzen" widget lists that zienswijze
 - AND clicking the row navigates to `ZienswijzerondeDetail` for its parent ronde
+
+@e2e exclude tests/e2e/spec-coverage/facets-decision-detail.spec.ts only exercises this widget's EMPTY state ("No zienswijzen adopted this decision as their raadsbesluit yet."); this scenario's populated-list assertion (a real Zienswijze linked and its row navigating to ZienswijzerondeDetail) is untested — genuine coverage gap tracked as e2e debt.
 
 ### Requirement: Decision detail surfaces commitments (REQ-DFC-004)
 
@@ -779,6 +805,8 @@ The Decision Detail page MUST render a declarative `object-list` widget listing 
 - GIVEN a `Toezegging` object whose `relatedMotion` field is set to Decision D (decisionType `motion`)
 - WHEN a user opens Decision D's detail page
 - THEN the "Commitments" widget lists that commitment with its deadline and lifecycle status
+
+@e2e exclude exercised by tests/e2e/spec-coverage/facets-decision-detail.spec.ts ("DecisionDetail: commitments facet lists a toezegging linked via relatedMotion" — creates a real toezegging referencing the decision and asserts it renders); that test's own @e2e anchor still targets the pre-archival openspec/changes/decision-facet-composition/... path so this gate does not match it — recorded here rather than reported as a gap.
 
 ### Requirement: Decision detail surfaces confidentiality status (REQ-DFC-005)
 
@@ -791,11 +819,15 @@ The Decision Detail page MUST render a read-only declarative `object-list` widge
 - THEN the "Confidentiality" widget shows one row with the geheimhouding's ground, lifecycle state, and ratification deadline
 - AND the widget offers no add action
 
+@e2e exclude tests/e2e/spec-coverage/facets-decision-detail.spec.ts only exercises this widget's EMPTY state ("This decision has no confidentiality restriction."); this scenario's populated-list assertion (a real opgelegd Geheimhouding linked, showing ground/lifecycle/deadline, no add action) is untested — genuine coverage gap tracked as e2e debt.
+
 #### Scenario: A decision with no confidentiality restriction
 
 - GIVEN Decision D has no `Geheimhouding` object referencing it as `targetDecision`
 - WHEN a user opens Decision D's detail page
 - THEN the "Confidentiality" widget renders its configured empty-state text
+
+@e2e exclude exercised by tests/e2e/spec-coverage/facets-decision-detail.spec.ts ("DecisionDetail: consultation, advisory-opinion, zienswijze and confidentiality facets render their real empty states" — asserts "This decision has no confidentiality restriction."); that test's own @e2e anchor still targets the pre-archival openspec/changes/decision-facet-composition/... path so this gate does not match it — recorded here rather than reported as a gap.
 
 ## User Stories
 

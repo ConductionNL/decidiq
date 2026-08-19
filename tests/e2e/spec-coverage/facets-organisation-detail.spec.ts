@@ -12,8 +12,8 @@
  * gemeenteraad-amsterdam`) already exercise the parent linkage, so this file
  * creates no fixtures and needs no cleanup.
  *
- * @e2e openspec/changes/organisation-facet-composition/specs/governance-body-crud/spec.md#scenario-factions-shown-on-a-bodys-detail-page
- * @e2e openspec/changes/organisation-facet-composition/specs/governance-bodies/spec.md#scenario-a-faction-references-its-parent-council-via-parentbody
+ * @e2e openspec/specs/governance-body-crud/spec.md#factions-shown-on-a-bodys-detail-page
+ * @e2e openspec/specs/governance-bodies/spec.md#a-faction-references-its-parent-council-via-parentbody
  */
 import type { Page } from '@playwright/test'
 
@@ -37,8 +37,8 @@ async function findGovernanceBodyId(
 	return match ? (match.id ?? match['@self']?.id ?? null) : null
 }
 
-// @e2e openspec/changes/organisation-facet-composition/specs/governance-body-crud/spec.md#scenario-factions-shown-on-a-bodys-detail-page
-// @e2e openspec/changes/organisation-facet-composition/specs/governance-bodies/spec.md#scenario-a-faction-references-its-parent-council-via-parentbody
+// @e2e openspec/specs/governance-body-crud/spec.md#factions-shown-on-a-bodys-detail-page
+// @e2e openspec/specs/governance-bodies/spec.md#a-faction-references-its-parent-council-via-parentbody
 test('GovernanceBodyDetail: factions facet lists the seeded factions under their parent council', async ({
 	page,
 }) => {

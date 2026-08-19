@@ -18,11 +18,11 @@
  * file's TEARDOWN_ORDER doc comment for the five schemas that already leaked
  * this way).
  *
- * @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-oral-questions-scoped-to-the-current-meeting
- * @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-interpellations-scheduled-at-the-current-meeting
- * @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-proxy-authorizations-scoped-to-the-current-meeting
- * @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-kascommissie-facet-hidden-outside-association-mode
- * @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-documents-routed-onto-the-meetings-agenda
+ * @e2e openspec/specs/meeting-detail-view/spec.md#oral-questions-scoped-to-the-current-meeting
+ * @e2e openspec/specs/meeting-detail-view/spec.md#interpellations-scheduled-at-the-current-meeting
+ * @e2e openspec/specs/meeting-detail-view/spec.md#proxy-authorizations-scoped-to-the-current-meeting
+ * @e2e openspec/specs/meeting-detail-view/spec.md#kascommissie-facet-hidden-outside-association-mode
+ * @e2e openspec/specs/meeting-detail-view/spec.md#documents-routed-onto-the-meetings-agenda
  */
 import type { APIRequestContext, PlaywrightWorkerArgs } from '@playwright/test'
 
@@ -75,7 +75,7 @@ async function findGovernanceBodyId(
 	return match ? objectId(match) : null
 }
 
-// @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-oral-questions-scoped-to-the-current-meeting
+// @e2e openspec/specs/meeting-detail-view/spec.md#oral-questions-scoped-to-the-current-meeting
 test('MeetingDetail: oral-questions facet lists a mondelinge-vraag created via API', async ({
 	page,
 	playwright,
@@ -165,10 +165,10 @@ test('MeetingDetail: oral-questions facet lists a mondelinge-vraag created via A
 	}
 })
 
-// @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-interpellations-scheduled-at-the-current-meeting
-// @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-proxy-authorizations-scoped-to-the-current-meeting
-// @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-documents-routed-onto-the-meetings-agenda
-// @e2e openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-kascommissie-facet-hidden-outside-association-mode
+// @e2e openspec/specs/meeting-detail-view/spec.md#interpellations-scheduled-at-the-current-meeting
+// @e2e openspec/specs/meeting-detail-view/spec.md#proxy-authorizations-scoped-to-the-current-meeting
+// @e2e openspec/specs/meeting-detail-view/spec.md#documents-routed-onto-the-meetings-agenda
+// @e2e openspec/specs/meeting-detail-view/spec.md#kascommissie-facet-hidden-outside-association-mode
 test('MeetingDetail: interpellations, proxy-authorizations and routed-documents facets render their real empty states; kascommissie is absent in gov mode', async ({
 	page,
 	playwright,

@@ -18,10 +18,10 @@
  * ship `x-openregister.seedData` that already demonstrates each widget's
  * populated state. No fixtures are created, so no cleanup is needed.
  *
- * @e2e openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
- * @e2e openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
- * @e2e openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
- * @e2e openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
+ * @e2e openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+ * @e2e openspec/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+ * @e2e openspec/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+ * @e2e openspec/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
  */
 import type { Page } from '@playwright/test'
 
@@ -45,7 +45,7 @@ function objId(o: any): string {
 	return o?.id ?? o?.['@self']?.id ?? ''
 }
 
-// @e2e openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+// @e2e openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
 test('RegelingDetail: version-timeline widget renders both seeded versions of Afvalstoffenverordening Amsterdam', async ({
 	page,
 }) => {
@@ -94,7 +94,7 @@ test('RegelingDetail: version-timeline widget renders both seeded versions of Af
 	})
 })
 
-// @e2e openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+// @e2e openspec/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
 test('BevoegdheidstoedelingDetail: delegation-chain widget shows the seeded ondermandaat under mandaat-subsidies-secretaris', async ({
 	page,
 }) => {
@@ -136,8 +136,8 @@ test('BevoegdheidstoedelingDetail: delegation-chain widget shows the seeded onde
 	).toBeVisible({ timeout: 45_000 })
 })
 
-// @e2e openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
-// @e2e openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
+// @e2e openspec/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+// @e2e openspec/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
 test('GeheimhoudingDetail: confidentiality-status-timeline widget renders the imposed stage and resolves its ground', async ({
 	page,
 }) => {

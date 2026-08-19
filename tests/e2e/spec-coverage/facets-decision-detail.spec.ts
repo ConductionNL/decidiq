@@ -18,14 +18,14 @@
  * The existing seeded governance body ("Gemeenteraad Amsterdam") is reused
  * rather than created, per the "prefer existing seed data" rule.
  *
- * @e2e openspec/changes/decision-facet-composition/specs/decision-management/spec.md#scenario-a-decision-referenced-by-a-public-consultation
- * @e2e openspec/changes/decision-facet-composition/specs/decision-management/spec.md#scenario-a-decision-with-no-member-consultations
- * @e2e openspec/changes/decision-facet-composition/specs/decision-management/spec.md#scenario-a-decision-referenced-by-a-wor-consultation-request
- * @e2e openspec/changes/decision-facet-composition/specs/decision-management/spec.md#scenario-a-decision-with-an-open-advisory-opinion-request
- * @e2e openspec/changes/decision-facet-composition/specs/decision-management/spec.md#scenario-a-decision-is-a-shared-bodys-closing-vaststellingsbesluit
- * @e2e openspec/changes/decision-facet-composition/specs/decision-management/spec.md#scenario-a-motion-produced-a-commitment
- * @e2e openspec/changes/decision-facet-composition/specs/decision-management/spec.md#scenario-a-decision-is-under-active-geheimhouding
- * @e2e openspec/changes/decision-facet-composition/specs/decision-management/spec.md#scenario-a-decision-with-no-confidentiality-restriction
+ * @e2e openspec/specs/decision-management/spec.md#a-decision-referenced-by-a-public-consultation
+ * @e2e openspec/specs/decision-management/spec.md#a-decision-with-no-member-consultations
+ * @e2e openspec/specs/decision-management/spec.md#a-decision-referenced-by-a-wor-consultation-request
+ * @e2e openspec/specs/decision-management/spec.md#a-decision-with-an-open-advisory-opinion-request
+ * @e2e openspec/specs/decision-management/spec.md#a-decision-is-a-shared-bodys-closing-vaststellingsbesluit
+ * @e2e openspec/specs/decision-management/spec.md#a-motion-produced-a-commitment
+ * @e2e openspec/specs/decision-management/spec.md#a-decision-is-under-active-geheimhouding
+ * @e2e openspec/specs/decision-management/spec.md#a-decision-with-no-confidentiality-restriction
  */
 import type { APIRequestContext, PlaywrightWorkerArgs } from '@playwright/test'
 
@@ -78,7 +78,7 @@ async function findGovernanceBodyId(
 	return match ? objectId(match) : null
 }
 
-// @e2e openspec/changes/decision-facet-composition/specs/decision-management/spec.md#scenario-a-motion-produced-a-commitment
+// @e2e openspec/specs/decision-management/spec.md#a-motion-produced-a-commitment
 test('DecisionDetail: commitments facet lists a toezegging linked via relatedMotion', async ({
 	page,
 	playwright,
@@ -182,12 +182,12 @@ test('DecisionDetail: commitments facet lists a toezegging linked via relatedMot
 	}
 })
 
-// @e2e openspec/changes/decision-facet-composition/specs/decision-management/spec.md#scenario-a-decision-with-no-member-consultations
-// @e2e openspec/changes/decision-facet-composition/specs/decision-management/spec.md#scenario-a-decision-referenced-by-a-public-consultation
-// @e2e openspec/changes/decision-facet-composition/specs/decision-management/spec.md#scenario-a-decision-referenced-by-a-wor-consultation-request
-// @e2e openspec/changes/decision-facet-composition/specs/decision-management/spec.md#scenario-a-decision-with-an-open-advisory-opinion-request
-// @e2e openspec/changes/decision-facet-composition/specs/decision-management/spec.md#scenario-a-decision-is-a-shared-bodys-closing-vaststellingsbesluit
-// @e2e openspec/changes/decision-facet-composition/specs/decision-management/spec.md#scenario-a-decision-with-no-confidentiality-restriction
+// @e2e openspec/specs/decision-management/spec.md#a-decision-with-no-member-consultations
+// @e2e openspec/specs/decision-management/spec.md#a-decision-referenced-by-a-public-consultation
+// @e2e openspec/specs/decision-management/spec.md#a-decision-referenced-by-a-wor-consultation-request
+// @e2e openspec/specs/decision-management/spec.md#a-decision-with-an-open-advisory-opinion-request
+// @e2e openspec/specs/decision-management/spec.md#a-decision-is-a-shared-bodys-closing-vaststellingsbesluit
+// @e2e openspec/specs/decision-management/spec.md#a-decision-with-no-confidentiality-restriction
 test('DecisionDetail: consultation, advisory-opinion, zienswijze and confidentiality facets render their real empty states', async ({
 	page,
 	playwright,
