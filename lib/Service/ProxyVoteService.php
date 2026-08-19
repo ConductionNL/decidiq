@@ -18,6 +18,18 @@
  * through `ParticipantToPersonMembershipResolver` first (Decision 3).
  * Every transition is mirrored to the audit log (ADR-006).
  *
+ * RBAC note: `register()`/`transition()` pass `_rbac: false` to
+ * `saveObject()`. The `proxy-authorization` schema's authorization block
+ * declares only `read` (fragment 63), and a schema block that names some
+ * actions closes every action it does not name (ADR-022) — so OpenRegister's
+ * own RBAC would otherwise refuse `create` for every non-admin caller, and
+ * `update` for every non-owner caller (a holder or chair/clerk transitioning
+ * a proxy they did not register). This service already re-derives and
+ * enforces the finer-grained rule itself before either write — REQ-BPV-001
+ * (`isAuthorizedToRegister()`) and REQ-BPV-002 (`isAuthorizedForTransition()`)
+ * — so passing `_rbac: false` there is this consumer declaring, per the
+ * `ObjectServiceInterface` RBAC contract, that authorization already ran.
+ *
  * @category Service
  * @package  OCA\Decidesk\Service
  *
@@ -304,10 +316,13 @@ class ProxyVoteService {
 		];
 
 		try {
+			// _rbac: false — validateRegistration() above already enforced
+			// REQ-BPV-001; see the class docblock's RBAC note.
 			$saved = $this->objectService->saveObject(
 				object: $row,
 				register: 'decidesk',
-				schema: self::SCHEMA
+				schema: self::SCHEMA,
+				_rbac: false
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
@@ -546,11 +561,14 @@ class ProxyVoteService {
 				]
 			);
 
+			// _rbac: false — isAuthorizedForTransition() above already enforced
+			// REQ-BPV-002; see the class docblock's RBAC note.
 			$saved = $this->objectService->saveObject(
 				object: $merged,
 				register: 'decidesk',
 				schema: self::SCHEMA,
-				uuid: $proxyId
+				uuid: $proxyId,
+				_rbac: false
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
