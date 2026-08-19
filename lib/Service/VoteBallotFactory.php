@@ -28,7 +28,7 @@ namespace OCA\Decidesk\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use Psr\Container\ContainerInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -46,16 +46,16 @@ class VoteBallotFactory {
 	/**
 	 * Constructor for the VoteBallotFactory.
 	 *
-	 * @param ContainerInterface $container The DI container (for ObjectService)
 	 * @param LoggerInterface $logger The logger
 	 * @param VoterTokenSecret $tokens Derives secret-ballot tokens
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object service (ADR-084)
 	 *
 	 * @return void
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly VoterTokenSecret $tokens,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -234,8 +234,7 @@ class VoteBallotFactory {
 	 */
 	private function resolveCastAs(string $participantId): string {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$participantEntity = $objectService->find(
+			$participantEntity = $this->objectService->find(
 				id: $participantId,
 				register: 'decidesk',
 				schema: 'participant'

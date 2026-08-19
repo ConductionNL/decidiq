@@ -43,7 +43,12 @@ use OCA\Decidesk\Service\VotingRoundPreflight;
 use OCA\Decidesk\Service\VotingRoundProjection;
 use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingService;
+use OCA\Decidesk\Service\NotificationPreferenceService;
+use OCA\Decidesk\Service\VoteCastGuard;
+use OCA\Decidesk\Service\VoterTokenSecret;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Service\FileService;
+use OCP\IAppConfig;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
@@ -69,10 +74,13 @@ class VotingServiceTallyMatrixTest extends TestCase {
 		$motionService = $this->createMock(MotionService::class);
 		$participantResolver = $this->createMock(ParticipantResolver::class);
 		$templateService = $this->createMock(ProcessTemplateService::class);
-		$amendmentOrder = new AmendmentOrderService(container: $container, motionService: $motionService,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$amendmentOrder = new AmendmentOrderService(
+			motionService: $motionService,
+			objectService: $objectService,
 		);
 		$relationFilter = new ObjectRelationFilter();
+		$tokens = new VoterTokenSecret(appConfig: $this->createMock(IAppConfig::class));
 
 		return new VotingService(
 			opener: new VotingRoundOpener(
@@ -83,42 +91,50 @@ class VotingServiceTallyMatrixTest extends TestCase {
 					motionService: $motionService,
 					participantResolver: $participantResolver,
 					templateService: $templateService,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		),
 				notifier: new VotingOpenedNotifier(
 					logger: $logger,
 					participantResolver: $participantResolver,
 			container: $this->createMock(ContainerInterface::class),
 		),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		),
 			caster: new VoteCastingService(
 				logger: $logger,
-				participantResolver: $participantResolver,
-				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+				objectService: $objectService,
+				tokens: $tokens,
+				guard: new VoteCastGuard(
+					logger: $logger,
+					relationFilter: $relationFilter,
+					tokens: $tokens,
+					participantResolver: $participantResolver,
+					amendmentOrder: $amendmentOrder,
+					objectService: $objectService,
+					preferenceService: $this->createMock(NotificationPreferenceService::class),
+				),
+			),
 			closer: new VotingRoundCloser(
 				logger: $logger,
 				oriService: $this->createMock(OriPublicationService::class),
 				motionService: $motionService,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 			fileService: $this->createMock(FileService::class),
 		),
 			results: new VotingRoundResults(
 				motionService: $motionService,
 				participantResolver: $participantResolver,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		),
-			projection: new VotingRoundProjection(container: $container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
-			participants: new ParticipantUuidLookup(container: $container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+			projection: new VotingRoundProjection(
+				objectService: $objectService,
+			),
+			participants: new ParticipantUuidLookup(
+				objectService: $objectService,
+			),
 		);
 
 	}//end buildService()

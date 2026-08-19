@@ -47,8 +47,15 @@ use OCA\Decidesk\Service\VotingRoundOpener;
 use OCA\Decidesk\Service\VotingRoundPreflight;
 use OCA\Decidesk\Service\VotingRoundProjection;
 use OCA\Decidesk\Service\VotingRoundResults;
+use OCA\Decidesk\Service\VoteCastGuard;
+use OCA\Decidesk\Service\VoterTokenSecret;
 use OCA\Decidesk\Service\VotingService;
+use OCA\Decidesk\Tests\Doubles\ObjectEntityDouble;
+use OCA\Decidesk\Tests\Doubles\ObjectServiceContractDouble;
+use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Service\FileService;
+use OCP\IAppConfig;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
@@ -78,37 +85,17 @@ class VotingServiceDelegationGateTest extends TestCase {
 			'notes' => [],
 		];
 
-		$roundEntity = new class($round) {
+		$roundEntity = new ObjectEntityDouble($round);
+
+		$objectService = new class($roundEntity) extends ObjectServiceContractDouble {
 
 			/**
 			 * Constructor.
 			 *
-			 * @param array<string, mixed> $round The round payload.
+			 * @param ObjectEntityInterface $roundEntity The round entity double.
 			 */
 			public function __construct(
-				private array $round,
-			) {
-			}
-
-			/**
-			 * Serialize like an ObjectEntity.
-			 *
-			 * @return array<string, mixed>
-			 */
-			public function jsonSerialize(): array {
-				return $this->round;
-			}
-		};
-
-		$objectService = new class($roundEntity) {
-
-			/**
-			 * Constructor.
-			 *
-			 * @param object $roundEntity The round entity double.
-			 */
-			public function __construct(
-				private object $roundEntity,
+				private ObjectEntityInterface $roundEntity,
 			) {
 			}
 
@@ -116,12 +103,28 @@ class VotingServiceDelegationGateTest extends TestCase {
 			 * Find returning the round entity for any id.
 			 *
 			 * @param int|string $id Object id.
+			 * @param array<string,mixed>|null $_extend Extend directives.
+			 * @param bool $files Include files.
 			 * @param string|int|null $register Register slug.
 			 * @param string|int|null $schema Schema slug.
+			 * @param bool $_rbac RBAC toggle.
+			 * @param bool $_multitenancy Tenancy toggle.
+			 * @param bool $_render Render toggle.
+			 * @param bool $_audit Audit toggle.
 			 *
-			 * @return object|null
+			 * @return ObjectEntityInterface|null
 			 */
-			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
+			public function find(
+				int|string $id,
+				?array $_extend = [],
+				bool $files = false,
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				bool $_rbac = true,
+				bool $_multitenancy = true,
+				bool $_render = true,
+				bool $_audit = true
+			): ?ObjectEntityInterface {
 				return $this->roundEntity;
 			}
 		};
@@ -145,7 +148,11 @@ class VotingServiceDelegationGateTest extends TestCase {
 			}
 		);
 
-		return $this->assembleVotingService(container: $container);
+		return $this->assembleVotingService(
+			container: $container,
+			objectService: $objectService,
+			prefService: $prefService,
+		);
 	}//end buildService()
 
 	/**
@@ -156,18 +163,26 @@ class VotingServiceDelegationGateTest extends TestCase {
 	 * where production relies on Nextcloud's constructor auto-wiring.
 	 *
 	 * @param ContainerInterface $container The (mocked) DI container.
+	 * @param ObjectServiceInterface $objectService The wired object-service double.
+	 * @param NotificationPreferenceService $prefService The absence-delegation double under test.
 	 *
 	 * @return VotingService
 	 */
-	private function assembleVotingService(ContainerInterface $container): VotingService {
+	private function assembleVotingService(
+		ContainerInterface $container,
+		ObjectServiceInterface $objectService,
+		NotificationPreferenceService $prefService,
+	): VotingService {
 		$logger = new NullLogger();
 		$motionService = $this->createMock(MotionService::class);
 		$participantResolver = $this->createMock(ParticipantResolver::class);
 		$templateService = $this->createMock(ProcessTemplateService::class);
-		$amendmentOrder = new AmendmentOrderService(container: $container, motionService: $motionService,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+		$amendmentOrder = new AmendmentOrderService(
+			motionService: $motionService,
+			objectService: $objectService,
 		);
 		$relationFilter = new ObjectRelationFilter();
+		$tokens = new VoterTokenSecret(appConfig: $this->createMock(IAppConfig::class));
 
 		return new VotingService(
 			opener: new VotingRoundOpener(
@@ -178,42 +193,50 @@ class VotingServiceDelegationGateTest extends TestCase {
 					motionService: $motionService,
 					participantResolver: $participantResolver,
 					templateService: $templateService,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		),
 				notifier: new VotingOpenedNotifier(
 					logger: $logger,
 					participantResolver: $participantResolver,
 			container: $this->createMock(ContainerInterface::class),
 		),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		),
 			caster: new VoteCastingService(
 				logger: $logger,
-				participantResolver: $participantResolver,
-				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+				objectService: $objectService,
+				tokens: $tokens,
+				guard: new VoteCastGuard(
+					logger: $logger,
+					relationFilter: $relationFilter,
+					tokens: $tokens,
+					participantResolver: $participantResolver,
+					amendmentOrder: $amendmentOrder,
+					objectService: $objectService,
+					preferenceService: $prefService,
+				),
+			),
 			closer: new VotingRoundCloser(
 				logger: $logger,
 				oriService: $this->createMock(OriPublicationService::class),
 				motionService: $motionService,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 			fileService: $this->createMock(FileService::class),
 		),
 			results: new VotingRoundResults(
 				motionService: $motionService,
 				participantResolver: $participantResolver,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		),
-			projection: new VotingRoundProjection(container: $container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
-			participants: new ParticipantUuidLookup(container: $container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+			projection: new VotingRoundProjection(
+				objectService: $objectService,
+			),
+			participants: new ParticipantUuidLookup(
+				objectService: $objectService,
+			),
 		);
 
 	}//end assembleVotingService()
@@ -308,37 +331,17 @@ class VotingServiceDelegationGateTest extends TestCase {
 			],
 		];
 
-		$roundEntity = new class($round) {
+		$roundEntity = new ObjectEntityDouble($round);
+
+		$objectService = new class($roundEntity) extends ObjectServiceContractDouble {
 
 			/**
 			 * Constructor.
 			 *
-			 * @param array<string, mixed> $round The round payload.
+			 * @param ObjectEntityInterface $roundEntity The round entity double.
 			 */
 			public function __construct(
-				private array $round,
-			) {
-			}
-
-			/**
-			 * Serialize like an ObjectEntity.
-			 *
-			 * @return array<string, mixed>
-			 */
-			public function jsonSerialize(): array {
-				return $this->round;
-			}
-		};
-
-		$objectService = new class($roundEntity) {
-
-			/**
-			 * Constructor.
-			 *
-			 * @param object $roundEntity The round entity double.
-			 */
-			public function __construct(
-				private object $roundEntity,
+				private ObjectEntityInterface $roundEntity,
 			) {
 			}
 
@@ -346,59 +349,77 @@ class VotingServiceDelegationGateTest extends TestCase {
 			 * Find returning the round entity.
 			 *
 			 * @param int|string $id Object id.
+			 * @param array<string,mixed>|null $_extend Extend directives.
+			 * @param bool $files Include files.
 			 * @param string|int|null $register Register slug.
 			 * @param string|int|null $schema Schema slug.
+			 * @param bool $_rbac RBAC toggle.
+			 * @param bool $_multitenancy Tenancy toggle.
+			 * @param bool $_render Render toggle.
+			 * @param bool $_audit Audit toggle.
 			 *
-			 * @return object|null
+			 * @return ObjectEntityInterface|null
 			 */
-			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
+			public function find(
+				int|string $id,
+				?array $_extend = [],
+				bool $files = false,
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				bool $_rbac = true,
+				bool $_multitenancy = true,
+				bool $_render = true,
+				bool $_audit = true
+			): ?ObjectEntityInterface {
 				return $this->roundEntity;
-			}
-
-			/**
-			 * Fluent register setter.
-			 *
-			 * @param string $register Register slug.
-			 *
-			 * @return static
-			 */
-			public function setRegister(string $register): static {
-				return $this;
-			}
-
-			/**
-			 * Fluent schema setter.
-			 *
-			 * @param string $schema Schema slug.
-			 *
-			 * @return static
-			 */
-			public function setSchema(string $schema): static {
-				return $this;
 			}
 
 			/**
 			 * Empty result set for the dedup queries.
 			 *
 			 * @param array<string, mixed> $config Query config.
+			 * @param bool $_rbac RBAC toggle.
+			 * @param bool $_multitenancy Tenancy toggle.
 			 *
-			 * @return array<int, object>
+			 * @return array<int, ObjectEntityInterface>
 			 */
-			public function findAll(array $config = []): array {
+			public function findAll(array $config = [], bool $_rbac = true, bool $_multitenancy = true): array {
 				return [];
 			}
 
 			/**
-			 * Echoing save.
+			 * Echoing save (ADR-084 order: body first, entity out).
 			 *
+			 * @param array<string, mixed> $object The object payload.
+			 * @param array<string,mixed>|null $extend Extend directives.
 			 * @param string|int|null $register Register slug.
 			 * @param string|int|null $schema Schema slug.
-			 * @param array<string, mixed> $object The object payload.
+			 * @param string|null $uuid Target uuid.
+			 * @param bool $_rbac RBAC toggle.
+			 * @param bool $_multitenancy Tenancy toggle.
+			 * @param bool $silent Suppress events.
+			 * @param bool $_validation Validation toggle.
+			 * @param array<string,mixed>|null $uploadedFiles Uploaded files.
+			 * @param \OCP\IUser|null $currentUser Acting user.
+			 * @param bool $failIfExists Refuse an update.
 			 *
-			 * @return array<string, mixed>
+			 * @return ObjectEntityInterface
 			 */
-			public function saveObject(string|int|null $register = null, string|int|null $schema = null, array $object = []): array {
-				return $object;
+			public function saveObject(
+				array $object,
+				?array $extend = [],
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				?string $uuid = null,
+				bool $_rbac = true,
+				bool $_multitenancy = true,
+				bool $silent = false,
+				bool $_validation = true,
+				?array $uploadedFiles = null,
+				?\OCP\IUser $currentUser = null,
+				bool $failIfExists = false
+			): ObjectEntityInterface {
+				return new ObjectEntityDouble($object);
 			}
 		};
 
@@ -417,7 +438,11 @@ class VotingServiceDelegationGateTest extends TestCase {
 			}
 		);
 
-		$service = $this->assembleVotingService(container: $container);
+		$service = $this->assembleVotingService(
+			container: $container,
+			objectService: $objectService,
+			prefService: $prefService,
+		);
 
 		$vote = $service->castVote(
 			votingRoundId: 'round-1',

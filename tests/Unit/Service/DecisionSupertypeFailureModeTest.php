@@ -51,6 +51,9 @@ use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\ProcessTemplateService;
 use OCA\Decidesk\Service\VotingErrorResponder;
 use OCA\Decidesk\Service\VotingRoundPreflight;
+use OCA\Decidesk\Tests\Doubles\ObjectEntityDouble;
+use OCA\Decidesk\Tests\Doubles\ObjectServiceContractDouble;
+use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -121,14 +124,14 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 *
 	 * @param array<string, array<string, mixed>> $store Seed objects keyed by id
 	 *
-	 * @return object The ObjectService double
+	 * @return ObjectServiceInterface The ObjectService double
 	 */
-	private function objectServiceDouble(array $store = []): object {
+	private function objectServiceDouble(array $store = []): ObjectServiceInterface {
 		$schemaCalls = $this->schemaCalls;
 		$liveSchemas = self::LIVE_SCHEMAS;
 		$storeRef = new \ArrayObject($store);
 
-		return new class($storeRef, $schemaCalls, $liveSchemas) {
+		return new class($storeRef, $schemaCalls, $liveSchemas) extends ObjectServiceContractDouble {
 			/**
 			 * Currently selected schema slug.
 			 *
@@ -175,24 +178,24 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 			/**
 			 * Select the register (fluent no-op).
 			 *
-			 * @param string $register Register slug
+			 * @param string|int $register Register slug
 			 *
 			 * @return static
 			 */
-			public function setRegister(string $register): static {
+			public function setRegister(string|int $register): static {
 				return $this;
 			}
 
 			/**
 			 * Select the schema, refusing retired slugs.
 			 *
-			 * @param string $schema Schema slug
+			 * @param string|int $schema Schema slug
 			 *
 			 * @return static
 			 */
-			public function setSchema(string $schema): static {
-				$this->assertSchemaExists($schema);
-				$this->schema = $schema;
+			public function setSchema(string|int $schema): static {
+				$this->assertSchemaExists((string)$schema);
+				$this->schema = (string)$schema;
 				return $this;
 			}
 
@@ -201,50 +204,38 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 			 *
 			 * @param array<string, mixed> $object The payload
 			 *
-			 * @return object
+			 * @return ObjectEntityInterface
 			 */
-			private function wrap(array $object): object {
-				return new class($object) {
-					/**
-					 * Constructor.
-					 *
-					 * @param array<string, mixed> $object The payload
-					 */
-					public function __construct(
-						private array $object,
-					) {
-					}
-
-					/**
-					 * Serialize like an ObjectEntity.
-					 *
-					 * @return array<string, mixed>
-					 */
-					public function jsonSerialize(): array {
-						return $this->object;
-					}
-
-					/**
-					 * Raw payload like an ObjectEntity.
-					 *
-					 * @return array<string, mixed>
-					 */
-					public function getObject(): array {
-						return $this->object;
-					}
-				};
+			private function wrap(array $object): ObjectEntityInterface {
+				return new ObjectEntityDouble($object);
 			}
 
 			/**
 			 * Find one object by id.
 			 *
 			 * @param int|string $id Object id
+			 * @param array<string,mixed>|null $_extend Extend directives
+			 * @param bool $files Include files
 			 * @param string|int|null $register Register slug
 			 * @param string|int|null $schema Schema slug
+			 * @param bool $_rbac RBAC toggle
+			 * @param bool $_multitenancy Tenancy toggle
+			 * @param bool $_render Render toggle
+			 * @param bool $_audit Audit toggle
 			 *
-			 * @return object|null
+			 * @return ObjectEntityInterface|null
 			 */
-			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
+			public function find(
+				int|string $id,
+				?array $_extend = [],
+				bool $files = false,
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				bool $_rbac = true,
+				bool $_multitenancy = true,
+				bool $_render = true,
+				bool $_audit = true
+			): ?ObjectEntityInterface {
 				if ($schema !== null) {
 					$this->assertSchemaExists((string)$schema);
 				}
@@ -268,10 +259,12 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 			 * Find every object matching the filters.
 			 *
 			 * @param array<string, mixed> $config Query config
+			 * @param bool $_rbac RBAC toggle
+			 * @param bool $_multitenancy Tenancy toggle
 			 *
-			 * @return array<int, object>
+			 * @return array<int, ObjectEntityInterface>
 			 */
-			public function findAll(array $config = []): array {
+			public function findAll(array $config = [], bool $_rbac = true, bool $_multitenancy = true): array {
 				$filters = ($config['filters'] ?? []);
 				$this->assertSchemaExists(($filters['schema'] ?? null));
 
@@ -311,15 +304,36 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 			 * Persist an object.
 			 *
 			 * @param array<string, mixed> $object Payload
-			 * @param string $register Register slug
-			 * @param string $schema Schema slug
+			 * @param array<string,mixed>|null $extend Extend directives
+			 * @param string|int|null $register Register slug
+			 * @param string|int|null $schema Schema slug
 			 * @param string|null $uuid Target uuid
+			 * @param bool $_rbac RBAC toggle
+			 * @param bool $_multitenancy Tenancy toggle
+			 * @param bool $silent Suppress events
+			 * @param bool $_validation Validation toggle
+			 * @param array<string,mixed>|null $uploadedFiles Uploaded files
+			 * @param \OCP\IUser|null $currentUser Acting user
+			 * @param bool $failIfExists Refuse an update
 			 *
-			 * @return array<string, mixed>
+			 * @return ObjectEntityInterface
 			 */
-			public function saveObject(array $object = [], string $register = '', string $schema = '', ?string $uuid = null): array {
-				$this->assertSchemaExists($schema);
-				return $object;
+			public function saveObject(
+				array $object,
+				?array $extend = [],
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				?string $uuid = null,
+				bool $_rbac = true,
+				bool $_multitenancy = true,
+				bool $silent = false,
+				bool $_validation = true,
+				?array $uploadedFiles = null,
+				?\OCP\IUser $currentUser = null,
+				bool $failIfExists = false
+			): ObjectEntityInterface {
+				$this->assertSchemaExists((string)$schema);
+				return $this->wrap($object);
 			}
 		};
 	}//end objectServiceDouble()
@@ -386,11 +400,11 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 * a dependency the code gains later surfaces as a loud failure here instead
 	 * of being silently answered by a catch-all mock.
 	 *
-	 * @param object $objectService The OpenRegister ObjectService double
+	 * @param ObjectServiceInterface $objectService The OpenRegister ObjectService double
 	 *
 	 * @return ContainerInterface
 	 */
-	private function decideskContainer(object $objectService): ContainerInterface {
+	private function decideskContainer(ObjectServiceInterface $objectService): ContainerInterface {
 		$services = [
 			'OCA\OpenRegister\Service\ObjectService' => $objectService,
 			\OCA\Decidesk\Service\MotionNotifier::class => $this->createMock(
@@ -417,6 +431,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 			container: $self,
 			logger: new NullLogger(),
 			guard: new \OCA\Decidesk\Lifecycle\DecisionTransitionGuard(),
+			objectService: $objectService,
 		);
 
 		return $this->containerFor($services);
@@ -694,8 +709,8 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 */
 	public function testUnknownMeetingResolvesToNoGovernanceBodyNotAnEscapingError(): void {
 		$resolver = new \OCA\Decidesk\Service\ParticipantResolver(
-			container: $this->decideskContainer($this->objectServiceDouble()),
 			logger: new NullLogger(),
+			objectService: $this->objectServiceDouble(),
 		);
 
 		self::assertNull(
@@ -712,7 +727,8 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 * @return VotingRoundPreflight
 	 */
 	private function buildPreflight(): VotingRoundPreflight {
-		$container = $this->decideskContainer($this->objectServiceDouble());
+		$objectService = $this->objectServiceDouble();
+		$container = $this->decideskContainer($objectService);
 
 		$templateService = $this->createMock(ProcessTemplateService::class);
 		$templateService->method('resolveVotingRuleForBody')->willReturn([]);
@@ -720,13 +736,14 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 		return new VotingRoundPreflight(
 			logger: new NullLogger(),
 			motionService: new MotionService(
+				container: $container,
 				logger: new NullLogger(),
 				userManager: $this->createMock(IUserManager::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
-			container: $this->createMock(ContainerInterface::class),
-		),
+				objectService: $objectService,
+			),
 			participantResolver: $this->createMock(ParticipantResolver::class),
 			templateService: $templateService,
+			objectService: $objectService,
 		);
 
 	}//end buildPreflight()

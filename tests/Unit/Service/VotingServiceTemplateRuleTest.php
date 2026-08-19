@@ -38,8 +38,13 @@ use OCA\Decidesk\Service\VotingRoundProjection;
 use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingRoundRules;
 use OCA\Decidesk\Service\VotingService;
+use OCA\Decidesk\Service\NotificationPreferenceService;
+use OCA\Decidesk\Service\VoteCastGuard;
+use OCA\Decidesk\Service\VoterTokenSecret;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Service\FileService;
+use OCP\IAppConfig;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
@@ -73,7 +78,7 @@ class VotingServiceTemplateRuleTest extends TestCase {
 		// quorumRequired=0 -> checkQuorum() returns true (no participants needed).
 		$meeting->method('jsonSerialize')->willReturn(['id' => 'meeting-1', 'quorumRequired' => 0]);
 
-		$objectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturn($meeting);
 		$objectService->method('saveObject')->willReturnCallback(
 			// saveObject() is typed `: ObjectEntity` in production and can never
@@ -111,10 +116,12 @@ class VotingServiceTemplateRuleTest extends TestCase {
 		// single-purpose collaborator, so the graph is built explicitly here
 		// where production relies on Nextcloud's constructor auto-wiring.
 		$logger = new NullLogger();
-		$amendmentOrder = new AmendmentOrderService(container: $container, motionService: $motionService,
-			objectService: $saved,
+		$amendmentOrder = new AmendmentOrderService(
+			motionService: $motionService,
+			objectService: $objectService,
 		);
 		$relationFilter = new ObjectRelationFilter();
+		$tokens = new VoterTokenSecret(appConfig: $this->createMock(IAppConfig::class));
 
 		return new VotingService(
 			opener: new VotingRoundOpener(
@@ -125,42 +132,50 @@ class VotingServiceTemplateRuleTest extends TestCase {
 					motionService: $motionService,
 					participantResolver: $participantResolver,
 					templateService: $templateService,
-			objectService: $saved,
+			objectService: $objectService,
 		),
 				notifier: new VotingOpenedNotifier(
 					logger: $logger,
 					participantResolver: $participantResolver,
 			container: $this->createMock(ContainerInterface::class),
 		),
-			objectService: $saved,
+			objectService: $objectService,
 		),
 			caster: new VoteCastingService(
 				logger: $logger,
-				participantResolver: $participantResolver,
-				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $saved,
-		),
+				objectService: $objectService,
+				tokens: $tokens,
+				guard: new VoteCastGuard(
+					logger: $logger,
+					relationFilter: $relationFilter,
+					tokens: $tokens,
+					participantResolver: $participantResolver,
+					amendmentOrder: $amendmentOrder,
+					objectService: $objectService,
+					preferenceService: $this->createMock(NotificationPreferenceService::class),
+				),
+			),
 			closer: new VotingRoundCloser(
 				logger: $logger,
 				oriService: $this->createMock(OriPublicationService::class),
 				motionService: $motionService,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $saved,
+			objectService: $objectService,
 			fileService: $this->createMock(FileService::class),
 		),
 			results: new VotingRoundResults(
 				motionService: $motionService,
 				participantResolver: $participantResolver,
-			objectService: $saved,
+			objectService: $objectService,
 		),
-			projection: new VotingRoundProjection(container: $container,
-			objectService: $saved,
-		),
-			participants: new ParticipantUuidLookup(container: $container,
-			objectService: $saved,
-		),
+			projection: new VotingRoundProjection(
+				objectService: $objectService,
+			),
+			participants: new ParticipantUuidLookup(
+				objectService: $objectService,
+			),
 		);
 
 	}//end buildService()

@@ -65,3 +65,9 @@ if (class_exists(\OCA\OpenRegister\Event\DeepLinkRegistrationEvent::class) === f
 if (class_exists(\OCA\OpenRegister\Service\CalendarEventService::class) === false) {
 	include_once __DIR__ . '/Stubs/OpenRegisterServices.php';
 }
+
+// Hand-written ObjectService doubles extend this base so PHP itself checks them
+// against OpenRegister's published contract (ADR-084). It lives outside
+// tests/Stubs/ deliberately: that directory is PSR-4-mapped to the
+// OCA\OpenRegister namespace and would shadow the real app.
+$autoloader->addPsr4('OCA\\Decidesk\\Tests\\Doubles\\', __DIR__ . '/Doubles/');

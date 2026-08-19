@@ -30,7 +30,6 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidesk\Lifecycle\MeetingTransitionGuard;
 use OCP\AppFramework\Db\DoesNotExistException;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -67,7 +66,7 @@ class MeetingService {
 	/**
 	 * Constructor for MeetingService.
 	 *
-	 * @param ContainerInterface $container The DI container (used to retrieve ObjectService)
+	 * @param ActivityPublisherService $activityPublisher Publishes the fail-soft governance activity entry
 	 * @param LoggerInterface $logger The logger
 	 * @param WorkflowService $workflowService Domain-specific transition rules and chair-only gates
 	 * @param MeetingTransitionGuard $transitionGuard Reads quorumMet field for the open transition
@@ -79,7 +78,7 @@ class MeetingService {
 	 * @spec openspec/specs/meeting-efficiency/spec.md
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
+		private readonly ActivityPublisherService $activityPublisher,
 		private readonly LoggerInterface $logger,
 		private readonly WorkflowService $workflowService,
 		private readonly MeetingTransitionGuard $transitionGuard,
@@ -358,7 +357,7 @@ class MeetingService {
 	 */
 	private function publishTransitionActivity(array $meetingData, string $meetingId, string $newState): void {
 		try {
-			$this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
+			$this->activityPublisher->publishGovernanceEvent(
 				subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_MEETING_TRANSITION,
 				title: (string)($meetingData['title'] ?? $meetingId),
 				status: $newState,

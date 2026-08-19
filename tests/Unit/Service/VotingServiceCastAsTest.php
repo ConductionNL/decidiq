@@ -43,8 +43,16 @@ use OCA\Decidesk\Service\VotingRoundPreflight;
 use OCA\Decidesk\Service\VotingRoundProjection;
 use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingRoundRules;
+use OCA\Decidesk\Service\NotificationPreferenceService;
+use OCA\Decidesk\Service\VoteCastGuard;
+use OCA\Decidesk\Service\VoterTokenSecret;
 use OCA\Decidesk\Service\VotingService;
+use OCA\Decidesk\Tests\Doubles\ObjectEntityDouble;
+use OCA\Decidesk\Tests\Doubles\ObjectServiceContractDouble;
+use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Service\FileService;
+use OCP\IAppConfig;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
@@ -86,7 +94,7 @@ class VotingServiceCastAsTest extends TestCase {
 		$saves = $this->saves;
 		$storeRef = new \ArrayObject($store);
 
-		$objectService = new class($storeRef, $saves) {
+		$objectService = new class($storeRef, $saves) extends ObjectServiceContractDouble {
 
 			/**
 			 * Schema selected via setSchema().
@@ -112,51 +120,32 @@ class VotingServiceCastAsTest extends TestCase {
 			 *
 			 * @param array<string, mixed> $object The payload
 			 *
-			 * @return object
+			 * @return ObjectEntityInterface
 			 */
-			private function wrap(array $object): object {
-				return new class($object) {
-					/**
-					 * Constructor.
-					 *
-					 * @param array<string, mixed> $object The payload
-					 */
-					public function __construct(
-						private array $object,
-					) {
-					}
-
-					/**
-					 * Serialize like an ObjectEntity.
-					 *
-					 * @return array<string, mixed>
-					 */
-					public function jsonSerialize(): array {
-						return $this->object;
-					}
-				};
+			private function wrap(array $object): ObjectEntityInterface {
+				return new ObjectEntityDouble($object);
 			}
 
 			/**
 			 * Select register (fluent no-op).
 			 *
-			 * @param string $register Register slug
+			 * @param string|int $register Register slug
 			 *
 			 * @return static
 			 */
-			public function setRegister(string $register): static {
+			public function setRegister(string|int $register): static {
 				return $this;
 			}
 
 			/**
 			 * Select schema for findAll().
 			 *
-			 * @param string $schema Schema slug
+			 * @param string|int $schema Schema slug
 			 *
 			 * @return static
 			 */
-			public function setSchema(string $schema): static {
-				$this->schema = $schema;
+			public function setSchema(string|int $schema): static {
+				$this->schema = (string)$schema;
 				return $this;
 			}
 
@@ -164,12 +153,28 @@ class VotingServiceCastAsTest extends TestCase {
 			 * Find an object by id.
 			 *
 			 * @param int|string $id Object id
+			 * @param array<string,mixed>|null $_extend Extend directives
+			 * @param bool $files Include files
 			 * @param string|int|null $register Register slug
 			 * @param string|int|null $schema Schema slug
+			 * @param bool $_rbac RBAC toggle
+			 * @param bool $_multitenancy Tenancy toggle
+			 * @param bool $_render Render toggle
+			 * @param bool $_audit Audit toggle
 			 *
-			 * @return object|null
+			 * @return ObjectEntityInterface|null
 			 */
-			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
+			public function find(
+				int|string $id,
+				?array $_extend = [],
+				bool $files = false,
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				bool $_rbac = true,
+				bool $_multitenancy = true,
+				bool $_render = true,
+				bool $_audit = true
+			): ?ObjectEntityInterface {
 				$row = ($this->store[(string)$id] ?? null);
 				if ($row === null) {
 					return null;
@@ -188,10 +193,12 @@ class VotingServiceCastAsTest extends TestCase {
 			 * Relation filters (_relations.*) are presence-only, mirroring OR.
 			 *
 			 * @param array<string, mixed> $config Query config
+			 * @param bool $_rbac RBAC toggle
+			 * @param bool $_multitenancy Tenancy toggle
 			 *
-			 * @return array<int, object>
+			 * @return array<int, ObjectEntityInterface>
 			 */
-			public function findAll(array $config = []): array {
+			public function findAll(array $config = [], bool $_rbac = true, bool $_multitenancy = true): array {
 				$out = [];
 				foreach ($this->store as $row) {
 					if ($row['schema'] !== $this->schema) {
@@ -221,17 +228,42 @@ class VotingServiceCastAsTest extends TestCase {
 			/**
 			 * Record the save and upsert the store.
 			 *
-			 * @param string $register Register slug
-			 * @param string $schema Schema slug
-			 * @param array<string, mixed> $object Payload
+			 * ADR-084 order: the body is FIRST and the return is an entity.
 			 *
-			 * @return array<string, mixed>
+			 * @param array<string, mixed> $object Payload
+			 * @param array<string,mixed>|null $extend Extend directives
+			 * @param string|int|null $register Register slug
+			 * @param string|int|null $schema Schema slug
+			 * @param string|null $uuid Target uuid
+			 * @param bool $_rbac RBAC toggle
+			 * @param bool $_multitenancy Tenancy toggle
+			 * @param bool $silent Suppress events
+			 * @param bool $_validation Validation toggle
+			 * @param array<string,mixed>|null $uploadedFiles Uploaded files
+			 * @param \OCP\IUser|null $currentUser Acting user
+			 * @param bool $failIfExists Refuse an update
+			 *
+			 * @return ObjectEntityInterface
 			 */
-			public function saveObject(string $register, string $schema, array $object): array {
-				$this->saves->append(['schema' => $schema, 'object' => $object]);
-				$id = (string)($object['id'] ?? $object['uuid'] ?? ('new-' . count($this->saves)));
-				$this->store[$id] = ['schema' => $schema, 'object' => $object];
-				return $object;
+			public function saveObject(
+				array $object,
+				?array $extend = [],
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				?string $uuid = null,
+				bool $_rbac = true,
+				bool $_multitenancy = true,
+				bool $silent = false,
+				bool $_validation = true,
+				?array $uploadedFiles = null,
+				?\OCP\IUser $currentUser = null,
+				bool $failIfExists = false
+			): ObjectEntityInterface {
+				$schemaSlug = (string)($schema ?? $this->schema);
+				$this->saves->append(['schema' => $schemaSlug, 'object' => $object]);
+				$id = (string)($uuid ?? $object['id'] ?? $object['uuid'] ?? ('new-' . count($this->saves)));
+				$this->store[$id] = ['schema' => $schemaSlug, 'object' => $object];
+				return $this->wrap($object);
 			}
 		};
 
@@ -259,10 +291,12 @@ class VotingServiceCastAsTest extends TestCase {
 		// single-purpose collaborator, so the graph is built explicitly here
 		// where production relies on Nextcloud's constructor auto-wiring.
 		$logger = new NullLogger();
-		$amendmentOrder = new AmendmentOrderService(container: $container, motionService: $this->motionService,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+		$amendmentOrder = new AmendmentOrderService(
+			motionService: $this->motionService,
+			objectService: $objectService,
 		);
 		$relationFilter = new ObjectRelationFilter();
+		$tokens = new VoterTokenSecret(appConfig: $this->createMock(IAppConfig::class));
 
 		return new VotingService(
 			opener: new VotingRoundOpener(
@@ -273,42 +307,50 @@ class VotingServiceCastAsTest extends TestCase {
 					motionService: $this->motionService,
 					participantResolver: $participantResolver,
 					templateService: $templateService,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		),
 				notifier: new VotingOpenedNotifier(
 					logger: $logger,
 					participantResolver: $participantResolver,
 			container: $this->createMock(ContainerInterface::class),
 		),
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		),
 			caster: new VoteCastingService(
 				logger: $logger,
-				participantResolver: $participantResolver,
-				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+				objectService: $objectService,
+				tokens: $tokens,
+				guard: new VoteCastGuard(
+					logger: $logger,
+					relationFilter: $relationFilter,
+					tokens: $tokens,
+					participantResolver: $participantResolver,
+					amendmentOrder: $amendmentOrder,
+					objectService: $objectService,
+					preferenceService: $this->createMock(NotificationPreferenceService::class),
+				),
+			),
 			closer: new VotingRoundCloser(
 				logger: $logger,
 				oriService: $this->createMock(OriPublicationService::class),
 				motionService: $this->motionService,
 				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 			fileService: $this->createMock(FileService::class),
 		),
 			results: new VotingRoundResults(
 				motionService: $this->motionService,
 				participantResolver: $participantResolver,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		),
-			projection: new VotingRoundProjection(container: $container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
-			participants: new ParticipantUuidLookup(container: $container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+			projection: new VotingRoundProjection(
+				objectService: $objectService,
+			),
+			participants: new ParticipantUuidLookup(
+				objectService: $objectService,
+			),
 		);
 
 	}//end buildService()

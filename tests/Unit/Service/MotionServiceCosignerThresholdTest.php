@@ -36,6 +36,9 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
 use OCA\Decidesk\Lifecycle\MotionLifecycleTransitioner;
 use OCA\Decidesk\Service\MotionService;
+use OCA\Decidesk\Tests\Doubles\ObjectEntityDouble;
+use OCA\Decidesk\Tests\Doubles\ObjectServiceContractDouble;
+use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use OCP\IUserManager;
@@ -70,7 +73,7 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 		$saves = $this->saves;
 		$storeRef = new \ArrayObject($store);
 
-		$objectService = new class($storeRef, $saves) {
+		$objectService = new class($storeRef, $saves) extends ObjectServiceContractDouble {
 
 			/**
 			 * Constructor.
@@ -89,72 +92,38 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 			 *
 			 * @param array<string, mixed> $object The payload
 			 *
-			 * @return object
+			 * @return ObjectEntityInterface
 			 */
-			private function wrap(array $object): object {
-				return new class($object) {
-					/**
-					 * Constructor.
-					 *
-					 * @param array<string, mixed> $object The payload
-					 */
-					public function __construct(
-						private array $object,
-					) {
-					}
-
-					/**
-					 * Raw payload like an ObjectEntity.
-					 *
-					 * @return array<string, mixed>
-					 */
-					public function getObject(): array {
-						return $this->object;
-					}
-
-					/**
-					 * Serialize like an ObjectEntity.
-					 *
-					 * @return array<string, mixed>
-					 */
-					public function jsonSerialize(): array {
-						return $this->object;
-					}
-				};
-			}
-
-			/**
-			 * Select register (fluent no-op).
-			 *
-			 * @param string $register Register slug
-			 *
-			 * @return static
-			 */
-			public function setRegister(string $register): static {
-				return $this;
-			}
-
-			/**
-			 * Select schema (fluent no-op).
-			 *
-			 * @param string $schema Schema slug
-			 *
-			 * @return static
-			 */
-			public function setSchema(string $schema): static {
-				return $this;
+			private function wrap(array $object): ObjectEntityInterface {
+				return new ObjectEntityDouble($object);
 			}
 
 			/**
 			 * Find an object by id.
 			 *
 			 * @param int|string $id Object id
+			 * @param array<string,mixed>|null $_extend Extend directives
+			 * @param bool $files Include files
 			 * @param string|int|null $register Register slug
 			 * @param string|int|null $schema Schema slug
+			 * @param bool $_rbac RBAC toggle
+			 * @param bool $_multitenancy Tenancy toggle
+			 * @param bool $_render Render toggle
+			 * @param bool $_audit Audit toggle
 			 *
-			 * @return object|null
+			 * @return ObjectEntityInterface|null
 			 */
-			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
+			public function find(
+				int|string $id,
+				?array $_extend = [],
+				bool $files = false,
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				bool $_rbac = true,
+				bool $_multitenancy = true,
+				bool $_render = true,
+				bool $_audit = true
+			): ?ObjectEntityInterface {
 				$row = ($this->store[(string)$id] ?? null);
 				if ($row === null) {
 					return null;
@@ -167,17 +136,38 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 			 * Record the save and upsert the store.
 			 *
 			 * @param array<string, mixed> $object Payload
-			 * @param string $register Register slug
-			 * @param string $schema Schema slug
+			 * @param array<string,mixed>|null $extend Extend directives
+			 * @param string|int|null $register Register slug
+			 * @param string|int|null $schema Schema slug
 			 * @param string|null $uuid Target uuid for updates
+			 * @param bool $_rbac RBAC toggle
+			 * @param bool $_multitenancy Tenancy toggle
+			 * @param bool $silent Suppress events
+			 * @param bool $_validation Validation toggle
+			 * @param array<string,mixed>|null $uploadedFiles Uploaded files
+			 * @param \OCP\IUser|null $currentUser Acting user
+			 * @param bool $failIfExists Refuse an update
 			 *
-			 * @return array<string, mixed>
+			 * @return ObjectEntityInterface
 			 */
-			public function saveObject(array $object = [], string $register = '', string $schema = '', ?string $uuid = null): array {
+			public function saveObject(
+				array $object,
+				?array $extend = [],
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				?string $uuid = null,
+				bool $_rbac = true,
+				bool $_multitenancy = true,
+				bool $silent = false,
+				bool $_validation = true,
+				?array $uploadedFiles = null,
+				?\OCP\IUser $currentUser = null,
+				bool $failIfExists = false
+			): ObjectEntityInterface {
 				$this->saves->append($object);
 				$id = (string)($uuid ?? $object['id'] ?? $object['uuid'] ?? ('new-' . count($this->saves)));
-				$this->store[$id] = ['schema' => $schema, 'object' => $object];
-				return $object;
+				$this->store[$id] = ['schema' => (string)$schema, 'object' => $object];
+				return $this->wrap($object);
 			}
 		};
 
@@ -214,8 +204,8 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 						container: $container,
 						logger: new NullLogger(),
 						guard: new DecisionTransitionGuard(),
-			objectService: $default,
-		);
+						objectService: $objectService,
+					);
 				}
 
 				throw new \RuntimeException('not wired in test: ' . $id);
@@ -226,7 +216,7 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 			container: $container,
 			logger: new NullLogger(),
 			userManager: $this->createMock(IUserManager::class),
-			objectService: $default,
+			objectService: $objectService,
 		);
 
 	}//end buildService()

@@ -46,8 +46,23 @@ class LiveDecisionServiceTest extends TestCase {
 		parent::setUp();
 		$this->container = $this->createMock(ContainerInterface::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
-		$this->service = new LiveDecisionService($this->container, $this->logger,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+	}
+
+	/**
+	 * Build the service under test around a given object-service double.
+	 *
+	 * ADR-084: the service takes OpenRegister's published contract directly,
+	 * so the double is handed in rather than routed through the container.
+	 *
+	 * @param ObjectServiceInterface $objectService The object-service double.
+	 *
+	 * @return LiveDecisionService
+	 */
+	private function service(ObjectServiceInterface $objectService): LiveDecisionService {
+		return new LiveDecisionService(
+			$this->container,
+			$this->logger,
+			objectService: $objectService,
 		);
 	}
 
@@ -83,7 +98,7 @@ class LiveDecisionServiceTest extends TestCase {
 			'@self' => ['slug' => 'council-decision-1'],
 		]);
 
-		$mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+		$mockObjectService = $this->createMock(ObjectServiceInterface::class);
 
 		$mockObjectService->method('setRegister')->willReturnSelf();
 		$mockObjectService->method('setSchema')->willReturnSelf();
@@ -100,10 +115,7 @@ class LiveDecisionServiceTest extends TestCase {
 			->method('saveObject')
 			->willReturn($savedDecisionEntity);
 
-		$this->container->expects($this->any())
-			->method('get')
-			->with('OCA\OpenRegister\Service\ObjectService')
-			->willReturn($mockObjectService);
+		$service = $this->service($mockObjectService);
 
 		$decisionData = [
 			'title' => 'Budget Approved',
@@ -111,7 +123,7 @@ class LiveDecisionServiceTest extends TestCase {
 			'outcome' => 'adopted',
 		];
 
-		$result = $this->service->recordDecision('meeting-1', $decisionData, 'user-1');
+		$result = $service->recordDecision('meeting-1', $decisionData, 'user-1');
 
 		$this->assertEquals('council-decision-1', $result);
 	}
@@ -130,7 +142,7 @@ class LiveDecisionServiceTest extends TestCase {
 			'lifecycle' => 'scheduled',
 		]);
 
-		$mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+		$mockObjectService = $this->createMock(ObjectServiceInterface::class);
 
 		$mockObjectService->method('setRegister')->willReturnSelf();
 		$mockObjectService->method('setSchema')->willReturnSelf();
@@ -139,10 +151,7 @@ class LiveDecisionServiceTest extends TestCase {
 			->method('find')
 			->willReturn($meetingEntity);
 
-		$this->container->expects($this->any())
-			->method('get')
-			->with('OCA\OpenRegister\Service\ObjectService')
-			->willReturn($mockObjectService);
+		$service = $this->service($mockObjectService);
 
 		$decisionData = [
 			'title' => 'Budget Approved',
@@ -153,7 +162,7 @@ class LiveDecisionServiceTest extends TestCase {
 		$this->expectException(\Exception::class);
 		$this->expectExceptionCode(409);
 
-		$this->service->recordDecision('meeting-1', $decisionData, 'user-1');
+		$service->recordDecision('meeting-1', $decisionData, 'user-1');
 	}
 
 }

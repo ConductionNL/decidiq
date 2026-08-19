@@ -37,10 +37,6 @@ use Psr\Log\LoggerInterface;
  */
 class ActionItemAnalyticsServiceTest extends TestCase {
 
-	private ActionItemAnalyticsService $service;
-
-	private ContainerInterface|\PHPUnit\Framework\MockObject\MockObject $container;
-
 	private LoggerInterface|\PHPUnit\Framework\MockObject\MockObject $logger;
 
 	/**
@@ -52,12 +48,25 @@ class ActionItemAnalyticsServiceTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		$this->container = $this->createMock(ContainerInterface::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
-		$this->service = new ActionItemAnalyticsService( $this->logger,
-			objectService: $items,
-		);
 	}//end setUp()
+
+	/**
+	 * Build the service under test around a given object service double.
+	 *
+	 * ADR-084: the service takes OpenRegister's published contract directly, so
+	 * the double is handed in rather than routed through a container.
+	 *
+	 * @param ObjectServiceInterface $objectService The object service double.
+	 *
+	 * @return ActionItemAnalyticsService
+	 */
+	private function makeService(ObjectServiceInterface $objectService): ActionItemAnalyticsService {
+		return new ActionItemAnalyticsService(
+			logger: $this->logger,
+			objectService: $objectService,
+		);
+	}//end makeService()
 
 	/**
 	 * Build a mock ObjectEntity returning $data from jsonSerialize().
@@ -120,7 +129,7 @@ class ActionItemAnalyticsServiceTest extends TestCase {
 		// First findAll() call: participant lookup by nextcloudUserId.
 		// Second findAll() call: action item query by assignee=participantUUID.
 		$callCount = 0;
-		$mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+		$mockObjectService = $this->createMock(ObjectServiceInterface::class);
 		$mockObjectService->method('setRegister')->willReturnSelf();
 		$mockObjectService->method('setSchema')->willReturnSelf();
 		$mockObjectService->method('findAll')->willReturnCallback(
@@ -134,13 +143,8 @@ class ActionItemAnalyticsServiceTest extends TestCase {
 			}
 		);
 
-		$this->container->expects($this->once())
-			->method('get')
-			->with('OCA\OpenRegister\Service\ObjectService')
-			->willReturn($mockObjectService);
-
 		// Pass NC UID (not display name) — this is the WF3 fix.
-		$result = $this->service->getMyItems('john.doe');
+		$result = $this->makeService($mockObjectService)->getMyItems('john.doe');
 
 		$this->assertIsArray($result);
 		$this->assertCount(1, $result['overdue']);
@@ -158,18 +162,13 @@ class ActionItemAnalyticsServiceTest extends TestCase {
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.5
 	 */
 	public function testGetMyItemsReturnsEmptyWhenNoParticipantFound(): void {
-		$mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+		$mockObjectService = $this->createMock(ObjectServiceInterface::class);
 		$mockObjectService->method('setRegister')->willReturnSelf();
 		$mockObjectService->method('setSchema')->willReturnSelf();
 		// findAll() for participant lookup returns empty — no participant for this NC UID.
 		$mockObjectService->method('findAll')->willReturn([]);
 
-		$this->container->expects($this->once())
-			->method('get')
-			->with('OCA\OpenRegister\Service\ObjectService')
-			->willReturn($mockObjectService);
-
-		$result = $this->service->getMyItems('unknown-nc-user');
+		$result = $this->makeService($mockObjectService)->getMyItems('unknown-nc-user');
 
 		$this->assertIsArray($result);
 		$this->assertCount(0, $result['overdue']);

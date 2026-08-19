@@ -45,11 +45,20 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
  * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
  */
 class MotionForwardingService {
+
+	/**
+	 * ObjectEntityInterface -> array normalisation for the save result.
+	 *
+	 * @var SavedObjectNormaliser
+	 */
+	private readonly SavedObjectNormaliser $normaliser;
+
 	/**
 	 * Constructor for the MotionForwardingService.
 	 *
-	 * @param ContainerInterface $container The DI container (for ObjectService / IAppConfig / MotionNotifier)
+	 * @param ContainerInterface $container The DI container (for IAppConfig / MotionNotifier)
 	 * @param IUserManager $userManager Nextcloud user manager for UID lookup
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object service (ADR-084)
 	 *
 	 * @return void
 	 */
@@ -58,6 +67,8 @@ class MotionForwardingService {
 		private readonly IUserManager $userManager,
 		private readonly ObjectServiceInterface $objectService,
 	) {
+		$this->normaliser = new SavedObjectNormaliser();
+
 	}//end __construct()
 
 	/**
@@ -111,10 +122,14 @@ class MotionForwardingService {
 
 		$this->objectService->setRegister('decidesk');
 		$this->objectService->setSchema('decision');
-		$created = $this->objectService->saveObject(
-			object: $forwardedMotion,
-			register: 'decidesk',
-			schema: 'decision',
+		// ADR-084: saveObject() returns ObjectEntityInterface, not an array.
+		$created = $this->normaliser->toArray(
+			saved: $this->objectService->saveObject(
+				object: $forwardedMotion,
+				register: 'decidesk',
+				schema: 'decision',
+			),
+			fallback: $forwardedMotion
 		);
 
 		$sourceMotionData = $this->noteForwarding(
@@ -135,7 +150,7 @@ class MotionForwardingService {
 			);
 		}
 
-		return ($created ?? $forwardedMotion);
+		return $created;
 	}//end forward()
 
 	/**

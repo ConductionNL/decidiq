@@ -45,8 +45,13 @@ use OCA\Decidesk\Service\VotingRoundProjection;
 use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\Decidesk\Service\NotificationPreferenceService;
+use OCA\Decidesk\Service\VoteCastGuard;
+use OCA\Decidesk\Service\VoterTokenSecret;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Service\FileService;
 use OCA\OpenRegister\Service\ObjectService;
+use OCP\IAppConfig;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -126,6 +131,7 @@ class VotingServicePhase0RegressionTest extends TestCase {
 			objectService: $this->objectService,
 		);
 		$relationFilter = new ObjectRelationFilter();
+		$tokens = new VoterTokenSecret(appConfig: $this->createMock(IAppConfig::class));
 
 		$this->service = new VotingService(
 			opener: new VotingRoundOpener(
@@ -147,11 +153,19 @@ class VotingServicePhase0RegressionTest extends TestCase {
 		),
 			caster: new VoteCastingService(
 				logger: $this->logger,
-				participantResolver: $this->participantResolver,
-				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $this->objectService,
-		),
+				objectService: $this->objectService,
+				tokens: $tokens,
+				guard: new VoteCastGuard(
+					logger: $this->logger,
+					relationFilter: $relationFilter,
+					tokens: $tokens,
+					participantResolver: $this->participantResolver,
+					amendmentOrder: $amendmentOrder,
+					objectService: $this->objectService,
+					preferenceService: $this->createMock(NotificationPreferenceService::class),
+				),
+			),
 			closer: new VotingRoundCloser(
 				logger: $this->logger,
 				oriService: $this->oriService,
@@ -166,12 +180,12 @@ class VotingServicePhase0RegressionTest extends TestCase {
 				participantResolver: $this->participantResolver,
 			objectService: $this->objectService,
 		),
-			projection: new VotingRoundProjection(container: $this->container,
-			objectService: $this->objectService,
-		),
-			participants: new ParticipantUuidLookup(container: $this->container,
-			objectService: $this->objectService,
-		),
+			projection: new VotingRoundProjection(
+				objectService: $this->objectService,
+			),
+			participants: new ParticipantUuidLookup(
+				objectService: $this->objectService,
+			),
 		);
 
 	}//end setUp()

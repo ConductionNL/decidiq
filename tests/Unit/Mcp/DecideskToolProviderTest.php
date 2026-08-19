@@ -133,6 +133,25 @@ class DecideskToolProviderTest extends TestCase {
 		$this->logger = $this->createMock(LoggerInterface::class);
 		$this->participantResolver = $this->createMock(ParticipantResolver::class);
 
+		$this->useObjectService($this->createMock(ObjectServiceInterface::class));
+
+	}//end setUp()
+
+	/**
+	 * (Re)build the provider under test around a given object-service double.
+	 *
+	 * ADR-084: the provider takes OpenRegister's published contract directly and
+	 * hands it down the whole tool chain, so a double wired only into the
+	 * container never reaches the code under test. Every test that wires an
+	 * object service must therefore rebuild the provider around it — otherwise
+	 * the assertions run against an unstubbed mock that answers null, which is
+	 * indistinguishable from a genuine "not found".
+	 *
+	 * @param ObjectServiceInterface $objectService The object-service double.
+	 *
+	 * @return ObjectServiceInterface The same double, for call-site chaining.
+	 */
+	private function useObjectService(ObjectServiceInterface $objectService): ObjectServiceInterface {
 		$this->provider = new DecideskToolProvider(
 			meetingService: $this->meetingService,
 			userSession: $this->userSession,
@@ -140,10 +159,11 @@ class DecideskToolProviderTest extends TestCase {
 			container: $this->container,
 			logger: $this->logger,
 			participantResolver: $this->participantResolver,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $objectService,
 		);
 
-	}//end setUp()
+		return $objectService;
+	}//end useObjectService()
 
 	/**
 	 * Build a mock IUser that returns the given UID.
@@ -277,6 +297,7 @@ class DecideskToolProviderTest extends TestCase {
 		}
 
 		$this->container->method('get')->willReturn($objectService);
+		$this->useObjectService($objectService);
 		return $objectService;
 	}//end mockObjectService()
 
@@ -447,6 +468,7 @@ class DecideskToolProviderTest extends TestCase {
 			]
 		);
 		$this->container->method('get')->willReturn($objectService);
+		$this->useObjectService($objectService);
 
 		$result = $this->provider->invokeTool('decidesk.listOpenActionItems', ['scope' => 'mine', 'limit' => 10]);
 
@@ -513,6 +535,7 @@ class DecideskToolProviderTest extends TestCase {
 			]
 		);
 		$this->container->method('get')->willReturn($objectService);
+		$this->useObjectService($objectService);
 
 		$result = $this->provider->invokeTool('decidesk.listRecentMeetings', ['limit' => 10]);
 
@@ -564,6 +587,7 @@ class DecideskToolProviderTest extends TestCase {
 			}
 		);
 		$this->container->method('get')->willReturn($objectService);
+		$this->useObjectService($objectService);
 
 		$result = $this->provider->invokeTool(
 			'decidesk.getMeetingDetails',
@@ -666,6 +690,7 @@ class DecideskToolProviderTest extends TestCase {
 				throw new \RuntimeException("Unexpected container::get('{$id}')");
 			}
 		);
+		$this->useObjectService($objectService);
 
 		$result = $this->provider->invokeTool(
 			'decidesk.addActionItem',
@@ -705,6 +730,7 @@ class DecideskToolProviderTest extends TestCase {
 		// findAll should never be called — access is blocked after find().
 		$objectService->expects(self::never())->method('findAll');
 		$this->container->method('get')->willReturn($objectService);
+		$this->useObjectService($objectService);
 
 		$result = $this->provider->invokeTool(
 			'decidesk.getMeetingDetails',
@@ -861,6 +887,7 @@ class DecideskToolProviderTest extends TestCase {
 			}
 		);
 		$this->container->method('get')->willReturn($objectService);
+		$this->useObjectService($objectService);
 
 		$result = $this->provider->invokeTool(
 			'decidesk.getMeetingDetails',

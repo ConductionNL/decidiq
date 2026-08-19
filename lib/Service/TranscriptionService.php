@@ -63,10 +63,11 @@ class TranscriptionService {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container DI container (lazy OR + NC providers).
+	 * @param ContainerInterface $container DI container (NC SpeechToText provider lookup).
 	 * @param LoggerInterface $logger The logger.
 	 * @param TranscriptionSourceResolver $sourceResolver Candidate-source resolver.
 	 * @param MeetingFolderService $folderService Meeting folder + file writer.
+	 * @param TranscriptRepository $repository Object + file access for the pipeline.
 	 *
 	 * @spec openspec/specs/meeting-transcription/spec.md
 	 */
@@ -75,8 +76,9 @@ class TranscriptionService {
 		private readonly LoggerInterface $logger,
 		private readonly TranscriptionSourceResolver $sourceResolver,
 		private readonly MeetingFolderService $folderService,
+		TranscriptRepository $repository,
 	) {
-		$this->repository = new TranscriptRepository(container: $container);
+		$this->repository = $repository;
 		$this->aligner = new TranscriptAlignmentService(repository: $this->repository);
 
 	}//end __construct()

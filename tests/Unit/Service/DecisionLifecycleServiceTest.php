@@ -111,7 +111,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 			templateService: $templateService,
 			integrationService: $integrationService,
 			eventDispatcher: $eventDispatcher,
-			objectService: $this->createMock(ObjectServiceInterface::class),
+			objectService: $this->objectService,
 		);
 
 	}//end setUp()

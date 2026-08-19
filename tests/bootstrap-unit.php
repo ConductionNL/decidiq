@@ -28,6 +28,12 @@ $autoloader = require __DIR__ . '/../vendor/autoload.php';
 // (which extends OCP\...\Event) is actually loaded.
 $autoloader->addPsr4('OCA\\OpenRegister\\', __DIR__ . '/Stubs/');
 
+// Hand-written ObjectService doubles extend a base that implements OpenRegister's
+// published contract (ADR-084), so PHP itself checks their signatures. They live
+// outside tests/Stubs/ deliberately: that directory is PSR-4-mapped to the
+// OCA\OpenRegister namespace above and would shadow the real app.
+$autoloader->addPsr4('OCA\\Decidesk\\Tests\\Doubles\\', __DIR__ . '/Doubles/');
+
 // Register OCP\ and NCU\ namespaces.
 // vendor/nextcloud/ocp/OCP is a symlink to the live NC server (/var/www/html/lib/public)
 // that resolves on a deployed instance but is broken in the bare php:8.3-cli CI container.

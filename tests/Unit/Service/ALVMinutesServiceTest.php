@@ -33,7 +33,6 @@ use Psr\Log\LoggerInterface;
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.5
  */
 class ALVMinutesServiceTest extends TestCase {
-	private ALVMinutesService $service;
 	private ContainerInterface|\PHPUnit\Framework\MockObject\MockObject $container;
 	private LoggerInterface|\PHPUnit\Framework\MockObject\MockObject $logger;
 
@@ -48,15 +47,24 @@ class ALVMinutesServiceTest extends TestCase {
 		parent::setUp();
 		$this->container = $this->createMock(ContainerInterface::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
+	}
 
-		// The lookup and notification collaborators are built from the SAME
-		// mock container, so every ObjectService expectation below still
-		// exercises the identical OpenRegister calls it always did.
-		$this->service = new ALVMinutesService(
+	/**
+	 * Build the service under test around a given object-service double.
+	 *
+	 * ADR-084: MinutesContextResolver takes OpenRegister's published contract
+	 * directly, so the double is handed in rather than routed through the
+	 * container. ParticipantNotifier still resolves NC providers lazily and
+	 * keeps the container.
+	 *
+	 * @param ObjectServiceInterface $objectService The object-service double.
+	 *
+	 * @return ALVMinutesService
+	 */
+	private function service(ObjectServiceInterface $objectService): ALVMinutesService {
+		return new ALVMinutesService(
 			$this->logger,
-			new MinutesContextResolver($this->container,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		),
+			new MinutesContextResolver(objectService: $objectService),
 			new ParticipantNotifier($this->container, $this->logger),
 		);
 	}
@@ -100,7 +108,7 @@ class ALVMinutesServiceTest extends TestCase {
 		$minutesEntity = $this->makeEntity($minutesData);
 		$meetingEntity = $this->makeEntity($meetingData);
 
-		$mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+		$mockObjectService = $this->createMock(ObjectServiceInterface::class);
 
 		$mockObjectService->method('setRegister')->willReturnSelf();
 		$mockObjectService->method('setSchema')->willReturnSelf();
@@ -121,11 +129,9 @@ class ALVMinutesServiceTest extends TestCase {
 			->method('findAll')
 			->willReturn([]);
 
-		$this->container->expects($this->any())
-			->method('get')
-			->willReturn($mockObjectService);
+		$service = $this->service($mockObjectService);
 
-		$result = $this->service->generateALVDraft('minutes-1');
+		$result = $service->generateALVDraft('minutes-1');
 
 		$this->assertIsArray($result);
 		$this->assertNotEmpty($result['content']);
@@ -152,7 +158,7 @@ class ALVMinutesServiceTest extends TestCase {
 		$minutesEntity = $this->makeEntity($minutesData);
 		$meetingEntity = $this->makeEntity($meetingData);
 
-		$mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+		$mockObjectService = $this->createMock(ObjectServiceInterface::class);
 
 		$mockObjectService->method('setRegister')->willReturnSelf();
 		$mockObjectService->method('setSchema')->willReturnSelf();
@@ -169,14 +175,12 @@ class ALVMinutesServiceTest extends TestCase {
 				return null;
 			});
 
-		$this->container->expects($this->any())
-			->method('get')
-			->willReturn($mockObjectService);
+		$service = $this->service($mockObjectService);
 
 		$this->expectException(\Exception::class);
 		$this->expectExceptionCode(422);
 
-		$this->service->generateALVDraft('minutes-1');
+		$service->generateALVDraft('minutes-1');
 	}
 
 	/**
@@ -200,7 +204,7 @@ class ALVMinutesServiceTest extends TestCase {
 		$minutesEntity = $this->makeEntity($minutesData);
 		$meetingEntity = $this->makeEntity($meetingData);
 
-		$mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+		$mockObjectService = $this->createMock(ObjectServiceInterface::class);
 
 		$mockObjectService->method('setRegister')->willReturnSelf();
 		$mockObjectService->method('setSchema')->willReturnSelf();
@@ -221,11 +225,9 @@ class ALVMinutesServiceTest extends TestCase {
 			->method('findAll')
 			->willReturn([]);
 
-		$this->container->expects($this->any())
-			->method('get')
-			->willReturn($mockObjectService);
+		$service = $this->service($mockObjectService);
 
-		$result = $this->service->distribute('minutes-1');
+		$result = $service->distribute('minutes-1');
 
 		$this->assertEquals(0, $result);
 	}
@@ -244,7 +246,7 @@ class ALVMinutesServiceTest extends TestCase {
 		];
 		$minutesEntity = $this->makeEntity($minutesData);
 
-		$mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+		$mockObjectService = $this->createMock(ObjectServiceInterface::class);
 
 		$mockObjectService->method('setRegister')->willReturnSelf();
 		$mockObjectService->method('setSchema')->willReturnSelf();
@@ -253,13 +255,11 @@ class ALVMinutesServiceTest extends TestCase {
 			->method('find')
 			->willReturn($minutesEntity);
 
-		$this->container->expects($this->any())
-			->method('get')
-			->willReturn($mockObjectService);
+		$service = $this->service($mockObjectService);
 
 		$this->expectException(\Exception::class);
 		$this->expectExceptionCode(403);
 
-		$this->service->distribute('minutes-1');
+		$service->distribute('minutes-1');
 	}
 }

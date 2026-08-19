@@ -37,7 +37,10 @@ class SavedObjectNormaliser {
 	 * Normalise the result of ObjectService::saveObject() to an array.
 	 *
 	 * Falls back to the original payload when the saved value is neither an
-	 * ObjectEntity nor an array.
+	 * ObjectEntityInterface nor an array. ADR-084: `saveObject()` is declared on
+	 * the published contract as returning `ObjectEntityInterface`, so the check
+	 * is against the interface — `OCA\OpenRegister\Db\ObjectEntity` implements
+	 * it, so the concrete class still matches.
 	 *
 	 * @param mixed $saved The value returned by saveObject()
 	 * @param array<string, mixed> $fallback The original object payload
@@ -47,7 +50,7 @@ class SavedObjectNormaliser {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function toArray(mixed $saved, array $fallback): array {
-		if ($saved instanceof \OCA\OpenRegister\Db\ObjectEntity === true) {
+		if ($saved instanceof \OCA\OpenRegister\Contract\ObjectEntityInterface === true) {
 			return $saved->jsonSerialize();
 		}
 

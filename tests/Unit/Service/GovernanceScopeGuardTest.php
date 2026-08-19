@@ -49,7 +49,7 @@ class GovernanceScopeGuardTest extends TestCase {
 		$guard = new GovernanceScopeGuard(
 			$this->createMock(IGroupManager::class),
 			$this->createMock(LoggerInterface::class),
-			objectService: $objectService,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 		$this->assertSame(
@@ -77,7 +77,7 @@ class GovernanceScopeGuardTest extends TestCase {
 		$guard = new GovernanceScopeGuard(
 			$groupManager,
 			$this->createMock(LoggerInterface::class),
-			objectService: $objectService,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 		$this->assertTrue($guard->isInBodyScope('alice', 'body-1', GovernanceScopeGuard::SCOPE_SIGNATORY));
@@ -95,7 +95,7 @@ class GovernanceScopeGuardTest extends TestCase {
 		$guard = new GovernanceScopeGuard(
 			$groupManager,
 			$this->createMock(LoggerInterface::class),
-			objectService: $objectService,
+			objectService: $this->createMock(ObjectServiceInterface::class),
 		);
 
 		$this->assertFalse($guard->isInBodyScope('', 'body-1', GovernanceScopeGuard::SCOPE_CHAIR));
@@ -116,7 +116,7 @@ class GovernanceScopeGuardTest extends TestCase {
 		$guard = new GovernanceScopeGuard(
 			$groupManager,
 			$this->createMock(LoggerInterface::class),
-			objectService: $objectService,
+			objectService: $this->makeObjectService('body-9'),
 		);
 
 		$this->assertTrue($guard->canInitiateSigning('alice', 'min-1'));
@@ -134,7 +134,7 @@ class GovernanceScopeGuardTest extends TestCase {
 		$guard = new GovernanceScopeGuard(
 			$groupManager,
 			$this->createMock(LoggerInterface::class),
-			objectService: $objectService,
+			objectService: $this->makeObjectService('body-9'),
 		);
 
 		$this->assertFalse($guard->canInitiateSigning('mallory', 'min-1'));
@@ -154,7 +154,7 @@ class GovernanceScopeGuardTest extends TestCase {
 		$guard = new GovernanceScopeGuard(
 			$groupManager,
 			$this->createMock(LoggerInterface::class),
-			objectService: $objectService,
+			objectService: $this->makeObjectService(null),
 		);
 
 		$this->assertFalse($guard->canInitiateSigning('alice', 'min-1'));
@@ -170,8 +170,10 @@ class GovernanceScopeGuardTest extends TestCase {
 		$logger = $this->createMock(LoggerInterface::class);
 		$logger->expects($this->once())->method('warning');
 
-		$container = $this->createMock(ContainerInterface::class);
-		$container->method('get')->willThrowException(new \RuntimeException('OR unavailable'));
+		// OpenRegister raising mid-resolution must DENY and be logged, never be
+		// treated as "check skipped" (OWASP A01:2021).
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('find')->willThrowException(new \RuntimeException('OR unavailable'));
 
 		$guard = new GovernanceScopeGuard(
 			$this->createMock(IGroupManager::class),
@@ -183,14 +185,14 @@ class GovernanceScopeGuardTest extends TestCase {
 	}//end testCanInitiateSigningFailsClosedOnException()
 
 	/**
-	 * Build a container whose ObjectService resolves Minutes -> Meeting ->
+	 * Build an ObjectService double that resolves Minutes -> Meeting ->
 	 * GovernanceBody to the given body id (or leaves it unresolvable when null).
 	 *
 	 * @param string|null $bodyId GovernanceBody UUID to resolve, or null for unresolvable
 	 *
-	 * @return ContainerInterface
+	 * @return ObjectServiceInterface
 	 */
-	private function makeContainer(?string $bodyId): ContainerInterface {
+	private function makeObjectService(?string $bodyId): ObjectServiceInterface {
 		$minutesRow = ['id' => 'min-1', 'relations' => ['Meeting' => 'meet-1']];
 		$meetingRow = ['id' => 'meet-1'];
 		if ($bodyId !== null) {
@@ -217,8 +219,6 @@ class GovernanceScopeGuardTest extends TestCase {
 			}
 		);
 
-		$container = $this->createMock(ContainerInterface::class);
-		$container->method('get')->willReturn($objectService);
-		return $container;
-	}//end makeContainer()
+		return $objectService;
+	}//end makeObjectService()
 }//end class

@@ -26,7 +26,6 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use OCP\IAppConfig;
-use Psr\Container\ContainerInterface;
 
 /**
  * Resolves the HMAC secret used to derive secret-ballot tokens.
@@ -41,12 +40,12 @@ class VoterTokenSecret {
 	/**
 	 * Constructor for the VoterTokenSecret.
 	 *
-	 * @param ContainerInterface $container The DI container (for IAppConfig)
+	 * @param IAppConfig $appConfig App config store holding the HMAC secret
 	 *
 	 * @return void
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
+		private readonly IAppConfig $appConfig,
 	) {
 	}//end __construct()
 
@@ -64,7 +63,7 @@ class VoterTokenSecret {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function value(): string {
-		$appConfig = $this->container->get(IAppConfig::class);
+		$appConfig = $this->appConfig;
 		$secret = $appConfig->getValueString('decidesk', 'voter_token_secret', '');
 		if ($secret === '') {
 			// The `sensitive: true` flag below is required — see InitializeSettings. This

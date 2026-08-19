@@ -26,7 +26,10 @@ use OCA\Decidesk\Service\MotionService;
 use OCA\Decidesk\Service\ObjectRelationFilter;
 use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\ParticipantUuidLookup;
+use OCA\Decidesk\Service\NotificationPreferenceService;
+use OCA\Decidesk\Service\VoteCastGuard;
 use OCA\Decidesk\Service\VoteCastingService;
+use OCA\Decidesk\Service\VoterTokenSecret;
 use OCA\Decidesk\Service\VotingOpenedNotifier;
 use OCA\Decidesk\Service\VotingRoundCloser;
 use OCA\Decidesk\Service\VotingRoundOpener;
@@ -35,6 +38,8 @@ use OCA\Decidesk\Service\VotingRoundProjection;
 use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCP\IAppConfig;
+use OCA\OpenRegister\Service\FileService;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -133,6 +138,7 @@ class VotingServiceTest extends TestCase {
 			objectService: $this->objectService,
 		);
 		$relationFilter = new ObjectRelationFilter();
+		$tokens = new VoterTokenSecret(appConfig: $this->createMock(IAppConfig::class));
 
 		$this->service = new VotingService(
 			opener: new VotingRoundOpener(
@@ -154,11 +160,19 @@ class VotingServiceTest extends TestCase {
 		),
 			caster: new VoteCastingService(
 				logger: $this->logger,
-				participantResolver: $participantResolver,
-				amendmentOrder: $amendmentOrder,
 				relationFilter: $relationFilter,
-			objectService: $this->objectService,
-		),
+				objectService: $this->objectService,
+				tokens: $tokens,
+				guard: new VoteCastGuard(
+					logger: $this->logger,
+					relationFilter: $relationFilter,
+					tokens: $tokens,
+					participantResolver: $participantResolver,
+					amendmentOrder: $amendmentOrder,
+					objectService: $this->objectService,
+					preferenceService: $this->createMock(NotificationPreferenceService::class),
+				),
+			),
 			closer: new VotingRoundCloser(
 				logger: $this->logger,
 				oriService: $this->oriService,
@@ -173,12 +187,12 @@ class VotingServiceTest extends TestCase {
 				participantResolver: $participantResolver,
 			objectService: $this->objectService,
 		),
-			projection: new VotingRoundProjection(container: $this->container,
-			objectService: $this->objectService,
-		),
-			participants: new ParticipantUuidLookup(container: $this->container,
-			objectService: $this->objectService,
-		),
+			projection: new VotingRoundProjection(
+				objectService: $this->objectService,
+			),
+			participants: new ParticipantUuidLookup(
+				objectService: $this->objectService,
+			),
 		);
 
 	}//end setUp()

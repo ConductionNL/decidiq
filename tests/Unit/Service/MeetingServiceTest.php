@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Lifecycle\MeetingTransitionGuard;
+use OCA\Decidesk\Service\ActivityPublisherService;
 use OCA\Decidesk\Service\GovernanceScopeGuard;
 use OCA\Decidesk\Service\MeetingCostService;
 use OCA\Decidesk\Service\MeetingService;
@@ -53,11 +54,11 @@ class MeetingServiceTest extends TestCase {
 	private MeetingService $service;
 
 	/**
-	 * Mock DI container.
+	 * Mock activity publisher (fail-soft governance feed).
 	 *
-	 * @var ContainerInterface&MockObject
+	 * @var ActivityPublisherService&MockObject
 	 */
-	private ContainerInterface&MockObject $container;
+	private ActivityPublisherService&MockObject $activityPublisher;
 
 	/**
 	 * Mock logger.
@@ -113,25 +114,21 @@ class MeetingServiceTest extends TestCase {
 		parent::setUp();
 
 		$this->objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
-		$this->container = $this->createMock(originalClassName: ContainerInterface::class);
+		$this->activityPublisher = $this->createMock(originalClassName: ActivityPublisherService::class);
 		$this->logger = $this->createMock(originalClassName: LoggerInterface::class);
 		$this->workflowService = $this->createMock(originalClassName: WorkflowService::class);
 		$this->transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
 		$this->meetingCostService = $this->createMock(originalClassName: MeetingCostService::class);
 		$this->scopeGuard = $this->createMock(originalClassName: GovernanceScopeGuard::class);
 
-		$this->container->method('get')
-			->with('OCA\OpenRegister\Service\ObjectService')
-			->willReturn($this->objectService);
-
 		$this->service = new MeetingService(
-			container: $this->container,
+			activityPublisher: $this->activityPublisher,
 			logger: $this->logger,
 			workflowService: $this->workflowService,
 			transitionGuard: $this->transitionGuard,
 			meetingCostService: $this->meetingCostService,
 			scopeGuard: $this->scopeGuard,
-			objectService: $entity,
+			objectService: $this->objectService,
 		);
 
 	}//end setUp()
@@ -358,13 +355,13 @@ class MeetingServiceTest extends TestCase {
 		$transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
 
 		$service = new MeetingService(
-			container: $this->container,
+			activityPublisher: $this->activityPublisher,
 			logger: $this->logger,
 			workflowService: $workflowService,
 			transitionGuard: $transitionGuard,
 			meetingCostService: $this->meetingCostService,
 			scopeGuard: $this->scopeGuard,
-			objectService: $entity,
+			objectService: $this->objectService,
 		);
 
 		$result = $service->transition(meetingId: $uuid, action: 'pause');
@@ -402,13 +399,13 @@ class MeetingServiceTest extends TestCase {
 			->willReturn(false);
 
 		$service = new MeetingService(
-			container: $this->container,
+			activityPublisher: $this->activityPublisher,
 			logger: $this->logger,
 			workflowService: $workflowService,
 			transitionGuard: $transitionGuard,
 			meetingCostService: $this->meetingCostService,
 			scopeGuard: $scopeGuard,
-			objectService: $entity,
+			objectService: $this->objectService,
 		);
 
 		// Caller is NOT the chair.
@@ -448,13 +445,13 @@ class MeetingServiceTest extends TestCase {
 		$scopeGuard->method('isInBodyScope')->willReturn(false);
 
 		$service = new MeetingService(
-			container: $this->container,
+			activityPublisher: $this->activityPublisher,
 			logger: $this->logger,
 			workflowService: $workflowService,
 			transitionGuard: $transitionGuard,
 			meetingCostService: $this->meetingCostService,
 			scopeGuard: $scopeGuard,
-			objectService: $entity,
+			objectService: $this->objectService,
 		);
 
 		$result = $service->transition(meetingId: $uuid, action: 'adjourn', currentUserId: 'uid-chair');
@@ -496,13 +493,13 @@ class MeetingServiceTest extends TestCase {
 			->willReturn(true);
 
 		$service = new MeetingService(
-			container: $this->container,
+			activityPublisher: $this->activityPublisher,
 			logger: $this->logger,
 			workflowService: $workflowService,
 			transitionGuard: $transitionGuard,
 			meetingCostService: $this->meetingCostService,
 			scopeGuard: $scopeGuard,
-			objectService: $entity,
+			objectService: $this->objectService,
 		);
 
 		// Caller IS the chair.
@@ -538,13 +535,13 @@ class MeetingServiceTest extends TestCase {
 		$transitionGuard->method('isOpenAllowed')->willReturn(false);
 
 		$service = new MeetingService(
-			container: $this->container,
+			activityPublisher: $this->activityPublisher,
 			logger: $this->logger,
 			workflowService: $workflowService,
 			transitionGuard: $transitionGuard,
 			meetingCostService: $this->meetingCostService,
 			scopeGuard: $this->scopeGuard,
-			objectService: $entity,
+			objectService: $this->objectService,
 		);
 
 		$result = $service->transition(meetingId: $uuid, action: 'open');

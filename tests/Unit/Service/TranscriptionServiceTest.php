@@ -26,6 +26,9 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\MeetingFolderService;
 use OCA\Decidesk\Service\TranscriptionService;
 use OCA\Decidesk\Service\TranscriptionSourceResolver;
+use OCA\Decidesk\Service\TranscriptRepository;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Service\FileService;
 use OCP\SpeechToText\ISpeechToTextManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -85,12 +88,22 @@ class TranscriptionServiceTest extends TestCase {
 	 *
 	 * @return TranscriptionService
 	 */
-	private function service(): TranscriptionService {
+	private function service(
+		?ObjectServiceInterface $objectService = null,
+		?FileService $fileService = null,
+	): TranscriptionService {
+		// ADR-084: the repository is injected and takes the published contract,
+		// so the object-service double is handed in rather than pulled out of
+		// the container. The container still serves the NC SpeechToText manager.
 		return new TranscriptionService(
 			$this->container,
 			$this->logger,
 			$this->sourceResolver,
-			$this->folderService
+			$this->folderService,
+			new TranscriptRepository(
+				fileService: ($fileService ?? $this->createMock(FileService::class)),
+				objectService: ($objectService ?? $this->createMock(ObjectServiceInterface::class)),
+			)
 		);
 
 	}//end service()
@@ -120,7 +133,7 @@ class TranscriptionServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testSubmitRefusedWithoutConsent(): void {
-		$objectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturn($this->entity(['id' => 't1', 'status' => 'pending']));
 
 		$this->container->method('get')->willReturnCallback(
@@ -129,7 +142,7 @@ class TranscriptionServiceTest extends TestCase {
 
 		$this->expectException(\DomainException::class);
 		$this->expectExceptionCode(422);
-		$this->service()->submit(transcriptId: 't1');
+		$this->service(objectService: $objectService)->submit(transcriptId: 't1');
 
 	}//end testSubmitRefusedWithoutConsent()
 
@@ -147,7 +160,7 @@ class TranscriptionServiceTest extends TestCase {
 			'consent' => ['confirmedBy' => 'alice', 'confirmedAt' => '2026-01-01T00:00:00Z'],
 		];
 
-		$objectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturn($this->entity($transcript));
 
 		$sttManager = $this->createMock(ISpeechToTextManager::class);
@@ -165,7 +178,7 @@ class TranscriptionServiceTest extends TestCase {
 
 		$this->expectException(\DomainException::class);
 		$this->expectExceptionCode(503);
-		$this->service()->submit(transcriptId: 't1');
+		$this->service(objectService: $objectService)->submit(transcriptId: 't1');
 
 	}//end testSubmitReportsUnavailableWithoutProvider()
 
@@ -320,7 +333,7 @@ class TranscriptionServiceTest extends TestCase {
 		];
 
 		$saved = [];
-		$objectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturn($this->entity($transcript));
 		$objectService->method('saveObject')->willReturnCallback(
 			// saveObject() is typed `: ObjectEntity` in production and can never
@@ -357,7 +370,7 @@ class TranscriptionServiceTest extends TestCase {
 			}
 		);
 
-		$result = $this->service()->process(transcriptId: 't1');
+		$result = $this->service(objectService: $objectService)->process(transcriptId: 't1');
 
 		self::assertSame('failed', $saved['status']);
 		self::assertStringContainsString('engine down', (string)$saved['failureReason']);

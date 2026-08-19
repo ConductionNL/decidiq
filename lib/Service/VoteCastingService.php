@@ -69,29 +69,25 @@ class VoteCastingService {
 	 * @param ParticipantResolver $participantResolver Resolves a meeting's participants
 	 * @param AmendmentOrderService $amendmentOrder Resolves the meeting behind a round
 	 * @param ObjectRelationFilter $relationFilter Exact-id scoping for relation-filtered result sets
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object service (ADR-084)
+	 * @param VoterTokenSecret $tokens Derives the secret-ballot voter and delegator tokens
+	 * @param VoteCastGuard $guard Fail-closed eligibility rules a cast must pass
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		LoggerInterface $logger,
-		ParticipantResolver $participantResolver,
-		AmendmentOrderService $amendmentOrder,
 		private readonly ObjectRelationFilter $relationFilter,
 		private readonly ObjectServiceInterface $objectService,
+		VoterTokenSecret $tokens,
+		VoteCastGuard $guard,
 	) {
-		$this->tokens = new VoterTokenSecret(container: $container);
+		$this->tokens  = $tokens;
+		$this->guard   = $guard;
 		$this->ballots = new VoteBallotFactory(
-			container: $container,
 			logger: $logger,
-			tokens: $this->tokens
-		);
-		$this->guard = new VoteCastGuard(
-			container: $container,
-			logger: $logger,
-			relationFilter: $relationFilter,
-			tokens: $this->tokens,
-			participantResolver: $participantResolver,
-			amendmentOrder: $amendmentOrder
+			tokens: $tokens,
+			objectService: $objectService
 		);
 
 	}//end __construct()

@@ -75,6 +75,7 @@
                 <referencedClass name="OCA\OpenRegister\Service\RegisterService"/>
                 <referencedClass name="OCA\OpenRegister\Service\FileService"/>
                 <referencedClass name="OCA\OpenRegister\Service\CalendarEventService"/>
+                <referencedClass name="OCA\OpenRegister\Service\TaskService"/>
                 <referencedClass name="OCA\OpenRegister\Mcp\IMcpToolProvider"/>
                 <referencedClass name="OCA\OpenRegister\AppHost\Controller\GenericDashboardController"/>
                 <referencedClass name="OCA\OpenRegister\AppHost\Controller\GenericHealthController"/>

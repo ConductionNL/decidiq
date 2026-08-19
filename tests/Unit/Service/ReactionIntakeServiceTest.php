@@ -72,8 +72,9 @@ class ReactionIntakeServiceTest extends TestCase {
 			logger: $this->createMock(LoggerInterface::class),
 			appConfig: $appConfig,
 			lifecycleService: new ParticipationLifecycleService(
+				objectService: $this->objectService,
+			),
 			objectService: $this->objectService,
-		),
 		);
 
 	}//end setUp()

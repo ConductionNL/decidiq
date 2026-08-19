@@ -131,7 +131,7 @@ class PublicationServiceTest extends TestCase {
 		$audit = $this->createMock(AuditLogService::class);
 		$audit->method('append')->willReturn(['success' => true, 'entry' => [], 'message' => '']);
 
-		return new PublicationService($container, $logger, $appManager, $eligibility, $payload, $configService, $catalog, $audit);
+		return new PublicationService($objectService, $logger, $appManager, $eligibility, $payload, $configService, $catalog, $audit);
 	}//end makeService()
 
 	/**

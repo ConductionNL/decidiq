@@ -101,7 +101,7 @@ class McpMeetingScopeResolver {
 
 				$meetingUuids = array_merge(
 					$meetingUuids,
-					$this->meetingUuidsForBody(objectService: $objectService, bodyId: $bodyId)
+					$this->meetingUuidsForBody(bodyId: $bodyId)
 				);
 			}
 
@@ -142,13 +142,12 @@ class McpMeetingScopeResolver {
 	/**
 	 * List the meeting UUIDs linked to one governance body.
 	 *
-	 * @param object $objectService The OpenRegister ObjectService
 	 * @param string $bodyId The governance-body UUID
 	 *
 	 * @return array<string> The meeting UUIDs.
 	 */
-	private function meetingUuidsForBody(object $objectService, string $bodyId): array {
-		$meetingEntities = $objectService->findAll(
+	private function meetingUuidsForBody(string $bodyId): array {
+		$meetingEntities = $this->objectService->findAll(
 			[
 				'filters' => [
 					'register' => 'decidesk',

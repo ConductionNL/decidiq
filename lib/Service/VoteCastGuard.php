@@ -29,7 +29,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
@@ -58,23 +57,24 @@ class VoteCastGuard {
 	/**
 	 * Constructor for the VoteCastGuard.
 	 *
-	 * @param ContainerInterface $container The DI container (for ObjectService)
 	 * @param LoggerInterface $logger The logger
 	 * @param ObjectRelationFilter $relationFilter Exact-id scoping for relation-filtered result sets
 	 * @param VoterTokenSecret $tokens Derives the secret-ballot delegator token
 	 * @param ParticipantResolver $participantResolver Resolves a meeting's participants
 	 * @param AmendmentOrderService $amendmentOrder Resolves the meeting behind a round
+	 * @param ObjectServiceInterface $objectService OpenRegister's published object service (ADR-084)
+	 * @param NotificationPreferenceService $preferenceService Absence-delegation lookup
 	 *
 	 * @return void
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly ObjectRelationFilter $relationFilter,
 		private readonly VoterTokenSecret $tokens,
 		private readonly ParticipantResolver $participantResolver,
 		private readonly AmendmentOrderService $amendmentOrder,
 		private readonly ObjectServiceInterface $objectService,
+		private readonly NotificationPreferenceService $preferenceService,
 	) {
 	}//end __construct()
 
@@ -297,11 +297,7 @@ class VoteCastGuard {
 	 */
 	private function hasAbsenceDelegation(string $delegatorId, string $participantId, ?string $callerUid): bool {
 		try {
-			$prefService = $this->container->get(NotificationPreferenceService::class);
-			if ($prefService instanceof NotificationPreferenceService === false) {
-				return false;
-			}
-
+			$prefService = $this->preferenceService;
 			if ($prefService->hasActiveDelegationTo(delegatorId: $delegatorId, delegateId: $participantId) === true) {
 				return true;
 			}
