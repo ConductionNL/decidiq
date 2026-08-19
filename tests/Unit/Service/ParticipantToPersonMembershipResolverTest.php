@@ -27,6 +27,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 /**
  * Tests for ParticipantToPersonMembershipResolver.
@@ -62,6 +63,12 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 	 * @param array<int, array<string, mixed>> $memberships Fixture membership rows
 	 * @param array<int, array<string, mixed>> &$savedPersons Captured Person saves
 	 * @param array<int, array<string, mixed>> &$savedMemberships Captured Membership saves
+	 * @param bool $throwOnParticipantFind Make find() throw for the Participant lookup
+	 * @param bool $throwOnPersonFindAll Make findAll() throw for the Person lookup
+	 * @param bool $throwOnMembershipFindAll Make findAll() throw for the Membership lookup
+	 * @param bool $throwOnPersonCreateSave Make saveObject() throw when creating a new Person (no uuid)
+	 * @param bool $throwOnPersonBackfillSave Make saveObject() throw when backfilling an existing Person (uuid set)
+	 * @param bool $throwOnMembershipSave Make saveObject() throw when creating a Membership
 	 *
 	 * @return ParticipantToPersonMembershipResolver
 	 */
@@ -71,11 +78,27 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 		array $memberships,
 		array &$savedPersons = [],
 		array &$savedMemberships = [],
+		bool $throwOnParticipantFind = false,
+		bool $throwOnPersonFindAll = false,
+		bool $throwOnMembershipFindAll = false,
+		bool $throwOnPersonCreateSave = false,
+		bool $throwOnPersonBackfillSave = false,
+		bool $throwOnMembershipSave = false,
 	): ParticipantToPersonMembershipResolver {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($participant) {
+			function (
+				int|string $id,
+				?array $_extend = [],
+				bool $files = false,
+				string|int|null $register = null,
+				string|int|null $schema = null
+			) use ($participant, $throwOnParticipantFind) {
+				if ($throwOnParticipantFind === true) {
+					throw new RuntimeException('Participant lookup failed.');
+				}
+
 				if ($schema === 'participant' && $participant !== null && ($participant['id'] ?? null) === $id) {
 					return $this->entity($participant);
 				}
@@ -85,11 +108,15 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 		);
 
 		$objectService->method('findAll')->willReturnCallback(
-			function (array $config) use ($persons, $memberships): array {
+			function (array $config) use ($persons, $memberships, $throwOnPersonFindAll, $throwOnMembershipFindAll): array {
 				$filters = ($config['filters'] ?? []);
 				$schema = ($filters['schema'] ?? '');
 
 				if ($schema === 'person') {
+					if ($throwOnPersonFindAll === true) {
+						throw new RuntimeException('Person lookup failed.');
+					}
+
 					foreach (['nextcloudUserId', 'email'] as $field) {
 						if (array_key_exists($field, $filters) === true) {
 							foreach ($persons as $person) {
@@ -104,6 +131,10 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 				}
 
 				if ($schema === 'membership') {
+					if ($throwOnMembershipFindAll === true) {
+						throw new RuntimeException('Membership lookup failed.');
+					}
+
 					foreach ($memberships as $membership) {
 						if (($membership['person'] ?? null) === ($filters['person'] ?? null)
 							&& ($membership['governanceBody'] ?? null) === ($filters['governanceBody'] ?? null)
@@ -122,11 +153,29 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 		$savedPersonsRef = &$savedPersons;
 		$savedMembershipsRef = &$savedMemberships;
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$savedPersonsRef, &$savedMembershipsRef) {
+			function (
+				array $object,
+				?array $extend = [],
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				?string $uuid = null
+			) use (&$savedPersonsRef, &$savedMembershipsRef, $throwOnPersonCreateSave, $throwOnPersonBackfillSave, $throwOnMembershipSave) {
 				if ($schema === 'person') {
+					if ($uuid === null && $throwOnPersonCreateSave === true) {
+						throw new RuntimeException('Person create save failed.');
+					}
+
+					if ($uuid !== null && $throwOnPersonBackfillSave === true) {
+						throw new RuntimeException('Person backfill save failed.');
+					}
+
 					$row = array_merge(['id' => $uuid ?? ('person-' . count($savedPersonsRef))], $object);
 					$savedPersonsRef[] = $row;
 					return $this->entity($row);
+				}
+
+				if ($throwOnMembershipSave === true) {
+					throw new RuntimeException('Membership save failed.');
 				}
 
 				$row = array_merge(['id' => $uuid ?? ('membership-' . count($savedMembershipsRef))], $object);
@@ -163,7 +212,14 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 		$savedPersons = [];
 		$savedMemberships = [];
 		$resolver = $this->makeResolver(
-			participant: ['id' => 'p1', 'displayName' => 'Anna', 'email' => 'wrong@example.com', 'nextcloudUserId' => 'anna', 'role' => 'member', 'governanceBody' => 'gb-1'],
+			participant: [
+				'id' => 'p1',
+				'displayName' => 'Anna',
+				'email' => 'wrong@example.com',
+				'nextcloudUserId' => 'anna',
+				'role' => 'member',
+				'governanceBody' => 'gb-1',
+			],
 			persons: [['id' => 'person-1', 'name' => 'Anna', 'nextcloudUserId' => 'anna', 'email' => 'anna@example.com']],
 			memberships: [],
 			savedPersons: $savedPersons,
@@ -187,7 +243,14 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 		$savedPersons = [];
 		$savedMemberships = [];
 		$resolver = $this->makeResolver(
-			participant: ['id' => 'p1', 'displayName' => 'Bram', 'email' => 'bram@example.com', 'nextcloudUserId' => 'bram', 'role' => 'member', 'governanceBody' => 'gb-1'],
+			participant: [
+				'id' => 'p1',
+				'displayName' => 'Bram',
+				'email' => 'bram@example.com',
+				'nextcloudUserId' => 'bram',
+				'role' => 'member',
+				'governanceBody' => 'gb-1',
+			],
 			persons: [['id' => 'person-2', 'name' => 'Bram', 'email' => 'bram@example.com']],
 			memberships: [],
 			savedPersons: $savedPersons,
@@ -212,7 +275,15 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 		$savedPersons = [];
 		$savedMemberships = [];
 		$resolver = $this->makeResolver(
-			participant: ['id' => 'p1', 'displayName' => 'Carla', 'email' => 'carla@example.com', 'role' => 'chair', 'party' => 'GroenLinks', 'votingWeight' => 2, 'governanceBody' => 'gb-1'],
+			participant: [
+				'id' => 'p1',
+				'displayName' => 'Carla',
+				'email' => 'carla@example.com',
+				'role' => 'chair',
+				'party' => 'GroenLinks',
+				'votingWeight' => 2,
+				'governanceBody' => 'gb-1',
+			],
 			persons: [],
 			memberships: [],
 			savedPersons: $savedPersons,
@@ -257,4 +328,306 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 		$this->assertSame([], $savedMemberships, 'An existing Membership for this Person+GovernanceBody is reused, not duplicated');
 
 	}//end testResolveReusesExistingMembershipForSameGovernanceBody()
+
+	/**
+	 * When the Person lookup itself throws (OpenRegister unavailable for the
+	 * `person` schema), resolvePerson() must not crash — it falls through to
+	 * creating a brand new Person, and resolve() still succeeds.
+	 *
+	 * @return void
+	 */
+	public function testResolveFallsThroughToCreatePersonWhenPersonLookupThrows(): void {
+		$savedPersons = [];
+		$savedMemberships = [];
+		$resolver = $this->makeResolver(
+			participant: [
+				'id' => 'p1',
+				'displayName' => 'Eva',
+				'email' => 'eva@example.com',
+				'nextcloudUserId' => 'eva',
+				'role' => 'member',
+				'governanceBody' => 'gb-1',
+			],
+			persons: [],
+			memberships: [],
+			savedPersons: $savedPersons,
+			savedMemberships: $savedMemberships,
+			throwOnPersonFindAll: true,
+		);
+
+		$result = $resolver->resolve('p1');
+
+		$this->assertNotNull($result, 'A failed Person lookup must fall through to creating a new Person, not crash');
+		$this->assertCount(1, $savedPersons);
+		$this->assertSame('Eva', $savedPersons[0]['name']);
+		$this->assertSame($savedPersons[0]['id'], $result['person']);
+
+	}//end testResolveFallsThroughToCreatePersonWhenPersonLookupThrows()
+
+	/**
+	 * When creating a brand new Person fails to save, the returned payload
+	 * carries no id/uuid, so personId stays empty and resolve() must return
+	 * null rather than a partial pair — and must never attempt to create a
+	 * Membership for a Person that does not exist.
+	 *
+	 * @return void
+	 */
+	public function testResolveReturnsNullWhenPersonCreateSaveThrows(): void {
+		$savedPersons = [];
+		$savedMemberships = [];
+		$resolver = $this->makeResolver(
+			participant: ['id' => 'p1', 'displayName' => 'Fenna', 'email' => 'fenna@example.com', 'role' => 'member', 'governanceBody' => 'gb-1'],
+			persons: [],
+			memberships: [],
+			savedPersons: $savedPersons,
+			savedMemberships: $savedMemberships,
+			throwOnPersonCreateSave: true,
+		);
+
+		$result = $resolver->resolve('p1');
+
+		$this->assertNull($result, 'A Person that failed to save carries no id, so resolve() must return null');
+		$this->assertSame([], $savedPersons);
+		$this->assertSame([], $savedMemberships, 'resolve() must bail out before attempting to create a Membership');
+
+	}//end testResolveReturnsNullWhenPersonCreateSaveThrows()
+
+	/**
+	 * When backfilling `nextcloudUserId` onto an already-matched Person fails
+	 * to save, backfillNextcloudUserId() must not crash or drop the match —
+	 * resolve() still succeeds, returning the ORIGINAL matched Person's id,
+	 * and still proceeds to resolve the Membership.
+	 *
+	 * @return void
+	 */
+	public function testResolveKeepsMatchedPersonWhenBackfillSaveThrows(): void {
+		$savedPersons = [];
+		$savedMemberships = [];
+		$resolver = $this->makeResolver(
+			participant: [
+				'id' => 'p1',
+				'displayName' => 'Gerrit',
+				'email' => 'gerrit@example.com',
+				'nextcloudUserId' => 'gerrit',
+				'role' => 'member',
+				'governanceBody' => 'gb-1',
+			],
+			persons: [['id' => 'person-9', 'name' => 'Gerrit', 'email' => 'gerrit@example.com']],
+			memberships: [],
+			savedPersons: $savedPersons,
+			savedMemberships: $savedMemberships,
+			throwOnPersonBackfillSave: true,
+		);
+
+		$result = $resolver->resolve('p1');
+
+		$this->assertNotNull($result, 'A failed backfill save must not crash or drop the already-matched Person');
+		$this->assertSame('person-9', $result['person']);
+		$this->assertSame([], $savedPersons, 'The failed backfill save must not be recorded as a successful save');
+		$this->assertCount(1, $savedMemberships, 'resolve() must still proceed to create the Membership');
+
+	}//end testResolveKeepsMatchedPersonWhenBackfillSaveThrows()
+
+	/**
+	 * A Person matched by email but carrying neither `id` nor `uuid` can
+	 * never produce a personId, so backfillNextcloudUserId() must skip the
+	 * save entirely (not attempt and fail it), and that same empty personId
+	 * must propagate back up to resolve(), which returns null.
+	 *
+	 * @return void
+	 */
+	public function testResolveReturnsNullWhenEmailMatchedPersonHasNoIdForBackfill(): void {
+		$savedPersons = [];
+		$savedMemberships = [];
+		$resolver = $this->makeResolver(
+			participant: [
+				'id' => 'p1',
+				'displayName' => 'Hana',
+				'email' => 'hana@example.com',
+				'nextcloudUserId' => 'hana',
+				'role' => 'member',
+				'governanceBody' => 'gb-1',
+			],
+			persons: [['name' => 'Hana', 'email' => 'hana@example.com']],
+			memberships: [],
+			savedPersons: $savedPersons,
+			savedMemberships: $savedMemberships,
+		);
+
+		$result = $resolver->resolve('p1');
+
+		$this->assertNull($result, 'A matched Person with neither id nor uuid can never carry a personId, so resolve() must return null');
+		$this->assertSame([], $savedPersons, 'A personId-less Person must skip the backfill save entirely, not attempt and fail it');
+		$this->assertSame([], $savedMemberships, 'resolve() must bail out before attempting to create a Membership');
+
+	}//end testResolveReturnsNullWhenEmailMatchedPersonHasNoIdForBackfill()
+
+	/**
+	 * When a Participant carries no `governanceBody`, resolveMembership()
+	 * must skip the existing-Membership lookup entirely rather than search
+	 * with an empty governanceBodyId filter, and the created Membership
+	 * payload must not carry a 'governanceBody' key at all.
+	 *
+	 * @return void
+	 */
+	public function testResolveSkipsMembershipLookupWhenGovernanceBodyIsAbsent(): void {
+		$participant = ['id' => 'p1', 'displayName' => 'Ivo', 'nextcloudUserId' => 'ivo', 'role' => 'member'];
+		$persons = [['id' => 'person-4', 'name' => 'Ivo', 'nextcloudUserId' => 'ivo']];
+
+		$membershipFindAllCalled = false;
+		$savedMemberships = [];
+
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('find')->willReturnCallback(
+			function (
+				int|string $id,
+				?array $_extend = [],
+				bool $files = false,
+				string|int|null $register = null,
+				string|int|null $schema = null
+			) use ($participant) {
+				if ($schema === 'participant' && ($participant['id'] ?? null) === $id) {
+					return $this->entity($participant);
+				}
+
+				return null;
+			}
+		);
+		$objectService->method('findAll')->willReturnCallback(
+			function (array $config) use ($persons, &$membershipFindAllCalled): array {
+				$filters = ($config['filters'] ?? []);
+				$schema = ($filters['schema'] ?? '');
+
+				if ($schema === 'membership') {
+					$membershipFindAllCalled = true;
+					return [];
+				}
+
+				if ($schema === 'person') {
+					foreach (['nextcloudUserId', 'email'] as $field) {
+						if (array_key_exists($field, $filters) === true) {
+							foreach ($persons as $person) {
+								if (($person[$field] ?? null) === $filters[$field]) {
+									return [$this->entity($person)];
+								}
+							}
+
+							return [];
+						}
+					}
+				}
+
+				return [];
+			}
+		);
+		$objectService->method('saveObject')->willReturnCallback(
+			function (
+				array $object,
+				?array $extend = [],
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				?string $uuid = null
+			) use (&$savedMemberships) {
+				$row = array_merge(['id' => $uuid ?? ('membership-' . count($savedMemberships))], $object);
+				$savedMemberships[] = $row;
+				return $this->entity($row);
+			}
+		);
+
+		$resolver = new ParticipantToPersonMembershipResolver(
+			objectService: $objectService,
+			logger: $this->createMock(LoggerInterface::class),
+		);
+
+		$result = $resolver->resolve('p1');
+
+		$this->assertNotNull($result);
+		$this->assertFalse($membershipFindAllCalled, 'An absent governanceBody must skip the existing-Membership lookup entirely');
+		$this->assertCount(1, $savedMemberships);
+		$this->assertArrayNotHasKey('governanceBody', $savedMemberships[0], 'A Membership created without a governanceBody must not carry the key at all');
+
+	}//end testResolveSkipsMembershipLookupWhenGovernanceBodyIsAbsent()
+
+	/**
+	 * When creating a new Membership fails to save, resolveMembership()
+	 * returns an empty string, and resolve() must return null rather than a
+	 * partial pair.
+	 *
+	 * @return void
+	 */
+	public function testResolveReturnsNullWhenMembershipSaveThrows(): void {
+		$savedPersons = [];
+		$savedMemberships = [];
+		$resolver = $this->makeResolver(
+			participant: ['id' => 'p1', 'displayName' => 'Joke', 'nextcloudUserId' => 'joke', 'role' => 'member', 'governanceBody' => 'gb-1'],
+			persons: [['id' => 'person-5', 'name' => 'Joke', 'nextcloudUserId' => 'joke']],
+			memberships: [],
+			savedPersons: $savedPersons,
+			savedMemberships: $savedMemberships,
+			throwOnMembershipSave: true,
+		);
+
+		$result = $resolver->resolve('p1');
+
+		$this->assertNull($result, 'A Membership that failed to save must make resolve() return null rather than a partial pair');
+		$this->assertSame([], $savedMemberships);
+
+	}//end testResolveReturnsNullWhenMembershipSaveThrows()
+
+	/**
+	 * When the existing-Membership lookup itself throws, findOneMembership()
+	 * must not crash — resolveMembership() falls through to creating a new
+	 * Membership despite governanceBodyId being present and despite a
+	 * matching Membership actually existing in the fixture (proving the
+	 * lookup failure, not an absent row, drove the fall-through).
+	 *
+	 * @return void
+	 */
+	public function testResolveFallsThroughToCreateMembershipWhenMembershipLookupThrows(): void {
+		$savedPersons = [];
+		$savedMemberships = [];
+		$resolver = $this->makeResolver(
+			participant: ['id' => 'p1', 'displayName' => 'Karel', 'nextcloudUserId' => 'karel', 'role' => 'member', 'governanceBody' => 'gb-1'],
+			persons: [['id' => 'person-6', 'name' => 'Karel', 'nextcloudUserId' => 'karel']],
+			memberships: [['id' => 'membership-6', 'person' => 'person-6', 'governanceBody' => 'gb-1', 'role' => 'member']],
+			savedPersons: $savedPersons,
+			savedMemberships: $savedMemberships,
+			throwOnMembershipFindAll: true,
+		);
+
+		$result = $resolver->resolve('p1');
+
+		$this->assertNotNull($result, 'A failed Membership lookup must fall through to creating a new Membership, not crash');
+		$this->assertCount(1, $savedMemberships, 'The lookup failure must not be mistaken for an existing Membership already found');
+		$this->assertSame($savedMemberships[0]['id'], $result['membership']);
+
+	}//end testResolveFallsThroughToCreateMembershipWhenMembershipLookupThrows()
+
+	/**
+	 * When loading the source Participant itself throws (OpenRegister
+	 * unavailable), loadParticipant() must not let the exception propagate —
+	 * resolve() must return null, and must never attempt to resolve a Person
+	 * or Membership for a Participant it could not load.
+	 *
+	 * @return void
+	 */
+	public function testResolveReturnsNullWhenParticipantLookupThrows(): void {
+		$savedPersons = [];
+		$savedMemberships = [];
+		$resolver = $this->makeResolver(
+			participant: ['id' => 'p1', 'displayName' => 'Lotte', 'role' => 'member'],
+			persons: [],
+			memberships: [],
+			savedPersons: $savedPersons,
+			savedMemberships: $savedMemberships,
+			throwOnParticipantFind: true,
+		);
+
+		$result = $resolver->resolve('p1');
+
+		$this->assertNull($result, 'A Participant lookup failure must not propagate as an exception; resolve() must return null');
+		$this->assertSame([], $savedPersons);
+		$this->assertSame([], $savedMemberships);
+
+	}//end testResolveReturnsNullWhenParticipantLookupThrows()
 }//end class

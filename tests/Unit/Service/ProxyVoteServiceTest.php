@@ -60,6 +60,13 @@ class ProxyVoteServiceTest extends TestCase {
 	 *                                                                                  (or fails); defaults to an identity map
 	 *                                                                                  (person = participantId) so every pre-existing
 	 *                                                                                  'g-1'/'h-1'-style assertion holds.
+	 * @param bool $appConfigThrows When true, resolving \OCP\IAppConfig from the container throws
+	 *                              (exercises maxProxiesPerHolder()'s fail-closed-to-default catch branch)
+	 * @param bool $saveObjectFails When true, ObjectService::saveObject() throws (exercises the
+	 *                              register()/transition() catch branches around the write)
+	 * @param bool $rowsAsEntities When true, findAll()'s normal (register/schema-context) path returns
+	 *                             ObjectEntity doubles instead of raw arrays, exercising forMeeting()'s
+	 *                             is_object()/jsonSerialize() conversion branch
 	 *
 	 * @return ProxyVoteService
 	 */
@@ -71,13 +78,16 @@ class ProxyVoteServiceTest extends TestCase {
 		array $participants = [],
 		array $chairsByMeeting = [],
 		array $crosswalk = [],
+		bool $appConfigThrows = false,
+		bool $saveObjectFails = false,
+		bool $rowsAsEntities = false,
 	): ProxyVoteService {
 		$rowsRef = &$rows;
 		$savedRef = &$saved;
 		$participantsRef = $participants;
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('findAll')->willReturnCallback(
-			function (array $config) use (&$rowsRef, $findAllFail, $participantsRef): array {
+			function (array $config) use (&$rowsRef, $findAllFail, $participantsRef, $rowsAsEntities): array {
 				if ($findAllFail === true) {
 					throw new \RuntimeException('OpenRegister unavailable');
 				}
@@ -135,6 +145,17 @@ class ProxyVoteServiceTest extends TestCase {
 					}
 				}
 
+				if ($rowsAsEntities === true) {
+					$wrapped = [];
+					foreach ($out as $row) {
+						$entity = $this->createMock(ObjectEntity::class);
+						$entity->method('jsonSerialize')->willReturn($row);
+						$wrapped[] = $entity;
+					}
+
+					return $wrapped;
+				}
+
 				return $out;
 			}
 		);
@@ -153,7 +174,17 @@ class ProxyVoteServiceTest extends TestCase {
 			}
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$savedRef, &$rowsRef): ObjectEntity {
+			function (
+				array $object,
+				?array $extend = [],
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				?string $uuid = null
+			) use (&$savedRef, &$rowsRef, $saveObjectFails): ObjectEntity {
+				if ($saveObjectFails === true) {
+					throw new \RuntimeException('OpenRegister save unavailable');
+				}
+
 				$savedRef[] = $object;
 				$existingId = ($uuid ?? ($object['id'] ?? null));
 				if ($existingId !== null) {
@@ -191,8 +222,12 @@ class ProxyVoteServiceTest extends TestCase {
 
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
-			static function (string $id) use ($objectService, $appConfig): object {
+			static function (string $id) use ($objectService, $appConfig, $appConfigThrows): object {
 				if ($id === \OCP\IAppConfig::class) {
+					if ($appConfigThrows === true) {
+						throw new \RuntimeException('IAppConfig unavailable');
+					}
+
 					return $appConfig;
 				}
 
@@ -748,4 +783,173 @@ class ProxyVoteServiceTest extends TestCase {
 		$this->assertTrue($result['success']);
 
 	}//end testSuspendAllowsChairOfMeeting()
+
+	/**
+	 * maxProxiesPerHolder() fails closed to the NL governance default (2) when
+	 * the app config lookup throws — the configured value (99) is proven NOT
+	 * to leak through by seeding exactly 2 existing active proxies for the
+	 * holder and asserting the third registration is still rejected.
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 *
+	 * @return void
+	 */
+	public function testMaxProxiesPerHolderFallsBackToDefaultWhenAppConfigLookupThrows(): void {
+		$rows = [
+			['id' => 'p-1', 'meeting' => 'm-1', 'grantor' => 'g-1', 'holder' => 'h-1', 'proxyStatus' => 'active'],
+			['id' => 'p-2', 'meeting' => 'm-1', 'grantor' => 'g-2', 'holder' => 'h-1', 'proxyStatus' => 'active'],
+		];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved, maxProxies: 99, appConfigThrows: true);
+
+		$result = $svc->register('m-1', 'g-3', 'h-1');
+
+		$this->assertFalse($result['success'], 'A thrown app config lookup must fall back to the default cap of 2, not the configured 99');
+		$this->assertStringContainsString('Maximum number of proxies reached', $result['message']);
+		$this->assertCount(0, $saved);
+
+	}//end testMaxProxiesPerHolderFallsBackToDefaultWhenAppConfigLookupThrows()
+
+	/**
+	 * register() fails when the holder (but not the grantor) cannot be
+	 * resolved to a Person record — the OR condition's second operand.
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 *
+	 * @return void
+	 */
+	public function testRegisterFailsWhenCrosswalkCannotResolveHolderOnly(): void {
+		$rows = [];
+		$saved = [];
+		$svc = $this->makeService(
+			$rows,
+			$saved,
+			crosswalk: ['h-1' => null],
+		);
+
+		$result = $svc->register('m-1', 'g-1', 'h-1');
+
+		$this->assertFalse($result['success']);
+		$this->assertStringContainsString('Could not resolve', $result['message']);
+		$this->assertCount(0, $saved);
+
+	}//end testRegisterFailsWhenCrosswalkCannotResolveHolderOnly()
+
+	/**
+	 * register() reports the write failure and writes nothing when
+	 * ObjectService::saveObject() throws.
+	 *
+	 * @return void
+	 */
+	public function testRegisterFailsWhenSaveObjectThrows(): void {
+		$rows = [];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved, saveObjectFails: true);
+
+		$result = $svc->register('m-1', 'g-1', 'h-1');
+
+		$this->assertFalse($result['success']);
+		$this->assertStringContainsString('Failed to register proxy', $result['message']);
+		$this->assertCount(0, $saved);
+		$this->assertCount(0, $this->auditCalls->getArrayCopy(), 'A failed write must not be audited as created');
+
+	}//end testRegisterFailsWhenSaveObjectThrows()
+
+	/**
+	 * transition() reports "Proxy not found." when no row matches the given
+	 * proxyId, without attempting a write.
+	 *
+	 * @return void
+	 */
+	public function testTransitionReturnsNotFoundForUnknownProxyId(): void {
+		$rows = [];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved);
+
+		$result = $svc->transition('missing-id', 'active', 'alice');
+
+		$this->assertFalse($result['success']);
+		$this->assertSame('Proxy not found.', $result['message']);
+		$this->assertNull($result['proxy']);
+		$this->assertCount(0, $saved);
+
+	}//end testTransitionReturnsNotFoundForUnknownProxyId()
+
+	/**
+	 * transition() reports the write failure and leaves the stored row
+	 * unchanged when ObjectService::saveObject() throws.
+	 *
+	 * @return void
+	 */
+	public function testTransitionFailsWhenSaveObjectThrows(): void {
+		$rows = [
+			['id' => 'p-1', 'meeting' => 'm-1', 'grantor' => 'g-1', 'holder' => 'h-1', 'proxyStatus' => 'active'],
+		];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved, saveObjectFails: true);
+
+		$result = $svc->transition('p-1', 'suspended', 'alice');
+
+		$this->assertFalse($result['success']);
+		$this->assertStringContainsString('Failed to transition proxy', $result['message']);
+		$this->assertSame('active', $rows[0]['proxyStatus'], 'The row must not change when the write fails');
+		$this->assertCount(0, $this->auditCalls->getArrayCopy());
+
+	}//end testTransitionFailsWhenSaveObjectThrows()
+
+	/**
+	 * forMeeting() converts real ObjectEntity-shaped rows (as findAll() returns
+	 * in production) via jsonSerialize() before filtering by meeting — a mock
+	 * that only ever hands back raw arrays cannot exercise this conversion.
+	 *
+	 * @return void
+	 */
+	public function testForMeetingConvertsObjectEntityRowsToArrays(): void {
+		$rows = [
+			['id' => 'p-1', 'meeting' => 'm-1', 'proxyStatus' => 'active'],
+			['id' => 'p-2', 'meeting' => 'm-2', 'proxyStatus' => 'active'],
+		];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved, rowsAsEntities: true);
+
+		$result = $svc->forMeeting('m-1');
+
+		$this->assertTrue($result['success']);
+		$this->assertSame(1, $result['count']);
+		$this->assertIsArray($result['proxies'][0], 'The ObjectEntity row must be converted to an array');
+		$this->assertSame('p-1', $result['proxies'][0]['id']);
+
+	}//end testForMeetingConvertsObjectEntityRowsToArrays()
+
+	/**
+	 * suspend()/revoke() reject a caller whose own Participant record cannot
+	 * be resolved to a Person by the crosswalk, even when their raw
+	 * Participant UUID happens to equal the proxy's grantor field — proving
+	 * the guard compares the crosswalk-resolved Person id, not the caller's
+	 * raw Participant id.
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 *
+	 * @return void
+	 */
+	public function testSuspendRejectsCallerWhoseCrosswalkCannotResolveOwnIdentity(): void {
+		$rows = [
+			['id' => 'p-1', 'meeting' => 'm-1', 'grantor' => 'd-1', 'holder' => 'h-1', 'proxyStatus' => 'active'],
+		];
+		$saved = [];
+		$svc = $this->makeService(
+			$rows,
+			$saved,
+			participants: [['uuid' => 'd-1', 'nextcloudUserId' => 'dave']],
+			crosswalk: ['d-1' => null],
+		);
+
+		$result = $svc->suspend('p-1', 'dave', callerUid: 'dave');
+
+		$this->assertFalse($result['success']);
+		$this->assertStringStartsWith('Forbidden:', $result['message']);
+		$this->assertSame('active', $rows[0]['proxyStatus']);
+		$this->assertCount(0, $saved);
+
+	}//end testSuspendRejectsCallerWhoseCrosswalkCannotResolveOwnIdentity()
 }//end class
