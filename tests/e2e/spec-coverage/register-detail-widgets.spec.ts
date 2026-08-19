@@ -49,7 +49,12 @@ function objId(o: any): string {
 test('RegelingDetail: version-timeline widget renders both seeded versions of Afvalstoffenverordening Amsterdam', async ({
 	page,
 }) => {
-	test.setTimeout(35_000)
+	// Detail pages are widget-heavy: the composed detail pages in this app
+	// declare 16-18 widgets, each an object-list query costing ~1s on this
+	// instance, on top of the pre-mount initializeStores() settings round
+	// trip every navigation blocks on — the 30s global test timeout is
+	// nowhere near enough.
+	test.setTimeout(120_000)
 
 	const regelingen = await listObjects(page, 'regeling')
 	const afvalstoffen = regelingen.find(
@@ -61,25 +66,44 @@ test('RegelingDetail: version-timeline widget renders both seeded versions of Af
 	)
 
 	await page.goto(`${BASE}/apps/decidesk/regelingen/${objId(afvalstoffen)}`)
-	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+	// app-root appearing only proves the shell mounted, not that data has
+	// arrived — mount itself blocks on initializeStores()'s settings round
+	// trip, so 30s (double the old budget) before even the shell shows up.
+	await page.waitForSelector('[data-testid="app-root"]', { timeout: 30_000 })
 
+	// Give content assertions real headroom instead of the 10s expect default.
 	await expect(
 		page.getByRole('heading', { name: 'Version timeline', exact: true }),
-	).toBeVisible()
-	await expect(page.getByTestId('version-timeline-list')).toBeVisible()
+	).toBeVisible({ timeout: 45_000 })
+	await expect(page.getByTestId('version-timeline-list')).toBeVisible({
+		timeout: 45_000,
+	})
 	// afvalstoffen-v1 (vervangen/replaced, 2024-01-01) → afvalstoffen-v2
 	// (in-werking/in force, 2025-06-01) — both seeded versions render.
-	await expect(page.getByText('Version 1', { exact: false })).toBeVisible()
-	await expect(page.getByText('Version 2', { exact: false })).toBeVisible()
-	await expect(page.getByText('replaced', { exact: true })).toBeVisible()
-	await expect(page.getByText('in force', { exact: true })).toBeVisible()
+	await expect(page.getByText('Version 1', { exact: false })).toBeVisible({
+		timeout: 45_000,
+	})
+	await expect(page.getByText('Version 2', { exact: false })).toBeVisible({
+		timeout: 45_000,
+	})
+	await expect(page.getByText('replaced', { exact: true })).toBeVisible({
+		timeout: 45_000,
+	})
+	await expect(page.getByText('in force', { exact: true })).toBeVisible({
+		timeout: 45_000,
+	})
 })
 
 // @e2e openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
 test('BevoegdheidstoedelingDetail: delegation-chain widget shows the seeded ondermandaat under mandaat-subsidies-secretaris', async ({
 	page,
 }) => {
-	test.setTimeout(35_000)
+	// Detail pages are widget-heavy: the composed detail pages in this app
+	// declare 16-18 widgets, each an object-list query costing ~1s on this
+	// instance, on top of the pre-mount initializeStores() settings round
+	// trip every navigation blocks on — the 30s global test timeout is
+	// nowhere near enough.
+	test.setTimeout(120_000)
 
 	const toedelingen = await listObjects(page, 'bevoegdheidstoedeling')
 	const parent = toedelingen.find(
@@ -92,18 +116,24 @@ test('BevoegdheidstoedelingDetail: delegation-chain widget shows the seeded onde
 	)
 
 	await page.goto(`${BASE}/apps/decidesk/bevoegdheidstoedelingen/${objId(parent)}`)
-	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+	// app-root appearing only proves the shell mounted, not that data has
+	// arrived — mount itself blocks on initializeStores()'s settings round
+	// trip, so 30s (double the old budget) before even the shell shows up.
+	await page.waitForSelector('[data-testid="app-root"]', { timeout: 30_000 })
 
+	// Give content assertions real headroom instead of the 10s expect default.
 	await expect(
 		page.getByRole('heading', { name: 'Ondermandaat chain', exact: true }),
-	).toBeVisible()
-	await expect(page.getByTestId('delegation-chain-children')).toBeVisible()
+	).toBeVisible({ timeout: 45_000 })
+	await expect(page.getByTestId('delegation-chain-children')).toBeVisible({
+		timeout: 45_000,
+	})
 	await expect(
 		page.getByText(
 			'Beslissen op subsidieaanvragen binnen het programma Samenleving',
 			{ exact: true },
 		),
-	).toBeVisible()
+	).toBeVisible({ timeout: 45_000 })
 })
 
 // @e2e openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
@@ -111,7 +141,12 @@ test('BevoegdheidstoedelingDetail: delegation-chain widget shows the seeded onde
 test('GeheimhoudingDetail: confidentiality-status-timeline widget renders the imposed stage and resolves its ground', async ({
 	page,
 }) => {
-	test.setTimeout(35_000)
+	// Detail pages are widget-heavy: the composed detail pages in this app
+	// declare 16-18 widgets, each an object-list query costing ~1s on this
+	// instance, on top of the pre-mount initializeStores() settings round
+	// trip every navigation blocks on — the 30s global test timeout is
+	// nowhere near enough.
+	test.setTimeout(120_000)
 
 	const geheimhoudingen = await listObjects(page, 'geheimhouding')
 	const raadsnota = geheimhoudingen.find(
@@ -123,18 +158,28 @@ test('GeheimhoudingDetail: confidentiality-status-timeline widget renders the im
 	)
 
 	await page.goto(`${BASE}/apps/decidesk/geheimhoudingen/${objId(raadsnota)}`)
-	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+	// app-root appearing only proves the shell mounted, not that data has
+	// arrived — mount itself blocks on initializeStores()'s settings round
+	// trip, so 30s (double the old budget) before even the shell shows up.
+	await page.waitForSelector('[data-testid="app-root"]', { timeout: 30_000 })
 
+	// Give content assertions real headroom instead of the 10s expect default.
 	await expect(
 		page.getByRole('heading', {
 			name: 'Confidentiality status timeline',
 			exact: true,
 		}),
-	).toBeVisible()
-	await expect(page.getByTestId('confidentiality-timeline-list')).toBeVisible()
-	await expect(page.getByTestId('confidentiality-stage-imposed')).toBeVisible()
-	await expect(page.getByTestId('confidentiality-ground')).toBeVisible()
+	).toBeVisible({ timeout: 45_000 })
+	await expect(page.getByTestId('confidentiality-timeline-list')).toBeVisible({
+		timeout: 45_000,
+	})
+	await expect(page.getByTestId('confidentiality-stage-imposed')).toBeVisible({
+		timeout: 45_000,
+	})
+	await expect(page.getByTestId('confidentiality-ground')).toBeVisible({
+		timeout: 45_000,
+	})
 	await expect(
 		page.getByText('Geheimhouding raadsstukken', { exact: false }),
-	).toBeVisible()
+	).toBeVisible({ timeout: 45_000 })
 })

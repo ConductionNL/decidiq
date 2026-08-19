@@ -54,7 +54,10 @@ async function appNavClick(
 	route: string,
 ): Promise<void> {
 	await page.goto(`${BASE}/apps/decidesk/`)
-	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+	// app-root appearing only proves the shell mounted, not that data has
+	// arrived — mount itself blocks on initializeStores()'s settings round
+	// trip, so 30s (double the old budget) before even the shell shows up.
+	await page.waitForSelector('[data-testid="app-root"]', { timeout: 30_000 })
 	await dismissSupportDialog(page)
 	const entry = page.locator(`[data-testid="cn-nav-entry-${entryId}"]`).first()
 	if (await entry.isVisible().catch(() => false)) {
@@ -62,7 +65,7 @@ async function appNavClick(
 		return
 	}
 	await page.goto(`${BASE}/apps/decidesk${route}`)
-	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+	await page.waitForSelector('[data-testid="app-root"]', { timeout: 30_000 })
 	await dismissSupportDialog(page)
 }
 
@@ -78,14 +81,24 @@ async function listObjects(page: Page, schema: string): Promise<any[]> {
 
 // @e2e openspec/specs/organisation-goals/spec.md#scenario-goals-pages-render-without-new-vue-components
 test('Goals: index lists all five seeded goals', async ({ page }) => {
-	test.setTimeout(35_000)
+	// The Goals index needs several seconds past mount before its rows
+	// render (an object-list query on top of the pre-mount
+	// initializeStores() settings round trip every navigation blocks on) —
+	// the 30s global test timeout is nowhere near enough.
+	test.setTimeout(120_000)
 	await appNavClick(page, 'Goals', '/goals')
 
-	await expect(page).toHaveURL(/\/apps\/decidesk\/.*goals/)
-	await expect(page.getByTestId('cn-index-page').first()).toBeVisible()
+	await expect(page).toHaveURL(/\/apps\/decidesk\/.*goals/, { timeout: 45_000 })
+	await expect(page.getByTestId('cn-index-page').first()).toBeVisible({
+		timeout: 45_000,
+	})
 
+	// The index container appearing does not mean its rows have arrived —
+	// give each seeded row real headroom instead of the 10s expect default.
 	for (const title of SEEDED_GOAL_TITLES) {
-		await expect(page.getByText(title, { exact: true })).toBeVisible()
+		await expect(page.getByText(title, { exact: true })).toBeVisible({
+			timeout: 45_000,
+		})
 	}
 })
 
@@ -93,7 +106,11 @@ test('Goals: index lists all five seeded goals', async ({ page }) => {
 test('Goals: detail page renders a seeded goal via the generic data/related widgets', async ({
 	page,
 }) => {
-	test.setTimeout(35_000)
+	// Composed detail pages in this app declare 16-18 widgets, each an
+	// object-list query costing ~1s on this instance, on top of the
+	// pre-mount initializeStores() settings round trip every navigation
+	// blocks on — the 30s global test timeout is nowhere near enough.
+	test.setTimeout(120_000)
 
 	const goals = await listObjects(page, 'goal')
 	const target = goals.find((g) => g.title === 'Amsterdam klimaatneutraal')
@@ -102,15 +119,19 @@ test('Goals: detail page renders a seeded goal via the generic data/related widg
 	test.skip(!goalId, 'Seed goal has no id')
 
 	await page.goto(`${BASE}/apps/decidesk/goals/${goalId}`)
-	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+	// app-root appearing only proves the shell mounted, not that data has
+	// arrived — mount itself blocks on initializeStores()'s settings round
+	// trip, so 30s (double the old budget) before even the shell shows up.
+	await page.waitForSelector('[data-testid="app-root"]', { timeout: 30_000 })
 
+	// Give content assertions real headroom instead of the 10s expect default.
 	await expect(
 		page.getByRole('heading', { name: 'Goal', exact: true }),
-	).toBeVisible()
+	).toBeVisible({ timeout: 45_000 })
 	await expect(
 		page.getByRole('heading', { name: 'Related', exact: true }),
-	).toBeVisible()
+	).toBeVisible({ timeout: 45_000 })
 	await expect(
 		page.getByText('Amsterdam klimaatneutraal', { exact: true }),
-	).toBeVisible()
+	).toBeVisible({ timeout: 45_000 })
 })

@@ -42,25 +42,36 @@ async function findGovernanceBodyId(
 test('GovernanceBodyDetail: factions facet lists the seeded factions under their parent council', async ({
 	page,
 }) => {
-	// Detail pages are widget-heavy (16 widgets on GovernanceBodyDetail); 35s
-	// matches the established budget from agenda-management.spec.ts.
-	test.setTimeout(35_000)
+	// Detail pages are widget-heavy: GovernanceBodyDetail declares 16 widgets,
+	// each an object-list query costing ~1s on this instance, on top of the
+	// pre-mount initializeStores() settings round trip every navigation
+	// blocks on — the 30s global test timeout is nowhere near enough.
+	test.setTimeout(120_000)
 
 	const bodyId = await findGovernanceBodyId(page, 'Gemeenteraad Amsterdam')
 	test.skip(!bodyId, 'Seed governance body "Gemeenteraad Amsterdam" not found')
 
 	await page.goto(`${BASE}/apps/decidesk/governance-bodies/${bodyId}`)
-	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+	// app-root appearing only proves the shell mounted, not that data has
+	// arrived — mount itself blocks on initializeStores()'s settings round
+	// trip, so 30s (double the old budget) before even the shell shows up.
+	await page.waitForSelector('[data-testid="app-root"]', { timeout: 30_000 })
 
+	// GovernanceBodyDetail issues ~16 widget queries at ~1s each after mount;
+	// give content assertions real headroom instead of the 10s expect default.
 	// The body's own data widget renders its name — proves the page loaded
 	// real content, not an empty shell.
 	await expect(
 		page.getByText('Gemeenteraad Amsterdam', { exact: true }).first(),
-	).toBeVisible()
+	).toBeVisible({ timeout: 45_000 })
 
 	await expect(
 		page.getByRole('heading', { name: 'Factions', exact: true }),
-	).toBeVisible()
-	await expect(page.getByText('GroenLinks-fractie', { exact: true })).toBeVisible()
-	await expect(page.getByText('D66-fractie', { exact: true })).toBeVisible()
+	).toBeVisible({ timeout: 45_000 })
+	await expect(page.getByText('GroenLinks-fractie', { exact: true })).toBeVisible({
+		timeout: 45_000,
+	})
+	await expect(page.getByText('D66-fractie', { exact: true })).toBeVisible({
+		timeout: 45_000,
+	})
 })

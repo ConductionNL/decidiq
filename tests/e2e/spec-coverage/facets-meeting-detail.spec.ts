@@ -80,10 +80,11 @@ test('MeetingDetail: oral-questions facet lists a mondelinge-vraag created via A
 	page,
 	playwright,
 }) => {
-	// Detail pages are widget-heavy (five new facets on top of the existing
-	// twelve); 35s matches the established budget from
-	// agenda-management.spec.ts's meeting-facet-composition tests.
-	test.setTimeout(35_000)
+	// Detail pages are widget-heavy: MeetingDetail declares 18 widgets, each
+	// an object-list query costing ~1s on this instance, on top of the
+	// pre-mount initializeStores() settings round trip every navigation
+	// blocks on — the 30s global test timeout is nowhere near enough.
+	test.setTimeout(120_000)
 	const api = await newApiContext(playwright)
 	let meetingId: string | null = null
 	let questionId: string | null = null
@@ -138,12 +139,19 @@ test('MeetingDetail: oral-questions facet lists a mondelinge-vraag created via A
 		test.skip(!questionId, 'Seeded mondelinge-vraag has no id')
 
 		await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
-		await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+		// app-root appearing only proves the shell mounted, not that data has
+		// arrived — mount itself blocks on initializeStores()'s settings round
+		// trip, so 30s (double the old budget) before even the shell shows up.
+		await page.waitForSelector('[data-testid="app-root"]', { timeout: 30_000 })
 
+		// MeetingDetail issues ~18 widget queries at ~1s each after mount;
+		// give content assertions real headroom instead of the 10s expect default.
 		await expect(
 			page.getByRole('heading', { name: 'Oral questions', exact: true }),
-		).toBeVisible()
-		await expect(page.getByText(subject, { exact: true })).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
+		await expect(page.getByText(subject, { exact: true })).toBeVisible({
+			timeout: 45_000,
+		})
 	} finally {
 		if (questionId) {
 			await api
@@ -165,7 +173,11 @@ test('MeetingDetail: interpellations, proxy-authorizations and routed-documents 
 	page,
 	playwright,
 }) => {
-	test.setTimeout(35_000)
+	// Detail pages are widget-heavy: MeetingDetail declares 18 widgets, each
+	// an object-list query costing ~1s on this instance, on top of the
+	// pre-mount initializeStores() settings round trip every navigation
+	// blocks on — the 30s global test timeout is nowhere near enough.
+	test.setTimeout(120_000)
 	const api = await newApiContext(playwright)
 	let meetingId: string | null = null
 	try {
@@ -186,12 +198,17 @@ test('MeetingDetail: interpellations, proxy-authorizations and routed-documents 
 		test.skip(!meetingId, 'Seeded meeting has no id')
 
 		await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
-		await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+		// app-root appearing only proves the shell mounted, not that data has
+		// arrived — mount itself blocks on initializeStores()'s settings round
+		// trip, so 30s (double the old budget) before even the shell shows up.
+		await page.waitForSelector('[data-testid="app-root"]', { timeout: 30_000 })
 
+		// MeetingDetail issues ~18 widget queries at ~1s each after mount;
+		// give content assertions real headroom instead of the 10s expect default.
 		// Interpellations facet (object-list widget) — real declared empty state.
 		await expect(
 			page.getByRole('heading', { name: 'Interpellations', exact: true }),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 		await expect(
 			page.getByText(
 				'No interpellation requests scheduled for this meeting.',
@@ -199,38 +216,46 @@ test('MeetingDetail: interpellations, proxy-authorizations and routed-documents 
 					exact: true,
 				},
 			),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 
 		// Proxy authorizations facet (object-list widget) — real declared empty state.
 		await expect(
 			page.getByRole('heading', { name: 'Proxy authorizations', exact: true }),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 		await expect(
 			page.getByText(
 				'No proxy authorizations registered for this meeting yet.',
 				{ exact: true },
 			),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 
 		// Routed incoming documents facet — custom two-hop-join widget
 		// (MeetingRoutedDocumentsTab), not an object-list widget.
 		const routedDocs = page.getByTestId('meeting-routed-documents-tab')
-		await expect(routedDocs).toBeVisible()
+		await expect(routedDocs).toBeVisible({ timeout: 45_000 })
 		await expect(
 			routedDocs.getByText('Incoming documents', { exact: false }),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
+		// This is the sibling-render proof the kascommissie absence check below
+		// depends on: its empty-state text is the LAST content assertion before
+		// the absence check, so reaching it (with a generous wait, given 18
+		// widgets at ~1s/query) confirms Vue has finished deciding the whole
+		// widget grid — including whether to mount kascommissie — before we
+		// treat "not found" as "gated off" rather than "not loaded yet".
 		await expect(
 			page.getByText('No incoming documents routed to this meeting yet.', {
 				exact: true,
 			}),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 
 		// Kascommissie is assoc-mode-gated: the widget declaration stays on the
 		// page (a grid cell is still allocated) but renders NOTHING at all in
 		// the default 'gov' organisatie_modus — assert its data-testid is
 		// absent rather than forcing a mode switch. Checked last, after the
-		// routed-documents facet (which sits below it in gridY order), so by
-		// this point Vue has already decided whether to mount it.
+		// routed-documents facet (which sits below it in gridY order) has been
+		// proven rendered above, so by this point Vue has already decided
+		// whether to mount it — an absence check with nothing rendered yet
+		// would pass for the wrong reason (not-loaded looks identical to gated-off).
 		await expect(page.getByTestId('meeting-kascommissie-tab')).toHaveCount(0)
 	} finally {
 		if (meetingId) {

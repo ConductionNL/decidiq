@@ -228,6 +228,28 @@ export default {
 			return this.objectId || data.id || self.id || ''
 		},
 
+		/**
+		 * The current object's slug, when it has one.
+		 *
+		 * OpenRegister's seed importer stores `$ref` values as raw SLUG
+		 * strings rather than resolved UUIDs, so a version row seeded against
+		 * this record carries the parent's slug in `parentRefField`, not its
+		 * id. Live-verified 2026-08-19: regeling-versie rows hold
+		 * `regulation: "afvalstoffenverordening-amsterdam"` while the parent's
+		 * id is a UUID — filtering on the id alone returned nothing and the
+		 * widget rendered an empty shell.
+		 *
+		 * @spec exclude defensive object-slug accessor, no behavioural requirement of its own
+		 */
+		resolvedObjectSlug() {
+			const data =
+				this.objectData && typeof this.objectData === 'object'
+					? this.objectData
+					: {}
+			const self = data['@self'] || {}
+			return self.slug || data.slug || ''
+		},
+
 		/** @spec exclude widget-id plumbing for CnWidgetWrapper, no behavioural requirement of its own */
 		widgetId() {
 			return this.cfg.versionSchema || 'version-timeline'
@@ -358,6 +380,19 @@ export default {
 					[parentRefField]: id,
 					_limit: 200,
 				})
+				// Seeded rows reference their parent by SLUG (see
+				// resolvedObjectSlug) — retry once on the slug before
+				// concluding this record simply has no versions.
+				if (
+					Array.isArray(this.versions)
+					&& this.versions.length === 0
+					&& this.resolvedObjectSlug
+				) {
+					this.versions = await store.fetchCollection(versionSchema, {
+						[parentRefField]: this.resolvedObjectSlug,
+						_limit: 200,
+					})
+				}
 				await this.resolveDecisionLabels(store)
 			} catch (e) {
 				this.error =

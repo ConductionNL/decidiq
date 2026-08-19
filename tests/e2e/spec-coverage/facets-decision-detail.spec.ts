@@ -83,9 +83,11 @@ test('DecisionDetail: commitments facet lists a toezegging linked via relatedMot
 	page,
 	playwright,
 }) => {
-	// Detail pages are widget-heavy (eight new facets on top of the existing
-	// nine); 35s matches the established budget from agenda-management.spec.ts.
-	test.setTimeout(35_000)
+	// Detail pages are widget-heavy: DecisionDetail declares 17 widgets, each
+	// an object-list query costing ~1s on this instance, on top of the
+	// pre-mount initializeStores() settings round trip every navigation
+	// blocks on — the 30s global test timeout is nowhere near enough.
+	test.setTimeout(120_000)
 	const api = await newApiContext(playwright)
 	let meetingId: string | null = null
 	let decisionId: string | null = null
@@ -153,12 +155,19 @@ test('DecisionDetail: commitments facet lists a toezegging linked via relatedMot
 		test.skip(!commitmentId, 'Seeded toezegging has no id')
 
 		await page.goto(`${BASE}/apps/decidesk/decisions/${decisionId}`)
-		await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+		// app-root appearing only proves the shell mounted, not that data has
+		// arrived — mount itself blocks on initializeStores()'s settings round
+		// trip, so 30s (double the old budget) before even the shell shows up.
+		await page.waitForSelector('[data-testid="app-root"]', { timeout: 30_000 })
 
+		// DecisionDetail issues ~17 widget queries at ~1s each after mount;
+		// give content assertions real headroom instead of the 10s expect default.
 		await expect(
 			page.getByRole('heading', { name: 'Commitments', exact: true }),
-		).toBeVisible()
-		await expect(page.getByText(commitmentText, { exact: true })).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
+		await expect(page.getByText(commitmentText, { exact: true })).toBeVisible({
+			timeout: 45_000,
+		})
 	} finally {
 		if (commitmentId) {
 			await api.delete(`${OR}/toezegging/${commitmentId}`).catch(() => null)
@@ -183,7 +192,11 @@ test('DecisionDetail: consultation, advisory-opinion, zienswijze and confidentia
 	page,
 	playwright,
 }) => {
-	test.setTimeout(35_000)
+	// Detail pages are widget-heavy: DecisionDetail declares 17 widgets, each
+	// an object-list query costing ~1s on this instance, on top of the
+	// pre-mount initializeStores() settings round trip every navigation
+	// blocks on — the 30s global test timeout is nowhere near enough.
+	test.setTimeout(120_000)
 	const api = await newApiContext(playwright)
 	let decisionId: string | null = null
 	try {
@@ -203,74 +216,80 @@ test('DecisionDetail: consultation, advisory-opinion, zienswijze and confidentia
 		test.skip(!decisionId, 'Seeded decision has no id')
 
 		await page.goto(`${BASE}/apps/decidesk/decisions/${decisionId}`)
-		await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+		// app-root appearing only proves the shell mounted, not that data has
+		// arrived — mount itself blocks on initializeStores()'s settings round
+		// trip, so 30s (double the old budget) before even the shell shows up.
+		await page.waitForSelector('[data-testid="app-root"]', { timeout: 30_000 })
 
+		// DecisionDetail issues ~17 widget queries at ~1s each after mount;
+		// give every content assertion real headroom instead of the 10s expect
+		// default — this test alone checks seven separate facets in sequence.
 		await expect(
 			page.getByRole('heading', { name: 'Public consultations', exact: true }),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 		await expect(
 			page.getByText('No public consultations reference this decision yet.', {
 				exact: true,
 			}),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 
 		await expect(
 			page.getByRole('heading', { name: 'Member consultations', exact: true }),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 		await expect(
 			page.getByText('No member consultations reference this decision yet.', {
 				exact: true,
 			}),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 
 		await expect(
 			page.getByRole('heading', { name: 'Works council (WOR)', exact: true }),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 		await expect(
 			page.getByText(
 				'No works-council consultation requests reference this decision yet.',
 				{ exact: true },
 			),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 
 		await expect(
 			page.getByRole('heading', { name: 'Advisory opinions', exact: true }),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 		await expect(
 			page.getByText(
 				'No advisory-opinion requests reference this decision yet.',
 				{ exact: true },
 			),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 
 		await expect(
 			page.getByRole('heading', { name: 'Zienswijzerondes', exact: true }),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 		await expect(
 			page.getByText(
 				"This decision is not a shared body's vaststellingsbesluit for any zienswijzeronde.",
 				{ exact: true },
 			),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 
 		await expect(
 			page.getByRole('heading', { name: 'Zienswijzen', exact: true }),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 		await expect(
 			page.getByText(
 				'No zienswijzen adopted this decision as their raadsbesluit yet.',
 				{ exact: true },
 			),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 
 		await expect(
 			page.getByRole('heading', { name: 'Confidentiality', exact: true }),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 		await expect(
 			page.getByText('This decision has no confidentiality restriction.', {
 				exact: true,
 			}),
-		).toBeVisible()
+		).toBeVisible({ timeout: 45_000 })
 	} finally {
 		if (decisionId) {
 			await api.delete(`${OR}/decision/${decisionId}`).catch(() => null)

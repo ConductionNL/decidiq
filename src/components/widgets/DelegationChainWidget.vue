@@ -345,13 +345,34 @@ export default {
 				if (!current || !current.id) {
 					current = await store.fetchObject(schema, id)
 				}
-				const [ancestorObjs, childObjs] = await Promise.all([
+				const parentSlug =
+					(current && current['@self'] && current['@self'].slug)
+					|| (current && current.slug)
+					|| ''
+				const [ancestorObjs, childObjsById] = await Promise.all([
 					this.walkAncestorsAsync(store, schema, current),
 					store.fetchCollection(schema, {
 						[parentRefField]: id,
 						_limit: 100,
 					}),
 				])
+				// OpenRegister's seed importer stores `$ref` values as raw
+				// SLUG strings rather than resolved UUIDs, so a seeded
+				// ondermandaat points at its parent's slug, not its id.
+				// Live-verified 2026-08-19 on the sibling version-timeline
+				// widget: filtering on the id alone returned nothing and the
+				// widget rendered an empty shell. Retry once on the slug.
+				let childObjs = childObjsById
+				if (
+					Array.isArray(childObjs)
+					&& childObjs.length === 0
+					&& parentSlug
+				) {
+					childObjs = await store.fetchCollection(schema, {
+						[parentRefField]: parentSlug,
+						_limit: 100,
+					})
+				}
 				this.ancestors = ancestorObjs.map((obj) => ({
 					id: obj.id,
 					label: this.rowLabel(obj),
