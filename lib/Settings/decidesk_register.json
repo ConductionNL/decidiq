@@ -1503,8 +1503,8 @@
         },
         "schemas": [
           "action-item",
+          "advice-request",
           "advies",
-          "adviceRequest",
           "agenda-item",
           "bevoegdheidstoedeling",
           "board-evaluation",
@@ -1559,7 +1559,7 @@
           "post",
           "process-template",
           "product",
-          "proxyAuthorization",
+          "proxy-authorization",
           "public-consultation",
           "publication-payload",
           "publication-record",

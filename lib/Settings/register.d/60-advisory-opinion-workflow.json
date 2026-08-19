@@ -17,7 +17,7 @@
             "workflowTemplate": "legislative"
           }
         ],
-        "adviceRequest": [
+        "advice-request": [
           {
             "slug": "adviesaanvraag-jongerenhuisvesting",
             "subject": "Beleidsnota jongerenhuisvesting 2027–2031",
@@ -81,7 +81,7 @@
   "components": {
     "schemas": {
       "Adviesaanvraag": {
-        "slug": "adviceRequest",
+        "slug": "advice-request",
         "icon": "AccountQuestionOutline",
         "version": "0.1.0",
         "title": "Adviesaanvraag",

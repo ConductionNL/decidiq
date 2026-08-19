@@ -8,8 +8,8 @@
 - **acceptance_criteria**:
   - GIVEN the new fragment overrides `Decision.properties` WHEN the register is imported THEN `decision` gains optional `meeting` ($ref `Meeting`, `facetable: true`) and `agendaItem` ($ref `AgendaItem`, `facetable: true`)
   - Bump `Decision`'s own `version` field in the override
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 1b: Person gains optional nextcloudUserId (judge amendment 2026-08-19)
 - **spec_ref**: `openspec/changes/model-debt-cleanup-schema/design.md` (Judge amendment in the Data-migration section)
@@ -17,8 +17,8 @@
 - **acceptance_criteria**:
   - GIVEN the fragment WHEN the register is imported THEN `Person` gains an optional, nullable `nextcloudUserId` (string) described as the Nextcloud account linkage carried over from the retired Participant shim
   - The code chain's crosswalk match order becomes nextcloudUserId-exact → email-exact → create-new, and the repair step copies `Participant.nextcloudUserId` onto the matched-or-created Person (recorded here; implemented in `model-debt-cleanup-code`)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 2: ConflictOfInterest.boardMember retargets to Membership; Participant description narrowed
 - **spec_ref**: `openspec/changes/model-debt-cleanup-schema/specs/schemas-and-data-model/spec.md#requirement-req-sdm-023-conflictofinterestboardmember-references-membership-not-the-participant-shim`, `openspec/changes/model-debt-cleanup-schema/specs/participant-crud/spec.md#requirement-req-pcr-010--participant-schema-deprecated-in-favour-of-person--membership`
@@ -27,8 +27,8 @@
   - GIVEN the fragment overrides `ConflictOfInterest.properties.boardMember.$ref` WHEN imported THEN it reads `Membership` (was `Participant`)
   - GIVEN the fragment overrides `Participant.description` WHEN imported THEN it names exactly `Vote.participant`, `EngagementRecord.participant`, quorum aggregation, `resolveParticipantUuid()` as remaining consumers
   - Bump both schemas' `version` fields
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 3: ProxyAuthorization retargets grantor/holder to Person and gains proxyStatus
 - **spec_ref**: `openspec/changes/model-debt-cleanup-schema/specs/schemas-and-data-model/spec.md#requirement-req-sdm-024-proxyauthorization-references-person-gains-proxystatus-boardproxy-is-retired`
@@ -38,8 +38,9 @@
   - GIVEN a new `proxyStatus` property WHEN added THEN it is an optional enum (`pending-approval`/`active`/`suspended`/`revoked`, default `pending-approval`), distinct from `signatureStatus` (unchanged, still provider-gated)
   - Existing seed objects in this fragment (`machtiging-vandam-begroting` etc.) are left with their current `Participant`-shaped values as historical fixtures for the code chain's migration — do not edit them
   - Bump `ProxyAuthorization`'s `version` field
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - **Deviation (noted, not a scope change):** the two `x-openregister-notifications` event keys `proxyAuthorizationCreated`/`proxyAuthorizationSigned` also embedded the pre-rename slug string; renamed to `authorizationCreated`/`authorizationSigned` to satisfy this task's acceptance criterion ("no occurrence of the schema-slug string `proxyAuthorization` remains anywhere in the repo" — stricter wording than Task 6's, which carves out register.d/47). Purely an internal event-key identifier, not consumed by any manifest/UI reference found in the grep sweep.
 
 ### Task 4: BoardProxy retired (inactive, not deleted)
 - **spec_ref**: `openspec/changes/model-debt-cleanup-schema/specs/schemas-and-data-model/spec.md#requirement-req-sdm-024-proxyauthorization-references-person-gains-proxystatus-boardproxy-is-retired`
@@ -48,8 +49,8 @@
   - GIVEN the fragment overrides `BoardProxy.x-openregister.active` WHEN imported THEN it is `false`
   - GIVEN the fragment overrides `BoardProxy.description` WHEN imported THEN it points at `ProxyAuthorization` + `proxyStatus` as the replacement
   - `board-proxy` slug remains in `components.registers.decidesk.schemas` (not removed)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 5: GoverningDocument gains currentEffectiveDate
 - **spec_ref**: `openspec/changes/model-debt-cleanup-schema/specs/schemas-and-data-model/spec.md#requirement-req-sdm-025-governingdocument-carries-a-current-in-force-convenience-property`
@@ -57,8 +58,8 @@
 - **acceptance_criteria**:
   - GIVEN a new `currentEffectiveDate` property WHEN added to `GoverningDocument.properties` THEN it is nullable `date`, `facetable: true`, mirroring `Regeling.currentEffectiveDate`'s shape and description caveat
   - Bump `GoverningDocument`'s `version` field
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 6: Rename slug adviceRequest → advice-request
 - **spec_ref**: `openspec/changes/model-debt-cleanup-schema/specs/schemas-and-data-model/spec.md#requirement-req-sdm-026-slug-hygiene--advice-request-and-proxy-authorization`
@@ -66,8 +67,9 @@
 - **acceptance_criteria**:
   - GIVEN every listed file WHEN edited THEN no occurrence of the schema-slug string `adviceRequest` remains outside `register.d/47-works-council-consultation.json`
   - GIVEN `register.d/47-works-council-consultation.json`'s `ConsultationRequest.type` enum literal `"adviceRequest"` (line 9, 34, 286, 289) and `src/manifest.d/works-council-consultation.json`'s quick-filter `{ "type": "adviceRequest" }` (line 31) WHEN this task is done THEN both are UNCHANGED — confirmed unrelated (a `type` field value on a different schema, not this schema's slug)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - **Additional false positive found during the exhaustive grep sweep (not documented in proposal/design.md, but the same shape as the WOR carve-out above):** `Advies.adviceRequest` — a PROPERTY NAME on the `Advies` schema (`register.d/60-advisory-opinion-workflow.json` lines 437 `required` entry and 444 property definition, plus its seed-data values at lines 61/70) that happens to spell the same as the pre-rename schema slug. It is a camelCase data-field identifier (`$ref: Adviesaanvraag`, the PascalCase schema key — never the slug), not a slug reference, so renaming the schema slug does not require renaming this field. Left UNCHANGED, consistent with Task 6's own precedent of not treating every string match as a slug reference.
 
 ### Task 7: Rename slug proxyAuthorization → proxy-authorization
 - **spec_ref**: `openspec/changes/model-debt-cleanup-schema/specs/schemas-and-data-model/spec.md#requirement-req-sdm-026-slug-hygiene--advice-request-and-proxy-authorization`
@@ -75,8 +77,8 @@
 - **acceptance_criteria**:
   - GIVEN every listed file WHEN edited THEN no occurrence of the schema-slug string `proxyAuthorization` remains anywhere in the repo
   - Combine this edit with Task 3's edits to `63-member-proxy-authorization.json` in one coherent diff to that file
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 8: Seed data for every new/retargeted property
 - **spec_ref**: `openspec/changes/model-debt-cleanup-schema/design.md#seed-data-adr-001`
@@ -85,17 +87,17 @@
   - GIVEN OpenRegister seed import is create-only THEN every new/retargeted property is demonstrated on a freshly-created seed object, never a patch to an existing seeded row
   - New seed objects: one `decision` with `meeting`/`agendaItem` set; one `conflict-of-interest` with `boardMember` as a `membership` slug; one `proxyAuthorization` sibling object with `grantor`/`holder` as `person` slugs and `proxyStatus: "active"`; one `governing-document` with `currentEffectiveDate` set
   - Every reference resolves by slug against existing base/fragment seed objects (no new nil-UUID placeholders unless no matching seed object exists)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ## Verification
-- All tasks checked off
-- `openspec validate` passes
-- Manual verification via OpenRegister's schema browser against migration.md's Validation section
+- [x] All tasks checked off
+- [x] `openspec validate` passes — `openspec validate model-debt-cleanup-schema --strict` → "Change 'model-debt-cleanup-schema' is valid"
+- [ ] Manual verification via OpenRegister's schema browser against migration.md's Validation section — **DEFERRED**: the shared dev instance (:8080) serves the pre-wave-3 build and other programmes are actively running against it; a settings-load re-import against that instance right now would be an uncontrolled experiment on a shared resource. Defer to the next coordinated deploy window (see memory: "a shared checkout was switched mid-session" / "an experiment and a validation must not share a working tree" — same class of risk). All declarative claims in this document (property shapes, `$ref` targets, slug renames, seed-object shapes) were instead verified statically: every touched JSON file parses; `npm run check:manifest` (Ajv v2.13.0) passes 0 errors; `node scripts/check-nav-ceiling.js` exits 0; `npx vitest run` is 346/346 unchanged; `vendor/bin/phpunit --filter RegisterJsonTest` is 19/19 unchanged; `openspec validate --strict` passes.
 
 ## Tests (company-wide ADR-009)
-- `composer test -- --filter RegisterJsonTest` passes unmodified (confirms zero fallout on the one PHPUnit file checked in design.md Decision 1)
-- Newman/API tests per test-plan.md (TC-1 through TC-12)
+- [x] `composer test -- --filter RegisterJsonTest` passes unmodified (confirms zero fallout on the one PHPUnit file checked in design.md Decision 1) — ran directly as `vendor/bin/phpunit --filter RegisterJsonTest tests/Unit/RegisterJsonTest.php`: 19 tests, 584 assertions, OK
+- [ ] Newman/API tests per test-plan.md (TC-1 through TC-11) — **DEFERRED with the live-verification step above** (same shared-instance reason); these require a live OpenRegister import against a running decidesk instance, which this implementation pass intentionally did not touch. TC-12 (the regression case) is the one PHPUnit-runnable case and IS covered by the RegisterJsonTest run above.
 - N/A: Browser tests — this change ships no UI
 
 ## Documentation (company-wide ADR-010)

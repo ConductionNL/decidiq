@@ -116,7 +116,7 @@
       "GoverningDocument": {
         "slug": "governing-document",
         "icon": "FileDocumentOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "GoverningDocument",
         "description": "A governing document (Schema.org DigitalDocument, Akoma Ntoso doc work level): an organisation's own constitutive or internal governing document — statuten, huishoudelijk reglement, reglement van orde, directiestatuut, splitsingsakte. Owned by a GovernanceBody, with a geldend → vervallen lifecycle (drafting happens at version level via concept versions, so no document-level draft state). Versions are GoverningDocumentVersie objects (the Akoma Ntoso expression level). BOUNDARY (design): this register owns private-law / internal constitutive documents and carries NO CVDR identifier, NO DROP/STOP delivery, and NO bekendmaking field — public-law regelingen with publication machinery belong to the verordeningenregister capability. CONDITIONAL RULE (REQ-GDR-004, enforced save-time by GoverningDocumentConsolidationService, not by a schema constraint): a version may be sealed to in-werking only when its inwerkingtreding is after the latest already-sealed version's, so in-force resolution is deterministic.",
         "type": "object",
@@ -215,6 +215,15 @@
               "lapsed"
             ],
             "example": "geldend"
+          },
+          "currentEffectiveDate": {
+            "title": "Current effective date",
+            "type": "string",
+            "format": "date",
+            "facetable": true,
+            "nullable": true,
+            "description": "Optional convenience field (REQ-SDM-025) mirroring Regeling.currentEffectiveDate: the inwerkingtreding of the version currently in force, for cheap listing/sorting without resolving GoverningDocumentVersie. MAINTENANCE/DIALECT CAVEAT (same as Regeling.currentEffectiveDate): this is a plain data property, not a live-computed aggregation — it is populated by whatever writes a GoverningDocumentVersie in-werking transition (the code chain's responsibility; this schema change only supplies the storage slot) and reads null on existing GoverningDocument rows until a future write populates it.",
+            "example": "2022-01-01"
           }
         }
       },

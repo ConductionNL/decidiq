@@ -1,6 +1,6 @@
 {
 	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
-	"_note": "Member proxy authorization (signed machtiging instrument + per-body statutory caps) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages over the proxyAuthorization register; schema refs BY SLUG (proxyAuthorization), never a PascalCase key. The signature-status badges (ongetekend/getekend/geweigerd), the sign/countersign actions, the meeting proxy-register view, and the register export (REQ-MPA-004/007/008) are wired imperatively by the page/service tasks against the ProxyVoteController surface and ProxyAuthorizationService; this declarative fragment provides the page skeleton, quick filters on signatureStatus, and the data + related widgets. Menu order 71 (unique; 45-70/98 belong to siblings).",
+	"_note": "Member proxy authorization (signed machtiging instrument + per-body statutory caps) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages over the proxy-authorization register; schema refs BY SLUG (proxy-authorization), never a PascalCase key. The signature-status badges (ongetekend/getekend/geweigerd), the sign/countersign actions, the meeting proxy-register view, and the register export (REQ-MPA-004/007/008) are wired imperatively by the page/service tasks against the ProxyVoteController surface and ProxyAuthorizationService; this declarative fragment provides the page skeleton, quick filters on signatureStatus, and the data + related widgets. Menu order 71 (unique; 45-70/98 belong to siblings).",
 	"_spec": "openspec/changes/member-proxy-authorization/specs/member-proxy-authorization/spec.md",
 	"menu": [
 		{
@@ -20,7 +20,7 @@
 			"_note": "spec: openspec/changes/member-proxy-authorization/specs/member-proxy-authorization/spec.md#requirement-req-mpa-004-signature-status-is-visible-wherever-the-proxy-is-used",
 			"config": {
 				"register": "decidesk",
-				"schema": "proxyAuthorization",
+				"schema": "proxy-authorization",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
 				"_note": "Proxy authorizations list (REQ-MPA-004). Columns grantor/holder/meeting/signatureStatus (badge); quick filters on signatureStatus so unsigned proxies are immediately distinguishable (WCAG 2.1 AA — status never by colour alone). CSV export via the shared ExportService + CnMassExportDialog. The per-meeting proxy register view and its document export (REQ-MPA-008) are surfaced imperatively on the meeting detail page, not here.",
@@ -54,7 +54,7 @@
 			"_note": "spec: openspec/changes/member-proxy-authorization/specs/member-proxy-authorization/spec.md#requirement-req-mpa-001-proxyauthorization-instrument-schema",
 			"config": {
 				"register": "decidesk",
-				"schema": "proxyAuthorization",
+				"schema": "proxy-authorization",
 				"_note": "ProxyAuthorizationDetail (REQ-MPA-001/003/004/007). The data widget leads 8-wide with grantor/holder/meeting/signatureStatus and, where present, countersignStatus and the revocation act (revokedAt + revocationSignatureStatus). The sign (grantor-only) and countersign (holder-only) actions ride the existing REQ-BPV guard on the ProxyVoteController surface and are wired imperatively by the page/service tasks — getekend is reachable only from a signing-provider completion (REQ-MPA-003, no signature theatre), never from this UI. The Related widget surfaces the linked proxy row on the vote schema (authorizationRef back-reference); the machtiging document (REQ-MPA-002 honest markdown fallback) attaches via the Files leaf. Audit trail is a sidebar tab.",
 				"widgets": [
 					{ "id": "authorization-data", "type": "data", "title": "Proxy authorization", "icon": "FileSign", "content": { "columns": 2 } },
