@@ -56,4 +56,5 @@ A published decision shows in **Decisions** with its outcome, its **Action items
 
 - [Run a vote](05-run-vote.md) — where decisions come from.
 - [Take and publish the minutes](06-take-minutes.md) — where most action items are extracted.
+- [Appoint someone to a role](09-appoint-a-member.md) — the appointment decision type and the membership it creates on enactment.
 - [Ask the AI companion about a meeting](08-ai-companion.md) — ask "what action items are due this week?" instead of clicking through.

@@ -49,6 +49,45 @@ that govern how future specs slot in without expanding the nav surface.
 "Dashboard" is the landing page of *Vergaderingen* (today's/next meeting +
 open actions), not a separate top-level item.
 
+### Top-level navigation v2 (2026-08-19, change `ia-six-clusters`)
+
+The six items above named the *original* rubric (May 2026). Two prior
+changes (`ia-six-item-nav`'s Motions retirement, and `ia-six-clusters`,
+this amendment) evolved the concrete set while keeping Rules 1–4 and the
+"six items, fixed" ceiling unchanged. The current six:
+
+1. **Dashboard** — landing page (today's/next meeting + open actions)
+2. **Meetings** — calendar + per-meeting workspace, PLUS the relocated
+   inquiry/correspondence surfaces (oral questions, interpellations,
+   incoming documents, council information letters, kascommissie
+   statements)
+3. **Decisions** — decisions/resolutions register, PLUS the relocated
+   consultation surfaces (member consultations, citizen consultations,
+   works-council consultations, advisory opinions, zienswijze rounds) and
+   nominations (a nomination is a decision, `decisionType=appointment`
+   per ADR-005)
+4. **Tasks & Commitments** — replaces "Acties": action items/follow-up,
+   PLUS commitments (toezeggingen), organisation goals, the long-term
+   agenda, and P&C cycles
+5. **Organisation** — replaces "Fracties & Organen": governance bodies/
+   members, PLUS retirement schedules, other-positions/gifts
+   integrity data, and on/offboarding + proxy-authorization surfaces
+6. **Registers** — replaces the retired "Moties" slot (Motions is a
+   filtered view of Decisions per ADR-005, not its own top-level item):
+   regulations, governing documents, delegation/mandate register, and the
+   confidentiality register
+
+"Beheer" is no longer a nav row. Per ADR-079: instance-wide configuration
+lives at `/settings/admin/decidesk` (a registered `lib/Settings/*Admin.php`
+section, authorized server-side), reachable via the gear's admin-gated
+"Admin settings" link-out; a small set of operator/definition surfaces that
+don't yet have individual admin sub-pages are parked in the
+`NcAppNavigationSettings` gear foldout via `menu-layout.json#settingsSection`
+as an interim step (see `ia-six-clusters` design.md Decision 3).
+
+Rules 1–4 and the "New specs MUST fit into one of the existing top-level
+items" ceiling are unchanged and apply to this v2 set identically.
+
 ### Design rules
 
 #### Rule 1 — One shell, role/mode-aware labels

@@ -69,6 +69,9 @@
                 <referencedClass name="OCA\OpenRegister\Event\ObjectCreatedEvent"/>
                 <referencedClass name="OCA\OpenRegister\Event\ObjectUpdatingEvent"/>
                 <referencedClass name="OCA\OpenRegister\Event\ObjectUpdatedEvent"/>
+                <!-- ADR-066 sibling-app leaf registration (RegisterDecisionsLeafListener). -->
+                <referencedClass name="OCA\OpenRegister\Event\RegisterLeafProvidersEvent"/>
+                <referencedClass name="OCA\OpenRegister\Service\Integration\LeafDescriptor"/>
                 <referencedClass name="OCA\OpenRegister\Event\ObjectDeletedEvent"/>
                 <referencedClass name="OCA\OpenRegister\Service\ObjectService"/>
                 <referencedClass name="OCA\OpenRegister\Service\TaskService"/>

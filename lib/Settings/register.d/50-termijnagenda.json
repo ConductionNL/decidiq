@@ -23,6 +23,7 @@
               }
             ],
             "originMotion": "00000000-0000-0000-0000-000000000000",
+            "goal": "goal-amsterdam-parkeerbeleid-kwartaal",
             "publicationDate": "2026-06-20T09:00:00Z"
           },
           {
@@ -335,6 +336,14 @@
             "$ref": "Decision",
             "nullable": true,
             "description": "Optional reference to an earlier Decision this planned item stems from. Renders as a navigable reference on the detail page (REQ-LTA-006). Nullable."
+          },
+          "goal": {
+            "title": "Goal",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Goal",
+            "nullable": true,
+            "description": "Optional reference to the organisation Goal (organisation-goals change) this planned topic serves. Renders as a navigable reference on the detail page (organisation-goals REQ-008). Nullable; existing termijnagenda items created before this change remain valid with no goal set."
           },
           "realisedAgendaItem": {
             "title": "Realised agenda item",
