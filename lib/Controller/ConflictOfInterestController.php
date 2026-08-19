@@ -61,7 +61,7 @@ class ConflictOfInterestController extends Controller {
 	 * @NoAdminRequired
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.3
-	 * @spec openspec/changes/model-debt-cleanup-code/proposal.md#in-scope
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
 	 *
 	 * @return JSONResponse
 	 */
@@ -102,7 +102,7 @@ class ConflictOfInterestController extends Controller {
 	 * @NoAdminRequired
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.3
-	 * @spec openspec/changes/model-debt-cleanup-code/proposal.md#in-scope
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
 	 *
 	 * @return JSONResponse
 	 */

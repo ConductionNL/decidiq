@@ -30,7 +30,7 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
- * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+ * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -47,7 +47,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
  * Proxy vote lifecycle service.
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
- * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+ * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
  */
 class ProxyVoteService {
 
@@ -187,7 +187,7 @@ class ProxyVoteService {
 	 * @return bool
 	 *
 	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-3
-	 * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
 	 */
 	private function isAuthorizedForTransition(array $proxy, string $callerUid): bool {
 		$callerParticipant = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
@@ -237,7 +237,7 @@ class ProxyVoteService {
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
 	 * @spec openspec/specs/voting-system/spec.md
 	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
-	 * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
 	 *
 	 * @return array{success: bool, proxy: array|null, message: string}
 	 */
@@ -422,7 +422,7 @@ class ProxyVoteService {
 	 * @param string|null $status Filter by proxyStatus
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
-	 * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
 	 *
 	 * @return array{success: bool, proxies: array, count: int}
 	 */
@@ -496,7 +496,7 @@ class ProxyVoteService {
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
 	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-3
-	 * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
 	 *
 	 * @return array{success: bool, proxy: array|null, message: string}
 	 */

@@ -95,7 +95,7 @@ class ConflictOfInterestService {
 	 * @param string $severity 'material' or 'non-material' (defaults to material)
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
-	 * @spec openspec/changes/model-debt-cleanup-code/proposal.md#in-scope
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
 	 *
 	 * @return array{success: bool, declaration: array|null, message: string}
 	 */
@@ -271,7 +271,7 @@ class ConflictOfInterestService {
 	 * @param string $agendaItemId UUID of the agenda item
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
-	 * @spec openspec/changes/model-debt-cleanup-code/proposal.md#in-scope
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
 	 *
 	 * @return array<string, mixed>|null
 	 */

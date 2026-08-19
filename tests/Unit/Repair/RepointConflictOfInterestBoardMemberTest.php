@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/model-debt-cleanup-code/migration.md#repointconflictofinterestboardmember
+ * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/migration.md#ocadecideskrepairrepointconflictofinterestboardmember
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -33,7 +33,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Tests for RepointConflictOfInterestBoardMember.
  *
- * @spec openspec/changes/model-debt-cleanup-code/migration.md#repointconflictofinterestboardmember
+ * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/migration.md#ocadecideskrepairrepointconflictofinterestboardmember
  */
 class RepointConflictOfInterestBoardMemberTest extends TestCase {
 

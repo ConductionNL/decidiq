@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-1-crosswalk-resolver--match-by-email-else-create
+ * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-1-crosswalk-resolver--match-by-email-else-create
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -31,7 +31,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Tests for ParticipantToPersonMembershipResolver.
  *
- * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-1-crosswalk-resolver--match-by-email-else-create
+ * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-1-crosswalk-resolver--match-by-email-else-create
  */
 class ParticipantToPersonMembershipResolverTest extends TestCase {
 

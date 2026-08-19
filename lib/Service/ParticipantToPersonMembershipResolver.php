@@ -37,7 +37,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-1-crosswalk-resolver--match-by-email-else-create
+ * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-1-crosswalk-resolver--match-by-email-else-create
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -53,7 +53,7 @@ use Throwable;
 /**
  * Crosswalk resolver: Participant UUID -> Person+Membership pair.
  *
- * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-1-crosswalk-resolver--match-by-email-else-create
+ * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-1-crosswalk-resolver--match-by-email-else-create
  */
 class ParticipantToPersonMembershipResolver {
 
@@ -110,7 +110,7 @@ class ParticipantToPersonMembershipResolver {
 	 *
 	 * @return array{person: string, membership: string}|null
 	 *
-	 * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-1-crosswalk-resolver--match-by-email-else-create
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-1-crosswalk-resolver--match-by-email-else-create
 	 */
 	public function resolve(string $participantId): ?array {
 		$participant = $this->loadParticipant(participantId: $participantId);

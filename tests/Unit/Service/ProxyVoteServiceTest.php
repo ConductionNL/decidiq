@@ -320,7 +320,7 @@ class ProxyVoteServiceTest extends TestCase {
 	 * Participant uuids — proven with a non-identity crosswalk map so a
 	 * regression to writing the raw Participant id turns this test red.
 	 *
-	 * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
 	 *
 	 * @return void
 	 */
@@ -348,7 +348,7 @@ class ProxyVoteServiceTest extends TestCase {
 	 * register() fails closed when the grantor or holder Participant cannot
 	 * be resolved to a Person record.
 	 *
-	 * @spec openspec/changes/model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
 	 *
 	 * @return void
 	 */

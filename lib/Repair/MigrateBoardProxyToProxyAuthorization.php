@@ -33,7 +33,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/model-debt-cleanup-code/migration.md#migrateboardproxytoproxyauthorization
+ * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/migration.md#ocadecideskrepairmigrateboardproxytoproxyauthorization
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -52,7 +52,7 @@ use Throwable;
 /**
  * Migrates board-proxy rows into proxy-authorization objects.
  *
- * @spec openspec/changes/model-debt-cleanup-code/migration.md#migrateboardproxytoproxyauthorization
+ * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/migration.md#ocadecideskrepairmigrateboardproxytoproxyauthorization
  */
 class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 
@@ -103,7 +103,7 @@ class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/model-debt-cleanup-code/migration.md#migrateboardproxytoproxyauthorization
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/migration.md#ocadecideskrepairmigrateboardproxytoproxyauthorization
 	 */
 	public function getName(): string {
 		return 'Migrate board-proxy rows into proxy-authorization objects';
@@ -116,7 +116,7 @@ class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/model-debt-cleanup-code/migration.md#migrateboardproxytoproxyauthorization
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/migration.md#ocadecideskrepairmigrateboardproxytoproxyauthorization
 	 */
 	public function run(IOutput $output): void {
 		try {

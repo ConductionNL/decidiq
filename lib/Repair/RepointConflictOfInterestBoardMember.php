@@ -26,7 +26,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/model-debt-cleanup-code/migration.md#repointconflictofinterestboardmember
+ * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/migration.md#ocadecideskrepairrepointconflictofinterestboardmember
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -45,7 +45,7 @@ use Throwable;
 /**
  * Repoints ConflictOfInterest.boardMember from Participant to Membership.
  *
- * @spec openspec/changes/model-debt-cleanup-code/migration.md#repointconflictofinterestboardmember
+ * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/migration.md#ocadecideskrepairrepointconflictofinterestboardmember
  */
 class RepointConflictOfInterestBoardMember implements IRepairStep {
 
@@ -89,7 +89,7 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/model-debt-cleanup-code/migration.md#repointconflictofinterestboardmember
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/migration.md#ocadecideskrepairrepointconflictofinterestboardmember
 	 */
 	public function getName(): string {
 		return 'Repoint ConflictOfInterest.boardMember from Participant to Membership';
@@ -102,7 +102,7 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/model-debt-cleanup-code/migration.md#repointconflictofinterestboardmember
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/migration.md#ocadecideskrepairrepointconflictofinterestboardmember
 	 */
 	public function run(IOutput $output): void {
 		try {
