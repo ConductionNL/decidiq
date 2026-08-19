@@ -1519,6 +1519,12 @@
         "until {date}": "until {date}",
         "Version {n}": "Version {n}",
         "Version timeline": "Version timeline",
-        "View agenda item": "View agenda item"
+        "View agenda item": "View agenda item",
+        "Category": "Category",
+        "Could not load routed documents": "Could not load routed documents",
+        "Failed to load routed documents.": "Failed to load routed documents.",
+        "Incoming documents": "Incoming documents",
+        "Loading routed documents…": "Loading routed documents…",
+        "No incoming documents routed to this meeting yet.": "No incoming documents routed to this meeting yet."
     }
 }
