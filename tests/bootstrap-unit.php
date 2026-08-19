@@ -88,7 +88,11 @@ if (class_exists(\OCA\OpenRegister\Event\ObjectUpdatedEvent::class) === false) {
 // ObjectService, ObjectEntity, Register and Schema need no require_once: the
 // PSR-4 root registered above resolves them to tests/Stubs/Service/ and
 // tests/Stubs/Db/ whenever the real OpenRegister app is absent, and to the real
-// app when it is present. There used to be four more require_once branches here
+// app when it is present. The same is true of the ADR-066 leaf trio
+// (Event\RegisterLeafProvidersEvent, Service\Integration\LeafDescriptor,
+// Service\Integration\IntegrationProvider) — their paths under tests/Stubs/
+// mirror their namespaces exactly, so adding a require_once branch for them
+// would recreate the dead-guard shape #399 removed. There used to be four more require_once branches here
 // pointing at a second, LOOSER copy of each stub; the guards could never be
 // true, so the copies were dead while still reading as the contract (#399).
 //

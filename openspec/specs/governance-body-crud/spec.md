@@ -1,5 +1,8 @@
 ---
-status: done
+status: in-progress
+status-note: In progress 2026-08-19 via organisation-facet-composition (GovernanceBodyDetail becomes the ADR-004 v2 Organisation hub — retirement schedule, term rules, integrity declarations, shared-body participation, and factions composed onto the detail page as declarative object-list widgets).
+openspec-changes:
+  - organisation-facet-composition
 ---
 
 # governance-body-crud Specification

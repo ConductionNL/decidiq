@@ -4,7 +4,7 @@
 	"menu": [
 		{
 			"id": "UserSettingsMenu",
-			"label": "Personal settings",
+			"label": "Preferences",
 			"icon": "CogOutline",
 			"route": "UserSettings",
 			"section": "settings",

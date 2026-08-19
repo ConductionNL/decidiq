@@ -24,6 +24,7 @@
             "directedTo": "gemeenteraad-amsterdam",
             "deadline": "2026-05-15",
             "lifecycle": "in-execution",
+            "goal": "goal-amsterdam-klimaatneutraal-2050",
             "publicationDate": "2026-02-10T09:00:00Z"
           },
           {
@@ -368,6 +369,14 @@
             "format": "uuid",
             "$ref": "Decision",
             "description": "Optional reference to a Decision of decisionType 'motion' this commitment stems from. When set, the execution narrative lives ONLY on that motion's UitvoeringsUpdate log (motie-amendement-administratie); this register creates no second execution-update log (REQ-003)."
+          },
+          "goal": {
+            "title": "Goal",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Goal",
+            "nullable": true,
+            "description": "Optional reference to the organisation Goal (organisation-goals change) this commitment serves. When set, this commitment is counted in that Goal's declarative linkedCommitmentCount/settledCommitmentCount rollup (organisation-goals REQ-006). Nullable; existing toezeggingen created before this change remain valid with no goal set."
           },
           "publicationDate": {
             "title": "Publication date",
