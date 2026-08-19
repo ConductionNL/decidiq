@@ -1,8 +1,13 @@
 ---
-status: done
+status: in-progress
 ---
 
 # meeting-detail-view Specification
+
+**Status**: in-progress
+**Scope**: decidesk
+**OpenSpec changes**:
+- meeting-facet-composition (in-progress) — composes 5 meeting-scoped facets (oral questions, interpellations, proxy authorizations, kascommissie verklaringen, routed incoming documents) onto the Meeting detail page per ADR-004 Rule 3
 
 ## Purpose
 Provides the meeting detail page where users view and edit a single meeting, with sections for the meeting header, schedule, attendees, agenda items, and minutes. Lets users run lifecycle action buttons based on the current state, manage attendees and agenda items inline, work with a Files/Notes/Audit/Tags sidebar, and delete the meeting with confirmation.
