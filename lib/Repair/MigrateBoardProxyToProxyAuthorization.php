@@ -145,73 +145,25 @@ class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 		$skipped = 0;
 
 		foreach ((array)$sourceRows as $entity) {
-			$source = $this->toArray(entity: $entity);
-			if ($source === null) {
+			$resolved = $this->resolveRow(entity: $entity);
+			if ($resolved === null) {
 				$skipped++;
 				continue;
 			}
 
-			$sourceId = (string)($source['id'] ?? $source['uuid'] ?? '');
-			if ($sourceId === '') {
-				$skipped++;
-				continue;
-			}
-
-			$grantorParticipant = (string)($source['grantorIntegration'] ?? '');
-			$holderParticipant = (string)($source['holderIntegration'] ?? '');
-			$meetingId = (string)($source['meetingIntegration'] ?? '');
-
-			$grantor = ($grantorParticipant !== '') ? $this->resolver->resolve(participantId: $grantorParticipant) : null;
-			$holder = ($holderParticipant !== '') ? $this->resolver->resolve(participantId: $holderParticipant) : null;
-			$meetingExists = ($meetingId !== '') && $this->exists(id: $meetingId, schema: self::MEETING_SCHEMA);
-
-			if ($grantor === null || $holder === null || $meetingExists === false) {
-				$skipped++;
-				$this->logger->warning(
-					'Decidesk: MigrateBoardProxyToProxyAuthorization skipped an unresolvable board-proxy row',
-					[
-						'sourceBoardProxyUuid' => $sourceId,
-						'grantorResolved' => ($grantor !== null),
-						'holderResolved' => ($holder !== null),
-						'meetingResolved' => $meetingExists,
-					]
-				);
-				continue;
-			}
-
-			$key = $grantor['person'] . '|' . $holder['person'] . '|' . $meetingId;
+			$key = $resolved['grantor'] . '|' . $resolved['holder'] . '|' . $resolved['meeting'];
 			if (($alreadyMigratedIndex[$key] ?? false) === true) {
 				$alreadyMigrated++;
 				continue;
 			}
 
-			$payload = [
-				'grantor' => $grantor['person'],
-				'holder' => $holder['person'],
-				'meeting' => $meetingId,
-				'proxyStatus' => (string)($source['proxyStatus'] ?? 'pending-approval'),
-				// A migrated row starts at the same unsigned state every fresh
-				// proxy-authorization would — a legacy board-proxy row never had a
-				// signed machtiging document, so there is nothing to carry over.
-				'signatureStatus' => 'unsigned',
-			];
-
-			try {
-				$this->objectService->saveObject(object: $payload, register: self::REGISTER, schema: self::TARGET_SCHEMA);
-				$migrated++;
-				$alreadyMigratedIndex[$key] = true;
-				$this->logger->info(
-					'Decidesk: MigrateBoardProxyToProxyAuthorization created a proxy-authorization object',
-					['sourceBoardProxyUuid' => $sourceId, 'grantor' => $grantor['person'], 'holder' => $holder['person'], 'meeting' => $meetingId]
-				);
-			} catch (Throwable $e) {
+			if ($this->saveMigratedRow(resolved: $resolved, output: $output) === false) {
 				$skipped++;
-				$output->warning('Failed to migrate board-proxy ' . $sourceId . ': ' . $e->getMessage());
-				$this->logger->warning(
-					'Decidesk: MigrateBoardProxyToProxyAuthorization failed to save one object',
-					['sourceBoardProxyUuid' => $sourceId, 'exception' => $e->getMessage()]
-				);
-			}//end try
+				continue;
+			}
+
+			$migrated++;
+			$alreadyMigratedIndex[$key] = true;
 		}//end foreach
 
 		$output->info(
@@ -220,6 +172,115 @@ class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 		);
 
 	}//end run()
+
+	/**
+	 * Resolve one legacy board-proxy row to its proxy-authorization shape.
+	 *
+	 * Returns null when the row is unusable — malformed, or carrying a
+	 * grantor/holder/meeting reference that no longer resolves. Null is the
+	 * caller's "skip" signal; the unresolvable-reference path logs why, so a
+	 * skipped row is never silent.
+	 *
+	 * @param mixed $entity One row as returned by ObjectService::findAll().
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/migration.md#ocadecideskrepairmigrateboardproxytoproxyauthorization
+	 *
+	 * @return array{sourceId: string, grantor: string, holder: string, meeting: string, proxyStatus: string}|null Resolved row, or null to skip.
+	 */
+	private function resolveRow(mixed $entity): ?array {
+		$source = $this->toArray(entity: $entity);
+		if ($source === null) {
+			return null;
+		}
+
+		$sourceId = (string)($source['id'] ?? $source['uuid'] ?? '');
+		if ($sourceId === '') {
+			return null;
+		}
+
+		$grantorParticipant = (string)($source['grantorIntegration'] ?? '');
+		$holderParticipant = (string)($source['holderIntegration'] ?? '');
+		$meetingId = (string)($source['meetingIntegration'] ?? '');
+
+		$grantor = null;
+		if ($grantorParticipant !== '') {
+			$grantor = $this->resolver->resolve(participantId: $grantorParticipant);
+		}
+
+		$holder = null;
+		if ($holderParticipant !== '') {
+			$holder = $this->resolver->resolve(participantId: $holderParticipant);
+		}
+
+		$meetingExists = ($meetingId !== '' && $this->exists(id: $meetingId, schema: self::MEETING_SCHEMA));
+
+		if ($grantor === null || $holder === null || $meetingExists === false) {
+			$this->logger->warning(
+				'Decidesk: MigrateBoardProxyToProxyAuthorization skipped an unresolvable board-proxy row',
+				[
+					'sourceBoardProxyUuid' => $sourceId,
+					'grantorResolved' => ($grantor !== null),
+					'holderResolved' => ($holder !== null),
+					'meetingResolved' => $meetingExists,
+				]
+			);
+			return null;
+		}
+
+		return [
+			'sourceId' => $sourceId,
+			'grantor' => $grantor['person'],
+			'holder' => $holder['person'],
+			'meeting' => $meetingId,
+			'proxyStatus' => (string)($source['proxyStatus'] ?? 'pending-approval'),
+		];
+
+	}//end resolveRow()
+
+	/**
+	 * Persist one resolved row as a proxy-authorization object.
+	 *
+	 * @param array $resolved The resolved row from resolveRow().
+	 * @param IOutput $output Repair output channel.
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/migration.md#ocadecideskrepairmigrateboardproxytoproxyauthorization
+	 *
+	 * @return boolean True when the object was created, false when the save failed.
+	 */
+	private function saveMigratedRow(array $resolved, IOutput $output): bool {
+		$payload = [
+			'grantor' => $resolved['grantor'],
+			'holder' => $resolved['holder'],
+			'meeting' => $resolved['meeting'],
+			'proxyStatus' => $resolved['proxyStatus'],
+			// A migrated row starts at the same unsigned state every fresh
+			// proxy-authorization would — a legacy board-proxy row never had a
+			// signed machtiging document, so there is nothing to carry over.
+			'signatureStatus' => 'unsigned',
+		];
+
+		try {
+			$this->objectService->saveObject(object: $payload, register: self::REGISTER, schema: self::TARGET_SCHEMA);
+			$this->logger->info(
+				'Decidesk: MigrateBoardProxyToProxyAuthorization created a proxy-authorization object',
+				[
+					'sourceBoardProxyUuid' => $resolved['sourceId'],
+					'grantor' => $resolved['grantor'],
+					'holder' => $resolved['holder'],
+					'meeting' => $resolved['meeting'],
+				]
+			);
+			return true;
+		} catch (Throwable $e) {
+			$output->warning('Failed to migrate board-proxy ' . $resolved['sourceId'] . ': ' . $e->getMessage());
+			$this->logger->warning(
+				'Decidesk: MigrateBoardProxyToProxyAuthorization failed to save one object',
+				['sourceBoardProxyUuid' => $resolved['sourceId'], 'exception' => $e->getMessage()]
+			);
+			return false;
+		}//end try
+
+	}//end saveMigratedRow()
 
 	/**
 	 * Build an index of (grantor|holder|meeting) triples already present

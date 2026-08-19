@@ -296,9 +296,9 @@ class ProxyVoteService {
 			'scope' => (string)($extra['scope'] ?? 'all-resolutions'),
 			'expiresAt' => (string)($extra['expiresAt'] ?? ''),
 			'proxyStatus' => 'pending-approval',
-			// signatureStatus is required on proxy-authorization; a freshly
-			// registered proxy has no signed machtiging document yet, so it
-			// starts at the schema's own declared initial lifecycle state.
+			// The signatureStatus field is required on proxy-authorization; a
+			// freshly registered proxy has no signed machtiging document yet,
+			// so it starts at the schema's declared initial lifecycle state.
 			'signatureStatus' => 'unsigned',
 			'registeredAt' => gmdate('Y-m-d\TH:i:s\Z'),
 		];
