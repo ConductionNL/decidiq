@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidesk Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.8.0"
+    "version": "0.9.0"
   },
   "x-openregister": {
     "type": "application",
@@ -193,6 +193,16 @@
             "startDate": "2024-01-01T00:00:00Z",
             "person": "marie-janssen",
             "governanceBody": "ledenraad-vng"
+          },
+          {
+            "slug": "m-marie-groenlinks-fractie",
+            "role": "member",
+            "label": "Fractielid",
+            "party": "GroenLinks",
+            "votingWeight": 1,
+            "startDate": "2022-03-16T00:00:00Z",
+            "person": "marie-janssen",
+            "governanceBody": "groenlinks-fractie-amsterdam"
           }
         ],
         "contact-detail": [
@@ -284,6 +294,22 @@
             "votingDefault": "for-against-abstain",
             "termStart": "2024-01-01T00:00:00Z",
             "termEnd": "2028-12-31T00:00:00Z"
+          },
+          {
+            "slug": "groenlinks-fractie-amsterdam",
+            "name": "GroenLinks-fractie",
+            "bodyType": "faction",
+            "domain": "municipality",
+            "parentBody": "gemeenteraad-amsterdam",
+            "votingDefault": "for-against-abstain"
+          },
+          {
+            "slug": "d66-fractie-amsterdam",
+            "name": "D66-fractie",
+            "bodyType": "faction",
+            "domain": "municipality",
+            "parentBody": "gemeenteraad-amsterdam",
+            "votingDefault": "for-against-abstain"
           }
         ],
         "meeting": [
@@ -1903,7 +1929,7 @@
       "GovernanceBody": {
         "slug": "governance-body",
         "icon": "AccountGroupOutline",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "title": "GovernanceBody",
         "description": "A governance body (council, board, committee, assembly)",
         "type": "object",
@@ -1940,7 +1966,8 @@
               "executive-board",
               "advisory-body",
               "works-council",
-              "shared-body"
+              "shared-body",
+              "faction"
             ],
             "example": "legislative"
           },
@@ -2003,6 +2030,14 @@
             "description": "Number of days after minutes approval before the retention policy is enforced for this body's recordings/transcripts (meeting-transcription). Default 30.",
             "default": 30,
             "example": 30
+          },
+          "parentBody": {
+            "title": "Parent body",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "nullable": true,
+            "description": "Reference to the parent GovernanceBody this body belongs to — used for factions (bodyType=faction) referencing their council, and generically available for other sub-body hierarchies. Optional."
           }
         }
       },

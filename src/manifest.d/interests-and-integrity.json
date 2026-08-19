@@ -50,7 +50,7 @@
 					{ "key": "organisation", "label": "Organisation", "widget": "link" },
 					{ "key": "role", "label": "Function" },
 					{ "key": "governanceBody", "label": "Governance body" },
-					{ "key": "bezoldigd", "label": "Remunerated", "widget": "badge" },
+					{ "key": "remunerated", "label": "Remunerated", "widget": "badge" },
 					{ "key": "reviewedAt", "label": "Reviewed" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 				],
@@ -66,7 +66,7 @@
 			"route": "/nevenfuncties",
 			"type": "index",
 			"title": "Other positions",
-			"_note": "spec: openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010. Per-body nevenfunctiesregister (REQ-INT-001/REQ-INT-010). Columns person/organisatie/functie/bezoldigd/qualitateQua/governanceBody/lifecycle; quick filters on lifecycle; per-body filtering via the index facet on governanceBody. CSV export via ExportService + CnMassExportDialog. The overdue-review KPI deep-link (Dashboard, base manifest) targets this page pre-filtered; the per-body compliance panel (client-side join of memberships × nevenfuncties) is a frontend addition (Task 5), not part of this declarative fragment.",
+			"_note": "spec: openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010. Per-body nevenfunctiesregister (REQ-INT-001/REQ-INT-010). Columns person/organisatie/functie/remunerated/qualitateQua/governanceBody/lifecycle; quick filters on lifecycle; per-body filtering via the index facet on governanceBody. CSV export via ExportService + CnMassExportDialog. The overdue-review KPI deep-link (Dashboard, base manifest) targets this page pre-filtered; the per-body compliance panel (client-side join of memberships × nevenfuncties) is a frontend addition (Task 5), not part of this declarative fragment.",
 			"config": {
 				"register": "decidesk",
 				"schema": "nevenfunctie",
@@ -85,7 +85,7 @@
 					{ "key": "person", "label": "Person", "widget": "link" },
 					{ "key": "organisation", "label": "Organisation" },
 					{ "key": "role", "label": "Function" },
-					{ "key": "bezoldigd", "label": "Remunerated", "widget": "badge" },
+					{ "key": "remunerated", "label": "Remunerated", "widget": "badge" },
 					{ "key": "qualitateQua", "label": "Ex officio", "widget": "badge" },
 					{ "key": "governanceBody", "label": "Governance body" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
