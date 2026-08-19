@@ -1,0 +1,80 @@
+{
+	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "Organisation Goals — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Declarative core only: index + detail pages for the goal register; schema ref BY SLUG (goal), never PascalCase. No new Vue component (organisation-goals REQ-009) — generic data/related widgets only, same shape as src/manifest.d/termijnagenda.json. Menu placement: this fragment declares menu id 'Goals' as a CONTRACT — the concurrent ia-six-clusters change has already forward-declared the relocation \"Goals\": \"ActionItems\" in src/menu-layout.json, so this entry is swallowed into the 'Tasks & Commitments' (ActionItems) cluster group once merged; this fragment does not edit src/menu-layout.json or openspec/changes/ia-six-clusters/ (organisation-goals REQ-009 Scenario 2).",
+	"menu": [
+		{
+			"id": "Goals",
+			"label": "Goals",
+			"icon": "TargetVariant",
+			"route": "Goals",
+			"order": 65
+		}
+	],
+	"pages": [
+		{
+			"id": "Goals",
+			"route": "/goals",
+			"type": "index",
+			"title": "Goals",
+			"_note": "spec: openspec/changes/organisation-goals/specs/organisation-goals/spec.md#requirement-req-009-goals-index-and-detail-pages-are-declared-not-custom-built",
+			"config": {
+				"register": "decidesk",
+				"schema": "goal",
+				"sortKey": "deadline",
+				"sortOrder": "asc",
+				"_note": "Goals index (REQ-009). Columns title/body/horizon/deadline/status; quick filters on status (horizon and body are facetable and available via the index sidebar facets).",
+				"quickFilterMode": "dropdown",
+				"quickFilterMultiple": true,
+				"quickFilters": [
+					{ "label": "All", "filter": {}, "default": true },
+					{ "label": "Draft", "filter": { "status": "draft" } },
+					{ "label": "Active", "filter": { "status": "active" } },
+					{ "label": "At risk", "filter": { "status": "at-risk" } },
+					{ "label": "Achieved", "filter": { "status": "achieved" } },
+					{ "label": "Abandoned", "filter": { "status": "abandoned" } }
+				],
+				"columns": [
+					{ "key": "title", "label": "Title", "widget": "link" },
+					{ "key": "body", "label": "Governance body" },
+					{ "key": "horizon", "label": "Horizon", "widget": "badge" },
+					{ "key": "deadline", "label": "Deadline" },
+					{ "key": "status", "label": "Status", "widget": "badge" }
+				],
+				"actions": [
+					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "GoalDetail", "primary": true }
+				],
+				"showMassExport": true,
+				"sidebar": { "enabled": true, "showMetadata": true },
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		},
+		{
+			"id": "GoalDetail",
+			"route": "/goals/:id",
+			"type": "detail",
+			"title": "Goal",
+			"_note": "spec: openspec/changes/organisation-goals/specs/organisation-goals/spec.md#requirement-req-009-goals-index-and-detail-pages-are-declared-not-custom-built",
+			"config": {
+				"register": "decidesk",
+				"schema": "goal",
+				"_note": "GoalDetail (REQ-001/002/004/005/009). Goal data (title/description/horizon/body/owner/startDate/deadline/status/targetValue/currentValue/unit) plus the declarative rollup fields (linkedCommitmentCount/settledCommitmentCount/commitmentSettlementRate, linkedActionItemCount/completedActionItemCount/actionItemCompletionRate, childGoalCount/achievedChildGoalCount/childGoalAchievedRate) render as plain fields in the data widget, same posture as the Meeting quorum aggregation display — no custom progress-visualisation widget (design.md Non-Goals). parentGoal/owner/body render as resolved references in the Related widget.",
+				"widgets": [
+					{ "id": "goal-data", "type": "data", "title": "Goal", "icon": "Gauge", "content": { "columns": 2 } },
+					{ "id": "goal-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "goal-data", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 6 },
+					{ "id": "2", "widgetId": "goal-related", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 3 }
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+					]
+				},
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		}
+	]
+}

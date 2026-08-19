@@ -52,6 +52,22 @@ const mountedApps = new Map()
 const WIDGET_SURFACES = ['detail-page', 'app-dashboard', 'user-dashboard']
 
 /**
+ * Every render surface this leaf targets, declared EXPLICITLY rather than left
+ * to the host's default, and mirrored by `RegisterDecisionsLeafListener::SURFACES`
+ * on the server half.
+ *
+ * All four members of OpenRegister's `LeafDescriptor::VALID_SURFACES` vocabulary
+ * are here because the leaf really does render on all four: `componentForSurface`
+ * roots the widget on the three WIDGET_SURFACES above and the tab everywhere
+ * else. Writing the list out is what gives the cross-layer parity check
+ * (gate-24 R4) two explicit sets to compare — a half that declares its surfaces
+ * by OMISSION is how hermiq's two halves drifted apart unnoticed.
+ *
+ * @type {string[]}
+ */
+const SURFACES = ['user-dashboard', 'app-dashboard', 'detail-page', 'single-entity']
+
+/**
  * Pick the root component for a mount off the host-forwarded `surface`.
  *
  * @param {string} [surface] The render surface the host is mounting into.
@@ -120,6 +136,12 @@ export const decisionsLeafDescriptor = {
 	requiredApp: 'decidesk',
 	order: 55,
 	group: 'workflow',
+	// Declared explicitly and identically on both halves of the registration
+	// (ADR-066 decision 4). Inert on the client today — the registry routes
+	// tab-vs-widget through the `surface` mount prop rather than filtering on
+	// this list — but it is the SAME declaration the server descriptor makes,
+	// and it is what the parity check compares.
+	surfaces: SURFACES,
 	// AD-18 marker: a schema property carrying referenceType:'decision'
 	// renders this leaf's single-entity surface.
 	referenceType: 'decision',
