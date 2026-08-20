@@ -307,7 +307,8 @@ class DecisionIntegrationService {
 	 * false — the `Decision` schema declares no `authorization` block, so the
 	 * decidesk register baseline applies (`read`/`list`:
 	 * `["authenticated", "public"]`) and OR authorizes the read for everyone.
-	 * The caller-scoping rule lives in {@see self::isAuthorizedToReadOutcome()}
+	 * The caller-scoping rule lives in
+	 * {@see DecisionIntegrationAuthorizationGuard::isAuthorizedToReadOutcome()}
 	 * and MUST be consulted before this method is invoked
 	 * (`IntegrationController::getOutcome()` does so).
 	 *
@@ -370,222 +371,6 @@ class DecisionIntegrationService {
 	}//end getOutcomeEnvelope()
 
 	/**
-	 * Authorize a read of one Decision's outcome envelope (REQ-DCDH-101).
-	 *
-	 * A caller is authorized when:
-	 *   (a) they are the Decision's OpenRegister owner (`@self.owner`) — the
-	 *       identity that raised it through `POST /api/v1/decisions`, i.e. the
-	 *       consumer REQ-DCDH-003 exists to serve. This is also the established
-	 *       decidesk per-object guard on this very `decision` schema; see
-	 *       `MotionCoauthorService::checkMotionAccess()`; OR
-	 *   (b) the Decision is published (`isPublished === 'public'`) — the app's
-	 *       own citizen-visibility flag, set by `DecisionController::publish()`.
-	 *       A published decision is a public governance record by definition.
-	 *
-	 * The admin bypass is the caller's: `IntegrationController` passes a null
-	 * `$callerUid` for a Nextcloud administrator and skips this check entirely,
-	 * mirroring the `ProxyVoteController` / `ConflictOfInterestController`
-	 * convention.
-	 *
-	 * There is deliberately no `sourceApp`-based rule: the hub holds no
-	 * caller-to-consumer identity mapping. `createDecision()`'s `$actorId` is
-	 * written to the audit log only and never persisted on the object, and
-	 * `isRegistryConsumer()` validates a callback URL rather than a caller —
-	 * so `@self.owner` is the only ownership fact that actually exists.
-	 *
-	 * Fail-closed (ADR-005 / gate-8 `unsafe-auth-resolver`): when OpenRegister
-	 * is unavailable or the lookup throws, the caller is DENIED rather than
-	 * waved through. A Decision that genuinely does not exist is allowed
-	 * through so that `getOutcomeEnvelope()` still answers `404` — the guard
-	 * must not turn a miss into a `403`.
-	 *
-	 * @param string $decisionId UUID of the Decision
-	 * @param string $callerUid Nextcloud UID of the caller (never null here — a
-	 *                          null caller is the admin bypass and never reaches this method)
-	 *
-	 * @return bool True when the caller may read the envelope
-	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
-	 */
-	public function isAuthorizedToReadOutcome(string $decisionId, string $callerUid): bool {
-		if ($decisionId === '' || $callerUid === '') {
-			return false;
-		}
-
-		$decision = $this->loadDecisionForGuard(
-			decisionId: $decisionId,
-			callerUid: $callerUid,
-			guard: 'outcome-read'
-		);
-
-		if ($decision === false) {
-			// Could not be resolved — fail closed.
-			return false;
-		}
-
-		if ($decision === null) {
-			// Not found — let getOutcomeEnvelope() answer 404 instead of
-			// converting a miss into a 403.
-			return true;
-		}
-
-		// (a) The raising consumer.
-		if ($this->isDecisionOwner(decision: $decision, callerUid: $callerUid) === true) {
-			return true;
-		}
-
-		// (b) A published decision is a public governance record.
-		return ((string)($decision['isPublished'] ?? '') === 'public');
-	}//end isAuthorizedToReadOutcome()
-
-	/**
-	 * Authorize a WRITE of one Decision's outcome callback (REQ-DCDH-102).
-	 *
-	 * A caller is authorized when they are the Decision's OpenRegister owner
-	 * (`@self.owner`) — the identity that raised it through
-	 * `POST /api/v1/decisions`. As with the read guard, a Nextcloud
-	 * administrator never reaches this method: `IntegrationController` resolves
-	 * a null `$callerUid` for an admin and skips the check.
-	 *
-	 * WHY THIS IS NOT THE READ RULE. {@see self::isAuthorizedToReadOutcome()}
-	 * additionally allows any caller when `isPublished === 'public'`. That arm
-	 * deliberately does NOT apply here, for three reasons that come out of the
-	 * code rather than out of caution:
-	 *
-	 *   1. `isPublished` is a READ-visibility enum. It is only ever moved from
-	 *      `internal` to `public` by `DecisionController::publish()`, which is
-	 *      `#[AuthorizedAdminSetting]` and re-checks `isAdmin()` in its body,
-	 *      and it is consumed by `OriController` to gate the anonymous public
-	 *      feed (`$filters['isPublished'] = 'public'`). Nothing reads it as a
-	 *      write grant. Carrying it onto this path would mean an admin's act of
-	 *      widening who may READ silently widens who may WRITE — publishing a
-	 *      decision would open its delivery target to every authenticated user.
-	 *
-	 *   2. The write is destructive by overwrite. `registerOutcomeCallback()`
-	 *      assigns a single scalar field, so a second caller silently REPLACES
-	 *      the raising consumer's delivery target: the outcome envelope — the
-	 *      subject coordinates, the consumer's `externalReference` and the
-	 *      `signers` array — is then pushed to a URL of the second caller's
-	 *      choosing, and the legitimate consumer never receives its callback.
-	 *
-	 *   3. The anti-SSRF check is not a caller check. `isRegistryConsumer()`
-	 *      validates the URL against the app-wide ADR-019 registry; every
-	 *      authenticated user may name any registered consumer's URL. It
-	 *      constrains WHERE the data goes, never WHO may redirect it.
-	 *
-	 * No capability is lost (ADR-044): there is no frontend caller of
-	 * `/api/v1/decisions/...` at all, and the raising consumer can already set
-	 * `outcomeCallbackUrl` in the create-decision body (it is a
-	 * PROVENANCE_FIELD), so this endpoint is the same owner's later update.
-	 *
-	 * Fail-closed (ADR-005 / gate-8 `unsafe-auth-resolver`): an unresolvable
-	 * lookup DENIES. A Decision that genuinely does not exist is allowed
-	 * through so `registerOutcomeCallback()` still answers `not_found` → 404,
-	 * keeping a 403 from becoming an existence oracle.
-	 *
-	 * @param string $decisionId UUID of the Decision
-	 * @param string $callerUid Nextcloud UID of the caller (never null here — a
-	 *                          null caller is the admin bypass and never reaches this method)
-	 *
-	 * @return bool True when the caller may attach an outcome callback
-	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
-	 */
-	public function isAuthorizedToSubscribe(string $decisionId, string $callerUid): bool {
-		if ($decisionId === '' || $callerUid === '') {
-			return false;
-		}
-
-		$decision = $this->loadDecisionForGuard(
-			decisionId: $decisionId,
-			callerUid: $callerUid,
-			guard: 'outcome-subscribe'
-		);
-
-		if ($decision === false) {
-			// Could not be resolved — fail closed.
-			return false;
-		}
-
-		if ($decision === null) {
-			// Not found — let registerOutcomeCallback() answer not_found (404)
-			// instead of converting a miss into a 403.
-			return true;
-		}
-
-		return $this->isDecisionOwner(decision: $decision, callerUid: $callerUid);
-	}//end isAuthorizedToSubscribe()
-
-	/**
-	 * Load one Decision for an authorization guard, distinguishing "cannot
-	 * resolve" from "does not exist" — the two cases a guard must answer
-	 * differently.
-	 *
-	 * Shared by {@see self::isAuthorizedToReadOutcome()} and
-	 * {@see self::isAuthorizedToSubscribe()} so both guards resolve their
-	 * subject the same way; only the rule applied to the result differs.
-	 *
-	 * @param string $decisionId UUID of the Decision
-	 * @param string $callerUid Nextcloud UID of the caller (logged on failure)
-	 * @param string $guard Short guard name for the log line
-	 *
-	 * @return array<string, mixed>|false|null The decision properties; `false`
-	 *                                         when the lookup could not be
-	 *                                         resolved (caller must DENY);
-	 *                                         `null` when the Decision does not
-	 *                                         exist (caller lets the 404 stand)
-	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
-	 */
-	private function loadDecisionForGuard(string $decisionId, string $callerUid, string $guard): array|false|null {
-		try {
-			$objectService = $this->container->get('OCA\\OpenRegister\\Service\\ObjectService');
-			$entity = $objectService->find(id: $decisionId, register: 'decidesk', schema: 'decision');
-		} catch (\Throwable $e) {
-			$this->logger->warning(
-				'DecisionIntegrationService: could not resolve Decision for the ' . $guard . ' guard; denying',
-				['decisionId' => $decisionId, 'caller' => $callerUid, 'exception' => $e->getMessage()]
-			);
-			return false;
-		}
-
-		if ($entity === null) {
-			return null;
-		}
-
-		return $this->toArray(value: $entity);
-	}//end loadDecisionForGuard()
-
-	/**
-	 * Whether the caller is the Decision's OpenRegister owner — the identity
-	 * that raised it through `POST /api/v1/decisions`, since `persistDecision()`
-	 * saves in the calling session and OpenRegister stamps `@self.owner` from it.
-	 *
-	 * `toArray()` goes through `jsonSerialize()`, so the `@self` metadata block —
-	 * which carries the owner UID — is present; the flattened `owner` key is
-	 * accepted as a fallback. An empty owner never matches, so an object with no
-	 * recorded owner is not owned by anybody.
-	 *
-	 * @param array<string, mixed> $decision The decision properties
-	 * @param string $callerUid Nextcloud UID of the caller
-	 *
-	 * @return bool True when the caller owns the Decision
-	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
-	 */
-	private function isDecisionOwner(array $decision, string $callerUid): bool {
-		$self = $decision['@self'] ?? [];
-		$owner = '';
-		if (is_array($self) === true && isset($self['owner']) === true) {
-			$owner = (string)$self['owner'];
-		} elseif (isset($decision['owner']) === true) {
-			$owner = (string)$decision['owner'];
-		}
-
-		return ($owner !== '' && $owner === $callerUid);
-	}//end isDecisionOwner()
-
-	/**
 	 * Derive the outcome status from the Decision lifecycle + outcome fields.
 	 *
 	 * ADR-031 — declarative derivation, no new state machine:
@@ -633,8 +418,9 @@ class DecisionIntegrationService {
 	 * constrains WHERE the outcome may be delivered, not WHO may redirect it —
 	 * and the `Decision` schema declares no `authorization` block, so
 	 * OpenRegister authorizes the update for every authenticated user. The
-	 * caller-scoping rule lives in {@see self::isAuthorizedToSubscribe()} and
-	 * MUST be consulted before this method is invoked
+	 * caller-scoping rule lives in
+	 * {@see DecisionIntegrationAuthorizationGuard::isAuthorizedToSubscribe()}
+	 * and MUST be consulted before this method is invoked
 	 * (`IntegrationController::subscribe()` does so).
 	 *
 	 * @param string $decisionId UUID of the Decision

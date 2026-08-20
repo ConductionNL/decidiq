@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\IntegrationController;
+use OCA\Decidesk\Service\DecisionIntegrationAuthorizationGuard;
 use OCA\Decidesk\Service\DecisionIntegrationService;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
@@ -78,6 +79,13 @@ class IntegrationControllerTest extends TestCase {
 	private DecisionIntegrationService&MockObject $integrationService;
 
 	/**
+	 * Mock DecisionIntegrationAuthorizationGuard (REQ-DCDH-101 / REQ-DCDH-102).
+	 *
+	 * @var DecisionIntegrationAuthorizationGuard&MockObject
+	 */
+	private DecisionIntegrationAuthorizationGuard&MockObject $authorizationGuard;
+
+	/**
 	 * Mock IGroupManager (admin bypass on the outcome-read guard).
 	 *
 	 * @var IGroupManager&MockObject
@@ -110,8 +118,9 @@ class IntegrationControllerTest extends TestCase {
 		$this->integrationService = $this->createMock(DecisionIntegrationService::class);
 		$this->groupManager = $this->createMock(IGroupManager::class);
 		$this->groupManager->method('isAdmin')->willReturn(false);
-		$this->integrationService->method('isAuthorizedToReadOutcome')->willReturn(true);
-		$this->integrationService->method('isAuthorizedToSubscribe')->willReturn(true);
+		$this->authorizationGuard = $this->createMock(DecisionIntegrationAuthorizationGuard::class);
+		$this->authorizationGuard->method('isAuthorizedToReadOutcome')->willReturn(true);
+		$this->authorizationGuard->method('isAuthorizedToSubscribe')->willReturn(true);
 
 		$this->controller = new IntegrationController(
 			$this->request,
@@ -119,6 +128,7 @@ class IntegrationControllerTest extends TestCase {
 			$this->integrationService,
 			$this->createMock(LoggerInterface::class),
 			$this->groupManager,
+			$this->authorizationGuard,
 		);
 
 	}//end setUp()
@@ -141,7 +151,8 @@ class IntegrationControllerTest extends TestCase {
 		bool $envelopeExpected = true,
 	): IntegrationController {
 		$service = $this->createMock(DecisionIntegrationService::class);
-		$service->method('isAuthorizedToReadOutcome')->willReturn($authorized);
+		$guard = $this->createMock(DecisionIntegrationAuthorizationGuard::class);
+		$guard->method('isAuthorizedToReadOutcome')->willReturn($authorized);
 
 		if ($envelopeExpected === true) {
 			$service->expects($this->once())->method('getOutcomeEnvelope')->willReturn($envelope);
@@ -166,6 +177,7 @@ class IntegrationControllerTest extends TestCase {
 			$service,
 			$this->createMock(LoggerInterface::class),
 			$groupManager,
+			$guard,
 		);
 	}//end makeGuardedController()
 
@@ -523,7 +535,8 @@ class IntegrationControllerTest extends TestCase {
 		array $writeResult = ['success' => true, 'subscriptionId' => 'sub-9'],
 	): IntegrationController {
 		$service = $this->createMock(DecisionIntegrationService::class);
-		$service->method('isAuthorizedToSubscribe')->willReturn($authorized);
+		$guard = $this->createMock(DecisionIntegrationAuthorizationGuard::class);
+		$guard->method('isAuthorizedToSubscribe')->willReturn($authorized);
 
 		if ($writeExpected === true) {
 			$service->expects($this->once())->method('registerOutcomeCallback')->willReturn($writeResult);
@@ -552,6 +565,7 @@ class IntegrationControllerTest extends TestCase {
 			$service,
 			$this->createMock(LoggerInterface::class),
 			$groupManager,
+			$guard,
 		);
 	}//end makeSubscribeGuardedController()
 
@@ -597,7 +611,8 @@ class IntegrationControllerTest extends TestCase {
 		$writes = 0;
 
 		$service = $this->createMock(DecisionIntegrationService::class);
-		$service->method('isAuthorizedToSubscribe')->willReturn(false);
+		$guard = $this->createMock(DecisionIntegrationAuthorizationGuard::class);
+		$guard->method('isAuthorizedToSubscribe')->willReturn(false);
 		$service->method('registerOutcomeCallback')->willReturnCallback(
 			function () use (&$writes): array {
 				$writes++;
@@ -623,6 +638,7 @@ class IntegrationControllerTest extends TestCase {
 			$service,
 			$this->createMock(LoggerInterface::class),
 			$groupManager,
+			$guard,
 		);
 
 		$controller->subscribe(id: 'decision-1');

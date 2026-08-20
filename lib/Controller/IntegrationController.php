@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidesk\Service\DecisionIntegrationAuthorizationGuard;
 use OCA\Decidesk\Service\DecisionIntegrationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -54,8 +55,8 @@ use Psr\Log\LoggerInterface;
  * `["authenticated", "public"]`) and OpenRegister authorizes the read for
  * everyone — an unconfigured cascade is OPEN, not closed. `getOutcome()` and
  * `subscribe()` therefore enforce their own per-object rules (REQ-DCDH-101 /
- * REQ-DCDH-102, see DecisionIntegrationService::isAuthorizedToReadOutcome() and
- * ::isAuthorizedToSubscribe()). #[NoAdminRequired] plus a session check is
+ * REQ-DCDH-102, see DecisionIntegrationAuthorizationGuard::isAuthorizedToReadOutcome()
+ * and ::isAuthorizedToSubscribe()). #[NoAdminRequired] plus a session check is
  * authentication, not authorization.
  *
  * The two rules differ on purpose: the READ allows a published decision through
@@ -73,6 +74,7 @@ class IntegrationController extends Controller {
 	 * @param DecisionIntegrationService $integrationService Outcome assembler + callback dispatcher
 	 * @param LoggerInterface $logger PSR-3 logger
 	 * @param IGroupManager $groupManager Group manager (admin bypass on the outcome-read and subscribe guards)
+	 * @param DecisionIntegrationAuthorizationGuard $authorizationGuard Per-object outcome-read / subscribe authorization (REQ-DCDH-101 / REQ-DCDH-102)
 	 */
 	public function __construct(
 		IRequest $request,
@@ -80,6 +82,7 @@ class IntegrationController extends Controller {
 		private readonly DecisionIntegrationService $integrationService,
 		private readonly LoggerInterface $logger,
 		private readonly IGroupManager $groupManager,
+		private readonly DecisionIntegrationAuthorizationGuard $authorizationGuard,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 
@@ -238,7 +241,7 @@ class IntegrationController extends Controller {
 
 		$callerUid = $this->resolveCallerUid();
 		if ($callerUid !== null
-			&& $this->integrationService->isAuthorizedToReadOutcome(decisionId: $id, callerUid: $callerUid) === false
+			&& $this->authorizationGuard->isAuthorizedToReadOutcome(decisionId: $id, callerUid: $callerUid) === false
 		) {
 			return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
 		}
@@ -291,8 +294,9 @@ class IntegrationController extends Controller {
 	 * read-visibility enum (`DecisionController::publish()` is
 	 * `#[AuthorizedAdminSetting]`); honouring it on this path would mean the act
 	 * of publishing a decision also opens its delivery target to every
-	 * authenticated user. See `DecisionIntegrationService::isAuthorizedToSubscribe()`
-	 * for the full derivation.
+	 * authenticated user. See
+	 * `DecisionIntegrationAuthorizationGuard::isAuthorizedToSubscribe()` for the
+	 * full derivation.
 	 *
 	 * Without this guard any authenticated user could overwrite the raising
 	 * consumer's `outcomeCallbackUrl` on any Decision UUID — redirecting the
@@ -322,7 +326,7 @@ class IntegrationController extends Controller {
 
 		$callerUid = $this->resolveCallerUid();
 		if ($callerUid !== null
-			&& $this->integrationService->isAuthorizedToSubscribe(decisionId: $id, callerUid: $callerUid) === false
+			&& $this->authorizationGuard->isAuthorizedToSubscribe(decisionId: $id, callerUid: $callerUid) === false
 		) {
 			return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
 		}
