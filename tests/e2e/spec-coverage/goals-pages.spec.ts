@@ -125,13 +125,36 @@ test('Goals: detail page renders a seeded goal via the generic data/related widg
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 30_000 })
 
 	// Give content assertions real headroom instead of the 10s expect default.
+	// The `goal-data` widget is declared with title "Goal" (manifest.d/
+	// organisation-goals.json:62), but a `type: "data"` widget's card heading
+	// is NOT the manifest title — verified live (both here and on
+	// GovernanceBodyDetail's `body-data` widget, title "Body details", same
+	// rendering): the card heading is always the generic "Data", while the
+	// declared title only surfaces as a page-level kicker paragraph above the
+	// h2 object name. `type: "related"` widgets do NOT have this quirk — the
+	// "Related" heading renders exactly as declared. Assert what actually
+	// renders, plus the goal's own title text, so the test still proves this
+	// is the real seeded goal's detail page and not an empty shell.
+	// The kicker text "Goal" is not unique on the page (the collapsed audit
+	// sidebar's header also renders a "Goal" mainname for the schema type),
+	// so scope to the kicker's own data-testid to disambiguate.
+	await expect(page.getByTestId('cn-detail-page-type-eyebrow')).toHaveText(
+		'Goal',
+		{ timeout: 45_000 },
+	)
 	await expect(
-		page.getByRole('heading', { name: 'Goal', exact: true }),
+		page.getByRole('heading', { name: 'Data', exact: true }),
 	).toBeVisible({ timeout: 45_000 })
 	await expect(
 		page.getByRole('heading', { name: 'Related', exact: true }),
 	).toBeVisible({ timeout: 45_000 })
+	// The seeded goal's own title must render — this is what separates a real
+	// detail page from an empty widget shell. `.first()` because the title
+	// legitimately appears more than once (the page header and the data
+	// widget's own title field both render it); asserting on either occurrence
+	// proves the object was loaded, and a strict locator would fail on the
+	// page being MORE complete rather than less.
 	await expect(
-		page.getByText('Amsterdam klimaatneutraal', { exact: true }),
+		page.getByText('Amsterdam klimaatneutraal', { exact: true }).first(),
 	).toBeVisible({ timeout: 45_000 })
 })

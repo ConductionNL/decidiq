@@ -231,10 +231,19 @@ test('MeetingDetail: interpellations, proxy-authorizations and routed-documents 
 
 		// Routed incoming documents facet — custom two-hop-join widget
 		// (MeetingRoutedDocumentsTab), not an object-list widget.
+		// The heading text "Incoming documents" is also a substring of the
+		// table's own empty-state cell ("No incoming documents routed to this
+		// meeting yet."), so a plain getByText('Incoming documents') matches
+		// both the h3 and the td and trips Playwright's strict-mode check.
+		// Scope to the heading role to disambiguate — the empty-state cell is
+		// still verified on its own two lines below.
 		const routedDocs = page.getByTestId('meeting-routed-documents-tab')
 		await expect(routedDocs).toBeVisible({ timeout: 45_000 })
 		await expect(
-			routedDocs.getByText('Incoming documents', { exact: false }),
+			routedDocs.getByRole('heading', {
+				name: 'Incoming documents',
+				exact: false,
+			}),
 		).toBeVisible({ timeout: 45_000 })
 		// This is the sibling-render proof the kascommissie absence check below
 		// depends on: its empty-state text is the LAST content assertion before
