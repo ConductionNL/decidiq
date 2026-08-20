@@ -7,6 +7,24 @@
  * recording, and lookup. Material declarations append a `conflict-declaration`
  * row to the board audit log.
  *
+ * RBAC note: `declare()`/`recordAction()` pass `_rbac: false` to
+ * `saveObject()`. The `conflict-of-interest` schema's authorization block
+ * declares only `read`/`list` (decidesk_register.json — conflict-of-interest
+ * declarations are sensitive personal data, so they are not `public`), and a
+ * schema block that names some actions closes every action it does not name
+ * (ADR-022) — so OpenRegister's own RBAC would otherwise refuse `create` for
+ * every caller (no object exists yet to bypass via ownership) and `update`
+ * for every non-owner caller (a chair/secretary recording the action taken
+ * on someone else's declaration). This service already re-derives and
+ * enforces the finer-grained per-object rule itself before either write —
+ * `isAuthorizedForMember()` (declare/forMember: the declaring member, or a
+ * chair/secretary of the relevant GovernanceBody) and
+ * `isAuthorizedToRecordAction()` (recordAction: chair/secretary only — a
+ * presiding-officer act, not something the declarant authorizes for
+ * themselves) — so passing `_rbac: false` there is this consumer declaring,
+ * per the `ObjectServiceInterface` RBAC contract, that authorization already
+ * ran (same convention as `ProxyVoteService`).
+ *
  * @category Service
  * @package  OCA\Decidesk\Service
  *
@@ -76,11 +94,13 @@ class ConflictOfInterestService {
 	 * @param LoggerInterface $logger The logger
 	 * @param AuditLogService $auditLogService Audit log dependency for material declarations
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
+	 * @param ConflictOfInterestAuthorizationGuard $authorizationGuard Per-object authorization guard
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
 		private readonly AuditLogService $auditLogService,
 		private readonly ObjectServiceInterface $objectService,
+		private readonly ConflictOfInterestAuthorizationGuard $authorizationGuard,
 	) {
 	}//end __construct()
 
@@ -93,9 +113,13 @@ class ConflictOfInterestService {
 	 * @param string $type One of self::DECLARATION_TYPES
 	 * @param string $description Free-text rationale
 	 * @param string $severity 'material' or 'non-material' (defaults to material)
+	 * @param string|null $callerUid Nextcloud UID of the caller; null bypasses the
+	 *                               authorization check (admin path, mirroring
+	 *                               `ProxyVoteService`'s convention)
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
 	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
+	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
 	 *
 	 * @return array{success: bool, declaration: array|null, message: string}
 	 */
@@ -105,7 +129,43 @@ class ConflictOfInterestService {
 		string $type,
 		string $description,
 		string $severity = 'material',
+		?string $callerUid = null,
 	): array {
+		$validationFailure = $this->validateDeclarationInput(type: $type, severity: $severity);
+		if ($validationFailure !== null) {
+			return $validationFailure;
+		}
+
+		if ($callerUid !== null
+			&& $this->isAuthorizedForMember(membershipId: $membershipId, agendaItemId: $agendaItemId, callerUid: $callerUid) === false
+		) {
+			return [
+				'success' => false,
+				'declaration' => null,
+				'message' => 'Forbidden: only the declaring member, a chair or secretary of the '
+					. 'relevant governance body, or an admin may record this declaration.',
+			];
+		}
+
+		return $this->persistDeclaration(
+			membershipId: $membershipId,
+			agendaItemId: $agendaItemId,
+			type: $type,
+			description: $description,
+			severity: $severity
+		);
+	}//end declare()
+
+	/**
+	 * Validate `declare()`'s enum-typed inputs before any authorization check
+	 * or persistence is attempted.
+	 *
+	 * @param string $type One of self::DECLARATION_TYPES
+	 * @param string $severity One of self::SEVERITIES
+	 *
+	 * @return array{success: bool, declaration: array|null, message: string}|null Failure envelope, or null when valid
+	 */
+	private function validateDeclarationInput(string $type, string $severity): ?array {
 		if (in_array($type, self::DECLARATION_TYPES, true) === false) {
 			return [
 				'success' => false,
@@ -122,6 +182,22 @@ class ConflictOfInterestService {
 			];
 		}
 
+		return null;
+	}//end validateDeclarationInput()
+
+	/**
+	 * Persist a validated, authorized declaration: writes the row, mirrors
+	 * material declarations to the audit log, and logs the outcome.
+	 *
+	 * @param string $membershipId UUID of the declaring member's Membership
+	 * @param string $agendaItemId UUID of the agenda item
+	 * @param string $type One of self::DECLARATION_TYPES
+	 * @param string $description Free-text rationale
+	 * @param string $severity 'material' or 'non-material'
+	 *
+	 * @return array{success: bool, declaration: array|null, message: string}
+	 */
+	private function persistDeclaration(string $membershipId, string $agendaItemId, string $type, string $description, string $severity): array {
 		try {
 			// The ConflictOfInterest schema declares 'boardMember'/'agendaItem'
 			// (decidesk_register.json); this previously wrote 'boardMemberKoppeling'/
@@ -140,10 +216,17 @@ class ConflictOfInterestService {
 				'declarationTimestamp' => gmdate('Y-m-d\TH:i:s\Z'),
 			];
 
+			// _rbac: false — isAuthorizedForMember() above already enforced the
+			// per-object authorization rule (declaring member, chair/secretary, or
+			// admin); the schema's own authorization block declares only read/list
+			// (decidesk_register.json), so this consumer declares, per the
+			// ObjectServiceInterface RBAC contract, that authorization already ran
+			// (same convention as ProxyVoteService::register()).
 			$saved = $this->objectService->saveObject(
 				object: $row,
 				register: 'decidesk',
-				schema: 'conflict-of-interest'
+				schema: 'conflict-of-interest',
+				_rbac: false
 			);
 
 			$serialized = $row;
@@ -187,19 +270,26 @@ class ConflictOfInterestService {
 			];
 		}//end try
 
-	}//end declare()
+	}//end persistDeclaration()
 
 	/**
 	 * Update the action-taken on an existing declaration.
 	 *
 	 * @param string $declarationId UUID of the conflict-of-interest record
 	 * @param string $actionTaken One of self::ACTIONS
+	 * @param string|null $callerUid Nextcloud UID of the caller; null bypasses the
+	 *                               authorization check (admin path, mirroring
+	 *                               `ProxyVoteService`'s convention). NOT equivalent
+	 *                               to trusting the caller for the action itself —
+	 *                               recording the action taken is a presiding-officer
+	 *                               act, so a non-null caller must be chair/secretary.
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
+	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-103-only-a-chair-or-secretary-may-record-the-action-taken
 	 *
 	 * @return array{success: bool, declaration: array|null, message: string}
 	 */
-	public function recordAction(string $declarationId, string $actionTaken): array {
+	public function recordAction(string $declarationId, string $actionTaken, ?string $callerUid = null): array {
 		if (in_array($actionTaken, self::ACTIONS, true) === false) {
 			return [
 				'success' => false,
@@ -228,13 +318,27 @@ class ConflictOfInterestService {
 				$current = $entity->getObject();
 			}
 
+			if ($callerUid !== null
+				&& $this->authorizationGuard->isAuthorizedToRecordAction(declaration: $current, callerUid: $callerUid) === false
+			) {
+				return [
+					'success' => false,
+					'declaration' => null,
+					'message' => 'Forbidden: only a chair or secretary of the relevant governance '
+						. 'body, or an admin, may record the action taken on a conflict-of-interest declaration.',
+				];
+			}
+
 			$updated = array_merge($current, ['actionTaken' => $actionTaken]);
 
+			// _rbac: false — isAuthorizedToRecordAction() above already enforced the
+			// chair/secretary-only rule; see the class docblock note on declare().
 			$saved = $this->objectService->saveObject(
 				object: $updated,
 				register: 'decidesk',
 				schema: 'conflict-of-interest',
-				uuid: $declarationId
+				uuid: $declarationId,
+				_rbac: false
 			);
 
 			$payload = $updated;
@@ -352,4 +456,30 @@ class ConflictOfInterestService {
 
 		return $out;
 	}//end findDeclarations()
+
+	/**
+	 * Authorize access to one member's conflict-of-interest declarations:
+	 * the caller must be the declaring Membership themselves, or a chair/
+	 * secretary of the relevant meeting's GovernanceBody. Used by both
+	 * `declare()` (recording a new declaration about oneself) and the
+	 * `forMember()` read endpoint — the two share the same rule. Thin
+	 * delegate to `ConflictOfInterestAuthorizationGuard`, kept as a public
+	 * method here so `ConflictOfInterestController::forMember()` can call it
+	 * without taking a direct dependency on the guard.
+	 *
+	 * @param string $membershipId UUID of the Membership the declaration is about
+	 * @param string $agendaItemId UUID of the agenda item the declaration concerns
+	 * @param string $callerUid Nextcloud UID of the caller
+	 *
+	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
+	 *
+	 * @return bool
+	 */
+	public function isAuthorizedForMember(string $membershipId, string $agendaItemId, string $callerUid): bool {
+		return $this->authorizationGuard->isAuthorizedForMember(
+			membershipId: $membershipId,
+			agendaItemId: $agendaItemId,
+			callerUid: $callerUid
+		);
+	}//end isAuthorizedForMember()
 }//end class

@@ -117,11 +117,21 @@ class EIDASSignatureController extends Controller {
 	/**
 	 * Verify a signature blob against the EU Trusted List.
 	 *
+	 * Authorization: the caller must be in the OR-projected signatory scope of
+	 * the GovernanceBody that owns these minutes, or be a Nextcloud admin (the
+	 * admin bypass lives inside the scope projection). This is the same rule
+	 * `initiate()` enforces — the endpoint is routed per-Minutes and belongs to
+	 * the same signing flow — and it is required because the response carries
+	 * the signer's `certificateThumbprint`, which under eIDAS identifies a
+	 * natural person. `requireUserOr401()` above answers "is anyone logged in",
+	 * which is authentication, not authorization.
+	 *
 	 * @param string $minutesId UUID of the minutes record (forensic context)
 	 *
 	 * @NoAdminRequired
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
+	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-102-only-a-body-signatory-may-verify-a-signature-on-a-minutes-record
 	 *
 	 * @return JSONResponse
 	 */
@@ -130,6 +140,14 @@ class EIDASSignatureController extends Controller {
 		$auth = $this->requireUserOr401(session: $this->userSession);
 		if ($auth !== null) {
 			return $auth;
+		}
+
+		$userId = (string)$this->userSession->getUser()->getUID();
+		if ($this->scopeGuard->isSignatoryForMinutes(userId: $userId, minutesId: $minutesId) === false) {
+			return new JSONResponse(
+				['message' => 'You are not authorised to verify signatures on these minutes.'],
+				Http::STATUS_FORBIDDEN
+			);
 		}
 
 		$requestId = (string)$this->request->getParam('requestId', '');
@@ -158,11 +176,23 @@ class EIDASSignatureController extends Controller {
 	/**
 	 * Finalise a signed Minutes record (collect signatures, archive PDF).
 	 *
+	 * Authorization: the caller must be in the OR-projected signatory scope of
+	 * the GovernanceBody that owns these minutes, or be a Nextcloud admin. This
+	 * is the highest-stakes endpoint of the flow — `finalizeMinutes()` writes
+	 * `pdfArchiveReference`, `hashSha256`, `signingCompletionDate`,
+	 * `eidasSignatureLevel = QES`, `version = signed` and `signedBy` onto the
+	 * Minutes row, resolves the `method=signature` DecisionStage to
+	 * `outcome=adopted`, and appends a `signature` audit entry. Starting the
+	 * flow already required this authority (`initiate()`); completing it must
+	 * require no less. The guard runs BEFORE the service is reached, so a
+	 * refusal writes nothing.
+	 *
 	 * @param string $minutesId UUID of the minutes record
 	 *
 	 * @NoAdminRequired
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
+	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-101-only-a-body-signatory-may-finalize-signed-minutes
 	 *
 	 * @return JSONResponse
 	 */
@@ -171,6 +201,14 @@ class EIDASSignatureController extends Controller {
 		$auth = $this->requireUserOr401(session: $this->userSession);
 		if ($auth !== null) {
 			return $auth;
+		}
+
+		$userId = (string)$this->userSession->getUser()->getUID();
+		if ($this->scopeGuard->isSignatoryForMinutes(userId: $userId, minutesId: $minutesId) === false) {
+			return new JSONResponse(
+				['message' => 'You are not authorised to finalise the signing of these minutes.'],
+				Http::STATUS_FORBIDDEN
+			);
 		}
 
 		$signatures = (array)$this->request->getParam('signatures', []);
@@ -196,11 +234,29 @@ class EIDASSignatureController extends Controller {
 	/**
 	 * Report a certificate chain's trust status against the EU Trusted List
 	 * (informational pre-flight for the signing UI — the authoritative chain
-	 * validation happens server-side inside finalizeMinutes()).
+	 * validation happens server-side inside finalizeMinutes(), which REQ-SIG-101
+	 * guards).
+	 *
+	 * Deliberately app-wide: unlike its three siblings this endpoint is routed
+	 * without a Minutes id (`POST /api/eidas/validate-cert`) and accepts no
+	 * caller-supplied object identifier at all. Its only input is a certificate
+	 * SHA-256 thumbprint and its only output is `valid` / `issuer` /
+	 * `trustListLevel` — facts published on the EU Trusted List. No decidesk
+	 * object is reachable through it and nothing it returns is derived from app
+	 * data, so there is no per-object rule to enforce and narrowing it would
+	 * invent an authorization rule no spec states. Both the action and the
+	 * openconnector source slug are fixed constants, so it is not a
+	 * request-forgery surface either. Residual and accepted: an authenticated
+	 * caller can drive repeated outbound calls to the configured QSP — a
+	 * rate/cost concern, not an access-control one.
 	 *
 	 * @NoAdminRequired
+	 * @no-admin-idor-exempt Takes no caller-supplied object identifier — the only input is a
+	 *   certificate SHA-256 thumbprint and the response is sourced entirely from the public EU
+	 *   Trusted List, so no decidesk object is reachable and nothing app-owned is disclosed.
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
+	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-103-certificate-trust-status-lookup-is-a-deliberately-app-wide-authenticated-read
 	 *
 	 * @return JSONResponse
 	 */

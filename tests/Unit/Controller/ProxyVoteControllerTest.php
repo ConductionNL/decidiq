@@ -195,6 +195,7 @@ class ProxyVoteControllerTest extends TestCase {
 	 */
 	public function testIndexReturnsResults(): void {
 		$service = $this->createMock(ProxyVoteService::class);
+		$service->method('isAuthorizedToList')->with('m-1', 'alice')->willReturn(true);
 		$service->expects($this->once())->method('forMeeting')
 			->with('m-1', 'active')
 			->willReturn(['success' => true, 'proxies' => [['id' => 'p-1']], 'count' => 1]);
@@ -210,6 +211,83 @@ class ProxyVoteControllerTest extends TestCase {
 		$this->assertSame(1, $data['total']);
 
 	}//end testIndexReturnsResults()
+
+	/**
+	 * A caller who is NOT a participant of the requested meeting is refused
+	 * 403 and the proxy register is never read.
+	 *
+	 * `meetingId` is a request parameter, so without this check any
+	 * authenticated user could enumerate meetings and read who handed their
+	 * vote to whom (REQ-MPA-008 scopes the register view to "a participant
+	 * with access"). The `never()` on forMeeting is the point: a guard that
+	 * lets the read happen and filters afterwards is not a guard.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/member-proxy-authorization/specs/member-proxy-authorization/spec.md#requirement-req-mpa-008-per-meeting-proxy-register-attachable-to-the-minutes
+	 */
+	public function testIndexRefusesNonParticipantWith403(): void {
+		$service = $this->createMock(ProxyVoteService::class);
+		$service->expects($this->once())->method('isAuthorizedToList')
+			->with('m-1', 'alice')->willReturn(false);
+		$service->expects($this->never())->method('forMeeting');
+
+		$controller = $this->makeController($service, requestParams: ['meetingId' => 'm-1']);
+
+		$response = $controller->index();
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+
+	}//end testIndexRefusesNonParticipantWith403()
+
+	/**
+	 * A participant of the meeting still gets the register — the guard denies
+	 * the outsider WITHOUT denying the legitimate caller.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/member-proxy-authorization/specs/member-proxy-authorization/spec.md#requirement-req-mpa-008-per-meeting-proxy-register-attachable-to-the-minutes
+	 */
+	public function testIndexAllowsParticipant(): void {
+		$service = $this->createMock(ProxyVoteService::class);
+		$service->expects($this->once())->method('isAuthorizedToList')
+			->with('m-1', 'alice')->willReturn(true);
+		$service->expects($this->once())->method('forMeeting')
+			->with('m-1', null)
+			->willReturn(['success' => true, 'proxies' => [['id' => 'p-1']], 'count' => 1]);
+
+		$controller = $this->makeController($service, requestParams: ['meetingId' => 'm-1']);
+
+		$response = $controller->index();
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame(1, $response->getData()['total']);
+
+	}//end testIndexAllowsParticipant()
+
+	/**
+	 * An NC admin bypasses the participation check entirely: `resolveCallerUid()`
+	 * answers null for an admin, so `isAuthorizedToList()` is never consulted
+	 * and the register is returned.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/member-proxy-authorization/specs/member-proxy-authorization/spec.md#requirement-req-mpa-008-per-meeting-proxy-register-attachable-to-the-minutes
+	 */
+	public function testIndexAllowsAdminWithoutParticipationCheck(): void {
+		$service = $this->createMock(ProxyVoteService::class);
+		$service->expects($this->never())->method('isAuthorizedToList');
+		$service->expects($this->once())->method('forMeeting')
+			->with('m-1', null)
+			->willReturn(['success' => true, 'proxies' => [], 'count' => 0]);
+
+		$controller = $this->makeController(
+			$service,
+			requestParams: ['meetingId' => 'm-1'],
+			isAdmin: true
+		);
+
+		$this->assertSame(Http::STATUS_OK, $controller->index()->getStatus());
+
+	}//end testIndexAllowsAdminWithoutParticipationCheck()
 
 	/**
 	 * suspend delegates to the service and returns 200 on success.

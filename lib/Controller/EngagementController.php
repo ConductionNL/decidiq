@@ -137,7 +137,7 @@ class EngagementController extends Controller {
 		// Admins, and the meeting's chair/secretary, may record engagement for any
 		// participant; everyone else may only record for their own participant record.
 		$callerUid = $user->getUID();
-		if ($this->mayRecordForOthers(callerUid: $callerUid, meetingId: $meeting) === false) {
+		if ($this->hasMeetingOversight(callerUid: $callerUid, meetingId: $meeting) === false) {
 			$denied = $this->denyForeignParticipant(callerUid: $callerUid, participant: $participant);
 			if ($denied !== null) {
 				return $denied;
@@ -161,21 +161,26 @@ class EngagementController extends Controller {
 	}//end capture()
 
 	/**
-	 * Decide whether the caller may record engagement for any participant.
+	 * Decide whether the caller holds oversight over a meeting's engagement data.
 	 *
-	 * NC admins (the original p4 fallback) and the meeting's chair/secretary
-	 * (meeting-efficiency widening) may log every speech; everyone else is
-	 * restricted to their own participant record.
+	 * Oversight is the single authority behind BOTH directions of this
+	 * controller: it decides who may RECORD engagement for another participant
+	 * (`capture()`) and who may READ the whole meeting's records
+	 * (`index()`). NC admins (the original p4 fallback) and the meeting's
+	 * chair/secretary (meeting-efficiency widening — real Dutch chairs are
+	 * never NC admins, so the SpeakerQueuePanel was unusable for them) qualify;
+	 * everyone else is restricted to their own participant record.
 	 *
 	 * @param string $callerUid Nextcloud UID of the authenticated caller
 	 * @param string $meetingId Meeting UUID the engagement belongs to
 	 *
-	 * @return bool True when the caller may record for other participants
+	 * @return bool True when the caller may act on, and see, other participants' records
 	 *
 	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.2
 	 * @spec openspec/specs/meeting-efficiency/spec.md
+	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-eng-101-engagement-records-are-listed-only-within-the-callers-authority
 	 */
-	private function mayRecordForOthers(string $callerUid, string $meetingId): bool {
+	private function hasMeetingOversight(string $callerUid, string $meetingId): bool {
 		if ($this->groupManager->isAdmin($callerUid) === true) {
 			return true;
 		}
@@ -186,7 +191,7 @@ class EngagementController extends Controller {
 			roles: ['chair', 'secretary']
 		) === true);
 
-	}//end mayRecordForOthers()
+	}//end hasMeetingOversight()
 
 	/**
 	 * Refuse an unprivileged caller recording for someone else's participant record.
@@ -214,15 +219,32 @@ class EngagementController extends Controller {
 	}//end denyForeignParticipant()
 
 	/**
-	 * List engagement records for a meeting.
+	 * List engagement records for a meeting, scoped to the caller's authority.
 	 *
 	 * GET /api/engagement?meeting={meetingUid}
+	 *
+	 * `meeting` is caller-supplied and was previously the ONLY thing this
+	 * endpoint looked at: any authenticated account could enumerate meeting
+	 * UUIDs and read every participant's speech log, question count and derived
+	 * `engagementScore` for that meeting — per-person accountability data about
+	 * other people (OWASP A01:2021 — Broken Access Control). The
+	 * `EngagementRecord` schema declares no `authorization` block of its own, so
+	 * the register baseline (`read`/`list`: `authenticated` + `public`) offered
+	 * no narrowing either.
+	 *
+	 * The rule mirrors `capture()`'s, and REQ-PE-003 (the engagement summary is
+	 * a minutes-review surface for the chair and secretary):
+	 *   - an NC admin, or the meeting's chair/secretary, reads the FULL meeting
+	 *     (unchanged — that is the surface the spec describes);
+	 *   - any other authenticated caller reads ONLY their own participant's
+	 *     record, so a participant can still see their own engagement.
 	 *
 	 * @return JSONResponse
 	 *
 	 * @NoAdminRequired
 	 *
 	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.2
+	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-eng-101-engagement-records-are-listed-only-within-the-callers-authority
 	 */
 	public function index(): JSONResponse {
 		$user = $this->userSession->getUser();
@@ -238,7 +260,51 @@ class EngagementController extends Controller {
 			);
 		}
 
+		// The read scope is decided BEFORE the fetch, from the session identity
+		// and the caller-supplied meeting id together — never from the request
+		// alone.
+		$callerUid = $user->getUID();
+		$hasOversight = $this->hasMeetingOversight(callerUid: $callerUid, meetingId: $meeting);
+
 		$records = $this->engagementService->findEngagementForMeeting($meeting);
+		if ($hasOversight === false) {
+			$records = $this->ownRecordsOnly(callerUid: $callerUid, records: $records);
+		}
+
 		return new JSONResponse(['records' => $records]);
 	}//end index()
+
+	/**
+	 * Narrow a meeting's engagement records to the caller's own participant record.
+	 *
+	 * Fail-closed on both misses: a caller with no linked Participant record, and
+	 * a record whose `participant` is not the caller's, are both dropped. An
+	 * empty list is the correct answer for a caller who took part in nothing —
+	 * it is not an error, and it never discloses whether another participant has
+	 * a record for this meeting.
+	 *
+	 * @param string $callerUid Nextcloud UID of the authenticated caller
+	 * @param array<int, array<string, mixed>> $records The meeting's engagement records
+	 *
+	 * @return array<int, array<string, mixed>> Only the caller's own records
+	 *
+	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-eng-101-engagement-records-are-listed-only-within-the-callers-authority
+	 */
+	private function ownRecordsOnly(string $callerUid, array $records): array {
+		$callerParticipantId = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
+		if ($callerParticipantId === null) {
+			return [];
+		}
+
+		$own = [];
+		foreach ($records as $record) {
+			if ((string)($record['participant'] ?? '') !== $callerParticipantId) {
+				continue;
+			}
+
+			$own[] = $record;
+		}
+
+		return $own;
+	}//end ownRecordsOnly()
 }//end class

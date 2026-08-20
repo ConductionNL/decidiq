@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Unit tests for EngagementController — capture() authorisation (OWASP A01).
+ * Unit tests for EngagementController authorisation, both directions (OWASP A01).
  *
- * Covers the meeting-efficiency widening: admins AND the meeting's
- * chair/secretary may record engagement for any participant; everyone else
- * may only record for their own participant record.
+ * One rule covers write and read alike: admins AND the meeting's chair/secretary
+ * may record engagement for any participant and list the whole meeting; everyone
+ * else is confined to their own participant record.
  *
  * @category Test
  * @package  OCA\Decidesk\Tests\Unit\Controller
@@ -297,4 +297,210 @@ class EngagementControllerTest extends TestCase {
 		self::assertSame(Http::STATUS_OK, $result->getStatus());
 
 	}//end testCaptureAllowedForAdmin()
+
+	/**
+	 * Stub the index() query parameter.
+	 *
+	 * @param string $meeting Meeting UUID.
+	 *
+	 * @return void
+	 */
+	private function stubIndexParams(string $meeting): void {
+		$this->request->method('getParam')->willReturnCallback(
+			static function ($key, $default = null) use ($meeting) {
+				if ($key === 'meeting') {
+					return $meeting;
+				}
+
+				return $default;
+			}
+		);
+
+	}//end stubIndexParams()
+
+	/**
+	 * A participant record serialising to the given uuid.
+	 *
+	 * @param string $uuid The participant UUID.
+	 *
+	 * @return object
+	 */
+	private function participantEntity(string $uuid): object {
+		return new class($uuid) {
+
+			/**
+			 * Construct with the participant UUID.
+			 *
+			 * @param string $uuid The participant UUID.
+			 */
+			public function __construct(private readonly string $uuid) {
+			}//end __construct()
+
+			/**
+			 * Serialise the participant record.
+			 *
+			 * @return array<string, mixed>
+			 */
+			public function jsonSerialize(): array {
+				return ['uuid' => $this->uuid];
+			}//end jsonSerialize()
+		};
+
+	}//end participantEntity()
+
+	/**
+	 * The engagement records this meeting holds in every index() test.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function meetingRecords(): array {
+		return [
+			['id' => 'rec-self', 'meeting' => 'm-uuid', 'participant' => 'self-participant', 'engagementScore' => 40],
+			['id' => 'rec-other', 'meeting' => 'm-uuid', 'participant' => 'other-participant', 'engagementScore' => 90],
+		];
+
+	}//end meetingRecords()
+
+	/**
+	 * Unauthenticated list returns 401 without touching the service.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-eng-101-engagement-records-are-listed-only-within-the-callers-authority
+	 */
+	public function testIndexUnauthenticatedReturns401(): void {
+		$this->engagementService->expects($this->never())->method('findEngagementForMeeting');
+
+		$result = $this->buildController($this->sessionFor(null))->index();
+
+		self::assertSame(Http::STATUS_UNAUTHORIZED, $result->getStatus());
+
+	}//end testIndexUnauthenticatedReturns401()
+
+	/**
+	 * ALLOW — the meeting's chair reads the WHOLE meeting.
+	 *
+	 * This is the direction that protects REQ-PE-003: the engagement summary is
+	 * a minutes-review surface for the chair and secretary, so a scoping rule
+	 * that also narrowed them would be a functionality regression, not a fix.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/meeting-efficiency/spec.md
+	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-eng-101-engagement-records-are-listed-only-within-the-callers-authority
+	 */
+	public function testIndexReturnsTheWholeMeetingForTheChair(): void {
+		$this->stubIndexParams('m-uuid');
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$this->participantResolver->method('hasRole')
+			->with(meetingId: 'm-uuid', nextcloudUid: 'uid-chair', roles: ['chair', 'secretary'])
+			->willReturn(true);
+
+		$this->engagementService->expects($this->once())
+			->method('findEngagementForMeeting')
+			->willReturn($this->meetingRecords());
+
+		$result = $this->buildController($this->sessionFor('uid-chair'))->index();
+
+		self::assertSame(Http::STATUS_OK, $result->getStatus());
+		self::assertSame($this->meetingRecords(), $result->getData()['records']);
+
+	}//end testIndexReturnsTheWholeMeetingForTheChair()
+
+	/**
+	 * ALLOW — an NC admin reads the whole meeting (original p4 fallback).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-eng-101-engagement-records-are-listed-only-within-the-callers-authority
+	 */
+	public function testIndexReturnsTheWholeMeetingForAnAdmin(): void {
+		$this->stubIndexParams('m-uuid');
+		$this->groupManager->method('isAdmin')->willReturn(true);
+
+		$this->engagementService->expects($this->once())
+			->method('findEngagementForMeeting')
+			->willReturn($this->meetingRecords());
+
+		$result = $this->buildController($this->sessionFor('uid-admin'))->index();
+
+		self::assertSame(Http::STATUS_OK, $result->getStatus());
+		self::assertCount(2, $result->getData()['records']);
+
+	}//end testIndexReturnsTheWholeMeetingForAnAdmin()
+
+	/**
+	 * DENY — a plain participant sees ONLY their own record.
+	 *
+	 * Before the guard this returned every participant's speech log, question
+	 * count and derived engagementScore for any meeting UUID the caller cared to
+	 * type (OWASP A01:2021).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-eng-101-engagement-records-are-listed-only-within-the-callers-authority
+	 */
+	public function testIndexNarrowsAPlainParticipantToTheirOwnRecord(): void {
+		$this->stubIndexParams('m-uuid');
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$this->participantResolver->method('hasRole')->willReturn(false);
+		$this->objectService->method('findAll')->willReturn([$this->participantEntity('self-participant')]);
+
+		$this->engagementService->expects($this->once())
+			->method('findEngagementForMeeting')
+			->willReturn($this->meetingRecords());
+
+		$result = $this->buildController($this->sessionFor('uid-self'))->index();
+
+		self::assertSame(Http::STATUS_OK, $result->getStatus());
+
+		$records = array_values($result->getData()['records']);
+		self::assertCount(1, $records);
+		self::assertSame('rec-self', $records[0]['id']);
+		self::assertSame(
+			['rec-self'],
+			array_column($records, 'id'),
+			"Another participant's engagement record must not be disclosed."
+		);
+
+	}//end testIndexNarrowsAPlainParticipantToTheirOwnRecord()
+
+	/**
+	 * DENY — an authenticated caller with no linked Participant sees nothing.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-eng-101-engagement-records-are-listed-only-within-the-callers-authority
+	 */
+	public function testIndexReturnsNothingForACallerWithNoParticipantRecord(): void {
+		$this->stubIndexParams('m-uuid');
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$this->participantResolver->method('hasRole')->willReturn(false);
+		$this->objectService->method('findAll')->willReturn([]);
+
+		$this->engagementService->method('findEngagementForMeeting')->willReturn($this->meetingRecords());
+
+		$result = $this->buildController($this->sessionFor('uid-stranger'))->index();
+
+		self::assertSame(Http::STATUS_OK, $result->getStatus());
+		self::assertSame([], $result->getData()['records']);
+
+	}//end testIndexReturnsNothingForACallerWithNoParticipantRecord()
+
+	/**
+	 * A missing `meeting` query parameter is a 422, not an unscoped list.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-eng-101-engagement-records-are-listed-only-within-the-callers-authority
+	 */
+	public function testIndexWithoutAMeetingParameterIsRejected(): void {
+		$this->stubIndexParams('');
+		$this->engagementService->expects($this->never())->method('findEngagementForMeeting');
+
+		$result = $this->buildController($this->sessionFor('uid-self'))->index();
+
+		self::assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $result->getStatus());
+
+	}//end testIndexWithoutAMeetingParameterIsRejected()
 }//end class

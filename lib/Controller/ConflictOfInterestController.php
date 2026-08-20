@@ -29,6 +29,7 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -46,14 +47,65 @@ class ConflictOfInterestController extends Controller {
 	 * @param IRequest $request The HTTP request
 	 * @param ConflictOfInterestService $conflictService The conflict service
 	 * @param IUserSession $userSession The user session
+	 * @param IGroupManager $groupManager Group manager (for admin bypass on the authorization guard)
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly ConflictOfInterestService $conflictService,
 		private readonly IUserSession $userSession,
+		private readonly IGroupManager $groupManager,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
+
+	/**
+	 * Resolve the caller's UID for the authorization guard: null when the
+	 * caller is a Nextcloud admin (admin bypass, mirroring
+	 * `ProxyVoteController::resolveCallerUid()`'s convention), the UID
+	 * otherwise.
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
+	 */
+	private function resolveCallerUid(): ?string {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return null;
+		}
+
+		$uid = $user->getUID();
+		if ($this->groupManager->isAdmin($uid) === true) {
+			return null;
+		}
+
+		return $uid;
+	}//end resolveCallerUid()
+
+	/**
+	 * Map a service result to a JSONResponse, promoting authorization
+	 * failures (service message prefixed `Forbidden:`) to `403 Forbidden`
+	 * with a static message instead of the generic `422` that
+	 * `respondFromResult()` would otherwise return (mirrors
+	 * `ProxyVoteController::respondFromAuthorizedResult()`).
+	 *
+	 * @param array<string, mixed> $result The service result
+	 * @param string $payloadKey Key of the success-side payload
+	 * @param int $successCode HTTP code to return on success
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
+	 */
+	private function respondFromAuthorizedResult(array $result, string $payloadKey, int $successCode = Http::STATUS_OK): JSONResponse {
+		if (($result['success'] ?? false) === false
+			&& stripos((string)($result['message'] ?? ''), 'Forbidden:') === 0
+		) {
+			return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
+		}
+
+		return $this->respondFromResult(result: $result, payloadKey: $payloadKey, successCode: $successCode);
+	}//end respondFromAuthorizedResult()
 
 	/**
 	 * Record a new conflict-of-interest declaration.
@@ -85,8 +137,10 @@ class ConflictOfInterestController extends Controller {
 			);
 		}
 
-		return $this->respondFromResult(
-			result: $this->conflictService->declare($membershipId, $agendaItemId, $type, $description, $severity),
+		$callerUid = $this->resolveCallerUid();
+
+		return $this->respondFromAuthorizedResult(
+			result: $this->conflictService->declare($membershipId, $agendaItemId, $type, $description, $severity, $callerUid),
 			payloadKey: 'declaration',
 			successCode: Http::STATUS_CREATED
 		);
@@ -103,6 +157,7 @@ class ConflictOfInterestController extends Controller {
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.3
 	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
+	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-102-only-the-member-or-an-authorized-official-may-read-a-members-conflict-declarations
 	 *
 	 * @return JSONResponse
 	 */
@@ -118,6 +173,13 @@ class ConflictOfInterestController extends Controller {
 			return new JSONResponse(['message' => "Missing required parameter 'agendaItemId'."], Http::STATUS_UNPROCESSABLE_ENTITY);
 		}
 
+		$callerUid = $this->resolveCallerUid();
+		if ($callerUid !== null
+			&& $this->conflictService->isAuthorizedForMember(membershipId: $id, agendaItemId: $agendaItemId, callerUid: $callerUid) === false
+		) {
+			return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
+		}
+
 		$conflict = $this->conflictService->getActiveConflicts($id, $agendaItemId);
 		return new JSONResponse(['conflict' => $conflict]);
 	}//end forMember()
@@ -130,6 +192,7 @@ class ConflictOfInterestController extends Controller {
 	 * @NoAdminRequired
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.3
+	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-103-only-a-chair-or-secretary-may-record-the-action-taken
 	 *
 	 * @return JSONResponse
 	 */
@@ -145,8 +208,10 @@ class ConflictOfInterestController extends Controller {
 			return new JSONResponse(['message' => "Missing required parameter 'actionTaken'."], Http::STATUS_UNPROCESSABLE_ENTITY);
 		}
 
-		return $this->respondFromResult(
-			result: $this->conflictService->recordAction($id, $action),
+		$callerUid = $this->resolveCallerUid();
+
+		return $this->respondFromAuthorizedResult(
+			result: $this->conflictService->recordAction($id, $action, $callerUid),
 			payloadKey: 'declaration'
 		);
 

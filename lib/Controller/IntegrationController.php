@@ -33,6 +33,7 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
@@ -45,11 +46,21 @@ use Psr\Log\LoggerInterface;
  * POST /api/v1/decisions/{id}/subscriptions (register outcome callback)
  * per the ADR-019 integration registry contract.
  *
- * Per-object access control is delegated to OpenRegister ObjectService RBAC
- * inside DecisionIntegrationService — no object UUID is probed directly here.
- * The #[NoAdminRequired] attribute means any authenticated Nextcloud user
- * (or registry credential) may call these endpoints; the service layer then
- * enforces per-object read/write access (no-admin-IDOR gate pattern).
+ * AUTH POSTURE. This class used to state that per-object access control was
+ * delegated to OpenRegister ObjectService RBAC inside
+ * DecisionIntegrationService. That was NOT true: the `Decision` schema in
+ * lib/Settings/decidesk_register.json declares no `authorization` block, so the
+ * decidesk register baseline applies (`read`/`list`:
+ * `["authenticated", "public"]`) and OpenRegister authorizes the read for
+ * everyone — an unconfigured cascade is OPEN, not closed. `getOutcome()` and
+ * `subscribe()` therefore enforce their own per-object rules (REQ-DCDH-101 /
+ * REQ-DCDH-102, see DecisionIntegrationService::isAuthorizedToReadOutcome() and
+ * ::isAuthorizedToSubscribe()). #[NoAdminRequired] plus a session check is
+ * authentication, not authorization.
+ *
+ * The two rules differ on purpose: the READ allows a published decision through
+ * (`isPublished === 'public'`), the WRITE does not. Public readability is not a
+ * write grant — see subscribe()'s docblock.
  *
  * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
  */
@@ -61,16 +72,46 @@ class IntegrationController extends Controller {
 	 * @param IUserSession $userSession Nextcloud user session
 	 * @param DecisionIntegrationService $integrationService Outcome assembler + callback dispatcher
 	 * @param LoggerInterface $logger PSR-3 logger
+	 * @param IGroupManager $groupManager Group manager (admin bypass on the outcome-read and subscribe guards)
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly IUserSession $userSession,
 		private readonly DecisionIntegrationService $integrationService,
 		private readonly LoggerInterface $logger,
+		private readonly IGroupManager $groupManager,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 
 	}//end __construct()
+
+	/**
+	 * Resolve the caller's UID for the authorization guard: null when the caller
+	 * is a Nextcloud admin (admin bypass, mirroring
+	 * `ProxyVoteController::resolveCallerUid()` and
+	 * `ConflictOfInterestController::resolveCallerUid()`), the UID otherwise.
+	 *
+	 * A null return also covers "no session", but callers check for an
+	 * authenticated user first, so a null here always means "admin".
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 */
+	private function resolveCallerUid(): ?string {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return null;
+		}
+
+		$uid = $user->getUID();
+		if ($this->groupManager->isAdmin($uid) === true) {
+			return null;
+		}
+
+		return $uid;
+	}//end resolveCallerUid()
 
 	/**
 	 * Create a Decision raised by an external fleet app.
@@ -165,8 +206,19 @@ class IntegrationController extends Controller {
 	 * signedAt, signers, subjectRegister, subjectSchema, subjectId, and
 	 * externalReference (REQ-DCDH-003).
 	 *
-	 * Per-object read access is enforced by OpenRegister ObjectService RBAC
-	 * inside the service — callers without read access receive 404 (no UUID probing).
+	 * Authorization (REQ-DCDH-101): the caller must be the Decision's
+	 * OpenRegister owner — the identity that raised it through
+	 * `POST /api/v1/decisions`, i.e. the consumer this endpoint exists to serve
+	 * — or a Nextcloud admin, or the Decision must be published
+	 * (`isPublished === 'public'`). Anything else is refused with `403`. Without
+	 * this any authenticated user could read any Decision's cross-app subject
+	 * coordinates, the consumer's `externalReference` and the `signers` array by
+	 * enumerating Decision UUIDs; the register baseline grants OR-level read to
+	 * everyone because the `Decision` schema declares no `authorization` block.
+	 *
+	 * A Decision that does not exist still yields `404` — the guard allows the
+	 * miss through so a `403` cannot become an existence oracle for a UUID the
+	 * app never issued.
 	 *
 	 * @param string $id UUID of the Decision object
 	 *
@@ -174,6 +226,7 @@ class IntegrationController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 * @spec            openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec            openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -181,6 +234,13 @@ class IntegrationController extends Controller {
 		$user = $this->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		$callerUid = $this->resolveCallerUid();
+		if ($callerUid !== null
+			&& $this->integrationService->isAuthorizedToReadOutcome(decisionId: $id, callerUid: $callerUid) === false
+		) {
+			return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
 		}
 
 		try {
@@ -215,9 +275,34 @@ class IntegrationController extends Controller {
 	 *
 	 * Returns 201 with the subscription id on success.
 	 * Returns 401 when unauthenticated.
+	 * Returns 403 when the caller may not attach a callback to this Decision.
 	 * Returns 400 when callbackUrl is missing.
 	 * Returns 403 when callbackUrl does not match a known registry consumer.
 	 * Returns 404 when the Decision is not found.
+	 *
+	 * Authorization (REQ-DCDH-102): the caller must be the Decision's
+	 * OpenRegister owner — the consumer that raised it through
+	 * `POST /api/v1/decisions` — or a Nextcloud admin. Anything else is refused
+	 * with `403`.
+	 *
+	 * This is a WRITE, so the read rule of REQ-DCDH-101 does NOT apply: the
+	 * `isPublished === 'public'` arm that keeps a published decision READABLE by
+	 * anyone is deliberately absent here. `isPublished` is an admin-set
+	 * read-visibility enum (`DecisionController::publish()` is
+	 * `#[AuthorizedAdminSetting]`); honouring it on this path would mean the act
+	 * of publishing a decision also opens its delivery target to every
+	 * authenticated user. See `DecisionIntegrationService::isAuthorizedToSubscribe()`
+	 * for the full derivation.
+	 *
+	 * Without this guard any authenticated user could overwrite the raising
+	 * consumer's `outcomeCallbackUrl` on any Decision UUID — redirecting the
+	 * outcome envelope (subject coordinates, `externalReference`, `signers`) to
+	 * another registered consumer and denying the legitimate one its callback.
+	 * The pre-existing `Http::STATUS_FORBIDDEN` in this method is the anti-SSRF
+	 * `ssrf_rejected` mapping, which validates the URL and never the caller.
+	 *
+	 * A Decision that does not exist still yields `404` — the guard allows the
+	 * miss through so a `403` cannot become an existence oracle.
 	 *
 	 * @param string $id UUID of the Decision object
 	 *
@@ -225,6 +310,7 @@ class IntegrationController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 * @spec            openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec            openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -232,6 +318,13 @@ class IntegrationController extends Controller {
 		$user = $this->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		$callerUid = $this->resolveCallerUid();
+		if ($callerUid !== null
+			&& $this->integrationService->isAuthorizedToSubscribe(decisionId: $id, callerUid: $callerUid) === false
+		) {
+			return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
 		}
 
 		$callbackUrl = (string)($this->request->getParam('callbackUrl', ''));

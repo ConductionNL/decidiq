@@ -3262,8 +3262,29 @@
         },
         "slug": "decision",
         "icon": "Gavel",
-        "version": "0.8.0",
+        "version": "0.9.0",
         "title": "Decision",
+        "_authorizationNote": "decision previously declared no schema-level authorization block, so it fell back to the decidesk register's baseline (read/list open to 'public' + 'authenticated') — every Decision in the instance was readable by any unauthenticated caller through OpenRegister's generic object API, including decisions still in 'proposed' or 'draft' lifecycle. IntegrationController::getOutcome()'s docblock asserted that 'per-object read access is enforced by OpenRegister ObjectService RBAC'; that claim was false precisely because this block was absent (an absent block leaves the schema open). This narrows anonymous read/list to Decisions the app itself has published (isPublished === 'public'), leaving all others to authenticated callers, and mirrors ParticipatoryBudget / PublicConsultation / BoardEvaluation in this same file. It is defence in depth on the ANONYMOUS surface only: the per-object controller guards added in signature-and-outcome-authorization-guard do not depend on it. create/update/delete are deliberately omitted — an omitted action is closed to everyone except the object owner and admin.",
+        "authorization": {
+          "read": [
+            {
+              "group": "public",
+              "match": {
+                "isPublished": "public"
+              }
+            },
+            "authenticated"
+          ],
+          "list": [
+            {
+              "group": "public",
+              "match": {
+                "isPublished": "public"
+              }
+            },
+            "authenticated"
+          ]
+        },
         "description": "The universal governance-decision supertype (ADR-005). A single schema for every decision outcome — motion, amendment, resolution, contract, appointment, management point, policy and generic meeting outcome — distinguished by the required decisionType discriminator. Type-specific fields are folded in and revealed via progressive disclosure keyed on decisionType (ADR-006).",
         "type": "object",
         "x-openregister": {
@@ -6360,7 +6381,7 @@
       "ConflictOfInterest": {
         "slug": "conflict-of-interest",
         "icon": "AlertOctagonOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "ConflictOfInterest",
         "description": "A declared or detected conflict-of-interest disclosure per MCCG / governance code",
         "type": "object",
@@ -6369,6 +6390,15 @@
           "active": true,
           "hardDelete": false,
           "searchable": true
+        },
+        "_authorizationNote": "conflict-of-interest previously declared no schema-level authorization block, so it fell back to the decidesk register's baseline (read/list open to 'public' + 'authenticated') — meaning conflict-of-interest declarations (financial interests, personal relationships) were readable by ANY unauthenticated caller via OpenRegister's generic object API, on top of the confirmed IDOR in ConflictOfInterestController (conflict-of-interest-authorization-guard). This is sensitive personal data, not a public governance record, so this block narrows read/list to 'authenticated' only (no 'public'). create/update are deliberately OMITTED: once a schema declares any authorization block, an omitted action is closed to everyone except the object owner and admin (PermissionHandler::resolveAuthorizationRaw/hasGroupPermission) — ConflictOfInterestService::declare()/recordAction() pass _rbac:false after enforcing the finer-grained per-object rule themselves (declaring member or chair/secretary; chair/secretary-only for recordAction — see the service class docblock), the same convention ProxyVoteService uses for proxy-authorization. delete is never performed by this app and stays closed to non-admins.",
+        "authorization": {
+          "read": [
+            "authenticated"
+          ],
+          "list": [
+            "authenticated"
+          ]
         },
         "required": [
           "boardMember",

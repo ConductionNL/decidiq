@@ -151,9 +151,16 @@ class ProxyVoteController extends Controller {
 	/**
 	 * List proxies for the requested meeting.
 	 *
+	 * `meetingId` is caller-supplied, so the caller must be authorized FOR
+	 * THAT MEETING before the register is read: a participant of the meeting's
+	 * GovernanceBody, or an admin. `requireUserOr401()` above answers "is
+	 * anyone logged in", which under `#[NoAdminRequired]` the framework has
+	 * already settled — it is not an authorization guard.
+	 *
 	 * @NoAdminRequired
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+	 * @spec openspec/changes/member-proxy-authorization/specs/member-proxy-authorization/spec.md#requirement-req-mpa-008-per-meeting-proxy-register-attachable-to-the-minutes
 	 *
 	 * @return JSONResponse
 	 */
@@ -170,6 +177,13 @@ class ProxyVoteController extends Controller {
 				['message' => "Missing required parameter 'meetingId'."],
 				Http::STATUS_UNPROCESSABLE_ENTITY
 			);
+		}
+
+		$callerUid = $this->resolveCallerUid();
+		if ($callerUid !== null
+			&& $this->proxyService->isAuthorizedToList(meetingId: $meetingId, callerUid: $callerUid) === false
+		) {
+			return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
 		}
 
 		$status = (string)$this->request->getParam('status', '');

@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidesk\Service\BoardEvaluationAccessGuard;
 use OCA\Decidesk\Service\BoardEvaluationReportService;
 use OCA\Decidesk\Service\BoardEvaluationResponseService;
 use OCA\Decidesk\Service\BoardEvaluationScoreService;
@@ -57,6 +58,7 @@ class BoardEvaluationController extends Controller {
 	 * @param BoardEvaluationReportService $reportService Report document generation
 	 * @param ParticipationPublicationService $publicationService Publication of the aggregate summary
 	 * @param IUserSession $userSession User session
+	 * @param BoardEvaluationAccessGuard $accessGuard Per-object authorisation for the action endpoints
 	 */
 	public function __construct(
 		IRequest $request,
@@ -65,6 +67,7 @@ class BoardEvaluationController extends Controller {
 		private readonly BoardEvaluationReportService $reportService,
 		private readonly ParticipationPublicationService $publicationService,
 		private readonly IUserSession $userSession,
+		private readonly BoardEvaluationAccessGuard $accessGuard,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -124,15 +127,20 @@ class BoardEvaluationController extends Controller {
 
 	/**
 	 * Close an open evaluation cycle: computes and materialises the score
-	 * summary and advances the lifecycle to `closed`. OpenRegister's
-	 * property-RBAC rule on `lifecycle` already enforces that only the
-	 * body's chair/secretary can reach this state (the client-side write
-	 * that got the object to lifecycle=open/closed happens via the normal
-	 * object API); this endpoint runs the scoring side-effect.
+	 * summary and advances the lifecycle to `closed`.
+	 *
+	 * `$id` is caller-supplied, so the caller is authorised FOR THAT
+	 * EVALUATION first: the body's chair or secretary, or an admin. That is
+	 * the rule the schema's `lifecycle.update` block already declares
+	 * (REQ-EVAL-006 — the guard reads the same `chairUserId`/`secretaryUserId`
+	 * fields rather than inventing a second one), enforced here so an
+	 * unauthorised caller is refused BEFORE the scoring pass runs and gets a
+	 * 403 instead of the 422 OpenRegister's later refusal produced.
 	 *
 	 * @param string $id UUID of the BoardEvaluation
 	 *
 	 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
+	 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-006-one-mode-adaptive-entity-across-governance-domains
 	 *
 	 * @return JSONResponse
 	 */
@@ -141,6 +149,11 @@ class BoardEvaluationController extends Controller {
 		$auth = $this->requireUserOr401(session: $this->userSession);
 		if ($auth !== null) {
 			return $auth;
+		}
+
+		$denied = $this->accessGuard->requireChairOrSecretary(evaluationId: $id);
+		if ($denied !== null) {
+			return $denied;
 		}
 
 		return $this->respondFromResult(
@@ -154,9 +167,18 @@ class BoardEvaluationController extends Controller {
 	 * Publish a closed evaluation's aggregate summary through the existing
 	 * publication stack. Raw responses are never published.
 	 *
+	 * Publishing sets `publicationDate`, which is what makes the summary
+	 * anonymously readable, and advances `lifecycle` to `published` — so the
+	 * same chair/secretary rule as `close()` applies, and for the same reason
+	 * it is checked here: `ParticipationPublicationService::publishSummary()`
+	 * catches OpenRegister's refusal and still answers 200 with
+	 * `publishedPredicateSet: false`, so an unauthorised caller could not tell
+	 * a denial from a success.
+	 *
 	 * @param string $id UUID of the BoardEvaluation
 	 *
 	 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
+	 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-006-one-mode-adaptive-entity-across-governance-domains
 	 *
 	 * @return JSONResponse
 	 */
@@ -165,6 +187,11 @@ class BoardEvaluationController extends Controller {
 		$auth = $this->requireUserOr401(session: $this->userSession);
 		if ($auth !== null) {
 			return $auth;
+		}
+
+		$denied = $this->accessGuard->requireChairOrSecretary(evaluationId: $id);
+		if ($denied !== null) {
+			return $denied;
 		}
 
 		try {
@@ -180,6 +207,13 @@ class BoardEvaluationController extends Controller {
 	 * Generate the evaluation report document (markdown canonical, Docudesk
 	 * PDF where present) via the existing minutes/document generation path.
 	 *
+	 * Writes no `lifecycle`, so OpenRegister's property rule gates nothing
+	 * here: the authorisation is this guard's alone. It is the WIDER of the
+	 * two rules — any member of the evaluating body, not just the presiding
+	 * officers — because REQ-EVAL-005 names no actor for report generation and
+	 * the "Generate report" button is offered to every member on the results
+	 * tab. What it excludes is a caller who is not on the body at all.
+	 *
 	 * @param string $id UUID of the BoardEvaluation
 	 *
 	 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
@@ -191,6 +225,11 @@ class BoardEvaluationController extends Controller {
 		$auth = $this->requireUserOr401(session: $this->userSession);
 		if ($auth !== null) {
 			return $auth;
+		}
+
+		$denied = $this->accessGuard->requireBodyMember(evaluationId: $id);
+		if ($denied !== null) {
+			return $denied;
 		}
 
 		try {
