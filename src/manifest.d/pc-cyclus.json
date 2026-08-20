@@ -33,8 +33,8 @@
 				],
 				"columns": [
 					{ "key": "name", "label": "Name", "widget": "link" },
-					{ "key": "year", "label": "Year" },
-					{ "key": "governanceBody", "label": "Governance body" },
+					{ "key": "year", "label": "Year", "formatter": "plainYear" },
+					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "completedStepCount", "label": "Completed" },
 					{ "key": "stepCount", "label": "Steps" },
 					{ "key": "overdueStepCount", "label": "Overdue", "widget": "badge" }

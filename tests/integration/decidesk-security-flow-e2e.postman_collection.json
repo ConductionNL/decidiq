@@ -70,6 +70,14 @@
 			"value": ""
 		},
 		{
+			"key": "sfecHolderParticipantId",
+			"value": ""
+		},
+		{
+			"key": "sfecMeetingId",
+			"value": ""
+		},
+		{
 			"key": "sfecProxyId",
 			"value": ""
 		}
@@ -312,6 +320,146 @@
 					]
 				},
 				{
+					"name": "Seed holder participant (for the proxy's holder side)",
+					"description": "REQ-SFEC-001 / model-debt-cleanup-code Decision 3: ProxyVoteService::register() resolves BOTH grantorId and holderId through ParticipantToPersonMembershipResolver, which loads the Participant row by id and fails closed (422) when it does not exist. A placeholder string here is not a Participant, so the crosswalk cannot resolve it — seed a real (unlinked-to-any-NC-account) Participant instead, matching how the grantor side is seeded above.",
+					"request": {
+						"method": "POST",
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"displayName\": \"SFEC Holder\",\n  \"name\": \"SFEC Holder\",\n  \"role\": \"member\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidesk",
+								"participant"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: holder participant created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'holder participant id captured').to.be.a('string');",
+									"pm.collectionVariables.set('sfecHolderParticipantId', id);"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Seed meeting (for the proxy registration)",
+					"description": "The proxy-authorization schema's `meeting` property is `format: uuid` (fragment 63-member-proxy-authorization.json, unchanged by model-debt-cleanup-code) — OpenRegister rejects a non-uuid value at save with 'Property meeting should match format uuid'. The prior fixture used a free-text placeholder because the OLD board-proxy row's `meetingIntegration` field carried no format constraint; the new schema does, so a real seeded Meeting is required.",
+					"request": {
+						"method": "POST",
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"SFEC Proxy Meeting\",\n  \"meetingType\": \"regular\",\n  \"scheduledDate\": \"2026-06-20T10:00:00+00:00\",\n  \"meetingMode\": \"hybrid\",\n  \"lifecycle\": \"opened\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidesk",
+								"meeting"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: meeting created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'meeting id captured').to.be.a('string');",
+									"pm.collectionVariables.set('sfecMeetingId', id);"
+								]
+							}
+						}
+					]
+				},
+				{
 					"name": "Register proxy as grantor (happy: 201)",
 					"request": {
 						"method": "POST",
@@ -346,7 +494,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"meetingId\": \"e2e-sfec-meeting-placeholder\",\n  \"grantorId\": \"{{sfecParticipantId}}\",\n  \"holderId\": \"e2e-sfec-holder-placeholder\"\n}"
+							"raw": "{\n  \"meetingId\": \"{{sfecMeetingId}}\",\n  \"grantorId\": \"{{sfecParticipantId}}\",\n  \"holderId\": \"{{sfecHolderParticipantId}}\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/proxies",
@@ -477,7 +625,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"meetingId\": \"e2e-sfec-meeting-placeholder\",\n  \"grantorId\": \"{{sfecParticipantId}}\",\n  \"holderId\": \"e2e-sfec-holder-placeholder-2\"\n}"
+							"raw": "{\n  \"meetingId\": \"{{sfecMeetingId}}\",\n  \"grantorId\": \"{{sfecParticipantId}}\",\n  \"holderId\": \"e2e-sfec-holder-placeholder-2\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/proxies",
@@ -662,6 +810,100 @@
 								"decidesk",
 								"participant",
 								"{{sfecParticipantId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete holder participant",
+					"request": {
+						"method": "DELETE",
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant/{{sfecHolderParticipantId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidesk",
+								"participant",
+								"{{sfecHolderParticipantId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete meeting",
+					"request": {
+						"method": "DELETE",
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting/{{sfecMeetingId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidesk",
+								"meeting",
+								"{{sfecMeetingId}}"
 							]
 						}
 					}

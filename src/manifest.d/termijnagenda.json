@@ -34,7 +34,7 @@
 				],
 				"columns": [
 					{ "key": "subject", "label": "Subject", "widget": "link" },
-					{ "key": "governanceBody", "label": "Governance body" },
+					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "plannedPeriod", "label": "Planned period" },
 					{ "key": "expectedType", "label": "Expected type", "widget": "badge" },
 					{ "key": "ownerType", "label": "Owner" },

@@ -36,7 +36,7 @@
 					{ "label": "All", "filter": {}, "default": true }
 				],
 				"columns": [
-					{ "key": "body", "label": "Governance body", "widget": "link" },
+					{ "key": "body", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "generatedOn", "label": "Generated at" },
 					{ "key": "publicationDate", "label": "Published" }
 				],
@@ -156,7 +156,7 @@
 					{ "label": "Member", "filter": { "role": "member" } }
 				],
 				"columns": [
-					{ "key": "body", "label": "Governance body", "widget": "link" },
+					{ "key": "body", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "role", "label": "Role", "widget": "badge" },
 					{ "key": "termDurationMonths", "label": "Term (months)" },
 					{ "key": "maxConsecutivePeriods", "label": "Max consecutive terms" }

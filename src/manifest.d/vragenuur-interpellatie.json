@@ -51,10 +51,10 @@
 				"columns": [
 					{ "key": "questionNumber", "label": "Number", "widget": "link" },
 					{ "key": "subject", "label": "Subject" },
-					{ "key": "submitter", "label": "Submitter" },
+					{ "key": "submitter", "label": "Submitter", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
 					{ "key": "politicalGroup", "label": "Fraction" },
-					{ "key": "portefeuillehouder", "label": "Portefeuillehouder" },
-					{ "key": "targetMeeting", "label": "Meeting" },
+					{ "key": "portfolioHolder", "label": "Portefeuillehouder", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
+					{ "key": "targetMeeting", "label": "Meeting", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "meeting", "labelField": "title" } },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 				],
 				"actions": [
@@ -126,9 +126,9 @@
 				"columns": [
 					{ "key": "requestNumber", "label": "Number", "widget": "link" },
 					{ "key": "subject", "label": "Subject" },
-					{ "key": "requester", "label": "Requester" },
+					{ "key": "requester", "label": "Requester", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
 					{ "key": "politicalGroup", "label": "Fraction" },
-					{ "key": "portefeuillehouder", "label": "Portefeuillehouder" },
+					{ "key": "portfolioHolder", "label": "Portefeuillehouder", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 				],
 				"actions": [

@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidesk Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.8.0"
+    "version": "0.9.0"
   },
   "x-openregister": {
     "type": "application",
@@ -193,6 +193,16 @@
             "startDate": "2024-01-01T00:00:00Z",
             "person": "marie-janssen",
             "governanceBody": "ledenraad-vng"
+          },
+          {
+            "slug": "m-marie-groenlinks-fractie",
+            "role": "member",
+            "label": "Fractielid",
+            "party": "GroenLinks",
+            "votingWeight": 1,
+            "startDate": "2022-03-16T00:00:00Z",
+            "person": "marie-janssen",
+            "governanceBody": "groenlinks-fractie-amsterdam"
           }
         ],
         "contact-detail": [
@@ -284,6 +294,22 @@
             "votingDefault": "for-against-abstain",
             "termStart": "2024-01-01T00:00:00Z",
             "termEnd": "2028-12-31T00:00:00Z"
+          },
+          {
+            "slug": "groenlinks-fractie-amsterdam",
+            "name": "GroenLinks-fractie",
+            "bodyType": "faction",
+            "domain": "municipality",
+            "parentBody": "gemeenteraad-amsterdam",
+            "votingDefault": "for-against-abstain"
+          },
+          {
+            "slug": "d66-fractie-amsterdam",
+            "name": "D66-fractie",
+            "bodyType": "faction",
+            "domain": "municipality",
+            "parentBody": "gemeenteraad-amsterdam",
+            "votingDefault": "for-against-abstain"
           }
         ],
         "meeting": [
@@ -1477,8 +1503,8 @@
         },
         "schemas": [
           "action-item",
+          "advice-request",
           "advies",
-          "adviceRequest",
           "agenda-item",
           "bevoegdheidstoedeling",
           "board-evaluation",
@@ -1533,7 +1559,7 @@
           "post",
           "process-template",
           "product",
-          "proxyAuthorization",
+          "proxy-authorization",
           "public-consultation",
           "publication-payload",
           "publication-record",
@@ -1903,7 +1929,7 @@
       "GovernanceBody": {
         "slug": "governance-body",
         "icon": "AccountGroupOutline",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "title": "GovernanceBody",
         "description": "A governance body (council, board, committee, assembly)",
         "type": "object",
@@ -1940,7 +1966,8 @@
               "executive-board",
               "advisory-body",
               "works-council",
-              "shared-body"
+              "shared-body",
+              "faction"
             ],
             "example": "legislative"
           },
@@ -2003,6 +2030,14 @@
             "description": "Number of days after minutes approval before the retention policy is enforced for this body's recordings/transcripts (meeting-transcription). Default 30.",
             "default": 30,
             "example": 30
+          },
+          "parentBody": {
+            "title": "Parent body",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "nullable": true,
+            "description": "Reference to the parent GovernanceBody this body belongs to — used for factions (bodyType=faction) referencing their council, and generically available for other sub-body hierarchies. Optional."
           }
         }
       },
@@ -5509,9 +5544,9 @@
         },
         "slug": "public-consultation",
         "icon": "ForumOutline",
-        "version": "0.3.0",
+        "version": "0.3.1",
         "title": "PublicConsultation",
-        "description": "Supertype for every public-engagement round, distinguished by consultationType (citizen-participation | market-consultation | tender | idea-box | participatory-budget). One list + detail surface filtered by type, mirroring the Decision/decisionType supertype (ADR-005). Version 0.3.0 (consultations-engagement-hub): added consultationType + additive optional type fields (tender, market, idea-box, participatory-budget) and broadened the status enum to the per-type union; states are declared in x-openregister-lifecycle. Version 0.2.0: renamed status value 'summarised' to 'results-published' and added anonymousReactionsAllowed + moderationPolicy. Legacy 'summarised' objects are normalised to 'results-published' on read by ParticipationLifecycleService; rows with no consultationType are treated as citizen-participation.",
+        "description": "Supertype for every public-engagement round, distinguished by consultationType (citizen-participation | market-consultation | tender | idea-box | participatory-budget). One list + detail surface filtered by type, mirroring the Decision/decisionType supertype (ADR-005). ADR-006 addendum (consultation-discriminator, 2026-08-19): PublicConsultation remains the sole discriminated concept for the public/market-consultation family; MemberConsultation and ConsultationRequest are each independently exempted from folding into this schema as genuinely distinct concepts (measured field overlap 13%/10%, no shared public-authorization block, distinct x-schema-org types) — see openspec/architecture/adr-006-mode-adaptation-over-parallel-entities.md. Version 0.3.0 (consultations-engagement-hub): added consultationType + additive optional type fields (tender, market, idea-box, participatory-budget) and broadened the status enum to the per-type union; states are declared in x-openregister-lifecycle. Version 0.2.0: renamed status value 'summarised' to 'results-published' and added anonymousReactionsAllowed + moderationPolicy. Legacy 'summarised' objects are normalised to 'results-published' on read by ParticipationLifecycleService; rows with no consultationType are treated as citizen-participation.",
         "type": "object",
         "x-openregister": {
           "schemaType": "schema:Event",

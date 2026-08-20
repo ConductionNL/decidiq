@@ -240,6 +240,14 @@ test('sub-items render nested under their parent in the agenda tab', async ({
 	page,
 	playwright,
 }) => {
+	// 2026-08-19: raised from the 20s default after meeting-facet-composition
+	// added five facet widgets (each its own object-list query) to
+	// MeetingDetail — the page is legitimately heavier, and the CI twin-run
+	// flake detector showed this test straddling the old budget (one twin
+	// passed, one timed out). Not a redundant-navigation case; the deeper fix
+	// (below-the-fold lazy widget loading) is tracked as an nc-vue follow-up
+	// in ux-debt-rendering's blocked-items list.
+	test.setTimeout(35_000)
 	const api = await newApiContext(playwright)
 	const created: string[] = []
 	let meetingId: string | null = null

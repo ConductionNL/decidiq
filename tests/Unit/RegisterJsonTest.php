@@ -258,7 +258,11 @@ class RegisterJsonTest extends TestCase {
 		self::assertContains(needle: 'advisory-body', haystack: $bodyTypeEnum);
 		self::assertContains(needle: 'works-council', haystack: $bodyTypeEnum);
 		self::assertContains(needle: 'shared-body', haystack: $bodyTypeEnum);
-		self::assertCount(expectedCount: 10, haystack: $bodyTypeEnum);
+		// organisation-facet-composition models factions as a bodyType
+		// discriminator (ADR-006) instead of the superseded parallel
+		// Fractie schema set.
+		self::assertContains(needle: 'faction', haystack: $bodyTypeEnum);
+		self::assertCount(expectedCount: 11, haystack: $bodyTypeEnum);
 
 	}//end testGovernanceBodySchema()
 

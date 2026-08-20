@@ -21,6 +21,7 @@ import { setActivePinia } from 'pinia'
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
+import { registerDetailWidgets } from './components/widgets/registerDetailWidgets.js'
 import appIcons from './icons.js'
 import { registerDecisionsLeaf } from './integrations/registerDecisionsLeaf.js'
 import bundledManifest from './manifest.json'
@@ -134,8 +135,10 @@ const fragments = fragmentCtx
 const mergedManifest = buildManifest(bundledManifest, fragments, menuLayout)
 
 /**
+ * Build the vue-router routes array from the merged manifest's pages.
  *
- * @param manifest
+ * @param {object} manifest The merged manifest (with `pages[]`).
+ * @return {Array<object>} vue-router 3 routes config.
  */
 function routesFromManifest(manifest) {
 	const routes = manifest.pages.map((page) => ({
@@ -239,7 +242,33 @@ setActivePinia(pinia)
 		// mount so the user sees a usable shell. Children that need
 		// registered types will surface their own errors and recover
 		// when initializeStores() retries via App.vue's lifecycle hook.
+		// NB: this pre-existing console.error is intentionally left without
+		// an inline eslint-disable — it is already accounted for as a known
+		// no-console debt item in eslint-suppressions.json (count: 1), which
+		// is outside this change's file-edit scope to update. Adding a
+		// disable comment here would silence it AND desync that baseline
+		// (npm run lint would then report the suppression as stale/unused).
 		console.error('Boot: initializeStores() failed; mounting anyway', e)
+	}
+
+	try {
+		// Registers the three register-detail catalog widgets (version-timeline
+		// / delegation-chain / confidentiality-status-timeline) into the shared
+		// dashboardWidgetRegistry (register-detail-optimisation). MUST resolve
+		// before mount — CnDetailPage looks widget types up synchronously via
+		// getWidgetTypeEntry() at render time, so a page whose manifest
+		// declares one of these types needs the registry populated first.
+		// Dynamic-imported (rather than a static side-effect import) so this
+		// module's pure helper functions stay importable in isolation by
+		// Vitest, which has no @vitejs/plugin-vue registered and therefore
+		// cannot resolve a static top-level import of @conduction/nextcloud-vue
+		// or a .vue file (see tests/vitest/registerDetailWidgets.spec.js).
+		await registerDetailWidgets()
+	} catch (e) {
+		// Non-fatal — the three widgets simply won't render on their detail
+		// pages; every other page is unaffected.
+		// eslint-disable-next-line no-console
+		console.error('Boot: registerDetailWidgets() failed', e)
 	}
 
 	// Vue 3 (ADR-066): mount App as the root component directly and pass the

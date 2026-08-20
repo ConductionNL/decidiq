@@ -88,18 +88,19 @@ class ConflictOfInterestService {
 	 * Record a new declaration. Material declarations are mirrored to the
 	 * audit log and the resulting object is returned alongside success status.
 	 *
-	 * @param string $boardMemberId UUID of the declaring board member
+	 * @param string $membershipId UUID of the declaring member's Membership (was Participant — REQ-SDM-023)
 	 * @param string $agendaItemId UUID of the agenda item
 	 * @param string $type One of self::DECLARATION_TYPES
 	 * @param string $description Free-text rationale
 	 * @param string $severity 'material' or 'non-material' (defaults to material)
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
 	 *
 	 * @return array{success: bool, declaration: array|null, message: string}
 	 */
 	public function declare(
-		string $boardMemberId,
+		string $membershipId,
 		string $agendaItemId,
 		string $type,
 		string $description,
@@ -122,9 +123,16 @@ class ConflictOfInterestService {
 		}
 
 		try {
+			// The ConflictOfInterest schema declares 'boardMember'/'agendaItem'
+			// (decidesk_register.json); this previously wrote 'boardMemberKoppeling'/
+			// 'agendaItemKoppeling' instead, an undeclared pair no filter or reader
+			// ever matched — every declaration silently stored its member/agenda-item
+			// link nowhere the schema (or the model-debt-cleanup-code repair step)
+			// could find it. Fixed in the same edit that renames the parameter,
+			// since both touch this exact line.
 			$row = [
-				'boardMemberKoppeling' => $boardMemberId,
-				'agendaItemKoppeling' => $agendaItemId,
+				'boardMember' => $membershipId,
+				'agendaItem' => $agendaItemId,
 				'declarationType' => $type,
 				'description' => $description,
 				'severity' => $severity,
@@ -145,7 +153,7 @@ class ConflictOfInterestService {
 
 			if ($severity === 'material') {
 				$this->auditLogService->append(
-					actor: $boardMemberId,
+					actor: $membershipId,
 					action: 'conflict-declaration',
 					objectUids: [(string)($serialized['id'] ?? $serialized['uuid'] ?? ''), $agendaItemId],
 					payload: ['type' => $type, 'severity' => $severity]
@@ -155,7 +163,7 @@ class ConflictOfInterestService {
 			$this->logger->info(
 				'Decidesk: conflict-of-interest declared',
 				[
-					'boardMemberId' => $boardMemberId,
+					'membershipId' => $membershipId,
 					'agendaItemId' => $agendaItemId,
 					'type' => $type,
 					'severity' => $severity,
@@ -259,15 +267,16 @@ class ConflictOfInterestService {
 	 * "recused-from-vote" > "recused-from-discussion" > "disclosed-and-participated"
 	 * > "no-action-needed".
 	 *
-	 * @param string $boardMemberId UUID of the board member
+	 * @param string $membershipId UUID of the member's Membership (was Participant)
 	 * @param string $agendaItemId UUID of the agenda item
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
 	 *
 	 * @return array<string, mixed>|null
 	 */
-	public function getActiveConflicts(string $boardMemberId, string $agendaItemId): ?array {
-		$matches = $this->findDeclarations(boardMemberId: $boardMemberId, agendaItemId: $agendaItemId);
+	public function getActiveConflicts(string $membershipId, string $agendaItemId): ?array {
+		$matches = $this->findDeclarations(membershipId: $membershipId, agendaItemId: $agendaItemId);
 		if ($matches === []) {
 			return null;
 		}
@@ -292,20 +301,26 @@ class ConflictOfInterestService {
 	/**
 	 * Internal: list all declarations matching the given member + agenda item.
 	 *
-	 * @param string $boardMemberId UUID of the board member
+	 * @param string $membershipId UUID of the member's Membership (was Participant)
 	 * @param string $agendaItemId UUID of the agenda item
 	 *
 	 * @return array<int, array<string, mixed>>
 	 */
-	private function findDeclarations(string $boardMemberId, string $agendaItemId): array {
+	private function findDeclarations(string $membershipId, string $agendaItemId): array {
 		try {
+			// ObjectService::prepareFindAllConfig() only reads the register/schema
+			// context from filters.register / filters.schema — a TOP-LEVEL
+			// 'register'/'schema' key (as this call previously used) is silently
+			// ignored, so findAll() ran with no register/schema context and
+			// returned nothing (same landmine documented on
+			// ProxyVoteService::forMeeting(), decidesk#443).
 			$rows = $this->objectService->findAll(
 				[
-					'register' => 'decidesk',
-					'schema' => 'conflict-of-interest',
 					'filters' => [
-						'boardMemberKoppeling' => $boardMemberId,
-						'agendaItemKoppeling' => $agendaItemId,
+						'register' => 'decidesk',
+						'schema' => 'conflict-of-interest',
+						'boardMember' => $membershipId,
+						'agendaItem' => $agendaItemId,
 					],
 					'limit' => 100,
 				]
@@ -328,8 +343,8 @@ class ConflictOfInterestService {
 				continue;
 			}
 
-			$memberMatches = (($row['boardMemberKoppeling'] ?? null) === $boardMemberId);
-			$itemMatches = (($row['agendaItemKoppeling'] ?? null) === $agendaItemId);
+			$memberMatches = (($row['boardMember'] ?? null) === $membershipId);
+			$itemMatches = (($row['agendaItem'] ?? null) === $agendaItemId);
 			if ($memberMatches === true && $itemMatches === true) {
 				$out[] = $row;
 			}

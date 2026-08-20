@@ -223,11 +223,6 @@
       "count": 1
     }
   },
-  "src/modals/MemberAddDialog.vue": {
-    "jsdoc/require-param-type": {
-      "count": 2
-    }
-  },
   "src/modals/ProcessTemplateEditModal.vue": {
     "@nextcloud/l10n-enforce-ellipsis": {
       "count": 1

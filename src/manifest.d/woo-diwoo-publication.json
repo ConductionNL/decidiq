@@ -101,7 +101,7 @@
 					{ "label": "Inactive", "filter": { "active": false } }
 				],
 				"columns": [
-					{ "key": "governanceBody", "label": "Governance body", "widget": "link" },
+					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "governingBody", "label": "Bestuursorgaan (TOOI id)" },
 					{ "key": "label", "label": "Label" },
 					{ "key": "active", "label": "Active", "widget": "badge" }

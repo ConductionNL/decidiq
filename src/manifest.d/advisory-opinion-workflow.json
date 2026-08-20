@@ -20,7 +20,7 @@
 			"_note": "spec: openspec/changes/advisory-opinion-workflow/specs/advisory-opinion-workflow/spec.md (REQ-AOW-008 / REQ-AOW-006). Adviesaanvragen index. Columns subject/advisoryBody/requestingBody/sentDate/requestedByDate/lifecycle; quick filters on lifecycle (advisory-body / requesting-body quick filters are documented in the spec but modelled here as the lifecycle dropdown plus the shared sidebar facets, since GovernanceBody references are facet-filtered through the sidebar rather than a static dropdown). The workload view (REQ-AOW-006) is this index filtered to one advisory body via the sidebar facet. Both Dashboard KPI deep-links (DEFERRED base-manifest widgets) target this page pre-filtered.",
 			"config": {
 				"register": "decidesk",
-				"schema": "adviceRequest",
+				"schema": "advice-request",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
 				"quickFilterMode": "dropdown",
@@ -36,8 +36,8 @@
 				],
 				"columns": [
 					{ "key": "subject", "label": "Subject", "widget": "link" },
-					{ "key": "advisoryBody", "label": "Advisory body" },
-					{ "key": "requestingBody", "label": "Requesting body" },
+					{ "key": "advisoryBody", "label": "Advisory body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "requestingBody", "label": "Requesting body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "sentDate", "label": "Sent" },
 					{ "key": "requestedByDate", "label": "Requested by" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
@@ -58,7 +58,7 @@
 			"_note": "spec: openspec/changes/advisory-opinion-workflow/specs/advisory-opinion-workflow/spec.md (REQ-AOW-008). AdviesaanvraagDetail. Aanvraag data leads 8-wide (question, all dates, verantwoording when set), publication stacked right; the linked requestingBody/advisoryBody/relatedDecision/agendaItem/advisoryStage and the recorded Advies (strekking, samenvatting, document) render as resolved references in the data + Related widgets. Files leaf for submitted documents. Audit trail is a sidebar tab. Out-of-route aanvragen (advisoryStage/relatedDecision empty) render without error, showing no linked decision (REQ-AOW-004).",
 			"config": {
 				"register": "decidesk",
-				"schema": "adviceRequest",
+				"schema": "advice-request",
 				"widgets": [
 					{ "id": "adviesaanvraag-data", "type": "data", "title": "Advisory opinion", "icon": "MessageTextOutline", "content": { "columns": 2 } },
 					{ "id": "adviesaanvraag-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },

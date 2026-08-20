@@ -35,7 +35,7 @@
 				],
 				"columns": [
 					{ "key": "title", "label": "Title", "widget": "link" },
-					{ "key": "body", "label": "Governance body" },
+					{ "key": "body", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "horizon", "label": "Horizon", "widget": "badge" },
 					{ "key": "deadline", "label": "Deadline" },
 					{ "key": "status", "label": "Status", "widget": "badge" }

@@ -50,7 +50,7 @@
 				],
 				"columns": [
 					{ "key": "title", "label": "Title", "widget": "link" },
-					{ "key": "sharedBody", "label": "Shared body" },
+					{ "key": "sharedBody", "label": "Shared body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "subjectType", "label": "Subject", "widget": "badge" },
 					{ "key": "deadline", "label": "Deadline", "widget": "date" },
 					{ "key": "status", "label": "Status", "widget": "badge" }
@@ -118,7 +118,7 @@
 				],
 				"columns": [
 					{ "key": "ronde", "label": "Ronde", "widget": "link" },
-					{ "key": "participant", "label": "Participant" },
+					{ "key": "participant", "label": "Participant", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "standpunt", "label": "Standpunt", "widget": "badge" },
 					{ "key": "deadline", "label": "Deadline", "widget": "date" },
 					{ "key": "status", "label": "Status", "widget": "badge" }
