@@ -181,9 +181,10 @@ function appendLcsDiff(segments, a, b) {
  */
 export function changeMagnitude(original, proposed) {
 	return diffWords(original, proposed).reduce(
-		(sum, segment) => (segment.type === 'equal'
-			? sum
-			: sum + tokenizeWords(segment.text).length),
+		(sum, segment) =>
+			segment.type === 'equal'
+				? sum
+				: sum + tokenizeWords(segment.text).length,
 		0,
 	)
 }
@@ -202,7 +203,10 @@ export function changeMagnitude(original, proposed) {
 export function suggestVotingOrder(amendments, motionText) {
 	const items = (amendments || []).map((amendment) => ({
 		amendment,
-		magnitude: changeMagnitude(motionText || '', amendment?.proposedText || amendment?.text || ''),
+		magnitude: changeMagnitude(
+			motionText || '',
+			amendment?.proposedText || amendment?.text || '',
+		),
 	}))
 	items.sort((x, y) => {
 		if (x.magnitude !== y.magnitude) return y.magnitude - x.magnitude

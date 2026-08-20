@@ -24,11 +24,11 @@
 // sidebar in the same Pinia tree can't collide on the default
 // `'conduction-objects'` id.
 //
-// @spec openspec/changes/decidesk-store-migration/specs/decidesk-store-migration/spec.md#REQ-DSM-1
-// @spec openspec/changes/decidesk-store-migration/specs/decidesk-store-migration/spec.md#REQ-DSM-2
+// @spec openspec/specs/decidesk-store-migration/spec.md
+// @spec openspec/specs/decidesk-store-migration/spec.md
 
-import { generateUrl } from '@nextcloud/router'
 import { createObjectStore, liveUpdatesPlugin } from '@conduction/nextcloud-vue'
+import { generateUrl } from '@nextcloud/router'
 import { useSettingsStore } from './modules/settings.js'
 
 /**
@@ -54,7 +54,7 @@ export const useObjectStore = createObjectStore('decidesk-objects', {
  *
  * @return {Promise<{settingsStore: object, objectStore: object}>}
  *
- * @spec openspec/changes/decidesk-store-migration/specs/decidesk-store-migration/spec.md#REQ-DSM-3
+ * @spec openspec/specs/decidesk-store-migration/spec.md
  */
 export async function initializeStores() {
 	const settingsStore = useSettingsStore()
@@ -93,13 +93,25 @@ export async function initializeStores() {
 		['vote', settings.voteSchema || 'vote'],
 		// meeting-efficiency: engagement records back the speaking-time
 		// distribution on the GovernanceBodyEfficiencyTab analytics surface.
-		['engagement-record', settings.engagementRecordSchema || 'engagement-record'],
+		[
+			'engagement-record',
+			settings.engagementRecordSchema || 'engagement-record',
+		],
 		// citizen-participation: public consultations, reactions, participatory
 		// budgeting and advisory citizen votes (read/write via the object store;
 		// lifecycle/intake/moderation/voting/publish go through the controller).
-		['public-consultation', settings.publicConsultationSchema || 'public-consultation'],
-		['consultation-reaction', settings.consultationReactionSchema || 'consultation-reaction'],
-		['participatory-budget', settings.participatoryBudgetSchema || 'participatory-budget'],
+		[
+			'public-consultation',
+			settings.publicConsultationSchema || 'public-consultation',
+		],
+		[
+			'consultation-reaction',
+			settings.consultationReactionSchema || 'consultation-reaction',
+		],
+		[
+			'participatory-budget',
+			settings.participatoryBudgetSchema || 'participatory-budget',
+		],
 		['budget-proposal', settings.budgetProposalSchema || 'budget-proposal'],
 		['citizen-vote', settings.citizenVoteSchema || 'citizen-vote'],
 	]

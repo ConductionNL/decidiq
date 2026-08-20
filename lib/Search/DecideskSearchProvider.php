@@ -49,202 +49,208 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
-class DecideskSearchProvider implements IProvider
-{
+class DecideskSearchProvider implements IProvider {
 
-    /**
-     * Searched schema slugs mapped to their frontend route segment.
-     *
-     * @var array<string, string>
-     */
-    private const SCHEMAS = [
-        'decision' => 'decisions',
-        'meeting'  => 'meetings',
-    ];
+	/**
+	 * Searched schema slugs mapped to their frontend route segment.
+	 *
+	 * @var array<string, string>
+	 */
+	private const SCHEMAS = [
+		'decision' => 'decisions',
+		'meeting' => 'meetings',
+	];
 
-    /**
-     * Maximum results fetched per schema per query.
-     *
-     * @var int
-     */
-    private const LIMIT_PER_SCHEMA = 5;
+	/**
+	 * Maximum results fetched per schema per query.
+	 *
+	 * @var int
+	 */
+	private const LIMIT_PER_SCHEMA = 5;
 
-    /**
-     * Constructor for DecideskSearchProvider.
-     *
-     * @param ContainerInterface $container    DI container (lazy-loads OpenRegister's ObjectService)
-     * @param IURLGenerator      $urlGenerator URL generator for deep links + icon
-     * @param IL10N              $l10n         Translations for the provider name and sublines
-     * @param LoggerInterface    $logger       The logger
-     */
-    public function __construct(
-        private readonly ContainerInterface $container,
-        private readonly IURLGenerator $urlGenerator,
-        private readonly IL10N $l10n,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+	/**
+	 * Constructor for DecideskSearchProvider.
+	 *
+	 * @param ContainerInterface $container DI container (lazy-loads OpenRegister's ObjectService)
+	 * @param IURLGenerator $urlGenerator URL generator for deep links + icon
+	 * @param IL10N $l10n Translations for the provider name and sublines
+	 * @param LoggerInterface $logger The logger
+	 */
+	public function __construct(
+		private readonly ContainerInterface $container,
+		private readonly IURLGenerator $urlGenerator,
+		private readonly IL10N $l10n,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Provider id.
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     *
-     * @return string
-     */
-    public function getId(): string
-    {
-        return Application::APP_ID;
+	/**
+	 * Provider id.
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 *
+	 * @return string
+	 */
+	public function getId(): string {
+		return Application::APP_ID;
+	}//end getId()
 
-    }//end getId()
+	/**
+	 * Translated provider name shown as the unified-search section header.
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 *
+	 * @return string
+	 */
+	public function getName(): string {
+		return $this->l10n->t('Decidesk governance');
+	}//end getName()
 
-    /**
-     * Translated provider name shown as the unified-search section header.
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     *
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->l10n->t('Decidesk governance');
+	/**
+	 * Section order: top inside the app, late in the global list.
+	 *
+	 * @param string $route The current route
+	 * @param array<string, mixed> $routeParameters The current route parameters
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 *
+	 * @return int|null
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $routeParameters is mandated by
+	 * the OCP\Search\IProvider::getOrder() signature; ordering depends only on the
+	 * route name, so the parameter cannot be removed.
+	 */
+	public function getOrder(string $route, array $routeParameters): ?int {
+		if (str_starts_with($route, Application::APP_ID . '.') === true) {
+			return -1;
+		}
 
-    }//end getName()
+		return 25;
+	}//end getOrder()
 
-    /**
-     * Section order: top inside the app, late in the global list.
-     *
-     * @param string               $route           The current route
-     * @param array<string, mixed> $routeParameters The current route parameters
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     *
-     * @return int|null
-     */
-    public function getOrder(string $route, array $routeParameters): ?int
-    {
-        if (str_starts_with($route, Application::APP_ID.'.') === true) {
-            return -1;
-        }
+	/**
+	 * Search decisions, meetings, and resolutions for the given term.
+	 *
+	 * Per-object visibility is OpenRegister RBAC (session-user scoped inside
+	 * ObjectService::findAll) — see the class docblock.
+	 *
+	 * @param IUser $user The user running the search (session user, used by OR RBAC)
+	 * @param ISearchQuery $query The unified-search query
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 *
+	 * @return SearchResult
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $user is mandated by the
+	 * OCP\Search\IProvider::search() signature. Per-object visibility is enforced
+	 * by OpenRegister RBAC from the session user inside ObjectService::findAll(),
+	 * so this method never reads the parameter directly.
+	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) OCP\Search\SearchResult is a `final`
+	 * class with a PRIVATE constructor; SearchResult::complete() /
+	 * ::paginated() are the only ways to build the value object that
+	 * OCP\Search\IProvider::search() is required to return. Nextcloud exposes no
+	 * injectable factory for it, so the static call cannot be replaced without
+	 * breaking the interface contract — it is not hidden coupling that a seam
+	 * could remove. Verified against nextcloud lib/public/Search/SearchResult.php.
+	 */
+	public function search(IUser $user, ISearchQuery $query): SearchResult {
+		$term = trim($query->getTerm());
+		if ($term === '') {
+			return SearchResult::complete($this->getName(), []);
+		}
 
-        return 25;
+		$entries = [];
+		try {
+			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-    }//end getOrder()
+			foreach (self::SCHEMAS as $schema => $segment) {
+				$rows = $objectService->findAll(
+					[
+						'register' => 'decidesk',
+						'schema' => $schema,
+						'search' => $term,
+						'limit' => self::LIMIT_PER_SCHEMA,
+					]
+				);
 
-    /**
-     * Search decisions, meetings, and resolutions for the given term.
-     *
-     * Per-object visibility is OpenRegister RBAC (session-user scoped inside
-     * ObjectService::findAll) — see the class docblock.
-     *
-     * @param IUser        $user  The user running the search (session user, used by OR RBAC)
-     * @param ISearchQuery $query The unified-search query
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     *
-     * @return SearchResult
-     */
-    public function search(IUser $user, ISearchQuery $query): SearchResult
-    {
-        $term = trim($query->getTerm());
-        if ($term === '') {
-            return SearchResult::complete($this->getName(), []);
-        }
+				foreach ($rows as $entity) {
+					$row = $entity;
+					if (is_object($entity) === true) {
+						$row = (array)$entity->jsonSerialize();
+					}
 
-        $entries = [];
-        try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+					if (is_array($row) === false) {
+						continue;
+					}
 
-            foreach (self::SCHEMAS as $schema => $segment) {
-                $rows = $objectService->findAll(
-                    [
-                        'register' => 'decidesk',
-                        'schema'   => $schema,
-                        'search'   => $term,
-                        'limit'    => self::LIMIT_PER_SCHEMA,
-                    ]
-                );
+					$entry = $this->buildEntry(row: $row, schema: $schema, segment: $segment);
+					if ($entry !== null) {
+						$entries[] = $entry;
+					}
+				}
+			}//end foreach
+		} catch (\Throwable $e) {
+			// Fail soft: a broken register must not take down unified search.
+			$this->logger->error(
+				'Decidesk: unified search failed',
+				['term' => $term, 'exception' => $e->getMessage()]
+			);
+		}//end try
 
-                foreach ($rows as $entity) {
-                    $row = $entity;
-                    if (is_object($entity) === true) {
-                        $row = (array) $entity->jsonSerialize();
-                    }
+		return SearchResult::complete($this->getName(), $entries);
+	}//end search()
 
-                    if (is_array($row) === false) {
-                        continue;
-                    }
+	/**
+	 * Build one search result entry from an OpenRegister object row.
+	 *
+	 * @param array<string, mixed> $row Object payload
+	 * @param string $schema Schema slug the row came from
+	 * @param string $segment Frontend route segment for the deep link
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 *
+	 * @return SearchResultEntry|null Null when the row carries no id/title
+	 */
+	private function buildEntry(array $row, string $schema, string $segment): ?SearchResultEntry {
+		$uuid = (string)($row['id'] ?? ($row['@self']['id'] ?? ''));
+		$title = (string)($row['title'] ?? '');
+		if ($uuid === '' || $title === '') {
+			return null;
+		}
 
-                    $entry = $this->buildEntry(row: $row, schema: $schema, segment: $segment);
-                    if ($entry !== null) {
-                        $entries[] = $entry;
-                    }
-                }
-            }//end foreach
-        } catch (\Throwable $e) {
-            // Fail soft: a broken register must not take down unified search.
-            $this->logger->error(
-                'Decidesk: unified search failed',
-                ['term' => $term, 'exception' => $e->getMessage()]
-            );
-        }//end try
+		$sublineParts = [$this->schemaLabel(schema: $schema)];
+		$status = (string)($row['lifecycle'] ?? ($row['status'] ?? ($row['outcome'] ?? '')));
+		if ($status !== '') {
+			$sublineParts[] = $status;
+		}
 
-        return SearchResult::complete($this->getName(), $entries);
+		return new SearchResultEntry(
+			$this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg'),
+			$title,
+			implode(' — ', $sublineParts),
+			$this->urlGenerator->linkToRoute('decidesk.dashboard.page') . '#/' . $segment . '/' . $uuid,
+			'icon-decidesk',
+			true
+		);
 
-    }//end search()
+	}//end buildEntry()
 
-    /**
-     * Build one search result entry from an OpenRegister object row.
-     *
-     * @param array<string, mixed> $row     Object payload
-     * @param string               $schema  Schema slug the row came from
-     * @param string               $segment Frontend route segment for the deep link
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     *
-     * @return SearchResultEntry|null Null when the row carries no id/title
-     */
-    private function buildEntry(array $row, string $schema, string $segment): ?SearchResultEntry
-    {
-        $uuid  = (string) ($row['id'] ?? ($row['@self']['id'] ?? ''));
-        $title = (string) ($row['title'] ?? '');
-        if ($uuid === '' || $title === '') {
-            return null;
-        }
+	/**
+	 * Translated label for a schema slug, rendered in the result subline.
+	 *
+	 * @param string $schema Schema slug
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 *
+	 * @return string
+	 */
+	private function schemaLabel(string $schema): string {
+		return match ($schema) {
+			'decision' => $this->l10n->t('Decision'),
+			'meeting' => $this->l10n->t('Meeting'),
+			default => $schema,
+		};
 
-        $sublineParts = [$this->schemaLabel(schema: $schema)];
-        $status       = (string) ($row['lifecycle'] ?? ($row['status'] ?? ($row['outcome'] ?? '')));
-        if ($status !== '') {
-            $sublineParts[] = $status;
-        }
-
-        return new SearchResultEntry(
-            $this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg'),
-            $title,
-            implode(' — ', $sublineParts),
-            $this->urlGenerator->linkToRoute('decidesk.dashboard.page').'#/'.$segment.'/'.$uuid,
-            'icon-decidesk',
-            true
-        );
-
-    }//end buildEntry()
-
-    /**
-     * Translated label for a schema slug, rendered in the result subline.
-     *
-     * @param string $schema Schema slug
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     *
-     * @return string
-     */
-    private function schemaLabel(string $schema): string
-    {
-        return match ($schema) {
-            'decision'   => $this->l10n->t('Decision'),
-            'meeting'    => $this->l10n->t('Meeting'),
-            default      => $schema,
-        };
-
-    }//end schemaLabel()
+	}//end schemaLabel()
 }//end class

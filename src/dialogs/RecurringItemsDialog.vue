@@ -16,14 +16,26 @@
 		data-testid="recurring-items-dialog"
 		@closing="$emit('close')">
 		<template #default>
-			<ul v-if="recurringItems.length > 0" class="recurring-dialog__list" role="list">
-				<li v-for="rItem in recurringItems"
+			<ul
+				v-if="recurringItems.length > 0"
+				class="recurring-dialog__list"
+				role="list">
+				<li
+					v-for="rItem in recurringItems"
 					:key="rItem.id"
 					class="recurring-dialog__item"
 					role="listitem">
+					<!-- nc-vue v9: NcCheckboxRadioSwitch's prop is `modelValue`, not
+					     `checked`. The Vue-2-era `:checked` / `@update:checked` pair is
+					     undeclared, so BOTH fall through `inheritAttrs: false` onto the
+					     raw <input>: `checked` sets the native attribute (the box looks
+					     right) while the component's own modelValue stays false, and
+					     `onUpdate:checked` is registered for a DOM event that is never
+					     fired — so toggling did nothing at all here. Same defect as the
+					     one fixed in userSettings/NotificationPreferencesSection.vue. -->
 					<NcCheckboxRadioSwitch
-						:checked="selected.includes(rItem.id)"
-						@update:checked="toggle(rItem.id)">
+						:modelValue="selected.includes(rItem.id)"
+						@update:modelValue="toggle(rItem.id)">
 						{{ rItem.title }}
 					</NcCheckboxRadioSwitch>
 				</li>
@@ -33,7 +45,9 @@
 			</p>
 		</template>
 		<template #actions>
-			<NcButton :disabled="selected.length === 0" @click="$emit('add', selected.slice())">
+			<NcButton
+				:disabled="selected.length === 0"
+				@click="$emit('add', selected.slice())">
 				{{ t('decidesk', 'Add selected') }}
 			</NcButton>
 		</template>
@@ -62,7 +76,10 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/specs/agenda-management/spec.md */
+		/**
+		 * @param id
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		toggle(id) {
 			const idx = this.selected.indexOf(id)
 			if (idx === -1) {

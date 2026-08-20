@@ -1,7 +1,25 @@
 ---
 kind: code
 depends_on: [decidesk-base]
+status: superseded
+superseded-by: organisation-facet-composition
 ---
+
+> **SUPERSEDED (2026-08-19).** This draft pre-dates ADR-006 (one universal
+> `GovernanceBody` schema — no parallel per-domain schema families) and
+> proposes exactly the parallel schema set ADR-006 forbids: `PolitiekePartij`,
+> `Kandidatenlijst`, `Fractie`, `FractieLidmaatschap`, `SchriftelijkeVraag`,
+> `FractieOndersteuning`. The replacing mechanism is `organisation-facet-composition`
+> (in progress as of 2026-08-19 — see its status-note and
+> `openspec/specs/governance-bodies/spec.md`'s own status-note, which names
+> this draft explicitly): a faction is an ordinary `GovernanceBody` with
+> `bodyType: "faction"` and a new `parentBody` self-reference, not a
+> separate schema. This file is retained for its domain research (fraction
+> splits/merges/succession, written questions, funding transparency) but its
+> **New Entities**, **New Capabilities**, and **Impact** sections below MUST
+> NOT be implemented as written — any future work on this domain should
+> start from `organisation-facet-composition`'s `GovernanceBody`-based model
+> instead.
 
 # Decidesk — Fractievoorzitter en Fractie Koppeling
 

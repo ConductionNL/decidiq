@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Translation Adapter Interface
  *
@@ -31,18 +32,17 @@ namespace OCA\Decidesk\Service;
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
  */
-interface ITranslationAdapter
-{
-    /**
-     * Translate a body of text from a source to a target locale.
-     *
-     * @param string $text         The text to translate
-     * @param string $sourceLocale ISO 639-1 source locale (e.g. nl)
-     * @param string $targetLocale ISO 639-1 target locale (e.g. en)
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
-     *
-     * @return array{success: bool, text: string, provider: string, message: string}
-     */
-    public function translate(string $text, string $sourceLocale, string $targetLocale): array;
+interface ITranslationAdapter {
+	/**
+	 * Translate a body of text from a source to a target locale.
+	 *
+	 * @param string $text The text to translate
+	 * @param string $sourceLocale ISO 639-1 source locale (e.g. nl)
+	 * @param string $targetLocale ISO 639-1 target locale (e.g. en)
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 *
+	 * @return array{success: bool, text: string, provider: string, message: string}
+	 */
+	public function translate(string $text, string $sourceLocale, string $targetLocale): array;
 }//end interface

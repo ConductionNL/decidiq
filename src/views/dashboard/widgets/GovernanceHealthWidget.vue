@@ -40,13 +40,16 @@
 </template>
 
 <script>
-import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
-import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
 import { CnChartWidget } from '@conduction/nextcloud-vue'
+import { NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import ChartLine from 'vue-material-design-icons/ChartLine.vue'
-import dashboardRefreshMixin from './dashboardRefreshMixin.js'
-import { healthDataPoints, hasEnoughHealthData, healthSeries } from './widgetLogic.js'
 import { getMeetings } from '../../../services/dashboardData.js'
+import dashboardRefreshMixin from './dashboardRefreshMixin.js'
+import {
+	hasEnoughHealthData,
+	healthDataPoints,
+	healthSeries,
+} from './widgetLogic.js'
 
 export default {
 	name: 'GovernanceHealthWidget',
@@ -89,7 +92,10 @@ export default {
 		 */
 		chart() {
 			const { series, categories } = healthSeries(this.points)
-			const names = [t('decidesk', 'Quorum %'), t('decidesk', 'Action item completion %')]
+			const names = [
+				t('decidesk', 'Quorum %'),
+				t('decidesk', 'Action item completion %'),
+			]
 			return {
 				series: series.map((s, i) => ({ ...s, name: names[i] || s.name })),
 				categories,
@@ -104,7 +110,9 @@ export default {
 		categoryLabels() {
 			return this.chart.categories.map((value) => {
 				const d = new Date(value)
-				return Number.isNaN(d.getTime()) ? String(value || '') : d.toLocaleDateString()
+				return Number.isNaN(d.getTime())
+					? String(value || '')
+					: d.toLocaleDateString()
 			})
 		},
 	},

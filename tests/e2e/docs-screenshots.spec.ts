@@ -1,6 +1,6 @@
 /*
  * SPDX-FileCopyrightText: 2026 Decidesk Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Documentation screenshot capture suite — decidesk.
  *
@@ -47,8 +47,17 @@
 import { test, expect, type Page } from '@playwright/test'
 import * as path from 'path'
 import * as fs from 'fs'
+import { waitForContentReady } from './visual/_visual-helpers'
 
-const SHOT_ROOT = path.resolve(__dirname, '..', '..', 'docs', 'static', 'screenshots', 'tutorials')
+const SHOT_ROOT = path.resolve(
+	__dirname,
+	'..',
+	'..',
+	'docs',
+	'static',
+	'screenshots',
+	'tutorials',
+)
 const APP = '/apps/decidesk'
 
 /**
@@ -57,12 +66,20 @@ const APP = '/apps/decidesk'
  * Lives under `static/` so Docusaurus copies the PNG into the build
  * root — markdown image refs use `/screenshots/...` (root-absolute).
  */
-async function shoot(page: Page, track: 'user' | 'admin', file: string): Promise<void> {
+async function shoot(
+	page: Page,
+	track: 'user' | 'admin',
+	file: string,
+): Promise<void> {
 	const dir = path.join(SHOT_ROOT, track)
 	if (!fs.existsSync(dir)) {
 		fs.mkdirSync(dir, { recursive: true })
 	}
-	await page.screenshot({ path: path.join(dir, file), fullPage: false, type: 'png' })
+	await page.screenshot({
+		path: path.join(dir, file),
+		fullPage: false,
+		type: 'png',
+	})
 }
 
 /**
@@ -73,7 +90,9 @@ async function shoot(page: Page, track: 'user' | 'admin', file: string): Promise
 async function dismissOverlays(page: Page): Promise<void> {
 	const wizard = page.locator('#firstrunwizard')
 	if (await wizard.isVisible().catch(() => false)) {
-		const close = wizard.getByRole('button', { name: /close|got it|finish|skip/i }).first()
+		const close = wizard
+			.getByRole('button', { name: /close|got it|finish|skip/i })
+			.first()
 		if (await close.isVisible().catch(() => false)) {
 			await close.click().catch(() => {})
 		} else {
@@ -82,7 +101,12 @@ async function dismissOverlays(page: Page): Promise<void> {
 		await wizard.waitFor({ state: 'hidden', timeout: 4000 }).catch(() => {})
 	}
 	const stray = page.locator('[role="dialog"]:not(#firstrunwizard)')
-	if (await stray.first().isVisible().catch(() => false)) {
+	if (
+		await stray
+			.first()
+			.isVisible()
+			.catch(() => false)
+	) {
 		await page.keyboard.press('Escape').catch(() => {})
 		await page.waitForTimeout(300)
 	}
@@ -90,9 +114,33 @@ async function dismissOverlays(page: Page): Promise<void> {
 
 /** Navigate to a Decidesk (or absolute) route and settle. */
 async function go(page: Page, route: string): Promise<void> {
-	const url = route.startsWith('/apps/') ? route : `${APP}${route}`
-	await page.goto(url).catch(() => { /* tolerate a 404 — caller decides */ })
-	await page.waitForLoadState('networkidle').catch(() => { /* idle never fires on some pages */ })
+	// `/settings/` joins `/apps/` as a server-absolute prefix: since ADR-079 D1
+	// the app's configuration surface is a Nextcloud settings section at
+	// /settings/admin/decidesk, not an in-app route, so it must not be prefixed
+	// with APP. Anything else is still an app-relative route.
+	const isAbsolute = route.startsWith('/apps/') || route.startsWith('/settings/')
+	const url = isAbsolute ? route : `${APP}${route}`
+
+	// ADR-074 rule 4: 'networkidle' NEVER settles on Nextcloud — long-polling
+	// endpoints and the notification stream keep a request open indefinitely.
+	// The old line was `waitForLoadState('networkidle').catch(() => {})`, whose
+	// own comment admitted "idle never fires on some pages": it therefore
+	// burned the FULL timeout on every navigation and then swallowed the
+	// failure, so it bought a delay rather than a guarantee — and the
+	// screenshot's real precondition (content painted) was never actually
+	// asserted, only waited out.
+	//
+	// Replaced with the settle the rest of this repo already uses and trusts:
+	// domcontentloaded on the navigation, then waitForContentReady(), which
+	// asserts the header and content root are visible and polls spinners and
+	// "Loading …" placeholders away. That is a positive signal about the page
+	// rather than the absence of a signal about the network.
+	await page.goto(url, { waitUntil: 'domcontentloaded' }).catch(() => {
+		/* tolerate a 404 — caller decides */
+	})
+	await waitForContentReady(page).catch(() => {
+		/* a 404 has no app chrome */
+	})
 	await dismissOverlays(page)
 	await page.waitForTimeout(900)
 }
@@ -103,14 +151,20 @@ async function go(page: Page, route: string): Promise<void> {
  * appeared (it does on every list view; the dialog body is empty unless
  * the relevant schema is mapped — see the file header).
  */
-async function captureCreateDialog(page: Page, track: 'user' | 'admin', file: string): Promise<boolean> {
+async function captureCreateDialog(
+	page: Page,
+	track: 'user' | 'admin',
+	file: string,
+): Promise<boolean> {
 	const addBtn = page.getByRole('button', { name: /Add Item/i }).first()
 	if (!(await addBtn.isVisible().catch(() => false))) {
 		return false
 	}
 	await addBtn.click().catch(() => {})
 	const dialog = page.locator('[role="dialog"]:not(#firstrunwizard)').first()
-	await dialog.waitFor({ state: 'visible', timeout: 5000 }).catch(() => { /* no dialog */ })
+	await dialog.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {
+		/* no dialog */
+	})
 	await page.waitForTimeout(400)
 	await shoot(page, track, file)
 	const cancel = dialog.getByRole('button', { name: /Cancel/i }).first()
@@ -146,7 +200,11 @@ test.describe('docs: user track', () => {
 	test('UN schedule-meeting', async ({ page }) => {
 		// docs/tutorials/user/02-schedule-meeting.md
 		await go(page, '/meetings')
-		const had = await captureCreateDialog(page, 'user', '02-schedule-meeting-01.png')
+		const had = await captureCreateDialog(
+			page,
+			'user',
+			'02-schedule-meeting-01.png',
+		)
 		if (had) {
 			await captureCreateDialog(page, 'user', '02-schedule-meeting-02.png')
 		}
@@ -177,7 +235,11 @@ test.describe('docs: user track', () => {
 		// motions; there is no standalone nav entry.
 		await go(page, '/motions')
 		await shoot(page, 'user', '04-propose-amendment-01.png')
-		const had = await captureCreateDialog(page, 'user', '04-propose-amendment-02.png')
+		const had = await captureCreateDialog(
+			page,
+			'user',
+			'04-propose-amendment-02.png',
+		)
 		if (!had) {
 			await shoot(page, 'user', '04-propose-amendment-02.png')
 		}
@@ -249,7 +311,11 @@ test.describe('docs: admin track', () => {
 		// have a manifest page but no nav entry; reach them by route.
 		await go(page, '/governance-bodies')
 		await shoot(page, 'admin', '01-configure-workflow-01.png')
-		const had = await captureCreateDialog(page, 'admin', '01-configure-workflow-02.png')
+		const had = await captureCreateDialog(
+			page,
+			'admin',
+			'01-configure-workflow-02.png',
+		)
 		if (!had) {
 			await shoot(page, 'admin', '01-configure-workflow-02.png')
 		}
@@ -263,7 +329,11 @@ test.describe('docs: admin track', () => {
 		// docs/tutorials/admin/02-manage-members.md
 		await go(page, '/governance-bodies')
 		await shoot(page, 'admin', '02-manage-members-01.png')
-		const had = await captureCreateDialog(page, 'admin', '02-manage-members-02.png')
+		const had = await captureCreateDialog(
+			page,
+			'admin',
+			'02-manage-members-02.png',
+		)
 		if (!had) {
 			await shoot(page, 'admin', '02-manage-members-02.png')
 		}
@@ -276,15 +346,20 @@ test.describe('docs: admin track', () => {
 	})
 
 	test('AN admin-settings', async ({ page }) => {
-		// docs/tutorials/admin/03-admin-settings.md — Decidesk's settings
-		// live in-app at /apps/decidesk/settings (the three-section page:
-		// Version, Registers, Advanced).
-		await go(page, '/settings')
+		// docs/tutorials/admin/03-admin-settings.md — Decidesk's app-level
+		// configuration lives at /settings/admin/decidesk, in the Nextcloud
+		// settings framework, and nowhere else (ADR-079 D1). The in-app
+		// `/apps/decidesk/settings` twin this test used to shoot is deleted, so
+		// screenshotting it would document a surface that no longer exists.
+		// `/settings/...` is server-absolute — see the prefix rule in `go()`.
+		await go(page, '/settings/admin/decidesk')
 		await shoot(page, 'admin', '03-admin-settings-01.png')
 		await page.evaluate(() => window.scrollTo(0, 0))
 		await page.waitForTimeout(300)
 		await shoot(page, 'admin', '03-admin-settings-02.png')
-		const reimport = page.getByRole('button', { name: /Re-import configuration/i }).first()
+		const reimport = page
+			.getByRole('button', { name: /Re-import configuration/i })
+			.first()
 		if (await reimport.isVisible().catch(() => false)) {
 			await reimport.scrollIntoViewIfNeeded().catch(() => {})
 			await page.waitForTimeout(300)
@@ -300,6 +375,6 @@ test.describe('docs: admin track', () => {
 			await page.waitForTimeout(300)
 		}
 		await shoot(page, 'admin', '03-admin-settings-05.png')
-		expect(page.url()).toContain('/apps/decidesk/settings')
+		expect(page.url()).toContain('/settings/admin/decidesk')
 	})
 })

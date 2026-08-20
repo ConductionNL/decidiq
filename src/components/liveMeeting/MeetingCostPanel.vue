@@ -16,7 +16,10 @@
  @spec openspec/specs/meeting-efficiency/spec.md
 -->
 <template>
-	<section class="meeting-cost" data-testid="meeting-cost-panel" :aria-label="t('decidesk', 'Meeting cost')">
+	<section
+		class="meeting-cost"
+		data-testid="meeting-cost-panel"
+		:aria-label="t('decidesk', 'Meeting cost')">
 		<div class="meeting-cost__header">
 			<h4 class="meeting-cost__title">
 				{{ t('decidesk', 'Meeting cost') }}
@@ -25,22 +28,42 @@
 				size="small"
 				data-testid="meeting-cost-toggle"
 				:aria-pressed="visible"
-				:aria-label="visible ? t('decidesk', 'Hide meeting cost') : t('decidesk', 'Show meeting cost')"
+				:aria-label="
+					visible
+						? t('decidesk', 'Hide meeting cost')
+						: t('decidesk', 'Show meeting cost')
+				"
 				@click="visible = !visible">
 				{{ visible ? t('decidesk', 'Hide') : t('decidesk', 'Show') }}
 			</NcButton>
 		</div>
 
 		<template v-if="visible">
-			<p v-if="!hasRate" class="meeting-cost__hint" data-testid="meeting-cost-no-rate">
-				{{ t('decidesk', 'No hourly rate configured on this governance body — set one to see the running cost.') }}
+			<p
+				v-if="!hasRate"
+				class="meeting-cost__hint"
+				data-testid="meeting-cost-no-rate">
+				{{
+					t(
+						'decidesk',
+						'No hourly rate configured on this governance body — set one to see the running cost.',
+					)
+				}}
 			</p>
 			<template v-else>
-				<p class="meeting-cost__figure" data-testid="meeting-cost-figure" aria-live="polite">
+				<p
+					class="meeting-cost__figure"
+					data-testid="meeting-cost-figure"
+					aria-live="polite">
 					{{ formattedCost }}
 				</p>
 				<p class="meeting-cost__detail">
-					{{ t('decidesk', '{count} attendees × {rate}/h', { count: attendeeCount, rate: formattedRate }) }}
+					{{
+						t('decidesk', '{count} attendees × {rate}/h', {
+							count: attendeeCount,
+							rate: formattedRate,
+						})
+					}}
 				</p>
 			</template>
 		</template>
@@ -78,11 +101,13 @@ export default {
 		hasRate() {
 			return Number.isFinite(this.hourlyRate) && this.hourlyRate > 0
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		attendeeCount() {
-			const present = this.participants.filter(p => p.present === true)
+			const present = this.participants.filter((p) => p.present === true)
 			return present.length > 0 ? present.length : this.participants.length
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		elapsedSeconds() {
 			const openedAt = this.meeting?.openedAt
@@ -91,10 +116,18 @@ export default {
 			if (!Number.isFinite(startMs)) return 0
 			return Math.max(0, Math.floor((this.now - startMs) / 1000))
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		formattedCost() {
-			return formatEur(computeMeetingCost(this.elapsedSeconds, this.attendeeCount, this.hourlyRate))
+			return formatEur(
+				computeMeetingCost(
+					this.elapsedSeconds,
+					this.attendeeCount,
+					this.hourlyRate,
+				),
+			)
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		formattedRate() {
 			return formatEur(this.hourlyRate)
@@ -103,11 +136,13 @@ export default {
 
 	/** @spec exclude lifecycle hook; starts the 1s render tick only */
 	mounted() {
-		this.intervalId = setInterval(() => { this.now = Date.now() }, 1000)
+		this.intervalId = setInterval(() => {
+			this.now = Date.now()
+		}, 1000)
 	},
 
 	/** @spec exclude lifecycle teardown; clears the render interval */
-	beforeDestroy() {
+	beforeUnmount() {
 		if (this.intervalId) clearInterval(this.intervalId)
 	},
 }

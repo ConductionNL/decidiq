@@ -19,13 +19,13 @@
 		<template #default>
 			<div class="action-item-modal__form">
 				<NcTextField
-					:value.sync="title"
+					v-model="title"
 					data-testid="minutes-action-item-title"
 					:label="t('decidesk', 'Action item title')"
 					:placeholder="t('decidesk', 'e.g. Prepare budget proposal')" />
 				<NcSelect
 					v-model="assignee"
-					:input-label="t('decidesk', 'Owner')"
+					:inputLabel="t('decidesk', 'Owner')"
 					:options="assigneeOptions"
 					:placeholder="t('decidesk', 'Pick a participant')" />
 				<NcDateTimePickerNative
@@ -40,7 +40,7 @@
 		</template>
 		<template #actions>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="minutes-action-item-save"
 				:disabled="saving || !title.trim()"
 				@click="save">
@@ -54,17 +54,31 @@
 </template>
 
 <script>
-import { NcButton, NcDateTimePickerNative, NcDialog, NcSelect, NcTextField } from '@nextcloud/vue'
+import {
+	NcButton,
+	NcDateTimePickerNative,
+	NcDialog,
+	NcSelect,
+	NcTextField,
+} from '@nextcloud/vue'
 import { createActionItem } from '../services/actionItemApi.js'
 
 export default {
 	name: 'ActionItemCaptureModal',
-	components: { NcButton, NcDateTimePickerNative, NcDialog, NcSelect, NcTextField },
+	components: {
+		NcButton,
+		NcDateTimePickerNative,
+		NcDialog,
+		NcSelect,
+		NcTextField,
+	},
+
 	props: {
 		meetingId: { type: String, required: true },
 		agendaItem: { type: Object, default: null },
 		participants: { type: Array, default: () => [] },
 	},
+
 	data() {
 		return {
 			title: '',
@@ -74,14 +88,16 @@ export default {
 			error: '',
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		assigneeOptions() {
 			return this.participants
-				.map(p => p.displayName || p.name)
+				.map((p) => p.displayName || p.name)
 				.filter(Boolean)
 		},
 	},
+
 	methods: {
 		/**
 		 * Persist the action item linked to the meeting and agenda item.
@@ -115,7 +131,9 @@ export default {
 				this.$emit('saved')
 				this.$emit('close')
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Could not create the action item.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Could not create the action item.')
 			} finally {
 				this.saving = false
 			}
@@ -131,6 +149,7 @@ export default {
 	gap: calc(var(--default-grid-baseline) * 2);
 	padding: var(--default-grid-baseline) 0;
 }
+
 .action-item-modal__error {
 	color: var(--color-error);
 	margin: 0;

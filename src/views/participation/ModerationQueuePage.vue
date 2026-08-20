@@ -7,13 +7,20 @@
  ConsultationReactionsTab with no objectId. The same component, scoped via
  objectId, is the per-consultation "Reactions" tab on the consultation detail.
 
- @spec openspec/changes/consultations-engagement-hub/specs/p3-citizen-participation/spec.md
+ @spec openspec/specs/p3-citizen-participation/spec.md
 -->
 <template>
 	<div class="moderation-queue" data-testid="moderation-queue-page">
 		<header class="moderation-queue__header">
 			<h2>{{ t('decidesk', 'Reaction moderation queue') }}</h2>
-			<p>{{ t('decidesk', 'Approve or reject citizen reactions before they count toward a consultation.') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'Approve or reject citizen reactions before they count toward a consultation.',
+					)
+				}}
+			</p>
 		</header>
 
 		<ConsultationReactionsTab />

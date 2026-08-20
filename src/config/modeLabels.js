@@ -11,7 +11,7 @@
 // C7 scope: wire the Bodies item across all 5 modes; scaffold remaining items
 // with their canonical English labels so a follow-up change only fills in rows.
 //
-// @spec openspec/changes/ia-six-item-nav/specs/app-navigation/spec.md#requirement-req-nav-006-mode-aware-label-resolution-at-the-translate-chokepoint
+// @spec openspec/specs/app-navigation/spec.md#requirement-req-nav-006-mode-aware-label-resolution-at-the-translate-chokepoint
 
 /**
  * Default organisatie_modus when none is configured.
@@ -28,16 +28,16 @@ export const DEFAULT_MODE = 'gov'
  * When a canonical label is absent from a mode's map the canonical label
  * itself is used as the t() key, which resolves to the standard l10n string.
  *
- * @type {Object.<string, Object.<string, string>>}
+ * @type {Object<string, Object<string, string>>}
  */
 export const MODE_LABELS = {
 	/**
 	 * Government / municipal mode (default).
-	 * Bodies = Fracties & Organen (political fractions and organs).
+	 * Organisation (canonical label since ia-six-clusters; menu id GovernanceBodies) = Fracties & Organen (political fractions and organs).
 	 * Decisions = Besluiten, Meetings = Vergaderingen.
 	 */
 	gov: {
-		Bodies: 'Factions & bodies',
+		Organisation: 'Factions & bodies',
 		// Scaffold — canonical labels fall through to standard l10n:
 		// Meetings    → 'Meetings'    (resolved as 'Vergaderingen' by nl_NL)
 		// Decisions   → 'Decisions'   (resolved as 'Besluiten' by nl_NL)
@@ -50,7 +50,7 @@ export const MODE_LABELS = {
 	 * Bodies = Board, Decisions = Resolutions.
 	 */
 	corp: {
-		Bodies: 'Board',
+		Organisation: 'Board',
 		Decisions: 'Resolutions',
 		// Scaffold:
 		// Meetings    → 'Meetings'
@@ -63,7 +63,7 @@ export const MODE_LABELS = {
 	 * Bodies = Fracties & commissies (fractions and committees).
 	 */
 	assoc: {
-		Bodies: 'Factions & committees',
+		Organisation: 'Factions & committees',
 		// Scaffold:
 		// Meetings    → 'Meetings'
 		// Decisions   → 'Decisions'
@@ -76,7 +76,7 @@ export const MODE_LABELS = {
 	 * Bodies = Teams.
 	 */
 	ops: {
-		Bodies: 'Teams',
+		Organisation: 'Teams',
 		// Scaffold:
 		// Meetings    → 'Meetings'
 		// Decisions   → 'Decisions'
@@ -86,10 +86,10 @@ export const MODE_LABELS = {
 
 	/**
 	 * Citizen portal mode.
-	 * No relabeling of Bodies; canonical label used.
+	 * No relabeling of Organisation; canonical label used.
 	 */
 	citizen: {
-		Bodies: 'Bodies',
+		Organisation: 'Organisation',
 		// Scaffold:
 		// Meetings    → 'Meetings'
 		// Decisions   → 'Decisions'

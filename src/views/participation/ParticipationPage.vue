@@ -14,20 +14,29 @@
  every state-changing operation goes through the participation ACTION
  endpoints in services/participationApi.js.
 
- @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ @spec openspec/specs/citizen-participation/spec.md
 -->
 <template>
 	<div class="participation-page" data-testid="participation-page">
 		<header class="participation-page__header">
 			<h2>{{ t('decidesk', 'Citizen participation') }}</h2>
-			<p>{{ t('decidesk', 'Open consultations and participatory budget rounds for your governance body.') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'Open consultations and participatory budget rounds for your governance body.',
+					)
+				}}
+			</p>
 		</header>
 
 		<NcLoadingIcon v-if="loading" :size="44" />
 
 		<template v-else>
 			<!-- Open consultations -->
-			<section class="participation-page__section" data-testid="participation-consultations">
+			<section
+				class="participation-page__section"
+				data-testid="participation-consultations">
 				<h3>{{ t('decidesk', 'Open consultations') }}</h3>
 				<NcEmptyContent
 					v-if="openConsultations.length === 0"
@@ -40,22 +49,26 @@
 					<h4>{{ c.title }}</h4>
 					<p>{{ c.description }}</p>
 					<NcTextArea
-						:value.sync="reactionDrafts[c.id]"
+						v-model="reactionDrafts[c.id]"
 						data-testid="reaction-input"
 						:label="t('decidesk', 'Your reaction')"
 						resize="vertical" />
 					<NcButton
-						type="primary"
+						variant="primary"
 						data-testid="reaction-submit"
 						:disabled="!(reactionDrafts[c.id] || '').trim()"
 						@click="sendReaction(c)">
 						{{ t('decidesk', 'Submit reaction') }}
 					</NcButton>
 					<div v-if="isStaff" class="participation-card__staff">
-						<NcButton data-testid="consultation-close" @click="transitionC(c, 'closed')">
+						<NcButton
+							data-testid="consultation-close"
+							@click="transitionC(c, 'closed')">
 							{{ t('decidesk', 'Close') }}
 						</NcButton>
-						<NcButton data-testid="consultation-publish" @click="publishC(c)">
+						<NcButton
+							data-testid="consultation-publish"
+							@click="publishC(c)">
 							{{ t('decidesk', 'Publish results') }}
 						</NcButton>
 					</div>
@@ -63,7 +76,9 @@
 			</section>
 
 			<!-- Budget rounds -->
-			<section class="participation-page__section" data-testid="participation-budgets">
+			<section
+				class="participation-page__section"
+				data-testid="participation-budgets">
 				<h3>{{ t('decidesk', 'Participatory budget rounds') }}</h3>
 				<NcEmptyContent
 					v-if="budgetRounds.length === 0"
@@ -74,7 +89,10 @@
 					class="participation-card"
 					data-testid="budget-card">
 					<h4>{{ b.name }}</h4>
-					<p>{{ formatAmount(b.totalAmount, b.currency) }} · {{ phaseLabel(b.status) }}</p>
+					<p>
+						{{ formatAmount(b.totalAmount, b.currency) }} ·
+						{{ phaseLabel(b.status) }}
+					</p>
 
 					<!-- Proposal submission (submission phase) -->
 					<form
@@ -83,19 +101,19 @@
 						data-testid="proposal-form"
 						@submit.prevent="sendProposal(b)">
 						<NcTextField
-							:value.sync="proposalDrafts[b.id].title"
+							v-model="proposalDrafts[b.id].title"
 							:label="t('decidesk', 'Proposal title')" />
 						<NcTextArea
-							:value.sync="proposalDrafts[b.id].description"
+							v-model="proposalDrafts[b.id].description"
 							:label="t('decidesk', 'Description')"
 							resize="vertical" />
 						<NcTextField
+							v-model="proposalDrafts[b.id].amount"
 							type="number"
-							:value.sync="proposalDrafts[b.id].amount"
 							:label="t('decidesk', 'Requested amount')" />
 						<NcButton
-							type="primary"
-							native-type="submit"
+							variant="primary"
+							type="submit"
 							data-testid="proposal-submit"
 							:disabled="!(proposalDrafts[b.id].title || '').trim()">
 							{{ t('decidesk', 'Submit proposal') }}
@@ -103,21 +121,32 @@
 					</form>
 
 					<!-- Voting cards (voting phase) -->
-					<div v-else-if="b.status === 'voting'" data-testid="voting-cards">
+					<div
+						v-else-if="b.status === 'voting'"
+						data-testid="voting-cards">
 						<NcEmptyContent
 							v-if="(votableProposals[b.id] || []).length === 0"
 							:name="t('decidesk', 'No proposals to vote on yet')" />
 						<div
-							v-for="p in (votableProposals[b.id] || [])"
+							v-for="p in votableProposals[b.id] || []"
 							:key="p.id"
 							class="voting-card"
 							data-testid="voting-card">
 							<span class="voting-card__title">{{ p.title }}</span>
-							<span class="voting-card__tally">{{ p.votesFor || 0 }} / {{ p.votesAgainst || 0 }}</span>
-							<NcButton type="success" data-testid="vote-voor" @click="vote(p, 'voor')">
+							<span class="voting-card__tally"
+								>{{ p.votesFor || 0 }} /
+								{{ p.votesAgainst || 0 }}</span
+							>
+							<NcButton
+								variant="success"
+								data-testid="vote-voor"
+								@click="vote(p, 'voor')">
 								{{ t('decidesk', 'For') }}
 							</NcButton>
-							<NcButton type="error" data-testid="vote-tegen" @click="vote(p, 'tegen')">
+							<NcButton
+								variant="error"
+								data-testid="vote-tegen"
+								@click="vote(p, 'tegen')">
 								{{ t('decidesk', 'Against') }}
 							</NcButton>
 						</div>
@@ -151,9 +180,15 @@
 </template>
 
 <script>
-import { NcButton, NcEmptyContent, NcLoadingIcon, NcNoteCard, NcTextArea, NcTextField } from '@nextcloud/vue'
 import { showError, showSuccess } from '@nextcloud/dialogs'
-import { useObjectStore, useSettingsStore } from '../../store/store.js'
+import {
+	NcButton,
+	NcEmptyContent,
+	NcLoadingIcon,
+	NcNoteCard,
+	NcTextArea,
+	NcTextField,
+} from '@nextcloud/vue'
 import {
 	castAdvisoryVote,
 	publishBudgetResults,
@@ -163,6 +198,7 @@ import {
 	transitionBudgetRound,
 	transitionConsultation,
 } from '../../services/participationApi.js'
+import { useObjectStore, useSettingsStore } from '../../store/store.js'
 
 const NEXT_BUDGET_PHASE = {
 	draft: 'submission',
@@ -173,7 +209,15 @@ const NEXT_BUDGET_PHASE = {
 
 export default {
 	name: 'ParticipationPage',
-	components: { NcButton, NcEmptyContent, NcLoadingIcon, NcNoteCard, NcTextArea, NcTextField },
+	components: {
+		NcButton,
+		NcEmptyContent,
+		NcLoadingIcon,
+		NcNoteCard,
+		NcTextArea,
+		NcTextField,
+	},
+
 	data() {
 		return {
 			loading: true,
@@ -186,35 +230,52 @@ export default {
 			catalogWarning: '',
 		}
 	},
-	/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+
+	/** @spec openspec/specs/citizen-participation/spec.md */
 	async mounted() {
 		try {
 			const settingsStore = useSettingsStore()
 			await settingsStore.fetchSettings()
 			// UI hint only — every staff action is independently authorized
 			// server-side by ParticipationController::requireStaff().
-			this.isStaff = !!(settingsStore.getSettings && settingsStore.getSettings.isAdmin)
+			this.isStaff = !!(
+				settingsStore.getSettings && settingsStore.getSettings.isAdmin
+			)
 		} catch (e) {
 			this.isStaff = false
 		}
 		this.load()
 	},
+
 	methods: {
-		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+		/** @spec openspec/specs/citizen-participation/spec.md */
 		async load() {
 			this.loading = true
 			try {
 				const store = useObjectStore()
-				const consultations = await store.fetchCollection('public-consultation', { status: 'open', _limit: 100 })
-				this.openConsultations = (Array.isArray(consultations) ? consultations : []).filter((c) => c.status === 'open')
+				const consultations = await store.fetchCollection(
+					'public-consultation',
+					{ status: 'open', _limit: 100 },
+				)
+				this.openConsultations = (
+					Array.isArray(consultations) ? consultations : []
+				).filter((c) => c.status === 'open')
 				for (const c of this.openConsultations) {
-					this.$set(this.reactionDrafts, c.id, '')
+					this.reactionDrafts[c.id] = ''
 				}
 
-				const rounds = await store.fetchCollection('participatory-budget', { _limit: 100 })
-				this.budgetRounds = (Array.isArray(rounds) ? rounds : []).filter((b) => ['submission', 'voting', 'closed'].includes(b.status))
+				const rounds = await store.fetchCollection('participatory-budget', {
+					_limit: 100,
+				})
+				this.budgetRounds = (Array.isArray(rounds) ? rounds : []).filter(
+					(b) => ['submission', 'voting', 'closed'].includes(b.status),
+				)
 				for (const b of this.budgetRounds) {
-					this.$set(this.proposalDrafts, b.id, { title: '', description: '', amount: '' })
+					this.proposalDrafts[b.id] = {
+						title: '',
+						description: '',
+						amount: '',
+					}
 					if (b.status === 'voting') {
 						await this.loadVotable(b)
 					}
@@ -225,27 +286,54 @@ export default {
 				this.loading = false
 			}
 		},
-		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param round
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		async loadVotable(round) {
 			try {
 				const store = useObjectStore()
-				const proposals = await store.fetchCollection('budget-proposal', { status: 'validated', _limit: 200 })
-				this.$set(this.votableProposals, round.id, (Array.isArray(proposals) ? proposals : []).filter((p) => p.status === 'validated'))
+				const proposals = await store.fetchCollection('budget-proposal', {
+					status: 'validated',
+					_limit: 200,
+				})
+				this.votableProposals[round.id] = (
+					Array.isArray(proposals) ? proposals : []
+				).filter((p) => p.status === 'validated')
 			} catch (e) {
-				this.$set(this.votableProposals, round.id, [])
+				this.votableProposals[round.id] = []
 			}
 		},
-		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param consultation
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		async sendReaction(consultation) {
 			try {
-				await submitReaction(consultation.id, this.reactionDrafts[consultation.id])
-				showSuccess(t('decidesk', 'Your reaction was submitted for moderation'))
-				this.$set(this.reactionDrafts, consultation.id, '')
+				await submitReaction(
+					consultation.id,
+					this.reactionDrafts[consultation.id],
+				)
+				showSuccess(
+					t('decidesk', 'Your reaction was submitted for moderation'),
+				)
+				this.reactionDrafts[consultation.id] = ''
 			} catch (e) {
-				showError(this.apiError(e, t('decidesk', 'Could not submit your reaction')))
+				showError(
+					this.apiError(
+						e,
+						t('decidesk', 'Could not submit your reaction'),
+					),
+				)
 			}
 		},
-		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param round
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		async sendProposal(round) {
 			const draft = this.proposalDrafts[round.id]
 			try {
@@ -255,12 +343,26 @@ export default {
 					amount: Number(draft.amount) || 0,
 				})
 				showSuccess(t('decidesk', 'Proposal submitted'))
-				this.$set(this.proposalDrafts, round.id, { title: '', description: '', amount: '' })
+				this.proposalDrafts[round.id] = {
+					title: '',
+					description: '',
+					amount: '',
+				}
 			} catch (e) {
-				showError(this.apiError(e, t('decidesk', 'Could not submit your proposal')))
+				showError(
+					this.apiError(
+						e,
+						t('decidesk', 'Could not submit your proposal'),
+					),
+				)
 			}
 		},
-		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param proposal
+		 * @param value
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		async vote(proposal, value) {
 			try {
 				const result = await castAdvisoryVote(proposal.id, value)
@@ -268,10 +370,17 @@ export default {
 				proposal.votesAgainst = result.votesAgainst
 				showSuccess(t('decidesk', 'Your vote was recorded'))
 			} catch (e) {
-				showError(this.apiError(e, t('decidesk', 'Could not record your vote')))
+				showError(
+					this.apiError(e, t('decidesk', 'Could not record your vote')),
+				)
 			}
 		},
-		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param consultation
+		 * @param status
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		async transitionC(consultation, status) {
 			try {
 				await transitionConsultation(consultation.id, status)
@@ -281,7 +390,12 @@ export default {
 				showError(this.apiError(e, t('decidesk', 'Transition failed')))
 			}
 		},
-		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param round
+		 * @param status
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		async transitionB(round, status) {
 			try {
 				await transitionBudgetRound(round.id, status)
@@ -291,7 +405,11 @@ export default {
 				showError(this.apiError(e, t('decidesk', 'Transition failed')))
 			}
 		},
-		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param consultation
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		async publishC(consultation) {
 			try {
 				const result = await publishConsultationResults(consultation.id, '')
@@ -300,7 +418,11 @@ export default {
 				showError(this.apiError(e, t('decidesk', 'Publication failed')))
 			}
 		},
-		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param round
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		async publishB(round) {
 			try {
 				const result = await publishBudgetResults(round.id)
@@ -309,7 +431,11 @@ export default {
 				showError(this.apiError(e, t('decidesk', 'Publication failed')))
 			}
 		},
-		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param result
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		reportPublication(result) {
 			if (result && result.warning) {
 				this.catalogWarning = result.warning
@@ -319,11 +445,19 @@ export default {
 				showSuccess(t('decidesk', 'Results published'))
 			}
 		},
-		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param status
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		nextBudgetPhase(status) {
 			return NEXT_BUDGET_PHASE[status] || ''
 		},
-		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param status
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		phaseLabel(status) {
 			const labels = {
 				draft: t('decidesk', 'Draft'),
@@ -334,14 +468,26 @@ export default {
 			}
 			return labels[status] || status
 		},
-		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param amount
+		 * @param currency
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		formatAmount(amount, currency) {
 			const value = Number(amount) || 0
 			return `${value.toLocaleString()} ${currency || 'EUR'}`
 		},
-		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+
+		/**
+		 * @param e
+		 * @param fallback
+		 * @spec openspec/specs/citizen-participation/spec.md
+		 */
 		apiError(e, fallback) {
-			return (e && e.response && e.response.data && e.response.data.message) ? e.response.data.message : fallback
+			return e && e.response && e.response.data && e.response.data.message
+				? e.response.data.message
+				: fallback
 		},
 	},
 }

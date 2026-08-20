@@ -11,10 +11,12 @@
 -->
 <template>
 	<CnAppRoot
+		:aiCompanion="true"
 		:manifest="manifest"
 		:registry="registry"
-		:page-types="pageTypes"
-		app-id="decidesk"
+		:pageTypes="pageTypes"
+		:formatters="cellFormatters"
+		appId="decidesk"
 		data-testid="app-root"
 		:translate="translateForApp"
 		:permissions="permissions">
@@ -23,14 +25,14 @@
 				v-if="objectSidebarState.active"
 				:title="objectSidebarState.title"
 				:subtitle="objectSidebarState.subtitle"
-				:object-type="objectSidebarState.objectType"
-				:object-id="objectSidebarState.objectId"
+				:objectType="objectSidebarState.objectType"
+				:objectId="objectSidebarState.objectId"
 				:register="objectSidebarState.register"
 				:schema="objectSidebarState.schema"
-				:hidden-tabs="objectSidebarState.hiddenTabs"
+				:hiddenTabs="objectSidebarState.hiddenTabs"
 				:tabs="objectSidebarState.tabs"
-				:use-registry="objectSidebarState.useRegistry"
-				:exclude-integrations="objectSidebarState.excludeIntegrations"
+				:useRegistry="objectSidebarState.useRegistry"
+				:excludeIntegrations="objectSidebarState.excludeIntegrations"
 				:registry="registry"
 				:open="objectSidebarState.open"
 				@update:open="objectSidebarState.open = $event" />
@@ -39,11 +41,12 @@
 </template>
 
 <script>
-import Vue from 'vue'
-import { translate as ncT } from '@nextcloud/l10n'
 import { CnAppRoot, CnObjectSidebar } from '@conduction/nextcloud-vue'
+import { translate as ncT } from '@nextcloud/l10n'
+import { reactive } from 'vue'
+import { DEFAULT_MODE, MODE_LABELS } from './config/modeLabels.js'
 import { initializeStores, useSettingsStore } from './store/store.js'
-import { MODE_LABELS, DEFAULT_MODE } from './config/modeLabels.js'
+import cellFormatters from './utils/cellFormatters.js'
 
 export default {
 	name: 'App',
@@ -57,7 +60,7 @@ export default {
 	provide() {
 		return {
 			// Channel for CnDetailPage → host-rendered CnObjectSidebar.
-			// Vue.observable makes the plain object reactive for Vue 2.
+			// reactive() makes the plain object reactive (Vue 3).
 			objectSidebarState: this.objectSidebarState,
 		}
 	},
@@ -72,6 +75,7 @@ export default {
 			type: Object,
 			required: true,
 		},
+
 		/**
 		 * v2 kind-tagged component registry (ADR-036). Passed as the `registry`
 		 * prop to CnAppRoot and CnObjectSidebar. Each entry is shaped as
@@ -84,6 +88,7 @@ export default {
 			type: Object,
 			default: () => ({}),
 		},
+
 		/**
 		 * Page-type registry — `{ index, detail, dashboard, settings, ... }`.
 		 * Wired through to descendant `CnPageRenderer` instances via
@@ -97,7 +102,13 @@ export default {
 
 	data() {
 		return {
-			objectSidebarState: Vue.observable({
+			/**
+			 * Cell-formatter registry passed to CnAppRoot's `formatters`
+			 * prop (see src/utils/cellFormatters.js). Static — no need to
+			 * be reactive.
+			 */
+			cellFormatters,
+			objectSidebarState: reactive({
 				active: false,
 				open: true,
 				objectType: '',
@@ -128,12 +139,12 @@ export default {
 		 * Active organisatie_modus from the settings store.
 		 * Defaults to DEFAULT_MODE ('gov') when not yet configured.
 		 *
-		 * @spec openspec/changes/ia-six-item-nav/specs/app-navigation/spec.md#requirement-req-nav-006-mode-aware-label-resolution-at-the-translate-chokepoint
+		 * @spec openspec/specs/app-navigation/spec.md#requirement-req-nav-006-mode-aware-label-resolution-at-the-translate-chokepoint
 		 * @return {string}
 		 */
 		organisatieModus() {
 			const settingsStore = useSettingsStore()
-			return (settingsStore.getSettings?.organisatie_modus) || DEFAULT_MODE
+			return settingsStore.getSettings?.organisatie_modus || DEFAULT_MODE
 		},
 	},
 
@@ -156,7 +167,7 @@ export default {
 		 * i18n key before calling t(). Falls back to the canonical key when
 		 * no mode-specific mapping exists (pass-through to standard l10n).
 		 *
-		 * @spec openspec/changes/ia-six-item-nav/specs/app-navigation/spec.md#requirement-req-nav-006-mode-aware-label-resolution-at-the-translate-chokepoint
+		 * @spec openspec/specs/app-navigation/spec.md#requirement-req-nav-006-mode-aware-label-resolution-at-the-translate-chokepoint
 		 * @param {string} key Canonical translation key.
 		 * @return {string} Translated string (or the key on miss).
 		 */

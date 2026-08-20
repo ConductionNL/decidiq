@@ -8,11 +8,13 @@
  client-side (src/utils/memberImport.js, capped at MAX_IMPORT_ROWS);
  only the email→Nextcloud-account matching round-trips to the
  admin-gated /api/member-import/match endpoint (which mirrors the row
- cap server-side). Valid, non-duplicate rows are batch-created through
- the OpenRegister object API; rows without a matching NC account are
- imported but flagged for manual linking.
+ cap server-side). model-debt-cleanup-code: valid, non-duplicate rows
+ each become a Person (matched by email against an existing Person, else
+ created) + Membership pair through the OpenRegister object API, not a
+ Participant; rows without a matching NC account are still imported but
+ flagged for manual linking, unchanged.
 
- @spec openspec/specs/admin-settings/spec.md
+ @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
 -->
 <template>
 	<NcDialog
@@ -21,23 +23,45 @@
 		data-testid="member-csv-import-dialog"
 		@closing="$emit('close')">
 		<template #default>
-			<p>{{ t('decidesk', 'Upload a CSV file with the columns: name, email, role.') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'Upload a CSV file with the columns: name, email, role.',
+					)
+				}}
+			</p>
 			<input
 				type="file"
 				accept=".csv,text/csv"
 				:aria-label="t('decidesk', 'CSV file')"
 				data-testid="csv-import-file"
-				@change="onFile">
+				@change="onFile" />
 
-			<table v-if="preview.length" class="csv-import__table" data-testid="csv-import-preview">
+			<table
+				v-if="preview.length"
+				class="csv-import__table"
+				data-testid="csv-import-preview">
 				<thead>
 					<tr>
-						<th>{{ t('decidesk', 'Line') }}</th>
-						<th>{{ t('decidesk', 'Name') }}</th>
-						<th>{{ t('decidesk', 'Email') }}</th>
-						<th>{{ t('decidesk', 'Role') }}</th>
-						<th>{{ t('decidesk', 'Account') }}</th>
-						<th>{{ t('decidesk', 'Status') }}</th>
+						<th scope="col">
+							{{ t('decidesk', 'Line') }}
+						</th>
+						<th scope="col">
+							{{ t('decidesk', 'Name') }}
+						</th>
+						<th scope="col">
+							{{ t('decidesk', 'Email') }}
+						</th>
+						<th scope="col">
+							{{ t('decidesk', 'Role') }}
+						</th>
+						<th scope="col">
+							{{ t('decidesk', 'Account') }}
+						</th>
+						<th scope="col">
+							{{ t('decidesk', 'Status') }}
+						</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -48,12 +72,21 @@
 						<td>{{ row.role }}</td>
 						<td>
 							<span v-if="row.matchedUid">{{ row.matchedUid }}</span>
-							<span v-else-if="row.status === 'ok'" class="csv-import__unmatched">
-								{{ t('decidesk', 'No account — manual linking needed') }}
+							<span
+								v-else-if="row.status === 'ok'"
+								class="csv-import__unmatched">
+								{{
+									t(
+										'decidesk',
+										'No account — manual linking needed',
+									)
+								}}
 							</span>
 						</td>
 						<td>
-							<span :class="'csv-import__status--' + row.status">{{ statusLabel(row) }}</span>
+							<span :class="'csv-import__status--' + row.status">{{
+								statusLabel(row)
+							}}</span>
 						</td>
 					</tr>
 				</tbody>
@@ -62,19 +95,26 @@
 			<p v-if="error" class="csv-import__error" data-testid="csv-import-error">
 				{{ error }}
 			</p>
-			<p v-if="doneMessage" class="csv-import__done" data-testid="csv-import-done">
+			<p
+				v-if="doneMessage"
+				class="csv-import__done"
+				data-testid="csv-import-done">
 				{{ doneMessage }}
 			</p>
 		</template>
 		<template #actions>
 			<NcButton
-				type="primary"
+				variant="primary"
 				:disabled="importing || importableCount === 0"
 				data-testid="csv-import-submit"
 				@click="runImport">
-				{{ importing
-					? t('decidesk', 'Importing…')
-					: t('decidesk', 'Import {count} members', { count: importableCount }) }}
+				{{
+					importing
+						? t('decidesk', 'Importing…')
+						: t('decidesk', 'Import {count} members', {
+								count: importableCount,
+							})
+				}}
 			</NcButton>
 			<NcButton data-testid="csv-import-cancel" @click="$emit('close')">
 				{{ t('decidesk', 'Close') }}
@@ -84,11 +124,19 @@
 </template>
 
 <script>
-import { NcButton, NcDialog } from '@nextcloud/vue'
-import { generateUrl } from '@nextcloud/router'
 import { getRequestToken } from '@nextcloud/auth'
-import { ensureRelationType } from '../components/tabs/useRelationStore.js'
-import { parseMemberCsv, validateMemberRows, MAX_IMPORT_ROWS } from '../utils/memberImport.js'
+import { generateUrl } from '@nextcloud/router'
+import { NcButton, NcDialog } from '@nextcloud/vue'
+import {
+	buildMembershipPayload,
+	ensureRelationType,
+	resolveOrCreatePerson,
+} from '../components/tabs/useRelationStore.js'
+import {
+	MAX_IMPORT_ROWS,
+	parseMemberCsv,
+	validateMemberRows,
+} from '../utils/memberImport.js'
 
 export default {
 	name: 'MemberCsvImportDialog',
@@ -99,6 +147,7 @@ export default {
 		/** Current members of the body (duplicate detection). */
 		existingMembers: { type: Array, default: () => [] },
 	},
+
 	emits: ['close', 'imported'],
 	data() {
 		return {
@@ -108,14 +157,22 @@ export default {
 			doneMessage: '',
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		importableCount() {
 			return this.preview.filter((row) => row.status === 'ok').length
 		},
 	},
+
 	methods: {
-		/** @spec openspec/specs/admin-settings/spec.md */
+		/**
+		 * Translated status text for one previewed CSV row.
+		 *
+		 * @param {object} row A validated preview row (status + reason).
+		 * @return {string} The translated status label.
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
 		statusLabel(row) {
 			if (row.status === 'ok') {
 				return this.t('decidesk', 'Will be imported')
@@ -132,7 +189,14 @@ export default {
 			}
 			return reasons[row.reason] || this.t('decidesk', 'Invalid row')
 		},
-		/** @spec openspec/specs/admin-settings/spec.md */
+
+		/**
+		 * Parse, validate and account-match a newly chosen CSV file.
+		 *
+		 * @param {Event} event The file input's change event.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
 		async onFile(event) {
 			this.error = ''
 			this.doneMessage = ''
@@ -144,11 +208,18 @@ export default {
 			const text = await file.text()
 			const { rows, error } = parseMemberCsv(text)
 			if (error === 'header') {
-				this.error = this.t('decidesk', 'The CSV must have a header row with name and email columns.')
+				this.error = this.t(
+					'decidesk',
+					'The CSV must have a header row with name and email columns.',
+				)
 				return
 			}
 			if (error === 'too-many-rows') {
-				this.error = this.t('decidesk', 'At most {max} rows can be imported at once.', { max: MAX_IMPORT_ROWS })
+				this.error = this.t(
+					'decidesk',
+					'At most {max} rows can be imported at once.',
+					{ max: MAX_IMPORT_ROWS },
+				)
 				return
 			}
 			if (error === 'empty' || rows.length === 0) {
@@ -158,58 +229,96 @@ export default {
 			const validated = validateMemberRows(rows, this.existingMembers)
 			this.preview = await this.matchAccounts(validated)
 		},
-		/** @spec openspec/specs/admin-settings/spec.md */
+
+		/**
+		 * Resolve each row's email to a Nextcloud account, best-effort.
+		 *
+		 * @param {Array<object>} rows Validated preview rows.
+		 * @return {Promise<Array<object>>} The rows, each with a matchedUid.
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
 		async matchAccounts(rows) {
 			const emails = rows.filter((r) => r.status === 'ok').map((r) => r.email)
 			if (emails.length === 0) {
 				return rows.map((r) => ({ ...r, matchedUid: '' }))
 			}
 			try {
-				const response = await fetch(generateUrl('/apps/decidesk/api/member-import/match'), {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						requesttoken: getRequestToken(),
+				const response = await fetch(
+					generateUrl('/apps/decidesk/api/member-import/match'),
+					{
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: getRequestToken(),
+						},
+						body: JSON.stringify({ emails }),
 					},
-					body: JSON.stringify({ emails }),
-				})
+				)
 				if (!response.ok) {
-					throw new Error(this.t('decidesk', 'Account matching failed (admin access required).'))
+					throw new Error(
+						this.t(
+							'decidesk',
+							'Account matching failed (admin access required).',
+						),
+					)
 				}
 				const data = await response.json()
 				const matches = data?.matches || {}
-				return rows.map((r) => ({ ...r, matchedUid: matches[r.email]?.uid || '' }))
+				return rows.map((r) => ({
+					...r,
+					matchedUid: matches[r.email]?.uid || '',
+				}))
 			} catch (e) {
 				// Matching is best-effort: rows import unlinked when it fails.
-				this.error = e?.message || this.t('decidesk', 'Account matching failed.')
+				this.error =
+					e?.message || this.t('decidesk', 'Account matching failed.')
 				return rows.map((r) => ({ ...r, matchedUid: '' }))
 			}
 		},
-		/** @spec openspec/specs/admin-settings/spec.md */
+
+		/**
+		 * Import the previewed CSV rows: each becomes a Person (matched by
+		 * email, else created) + Membership pair.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 */
 		async runImport() {
 			this.importing = true
 			this.error = ''
 			try {
-				const store = ensureRelationType('participant')
+				const personStore = ensureRelationType('person')
+				const membershipStore = ensureRelationType('membership')
 				const rows = this.preview.filter((row) => row.status === 'ok')
 				for (const row of rows) {
 					// Sequential on purpose: predictable ordering + no API hammering.
-					await store.saveObject('participant', {
-						displayName: row.name,
+					const person = await resolveOrCreatePerson(personStore, {
+						name: row.name,
 						email: row.email,
-						role: row.role,
 						nextcloudUserId: row.matchedUid || '',
-						governanceBody: this.bodyId,
 					})
+					if (!person?.id) {
+						continue
+					}
+					await membershipStore.saveObject(
+						'membership',
+						buildMembershipPayload({
+							personId: person.id,
+							governanceBodyId: this.bodyId,
+							role: row.role,
+						}),
+					)
 				}
-				this.doneMessage = this.t('decidesk', '{count} members imported.', { count: rows.length })
+				this.doneMessage = this.t('decidesk', '{count} members imported.', {
+					count: rows.length,
+				})
 				this.$emit('imported')
 				// Mark imported rows so a second click cannot double-import.
-				this.preview = this.preview.map((row) => (
+				this.preview = this.preview.map((row) =>
 					row.status === 'ok'
 						? { ...row, status: 'duplicate', reason: 'already-member' }
-						: row
-				))
+						: row,
+				)
 			} catch (e) {
 				this.error = e?.message || this.t('decidesk', 'Import failed.')
 			} finally {
@@ -226,23 +335,28 @@ export default {
 	margin-top: 12px;
 	border-collapse: collapse;
 }
+
 .csv-import__table th,
 .csv-import__table td {
 	text-align: start;
 	padding: 4px 8px;
 	border-bottom: 1px solid var(--color-border);
 }
+
 .csv-import__status--duplicate,
 .csv-import__unmatched {
 	color: var(--color-text-maxcontrast);
 }
+
 .csv-import__status--invalid {
 	color: var(--color-error);
 }
+
 .csv-import__error {
 	color: var(--color-error);
 	margin: 8px 0 0;
 }
+
 .csv-import__done {
 	color: var(--color-success);
 	margin: 8px 0 0;

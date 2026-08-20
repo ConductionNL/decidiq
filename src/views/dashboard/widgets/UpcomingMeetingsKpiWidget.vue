@@ -13,11 +13,11 @@
 	<CnStatsBlock
 		:title="t('decidesk', 'Upcoming meetings')"
 		:count="count"
-		:count-label="t('decidesk', 'meetings')"
+		:countLabel="t('decidesk', 'meetings')"
 		:icon="CalendarClockOutline"
 		:loading="loading"
 		:route="{ name: 'Meetings' }"
-		show-zero-count
+		showZeroCount
 		horizontal
 		data-testid="upcoming-meetings-kpi" />
 </template>
@@ -25,9 +25,9 @@
 <script>
 import { CnStatsBlock } from '@conduction/nextcloud-vue'
 import CalendarClockOutline from 'vue-material-design-icons/CalendarClockOutline.vue'
+import { getMeetings } from '../../../services/dashboardData.js'
 import dashboardRefreshMixin from './dashboardRefreshMixin.js'
 import { upcomingMeetings } from './widgetLogic.js'
-import { getMeetings } from '../../../services/dashboardData.js'
 
 export default {
 	name: 'UpcomingMeetingsKpiWidget',

@@ -34,161 +34,161 @@ use PHPUnit\Framework\TestCase;
  *
  * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
  */
-class SettingsControllerTest extends TestCase
-{
+class SettingsControllerTest extends TestCase {
 
-    /**
-     * The controller under test.
-     *
-     * @var SettingsController
-     */
-    private SettingsController $controller;
+	/**
+	 * The controller under test.
+	 *
+	 * @var SettingsController
+	 */
+	private SettingsController $controller;
 
-    /**
-     * Mock IRequest.
-     *
-     * @var IRequest&MockObject
-     */
-    private IRequest&MockObject $request;
+	/**
+	 * Mock IRequest.
+	 *
+	 * @var IRequest&MockObject
+	 */
+	private IRequest&MockObject $request;
 
-    /**
-     * Mock SettingsService.
-     *
-     * @var SettingsService&MockObject
-     */
-    private SettingsService&MockObject $settingsService;
+	/**
+	 * Mock SettingsService.
+	 *
+	 * @var SettingsService&MockObject
+	 */
+	private SettingsService&MockObject $settingsService;
 
-    /**
-     * Mock IUserSession.
-     *
-     * @var IUserSession&MockObject
-     */
-    private IUserSession&MockObject $userSession;
+	/**
+	 * Mock IUserSession.
+	 *
+	 * @var IUserSession&MockObject
+	 */
+	private IUserSession&MockObject $userSession;
 
-    /**
-     * Mock PublicationConfigService.
-     *
-     * @var PublicationConfigService&MockObject
-     */
-    private PublicationConfigService&MockObject $publicationConfigService;
+	/**
+	 * Mock PublicationConfigService.
+	 *
+	 * @var PublicationConfigService&MockObject
+	 */
+	private PublicationConfigService&MockObject $publicationConfigService;
 
-    /**
-     * Mock non-admin IUser.
-     *
-     * @var IUser&MockObject
-     */
-    private IUser&MockObject $nonAdminUser;
+	/**
+	 * Mock non-admin IUser.
+	 *
+	 * @var IUser&MockObject
+	 */
+	private IUser&MockObject $nonAdminUser;
 
-    /**
-     * Set up test fixtures.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+	/**
+	 * Set up test fixtures.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-        $this->request                  = $this->createMock(originalClassName: IRequest::class);
-        $this->settingsService          = $this->createMock(originalClassName: SettingsService::class);
-        $this->userSession              = $this->createMock(originalClassName: IUserSession::class);
-        $this->publicationConfigService = $this->createMock(originalClassName: PublicationConfigService::class);
+		$this->request = $this->createMock(originalClassName: IRequest::class);
+		$this->settingsService = $this->createMock(originalClassName: SettingsService::class);
+		$this->userSession = $this->createMock(originalClassName: IUserSession::class);
+		$this->publicationConfigService = $this->createMock(originalClassName: PublicationConfigService::class);
 
-        $this->nonAdminUser = $this->createMock(originalClassName: IUser::class);
-        $this->nonAdminUser->method('getUID')->willReturn('regularuser');
+		$this->nonAdminUser = $this->createMock(originalClassName: IUser::class);
+		$this->nonAdminUser->method('getUID')->willReturn('regularuser');
 
-        $this->controller = new SettingsController(
-            request: $this->request,
-            settingsService: $this->settingsService,
-            userSession: $this->userSession,
-            publicationConfigService: $this->publicationConfigService,
-        );
+		$this->controller = new SettingsController(
+			request: $this->request,
+			settingsService: $this->settingsService,
+			userSession: $this->userSession,
+			publicationConfig: $this->publicationConfigService,
+		);
 
-    }//end setUp()
+	}//end setUp()
 
-    /**
-     * Test that index() returns a JSONResponse containing the settings from the service.
-     *
-     * @return void
-     */
-    public function testIndexReturnsJsonResponseWithSettings(): void
-    {
-        $settings = [
-            'register'      => 'some-uuid',
-            'openregisters' => true,
-            'isAdmin'       => false,
-        ];
+	/**
+	 * Test that index() returns a JSONResponse containing the settings from the service.
+	 *
+	 * @return void
+	 */
+	public function testIndexReturnsJsonResponseWithSettings(): void {
+		$settings = [
+			'register' => 'some-uuid',
+			'openregisters' => true,
+			'isAdmin' => false,
+		];
 
-        $this->userSession->expects($this->once())
-            ->method('getUser')
-            ->willReturn($this->nonAdminUser);
+		$this->userSession->expects($this->once())
+			->method('getUser')
+			->willReturn($this->nonAdminUser);
 
-        $this->settingsService->expects($this->once())
-            ->method('getSettings')
-            ->willReturn($settings);
+		$this->settingsService->expects($this->once())
+			->method('getSettings')
+			->willReturn($settings);
 
-        $result = $this->controller->index();
+		$result = $this->controller->index();
 
-        self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
-        self::assertSame(expected: $settings, actual: $result->getData());
+		self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
+		self::assertSame(expected: $settings, actual: $result->getData());
 
-    }//end testIndexReturnsJsonResponseWithSettings()
+	}//end testIndexReturnsJsonResponseWithSettings()
 
-    /**
-     * Test that create() calls updateSettings with request params and returns success.
-     *
-     * Admin enforcement is handled by the #[AuthorizedAdminSetting] framework attribute,
-     * not by the controller itself.
-     *
-     * @return void
-     */
-    public function testCreateCallsUpdateSettingsAndReturnsSuccess(): void
-    {
-        $params  = ['register' => 'new-uuid'];
-        $updated = ['register' => 'new-uuid', 'openregisters' => true, 'isAdmin' => false];
+	/**
+	 * Test that create() calls updateSettings with request params and returns success.
+	 *
+	 * Admin enforcement is handled by the #[AuthorizedAdminSetting] framework attribute,
+	 * not by the controller itself.
+	 *
+	 * @return void
+	 */
+	public function testCreateCallsUpdateSettingsAndReturnsSuccess(): void {
+		$params = ['register' => 'new-uuid'];
+		$updated = ['register' => 'new-uuid', 'openregisters' => true, 'isAdmin' => false];
 
-        $this->request->expects($this->once())
-            ->method('getParams')
-            ->willReturn($params);
+		$this->request->expects($this->once())
+			->method('getParams')
+			->willReturn($params);
 
-        $this->settingsService->expects($this->once())
-            ->method('updateSettings')
-            ->with($params)
-            ->willReturn($updated);
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($params)
+			->willReturn($updated);
 
-        $result = $this->controller->create();
+		$result = $this->controller->create();
 
-        self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
-        self::assertTrue(condition: $result->getData()['success']);
-        self::assertArrayHasKey(key: 'config', array: $result->getData());
+		self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
+		self::assertTrue(condition: $result->getData()['success']);
+		self::assertArrayHasKey(key: 'config', array: $result->getData());
 
-    }//end testCreateCallsUpdateSettingsAndReturnsSuccess()
+	}//end testCreateCallsUpdateSettingsAndReturnsSuccess()
 
-    /**
-     * Test that load() returns the result of loadConfiguration.
-     *
-     * Admin enforcement is handled by the #[AuthorizedAdminSetting] framework attribute,
-     * not by the controller itself.
-     *
-     * @return void
-     */
-    public function testLoadReturnsConfigurationResult(): void
-    {
-        $loadResult = [
-            'success' => true,
-            'message' => 'Configuration imported successfully.',
-            'version' => '0.1.0',
-        ];
+	/**
+	 * Test that load() returns the result of reloadConfiguration.
+	 *
+	 * load() is the forcing endpoint, so it must call the forcing named method
+	 * (reloadConfiguration) rather than the non-forcing loadConfiguration().
+	 *
+	 * Admin enforcement is handled by the #[AuthorizedAdminSetting] framework attribute,
+	 * not by the controller itself.
+	 *
+	 * @return void
+	 */
+	public function testLoadReturnsConfigurationResult(): void {
+		$loadResult = [
+			'success' => true,
+			'message' => 'Configuration imported successfully.',
+			'version' => '0.1.0',
+		];
 
-        $this->settingsService->expects($this->once())
-            ->method('loadConfiguration')
-            ->with(force: true)
-            ->willReturn($loadResult);
+		$this->settingsService->expects($this->never())
+			->method('loadConfiguration');
 
-        $result = $this->controller->load();
+		$this->settingsService->expects($this->once())
+			->method('reloadConfiguration')
+			->willReturn($loadResult);
 
-        self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
-        self::assertTrue(condition: $result->getData()['success']);
+		$result = $this->controller->load();
 
-    }//end testLoadReturnsConfigurationResult()
+		self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
+		self::assertTrue(condition: $result->getData()['success']);
+
+	}//end testLoadReturnsConfigurationResult()
 
 }//end class

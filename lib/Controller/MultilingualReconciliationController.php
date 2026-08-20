@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Multilingual Reconciliation Controller
  *
@@ -26,8 +27,10 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\MultilingualReconciliationService;
+use OCA\Decidesk\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -38,150 +41,133 @@ use OCP\IUserSession;
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
  */
-class MultilingualReconciliationController extends Controller
-{
-    use GovernanceControllerTrait;
+class MultilingualReconciliationController extends Controller {
+	use RequiresOrAdmin;
+	use GovernanceControllerTrait;
 
-    /**
-     * Constructor.
-     *
-     * @param IRequest                          $request               HTTP request
-     * @param MultilingualReconciliationService $reconciliationService Reconciliation service
-     * @param IUserSession                      $userSession           User session
-     * @param IGroupManager                     $groupManager          Group manager
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly MultilingualReconciliationService $reconciliationService,
-        private readonly IUserSession $userSession,
-        private readonly IGroupManager $groupManager,
-    ) {
-        parent::__construct(appName: Application::APP_ID, request: $request);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request HTTP request
+	 * @param MultilingualReconciliationService $reconciler Reconciliation service
+	 * @param IUserSession $userSession User session
+	 * @param IGroupManager $groupManager Group manager
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly MultilingualReconciliationService $reconciler,
+		private readonly IUserSession $userSession,
+		private readonly IGroupManager $groupManager,
+	) {
+		parent::__construct(appName: Application::APP_ID, request: $request);
+	}//end __construct()
 
-    /**
-     * Enqueue a minutes record for translation.
-     *
-     * Body params:
-     * - minutesId (string, required)
-     * - sourceLocale (string, required)
-     * - targetLocales (array<string>, required)
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
-     *
-     * @return JSONResponse
-     */
-    public function queue(): JSONResponse
-    {
-        $deny = $this->requireAdmin();
-        if ($deny !== null) {
-            return $deny;
-        }
+	/**
+	 * Enqueue a minutes record for translation.
+	 *
+	 * Body params:
+	 * - minutesId (string, required)
+	 * - sourceLocale (string, required)
+	 * - targetLocales (array<string>, required)
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function queue(): JSONResponse {
+		$deny = $this->requireAdmin();
+		if ($deny !== null) {
+			return $deny;
+		}
 
-        $minutesId     = (string) $this->request->getParam('minutesId', '');
-        $sourceLocale  = (string) $this->request->getParam('sourceLocale', '');
-        $targetLocales = (array) $this->request->getParam('targetLocales', []);
+		$minutesId = (string)$this->request->getParam('minutesId', '');
+		$sourceLocale = (string)$this->request->getParam('sourceLocale', '');
+		$targetLocales = (array)$this->request->getParam('targetLocales', []);
 
-        if ($minutesId === '' || $sourceLocale === '' || $targetLocales === []) {
-            return new JSONResponse(
-                ['message' => "Missing required parameters: 'minutesId', 'sourceLocale', 'targetLocales'."],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        }
+		if ($minutesId === '' || $sourceLocale === '' || $targetLocales === []) {
+			return new JSONResponse(
+				['message' => "Missing required parameters: 'minutesId', 'sourceLocale', 'targetLocales'."],
+				Http::STATUS_UNPROCESSABLE_ENTITY
+			);
+		}
 
-        $result = $this->reconciliationService->queue($minutesId, $sourceLocale, $targetLocales);
-        if (($result['success'] ?? false) === false) {
-            return new JSONResponse(
-                ['message' => (string) ($result['message'] ?? 'Failed to queue translation.')],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        }
+		$result = $this->reconciler->queue($minutesId, $sourceLocale, $targetLocales);
+		if ($result['success'] === false) {
+			return new JSONResponse(
+				['message' => $result['message']],
+				Http::STATUS_UNPROCESSABLE_ENTITY
+			);
+		}
 
-        return new JSONResponse(
-            [
-                'results' => $result['entries'],
-                'total'   => count($result['entries']),
-            ],
-            Http::STATUS_CREATED
-        );
+		return new JSONResponse(
+			[
+				'results' => $result['entries'],
+				'total' => count($result['entries']),
+			],
+			Http::STATUS_CREATED
+		);
 
-    }//end queue()
+	}//end queue()
 
-    /**
-     * Return queue status (counts per status + listing).
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
-     *
-     * @return JSONResponse
-     */
-    public function status(): JSONResponse
-    {
-        $deny = $this->requireAdmin();
-        if ($deny !== null) {
-            return $deny;
-        }
+	/**
+	 * Return queue status (counts per status + listing).
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function status(): JSONResponse {
+		$deny = $this->requireAdmin();
+		if ($deny !== null) {
+			return $deny;
+		}
 
-        $limit  = (int) $this->request->getParam('limit', 50);
-        $result = $this->reconciliationService->status($limit);
-        return new JSONResponse(
-            [
-                'summary' => $result['summary'],
-                'results' => $result['entries'],
-            ]
-        );
+		$limit = (int)$this->request->getParam('limit', 50);
+		$result = $this->reconciler->status($limit);
+		return new JSONResponse(
+			[
+				'summary' => $result['summary'],
+				'results' => $result['entries'],
+			]
+		);
 
-    }//end status()
+	}//end status()
 
-    /**
-     * Force-process up to N queue entries (operational endpoint).
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
-     *
-     * @return JSONResponse
-     */
-    public function process(): JSONResponse
-    {
-        $deny = $this->requireAdmin();
-        if ($deny !== null) {
-            return $deny;
-        }
+	/**
+	 * Force-process up to N queue entries (operational endpoint).
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function process(): JSONResponse {
+		$deny = $this->requireAdmin();
+		if ($deny !== null) {
+			return $deny;
+		}
 
-        $maxEntries = (int) $this->request->getParam('maxEntries', 10);
-        $result     = $this->reconciliationService->processQueue($maxEntries);
-        $status     = Http::STATUS_UNPROCESSABLE_ENTITY;
-        if (($result['success'] ?? false) === true) {
-            $status = Http::STATUS_OK;
-        }
+		$maxEntries = (int)$this->request->getParam('maxEntries', 10);
+		$result = $this->reconciler->processQueue($maxEntries);
+		$status = Http::STATUS_UNPROCESSABLE_ENTITY;
+		if ($result['success'] === true) {
+			$status = Http::STATUS_OK;
+		}
 
-        return new JSONResponse(
-            [
-                'processed' => $result['processed'] ?? 0,
-                'completed' => $result['completed'] ?? 0,
-                'failed'    => $result['failed'] ?? 0,
-                'message'   => $result['message'] ?? '',
-            ],
-            $status
-        );
+		return new JSONResponse(
+			[
+				'processed' => $result['processed'],
+				'completed' => $result['completed'],
+				'failed' => $result['failed'],
+				'message' => $result['message'],
+			],
+			$status
+		);
 
-    }//end process()
+	}//end process()
 
-    /**
-     * Reject the caller with 401/403 when they are not a Nextcloud admin.
-     *
-     * @return JSONResponse|null
-     */
-    private function requireAdmin(): ?JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        if ($this->groupManager->isAdmin($user->getUID()) === false) {
-            return new JSONResponse(['message' => 'Administrator role required.'], Http::STATUS_FORBIDDEN);
-        }
-
-        return null;
-
-    }//end requireAdmin()
+	// Admin guard requireAdmin() comes from the shared RequiresOrAdmin trait
+	// (consume-or-rbac-authorization, REQ-RBAC-004).
 }//end class

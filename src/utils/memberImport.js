@@ -13,7 +13,15 @@
 export const MAX_IMPORT_ROWS = 500
 
 /** Valid participant roles (Participant schema enum + treasurer). */
-export const MEMBER_ROLES = ['chair', 'vice-chair', 'secretary', 'treasurer', 'member', 'observer', 'guest']
+export const MEMBER_ROLES = [
+	'chair',
+	'vice-chair',
+	'secretary',
+	'treasurer',
+	'member',
+	'observer',
+	'guest',
+]
 
 /** Default role applied when a CSV row leaves the role column empty. */
 export const DEFAULT_ROLE = 'member'
@@ -34,7 +42,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 export function parseCsv(text) {
 	// Strip a UTF-8 BOM (U+FEFF) if present.
 	let input = String(text ?? '')
-	if (input.charCodeAt(0) === 0xFEFF) {
+	if (input.charCodeAt(0) === 0xfeff) {
 		input = input.slice(1)
 	}
 	const records = []
@@ -150,7 +158,12 @@ export function validateMemberRows(rows, existingMembers = []) {
 	const seenEmails = new Set()
 
 	return rows.map((row) => {
-		const out = { ...row, role: row.role === '' ? DEFAULT_ROLE : row.role, status: 'ok', reason: '' }
+		const out = {
+			...row,
+			role: row.role === '' ? DEFAULT_ROLE : row.role,
+			status: 'ok',
+			reason: '',
+		}
 		const email = row.email.toLowerCase()
 
 		if (row.name === '') {
@@ -188,7 +201,9 @@ export function validateMemberRows(rows, existingMembers = []) {
  * @spec openspec/specs/admin-settings/spec.md
  */
 export function markGroupDuplicates(groupMembers, existingMembers = []) {
-	const existingUids = new Set(existingMembers.map((m) => m.nextcloudUserId).filter(Boolean))
+	const existingUids = new Set(
+		existingMembers.map((m) => m.nextcloudUserId).filter(Boolean),
+	)
 	const existingEmails = new Set(
 		existingMembers
 			.map((m) => (m.email || '').trim().toLowerCase())
@@ -196,7 +211,8 @@ export function markGroupDuplicates(groupMembers, existingMembers = []) {
 	)
 	return groupMembers.map((m) => ({
 		...m,
-		duplicate: existingUids.has(m.uid)
+		duplicate:
+			existingUids.has(m.uid)
 			|| (m.email !== '' && existingEmails.has(m.email.trim().toLowerCase())),
 	}))
 }

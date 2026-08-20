@@ -1,4 +1,5 @@
 <?php
+
 /**
  * QES Guard
  *
@@ -27,8 +28,8 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Lifecycle;
 
 use OCA\Decidesk\Service\IEIDASSignatureService;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Guard QES presence + validity before Resolution.conclude promotes the
@@ -50,181 +51,215 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
  */
-class QesGuard
-{
-    /**
-     * Construct the guard.
-     *
-     * @param ContainerInterface     $container        DI container (lazy ObjectService lookup)
-     * @param LoggerInterface        $logger           Logger
-     * @param IEIDASSignatureService $signatureService eIDAS adapter
-     */
-    public function __construct(
-        private readonly ContainerInterface $container,
-        private readonly LoggerInterface $logger,
-        private readonly IEIDASSignatureService $signatureService,
-    ) {
-    }//end __construct()
+class QesGuard {
+	/**
+	 * Construct the guard.
+	 *
+	 * @param LoggerInterface $logger Logger
+	 * @param IEIDASSignatureService $signatureService eIDAS adapter
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
+	 */
+	public function __construct(
+		private readonly LoggerInterface $logger,
+		private readonly IEIDASSignatureService $signatureService,
+		private readonly ObjectServiceInterface $objectService,
+	) {
+	}//end __construct()
 
-    /**
-     * Decide whether the resolution may transition to `adopted` based on
-     * eIDAS QES presence + validity. Returns a structured tuple so the caller
-     * can map success/failure to HTTP status without throwing.
-     *
-     * @param string             $resolutionId    UUID of the resolution
-     * @param array<int, string> $requiredSigners List of required member (Person) UUIDs
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
-     *
-     * @return array{allowed: bool, reason: string, missing: array<int,string>, invalid: array<int,string>}
-     */
-    public function canConclude(string $resolutionId, array $requiredSigners): array
-    {
-        if ($resolutionId === '') {
-            return [
-                'allowed' => false,
-                'reason'  => 'resolutionId is required.',
-                'missing' => [],
-                'invalid' => [],
-            ];
-        }
+	/**
+	 * Decide whether the resolution may transition to `adopted` based on
+	 * eIDAS QES presence + validity. Returns a structured tuple so the caller
+	 * can map success/failure to HTTP status without throwing.
+	 *
+	 * @param string $resolutionId UUID of the resolution
+	 * @param array<int, string> $requiredSigners List of required member (Person) UUIDs
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 *
+	 * @return array{allowed: bool, reason: string, missing: array<int,string>, invalid: array<int,string>}
+	 */
+	public function canConclude(string $resolutionId, array $requiredSigners): array {
+		if ($resolutionId === '') {
+			return $this->refuse(reason: 'resolutionId is required.', missing: [], invalid: []);
+		}
 
-        try {
-            $signed = $this->loadSignedBy(resolutionId: $resolutionId);
-        } catch (\Throwable $e) {
-            $this->logger->error(
-                'Decidesk: QesGuard could not load signed-by list',
-                ['resolutionId' => $resolutionId, 'exception' => $e->getMessage()]
-            );
-            return [
-                'allowed' => false,
-                'reason'  => 'Failed to inspect minutes for QES signatures.',
-                'missing' => $requiredSigners,
-                'invalid' => [],
-            ];
-        }
+		try {
+			$signed = $this->loadSignedBy(resolutionId: $resolutionId);
+		} catch (\Throwable $e) {
+			$this->logger->error(
+				'Decidesk: QesGuard could not load signed-by list',
+				['resolutionId' => $resolutionId, 'exception' => $e->getMessage()]
+			);
+			return $this->refuse(
+				reason: 'Failed to inspect minutes for QES signatures.',
+				missing: $requiredSigners,
+				invalid: []
+			);
+		}
 
-        $missing = [];
-        $invalid = [];
-        $present = [];
-        foreach ($signed as $entry) {
-            $signer     = (string) ($entry['signerUuid'] ?? $entry['signer'] ?? '');
-            $thumbprint = (string) ($entry['certificateThumbprint'] ?? $entry['thumbprint'] ?? '');
-            if ($signer === '' || $thumbprint === '') {
-                continue;
-            }
+		$verified = $this->verifySignatures(signed: $signed);
+		$invalid = $verified['invalid'];
+		$missing = array_values(array_diff($requiredSigners, array_keys($verified['present'])));
 
-            $check = $this->signatureService->validateCertificateChain($thumbprint);
-            if (($check['valid'] ?? false) !== true) {
-                $invalid[] = $signer;
-                continue;
-            }
+		if ($missing !== [] || $invalid !== []) {
+			return $this->refuse(
+				reason: $this->buildReason(missing: $missing, invalid: $invalid),
+				missing: $missing,
+				invalid: $invalid
+			);
+		}
 
-            $present[$signer] = true;
-        }
+		return [
+			'allowed' => true,
+			'reason' => 'QES present and verified.',
+			'missing' => [],
+			'invalid' => [],
+		];
 
-        foreach ($requiredSigners as $required) {
-            if (isset($present[$required]) === false) {
-                $missing[] = $required;
-            }
-        }
+	}//end canConclude()
 
-        if ($missing !== [] || $invalid !== []) {
-            return [
-                'allowed' => false,
-                'reason'  => $this->buildReason(missing: $missing, invalid: $invalid),
-                'missing' => $missing,
-                'invalid' => $invalid,
-            ];
-        }
+	/**
+	 * Verify every persisted signature entry against the eIDAS adapter.
+	 *
+	 * @param array<int, array<string, mixed>> $signed The persisted signedBy entries
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 *
+	 * @return array{present: array<string, true>, invalid: array<int, string>}
+	 */
+	private function verifySignatures(array $signed): array {
+		$invalid = [];
+		$present = [];
+		foreach ($signed as $entry) {
+			$signer = (string)($entry['signerUuid'] ?? $entry['signer'] ?? '');
+			$thumbprint = (string)($entry['certificateThumbprint'] ?? $entry['thumbprint'] ?? '');
+			if ($signer === '' || $thumbprint === '') {
+				continue;
+			}
 
-        return [
-            'allowed' => true,
-            'reason'  => 'QES present and verified.',
-            'missing' => [],
-            'invalid' => [],
-        ];
+			$check = $this->signatureService->validateCertificateChain($thumbprint);
+			if ($check['valid'] !== true) {
+				$invalid[] = $signer;
+				continue;
+			}
 
-    }//end canConclude()
+			$present[$signer] = true;
+		}
 
-    /**
-     * Load the `signedBy` array from the BoardMinutes row linked to the
-     * Resolution's parent meeting.
-     *
-     * @param string $resolutionId UUID of the resolution
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    private function loadSignedBy(string $resolutionId): array
-    {
-        $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		return ['present' => $present, 'invalid' => $invalid];
+	}//end verifySignatures()
 
-        $resolution = $objectService->find(
-            id: $resolutionId,
-            register: 'decidesk',
-            schema: 'decision'
-        );
-        if ($resolution === null) {
-            return [];
-        }
+	/**
+	 * Build the structured refusal tuple the conclude flow maps to HTTP 422.
+	 *
+	 * @param string $reason Human-readable refusal reason
+	 * @param array<int, string> $missing Member UUIDs without a QES
+	 * @param array<int, string> $invalid Member UUIDs whose chain failed
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 *
+	 * @return array{allowed: bool, reason: string, missing: array<int,string>, invalid: array<int,string>}
+	 */
+	private function refuse(string $reason, array $missing, array $invalid): array {
+		return [
+			'allowed' => false,
+			'reason' => $reason,
+			'missing' => $missing,
+			'invalid' => $invalid,
+		];
 
-        $resolutionRow = (array) $resolution->jsonSerialize();
-        if (method_exists($resolution, 'getObject') === true) {
-            $resolutionRow = $resolution->getObject();
-        }
+	}//end refuse()
 
-        $meetingId = (string) ($resolutionRow['meetingKoppeling'] ?? '');
-        if ($meetingId === '') {
-            return [];
-        }
+	/**
+	 * Load the `signedBy` array from the BoardMinutes row linked to the
+	 * Resolution's parent meeting.
+	 *
+	 * @param string $resolutionId UUID of the resolution
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function loadSignedBy(string $resolutionId): array {
+		$resolution = $this->objectService->find(
+			id: $resolutionId,
+			register: 'decidesk',
+			schema: 'decision'
+		);
+		if ($resolution === null) {
+			return [];
+		}
 
-        $minutesRows = $objectService->findAll(
-            [
-                'register' => 'decidesk',
-                'schema'   => 'minutes',
-                'filters'  => ['meetingKoppeling' => $meetingId],
-                'limit'    => 50,
-            ]
-        );
+		$resolutionRow = (array)$resolution->jsonSerialize();
+		if (method_exists($resolution, 'getObject') === true) {
+			$resolutionRow = $resolution->getObject();
+		}
 
-        foreach ((array) $minutesRows as $row) {
-            if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-                $row = (array) $row->jsonSerialize();
-            }
+		$meetingId = (string)($resolutionRow['meetingIntegration'] ?? '');
+		if ($meetingId === '') {
+			return [];
+		}
 
-            if (is_array($row) === false || ($row['meetingKoppeling'] ?? null) !== $meetingId) {
-                continue;
-            }
+		$minutesRows = $this->objectService->findAll(
+			[
+				'register' => 'decidesk',
+				'schema' => 'minutes',
+				'filters' => ['meetingIntegration' => $meetingId],
+				'limit' => 50,
+			]
+		);
 
-            if (($row['version'] ?? '') === 'signed') {
-                return array_values((array) ($row['signedBy'] ?? []));
-            }
-        }
+		foreach ((array)$minutesRows as $row) {
+			$minutes = $this->toArray(row: $row);
+			if (($minutes['meetingIntegration'] ?? null) !== $meetingId) {
+				continue;
+			}
 
-        return [];
+			if (($minutes['version'] ?? '') === 'signed') {
+				return array_values((array)($minutes['signedBy'] ?? []));
+			}
+		}
 
-    }//end loadSignedBy()
+		return [];
+	}//end loadSignedBy()
 
-    /**
-     * Build the soft-block reason string for the response tuple.
-     *
-     * @param array<int, string> $missing List of member (Person) UUIDs without a QES
-     * @param array<int, string> $invalid List of member (Person) UUIDs whose chain failed
-     *
-     * @return string
-     */
-    private function buildReason(array $missing, array $invalid): string
-    {
-        $parts = [];
-        if ($missing !== []) {
-            $parts[] = 'missing QES signatures: '.implode(', ', $missing);
-        }
+	/**
+	 * Normalise an OpenRegister row (entity or array) to a plain array.
+	 *
+	 * @param mixed $row The ObjectService row
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 *
+	 * @return array<string, mixed> The property map, empty when unusable
+	 */
+	private function toArray(mixed $row): array {
+		if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
+			return (array)$row->jsonSerialize();
+		}
 
-        if ($invalid !== []) {
-            $parts[] = 'invalid QES certificate chain: '.implode(', ', $invalid);
-        }
+		if (is_array($row) === true) {
+			return $row;
+		}
 
-        return 'Resolution cannot be adopted — '.implode('; ', $parts).'.';
+		return [];
+	}//end toArray()
 
-    }//end buildReason()
+	/**
+	 * Build the soft-block reason string for the response tuple.
+	 *
+	 * @param array<int, string> $missing List of member (Person) UUIDs without a QES
+	 * @param array<int, string> $invalid List of member (Person) UUIDs whose chain failed
+	 *
+	 * @return string
+	 */
+	private function buildReason(array $missing, array $invalid): string {
+		$parts = [];
+		if ($missing !== []) {
+			$parts[] = 'missing QES signatures: ' . implode(', ', $missing);
+		}
+
+		if ($invalid !== []) {
+			$parts[] = 'invalid QES certificate chain: ' . implode(', ', $invalid);
+		}
+
+		return 'Resolution cannot be adopted — ' . implode('; ', $parts) . '.';
+	}//end buildReason()
 }//end class

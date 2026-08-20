@@ -1,0 +1,190 @@
+{
+	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "Governing-documents register (statuten, reglement van orde, splitsingsakte) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages for the governing-document register; schema refs BY SLUG (governing-document), never the PascalCase key GoverningDocument (multi-word schema — the exact silent-breakage case). The version timeline with the 'geldend op' (in-force-on-date) control (REQ-GDR-004/006) and the citing-decisions reverse lookup (REQ-GDR-005) are wired imperatively by the page/service tasks; this declarative fragment provides the page skeleton, quick filters on type/status, the data + files (consolidated text) + related widgets, and mass export.",
+	"_spec": "openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md",
+	"menu": [
+		{
+			"id": "GoverningDocuments",
+			"label": "Governing documents",
+			"icon": "FileDocumentMultipleOutline",
+			"route": "GoverningDocuments",
+			"order": 53
+		}
+	],
+	"pages": [
+		{
+			"id": "GoverningDocuments",
+			"route": "/governing-documents",
+			"type": "index",
+			"title": "Governing documents",
+			"_note": "spec: openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-006-governing-documents-list-and-detail-pages",
+			"config": {
+				"register": "decidesk",
+				"schema": "governing-document",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
+				"_note": "Governing-documents list (REQ-GDR-006). Columns citeertitel/type/governingBody/status; quick filters on type and status; full-text search over citeertitel. The current-version inwerkingtreding column and the per-document in-force resolution come from the consolidation service (no per-row N+1 — resolved as a pure OR list query by the page task). CSV export via the shared ExportService + CnMassExportDialog (mass-export exposed by the index chrome).",
+				"quickFilterMode": "dropdown",
+				"quickFilterMultiple": true,
+				"quickFilters": [
+					{ "label": "All", "filter": {}, "default": true },
+					{ "label": "In force", "filter": { "status": "in-force" } },
+					{ "label": "Lapsed", "filter": { "status": "lapsed" } },
+					{
+						"label": "Statuten",
+						"filter": { "type": "articles-of-association" }
+					},
+					{
+						"label": "Huishoudelijk reglement",
+						"filter": { "type": "internal-regulations" }
+					},
+					{
+						"label": "Reglement van orde",
+						"filter": { "type": "rules-of-procedure" }
+					},
+					{
+						"label": "Directiestatuut",
+						"filter": { "type": "management-charter" }
+					},
+					{
+						"label": "Splitsingsakte",
+						"filter": { "type": "deed-of-division" }
+					},
+					{ "label": "Other", "filter": { "type": "other" } }
+				],
+				"columns": [
+					{
+						"key": "citationTitle",
+						"label": "Citeertitel",
+						"widget": "link"
+					},
+					{ "key": "type", "label": "Type", "widget": "badge" },
+					{ "key": "governingBody", "label": "Governing body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "status", "label": "Status", "widget": "badge" }
+				],
+				"actions": [
+					{
+						"id": "view",
+						"label": "View",
+						"icon": "EyeOutline",
+						"handler": "navigate",
+						"route": "GoverningDocumentDetail",
+						"primary": true
+					}
+				],
+				"showMassExport": true,
+				"sidebar": { "enabled": true, "showMetadata": true },
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		},
+		{
+			"id": "GoverningDocumentDetail",
+			"route": "/governing-documents/:id",
+			"type": "detail",
+			"title": "Governing document",
+			"_note": "spec: openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-006-governing-documents-list-and-detail-pages",
+			"config": {
+				"register": "decidesk",
+				"schema": "governing-document",
+				"_note": "GoverningDocumentDetail (REQ-GDR-003/004/005/006). Document metadata leads 8-wide; the linked governingBody renders as a resolved reference in the data + Related widgets. The Related widget surfaces the full version timeline (each GoverningDocumentVersie with versienummer, inwerkingtreding, state, its enacting-decision link where present — navigating to the existing Decision detail page — and notarial-deed metadata where present), the 'geldend op' date control driving the REQ-GDR-004 resolution, and the reverse lookup of decisions citing this document via citesGoverningDocuments (REQ-GDR-005) — all wired imperatively by the page/service tasks; keyboard-navigable, WCAG 2.1 AA. Files leaf for the consolidated-text PDF per sealed version (OR file abstraction). Audit trail is a sidebar tab.",
+				"widgets": [
+					{
+						"id": "document-data",
+						"type": "data",
+						"title": "Governing document",
+						"icon": "FileDocument",
+						"content": { "columns": 2 }
+					},
+					{
+						"id": "document-files",
+						"type": "integration",
+						"integrationId": "files",
+						"title": "Consolidated text",
+						"icon": "FolderOutline"
+					},
+					{
+						"id": "document-related",
+						"type": "related",
+						"title": "Citing decisions",
+						"icon": "LinkVariant"
+					},
+					{
+						"id": "document-versions",
+						"type": "version-timeline",
+						"title": "Version timeline",
+						"icon": "Timeline",
+						"_note": "register-detail-optimisation REQ-GDR-009: every governing-document-versie whose document ref points at this document, ordered by effectiveDate, each linking to its enacting Decision (determinedBy) where set, with notarial-deed metadata (deedDate/notary) when present.",
+						"content": {
+							"title": "Version timeline",
+							"icon": "Timeline",
+							"versionRegister": "decidesk",
+							"versionSchema": "governing-document-versie",
+							"parentRefField": "document",
+							"effectiveDateField": "effectiveDate",
+							"lapseDateField": "expiryDate",
+							"versionNumberField": "versionNumber",
+							"statusField": "status",
+							"decisionRefField": "determinedBy",
+							"decisionRoute": "DecisionDetail",
+							"extraFields": [
+								{
+									"field": "deedDate",
+									"label": "Deed date",
+									"format": "date"
+								},
+								{ "field": "notary", "label": "Notary" }
+							]
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "document-data",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 8,
+						"gridHeight": 6
+					},
+					{
+						"id": "2",
+						"widgetId": "document-files",
+						"gridX": 8,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 6
+					},
+					{
+						"id": "3",
+						"widgetId": "document-related",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 12,
+						"gridHeight": 3
+					},
+					{
+						"id": "4",
+						"widgetId": "document-versions",
+						"gridX": 0,
+						"gridY": 9,
+						"gridWidth": 12,
+						"gridHeight": 4
+					}
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{
+							"id": "audit",
+							"label": "History",
+							"icon": "History",
+							"widgets": [{ "type": "audit" }]
+						}
+					]
+				},
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		}
+	]
+}

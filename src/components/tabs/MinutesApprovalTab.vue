@@ -14,7 +14,9 @@
  @spec openspec/specs/resolution-minutes/spec.md
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--approval" data-testid="minutes-approval-tab">
+	<div
+		class="decidesk-tab decidesk-tab--approval"
+		data-testid="minutes-approval-tab">
 		<CnNoteCard
 			v-if="error"
 			type="error"
@@ -34,11 +36,12 @@
 				:current="currentStageIndex"
 				:aria-label="t('decidesk', 'Minutes lifecycle')" />
 
-			<div class="decidesk-tab__actions" data-testid="minutes-approval-actions">
-				<template v-for="action in actions">
+			<div
+				class="decidesk-tab__actions"
+				data-testid="minutes-approval-actions">
+				<template v-for="action in actions" :key="action.action">
 					<NcButton
-						:key="action.action"
-						:type="action.action === 'reject' ? 'error' : 'primary'"
+						:variant="action.action === 'reject' ? 'error' : 'primary'"
 						:data-testid="`minutes-action-${action.action}`"
 						:disabled="working"
 						@click="runAction(action)">
@@ -46,12 +49,22 @@
 					</NcButton>
 				</template>
 				<p v-if="minutes.approvedAt" class="decidesk-tab__meta">
-					{{ t('decidesk', 'Approved at {date} by {names}', { date: minutes.approvedAt, names: signedByLabel }) }}
+					{{
+						t('decidesk', 'Approved at {date} by {names}', {
+							date: minutes.approvedAt,
+							names: signedByLabel,
+						})
+					}}
 				</p>
 			</div>
 
-			<div v-if="lastRejection" class="decidesk-tab__rejection" data-testid="minutes-last-rejection">
-				<CnNoteCard type="warning" :title="t('decidesk', 'Returned to draft')">
+			<div
+				v-if="lastRejection"
+				class="decidesk-tab__rejection"
+				data-testid="minutes-last-rejection">
+				<CnNoteCard
+					type="warning"
+					:title="t('decidesk', 'Returned to draft')">
 					{{ lastRejection.comment }}
 				</CnNoteCard>
 			</div>
@@ -60,7 +73,9 @@
 				<div class="decidesk-tab__header">
 					<h3 class="decidesk-tab__title">
 						{{ t('decidesk', 'Correction suggestions') }}
-						<span class="decidesk-tab__count">({{ corrections.length }})</span>
+						<span class="decidesk-tab__count"
+							>({{ corrections.length }})</span
+						>
 					</h3>
 					<NcButton
 						v-if="canSuggest"
@@ -75,23 +90,28 @@
 					{{ t('decidesk', 'No corrections suggested.') }}
 				</p>
 				<ul v-else class="decidesk-tab__list" role="list">
-					<li v-for="correction in corrections"
+					<li
+						v-for="correction in corrections"
 						:key="correction.id"
 						class="decidesk-tab__correction"
 						role="listitem">
 						<div class="decidesk-tab__correction-body">
 							<CnStatusBadge
 								:label="statusLabel(correction.status)"
-								:color-map="correctionColors" />
-							<span class="decidesk-tab__correction-text">{{ correction.text }}</span>
+								:colorMap="correctionColors" />
+							<span class="decidesk-tab__correction-text">{{
+								correction.text
+							}}</span>
 							<span class="decidesk-tab__meta">
 								{{ correction.authorName || correction.author }}
 							</span>
 						</div>
-						<div v-if="correction.status === 'proposed'" class="decidesk-tab__correction-actions">
+						<div
+							v-if="correction.status === 'proposed'"
+							class="decidesk-tab__correction-actions">
 							<NcButton
 								size="small"
-								type="primary"
+								variant="primary"
 								:disabled="working"
 								:aria-label="t('decidesk', 'Accept correction')"
 								@click="resolveCorrection(correction, 'accepted')">
@@ -122,17 +142,21 @@
 </template>
 
 <script>
-import { CnNoteCard, CnStatusBadge, CnTimelineStages } from '@conduction/nextcloud-vue'
-import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
-import { generateUrl } from '@nextcloud/router'
-import MinutesRejectModal from '../../modals/MinutesRejectModal.vue'
-import MinutesCorrectionModal from '../../modals/MinutesCorrectionModal.vue'
-import { ensureRelationType } from './useRelationStore.js'
 import {
-	LIFECYCLE_STAGES,
+	CnNoteCard,
+	CnStatusBadge,
+	CnTimelineStages,
+} from '@conduction/nextcloud-vue'
+import { generateUrl } from '@nextcloud/router'
+import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
+import MinutesCorrectionModal from '../../modals/MinutesCorrectionModal.vue'
+import MinutesRejectModal from '../../modals/MinutesRejectModal.vue'
+import {
 	availableWorkflowActions,
 	canSuggestCorrections,
+	LIFECYCLE_STAGES,
 } from '../minutesEditor/minutesEditor.js'
+import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'MinutesApprovalTab',
@@ -145,9 +169,11 @@ export default {
 		NcButton,
 		NcLoadingIcon,
 	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -158,39 +184,58 @@ export default {
 			correctionModalOpen: false,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		stages() {
-			return LIFECYCLE_STAGES.map(stage => ({ id: stage, label: this.statusLabel(stage) }))
+			return LIFECYCLE_STAGES.map((stage) => ({
+				id: stage,
+				label: this.statusLabel(stage),
+			}))
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		currentStageIndex() {
-			const index = LIFECYCLE_STAGES.indexOf(this.minutes?.lifecycle || 'draft')
+			const index = LIFECYCLE_STAGES.indexOf(
+				this.minutes?.lifecycle || 'draft',
+			)
 			return index === -1 ? 0 : index
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		actions() {
 			return availableWorkflowActions(this.minutes?.lifecycle || 'draft')
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		corrections() {
-			return Array.isArray(this.minutes?.corrections) ? this.minutes.corrections : []
+			return Array.isArray(this.minutes?.corrections)
+				? this.minutes.corrections
+				: []
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		canSuggest() {
 			return canSuggestCorrections(this.minutes?.lifecycle || 'draft')
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		lastRejection() {
-			const comments = Array.isArray(this.minutes?.reviewComments) ? this.minutes.reviewComments : []
-			const rejections = comments.filter(c => c?.action === 'rejected')
+			const comments = Array.isArray(this.minutes?.reviewComments)
+				? this.minutes.reviewComments
+				: []
+			const rejections = comments.filter((c) => c?.action === 'rejected')
 			return rejections.length ? rejections[rejections.length - 1] : null
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		signedByLabel() {
-			const signers = Array.isArray(this.minutes?.signedBy) ? this.minutes.signedBy : []
+			const signers = Array.isArray(this.minutes?.signedBy)
+				? this.minutes.signedBy
+				: []
 			return signers.join(', ')
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		correctionColors() {
 			return {
@@ -200,13 +245,17 @@ export default {
 			}
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/resolution-minutes/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
+
 	methods: {
 		/**
 		 * Translated label for a lifecycle or correction status value.
@@ -228,6 +277,7 @@ export default {
 			}
 			return labels[value] || value
 		},
+
 		/**
 		 * Translated button label for a workflow action.
 		 *
@@ -245,6 +295,7 @@ export default {
 			}
 			return labels[action] || action
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		async refresh() {
 			if (!this.objectId) return
@@ -254,11 +305,13 @@ export default {
 				const store = ensureRelationType('minutes')
 				this.minutes = await store.fetchObject('minutes', this.objectId)
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load the minutes.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load the minutes.')
 			} finally {
 				this.loading = false
 			}
 		},
+
 		/**
 		 * POST helper against the decidesk minutes API.
 		 *
@@ -279,10 +332,13 @@ export default {
 			})
 			const data = await response.json().catch(() => ({}))
 			if (!response.ok) {
-				throw new Error(data.message || this.t('decidesk', 'The action failed.'))
+				throw new Error(
+					data.message || this.t('decidesk', 'The action failed.'),
+				)
 			}
 			return data
 		},
+
 		/**
 		 * Run a workflow action (reject opens the comment dialog instead).
 		 *
@@ -298,9 +354,13 @@ export default {
 			this.working = true
 			try {
 				if (action.action === 'submit') {
-					await this.callApi(`/minutes/${this.objectId}/submit-for-approval`)
+					await this.callApi(
+						`/minutes/${this.objectId}/submit-for-approval`,
+					)
 				} else {
-					await this.callApi(`/minutes/${this.objectId}/transition`, { lifecycle: action.target })
+					await this.callApi(`/minutes/${this.objectId}/transition`, {
+						lifecycle: action.target,
+					})
 				}
 				await this.refresh()
 			} catch (e) {
@@ -309,6 +369,7 @@ export default {
 				this.working = false
 			}
 		},
+
 		/**
 		 * Reject the minutes back to draft with the mandatory comment.
 		 *
@@ -328,6 +389,7 @@ export default {
 				this.working = false
 			}
 		},
+
 		/**
 		 * Submit a correction suggestion (author attributed server-side).
 		 *
@@ -347,6 +409,7 @@ export default {
 				this.working = false
 			}
 		},
+
 		/**
 		 * Accept or reject a correction suggestion (chair/secretary only).
 		 *
@@ -358,7 +421,11 @@ export default {
 			this.working = true
 			this.error = ''
 			try {
-				await this.callApi(`/minutes/${this.objectId}/corrections/${correction.id}`, { status }, 'PUT')
+				await this.callApi(
+					`/minutes/${this.objectId}/corrections/${correction.id}`,
+					{ status },
+					'PUT',
+				)
 				await this.refresh()
 			} catch (e) {
 				this.error = e.message
@@ -377,28 +444,33 @@ export default {
 	gap: calc(var(--default-grid-baseline) * 2);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
+
 .decidesk-tab__actions {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__list {
 	list-style: none;
 	margin: 0;
@@ -407,6 +479,7 @@ export default {
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__correction {
 	display: flex;
 	flex-direction: column;
@@ -414,22 +487,27 @@ export default {
 	padding: var(--default-grid-baseline) 0;
 	border-bottom: 1px solid var(--color-border);
 }
+
 .decidesk-tab__correction:last-child {
 	border-bottom: none;
 }
+
 .decidesk-tab__correction-body {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__correction-text {
 	flex: 1;
 }
+
 .decidesk-tab__correction-actions {
 	display: flex;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__meta,
 .decidesk-tab__empty {
 	color: var(--color-text-maxcontrast);

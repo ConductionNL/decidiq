@@ -11,7 +11,9 @@
  tab never decides permissibility client-side.
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--lifecycle" data-testid="decision-lifecycle-tab">
+	<div
+		class="decidesk-tab decidesk-tab--lifecycle"
+		data-testid="decision-lifecycle-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Lifecycle') }}
@@ -25,18 +27,24 @@
 			{{ error }}
 		</CnNoteCard>
 
-		<ol v-if="!error" class="decidesk-lifecycle__timeline" data-testid="lifecycle-timeline">
-			<li v-for="step in timeline"
+		<ol
+			v-if="!error"
+			class="decidesk-lifecycle__timeline"
+			data-testid="lifecycle-timeline">
+			<li
+				v-for="step in timeline"
 				:key="step.state"
 				class="decidesk-lifecycle__step"
 				:class="'decidesk-lifecycle__step--' + step.status"
 				:data-testid="'lifecycle-step-' + step.state">
 				<span class="decidesk-lifecycle__marker" aria-hidden="true" />
-				<span class="decidesk-lifecycle__label">{{ stateLabel(step.state) }}</span>
+				<span class="decidesk-lifecycle__label">{{
+					stateLabel(step.state)
+				}}</span>
 				<CnStatusBadge
 					v-if="step.status === 'current'"
 					:label="t('decidesk', 'Current')"
-					:color-map="{ [t('decidesk', 'Current')]: 'primary' }" />
+					:colorMap="{ [t('decidesk', 'Current')]: 'primary' }" />
 			</li>
 		</ol>
 
@@ -48,14 +56,17 @@
 				{{ t('decidesk', 'No transitions available from this state.') }}
 			</p>
 			<div class="decidesk-lifecycle__buttons">
-				<NcButton v-for="action in actions"
+				<NcButton
+					v-for="action in actions"
 					:key="action.action"
 					:disabled="busy"
 					:data-testid="'lifecycle-action-' + action.action"
-					type="secondary"
+					variant="secondary"
 					@click="applyTransition(action.action)">
 					{{ actionLabel(action.action) }}
-					<span v-if="action.chairOnly" class="decidesk-lifecycle__chair-hint">
+					<span
+						v-if="action.chairOnly"
+						class="decidesk-lifecycle__chair-hint">
 						({{ t('decidesk', 'chair only') }})
 					</span>
 				</NcButton>
@@ -76,11 +87,11 @@
 </template>
 
 <script>
-import { NcButton } from '@nextcloud/vue'
 import { CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
-import { buildTimeline } from './decisionLifecycle.js'
+import { NcButton } from '@nextcloud/vue'
 import PublicationPromptModal from '../../modals/PublicationPromptModal.vue'
+import { buildTimeline } from './decisionLifecycle.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -89,6 +100,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -100,21 +112,29 @@ export default {
 			publishPromptOpen: false,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/decision-management/spec.md */
 		timeline() {
 			return buildTimeline(this.lifecycle)
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/decision-management/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
+
 	methods: {
-		/** @spec openspec/specs/decision-management/spec.md */
+		/**
+		 * @param state
+		 * @spec openspec/specs/decision-management/spec.md
+		 */
 		stateLabel(state) {
 			const labels = {
 				draft: this.t('decidesk', 'Draft'),
@@ -127,7 +147,11 @@ export default {
 			}
 			return labels[state] || state
 		},
-		/** @spec openspec/specs/decision-management/spec.md */
+
+		/**
+		 * @param action
+		 * @spec openspec/specs/decision-management/spec.md
+		 */
 		actionLabel(action) {
 			const labels = {
 				propose: this.t('decidesk', 'Propose'),
@@ -139,6 +163,7 @@ export default {
 			}
 			return labels[action] || action
 		},
+
 		/** @spec openspec/specs/decision-management/spec.md */
 		async refresh() {
 			if (!this.objectId) return
@@ -146,29 +171,46 @@ export default {
 			this.error = ''
 			try {
 				const res = await fetch(
-					generateUrl(`/apps/decidesk/api/decisions/${this.objectId}/transitions`),
-					{ headers: { Accept: 'application/json', requesttoken: OC.requestToken } },
+					generateUrl(
+						`/apps/decidesk/api/decisions/${this.objectId}/transitions`,
+					),
+					{
+						headers: {
+							Accept: 'application/json',
+							requesttoken: OC.requestToken,
+						},
+					},
 				)
 				const body = await res.json()
 				if (!res.ok) {
-					this.error = body?.message || this.t('decidesk', 'Failed to load lifecycle state.')
+					this.error =
+						body?.message
+						|| this.t('decidesk', 'Failed to load lifecycle state.')
 					return
 				}
 				this.lifecycle = body.lifecycle || 'draft'
 				this.actions = Array.isArray(body.actions) ? body.actions : []
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load lifecycle state.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Failed to load lifecycle state.')
 			} finally {
 				this.loading = false
 			}
 		},
-		/** @spec openspec/specs/decision-management/spec.md */
+
+		/**
+		 * @param action
+		 * @spec openspec/specs/decision-management/spec.md
+		 */
 		async applyTransition(action) {
 			this.busy = true
 			this.transitionError = ''
 			try {
 				const res = await fetch(
-					generateUrl(`/apps/decidesk/api/decisions/${this.objectId}/transition`),
+					generateUrl(
+						`/apps/decidesk/api/decisions/${this.objectId}/transition`,
+					),
 					{
 						method: 'POST',
 						headers: {
@@ -181,7 +223,8 @@ export default {
 				)
 				const body = await res.json()
 				if (!res.ok) {
-					this.transitionError = body?.message || this.t('decidesk', 'Transition failed.')
+					this.transitionError =
+						body?.message || this.t('decidesk', 'Transition failed.')
 					return
 				}
 				await this.refresh()
@@ -193,22 +236,25 @@ export default {
 					await this.maybePromptPublish()
 				}
 			} catch (e) {
-				this.transitionError = e?.message || this.t('decidesk', 'Transition failed.')
+				this.transitionError =
+					e?.message || this.t('decidesk', 'Transition failed.')
 			} finally {
 				this.busy = false
 			}
 		},
+
 		/**
 		 * Open the non-blocking publish prompt when the decision's governance
 		 * body is configured with the `prompt-on-transition` policy for decisions.
 		 *
-		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		async maybePromptPublish() {
 			try {
 				const store = ensureRelationType('decision')
 				const decision = await store.fetchObject('decision', this.objectId)
-				let bodyId = decision?.governanceBody
+				let bodyId =
+					decision?.governanceBody
 					|| decision?.relations?.GovernanceBody
 					|| decision?.relations?.governanceBody
 				if (Array.isArray(bodyId)) bodyId = bodyId[0]
@@ -216,7 +262,12 @@ export default {
 
 				const res = await fetch(
 					generateUrl('/apps/decidesk/api/settings/publication-config'),
-					{ headers: { Accept: 'application/json', requesttoken: OC.requestToken } },
+					{
+						headers: {
+							Accept: 'application/json',
+							requesttoken: OC.requestToken,
+						},
+					},
 				)
 				if (!res.ok) return
 				const body = await res.json()
@@ -228,26 +279,32 @@ export default {
 				// Prompt is best-effort; never block the transition on it.
 			}
 		},
+
 		/**
 		 * Publish from the prompt — calls the same authoritative publish endpoint
 		 * as the Publication tab.
 		 *
-		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		async promptPublish() {
 			this.publishPromptOpen = false
 			try {
-				await fetch(
-					generateUrl('/apps/decidesk/api/publications'),
-					{
-						method: 'POST',
-						headers: { Accept: 'application/json', 'Content-Type': 'application/json', requesttoken: OC.requestToken },
-						body: JSON.stringify({ sourceType: 'decision', sourceId: this.objectId }),
+				await fetch(generateUrl('/apps/decidesk/api/publications'), {
+					method: 'POST',
+					headers: {
+						Accept: 'application/json',
+						'Content-Type': 'application/json',
+						requesttoken: OC.requestToken,
 					},
-				)
+					body: JSON.stringify({
+						sourceType: 'decision',
+						sourceId: this.objectId,
+					}),
+				})
 				this.$emit('refresh')
 			} catch (e) {
-				this.transitionError = e?.message || this.t('decidesk', 'Publication failed.')
+				this.transitionError =
+					e?.message || this.t('decidesk', 'Publication failed.')
 			}
 		},
 	},
@@ -261,17 +318,20 @@ export default {
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-lifecycle__timeline {
 	list-style: none;
 	margin: 0;
@@ -280,12 +340,14 @@ export default {
 	flex-direction: column;
 	gap: 2px;
 }
+
 .decidesk-lifecycle__step {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 	padding: 4px 0;
 }
+
 .decidesk-lifecycle__marker {
 	width: 10px;
 	height: 10px;
@@ -293,36 +355,44 @@ export default {
 	border: 2px solid var(--color-border-dark);
 	flex-shrink: 0;
 }
+
 .decidesk-lifecycle__step--done .decidesk-lifecycle__marker {
 	background: var(--color-success);
 	border-color: var(--color-success);
 }
+
 .decidesk-lifecycle__step--current .decidesk-lifecycle__marker {
 	background: var(--color-primary-element);
 	border-color: var(--color-primary-element);
 }
+
 .decidesk-lifecycle__step--upcoming .decidesk-lifecycle__label {
 	color: var(--color-text-maxcontrast);
 }
+
 .decidesk-lifecycle__actions {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-lifecycle__actions-title {
 	margin: 8px 0 0;
 	font-size: 0.95rem;
 	font-weight: bold;
 }
+
 .decidesk-lifecycle__none {
 	margin: 0;
 	color: var(--color-text-maxcontrast);
 }
+
 .decidesk-lifecycle__buttons {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px;
 }
+
 .decidesk-lifecycle__chair-hint {
 	color: var(--color-text-maxcontrast);
 	font-size: 0.85em;

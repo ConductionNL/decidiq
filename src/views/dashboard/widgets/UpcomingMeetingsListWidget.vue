@@ -23,22 +23,38 @@
 		</NcEmptyContent>
 
 		<ul v-else class="dashboard-list-widget__list">
-			<li v-for="meeting in rows"
+			<li
+				v-for="meeting in rows"
 				:key="meeting.id"
 				:class="{ 'dashboard-list-widget__row--urgent': meeting._urgent }"
 				:data-testid="`upcoming-meeting-row-${meeting.id}`"
 				class="dashboard-list-widget__row"
-				@click="openMeeting(meeting)">
+				role="button"
+				tabindex="0"
+				@click="openMeeting(meeting)"
+				@keydown.enter.prevent="openMeeting(meeting)"
+				@keydown.space.prevent="openMeeting(meeting)">
 				<div class="dashboard-list-widget__main">
-					<span class="dashboard-list-widget__title">{{ meeting.title || meeting.name }}</span>
-					<span class="dashboard-list-widget__meta">{{ bodyName(meeting) }}</span>
+					<span class="dashboard-list-widget__title">{{
+						meeting.title || meeting.name
+					}}</span>
+					<span class="dashboard-list-widget__meta">{{
+						bodyName(meeting)
+					}}</span>
 				</div>
 				<div class="dashboard-list-widget__aside">
-					<span class="dashboard-list-widget__date">{{ formatDate(meeting.scheduledDate) }}</span>
+					<span class="dashboard-list-widget__date">{{
+						formatDate(meeting.scheduledDate)
+					}}</span>
 					<span class="dashboard-list-widget__meta">
-						{{ t('decidesk', '{n} agenda items', { n: agendaCount(meeting) }) }}
+						{{
+							t('decidesk', '{n} agenda items', {
+								n: agendaCount(meeting),
+							})
+						}}
 					</span>
-					<span v-if="meeting._urgent"
+					<span
+						v-if="meeting._urgent"
 						class="dashboard-list-widget__badge dashboard-list-widget__badge--urgent">
 						{{ countdownLabel(meeting) }}
 					</span>
@@ -49,12 +65,11 @@
 </template>
 
 <script>
-import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
-import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
+import { NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import CalendarBlankOutline from 'vue-material-design-icons/CalendarBlankOutline.vue'
-import dashboardRefreshMixin from './dashboardRefreshMixin.js'
-import { upcomingMeetings, isUrgent, countdownBucket } from './widgetLogic.js'
 import { getMeetings } from '../../../services/dashboardData.js'
+import dashboardRefreshMixin from './dashboardRefreshMixin.js'
+import { countdownBucket, isUrgent, upcomingMeetings } from './widgetLogic.js'
 
 export default {
 	name: 'UpcomingMeetingsListWidget',
@@ -117,7 +132,7 @@ export default {
 			if (!body) {
 				return ''
 			}
-			return typeof body === 'object' ? (body.name || '') : String(body)
+			return typeof body === 'object' ? body.name || '' : String(body)
 		},
 
 		/**
@@ -127,7 +142,9 @@ export default {
 		 * @return {number} Agenda-item count.
 		 */
 		agendaCount(meeting) {
-			return Array.isArray(meeting.agendaItems) ? meeting.agendaItems.length : 0
+			return Array.isArray(meeting.agendaItems)
+				? meeting.agendaItems.length
+				: 0
 		},
 
 		/**
@@ -155,7 +172,7 @@ export default {
 		 */
 		formatDate(value) {
 			const d = new Date(value)
-			return Number.isNaN(d.getTime()) ? (value || '') : d.toLocaleString()
+			return Number.isNaN(d.getTime()) ? value || '' : d.toLocaleString()
 		},
 
 		/**
@@ -165,7 +182,10 @@ export default {
 		 * @return {void}
 		 */
 		openMeeting(meeting) {
-			this.$router.push({ name: 'MeetingDetail', params: { id: String(meeting.id) } })
+			this.$router.push({
+				name: 'MeetingDetail',
+				params: { id: String(meeting.id) },
+			})
 		},
 	},
 }
@@ -196,6 +216,15 @@ export default {
 
 .dashboard-list-widget__row:hover {
 	background: var(--color-background-hover, #f5f5f5);
+}
+
+/* The row is keyboard-focusable, so its focus must be VISIBLE (WCAG 2.4.7).
+   Without this the row could be tabbed to but not seen, which is worse than
+   not being reachable at all. */
+.dashboard-list-widget__row:focus-visible {
+	background: var(--color-background-hover, #f5f5f5);
+	outline: 2px solid var(--color-primary-element, #0082c9);
+	outline-offset: -2px;
 }
 
 .dashboard-list-widget__row--urgent {

@@ -1,5 +1,7 @@
 ---
-status: done
+status: in-progress
+openspec-changes:
+  - urgent-decision-procedure
 ---
 
 # decidesk-notifications Specification

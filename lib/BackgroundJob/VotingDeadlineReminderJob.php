@@ -36,55 +36,57 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
-class VotingDeadlineReminderJob extends TimedJob
-{
+class VotingDeadlineReminderJob extends TimedJob {
 
-    /**
-     * Interval between job runs: 3600 seconds = 1 hour.
-     *
-     * @var int
-     */
-    private const INTERVAL_SECONDS = 3600;
+	/**
+	 * Interval between job runs: 3600 seconds = 1 hour.
+	 *
+	 * @var int
+	 */
+	private const INTERVAL_SECONDS = 3600;
 
-    /**
-     * Constructor for VotingDeadlineReminderJob.
-     *
-     * @param ITimeFactory                  $time            Nextcloud time factory (injected by TimedJob)
-     * @param VotingDeadlineReminderService $reminderService The reminder sweep service
-     * @param LoggerInterface               $logger          The logger
-     */
-    public function __construct(
-        ITimeFactory $time,
-        private readonly VotingDeadlineReminderService $reminderService,
-        private readonly LoggerInterface $logger,
-    ) {
-        parent::__construct(time: $time);
-        $this->setInterval(seconds: self::INTERVAL_SECONDS);
+	/**
+	 * Constructor for VotingDeadlineReminderJob.
+	 *
+	 * @param ITimeFactory $time Nextcloud time factory (injected by TimedJob)
+	 * @param VotingDeadlineReminderService $reminderService The reminder sweep service
+	 * @param LoggerInterface $logger The logger
+	 */
+	public function __construct(
+		ITimeFactory $time,
+		private readonly VotingDeadlineReminderService $reminderService,
+		private readonly LoggerInterface $logger,
+	) {
+		parent::__construct(time: $time);
+		$this->setInterval(seconds: self::INTERVAL_SECONDS);
 
-    }//end __construct()
+	}//end __construct()
 
-    /**
-     * Run the reminder sweep.
-     *
-     * @param mixed $argument Unused job argument
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     *
-     * @return void
-     */
-    protected function run(mixed $argument): void
-    {
-        try {
-            $sent = $this->reminderService->run(now: $this->time->getTime());
-            if ($sent > 0) {
-                $this->logger->info('Decidesk: voting deadline reminder job sent notifications', ['sent' => $sent]);
-            }
-        } catch (\Throwable $e) {
-            $this->logger->error(
-                'Decidesk: voting deadline reminder job failed',
-                ['exception' => $e->getMessage()]
-            );
-        }
+	/**
+	 * Run the reminder sweep.
+	 *
+	 * @param mixed $argument Unused job argument
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 *
+	 * @return void
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is mandated by the
+	 * abstract OCP\BackgroundJob\Job::run() signature; this job is scheduled with
+	 * no argument, so the parameter cannot be removed.
+	 */
+	protected function run(mixed $argument): void {
+		try {
+			$sent = $this->reminderService->run(now: $this->time->getTime());
+			if ($sent > 0) {
+				$this->logger->info('Decidesk: voting deadline reminder job sent notifications', ['sent' => $sent]);
+			}
+		} catch (\Throwable $e) {
+			$this->logger->error(
+				'Decidesk: voting deadline reminder job failed',
+				['exception' => $e->getMessage()]
+			);
+		}
 
-    }//end run()
+	}//end run()
 }//end class

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk OpenCatalogi Publisher
  *
@@ -15,15 +16,17 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ * @spec openspec/specs/public-publication/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use OCP\App\IAppManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -36,142 +39,158 @@ use Psr\Log\LoggerInterface;
  * fail honestly (returning '' / false) so the caller can mark the
  * PublicationRecord pending and warn staff — never a silent success.
  *
- * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ * @spec openspec/specs/public-publication/spec.md
  */
-class OpenCatalogiPublisher
-{
-    /**
-     * Constructor.
-     *
-     * @param ContainerInterface $container  DI container (lazy OpenCatalogi service).
-     * @param IAppManager        $appManager Detects OpenCatalogi presence.
-     * @param LoggerInterface    $logger     Logger.
-     *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
-     */
-    public function __construct(
-        private readonly ContainerInterface $container,
-        private readonly IAppManager $appManager,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+class OpenCatalogiPublisher {
+	/**
+	 * Constructor.
+	 *
+	 * @param ContainerInterface $container DI container (lazy OpenCatalogi service).
+	 * @param IAppManager $appManager Detects OpenCatalogi presence.
+	 * @param LoggerInterface $logger Logger.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	public function __construct(
+		private readonly ContainerInterface $container,
+		private readonly IAppManager $appManager,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Create a publication for a payload in the given catalog.
-     *
-     * @param string              $catalogId Target OpenCatalogi catalog id.
-     * @param string              $payloadId UUID of the published PublicationPayload object.
-     * @param array<string,mixed> $payload   The payload data (for catalog metadata).
-     *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
-     *
-     * @return string The catalog publication reference, or '' on failure/degrade.
-     */
-    public function publish(string $catalogId, string $payloadId, array $payload): string
-    {
-        if ($this->appManager->isInstalled('opencatalogi') === false) {
-            return '';
-        }
+	/**
+	 * Create a publication for a payload in the given catalog.
+	 *
+	 * @param string $catalogId Target OpenCatalogi catalog id.
+	 * @param string $payloadId UUID of the published PublicationPayload object.
+	 * @param array<string,mixed> $payload The payload data (for catalog metadata).
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 *
+	 * @return string The catalog publication reference, or '' on failure/degrade.
+	 */
+	public function publish(string $catalogId, string $payloadId, array $payload): string {
+		if ($this->appManager->isInstalled('opencatalogi') === false) {
+			return '';
+		}
 
-        $service = $this->resolvePublicationService();
-        if ($service === null) {
-            return '';
-        }
+		$service = $this->resolvePublicationService();
+		if ($service === null) {
+			return '';
+		}
 
-        try {
-            $publication = $service->saveObject(
-                object: [
-                    'title'     => (string) ($payload['title'] ?? ''),
-                    'summary'   => (string) ($payload['title'] ?? ''),
-                    'catalog'   => $catalogId,
-                    'published' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
-                    'reference' => $payloadId,
-                    'register'  => 'decidesk',
-                    'schema'    => 'publication-payload',
-                ],
-                register: 'opencatalogi',
-                schema: 'publication',
-            );
+		try {
+			$publication = $service->saveObject(
+				object: [
+					'title' => (string)($payload['title'] ?? ''),
+					'summary' => (string)($payload['title'] ?? ''),
+					'catalog' => $catalogId,
+					'published' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
+					'reference' => $payloadId,
+					'register' => 'decidesk',
+					'schema' => 'publication-payload',
+				],
+				register: 'opencatalogi',
+				schema: 'publication',
+			);
 
-            if (is_object($publication) === true && method_exists($publication, 'getUuid') === true) {
-                $uuid = $publication->getUuid();
-                if (is_string($uuid) === true && $uuid !== '') {
-                    return $uuid;
-                }
-            }
+			return $this->referenceOf(publication: $publication);
+		} catch (\Throwable $e) {
+			$this->logger->warning('Decidesk publication: OpenCatalogi publish failed', ['exception' => $e->getMessage()]);
+			return '';
+		}//end try
 
-            if (is_object($publication) === true && method_exists($publication, 'jsonSerialize') === true) {
-                $data = $publication->jsonSerialize();
-                $id   = ($data['id'] ?? $data['uuid'] ?? ($data['@self']['id'] ?? null));
-                if (is_string($id) === true && $id !== '') {
-                    return $id;
-                }
-            }
+	}//end publish()
 
-            return '';
-        } catch (\Throwable $e) {
-            $this->logger->warning('Decidesk publication: OpenCatalogi publish failed', ['exception' => $e->getMessage()]);
-            return '';
-        }//end try
+	/**
+	 * Extract the catalog publication reference from whatever OpenCatalogi returned.
+	 *
+	 * Prefers the entity's own `getUuid()`, then falls back to the serialized
+	 * id/uuid/@self.id. Returns '' when no usable reference is present.
+	 *
+	 * @param mixed $publication The saveObject() return value.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 *
+	 * @return string The catalog publication reference, or '' when absent.
+	 */
+	private function referenceOf(mixed $publication): string {
+		if (is_object($publication) === false) {
+			return '';
+		}
 
-    }//end publish()
+		if (method_exists($publication, 'getUuid') === true) {
+			$uuid = $publication->getUuid();
+			if (is_string($uuid) === true && $uuid !== '') {
+				return $uuid;
+			}
+		}
 
-    /**
-     * Retract a previously-created catalog publication.
-     *
-     * @param string $catalogId          Target catalog id (informational).
-     * @param string $catalogPublication The catalog publication reference.
-     *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
-     *
-     * @return bool True when retraction succeeded; false to mark pending + warn.
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $catalogId kept for symmetry/logging.
-     */
-    public function retract(string $catalogId, string $catalogPublication): bool
-    {
-        if ($catalogPublication === '') {
-            return true;
-        }
+		if (method_exists($publication, 'jsonSerialize') === true) {
+			$data = $publication->jsonSerialize();
+			$id = ($data['id'] ?? $data['uuid'] ?? ($data['@self']['id'] ?? null));
+			if (is_string($id) === true && $id !== '') {
+				return $id;
+			}
+		}
 
-        if ($this->appManager->isInstalled('opencatalogi') === false) {
-            return false;
-        }
+		return '';
+	}//end referenceOf()
 
-        $service = $this->resolvePublicationService();
-        if ($service === null) {
-            return false;
-        }
+	/**
+	 * Retract a previously-created catalog publication.
+	 *
+	 * @param string $catalogId Target catalog id (informational).
+	 * @param string $catalogPublication The catalog publication reference.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 *
+	 * @return bool True when retraction succeeded; false to mark pending + warn.
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $catalogId kept for symmetry/logging.
+	 */
+	public function retract(string $catalogId, string $catalogPublication): bool {
+		if ($catalogPublication === '') {
+			return true;
+		}
 
-        try {
-            $service->deleteObject(
-                uuid: $catalogPublication,
-                register: 'opencatalogi',
-                schema: 'publication',
-            );
-            return true;
-        } catch (\Throwable $e) {
-            $this->logger->warning('Decidesk publication: OpenCatalogi retraction failed', ['exception' => $e->getMessage()]);
-            return false;
-        }
+		if ($this->appManager->isInstalled('opencatalogi') === false) {
+			return false;
+		}
 
-    }//end retract()
+		$service = $this->resolvePublicationService();
+		if ($service === null) {
+			return false;
+		}
 
-    /**
-     * Resolve OpenCatalogi's ObjectService, or null when unavailable.
-     *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
-     *
-     * @return object|null
-     */
-    private function resolvePublicationService(): ?object
-    {
-        try {
-            return $this->container->get('OCA\OpenRegister\Service\ObjectService');
-        } catch (\Throwable $e) {
-            $this->logger->warning('Decidesk publication: OpenCatalogi ObjectService unresolvable', ['exception' => $e->getMessage()]);
-            return null;
-        }
+		try {
+			$service->deleteObject(
+				uuid: $catalogPublication,
+				register: 'opencatalogi',
+				schema: 'publication',
+			);
+			return true;
+		} catch (\Throwable $e) {
+			$this->logger->warning('Decidesk publication: OpenCatalogi retraction failed', ['exception' => $e->getMessage()]);
+			return false;
+		}
 
-    }//end resolvePublicationService()
+	}//end retract()
+
+	/**
+	 * Resolve OpenCatalogi's ObjectService, or null when unavailable.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 *
+	 * @return object|null
+	 */
+	private function resolvePublicationService(): ?object {
+		try {
+			return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		} catch (\Throwable $e) {
+			$this->logger->warning('Decidesk publication: OpenCatalogi ObjectService unresolvable', ['exception' => $e->getMessage()]);
+			return null;
+		}
+
+	}//end resolvePublicationService()
 }//end class

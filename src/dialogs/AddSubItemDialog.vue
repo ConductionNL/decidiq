@@ -18,7 +18,11 @@
 		@closing="$emit('close')">
 		<template #default>
 			<p>
-				{{ t('decidesk', 'Add a sub-item under "{title}".', { title: parentTitle }) }}
+				{{
+					t('decidesk', 'Add a sub-item under "{title}".', {
+						title: parentTitle,
+					})
+				}}
 			</p>
 			<NcTextField
 				v-model="title"
@@ -27,7 +31,7 @@
 				required />
 			<NcSelect
 				v-model="itemType"
-				:input-label="t('decidesk', 'Type')"
+				:inputLabel="t('decidesk', 'Type')"
 				:options="typeOptions"
 				:clearable="false" />
 			<NcTextField
@@ -38,7 +42,7 @@
 		</template>
 		<template #actions>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="add-sub-item-confirm"
 				:disabled="!title"
 				@click="submit">
@@ -85,7 +89,8 @@ export default {
 			this.$emit('submit', {
 				title: this.title,
 				itemType: this.itemType,
-				estimatedDuration: Number.isFinite(duration) && duration > 0 ? duration : null,
+				estimatedDuration:
+					Number.isFinite(duration) && duration > 0 ? duration : null,
 			})
 		},
 	},

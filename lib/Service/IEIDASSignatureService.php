@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk eIDAS Signature Service interface
  *
@@ -28,7 +29,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
@@ -38,53 +39,52 @@ namespace OCA\Decidesk\Service;
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
  */
-interface IEIDASSignatureService
-{
-    /**
-     * Request initialization for a QES flow against the configured QSP.
-     *
-     * @param string        $minutesId   UUID of the Minutes record
-     * @param array<string> $signatories Ordered list of member (Person) UUIDs
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
-     *
-     * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}
-     */
-    public function initializeSigningRequest(string $minutesId, array $signatories): array;
+interface IEIDASSignatureService {
+	/**
+	 * Request initialization for a QES flow against the configured QSP.
+	 *
+	 * @param string $minutesId UUID of the Minutes record
+	 * @param array<string> $signatories Ordered list of member (Person) UUIDs
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 *
+	 * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}
+	 */
+	public function initializeSigningRequest(string $minutesId, array $signatories): array;
 
-    /**
-     * Verify a signature against the EU Trusted List.
-     *
-     * @param string $requestId UUID of the signing request
-     * @param string $signature Base-64 encoded signature blob
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
-     *
-     * @return array{valid: bool, certificateThumbprint: ?string, timestamp: ?string, message: string}
-     */
-    public function verifySignature(string $requestId, string $signature): array;
+	/**
+	 * Verify a signature against the EU Trusted List.
+	 *
+	 * @param string $requestId UUID of the signing request
+	 * @param string $signature Base-64 encoded signature blob
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 *
+	 * @return array{valid: bool, certificateThumbprint: ?string, timestamp: ?string, message: string}
+	 */
+	public function verifySignature(string $requestId, string $signature): array;
 
-    /**
-     * Finalize signed minutes: produce the archive reference, hash the body,
-     * update the Minutes row and append an audit log entry.
-     *
-     * @param string                    $minutesId     UUID of the BoardMinutes record
-     * @param array<int, array<string>> $signatureList List of {signer, signature, timestamp} tuples
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
-     *
-     * @return array{success: bool, pdfArchiveReference: ?string, hashSha256: ?string, message: string}
-     */
-    public function finalizeMinutes(string $minutesId, array $signatureList): array;
+	/**
+	 * Finalize signed minutes: produce the archive reference, hash the body,
+	 * update the Minutes row and append an audit log entry.
+	 *
+	 * @param string $minutesId UUID of the BoardMinutes record
+	 * @param array<int, array<string>> $signatureList List of {signer, signature, timestamp} tuples
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 *
+	 * @return array{success: bool, pdfArchiveReference: ?string, hashSha256: ?string, message: string}
+	 */
+	public function finalizeMinutes(string $minutesId, array $signatureList): array;
 
-    /**
-     * Verify the certificate chain against the EU eIDAS Trusted List.
-     *
-     * @param string $certificateThumbprint SHA-256 thumbprint of the cert
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
-     *
-     * @return array{valid: bool, issuer: ?string, trustListLevel: ?string, message: string}
-     */
-    public function validateCertificateChain(string $certificateThumbprint): array;
+	/**
+	 * Verify the certificate chain against the EU eIDAS Trusted List.
+	 *
+	 * @param string $certThumbprint SHA-256 thumbprint of the cert
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 *
+	 * @return array{valid: bool, issuer: ?string, trustListLevel: ?string, message: string}
+	 */
+	public function validateCertificateChain(string $certThumbprint): array;
 }//end interface

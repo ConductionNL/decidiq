@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Participant Resolver Service
  *
@@ -22,13 +23,14 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use Psr\Container\ContainerInterface;
+use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Resolves participants for a meeting through the canonical schema path.
@@ -42,232 +44,234 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
  */
-class ParticipantResolver
-{
-    /**
-     * Constructor.
-     *
-     * @param ContainerInterface $container DI container (lazy-loads ObjectService)
-     * @param LoggerInterface    $logger    PSR-3 logger
-     */
-    public function __construct(
-        private readonly ContainerInterface $container,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+class ParticipantResolver {
+	/**
+	 * Constructor.
+	 *
+	 * @param LoggerInterface $logger PSR-3 logger
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
+	 */
+	public function __construct(
+		private readonly LoggerInterface $logger,
+		private readonly ObjectServiceInterface $objectService,
+	) {
+	}//end __construct()
 
-    /**
-     * Get the OpenRegister ObjectService.
-     *
-     * @return object
-     */
-    private function objectService(): object
-    {
-        return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+	/**
+	 * Get the OpenRegister ObjectService.
+	 *
+	 * @return object
+	 */
+	private function objectService(): object {
+		return $this->objectService;
+	}//end objectService()
 
-    }//end objectService()
+	/**
+	 * Resolve the governance-body UUID linked to a meeting.
+	 *
+	 * Returns null when the meeting cannot be found or has no governance body.
+	 *
+	 * @param string $meetingId Meeting UUID
+	 *
+	 * @return string|null The governance-body UUID or null
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+	 */
+	public function resolveGovernanceBodyId(string $meetingId): ?string {
+		$objectService = $this->objectService();
 
-    /**
-     * Resolve the governance-body UUID linked to a meeting.
-     *
-     * Returns null when the meeting cannot be found or has no governance body.
-     *
-     * @param string $meetingId Meeting UUID
-     *
-     * @return string|null The governance-body UUID or null
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
-     */
-    public function resolveGovernanceBodyId(string $meetingId): ?string
-    {
-        $objectService = $this->objectService();
-        $meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
-        if ($meetingEntity === null) {
-            return null;
-        }
+		// OpenRegister's ObjectService::find() THROWS DoesNotExistException for an
+		// unknown id; it does not return null. The `=== null` branch below could
+		// therefore never be taken, and the exception escaped every caller — up
+		// through VotingRoundGuard::requireChairOrSecretary(), whose own docblock
+		// promises "fail closed: any failure yields a 401/403". An unknown
+		// meetingId in a request body answered 500 instead of 403.
+		//
+		// "Not found" is this method's documented answer, so it is translated here
+		// and only here; every other failure still propagates.
+		try {
+			$meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+		} catch (DoesNotExistException) {
+			return null;
+		}
 
-        $meeting = $meetingEntity->jsonSerialize();
+		if ($meetingEntity === null) {
+			return null;
+		}
 
-        // OpenRegister serialises relations in two shapes: a structured list
-        // ([{ 'schema' => ..., 'id' => ... }, ...]) and a flat object keyed by the
-        // source field name ({ 'governanceBody' => '<id>', ... }). Meetings carry
-        // the body link in the flat form, so both must be honoured.
-        $relations = ($meeting['@self']['relations'] ?? ($meeting['relations'] ?? []));
-        if (is_array($relations) === true) {
-            foreach ($relations as $key => $relation) {
-                if (is_array($relation) === true) {
-                    if (($relation['schema'] ?? '') === 'governance-body') {
-                        return ($relation['id'] ?? null);
-                    }
+		$meeting = $meetingEntity->jsonSerialize();
 
-                    continue;
-                }
+		// OpenRegister serialises relations in two shapes: a structured list
+		// ([{ 'schema' => ..., 'id' => ... }, ...]) and a flat object keyed by the
+		// source field name ({ 'governanceBody' => '<id>', ... }). Meetings carry
+		// the body link in the flat form, so both must be honoured.
+		$relations = ($meeting['@self']['relations'] ?? ($meeting['relations'] ?? []));
+		if (is_array($relations) === true) {
+			foreach ($relations as $key => $relation) {
+				if (is_array($relation) === true) {
+					if (($relation['schema'] ?? '') === 'governance-body') {
+						return ($relation['id'] ?? null);
+					}
 
-                // Flat form: the field name is the relation target (e.g. 'governanceBody').
-                if (is_string($relation) === true && $key === 'governanceBody') {
-                    return $relation;
-                }
-            }
-        }
+					continue;
+				}
 
-        return null;
+				// Flat form: the field name is the relation target (e.g. 'governanceBody').
+				if (is_string($relation) === true && $key === 'governanceBody') {
+					return $relation;
+				}
+			}
+		}
 
-    }//end resolveGovernanceBodyId()
+		return null;
+	}//end resolveGovernanceBodyId()
 
-    /**
-     * Return all participant objects for a meeting.
-     *
-     * Resolves meeting → governanceBody → participants. Returns an empty array
-     * when the meeting or governance body cannot be resolved.
-     *
-     * @param string $meetingId Meeting UUID
-     *
-     * @return array<int, array<string, mixed>> Serialised participant objects
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
-     */
-    public function resolveMeetingParticipants(string $meetingId): array
-    {
-        $governanceBodyId = $this->resolveGovernanceBodyId(meetingId: $meetingId);
-        if ($governanceBodyId === null) {
-            $this->logger->warning(
-                'Decidesk ParticipantResolver: no governance body linked to meeting',
-                ['meetingId' => $meetingId]
-            );
-            return [];
-        }
+	/**
+	 * Return all participant objects for a meeting.
+	 *
+	 * Resolves meeting → governanceBody → participants. Returns an empty array
+	 * when the meeting or governance body cannot be resolved.
+	 *
+	 * @param string $meetingId Meeting UUID
+	 *
+	 * @return array<int, array<string, mixed>> Serialised participant objects
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+	 */
+	public function resolveMeetingParticipants(string $meetingId): array {
+		$governanceBodyId = $this->resolveGovernanceBodyId(meetingId: $meetingId);
+		if ($governanceBodyId === null) {
+			$this->logger->warning(
+				'Decidesk ParticipantResolver: no governance body linked to meeting',
+				['meetingId' => $meetingId]
+			);
+			return [];
+		}
 
-        $objectService = $this->objectService();
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('participant');
+		$objectService = $this->objectService();
+		$objectService->setRegister('decidesk');
+		$objectService->setSchema('participant');
 
-        // NOTE: objects created via the standard OpenRegister object API store the
-        // governance-body link as a FLAT relation keyed by the source field name —
-        // `@self.relations.governanceBody` (camelCase) — NOT under the schema-slug
-        // key `governance-body`. The `_relations.governance-body` findAll filter
-        // therefore matches nothing for OR-object-API-created participants, which
-        // previously returned an empty participant list and 403'd seeded chairs.
-        //
-        // Read the full participant set for the register/schema and filter in PHP
-        // via relationsReference(), which honours both the structured relation list
-        // and the flat field-keyed map. This mirrors how resolveGovernanceBodyId()
-        // already reads the flat relation shape.
-        $entities = $objectService->findAll([]);
+		// NOTE: objects created via the standard OpenRegister object API store the
+		// governance-body link as a FLAT relation keyed by the source field name —
+		// `@self.relations.governanceBody` (camelCase) — NOT under the schema-slug
+		// key `governance-body`. The `_relations.governance-body` findAll filter
+		// therefore matches nothing for OR-object-API-created participants, which
+		// previously returned an empty participant list and 403'd seeded chairs.
+		//
+		// Read the full participant set for the register/schema and filter in PHP
+		// via relationsReference(), which honours both the structured relation list
+		// and the flat field-keyed map. This mirrors how resolveGovernanceBodyId()
+		// already reads the flat relation shape.
+		$entities = $objectService->findAll([]);
 
-        $participants = [];
-        foreach ($entities as $entity) {
-            $participant = $entity->jsonSerialize();
-            if ($this->relationsReference(object: $participant, schema: 'governance-body', targetId: $governanceBodyId) === false) {
-                continue;
-            }
+		$participants = [];
+		foreach ($entities as $entity) {
+			$participant = $entity->jsonSerialize();
+			if ($this->relationsReference(object: $participant, schema: 'governance-body', targetId: $governanceBodyId) === false) {
+				continue;
+			}
 
-            $participants[] = $participant;
-        }
+			$participants[] = $participant;
+		}
 
-        return $participants;
+		return $participants;
+	}//end resolveMeetingParticipants()
 
-    }//end resolveMeetingParticipants()
+	/**
+	 * Determine whether a serialised object references $targetId via a relation.
+	 *
+	 * Honours both the structured (`{"relations.N.id": "...",
+	 * "relations.N.schema": "..."}`) and the legacy flat (`{"<field>": "<id>"}`)
+	 * relation shapes returned by OpenRegister.
+	 *
+	 * @param array<string, mixed> $object The serialised object (jsonSerialize()).
+	 * @param string $schema The expected related schema slug.
+	 * @param string $targetId The related UUID to look for.
+	 *
+	 * @return bool True when $targetId is referenced.
+	 */
+	private function relationsReference(array $object, string $schema, string $targetId): bool {
+		$relations = ($object['@self']['relations'] ?? ($object['relations'] ?? []));
+		if (is_array($relations) === false) {
+			return false;
+		}
 
-    /**
-     * Determine whether a serialised object references $targetId via a relation.
-     *
-     * Honours both the structured (`{"relations.N.id": "...",
-     * "relations.N.schema": "..."}`) and the legacy flat (`{"<field>": "<id>"}`)
-     * relation shapes returned by OpenRegister.
-     *
-     * @param array<string, mixed> $object   The serialised object (jsonSerialize()).
-     * @param string               $schema   The expected related schema slug.
-     * @param string               $targetId The related UUID to look for.
-     *
-     * @return bool True when $targetId is referenced.
-     */
-    private function relationsReference(array $object, string $schema, string $targetId): bool
-    {
-        $relations = ($object['@self']['relations'] ?? ($object['relations'] ?? []));
-        if (is_array($relations) === false) {
-            return false;
-        }
+		foreach ($relations as $value) {
+			if (is_array($value) === true) {
+				$relSchema = ($value['schema'] ?? null);
+				$relId = ($value['id'] ?? null);
+				if ($relId === $targetId && ($relSchema === null || $relSchema === $schema)) {
+					return true;
+				}
 
-        foreach ($relations as $value) {
-            if (is_array($value) === true) {
-                $relSchema = ($value['schema'] ?? null);
-                $relId     = ($value['id'] ?? null);
-                if ($relId === $targetId && ($relSchema === null || $relSchema === $schema)) {
-                    return true;
-                }
+				continue;
+			}
 
-                continue;
-            }
+			if (is_string($value) === true && $value === $targetId) {
+				return true;
+			}
+		}
 
-            if (is_string($value) === true && $value === $targetId) {
-                return true;
-            }
-        }
+		return false;
+	}//end relationsReference()
 
-        return false;
+	/**
+	 * Check whether a Nextcloud UID is a participant in a meeting.
+	 *
+	 * Uses nextcloudUserId field on participant (canonical, set by PR #323).
+	 * Falls back to legacy `owner` field for pre-migration records.
+	 *
+	 * @param string $meetingId Meeting UUID
+	 * @param string $nextcloudUid Nextcloud user ID to check
+	 *
+	 * @return bool True when the user is a participant in this meeting
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+	 */
+	public function isParticipant(string $meetingId, string $nextcloudUid): bool {
+		foreach ($this->resolveMeetingParticipants(meetingId: $meetingId) as $p) {
+			$uid = $p['nextcloudUserId'] ?? null;
+			$owner = $p['owner'] ?? null;
 
-    }//end relationsReference()
+			if (($uid !== null && $uid === $nextcloudUid)
+				|| ($uid === null && $owner !== null && $owner === $nextcloudUid)
+			) {
+				return true;
+			}
+		}
 
-    /**
-     * Check whether a Nextcloud UID is a participant in a meeting.
-     *
-     * Uses nextcloudUserId field on participant (canonical, set by PR #323).
-     * Falls back to legacy `owner` field for pre-migration records.
-     *
-     * @param string $meetingId    Meeting UUID
-     * @param string $nextcloudUid Nextcloud user ID to check
-     *
-     * @return bool True when the user is a participant in this meeting
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
-     */
-    public function isParticipant(string $meetingId, string $nextcloudUid): bool
-    {
-        foreach ($this->resolveMeetingParticipants(meetingId: $meetingId) as $p) {
-            $uid   = $p['nextcloudUserId'] ?? null;
-            $owner = $p['owner'] ?? null;
+		return false;
+	}//end isParticipant()
 
-            if (($uid !== null && $uid === $nextcloudUid)
-                || ($uid === null && $owner !== null && $owner === $nextcloudUid)
-            ) {
-                return true;
-            }
-        }
+	/**
+	 * Check whether a Nextcloud UID holds one of the given roles in a meeting.
+	 *
+	 * Useful for access-control checks that require chair, secretary, or other
+	 * role membership (e.g. requireChairOrAdmin in controllers).
+	 *
+	 * @param string $meetingId Meeting UUID
+	 * @param string $nextcloudUid Nextcloud user ID to check
+	 * @param array<string> $roles Accepted roles (e.g. ['chair', 'secretary'])
+	 *
+	 * @return bool True when the user holds at least one of the given roles
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+	 */
+	public function hasRole(string $meetingId, string $nextcloudUid, array $roles): bool {
+		foreach ($this->resolveMeetingParticipants(meetingId: $meetingId) as $p) {
+			$uid = $p['nextcloudUserId'] ?? null;
+			$owner = $p['owner'] ?? null;
+			$role = $p['role'] ?? null;
 
-        return false;
+			$isCallerMatch = ($uid !== null && $uid === $nextcloudUid)
+				|| ($uid === null && $owner !== null && $owner === $nextcloudUid);
 
-    }//end isParticipant()
+			if ($isCallerMatch === true && in_array(needle: $role, haystack: $roles, strict: true) === true) {
+				return true;
+			}
+		}
 
-    /**
-     * Check whether a Nextcloud UID holds one of the given roles in a meeting.
-     *
-     * Useful for access-control checks that require chair, secretary, or other
-     * role membership (e.g. requireChairOrAdmin in controllers).
-     *
-     * @param string        $meetingId    Meeting UUID
-     * @param string        $nextcloudUid Nextcloud user ID to check
-     * @param array<string> $roles        Accepted roles (e.g. ['chair', 'secretary'])
-     *
-     * @return bool True when the user holds at least one of the given roles
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
-     */
-    public function hasRole(string $meetingId, string $nextcloudUid, array $roles): bool
-    {
-        foreach ($this->resolveMeetingParticipants(meetingId: $meetingId) as $p) {
-            $uid   = $p['nextcloudUserId'] ?? null;
-            $owner = $p['owner'] ?? null;
-            $role  = $p['role'] ?? null;
-
-            $isCallerMatch = ($uid !== null && $uid === $nextcloudUid)
-                || ($uid === null && $owner !== null && $owner === $nextcloudUid);
-
-            if ($isCallerMatch === true && in_array(needle: $role, haystack: $roles, strict: true) === true) {
-                return true;
-            }
-        }
-
-        return false;
-
-    }//end hasRole()
+		return false;
+	}//end hasRole()
 }//end class

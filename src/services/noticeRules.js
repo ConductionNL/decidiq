@@ -32,7 +32,10 @@ export const DEADLINE_WARNING_DAYS = 3
  * @spec openspec/specs/meeting-management/spec.md
  */
 export function getNoticeDeadlineInfo(meeting, now = new Date()) {
-	const raw = String(meeting?.meetingDate || meeting?.meetingStart || '').slice(0, 10)
+	const raw = String(meeting?.meetingDate || meeting?.meetingStart || '').slice(
+		0,
+		10,
+	)
 	const meetingDate = new Date(`${raw}T00:00:00Z`)
 	if (!raw || Number.isNaN(meetingDate.getTime())) {
 		return { deadline: null, daysUntilDeadline: null, level: 'unknown' }
@@ -45,7 +48,9 @@ export function getNoticeDeadlineInfo(meeting, now = new Date()) {
 
 	const deadline = new Date(meetingDate.getTime() - periodDays * 86400000)
 	const today = new Date(`${now.toISOString().slice(0, 10)}T00:00:00Z`)
-	const daysUntilDeadline = Math.round((deadline.getTime() - today.getTime()) / 86400000)
+	const daysUntilDeadline = Math.round(
+		(deadline.getTime() - today.getTime()) / 86400000,
+	)
 
 	let level = 'ok'
 	if (daysUntilDeadline < 0) {

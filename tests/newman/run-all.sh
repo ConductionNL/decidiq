@@ -15,8 +15,8 @@
 #                                             (anonymous published-predicate read
 #                                             contract: a PublicationPayload is
 #                                             anon-visible on the ORI harvest feed
-#                                             once publicatiedatum <= now, NOT before,
-#                                             and gone after depublicatiedatum —
+#                                             once publicationDate <= now, NOT before,
+#                                             and gone after depublicationDate —
 #                                             publish-decisions-via-opencatalogi 5.2)
 #   - board-portal.postman_collection.json   (enterprise board-portal surface:
 #                                             Board / BoardMember / BoardMeeting /

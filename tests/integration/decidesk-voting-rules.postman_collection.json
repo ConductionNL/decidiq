@@ -93,11 +93,35 @@
    "value": ""
   },
   {
+   "key": "vrProxyGrantorId",
+   "value": ""
+  },
+  {
+   "key": "vrHolderAltId",
+   "value": ""
+  },
+  {
    "key": "vrProxy1Id",
    "value": ""
   },
   {
+   "key": "vrProxy1Body",
+   "value": ""
+  },
+  {
+   "key": "vrProxy1ActivateBody",
+   "value": ""
+  },
+  {
    "key": "vrProxy2Id",
+   "value": ""
+  },
+  {
+   "key": "vrProxy2Body",
+   "value": ""
+  },
+  {
+   "key": "vrProxy2ActivateBody",
    "value": ""
   },
   {
@@ -365,7 +389,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision",
        "host": [
         "{{baseUrl}}"
        ],
@@ -376,12 +400,12 @@
         "api",
         "objects",
         "decidesk",
-        "motion"
+        "decision"
        ]
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"title\": \"Newman VR Rules Motion\",\n  \"text\": \"That configurable rules be adopted.\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman VR Chair\",\n  \"lifecycle\": \"debating\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\",\n  \"meeting\": \"{{vrMeetingId}}\"\n}"
+       "raw": "{\n  \"decisionType\": \"motion\",\n  \"title\": \"Newman VR Rules Motion\",\n  \"text\": \"That configurable rules be adopted.\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman VR Chair\",\n  \"lifecycle\": \"deliberating\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\",\n  \"meeting\": \"{{vrMeetingId}}\"\n}"
       }
      }
     },
@@ -434,7 +458,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision",
        "host": [
         "{{baseUrl}}"
        ],
@@ -445,12 +469,12 @@
         "api",
         "objects",
         "decidesk",
-        "motion"
+        "decision"
        ]
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"title\": \"Newman VR Tally Motion\",\n  \"text\": \"Tally-math host motion (no meeting).\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman VR Chair\",\n  \"lifecycle\": \"voting\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\"\n}"
+       "raw": "{\n  \"decisionType\": \"motion\",\n  \"title\": \"Newman VR Tally Motion\",\n  \"text\": \"Tally-math host motion (no meeting).\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman VR Chair\",\n  \"lifecycle\": \"voting\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\"\n}"
       }
      }
     },
@@ -503,7 +527,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision",
        "host": [
         "{{baseUrl}}"
        ],
@@ -514,12 +538,12 @@
         "api",
         "objects",
         "decidesk",
-        "motion"
+        "decision"
        ]
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"title\": \"Newman VR Chair Motion\",\n  \"text\": \"Chair casting-vote host motion (no meeting).\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman VR Chair\",\n  \"lifecycle\": \"voting\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\"\n}"
+       "raw": "{\n  \"decisionType\": \"motion\",\n  \"title\": \"Newman VR Chair Motion\",\n  \"text\": \"Chair casting-vote host motion (no meeting).\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman VR Chair\",\n  \"lifecycle\": \"voting\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\"\n}"
       }
      }
     },
@@ -2019,18 +2043,19 @@
    "name": "5. Proxy cap",
    "item": [
     {
-     "name": "Seed ACTIVE proxy 1 for the holder",
+     "name": "Seed proxy-cap grantor participant",
+     "description": "model-debt-cleanup-code Decision 3: ProxyVoteService::register() resolves grantorId/holderId through ParticipantToPersonMembershipResolver, which loads the Participant by id and fails closed (422, 'Could not resolve the grantor or holder to a Person record.') when it does not exist. Prior to this change grantorId/holderId were free-text identifiers written straight onto the row; the schema now requires real Person references, so every register() call below needs a REAL seeded Participant, not a placeholder string. One grantor participant is reused across every registration in this folder — nothing here restricts a single grantor from granting proxies to multiple holders, only the per-holder ACTIVE cap is enforced.",
      "event": [
       {
        "listen": "test",
        "script": {
         "type": "text/javascript",
         "exec": [
-         "pm.test('Setup: active proxy 1 created (201)', () => pm.response.to.have.status(201));",
+         "pm.test('Setup: proxy-cap grantor participant created (201)', () => pm.response.to.have.status(201));",
          "const b = pm.response.json();",
          "const id = (b['@self'] && b['@self'].id) || b.id;",
-         "pm.expect(id, 'active proxy 1 id captured').to.be.a('string');",
-         "pm.collectionVariables.set('vrProxy1Id', id);"
+         "pm.expect(id, 'proxy-cap grantor participant id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrProxyGrantorId', id);"
         ]
        }
       }
@@ -2067,7 +2092,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/board-proxy",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant",
        "host": [
         "{{baseUrl}}"
        ],
@@ -2078,28 +2103,29 @@
         "api",
         "objects",
         "decidesk",
-        "board-proxy"
+        "participant"
        ]
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"meetingKoppeling\": \"{{vrMeetingId}}\",\n  \"grantorKoppeling\": \"newman-vr-grantor-1\",\n  \"holderKoppeling\": \"{{vrParticipantId}}\",\n  \"scope\": \"all-resolutions\",\n  \"proxyStatus\": \"active\",\n  \"registeredAt\": \"2026-06-19T09:00:00Z\"\n}"
+       "raw": "{\n  \"displayName\": \"Newman VR Proxy Grantor\",\n  \"name\": \"Newman VR Proxy Grantor\",\n  \"role\": \"member\"\n}"
       }
      }
     },
     {
-     "name": "Seed ACTIVE proxy 2 for the holder",
+     "name": "Seed proxy-cap alt-holder participant",
+     "description": "Real Participant for the 'different holder still registers under the cap' happy-path request — distinct from {{vrParticipantId}} so its crosswalk-resolved Person is a different holder and does not count toward vrParticipantId's cap.",
      "event": [
       {
        "listen": "test",
        "script": {
         "type": "text/javascript",
         "exec": [
-         "pm.test('Setup: active proxy 2 created (201)', () => pm.response.to.have.status(201));",
+         "pm.test('Setup: proxy-cap alt-holder participant created (201)', () => pm.response.to.have.status(201));",
          "const b = pm.response.json();",
          "const id = (b['@self'] && b['@self'].id) || b.id;",
-         "pm.expect(id, 'active proxy 2 id captured').to.be.a('string');",
-         "pm.collectionVariables.set('vrProxy2Id', id);"
+         "pm.expect(id, 'proxy-cap alt-holder participant id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrHolderAltId', id);"
         ]
        }
       }
@@ -2136,7 +2162,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/board-proxy",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant",
        "host": [
         "{{baseUrl}}"
        ],
@@ -2147,12 +2173,326 @@
         "api",
         "objects",
         "decidesk",
-        "board-proxy"
+        "participant"
        ]
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"meetingKoppeling\": \"{{vrMeetingId}}\",\n  \"grantorKoppeling\": \"newman-vr-grantor-2\",\n  \"holderKoppeling\": \"{{vrParticipantId}}\",\n  \"scope\": \"all-resolutions\",\n  \"proxyStatus\": \"active\",\n  \"registeredAt\": \"2026-06-19T09:05:00Z\"\n}"
+       "raw": "{\n  \"displayName\": \"Newman VR Alt Holder\",\n  \"name\": \"Newman VR Alt Holder\",\n  \"role\": \"member\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Register proxy 1 for the holder (pending-approval)",
+     "description": "Registers through the real /api/proxies contract (not a direct OpenRegister write) so grantor/holder are resolved to Person uuids exactly as production does — the row is then flipped to 'active' by the next request, a test-only seam (register() itself cannot create anything but pending-approval; there is no approve/activate route).",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: active proxy 1 registered (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'active proxy 1 id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrProxy1Id', id);",
+         "pm.collectionVariables.set('vrProxy1Body', JSON.stringify(b));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/proxies",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "proxies"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"grantorId\": \"{{vrProxyGrantorId}}\",\n  \"holderId\": \"{{vrParticipantId}}\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Activate proxy 1 (test seam: flip proxyStatus directly)",
+     "description": "There is no HTTP path from pending-approval to active (no approve/activate route on ProxyVoteController) so the cap-test fixture writes proxyStatus directly via the OpenRegister object API, replaying every field the register() response returned (grantor/holder already carry the crosswalk-resolved Person uuids) so ProxyVoteService::forMeeting()'s cap count matches this row exactly.",
+     "event": [
+      {
+       "listen": "prerequest",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "const stored = JSON.parse(pm.collectionVariables.get('vrProxy1Body'));",
+         "const activated = {",
+         "  meeting: stored.meeting,",
+         "  grantor: stored.grantor,",
+         "  holder: stored.holder,",
+         "  scope: stored.scope,",
+         "  expiresAt: stored.expiresAt,",
+         "  proxyStatus: 'active',",
+         "  signatureStatus: stored.signatureStatus,",
+         "  registeredAt: stored.registeredAt",
+         "};",
+         "pm.collectionVariables.set('vrProxy1ActivateBody', JSON.stringify(activated));"
+        ]
+       }
+      },
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: active proxy 1 activated (200/201)', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+         "const b = pm.response.json();",
+         "pm.test('Setup: active proxy 1 proxyStatus is active', () => pm.expect(b.proxyStatus).to.eql('active'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/proxy-authorization/{{vrProxy1Id}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "proxy-authorization",
+        "{{vrProxy1Id}}"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{{vrProxy1ActivateBody}}"
+      }
+     }
+    },
+    {
+     "name": "Register proxy 2 for the holder (pending-approval)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: active proxy 2 registered (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'active proxy 2 id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrProxy2Id', id);",
+         "pm.collectionVariables.set('vrProxy2Body', JSON.stringify(b));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/proxies",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "proxies"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"grantorId\": \"{{vrProxyGrantorId}}\",\n  \"holderId\": \"{{vrParticipantId}}\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Activate proxy 2 (test seam: flip proxyStatus directly)",
+     "event": [
+      {
+       "listen": "prerequest",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "const stored = JSON.parse(pm.collectionVariables.get('vrProxy2Body'));",
+         "const activated = {",
+         "  meeting: stored.meeting,",
+         "  grantor: stored.grantor,",
+         "  holder: stored.holder,",
+         "  scope: stored.scope,",
+         "  expiresAt: stored.expiresAt,",
+         "  proxyStatus: 'active',",
+         "  signatureStatus: stored.signatureStatus,",
+         "  registeredAt: stored.registeredAt",
+         "};",
+         "pm.collectionVariables.set('vrProxy2ActivateBody', JSON.stringify(activated));"
+        ]
+       }
+      },
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: active proxy 2 activated (200/201)', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+         "const b = pm.response.json();",
+         "pm.test('Setup: active proxy 2 proxyStatus is active', () => pm.expect(b.proxyStatus).to.eql('active'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/proxy-authorization/{{vrProxy2Id}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "proxy-authorization",
+        "{{vrProxy2Id}}"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{{vrProxy2ActivateBody}}"
       }
      }
     },
@@ -2216,7 +2556,7 @@
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"grantorId\": \"newman-vr-grantor-3\",\n  \"holderId\": \"{{vrParticipantId}}\"\n}"
+       "raw": "{\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"grantorId\": \"{{vrProxyGrantorId}}\",\n  \"holderId\": \"{{vrParticipantId}}\"\n}"
       }
      }
     },
@@ -2283,7 +2623,7 @@
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"grantorId\": \"newman-vr-grantor-4\",\n  \"holderId\": \"newman-vr-holder-alt\"\n}"
+       "raw": "{\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"grantorId\": \"{{vrProxyGrantorId}}\",\n  \"holderId\": \"{{vrHolderAltId}}\"\n}"
       }
      }
     },
@@ -2330,7 +2670,7 @@
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"grantorId\": \"newman-vr-grantor-5\",\n  \"holderId\": \"{{vrParticipantId}}\"\n}"
+       "raw": "{\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"grantorId\": \"{{vrProxyGrantorId}}\",\n  \"holderId\": \"{{vrParticipantId}}\"\n}"
       }
      }
     }
@@ -3008,7 +3348,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/board-proxy/{{vrProxy1Id}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/proxy-authorization/{{vrProxy1Id}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3019,7 +3359,7 @@
         "api",
         "objects",
         "decidesk",
-        "board-proxy",
+        "proxy-authorization",
         "{{vrProxy1Id}}"
        ]
       }
@@ -3059,7 +3399,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/board-proxy/{{vrProxy2Id}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/proxy-authorization/{{vrProxy2Id}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3070,7 +3410,7 @@
         "api",
         "objects",
         "decidesk",
-        "board-proxy",
+        "proxy-authorization",
         "{{vrProxy2Id}}"
        ]
       }
@@ -3110,7 +3450,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/board-proxy/{{vrProxyOkId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/proxy-authorization/{{vrProxyOkId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3121,8 +3461,110 @@
         "api",
         "objects",
         "decidesk",
-        "board-proxy",
+        "proxy-authorization",
         "{{vrProxyOkId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete proxy-cap grantor participant",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant/{{vrProxyGrantorId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "participant",
+        "{{vrProxyGrantorId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete proxy-cap alt-holder participant",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant/{{vrHolderAltId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "participant",
+        "{{vrHolderAltId}}"
        ]
       }
      }
@@ -3161,7 +3603,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion/{{vrRulesMotionId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision/{{vrRulesMotionId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3172,7 +3614,7 @@
         "api",
         "objects",
         "decidesk",
-        "motion",
+        "decision",
         "{{vrRulesMotionId}}"
        ]
       }
@@ -3212,7 +3654,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion/{{vrTallyMotionId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision/{{vrTallyMotionId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3223,7 +3665,7 @@
         "api",
         "objects",
         "decidesk",
-        "motion",
+        "decision",
         "{{vrTallyMotionId}}"
        ]
       }
@@ -3263,7 +3705,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion/{{vrChairMotionId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision/{{vrChairMotionId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3274,7 +3716,7 @@
         "api",
         "objects",
         "decidesk",
-        "motion",
+        "decision",
         "{{vrChairMotionId}}"
        ]
       }

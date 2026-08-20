@@ -18,22 +18,27 @@
  *   POST /api/voting-rounds/{id}/tally (show-of-hands aggregate tally)
  * Fixtures are seeded via the OpenRegister object API (real verbs).
  *
- * ── DEPLOY REALITY (confirmed 2026-06-10; see the BUG LIST in the run report) ──
- * Two backend defects make most of the happy-path workflow unreachable in this
- * deployment, so the math/transition assertions are written precisely but
- * marked test.fixme, while the security-relevant guard behaviour is asserted
- * green:
- *   BUG-A  decidesk filters related objects with `findAll(['filters' =>
- *          ['relations.<schema>' => <id>]])`, but in the current OpenRegister
- *          only the `_relations.<schema>` key matches — `relations.<schema>`
- *          returns ZERO rows. Consequence: resolveMeetingParticipants /
- *          checkQuorum / tallyResults / castVote-dedup all see an empty set, so
- *          quorum is never satisfiable, the chair role never resolves, and the
- *          vote tally is always 0/0/0 = "invalid".
- *   BUG-B  VotingService::saveShowOfHandsTally() and castVote() are typed
- *          `: array` but return the ObjectEntity from saveObject() (which
- *          returns ObjectEntity, never array/null) — a TypeError 500 on every
- *          show-of-hands tally and every real vote cast.
+ * ── DEPLOY REALITY (re-measured 2026-08-06 against CI run 31083903075) ────────
+ * The older header here described "BUG-A" as decidesk filtering on
+ * `relations.<schema>` where OpenRegister wanted `_relations.<schema>`. That
+ * diagnosis was wrong in its second half, and the wrong half is why the tally
+ * assertions kept failing after the "fix": the call sites HAD been changed to
+ * `_relations.<schema-slug>`, and a slug-keyed filter still matches nothing.
+ *
+ * The real mechanism: decidesk writes links as a structured
+ * `relations: [{register, schema, id}]` array, and OpenRegister's
+ * SaveObject::scanForRelations() flattens that into the `_relations` JSONB keyed
+ * by the PROPERTY PATH it walked — `relations.0.id` — never by the related
+ * schema's slug. Its `_relations.<field>` filter resolves to
+ * `kv.value = <id> AND (kv.key = '<field>' OR kv.key LIKE '<field>.%')`, so
+ * `_relations.voting-round` cannot match a key named `relations.0.id`. Every
+ * such query returned ZERO rows on a healthy HTTP 200, with nothing logged:
+ * tallyResults saw no ballots and computed 0/0/0 = "invalid" no matter what was
+ * cast. Fixed by keying the filter on `relations` (ObjectRelationFilter).
+ *
+ * "BUG-B" (saveShowOfHandsTally/castVote typed `: array` but returning an
+ * ObjectEntity) is asserted directly by the last two tests below rather than
+ * described here — if it regresses they go red on the 500.
  *
  * @e2e openspec/specs/meeting-management/spec.md#quorum-not-met-meeting-cannot-proceed-to-voting
  * @e2e openspec/specs/decision-management/spec.md#transition-a-decision-from-draft-to-proposed
@@ -49,6 +54,7 @@ import {
 	writeHeaders,
 	cleanupAll,
 	objId,
+	MOTION_SCHEMA,
 	type SeedLedger,
 } from './governance-fixture'
 
@@ -78,7 +84,9 @@ test.afterAll(async ({ browser }) => {
 // asserts the guard is wired and fail-CLOSED (not fail-open): the caller is not
 // a resolvable chair/secretary of the meeting, so open is rejected with 403 and
 // NO voting-round is persisted.
-test('open voting round is blocked (403) when caller is not a meeting chair/secretary', async ({ page }) => {
+test('open voting round is blocked (403) when caller is not a meeting chair/secretary', async ({
+	page,
+}) => {
 	// Seed a meeting whose only members are plain members — the admin caller is
 	// NOT a chair/secretary of this body.
 	const s = await seedGovernanceScenario(page, ledger, {
@@ -106,7 +114,9 @@ test('open voting round is blocked (403) when caller is not a meeting chair/secr
 
 	// And crucially: no voting-round leaked into the store.
 	const after = (await listObjects(page, 'voting-round')).length
-	expect(after, 'no voting-round may be created when the guard blocks').toBe(before)
+	expect(after, 'no voting-round may be created when the guard blocks').toBe(
+		before,
+	)
 })
 
 // With the relation filter fixed (BUG-A), a participant seeded as chair (role=chair,
@@ -114,7 +124,9 @@ test('open voting round is blocked (403) when caller is not a meeting chair/secr
 // authorised chair to open the round. Combined with the fail-CLOSED test above (a
 // non-chair caller is rejected with 403), this proves the guard resolves the real
 // chair role rather than blanket-blocking or blanket-allowing.
-test('open voting round succeeds for a seeded meeting chair (guard resolves the chair)', async ({ page }) => {
+test('open voting round succeeds for a seeded meeting chair (guard resolves the chair)', async ({
+	page,
+}) => {
 	const s = await seedGovernanceScenario(page, ledger, {
 		quorumRequired: 0,
 		memberCount: 3,
@@ -132,7 +144,10 @@ test('open voting round succeeds for a seeded meeting chair (guard resolves the 
 	})
 
 	// The authorised chair must be allowed through (201), and a round must be created.
-	expect(resp.status(), `seeded chair must be allowed to open (got ${resp.status()})`).toBe(201)
+	expect(
+		resp.status(),
+		`seeded chair must be allowed to open (got ${resp.status()})`,
+	).toBe(201)
 	const round = await resp.json()
 	expect(objId(round), 'an opened round must be returned').toBeTruthy()
 })
@@ -145,7 +160,9 @@ test('open voting round succeeds for a seeded meeting chair (guard resolves the 
 // satisfy its preconditions MUST NOT produce a voting round. We seed a high
 // quorum requirement that the (broken-resolution) member set can never meet and
 // assert open is rejected and nothing is persisted.
-test('quorum-not-met / preconditions-unmet meeting cannot open a voting round', async ({ page }) => {
+test('quorum-not-met / preconditions-unmet meeting cannot open a voting round', async ({
+	page,
+}) => {
 	const s = await seedGovernanceScenario(page, ledger, {
 		quorumRequired: 99, // impossible to meet
 		memberCount: 3,
@@ -163,22 +180,35 @@ test('quorum-not-met / preconditions-unmet meeting cannot open a voting round', 
 		},
 	})
 
-	expect(resp.status(), 'open must be rejected when preconditions are unmet').toBeGreaterThanOrEqual(400)
+	expect(
+		resp.status(),
+		'open must be rejected when preconditions are unmet',
+	).toBeGreaterThanOrEqual(400)
 	const after = (await listObjects(page, 'voting-round')).length
-	expect(after, 'no voting-round may be created for a quorum-blocked meeting').toBe(before)
+	expect(
+		after,
+		'no voting-round may be created for a quorum-blocked meeting',
+	).toBe(before)
 
 	// The motion must NOT have been advanced to "voting" by a blocked open.
-	const motion = await getObject(page, 'motion', s.motionId)
-	expect(motion?.lifecycle, 'motion lifecycle must not advance on a blocked open').not.toBe('voting')
+	// ADR-005: a motion IS a Decision (decisionType='motion'); there is no
+	// standalone `motion` schema to read it back from.
+	const motion = await getObject(page, MOTION_SCHEMA, s.motionId)
+	expect(
+		motion?.lifecycle,
+		'motion lifecycle must not advance on a blocked open',
+	).not.toBe('voting')
 })
 
 // ── TALLY MATH correctness — exact inputs → expected outcomes ─────────────────
 //
 // These document the canonical tally rules with concrete inputs and the exact
 // expected computed outcome, driven through close() (which runs tallyResults).
-// Currently blocked by BUG-A (votes are linked but `relations.voting-round`
-// matches zero rows, so the count is always 0/0/0 → "invalid") — so they are
-// marked test.fixme. Un-fixme once the relation filter resolves.
+//
+// (The note that used to sit here said these were `test.fixme` pending BUG-A,
+// the relation filter that made every count 0/0/0 → "invalid". BUG-A is fixed
+// and the cases have been running for some time; the comment was stale and
+// described a state the file no longer had.)
 
 interface TallyCase {
 	name: string
@@ -187,19 +217,78 @@ interface TallyCase {
 	expectedAgainst: number
 	expectedAbstain: number
 	expectedResult: 'adopted' | 'rejected' | 'tied' | 'invalid'
+	/**
+	 * The round's `tieBreakRule`. Omitted means the round stores none, which is
+	 * NOT the same as "no rule applies": VotingResultCalculator falls back to
+	 * the spec's default, `rejected`.
+	 */
+	tieBreakRule?: 'rejected' | 'chair-decides' | 'revote'
 }
 
+// A TIE IS NOT A RESULT — IT IS AN INPUT TO tieBreakRule (openspec/specs/voting-system/spec.md).
+//
+// "Handle a tie vote" is explicit: *with `rejected` (default) the result MUST be
+// "rejected" (the motion fails), with `chair-decides` or `revote` the result MUST
+// be "tied"*, and "Configure voting rules" adds *the defaults MUST be simple
+// majority, abstentions excluded, and motion fails on a tie*.
+//
+// The single case here previously created a round carrying NO tieBreakRule and
+// asserted `tied`. That is the one answer the spec rules out for that round:
+// absent a stored rule the calculator falls back to `rejected`, so the case
+// asserted against the default it had itself selected. It ran red on every
+// full-scope run while VotingResultCalculator was correct the whole time.
+//
+// The same wrong expectation is also frozen into
+// tests/Unit/Service/VotingServiceTest::testTallyResultsTied — which never
+// caught it because that entire class is `markTestSkipped()` in setUp (issue
+// #90). A skip is not a pass; it is why this contradiction survived.
+//
+// So the tie is now covered in BOTH directions, which is strictly more coverage
+// than the single case it replaces: the default rule must reject, and an
+// explicit `revote` must report `tied`. Either one alone can pass while the
+// tie branch is broken.
 const TALLY_CASES: TallyCase[] = [
-	{ name: 'majority for → adopted', votes: ['for', 'for', 'for', 'against', 'abstain'], expectedFor: 3, expectedAgainst: 1, expectedAbstain: 1, expectedResult: 'adopted' },
-	{ name: 'majority against → rejected', votes: ['against', 'against', 'against', 'for'], expectedFor: 1, expectedAgainst: 3, expectedAbstain: 0, expectedResult: 'rejected' },
-	{ name: 'equal for/against → tied (abstain excluded from the comparison)', votes: ['for', 'for', 'against', 'against', 'abstain'], expectedFor: 2, expectedAgainst: 2, expectedAbstain: 1, expectedResult: 'tied' },
+	{
+		name: 'majority for → adopted',
+		votes: ['for', 'for', 'for', 'against', 'abstain'],
+		expectedFor: 3,
+		expectedAgainst: 1,
+		expectedAbstain: 1,
+		expectedResult: 'adopted',
+	},
+	{
+		name: 'majority against → rejected',
+		votes: ['against', 'against', 'against', 'for'],
+		expectedFor: 1,
+		expectedAgainst: 3,
+		expectedAbstain: 0,
+		expectedResult: 'rejected',
+	},
+	{
+		name: 'equal for/against, default tie-break → rejected (abstain excluded from the comparison)',
+		votes: ['for', 'for', 'against', 'against', 'abstain'],
+		expectedFor: 2,
+		expectedAgainst: 2,
+		expectedAbstain: 1,
+		expectedResult: 'rejected',
+	},
+	{
+		name: 'equal for/against, tieBreakRule=revote → tied (abstain excluded from the comparison)',
+		votes: ['for', 'for', 'against', 'against', 'abstain'],
+		expectedFor: 2,
+		expectedAgainst: 2,
+		expectedAbstain: 1,
+		expectedResult: 'tied',
+		tieBreakRule: 'revote',
+	},
 ]
 
 for (const c of TALLY_CASES) {
 	// @e2e openspec/specs/decision-management/spec.md#view-decision-detail-with-voting-results
-	// BUG-A: votes are linked to the round but tallyResults() filters with
-	// `relations.voting-round` which matches 0 rows in this deployment, so the
-	// computed tally is always 0/0/0 = invalid regardless of the votes cast.
+	// These are the assertions that caught the relation-filter defect described in
+	// the file header: the votes below are linked to the round exactly the way the
+	// app links them (VoteBallotFactory writes the same structured `relations`
+	// array), so a tally of 0 here means the read-back query matched nothing.
 	test(`tally math — ${c.name}`, async ({ page }) => {
 		// Orphan round (no motion link) so close()'s auth falls back to the
 		// global-admin path and the round is actually closable.
@@ -207,6 +296,12 @@ for (const c of TALLY_CASES) {
 			votingMethod: 'for-against-abstain',
 			isSecret: false,
 			openedAt: '2026-09-01T10:00:00Z',
+			// Spread, not a fixed key: a case that names no rule must persist NO
+			// tieBreakRule, so the assertion exercises the calculator's documented
+			// fallback rather than a value the test quietly supplied for it.
+			...(c.tieBreakRule !== undefined
+				? { tieBreakRule: c.tieBreakRule }
+				: {}),
 		})
 		const vrId = objId(vr)
 
@@ -215,7 +310,9 @@ for (const c of TALLY_CASES) {
 				value,
 				weight: 1,
 				castAt: '2026-09-01T10:05:00Z',
-				relations: [{ register: 'decidesk', schema: 'voting-round', id: vrId }],
+				relations: [
+					{ register: 'decidesk', schema: 'voting-round', id: vrId },
+				],
 			})
 		}
 
@@ -238,7 +335,9 @@ for (const c of TALLY_CASES) {
 // from saveObject() → TypeError 500. The exact expected tally math (for=5,
 // against=2 → adopted) is asserted here and will pass once the return type is
 // fixed to serialise the entity.
-test('show-of-hands tally math — for=5 against=2 abstain=1 → adopted', async ({ page }) => {
+test('show-of-hands tally math — for=5 against=2 abstain=1 → adopted', async ({
+	page,
+}) => {
 	const vr = await createObject(page, ledger, 'voting-round', {
 		votingMethod: 'show-of-hands',
 		isSecret: false,
@@ -259,7 +358,9 @@ test('show-of-hands tally math — for=5 against=2 abstain=1 → adopted', async
 
 // BUG-B (cast): castVote() has the same `: array` return-type defect — a real
 // vote cast 500s before the tally can ever be computed from cast votes.
-test('casting a vote returns the persisted vote (no return-type 500)', async ({ page }) => {
+test('casting a vote returns the persisted vote (no return-type 500)', async ({
+	page,
+}) => {
 	const s = await seedGovernanceScenario(page, ledger, {
 		quorumRequired: 0,
 		memberCount: 3,
@@ -270,14 +371,22 @@ test('casting a vote returns the persisted vote (no return-type 500)', async ({ 
 	// the persisted vote value.
 	const open = await page.request.post(`${API}/voting-rounds`, {
 		headers: await writeHeaders(page),
-		data: { motionId: s.motionId, meetingId: s.meetingId, votingMethod: 'for-against-abstain', isSecret: false },
+		data: {
+			motionId: s.motionId,
+			meetingId: s.meetingId,
+			votingMethod: 'for-against-abstain',
+			isSecret: false,
+		},
 	})
 	expect(open.status()).toBe(201)
 	const round = await open.json()
-	const cast = await page.request.post(`${API}/voting-rounds/${objId(round)}/cast`, {
-		headers: await writeHeaders(page),
-		data: { value: 'for' },
-	})
+	const cast = await page.request.post(
+		`${API}/voting-rounds/${objId(round)}/cast`,
+		{
+			headers: await writeHeaders(page),
+			data: { value: 'for' },
+		},
+	)
 	expect(cast.status(), 'cast must not 500 on a return-type error').toBe(201)
 	expect((await cast.json()).value).toBe('for')
 })

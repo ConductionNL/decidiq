@@ -29,7 +29,8 @@
  */
 import type { Page } from '@playwright/test'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url.ts'
+
 const OR = `${BASE}/index.php/apps/openregister/api/objects/decidesk`
 
 export interface SeedLedger {
@@ -38,12 +39,45 @@ export interface SeedLedger {
 	created: Record<string, string[]>
 }
 
-/** Schema slugs in safe teardown order (children before parents). */
+/**
+ * The schema a "motion" is stored in.
+ *
+ * ADR-005 (accepted, 2026-06-14) folded the standalone `motion` and `amendment`
+ * schemas into the single `Decision` supertype, discriminated by `decisionType`.
+ * There is no `motion` schema in decidesk_register.json and addressing one
+ * returns 404 "Schema not found: 'motion'".
+ */
+export const MOTION_SCHEMA = 'decision'
+
+/**
+ * Schema slugs in safe teardown order (children before parents).
+ *
+ * ⚠️ A SCHEMA MISSING FROM THIS LIST LEAKS SILENTLY. `cleanupAll()` iterates
+ * THIS array, not `ledger.created`, so an object tracked under a slug that is
+ * absent here is never deleted and `cleanupAll()` still returns cleanly.
+ * `minutes` and `agenda-item` were both created by specs (resolution-minutes)
+ * and both absent, so every CI run left them behind. Repeat offenders found
+ * by the ux-debt-rendering fixture-pollution sweep (2026-08-19):
+ * `board-evaluation` + `evaluation-template` (board-evaluation-workflow) and
+ * `consultation-reaction` + `participatory-budget` + `budget-proposal`
+ * (citizen-participation-workflow) were all created via `createObject()` but
+ * absent from this array — every run of those two workflow specs leaked
+ * those objects onto the shared instance. `board-evaluation` and
+ * `budget-proposal` are ordered ahead of the parents they reference
+ * (`governance-body` / `evaluation-template` and `participatory-budget`
+ * respectively) so the child rows delete first.
+ */
 const TEARDOWN_ORDER = [
 	'vote',
 	'voting-round',
-	'motion',
 	'decision',
+	'minutes',
+	'agenda-item',
+	'board-evaluation',
+	'consultation-reaction',
+	'budget-proposal',
+	'evaluation-template',
+	'participatory-budget',
 	'participant',
 	'meeting',
 	'governance-body',
@@ -62,7 +96,10 @@ async function requesttoken(page: Page): Promise<string> {
 
 /** Build the auth headers (CSRF requesttoken) for a write call. */
 export async function writeHeaders(page: Page): Promise<Record<string, string>> {
-	return { 'Content-Type': 'application/json', requesttoken: await requesttoken(page) }
+	return {
+		'Content-Type': 'application/json',
+		requesttoken: await requesttoken(page),
+	}
 }
 
 /** Pull the UUID out of an OR object response (covers both id shapes). */
@@ -85,7 +122,9 @@ export async function createObject(
 	const headers = await writeHeaders(page)
 	const resp = await page.request.post(`${OR}/${schema}`, { headers, data })
 	if (resp.status() >= 300) {
-		throw new Error(`createObject(${schema}) failed ${resp.status()}: ${await resp.text()}`)
+		throw new Error(
+			`createObject(${schema}) failed ${resp.status()}: ${await resp.text()}`,
+		)
 	}
 	const obj = await resp.json()
 	track(ledger, schema, objId(obj))
@@ -93,23 +132,39 @@ export async function createObject(
 }
 
 /** GET a single OR object by id. Returns null on 404. */
-export async function getObject(page: Page, schema: string, id: string): Promise<any | null> {
-	const resp = await page.request.get(`${OR}/${schema}/${id}`, { headers: { Accept: 'application/json' } })
+export async function getObject(
+	page: Page,
+	schema: string,
+	id: string,
+): Promise<any | null> {
+	const resp = await page.request.get(`${OR}/${schema}/${id}`, {
+		headers: { Accept: 'application/json' },
+	})
 	if (resp.status() === 404) return null
 	if (!resp.ok()) return null
 	return resp.json()
 }
 
 /** List OR objects for a schema (best-effort, limited). */
-export async function listObjects(page: Page, schema: string, limit = 200): Promise<any[]> {
-	const resp = await page.request.get(`${OR}/${schema}?_limit=${limit}`, { headers: { Accept: 'application/json' } })
+export async function listObjects(
+	page: Page,
+	schema: string,
+	limit = 200,
+): Promise<any[]> {
+	const resp = await page.request.get(`${OR}/${schema}?_limit=${limit}`, {
+		headers: { Accept: 'application/json' },
+	})
 	if (!resp.ok()) return []
 	const body = await resp.json()
 	return body.results ?? body.items ?? []
 }
 
 /** Delete one OR object (used by tests that delete through the API for setup). */
-export async function deleteObject(page: Page, schema: string, id: string): Promise<number> {
+export async function deleteObject(
+	page: Page,
+	schema: string,
+	id: string,
+): Promise<number> {
 	const headers = await writeHeaders(page)
 	const resp = await page.request.delete(`${OR}/${schema}/${id}`, { headers })
 	return resp.status()
@@ -135,8 +190,18 @@ export async function seedGovernanceScenario(
 		chairIsAdmin?: boolean
 		meetingLifecycle?: string
 	} = {},
-): Promise<{ governanceBodyId: string; meetingId: string; motionId: string; participantIds: string[] }> {
-	const { quorumRequired = 0, memberCount = 3, chairIsAdmin = true, meetingLifecycle = 'opened' } = opts
+): Promise<{
+	governanceBodyId: string
+	meetingId: string
+	motionId: string
+	participantIds: string[]
+}> {
+	const {
+		quorumRequired = 0,
+		memberCount = 3,
+		chairIsAdmin = true,
+		meetingLifecycle = 'opened',
+	} = opts
 	const tag = `e2e-${ledger.runId}`
 
 	const gb = await createObject(page, ledger, 'governance-body', {
@@ -171,42 +236,128 @@ export async function seedGovernanceScenario(
 		participantIds.push(objId(p))
 	}
 
-	const motion = await createObject(page, ledger, 'motion', {
+	// ADR-005 (accepted): `Decision` is the universal supertype. The standalone
+	// `motion` and `amendment` schemas were REMOVED from decidesk_register.json —
+	// a motion is a Decision carrying `decisionType: 'motion'`. Seeding schema
+	// `motion` therefore 404s with "Schema not found: 'motion'", which is what
+	// every test in this fixture's dependants was failing on.
+	//
+	// Decision.required[] is [title, text, decisionType] — those three must be
+	// present or the POST is a 400 naming the missing ones. `decisionDate` and
+	// `outcome` are NOT unconditionally required (an in-flight motion has no
+	// outcome); they are enforced at the transition boundary instead, when the
+	// decision enters decided/enacted/archived. This fixture supplies them
+	// anyway so the seeded motion can be driven all the way to a terminal state.
+	// `lifecycle` is [draft, proposed, deliberating, voting, decided, enacted,
+	// archived, withdrawn]: there is no 'debating'. And Decision has NO `meeting`
+	// property (the AgendaItem carries that link), so passing one invents a field.
+	const motion = await createObject(page, ledger, MOTION_SCHEMA, {
+		decisionType: 'motion',
 		title: `${tag}-motion`,
 		text: `${tag} motion body text`,
+		decisionDate: '2026-09-01T10:00:00Z',
+		outcome: 'adopted',
 		motionType: 'motion',
 		proposer: `${tag}-proposer`,
-		lifecycle: 'debating',
+		lifecycle: 'deliberating',
 		submittedAt: '2026-09-01T10:00:00Z',
-		meeting: meetingId,
 	})
 	const motionId = objId(motion)
 
 	return { governanceBodyId, meetingId, motionId, participantIds }
 }
 
-/** Delete every object this run created, children first. Best-effort. */
-export async function cleanupAll(page: Page, ledger: SeedLedger): Promise<void> {
-	const headers = await writeHeaders(page)
-	for (const schema of TEARDOWN_ORDER) {
-		for (const id of ledger.created[schema] ?? []) {
-			await page.request
-				.delete(`${OR}/${schema}/${id}`, { headers })
-				.catch(() => undefined)
-		}
-	}
-	// Sweep any stragglers tagged with this runId (e.g. votes/rounds created by
-	// the app under test, which the ledger never saw).
-	const tag = `e2e-${ledger.runId}`
-	for (const schema of ['vote', 'voting-round', 'motion', 'decision', 'participant', 'meeting', 'governance-body']) {
-		const objs = await listObjects(page, schema)
-		for (const o of objs) {
-			const name = (o.title ?? o.name ?? o.displayName ?? '') as string
-			if (name.startsWith(tag)) {
-				await page.request.delete(`${OR}/${schema}/${objId(o)}`, { headers }).catch(() => undefined)
-			}
-		}
+/**
+ * How many deletes are in flight at once.
+ *
+ * Cleanup used to issue every DELETE serially — one full HTTP round-trip per
+ * object, plus six listObjects() sweeps, all inside an afterAll hook that
+ * inherits the 20s test timeout. On CI that hook timed out, and because a
+ * failing afterAll is attributed to the LAST test in the file it kept
+ * re-accusing whichever spec happened to sit at the bottom
+ * (voting-quorum-workflow: first the tally-tie case, then "casting a vote
+ * returns the persisted vote"). Neither test was broken; the teardown was.
+ *
+ * Deleting in bounded batches keeps the wall time proportional to
+ * ceil(n / CLEANUP_CONCURRENCY) round-trips instead of n, which is what puts
+ * teardown back inside the budget. The budget itself is UNCHANGED — nothing
+ * here relaxes a timeout or an assertion; the work simply stops being serial.
+ *
+ * Bounded rather than unbounded (`Promise.all` over everything) on purpose: an
+ * unbounded fan-out against a single-worker `php -S` CI server trades a slow
+ * teardown for a connection-starved one.
+ */
+const CLEANUP_CONCURRENCY = 8
+
+/** Issue DELETEs in bounded-concurrency batches. Best-effort, never throws. */
+async function deleteAll(
+	page: Page,
+	urls: string[],
+	headers: Record<string, string>,
+): Promise<void> {
+	for (let i = 0; i < urls.length; i += CLEANUP_CONCURRENCY) {
+		await Promise.all(
+			urls
+				.slice(i, i + CLEANUP_CONCURRENCY)
+				.map((url) =>
+					page.request.delete(url, { headers }).catch(() => undefined),
+				),
+		)
 	}
 }
 
-export { BASE, OR, objId }
+/** Delete every object this run created, children first. Best-effort. */
+export async function cleanupAll(page: Page, ledger: SeedLedger): Promise<void> {
+	const headers = await writeHeaders(page)
+
+	// Children first: TEARDOWN_ORDER is a dependency order, so the batches stay
+	// per-schema. Parallelism WITHIN a schema is safe; across schemas it is not.
+	for (const schema of TEARDOWN_ORDER) {
+		const ids = ledger.created[schema] ?? []
+		await deleteAll(
+			page,
+			ids.map((id) => `${OR}/${schema}/${id}`),
+			headers,
+		)
+	}
+
+	// Sweep any stragglers tagged with this runId (e.g. votes/rounds created by
+	// the app under test, which the ledger never saw).
+	const tag = `e2e-${ledger.runId}`
+	const sweepSchemas = [
+		'vote',
+		'voting-round',
+		'decision',
+		'board-evaluation',
+		'consultation-reaction',
+		'budget-proposal',
+		'evaluation-template',
+		'participatory-budget',
+		'participant',
+		'meeting',
+		'governance-body',
+	]
+
+	// The six listObjects() reads have no ordering constraint between them —
+	// only the deletes do — so they run concurrently and the per-schema deletes
+	// then proceed in dependency order as before.
+	const listings = await Promise.all(
+		sweepSchemas.map(async (schema) => ({
+			schema,
+			objs: await listObjects(page, schema),
+		})),
+	)
+
+	for (const { schema, objs } of listings) {
+		const urls = objs
+			.filter((o) =>
+				String(
+					(o.title ?? o.name ?? o.displayName ?? '') as string,
+				).startsWith(tag),
+			)
+			.map((o) => `${OR}/${schema}/${objId(o)}`)
+		await deleteAll(page, urls, headers)
+	}
+}
+
+export { BASE, objId, OR }

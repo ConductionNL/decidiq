@@ -4,7 +4,7 @@
  * Unit tests for the motion-amendment-v1 co-signer minimum threshold in
  * MotionService::transitionLifecycle():
  *
- * - the submitted -> debating edge is blocked when the motion carries fewer
+ * - the proposed -> deliberating edge is blocked when the motion carries fewer
  *   than motion_min_cosigners co-signers (the rejection message names the
  *   minimum, the current count and the shortfall),
  * - the edge is allowed once the threshold is met,
@@ -33,7 +33,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Service;
 
+use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
+use OCA\Decidesk\Lifecycle\MotionLifecycleTransitioner;
 use OCA\Decidesk\Service\MotionService;
+use OCA\OpenRegister\Contract\ObjectEntityInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use OCP\IUserManager;
 use PHPUnit\Framework\TestCase;
@@ -41,372 +45,436 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
 
 /**
- * Co-signer threshold enforcement matrix for the submitted -> debating edge.
+ * Co-signer threshold enforcement matrix for the proposed -> deliberating edge.
  *
  * @spec openspec/specs/motion-amendment/spec.md
  */
-class MotionServiceCosignerThresholdTest extends TestCase
-{
+class MotionServiceCosignerThresholdTest extends TestCase {
 
-    /**
-     * Captured saveObject() payloads.
-     *
-     * @var \ArrayObject<int, array<string, mixed>>
-     */
-    private \ArrayObject $saves;
+	/**
+	 * Captured saveObject() payloads.
+	 *
+	 * @var \ArrayObject<int, array<string, mixed>>
+	 */
+	private \ArrayObject $saves;
 
+	/**
+	 * Build a MotionService over an in-memory object store double.
+	 *
+	 * @param array<string, array{schema: string, object: array<string, mixed>}> $store Seed objects by id
+	 * @param int $minCoSigners The motion_min_cosigners app-config value
+	 *
+	 * @return MotionService
+	 */
+	private function buildService(array $store, int $minCoSigners): MotionService {
+		$this->saves = new \ArrayObject();
+		$saves = $this->saves;
+		$storeRef = new \ArrayObject($store);
 
-    /**
-     * Build a MotionService over an in-memory object store double.
-     *
-     * @param array<string, array{schema: string, object: array<string, mixed>}> $store        Seed objects by id
-     * @param int                                                                 $minCoSigners The motion_min_cosigners app-config value
-     *
-     * @return MotionService
-     */
-    private function buildService(array $store, int $minCoSigners): MotionService
-    {
-        $this->saves = new \ArrayObject();
-        $saves       = $this->saves;
-        $storeRef    = new \ArrayObject($store);
+		$backend = new class($storeRef, $saves) {
 
-        $objectService = new class($storeRef, $saves) {
+			/**
+			 * Constructor.
+			 *
+			 * @param \ArrayObject $store In-memory object store
+			 * @param \ArrayObject $saves Captured saves
+			 */
+			public function __construct(
+				private \ArrayObject $store,
+				private \ArrayObject $saves,
+			) {
+			}
 
-            /**
-             * Constructor.
-             *
-             * @param \ArrayObject $store In-memory object store
-             * @param \ArrayObject $saves Captured saves
-             */
-            public function __construct(private \ArrayObject $store, private \ArrayObject $saves)
-            {
-            }
+			/**
+			 * Entity-like wrapper around an array payload.
+			 *
+			 * @param array<string, mixed> $object The payload
+			 *
+			 * @return ObjectEntityInterface
+			 */
+			private function wrap(array $object): ObjectEntityInterface {
+				return new class($object) implements ObjectEntityInterface, \JsonSerializable {
+					/**
+					 * Constructor.
+					 *
+					 * @param array<string, mixed> $object The payload
+					 */
+					public function __construct(
+						private array $object,
+					) {
+					}
 
-            /**
-             * Entity-like wrapper around an array payload.
-             *
-             * @param array<string, mixed> $object The payload
-             *
-             * @return object
-             */
-            private function wrap(array $object): object
-            {
-                return new class($object) {
+					/**
+					 * Raw payload like an ObjectEntity.
+					 *
+					 * @return array<string, mixed>
+					 */
+					public function getObject(): array {
+						return $this->object;
+					}
 
-                    /**
-                     * Constructor.
-                     *
-                     * @param array<string, mixed> $object The payload
-                     */
-                    public function __construct(private array $object)
-                    {
-                    }
+					/**
+					 * Serialize like an ObjectEntity.
+					 *
+					 * @return array<string, mixed>
+					 */
+					public function jsonSerialize(): array {
+						return $this->object;
+					}
 
-                    /**
-                     * Raw payload like an ObjectEntity.
-                     *
-                     * @return array<string, mixed>
-                     */
-                    public function getObject(): array
-                    {
-                        return $this->object;
-                    }
+					/**
+					 * The object's own identifier.
+					 *
+					 * @return string|null
+					 */
+					public function getUuid(): ?string {
+						return ($this->object['id'] ?? null);
+					}
 
-                    /**
-                     * Serialize like an ObjectEntity.
-                     *
-                     * @return array<string, mixed>
-                     */
-                    public function jsonSerialize(): array
-                    {
-                        return $this->object;
-                    }
-                };
-            }
+					/**
+					 * Register slug — every seeded row in this suite is decidesk.
+					 *
+					 * @return string|null
+					 */
+					public function getRegister(): ?string {
+						return 'decidesk';
+					}
 
-            /**
-             * Select register (fluent no-op).
-             *
-             * @param string $register Register slug
-             *
-             * @return static
-             */
-            public function setRegister(string $register): static
-            {
-                return $this;
-            }
+					/**
+					 * Schema slug — every seeded row in this suite is a decision.
+					 *
+					 * @return string|null
+					 */
+					public function getSchema(): ?string {
+						return 'decision';
+					}
 
-            /**
-             * Select schema (fluent no-op).
-             *
-             * @param string $schema Schema slug
-             *
-             * @return static
-             */
-            public function setSchema(string $schema): static
-            {
-                return $this;
-            }
+					/**
+					 * Organisation — not modelled by this in-memory store.
+					 *
+					 * @return string|null
+					 */
+					public function getOrganisation(): ?string {
+						return null;
+					}
 
-            /**
-             * Find an object by id.
-             *
-             * @param int|string      $id       Object id
-             * @param string|int|null $register Register slug
-             * @param string|int|null $schema   Schema slug
-             *
-             * @return object|null
-             */
-            public function find(int|string $id, string|int|null $register=null, string|int|null $schema=null): ?object
-            {
-                $row = ($this->store[(string) $id] ?? null);
-                if ($row === null) {
-                    return null;
-                }
+					/**
+					 * Owner — not modelled by this in-memory store.
+					 *
+					 * @return string|null
+					 */
+					public function getOwner(): ?string {
+						return null;
+					}
+				};
+			}
 
-                return $this->wrap($row['object']);
-            }
+			/**
+			 * Select register (fluent no-op).
+			 *
+			 * @param string $register Register slug
+			 *
+			 * @return static
+			 */
+			public function setRegister(string $register): static {
+				return $this;
+			}
 
-            /**
-             * Record the save and upsert the store.
-             *
-             * @param array<string, mixed> $object   Payload
-             * @param string               $register Register slug
-             * @param string               $schema   Schema slug
-             * @param string|null          $uuid     Target uuid for updates
-             *
-             * @return array<string, mixed>
-             */
-            public function saveObject(array $object=[], string $register='', string $schema='', ?string $uuid=null): array
-            {
-                $this->saves->append($object);
-                $id = (string) ($uuid ?? $object['id'] ?? $object['uuid'] ?? ('new-'.count($this->saves)));
-                $this->store[$id] = ['schema' => $schema, 'object' => $object];
-                return $object;
-            }
-        };
+			/**
+			 * Select schema (fluent no-op).
+			 *
+			 * @param string $schema Schema slug
+			 *
+			 * @return static
+			 */
+			public function setSchema(string $schema): static {
+				return $this;
+			}
 
-        $appConfig = $this->createMock(IAppConfig::class);
-        $appConfig->method('getValueString')->willReturnCallback(
-            static function (string $app, string $key, string $default='') use ($minCoSigners): string {
-                if ($key === 'motion_min_cosigners') {
-                    return (string) $minCoSigners;
-                }
+			/**
+			 * Find an object by id.
+			 *
+			 * @param int|string $id Object id
+			 * @param string|int|null $register Register slug
+			 * @param string|int|null $schema Schema slug
+			 *
+			 * @return ObjectEntityInterface|null
+			 */
+			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?ObjectEntityInterface {
+				$row = ($this->store[(string)$id] ?? null);
+				if ($row === null) {
+					return null;
+				}
 
-                return $default;
-            }
-        );
+				return $this->wrap($row['object']);
+			}
 
-        $container = $this->createMock(ContainerInterface::class);
-        $container->method('get')->willReturnCallback(
-            static function (string $id) use ($objectService, $appConfig): object {
-                if ($id === 'OCA\OpenRegister\Service\ObjectService') {
-                    return $objectService;
-                }
+			/**
+			 * Record the save and upsert the store.
+			 *
+			 * @param array<string, mixed> $object Payload
+			 * @param string $register Register slug
+			 * @param string $schema Schema slug
+			 * @param string|null $uuid Target uuid for updates
+			 *
+			 * @return ObjectEntityInterface
+			 */
+			public function saveObject(array $object = [], string $register = '', string $schema = '', ?string $uuid = null): ObjectEntityInterface {
+				$this->saves->append($object);
+				$id = (string)($uuid ?? $object['id'] ?? $object['uuid'] ?? ('new-' . count($this->saves)));
+				$this->store[$id] = ['schema' => $schema, 'object' => $object];
+				return $this->wrap($object);
+			}
+		};
 
-                if ($id === IAppConfig::class) {
-                    return $appConfig;
-                }
+		$appConfig = $this->createMock(IAppConfig::class);
+		$appConfig->method('getValueString')->willReturnCallback(
+			static function (string $app, string $key, string $default = '') use ($minCoSigners): string {
+				if ($key === 'motion_min_cosigners') {
+					return (string)$minCoSigners;
+				}
 
-                throw new \RuntimeException('not wired in test: '.$id);
-            }
-        );
+				return $default;
+			}
+		);
 
-        return new MotionService(
-            container: $container,
-            logger: new NullLogger(),
-            userManager: $this->createMock(IUserManager::class),
-        );
+		// ADR-083/084: the OpenRegister object service is injected as the
+		// published contract rather than pulled from the container, so the
+		// in-memory backend above is exposed through a contract double.
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('setRegister')->willReturnSelf();
+		$objectService->method('setSchema')->willReturnSelf();
+		$objectService->method('find')->willReturnCallback(
+			static fn (int|string $id): ?ObjectEntityInterface => $backend->find($id)
+		);
+		$objectService->method('saveObject')->willReturnCallback(
+			static function (
+				array $object,
+				?array $extend = [],
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				?string $uuid = null,
+			) use ($backend): ObjectEntityInterface {
+				return $backend->saveObject($object, (string)$register, (string)$schema, $uuid);
+			}
+		);
 
-    }//end buildService()
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willReturnCallback(
+			static function (string $id) use ($objectService, $appConfig, &$container): object {
+				if ($id === 'OCA\OpenRegister\Service\ObjectService') {
+					return $objectService;
+				}
 
+				if ($id === IAppConfig::class) {
+					return $appConfig;
+				}
 
-    /**
-     * Seed a motion with the given lifecycle and co-signer count.
-     *
-     * @param string $lifecycle    Current lifecycle state
-     * @param int    $coSignerCount Number of co-signers
-     *
-     * @return array<string, array{schema: string, object: array<string, mixed>}>
-     */
-    private static function motionStore(string $lifecycle, int $coSignerCount): array
-    {
-        $coSigners = [];
-        for ($i = 0; $i < $coSignerCount; $i++) {
-            $coSigners[] = 'cosigner-'.$i;
-        }
+				// The state machine moved out of MotionService into
+				// MotionLifecycleTransitioner; MotionService now delegates to
+				// it. The REAL transitioner is wired here rather than a double,
+				// because the whole subject of this file is the co-signer gate
+				// that lives inside it — a double would have this suite assert
+				// against a stand-in for the code it exists to test.
+				if ($id === MotionLifecycleTransitioner::class) {
+					return new MotionLifecycleTransitioner(
+						container: $container,
+						logger: new NullLogger(),
+						guard: new DecisionTransitionGuard(),
+						objectService: $objectService,
+					);
+				}
 
-        return [
-            'motion-1' => [
-                'schema' => 'motion',
-                'object' => [
-                    'id'        => 'motion-1',
-                    'title'     => 'Duurzaamheidsbeleid',
-                    'lifecycle' => $lifecycle,
-                    'coSigners' => $coSigners,
-                ],
-            ],
-        ];
+				throw new \RuntimeException('not wired in test: ' . $id);
+			}
+		);
 
-    }//end motionStore()
+		return new MotionService(
+			container: $container,
+			logger: new NullLogger(),
+			userManager: $this->createMock(IUserManager::class),
+			objectService: $objectService,
+		);
 
+	}//end buildService()
 
-    /**
-     * The submitted -> debating edge is blocked below the threshold, naming
-     * the minimum, the current count and the shortfall.
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return void
-     */
-    public function testBelowThresholdRejected(): void
-    {
-        $service = $this->buildService(self::motionStore('submitted', 1), 2);
+	/**
+	 * Seed a motion with the given lifecycle and co-signer count.
+	 *
+	 * @param string $lifecycle Current lifecycle state
+	 * @param int $coSignerCount Number of co-signers
+	 *
+	 * @return array<string, array{schema: string, object: array<string, mixed>}>
+	 */
+	private static function motionStore(string $lifecycle, int $coSignerCount): array {
+		$coSigners = [];
+		for ($i = 0; $i < $coSignerCount; $i++) {
+			$coSigners[] = 'cosigner-' . $i;
+		}
 
-        try {
-            $service->transitionLifecycle(
-                objectId: 'motion-1',
-                objectType: 'motion',
-                newState: 'debating',
-                actorId: 'alice',
-            );
-            self::fail('A motion below the co-signer threshold must be rejected');
-        } catch (\InvalidArgumentException $e) {
-            self::assertStringContainsString('at least 2', $e->getMessage());
-            self::assertStringContainsString('currently has 1', $e->getMessage());
-            self::assertStringContainsString('1 more needed', $e->getMessage());
-        }
+		return [
+			'motion-1' => [
+				// ADR-005: a motion is a `decision` carrying decisionType=motion.
+				'schema' => 'decision',
+				'object' => [
+					'id' => 'motion-1',
+					'decisionType' => 'motion',
+					'title' => 'Duurzaamheidsbeleid',
+					'lifecycle' => $lifecycle,
+					'coSigners' => $coSigners,
+				],
+			],
+		];
 
-        self::assertCount(0, $this->saves, 'No save should occur on rejection');
+	}//end motionStore()
 
-    }//end testBelowThresholdRejected()
+	/**
+	 * The proposed -> deliberating edge is blocked below the threshold, naming
+	 * the minimum, the current count and the shortfall.
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return void
+	 */
+	public function testBelowThresholdRejected(): void {
+		$service = $this->buildService(self::motionStore('proposed', 1), 2);
 
+		try {
+			$service->transitionLifecycle(
+				objectId: 'motion-1',
+				objectType: 'motion',
+				newState: 'deliberating',
+				actorId: 'alice',
+			);
+			self::fail('A motion below the co-signer threshold must be rejected');
+		} catch (\InvalidArgumentException $e) {
+			self::assertStringContainsString('at least 2', $e->getMessage());
+			self::assertStringContainsString('currently has 1', $e->getMessage());
+			self::assertStringContainsString('1 more needed', $e->getMessage());
+		}
 
-    /**
-     * The edge is allowed once the threshold is met.
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return void
-     */
-    public function testThresholdMetAllowed(): void
-    {
-        $service = $this->buildService(self::motionStore('submitted', 2), 2);
+		self::assertCount(0, $this->saves, 'No save should occur on rejection');
 
-        $service->transitionLifecycle(
-            objectId: 'motion-1',
-            objectType: 'motion',
-            newState: 'debating',
-            actorId: 'alice',
-        );
+	}//end testBelowThresholdRejected()
 
-        self::assertCount(1, $this->saves);
-        self::assertSame('debating', $this->saves[0]['lifecycle']);
+	/**
+	 * The edge is allowed once the threshold is met.
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return void
+	 */
+	public function testThresholdMetAllowed(): void {
+		$service = $this->buildService(self::motionStore('proposed', 2), 2);
 
-    }//end testThresholdMetAllowed()
+		$service->transitionLifecycle(
+			objectId: 'motion-1',
+			objectType: 'motion',
+			newState: 'deliberating',
+			actorId: 'alice',
+		);
 
+		self::assertCount(1, $this->saves);
+		self::assertSame('deliberating', $this->saves[0]['lifecycle']);
 
-    /**
-     * The default threshold (0) disables the check entirely.
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return void
-     */
-    public function testDefaultThresholdDisablesCheck(): void
-    {
-        $service = $this->buildService(self::motionStore('submitted', 0), 0);
+	}//end testThresholdMetAllowed()
 
-        $service->transitionLifecycle(
-            objectId: 'motion-1',
-            objectType: 'motion',
-            newState: 'debating',
-            actorId: 'alice',
-        );
+	/**
+	 * The default threshold (0) disables the check entirely.
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return void
+	 */
+	public function testDefaultThresholdDisablesCheck(): void {
+		$service = $this->buildService(self::motionStore('proposed', 0), 0);
 
-        self::assertCount(1, $this->saves);
+		$service->transitionLifecycle(
+			objectId: 'motion-1',
+			objectType: 'motion',
+			newState: 'deliberating',
+			actorId: 'alice',
+		);
 
-    }//end testDefaultThresholdDisablesCheck()
+		self::assertCount(1, $this->saves);
 
+	}//end testDefaultThresholdDisablesCheck()
 
-    /**
-     * The threshold only gates the submitted -> debating edge, not other edges.
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return void
-     */
-    public function testOtherEdgeNotGated(): void
-    {
-        // debating -> voting with zero co-signers and a threshold of 2 must succeed.
-        $service = $this->buildService(self::motionStore('debating', 0), 2);
+	/**
+	 * The threshold only gates the proposed -> deliberating edge, not other edges.
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return void
+	 */
+	public function testOtherEdgeNotGated(): void {
+		// deliberating -> voting with zero co-signers and a threshold of 2 must succeed.
+		$service = $this->buildService(self::motionStore('deliberating', 0), 2);
 
-        $service->transitionLifecycle(
-            objectId: 'motion-1',
-            objectType: 'motion',
-            newState: 'voting',
-            actorId: 'alice',
-        );
+		$service->transitionLifecycle(
+			objectId: 'motion-1',
+			objectType: 'motion',
+			newState: 'voting',
+			actorId: 'alice',
+		);
 
-        self::assertCount(1, $this->saves);
-        self::assertSame('voting', $this->saves[0]['lifecycle']);
+		self::assertCount(1, $this->saves);
+		self::assertSame('voting', $this->saves[0]['lifecycle']);
 
-    }//end testOtherEdgeNotGated()
+	}//end testOtherEdgeNotGated()
 
+	/**
+	 * Amendments are never gated by the motion co-signer threshold.
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return void
+	 */
+	public function testAmendmentNotGated(): void {
+		$store = [
+			'amendment-1' => [
+				// ADR-005: an amendment is a `decision` carrying decisionType=amendment.
+				'schema' => 'decision',
+				'object' => [
+					'id' => 'amendment-1',
+					'decisionType' => 'amendment',
+					'lifecycle' => 'proposed',
+				],
+			],
+		];
 
-    /**
-     * Amendments are never gated by the motion co-signer threshold.
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return void
-     */
-    public function testAmendmentNotGated(): void
-    {
-        $store = [
-            'amendment-1' => [
-                'schema' => 'amendment',
-                'object' => [
-                    'id'        => 'amendment-1',
-                    'lifecycle' => 'submitted',
-                ],
-            ],
-        ];
+		$service = $this->buildService($store, 2);
 
-        $service = $this->buildService($store, 2);
+		$service->transitionLifecycle(
+			objectId: 'amendment-1',
+			objectType: 'amendment',
+			newState: 'deliberating',
+			actorId: 'alice',
+		);
 
-        $service->transitionLifecycle(
-            objectId: 'amendment-1',
-            objectType: 'amendment',
-            newState: 'debating',
-            actorId: 'alice',
-        );
+		self::assertCount(1, $this->saves);
 
-        self::assertCount(1, $this->saves);
+	}//end testAmendmentNotGated()
 
-    }//end testAmendmentNotGated()
+	/**
+	 * An empty actorId is rejected before any threshold check (the #317 guard).
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return void
+	 */
+	public function testEmptyActorRejected(): void {
+		$service = $this->buildService(self::motionStore('proposed', 5), 2);
 
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessageMatches('/actorId/');
 
-    /**
-     * An empty actorId is rejected before any threshold check (the #317 guard).
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return void
-     */
-    public function testEmptyActorRejected(): void
-    {
-        $service = $this->buildService(self::motionStore('submitted', 5), 2);
+		$service->transitionLifecycle(
+			objectId: 'motion-1',
+			objectType: 'motion',
+			newState: 'deliberating',
+			actorId: '',
+		);
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessageMatches('/actorId/');
-
-        $service->transitionLifecycle(
-            objectId: 'motion-1',
-            objectType: 'motion',
-            newState: 'debating',
-            actorId: '',
-        );
-
-    }//end testEmptyActorRejected()
+	}//end testEmptyActorRejected()
 }//end class

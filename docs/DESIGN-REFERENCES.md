@@ -661,7 +661,7 @@ Features not currently in FEATURES.md but commonly present in governance and boa
 |  | VERSION INFO                                  Decidesk v0.1.0  |   |
 |  |                                                                 |   |
 |  | Nextcloud 30.0.0  |  PHP 8.3  |  Database: PostgreSQL 16       |   |
-|  | License: AGPL-3.0  |  Author: ConductionNL                     |   |
+|  | License: EUPL-1.2   |  Author: ConductionNL                    |   |
 |  | [Documentation]  [Report Issue]  [GitHub]                       |   |
 |  +----------------------------------------------------------------+   |
 |                                                                       |

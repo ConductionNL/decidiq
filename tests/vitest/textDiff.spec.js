@@ -8,7 +8,12 @@
  * @spec openspec/specs/motion-amendment/spec.md
  */
 import { describe, it, expect } from 'vitest'
-import { diffWords, changeMagnitude, suggestVotingOrder, tokenizeWords } from '../../src/utils/textDiff.js'
+import {
+	diffWords,
+	changeMagnitude,
+	suggestVotingOrder,
+	tokenizeWords,
+} from '../../src/utils/textDiff.js'
 
 describe('tokenizeWords', () => {
 	it('returns [] for empty / non-string input', () => {
@@ -53,10 +58,12 @@ describe('diffWords', () => {
 	})
 
 	it('detects a single word substitution inside an unchanged sentence', () => {
-		expect(diffWords(
-			'de raad besluit het budget te verlagen',
-			'de raad besluit het budget te verhogen',
-		)).toEqual([
+		expect(
+			diffWords(
+				'de raad besluit het budget te verlagen',
+				'de raad besluit het budget te verhogen',
+			),
+		).toEqual([
 			{ type: 'equal', text: 'de raad besluit het budget te' },
 			{ type: 'removed', text: 'verlagen' },
 			{ type: 'added', text: 'verhogen' },
@@ -64,10 +71,12 @@ describe('diffWords', () => {
 	})
 
 	it('detects an insertion without flagging surrounding words', () => {
-		expect(diffWords(
-			'zonnepanelen op gemeentelijke gebouwen',
-			'zonnepanelen op alle gemeentelijke gebouwen',
-		)).toEqual([
+		expect(
+			diffWords(
+				'zonnepanelen op gemeentelijke gebouwen',
+				'zonnepanelen op alle gemeentelijke gebouwen',
+			),
+		).toEqual([
 			{ type: 'equal', text: 'zonnepanelen op' },
 			{ type: 'added', text: 'alle' },
 			{ type: 'equal', text: 'gemeentelijke gebouwen' },
@@ -75,10 +84,12 @@ describe('diffWords', () => {
 	})
 
 	it('handles unicode words (diacritics and non-Latin scripts) as single tokens', () => {
-		expect(diffWords(
-			'financiële situatie van de gemeente',
-			'financiële положение van de gemeente',
-		)).toEqual([
+		expect(
+			diffWords(
+				'financiële situatie van de gemeente',
+				'financiële положение van de gemeente',
+			),
+		).toEqual([
 			{ type: 'equal', text: 'financiële' },
 			{ type: 'removed', text: 'situatie' },
 			{ type: 'added', text: 'положение' },
@@ -95,13 +106,19 @@ describe('diffWords', () => {
 	})
 
 	it('round-trips: equal+removed reconstruct the original, equal+added the proposal', () => {
-		const original = 'de raad verzoekt het college om voor januari een plan te presenteren'
-		const proposed = 'de raad draagt het college op om vóór maart een gedetailleerd plan te presenteren'
+		const original =
+			'de raad verzoekt het college om voor januari een plan te presenteren'
+		const proposed =
+			'de raad draagt het college op om vóór maart een gedetailleerd plan te presenteren'
 		const segments = diffWords(original, proposed)
 		const rebuiltOriginal = segments
-			.filter((s) => s.type !== 'added').map((s) => s.text).join(' ')
+			.filter((s) => s.type !== 'added')
+			.map((s) => s.text)
+			.join(' ')
 		const rebuiltProposed = segments
-			.filter((s) => s.type !== 'removed').map((s) => s.text).join(' ')
+			.filter((s) => s.type !== 'removed')
+			.map((s) => s.text)
+			.join(' ')
 		expect(tokenizeWords(rebuiltOriginal)).toEqual(tokenizeWords(original))
 		expect(tokenizeWords(rebuiltProposed)).toEqual(tokenizeWords(proposed))
 	})
@@ -135,28 +152,59 @@ describe('changeMagnitude', () => {
 })
 
 describe('suggestVotingOrder', () => {
-	const motionText = 'de raad besluit het budget voor cultuur met tien procent te verhogen'
+	const motionText =
+		'de raad besluit het budget voor cultuur met tien procent te verhogen'
 
 	it('orders most far-reaching first', () => {
-		const small = { id: 's', title: 'small', submittedAt: '2026-01-02', proposedText: 'de raad besluit het budget voor cultuur met twintig procent te verhogen' }
-		const big = { id: 'b', title: 'big', submittedAt: '2026-01-03', proposedText: 'de gemeenteraad draagt het college op een volledig nieuw cultuurplan op te stellen' }
-		expect(suggestVotingOrder([small, big], motionText).map((a) => a.id)).toEqual(['b', 's'])
+		const small = {
+			id: 's',
+			title: 'small',
+			submittedAt: '2026-01-02',
+			proposedText:
+				'de raad besluit het budget voor cultuur met twintig procent te verhogen',
+		}
+		const big = {
+			id: 'b',
+			title: 'big',
+			submittedAt: '2026-01-03',
+			proposedText:
+				'de gemeenteraad draagt het college op een volledig nieuw cultuurplan op te stellen',
+		}
+		expect(
+			suggestVotingOrder([small, big], motionText).map((a) => a.id),
+		).toEqual(['b', 's'])
 	})
 
 	it('falls back to the amendment text when proposedText is unset', () => {
-		const legacy = { id: 'l', text: 'volledig andere tekst zonder enige overlap met de motie überhaupt', submittedAt: '2026-01-01' }
-		const minor = { id: 'm', proposedText: 'de raad besluit het budget voor cultuur met elf procent te verhogen', submittedAt: '2026-01-01' }
-		expect(suggestVotingOrder([minor, legacy], motionText).map((a) => a.id)).toEqual(['l', 'm'])
+		const legacy = {
+			id: 'l',
+			text: 'volledig andere tekst zonder enige overlap met de motie überhaupt',
+			submittedAt: '2026-01-01',
+		}
+		const minor = {
+			id: 'm',
+			proposedText:
+				'de raad besluit het budget voor cultuur met elf procent te verhogen',
+			submittedAt: '2026-01-01',
+		}
+		expect(
+			suggestVotingOrder([minor, legacy], motionText).map((a) => a.id),
+		).toEqual(['l', 'm'])
 	})
 
 	it('breaks magnitude ties by earlier submittedAt', () => {
 		const first = { id: '1', proposedText: 'x', submittedAt: '2026-01-01' }
 		const second = { id: '2', proposedText: 'y', submittedAt: '2026-02-01' }
-		expect(suggestVotingOrder([second, first], 'x').map((a) => a.id)).toEqual(['2', '1'])
+		expect(suggestVotingOrder([second, first], 'x').map((a) => a.id)).toEqual([
+			'2',
+			'1',
+		])
 		// equal magnitude case
 		const tieA = { id: 'a', proposedText: 'p q', submittedAt: '2026-01-01' }
 		const tieB = { id: 'b', proposedText: 'r s', submittedAt: '2026-02-01' }
-		expect(suggestVotingOrder([tieB, tieA], 'p q r s').map((a) => a.id)).toEqual(['a', 'b'])
+		expect(suggestVotingOrder([tieB, tieA], 'p q r s').map((a) => a.id)).toEqual(
+			['a', 'b'],
+		)
 	})
 
 	it('does not mutate its input and tolerates empty input', () => {

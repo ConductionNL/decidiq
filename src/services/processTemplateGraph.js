@@ -55,7 +55,12 @@ export function validateStateMachineGraph(template) {
 	for (const t of Array.isArray(sm.transitions) ? sm.transitions : []) {
 		const from = t?.from
 		const to = t?.to
-		if (typeof from !== 'string' || from === '' || typeof to !== 'string' || to === '') {
+		if (
+			typeof from !== 'string'
+			|| from === ''
+			|| typeof to !== 'string'
+			|| to === ''
+		) {
 			errors.push('Each transition must declare non-empty from and to states.')
 			continue
 		}
@@ -76,7 +81,9 @@ export function validateStateMachineGraph(template) {
 
 	for (const name of stateNames) {
 		if (!inbound.has(name) && !outbound.has(name) && name !== initialState) {
-			errors.push(`State '${name}' is unreachable: no transitions reference it.`)
+			errors.push(
+				`State '${name}' is unreachable: no transitions reference it.`,
+			)
 		}
 	}
 

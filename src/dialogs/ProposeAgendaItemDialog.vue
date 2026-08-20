@@ -16,7 +16,14 @@
 		data-testid="propose-item-dialog"
 		@closing="$emit('close')">
 		<template #default>
-			<p>{{ t('decidesk', 'Fill in the agenda item details. The chair will approve or reject your proposal.') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'Fill in the agenda item details. The chair will approve or reject your proposal.',
+					)
+				}}
+			</p>
 			<NcTextField
 				v-model="title"
 				:label="t('decidesk', 'Title')"
@@ -28,7 +35,9 @@
 				:placeholder="t('decidesk', 'Describe the agenda item')" />
 		</template>
 		<template #actions>
-			<NcButton :disabled="!title" @click="$emit('submit', { title, description })">
+			<NcButton
+				:disabled="!title"
+				@click="$emit('submit', { title, description })">
 				{{ t('decidesk', 'Submit proposal') }}
 			</NcButton>
 		</template>

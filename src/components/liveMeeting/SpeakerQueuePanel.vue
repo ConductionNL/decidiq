@@ -16,7 +16,10 @@
  @spec openspec/specs/meeting-efficiency/spec.md
 -->
 <template>
-	<section class="speaker-queue" data-testid="speaker-queue-panel" :aria-label="t('decidesk', 'Speaker queue')">
+	<section
+		class="speaker-queue"
+		data-testid="speaker-queue-panel"
+		:aria-label="t('decidesk', 'Speaker queue')">
 		<div class="speaker-queue__header">
 			<h4 class="speaker-queue__title">
 				{{ t('decidesk', 'Speaker queue') }}
@@ -27,8 +30,8 @@
 				</label>
 				<NcTextField
 					id="speaker-queue-limit"
+					v-model="limitMinutes"
 					type="number"
-					:value.sync="limitMinutes"
 					:label="t('decidesk', 'Speaking limit (min)')"
 					data-testid="speaker-queue-limit-input"
 					min="0" />
@@ -39,12 +42,12 @@
 			<NcSelect
 				v-model="selectedParticipant"
 				:options="participantOptions"
-				:input-label="t('decidesk', 'Add speaker to queue')"
+				:inputLabel="t('decidesk', 'Add speaker to queue')"
 				:placeholder="t('decidesk', 'Select a participant')"
 				label="label"
 				data-testid="speaker-queue-add-select" />
 			<NcButton
-				type="primary"
+				variant="primary"
 				:disabled="!selectedParticipant"
 				data-testid="speaker-queue-add-button"
 				:aria-label="t('decidesk', 'Add to queue')"
@@ -53,7 +56,8 @@
 			</NcButton>
 		</div>
 
-		<ol v-if="queue.length"
+		<ol
+			v-if="queue.length"
 			class="speaker-queue__list"
 			role="list"
 			data-testid="speaker-queue-list">
@@ -67,10 +71,21 @@
 				}"
 				role="listitem"
 				:aria-current="entry.speaking ? 'true' : undefined"
-				:data-testid="entry.speaking ? 'speaker-queue-current' : 'speaker-queue-waiting'">
-				<span class="speaker-queue__order" aria-hidden="true">{{ idx + 1 }}</span>
+				:data-testid="
+					entry.speaking
+						? 'speaker-queue-current'
+						: 'speaker-queue-waiting'
+				">
+				<span class="speaker-queue__order" aria-hidden="true">{{
+					idx + 1
+				}}</span>
 				<span class="speaker-queue__name">{{ entry.displayName }}</span>
-				<span class="speaker-queue__elapsed" :class="{ 'speaker-queue__elapsed--over': entry.speaking && overLimit(entry) }">
+				<span
+					class="speaker-queue__elapsed"
+					:class="{
+						'speaker-queue__elapsed--over':
+							entry.speaking && overLimit(entry),
+					}">
 					{{ elapsedText(entry) }}
 				</span>
 				<span
@@ -85,38 +100,56 @@
 						v-if="!entry.speaking"
 						size="small"
 						data-testid="speaker-queue-give-floor"
-						:aria-label="t('decidesk', 'Give floor to {name}', { name: entry.displayName })"
+						:aria-label="
+							t('decidesk', 'Give floor to {name}', {
+								name: entry.displayName,
+							})
+						"
 						@click="giveFloor(entry.participantId)">
 						{{ t('decidesk', 'Give floor') }}
 					</NcButton>
 					<NcButton
 						v-else
 						size="small"
-						type="secondary"
+						variant="secondary"
 						data-testid="speaker-queue-stop"
-						:aria-label="t('decidesk', 'Stop {name}', { name: entry.displayName })"
+						:aria-label="
+							t('decidesk', 'Stop {name}', { name: entry.displayName })
+						"
 						@click="stop">
 						{{ t('decidesk', 'Stop') }}
 					</NcButton>
 					<NcButton
 						size="small"
 						:disabled="idx === 0"
-						:aria-label="t('decidesk', 'Move {name} up', { name: entry.displayName })"
+						:aria-label="
+							t('decidesk', 'Move {name} up', {
+								name: entry.displayName,
+							})
+						"
 						@click="move(entry.participantId, -1)">
 						↑
 					</NcButton>
 					<NcButton
 						size="small"
 						:disabled="idx === queue.length - 1"
-						:aria-label="t('decidesk', 'Move {name} down', { name: entry.displayName })"
+						:aria-label="
+							t('decidesk', 'Move {name} down', {
+								name: entry.displayName,
+							})
+						"
 						@click="move(entry.participantId, 1)">
 						↓
 					</NcButton>
 					<NcButton
 						size="small"
-						type="tertiary"
+						variant="tertiary"
 						data-testid="speaker-queue-remove"
-						:aria-label="t('decidesk', 'Remove {name} from queue', { name: entry.displayName })"
+						:aria-label="
+							t('decidesk', 'Remove {name} from queue', {
+								name: entry.displayName,
+							})
+						"
 						@click="remove(entry.participantId)">
 						✕
 					</NcButton>
@@ -131,16 +164,16 @@
 
 <script>
 import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
+import { formatClock } from '../../utils/meetingTimer.js'
 import {
 	addSpeaker,
-	removeSpeaker,
+	isOverLimit,
 	moveSpeaker,
+	removeSpeaker,
+	speakerElapsedSeconds,
 	startSpeaker,
 	stopSpeaker,
-	speakerElapsedSeconds,
-	isOverLimit,
 } from '../../utils/speakerQueue.js'
-import { formatClock } from '../../utils/meetingTimer.js'
 
 /**
  * @spec openspec/specs/meeting-efficiency/spec.md
@@ -172,22 +205,25 @@ export default {
 			const m = Number(this.limitMinutes)
 			return Number.isFinite(m) && m > 0 ? m * 60 : null
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		participantOptions() {
-			const queued = new Set(this.queue.map(e => e.participantId))
+			const queued = new Set(this.queue.map((e) => e.participantId))
 			return this.participants
-				.filter(p => !queued.has(p.id))
-				.map(p => ({ id: p.id, label: p.displayName || p.name || p.id }))
+				.filter((p) => !queued.has(p.id))
+				.map((p) => ({ id: p.id, label: p.displayName || p.name || p.id }))
 		},
 	},
 
 	/** @spec exclude lifecycle hook; starts the 1s render tick only */
 	mounted() {
-		this.intervalId = setInterval(() => { this.now = Date.now() }, 1000)
+		this.intervalId = setInterval(() => {
+			this.now = Date.now()
+		}, 1000)
 	},
 
 	/** @spec exclude lifecycle teardown; clears the render interval */
-	beforeDestroy() {
+	beforeUnmount() {
 		if (this.intervalId) clearInterval(this.intervalId)
 	},
 
@@ -197,11 +233,15 @@ export default {
 			if (!this.selectedParticipant) return
 			this.queue = addSpeaker(
 				this.queue,
-				{ id: this.selectedParticipant.id, displayName: this.selectedParticipant.label },
+				{
+					id: this.selectedParticipant.id,
+					displayName: this.selectedParticipant.label,
+				},
 				Date.now(),
 			)
 			this.selectedParticipant = null
 		},
+
 		/**
 		 * @param participantId
 		 * @spec openspec/specs/meeting-efficiency/spec.md
@@ -209,6 +249,7 @@ export default {
 		remove(participantId) {
 			this.queue = removeSpeaker(this.queue, participantId)
 		},
+
 		/**
 		 * @param participantId
 		 * @param direction
@@ -217,21 +258,28 @@ export default {
 		move(participantId, direction) {
 			this.queue = moveSpeaker(this.queue, participantId, direction)
 		},
+
 		/**
 		 * @param participantId
 		 * @spec openspec/specs/meeting-efficiency/spec.md
 		 */
 		giveFloor(participantId) {
-			const { queue, stopped } = startSpeaker(this.queue, participantId, Date.now())
+			const { queue, stopped } = startSpeaker(
+				this.queue,
+				participantId,
+				Date.now(),
+			)
 			this.queue = queue
 			if (stopped) this.recordSpeech(stopped)
 		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		stop() {
 			const { queue, stopped } = stopSpeaker(this.queue, Date.now())
 			this.queue = queue
 			if (stopped) this.recordSpeech(stopped)
 		},
+
 		/**
 		 * @param entry
 		 * @spec openspec/specs/meeting-efficiency/spec.md
@@ -239,6 +287,7 @@ export default {
 		elapsedText(entry) {
 			return formatClock(speakerElapsedSeconds(entry, this.now))
 		},
+
 		/**
 		 * @param entry
 		 * @spec openspec/specs/meeting-efficiency/spec.md
@@ -246,6 +295,7 @@ export default {
 		overLimit(entry) {
 			return isOverLimit(entry, this.limitSeconds, this.now)
 		},
+
 		/**
 		 * Persist a completed speech to the EngagementRecord aggregate via the
 		 * existing engagement endpoint (server-side chair/secretary/admin guard).

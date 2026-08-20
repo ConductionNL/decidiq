@@ -11,7 +11,7 @@
  to the in-app vue-router (admin-router gate). Initial config + policy enums
  arrive via IInitialState/loadState.
 
- @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ @spec openspec/specs/public-publication/spec.md
 -->
 <template>
 	<div class="decidesk-pub-settings" data-testid="publication-settings">
@@ -19,10 +19,18 @@
 			{{ t('decidesk', 'Public publication') }}
 		</h3>
 		<p class="decidesk-pub-settings__intro">
-			{{ t('decidesk', 'Configure, per governance body, where adopted decisions, public agendas, and approved minutes are published. Anonymous read access is served exclusively through OpenCatalogi / OpenRegister — never an app-local public page.') }}
+			{{
+				t(
+					'decidesk',
+					'Configure, per governance body, where adopted decisions, public agendas, and approved minutes are published. Anonymous read access is served exclusively through OpenCatalogi / OpenRegister — never an app-local public page.',
+				)
+			}}
 		</p>
 
-		<CnNoteCard v-if="error" type="error" :title="t('decidesk', 'Settings error')">
+		<CnNoteCard
+			v-if="error"
+			type="error"
+			:title="t('decidesk', 'Settings error')">
 			{{ error }}
 		</CnNoteCard>
 		<CnNoteCard v-if="saved" type="success" :title="t('decidesk', 'Saved')">
@@ -35,7 +43,8 @@
 			{{ t('decidesk', 'No governance bodies found.') }}
 		</p>
 
-		<div v-for="body in bodies"
+		<div
+			v-for="body in bodies"
 			v-else
 			:key="body.id"
 			class="decidesk-pub-settings__body"
@@ -48,38 +57,38 @@
 						v-model="config[body.id].catalog"
 						type="text"
 						:data-testid="`publication-catalog-${body.id}`"
-						:placeholder="t('decidesk', 'Catalog id')">
+						:placeholder="t('decidesk', 'Catalog id')" />
 				</label>
 				<NcSelect
 					v-model="config[body.id].policy.decision"
-					:input-label="t('decidesk', 'Decision policy')"
+					:inputLabel="t('decidesk', 'Decision policy')"
 					:options="policyOptions"
-					:reduce="o => o.value"
+					:reduce="(o) => o.value"
 					:data-testid="`publication-policy-decision-${body.id}`" />
 				<NcSelect
 					v-model="config[body.id].policy.agenda"
-					:input-label="t('decidesk', 'Agenda policy')"
+					:inputLabel="t('decidesk', 'Agenda policy')"
 					:options="policyOptions"
-					:reduce="o => o.value"
+					:reduce="(o) => o.value"
 					:data-testid="`publication-policy-agenda-${body.id}`" />
 				<NcSelect
 					v-model="config[body.id].policy.minutes"
-					:input-label="t('decidesk', 'Minutes policy')"
+					:inputLabel="t('decidesk', 'Minutes policy')"
 					:options="policyOptions"
-					:reduce="o => o.value"
+					:reduce="(o) => o.value"
 					:data-testid="`publication-policy-minutes-${body.id}`" />
 				<NcSelect
 					v-model="config[body.id].attendance"
-					:input-label="t('decidesk', 'Minutes attendance rendering')"
+					:inputLabel="t('decidesk', 'Minutes attendance rendering')"
 					:options="attendanceOptions"
-					:reduce="o => o.value"
+					:reduce="(o) => o.value"
 					:data-testid="`publication-attendance-${body.id}`" />
 			</div>
 		</div>
 
 		<NcButton
 			v-if="bodies.length"
-			type="primary"
+			variant="primary"
 			data-testid="publication-settings-save"
 			:disabled="saving"
 			@click="save">
@@ -90,16 +99,19 @@
 
 <script>
 import { CnNoteCard } from '@conduction/nextcloud-vue'
-import { NcButton, NcLoadingIcon, NcSelect } from '@nextcloud/vue'
 import { loadState } from '@nextcloud/initial-state'
 import { generateUrl } from '@nextcloud/router'
+import { NcButton, NcLoadingIcon, NcSelect } from '@nextcloud/vue'
 import { ensureRelationType } from '../../components/tabs/useRelationStore.js'
 
 export default {
 	name: 'PublicationSettings',
 	components: { CnNoteCard, NcButton, NcLoadingIcon, NcSelect },
 	data() {
-		const policies = loadState('decidesk', 'publicationPolicies', { policies: ['manual-only', 'prompt-on-transition'], attendance: ['counts', 'role-holders'] })
+		const policies = loadState('decidesk', 'publicationPolicies', {
+			policies: ['manual-only', 'prompt-on-transition'],
+			attendance: ['counts', 'role-holders'],
+		})
 		return {
 			loading: false,
 			saving: false,
@@ -112,36 +124,45 @@ export default {
 			initialConfig: loadState('decidesk', 'publicationConfig', {}),
 		}
 	},
+
 	computed: {
-		/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+		/** @spec openspec/specs/public-publication/spec.md */
 		policyOptions() {
 			const labels = {
 				'manual-only': this.t('decidesk', 'Manual only'),
 				'prompt-on-transition': this.t('decidesk', 'Prompt on transition'),
 			}
-			return this.policyEnums.map(v => ({ value: v, label: labels[v] || v }))
+			return this.policyEnums.map((v) => ({ value: v, label: labels[v] || v }))
 		},
-		/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+
+		/** @spec openspec/specs/public-publication/spec.md */
 		attendanceOptions() {
 			const labels = {
 				counts: this.t('decidesk', 'Counts only'),
 				'role-holders': this.t('decidesk', 'Names of role-holders'),
 			}
-			return this.attendanceEnums.map(v => ({ value: v, label: labels[v] || v }))
+			return this.attendanceEnums.map((v) => ({
+				value: v,
+				label: labels[v] || v,
+			}))
 		},
 	},
+
 	/** @spec exclude lifecycle hook; only loads bodies + seeds config, framework setup */
 	async mounted() {
 		await this.loadBodies()
 	},
+
 	methods: {
-		/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+		/** @spec openspec/specs/public-publication/spec.md */
 		async loadBodies() {
 			this.loading = true
 			this.error = ''
 			try {
 				const store = ensureRelationType('governance-body')
-				this.bodies = (await store.fetchCollection('governance-body', { _limit: 200 })) || []
+				this.bodies =
+					(await store.fetchCollection('governance-body', { _limit: 200 }))
+					|| []
 				const next = {}
 				for (const body of this.bodies) {
 					const existing = this.initialConfig[body.id] || {}
@@ -152,17 +173,21 @@ export default {
 							agenda: existing.policy?.agenda || 'manual-only',
 							minutes: existing.policy?.minutes || 'manual-only',
 						},
+
 						attendance: existing.attendance || 'counts',
 					}
 				}
 				this.config = next
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load governance bodies.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Failed to load governance bodies.')
 			} finally {
 				this.loading = false
 			}
 		},
-		/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+
+		/** @spec openspec/specs/public-publication/spec.md */
 		async save() {
 			this.saving = true
 			this.saved = false
@@ -172,13 +197,19 @@ export default {
 					generateUrl('/apps/decidesk/api/settings/publication-config'),
 					{
 						method: 'PUT',
-						headers: { Accept: 'application/json', 'Content-Type': 'application/json', requesttoken: window.OC?.requestToken },
+						headers: {
+							Accept: 'application/json',
+							'Content-Type': 'application/json',
+							requesttoken: window.OC?.requestToken,
+						},
 						body: JSON.stringify({ config: this.config }),
 					},
 				)
 				const body = await res.json().catch(() => ({}))
 				if (!res.ok) {
-					throw new Error(body.message || this.t('decidesk', 'Save failed.'))
+					throw new Error(
+						body.message || this.t('decidesk', 'Save failed.'),
+					)
 				}
 				this.saved = true
 			} catch (e) {
@@ -199,10 +230,12 @@ export default {
 	max-width: 700px;
 	margin-block-start: calc(var(--default-grid-baseline) * 3);
 }
+
 .decidesk-pub-settings__title {
 	margin: 0;
 	font-weight: bold;
 }
+
 .decidesk-pub-settings__body {
 	border: 1px solid var(--color-border);
 	border-radius: var(--border-radius-large);
@@ -211,19 +244,23 @@ export default {
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-pub-settings__fields {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-pub-settings__field {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
 }
+
 .decidesk-pub-settings__field input {
 	width: 100%;
 }
+
 .decidesk-pub-settings__intro,
 .decidesk-pub-settings__empty {
 	color: var(--color-text-maxcontrast);

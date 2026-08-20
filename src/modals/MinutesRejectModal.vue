@@ -14,9 +14,16 @@
 		data-testid="minutes-reject-modal"
 		@closing="$emit('close')">
 		<template #default>
-			<p>{{ t('decidesk', 'The minutes return to draft so the secretary can rework them. A comment explaining the rejection is required.') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'The minutes return to draft so the secretary can rework them. A comment explaining the rejection is required.',
+					)
+				}}
+			</p>
 			<NcTextArea
-				:value.sync="comment"
+				v-model="comment"
 				data-testid="minutes-reject-comment"
 				:label="t('decidesk', 'Rejection comment')"
 				:placeholder="t('decidesk', 'e.g. Attendance list incomplete')"
@@ -24,7 +31,7 @@
 		</template>
 		<template #actions>
 			<NcButton
-				type="error"
+				variant="error"
 				data-testid="minutes-reject-confirm"
 				:disabled="!comment.trim()"
 				@click="$emit('confirm', comment.trim())">

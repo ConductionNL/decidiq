@@ -45,7 +45,9 @@ describe('channel ↔ deliveryMethod mapping', () => {
 	// @spec openspec/specs/user-settings/spec.md
 	it('maps the two toggles onto the storage enum', () => {
 		expect(channelsToDeliveryMethod({ inApp: true, email: true })).toBe('both')
-		expect(channelsToDeliveryMethod({ inApp: true, email: false })).toBe('in-app')
+		expect(channelsToDeliveryMethod({ inApp: true, email: false })).toBe(
+			'in-app',
+		)
 		expect(channelsToDeliveryMethod({ inApp: false, email: true })).toBe('email')
 	})
 
@@ -58,7 +60,10 @@ describe('channel ↔ deliveryMethod mapping', () => {
 			const channels = deliveryMethodToChannels(method)
 			expect(channelsToDeliveryMethod(channels)).toBe(method)
 		}
-		expect(deliveryMethodToChannels('both')).toEqual({ inApp: true, email: true })
+		expect(deliveryMethodToChannels('both')).toEqual({
+			inApp: true,
+			email: true,
+		})
 	})
 })
 
@@ -86,19 +91,40 @@ describe('validation', () => {
 	})
 
 	it('delegation requires an expiry date (automatic expiry)', () => {
-		expect(validateDelegation({ delegate: 'memberB', delegationFrom: '2026-07-01', delegationUntil: '' }))
-			.toBe('expiry-required')
+		expect(
+			validateDelegation({
+				delegate: 'memberB',
+				delegationFrom: '2026-07-01',
+				delegationUntil: '',
+			}),
+		).toBe('expiry-required')
 	})
 
 	it('delegation rejects an inverted period', () => {
-		expect(validateDelegation({ delegate: 'memberB', delegationFrom: '2026-07-14', delegationUntil: '2026-07-01' }))
-			.toBe('inverted-period')
+		expect(
+			validateDelegation({
+				delegate: 'memberB',
+				delegationFrom: '2026-07-14',
+				delegationUntil: '2026-07-01',
+			}),
+		).toBe('inverted-period')
 	})
 
 	it('valid delegation and no-delegation pass', () => {
-		expect(validateDelegation({ delegate: 'memberB', delegationFrom: '2026-07-01', delegationUntil: '2026-07-14' }))
-			.toBeNull()
-		expect(validateDelegation({ delegate: '', delegationFrom: '', delegationUntil: '' })).toBeNull()
+		expect(
+			validateDelegation({
+				delegate: 'memberB',
+				delegationFrom: '2026-07-01',
+				delegationUntil: '2026-07-14',
+			}),
+		).toBeNull()
+		expect(
+			validateDelegation({
+				delegate: '',
+				delegationFrom: '',
+				delegationUntil: '',
+			}),
+		).toBeNull()
 	})
 })
 
@@ -144,9 +170,14 @@ describe('notification preference fetch/save envelopes', () => {
 	})
 
 	it('surfaces the 422 message from the error envelope', async () => {
-		mockFetchOnce({ ok: false, status: 422, json: { message: 'Invalid deliveryMethod.' } })
-		await expect(saveNotificationPreference({ deliveryMethod: 'pigeon' }))
-			.rejects.toThrow('Invalid deliveryMethod.')
+		mockFetchOnce({
+			ok: false,
+			status: 422,
+			json: { message: 'Invalid deliveryMethod.' },
+		})
+		await expect(
+			saveNotificationPreference({ deliveryMethod: 'pigeon' }),
+		).rejects.toThrow('Invalid deliveryMethod.')
 	})
 
 	it('throws on a failed GET', async () => {
@@ -159,12 +190,16 @@ describe('display preference fetch/save envelopes', () => {
 	// @spec openspec/specs/user-settings/spec.md
 	it('returns the stored value from the {value} envelope', async () => {
 		mockFetchOnce({ json: { value: 'meetings' } })
-		await expect(fetchDisplayPreference('default-view')).resolves.toBe('meetings')
+		await expect(fetchDisplayPreference('default-view')).resolves.toBe(
+			'meetings',
+		)
 	})
 
 	it('falls back to the default when unset or failing', async () => {
 		mockFetchOnce({ json: { value: null } })
-		await expect(fetchDisplayPreference('default-view')).resolves.toBe('dashboard')
+		await expect(fetchDisplayPreference('default-view')).resolves.toBe(
+			'dashboard',
+		)
 		mockFetchOnce({ ok: false, status: 500, json: {} })
 		await expect(fetchDisplayPreference('date-format')).resolves.toBe('locale')
 	})

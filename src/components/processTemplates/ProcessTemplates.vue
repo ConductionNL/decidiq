@@ -12,10 +12,15 @@
 <template>
 	<CnSettingsSection
 		:name="t('decidesk', 'Process templates')"
-		:description="t('decidesk', 'Define the state machine, voting rule and quorum policy a governance body follows. Built-in templates are read-only but can be duplicated.')">
+		:description="
+			t(
+				'decidesk',
+				'Define the state machine, voting rule and quorum policy a governance body follows. Built-in templates are read-only but can be duplicated.',
+			)
+		">
 		<div data-testid="process-templates">
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="process-template-create"
 				@click="openCreate">
 				{{ t('decidesk', 'Create template') }}
@@ -27,14 +32,23 @@
 				{{ store.error }}
 			</p>
 
-			<ul v-if="!store.loading" class="template-list" data-testid="process-template-list">
-				<li v-for="tpl in store.templates"
+			<ul
+				v-if="!store.loading"
+				class="template-list"
+				data-testid="process-template-list">
+				<li
+					v-for="tpl in store.templates"
 					:key="tpl.id || tpl.slug"
 					class="template-row"
 					data-testid="process-template-item">
 					<div class="template-meta">
 						<strong>{{ tpl.name }}</strong>
-						<span v-if="tpl.builtIn" class="builtin-badge" data-testid="process-template-builtin">{{ t('decidesk', 'Built-in') }}</span>
+						<span
+							v-if="tpl.builtIn"
+							class="builtin-badge"
+							data-testid="process-template-builtin"
+							>{{ t('decidesk', 'Built-in') }}</span
+						>
 						<span class="context">{{ tpl.context }}</span>
 					</div>
 					<div class="template-actions">
@@ -53,7 +67,7 @@
 						</NcButton>
 						<NcButton
 							v-if="!tpl.builtIn"
-							type="error"
+							variant="error"
 							:aria-label="t('decidesk', 'Delete')"
 							data-testid="process-template-delete"
 							@click="remove(tpl)">
@@ -73,14 +87,20 @@
 </template>
 
 <script>
-import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import { CnSettingsSection } from '@conduction/nextcloud-vue'
+import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import ProcessTemplateEditModal from '../../modals/ProcessTemplateEditModal.vue'
 import { useProcessTemplatesStore } from '../../store/modules/processTemplates.js'
 
 export default {
 	name: 'ProcessTemplates',
-	components: { NcButton, NcLoadingIcon, CnSettingsSection, ProcessTemplateEditModal },
+	components: {
+		NcButton,
+		NcLoadingIcon,
+		CnSettingsSection,
+		ProcessTemplateEditModal,
+	},
+
 	data() {
 		return {
 			store: useProcessTemplatesStore(),
@@ -88,16 +108,19 @@ export default {
 			editing: null,
 		}
 	},
+
 	/** @spec openspec/specs/process-configuration/spec.md */
 	created() {
 		this.store.fetchTemplates()
 	},
+
 	methods: {
 		/** @spec openspec/specs/process-configuration/spec.md */
 		openCreate() {
 			this.editing = null
 			this.showModal = true
 		},
+
 		/**
 		 * @param tpl
 		 * @spec openspec/specs/process-configuration/spec.md
@@ -106,13 +129,18 @@ export default {
 			this.editing = tpl
 			this.showModal = true
 		},
+
 		/**
 		 * @param tpl
 		 * @spec openspec/specs/process-configuration/spec.md
 		 */
 		async duplicate(tpl) {
-			await this.store.duplicateTemplate(tpl.id || tpl.slug, (tpl.name || 'Template') + ' (copy)')
+			await this.store.duplicateTemplate(
+				tpl.id || tpl.slug,
+				(tpl.name || 'Template') + ' (copy)',
+			)
 		},
+
 		/**
 		 * @param tpl
 		 * @spec openspec/specs/process-configuration/spec.md
@@ -120,6 +148,7 @@ export default {
 		async remove(tpl) {
 			await this.store.deleteTemplate(tpl.id || tpl.slug)
 		},
+
 		/** @spec openspec/specs/process-configuration/spec.md */
 		onSaved() {
 			this.showModal = false

@@ -5,10 +5,10 @@
  Agenda detail-view publication tab — delegates to PublicationActionsTab with
  sourceType="agenda" (publish-decisions-via-opencatalogi).
 
- @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ @spec openspec/specs/public-publication/spec.md
 -->
 <template>
-	<PublicationActionsTab :object-id="objectId" source-type="agenda" />
+	<PublicationActionsTab :objectId="objectId" sourceType="agenda" />
 </template>
 
 <script>

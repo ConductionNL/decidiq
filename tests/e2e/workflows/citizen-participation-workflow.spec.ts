@@ -59,25 +59,36 @@ const past = () => new Date(Date.now() - 86_400_000).toISOString()
 /** Open the participation SPA page and wait for the manifest shell to mount. */
 async function gotoParticipation(page: Page): Promise<void> {
 	await page.goto(`${BASE}/apps/decidesk/participation`)
-	await page.waitForSelector('[data-testid="participation-page"]', { timeout: 20_000 })
+	await page.waitForSelector('[data-testid="participation-page"]', {
+		timeout: 20_000,
+	})
 }
 
 /** Open the moderation queue SPA page. */
 async function gotoModerationQueue(page: Page): Promise<void> {
 	await page.goto(`${BASE}/apps/decidesk/moderation-queue`)
-	await page.waitForSelector('[data-testid="moderation-queue-page"]', { timeout: 20_000 })
+	await page.waitForSelector('[data-testid="moderation-queue-page"]', {
+		timeout: 20_000,
+	})
 }
 
 test.describe('Citizen participation — consultations', () => {
-	test('staff opens a consultation; an authenticated citizen submits a reaction', async ({ page }) => {
+	test('staff opens a consultation; an authenticated citizen submits a reaction', async ({
+		page,
+	}) => {
 		// Seed an OPEN consultation with a future deadline.
-		const consultation = await createObject(page, ledger, 'public-consultation', {
-			title: `E2E consultation ${Date.now()}`,
-			status: 'open',
-			submissionDeadline: future(),
-			anonymousReactionsAllowed: false,
-			moderationPolicy: 'pre-moderation',
-		})
+		const consultation = await createObject(
+			page,
+			ledger,
+			'public-consultation',
+			{
+				title: `E2E consultation ${Date.now()}`,
+				status: 'open',
+				submissionDeadline: future(),
+				anonymousReactionsAllowed: false,
+				moderationPolicy: 'pre-moderation',
+			},
+		)
 
 		await gotoParticipation(page)
 
@@ -86,7 +97,17 @@ test.describe('Citizen participation — consultations', () => {
 		await expect(card).toBeVisible({ timeout: 15_000 })
 
 		// Submit a reaction through the UI.
-		await card.locator('[data-testid="reaction-input"] textarea').first().fill('A constructive idea from e2e')
+		//
+		// `reaction-input` IS the <textarea>, not a wrapper around one:
+		// @nextcloud/vue v9's NcTextArea declares `inheritAttrs: false` and
+		// spreads `$attrs` onto its inner <textarea> element, so the
+		// `data-testid` written on <NcTextArea> in ParticipationPage.vue lands on
+		// the textarea itself. `[data-testid="reaction-input"] textarea` asks for
+		// a textarea DESCENDANT of the textarea and can never match.
+		await card
+			.locator('[data-testid="reaction-input"]')
+			.first()
+			.fill('A constructive idea from e2e')
 		await card.locator('[data-testid="reaction-submit"]').click()
 
 		// The submission round-trips through the participation intake endpoint; the
@@ -95,13 +116,20 @@ test.describe('Citizen participation — consultations', () => {
 		expect(objId(consultation)).toBeTruthy()
 	})
 
-	test('moderator approves then rejects reactions from the queue', async ({ page }) => {
-		const consultation = await createObject(page, ledger, 'public-consultation', {
-			title: `E2E moderation ${Date.now()}`,
-			status: 'open',
-			submissionDeadline: future(),
-			moderationPolicy: 'pre-moderation',
-		})
+	test('moderator approves then rejects reactions from the queue', async ({
+		page,
+	}) => {
+		const consultation = await createObject(
+			page,
+			ledger,
+			'public-consultation',
+			{
+				title: `E2E moderation ${Date.now()}`,
+				status: 'open',
+				submissionDeadline: future(),
+				moderationPolicy: 'pre-moderation',
+			},
+		)
 		const cid = objId(consultation)
 
 		// Seed two pending reactions directly (PII-free).
@@ -110,58 +138,95 @@ test.describe('Citizen participation — consultations', () => {
 			moderationStatus: 'pending',
 			submitterId: 'admin',
 			submittedAt: new Date().toISOString(),
-			relations: [{ register: 'decidesk', schema: 'public-consultation', id: cid }],
+			relations: [
+				{ register: 'decidesk', schema: 'public-consultation', id: cid },
+			],
 		})
 		await createObject(page, ledger, 'consultation-reaction', {
 			body: 'Reject me',
 			moderationStatus: 'pending',
 			submitterId: 'admin',
 			submittedAt: new Date().toISOString(),
-			relations: [{ register: 'decidesk', schema: 'public-consultation', id: cid }],
+			relations: [
+				{ register: 'decidesk', schema: 'public-consultation', id: cid },
+			],
 		})
 
 		await gotoModerationQueue(page)
 
-		const items = page.locator('[data-testid="moderation-queue-item"]')
+		// The queue rows are rendered by ConsultationReactionsTab, which
+		// ModerationQueuePage mounts un-scoped for the hub-wide queue. Its real
+		// test ids are `consultation-reactions-item` / `-approve` / `-reject`
+		// (src/components/tabs/ConsultationReactionsTab.vue); the
+		// `moderation-queue-*` ids this spec used exist nowhere in the app — the
+		// same component serves the per-consultation "Reactions" tab, so its ids
+		// are named after the component, not after this one page. The modal ids
+		// below (`reaction-approve-modal` etc.) were already correct.
+		const items = page.locator('[data-testid="consultation-reactions-item"]')
 		await expect(items.first()).toBeVisible({ timeout: 15_000 })
 
 		// Approve the first pending reaction.
-		await items.first().locator('[data-testid="moderation-approve"]').click()
-		await expect(page.locator('[data-testid="reaction-approve-modal"]')).toBeVisible()
+		await items
+			.first()
+			.locator('[data-testid="consultation-reactions-approve"]')
+			.click()
+		await expect(
+			page.locator('[data-testid="reaction-approve-modal"]'),
+		).toBeVisible()
 		await page.locator('[data-testid="reaction-approve-confirm"]').click()
 		await page.waitForTimeout(1_000)
 
 		// Reject the next pending reaction with a reason.
 		await gotoModerationQueue(page)
-		const remaining = page.locator('[data-testid="moderation-queue-item"]')
-		if (await remaining.count() > 0) {
-			await remaining.first().locator('[data-testid="moderation-reject"]').click()
-			await expect(page.locator('[data-testid="reaction-reject-modal"]')).toBeVisible()
-			await page.locator('[data-testid="reaction-reject-reason"] textarea').first().fill('Off-topic')
+		const remaining = page.locator('[data-testid="consultation-reactions-item"]')
+		if ((await remaining.count()) > 0) {
+			await remaining
+				.first()
+				.locator('[data-testid="consultation-reactions-reject"]')
+				.click()
+			await expect(
+				page.locator('[data-testid="reaction-reject-modal"]'),
+			).toBeVisible()
+			// NcTextArea v9: the test id is the <textarea> (see the note above).
+			await page
+				.locator('[data-testid="reaction-reject-reason"]')
+				.first()
+				.fill('Off-topic')
 			await page.locator('[data-testid="reaction-reject-confirm"]').click()
 			await page.waitForTimeout(1_000)
 		}
 	})
 
-	test('staff publishes consultation results; OpenCatalogi-absent shows a warning', async ({ page }) => {
-		const consultation = await createObject(page, ledger, 'public-consultation', {
-			title: `E2E publish ${Date.now()}`,
-			status: 'closed',
-			submissionDeadline: past(),
-		})
+	test('staff publishes consultation results; OpenCatalogi-absent shows a warning', async ({
+		page,
+	}) => {
+		const consultation = await createObject(
+			page,
+			ledger,
+			'public-consultation',
+			{
+				title: `E2E publish ${Date.now()}`,
+				status: 'closed',
+				submissionDeadline: past(),
+			},
+		)
 
 		await gotoParticipation(page)
 		// Closed consultations are not in the open list; this test asserts the
 		// publish action surface exists for staff on the participation page and
 		// that the OpenCatalogi-absent warning component is wired. The publish
 		// itself is also exercised at the API layer (Newman) and unit layer.
-		await expect(page.locator('[data-testid="participation-page"]')).toBeVisible()
+		await expect(
+			page.locator('[data-testid="participation-page"]'),
+		).toBeVisible()
 		expect(objId(consultation)).toBeTruthy()
 	})
 })
 
 test.describe('Citizen participation — participatory budgeting', () => {
-	test('citizen submits a proposal; staff validation gates voting; citizen votes', async ({ page }) => {
+	test('citizen submits a proposal; staff validation gates voting; citizen votes', async ({
+		page,
+	}) => {
 		// Seed a round in the submission phase.
 		const round = await createObject(page, ledger, 'participatory-budget', {
 			name: `E2E budget ${Date.now()}`,
@@ -180,7 +245,7 @@ test.describe('Citizen participation — participatory budgeting', () => {
 
 		// Submission phase renders the proposal form.
 		const proposalForm = budgetCard.locator('[data-testid="proposal-form"]')
-		if (await proposalForm.count() > 0) {
+		if ((await proposalForm.count()) > 0) {
 			await proposalForm.locator('input').first().fill('E2E playground')
 			await proposalForm.locator('[data-testid="proposal-submit"]').click()
 			await page.waitForTimeout(1_000)
@@ -195,14 +260,18 @@ test.describe('Citizen participation — participatory budgeting', () => {
 			submitter: 'admin',
 			votesFor: 0,
 			votesAgainst: 0,
-			relations: [{ register: 'decidesk', schema: 'participatory-budget', id: bid }],
+			relations: [
+				{ register: 'decidesk', schema: 'participatory-budget', id: bid },
+			],
 		})
 		await createObject(page, ledger, 'budget-proposal', {
 			title: 'Unvalidated proposal',
 			requestedAmount: 5000,
 			status: 'submitted',
 			submitter: 'admin',
-			relations: [{ register: 'decidesk', schema: 'participatory-budget', id: bid }],
+			relations: [
+				{ register: 'decidesk', schema: 'participatory-budget', id: bid },
+			],
 		})
 
 		expect(objId(proposal)).toBeTruthy()
@@ -210,11 +279,28 @@ test.describe('Citizen participation — participatory budgeting', () => {
 	})
 
 	test('staff publishes budget allocation results', async ({ page }) => {
+		// The round has to be seeded through its lifecycle, not straight into the
+		// end state. `PortalCreateOpenParentGuardListener` enforces
+		// portal-citizen-create-actions REQ-DKPCA-002 at the OpenRegister INSERT
+		// boundary (`ObjectCreatingEvent` + `stopPropagation()`, so
+		// `MagicMapper::insertObjectEntity()` throws before the row is written):
+		// a `budget-proposal` may only be created under a `participatory-budget`
+		// whose `status` is `submission`. Its own header records that this fires
+		// for EVERY create of the schema, not only portal-originated ones — a
+		// deliberate defence-in-depth posture, not an oversight.
+		//
+		// So creating the round already `closed` and then hanging a proposal off
+		// it was seeding a state the product cannot reach:
+		//   createObject(budget-proposal) failed: "budget-proposal requires the
+		//   parent participatory-budget to have status == 'submission'"
+		// which read as a broken publish flow when it was the fixture asking for
+		// something the guard exists to refuse.
+		const name = `E2E budget closed ${Date.now()}`
 		const round = await createObject(page, ledger, 'participatory-budget', {
-			name: `E2E budget closed ${Date.now()}`,
+			name,
 			totalAmount: 20000,
 			currency: 'EUR',
-			status: 'closed',
+			status: 'submission',
 		})
 		await createObject(page, ledger, 'budget-proposal', {
 			title: 'Top proposal',
@@ -223,11 +309,29 @@ test.describe('Citizen participation — participatory budgeting', () => {
 			submitter: 'admin',
 			votesFor: 8,
 			votesAgainst: 1,
-			relations: [{ register: 'decidesk', schema: 'participatory-budget', id: objId(round) }],
+			relations: [
+				{
+					register: 'decidesk',
+					schema: 'participatory-budget',
+					id: objId(round),
+				},
+			],
+		})
+		// Now close it, which is what this test is actually about. OpenRegister's
+		// save is PUT-semantic, so every property has to be carried forward —
+		// omitting one nulls it.
+		await createObject(page, ledger, 'participatory-budget', {
+			id: objId(round),
+			name,
+			totalAmount: 20000,
+			currency: 'EUR',
+			status: 'closed',
 		})
 
 		await gotoParticipation(page)
-		await expect(page.locator('[data-testid="participation-page"]')).toBeVisible()
+		await expect(
+			page.locator('[data-testid="participation-page"]'),
+		).toBeVisible()
 
 		// The published allocation summary is PII-free (aggregate counts only) —
 		// asserted at the unit/Newman layer; here we confirm the surface mounts.
@@ -244,7 +348,9 @@ test.describe('Citizen participation — admin defaults', () => {
 
 		// The default-moderation-policy select, target-catalog and rate-limit
 		// fields render and accept input.
-		await section.locator('[data-testid="participation-catalog"]').fill('catalog-uuid-e2e')
+		await section
+			.locator('[data-testid="participation-catalog"]')
+			.fill('catalog-uuid-e2e')
 		await section.locator('[data-testid="participation-rate-limit"]').fill('7')
 		await section.locator('[data-testid="participation-save"]').click()
 		await page.waitForTimeout(1_000)

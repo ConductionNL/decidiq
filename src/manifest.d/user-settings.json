@@ -4,8 +4,8 @@
 	"menu": [
 		{
 			"id": "UserSettingsMenu",
-			"label": "Personal settings",
-			"icon": "icon-user",
+			"label": "Preferences",
+			"icon": "CogOutline",
 			"route": "UserSettings",
 			"section": "settings",
 			"order": 98
@@ -17,7 +17,7 @@
 			"route": "/user-settings",
 			"type": "custom",
 			"title": "Personal settings",
-			"_spec": "openspec/specs/user-settings/spec.md",
+			"_note": "In-app mount of the PER-USER preference sections (notification, display, delegation, communication) — the SPA twin of the Nextcloud personal panel at /settings/user/decidesk. type:'settings' is the app-configuration surface, not the per-user one, and the four sections are bespoke components with their own save semantics rather than a declarative field set, so no standard page type fits. Spec: openspec/specs/user-settings/spec.md",
 			"component": "UserSettingsPage"
 		}
 	]

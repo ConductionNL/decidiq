@@ -21,11 +21,13 @@
 		<div class="ai-deck-board__header">
 			<h3 class="ai-deck-board__title">
 				{{ t('decidesk', 'Action items') }}
-				<span v-if="!loading" class="ai-deck-board__count">({{ rows.length }})</span>
+				<span v-if="!loading" class="ai-deck-board__count"
+					>({{ rows.length }})</span
+				>
 			</h3>
 			<div class="ai-deck-board__actions">
 				<NcButton
-					type="secondary"
+					variant="secondary"
 					data-testid="action-item-deck-sync"
 					:disabled="syncing || loading || !rows.length"
 					@click="sync">
@@ -36,7 +38,7 @@
 					{{ t('decidesk', 'Project to Deck') }}
 				</NcButton>
 				<NcButton
-					type="primary"
+					variant="primary"
 					data-testid="action-item-deck-add"
 					:aria-label="t('decidesk', 'Add action item')"
 					@click="openCreate">
@@ -48,10 +50,16 @@
 			</div>
 		</div>
 
-		<CnNoteCard v-if="error" type="error" :title="t('decidesk', 'Deck board error')">
+		<CnNoteCard
+			v-if="error"
+			type="error"
+			:title="t('decidesk', 'Deck board error')">
 			{{ error }}
 		</CnNoteCard>
-		<CnNoteCard v-if="notice" type="success" :title="t('decidesk', 'Projected to Deck')">
+		<CnNoteCard
+			v-if="notice"
+			type="success"
+			:title="t('decidesk', 'Projected to Deck')">
 			{{ notice }}
 		</CnNoteCard>
 
@@ -72,11 +80,13 @@
 						class="ai-deck-card"
 						data-testid="action-item-card">
 						<div class="ai-deck-card__head">
-							<button class="ai-deck-card__title" @click="openEdit(item)">
+							<button
+								class="ai-deck-card__title"
+								@click="openEdit(item)">
 								{{ item.title || t('decidesk', 'Untitled') }}
 							</button>
 							<NcButton
-								type="tertiary-no-background"
+								variant="tertiary-no-background"
 								:aria-label="t('decidesk', 'Delete action item')"
 								@click="deleteTarget = { ...item }">
 								<template #icon>
@@ -84,17 +94,33 @@
 								</template>
 							</NcButton>
 						</div>
-						<div v-if="item.assignee" class="ai-deck-card__meta">{{ item.assignee }}</div>
-						<div v-if="item.dueDate" class="ai-deck-card__meta">{{ item.dueDate }}</div>
+						<div v-if="item.assignee" class="ai-deck-card__meta">
+							{{ item.assignee }}
+						</div>
+						<div v-if="item.dueDate" class="ai-deck-card__meta">
+							{{ item.dueDate }}
+						</div>
 						<div class="ai-deck-card__footer">
+							<!--
+								v9 model pair (`modelValue` /
+								`update:modelValue`). The v8 `:value` / `@input`
+								form renders an identical, fully interactive
+								combobox but emits nothing, so choosing a lane
+								here silently moved no card at all.
+							-->
 							<NcSelect
-								:value="laneOption(item)"
+								:modelValue="laneOption(item)"
 								:options="laneOptions"
 								:clearable="false"
-								:input-label="t('decidesk', 'Status')"
-								:aria-label-combobox="t('decidesk', 'Move action item to another status')"
+								:inputLabel="t('decidesk', 'Status')"
+								:aria-label-combobox="
+									t(
+										'decidesk',
+										'Move action item to another status',
+									)
+								"
 								class="ai-deck-card__move"
-								@input="(opt) => moveTo(item, opt)" />
+								@update:modelValue="(opt) => moveTo(item, opt)" />
 							<a
 								v-if="item.deckCardId"
 								:href="deckCardUrl"
@@ -118,8 +144,12 @@
 			ref="formDialog"
 			:schema="actionItemSchema"
 			:item="editTarget"
-			:dialog-title="editTarget ? t('decidesk', 'Edit action item') : t('decidesk', 'Add action item')"
-			:exclude-fields="excludedFields"
+			:dialogTitle="
+				editTarget
+					? t('decidesk', 'Edit action item')
+					: t('decidesk', 'Add action item')
+			"
+			:excludeFields="excludedFields"
 			@confirm="onConfirm"
 			@close="formOpen = false" />
 
@@ -127,8 +157,8 @@
 			v-if="deleteTarget"
 			ref="deleteDialog"
 			:item="deleteTarget"
-			name-field="title"
-			:dialog-title="t('decidesk', 'Delete action item')"
+			nameField="title"
+			:dialogTitle="t('decidesk', 'Delete action item')"
 			@confirm="confirmDelete"
 			@close="deleteTarget = null" />
 	</div>
@@ -136,15 +166,24 @@
 
 <script>
 import { CnDeleteDialog, CnFormDialog, CnNoteCard } from '@conduction/nextcloud-vue'
-import { NcButton, NcLoadingIcon, NcSelect } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
-import ViewColumnOutline from 'vue-material-design-icons/ViewColumnOutline.vue'
+import { NcButton, NcLoadingIcon, NcSelect } from '@nextcloud/vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
-import { ensureRelationType } from './useRelationStore.js'
+import ViewColumnOutline from 'vue-material-design-icons/ViewColumnOutline.vue'
+import {
+	createActionItem,
+	deleteActionItem,
+	updateActionItem,
+} from '../../services/actionItemApi.js'
+import {
+	itemUid,
+	LANES,
+	projectActionItems,
+	statusToLane,
+} from '../../services/deckProjection.js'
 import { useSettingsStore } from '../../store/store.js'
-import { createActionItem, updateActionItem, deleteActionItem } from '../../services/actionItemApi.js'
-import { LANES, statusToLane, projectActionItems, itemUid } from '../../services/deckProjection.js'
+import { ensureRelationType } from './useRelationStore.js'
 
 const LANE_LABELS = {
 	open: 'Open',
@@ -154,10 +193,22 @@ const LANE_LABELS = {
 
 export default {
 	name: 'ActionItemDeckBoard',
-	components: { CnDeleteDialog, CnFormDialog, CnNoteCard, NcButton, NcLoadingIcon, NcSelect, Plus, TrashCanOutline, ViewColumnOutline },
+	components: {
+		CnDeleteDialog,
+		CnFormDialog,
+		CnNoteCard,
+		NcButton,
+		NcLoadingIcon,
+		NcSelect,
+		Plus,
+		TrashCanOutline,
+		ViewColumnOutline,
+	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -171,17 +222,20 @@ export default {
 			deleteTarget: null,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
 		register() {
 			const settings = useSettingsStore().getSettings || {}
 			return settings.register || 'decidesk'
 		},
+
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
 		schema() {
 			const settings = useSettingsStore().getSettings || {}
 			return settings.decisionSchema || 'decision'
 		},
+
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
 		lanes() {
 			return LANES.map((key) => ({
@@ -190,32 +244,49 @@ export default {
 				items: this.rows.filter((r) => statusToLane(r.taskStatus) === key),
 			}))
 		},
+
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-3 */
 		laneOptions() {
-			return LANES.map((key) => ({ id: key, label: this.t('decidesk', LANE_LABELS[key]) }))
+			return LANES.map((key) => ({
+				id: key,
+				label: this.t('decidesk', LANE_LABELS[key]),
+			}))
 		},
+
 		/** Deck app root — used for the per-card "In Deck" link. */
 		deckCardUrl() {
 			return generateUrl('/apps/deck/')
 		},
+
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-1 */
 		excludedFields() {
 			return ['id', 'uuid', 'decision', 'deckCardId', 'created', 'updated']
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
+
 	methods: {
-		uidOf(item) { return itemUid(item) },
-		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-3 */
+		uidOf(item) {
+			return itemUid(item)
+		},
+
+		/**
+		 * @param item
+		 * @spec openspec/changes/action-item-deck-board/tasks.md#task-3
+		 */
 		laneOption(item) {
 			const key = statusToLane(item.taskStatus)
 			return { id: key, label: this.t('decidesk', LANE_LABELS[key]) }
 		},
+
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
 		async refresh() {
 			if (!this.objectId) return
@@ -223,15 +294,21 @@ export default {
 			this.error = ''
 			try {
 				const store = ensureRelationType('action-item')
-				if (!this.actionItemSchema) this.actionItemSchema = await store.fetchSchema('action-item')
-				const items = await store.fetchCollection('action-item', { decision: this.objectId, _limit: 100 })
+				if (!this.actionItemSchema)
+					this.actionItemSchema = await store.fetchSchema('action-item')
+				const items = await store.fetchCollection('action-item', {
+					decision: this.objectId,
+					_limit: 100,
+				})
 				this.rows = items || []
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load action items.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load action items.')
 			} finally {
 				this.loading = false
 			}
 		},
+
 		/**
 		 * Open the create dialog.
 		 *
@@ -239,10 +316,12 @@ export default {
 		 */
 		async openCreate() {
 			const store = ensureRelationType('action-item')
-			if (!this.actionItemSchema) this.actionItemSchema = await store.fetchSchema('action-item')
+			if (!this.actionItemSchema)
+				this.actionItemSchema = await store.fetchSchema('action-item')
 			this.editTarget = null
 			this.formOpen = true
 		},
+
 		/**
 		 * Open the edit dialog for a card.
 		 *
@@ -251,10 +330,12 @@ export default {
 		 */
 		async openEdit(item) {
 			const store = ensureRelationType('action-item')
-			if (!this.actionItemSchema) this.actionItemSchema = await store.fetchSchema('action-item')
+			if (!this.actionItemSchema)
+				this.actionItemSchema = await store.fetchSchema('action-item')
 			this.editTarget = { ...item }
 			this.formOpen = true
 		},
+
 		/**
 		 * Persist a create/edit through the authoritative VTODO endpoints
 		 * (action items are a read-only projection — never the object API).
@@ -266,16 +347,22 @@ export default {
 			try {
 				const uid = this.editTarget && itemUid(this.editTarget)
 				if (uid) {
-					await updateActionItem(uid, { ...formData, decision: this.objectId })
+					await updateActionItem(uid, {
+						...formData,
+						decision: this.objectId,
+					})
 				} else {
 					await createActionItem({ ...formData, decision: this.objectId })
 				}
 				this.$refs.formDialog?.setResult({ success: true })
 				this.refresh()
 			} catch (e) {
-				this.$refs.formDialog?.setResult({ error: e?.message || this.t('decidesk', 'Save failed.') })
+				this.$refs.formDialog?.setResult({
+					error: e?.message || this.t('decidesk', 'Save failed.'),
+				})
 			}
 		},
+
 		/**
 		 * Delete an action item (VTODO).
 		 *
@@ -287,9 +374,12 @@ export default {
 				this.$refs.deleteDialog?.setResult({ success: true })
 				this.refresh()
 			} catch (e) {
-				this.$refs.deleteDialog?.setResult({ error: e?.message || this.t('decidesk', 'Delete failed.') })
+				this.$refs.deleteDialog?.setResult({
+					error: e?.message || this.t('decidesk', 'Delete failed.'),
+				})
 			}
 		},
+
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
 		async sync() {
 			this.syncing = true
@@ -303,11 +393,26 @@ export default {
 					items: this.rows,
 				})
 				const parts = []
-				if (result.created) parts.push(this.t('decidesk', '{n} card(s) created', { n: result.created }))
-				if (result.skipped) parts.push(this.t('decidesk', '{n} already on Deck', { n: result.skipped }))
-				this.notice = parts.join(' · ') || this.t('decidesk', 'Nothing to project.')
+				if (result.created)
+					parts.push(
+						this.t('decidesk', '{n} card(s) created', {
+							n: result.created,
+						}),
+					)
+				if (result.skipped)
+					parts.push(
+						this.t('decidesk', '{n} already on Deck', {
+							n: result.skipped,
+						}),
+					)
+				this.notice =
+					parts.join(' · ') || this.t('decidesk', 'Nothing to project.')
 				if (result.errors && result.errors.length) {
-					this.error = this.t('decidesk', '{n} item(s) could not be projected.', { n: result.errors.length })
+					this.error = this.t(
+						'decidesk',
+						'{n} item(s) could not be projected.',
+						{ n: result.errors.length },
+					)
 				}
 				await this.refresh()
 			} catch (e) {
@@ -316,6 +421,7 @@ export default {
 				this.syncing = false
 			}
 		},
+
 		/**
 		 * Move an action item to another lane — writes the status through the
 		 * authoritative VTODO endpoint (optimistic, rolls back on error). The
@@ -332,12 +438,13 @@ export default {
 			const uid = itemUid(item)
 			const previous = item.taskStatus
 			// Optimistic update.
-			this.$set(item, 'taskStatus', newLane)
+			item.taskStatus = newLane
 			try {
 				await updateActionItem(uid, { taskStatus: newLane })
 			} catch (e) {
-				this.$set(item, 'taskStatus', previous)
-				this.error = e?.message || this.t('decidesk', 'Could not update status.')
+				item.taskStatus = previous
+				this.error =
+					e?.message || this.t('decidesk', 'Could not update status.')
 			}
 		},
 	},
@@ -351,33 +458,39 @@ export default {
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
+
 .ai-deck-board__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
+
 .ai-deck-board__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .ai-deck-board__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
+
 .ai-deck-board__lanes {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	gap: var(--default-grid-baseline);
 }
+
 .ai-deck-lane {
 	background: var(--color-background-hover);
 	border-radius: var(--border-radius-large);
 	padding: var(--default-grid-baseline);
 	min-height: 80px;
 }
+
 .ai-deck-lane__header {
 	display: flex;
 	align-items: center;
@@ -385,10 +498,12 @@ export default {
 	font-weight: bold;
 	margin-bottom: var(--default-grid-baseline);
 }
+
 .ai-deck-lane__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 }
+
 .ai-deck-lane__cards {
 	display: flex;
 	flex-direction: column;
@@ -397,23 +512,27 @@ export default {
 	margin: 0;
 	padding: 0;
 }
+
 .ai-deck-lane__empty {
 	color: var(--color-text-maxcontrast);
 	font-style: italic;
 	padding: 4px;
 }
+
 .ai-deck-card {
 	background: var(--color-main-background);
 	border: 1px solid var(--color-border);
 	border-radius: var(--border-radius);
 	padding: 8px;
 }
+
 .ai-deck-card__head {
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
 	gap: 4px;
 }
+
 .ai-deck-card__title {
 	font-weight: 500;
 	background: none;
@@ -424,13 +543,16 @@ export default {
 	color: var(--color-main-text);
 	font-size: inherit;
 }
+
 .ai-deck-card__title:hover {
 	text-decoration: underline;
 }
+
 .ai-deck-card__meta {
 	color: var(--color-text-maxcontrast);
 	font-size: 0.85rem;
 }
+
 .ai-deck-card__footer {
 	display: flex;
 	align-items: center;
@@ -438,9 +560,11 @@ export default {
 	gap: var(--default-grid-baseline);
 	margin-top: 6px;
 }
+
 .ai-deck-card__move {
 	min-width: 140px;
 }
+
 .ai-deck-card__link {
 	color: var(--color-primary-element);
 	white-space: nowrap;

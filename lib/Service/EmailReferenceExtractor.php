@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Email Reference Extractor
  *
@@ -31,7 +32,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
@@ -42,40 +43,37 @@ namespace OCA\Decidesk\Service;
  *
  * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-2.2
  */
-class EmailReferenceExtractor
-{
-    /**
-     * Extract decision/motion references from an email subject or body.
-     *
-     * Matches patterns like 'B-2026-031', 'Besluit-2024-001',
-     * 'Decision-2024-001', 'Motie-2025-01', or 'Amendement 2025 03'. The
-     * returned identifiers are offered to the email integration leaf as
-     * link-suggestion candidates; this method performs no persistence.
-     *
-     * @param string $text Email subject or body.
-     *
-     * @return array<int, string> Distinct extracted decision/motion identifiers.
-     *
-     * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-2.2
-     */
-    public function extract(string $text): array
-    {
-        if ($text === '') {
-            return [];
-        }
+class EmailReferenceExtractor {
+	/**
+	 * Extract decision/motion references from an email subject or body.
+	 *
+	 * Matches patterns like 'B-2026-031', 'Besluit-2024-001',
+	 * 'Decision-2024-001', 'Motie-2025-01', or 'Amendement 2025 03'. The
+	 * returned identifiers are offered to the email integration leaf as
+	 * link-suggestion candidates; this method performs no persistence.
+	 *
+	 * @param string $text Email subject or body.
+	 *
+	 * @return array<int, string> Distinct extracted decision/motion identifiers.
+	 *
+	 * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-2.2
+	 */
+	public function extract(string $text): array {
+		if ($text === '') {
+			return [];
+		}
 
-        $rawMatches = [];
-        preg_match_all(
-            '/\b(?:Decision|Besluit|B|Motie|M|A|Amendement)[-_ ](\d{4})[-_ ](\d{2,4})\b/i',
-            $text,
-            $rawMatches
-        );
+		$rawMatches = [];
+		preg_match_all(
+			'/\b(?:Decision|Besluit|B|Motie|M|A|Amendement)[-_ ](\d{4})[-_ ](\d{2,4})\b/i',
+			$text,
+			$rawMatches
+		);
 
-        if (count($rawMatches[0]) === 0) {
-            return [];
-        }
+		if (count($rawMatches[0]) === 0) {
+			return [];
+		}
 
-        return array_values(array_unique($rawMatches[0]));
-
-    }//end extract()
+		return array_values(array_unique($rawMatches[0]));
+	}//end extract()
 }//end class

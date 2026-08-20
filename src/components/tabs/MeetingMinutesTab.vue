@@ -15,14 +15,18 @@
  @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#requirement-per-meeting-notulen-authoring-tab
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--minutes" data-testid="meeting-minutes-tab">
+	<div
+		class="decidesk-tab decidesk-tab--minutes"
+		data-testid="meeting-minutes-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Minutes') }}
-				<span v-if="!loading" class="decidesk-tab__count">({{ rows.length }})</span>
+				<span v-if="!loading" class="decidesk-tab__count"
+					>({{ rows.length }})</span
+				>
 			</h3>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="meeting-minutes-create"
 				:aria-label="t('decidesk', 'Create minutes')"
 				:disabled="creating"
@@ -45,12 +49,15 @@
 			:columns="columns"
 			:rows="rows"
 			:loading="loading"
-			row-key="id"
-			:empty-text="t('decidesk', 'No minutes yet for this meeting.')"
-			:loading-text="t('decidesk', 'Loading minutes…')"
-			@row-click="openDetail">
+			rowKey="id"
+			:emptyText="t('decidesk', 'No minutes yet for this meeting.')"
+			:loadingText="t('decidesk', 'Loading minutes…')"
+			@rowClick="openDetail">
 			<template #column-lifecycle="{ value }">
-				<CnStatusBadge v-if="value" :label="value" :color-map="lifecycleColors" />
+				<CnStatusBadge
+					v-if="value"
+					:label="value"
+					:colorMap="lifecycleColors" />
 			</template>
 		</CnDataTable>
 	</div>
@@ -68,6 +75,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -76,6 +84,7 @@ export default {
 			rows: [],
 		}
 	},
+
 	computed: {
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
 		columns() {
@@ -86,6 +95,7 @@ export default {
 				{ key: 'approvedAt', label: this.t('decidesk', 'Approved') },
 			]
 		},
+
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
 		lifecycleColors() {
 			return {
@@ -97,13 +107,17 @@ export default {
 			}
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
+
 	methods: {
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
 		async refresh() {
@@ -118,11 +132,13 @@ export default {
 				})
 				this.rows = items || []
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load minutes.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load minutes.')
 			} finally {
 				this.loading = false
 			}
 		},
+
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-creating-minutes-pre-fills-the-meeting-reference */
 		async createMinutes() {
 			if (!this.objectId || this.creating) return
@@ -140,11 +156,13 @@ export default {
 				await this.refresh()
 				if (newId) this.openDetail({ id: newId })
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Could not create minutes.')
+				this.error =
+					e?.message || this.t('decidesk', 'Could not create minutes.')
 			} finally {
 				this.creating = false
 			}
 		},
+
 		/**
 		 * Navigate to the MinutesDetail page for a row.
 		 *

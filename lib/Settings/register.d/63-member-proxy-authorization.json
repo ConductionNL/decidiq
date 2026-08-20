@@ -1,0 +1,358 @@
+{
+  "x-openregister": {
+    "seedData": {
+      "description": "Seed objects for the member-proxy-authorization capability (fragment 63, ADR-037). The new proxy-authorization schema carries the signed machtiging instrument that sits beside a proxy row on the existing vote schema; the process-template seed adds one DUPLICATED (builtIn:false) template demonstrating the per-body override path. References resolve by slug against existing decidesk seed objects (participant, meeting, and the seed proxy row stem-proxy-vandam-begroting on the vote schema); the nil UUID 00000000-0000-0000-0000-000000000000 is an obvious placeholder where no matching seed object exists (grantors Van Dam and Jansen have no Participant seed). Object 1 (machtiging-vandam-begroting) completes the existing seed proxy vote with a fully getekend + countersigned instrument so the happy path is demonstrable on a fresh install; object 2 (machtiging-alv-jansen-ongetekend) stays ongetekend so the sign action and the requireSignedProxy refusal are demoable; object 3 (machtiging-devries-ingetrokken) demonstrates the signed revocation act (revokedAt + revocationSignatureStatus getekend). The duplicated template ALV met statutaire volmachtgrens (cloned from association-alv, builtIn:false) carries votingRule.maxProxiesPerHolder 1 and requireSignedProxy true so the per-body override is demonstrable without editing read-only built-ins; the built-in templates ship both keys UNSET (global fallback, behaviour-identical upgrade). NOTE (app-wide limitation, consistent with sibling fragments 45/54/55): relation refs stored as slugs may not resolve on detail pages until the register import maps them to UUIDs.",
+      "objects": {
+        "proxy-authorization": [
+          {
+            "slug": "machtiging-vandam-begroting",
+            "grantor": "00000000-0000-0000-0000-000000000000",
+            "holder": "jan-de-vries",
+            "meeting": "raadsvergadering-2025-01-15",
+            "proxyVote": "stem-proxy-vandam-begroting",
+            "document": "00000000-0000-0000-0000-000000000000",
+            "signatureStatus": "signed",
+            "signedAt": "2026-06-02T09:15:00Z",
+            "signingReference": "docudesk:sign:seed-vandam-begroting",
+            "countersignStatus": "signed",
+            "countersignedAt": "2026-06-02T11:40:00Z"
+          },
+          {
+            "slug": "machtiging-alv-jansen-ongetekend",
+            "grantor": "00000000-0000-0000-0000-000000000000",
+            "holder": "marie-janssen",
+            "meeting": "ledenvergadering-vng-voorjaar-2025",
+            "signatureStatus": "unsigned"
+          },
+          {
+            "slug": "machtiging-devries-ingetrokken",
+            "grantor": "jan-de-vries",
+            "holder": "pieter-bakker",
+            "meeting": "raadsvergadering-2025-01-15",
+            "document": "00000000-0000-0000-0000-000000000000",
+            "signatureStatus": "signed",
+            "signedAt": "2026-05-01T10:00:00Z",
+            "revokedAt": "2026-05-20T14:30:00Z",
+            "revocationSignatureStatus": "signed",
+            "revocationSigningReference": "docudesk:sign:seed-devries-revocatie"
+          }
+        ],
+        "process-template": [
+          {
+            "slug": "association-alv-statutaire-volmacht",
+            "name": "ALV met statutaire volmachtgrens",
+            "description": "Duplicated Association ALV template (builtIn:false) demonstrating the per-body override: statuten cap one proxy per holder and require a signed machtiging. Cloned from the association-alv built-in; the built-in itself ships both new keys unset (global fallback).",
+            "context": "association",
+            "builtIn": false,
+            "initialState": "draft",
+            "stateMachine": {
+              "states": [
+                { "name": "draft" },
+                { "name": "proposed" },
+                { "name": "deliberating" },
+                { "name": "voting" },
+                { "name": "decided" },
+                { "name": "enacted" },
+                { "name": "archived" }
+              ],
+              "transitions": [
+                { "name": "propose", "from": "draft", "to": "proposed" },
+                { "name": "deliberate", "from": "proposed", "to": "deliberating" },
+                { "name": "openVoting", "from": "deliberating", "to": "voting", "chairOnly": true, "guards": [ "quorum_met" ] },
+                { "name": "decide", "from": "voting", "to": "decided" },
+                { "name": "enact", "from": "decided", "to": "enacted" },
+                { "name": "archive", "from": "enacted", "to": "archived" }
+              ]
+            },
+            "votingRule": {
+              "voteThreshold": "simple-majority",
+              "abstentionHandling": "exclude",
+              "tieBreakRule": "rejected",
+              "maxProxiesPerHolder": 1,
+              "requireSignedProxy": true
+            },
+            "quorumRequired": true,
+            "quorumRule": "50%+1 of members present or represented",
+            "allowDecideWithoutVote": false
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ProxyAuthorization": {
+        "slug": "proxy-authorization",
+        "icon": "FileSign",
+        "version": "0.2.0",
+        "title": "ProxyAuthorization",
+        "description": "A signed machtiging instrument (Schema.org AuthorizeAction over a DigitalDocument) evidencing that an absent member (grantor) authorized another member (holder) to cast their proxy vote for a meeting. It is a sibling of the proxy row on the unified vote schema, never a replacement: the vote row stays the ballot machinery (proxy-voting REQ-PRX-001/002, the REQ-BPV guard, cap counting) and back-references its instrument via the nullable authorizationRef property; this object owns the evidentiary lifecycle (generated -> getekend | geweigerd, plus a later signed revocation act). Signature status (signatureStatus) is a declarative guarded state machine (x-openregister-lifecycle, ADR-031): getekend is writable ONLY from a signing-provider completion through the reused eIDAS/docudesk seam (decidesk-contract-decision-hub REQ-DCDH-005) — decidesk never marks a machtiging signed on its own authority (no signature theatre; fail closed when no provider). The machtiging document, the signing/countersigning orchestration, the revocation signing act, and the per-meeting proxy register are IMPERATIVE (ProxyAuthorizationService reusing the REQ-DCDH-005 seam and the resolution-minutes markdown-fallback pattern) — out of declarative scope. All widget/filter/manifest sources reference this schema by its slug proxy-authorization, never a PascalCase key. As of model-debt-cleanup-schema (REQ-SDM-024), grantor/holder reference Person (was Participant — an identity question, not a governance-role question) and the schema additionally carries proxyStatus, the approval-workflow concept folded in from the now-retired BoardProxy schema.",
+        "type": "object",
+        "x-schema-org": "schema:AuthorizeAction",
+        "x-openregister": {
+          "schemaType": "schema:AuthorizeAction",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "x-openregister-lifecycle": {
+          "field": "signatureStatus",
+          "initial": "unsigned",
+          "states": [
+            "unsigned",
+            "signed",
+            "refused"
+          ],
+          "terminal": [
+            "signed",
+            "refused"
+          ],
+          "transitions": [
+            {
+              "from": "unsigned",
+              "to": "signed"
+            },
+            {
+              "from": "unsigned",
+              "to": "refused"
+            }
+          ],
+          "_note": "Declarative guarded transition map (ADR-031, REQ-MPA-003). Canonical dialect verbatim from the Decision/Toezegging schemas (keyword 'initial', never the silently-ignored 'initialState'/'default' drift). ongetekend is the create-time state; a provider completion moves it to getekend, a provider refusal to geweigerd; both terminal. Backwards transitions (e.g. getekend -> ongetekend) are rejected by OpenRegister, which is the anti-signature-theatre guarantee: nothing but a provider completion reaches getekend and no path un-signs it. The countersign and revocation-signature machines run on the separate countersignStatus / revocationSignatureStatus fields and are resolved imperatively by ProxyAuthorizationService (a single lifecycle field cannot govern three independent signature tracks). No app-side state machine on signatureStatus."
+        },
+        "x-openregister-notifications": {
+          "authorizationCreated": {
+            "trigger": {
+              "type": "created"
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Nieuwe volmacht geregistreerd — ondertekening vereist",
+              "en": "New proxy authorization registered — signature required"
+            }
+          },
+          "authorizationSigned": {
+            "trigger": {
+              "type": "updated",
+              "filter": {
+                "signatureStatus": "signed"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Volmacht ondertekend",
+              "en": "Proxy authorization signed"
+            },
+            "_note": "REQ-MPA-004: surface signature completion. Canonical x-openregister-notifications dialect (ADR-031), verified keys only: trigger.type 'updated' with a filter on the lifecycle field (signatureStatus equals getekend), channels[], recipients[] via kind:object-acl (read) + kind:groups (decidesk-members). Fires only on the getekend transition. Because getekend is reachable only from a provider completion, this notification cannot fire on a decidesk-forged status. decidesk dispatches no notification imperatively for this event."
+          }
+        },
+        "authorization": {
+          "read": [
+            "authenticated"
+          ]
+        },
+        "required": [
+          "grantor",
+          "holder",
+          "meeting",
+          "signatureStatus"
+        ],
+        "properties": {
+          "grantor": {
+            "title": "Grantor",
+            "type": "string",
+            "format": "uuid",
+            "facetable": true,
+            "$ref": "Person",
+            "description": "Required reference to the delegating Person (the absent member who authorizes the proxy). Schema.org AuthorizeAction agent. As of model-debt-cleanup-schema (REQ-SDM-024), references Person, not the deprecated Participant shim — grantor/holder identify who authorized/received the proxy, an identity question."
+          },
+          "holder": {
+            "title": "Holder",
+            "type": "string",
+            "format": "uuid",
+            "facetable": true,
+            "$ref": "Person",
+            "description": "Required reference to the receiving Person (the member who casts the proxy vote). AuthorizeAction recipient. As of model-debt-cleanup-schema (REQ-SDM-024), references Person, not the deprecated Participant shim."
+          },
+          "meeting": {
+            "title": "Meeting",
+            "type": "string",
+            "format": "uuid",
+            "facetable": true,
+            "$ref": "Meeting",
+            "description": "Required reference to the Meeting the volmacht covers."
+          },
+          "votingRound": {
+            "title": "Voting round",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "VotingRound",
+            "description": "Optional reference to a specific VotingRound when the volmacht is round-specific rather than meeting-wide."
+          },
+          "proxyVote": {
+            "title": "Proxy vote",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Vote",
+            "description": "Optional reference to the proxy row on the vote schema once the proxy has been registered. The vote row carries the reciprocal authorizationRef back-reference."
+          },
+          "document": {
+            "title": "Machtiging document",
+            "type": "string",
+            "description": "Optional reference to the generated machtiging document (Docudesk render, or the honest markdown fallback per REQ-MPA-002). Stored in the meeting's Files folder; populated imperatively by ProxyAuthorizationService."
+          },
+          "signatureStatus": {
+            "title": "Signature status",
+            "type": "string",
+            "facetable": true,
+            "description": "Instrument signature status (declared in x-openregister-lifecycle, ADR-031): ongetekend -> getekend | geweigerd. getekend is writable ONLY from a signing-provider completion (REQ-MPA-003, fail closed — no provider leaves it ongetekend). Required; defaults to ongetekend at creation.",
+            "enum": [
+              "unsigned",
+              "signed",
+              "refused"
+            ],
+            "default": "ongetekend",
+            "example": "ongetekend"
+          },
+          "signedAt": {
+            "title": "Signed at",
+            "type": "string",
+            "format": "date-time",
+            "description": "Optional timestamp set on provider completion when signatureStatus becomes getekend.",
+            "example": "2026-06-02T09:15:00Z"
+          },
+          "signingReference": {
+            "title": "Signing reference",
+            "type": "string",
+            "description": "Optional provider reference returned by the signing seam's signingRequest (REQ-MPA-003), stored so the completion can be resolved onto this instrument."
+          },
+          "countersignStatus": {
+            "title": "Countersign status",
+            "type": "string",
+            "facetable": true,
+            "description": "Optional holder countersignature status through the same seam (REQ-MPA-003, provisionally optional). Same enum as signatureStatus; resolved imperatively (not the declarative lifecycle field, which governs signatureStatus only).",
+            "enum": [
+              "unsigned",
+              "signed",
+              "refused"
+            ]
+          },
+          "countersignedAt": {
+            "title": "Countersigned at",
+            "type": "string",
+            "format": "date-time",
+            "description": "Optional timestamp set when the holder countersignature completes."
+          },
+          "revokedAt": {
+            "title": "Revoked at",
+            "type": "string",
+            "format": "date-time",
+            "description": "Optional timestamp stamped at the moment of revocation (REQ-MPA-007). The revocation EFFECT follows proxy-voting REQ-PRX-003 exactly and is NEVER gated on the revocation signature completing; this field records the act, not its signature."
+          },
+          "revocationSignatureStatus": {
+            "title": "Revocation signature status",
+            "type": "string",
+            "facetable": true,
+            "description": "Optional status of the revocation-act signature requested through the same seam (REQ-MPA-007). Same enum; its completion never further affects voting. No provider leaves it ongetekend with an honest notice.",
+            "enum": [
+              "unsigned",
+              "signed",
+              "refused"
+            ]
+          },
+          "revocationSigningReference": {
+            "title": "Revocation signing reference",
+            "type": "string",
+            "description": "Optional provider reference for the revocation signing act."
+          },
+          "proxyStatus": {
+            "title": "Proxy status",
+            "type": "string",
+            "facetable": true,
+            "description": "Optional approval-workflow state of this proxy authorization (REQ-SDM-024), folded in from the now-retired BoardProxy schema. Distinct from signatureStatus (which governs the machtiging instrument's own provider-gated signing lifecycle, ADR-031): proxyStatus is decidesk's own approval-transition axis (pending-approval -> active -> suspended/revoked), resolved imperatively by ProxyVoteService::transition() and never force-fit onto the signing-provider-gated signatureStatus field. Defaults to pending-approval.",
+            "enum": [
+              "pending-approval",
+              "active",
+              "suspended",
+              "revoked"
+            ],
+            "default": "pending-approval",
+            "example": "pending-approval"
+          }
+        }
+      },
+      "Vote": {
+        "slug": "vote",
+        "version": "0.2.0",
+        "description": "Additive delta (ADR-037 fragment-located additive pattern, mirroring the fragment-55 Decision delta): this fragment merges ONLY the nullable authorizationRef back-reference onto the existing vote schema. No required field is added and no existing property is modified, so proxy rows and ordinary ballots created before this change stay valid (REQ-MPA-001). The full vote schema remains defined in decidesk_register.json.",
+        "properties": {
+          "authorizationRef": {
+            "title": "Authorization instrument",
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "$ref": "ProxyAuthorization",
+            "description": "Nullable back-reference from a proxy row to its ProxyAuthorization instrument, so the row resolves its machtiging (and signature status) without a reverse query. Null on ordinary ballots and on proxy rows granted before this change (REQ-MPA-001)."
+          }
+        }
+      },
+      "ProcessTemplate": {
+        "slug": "process-template",
+        "version": "0.2.0",
+        "description": "Additive delta (ADR-037 fragment-located additive pattern): this fragment merges ONLY maxProxiesPerHolder and requireSignedProxy onto the existing votingRule.properties, next to voteThreshold/abstentionHandling/tieBreakRule (fragment 43). No existing key is touched and both new keys are optional/unset on the built-in templates, so a zero-configuration upgrade is behaviour-identical: the global decidesk/max_proxies_per_holder config stays authoritative and requireSignedProxy is off everywhere until an admin sets a body-level value (REQ-MPA-005/006). The full ProcessTemplate schema remains defined in fragment 43-process-config-v1.json.",
+        "properties": {
+          "votingRule": {
+            "title": "Voting rule",
+            "description": "Default voting rule applied to rounds opened under a body assigned this template. This fragment only merges the two proxy keys below onto the node defined in 43-process-config-v1.json; title and description repeat that definition so the merged property is self-describing wherever a fragment is read on its own.",
+            "properties": {
+              "maxProxiesPerHolder": {
+                "title": "Max proxies per holder",
+                "type": "integer",
+                "minimum": 1,
+                "description": "Optional per-body statutory cap on how many proxies one holder may hold in a meeting (REQ-MPA-006). When set (>=1) it supersedes the global decidesk/max_proxies_per_holder app config; when unset the global config (default 2) remains authoritative — the existing voting-system cap scenarios hold verbatim. Enforced fail-closed at proxy registration and at round open by ProxyVoteService/VotingService (imperative — cross-object counting against a resolved per-body value is beyond schema constraints).",
+                "example": 1
+              },
+              "requireSignedProxy": {
+                "title": "Require signed proxy",
+                "type": "boolean",
+                "default": false,
+                "description": "Optional per-body policy (REQ-MPA-005), default false. When false or absent, unsigned proxies remain fully usable and current behaviour is preserved bit-for-bit. When true, the round refuses proxy ballots whose instrument is not getekend (flagged at round open, rejected at cast, holder's own ballot proceeds); enforced fail-closed at cast by VotingService (imperative).",
+                "example": false
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -18,7 +18,7 @@
  */
 import { test, expect } from '@playwright/test'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url'
 
 // @e2e openspec/specs/motion-amendment/spec.md#submit-a-motion-with-co-signers
 test('motions list renders with Add Motion button', async ({ page }) => {
@@ -31,23 +31,51 @@ test('motions list renders with Add Motion button', async ({ page }) => {
 
 // @e2e openspec/specs/motion-amendment/spec.md#submit-a-motion-with-co-signers
 // @e2e openspec/specs/motion-amendment/spec.md#reject-motion-below-minimum-co-signer-threshold
-test('Add Motion dialog opens with co-signers and lifecycle fields', async ({ page }) => {
+test('Add Motion dialog opens with co-signers and lifecycle fields', async ({
+	page,
+}) => {
 	await page.goto(`${BASE}/apps/decidesk/motions`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	await page.getByTestId('cn-cta-primary').click()
 	const dialog = page.getByRole('dialog')
 	await expect(dialog).toBeVisible({ timeout: 8_000 })
-	await expect(dialog.getByRole('heading', { name: 'Create Motion' })).toBeVisible()
+	// The heading is "Create Decision", not "Create Motion", and that is correct.
+	// Under ADR-005 there is no `motion` schema: a motion IS a Decision with
+	// `decisionType=motion`, and the Motions index is a filtered projection of
+	// the decision schema (manifest page `Motions`: `"schema": "decision"`,
+	// `"filter": {"decisionType": "motion"}`). CnIndexPage mounts its create
+	// dialog without a `dialog-title`, so CnFormDialog falls back to
+	// `Create {schema.title}` and the Decision schema's title is "Decision".
+	// Asserting "Create Motion" asserted a string the product has never
+	// produced. Tracked separately: CnIndexPage has no way to label the create
+	// dialog of a filtered projection of a supertype.
+	await expect(
+		dialog.getByRole('heading', { name: 'Create Decision' }),
+	).toBeVisible()
 
-	// Assert the real motion form fields render
-	await expect(dialog.getByText('title *', { exact: false })).toBeVisible()
-	await expect(dialog.getByText('proposer *', { exact: false })).toBeVisible()
-	await expect(dialog.getByText('motionType *', { exact: false })).toBeVisible()
+	// Assert the real motion form fields render.
+	//
+	// Labels are the schema property's `title`, never its key — `fieldsFromSchema()`
+	// builds `label: prop.title || key` and CnFormDialog renders
+	// `label + (required ? ' *' : '')`. So `motionType`/`coSigners`/`lifecycle`
+	// could never match; the rendered labels are "Motion type", "Co-signers",
+	// "Status". And `required` on Decision is exactly
+	// ["title","text","decisionType"], so Title is the only one of these
+	// carrying an asterisk — `proposer *` and `lifecycle *` were asserting a
+	// required-ness the schema does not declare, which is the same mistake the
+	// decision-management spec already corrected for `decisionDate`/`outcome`.
+	await expect(dialog.getByText('Title *', { exact: true })).toBeVisible()
+	await expect(dialog.getByText('Proposer', { exact: true }).first()).toBeVisible()
+	await expect(
+		dialog.getByText('Motion type', { exact: true }).first(),
+	).toBeVisible()
 	// coSigners drives the co-signer threshold scenario
-	await expect(dialog.getByText('coSigners', { exact: true })).toBeVisible()
-	// lifecycle label is visible (required)
-	await expect(dialog.getByText('lifecycle *', { exact: false })).toBeVisible()
+	await expect(
+		dialog.getByText('Co-signers', { exact: true }).first(),
+	).toBeVisible()
+	// lifecycle is on the form, optional
+	await expect(dialog.getByText('Status', { exact: true }).first()).toBeVisible()
 
 	// Create button visible
 	await expect(dialog.getByRole('button', { name: 'Create' })).toBeVisible()
@@ -77,17 +105,30 @@ test('motions list shows existing motions', async ({ page }) => {
 // @e2e openspec/specs/motion-amendment/spec.md#submit-an-amendment-to-a-pending-motion
 // @e2e openspec/specs/motion-amendment/spec.md#submit-multiple-amendments-to-the-same-motion
 // Amendments are added via the MotionAmendmentsTab on a motion detail page.
-test('motion detail route renders with amendments tab accessible', async ({ page }) => {
+test('motion detail route renders with amendments tab accessible', async ({
+	page,
+}) => {
+	// ADR-005 (accepted): the standalone `motion` schema was folded into the
+	// `Decision` supertype under `decisionType: 'motion'`. Addressing
+	// /objects/decidesk/motion returns 404 "Schema not found: 'motion'", which is
+	// what this test was failing on — note the manifest already routes
+	// /motions/:id at schema `decision`, so only this URL was stale.
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/motion?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidesk/decision?decisionType=motion&_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
-	expect(resp.ok()).toBe(true)
+	expect(
+		resp.ok(),
+		`motion listing must be readable (HTTP ${resp.status()})`,
+	).toBe(true)
 	const body = await resp.json()
 	const first = (body.results ?? body.items ?? [])[0]
-	test.skip(!first, 'No motion objects found')
+	expect(
+		first,
+		'at least one decisionType=motion Decision must be seeded',
+	).toBeTruthy()
 	const motionId = first.id ?? first['@self']?.id
-	test.skip(!motionId, 'First motion has no id')
+	expect(motionId, 'the seeded motion must carry an id').toBeTruthy()
 
 	await page.goto(`${BASE}/apps/decidesk/motions/${motionId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
@@ -99,16 +140,25 @@ test('motion detail route renders with amendments tab accessible', async ({ page
 // Verify the amendment detail route mounts (the diff tab renders the word-level
 // additions-in-green / removals-in-red view, falling back to amendment text).
 test('amendment detail route renders for the diff view', async ({ page }) => {
+	// ADR-005: an amendment is a Decision with decisionType='amendment' (the
+	// standalone `amendment` schema was removed); /amendments/:id is already
+	// routed at schema `decision` in the manifest.
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/amendment?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidesk/decision?decisionType=amendment&_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
-	expect(resp.ok()).toBe(true)
+	expect(
+		resp.ok(),
+		`amendment listing must be readable (HTTP ${resp.status()})`,
+	).toBe(true)
 	const body = await resp.json()
 	const first = (body.results ?? body.items ?? [])[0]
-	test.skip(!first, 'No amendment objects found')
+	expect(
+		first,
+		'at least one decisionType=amendment Decision must be seeded',
+	).toBeTruthy()
 	const amendmentId = first.id ?? first['@self']?.id
-	test.skip(!amendmentId, 'First amendment has no id')
+	expect(amendmentId, 'the seeded amendment must carry an id').toBeTruthy()
 
 	await page.goto(`${BASE}/apps/decidesk/amendments/${amendmentId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
@@ -126,7 +176,9 @@ test('amendment detail route renders for the diff view', async ({ page }) => {
 // Amendment voting order and live voting require a live meeting context with an active
 // voting round — these are VotingRoundPanel behaviors in the LiveMeeting view.
 // Verified via the live meeting view mounting.
-test('live meeting view shows motions context for in-meeting motion submission', async ({ page }) => {
+test('live meeting view shows motions context for in-meeting motion submission', async ({
+	page,
+}) => {
 	const resp = await page.request.get(
 		`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting?_limit=1`,
 		{ headers: { Accept: 'application/json' } },

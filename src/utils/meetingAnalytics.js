@@ -38,7 +38,7 @@ function toMs(value) {
 
 /**
  * Whether an agenda item counts as completed for the completion-rate metric.
- * Completed = status 'afgerond' (final BOB stage) OR an actualDuration recorded.
+ * Completed = status 'completed' (final BOB stage) OR an actualDuration recorded.
  *
  * @param {object} item Agenda-item object.
  *
@@ -50,7 +50,7 @@ export function isItemCompleted(item) {
 	if (!item) {
 		return false
 	}
-	if (item.status === 'afgerond') {
+	if (item.status === 'completed') {
 		return true
 	}
 	return Number.isFinite(item.actualDuration) && item.actualDuration > 0
@@ -78,39 +78,48 @@ export function isItemCompleted(item) {
  */
 export function meetingDurationStats(meetings) {
 	const list = Array.isArray(meetings) ? meetings : []
-	const points = list.map((m) => {
-		const openedMs = toMs(m.openedAt)
-		const closedMs = toMs(m.closedAt)
-		const actualMinutes = (openedMs !== null && closedMs !== null && closedMs >= openedMs)
-			? Math.round((closedMs - openedMs) / 60000)
-			: null
+	const points = list
+		.map((m) => {
+			const openedMs = toMs(m.openedAt)
+			const closedMs = toMs(m.closedAt)
+			const actualMinutes =
+				openedMs !== null && closedMs !== null && closedMs >= openedMs
+					? Math.round((closedMs - openedMs) / 60000)
+					: null
 
-		let scheduledMinutes = null
-		const startMs = toMs(m.scheduledDate ?? m.startDate ?? m.startTime)
-		const endMs = toMs(m.endDate ?? m.endTime)
-		if (startMs !== null && endMs !== null && endMs >= startMs) {
-			scheduledMinutes = Math.round((endMs - startMs) / 60000)
-		} else if (Number.isFinite(m.plannedDuration) && m.plannedDuration > 0) {
-			scheduledMinutes = Math.round(m.plannedDuration)
-		} else if (Number.isFinite(m.duration) && m.duration > 0) {
-			scheduledMinutes = Math.round(m.duration)
-		}
+			let scheduledMinutes = null
+			const startMs = toMs(m.scheduledDate ?? m.startDate ?? m.startTime)
+			const endMs = toMs(m.endDate ?? m.endTime)
+			if (startMs !== null && endMs !== null && endMs >= startMs) {
+				scheduledMinutes = Math.round((endMs - startMs) / 60000)
+			} else if (Number.isFinite(m.plannedDuration) && m.plannedDuration > 0) {
+				scheduledMinutes = Math.round(m.plannedDuration)
+			} else if (Number.isFinite(m.duration) && m.duration > 0) {
+				scheduledMinutes = Math.round(m.duration)
+			}
 
-		const overrun = actualMinutes !== null && scheduledMinutes !== null && actualMinutes > scheduledMinutes
-		return {
-			id: m.id ?? m.uuid ?? null,
-			title: m.title ?? '',
-			date: openedMs ?? startMs,
-			actualMinutes,
-			scheduledMinutes,
-			overrun,
-		}
-	}).sort((a, b) => (a.date ?? 0) - (b.date ?? 0))
+			const overrun =
+				actualMinutes !== null
+				&& scheduledMinutes !== null
+				&& actualMinutes > scheduledMinutes
+			return {
+				id: m.id ?? m.uuid ?? null,
+				title: m.title ?? '',
+				date: openedMs ?? startMs,
+				actualMinutes,
+				scheduledMinutes,
+				overrun,
+			}
+		})
+		.sort((a, b) => (a.date ?? 0) - (b.date ?? 0))
 
-	const actuals = points.map((p) => p.actualMinutes).filter((v) => Number.isFinite(v))
-	const averageActualMinutes = actuals.length > 0
-		? Math.round(actuals.reduce((sum, v) => sum + v, 0) / actuals.length)
-		: 0
+	const actuals = points
+		.map((p) => p.actualMinutes)
+		.filter((v) => Number.isFinite(v))
+	const averageActualMinutes =
+		actuals.length > 0
+			? Math.round(actuals.reduce((sum, v) => sum + v, 0) / actuals.length)
+			: 0
 	const overrunCount = points.filter((p) => p.overrun).length
 
 	return { points, averageActualMinutes, overrunCount, count: list.length }
@@ -154,7 +163,9 @@ export function speakingDistribution(records, nameMap = {}) {
 		if (id === null) {
 			continue
 		}
-		const seconds = Number.isFinite(r.speakingDuration) ? Math.max(0, r.speakingDuration) : 0
+		const seconds = Number.isFinite(r.speakingDuration)
+			? Math.max(0, r.speakingDuration)
+			: 0
 		byParticipant.set(id, (byParticipant.get(id) ?? 0) + seconds)
 	}
 	const totalSeconds = [...byParticipant.values()].reduce((sum, v) => sum + v, 0)
@@ -214,7 +225,9 @@ export function costTrend(meetings) {
 export function agendaItemCostBreakdown(items, attendeeCount, hourlyRate) {
 	const list = Array.isArray(items) ? items : []
 	const rows = list.map((item) => {
-		const actualMinutes = Number.isFinite(item.actualDuration) ? Math.max(0, item.actualDuration) : 0
+		const actualMinutes = Number.isFinite(item.actualDuration)
+			? Math.max(0, item.actualDuration)
+			: 0
 		return {
 			id: item.id ?? item.uuid ?? null,
 			title: item.title ?? '',
@@ -254,8 +267,12 @@ export function timeAllocationAccuracy(items) {
 	const list = Array.isArray(items) ? items : []
 	const byType = new Map()
 	for (const item of list) {
-		const estimated = Number.isFinite(item.estimatedDuration) ? item.estimatedDuration : null
-		const actual = Number.isFinite(item.actualDuration) ? item.actualDuration : null
+		const estimated = Number.isFinite(item.estimatedDuration)
+			? item.estimatedDuration
+			: null
+		const actual = Number.isFinite(item.actualDuration)
+			? item.actualDuration
+			: null
 		if (estimated === null && actual === null) {
 			continue
 		}
@@ -272,7 +289,8 @@ export function timeAllocationAccuracy(items) {
 		}
 	}
 
-	const avg = (arr) => (arr.length > 0 ? Math.round(arr.reduce((s, v) => s + v, 0) / arr.length) : 0)
+	const avg = (arr) =>
+		arr.length > 0 ? Math.round(arr.reduce((s, v) => s + v, 0) / arr.length) : 0
 
 	return [...byType.entries()].map(([itemType, bucket]) => {
 		const avgEstimated = avg(bucket.estimated)

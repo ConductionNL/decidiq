@@ -5,10 +5,10 @@
  Minutes detail-view publication tab — delegates to PublicationActionsTab with
  sourceType="minutes" (publish-decisions-via-opencatalogi).
 
- @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ @spec openspec/specs/public-publication/spec.md
 -->
 <template>
-	<PublicationActionsTab :object-id="objectId" source-type="minutes" />
+	<PublicationActionsTab :objectId="objectId" sourceType="minutes" />
 </template>
 
 <script>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk dormant eIDAS Signature Service fallback
  *
@@ -29,7 +30,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
@@ -41,150 +42,145 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
  */
-class LogEIDASSignatureService implements IEIDASSignatureService
-{
+class LogEIDASSignatureService implements IEIDASSignatureService {
 
-    /**
-     * Constant message used in every fallback response.
-     *
-     * @var string
-     */
-    public const UNCONFIGURED_MESSAGE = 'eIDAS QES integration is not configured.';
+	/**
+	 * Constant message used in every fallback response.
+	 *
+	 * @var string
+	 */
+	public const UNCONFIGURED_MESSAGE = 'eIDAS QES integration is not configured.';
 
-    /**
-     * Constructor.
-     *
-     * @param LoggerInterface $logger          Logger
-     * @param AuditLogService $auditLogService Audit log dependency
-     */
-    public function __construct(
-        private readonly LoggerInterface $logger,
-        private readonly AuditLogService $auditLogService,
-    ) {
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param LoggerInterface $logger Logger
+	 * @param AuditLogService $auditLogService Audit log dependency
+	 */
+	public function __construct(
+		private readonly LoggerInterface $logger,
+		private readonly AuditLogService $auditLogService,
+	) {
+	}//end __construct()
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param string        $minutesId   UUID of the Minutes record
-     * @param array<string> $signatories Ordered list of member (Person) UUIDs
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
-     *
-     * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}
-     */
-    public function initializeSigningRequest(string $minutesId, array $signatories): array
-    {
-        $this->logger->warning(
-            'Decidesk: dormant eIDAS adapter received initializeSigningRequest',
-            ['minutesId' => $minutesId, 'signatories' => $signatories]
-        );
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param string $minutesId UUID of the Minutes record
+	 * @param array<string> $signatories Ordered list of member (Person) UUIDs
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 *
+	 * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}
+	 */
+	public function initializeSigningRequest(string $minutesId, array $signatories): array {
+		$this->logger->warning(
+			'Decidesk: dormant eIDAS adapter received initializeSigningRequest',
+			['minutesId' => $minutesId, 'signatories' => $signatories]
+		);
 
-        $this->auditLogService->append(
-            actor: 'system',
-            action: 'signature',
-            objectUids: [$minutesId],
-            payload: [
-                'phase'       => 'initiate',
-                'adapter'     => 'dormant',
-                'signatories' => array_values(array_map('strval', $signatories)),
-            ]
-        );
+		$this->auditLogService->append(
+			actor: 'system',
+			action: 'signature',
+			objectUids: [$minutesId],
+			payload: [
+				'phase' => 'initiate',
+				'adapter' => 'dormant',
+				'signatories' => array_values(array_map('strval', $signatories)),
+			]
+		);
 
-        return [
-            'success'    => false,
-            'requestId'  => null,
-            'signingUrl' => null,
-            'message'    => self::UNCONFIGURED_MESSAGE,
-        ];
+		return [
+			'success' => false,
+			'requestId' => null,
+			'signingUrl' => null,
+			'message' => self::UNCONFIGURED_MESSAGE,
+		];
 
-    }//end initializeSigningRequest()
+	}//end initializeSigningRequest()
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param string $requestId UUID of the signing request
-     * @param string $signature Base-64 encoded signature blob
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
-     *
-     * @return array{valid: bool, certificateThumbprint: ?string, timestamp: ?string, message: string}
-     */
-    public function verifySignature(string $requestId, string $signature): array
-    {
-        $this->logger->warning(
-            'Decidesk: dormant eIDAS adapter received verifySignature',
-            ['requestId' => $requestId]
-        );
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param string $requestId UUID of the signing request
+	 * @param string $signature Base-64 encoded signature blob
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 *
+	 * @return array{valid: bool, certificateThumbprint: ?string, timestamp: ?string, message: string}
+	 */
+	public function verifySignature(string $requestId, string $signature): array {
+		$this->logger->warning(
+			'Decidesk: dormant eIDAS adapter received verifySignature',
+			['requestId' => $requestId]
+		);
 
-        return [
-            'valid'                 => false,
-            'certificateThumbprint' => null,
-            'timestamp'             => null,
-            'message'               => self::UNCONFIGURED_MESSAGE,
-        ];
+		return [
+			'valid' => false,
+			'certificateThumbprint' => null,
+			'timestamp' => null,
+			'message' => self::UNCONFIGURED_MESSAGE,
+		];
 
-    }//end verifySignature()
+	}//end verifySignature()
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param string                    $minutesId     UUID of the BoardMinutes record
-     * @param array<int, array<string>> $signatureList List of {signer, signature, timestamp} tuples
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
-     *
-     * @return array{success: bool, pdfArchiveReference: ?string, hashSha256: ?string, message: string}
-     */
-    public function finalizeMinutes(string $minutesId, array $signatureList): array
-    {
-        $this->logger->warning(
-            'Decidesk: dormant eIDAS adapter received finalizeMinutes',
-            ['minutesId' => $minutesId, 'signatureCount' => count($signatureList)]
-        );
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param string $minutesId UUID of the BoardMinutes record
+	 * @param array<int, array<string>> $signatureList List of {signer, signature, timestamp} tuples
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 *
+	 * @return array{success: bool, pdfArchiveReference: ?string, hashSha256: ?string, message: string}
+	 */
+	public function finalizeMinutes(string $minutesId, array $signatureList): array {
+		$this->logger->warning(
+			'Decidesk: dormant eIDAS adapter received finalizeMinutes',
+			['minutesId' => $minutesId, 'signatureCount' => count($signatureList)]
+		);
 
-        $this->auditLogService->append(
-            actor: 'system',
-            action: 'signature',
-            objectUids: [$minutesId],
-            payload: [
-                'phase'      => 'finalize',
-                'adapter'    => 'dormant',
-                'signatures' => count($signatureList),
-            ]
-        );
+		$this->auditLogService->append(
+			actor: 'system',
+			action: 'signature',
+			objectUids: [$minutesId],
+			payload: [
+				'phase' => 'finalize',
+				'adapter' => 'dormant',
+				'signatures' => count($signatureList),
+			]
+		);
 
-        return [
-            'success'             => false,
-            'pdfArchiveReference' => null,
-            'hashSha256'          => null,
-            'message'             => self::UNCONFIGURED_MESSAGE,
-        ];
+		return [
+			'success' => false,
+			'pdfArchiveReference' => null,
+			'hashSha256' => null,
+			'message' => self::UNCONFIGURED_MESSAGE,
+		];
 
-    }//end finalizeMinutes()
+	}//end finalizeMinutes()
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param string $certificateThumbprint SHA-256 thumbprint of the cert
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
-     *
-     * @return array{valid: bool, issuer: ?string, trustListLevel: ?string, message: string}
-     */
-    public function validateCertificateChain(string $certificateThumbprint): array
-    {
-        $this->logger->warning(
-            'Decidesk: dormant eIDAS adapter received validateCertificateChain',
-            ['certificateThumbprint' => $certificateThumbprint]
-        );
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param string $certThumbprint SHA-256 thumbprint of the cert
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 *
+	 * @return array{valid: bool, issuer: ?string, trustListLevel: ?string, message: string}
+	 */
+	public function validateCertificateChain(string $certThumbprint): array {
+		$this->logger->warning(
+			'Decidesk: dormant eIDAS adapter received validateCertificateChain',
+			['certificateThumbprint' => $certThumbprint]
+		);
 
-        return [
-            'valid'          => false,
-            'issuer'         => null,
-            'trustListLevel' => null,
-            'message'        => self::UNCONFIGURED_MESSAGE,
-        ];
+		return [
+			'valid' => false,
+			'issuer' => null,
+			'trustListLevel' => null,
+			'message' => self::UNCONFIGURED_MESSAGE,
+		];
 
-    }//end validateCertificateChain()
+	}//end validateCertificateChain()
 }//end class

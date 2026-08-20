@@ -12,6 +12,81 @@
 			"name": "0. Setup",
 			"item": [
 				{
+					"name": "Seed governance body (chair scope for the voting-round check)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: governance body created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'governance body id captured').to.be.a('string');",
+									"pm.collectionVariables.set('maGovBodyId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/governance-body", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "governance-body" ] },
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"Newman MA GB\",\n  \"bodyType\": \"legislative\",\n  \"domain\": \"newman-motion-amendment\"\n}" }
+					}
+				},
+				{
+					"name": "Seed chair participant (admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: chair participant created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'chair participant id captured').to.be.a('string');",
+									"pm.collectionVariables.set('maChairId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "participant" ] },
+						"body": { "mode": "raw", "raw": "{\n  \"displayName\": \"Newman MA Chair\",\n  \"name\": \"Newman MA Chair\",\n  \"nextcloudUserId\": \"{{adminUser}}\",\n  \"role\": \"chair\",\n  \"participantType\": \"remote\",\n  \"governanceBody\": \"{{maGovBodyId}}\"\n}" }
+					}
+				},
+				{
+					"name": "Seed meeting (opened, linked to the governance body)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: meeting created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'meeting id captured').to.be.a('string');",
+									"pm.collectionVariables.set('maMeetingId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "meeting" ] },
+						"body": { "mode": "raw", "raw": "{\n  \"title\": \"Newman MA Meeting\",\n  \"meetingType\": \"regular\",\n  \"scheduledDate\": \"2026-06-20T10:00:00+00:00\",\n  \"meetingMode\": \"hybrid\",\n  \"lifecycle\": \"opened\",\n  \"quorumRequired\": 1,\n  \"governanceBody\": \"{{maGovBodyId}}\"\n}" }
+					}
+				},
+				{
 					"name": "Seed parent motion",
 					"event": [
 						{
@@ -32,8 +107,8 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "motion" ] },
-						"body": { "mode": "raw", "raw": "{\n  \"title\": \"Newman motion-amendment parent motion\",\n  \"text\": \"The original motion text under consideration.\",\n  \"lifecycle\": \"debating\"\n}" }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "decision" ] },
+						"body": { "mode": "raw", "raw": "{\n  \"decisionType\": \"motion\",\n  \"title\": \"Newman motion-amendment parent motion\",\n  \"text\": \"The original motion text under consideration.\",\n  \"lifecycle\": \"deliberating\"\n}" }
 					}
 				},
 				{
@@ -57,8 +132,8 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/amendment", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "amendment" ] },
-						"body": { "mode": "raw", "raw": "{\n  \"title\": \"Amendment A\",\n  \"text\": \"Original text\",\n  \"proposedText\": \"Original text with a small addition\",\n  \"parentMotion\": \"{{motionId}}\",\n  \"lifecycle\": \"debating\",\n  \"submittedAt\": \"2026-06-01T10:00:00Z\"\n}" }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "decision" ] },
+						"body": { "mode": "raw", "raw": "{\n  \"decisionType\": \"amendment\",\n  \"title\": \"Amendment A\",\n  \"text\": \"Original text\",\n  \"proposedText\": \"Original text with a small addition\",\n  \"amends\": \"{{motionId}}\",\n  \"lifecycle\": \"deliberating\",\n  \"submittedAt\": \"2026-06-01T10:00:00Z\"\n}" }
 					}
 				},
 				{
@@ -82,8 +157,8 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/amendment", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "amendment" ] },
-						"body": { "mode": "raw", "raw": "{\n  \"title\": \"Amendment B\",\n  \"text\": \"Original text\",\n  \"proposedText\": \"A far more sweeping rewrite of the entire passage entirely\",\n  \"parentMotion\": \"{{motionId}}\",\n  \"lifecycle\": \"debating\",\n  \"submittedAt\": \"2026-06-02T10:00:00Z\"\n}" }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "decision" ] },
+						"body": { "mode": "raw", "raw": "{\n  \"decisionType\": \"amendment\",\n  \"title\": \"Amendment B\",\n  \"text\": \"Original text\",\n  \"proposedText\": \"A far more sweeping rewrite of the entire passage entirely\",\n  \"amends\": \"{{motionId}}\",\n  \"lifecycle\": \"deliberating\",\n  \"submittedAt\": \"2026-06-02T10:00:00Z\"\n}" }
 					}
 				}
 			]
@@ -176,6 +251,13 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
+									"// VotingController::open() authorizes BEFORE it validates — correct order,",
+									"// but it means this request only reaches the subjectType check when the",
+									"// caller holds chair/secretary in the meeting it names. The placeholder",
+									"// meetingId 'meeting-x' resolved to no governance body, so the guard",
+									"// fail-closed with 403 and the subjectType contract was never exercised.",
+									"// Folder 0 now seeds a real governance body + chair participant (admin) +",
+									"// meeting, and this request names that meeting.",
 									"pm.test('Open: invalid subjectType rejected (400)', () => pm.response.to.have.status(400));",
 									"const b = pm.response.json();",
 									"pm.expect(b.message, 'subjectType message').to.include('subjectType');"
@@ -188,7 +270,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "voting-rounds" ] },
-						"body": { "mode": "raw", "raw": "{\n  \"motionId\": \"{{motionId}}\",\n  \"meetingId\": \"meeting-x\",\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"subjectType\": \"resolution\"\n}" }
+						"body": { "mode": "raw", "raw": "{\n  \"motionId\": \"{{motionId}}\",\n  \"meetingId\": \"{{maMeetingId}}\",\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"subjectType\": \"resolution\"\n}" }
 					}
 				}
 			]
@@ -228,7 +310,7 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "DELETE",
 						"header": [ { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/amendment/{{amendmentA}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "amendment", "{{amendmentA}}" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision/{{amendmentA}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "decision", "{{amendmentA}}" ] }
 					}
 				},
 				{
@@ -238,7 +320,7 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "DELETE",
 						"header": [ { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/amendment/{{amendmentB}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "amendment", "{{amendmentB}}" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision/{{amendmentB}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "decision", "{{amendmentB}}" ] }
 					}
 				},
 				{
@@ -248,7 +330,37 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "DELETE",
 						"header": [ { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion/{{motionId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "motion", "{{motionId}}" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision/{{motionId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "decision", "{{motionId}}" ] }
+					}
+				},
+				{
+					"name": "Delete meeting",
+					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Teardown: meeting deleted', () => pm.expect(pm.response.code, 'status').to.be.oneOf([200, 204, 404]));" ] } } ],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "DELETE",
+						"header": [ { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting/{{maMeetingId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "meeting", "{{maMeetingId}}" ] }
+					}
+				},
+				{
+					"name": "Delete chair participant",
+					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Teardown: chair participant deleted', () => pm.expect(pm.response.code, 'status').to.be.oneOf([200, 204, 404]));" ] } } ],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "DELETE",
+						"header": [ { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant/{{maChairId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "participant", "{{maChairId}}" ] }
+					}
+				},
+				{
+					"name": "Delete governance body",
+					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Teardown: governance body deleted', () => pm.expect(pm.response.code, 'status').to.be.oneOf([200, 204, 404]));" ] } } ],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "DELETE",
+						"header": [ { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/governance-body/{{maGovBodyId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "governance-body", "{{maGovBodyId}}" ] }
 					}
 				}
 			]
@@ -261,6 +373,9 @@
 		{ "key": "adminPass", "value": "admin" },
 		{ "key": "motionId", "value": "" },
 		{ "key": "amendmentA", "value": "" },
-		{ "key": "amendmentB", "value": "" }
+		{ "key": "amendmentB", "value": "" },
+		{ "key": "maGovBodyId", "value": "" },
+		{ "key": "maChairId", "value": "" },
+		{ "key": "maMeetingId", "value": "" }
 	]
 }

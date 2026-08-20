@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Regulator Export Controller
  *
@@ -27,8 +28,10 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\RegulatorExportService;
+use OCA\Decidesk\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\DataDisplayResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\Response;
@@ -41,174 +44,155 @@ use OCP\IUserSession;
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
  */
-class RegulatorExportController extends Controller
-{
-    use GovernanceControllerTrait;
+class RegulatorExportController extends Controller {
+	use RequiresOrAdmin;
+	use GovernanceControllerTrait;
 
-    /**
-     * Constructor.
-     *
-     * @param IRequest               $request       HTTP request
-     * @param RegulatorExportService $exportService Export service
-     * @param IUserSession           $userSession   User session
-     * @param IGroupManager          $groupManager  Group manager
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly RegulatorExportService $exportService,
-        private readonly IUserSession $userSession,
-        private readonly IGroupManager $groupManager,
-    ) {
-        parent::__construct(appName: Application::APP_ID, request: $request);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request HTTP request
+	 * @param RegulatorExportService $exportService Export service
+	 * @param IUserSession $userSession User session
+	 * @param IGroupManager $groupManager Group manager
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly RegulatorExportService $exportService,
+		private readonly IUserSession $userSession,
+		private readonly IGroupManager $groupManager,
+	) {
+		parent::__construct(appName: Application::APP_ID, request: $request);
+	}//end __construct()
 
-    /**
-     * Generate a regulator export and stream the body as an attachment.
-     *
-     * Body params:
-     * - boardId (string, required)
-     * - scope (string: resolutions|minutes|audit-log, required)
-     * - format (string: pdf|csv, default pdf)
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
-     *
-     * @return Response
-     */
-    public function generate(): Response
-    {
-        $deny = $this->requireAdmin();
-        if ($deny !== null) {
-            return $deny;
-        }
+	/**
+	 * Generate a regulator export and stream the body as an attachment.
+	 *
+	 * Body params:
+	 * - boardId (string, required)
+	 * - scope (string: resolutions|minutes|audit-log, required)
+	 * - format (string: pdf|csv, default pdf)
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 *
+	 * @return Response
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function generate(): Response {
+		$deny = $this->requireAdmin();
+		if ($deny !== null) {
+			return $deny;
+		}
 
-        $user = $this->userSession->getUser();
-        $uid  = 'system';
-        if ($user !== null) {
-            $uid = $user->getUID();
-        }
+		$user = $this->userSession->getUser();
+		$uid = 'system';
+		if ($user !== null) {
+			$uid = $user->getUID();
+		}
 
-        $boardId = (string) $this->request->getParam('boardId', '');
-        $scope   = (string) $this->request->getParam('scope', 'resolutions');
-        $format  = (string) $this->request->getParam('format', 'pdf');
+		$boardId = (string)$this->request->getParam('boardId', '');
+		$scope = (string)$this->request->getParam('scope', 'resolutions');
+		$format = (string)$this->request->getParam('format', 'pdf');
 
-        if ($boardId === '') {
-            return new JSONResponse(
-                ['message' => "Missing required parameter 'boardId'."],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        }
+		if ($boardId === '') {
+			return new JSONResponse(
+				['message' => "Missing required parameter 'boardId'."],
+				Http::STATUS_UNPROCESSABLE_ENTITY
+			);
+		}
 
-        $result = $this->exportService->generate($boardId, $scope, $format, $uid);
-        if (($result['success'] ?? false) === false) {
-            return new JSONResponse(
-                ['message' => (string) ($result['message'] ?? 'Failed to generate export.')],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        }
+		$result = $this->exportService->generate($boardId, $scope, $format, $uid);
+		if ($result['success'] === false) {
+			return new JSONResponse(
+				['message' => $result['message']],
+				Http::STATUS_UNPROCESSABLE_ENTITY
+			);
+		}
 
-        $response = new DataDisplayResponse(
-            $result['body'],
-            Http::STATUS_OK,
-            ['Content-Type' => $result['contentType']]
-        );
-        $response->addHeader('Content-Disposition', 'attachment; filename="'.$result['filename'].'"');
-        $response->addHeader('X-Decidesk-Export-Sha256', (string) ($result['export']['sha256'] ?? ''));
-        return $response;
+		$response = new DataDisplayResponse(
+			$result['body'],
+			Http::STATUS_OK,
+			['Content-Type' => $result['contentType']]
+		);
+		$response->addHeader('Content-Disposition', 'attachment; filename="' . $result['filename'] . '"');
+		$response->addHeader('X-Decidesk-Export-Sha256', (string)($result['export']['sha256'] ?? ''));
+		return $response;
+	}//end generate()
 
-    }//end generate()
+	/**
+	 * Re-emit a persisted export by id (idempotent regeneration).
+	 *
+	 * @param string $id UUID of the persisted export record
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 *
+	 * @return Response
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function download(string $id): Response {
+		$deny = $this->requireAdmin();
+		if ($deny !== null) {
+			return $deny;
+		}
 
-    /**
-     * Re-emit a persisted export by id (idempotent regeneration).
-     *
-     * @param string $id UUID of the persisted export record
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
-     *
-     * @return Response
-     */
-    public function download(string $id): Response
-    {
-        $deny = $this->requireAdmin();
-        if ($deny !== null) {
-            return $deny;
-        }
+		$user = $this->userSession->getUser();
+		$uid = 'system';
+		if ($user !== null) {
+			$uid = $user->getUID();
+		}
 
-        $user = $this->userSession->getUser();
-        $uid  = 'system';
-        if ($user !== null) {
-            $uid = $user->getUID();
-        }
+		$result = $this->exportService->download($id, $uid);
+		if ($result['success'] === false) {
+			$message = $result['message'];
+			$status = Http::STATUS_UNPROCESSABLE_ENTITY;
+			if (stripos($message, 'not found') !== false) {
+				$status = Http::STATUS_NOT_FOUND;
+			}
 
-        $result = $this->exportService->download($id, $uid);
-        if (($result['success'] ?? false) === false) {
-            $message = (string) ($result['message'] ?? 'Failed to download export.');
-            $status  = Http::STATUS_UNPROCESSABLE_ENTITY;
-            if (stripos($message, 'not found') !== false) {
-                $status = Http::STATUS_NOT_FOUND;
-            }
+			return new JSONResponse(['message' => $message], $status);
+		}
 
-            return new JSONResponse(['message' => $message], $status);
-        }
+		$response = new DataDisplayResponse(
+			$result['body'],
+			Http::STATUS_OK,
+			['Content-Type' => $result['contentType']]
+		);
+		$response->addHeader('Content-Disposition', 'attachment; filename="' . $result['filename'] . '"');
+		return $response;
+	}//end download()
 
-        $response = new DataDisplayResponse(
-            $result['body'],
-            Http::STATUS_OK,
-            ['Content-Type' => $result['contentType']]
-        );
-        $response->addHeader('Content-Disposition', 'attachment; filename="'.$result['filename'].'"');
-        return $response;
+	/**
+	 * List previously generated exports for a board.
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function index(): JSONResponse {
+		$deny = $this->requireAdmin();
+		if ($deny !== null) {
+			return $deny;
+		}
 
-    }//end download()
+		$boardId = (string)$this->request->getParam('boardId', '');
+		if ($boardId === '') {
+			return new JSONResponse(
+				['message' => "Missing required parameter 'boardId'."],
+				Http::STATUS_UNPROCESSABLE_ENTITY
+			);
+		}
 
-    /**
-     * List previously generated exports for a board.
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
-     *
-     * @return JSONResponse
-     */
-    public function index(): JSONResponse
-    {
-        $deny = $this->requireAdmin();
-        if ($deny !== null) {
-            return $deny;
-        }
+		$result = $this->exportService->listExports($boardId);
+		return new JSONResponse(
+			[
+				'results' => $result['exports'],
+				'total' => $result['count'],
+			]
+		);
 
-        $boardId = (string) $this->request->getParam('boardId', '');
-        if ($boardId === '') {
-            return new JSONResponse(
-                ['message' => "Missing required parameter 'boardId'."],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        }
+	}//end index()
 
-        $result = $this->exportService->listExports($boardId);
-        return new JSONResponse(
-            [
-                'results' => $result['exports'],
-                'total'   => $result['count'],
-            ]
-        );
-
-    }//end index()
-
-    /**
-     * Reject the caller with 401/403 when they are not a Nextcloud admin.
-     *
-     * @return JSONResponse|null
-     */
-    private function requireAdmin(): ?JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        if ($this->groupManager->isAdmin($user->getUID()) === false) {
-            return new JSONResponse(['message' => 'Administrator role required.'], Http::STATUS_FORBIDDEN);
-        }
-
-        return null;
-
-    }//end requireAdmin()
+	// Admin guard requireAdmin() comes from the shared RequiresOrAdmin trait
+	// (consume-or-rbac-authorization, REQ-RBAC-004).
 }//end class

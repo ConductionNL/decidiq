@@ -1,6 +1,6 @@
-import { defineStore } from 'pinia'
 import { getRequestToken } from '@nextcloud/auth'
 import { generateUrl } from '@nextcloud/router'
+import { defineStore } from 'pinia'
 
 export const useSettingsStore = defineStore('settings', {
 	state: () => ({
@@ -20,9 +20,12 @@ export const useSettingsStore = defineStore('settings', {
 		async fetchSettings() {
 			this.loading = true
 			try {
-				const response = await fetch(generateUrl('/apps/decidesk/api/settings'), {
-					headers: { requesttoken: getRequestToken() },
-				})
+				const response = await fetch(
+					generateUrl('/apps/decidesk/api/settings'),
+					{
+						headers: { requesttoken: getRequestToken() },
+					},
+				)
 				if (response.ok) {
 					const data = await response.json()
 					this.settings = data
@@ -38,18 +41,24 @@ export const useSettingsStore = defineStore('settings', {
 			return null
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10 */
+		/**
+		 * @param settings
+		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10
+		 */
 		async saveSettings(settings) {
 			this.loading = true
 			try {
-				const response = await fetch(generateUrl('/apps/decidesk/api/settings'), {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						requesttoken: getRequestToken(),
+				const response = await fetch(
+					generateUrl('/apps/decidesk/api/settings'),
+					{
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: getRequestToken(),
+						},
+						body: JSON.stringify(settings),
 					},
-					body: JSON.stringify(settings),
-				})
+				)
 				if (response.ok) {
 					const data = await response.json()
 					// settings#create wraps the settings in a {success, config}

@@ -16,14 +16,18 @@
  @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#requirement-per-meeting-besluiten-authoring-tab
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--decisions" data-testid="meeting-decisions-tab">
+	<div
+		class="decidesk-tab decidesk-tab--decisions"
+		data-testid="meeting-decisions-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Decisions') }}
-				<span v-if="!loading" class="decidesk-tab__count">({{ rows.length }})</span>
+				<span v-if="!loading" class="decidesk-tab__count"
+					>({{ rows.length }})</span
+				>
 			</h3>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="meeting-decisions-create"
 				:aria-label="t('decidesk', 'Create decision')"
 				:disabled="creating"
@@ -46,12 +50,15 @@
 			:columns="columns"
 			:rows="rows"
 			:loading="loading"
-			row-key="id"
-			:empty-text="t('decidesk', 'No decisions yet for this meeting.')"
-			:loading-text="t('decidesk', 'Loading decisions…')"
-			@row-click="openDetail">
+			rowKey="id"
+			:emptyText="t('decidesk', 'No decisions yet for this meeting.')"
+			:loadingText="t('decidesk', 'Loading decisions…')"
+			@rowClick="openDetail">
 			<template #column-outcome="{ value }">
-				<CnStatusBadge v-if="value" :label="value" :color-map="outcomeColors" />
+				<CnStatusBadge
+					v-if="value"
+					:label="value"
+					:colorMap="outcomeColors" />
 			</template>
 		</CnDataTable>
 	</div>
@@ -69,6 +76,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -77,6 +85,7 @@ export default {
 			rows: [],
 		}
 	},
+
 	computed: {
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
 		columns() {
@@ -87,6 +96,7 @@ export default {
 				{ key: 'isPublished', label: this.t('decidesk', 'Published') },
 			]
 		},
+
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
 		outcomeColors() {
 			return {
@@ -97,13 +107,17 @@ export default {
 			}
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
+
 	methods: {
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
 		async refresh() {
@@ -118,11 +132,13 @@ export default {
 				})
 				this.rows = items || []
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load decisions.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load decisions.')
 			} finally {
 				this.loading = false
 			}
 		},
+
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-creating-a-decision-pre-fills-the-meeting-reference */
 		async createDecision() {
 			if (!this.objectId || this.creating) return
@@ -138,11 +154,13 @@ export default {
 				await this.refresh()
 				if (newId) this.openDetail({ id: newId })
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Could not create decision.')
+				this.error =
+					e?.message || this.t('decidesk', 'Could not create decision.')
 			} finally {
 				this.creating = false
 			}
 		},
+
 		/**
 		 * Navigate to the DecisionDetail page for a row.
 		 *

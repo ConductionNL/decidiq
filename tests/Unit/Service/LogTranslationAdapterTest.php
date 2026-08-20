@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Unit tests for LogTranslationAdapter.
  *
@@ -31,52 +32,46 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
  */
-class LogTranslationAdapterTest extends TestCase
-{
+class LogTranslationAdapterTest extends TestCase {
 
+	/**
+	 * Identical locales short-circuit with provider=noop.
+	 *
+	 * @return void
+	 */
+	public function testIdenticalLocalesShortCircuit(): void {
+		$adapter = new LogTranslationAdapter(
+			container: $this->createMock(ContainerInterface::class),
+			logger: $this->createMock(LoggerInterface::class),
+		);
 
-    /**
-     * Identical locales short-circuit with provider=noop.
-     *
-     * @return void
-     */
-    public function testIdenticalLocalesShortCircuit(): void
-    {
-        $adapter = new LogTranslationAdapter(
-            container: $this->createMock(ContainerInterface::class),
-            logger: $this->createMock(LoggerInterface::class),
-        );
+		$result = $adapter->translate('hello', 'nl', 'nl');
+		$this->assertTrue($result['success']);
+		$this->assertSame('hello', $result['text']);
+		$this->assertSame('noop', $result['provider']);
 
-        $result = $adapter->translate('hello', 'nl', 'nl');
-        $this->assertTrue($result['success']);
-        $this->assertSame('hello', $result['text']);
-        $this->assertSame('noop', $result['provider']);
+	}//end testIdenticalLocalesShortCircuit()
 
-    }//end testIdenticalLocalesShortCircuit()
+	/**
+	 * Without an openconnector translation service available, the adapter
+	 * returns the original text with provider=log.
+	 *
+	 * @return void
+	 */
+	public function testFallsBackToLogProvider(): void {
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willThrowException(new \RuntimeException('no provider'));
 
+		$adapter = new LogTranslationAdapter(
+			container: $container,
+			logger: $this->createMock(LoggerInterface::class),
+		);
 
-    /**
-     * Without an openconnector translation service available, the adapter
-     * returns the original text with provider=log.
-     *
-     * @return void
-     */
-    public function testFallsBackToLogProvider(): void
-    {
-        $container = $this->createMock(ContainerInterface::class);
-        $container->method('get')->willThrowException(new \RuntimeException('no provider'));
+		$result = $adapter->translate('Hallo wereld', 'nl', 'en');
+		$this->assertTrue($result['success']);
+		$this->assertSame('Hallo wereld', $result['text']);
+		$this->assertSame('log', $result['provider']);
 
-        $adapter = new LogTranslationAdapter(
-            container: $container,
-            logger: $this->createMock(LoggerInterface::class),
-        );
-
-        $result = $adapter->translate('Hallo wereld', 'nl', 'en');
-        $this->assertTrue($result['success']);
-        $this->assertSame('Hallo wereld', $result['text']);
-        $this->assertSame('log', $result['provider']);
-
-    }//end testFallsBackToLogProvider()
-
+	}//end testFallsBackToLogProvider()
 
 }//end class

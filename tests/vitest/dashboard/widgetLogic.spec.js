@@ -86,13 +86,21 @@ describe('pendingVotingRounds (REQ-009 / REQ-012 set-difference)', () => {
 	})
 
 	it('returns empty when the participant voted in every open round', () => {
-		const all = [{ participant: 'p1', votingRound: 'r1' }, { participant: 'p1', votingRound: 'r2' }]
+		const all = [
+			{ participant: 'p1', votingRound: 'r1' },
+			{ participant: 'p1', votingRound: 'r2' },
+		]
 		expect(pendingVotingRounds(openRounds, all, 'p1')).toEqual([])
 	})
 
 	it('ignores votes cast by other participants', () => {
-		const others = [{ participant: 'p2', votingRound: 'r1' }, { participant: 'p2', votingRound: 'r2' }]
-		expect(pendingVotingRounds(openRounds, others, 'p1').map((r) => r.id)).toEqual(['r1', 'r2'])
+		const others = [
+			{ participant: 'p2', votingRound: 'r1' },
+			{ participant: 'p2', votingRound: 'r2' },
+		]
+		expect(
+			pendingVotingRounds(openRounds, others, 'p1').map((r) => r.id),
+		).toEqual(['r1', 'r2'])
 	})
 
 	it('returns empty for a null participant id (no-participant ⇒ 0)', () => {
@@ -102,7 +110,9 @@ describe('pendingVotingRounds (REQ-009 / REQ-012 set-difference)', () => {
 	it('coerces id types when matching votes', () => {
 		const numericVotes = [{ participant: 1, votingRound: 2 }]
 		const rounds = [{ id: '1' }, { id: '2' }]
-		expect(pendingVotingRounds(rounds, numericVotes, '1').map((r) => r.id)).toEqual(['1'])
+		expect(
+			pendingVotingRounds(rounds, numericVotes, '1').map((r) => r.id),
+		).toEqual(['1'])
 	})
 })
 
@@ -174,16 +184,24 @@ describe('upcoming meetings (REQ-008 / REQ-011)', () => {
 
 describe('overdue action items (REQ-002 / REQ-010)', () => {
 	it('is overdue when past due and not completed/cancelled', () => {
-		expect(isOverdue({ dueDate: inHours(-1), taskStatus: 'open' }, NOW)).toBe(true)
+		expect(isOverdue({ dueDate: inHours(-1), taskStatus: 'open' }, NOW)).toBe(
+			true,
+		)
 	})
 
 	it('is not overdue when completed or cancelled', () => {
-		expect(isOverdue({ dueDate: inHours(-1), taskStatus: 'completed' }, NOW)).toBe(false)
-		expect(isOverdue({ dueDate: inHours(-1), taskStatus: 'cancelled' }, NOW)).toBe(false)
+		expect(
+			isOverdue({ dueDate: inHours(-1), taskStatus: 'completed' }, NOW),
+		).toBe(false)
+		expect(
+			isOverdue({ dueDate: inHours(-1), taskStatus: 'cancelled' }, NOW),
+		).toBe(false)
 	})
 
 	it('is not overdue when due in the future', () => {
-		expect(isOverdue({ dueDate: inHours(10), taskStatus: 'open' }, NOW)).toBe(false)
+		expect(isOverdue({ dueDate: inHours(10), taskStatus: 'open' }, NOW)).toBe(
+			false,
+		)
 	})
 
 	it('counts overdue items in a collection', () => {
@@ -208,7 +226,10 @@ describe('sortByDueDate (REQ-002)', () => {
 	})
 
 	it('does not mutate the input array', () => {
-		const items = [{ id: 'b', dueDate: inHours(20) }, { id: 'a', dueDate: inHours(5) }]
+		const items = [
+			{ id: 'b', dueDate: inHours(20) },
+			{ id: 'a', dueDate: inHours(5) },
+		]
 		const copy = [...items]
 		sortByDueDate(items)
 		expect(items).toEqual(copy)
@@ -217,22 +238,47 @@ describe('sortByDueDate (REQ-002)', () => {
 
 describe('groupMotionsByLifecycle (REQ-001)', () => {
 	it('groups motions under each running lifecycle, always present', () => {
+		// ADR-005 Decision.lifecycle vocabulary. These fixtures used to read
+		// `submitted` / `under-discussion` — values no stored decision can hold —
+		// so this test agreed with a widget that filtered on the same impossible
+		// words, and neither half could see that the widget was always empty.
 		const motions = [
-			{ id: '1', lifecycle: 'submitted' },
+			{ id: '1', lifecycle: 'proposed' },
 			{ id: '2', lifecycle: 'voting' },
-			{ id: '3', lifecycle: 'submitted' },
+			{ id: '3', lifecycle: 'proposed' },
 			{ id: '4', lifecycle: 'archived' },
 		]
 		const groups = groupMotionsByLifecycle(motions)
 		expect(Object.keys(groups)).toEqual(RUNNING_MOTION_LIFECYCLES)
-		expect(groups.submitted.map((m) => m.id)).toEqual(['1', '3'])
+		expect(groups.proposed.map((m) => m.id)).toEqual(['1', '3'])
 		expect(groups.voting.map((m) => m.id)).toEqual(['2'])
-		expect(groups['under-discussion']).toEqual([])
+		expect(groups.deliberating).toEqual([])
 	})
 
 	it('drops motions whose lifecycle is not a running stage', () => {
 		const groups = groupMotionsByLifecycle([{ id: 'x', lifecycle: 'archived' }])
-		expect(groups.submitted.concat(groups.voting, groups['under-discussion'])).toEqual([])
+		expect(groups.proposed.concat(groups.voting, groups.deliberating)).toEqual(
+			[],
+		)
+	})
+
+	it('every running stage is a real Decision.lifecycle value', () => {
+		// The defect this file missed was a vocabulary that existed nowhere but
+		// here. Asserting the stage keys against the schema's own enum is the
+		// only check that could have caught it.
+		const schemaStates = [
+			'draft',
+			'proposed',
+			'deliberating',
+			'voting',
+			'decided',
+			'enacted',
+			'archived',
+			'withdrawn',
+		]
+		for (const stage of RUNNING_MOTION_LIFECYCLES) {
+			expect(schemaStates).toContain(stage)
+		}
 	})
 })
 
@@ -245,7 +291,11 @@ describe('active decisions (REQ-013)', () => {
 	})
 
 	it('counts undecided decisions', () => {
-		const decisions = [{ outcome: 'adopted' }, { outcome: null }, { outcome: null }]
+		const decisions = [
+			{ outcome: 'adopted' },
+			{ outcome: null },
+			{ outcome: null },
+		]
 		expect(activeDecisionCount(decisions)).toBe(2)
 	})
 })
@@ -258,34 +308,79 @@ describe('recentDecisions (REQ-003)', () => {
 	]
 
 	it('sorts by decisionDate descending', () => {
-		expect(recentDecisions(decisions).map((d) => d.id)).toEqual(['new', 'mid', 'old'])
+		expect(recentDecisions(decisions).map((d) => d.id)).toEqual([
+			'new',
+			'mid',
+			'old',
+		])
 	})
 
 	it('caps at the given limit', () => {
-		expect(recentDecisions(decisions, 2).map((d) => d.id)).toEqual(['new', 'mid'])
+		expect(recentDecisions(decisions, 2).map((d) => d.id)).toEqual([
+			'new',
+			'mid',
+		])
 	})
 })
 
 describe('badge mapping (REQ-003)', () => {
 	it('maps outcome enums to label + variant', () => {
-		expect(outcomeBadge('adopted')).toEqual({ label: 'Adopted', variant: 'success' })
-		expect(outcomeBadge('rejected')).toEqual({ label: 'Rejected', variant: 'error' })
-		expect(outcomeBadge(null)).toEqual({ label: 'Undecided', variant: 'default' })
+		expect(outcomeBadge('adopted')).toEqual({
+			label: 'Adopted',
+			variant: 'success',
+		})
+		expect(outcomeBadge('rejected')).toEqual({
+			label: 'Rejected',
+			variant: 'error',
+		})
+		expect(outcomeBadge(null)).toEqual({
+			label: 'Undecided',
+			variant: 'default',
+		})
 	})
 
 	it('maps publication enums to label + variant', () => {
-		expect(publicationBadge('internal')).toEqual({ label: 'Internal', variant: 'default' })
-		expect(publicationBadge('public')).toEqual({ label: 'Public', variant: 'success' })
-		expect(publicationBadge('confidential')).toEqual({ label: 'Confidential', variant: 'warning' })
+		expect(publicationBadge('internal')).toEqual({
+			label: 'Internal',
+			variant: 'default',
+		})
+		expect(publicationBadge('public')).toEqual({
+			label: 'Public',
+			variant: 'success',
+		})
+		expect(publicationBadge('confidential')).toEqual({
+			label: 'Confidential',
+			variant: 'warning',
+		})
 	})
 })
 
 describe('governance health (REQ-004)', () => {
 	const meetings = [
-		{ id: 'a', scheduledDate: '2026-04-23', quorumPercentage: 93, actionItemCompletionRate: 85 },
-		{ id: 'b', scheduledDate: '2026-05-21', quorumPercentage: 87, actionItemCompletionRate: 72 },
-		{ id: 'no-q', scheduledDate: '2026-06-10', quorumPercentage: null, actionItemCompletionRate: 50 },
-		{ id: 'no-rate', scheduledDate: '2026-06-18', quorumPercentage: 80, actionItemCompletionRate: null },
+		{
+			id: 'a',
+			scheduledDate: '2026-04-23',
+			quorumPercentage: 93,
+			actionItemCompletionRate: 85,
+		},
+		{
+			id: 'b',
+			scheduledDate: '2026-05-21',
+			quorumPercentage: 87,
+			actionItemCompletionRate: 72,
+		},
+		{
+			id: 'no-q',
+			scheduledDate: '2026-06-10',
+			quorumPercentage: null,
+			actionItemCompletionRate: 50,
+		},
+		{
+			id: 'no-rate',
+			scheduledDate: '2026-06-18',
+			quorumPercentage: 80,
+			actionItemCompletionRate: null,
+		},
 	]
 
 	it('keeps only meetings with both materialized metrics, sorted ascending', () => {
@@ -339,6 +434,10 @@ describe('pendingInRange / withinDeadlineRange (date-range pills)', () => {
 	})
 
 	it('an open-ended bound treats the missing side as unbounded', () => {
-		expect(pendingInRange(rounds, { from: '2026-06-15T00:00:00Z', to: '' }).map((r) => r.id)).toEqual(['r2'])
+		expect(
+			pendingInRange(rounds, { from: '2026-06-15T00:00:00Z', to: '' }).map(
+				(r) => r.id,
+			),
+		).toEqual(['r2'])
 	})
 })

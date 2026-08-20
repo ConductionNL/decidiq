@@ -45,7 +45,13 @@ export const LANES = ['open', 'in-progress', 'done']
 export function statusToLane(status) {
 	const s = String(status || '').toLowerCase()
 	if (s === 'done' || s === 'completed' || s === 'complete') return 'done'
-	if (s === 'in-progress' || s === 'in_progress' || s === 'inprogress' || s === 'doing') return 'in-progress'
+	if (
+		s === 'in-progress'
+		|| s === 'in_progress'
+		|| s === 'inprogress'
+		|| s === 'doing'
+	)
+		return 'in-progress'
 	return 'open'
 }
 
@@ -58,9 +64,28 @@ export function statusToLane(status) {
  */
 function stackTitleToLane(title) {
 	const t = String(title || '').toLowerCase()
-	if (t.includes('done') || t.includes('complete') || t.includes('afgerond') || t.includes('klaar')) return 'done'
-	if (t.includes('progress') || t.includes('doing') || t.includes('bezig') || t.includes('mee bezig')) return 'in-progress'
-	if (t.includes('open') || t.includes('to do') || t.includes('todo') || t.includes('backlog') || t.includes('te doen')) return 'open'
+	if (
+		t.includes('done')
+		|| t.includes('complete')
+		|| t.includes('completed')
+		|| t.includes('klaar')
+	)
+		return 'done'
+	if (
+		t.includes('progress')
+		|| t.includes('doing')
+		|| t.includes('bezig')
+		|| t.includes('mee bezig')
+	)
+		return 'in-progress'
+	if (
+		t.includes('open')
+		|| t.includes('to do')
+		|| t.includes('todo')
+		|| t.includes('backlog')
+		|| t.includes('te doen')
+	)
+		return 'open'
 	return null
 }
 
@@ -98,7 +123,11 @@ export async function resolveTarget(schema) {
 	let boardId = 0
 	let defaultStackId = 0
 	try {
-		const { data } = await axios.get(generateUrl(`${orBase}/integrations/deck/default/${encodeURIComponent(schema)}`))
+		const { data } = await axios.get(
+			generateUrl(
+				`${orBase}/integrations/deck/default/${encodeURIComponent(schema)}`,
+			),
+		)
 		boardId = Number(data?.boardId || 0)
 		defaultStackId = Number(data?.stackId || 0)
 	} catch (e) {
@@ -106,18 +135,26 @@ export async function resolveTarget(schema) {
 	}
 
 	if (!boardId) {
-		const { data } = await axios.get(generateUrl(`${orBase}/integrations/deck/boards`))
+		const { data } = await axios.get(
+			generateUrl(`${orBase}/integrations/deck/boards`),
+		)
 		const boards = data?.results || []
 		if (!boards.length) {
-			throw new Error('No Deck board available to project action items onto. Create a Deck board first.')
+			throw new Error(
+				'No Deck board available to project action items onto. Create a Deck board first.',
+			)
 		}
 		boardId = Number(boards[0].id)
 	}
 
-	const { data: stacksData } = await axios.get(generateUrl(`${orBase}/integrations/deck/boards/${boardId}/stacks`))
+	const { data: stacksData } = await axios.get(
+		generateUrl(`${orBase}/integrations/deck/boards/${boardId}/stacks`),
+	)
 	const stacks = stacksData?.results || []
 	if (!stacks.length) {
-		throw new Error('The target Deck board has no stacks. Add columns to the board first.')
+		throw new Error(
+			'The target Deck board has no stacks. Add columns to the board first.',
+		)
 	}
 
 	const laneStacks = {}
@@ -137,7 +174,10 @@ export async function resolveTarget(schema) {
  * @return {string} The uid, or ''.
  */
 export function itemUid(item) {
-	return String((item && (item.uuid || item.id || (item['@self'] && item['@self'].uuid))) || '')
+	return String(
+		(item && (item.uuid || item.id || (item['@self'] && item['@self'].uuid)))
+			|| '',
+	)
 }
 
 /**
@@ -155,8 +195,16 @@ export function itemUid(item) {
  * @param {Function} [params.persistCardId] Override for the write-back (testing).
  * @return {Promise<{created: number, skipped: number, errors: object[]}>}
  */
-export async function projectActionItems({ register, schema, objectId, items, persistCardId }) {
-	const writeBack = persistCardId || ((uid, cardId) => updateActionItem(uid, { deckCardId: cardId }))
+export async function projectActionItems({
+	register,
+	schema,
+	objectId,
+	items,
+	persistCardId,
+}) {
+	const writeBack =
+		persistCardId
+		|| ((uid, cardId) => updateActionItem(uid, { deckCardId: cardId }))
 	const target = await resolveTarget(schema)
 
 	// Cards already linked to this object — used to confirm a stored
@@ -164,7 +212,9 @@ export async function projectActionItems({ register, schema, objectId, items, pe
 	let linkedCardIds = new Set()
 	try {
 		const { data } = await axios.get(
-			generateUrl(`${orBase}/objects/${encodeURIComponent(register)}/${encodeURIComponent(schema)}/${encodeURIComponent(objectId)}/deck`),
+			generateUrl(
+				`${orBase}/objects/${encodeURIComponent(register)}/${encodeURIComponent(schema)}/${encodeURIComponent(objectId)}/deck`,
+			),
 		)
 		linkedCardIds = new Set((data?.results || []).map((c) => Number(c.cardId)))
 	} catch (e) {
@@ -198,7 +248,9 @@ export async function projectActionItems({ register, schema, objectId, items, pe
 			if (item.dueDate) body.duedate = String(item.dueDate)
 
 			const { data } = await axios.post(
-				generateUrl(`${orBase}/objects/${encodeURIComponent(register)}/${encodeURIComponent(schema)}/${encodeURIComponent(objectId)}/deck/new`),
+				generateUrl(
+					`${orBase}/objects/${encodeURIComponent(register)}/${encodeURIComponent(schema)}/${encodeURIComponent(objectId)}/deck/new`,
+				),
 				body,
 			)
 			const cardId = Number(data?.cardId || 0)
@@ -210,7 +262,10 @@ export async function projectActionItems({ register, schema, objectId, items, pe
 				errors.push({ uid, error: 'No card id returned' })
 			}
 		} catch (e) {
-			errors.push({ uid, error: e?.response?.data?.error || e?.message || 'Projection failed' })
+			errors.push({
+				uid,
+				error: e?.response?.data?.error || e?.message || 'Projection failed',
+			})
 		}
 	}
 

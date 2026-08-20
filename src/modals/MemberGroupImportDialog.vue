@@ -6,12 +6,14 @@
  isolation).
 
  Group + member listing comes from the admin-gated
- /apps/decidesk/api/member-import endpoints (AuthorizedAdminSetting);
- participant creation goes through the OpenRegister object API via the
- shared store. Members already linked to the body (by NC uid or email)
- are flagged as duplicates and skipped.
+ /apps/decidesk/api/member-import endpoints (AuthorizedAdminSetting).
+ model-debt-cleanup-code: each imported user becomes a Person (matched by
+ email against an existing Person, else created) + Membership pair, not a
+ Participant, going through the OpenRegister object API via the shared
+ store. Members already linked to the body (by NC uid or email) are
+ flagged as duplicates and skipped.
 
- @spec openspec/specs/admin-settings/spec.md
+ @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
 -->
 <template>
 	<NcDialog
@@ -22,7 +24,7 @@
 		<template #default>
 			<NcSelect
 				v-model="selectedGroup"
-				:input-label="t('decidesk', 'Nextcloud group')"
+				:inputLabel="t('decidesk', 'Nextcloud group')"
 				:options="groupOptions"
 				label="label"
 				:loading="loadingGroups"
@@ -33,12 +35,21 @@
 				{{ t('decidesk', 'Loading group members…') }}
 			</div>
 
-			<table v-else-if="preview.length" class="group-import__table" data-testid="group-import-preview">
+			<table
+				v-else-if="preview.length"
+				class="group-import__table"
+				data-testid="group-import-preview">
 				<thead>
 					<tr>
-						<th>{{ t('decidesk', 'Name') }}</th>
-						<th>{{ t('decidesk', 'Email') }}</th>
-						<th>{{ t('decidesk', 'Status') }}</th>
+						<th scope="col">
+							{{ t('decidesk', 'Name') }}
+						</th>
+						<th scope="col">
+							{{ t('decidesk', 'Email') }}
+						</th>
+						<th scope="col">
+							{{ t('decidesk', 'Status') }}
+						</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -49,28 +60,40 @@
 							<span v-if="row.duplicate" class="group-import__dup">
 								{{ t('decidesk', 'Already a member — skipped') }}
 							</span>
-							<span v-else>{{ t('decidesk', 'Will be imported') }}</span>
+							<span v-else>{{
+								t('decidesk', 'Will be imported')
+							}}</span>
 						</td>
 					</tr>
 				</tbody>
 			</table>
 
-			<p v-if="error" class="group-import__error" data-testid="group-import-error">
+			<p
+				v-if="error"
+				class="group-import__error"
+				data-testid="group-import-error">
 				{{ error }}
 			</p>
-			<p v-if="doneMessage" class="group-import__done" data-testid="group-import-done">
+			<p
+				v-if="doneMessage"
+				class="group-import__done"
+				data-testid="group-import-done">
 				{{ doneMessage }}
 			</p>
 		</template>
 		<template #actions>
 			<NcButton
-				type="primary"
+				variant="primary"
 				:disabled="importing || importableCount === 0"
 				data-testid="group-import-submit"
 				@click="runImport">
-				{{ importing
-					? t('decidesk', 'Importing…')
-					: t('decidesk', 'Import {count} members', { count: importableCount }) }}
+				{{
+					importing
+						? t('decidesk', 'Importing…')
+						: t('decidesk', 'Import {count} members', {
+								count: importableCount,
+							})
+				}}
 			</NcButton>
 			<NcButton data-testid="group-import-cancel" @click="$emit('close')">
 				{{ t('decidesk', 'Close') }}
@@ -80,11 +103,15 @@
 </template>
 
 <script>
-import { NcButton, NcDialog, NcSelect } from '@nextcloud/vue'
-import { generateUrl } from '@nextcloud/router'
 import { getRequestToken } from '@nextcloud/auth'
-import { ensureRelationType } from '../components/tabs/useRelationStore.js'
-import { markGroupDuplicates, DEFAULT_ROLE } from '../utils/memberImport.js'
+import { generateUrl } from '@nextcloud/router'
+import { NcButton, NcDialog, NcSelect } from '@nextcloud/vue'
+import {
+	buildMembershipPayload,
+	ensureRelationType,
+	resolveOrCreatePerson,
+} from '../components/tabs/useRelationStore.js'
+import { DEFAULT_ROLE, markGroupDuplicates } from '../utils/memberImport.js'
 
 export default {
 	name: 'MemberGroupImportDialog',
@@ -95,6 +122,7 @@ export default {
 		/** Current members of the body (duplicate detection). */
 		existingMembers: { type: Array, default: () => [] },
 	},
+
 	emits: ['close', 'imported'],
 	data() {
 		return {
@@ -108,6 +136,7 @@ export default {
 			doneMessage: '',
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		groupOptions() {
@@ -116,13 +145,21 @@ export default {
 				label: `${g.displayName} (${g.userCount})`,
 			}))
 		},
+
 		/** @spec openspec/specs/admin-settings/spec.md */
 		importableCount() {
 			return this.preview.filter((row) => !row.duplicate).length
 		},
 	},
+
 	watch: {
-		/** @spec openspec/specs/admin-settings/spec.md */
+		/**
+		 * Load the chosen group's members, or clear the preview when cleared.
+		 *
+		 * @param {object|null} group The newly selected group option.
+		 * @return {void}
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
 		selectedGroup(group) {
 			this.doneMessage = ''
 			if (group) {
@@ -132,31 +169,49 @@ export default {
 			}
 		},
 	},
+
 	/** @spec exclude lifecycle hook; only triggers the group list fetch */
 	created() {
 		this.loadGroups()
 	},
+
 	methods: {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async loadGroups() {
 			this.loadingGroups = true
 			this.error = ''
 			try {
-				const response = await fetch(generateUrl('/apps/decidesk/api/member-import/groups'), {
-					headers: { requesttoken: getRequestToken() },
-				})
+				const response = await fetch(
+					generateUrl('/apps/decidesk/api/member-import/groups'),
+					{
+						headers: { requesttoken: getRequestToken() },
+					},
+				)
 				if (!response.ok) {
-					throw new Error(this.t('decidesk', 'Could not load groups (admin access required).'))
+					throw new Error(
+						this.t(
+							'decidesk',
+							'Could not load groups (admin access required).',
+						),
+					)
 				}
 				const data = await response.json()
 				this.groups = data?.groups || []
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Could not load groups.')
+				this.error =
+					e?.message || this.t('decidesk', 'Could not load groups.')
 			} finally {
 				this.loadingGroups = false
 			}
 		},
-		/** @spec openspec/specs/admin-settings/spec.md */
+
+		/**
+		 * Fetch a group's members and flag those already in the body.
+		 *
+		 * @param {string} groupId The Nextcloud group id.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
 		async loadMembers(groupId) {
 			this.loadingMembers = true
 			this.error = ''
@@ -165,40 +220,70 @@ export default {
 					'/apps/decidesk/api/member-import/groups/{groupId}/members',
 					{ groupId },
 				)
-				const response = await fetch(url, { headers: { requesttoken: getRequestToken() } })
+				const response = await fetch(url, {
+					headers: { requesttoken: getRequestToken() },
+				})
 				if (!response.ok) {
-					throw new Error(this.t('decidesk', 'Could not load group members.'))
+					throw new Error(
+						this.t('decidesk', 'Could not load group members.'),
+					)
 				}
 				const data = await response.json()
-				this.preview = markGroupDuplicates(data?.members || [], this.existingMembers)
+				this.preview = markGroupDuplicates(
+					data?.members || [],
+					this.existingMembers,
+				)
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Could not load group members.')
+				this.error =
+					e?.message || this.t('decidesk', 'Could not load group members.')
 				this.preview = []
 			} finally {
 				this.loadingMembers = false
 			}
 		},
-		/** @spec openspec/specs/admin-settings/spec.md */
+
+		/**
+		 * Import the previewed group members: each becomes a Person
+		 * (matched by email, else created) + Membership pair.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 */
 		async runImport() {
 			this.importing = true
 			this.error = ''
 			try {
-				const store = ensureRelationType('participant')
+				const personStore = ensureRelationType('person')
+				const membershipStore = ensureRelationType('membership')
 				const rows = this.preview.filter((row) => !row.duplicate)
 				for (const row of rows) {
 					// Sequential on purpose: predictable ordering + no API hammering.
-					await store.saveObject('participant', {
-						displayName: row.displayName,
+					const person = await resolveOrCreatePerson(personStore, {
+						name: row.displayName,
 						email: row.email,
-						role: DEFAULT_ROLE,
 						nextcloudUserId: row.uid,
-						governanceBody: this.bodyId,
 					})
+					if (!person?.id) {
+						continue
+					}
+					await membershipStore.saveObject(
+						'membership',
+						buildMembershipPayload({
+							personId: person.id,
+							governanceBodyId: this.bodyId,
+							role: DEFAULT_ROLE,
+						}),
+					)
 				}
-				this.doneMessage = this.t('decidesk', '{count} members imported.', { count: rows.length })
+				this.doneMessage = this.t('decidesk', '{count} members imported.', {
+					count: rows.length,
+				})
 				this.$emit('imported')
 				// Refresh duplicate flags so a second click cannot double-import.
-				this.preview = this.preview.map((row) => ({ ...row, duplicate: true }))
+				this.preview = this.preview.map((row) => ({
+					...row,
+					duplicate: true,
+				}))
 			} catch (e) {
 				this.error = e?.message || this.t('decidesk', 'Import failed.')
 			} finally {
@@ -215,23 +300,28 @@ export default {
 	margin-top: 12px;
 	border-collapse: collapse;
 }
+
 .group-import__table th,
 .group-import__table td {
 	text-align: start;
 	padding: 4px 8px;
 	border-bottom: 1px solid var(--color-border);
 }
+
 .group-import__dup {
 	color: var(--color-text-maxcontrast);
 }
+
 .group-import__error {
 	color: var(--color-error);
 	margin: 8px 0 0;
 }
+
 .group-import__done {
 	color: var(--color-success);
 	margin: 8px 0 0;
 }
+
 .group-import__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 8px 0 0;
