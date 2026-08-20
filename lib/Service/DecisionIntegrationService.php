@@ -302,14 +302,22 @@ class DecisionIntegrationService {
 	 *   withdrawn = lifecycle=withdrawn
 	 *   pending   = any other lifecycle
 	 *
-	 * Per-object read access is enforced by OpenRegister RBAC inside find();
-	 * callers without access receive null (caller renders 404).
+	 * This method does NOT authorize the caller. It used to claim that
+	 * OpenRegister RBAC inside `find()` settled per-object read access; that was
+	 * false — the `Decision` schema declares no `authorization` block, so the
+	 * decidesk register baseline applies (`read`/`list`:
+	 * `["authenticated", "public"]`) and OR authorizes the read for everyone.
+	 * The caller-scoping rule lives in
+	 * {@see DecisionIntegrationAuthorizationGuard::isAuthorizedToReadOutcome()}
+	 * and MUST be consulted before this method is invoked
+	 * (`IntegrationController::getOutcome()` does so).
 	 *
 	 * @param string $decisionId UUID of the Decision
 	 *
-	 * @return array<string, mixed>|null Outcome envelope, or null if not found / no access
+	 * @return array<string, mixed>|null Outcome envelope, or null when the Decision does not exist
 	 *
 	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
 	 */
 	public function getOutcomeEnvelope(string $decisionId): ?array {
 		try {
@@ -405,6 +413,16 @@ class DecisionIntegrationService {
 	 * (ADR-031) and wired by OpenRegister's notification engine on terminal
 	 * lifecycle transitions.
 	 *
+	 * This method does NOT authorize the caller. `isRegistryConsumer()` below
+	 * validates the callback URL against the app-wide ADR-019 registry — it
+	 * constrains WHERE the outcome may be delivered, not WHO may redirect it —
+	 * and the `Decision` schema declares no `authorization` block, so
+	 * OpenRegister authorizes the update for every authenticated user. The
+	 * caller-scoping rule lives in
+	 * {@see DecisionIntegrationAuthorizationGuard::isAuthorizedToSubscribe()}
+	 * and MUST be consulted before this method is invoked
+	 * (`IntegrationController::subscribe()` does so).
+	 *
 	 * @param string $decisionId UUID of the Decision
 	 * @param string $callbackUrl Registry-validated callback URL
 	 * @param string $actorId Nextcloud UID of the subscriber
@@ -412,6 +430,7 @@ class DecisionIntegrationService {
 	 * @return array{success: bool, subscriptionId?: string, code?: string, message?: string}
 	 *
 	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 */
 	public function registerOutcomeCallback(string $decisionId, string $callbackUrl, string $actorId): array {
 		// Anti-SSRF: validate the callbackUrl against the ADR-019 registry.

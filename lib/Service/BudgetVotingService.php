@@ -212,6 +212,9 @@ class BudgetVotingService {
 	 * server-side) and that the proposal is 'validated', then delegates the
 	 * one-vote integrity + atomic tally to the shared AdvisoryVoteService.
 	 *
+	 * The window guard fails CLOSED: an unresolvable or missing round is
+	 * refused, not waved through.
+	 *
 	 * @param string $proposalId The BudgetProposal UUID.
 	 * @param string $voterId The authenticated citizen NC UID.
 	 * @param string $value 'voor' | 'tegen'.
@@ -223,6 +226,7 @@ class BudgetVotingService {
 	 *
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 * @spec openspec/specs/voting-system/spec.md
+	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-102-the-advisory-voting-window-guard-fails-closed
 	 */
 	public function castAdvisoryVote(string $proposalId, string $voterId, string $value): array {
 		$objectService = $this->objectService();
@@ -236,15 +240,27 @@ class BudgetVotingService {
 			throw new RuntimeException('Only validated proposals can be voted on');
 		}
 
+		// The voting-window guard FAILS CLOSED. Both of these used to be silent
+		// `if (... !== null)` skips, which made the window guard conditional on
+		// the very data an attacker would be probing: a proposal whose round
+		// could not be resolved — no `relations` entry and no flat
+		// `participatoryBudget`, or a round row that has since been deleted —
+		// accepted votes forever, long after `votingDeadline`, because the only
+		// code that could have said no never ran. "The round could not be
+		// established" is not "the round is open".
 		$budgetId = $this->resolveBudgetId(proposal: $proposal);
-		if ($budgetId !== null) {
-			$roundEntity = $objectService->find(id: $budgetId, register: 'decidesk', schema: 'participatory-budget');
-			if ($roundEntity !== null) {
-				$round = $roundEntity->jsonSerialize();
-				if ($this->lifecycleService->budgetAcceptsVotes(round: $round) === false) {
-					throw new RuntimeException('Voting is closed for this budget round');
-				}
-			}
+		if ($budgetId === null) {
+			throw new RuntimeException('Voting is closed for this budget round');
+		}
+
+		$roundEntity = $objectService->find(id: $budgetId, register: 'decidesk', schema: 'participatory-budget');
+		if ($roundEntity === null) {
+			throw new RuntimeException('Voting is closed for this budget round');
+		}
+
+		$round = $roundEntity->jsonSerialize();
+		if ($this->lifecycleService->budgetAcceptsVotes(round: $round) === false) {
+			throw new RuntimeException('Voting is closed for this budget round');
 		}
 
 		return $this->advisoryVoteService->applyAdvisoryTally(proposalId: $proposalId, voterId: $voterId, value: $value);

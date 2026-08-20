@@ -103,9 +103,20 @@ class ParticipationBudgetController extends Controller {
 	/**
 	 * Submit a budget proposal as an authenticated citizen.
 	 *
-	 * The round must be in its submission phase (enforced server-side by the
-	 * service), so this action is scoped to the open-round state rather than an
-	 * arbitrary object id (no IDOR).
+	 * Open to EVERY authenticated account by design — "Authenticated citizens
+	 * SHALL submit `BudgetProposal` objects to a round during its `submission`
+	 * phase" (citizen-participation spec), and the register's authorization
+	 * baseline says the same (`create: ["authenticated"]`). Narrowing the
+	 * audience would be inventing a restriction, not closing a hole.
+	 *
+	 * What IS enforced, and is the whole authorization surface here:
+	 *   - the recorded `submitter` is the SESSION's UID (`$uid` below), never a
+	 *     value the request supplied — the caller cannot file a proposal under
+	 *     someone else's name;
+	 *   - the round must be in its submission phase, checked server-side by
+	 *     `ParticipationLifecycleService::budgetAcceptsProposals()` against the
+	 *     stored status AND the `submissionDeadline`, so a caller-supplied
+	 *     `budgetId` naming a draft or closed round is refused.
 	 *
 	 * @param string $budgetId The budget round UUID.
 	 * @param string $title The proposal title.
@@ -116,6 +127,7 @@ class ParticipationBudgetController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/specs/citizen-participation/spec.md
+	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-101-participation-endpoints-record-the-session-identity-never-a-request-supplied-one
 	 */
 	#[NoAdminRequired]
 	public function submitProposal(
@@ -125,15 +137,18 @@ class ParticipationBudgetController extends Controller {
 		float $amount = 0,
 		string $category = '',
 	): JSONResponse {
+		$uid = $this->responder->currentUid();
+
 		return $this->responder->citizenAction(
-			operation: fn (string $uid): array => $this->budgetService->submitProposal(
+			operation: fn (): array => $this->budgetService->submitProposal(
 				budgetId: $budgetId,
 				title: $title,
 				description: $description,
 				requested: $amount,
-				submitterId: $uid,
+				submitterId: (string)$uid,
 				category: $category
 			),
+			uid: $uid,
 			key: 'proposal',
 			status: Http::STATUS_CREATED
 		);
@@ -212,9 +227,20 @@ class ParticipationBudgetController extends Controller {
 	/**
 	 * Cast one advisory vote on a validated proposal (authenticated citizen).
 	 *
-	 * One CitizenVote per citizen per proposal; the service rejects duplicates
-	 * (HTTP 409) and votes outside the voting window. The action is scoped to
-	 * the proposal's validated/voting state, not an arbitrary owned object.
+	 * Open to EVERY authenticated account by design — "Authenticated citizens
+	 * SHALL cast one advisory vote (voor/tegen) per `validated` proposal during
+	 * the round's `voting` phase" (citizen-participation spec).
+	 *
+	 * What IS enforced:
+	 *   - the recorded `voterId` is the SESSION's UID (`$uid` below), never a
+	 *     request value — so one caller cannot vote as another citizen, and the
+	 *     one-vote-per-citizen rule below cannot be sidestepped by renaming
+	 *     oneself;
+	 *   - one CitizenVote per citizen per proposal —
+	 *     `AdvisoryVoteService::applyAdvisoryTally()` refuses a duplicate (409);
+	 *   - the proposal must be `validated` AND its round must accept votes
+	 *     (status + `votingDeadline`), both server-side, so a caller-supplied
+	 *     `proposalId` naming a closed round is refused.
 	 *
 	 * @param string $proposalId The proposal UUID.
 	 * @param string $value 'voor' | 'tegen'.
@@ -222,15 +248,19 @@ class ParticipationBudgetController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/specs/citizen-participation/spec.md
+	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-101-participation-endpoints-record-the-session-identity-never-a-request-supplied-one
 	 */
 	#[NoAdminRequired]
 	public function castAdvisoryVote(string $proposalId, string $value = ''): JSONResponse {
+		$uid = $this->responder->currentUid();
+
 		return $this->responder->citizenAction(
-			operation: fn (string $uid): array => $this->budgetService->castAdvisoryVote(
+			operation: fn (): array => $this->budgetService->castAdvisoryVote(
 				proposalId: $proposalId,
-				voterId: $uid,
+				voterId: (string)$uid,
 				value: $value
 			),
+			uid: $uid,
 			status: Http::STATUS_CREATED
 		);
 

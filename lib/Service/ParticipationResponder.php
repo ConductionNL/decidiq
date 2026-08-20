@@ -10,7 +10,14 @@
  * Two entry points mirror the two audiences the participation API serves:
  * `staffAction()` for governance-body (staff) operations, and
  * `citizenAction()` for operations any authenticated citizen may perform, which
- * hands the acting UID to the operation. Both fail closed.
+ * refuses when the caller resolved no session identity. Both fail closed.
+ *
+ * Citizen participation is deliberately open to EVERY authenticated account —
+ * that is what participation means, and the register's own authorization
+ * baseline says so (`create: ["authenticated"]`). What `citizenAction()`
+ * guarantees is narrower and is the part that matters: the identity recorded on
+ * the resulting object is the SESSION's, resolved through `currentUid()`, and
+ * never a value the request supplied.
  *
  * Shared by ParticipationController and ParticipationBudgetController.
  *
@@ -73,29 +80,45 @@ class ParticipationResponder {
 	}//end staffAction()
 
 	/**
+	 * Resolve the acting user's session-derived UID.
+	 *
+	 * Exposed so the routed controller method can bind the acting identity in
+	 * its OWN body and hand it to the service call alongside the caller-supplied
+	 * object id. That hand-off used to happen inside `citizenAction()`, which
+	 * passed the UID into the operation closure as a parameter — behaviourally
+	 * identical, but it hid the provenance of the recorded submitter/voter
+	 * identity from anything reading the endpoint, human or mechanical. The
+	 * value is ALWAYS the session's; no participation endpoint accepts a
+	 * submitter, voter or author identity from the request.
+	 *
+	 * @return string|null The acting UID, or null when no user is signed in.
+	 *
+	 * @spec openspec/specs/citizen-participation/spec.md
+	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-101-participation-endpoints-record-the-session-identity-never-a-request-supplied-one
+	 */
+	public function currentUid(): ?string {
+		return $this->staffGuard->currentUid();
+	}//end currentUid()
+
+	/**
 	 * Run an authenticated-citizen service call and map its outcome to a response.
 	 *
-	 * The operation receives the acting user's UID as its only argument.
-	 *
-	 * @param callable $operation The service call to run, given the acting UID.
+	 * @param callable $operation The service call to run.
+	 * @param string|null $uid The acting UID the caller resolved from the session; null refuses.
 	 * @param string|null $key Envelope key, or null to return the raw payload.
 	 * @param int $status The success HTTP status.
 	 *
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/specs/citizen-participation/spec.md
+	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-101-participation-endpoints-record-the-session-identity-never-a-request-supplied-one
 	 */
-	public function citizenAction(callable $operation, ?string $key = null, int $status = Http::STATUS_OK): JSONResponse {
-		$uid = $this->staffGuard->currentUid();
+	public function citizenAction(callable $operation, ?string $uid, ?string $key = null, int $status = Http::STATUS_OK): JSONResponse {
 		if ($uid === null) {
 			return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		return $this->respond(
-			operation: static fn (): array => $operation($uid),
-			key: $key,
-			status: $status
-		);
+		return $this->respond(operation: $operation, key: $key, status: $status);
 
 	}//end citizenAction()
 

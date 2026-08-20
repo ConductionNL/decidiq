@@ -413,10 +413,16 @@ class RegisterAuthorizationTest extends TestCase {
 		// The count is the positive control: without it this loop passes vacuously
 		// if the schemas move, are renamed, or stop being found at all.
 		$this->assertSame(
-			24,
+			26,
 			$withBlock,
-			'Expected 24 schema-level authorization blocks. A different number means schemas gained or '
-				. 'lost their own block, which changes which ones the register baseline governs.'
+			'Expected 26 schema-level authorization blocks. conflict-of-interest-authorization-guard added '
+				. 'ConflictOfInterest\'s own read/list-only block, since it previously fell back to the '
+				. 'register baseline\'s public read for sensitive personal data; '
+				. 'signature-and-outcome-authorization-guard added Decision\'s, narrowing anonymous read/list '
+				. 'to isPublished === "public" (IntegrationController::getOutcome() had documented an '
+				. 'OpenRegister RBAC guarantee that did not exist, precisely because this block was absent). '
+				. 'A different number means schemas gained or lost their own block, which changes which ones '
+				. 'the register baseline governs.'
 		);
 	}//end testSchemasWithTheirOwnBlockStillDeclareOnlyReads()
 }//end class

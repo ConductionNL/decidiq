@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\BoardEvaluationController;
+use OCA\Decidesk\Service\BoardEvaluationAccessGuard;
 use OCA\Decidesk\Service\BoardEvaluationReportService;
 use OCA\Decidesk\Service\BoardEvaluationResponseService;
 use OCA\Decidesk\Service\BoardEvaluationScoreService;
@@ -100,6 +101,7 @@ class BoardEvaluationControllerTest extends TestCase {
 			$this->createMock(BoardEvaluationReportService::class),
 			$this->createMock(ParticipationPublicationService::class),
 			$this->userSession,
+			$this->createMock(BoardEvaluationAccessGuard::class),
 		);
 
 	}//end setUp()

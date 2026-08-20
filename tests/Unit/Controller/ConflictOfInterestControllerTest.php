@@ -25,6 +25,7 @@ namespace OCA\Decidesk\Tests\Unit\Controller;
 use OCA\Decidesk\Controller\ConflictOfInterestController;
 use OCA\Decidesk\Service\ConflictOfInterestService;
 use OCP\AppFramework\Http;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
@@ -43,13 +44,15 @@ class ConflictOfInterestControllerTest extends TestCase {
 	 * @param ConflictOfInterestService $service Service double
 	 * @param array<string, mixed> $requestParams Params returned by IRequest
 	 * @param bool $authenticated Session has user
+	 * @param bool $isAdmin Whether the authenticated user is a Nextcloud admin
 	 *
 	 * @return ConflictOfInterestController
 	 */
 	private function makeController(
 		ConflictOfInterestService $service,
 		array $requestParams = [],
-		bool $authenticated = true
+		bool $authenticated = true,
+		bool $isAdmin = false,
 	): ConflictOfInterestController {
 		$request = $this->createMock(originalClassName: IRequest::class);
 		$request->method('getParams')->willReturn($requestParams);
@@ -68,10 +71,14 @@ class ConflictOfInterestControllerTest extends TestCase {
 			$session->method('getUser')->willReturn(null);
 		}
 
+		$groupManager = $this->createMock(originalClassName: IGroupManager::class);
+		$groupManager->method('isAdmin')->willReturn($isAdmin);
+
 		return new ConflictOfInterestController(
 			request: $request,
 			conflictService: $service,
-			userSession: $session
+			userSession: $session,
+			groupManager: $groupManager
 		);
 	}//end makeController()
 
@@ -97,7 +104,7 @@ class ConflictOfInterestControllerTest extends TestCase {
 		$service = $this->createMock(originalClassName: ConflictOfInterestService::class);
 		$service->expects($this->once())
 			->method('declare')
-			->with('m1', 'a1', 'financial-interest', 'shares', 'material')
+			->with('m1', 'a1', 'financial-interest', 'shares', 'material', 'alice')
 			->willReturn(
 				[
 					'success' => true,
@@ -179,6 +186,7 @@ class ConflictOfInterestControllerTest extends TestCase {
 	 */
 	public function testForMemberReturnsConflict(): void {
 		$service = $this->createMock(originalClassName: ConflictOfInterestService::class);
+		$service->method('isAuthorizedForMember')->willReturn(true);
 		$service->expects($this->once())
 			->method('getActiveConflicts')
 			->with('m1', 'a1')
@@ -237,7 +245,7 @@ class ConflictOfInterestControllerTest extends TestCase {
 		$service = $this->createMock(originalClassName: ConflictOfInterestService::class);
 		$service->expects($this->once())
 			->method('recordAction')
-			->with('d1', 'recused-from-vote')
+			->with('d1', 'recused-from-vote', 'alice')
 			->willReturn(
 				[
 					'success' => true,
@@ -297,5 +305,178 @@ class ConflictOfInterestControllerTest extends TestCase {
 		$this->assertSame(expected: Http::STATUS_UNAUTHORIZED, actual: $controller->recordAction('d1')->getStatus());
 
 	}//end testAnonymousAccessRejected()
+
+	/**
+	 * declare() maps a Forbidden: service message to 403, not the generic 422
+	 * (IDOR guard: a non-owner, non-chair/secretary caller is refused).
+	 *
+	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
+	 *
+	 * @return void
+	 */
+	public function testDeclareMapsForbiddenMessageTo403(): void {
+		$service = $this->createMock(originalClassName: ConflictOfInterestService::class);
+		$service->method('declare')->willReturn(
+			[
+				'success' => false,
+				'declaration' => null,
+				'message' => 'Forbidden: only the declaring member, a chair or secretary of the '
+					. 'relevant governance body, or an admin may record this declaration.',
+			]
+		);
+
+		$controller = $this->makeController(
+			service: $service,
+			requestParams: [
+				'membershipId' => 'm1',
+				'agendaItemId' => 'a1',
+				'declarationType' => 'financial-interest',
+				'description' => 'shares',
+			]
+		);
+
+		$response = $controller->declare();
+
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+
+	}//end testDeclareMapsForbiddenMessageTo403()
+
+	/**
+	 * declare() forwards a null callerUid for admin callers (admin bypass).
+	 *
+	 * @return void
+	 */
+	public function testDeclareForwardsNullCallerUidForAdmin(): void {
+		$service = $this->createMock(originalClassName: ConflictOfInterestService::class);
+		$service->expects($this->once())
+			->method('declare')
+			->with('m1', 'a1', 'financial-interest', 'shares', 'material', null)
+			->willReturn(['success' => true, 'declaration' => ['id' => 'd1'], 'message' => 'ok']);
+
+		$controller = $this->makeController(
+			service: $service,
+			requestParams: [
+				'membershipId' => 'm1',
+				'agendaItemId' => 'a1',
+				'declarationType' => 'financial-interest',
+				'description' => 'shares',
+				'severity' => 'material',
+			],
+			isAdmin: true
+		);
+
+		$response = $controller->declare();
+
+		$this->assertSame(expected: Http::STATUS_CREATED, actual: $response->getStatus());
+
+	}//end testDeclareForwardsNullCallerUidForAdmin()
+
+	/**
+	 * forMember() rejects a caller the service guard refuses (IDOR guard: a
+	 * non-owner, non-chair/secretary caller cannot read another member's
+	 * conflict declarations).
+	 *
+	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-102-only-the-member-or-an-authorized-official-may-read-a-members-conflict-declarations
+	 *
+	 * @return void
+	 */
+	public function testForMemberRejectsUnauthorizedCallerWith403(): void {
+		$service = $this->createMock(originalClassName: ConflictOfInterestService::class);
+		$service->expects($this->once())
+			->method('isAuthorizedForMember')
+			->with('m1', 'a1', 'alice')
+			->willReturn(false);
+		$service->expects($this->never())->method('getActiveConflicts');
+
+		$controller = $this->makeController(service: $service, requestParams: ['agendaItemId' => 'a1']);
+		$response = $controller->forMember('m1');
+
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+
+	}//end testForMemberRejectsUnauthorizedCallerWith403()
+
+	/**
+	 * forMember() skips the authorization guard entirely for an admin caller
+	 * (null callerUid bypass) — the service guard is never even called.
+	 *
+	 * @return void
+	 */
+	public function testForMemberSkipsGuardForAdmin(): void {
+		$service = $this->createMock(originalClassName: ConflictOfInterestService::class);
+		$service->expects($this->never())->method('isAuthorizedForMember');
+		$service->expects($this->once())
+			->method('getActiveConflicts')
+			->with('m1', 'a1')
+			->willReturn(['id' => 'd1', 'actionTaken' => 'recused-from-vote']);
+
+		$controller = $this->makeController(
+			service: $service,
+			requestParams: ['agendaItemId' => 'a1'],
+			isAdmin: true
+		);
+		$response = $controller->forMember('m1');
+
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+
+	}//end testForMemberSkipsGuardForAdmin()
+
+	/**
+	 * recordAction() maps a Forbidden: service message to 403, not the generic
+	 * 422 or the "not found" 404 (IDOR guard: a non-chair/secretary caller —
+	 * including the declaring member themselves — is refused).
+	 *
+	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-103-only-a-chair-or-secretary-may-record-the-action-taken
+	 *
+	 * @return void
+	 */
+	public function testRecordActionMapsForbiddenMessageTo403(): void {
+		$service = $this->createMock(originalClassName: ConflictOfInterestService::class);
+		$service->method('recordAction')->willReturn(
+			[
+				'success' => false,
+				'declaration' => null,
+				'message' => 'Forbidden: only a chair or secretary of the relevant governance '
+					. 'body, or an admin, may record the action taken on a conflict-of-interest declaration.',
+			]
+		);
+
+		$controller = $this->makeController(
+			service: $service,
+			requestParams: ['actionTaken' => 'recused-from-vote']
+		);
+		$response = $controller->recordAction('d1');
+
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+
+	}//end testRecordActionMapsForbiddenMessageTo403()
+
+	/**
+	 * recordAction() forwards a null callerUid for admin callers (admin bypass).
+	 *
+	 * @return void
+	 */
+	public function testRecordActionForwardsNullCallerUidForAdmin(): void {
+		$service = $this->createMock(originalClassName: ConflictOfInterestService::class);
+		$service->expects($this->once())
+			->method('recordAction')
+			->with('d1', 'recused-from-vote', null)
+			->willReturn(
+				[
+					'success' => true,
+					'declaration' => ['id' => 'd1', 'actionTaken' => 'recused-from-vote'],
+					'message' => 'Action recorded.',
+				]
+			);
+
+		$controller = $this->makeController(
+			service: $service,
+			requestParams: ['actionTaken' => 'recused-from-vote'],
+			isAdmin: true
+		);
+		$response = $controller->recordAction('d1');
+
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+
+	}//end testRecordActionForwardsNullCallerUidForAdmin()
 
 }//end class

@@ -182,6 +182,41 @@ class GovernanceScopeGuardTest extends TestCase {
 	}//end testCanInitiateSigningFailsClosedOnException()
 
 	/**
+	 * REQ-SIG-101/102: `isSignatoryForMinutes()` — the determination `verify()`
+	 * and `finalize()` now consult directly — allows a member of the body's
+	 * signatory scope and denies everyone else, on the SAME minutes.
+	 *
+	 * Both directions in one test on one fixture: a guard proven only in the
+	 * deny direction cannot distinguish "correctly refuses an outsider" from
+	 * "refuses everyone", which would silently break the signing flow.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-101-only-a-body-signatory-may-finalize-signed-minutes
+	 */
+	public function testIsSignatoryForMinutesAllowsSignatoryAndDeniesOthers(): void {
+		$groupManager = $this->createMock(IGroupManager::class);
+		$groupManager->method('isInGroup')
+			->willReturnCallback(
+				static function (string $uid, string $group): bool {
+					return ($uid === 'alice' && $group === 'decidesk:body:body-9:signatory');
+				}
+			);
+
+		$guard = new GovernanceScopeGuard(
+			$groupManager,
+			$this->createMock(LoggerInterface::class),
+			objectService: $this->makeObjectService('body-9'),
+		);
+
+		$this->assertTrue($guard->isSignatoryForMinutes('alice', 'min-1'));
+		$this->assertFalse($guard->isSignatoryForMinutes('mallory', 'min-1'));
+		// Empty arguments fail closed rather than resolving to "everyone".
+		$this->assertFalse($guard->isSignatoryForMinutes('alice', ''));
+		$this->assertFalse($guard->isSignatoryForMinutes('', 'min-1'));
+	}//end testIsSignatoryForMinutesAllowsSignatoryAndDeniesOthers()
+
+	/**
 	 * Build an ObjectService double that resolves Minutes -> Meeting ->
 	 * GovernanceBody to the given body id (or leaves it unresolvable when null).
 	 *

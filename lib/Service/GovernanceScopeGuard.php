@@ -126,9 +126,9 @@ class GovernanceScopeGuard {
 
 	/**
 	 * Authorize a QES signing initiation on a Minutes record: the actor must be
-	 * in the owning body's signatory scope. Resolves Minutes -> Meeting ->
-	 * GovernanceBody (data lookup) to select the scope, then consults the
-	 * OR-projected signatory scope. Fails closed on any lookup failure.
+	 * in the owning body's signatory scope. Delegates to
+	 * {@see self::isSignatoryForMinutes()}, which is the single implementation
+	 * shared with the `verify` and `finalize` endpoints of the same flow.
 	 *
 	 * @param string $userId Nextcloud UID of the requester
 	 * @param string $minutesId UUID of the Minutes record
@@ -138,6 +138,31 @@ class GovernanceScopeGuard {
 	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-002-signatory-authorization-is-an-openregister-rbac-rule-not-an-app-local-service
 	 */
 	public function canInitiateSigning(string $userId, string $minutesId): bool {
+		return $this->isSignatoryForMinutes(userId: $userId, minutesId: $minutesId);
+	}//end canInitiateSigning()
+
+	/**
+	 * The single "is this actor a signatory on these minutes" determination:
+	 * resolve Minutes -> Meeting -> GovernanceBody (data lookup, selects WHICH
+	 * scope to consult), then consult the OR-projected signatory scope
+	 * (`decidesk:body:{bodyId}:signatory` — the chair/chairman/vice-chairman/
+	 * secretary superset). Fails CLOSED on an empty argument, an unresolvable
+	 * hop, an unpopulated scope, or any OpenRegister error.
+	 *
+	 * Every endpoint of the QES signing flow consults this one method, so
+	 * starting the flow (`initiate`), checking a signature against the trusted
+	 * list for a specific Minutes record (`verify`), and completing it
+	 * (`finalize`) can never drift to different authority levels.
+	 *
+	 * @param string $userId Nextcloud UID of the actor
+	 * @param string $minutesId UUID of the Minutes record
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-002-signatory-authorization-is-an-openregister-rbac-rule-not-an-app-local-service
+	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-101-only-a-body-signatory-may-finalize-signed-minutes
+	 */
+	public function isSignatoryForMinutes(string $userId, string $minutesId): bool {
 		if ($userId === '' || $minutesId === '') {
 			return false;
 		}
@@ -151,12 +176,12 @@ class GovernanceScopeGuard {
 			return $this->isInBodyScope(userId: $userId, bodyId: $bodyId, scope: self::SCOPE_SIGNATORY);
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'GovernanceScopeGuard::canInitiateSigning failed; denying',
+				'GovernanceScopeGuard::isSignatoryForMinutes failed; denying',
 				['exception' => $e->getMessage(), 'minutesId' => $minutesId, 'userId' => $userId]
 			);
 			return false;
 		}//end try
-	}//end canInitiateSigning()
+	}//end isSignatoryForMinutes()
 
 	/**
 	 * Resolve the owning GovernanceBody UUID for a Minutes record by walking

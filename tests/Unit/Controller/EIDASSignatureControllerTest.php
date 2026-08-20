@@ -73,6 +73,9 @@ class EIDASSignatureControllerTest extends TestCase {
 
 		$scopeGuard = $this->createMock(GovernanceScopeGuard::class);
 		$scopeGuard->method('canInitiateSigning')->willReturn($authorised);
+		// `verify()` and `finalize()` consult the same signatory determination
+		// that `initiate()` does — one scope, three endpoints of one flow.
+		$scopeGuard->method('isSignatoryForMinutes')->willReturn($authorised);
 
 		return new EIDASSignatureController($request, $service, $session, $scopeGuard);
 	}//end makeController()
@@ -217,6 +220,118 @@ class EIDASSignatureControllerTest extends TestCase {
 	}//end testVerifyReturnsServiceVerdict()
 
 	/**
+	 * REQ-SIG-102 (deny): verify returns 403 when the caller holds no signatory
+	 * role on the GovernanceBody owning these minutes, and the adapter is never
+	 * reached — the response would otherwise hand out the signer's eIDAS
+	 * certificate thumbprint, which identifies a natural person.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-102-only-a-body-signatory-may-verify-a-signature-on-a-minutes-record
+	 */
+	public function testVerifyReturnsForbiddenWhenNotASignatory(): void {
+		$service = $this->createMock(IEIDASSignatureService::class);
+		$service->expects($this->never())->method('verifySignature');
+
+		$controller = $this->makeController(
+			$service,
+			requestParams: ['requestId' => 'req-1', 'signature' => 'sig-blob'],
+			authorised: false,
+		);
+
+		$response = $controller->verify('min-1');
+
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+		$this->assertStringContainsString('not authorised', (string)$response->getData()['message']);
+
+	}//end testVerifyReturnsForbiddenWhenNotASignatory()
+
+	/**
+	 * REQ-SIG-101 (deny): finalize returns 403 when the caller holds no
+	 * signatory role on the GovernanceBody owning these minutes, and
+	 * `finalizeMinutes()` is NEVER invoked.
+	 *
+	 * This is the endpoint that affixes the signature: reaching the service
+	 * would write `version = signed`, `eidasSignatureLevel = QES`, the archive
+	 * reference and the hash onto the Minutes row, resolve the signature stage
+	 * to `outcome=adopted`, and append a `signature` audit entry. Asserting the
+	 * 403 alone would not prove the write did not happen — the `never()`
+	 * expectation is the part that does.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-101-only-a-body-signatory-may-finalize-signed-minutes
+	 */
+	public function testFinalizeReturnsForbiddenWhenNotASignatory(): void {
+		$service = $this->createMock(IEIDASSignatureService::class);
+		$service->expects($this->never())->method('finalizeMinutes');
+
+		$controller = $this->makeController(
+			$service,
+			requestParams: ['signatures' => [['signer' => 'm-1', 'signature' => 's', 'timestamp' => 't']]],
+			authorised: false,
+		);
+
+		$response = $controller->finalize('min-1');
+
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+		$this->assertStringContainsString('not authorised', (string)$response->getData()['message']);
+
+	}//end testFinalizeReturnsForbiddenWhenNotASignatory()
+
+	/**
+	 * REQ-SIG-101/102 (allow): the guard is consulted with the Minutes UUID
+	 * from the route, and a caller inside the body's signatory scope still gets
+	 * through on both endpoints.
+	 *
+	 * A guard proven only in the deny direction is not evidence — this pins the
+	 * allow direction AND the argument the guard is asked about, so the check
+	 * cannot silently be made against the wrong object.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-101-only-a-body-signatory-may-finalize-signed-minutes
+	 */
+	public function testSignatoryIsAllowedAndTheGuardIsAskedAboutTheRoutedMinutes(): void {
+		$request = $this->createMock(IRequest::class);
+		$request->method('getParam')->willReturnCallback(
+			static function (string $key, mixed $default = null): mixed {
+				$params = ['signatures' => [['signer' => 'm-1', 'signature' => 's', 'timestamp' => 't']]];
+				return ($params[$key] ?? $default);
+			}
+		);
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('alice');
+		$session = $this->createMock(IUserSession::class);
+		$session->method('getUser')->willReturn($user);
+
+		$scopeGuard = $this->createMock(GovernanceScopeGuard::class);
+		$scopeGuard->expects($this->once())
+			->method('isSignatoryForMinutes')
+			->with('alice', 'min-42')
+			->willReturn(true);
+
+		$service = $this->createMock(IEIDASSignatureService::class);
+		$service->expects($this->once())->method('finalizeMinutes')->willReturn(
+			[
+				'success' => true,
+				'pdfArchiveReference' => 'docudesk/min/42.pdf',
+				'hashSha256' => 'bb',
+				'message' => 'Minutes finalized.',
+			]
+		);
+
+		$controller = new EIDASSignatureController($request, $service, $session, $scopeGuard);
+
+		$response = $controller->finalize('min-42');
+
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame('docudesk/min/42.pdf', $response->getData()['pdfArchiveReference']);
+
+	}//end testSignatoryIsAllowedAndTheGuardIsAskedAboutTheRoutedMinutes()
+
+	/**
 	 * finalize returns 422 on failure, 200 on success.
 	 *
 	 * @return void
@@ -287,5 +402,47 @@ class EIDASSignatureControllerTest extends TestCase {
 		$this->assertSame('CN=Example', $data['issuer']);
 
 	}//end testCertStatusReturnsServiceVerdict()
+
+	/**
+	 * REQ-SIG-103: certStatus is deliberately app-wide. A caller who holds NO
+	 * signatory scope anywhere still gets the trust-list verdict, because the
+	 * endpoint takes no caller-supplied object identifier — its only input is a
+	 * certificate thumbprint and its only output comes from the public EU
+	 * Trusted List.
+	 *
+	 * This test exists so the posture reads as a decision rather than an
+	 * omission: if someone later narrows certStatus to the signatory scope, this
+	 * fails and the ADR-044 functionality question gets asked deliberately.
+	 * Its counterpart — the 401 for an unauthenticated caller through the real
+	 * middleware chain — is folder 2 of
+	 * tests/integration/decidesk-security-flow-e2e.postman_collection.json.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-103-certificate-trust-status-lookup-is-a-deliberately-app-wide-authenticated-read
+	 */
+	public function testCertStatusStaysOpenToAnyAuthenticatedCaller(): void {
+		$service = $this->createMock(IEIDASSignatureService::class);
+		$service->expects($this->once())->method('validateCertificateChain')->willReturn(
+			[
+				'valid' => false,
+				'issuer' => null,
+				'trustListLevel' => null,
+				'message' => 'Certificate not on EU Trusted List.',
+			]
+		);
+
+		$controller = $this->makeController(
+			$service,
+			requestParams: ['certificateThumbprint' => 'thumb'],
+			authorised: false,
+		);
+
+		$response = $controller->certStatus();
+
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertFalse($response->getData()['valid']);
+
+	}//end testCertStatusStaysOpenToAnyAuthenticatedCaller()
 
 }//end class

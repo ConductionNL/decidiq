@@ -105,10 +105,23 @@ class ParticipationController extends Controller {
 	/**
 	 * Submit a reaction as an authenticated Nextcloud user.
 	 *
-	 * Per-object gate: the ReactionIntakeService enforces the consultation's
-	 * open status + deadline server-side, so an authenticated user cannot
-	 * submit to a closed or non-existent consultation (no IDOR — the action is
-	 * scoped to the open-consultation state, not to an arbitrary owned object).
+	 * Open to EVERY authenticated account by design — "The system SHALL accept
+	 * `ConsultationReaction` submissions on open consultations from
+	 * authenticated Nextcloud accounts by default" (citizen-participation spec),
+	 * and the register's authorization baseline agrees
+	 * (`create: ["authenticated"]`). Every reaction still lands in the
+	 * moderation queue as `pending` under pre-moderation, so an open intake is
+	 * not an open publication.
+	 *
+	 * What IS enforced:
+	 *   - the recorded `submitterId` is the SESSION's UID (`$uid` below), never
+	 *     a request value — a caller cannot file a reaction under another
+	 *     citizen's name, and the anonymous pseudonym path is a SEPARATE,
+	 *     rate-limited `#[PublicPage]` endpoint;
+	 *   - the consultation's open status + `submissionDeadline` are checked
+	 *     server-side by `ReactionIntakeService`, independent of the stored
+	 *     status, so a caller-supplied `consultationId` naming a draft or
+	 *     closed consultation is refused.
 	 *
 	 * @param string $consultationId The consultation UUID.
 	 * @param string $body The reaction body.
@@ -116,15 +129,19 @@ class ParticipationController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/specs/citizen-participation/spec.md
+	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-101-participation-endpoints-record-the-session-identity-never-a-request-supplied-one
 	 */
 	#[NoAdminRequired]
 	public function submitReaction(string $consultationId, string $body = ''): JSONResponse {
+		$uid = $this->responder->currentUid();
+
 		return $this->responder->citizenAction(
-			operation: fn (string $uid): array => $this->intakeService->submitReaction(
+			operation: fn (): array => $this->intakeService->submitReaction(
 				consultationId: $consultationId,
 				body: $body,
 				ncUid: $uid
 			),
+			uid: $uid,
 			key: 'reaction',
 			status: Http::STATUS_CREATED
 		);

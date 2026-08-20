@@ -263,6 +263,13 @@ class DecisionIntegrationServiceTest extends TestCase {
 
 	}//end testGetOutcomeReturnsNullWhenNotFound()
 
+	// NOTE: the isAuthorizedToReadOutcome (REQ-DCDH-101) and
+	// isAuthorizedToSubscribe (REQ-DCDH-102) cases that used to live here moved
+	// with their implementation into DecisionIntegrationAuthorizationGuard,
+	// extracted to bring this class back under the PHPMD complexity budget.
+	// They are covered 1:1 in tests/Unit/Service/DecisionIntegrationAuthorizationGuardTest.php
+	// — the same twelve cases, exercising the real guard.
+
 	// ─── createDecision idempotency ──────────────────────────────────────────
 
 	/**

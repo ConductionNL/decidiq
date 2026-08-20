@@ -3262,8 +3262,20 @@
         },
         "slug": "decision",
         "icon": "Gavel",
-        "version": "0.8.0",
+        "version": "0.9.0",
         "title": "Decision",
+        "_authorizationNote": "decision declared no schema-level authorization block, so its read rule came from the decidesk register baseline rather than from anything this schema states. IntegrationController::getOutcome()'s docblock asserted that 'per-object read access is enforced by OpenRegister ObjectService RBAC'; that claim was unfounded precisely because this block was absent. This states the intended anonymous rule explicitly — only Decisions the app itself has published (isPublished === 'public') — leaving all others to authenticated callers, and mirrors ParticipatoryBudget / PublicConsultation / BoardEvaluation in this same file. Defence in depth only: the per-object controller guards added in signature-and-outcome-authorization-guard do not depend on it, and anonymous reads of this instance's object API return nothing regardless (measured 2026-08-20: schemas that DO grant 'public' read also return 0 anonymously). ONLY 'read' is declared: OpenRegister's action vocabulary is CRUD (create/read/update/delete) and CLOSED by default — 'list' is NOT an action, and adding it makes validateAuthorization() reject the schema, which the importer then silently SKIPS on an HTTP 200 'success'. Listing is governed by the read rule. create/update/delete are deliberately omitted — an omitted action is closed to everyone except the object owner and admin.",
+        "authorization": {
+          "read": [
+            {
+              "group": "public",
+              "match": {
+                "isPublished": "public"
+              }
+            },
+            "authenticated"
+          ]
+        },
         "description": "The universal governance-decision supertype (ADR-005). A single schema for every decision outcome — motion, amendment, resolution, contract, appointment, management point, policy and generic meeting outcome — distinguished by the required decisionType discriminator. Type-specific fields are folded in and revealed via progressive disclosure keyed on decisionType (ADR-006).",
         "type": "object",
         "x-openregister": {
@@ -6360,7 +6372,7 @@
       "ConflictOfInterest": {
         "slug": "conflict-of-interest",
         "icon": "AlertOctagonOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "ConflictOfInterest",
         "description": "A declared or detected conflict-of-interest disclosure per MCCG / governance code",
         "type": "object",
@@ -6369,6 +6381,12 @@
           "active": true,
           "hardDelete": false,
           "searchable": true
+        },
+        "_authorizationNote": "conflict-of-interest declared no schema-level authorization block, so its rule came from the decidesk register's baseline (which lists 'public' among the readers) rather than from anything this schema stated, on top of the confirmed IDOR in ConflictOfInterestController (conflict-of-interest-authorization-guard). These are sensitive personal declarations (financial interests, personal relationships), not public governance records, so this block states the rule explicitly: 'authenticated' only, no 'public'. NOTE on severity, measured 2026-08-20: anonymous callers get NOTHING from this instance's OpenRegister object API regardless of schema authorization — schemas that DO grant 'public' read (participatory-budget, public-consultation, board-evaluation) also return 0 rows anonymously — so this is making an implicit, incidental closure EXPLICIT, not closing an open door. ONLY 'read' is declared: OpenRegister's schema action vocabulary is CRUD (create/read/update/delete) and CLOSED by default — 'list' is NOT an action, and declaring it makes validateAuthorization() reject the schema, after which the importer SKIPS it while still reporting HTTP 200 'Configuration imported successfully'. That is exactly how an earlier revision of this block silently removed the 'decision' schema from a fresh instance and took the whole e2e seed down. Listing is governed by the read rule. (The REGISTER-level block does carry a 'list' key, harmlessly: registers store authorization as unvalidated JSON.) create/update are deliberately OMITTED: once a schema declares any authorization block, an omitted action is closed to everyone except the object owner and admin (PermissionHandler::resolveAuthorizationRaw/hasGroupPermission) — ConflictOfInterestService::declare()/recordAction() pass _rbac:false after enforcing the finer-grained per-object rule themselves (declaring member or chair/secretary; chair/secretary-only for recordAction — see the service class docblock), the same convention ProxyVoteService uses for proxy-authorization. delete is never performed by this app and stays closed to non-admins.",
+        "authorization": {
+          "read": [
+            "authenticated"
+          ]
         },
         "required": [
           "boardMember",
