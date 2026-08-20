@@ -381,7 +381,9 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 			$payload['votingRule'] = ['voteThreshold' => $source['defaultVoteThreshold']];
 		}
 
-		if (isset($source['defaultQuorumFraction']) === true && $source['defaultQuorumFraction'] !== null) {
+		// `isset()` is already false for null — the `!== null` this replaces
+		// could never be reached as false.
+		if (isset($source['defaultQuorumFraction']) === true) {
 			$payload['quorumRule'] = $source['defaultQuorumFraction'];
 		}
 
