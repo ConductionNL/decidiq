@@ -14,7 +14,9 @@
  @spec openspec/specs/motion-amendment/spec.md
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--amendment-diff" data-testid="amendment-diff-tab">
+	<div
+		class="decidesk-tab decidesk-tab--amendment-diff"
+		data-testid="amendment-diff-tab">
 		<h3 class="decidesk-tab__title">
 			{{ t('decidesk', 'Text changes') }}
 		</h3>
@@ -34,7 +36,12 @@
 			v-else-if="!parentMotionId"
 			type="info"
 			:title="t('decidesk', 'No parent motion')">
-			{{ t('decidesk', 'This amendment is not linked to a motion, so there is no original text to compare against.') }}
+			{{
+				t(
+					'decidesk',
+					'This amendment is not linked to a motion, so there is no original text to compare against.',
+				)
+			}}
 		</CnNoteCard>
 
 		<template v-else>
@@ -42,12 +49,17 @@
 				v-if="!hasProposedText"
 				type="info"
 				:title="t('decidesk', 'No proposed text')">
-				{{ t('decidesk', 'This amendment has no proposed replacement text; the amendment text itself is compared against the motion text.') }}
+				{{
+					t(
+						'decidesk',
+						'This amendment has no proposed replacement text; the amendment text itself is compared against the motion text.',
+					)
+				}}
 			</CnNoteCard>
 
 			<AmendmentDiffView
-				:original-text="originalText"
-				:proposed-text="proposedText" />
+				:originalText="originalText"
+				:proposedText="proposedText" />
 		</template>
 	</div>
 </template>
@@ -63,6 +75,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -71,38 +84,49 @@ export default {
 			motion: null,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		parentMotionId() {
 			// ADR-005: amendment-decisions link their parent motion-decision via
 			// the folded `amends` field (was `parentMotion` / a motion relation).
-			const ref = this.amendment?.amends
+			const ref =
+				this.amendment?.amends
 				?? this.amendment?.parentMotion
-				?? (this.amendment?.relations || []).find((r) => (r?.schema || '') === 'decision')
+				?? (this.amendment?.relations || []).find(
+					(r) => (r?.schema || '') === 'decision',
+				)
 			if (!ref) return ''
 			if (typeof ref === 'object') return ref.id || ref.uuid || ''
 			return ref
 		},
+
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		hasProposedText() {
 			return Boolean(this.amendment?.proposedText)
 		},
+
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		originalText() {
 			return this.motion?.text || ''
 		},
+
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		proposedText() {
 			return this.amendment?.proposedText || this.amendment?.text || ''
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/motion-amendment/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
+
 	methods: {
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		async refresh() {
@@ -112,13 +136,21 @@ export default {
 			this.motion = null
 			try {
 				const amendmentStore = ensureRelationType('amendment')
-				this.amendment = await amendmentStore.fetchObject('amendment', this.objectId)
+				this.amendment = await amendmentStore.fetchObject(
+					'amendment',
+					this.objectId,
+				)
 				if (this.parentMotionId) {
 					const motionStore = ensureRelationType('motion')
-					this.motion = await motionStore.fetchObject('motion', this.parentMotionId)
+					this.motion = await motionStore.fetchObject(
+						'motion',
+						this.parentMotionId,
+					)
 				}
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load the amendment diff.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Failed to load the amendment diff.')
 			} finally {
 				this.loading = false
 			}
@@ -134,11 +166,13 @@ export default {
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;

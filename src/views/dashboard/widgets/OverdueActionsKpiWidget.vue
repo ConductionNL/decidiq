@@ -14,12 +14,12 @@
 	<CnStatsBlock
 		:title="t('decidesk', 'Overdue actions')"
 		:count="count"
-		:count-label="t('decidesk', 'actions')"
+		:countLabel="t('decidesk', 'actions')"
 		:icon="AlertCircleOutline"
 		:variant="variant"
 		:loading="loading"
 		:route="{ name: 'ActionItems' }"
-		show-zero-count
+		showZeroCount
 		horizontal
 		data-testid="overdue-actions-kpi" />
 </template>
@@ -27,9 +27,9 @@
 <script>
 import { CnStatsBlock } from '@conduction/nextcloud-vue'
 import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
+import { getActionItems } from '../../../services/dashboardData.js'
 import dashboardRefreshMixin from './dashboardRefreshMixin.js'
 import { overdueActions } from './widgetLogic.js'
-import { getActionItems } from '../../../services/dashboardData.js'
 
 export default {
 	name: 'OverdueActionsKpiWidget',
@@ -76,7 +76,9 @@ export default {
 			this.loading = true
 			this.error = null
 			try {
-				this.items = await getActionItems({ taskStatus: ['open', 'in-progress'] })
+				this.items = await getActionItems({
+					taskStatus: ['open', 'in-progress'],
+				})
 			} catch (e) {
 				console.error('[decidesk] OverdueActionsKpiWidget load failed', e)
 				this.error = e

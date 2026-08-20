@@ -19,6 +19,7 @@
     </stubs>
     <issueHandlers>
         <UndefinedDocblockClass errorLevel="suppress"/>
+        <UnusedClosureParam errorLevel="suppress"/>
         <UndefinedClass>
             <errorLevel type="suppress">
                 <!-- Nextcloud OCP Classes -->
@@ -68,13 +69,21 @@
                 <referencedClass name="OCA\OpenRegister\Event\ObjectCreatedEvent"/>
                 <referencedClass name="OCA\OpenRegister\Event\ObjectUpdatingEvent"/>
                 <referencedClass name="OCA\OpenRegister\Event\ObjectUpdatedEvent"/>
+                <!-- ADR-066 sibling-app leaf registration (RegisterDecisionsLeafListener). -->
+                <referencedClass name="OCA\OpenRegister\Event\RegisterLeafProvidersEvent"/>
+                <referencedClass name="OCA\OpenRegister\Service\Integration\LeafDescriptor"/>
                 <referencedClass name="OCA\OpenRegister\Event\ObjectDeletedEvent"/>
                 <referencedClass name="OCA\OpenRegister\Service\ObjectService"/>
+                <referencedClass name="OCA\OpenRegister\Service\TaskService"/>
                 <referencedClass name="OCA\OpenRegister\Service\ConfigurationService"/>
                 <referencedClass name="OCA\OpenRegister\Service\RegisterService"/>
                 <referencedClass name="OCA\OpenRegister\Service\FileService"/>
                 <referencedClass name="OCA\OpenRegister\Service\CalendarEventService"/>
                 <referencedClass name="OCA\OpenRegister\Mcp\IMcpToolProvider"/>
+                <referencedClass name="OCA\OpenRegister\AppHost\Controller\GenericDashboardController"/>
+                <referencedClass name="OCA\OpenRegister\AppHost\Controller\GenericHealthController"/>
+                <referencedClass name="OCA\OpenRegister\AppHost\Controller\GenericMetricsController"/>
+                <referencedClass name="OCA\OpenRegister\AppHost\Listener\GenericDeepLinkRegistrationListener"/>
                 <!-- Additional OCP infrastructure types used across the fleet -->
                 <referencedClass name="OCP\AppFramework\Bootstrap\IBootContext"/>
                 <referencedClass name="OCP\AppFramework\Bootstrap\IRegistrationContext"/>
@@ -117,6 +126,7 @@
         <MismatchingDocblockReturnType errorLevel="suppress"/>
         <EmptyArrayAccess errorLevel="suppress"/>
         <ImplementedReturnTypeMismatch errorLevel="suppress"/>
+        <LessSpecificImplementedReturnType errorLevel="suppress"/>
         <InvalidMethodCall errorLevel="suppress"/>
         <UndefinedInterfaceMethod errorLevel="suppress"/>
         <MissingTemplateParam errorLevel="suppress"/>

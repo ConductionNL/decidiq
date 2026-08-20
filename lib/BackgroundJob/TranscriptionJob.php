@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Transcription Background Job
  *
@@ -14,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ * @spec openspec/specs/meeting-transcription/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -25,8 +26,8 @@ declare(strict_types=1);
 namespace OCA\Decidesk\BackgroundJob;
 
 use OCA\Decidesk\Service\TranscriptionService;
-use OCP\BackgroundJob\QueuedJob;
 use OCP\AppFramework\Utility\ITimeFactory;
+use OCP\BackgroundJob\QueuedJob;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -38,60 +39,58 @@ use Psr\Log\LoggerInterface;
  * against provider absence and provider errors (failure is a first-class
  * stored state, not an uncaught exception).
  *
- * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ * @spec openspec/specs/meeting-transcription/spec.md
  */
-class TranscriptionJob extends QueuedJob
-{
-    /**
-     * Constructor.
-     *
-     * @param ITimeFactory         $time                 NC time factory (injected by QueuedJob).
-     * @param TranscriptionService $transcriptionService The transcription orchestration service.
-     * @param LoggerInterface      $logger               The logger.
-     *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
-     */
-    public function __construct(
-        ITimeFactory $time,
-        private readonly TranscriptionService $transcriptionService,
-        private readonly LoggerInterface $logger,
-    ) {
-        parent::__construct(time: $time);
+class TranscriptionJob extends QueuedJob {
+	/**
+	 * Constructor.
+	 *
+	 * @param ITimeFactory $time NC time factory (injected by QueuedJob).
+	 * @param TranscriptionService $transcriptionService The transcription orchestration service.
+	 * @param LoggerInterface $logger The logger.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	public function __construct(
+		ITimeFactory $time,
+		private readonly TranscriptionService $transcriptionService,
+		private readonly LoggerInterface $logger,
+	) {
+		parent::__construct(time: $time);
 
-    }//end __construct()
+	}//end __construct()
 
-    /**
-     * Run the transcription for the enqueued transcript id.
-     *
-     * @param mixed $argument Expected shape: ['transcriptId' => string].
-     *
-     * @return void
-     *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
-     */
-    protected function run(mixed $argument): void
-    {
-        $transcriptId = '';
-        if (is_array($argument) === true) {
-            $transcriptId = (string) ($argument['transcriptId'] ?? '');
-        }
+	/**
+	 * Run the transcription for the enqueued transcript id.
+	 *
+	 * @param mixed $argument Expected shape: ['transcriptId' => string].
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	protected function run(mixed $argument): void {
+		$transcriptId = '';
+		if (is_array($argument) === true) {
+			$transcriptId = (string)($argument['transcriptId'] ?? '');
+		}
 
-        if ($transcriptId === '') {
-            $this->logger->warning('Decidesk TranscriptionJob: missing transcriptId argument, skipping.');
-            return;
-        }
+		if ($transcriptId === '') {
+			$this->logger->warning('Decidesk TranscriptionJob: missing transcriptId argument, skipping.');
+			return;
+		}
 
-        try {
-            $this->transcriptionService->process(transcriptId: $transcriptId);
-        } catch (\Throwable $e) {
-            // Process() already marks the Transcript failed for provider errors;
-            // this catch covers infrastructure faults (e.g. OR briefly down) so
-            // the cron worker never crashes on a single bad job.
-            $this->logger->error(
-                'Decidesk TranscriptionJob: transcription run failed',
-                ['transcriptId' => $transcriptId, 'exception' => $e->getMessage()]
-            );
-        }
+		try {
+			$this->transcriptionService->process(transcriptId: $transcriptId);
+		} catch (\Throwable $e) {
+			// Process() already marks the Transcript failed for provider errors;
+			// this catch covers infrastructure faults (e.g. OR briefly down) so
+			// the cron worker never crashes on a single bad job.
+			$this->logger->error(
+				'Decidesk TranscriptionJob: transcription run failed',
+				['transcriptId' => $transcriptId, 'exception' => $e->getMessage()]
+			);
+		}
 
-    }//end run()
+	}//end run()
 }//end class

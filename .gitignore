@@ -11,8 +11,13 @@
 /.phpunit.cache
 .phpunit.cache/
 
-/node_modules/
-/website/node_modules/
+# No trailing slash, deliberately. A pattern ending in `/` matches a DIRECTORY
+# only, so `node_modules` created as a SYMLINK (what you get when you point a
+# git worktree at a sibling checkout's install) is not ignored and lands in
+# `git add -A`. That is how a symlink to one machine's absolute path reached
+# this repository. Slashless patterns match a symlink too.
+/node_modules
+/website/node_modules
 /website/.docusaurus/
 /js/
 /custom_apps/
@@ -46,6 +51,34 @@ phpqa_output.log
 **/implements *
 **/ALL *
 **/endpoints *
+#
+# SOURCE-EXTENSION NEGATIONS. Every substring glob in this block is meant to
+# catch stray agent scratch files with no extension ("PR adds …", "endpoints
+# …"). Left unqualified they also swallow real source, silently: `git add`
+# says nothing, the file never reaches a commit, and the first symptom is a
+# fatal error in CI on a class that is simply absent.
+#
+# This is not hypothetical here — the repo already lost this argument once.
+# `**/*references*` swallowed src/components/userSettings/userPreferences.js
+# and *PreferencesSection.vue (observed 2026-06-12, user-settings-v1) because
+# "Preferences" embeds "references".
+#
+# MEASURED 2026-08-09, on this tree, with the only instruments that answer
+# honestly — `git ls-files --others --exclude-standard` and
+# `git status --porcelain --ignored`. (`git check-ignore -q` is NOT usable
+# here: it exits 0 when a NEGATION matches, so it reports a path as ignored
+# after it has been rescued.) Four plausible source names were created and
+# their real status read back:
+#
+#   lib/Service/VotingAnalysisService.php   !!  IGNORED  <- **/*Analysis*
+#   src/utils/updateUserSettings.js         !!  IGNORED  <- **/update*Settings*
+#   lib/Service/encodingHelper.php          !!  IGNORED  <- **/*encoding*
+#   src/utils/dataAnalysisChart.vue         !!  IGNORED  <- **/*Analysis*
+#
+# The negations below pair each glob with the source extensions this repo
+# actually ships, matching the reference treatment in openregister/.gitignore.
+# A negation cannot resurrect a file inside an ignored DIRECTORY, but every
+# glob here matches files, so each one takes effect.
 **/*Analysis*
 # Junk note files named "references ..." — anchored to the filename START so
 # legitimate sources containing "…Preferences…" (which embeds the substring
@@ -59,6 +92,20 @@ phpqa_output.log
 **/update*Settings*
 **/rebase*
 **/setup*
+
+# Rescue real source from every substring glob above. Keep this list in sync
+# with the extensions the repo ships; a new source extension needs a new line.
+!**/*.php
+!**/*.js
+!**/*.ts
+!**/*.vue
+!**/*.json
+!**/*.md
+!**/*.css
+!**/*.scss
+!**/*.xml
+!**/*.yml
+!**/*.yaml
 
 # Temporary test files that shouldn't be committed
 simple-solr-test.php

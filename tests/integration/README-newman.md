@@ -8,6 +8,16 @@ Canonical collection: **`decidesk.postman_collection.json`** (run via `run-newma
 The older `agenda.json` / `motion-voting.json` fixtures predate this suite and are
 not maintained by it.
 
+**`decidesk-security-flow-e2e.postman_collection.json`** (security-flow-e2e-coverage,
+also run via `run-newman.sh`) covers real-HTTP e2e for the four security-relevant
+endpoint groups that were previously exercised only by PHPUnit tests instantiating
+the controller directly: proxy-vote delegation (register/revoke, including the
+board-proxy-vote-authorization-guard IDOR check — unrelated caller → 403), eIDAS
+signing-endpoint reachability + auth posture, and governance-report /
+regulator-export reachability. Full external QES signing-provider round-trip is
+out of scope (requires a live signing provider) — this collection asserts
+reachability + auth enforcement only.
+
 ## What is covered
 
 | Folder | Endpoints | Happy | Error | Authz |

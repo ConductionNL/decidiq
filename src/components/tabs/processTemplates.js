@@ -25,12 +25,18 @@ export function getProcessTemplates() {
 		{
 			id: 'standard-decision',
 			label: t('decidesk', 'Standard decision'),
-			description: t('decidesk', 'Simple majority of votes cast, default quorum.'),
+			description: t(
+				'decidesk',
+				'Simple majority of votes cast, default quorum.',
+			),
 		},
 		{
 			id: 'statute-amendment',
 			label: t('decidesk', 'Statute amendment'),
-			description: t('decidesk', 'Qualified majority (2/3) with elevated quorum.'),
+			description: t(
+				'decidesk',
+				'Qualified majority (2/3) with elevated quorum.',
+			),
 		},
 		{
 			id: 'board-election',

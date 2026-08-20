@@ -12,10 +12,12 @@
  NOT served by this app — it happens exclusively through OR's published-
  predicate / OpenCatalogi surface.
 
- @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ @spec openspec/specs/public-publication/spec.md
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--publication" data-testid="publication-actions-tab">
+	<div
+		class="decidesk-tab decidesk-tab--publication"
+		data-testid="publication-actions-tab">
 		<CnNoteCard
 			v-if="error"
 			type="error"
@@ -39,12 +41,21 @@
 				{{ t('decidesk', 'Public publication') }}
 			</h3>
 
-			<p v-if="activeRecord" class="decidesk-tab__meta" data-testid="publication-status">
-				{{ t('decidesk', 'Published as {oriType} (version {version}) on {date}', {
-					oriType: activeRecord.oriType,
-					version: activeRecord.payloadVersion,
-					date: activeRecord.publishedAt,
-				}) }}
+			<p
+				v-if="activeRecord"
+				class="decidesk-tab__meta"
+				data-testid="publication-status">
+				{{
+					t(
+						'decidesk',
+						'Published as {oriType} (version {version}) on {date}',
+						{
+							oriType: activeRecord.oriType,
+							version: activeRecord.payloadVersion,
+							date: activeRecord.publishedAt,
+						},
+					)
+				}}
 			</p>
 			<p v-else class="decidesk-tab__meta" data-testid="publication-status">
 				{{ t('decidesk', 'Not published.') }}
@@ -53,7 +64,7 @@
 			<div class="decidesk-tab__actions" data-testid="publication-actions">
 				<NcButton
 					v-if="!activeRecord && eligible"
-					type="primary"
+					variant="primary"
 					data-testid="publication-publish"
 					:disabled="working"
 					@click="publish">
@@ -61,7 +72,7 @@
 				</NcButton>
 				<NcButton
 					v-if="activeRecord"
-					type="error"
+					variant="error"
 					data-testid="publication-withdraw"
 					:disabled="working"
 					@click="withdrawModalOpen = true">
@@ -76,18 +87,28 @@
 				</NcButton>
 			</div>
 
-			<div v-if="history.length" class="decidesk-tab__history" data-testid="publication-history">
+			<div
+				v-if="history.length"
+				class="decidesk-tab__history"
+				data-testid="publication-history">
 				<h3 class="decidesk-tab__title">
 					{{ t('decidesk', 'Publication history') }}
 				</h3>
 				<ul class="decidesk-tab__list" role="list">
-					<li v-for="record in history"
+					<li
+						v-for="record in history"
 						:key="record.id"
 						class="decidesk-tab__history-row"
 						role="listitem">
-						<span>{{ t('decidesk', 'v{version}', { version: record.payloadVersion }) }}</span>
+						<span>{{
+							t('decidesk', 'v{version}', {
+								version: record.payloadVersion,
+							})
+						}}</span>
 						<span>{{ statusLabel(record.status) }}</span>
-						<span class="decidesk-tab__meta">{{ record.withdrawReason || '' }}</span>
+						<span class="decidesk-tab__meta">{{
+							record.withdrawReason || ''
+						}}</span>
 					</li>
 				</ul>
 			</div>
@@ -106,10 +127,10 @@
 
 <script>
 import { CnNoteCard } from '@conduction/nextcloud-vue'
-import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
-import PublicationWithdrawModal from '../../modals/PublicationWithdrawModal.vue'
+import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import PublicationRectifyModal from '../../modals/PublicationRectifyModal.vue'
+import PublicationWithdrawModal from '../../modals/PublicationWithdrawModal.vue'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -121,11 +142,30 @@ export default {
 		PublicationWithdrawModal,
 		PublicationRectifyModal,
 	},
+
+	inject: {
+		/**
+		 * CnDetailPage's reactive `{ objectId, object, register, schema }`
+		 * holder.
+		 *
+		 * A manifest `type: "custom"` body widget is mounted through
+		 * CnDetailPage's `widget-<id>` slot, and that slot binds ONLY
+		 * `{ item, widget }` — it does not bind the page's object id. So the
+		 * `objectId` prop arrives empty on that mount path and every fetch
+		 * below would silently no-op (the tab renders its "Not published."
+		 * empty state with no network call at all). This is the same context
+		 * the declarative `@objectId` filter token resolves against, so it is
+		 * the documented route to the page's object.
+		 */
+		cnObjectContext: { default: null },
+	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 		// The publication source type — set by the per-schema wrapper tab.
 		sourceType: { type: String, default: 'decision' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -138,25 +178,54 @@ export default {
 			rectifyModalOpen: false,
 		}
 	},
+
 	computed: {
-		/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+		/**
+		 * The object this tab acts on: the explicit `objectId` prop when the tab
+		 * is mounted directly (sidebar tab / parent wrapper), otherwise the id
+		 * CnDetailPage provides on `cnObjectContext` (manifest body-widget
+		 * mount, where no id prop is bound).
+		 *
+		 * @return {string} The source object UUID, or '' when not resolvable.
+		 * @spec openspec/specs/public-publication/spec.md
+		 */
+		sourceObjectId() {
+			if (this.objectId) {
+				return String(this.objectId)
+			}
+			const context = this.cnObjectContext
+			// Vue unwraps an injected ref for the Options API, but the compat
+			// build can hand back the ref itself — accept both shapes.
+			const value =
+				context && typeof context === 'object' && 'value' in context
+					? context.value
+					: context
+			return value && value.objectId ? String(value.objectId) : ''
+		},
+
+		/** @spec openspec/specs/public-publication/spec.md */
 		records_sorted() {
-			return [...this.records].sort((a, b) => (b.payloadVersion || 0) - (a.payloadVersion || 0))
+			return [...this.records].sort(
+				(a, b) => (b.payloadVersion || 0) - (a.payloadVersion || 0),
+			)
 		},
-		/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+
+		/** @spec openspec/specs/public-publication/spec.md */
 		activeRecord() {
-			return this.records_sorted.find(r => r.status === 'published') || null
+			return this.records_sorted.find((r) => r.status === 'published') || null
 		},
-		/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+
+		/** @spec openspec/specs/public-publication/spec.md */
 		history() {
 			return this.records_sorted
 		},
+
 		/**
 		 * Client-side eligibility mirror of the server gates — controls whether
 		 * the Publish action is offered. The server remains authoritative.
 		 *
 		 * @return {boolean} Whether the object appears publishable.
-		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		eligible() {
 			if (!this.source) return false
@@ -164,28 +233,39 @@ export default {
 				return ['decided', 'enacted'].includes(this.source.lifecycle)
 			}
 			if (this.sourceType === 'agenda') {
-				return this.source.isPublic === true && !!(this.source.convocationSentAt || this.source.convocationSent)
+				return (
+					this.source.isPublic === true
+					&& !!(
+						this.source.convocationSentAt || this.source.convocationSent
+					)
+				)
 			}
 			if (this.sourceType === 'minutes') {
-				return ['approved', 'signed', 'published'].includes(this.source.lifecycle)
+				return ['approved', 'signed', 'published'].includes(
+					this.source.lifecycle,
+				)
 			}
 			return false
 		},
 	},
+
 	watch: {
-		objectId: {
+		sourceObjectId: {
 			immediate: true,
-			/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
-			handler() { this.refresh() },
+			/** @spec openspec/specs/public-publication/spec.md */
+			handler() {
+				this.refresh()
+			},
 		},
 	},
+
 	methods: {
 		/**
 		 * Translated status label.
 		 *
 		 * @param {string} status Record status.
 		 * @return {string} The translated label.
-		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		statusLabel(status) {
 			const labels = {
@@ -195,58 +275,83 @@ export default {
 			}
 			return labels[status] || status
 		},
+
 		/**
 		 * Translated label for a publication warning code.
 		 *
 		 * @param {string} code Warning code.
 		 * @return {string} The translated label.
-		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		warningLabel(code) {
 			const labels = {
-				'opencatalogi-absent': this.t('decidesk', 'OpenCatalogi is not installed — the record received the public predicate but was not routed to a catalog.'),
-				'catalog-publish-failed': this.t('decidesk', 'Publishing to the OpenCatalogi catalog failed.'),
-				'catalog-retraction-failed': this.t('decidesk', 'Retraction from the OpenCatalogi catalog failed and is pending retry — the record is no longer publicly readable but the catalog still lists it.'),
-				'predicate-unavailable': this.t('decidesk', 'The published predicate could not be set on this OpenRegister version — anonymous read is not yet available.'),
+				'opencatalogi-absent': this.t(
+					'decidesk',
+					'OpenCatalogi is not installed — the record received the public predicate but was not routed to a catalog.',
+				),
+
+				'catalog-publish-failed': this.t(
+					'decidesk',
+					'Publishing to the OpenCatalogi catalog failed.',
+				),
+
+				'catalog-retraction-failed': this.t(
+					'decidesk',
+					'Retraction from the OpenCatalogi catalog failed and is pending retry — the record is no longer publicly readable but the catalog still lists it.',
+				),
+
+				'predicate-unavailable': this.t(
+					'decidesk',
+					'The published predicate could not be set on this OpenRegister version — anonymous read is not yet available.',
+				),
 			}
 			return labels[code] || code
 		},
-		/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+
+		/** @spec openspec/specs/public-publication/spec.md */
 		async refresh() {
-			if (!this.objectId) return
+			if (!this.sourceObjectId) return
 			this.loading = true
 			this.error = ''
 			try {
 				const sourceStore = ensureRelationType(this.sourceSchemaType())
-				this.source = await sourceStore.fetchObject(this.sourceSchemaType(), this.objectId)
+				this.source = await sourceStore.fetchObject(
+					this.sourceSchemaType(),
+					this.sourceObjectId,
+				)
 
 				const recordStore = ensureRelationType('publication-record')
-				this.records = (await recordStore.fetchCollection('publication-record', {
-					sourceObject: this.objectId,
-					_limit: 100,
-				})) || []
+				this.records =
+					(await recordStore.fetchCollection('publication-record', {
+						sourceObject: this.sourceObjectId,
+						_limit: 100,
+					})) || []
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load publication state.')
+				this.error =
+					e?.message
+					|| this.t('decidesk', 'Failed to load publication state.')
 			} finally {
 				this.loading = false
 			}
 		},
+
 		/**
 		 * Map the publication source type to the OR schema relation type.
 		 *
 		 * @return {string} The relation type slug.
-		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		sourceSchemaType() {
 			return this.sourceType === 'agenda' ? 'meeting' : this.sourceType
 		},
+
 		/**
 		 * POST helper against the decidesk publication API.
 		 *
 		 * @param {string} path Path under /apps/decidesk/api.
 		 * @param {object} body JSON body.
 		 * @return {Promise<object>} Parsed response body.
-		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		async callApi(path, body = {}) {
 			const response = await fetch(generateUrl(`/apps/decidesk/api${path}`), {
@@ -259,17 +364,23 @@ export default {
 			})
 			const data = await response.json().catch(() => ({}))
 			if (!response.ok) {
-				throw new Error(data.message || this.t('decidesk', 'The action failed.'))
+				throw new Error(
+					data.message || this.t('decidesk', 'The action failed.'),
+				)
 			}
 			return data
 		},
-		/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+
+		/** @spec openspec/specs/public-publication/spec.md */
 		async publish() {
 			this.working = true
 			this.error = ''
 			this.warnings = []
 			try {
-				const result = await this.callApi('/publications', { sourceType: this.sourceType, sourceId: this.objectId })
+				const result = await this.callApi('/publications', {
+					sourceType: this.sourceType,
+					sourceId: this.sourceObjectId,
+				})
 				this.warnings = result?.warnings || []
 				await this.refresh()
 			} catch (e) {
@@ -278,11 +389,12 @@ export default {
 				this.working = false
 			}
 		},
+
 		/**
 		 * Withdraw the active publication with a mandatory reason.
 		 *
 		 * @param {string} reason The withdraw reason.
-		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		async confirmWithdraw(reason) {
 			this.withdrawModalOpen = false
@@ -291,7 +403,10 @@ export default {
 			this.error = ''
 			this.warnings = []
 			try {
-				const result = await this.callApi(`/publications/${this.activeRecord.id}/withdraw`, { reason })
+				const result = await this.callApi(
+					`/publications/${this.activeRecord.id}/withdraw`,
+					{ reason },
+				)
 				this.warnings = result?.warnings || []
 				await this.refresh()
 			} catch (e) {
@@ -300,11 +415,12 @@ export default {
 				this.working = false
 			}
 		},
+
 		/**
 		 * Rectify the active publication (publish a corrected version).
 		 *
 		 * @param {string} reason Optional reason for the correction.
-		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		async confirmRectify(reason) {
 			this.rectifyModalOpen = false
@@ -313,7 +429,10 @@ export default {
 			this.error = ''
 			this.warnings = []
 			try {
-				const result = await this.callApi(`/publications/${this.activeRecord.id}/rectify`, { reason })
+				const result = await this.callApi(
+					`/publications/${this.activeRecord.id}/rectify`,
+					{ reason },
+				)
 				this.warnings = result?.warnings || []
 				await this.refresh()
 			} catch (e) {
@@ -333,17 +452,20 @@ export default {
 	gap: calc(var(--default-grid-baseline) * 2);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-tab__actions {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__list {
 	list-style: none;
 	margin: 0;
@@ -352,6 +474,7 @@ export default {
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__history-row {
 	display: flex;
 	gap: var(--default-grid-baseline);
@@ -359,6 +482,7 @@ export default {
 	padding: 4px 0;
 	border-bottom: 1px solid var(--color-border);
 }
+
 .decidesk-tab__meta {
 	color: var(--color-text-maxcontrast);
 	margin: 0;

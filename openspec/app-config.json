@@ -17,7 +17,7 @@
   },
   "cicd": {
     "phpVersions": ["8.3", "8.4"],
-    "nextcloudRefs": ["stable31", "stable32"],
+    "nextcloudRefs": ["stable32"],
     "enableNewman": false
   },
   "createdAt": "2026-03-26",

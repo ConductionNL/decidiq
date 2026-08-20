@@ -1,0 +1,402 @@
+{
+  "x-openregister": {
+    "seedData": {
+      "description": "Seed objects for the appointments & terms register (appointments-and-terms, fragment 61 / ADR-016). References resolve by slug against existing decidesk seed objects (governance-body auditcommissie-provincie-nh / raad-van-commissarissen-acme-bv, person marie-janssen). The nil UUID 00000000-0000-0000-0000-000000000000 is an obvious placeholder where no matching seed object exists at seed time — RoosterRegel Memberships are unresolved because no Membership is seeded for the auditcommissie/ACME-RvC bodies, so the derived persoonNaam carries the name instead. Covers the three remaining schemas across the municipal committee and corporate RvC domains (the Voordracht schema and its 3 seeds were retired and re-authored as Decision decisionType=appointment seeds by the appointment-decision-type-schema change): 2 TermijnRegelingen, 2 RoosterVanAftreden (one published RvC rooster with publicationDate, one unpublished municipal committee rooster), and 5 RoosterRegels including one inside the 6-month rappel window (2026-11-01, drives the KPI + rappel demo) and at its maximum consecutive term (termijnNummer 2, herbenoembaar false, drives the advisory warning).",
+      "objects": {
+        "termijn-regeling": [
+          {
+            "slug": "termijn-regeling-auditcommissie",
+            "body": "auditcommissie-provincie-nh",
+            "termDurationMonths": 48,
+            "notes": "Benoeming voor de duur van de raadsperiode; geen maximum aan aansluitende termijnen."
+          },
+          {
+            "slug": "termijn-regeling-rvc-acme",
+            "body": "raad-van-commissarissen-acme-bv",
+            "termDurationMonths": 48,
+            "maxConsecutivePeriods": 2,
+            "notes": "Statutair: eenmaal herbenoembaar (art. 12 statuten)."
+          }
+        ],
+        "rooster-van-aftreden": [
+          {
+            "slug": "rooster-rvc-acme",
+            "body": "raad-van-commissarissen-acme-bv",
+            "generatedOn": "2026-07-01T09:00:00Z",
+            "generatedBy": "Griffie",
+            "publicationDate": "2026-07-02T09:00:00Z"
+          },
+          {
+            "slug": "rooster-auditcommissie",
+            "body": "auditcommissie-provincie-nh",
+            "generatedOn": "2026-07-01T09:00:00Z",
+            "generatedBy": "Griffie"
+          }
+        ],
+        "rooster-regel": [
+          {
+            "slug": "rooster-regel-rvc-vanduin",
+            "schedule": "rooster-rvc-acme",
+            "membership": "00000000-0000-0000-0000-000000000000",
+            "personName": "J. van Duin",
+            "role": "member",
+            "termNumber": 1,
+            "endTermDate": "2030-09-10",
+            "reappointable": true
+          },
+          {
+            "slug": "rooster-regel-rvc-dewit",
+            "schedule": "rooster-rvc-acme",
+            "membership": "00000000-0000-0000-0000-000000000000",
+            "personName": "P. de Wit",
+            "role": "chair",
+            "termNumber": 2,
+            "endTermDate": "2026-11-01",
+            "reappointable": false,
+            "rappelStatus": "reminder-6-months"
+          },
+          {
+            "slug": "rooster-regel-rvc-smit",
+            "schedule": "rooster-rvc-acme",
+            "membership": "00000000-0000-0000-0000-000000000000",
+            "personName": "A. Smit",
+            "role": "member",
+            "termNumber": 1,
+            "endTermDate": "2028-03-15",
+            "reappointable": true
+          },
+          {
+            "slug": "rooster-regel-auditcommissie-jansen",
+            "schedule": "rooster-auditcommissie",
+            "membership": "00000000-0000-0000-0000-000000000000",
+            "personName": "S. Jansen",
+            "role": "member",
+            "termNumber": 1,
+            "endTermDate": "2030-09-10",
+            "reappointable": true
+          },
+          {
+            "slug": "rooster-regel-auditcommissie-bakker",
+            "schedule": "rooster-auditcommissie",
+            "membership": "00000000-0000-0000-0000-000000000000",
+            "personName": "K. Bakker",
+            "role": "member",
+            "termNumber": 1,
+            "endTermDate": "2027-05-01",
+            "reappointable": true
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TermijnRegeling": {
+        "slug": "termijn-regeling",
+        "icon": "CalendarClockOutline",
+        "version": "0.1.0",
+        "title": "TermijnRegeling",
+        "description": "A term rule per body-role: term length (termijnDuurMaanden) and an optional maximum number of consecutive terms (maxAansluitendeTermijnen), from which term numbers and end-of-term dates are DERIVED per Membership (REQ-APT-006, never written onto Membership — design D2). At most one regeling is effective per body-role combination, and a role-specific regeling overrides the body-wide one; this uniqueness/override rule is NOT expressible in the schema (no unique-constraint dialect) and is enforced at save time by the imperative layer per REQ-APT-005. An empty role means the rule applies to all roles in the body.",
+        "type": "object",
+        "x-schema-org": "schema:CreativeWork",
+        "x-openregister": {
+          "schemaType": "schema:CreativeWork",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "body",
+          "termDurationMonths"
+        ],
+        "properties": {
+          "body": {
+            "title": "Governance body",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "description": "Reference to the GovernanceBody this term rule applies to. Required."
+          },
+          "role": {
+            "title": "Role",
+            "type": "string",
+            "facetable": true,
+            "description": "Membership role the rule applies to (enum pinned to person-and-membership REQ-PMB-011). Optional — empty means the rule applies to all roles in the body; a role-specific regeling overrides the body-wide one.",
+            "enum": [
+              "chair",
+              "vice-chair",
+              "secretary",
+              "treasurer",
+              "member",
+              "observer",
+              "guest"
+            ],
+            "example": "chair"
+          },
+          "termDurationMonths": {
+            "title": "Term length (months)",
+            "type": "integer",
+            "minimum": 1,
+            "description": "Term length in months (e.g. 48 for a 4-year term). Required, positive.",
+            "example": 48
+          },
+          "maxConsecutivePeriods": {
+            "title": "Max consecutive terms",
+            "type": "integer",
+            "minimum": 1,
+            "nullable": true,
+            "description": "Maximum number of consecutive terms. Optional — empty means unlimited. Drives the advisory (non-blocking, design D5) max-term warning on the rooster and on voordrachten.",
+            "example": 2
+          },
+          "notes": {
+            "title": "Note",
+            "type": "string",
+            "description": "Free-text explanation of the rule (e.g. the statutory/verordening basis)."
+          }
+        }
+      },
+      "RoosterVanAftreden": {
+        "slug": "rooster-van-aftreden",
+        "icon": "CalendarMonthOutline",
+        "version": "0.1.0",
+        "title": "RoosterVanAftreden",
+        "description": "One live rooster van aftreden (retirement schedule) object per governance body — a regeneratable projection (design D3), never hand-maintained truth. Carries generation metadata (gegenereerdOp/gegenereerdDoor) and the publication predicate for the rooster as a whole; the ordered term entries live as first-class RoosterRegel objects referencing this rooster. Publication is predicate-on-live-object (design D4, REQ-APT-009) justified against public-publication's derived-payload rule because the rooster is ALREADY an allow-list projection (name, role, term number, term dates, herbenoembaar — never contact details, NC UIDs, addresses, or vote data). Setting publicationDate grants the public group read while publicationDate <= $now; clearing it withdraws.",
+        "type": "object",
+        "x-schema-org": "schema:ItemList",
+        "x-openregister": {
+          "schemaType": "schema:ItemList",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "authorization": {
+          "read": [
+            {
+              "group": "public",
+              "match": {
+                "publicationDate": {
+                  "$lte": "$now"
+                }
+              }
+            },
+            "authenticated"
+          ]
+        },
+        "required": [
+          "body"
+        ],
+        "properties": {
+          "body": {
+            "title": "Governance body",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "description": "Reference to the GovernanceBody this rooster van aftreden belongs to (one live rooster per body). Required."
+          },
+          "generatedOn": {
+            "title": "Generated at",
+            "type": "string",
+            "format": "date-time",
+            "facetable": true,
+            "description": "Timestamp of the most recent generation/regeneration (REQ-APT-007). Shown prominently so a stale rooster is visibly stale, never silently wrong.",
+            "example": "2026-07-01T09:00:00Z"
+          },
+          "generatedBy": {
+            "title": "Generated by",
+            "type": "string",
+            "description": "Who triggered the most recent generation (griffie/secretary). Allow-list metadata only."
+          },
+          "publicationDate": {
+            "title": "Publication date",
+            "type": "string",
+            "format": "date-time",
+            "facetable": true,
+            "nullable": true,
+            "description": "Publication date (WOO/DIWOO). When set in the past, the live rooster and its regels are anonymously readable through the OR published-predicate (public-group authorization.read rule publicationDate <= $now). Opt-in per rooster; withdraw by clearing (REQ-APT-009, design D4)."
+          },
+          "depublicationDate": {
+            "title": "Depublication date",
+            "type": "string",
+            "format": "date-time",
+            "facetable": true,
+            "nullable": true,
+            "description": "Depublication date (WOO/DIWOO). When set and in the past, the rooster is withdrawn from public access."
+          }
+        }
+      },
+      "RoosterRegel": {
+        "slug": "rooster-regel",
+        "icon": "CalendarClock",
+        "version": "0.1.0",
+        "title": "RoosterRegel",
+        "description": "One first-class term entry (design D3) per active Membership under an effective TermijnRegeling, materialized on generation of its RoosterVanAftreden (REQ-APT-007). Carries derived term data (termijnNummer, eindeTermijnDatum, herbenoembaar) computed by RoosterService::deriveTerm() from Membership startDate/endDate history and the effective regeling (REQ-APT-006, design D2) — the derived values are materialized here, visible/auditable/regeneratable, never written onto the Membership schema. First-class (not an array on the rooster) so eindeTermijnDatum can drive declarative scheduled herbenoemingsrappels (x-openregister-notifications) and the expiring-terms KPI (widget aggregation over objects). persoonNaam is an allow-list projection field (no contact details / NC UIDs / vote data), so a published rooster exposes only name/role/term data.",
+        "type": "object",
+        "x-schema-org": "schema:ListItem",
+        "x-openregister": {
+          "schemaType": "schema:ListItem",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "x-openregister-notifications": {
+          "herbenoemingsrappel6Maanden": {
+            "trigger": {
+              "type": "scheduled",
+              "intervalSec": 15552000,
+              "filter": {
+                "reappointable": true
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Herbenoemingsrappel (6 maanden): termijn van {{persoonNaam}} ({{role}}) loopt af op {{eindeTermijnDatum}}",
+              "en": "Reappointment reminder (6 months): term of {{persoonNaam}} ({{role}}) ends on {{eindeTermijnDatum}}"
+            },
+            "_note": "Six-month herbenoemingsrappel (REQ-APT-010). intervalSec 15552000 (~6 months) is the default rappel window and is PROVISIONAL / griffie-configurable (design open question — per-body windows may move into TermijnRegeling with regeneration stamping the window onto the regel, see design Risks). Filter targets herbenoembaar regels; the 'eindeTermijnDatum enters the window' vs a plain interval is carried by OR's scheduled-notification window semantics, which the simple filter shape cannot express as a relative-date comparison on eindeTermijnDatum — VERIFY OR's scheduled-notification engine interprets these two triggers as 6/3-month before-term-end rappels during live import (same window-semantics caveat as the toezeggingen deadline rappels). Body/role are best surfaced via persoonNaam+role; the body name is not a direct field on the regel."
+          },
+          "herbenoemingsrappel3Maanden": {
+            "trigger": {
+              "type": "scheduled",
+              "intervalSec": 7776000,
+              "filter": {
+                "reappointable": true
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Herbenoemingsrappel (3 maanden): termijn van {{persoonNaam}} ({{role}}) loopt af op {{eindeTermijnDatum}}",
+              "en": "Reappointment reminder (3 months): term of {{persoonNaam}} ({{role}}) ends on {{eindeTermijnDatum}}"
+            },
+            "_note": "Three-month herbenoemingsrappel (REQ-APT-010). intervalSec 7776000 (~3 months) is the default second rappel window, PROVISIONAL / configurable. Same window-semantics caveat as herbenoemingsrappel6Maanden."
+          }
+        },
+        "authorization": {
+          "read": [
+            {
+              "group": "public",
+              "match": {
+                "publicationDate": {
+                  "$lte": "$now"
+                }
+              }
+            },
+            "authenticated"
+          ]
+        },
+        "required": [
+          "schedule",
+          "personName",
+          "role",
+          "termNumber",
+          "endTermDate"
+        ],
+        "properties": {
+          "schedule": {
+            "title": "Rooster",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "RoosterVanAftreden",
+            "description": "Reference to the parent RoosterVanAftreden. Required."
+          },
+          "membership": {
+            "title": "Membership",
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "$ref": "Membership",
+            "description": "Reference to the source Membership this regel was derived from (person-and-membership). Optional/nullable: a projection row may carry only the materialized persoonNaam when the Membership cannot be resolved at generation time (e.g. imported partial history)."
+          },
+          "personName": {
+            "title": "Member name",
+            "type": "string",
+            "description": "Materialized member name (allow-list projection field; safe for public publication). Required.",
+            "example": "P. de Wit"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string",
+            "facetable": true,
+            "description": "Membership role for this term entry (enum pinned to person-and-membership REQ-PMB-011). Required.",
+            "enum": [
+              "chair",
+              "vice-chair",
+              "secretary",
+              "treasurer",
+              "member",
+              "observer",
+              "guest"
+            ],
+            "example": "member"
+          },
+          "termNumber": {
+            "title": "Term number",
+            "type": "integer",
+            "minimum": 1,
+            "facetable": true,
+            "description": "Derived 1-based count of the person's consecutive terms in the same body-role (REQ-APT-006). A reappointment without a gap increments; a gap or role change resets to 1. When it exceeds maxAansluitendeTermijnen an advisory warning is surfaced (non-blocking, design D5).",
+            "example": 2
+          },
+          "endTermDate": {
+            "title": "End-of-term date",
+            "type": "string",
+            "format": "date",
+            "facetable": true,
+            "description": "Derived end-of-term date: start of the current term plus termijnDuurMaanden (REQ-APT-006). Drives the declarative herbenoemingsrappels and the expiring-terms KPI, ordered ascending on the rooster. Required.",
+            "example": "2026-11-01"
+          },
+          "reappointable": {
+            "title": "Reappointable",
+            "type": "boolean",
+            "facetable": true,
+            "description": "Derived from maxAansluitendeTermijnen: false when the current termijnNummer has reached the maximum consecutive terms, true otherwise (or when unlimited). Allow-list projection field."
+          },
+          "rappelStatus": {
+            "title": "Reminder status",
+            "type": "string",
+            "facetable": true,
+            "description": "Which herbenoemingsrappel windows have already fired for this regel (bookkeeping for the declarative rappels).",
+            "enum": [
+              "none",
+              "reminder-6-months",
+              "reminder-3-months"
+            ],
+            "example": "geen"
+          }
+        }
+      }
+    }
+  }
+}

@@ -17,7 +17,7 @@
  */
 
 import { getRequestToken } from '@nextcloud/auth'
-import { generateUrl, generateOcsUrl } from '@nextcloud/router'
+import { generateOcsUrl, generateUrl } from '@nextcloud/router'
 
 /** Notification event types (key = REST field). Labels are translated in the components. */
 export const EVENT_TYPES = [
@@ -53,7 +53,12 @@ export const DEFAULT_VIEW_OPTIONS = [
 ]
 
 /** Supported date formats ('locale' = follow the Nextcloud locale). */
-export const DATE_FORMAT_OPTIONS = ['locale', 'DD-MM-YYYY', 'YYYY-MM-DD', 'MM/DD/YYYY']
+export const DATE_FORMAT_OPTIONS = [
+	'locale',
+	'DD-MM-YYYY',
+	'YYYY-MM-DD',
+	'MM/DD/YYYY',
+]
 
 /**
  * Map the two independent channel toggles onto the storage enum.
@@ -160,14 +165,14 @@ export function formatDate(value, format = 'locale') {
 	const mm = String(date.getMonth() + 1).padStart(2, '0')
 	const yyyy = String(date.getFullYear())
 	switch (format) {
-	case 'DD-MM-YYYY':
-		return `${dd}-${mm}-${yyyy}`
-	case 'YYYY-MM-DD':
-		return `${yyyy}-${mm}-${dd}`
-	case 'MM/DD/YYYY':
-		return `${mm}/${dd}/${yyyy}`
-	default:
-		return date.toLocaleDateString()
+		case 'DD-MM-YYYY':
+			return `${dd}-${mm}-${yyyy}`
+		case 'YYYY-MM-DD':
+			return `${yyyy}-${mm}-${dd}`
+		case 'MM/DD/YYYY':
+			return `${mm}/${dd}/${yyyy}`
+		default:
+			return date.toLocaleDateString()
 	}
 }
 
@@ -180,9 +185,12 @@ export function formatDate(value, format = 'locale') {
  * @spec openspec/specs/user-settings/spec.md
  */
 export async function fetchNotificationPreference() {
-	const response = await fetch(generateUrl('/apps/decidesk/api/notification-preference'), {
-		headers: { requesttoken: getRequestToken() },
-	})
+	const response = await fetch(
+		generateUrl('/apps/decidesk/api/notification-preference'),
+		{
+			headers: { requesttoken: getRequestToken() },
+		},
+	)
 	if (!response.ok) {
 		throw new Error(`Failed to load preferences (HTTP ${response.status})`)
 	}
@@ -199,17 +207,22 @@ export async function fetchNotificationPreference() {
  * @spec openspec/specs/user-settings/spec.md
  */
 export async function saveNotificationPreference(changes) {
-	const response = await fetch(generateUrl('/apps/decidesk/api/notification-preference'), {
-		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-			requesttoken: getRequestToken(),
+	const response = await fetch(
+		generateUrl('/apps/decidesk/api/notification-preference'),
+		{
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				requesttoken: getRequestToken(),
+			},
+			body: JSON.stringify(changes),
 		},
-		body: JSON.stringify(changes),
-	})
+	)
 	const data = await response.json().catch(() => ({}))
 	if (!response.ok) {
-		throw new Error(data?.message || `Failed to save preferences (HTTP ${response.status})`)
+		throw new Error(
+			data?.message || `Failed to save preferences (HTTP ${response.status})`,
+		)
 	}
 	return data
 }
@@ -223,14 +236,17 @@ export async function saveNotificationPreference(changes) {
  * @spec openspec/specs/user-settings/spec.md
  */
 export async function fetchDisplayPreference(key) {
-	const response = await fetch(generateUrl(`/apps/decidesk/api/preferences/${key}`), {
-		headers: { requesttoken: getRequestToken() },
-	})
+	const response = await fetch(
+		generateUrl(`/apps/decidesk/api/preferences/${key}`),
+		{
+			headers: { requesttoken: getRequestToken() },
+		},
+	)
 	if (!response.ok) {
 		return DISPLAY_DEFAULTS[key] ?? ''
 	}
 	const data = await response.json().catch(() => ({}))
-	return data?.value ?? (DISPLAY_DEFAULTS[key] ?? '')
+	return data?.value ?? DISPLAY_DEFAULTS[key] ?? ''
 }
 
 /**
@@ -244,14 +260,17 @@ export async function fetchDisplayPreference(key) {
  * @spec openspec/specs/user-settings/spec.md
  */
 export async function saveDisplayPreference(key, value) {
-	const response = await fetch(generateUrl(`/apps/decidesk/api/preferences/${key}`), {
-		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-			requesttoken: getRequestToken(),
+	const response = await fetch(
+		generateUrl(`/apps/decidesk/api/preferences/${key}`),
+		{
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				requesttoken: getRequestToken(),
+			},
+			body: JSON.stringify({ value }),
 		},
-		body: JSON.stringify({ value }),
-	})
+	)
 	if (!response.ok) {
 		throw new Error(`Failed to save preference ${key} (HTTP ${response.status})`)
 	}
@@ -267,7 +286,8 @@ export async function saveDisplayPreference(key, value) {
  * @spec openspec/specs/user-settings/spec.md
  */
 export async function searchDelegateUsers(search) {
-	const url = generateOcsUrl('apps/files_sharing/api/v1/sharees')
+	const url =
+		generateOcsUrl('apps/files_sharing/api/v1/sharees')
 		+ `?search=${encodeURIComponent(search)}&itemType=file&shareType=0&perPage=20&format=json`
 	const response = await fetch(url, {
 		headers: {
@@ -284,8 +304,10 @@ export async function searchDelegateUsers(search) {
 		...(data?.ocs?.data?.exact?.users ?? []),
 		...(data?.ocs?.data?.users ?? []),
 	]
-	return users.map((u) => ({
-		id: u?.value?.shareWith ?? '',
-		label: u?.label ?? u?.value?.shareWith ?? '',
-	})).filter((u) => u.id !== '')
+	return users
+		.map((u) => ({
+			id: u?.value?.shareWith ?? '',
+			label: u?.label ?? u?.value?.shareWith ?? '',
+		}))
+		.filter((u) => u.id !== '')
 }

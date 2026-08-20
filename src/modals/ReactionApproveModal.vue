@@ -7,7 +7,7 @@
  surfaces in the consultation's reactions relation and becomes eligible for
  publication.
 
- @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ @spec openspec/specs/citizen-participation/spec.md
 -->
 <template>
 	<NcDialog
@@ -15,16 +15,23 @@
 		data-testid="reaction-approve-modal"
 		@closing="$emit('close')">
 		<template #default>
-			<p>{{ t('decidesk', 'Approving counts this reaction toward the consultation and allows it to be published.') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'Approving counts this reaction toward the consultation and allows it to be published.',
+					)
+				}}
+			</p>
 			<NcTextArea
-				:value.sync="note"
+				v-model="note"
 				data-testid="reaction-approve-note"
 				:label="t('decidesk', 'Moderation note (optional)')"
 				resize="vertical" />
 		</template>
 		<template #actions>
 			<NcButton
-				type="success"
+				variant="success"
 				data-testid="reaction-approve-confirm"
 				@click="$emit('confirm', note.trim())">
 				{{ t('decidesk', 'Approve') }}

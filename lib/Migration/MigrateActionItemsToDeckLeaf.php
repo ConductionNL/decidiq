@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk — legacy Task/Delegation → ActionItem migration (RETIRED to a no-op).
  *
@@ -26,7 +27,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Migration;
@@ -39,36 +40,33 @@ use OCP\Migration\IRepairStep;
  *
  * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
  */
-class MigrateActionItemsToDeckLeaf implements IRepairStep
-{
-    /**
-     * Get the name of this repair step.
-     *
-     * @return string The repair step name.
-     *
-     * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
-     */
-    public function getName(): string
-    {
-        return 'Migrate legacy Decidesk Task/Delegation objects to VTODO action items (deferred to per-user follow-up)';
-    }//end getName()
+class MigrateActionItemsToDeckLeaf implements IRepairStep {
+	/**
+	 * Get the name of this repair step.
+	 *
+	 * @return string The repair step name.
+	 *
+	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
+	 */
+	public function getName(): string {
+		return 'Migrate legacy Decidesk Task/Delegation objects to Deck-leaf VTODO action items (deferred to per-user follow-up)';
+	}//end getName()
 
-    /**
-     * No-op. See the class docblock: the action-item schema is a read-only VTODO
-     * projection, so this saveObject-based migration cannot run; the legacy
-     * task/delegation → VTODO migration is a documented per-user follow-up.
-     *
-     * @param IOutput $output Progress reporting.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
-     */
-    public function run(IOutput $output): void
-    {
-        $output->info(
-            'Decidesk action-item migration skipped: action items are a read-only VTODO '
-            .'projection; legacy task/delegation → VTODO migration is a per-user follow-up.'
-        );
-    }//end run()
+	/**
+	 * No-op. See the class docblock: the action-item schema is a read-only VTODO
+	 * projection, so this saveObject-based migration cannot run; the legacy
+	 * task/delegation → VTODO migration is a documented per-user follow-up.
+	 *
+	 * @param IOutput $output Progress reporting.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
+	 */
+	public function run(IOutput $output): void {
+		$output->info(
+			'Decidesk action-item migration skipped: action items are a read-only VTODO '
+			. 'projection; legacy task/delegation → VTODO migration is a per-user follow-up.'
+		);
+	}//end run()
 }//end class

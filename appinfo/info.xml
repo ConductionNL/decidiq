@@ -10,11 +10,14 @@
 
 **Key Features**
 
-- **Vue 2 + Pinia frontend** — Modern reactive UI with state management
-- **OpenRegister integration** — Built-in support for the OpenRegister data layer
-- **Admin settings** — Pre-wired settings page with version info
+- **Meetings & agendas** — Scheduling, agenda items, and per-item dossiers, all as typed OpenRegister objects
+- **Motions & amendments** — Submit, link to an agenda item, and track through a decision
+- **Voting, including proxy voting** — In person, electronic, or by proxy for an absent member; every vote and abstention logged
+- **eIDAS-qualified signatures (QES)** — Minutes and written-procedure resolutions signed and verified under eIDAS Article 25(2), via the OpenConnector e-sign connector
+- **Governance reports & regulator export** — Compliance-ready reporting and export for supervisory bodies
+- **Action items & decisions** — Tracked to completion with a tamper-evident audit trail
+- **AI chat companion (MCP)** — Meetings, action items, and decisions exposed as chat tools under the caller's own role
 - **NL Design System ready** — CSS variables, WCAG AA, government theming
-- **Full quality pipeline** — PHPCS, PHPMD, Psalm, PHPStan, ESLint, Stylelint
 
 Free and open source under the EUPL-1.2 license.
 
@@ -24,18 +27,32 @@ Free and open source under the EUPL-1.2 license.
 
 **Belangrijkste functies**
 
-- **Vue 2 + Pinia frontend** — Moderne reactieve UI met state management
-- **OpenRegister-integratie** — Ingebouwde ondersteuning voor de OpenRegister-datalaag
-- **Beheerdersinstellingen** — Voorgeconfigureerde instellingenpagina met versie-informatie
+- **Vergaderingen & agenda's** — Planning, agendapunten en dossiers per punt, allemaal als getypeerde OpenRegister-objecten
+- **Moties & amendementen** — Indienen, koppelen aan een agendapunt en volgen tot een besluit
+- **Stemmingen, inclusief volmacht** — Fysiek, elektronisch of per volmacht voor een afwezig lid; elke stem en onthouding gelogd
+- **eIDAS-gekwalificeerde ondertekening (QES)** — Notulen en schriftelijke besluitvormingsprocedures ondertekend en geverifieerd onder eIDAS artikel 25(2), via de OpenConnector e-sign-connector
+- **Governance-rapportage & toezichthouder-export** — Compliance-rapportage en export voor toezichthoudende organen
+- **Actiepunten & besluiten** — Gevolgd tot afronding met een tamper-evident audit trail
+- **AI-chatassistent (MCP)** — Vergaderingen, actiepunten en besluiten beschikbaar als chattools, onder de rol van de aanroeper
 - **NL Design System klaar** — CSS-variabelen, WCAG AA, overheidsthema
-- **Volledige kwaliteitspipeline** — PHPCS, PHPMD, Psalm, PHPStan, ESLint, Stylelint
 
 Vrij en open source onder de EUPL-1.2-licentie.
 
 **Ondersteuning:** Voor ondersteuning, neem contact op via support@conduction.nl.
     ]]></description>
-    <version>0.3.4</version>
-    <licence>agpl</licence>
+    <!--
+        Bumped for the register authorization baseline (0.7.0 -> 0.8.0 on the
+        register row). The <post-migration> repair steps below, InitializeSettings
+        among them, run only on `occ upgrade`, and `occ upgrade` is a NO-OP when
+        the app version has not moved — so without this bump the security fix
+        would sit in the JSON on every existing instance and never be imported.
+        The register's OWN version bump is separately required: ImportHandler's
+        register path (importRegister, ~line 879) skips outright when the incoming
+        version is <= the stored one, and unlike the SCHEMA path it has no
+        content-differs escape hatch to fall back on.
+    -->
+    <version>1.0.1-unstable.20260820125350</version>
+    <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidesk</namespace>
     <documentation>
@@ -52,18 +69,122 @@ Vrij en open source onder de EUPL-1.2-licentie.
     <screenshot>https://codeberg.org/Conduction/decidesk/raw/branch/main/img/app-store.svg</screenshot>
 
     <dependencies>
-        <nextcloud min-version="28" max-version="34"/>
         <php min-version="8.3"/>
+        <!-- App dependency (not expressible in app-info.xsd): OpenRegister
+             (data layer for meetings/motions/decisions; src/manifest.json "dependencies": ["openregister"]).
+             Optional runtime dependency: OpenConnector (eIDAS QES e-sign Source), Docudesk (signing + AI minutes),
+             OpenCatalogi (decision publication) — all resolved lazily via the DI container and degrade gracefully
+             when absent. -->
+        <!-- min-version is 32, NOT 28. The OpenRegister dependency noted above is HARD
+             (src/manifest.json lists "openregister" under "dependencies"), and openregister
+             declares min-version="32" as of ConductionNL/openregister#2384. An app's floor
+             must be >= the maximum floor of every <app> it depends on; below that floor the
+             dependency refuses to install and every meeting, motion and decision — all of
+             which are OpenRegister objects — is unreachable. Declaring 28 advertised an
+             App Store range this app cannot deliver: the openconnector#1172/#1173 defect.
+
+             This reverses #424, which restored the 28 floor on the premise that openregister
+             had returned to 28 in openregister#2380. That premise expired: #2384 (merged
+             2026-08-08) moved it back to 32 deliberately and fleet-wide, and names decidesk
+             as one of eight consumers that must move their CI matrices to stable32. The
+             matrix move is in this same commit, so the two statements stay in agreement. -->
+        <nextcloud min-version="32" max-version="34"/>
     </dependencies>
 
-    <navigations>
-        <navigation>
-            <id>decidesk</id>
-            <name>Decidesk</name>
-            <route>decidesk.dashboard.page</route>
-            <icon>app.svg</icon>
-        </navigation>
-    </navigations>
+    <!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2 -->
+    <!-- @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2 -->
+    <background-jobs>
+        <!--
+            OverdueActionItemsJob is GONE, not commented out. It was retired when
+            action items became a read-only VTODO projection ("overdue" is derived
+            at read time from dueDate), but the retirement only emptied its run()
+            body and left the declaration HERE — so Nextcloud re-registered it on
+            every app update and cron ran an empty job every 24 hours, forever.
+            The class comment claimed it was "kept as a no-op so the registered
+            oc_jobs row reaps cleanly"; while this line stood, that row could
+            never reap.
+
+            No repair step is needed to clear existing rows. MEASURED, not
+            assumed — read from the running server's own source,
+            lib/private/BackgroundJob/JobList.php::buildJob(): when a stored job
+            class cannot be resolved it logs "failed to create instance of
+            background job", then calls removeById($row['id']) with the comment
+            "Remove job from disabled app or old version of an app". Deleting the
+            class and this declaration is therefore the whole retirement; the
+            first cron tick after the upgrade drops the row.
+        -->
+        <!-- @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3 -->
+        <job>OCA\Decidesk\BackgroundJob\TranslationQueueJob</job>
+        <!-- @spec openspec/specs/nextcloud-integration/spec.md -->
+        <job>OCA\Decidesk\BackgroundJob\VotingDeadlineReminderJob</job>
+        <!-- @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md -->
+        <job>OCA\Decidesk\BackgroundJob\ConsultationAutoCloseJob</job>
+        <!-- @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md -->
+        <job>OCA\Decidesk\BackgroundJob\TranscriptRetentionJob</job>
+    </background-jobs>
+
+    <repair-steps>
+        <post-migration>
+            <step>OCA\Decidesk\Repair\InitializeSettings</step>
+            <!--
+                After InitializeSettings imports the register. The schema edit
+                changes the DECLARATION; every row already written still holds
+                the Dutch string, and a filter on the new value returns null
+                rather than an error. The Dutch legal terms themselves are not
+                lost — they live in l10n/nl.json against their English keys.
+            -->
+            <step>OCA\Decidesk\Repair\RenameDutchDecideskValues</step>
+            <step>OCA\Decidesk\Migration\MigrateEmailLinksToRegistry</step>
+            <step>OCA\Decidesk\Migration\MigrateCommentsToTalkLeaf</step>
+            <step>OCA\Decidesk\Migration\MigrateActionItemsToDeckLeaf</step>
+            <step>OCA\Decidesk\Migration\ProjectGovernanceRoleScopes</step>
+            <!--
+                Must run AFTER the register sync that adds the English columns, so it
+                can tell the rename case from the back-fill case. Scoped to the
+                decidesk register only — several of these words (onderwerp) also
+                exist in procest. Idempotent and non-destructive.
+            -->
+            <step>OCA\Decidesk\Repair\RenameDutchVocabularyColumns</step>
+            <!--
+                After InitializeSettings imports the register (68-unified-decision-templates.json's
+                decision-template schema + built-in seeds must already exist). Repairs live
+                process-template/vve-decision-template objects into decision-template objects
+                (unified-decision-templates, ADR-032 chain link 1 of 3). Idempotent (matched by
+                migratedFrom.sourceUuid) and non-destructive — never deletes or edits a source object.
+            -->
+            <step>OCA\Decidesk\Migration\MigrateLegacyTemplatesToDecisionTemplate</step>
+            <!--
+                model-debt-cleanup-code: both steps below run AFTER InitializeSettings so they
+                read the NEW $ref declarations (Participant -> Membership/Person retargets,
+                model-debt-cleanup-schema fragment 67) to know what a valid target type looks
+                like. RepointConflictOfInterestBoardMember repoints ConflictOfInterest.boardMember
+                from Participant to Membership; MigrateBoardProxyToProxyAuthorization runs after
+                it, migrating retired board-proxy rows into proxyAuthorization objects via the
+                same crosswalk resolver. Both idempotent and non-destructive — see migration.md.
+            -->
+            <step>OCA\Decidesk\Repair\RepointConflictOfInterestBoardMember</step>
+            <step>OCA\Decidesk\Repair\MigrateBoardProxyToProxyAuthorization</step>
+        </post-migration>
+        <install>
+            <step>OCA\Decidesk\Repair\InitializeSettings</step>
+            <!--
+                After InitializeSettings imports the register. The schema edit
+                changes the DECLARATION; every row already written still holds
+                the Dutch string, and a filter on the new value returns null
+                rather than an error. The Dutch legal terms themselves are not
+                lost — they live in l10n/nl.json against their English keys.
+            -->
+            <step>OCA\Decidesk\Repair\RenameDutchDecideskValues</step>
+        </install>
+    </repair-steps>
+
+    <settings>
+        <admin>OCA\Decidesk\Settings\AdminSettings</admin>
+        <admin-section>OCA\Decidesk\Sections\SettingsSection</admin-section>
+        <!-- @spec openspec/specs/user-settings/spec.md -->
+        <personal>OCA\Decidesk\Settings\PersonalSettings</personal>
+        <personal-section>OCA\Decidesk\Sections\PersonalSection</personal-section>
+    </settings>
 
     <!-- @spec openspec/specs/nextcloud-integration/spec.md -->
     <activity>
@@ -78,37 +199,12 @@ Vrij en open source onder de EUPL-1.2-licentie.
         </providers>
     </activity>
 
-    <!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2 -->
-    <!-- @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2 -->
-    <background-jobs>
-        <job>OCA\Decidesk\BackgroundJob\OverdueActionItemsJob</job>
-        <!-- @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3 -->
-        <job>OCA\Decidesk\BackgroundJob\TranslationQueueJob</job>
-        <!-- @spec openspec/specs/nextcloud-integration/spec.md -->
-        <job>OCA\Decidesk\BackgroundJob\VotingDeadlineReminderJob</job>
-        <!-- @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md -->
-        <job>OCA\Decidesk\BackgroundJob\ConsultationAutoCloseJob</job>
-        <!-- @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md -->
-        <job>OCA\Decidesk\BackgroundJob\TranscriptRetentionJob</job>
-    </background-jobs>
-
-    <repair-steps>
-        <install>
-            <step>OCA\Decidesk\Repair\InitializeSettings</step>
-        </install>
-        <post-migration>
-            <step>OCA\Decidesk\Repair\InitializeSettings</step>
-            <step>OCA\Decidesk\Migration\MigrateEmailLinksToRegistry</step>
-            <step>OCA\Decidesk\Migration\MigrateCommentsToTalkLeaf</step>
-            <step>OCA\Decidesk\Migration\MigrateActionItemsToDeckLeaf</step>
-        </post-migration>
-    </repair-steps>
-
-    <settings>
-        <admin>OCA\Decidesk\Settings\AdminSettings</admin>
-        <admin-section>OCA\Decidesk\Sections\SettingsSection</admin-section>
-        <!-- @spec openspec/specs/user-settings/spec.md -->
-        <personal>OCA\Decidesk\Settings\PersonalSettings</personal>
-        <personal-section>OCA\Decidesk\Sections\PersonalSection</personal-section>
-    </settings>
+    <navigations>
+        <navigation>
+            <id>decidesk</id>
+            <name>Decidesk</name>
+            <route>decidesk.dashboard.page</route>
+            <icon>app.svg</icon>
+        </navigation>
+    </navigations>
 </info>

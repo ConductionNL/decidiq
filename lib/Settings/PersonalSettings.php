@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Personal Settings
  *
@@ -21,7 +22,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Settings;
@@ -39,45 +40,41 @@ use OCP\Settings\ISettings;
  *
  * @spec openspec/specs/user-settings/spec.md
  */
-class PersonalSettings implements ISettings
-{
-    /**
-     * Get the personal settings form template.
-     *
-     * @return TemplateResponse
-     *
-     * @spec openspec/specs/user-settings/spec.md
-     */
-    public function getForm(): TemplateResponse
-    {
-        return new TemplateResponse(
-            Application::APP_ID,
-            'settings/personal',
-            []
-        );
-    }//end getForm()
+class PersonalSettings implements ISettings {
+	/**
+	 * Get the personal settings form template.
+	 *
+	 * @return TemplateResponse
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	public function getForm(): TemplateResponse {
+		return new TemplateResponse(
+			Application::APP_ID,
+			'settings/personal',
+			[]
+		);
+	}//end getForm()
 
-    /**
-     * Get the section ID this settings page belongs to.
-     *
-     * @return string
-     *
-     * @spec openspec/specs/user-settings/spec.md
-     */
-    public function getSection(): string
-    {
-        return 'decidesk';
-    }//end getSection()
+	/**
+	 * Get the section ID this settings page belongs to.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	public function getSection(): string {
+		return 'decidesk';
+	}//end getSection()
 
-    /**
-     * Get the priority for ordering within the section.
-     *
-     * @return int
-     *
-     * @spec openspec/specs/user-settings/spec.md
-     */
-    public function getPriority(): int
-    {
-        return 10;
-    }//end getPriority()
+	/**
+	 * Get the priority for ordering within the section.
+	 *
+	 * @return int
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	public function getPriority(): int {
+		return 10;
+	}//end getPriority()
 }//end class

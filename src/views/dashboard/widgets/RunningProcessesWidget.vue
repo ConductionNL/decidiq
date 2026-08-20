@@ -5,7 +5,7 @@
  RunningProcessesWidget — motions in flight, grouped by lifecycle stage
  (REQ-001).
 
- Fetches motions with lifecycle in [submitted, under-discussion, voting] and
+ Fetches motions with lifecycle in [proposed, deliberating, voting] and
  groups them by stage in a computed property (reduce). Each stage renders a
  labelled section; clicking a motion entry navigates to the motion detail
  view. An empty state is shown when no motions are in flight.
@@ -24,20 +24,29 @@
 		</NcEmptyContent>
 
 		<template v-else>
-			<section v-for="stage in stages"
+			<section
+				v-for="stage in stages"
 				v-show="groups[stage.key].length > 0"
 				:key="stage.key"
 				class="running-processes__stage"
 				:data-testid="`running-processes-stage-${stage.key}`">
 				<h3 class="running-processes__stage-title">
-					{{ stage.label }} <span class="running-processes__count">{{ groups[stage.key].length }}</span>
+					{{ stage.label }}
+					<span class="running-processes__count">{{
+						groups[stage.key].length
+					}}</span>
 				</h3>
 				<ul class="running-processes__list">
-					<li v-for="motion in groups[stage.key]"
+					<li
+						v-for="motion in groups[stage.key]"
 						:key="motion.id"
 						:data-testid="`running-motion-row-${motion.id}`"
 						class="running-processes__row"
-						@click="openMotion(motion)">
+						role="button"
+						tabindex="0"
+						@click="openMotion(motion)"
+						@keydown.enter.prevent="openMotion(motion)"
+						@keydown.space.prevent="openMotion(motion)">
 						{{ motion.title || motion.name }}
 					</li>
 				</ul>
@@ -47,12 +56,11 @@
 </template>
 
 <script>
-import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
-import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
+import { NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import CommentCheckOutline from 'vue-material-design-icons/CommentCheckOutline.vue'
+import { getMotions } from '../../../services/dashboardData.js'
 import dashboardRefreshMixin from './dashboardRefreshMixin.js'
 import { groupMotionsByLifecycle, RUNNING_MOTION_LIFECYCLES } from './widgetLogic.js'
-import { getMotions } from '../../../services/dashboardData.js'
 
 export default {
 	name: 'RunningProcessesWidget',
@@ -72,15 +80,24 @@ export default {
 		/**
 		 * Stage descriptors (key + translated label) in display order.
 		 *
+		 * Keys are ADR-005 `Decision.lifecycle` values. The labels stay in the
+		 * reader's language ("Submitted", "Under discussion") because they name
+		 * what the stage MEANS to a council member, not what the schema calls it.
+		 *
+		 * @spec openspec/specs/dashboard/spec.md
+		 *
 		 * @return {Array<{key: string, label: string}>} Ordered stages.
 		 */
 		stages() {
 			const labels = {
-				submitted: t('decidesk', 'Submitted'),
-				'under-discussion': t('decidesk', 'Under discussion'),
+				proposed: t('decidesk', 'Submitted'),
+				deliberating: t('decidesk', 'Under discussion'),
 				voting: t('decidesk', 'Voting'),
 			}
-			return RUNNING_MOTION_LIFECYCLES.map((key) => ({ key, label: labels[key] }))
+			return RUNNING_MOTION_LIFECYCLES.map((key) => ({
+				key,
+				label: labels[key],
+			}))
 		},
 
 		/**
@@ -112,7 +129,9 @@ export default {
 			this.loading = true
 			this.error = null
 			try {
-				this.motions = await getMotions({ lifecycle: RUNNING_MOTION_LIFECYCLES })
+				this.motions = await getMotions({
+					lifecycle: RUNNING_MOTION_LIFECYCLES,
+				})
 			} catch (e) {
 				console.error('[decidesk] RunningProcessesWidget load failed', e)
 				this.error = e
@@ -129,7 +148,10 @@ export default {
 		 * @return {void}
 		 */
 		openMotion(motion) {
-			this.$router.push({ name: 'MotionDetail', params: { id: String(motion.id) } })
+			this.$router.push({
+				name: 'MotionDetail',
+				params: { id: String(motion.id) },
+			})
 		},
 	},
 }
@@ -180,5 +202,14 @@ export default {
 
 .running-processes__row:hover {
 	background: var(--color-background-hover, #f5f5f5);
+}
+
+/* The row is keyboard-focusable, so its focus must be VISIBLE (WCAG 2.4.7).
+   Without this the row could be tabbed to but not seen, which is worse than
+   not being reachable at all. */
+.running-processes__row:focus-visible {
+	background: var(--color-background-hover, #f5f5f5);
+	outline: 2px solid var(--color-primary-element, #0082c9);
+	outline-offset: -2px;
 }
 </style>

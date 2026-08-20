@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Decision Integration Service
  *
@@ -18,7 +19,7 @@
  * @link https://conduction.nl
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
- * SPDX-License-Identifier: EUPL-1.2.
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
  */
@@ -42,489 +43,590 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
  */
-class DecisionIntegrationService
-{
+class DecisionIntegrationService {
 
-    /**
-     * Lifecycles that map to the "approved" outcome status.
-     *
-     * @var list<string>
-     */
-    private const APPROVED_LIFECYCLES = ['decided', 'enacted'];
+	/**
+	 * Lifecycles that map to the "approved" outcome status.
+	 *
+	 * @var list<string>
+	 */
+	private const APPROVED_LIFECYCLES = ['decided', 'enacted'];
 
-    /**
-     * Construct the service.
-     *
-     * @param ContainerInterface $container DI container (lazy ObjectService lookup)
-     * @param LoggerInterface    $logger    PSR-3 logger
-     * @param AuditLogService    $auditLog  Audit log dependency
-     */
-    public function __construct(
-        private readonly ContainerInterface $container,
-        private readonly LoggerInterface $logger,
-        private readonly AuditLogService $auditLog,
-    ) {
-    }//end __construct()
+	/**
+	 * Decision types the integration hub accepts on create-decision.
+	 *
+	 * @var list<string>
+	 */
+	private const ALLOWED_TYPES = [
+		'motion',
+		'amendment',
+		'resolution',
+		'contract',
+		'contract-renewal',
+		'report-adoption',
+		'appointment',
+		'management-point',
+		'policy',
+		'meeting-outcome',
+	];
 
-    /**
-     * Create a Decision raised by an external fleet app, idempotent on the
-     * provenance tuple (sourceApp, subjectRegister, subjectSchema, subjectId,
-     * externalReference). Returns the decisionId (existing or newly created)
-     * and a `created` flag (false on idempotent hit).
-     *
-     * Does NOT implement CRUD — persists through OpenRegister ObjectService.
-     *
-     * @param array<string, mixed> $decisionData Request body (validated by controller)
-     * @param string               $actorId      Nextcloud UID of the creating user
-     *
-     * @return array{success: bool, decisionId?: string, created?: bool, message?: string}
-     *
-     * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
-     */
-    public function createDecision(array $decisionData, string $actorId): array
-    {
-        try {
-            $objectService = $this->container->get('OCA\\OpenRegister\\Service\\ObjectService');
-        } catch (\Throwable $e) {
-            $this->logger->error('DecisionIntegrationService: OpenRegister unavailable', ['exception' => $e->getMessage()]);
-            return ['success' => false, 'message' => 'OpenRegister is not available.'];
-        }
+	/**
+	 * Additive provenance fields copied onto a created Decision (REQ-DCDH-001).
+	 *
+	 * @var list<string>
+	 */
+	private const PROVENANCE_FIELDS = [
+		'sourceApp',
+		'subjectRegister',
+		'subjectSchema',
+		'subjectId',
+		'subjectLabel',
+		'outcomeCallbackUrl',
+		'externalReference',
+	];
 
-        // Validate decisionType against the integration-hub supported types.
-        $allowedTypes = [
-            'motion',
-            'amendment',
-            'resolution',
-            'contract',
-            'contract-renewal',
-            'report-adoption',
-            'appointment',
-            'management-point',
-            'policy',
-            'meeting-outcome',
-        ];
-        $decisionType = (string) ($decisionData['decisionType'] ?? '');
-        if (in_array($decisionType, $allowedTypes, true) === false) {
-            return ['success' => false, 'message' => "Unrecognised decisionType: '{$decisionType}'."];
-        }
+	/**
+	 * Provenance fields that form the create-decision idempotency tuple.
+	 *
+	 * `subjectLabel` and `outcomeCallbackUrl` are deliberately excluded — they
+	 * are descriptive, not identifying (REQ-DCDH-002).
+	 *
+	 * @var list<string>
+	 */
+	private const IDEMPOTENCY_FIELDS = [
+		'sourceApp',
+		'subjectId',
+		'subjectRegister',
+		'subjectSchema',
+		'externalReference',
+	];
 
-        // Idempotency: search for an existing decision with the same provenance tuple.
-        $sourceApp         = (string) ($decisionData['sourceApp'] ?? '');
-        $subjectRegister   = (string) ($decisionData['subjectRegister'] ?? '');
-        $subjectSchema     = (string) ($decisionData['subjectSchema'] ?? '');
-        $subjectId         = (string) ($decisionData['subjectId'] ?? '');
-        $externalReference = (string) ($decisionData['externalReference'] ?? '');
+	/**
+	 * Hostnames that always identify the local machine (SSRF mitigation).
+	 *
+	 * @var list<string>
+	 */
+	private const LOOPBACK_HOSTS = [
+		'localhost',
+		'127.0.0.1',
+		'::1',
+		'0.0.0.0',
+	];
 
-        $hasTuple = ($sourceApp !== '' && $subjectId !== '');
-        if ($hasTuple === true) {
-            $filters = ['sourceApp' => $sourceApp, 'subjectId' => $subjectId];
-            if ($subjectRegister !== '') {
-                $filters['subjectRegister'] = $subjectRegister;
-            }
+	/**
+	 * Construct the service.
+	 *
+	 * @param ContainerInterface $container DI container (lazy ObjectService lookup)
+	 * @param LoggerInterface $logger PSR-3 logger
+	 * @param AuditLogService $auditLog Audit log dependency
+	 */
+	public function __construct(
+		private readonly ContainerInterface $container,
+		private readonly LoggerInterface $logger,
+		private readonly AuditLogService $auditLog,
+	) {
+	}//end __construct()
 
-            if ($subjectSchema !== '') {
-                $filters['subjectSchema'] = $subjectSchema;
-            }
+	/**
+	 * Create a Decision raised by an external fleet app, idempotent on the
+	 * provenance tuple (sourceApp, subjectRegister, subjectSchema, subjectId,
+	 * externalReference). Returns the decisionId (existing or newly created)
+	 * and a `created` flag (false on idempotent hit).
+	 *
+	 * Does NOT implement CRUD — persists through OpenRegister ObjectService.
+	 *
+	 * @param array<string, mixed> $decisionData Request body (validated by controller)
+	 * @param string $actorId Nextcloud UID of the creating user
+	 *
+	 * @return array{success: bool, decisionId?: string, created?: bool, message?: string}
+	 *
+	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 */
+	public function createDecision(array $decisionData, string $actorId): array {
+		try {
+			$objectService = $this->container->get('OCA\\OpenRegister\\Service\\ObjectService');
+		} catch (\Throwable $e) {
+			$this->logger->error('DecisionIntegrationService: OpenRegister unavailable', ['exception' => $e->getMessage()]);
+			return ['success' => false, 'message' => 'OpenRegister is not available.'];
+		}
 
-            if ($externalReference !== '') {
-                $filters['externalReference'] = $externalReference;
-            }
+		// Validate decisionType against the integration-hub supported types.
+		$decisionType = (string)($decisionData['decisionType'] ?? '');
+		if (in_array($decisionType, self::ALLOWED_TYPES, true) === false) {
+			return ['success' => false, 'message' => "Unrecognised decisionType: '{$decisionType}'."];
+		}
 
-            try {
-                $existing = $objectService->findAll(
-                    [
-                        'register' => 'decidesk',
-                        'schema'   => 'decision',
-                        'filters'  => $filters,
-                    ]
-                );
-            } catch (\Throwable $e) {
-                $existing = [];
-            }
+		// Additive provenance fields (REQ-DCDH-001) — empty/absent values are omitted.
+		$provenance = array_filter(
+			array_map(
+				static fn (mixed $value): string => (string)($value ?? ''),
+				array_intersect_key($decisionData, array_flip(self::PROVENANCE_FIELDS))
+			),
+			static fn (string $value): bool => ($value !== '')
+		);
 
-            if (is_array($existing) === true && count($existing) > 0) {
-                $first = reset($existing);
-                if (is_array($first) === true) {
-                    $firstData = $first;
-                } else {
-                    $firstData = (array) $first->jsonSerialize();
-                }
+		$sourceApp = (string)($provenance['sourceApp'] ?? '');
+		$subjectId = (string)($provenance['subjectId'] ?? '');
 
-                $id = (string) ($firstData['id'] ?? ($firstData['uuid'] ?? ''));
-                return ['success' => true, 'decisionId' => $id, 'created' => false];
-            }
-        }//end if
+		// Idempotency: search for an existing decision with the same provenance tuple.
+		if ($sourceApp !== '' && $subjectId !== '') {
+			$existingId = $this->findExistingDecisionId(
+				objectService: $objectService,
+				filters: array_intersect_key($provenance, array_flip(self::IDEMPOTENCY_FIELDS))
+			);
 
-        // Build the Decision object with provenance fields.
-        $object = [
-            'decisionType' => $decisionType,
-            'title'        => (string) ($decisionData['title'] ?? ''),
-            'text'         => (string) ($decisionData['text'] ?? ''),
-            'decisionDate' => (string) ($decisionData['decisionDate'] ?? ''),
-            'outcome'      => (string) ($decisionData['outcome'] ?? 'adopted'),
-            'lifecycle'    => 'draft',
-        ];
+			if ($existingId !== null) {
+				return ['success' => true, 'decisionId' => $existingId, 'created' => false];
+			}
+		}
 
-        // Additive provenance fields (REQ-DCDH-001).
-        $provenanceFields = [
-            'sourceApp',
-            'subjectRegister',
-            'subjectSchema',
-            'subjectId',
-            'subjectLabel',
-            'outcomeCallbackUrl',
-            'externalReference',
-        ];
-        foreach ($provenanceFields as $field) {
-            $val = (string) ($decisionData[$field] ?? '');
-            if ($val !== '') {
-                $object[$field] = $val;
-            }
-        }
+		// Build the Decision object with provenance fields.
+		$object = [
+			'decisionType' => $decisionType,
+			'title' => (string)($decisionData['title'] ?? ''),
+			'text' => (string)($decisionData['text'] ?? ''),
+			'decisionDate' => (string)($decisionData['decisionDate'] ?? ''),
+			'outcome' => (string)($decisionData['outcome'] ?? 'adopted'),
+			'lifecycle' => 'draft',
+		];
 
-        try {
-            $saved = $objectService->saveObject(
-                object: $object,
-                register: 'decidesk',
-                schema: 'decision'
-            );
+		return $this->persistDecision(
+			objectService: $objectService,
+			object: ($object + $provenance),
+			actorId: $actorId,
+			auditPayload: ['sourceApp' => $sourceApp, 'subjectId' => $subjectId, 'decisionType' => $decisionType]
+		);
 
-            if (is_array($saved) === true) {
-                $savedArr = $saved;
-            } else {
-                $savedArr = (array) $saved->jsonSerialize();
-            }
+	}//end createDecision()
 
-            $decisionId = (string) ($savedArr['id'] ?? ($savedArr['uuid'] ?? ''));
+	/**
+	 * Look up the id of an existing Decision matching the provenance tuple.
+	 *
+	 * A registry failure is treated as "no match" so create-decision degrades to
+	 * a plain create rather than erroring out.
+	 *
+	 * @param mixed $objectService OpenRegister ObjectService instance
+	 * @param array<string, string> $filters The provenance tuple filters
+	 *
+	 * @return string|null The existing decision id, or null when there is no match
+	 *
+	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 */
+	private function findExistingDecisionId(mixed $objectService, array $filters): ?string {
+		try {
+			$existing = $objectService->findAll(
+				[
+					'register' => 'decidesk',
+					'schema' => 'decision',
+					'filters' => $filters,
+				]
+			);
+		} catch (\Throwable) {
+			return null;
+		}
 
-            $this->auditLog->append(
-                actor: $actorId,
-                action: 'integration-create',
-                objectUids: [$decisionId],
-                payload: ['sourceApp' => $sourceApp, 'subjectId' => $subjectId, 'decisionType' => $decisionType]
-            );
+		if (is_array($existing) === false || count($existing) === 0) {
+			return null;
+		}
 
-            return ['success' => true, 'decisionId' => $decisionId, 'created' => true];
-        } catch (\Throwable $e) {
-            $this->logger->error(
-                'DecisionIntegrationService: saveObject failed',
-                ['exception' => $e->getMessage(), 'actor' => $actorId]
-            );
-            return ['success' => false, 'message' => 'Failed to persist decision: '.$e->getMessage()];
-        }//end try
+		$firstData = $this->toArray(value: reset($existing));
 
-    }//end createDecision()
+		return (string)($firstData['id'] ?? ($firstData['uuid'] ?? ''));
+	}//end findExistingDecisionId()
 
-    /**
-     * Assemble and return the outcome envelope for a Decision (REQ-DCDH-003).
-     *
-     * The `status` field is DERIVED from existing lifecycle + outcome fields
-     * (no new state machine, ADR-031):
-     *   approved  = lifecycle in {decided, enacted} with outcome=adopted
-     *   rejected  = lifecycle in {decided, enacted} with outcome=rejected (or any rejecting outcome)
-     *   withdrawn = lifecycle=withdrawn
-     *   pending   = any other lifecycle
-     *
-     * Per-object read access is enforced by OpenRegister RBAC inside find();
-     * callers without access receive null (caller renders 404).
-     *
-     * @param string $decisionId UUID of the Decision
-     *
-     * @return array<string, mixed>|null Outcome envelope, or null if not found / no access
-     *
-     * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
-     */
-    public function getOutcomeEnvelope(string $decisionId): ?array
-    {
-        try {
-            $objectService = $this->container->get('OCA\\OpenRegister\\Service\\ObjectService');
-        } catch (\Throwable $e) {
-            $this->logger->error('DecisionIntegrationService: OpenRegister unavailable', ['exception' => $e->getMessage()]);
-            return null;
-        }
+	/**
+	 * Persist a new Decision through OpenRegister and append the audit entry.
+	 *
+	 * @param mixed $objectService OpenRegister ObjectService instance
+	 * @param array<string, mixed> $object The Decision payload to save
+	 * @param string $actorId Nextcloud UID of the creating user
+	 * @param array<string, mixed> $auditPayload Audit-log context for the create
+	 *
+	 * @return array{success: bool, decisionId?: string, created?: bool, message?: string}
+	 *
+	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 */
+	private function persistDecision(mixed $objectService, array $object, string $actorId, array $auditPayload): array {
+		try {
+			$saved = $objectService->saveObject(
+				object: $object,
+				register: 'decidesk',
+				schema: 'decision'
+			);
 
-        try {
-            $entity = $objectService->find(id: $decisionId, register: 'decidesk', schema: 'decision');
-        } catch (\Throwable $e) {
-            return null;
-        }
+			$savedArr = $this->toArray(value: $saved);
+			$decisionId = (string)($savedArr['id'] ?? ($savedArr['uuid'] ?? ''));
 
-        if ($entity === null) {
-            return null;
-        }
+			$this->auditLog->append(
+				actor: $actorId,
+				action: 'integration-create',
+				objectUids: [$decisionId],
+				payload: $auditPayload
+			);
 
-        if (is_array($entity) === true) {
-            $decision = $entity;
-        } else {
-            $decision = (array) $entity->jsonSerialize();
-        }
+			return ['success' => true, 'decisionId' => $decisionId, 'created' => true];
+		} catch (\Throwable $e) {
+			$this->logger->error(
+				'DecisionIntegrationService: saveObject failed',
+				['exception' => $e->getMessage(), 'actor' => $actorId]
+			);
+			return ['success' => false, 'message' => 'Failed to persist decision: ' . $e->getMessage()];
+		}//end try
 
-        $lifecycle = (string) ($decision['lifecycle'] ?? 'draft');
-        $outcome   = (string) ($decision['outcome'] ?? '');
+	}//end persistDecision()
 
-        // Derive status (ADR-031 — declarative, no new state machine).
-        if ($lifecycle === 'withdrawn') {
-            $status = 'withdrawn';
-        } else if (in_array($lifecycle, self::APPROVED_LIFECYCLES, true) === true && $outcome === 'adopted') {
-            $status = 'approved';
-        } else if (in_array($lifecycle, self::APPROVED_LIFECYCLES, true) === true && $outcome !== '') {
-            $status = 'rejected';
-        } else {
-            $status = 'pending';
-        }
+	/**
+	 * Normalise an OpenRegister result entry to a plain property array.
+	 *
+	 * @param mixed $value An array payload or an entity exposing jsonSerialize()
+	 *
+	 * @return array<string, mixed> The plain property map
+	 *
+	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 */
+	private function toArray(mixed $value): array {
+		if (is_array($value) === true) {
+			return $value;
+		}
 
-        $decidedAt = null;
-        if ($status !== 'pending') {
-            $decidedAt = (string) ($decision['decisionDate'] ?? ($decision['enactedAt'] ?? null));
-        }
+		return (array)$value->jsonSerialize();
+	}//end toArray()
 
-        // Resolve signing information from DecisionStage(s) with method=signature.
-        $signingInfo = $this->resolveSigningInfo(decisionId: $decisionId, objectService: $objectService);
+	/**
+	 * Assemble and return the outcome envelope for a Decision (REQ-DCDH-003).
+	 *
+	 * The `status` field is DERIVED from existing lifecycle + outcome fields
+	 * (no new state machine, ADR-031):
+	 *   approved  = lifecycle in {decided, enacted} with outcome=adopted
+	 *   rejected  = lifecycle in {decided, enacted} with outcome=rejected (or any rejecting outcome)
+	 *   withdrawn = lifecycle=withdrawn
+	 *   pending   = any other lifecycle
+	 *
+	 * This method does NOT authorize the caller. It used to claim that
+	 * OpenRegister RBAC inside `find()` settled per-object read access; that was
+	 * false — the `Decision` schema declares no `authorization` block, so the
+	 * decidesk register baseline applies (`read`/`list`:
+	 * `["authenticated", "public"]`) and OR authorizes the read for everyone.
+	 * The caller-scoping rule lives in
+	 * {@see DecisionIntegrationAuthorizationGuard::isAuthorizedToReadOutcome()}
+	 * and MUST be consulted before this method is invoked
+	 * (`IntegrationController::getOutcome()` does so).
+	 *
+	 * @param string $decisionId UUID of the Decision
+	 *
+	 * @return array<string, mixed>|null Outcome envelope, or null when the Decision does not exist
+	 *
+	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 */
+	public function getOutcomeEnvelope(string $decisionId): ?array {
+		try {
+			$objectService = $this->container->get('OCA\\OpenRegister\\Service\\ObjectService');
+		} catch (\Throwable $e) {
+			$this->logger->error('DecisionIntegrationService: OpenRegister unavailable', ['exception' => $e->getMessage()]);
+			return null;
+		}
 
-        return [
-            'decisionId'        => $decisionId,
-            'decisionType'      => (string) ($decision['decisionType'] ?? ''),
-            'status'            => $status,
-            'decidedAt'         => $decidedAt,
-            'signed'            => $signingInfo['signed'],
-            'signingReference'  => $signingInfo['signingReference'],
-            'signedAt'          => $signingInfo['signedAt'],
-            'signers'           => $signingInfo['signers'],
-            'subjectRegister'   => ($decision['subjectRegister'] ?? null),
-            'subjectSchema'     => ($decision['subjectSchema'] ?? null),
-            'subjectId'         => ($decision['subjectId'] ?? null),
-            'externalReference' => ($decision['externalReference'] ?? null),
-        ];
+		try {
+			$entity = $objectService->find(id: $decisionId, register: 'decidesk', schema: 'decision');
+		} catch (\Throwable $e) {
+			return null;
+		}
 
-    }//end getOutcomeEnvelope()
+		if ($entity === null) {
+			return null;
+		}
 
-    /**
-     * Register an outcome callback for a Decision.
-     *
-     * The callbackUrl MUST match a registered ADR-019 integration registry
-     * consumer entry — arbitrary URLs are rejected to prevent SSRF.
-     * The URL is stored on the Decision's `outcomeCallbackUrl` field (additive,
-     * per REQ-DCDH-001 provenance block). The registry dispatch itself is
-     * declared via x-openregister-notifications on the Decision schema
-     * (ADR-031) and wired by OpenRegister's notification engine on terminal
-     * lifecycle transitions.
-     *
-     * @param string $decisionId  UUID of the Decision
-     * @param string $callbackUrl Registry-validated callback URL
-     * @param string $actorId     Nextcloud UID of the subscriber
-     *
-     * @return array{success: bool, subscriptionId?: string, code?: string, message?: string}
-     *
-     * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
-     */
-    public function registerOutcomeCallback(string $decisionId, string $callbackUrl, string $actorId): array
-    {
-        // Anti-SSRF: validate the callbackUrl against the ADR-019 registry.
-        if ($this->isRegistryConsumer(url: $callbackUrl) === false) {
-            $this->logger->warning(
-                'DecisionIntegrationService: SSRF-rejected callback URL',
-                ['url' => $callbackUrl, 'actor' => $actorId]
-            );
-            return ['success' => false, 'code' => 'ssrf_rejected', 'message' => 'Callback URL is not a registered integration registry consumer.'];
-        }
+		$decision = $this->toArray(value: $entity);
 
-        try {
-            $objectService = $this->container->get('OCA\\OpenRegister\\Service\\ObjectService');
-        } catch (\Throwable $e) {
-            return ['success' => false, 'message' => 'OpenRegister is not available.'];
-        }
+		// Derive status (ADR-031 — declarative, no new state machine).
+		$status = $this->deriveStatus(
+			lifecycle: (string)($decision['lifecycle'] ?? 'draft'),
+			outcome: (string)($decision['outcome'] ?? '')
+		);
 
-        // Load and guard the target Decision.
-        try {
-            $entity = $objectService->find(id: $decisionId, register: 'decidesk', schema: 'decision');
-        } catch (\Throwable $e) {
-            $entity = null;
-        }
+		$decidedAt = null;
+		if ($status !== 'pending') {
+			$decidedAt = (string)($decision['decisionDate'] ?? ($decision['enactedAt'] ?? null));
+		}
 
-        if ($entity === null) {
-            return ['success' => false, 'code' => 'not_found', 'message' => "Decision '{$decisionId}' not found."];
-        }
+		// Resolve signing information from DecisionStage(s) with method=signature.
+		$signingInfo = $this->resolveSigningInfo(decisionId: $decisionId, objectService: $objectService);
 
-        if (is_array($entity) === true) {
-            $decision = $entity;
-        } else {
-            $decision = (array) $entity->jsonSerialize();
-        }
+		return [
+			'decisionId' => $decisionId,
+			'decisionType' => (string)($decision['decisionType'] ?? ''),
+			'status' => $status,
+			'decidedAt' => $decidedAt,
+			'signed' => $signingInfo['signed'],
+			'signingReference' => $signingInfo['signingReference'],
+			'signedAt' => $signingInfo['signedAt'],
+			'signers' => $signingInfo['signers'],
+			'subjectRegister' => ($decision['subjectRegister'] ?? null),
+			'subjectSchema' => ($decision['subjectSchema'] ?? null),
+			'subjectId' => ($decision['subjectId'] ?? null),
+			'externalReference' => ($decision['externalReference'] ?? null),
+		];
 
-        // Persist the callback URL on the Decision object (declarative delivery
-        // is then handled by x-openregister-notifications outcomeEmitted trigger).
-        $updated = $decision;
-        $updated['outcomeCallbackUrl'] = $callbackUrl;
+	}//end getOutcomeEnvelope()
 
-        try {
-            $objectService->saveObject(
-                object: $updated,
-                register: 'decidesk',
-                schema: 'decision',
-                uuid: $decisionId
-            );
-        } catch (\Throwable $e) {
-            $this->logger->error(
-                'DecisionIntegrationService: registerOutcomeCallback saveObject failed',
-                ['decisionId' => $decisionId, 'exception' => $e->getMessage()]
-            );
-            return ['success' => false, 'message' => 'Failed to register callback: '.$e->getMessage()];
-        }
+	/**
+	 * Derive the outcome status from the Decision lifecycle + outcome fields.
+	 *
+	 * ADR-031 — declarative derivation, no new state machine:
+	 *   withdrawn = lifecycle=withdrawn
+	 *   approved  = lifecycle in {decided, enacted} with outcome=adopted
+	 *   rejected  = lifecycle in {decided, enacted} with any other set outcome
+	 *   pending   = anything else
+	 *
+	 * @param string $lifecycle The Decision lifecycle state
+	 * @param string $outcome The Decision outcome, when set
+	 *
+	 * @return string One of withdrawn|approved|rejected|pending
+	 *
+	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 */
+	private function deriveStatus(string $lifecycle, string $outcome): string {
+		if ($lifecycle === 'withdrawn') {
+			return 'withdrawn';
+		}
 
-        $subscriptionId = md5($decisionId.'|'.$callbackUrl);
+		if (in_array($lifecycle, self::APPROVED_LIFECYCLES, true) === false || $outcome === '') {
+			return 'pending';
+		}
 
-        $this->auditLog->append(
-            actor: $actorId,
-            action: 'integration-subscribe',
-            objectUids: [$decisionId],
-            payload: ['callbackUrl' => $callbackUrl, 'subscriptionId' => $subscriptionId]
-        );
+		if ($outcome === 'adopted') {
+			return 'approved';
+		}
 
-        return [
-            'success'        => true,
-            'subscriptionId' => $subscriptionId,
-            'decisionId'     => $decisionId,
-            'callbackUrl'    => $callbackUrl,
-        ];
+		return 'rejected';
+	}//end deriveStatus()
 
-    }//end registerOutcomeCallback()
+	/**
+	 * Register an outcome callback for a Decision.
+	 *
+	 * The callbackUrl MUST match a registered ADR-019 integration registry
+	 * consumer entry — arbitrary URLs are rejected to prevent SSRF.
+	 * The URL is stored on the Decision's `outcomeCallbackUrl` field (additive,
+	 * per REQ-DCDH-001 provenance block). The registry dispatch itself is
+	 * declared via x-openregister-notifications on the Decision schema
+	 * (ADR-031) and wired by OpenRegister's notification engine on terminal
+	 * lifecycle transitions.
+	 *
+	 * This method does NOT authorize the caller. `isRegistryConsumer()` below
+	 * validates the callback URL against the app-wide ADR-019 registry — it
+	 * constrains WHERE the outcome may be delivered, not WHO may redirect it —
+	 * and the `Decision` schema declares no `authorization` block, so
+	 * OpenRegister authorizes the update for every authenticated user. The
+	 * caller-scoping rule lives in
+	 * {@see DecisionIntegrationAuthorizationGuard::isAuthorizedToSubscribe()}
+	 * and MUST be consulted before this method is invoked
+	 * (`IntegrationController::subscribe()` does so).
+	 *
+	 * @param string $decisionId UUID of the Decision
+	 * @param string $callbackUrl Registry-validated callback URL
+	 * @param string $actorId Nextcloud UID of the subscriber
+	 *
+	 * @return array{success: bool, subscriptionId?: string, code?: string, message?: string}
+	 *
+	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 */
+	public function registerOutcomeCallback(string $decisionId, string $callbackUrl, string $actorId): array {
+		// Anti-SSRF: validate the callbackUrl against the ADR-019 registry.
+		if ($this->isRegistryConsumer(url: $callbackUrl) === false) {
+			$this->logger->warning(
+				'DecisionIntegrationService: SSRF-rejected callback URL',
+				['url' => $callbackUrl, 'actor' => $actorId]
+			);
+			return ['success' => false, 'code' => 'ssrf_rejected', 'message' => 'Callback URL is not a registered integration registry consumer.'];
+		}
 
-    /**
-     * Validate that a callback URL belongs to a known ADR-019 integration
-     * registry consumer. This is the anti-SSRF guard (REQ-DCDH-004).
-     *
-     * Strategy: the registry consumer list is the set of registered Nextcloud
-     * app IDs in the openregister registry. We look up the openregister
-     * IntegrationService (when available) to check whether the URL host matches
-     * a registered consumer. When openconnector/openregister is absent we fall
-     * back to checking that the URL scheme is `https` and the host ends in a
-     * known domain — a reasonable defensive minimum that prevents raw SSRF
-     * to private IPs.
-     *
-     * @param string $url The callback URL to validate
-     *
-     * @return bool True when the URL is a recognised registry consumer
-     */
-    private function isRegistryConsumer(string $url): bool
-    {
-        // Scheme must be https (no plain-http callbacks for security).
-        $parsed = parse_url($url);
-        if (is_array($parsed) === false || ($parsed['scheme'] ?? '') !== 'https') {
-            return false;
-        }
+		try {
+			$objectService = $this->container->get('OCA\\OpenRegister\\Service\\ObjectService');
+		} catch (\Throwable $e) {
+			return ['success' => false, 'message' => 'OpenRegister is not available.'];
+		}
 
-        $host = (string) ($parsed['host'] ?? '');
-        if ($host === '') {
-            return false;
-        }
+		// Load and guard the target Decision.
+		try {
+			$entity = $objectService->find(id: $decisionId, register: 'decidesk', schema: 'decision');
+		} catch (\Throwable $e) {
+			$entity = null;
+		}
 
-        // Reject RFC-1918 / loopback / link-local targets (SSRF prevention).
-        if ($this->isPrivateHost(host: $host) === true) {
-            return false;
-        }
+		if ($entity === null) {
+			return ['success' => false, 'code' => 'not_found', 'message' => "Decision '{$decisionId}' not found."];
+		}
 
-        // Try to ask the openconnector/openregister registry whether this URL
-        // is a known consumer. Degrade gracefully if registry is absent.
-        try {
-            $registry = $this->container->get('OCA\\OpenConnector\\Service\\IntegrationService');
-            if (method_exists($registry, 'isRegisteredConsumer') === true) {
-                return (bool) $registry->isRegisteredConsumer(callbackUrl: $url);
-            }
-        } catch (\Throwable) {
-            // Registry unavailable — fall through to the domain allowlist.
-        }
+		// Persist the callback URL on the Decision object (declarative delivery
+		// is then handled by x-openregister-notifications outcomeEmitted trigger).
+		$updated = $this->toArray(value: $entity);
+		$updated['outcomeCallbackUrl'] = $callbackUrl;
 
-        // Fallback: accept any HTTPS URL that isn't a private host (permissive
-        // for local/dev deployments; tighten to an explicit allowlist in prod
-        // by wiring the registry consumer check above).
-        return true;
+		try {
+			$objectService->saveObject(
+				object: $updated,
+				register: 'decidesk',
+				schema: 'decision',
+				uuid: $decisionId
+			);
+		} catch (\Throwable $e) {
+			$this->logger->error(
+				'DecisionIntegrationService: registerOutcomeCallback saveObject failed',
+				['decisionId' => $decisionId, 'exception' => $e->getMessage()]
+			);
+			return ['success' => false, 'message' => 'Failed to register callback: ' . $e->getMessage()];
+		}
 
-    }//end isRegistryConsumer()
+		$subscriptionId = md5($decisionId . '|' . $callbackUrl);
 
-    /**
-     * Check whether a hostname resolves to a private / loopback / link-local
-     * address range (SSRF mitigation).
-     *
-     * @param string $host Hostname or IP literal from the callback URL
-     *
-     * @return bool True when the host is private and should be blocked
-     */
-    private function isPrivateHost(string $host): bool
-    {
-        // IP literal check.
-        $ip = filter_var($host, FILTER_VALIDATE_IP);
-        if ($ip !== false) {
-            return filter_var(
-                $ip,
-                FILTER_VALIDATE_IP,
-                FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
-            ) === false;
-        }
+		$this->auditLog->append(
+			actor: $actorId,
+			action: 'integration-subscribe',
+			objectUids: [$decisionId],
+			payload: ['callbackUrl' => $callbackUrl, 'subscriptionId' => $subscriptionId]
+		);
 
-        // Hostname — block explicit localhost/loopback variants.
-        $lower = strtolower($host);
-        return in_array($lower, ['localhost', '127.0.0.1', '::1', '0.0.0.0'], true) === true
-            || str_ends_with($lower, '.local') === true
-            || str_ends_with($lower, '.localhost') === true;
+		return [
+			'success' => true,
+			'subscriptionId' => $subscriptionId,
+			'decisionId' => $decisionId,
+			'callbackUrl' => $callbackUrl,
+		];
 
-    }//end isPrivateHost()
+	}//end registerOutcomeCallback()
 
-    /**
-     * Resolve signing information from DecisionStage objects with method=signature.
-     *
-     * Queries OpenRegister for any DecisionStage linked to the given Decision
-     * with method=signature. Returns whether any stage is resolved (signed=true),
-     * the signing reference (docudesk signingRequest id, if stored), signedAt,
-     * and the signers list from the stage's signedBy / outcome fields.
-     *
-     * @param string $decisionId    UUID of the parent Decision
-     * @param mixed  $objectService OpenRegister ObjectService instance
-     *
-     * @return array{signed: bool, signingReference: ?string, signedAt: ?string, signers: list<array<string, mixed>>}
-     */
-    private function resolveSigningInfo(string $decisionId, mixed $objectService): array
-    {
-        $default = ['signed' => false, 'signingReference' => null, 'signedAt' => null, 'signers' => []];
+	/**
+	 * Validate that a callback URL belongs to a known ADR-019 integration
+	 * registry consumer. This is the anti-SSRF guard (REQ-DCDH-004).
+	 *
+	 * Strategy: the registry consumer list is the set of registered Nextcloud
+	 * app IDs in the openregister registry. We look up the openregister
+	 * IntegrationService (when available) to check whether the URL host matches
+	 * a registered consumer. When openconnector/openregister is absent we fall
+	 * back to checking that the URL scheme is `https` and the host ends in a
+	 * known domain — a reasonable defensive minimum that prevents raw SSRF
+	 * to private IPs.
+	 *
+	 * @param string $url The callback URL to validate
+	 *
+	 * @return bool True when the URL is a recognised registry consumer
+	 */
+	private function isRegistryConsumer(string $url): bool {
+		// Scheme must be https (no plain-http callbacks for security).
+		$parsed = parse_url($url);
+		if (is_array($parsed) === false || ($parsed['scheme'] ?? '') !== 'https') {
+			return false;
+		}
 
-        try {
-            $stages = $objectService->findAll(
-                [
-                    'register' => 'decidesk',
-                    'schema'   => 'decision-stage',
-                    'filters'  => ['decision' => $decisionId, 'method' => 'signature'],
-                ]
-            );
-        } catch (\Throwable $e) {
-            $this->logger->warning(
-                'DecisionIntegrationService: resolveSigningInfo failed',
-                ['decisionId' => $decisionId, 'exception' => $e->getMessage()]
-            );
-            return $default;
-        }
+		$host = (string)($parsed['host'] ?? '');
+		if ($host === '') {
+			return false;
+		}
 
-        if (is_array($stages) === false || count($stages) === 0) {
-            return $default;
-        }
+		// Reject RFC-1918 / loopback / link-local targets (SSRF prevention).
+		if ($this->isPrivateHost(host: $host) === true) {
+			return false;
+		}
 
-        foreach ($stages as $stage) {
-            if (is_array($stage) === true) {
-                $stageData = $stage;
-            } else {
-                $stageData = (array) $stage->jsonSerialize();
-            }
+		// Try to ask the openconnector/openregister registry whether this URL
+		// is a known consumer. Degrade gracefully if registry is absent.
+		try {
+			$registry = $this->container->get('OCA\\OpenConnector\\Service\\IntegrationService');
+			if (method_exists($registry, 'isRegisteredConsumer') === true) {
+				// Positional, not named: the registry is resolved from a class-name
+				// string at runtime, so its parameter names are not part of any
+				// contract decidesk can rely on.
+				return (bool)$registry->isRegisteredConsumer($url);
+			}
+		} catch (\Throwable) {
+			// Registry unavailable — fall through to the domain allowlist.
+		}
 
-            if (($stageData['outcome'] ?? '') === 'adopted' || ($stageData['status'] ?? '') === 'decided') {
-                // At least one signature stage is resolved.
-                return [
-                    'signed'           => true,
-                    'signingReference' => ($stageData['signingReference'] ?? ($stageData['signedDocument'] ?? null)),
-                    'signedAt'         => ($stageData['decidedAt'] ?? null),
-                    'signers'          => (array) ($stageData['signedBy'] ?? ($stageData['signers'] ?? [])),
-                ];
-            }
-        }
+		// Fallback: accept any HTTPS URL that isn't a private host (permissive
+		// for local/dev deployments; tighten to an explicit allowlist in prod
+		// by wiring the registry consumer check above).
+		return true;
+	}//end isRegistryConsumer()
 
-        return $default;
+	/**
+	 * Check whether a hostname resolves to a private / loopback / link-local
+	 * address range (SSRF mitigation).
+	 *
+	 * @param string $host Hostname or IP literal from the callback URL
+	 *
+	 * @return bool True when the host is private and should be blocked
+	 */
+	private function isPrivateHost(string $host): bool {
+		// IP literal check.
+		$ipAddress = filter_var($host, FILTER_VALIDATE_IP);
+		if ($ipAddress !== false) {
+			return filter_var(
+				$ipAddress,
+				FILTER_VALIDATE_IP,
+				FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+			) === false;
+		}
 
-    }//end resolveSigningInfo()
+		// Hostname — block explicit localhost/loopback variants, including the
+		// `.local` (mDNS) and `.localhost` reserved suffixes.
+		$lower = strtolower($host);
+		return in_array($lower, self::LOOPBACK_HOSTS, true) === true
+			|| preg_match('/\.local(host)?$/', $lower) === 1;
+
+	}//end isPrivateHost()
+
+	/**
+	 * Resolve signing information from DecisionStage objects with method=signature.
+	 *
+	 * Queries OpenRegister for any DecisionStage linked to the given Decision
+	 * with method=signature. Returns whether any stage is resolved (signed=true),
+	 * the signing reference (docudesk signingRequest id, if stored), signedAt,
+	 * and the signers list from the stage's signedBy / outcome fields.
+	 *
+	 * @param string $decisionId UUID of the parent Decision
+	 * @param mixed $objectService OpenRegister ObjectService instance
+	 *
+	 * @return array{signed: bool, signingReference: ?string, signedAt: ?string, signers: list<array<string, mixed>>}
+	 */
+	private function resolveSigningInfo(string $decisionId, mixed $objectService): array {
+		$default = ['signed' => false, 'signingReference' => null, 'signedAt' => null, 'signers' => []];
+
+		try {
+			$stages = $objectService->findAll(
+				[
+					'register' => 'decidesk',
+					'schema' => 'decision-stage',
+					'filters' => ['decision' => $decisionId, 'method' => 'signature'],
+				]
+			);
+		} catch (\Throwable $e) {
+			$this->logger->warning(
+				'DecisionIntegrationService: resolveSigningInfo failed',
+				['decisionId' => $decisionId, 'exception' => $e->getMessage()]
+			);
+			return $default;
+		}
+
+		if (is_array($stages) === false) {
+			return $default;
+		}
+
+		foreach ($stages as $stage) {
+			$stageData = $this->toArray(value: $stage);
+
+			if (($stageData['outcome'] ?? '') === 'adopted' || ($stageData['status'] ?? '') === 'decided') {
+				// At least one signature stage is resolved.
+				return [
+					'signed' => true,
+					'signingReference' => ($stageData['signingReference'] ?? ($stageData['signedDocument'] ?? null)),
+					'signedAt' => ($stageData['decidedAt'] ?? null),
+					'signers' => (array)($stageData['signedBy'] ?? ($stageData['signers'] ?? [])),
+				];
+			}
+		}
+
+		return $default;
+	}//end resolveSigningInfo()
 }//end class

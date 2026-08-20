@@ -6,7 +6,7 @@
  (citizen-participation). The reason is mandatory — the server refuses a
  rejection without one; this dialog enforces the same rule client-side.
 
- @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ @spec openspec/specs/citizen-participation/spec.md
 -->
 <template>
 	<NcDialog
@@ -14,9 +14,16 @@
 		data-testid="reaction-reject-modal"
 		@closing="$emit('close')">
 		<template #default>
-			<p>{{ t('decidesk', 'The reaction is retained for audit but never counts toward the consultation. A reason is required.') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'The reaction is retained for audit but never counts toward the consultation. A reason is required.',
+					)
+				}}
+			</p>
 			<NcTextArea
-				:value.sync="reason"
+				v-model="reason"
 				data-testid="reaction-reject-reason"
 				:label="t('decidesk', 'Rejection reason')"
 				:placeholder="t('decidesk', 'e.g. Off-topic or abusive')"
@@ -24,7 +31,7 @@
 		</template>
 		<template #actions>
 			<NcButton
-				type="error"
+				variant="error"
 				data-testid="reaction-reject-confirm"
 				:disabled="!reason.trim()"
 				@click="$emit('confirm', reason.trim())">

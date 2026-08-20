@@ -31,9 +31,11 @@
 		<NcLoadingIcon v-if="loading" :size="32" />
 
 		<template v-else-if="!minutes">
-			<p>{{ t('decidesk', 'No draft minutes exist for this meeting yet.') }}</p>
+			<p>
+				{{ t('decidesk', 'No draft minutes exist for this meeting yet.') }}
+			</p>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="minutes-panel-start"
 				:disabled="creating"
 				:aria-label="t('decidesk', 'Start taking minutes')"
@@ -47,7 +49,12 @@
 
 		<template v-else>
 			<p v-if="!editable" class="minutes-panel__locked">
-				{{ t('decidesk', 'The minutes are no longer in draft — editing is locked.') }}
+				{{
+					t(
+						'decidesk',
+						'The minutes are no longer in draft — editing is locked.',
+					)
+				}}
 			</p>
 			<p v-if="error" class="minutes-panel__error" role="alert">
 				{{ error }}
@@ -59,35 +66,71 @@
 				:data-testid="`minutes-panel-item-${item.id}`">
 				<div class="minutes-panel__item-header">
 					<h4>{{ item.orderNumber }}. {{ item.title }}</h4>
+					<!--
+						THE ACCESSIBLE NAME MUST CONTAIN THE VISIBLE LABEL (WCAG 2.5.3,
+						Label in Name). This aria-label used to read
+
+						    'Add action item for {title}'
+
+						while the button VISIBLY reads "+ Action item". An aria-label
+						REPLACES the text content for accessible-name computation, so the
+						visible words appeared nowhere in the name — which breaks 2.5.3
+						outright, and breaks every voice-control user who says what they
+						can see ("click add action item" matched nothing).
+
+						It also silently broke the e2e selector: Playwright's
+						`getByRole('button', { name: '+ Action item' })` matches the
+						ACCESSIBLE name, so it could never resolve this button no matter
+						how long it waited. That is the failure mode of
+						tests/e2e/spec-coverage/resolution-minutes.spec.ts:121.
+
+						Prefixing the visible string fixes the standard and the selector
+						with one change, and keeps the per-item disambiguation that the
+						aria-label was added for in the first place (several of these
+						buttons render at once, one per agenda item).
+					-->
 					<NcButton
 						v-if="editable"
 						size="small"
-						:aria-label="t('decidesk', 'Add action item for {title}', { title: item.title })"
+						:aria-label="
+							t('decidesk', '+ Action item for {title}', {
+								title: item.title,
+							})
+						"
 						@click="actionItemTarget = item">
 						{{ t('decidesk', '+ Action item') }}
 					</NcButton>
 				</div>
+				<!--
+					@nextcloud/vue v9 renamed the NcTextArea model to
+					`modelValue` / `update:modelValue`. The v8 pair
+					(`:value` / `@update:value`) still RENDERS — `value`
+					falls through onto the inner <textarea> and the label
+					prop is unchanged — but `update:value` is never emitted,
+					so every keystroke was dropped and the autosave never
+					fired while the panel looked entirely healthy.
+				-->
 				<NcTextArea
-					:value="noteFor(item.id).notes"
+					:modelValue="noteFor(item.id).notes"
 					:label="t('decidesk', 'Discussion notes')"
 					:placeholder="t('decidesk', 'What was discussed…')"
 					:disabled="!editable"
 					resize="vertical"
-					@update:value="onNoteInput(item.id, 'notes', $event)" />
+					@update:modelValue="onNoteInput(item.id, 'notes', $event)" />
 				<NcTextArea
-					:value="noteFor(item.id).decisions"
+					:modelValue="noteFor(item.id).decisions"
 					:label="t('decidesk', 'Decisions')"
 					:placeholder="t('decidesk', 'Decisions taken on this item…')"
 					:disabled="!editable"
 					resize="vertical"
-					@update:value="onNoteInput(item.id, 'decisions', $event)" />
+					@update:modelValue="onNoteInput(item.id, 'decisions', $event)" />
 			</div>
 		</template>
 
 		<ActionItemCaptureModal
 			v-if="actionItemTarget"
-			:meeting-id="meetingId"
-			:agenda-item="actionItemTarget"
+			:meetingId="meetingId"
+			:agendaItem="actionItemTarget"
 			:participants="participants"
 			@close="actionItemTarget = null" />
 	</section>
@@ -107,6 +150,7 @@ export default {
 		agendaItems: { type: Array, default: () => [] },
 		participants: { type: Array, default: () => [] },
 	},
+
 	data() {
 		return {
 			loading: true,
@@ -119,42 +163,55 @@ export default {
 			autosaver: null,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		sortedItems() {
-			return [...this.agendaItems].sort((a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0))
+			return [...this.agendaItems].sort(
+				(a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0),
+			)
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		editable() {
 			return (this.minutes?.lifecycle || 'draft') === 'draft'
 		},
+
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		saveStateLabel() {
 			switch (this.saveState) {
-			case 'pending':
-			case 'saving':
-				return this.t('decidesk', 'Saving…')
-			case 'saved':
-				return this.t('decidesk', 'All changes saved')
-			case 'error':
-				return this.t('decidesk', 'Autosave failed — retrying on next edit')
-			default:
-				return ''
+				case 'pending':
+				case 'saving':
+					return this.t('decidesk', 'Saving…')
+				case 'saved':
+					return this.t('decidesk', 'All changes saved')
+				case 'error':
+					return this.t(
+						'decidesk',
+						'Autosave failed — retrying on next edit',
+					)
+				default:
+					return ''
 			}
 		},
 	},
+
 	/** @spec exclude lifecycle wiring; builds the autosaver and triggers the initial fetch only */
 	created() {
 		this.autosaver = createAutosaver({
 			save: (itemNotes) => this.persist(itemNotes),
-			onStateChange: (state) => { this.saveState = state },
+			onStateChange: (state) => {
+				this.saveState = state
+			},
 		})
 		this.fetchMinutes()
 	},
+
 	/** @spec exclude lifecycle teardown; flushes the pending autosave so no live notes are lost */
-	beforeDestroy() {
+	beforeUnmount() {
 		this.autosaver?.flush()
 	},
+
 	methods: {
 		/**
 		 * Locate the draft Minutes record linked to this meeting.
@@ -171,14 +228,19 @@ export default {
 					_limit: 100,
 				})
 				const list = items || []
-				this.minutes = list.find(m => m.lifecycle === 'draft') || list[0] || null
-				this.itemNotes = Array.isArray(this.minutes?.itemNotes) ? this.minutes.itemNotes : []
+				this.minutes =
+					list.find((m) => m.lifecycle === 'draft') || list[0] || null
+				this.itemNotes = Array.isArray(this.minutes?.itemNotes)
+					? this.minutes.itemNotes
+					: []
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load minutes.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load minutes.')
 			} finally {
 				this.loading = false
 			}
 		},
+
 		/**
 		 * Create the draft Minutes record pre-linked to the meeting.
 		 *
@@ -199,11 +261,13 @@ export default {
 				})
 				await this.fetchMinutes()
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Could not create minutes.')
+				this.error =
+					e?.message || this.t('decidesk', 'Could not create minutes.')
 			} finally {
 				this.creating = false
 			}
 		},
+
 		/**
 		 * Read the buffered note entry for an agenda item.
 		 *
@@ -214,6 +278,7 @@ export default {
 		noteFor(agendaItemId) {
 			return getItemNote(this.itemNotes, agendaItemId)
 		},
+
 		/**
 		 * Buffer an edit and schedule the debounced autosave.
 		 *
@@ -224,9 +289,12 @@ export default {
 		 */
 		onNoteInput(agendaItemId, field, value) {
 			if (!this.editable) return
-			this.itemNotes = mergeItemNote(this.itemNotes, agendaItemId, { [field]: value })
+			this.itemNotes = mergeItemNote(this.itemNotes, agendaItemId, {
+				[field]: value,
+			})
 			this.autosaver.schedule(this.itemNotes)
 		},
+
 		/**
 		 * Persist the buffered itemNotes onto the draft Minutes object.
 		 *
@@ -236,7 +304,10 @@ export default {
 		async persist(itemNotes) {
 			if (!this.minutes) return
 			const store = ensureRelationType('minutes')
-			const saved = await store.saveObject('minutes', { ...this.minutes, itemNotes })
+			const saved = await store.saveObject('minutes', {
+				...this.minutes,
+				itemNotes,
+			})
 			if (saved) this.minutes = saved
 		},
 	},

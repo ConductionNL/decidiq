@@ -27,22 +27,32 @@
 		</NcEmptyContent>
 
 		<ul v-else class="dashboard-list-widget__list">
-			<li v-for="round in rows"
+			<li
+				v-for="round in rows"
 				:key="round.id"
 				:class="{ 'dashboard-list-widget__row--urgent': round._urgent }"
 				:data-testid="`pending-vote-row-${round.id}`"
 				class="dashboard-list-widget__row"
-				@click="openVote(round)">
+				role="button"
+				tabindex="0"
+				@click="openVote(round)"
+				@keydown.enter.prevent="openVote(round)"
+				@keydown.space.prevent="openVote(round)">
 				<div class="dashboard-list-widget__main">
-					<span class="dashboard-list-widget__title">{{ voteTitle(round) }}</span>
-					<span class="dashboard-list-widget__meta">{{ countdownLabel(round) }}</span>
+					<span class="dashboard-list-widget__title">{{
+						voteTitle(round)
+					}}</span>
+					<span class="dashboard-list-widget__meta">{{
+						countdownLabel(round)
+					}}</span>
 				</div>
 				<div class="dashboard-list-widget__aside">
-					<span v-if="round._urgent"
+					<span
+						v-if="round._urgent"
 						class="dashboard-list-widget__badge dashboard-list-widget__badge--urgent">
 						{{ t('decidesk', 'Urgent') }}
 					</span>
-					<NcButton type="primary" @click.stop="openVote(round)">
+					<NcButton variant="primary" @click.stop="openVote(round)">
 						{{ t('decidesk', 'Vote now') }}
 					</NcButton>
 				</div>
@@ -53,13 +63,20 @@
 
 <script>
 import { getCurrentUser } from '@nextcloud/auth'
-import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
-import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
-import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
+import { NcButton, NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
+import {
+	getParticipants,
+	getVotes,
+	getVotingRounds,
+} from '../../../services/dashboardData.js'
 import dashboardRefreshMixin from './dashboardRefreshMixin.js'
-import { resolveParticipantId, pendingVotingRounds, isUrgent, countdownBucket } from './widgetLogic.js'
-import { getParticipants, getVotingRounds, getVotes } from '../../../services/dashboardData.js'
+import {
+	countdownBucket,
+	isUrgent,
+	pendingVotingRounds,
+	resolveParticipantId,
+} from './widgetLogic.js'
 
 export default {
 	name: 'PendingVotesListWidget',
@@ -161,9 +178,13 @@ export default {
 		 */
 		openVote(round) {
 			const motion = round.motion
-			const motionId = motion && typeof motion === 'object' ? motion.id : motion
+			const motionId =
+				motion && typeof motion === 'object' ? motion.id : motion
 			if (motionId) {
-				this.$router.push({ name: 'MotionDetail', params: { id: String(motionId) } })
+				this.$router.push({
+					name: 'MotionDetail',
+					params: { id: String(motionId) },
+				})
 			}
 		},
 	},
@@ -195,6 +216,15 @@ export default {
 
 .dashboard-list-widget__row:hover {
 	background: var(--color-background-hover, #f5f5f5);
+}
+
+/* The row is keyboard-focusable, so its focus must be VISIBLE (WCAG 2.4.7).
+   Without this the row could be tabbed to but not seen, which is worse than
+   not being reachable at all. */
+.dashboard-list-widget__row:focus-visible {
+	background: var(--color-background-hover, #f5f5f5);
+	outline: 2px solid var(--color-primary-element, #0082c9);
+	outline-offset: -2px;
 }
 
 .dashboard-list-widget__row--urgent {

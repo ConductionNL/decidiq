@@ -30,18 +30,34 @@
 		</NcEmptyContent>
 
 		<ul v-else class="dashboard-list-widget__list">
-			<li v-for="decision in rows"
+			<!--
+				The row navigates on click, so it is a control and must be
+				operable from the keyboard (WCAG 2.1.1). Without tabindex it
+				could not be reached at all, and without the keydown handlers
+				reaching it would not have helped. `.prevent` on space stops the
+				page scrolling instead of activating the row.
+			-->
+			<li
+				v-for="decision in rows"
 				:key="decision.id"
 				:data-testid="`recent-decision-row-${decision.id}`"
 				class="dashboard-list-widget__row"
-				@click="openDecision(decision)">
-				<span class="dashboard-list-widget__title">{{ decision.title || decision.name }}</span>
+				role="button"
+				tabindex="0"
+				@click="openDecision(decision)"
+				@keydown.enter.prevent="openDecision(decision)"
+				@keydown.space.prevent="openDecision(decision)">
+				<span class="dashboard-list-widget__title">{{
+					decision.title || decision.name
+				}}</span>
 				<div class="dashboard-list-widget__aside">
-					<span :class="`dashboard-list-widget__badge--${outcome(decision).variant}`"
+					<span
+						:class="`dashboard-list-widget__badge--${outcome(decision).variant}`"
 						class="dashboard-list-widget__badge">
 						{{ t('decidesk', outcome(decision).label) }}
 					</span>
-					<span :class="`dashboard-list-widget__badge--${publication(decision).variant}`"
+					<span
+						:class="`dashboard-list-widget__badge--${publication(decision).variant}`"
 						class="dashboard-list-widget__badge">
 						{{ t('decidesk', publication(decision).label) }}
 					</span>
@@ -52,12 +68,11 @@
 </template>
 
 <script>
-import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
-import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
+import { NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import GavelIcon from 'vue-material-design-icons/Gavel.vue'
-import dashboardRefreshMixin from './dashboardRefreshMixin.js'
-import { recentDecisions, outcomeBadge, publicationBadge } from './widgetLogic.js'
 import { getDecisions } from '../../../services/dashboardData.js'
+import dashboardRefreshMixin from './dashboardRefreshMixin.js'
+import { outcomeBadge, publicationBadge, recentDecisions } from './widgetLogic.js'
 
 export default {
 	name: 'RecentDecisionsWidget',
@@ -139,7 +154,10 @@ export default {
 		 * @return {void}
 		 */
 		openDecision(decision) {
-			this.$router.push({ name: 'DecisionDetail', params: { id: String(decision.id) } })
+			this.$router.push({
+				name: 'DecisionDetail',
+				params: { id: String(decision.id) },
+			})
 		},
 	},
 }
@@ -170,6 +188,15 @@ export default {
 
 .dashboard-list-widget__row:hover {
 	background: var(--color-background-hover, #f5f5f5);
+}
+
+/* The row is keyboard-focusable, so its focus must be VISIBLE (WCAG 2.4.7).
+   Without this the row could be tabbed to but not seen, which is worse than
+   not being reachable at all. */
+.dashboard-list-widget__row:focus-visible {
+	background: var(--color-background-hover, #f5f5f5);
+	outline: 2px solid var(--color-primary-element, #0082c9);
+	outline-offset: -2px;
 }
 
 .dashboard-list-widget__title {

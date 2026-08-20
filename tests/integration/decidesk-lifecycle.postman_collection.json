@@ -76,7 +76,7 @@
 						},
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"title\": \"Newman lifecycle decision\",\n  \"text\": \"Contract test decision.\",\n  \"decisionDate\": \"2026-06-12T10:00:00Z\",\n  \"outcome\": \"adopted\",\n  \"lifecycle\": \"draft\"\n}"
+							"raw": "{\n  \"decisionType\": \"meeting-outcome\",\n  \"title\": \"Newman lifecycle decision\",\n  \"text\": \"Contract test decision.\",\n  \"lifecycle\": \"draft\"\n}"
 						}
 					}
 				}

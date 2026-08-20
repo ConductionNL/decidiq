@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Proxy Vote Controller
  *
@@ -29,6 +30,7 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -36,159 +38,222 @@ use OCP\IUserSession;
  * REST controller for proxy votes.
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+ * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
  */
-class ProxyVoteController extends Controller
-{
-    use GovernanceControllerTrait;
+class ProxyVoteController extends Controller {
+	use GovernanceControllerTrait;
 
-    /**
-     * Constructor.
-     *
-     * @param IRequest         $request      The HTTP request
-     * @param ProxyVoteService $proxyService Proxy service
-     * @param IUserSession     $userSession  User session
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly ProxyVoteService $proxyService,
-        private readonly IUserSession $userSession,
-    ) {
-        parent::__construct(appName: Application::APP_ID, request: $request);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request The HTTP request
+	 * @param ProxyVoteService $proxyService Proxy service
+	 * @param IUserSession $userSession User session
+	 * @param IGroupManager $groupManager Group manager (for admin bypass on the authorization guard)
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly ProxyVoteService $proxyService,
+		private readonly IUserSession $userSession,
+		private readonly IGroupManager $groupManager,
+	) {
+		parent::__construct(appName: Application::APP_ID, request: $request);
+	}//end __construct()
 
-    /**
-     * Register a proxy.
-     *
-     * @NoAdminRequired
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
-     *
-     * @return JSONResponse
-     */
-    #[NoAdminRequired]
-    public function register(): JSONResponse
-    {
-        $auth = $this->requireUserOr401(session: $this->userSession);
-        if ($auth !== null) {
-            return $auth;
-        }
+	/**
+	 * Resolve the caller's UID for the authorization guard: null when the
+	 * caller is a Nextcloud admin (admin bypass, mirroring
+	 * `MotionCoauthorController`'s `$accessUid` convention), the UID otherwise.
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+	 */
+	private function resolveCallerUid(): ?string {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return null;
+		}
 
-        $meetingId = (string) $this->request->getParam('meetingId', '');
-        $grantorId = (string) $this->request->getParam('grantorId', '');
-        $holderId  = (string) $this->request->getParam('holderId', '');
-        if ($meetingId === '' || $grantorId === '' || $holderId === '') {
-            return new JSONResponse(
-                ['message' => "Missing required parameter 'meetingId', 'grantorId' or 'holderId'."],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        }
+		$uid = $user->getUID();
+		if ($this->groupManager->isAdmin($uid) === true) {
+			return null;
+		}
 
-        $extra = [
-            'scope'     => (string) $this->request->getParam('scope', 'all-resolutions'),
-            'expiresAt' => (string) $this->request->getParam('expiresAt', ''),
-        ];
+		return $uid;
+	}//end resolveCallerUid()
 
-        return $this->respondFromResult(
-            result: $this->proxyService->register($meetingId, $grantorId, $holderId, $extra),
-            payloadKey: 'proxy',
-            successCode: Http::STATUS_CREATED
-        );
+	/**
+	 * Map a service result to a JSONResponse, promoting authorization
+	 * failures (service message prefixed `Forbidden:`) to `403 Forbidden`
+	 * with a static message instead of the generic `422` that
+	 * `respondFromResult()` would otherwise return.
+	 *
+	 * @param array<string, mixed> $result The service result
+	 * @param string $payloadKey Key of the success-side payload
+	 * @param int $successCode HTTP code to return on success
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+	 */
+	private function respondFromAuthorizedResult(array $result, string $payloadKey, int $successCode = Http::STATUS_OK): JSONResponse {
+		if (($result['success'] ?? false) === false
+			&& stripos((string)($result['message'] ?? ''), 'Forbidden:') === 0
+		) {
+			return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
+		}
 
-    }//end register()
+		return $this->respondFromResult(result: $result, payloadKey: $payloadKey, successCode: $successCode);
+	}//end respondFromAuthorizedResult()
 
-    /**
-     * List proxies for the requested meeting.
-     *
-     * @NoAdminRequired
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
-     *
-     * @return JSONResponse
-     */
-    #[NoAdminRequired]
-    public function index(): JSONResponse
-    {
-        $auth = $this->requireUserOr401(session: $this->userSession);
-        if ($auth !== null) {
-            return $auth;
-        }
+	/**
+	 * Register a proxy.
+	 *
+	 * @NoAdminRequired
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+	 *
+	 * @return JSONResponse
+	 */
+	#[NoAdminRequired]
+	public function register(): JSONResponse {
+		$auth = $this->requireUserOr401(session: $this->userSession);
+		if ($auth !== null) {
+			return $auth;
+		}
 
-        $meetingId = (string) $this->request->getParam('meetingId', '');
-        if ($meetingId === '') {
-            return new JSONResponse(
-                ['message' => "Missing required parameter 'meetingId'."],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        }
+		$meetingId = (string)$this->request->getParam('meetingId', '');
+		$grantorId = (string)$this->request->getParam('grantorId', '');
+		$holderId = (string)$this->request->getParam('holderId', '');
+		if ($meetingId === '' || $grantorId === '' || $holderId === '') {
+			return new JSONResponse(
+				['message' => "Missing required parameter 'meetingId', 'grantorId' or 'holderId'."],
+				Http::STATUS_UNPROCESSABLE_ENTITY
+			);
+		}
 
-        $status       = (string) $this->request->getParam('status', '');
-        $statusFilter = null;
-        if ($status !== '') {
-            $statusFilter = $status;
-        }
+		$extra = [
+			'scope' => (string)$this->request->getParam('scope', 'all-resolutions'),
+			'expiresAt' => (string)$this->request->getParam('expiresAt', ''),
+		];
 
-        $result = $this->proxyService->forMeeting($meetingId, $statusFilter);
+		$callerUid = $this->resolveCallerUid();
 
-        return new JSONResponse(
-            [
-                'results' => $result['proxies'],
-                'total'   => $result['count'],
-            ]
-        );
+		return $this->respondFromAuthorizedResult(
+			result: $this->proxyService->register($meetingId, $grantorId, $holderId, $extra, $callerUid),
+			payloadKey: 'proxy',
+			successCode: Http::STATUS_CREATED
+		);
 
-    }//end index()
+	}//end register()
 
-    /**
-     * Suspend a proxy.
-     *
-     * @param string $id UUID of the proxy
-     *
-     * @NoAdminRequired
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
-     *
-     * @return JSONResponse
-     */
-    #[NoAdminRequired]
-    public function suspend(string $id): JSONResponse
-    {
-        $auth = $this->requireUserOr401(session: $this->userSession);
-        if ($auth !== null) {
-            return $auth;
-        }
+	/**
+	 * List proxies for the requested meeting.
+	 *
+	 * `meetingId` is caller-supplied, so the caller must be authorized FOR
+	 * THAT MEETING before the register is read: a participant of the meeting's
+	 * GovernanceBody, or an admin. `requireUserOr401()` above answers "is
+	 * anyone logged in", which under `#[NoAdminRequired]` the framework has
+	 * already settled — it is not an authorization guard.
+	 *
+	 * @NoAdminRequired
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+	 * @spec openspec/changes/member-proxy-authorization/specs/member-proxy-authorization/spec.md#requirement-req-mpa-008-per-meeting-proxy-register-attachable-to-the-minutes
+	 *
+	 * @return JSONResponse
+	 */
+	#[NoAdminRequired]
+	public function index(): JSONResponse {
+		$auth = $this->requireUserOr401(session: $this->userSession);
+		if ($auth !== null) {
+			return $auth;
+		}
 
-        $actor = $this->userSession->getUser()?->getUID();
-        return $this->respondFromResult(
-            result: $this->proxyService->suspend($id, (string) $actor),
-            payloadKey: 'proxy'
-        );
+		$meetingId = (string)$this->request->getParam('meetingId', '');
+		if ($meetingId === '') {
+			return new JSONResponse(
+				['message' => "Missing required parameter 'meetingId'."],
+				Http::STATUS_UNPROCESSABLE_ENTITY
+			);
+		}
 
-    }//end suspend()
+		$callerUid = $this->resolveCallerUid();
+		if ($callerUid !== null
+			&& $this->proxyService->isAuthorizedToList(meetingId: $meetingId, callerUid: $callerUid) === false
+		) {
+			return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
+		}
 
-    /**
-     * Revoke a proxy.
-     *
-     * @param string $id UUID of the proxy
-     *
-     * @NoAdminRequired
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
-     *
-     * @return JSONResponse
-     */
-    #[NoAdminRequired]
-    public function revoke(string $id): JSONResponse
-    {
-        $auth = $this->requireUserOr401(session: $this->userSession);
-        if ($auth !== null) {
-            return $auth;
-        }
+		$status = (string)$this->request->getParam('status', '');
+		$statusFilter = null;
+		if ($status !== '') {
+			$statusFilter = $status;
+		}
 
-        $actor = $this->userSession->getUser()?->getUID();
-        return $this->respondFromResult(
-            result: $this->proxyService->revoke($id, (string) $actor),
-            payloadKey: 'proxy'
-        );
+		$result = $this->proxyService->forMeeting($meetingId, $statusFilter);
 
-    }//end revoke()
+		return new JSONResponse(
+			[
+				'results' => $result['proxies'],
+				'total' => $result['count'],
+			]
+		);
+
+	}//end index()
+
+	/**
+	 * Suspend a proxy.
+	 *
+	 * @param string $id UUID of the proxy
+	 *
+	 * @NoAdminRequired
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+	 *
+	 * @return JSONResponse
+	 */
+	#[NoAdminRequired]
+	public function suspend(string $id): JSONResponse {
+		$auth = $this->requireUserOr401(session: $this->userSession);
+		if ($auth !== null) {
+			return $auth;
+		}
+
+		$actor = (string)$this->userSession->getUser()?->getUID();
+		$callerUid = $this->resolveCallerUid();
+		return $this->respondFromAuthorizedResult(
+			result: $this->proxyService->suspend($id, $actor, $callerUid),
+			payloadKey: 'proxy'
+		);
+
+	}//end suspend()
+
+	/**
+	 * Revoke a proxy.
+	 *
+	 * @param string $id UUID of the proxy
+	 *
+	 * @NoAdminRequired
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+	 *
+	 * @return JSONResponse
+	 */
+	#[NoAdminRequired]
+	public function revoke(string $id): JSONResponse {
+		$auth = $this->requireUserOr401(session: $this->userSession);
+		if ($auth !== null) {
+			return $auth;
+		}
+
+		$actor = (string)$this->userSession->getUser()?->getUID();
+		$callerUid = $this->resolveCallerUid();
+		return $this->respondFromAuthorizedResult(
+			result: $this->proxyService->revoke($id, $actor, $callerUid),
+			payloadKey: 'proxy'
+		);
+
+	}//end revoke()
 }//end class

@@ -40,7 +40,9 @@ describe('decidesk settings store', () => {
 	})
 
 	it('fetchSettings stores data and derives openregisters/admin flags', async () => {
-		mockFetchOnce({ json: { openregisters: true, isAdmin: true, meetingSchema: 'meeting' } })
+		mockFetchOnce({
+			json: { openregisters: true, isAdmin: true, meetingSchema: 'meeting' },
+		})
 		const store = useSettingsStore()
 		const data = await store.fetchSettings()
 		expect(globalThis.fetch).toHaveBeenCalledWith(
@@ -97,7 +99,10 @@ describe('decidesk settings store', () => {
 	it('saveSettings unwraps the {success, config} envelope from settings#create', async () => {
 		globalThis.fetch = vi.fn().mockResolvedValueOnce({
 			ok: true,
-			json: async () => ({ success: true, config: { register: 'decidesk', organisation_name: 'ACME' } }),
+			json: async () => ({
+				success: true,
+				config: { register: 'decidesk', organisation_name: 'ACME' },
+			}),
 		})
 		const store = useSettingsStore()
 		const result = await store.saveSettings({ organisation_name: 'ACME' })

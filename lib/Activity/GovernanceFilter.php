@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Activity Filter
  *
@@ -18,7 +19,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Activity;
@@ -35,101 +36,90 @@ use OCP\IURLGenerator;
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
-class GovernanceFilter implements IFilter
-{
-    /**
-     * Constructor.
-     *
-     * @param IL10N         $l10n         Translation service for the decidesk app
-     * @param IURLGenerator $urlGenerator URL generator for the filter icon
-     */
-    public function __construct(
-        private readonly IL10N $l10n,
-        private readonly IURLGenerator $urlGenerator,
-    ) {
-    }//end __construct()
+class GovernanceFilter implements IFilter {
+	/**
+	 * Constructor.
+	 *
+	 * @param IL10N $l10n Translation service for the decidesk app
+	 * @param IURLGenerator $urlGenerator URL generator for the filter icon
+	 */
+	public function __construct(
+		private readonly IL10N $l10n,
+		private readonly IURLGenerator $urlGenerator,
+	) {
+	}//end __construct()
 
-    /**
-     * Get the filter identifier.
-     *
-     * @return string
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     */
-    public function getIdentifier()
-    {
-        return Application::APP_ID;
+	/**
+	 * Get the filter identifier.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 */
+	public function getIdentifier() {
+		return Application::APP_ID;
+	}//end getIdentifier()
 
-    }//end getIdentifier()
+	/**
+	 * Get the translated filter name.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 */
+	public function getName() {
+		return $this->l10n->t('Decidesk');
+	}//end getName()
 
-    /**
-     * Get the translated filter name.
-     *
-     * @return string
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     */
-    public function getName()
-    {
-        return $this->l10n->t('Decidesk');
+	/**
+	 * Get the filter priority (0-100, ascending order).
+	 *
+	 * @return int
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 */
+	public function getPriority() {
+		return 60;
+	}//end getPriority()
 
-    }//end getName()
+	/**
+	 * Get the absolute URL of the filter icon.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 */
+	public function getIcon() {
+		return $this->urlGenerator->getAbsoluteURL(
+			$this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg')
+		);
 
-    /**
-     * Get the filter priority (0-100, ascending order).
-     *
-     * @return int
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     */
-    public function getPriority()
-    {
-        return 60;
+	}//end getIcon()
 
-    }//end getPriority()
+	/**
+	 * Restrict the stream to Decidesk activity types when this filter is active.
+	 *
+	 * @param string[] $types The active activity types
+	 *
+	 * @return string[]
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 */
+	public function filterTypes(array $types) {
+		return array_values(
+			array_intersect($types, [GovernanceSetting::TYPE_GOVERNANCE])
+		);
 
-    /**
-     * Get the absolute URL of the filter icon.
-     *
-     * @return string
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     */
-    public function getIcon()
-    {
-        return $this->urlGenerator->getAbsoluteURL(
-            $this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg')
-        );
+	}//end filterTypes()
 
-    }//end getIcon()
-
-    /**
-     * Restrict the stream to Decidesk activity types when this filter is active.
-     *
-     * @param string[] $types The active activity types
-     *
-     * @return string[]
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     */
-    public function filterTypes(array $types)
-    {
-        return array_values(
-            array_intersect($types, [GovernanceSetting::TYPE_GOVERNANCE])
-        );
-
-    }//end filterTypes()
-
-    /**
-     * Only Decidesk events appear under this filter.
-     *
-     * @return string[]
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     */
-    public function allowedApps()
-    {
-        return [Application::APP_ID];
-
-    }//end allowedApps()
+	/**
+	 * Only Decidesk events appear under this filter.
+	 *
+	 * @return string[]
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 */
+	public function allowedApps() {
+		return [Application::APP_ID];
+	}//end allowedApps()
 }//end class

@@ -4,56 +4,102 @@
  *
  * Gate-19 e2e coverage — Features & roadmap page (genuine behavioural).
  *
- * The FeaturesRoadmap nav route had no dedicated spec. Drives the page
- * via the app's LEFT navigation (cn-nav-entry-FeaturesRoadmapMenu, not
- * the global NC header), then asserts the real roadmap surface: the
- * "Features" heading and the "Show roadmap" / "Suggest feature" CTAs.
+ * The FeaturesRoadmap nav route had no dedicated spec. ia-six-clusters
+ * (openspec/specs/app-navigation/spec.md#req-nav-010) removes the
+ * FeaturesRoadmapMenu row as duplicate/filter-chip navigation, but the
+ * page itself stays routable for deep links and e2e specs — so this
+ * drives the page via the app-scoped direct route, falling back from
+ * the (now absent) cn-nav-entry-FeaturesRoadmapMenu left-nav entry the
+ * same way engagement-page.spec.ts and minutes-page.spec.ts do for
+ * their own org-mode-conditional nav rows. Then asserts the real
+ * roadmap surface: the "Features" heading and the "Show roadmap" /
+ * "Suggest feature" CTAs.
  *
  * @e2e openspec/specs/dashboard/spec.md#view-the-features-and-roadmap-page
  */
 import { test, expect, type Page } from '@playwright/test'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url'
 
 async function dismissSupportDialog(page: Page): Promise<void> {
-	const dialog = page.locator('.cn-support-dialog, [data-testid^="cn-support-dialog"]').first()
+	const dialog = page
+		.locator('.cn-support-dialog, [data-testid^="cn-support-dialog"]')
+		.first()
 	if (await dialog.isVisible().catch(() => false)) {
 		await page.keyboard.press('Escape').catch(() => {})
 	}
 }
 
-async function appNavClick(page: Page, entryId: string): Promise<void> {
+/**
+ * Navigate to a decidesk page, preferring the APP's left navigation entry
+ * (app-scoped) when it exists. The nav is org-mode-aware and, per
+ * ia-six-clusters, the FeaturesRoadmapMenu row is removed as duplicate
+ * navigation while its page stays routable — so we fall back to the
+ * app-scoped route (still never via the global NC header). `route` is the
+ * app-scoped path used when `cn-nav-entry-<entryId>` is absent.
+ */
+async function appNavClick(
+	page: Page,
+	entryId: string,
+	route: string,
+): Promise<void> {
 	await page.goto(`${BASE}/apps/decidesk/`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await dismissSupportDialog(page)
-	const nav = page.locator('[data-testid="cn-nav"], #app-navigation-vue, .app-navigation').first()
-	await nav.getByTestId(`cn-nav-entry-${entryId}`).click()
+	const entry = page.locator(`[data-testid="cn-nav-entry-${entryId}"]`).first()
+	if (await entry.isVisible().catch(() => false)) {
+		await entry.click()
+		return
+	}
+	await page.goto(`${BASE}/apps/decidesk${route}`)
+	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+	await dismissSupportDialog(page)
 }
 
 // @e2e openspec/specs/dashboard/spec.md#view-the-features-and-roadmap-page
-test('Features & roadmap: app-scoped nav lands on the roadmap surface', async ({ page }) => {
-	await appNavClick(page, 'FeaturesRoadmapMenu')
+test('Features & roadmap: app-scoped nav lands on the roadmap surface', async ({
+	page,
+}) => {
+	await appNavClick(page, 'FeaturesRoadmapMenu', '/features-roadmap')
 
 	await expect(page).toHaveURL(/\/apps\/decidesk\/.*features-roadmap/)
-	await expect(page.getByRole('heading', { name: 'Features', exact: true })).toBeVisible()
-	await expect(page.getByRole('button', { name: /Show roadmap/i }).first()).toBeVisible()
-	await expect(page.getByRole('button', { name: /Suggest feature/i }).first()).toBeVisible()
+	await expect(
+		page.getByRole('heading', { name: 'Features', exact: true }),
+	).toBeVisible()
+	await expect(
+		page.getByRole('button', { name: /Show roadmap/i }).first(),
+	).toBeVisible()
+	await expect(
+		page.getByRole('button', { name: /Suggest feature/i }).first(),
+	).toBeVisible()
 })
 
 // @e2e openspec/specs/dashboard/spec.md#view-the-features-and-roadmap-page
-test('Features & roadmap: no decidesk-origin console error or 500 on load', async ({ page }) => {
+test('Features & roadmap: no decidesk-origin console error or 500 on load', async ({
+	page,
+}) => {
 	const appErrors: string[] = []
-	page.on('console', m => {
+	page.on('console', (m) => {
 		const t = m.text()
-		if (m.type() === 'error' && !/user_status|heartbeat|user status/i.test(t) && /decidesk/i.test(t)) {
+		if (
+			m.type() === 'error'
+			&& !/user_status|heartbeat|user status/i.test(t)
+			&& /decidesk/i.test(t)
+		) {
 			appErrors.push(t)
 		}
 	})
-	page.on('response', r => {
-		if (r.status() >= 500 && /decidesk/i.test(r.url())) appErrors.push(`HTTP ${r.status()} ${r.url()}`)
+	page.on('response', (r) => {
+		if (r.status() >= 500 && /decidesk/i.test(r.url()))
+			appErrors.push(`HTTP ${r.status()} ${r.url()}`)
 	})
 
-	await appNavClick(page, 'FeaturesRoadmapMenu')
-	await expect(page.getByRole('heading', { name: 'Features', exact: true })).toBeVisible()
-	expect(appErrors, `decidesk errors on Features & roadmap:\n${appErrors.join('\n')}`).toHaveLength(0)
+	await appNavClick(page, 'FeaturesRoadmapMenu', '/features-roadmap')
+	await expect(
+		page.getByRole('heading', { name: 'Features', exact: true }),
+	).toBeVisible()
+	expect(
+		appErrors,
+		`decidesk errors on Features & roadmap:\n${appErrors.join('\n')}`,
+	).toHaveLength(0)
 })

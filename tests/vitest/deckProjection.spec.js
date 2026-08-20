@@ -15,7 +15,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const get = vi.fn()
 const post = vi.fn()
-vi.mock('@nextcloud/axios', () => ({ default: { get: (...a) => get(...a), post: (...a) => post(...a) } }))
+vi.mock('@nextcloud/axios', () => ({
+	default: { get: (...a) => get(...a), post: (...a) => post(...a) },
+}))
 
 import {
 	statusToLane,
@@ -34,16 +36,23 @@ beforeEach(() => {
 // status-named stacks, and no cards yet linked to the object.
 function wireLeaf({ cards = [] } = {}) {
 	get.mockImplementation((url) => {
-		if (url.includes('/integrations/deck/default/')) return Promise.reject(new Error('no default'))
+		if (url.includes('/integrations/deck/default/'))
+			return Promise.reject(new Error('no default'))
 		if (url.includes('/integrations/deck/boards/')) {
-			return Promise.resolve({ data: { results: [
-				{ id: 11, title: 'Open', boardId: 5 },
-				{ id: 12, title: 'In progress', boardId: 5 },
-				{ id: 13, title: 'Done', boardId: 5 },
-			] } })
+			return Promise.resolve({
+				data: {
+					results: [
+						{ id: 11, title: 'Open', boardId: 5 },
+						{ id: 12, title: 'In progress', boardId: 5 },
+						{ id: 13, title: 'Done', boardId: 5 },
+					],
+				},
+			})
 		}
 		if (url.includes('/integrations/deck/boards')) {
-			return Promise.resolve({ data: { results: [{ id: 5, title: 'Board' }] } })
+			return Promise.resolve({
+				data: { results: [{ id: 5, title: 'Board' }] },
+			})
 		}
 		if (url.endsWith('/deck')) {
 			return Promise.resolve({ data: { results: cards } })
@@ -94,8 +103,10 @@ describe('resolveTarget', () => {
 
 	it('throws when no board exists', async () => {
 		get.mockImplementation((url) => {
-			if (url.includes('/integrations/deck/default/')) return Promise.reject(new Error('no default'))
-			if (url.includes('/integrations/deck/boards')) return Promise.resolve({ data: { results: [] } })
+			if (url.includes('/integrations/deck/default/'))
+				return Promise.reject(new Error('no default'))
+			if (url.includes('/integrations/deck/boards'))
+				return Promise.resolve({ data: { results: [] } })
 			return Promise.resolve({ data: {} })
 		})
 		await expect(resolveTarget('decision')).rejects.toThrow(/No Deck board/)
@@ -111,12 +122,22 @@ describe('projectActionItems', () => {
 			{ uuid: 'u2', title: 'Onderzoek', taskStatus: 'in-progress' },
 			{ uuid: 'u3', title: 'Notulen', taskStatus: 'done' },
 		]
-		const res = await projectActionItems({ register: 'decidesk', schema: 'decision', objectId: 'obj-1', items, persistCardId })
+		const res = await projectActionItems({
+			register: 'decidesk',
+			schema: 'decision',
+			objectId: 'obj-1',
+			items,
+			persistCardId,
+		})
 		expect(res.created).toBe(3)
 		expect(res.skipped).toBe(0)
 		expect(res.errors).toEqual([])
 		// Stack ids follow the lane mapping.
-		expect(post.mock.calls[0][1]).toMatchObject({ boardId: 5, stackId: 11, title: 'Plan opstellen' })
+		expect(post.mock.calls[0][1]).toMatchObject({
+			boardId: 5,
+			stackId: 11,
+			title: 'Plan opstellen',
+		})
 		expect(post.mock.calls[1][1]).toMatchObject({ stackId: 12 })
 		expect(post.mock.calls[2][1]).toMatchObject({ stackId: 13 })
 		// Card id written back onto each VTODO.
@@ -128,10 +149,21 @@ describe('projectActionItems', () => {
 		wireLeaf({ cards: [{ cardId: 100 }] })
 		const persistCardId = vi.fn().mockResolvedValue({})
 		const items = [
-			{ uuid: 'u1', title: 'Already on deck', taskStatus: 'open', deckCardId: 100 },
+			{
+				uuid: 'u1',
+				title: 'Already on deck',
+				taskStatus: 'open',
+				deckCardId: 100,
+			},
 			{ uuid: 'u2', title: 'New one', taskStatus: 'open' },
 		]
-		const res = await projectActionItems({ register: 'decidesk', schema: 'decision', objectId: 'obj-1', items, persistCardId })
+		const res = await projectActionItems({
+			register: 'decidesk',
+			schema: 'decision',
+			objectId: 'obj-1',
+			items,
+			persistCardId,
+		})
 		expect(res.skipped).toBe(1)
 		expect(res.created).toBe(1)
 		expect(post).toHaveBeenCalledTimes(1)
@@ -141,8 +173,16 @@ describe('projectActionItems', () => {
 	it('re-creates a card when the stored deckCardId is no longer linked', async () => {
 		wireLeaf({ cards: [] }) // stored id 100 is not present anymore
 		const persistCardId = vi.fn().mockResolvedValue({})
-		const items = [{ uuid: 'u1', title: 'Stale', taskStatus: 'open', deckCardId: 100 }]
-		const res = await projectActionItems({ register: 'decidesk', schema: 'decision', objectId: 'obj-1', items, persistCardId })
+		const items = [
+			{ uuid: 'u1', title: 'Stale', taskStatus: 'open', deckCardId: 100 },
+		]
+		const res = await projectActionItems({
+			register: 'decidesk',
+			schema: 'decision',
+			objectId: 'obj-1',
+			items,
+			persistCardId,
+		})
 		expect(res.created).toBe(1)
 		expect(res.skipped).toBe(0)
 	})
@@ -150,14 +190,21 @@ describe('projectActionItems', () => {
 	it('records per-item errors without aborting the batch', async () => {
 		wireLeaf()
 		post.mockReset()
-		post.mockImplementationOnce(() => Promise.reject({ response: { data: { error: 'boom' } } }))
-			.mockImplementation(() => Promise.resolve({ data: { cardId: 200 } }))
+		post.mockImplementationOnce(() =>
+			Promise.reject({ response: { data: { error: 'boom' } } }),
+		).mockImplementation(() => Promise.resolve({ data: { cardId: 200 } }))
 		const persistCardId = vi.fn().mockResolvedValue({})
 		const items = [
 			{ uuid: 'u1', title: 'Fails', taskStatus: 'open' },
 			{ uuid: 'u2', title: 'Works', taskStatus: 'open' },
 		]
-		const res = await projectActionItems({ register: 'decidesk', schema: 'decision', objectId: 'obj-1', items, persistCardId })
+		const res = await projectActionItems({
+			register: 'decidesk',
+			schema: 'decision',
+			objectId: 'obj-1',
+			items,
+			persistCardId,
+		})
 		expect(res.created).toBe(1)
 		expect(res.errors).toEqual([{ uid: 'u1', error: 'boom' }])
 	})

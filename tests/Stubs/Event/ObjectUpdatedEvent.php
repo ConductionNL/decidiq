@@ -20,30 +20,25 @@ use OCP\EventDispatcher\Event;
 /**
  * Stub implementation of ObjectUpdatedEvent for unit testing.
  */
-class ObjectUpdatedEvent extends Event
-{
-    private ?ObjectEntity $newObject;
-    private ?ObjectEntity $oldObject;
+class ObjectUpdatedEvent extends Event {
+	private ?ObjectEntity $newObject;
+	private ?ObjectEntity $oldObject;
 
-    public function __construct(?ObjectEntity $newObject = null, ?ObjectEntity $oldObject = null)
-    {
-        parent::__construct();
-        $this->newObject = $newObject;
-        $this->oldObject = $oldObject;
-    }
+	public function __construct(?ObjectEntity $newObject = null, ?ObjectEntity $oldObject = null) {
+		parent::__construct();
+		$this->newObject = $newObject;
+		$this->oldObject = $oldObject;
+	}
 
-    public function getObject(): ?ObjectEntity
-    {
-        return $this->newObject;
-    }
+	public function getObject(): ?ObjectEntity {
+		return $this->newObject;
+	}
 
-    public function getNewObject(): ?ObjectEntity
-    {
-        return $this->newObject;
-    }
+	public function getNewObject(): ?ObjectEntity {
+		return $this->newObject;
+	}
 
-    public function getOldObject(): ?ObjectEntity
-    {
-        return $this->oldObject;
-    }
+	public function getOldObject(): ?ObjectEntity {
+		return $this->oldObject;
+	}
 }

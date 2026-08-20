@@ -18,7 +18,9 @@
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Agenda') }}
-				<span v-if="!loading" class="decidesk-tab__count">({{ rows.length }})</span>
+				<span v-if="!loading" class="decidesk-tab__count"
+					>({{ rows.length }})</span
+				>
 			</h3>
 			<div class="decidesk-tab__header-actions">
 				<NcButton
@@ -26,10 +28,14 @@
 					:disabled="assembling"
 					:aria-label="t('decidesk', 'Assemble meeting package')"
 					@click="assemblePackage">
-					{{ assembling ? t('decidesk', 'Assembling…') : t('decidesk', 'Assemble meeting package') }}
+					{{
+						assembling
+							? t('decidesk', 'Assembling…')
+							: t('decidesk', 'Assemble meeting package')
+					}}
 				</NcButton>
 				<NcButton
-					type="primary"
+					variant="primary"
 					data-testid="agenda-add-item"
 					:aria-label="t('decidesk', 'Add agenda item')"
 					@click="openCreate">
@@ -53,7 +59,14 @@
 			type="warning"
 			data-testid="statutory-items-warning"
 			:title="t('decidesk', 'Missing statutory ALV agenda items')">
-			<p>{{ t('decidesk', 'This general assembly agenda is missing legally required items:') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'This general assembly agenda is missing legally required items:',
+					)
+				}}
+			</p>
 			<ul class="decidesk-tab__statutory-list">
 				<li v-for="required in missingStatutory" :key="required.id">
 					{{ t('decidesk', required.label) }}
@@ -87,10 +100,10 @@
 			:columns="columns"
 			:rows="rows"
 			:loading="loading"
-			row-key="id"
-			:empty-text="t('decidesk', 'No agenda items yet for this meeting.')"
-			:loading-text="t('decidesk', 'Loading agenda…')"
-			@row-click="openEdit">
+			rowKey="id"
+			:emptyText="t('decidesk', 'No agenda items yet for this meeting.')"
+			:loadingText="t('decidesk', 'Loading agenda…')"
+			@rowClick="openEdit">
 			<template #row-actions="{ row }">
 				<CnRowActions :row="row" :actions="rowActions" />
 			</template>
@@ -101,8 +114,12 @@
 			ref="formDialog"
 			:schema="agendaSchema"
 			:item="editTarget"
-			:dialog-title="editTarget ? t('decidesk', 'Edit agenda item') : t('decidesk', 'Add agenda item')"
-			:exclude-fields="excludedFields"
+			:dialogTitle="
+				editTarget
+					? t('decidesk', 'Edit agenda item')
+					: t('decidesk', 'Add agenda item')
+			"
+			:excludeFields="excludedFields"
 			@confirm="onConfirm"
 			@close="formOpen = false" />
 
@@ -110,29 +127,49 @@
 			v-if="deleteTarget"
 			ref="deleteDialog"
 			:item="deleteTarget"
-			name-field="title"
-			:dialog-title="t('decidesk', 'Delete agenda item')"
+			nameField="title"
+			:dialogTitle="t('decidesk', 'Delete agenda item')"
 			@confirm="confirmDelete"
 			@close="deleteTarget = null" />
 	</div>
 </template>
 
 <script>
-import { CnDataTable, CnDeleteDialog, CnFormDialog, CnNoteCard, CnRowActions } from '@conduction/nextcloud-vue'
-import { NcButton } from '@nextcloud/vue'
+import {
+	CnDataTable,
+	CnDeleteDialog,
+	CnFormDialog,
+	CnNoteCard,
+	CnRowActions,
+} from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
-import Plus from 'vue-material-design-icons/Plus.vue'
+import { NcButton } from '@nextcloud/vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
+import Plus from 'vue-material-design-icons/Plus.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
+import {
+	buildAgendaTree,
+	flattenTree,
+	missingStatutoryItems,
+} from '../../services/agendaRules.js'
 import { ensureRelationType } from './useRelationStore.js'
-import { buildAgendaTree, flattenTree, missingStatutoryItems } from '../../services/agendaRules.js'
 
 export default {
 	name: 'MeetingAgendaTab',
-	components: { CnDataTable, CnDeleteDialog, CnFormDialog, CnNoteCard, CnRowActions, NcButton, Plus },
+	components: {
+		CnDataTable,
+		CnDeleteDialog,
+		CnFormDialog,
+		CnNoteCard,
+		CnRowActions,
+		NcButton,
+		Plus,
+	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -148,14 +185,22 @@ export default {
 			packageError: '',
 		}
 	},
+
 	computed: {
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		columns() {
 			return [
-				{ key: 'orderNumber', label: this.t('decidesk', '#'), width: '60px' },
+				{
+					key: 'orderNumber',
+					label: this.t('decidesk', '#'),
+					width: '60px',
+				},
 				{ key: 'titleDisplay', label: this.t('decidesk', 'Title') },
 				{ key: 'itemType', label: this.t('decidesk', 'Type') },
-				{ key: 'estimatedDuration', label: this.t('decidesk', 'Duration (min)') },
+				{
+					key: 'estimatedDuration',
+					label: this.t('decidesk', 'Duration (min)'),
+				},
 			]
 		},
 
@@ -167,28 +212,49 @@ export default {
 		/** @spec openspec/specs/agenda-management/spec.md */
 		packageFolderUrl() {
 			if (!this.packageResult?.path) return ''
-			return generateUrl('/apps/files') + '?dir=' + encodeURIComponent(this.packageResult.path)
+			return (
+				generateUrl('/apps/files')
+				+ '?dir='
+				+ encodeURIComponent(this.packageResult.path)
+			)
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-2 */
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		rowActions() {
 			return [
-				{ label: this.t('decidesk', 'Edit'), icon: Pencil, handler: (row) => this.openEdit(row) },
-				{ label: this.t('decidesk', 'Delete'), icon: TrashCanOutline, destructive: true, handler: (row) => { this.deleteTarget = { ...row } } },
+				{
+					label: this.t('decidesk', 'Edit'),
+					icon: Pencil,
+					handler: (row) => this.openEdit(row),
+				},
+				{
+					label: this.t('decidesk', 'Delete'),
+					icon: TrashCanOutline,
+					destructive: true,
+					handler: (row) => {
+						this.deleteTarget = { ...row }
+					},
+				},
 			]
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		excludedFields() {
 			// Hide system / parent-link fields — we set `meeting` ourselves.
 			return ['id', 'uuid', 'meeting', 'created', 'updated']
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
-			handler() { this.refresh() },
+			/** @spec openspec/specs/relation-tab-ui/spec.md */
+			handler() {
+				this.refresh()
+			},
 		},
 	},
+
 	methods: {
 		/** @spec openspec/specs/agenda-management/spec.md */
 		async refresh() {
@@ -197,7 +263,8 @@ export default {
 			this.error = ''
 			try {
 				const store = ensureRelationType('agenda-item')
-				if (!this.agendaSchema) this.agendaSchema = await store.fetchSchema('agenda-item')
+				if (!this.agendaSchema)
+					this.agendaSchema = await store.fetchSchema('agenda-item')
 				const items = await store.fetchCollection('agenda-item', {
 					meeting: this.objectId,
 					_order: JSON.stringify({ orderNumber: 'asc' }),
@@ -206,13 +273,14 @@ export default {
 				// Tree order: sub-items (`parentItem`) nest under their parent;
 				// flattened parent→children order with a nesting indicator.
 				const flat = flattenTree(buildAgendaTree(items || []))
-				this.rows = flat.map(item => ({
+				this.rows = flat.map((item) => ({
 					...item,
 					titleDisplay: item.parentItem ? `↳ ${item.title}` : item.title,
 				}))
 				await this.loadMeeting()
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load agenda.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load agenda.')
 			} finally {
 				this.loading = false
 			}
@@ -227,7 +295,10 @@ export default {
 		async loadMeeting() {
 			try {
 				const meetingStore = ensureRelationType('meeting')
-				this.meeting = await meetingStore.fetchObject('meeting', this.objectId)
+				this.meeting = await meetingStore.fetchObject(
+					'meeting',
+					this.objectId,
+				)
 			} catch (e) {
 				console.error('[decidesk] MeetingAgendaTab meeting fetch failed', e)
 			}
@@ -245,7 +316,9 @@ export default {
 			this.packageResult = null
 			try {
 				const response = await fetch(
-					generateUrl(`/apps/decidesk/api/meetings/${this.objectId}/package`),
+					generateUrl(
+						`/apps/decidesk/api/meetings/${this.objectId}/package`,
+					),
 					{
 						method: 'POST',
 						headers: {
@@ -257,45 +330,65 @@ export default {
 				)
 				const payload = await response.json()
 				if (!response.ok || payload?.success === false) {
-					this.packageError = payload?.message || this.t('decidesk', 'Package assembly failed.')
+					this.packageError =
+						payload?.message
+						|| this.t('decidesk', 'Package assembly failed.')
 					return
 				}
 				this.packageResult = payload
 			} catch (e) {
-				this.packageError = e?.message || this.t('decidesk', 'Package assembly failed.')
+				this.packageError =
+					e?.message || this.t('decidesk', 'Package assembly failed.')
 			} finally {
 				this.assembling = false
 			}
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async openCreate() {
 			const store = ensureRelationType('agenda-item')
-			if (!this.agendaSchema) this.agendaSchema = await store.fetchSchema('agenda-item')
+			if (!this.agendaSchema)
+				this.agendaSchema = await store.fetchSchema('agenda-item')
 			this.editTarget = null
 			this.formOpen = true
 		},
-		/** @spec openspec/specs/agenda-management/spec.md */
+
+		/**
+		 * @param row
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
 		async openEdit(row) {
 			const store = ensureRelationType('agenda-item')
-			if (!this.agendaSchema) this.agendaSchema = await store.fetchSchema('agenda-item')
+			if (!this.agendaSchema)
+				this.agendaSchema = await store.fetchSchema('agenda-item')
 			// Strip the presentation-only nesting indicator before editing.
-			// eslint-disable-next-line no-unused-vars
+
 			const { titleDisplay, ...item } = row
 			this.editTarget = item
 			this.formOpen = true
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+
+		/**
+		 * @param formData
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		async onConfirm(formData) {
 			const store = ensureRelationType('agenda-item')
 			try {
-				await store.saveObject('agenda-item', { ...formData, meeting: this.objectId })
+				await store.saveObject('agenda-item', {
+					...formData,
+					meeting: this.objectId,
+				})
 				this.$refs.formDialog?.setResult({ success: true })
 				this.refresh()
 			} catch (e) {
-				this.$refs.formDialog?.setResult({ error: e?.message || this.t('decidesk', 'Save failed.') })
+				this.$refs.formDialog?.setResult({
+					error: e?.message || this.t('decidesk', 'Save failed.'),
+				})
 			}
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async confirmDelete() {
 			const store = ensureRelationType('agenda-item')
 			try {
@@ -303,7 +396,9 @@ export default {
 				this.$refs.deleteDialog?.setResult({ success: true })
 				this.refresh()
 			} catch (e) {
-				this.$refs.deleteDialog?.setResult({ error: e?.message || this.t('decidesk', 'Delete failed.') })
+				this.$refs.deleteDialog?.setResult({
+					error: e?.message || this.t('decidesk', 'Delete failed.'),
+				})
 			}
 		},
 	},
@@ -317,27 +412,32 @@ export default {
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
+
 .decidesk-tab__header-actions {
 	display: flex;
 	gap: var(--default-grid-baseline);
 	flex-wrap: wrap;
 }
+
 .decidesk-tab__statutory-list {
 	margin: 0;
 	padding-inline-start: calc(var(--default-grid-baseline) * 4);

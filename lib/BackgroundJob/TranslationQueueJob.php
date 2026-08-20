@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Translation Queue Background Job
  *
@@ -37,64 +38,66 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
  */
-class TranslationQueueJob extends TimedJob
-{
+class TranslationQueueJob extends TimedJob {
 
-    /**
-     * Interval between job runs: 3600 seconds = 1 hour.
-     */
-    private const INTERVAL_SECONDS = 3600;
+	/**
+	 * Interval between job runs: 3600 seconds = 1 hour.
+	 */
+	private const INTERVAL_SECONDS = 3600;
 
-    /**
-     * Maximum entries processed per job invocation.
-     */
-    private const BATCH_SIZE = 20;
+	/**
+	 * Maximum entries processed per job invocation.
+	 */
+	private const BATCH_SIZE = 20;
 
-    /**
-     * Constructor.
-     *
-     * @param ITimeFactory                      $time                  Nextcloud time factory
-     * @param MultilingualReconciliationService $reconciliationService Reconciliation service
-     * @param LoggerInterface                   $logger                Logger
-     */
-    public function __construct(
-        ITimeFactory $time,
-        private readonly MultilingualReconciliationService $reconciliationService,
-        private readonly LoggerInterface $logger,
-    ) {
-        parent::__construct(time: $time);
-        $this->setInterval(seconds: self::INTERVAL_SECONDS);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param ITimeFactory $time Nextcloud time factory
+	 * @param MultilingualReconciliationService $reconciler Reconciliation service
+	 * @param LoggerInterface $logger Logger
+	 */
+	public function __construct(
+		ITimeFactory $time,
+		private readonly MultilingualReconciliationService $reconciler,
+		private readonly LoggerInterface $logger,
+	) {
+		parent::__construct(time: $time);
+		$this->setInterval(seconds: self::INTERVAL_SECONDS);
+	}//end __construct()
 
-    /**
-     * Drain a batch of queued translation requests.
-     *
-     * @param mixed $argument Required by TimedJob; unused
-     *
-     * @return void
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
-     */
-    protected function run(mixed $argument): void
-    {
-        $this->logger->info('Decidesk: TranslationQueueJob started');
+	/**
+	 * Drain a batch of queued translation requests.
+	 *
+	 * @param mixed $argument Required by TimedJob; unused
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is mandated by the
+	 * abstract OCP\BackgroundJob\Job::run() signature; this job is scheduled with
+	 * no argument, so the parameter cannot be removed.
+	 */
+	protected function run(mixed $argument): void {
+		$this->logger->info('Decidesk: TranslationQueueJob started');
 
-        try {
-            $result = $this->reconciliationService->processQueue(maxEntries: self::BATCH_SIZE);
-            $this->logger->info(
-                sprintf(
-                    'Decidesk: TranslationQueueJob finished — processed %d (%d completed, %d failed)',
-                    (int) ($result['processed'] ?? 0),
-                    (int) ($result['completed'] ?? 0),
-                    (int) ($result['failed'] ?? 0)
-                )
-            );
-        } catch (\Throwable $e) {
-            $this->logger->error(
-                'Decidesk: TranslationQueueJob failed',
-                ['exception' => $e->getMessage()]
-            );
-        }
+		try {
+			$result = $this->reconciler->processQueue(maxEntries: self::BATCH_SIZE);
+			$this->logger->info(
+				sprintf(
+					'Decidesk: TranslationQueueJob finished — processed %d (%d completed, %d failed)',
+					$result['processed'],
+					$result['completed'],
+					$result['failed']
+				)
+			);
+		} catch (\Throwable $e) {
+			$this->logger->error(
+				'Decidesk: TranslationQueueJob failed',
+				['exception' => $e->getMessage()]
+			);
+		}
 
-    }//end run()
+	}//end run()
 }//end class

@@ -1,0 +1,153 @@
+{
+	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "Member onboarding + offboarding trajecten (member-onboarding) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages for both registers; schema refs BY SLUG (onboarding-traject / offboarding-traject), never PascalCase. DECLARATIVE CORE ONLY: the griffie progress dashboard widgets of REQ-MOB-011 (trajecten-per-lifecycle + overdue-steps KPI) belong in the base src/manifest.json Dashboard page (design D6: mergePages replaces a same-id page wholesale, so a fragment cannot add one widget to Dashboard without duplicating it) and are DEFERRED here to keep this change to the two allowed files. The detail-page checklist actions (complete/skip/execute provisioning) and the raadswisseling suggestion-list are imperative surfaces also out of core scope; these pages render the traject + steps + references declaratively.",
+	"_spec": "openspec/changes/member-onboarding/specs/member-onboarding/spec.md",
+	"menu": [
+		{
+			"id": "OnboardingTrajecten",
+			"label": "Onboarding",
+			"icon": "AccountPlusOutline",
+			"route": "OnboardingTrajecten",
+			"order": 71
+		},
+		{
+			"id": "OffboardingTrajecten",
+			"label": "Offboarding",
+			"icon": "AccountMinusOutline",
+			"route": "OffboardingTrajecten",
+			"order": 72
+		}
+	],
+	"pages": [
+		{
+			"id": "OnboardingTrajecten",
+			"route": "/onboarding-trajecten",
+			"type": "index",
+			"title": "Onboarding",
+			"_note": "spec: openspec/changes/member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Onboarding index; columns person/targetBody/targetRole/trigger/lifecycle; quick filters on lifecycle, trigger and batch. The dashboard overdue-KPI/status widgets (REQ-MOB-011) deep-link here pre-filtered.",
+			"config": {
+				"register": "decidesk",
+				"schema": "onboarding-traject",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
+				"_note": "Onboardinglijst (REQ-MOB-012). Schema BY SLUG onboarding-traject.",
+				"quickFilterMode": "dropdown",
+				"quickFilterMultiple": true,
+				"quickFilters": [
+					{ "label": "All", "filter": {}, "default": true },
+					{ "label": "Started", "filter": { "lifecycle": "started" } },
+					{ "label": "In progress", "filter": { "lifecycle": "in-execution" } },
+					{ "label": "Completed", "filter": { "lifecycle": "completed" } },
+					{ "label": "Lapsed", "filter": { "lifecycle": "lapsed" } },
+					{ "label": "Raadswisseling batch", "filter": { "trigger": "council-turnover-batch" } }
+				],
+				"columns": [
+					{ "key": "person", "label": "Person", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
+					{ "key": "targetBody", "label": "Body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "targetRole", "label": "Role", "widget": "badge" },
+					{ "key": "trigger", "label": "Trigger", "widget": "badge" },
+					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
+				],
+				"actions": [
+					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "OnboardingTrajectDetail", "primary": true }
+				],
+				"showMassExport": true,
+				"sidebar": { "enabled": true, "showMetadata": true },
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		},
+		{
+			"id": "OnboardingTrajectDetail",
+			"route": "/onboarding-trajecten/:id",
+			"type": "detail",
+			"title": "Onboarding traject",
+			"_note": "spec: openspec/changes/member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Traject data leads 8-wide (person/targetBody/targetRole/trigger/beëdiging fields/lifecycle); the checklist steps render inside the data widget; person/targetBody/beëdigingsVergadering/membership render as resolved references in the Related widget. Audit trail is a sidebar tab. The per-step complete/skip/execute-provisioning actions and the induction-pack delivery are imperative surfaces DEFERRED (design D3/D6, out of declarative core).",
+			"config": {
+				"register": "decidesk",
+				"schema": "onboarding-traject",
+				"_note": "OnboardingTrajectDetail (REQ-MOB-012). Schema BY SLUG onboarding-traject.",
+				"widgets": [
+					{ "id": "onboarding-data", "type": "data", "title": "Onboarding traject", "icon": "AccountGroup", "content": { "columns": 2 } },
+					{ "id": "onboarding-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "onboarding-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 8 },
+					{ "id": "2", "widgetId": "onboarding-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 8 }
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+					]
+				},
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		},
+		{
+			"id": "OffboardingTrajecten",
+			"route": "/offboarding-trajecten",
+			"type": "index",
+			"title": "Offboarding",
+			"_note": "spec: openspec/changes/member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Offboarding index; columns person/body/eindeReden/trigger/eindeDatum/lifecycle; quick filters on lifecycle, trigger and batch.",
+			"config": {
+				"register": "decidesk",
+				"schema": "offboarding-traject",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
+				"_note": "Offboardinglijst (REQ-MOB-012). Schema BY SLUG offboarding-traject.",
+				"quickFilterMode": "dropdown",
+				"quickFilterMultiple": true,
+				"quickFilters": [
+					{ "label": "All", "filter": {}, "default": true },
+					{ "label": "Started", "filter": { "lifecycle": "started" } },
+					{ "label": "In progress", "filter": { "lifecycle": "in-execution" } },
+					{ "label": "Completed", "filter": { "lifecycle": "completed" } },
+					{ "label": "Lapsed", "filter": { "lifecycle": "lapsed" } },
+					{ "label": "Raadswisseling batch", "filter": { "trigger": "council-turnover-batch" } }
+				],
+				"columns": [
+					{ "key": "person", "label": "Person", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
+					{ "key": "body", "label": "Body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "endReason", "label": "End reason", "widget": "badge" },
+					{ "key": "endDate", "label": "End date" },
+					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
+				],
+				"actions": [
+					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "OffboardingTrajectDetail", "primary": true }
+				],
+				"showMassExport": true,
+				"sidebar": { "enabled": true, "showMetadata": true },
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		},
+		{
+			"id": "OffboardingTrajectDetail",
+			"route": "/offboarding-trajecten/:id",
+			"type": "detail",
+			"title": "Offboarding traject",
+			"_note": "spec: openspec/changes/member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Traject data leads 8-wide (person/body/membership/trigger/eindeDatum/eindeReden/exit-confirmation/lifecycle); the checklist steps render inside the data widget; person/body/membership render as resolved references in the Related widget. Audit trail is a sidebar tab. The per-step revocation/end-date execution is an imperative surface DEFERRED (design D3, out of declarative core).",
+			"config": {
+				"register": "decidesk",
+				"schema": "offboarding-traject",
+				"_note": "OffboardingTrajectDetail (REQ-MOB-012). Schema BY SLUG offboarding-traject.",
+				"widgets": [
+					{ "id": "offboarding-data", "type": "data", "title": "Offboarding traject", "icon": "AccountGroup", "content": { "columns": 2 } },
+					{ "id": "offboarding-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "offboarding-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 8 },
+					{ "id": "2", "widgetId": "offboarding-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 8 }
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+					]
+				},
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		}
+	]
+}

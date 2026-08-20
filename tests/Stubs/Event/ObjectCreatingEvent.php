@@ -21,51 +21,44 @@ use OCP\EventDispatcher\Event;
 /**
  * Stub implementation of ObjectCreatingEvent for unit testing.
  */
-class ObjectCreatingEvent extends Event
-{
-    private ?ObjectEntity $object;
+class ObjectCreatingEvent extends Event {
+	private ?ObjectEntity $object;
 
-    private bool $propagationStopped = false;
+	private bool $propagationStopped = false;
 
-    /**
-     * @var array<string, mixed>
-     */
-    private array $errors = [];
+	/**
+	 * @var array<string, mixed>
+	 */
+	private array $errors = [];
 
-    public function __construct(?ObjectEntity $object = null)
-    {
-        parent::__construct();
-        $this->object = $object;
-    }
+	public function __construct(?ObjectEntity $object = null) {
+		parent::__construct();
+		$this->object = $object;
+	}
 
-    public function getObject(): ?ObjectEntity
-    {
-        return $this->object;
-    }
+	public function getObject(): ?ObjectEntity {
+		return $this->object;
+	}
 
-    public function isPropagationStopped(): bool
-    {
-        return $this->propagationStopped;
-    }
+	public function isPropagationStopped(): bool {
+		return $this->propagationStopped;
+	}
 
-    public function stopPropagation(): void
-    {
-        $this->propagationStopped = true;
-    }
+	public function stopPropagation(): void {
+		$this->propagationStopped = true;
+	}
 
-    /**
-     * @param array<string, mixed> $errors
-     */
-    public function setErrors(array $errors): void
-    {
-        $this->errors = $errors;
-    }
+	/**
+	 * @param array<string, mixed> $errors
+	 */
+	public function setErrors(array $errors): void {
+		$this->errors = $errors;
+	}
 
-    /**
-     * @return array<string, mixed>
-     */
-    public function getErrors(): array
-    {
-        return $this->errors;
-    }
+	/**
+	 * @return array<string, mixed>
+	 */
+	public function getErrors(): array {
+		return $this->errors;
+	}
 }

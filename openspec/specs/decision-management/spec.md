@@ -1,10 +1,14 @@
 ---
-status: done
+status: in-progress
 status-note: >-
-  Completed 2026-06-12 via decision-state-machine-v1 (guarded 7-state transition map + per-domain policy, lifecycle/voting detail tabs) on top of decision-evolution-and-cascade + p2-minutes-and-decisions. In progress 2026-06-14 via unify-decision-supertype (Decision becomes the universal supertype: decisionType discriminator, folded motion/amendment/resolution fields, declarative lifecycle, contract attachments).
+  Completed 2026-06-12 via decision-state-machine-v1 (guarded 7-state transition map + per-domain policy, lifecycle/voting detail tabs) on top of decision-evolution-and-cascade + p2-minutes-and-decisions. In progress 2026-06-14 via unify-decision-supertype (Decision becomes the universal supertype: decisionType discriminator, folded motion/amendment/resolution fields, declarative lifecycle, contract attachments). Completed 2026-08-19 via appointment-decision-type-schema + appointment-decision-type-membership (both archived — completes ADR-005's reserved-but-unimplemented decisionType=appointment: folded nomination fields, retirement of the parallel Voordracht schema/register.d/61, and imperative Membership materialization on adoption).
 openspec-changes:
   - unify-decision-supertype
   - decision-detail-fullpicture
+  - urgent-decision-procedure
+  - appointment-decision-type-schema
+  - appointment-decision-type-membership
+  - decision-facet-composition
 ---
 
 # Decision Management Specification
@@ -19,6 +23,7 @@ Decision management is the core capability of Decidesk. A decision represents a 
 ## Data Model
 
 See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for the full Decision entity definition including property tables, Schema.org mappings, Akoma Ntoso alignment, and OpenRaadsinformatie mapping.
+
 ## Requirements
 
 ---
@@ -106,6 +111,57 @@ The system MUST enforce a configurable state machine for decision lifecycle mana
 - WHEN an authenticated user who is not the resolved meeting chair triggers that transition
 - THEN the system MUST reject the transition
 - AND when no chair can be resolved at all the transition MUST also be rejected (fail closed)
+
+---
+
+### Requirement: Terminal-state completeness of outcome and decision date
+
+`outcome` and `decisionDate` MUST be required **only in terminal outcome states**, never in flight. A decision in `draft`, `proposed`, `deliberating` or `voting` MUST be creatable and savable with neither field — an in-flight motion has no legal outcome, and `lifecycle` is orthogonal to `outcome` (ADR-005). A `withdrawn` decision MUST likewise never require them: it is terminal in the lifecycle graph but was never decided, so it has no `adopted`/`rejected` result. Accordingly the `Decision` schema's `required[]` MUST list only `title`, `text` and `decisionType`.
+
+The terminal outcome states are `decided`, `enacted` and `archived` — `decided` is the first state past the vote (the schema's own `lifecycle` description states that `outcome` is "the voting result, set when reaching `decided`"), and the other two are reachable only through it. A decision MUST NOT be able to ENTER any of those states without both an `outcome` drawn from the schema enum (`adopted`|`rejected`) and a non-empty `decisionDate`; a value outside the enum (e.g. a `pending` placeholder) MUST NOT satisfy the requirement. The rejection MUST name the missing fields.
+
+This rule MUST NOT be expressed as a JSON-Schema `if`/`then` block on the schema, because OpenRegister does not enforce conditional `required`: `Schema::getSchemaObject()` rebuilds the validated schema from a fixed key list, so the block never reaches the validator and the constraint would be decorative. Enforcement MUST therefore live at the transition boundary, where the state is actually entered.
+
+**Feature tier**: MVP
+**Legal reference**: Awb 3:40-3:45 (a besluit takes effect on its decision date)
+
+#### Scenario: An in-flight motion is created without an outcome
+
+@e2e exclude schema-contract invariant — verified by PHPUnit over the register `required[]` plus a live OpenRegister validation probe; not browser-observable
+- GIVEN a motion in lifecycle `voting` carrying neither `outcome` nor `decisionDate`
+- WHEN it is written to the `decision` schema
+- THEN it MUST be accepted
+- AND the register MUST NOT report "The required properties (decisionDate, outcome) are missing"
+
+#### Scenario: A decision cannot reach a terminal state without its result
+
+@e2e exclude transition-guard contract — covered by PHPUnit on the guard and the lifecycle service; the UI only offers server-allowed actions
+- GIVEN a decision in lifecycle `voting` carrying neither `outcome` nor `decisionDate`
+- WHEN the `decide` transition is attempted
+- THEN the transition MUST be rejected with a message naming `outcome` and `decisionDate`
+- AND the decision MUST NOT be persisted in the `decided` state
+
+#### Scenario: A placeholder outcome does not count as a result
+
+@e2e exclude transition-guard contract — covered by PHPUnit on the guard's outcome vocabulary check
+- GIVEN a decision in lifecycle `voting` whose `outcome` is `pending` (outside the schema enum)
+- WHEN the `decide` transition is attempted
+- THEN the transition MUST be rejected naming `outcome`
+
+#### Scenario: Withdrawal never demands an outcome
+
+@e2e exclude lifecycle-graph invariant — covered by PHPUnit on the terminal-state list
+- GIVEN a decision in any non-terminal state
+- WHEN it is withdrawn
+- THEN no `outcome` or `decisionDate` MUST be demanded
+
+#### Scenario: Shipped demo data obeys the rule
+
+@e2e exclude seed-data invariant — verified by PHPUnit over the seeded decision objects, not browser-observable
+- GIVEN the shipped decision seed objects
+- WHEN each is inspected
+- THEN every seed in a terminal outcome state MUST carry an enum `outcome` and a `decisionDate`
+- AND at least one seed MUST be in flight carrying neither
 
 ---
 
@@ -436,6 +492,342 @@ The `Decision` fields `isPublished` and `publishedAt` SHALL be derived outputs o
 - **GIVEN** a decision that has been published and later withdrawn
 - **WHEN** a user views the decision's audit trail
 - **THEN** both the publish and the withdraw appear in chronological order with timestamp, actor, and the withdraw reason
+
+### Requirement: Appointment decision type carries folded nomination fields
+
+`Decision` MUST expose a set of appointment-specific fields, revealed via
+progressive disclosure (ADR-004 Rule 2) only when `decisionType = appointment`:
+`targetBody` (reference to the `GovernanceBody` the appointment is for),
+`targetPosts` (zero or more references to `Post`), `targetRole` (the Membership
+role being appointed to), `candidates` (one or more structured candidates, each
+carrying either a `person` reference or a free-text `externalName` for a
+not-yet-registered candidate), and `nominatingParty` (the fractie/orgaan/persoon
+that made the nomination). These fields replace the retired `Voordracht` schema's
+`body`/`post`/`targetRole`/`kandidaten`/`nominatingParty` fields one-for-one
+(ADR-005, ADR-006 — one schema per concept, discriminator over parallel entity).
+
+@e2e exclude no current e2e test opens the decision form with `decisionType = appointment` and asserts field disclosure/validation; the sibling motion field-disclosure pattern is covered elsewhere but appointment-specific disclosure and the candidates-required-before-propose guard are untested — genuine coverage gap tracked as e2e debt.
+
+#### Scenario: Appointment fields appear only for an appointment decision
+
+- GIVEN the decision form
+- WHEN `decisionType = appointment` is selected
+- THEN `targetBody`, `targetPosts`, `targetRole`, `candidates`, and
+  `nominatingParty` are revealed
+- AND motion/amendment/resolution-specific fields stay hidden
+
+#### Scenario: A non-appointment decision does not require appointment fields
+
+- GIVEN a decision with `decisionType = motion`
+- WHEN it is created without `targetBody` or `candidates`
+- THEN it is accepted — these fields are appointment-only and are enforced at
+  the form/spec layer, not in the JSON-schema `required[]`, matching the
+  established per-type required-field pattern (motion/resolution)
+
+#### Scenario: At least one candidate is expected before submitting an appointment
+
+- GIVEN a `decisionType = appointment` decision being edited in `lifecycle = draft`
+- WHEN `candidates` is empty
+- THEN the form marks `candidates` as required before allowing the `propose`
+  action — matching the established form-only enforcement for other per-type
+  required fields (e.g. motion's `proposer`, resolution's `resolutionNumber`);
+  no server-side JSON-schema or service-layer guard exists for this, exactly
+  as none exists for the sibling per-type required fields
+
+### Requirement: Appointment decisions reuse the Decision lifecycle, not a bespoke one
+
+An appointment decision MUST use `Decision`'s existing declarative 7-state
+lifecycle (`draft → proposed → deliberating → voting → decided → enacted →
+archived`, plus terminal `withdrawn`) rather than the retired `Voordracht`
+schema's bespoke 5-state lifecycle (`submitted → handled → appointed |
+not-appointed`, `withdrawn`). This follows the same reuse decision the archived
+`unify-decision-supertype` change made for motion/amendment/resolution (design
+D2): the proven, already-declarative `x-openregister-lifecycle` block on
+`Decision` is not duplicated per type.
+
+@e2e exclude the shared lifecycle transition mechanism (draft→proposed→deliberating→voting→decided) is exercised generically for motion/resolution decisionTypes by tests/e2e/spec-coverage/decision-management.spec.ts (`transition-a-decision-from-draft-to-proposed`, `transition-a-decision-to-enacted-after-approval`), but no test creates a `decisionType = appointment` decision and drives it through the same transitions — no e2e file carries an @e2e tag for this exact scenario.
+
+#### Scenario: An appointment decision progresses through the shared lifecycle
+
+- GIVEN a `decisionType = appointment` decision in `lifecycle = draft`
+- WHEN it is proposed, deliberated, and voted on
+- THEN it moves through `proposed → deliberating → voting` exactly as any other
+  decision type does, using the single `x-openregister-lifecycle` block declared
+  once on `Decision`
+
+#### Scenario: Adoption is expressed the same way as any other decision type
+
+- GIVEN a `decisionType = appointment` decision reaching `lifecycle = decided`
+- WHEN the vote outcome is recorded
+- THEN `outcome = adopted` or `outcome = rejected` is set exactly as for any
+  other `decisionType`, subject to the existing terminal-completeness rule
+  (`x-decidesk-terminal-completeness`)
+
+### Requirement: Adopted appointments record their materialized Memberships
+
+`Decision` MUST expose a nullable, server-set `appointedMemberships` field
+(array of references to `Membership`) on the `decisionType = appointment`
+folded field set. This field is declared here so the schema is complete in one
+place; it is populated by the imperative Membership-materialization service
+shipped in the dependent change `appointment-decision-type-membership`
+(`depends_on` this change) — no service code ships in this change.
+
+@e2e exclude schema/register-shape assertion (a nullable server-set field is present and empty pre-materialization) — no UI surface; the materialization service itself (once shipped) is verified by tests/Unit/Service/DecisionLifecycleServiceTest.php, see the requirement below.
+
+#### Scenario: The field exists and accepts no client writes before materialization ships
+
+- GIVEN a freshly-adopted `decisionType = appointment` decision, before the
+  dependent change ships
+- WHEN the decision is inspected
+- THEN `appointedMemberships` is present on the schema and empty/absent — no
+  error, no orphaned reference
+
+### Requirement: The Voordracht schema is retired in favor of decisionType=appointment
+
+The standalone `Voordracht` schema (`lib/Settings/register.d/61-appointments-and-terms.json`)
+MUST be removed. Its 3 demo seed objects MUST be re-authored as `Decision`
+seeds with `decisionType = appointment`, mapping the retired lifecycle onto the
+shared `Decision` lifecycle (`submitted→proposed`, `handled→deliberating`,
+`appointed→decided` with `outcome=adopted`, `not-appointed→decided` with
+`outcome=rejected`, `withdrawn→withdrawn`). `TermijnRegeling`,
+`RoosterVanAftreden`, and `RoosterRegel` in the same register fragment are
+**not** part of this requirement — they reference `Membership`, never
+`Voordracht`, and are unaffected.
+
+@e2e exclude schema/register-shape and manifest-shape assertions (schema removal, re-authored seeds, nav-entry removal) — checkable by inspecting `lib/Settings/register.d/61-appointments-and-terms.json` and `src/manifest.d/appointments-and-terms.json` directly; no dedicated PHPUnit or e2e test exists yet for this specific removal, and no UI surface distinct from existing decision e2e coverage exercises it — genuine coverage gap tracked as e2e debt.
+
+#### Scenario: Voordracht is absent from the register after this change
+
+- GIVEN the decidesk register
+- WHEN `components.schemas` in `register.d/61-appointments-and-terms.json` is
+  inspected
+- THEN `Voordracht` is absent and `TermijnRegeling`, `RoosterVanAftreden`,
+  `RoosterRegel` are present, unchanged
+
+#### Scenario: Every retired voordracht seed has a re-authored decision seed
+
+- GIVEN a freshly installed register
+- WHEN the `Decision` seed objects are inspected
+- THEN 3 `decisionType = appointment` seeds exist, one per retired `voordracht`
+  seed (`voordracht-auditcommissie-lid`, `voordracht-rvc-vanduin`,
+  `voordracht-auditcommissie-vz`), each carrying the equivalent
+  `targetBody`/`targetRole`/`candidates`/`nominatingParty` data and the mapped
+  lifecycle/outcome
+
+#### Scenario: The Voordrachten nav pages are removed, Rooster/Termijnregeling pages are untouched
+
+- GIVEN `src/manifest.d/appointments-and-terms.json`
+- WHEN the `menu` and `pages` arrays are inspected
+- THEN the `Voordrachten` menu entry and the `Voordrachten`/`VoordrachtDetail`
+  pages are absent
+- AND `Roosters`, `RoosterDetail`, `Roosterregels`, `RoosterregelDetail`,
+  `Termijnregelingen`, `TermijnRegelingDetail` are present, unchanged
+
+### Requirement: Appointment adoption materializes Membership records
+
+When a `decisionType = appointment` decision transitions into `lifecycle =
+enacted` with `outcome = adopted`, `DecisionLifecycleService` MUST create one
+`Membership` object per entry in `candidates`, each carrying
+`role = targetRole`, `governanceBody = targetBody`, the paired `post` (per the
+pairing rule below), `startDate = enactedAt`, and either `person` (when the
+candidate carries one) or `label = externalName` (for a not-yet-registered
+candidate). The created Membership ids MUST be written back onto the
+decision's `appointedMemberships` field. This activates the field
+`appointment-decision-type-schema` declared but left inert.
+
+**Post pairing rule**: when `targetPosts` is empty, every Membership is
+created with no `post` (role-only appointment). When `targetPosts` has
+exactly one entry, every Membership is created with that Post. When
+`targetPosts` has more than one entry, its length MUST equal `candidates`'
+length and posts are paired to candidates by array index — see the transition
+guard requirement below for the enforcement point.
+
+@e2e exclude unit-level service/algorithm behaviour (Membership materialization + pairing logic in `DecisionLifecycleService`), covered by tests/Unit/Service/DecisionLifecycleServiceTest.php: testMaterializesSingleRoleOnlyMembershipForPersonCandidate, testMaterializesExternalCandidateByLabel, testMaterializesMultipleCandidatesPairedByIndex, testMaterializesSharedPostForAllCandidatesWhenExactlyOneTargetPost, testRejectedOutcomeNeverMaterializesAMembership, testMaterializationDoesNotRunTwice — not independently UI-observable beyond the existing enact-transition e2e coverage.
+
+#### Scenario: A single-candidate, role-only appointment materializes one Membership
+
+- GIVEN a `decisionType = appointment` decision with one candidate carrying a
+  `person` reference, `targetRole = member`, `targetBody` set, and no
+  `targetPosts`
+- WHEN the decision transitions from `decided` (`outcome = adopted`) to
+  `enacted`
+- THEN exactly one `Membership` is created with `person` set to the
+  candidate's person, `role = member`, `governanceBody = targetBody`, no
+  `post`, and `startDate` equal to the decision's `enactedAt`
+- AND the decision's `appointedMemberships` contains the new Membership's id
+
+#### Scenario: An external (not-yet-registered) candidate is materialized by name
+
+- GIVEN a `decisionType = appointment` decision with one candidate carrying
+  only `externalName` (no `person`)
+- WHEN the decision is enacted with `outcome = adopted`
+- THEN the created `Membership` has `label` set to the candidate's
+  `externalName` and no `person` reference
+
+#### Scenario: Multiple candidates for multiple posts pair by index
+
+- GIVEN a `decisionType = appointment` decision with 2 candidates and
+  `targetPosts` containing 2 Post references
+- WHEN the decision is enacted with `outcome = adopted`
+- THEN 2 Memberships are created, each pairing `candidates[i]` with
+  `targetPosts[i]`
+
+#### Scenario: A rejected appointment materializes no Memberships
+
+- GIVEN a `decisionType = appointment` decision reaching `lifecycle = decided`
+  with `outcome = rejected`
+- WHEN the decision is later transitioned (e.g. to `archived` per the shared
+  lifecycle)
+- THEN no `Membership` is created and `appointedMemberships` stays empty
+
+#### Scenario: Materialization does not run twice
+
+- GIVEN a `decisionType = appointment` decision that has already been enacted
+  and has a non-empty `appointedMemberships`
+- WHEN `applyPostTransitionEffects` runs again for any reason
+- THEN no additional `Membership` objects are created (idempotency guard)
+
+### Requirement: The enact transition rejects an unpairable candidates/posts mismatch
+
+`DecisionLifecycleService::resolveRejection()` MUST reject the `enact` action
+for a `decisionType = appointment` decision when `targetPosts` has more than
+one entry and its length does not equal `candidates`' length — before the
+lifecycle write happens, following the same fail-closed pattern as the
+existing quorum-before-`voting` and outcome-before-`enact` gates.
+
+@e2e exclude unit-level service/algorithm behaviour, covered by tests/Unit/Service/DecisionLifecycleServiceTest.php::testEnactRejectsMismatchedPostsCandidatesCount (mismatch case) and testMaterializesSharedPostForAllCandidatesWhenExactlyOneTargetPost / testMaterializesSingleRoleOnlyMembershipForPersonCandidate (zero/one-post cases that must NOT block) — not independently UI-observable.
+
+#### Scenario: A mismatched posts/candidates count blocks enactment
+
+- GIVEN a `decisionType = appointment` decision with 3 candidates and
+  `targetPosts` containing 2 Post references
+- WHEN the `enact` transition is attempted
+- THEN it is rejected with a message identifying the posts/candidates count
+  mismatch, and the decision's `lifecycle` is unchanged
+
+#### Scenario: Zero or one target post never blocks enactment
+
+- GIVEN a `decisionType = appointment` decision with any number of candidates
+  and either zero or exactly one `targetPosts` entry
+- WHEN the `enact` transition is attempted (all other gates satisfied)
+- THEN the pairing guard does not reject it
+
+### Requirement: Appointment fields render on the Decision detail page
+
+The `DecisionDetail` page's `decision-content` widget MUST include
+`targetBody`, `targetPosts`, `targetRole`, `candidates`, `nominatingParty`,
+and `appointedMemberships` in its `content.include` scope, so an appointment
+decision's nomination data is visible without a bespoke Vue component — the
+same generic manifest-driven rendering that already shows `motionType`/
+`proposer` for `decisionType = motion` on this widget.
+
+@e2e exclude the generic `decision-content` widget rendering mechanism is exercised for `decisionType = motion` by tests/e2e/spec-coverage/decision-management.spec.ts (`view-decision-detail-with-voting-results`), but no test opens a `decisionType = appointment` decision and asserts `candidates`/`targetBody`/`targetPosts`/`nominatingParty`/`appointedMemberships` render — no e2e file carries an @e2e tag for this exact scenario.
+
+#### Scenario: An appointment decision's candidates are visible on its detail page
+
+- GIVEN a `decisionType = appointment` decision with `candidates` and
+  `targetBody` set
+- WHEN its `DecisionDetail` page is opened
+- THEN the `Content` widget displays `candidates`, `targetBody`, `targetRole`,
+  `targetPosts`, `nominatingParty`, and `appointedMemberships` alongside the
+  existing generic fields
+
+### Requirement: Decision detail surfaces referencing consultations (REQ-DFC-001)
+
+The Decision Detail page MUST render three declarative `object-list` widgets, each reverse-filtered on the current decision's id, for the three consultation kinds that can reference a Decision: `public-consultation` (filtered on its `decision` property), `member-consultation` (filtered on its `decision` property), and `consultation-request` — the WOR traject — (filtered on its `relatedDecision` property). Each widget MUST link its rows to the consultation kind's existing detail route and MUST render an empty-state message when no matching records exist.
+
+#### Scenario: A decision referenced by a public consultation
+
+- GIVEN a `PublicConsultation` object whose `decision` field is set to Decision D
+- WHEN a user opens Decision D's detail page
+- THEN the "Public consultations" widget lists that consultation
+- AND clicking the row navigates to `ConsultationDetail` for that consultation
+
+@e2e exclude tests/e2e/spec-coverage/facets-decision-detail.spec.ts only exercises this widget's EMPTY state ("No public consultations reference this decision yet."); this scenario's populated-list assertion (a real PublicConsultation linked and its row navigating to ConsultationDetail) is untested — genuine coverage gap tracked as e2e debt.
+
+#### Scenario: A decision with no member consultations
+
+- GIVEN Decision D has no `MemberConsultation` object referencing it
+- WHEN a user opens Decision D's detail page
+- THEN the "Member consultations" widget renders its configured empty-state text instead of an empty table
+
+@e2e exclude exercised by tests/e2e/spec-coverage/facets-decision-detail.spec.ts ("DecisionDetail: consultation, advisory-opinion, zienswijze and confidentiality facets render their real empty states" — asserts "No member consultations reference this decision yet."); that test's own @e2e anchor still targets the pre-archival openspec/changes/decision-facet-composition/... path so this gate does not match it — recorded here rather than reported as a gap.
+
+#### Scenario: A decision referenced by a WOR consultation request
+
+- GIVEN a `ConsultationRequest` object whose `relatedDecision` field is set to Decision D
+- WHEN a user opens Decision D's detail page
+- THEN the "Works council (WOR)" widget lists that request
+- AND clicking the row navigates to `WorTrajectDetail` for that request
+
+@e2e exclude tests/e2e/spec-coverage/facets-decision-detail.spec.ts only exercises this widget's EMPTY state ("No works-council consultation requests reference this decision yet."); this scenario's populated-list assertion (a real ConsultationRequest linked and its row navigating to WorTrajectDetail) is untested — genuine coverage gap tracked as e2e debt.
+
+### Requirement: Decision detail surfaces advisory-opinion requests (REQ-DFC-002)
+
+The Decision Detail page MUST render a declarative `object-list` widget listing `adviceRequest` (Adviesaanvraag) objects whose `relatedDecision` property equals the current decision's id, linking each row to `AdviesaanvraagDetail`. The widget is not required to resolve or list the `Advies` records answering each request (those remain reachable one click away, on the Adviesaanvraag's own detail page).
+
+#### Scenario: A decision with an open advisory-opinion request
+
+- GIVEN an `Adviesaanvraag` object whose `relatedDecision` field is set to Decision D
+- WHEN a user opens Decision D's detail page
+- THEN the "Advisory opinions" widget lists that request with its subject and lifecycle status
+- AND clicking the row navigates to `AdviesaanvraagDetail`
+
+@e2e exclude tests/e2e/spec-coverage/facets-decision-detail.spec.ts only exercises this widget's EMPTY state ("No advisory-opinion requests reference this decision yet."); this scenario's populated-list assertion (a real Adviesaanvraag linked and its row navigating to AdviesaanvraagDetail) is untested — genuine coverage gap tracked as e2e debt.
+
+### Requirement: Decision detail surfaces zienswijzerondes and zienswijzen (REQ-DFC-003)
+
+The Decision Detail page MUST render two declarative `object-list` widgets: one listing `zienswijzeronde` objects whose `decision` property equals the current decision's id, and one listing `zienswijze` objects whose `decision` property equals the current decision's id. Both MUST link their rows to `ZienswijzerondeDetail` (zienswijze records have no standalone detail route in the shipped `shared-governance-bodies` fragment; they are viewed through their parent ronde, matching that fragment's own index-page convention).
+
+#### Scenario: A decision is a shared body's closing vaststellingsbesluit
+
+- GIVEN a `Zienswijzeronde` object whose `decision` field is set to Decision D
+- WHEN a user opens Decision D's detail page
+- THEN the "Zienswijzerondes" widget lists that ronde
+
+@e2e exclude tests/e2e/spec-coverage/facets-decision-detail.spec.ts only exercises this widget's EMPTY state ("This decision is not a shared body's vaststellingsbesluit for any zienswijzeronde."); this scenario's populated-list assertion (a real Zienswijzeronde linked) is untested — genuine coverage gap tracked as e2e debt.
+
+#### Scenario: A decision is a participant council's raadsbesluit adopting a zienswijze
+
+- GIVEN a `Zienswijze` object whose `decision` field is set to Decision D
+- WHEN a user opens Decision D's detail page
+- THEN the "Zienswijzen" widget lists that zienswijze
+- AND clicking the row navigates to `ZienswijzerondeDetail` for its parent ronde
+
+@e2e exclude tests/e2e/spec-coverage/facets-decision-detail.spec.ts only exercises this widget's EMPTY state ("No zienswijzen adopted this decision as their raadsbesluit yet."); this scenario's populated-list assertion (a real Zienswijze linked and its row navigating to ZienswijzerondeDetail) is untested — genuine coverage gap tracked as e2e debt.
+
+### Requirement: Decision detail surfaces commitments (REQ-DFC-004)
+
+The Decision Detail page MUST render a declarative `object-list` widget listing `toezegging` objects whose `relatedMotion` property equals the current decision's id, linking each row to `ToezeggingDetail`. This widget is separate from the existing `decision-actions` widget (ActionItemsSurface), which projects Deck-board action items rather than griffie commitments.
+
+#### Scenario: A motion produced a commitment
+
+- GIVEN a `Toezegging` object whose `relatedMotion` field is set to Decision D (decisionType `motion`)
+- WHEN a user opens Decision D's detail page
+- THEN the "Commitments" widget lists that commitment with its deadline and lifecycle status
+
+@e2e exclude exercised by tests/e2e/spec-coverage/facets-decision-detail.spec.ts ("DecisionDetail: commitments facet lists a toezegging linked via relatedMotion" — creates a real toezegging referencing the decision and asserts it renders); that test's own @e2e anchor still targets the pre-archival openspec/changes/decision-facet-composition/... path so this gate does not match it — recorded here rather than reported as a gap.
+
+### Requirement: Decision detail surfaces confidentiality status (REQ-DFC-005)
+
+The Decision Detail page MUST render a read-only declarative `object-list` widget listing `geheimhouding` objects whose `targetDecision` property equals the current decision's id (the case where this decision, or the content it represents, is itself under geheimhouding), showing the resolved ground, the lifecycle state, and the `ratificationDeadline`. This widget MUST NOT offer create/edit actions (`allowCreate: false`) — geheimhouding is imposed through the geheimhoudingenregister's own imposing flow, not from the Decision detail page. Widgets for `Geheimhouding.ratificationDecision` and `Geheimhouding.dissolutionDecision` (this decision acting as another record's confirming or lifting besluit) are explicitly out of scope for this requirement.
+
+#### Scenario: A decision is under active geheimhouding
+
+- GIVEN a `Geheimhouding` object in lifecycle state `opgelegd` whose `targetDecision` field is set to Decision D
+- WHEN a user opens Decision D's detail page
+- THEN the "Confidentiality" widget shows one row with the geheimhouding's ground, lifecycle state, and ratification deadline
+- AND the widget offers no add action
+
+@e2e exclude tests/e2e/spec-coverage/facets-decision-detail.spec.ts only exercises this widget's EMPTY state ("This decision has no confidentiality restriction."); this scenario's populated-list assertion (a real opgelegd Geheimhouding linked, showing ground/lifecycle/deadline, no add action) is untested — genuine coverage gap tracked as e2e debt.
+
+#### Scenario: A decision with no confidentiality restriction
+
+- GIVEN Decision D has no `Geheimhouding` object referencing it as `targetDecision`
+- WHEN a user opens Decision D's detail page
+- THEN the "Confidentiality" widget renders its configured empty-state text
+
+@e2e exclude exercised by tests/e2e/spec-coverage/facets-decision-detail.spec.ts ("DecisionDetail: consultation, advisory-opinion, zienswijze and confidentiality facets render their real empty states" — asserts "This decision has no confidentiality restriction."); that test's own @e2e anchor still targets the pre-archival openspec/changes/decision-facet-composition/... path so this gate does not match it — recorded here rather than reported as a gap.
 
 ## User Stories
 

@@ -1,0 +1,82 @@
+{
+	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "Termijnagenda (long-term agenda / LTA) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Declarative core only: index + detail pages for the termijnagenda-item register; schema refs BY SLUG (termijnagenda-item), never PascalCase. DEFERRED (imperative frontend, out of this declarative-core fragment): the per-body board page with drag-to-reschedule (REQ-LTA-005 — a custom component + reschedule/realise/vervallen dialogs) and the Dashboard 'Termijnagenda over termijn' stat widget (REQ-LTA-010), which lives in the base src/manifest.json (design D6: mergePages replaces a same-id page wholesale, so a fragment cannot add one widget to Dashboard without duplicating it). This fragment does NOT edit src/manifest.json.",
+	"menu": [
+		{
+			"id": "Termijnagenda",
+			"label": "Long-term agenda",
+			"icon": "CalendarTextOutline",
+			"route": "Termijnagenda",
+			"order": 55
+		}
+	],
+	"pages": [
+		{
+			"id": "Termijnagenda",
+			"route": "/termijnagenda",
+			"type": "index",
+			"title": "Long-term agenda",
+			"_note": "spec: openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md",
+			"config": {
+				"register": "decidesk",
+				"schema": "termijnagenda-item",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
+				"_note": "Termijnagenda index (REQ-LTA-007). Columns onderwerp/governanceBody/plannedPeriod/expectedType/ownerType/lifecycle; quick filters on lifecycle (expectedType, governanceBody and plannedPeriod are facetable and available via the index sidebar facets). CSV export via the shared ExportService + CnMassExportDialog. The overdue-KPI deep-link (deferred Dashboard widget, design D6) targets this page pre-filtered to non-terminal lifecycle.",
+				"quickFilterMode": "dropdown",
+				"quickFilterMultiple": true,
+				"quickFilters": [
+					{ "label": "All", "filter": {}, "default": true },
+					{ "label": "Planned", "filter": { "lifecycle": "planned" } },
+					{ "label": "Shifted", "filter": { "lifecycle": "postponed" } },
+					{ "label": "Realised", "filter": { "lifecycle": "realised" } },
+					{ "label": "Lapsed", "filter": { "lifecycle": "lapsed" } }
+				],
+				"columns": [
+					{ "key": "subject", "label": "Subject", "widget": "link" },
+					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "plannedPeriod", "label": "Planned period" },
+					{ "key": "expectedType", "label": "Expected type", "widget": "badge" },
+					{ "key": "ownerType", "label": "Owner" },
+					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
+				],
+				"actions": [
+					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "TermijnagendaDetail", "primary": true }
+				],
+				"showMassExport": true,
+				"sidebar": { "enabled": true, "showMetadata": true },
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		},
+		{
+			"id": "TermijnagendaDetail",
+			"route": "/termijnagenda/:id",
+			"type": "detail",
+			"title": "Long-term agenda item",
+			"_note": "spec: openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md",
+			"config": {
+				"register": "decidesk",
+				"schema": "termijnagenda-item",
+				"_note": "TermijnagendaDetail (REQ-LTA-006/007). Plan data leads 8-wide, publication stacked right; governanceBody/owner and the origin links (originToezegging/originMotie/originDecision) and realisation links (realisedAgendaItem/realisedDecision) render as resolved references in the data + Related widgets. verschuifHistorie (shift history) renders in the data widget as an embedded array. Files leaf for a startnotitie. Audit trail is a sidebar tab. Execution narrative for a linked motion stays on that motion's UitvoeringsUpdate log — never duplicated here (REQ-LTA-006).",
+				"widgets": [
+					{ "id": "termijnagenda-data", "type": "data", "title": "Long-term agenda item", "icon": "Calendar", "content": { "columns": 2 } },
+					{ "id": "termijnagenda-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
+					{ "id": "termijnagenda-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "termijnagenda-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
+					{ "id": "2", "widgetId": "termijnagenda-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
+					{ "id": "3", "widgetId": "termijnagenda-related", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 3 }
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+					]
+				},
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		}
+	]
+}

@@ -5,10 +5,10 @@
  Decision detail-view publication tab — delegates to PublicationActionsTab with
  sourceType="decision" (publish-decisions-via-opencatalogi).
 
- @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ @spec openspec/specs/public-publication/spec.md
 -->
 <template>
-	<PublicationActionsTab :object-id="objectId" source-type="decision" />
+	<PublicationActionsTab :objectId="objectId" sourceType="decision" />
 </template>
 
 <script>

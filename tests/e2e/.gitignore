@@ -1,0 +1,9 @@
+# Playwright artefacts. Committed BEFORE the artefacts can appear, so a CI run
+# that writes a report/trace here never offers them to `git add -A`.
+#
+# Note the leading slash: these anchor to tests/e2e/ itself. The visual
+# project's committed PNG baselines live in
+# tests/e2e/visual/*.spec.ts-snapshots/ and are deliberately NOT matched.
+/playwright-report/
+/test-results/
+/.auth/

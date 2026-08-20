@@ -17,14 +17,15 @@
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Recurring series') }}
-				<span v-if="!loading && instances.length > 0" class="decidesk-tab__count">({{ instances.length }})</span>
+				<span
+					v-if="!loading && instances.length > 0"
+					class="decidesk-tab__count"
+					>({{ instances.length }})</span
+				>
 			</h3>
 		</div>
 
-		<CnNoteCard
-			v-if="error"
-			type="error"
-			:title="t('decidesk', 'Series error')">
+		<CnNoteCard v-if="error" type="error" :title="t('decidesk', 'Series error')">
 			{{ error }}
 		</CnNoteCard>
 
@@ -36,10 +37,13 @@
 		</CnNoteCard>
 
 		<!-- Pattern form -->
-		<form class="series-form" data-testid="series-pattern-form" @submit.prevent="generate">
+		<form
+			class="series-form"
+			data-testid="series-pattern-form"
+			@submit.prevent="generate">
 			<NcSelect
 				v-model="frequency"
-				:input-label="t('decidesk', 'Frequency')"
+				:inputLabel="t('decidesk', 'Frequency')"
 				:options="frequencyOptions"
 				:clearable="false" />
 			<NcTextField
@@ -55,49 +59,72 @@
 			<NcTextField
 				v-model="exceptions"
 				:label="t('decidesk', 'Exception dates')"
-				:placeholder="t('decidesk', 'Comma-separated dates, e.g. 2026-07-14, 2026-08-11')" />
+				:placeholder="
+					t(
+						'decidesk',
+						'Comma-separated dates, e.g. 2026-07-14, 2026-08-11',
+					)
+				" />
 
 			<p
 				v-if="preview.error === null"
 				class="series-form__preview"
 				data-testid="series-preview"
 				aria-live="polite">
-				{{ t('decidesk', 'This pattern creates {n} meeting(s).', { n: preview.dates.length }) }}
+				{{
+					t('decidesk', 'This pattern creates {n} meeting(s).', {
+						n: preview.dates.length,
+					})
+				}}
 				<span v-if="preview.truncated">
 					{{ t('decidesk', 'The series is capped at 52 instances.') }}
 				</span>
 			</p>
 
 			<NcButton
-				type="primary"
-				native-type="submit"
+				variant="primary"
+				type="submit"
 				data-testid="series-generate"
-				:disabled="generating || preview.error !== null || preview.dates.length === 0"
+				:disabled="
+					generating
+					|| preview.error !== null
+					|| preview.dates.length === 0
+				"
 				:aria-label="t('decidesk', 'Generate meeting series')">
-				{{ generating ? t('decidesk', 'Generating…') : t('decidesk', 'Generate series') }}
+				{{
+					generating
+						? t('decidesk', 'Generating…')
+						: t('decidesk', 'Generate series')
+				}}
 			</NcButton>
 		</form>
 
 		<!-- Existing instances -->
 		<div v-if="meeting && meeting.series" class="series-instances">
-			<h4>{{ t('decidesk', 'Instances in series {series}', { series: meeting.series }) }}</h4>
+			<h4>
+				{{
+					t('decidesk', 'Instances in series {series}', {
+						series: meeting.series,
+					})
+				}}
+			</h4>
 			<CnDataTable
 				:columns="columns"
 				:rows="instances"
 				:loading="loading"
-				row-key="id"
-				:empty-text="t('decidesk', 'No other meetings in this series yet.')"
-				:loading-text="t('decidesk', 'Loading series instances…')" />
+				rowKey="id"
+				:emptyText="t('decidesk', 'No other meetings in this series yet.')"
+				:loadingText="t('decidesk', 'Loading series instances…')" />
 		</div>
 	</div>
 </template>
 
 <script>
 import { CnDataTable, CnNoteCard } from '@conduction/nextcloud-vue'
-import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
-import { ensureRelationType } from './useRelationStore.js'
+import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
 import { expandRecurrence } from '../../services/agendaRules.js'
+import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'MeetingSeriesTab',
@@ -105,6 +132,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -119,6 +147,7 @@ export default {
 			exceptions: '',
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/meeting-management/spec.md */
 		frequencyOptions() {
@@ -128,7 +157,10 @@ export default {
 		/** @spec openspec/specs/meeting-management/spec.md */
 		columns() {
 			return [
-				{ key: 'scheduledDate', label: this.t('decidesk', 'Scheduled date') },
+				{
+					key: 'scheduledDate',
+					label: this.t('decidesk', 'Scheduled date'),
+				},
 				{ key: 'title', label: this.t('decidesk', 'Title') },
 				{ key: 'lifecycle', label: this.t('decidesk', 'Lifecycle') },
 			]
@@ -142,8 +174,8 @@ export default {
 				until: this.until,
 				exceptions: this.exceptions
 					.split(',')
-					.map(d => d.trim())
-					.filter(d => d !== ''),
+					.map((d) => d.trim())
+					.filter((d) => d !== ''),
 			}
 		},
 
@@ -155,13 +187,17 @@ export default {
 			return expandRecurrence(this.meeting.scheduledDate, this.pattern)
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/meeting-management/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
+
 	methods: {
 		/** @spec openspec/specs/meeting-management/spec.md */
 		async refresh() {
@@ -173,7 +209,8 @@ export default {
 				this.meeting = await store.fetchObject('meeting', this.objectId)
 				await this.loadInstances()
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load the meeting.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load the meeting.')
 			} finally {
 				this.loading = false
 			}
@@ -192,7 +229,11 @@ export default {
 			})
 			this.instances = (rows || [])
 				.slice()
-				.sort((a, b) => String(a.scheduledDate || '').localeCompare(String(b.scheduledDate || '')))
+				.sort((a, b) =>
+					String(a.scheduledDate || '').localeCompare(
+						String(b.scheduledDate || ''),
+					),
+				)
 		},
 
 		/** @spec openspec/specs/meeting-management/spec.md */
@@ -202,7 +243,9 @@ export default {
 			this.successMessage = ''
 			try {
 				const response = await fetch(
-					generateUrl(`/apps/decidesk/api/meetings/${this.objectId}/series`),
+					generateUrl(
+						`/apps/decidesk/api/meetings/${this.objectId}/series`,
+					),
 					{
 						method: 'POST',
 						headers: {
@@ -215,13 +258,16 @@ export default {
 				)
 				const payload = await response.json()
 				if (!response.ok || payload?.success === false) {
-					this.error = payload?.message || this.t('decidesk', 'Series generation failed.')
+					this.error =
+						payload?.message
+						|| this.t('decidesk', 'Series generation failed.')
 					return
 				}
 				this.successMessage = payload.message
 				await this.refresh()
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Series generation failed.')
+				this.error =
+					e?.message || this.t('decidesk', 'Series generation failed.')
 			} finally {
 				this.generating = false
 			}
@@ -237,31 +283,37 @@ export default {
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
+
 .series-form {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 }
+
 .series-form__preview {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
+
 .series-instances h4 {
 	margin: var(--default-grid-baseline) 0;
 }

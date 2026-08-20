@@ -9,7 +9,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  *
- * @spec openspec/changes/action-items-vtodo-deck-reconcile/specs/action-item-board-via-deck-leaf/spec.md
+ * @spec openspec/specs/action-item-board-via-deck-leaf/spec.md
  */
 
 import axios from '@nextcloud/axios'
@@ -22,7 +22,7 @@ const base = '/apps/decidesk/api/action-items'
  *
  * @param {object} payload The action-item fields (title, assignee, dueDate, …).
  * @return {Promise<object>} The created action item.
- * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-2.x
+ * @spec openspec/specs/action-item-board-via-deck-leaf/spec.md
  */
 export async function createActionItem(payload) {
 	const { data } = await axios.post(generateUrl(base), payload)
@@ -38,7 +38,10 @@ export async function createActionItem(payload) {
  * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
  */
 export async function updateActionItem(uid, changes) {
-	const { data } = await axios.put(generateUrl(`${base}/${encodeURIComponent(uid)}`), changes)
+	const { data } = await axios.put(
+		generateUrl(`${base}/${encodeURIComponent(uid)}`),
+		changes,
+	)
 	return data
 }
 
@@ -50,6 +53,8 @@ export async function updateActionItem(uid, changes) {
  * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
  */
 export async function deleteActionItem(uid) {
-	const { data } = await axios.delete(generateUrl(`${base}/${encodeURIComponent(uid)}`))
+	const { data } = await axios.delete(
+		generateUrl(`${base}/${encodeURIComponent(uid)}`),
+	)
 	return data
 }

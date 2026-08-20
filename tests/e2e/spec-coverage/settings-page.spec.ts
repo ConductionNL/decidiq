@@ -2,66 +2,184 @@
  * SPDX-FileCopyrightText: 2026 Decidesk Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
- * Gate-19 e2e coverage — In-app Settings page (genuine behavioural).
+ * Gate-19 e2e coverage — app configuration (genuine behavioural).
  *
- * The Settings nav route had no dedicated spec. The Settings entry
- * lives in the app's collapsible footer/settings drawer (not the
- * primary left-nav list), so this spec deep-links to the route
- * (still app-scoped — never via the global header) and asserts the
- * real settings surface: version-info, register-mapping configuration,
- * the Advanced section and the "Save configuration" action.
+ * RETARGETED under ADR-079 D1. This file used to deep-link the in-app
+ * `/apps/decidesk/settings` route — the manifest `type:"settings"` page — which
+ * was a SECOND home for configuration that already lived in the Nextcloud
+ * settings framework. That page is deleted; app-level configuration now has
+ * exactly one address, `/settings/admin/decidesk`, rendered by
+ * lib/Settings/AdminSettings.php and authorized by Nextcloud SERVER-SIDE before
+ * the section renders.
+ *
+ * The scenarios below are the same two the old file owned; only the surface
+ * moved. Two things got stronger in the move, and neither is a relaxation:
+ *
+ *  - The old file carried a `test.fixme` for the register-mapping actions,
+ *    because the nc-vue `version-info` / `register-mapping` settings WIDGETS
+ *    crashed while rendering the manifest page (`TypeError: e is not a
+ *    function` at `Proxy.render`, twice). The admin page does not use those
+ *    widgets — CnAdminSettingsShell renders the register mapping itself — so
+ *    the scenario is asserted here for real instead of being deferred.
+ *  - The old file could not assert on decidesk-origin console errors, for the
+ *    same reason. This one can.
  *
  * @e2e openspec/specs/admin-settings/spec.md#configure-organization-defaults
  * @e2e openspec/specs/openregister-integration/spec.md#configure-register-mapping
  */
 import { test, expect, type Page } from '@playwright/test'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url'
 
-async function dismissSupportDialog(page: Page): Promise<void> {
-	const dialog = page.locator('.cn-support-dialog, [data-testid^="cn-support-dialog"]').first()
-	if (await dialog.isVisible().catch(() => false)) {
-		await page.keyboard.press('Escape').catch(() => {})
-	}
-}
-
-async function openSettings(page: Page): Promise<void> {
-	await page.goto(`${BASE}/apps/decidesk/settings`)
-	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
-	await dismissSupportDialog(page)
+async function openAdminSettings(page: Page): Promise<void> {
+	await page.goto(`${BASE}/settings/admin/decidesk`)
+	await page.waitForSelector('[data-testid="admin-root"]', { timeout: 15_000 })
 }
 
 // @e2e openspec/specs/admin-settings/spec.md#configure-organization-defaults
-test('Settings: app-scoped nav lands on the settings surface with version + config', async ({ page }) => {
-	await openSettings(page)
+test('Admin settings: the Nextcloud admin section mounts with the app configuration sections', async ({
+	page,
+}) => {
+	await openAdminSettings(page)
 
-	await expect(page).toHaveURL(/\/apps\/decidesk\/.*settings/)
-	await expect(page.getByRole('heading', { name: 'Version Information' })).toBeVisible()
-	await expect(page.getByRole('heading', { name: 'Register Configuration' })).toBeVisible()
+	await expect(page).toHaveURL(/\/settings\/admin\/decidesk/)
+
+	// The sections that carry app-level configuration.
+	await expect(page.getByTestId('organisation-settings')).toBeVisible()
+	await expect(page.getByTestId('organisation-mode-settings')).toBeVisible()
+})
+
+// @e2e openspec/specs/admin-settings/spec.md#admin-selects-a-tenant-mode
+//
+// organisatie_modus was the ONE key the deleted in-app page owned that the
+// admin page did not — the other two Advanced fields (ori_endpoint,
+// email_voting_enabled) already had sections here. This test is what makes the
+// rehoming real rather than asserted: it selects a mode, saves, and requires
+// the choice to have reached a consumer on the other side of the server.
+//
+// The anchor above used to name the REQUIREMENT slug
+// (`requirement-req-adm-mode-001-...`). gate-19 indexes SCENARIO slugs, so that
+// anchor resolved to nothing and was reported by nobody — a dangling anchor is
+// silent, which is why it survived. It now names the scenario this body
+// actually exercises.
+//
+// And the body was extended to cover all three of that scenario's THEN clauses
+// rather than two. It used to re-read the admin form it had just written, which
+// proves the form round-trips and nothing else; the third clause — "the
+// navigation Bodies item relabels on next render" — went unasserted, and a mode
+// setting that persists while changing nothing a user sees is the whole failure
+// this scenario guards against. src/config/modeLabels.js maps Bodies to
+// "Factions & bodies" under gov and "Factions & committees" under assoc, so
+// reading the label in the SPA proves persistence AND the relabel in one
+// navigation. Mutating that map to any other string fails this test and no
+// other, which is the control that makes the anchor honest.
+test('Admin settings: organisation mode saves, reaches the SPA and relabels the nav', async ({
+	page,
+}) => {
+	await openAdminSettings(page)
+
+	const section = page.getByTestId('organisation-mode-settings')
+	await expect(section).toBeVisible()
+
+	// Two nc-vue specifics, both already documented by passing tests in
+	// user-settings.spec.ts, and both fatal if ignored:
+	//
+	//  - NcSelect does NOT set `inheritAttrs: false`, so `data-testid` lands on
+	//    the WRAPPER, not the combobox. Clicking the wrapper does not open the
+	//    dropdown; click the inner input.
+	//  - Options render through NcEllipsisedOption, which splits any label of
+	//    10+ characters into two spans, so the option's ACCESSIBLE NAME gains a
+	//    space at the split point — an option named "Association (assoc)" never
+	//    exists. Match on text content instead, which is unaffected.
+	await section.locator('[data-testid="organisation-mode"] input').first().click()
+	await page
+		.getByRole('option')
+		.filter({ hasText: /^Association \(assoc\)$/ })
+		.click()
+	await section.getByTestId('organisation-mode-save').click()
+
+	// The round trip is proven against a DIFFERENT consumer, which is both
+	// stronger evidence and one page load cheaper than re-reading the form that
+	// wrote it. The SPA reads organisatie_modus from the server on boot and
+	// resolves nav labels through src/config/modeLabels.js: the Bodies entry is
+	// 'Factions & bodies' under gov and 'Factions & committees' under assoc. So
+	// this single navigation covers the scenario's remaining two THEN clauses —
+	// the value persisted server-side, and the navigation relabelled.
+	//
+	// ⚠️ Two page loads, not three. This app awaits initializeStores() BEFORE
+	// createApp().mount(), so every navigation blocks on a settings round trip;
+	// an earlier draft re-read the admin page here as well and spent the whole
+	// 20 s per-test budget on redundant SPA boots. The fix is to remove a
+	// navigation, never to widen the timeout.
+	await page.goto(`${BASE}/apps/decidesk/`)
+	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+	const bodiesEntry = page
+		.getByTestId('cn-nav-entry-GovernanceBodies')
+		.or(page.getByRole('link', { name: /^Factions & (bodies|committees)$/ }))
+		.first()
+	// Asserting the gov label is ABSENT as well as the assoc label present is
+	// what separates "the label changed" from "something on the page matched".
+	await expect(bodiesEntry).toContainText('Factions & committees')
+	await expect(bodiesEntry).not.toContainText('Factions & bodies')
+
+	// Restore the instance default so the assertion is not order-dependent for
+	// any later spec that reads the mode. Cleanup goes through the API on
+	// purpose: it is not the thing under test, and a third SPA boot is what
+	// broke this test's budget.
+	const restore = await page.request.put(
+		`${BASE}/index.php/apps/decidesk/api/settings`,
+		{
+			headers: {
+				'Content-Type': 'application/json',
+				requesttoken: (
+					await (
+						await page.request.get(`${BASE}/index.php/csrftoken`)
+					).json()
+				).token,
+			},
+			data: { organisatie_modus: 'gov' },
+		},
+	)
+	expect(restore.status(), 'restoring organisatie_modus=gov').toBeLessThan(300)
 })
 
 // @e2e openspec/specs/openregister-integration/spec.md#configure-register-mapping
-test('Settings: register configuration exposes a Save configuration action', async ({ page }) => {
-	await openSettings(page)
+test('Admin settings: register mapping exposes its configuration actions', async ({
+	page,
+}) => {
+	await openAdminSettings(page)
 
-	await expect(page.getByRole('button', { name: /Save configuration/i }).first()).toBeVisible()
-	await expect(page.getByRole('button', { name: /Re-import configuration/i }).first()).toBeVisible()
+	// CnAdminSettingsShell renders the register/schema mapping for the app.
+	// These are the actions the old in-app page could never paint.
+	await expect(
+		page.getByRole('button', { name: /Re-?import configuration/i }).first(),
+	).toBeVisible()
 })
 
 // @e2e openspec/specs/admin-settings/spec.md#configure-organization-defaults
-test('Settings: no decidesk-origin console error or 500 on load', async ({ page }) => {
-	const appErrors: string[] = []
-	page.on('console', m => {
-		const t = m.text()
-		if (m.type() === 'error' && !/user_status|heartbeat|user status/i.test(t) && /decidesk/i.test(t)) {
-			appErrors.push(t)
-		}
+test('Admin settings: no decidesk-origin 5xx and no decidesk console error on load', async ({
+	page,
+}) => {
+	const serverErrors: string[] = []
+	const consoleErrors: string[] = []
+	page.on('response', (r) => {
+		if (r.status() >= 500 && /decidesk/i.test(r.url()))
+			serverErrors.push(`HTTP ${r.status()} ${r.url()}`)
 	})
-	page.on('response', r => {
-		if (r.status() >= 500 && /decidesk/i.test(r.url())) appErrors.push(`HTTP ${r.status()} ${r.url()}`)
+	page.on('console', (m) => {
+		if (m.type() === 'error' && /decidesk/i.test(m.location().url ?? ''))
+			consoleErrors.push(m.text())
 	})
 
-	await openSettings(page)
-	await expect(page.getByRole('heading', { name: 'Version Information' })).toBeVisible()
-	expect(appErrors, `decidesk errors on Settings:\n${appErrors.join('\n')}`).toHaveLength(0)
+	await openAdminSettings(page)
+	await expect(page.getByTestId('organisation-settings')).toBeVisible()
+
+	expect(
+		serverErrors,
+		`decidesk 5xx on admin settings:\n${serverErrors.join('\n')}`,
+	).toHaveLength(0)
+	expect(
+		consoleErrors,
+		`decidesk console errors on admin settings:\n${consoleErrors.join('\n')}`,
+	).toHaveLength(0)
 })

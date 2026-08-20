@@ -28,7 +28,7 @@ const iso = (minutes) => new Date(base + minutes * 60000).toISOString()
 
 describe('isItemCompleted', () => {
 	it('completed when status afgerond', () => {
-		expect(isItemCompleted({ status: 'afgerond' })).toBe(true)
+		expect(isItemCompleted({ status: 'completed' })).toBe(true)
 	})
 	it('completed when actualDuration recorded', () => {
 		expect(isItemCompleted({ actualDuration: 12 })).toBe(true)
@@ -44,9 +44,23 @@ describe('meetingDurationStats', () => {
 	it('computes actual vs scheduled, average and overrun (spec duration trend)', () => {
 		const meetings = [
 			// opened 09:00, closed 10:30 = 90 min actual; scheduled 09:00-10:00 = 60 -> overrun
-			{ id: 'm1', title: 'Jan', scheduledDate: iso(0), endDate: iso(60), openedAt: iso(0), closedAt: iso(90) },
+			{
+				id: 'm1',
+				title: 'Jan',
+				scheduledDate: iso(0),
+				endDate: iso(60),
+				openedAt: iso(0),
+				closedAt: iso(90),
+			},
 			// opened, closed = 40 min; scheduled 60 -> no overrun
-			{ id: 'm2', title: 'Feb', scheduledDate: iso(0), endDate: iso(60), openedAt: iso(0), closedAt: iso(40) },
+			{
+				id: 'm2',
+				title: 'Feb',
+				scheduledDate: iso(0),
+				endDate: iso(60),
+				openedAt: iso(0),
+				closedAt: iso(40),
+			},
 		]
 		const stats = meetingDurationStats(meetings)
 		expect(stats.count).toBe(2)
@@ -88,7 +102,7 @@ describe('meetingDurationStats', () => {
 describe('agendaCompletionRate', () => {
 	it('computes the completed share', () => {
 		const r = agendaCompletionRate([
-			{ status: 'afgerond' },
+			{ status: 'completed' },
 			{ actualDuration: 10 },
 			{ status: 'beeldvorming' },
 			{ status: 'oordeelsvorming' },
@@ -110,11 +124,22 @@ describe('speakingDistribution', () => {
 		]
 		const dist = speakingDistribution(records, { a: 'Alice', b: 'Bob' })
 		expect(dist.totalSeconds).toBe(300)
-		expect(dist.rows[0]).toMatchObject({ participantId: 'a', displayName: 'Alice', seconds: 240, share: 0.8 })
-		expect(dist.rows[1]).toMatchObject({ participantId: 'b', seconds: 60, share: 0.2 })
+		expect(dist.rows[0]).toMatchObject({
+			participantId: 'a',
+			displayName: 'Alice',
+			seconds: 240,
+			share: 0.8,
+		})
+		expect(dist.rows[1]).toMatchObject({
+			participantId: 'b',
+			seconds: 60,
+			share: 0.2,
+		})
 	})
 	it('falls back to id as name and is empty-safe', () => {
-		const dist = speakingDistribution([{ participant: 'x', speakingDuration: 10 }])
+		const dist = speakingDistribution([
+			{ participant: 'x', speakingDuration: 10 },
+		])
 		expect(dist.rows[0].displayName).toBe('x')
 		expect(speakingDistribution([]).totalSeconds).toBe(0)
 		expect(speakingDistribution(null).rows).toEqual([])
@@ -143,10 +168,14 @@ describe('costTrend', () => {
 
 describe('agendaItemCostBreakdown', () => {
 	it('costs each item and flags the most expensive (spec analytics)', () => {
-		const rows = agendaItemCostBreakdown([
-			{ id: 'i1', title: 'Cheap', actualDuration: 10 },
-			{ id: 'i2', title: 'Pricey', actualDuration: 30 },
-		], 10, 60)
+		const rows = agendaItemCostBreakdown(
+			[
+				{ id: 'i1', title: 'Cheap', actualDuration: 10 },
+				{ id: 'i2', title: 'Pricey', actualDuration: 30 },
+			],
+			10,
+			60,
+		)
 		// sorted desc: pricey first
 		expect(rows[0].id).toBe('i2')
 		expect(rows[0].cost).toBe(300) // 0.5h x 10 x 60
@@ -155,7 +184,11 @@ describe('agendaItemCostBreakdown', () => {
 		expect(rows[1].mostExpensive).toBe(false)
 	})
 	it('flags no item when all costs are zero', () => {
-		const rows = agendaItemCostBreakdown([{ id: 'i', actualDuration: 0 }], 10, 60)
+		const rows = agendaItemCostBreakdown(
+			[{ id: 'i', actualDuration: 0 }],
+			10,
+			60,
+		)
 		expect(rows[0].mostExpensive).toBe(false)
 	})
 	it('is empty-safe', () => {
@@ -176,7 +209,9 @@ describe('timeAllocationAccuracy', () => {
 		expect(decision.avgEstimated).toBe(15)
 		expect(decision.avgActual).toBe(25)
 		expect(decision.verdict).toBe('over')
-		expect(decision.recommendation).toContain('consider increasing default allocation')
+		expect(decision.recommendation).toContain(
+			'consider increasing default allocation',
+		)
 
 		const info = out.find((r) => r.itemType === 'informational')
 		expect(info.verdict).toBe('under')

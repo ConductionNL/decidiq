@@ -13,11 +13,11 @@
 	<CnStatsBlock
 		:title="t('decidesk', 'Active decisions')"
 		:count="count"
-		:count-label="t('decidesk', 'decisions')"
+		:countLabel="t('decidesk', 'decisions')"
 		:icon="GavelIcon"
 		:loading="loading"
 		:route="{ name: 'Decisions' }"
-		show-zero-count
+		showZeroCount
 		horizontal
 		data-testid="active-decisions-kpi" />
 </template>
@@ -25,9 +25,9 @@
 <script>
 import { CnStatsBlock } from '@conduction/nextcloud-vue'
 import GavelIcon from 'vue-material-design-icons/Gavel.vue'
+import { getDecisions } from '../../../services/dashboardData.js'
 import dashboardRefreshMixin from './dashboardRefreshMixin.js'
 import { activeDecisionCount } from './widgetLogic.js'
-import { getDecisions } from '../../../services/dashboardData.js'
 
 export default {
 	name: 'ActiveDecisionsKpiWidget',

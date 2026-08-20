@@ -36,187 +36,171 @@ use PHPUnit\Framework\TestCase;
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
  */
-class AuditLogControllerTest extends TestCase
-{
+class AuditLogControllerTest extends TestCase {
 
+	/**
+	 * Build a controller wired with the given service double + admin flag.
+	 *
+	 * @param AuditLogService $service Service double
+	 * @param array<string, mixed> $requestParams Params returned by IRequest
+	 * @param bool $authenticated Session has user
+	 * @param bool $admin Whether the user is an admin
+	 *
+	 * @return AuditLogController
+	 */
+	private function makeController(
+		AuditLogService $service,
+		array $requestParams = [],
+		bool $authenticated = true,
+		bool $admin = true,
+	): AuditLogController {
+		$request = $this->createMock(IRequest::class);
+		$request->method('getParams')->willReturn($requestParams);
+		$request->method('getParam')->willReturnCallback(
+			static function (string $key, mixed $default = null) use ($requestParams): mixed {
+				return ($requestParams[$key] ?? $default);
+			}
+		);
 
-    /**
-     * Build a controller wired with the given service double + admin flag.
-     *
-     * @param AuditLogService      $service       Service double
-     * @param array<string, mixed> $requestParams Params returned by IRequest
-     * @param bool                 $authenticated Session has user
-     * @param bool                 $admin         Whether the user is an admin
-     *
-     * @return AuditLogController
-     */
-    private function makeController(
-        AuditLogService $service,
-        array $requestParams=[],
-        bool $authenticated=true,
-        bool $admin=true,
-    ): AuditLogController {
-        $request = $this->createMock(IRequest::class);
-        $request->method('getParams')->willReturn($requestParams);
-        $request->method('getParam')->willReturnCallback(
-            static function (string $key, mixed $default=null) use ($requestParams): mixed {
-                return ($requestParams[$key] ?? $default);
-            }
-        );
+		$session = $this->createMock(IUserSession::class);
+		if ($authenticated === true) {
+			$user = $this->createMock(IUser::class);
+			$user->method('getUID')->willReturn('alice');
+			$session->method('getUser')->willReturn($user);
+		} else {
+			$session->method('getUser')->willReturn(null);
+		}
 
-        $session = $this->createMock(IUserSession::class);
-        if ($authenticated === true) {
-            $user = $this->createMock(IUser::class);
-            $user->method('getUID')->willReturn('alice');
-            $session->method('getUser')->willReturn($user);
-        } else {
-            $session->method('getUser')->willReturn(null);
-        }
+		$groupManager = $this->createMock(IGroupManager::class);
+		$groupManager->method('isAdmin')->willReturn($admin);
 
-        $groupManager = $this->createMock(IGroupManager::class);
-        $groupManager->method('isAdmin')->willReturn($admin);
+		return new AuditLogController($request, $service, $session, $groupManager);
+	}//end makeController()
 
-        return new AuditLogController($request, $service, $session, $groupManager);
+	/**
+	 * Non-admin callers are rejected with 403.
+	 *
+	 * @return void
+	 */
+	public function testNonAdminCallerForbidden(): void {
+		$service = $this->createMock(AuditLogService::class);
+		$controller = $this->makeController($service, admin: false);
 
-    }//end makeController()
+		$this->assertSame(Http::STATUS_FORBIDDEN, $controller->index()->getStatus());
+		$this->assertSame(Http::STATUS_FORBIDDEN, $controller->verify('a')->getStatus());
+		$this->assertSame(Http::STATUS_FORBIDDEN, $controller->export()->getStatus());
 
+	}//end testNonAdminCallerForbidden()
 
-    /**
-     * Non-admin callers are rejected with 403.
-     *
-     * @return void
-     */
-    public function testNonAdminCallerForbidden(): void
-    {
-        $service    = $this->createMock(AuditLogService::class);
-        $controller = $this->makeController($service, admin: false);
+	/**
+	 * Anonymous calls are rejected with 401.
+	 *
+	 * @return void
+	 */
+	public function testAnonymousAccessRejected(): void {
+		$service = $this->createMock(AuditLogService::class);
+		$controller = $this->makeController($service, authenticated: false);
 
-        $this->assertSame(Http::STATUS_FORBIDDEN, $controller->index()->getStatus());
-        $this->assertSame(Http::STATUS_FORBIDDEN, $controller->verify('a')->getStatus());
-        $this->assertSame(Http::STATUS_FORBIDDEN, $controller->export()->getStatus());
+		$this->assertSame(Http::STATUS_UNAUTHORIZED, $controller->index()->getStatus());
 
-    }//end testNonAdminCallerForbidden()
+	}//end testAnonymousAccessRejected()
 
+	/**
+	 * index forwards filters and returns total + results.
+	 *
+	 * @return void
+	 */
+	public function testIndexForwardsFilters(): void {
+		$service = $this->createMock(AuditLogService::class);
+		$service->expects($this->once())
+			->method('query')
+			->with(
+				$this->callback(static function (array $filters): bool {
+					return (($filters['actor'] ?? null) === 'alice'
+						&& ($filters['action'] ?? null) === 'vote');
+				})
+			)
+			->willReturn(
+				[
+					'success' => true,
+					'entries' => [['id' => 'e1']],
+					'count' => 1,
+				]
+			);
 
-    /**
-     * Anonymous calls are rejected with 401.
-     *
-     * @return void
-     */
-    public function testAnonymousAccessRejected(): void
-    {
-        $service    = $this->createMock(AuditLogService::class);
-        $controller = $this->makeController($service, authenticated: false);
+		$controller = $this->makeController(
+			$service,
+			requestParams: ['actor' => 'alice', 'action' => 'vote']
+		);
 
-        $this->assertSame(Http::STATUS_UNAUTHORIZED, $controller->index()->getStatus());
+		$response = $controller->index();
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame(1, $response->getData()['total']);
 
-    }//end testAnonymousAccessRejected()
+	}//end testIndexForwardsFilters()
 
+	/**
+	 * verify returns the service result verbatim.
+	 *
+	 * @return void
+	 */
+	public function testVerifyReturnsServiceResult(): void {
+		$service = $this->createMock(AuditLogService::class);
+		$service->method('verify')->willReturn(['valid' => true, 'checked' => 5, 'tampered' => []]);
 
-    /**
-     * index forwards filters and returns total + results.
-     *
-     * @return void
-     */
-    public function testIndexForwardsFilters(): void
-    {
-        $service = $this->createMock(AuditLogService::class);
-        $service->expects($this->once())
-            ->method('query')
-            ->with(
-                $this->callback(static function (array $filters): bool {
-                    return (($filters['actor'] ?? null) === 'alice'
-                        && ($filters['action'] ?? null) === 'vote');
-                })
-            )
-            ->willReturn(
-                [
-                    'success' => true,
-                    'entries' => [['id' => 'e1']],
-                    'count'   => 1,
-                ]
-            );
+		$controller = $this->makeController($service);
+		$response = $controller->verify('e1');
 
-        $controller = $this->makeController(
-            $service,
-            requestParams: ['actor' => 'alice', 'action' => 'vote']
-        );
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertTrue($response->getData()['valid']);
 
-        $response = $controller->index();
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-        $this->assertSame(1, $response->getData()['total']);
+	}//end testVerifyReturnsServiceResult()
 
-    }//end testIndexForwardsFilters()
+	/**
+	 * export returns a DataDisplayResponse on success.
+	 *
+	 * @return void
+	 */
+	public function testExportReturnsDataDownload(): void {
+		$service = $this->createMock(AuditLogService::class);
+		$service->method('export')->willReturn(
+			[
+				'success' => true,
+				'format' => 'csv',
+				'body' => 'id,timestamp\nrow-0,2026',
+				'count' => 1,
+			]
+		);
 
+		$controller = $this->makeController($service, requestParams: ['format' => 'csv']);
+		$response = $controller->export();
 
-    /**
-     * verify returns the service result verbatim.
-     *
-     * @return void
-     */
-    public function testVerifyReturnsServiceResult(): void
-    {
-        $service = $this->createMock(AuditLogService::class);
-        $service->method('verify')->willReturn(['valid' => true, 'checked' => 5, 'tampered' => []]);
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertInstanceOf(\OCP\AppFramework\Http\DataDisplayResponse::class, $response);
 
-        $controller = $this->makeController($service);
-        $response   = $controller->verify('e1');
+	}//end testExportReturnsDataDownload()
 
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-        $this->assertTrue($response->getData()['valid']);
+	/**
+	 * export rejects unknown formats with 422.
+	 *
+	 * @return void
+	 */
+	public function testExportRejectsBadFormat(): void {
+		$service = $this->createMock(AuditLogService::class);
+		$service->method('export')->willReturn(
+			[
+				'success' => false,
+				'format' => 'xml',
+				'body' => '',
+				'count' => 0,
+			]
+		);
 
-    }//end testVerifyReturnsServiceResult()
+		$controller = $this->makeController($service, requestParams: ['format' => 'xml']);
+		$response = $controller->export();
 
+		$this->assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $response->getStatus());
 
-    /**
-     * export returns a DataDisplayResponse on success.
-     *
-     * @return void
-     */
-    public function testExportReturnsDataDownload(): void
-    {
-        $service = $this->createMock(AuditLogService::class);
-        $service->method('export')->willReturn(
-            [
-                'success' => true,
-                'format'  => 'csv',
-                'body'    => 'id,timestamp\nrow-0,2026',
-                'count'   => 1,
-            ]
-        );
-
-        $controller = $this->makeController($service, requestParams: ['format' => 'csv']);
-        $response   = $controller->export();
-
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-        $this->assertInstanceOf(\OCP\AppFramework\Http\DataDisplayResponse::class, $response);
-
-    }//end testExportReturnsDataDownload()
-
-
-    /**
-     * export rejects unknown formats with 422.
-     *
-     * @return void
-     */
-    public function testExportRejectsBadFormat(): void
-    {
-        $service = $this->createMock(AuditLogService::class);
-        $service->method('export')->willReturn(
-            [
-                'success' => false,
-                'format'  => 'xml',
-                'body'    => '',
-                'count'   => 0,
-            ]
-        );
-
-        $controller = $this->makeController($service, requestParams: ['format' => 'xml']);
-        $response   = $controller->export();
-
-        $this->assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $response->getStatus());
-
-    }//end testExportRejectsBadFormat()
-
+	}//end testExportRejectsBadFormat()
 
 }//end class

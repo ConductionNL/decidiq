@@ -1,0 +1,535 @@
+{
+  "x-openregister": {
+    "seedData": {
+      "description": "Seed objects for the verordeningenregister (local regulations register — regeling / regeling-versie / regeling-export-package). References resolve by slug against existing decidesk seed objects (governance-body gemeenteraad-amsterdam and ledenraad-vng from decidesk_register.json); the nil UUID 00000000-0000-0000-0000-000000000000 is an obvious placeholder resolved at import where no matching seed object exists (every vastgesteldDoor wijzigingsbesluit Decision — the DECLARATIVE-CORE change ships no Decision seeds of its own; the two extra wijzigingsbesluiten named in design.md Seed Data are added when the imperative slice lands). Two regelingen carry multi-version chains: afvalstoffenverordening-amsterdam has v1 (vervangen, inwerkingtreding 2024-01-01) → v2 (in-werking, 2025-06-01) so REQ-VOR-004 in-force resolution is demoable across a historical boundary on a fresh install (ADR-016); beleidsregel-terrassen-amsterdam has a single in-werking v1; huishoudelijk-reglement-vng is vastgesteld with a concept v1 dated in the future so the REQ-VOR-007 approaching-inwerkingtreding-without-published-text notification path and the 'draft never leaks' public exclusion are both demonstrable. One regeling-export-package in state ready demonstrates the honest-degradation download path (REQ-VOR-006); its STOP/TPOD build + OpenConnector delivery is the imperative slice, deferred. Objects grouped by schema slug (regeling / regeling-versie / regeling-export-package); the OR seedData import path resolves the schema from the object key.",
+      "objects": {
+        "regulation": [
+          {
+            "slug": "afvalstoffenverordening-amsterdam",
+            "type": "by-law",
+            "citationTitle": "Afvalstoffenverordening Amsterdam",
+            "officialTitle": "Verordening op de inzameling en verwerking van huishoudelijke afvalstoffen Amsterdam",
+            "statutoryBasis": [
+              "Gemeentewet art. 149",
+              "Wet milieubeheer art. 10.23"
+            ],
+            "determiningBody": "gemeenteraad-amsterdam",
+            "cvdrIdentifier": "CVDR641871",
+            "currentVersionNumber": 2,
+            "currentEffectiveDate": "2025-06-01",
+            "status": "in-effect"
+          },
+          {
+            "slug": "beleidsregel-terrassen-amsterdam",
+            "type": "policy-rule",
+            "citationTitle": "Beleidsregel terrassen Amsterdam 2025",
+            "officialTitle": "Beleidsregel inzake terrasvergunningen Amsterdam 2025",
+            "statutoryBasis": [
+              "APV Amsterdam art. 3.17"
+            ],
+            "determiningBody": "gemeenteraad-amsterdam",
+            "currentVersionNumber": 1,
+            "currentEffectiveDate": "2025-03-01",
+            "status": "in-effect"
+          },
+          {
+            "slug": "huishoudelijk-reglement-vng",
+            "type": "regulations",
+            "citationTitle": "Huishoudelijk reglement ledenraad VNG",
+            "officialTitle": "Huishoudelijk reglement van de ledenraad van de Vereniging van Nederlandse Gemeenten",
+            "statutoryBasis": [
+              "Statuten VNG art. 12"
+            ],
+            "determiningBody": "ledenraad-vng",
+            "status": "adopted"
+          }
+        ],
+        "regeling-versie": [
+          {
+            "slug": "afvalstoffen-v1",
+            "regulation": "afvalstoffenverordening-amsterdam",
+            "versionNumber": 1,
+            "determinedBy": "00000000-0000-0000-0000-000000000000",
+            "effectiveDate": "2024-01-01",
+            "notes": "Eerste vaststelling van de Afvalstoffenverordening Amsterdam.",
+            "status": "replaced"
+          },
+          {
+            "slug": "afvalstoffen-v2",
+            "regulation": "afvalstoffenverordening-amsterdam",
+            "versionNumber": 2,
+            "determinedBy": "00000000-0000-0000-0000-000000000000",
+            "effectiveDate": "2025-06-01",
+            "notes": "Wijziging 2025: gescheiden inzameling GFT-e uitgebreid naar het hele beheergebied.",
+            "status": "in-effect"
+          },
+          {
+            "slug": "terrassen-v1",
+            "regulation": "beleidsregel-terrassen-amsterdam",
+            "versionNumber": 1,
+            "determinedBy": "00000000-0000-0000-0000-000000000000",
+            "effectiveDate": "2025-03-01",
+            "notes": "Vaststelling beleidsregel terrassen 2025.",
+            "status": "in-effect"
+          },
+          {
+            "slug": "hr-vng-v1",
+            "regulation": "huishoudelijk-reglement-vng",
+            "versionNumber": 1,
+            "determinedBy": "00000000-0000-0000-0000-000000000000",
+            "effectiveDate": "2026-09-01",
+            "notes": "Concept eerste huishoudelijk reglement; treedt in werking na vaststelling door de ledenraad.",
+            "status": "draft"
+          }
+        ],
+        "regeling-export-package": [
+          {
+            "slug": "export-afvalstoffen-v2",
+            "regulation": "afvalstoffenverordening-amsterdam",
+            "versies": [
+              "afvalstoffen-v2"
+            ],
+            "sourceSlug": "drop-bekendmakingen",
+            "status": "ready"
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Regeling": {
+        "slug": "regeling",
+        "icon": "ScaleBalance",
+        "version": "0.1.0",
+        "title": "Regeling",
+        "description": "A local regulation (regeling): verordening, beleidsregel, nadere regel, reglement, or externe statuut. Schema.org Legislation, Akoma Ntoso 'act' work level (FRBR work): the stable legal identity that a chain of immutable RegelingVersie expressions hangs off. It carries the citeertitel and officiële titel, the wettelijke grondslag, the vaststellend orgaan (a GovernanceBody), the CVDR identifier assigned by the national register after first publication (stored, never minted — REQ-VOR-001/006), and a declarative status lifecycle (ADR-031). In-werking regelingen are anonymously readable through the OpenRegister published-predicate (public register of regelingen in force, REQ-VOR-005); in-voorbereiding/vastgesteld/vervallen regelingen are not public. The regeling never stores consolidated text — that is an attached document on the RegelingVersie via the OR file abstraction. Publication of the regeling to DROP/CVDR runs through the RegelingExportPackage, whose STOP/TPOD build + OpenConnector delivery is the imperative slice (deferred).",
+        "type": "object",
+        "x-schema-org": "schema:Legislation",
+        "x-openregister": {
+          "schemaType": "schema:Legislation",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "x-openregister-lifecycle": {
+          "field": "status",
+          "initial": "in-preparation",
+          "states": [
+            "in-preparation",
+            "adopted",
+            "in-effect",
+            "lapsed"
+          ],
+          "terminal": [
+            "lapsed"
+          ],
+          "transitions": [
+            {
+              "from": "in-preparation",
+              "to": "adopted"
+            },
+            {
+              "from": "adopted",
+              "to": "in-effect"
+            },
+            {
+              "from": "in-effect",
+              "to": "lapsed"
+            }
+          ],
+          "_note": "Declarative guarded transition map (ADR-031, REQ-VOR-001). Canonical dialect verbatim from the sibling fragments (keyword 'initial', never 'initialState'/'default'/'states'-only). Linear chain in-voorbereiding → vastgesteld → in-werking → vervallen; vervallen terminal. A direct in-voorbereiding → vervallen jump is NOT in the map and MUST be rejected by OpenRegister (REQ-VOR-001 scenario 'Undeclared lifecycle transition rejected'). No app-side state machine."
+        },
+        "authorization": {
+          "read": [
+            {
+              "group": "public",
+              "match": {
+                "status": "in-effect"
+              }
+            },
+            "authenticated"
+          ]
+        },
+        "required": [
+          "type",
+          "citationTitle",
+          "determiningBody",
+          "status"
+        ],
+        "properties": {
+          "type": {
+            "title": "Type",
+            "type": "string",
+            "facetable": true,
+            "description": "The kind of regulation. Required.",
+            "enum": [
+              "by-law",
+              "policy-rule",
+              "detailed-rule",
+              "regulations",
+              "external-charter"
+            ],
+            "example": "verordening"
+          },
+          "citationTitle": {
+            "title": "Citeertitel",
+            "type": "string",
+            "description": "The citation title (citeertitel) by which the regulation is officially cited. Required (REQ-VOR-001 scenario 'Citeertitel is required').",
+            "example": "Afvalstoffenverordening Amsterdam"
+          },
+          "officialTitle": {
+            "title": "Official title",
+            "type": "string",
+            "description": "The full official title of the regulation. Optional.",
+            "example": "Verordening op de inzameling en verwerking van huishoudelijke afvalstoffen Amsterdam"
+          },
+          "statutoryBasis": {
+            "title": "Legal basis",
+            "type": "array",
+            "description": "Legal-basis citations for the regulation (same citation vocabulary as the delegatie-mandaatregister, e.g. 'Gemeentewet art. 149').",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Gemeentewet art. 149",
+              "Wet milieubeheer art. 10.23"
+            ]
+          },
+          "determiningBody": {
+            "title": "Adopting body",
+            "type": "string",
+            "format": "uuid",
+            "facetable": true,
+            "$ref": "GovernanceBody",
+            "description": "Reference to the GovernanceBody that adopts the regulation (council, ledenraad, etc.). Required."
+          },
+          "cvdrIdentifier": {
+            "title": "CVDR identifier",
+            "type": "string",
+            "facetable": true,
+            "description": "The CVDR (Centrale Voorziening Decentrale Regelgeving) identifier assigned by the national register after first publication. Stored, never minted by decidesk — captured manually or from the DROP delivery acknowledgement (REQ-VOR-001/006). Optional (absent until first publication).",
+            "example": "CVDR641871"
+          },
+          "currentVersionNumber": {
+            "title": "Current version number",
+            "type": "integer",
+            "nullable": true,
+            "description": "Convenience field: the versienummer of the RegelingVersie currently in force (REQ-VOR-004). Intended to be maintained by the RegelingConsolidationService (imperative slice) so the register list page renders the current version without a per-row N+1 resolution. Null until a version is in force. NOTE: no x-openregister-calculations dialect is declared here (unproven in this register) — the field is populated by the imperative slice; see dialect-gaps note."
+          },
+          "currentEffectiveDate": {
+            "title": "Current inwerkingtreding",
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "facetable": true,
+            "description": "Convenience field: the inwerkingtreding date of the RegelingVersie currently in force (REQ-VOR-004). Same maintenance/dialect caveat as currentVersienummer. Null until a version is in force.",
+            "example": "2025-06-01"
+          }
+        }
+      },
+      "RegelingVersie": {
+        "slug": "regeling-versie",
+        "icon": "FileDocumentOutline",
+        "version": "0.1.0",
+        "title": "RegelingVersie",
+        "description": "An immutable version (expression) of a Regeling. Schema.org LegislationObject, Akoma Ntoso expression level (FRBR expression). Every version traces to the Decision (wijzigingsbesluit) that enacted it via vastgesteldDoor (REQ-VOR-002): creating a version without a resolvable amending decision MUST be rejected. versienummer is a positive integer unique per regeling (uniqueness is a cross-object rule not expressible in the schema 'required' array — enforced at save time, documented on the field). The consolidated text is an attached document via the OR file abstraction (Files leaf), not a schema property. Once a version transitions to in-werking it is SEALED (REQ-VOR-003): its versienummer, vastgesteldDoor, inwerkingtreding, and consolidated-text document become immutable, enforced server-side by OpenRegister's immutable-after-state semantics on the in-werking state — see the lifecycle _note for the dialect-gap caveat. Corrections are made as a new RegelingVersie traced to its own rectification decision, never by editing a sealed version. Sealed versions form the stable reference target that commissievergaderingen REQ-CVG-013 references by UUID.",
+        "type": "object",
+        "x-schema-org": "schema:Legislation",
+        "x-openregister": {
+          "schemaType": "schema:Legislation",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "x-openregister-lifecycle": {
+          "field": "status",
+          "initial": "draft",
+          "states": [
+            "draft",
+            "adopted",
+            "in-effect",
+            "replaced",
+            "lapsed"
+          ],
+          "terminal": [
+            "replaced",
+            "lapsed"
+          ],
+          "transitions": [
+            {
+              "from": "draft",
+              "to": "adopted"
+            },
+            {
+              "from": "adopted",
+              "to": "in-effect"
+            },
+            {
+              "from": "in-effect",
+              "to": "replaced"
+            },
+            {
+              "from": "in-effect",
+              "to": "lapsed"
+            }
+          ],
+          "_note": "Declarative guarded transition map (ADR-031, REQ-VOR-002/003). concept → vastgesteld → in-werking → vervangen | vervallen; vervangen and vervallen terminal. A version replaced by a later in-force version transitions in-werking → vervangen (REQ-VOR-003 scenario 'Correction happens as a new version'); a version whose vervaldatum passes transitions in-werking → vervallen. DIALECT GAP (REQ-VOR-003): the seal — immutability of versienummer/vastgesteldDoor/inwerkingtreding/consolidated-text once in-werking — is intended to ride OpenRegister's immutable-after-state enforcement on the in-werking state, but no immutable-after-state keyword is exercised by any existing decidesk register fragment. This fragment does NOT invent a keyword (inventing an unproven dialect risks aborting the whole register import). The seal is documented here and MUST be confirmed against OR's lifecycle engine during live import; if OR offers no declarative seal, it becomes a save-time guard in the imperative slice. No app-side state machine for the transition map itself. Activation-ordering (a new version's inwerkingtreding must be after the latest sealed version's, REQ-VOR-004) is a cross-object guard in RegelingConsolidationService (imperative), not a schema constraint."
+        },
+        "x-openregister-notifications": {
+          "inwerkingtredingApproaching14": {
+            "trigger": {
+              "type": "scheduled",
+              "intervalSec": 1209600,
+              "filter": {
+                "status": [
+                  "concept",
+                  "vastgesteld"
+                ]
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Rappel: inwerkingtreding nadert zonder gepubliceerde geconsolideerde tekst — versie {{versienummer}}",
+              "en": "Reminder: inwerkingtreding approaching without a published consolidated text — version {{versienummer}}"
+            },
+            "_note": "Approaching-inwerkingtreding rappel at ~14 days without published consolidated text (REQ-VOR-007). intervalSec 1209600 (~14 days) is the trigger re-evaluation period. Filter targets not-yet-sealed status (concept/vastgesteld) only, so no notification fires once the version is in-werking (sealed with published text). DIALECT GAP: 'inwerkingtreding within 14 days AND no consolidated-text document attached' is a relative-date + file-presence condition the simple filter shape cannot express — verify OR's scheduled-notification engine interprets the window and the missing-file condition during live import (same caveat as the toezegging rappels in fragment 45). Recipients approximate 'responsible staff' via object-acl (read) + decidesk-members group."
+          },
+          "inwerkingtredingApproaching3": {
+            "trigger": {
+              "type": "scheduled",
+              "intervalSec": 259200,
+              "filter": {
+                "status": [
+                  "concept",
+                  "vastgesteld"
+                ]
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Dringend rappel: inwerkingtreding over 3 dagen zonder gepubliceerde geconsolideerde tekst — versie {{versienummer}}",
+              "en": "Urgent reminder: inwerkingtreding in 3 days without a published consolidated text — version {{versienummer}}"
+            },
+            "_note": "Second approaching-inwerkingtreding rappel at ~3 days (REQ-VOR-007). intervalSec 259200 (~3 days). Same not-yet-sealed filter and same window/missing-file dialect-gap caveat as inwerkingtredingApproaching14. No notification when the consolidated text is published in time (version sealed to in-werking)."
+          }
+        },
+        "required": [
+          "regulation",
+          "versionNumber",
+          "determinedBy",
+          "status"
+        ],
+        "properties": {
+          "regulation": {
+            "title": "Regeling",
+            "type": "string",
+            "format": "uuid",
+            "facetable": true,
+            "$ref": "Regeling",
+            "description": "Reference to the parent Regeling (the work) this version is an expression of. Required."
+          },
+          "versionNumber": {
+            "title": "Version number",
+            "type": "integer",
+            "facetable": true,
+            "description": "Positive integer version number, UNIQUE per regeling. Required. Uniqueness is a cross-object rule not expressible in the schema 'required' array (no per-scope-unique dialect is invented here); it is enforced at save time (REQ-VOR-002 scenario 'Version numbers are unique per regeling'). Immutable once the version is sealed (in-werking, REQ-VOR-003).",
+            "example": 2
+          },
+          "determinedBy": {
+            "title": "Enacted by (decision)",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Decision",
+            "description": "Reference to the Decision (wijzigingsbesluit / vaststellingsbesluit / rectification decision) that enacted this version. Required — creating a version without a resolvable amending decision MUST be rejected (REQ-VOR-002 scenario 'Version without amending decision refused'). The besluit document itself stays in decision-management; this register holds only the enactment relation. Immutable once the version is sealed (REQ-VOR-003)."
+          },
+          "effectiveDate": {
+            "title": "Inwerkingtreding",
+            "type": "string",
+            "format": "date",
+            "facetable": true,
+            "description": "Date on which this version takes force. Required before activation (sealing to in-werking): a concept may be drafted before its date is fixed, so it is NOT in the create-time 'required' array; it is enforced at save time before the transition to in-werking, and the activation-ordering guard (REQ-VOR-004) refuses a date not after the latest sealed version's. Drives in-force resolution (REQ-VOR-004). Immutable once the version is sealed (REQ-VOR-003).",
+            "example": "2025-06-01"
+          },
+          "expiryDate": {
+            "title": "Vervaldatum",
+            "type": "string",
+            "format": "date",
+            "facetable": true,
+            "description": "Optional date on which this version lapses. Empty means the version stays in force until superseded. When set and passed, in-force resolution (REQ-VOR-004) excludes the version.",
+            "example": "2027-01-01"
+          },
+          "notes": {
+            "title": "Toelichting",
+            "type": "string",
+            "description": "Summary of what this version changes relative to the previous one. Optional.",
+            "example": "Wijziging 2025: gescheiden inzameling GFT-e uitgebreid naar het hele beheergebied."
+          },
+          "status": {
+            "title": "Status",
+            "type": "string",
+            "facetable": true,
+            "description": "Version status (declared in x-openregister-lifecycle, ADR-031): concept → vastgesteld → in-werking → vervangen | vervallen. in-werking is the SEALED state (REQ-VOR-003). vervangen and vervallen are terminal. Only in-werking versions are anonymously readable via the published-predicate (REQ-VOR-005 — concept versions never leak).",
+            "enum": [
+              "draft",
+              "adopted",
+              "in-effect",
+              "replaced",
+              "lapsed"
+            ],
+            "example": "in-werking"
+          }
+        },
+        "authorization": {
+          "read": [
+            {
+              "group": "public",
+              "match": {
+                "status": "in-effect"
+              }
+            },
+            "authenticated"
+          ]
+        }
+      },
+      "RegelingExportPackage": {
+        "slug": "regeling-export-package",
+        "icon": "PackageVariantClosed",
+        "version": "0.1.0",
+        "title": "RegelingExportPackage",
+        "description": "A DROP/STOP-TPOD publication package for one or more sealed regeling-versies (REQ-VOR-006). Schema.org DigitalDocument. It bundles STOP/TPOD-structured XML plus the consolidated-text documents and carries a declarative build/deliver lifecycle. DECLARATIVE CORE: this fragment ships only the schema, its lifecycle, and one seed package in state ready to demonstrate the honest-degradation download path. The IMPERATIVE slice is deferred — the STOP/TPOD XML build + structural validation (document-generation exception) and delivery through an OpenConnector Source resolved lazily by slug (external-integration exception, drop-bekendmakingen convention) live in RegelingExportService (+ LogRegelingExportService fallback). When OpenConnector or the Source is absent the package stays ready and is downloadable for manual DROP submission; decidesk never talks to DROP/officielebekendmakingen.nl directly. On acknowledged delivery the package stores the remote reference and staff record the returned CVDR identifier onto the Regeling.",
+        "type": "object",
+        "x-schema-org": "schema:DigitalDocument",
+        "x-openregister": {
+          "schemaType": "schema:DigitalDocument",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "x-openregister-lifecycle": {
+          "field": "status",
+          "initial": "building",
+          "states": [
+            "building",
+            "ready",
+            "delivering",
+            "delivered",
+            "failed"
+          ],
+          "terminal": [
+            "delivered",
+            "failed"
+          ],
+          "transitions": [
+            {
+              "from": "building",
+              "to": "ready"
+            },
+            {
+              "from": "building",
+              "to": "failed"
+            },
+            {
+              "from": "ready",
+              "to": "delivering"
+            },
+            {
+              "from": "delivering",
+              "to": "delivered"
+            },
+            {
+              "from": "delivering",
+              "to": "failed"
+            }
+          ],
+          "_note": "Declarative guarded transition map (ADR-031, REQ-VOR-006). building → ready | failed (structural-validation failure sets failed with errors stored and blocks delivery — REQ-VOR-006 scenario 'Validation failure blocks delivery'); ready → delivering → delivered | failed. delivered and failed terminal. A failed package is not retried in place — a retry is a new package (matches records-management-archiving TransferPackage). Package build/deliver/CVDR-capture is the deferred imperative slice; the transition map itself is declarative and app-side dispatch is forbidden (gate-18)."
+        },
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "regulation": {
+            "title": "Regeling",
+            "type": "string",
+            "format": "uuid",
+            "facetable": true,
+            "$ref": "Regeling",
+            "description": "Reference to the Regeling this package publishes. Optional (a package may bundle versions of one regeling; the versies array is authoritative)."
+          },
+          "versies": {
+            "title": "Versies",
+            "type": "array",
+            "description": "The sealed RegelingVersie objects (by UUID) bundled in this package (REQ-VOR-006 — one or more sealed versions). Structural validation refuses a package whose versie is missing its consolidated-text document (sets status failed).",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "sourceSlug": {
+            "title": "Connector source slug",
+            "type": "string",
+            "description": "Slug of the OpenConnector Source used to deliver the package to DROP (convention 'drop-bekendmakingen', configurable). Resolved lazily by the deferred imperative slice; when no Source resolves, delivery degrades to a downloadable package (honest degradation, REQ-VOR-006).",
+            "example": "drop-bekendmakingen"
+          },
+          "validationErrors": {
+            "title": "Validation errors",
+            "type": "string",
+            "description": "Structural-validation errors stored when the build fails (status failed). Blocks delivery while the package is not ready (REQ-VOR-006)."
+          },
+          "remoteReference": {
+            "title": "Remote reference",
+            "type": "string",
+            "description": "The remote acknowledgement reference returned by the OpenConnector Source on a successful delivery (status delivered). Empty until acknowledged."
+          },
+          "status": {
+            "title": "Status",
+            "type": "string",
+            "facetable": true,
+            "description": "Package status (declared in x-openregister-lifecycle, ADR-031): building → ready → delivering → delivered | failed. delivered and failed are terminal. Delivery is refused while the package is not ready.",
+            "enum": [
+              "building",
+              "ready",
+              "delivering",
+              "delivered",
+              "failed"
+            ],
+            "example": "ready"
+          }
+        }
+      }
+    }
+  }
+}

@@ -9,24 +9,32 @@
  @spec openspec/specs/user-settings/spec.md
 -->
 <template>
-	<div class="decidesk-personal-settings section" data-testid="decidesk-personal-settings">
+	<div
+		class="decidesk-personal-settings section"
+		data-testid="decidesk-personal-settings">
 		<h2>{{ t('decidesk', 'Decidesk personal settings') }}</h2>
 		<NcLoadingIcon v-if="loading" :size="32" />
 		<template v-else>
-			<NotificationPreferencesSection :preference="preference" @updated="preference = $event" />
+			<NotificationPreferencesSection
+				:preference="preference"
+				@updated="preference = $event" />
 			<DisplayPreferencesSection />
-			<DelegationSection :preference="preference" @updated="preference = $event" />
-			<CommunicationSection :preference="preference" @updated="preference = $event" />
+			<DelegationSection
+				:preference="preference"
+				@updated="preference = $event" />
+			<CommunicationSection
+				:preference="preference"
+				@updated="preference = $event" />
 		</template>
 	</div>
 </template>
 
 <script>
 import { NcLoadingIcon } from '@nextcloud/vue'
-import NotificationPreferencesSection from '../../components/userSettings/NotificationPreferencesSection.vue'
-import DisplayPreferencesSection from '../../components/userSettings/DisplayPreferencesSection.vue'
-import DelegationSection from '../../components/userSettings/DelegationSection.vue'
 import CommunicationSection from '../../components/userSettings/CommunicationSection.vue'
+import DelegationSection from '../../components/userSettings/DelegationSection.vue'
+import DisplayPreferencesSection from '../../components/userSettings/DisplayPreferencesSection.vue'
+import NotificationPreferencesSection from '../../components/userSettings/NotificationPreferencesSection.vue'
 import { fetchNotificationPreference } from '../../components/userSettings/userPreferences.js'
 
 export default {
@@ -38,15 +46,18 @@ export default {
 		DelegationSection,
 		CommunicationSection,
 	},
+
 	data() {
 		return {
 			preference: {},
 			loading: true,
 		}
 	},
+
 	async created() {
 		await this.load()
 	},
+
 	methods: {
 		/**
 		 * Load the session user's preference object once for all sections.

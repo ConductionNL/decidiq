@@ -33,66 +33,63 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
-class VotingDeadlineReminderJobTest extends TestCase
-{
+class VotingDeadlineReminderJobTest extends TestCase {
 
-    /**
-     * The job runs hourly and delegates the sweep with the factory time.
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     *
-     * @return void
-     */
-    public function testHourlyIntervalAndDelegation(): void
-    {
-        $time = $this->createMock(ITimeFactory::class);
-        $time->method('getTime')->willReturn(1781265600);
+	/**
+	 * The job runs hourly and delegates the sweep with the factory time.
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 *
+	 * @return void
+	 */
+	public function testHourlyIntervalAndDelegation(): void {
+		$time = $this->createMock(ITimeFactory::class);
+		$time->method('getTime')->willReturn(1781265600);
 
-        $service = $this->createMock(VotingDeadlineReminderService::class);
-        $service->expects(self::once())
-            ->method('run')
-            ->with(self::equalTo(1781265600))
-            ->willReturn(2);
+		$service = $this->createMock(VotingDeadlineReminderService::class);
+		$service->expects(self::once())
+			->method('run')
+			->with(self::equalTo(1781265600))
+			->willReturn(2);
 
-        $job = new VotingDeadlineReminderJob(
-            time: $time,
-            reminderService: $service,
-            logger: $this->createMock(LoggerInterface::class),
-        );
+		$job = new VotingDeadlineReminderJob(
+			time: $time,
+			reminderService: $service,
+			logger: $this->createMock(LoggerInterface::class),
+		);
 
-        self::assertSame(expected: 3600, actual: $job->getInterval());
+		self::assertSame(expected: 3600, actual: $job->getInterval());
 
-        $reflection = new \ReflectionMethod($job, 'run');
-        $reflection->invoke($job, null);
+		$reflection = new \ReflectionMethod($job, 'run');
+		$reflection->invoke($job, null);
 
-    }//end testHourlyIntervalAndDelegation()
+	}//end testHourlyIntervalAndDelegation()
 
-    /**
-     * Service failures never escape the job (fail soft).
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     *
-     * @return void
-     */
-    public function testServiceFailureIsSwallowed(): void
-    {
-        $time = $this->createMock(ITimeFactory::class);
-        $time->method('getTime')->willReturn(1781265600);
+	/**
+	 * Service failures never escape the job (fail soft).
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 *
+	 * @return void
+	 */
+	public function testServiceFailureIsSwallowed(): void {
+		$time = $this->createMock(ITimeFactory::class);
+		$time->method('getTime')->willReturn(1781265600);
 
-        $service = $this->createMock(VotingDeadlineReminderService::class);
-        $service->method('run')->willThrowException(new \RuntimeException('register down'));
+		$service = $this->createMock(VotingDeadlineReminderService::class);
+		$service->method('run')->willThrowException(new \RuntimeException('register down'));
 
-        $job = new VotingDeadlineReminderJob(
-            time: $time,
-            reminderService: $service,
-            logger: $this->createMock(LoggerInterface::class),
-        );
+		$job = new VotingDeadlineReminderJob(
+			time: $time,
+			reminderService: $service,
+			logger: $this->createMock(LoggerInterface::class),
+		);
 
-        $reflection = new \ReflectionMethod($job, 'run');
-        $reflection->invoke($job, null);
+		$reflection = new \ReflectionMethod($job, 'run');
+		$reflection->invoke($job, null);
 
-        // Reaching this point without an exception is the assertion.
-        self::assertTrue(condition: true);
+		// Reaching this point without an exception is the assertion.
+		self::assertTrue(condition: true);
 
-    }//end testServiceFailureIsSwallowed()
+	}//end testServiceFailureIsSwallowed()
 }//end class

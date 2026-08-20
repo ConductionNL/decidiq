@@ -13,24 +13,31 @@
 	<div class="user-settings-section" data-testid="communication-section">
 		<h3>{{ t('decidesk', 'Communication preferences') }}</h3>
 		<p class="user-settings-section__hint">
-			{{ t('decidesk', 'Where Decidesk sends governance communications such as convocations, minutes and reminders.') }}
+			{{
+				t(
+					'decidesk',
+					'Where Decidesk sends governance communications such as convocations, minutes and reminders.',
+				)
+			}}
 		</p>
 
 		<div class="user-settings-section__field">
 			<NcTextField
-				:value.sync="governanceEmail"
+				v-model="governanceEmail"
 				:label="t('decidesk', 'Governance email')"
 				:placeholder="accountEmailPlaceholder"
 				type="email"
 				data-testid="communication-email" />
 			<p class="user-settings-section__hint">
-				{{ t('decidesk', 'Leave empty to use your Nextcloud account email.') }}
+				{{
+					t('decidesk', 'Leave empty to use your Nextcloud account email.')
+				}}
 			</p>
 		</div>
 
 		<div class="user-settings-section__field">
 			<NcTextField
-				:value.sync="urgentPhone"
+				v-model="urgentPhone"
 				:label="t('decidesk', 'Phone for urgent matters')"
 				type="tel"
 				data-testid="communication-phone" />
@@ -39,7 +46,7 @@
 		<div class="user-settings-section__field">
 			<NcSelect
 				v-model="language"
-				:input-label="t('decidesk', 'Preferred language for communications')"
+				:inputLabel="t('decidesk', 'Preferred language for communications')"
 				:options="languageOptions"
 				label="label"
 				:clearable="false"
@@ -52,11 +59,15 @@
 
 		<div class="user-settings-section__actions">
 			<NcButton
-				type="primary"
+				variant="primary"
 				:disabled="saving || !!validationError"
 				data-testid="communication-save"
 				@click="save">
-				{{ saving ? t('decidesk', 'Saving …') : t('decidesk', 'Save communication preferences') }}
+				{{
+					saving
+						? t('decidesk', 'Saving …')
+						: t('decidesk', 'Save communication preferences')
+				}}
 			</NcButton>
 		</div>
 		<NcNoteCard v-if="error" type="error">
@@ -84,6 +95,7 @@ export default {
 		NcSelect,
 		NcTextField,
 	},
+
 	props: {
 		/** The defaults-merged preference object loaded by the parent mount. */
 		preference: {
@@ -91,6 +103,7 @@ export default {
 			default: () => ({}),
 		},
 	},
+
 	data() {
 		return {
 			governanceEmail: '',
@@ -101,6 +114,7 @@ export default {
 			error: null,
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/user-settings/spec.md */
 		languageOptions() {
@@ -114,13 +128,21 @@ export default {
 			}
 			return [
 				{ id: '', label: this.t('decidesk', 'Nextcloud locale (default)') },
-				...COMMUNICATION_LANGUAGES.map((id) => ({ id, label: names[id] || id })),
+				...COMMUNICATION_LANGUAGES.map((id) => ({
+					id,
+					label: names[id] || id,
+				})),
 			]
 		},
+
 		/** @spec openspec/specs/user-settings/spec.md */
 		accountEmailPlaceholder() {
-			return this.preference?.accountEmail || this.t('decidesk', 'Your Nextcloud account email')
+			return (
+				this.preference?.accountEmail
+				|| this.t('decidesk', 'Your Nextcloud account email')
+			)
 		},
+
 		/** @spec openspec/specs/user-settings/spec.md */
 		validationError() {
 			if (this.governanceEmail && !isValidEmail(this.governanceEmail)) {
@@ -129,12 +151,14 @@ export default {
 			return null
 		},
 	},
+
 	watch: {
 		preference: {
 			immediate: true,
 			handler: 'applyPreference',
 		},
 	},
+
 	methods: {
 		/**
 		 * Hydrate the form from the loaded preference object.
@@ -148,8 +172,12 @@ export default {
 			}
 			this.governanceEmail = pref.governanceEmail || ''
 			this.urgentPhone = pref.urgentPhone || ''
-			this.language = this.languageOptions.find((o) => o.id === (pref.communicationLanguage || '')) || this.languageOptions[0]
+			this.language =
+				this.languageOptions.find(
+					(o) => o.id === (pref.communicationLanguage || ''),
+				) || this.languageOptions[0]
 		},
+
 		/**
 		 * Persist the communication preferences via the per-user endpoint.
 		 *

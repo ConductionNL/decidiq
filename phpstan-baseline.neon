@@ -1,8 +1,25 @@
-# Tracked phpstan debt entries surfaced when decidesk synced to the fleet canonical.
-# All entries are tracked in https://codeberg.org/Conduction/decidesk/issues/242
-# (Phase 2 pilot lint-debt cleanup). Regenerate with:
-#     ./vendor/bin/phpstan analyse --generate-baseline
-# Entries removed as the underlying code is refactored per the issue checklist.
+# Tracked phpstan debt. One entry left, and it is deliberately NOT a lint nit.
+#
+# ApiController::SCOPE_MAP is a slug -> required-OAuth-scope table that nothing
+# reads. The class docblock says scope enforcement is read from the per-schema
+# OAuthScope register entries in lib/Settings/decidesk_register.json instead, so
+# this constant is a stale hardcoded duplicate — but "the authorisation table is
+# unused" is exactly the shape of a missing check, and deleting the evidence is
+# the wrong way to make phpstan quiet. It stays baselined, with this note, until
+# somebody confirms which of the two mechanisms is actually enforcing and
+# removes or wires the constant on purpose.
+#
+# Do NOT regenerate this file with `phpstan --generate-baseline`. Entries are
+# removed one at a time as the underlying code is fixed.
+#
+# Removed 2026-08-04, verified no longer firing in CI:
+#   - ActionItemAnalyticsService: "Comparison operation > between int<1, max>
+#     and 0 is always true"
+#   - EmailLinkService: "Offset 0 on array{...} in isset() always exists"
+# Fixed 2026-08-04 rather than baselined:
+#   - MotionCoauthorService: the is_array() guard was provably dead because the
+#     @param over-promised the shape OpenRegister hands back; the docblock was
+#     widened to array<int, mixed> so the guard is live again.
 
 parameters:
 	ignoreErrors:
@@ -10,18 +27,3 @@ parameters:
 			message: "#^Constant OCA\\\\Decidesk\\\\Controller\\\\ApiController\\:\\:SCOPE_MAP is unused\\.$#"
 			count: 1
 			path: lib/Controller/ApiController.php
-
-		-
-			message: "#^Comparison operation \"\\>\" between int\\<1, max\\> and 0 is always true\\.$#"
-			count: 1
-			path: lib/Service/ActionItemAnalyticsService.php
-
-		-
-			message: "#^Offset 0 on array\\{array\\<int, string\\>, array\\<int, non\\-falsy\\-string&numeric\\-string\\>, array\\<int, non\\-falsy\\-string&numeric\\-string\\>\\} in isset\\(\\) always exists and is not nullable\\.$#"
-			count: 1
-			path: lib/Service/EmailLinkService.php
-
-		-
-			message: "#^Strict comparison using \\=\\=\\= between true and false will always evaluate to false\\.$#"
-			count: 1
-			path: lib/Service/MotionCoauthorService.php

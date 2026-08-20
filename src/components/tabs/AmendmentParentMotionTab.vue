@@ -14,7 +14,9 @@
  @spec openspec/changes/decidesk-manifest-v1/design.md (open question 3)
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--parent-motion" data-testid="amendment-parent-tab">
+	<div
+		class="decidesk-tab decidesk-tab--parent-motion"
+		data-testid="amendment-parent-tab">
 		<h3 class="decidesk-tab__title">
 			{{ t('decidesk', 'Parent motion') }}
 		</h3>
@@ -43,7 +45,7 @@
 			<CnDetailGrid :items="propertyItems" />
 			<div class="decidesk-tab__cta">
 				<NcButton
-					type="primary"
+					variant="primary"
 					data-testid="amendment-parent-open"
 					:aria-label="t('decidesk', 'Open parent motion')"
 					@click="openParent">
@@ -56,7 +58,11 @@
 			v-else
 			type="warning"
 			:title="t('decidesk', 'Parent motion not found')">
-			{{ t('decidesk', 'The referenced motion ({id}) could not be loaded.', { id: parentMotionId }) }}
+			{{
+				t('decidesk', 'The referenced motion ({id}) could not be loaded.', {
+					id: parentMotionId,
+				})
+			}}
 		</CnNoteCard>
 	</div>
 </template>
@@ -72,6 +78,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -80,8 +87,9 @@ export default {
 			motion: null,
 		}
 	},
+
 	computed: {
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		parentMotionId() {
 			// ADR-005: parent motion is referenced via the folded `amends` field.
 			const ref = this.amendment?.amends ?? this.amendment?.parentMotion
@@ -89,27 +97,41 @@ export default {
 			if (typeof ref === 'object') return ref.id || ref.uuid || ''
 			return ref
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		propertyItems() {
 			if (!this.motion) return []
 			return [
 				{ label: this.t('decidesk', 'Title'), value: this.motion.title },
-				{ label: this.t('decidesk', 'Proposer'), value: this.motion.proposer },
+				{
+					label: this.t('decidesk', 'Proposer'),
+					value: this.motion.proposer,
+				},
 				{ label: this.t('decidesk', 'Type'), value: this.motion.motionType },
-				{ label: this.t('decidesk', 'Status'), value: this.motion.lifecycle },
-				{ label: this.t('decidesk', 'Submitted'), value: this.motion.submittedAt },
+				{
+					label: this.t('decidesk', 'Status'),
+					value: this.motion.lifecycle,
+				},
+				{
+					label: this.t('decidesk', 'Submitted'),
+					value: this.motion.submittedAt,
+				},
 			]
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
-			handler() { this.refresh() },
+			/** @spec openspec/specs/relation-tab-ui/spec.md */
+			handler() {
+				this.refresh()
+			},
 		},
 	},
+
 	methods: {
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -117,21 +139,32 @@ export default {
 			this.motion = null
 			try {
 				const amendmentStore = ensureRelationType('amendment')
-				this.amendment = await amendmentStore.fetchObject('amendment', this.objectId)
+				this.amendment = await amendmentStore.fetchObject(
+					'amendment',
+					this.objectId,
+				)
 				if (this.parentMotionId) {
 					const motionStore = ensureRelationType('motion')
-					this.motion = await motionStore.fetchObject('motion', this.parentMotionId)
+					this.motion = await motionStore.fetchObject(
+						'motion',
+						this.parentMotionId,
+					)
 				}
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load parent motion.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load parent motion.')
 			} finally {
 				this.loading = false
 			}
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		openParent() {
 			if (!this.parentMotionId) return
-			this.$router.push({ name: 'MotionDetail', params: { id: this.parentMotionId } })
+			this.$router.push({
+				name: 'MotionDetail',
+				params: { id: this.parentMotionId },
+			})
 		},
 	},
 }
@@ -144,15 +177,18 @@ export default {
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
+
 .decidesk-tab__cta {
 	margin-top: var(--default-grid-baseline);
 }

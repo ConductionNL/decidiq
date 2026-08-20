@@ -15,17 +15,29 @@
 		data-testid="minutes-correction-modal"
 		@closing="$emit('close')">
 		<template #default>
-			<p>{{ t('decidesk', 'Describe the correction you propose. The chair or secretary reviews every suggestion before approving the minutes.') }}</p>
+			<p>
+				{{
+					t(
+						'decidesk',
+						'Describe the correction you propose. The chair or secretary reviews every suggestion before approving the minutes.',
+					)
+				}}
+			</p>
 			<NcTextArea
-				:value.sync="text"
+				v-model="text"
 				data-testid="minutes-correction-text"
 				:label="t('decidesk', 'Correction')"
-				:placeholder="t('decidesk', 'e.g. The vote count for item 5 should read 12 in favour')"
+				:placeholder="
+					t(
+						'decidesk',
+						'e.g. The vote count for item 5 should read 12 in favour',
+					)
+				"
 				resize="vertical" />
 		</template>
 		<template #actions>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="minutes-correction-confirm"
 				:disabled="!text.trim()"
 				@click="$emit('confirm', text.trim())">

@@ -17,16 +17,25 @@
  @spec openspec/specs/motion-amendment/spec.md
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--amendment-order" data-testid="motion-amendment-order-tab">
+	<div
+		class="decidesk-tab decidesk-tab--amendment-order"
+		data-testid="motion-amendment-order-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Voting order') }}
-				<span v-if="!loading" class="decidesk-tab__count">({{ rows.length }})</span>
+				<span v-if="!loading" class="decidesk-tab__count"
+					>({{ rows.length }})</span
+				>
 			</h3>
 		</div>
 
 		<p class="decidesk-tab__hint">
-			{{ t('decidesk', 'Amendments are voted before the main motion, most far-reaching first. Only the chair can save the order.') }}
+			{{
+				t(
+					'decidesk',
+					'Amendments are voted before the main motion, most far-reaching first. Only the chair can save the order.',
+				)
+			}}
 		</p>
 
 		<CnNoteCard
@@ -49,18 +58,22 @@
 
 		<template v-else>
 			<ol class="amendment-order__list" data-testid="amendment-order-list">
-				<li v-for="(row, index) in rows"
+				<li
+					v-for="(row, index) in rows"
 					:key="row.id"
 					class="amendment-order__item"
 					:data-testid="`amendment-order-item-${index}`">
 					<span class="amendment-order__position">{{ index + 1 }}.</span>
 					<span class="amendment-order__label">
 						{{ row.title || row.id }}
-						<CnStatusBadge v-if="row.lifecycle" :label="row.lifecycle" :color-map="lifecycleColors" />
+						<CnStatusBadge
+							v-if="row.lifecycle"
+							:label="row.lifecycle"
+							:colorMap="lifecycleColors" />
 					</span>
 					<span class="amendment-order__actions">
 						<NcButton
-							type="tertiary"
+							variant="tertiary"
 							:aria-label="t('decidesk', 'Move amendment up')"
 							:disabled="busy || index === 0 || isDecided(row)"
 							:data-testid="`amendment-order-up-${index}`"
@@ -70,9 +83,11 @@
 							</template>
 						</NcButton>
 						<NcButton
-							type="tertiary"
+							variant="tertiary"
 							:aria-label="t('decidesk', 'Move amendment down')"
-							:disabled="busy || index === rows.length - 1 || isDecided(row)"
+							:disabled="
+								busy || index === rows.length - 1 || isDecided(row)
+							"
 							:data-testid="`amendment-order-down-${index}`"
 							@click="move(index, 1)">
 							<template #icon>
@@ -85,15 +100,17 @@
 
 			<div class="amendment-order__footer">
 				<NcButton
-					type="secondary"
+					variant="secondary"
 					data-testid="amendment-order-suggest"
 					:disabled="busy"
-					:aria-label="t('decidesk', 'Suggest order, most far-reaching first')"
+					:aria-label="
+						t('decidesk', 'Suggest order, most far-reaching first')
+					"
 					@click="suggest">
 					{{ t('decidesk', 'Suggest order') }}
 				</NcButton>
 				<NcButton
-					type="primary"
+					variant="primary"
 					data-testid="amendment-order-save"
 					:disabled="busy || !dirty"
 					:aria-label="t('decidesk', 'Save voting order')"
@@ -120,10 +137,11 @@
 
 <script>
 import { CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
-import { NcButton } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
-import ArrowUp from 'vue-material-design-icons/ArrowUp.vue'
+import { NcButton } from '@nextcloud/vue'
 import ArrowDown from 'vue-material-design-icons/ArrowDown.vue'
+import ArrowUp from 'vue-material-design-icons/ArrowUp.vue'
+import { DECISION_LIFECYCLE_COLORS } from '../../constants/decisionLifecycle.js'
 import { suggestVotingOrder } from '../../utils/textDiff.js'
 import { ensureRelationType } from './useRelationStore.js'
 
@@ -133,6 +151,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -145,30 +164,33 @@ export default {
 			motionText: '',
 		}
 	},
+
 	computed: {
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		lifecycleColors() {
-			return {
-				submitted: 'primary',
-				debating: 'warning',
-				voting: 'warning',
-				adopted: 'success',
-				rejected: 'error',
-			}
+			return DECISION_LIFECYCLE_COLORS
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/motion-amendment/spec.md */
-			handler() { this.refresh() },
+			handler() {
+				this.refresh()
+			},
 		},
 	},
+
 	methods: {
-		/** @spec openspec/specs/motion-amendment/spec.md */
+		/**
+		 * @param row
+		 * @spec openspec/specs/motion-amendment/spec.md
+		 */
 		isDecided(row) {
 			return ['adopted', 'rejected'].includes(row?.lifecycle)
 		},
+
 		/**
 		 * Sort amendments by the server's deterministic comparison:
 		 * votingOrder ascending (unordered last), submittedAt, id.
@@ -179,8 +201,20 @@ export default {
 		 */
 		sortByVotingOrder(amendments) {
 			return [...amendments].sort((a, b) => {
-				const rankA = Number.isFinite(Number(a?.votingOrder)) && a?.votingOrder !== null && a?.votingOrder !== undefined && a?.votingOrder !== '' ? Number(a.votingOrder) : Number.MAX_SAFE_INTEGER
-				const rankB = Number.isFinite(Number(b?.votingOrder)) && b?.votingOrder !== null && b?.votingOrder !== undefined && b?.votingOrder !== '' ? Number(b.votingOrder) : Number.MAX_SAFE_INTEGER
+				const rankA =
+					Number.isFinite(Number(a?.votingOrder))
+					&& a?.votingOrder !== null
+					&& a?.votingOrder !== undefined
+					&& a?.votingOrder !== ''
+						? Number(a.votingOrder)
+						: Number.MAX_SAFE_INTEGER
+				const rankB =
+					Number.isFinite(Number(b?.votingOrder))
+					&& b?.votingOrder !== null
+					&& b?.votingOrder !== undefined
+					&& b?.votingOrder !== ''
+						? Number(b.votingOrder)
+						: Number.MAX_SAFE_INTEGER
 				if (rankA !== rankB) return rankA - rankB
 				const subA = String(a?.submittedAt || '')
 				const subB = String(b?.submittedAt || '')
@@ -188,6 +222,7 @@ export default {
 				return String(a?.id || '') < String(b?.id || '') ? -1 : 1
 			})
 		},
+
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		async refresh() {
 			if (!this.objectId) return
@@ -208,16 +243,26 @@ export default {
 				})
 				this.rows = this.sortByVotingOrder(items || [])
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load amendments.')
+				this.error =
+					e?.message || this.t('decidesk', 'Failed to load amendments.')
 			} finally {
 				this.loading = false
 			}
 		},
-		/** @spec openspec/specs/motion-amendment/spec.md */
+
+		/**
+		 * @param index
+		 * @param delta
+		 * @spec openspec/specs/motion-amendment/spec.md
+		 */
 		move(index, delta) {
 			const target = index + delta
 			if (target < 0 || target >= this.rows.length) return
-			if (this.isDecided(this.rows[index]) || this.isDecided(this.rows[target])) return
+			if (
+				this.isDecided(this.rows[index])
+				|| this.isDecided(this.rows[target])
+			)
+				return
 			const next = [...this.rows]
 			const [row] = next.splice(index, 1)
 			next.splice(target, 0, row)
@@ -225,6 +270,7 @@ export default {
 			this.dirty = true
 			this.saved = false
 		},
+
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		suggest() {
 			// Decided amendments keep their position; only the undecided tail is
@@ -235,6 +281,7 @@ export default {
 			this.dirty = true
 			this.saved = false
 		},
+
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		async save() {
 			this.busy = true
@@ -242,7 +289,9 @@ export default {
 			this.saved = false
 			try {
 				const res = await fetch(
-					generateUrl(`/apps/decidesk/api/motions/${this.objectId}/amendment-order`),
+					generateUrl(
+						`/apps/decidesk/api/motions/${this.objectId}/amendment-order`,
+					),
 					{
 						method: 'POST',
 						headers: {
@@ -250,12 +299,18 @@ export default {
 							'Content-Type': 'application/json',
 							requesttoken: OC.requestToken,
 						},
-						body: JSON.stringify({ orderedAmendmentIds: this.rows.map((row) => String(row.id)) }),
+						body: JSON.stringify({
+							orderedAmendmentIds: this.rows.map((row) =>
+								String(row.id),
+							),
+						}),
 					},
 				)
 				const body = await res.json()
 				if (!res.ok) {
-					this.saveError = body?.message || this.t('decidesk', 'Saving the order failed.')
+					this.saveError =
+						body?.message
+						|| this.t('decidesk', 'Saving the order failed.')
 					return
 				}
 				this.saved = true
@@ -263,7 +318,8 @@ export default {
 				await this.refresh()
 				this.saved = true
 			} catch (e) {
-				this.saveError = e?.message || this.t('decidesk', 'Saving the order failed.')
+				this.saveError =
+					e?.message || this.t('decidesk', 'Saving the order failed.')
 			} finally {
 				this.busy = false
 			}
@@ -279,31 +335,37 @@ export default {
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
+
 .decidesk-tab__hint {
 	margin: 0;
 	color: var(--color-text-maxcontrast);
 	font-size: 0.9rem;
 }
+
 .decidesk-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
+
 .amendment-order__list {
 	list-style: none;
 	margin: 0;
@@ -312,6 +374,7 @@ export default {
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 }
+
 .amendment-order__item {
 	display: flex;
 	align-items: center;
@@ -321,10 +384,12 @@ export default {
 	border-radius: var(--border-radius);
 	background-color: var(--color-main-background);
 }
+
 .amendment-order__position {
 	font-weight: bold;
 	min-width: 1.5rem;
 }
+
 .amendment-order__label {
 	flex: 1;
 	display: flex;
@@ -332,10 +397,12 @@ export default {
 	gap: var(--default-grid-baseline);
 	min-width: 0;
 }
+
 .amendment-order__actions {
 	display: flex;
 	gap: 2px;
 }
+
 .amendment-order__footer {
 	display: flex;
 	gap: var(--default-grid-baseline);

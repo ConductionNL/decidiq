@@ -2,11 +2,13 @@
 #
 # Decidesk API-contract test runner (Newman / Postman).
 #
-# Runs tests/integration/decidesk.postman_collection.json against a live
-# Nextcloud instance serving the decidesk app. The collection is self-contained
-# and idempotent: it seeds the OpenRegister objects it needs (governance body,
-# chair participant, meeting, motion, two voting rounds, a decision) and deletes
-# them again in teardown.
+# Runs tests/integration/decidesk.postman_collection.json, then
+# tests/integration/decidesk-security-flow-e2e.postman_collection.json (proxy-vote
+# authorization guard + eIDAS/governance-report/regulator-export reachability,
+# security-flow-e2e-coverage), against a live Nextcloud instance serving the
+# decidesk app. Both collections are self-contained and idempotent: they seed
+# the OpenRegister objects / Nextcloud users they need and delete them again in
+# teardown.
 #
 # Usage:
 #   ./run-newman.sh                                  # defaults to localhost:8080, admin:admin
@@ -30,7 +32,21 @@ if [ "${DECIDESK_NEWMAN_LOCKED:-}" != "1" ] && command -v flock >/dev/null 2>&1;
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-COLLECTION="${SCRIPT_DIR}/decidesk.postman_collection.json"
+
+# EVERY collection in this directory, which is what CI runs:
+# `for collection in *.postman_collection.json` in the shared quality workflow's
+# newman job. This list used to name two files by hand. The tree now ships
+# fourteen, so a green `./run-newman.sh` was a green over an unopened scope —
+# a developer could add a collection, watch this script pass, and never learn
+# it had not been executed until CI ran it. Globbing keeps the local runner and
+# CI measuring the same thing by construction.
+shopt -s nullglob
+COLLECTIONS=("${SCRIPT_DIR}"/*.postman_collection.json)
+shopt -u nullglob
+if [ "${#COLLECTIONS[@]}" -eq 0 ]; then
+  echo "ERROR: no *.postman_collection.json found in ${SCRIPT_DIR}" >&2
+  exit 1
+fi
 
 BASE_URL="${BASE_URL:-http://localhost:8080}"
 ADMIN_USER="${ADMIN_USER:-admin}"
@@ -56,12 +72,15 @@ fi
 
 # --ignore-redirects: assert NC's 401-on-unauthenticated directly instead of
 # following a 303 to the login page (so the authz tests are honest).
-"${NEWMAN[@]}" run "${COLLECTION}" \
-  --env-var "baseUrl=${BASE_URL}" \
-  --env-var "noAuthBase=${NOAUTH_BASE}" \
-  --env-var "adminUser=${ADMIN_USER}" \
-  --env-var "adminPass=${ADMIN_PASS}" \
-  --ignore-redirects \
-  --reporters cli \
-  --color on \
-  "$@"
+for COLLECTION in "${COLLECTIONS[@]}"; do
+  echo "== Newman: $(basename "${COLLECTION}") =="
+  "${NEWMAN[@]}" run "${COLLECTION}" \
+    --env-var "baseUrl=${BASE_URL}" \
+    --env-var "noAuthBase=${NOAUTH_BASE}" \
+    --env-var "adminUser=${ADMIN_USER}" \
+    --env-var "adminPass=${ADMIN_PASS}" \
+    --ignore-redirects \
+    --reporters cli \
+    --color on \
+    "$@"
+done

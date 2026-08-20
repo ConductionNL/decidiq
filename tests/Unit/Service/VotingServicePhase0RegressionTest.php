@@ -30,12 +30,23 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Service;
 
+use OCA\Decidesk\Service\AmendmentOrderService;
 use OCA\Decidesk\Service\MotionService;
+use OCA\Decidesk\Service\ObjectRelationFilter;
 use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidesk\Service\ParticipantUuidLookup;
+use OCA\Decidesk\Service\VoteCastingService;
+use OCA\Decidesk\Service\VotingOpenedNotifier;
+use OCA\Decidesk\Service\VotingRoundCloser;
+use OCA\Decidesk\Service\VotingRoundOpener;
+use OCA\Decidesk\Service\VotingRoundPreflight;
+use OCA\Decidesk\Service\VotingRoundProjection;
+use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Service\FileService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -46,282 +57,312 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
  */
-class VotingServicePhase0RegressionTest extends TestCase
-{
+class VotingServicePhase0RegressionTest extends TestCase {
 
-    /**
-     * @var ContainerInterface&MockObject
-     */
-    private ContainerInterface $container;
+	/**
+	 * @var ContainerInterface&MockObject
+	 */
+	private ContainerInterface $container;
 
-    /**
-     * @var LoggerInterface&MockObject
-     */
-    private LoggerInterface $logger;
+	/**
+	 * @var LoggerInterface&MockObject
+	 */
+	private LoggerInterface $logger;
 
-    /**
-     * @var OriPublicationService&MockObject
-     */
-    private OriPublicationService $oriService;
+	/**
+	 * @var OriPublicationService&MockObject
+	 */
+	private OriPublicationService $oriService;
 
-    /**
-     * @var MotionService&MockObject
-     */
-    private MotionService $motionService;
+	/**
+	 * @var MotionService&MockObject
+	 */
+	private MotionService $motionService;
 
-    /**
-     * @var ParticipantResolver&MockObject
-     */
-    private ParticipantResolver $participantResolver;
+	/**
+	 * @var ParticipantResolver&MockObject
+	 */
+	private ParticipantResolver $participantResolver;
 
-    /**
-     * @var ObjectService&MockObject
-     */
-    private ObjectService $objectService;
+	/**
+	 * @var ObjectServiceInterface&MockObject
+	 */
+	private ObjectServiceInterface $objectService;
 
-    /**
-     * The service under test.
-     *
-     * @var VotingService
-     */
-    private VotingService $service;
+	/**
+	 * The service under test.
+	 *
+	 * @var VotingService
+	 */
+	private VotingService $service;
 
+	/**
+	 * Set up test fixtures.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-    /**
-     * Set up test fixtures.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+		$this->container = $this->createMock(ContainerInterface::class);
+		$this->logger = $this->createMock(LoggerInterface::class);
+		$this->oriService = $this->createMock(OriPublicationService::class);
+		$this->motionService = $this->createMock(MotionService::class);
+		$this->participantResolver = $this->createMock(ParticipantResolver::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 
-        $this->container           = $this->createMock(ContainerInterface::class);
-        $this->logger              = $this->createMock(LoggerInterface::class);
-        $this->oriService          = $this->createMock(OriPublicationService::class);
-        $this->motionService       = $this->createMock(MotionService::class);
-        $this->participantResolver = $this->createMock(ParticipantResolver::class);
-        $this->objectService       = $this->createMock(ObjectService::class);
+		$this->objectService->method('setRegister')->willReturnSelf();
+		$this->objectService->method('setSchema')->willReturnSelf();
+		$this->container->method('get')->willReturn($this->objectService);
 
-        $this->objectService->method('setRegister')->willReturnSelf();
-        $this->objectService->method('setSchema')->willReturnSelf();
-        $this->container->method('get')->willReturn($this->objectService);
+		$templateService = $this->createMock(\OCA\Decidesk\Service\ProcessTemplateService::class);
+		$templateService->method('resolveVotingRuleForBody')->willReturn(null);
 
-        $templateService = $this->createMock(\OCA\Decidesk\Service\ProcessTemplateService::class);
-        $templateService->method('resolveVotingRuleForBody')->willReturn(null);
+		// VotingService is a thin facade: every operation is delegated to a
+		// single-purpose collaborator, so the graph is built explicitly here
+		// where production relies on Nextcloud's constructor auto-wiring.
+		$amendmentOrder = new AmendmentOrderService(
+			motionService: $this->motionService,
+			objectService: $this->objectService,
+		);
+		$relationFilter = new ObjectRelationFilter();
 
-        $this->service = new VotingService(
-            $this->container,
-            $this->logger,
-            $this->oriService,
-            $this->motionService,
-            $this->participantResolver,
-            $templateService,
-        );
+		$this->service = new VotingService(
+			opener: new VotingRoundOpener(
+				motionService: $this->motionService,
+				participantResolver: $this->participantResolver,
+				preflight: new VotingRoundPreflight(
+					logger: $this->logger,
+					motionService: $this->motionService,
+					participantResolver: $this->participantResolver,
+					templateService: $templateService,
+					objectService: $this->objectService,
+				),
+				notifier: new VotingOpenedNotifier(
+					logger: $this->logger,
+					participantResolver: $this->participantResolver,
+					container: $this->container,
+				),
+				objectService: $this->objectService,
+			),
+			caster: new VoteCastingService(
+				logger: $this->logger,
+				participantResolver: $this->participantResolver,
+				amendmentOrder: $amendmentOrder,
+				relationFilter: $relationFilter,
+				objectService: $this->objectService,
+				container: $this->container,
+			),
+			closer: new VotingRoundCloser(
+				logger: $this->logger,
+				oriService: $this->oriService,
+				motionService: $this->motionService,
+				amendmentOrder: $amendmentOrder,
+				relationFilter: $relationFilter,
+				objectService: $this->objectService,
+				fileService: $this->createMock(FileService::class),
+			),
+			results: new VotingRoundResults(
+				motionService: $this->motionService,
+				participantResolver: $this->participantResolver,
+				objectService: $this->objectService,
+			),
+			projection: new VotingRoundProjection(
+				objectService: $this->objectService,
+			),
+			participants: new ParticipantUuidLookup(
+				objectService: $this->objectService,
+			),
+		);
 
-    }//end setUp()
+	}//end setUp()
 
+	/**
+	 * Build an ObjectEntity mock whose jsonSerialize() returns $data.
+	 *
+	 * Returning a real ObjectEntity (not \stdClass) keeps the value assignable
+	 * to ObjectService::find()/saveObject()'s live return types.
+	 *
+	 * @param array<string, mixed> $data The serialised object payload.
+	 *
+	 * @return ObjectEntity&MockObject
+	 */
+	private function entity(array $data): ObjectEntity {
+		$entity = $this->getMockBuilder(ObjectEntity::class)
+			->disableOriginalConstructor()
+			->onlyMethods(['jsonSerialize'])
+			->getMock();
+		$entity->method('jsonSerialize')->willReturn($data);
+		return $entity;
+	}//end entity()
 
-    /**
-     * Build an ObjectEntity mock whose jsonSerialize() returns $data.
-     *
-     * Returning a real ObjectEntity (not \stdClass) keeps the value assignable
-     * to ObjectService::find()/saveObject()'s live return types.
-     *
-     * @param array<string, mixed> $data The serialised object payload.
-     *
-     * @return ObjectEntity&MockObject
-     */
-    private function entity(array $data): ObjectEntity
-    {
-        $entity = $this->getMockBuilder(ObjectEntity::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['jsonSerialize'])
-            ->getMock();
-        $entity->method('jsonSerialize')->willReturn($data);
-        return $entity;
+	/**
+	 * openVotingRound() throws when quorum is not met — quorum is enforced at
+	 * the service level before any round is persisted.
+	 *
+	 * @return void
+	 */
+	public function testOpenVotingRoundEnforcesQuorum(): void {
+		// checkQuorum() loads the meeting; quorumRequired 5 with 1 participant fails.
+		$this->objectService->method('find')->willReturn(
+			$this->entity(['quorumRequired' => 5])
+		);
+		$this->participantResolver->method('resolveMeetingParticipants')->willReturn(
+			[['id' => 'p1', 'leftAt' => null]]
+		);
 
-    }//end entity()
+		$this->objectService->expects($this->never())->method('saveObject');
 
+		$this->expectException(\RuntimeException::class);
+		$this->expectExceptionMessage('Quorum niet bereikt');
 
-    /**
-     * openVotingRound() throws when quorum is not met — quorum is enforced at
-     * the service level before any round is persisted.
-     *
-     * @return void
-     */
-    public function testOpenVotingRoundEnforcesQuorum(): void
-    {
-        // checkQuorum() loads the meeting; quorumRequired 5 with 1 participant fails.
-        $this->objectService->method('find')->willReturn(
-            $this->entity(['quorumRequired' => 5])
-        );
-        $this->participantResolver->method('resolveMeetingParticipants')->willReturn(
-            [['id' => 'p1', 'leftAt' => null]]
-        );
+		$this->service->openVotingRound(
+			motionId: 'm1',
+			meetingId: 'mt1',
+			votingMethod: 'roll-call',
+			isSecret: false,
+			closedAt: null,
+		);
 
-        $this->objectService->expects($this->never())->method('saveObject');
+	}//end testOpenVotingRoundEnforcesQuorum()
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Quorum niet bereikt');
+	/**
+	 * openVotingRound() returns the persisted round as an ARRAY (normaliseSaved
+	 * serialises the ObjectEntity returned by saveObject()).
+	 *
+	 * @return void
+	 */
+	public function testOpenVotingRoundReturnsArrayViaNormaliseSaved(): void {
+		// quorumRequired 0 => quorum auto-met.
+		$this->objectService->method('find')->willReturn(
+			$this->entity(['quorumRequired' => 0])
+		);
 
-        $this->service->openVotingRound(
-            motionId: 'm1',
-            meetingId: 'mt1',
-            votingMethod: 'roll-call',
-            isSecret: false,
-            closedAt: null,
-        );
+		$savedRound = ['id' => 'vr1', 'votingMethod' => 'roll-call', 'votesFor' => 0];
+		$this->objectService->method('saveObject')->willReturn($this->entity($savedRound));
 
-    }//end testOpenVotingRoundEnforcesQuorum()
+		$result = $this->service->openVotingRound(
+			motionId: 'm1',
+			meetingId: 'mt1',
+			votingMethod: 'roll-call',
+			isSecret: false,
+			closedAt: null,
+		);
 
+		$this->assertIsArray($result);
+		$this->assertSame('vr1', $result['id']);
 
-    /**
-     * openVotingRound() returns the persisted round as an ARRAY (normaliseSaved
-     * serialises the ObjectEntity returned by saveObject()).
-     *
-     * @return void
-     */
-    public function testOpenVotingRoundReturnsArrayViaNormaliseSaved(): void
-    {
-        // quorumRequired 0 => quorum auto-met.
-        $this->objectService->method('find')->willReturn(
-            $this->entity(['quorumRequired' => 0])
-        );
+	}//end testOpenVotingRoundReturnsArrayViaNormaliseSaved()
 
-        $savedRound = ['id' => 'vr1', 'votingMethod' => 'roll-call', 'votesFor' => 0];
-        $this->objectService->method('saveObject')->willReturn($this->entity($savedRound));
+	/**
+	 * tallyResults() counts weighted votes and adopts when for > against.
+	 * Also proves the round-scoped result set is queried via _relations and
+	 * id-scoped by filterByRelation (each vote references the round).
+	 *
+	 * @return void
+	 */
+	public function testTallyResultsAdoptedWhenForExceedsAgainst(): void {
+		$roundId = 'vr-adopt';
 
-        $result = $this->service->openVotingRound(
-            motionId: 'm1',
-            meetingId: 'mt1',
-            votingMethod: 'roll-call',
-            isSecret: false,
-            closedAt: null,
-        );
+		$voteEntities = [
+			$this->entity(['value' => 'for', 'weight' => 1, 'relations' => [['schema' => 'voting-round', 'id' => $roundId]]]),
+			$this->entity(['value' => 'for', 'weight' => 1, 'relations' => [['schema' => 'voting-round', 'id' => $roundId]]]),
+			$this->entity(['value' => 'against', 'weight' => 1, 'relations' => [['schema' => 'voting-round', 'id' => $roundId]]]),
+		];
 
-        $this->assertIsArray($result);
-        $this->assertSame('vr1', $result['id']);
+		$this->objectService->method('findAll')->willReturn($voteEntities);
+		$this->objectService->method('find')->willReturn(
+			$this->entity(['id' => $roundId, 'relations' => [['schema' => 'voting-round', 'id' => $roundId]]])
+		);
+		$this->objectService->method('saveObject')->willReturn($this->entity(['id' => $roundId]));
 
-    }//end testOpenVotingRoundReturnsArrayViaNormaliseSaved()
+		$tally = $this->service->tallyResults(votingRoundId: $roundId);
 
+		$this->assertSame(2, $tally['votesFor']);
+		$this->assertSame(1, $tally['votesAgainst']);
+		$this->assertSame('adopted', $tally['result']);
 
-    /**
-     * tallyResults() counts weighted votes and adopts when for > against.
-     * Also proves the round-scoped result set is queried via _relations and
-     * id-scoped by filterByRelation (each vote references the round).
-     *
-     * @return void
-     */
-    public function testTallyResultsAdoptedWhenForExceedsAgainst(): void
-    {
-        $roundId = 'vr-adopt';
+	}//end testTallyResultsAdoptedWhenForExceedsAgainst()
 
-        $voteEntities = [
-            $this->entity(['value' => 'for', 'weight' => 1, 'relations' => [['schema' => 'voting-round', 'id' => $roundId]]]),
-            $this->entity(['value' => 'for', 'weight' => 1, 'relations' => [['schema' => 'voting-round', 'id' => $roundId]]]),
-            $this->entity(['value' => 'against', 'weight' => 1, 'relations' => [['schema' => 'voting-round', 'id' => $roundId]]]),
-        ];
+	/**
+	 * tallyResults() id-scopes the result set: a vote that carries a
+	 * voting-round relation to a DIFFERENT round is excluded by filterByRelation,
+	 * so a leaked foreign vote does not skew the tally.
+	 *
+	 * @return void
+	 */
+	public function testTallyResultsIdScopesRelationFilter(): void {
+		$roundId = 'vr-scope';
 
-        $this->objectService->method('findAll')->willReturn($voteEntities);
-        $this->objectService->method('find')->willReturn(
-            $this->entity(['id' => $roundId, 'relations' => [['schema' => 'voting-round', 'id' => $roundId]]])
-        );
-        $this->objectService->method('saveObject')->willReturn($this->entity(['id' => $roundId]));
+		$voteEntities = [
+			// Belongs to this round.
+			$this->entity(['value' => 'for', 'weight' => 1, 'relations' => [['schema' => 'voting-round', 'id' => $roundId]]]),
+			// Belongs to ANOTHER round — must be filtered out.
+			$this->entity(['value' => 'against', 'weight' => 1, 'relations' => [['schema' => 'voting-round', 'id' => 'other-round']]]),
+		];
 
-        $tally = $this->service->tallyResults(votingRoundId: $roundId);
+		$this->objectService->method('findAll')->willReturn($voteEntities);
+		$this->objectService->method('find')->willReturn(
+			$this->entity(['id' => $roundId, 'relations' => [['schema' => 'voting-round', 'id' => $roundId]]])
+		);
+		$this->objectService->method('saveObject')->willReturn($this->entity(['id' => $roundId]));
 
-        $this->assertSame(2, $tally['votesFor']);
-        $this->assertSame(1, $tally['votesAgainst']);
-        $this->assertSame('adopted', $tally['result']);
+		$tally = $this->service->tallyResults(votingRoundId: $roundId);
 
-    }//end testTallyResultsAdoptedWhenForExceedsAgainst()
+		// The foreign 'against' vote is excluded; only the in-scope 'for' counts.
+		$this->assertSame(1, $tally['votesFor']);
+		$this->assertSame(0, $tally['votesAgainst']);
+		$this->assertSame('adopted', $tally['result']);
 
+	}//end testTallyResultsIdScopesRelationFilter()
 
-    /**
-     * tallyResults() id-scopes the result set: a vote that carries a
-     * voting-round relation to a DIFFERENT round is excluded by filterByRelation,
-     * so a leaked foreign vote does not skew the tally.
-     *
-     * @return void
-     */
-    public function testTallyResultsIdScopesRelationFilter(): void
-    {
-        $roundId = 'vr-scope';
+	/**
+	 * saveShowOfHandsTally() returns an ARRAY and computes adopted/rejected from
+	 * the chair-entered counts (for > against => adopted).
+	 *
+	 * @return void
+	 */
+	public function testSaveShowOfHandsTallyReturnsArrayAndAdopts(): void {
+		// Round with no motion relation => participant-count validation is skipped.
+		$this->objectService->method('find')->willReturn(
+			$this->entity(['id' => 'vr-soh', 'votingMethod' => 'show-of-hands', 'relations' => []])
+		);
+		$this->objectService->method('saveObject')->willReturn(
+			$this->entity(['id' => 'vr-soh', 'result' => 'adopted', 'votesFor' => 7, 'votesAgainst' => 2])
+		);
 
-        $voteEntities = [
-            // Belongs to this round.
-            $this->entity(['value' => 'for', 'weight' => 1, 'relations' => [['schema' => 'voting-round', 'id' => $roundId]]]),
-            // Belongs to ANOTHER round — must be filtered out.
-            $this->entity(['value' => 'against', 'weight' => 1, 'relations' => [['schema' => 'voting-round', 'id' => 'other-round']]]),
-        ];
+		$result = $this->service->saveShowOfHandsTally(
+			votingRoundId: 'vr-soh',
+			votesFor: 7,
+			votesAgainst: 2,
+			votesAbstain: 1,
+		);
 
-        $this->objectService->method('findAll')->willReturn($voteEntities);
-        $this->objectService->method('find')->willReturn(
-            $this->entity(['id' => $roundId, 'relations' => [['schema' => 'voting-round', 'id' => $roundId]]])
-        );
-        $this->objectService->method('saveObject')->willReturn($this->entity(['id' => $roundId]));
+		$this->assertIsArray($result);
+		$this->assertSame('adopted', $result['result']);
 
-        $tally = $this->service->tallyResults(votingRoundId: $roundId);
+	}//end testSaveShowOfHandsTallyReturnsArrayAndAdopts()
 
-        // The foreign 'against' vote is excluded; only the in-scope 'for' counts.
-        $this->assertSame(1, $tally['votesFor']);
-        $this->assertSame(0, $tally['votesAgainst']);
-        $this->assertSame('adopted', $tally['result']);
+	/**
+	 * saveShowOfHandsTally() rejects a non show-of-hands round.
+	 *
+	 * @return void
+	 */
+	public function testSaveShowOfHandsTallyRejectsWrongMethod(): void {
+		$this->objectService->method('find')->willReturn(
+			$this->entity(['id' => 'vr-x', 'votingMethod' => 'roll-call', 'relations' => []])
+		);
 
-    }//end testTallyResultsIdScopesRelationFilter()
+		$this->expectException(\RuntimeException::class);
+		$this->expectExceptionMessage('show-of-hands');
 
+		$this->service->saveShowOfHandsTally(
+			votingRoundId: 'vr-x',
+			votesFor: 1,
+			votesAgainst: 0,
+			votesAbstain: 0,
+		);
 
-    /**
-     * saveShowOfHandsTally() returns an ARRAY and computes adopted/rejected from
-     * the chair-entered counts (for > against => adopted).
-     *
-     * @return void
-     */
-    public function testSaveShowOfHandsTallyReturnsArrayAndAdopts(): void
-    {
-        // Round with no motion relation => participant-count validation is skipped.
-        $this->objectService->method('find')->willReturn(
-            $this->entity(['id' => 'vr-soh', 'votingMethod' => 'show-of-hands', 'relations' => []])
-        );
-        $this->objectService->method('saveObject')->willReturn(
-            $this->entity(['id' => 'vr-soh', 'result' => 'adopted', 'votesFor' => 7, 'votesAgainst' => 2])
-        );
-
-        $result = $this->service->saveShowOfHandsTally(
-            votingRoundId: 'vr-soh',
-            votesFor: 7,
-            votesAgainst: 2,
-            votesAbstain: 1,
-        );
-
-        $this->assertIsArray($result);
-        $this->assertSame('adopted', $result['result']);
-
-    }//end testSaveShowOfHandsTallyReturnsArrayAndAdopts()
-
-
-    /**
-     * saveShowOfHandsTally() rejects a non show-of-hands round.
-     *
-     * @return void
-     */
-    public function testSaveShowOfHandsTallyRejectsWrongMethod(): void
-    {
-        $this->objectService->method('find')->willReturn(
-            $this->entity(['id' => 'vr-x', 'votingMethod' => 'roll-call', 'relations' => []])
-        );
-
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('show-of-hands');
-
-        $this->service->saveShowOfHandsTally(
-            votingRoundId: 'vr-x',
-            votesFor: 1,
-            votesAgainst: 0,
-            votesAbstain: 0,
-        );
-
-    }//end testSaveShowOfHandsTallyRejectsWrongMethod()
+	}//end testSaveShowOfHandsTallyRejectsWrongMethod()
 
 }//end class

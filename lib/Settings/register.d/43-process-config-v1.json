@@ -1,4 +1,388 @@
 {
+  "x-openregister": {
+    "seedData": {
+      "description": "Process template seed data (planted via OpenRegister x-openregister.seedData path).",
+      "objects": {
+        "process-template": [
+          {
+            "slug": "association-alv",
+            "name": "Association ALV",
+            "description": "Standard decision process for a Dutch association general meeting (ALV), BW Book 2.",
+            "context": "association",
+            "builtIn": true,
+            "initialState": "draft",
+            "stateMachine": {
+              "states": [
+                {
+                  "name": "draft"
+                },
+                {
+                  "name": "proposed"
+                },
+                {
+                  "name": "deliberating"
+                },
+                {
+                  "name": "voting"
+                },
+                {
+                  "name": "decided"
+                },
+                {
+                  "name": "enacted"
+                },
+                {
+                  "name": "archived"
+                }
+              ],
+              "transitions": [
+                {
+                  "name": "propose",
+                  "from": "draft",
+                  "to": "proposed"
+                },
+                {
+                  "name": "deliberate",
+                  "from": "proposed",
+                  "to": "deliberating"
+                },
+                {
+                  "name": "openVoting",
+                  "from": "deliberating",
+                  "to": "voting",
+                  "chairOnly": true,
+                  "guards": [
+                    "quorum_met"
+                  ]
+                },
+                {
+                  "name": "decide",
+                  "from": "voting",
+                  "to": "decided"
+                },
+                {
+                  "name": "enact",
+                  "from": "decided",
+                  "to": "enacted"
+                },
+                {
+                  "name": "archive",
+                  "from": "enacted",
+                  "to": "archived"
+                }
+              ]
+            },
+            "votingRule": {
+              "voteThreshold": "simple-majority",
+              "abstentionHandling": "exclude",
+              "tieBreakRule": "rejected"
+            },
+            "quorumRequired": true,
+            "quorumRule": "50%+1 of members present or represented",
+            "allowDecideWithoutVote": false
+          },
+          {
+            "slug": "association-board",
+            "name": "Association Board",
+            "description": "Decision process for an association board (bestuur).",
+            "context": "association",
+            "builtIn": true,
+            "initialState": "draft",
+            "stateMachine": {
+              "states": [
+                {
+                  "name": "draft"
+                },
+                {
+                  "name": "proposed"
+                },
+                {
+                  "name": "deliberating"
+                },
+                {
+                  "name": "voting"
+                },
+                {
+                  "name": "decided"
+                },
+                {
+                  "name": "enacted"
+                },
+                {
+                  "name": "archived"
+                }
+              ],
+              "transitions": [
+                {
+                  "name": "propose",
+                  "from": "draft",
+                  "to": "proposed"
+                },
+                {
+                  "name": "deliberate",
+                  "from": "proposed",
+                  "to": "deliberating"
+                },
+                {
+                  "name": "openVoting",
+                  "from": "deliberating",
+                  "to": "voting",
+                  "chairOnly": true,
+                  "guards": [
+                    "quorum_met"
+                  ]
+                },
+                {
+                  "name": "decide",
+                  "from": "voting",
+                  "to": "decided"
+                },
+                {
+                  "name": "enact",
+                  "from": "decided",
+                  "to": "enacted"
+                },
+                {
+                  "name": "archive",
+                  "from": "enacted",
+                  "to": "archived"
+                }
+              ]
+            },
+            "votingRule": {
+              "voteThreshold": "simple-majority",
+              "abstentionHandling": "exclude",
+              "tieBreakRule": "chair-decides"
+            },
+            "quorumRequired": true,
+            "quorumRule": "Majority of board members present",
+            "allowDecideWithoutVote": false
+          },
+          {
+            "slug": "corporate-board",
+            "name": "Corporate Board (BV)",
+            "description": "Decision process for the management board of a Dutch private limited company (BV).",
+            "context": "corporate",
+            "builtIn": true,
+            "initialState": "draft",
+            "stateMachine": {
+              "states": [
+                {
+                  "name": "draft"
+                },
+                {
+                  "name": "proposed"
+                },
+                {
+                  "name": "deliberating"
+                },
+                {
+                  "name": "voting"
+                },
+                {
+                  "name": "decided"
+                },
+                {
+                  "name": "enacted"
+                },
+                {
+                  "name": "archived"
+                }
+              ],
+              "transitions": [
+                {
+                  "name": "propose",
+                  "from": "draft",
+                  "to": "proposed"
+                },
+                {
+                  "name": "deliberate",
+                  "from": "proposed",
+                  "to": "deliberating"
+                },
+                {
+                  "name": "openVoting",
+                  "from": "deliberating",
+                  "to": "voting",
+                  "chairOnly": true,
+                  "guards": [
+                    "quorum_met"
+                  ]
+                },
+                {
+                  "name": "decide",
+                  "from": "voting",
+                  "to": "decided"
+                },
+                {
+                  "name": "enact",
+                  "from": "decided",
+                  "to": "enacted"
+                },
+                {
+                  "name": "archive",
+                  "from": "enacted",
+                  "to": "archived"
+                }
+              ]
+            },
+            "votingRule": {
+              "voteThreshold": "simple-majority",
+              "abstentionHandling": "exclude",
+              "tieBreakRule": "chair-decides"
+            },
+            "quorumRequired": true,
+            "quorumRule": "Quorum per the articles of association",
+            "allowDecideWithoutVote": false
+          },
+          {
+            "slug": "municipal-council",
+            "name": "Municipal Council",
+            "description": "Legislative decision process for a municipal council (gemeenteraad), Gemeentewet.",
+            "context": "legislative",
+            "builtIn": true,
+            "initialState": "draft",
+            "stateMachine": {
+              "states": [
+                {
+                  "name": "draft"
+                },
+                {
+                  "name": "proposed"
+                },
+                {
+                  "name": "deliberating"
+                },
+                {
+                  "name": "voting"
+                },
+                {
+                  "name": "decided"
+                },
+                {
+                  "name": "enacted"
+                },
+                {
+                  "name": "archived"
+                }
+              ],
+              "transitions": [
+                {
+                  "name": "propose",
+                  "from": "draft",
+                  "to": "proposed"
+                },
+                {
+                  "name": "deliberate",
+                  "from": "proposed",
+                  "to": "deliberating"
+                },
+                {
+                  "name": "openVoting",
+                  "from": "deliberating",
+                  "to": "voting",
+                  "chairOnly": true,
+                  "guards": [
+                    "quorum_met",
+                    "all_amendments_resolved"
+                  ]
+                },
+                {
+                  "name": "decide",
+                  "from": "voting",
+                  "to": "decided",
+                  "chairOnly": true
+                },
+                {
+                  "name": "enact",
+                  "from": "decided",
+                  "to": "enacted"
+                },
+                {
+                  "name": "archive",
+                  "from": "enacted",
+                  "to": "archived"
+                }
+              ]
+            },
+            "votingRule": {
+              "voteThreshold": "simple-majority",
+              "abstentionHandling": "exclude",
+              "tieBreakRule": "rejected"
+            },
+            "quorumRequired": true,
+            "quorumRule": "More than half of the seats occupied (Gemeentewet art. 20)",
+            "allowDecideWithoutVote": false
+          },
+          {
+            "slug": "operational-team",
+            "name": "Operational Team",
+            "description": "Lightweight decision process for an operational/management team; formal voting rounds are optional.",
+            "context": "operations",
+            "builtIn": true,
+            "initialState": "draft",
+            "stateMachine": {
+              "states": [
+                {
+                  "name": "draft"
+                },
+                {
+                  "name": "proposed"
+                },
+                {
+                  "name": "deliberating"
+                },
+                {
+                  "name": "decided"
+                },
+                {
+                  "name": "enacted"
+                },
+                {
+                  "name": "archived"
+                }
+              ],
+              "transitions": [
+                {
+                  "name": "propose",
+                  "from": "draft",
+                  "to": "proposed"
+                },
+                {
+                  "name": "deliberate",
+                  "from": "proposed",
+                  "to": "deliberating"
+                },
+                {
+                  "name": "decide",
+                  "from": "deliberating",
+                  "to": "decided"
+                },
+                {
+                  "name": "enact",
+                  "from": "decided",
+                  "to": "enacted"
+                },
+                {
+                  "name": "archive",
+                  "from": "enacted",
+                  "to": "archived"
+                }
+              ]
+            },
+            "votingRule": {
+              "voteThreshold": "simple-majority",
+              "abstentionHandling": "exclude",
+              "tieBreakRule": "rejected"
+            },
+            "quorumRequired": false,
+            "quorumRule": "No formal quorum",
+            "allowDecideWithoutVote": true
+          }
+        ]
+      }
+    }
+  },
   "components": {
     "schemas": {
       "ProcessTemplate": {
@@ -7,6 +391,9 @@
         "version": "0.1.0",
         "title": "ProcessTemplate",
         "description": "A reusable governance process template: the state machine, default voting rule, and quorum policy a governance body follows for its decisions and meetings.",
+        "configuration": {
+          "x-openregister-shareable": true
+        },
         "type": "object",
         "x-openregister": {
           "schemaType": "custom:ProcessTemplate",
@@ -23,15 +410,18 @@
         "properties": {
           "name": {
             "type": "string",
+            "title": "Name",
             "description": "Human-readable template name.",
             "example": "Association ALV"
           },
           "description": {
             "type": "string",
+            "title": "Description",
             "description": "Optional description of when this template applies."
           },
           "context": {
             "type": "string",
+            "title": "Context",
             "description": "Governance context this template is intended for (maps to the guard fallback domain when unset).",
             "enum": [
               "association",
@@ -44,44 +434,77 @@
           },
           "builtIn": {
             "type": "boolean",
+            "title": "Built-in",
             "description": "Read-only built-in template shipped with the app. Edit/delete are refused; duplicate is allowed (clears this flag).",
             "default": false,
             "example": true
           },
           "initialState": {
             "type": "string",
+            "title": "Initial state",
             "description": "The state a decision enters this template at.",
             "example": "draft"
           },
           "stateMachine": {
             "type": "object",
+            "title": "State machine",
             "description": "Structured state machine (1:1 convertible to Symfony Workflow YAML). states[] declares the lifecycle states; transitions[] declares the edges.",
             "properties": {
               "states": {
                 "type": "array",
+                "title": "States",
                 "description": "Lifecycle states.",
                 "items": {
                   "type": "object",
                   "properties": {
-                    "name": { "type": "string" },
-                    "description": { "type": "string" }
+                    "name": {
+                      "type": "string",
+                      "title": "Name",
+                      "description": "Name of the lifecycle state."
+                    },
+                    "description": {
+                      "type": "string",
+                      "title": "Description",
+                      "description": "Optional description of the lifecycle state."
+                    }
                   }
                 }
               },
               "transitions": {
                 "type": "array",
+                "title": "Transitions",
                 "description": "Allowed transitions between states.",
                 "items": {
                   "type": "object",
                   "properties": {
-                    "name": { "type": "string" },
-                    "from": { "type": "string" },
-                    "to": { "type": "string" },
-                    "chairOnly": { "type": "boolean", "default": false },
+                    "name": {
+                      "type": "string",
+                      "title": "Name",
+                      "description": "Name of the transition."
+                    },
+                    "from": {
+                      "type": "string",
+                      "title": "From state",
+                      "description": "State the transition moves from."
+                    },
+                    "to": {
+                      "type": "string",
+                      "title": "To state",
+                      "description": "State the transition moves to."
+                    },
+                    "chairOnly": {
+                      "type": "boolean",
+                      "default": false,
+                      "title": "Chair only",
+                      "description": "Whether only the chair may trigger this transition."
+                    },
                     "guards": {
                       "type": "array",
+                      "title": "Guards",
                       "description": "Guard tokens enforced before this transition (quorum_met, chair_only, all_amendments_resolved, legal_review_complete).",
-                      "items": { "type": "string" }
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   }
                 }
@@ -90,10 +513,13 @@
           },
           "votingRule": {
             "type": "object",
+            "title": "Voting rule",
             "description": "Default voting rule applied to rounds opened under a body assigned this template.",
             "properties": {
               "voteThreshold": {
                 "type": "string",
+                "title": "Vote threshold",
+                "description": "Majority rule applied when tallying a round under this template.",
                 "enum": [
                   "simple-majority",
                   "qualified-majority-two-thirds",
@@ -104,229 +530,48 @@
               },
               "abstentionHandling": {
                 "type": "string",
-                "enum": ["exclude", "count"],
+                "title": "Abstention handling",
+                "description": "Whether abstentions are excluded from or counted in the calculation base.",
+                "enum": [
+                  "exclude",
+                  "count"
+                ],
                 "example": "exclude"
               },
               "tieBreakRule": {
                 "type": "string",
-                "enum": ["rejected", "chair-decides", "revote"],
+                "title": "Tie-break rule",
+                "description": "How a tied round is resolved under this template.",
+                "enum": [
+                  "rejected",
+                  "chair-decides",
+                  "revote"
+                ],
                 "example": "rejected"
               }
             }
           },
           "quorumRequired": {
             "type": "boolean",
+            "title": "Quorum required",
             "description": "Whether quorum must be met before a decision may enter the voting state under this template.",
             "default": true,
             "example": true
           },
           "quorumRule": {
             "type": "string",
+            "title": "Quorum rule",
             "description": "Free-text human description of the quorum requirement (e.g. '50%+1 of members present or represented').",
             "example": "50%+1 of members present or represented"
           },
           "allowDecideWithoutVote": {
             "type": "boolean",
+            "title": "Allow decide without vote",
             "description": "Permits the deliberating -> decided edge (operational domains where a formal voting round is optional).",
             "default": false,
             "example": false
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ProcessTemplate",
-              "slug": "association-alv"
-            },
-            "name": "Association ALV",
-            "description": "Standard decision process for a Dutch association general meeting (ALV), BW Book 2.",
-            "context": "association",
-            "builtIn": true,
-            "initialState": "draft",
-            "stateMachine": {
-              "states": [
-                { "name": "draft" },
-                { "name": "proposed" },
-                { "name": "deliberating" },
-                { "name": "voting" },
-                { "name": "decided" },
-                { "name": "enacted" },
-                { "name": "archived" }
-              ],
-              "transitions": [
-                { "name": "propose", "from": "draft", "to": "proposed" },
-                { "name": "deliberate", "from": "proposed", "to": "deliberating" },
-                { "name": "openVoting", "from": "deliberating", "to": "voting", "chairOnly": true, "guards": ["quorum_met"] },
-                { "name": "decide", "from": "voting", "to": "decided" },
-                { "name": "enact", "from": "decided", "to": "enacted" },
-                { "name": "archive", "from": "enacted", "to": "archived" }
-              ]
-            },
-            "votingRule": {
-              "voteThreshold": "simple-majority",
-              "abstentionHandling": "exclude",
-              "tieBreakRule": "rejected"
-            },
-            "quorumRequired": true,
-            "quorumRule": "50%+1 of members present or represented",
-            "allowDecideWithoutVote": false
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ProcessTemplate",
-              "slug": "association-board"
-            },
-            "name": "Association Board",
-            "description": "Decision process for an association board (bestuur).",
-            "context": "association",
-            "builtIn": true,
-            "initialState": "draft",
-            "stateMachine": {
-              "states": [
-                { "name": "draft" },
-                { "name": "proposed" },
-                { "name": "deliberating" },
-                { "name": "voting" },
-                { "name": "decided" },
-                { "name": "enacted" },
-                { "name": "archived" }
-              ],
-              "transitions": [
-                { "name": "propose", "from": "draft", "to": "proposed" },
-                { "name": "deliberate", "from": "proposed", "to": "deliberating" },
-                { "name": "openVoting", "from": "deliberating", "to": "voting", "chairOnly": true, "guards": ["quorum_met"] },
-                { "name": "decide", "from": "voting", "to": "decided" },
-                { "name": "enact", "from": "decided", "to": "enacted" },
-                { "name": "archive", "from": "enacted", "to": "archived" }
-              ]
-            },
-            "votingRule": {
-              "voteThreshold": "simple-majority",
-              "abstentionHandling": "exclude",
-              "tieBreakRule": "chair-decides"
-            },
-            "quorumRequired": true,
-            "quorumRule": "Majority of board members present",
-            "allowDecideWithoutVote": false
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ProcessTemplate",
-              "slug": "corporate-board"
-            },
-            "name": "Corporate Board (BV)",
-            "description": "Decision process for the management board of a Dutch private limited company (BV).",
-            "context": "corporate",
-            "builtIn": true,
-            "initialState": "draft",
-            "stateMachine": {
-              "states": [
-                { "name": "draft" },
-                { "name": "proposed" },
-                { "name": "deliberating" },
-                { "name": "voting" },
-                { "name": "decided" },
-                { "name": "enacted" },
-                { "name": "archived" }
-              ],
-              "transitions": [
-                { "name": "propose", "from": "draft", "to": "proposed" },
-                { "name": "deliberate", "from": "proposed", "to": "deliberating" },
-                { "name": "openVoting", "from": "deliberating", "to": "voting", "chairOnly": true, "guards": ["quorum_met"] },
-                { "name": "decide", "from": "voting", "to": "decided" },
-                { "name": "enact", "from": "decided", "to": "enacted" },
-                { "name": "archive", "from": "enacted", "to": "archived" }
-              ]
-            },
-            "votingRule": {
-              "voteThreshold": "simple-majority",
-              "abstentionHandling": "exclude",
-              "tieBreakRule": "chair-decides"
-            },
-            "quorumRequired": true,
-            "quorumRule": "Quorum per the articles of association",
-            "allowDecideWithoutVote": false
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ProcessTemplate",
-              "slug": "municipal-council"
-            },
-            "name": "Municipal Council",
-            "description": "Legislative decision process for a municipal council (gemeenteraad), Gemeentewet.",
-            "context": "legislative",
-            "builtIn": true,
-            "initialState": "draft",
-            "stateMachine": {
-              "states": [
-                { "name": "draft" },
-                { "name": "proposed" },
-                { "name": "deliberating" },
-                { "name": "voting" },
-                { "name": "decided" },
-                { "name": "enacted" },
-                { "name": "archived" }
-              ],
-              "transitions": [
-                { "name": "propose", "from": "draft", "to": "proposed" },
-                { "name": "deliberate", "from": "proposed", "to": "deliberating" },
-                { "name": "openVoting", "from": "deliberating", "to": "voting", "chairOnly": true, "guards": ["quorum_met", "all_amendments_resolved"] },
-                { "name": "decide", "from": "voting", "to": "decided", "chairOnly": true },
-                { "name": "enact", "from": "decided", "to": "enacted" },
-                { "name": "archive", "from": "enacted", "to": "archived" }
-              ]
-            },
-            "votingRule": {
-              "voteThreshold": "simple-majority",
-              "abstentionHandling": "exclude",
-              "tieBreakRule": "rejected"
-            },
-            "quorumRequired": true,
-            "quorumRule": "More than half of the seats occupied (Gemeentewet art. 20)",
-            "allowDecideWithoutVote": false
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ProcessTemplate",
-              "slug": "operational-team"
-            },
-            "name": "Operational Team",
-            "description": "Lightweight decision process for an operational/management team; formal voting rounds are optional.",
-            "context": "operations",
-            "builtIn": true,
-            "initialState": "draft",
-            "stateMachine": {
-              "states": [
-                { "name": "draft" },
-                { "name": "proposed" },
-                { "name": "deliberating" },
-                { "name": "decided" },
-                { "name": "enacted" },
-                { "name": "archived" }
-              ],
-              "transitions": [
-                { "name": "propose", "from": "draft", "to": "proposed" },
-                { "name": "deliberate", "from": "proposed", "to": "deliberating" },
-                { "name": "decide", "from": "deliberating", "to": "decided" },
-                { "name": "enact", "from": "decided", "to": "enacted" },
-                { "name": "archive", "from": "enacted", "to": "archived" }
-              ]
-            },
-            "votingRule": {
-              "voteThreshold": "simple-majority",
-              "abstentionHandling": "exclude",
-              "tieBreakRule": "rejected"
-            },
-            "quorumRequired": false,
-            "quorumRule": "No formal quorum",
-            "allowDecideWithoutVote": true
-          }
-        ]
+        }
       }
     }
   }

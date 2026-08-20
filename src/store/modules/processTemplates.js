@@ -8,13 +8,16 @@
 //
 // @spec openspec/specs/process-configuration/spec.md
 
-import { defineStore } from 'pinia'
 import { getRequestToken } from '@nextcloud/auth'
 import { generateUrl } from '@nextcloud/router'
+import { defineStore } from 'pinia'
 
 // Re-export the pure graph validation so callers can keep importing it from the
 // store; the implementation lives dependency-free in services/ for vitest.
-export { KNOWN_GUARDS, validateStateMachineGraph } from '../../services/processTemplateGraph.js'
+export {
+	KNOWN_GUARDS,
+	validateStateMachineGraph,
+} from '../../services/processTemplateGraph.js'
 
 /**
  * Admin store for process-template CRUD.
@@ -29,8 +32,10 @@ export const useProcessTemplatesStore = defineStore('decidesk-process-templates'
 	}),
 
 	getters: {
-		builtInTemplates: (state) => state.templates.filter((t) => t.builtIn === true),
-		customTemplates: (state) => state.templates.filter((t) => t.builtIn !== true),
+		builtInTemplates: (state) =>
+			state.templates.filter((t) => t.builtIn === true),
+		customTemplates: (state) =>
+			state.templates.filter((t) => t.builtIn !== true),
 	},
 
 	actions: {
@@ -39,9 +44,12 @@ export const useProcessTemplatesStore = defineStore('decidesk-process-templates'
 			this.loading = true
 			this.error = ''
 			try {
-				const response = await fetch(generateUrl('/apps/decidesk/api/process-templates'), {
-					headers: { requesttoken: getRequestToken() },
-				})
+				const response = await fetch(
+					generateUrl('/apps/decidesk/api/process-templates'),
+					{
+						headers: { requesttoken: getRequestToken() },
+					},
+				)
 				if (response.ok) {
 					const data = await response.json()
 					this.templates = Array.isArray(data?.results) ? data.results : []
@@ -56,29 +64,67 @@ export const useProcessTemplatesStore = defineStore('decidesk-process-templates'
 			return []
 		},
 
-		/** @spec openspec/specs/process-configuration/spec.md */
+		/**
+		 * @param template
+		 * @spec openspec/specs/process-configuration/spec.md
+		 */
 		async createTemplate(template) {
-			return this.write(generateUrl('/apps/decidesk/api/process-templates'), 'POST', template)
+			return this.write(
+				generateUrl('/apps/decidesk/api/process-templates'),
+				'POST',
+				template,
+			)
 		},
 
-		/** @spec openspec/specs/process-configuration/spec.md */
+		/**
+		 * @param id
+		 * @param template
+		 * @spec openspec/specs/process-configuration/spec.md
+		 */
 		async updateTemplate(id, template) {
-			return this.write(generateUrl('/apps/decidesk/api/process-templates/' + encodeURIComponent(id)), 'PUT', template)
+			return this.write(
+				generateUrl(
+					'/apps/decidesk/api/process-templates/' + encodeURIComponent(id),
+				),
+				'PUT',
+				template,
+			)
 		},
 
-		/** @spec openspec/specs/process-configuration/spec.md */
+		/**
+		 * @param id
+		 * @param name
+		 * @spec openspec/specs/process-configuration/spec.md
+		 */
 		async duplicateTemplate(id, name) {
-			return this.write(generateUrl('/apps/decidesk/api/process-templates/' + encodeURIComponent(id) + '/duplicate'), 'POST', { name })
+			return this.write(
+				generateUrl(
+					'/apps/decidesk/api/process-templates/'
+						+ encodeURIComponent(id)
+						+ '/duplicate',
+				),
+				'POST',
+				{ name },
+			)
 		},
 
-		/** @spec openspec/specs/process-configuration/spec.md */
+		/**
+		 * @param id
+		 * @spec openspec/specs/process-configuration/spec.md
+		 */
 		async deleteTemplate(id) {
 			this.error = ''
 			try {
-				const response = await fetch(generateUrl('/apps/decidesk/api/process-templates/' + encodeURIComponent(id)), {
-					method: 'DELETE',
-					headers: { requesttoken: getRequestToken() },
-				})
+				const response = await fetch(
+					generateUrl(
+						'/apps/decidesk/api/process-templates/'
+							+ encodeURIComponent(id),
+					),
+					{
+						method: 'DELETE',
+						headers: { requesttoken: getRequestToken() },
+					},
+				)
 				if (response.ok) {
 					await this.fetchTemplates()
 					return true
@@ -91,13 +137,21 @@ export const useProcessTemplatesStore = defineStore('decidesk-process-templates'
 			return false
 		},
 
-		/** @spec openspec/specs/process-configuration/spec.md */
+		/**
+		 * @param url
+		 * @param method
+		 * @param payload
+		 * @spec openspec/specs/process-configuration/spec.md
+		 */
 		async write(url, method, payload) {
 			this.error = ''
 			try {
 				const response = await fetch(url, {
 					method,
-					headers: { 'Content-Type': 'application/json', requesttoken: getRequestToken() },
+					headers: {
+						'Content-Type': 'application/json',
+						requesttoken: getRequestToken(),
+					},
 					body: JSON.stringify(payload),
 				})
 				const data = await response.json().catch(() => ({}))
