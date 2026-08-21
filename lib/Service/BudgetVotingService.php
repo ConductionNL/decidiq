@@ -27,8 +27,8 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use InvalidArgumentException;
-use RuntimeException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use RuntimeException;
 
 /**
  * Stateless service for participatory-budget proposals + advisory voting.

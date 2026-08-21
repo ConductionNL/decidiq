@@ -33,10 +33,10 @@ use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Generates and persists minutes documents (markdown canonical, Docudesk PDF
@@ -537,6 +537,5 @@ class MinutesDocumentService {
 		// Injected (ADR-083): a property read throws nothing, so the old
 		// catch was unreachable.
 		return $this->objectService;
-
 	}//end getObjectService()
 }//end class

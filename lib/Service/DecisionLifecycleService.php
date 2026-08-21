@@ -30,10 +30,10 @@ namespace OCA\Decidesk\Service;
 
 use OCA\Decidesk\Event\DecisionConcludedEvent;
 use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Service for guarded decision lifecycle state transitions.

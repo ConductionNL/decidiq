@@ -61,7 +61,7 @@ class RenameDutchDecideskValueDecisions {
 	 * UPDATE against a missing column is an error rather than a no-op.
 	 *
 	 * @param array<string, array<string, string>> $valueMap Property => old => new.
-	 * @param array<int, string>                   $columns  Columns the table has.
+	 * @param array<int, string> $columns Columns the table has.
 	 *
 	 * @return array<int, array{column: string, old: string, new: string}>
 	 *
@@ -96,7 +96,7 @@ class RenameDutchDecideskValueDecisions {
 	 * inside a repair step, where an exception aborts the upgrade.
 	 *
 	 * @param array<int, array<string, mixed>> $rows Result rows.
-	 * @param string                           $key  Column to read.
+	 * @param string $key Column to read.
 	 *
 	 * @return array<int, string>
 	 *
@@ -161,12 +161,12 @@ class RenameDutchDecideskValueDecisions {
 		foreach ($valueMap as $property => $values) {
 			foreach ($values as $old => $new) {
 				$normalise = static fn (string $value): string
-					=> strtolower((string) preg_replace('/[^a-z0-9]/i', '', $value));
-				if ($normalise((string) $old) !== $normalise($new)) {
+					=> strtolower((string)preg_replace('/[^a-z0-9]/i', '', $value));
+				if ($normalise((string)$old) !== $normalise($new)) {
 					continue;
 				}
 
-				$offenders[] = sprintf('%s: %s -> %s', (string) $property, (string) $old, $new);
+				$offenders[] = sprintf('%s: %s -> %s', (string)$property, (string)$old, $new);
 			}
 		}
 

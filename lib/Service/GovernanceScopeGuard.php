@@ -46,9 +46,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Consumes the OR-projected per-body governance scopes to authorize signatory

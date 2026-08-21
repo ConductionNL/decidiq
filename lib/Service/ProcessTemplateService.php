@@ -32,9 +32,9 @@ namespace OCA\Decidesk\Service;
 
 use InvalidArgumentException;
 use OCA\Decidesk\Lifecycle\ProcessTemplatePolicyResolver;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Service for process-template management and template-driven policy resolution.

@@ -31,11 +31,11 @@ namespace OCA\Decidesk\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Service\FileService;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
-use OCA\OpenRegister\Service\FileService;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * The close-a-round path, extracted from VotingService.

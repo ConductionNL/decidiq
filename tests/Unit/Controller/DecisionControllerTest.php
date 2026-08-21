@@ -24,8 +24,8 @@ namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\DecisionController;
 use OCA\Decidesk\Service\DecisionLifecycleService;
-use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;

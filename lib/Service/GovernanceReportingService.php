@@ -28,8 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use Psr\Log\LoggerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Governance reporting aggregation service.

@@ -32,11 +32,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use Psr\Log\LoggerInterface;
-use Throwable;
-use OCA\OpenRegister\Service\TaskService;
 use OCA\OpenRegister\Db\RegisterMapper;
 use OCA\OpenRegister\Db\SchemaMapper;
+use OCA\OpenRegister\Service\TaskService;
+use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * Write path (create/update/delete) for VTODO-backed action items.

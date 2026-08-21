@@ -28,9 +28,9 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use OCA\Decidesk\Exception\MissingObjectException;
-use RuntimeException;
-use OCA\OpenRegister\Service\FileService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Service\FileService;
+use RuntimeException;
 
 /**
  * Object + file access for the meeting-transcription pipeline.
@@ -343,6 +343,5 @@ class TranscriptRepository {
 		// Injected (ADR-083): a property read throws nothing, so the old
 		// catch was unreachable.
 		return $this->objectService;
-
 	}//end getObjectService()
 }//end class

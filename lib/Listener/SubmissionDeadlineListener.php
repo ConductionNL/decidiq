@@ -25,11 +25,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Listener;
 
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Pre-save hook on OpenRegister's ObjectCreatingEvent: when a motion or

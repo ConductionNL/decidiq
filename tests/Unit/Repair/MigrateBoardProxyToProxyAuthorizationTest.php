@@ -117,7 +117,7 @@ class MigrateBoardProxyToProxyAuthorizationTest extends TestCase {
 				?array $_extend = [],
 				bool $files = false,
 				string|int|null $register = null,
-				string|int|null $schema = null
+				string|int|null $schema = null,
 			) use ($knownMeetings) {
 				if ($schema === 'meeting' && in_array($id, $knownMeetings, true) === true) {
 					return $this->entity(data: ['id' => $id]);
@@ -134,7 +134,7 @@ class MigrateBoardProxyToProxyAuthorizationTest extends TestCase {
 				?array $extend = [],
 				string|int|null $register = null,
 				string|int|null $schema = null,
-				?string $uuid = null
+				?string $uuid = null,
 			) use (&$savedRef, $saveObjectThrowsForGrantor) {
 				if (in_array(($object['grantor'] ?? null), $saveObjectThrowsForGrantor, true) === true) {
 					throw new \RuntimeException('save failed for grantor ' . (string)($object['grantor'] ?? ''));

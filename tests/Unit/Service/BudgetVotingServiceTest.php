@@ -22,8 +22,8 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\AdvisoryVoteService;
 use OCA\Decidesk\Service\BudgetVotingService;
 use OCA\Decidesk\Service\ParticipationLifecycleService;
-use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 

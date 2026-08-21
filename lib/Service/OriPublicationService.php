@@ -27,13 +27,13 @@ namespace OCA\Decidesk\Service;
 
 use DateTimeImmutable;
 use OCA\Decidesk\AppInfo\Application;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service that sends voting round results to the ORI 1.0 API endpoint

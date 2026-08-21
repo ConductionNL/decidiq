@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use RuntimeException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use RuntimeException;
 
 /**
  * Ordering rules and subject resolution for amendment voting.

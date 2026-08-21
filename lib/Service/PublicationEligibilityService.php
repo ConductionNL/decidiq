@@ -44,8 +44,8 @@ namespace OCA\Decidesk\Service;
 use DomainException;
 use OCA\Decidesk\Exception\AccessDeniedException;
 use OCA\Decidesk\Exception\MissingObjectException;
-use Psr\Log\LoggerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Stateless service that decides whether a governance object is publishable.

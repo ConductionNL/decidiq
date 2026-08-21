@@ -162,7 +162,7 @@ class HealthController extends Controller {
 	 * Run the AppHost observability engine and flatten its result.
 	 *
 	 * @return array{status: string, version: string, openregister: string, httpStatus: int}|null
-	 *         Null when the engine is unavailable (openregister absent/disabled).
+	 *                                                                                            Null when the engine is unavailable (openregister absent/disabled).
 	 */
 	private function engineBody(): ?array {
 		try {

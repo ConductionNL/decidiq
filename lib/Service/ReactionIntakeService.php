@@ -27,11 +27,11 @@ namespace OCA\Decidesk\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service handling ConsultationReaction intake and moderation.

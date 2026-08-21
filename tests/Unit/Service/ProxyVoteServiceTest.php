@@ -26,8 +26,8 @@ use OCA\Decidesk\Service\AuditLogService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\ParticipantToPersonMembershipResolver;
 use OCA\Decidesk\Service\ProxyVoteService;
-use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -56,10 +56,10 @@ class ProxyVoteServiceTest extends TestCase {
 	 * @param array<int, array<string, string>> $participants Fixture `participant` rows: ['uuid' => .., 'nextcloudUserId' => ..]
 	 * @param array<string, array<int, string>> $chairsByMeeting Map of meetingId => Nextcloud UIDs holding chair/secretary role
 	 * @param array<string, array{person: string, membership: string}|null> $crosswalk Non-identity Participant->Person/Membership map for
-	 *                                                                                  tests that need to prove resolution actually ran
-	 *                                                                                  (or fails); defaults to an identity map
-	 *                                                                                  (person = participantId) so every pre-existing
-	 *                                                                                  'g-1'/'h-1'-style assertion holds.
+	 *                                                                                 tests that need to prove resolution actually ran
+	 *                                                                                 (or fails); defaults to an identity map
+	 *                                                                                 (person = participantId) so every pre-existing
+	 *                                                                                 'g-1'/'h-1'-style assertion holds.
 	 * @param bool $appConfigThrows When true, resolving \OCP\IAppConfig from the container throws
 	 *                              (exercises maxProxiesPerHolder()'s fail-closed-to-default catch branch)
 	 * @param bool $saveObjectFails When true, ObjectService::saveObject() throws (exercises the
@@ -179,7 +179,7 @@ class ProxyVoteServiceTest extends TestCase {
 				?array $extend = [],
 				string|int|null $register = null,
 				string|int|null $schema = null,
-				?string $uuid = null
+				?string $uuid = null,
 			) use (&$savedRef, &$rowsRef, $saveObjectFails): ObjectEntity {
 				if ($saveObjectFails === true) {
 					throw new \RuntimeException('OpenRegister save unavailable');

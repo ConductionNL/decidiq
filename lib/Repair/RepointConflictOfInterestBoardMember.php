@@ -216,7 +216,6 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 		}
 
 		return [$id, $boardMember, $row];
-
 	}//end rowKeys()
 
 	/**

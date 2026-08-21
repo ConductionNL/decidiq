@@ -97,7 +97,7 @@ class RenameDutchVocabularyColumns implements IRepairStep {
 		'toelichting' => 'notes',
 		'omschrijving' => 'description',
 		'fractie' => 'political_group',
-	
+
 		// Fleet vocabulary batch: the Dutch->English rename applied to the
 		// decidesk registers. Same rules as the entries above — snake_case,
 		// no rename chains, and an ambiguous pair is refused rather than merged.

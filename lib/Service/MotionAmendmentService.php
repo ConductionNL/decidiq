@@ -28,10 +28,10 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use InvalidArgumentException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Amendment operations, extracted from MotionService.

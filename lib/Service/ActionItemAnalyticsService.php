@@ -25,8 +25,8 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use DateTime;
-use Psr\Log\LoggerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Stateless service providing personal action-item lists grouped by urgency.
