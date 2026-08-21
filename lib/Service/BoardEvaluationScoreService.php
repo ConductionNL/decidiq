@@ -201,10 +201,24 @@ class BoardEvaluationScoreService {
 			//
 			// The filter pins the related id but not the related SCHEMA, so the
 			// set is re-checked below before it is scored.
+			// `_rbac: false` because the CALLER was already authorised:
+			// BoardEvaluationController::close() runs
+			// BoardEvaluationAccessGuard::requireChairOrSecretary() before this
+			// service is reached, and this controller is the only caller.
+			//
+			// It is REQUIRED, not an optimisation. `evaluation-response` now
+			// declares an authorization block that omits `read`, closing the raw
+			// anonymous answers to everyone but their own author and admins — a
+			// chair does not own the other members' responses. Under caller RBAC
+			// this query would return an empty set and the cycle would close with
+			// a vacuous score summary on a healthy 200, which is EXACTLY the
+			// silent failure the relation-filter comment above records having
+			// already happened once.
 			$relationFilter = $this->container->get(ObjectRelationFilter::class);
 			$responseEntities = $relationFilter->matching(
 				entities: $objectService->findAll(
-					['filters' => $relationFilter->filterFor(targetId: $evaluationId)]
+					['filters' => $relationFilter->filterFor(targetId: $evaluationId)],
+					_rbac: false
 				),
 				schema: 'board-evaluation',
 				targetId: $evaluationId

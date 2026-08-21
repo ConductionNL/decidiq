@@ -367,10 +367,9 @@ class ProxyVoteService {
 			return $this->registerFailure(message: 'Failed to register proxy.');
 		}
 
-		$payload = $row;
-		if (is_object($saved) === true) {
-			$payload = (array)$saved->jsonSerialize();
-		}
+		// OpenRegister's saveObject() returns ObjectEntityInterface — is_object() could never
+		// be false, so `$row` was never the value used.
+		$payload = (array)$saved->jsonSerialize();
 
 		$this->auditLogService->append(
 			actor: $grantorPersonId,
@@ -573,10 +572,9 @@ class ProxyVoteService {
 				];
 			}
 
-			$current = (array)$entity->jsonSerialize();
-			if (method_exists($entity, 'getObject') === true) {
-				$current = $entity->getObject();
-			}
+			// `getObject(): array` is on ObjectEntityInterface — the
+			// method_exists() probe could never be false.
+			$current = $entity->getObject();
 
 			if ($callerUid !== null && $this->isAuthorizedForTransition(proxy: $current, callerUid: $callerUid) === false) {
 				return [
@@ -617,10 +615,9 @@ class ProxyVoteService {
 			];
 		}//end try
 
-		$payload = $merged;
-		if (is_object($saved) === true) {
-			$payload = (array)$saved->jsonSerialize();
-		}
+		// OpenRegister's saveObject() returns ObjectEntityInterface — is_object() could never
+		// be false, so `$merged` was never the value used.
+		$payload = (array)$saved->jsonSerialize();
 
 		if ($newStatus === 'revoked') {
 			$this->auditLogService->append(

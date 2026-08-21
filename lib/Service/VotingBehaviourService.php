@@ -200,8 +200,9 @@ class VotingBehaviourService {
 		$closed = [];
 		foreach ($roundEntities as $roundEntity) {
 			$round = $roundEntity->jsonSerialize();
-			// Only include closed rounds (closedAt is not null).
-			if (isset($round['closedAt']) === true && $round['closedAt'] !== null) {
+			// Only include closed rounds. `isset()` is already false for null,
+			// so the `!== null` this replaces could never be reached as false.
+			if (isset($round['closedAt']) === true) {
 				$closed[] = $round;
 			}
 		}

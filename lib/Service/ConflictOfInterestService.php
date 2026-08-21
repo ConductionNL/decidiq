@@ -229,10 +229,10 @@ class ConflictOfInterestService {
 				_rbac: false
 			);
 
-			$serialized = $row;
-			if (is_object($saved) === true && method_exists($saved, 'jsonSerialize') === true) {
-				$serialized = $saved->jsonSerialize();
-			}
+			// OpenRegister's saveObject() returns ObjectEntityInterface (a real return type,
+			// enforced by PHP) and that interface extends JsonSerializable, so
+			// both probes were always true and `$row` was never the value used.
+			$serialized = $saved->jsonSerialize();
 
 			if ($severity === 'material') {
 				$this->auditLogService->append(
@@ -313,10 +313,9 @@ class ConflictOfInterestService {
 				];
 			}
 
-			$current = (array)$entity->jsonSerialize();
-			if (method_exists($entity, 'getObject') === true) {
-				$current = $entity->getObject();
-			}
+			// `getObject(): array` is on ObjectEntityInterface — the
+			// method_exists() probe could never be false.
+			$current = $entity->getObject();
 
 			if ($callerUid !== null
 				&& $this->authorizationGuard->isAuthorizedToRecordAction(declaration: $current, callerUid: $callerUid) === false
@@ -341,10 +340,9 @@ class ConflictOfInterestService {
 				_rbac: false
 			);
 
-			$payload = $updated;
-			if (is_object($saved) === true) {
-				$payload = $saved->jsonSerialize();
-			}
+			// OpenRegister's saveObject() returns ObjectEntityInterface — is_object() could
+			// never be false, so `$updated` was never the value used.
+			$payload = $saved->jsonSerialize();
 
 			return [
 				'success' => true,

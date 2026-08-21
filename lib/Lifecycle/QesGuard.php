@@ -188,10 +188,10 @@ class QesGuard {
 			return [];
 		}
 
-		$resolutionRow = (array)$resolution->jsonSerialize();
-		if (method_exists($resolution, 'getObject') === true) {
-			$resolutionRow = $resolution->getObject();
-		}
+		// `getObject(): array` is declared on ObjectEntityInterface, so the
+		// method_exists() probe this replaces could never be false and the
+		// jsonSerialize() default was unreachable.
+		$resolutionRow = $resolution->getObject();
 
 		$meetingId = (string)($resolutionRow['meetingIntegration'] ?? '');
 		if ($meetingId === '') {

@@ -310,15 +310,20 @@ TEMPLATE;
 			'{aob}',
 		];
 
+		// Every replacement is cast to string. `$minutes` / `$meeting` are
+		// decoded object payloads, so their values are `mixed` — str_replace
+		// declares `array<string>|string` and PHP would coerce silently
+		// (an array replacement raises "Array to string conversion" and
+		// substitutes the literal "Array").
 		return str_replace(
 			$searchKeys,
 			[
-				$minutes['title'] ?? 'Algemene Ledenvergadering',
-				$meeting['scheduledDate'] ?? date('d-m-Y'),
-				$meeting['location'] ?? '',
-				$presentCount,
-				$memberCount,
-				$quorumStatus,
+				(string)($minutes['title'] ?? 'Algemene Ledenvergadering'),
+				(string)($meeting['scheduledDate'] ?? date('d-m-Y')),
+				(string)($meeting['location'] ?? ''),
+				(string)$presentCount,
+				(string)$memberCount,
+				(string)$quorumStatus,
 				trim($agendaText),
 				'[Resoluties met stemming in aparte tabel]',
 				'[Secretaris naam]',

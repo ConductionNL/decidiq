@@ -474,8 +474,6 @@ class MinutesGenerationService {
 	/**
 	 * Lazy-load the OpenRegister ObjectService from the container.
 	 *
-	 * @throws RuntimeException When OpenRegister is not installed
-	 *
 	 * @return object The OpenRegister ObjectService instance
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
