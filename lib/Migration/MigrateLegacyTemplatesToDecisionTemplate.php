@@ -222,7 +222,6 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 		}//end foreach
 
 		return $index;
-
 	}//end buildMigratedIndex()
 
 	/**
@@ -343,7 +342,6 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 		}
 
 		return $payload;
-
 	}//end mapProcessTemplate()
 
 	/**
@@ -388,7 +386,6 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 		}
 
 		return $payload;
-
 	}//end mapVveDecisionTemplate()
 
 	/**

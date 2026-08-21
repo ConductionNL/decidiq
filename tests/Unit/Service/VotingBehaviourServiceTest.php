@@ -78,7 +78,6 @@ class VotingBehaviourServiceTest extends TestCase {
 			->getMock();
 		$entity->method('jsonSerialize')->willReturn($data);
 		return $entity;
-
 	}//end makeEntity()
 
 	/**

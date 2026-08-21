@@ -29,9 +29,9 @@ namespace OCA\Decidesk\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Service for capturing and querying participant engagement data.

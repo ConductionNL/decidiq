@@ -304,7 +304,7 @@ class RenameDutchDecideskValues implements IRepairStep {
 	/**
 	 * Constructor.
 	 *
-	 * @param ValueMigrationGateway             $gateway   Database operations.
+	 * @param ValueMigrationGateway $gateway Database operations.
 	 * @param RenameDutchDecideskValueDecisions $decisions Pure predicates.
 	 */
 	public function __construct(

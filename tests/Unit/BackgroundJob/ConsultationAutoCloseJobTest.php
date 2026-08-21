@@ -24,8 +24,8 @@ namespace OCA\Decidesk\Tests\Unit\BackgroundJob;
 
 use OCA\Decidesk\BackgroundJob\ConsultationAutoCloseJob;
 use OCA\Decidesk\Service\ParticipationLifecycleService;
-use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\AppFramework\Utility\ITimeFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

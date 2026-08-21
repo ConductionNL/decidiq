@@ -27,8 +27,8 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\GovernanceRoleScopeProjector;
 use OCA\Decidesk\Service\GovernanceScopeGuard;
-use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\IGroup;
 use OCP\IGroupManager;
 use OCP\IUser;

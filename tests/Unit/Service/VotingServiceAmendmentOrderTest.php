@@ -260,7 +260,6 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 		);
 
 		return $objectService;
-
 	}//end makeObjectService()
 
 	/**
@@ -278,7 +277,6 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 		$entity->method('jsonSerialize')->willReturn($object);
 		$entity->method('getObject')->willReturn($object);
 		return $entity;
-
 	}//end entity()
 
 	/**

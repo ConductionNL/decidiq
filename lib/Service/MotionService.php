@@ -27,12 +27,12 @@ namespace OCA\Decidesk\Service;
 
 use InvalidArgumentException;
 use OCA\Decidesk\Lifecycle\MotionLifecycleTransitioner;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service handling motion lifecycle transitions, co-signatory management,

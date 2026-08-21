@@ -358,7 +358,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 				?array $_extend = [],
 				bool $files = false,
 				string|int|null $register = null,
-				string|int|null $schema = null
+				string|int|null $schema = null,
 			) use ($double): ?ObjectEntity {
 				$row = $double->find($id, $register, $schema);
 				if ($row === null) {
@@ -383,7 +383,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 				array $object,
 				?array $extend = [],
 				string|int|null $register = null,
-				string|int|null $schema = null
+				string|int|null $schema = null,
 			) use ($double): ObjectEntity {
 				return $this->wrapObject($double->saveObject($object, (string)$register, (string)$schema));
 			}

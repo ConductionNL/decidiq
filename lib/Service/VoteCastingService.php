@@ -26,9 +26,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use Psr\Log\LoggerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * The cast-a-vote path, extracted from VotingService.

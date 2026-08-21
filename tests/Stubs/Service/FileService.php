@@ -44,30 +44,27 @@ use OCP\Files\Node;
 /**
  * Minimal stand-in for OpenRegister's FileService.
  */
-class FileService
-{
-    /**
-     * Create a folder at the given path.
-     *
-     * @param string $folderPath Path of the folder to create.
-     *
-     * @return Node The created folder node.
-     */
-    public function createFolder(string $folderPath): Node
-    {
-        throw new \RuntimeException('FileService stub: createFolder() must be mocked in tests.');
-    }//end createFolder()
+class FileService {
+	/**
+	 * Create a folder at the given path.
+	 *
+	 * @param string $folderPath Path of the folder to create.
+	 *
+	 * @return Node The created folder node.
+	 */
+	public function createFolder(string $folderPath): Node {
+		throw new \RuntimeException('FileService stub: createFolder() must be mocked in tests.');
+	}//end createFolder()
 
-    /**
-     * Get the files attached to an object.
-     *
-     * @param ObjectEntity|string $object          The object or its identifier.
-     * @param boolean|null        $sharedFilesOnly Whether to return only shared files.
-     *
-     * @return array The files attached to the object.
-     */
-    public function getFiles(ObjectEntity | string $object, ?bool $sharedFilesOnly = false): array
-    {
-        throw new \RuntimeException('FileService stub: getFiles() must be mocked in tests.');
-    }//end getFiles()
+	/**
+	 * Get the files attached to an object.
+	 *
+	 * @param ObjectEntity|string $object The object or its identifier.
+	 * @param boolean|null $sharedFilesOnly Whether to return only shared files.
+	 *
+	 * @return array The files attached to the object.
+	 */
+	public function getFiles(ObjectEntity|string $object, ?bool $sharedFilesOnly = false): array {
+		throw new \RuntimeException('FileService stub: getFiles() must be mocked in tests.');
+	}//end getFiles()
 }//end class

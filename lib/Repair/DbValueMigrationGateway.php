@@ -36,8 +36,8 @@ class DbValueMigrationGateway implements ValueMigrationGateway {
 	/**
 	 * Constructor.
 	 *
-	 * @param IDBConnection                     $db        Database connection.
-	 * @param LoggerInterface                   $logger    Logger.
+	 * @param IDBConnection $db Database connection.
+	 * @param LoggerInterface $logger Logger.
 	 * @param RenameDutchDecideskValueDecisions $decisions Pure predicates.
 	 */
 	public function __construct(
@@ -100,10 +100,10 @@ class DbValueMigrationGateway implements ValueMigrationGateway {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @param string $table  Table name.
+	 * @param string $table Table name.
 	 * @param string $column Column name.
-	 * @param string $old    Stored Dutch value.
-	 * @param string $new    English replacement.
+	 * @param string $old Stored Dutch value.
+	 * @param string $new English replacement.
 	 *
 	 * @return int
 	 *

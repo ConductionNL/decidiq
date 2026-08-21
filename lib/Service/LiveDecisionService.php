@@ -23,9 +23,9 @@ namespace OCA\Decidesk\Service;
 
 use Exception;
 use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service that records decisions during active meetings.

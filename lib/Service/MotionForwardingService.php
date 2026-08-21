@@ -29,11 +29,11 @@ namespace OCA\Decidesk\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * The forward-a-motion path, extracted from MotionService.
@@ -84,7 +84,6 @@ class MotionForwardingService {
 		if ($this->userManager->get($actorId) === null) {
 			throw new RuntimeException("Actor {$actorId} not found");
 		}
-
 
 		// Fetch the source motion. ADR-005: motions are `decision` objects
 		// discriminated by decisionType=motion.

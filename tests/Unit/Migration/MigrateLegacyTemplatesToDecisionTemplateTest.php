@@ -375,7 +375,7 @@ class MigrateLegacyTemplatesToDecisionTemplateTest extends TestCase {
 
 		// An object whose jsonSerialize() does not return an array — toArray()
 		// must fall back to null rather than treating the string as a payload.
-		$badJsonSerializeEntity = new class () {
+		$badJsonSerializeEntity = new class() {
 			/**
 			 * @return string
 			 */
@@ -684,13 +684,15 @@ class MigrateLegacyTemplatesToDecisionTemplateTest extends TestCase {
 	 * @return object
 	 */
 	private function jsonSerializableEntity(array $data): object {
-		return new class ($data) {
+		return new class($data) {
 			/**
 			 * Constructor.
 			 *
 			 * @param array<string,mixed> $data The object payload.
 			 */
-			public function __construct(private readonly array $data) {
+			public function __construct(
+				private readonly array $data,
+			) {
 			}//end __construct()
 
 			/**
@@ -712,13 +714,15 @@ class MigrateLegacyTemplatesToDecisionTemplateTest extends TestCase {
 	 * @return object
 	 */
 	private function getObjectOnlyEntity(array $data): object {
-		return new class ($data) {
+		return new class($data) {
 			/**
 			 * Constructor.
 			 *
 			 * @param array<string,mixed> $data The object payload.
 			 */
-			public function __construct(private readonly array $data) {
+			public function __construct(
+				private readonly array $data,
+			) {
 			}//end __construct()
 
 			/**
@@ -751,13 +755,7 @@ class MigrateLegacyTemplatesToDecisionTemplateTest extends TestCase {
 		array $throwFindAllForSchemas = [],
 		array $failSaveForSourceUuids = [],
 	): object {
-		return new class (
-			$decisionTemplates,
-			$processTemplates,
-			$vveDecisionTemplates,
-			$throwFindAllForSchemas,
-			$failSaveForSourceUuids,
-		) {
+		return new class($decisionTemplates, $processTemplates, $vveDecisionTemplates, $throwFindAllForSchemas, $failSaveForSourceUuids, ) {
 			/**
 			 * Saved objects in call order.
 			 *

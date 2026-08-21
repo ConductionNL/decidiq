@@ -36,10 +36,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;
 use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Reconciles per-body chair/signatory OR RBAC scopes from the Participant

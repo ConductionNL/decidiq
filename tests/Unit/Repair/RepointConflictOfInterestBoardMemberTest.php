@@ -88,7 +88,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 				?array $extend = [],
 				string|int|null $register = null,
 				string|int|null $schema = null,
-				?string $uuid = null
+				?string $uuid = null,
 			) use (&$savedRef) {
 				$savedRef[] = ['object' => $object, 'uuid' => $uuid, 'schema' => $schema];
 				return $this->entity(data: $object);
@@ -143,7 +143,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 				?array $extend = [],
 				string|int|null $register = null,
 				string|int|null $schema = null,
-				?string $uuid = null
+				?string $uuid = null,
 			) use (&$savedRef) {
 				$savedRef[] = $object;
 				return $this->entity(data: $object);
@@ -361,7 +361,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 				?array $extend = [],
 				string|int|null $register = null,
 				string|int|null $schema = null,
-				?string $uuid = null
+				?string $uuid = null,
 			) use (&$savedRef) {
 				$savedRef[] = ['object' => $object, 'uuid' => $uuid];
 				return $this->entity(data: $object);
@@ -430,7 +430,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 				?array $extend = [],
 				string|int|null $register = null,
 				string|int|null $schema = null,
-				?string $uuid = null
+				?string $uuid = null,
 			) use (&$savedRef) {
 				$savedRef[] = ['object' => $object, 'uuid' => $uuid];
 				return $this->entity(data: $object);

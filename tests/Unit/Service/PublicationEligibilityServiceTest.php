@@ -32,8 +32,8 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Exception\AccessDeniedException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Service\PublicationEligibilityService;
-use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -73,7 +73,7 @@ class PublicationEligibilityServiceTest extends TestCase {
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);
 
-		return new PublicationEligibilityService( $logger,
+		return new PublicationEligibilityService($logger,
 			objectService: $objectService,
 		);
 	}//end makeService()

@@ -58,10 +58,10 @@ interface ValueMigrationGateway {
 	/**
 	 * Replace one stored value in one column.
 	 *
-	 * @param string $table  Table name.
+	 * @param string $table Table name.
 	 * @param string $column Column name.
-	 * @param string $old    The stored Dutch value.
-	 * @param string $new    The English replacement.
+	 * @param string $old The stored Dutch value.
+	 * @param string $new The English replacement.
 	 *
 	 * @return int Rows affected; 0 when the statement failed.
 	 *

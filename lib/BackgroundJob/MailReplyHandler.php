@@ -39,11 +39,11 @@ namespace OCA\Decidesk\BackgroundJob;
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\MailVoteReplyProcessor;
 use OCA\Decidesk\Service\MailVoteSigner;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Background job that polls for email vote replies on open VotingRounds.

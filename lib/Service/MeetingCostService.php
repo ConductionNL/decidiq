@@ -30,9 +30,9 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use DateTimeImmutable;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Pure cost math plus server-side resolution of the inputs from OpenRegister.

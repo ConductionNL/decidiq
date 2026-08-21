@@ -48,42 +48,41 @@ use OCP\AppFramework\Db\Entity;
  * @method void setSchema(?string $schema)
  * @method void setObject(?array $object)
  */
-class ObjectEntity extends Entity implements \OCA\OpenRegister\Contract\ObjectEntityInterface, JsonSerializable{
-		/**
-		 * @return ?string
-		 */
-		public function getUuid(): ?string {
-			return $this->uuid ?? null;
-		}
+class ObjectEntity extends Entity implements \OCA\OpenRegister\Contract\ObjectEntityInterface, JsonSerializable {
+	/**
+	 * @return ?string
+	 */
+	public function getUuid(): ?string {
+		return $this->uuid ?? null;
+	}
 
-		/**
-		 * @return ?string
-		 */
-		public function getRegister(): ?string {
-			return $this->register ?? null;
-		}
+	/**
+	 * @return ?string
+	 */
+	public function getRegister(): ?string {
+		return $this->register ?? null;
+	}
 
-		/**
-		 * @return ?string
-		 */
-		public function getSchema(): ?string {
-			return $this->schema ?? null;
-		}
+	/**
+	 * @return ?string
+	 */
+	public function getSchema(): ?string {
+		return $this->schema ?? null;
+	}
 
-		/**
-		 * @return ?string
-		 */
-		public function getOrganisation(): ?string {
-			return $this->organisation ?? null;
-		}
+	/**
+	 * @return ?string
+	 */
+	public function getOrganisation(): ?string {
+		return $this->organisation ?? null;
+	}
 
-		/**
-		 * @return ?string
-		 */
-		public function getOwner(): ?string {
-			return $this->owner ?? null;
-		}
-
+	/**
+	 * @return ?string
+	 */
+	public function getOwner(): ?string {
+		return $this->owner ?? null;
+	}
 
 	/**
 	 * Unique identifier for the object.

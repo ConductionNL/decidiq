@@ -27,8 +27,8 @@ use OCA\Decidesk\Service\ConflictOfInterestAuthorizationGuard;
 use OCA\Decidesk\Service\ConflictOfInterestService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\ParticipantToPersonMembershipResolver;
-use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -66,8 +66,8 @@ class ConflictOfInterestServiceTest extends TestCase {
 	 * @param array<int, array<string, string>> $participants Fixture `participant` rows: ['uuid' => .., 'nextcloudUserId' => ..]
 	 * @param array<string, array<int, string>> $chairsByMeeting Map of meetingId => Nextcloud UIDs holding chair/secretary role
 	 * @param array<string, array{person: string, membership: string}|null> $crosswalk Non-identity Participant->Person/Membership map;
-	 *                                                                                  defaults to an identity map (membership =
-	 *                                                                                  participantId . '-membership')
+	 *                                                                                 defaults to an identity map (membership =
+	 *                                                                                 participantId . '-membership')
 	 * @param array<int, array<string, mixed>> $agendaItems Fixture `agenda-item` rows: ['id' => .., 'meeting' => ..]
 	 *
 	 * @return ConflictOfInterestService

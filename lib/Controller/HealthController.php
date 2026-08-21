@@ -161,8 +161,15 @@ class HealthController extends Controller {
 	/**
 	 * Run the AppHost observability engine and flatten its result.
 	 *
+	 * Returns null when the engine is unavailable (openregister absent or
+	 * disabled). The description lives here rather than trailing the `@return`
+	 * tag because php-cs-fixer's docblock aligner indents a tag description to
+	 * clear the longest type on the block — behind this 88-character array
+	 * shape that lands at column 95, producing a 162-character line and
+	 * tripping phpcs's 150-character budget. The two tools disagree; keeping
+	 * the prose out of the tag is what stops them fighting.
+	 *
 	 * @return array{status: string, version: string, openregister: string, httpStatus: int}|null
-	 *         Null when the engine is unavailable (openregister absent/disabled).
 	 */
 	private function engineBody(): ?array {
 		try {

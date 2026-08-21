@@ -27,10 +27,10 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Mcp;
 
 use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Loads a meeting and enforces per-object authorisation for MCP tools.

@@ -29,11 +29,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Fail-closed eligibility rules for the vote-casting path.

@@ -28,9 +28,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Resolves participants for a meeting through the canonical schema path.

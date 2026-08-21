@@ -40,10 +40,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Concrete eIDAS QES service that delegates to openconnector's e-sign source.

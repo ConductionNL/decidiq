@@ -28,12 +28,12 @@ namespace OCA\Decidesk\Mcp;
 
 use OCA\Decidesk\Service\ActionItemWriter;
 use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;
 use OCP\IUserSession;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * The action-item half of the decidesk MCP tool catalogue.

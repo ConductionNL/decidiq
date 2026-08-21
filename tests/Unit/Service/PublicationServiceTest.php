@@ -28,8 +28,8 @@ use OCA\Decidesk\Service\PublicationConfigService;
 use OCA\Decidesk\Service\PublicationEligibilityService;
 use OCA\Decidesk\Service\PublicationPayloadService;
 use OCA\Decidesk\Service\PublicationService;
-use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
 use PHPUnit\Framework\TestCase;
@@ -116,7 +116,7 @@ class PublicationServiceTest extends TestCase {
 			}
 		);
 
-		$eligibility = new PublicationEligibilityService( $logger,
+		$eligibility = new PublicationEligibilityService($logger,
 			objectService: $objectService,
 		);
 		$payload = new PublicationPayloadService($container, $logger, $configService);

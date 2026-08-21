@@ -327,13 +327,14 @@ class EngagementControllerTest extends TestCase {
 	 */
 	private function participantEntity(string $uuid): object {
 		return new class($uuid) {
-
 			/**
 			 * Construct with the participant UUID.
 			 *
 			 * @param string $uuid The participant UUID.
 			 */
-			public function __construct(private readonly string $uuid) {
+			public function __construct(
+				private readonly string $uuid,
+			) {
 			}//end __construct()
 
 			/**

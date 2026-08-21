@@ -24,8 +24,8 @@ namespace OCA\Decidesk\Tests\Unit\Lifecycle;
 
 use OCA\Decidesk\Lifecycle\QesGuard;
 use OCA\Decidesk\Service\IEIDASSignatureService;
-use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;

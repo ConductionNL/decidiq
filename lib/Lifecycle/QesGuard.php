@@ -28,8 +28,8 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Lifecycle;
 
 use OCA\Decidesk\Service\IEIDASSignatureService;
-use Psr\Log\LoggerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Guard QES presence + validity before Resolution.conclude promotes the

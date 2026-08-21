@@ -270,10 +270,10 @@ class MeetingPackageService {
 	 * @param string $packagePath Path of the package folder
 	 * @param int $number Sequential item number (1-based)
 	 * @param array<string> $skipped Skip log (mutated; by-reference). Same type
-	 *                              as writeFileDefensively()'s own `$skipped`,
-	 *                              which this method passes it straight into —
-	 *                              the narrower `array<int, string>` this
-	 *                              replaces conflicted with it on every call.
+	 *                               as writeFileDefensively()'s own `$skipped`,
+	 *                               which this method passes it straight into —
+	 *                               the narrower `array<int, string>` this
+	 *                               replaces conflicted with it on every call.
 	 * @param int $filesCount Running copied-document count (mutated; by-reference)
 	 *
 	 * @spec openspec/specs/agenda-management/spec.md

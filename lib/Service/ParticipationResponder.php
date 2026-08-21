@@ -119,7 +119,6 @@ class ParticipationResponder {
 		}
 
 		return $this->respond(operation: $operation, key: $key, status: $status);
-
 	}//end citizenAction()
 
 	/**

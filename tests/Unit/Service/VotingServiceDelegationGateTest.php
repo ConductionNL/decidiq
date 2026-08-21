@@ -198,7 +198,6 @@ class VotingServiceDelegationGateTest extends TestCase {
 		$entity->method('jsonSerialize')->willReturn($object);
 		$entity->method('getObject')->willReturn($object);
 		return $entity;
-
 	}//end entity()
 
 	/**

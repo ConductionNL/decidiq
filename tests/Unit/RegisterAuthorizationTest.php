@@ -216,7 +216,7 @@ class RegisterAuthorizationTest extends TestCase {
 				$authorization[$action],
 				sprintf(
 					'`%s` must still name `public`. Before this block existed the default-OPEN branch '
-						. "granted it to the anonymous principal too, so dropping it 403s every "
+						. 'granted it to the anonymous principal too, so dropping it 403s every '
 						. '#[PublicPage] surface — a policy change, not a security fix.',
 					$action
 				)

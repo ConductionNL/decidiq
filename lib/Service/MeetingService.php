@@ -29,11 +29,11 @@ namespace OCA\Decidesk\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidesk\Lifecycle\MeetingTransitionGuard;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Service for managing meeting lifecycle state transitions.
@@ -171,7 +171,6 @@ class MeetingService {
 		/*
 		 * @var \OCA\OpenRegister\Contract\ObjectServiceInterface $objectService
 		 */
-
 
 		// Object-level read ACL: OpenRegister's ObjectService::find() resolves the
 		// current Nextcloud session user and returns null when the caller lacks read
