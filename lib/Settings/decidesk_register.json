@@ -7146,8 +7146,14 @@
       "EvaluationResponse": {
         "slug": "evaluation-response",
         "icon": "CheckboxMarkedOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "EvaluationResponse",
+        "_authorizationNote": "evaluation-response declared no schema-level authorization block, so it fell back to the decidesk register baseline and every raw board self-evaluation answer was readable by ANY authenticated user through OpenRegister's generic object API. That does not de-anonymise anyone — this schema carries no member relation and its responseToken is a server-secret HMAC — but it defeats the DELIBERATE anonymity threshold on the aggregate: BoardEvaluation suppresses dimensionScores and themes (suppressed=true) when too few members responded, precisely so a small board cannot be read individually, while the underlying answers stayed open to the whole instance. You could not learn WHO said it; you could read WHAT was said in a cycle whose summary was withheld for exactly that reason. Declaring a block with 'read' OMITTED closes it to everyone except the response's own author and admins. BoardEvaluationScoreService::closeCycle() therefore reads the set with `_rbac: false` — the caller is already authorised by BoardEvaluationAccessGuard::requireChairOrSecretary(), and a chair does not own the other members' responses, so under caller RBAC the query would return nothing and the cycle would close with a vacuous score summary on a healthy 200. NOTE: only CRUD actions (create/read/update/delete) are valid here — 'list' is NOT an action and makes validateAuthorization() reject the schema, after which the importer silently SKIPS it on an HTTP 200 'imported successfully'.",
+        "authorization": {
+          "create": [
+            "authenticated"
+          ]
+        },
         "description": "One member's anonymous submission to a BoardEvaluation cycle (board-self-evaluation). Carries NO member relation and no participant identity anywhere in its content — anonymity is inherited from the existing secret-ballot mechanism (opaque HMAC dedup token only, same as VotingService's secret-round voterToken). Completion is tracked separately on BoardEvaluation.respondedParticipantIds, never here.",
         "type": "object",
         "x-schema-org": "schema:Action",

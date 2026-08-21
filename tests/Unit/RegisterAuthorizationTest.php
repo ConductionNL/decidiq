@@ -394,6 +394,33 @@ class RegisterAuthorizationTest extends TestCase {
 
 				$withBlock++;
 				foreach (self::WRITE_ACTIONS as $action) {
+					// EvaluationResponse is the ONE deliberate exception, and it
+					// exists because omitting the write would break the feature.
+					//
+					// Its block closes `read` so the raw anonymous board
+					// self-evaluation answers stop being readable by every
+					// authenticated account — that openness defeated the
+					// suppression threshold BoardEvaluation applies to its
+					// aggregate. But a block SHADOWS the baseline entirely, so a
+					// block with no `create` would close submission to everyone
+					// but admins: a member could no longer answer at all. That is
+					// the same shape as the read-only block that closed
+					// create/update once before and was caught by NOTHING except
+					// the Newman collection.
+					//
+					// `create` only. `update` stays closed, which still permits a
+					// resubmission because the author OWNS their own response
+					// (the upsert is keyed on the opaque responseToken slug), and
+					// `delete` stays closed outright.
+					if ($name === 'EvaluationResponse' && $action === 'create') {
+						$this->assertSame(
+							['authenticated'],
+							$schema['authorization']['create'] ?? null,
+							'EvaluationResponse may open `create` to authenticated members and NOTHING wider.'
+						);
+						continue;
+					}
+
 					$this->assertArrayNotHasKey(
 						$action,
 						$schema['authorization'],
@@ -413,9 +440,13 @@ class RegisterAuthorizationTest extends TestCase {
 		// The count is the positive control: without it this loop passes vacuously
 		// if the schemas move, are renamed, or stop being found at all.
 		$this->assertSame(
-			26,
+			27,
 			$withBlock,
-			'Expected 26 schema-level authorization blocks. conflict-of-interest-authorization-guard added '
+			'Expected 27 schema-level authorization blocks. evaluation-response gained one that closes '
+				. '`read` (its raw anonymous board self-evaluation answers were readable by every '
+				. 'authenticated account, defeating the suppression threshold BoardEvaluation applies to '
+				. 'the aggregate) while keeping `create` open so members can still submit. '
+				. 'conflict-of-interest-authorization-guard added '
 				. 'ConflictOfInterest\'s own read/list-only block, since it previously fell back to the '
 				. 'register baseline\'s public read for sensitive personal data; '
 				. 'signature-and-outcome-authorization-guard added Decision\'s, narrowing anonymous read/list '

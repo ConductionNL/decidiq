@@ -454,8 +454,10 @@ class AmendmentOrderService {
 				continue;
 			}
 
+			// The `??` chain ends in `''`, so `$id` is never null and the
+			// `!== null` this replaces could never be reached as false.
 			$id = ($relation['id'] ?? $relation['uuid'] ?? '');
-			if ($id !== '' && $id !== null) {
+			if ($id !== '') {
 				return (string)$id;
 			}
 		}
