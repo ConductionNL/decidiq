@@ -179,10 +179,9 @@ class AuditLogService {
 				['actor' => $actor, 'action' => $action, 'currentHash' => $currentHash]
 			);
 
-			$entryPayload = $entry;
-			if (is_object($saved) === true) {
-				$entryPayload = $saved->jsonSerialize();
-			}
+			// OpenRegister's saveObject() returns ObjectEntityInterface — is_object() could
+			// never be false, so `$entry` was never the value used.
+			$entryPayload = $saved->jsonSerialize();
 
 			return [
 				'success' => true,

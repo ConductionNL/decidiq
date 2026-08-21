@@ -551,8 +551,6 @@ class ProofPackageService {
 	/**
 	 * Lazy-load the OpenRegister ObjectService from the container.
 	 *
-	 * @throws RuntimeException When OpenRegister is not installed
-	 *
 	 * @return object The OpenRegister ObjectService instance
 	 */
 	private function getObjectService(): object {

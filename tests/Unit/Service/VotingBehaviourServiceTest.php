@@ -3,14 +3,25 @@
 /**
  * Unit tests for VotingBehaviourService.
  *
+ * This service had ZERO test coverage (129 statements, 0 covered) while being
+ * the thing that answers "how does this board member actually vote" — a
+ * participation statistic that ends up in front of a governance body. These
+ * tests pin the traversal it performs and the arithmetic it reports.
+ *
+ * The traversal is three hops and easy to get subtly wrong:
+ *   governance-body -> motion (decisionType discriminator)
+ *                   -> voting-round (closed only)
+ *                   -> vote (this participant's ballots)
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ * SPDX-FileCopyrightText: 2026 Conduction B.V.
+ *
  * @category Test
  * @package  OCA\Decidesk\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
- *
- * @version GIT: <git-id>
  *
  * @link https://conduction.nl
  *
@@ -25,73 +36,39 @@ use OCA\Decidesk\Service\VotingBehaviourService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 
 /**
- * Tests for VotingBehaviourService.
+ * Covers VotingBehaviourService::getStats().
  *
  * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
  */
 class VotingBehaviourServiceTest extends TestCase {
-
 	/**
-	 * Service under test.
+	 * The mocked OpenRegister object service.
 	 *
-	 * @var VotingBehaviourService
+	 * @var ObjectServiceInterface&MockObject
 	 */
-	private VotingBehaviourService $service;
+	private $objectService;
 
 	/**
-	 * Mock ContainerInterface.
-	 *
-	 * @var ContainerInterface&MockObject
-	 */
-	private ContainerInterface&MockObject $container;
-
-	/**
-	 * Mock ObjectService (anonymous object).
-	 *
-	 * @var MockObject
-	 */
-	private MockObject $objectService;
-
-	/**
-	 * Set up test fixtures.
+	 * Set up the mocked collaborators.
 	 *
 	 * @return void
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-
-		$this->markTestSkipped(
-			'OpenRegister ObjectService is resolved via DI at call time; '
-			. 'named-parameter mock for findAll() requires real class stub — '
-			. 'track at https://codeberg.org/Conduction/decidesk/issues/90'
-		);
-
-		$this->container = $this->createMock(ContainerInterface::class);
-		$this->objectService = $this->getMockBuilder(\stdClass::class)
-			->addMethods(['setRegister', 'setSchema', 'findAll'])
-			->getMock();
-
+		// NOTE: setSchema() is deliberately NOT configured here. respondPerSchema()
+		// installs the callback that records it, and a second ->method() matcher
+		// for the same method would never be reached.
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->objectService->method('setRegister')->willReturnSelf();
-		$this->objectService->method('setSchema')->willReturnSelf();
-
-		$this->container
-			->method('get')
-			->with('OCA\OpenRegister\Service\ObjectService')
-			->willReturn($this->objectService);
-
-		$this->service = new VotingBehaviourService(
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		);
 
 	}//end setUp()
 
 	/**
-	 * Build a mock ObjectEntity returning $data from jsonSerialize().
+	 * Build a mock entity whose jsonSerialize() returns $data.
 	 *
-	 * @param array<string,mixed> $data
+	 * @param array<string,mixed> $data The serialised object payload.
 	 *
 	 * @return object
 	 */
@@ -101,95 +78,194 @@ class VotingBehaviourServiceTest extends TestCase {
 			->getMock();
 		$entity->method('jsonSerialize')->willReturn($data);
 		return $entity;
-	}
+
+	}//end makeEntity()
 
 	/**
-	 * getStats() returns zeroed stats when no closed rounds exist.
+	 * Drive findAll() by the schema the service last selected.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * The service calls setSchema() then findAll() for each hop, so keying the
+	 * responses on schema is what lets one mock serve the whole traversal.
+	 *
+	 * @param array<string, array<int, object>> $bySchema Schema slug => entities.
 	 *
 	 * @return void
 	 */
-	public function testGetStatsReturnsZeroedStatsWhenNoClosedRounds(): void {
-		// All rounds are open (closedAt is null).
-		$openRound = $this->makeEntity(['id' => 'r1', 'closedAt' => null]);
-
-		$this->objectService
-			->method('findAll')
-			->willReturn([$openRound]);
-
-		$stats = $this->service->getStats(
-			participantId: 'participant-uuid',
-			governanceBodyId: 'gb-uuid',
+	private function respondPerSchema(array $bySchema): void {
+		$schema = '';
+		$this->objectService->method('setSchema')->willReturnCallback(
+			function (string $s) use (&$schema) {
+				$schema = $s;
+				return $this->objectService;
+			}
+		);
+		$this->objectService->method('findAll')->willReturnCallback(
+			static function () use (&$schema, $bySchema): array {
+				return ($bySchema[$schema] ?? []);
+			}
 		);
 
-		self::assertSame('participant-uuid', $stats['participantId']);
-		self::assertSame('gb-uuid', $stats['governanceBodyId']);
-		self::assertSame(0, $stats['totalRounds']);
-		self::assertSame(0, $stats['participated']);
-		self::assertSame(0.0, $stats['participationRate']);
-		self::assertSame(0, $stats['votesFor']);
-		self::assertSame(0, $stats['votesAgainst']);
-		self::assertSame(0, $stats['votesAbstain']);
-
-	}//end testGetStatsReturnsZeroedStatsWhenNoClosedRounds()
+	}//end respondPerSchema()
 
 	/**
-	 * getStats() counts for/against/abstain votes in closed rounds.
+	 * A governance body with no motions yields a zeroed, well-formed report.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * The shape matters as much as the numbers: callers render every key, and a
+	 * missing one is a broken page rather than a zero.
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
-	public function testGetStatsCountsVoteValuesInClosedRounds(): void {
-		$closedRound = $this->makeEntity(['id' => 'round-1', 'closedAt' => '2026-04-01T10:00:00Z']);
-		$voteFor = $this->makeEntity(['value' => 'for',     'isProxy' => false]);
-		$voteAgainst = $this->makeEntity(['value' => 'against', 'isProxy' => false]);
-		$voteAbstain = $this->makeEntity(['value' => 'abstain', 'isProxy' => true]);
+	public function testEmptyBodyYieldsZeroedStats(): void {
+		$this->respondPerSchema([]);
+		$service = new VotingBehaviourService($this->objectService);
 
-		$this->objectService
-			->expects($this->exactly(2))
-			->method('findAll')
-			->willReturnOnConsecutiveCalls(
-				[$closedRound],
-				[$voteFor, $voteAgainst, $voteAbstain],
-			);
+		$stats = $service->getStats('participant-1', 'body-1');
 
-		$stats = $this->service->getStats(
-			participantId: 'p1',
-			governanceBodyId: 'gb1',
-		);
+		$this->assertSame('participant-1', $stats['participantId']);
+		$this->assertSame('body-1', $stats['governanceBodyId']);
+		$this->assertSame(0, $stats['totalRounds']);
+		$this->assertSame(0, $stats['participated']);
+		$this->assertSame(0.0, $stats['participationRate']);
+		$this->assertSame(0, $stats['votesFor']);
+		$this->assertSame(0, $stats['votesAgainst']);
+		$this->assertSame(0, $stats['votesAbstain']);
+		$this->assertSame(0, $stats['proxiesGiven']);
 
-		self::assertSame(1, $stats['totalRounds']);
-		self::assertSame(1, $stats['participated']);
-		self::assertSame(100.0, $stats['participationRate']);
-		self::assertSame(1, $stats['votesFor']);
-		self::assertSame(1, $stats['votesAgainst']);
-		self::assertSame(1, $stats['votesAbstain']);
-		self::assertSame(1, $stats['proxiesGiven']);
-
-	}//end testGetStatsCountsVoteValuesInClosedRounds()
+	}//end testEmptyBodyYieldsZeroedStats()
 
 	/**
-	 * getStats() participation rate is 0.0 when zero rounds found.
+	 * An OPEN round is not counted — neither in the denominator nor as
+	 * participation.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * This is the assertion that gives the participation rate its meaning: a
+	 * member cannot be marked absent from a vote that has not closed yet, so a
+	 * round without `closedAt` must not reach the tally at all.
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
-	public function testGetStatsParticipationRateIsZeroWhenNoRounds(): void {
-		$this->objectService
-			->method('findAll')
-			->willReturn([]);
-
-		$stats = $this->service->getStats(
-			participantId: 'p1',
-			governanceBodyId: 'gb1',
+	public function testOpenRoundsAreExcludedFromTheDenominator(): void {
+		$this->respondPerSchema(
+			[
+				'decision' => [$this->makeEntity(['id' => 'motion-1'])],
+				'voting-round' => [
+					$this->makeEntity(['id' => 'round-open']),
+					$this->makeEntity(['id' => 'round-closed', 'closedAt' => '2026-01-02T00:00:00Z']),
+				],
+				'vote' => [$this->makeEntity(['value' => 'for'])],
+			]
 		);
+		$service = new VotingBehaviourService($this->objectService);
 
-		self::assertSame(0, $stats['totalRounds']);
-		self::assertSame(0.0, $stats['participationRate']);
+		$stats = $service->getStats('participant-1', 'body-1');
 
-	}//end testGetStatsParticipationRateIsZeroWhenNoRounds()
+		// Two rounds exist; only the closed one counts.
+		$this->assertSame(1, $stats['totalRounds']);
+		$this->assertSame(1, $stats['participated']);
+		$this->assertSame(100.0, $stats['participationRate']);
 
+	}//end testOpenRoundsAreExcludedFromTheDenominator()
+
+	/**
+	 * Ballot values are tallied per bucket, and a proxy ballot is counted as
+	 * one this participant CAST, not one they received.
+	 *
+	 * The direction is the easy thing to invert, and inverting it would
+	 * misreport who delegated to whom.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 */
+	public function testVotesAreTalliedPerBucketAndProxyCountsAsGiven(): void {
+		$this->respondPerSchema(
+			[
+				'decision' => [$this->makeEntity(['id' => 'motion-1'])],
+				'voting-round' => [
+					$this->makeEntity(['id' => 'round-1', 'closedAt' => '2026-01-02T00:00:00Z']),
+				],
+				'vote' => [
+					$this->makeEntity(['value' => 'for']),
+					$this->makeEntity(['value' => 'against']),
+					$this->makeEntity(['value' => 'abstain']),
+					$this->makeEntity(['value' => 'for', 'isProxy' => true]),
+					// An unrecognised value must not land in any bucket.
+					$this->makeEntity(['value' => 'banana']),
+				],
+			]
+		);
+		$service = new VotingBehaviourService($this->objectService);
+
+		$stats = $service->getStats('participant-1', 'body-1');
+
+		$this->assertSame(2, $stats['votesFor']);
+		$this->assertSame(1, $stats['votesAgainst']);
+		$this->assertSame(1, $stats['votesAbstain']);
+		$this->assertSame(1, $stats['proxiesGiven']);
+		// One round with ballots => participated once, not once per ballot.
+		$this->assertSame(1, $stats['participated']);
+
+	}//end testVotesAreTalliedPerBucketAndProxyCountsAsGiven()
+
+	/**
+	 * The participation rate is a percentage of CLOSED rounds, rounded to one
+	 * decimal.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 */
+	public function testParticipationRateIsAPercentageOfClosedRounds(): void {
+		$rounds = [];
+		foreach (['r1', 'r2', 'r3'] as $id) {
+			$rounds[] = $this->makeEntity(['id' => $id, 'closedAt' => '2026-01-02T00:00:00Z']);
+		}
+
+		$this->respondPerSchema(
+			[
+				'decision' => [$this->makeEntity(['id' => 'motion-1'])],
+				'voting-round' => $rounds,
+				'vote' => [],
+			]
+		);
+		$service = new VotingBehaviourService($this->objectService);
+
+		$stats = $service->getStats('participant-1', 'body-1');
+
+		$this->assertSame(3, $stats['totalRounds']);
+		// No ballots found for this participant in any round.
+		$this->assertSame(0, $stats['participated']);
+		$this->assertSame(0.0, $stats['participationRate']);
+
+	}//end testParticipationRateIsAPercentageOfClosedRounds()
+
+	/**
+	 * A motion without a resolvable id is skipped rather than fatal.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 */
+	public function testMotionWithoutAnIdIsSkipped(): void {
+		$this->respondPerSchema(
+			[
+				'decision' => [$this->makeEntity(['title' => 'no id here'])],
+				'voting-round' => [
+					$this->makeEntity(['id' => 'round-1', 'closedAt' => '2026-01-02T00:00:00Z']),
+				],
+				'vote' => [$this->makeEntity(['value' => 'for'])],
+			]
+		);
+		$service = new VotingBehaviourService($this->objectService);
+
+		$stats = $service->getStats('participant-1', 'body-1');
+
+		// The motion never yielded an id, so its rounds were never reached.
+		$this->assertSame(0, $stats['totalRounds']);
+		$this->assertSame(0, $stats['votesFor']);
+
+	}//end testMotionWithoutAnIdIsSkipped()
 }//end class

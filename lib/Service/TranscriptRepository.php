@@ -337,8 +337,6 @@ class TranscriptRepository {
 	 *
 	 * @return object The ObjectService instance.
 	 *
-	 * @throws RuntimeException When OpenRegister is not installed.
-	 *
 	 * @spec openspec/specs/meeting-transcription/spec.md
 	 */
 	private function getObjectService(): object {

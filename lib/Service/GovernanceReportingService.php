@@ -238,9 +238,9 @@ class GovernanceReportingService {
 				register: 'decidesk',
 				schema: self::SCHEMA
 			);
-			if (is_object($saved) === true) {
-				return (array)$saved->jsonSerialize();
-			}
+			// OpenRegister's saveObject() returns ObjectEntityInterface — is_object() could
+			// never be false, so this always returned here.
+			return (array)$saved->jsonSerialize();
 		} catch (\Throwable $e) {
 			$this->logger->warning(
 				'Decidesk: GovernanceReportingService failed to persist report',
@@ -287,10 +287,9 @@ class GovernanceReportingService {
 				];
 			}
 
-			$report = (array)$entity->jsonSerialize();
-			if (method_exists($entity, 'getObject') === true) {
-				$report = $entity->getObject();
-			}
+			// `getObject(): array` is on ObjectEntityInterface — the
+			// method_exists() probe could never be false.
+			$report = $entity->getObject();
 		} catch (\Throwable $e) {
 			$this->logger->error(
 				'Decidesk: GovernanceReportingService::exportReport failed',
