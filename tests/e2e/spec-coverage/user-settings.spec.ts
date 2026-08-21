@@ -200,6 +200,24 @@ test('Reminder timing: defaults to 24h + 1h and accepts 48h + 1h', async ({
 test('Display preferences: default view Meetings redirects the app root to the meetings list', async ({
 	page,
 }) => {
+	// This test does THREE full app navigations (settings panel, app root,
+	// deep link), each blocking on the pre-mount initializeStores() round trip,
+	// and the CI project budget is 20s — `tests/e2e/playwright.config.ts` sets
+	// `timeout: 20_000`, and that is the config CI resolves through
+	// `playwright-test-path`, NOT the 30s root one.
+	//
+	// The comment on the restore below already records the arithmetic from an
+	// earlier flake: the redirect landed at 10.6s and the deep link held at
+	// 17.6s. That leaves ~2s of headroom, so a merely busy runner tips it over
+	// — observed 2026-08-21, failing at 20.9s on BOTH attempts of one run
+	// (retries: 1) and then passing on a re-run of the identical sha. Nothing
+	// about the app changed; the budget was never realistic for the work.
+	//
+	// 60s is deliberately not 120s: enough that load cannot fail it, small
+	// enough that a genuine hang still fails this test rather than burning the
+	// job's 45-minute cap.
+	test.setTimeout(60_000)
+
 	test.skip(
 		!(await openPersonalSettings(page)),
 		'decidesk personal settings panel not deployed on this instance',
