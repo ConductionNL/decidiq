@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk route table.
+ * Decidiq route table.
  *
  * Adopts the OpenRegister AppHost canonical route table
  * ({@see \OCA\OpenRegister\AppHost\Routes::standard()}) for the mechanical
  * fleet-standard routes (dashboard page + SPA catch-all, settings API,
  * per-user preferences, the observability /api/health + /api/metrics
- * endpoints), and appends decidesk's domain routes via `$extra`.
+ * endpoints), and appends decidiq's domain routes via `$extra`.
  *
  * `$extra` routes are inserted before the SPA catch-all so they keep priority
  * over the `/{path}` fallback; an `$extra` route whose name matches a canonical
@@ -15,12 +15,12 @@
  * the canonical `settings#*` controller without re-declaring it).
  *
  * ⚠️ The AppHost builder is invoked through a `class_exists()` guard. This file
- * is `include`d by Nextcloud's router for EVERY decidesk request, so an
+ * is `include`d by Nextcloud's router for EVERY decidiq request, so an
  * unguarded static call to a class in another app makes every route in the app
  * fatal with HTTP 500 when openregister is absent — not just the AppHost ones.
  * The `$fallback` branch below is a byte-equivalent local copy of
- * `Routes::standard()`'s output so decidesk still routes (and degrades
- * per-endpoint) without openregister. See decidesk#377.
+ * `Routes::standard()`'s output so decidiq still routes (and degrades
+ * per-endpoint) without openregister. See decidiq#377.
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
@@ -216,13 +216,13 @@ $extra = [
         // Public REST API — versioned v1 (REQ-API-001..004).
         // @spec openspec/changes/p4-integration/tasks.md#task-1
         // Legacy health endpoint — public, no auth. Re-pointed at the AppHost
-        // engine via the decidesk HealthController subclass; kept on the
+        // engine via the decidiq HealthController subclass; kept on the
         // historical /api/v1/health URL for reverse-proxy probes (deprecation
         // window — see openspec/changes/adopt-apphost/tasks.md#task-2.3). The
         // canonical /api/health (health#index) comes from Routes::standard().
         // @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
         // Canonical /api/health re-declared here (identical to the entry
-        // Routes::standard() would inject) so the decidesk HealthController
+        // Routes::standard() would inject) so the decidiq HealthController
         // subclass route target is statically visible (gate-14); the $extra
         // override is behaviour-neutral. @spec openspec/changes/adopt-apphost/tasks.md#task-2.2
         ['name' => 'health#index',           'url' => '/api/health',     'verb' => 'GET'],
