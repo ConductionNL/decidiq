@@ -7,7 +7,7 @@
   },
   "x-openregister": {
     "type": "application",
-    "app": "decidesk",
+    "app": "decidiq",
     "openregister": "^v0.2.10",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
     "x-decidesk-rbac-scopes": {
