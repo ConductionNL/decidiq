@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Decidesk are documented in this file.
+All notable changes to Decidiq are documented in this file.
 
 ## [Unreleased]
 
@@ -32,7 +32,7 @@ All notable changes to Decidesk are documented in this file.
   without page remount), and pure governance computations in
   `widgetLogic.js` covered by 70 passing vitest tests.
 - **i18n** — all widget strings use English source keys via
-  `t('decidesk', ...)`; nl/de/fr/es/it translations added (de/fr/es/it
+  `t('decidiq', ...)`; nl/de/fr/es/it translations added (de/fr/es/it
   l10n files newly created).
 
 ### Changed
@@ -88,7 +88,7 @@ All notable changes to Decidesk are documented in this file.
 
 - **MCP Tools Provider** (`mcp-tools`) — first per-app exemplar of
   `OCA\OpenRegister\Mcp\IMcpToolProvider` for the OpenRegister AI Chat Companion.
-  `OCA\Decidesk\Mcp\DecideskToolProvider` exposes 5 MCP tools to the LLM:
+  `OCA\Decidiq\Mcp\DecidiqToolProvider` exposes 5 MCP tools to the LLM:
   - `decidesk.listOpenActionItems` — list incomplete action items (scope: mine | all)
   - `decidesk.listRecentMeetings` — recent meetings ordered by date desc
   - `decidesk.getMeetingDetails` — meeting + agenda + decisions + action items inlined
@@ -101,7 +101,7 @@ All notable changes to Decidesk are documented in this file.
     capped at 20 with `sourcesTruncated` / `sourcesTotalCount` markers.
   - Registered via `registerServiceAlias('OCA\OpenRegister\Mcp\IMcpToolProvider::decidesk', …)`
     so OpenRegister's `McpToolsService` discovers it.
-  - Consumes existing decidesk services (MeetingService, TaskService, ParticipantResolver)
+  - Consumes existing decidiq services (MeetingService, TaskService, ParticipantResolver)
     and OpenRegister's `ObjectService` (ADR-022/ADR-001) — no new schemas, endpoints,
     or business logic.
   - Operator docs at `docs/features/mcp-tools.md`; unit + integration test coverage

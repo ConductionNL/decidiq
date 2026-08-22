@@ -29,11 +29,11 @@ async function dismissSupportDialog(page: Page): Promise<void> {
 test('Participants: index renders heading, object-list table and Add CTA', async ({
 	page,
 }) => {
-	await page.goto(`${BASE}/apps/decidesk/participants`)
+	await page.goto(`${BASE}/apps/decidiq/participants`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await dismissSupportDialog(page)
 
-	await expect(page).toHaveURL(/\/apps\/decidesk\/.*participants/)
+	await expect(page).toHaveURL(/\/apps\/decidiq\/.*participants/)
 	// NOTE: the migrated CnIndexPage (nc-vue v2) no longer renders a page-title
 	// heading inside <main>; assert the real index surface instead.
 	await expect(page.getByTestId('cn-object-list-table')).toBeVisible()
@@ -45,7 +45,7 @@ test('Participants: index renders heading, object-list table and Add CTA', async
 test('Participants: Add Participant opens a real create form dialog', async ({
 	page,
 }) => {
-	await page.goto(`${BASE}/apps/decidesk/participants`)
+	await page.goto(`${BASE}/apps/decidiq/participants`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await dismissSupportDialog(page)
 
@@ -62,7 +62,7 @@ test('Participants: Add Participant opens a real create form dialog', async ({
 })
 
 // @e2e openspec/specs/participant-management/spec.md#view-the-participants-list
-test('Participants: no decidesk-origin console error or 500 on load', async ({
+test('Participants: no decidiq-origin console error or 500 on load', async ({
 	page,
 }) => {
 	const appErrors: string[] = []
@@ -71,21 +71,21 @@ test('Participants: no decidesk-origin console error or 500 on load', async ({
 		if (
 			m.type() === 'error'
 			&& !/user_status|heartbeat|user status/i.test(t)
-			&& /decidesk/i.test(t)
+			&& /decidiq/i.test(t)
 		) {
 			appErrors.push(t)
 		}
 	})
 	page.on('response', (r) => {
-		if (r.status() >= 500 && /decidesk/i.test(r.url()))
+		if (r.status() >= 500 && /decidiq/i.test(r.url()))
 			appErrors.push(`HTTP ${r.status()} ${r.url()}`)
 	})
 
-	await page.goto(`${BASE}/apps/decidesk/participants`)
+	await page.goto(`${BASE}/apps/decidiq/participants`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await expect(page.getByTestId('cn-object-list-table')).toBeVisible()
 	expect(
 		appErrors,
-		`decidesk errors on Participants:\n${appErrors.join('\n')}`,
+		`decidiq errors on Participants:\n${appErrors.join('\n')}`,
 	).toHaveLength(0)
 })

@@ -3,7 +3,7 @@
 /**
  * Decidiq MCP Argument Validator
  *
- * Validates the arguments an LLM passes to a decidesk MCP tool, returning a
+ * Validates the arguments an LLM passes to a Decidiq MCP tool, returning a
  * ready-made error envelope on rejection and null on acceptance.
  *
  * @category Mcp
@@ -27,7 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Mcp;
 
 /**
- * Argument validation for the decidesk MCP tools.
+ * Argument validation for the Decidiq MCP tools.
  *
  * Extracted from DecidiqToolProvider so that argument checking — which is a
  * large share of every handler's branching — is a unit of its own. Each

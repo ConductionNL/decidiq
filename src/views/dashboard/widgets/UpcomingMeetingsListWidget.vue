@@ -15,7 +15,7 @@
 
 		<NcEmptyContent
 			v-else-if="rows.length === 0"
-			:name="t('decidesk', 'No upcoming meetings')"
+			:name="t('decidiq', 'No upcoming meetings')"
 			data-testid="upcoming-meetings-list-empty">
 			<template #icon>
 				<CalendarBlankOutline :size="32" />
@@ -48,7 +48,7 @@
 					}}</span>
 					<span class="dashboard-list-widget__meta">
 						{{
-							t('decidesk', '{n} agenda items', {
+							t('decidiq', '{n} agenda items', {
 								n: agendaCount(meeting),
 							})
 						}}
@@ -113,7 +113,7 @@ export default {
 			try {
 				this.meetings = await getMeetings({ lifecycle: 'scheduled' })
 			} catch (e) {
-				console.error('[decidesk] UpcomingMeetingsListWidget load failed', e)
+				console.error('[decidiq] UpcomingMeetingsListWidget load failed', e)
 				this.error = e
 				this.meetings = []
 			} finally {
@@ -156,12 +156,12 @@ export default {
 		countdownLabel(meeting) {
 			const { key } = countdownBucket(meeting.scheduledDate, Date.now())
 			if (key === 'today' || key === 'overdue') {
-				return t('decidesk', 'today')
+				return t('decidiq', 'today')
 			}
 			if (key === 'tomorrow') {
-				return t('decidesk', 'tomorrow')
+				return t('decidiq', 'tomorrow')
 			}
-			return t('decidesk', 'today')
+			return t('decidiq', 'today')
 		},
 
 		/**

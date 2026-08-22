@@ -36,7 +36,7 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
- * The action-item half of the decidesk MCP tool catalogue.
+ * The action-item half of the Decidiq MCP tool catalogue.
  *
  * Extracted from DecidiqToolProvider (which now only dispatches) so that the
  * two handlers and their supporting logic form a class of their own rather

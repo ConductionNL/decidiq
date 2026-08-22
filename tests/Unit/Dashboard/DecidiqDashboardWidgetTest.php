@@ -58,9 +58,9 @@ class DecidiqDashboardWidgetTest extends TestCase {
 		);
 
 		$url = $this->createMock(IURLGenerator::class);
-		$url->method('linkToRouteAbsolute')->willReturn('https://nc.example/index.php/apps/decidesk/');
+		$url->method('linkToRouteAbsolute')->willReturn('https://nc.example/index.php/apps/decidiq/');
 		$url->method('getAbsoluteURL')->willReturnCallback(static fn (string $p): string => 'https://nc.example' . $p);
-		$url->method('imagePath')->willReturn('/apps/decidesk/img/app-dark.svg');
+		$url->method('imagePath')->willReturn('/apps/decidiq/img/app-dark.svg');
 
 		$time = $this->createMock(ITimeFactory::class);
 		$time->method('getTime')->willReturn(1781352000);
@@ -118,6 +118,8 @@ class DecidiqDashboardWidgetTest extends TestCase {
 	public function testIdentity(): void {
 		$widget = $this->makeWidget(['pendingVotes' => 0, 'nextMeeting' => null]);
 
+		// NOTE: the widget id is FROZEN on the old value — the NC dashboard app
+		// persists each user's enabled/ordered widget ids under its own namespace.
 		$this->assertSame('decidesk', $widget->getId());
 		$this->assertSame('Decidiq', $widget->getTitle());
 		$this->assertIsInt($widget->getOrder());
@@ -134,11 +136,11 @@ class DecidiqDashboardWidgetTest extends TestCase {
 	public function testDeepLinkUrlAndButton(): void {
 		$widget = $this->makeWidget(['pendingVotes' => 0, 'nextMeeting' => null]);
 
-		$this->assertStringContainsString('/apps/decidesk/', (string)$widget->getUrl());
+		$this->assertStringContainsString('/apps/decidiq/', (string)$widget->getUrl());
 
 		$buttons = $widget->getWidgetButtons('alice');
 		$this->assertCount(1, $buttons);
-		$this->assertStringContainsString('/apps/decidesk/', $buttons[0]->getLink());
+		$this->assertStringContainsString('/apps/decidiq/', $buttons[0]->getLink());
 		$this->assertSame('Open Decidiq', $buttons[0]->getText());
 
 	}//end testDeepLinkUrlAndButton()
@@ -161,7 +163,7 @@ class DecidiqDashboardWidgetTest extends TestCase {
 		$this->assertCount(2, $items);
 		$this->assertStringContainsString('3', $items[0]->getTitle());
 		$this->assertSame('Board meeting', $items[1]->getTitle());
-		$this->assertStringContainsString('/apps/decidesk/', $items[0]->getLink());
+		$this->assertStringContainsString('/apps/decidiq/', $items[0]->getLink());
 
 	}//end testItemsV2WithData()
 

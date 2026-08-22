@@ -78,8 +78,8 @@ class DecidiqSearchProviderTest extends TestCase {
 		}
 
 		$urlGenerator = $this->createMock(IURLGenerator::class);
-		$urlGenerator->method('imagePath')->willReturn('/img/decidesk/app-dark.svg');
-		$urlGenerator->method('linkToRoute')->willReturn('/apps/decidesk/');
+		$urlGenerator->method('imagePath')->willReturn('/img/decidiq/app-dark.svg');
+		$urlGenerator->method('linkToRoute')->willReturn('/apps/decidiq/');
 
 		$l10n = $this->createMock(IL10N::class);
 		$l10n->method('t')->willReturnArgument(0);
@@ -116,8 +116,8 @@ class DecidiqSearchProviderTest extends TestCase {
 	public function testIdentityAndOrder(): void {
 		$provider = $this->makeProvider();
 
-		self::assertSame(expected: 'decidesk', actual: $provider->getId());
-		self::assertSame(expected: -1, actual: $provider->getOrder('decidesk.dashboard.page', []));
+		self::assertSame(expected: 'decidiq', actual: $provider->getId());
+		self::assertSame(expected: -1, actual: $provider->getOrder('decidiq.dashboard.page', []));
 		self::assertSame(expected: 25, actual: $provider->getOrder('files.view.index', []));
 
 	}//end testIdentityAndOrder()

@@ -462,7 +462,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	}//end containerFor()
 
 	/**
-	 * The container the decidesk motion stack actually resolves against.
+	 * The container the decidiq motion stack actually resolves against.
 	 *
 	 * Each id is registered explicitly and the resolver dispatches on the id, so
 	 * a dependency the code gains later surfaces as a loud failure here instead
@@ -472,7 +472,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 *
 	 * @return ContainerInterface
 	 */
-	private function decideskContainer(ObjectServiceInterface $objectService): ContainerInterface {
+	private function decidiqContainer(ObjectServiceInterface $objectService): ContainerInterface {
 		$services = [
 			'OCA\OpenRegister\Service\ObjectService' => $objectService,
 			\OCA\Decidiq\Service\MotionNotifier::class => $this->createMock(
@@ -503,7 +503,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 		);
 
 		return $this->containerFor($services);
-	}//end decideskContainer()
+	}//end decidiqContainer()
 
 	/**
 	 * Reset the schema-call recorder.
@@ -573,7 +573,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 */
 	private function callAmendmentOrder(string $motionId): JSONResponse {
 		$objectService = $this->objectServiceContract();
-		$container = $this->decideskContainer($objectService);
+		$container = $this->decidiqContainer($objectService);
 
 		$motionService = new MotionService(
 			container: $container,
@@ -698,7 +698,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 */
 	public function testTransitionLifecycleRejectsAnUnknownObjectType(): void {
 		$objectService = $this->objectServiceContract();
-		$container = $this->decideskContainer($objectService);
+		$container = $this->decidiqContainer($objectService);
 
 		$motionService = new MotionService(
 			container: $container,
@@ -740,7 +740,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 				],
 			]
 		);
-		$container = $this->decideskContainer($objectService);
+		$container = $this->decidiqContainer($objectService);
 
 		$motionService = new MotionService(
 			container: $container,
@@ -797,7 +797,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 */
 	private function buildPreflight(): VotingRoundPreflight {
 		$objectService = $this->objectServiceContract();
-		$container = $this->decideskContainer($objectService);
+		$container = $this->decidiqContainer($objectService);
 
 		$templateService = $this->createMock(ProcessTemplateService::class);
 		$templateService->method('resolveVotingRuleForBody')->willReturn([]);

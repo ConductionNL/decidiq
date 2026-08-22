@@ -6,7 +6,7 @@
 /**
  * Test stub for OCA\OpenRegister\Db\Schema.
  *
- * decidesk never constructs a Schema — it always addresses schemas by slug.
+ * decidiq never constructs a Schema — it always addresses schemas by slug.
  * The class exists here purely so that the ObjectService stub can declare the
  * SAME union parameter types production declares
  * (`Schema | string | int | null $schema`). Without it the stub would have to

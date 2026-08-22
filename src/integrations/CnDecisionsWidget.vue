@@ -6,22 +6,22 @@
  `decidesk-decisions` integration leaf (ADR-019 / ADR-022).
 
  Given a host object's identity ({ register, schema, objectId }) supplied
- by the OpenRegister integration registry, this widget lists the decidesk
+ by the OpenRegister integration registry, this widget lists the decidiq
  decisions linked to that object — proposals, advice and final decisions —
  grouped by kind. It is generic: the host can be a procest case, an
- opencatalogi catalog, or any OR object. The link is the decidesk Decision
- schema's `subjectId` back-reference (decidesk-contract-decision-hub,
+ opencatalogi catalog, or any OR object. The link is the decidiq Decision
+ schema's `subjectId` back-reference (decidiq-contract-decision-hub,
  REQ-DCDH-001); this widget fetches decisions where `subjectId == objectId`.
 
  Read-mostly + link-out: the full decision workflow (deliberation, voting,
- publication) lives in decidesk, so each row deep-links to decidesk's
+ publication) lives in decidiq, so each row deep-links to decidiq's
  DecisionDetail page and a "Create proposal for this case" action opens the
  in-widget CnFormDialog pre-linked to the host object via subjectId.
 
  Surface-aware (AD-19): on dashboard surfaces it renders a compact count
  headline; on the detail-page surface a grouped clickable list.
 
- All UI strings pass through t('decidesk', …) (ADR-007); styling uses
+ All UI strings pass through t('decidiq', …) (ADR-007); styling uses
  Nextcloud CSS variables only so the nldesign overrides apply (ADR-010).
 -->
 <template>
@@ -175,7 +175,7 @@ export default {
 	computed: {
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — Besluitvorming widget title. */
 		cardTitle() {
-			return t('decidesk', 'Besluitvorming')
+			return t('decidiq', 'Besluitvorming')
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — Besluitvorming widget icon. */
@@ -183,9 +183,9 @@ export default {
 			return Gavel
 		},
 
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 link-out to decidesk. */
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 link-out to decidiq. */
 		appUrl() {
-			return generateUrl('/apps/decidesk/decisions')
+			return generateUrl('/apps/decidiq/decisions')
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-001 host subject reference. */
@@ -210,24 +210,24 @@ export default {
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — empty-state copy for the leaf surface. */
 		emptyLabel() {
-			return t('decidesk', 'No decision-making linked to this object yet.')
+			return t('decidiq', 'No decision-making linked to this object yet.')
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create-proposal action label. */
 		createProposalLabel() {
-			return t('decidesk', 'Create proposal for this object')
+			return t('decidiq', 'Create proposal for this object')
 		},
 
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 link-out to decidesk. */
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 link-out to decidiq. */
 		openInDecidiqLabel() {
-			return t('decidesk', 'Open in decidesk')
+			return t('decidiq', 'Open in decidiq')
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — linked-decision count label. */
 		countLabel() {
 			const total = this.decisions.length
 			return this.n(
-				'decidesk',
+				'decidiq',
 				'{count} decision',
 				'{count} decisions',
 				total,
@@ -248,17 +248,17 @@ export default {
 			return [
 				{
 					key: 'proposals',
-					label: t('decidesk', 'Proposals'),
+					label: t('decidiq', 'Proposals'),
 					items: buckets.proposals,
 				},
 				{
 					key: 'advice',
-					label: t('decidesk', 'Advice'),
+					label: t('decidiq', 'Advice'),
 					items: buckets.advice,
 				},
 				{
 					key: 'decisions',
-					label: t('decidesk', 'Decisions'),
+					label: t('decidiq', 'Decisions'),
 					items: buckets.decisions,
 				},
 			]
@@ -276,18 +276,18 @@ export default {
 		 */
 		createSchema() {
 			return {
-				title: t('decidesk', 'Proposal'),
+				title: t('decidiq', 'Proposal'),
 				properties: {
-					title: { type: 'string', title: t('decidesk', 'Title') },
+					title: { type: 'string', title: t('decidiq', 'Title') },
 					text: {
 						type: 'string',
-						title: t('decidesk', 'Rationale'),
+						title: t('decidiq', 'Rationale'),
 						widget: 'textarea',
 					},
 
 					decisionType: {
 						type: 'string',
-						title: t('decidesk', 'Type'),
+						title: t('decidiq', 'Type'),
 						enum: [
 							'motion',
 							'policy',
@@ -336,7 +336,7 @@ export default {
 		rowTitle(decision) {
 			return (
 				String(decision?.title ?? decision?.data?.title ?? '').trim()
-				|| t('decidesk', 'Untitled decision')
+				|| t('decidiq', 'Untitled decision')
 			)
 		},
 
@@ -346,20 +346,20 @@ export default {
 		 */
 		lifecycleLabel(decision) {
 			if (isProposal(decision)) {
-				return t('decidesk', 'Proposal')
+				return t('decidiq', 'Proposal')
 			}
 			const lifecycle = String(
 				decision?.lifecycle ?? decision?.data?.lifecycle ?? 'decided',
 			)
 			switch (lifecycle) {
 				case 'decided':
-					return t('decidesk', 'Decided')
+					return t('decidiq', 'Decided')
 				case 'enacted':
-					return t('decidesk', 'Enacted')
+					return t('decidiq', 'Enacted')
 				case 'archived':
-					return t('decidesk', 'Archived')
+					return t('decidiq', 'Archived')
 				case 'withdrawn':
-					return t('decidesk', 'Withdrawn')
+					return t('decidiq', 'Withdrawn')
 				default:
 					return lifecycle
 			}
@@ -394,11 +394,11 @@ export default {
 		decisionUrl(decision) {
 			const id = objId(decision)
 			return id
-				? generateUrl(`/apps/decidesk/decisions/${encodeURIComponent(id)}`)
+				? generateUrl(`/apps/decidiq/decisions/${encodeURIComponent(id)}`)
 				: this.appUrl
 		},
 
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 open decidesk decisions app. */
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 open decidiq decisions app. */
 		openApp() {
 			if (typeof window !== 'undefined') {
 				window.open(this.appUrl, '_blank', 'noopener')
@@ -424,7 +424,7 @@ export default {
 				this.decisions = await listHostDecisions(this.hostObjectId, 100)
 			} catch (e) {
 				this.error =
-					e?.message || t('decidesk', 'Could not load decision-making.')
+					e?.message || t('decidiq', 'Could not load decision-making.')
 			} finally {
 				this.loading = false
 			}
@@ -442,7 +442,7 @@ export default {
 			this.error = ''
 			try {
 				await createHostDecision({
-					title: formData.title || t('decidesk', 'Proposal'),
+					title: formData.title || t('decidiq', 'Proposal'),
 					text: formData.text || '',
 					decisionType: formData.decisionType || 'motion',
 					lifecycle: 'proposed',
@@ -459,7 +459,7 @@ export default {
 				await this.refresh()
 			} catch (e) {
 				this.error =
-					e?.message || t('decidesk', 'Could not create proposal.')
+					e?.message || t('decidiq', 'Could not create proposal.')
 			} finally {
 				this.creating = false
 			}

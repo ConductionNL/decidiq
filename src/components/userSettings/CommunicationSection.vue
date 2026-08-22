@@ -11,11 +11,11 @@
 -->
 <template>
 	<div class="user-settings-section" data-testid="communication-section">
-		<h3>{{ t('decidesk', 'Communication preferences') }}</h3>
+		<h3>{{ t('decidiq', 'Communication preferences') }}</h3>
 		<p class="user-settings-section__hint">
 			{{
 				t(
-					'decidesk',
+					'decidiq',
 					'Where Decidiq sends governance communications such as convocations, minutes and reminders.',
 				)
 			}}
@@ -24,13 +24,13 @@
 		<div class="user-settings-section__field">
 			<NcTextField
 				v-model="governanceEmail"
-				:label="t('decidesk', 'Governance email')"
+				:label="t('decidiq', 'Governance email')"
 				:placeholder="accountEmailPlaceholder"
 				type="email"
 				data-testid="communication-email" />
 			<p class="user-settings-section__hint">
 				{{
-					t('decidesk', 'Leave empty to use your Nextcloud account email.')
+					t('decidiq', 'Leave empty to use your Nextcloud account email.')
 				}}
 			</p>
 		</div>
@@ -38,7 +38,7 @@
 		<div class="user-settings-section__field">
 			<NcTextField
 				v-model="urgentPhone"
-				:label="t('decidesk', 'Phone for urgent matters')"
+				:label="t('decidiq', 'Phone for urgent matters')"
 				type="tel"
 				data-testid="communication-phone" />
 		</div>
@@ -46,7 +46,7 @@
 		<div class="user-settings-section__field">
 			<NcSelect
 				v-model="language"
-				:inputLabel="t('decidesk', 'Preferred language for communications')"
+				:inputLabel="t('decidiq', 'Preferred language for communications')"
 				:options="languageOptions"
 				label="label"
 				:clearable="false"
@@ -65,8 +65,8 @@
 				@click="save">
 				{{
 					saving
-						? t('decidesk', 'Saving …')
-						: t('decidesk', 'Save communication preferences')
+						? t('decidiq', 'Saving …')
+						: t('decidiq', 'Save communication preferences')
 				}}
 			</NcButton>
 		</div>
@@ -74,7 +74,7 @@
 			{{ error }}
 		</NcNoteCard>
 		<NcNoteCard v-if="saved" type="success">
-			{{ t('decidesk', 'Communication preferences saved.') }}
+			{{ t('decidiq', 'Communication preferences saved.') }}
 		</NcNoteCard>
 	</div>
 </template>
@@ -119,15 +119,15 @@ export default {
 		/** @spec openspec/specs/user-settings/spec.md */
 		languageOptions() {
 			const names = {
-				nl: this.t('decidesk', 'Dutch'),
-				en: this.t('decidesk', 'English'),
-				de: this.t('decidesk', 'German'),
-				fr: this.t('decidesk', 'French'),
-				es: this.t('decidesk', 'Spanish'),
-				it: this.t('decidesk', 'Italian'),
+				nl: this.t('decidiq', 'Dutch'),
+				en: this.t('decidiq', 'English'),
+				de: this.t('decidiq', 'German'),
+				fr: this.t('decidiq', 'French'),
+				es: this.t('decidiq', 'Spanish'),
+				it: this.t('decidiq', 'Italian'),
 			}
 			return [
-				{ id: '', label: this.t('decidesk', 'Nextcloud locale (default)') },
+				{ id: '', label: this.t('decidiq', 'Nextcloud locale (default)') },
 				...COMMUNICATION_LANGUAGES.map((id) => ({
 					id,
 					label: names[id] || id,
@@ -139,14 +139,14 @@ export default {
 		accountEmailPlaceholder() {
 			return (
 				this.preference?.accountEmail
-				|| this.t('decidesk', 'Your Nextcloud account email')
+				|| this.t('decidiq', 'Your Nextcloud account email')
 			)
 		},
 
 		/** @spec openspec/specs/user-settings/spec.md */
 		validationError() {
 			if (this.governanceEmail && !isValidEmail(this.governanceEmail)) {
-				return this.t('decidesk', 'Enter a valid email address.')
+				return this.t('decidiq', 'Enter a valid email address.')
 			}
 			return null
 		},
@@ -199,7 +199,7 @@ export default {
 				this.saved = true
 				this.$emit('updated', saved)
 			} catch (e) {
-				this.error = e.message || this.t('decidesk', 'Saving failed.')
+				this.error = e.message || this.t('decidiq', 'Saving failed.')
 			} finally {
 				this.saving = false
 			}

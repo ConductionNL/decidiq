@@ -415,7 +415,7 @@ class EIDASSignatureControllerTest extends TestCase {
 	 * fails and the ADR-044 functionality question gets asked deliberately.
 	 * Its counterpart — the 401 for an unauthenticated caller through the real
 	 * middleware chain — is folder 2 of
-	 * tests/integration/decidesk-security-flow-e2e.postman_collection.json.
+	 * tests/integration/decidiq-security-flow-e2e.postman_collection.json.
 	 *
 	 * @return void
 	 *

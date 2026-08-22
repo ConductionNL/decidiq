@@ -13,10 +13,10 @@
 <template>
 	<div class="dashboard-empty" data-testid="dashboard-empty-state">
 		<NcEmptyContent
-			:name="t('decidesk', 'Welcome to Decidiq!')"
+			:name="t('decidiq', 'Welcome to Decidiq!')"
 			:description="
 				t(
-					'decidesk',
+					'decidiq',
 					'Welcome to Decidiq! Get started by setting up your first governing body.',
 				)
 			">
@@ -29,17 +29,17 @@
 						variant="primary"
 						data-testid="dashboard-empty-setup"
 						@click="goGovernanceBodies">
-						{{ t('decidesk', 'Set Up Body') }}
+						{{ t('decidiq', 'Set Up Body') }}
 					</NcButton>
 					<NcButton
 						data-testid="dashboard-empty-meeting"
 						@click="goMeetings">
-						{{ t('decidesk', 'Create Meeting') }}
+						{{ t('decidiq', 'Create Meeting') }}
 					</NcButton>
 					<NcButton
 						data-testid="dashboard-empty-decision"
 						@click="goDecisions">
-						{{ t('decidesk', 'Create Decision') }}
+						{{ t('decidiq', 'Create Decision') }}
 					</NcButton>
 				</div>
 			</template>

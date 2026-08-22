@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\AppInfo\Application;
 use OCP\IAppConfig;
 use OCP\IGroupManager;
 use OCP\IUserSession;
@@ -93,7 +94,7 @@ class ParticipationStaffGuard {
 			return true;
 		}
 
-		$chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
+		$chairGroup = $this->appConfig->getValueString(Application::APP_ID, 'chair_group', '');
 		if ($chairGroup === '') {
 			return false;
 		}

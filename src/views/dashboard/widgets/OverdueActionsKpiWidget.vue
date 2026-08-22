@@ -12,9 +12,9 @@
 -->
 <template>
 	<CnStatsBlock
-		:title="t('decidesk', 'Overdue actions')"
+		:title="t('decidiq', 'Overdue actions')"
 		:count="count"
-		:countLabel="t('decidesk', 'actions')"
+		:countLabel="t('decidiq', 'actions')"
 		:icon="AlertCircleOutline"
 		:variant="variant"
 		:loading="loading"
@@ -80,7 +80,7 @@ export default {
 					taskStatus: ['open', 'in-progress'],
 				})
 			} catch (e) {
-				console.error('[decidesk] OverdueActionsKpiWidget load failed', e)
+				console.error('[decidiq] OverdueActionsKpiWidget load failed', e)
 				this.error = e
 				this.items = []
 			} finally {

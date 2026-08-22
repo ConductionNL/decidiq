@@ -16,7 +16,7 @@
 		:registry="registry"
 		:pageTypes="pageTypes"
 		:formatters="cellFormatters"
-		appId="decidesk"
+		appId="decidiq"
 		data-testid="app-root"
 		:translate="translateForApp"
 		:permissions="permissions">
@@ -175,7 +175,7 @@ export default {
 			const mode = this.organisatieModus
 			const modeMap = MODE_LABELS[mode] || {}
 			const resolved = modeMap[key] || key
-			return ncT('decidesk', resolved)
+			return ncT('decidiq', resolved)
 		},
 	},
 }

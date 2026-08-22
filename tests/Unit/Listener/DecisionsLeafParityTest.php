@@ -5,7 +5,7 @@
  *
  * The two halves of one leaf registration live in different languages and
  * different build outputs, so nothing in either compiler can notice when they
- * disagree — and for as long as decidesk shipped only the JS half, there was
+ * disagree — and for as long as decidiq shipped only the JS half, there was
  * nothing to disagree WITH. This reads the JS source and compares each of its
  * declarations to the value the PHP listener contributes.
  *
@@ -143,11 +143,11 @@ class DecisionsLeafParityTest extends TestCase {
 		$this->assertSame(RegisterDecisionsLeafListener::LEAF_ID, $descriptor->getId());
 
 		// label — the l10n SOURCE key each side hands to its own translator.
-		$matchedLabel = preg_match("/\n\tlabel: t\('decidesk', '([^']*)'\),/", $source, $labelMatch);
+		$matchedLabel = preg_match("/\n\tlabel: t\('decidiq', '([^']*)'\),/", $source, $labelMatch);
 		$this->assertSame(
 			1,
 			$matchedLabel,
-			"The JS half must declare `label: t('decidesk', '…')` on the descriptor object."
+			"The JS half must declare `label: t('decidiq', '…')` on the descriptor object."
 		);
 		$this->assertSame($labelMatch[1], $descriptor->getLabel());
 

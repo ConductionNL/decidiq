@@ -185,7 +185,7 @@ class AgendaService {
 	private function sendAgendaPublishedNotification(string $userId, string $meetingId): void {
 		try {
 			$notification = $this->notificationManager->createNotification();
-			$notification->setApp('decidesk')
+			$notification->setApp('decidiq')
 				->setUser($userId)
 				->setDateTime(new DateTime())
 				->setObject('meeting', $meetingId)

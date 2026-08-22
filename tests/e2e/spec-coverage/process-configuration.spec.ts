@@ -29,7 +29,7 @@ import { becomesVisible } from '../becomes-visible.js'
  * Returns false (→ defensive skip) when the surface is not deployed.
  */
 async function openProcessTemplates(page: Page): Promise<boolean> {
-	await page.goto(`${BASE}/settings/admin/decidesk`)
+	await page.goto(`${BASE}/settings/admin/decidiq`)
 	const section = page.locator('[data-testid="process-templates"]')
 	return section
 		.waitFor({ state: 'visible', timeout: 15_000 })

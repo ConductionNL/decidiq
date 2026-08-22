@@ -31,7 +31,7 @@ namespace OCA\Decidiq\Lifecycle;
 /**
  * Guard for decision lifecycle transitions.
  *
- * Implements the decidesk guarded-transition-map pattern (NOT a Symfony
+ * Implements the Decidiq guarded-transition-map pattern (NOT a Symfony
  * Workflow dependency): a const transition map is the single source of
  * truth for the lifecycle graph, and per-domain policy modulates quorum
  * enforcement, chair-only transitions, and decide-without-vote.

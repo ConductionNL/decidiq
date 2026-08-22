@@ -7,7 +7,7 @@
  * DecisionIntegrationService::createDecision() create logic (idempotent,
  * provenance-persisting). The in-process replacement for the broken
  * IntegrationService::getLeaf HTTP delegation path: any installed consumer app
- * dispatches DecisionRequestedEvent and decidesk raises the Decision here,
+ * dispatches DecisionRequestedEvent and Decidiq raises the Decision here,
  * writing the resolved decisionId back onto the event for the synchronous
  * producer.
  *
@@ -123,7 +123,7 @@ class DecisionRequestedListener implements IEventListener {
 				]
 			);
 		} catch (\Throwable $e) {
-			// The event bus must never surface a decidesk failure as an exception
+			// The event bus must never surface a Decidiq failure as an exception
 			// to the dispatching consumer; log and leave unhandled.
 			$this->logger->error(
 				'Decidiq: DecisionRequestedListener failed',

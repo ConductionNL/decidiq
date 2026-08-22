@@ -97,7 +97,7 @@ class TranscriptRepository {
 	}//end fetchTranscript()
 
 	/**
-	 * Fetch one decidesk object by id, or raise MissingObjectException.
+	 * Fetch one Decidiq object by id, or raise MissingObjectException.
 	 *
 	 * THE SEAM THIS REPAIRS. This repository is the place the transcription
 	 * surface converts "absent object" into the app's own
@@ -120,7 +120,7 @@ class TranscriptRepository {
 	 * data is absent when the data layer is simply down.
 	 *
 	 * @param string $id The object UUID.
-	 * @param string $schema The decidesk schema slug.
+	 * @param string $schema The Decidiq schema slug.
 	 * @param string $absentMessage Message for the MissingObjectException.
 	 *
 	 * @return array<string,mixed> The object.

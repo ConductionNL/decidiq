@@ -13,11 +13,11 @@
 -->
 <template>
 	<div class="user-settings-section" data-testid="display-preferences-section">
-		<h3>{{ t('decidesk', 'Display preferences') }}</h3>
+		<h3>{{ t('decidiq', 'Display preferences') }}</h3>
 		<p class="user-settings-section__hint">
 			{{
 				t(
-					'decidesk',
+					'decidiq',
 					'Control how Decidiq presents itself for your account.',
 				)
 			}}
@@ -26,7 +26,7 @@
 		<div class="user-settings-section__field">
 			<NcSelect
 				v-model="defaultView"
-				:inputLabel="t('decidesk', 'Default view')"
+				:inputLabel="t('decidiq', 'Default view')"
 				:options="viewOptions"
 				label="label"
 				:clearable="false"
@@ -36,7 +36,7 @@
 		<div class="user-settings-section__field">
 			<NcSelect
 				v-model="itemsPerPage"
-				:inputLabel="t('decidesk', 'Items per page')"
+				:inputLabel="t('decidiq', 'Items per page')"
 				:options="itemsPerPageOptions"
 				:clearable="false"
 				data-testid="display-items-per-page" />
@@ -45,25 +45,25 @@
 		<div class="user-settings-section__field">
 			<NcSelect
 				v-model="dateFormat"
-				:inputLabel="t('decidesk', 'Date format')"
+				:inputLabel="t('decidiq', 'Date format')"
 				:options="dateFormatOptions"
 				label="label"
 				:clearable="false"
 				data-testid="display-date-format" />
 			<p class="user-settings-section__hint">
-				{{ t('decidesk', 'Example: {example}', { example: dateExample }) }}
+				{{ t('decidiq', 'Example: {example}', { example: dateExample }) }}
 			</p>
 		</div>
 
 		<p class="user-settings-section__hint">
 			{{
 				t(
-					'decidesk',
+					'decidiq',
 					'Interface language follows your Nextcloud account language.',
 				)
 			}}
 			<a :href="languageSettingsUrl" target="_blank" rel="noopener noreferrer">
-				{{ t('decidesk', 'Change it in your personal settings.') }}
+				{{ t('decidiq', 'Change it in your personal settings.') }}
 			</a>
 		</p>
 
@@ -75,8 +75,8 @@
 				@click="save">
 				{{
 					saving
-						? t('decidesk', 'Saving …')
-						: t('decidesk', 'Save display preferences')
+						? t('decidiq', 'Saving …')
+						: t('decidiq', 'Save display preferences')
 				}}
 			</NcButton>
 		</div>
@@ -84,7 +84,7 @@
 			{{ error }}
 		</NcNoteCard>
 		<NcNoteCard v-if="saved" type="success">
-			{{ t('decidesk', 'Display preferences saved.') }}
+			{{ t('decidiq', 'Display preferences saved.') }}
 		</NcNoteCard>
 	</div>
 </template>
@@ -123,9 +123,9 @@ export default {
 		/** @spec openspec/specs/user-settings/spec.md */
 		viewOptions() {
 			return [
-				{ id: 'dashboard', label: this.t('decidesk', 'Dashboard') },
-				{ id: 'meetings', label: this.t('decidesk', 'Meetings') },
-				{ id: 'decisions', label: this.t('decidesk', 'Decisions') },
+				{ id: 'dashboard', label: this.t('decidiq', 'Dashboard') },
+				{ id: 'meetings', label: this.t('decidiq', 'Meetings') },
+				{ id: 'decisions', label: this.t('decidiq', 'Decisions') },
 			]
 		},
 
@@ -140,7 +140,7 @@ export default {
 				id,
 				label:
 					id === 'locale'
-						? this.t('decidesk', 'Nextcloud locale (default)')
+						? this.t('decidiq', 'Nextcloud locale (default)')
 						: id,
 			}))
 		},
@@ -214,7 +214,7 @@ export default {
 				])
 				this.saved = true
 			} catch (e) {
-				this.error = e.message || this.t('decidesk', 'Saving failed.')
+				this.error = e.message || this.t('decidiq', 'Saving failed.')
 			} finally {
 				this.saving = false
 			}

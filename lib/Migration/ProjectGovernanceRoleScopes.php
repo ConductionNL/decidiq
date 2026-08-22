@@ -60,7 +60,7 @@ class ProjectGovernanceRoleScopes implements IRepairStep {
 	 * @spec exclude Trivial repair-step label accessor.
 	 */
 	public function getName(): string {
-		return 'Project decidesk governance-body roles into OpenRegister RBAC scopes';
+		return 'Project Decidiq governance-body roles into OpenRegister RBAC scopes';
 	}//end getName()
 
 	/**

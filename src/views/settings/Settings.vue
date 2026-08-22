@@ -8,16 +8,16 @@
 <template>
 	<div>
 		<CnSettingsSection
-			:name="t('decidesk', 'Configuration')"
-			:description="t('decidesk', 'Configure the app settings')">
+			:name="t('decidiq', 'Configuration')"
+			:description="t('decidiq', 'Configure the app settings')">
 			<form @submit.prevent="save">
 				<div class="form-group">
-					<label for="register">{{ t('decidesk', 'Register') }}</label>
+					<label for="register">{{ t('decidiq', 'Register') }}</label>
 					<input
 						id="register"
 						v-model="form.register"
 						type="text"
-						:placeholder="t('decidesk', 'OpenRegister register ID')" />
+						:placeholder="t('decidiq', 'OpenRegister register ID')" />
 				</div>
 
 				<div v-if="successMessage" class="success-message">
@@ -25,7 +25,7 @@
 				</div>
 
 				<NcButton variant="primary" type="submit" :disabled="saving">
-					{{ saving ? t('decidesk', 'Saving...') : t('decidesk', 'Save') }}
+					{{ saving ? t('decidiq', 'Saving...') : t('decidiq', 'Save') }}
 				</NcButton>
 			</form>
 		</CnSettingsSection>
@@ -33,10 +33,10 @@
 		<!-- Organization defaults -->
 		<!-- @spec openspec/specs/admin-settings/spec.md -->
 		<CnSettingsSection
-			:name="t('decidesk', 'Organization')"
+			:name="t('decidiq', 'Organization')"
 			:description="
 				t(
-					'decidesk',
+					'decidiq',
 					'Organization defaults applied to meetings, decisions, and generated documents',
 				)
 			">
@@ -45,7 +45,7 @@
 				@submit.prevent="saveOrganisation">
 				<div class="form-group">
 					<label for="organisation_name">{{
-						t('decidesk', 'Organization name')
+						t('decidiq', 'Organization name')
 					}}</label>
 					<input
 						id="organisation_name"
@@ -53,12 +53,12 @@
 						type="text"
 						data-testid="organisation-name"
 						:placeholder="
-							t('decidesk', 'e.g. Vereniging De Harmonie')
+							t('decidiq', 'e.g. Vereniging De Harmonie')
 						" />
 				</div>
 				<div class="form-group">
 					<label for="organisation_logo">{{
-						t('decidesk', 'Logo URL')
+						t('decidiq', 'Logo URL')
 					}}</label>
 					<input
 						id="organisation_logo"
@@ -66,20 +66,20 @@
 						type="url"
 						data-testid="organisation-logo"
 						:placeholder="
-							t('decidesk', 'https://example.org/logo.png')
+							t('decidiq', 'https://example.org/logo.png')
 						" />
 				</div>
 				<div class="form-group">
 					<NcSelect
 						v-model="form.organisation_timezone"
-						:inputLabel="t('decidesk', 'Timezone')"
+						:inputLabel="t('decidiq', 'Timezone')"
 						:options="timezoneOptions"
 						data-testid="organisation-timezone" />
 				</div>
 				<div class="form-group">
 					<NcSelect
 						v-model="form.organisation_locale"
-						:inputLabel="t('decidesk', 'Default language')"
+						:inputLabel="t('decidiq', 'Default language')"
 						:options="localeOptions"
 						label="label"
 						data-testid="organisation-locale" />
@@ -87,13 +87,13 @@
 				<div class="form-group">
 					<NcSelect
 						v-model="form.organisation_currency"
-						:inputLabel="t('decidesk', 'Currency')"
+						:inputLabel="t('decidiq', 'Currency')"
 						:options="currencyOptions"
 						data-testid="organisation-currency" />
 				</div>
 				<div class="form-group">
 					<label for="organisation_retention_days">{{
-						t('decidesk', 'Archival retention period (days)')
+						t('decidiq', 'Archival retention period (days)')
 					}}</label>
 					<input
 						id="organisation_retention_days"
@@ -102,7 +102,7 @@
 						min="0"
 						step="1"
 						data-testid="organisation-retention"
-						:placeholder="t('decidesk', 'e.g. 3650')" />
+						:placeholder="t('decidiq', 'e.g. 3650')" />
 				</div>
 
 				<div
@@ -119,8 +119,8 @@
 					:disabled="savingOrganisation">
 					{{
 						savingOrganisation
-							? t('decidesk', 'Saving...')
-							: t('decidesk', 'Save')
+							? t('decidiq', 'Saving...')
+							: t('decidiq', 'Save')
 					}}
 				</NcButton>
 			</form>
@@ -136,10 +136,10 @@
 		 @spec openspec/specs/admin-settings/spec.md
 		-->
 		<CnSettingsSection
-			:name="t('decidesk', 'Organisation mode')"
+			:name="t('decidiq', 'Organisation mode')"
 			:description="
 				t(
-					'decidesk',
+					'decidiq',
 					'Controls mode-specific labels across the app — for example what a governance body is called. Default: government.',
 				)
 			">
@@ -150,7 +150,7 @@
 					<NcSelect
 						v-model="form.organisatie_modus"
 						:options="organisationModeOptions"
-						:inputLabel="t('decidesk', 'Organisation mode')"
+						:inputLabel="t('decidiq', 'Organisation mode')"
 						label="label"
 						trackBy="id"
 						data-testid="organisation-mode" />
@@ -163,8 +163,8 @@
 					:disabled="savingOrganisationMode">
 					{{
 						savingOrganisationMode
-							? t('decidesk', 'Saving...')
-							: t('decidesk', 'Save')
+							? t('decidiq', 'Saving...')
+							: t('decidiq', 'Save')
 					}}
 				</NcButton>
 			</form>
@@ -173,12 +173,12 @@
 		<!-- ORI publication settings -->
 		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 -->
 		<CnSettingsSection
-			:name="t('decidesk', 'ORI endpoint')"
-			:description="t('decidesk', 'ORI API endpoint URL')">
+			:name="t('decidiq', 'ORI endpoint')"
+			:description="t('decidiq', 'ORI API endpoint URL')">
 			<form @submit.prevent="saveOri">
 				<div class="form-group">
 					<label for="ori_endpoint">{{
-						t('decidesk', 'ORI endpoint')
+						t('decidiq', 'ORI endpoint')
 					}}</label>
 					<input
 						id="ori_endpoint"
@@ -190,8 +190,8 @@
 				<NcButton variant="primary" type="submit" :disabled="savingOri">
 					{{
 						savingOri
-							? t('decidesk', 'Saving...')
-							: t('decidesk', 'Save')
+							? t('decidiq', 'Saving...')
+							: t('decidiq', 'Save')
 					}}
 				</NcButton>
 			</form>
@@ -204,17 +204,17 @@
 		<!-- Email voting toggle -->
 		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2 -->
 		<CnSettingsSection
-			:name="t('decidesk', 'Email voting')"
-			:description="t('decidesk', 'Enable voting by email reply')">
+			:name="t('decidiq', 'Email voting')"
+			:description="t('decidiq', 'Enable voting by email reply')">
 			<div class="form-group form-group--checkbox">
 				<input
 					id="email_voting_enabled"
 					v-model="form.email_voting_enabled"
 					type="checkbox"
-					:aria-label="t('decidesk', 'Email voting')"
+					:aria-label="t('decidiq', 'Email voting')"
 					@change="saveEmailVoting" />
 				<label for="email_voting_enabled">{{
-					t('decidesk', 'Enable voting by email reply')
+					t('decidiq', 'Enable voting by email reply')
 				}}</label>
 			</div>
 		</CnSettingsSection>
@@ -222,10 +222,10 @@
 		<!-- Citizen-participation instance defaults -->
 		<!-- @spec openspec/specs/citizen-participation/spec.md -->
 		<CnSettingsSection
-			:name="t('decidesk', 'Citizen participation defaults')"
+			:name="t('decidiq', 'Citizen participation defaults')"
 			:description="
 				t(
-					'decidesk',
+					'decidiq',
 					'Defaults applied to new consultations and budget rounds. Staff can override per round.',
 				)
 			">
@@ -236,14 +236,14 @@
 					<NcSelect
 						v-model="form.participation_default_moderation_policy"
 						:options="moderationPolicyOptions"
-						:inputLabel="t('decidesk', 'Default moderation policy')"
+						:inputLabel="t('decidiq', 'Default moderation policy')"
 						label="label"
 						trackBy="id"
 						data-testid="participation-moderation-policy" />
 				</div>
 				<div class="form-group">
 					<label for="participation_catalog">{{
-						t('decidesk', 'Default OpenCatalogi catalog (UUID)')
+						t('decidiq', 'Default OpenCatalogi catalog (UUID)')
 					}}</label>
 					<input
 						id="participation_catalog"
@@ -251,12 +251,12 @@
 						type="text"
 						data-testid="participation-catalog"
 						:placeholder="
-							t('decidesk', 'Leave empty to skip catalog routing')
+							t('decidiq', 'Leave empty to skip catalog routing')
 						" />
 				</div>
 				<div class="form-group">
 					<label for="participation_anon_rate_limit">{{
-						t('decidesk', 'Anonymous intake rate limit (per hour)')
+						t('decidiq', 'Anonymous intake rate limit (per hour)')
 					}}</label>
 					<input
 						id="participation_anon_rate_limit"
@@ -273,8 +273,8 @@
 					:disabled="savingParticipation">
 					{{
 						savingParticipation
-							? t('decidesk', 'Saving...')
-							: t('decidesk', 'Save')
+							? t('decidiq', 'Saving...')
+							: t('decidiq', 'Save')
 					}}
 				</NcButton>
 			</form>
@@ -344,8 +344,8 @@ export default {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		localeOptions() {
 			return [
-				{ id: 'nl', label: this.t('decidesk', 'Dutch') },
-				{ id: 'en', label: this.t('decidesk', 'English') },
+				{ id: 'nl', label: this.t('decidiq', 'Dutch') },
+				{ id: 'en', label: this.t('decidiq', 'English') },
 			]
 		},
 
@@ -364,13 +364,13 @@ export default {
 		 */
 		organisationModeOptions() {
 			return [
-				{ id: 'gov', label: this.t('decidesk', 'Government (gov)') },
-				{ id: 'corp', label: this.t('decidesk', 'Corporate (corp)') },
-				{ id: 'assoc', label: this.t('decidesk', 'Association (assoc)') },
-				{ id: 'ops', label: this.t('decidesk', 'Operations (ops)') },
+				{ id: 'gov', label: this.t('decidiq', 'Government (gov)') },
+				{ id: 'corp', label: this.t('decidiq', 'Corporate (corp)') },
+				{ id: 'assoc', label: this.t('decidiq', 'Association (assoc)') },
+				{ id: 'ops', label: this.t('decidiq', 'Operations (ops)') },
 				{
 					id: 'citizen',
-					label: this.t('decidesk', 'Citizen portal (citizen)'),
+					label: this.t('decidiq', 'Citizen portal (citizen)'),
 				},
 			]
 		},
@@ -381,14 +381,14 @@ export default {
 				{
 					id: 'pre-moderation',
 					label: this.t(
-						'decidesk',
+						'decidiq',
 						'Pre-moderation (approve before counting)',
 					),
 				},
 				{
 					id: 'post-moderation',
 					label: this.t(
-						'decidesk',
+						'decidiq',
 						'Post-moderation (auto-approve authenticated)',
 					),
 				},
@@ -441,7 +441,7 @@ export default {
 			})
 			if (result) {
 				this.successMessage = this.t(
-					'decidesk',
+					'decidiq',
 					'Settings saved successfully',
 				)
 			}
@@ -465,7 +465,7 @@ export default {
 			})
 			if (result) {
 				this.organisationMessage = this.t(
-					'decidesk',
+					'decidiq',
 					'Organization settings saved',
 				)
 			}

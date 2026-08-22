@@ -468,7 +468,7 @@ class MailVoteReplyProcessor {
 			$notificationService = $this->container->get('OCA\OpenRegister\Service\NotificationService');
 			$notificationService->createNotification(
 				userId: $notifyUid,
-				app: 'decidesk',
+				app: 'decidiq',
 				subject: $subject,
 				subjectParameters: $parameters,
 				object: 'voting-round',

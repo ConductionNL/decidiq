@@ -131,7 +131,7 @@ const SURFACES: Surface[] = [
 		name: 'MotionIntegrations',
 		schema: 'decision',
 		prefer: (o) => o.decisionType === 'motion',
-		route: '/apps/decidesk/motions/{id}/integrations',
+		route: '/apps/decidiq/motions/{id}/integrations',
 		testId: 'motion-integrations',
 	},
 ]

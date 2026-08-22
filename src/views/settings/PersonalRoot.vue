@@ -3,16 +3,16 @@
 
 <!--
  Personal settings root — mounted by templates/settings/personal.php into the
- Nextcloud personal settings (/settings/user/decidesk) per the user-settings
+ Nextcloud personal settings (/settings/user/decidiq) per the user-settings
  spec's OCP\Settings\ISettings acceptance criterion.
 
  @spec openspec/specs/user-settings/spec.md
 -->
 <template>
 	<div
-		class="decidesk-personal-settings section"
-		data-testid="decidesk-personal-settings">
-		<h2>{{ t('decidesk', 'Decidiq personal settings') }}</h2>
+		class="decidiq-personal-settings section"
+		data-testid="decidiq-personal-settings">
+		<h2>{{ t('decidiq', 'Decidiq personal settings') }}</h2>
 		<NcLoadingIcon v-if="loading" :size="32" />
 		<template v-else>
 			<NotificationPreferencesSection
@@ -68,7 +68,7 @@ export default {
 			try {
 				this.preference = await fetchNotificationPreference()
 			} catch (e) {
-				console.error('decidesk: failed to load user preferences', e)
+				console.error('decidiq: failed to load user preferences', e)
 			} finally {
 				this.loading = false
 			}
@@ -78,7 +78,7 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-personal-settings {
+.decidiq-personal-settings {
 	max-width: 700px;
 }
 </style>

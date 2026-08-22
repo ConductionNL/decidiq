@@ -229,8 +229,8 @@ class DecidiqSearchProvider implements IProvider {
 			$this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg'),
 			$title,
 			implode(' — ', $sublineParts),
-			$this->urlGenerator->linkToRoute('decidesk.dashboard.page') . '#/' . $segment . '/' . $uuid,
-			'icon-decidesk',
+			$this->urlGenerator->linkToRoute('decidiq.dashboard.page') . '#/' . $segment . '/' . $uuid,
+			'icon-decidiq',
 			true
 		);
 

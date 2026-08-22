@@ -1,13 +1,13 @@
 # MCP Tools (AI Chat Companion Integration)
 
-Decidesk exposes 5 governance tools to the AI Chat Companion (hydra ADR-034) via the
+Decidiq exposes 5 governance tools to the AI Chat Companion (hydra ADR-034) via the
 `OCA\OpenRegister\Mcp\IMcpToolProvider` interface. The companion can call these tools
 when a user asks governance-related questions (e.g. "what action items are due this
 week?" or "start the council meeting").
 
 ## Overview
 
-The MCP (Model Context Protocol) integration lets an LLM surface Decidesk
+The MCP (Model Context Protocol) integration lets an LLM surface Decidiq
 capabilities without screen-scraping or custom API clients. Each tool call goes
 through:
 
@@ -20,11 +20,11 @@ through:
 
 ## Enabling the Companion
 
-The integration is registered automatically when Decidesk is loaded alongside
+The integration is registered automatically when Decidiq is loaded alongside
 OpenRegister >= the release that publishes `IMcpToolProvider` (PR #1466 in the
 openregister repo). No admin configuration is needed.
 
-If OpenRegister is not installed, the tools are simply unavailable; Decidesk
+If OpenRegister is not installed, the tools are simply unavailable; Decidiq
 continues to function normally.
 
 ## Tool Reference
@@ -56,7 +56,7 @@ Returns incomplete action items visible to the caller.
     }
   ],
   "sources": [
-    { "type": "decidesk.actionItem", "uuid": "...", "url": "/apps/decidesk/...", "label": "..." }
+    { "type": "decidesk.actionItem", "uuid": "...", "url": "/apps/decidiq/...", "label": "..." }
   ]
 }
 ```
@@ -202,7 +202,7 @@ has four keys:
 |---------|--------|------------------------------------------|
 | `type`  | string | Dot-namespaced type (e.g. `decidesk.meeting`) |
 | `uuid`  | string | Object UUID                              |
-| `url`   | string | Deep link: `/apps/decidesk/<resource>/<uuid>` |
+| `url`   | string | Deep link: `/apps/decidiq/<resource>/<uuid>` |
 | `label` | string | Human-readable title of the object       |
 
 When a result would produce more than 20 source descriptors, the array is capped at 20
@@ -230,7 +230,7 @@ the Nextcloud `admin` group, not just an app-level administrator.
 **Tool calls return `internal_error`**
 
 Check the Nextcloud server log (`data/nextcloud.log`) for entries tagged with
-`DecideskToolProvider`. Common causes: OpenRegister `ObjectService` unavailable, or a
+`DecidiqToolProvider`. Common causes: OpenRegister `ObjectService` unavailable, or a
 corrupted meeting object in the register.
 
 **Tools do not appear in the AI Chat Companion**

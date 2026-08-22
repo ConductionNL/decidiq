@@ -212,7 +212,7 @@ class ProxyVoteServiceTest extends TestCase {
 		$appConfig = $this->createMock(\OCP\IAppConfig::class);
 		$appConfig->method('getValueInt')->willReturnCallback(
 			static function (string $app, string $key, int $default = 0) use ($maxProxies): int {
-				if ($app === 'decidesk' && $key === ProxyVoteService::MAX_PROXIES_CONFIG_KEY) {
+				if ($app === 'decidiq' && $key === ProxyVoteService::MAX_PROXIES_CONFIG_KEY) {
 					return $maxProxies;
 				}
 
@@ -557,7 +557,7 @@ class ProxyVoteServiceTest extends TestCase {
 	}//end testRegisterCapCountsOnlyActiveProxiesInMeetingForHolder()
 
 	/**
-	 * The cap is configurable via app config decidesk/max_proxies_per_holder.
+	 * The cap is configurable via app config decidiq/max_proxies_per_holder.
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
 	 *

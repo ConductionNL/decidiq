@@ -17,7 +17,7 @@
  *
  * @version GIT: <git_id>
  *
- * @link https://github.com/ConductionNL/decidesk
+ * @link https://github.com/ConductionNL/decidiq
  */
 
 declare(strict_types=1);

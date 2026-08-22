@@ -43,7 +43,7 @@ if (defined('OC_CONSOLE') === false && is_readable($ncConfig) === true) {
 	}
 
 	\OC_App::loadApps();
-	\OC_App::loadApp('decidesk');
+	\OC_App::loadApp('decidiq');
 	OC_Hook::clear();
 }
 

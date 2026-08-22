@@ -26,7 +26,7 @@ async function dismissSupportDialog(page: Page): Promise<void> {
 }
 
 /**
- * Navigate to a decidesk page, preferring the APP's left navigation entry
+ * Navigate to a decidiq page, preferring the APP's left navigation entry
  * (app-scoped) when it exists. The nav is org-mode-aware: in the gov-mode
  * layout the Engagement page is not a top-level nav entry, so we fall back to
  * the app-scoped route (still never via the global NC header). `route` is the
@@ -37,7 +37,7 @@ async function appNavClick(
 	entryId: string,
 	route: string,
 ): Promise<void> {
-	await page.goto(`${BASE}/apps/decidesk/`)
+	await page.goto(`${BASE}/apps/decidiq/`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await dismissSupportDialog(page)
 	const entry = page.locator(`[data-testid="cn-nav-entry-${entryId}"]`).first()
@@ -45,7 +45,7 @@ async function appNavClick(
 		await entry.click()
 		return
 	}
-	await page.goto(`${BASE}/apps/decidesk${route}`)
+	await page.goto(`${BASE}/apps/decidiq${route}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await dismissSupportDialog(page)
 }
@@ -56,7 +56,7 @@ test('Engagement: app-scoped nav lands on the index with its real content', asyn
 }) => {
 	await appNavClick(page, 'Engagement', '/engagement')
 
-	await expect(page).toHaveURL(/\/apps\/decidesk\/.*engagement/)
+	await expect(page).toHaveURL(/\/apps\/decidiq\/.*engagement/)
 	// NOTE: the migrated CnIndexPage (nc-vue v2) no longer renders a page-title
 	// heading inside <main>; assert the index-page container + actions bar + CTA.
 	const indexPage = page.getByTestId('cn-index-page').first()
@@ -84,7 +84,7 @@ test('Engagement: primary CTA opens a real create form dialog', async ({ page })
 })
 
 // @e2e openspec/specs/engagement-management/spec.md#view-the-engagement-list
-test('Engagement: no decidesk-origin console error or 500 on load', async ({
+test('Engagement: no decidiq-origin console error or 500 on load', async ({
 	page,
 }) => {
 	const appErrors: string[] = []
@@ -93,13 +93,13 @@ test('Engagement: no decidesk-origin console error or 500 on load', async ({
 		if (
 			m.type() === 'error'
 			&& !/user_status|heartbeat|user status/i.test(t)
-			&& /decidesk/i.test(t)
+			&& /decidiq/i.test(t)
 		) {
 			appErrors.push(t)
 		}
 	})
 	page.on('response', (r) => {
-		if (r.status() >= 500 && /decidesk/i.test(r.url()))
+		if (r.status() >= 500 && /decidiq/i.test(r.url()))
 			appErrors.push(`HTTP ${r.status()} ${r.url()}`)
 	})
 
@@ -107,6 +107,6 @@ test('Engagement: no decidesk-origin console error or 500 on load', async ({
 	await expect(page.getByTestId('cn-index-page').first()).toBeVisible()
 	expect(
 		appErrors,
-		`decidesk errors on Engagement:\n${appErrors.join('\n')}`,
+		`decidiq errors on Engagement:\n${appErrors.join('\n')}`,
 	).toHaveLength(0)
 })

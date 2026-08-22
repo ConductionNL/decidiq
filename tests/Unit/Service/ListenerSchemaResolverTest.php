@@ -154,7 +154,7 @@ class ListenerSchemaResolverTest extends TestCase {
 	 * OpenRegister has since declared the method for real, so that half has
 	 * FLIPPED and the assertion moved to what holds either way: the schema reads.
 	 *
-	 * @spec exclude Pins a framework property the fix depends on; no decidesk business rule.
+	 * @spec exclude Pins a framework property the fix depends on; no decidiq business rule.
 	 *
 	 * @return void
 	 */

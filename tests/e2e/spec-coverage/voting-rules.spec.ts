@@ -11,7 +11,7 @@
  * computed-base summary shown with the live tally and the closed-round
  * result. API/contract assertions (rule validation, tally math, casting-vote
  * and revote guards, the proxy cap) live in Newman
- * (tests/integration/decidesk-voting-rules.postman_collection.json), not here.
+ * (tests/integration/decidiq-voting-rules.postman_collection.json), not here.
  *
  * Defensive skips: when the deployed instance does not serve this branch yet
  * (no "Voting round" tab on the motion detail page — deploy mismatch) or the
@@ -51,7 +51,7 @@ async function newApiContext(): Promise<APIRequestContext> {
 }
 
 /**
- * Create a decidesk object via the OR object API.
+ * Create a decidiq object via the OR object API.
  *
  * ⚠️ This used to `return null` on any non-2xx, and every caller then did
  * `test.skip(!id, 'OpenRegister seeding API unavailable on this instance')`. That
@@ -102,7 +102,7 @@ async function deleteObject(
  * Returns false when the tab is not served (deploy mismatch) so callers skip.
  */
 async function openVotingRoundTab(page: Page, motionId: string): Promise<boolean> {
-	await page.goto(`${BASE}/apps/decidesk/motions/${motionId}`)
+	await page.goto(`${BASE}/apps/decidiq/motions/${motionId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	// The sidebar tab is rendered from the manifest's MotionDetail sidebarTabs.

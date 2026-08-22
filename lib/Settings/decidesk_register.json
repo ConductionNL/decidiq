@@ -3651,7 +3651,7 @@
             "title": "Subject label",
             "type": "string",
             "nullable": true,
-            "description": "Human-readable label for the originating object shown in decidesk list/detail (e.g. 'Lease contract 2027 — pand X', REQ-DCDH-001)."
+            "description": "Human-readable label for the originating object shown in Decidiq list/detail (e.g. 'Lease contract 2027 — pand X', REQ-DCDH-001)."
           },
           "outcomeCallbackUrl": {
             "title": "Outcome callback URL",
@@ -4249,7 +4249,7 @@
         "icon": "CheckboxMarkedOutline",
         "version": "0.2.0",
         "title": "ActionItem",
-        "description": "A follow-up task from a meeting decision. Backed by CalDAV VTODOs (ADR-002): this schema is a READ-ONLY OpenRegister projection over the user's action-item VTODOs (action-items-vtodo-deck-reconcile). Writes go through the decidesk action-item endpoints / ActionItemWriter (OpenRegister TaskService), never ObjectService::saveObject.",
+        "description": "A follow-up task from a meeting decision. Backed by CalDAV VTODOs (ADR-002): this schema is a READ-ONLY OpenRegister projection over the user's action-item VTODOs (action-items-vtodo-deck-reconcile). Writes go through the Decidiq action-item endpoints / ActionItemWriter (OpenRegister TaskService), never ObjectService::saveObject.",
         "type": "object",
         "x-openregister": {
           "schemaType": "custom:ActionItem",

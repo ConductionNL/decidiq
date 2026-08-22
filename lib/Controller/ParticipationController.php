@@ -48,7 +48,7 @@ use OCP\IRequest;
  * Thin controller for consultation + reaction action endpoints.
  *
  * Staff actions are guarded by the ParticipationResponder (governance-body
- * authority via the decidesk chair group, falling back to NC admin). Reaction
+ * authority via the Decidiq chair group, falling back to NC admin). Reaction
  * intake is available to authenticated users and — only when the consultation
  * opts in — to anonymous clients through a single brute-force-throttled public
  * endpoint.

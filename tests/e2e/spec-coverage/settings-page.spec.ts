@@ -5,10 +5,10 @@
  * Gate-19 e2e coverage — app configuration (genuine behavioural).
  *
  * RETARGETED under ADR-079 D1. This file used to deep-link the in-app
- * `/apps/decidesk/settings` route — the manifest `type:"settings"` page — which
+ * `/apps/decidiq/settings` route — the manifest `type:"settings"` page — which
  * was a SECOND home for configuration that already lived in the Nextcloud
  * settings framework. That page is deleted; app-level configuration now has
- * exactly one address, `/settings/admin/decidesk`, rendered by
+ * exactly one address, `/settings/admin/decidiq`, rendered by
  * lib/Settings/AdminSettings.php and authorized by Nextcloud SERVER-SIDE before
  * the section renders.
  *
@@ -21,7 +21,7 @@
  *    function` at `Proxy.render`, twice). The admin page does not use those
  *    widgets — CnAdminSettingsShell renders the register mapping itself — so
  *    the scenario is asserted here for real instead of being deferred.
- *  - The old file could not assert on decidesk-origin console errors, for the
+ *  - The old file could not assert on decidiq-origin console errors, for the
  *    same reason. This one can.
  *
  * @e2e openspec/specs/admin-settings/spec.md#configure-organization-defaults
@@ -32,7 +32,7 @@ import { test, expect, type Page } from '@playwright/test'
 import { BASE_URL as BASE } from '../base-url'
 
 async function openAdminSettings(page: Page): Promise<void> {
-	await page.goto(`${BASE}/settings/admin/decidesk`)
+	await page.goto(`${BASE}/settings/admin/decidiq`)
 	await page.waitForSelector('[data-testid="admin-root"]', { timeout: 15_000 })
 }
 
@@ -42,7 +42,7 @@ test('Admin settings: the Nextcloud admin section mounts with the app configurat
 }) => {
 	await openAdminSettings(page)
 
-	await expect(page).toHaveURL(/\/settings\/admin\/decidesk/)
+	await expect(page).toHaveURL(/\/settings\/admin\/decidiq/)
 
 	// The sections that carry app-level configuration.
 	await expect(page.getByTestId('organisation-settings')).toBeVisible()
@@ -111,7 +111,7 @@ test('Admin settings: organisation mode saves, reaches the SPA and relabels the 
 	// an earlier draft re-read the admin page here as well and spent the whole
 	// 20 s per-test budget on redundant SPA boots. The fix is to remove a
 	// navigation, never to widen the timeout.
-	await page.goto(`${BASE}/apps/decidesk/`)
+	await page.goto(`${BASE}/apps/decidiq/`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	const bodiesEntry = page
 		.getByTestId('cn-nav-entry-GovernanceBodies')
@@ -127,7 +127,7 @@ test('Admin settings: organisation mode saves, reaches the SPA and relabels the 
 	// purpose: it is not the thing under test, and a third SPA boot is what
 	// broke this test's budget.
 	const restore = await page.request.put(
-		`${BASE}/index.php/apps/decidesk/api/settings`,
+		`${BASE}/index.php/apps/decidiq/api/settings`,
 		{
 			headers: {
 				'Content-Type': 'application/json',
@@ -157,17 +157,17 @@ test('Admin settings: register mapping exposes its configuration actions', async
 })
 
 // @e2e openspec/specs/admin-settings/spec.md#configure-organization-defaults
-test('Admin settings: no decidesk-origin 5xx and no decidesk console error on load', async ({
+test('Admin settings: no decidiq-origin 5xx and no decidiq console error on load', async ({
 	page,
 }) => {
 	const serverErrors: string[] = []
 	const consoleErrors: string[] = []
 	page.on('response', (r) => {
-		if (r.status() >= 500 && /decidesk/i.test(r.url()))
+		if (r.status() >= 500 && /decidiq/i.test(r.url()))
 			serverErrors.push(`HTTP ${r.status()} ${r.url()}`)
 	})
 	page.on('console', (m) => {
-		if (m.type() === 'error' && /decidesk/i.test(m.location().url ?? ''))
+		if (m.type() === 'error' && /decidiq/i.test(m.location().url ?? ''))
 			consoleErrors.push(m.text())
 	})
 
@@ -176,10 +176,10 @@ test('Admin settings: no decidesk-origin 5xx and no decidesk console error on lo
 
 	expect(
 		serverErrors,
-		`decidesk 5xx on admin settings:\n${serverErrors.join('\n')}`,
+		`decidiq 5xx on admin settings:\n${serverErrors.join('\n')}`,
 	).toHaveLength(0)
 	expect(
 		consoleErrors,
-		`decidesk console errors on admin settings:\n${consoleErrors.join('\n')}`,
+		`decidiq console errors on admin settings:\n${consoleErrors.join('\n')}`,
 	).toHaveLength(0)
 })

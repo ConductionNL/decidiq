@@ -241,7 +241,7 @@ class EIDASSignatureController extends Controller {
 	 * without a Minutes id (`POST /api/eidas/validate-cert`) and accepts no
 	 * caller-supplied object identifier at all. Its only input is a certificate
 	 * SHA-256 thumbprint and its only output is `valid` / `issuer` /
-	 * `trustListLevel` — facts published on the EU Trusted List. No decidesk
+	 * `trustListLevel` — facts published on the EU Trusted List. No Decidiq
 	 * object is reachable through it and nothing it returns is derived from app
 	 * data, so there is no per-object rule to enforce and narrowing it would
 	 * invent an authorization rule no spec states. Both the action and the
@@ -253,7 +253,7 @@ class EIDASSignatureController extends Controller {
 	 * @NoAdminRequired
 	 * @no-admin-idor-exempt Takes no caller-supplied object identifier — the only input is a
 	 *   certificate SHA-256 thumbprint and the response is sourced entirely from the public EU
-	 *   Trusted List, so no decidesk object is reachable and nothing app-owned is disclosed.
+	 *   Trusted List, so no Decidiq object is reachable and nothing app-owned is disclosed.
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
 	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-103-certificate-trust-status-lookup-is-a-deliberately-app-wide-authenticated-read

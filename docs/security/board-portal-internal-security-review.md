@@ -1,4 +1,4 @@
-# Decidesk Board Portal — Internal Security Review
+# Decidiq Board Portal — Internal Security Review
 
 **Date:** 2026-06-12 (W33)
 **Scope:** `board-meeting-resolutions` change — audit-trail
@@ -149,7 +149,7 @@ endpoints; **OK.**
 
 ### 5.1 QSP delegation pattern
 
-`EIDASSignatureService.php` L77-L137. Decidesk does NOT perform
+`EIDASSignatureService.php` L77-L137. Decidiq does NOT perform
 QES cryptography itself; it delegates to openconnector's `e-sign`
 Source which fronts a QSP (qualified Trust Service Provider). Every
 delegation produces an audit-log entry via
@@ -256,7 +256,7 @@ point. The auditor SHOULD receive:
    (`tests/Unit/Service/AuditLogServiceTest.php`).
 5. The internal-prep checklist (§6 of the compliance reference).
 
-Findings letter + Decidesk response land in
+Findings letter + Decidiq response land in
 `docs/compliance/audit-letters/YYYY-MM-<auditor-slug>.md`.
 
 §10.10 of `board-meeting-resolutions/tasks.md` flips to `[x]`

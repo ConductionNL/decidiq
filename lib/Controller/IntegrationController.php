@@ -127,7 +127,7 @@ class IntegrationController extends Controller {
 	 *
 	 * Expected JSON body:
 	 *   decisionType      string  required — e.g. "contract", "contract-renewal", "report-adoption"
-	 *   title             string  required — human title shown in decidesk list
+	 *   title             string  required — human title shown in Decidiq list
 	 *   text              string  required — decision body / rationale
 	 *   decisionDate      string  required — ISO-8601 datetime
 	 *   outcome           string  optional — "adopted"|"rejected" (default "adopted" for draft)

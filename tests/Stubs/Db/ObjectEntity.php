@@ -13,7 +13,7 @@
  * more loosely than production — creates a class of test double that production
  * can never produce, and the suite goes green on assertions that could never
  * hold. The stub is therefore kept in exact parity with, and only with, the
- * members decidesk actually touches.
+ * members decidiq actually touches.
  *
  * Matched against ConductionNL/openregister@origin/development, lib/Db/ObjectEntity.php:
  *

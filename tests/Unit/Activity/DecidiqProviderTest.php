@@ -66,7 +66,7 @@ class DecidiqProviderTest extends TestCase {
 		$factory->method('get')->willReturn($l10n);
 
 		$urlGenerator = $this->createMock(IURLGenerator::class);
-		$urlGenerator->method('imagePath')->willReturn('/img/decidesk/app-dark.svg');
+		$urlGenerator->method('imagePath')->willReturn('/img/decidiq/app-dark.svg');
 		$urlGenerator->method('getAbsoluteURL')->willReturnCallback(
 			static fn (string $path): string => 'https://cloud.example' . $path
 		);
@@ -79,7 +79,7 @@ class DecidiqProviderTest extends TestCase {
 	}//end setUp()
 
 	/**
-	 * Build an IEvent mock for a decidesk governance subject.
+	 * Build an IEvent mock for a decidiq governance subject.
 	 *
 	 * @param string $subject Subject id
 	 * @param array<string,mixed> $params Subject parameters
@@ -88,7 +88,7 @@ class DecidiqProviderTest extends TestCase {
 	 */
 	private function event(string $subject, array $params): IEvent&MockObject {
 		$event = $this->createMock(IEvent::class);
-		$event->method('getApp')->willReturn('decidesk');
+		$event->method('getApp')->willReturn('decidiq');
 		$event->method('getType')->willReturn(GovernanceSetting::TYPE_GOVERNANCE);
 		$event->method('getSubject')->willReturn($subject);
 		$event->method('getSubjectParameters')->willReturn($params);
@@ -113,7 +113,7 @@ class DecidiqProviderTest extends TestCase {
 	}//end testForeignEventThrows()
 
 	/**
-	 * Unknown decidesk subjects are rejected too.
+	 * Unknown decidiq subjects are rejected too.
 	 *
 	 * @spec openspec/specs/nextcloud-integration/spec.md
 	 *
@@ -175,7 +175,7 @@ class DecidiqProviderTest extends TestCase {
 
 			self::assertSame(expected: $expectedPlain, actual: $parsedSubject, message: "plain subject for $subject");
 			self::assertSame(
-				expected: 'https://cloud.example/apps/decidesk/#/decisions/uuid-1',
+				expected: 'https://cloud.example/apps/decidiq/#/decisions/uuid-1',
 				actual: $link,
 				message: "deep link for $subject"
 			);
@@ -199,12 +199,12 @@ class DecidiqProviderTest extends TestCase {
 		self::assertTrue(condition: $setting->isDefaultEnabledNotification());
 
 		$urlGenerator = $this->createMock(IURLGenerator::class);
-		$urlGenerator->method('imagePath')->willReturn('/img/decidesk/app-dark.svg');
+		$urlGenerator->method('imagePath')->willReturn('/img/decidiq/app-dark.svg');
 		$urlGenerator->method('getAbsoluteURL')->willReturnArgument(0);
 
 		$filter = new GovernanceFilter(l10n: $l10n, urlGenerator: $urlGenerator);
-		self::assertSame(expected: 'decidesk', actual: $filter->getIdentifier());
-		self::assertSame(expected: ['decidesk'], actual: $filter->allowedApps());
+		self::assertSame(expected: 'decidiq', actual: $filter->getIdentifier());
+		self::assertSame(expected: ['decidiq'], actual: $filter->allowedApps());
 		self::assertSame(
 			expected: [GovernanceSetting::TYPE_GOVERNANCE],
 			actual: $filter->filterTypes(['files', GovernanceSetting::TYPE_GOVERNANCE])

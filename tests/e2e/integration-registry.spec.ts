@@ -4,9 +4,9 @@
  *
  * Integration-registry UI smoke — end-to-end proof that the
  * pluggable-integration chain (ADR-019) renders correctly inside the
- * decidesk shell.
+ * decidiq shell.
  *
- * Walks the user from an authenticated NC home → decidesk → meeting
+ * Walks the user from an authenticated NC home → decidiq → meeting
  * integrations page → asserts:
  *   1. window.OCA.OpenRegister.integrations.list() exposes 29
  *      registered providers (5 built-ins + 1 xwiki + 20 component
@@ -122,7 +122,7 @@ async function login(page: Page) {
 /**
  * Wait (briefly) for the integration registry to install on `window`.
  *
- * The registry, when deployed, installs synchronously as the decidesk
+ * The registry, when deployed, installs synchronously as the decidiq
  * main bundle evaluates, so a short wait is ample. On a partial deploy
  * (the leaves / OR-provider chain not shipped) it never appears — so we
  * swallow the timeout and let the caller's existing `test.skip` on an
@@ -211,7 +211,7 @@ async function openMeetingIntegrations(page: Page): Promise<string> {
 	const meetingId = first.id ?? first['@self']?.id
 	test.skip(!meetingId, 'first meeting has no id; cannot navigate')
 
-	await page.goto(`/apps/decidesk/meetings/${meetingId}/integrations`)
+	await page.goto(`/apps/decidiq/meetings/${meetingId}/integrations`)
 	// Wait for the registry-mode sidebar to mount. On a partial deploy the
 	// registry sidebar never mounts, so treat the absence as "not active"
 	// (the callers already skip on an empty/absent sidebar) instead of
@@ -268,7 +268,7 @@ test.describe('Integration registry — JS registration', () => {
 	test('window.OCA.OpenRegister.integrations.list() exposes 29 providers', async ({
 		page,
 	}) => {
-		await page.goto('/apps/decidesk/')
+		await page.goto('/apps/decidiq/')
 		// Give the main bundle time to install the registry +
 		// register the leaves.
 		await waitForRegistry(page)
@@ -311,7 +311,7 @@ test.describe('Integration registry — JS registration', () => {
 	test('every leaf carries its render surface (component ⇒ tab+widget, mount ⇒ mount fn)', async ({
 		page,
 	}) => {
-		await page.goto('/apps/decidesk/')
+		await page.goto('/apps/decidiq/')
 		await waitForRegistry(page)
 
 		const providers = await page.evaluate(() => {
@@ -471,7 +471,7 @@ test.describe('Integration registry — OCS / JS agreement', () => {
 	test('every provider id in OCS caps is also in the JS registry (no drift)', async ({
 		page,
 	}) => {
-		await page.goto('/apps/decidesk/')
+		await page.goto('/apps/decidiq/')
 		await waitForRegistry(page)
 
 		const jsIds = await page.evaluate(() => {
@@ -523,7 +523,7 @@ test.describe('Integration registry — OCS / JS agreement', () => {
 		const missing = ocsIds.filter((id: string) => !jsIds.includes(id))
 
 		// KNOWN UPSTREAM DRIFT — deliberately waived here, NOT skipped, and not
-		// decidesk's to fix.
+		// decidiq's to fix.
 		//
 		// openregister commit 3bc2977a6 (2026-06-21) added KvkProvider and
 		// OpenCorporatesProvider and registered them in

@@ -107,7 +107,7 @@ class AdminSettings implements IDelegatedSettings {
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function getSection(): string {
-		return 'decidesk';
+		return Application::APP_ID;
 	}//end getSection()
 
 	/**

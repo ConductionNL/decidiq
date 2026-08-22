@@ -59,7 +59,7 @@ class PersonalSection implements IIconSection {
 	 * @spec openspec/specs/user-settings/spec.md
 	 */
 	public function getID(): string {
-		return 'decidesk';
+		return Application::APP_ID;
 	}//end getID()
 
 	/**
@@ -92,6 +92,6 @@ class PersonalSection implements IIconSection {
 	 * @spec openspec/specs/user-settings/spec.md
 	 */
 	public function getIcon(): string {
-		return $this->urlGenerator->imagePath('decidesk', 'app-dark.svg');
+		return $this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg');
 	}//end getIcon()
 }//end class

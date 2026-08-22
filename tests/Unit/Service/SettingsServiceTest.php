@@ -207,7 +207,7 @@ class SettingsServiceTest extends TestCase {
 	public function testUpdateSettingsWritesToConfig(): void {
 		$this->appConfig->expects($this->once())
 			->method('setValueString')
-			->with('decidesk', 'register', 'new-register-id');
+			->with('decidiq', 'register', 'new-register-id');
 
 		$user = $this->createMock(originalClassName: IUser::class);
 		$user->method('getUID')->willReturn('admin');

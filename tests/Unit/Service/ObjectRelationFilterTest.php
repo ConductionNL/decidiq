@@ -41,7 +41,7 @@ use OCA\Decidiq\Service\ObjectRelationFilter;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Pins the one relation filter that matches how decidesk writes relations.
+ * Pins the one relation filter that matches how decidiq writes relations.
  *
  * @spec openspec/specs/voting-system/spec.md
  */

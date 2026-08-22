@@ -3,10 +3,10 @@
 /**
  * Decidiq DecisionConcludedEvent
  *
- * Public cross-app event decidesk dispatches when a delegated (provenance-
+ * Public cross-app event Decidiq dispatches when a delegated (provenance-
  * carrying) Decision reaches a terminal outcome. Consumer fleet apps listen
  * for it to perform their own downstream side effects (shillinq GL post,
- * procest ZGW advance) — decidesk owns the decision only, never the consumer's
+ * procest ZGW advance) — Decidiq owns the decision only, never the consumer's
  * side effect. Carries the subject/provenance reference plus the outcome
  * envelope built by DecisionIntegrationService::getOutcomeEnvelope().
  *
@@ -32,9 +32,9 @@ namespace OCA\Decidiq\Event;
 use OCP\EventDispatcher\Event;
 
 /**
- * Cross-app conclusion event: decidesk reports a concluded delegated Decision.
+ * Cross-app conclusion event: Decidiq reports a concluded delegated Decision.
  *
- * Fully immutable — decidesk constructs it from the outcome envelope and the
+ * Fully immutable — Decidiq constructs it from the outcome envelope and the
  * subject reference; consumers only read. The `status` value is the one
  * DERIVED by getOutcomeEnvelope() (no new state machine, ADR-031).
  *

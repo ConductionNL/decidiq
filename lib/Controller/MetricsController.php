@@ -13,7 +13,7 @@
  * ⚠️ This class MUST NOT `extends` — nor name in any resolved position — a
  * class from another app. Nextcloud's router `ReflectionClass()`es every file
  * in `lib/Controller/` while MATCHING a route, so an unresolvable parent makes
- * EVERY route in decidesk return HTTP 500, not just this one. See decidesk#377.
+ * EVERY route in Decidiq return HTTP 500, not just this one. See decidiq#377.
  *
  * @category Controller
  * @package  OCA\Decidiq\Controller

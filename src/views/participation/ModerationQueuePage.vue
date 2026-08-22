@@ -12,11 +12,11 @@
 <template>
 	<div class="moderation-queue" data-testid="moderation-queue-page">
 		<header class="moderation-queue__header">
-			<h2>{{ t('decidesk', 'Reaction moderation queue') }}</h2>
+			<h2>{{ t('decidiq', 'Reaction moderation queue') }}</h2>
 			<p>
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'Approve or reject citizen reactions before they count toward a consultation.',
 					)
 				}}

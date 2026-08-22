@@ -286,7 +286,7 @@
             "filter": {
               "parentGoal": "@self.id"
             },
-            "_note": "Declarative progress rollup (ADR-031, organisation-goals REQ-005), identical dialect to Meeting's totalParticipantCount/actionItemCount (lib/Settings/decidesk_register.json ~line 2226). This is the FIRST self-referential use of this dialect in decidesk (Goal -> Goal via parentGoal, proposal.md Risk 1) — verify at seed-import/live-read time; if the aggregation engine rejects a same-schema filter target, this field degrades to absent rather than failing the whole schema (per proposal.md Risk 1 / DEFERRED_QUESTIONS, recorded in tasks.md Task 6)."
+            "_note": "Declarative progress rollup (ADR-031, organisation-goals REQ-005), identical dialect to Meeting's totalParticipantCount/actionItemCount (lib/Settings/decidesk_register.json ~line 2226). This is the FIRST self-referential use of this dialect in Decidiq (Goal -> Goal via parentGoal, proposal.md Risk 1) — verify at seed-import/live-read time; if the aggregation engine rejects a same-schema filter target, this field degrades to absent rather than failing the whole schema (per proposal.md Risk 1 / DEFERRED_QUESTIONS, recorded in tasks.md Task 6)."
           },
           "achievedChildGoalCount": {
             "metric": "count",

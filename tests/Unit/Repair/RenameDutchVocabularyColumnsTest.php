@@ -98,7 +98,7 @@ class RenameDutchVocabularyColumnsTest extends TestCase {
 	 * Another register's shard is NOT matched.
 	 *
 	 * The step is scoped by register precisely because several of these words
-	 * are not unique to decidesk — procest also stores `onderwerp`. A step that
+	 * are not unique to decidiq — procest also stores `onderwerp`. A step that
 	 * scanned every shard table for a matching column would migrate another
 	 * app's data as a side effect.
 	 *
@@ -152,7 +152,7 @@ class RenameDutchVocabularyColumnsTest extends TestCase {
 	/**
 	 * `toelichting` maps to `notes`, NOT to `description`.
 	 *
-	 * The two co-occur in four schemas fleet-wide, including decidesk's own
+	 * The two co-occur in four schemas fleet-wide, including decidiq's own
 	 * Geschenk, so they are distinct concepts. Collapsing them would produce a
 	 * duplicate destination and silently overwrite one value with the other.
 	 *

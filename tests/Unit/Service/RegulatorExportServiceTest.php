@@ -213,7 +213,7 @@ class RegulatorExportServiceTest extends TestCase {
 		$this->assertSame('application/pdf', $result['contentType']);
 		$this->assertStringStartsWith('%PDF-1.4', $result['body']);
 		$this->assertStringContainsString('%%EOF', $result['body']);
-		$this->assertStringContainsString('decidesk-resolutions-b-1-', $result['filename']);
+		$this->assertStringContainsString('decidiq-resolutions-b-1-', $result['filename']);
 		$this->assertStringEndsWith('.pdf', $result['filename']);
 
 		$recordSaves = array_values(

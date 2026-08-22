@@ -3,7 +3,7 @@
 /**
  * Decidiq RegisterDecisionsLeafListener.
  *
- * Registers decidesk's `decidesk-decisions` leaf on OpenRegister through the
+ * Registers Decidiq's `decidesk-decisions` leaf on OpenRegister through the
  * sibling-app leaf-registration hook (`RegisterLeafProvidersEvent`, openregister
  * app-leaf-provider-registration / ADR-066). This is the SERVER-SIDE half of a
  * registration whose client-side half has shipped since the leaf was built:
@@ -22,19 +22,19 @@
  *
  * RENDER-AND-READ ONLY (ADR-066 decision 2). The descriptor carries NO Vue
  * components, no verb, and no run authority. It declares one kind:
- *   - `render-surface` — decidesk mounts the "Besluitvorming" surface on a host
+ *   - `render-surface` — Decidiq mounts the "Besluitvorming" surface on a host
  *     object: the sidebar tab (CnDecisionsTab) on `single-entity`, the
  *     per-object widget (CnDecisionsWidget) on the detail-page and dashboard
- *     grids. The components stay in decidesk's OWN bundle.
+ *     grids. The components stay in Decidiq's OWN bundle.
  *
  * It does NOT declare `data-provider`: the leaf reads and appends decisions
- * through OpenRegister's own object API from the client (ADR-022), so decidesk
+ * through OpenRegister's own object API from the client (ADR-022), so Decidiq
  * serves no app-local store behind this leaf and passes a null provider.
- * Cross-app COMMANDS remain ADR-041 typed events — decidesk already exposes
+ * Cross-app COMMANDS remain ADR-041 typed events — Decidiq already exposes
  * `DecisionRequestedEvent` for that, and it does not travel through this leaf.
  *
- * Gated on decidesk being installed/enabled via `requiredApp`, so on an instance
- * without decidesk the surface is HIDDEN rather than a broken tab.
+ * Gated on Decidiq being installed/enabled via `requiredApp`, so on an instance
+ * without Decidiq the surface is HIDDEN rather than a broken tab.
  *
  * @category Listener
  * @package  OCA\Decidiq\Listener
@@ -86,7 +86,7 @@ class RegisterDecisionsLeafListener implements IEventListener {
 
 	/**
 	 * The l10n SOURCE string for the leaf label, equal to the string the JS half
-	 * passes to `t('decidesk', …)`.
+	 * passes to `t('decidiq', …)`.
 	 *
 	 * The app's translation catalogue is keyed on Dutch source strings
 	 * (`l10n/en.json` maps this one to "Decision making"), so the server half has
@@ -190,7 +190,7 @@ class RegisterDecisionsLeafListener implements IEventListener {
 
 			// Render-only leaf: no IntegrationProvider (null). The tab and widget read
 			// and append decisions through OpenRegister's own object API in the
-			// browser, so decidesk holds no app-local store to serve behind this leaf.
+			// browser, so Decidiq holds no app-local store to serve behind this leaf.
 			$event->registerLeaf($descriptor, null);
 		} catch (Throwable $e) {
 			// Never take the leaf catalogue down: log and skip our own leaf only.

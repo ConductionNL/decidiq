@@ -75,7 +75,7 @@ class MotionNotifier {
 		try {
 			$manager = $this->container->get(IManager::class);
 			$notification = $manager->createNotification();
-			$notification->setApp('decidesk')
+			$notification->setApp('decidiq')
 				->setUser($userId)
 				->setDateTime(new DateTime())
 				->setObject('motion', $motionId)

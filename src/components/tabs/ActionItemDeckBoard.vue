@@ -20,7 +20,7 @@
 	<div class="ai-deck-board" data-testid="action-item-deck-board">
 		<div class="ai-deck-board__header">
 			<h3 class="ai-deck-board__title">
-				{{ t('decidesk', 'Action items') }}
+				{{ t('decidiq', 'Action items') }}
 				<span v-if="!loading" class="ai-deck-board__count"
 					>({{ rows.length }})</span
 				>
@@ -35,17 +35,17 @@
 						<ViewColumnOutline v-if="!syncing" :size="20" />
 						<NcLoadingIcon v-else :size="20" />
 					</template>
-					{{ t('decidesk', 'Project to Deck') }}
+					{{ t('decidiq', 'Project to Deck') }}
 				</NcButton>
 				<NcButton
 					variant="primary"
 					data-testid="action-item-deck-add"
-					:aria-label="t('decidesk', 'Add action item')"
+					:aria-label="t('decidiq', 'Add action item')"
 					@click="openCreate">
 					<template #icon>
 						<Plus :size="20" />
 					</template>
-					{{ t('decidesk', 'Add action item') }}
+					{{ t('decidiq', 'Add action item') }}
 				</NcButton>
 			</div>
 		</div>
@@ -53,13 +53,13 @@
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Deck board error')">
+			:title="t('decidiq', 'Deck board error')">
 			{{ error }}
 		</CnNoteCard>
 		<CnNoteCard
 			v-if="notice"
 			type="success"
-			:title="t('decidesk', 'Projected to Deck')">
+			:title="t('decidiq', 'Projected to Deck')">
 			{{ notice }}
 		</CnNoteCard>
 
@@ -83,11 +83,11 @@
 							<button
 								class="ai-deck-card__title"
 								@click="openEdit(item)">
-								{{ item.title || t('decidesk', 'Untitled') }}
+								{{ item.title || t('decidiq', 'Untitled') }}
 							</button>
 							<NcButton
 								variant="tertiary-no-background"
-								:aria-label="t('decidesk', 'Delete action item')"
+								:aria-label="t('decidiq', 'Delete action item')"
 								@click="deleteTarget = { ...item }">
 								<template #icon>
 									<TrashCanOutline :size="18" />
@@ -112,10 +112,10 @@
 								:modelValue="laneOption(item)"
 								:options="laneOptions"
 								:clearable="false"
-								:inputLabel="t('decidesk', 'Status')"
+								:inputLabel="t('decidiq', 'Status')"
 								:aria-label-combobox="
 									t(
-										'decidesk',
+										'decidiq',
 										'Move action item to another status',
 									)
 								"
@@ -127,13 +127,13 @@
 								target="_blank"
 								rel="noopener noreferrer"
 								class="ai-deck-card__link"
-								:title="t('decidesk', 'Open in Deck')">
-								{{ t('decidesk', 'In Deck') }}
+								:title="t('decidiq', 'Open in Deck')">
+								{{ t('decidiq', 'In Deck') }}
 							</a>
 						</div>
 					</li>
 					<li v-if="!lane.items.length" class="ai-deck-lane__empty">
-						{{ t('decidesk', 'None') }}
+						{{ t('decidiq', 'None') }}
 					</li>
 				</ul>
 			</section>
@@ -146,8 +146,8 @@
 			:item="editTarget"
 			:dialogTitle="
 				editTarget
-					? t('decidesk', 'Edit action item')
-					: t('decidesk', 'Add action item')
+					? t('decidiq', 'Edit action item')
+					: t('decidiq', 'Add action item')
 			"
 			:excludeFields="excludedFields"
 			@confirm="onConfirm"
@@ -158,7 +158,7 @@
 			ref="deleteDialog"
 			:item="deleteTarget"
 			nameField="title"
-			:dialogTitle="t('decidesk', 'Delete action item')"
+			:dialogTitle="t('decidiq', 'Delete action item')"
 			@confirm="confirmDelete"
 			@close="deleteTarget = null" />
 	</div>
@@ -240,7 +240,7 @@ export default {
 		lanes() {
 			return LANES.map((key) => ({
 				key,
-				label: this.t('decidesk', LANE_LABELS[key]),
+				label: this.t('decidiq', LANE_LABELS[key]),
 				items: this.rows.filter((r) => statusToLane(r.taskStatus) === key),
 			}))
 		},
@@ -249,7 +249,7 @@ export default {
 		laneOptions() {
 			return LANES.map((key) => ({
 				id: key,
-				label: this.t('decidesk', LANE_LABELS[key]),
+				label: this.t('decidiq', LANE_LABELS[key]),
 			}))
 		},
 
@@ -284,7 +284,7 @@ export default {
 		 */
 		laneOption(item) {
 			const key = statusToLane(item.taskStatus)
-			return { id: key, label: this.t('decidesk', LANE_LABELS[key]) }
+			return { id: key, label: this.t('decidiq', LANE_LABELS[key]) }
 		},
 
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
@@ -303,7 +303,7 @@ export default {
 				this.rows = items || []
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Failed to load action items.')
+					e?.message || this.t('decidiq', 'Failed to load action items.')
 			} finally {
 				this.loading = false
 			}
@@ -358,7 +358,7 @@ export default {
 				this.refresh()
 			} catch (e) {
 				this.$refs.formDialog?.setResult({
-					error: e?.message || this.t('decidesk', 'Save failed.'),
+					error: e?.message || this.t('decidiq', 'Save failed.'),
 				})
 			}
 		},
@@ -375,7 +375,7 @@ export default {
 				this.refresh()
 			} catch (e) {
 				this.$refs.deleteDialog?.setResult({
-					error: e?.message || this.t('decidesk', 'Delete failed.'),
+					error: e?.message || this.t('decidiq', 'Delete failed.'),
 				})
 			}
 		},
@@ -395,28 +395,28 @@ export default {
 				const parts = []
 				if (result.created)
 					parts.push(
-						this.t('decidesk', '{n} card(s) created', {
+						this.t('decidiq', '{n} card(s) created', {
 							n: result.created,
 						}),
 					)
 				if (result.skipped)
 					parts.push(
-						this.t('decidesk', '{n} already on Deck', {
+						this.t('decidiq', '{n} already on Deck', {
 							n: result.skipped,
 						}),
 					)
 				this.notice =
-					parts.join(' · ') || this.t('decidesk', 'Nothing to project.')
+					parts.join(' · ') || this.t('decidiq', 'Nothing to project.')
 				if (result.errors && result.errors.length) {
 					this.error = this.t(
-						'decidesk',
+						'decidiq',
 						'{n} item(s) could not be projected.',
 						{ n: result.errors.length },
 					)
 				}
 				await this.refresh()
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Projection failed.')
+				this.error = e?.message || this.t('decidiq', 'Projection failed.')
 			} finally {
 				this.syncing = false
 			}
@@ -444,7 +444,7 @@ export default {
 			} catch (e) {
 				item.taskStatus = previous
 				this.error =
-					e?.message || this.t('decidesk', 'Could not update status.')
+					e?.message || this.t('decidiq', 'Could not update status.')
 			}
 		},
 	},

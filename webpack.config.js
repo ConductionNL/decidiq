@@ -13,7 +13,7 @@ webpackConfig.stats = {
 	modules: false,
 }
 
-const appId = 'decidesk'
+const appId = 'decidiq'
 webpackConfig.entry = {
 	main: {
 		import: path.join(__dirname, 'src', 'main.js'),
@@ -30,7 +30,7 @@ webpackConfig.entry = {
 	// Global integration-leaf bootstrap loaded on EVERY Nextcloud page via
 	// Util::addInitScript (ADR-019). Registers the "Besluitvorming" decisions
 	// leaf so it surfaces on host objects (e.g. a procest case) without the
-	// full decidesk app bundle.
+	// full decidiq app bundle.
 	integrationInit: {
 		import: path.join(__dirname, 'src', 'integration-init.js'),
 		filename: appId + '-integration-init.js',
@@ -43,7 +43,7 @@ webpackConfig.entry = {
 // lands in its own chunk. On installs that serve this app from /custom_apps/
 // (rather than the virtual /apps/ path the base publicPath assumes) the fixed
 // path 404s and the page renders blank. 'auto' derives the base from
-// document.currentScript (decidesk-main.js under /custom_apps/decidesk/js/), so
+// document.currentScript (decidiq-main.js under /custom_apps/decidiq/js/), so
 // the chunks load from the same directory the entry did.
 webpackConfig.output = { ...(webpackConfig.output || {}), publicPath: 'auto' }
 
@@ -94,7 +94,7 @@ if (useLocalLib) {
 	if (!satisfied) {
 		// eslint-disable-next-line no-console
 		console.warn(
-			`[decidesk] IGNORING sibling @conduction/nextcloud-vue@${localVersion} — `
+			`[decidiq] IGNORING sibling @conduction/nextcloud-vue@${localVersion} — `
 				+ "it does not satisfy this app's declared range. Building against the npm dist.",
 		)
 		useLocalLib = false
@@ -108,7 +108,7 @@ webpackConfig.resolve = {
 		...(useLocalLib ? { '@conduction/nextcloud-vue': localLib } : {}),
 		// Deduplicate shared packages so the aliased library source uses
 		// the same instances as the app (prevents dual-Pinia / dual-Vue bugs).
-		// VUE 3 (ADR-066): one ABSOLUTE Vue file so decidesk + the aliased lib
+		// VUE 3 (ADR-066): one ABSOLUTE Vue file so decidiq + the aliased lib
 		// source share a single copy (dual-copy = two currentRenderingInstance
 		// states → CnAppRoot null crash). vue-loader finds the real SFC
 		// compiler via @vue/compiler-sfc.

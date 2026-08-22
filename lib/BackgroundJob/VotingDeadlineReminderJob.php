@@ -32,7 +32,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Hourly sweep for 24-hour pre-deadline voting reminders. Registered in
- * appinfo/info.xml <background-jobs> (the proven decidesk job pattern).
+ * appinfo/info.xml <background-jobs> (the proven Decidiq job pattern).
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */

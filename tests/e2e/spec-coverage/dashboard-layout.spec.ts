@@ -25,7 +25,7 @@ import { BASE_URL as BASE } from '../base-url'
  * in tests/e2e/global-setup.ts before the suite runs.
  */
 async function gotoDashboard(page) {
-	await page.goto(`${BASE}/apps/decidesk/`)
+	await page.goto(`${BASE}/apps/decidiq/`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 }
 

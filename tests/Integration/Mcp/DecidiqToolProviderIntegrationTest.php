@@ -4,7 +4,7 @@
  * Integration tests for DecidiqToolProvider.
  *
  * These tests run only when the full openregister runtime is available
- * (i.e. in a properly provisioned Nextcloud environment with both decidesk
+ * (i.e. in a properly provisioned Nextcloud environment with both decidiq
  * and openregister installed). In any other environment the whole class is
  * skipped via markTestSkipped().
  *
@@ -120,7 +120,7 @@ class DecidiqToolProviderIntegrationTest extends TestCase {
 		// 5. Re-read the meeting and assert lifecycle === 'opened'.
 
 		// For now, assert that the provider is available and the catalogue is correct.
-		// Full fixture-based testing requires the NC + OR + decidesk stack to be running.
+		// Full fixture-based testing requires the NC + OR + decidiq stack to be running.
 		self::assertInstanceOf(DecidiqToolProvider::class, $this->provider);
 
 		$tools = $this->provider->getTools();

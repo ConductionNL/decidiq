@@ -15,7 +15,7 @@
  * was never reached, and the cycle's `respondedCount` stayed at 0 while the UI
  * showed nothing wrong — the error NoteCard renders outside the card the count
  * lives in. Observed live as HTTP 422 on
- * `POST /apps/decidesk/api/board-evaluations/{id}/respond`.
+ * `POST /apps/decidiq/api/board-evaluations/{id}/respond`.
  *
  * @category Test
  * @package  OCA\Decidiq\Tests\Unit\Service

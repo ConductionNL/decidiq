@@ -537,7 +537,7 @@ class DecisionIntegrationService {
 			if (method_exists($registry, 'isRegisteredConsumer') === true) {
 				// Positional, not named: the registry is resolved from a class-name
 				// string at runtime, so its parameter names are not part of any
-				// contract decidesk can rely on.
+				// contract Decidiq can rely on.
 				return (bool)$registry->isRegisteredConsumer($url);
 			}
 		} catch (\Throwable) {

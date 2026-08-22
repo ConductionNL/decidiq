@@ -15,41 +15,41 @@
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--parent-motion"
+		class="decidiq-tab decidiq-tab--parent-motion"
 		data-testid="amendment-parent-tab">
-		<h3 class="decidesk-tab__title">
-			{{ t('decidesk', 'Parent motion') }}
+		<h3 class="decidiq-tab__title">
+			{{ t('decidiq', 'Parent motion') }}
 		</h3>
 
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load parent motion')">
+			:title="t('decidiq', 'Could not load parent motion')">
 			{{ error }}
 		</CnNoteCard>
 
-		<p v-else-if="loading" class="decidesk-tab__loading">
-			{{ t('decidesk', 'Loading…') }}
+		<p v-else-if="loading" class="decidiq-tab__loading">
+			{{ t('decidiq', 'Loading…') }}
 		</p>
 
 		<CnNoteCard
 			v-else-if="!parentMotionId"
 			type="info"
-			:title="t('decidesk', 'No parent motion')">
-			{{ t('decidesk', 'This amendment is not linked to a motion.') }}
+			:title="t('decidiq', 'No parent motion')">
+			{{ t('decidiq', 'This amendment is not linked to a motion.') }}
 		</CnNoteCard>
 
 		<CnDetailCard
 			v-else-if="motion"
-			:title="motion.title || t('decidesk', 'Motion')">
+			:title="motion.title || t('decidiq', 'Motion')">
 			<CnDetailGrid :items="propertyItems" />
-			<div class="decidesk-tab__cta">
+			<div class="decidiq-tab__cta">
 				<NcButton
 					variant="primary"
 					data-testid="amendment-parent-open"
-					:aria-label="t('decidesk', 'Open parent motion')"
+					:aria-label="t('decidiq', 'Open parent motion')"
 					@click="openParent">
-					{{ t('decidesk', 'View motion') }}
+					{{ t('decidiq', 'View motion') }}
 				</NcButton>
 			</div>
 		</CnDetailCard>
@@ -57,9 +57,9 @@
 		<CnNoteCard
 			v-else
 			type="warning"
-			:title="t('decidesk', 'Parent motion not found')">
+			:title="t('decidiq', 'Parent motion not found')">
 			{{
-				t('decidesk', 'The referenced motion ({id}) could not be loaded.', {
+				t('decidiq', 'The referenced motion ({id}) could not be loaded.', {
 					id: parentMotionId,
 				})
 			}}
@@ -102,18 +102,18 @@ export default {
 		propertyItems() {
 			if (!this.motion) return []
 			return [
-				{ label: this.t('decidesk', 'Title'), value: this.motion.title },
+				{ label: this.t('decidiq', 'Title'), value: this.motion.title },
 				{
-					label: this.t('decidesk', 'Proposer'),
+					label: this.t('decidiq', 'Proposer'),
 					value: this.motion.proposer,
 				},
-				{ label: this.t('decidesk', 'Type'), value: this.motion.motionType },
+				{ label: this.t('decidiq', 'Type'), value: this.motion.motionType },
 				{
-					label: this.t('decidesk', 'Status'),
+					label: this.t('decidiq', 'Status'),
 					value: this.motion.lifecycle,
 				},
 				{
-					label: this.t('decidesk', 'Submitted'),
+					label: this.t('decidiq', 'Submitted'),
 					value: this.motion.submittedAt,
 				},
 			]
@@ -152,7 +152,7 @@ export default {
 				}
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Failed to load parent motion.')
+					e?.message || this.t('decidiq', 'Failed to load parent motion.')
 			} finally {
 				this.loading = false
 			}
@@ -171,25 +171,25 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__loading {
+.decidiq-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
 
-.decidesk-tab__cta {
+.decidiq-tab__cta {
 	margin-top: var(--default-grid-baseline);
 }
 </style>

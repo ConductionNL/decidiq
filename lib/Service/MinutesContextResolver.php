@@ -258,7 +258,7 @@ class MinutesContextResolver {
 	}//end findParticipants()
 
 	/**
-	 * Fetch a single decidesk object and serialise it.
+	 * Fetch a single Decidiq object and serialise it.
 	 *
 	 * @param string $id The object ID
 	 * @param string $schema The schema slug

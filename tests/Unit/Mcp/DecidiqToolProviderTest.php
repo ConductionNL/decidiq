@@ -531,7 +531,7 @@ class DecidiqToolProviderTest extends TestCase {
 
 		$source = $result['sources'][0];
 		self::assertSame('decidesk.meeting', $source['type']);
-		self::assertStringContainsString('/apps/decidesk/meetings/', $source['url']);
+		self::assertStringContainsString('/apps/decidiq/meetings/', $source['url']);
 
 	}//end testListRecentMeetings_happyPath()
 

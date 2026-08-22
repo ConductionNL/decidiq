@@ -31,7 +31,7 @@ test('quick-filter dropdown label "All urgent" renders intact at every tested vi
 
 	for (const viewport of viewports) {
 		await page.setViewportSize(viewport)
-		await page.goto(`${BASE}/apps/decidesk/urgent-decisions`)
+		await page.goto(`${BASE}/apps/decidiq/urgent-decisions`)
 		await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 		// Dropdown-mode quick filter renders as an NcSelect (vue-select under the

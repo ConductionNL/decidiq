@@ -13,7 +13,7 @@
 import { test } from '@playwright/test'
 import { shootSurface, shootByNav } from './_visual-helpers'
 
-const APP = '/index.php/apps/decidesk'
+const APP = '/index.php/apps/decidiq'
 
 test.describe('DecideSk — visual baselines', () => {
 	test('dashboard', async ({ page }) => {

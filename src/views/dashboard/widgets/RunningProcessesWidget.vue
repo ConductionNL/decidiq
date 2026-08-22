@@ -16,7 +16,7 @@
 
 		<NcEmptyContent
 			v-else-if="total === 0"
-			:name="t('decidesk', 'No active motions')"
+			:name="t('decidiq', 'No active motions')"
 			data-testid="running-processes-empty">
 			<template #icon>
 				<CommentCheckOutline :size="32" />
@@ -90,9 +90,9 @@ export default {
 		 */
 		stages() {
 			const labels = {
-				proposed: t('decidesk', 'Submitted'),
-				deliberating: t('decidesk', 'Under discussion'),
-				voting: t('decidesk', 'Voting'),
+				proposed: t('decidiq', 'Submitted'),
+				deliberating: t('decidiq', 'Under discussion'),
+				voting: t('decidiq', 'Voting'),
 			}
 			return RUNNING_MOTION_LIFECYCLES.map((key) => ({
 				key,
@@ -133,7 +133,7 @@ export default {
 					lifecycle: RUNNING_MOTION_LIFECYCLES,
 				})
 			} catch (e) {
-				console.error('[decidesk] RunningProcessesWidget load failed', e)
+				console.error('[decidiq] RunningProcessesWidget load failed', e)
 				this.error = e
 				this.motions = []
 			} finally {

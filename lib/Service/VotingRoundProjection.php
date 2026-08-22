@@ -182,7 +182,7 @@ class VotingRoundProjection {
 	}//end preselectedOption()
 
 	/**
-	 * Load any decidesk object as an array.
+	 * Load any Decidiq object as an array.
 	 *
 	 * @param string $objectId The object UUID
 	 * @param string $schema The schema slug

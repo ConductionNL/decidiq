@@ -23,7 +23,7 @@
 
 		<NcEmptyContent
 			v-else-if="!hasData"
-			:name="t('decidesk', 'Not enough data')"
+			:name="t('decidiq', 'Not enough data')"
 			data-testid="governance-health-empty">
 			<template #icon>
 				<ChartLine :size="32" />
@@ -93,8 +93,8 @@ export default {
 		chart() {
 			const { series, categories } = healthSeries(this.points)
 			const names = [
-				t('decidesk', 'Quorum %'),
-				t('decidesk', 'Action item completion %'),
+				t('decidiq', 'Quorum %'),
+				t('decidiq', 'Action item completion %'),
 			]
 			return {
 				series: series.map((s, i) => ({ ...s, name: names[i] || s.name })),
@@ -129,7 +129,7 @@ export default {
 			try {
 				this.meetings = await getMeetings()
 			} catch (e) {
-				console.error('[decidesk] GovernanceHealthWidget load failed', e)
+				console.error('[decidiq] GovernanceHealthWidget load failed', e)
 				this.error = e
 				this.meetings = []
 			} finally {

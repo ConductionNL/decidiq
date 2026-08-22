@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: EUPL-1.2 -->
 <template>
 	<CnAdminSettingsShell
-		appId="decidesk"
+		appId="decidiq"
 		appName="Decidiq"
 		data-testid="admin-root"
 		@reimported="onReimported">

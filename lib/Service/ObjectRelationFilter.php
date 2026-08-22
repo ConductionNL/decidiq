@@ -5,10 +5,10 @@
  *
  * Scopes an OpenRegister relation-filtered result set down to the objects that
  * genuinely reference a specific related id, and supplies the one relation
- * filter that actually matches the way decidesk writes relations.
+ * filter that actually matches the way Decidiq writes relations.
  *
  * ── WHY `_relations.<schema-slug>` MATCHES NOTHING ──────────────────────────
- * decidesk writes links as a STRUCTURED relations array on the object payload:
+ * Decidiq writes links as a STRUCTURED relations array on the object payload:
  *
  *     'relations' => [['register' => 'decidesk', 'schema' => 'vote', 'id' => $id]]
  *
@@ -64,7 +64,7 @@ namespace OCA\Decidiq\Service;
  */
 class ObjectRelationFilter {
 	/**
-	 * The `_relations` field name that matches decidesk's structured relation writes.
+	 * The `_relations` field name that matches Decidiq's structured relation writes.
 	 *
 	 * See the class docblock: relations written as
 	 * `['relations' => [['schema' => …, 'id' => $id]]]` land in the `_relations`

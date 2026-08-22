@@ -87,11 +87,11 @@ class SettingsController extends Controller {
 	 * This is the canonical write, matching
 	 * `\OCA\OpenRegister\AppHost\Controller\GenericSettingsControllerBase::update()`.
 	 * The AppHost canonical route table routes `PUT /api/settings` to
-	 * `settings#update`, and because decidesk ships its own SettingsController
+	 * `settings#update`, and because Decidiq ships its own SettingsController
 	 * the generic is never aliased in (see
 	 * `AppHost\Bootstrap::aliasControllerUnlessLeafDefinesIt()`) — so this
 	 * method has to exist here or the request dies with a 500, not a 404.
-	 * Measured 2026-08-08 on the dev instance: `PUT /apps/decidesk/api/settings`
+	 * Measured 2026-08-08 on the dev instance: `PUT /apps/decidiq/api/settings`
 	 * returned 500 with `ReflectionException: Method
 	 * OCA\Decidiq\Controller\SettingsController::update() does not exist`.
 	 *
@@ -126,7 +126,7 @@ class SettingsController extends Controller {
 	 * Legacy POST alias for {@see update()}.
 	 *
 	 * The canonical AppHost route table still ships `settings#create`
-	 * (POST /api/settings), and decidesk's own
+	 * (POST /api/settings), and Decidiq's own
 	 * `src/store/modules/settings.js::saveSettings()` posts to it, so it stays
 	 * reachable and byte-identical in behaviour (ADR-029).
 	 *

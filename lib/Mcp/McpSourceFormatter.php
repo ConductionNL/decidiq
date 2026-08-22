@@ -90,24 +90,24 @@ class McpSourceFormatter {
 	}//end extractUuid()
 
 	/**
-	 * Build a deep link URL for a decidesk resource.
+	 * Build a deep link URL for a Decidiq resource.
 	 *
 	 * @param string $type One of: meeting, agendaItem, decision, actionItem
 	 * @param string $uuid The object UUID
 	 *
-	 * @return string The deep link path, e.g. /apps/decidesk/meetings/<uuid>.
+	 * @return string The deep link path, e.g. /apps/decidiq/meetings/<uuid>.
 	 *
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	public function deepLink(string $type, string $uuid): string {
 		$paths = [
-			'meeting' => '/apps/decidesk/meetings',
-			'agendaItem' => '/apps/decidesk/agenda-items',
-			'decision' => '/apps/decidesk/decisions',
-			'actionItem' => '/apps/decidesk/action-items',
+			'meeting' => '/apps/decidiq/meetings',
+			'agendaItem' => '/apps/decidiq/agenda-items',
+			'decision' => '/apps/decidiq/decisions',
+			'actionItem' => '/apps/decidiq/action-items',
 		];
 
-		$base = $paths[$type] ?? "/apps/decidesk/{$type}s";
+		$base = $paths[$type] ?? "/apps/decidiq/{$type}s";
 		return "{$base}/{$uuid}";
 	}//end deepLink()
 

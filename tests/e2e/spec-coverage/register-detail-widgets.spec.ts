@@ -65,7 +65,7 @@ test('RegelingDetail: version-timeline widget renders both seeded versions of Af
 		'Seed regeling "Afvalstoffenverordening Amsterdam" not found',
 	)
 
-	await page.goto(`${BASE}/apps/decidesk/regelingen/${objId(afvalstoffen)}`)
+	await page.goto(`${BASE}/apps/decidiq/regelingen/${objId(afvalstoffen)}`)
 	// app-root appearing only proves the shell mounted, not that data has
 	// arrived — mount itself blocks on initializeStores()'s settings round
 	// trip, so 30s (double the old budget) before even the shell shows up.
@@ -115,7 +115,7 @@ test('BevoegdheidstoedelingDetail: delegation-chain widget shows the seeded onde
 		'Seed bevoegdheidstoedeling "mandaat-subsidies-secretaris" not found',
 	)
 
-	await page.goto(`${BASE}/apps/decidesk/bevoegdheidstoedelingen/${objId(parent)}`)
+	await page.goto(`${BASE}/apps/decidiq/bevoegdheidstoedelingen/${objId(parent)}`)
 	// app-root appearing only proves the shell mounted, not that data has
 	// arrived — mount itself blocks on initializeStores()'s settings round
 	// trip, so 30s (double the old budget) before even the shell shows up.
@@ -157,7 +157,7 @@ test('GeheimhoudingDetail: confidentiality-status-timeline widget renders the im
 		'Seed geheimhouding "geheimhouding-raadsnota-grondexploitatie" not found',
 	)
 
-	await page.goto(`${BASE}/apps/decidesk/geheimhoudingen/${objId(raadsnota)}`)
+	await page.goto(`${BASE}/apps/decidiq/geheimhoudingen/${objId(raadsnota)}`)
 	// app-root appearing only proves the shell mounted, not that data has
 	// arrived — mount itself blocks on initializeStores()'s settings round
 	// trip, so 30s (double the old budget) before even the shell shows up.

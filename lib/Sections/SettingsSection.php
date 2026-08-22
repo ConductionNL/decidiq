@@ -99,6 +99,6 @@ class SettingsSection implements IIconSection {
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function getIcon(): string {
-		return $this->urlGenerator->imagePath(appName: 'decidesk', file: 'app-dark.svg');
+		return $this->urlGenerator->imagePath(appName: Application::APP_ID, file: 'app-dark.svg');
 	}//end getIcon()
 }//end class

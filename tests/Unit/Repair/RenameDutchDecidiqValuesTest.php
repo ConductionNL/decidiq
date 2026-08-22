@@ -176,7 +176,7 @@ final class RenameDutchDecidiqValuesTest extends TestCase {
 	 * The ORI vocabulary is NOT migrated.
 	 *
 	 * `Besluit`/`Vergadering`/`Verslag` are the ORI standard's terms and
-	 * decidesk's own OriSerializer consumes them. A mapping is configuration.
+	 * decidiq's own OriSerializer consumes them. A mapping is configuration.
 	 *
 	 * @return void
 	 *
@@ -240,7 +240,7 @@ final class RenameDutchDecidiqValuesTest extends TestCase {
 	/**
 	 * A gateway that records what the step asked it to do.
 	 *
-	 * Hand-written rather than mocked: decidesk cannot generate a double for
+	 * Hand-written rather than mocked: decidiq cannot generate a double for
 	 * IDBConnection, which is the whole reason the step depends on this port
 	 * instead. Three methods is a small price for a testable migration.
 	 *

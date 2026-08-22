@@ -48,7 +48,7 @@ use OCP\IRequest;
  * Thin controller for participatory-budget action endpoints.
  *
  * Staff actions are guarded by the ParticipationResponder (governance-body
- * authority via the decidesk chair group, falling back to NC admin); citizen
+ * authority via the Decidiq chair group, falling back to NC admin); citizen
  * actions require an authenticated session. Fail closed.
  *
  * @spec openspec/specs/citizen-participation/spec.md

@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\AppInfo\Application;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use OCP\IUserManager;
@@ -129,7 +130,7 @@ class MotionForwardingService {
 		);
 
 		// Send notification if approval is required.
-		if ($appConfig->getValueBool('decidesk', 'motion_forwarding_requires_approval', false) === true) {
+		if ($appConfig->getValueBool(Application::APP_ID, 'motion_forwarding_requires_approval', false) === true) {
 			$this->notifyApprovalRequired(
 				actorId: $actorId,
 				forwardedMotionId: (string)($created['id'] ?? $created['uuid'] ?? ''),

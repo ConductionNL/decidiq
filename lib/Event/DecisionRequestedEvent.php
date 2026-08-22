@@ -3,7 +3,7 @@
 /**
  * Decidiq DecisionRequestedEvent
  *
- * Public cross-app event a consumer fleet app dispatches to ask decidesk to
+ * Public cross-app event a consumer fleet app dispatches to ask Decidiq to
  * raise a governance Decision for one of its objects. The in-process,
  * autoloaded replacement for the broken IntegrationService::getLeaf HTTP
  * delegation path: dispatched via Nextcloud's IEventDispatcher and handled
@@ -32,11 +32,11 @@ namespace OCA\Decidiq\Event;
 use OCP\EventDispatcher\Event;
 
 /**
- * Cross-app request event: a consumer app asks decidesk to raise a Decision.
+ * Cross-app request event: a consumer app asks Decidiq to raise a Decision.
  *
  * All request fields are immutable (constructor-injected getters). Nextcloud
  * typed dispatch is synchronous, so the single result slot (decisionId +
- * handled) is written by decidesk's listener and read by the producer right
+ * handled) is written by Decidiq's listener and read by the producer right
  * after dispatch — the standard NC request/response-over-the-bus pattern.
  *
  * @spec openspec/specs/decidesk-decision-events/spec.md
@@ -44,14 +44,14 @@ use OCP\EventDispatcher\Event;
 class DecisionRequestedEvent extends Event {
 
 	/**
-	 * The id of the Decision decidesk created or matched (result slot).
+	 * The id of the Decision Decidiq created or matched (result slot).
 	 *
 	 * @var string|null
 	 */
 	private ?string $decisionId = null;
 
 	/**
-	 * Whether decidesk's listener handled this request (result slot).
+	 * Whether Decidiq's listener handled this request (result slot).
 	 *
 	 * @var boolean
 	 */
@@ -74,7 +74,7 @@ class DecisionRequestedEvent extends Event {
 	 * @SuppressWarnings(PHPMD.ExcessiveParameterList) This parameter list is a
 	 * PUBLISHED CROSS-APP CONTRACT, not an internal signature. Consumer apps
 	 * construct the event POSITIONALLY through a class-string so they stay
-	 * installable without decidesk — see procest
+	 * installable without Decidiq — see procest
 	 * lib/Service/ContractDecisionDelegationService.php, which resolves
 	 * `\OCA\Decidiq\Event\DecisionRequestedEvent` via `class_exists()` and then
 	 * calls `new $eventClass(...)` with all ten arguments in this exact order
@@ -211,9 +211,9 @@ class DecisionRequestedEvent extends Event {
 	}//end getCorrelationId()
 
 	/**
-	 * Get the id of the Decision decidesk created or matched (result slot).
+	 * Get the id of the Decision Decidiq created or matched (result slot).
 	 *
-	 * @return string|null Null until decidesk's listener has handled the event.
+	 * @return string|null Null until Decidiq's listener has handled the event.
 	 *
 	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
@@ -222,7 +222,7 @@ class DecisionRequestedEvent extends Event {
 	}//end getDecisionId()
 
 	/**
-	 * Set the resolved Decision id (written by decidesk's listener).
+	 * Set the resolved Decision id (written by Decidiq's listener).
 	 *
 	 * @param string $decisionId The created/matched Decision id
 	 *
@@ -235,7 +235,7 @@ class DecisionRequestedEvent extends Event {
 	}//end setDecisionId()
 
 	/**
-	 * Whether decidesk's listener handled this request.
+	 * Whether Decidiq's listener handled this request.
 	 *
 	 * @return bool
 	 *
@@ -246,9 +246,9 @@ class DecisionRequestedEvent extends Event {
 	}//end isHandled()
 
 	/**
-	 * Mark whether decidesk's listener handled this request.
+	 * Mark whether Decidiq's listener handled this request.
 	 *
-	 * @param bool $handled True when decidesk created/matched a Decision
+	 * @param bool $handled True when Decidiq created/matched a Decision
 	 *
 	 * @return void
 	 *

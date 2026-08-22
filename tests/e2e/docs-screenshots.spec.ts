@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
- * Documentation screenshot capture suite — decidesk.
+ * Documentation screenshot capture suite — decidiq.
  *
  * This spec is *not* a regression test — it drives the Decidiq UI
  * through the flows documented under `docs/tutorials/{user,admin}/*.md`
@@ -33,7 +33,7 @@
  * that reference the as-yet-uncaptured PNGs warn under
  * `onBrokenMarkdownImages: 'warn'` rather than failing the docs build.
  *
- * Test-id additions live in decidesk's own Vue components (detail-page
+ * Test-id additions live in decidiq's own Vue components (detail-page
  * sidebar tabs, the live-meeting view, the admin settings root). Most
  * of the capture-relevant chrome on the index/dashboard/settings pages
  * is rendered by `@conduction/nextcloud-vue` (CnAppRoot / CnPageRenderer
@@ -58,7 +58,7 @@ const SHOT_ROOT = path.resolve(
 	'screenshots',
 	'tutorials',
 )
-const APP = '/apps/decidesk'
+const APP = '/apps/decidiq'
 
 /**
  * Save a viewport screenshot under
@@ -116,7 +116,7 @@ async function dismissOverlays(page: Page): Promise<void> {
 async function go(page: Page, route: string): Promise<void> {
 	// `/settings/` joins `/apps/` as a server-absolute prefix: since ADR-079 D1
 	// the app's configuration surface is a Nextcloud settings section at
-	// /settings/admin/decidesk, not an in-app route, so it must not be prefixed
+	// /settings/admin/decidiq, not an in-app route, so it must not be prefixed
 	// with APP. Anything else is still an app-relative route.
 	const isAbsolute = route.startsWith('/apps/') || route.startsWith('/settings/')
 	const url = isAbsolute ? route : `${APP}${route}`
@@ -194,7 +194,7 @@ test.describe('docs: user track', () => {
 		await shoot(page, 'user', '01-first-launch-03.png')
 		await go(page, '/meetings')
 		await shoot(page, 'user', '01-first-launch-04.png')
-		expect(page.url()).toContain('/apps/decidesk')
+		expect(page.url()).toContain('/apps/decidiq')
 	})
 
 	test('UN schedule-meeting', async ({ page }) => {
@@ -347,12 +347,12 @@ test.describe('docs: admin track', () => {
 
 	test('AN admin-settings', async ({ page }) => {
 		// docs/tutorials/admin/03-admin-settings.md — Decidiq's app-level
-		// configuration lives at /settings/admin/decidesk, in the Nextcloud
+		// configuration lives at /settings/admin/decidiq, in the Nextcloud
 		// settings framework, and nowhere else (ADR-079 D1). The in-app
-		// `/apps/decidesk/settings` twin this test used to shoot is deleted, so
+		// `/apps/decidiq/settings` twin this test used to shoot is deleted, so
 		// screenshotting it would document a surface that no longer exists.
 		// `/settings/...` is server-absolute — see the prefix rule in `go()`.
-		await go(page, '/settings/admin/decidesk')
+		await go(page, '/settings/admin/decidiq')
 		await shoot(page, 'admin', '03-admin-settings-01.png')
 		await page.evaluate(() => window.scrollTo(0, 0))
 		await page.waitForTimeout(300)
@@ -375,6 +375,6 @@ test.describe('docs: admin track', () => {
 			await page.waitForTimeout(300)
 		}
 		await shoot(page, 'admin', '03-admin-settings-05.png')
-		expect(page.url()).toContain('/settings/admin/decidesk')
+		expect(page.url()).toContain('/settings/admin/decidiq')
 	})
 })

@@ -31,6 +31,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\AppInfo\Application;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
@@ -341,10 +342,10 @@ class BoardEvaluationResponseService {
 	 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
 	 */
 	private function tokenSecret(): string {
-		$secret = $this->appConfig->getValueString('decidesk', self::TOKEN_SECRET_CONFIG_KEY, '');
+		$secret = $this->appConfig->getValueString(Application::APP_ID, self::TOKEN_SECRET_CONFIG_KEY, '');
 		if ($secret === '') {
 			$secret = bin2hex(random_bytes(32));
-			$this->appConfig->setValueString('decidesk', self::TOKEN_SECRET_CONFIG_KEY, $secret);
+			$this->appConfig->setValueString(Application::APP_ID, self::TOKEN_SECRET_CONFIG_KEY, $secret);
 		}
 
 		return $secret;

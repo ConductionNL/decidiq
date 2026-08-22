@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Wire-contract tests for the decidesk SPA host routes.
+ * Wire-contract tests for the decidiq SPA host routes.
  *
  * @category Test
  * @package  OCA\Decidiq\Tests\Unit\Controller
@@ -32,13 +32,13 @@ use PHPUnit\Framework\TestCase;
  * catch-all (dashboard#catchAll).
  *
  * These two routes are the only way a browser ever reaches the app, and their
- * contract is narrow but load-bearing: a TemplateResponse for the decidesk app
+ * contract is narrow but load-bearing: a TemplateResponse for the decidiq app
  * naming the `index` template. Rendering a different template — or the right
  * template under the wrong app id — serves a blank page while every status-only
  * probe still reads 200.
  *
  * The catch-all matters separately from the page route: it is what makes a deep
- * link like `/apps/decidesk/meetings/<uuid>` survive a browser reload, and a
+ * link like `/apps/decidiq/meetings/<uuid>` survive a browser reload, and a
  * catch-all that diverged from `page()` would break exactly the reload path and
  * nothing a click-through test walks.
  *
@@ -66,7 +66,7 @@ class DashboardControllerTest extends TestCase {
 	}//end setUp()
 
 	/**
-	 * page() renders the decidesk `index` template with HTTP 200.
+	 * page() renders the decidiq `index` template with HTTP 200.
 	 *
 	 * @return void
 	 *

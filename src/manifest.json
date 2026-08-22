@@ -27,7 +27,7 @@
 		]
 	},
 	"observability": {
-		"_note": "Decidiq adopts the OpenRegister AppHost observability engine (ADR-040 / ADR-006). The /api/health route is served by a thin GenericHealthController subclass (HealthController) that reshapes the engine result into the published REQ-API-004 body {status, baseUrl, version, openregister}; /api/metrics is aliased straight to GenericMetricsController. statusCodePolicy=always200 + cors=true reproduce the REQ-API-004 reverse-proxy probe contract (probes succeed even when degraded; CORS + OPTIONS preflight). The orAvailable check subsumes the former hand-rolled DI-container ObjectService lookup. No metrics[] descriptors: decidesk gains the implicit decidesk_info / decidesk_up gauges, a pure compliance upgrade over the no-metrics-endpoint baseline.",
+		"_note": "Decidiq adopts the OpenRegister AppHost observability engine (ADR-040 / ADR-006). The /api/health route is served by a thin GenericHealthController subclass (HealthController) that reshapes the engine result into the published REQ-API-004 body {status, baseUrl, version, openregister}; /api/metrics is aliased straight to GenericMetricsController. statusCodePolicy=always200 + cors=true reproduce the REQ-API-004 reverse-proxy probe contract (probes succeed even when degraded; CORS + OPTIONS preflight). The orAvailable check subsumes the former hand-rolled DI-container ObjectService lookup. No metrics[] descriptors: decidiq gains the implicit decidesk_info / decidesk_up gauges, a pure compliance upgrade over the no-metrics-endpoint baseline.",
 		"health": {
 			"statusCodePolicy": "always200",
 			"cors": true,
@@ -41,13 +41,13 @@
 		}
 	},
 	"deepLinks": [
-		{ "registerSlug": "decidesk", "schemaSlug": "governance-body", "urlTemplate": "/apps/decidesk/#/governance-bodies/{uuid}", "displayName": "Governance body" },
-		{ "registerSlug": "decidesk", "schemaSlug": "meeting", "urlTemplate": "/apps/decidesk/#/meetings/{uuid}", "displayName": "Meeting" },
-		{ "registerSlug": "decidesk", "schemaSlug": "participant", "urlTemplate": "/apps/decidesk/#/participants/{uuid}", "displayName": "Participant" },
-		{ "registerSlug": "decidesk", "schemaSlug": "agenda-item", "urlTemplate": "/apps/decidesk/#/agenda-items/{uuid}", "displayName": "Agenda item" },
-		{ "registerSlug": "decidesk", "schemaSlug": "decision", "urlTemplate": "/apps/decidesk/#/decisions/{uuid}", "displayName": "Decision" },
-		{ "registerSlug": "decidesk", "schemaSlug": "action-item", "urlTemplate": "/apps/decidesk/#/action-items/{uuid}", "displayName": "Action item" },
-		{ "registerSlug": "decidesk", "schemaSlug": "minutes", "urlTemplate": "/apps/decidesk/#/minutes/{uuid}", "displayName": "Minutes" }
+		{ "registerSlug": "decidesk", "schemaSlug": "governance-body", "urlTemplate": "/apps/decidiq/#/governance-bodies/{uuid}", "displayName": "Governance body" },
+		{ "registerSlug": "decidesk", "schemaSlug": "meeting", "urlTemplate": "/apps/decidiq/#/meetings/{uuid}", "displayName": "Meeting" },
+		{ "registerSlug": "decidesk", "schemaSlug": "participant", "urlTemplate": "/apps/decidiq/#/participants/{uuid}", "displayName": "Participant" },
+		{ "registerSlug": "decidesk", "schemaSlug": "agenda-item", "urlTemplate": "/apps/decidiq/#/agenda-items/{uuid}", "displayName": "Agenda item" },
+		{ "registerSlug": "decidesk", "schemaSlug": "decision", "urlTemplate": "/apps/decidiq/#/decisions/{uuid}", "displayName": "Decision" },
+		{ "registerSlug": "decidesk", "schemaSlug": "action-item", "urlTemplate": "/apps/decidiq/#/action-items/{uuid}", "displayName": "Action item" },
+		{ "registerSlug": "decidesk", "schemaSlug": "minutes", "urlTemplate": "/apps/decidiq/#/minutes/{uuid}", "displayName": "Minutes" }
 	],
 	"menu": [
 		{

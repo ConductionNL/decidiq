@@ -185,7 +185,7 @@ class MotionController extends Controller {
 	 * @return bool True when the user holds global chair authority
 	 */
 	private function hasGlobalChairAuthority(string $uid): bool {
-		$chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
+		$chairGroup = $this->appConfig->getValueString(Application::APP_ID, 'chair_group', '');
 		if ($chairGroup === '') {
 			return $this->groupManager->isAdmin($uid);
 		}

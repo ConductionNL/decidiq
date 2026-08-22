@@ -8,7 +8,7 @@
  * (`meeting`, `decision`, `participant`, ...).
  *
  * Two independent defects made every one of those comparisons impossible, and
- * fixing either alone leaves the listener dead (decidesk#471):
+ * fixing either alone leaves the listener dead (decidiq#471):
  *
  * ⚠️ **The probe half is MOOT on current OpenRegister, and the class is still
  * required.** OpenRegister published its ObjectService/ObjectEntity interfaces
@@ -74,7 +74,7 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
- * Turns an OpenRegister entity's schema value into the slug decidesk's
+ * Turns an OpenRegister entity's schema value into the slug Decidiq's
  * listeners compare against.
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
@@ -121,7 +121,7 @@ class ListenerSchemaResolver {
 	 * Constructor.
 	 *
 	 * @param ContainerInterface $container DI container — OpenRegister's mapper is
-	 *                                      resolved lazily so decidesk boots without it
+	 *                                      resolved lazily so Decidiq boots without it
 	 * @param LoggerInterface $logger Logger for fail-soft diagnostics
 	 *
 	 * @spec openspec/specs/nextcloud-integration/spec.md

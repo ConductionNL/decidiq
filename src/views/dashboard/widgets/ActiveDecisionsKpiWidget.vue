@@ -11,9 +11,9 @@
 -->
 <template>
 	<CnStatsBlock
-		:title="t('decidesk', 'Active decisions')"
+		:title="t('decidiq', 'Active decisions')"
 		:count="count"
-		:countLabel="t('decidesk', 'decisions')"
+		:countLabel="t('decidiq', 'decisions')"
 		:icon="GavelIcon"
 		:loading="loading"
 		:route="{ name: 'Decisions' }"
@@ -67,7 +67,7 @@ export default {
 			try {
 				this.decisions = await getDecisions()
 			} catch (e) {
-				console.error('[decidesk] ActiveDecisionsKpiWidget load failed', e)
+				console.error('[decidiq] ActiveDecisionsKpiWidget load failed', e)
 				this.error = e
 				this.decisions = []
 			} finally {

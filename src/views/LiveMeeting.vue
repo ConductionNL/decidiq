@@ -13,21 +13,21 @@
 		class="live-meeting"
 		role="main"
 		data-testid="meeting-live"
-		:aria-label="t('decidesk', 'Live meeting view')">
+		:aria-label="t('decidiq', 'Live meeting view')">
 		<NcLoadingIcon v-if="loading" :size="64" />
 
 		<template v-else>
 			<!-- Meeting header -->
 			<div class="live-meeting__header" data-testid="meeting-live-header">
 				<h2 class="live-meeting__title">
-					{{ meeting.title || t('decidesk', 'Live meeting') }}
+					{{ meeting.title || t('decidiq', 'Live meeting') }}
 				</h2>
 				<CnStatusBadge :status="meeting.lifecycle || 'opened'" />
 				<NcButton
 					data-testid="meeting-live-back"
-					:aria-label="t('decidesk', 'Back to meeting detail')"
+					:aria-label="t('decidiq', 'Back to meeting detail')"
 					@click="$router.push({ name: 'MeetingDetail', params: { id } })">
-					← {{ t('decidesk', 'Back') }}
+					← {{ t('decidiq', 'Back') }}
 				</NcButton>
 			</div>
 
@@ -41,8 +41,8 @@
 			<section
 				v-if="hamerstukken.length > 0"
 				class="live-meeting__hamerstukken"
-				:aria-label="t('decidesk', 'Consent agenda items')">
-				<h3>{{ t('decidesk', 'Consent agenda items (hamerstukken)') }}</h3>
+				:aria-label="t('decidiq', 'Consent agenda items')">
+				<h3>{{ t('decidiq', 'Consent agenda items (hamerstukken)') }}</h3>
 				<ul class="live-meeting__hamerstukken-list" role="list">
 					<li
 						v-for="item in hamerstukken"
@@ -54,12 +54,12 @@
 							v-if="isChair"
 							size="small"
 							:aria-label="
-								t('decidesk', 'Remove {title} from consent agenda', {
+								t('decidiq', 'Remove {title} from consent agenda', {
 									title: item.title,
 								})
 							"
 							@click="removeFromHamerstukken(item)">
-							{{ t('decidesk', 'Remove from consent agenda') }}
+							{{ t('decidiq', 'Remove from consent agenda') }}
 						</NcButton>
 					</li>
 				</ul>
@@ -68,9 +68,9 @@
 					variant="primary"
 					data-testid="meeting-live-adopt-consent"
 					:loading="processingHamerstukken"
-					:aria-label="t('decidesk', 'Adopt all consent agenda items')"
+					:aria-label="t('decidiq', 'Adopt all consent agenda items')"
 					@click="confirmHamerstukken = true">
-					{{ t('decidesk', 'Adopt consent agenda') }}
+					{{ t('decidiq', 'Adopt consent agenda') }}
 				</NcButton>
 
 				<!-- Confirmation dialog (own file per modal-isolation, ADR-004) -->
@@ -85,8 +85,8 @@
 			<!-- Regular agenda items -->
 			<section
 				class="live-meeting__items"
-				:aria-label="t('decidesk', 'Agenda items')">
-				<h3>{{ t('decidesk', 'Agenda items') }}</h3>
+				:aria-label="t('decidiq', 'Agenda items')">
+				<h3>{{ t('decidiq', 'Agenda items') }}</h3>
 
 				<!-- Chair view: full edit controls -->
 				<template v-if="isChair">
@@ -129,7 +129,7 @@
 								v-if="item.estimatedDuration"
 								class="live-meeting__item-duration">
 								{{ item.estimatedDuration }}
-								{{ t('decidesk', 'min') }}
+								{{ t('decidiq', 'min') }}
 							</span>
 						</li>
 					</ol>
@@ -140,10 +140,10 @@
 			<section
 				v-if="activeItem"
 				class="live-meeting__active"
-				:aria-label="t('decidesk', 'Active agenda item')">
+				:aria-label="t('decidiq', 'Active agenda item')">
 				<h3>
 					{{
-						t('decidesk', 'Active: {title}', { title: activeItem.title })
+						t('decidiq', 'Active: {title}', { title: activeItem.title })
 					}}
 				</h3>
 
@@ -162,7 +162,7 @@
 						:stages="bobStages"
 						:current="currentBobStageIndex(activeItem)"
 						:aria-label="
-							t('decidesk', 'BOB phase for {title}', {
+							t('decidiq', 'BOB phase for {title}', {
 								title: activeItem.title,
 							})
 						" />
@@ -170,12 +170,12 @@
 						v-if="isChair && canAdvanceBob(activeItem)"
 						:loading="advancingBob"
 						:aria-label="
-							t('decidesk', 'Advance to next BOB phase for {title}', {
+							t('decidiq', 'Advance to next BOB phase for {title}', {
 								title: activeItem.title,
 							})
 						"
 						@click="advanceBobPhase(activeItem)">
-						{{ t('decidesk', 'Next phase') }}
+						{{ t('decidiq', 'Next phase') }}
 					</NcButton>
 				</template>
 			</section>
@@ -198,8 +198,8 @@
 			<section
 				v-if="isChair"
 				class="live-meeting__activate"
-				:aria-label="t('decidesk', 'Activate agenda item')">
-				<h4>{{ t('decidesk', 'Activate item') }}</h4>
+				:aria-label="t('decidiq', 'Activate agenda item')">
+				<h4>{{ t('decidiq', 'Activate item') }}</h4>
 				<ul class="live-meeting__activate-list" role="list">
 					<li
 						v-for="item in regularItems"
@@ -212,7 +212,7 @@
 								activeItemId === item.id ? 'primary' : 'secondary'
 							"
 							:aria-label="
-								t('decidesk', 'Activate {title}', {
+								t('decidiq', 'Activate {title}', {
 									title: item.title,
 								})
 							"
@@ -308,7 +308,7 @@ export default {
 		 * Agenda items belonging to this meeting.
 		 *
 		 * `meeting` is the AgendaItem schema's own property (a `$ref: Meeting`
-		 * uuid), which is what the seed data and every other decidesk surface
+		 * uuid), which is what the seed data and every other decidiq surface
 		 * (MeetingAgendaTab, MeetingVotesTab) write and filter on. It is checked
 		 * FIRST here; the two `relations` shapes stay as fallbacks for records
 		 * where OpenRegister materialised the link into `@self.relations` but the
@@ -389,7 +389,7 @@ export default {
 		bobStages() {
 			return BOB_STAGES.map((s) => ({
 				...s,
-				label: this.t('decidesk', s.label),
+				label: this.t('decidiq', s.label),
 			}))
 		},
 
@@ -487,7 +487,7 @@ export default {
 			try {
 				const response = await fetch(
 					OC.generateUrl(
-						`/apps/decidesk/api/agenda-items/${item.id}/bob-phase`,
+						`/apps/decidiq/api/agenda-items/${item.id}/bob-phase`,
 					),
 					{
 						method: 'PUT',
@@ -513,7 +513,7 @@ export default {
 			try {
 				const response = await fetch(
 					OC.generateUrl(
-						`/apps/decidesk/api/agendas/${this.id}/hamerstukken`,
+						`/apps/decidiq/api/agendas/${this.id}/hamerstukken`,
 					),
 					{
 						method: 'POST',

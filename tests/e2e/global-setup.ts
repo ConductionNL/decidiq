@@ -29,19 +29,19 @@ import { BASE_URL } from './base-url'
 const AUTH_DIR = path.resolve(__dirname, '.auth')
 const STORAGE_STATE = path.join(AUTH_DIR, 'admin.json')
 const APP_ROOT = path.resolve(__dirname, '..', '..')
-const BUNDLE_PATH = path.join(APP_ROOT, 'js', 'decidesk-main.js')
+const BUNDLE_PATH = path.join(APP_ROOT, 'js', 'decidiq-main.js')
 
 /**
- * Ensure the webpack bundle exists before specs hit `/apps/decidesk/`.
+ * Ensure the webpack bundle exists before specs hit `/apps/decidiq/`.
  *
  * The shared `ConductionNL/.github/quality.yml` Playwright job runs
  * `npm ci` + `npx playwright install` before the spec run, but never
- * `npm run build`. On a fresh CI VM the `js/decidesk-main.js` artefact
+ * `npm run build`. On a fresh CI VM the `js/decidiq-main.js` artefact
  * doesn't exist, so the rendered page loads a 404 script tag and the
  * Vue app never mounts — every selector wait then times out.
  *
  * Note: locally, the app running in the dev container is mounted from a
- * *separate* checkout (`openregister/custom_apps/decidesk`), so this
+ * *separate* checkout (`openregister/custom_apps/decidiq`), so this
  * build only helps CI / a checkout that serves its own `js/`.
  */
 function ensureBundleBuilt(): void {
@@ -129,7 +129,7 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 	// localStorage, so every spec that reuses this storage state starts with
 	// the walkthrough already marked as seen — no occ, no API, CI-safe and
 	// self-contained.
-	await page.goto('/apps/decidesk/')
+	await page.goto('/apps/decidiq/')
 	await page.evaluate(() => {
 		try {
 			window.localStorage.setItem('cn-walkthrough-seen:decidesk', '9999.0.0')

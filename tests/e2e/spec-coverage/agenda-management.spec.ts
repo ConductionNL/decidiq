@@ -22,7 +22,7 @@ import { becomesVisible } from '../becomes-visible.js'
 // @e2e openspec/specs/agenda-management/spec.md#create-a-decision-agenda-item
 // @e2e openspec/specs/agenda-management/spec.md#create-an-informational-agenda-item-with-documents
 test('agenda items list renders with Add Agenda item button', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/agenda-items`)
+	await page.goto(`${BASE}/apps/decidiq/agenda-items`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	// Showing N of N indicator visible
@@ -35,7 +35,7 @@ test('agenda items list renders with Add Agenda item button', async ({ page }) =
 // @e2e openspec/specs/agenda-management/spec.md#create-a-decision-agenda-item
 // @e2e openspec/specs/agenda-management/spec.md#create-an-informational-agenda-item-with-documents
 test('Add Agenda Item dialog opens with item type field', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/agenda-items`)
+	await page.goto(`${BASE}/apps/decidiq/agenda-items`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	await page.getByTestId('cn-cta-primary').click()
@@ -99,7 +99,7 @@ test('meeting detail sidebar has Agenda tab', async ({ page }) => {
 	const meetingId = first.id ?? first['@self']?.id
 	test.skip(!meetingId, 'First meeting has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
+	await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	// App root mounts for meeting detail route
 	await expect(page.locator('[data-testid="app-root"]')).toBeVisible()
@@ -122,7 +122,7 @@ test('live meeting view renders agenda items section', async ({ page }) => {
 	const meetingId = first.id ?? first['@self']?.id
 	test.skip(!meetingId, 'First meeting has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}/live`)
+	await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}/live`)
 	await page.waitForSelector('[data-testid="meeting-live"]', { timeout: 15_000 })
 	// LiveMeeting renders — shows the "Agenda items" section heading
 	await expect(page.getByText('Agenda items', { exact: false })).toBeVisible()
@@ -132,7 +132,7 @@ test('live meeting view renders agenda items section', async ({ page }) => {
 // Document package assembly is a backend action triggered from the meeting detail view.
 // Verified via the agenda items list rendering existing records.
 test('agenda items list page loads correctly', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/agenda-items`)
+	await page.goto(`${BASE}/apps/decidiq/agenda-items`)
 	await expect(page).toHaveTitle(/Decidiq/i)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 })
@@ -200,7 +200,7 @@ test('general assembly agenda warns about missing statutory ALV items', async ({
 		meetingId = objectId(await createResp.json())
 		test.skip(!meetingId, 'Seeded meeting has no id')
 
-		await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
+		await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}`)
 		await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 		const agendaTab = page.getByRole('tab', { name: 'Agenda' })
@@ -311,7 +311,7 @@ test('sub-items render nested under their parent in the agenda tab', async ({
 		const childId = objectId(await childResp.json())
 		if (childId) created.push(childId)
 
-		await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
+		await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}`)
 		await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 		const agendaTab = page.getByRole('tab', { name: 'Agenda' })
@@ -362,7 +362,7 @@ test('agenda tab offers the Assemble meeting package action', async ({ page }) =
 	const meetingId = first.id ?? first['@self']?.id
 	test.skip(!meetingId, 'First meeting has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
+	await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	const agendaTab = page.getByRole('tab', { name: 'Agenda' })

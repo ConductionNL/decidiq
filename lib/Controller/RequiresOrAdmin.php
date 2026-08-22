@@ -3,7 +3,7 @@
 /**
  * Decidiq RequiresOrAdmin trait
  *
- * The single shared admin guard for decidesk's admin-gated controllers,
+ * The single shared admin guard for Decidiq's admin-gated controllers,
  * replacing the four copy-pasted private `requireAdmin()` methods
  * (GovernanceReportController, MultilingualReconciliationController,
  * AuditLogController, RegulatorExportController). It consumes the SAME admin

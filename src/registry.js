@@ -4,7 +4,7 @@
  * Kind-tagged map passed as the `registry` prop to CnAppRoot. CnPageRenderer
  * resolves each manifest page's `component` string against entries whose
  * `kind === "page"` (with precedence over the deprecated `customComponents`
- * prop, which decidesk no longer ships).
+ * prop, which decidiq no longer ships).
  *
  * Each entry that is a bespoke page or detail-tab component is wrapped with
  * `page()` so CnPageRenderer can distinguish it from future `"widget"`,

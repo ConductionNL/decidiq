@@ -22,7 +22,7 @@ import { BASE_URL as BASE } from '../base-url'
 
 // @e2e openspec/specs/motion-amendment/spec.md#submit-a-motion-with-co-signers
 test('motions list renders with Add Motion button', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/motions`)
+	await page.goto(`${BASE}/apps/decidiq/motions`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	await expect(page.getByText('Showing')).toBeVisible()
@@ -34,7 +34,7 @@ test('motions list renders with Add Motion button', async ({ page }) => {
 test('Add Motion dialog opens with co-signers and lifecycle fields', async ({
 	page,
 }) => {
-	await page.goto(`${BASE}/apps/decidesk/motions`)
+	await page.goto(`${BASE}/apps/decidiq/motions`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	await page.getByTestId('cn-cta-primary').click()
@@ -88,7 +88,7 @@ test('Add Motion dialog opens with co-signers and lifecycle fields', async ({
 // Live meeting motion submission is accessible via the LiveMeeting view.
 // Verify the live meeting view loads for an existing meeting.
 test('motions list shows existing motions', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/motions`)
+	await page.goto(`${BASE}/apps/decidiq/motions`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	// Switch to table view if available
@@ -130,7 +130,7 @@ test('motion detail route renders with amendments tab accessible', async ({
 	const motionId = first.id ?? first['@self']?.id
 	expect(motionId, 'the seeded motion must carry an id').toBeTruthy()
 
-	await page.goto(`${BASE}/apps/decidesk/motions/${motionId}`)
+	await page.goto(`${BASE}/apps/decidiq/motions/${motionId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await expect(page.locator('[data-testid="app-root"]')).toBeVisible()
 })
@@ -160,7 +160,7 @@ test('amendment detail route renders for the diff view', async ({ page }) => {
 	const amendmentId = first.id ?? first['@self']?.id
 	expect(amendmentId, 'the seeded amendment must carry an id').toBeTruthy()
 
-	await page.goto(`${BASE}/apps/decidesk/amendments/${amendmentId}`)
+	await page.goto(`${BASE}/apps/decidiq/amendments/${amendmentId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await expect(page.locator('[data-testid="app-root"]')).toBeVisible()
 })
@@ -190,7 +190,7 @@ test('live meeting view shows motions context for in-meeting motion submission',
 	const meetingId = first.id ?? first['@self']?.id
 	test.skip(!meetingId, 'First meeting has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}/live`)
+	await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}/live`)
 	await page.waitForSelector('[data-testid="meeting-live"]', { timeout: 15_000 })
 	await expect(page.locator('[data-testid="meeting-live"]')).toBeVisible()
 })
@@ -199,7 +199,7 @@ test('live meeting view shows motions context for in-meeting motion submission',
 // Lifecycle transitions on motions are driven from the motion detail sidebar/actions.
 // Verified via motion detail rendering.
 test('motions page title is correct', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/motions`)
+	await page.goto(`${BASE}/apps/decidiq/motions`)
 	await expect(page).toHaveTitle(/Decidiq/i)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 })

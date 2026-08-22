@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\AppInfo\Application;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
@@ -547,10 +548,10 @@ class ParticipationPublicationService {
 			$configKey .= '_' . $governanceBodyId;
 		}
 
-		$catalogId = $this->appConfig->getValueString('decidesk', $configKey, '');
+		$catalogId = $this->appConfig->getValueString(Application::APP_ID, $configKey, '');
 		if ($catalogId === '') {
 			// Fall back to the instance-wide default target catalog.
-			$catalogId = $this->appConfig->getValueString('decidesk', 'participation_catalog', '');
+			$catalogId = $this->appConfig->getValueString(Application::APP_ID, 'participation_catalog', '');
 		}
 
 		if ($catalogId === '') {

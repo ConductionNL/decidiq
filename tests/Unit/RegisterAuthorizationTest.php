@@ -1,11 +1,12 @@
 <?php
 
 /**
- * Contract tests for decidesk's OpenRegister `authorization` baseline.
+ * Contract tests for decidiq's OpenRegister `authorization` baseline.
  *
- * Every decidesk object is reachable at
- * `/apps/openregister/api/objects/decidesk/<schema>` — the API the frontend uses
- * directly under ADR-022 — and NO decidesk controller guard sits in front of it.
+ * Every decidiq object is reachable at
+ * `/apps/openregister/api/objects/decidesk/<schema>` — the register slug is
+ * FROZEN on the old value — the API the frontend uses
+ * directly under ADR-022 — and NO decidiq controller guard sits in front of it.
  * What decides who may write there is the `authorization` block on the schema, or
  * failing that on the REGISTER row.
  *
@@ -360,7 +361,7 @@ class RegisterAuthorizationTest extends TestCase {
 
 		// Positive control on the same reader: the file really was read and matched,
 		// so a failure above means "not bumped", never "read an empty document".
-		$this->assertStringContainsString('<id>decidesk</id>', $source);
+		$this->assertStringContainsString('<id>decidiq</id>', $source);
 	}//end testTheAppVersionMovedSoTheRepairStepRuns()
 
 	/**

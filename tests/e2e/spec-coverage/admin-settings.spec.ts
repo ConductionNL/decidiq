@@ -9,7 +9,7 @@
  * default + specialized template assignment) and the admin settings
  * Organization section. The body create/quorum scenarios stay covered by
  * governance-body.spec.ts. API/contract assertions live in Newman
- * (tests/integration/decidesk-admin-settings.postman_collection.json),
+ * (tests/integration/decidiq-admin-settings.postman_collection.json),
  * not here.
  *
  * Defensive skips: when the deployed instance does not serve this
@@ -32,7 +32,7 @@ import { becomesVisible } from '../becomes-visible.js'
  * Returns false (→ defensive skip) when the surface is not deployed.
  */
 async function openFirstBodyDetail(page: Page): Promise<boolean> {
-	await page.goto(`${BASE}/apps/decidesk/governance-bodies`)
+	await page.goto(`${BASE}/apps/decidiq/governance-bodies`)
 	try {
 		await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 		// Open the first row of the bodies list.
@@ -219,7 +219,7 @@ test('Process template tab assigns a default and specialized templates', async (
 test('Admin settings exposes the Organization defaults section and saves it', async ({
 	page,
 }) => {
-	await page.goto(`${BASE}/settings/admin/decidesk`)
+	await page.goto(`${BASE}/settings/admin/decidiq`)
 	const section = page.locator('[data-testid="organisation-settings"]')
 	const deployed = await section
 		.waitFor({ state: 'visible', timeout: 15_000 })

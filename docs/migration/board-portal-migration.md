@@ -1,21 +1,21 @@
 # Board portal — migration guide
 
 > Audience: corporate secretaries and IT integrators migrating an existing
-> board portal onto Decidesk.
+> board portal onto Decidiq.
 >
 > Scope: practical, schema-level migration from the three most common
 > incumbent stacks — **Diligent Boards**, **Boardvantage / Nasdaq Directors
-> Desk**, and **SharePoint-based ad-hoc portals** — onto the Decidesk
+> Desk**, and **SharePoint-based ad-hoc portals** — onto the Decidiq
 > `Board`, `BoardMember`, `BoardMeeting`, `Resolution`, `Vote`, `Minutes`,
 > `ConflictOfInterest`, `BoardMaterial`, and `AuditLogEntry` schemas. The
-> guide assumes the target Decidesk instance is already installed
+> guide assumes the target Decidiq instance is already installed
 > (`docs/admin/board-portal-admin.md` §1) and the legacy export is in hand.
 
 ---
 
 ## 1. Migration principles
 
-1. **Lift on slugs, not on legacy IDs** — every Decidesk schema is keyed on
+1. **Lift on slugs, not on legacy IDs** — every Decidiq schema is keyed on
    a slug (`oc_openregister_table_<reg>_<schema>`). Pick the slug at import
    time (e.g. `rvc-strategy-q3`); do not try to preserve legacy GUIDs.
 2. **Preserve the audit trail as separate `AuditLogEntry` records** — the
@@ -25,7 +25,7 @@
    contemporaneous events.
 3. **Re-sign canonical artefacts where possible** — eIDAS QES does not
    carry across portals. Re-sign the last N years of board minutes on the
-   Decidesk side where the relevant directors are still serving; flag the
+   Decidiq side where the relevant directors are still serving; flag the
    older artefacts as `qesLevel: "legacy"` and surface that in the
    regulator-export bundle.
 4. **Migrate in waves** — boards → members → meetings → resolutions →
@@ -44,7 +44,7 @@ Diligent's `Director` REST API exposes:
 
 ### 2.1 Field mapping
 
-| Diligent field | Decidesk schema.field | Notes |
+| Diligent field | Decidiq schema.field | Notes |
 | --- | --- | --- |
 | `persona.id` | `BoardMember.legacyId` (custom) | retained for cross-reference |
 | `persona.fullName` | `BoardMember.name` | |
@@ -76,7 +76,7 @@ Diligent's `Director` REST API exposes:
 ### 2.3 Known gaps
 
 - **eIDAS QES** — Diligent uses its in-platform SES; re-sign with QES on
-  the Decidesk side for any minutes that are still legally live (typically
+  the Decidiq side for any minutes that are still legally live (typically
   the most recent 7 years for Dutch entities under Article 2:10 BW).
 - **Diligent annotations** — board members' personal annotations on
   materials are user-private; they do not migrate. Communicate this to the
@@ -95,7 +95,7 @@ Boardvantage uses a SOAP-ish export bundle (ZIP of XML + PDF). The shape:
 
 ### 3.1 Field mapping (delta from §2)
 
-| Boardvantage field | Decidesk schema.field |
+| Boardvantage field | Decidiq schema.field |
 | --- | --- |
 | `Members/Member/IndependenceDeclaration` | `BoardMember.independenceStatus` |
 | `Meetings/Meeting/QuorumRequired` | `BoardMeeting.quorumRequired` (numeric) |
@@ -106,8 +106,8 @@ Boardvantage uses a SOAP-ish export bundle (ZIP of XML + PDF). The shape:
 
 1. Unzip the Boardvantage bundle locally.
 2. Parse the XML files with an XSLT transform (sample at
-   `tools/migration/boardvantage-to-decidesk.xslt` — to be added per
-   project) into the JSON shape Decidesk's REST surface expects.
+   `tools/migration/boardvantage-to-decidiq.xslt` — to be added per
+   project) into the JSON shape Decidiq's REST surface expects.
 3. Same 2-pass import as §2.2.
 4. Upload the `Attachments/<meetingId>/*.pdf` set as `BoardMaterial`
    records; the binary itself is delegated to the docudesk leaf (per
@@ -135,15 +135,15 @@ export; the migration is bespoke.
    `resolutions adopted`). The corporate secretary owns this audit; it is
    the unit of work, not the SharePoint export itself.
 2. **Build a Board + roster** — manually configure the current Board and
-   BoardMember rows in the Decidesk UI before any history is imported.
+   BoardMember rows in the Decidiq UI before any history is imported.
 3. **Backfill meetings** — for each row in the audit CSV, `POST` a
    `BoardMeeting` record with `lifecycle: "archived"` and the resolutions
    as linked `Resolution` records (`status` = the row's outcome).
 4. **Upload minutes** — `BoardMaterial` records pointing at the legacy
    Word/PDF files (`accessLevel: "board-only"`).
-5. **Stop accepting board work outside Decidesk** — communicate the
+5. **Stop accepting board work outside Decidiq** — communicate the
    cutover date; from that date all new board work goes through the
-   Decidesk UI.
+   Decidiq UI.
 
 ### 4.2 Known gaps
 

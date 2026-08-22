@@ -154,7 +154,7 @@ class RegulatorExportService {
 		// The extension is always the format label ('csv' / 'pdf').
 		$contentType = self::CONTENT_TYPES[$format];
 		$checksum = hash('sha256', $body);
-		$filename = sprintf('decidesk-%s-%s-%s.%s', $scope, $boardId, substr($generatedAt, 0, 10), $format);
+		$filename = sprintf('decidiq-%s-%s-%s.%s', $scope, $boardId, substr($generatedAt, 0, 10), $format);
 
 		$exportRecord = [
 			'boardIntegration' => $boardId,

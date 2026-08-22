@@ -64,7 +64,7 @@ class PersonalSettings implements ISettings {
 	 * @spec openspec/specs/user-settings/spec.md
 	 */
 	public function getSection(): string {
-		return 'decidesk';
+		return Application::APP_ID;
 	}//end getSection()
 
 	/**

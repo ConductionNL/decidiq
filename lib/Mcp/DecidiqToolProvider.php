@@ -5,7 +5,7 @@
  *
  * First per-app exemplar of OCA\OpenRegister\Mcp\IMcpToolProvider.
  * Exposes 5 MCP tools so the AI Chat Companion (hydra ADR-034) can surface
- * decidesk capabilities — listing action items and meetings, reading meeting
+ * Decidiq capabilities — listing action items and meetings, reading meeting
  * details, starting a meeting, and adding action items — to an LLM.
  *
  * @category Mcp

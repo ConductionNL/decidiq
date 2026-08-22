@@ -19,11 +19,11 @@
 <template>
 	<div class="participation-page" data-testid="participation-page">
 		<header class="participation-page__header">
-			<h2>{{ t('decidesk', 'Citizen participation') }}</h2>
+			<h2>{{ t('decidiq', 'Citizen participation') }}</h2>
 			<p>
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'Open consultations and participatory budget rounds for your governance body.',
 					)
 				}}
@@ -37,10 +37,10 @@
 			<section
 				class="participation-page__section"
 				data-testid="participation-consultations">
-				<h3>{{ t('decidesk', 'Open consultations') }}</h3>
+				<h3>{{ t('decidiq', 'Open consultations') }}</h3>
 				<NcEmptyContent
 					v-if="openConsultations.length === 0"
-					:name="t('decidesk', 'No open consultations')" />
+					:name="t('decidiq', 'No open consultations')" />
 				<div
 					v-for="c in openConsultations"
 					:key="c.id"
@@ -51,25 +51,25 @@
 					<NcTextArea
 						v-model="reactionDrafts[c.id]"
 						data-testid="reaction-input"
-						:label="t('decidesk', 'Your reaction')"
+						:label="t('decidiq', 'Your reaction')"
 						resize="vertical" />
 					<NcButton
 						variant="primary"
 						data-testid="reaction-submit"
 						:disabled="!(reactionDrafts[c.id] || '').trim()"
 						@click="sendReaction(c)">
-						{{ t('decidesk', 'Submit reaction') }}
+						{{ t('decidiq', 'Submit reaction') }}
 					</NcButton>
 					<div v-if="isStaff" class="participation-card__staff">
 						<NcButton
 							data-testid="consultation-close"
 							@click="transitionC(c, 'closed')">
-							{{ t('decidesk', 'Close') }}
+							{{ t('decidiq', 'Close') }}
 						</NcButton>
 						<NcButton
 							data-testid="consultation-publish"
 							@click="publishC(c)">
-							{{ t('decidesk', 'Publish results') }}
+							{{ t('decidiq', 'Publish results') }}
 						</NcButton>
 					</div>
 				</div>
@@ -79,10 +79,10 @@
 			<section
 				class="participation-page__section"
 				data-testid="participation-budgets">
-				<h3>{{ t('decidesk', 'Participatory budget rounds') }}</h3>
+				<h3>{{ t('decidiq', 'Participatory budget rounds') }}</h3>
 				<NcEmptyContent
 					v-if="budgetRounds.length === 0"
-					:name="t('decidesk', 'No active budget rounds')" />
+					:name="t('decidiq', 'No active budget rounds')" />
 				<div
 					v-for="b in budgetRounds"
 					:key="b.id"
@@ -102,21 +102,21 @@
 						@submit.prevent="sendProposal(b)">
 						<NcTextField
 							v-model="proposalDrafts[b.id].title"
-							:label="t('decidesk', 'Proposal title')" />
+							:label="t('decidiq', 'Proposal title')" />
 						<NcTextArea
 							v-model="proposalDrafts[b.id].description"
-							:label="t('decidesk', 'Description')"
+							:label="t('decidiq', 'Description')"
 							resize="vertical" />
 						<NcTextField
 							v-model="proposalDrafts[b.id].amount"
 							type="number"
-							:label="t('decidesk', 'Requested amount')" />
+							:label="t('decidiq', 'Requested amount')" />
 						<NcButton
 							variant="primary"
 							type="submit"
 							data-testid="proposal-submit"
 							:disabled="!(proposalDrafts[b.id].title || '').trim()">
-							{{ t('decidesk', 'Submit proposal') }}
+							{{ t('decidiq', 'Submit proposal') }}
 						</NcButton>
 					</form>
 
@@ -126,7 +126,7 @@
 						data-testid="voting-cards">
 						<NcEmptyContent
 							v-if="(votableProposals[b.id] || []).length === 0"
-							:name="t('decidesk', 'No proposals to vote on yet')" />
+							:name="t('decidiq', 'No proposals to vote on yet')" />
 						<div
 							v-for="p in votableProposals[b.id] || []"
 							:key="p.id"
@@ -141,13 +141,13 @@
 								variant="success"
 								data-testid="vote-voor"
 								@click="vote(p, 'voor')">
-								{{ t('decidesk', 'For') }}
+								{{ t('decidiq', 'For') }}
 							</NcButton>
 							<NcButton
 								variant="error"
 								data-testid="vote-tegen"
 								@click="vote(p, 'tegen')">
-								{{ t('decidesk', 'Against') }}
+								{{ t('decidiq', 'Against') }}
 							</NcButton>
 						</div>
 					</div>
@@ -157,13 +157,13 @@
 							v-if="nextBudgetPhase(b.status)"
 							data-testid="budget-advance"
 							@click="transitionB(b, nextBudgetPhase(b.status))">
-							{{ t('decidesk', 'Advance phase') }}
+							{{ t('decidiq', 'Advance phase') }}
 						</NcButton>
 						<NcButton
 							v-if="b.status === 'closed'"
 							data-testid="budget-publish"
 							@click="publishB(b)">
-							{{ t('decidesk', 'Publish allocation') }}
+							{{ t('decidiq', 'Publish allocation') }}
 						</NcButton>
 					</div>
 				</div>
@@ -281,7 +281,7 @@ export default {
 					}
 				}
 			} catch (e) {
-				showError(t('decidesk', 'Could not load participation rounds'))
+				showError(t('decidiq', 'Could not load participation rounds'))
 			} finally {
 				this.loading = false
 			}
@@ -317,14 +317,14 @@ export default {
 					this.reactionDrafts[consultation.id],
 				)
 				showSuccess(
-					t('decidesk', 'Your reaction was submitted for moderation'),
+					t('decidiq', 'Your reaction was submitted for moderation'),
 				)
 				this.reactionDrafts[consultation.id] = ''
 			} catch (e) {
 				showError(
 					this.apiError(
 						e,
-						t('decidesk', 'Could not submit your reaction'),
+						t('decidiq', 'Could not submit your reaction'),
 					),
 				)
 			}
@@ -342,7 +342,7 @@ export default {
 					description: draft.description,
 					amount: Number(draft.amount) || 0,
 				})
-				showSuccess(t('decidesk', 'Proposal submitted'))
+				showSuccess(t('decidiq', 'Proposal submitted'))
 				this.proposalDrafts[round.id] = {
 					title: '',
 					description: '',
@@ -352,7 +352,7 @@ export default {
 				showError(
 					this.apiError(
 						e,
-						t('decidesk', 'Could not submit your proposal'),
+						t('decidiq', 'Could not submit your proposal'),
 					),
 				)
 			}
@@ -368,10 +368,10 @@ export default {
 				const result = await castAdvisoryVote(proposal.id, value)
 				proposal.votesFor = result.votesFor
 				proposal.votesAgainst = result.votesAgainst
-				showSuccess(t('decidesk', 'Your vote was recorded'))
+				showSuccess(t('decidiq', 'Your vote was recorded'))
 			} catch (e) {
 				showError(
-					this.apiError(e, t('decidesk', 'Could not record your vote')),
+					this.apiError(e, t('decidiq', 'Could not record your vote')),
 				)
 			}
 		},
@@ -384,10 +384,10 @@ export default {
 		async transitionC(consultation, status) {
 			try {
 				await transitionConsultation(consultation.id, status)
-				showSuccess(t('decidesk', 'Consultation updated'))
+				showSuccess(t('decidiq', 'Consultation updated'))
 				await this.load()
 			} catch (e) {
-				showError(this.apiError(e, t('decidesk', 'Transition failed')))
+				showError(this.apiError(e, t('decidiq', 'Transition failed')))
 			}
 		},
 
@@ -399,10 +399,10 @@ export default {
 		async transitionB(round, status) {
 			try {
 				await transitionBudgetRound(round.id, status)
-				showSuccess(t('decidesk', 'Budget round updated'))
+				showSuccess(t('decidiq', 'Budget round updated'))
 				await this.load()
 			} catch (e) {
-				showError(this.apiError(e, t('decidesk', 'Transition failed')))
+				showError(this.apiError(e, t('decidiq', 'Transition failed')))
 			}
 		},
 
@@ -415,7 +415,7 @@ export default {
 				const result = await publishConsultationResults(consultation.id, '')
 				this.reportPublication(result)
 			} catch (e) {
-				showError(this.apiError(e, t('decidesk', 'Publication failed')))
+				showError(this.apiError(e, t('decidiq', 'Publication failed')))
 			}
 		},
 
@@ -428,7 +428,7 @@ export default {
 				const result = await publishBudgetResults(round.id)
 				this.reportPublication(result)
 			} catch (e) {
-				showError(this.apiError(e, t('decidesk', 'Publication failed')))
+				showError(this.apiError(e, t('decidiq', 'Publication failed')))
 			}
 		},
 
@@ -439,10 +439,10 @@ export default {
 		reportPublication(result) {
 			if (result && result.warning) {
 				this.catalogWarning = result.warning
-				showSuccess(t('decidesk', 'Results published (with a warning)'))
+				showSuccess(t('decidiq', 'Results published (with a warning)'))
 			} else {
 				this.catalogWarning = ''
-				showSuccess(t('decidesk', 'Results published'))
+				showSuccess(t('decidiq', 'Results published'))
 			}
 		},
 
@@ -460,11 +460,11 @@ export default {
 		 */
 		phaseLabel(status) {
 			const labels = {
-				draft: t('decidesk', 'Draft'),
-				submission: t('decidesk', 'Submission phase'),
-				voting: t('decidesk', 'Voting phase'),
-				tallying: t('decidesk', 'Tallying'),
-				closed: t('decidesk', 'Closed'),
+				draft: t('decidiq', 'Draft'),
+				submission: t('decidiq', 'Submission phase'),
+				voting: t('decidiq', 'Voting phase'),
+				tallying: t('decidiq', 'Tallying'),
+				closed: t('decidiq', 'Closed'),
 			}
 			return labels[status] || status
 		},

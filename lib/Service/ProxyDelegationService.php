@@ -228,7 +228,7 @@ class ProxyDelegationService {
 
 			$notificationManager = $this->container->get(IManager::class);
 			$notification = $notificationManager->createNotification();
-			$notification->setApp('decidesk')
+			$notification->setApp('decidiq')
 				->setUser($nextcloudUserId)
 				->setDateTime(new DateTime())
 				->setObject('voting-round', $votingRoundId)

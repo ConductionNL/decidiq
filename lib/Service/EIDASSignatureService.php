@@ -119,7 +119,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			'minutesId' => $minutesId,
 			'signatories' => array_values(array_map('strval', $signatories)),
 			'profile' => 'eIDAS-QES',
-			'returnTarget' => 'decidesk/board-portal/minutes/' . $minutesId,
+			'returnTarget' => 'decidiq/board-portal/minutes/' . $minutesId,
 		];
 
 		try {
@@ -568,7 +568,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			'documentId' => $minutesId,
 			'signatories' => array_values(array_map('strval', $signatories)),
 			'signingLevel' => 'QES',
-			'returnTarget' => 'decidesk/minutes/' . $minutesId,
+			'returnTarget' => 'decidiq/minutes/' . $minutesId,
 		];
 
 		try {

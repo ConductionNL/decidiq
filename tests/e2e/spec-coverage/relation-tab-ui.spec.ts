@@ -48,7 +48,7 @@ test('agenda item detail page renders with motions sidebar tab', async ({
 	const itemId = first.id ?? first['@self']?.id
 	test.skip(!itemId, 'First agenda-item has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/agenda-items/${itemId}`)
+	await page.goto(`${BASE}/apps/decidiq/agenda-items/${itemId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await expect(page.locator('[data-testid="app-root"]')).toBeVisible()
 })
@@ -56,7 +56,7 @@ test('agenda item detail page renders with motions sidebar tab', async ({
 // @e2e openspec/specs/relation-tab-ui/spec.md#adopted-motion-renders-a-success-badge
 // @e2e openspec/specs/relation-tab-ui/spec.md#against-vote-renders-an-error-badge
 test('motions list renders lifecycle and vote status badges', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/motions`)
+	await page.goto(`${BASE}/apps/decidiq/motions`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	// App root mounts — badge rendering in motion rows is part of CnDataTable
 	await expect(page.locator('[data-testid="app-root"]')).toBeVisible()
@@ -70,7 +70,7 @@ test('meeting detail has participants tab in sidebar', async ({ page }) => {
 	const meetingId = first.id ?? first['@self']?.id
 	test.skip(!meetingId, 'First meeting has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
+	await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	// App root mounts for meeting detail (sidebar with participants tab defined in manifest)
 	await expect(page.locator('[data-testid="app-root"]')).toBeVisible()
@@ -83,7 +83,7 @@ test('motion detail renders votes tab area', async ({ page }) => {
 	const motionId = first.id ?? first['@self']?.id
 	test.skip(!motionId, 'First motion has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/motions/${motionId}`)
+	await page.goto(`${BASE}/apps/decidiq/motions/${motionId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await expect(page.locator('[data-testid="app-root"]')).toBeVisible()
 })
@@ -95,7 +95,7 @@ test('amendment detail renders with parent motion tab', async ({ page }) => {
 	const amendmentId = first.id ?? first['@self']?.id
 	test.skip(!amendmentId, 'First amendment has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/amendments/${amendmentId}`)
+	await page.goto(`${BASE}/apps/decidiq/amendments/${amendmentId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await expect(page.locator('[data-testid="app-root"]')).toBeVisible()
 })
@@ -108,7 +108,7 @@ test('minutes detail renders with signers tab area', async ({ page }) => {
 	const minutesId = first.id ?? first['@self']?.id
 	test.skip(!minutesId, 'First minutes has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/minutes/${minutesId}`)
+	await page.goto(`${BASE}/apps/decidiq/minutes/${minutesId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await expect(page.locator('[data-testid="app-root"]')).toBeVisible()
 })

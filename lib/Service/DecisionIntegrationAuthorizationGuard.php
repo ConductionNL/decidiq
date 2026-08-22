@@ -75,7 +75,7 @@ class DecisionIntegrationAuthorizationGuard {
 	 *   (a) they are the Decision's OpenRegister owner (`@self.owner`) — the
 	 *       identity that raised it through `POST /api/v1/decisions`, i.e. the
 	 *       consumer REQ-DCDH-003 exists to serve. This is also the established
-	 *       decidesk per-object guard on this very `decision` schema; see
+	 *       Decidiq per-object guard on this very `decision` schema; see
 	 *       `MotionCoauthorService::checkMotionAccess()`; OR
 	 *   (b) the Decision is published (`isPublished === 'public'`) — the app's
 	 *       own citizen-visibility flag, set by `DecisionController::publish()`.

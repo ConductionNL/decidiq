@@ -11,9 +11,9 @@
 -->
 <template>
 	<CnStatsBlock
-		:title="t('decidesk', 'Upcoming meetings')"
+		:title="t('decidiq', 'Upcoming meetings')"
 		:count="count"
-		:countLabel="t('decidesk', 'meetings')"
+		:countLabel="t('decidiq', 'meetings')"
 		:icon="CalendarClockOutline"
 		:loading="loading"
 		:route="{ name: 'Meetings' }"
@@ -67,7 +67,7 @@ export default {
 			try {
 				this.meetings = await getMeetings({ lifecycle: 'scheduled' })
 			} catch (e) {
-				console.error('[decidesk] UpcomingMeetingsKpiWidget load failed', e)
+				console.error('[decidiq] UpcomingMeetingsKpiWidget load failed', e)
 				this.error = e
 				this.meetings = []
 			} finally {

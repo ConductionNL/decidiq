@@ -41,7 +41,7 @@ use ReflectionClass;
 /**
  * The canonical AppHost route table routes BOTH `PUT /api/settings`
  * (`settings#update`) and `POST /api/settings` (`settings#create`) into this
- * controller, and because decidesk ships the class itself no generic is
+ * controller, and because decidiq ships the class itself no generic is
  * aliased in to cover either.
  *
  * These tests assert the ITEM — that the write actually reaches

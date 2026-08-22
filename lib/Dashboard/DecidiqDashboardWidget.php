@@ -70,6 +70,13 @@ class DecidiqDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidget
 	/**
 	 * Unique widget id.
 	 *
+	 * FROZEN at the pre-rename value `decidesk`. Nextcloud's dashboard app
+	 * persists each user's enabled + ordered widget ids as a per-user
+	 * preference in the `dashboard` app's OWN namespace, which neither
+	 * MigrateAppConfigKeys nor MigrateUserPreferences can reach — they only
+	 * migrate rows this app owns. Change this id and every user who had the
+	 * widget on their dashboard silently loses it, with no error anywhere.
+	 *
 	 * @spec openspec/specs/dashboard/spec.md
 	 *
 	 * @return string The widget id
@@ -108,7 +115,7 @@ class DecidiqDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidget
 	 * @return string The icon class
 	 */
 	public function getIconClass(): string {
-		return 'icon-decidesk';
+		return 'icon-decidiq';
 	}//end getIconClass()
 
 	/**
@@ -120,7 +127,7 @@ class DecidiqDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidget
 	 */
 	public function getIconUrl(): string {
 		return $this->urlGenerator->getAbsoluteURL(
-			$this->urlGenerator->imagePath('decidesk', 'app-dark.svg')
+			$this->urlGenerator->imagePath('decidiq', 'app-dark.svg')
 		);
 
 	}//end getIconUrl()
@@ -201,7 +208,7 @@ class DecidiqDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidget
 			$this->l10n->t('Decisions awaiting your vote'),
 			$appUrl,
 			$iconUrl,
-			'decidesk-pending-votes'
+			'decidiq-pending-votes'
 		);
 
 		$items[] = $this->buildNextMeetingItem(
@@ -235,7 +242,7 @@ class DecidiqDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidget
 				'',
 				$appUrl,
 				$iconUrl,
-				'decidesk-next-meeting'
+				'decidiq-next-meeting'
 			);
 		}
 
@@ -244,7 +251,7 @@ class DecidiqDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidget
 			$this->formatMeetingSubtitle(scheduledDate: (string)($nextMeeting['scheduledDate'] ?? '')),
 			$appUrl,
 			$iconUrl,
-			'decidesk-next-meeting'
+			'decidiq-next-meeting'
 		);
 
 	}//end buildNextMeetingItem()
@@ -258,9 +265,9 @@ class DecidiqDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidget
 	 */
 	private function appUrl(): string {
 		try {
-			return $this->urlGenerator->linkToRouteAbsolute('decidesk.dashboard.page');
+			return $this->urlGenerator->linkToRouteAbsolute('decidiq.dashboard.page');
 		} catch (\Throwable) {
-			return $this->urlGenerator->getAbsoluteURL('/apps/decidesk/');
+			return $this->urlGenerator->getAbsoluteURL('/apps/decidiq/');
 		}
 
 	}//end appUrl()

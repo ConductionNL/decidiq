@@ -13,11 +13,11 @@
 -->
 <template>
 	<div class="user-settings-section" data-testid="delegation-section">
-		<h3>{{ t('decidesk', 'Delegation and absence') }}</h3>
+		<h3>{{ t('decidiq', 'Delegation and absence') }}</h3>
 		<p class="user-settings-section__hint">
 			{{
 				t(
-					'decidesk',
+					'decidiq',
 					'During the configured period your delegate receives your Decidiq notifications and can follow your pending votes and action items.',
 				)
 			}}
@@ -26,7 +26,7 @@
 		<div class="user-settings-section__field">
 			<NcSelect
 				v-model="delegate"
-				:inputLabel="t('decidesk', 'Delegate')"
+				:inputLabel="t('decidiq', 'Delegate')"
 				:options="delegateOptions"
 				label="label"
 				:loading="searching"
@@ -35,22 +35,22 @@
 		</div>
 
 		<div class="user-settings-section__field">
-			<label for="decidesk-delegation-from">{{
-				t('decidesk', 'Absent from')
+			<label for="decidiq-delegation-from">{{
+				t('decidiq', 'Absent from')
 			}}</label>
 			<NcDateTimePickerNative
-				id="decidesk-delegation-from"
+				id="decidiq-delegation-from"
 				v-model="delegationFrom"
 				type="date"
 				data-testid="delegation-from" />
 		</div>
 
 		<div class="user-settings-section__field">
-			<label for="decidesk-delegation-until">{{
-				t('decidesk', 'Absent until (delegation expires automatically)')
+			<label for="decidiq-delegation-until">{{
+				t('decidiq', 'Absent until (delegation expires automatically)')
 			}}</label>
 			<NcDateTimePickerNative
-				id="decidesk-delegation-until"
+				id="decidiq-delegation-until"
 				v-model="delegationUntil"
 				type="date"
 				data-testid="delegation-until" />
@@ -59,13 +59,13 @@
 		<NcNoteCard type="info" data-testid="delegation-proxy-note">
 			{{
 				t(
-					'decidesk',
+					'decidiq',
 					'Delegation does not include voting rights. A formal proxy (volmacht) is required for voting.',
 				)
 			}}
 			{{
 				t(
-					'decidesk',
+					'decidiq',
 					'Proxies are granted per voting round from the voting panel.',
 				)
 			}}
@@ -83,8 +83,8 @@
 				@click="save">
 				{{
 					saving
-						? t('decidesk', 'Saving …')
-						: t('decidesk', 'Save delegation')
+						? t('decidiq', 'Saving …')
+						: t('decidiq', 'Save delegation')
 				}}
 			</NcButton>
 			<NcButton
@@ -93,14 +93,14 @@
 				:disabled="saving"
 				data-testid="delegation-clear"
 				@click="clear">
-				{{ t('decidesk', 'Clear delegation') }}
+				{{ t('decidiq', 'Clear delegation') }}
 			</NcButton>
 		</div>
 		<NcNoteCard v-if="error" type="error">
 			{{ error }}
 		</NcNoteCard>
 		<NcNoteCard v-if="saved" type="success">
-			{{ t('decidesk', 'Delegation saved.') }}
+			{{ t('decidiq', 'Delegation saved.') }}
 		</NcNoteCard>
 	</div>
 </template>
@@ -181,13 +181,13 @@ export default {
 			})
 			if (code === 'expiry-required') {
 				return this.t(
-					'decidesk',
+					'decidiq',
 					'A delegation needs an end date — it expires automatically.',
 				)
 			}
 			if (code === 'inverted-period') {
 				return this.t(
-					'decidesk',
+					'decidiq',
 					'The end date must not be before the start date.',
 				)
 			}
@@ -266,7 +266,7 @@ export default {
 				this.saved = true
 				this.$emit('updated', saved)
 			} catch (e) {
-				this.error = e.message || this.t('decidesk', 'Saving failed.')
+				this.error = e.message || this.t('decidiq', 'Saving failed.')
 			} finally {
 				this.saving = false
 			}
@@ -289,7 +289,7 @@ export default {
 				this.saved = true
 				this.$emit('updated', saved)
 			} catch (e) {
-				this.error = e.message || this.t('decidesk', 'Saving failed.')
+				this.error = e.message || this.t('decidiq', 'Saving failed.')
 			} finally {
 				this.saving = false
 			}

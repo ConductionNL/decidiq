@@ -22,7 +22,7 @@
 
 		<NcEmptyContent
 			v-else-if="rows.length === 0"
-			:name="t('decidesk', 'No decisions yet')"
+			:name="t('decidiq', 'No decisions yet')"
 			data-testid="recent-decisions-empty">
 			<template #icon>
 				<GavelIcon :size="32" />
@@ -54,12 +54,12 @@
 					<span
 						:class="`dashboard-list-widget__badge--${outcome(decision).variant}`"
 						class="dashboard-list-widget__badge">
-						{{ t('decidesk', outcome(decision).label) }}
+						{{ t('decidiq', outcome(decision).label) }}
 					</span>
 					<span
 						:class="`dashboard-list-widget__badge--${publication(decision).variant}`"
 						class="dashboard-list-widget__badge">
-						{{ t('decidesk', publication(decision).label) }}
+						{{ t('decidiq', publication(decision).label) }}
 					</span>
 				</div>
 			</li>
@@ -119,7 +119,7 @@ export default {
 			try {
 				this.decisions = await getDecisions()
 			} catch (e) {
-				console.error('[decidesk] RecentDecisionsWidget load failed', e)
+				console.error('[decidiq] RecentDecisionsWidget load failed', e)
 				this.error = e
 				this.decisions = []
 			} finally {

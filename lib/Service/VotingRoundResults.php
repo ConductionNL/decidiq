@@ -197,7 +197,7 @@ class VotingRoundResults {
 	 * Return every ballot that genuinely belongs to the given round.
 	 *
 	 * The filter is keyed via {@see ObjectRelationFilter::filterFor()}, NOT on the
-	 * `voting-round` schema slug: decidesk writes ballots with a structured
+	 * `voting-round` schema slug: Decidiq writes ballots with a structured
 	 * `relations` array, which OpenRegister flattens to `_relations` keys of the
 	 * form `relations.<n>.id`, so a slug-keyed filter matched zero rows and every
 	 * tally computed 0/0/0 on a healthy 200. The filter pins the related id but

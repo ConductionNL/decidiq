@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\AppInfo\Application;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IAppConfig;
@@ -170,7 +171,7 @@ class VotingRoundGuard {
 	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
 	 */
 	private function isGloballyAuthorized(string $uid): bool {
-		$chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
+		$chairGroup = $this->appConfig->getValueString(Application::APP_ID, 'chair_group', '');
 
 		if ($chairGroup !== '') {
 			return $this->groupManager->isInGroup($uid, $chairGroup);
@@ -225,7 +226,7 @@ class VotingRoundGuard {
 	 *
 	 * @param object $objectService The OpenRegister ObjectService
 	 * @param mixed $id The object identifier
-	 * @param string $schema The decidesk schema slug
+	 * @param string $schema The Decidiq schema slug
 	 *
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 *

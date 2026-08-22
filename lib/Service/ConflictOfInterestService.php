@@ -415,7 +415,7 @@ class ConflictOfInterestService {
 			// 'register'/'schema' key (as this call previously used) is silently
 			// ignored, so findAll() ran with no register/schema context and
 			// returned nothing (same landmine documented on
-			// ProxyVoteService::forMeeting(), decidesk#443).
+			// ProxyVoteService::forMeeting(), decidiq#443).
 			$rows = $this->objectService->findAll(
 				[
 					'filters' => [

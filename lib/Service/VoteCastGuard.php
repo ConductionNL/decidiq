@@ -172,7 +172,7 @@ class VoteCastGuard {
 		if ($this->hasAbsenceDelegation(delegatorId: $delegatorId, participantId: $participantId, callerUid: $callerUid) === true) {
 			throw new RuntimeException(
 				'Delegation does not include voting rights. A formal proxy (volmacht) is required for voting. '
-				. 'Grant one via the voting round proxy process (POST /apps/decidesk/api/voting-rounds/{id}/proxy).'
+				. 'Grant one via the voting round proxy process (POST /apps/decidiq/api/voting-rounds/{id}/proxy).'
 			);
 		}
 

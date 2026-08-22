@@ -3,13 +3,13 @@
 //
 // Shared helpers for the "Besluitvorming" (decisions) integration leaf.
 //
-// The leaf surfaces a host object's decidesk decisions — proposals,
+// The leaf surfaces a host object's decidiq decisions — proposals,
 // advice and final decisions — on ANY consuming object's detail page or
 // sidebar (ADR-022 / ADR-019). It is deliberately generic: it reads the
 // host object identity from the registry-supplied integration context
 // ({ register, schema, objectId }) and never hard-codes procest.
 //
-// Case-linking mechanism: decidesk's Decision schema already carries the
+// Case-linking mechanism: decidiq's Decision schema already carries the
 // back-reference fields raised by the contract-decision hub
 // (decidesk-contract-decision-hub, REQ-DCDH-001): `subjectRegister`,
 // `subjectSchema`, `subjectId`, `subjectLabel`, `sourceApp` and
@@ -21,9 +21,9 @@ import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 
 /**
- * The decidesk logical object type backing the leaf. Registered against
+ * The decidiq logical object type backing the leaf. Registered against
  * the shared object store the first time the leaf renders (the store
- * may not have been booted by decidesk's own main.js when the leaf is
+ * may not have been booted by decidiq's own main.js when the leaf is
  * mounted inside a foreign app's page, e.g. a procest case detail).
  *
  * @type {string}
@@ -31,7 +31,7 @@ import { generateUrl } from '@nextcloud/router'
 export const DECISION_TYPE = 'decision'
 
 /**
- * decidesk `decisionType` discriminator values grouped into the three
+ * decidiq `decisionType` discriminator values grouped into the three
  * presentation buckets the leaf renders (Voorstellen / Adviezen /
  * Besluiten). `meeting-outcome` and anything unmatched fall through to
  * "Besluiten" (the catch-all final-decision bucket).
@@ -52,7 +52,7 @@ export const KIND_GROUPS = {
 export const PROPOSAL_LIFECYCLE = ['draft', 'proposed', 'deliberating', 'voting']
 
 /**
- * OpenRegister objects endpoint for decidesk `decision` objects.
+ * OpenRegister objects endpoint for decidiq `decision` objects.
  *
  * @return {string} The resolved `/apps/openregister/api/objects/decidesk/decision` URL.
  */
@@ -64,12 +64,12 @@ function decisionsUrl() {
 }
 
 /**
- * List decidesk decisions linked to a host object, via the shared
+ * List decidiq decisions linked to a host object, via the shared
  * OpenRegister objects API — NOT a Pinia store.
  *
  * The leaf is rendered inline on ANY app's detail page (a pipelinq lead, a
- * procest case, …). It therefore must not depend on decidesk's own Pinia
- * object store: that store lives in decidesk's bundle and its `getActivePinia`
+ * procest case, …). It therefore must not depend on decidiq's own Pinia
+ * object store: that store lives in decidiq's bundle and its `getActivePinia`
  * is not the host app's active Pinia, so `useObjectStore()` threw
  * `reading '_s' of undefined` when hosted in a foreign app (ADR-019: an
  * integration leaf must be host-agnostic). A direct API call needs no store.
@@ -91,7 +91,7 @@ export async function listHostDecisions(subjectId, limit = 100) {
 }
 
 /**
- * Create a decidesk decision pre-linked to a host object, via the shared
+ * Create a decidiq decision pre-linked to a host object, via the shared
  * OpenRegister objects API (see {@link listHostDecisions} for why not a store).
  *
  * @param {object} payload The decision object to persist (already carrying the
@@ -107,7 +107,7 @@ export async function createHostDecision(payload) {
 /**
  * Classify a decision into one of the three presentation buckets.
  *
- * @param {object} decision A decidesk Decision object.
+ * @param {object} decision A decidiq Decision object.
  *
  * @return {'proposals'|'advice'|'decisions'} The bucket key.
  */
@@ -125,7 +125,7 @@ export function decisionBucket(decision) {
 /**
  * Whether the decision is still in a proposal lifecycle state.
  *
- * @param {object} decision A decidesk Decision object.
+ * @param {object} decision A decidiq Decision object.
  *
  * @return {boolean} True when lifecycle reads as a draft proposal.
  */
