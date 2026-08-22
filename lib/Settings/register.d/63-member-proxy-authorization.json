@@ -118,7 +118,7 @@
               "to": "refused"
             }
           ],
-          "_note": "Declarative guarded transition map (ADR-031, REQ-MPA-003). Canonical dialect verbatim from the Decision/Toezegging schemas (keyword 'initial', never the silently-ignored 'initialState'/'default' drift). ongetekend is the create-time state; a provider completion moves it to getekend, a provider refusal to geweigerd; both terminal. Backwards transitions (e.g. getekend -> ongetekend) are rejected by OpenRegister, which is the anti-signature-theatre guarantee: nothing but a provider completion reaches getekend and no path un-signs it. The countersign and revocation-signature machines run on the separate countersignStatus / revocationSignatureStatus fields and are resolved imperatively by ProxyAuthorizationService (a single lifecycle field cannot govern three independent signature tracks). No app-side state machine on signatureStatus."
+          "_note": "Declarative guarded transition map (ADR-031, REQ-MPA-003). Canonical dialect verbatim from the Decision/Toezegging schemas (keyword 'initial', never the silently-ignored 'initialState'/'default' drift). unsigned is the create-time state; a provider completion moves it to signed, a provider refusal to refused; both terminal. Backwards transitions (e.g. signed -> unsigned) are rejected by OpenRegister, which is the anti-signature-theatre guarantee: nothing but a provider completion reaches signed and no path un-signs it. The countersign and revocation-signature machines run on the separate countersignStatus / revocationSignatureStatus fields and are resolved imperatively by ProxyAuthorizationService (a single lifecycle field cannot govern three independent signature tracks). No app-side state machine on signatureStatus."
         },
         "x-openregister-notifications": {
           "authorizationCreated": {
@@ -235,14 +235,14 @@
             "title": "Signature status",
             "type": "string",
             "facetable": true,
-            "description": "Instrument signature status (declared in x-openregister-lifecycle, ADR-031): ongetekend -> getekend | geweigerd. getekend is writable ONLY from a signing-provider completion (REQ-MPA-003, fail closed — no provider leaves it ongetekend). Required; defaults to ongetekend at creation.",
+            "description": "Instrument signature status (declared in x-openregister-lifecycle, ADR-031): unsigned -> signed | refused. signed is writable ONLY from a signing-provider completion (REQ-MPA-003, fail closed — no provider leaves it unsigned). Required; defaults to unsigned at creation.",
             "enum": [
               "unsigned",
               "signed",
               "refused"
             ],
-            "default": "ongetekend",
-            "example": "ongetekend"
+            "default": "unsigned",
+            "example": "unsigned"
           },
           "signedAt": {
             "title": "Signed at",

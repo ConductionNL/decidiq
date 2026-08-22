@@ -4175,7 +4175,14 @@
               "type": "scheduled",
               "intervalSec": 86400,
               "filter": {
-                "taskStatus": "overdue"
+                "dueDate": {
+                  "operator": "olderThan",
+                  "value": "PT0S"
+                },
+                "taskStatus": {
+                  "operator": "notEquals",
+                  "value": "completed"
+                }
               }
             },
             "enabled": true,
