@@ -280,8 +280,11 @@
           "newEffectiveVersion": {
             "trigger": {
               "type": "updated",
-              "filter": {
-                "status": "in-effect"
+              "condition": {
+                "field": "status",
+                "operator": "equals",
+                "value": "in-effect",
+                "from": "adopted"
               }
             },
             "enabled": true,

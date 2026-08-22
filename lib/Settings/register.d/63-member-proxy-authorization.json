@@ -149,8 +149,11 @@
           "authorizationSigned": {
             "trigger": {
               "type": "updated",
-              "filter": {
-                "signatureStatus": "signed"
+              "condition": {
+                "field": "signatureStatus",
+                "operator": "equals",
+                "value": "signed",
+                "from": "unsigned"
               }
             },
             "enabled": true,

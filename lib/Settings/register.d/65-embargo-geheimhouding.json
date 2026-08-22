@@ -302,8 +302,10 @@
           "geheimhoudingOpgeheven": {
             "trigger": {
               "type": "updated",
-              "filter": {
-                "lifecycle": "dissolved"
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "dissolved"
               }
             },
             "enabled": true,
