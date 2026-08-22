@@ -3105,7 +3105,7 @@
               "type": "updated",
               "condition": {
                 "field": "supersedes",
-                "operator": "isNotEmpty"
+                "operator": "changed"
               }
             },
             "enabled": true,
@@ -3134,7 +3134,7 @@
               "type": "updated",
               "condition": {
                 "field": "repeals",
-                "operator": "isNotEmpty"
+                "operator": "changed"
               }
             },
             "enabled": true,
@@ -3159,6 +3159,7 @@
             }
           },
           "outcomeEmitted": {
+            "_note": "`in` is not implemented for updated triggers. fieldChangeConditionMatches supports only `changed` and `equals`, and an unknown operator falls through to false — so this rule has never fired. Left declared rather than split into three near-identical rules: the scheduled path gained `in` in ConductionNL/openregister#2794, and bringing the same vocabulary to the updated path is the natural next step (the created-vs-updated-vs-scheduled convergence deferred there). Splitting now would only have to be undone then.",
             "trigger": {
               "type": "updated",
               "condition": {
@@ -4561,8 +4562,10 @@
           "transcriptionDone": {
             "trigger": {
               "type": "updated",
-              "filter": {
-                "status": "done"
+              "condition": {
+                "field": "status",
+                "operator": "equals",
+                "value": "done"
               }
             },
             "enabled": true,
@@ -4589,8 +4592,10 @@
           "transcriptionFailed": {
             "trigger": {
               "type": "updated",
-              "filter": {
-                "status": "failed"
+              "condition": {
+                "field": "status",
+                "operator": "equals",
+                "value": "failed"
               }
             },
             "enabled": true,
@@ -5842,7 +5847,9 @@
             "trigger": {
               "type": "created",
               "filter": {
-                "moderationStatus": "pending"
+                "field": "moderationStatus",
+                "operator": "equals",
+                "value": "pending"
               }
             },
             "enabled": true,
