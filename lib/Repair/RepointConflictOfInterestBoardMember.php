@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk RepointConflictOfInterestBoardMember Repair Step
+ * Decidiq RepointConflictOfInterestBoardMember Repair Step
  *
  * `model-debt-cleanup-schema` retargets `ConflictOfInterest.boardMember`
  * from `$ref: Participant` to `$ref: Membership`; that edit changes only the
@@ -16,7 +16,7 @@
  * no Participant row is ever mutated. Safe to re-run.
  *
  * @category Repair
- * @package  OCA\Decidesk\Repair
+ * @package  OCA\Decidiq\Repair
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -33,9 +33,9 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Repair;
+namespace OCA\Decidiq\Repair;
 
-use OCA\Decidesk\Service\ParticipantToPersonMembershipResolver;
+use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -50,7 +50,11 @@ use Throwable;
 class RepointConflictOfInterestBoardMember implements IRepairStep {
 
 	/**
-	 * The decidesk register slug.
+	 * The OpenRegister register slug.
+	 *
+	 * FROZEN at the pre-rename spelling, and deliberately NOT Application::APP_ID.
+	 * OpenRegister matches registers by slug; renaming it would resolve no
+	 * register and this step would silently repoint nothing.
 	 *
 	 * @var string
 	 */
@@ -120,7 +124,7 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 		} catch (Throwable $e) {
 			$output->info('RepointConflictOfInterestBoardMember: no conflict-of-interest rows on this install; nothing to do.');
 			$this->logger->info(
-				'Decidesk: RepointConflictOfInterestBoardMember found no conflict-of-interest schema/objects',
+				'Decidiq: RepointConflictOfInterestBoardMember found no conflict-of-interest schema/objects',
 				['exception' => $e->getMessage()]
 			);
 			return;
@@ -159,7 +163,7 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 			if ($resolution === null) {
 				$skipped++;
 				$this->logger->warning(
-					'Decidesk: RepointConflictOfInterestBoardMember could not resolve boardMember',
+					'Decidiq: RepointConflictOfInterestBoardMember could not resolve boardMember',
 					['id' => $id, 'boardMember' => $boardMember]
 				);
 				continue;
@@ -174,14 +178,14 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 				);
 				$resolved++;
 				$this->logger->info(
-					'Decidesk: RepointConflictOfInterestBoardMember repointed boardMember',
+					'Decidiq: RepointConflictOfInterestBoardMember repointed boardMember',
 					['id' => $id, 'fromParticipant' => $boardMember, 'toMembership' => $resolution['membership']]
 				);
 			} catch (Throwable $e) {
 				$skipped++;
 				$output->warning('Failed to repoint conflict-of-interest ' . $id . ': ' . $e->getMessage());
 				$this->logger->warning(
-					'Decidesk: RepointConflictOfInterestBoardMember failed to save one object',
+					'Decidiq: RepointConflictOfInterestBoardMember failed to save one object',
 					['id' => $id, 'exception' => $e->getMessage()]
 				);
 			}//end try
@@ -236,7 +240,7 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 			// The caller now counts unknown as skipped, leaving the row
 			// eligible for the next run.
 			$this->logger->warning(
-				'Decidesk: RepointConflictOfInterestBoardMember could not determine whether a boardMember id is still a Participant',
+				'Decidiq: RepointConflictOfInterestBoardMember could not determine whether a boardMember id is still a Participant',
 				['boardMemberId' => $id, 'exception' => $e->getMessage()]
 			);
 			return null;

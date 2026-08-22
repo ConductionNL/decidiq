@@ -1,9 +1,9 @@
 <?php
 
 /**
- * The pure decisions behind RenameDutchDecideskValues.
+ * The pure decisions behind RenameDutchDecidiqValues.
  *
- * Separated for a reason this app makes unavoidable: decidesk's unit
+ * Separated for a reason this app makes unavoidable: decidiq's unit
  * environment does not install doctrine/dbal, so `createMock(IDBConnection)`
  * cannot even be generated — it fails on `Doctrine\DBAL\ParameterType` while
  * building the double. The database half of a repair step is therefore
@@ -11,7 +11,7 @@
  * and putting every decision on this side of the line.
  *
  * @category  Repair
- * @package   OCA\Decidesk\Repair
+ * @package   OCA\Decidiq\Repair
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -23,12 +23,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Repair;
+namespace OCA\Decidiq\Repair;
 
 /**
  * Pure predicates for the stored-enum-value migration.
  */
-class RenameDutchDecideskValueDecisions {
+class RenameDutchDecidiqValueDecisions {
 
 	/**
 	 * Convert a property name to the column MagicMapper materialised.
@@ -116,7 +116,7 @@ class RenameDutchDecideskValueDecisions {
 	 *  canonical spec covers it.
 	 */
 	public function nothingToDoMessage(): string {
-		return 'RenameDutchDecideskValues: no Decidesk shard tables on this install; nothing to do.';
+		return 'RenameDutchDecidiqValues: no Decidiq shard tables on this install; nothing to do.';
 	}//end nothingToDoMessage()
 
 	/**
@@ -133,7 +133,7 @@ class RenameDutchDecideskValueDecisions {
 	 *  canonical spec covers it.
 	 */
 	public function summaryMessage(int $updated): string {
-		return sprintf('RenameDutchDecideskValues: %d row value(s) translated.', $updated);
+		return sprintf('RenameDutchDecidiqValues: %d row value(s) translated.', $updated);
 	}//end summaryMessage()
 
 	/**

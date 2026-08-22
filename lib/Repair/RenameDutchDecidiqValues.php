@@ -9,7 +9,7 @@
  * failing. This rewrites the stored rows.
  *
  * Every database call goes through ValueMigrationGateway, a three-method port.
- * decidesk's unit environment has no doctrine/dbal, so IDBConnection cannot be
+ * decidiq's unit environment has no doctrine/dbal, so IDBConnection cannot be
  * doubled here at all — depending on that connection directly would make this
  * step untestable by construction. Behind the port it is driven by a small fake.
  *
@@ -18,7 +18,7 @@
  * corrupt every column that shares it.
  *
  * NOT migrated, deliberately: `oriType` (`Besluit`/`Vergadering`/`Verslag`).
- * That is the ORI standard's vocabulary and decidesk's own OriSerializer
+ * That is the ORI standard's vocabulary and decidiq's own OriSerializer
  * consumes it — a mapping is configuration, so the standard's terms stay in
  * the standard's language.
  *
@@ -29,7 +29,7 @@
  * Idempotent: an already-migrated row matches no WHERE clause.
  *
  * @category  Repair
- * @package   OCA\Decidesk\Repair
+ * @package   OCA\Decidiq\Repair
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -41,7 +41,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Repair;
+namespace OCA\Decidiq\Repair;
 
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -49,7 +49,7 @@ use OCP\Migration\IRepairStep;
 /**
  * Migrates stored Dutch enum values to their English spelling.
  */
-class RenameDutchDecideskValues implements IRepairStep {
+class RenameDutchDecidiqValues implements IRepairStep {
 
 	/**
 	 * Property name => old value => new value.
@@ -305,11 +305,11 @@ class RenameDutchDecideskValues implements IRepairStep {
 	 * Constructor.
 	 *
 	 * @param ValueMigrationGateway $gateway Database operations.
-	 * @param RenameDutchDecideskValueDecisions $decisions Pure predicates.
+	 * @param RenameDutchDecidiqValueDecisions $decisions Pure predicates.
 	 */
 	public function __construct(
 		private readonly ValueMigrationGateway $gateway,
-		private readonly RenameDutchDecideskValueDecisions $decisions = new RenameDutchDecideskValueDecisions(),
+		private readonly RenameDutchDecidiqValueDecisions $decisions = new RenameDutchDecidiqValueDecisions(),
 	) {
 	}//end __construct()
 
@@ -319,7 +319,7 @@ class RenameDutchDecideskValues implements IRepairStep {
 	 * @return string
 	 */
 	public function getName(): string {
-		return 'Translate stored Dutch Decidesk enum values';
+		return 'Translate stored Dutch Decidiq enum values';
 	}//end getName()
 
 	/**
