@@ -28,6 +28,34 @@ $autoloader = require __DIR__ . '/../vendor/autoload.php';
 // (which extends OCP\...\Event) is actually loaded.
 $autoloader->addPsr4('OCA\\OpenRegister\\', __DIR__ . '/Stubs/');
 
+// THE OpenRegister CONTRACT INTERFACES, OPTED INTO RATHER THAN AUTOLOADED.
+//
+// conduction/hydra-gates claims `OCA\OpenRegister\Contract\` as a RUNTIME psr-4
+// prefix, so consumers get these interfaces implicitly. That prefix is LONGER
+// than both openregister's own `OCA\OpenRegister\` -> `lib/` AND the stub root
+// registered on the line above, and PSR-4 is longest-prefix-wins — so whichever
+// app's autoloader registers first defines OpenRegister's contract for the whole
+// process (ConductionNL/.github#531).
+//
+// Once that prefix is dropped, the stub root above resolves
+// `...\Contract\ObjectServiceInterface` to tests/Stubs/Contract/, which this app
+// does not ship. MEASURED without this block: 662 errors, every one
+// "Class or interface OCA\OpenRegister\Contract\ObjectServiceInterface does not
+// exist" from MockBuilder.
+//
+// interface_exists() is order-independent — it asks whether the interface is
+// RESOLVABLE, not who registered first. Appending a fallback autoloader does NOT
+// work: spl_autoload_register appends relative to registration order, and that
+// order across independently loaded apps is exactly what nobody controls.
+foreach (['ObjectEntityInterface', 'ObjectServiceInterface'] as $contract) {
+	if (interface_exists('\\OCA\\OpenRegister\\Contract\\' . $contract) === false) {
+		$shipped = __DIR__ . '/../vendor/conduction/hydra-gates/hydra-gates/contracts/' . $contract . '.php';
+		if (file_exists($shipped) === true) {
+			require_once $shipped;
+		}
+	}
+}
+
 // Register OCP\ and NCU\ namespaces.
 // vendor/nextcloud/ocp/OCP is a symlink to the live NC server (/var/www/html/lib/public)
 // that resolves on a deployed instance but is broken in the bare php:8.3-cli CI container.
