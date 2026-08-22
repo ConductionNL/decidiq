@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Publication Service
+ * Decidiq Publication Service
  *
  * Orchestrates the public-publication flow: eligibility, payload construction,
  * setting the OpenRegister published-predicate (publicationDate), OpenCatalogi
@@ -9,7 +9,7 @@
  * Covers publish, withdraw, and rectify.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,11 +24,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
-use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\App\IAppManager;
 use Psr\Log\LoggerInterface;

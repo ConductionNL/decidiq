@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk eIDAS Signature Controller
+ * Decidiq eIDAS Signature Controller
  *
  * Thin REST surface around the IEIDASSignatureService. Endpoints map
  * one-to-one onto the four interface methods so external integrations
@@ -9,7 +9,7 @@
  * flow without learning the openconnector source name.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,11 +25,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\GovernanceScopeGuard;
-use OCA\Decidesk\Service\IEIDASSignatureService;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\GovernanceScopeGuard;
+use OCA\Decidiq\Service\IEIDASSignatureService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;

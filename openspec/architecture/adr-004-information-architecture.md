@@ -5,7 +5,7 @@
 
 ## Context
 
-Decidesk is a universal decision-making platform: it serves municipal raden and
+Decidiq is a universal decision-making platform: it serves municipal raden and
 griffies (NOTUBIZ/iBabs-grade workflow — agenda, stukken, moties, amendementen,
 stemming, livestream-transcripts), corporate boards (resolutions, minutes,
 attestation), associations (ledenvergaderingen, fracties/commissies), and
@@ -18,7 +18,7 @@ raadsvergadering with 200 ingelogde fractievertegenwoordigers — one shell,
 role-aware density. The spec count (34 specs, including tiered variants
 T1/T2/T3 for meeting/decision/motion management) outweighs what any user can
 hold in their head, so the navigation must compress without losing the
-domain-specific surfaces that justify Decidesk against NOTUBIZ/iBabs (openness,
+domain-specific surfaces that justify Decidiq against NOTUBIZ/iBabs (openness,
 StUF/ZGW/Digikoppeling via OpenConnector) and against Boardable/Diligent
 (government-grade compliance + Dutch standards out of the box).
 
@@ -29,7 +29,7 @@ specs tomorrow do not produce 50 nav items.
 
 ## Decision
 
-Decidesk adopts a **6-item top-level navigation** with strict placement rules
+Decidiq adopts a **6-item top-level navigation** with strict placement rules
 that govern how future specs slot in without expanding the nav surface.
 
 ### Top-level navigation (6, fixed)
@@ -78,7 +78,7 @@ this amendment) evolved the concrete set while keeping Rules 1–4 and the
    confidentiality register
 
 "Beheer" is no longer a nav row. Per ADR-079: instance-wide configuration
-lives at `/settings/admin/decidesk` (a registered `lib/Settings/*Admin.php`
+lives at `/settings/admin/decidiq` (a registered `lib/Settings/*Admin.php`
 section, authorized server-side), reachable via the gear's admin-gated
 "Admin settings" link-out; a small set of operator/definition surfaces that
 don't yet have individual admin sub-pages are parked in the
@@ -96,7 +96,7 @@ items" ceiling are unchanged and apply to this v2 set identically.
 (gov / corp / assoc / ops). Only the *labels* shift via tenant mode — the
 navigation structure itself never branches per persona.
 
-**Rationale.** Decidesk's wedge is "one platform for every kind of
+**Rationale.** Decidiq's wedge is "one platform for every kind of
 decision-making body". Branching the IA per persona would split the codebase,
 the documentation, the muscle memory and the training material four ways.
 Label-only adaptation keeps a single product while respecting the language each
@@ -119,7 +119,7 @@ audience uses.
 menu entries. They are progressive-disclosure sections inside the same detail
 tab, gated by feature flag or capability detection.
 
-**Rationale.** Decidesk has six tiered spec families
+**Rationale.** Decidiq has six tiered spec families
 (`p2-meeting-management-core-t1/t2/t3`,
 `p2-meeting-management-other-t1/t2`,
 `p2-minutes-and-decisions-core-t1/t2/t3`,
@@ -173,7 +173,7 @@ by data — there is no duplication of objects, only of entry points.
 standards-hardening toggles, NOTUBIZ/iBabs sync, dashboards and CRUD-tools —
 all behind one door (*Beheer*). No admin items leak into the meeting flow.
 
-**Rationale.** Decidesk's audience includes non-technical raadsleden and
+**Rationale.** Decidiq's audience includes non-technical raadsleden and
 boardmembers who never touch configuration. Mixing schema editors or
 integration configuration into the meeting flow forces them to mentally filter
 out admin noise on every page. The corollary: an operator (griffier, IT admin)
@@ -193,7 +193,7 @@ ambushed by admin controls in their day-to-day surface.
 
 ### Top-level ceiling
 
-Six items is the agreed ceiling for Decidesk. New specs MUST fit into one of
+Six items is the agreed ceiling for Decidiq. New specs MUST fit into one of
 the existing top-level items (or attach as a tab/sub-page within one).
 Adding a 7th top-level requires an ADR amendment that demonstrates the new
 surface can't reasonably live under an existing item AND that the existing

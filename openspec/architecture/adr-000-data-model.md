@@ -1,9 +1,9 @@
-# Data Model — Decidesk
+# Data Model — Decidiq
 
 > **Updated by ADR-005 (Decision as universal supertype) and ADR-006 (mode adaptation over parallel entities) — Cycle-1 refactor 2026-06-14.**
 > Key changes: Decision now carries a required `decisionType` discriminator; Motion/Amendment/Resolution retired as separate schemas and folded into Decision. Person/Membership/Post/ContactDetail are now the implemented decision-maker model; Participant is deprecated. Board-* schemas (Board, BoardMember, BoardMeeting, BoardVote, BoardMinutes, BoardMaterial, BoardAuditLogEntry) were retired; corporate governance is served by mode-adaptation of the universal entities (see ADR-006).
 
-**App:** Decidesk — Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings
+**App:** Decidiq — Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings
 **Platform:** OpenRegister (register/schema/object pattern)
 **Entities:** 23
 

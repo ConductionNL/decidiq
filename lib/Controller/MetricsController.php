@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Metrics Controller
+ * Decidiq Metrics Controller
  *
  * AppHost adopter by COMPOSITION, not inheritance: the OpenRegister AppHost
  * metrics engine is resolved lazily out of the DI container by FQCN string and
  * renders the manifest-declared Prometheus metrics (admin-only, ADR-006).
- * Decidesk had no metrics endpoint before AppHost adoption; this serves the
+ * Decidiq had no metrics endpoint before AppHost adoption; this serves the
  * implicit `decidesk_info` / `decidesk_up` gauges from the `observability`
  * block of `src/manifest.json`.
  *
@@ -16,7 +16,7 @@
  * EVERY route in decidesk return HTTP 500, not just this one. See decidesk#377.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -35,9 +35,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidiq\AppInfo\Application;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;

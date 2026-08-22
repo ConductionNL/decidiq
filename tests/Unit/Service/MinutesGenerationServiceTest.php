@@ -7,7 +7,7 @@
  * Copyright (C) 2026 Conduction B.V.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
  *
@@ -20,10 +20,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\MinutesDraftRenderer;
-use OCA\Decidesk\Service\MinutesGenerationService;
+use OCA\Decidiq\Service\MinutesDraftRenderer;
+use OCA\Decidiq\Service\MinutesGenerationService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -401,7 +401,7 @@ class MinutesGenerationServiceTest extends TestCase {
 	public function testRejectUnknownMinutesThrowsMissingObjectException(): void {
 		$this->objectService->method('find')->willReturn(null);
 
-		$this->expectException(\OCA\Decidesk\Exception\MissingObjectException::class);
+		$this->expectException(\OCA\Decidiq\Exception\MissingObjectException::class);
 
 		$this->service->reject(minutesId: 'minutes-404', comment: 'Hello', userId: 'chair-user');
 

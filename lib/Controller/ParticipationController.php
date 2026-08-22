@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Participation Controller
+ * Decidiq Participation Controller
  *
  * Thin REST controller for consultation + reaction ACTIONS only: consultation
  * lifecycle transitions, reaction intake + moderation, and consultation/reaction
@@ -10,7 +10,7 @@
  * object API (ADR-022) — no pass-through endpoints.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,13 +27,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\ParticipationLifecycleService;
-use OCA\Decidesk\Service\ParticipationPublicationService;
-use OCA\Decidesk\Service\ParticipationResponder;
-use OCA\Decidesk\Service\ReactionIntakeService;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\ParticipationLifecycleService;
+use OCA\Decidiq\Service\ParticipationPublicationService;
+use OCA\Decidiq\Service\ParticipationResponder;
+use OCA\Decidiq\Service\ReactionIntakeService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;

@@ -12,7 +12,7 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Assign spokesperson')"
+		:name="t('decidiq', 'Assign spokesperson')"
 		data-testid="spokesperson-dialog"
 		@closing="$emit('close')">
 		<template #default>
@@ -31,13 +31,13 @@
 				</li>
 			</ul>
 			<p v-else>
-				{{ t('decidesk', 'No participants found.') }}
+				{{ t('decidiq', 'No participants found.') }}
 			</p>
 			<NcButton
 				v-if="hasSpokesperson"
 				variant="error"
 				@click="$emit('remove')">
-				{{ t('decidesk', 'Remove spokesperson') }}
+				{{ t('decidiq', 'Remove spokesperson') }}
 			</NcButton>
 		</template>
 	</NcDialog>

@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Activity Provider
+ * Decidiq Activity Provider
  *
- * Renders Decidesk governance activity events (decision recorded/published,
+ * Renders Decidiq governance activity events (decision recorded/published,
  * meeting lifecycle transitions, vote initiation, resolution adoption) for
  * the Nextcloud Activity stream.
  *
  * @category Activity
- * @package  OCA\Decidesk\Activity
+ * @package  OCA\Decidiq\Activity
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,9 +23,9 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Activity;
+namespace OCA\Decidiq\Activity;
 
-use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidiq\AppInfo\Application;
 use OCP\Activity\Exceptions\UnknownActivityException;
 use OCP\Activity\IEvent;
 use OCP\Activity\IProvider;
@@ -33,16 +33,16 @@ use OCP\IURLGenerator;
 use OCP\L10N\IFactory;
 
 /**
- * Parses Decidesk governance events for the Activity stream.
+ * Parses Decidiq governance events for the Activity stream.
  *
  * Registered via appinfo/info.xml <activity><providers>. Subject parameters
- * are produced by {@see \OCA\Decidesk\Service\ActivityPublisherService} and
+ * are produced by {@see \OCA\Decidiq\Service\ActivityPublisherService} and
  * carry the object title, status, OR uuid, and frontend route segment so the
  * provider can render without re-fetching OpenRegister objects.
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
-class DecideskProvider implements IProvider {
+class DecidiqProvider implements IProvider {
 
 	/**
 	 * Subject identifier: a decision was recorded in a live meeting.
@@ -92,7 +92,7 @@ class DecideskProvider implements IProvider {
 	}//end __construct()
 
 	/**
-	 * Parse a Decidesk governance event into a rendered activity entry.
+	 * Parse a Decidiq governance event into a rendered activity entry.
 	 *
 	 * @param string $language The language to translate into, e.g. "en"
 	 * @param IEvent $event The event to parse
@@ -100,7 +100,7 @@ class DecideskProvider implements IProvider {
 	 *
 	 * @return IEvent
 	 *
-	 * @throws UnknownActivityException When the event does not belong to Decidesk
+	 * @throws UnknownActivityException When the event does not belong to Decidiq
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $previousEvent required by the IProvider interface.
 	 *
@@ -110,7 +110,7 @@ class DecideskProvider implements IProvider {
 		if ($event->getApp() !== Application::APP_ID
 			|| $event->getType() !== GovernanceSetting::TYPE_GOVERNANCE
 		) {
-			throw new UnknownActivityException('Not a Decidesk governance event');
+			throw new UnknownActivityException('Not a Decidiq governance event');
 		}
 
 		$l10n = $this->languageFactory->get(Application::APP_ID, $language);
@@ -140,7 +140,7 @@ class DecideskProvider implements IProvider {
 				$l10n->t('Resolution {object} was adopted'),
 			],
 			default => throw new UnknownActivityException(
-				'Unknown Decidesk activity subject: ' . $event->getSubject()
+				'Unknown Decidiq activity subject: ' . $event->getSubject()
 			),
 		};// End match.
 
@@ -173,7 +173,7 @@ class DecideskProvider implements IProvider {
 	}//end parse()
 
 	/**
-	 * Build the absolute deep link into the Decidesk SPA for an event.
+	 * Build the absolute deep link into the Decidiq SPA for an event.
 	 *
 	 * @param array<string,mixed> $params The event subject parameters (segment + uuid)
 	 *

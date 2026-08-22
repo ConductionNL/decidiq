@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk RequiresOrAdmin trait
+ * Decidiq RequiresOrAdmin trait
  *
  * The single shared admin guard for decidesk's admin-gated controllers,
  * replacing the four copy-pasted private `requireAdmin()` methods
@@ -18,7 +18,7 @@
  * `$this->groupManager` (IGroupManager) — every one of the four already does.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -34,7 +34,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;

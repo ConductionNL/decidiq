@@ -4,7 +4,7 @@
  * Unit tests for MotionController — auth guard and attribute assertions.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Controller
+ * @package  OCA\Decidiq\Tests\Unit\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -18,11 +18,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Controller;
+namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\Decidesk\Controller\MotionController;
-use OCA\Decidesk\Service\MotionService;
-use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidiq\Controller\MotionController;
+use OCA\Decidiq\Service\MotionService;
+use OCA\Decidiq\Service\ParticipantResolver;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;

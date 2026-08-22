@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Regulator Export Renderer
+ * Decidiq Regulator Export Renderer
  *
  * Owns the *presentation* half of the regulator export: turning a collected
  * rowset into a PDF or CSV body. Extracted from RegulatorExportService so
@@ -10,7 +10,7 @@
  * PDF 1.4 skeleton, optional docudesk delegation) live in one place.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,7 +27,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -205,7 +205,7 @@ class RegulatorExportRenderer {
 			}
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: docudesk PDF delegation failed; falling back to skeleton',
+				'Decidiq: docudesk PDF delegation failed; falling back to skeleton',
 				['candidate' => $candidate, 'exception' => $e->getMessage()]
 			);
 		}//end try

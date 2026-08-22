@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk PreferencesController.
+ * Decidiq PreferencesController.
  *
  * Generic per-user key/value preferences, backed by Nextcloud IConfig
  * user values. Used by shared @conduction/nextcloud-vue widgets (e.g.
@@ -9,7 +9,7 @@
  * UI flag cross-device without a bespoke endpoint per feature.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2024 Conduction B.V.
@@ -22,9 +22,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidiq\AppInfo\Application;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;

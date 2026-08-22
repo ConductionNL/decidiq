@@ -1,21 +1,21 @@
-# Makefile for nextcloud-decidesk development
+# Makefile for nextcloud-decidiq development
 
 # Create a relative symlink in the parent directory so Nextcloud can find the
-# app by its ID (decidesk) even though the repo is cloned as nextcloud-decidesk.
+# app by its ID (decidiq) even though the repo is cloned as nextcloud-decidiq.
 # Nextcloud requires the directory name to match the <id> in appinfo/info.xml.
 dev-link:
-	@if [ -L ../decidesk ]; then \
-		echo "Symlink ../decidesk already exists."; \
+	@if [ -L ../decidiq ]; then \
+		echo "Symlink ../decidiq already exists."; \
 	else \
-		ln -s nextcloud-decidesk ../decidesk && \
-		echo "Created symlink: apps-extra/decidesk -> nextcloud-decidesk"; \
+		ln -s nextcloud-decidiq ../decidiq && \
+		echo "Created symlink: apps-extra/decidiq -> nextcloud-decidiq"; \
 	fi
 
 dev-unlink:
-	@if [ -L ../decidesk ]; then \
-		rm ../decidesk && echo "Removed symlink ../decidesk"; \
+	@if [ -L ../decidiq ]; then \
+		rm ../decidiq && echo "Removed symlink ../decidiq"; \
 	else \
-		echo "No symlink found at ../decidesk."; \
+		echo "No symlink found at ../decidiq."; \
 	fi
 
 .PHONY: dev-link dev-unlink

@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Transcript Retention Background Job
+ * Decidiq Transcript Retention Background Job
  *
  * Daily job that enforces the per-body retention policy on meeting recordings
  * and raw transcripts after the meeting's minutes are approved.
  *
  * @category BackgroundJob
- * @package  OCA\Decidesk\BackgroundJob
+ * @package  OCA\Decidiq\BackgroundJob
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,7 +23,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\BackgroundJob;
+namespace OCA\Decidiq\BackgroundJob;
 
 use DateTimeImmutable;
 use OCP\AppFramework\Utility\ITimeFactory;
@@ -113,7 +113,7 @@ class TranscriptRetentionJob extends TimedJob {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk TranscriptRetentionJob: OpenRegister unavailable, skipping.',
+				'Decidiq TranscriptRetentionJob: OpenRegister unavailable, skipping.',
 				['exception' => $e->getMessage()]
 			);
 			return;
@@ -127,7 +127,7 @@ class TranscriptRetentionJob extends TimedJob {
 				$this->enforceForTranscript(objectService: $objectService, transcript: $transcript, now: $now);
 			} catch (\Throwable $e) {
 				$this->logger->error(
-					'Decidesk TranscriptRetentionJob: enforcement failed for a transcript',
+					'Decidiq TranscriptRetentionJob: enforcement failed for a transcript',
 					['exception' => $e->getMessage()]
 				);
 			}
@@ -376,7 +376,7 @@ class TranscriptRetentionJob extends TimedJob {
 			return true;
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk TranscriptRetentionJob: file delete failed',
+				'Decidiq TranscriptRetentionJob: file delete failed',
 				['path' => $path, 'error' => $e->getMessage()]
 			);
 			return false;
@@ -397,7 +397,7 @@ class TranscriptRetentionJob extends TimedJob {
 	 */
 	private function appendAudit(string $meetingId, array $deleted, string $policy): void {
 		try {
-			$auditLog = $this->container->get(\OCA\Decidesk\Service\AuditLogService::class);
+			$auditLog = $this->container->get(\OCA\Decidiq\Service\AuditLogService::class);
 			$auditLog->append(
 				'system:retention',
 				'transcript.retention.purge',
@@ -406,7 +406,7 @@ class TranscriptRetentionJob extends TimedJob {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk TranscriptRetentionJob: audit append failed',
+				'Decidiq TranscriptRetentionJob: audit append failed',
 				['meetingId' => $meetingId, 'error' => $e->getMessage()]
 			);
 		}

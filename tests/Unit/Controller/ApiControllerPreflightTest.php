@@ -4,7 +4,7 @@
  * Wire-contract tests for the ApiController CORS preflight endpoints.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Controller
+ * @package  OCA\Decidiq\Tests\Unit\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -18,9 +18,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Controller;
+namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\Decidesk\Controller\ApiController;
+use OCA\Decidiq\Controller\ApiController;
 use OCP\AppFramework\Http;
 use OCP\IConfig;
 use OCP\IRequest;

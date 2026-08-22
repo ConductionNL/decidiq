@@ -4,7 +4,7 @@
  * Unit tests for ProcessTemplatePolicyResolver.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Lifecycle
+ * @package  OCA\Decidiq\Tests\Unit\Lifecycle
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,9 +20,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Lifecycle;
+namespace OCA\Decidiq\Tests\Unit\Lifecycle;
 
-use OCA\Decidesk\Lifecycle\ProcessTemplatePolicyResolver;
+use OCA\Decidiq\Lifecycle\ProcessTemplatePolicyResolver;
 use PHPUnit\Framework\TestCase;
 
 /**

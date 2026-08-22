@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Live Meeting Controller
+ * Decidiq Live Meeting Controller
  *
  * Controller for live meeting operations such as recording decisions during
  * an active meeting via the live decision panel.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
  *
@@ -20,12 +20,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\Decidesk\Service\LiveDecisionService;
-use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Service\LiveDecisionService;
+use OCA\Decidiq\Service\ParticipantResolver;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;

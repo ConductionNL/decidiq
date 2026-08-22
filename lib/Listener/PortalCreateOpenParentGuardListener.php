@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Portal Create Open-Parent Guard Listener
+ * Decidiq Portal Create Open-Parent Guard Listener
  *
  * Fail-closed enforcement of the citizen create-actions' open-parent
  * constraint (portal-citizen-create-actions, REQ-DKPCA-001/002): a
@@ -11,7 +11,7 @@
  * (`ContributionController::create()` + `PortalObjectWriter::createObject()`,
  * contract v2.2) stamps the scope field + `defaults` but does NOT read or
  * enforce a declared `parentConstraint` (verified against portaliq at HEAD) —
- * so Decidesk enforces it itself, at the OpenRegister insert boundary, via
+ * so Decidiq enforces it itself, at the OpenRegister insert boundary, via
  * `ObjectCreatingEvent`. That event implements `StoppableEventInterface`:
  * `stopPropagation()` makes `MagicMapper::insertObjectEntity()` throw a
  * `HookStoppedException` BEFORE the row is persisted (verified against
@@ -34,7 +34,7 @@
  * `consultation-reaction` rows always carry `moderationStatus` +
  * `submitterId` + `body`; `budget-proposal` rows always carry `submitter` +
  * `requestedAmount` + `status`. Both signatures hold on EVERY existing write
- * path for these schemas — the new portaliq create actions AND Decidesk's own
+ * path for these schemas — the new portaliq create actions AND Decidiq's own
  * `ReactionIntakeService::submitReaction()` / `BudgetVotingService::submitProposal()`
  * — so tier (2) is what actually makes this guard fire in practice today (no
  * caller currently stamps a `_schemaSlug` on these two schemas), and it fires
@@ -46,10 +46,10 @@
  * `PortalContributionProvider`'s own manifest (`parentConstraint` on each
  * `type: create` action) rather than duplicated here, so the manifest stays
  * the single declarative source of truth for both what portaliq is told and
- * what Decidesk enforces.
+ * what Decidiq enforces.
  *
  * @category Listener
- * @package  OCA\Decidesk\Listener
+ * @package  OCA\Decidiq\Listener
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -65,9 +65,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Listener;
+namespace OCA\Decidiq\Listener;
 
-use OCA\Decidesk\Portal\PortalContributionProvider;
+use OCA\Decidiq\Portal\PortalContributionProvider;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -148,7 +148,7 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 			// block (evaluate() already returns before any lookup runs when
 			// neither tier identifies the row as one of the two schemas).
 			$this->logger->warning(
-				'Decidesk: portal create open-parent guard failed, rejecting closed',
+				'Decidiq: portal create open-parent guard failed, rejecting closed',
 				['exception' => $e->getMessage()]
 			);
 			$event->setErrors(['message' => 'Could not verify the parent is open']);
@@ -352,7 +352,7 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 	/**
 	 * Resolve the parent id from either the scalar reference field (the
 	 * portaliq create action's shape) or the generic `relations` array
-	 * (Decidesk's own `ReactionIntakeService`/`BudgetVotingService` shape).
+	 * (Decidiq's own `ReactionIntakeService`/`BudgetVotingService` shape).
 	 *
 	 * @param array<string, mixed> $row The raw object data.
 	 * @param array<string, mixed> $constraint The resolved parent constraint.

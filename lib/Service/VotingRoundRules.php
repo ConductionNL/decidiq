@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Voting Round Rules
+ * Decidiq Voting Round Rules
  *
  * The configurable decision rules a voting round is opened under, carried as one
  * value instead of five loose parameters.
@@ -13,7 +13,7 @@
  * intent to it.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -30,7 +30,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 /**
  * Immutable carrier for the rules a voting round is opened under.

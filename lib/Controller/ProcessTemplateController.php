@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Process Template Controller
+ * Decidiq Process Template Controller
  *
  * Admin-gated CRUD + duplicate surface for governance process templates. Every
  * method is scoped to full/delegated admins via #[AuthorizedAdminSetting]; the
  * template management surface is an admin-settings concern (no per-user access).
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,11 +26,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\ProcessTemplateService;
-use OCA\Decidesk\Settings\AdminSettings;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\ProcessTemplateService;
+use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -109,7 +109,7 @@ class ProcessTemplateController extends Controller {
 		} catch (\InvalidArgumentException $e) {
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
 		} catch (\Throwable $e) {
-			$this->logger->error('Decidesk: process template create failed', ['error' => $e->getMessage()]);
+			$this->logger->error('Decidiq: process template create failed', ['error' => $e->getMessage()]);
 			return new JSONResponse(['message' => 'Failed to create process template.'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
@@ -148,7 +148,7 @@ class ProcessTemplateController extends Controller {
 		} catch (\RuntimeException $e) {
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_CONFLICT);
 		} catch (\Throwable $e) {
-			$this->logger->error('Decidesk: process template update failed', ['error' => $e->getMessage()]);
+			$this->logger->error('Decidiq: process template update failed', ['error' => $e->getMessage()]);
 			return new JSONResponse(['message' => 'Failed to update process template.'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
@@ -177,7 +177,7 @@ class ProcessTemplateController extends Controller {
 		} catch (\RuntimeException $e) {
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
 		} catch (\Throwable $e) {
-			$this->logger->error('Decidesk: process template duplicate failed', ['error' => $e->getMessage()]);
+			$this->logger->error('Decidiq: process template duplicate failed', ['error' => $e->getMessage()]);
 			return new JSONResponse(['message' => 'Failed to duplicate process template.'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
@@ -200,7 +200,7 @@ class ProcessTemplateController extends Controller {
 		} catch (\RuntimeException $e) {
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_CONFLICT);
 		} catch (\Throwable $e) {
-			$this->logger->error('Decidesk: process template delete failed', ['error' => $e->getMessage()]);
+			$this->logger->error('Decidiq: process template delete failed', ['error' => $e->getMessage()]);
 			return new JSONResponse(['message' => 'Failed to delete process template.'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 

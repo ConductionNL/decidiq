@@ -12,50 +12,50 @@
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--lifecycle"
+		class="decidiq-tab decidiq-tab--lifecycle"
 		data-testid="decision-lifecycle-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Lifecycle') }}
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Lifecycle') }}
 			</h3>
 		</div>
 
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Lifecycle unavailable')">
+			:title="t('decidiq', 'Lifecycle unavailable')">
 			{{ error }}
 		</CnNoteCard>
 
 		<ol
 			v-if="!error"
-			class="decidesk-lifecycle__timeline"
+			class="decidiq-lifecycle__timeline"
 			data-testid="lifecycle-timeline">
 			<li
 				v-for="step in timeline"
 				:key="step.state"
-				class="decidesk-lifecycle__step"
-				:class="'decidesk-lifecycle__step--' + step.status"
+				class="decidiq-lifecycle__step"
+				:class="'decidiq-lifecycle__step--' + step.status"
 				:data-testid="'lifecycle-step-' + step.state">
-				<span class="decidesk-lifecycle__marker" aria-hidden="true" />
-				<span class="decidesk-lifecycle__label">{{
+				<span class="decidiq-lifecycle__marker" aria-hidden="true" />
+				<span class="decidiq-lifecycle__label">{{
 					stateLabel(step.state)
 				}}</span>
 				<CnStatusBadge
 					v-if="step.status === 'current'"
-					:label="t('decidesk', 'Current')"
-					:colorMap="{ [t('decidesk', 'Current')]: 'primary' }" />
+					:label="t('decidiq', 'Current')"
+					:colorMap="{ [t('decidiq', 'Current')]: 'primary' }" />
 			</li>
 		</ol>
 
-		<div v-if="!error" class="decidesk-lifecycle__actions">
-			<h4 class="decidesk-lifecycle__actions-title">
-				{{ t('decidesk', 'Available transitions') }}
+		<div v-if="!error" class="decidiq-lifecycle__actions">
+			<h4 class="decidiq-lifecycle__actions-title">
+				{{ t('decidiq', 'Available transitions') }}
 			</h4>
-			<p v-if="!loading && !actions.length" class="decidesk-lifecycle__none">
-				{{ t('decidesk', 'No transitions available from this state.') }}
+			<p v-if="!loading && !actions.length" class="decidiq-lifecycle__none">
+				{{ t('decidiq', 'No transitions available from this state.') }}
 			</p>
-			<div class="decidesk-lifecycle__buttons">
+			<div class="decidiq-lifecycle__buttons">
 				<NcButton
 					v-for="action in actions"
 					:key="action.action"
@@ -66,15 +66,15 @@
 					{{ actionLabel(action.action) }}
 					<span
 						v-if="action.chairOnly"
-						class="decidesk-lifecycle__chair-hint">
-						({{ t('decidesk', 'chair only') }})
+						class="decidiq-lifecycle__chair-hint">
+						({{ t('decidiq', 'chair only') }})
 					</span>
 				</NcButton>
 			</div>
 			<CnNoteCard
 				v-if="transitionError"
 				type="error"
-				:title="t('decidesk', 'Transition rejected')">
+				:title="t('decidiq', 'Transition rejected')">
 				{{ transitionError }}
 			</CnNoteCard>
 		</div>
@@ -137,13 +137,13 @@ export default {
 		 */
 		stateLabel(state) {
 			const labels = {
-				draft: this.t('decidesk', 'Draft'),
-				proposed: this.t('decidesk', 'Proposed'),
-				deliberating: this.t('decidesk', 'Deliberating'),
-				voting: this.t('decidesk', 'Voting'),
-				decided: this.t('decidesk', 'Decided'),
-				enacted: this.t('decidesk', 'Enacted'),
-				archived: this.t('decidesk', 'Archived'),
+				draft: this.t('decidiq', 'Draft'),
+				proposed: this.t('decidiq', 'Proposed'),
+				deliberating: this.t('decidiq', 'Deliberating'),
+				voting: this.t('decidiq', 'Voting'),
+				decided: this.t('decidiq', 'Decided'),
+				enacted: this.t('decidiq', 'Enacted'),
+				archived: this.t('decidiq', 'Archived'),
 			}
 			return labels[state] || state
 		},
@@ -154,12 +154,12 @@ export default {
 		 */
 		actionLabel(action) {
 			const labels = {
-				propose: this.t('decidesk', 'Propose'),
-				deliberate: this.t('decidesk', 'Start deliberation'),
-				openVoting: this.t('decidesk', 'Open voting'),
-				decide: this.t('decidesk', 'Record decision'),
-				enact: this.t('decidesk', 'Enact'),
-				archive: this.t('decidesk', 'Archive'),
+				propose: this.t('decidiq', 'Propose'),
+				deliberate: this.t('decidiq', 'Start deliberation'),
+				openVoting: this.t('decidiq', 'Open voting'),
+				decide: this.t('decidiq', 'Record decision'),
+				enact: this.t('decidiq', 'Enact'),
+				archive: this.t('decidiq', 'Archive'),
 			}
 			return labels[action] || action
 		},
@@ -172,7 +172,7 @@ export default {
 			try {
 				const res = await fetch(
 					generateUrl(
-						`/apps/decidesk/api/decisions/${this.objectId}/transitions`,
+						`/apps/decidiq/api/decisions/${this.objectId}/transitions`,
 					),
 					{
 						headers: {
@@ -185,7 +185,7 @@ export default {
 				if (!res.ok) {
 					this.error =
 						body?.message
-						|| this.t('decidesk', 'Failed to load lifecycle state.')
+						|| this.t('decidiq', 'Failed to load lifecycle state.')
 					return
 				}
 				this.lifecycle = body.lifecycle || 'draft'
@@ -193,7 +193,7 @@ export default {
 			} catch (e) {
 				this.error =
 					e?.message
-					|| this.t('decidesk', 'Failed to load lifecycle state.')
+					|| this.t('decidiq', 'Failed to load lifecycle state.')
 			} finally {
 				this.loading = false
 			}
@@ -209,7 +209,7 @@ export default {
 			try {
 				const res = await fetch(
 					generateUrl(
-						`/apps/decidesk/api/decisions/${this.objectId}/transition`,
+						`/apps/decidiq/api/decisions/${this.objectId}/transition`,
 					),
 					{
 						method: 'POST',
@@ -224,7 +224,7 @@ export default {
 				const body = await res.json()
 				if (!res.ok) {
 					this.transitionError =
-						body?.message || this.t('decidesk', 'Transition failed.')
+						body?.message || this.t('decidiq', 'Transition failed.')
 					return
 				}
 				await this.refresh()
@@ -237,7 +237,7 @@ export default {
 				}
 			} catch (e) {
 				this.transitionError =
-					e?.message || this.t('decidesk', 'Transition failed.')
+					e?.message || this.t('decidiq', 'Transition failed.')
 			} finally {
 				this.busy = false
 			}
@@ -261,7 +261,7 @@ export default {
 				if (!bodyId) return
 
 				const res = await fetch(
-					generateUrl('/apps/decidesk/api/settings/publication-config'),
+					generateUrl('/apps/decidiq/api/settings/publication-config'),
 					{
 						headers: {
 							Accept: 'application/json',
@@ -289,7 +289,7 @@ export default {
 		async promptPublish() {
 			this.publishPromptOpen = false
 			try {
-				await fetch(generateUrl('/apps/decidesk/api/publications'), {
+				await fetch(generateUrl('/apps/decidiq/api/publications'), {
 					method: 'POST',
 					headers: {
 						Accept: 'application/json',
@@ -304,7 +304,7 @@ export default {
 				this.$emit('refresh')
 			} catch (e) {
 				this.transitionError =
-					e?.message || this.t('decidesk', 'Publication failed.')
+					e?.message || this.t('decidiq', 'Publication failed.')
 			}
 		},
 	},
@@ -312,27 +312,27 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-lifecycle__timeline {
+.decidiq-lifecycle__timeline {
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -341,14 +341,14 @@ export default {
 	gap: 2px;
 }
 
-.decidesk-lifecycle__step {
+.decidiq-lifecycle__step {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 	padding: 4px 0;
 }
 
-.decidesk-lifecycle__marker {
+.decidiq-lifecycle__marker {
 	width: 10px;
 	height: 10px;
 	border-radius: 50%;
@@ -356,44 +356,44 @@ export default {
 	flex-shrink: 0;
 }
 
-.decidesk-lifecycle__step--done .decidesk-lifecycle__marker {
+.decidiq-lifecycle__step--done .decidiq-lifecycle__marker {
 	background: var(--color-success);
 	border-color: var(--color-success);
 }
 
-.decidesk-lifecycle__step--current .decidesk-lifecycle__marker {
+.decidiq-lifecycle__step--current .decidiq-lifecycle__marker {
 	background: var(--color-primary-element);
 	border-color: var(--color-primary-element);
 }
 
-.decidesk-lifecycle__step--upcoming .decidesk-lifecycle__label {
+.decidiq-lifecycle__step--upcoming .decidiq-lifecycle__label {
 	color: var(--color-text-maxcontrast);
 }
 
-.decidesk-lifecycle__actions {
+.decidiq-lifecycle__actions {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-lifecycle__actions-title {
+.decidiq-lifecycle__actions-title {
 	margin: 8px 0 0;
 	font-size: 0.95rem;
 	font-weight: bold;
 }
 
-.decidesk-lifecycle__none {
+.decidiq-lifecycle__none {
 	margin: 0;
 	color: var(--color-text-maxcontrast);
 }
 
-.decidesk-lifecycle__buttons {
+.decidiq-lifecycle__buttons {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px;
 }
 
-.decidesk-lifecycle__chair-hint {
+.decidiq-lifecycle__chair-hint {
 	color: var(--color-text-maxcontrast);
 	font-size: 0.85em;
 	margin-inline-start: 4px;

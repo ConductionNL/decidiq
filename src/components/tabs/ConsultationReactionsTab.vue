@@ -19,7 +19,7 @@
 
 		<NcEmptyContent
 			v-else-if="pending.length === 0"
-			:name="t('decidesk', 'No reactions awaiting moderation')"
+			:name="t('decidiq', 'No reactions awaiting moderation')"
 			data-testid="consultation-reactions-empty">
 			<template #icon>
 				<CheckIcon :size="48" />
@@ -41,13 +41,13 @@
 						variant="success"
 						data-testid="consultation-reactions-approve"
 						@click="openApprove(reaction)">
-						{{ t('decidesk', 'Approve') }}
+						{{ t('decidiq', 'Approve') }}
 					</NcButton>
 					<NcButton
 						variant="error"
 						data-testid="consultation-reactions-reject"
 						@click="openReject(reaction)">
-						{{ t('decidesk', 'Reject') }}
+						{{ t('decidiq', 'Reject') }}
 					</NcButton>
 				</div>
 			</li>
@@ -138,7 +138,7 @@ export default {
 					(r) => (r.moderationStatus || 'pending') === 'pending',
 				)
 			} catch (e) {
-				showError(t('decidesk', 'Could not load the moderation queue'))
+				showError(t('decidiq', 'Could not load the moderation queue'))
 				this.pending = []
 			} finally {
 				this.loading = false
@@ -158,10 +158,10 @@ export default {
 			this.approving = null
 			try {
 				await approveReaction(reaction.id, note)
-				showSuccess(t('decidesk', 'Reaction approved'))
+				showSuccess(t('decidiq', 'Reaction approved'))
 				this.pending = this.pending.filter((r) => r.id !== reaction.id)
 			} catch (e) {
-				showError(t('decidesk', 'Could not approve the reaction'))
+				showError(t('decidiq', 'Could not approve the reaction'))
 			}
 		},
 
@@ -170,10 +170,10 @@ export default {
 			this.rejecting = null
 			try {
 				await rejectReaction(reaction.id, reason)
-				showSuccess(t('decidesk', 'Reaction rejected'))
+				showSuccess(t('decidiq', 'Reaction rejected'))
 				this.pending = this.pending.filter((r) => r.id !== reaction.id)
 			} catch (e) {
-				showError(t('decidesk', 'Could not reject the reaction'))
+				showError(t('decidiq', 'Could not reject the reaction'))
 			}
 		},
 	},

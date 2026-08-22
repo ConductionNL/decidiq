@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Voting Error Responder
+ * Decidiq Voting Error Responder
  *
  * Maps the exceptions the voting services raise onto the HTTP responses the
  * voting endpoints return. Each endpoint declares which mapping it wants by
@@ -9,7 +9,7 @@
  * the status-code contract of every endpoint lives in one place.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,7 +26,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
 use OCP\AppFramework\Http;

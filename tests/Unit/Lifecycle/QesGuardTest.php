@@ -4,7 +4,7 @@
  * Unit tests for QesGuard.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Lifecycle
+ * @package  OCA\Decidiq\Tests\Unit\Lifecycle
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,10 +20,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Lifecycle;
+namespace OCA\Decidiq\Tests\Unit\Lifecycle;
 
-use OCA\Decidesk\Lifecycle\QesGuard;
-use OCA\Decidesk\Service\IEIDASSignatureService;
+use OCA\Decidiq\Lifecycle\QesGuard;
+use OCA\Decidiq\Service\IEIDASSignatureService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;

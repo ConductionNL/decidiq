@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Member Import Service
+ * Decidiq Member Import Service
  *
  * Resolves Nextcloud groups, group members, and email-to-account matches for
  * the governance-body member import surface (admin settings).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -22,7 +22,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
 use OCP\IGroupManager;

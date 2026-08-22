@@ -17,10 +17,10 @@
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--voting-round"
+		class="decidiq-tab decidiq-tab--voting-round"
 		data-testid="motion-voting-round-tab">
-		<p v-if="loading" class="decidesk-tab__empty">
-			{{ t('decidesk', 'Loading…') }}
+		<p v-if="loading" class="decidiq-tab__empty">
+			{{ t('decidiq', 'Loading…') }}
 		</p>
 		<template v-else>
 			<VotingRoundPanel
@@ -102,14 +102,14 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__empty {
+.decidiq-tab__empty {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }

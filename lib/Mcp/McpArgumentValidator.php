@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk MCP Argument Validator
+ * Decidiq MCP Argument Validator
  *
  * Validates the arguments an LLM passes to a decidesk MCP tool, returning a
  * ready-made error envelope on rejection and null on acceptance.
  *
  * @category Mcp
- * @package  OCA\Decidesk\Mcp
+ * @package  OCA\Decidiq\Mcp
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,12 +24,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Mcp;
+namespace OCA\Decidiq\Mcp;
 
 /**
  * Argument validation for the decidesk MCP tools.
  *
- * Extracted from DecideskToolProvider so that argument checking — which is a
+ * Extracted from DecidiqToolProvider so that argument checking — which is a
  * large share of every handler's branching — is a unit of its own. Each
  * validate* method returns null when the arguments are acceptable, or a
  * structured `invalid_arguments` envelope describing the first violation.

@@ -4,7 +4,7 @@
  * Unit tests for VotingController — auth guard and attribute assertions.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Controller
+ * @package  OCA\Decidiq\Tests\Unit\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -18,16 +18,16 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Controller;
+namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\Decidesk\Controller\VotingController;
-use OCA\Decidesk\Service\OriPublicationService;
-use OCA\Decidesk\Service\ParticipantResolver;
-use OCA\Decidesk\Service\ProxyDelegationService;
-use OCA\Decidesk\Service\VotingErrorResponder;
-use OCA\Decidesk\Service\VotingOpenRequestHandler;
-use OCA\Decidesk\Service\VotingRoundGuard;
-use OCA\Decidesk\Service\VotingService;
+use OCA\Decidiq\Controller\VotingController;
+use OCA\Decidiq\Service\OriPublicationService;
+use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Service\ProxyDelegationService;
+use OCA\Decidiq\Service\VotingErrorResponder;
+use OCA\Decidiq\Service\VotingOpenRequestHandler;
+use OCA\Decidiq\Service\VotingRoundGuard;
+use OCA\Decidiq\Service\VotingService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;

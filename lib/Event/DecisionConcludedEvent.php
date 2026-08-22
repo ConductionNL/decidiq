@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk DecisionConcludedEvent
+ * Decidiq DecisionConcludedEvent
  *
  * Public cross-app event decidesk dispatches when a delegated (provenance-
  * carrying) Decision reaches a terminal outcome. Consumer fleet apps listen
@@ -11,7 +11,7 @@
  * envelope built by DecisionIntegrationService::getOutcomeEnvelope().
  *
  * @category Event
- * @package  OCA\Decidesk\Event
+ * @package  OCA\Decidiq\Event
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,7 +27,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Event;
+namespace OCA\Decidiq\Event;
 
 use OCP\EventDispatcher\Event;
 
@@ -62,7 +62,7 @@ class DecisionConcludedEvent extends Event {
 	 * @SuppressWarnings(PHPMD.ExcessiveParameterList) This parameter list is a
 	 * PUBLISHED CROSS-APP CONTRACT, not an internal signature. Consumer apps
 	 * mirror it verbatim and construct the event POSITIONALLY — see procest
-	 * tests/Stubs/Decidesk/Event/DecisionConcludedEvent.php (a byte-for-byte
+	 * tests/Stubs/Decidiq/Event/DecisionConcludedEvent.php (a byte-for-byte
 	 * mirror of this constructor) and
 	 * procest tests/Unit/Listener/DecisionConcludedListenerTest.php, which
 	 * builds the event with all fourteen arguments in this exact order.

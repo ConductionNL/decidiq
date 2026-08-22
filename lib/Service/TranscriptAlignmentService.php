@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Transcript Alignment Service
+ * Decidiq Transcript Alignment Service
  *
  * The pure derivations of the meeting-transcription pipeline: parsing a
  * provider result into neutral-label segments, building the meeting-conduct
@@ -9,7 +9,7 @@
  * None of it mutates a Transcript — TranscriptionService owns persistence.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,7 +25,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 

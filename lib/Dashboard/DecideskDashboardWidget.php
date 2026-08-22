@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Decidesk Nextcloud Dashboard Widget
+ * Decidiq Nextcloud Dashboard Widget
  *
- * Registers a "Decidesk" widget on the Nextcloud main dashboard (the Hub) via
+ * Registers a "Decidiq" widget on the Nextcloud main dashboard (the Hub) via
  * the platform OCP\Dashboard\IWidget API. Shows the current user's pending
  * votes count and their next upcoming meeting, deep-linking back into the
- * Decidesk app. Per-user (session-scoped, no IDOR) and fail-soft.
+ * Decidiq app. Per-user (session-scoped, no IDOR) and fail-soft.
  *
  * @category Dashboard
- * @package  OCA\Decidesk\Dashboard
+ * @package  OCA\Decidiq\Dashboard
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,10 +25,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Dashboard;
+namespace OCA\Decidiq\Dashboard;
 
 use DateTimeImmutable;
-use OCA\Decidesk\Service\DashboardWidgetService;
+use OCA\Decidiq\Service\DashboardWidgetService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Dashboard\IAPIWidgetV2;
 use OCP\Dashboard\IButtonWidget;
@@ -40,17 +40,17 @@ use OCP\IL10N;
 use OCP\IURLGenerator;
 
 /**
- * The Decidesk Hub dashboard widget.
+ * The Decidiq Hub dashboard widget.
  *
  * Implements the base {@see \OCP\Dashboard\IWidget} contract plus
  * {@see \OCP\Dashboard\IIconWidget} (icon url), {@see \OCP\Dashboard\IButtonWidget}
- * (an "Open Decidesk" deep-link button) and {@see \OCP\Dashboard\IAPIWidgetV2}
+ * (an "Open Decidiq" deep-link button) and {@see \OCP\Dashboard\IAPIWidgetV2}
  * (the NC32 pure-backend item path — no JS bundle required). Item data is
  * resolved per-user by {@see DashboardWidgetService}.
  *
  * @spec openspec/specs/dashboard/spec.md
  */
-class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidget {
+class DecidiqDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidget {
 	/**
 	 * Constructor.
 	 *
@@ -86,7 +86,7 @@ class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidge
 	 * @return string The translated title
 	 */
 	public function getTitle(): string {
-		return $this->l10n->t('Decidesk');
+		return $this->l10n->t('Decidiq');
 	}//end getTitle()
 
 	/**
@@ -130,7 +130,7 @@ class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidge
 	 *
 	 * @spec openspec/specs/dashboard/spec.md
 	 *
-	 * @return string|null The Decidesk app url
+	 * @return string|null The Decidiq app url
 	 */
 	public function getUrl(): ?string {
 		return $this->appUrl();
@@ -148,7 +148,7 @@ class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidge
 	}//end load()
 
 	/**
-	 * Header buttons — a single "Open Decidesk" deep-link button.
+	 * Header buttons — a single "Open Decidiq" deep-link button.
 	 *
 	 * @param string $userId Current Nextcloud user id (unused — link is static)
 	 *
@@ -163,7 +163,7 @@ class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidge
 			new WidgetButton(
 				WidgetButton::TYPE_MORE,
 				$this->appUrl(),
-				$this->l10n->t('Open Decidesk')
+				$this->l10n->t('Open Decidiq')
 			),
 		];
 
@@ -221,7 +221,7 @@ class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidge
 	 * Build the next-meeting widget item, or its "nothing scheduled" placeholder.
 	 *
 	 * @param mixed $nextMeeting The summary's nextMeeting entry (a meeting array, or null/absent)
-	 * @param string $appUrl Deep link to the Decidesk app root
+	 * @param string $appUrl Deep link to the Decidiq app root
 	 * @param string $iconUrl Widget icon url
 	 *
 	 * @spec openspec/specs/dashboard/spec.md
@@ -250,7 +250,7 @@ class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidge
 	}//end buildNextMeetingItem()
 
 	/**
-	 * Absolute url to the Decidesk app root (in-app dashboard).
+	 * Absolute url to the Decidiq app root (in-app dashboard).
 	 *
 	 * @spec openspec/specs/dashboard/spec.md
 	 *

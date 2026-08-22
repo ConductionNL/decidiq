@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Migrate EmailLinks To Registry Repair Step
+ * Decidiq Migrate EmailLinks To Registry Repair Step
  *
  * One-shot, idempotent, resume-safe migration of legacy in-app EmailLink
  * objects onto the ADR-019 registry email-object link
@@ -22,7 +22,7 @@
  * findAll() returns empty and the step exits cleanly.
  *
  * @category Migration
- * @package  OCA\Decidesk\Migration
+ * @package  OCA\Decidiq\Migration
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -39,9 +39,9 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Migration;
+namespace OCA\Decidiq\Migration;
 
-use OCA\Decidesk\Service\SettingsService;
+use OCA\Decidiq\Service\SettingsService;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -95,7 +95,7 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 	 * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-4.1
 	 */
 	public function getName(): string {
-		return 'Migrate legacy Decidesk EmailLink objects to registry email-object links';
+		return 'Migrate legacy Decidiq EmailLink objects to registry email-object links';
 	}//end getName()
 
 	/**
@@ -119,7 +119,7 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 		} catch (Throwable $e) {
 			$output->warning('Could not resolve OpenRegister ObjectService — skipping EmailLink migration.');
-			$this->logger->warning('Decidesk: EmailLink migration could not resolve ObjectService', ['error' => $e->getMessage()]);
+			$this->logger->warning('Decidiq: EmailLink migration could not resolve ObjectService', ['error' => $e->getMessage()]);
 			return;
 		}
 
@@ -132,7 +132,7 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 			// instance — nothing to migrate. This is the expected path for
 			// installs that adopted the leaf from the start.
 			$output->info('No legacy email-link objects found — nothing to migrate.');
-			$this->logger->info('Decidesk: EmailLink migration found no legacy schema/objects', ['error' => $e->getMessage()]);
+			$this->logger->info('Decidiq: EmailLink migration found no legacy schema/objects', ['error' => $e->getMessage()]);
 			return;
 		}
 
@@ -150,7 +150,7 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 		}
 
 		$output->info(
-			'Decidesk EmailLink migration complete: ' . $migrated . ' migrated, ' . $skipped . ' skipped.'
+			'Decidiq EmailLink migration complete: ' . $migrated . ' migrated, ' . $skipped . ' skipped.'
 		);
 	}//end run()
 
@@ -189,14 +189,14 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 			$this->relinkToRegistry(objectService: $objectService, target: $target, link: $link);
 			$this->archiveLegacy(objectService: $objectService, uuid: $uuid, link: $link);
 			$this->logger->info(
-				'Decidesk: migrated EmailLink to registry link',
+				'Decidiq: migrated EmailLink to registry link',
 				['uuid' => $uuid, 'target' => $target, 'emailUid' => (string)($link['emailUid'] ?? '')]
 			);
 			return true;
 		} catch (Throwable $e) {
 			$output->warning('Failed to migrate EmailLink ' . $uuid . ': ' . $e->getMessage());
 			$this->logger->warning(
-				'Decidesk: EmailLink migration failed for one object',
+				'Decidiq: EmailLink migration failed for one object',
 				['uuid' => $uuid, 'error' => $e->getMessage()]
 			);
 			return false;

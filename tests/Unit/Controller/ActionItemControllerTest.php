@@ -4,7 +4,7 @@
  * Wire-contract tests for the action-item VTODO delete endpoint.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Controller
+ * @package  OCA\Decidiq\Tests\Unit\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -18,11 +18,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Controller;
+namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Controller\ActionItemController;
-use OCA\Decidesk\Service\ActionItemWriter;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Controller\ActionItemController;
+use OCA\Decidiq\Service\ActionItemWriter;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;

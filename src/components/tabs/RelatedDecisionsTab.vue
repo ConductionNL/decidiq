@@ -20,33 +20,33 @@
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--related"
+		class="decidiq-tab decidiq-tab--related"
 		data-testid="related-decisions-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Related decisions') }}
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Related decisions') }}
 			</h3>
 			<NcButton
 				variant="primary"
 				data-testid="related-decisions-add"
-				:aria-label="t('decidesk', 'Add related decision')"
+				:aria-label="t('decidiq', 'Add related decision')"
 				@click="openAdd">
 				<template #icon>
 					<Plus :size="20" />
 				</template>
-				{{ t('decidesk', 'Add relation') }}
+				{{ t('decidiq', 'Add relation') }}
 			</NcButton>
 		</div>
 
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load related decisions')">
+			:title="t('decidiq', 'Could not load related decisions')">
 			{{ error }}
 		</CnNoteCard>
 
-		<p v-else-if="loading" class="decidesk-tab__loading">
-			{{ t('decidesk', 'Loading related decisions…') }}
+		<p v-else-if="loading" class="decidiq-tab__loading">
+			{{ t('decidiq', 'Loading related decisions…') }}
 		</p>
 
 		<template v-else>
@@ -54,10 +54,10 @@
 				v-if="!hasAnyRelation"
 				type="info"
 				data-testid="related-decisions-empty"
-				:title="t('decidesk', 'No related decisions')">
+				:title="t('decidiq', 'No related decisions')">
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'This decision has no typed links to other decisions yet.',
 					)
 				}}
@@ -68,17 +68,17 @@
 				v-for="group in outgoingGroups"
 				v-show="group.rows.length"
 				:key="'out-' + group.type"
-				class="decidesk-related__group"
+				class="decidiq-related__group"
 				:data-testid="'related-out-' + group.type">
-				<h4 class="decidesk-related__group-title">{{ group.label }}</h4>
-				<ul class="decidesk-related__list">
+				<h4 class="decidiq-related__group-title">{{ group.label }}</h4>
+				<ul class="decidiq-related__list">
 					<li
 						v-for="row in group.rows"
 						:key="group.type + '-' + (row.id || row.uuid)"
-						class="decidesk-related__row"
+						class="decidiq-related__row"
 						:data-testid="'related-row-' + (row.id || row.uuid)">
 						<button
-							class="decidesk-related__link"
+							class="decidiq-related__link"
 							type="button"
 							@click="openDecision(row)">
 							{{ row.title || row.id || row.uuid }}
@@ -89,7 +89,7 @@
 							:colorMap="{}" />
 						<NcButton
 							variant="tertiary"
-							:aria-label="t('decidesk', 'Remove relation')"
+							:aria-label="t('decidiq', 'Remove relation')"
 							:data-testid="'related-remove-' + (row.id || row.uuid)"
 							@click="askRemove(group.type, row)">
 							<template #icon>
@@ -105,17 +105,17 @@
 				v-for="group in incomingGroups"
 				v-show="group.rows.length"
 				:key="'in-' + group.type"
-				class="decidesk-related__group"
+				class="decidiq-related__group"
 				:data-testid="'related-in-' + group.type">
-				<h4 class="decidesk-related__group-title">{{ group.label }}</h4>
-				<ul class="decidesk-related__list">
+				<h4 class="decidiq-related__group-title">{{ group.label }}</h4>
+				<ul class="decidiq-related__list">
 					<li
 						v-for="row in group.rows"
 						:key="'in-' + group.type + '-' + (row.id || row.uuid)"
-						class="decidesk-related__row decidesk-related__row--incoming"
+						class="decidiq-related__row decidiq-related__row--incoming"
 						:data-testid="'related-incoming-' + (row.id || row.uuid)">
 						<button
-							class="decidesk-related__link"
+							class="decidiq-related__link"
 							type="button"
 							@click="openDecision(row)">
 							{{ row.title || row.id || row.uuid }}
@@ -142,7 +142,7 @@
 			ref="removeDialog"
 			:item="removeTarget.row"
 			nameField="title"
-			:dialogTitle="t('decidesk', 'Remove relation')"
+			:dialogTitle="t('decidiq', 'Remove relation')"
 			@confirm="confirmRemove"
 			@close="removeTarget = null" />
 	</div>
@@ -237,22 +237,22 @@ export default {
 	methods: {
 		outgoingLabel(type) {
 			const labels = {
-				supersedes: this.t('decidesk', 'Supersedes'),
-				repeals: this.t('decidesk', 'Repeals'),
-				amends: this.t('decidesk', 'Amends'),
-				implements: this.t('decidesk', 'Implements'),
-				refersTo: this.t('decidesk', 'Refers to'),
+				supersedes: this.t('decidiq', 'Supersedes'),
+				repeals: this.t('decidiq', 'Repeals'),
+				amends: this.t('decidiq', 'Amends'),
+				implements: this.t('decidiq', 'Implements'),
+				refersTo: this.t('decidiq', 'Refers to'),
 			}
 			return labels[type] || type
 		},
 
 		incomingLabel(type) {
 			const labels = {
-				supersedes: this.t('decidesk', 'Superseded by'),
-				repeals: this.t('decidesk', 'Repealed by'),
-				amends: this.t('decidesk', 'Amended by'),
-				implements: this.t('decidesk', 'Implemented by'),
-				refersTo: this.t('decidesk', 'Referenced by'),
+				supersedes: this.t('decidiq', 'Superseded by'),
+				repeals: this.t('decidiq', 'Repealed by'),
+				amends: this.t('decidiq', 'Amended by'),
+				implements: this.t('decidiq', 'Implemented by'),
+				refersTo: this.t('decidiq', 'Referenced by'),
 			}
 			return labels[type] || type
 		},
@@ -303,7 +303,7 @@ export default {
 			} catch (e) {
 				this.error =
 					e?.message
-					|| this.t('decidesk', 'Failed to load related decisions.')
+					|| this.t('decidiq', 'Failed to load related decisions.')
 			} finally {
 				this.loading = false
 			}
@@ -340,7 +340,7 @@ export default {
 			if (!targetId || !type) {
 				this.$refs.addModal?.setError(
 					this.t(
-						'decidesk',
+						'decidiq',
 						'Select a relation type and a target decision.',
 					),
 				)
@@ -353,7 +353,7 @@ export default {
 					: []
 				if (existing.includes(targetId)) {
 					this.$refs.addModal?.setError(
-						this.t('decidesk', 'That relation already exists.'),
+						this.t('decidiq', 'That relation already exists.'),
 					)
 					return
 				}
@@ -368,7 +368,7 @@ export default {
 				// Surface the server's validation (self-reference, cycle, authority) inline.
 				this.$refs.addModal?.setError(
 					e?.message
-						|| this.t('decidesk', 'The server rejected this relation.'),
+						|| this.t('decidiq', 'The server rejected this relation.'),
 				)
 			}
 		},
@@ -402,7 +402,7 @@ export default {
 				await this.refresh()
 			} catch (e) {
 				this.$refs.removeDialog?.setResult({
-					error: e?.message || this.t('decidesk', 'Remove failed.'),
+					error: e?.message || this.t('decidiq', 'Remove failed.'),
 				})
 			}
 		},
@@ -421,45 +421,45 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__loading {
+.decidiq-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
 
-.decidesk-related__group {
+.decidiq-related__group {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
 }
 
-.decidesk-related__group-title {
+.decidiq-related__group-title {
 	margin: 4px 0 0;
 	font-size: 0.9rem;
 	font-weight: bold;
 	color: var(--color-text-maxcontrast);
 }
 
-.decidesk-related__list {
+.decidiq-related__list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -468,17 +468,17 @@ export default {
 	gap: 2px;
 }
 
-.decidesk-related__row {
+.decidiq-related__row {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 }
 
-.decidesk-related__row--incoming .decidesk-related__link {
+.decidiq-related__row--incoming .decidiq-related__link {
 	color: var(--color-text-maxcontrast);
 }
 
-.decidesk-related__link {
+.decidiq-related__link {
 	background: none;
 	border: none;
 	padding: 0;
@@ -488,7 +488,7 @@ export default {
 	flex: 1;
 }
 
-.decidesk-related__link:hover {
+.decidiq-related__link:hover {
 	text-decoration: underline;
 }
 </style>

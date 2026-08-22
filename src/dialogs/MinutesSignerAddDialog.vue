@@ -12,27 +12,27 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Add signer')"
+		:name="t('decidiq', 'Add signer')"
 		data-testid="minutes-signer-add-dialog"
 		@closing="$emit('close')">
 		<template #default>
 			<p>
 				{{
-					t('decidesk', 'Pick a participant to request a signature from.')
+					t('decidiq', 'Pick a participant to request a signature from.')
 				}}
 			</p>
-			<div v-if="loading" class="decidesk-tab__loading">
-				{{ t('decidesk', 'Loading participants…') }}
+			<div v-if="loading" class="decidiq-tab__loading">
+				{{ t('decidiq', 'Loading participants…') }}
 			</div>
-			<ul v-else-if="candidates.length" class="decidesk-tab__list">
+			<ul v-else-if="candidates.length" class="decidiq-tab__list">
 				<li v-for="cand in candidates" :key="cand.id">
 					<NcButton @click="$emit('select', cand)">
 						{{ candidateLabel(cand) }}
 					</NcButton>
 				</li>
 			</ul>
-			<p v-else class="decidesk-tab__empty">
-				{{ t('decidesk', 'All participants already added as signers.') }}
+			<p v-else class="decidiq-tab__empty">
+				{{ t('decidiq', 'All participants already added as signers.') }}
 			</p>
 		</template>
 	</NcDialog>
@@ -68,7 +68,7 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab__list {
+.decidiq-tab__list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -77,8 +77,8 @@ export default {
 	gap: 4px;
 }
 
-.decidesk-tab__empty,
-.decidesk-tab__loading {
+.decidiq-tab__empty,
+.decidiq-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }

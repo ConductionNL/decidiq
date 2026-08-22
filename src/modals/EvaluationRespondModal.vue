@@ -14,7 +14,7 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Board self-evaluation')"
+		:name="t('decidiq', 'Board self-evaluation')"
 		size="large"
 		data-testid="evaluation-respond-modal"
 		@closing="$emit('close')">
@@ -22,7 +22,7 @@
 			<p class="evaluation-respond__intro">
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'Your response is anonymous. It cannot be traced back to you, even by an administrator.',
 					)
 				}}
@@ -65,10 +65,10 @@
 				data-testid="evaluation-respond-submit"
 				:disabled="!allLikertAnswered"
 				@click="submit">
-				{{ t('decidesk', 'Submit anonymously') }}
+				{{ t('decidiq', 'Submit anonymously') }}
 			</NcButton>
 			<NcButton @click="$emit('close')">
-				{{ t('decidesk', 'Cancel') }}
+				{{ t('decidiq', 'Cancel') }}
 			</NcButton>
 		</template>
 	</NcDialog>

@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Action Item Extraction Service
+ * Decidiq Action Item Extraction Service
  *
  * Service for extracting action item candidates from minutes content using regex patterns.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4
  *
@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -125,7 +125,7 @@ class ActionItemExtractionService {
 			// Action items are CalDAV VTODOs (ADR-002); the action-item schema is a
 			// read-only projection, so write via ActionItemWriter (TaskService) rather
 			// than ObjectService::saveObject.
-			$writer = $this->container->get(\OCA\Decidesk\Service\ActionItemWriter::class);
+			$writer = $this->container->get(\OCA\Decidiq\Service\ActionItemWriter::class);
 			$savedCount = 0;
 
 			foreach ($confirmed as $candidate) {

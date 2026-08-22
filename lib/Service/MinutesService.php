@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Minutes Service
+ * Decidiq Minutes Service
  *
  * Service for Minutes-specific operations including approval notifications.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6
  *
@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Log\LoggerInterface;
 

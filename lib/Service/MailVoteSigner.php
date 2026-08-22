@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Mail Vote Signer
+ * Decidiq Mail Vote Signer
  *
  * Signs and verifies the `_mail` metadata entries that carry email vote
  * replies on a VotingRound object.
@@ -13,7 +13,7 @@
  * wherever an entry is read.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -29,9 +29,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidiq\AppInfo\Application;
 use OCP\IAppConfig;
 
 /**

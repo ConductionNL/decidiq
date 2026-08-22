@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk DecisionRequestedEvent
+ * Decidiq DecisionRequestedEvent
  *
  * Public cross-app event a consumer fleet app dispatches to ask decidesk to
  * raise a governance Decision for one of its objects. The in-process,
@@ -11,7 +11,7 @@
  * read the resolved decisionId back off the same instance.
  *
  * @category Event
- * @package  OCA\Decidesk\Event
+ * @package  OCA\Decidiq\Event
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,7 +27,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Event;
+namespace OCA\Decidiq\Event;
 
 use OCP\EventDispatcher\Event;
 
@@ -76,10 +76,10 @@ class DecisionRequestedEvent extends Event {
 	 * construct the event POSITIONALLY through a class-string so they stay
 	 * installable without decidesk — see procest
 	 * lib/Service/ContractDecisionDelegationService.php, which resolves
-	 * `\OCA\Decidesk\Event\DecisionRequestedEvent` via `class_exists()` and then
+	 * `\OCA\Decidiq\Event\DecisionRequestedEvent` via `class_exists()` and then
 	 * calls `new $eventClass(...)` with all ten arguments in this exact order
 	 * (its own comment records the order), and mirrors the signature in
-	 * procest tests/Stubs/Decidesk/Event/DecisionRequestedEvent.php. Grouping
+	 * procest tests/Stubs/Decidiq/Event/DecisionRequestedEvent.php. Grouping
 	 * the parameters into a value object would silently break every consumer at
 	 * runtime and cannot be done from this repository alone; it needs a
 	 * coordinated, versioned change to the decidesk-decision-events contract. See

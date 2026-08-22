@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Transcription Controller
+ * Decidiq Transcription Controller
  *
  * Action endpoints for meeting transcription: source listing, attach+consent,
  * transcribe (async submit), re-align, generate-draft, and retention-config.
@@ -9,7 +9,7 @@
  * (ADR-022 / redundant-controller gate).
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,14 +25,14 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\Decidesk\Service\MinutesDraftService;
-use OCA\Decidesk\Service\TranscriptionQueue;
-use OCA\Decidesk\Service\TranscriptionService;
-use OCA\Decidesk\Service\TranscriptionStaffGuard;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Service\MinutesDraftService;
+use OCA\Decidiq\Service\TranscriptionQueue;
+use OCA\Decidiq\Service\TranscriptionService;
+use OCA\Decidiq\Service\TranscriptionStaffGuard;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;

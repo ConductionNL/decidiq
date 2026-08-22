@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Regulator Export Controller
+ * Decidiq Regulator Export Controller
  *
  * Phase 6 — admin/secretary-gated REST surface for generating and re-emitting
  * regulator exports (PDF skeleton or CSV). Each generated export is mirrored
  * to the hash-chained audit log inside the service.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,11 +24,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\RegulatorExportService;
-use OCA\Decidesk\Settings\AdminSettings;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\RegulatorExportService;
+use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -115,7 +115,7 @@ class RegulatorExportController extends Controller {
 			['Content-Type' => $result['contentType']]
 		);
 		$response->addHeader('Content-Disposition', 'attachment; filename="' . $result['filename'] . '"');
-		$response->addHeader('X-Decidesk-Export-Sha256', (string)($result['export']['sha256'] ?? ''));
+		$response->addHeader('X-Decidiq-Export-Sha256', (string)($result['export']['sha256'] ?? ''));
 		return $response;
 	}//end generate()
 

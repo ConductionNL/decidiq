@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Minutes Correction Controller
+ * Decidiq Minutes Correction Controller
  *
  * The correction-suggestion half of the Minutes API: any meeting participant
  * may suggest a correction while the minutes are in draft or review, and only a
@@ -12,7 +12,7 @@
  * implementation (MinutesAccessGuard) so the two access rules cannot drift.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -28,13 +28,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
 use DateTimeImmutable;
 use DateTimeInterface;
 use Exception;
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\MinutesAccessGuard;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\MinutesAccessGuard;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;

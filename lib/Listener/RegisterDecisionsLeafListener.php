@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk RegisterDecisionsLeafListener.
+ * Decidiq RegisterDecisionsLeafListener.
  *
  * Registers decidesk's `decidesk-decisions` leaf on OpenRegister through the
  * sibling-app leaf-registration hook (`RegisterLeafProvidersEvent`, openregister
@@ -37,7 +37,7 @@
  * without decidesk the surface is HIDDEN rather than a broken tab.
  *
  * @category Listener
- * @package  OCA\Decidesk\Listener
+ * @package  OCA\Decidiq\Listener
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -52,9 +52,9 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Listener;
+namespace OCA\Decidiq\Listener;
 
-use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidiq\AppInfo\Application;
 use OCA\OpenRegister\Event\RegisterLeafProvidersEvent;
 use OCA\OpenRegister\Service\Integration\LeafDescriptor;
 use OCP\EventDispatcher\Event;
@@ -195,7 +195,7 @@ class RegisterDecisionsLeafListener implements IEventListener {
 		} catch (Throwable $e) {
 			// Never take the leaf catalogue down: log and skip our own leaf only.
 			$this->logger->warning(
-				'Decidesk could not register the decidesk-decisions leaf: ' . $e->getMessage(),
+				'Decidiq could not register the decidesk-decisions leaf: ' . $e->getMessage(),
 				['exception' => $e]
 			);
 		}//end try

@@ -19,15 +19,15 @@
 	<div
 		class="agenda-builder"
 		role="region"
-		:aria-label="t('decidesk', 'Agenda builder')">
+		:aria-label="t('decidiq', 'Agenda builder')">
 		<!-- Header with total duration -->
 		<div class="agenda-builder__header">
 			<h3 class="agenda-builder__title">
-				{{ t('decidesk', 'Agenda builder') }}
+				{{ t('decidiq', 'Agenda builder') }}
 			</h3>
 			<span class="agenda-builder__duration" aria-live="polite">
 				{{
-					t('decidesk', 'Total duration: {min} min', {
+					t('decidiq', 'Total duration: {min} min', {
 						min: totalDuration,
 					})
 				}}
@@ -36,10 +36,10 @@
 				<NcButton
 					v-if="canEdit && canShowRecurring"
 					@click="showRecurringDialog = true">
-					{{ t('decidesk', 'Add recurring items') }}
+					{{ t('decidiq', 'Add recurring items') }}
 				</NcButton>
 				<NcButton v-if="canEdit" @click="showProposeDialog = true">
-					{{ t('decidesk', 'Propose agenda item') }}
+					{{ t('decidiq', 'Propose agenda item') }}
 				</NcButton>
 			</div>
 		</div>
@@ -52,14 +52,14 @@
 			<p>
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'This general assembly agenda is missing legally required items:',
 					)
 				}}
 			</p>
 			<ul class="agenda-builder__statutory-list">
 				<li v-for="required in missingStatutory" :key="required.id">
-					{{ t('decidesk', required.label) }}
+					{{ t('decidiq', required.label) }}
 				</li>
 			</ul>
 		</NcNoteCard>
@@ -68,7 +68,7 @@
 		<div
 			v-if="isChair && proposalItems.length > 0"
 			class="agenda-builder__proposals">
-			<h4>{{ t('decidesk', 'Proposed items') }}</h4>
+			<h4>{{ t('decidiq', 'Proposed items') }}</h4>
 			<ul class="agenda-builder__proposal-list" role="list">
 				<li
 					v-for="proposal in proposalItems"
@@ -81,23 +81,23 @@
 					<div class="agenda-builder__proposal-actions">
 						<NcButton
 							:aria-label="
-								t('decidesk', 'Approve proposal {title}', {
+								t('decidiq', 'Approve proposal {title}', {
 									title: proposal.title,
 								})
 							"
 							variant="success"
 							@click="approveProposal(proposal)">
-							{{ t('decidesk', 'Approve') }}
+							{{ t('decidiq', 'Approve') }}
 						</NcButton>
 						<NcButton
 							:aria-label="
-								t('decidesk', 'Reject proposal {title}', {
+								t('decidiq', 'Reject proposal {title}', {
 									title: proposal.title,
 								})
 							"
 							variant="error"
 							@click="rejectProposal(proposal)">
-							{{ t('decidesk', 'Reject') }}
+							{{ t('decidiq', 'Reject') }}
 						</NcButton>
 					</div>
 				</li>
@@ -109,7 +109,7 @@
 			ref="itemList"
 			class="agenda-builder__list"
 			role="list"
-			:aria-label="t('decidesk', 'Agenda items, drag to reorder')">
+			:aria-label="t('decidiq', 'Agenda items, drag to reorder')">
 			<li
 				v-for="(node, index) in agendaTree"
 				:key="node.item.id"
@@ -117,7 +117,7 @@
 				:draggable="isChair"
 				role="listitem"
 				:aria-label="
-					t('decidesk', 'Agenda item {n}: {title}', {
+					t('decidiq', 'Agenda item {n}: {title}', {
 						n: node.item.orderNumber,
 						title: node.item.title,
 					})
@@ -136,7 +136,7 @@
 					<CnStatusBadge
 						:status="node.item.itemType"
 						:aria-label="
-							t('decidesk', 'Type: {type}', {
+							t('decidiq', 'Type: {type}', {
 								type: node.item.itemType,
 							})
 						" />
@@ -148,7 +148,7 @@
 					<span
 						v-if="node.item.estimatedDuration"
 						class="agenda-builder__item-duration">
-						{{ node.item.estimatedDuration }} {{ t('decidesk', 'min') }}
+						{{ node.item.estimatedDuration }} {{ t('decidiq', 'min') }}
 					</span>
 
 					<!-- Spokesperson -->
@@ -165,7 +165,7 @@
 						v-if="(node.item.files || []).length > 0"
 						class="agenda-builder__item-attachments"
 						:aria-label="
-							t('decidesk', '{n} attachment(s)', {
+							t('decidiq', '{n} attachment(s)', {
 								n: (node.item.files || []).length,
 							})
 						">
@@ -178,12 +178,12 @@
 						class="agenda-builder__item-coi"
 						:aria-label="
 							t(
-								'decidesk',
+								'decidiq',
 								'{n} conflict of interest declaration(s)',
 								{ n: coiCount(node.item) },
 							)
 						">
-						{{ t('decidesk', 'COI ({n})', { n: coiCount(node.item) }) }}
+						{{ t('decidiq', 'COI ({n})', { n: coiCount(node.item) }) }}
 					</span>
 
 					<!-- Spokesperson assignment (chair/secretary only) -->
@@ -191,15 +191,15 @@
 						v-if="isChair"
 						size="small"
 						:aria-label="
-							t('decidesk', 'Assign spokesperson for {title}', {
+							t('decidiq', 'Assign spokesperson for {title}', {
 								title: node.item.title,
 							})
 						"
 						@click="openSpokespersonDialog(node.item)">
 						{{
 							getSpokesperson(node.item)
-								? t('decidesk', 'Change spokesperson')
-								: t('decidesk', 'Assign spokesperson')
+								? t('decidiq', 'Change spokesperson')
+								: t('decidiq', 'Assign spokesperson')
 						}}
 					</NcButton>
 
@@ -209,12 +209,12 @@
 						size="small"
 						data-testid="agenda-add-sub-item"
 						:aria-label="
-							t('decidesk', 'Add sub-item under {title}', {
+							t('decidiq', 'Add sub-item under {title}', {
 								title: node.item.title,
 							})
 						"
 						@click="openAddSubItemDialog(node.item)">
-						{{ t('decidesk', 'Add sub-item') }}
+						{{ t('decidiq', 'Add sub-item') }}
 					</NcButton>
 
 					<!-- Move buttons (keyboard accessible) -->
@@ -223,7 +223,7 @@
 						size="small"
 						:disabled="index === 0"
 						:aria-label="
-							t('decidesk', 'Move {title} up', {
+							t('decidiq', 'Move {title} up', {
 								title: node.item.title,
 							})
 						"
@@ -235,7 +235,7 @@
 						size="small"
 						:disabled="index === agendaTree.length - 1"
 						:aria-label="
-							t('decidesk', 'Move {title} down', {
+							t('decidiq', 'Move {title} down', {
 								title: node.item.title,
 							})
 						"
@@ -250,7 +250,7 @@
 					class="agenda-builder__sublist"
 					role="list"
 					:aria-label="
-						t('decidesk', 'Sub-items of {title}', {
+						t('decidiq', 'Sub-items of {title}', {
 							title: node.item.title,
 						})
 					">
@@ -261,7 +261,7 @@
 						data-testid="agenda-sub-item"
 						role="listitem"
 						:aria-label="
-							t('decidesk', 'Sub-item: {title}', {
+							t('decidiq', 'Sub-item: {title}', {
 								title: child.title,
 							})
 						"
@@ -276,7 +276,7 @@
 						<CnStatusBadge
 							:status="child.itemType"
 							:aria-label="
-								t('decidesk', 'Type: {type}', {
+								t('decidiq', 'Type: {type}', {
 									type: child.itemType,
 								})
 							" />
@@ -288,7 +288,7 @@
 						<span
 							v-if="child.estimatedDuration"
 							class="agenda-builder__item-duration">
-							{{ child.estimatedDuration }} {{ t('decidesk', 'min') }}
+							{{ child.estimatedDuration }} {{ t('decidiq', 'min') }}
 						</span>
 
 						<span
@@ -303,15 +303,15 @@
 							v-if="isChair"
 							size="small"
 							:aria-label="
-								t('decidesk', 'Assign spokesperson for {title}', {
+								t('decidiq', 'Assign spokesperson for {title}', {
 									title: child.title,
 								})
 							"
 							@click="openSpokespersonDialog(child)">
 							{{
 								getSpokesperson(child)
-									? t('decidesk', 'Change spokesperson')
-									: t('decidesk', 'Assign spokesperson')
+									? t('decidiq', 'Change spokesperson')
+									: t('decidiq', 'Assign spokesperson')
 							}}
 						</NcButton>
 
@@ -320,7 +320,7 @@
 							size="small"
 							:disabled="childIndex === 0"
 							:aria-label="
-								t('decidesk', 'Move {title} up', {
+								t('decidiq', 'Move {title} up', {
 									title: child.title,
 								})
 							"
@@ -332,7 +332,7 @@
 							size="small"
 							:disabled="childIndex === node.children.length - 1"
 							:aria-label="
-								t('decidesk', 'Move {title} down', {
+								t('decidiq', 'Move {title} down', {
 									title: child.title,
 								})
 							"
@@ -605,7 +605,7 @@ export default {
 			try {
 				const response = await fetch(
 					OC.generateUrl(
-						`/apps/decidesk/api/agendas/${this.meetingId}/reorder`,
+						`/apps/decidiq/api/agendas/${this.meetingId}/reorder`,
 					),
 					{
 						method: 'PUT',

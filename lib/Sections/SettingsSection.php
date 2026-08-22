@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Sections;
 
+use OCA\Decidiq\AppInfo\Application;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\Settings\IIconSection;
@@ -59,7 +60,7 @@ class SettingsSection implements IIconSection {
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function getID(): string {
-		return 'decidesk';
+		return Application::APP_ID;
 	}//end getID()
 
 	/**

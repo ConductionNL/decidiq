@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Audit Log Controller
+ * Decidiq Audit Log Controller
  *
  * REST endpoints for the board portal hash-chained audit log.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -21,11 +21,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\AuditLogService;
-use OCA\Decidesk\Settings\AdminSettings;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\AuditLogService;
+use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;

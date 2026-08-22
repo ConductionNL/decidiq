@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk MCP Tool Provider
+ * Decidiq MCP Tool Provider
  *
  * First per-app exemplar of OCA\OpenRegister\Mcp\IMcpToolProvider.
  * Exposes 5 MCP tools so the AI Chat Companion (hydra ADR-034) can surface
@@ -9,7 +9,7 @@
  * details, starting a meeting, and adding action items — to an LLM.
  *
  * @category Mcp
- * @package  OCA\Decidesk\Mcp
+ * @package  OCA\Decidiq\Mcp
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,10 +27,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Mcp;
+namespace OCA\Decidiq\Mcp;
 
-use OCA\Decidesk\Service\MeetingService;
-use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidiq\Service\MeetingService;
+use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Mcp\IMcpToolProvider;
 use OCP\IGroupManager;
@@ -39,7 +39,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Decidesk MCP Tool Provider.
+ * Decidiq MCP Tool Provider.
  *
  * Implements IMcpToolProvider (from openregister PR #1466,
  * change ai-chat-companion-orchestrator) exposing 5 governance tools to the
@@ -60,7 +60,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/mcp-tools/spec.md
  */
-class DecideskToolProvider implements IMcpToolProvider {
+class DecidiqToolProvider implements IMcpToolProvider {
 
 	/**
 	 * Tool catalogue (REQ-DMCP-002).
@@ -203,7 +203,7 @@ class DecideskToolProvider implements IMcpToolProvider {
 	private readonly McpMeetingTools $meetingTools;
 
 	/**
-	 * Constructor for DecideskToolProvider.
+	 * Constructor for DecidiqToolProvider.
 	 *
 	 * The two tool collaborators are built in the constructor body rather than
 	 * injected, so the DI signature other apps copy stays the six framework

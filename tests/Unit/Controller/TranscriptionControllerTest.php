@@ -4,7 +4,7 @@
  * Wire-contract tests for the meeting-transcription action endpoints.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Controller
+ * @package  OCA\Decidiq\Tests\Unit\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -18,14 +18,14 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Controller;
+namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\Decidesk\Controller\TranscriptionController;
-use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\Decidesk\Service\MinutesDraftService;
-use OCA\Decidesk\Service\TranscriptionQueue;
-use OCA\Decidesk\Service\TranscriptionService;
-use OCA\Decidesk\Service\TranscriptionStaffGuard;
+use OCA\Decidiq\Controller\TranscriptionController;
+use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Service\MinutesDraftService;
+use OCA\Decidiq\Service\TranscriptionQueue;
+use OCA\Decidiq\Service\TranscriptionService;
+use OCA\Decidiq\Service\TranscriptionStaffGuard;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;

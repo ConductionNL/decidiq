@@ -16,25 +16,25 @@
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--retention"
+		class="decidiq-tab decidiq-tab--retention"
 		data-testid="body-retention-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Recording retention') }}
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Recording retention') }}
 			</h3>
 		</div>
 
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not save retention policy')">
+			:title="t('decidiq', 'Could not save retention policy')">
 			{{ error }}
 		</CnNoteCard>
 
-		<p class="decidesk-tab__hint">
+		<p class="decidiq-tab__hint">
 			{{
 				t(
-					'decidesk',
+					'decidiq',
 					"Choose what happens to this body's meeting recordings and raw transcripts after the minutes are approved. The approved minutes always remain the official record.",
 				)
 			}}
@@ -48,7 +48,7 @@
 		<NcSelect
 			inputId="retention-policy-select"
 			data-testid="retention-policy-select"
-			:inputLabel="t('decidesk', 'Retention policy')"
+			:inputLabel="t('decidiq', 'Retention policy')"
 			:options="policyOptions"
 			:modelValue="selectedPolicy"
 			label="label"
@@ -58,14 +58,14 @@
 			v-model="days"
 			type="number"
 			data-testid="retention-days"
-			:label="t('decidesk', 'Days after approval')" />
+			:label="t('decidiq', 'Days after approval')" />
 
 		<NcButton
 			variant="primary"
 			data-testid="retention-save"
 			:disabled="saving || !selectedPolicy"
 			@click="save">
-			{{ t('decidesk', 'Save retention policy') }}
+			{{ t('decidiq', 'Save retention policy') }}
 		</NcButton>
 	</div>
 </template>
@@ -100,14 +100,14 @@ export default {
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		policyOptions() {
 			return [
-				{ id: 'keep', label: this.t('decidesk', 'Keep everything') },
+				{ id: 'keep', label: this.t('decidiq', 'Keep everything') },
 				{
 					id: 'delete-recording',
-					label: this.t('decidesk', 'Delete recording only'),
+					label: this.t('decidiq', 'Delete recording only'),
 				},
 				{
 					id: 'delete-both',
-					label: this.t('decidesk', 'Delete recording and transcript'),
+					label: this.t('decidiq', 'Delete recording and transcript'),
 				},
 			]
 		},
@@ -134,13 +134,13 @@ export default {
 			let days = 30
 			try {
 				policy = loadState(
-					'decidesk',
+					'decidiq',
 					'transcriptRetentionDefaultPolicy',
 					'delete-both',
 				)
 				days =
 					Number(
-						loadState('decidesk', 'transcriptRetentionDefaultDays', 30),
+						loadState('decidiq', 'transcriptRetentionDefaultDays', 30),
 					) || 30
 			} catch (e) {
 				// Initial state not provided (e.g. in-app context) — use safe defaults.
@@ -192,7 +192,7 @@ export default {
 			try {
 				const response = await fetch(
 					generateUrl(
-						`/apps/decidesk/api/governance-bodies/${this.objectId}/retention-config`,
+						`/apps/decidiq/api/governance-bodies/${this.objectId}/retention-config`,
 					),
 					{
 						method: 'PUT',
@@ -211,7 +211,7 @@ export default {
 					throw new Error(
 						data.message
 							|| this.t(
-								'decidesk',
+								'decidiq',
 								'Could not save the retention policy.',
 							),
 					)
@@ -219,7 +219,7 @@ export default {
 			} catch (e) {
 				this.error =
 					e?.message
-					|| this.t('decidesk', 'Could not save the retention policy.')
+					|| this.t('decidiq', 'Could not save the retention policy.')
 			} finally {
 				this.saving = false
 			}
@@ -229,20 +229,20 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__hint {
+.decidiq-tab__hint {
 	color: var(--color-text-maxcontrast);
 	font-size: 0.9em;
 }

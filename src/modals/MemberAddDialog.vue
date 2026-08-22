@@ -16,7 +16,7 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Add member')"
+		:name="t('decidiq', 'Add member')"
 		size="normal"
 		data-testid="member-add-dialog"
 		@closing="$emit('close')">
@@ -25,25 +25,25 @@
 				<NcTextField
 					v-model="name"
 					data-testid="member-add-name"
-					:label="t('decidesk', 'Name')"
-					:placeholder="t('decidesk', 'e.g. Roos de Vries')" />
+					:label="t('decidiq', 'Name')"
+					:placeholder="t('decidiq', 'e.g. Roos de Vries')" />
 				<NcTextField
 					v-model="email"
 					type="email"
 					data-testid="member-add-email"
-					:label="t('decidesk', 'Email')"
-					:placeholder="t('decidesk', 'name@example.org')" />
+					:label="t('decidiq', 'Email')"
+					:placeholder="t('decidiq', 'name@example.org')" />
 				<p class="member-add__hint">
 					{{
 						t(
-							'decidesk',
+							'decidiq',
 							'An existing person with this email will be reused; otherwise a new one is created.',
 						)
 					}}
 				</p>
 				<NcSelect
 					v-model="selectedRole"
-					:inputLabel="t('decidesk', 'Role')"
+					:inputLabel="t('decidiq', 'Role')"
 					:options="roleOptions"
 					label="label"
 					:clearable="false"
@@ -51,8 +51,8 @@
 				<NcTextField
 					v-model="party"
 					data-testid="member-add-party"
-					:label="t('decidesk', 'Party')"
-					:placeholder="t('decidesk', 'e.g. GroenLinks')" />
+					:label="t('decidiq', 'Party')"
+					:placeholder="t('decidiq', 'e.g. GroenLinks')" />
 				<p
 					v-if="error"
 					class="member-add__error"
@@ -68,11 +68,11 @@
 				data-testid="member-add-submit"
 				@click="link">
 				{{
-					linking ? t('decidesk', 'Adding…') : t('decidesk', 'Add member')
+					linking ? t('decidiq', 'Adding…') : t('decidiq', 'Add member')
 				}}
 			</NcButton>
 			<NcButton data-testid="member-add-cancel" @click="$emit('close')">
-				{{ t('decidesk', 'Cancel') }}
+				{{ t('decidiq', 'Cancel') }}
 			</NcButton>
 		</template>
 	</NcDialog>
@@ -111,13 +111,13 @@ export default {
 		/** @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md */
 		roleOptions() {
 			const labels = {
-				chair: this.t('decidesk', 'Chair'),
-				'vice-chair': this.t('decidesk', 'Vice-chair'),
-				secretary: this.t('decidesk', 'Secretary'),
-				treasurer: this.t('decidesk', 'Treasurer'),
-				member: this.t('decidesk', 'Member'),
-				observer: this.t('decidesk', 'Observer'),
-				guest: this.t('decidesk', 'Guest'),
+				chair: this.t('decidiq', 'Chair'),
+				'vice-chair': this.t('decidiq', 'Vice-chair'),
+				secretary: this.t('decidiq', 'Secretary'),
+				treasurer: this.t('decidiq', 'Treasurer'),
+				member: this.t('decidiq', 'Member'),
+				observer: this.t('decidiq', 'Observer'),
+				guest: this.t('decidiq', 'Guest'),
 			}
 			return MEMBER_ROLES.map((role) => ({
 				id: role,
@@ -158,7 +158,7 @@ export default {
 				const personId = person?.id
 				if (!personId) {
 					throw new Error(
-						this.t('decidesk', 'Could not create or match a person.'),
+						this.t('decidiq', 'Could not create or match a person.'),
 					)
 				}
 				await membershipStore.saveObject(
@@ -174,7 +174,7 @@ export default {
 				this.$emit('close')
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Failed to add member.')
+					e?.message || this.t('decidiq', 'Failed to add member.')
 			} finally {
 				this.linking = false
 			}

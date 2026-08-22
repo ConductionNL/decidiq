@@ -55,12 +55,12 @@ installIntegrationRegistry()
 registerBuiltinIntegrations()
 registerLeafIntegrations()
 
-// decidesk's FIRST own integration leaf — "Besluitvorming" (decisions).
-// Surfaces decidesk proposals / advice / decisions linked to ANY host
+// decidiq's FIRST own integration leaf — "Besluitvorming" (decisions).
+// Surfaces decidiq proposals / advice / decisions linked to ANY host
 // object (canonically a procest case) as a sidebar tab + detail-page
 // widget. Generic: reads the host object identity from the registry
 // context, never hard-codes the consumer. Uses the load-order-safe queue
-// stub so it registers even if decidesk's bundle loads before OR's.
+// stub so it registers even if decidiq's bundle loads before OR's.
 registerDecisionsLeaf()
 
 // Register library-side icon set + lib translations once at bootstrap.
@@ -71,7 +71,7 @@ try {
 	// Non-fatal — lib translations fall back to English source.
 	// eslint-disable-next-line no-console
 	console.warn(
-		'[decidesk] registerTranslations failed; falling back to English',
+		'[decidiq] registerTranslations failed; falling back to English',
 		e,
 	)
 }
@@ -89,7 +89,7 @@ try {
  */
 function tryLoadTranslations() {
 	try {
-		const result = loadTranslations('decidesk', () => {})
+		const result = loadTranslations('decidiq', () => {})
 		if (result && typeof result.then === 'function') {
 			result.then(
 				() => {},
@@ -154,7 +154,7 @@ function routesFromManifest(manifest) {
 }
 
 const router = createRouter({
-	history: createWebHistory(generateUrl('/apps/decidesk')),
+	history: createWebHistory(generateUrl('/apps/decidiq')),
 	routes: routesFromManifest(mergedManifest),
 })
 
@@ -174,7 +174,7 @@ function applyDefaultViewPreference() {
 	const routesByPreference = { meetings: '/meetings', decisions: '/decisions' }
 	const controller = new AbortController()
 	const timer = setTimeout(() => controller.abort(), 3000)
-	fetch(generateUrl('/apps/decidesk/api/preferences/default-view'), {
+	fetch(generateUrl('/apps/decidiq/api/preferences/default-view'), {
 		headers: { Accept: 'application/json' },
 		signal: controller.signal,
 	})
@@ -272,7 +272,7 @@ setActivePinia(pinia)
 	}
 
 	// Vue 3 (ADR-066): mount App as the root component directly and pass the
-	// bootstrap props as root props (second arg). decidesk's manifest is static
+	// bootstrap props as root props (second arg). decidiq's manifest is static
 	// (no backend /api/manifest delta), so App can receive it straight — no
 	// reactive wrapper render needed.
 	const app = createApp(App, {
@@ -285,7 +285,7 @@ setActivePinia(pinia)
 	// blank comment node — boot must never fail silently.
 	app.config.errorHandler = (err, instance, info) => {
 		// eslint-disable-next-line no-console
-		console.error('[decidesk] Vue error (' + info + '):', err)
+		console.error('[decidiq] Vue error (' + info + '):', err)
 	}
 
 	// Vue 3 global install contract (ADR-066): t/n move from Vue.mixin to
