@@ -243,7 +243,7 @@ export async function projectActionItems({
 				boardId: target.boardId,
 				stackId,
 				title: String(item.title || 'Action item'),
-				description: `Decidesk action item (${uid})`,
+				description: `Decidiq action item (${uid})`,
 			}
 			if (item.dueDate) body.duedate = String(item.dueDate)
 

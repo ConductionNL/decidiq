@@ -1,6 +1,6 @@
 {
 	"info": {
-		"name": "Decidesk Minutes Workflow Contract Suite",
+		"name": "Decidiq Minutes Workflow Contract Suite",
 		"description": "Newman contract tests for the minutes approval workflow + document generation (minutes-ui-v1): POST /api/minutes/{id}/corrections, PUT /api/minutes/{id}/corrections/{cid}, POST /api/minutes/{id}/reject, POST /api/minutes/{id}/generate-document, and POST /api/meetings/{id}/proof-package. Locks the correction server-attribution contract, the mandatory-comment reject contract (review → draft only), the honest Docudesk-fallback document contract, the hash-sealed proof package, and the 401 authorization posture. Self-contained: seeds its own Meeting + Minutes via the OpenRegister object API and tears them down.\n\nAUTH MODEL (same as decidesk-lifecycle.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The no-auth requests carry NEITHER and target {{noAuthBase}} so the host-scoped NC session cookie never leaks to them.\n\n@spec openspec/specs/resolution-minutes/spec.md",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},

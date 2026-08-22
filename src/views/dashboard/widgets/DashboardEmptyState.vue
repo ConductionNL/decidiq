@@ -13,11 +13,11 @@
 <template>
 	<div class="dashboard-empty" data-testid="dashboard-empty-state">
 		<NcEmptyContent
-			:name="t('decidesk', 'Welcome to Decidesk!')"
+			:name="t('decidesk', 'Welcome to Decidiq!')"
 			:description="
 				t(
 					'decidesk',
-					'Welcome to Decidesk! Get started by setting up your first governing body.',
+					'Welcome to Decidiq! Get started by setting up your first governing body.',
 				)
 			">
 			<template #icon>

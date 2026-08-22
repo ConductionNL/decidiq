@@ -1,6 +1,6 @@
 {
 	"info": {
-		"name": "Decidesk Decision Lifecycle Contract Suite",
+		"name": "Decidiq Decision Lifecycle Contract Suite",
 		"description": "Newman contract tests for the guarded decision state machine (decision-state-machine-v1): GET /api/decisions/{id}/transitions and POST /api/decisions/{id}/transition. Locks the transition-map contract (allowed actions per state), the 422 rejection envelope for invalid/unknown transitions, and the 401 authorization posture. Self-contained: seeds its own draft Decision via the OpenRegister object API and tears it down.\n\nAUTH MODEL (same as decidesk.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The no-auth request carries NEITHER and targets {{noAuthBase}} so the host-scoped NC session cookie never leaks to it.\n\n@spec openspec/specs/decision-management/spec.md",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},

@@ -4,7 +4,7 @@
  * Tests for the canonical AppHost route table's method contract.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\AppInfo
+ * @package  OCA\Decidiq\Tests\Unit\AppInfo
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -22,7 +22,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\AppInfo;
+namespace OCA\Decidiq\Tests\Unit\AppInfo;
 
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -33,7 +33,7 @@ use ReflectionClass;
  * controller when this app does not ship a class of that name.
  *
  * `OCA\OpenRegister\AppHost\Bootstrap::aliasControllerUnlessLeafDefinesIt()`
- * registers the DI alias `OCA\Decidesk\Controller\XController` ->
+ * registers the DI alias `OCA\Decidiq\Controller\XController` ->
  * `OCA\OpenRegister\AppHost\Controller\GenericXController` ONLY when the leaf
  * class does not exist. So the seam has two sides, and they fail differently:
  *
@@ -53,7 +53,7 @@ use ReflectionClass;
  *   GET  /apps/decidesk/api/settings -> 200 (positive control)
  *   PUT  /apps/decidesk/api/settings -> 500
  *   ReflectionException: Method
- *   OCA\Decidesk\Controller\SettingsController::update() does not exist
+ *   OCA\Decidiq\Controller\SettingsController::update() does not exist
  *
  * This test asserts the ITEM (each individual method), never the container
  * (the controller class merely existing).
@@ -157,7 +157,7 @@ class CanonicalRouteMethodContractTest extends TestCase {
 		$missing = [];
 
 		foreach (self::CANONICAL_ROUTES as $prefix => $methods) {
-			$class = 'OCA\\Decidesk\\Controller\\' . $prefix . 'Controller';
+			$class = 'OCA\\Decidiq\\Controller\\' . $prefix . 'Controller';
 
 			// The class file existing on disk is what makes the AppHost skip
 			// the alias. `class_exists()` alone would be satisfied by the DI

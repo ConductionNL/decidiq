@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Decision Integration Authorization Guard
+ * Decidiq Decision Integration Authorization Guard
  *
  * The two per-object authorization questions the ADR-019 integration-surface
  * endpoints ask: "may this caller READ this Decision's outcome envelope?"
@@ -23,7 +23,7 @@
  * for UUIDs the app never issued.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -39,7 +39,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;

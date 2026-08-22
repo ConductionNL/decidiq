@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "a6a7bfcf-9a5f-4be4-817c-86dc00e136d1",
-		"name": "Decidesk Security-Flow e2e Coverage (security-flow-e2e-coverage)",
+		"name": "Decidiq Security-Flow e2e Coverage (security-flow-e2e-coverage)",
 		"description": "Newman/Postman real-HTTP e2e coverage for four security-relevant endpoint groups that were previously exercised only by PHPUnit tests instantiating the controller directly (bypassing router/SecurityMiddleware/CSRF/session auth): proxy-vote delegation (register/revoke + the board-proxy-vote-authorization-guard IDOR check), eIDAS QES signing-endpoint reachability + auth posture, and governance-report / regulator-export reachability. Per the gate-19 split, API/contract correctness lives in Newman; Playwright drives the UI only (feedback_playwright-ui-only-newman-api) \u2014 this collection is that Newman-side coverage, not a Playwright spec.\n\nAUTH MODEL: collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. No-auth requests target {{noAuthBase}} (127.0.0.1) so the host-scoped NC session cookie established by authed localhost requests never leaks to them, matching decidesk.postman_collection.json's convention.\n\nSelf-contained and idempotent: folder 1 seeds and tears down its own two non-admin probe users + one participant. Folders 2-3 need no fixtures beyond the existing adminUser/adminPass.\n\n@spec openspec/changes/security-flow-e2e-coverage/specs/security-sensitive-e2e-coverage/spec.md",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -55,7 +55,7 @@
 		},
 		{
 			"key": "sfecGrantorPass",
-			"value": "Decidesk-Sfec-Grantor!42x"
+			"value": "Decidiq-Sfec-Grantor!42x"
 		},
 		{
 			"key": "sfecUnrelatedUser",
@@ -63,7 +63,7 @@
 		},
 		{
 			"key": "sfecUnrelatedPass",
-			"value": "Decidesk-Sfec-Unrelated!42x"
+			"value": "Decidiq-Sfec-Unrelated!42x"
 		},
 		{
 			"key": "sfecParticipantId",

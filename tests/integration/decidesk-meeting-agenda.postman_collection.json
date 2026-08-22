@@ -1,6 +1,6 @@
 {
 	"info": {
-		"name": "Decidesk meeting+agenda gaps contract (series + package)",
+		"name": "Decidiq meeting+agenda gaps contract (series + package)",
 		"description": "Contract tests for the meeting-agenda-gaps-v1 endpoints: POST /api/meetings/{id}/series (recurring series generation) and POST /api/meetings/{id}/package (document package assembly). Self-contained: seeds its own template meeting through the OpenRegister object API and tears down the template plus every generated series instance.\n\nSPDX-License-Identifier: EUPL-1.2\nSPDX-FileCopyrightText: 2026 Conduction B.V.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},

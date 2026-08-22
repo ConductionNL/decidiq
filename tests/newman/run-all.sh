@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Decidesk Newman aggregate runner.
+# Decidiq Newman aggregate runner.
 #
 # Runs every Postman/Newman collection in tests/integration/ against a live
 # Nextcloud instance serving the decidesk app. Each collection is self-contained

@@ -1,6 +1,6 @@
 {
  "info": {
-  "name": "Decidesk Voting Rules Contract Suite",
+  "name": "Decidiq Voting Rules Contract Suite",
   "description": "Newman contract tests for voting-rules-v1 (qualified-majority thresholds, abstention handling, tie-breaking, per-member proxy limits, castAs stamping): POST /api/voting-rounds (rule validation + revote-once guard), POST /api/voting-rounds/{id}/tally (threshold-aware result + recorded base), POST /api/voting-rounds/{id}/close (chair casting vote, fail closed), POST /api/proxies (per-holder ACTIVE-proxy cap, decidesk/max_proxies_per_holder default 2) and POST /api/voting-rounds/{id}/cast (castAs attendance-mode stamping). Self-contained: seeds + tears down its own OpenRegister objects.\n\nAUTH MODEL (same as decidesk-lifecycle.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The no-auth requests carry NEITHER and target {{noAuthBase}} so the host-scoped NC session cookie never leaks to them.\n\n@spec openspec/specs/voting-system/spec.md",
   "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
  },

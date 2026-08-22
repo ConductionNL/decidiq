@@ -1,10 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Documentation screenshot capture suite — decidesk.
  *
- * This spec is *not* a regression test — it drives the Decidesk UI
+ * This spec is *not* a regression test — it drives the Decidiq UI
  * through the flows documented under `docs/tutorials/{user,admin}/*.md`
  * and writes a fresh PNG into `docs/static/screenshots/tutorials/<track>/`
  * for each step the markdown references.
@@ -23,8 +23,8 @@
  * Nextcloud login → storage state) and `use.storageState`, so the
  * `page` fixture here arrives already signed in.
  *
- * Data dependency: Decidesk stores meetings / motions / votes / minutes
- * in OpenRegister. On an instance with no Decidesk data the list views
+ * Data dependency: Decidiq stores meetings / motions / votes / minutes
+ * in OpenRegister. On an instance with no Decidiq data the list views
  * still render (empty state) and the *Add Item* dialog still opens, so
  * the structural screenshots below capture cleanly. The flow-detail
  * screenshots (a populated agenda, a closed voting round, signed
@@ -112,7 +112,7 @@ async function dismissOverlays(page: Page): Promise<void> {
 	}
 }
 
-/** Navigate to a Decidesk (or absolute) route and settle. */
+/** Navigate to a Decidiq (or absolute) route and settle. */
 async function go(page: Page, route: string): Promise<void> {
 	// `/settings/` joins `/apps/` as a server-absolute prefix: since ADR-079 D1
 	// the app's configuration surface is a Nextcloud settings section at
@@ -289,7 +289,7 @@ test.describe('docs: user track', () => {
 		// docs/tutorials/user/08-ai-companion.md — the AI Chat Companion is a
 		// separate Nextcloud surface (hydra ADR-034) and may not be present
 		// on every instance. Capture the assistant route if it loads; the
-		// Decidesk dashboard stands in otherwise.
+		// Decidiq dashboard stands in otherwise.
 		await go(page, '/apps/assistant/')
 		if (!page.url().includes('/apps/assistant')) {
 			await go(page, '/')
@@ -346,7 +346,7 @@ test.describe('docs: admin track', () => {
 	})
 
 	test('AN admin-settings', async ({ page }) => {
-		// docs/tutorials/admin/03-admin-settings.md — Decidesk's app-level
+		// docs/tutorials/admin/03-admin-settings.md — Decidiq's app-level
 		// configuration lives at /settings/admin/decidesk, in the Nextcloud
 		// settings framework, and nowhere else (ADR-079 D1). The in-app
 		// `/apps/decidesk/settings` twin this test used to shoot is deleted, so

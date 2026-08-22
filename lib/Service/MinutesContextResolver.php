@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Minutes Context Resolver
+ * Decidiq Minutes Context Resolver
  *
  * Answers the handful of OpenRegister lookup questions that every minutes
  * workflow asks: "give me this Minutes record", "which Meeting is it linked
@@ -13,7 +13,7 @@
  * that can silently drift, so there is exactly one here.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -29,9 +29,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**

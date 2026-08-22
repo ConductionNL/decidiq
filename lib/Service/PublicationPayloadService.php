@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Publication Payload Service
+ * Decidiq Publication Payload Service
  *
  * Builds derived, immutable public payloads (allow-list construction) from
  * eligible governance objects, mapped to OpenRaadsinformatie record types.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -22,7 +22,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
@@ -287,7 +287,7 @@ class PublicationPayloadService {
 				]
 			);
 		} catch (\Throwable $e) {
-			$this->logger->warning('Decidesk publication: failed to resolve agenda items', ['exception' => $e->getMessage()]);
+			$this->logger->warning('Decidiq publication: failed to resolve agenda items', ['exception' => $e->getMessage()]);
 			return [];
 		}
 

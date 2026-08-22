@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ActionItemWriter — the single write path for Decidesk action items.
+ * ActionItemWriter — the single write path for Decidiq action items.
  *
  * Action items are CalDAV VTODOs (ADR-002): the VTODO is the authoritative
  * record and the `action-item` schema is a read-only OpenRegister projection
@@ -19,7 +19,7 @@
  * and repair steps must impersonate a user before calling it.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -30,7 +30,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Db\RegisterMapper;
 use OCA\OpenRegister\Db\SchemaMapper;
@@ -46,7 +46,7 @@ use Throwable;
 class ActionItemWriter {
 
 	/**
-	 * The Decidesk register slug.
+	 * The Decidiq register slug.
 	 *
 	 * @var string
 	 */
@@ -71,7 +71,7 @@ class ActionItemWriter {
 	 *
 	 * @param LoggerInterface $logger Logger for write failures.
 	 * @param TaskService $taskService OpenRegister task service performing the VTODO create/update/delete.
-	 * @param RegisterMapper $registerMapper Resolves the Decidesk register by slug.
+	 * @param RegisterMapper $registerMapper Resolves the Decidiq register by slug.
 	 * @param SchemaMapper $schemaMapper Resolves the action-item schema by slug.
 	 *
 	 * @return void
@@ -287,7 +287,7 @@ class ActionItemWriter {
 	}//end locate()
 
 	/**
-	 * Resolve the numeric Decidesk register id and action-item schema id.
+	 * Resolve the numeric Decidiq register id and action-item schema id.
 	 *
 	 * @return array{0: int, 1: int}|null [registerId, schemaId], or null when unresolvable.
 	 *

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Unit tests for the Decidesk register JSON (decidesk_register.json).
+ * Unit tests for the Decidiq register JSON (decidesk_register.json).
  *
  * Validates that all schemas are defined with correct properties, types,
  * required fields, enum values, relations, and seed data.
@@ -19,7 +19,7 @@
  * model.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit
+ * @package  OCA\Decidiq\Tests\Unit
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2024 Conduction B.V.
@@ -34,7 +34,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit;
+namespace OCA\Decidiq\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 

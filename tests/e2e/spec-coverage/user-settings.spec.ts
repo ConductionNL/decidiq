@@ -31,7 +31,7 @@ import { test, expect, type Page } from '@playwright/test'
 import { BASE_URL as BASE } from '../base-url'
 
 /**
- * Open the Decidesk personal settings panel; skip the test when this branch
+ * Open the Decidiq personal settings panel; skip the test when this branch
  * is not deployed (panel absent).
  */
 async function openPersonalSettings(page: Page): Promise<boolean> {

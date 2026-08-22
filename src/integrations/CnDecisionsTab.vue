@@ -34,7 +34,7 @@
 				<template #icon>
 					<OpenInNew :size="18" />
 				</template>
-				{{ openInDecideskLabel }}
+				{{ openInDecidiqLabel }}
 			</NcButton>
 		</div>
 
@@ -96,7 +96,7 @@
 								<template #icon>
 									<OpenInNew :size="20" />
 								</template>
-								{{ openInDecideskLabel }}
+								{{ openInDecidiqLabel }}
 							</NcActionButton>
 						</template>
 					</NcListItem>
@@ -206,7 +206,7 @@ export default {
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 link-out to decidesk. */
-		openInDecideskLabel() {
+		openInDecidiqLabel() {
 			return t('decidesk', 'Open in decidesk')
 		},
 

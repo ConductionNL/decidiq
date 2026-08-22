@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Voting Behaviour Service
+ * Decidiq Voting Behaviour Service
  *
  * Service for computing voting behaviour statistics aggregated from Vote objects.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 

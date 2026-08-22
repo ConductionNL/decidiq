@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Universal Search Provider
+ * Decidiq Universal Search Provider
  *
  * Exposes decisions, meetings, and resolutions to Nextcloud's unified
  * search (OCP\Search\IProvider).
  *
  * @category Search
- * @package  OCA\Decidesk\Search
+ * @package  OCA\Decidiq\Search
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,9 +23,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Search;
+namespace OCA\Decidiq\Search;
 
-use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidiq\AppInfo\Application;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\IUser;
@@ -37,7 +37,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Unified-search provider over the Decidesk OpenRegister objects.
+ * Unified-search provider over the Decidiq OpenRegister objects.
  *
  * ## Per-user visibility (OWASP A01 / ADR-005)
  *
@@ -49,7 +49,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
-class DecideskSearchProvider implements IProvider {
+class DecidiqSearchProvider implements IProvider {
 
 	/**
 	 * Searched schema slugs mapped to their frontend route segment.
@@ -69,7 +69,7 @@ class DecideskSearchProvider implements IProvider {
 	private const LIMIT_PER_SCHEMA = 5;
 
 	/**
-	 * Constructor for DecideskSearchProvider.
+	 * Constructor for DecidiqSearchProvider.
 	 *
 	 * @param ContainerInterface $container DI container (lazy-loads OpenRegister's ObjectService)
 	 * @param IURLGenerator $urlGenerator URL generator for deep links + icon
@@ -103,7 +103,7 @@ class DecideskSearchProvider implements IProvider {
 	 * @return string
 	 */
 	public function getName(): string {
-		return $this->l10n->t('Decidesk governance');
+		return $this->l10n->t('Decidiq governance');
 	}//end getName()
 
 	/**
@@ -193,7 +193,7 @@ class DecideskSearchProvider implements IProvider {
 		} catch (\Throwable $e) {
 			// Fail soft: a broken register must not take down unified search.
 			$this->logger->error(
-				'Decidesk: unified search failed',
+				'Decidiq: unified search failed',
 				['term' => $term, 'exception' => $e->getMessage()]
 			);
 		}//end try

@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "decidesk-motion-voting",
-		"name": "Decidesk — Motion and Voting Integration Tests",
+		"name": "Decidiq — Motion and Voting Integration Tests",
 		"description": "Integration tests for the 11 new API endpoints introduced by p2-motion-and-voting.\nRequires a running Nextcloud instance with the decidesk app enabled and seed data loaded.\n\n@spec openspec/changes/p2-motion-and-voting/tasks.md#task-11.3",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},

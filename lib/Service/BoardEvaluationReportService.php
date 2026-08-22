@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Board Evaluation Report Service
+ * Decidiq Board Evaluation Report Service
  *
  * Generates the evaluation report document for a closed BoardEvaluation
  * cycle, reusing the same generation posture as MinutesDocumentService:
@@ -14,7 +14,7 @@
  * OpenRegister FileService primitive MeetingFolderService uses.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -30,9 +30,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\FileService;
 use Psr\Container\ContainerInterface;
@@ -245,7 +245,7 @@ class BoardEvaluationReportService {
 			}
 		} catch (\Throwable $e) {
 			$this->logger->info(
-				'Decidesk: Docudesk PDF pathway unavailable for evaluation report, falling back to markdown',
+				'Decidiq: Docudesk PDF pathway unavailable for evaluation report, falling back to markdown',
 				['error' => $e->getMessage()]
 			);
 		}
@@ -353,7 +353,7 @@ class BoardEvaluationReportService {
 			return $path . '/' . $safeName;
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: board evaluation report write failed',
+				'Decidiq: board evaluation report write failed',
 				['fileName' => $fileName, 'error' => $e->getMessage()]
 			);
 			return null;

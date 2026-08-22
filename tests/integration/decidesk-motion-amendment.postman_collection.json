@@ -1,6 +1,6 @@
 {
 	"info": {
-		"name": "Decidesk Motion & Amendment Contract Suite",
+		"name": "Decidiq Motion & Amendment Contract Suite",
 		"description": "Newman contract tests for motion-amendment-v1: the chair-controlled amendment voting order endpoint (POST /api/motions/{id}/amendment-order), its validation envelope (400 on empty/invalid order, 404 on unknown motion) and authorization posture (401 unauthenticated), plus the voting-round subjectType contract (POST /api/voting-rounds rejects an unknown subjectType with 400). Self-contained: seeds a motion plus two amendments via the OpenRegister object API and tears them down.\n\nAUTH MODEL (same as decidesk-lifecycle.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The no-auth request carries NEITHER and targets {{noAuthBase}} so the host-scoped NC session cookie never leaks to it.\n\n@spec openspec/specs/motion-amendment/spec.md",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},

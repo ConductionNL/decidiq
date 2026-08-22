@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Motion Coauthor Service
+ * Decidiq Motion Coauthor Service
  *
  * Stateless service handling motion co-authoring: adding/removing co-authors,
  * updating motion text with version capture, and detecting overlapping edits.
@@ -10,7 +10,7 @@
  * merged automatically).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,7 +27,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -214,7 +214,7 @@ class MotionCoauthorService {
 			);
 
 			$this->logger->info(
-				'Decidesk: Motion coauthor added',
+				'Decidiq: Motion coauthor added',
 				['motionId' => $motionId, 'personId' => $personId]
 			);
 		}
@@ -310,7 +310,7 @@ class MotionCoauthorService {
 
 		if ($conflict !== null) {
 			$this->logger->warning(
-				'Decidesk: Motion edit conflict detected',
+				'Decidiq: Motion edit conflict detected',
 				['motionId' => $motionId, 'paragraph' => $conflict]
 			);
 			throw new RuntimeException(
@@ -337,7 +337,7 @@ class MotionCoauthorService {
 		);
 
 		$this->logger->info(
-			'Decidesk: Motion text updated',
+			'Decidiq: Motion text updated',
 			['motionId' => $motionId, 'author' => $author]
 		);
 

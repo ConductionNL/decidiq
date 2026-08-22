@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — dashboard v2 layout (decidesk-dashboard-v2-layout).
@@ -20,7 +20,7 @@ import { test, expect } from '@playwright/test'
 import { BASE_URL as BASE } from '../base-url'
 
 /**
- * Navigate to the Decidesk dashboard root and wait for the SPA shell to mount.
+ * Navigate to the Decidiq dashboard root and wait for the SPA shell to mount.
  * Seed data (Gemeenteraad Westerkwartier) is provisioned by the OR API fixture
  * in tests/e2e/global-setup.ts before the suite runs.
  */

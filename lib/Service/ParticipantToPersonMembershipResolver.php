@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Participant-to-Person/Membership Crosswalk Resolver
+ * Decidiq Participant-to-Person/Membership Crosswalk Resolver
  *
  * Resolves a deprecated `Participant` UUID to the `Person`+`Membership` pair
  * it corresponds to, matching or creating as needed. Shared by both
@@ -27,7 +27,7 @@
  * its own fields, and none is mutated or deleted.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -44,7 +44,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
@@ -122,7 +122,7 @@ class ParticipantToPersonMembershipResolver {
 		$personId = (string)($person['id'] ?? $person['uuid'] ?? '');
 		if ($personId === '') {
 			$this->logger->warning(
-				'Decidesk: ParticipantToPersonMembershipResolver could not resolve or create a Person',
+				'Decidiq: ParticipantToPersonMembershipResolver could not resolve or create a Person',
 				['participantId' => $participantId]
 			);
 			return null;
@@ -132,14 +132,14 @@ class ParticipantToPersonMembershipResolver {
 		$membershipId = $this->resolveMembership(personId: $personId, governanceBodyId: $governanceBodyId, participant: $participant);
 		if ($membershipId === '') {
 			$this->logger->warning(
-				'Decidesk: ParticipantToPersonMembershipResolver could not resolve or create a Membership',
+				'Decidiq: ParticipantToPersonMembershipResolver could not resolve or create a Membership',
 				['participantId' => $participantId, 'personId' => $personId]
 			);
 			return null;
 		}
 
 		$this->logger->info(
-			'Decidesk: resolved Participant to Person/Membership',
+			'Decidiq: resolved Participant to Person/Membership',
 			[
 				'participantId' => $participantId,
 				'personId' => $personId,
@@ -166,7 +166,7 @@ class ParticipantToPersonMembershipResolver {
 			$entity = $this->objectService->find(id: $participantId, register: self::REGISTER, schema: self::PARTICIPANT_SCHEMA);
 		} catch (Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: ParticipantToPersonMembershipResolver could not load the Participant',
+				'Decidiq: ParticipantToPersonMembershipResolver could not load the Participant',
 				['participantId' => $participantId, 'exception' => $e->getMessage()]
 			);
 			return null;
@@ -274,7 +274,7 @@ class ParticipantToPersonMembershipResolver {
 			$saved = $this->objectService->saveObject(object: $payload, register: self::REGISTER, schema: self::PERSON_SCHEMA);
 		} catch (Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: ParticipantToPersonMembershipResolver failed to create a Person',
+				'Decidiq: ParticipantToPersonMembershipResolver failed to create a Person',
 				['exception' => $e->getMessage()]
 			);
 			return $payload;
@@ -310,7 +310,7 @@ class ParticipantToPersonMembershipResolver {
 			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: ParticipantToPersonMembershipResolver failed to backfill nextcloudUserId onto a Person',
+				'Decidiq: ParticipantToPersonMembershipResolver failed to backfill nextcloudUserId onto a Person',
 				['personId' => $personId, 'exception' => $e->getMessage()]
 			);
 			return $person;
@@ -358,7 +358,7 @@ class ParticipantToPersonMembershipResolver {
 			$saved = $this->objectService->saveObject(object: $payload, register: self::REGISTER, schema: self::MEMBERSHIP_SCHEMA);
 		} catch (Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: ParticipantToPersonMembershipResolver failed to create a Membership',
+				'Decidiq: ParticipantToPersonMembershipResolver failed to create a Membership',
 				['personId' => $personId, 'governanceBodyId' => $governanceBodyId, 'exception' => $e->getMessage()]
 			);
 			return '';

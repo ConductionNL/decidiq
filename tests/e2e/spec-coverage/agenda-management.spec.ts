@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — agenda-management spec
@@ -133,7 +133,7 @@ test('live meeting view renders agenda items section', async ({ page }) => {
 // Verified via the agenda items list rendering existing records.
 test('agenda items list page loads correctly', async ({ page }) => {
 	await page.goto(`${BASE}/apps/decidesk/agenda-items`)
-	await expect(page).toHaveTitle(/Decidesk/i)
+	await expect(page).toHaveTitle(/Decidiq/i)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 })
 

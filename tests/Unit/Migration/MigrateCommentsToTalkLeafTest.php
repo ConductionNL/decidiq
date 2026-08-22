@@ -4,7 +4,7 @@
  * Unit tests for MigrateCommentsToTalkLeaf repair step.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Migration
+ * @package  OCA\Decidiq\Tests\Unit\Migration
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -19,10 +19,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Migration;
+namespace OCA\Decidiq\Tests\Unit\Migration;
 
-use OCA\Decidesk\Migration\MigrateCommentsToTalkLeaf;
-use OCA\Decidesk\Service\SettingsService;
+use OCA\Decidiq\Migration\MigrateCommentsToTalkLeaf;
+use OCA\Decidiq\Service\SettingsService;
 use OCP\App\IAppManager;
 use OCP\Migration\IOutput;
 use PHPUnit\Framework\MockObject\MockObject;

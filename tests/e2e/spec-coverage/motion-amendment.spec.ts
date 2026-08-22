@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — motion-amendment spec
@@ -200,6 +200,6 @@ test('live meeting view shows motions context for in-meeting motion submission',
 // Verified via motion detail rendering.
 test('motions page title is correct', async ({ page }) => {
 	await page.goto(`${BASE}/apps/decidesk/motions`)
-	await expect(page).toHaveTitle(/Decidesk/i)
+	await expect(page).toHaveTitle(/Decidiq/i)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 })

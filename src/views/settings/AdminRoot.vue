@@ -2,7 +2,7 @@
 <template>
 	<CnAdminSettingsShell
 		appId="decidesk"
-		appName="Decidesk"
+		appName="Decidiq"
 		data-testid="admin-root"
 		@reimported="onReimported">
 		<Settings v-if="storesReady" />

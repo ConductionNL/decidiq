@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Process Template Service
+ * Decidiq Process Template Service
  *
  * Manages process templates (the state machine, default voting rule, and quorum
  * policy a governance body follows) as OpenRegister objects, validates their
@@ -10,7 +10,7 @@
  * round-open path consume.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -28,10 +28,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
-use OCA\Decidesk\Lifecycle\ProcessTemplatePolicyResolver;
+use OCA\Decidiq\Lifecycle\ProcessTemplatePolicyResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -369,7 +369,7 @@ class ProcessTemplateService {
 
 			return $this->loadTemplateByRef(ref: $templateRef);
 		} catch (\Throwable $e) {
-			$this->logger->debug('Decidesk: body template resolution skipped', ['error' => $e->getMessage()]);
+			$this->logger->debug('Decidiq: body template resolution skipped', ['error' => $e->getMessage()]);
 			return null;
 		}
 

@@ -1,6 +1,6 @@
 {
 	"info": {
-		"name": "Decidesk Process Configuration (process-config-v1)",
+		"name": "Decidiq Process Configuration (process-config-v1)",
 		"description": "Contract + authorization tests for the admin process-template management API (process-config-v1). Admin requests expect 200/201; the non-admin probe and unauthenticated requests expect 403/401. Mirrors the decidesk-lifecycle / decidesk-admin-settings auth model.\n\n@spec openspec/specs/process-configuration/spec.md",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -35,7 +35,7 @@
 		{ "key": "adminUser", "value": "admin" },
 		{ "key": "adminPass", "value": "admin" },
 		{ "key": "nonAdminUser", "value": "decidesk-proccfg-nonadmin" },
-		{ "key": "nonAdminPass", "value": "Decidesk-ProcCfg!42x" }
+		{ "key": "nonAdminPass", "value": "Decidiq-ProcCfg!42x" }
 	],
 	"item": [
 		{

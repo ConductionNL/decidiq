@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Dashboard Widget Service
+ * Decidiq Dashboard Widget Service
  *
  * Resolves the current user's governance summary for the Nextcloud main
  * dashboard widget (OCP\Dashboard\IWidget): pending votes count and next
@@ -9,7 +9,7 @@
  * or absent register never crashes the Nextcloud dashboard.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,7 +25,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use Psr\Container\ContainerInterface;
@@ -80,7 +80,7 @@ class DashboardWidgetService {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 		} catch (\Throwable $e) {
 			$this->logger->debug(
-				'Decidesk: dashboard widget could not resolve ObjectService',
+				'Decidiq: dashboard widget could not resolve ObjectService',
 				['exception' => $e->getMessage()]
 			);
 			return ['pendingVotes' => 0, 'nextMeeting' => null];
@@ -333,7 +333,7 @@ class DashboardWidgetService {
 	 * Fail-soft findAll returning plain associative-array rows for a schema.
 	 *
 	 * @param object $objectService OpenRegister ObjectService instance
-	 * @param string $schema Decidesk schema slug
+	 * @param string $schema Decidiq schema slug
 	 *
 	 * @spec openspec/specs/dashboard/spec.md
 	 *
@@ -349,7 +349,7 @@ class DashboardWidgetService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->debug(
-				'Decidesk: dashboard widget findAll failed',
+				'Decidiq: dashboard widget findAll failed',
 				['schema' => $schema, 'exception' => $e->getMessage()]
 			);
 			return [];

@@ -4,7 +4,7 @@
  * Unit tests for MinutesDocumentService.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @spec openspec/specs/resolution-minutes/spec.md
  *
@@ -20,13 +20,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\Decidesk\Exception\MissingRelationException;
-use OCA\Decidesk\Service\MeetingFolderService;
-use OCA\Decidesk\Service\MinutesDocumentService;
-use OCA\Decidesk\Service\MinutesGenerationService;
+use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingRelationException;
+use OCA\Decidiq\Service\MeetingFolderService;
+use OCA\Decidiq\Service\MinutesDocumentService;
+use OCA\Decidiq\Service\MinutesGenerationService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -168,7 +168,7 @@ class MinutesDocumentServiceTest extends TestCase {
 			->willReturnCallback(
 				static function (array $meeting, string $subfolder, string $fileName, string $content) use (&$capturedContent): string {
 					$capturedContent = $content;
-					return 'Decidesk/Raad/Minutes/' . $fileName;
+					return 'Decidiq/Raad/Minutes/' . $fileName;
 				}
 			);
 
@@ -235,7 +235,7 @@ class MinutesDocumentServiceTest extends TestCase {
 			->willReturnCallback(
 				static function (array $meeting, string $subfolder, string $fileName, string $content) use (&$capturedContent): string {
 					$capturedContent = $content;
-					return 'Decidesk/x/Minutes/' . $fileName;
+					return 'Decidiq/x/Minutes/' . $fileName;
 				}
 			);
 
@@ -273,7 +273,7 @@ class MinutesDocumentServiceTest extends TestCase {
 			->willReturnCallback(
 				static function (array $meeting, string $subfolder, string $fileName, string $content) use (&$writtenNames): string {
 					$writtenNames[] = $fileName;
-					return 'Decidesk/x/Minutes/' . $fileName;
+					return 'Decidiq/x/Minutes/' . $fileName;
 				}
 			);
 
@@ -327,7 +327,7 @@ class MinutesDocumentServiceTest extends TestCase {
 			->willReturnCallback(
 				static function (array $meeting, string $subfolder, string $fileName, string $content) use (&$writes): string {
 					$writes[$fileName] = $content;
-					return 'Decidesk/x/Minutes/' . $fileName;
+					return 'Decidiq/x/Minutes/' . $fileName;
 				}
 			);
 

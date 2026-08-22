@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Unit tests for DecideskSearchProvider.
+ * Unit tests for DecidiqSearchProvider.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Search
+ * @package  OCA\Decidiq\Tests\Unit\Search
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,9 +20,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Search;
+namespace OCA\Decidiq\Tests\Unit\Search;
 
-use OCA\Decidesk\Search\DecideskSearchProvider;
+use OCA\Decidiq\Search\DecidiqSearchProvider;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\IUser;
@@ -37,7 +37,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
-class DecideskSearchProviderTest extends TestCase {
+class DecidiqSearchProviderTest extends TestCase {
 
 	/**
 	 * Build the provider over a schema-routed fake ObjectService.
@@ -45,9 +45,9 @@ class DecideskSearchProviderTest extends TestCase {
 	 * @param array<string, array<int, array<string, mixed>>> $rowsBySchema schema → rows
 	 * @param bool $broken True = ObjectService unavailable
 	 *
-	 * @return DecideskSearchProvider
+	 * @return DecidiqSearchProvider
 	 */
-	private function makeProvider(array $rowsBySchema = [], bool $broken = false): DecideskSearchProvider {
+	private function makeProvider(array $rowsBySchema = [], bool $broken = false): DecidiqSearchProvider {
 		$objectService = new class($rowsBySchema) {
 
 			/**
@@ -84,7 +84,7 @@ class DecideskSearchProviderTest extends TestCase {
 		$l10n = $this->createMock(IL10N::class);
 		$l10n->method('t')->willReturnArgument(0);
 
-		return new DecideskSearchProvider(
+		return new DecidiqSearchProvider(
 			container: $container,
 			urlGenerator: $urlGenerator,
 			l10n: $l10n,

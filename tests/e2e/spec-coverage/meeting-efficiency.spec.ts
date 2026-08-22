@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — Meeting efficiency (meeting-efficiency).
@@ -245,7 +245,7 @@ test('GovernanceBody: Efficiency tab shows the analytics surface', async ({
 	page,
 }) => {
 	if (!(await openApp(page))) {
-		test.skip(true, 'Decidesk app did not load in this environment.')
+		test.skip(true, 'Decidiq app did not load in this environment.')
 		return
 	}
 	const nav = page

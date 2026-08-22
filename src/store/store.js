@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
 //
-// Decidesk store — thin wrapper around @conduction/nextcloud-vue's shared
+// Decidiq store — thin wrapper around @conduction/nextcloud-vue's shared
 // object store, plus the decidesk-specific settings store.
 //
 // The custom Pinia object store that previously lived in

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Transcript Repository
+ * Decidiq Transcript Repository
  *
  * All OpenRegister / Files access the transcription pipeline needs: fetching
  * the meeting, the transcript and its agenda items, persisting a transcript,
@@ -9,7 +9,7 @@
  * TranscriptionService with the pipeline itself.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,9 +25,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\FileService;
 use RuntimeException;

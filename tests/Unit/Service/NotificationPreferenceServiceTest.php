@@ -12,7 +12,7 @@
  * stub is brittle.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,9 +27,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\NotificationPreferenceService;
+use OCA\Decidiq\Service\NotificationPreferenceService;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\Mail\IMailer;

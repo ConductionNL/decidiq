@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Participant UUID Lookup
+ * Decidiq Participant UUID Lookup
  *
  * Maps a Nextcloud user login (UID) onto the OpenRegister Participant object
  * UUID that the voting, proxy and evaluation flows key on.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,7 +24,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Integration tests for DecideskToolProvider.
+ * Integration tests for DecidiqToolProvider.
  *
  * These tests run only when the full openregister runtime is available
  * (i.e. in a properly provisioned Nextcloud environment with both decidesk
@@ -9,7 +9,7 @@
  * skipped via markTestSkipped().
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Integration\Mcp
+ * @package  OCA\Decidiq\Tests\Integration\Mcp
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,13 +24,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Integration\Mcp;
+namespace OCA\Decidiq\Tests\Integration\Mcp;
 
-use OCA\Decidesk\Mcp\DecideskToolProvider;
+use OCA\Decidiq\Mcp\DecidiqToolProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Integration test suite for DecideskToolProvider.
+ * Integration test suite for DecidiqToolProvider.
  *
  * Skipped when openregister is not installed. When the real runtime is
  * present these tests exercise the DI container resolution, the full
@@ -38,14 +38,14 @@ use PHPUnit\Framework\TestCase;
  *
  * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-010
  */
-class DecideskToolProviderIntegrationTest extends TestCase {
+class DecidiqToolProviderIntegrationTest extends TestCase {
 
 	/**
 	 * The resolved provider instance (only set when openregister is available).
 	 *
-	 * @var DecideskToolProvider|null
+	 * @var DecidiqToolProvider|null
 	 */
-	private ?DecideskToolProvider $provider = null;
+	private ?DecidiqToolProvider $provider = null;
 
 	/**
 	 * Set up: skip when openregister runtime is absent.
@@ -70,25 +70,25 @@ class DecideskToolProviderIntegrationTest extends TestCase {
 	}//end setUp()
 
 	/**
-	 * The DI container resolves the alias to a DecideskToolProvider instance.
+	 * The DI container resolves the alias to a DecidiqToolProvider instance.
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-001
 	 */
-	public function testContainerResolvesAliasToDecideskToolProvider(): void {
+	public function testContainerResolvesAliasToDecidiqToolProvider(): void {
 		// @phpstan-ignore-next-line — OC is a Nextcloud runtime class, available when NC is installed.
 		$instance = \OC::$server->query('OCA\\OpenRegister\\Mcp\\IMcpToolProvider::decidesk');
 
 		self::assertInstanceOf(
-			DecideskToolProvider::class,
+			DecidiqToolProvider::class,
 			$instance,
-			'The service alias OCA\OpenRegister\Mcp\IMcpToolProvider::decidesk must resolve to DecideskToolProvider'
+			'The service alias OCA\OpenRegister\Mcp\IMcpToolProvider::decidesk must resolve to DecidiqToolProvider'
 		);
 
 		$this->provider = $instance;
 
-	}//end testContainerResolvesAliasToDecideskToolProvider()
+	}//end testContainerResolvesAliasToDecidiqToolProvider()
 
 	/**
 	 * Full round-trip: startMeeting transitions a scheduled meeting to in-progress.
@@ -121,7 +121,7 @@ class DecideskToolProviderIntegrationTest extends TestCase {
 
 		// For now, assert that the provider is available and the catalogue is correct.
 		// Full fixture-based testing requires the NC + OR + decidesk stack to be running.
-		self::assertInstanceOf(DecideskToolProvider::class, $this->provider);
+		self::assertInstanceOf(DecidiqToolProvider::class, $this->provider);
 
 		$tools = $this->provider->getTools();
 		self::assertCount(5, $tools);
@@ -178,7 +178,7 @@ class DecideskToolProviderIntegrationTest extends TestCase {
 
 		// Provider DI resolution is sufficient to verify the integration wiring.
 		// A full persistence round-trip requires fixture data managed by the NC test setup.
-		self::assertInstanceOf(DecideskToolProvider::class, $this->provider);
+		self::assertInstanceOf(DecidiqToolProvider::class, $this->provider);
 		self::assertSame('decidesk', $this->provider->getAppId());
 
 	}//end testAddActionItem_persistenceVerification()

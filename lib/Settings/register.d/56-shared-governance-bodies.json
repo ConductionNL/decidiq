@@ -448,7 +448,7 @@
               "nl": "Nieuwe zienswijze uitstaand: {{title}}",
               "en": "New zienswijze outstanding: {{title}}"
             },
-            "_note": "REQ-SGB-009 (3): 'zienswijze uitstaand' — a created trigger notifying the receiving organisation's readers when the zienswijze is generated. Canonical x-openregister-notifications dialect (ADR-031). Recipients approximate the receiving organisation's readers via object-acl (read) + decidesk-members group, because no recipient kind targets the participant GovernanceBody reference directly. Decidesk dispatches no notification imperatively."
+            "_note": "REQ-SGB-009 (3): 'zienswijze uitstaand' — a created trigger notifying the receiving organisation's readers when the zienswijze is generated. Canonical x-openregister-notifications dialect (ADR-031). Recipients approximate the receiving organisation's readers via object-acl (read) + decidesk-members group, because no recipient kind targets the participant GovernanceBody reference directly. Decidiq dispatches no notification imperatively."
           },
           "zienswijzeRappelBeforeDeadline": {
             "trigger": {

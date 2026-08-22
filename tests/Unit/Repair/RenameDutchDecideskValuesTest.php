@@ -3,7 +3,7 @@
 /**
  * Tests for the stored-enum-value migration's decisions.
  *
- * Decidesk's unit environment does not install doctrine/dbal, so
+ * Decidiq's unit environment does not install doctrine/dbal, so
  * `createMock(IDBConnection)` cannot be generated — it fails on
  * `Doctrine\DBAL\ParameterType` while BUILDING the double, before a single
  * assertion runs. The database half of the step is therefore not reachable
@@ -11,7 +11,7 @@
  * collaborator that is.
  *
  * @category  Test
- * @package   OCA\Decidesk\Tests\Unit\Repair
+ * @package   OCA\Decidiq\Tests\Unit\Repair
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -23,11 +23,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Repair;
+namespace OCA\Decidiq\Tests\Unit\Repair;
 
-use OCA\Decidesk\Repair\RenameDutchDecideskValueDecisions;
-use OCA\Decidesk\Repair\RenameDutchDecideskValues;
-use OCA\Decidesk\Repair\ValueMigrationGateway;
+use OCA\Decidiq\Repair\RenameDutchDecidiqValueDecisions;
+use OCA\Decidiq\Repair\RenameDutchDecidiqValues;
+use OCA\Decidiq\Repair\ValueMigrationGateway;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -39,18 +39,18 @@ use ReflectionClass;
  *
  * phpcs:disable CustomSniffs.Functions.NamedParameters
  *
- * @covers \OCA\Decidesk\Repair\RenameDutchDecideskValueDecisions
- * @covers \OCA\Decidesk\Repair\RenameDutchDecideskValues
- * @covers \OCA\Decidesk\Repair\DbValueMigrationGateway
+ * @covers \OCA\Decidiq\Repair\RenameDutchDecidiqValueDecisions
+ * @covers \OCA\Decidiq\Repair\RenameDutchDecidiqValues
+ * @covers \OCA\Decidiq\Repair\DbValueMigrationGateway
  */
-final class RenameDutchDecideskValuesTest extends TestCase {
+final class RenameDutchDecidiqValuesTest extends TestCase {
 
 	/**
 	 * The predicates under test.
 	 *
-	 * @var RenameDutchDecideskValueDecisions
+	 * @var RenameDutchDecidiqValueDecisions
 	 */
-	private RenameDutchDecideskValueDecisions $decisions;
+	private RenameDutchDecidiqValueDecisions $decisions;
 
 	/**
 	 * Set up the subject.
@@ -62,7 +62,7 @@ final class RenameDutchDecideskValuesTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		$this->decisions = new RenameDutchDecideskValueDecisions();
+		$this->decisions = new RenameDutchDecidiqValueDecisions();
 
 	}//end setUp()
 
@@ -83,7 +83,7 @@ final class RenameDutchDecideskValuesTest extends TestCase {
 		self::assertSame('routing_advice', $this->decisions->columnFor('routingAdvice'));
 		self::assertSame('status', $this->decisions->columnFor('status'));
 
-		foreach (array_keys(RenameDutchDecideskValues::VALUE_MAP) as $property) {
+		foreach (array_keys(RenameDutchDecidiqValues::VALUE_MAP) as $property) {
 			self::assertMatchesRegularExpression(
 				'/^[a-z][a-z0-9_]*$/',
 				$this->decisions->columnFor((string)$property),
@@ -155,7 +155,7 @@ final class RenameDutchDecideskValuesTest extends TestCase {
 	 * @spec exclude No canonical spec covers the vocabulary migration.
 	 */
 	public function testMapEntriesChangeSomethingAndDoNotChain(): void {
-		$map = RenameDutchDecideskValues::VALUE_MAP;
+		$map = RenameDutchDecidiqValues::VALUE_MAP;
 		self::assertNotSame([], $map);
 
 		foreach ($map as $property => $values) {
@@ -183,7 +183,7 @@ final class RenameDutchDecideskValuesTest extends TestCase {
 	 * @spec exclude No canonical spec covers the vocabulary migration.
 	 */
 	public function testOriVocabularyIsNotMigrated(): void {
-		$map = RenameDutchDecideskValues::VALUE_MAP;
+		$map = RenameDutchDecidiqValues::VALUE_MAP;
 		self::assertArrayNotHasKey('oriType', $map);
 
 		$sources = [];
@@ -232,7 +232,7 @@ final class RenameDutchDecideskValuesTest extends TestCase {
 	 * @spec exclude No canonical spec covers the vocabulary migration.
 	 */
 	public function testIsARepairStepThatNamesItself(): void {
-		$class = new ReflectionClass(RenameDutchDecideskValues::class);
+		$class = new ReflectionClass(RenameDutchDecidiqValues::class);
 		self::assertTrue($class->implementsInterface(\OCP\Migration\IRepairStep::class));
 		self::assertStringContainsString('value', strtolower($class->newInstanceWithoutConstructor()->getName()));
 
@@ -306,13 +306,13 @@ final class RenameDutchDecideskValuesTest extends TestCase {
 	 */
 	public function testRewritesOnlyTheColumnsATableActuallyHas(): void {
 		$log = [];
-		$step = new RenameDutchDecideskValues(
+		$step = new RenameDutchDecidiqValues(
 			$this->fakeGateway(['oc_openregister_table_1_2'], ['oc_openregister_table_1_2' => ['verdict']], $log),
-			new RenameDutchDecideskValueDecisions()
+			new RenameDutchDecidiqValueDecisions()
 		);
 
 		$output = $this->createMock(\OCP\Migration\IOutput::class);
-		$expected = count(RenameDutchDecideskValues::VALUE_MAP['verdict']);
+		$expected = count(RenameDutchDecidiqValues::VALUE_MAP['verdict']);
 		$output->expects(self::once())->method('info')
 			->with(self::stringContains((string)$expected . ' row value(s)'));
 
@@ -334,7 +334,7 @@ final class RenameDutchDecideskValuesTest extends TestCase {
 	 */
 	public function testNoShardTablesIsANoOp(): void {
 		$log = [];
-		$step = new RenameDutchDecideskValues($this->fakeGateway([], [], $log), new RenameDutchDecideskValueDecisions());
+		$step = new RenameDutchDecidiqValues($this->fakeGateway([], [], $log), new RenameDutchDecidiqValueDecisions());
 
 		$output = $this->createMock(\OCP\Migration\IOutput::class);
 		$output->expects(self::once())->method('info')->with(self::stringContains('nothing to do'));
@@ -376,7 +376,7 @@ final class RenameDutchDecideskValuesTest extends TestCase {
 	public function testMapContainsNoCaseOnlyEntries(): void {
 		self::assertSame(
 			[],
-			$this->decisions->caseOnlyEntries(\OCA\Decidesk\Repair\RenameDutchDecideskValues::VALUE_MAP)
+			$this->decisions->caseOnlyEntries(\OCA\Decidiq\Repair\RenameDutchDecidiqValues::VALUE_MAP)
 		);
 
 		// The detector must be able to FAIL, or an empty result above proves

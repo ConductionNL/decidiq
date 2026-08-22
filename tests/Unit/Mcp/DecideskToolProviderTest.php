@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Unit tests for DecideskToolProvider.
+ * Unit tests for DecidiqToolProvider.
  *
  * Covers: getAppId, getTools catalogue, invokeTool dispatch, per-tool happy
  * paths, per-tool auth-failure paths, UUID validation, sources array shape,
  * source truncation, and state-machine guard.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Mcp
+ * @package  OCA\Decidiq\Tests\Unit\Mcp
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,11 +26,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Mcp;
+namespace OCA\Decidiq\Tests\Unit\Mcp;
 
-use OCA\Decidesk\Mcp\DecideskToolProvider;
-use OCA\Decidesk\Service\MeetingService;
-use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidiq\Mcp\DecidiqToolProvider;
+use OCA\Decidiq\Service\MeetingService;
+use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\IGroupManager;
@@ -42,7 +42,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Unit test suite for DecideskToolProvider.
+ * Unit test suite for DecidiqToolProvider.
  *
  * Every test in this class runs in isolation with mocked services.
  * The stubs at tests/Stubs/Mcp/IMcpToolProvider.php satisfy the interface
@@ -53,14 +53,14 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-010
  */
-class DecideskToolProviderTest extends TestCase {
+class DecidiqToolProviderTest extends TestCase {
 
 	/**
 	 * Provider under test.
 	 *
-	 * @var DecideskToolProvider
+	 * @var DecidiqToolProvider
 	 */
-	private DecideskToolProvider $provider;
+	private DecidiqToolProvider $provider;
 
 	/**
 	 * Mock MeetingService.
@@ -146,7 +146,7 @@ class DecideskToolProviderTest extends TestCase {
 		$this->participantResolver = $this->createMock(ParticipantResolver::class);
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 
-		$this->provider = new DecideskToolProvider(
+		$this->provider = new DecidiqToolProvider(
 			meetingService: $this->meetingService,
 			userSession: $this->userSession,
 			groupManager: $this->groupManager,
@@ -650,7 +650,7 @@ class DecideskToolProviderTest extends TestCase {
 			'title' => 'Write test plan',
 			'taskStatus' => 'open',
 		];
-		$writerMock = $this->getMockBuilder(\OCA\Decidesk\Service\ActionItemWriter::class)
+		$writerMock = $this->getMockBuilder(\OCA\Decidiq\Service\ActionItemWriter::class)
 			->disableOriginalConstructor()
 			->getMock();
 		$writerMock->method('create')->willReturn($savedActionItemArray);
@@ -659,7 +659,7 @@ class DecideskToolProviderTest extends TestCase {
 		// OpenRegister is no longer resolved through it (ADR-083).
 		$this->container->method('get')->willReturnCallback(
 			function (string $id) use ($writerMock) {
-				if ($id === \OCA\Decidesk\Service\ActionItemWriter::class) {
+				if ($id === \OCA\Decidiq\Service\ActionItemWriter::class) {
 					return $writerMock;
 				}
 

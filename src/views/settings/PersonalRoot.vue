@@ -12,7 +12,7 @@
 	<div
 		class="decidesk-personal-settings section"
 		data-testid="decidesk-personal-settings">
-		<h2>{{ t('decidesk', 'Decidesk personal settings') }}</h2>
+		<h2>{{ t('decidesk', 'Decidiq personal settings') }}</h2>
 		<NcLoadingIcon v-if="loading" :size="32" />
 		<template v-else>
 			<NotificationPreferencesSection

@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Amendment Order Service
+ * Decidiq Amendment Order Service
  *
  * The parliamentary amendment-before-motion ordering rules (fail closed) and
  * the relation walks those rules share: an amendment's parent motion and the
  * meeting a voting round ultimately belongs to.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,7 +23,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use RuntimeException;

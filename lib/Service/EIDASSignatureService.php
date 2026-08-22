@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk eIDAS Signature Service
+ * Decidiq eIDAS Signature Service
  *
  * Delegates QES (Qualified Electronic Signature) work to the openconnector
  * `e-sign` Source. Openconnector configures the QSP credentials, signing
@@ -21,7 +21,7 @@
  * {@see self::resolveSignatureStage()} for the stage-resolution seam (C5 D5).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -38,7 +38,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
@@ -129,7 +129,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: eIDAS initiate failed',
+				'Decidiq: eIDAS initiate failed',
 				['minutesId' => $minutesId, 'exception' => $e->getMessage()]
 			);
 			return [
@@ -225,7 +225,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: eIDAS verifySignature failed',
+				'Decidiq: eIDAS verifySignature failed',
 				['requestId' => $requestId, 'exception' => $e->getMessage()]
 			);
 			return [
@@ -284,7 +284,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: eIDAS finalize failed',
+				'Decidiq: eIDAS finalize failed',
 				['minutesId' => $minutesId, 'exception' => $e->getMessage()]
 			);
 			return [
@@ -362,7 +362,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: eIDAS validateCertificateChain failed',
+				'Decidiq: eIDAS validateCertificateChain failed',
 				['certificateThumbprint' => $certThumbprint, 'exception' => $e->getMessage()]
 			);
 			return [
@@ -527,7 +527,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			}//end foreach
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: failed to resolve method=signature DecisionStage after finalizeMinutes',
+				'Decidiq: failed to resolve method=signature DecisionStage after finalizeMinutes',
 				['minutesId' => $minutesId, 'exception' => $e->getMessage()]
 			);
 		}//end try
@@ -604,7 +604,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		} catch (\Throwable $e) {
 			// Docudesk was registered but failed — fail CLOSED (REQ-DCDH-005).
 			$this->logger->error(
-				'Decidesk: docudesk signingRequest composition failed (fail-closed)',
+				'Decidiq: docudesk signingRequest composition failed (fail-closed)',
 				['minutesId' => $minutesId, 'exception' => $e->getMessage()]
 			);
 			return [
@@ -678,7 +678,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: failed to persist signed Minutes row',
+				'Decidiq: failed to persist signed Minutes row',
 				['minutesId' => $minutesId, 'exception' => $e->getMessage()]
 			);
 		}//end try

@@ -11,7 +11,7 @@
  * are in scope, and that is what these tests pin.
  *
  * @category Tests
- * @package  OCA\Decidesk\Tests\Unit\Repair
+ * @package  OCA\Decidiq\Tests\Unit\Repair
  *
  * @author    Conduction Development Team <dev@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,15 +27,15 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Repair;
+namespace OCA\Decidiq\Tests\Unit\Repair;
 
-use OCA\Decidesk\Repair\RenameDutchVocabularyColumns;
+use OCA\Decidiq\Repair\RenameDutchVocabularyColumns;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionMethod;
 
 /**
- * @covers \OCA\Decidesk\Repair\RenameDutchVocabularyColumns
+ * @covers \OCA\Decidiq\Repair\RenameDutchVocabularyColumns
  */
 class RenameDutchVocabularyColumnsTest extends TestCase {
 	/**

@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Engagement Service
+ * Decidiq Engagement Service
  *
  * Stateless service handling EngagementRecord aggregation: speeches,
  * questions, topics suggested, and a derived engagement score per
  * participant per meeting.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,7 +25,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
@@ -115,7 +115,7 @@ class EngagementService {
 		);
 
 		$this->logger->info(
-			'Decidesk: Engagement captured',
+			'Decidiq: Engagement captured',
 			['meetingId' => $meetingId, 'participant' => $participant, 'eventType' => $eventType]
 		);
 
@@ -233,7 +233,7 @@ class EngagementService {
 			);
 		} catch (Throwable $e) {
 			$this->logger->debug(
-				'Decidesk: findEngagementForMeetingAndParticipant failed',
+				'Decidiq: findEngagementForMeetingAndParticipant failed',
 				['error' => $e->getMessage()]
 			);
 			return null;
@@ -279,7 +279,7 @@ class EngagementService {
 			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: findEngagementForMeeting failed',
+				'Decidiq: findEngagementForMeeting failed',
 				['meetingId' => $meetingId, 'error' => $e->getMessage()]
 			);
 			return [];

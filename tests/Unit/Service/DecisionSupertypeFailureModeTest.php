@@ -25,7 +25,7 @@
  * against the very code that produces the 500 in production.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -43,14 +43,14 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Controller\MotionController;
-use OCA\Decidesk\Service\MotionService;
-use OCA\Decidesk\Service\ParticipantResolver;
-use OCA\Decidesk\Service\ProcessTemplateService;
-use OCA\Decidesk\Service\VotingErrorResponder;
-use OCA\Decidesk\Service\VotingRoundPreflight;
+use OCA\Decidiq\Controller\MotionController;
+use OCA\Decidiq\Service\MotionService;
+use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Service\ProcessTemplateService;
+use OCA\Decidiq\Service\VotingErrorResponder;
+use OCA\Decidiq\Service\VotingRoundPreflight;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -475,8 +475,8 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	private function decideskContainer(ObjectServiceInterface $objectService): ContainerInterface {
 		$services = [
 			'OCA\OpenRegister\Service\ObjectService' => $objectService,
-			\OCA\Decidesk\Service\MotionNotifier::class => $this->createMock(
-				\OCA\Decidesk\Service\MotionNotifier::class
+			\OCA\Decidiq\Service\MotionNotifier::class => $this->createMock(
+				\OCA\Decidiq\Service\MotionNotifier::class
 			),
 			\OCP\IAppConfig::class => $this->createMock(IAppConfig::class),
 		];
@@ -492,13 +492,13 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 		// lives inside it. A double would make these tests assert against a
 		// stand-in for the code under test.
 		$self = $this->containerFor($services);
-		$services[\OCA\Decidesk\Service\MotionLinkResolver::class] = new \OCA\Decidesk\Service\MotionLinkResolver(
+		$services[\OCA\Decidiq\Service\MotionLinkResolver::class] = new \OCA\Decidiq\Service\MotionLinkResolver(
 			container: $self
 		);
-		$services[\OCA\Decidesk\Lifecycle\MotionLifecycleTransitioner::class] = new \OCA\Decidesk\Lifecycle\MotionLifecycleTransitioner(
+		$services[\OCA\Decidiq\Lifecycle\MotionLifecycleTransitioner::class] = new \OCA\Decidiq\Lifecycle\MotionLifecycleTransitioner(
 			container: $self,
 			logger: new NullLogger(),
-			guard: new \OCA\Decidesk\Lifecycle\DecisionTransitionGuard(),
+			guard: new \OCA\Decidiq\Lifecycle\DecisionTransitionGuard(),
 			objectService: $objectService,
 		);
 
@@ -777,7 +777,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 	 * @return void
 	 */
 	public function testUnknownMeetingResolvesToNoGovernanceBodyNotAnEscapingError(): void {
-		$resolver = new \OCA\Decidesk\Service\ParticipantResolver(
+		$resolver = new \OCA\Decidiq\Service\ParticipantResolver(
 			logger: new NullLogger(),
 			objectService: $this->objectServiceContract(),
 		);

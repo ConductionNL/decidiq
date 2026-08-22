@@ -18,7 +18,7 @@
 			{{
 				t(
 					'decidesk',
-					'Control how Decidesk presents itself for your account.',
+					'Control how Decidiq presents itself for your account.',
 				)
 			}}
 		</p>

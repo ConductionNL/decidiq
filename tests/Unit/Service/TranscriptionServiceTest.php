@@ -8,7 +8,7 @@
  * agenda-alignment matrix (in-window / out-of-window / re-run / no-timeline).
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @spec openspec/changes/meeting-transcription-ai-minutes/tasks.md#task-5.1
  *
@@ -21,11 +21,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\MeetingFolderService;
-use OCA\Decidesk\Service\TranscriptionService;
-use OCA\Decidesk\Service\TranscriptionSourceResolver;
+use OCA\Decidiq\Service\MeetingFolderService;
+use OCA\Decidiq\Service\TranscriptionService;
+use OCA\Decidiq\Service\TranscriptionSourceResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\FileService;
 use OCP\SpeechToText\ISpeechToTextManager;
@@ -322,7 +322,7 @@ class TranscriptionServiceTest extends TestCase {
 		$transcript = [
 			'id' => 't1',
 			'status' => 'pending',
-			'sourceFilePath' => 'Decidesk/x/rec.mp3',
+			'sourceFilePath' => 'Decidiq/x/rec.mp3',
 			'consent' => ['confirmedBy' => 'alice', 'confirmedAt' => '2026-01-01T00:00:00Z'],
 			'relations' => ['meeting' => 'm1'],
 		];

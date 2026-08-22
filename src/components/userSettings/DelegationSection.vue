@@ -4,7 +4,7 @@
 <!--
  User settings — Delegation and absence section (user-settings spec).
 
- Configure a delegate who receives this user's Decidesk notifications during
+ Configure a delegate who receives this user's Decidiq notifications during
  an absence period. The delegation expires automatically on the end date and
  NEVER grants voting rights — a formal proxy (volmacht) is required for
  voting (granted per voting round via the existing proxy process).
@@ -18,7 +18,7 @@
 			{{
 				t(
 					'decidesk',
-					'During the configured period your delegate receives your Decidesk notifications and can follow your pending votes and action items.',
+					'During the configured period your delegate receives your Decidiq notifications and can follow your pending votes and action items.',
 				)
 			}}
 		</p>

@@ -33,7 +33,7 @@
  * CI clones the real OpenRegister at ref: development. A local suite that
  * cannot run is not a suite that passes.
  *
- * @package OCA\Decidesk\Tests\Stubs
+ * @package OCA\Decidiq\Tests\Stubs
  */
 
 namespace OCA\OpenRegister\Service;

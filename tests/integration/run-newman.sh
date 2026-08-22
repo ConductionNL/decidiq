@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Decidesk API-contract test runner (Newman / Postman).
+# Decidiq API-contract test runner (Newman / Postman).
 #
 # Runs tests/integration/decidesk.postman_collection.json, then
 # tests/integration/decidesk-security-flow-e2e.postman_collection.json (proxy-vote

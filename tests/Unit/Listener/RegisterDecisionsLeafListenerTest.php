@@ -14,7 +14,7 @@
  * was. The assertion has to live here.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Listener
+ * @package  OCA\Decidiq\Tests\Unit\Listener
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -32,11 +32,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Listener;
+namespace OCA\Decidiq\Tests\Unit\Listener;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\AppInfo\Registrar\IntegrationLeafRegistrar;
-use OCA\Decidesk\Listener\RegisterDecisionsLeafListener;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\AppInfo\Registrar\IntegrationLeafRegistrar;
+use OCA\Decidiq\Listener\RegisterDecisionsLeafListener;
 use OCA\OpenRegister\Event\RegisterLeafProvidersEvent;
 use OCA\OpenRegister\Service\Integration\LeafDescriptor;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;

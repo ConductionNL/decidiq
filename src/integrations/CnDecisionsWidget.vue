@@ -37,7 +37,7 @@
 			<div v-if="isDashboardSurface" class="cn-decisions-widget__headline">
 				<strong>{{ countLabel }}</strong>
 				<a :href="appUrl" class="cn-decisions-widget__open-app">{{
-					openInDecideskLabel
+					openInDecidiqLabel
 				}}</a>
 			</div>
 
@@ -92,7 +92,7 @@
 						<template #icon>
 							<OpenInNew :size="18" />
 						</template>
-						{{ openInDecideskLabel }}
+						{{ openInDecidiqLabel }}
 					</NcButton>
 				</div>
 			</template>
@@ -219,7 +219,7 @@ export default {
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 link-out to decidesk. */
-		openInDecideskLabel() {
+		openInDecidiqLabel() {
 			return t('decidesk', 'Open in decidesk')
 		},
 

@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Minutes Generation Service
+ * Decidiq Minutes Generation Service
  *
  * Service for generating initial minutes drafts from linked meeting data.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  *
@@ -19,12 +19,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
-use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\Decidesk\Exception\MissingRelationException;
+use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingRelationException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -389,7 +389,7 @@ class MinutesGenerationService {
 			return $meetingEntity->getObject();
 		} catch (Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: Failed to fetch linked Meeting for minutes draft generation',
+				'Decidiq: Failed to fetch linked Meeting for minutes draft generation',
 				['exception' => $e->getMessage(), 'meetingId' => $meetingId]
 			);
 			// Re-throw as RuntimeException (503) so the caller distinguishes a transient
@@ -448,7 +448,7 @@ class MinutesGenerationService {
 				);
 			} catch (Throwable $e) {
 				$this->logger->warning(
-					'Decidesk: Failed to fetch related objects for minutes draft',
+					'Decidiq: Failed to fetch related objects for minutes draft',
 					['schema' => $schema, 'meetingId' => $meetingId, 'offset' => $offset, 'exception' => $e->getMessage()]
 				);
 				break;

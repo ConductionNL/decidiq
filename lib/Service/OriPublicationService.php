@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk ORI Publication Service
+ * Decidiq ORI Publication Service
  *
  * Service for publishing voting round results to the ORI (Open Raadsinformatie) API.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,10 +23,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
-use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidiq\AppInfo\Application;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
@@ -135,10 +135,10 @@ class OriPublicationService {
 		// publish-decisions change extends the same list.
 		// @spec openspec/specs/meeting-transcription/spec.md
 		try {
-			$eligibility = $this->container->get(\OCA\Decidesk\Service\PublicationEligibilityService::class);
+			$eligibility = $this->container->get(\OCA\Decidiq\Service\PublicationEligibilityService::class);
 			$eligibility->assertPublishable(schemaSlug: 'voting-round');
 		} catch (\DomainException $e) {
-			$this->logger->warning('Decidesk ORI: publication refused by deny-list — ' . $e->getMessage());
+			$this->logger->warning('Decidiq ORI: publication refused by deny-list — ' . $e->getMessage());
 			return;
 		} catch (Throwable) {
 			// Eligibility service unavailable (very old container): do not block
@@ -151,7 +151,7 @@ class OriPublicationService {
 		}
 
 		if ($this->isValidOriEndpoint(url: $endpoint) === false) {
-			$this->logger->warning("Decidesk ORI: endpoint '$endpoint' failed safety validation — publication skipped");
+			$this->logger->warning("Decidiq ORI: endpoint '$endpoint' failed safety validation — publication skipped");
 			return;
 		}
 
@@ -161,7 +161,7 @@ class OriPublicationService {
 			$roundObject = $this->objectService->find($votingRoundId);
 
 			if ($roundObject === null) {
-				$this->logger->warning("Decidesk ORI: VotingRound $votingRoundId not found for publication");
+				$this->logger->warning("Decidiq ORI: VotingRound $votingRoundId not found for publication");
 				return;
 			}
 
@@ -206,12 +206,12 @@ class OriPublicationService {
 				uuid: $votingRoundId,
 			);
 
-			$this->logger->info("Decidesk ORI: VotingRound $votingRoundId published successfully to $endpoint");
+			$this->logger->info("Decidiq ORI: VotingRound $votingRoundId published successfully to $endpoint");
 		} catch (Throwable $e) {
 			// M3: log here for diagnostics, then rethrow so the caller (VotingService)
 			// can attach the error to the round data and surface it in the response.
 			$this->logger->warning(
-				"Decidesk ORI: Publication error for round $votingRoundId: {$e->getMessage()}"
+				"Decidiq ORI: Publication error for round $votingRoundId: {$e->getMessage()}"
 			);
 			throw $e;
 		}//end try

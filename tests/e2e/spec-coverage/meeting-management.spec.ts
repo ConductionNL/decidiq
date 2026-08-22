@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — meeting-management spec
@@ -91,7 +91,7 @@ test('meetings list page loads without errors', async ({ page }) => {
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	// Page title is correct
-	await expect(page).toHaveTitle(/Decidesk/i)
+	await expect(page).toHaveTitle(/Decidiq/i)
 
 	// App is mounted and navigation is functional ("Meetings" exactly —
 	// non-exact role name also matches the "Board meetings" entry).

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Decision Publication Service
+ * Decidiq Decision Publication Service
  *
  * Owns the server-side publication of a Decision: loading the object through
  * OpenRegister, validating that it is adopted and not yet published, stamping
@@ -10,7 +10,7 @@
  * envelope and the admin authorization gate.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,9 +26,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use OCA\Decidesk\Activity\DecideskProvider;
+use OCA\Decidiq\Activity\DecidiqProvider;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use Psr\Container\ContainerInterface;
@@ -190,7 +190,7 @@ class DecisionPublicationService {
 			}
 
 			$this->logger->info(
-				'Decidesk: Decision published',
+				'Decidiq: Decision published',
 				['id' => $decisionId, 'publishedBy' => $actorUid]
 			);
 
@@ -202,7 +202,7 @@ class DecisionPublicationService {
 			return ['status' => Http::STATUS_OK, 'data' => $result];
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: Failed to publish Decision',
+				'Decidiq: Failed to publish Decision',
 				['id' => $decisionId, 'exception' => $e->getMessage()]
 			);
 			return $this->envelope(
@@ -229,7 +229,7 @@ class DecisionPublicationService {
 	private function publishActivity(string $title, string $decisionId): void {
 		try {
 			$this->container->get(ActivityPublisherService::class)->publishGovernanceEvent(
-				subject: DecideskProvider::SUBJECT_DECISION_PUBLISHED,
+				subject: DecidiqProvider::SUBJECT_DECISION_PUBLISHED,
 				title: $title,
 				status: 'public',
 				objectType: 'decision',
@@ -238,7 +238,7 @@ class DecisionPublicationService {
 			);
 		} catch (\Throwable $activityError) {
 			$this->logger->debug(
-				'Decidesk: activity publish skipped',
+				'Decidiq: activity publish skipped',
 				['error' => $activityError->getMessage()]
 			);
 		}//end try

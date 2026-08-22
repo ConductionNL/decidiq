@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-# SPDX-FileCopyrightText: 2026 Decidesk Contributors
+# SPDX-FileCopyrightText: 2026 Decidiq Contributors
 # SPDX-License-Identifier: EUPL-1.2
 #
-# Provision Decidesk's OpenRegister register + schemas on a freshly installed
+# Provision Decidiq's OpenRegister register + schemas on a freshly installed
 # Nextcloud, for the shared `E2E Tests (Playwright)` CI job.
 #
 # Wired up as the workflow's `playwright-seed-command`. That step runs AFTER
@@ -235,13 +235,13 @@ PRETTY_CODE="$(curl -sS -o "$PRETTY_HTML" -w '%{http_code}' \
 	-u "${USER_NAME}:${USER_PASS}" -H 'OCS-APIRequest: true' \
 	"${BASE}/index.php/apps/decidesk/" || echo 000)"
 if [ "$PRETTY_CODE" != "200" ]; then
-	echo "::error::Could not fetch the Decidesk app page to verify pretty URLs (HTTP ${PRETTY_CODE})."
+	echo "::error::Could not fetch the Decidiq app page to verify pretty URLs (HTTP ${PRETTY_CODE})."
 	exit 1
 fi
 if grep -q '"modRewriteWorking":true\|"modRewriteWorking": *true' "$PRETTY_HTML"; then
 	echo "[ci-seed] served page reports modRewriteWorking:true — the SPA router base will be /apps/decidesk."
 else
-	echo "::error::The served Decidesk page does NOT report modRewriteWorking:true."
+	echo "::error::The served Decidiq page does NOT report modRewriteWorking:true."
 	echo "::error::generateUrl() will therefore return '/index.php/apps/decidesk' as the vue-router base,"
 	echo "::error::while every spec navigates to the pretty '/apps/decidesk/...' form. Those disagree, so"
 	echo "::error::vue-router matches nothing and the view never mounts — every UI spec then fails on a"
@@ -250,11 +250,11 @@ else
 	exit 1
 fi
 
-# ── 1. Import the Decidesk configuration ─────────────────────────────────────
-# Decidesk's `appinfo/routes.php` returns
+# ── 1. Import the Decidiq configuration ─────────────────────────────────────
+# Decidiq's `appinfo/routes.php` returns
 # `\OCA\OpenRegister\AppHost\Routes::standard([...])`, whose canonical table
 # ships `settings#load` at POST /api/settings/load. On decidesk that name
-# resolves to OCA\Decidesk\Controller\SettingsController::load(), which calls
+# resolves to OCA\Decidiq\Controller\SettingsController::load(), which calls
 # `loadConfiguration(force: true)` — precisely the forced import the repair step
 # cannot perform, and the only entry point that merges the register.d/ fragment
 # overlays on top of the base register.
@@ -386,7 +386,7 @@ slugs = {i.get('slug') for i in items if isinstance(i, dict)}
 missing = [s for s in required if s not in slugs]
 print(f'[ci-seed] {kind} present: {sorted(s for s in slugs if s)}')
 if missing:
-    print(f'::error::Decidesk {kind} missing after import: {missing}')
+    print(f'::error::Decidiq {kind} missing after import: {missing}')
     print('::error::The e2e suite cannot address meetings, decisions, agendas or '
           'voting rounds without them; every UI spec would fail on an empty list.')
     sys.exit(1)
@@ -422,7 +422,7 @@ for slug in meeting decision governance-body participant; do
 	fi
 done
 
-echo "[ci-seed] Decidesk register + schemas provisioned."
+echo "[ci-seed] Decidiq register + schemas provisioned."
 
 # ── 2b. Seed the governance fixture the suite actually needs ─────────────────
 #
@@ -764,7 +764,7 @@ if [ "${GITHUB_ACTIONS:-}" = "true" ] || [ "${CI:-}" = "true" ]; then
 			echo "[ci-seed] bundle content-type OK (JavaScript)."
 			;;
 		*)
-			echo "::error::The Decidesk frontend bundle did not serve as JavaScript (got: ${BUNDLE_INFO:-<not found>})."
+			echo "::error::The Decidiq frontend bundle did not serve as JavaScript (got: ${BUNDLE_INFO:-<not found>})."
 			echo "::error::The SPA cannot mount, so every UI spec would fail on a selector timeout with a misleading cause."
 			echo "::error::Check the 'Build app frontend' step — a missing bundle returns HTTP 200 text/html, not 404."
 			exit 1
@@ -772,7 +772,7 @@ if [ "${GITHUB_ACTIONS:-}" = "true" ] || [ "${CI:-}" = "true" ]; then
 	esac
 
 	if [ "$BUNDLE_BYTES" -lt "$BUNDLE_MIN_BYTES" ]; then
-		echo "::error::The Decidesk frontend bundle served only ${BUNDLE_BYTES} bytes (floor: ${BUNDLE_MIN_BYTES})."
+		echo "::error::The Decidiq frontend bundle served only ${BUNDLE_BYTES} bytes (floor: ${BUNDLE_MIN_BYTES})."
 		echo "::error::A truncated bundle is served as HTTP 200 application/javascript, so the content-type check above CANNOT catch it — this floor is the check that can."
 		echo "::error::The SPA will not mount and every UI spec would fail on a selector timeout naming a component rather than the bundle."
 		exit 1

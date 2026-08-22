@@ -1,5 +1,5 @@
 /**
- * Decidesk v2 component registry (ADR-036).
+ * Decidiq v2 component registry (ADR-036).
  *
  * Kind-tagged map passed as the `registry` prop to CnAppRoot. CnPageRenderer
  * resolves each manifest page's `component` string against entries whose

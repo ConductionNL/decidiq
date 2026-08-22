@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Participation Publication Service
+ * Decidiq Participation Publication Service
  *
  * Builds PII-free result summaries for citizen-participation rounds, attempts
  * to set the OpenRegister published-predicate, and routes to OpenCatalogi when
  * installed (with graceful degradation when it is not).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,7 +25,7 @@
 // SPDX-License-Identifier: EUPL-1.2.
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -331,7 +331,7 @@ class ParticipationPublicationService {
 		// Resolved by FQCN string, matching objectService() above. A
 		// `ObjectRelationFilter::class` reference here counts as one more coupled
 		// type and pushes this class over phpmd's CouplingBetweenObjects ceiling.
-		$relationFilter = $this->container->get('OCA\Decidesk\Service\ObjectRelationFilter');
+		$relationFilter = $this->container->get('OCA\Decidiq\Service\ObjectRelationFilter');
 		$entities = $relationFilter->matching(
 			entities: $objectService->findAll(
 				[
@@ -435,7 +435,7 @@ class ParticipationPublicationService {
 			// published.
 			$persistError = $e->getMessage();
 			$this->logger->error(
-				'Decidesk participation: failed to persist published summary',
+				'Decidiq participation: failed to persist published summary',
 				['error' => $persistError, 'schema' => $sourceSchema, 'sourceId' => $sourceId]
 			);
 		}
@@ -521,7 +521,7 @@ class ParticipationPublicationService {
 		try {
 			return $this->appManager->isInstalled('opencatalogi');
 		} catch (\Throwable $e) {
-			$this->logger->debug('Decidesk participation: OpenCatalogi presence check failed', ['error' => $e->getMessage()]);
+			$this->logger->debug('Decidiq participation: OpenCatalogi presence check failed', ['error' => $e->getMessage()]);
 			return false;
 		}
 
@@ -571,7 +571,7 @@ class ParticipationPublicationService {
 			return true;
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk participation: OpenCatalogi routing failed',
+				'Decidiq participation: OpenCatalogi routing failed',
 				['error' => $e->getMessage()]
 			);
 			return false;

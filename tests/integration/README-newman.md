@@ -1,4 +1,4 @@
-# Decidesk API-contract tests (Newman)
+# Decidiq API-contract tests (Newman)
 
 Newman/Postman contract tests that exercise decidesk's HTTP controllers directly,
 locking the API contract. Per the gate-19 split, **API/contract correctness lives
@@ -127,7 +127,7 @@ This mirrors the reusable Newman authz pattern established for procest.
 
 ## OpenRegister relation storage (gotcha for seeding)
 
-Decidesk delegates meeting/motion/decision/voting-round/participant CRUD to the
+Decidiq delegates meeting/motion/decision/voting-round/participant CRUD to the
 OpenRegister object API (ADR-022). When seeding, related objects must be linked via
 the **flat field-name form** (`{"governanceBody": "<uuid>"}`, `{"meeting": "<uuid>"}`)
 to match what the seed data and the resolvers expect — passing a generic

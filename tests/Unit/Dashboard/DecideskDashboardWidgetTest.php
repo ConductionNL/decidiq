@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Unit tests for DecideskDashboardWidget.
+ * Unit tests for DecidiqDashboardWidget.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Dashboard
+ * @package  OCA\Decidiq\Tests\Unit\Dashboard
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,10 +20,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Dashboard;
+namespace OCA\Decidiq\Tests\Unit\Dashboard;
 
-use OCA\Decidesk\Dashboard\DecideskDashboardWidget;
-use OCA\Decidesk\Service\DashboardWidgetService;
+use OCA\Decidiq\Dashboard\DecidiqDashboardWidget;
+use OCA\Decidiq\Service\DashboardWidgetService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Dashboard\IAPIWidgetV2;
 use OCP\Dashboard\IButtonWidget;
@@ -39,16 +39,16 @@ use PHPUnit\Framework\TestCase;
  *
  * @spec openspec/specs/dashboard/spec.md
  */
-class DecideskDashboardWidgetTest extends TestCase {
+class DecidiqDashboardWidgetTest extends TestCase {
 
 	/**
 	 * Build a widget over a service stub returning the given summary.
 	 *
 	 * @param array{pendingVotes:int, nextMeeting:array<string,mixed>|null} $summary Stub summary
 	 *
-	 * @return DecideskDashboardWidget
+	 * @return DecidiqDashboardWidget
 	 */
-	private function makeWidget(array $summary): DecideskDashboardWidget {
+	private function makeWidget(array $summary): DecidiqDashboardWidget {
 		$l10n = $this->createMock(IL10N::class);
 		$l10n->method('t')->willReturnCallback(
 			static function (string $text, $p = []): string {
@@ -86,7 +86,7 @@ class DecideskDashboardWidgetTest extends TestCase {
 			}//end getUserSummary()
 		};
 
-		return new DecideskDashboardWidget(
+		return new DecidiqDashboardWidget(
 			l10n: $l10n,
 			urlGenerator: $url,
 			timeFactory: $time,
@@ -119,7 +119,7 @@ class DecideskDashboardWidgetTest extends TestCase {
 		$widget = $this->makeWidget(['pendingVotes' => 0, 'nextMeeting' => null]);
 
 		$this->assertSame('decidesk', $widget->getId());
-		$this->assertSame('Decidesk', $widget->getTitle());
+		$this->assertSame('Decidiq', $widget->getTitle());
 		$this->assertIsInt($widget->getOrder());
 		$this->assertSame('icon-decidesk', $widget->getIconClass());
 		$this->assertStringContainsString('app-dark.svg', $widget->getIconUrl());
@@ -127,7 +127,7 @@ class DecideskDashboardWidgetTest extends TestCase {
 	}//end testIdentity()
 
 	/**
-	 * getUrl and the widget button both deep-link into the Decidesk app.
+	 * getUrl and the widget button both deep-link into the Decidiq app.
 	 *
 	 * @return void
 	 */
@@ -139,7 +139,7 @@ class DecideskDashboardWidgetTest extends TestCase {
 		$buttons = $widget->getWidgetButtons('alice');
 		$this->assertCount(1, $buttons);
 		$this->assertStringContainsString('/apps/decidesk/', $buttons[0]->getLink());
-		$this->assertSame('Open Decidesk', $buttons[0]->getText());
+		$this->assertSame('Open Decidiq', $buttons[0]->getText());
 
 	}//end testDeepLinkUrlAndButton()
 

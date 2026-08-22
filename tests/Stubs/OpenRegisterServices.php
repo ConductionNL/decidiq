@@ -35,7 +35,7 @@
  * a real install. Declaring the method here would hide that.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Stubs
+ * @package  OCA\Decidiq\Tests\Stubs
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.

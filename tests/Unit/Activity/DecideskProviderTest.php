@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Unit tests for DecideskProvider (Activity).
+ * Unit tests for DecidiqProvider (Activity).
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Activity
+ * @package  OCA\Decidiq\Tests\Unit\Activity
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,11 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Activity;
+namespace OCA\Decidiq\Tests\Unit\Activity;
 
-use OCA\Decidesk\Activity\DecideskProvider;
-use OCA\Decidesk\Activity\GovernanceFilter;
-use OCA\Decidesk\Activity\GovernanceSetting;
+use OCA\Decidiq\Activity\DecidiqProvider;
+use OCA\Decidiq\Activity\GovernanceFilter;
+use OCA\Decidiq\Activity\GovernanceSetting;
 use OCP\Activity\Exceptions\UnknownActivityException;
 use OCP\Activity\IEvent;
 use OCP\IL10N;
@@ -38,14 +38,14 @@ use PHPUnit\Framework\TestCase;
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
-class DecideskProviderTest extends TestCase {
+class DecidiqProviderTest extends TestCase {
 
 	/**
 	 * Provider under test.
 	 *
-	 * @var DecideskProvider
+	 * @var DecidiqProvider
 	 */
-	private DecideskProvider $provider;
+	private DecidiqProvider $provider;
 
 	/**
 	 * Set up test fixtures.
@@ -71,7 +71,7 @@ class DecideskProviderTest extends TestCase {
 			static fn (string $path): string => 'https://cloud.example' . $path
 		);
 
-		$this->provider = new DecideskProvider(
+		$this->provider = new DecidiqProvider(
 			languageFactory: $factory,
 			urlGenerator: $urlGenerator,
 		);
@@ -136,11 +136,11 @@ class DecideskProviderTest extends TestCase {
 	 */
 	public function testKnownSubjectsParse(): void {
 		$cases = [
-			[DecideskProvider::SUBJECT_DECISION_RECORDED, 'Decision "Budget" was recorded'],
-			[DecideskProvider::SUBJECT_DECISION_PUBLISHED, 'Decision "Budget" was published'],
-			[DecideskProvider::SUBJECT_MEETING_TRANSITION, 'Meeting "Budget" moved to "opened"'],
-			[DecideskProvider::SUBJECT_VOTE_INITIATED, 'Voting opened on "Budget"'],
-			[DecideskProvider::SUBJECT_RESOLUTION_ADOPTED, 'Resolution "Budget" was adopted'],
+			[DecidiqProvider::SUBJECT_DECISION_RECORDED, 'Decision "Budget" was recorded'],
+			[DecidiqProvider::SUBJECT_DECISION_PUBLISHED, 'Decision "Budget" was published'],
+			[DecidiqProvider::SUBJECT_MEETING_TRANSITION, 'Meeting "Budget" moved to "opened"'],
+			[DecidiqProvider::SUBJECT_VOTE_INITIATED, 'Voting opened on "Budget"'],
+			[DecidiqProvider::SUBJECT_RESOLUTION_ADOPTED, 'Resolution "Budget" was adopted'],
 		];
 
 		foreach ($cases as [$subject, $expectedPlain]) {

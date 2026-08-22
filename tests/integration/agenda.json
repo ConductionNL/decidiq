@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "decidesk-agenda-collection",
-		"name": "Decidesk Agenda Integration Tests",
+		"name": "Decidiq Agenda Integration Tests",
 		"description": "Integration tests for the p2-agenda-management API endpoints.\nTests the 4 agenda lifecycle REST endpoints against a live Nextcloud instance.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},

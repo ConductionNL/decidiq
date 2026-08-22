@@ -16,7 +16,7 @@
 			{{
 				t(
 					'decidesk',
-					'Where Decidesk sends governance communications such as convocations, minutes and reminders.',
+					'Where Decidiq sends governance communications such as convocations, minutes and reminders.',
 				)
 			}}
 		</p>

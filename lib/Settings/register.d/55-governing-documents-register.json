@@ -307,7 +307,7 @@
               "nl": "Nieuwe geldende versie: {{title}}",
               "en": "New effective version: {{title}}"
             },
-            "_note": "REQ-GDR-008: notify members of the owning governance body's organisation when a version takes effect. Canonical x-openregister-notifications dialect (ADR-031), verified keys only: trigger.type 'updated' with a filter on the lifecycle state field (status equals in-werking), channels[], recipients[] via kind:object-acl (read) + kind:groups (decidesk-members) — kind:field is NOT used on any non-uid property. Fires ONLY on the in-werking transition (not on concept → vastgesteld). Decidesk dispatches no notification imperatively."
+            "_note": "REQ-GDR-008: notify members of the owning governance body's organisation when a version takes effect. Canonical x-openregister-notifications dialect (ADR-031), verified keys only: trigger.type 'updated' with a filter on the lifecycle state field (status equals in-werking), channels[], recipients[] via kind:object-acl (read) + kind:groups (decidesk-members) — kind:field is NOT used on any non-uid property. Fires ONLY on the in-werking transition (not on concept → vastgesteld). Decidiq dispatches no notification imperatively."
           }
         },
         "required": [

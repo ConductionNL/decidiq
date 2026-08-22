@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Motion Service
+ * Decidiq Motion Service
  *
  * Service for managing motion lifecycle, co-signatories, amendments, and budget impact.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,10 +23,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
-use OCA\Decidesk\Lifecycle\MotionLifecycleTransitioner;
+use OCA\Decidiq\Lifecycle\MotionLifecycleTransitioner;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
@@ -229,11 +229,11 @@ class MotionService {
 					motionId: $motionId,
 					subject: 'co_sign_request',
 					parameters: ['motionTitle' => $title, 'motionId' => $motionId],
-					failureLog: "Decidesk: Could not send co-sign notification to $nextcloudUserId: "
+					failureLog: "Decidiq: Could not send co-sign notification to $nextcloudUserId: "
 				);
 			} catch (Throwable $e) {
 				$this->logger->warning(
-					"Decidesk: Could not send co-sign request to participant $participantId: {$e->getMessage()}"
+					"Decidiq: Could not send co-sign request to participant $participantId: {$e->getMessage()}"
 				);
 			}//end try
 		}//end foreach

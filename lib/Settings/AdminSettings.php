@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Admin Settings
+ * Decidiq Admin Settings
  *
- * Provides the admin settings form for the Decidesk application.
+ * Provides the admin settings form for the Decidiq application.
  *
  * @category Settings
- * @package  OCA\Decidesk\Settings
+ * @package  OCA\Decidiq\Settings
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2024 Conduction B.V.
@@ -21,21 +21,21 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Settings;
+namespace OCA\Decidiq\Settings;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\PublicationConfigService;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\PublicationConfigService;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\Settings\IDelegatedSettings;
 
 /**
- * Provides the admin settings form for the Decidesk application.
+ * Provides the admin settings form for the Decidiq application.
  *
  * Implements IDelegatedSettings so the form can be guarded by
  * #[AuthorizedAdminSetting(AdminSettings::class)] on the controllers that
- * mutate Decidesk configuration.
+ * mutate Decidiq configuration.
  *
  * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.5
  * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
@@ -52,7 +52,7 @@ class AdminSettings implements IDelegatedSettings {
 	public function __construct(
 		private IAppManager $appManager,
 		private IInitialState $initialState,
-		private \OCA\Decidesk\Service\PublicationConfigService $publicationConfig,
+		private \OCA\Decidiq\Service\PublicationConfigService $publicationConfig,
 	) {
 	}//end __construct()
 
@@ -77,8 +77,8 @@ class AdminSettings implements IDelegatedSettings {
 		$this->initialState->provideInitialState(
 			'publicationPolicies',
 			[
-				'policies' => \OCA\Decidesk\Service\PublicationConfigService::POLICIES,
-				'attendance' => \OCA\Decidesk\Service\PublicationConfigService::ATTENDANCE_POLICIES,
+				'policies' => \OCA\Decidiq\Service\PublicationConfigService::POLICIES,
+				'attendance' => \OCA\Decidiq\Service\PublicationConfigService::ATTENDANCE_POLICIES,
 			]
 		);
 
@@ -137,7 +137,7 @@ class AdminSettings implements IDelegatedSettings {
 	/**
 	 * App config keys an authorized (delegated) admin may manage.
 	 *
-	 * Returned as a map of appId => list of allowed config keys. Decidesk
+	 * Returned as a map of appId => list of allowed config keys. Decidiq
 	 * exposes no delegatable sub-keys yet, so this is intentionally empty;
 	 * the attribute still scopes the endpoint to full admins.
 	 *

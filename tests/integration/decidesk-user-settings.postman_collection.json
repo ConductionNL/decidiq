@@ -1,6 +1,6 @@
 {
 	"info": {
-		"name": "Decidesk User Settings Contract Suite",
+		"name": "Decidiq User Settings Contract Suite",
 		"description": "Newman contract tests for the user-settings-v1 REST surface: GET/PUT /api/notification-preference (defaults merge, accountEmail, the new reminder-timing / delegation / communication fields and their 422 validation matrix), the IConfig display-preference round-trip on /api/preferences/{key}, the castVote delegation gate ('Delegation does not include voting rights. A formal proxy (volmacht) is required for voting.') and the 401 authorization posture. Self-contained: seeds its own OpenRegister objects (participant, voting round, delegator preference) and tears them down.\n\nAUTH MODEL (same as decidesk.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The no-auth request carries NEITHER and targets {{noAuthBase}} so the host-scoped NC session cookie never leaks to it.\n\n@spec openspec/specs/user-settings/spec.md",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},

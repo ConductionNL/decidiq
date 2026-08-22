@@ -13,7 +13,7 @@
  * markTestSkipped rather than fail.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Integration\Meeting
+ * @package  OCA\Decidiq\Tests\Integration\Meeting
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -28,7 +28,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Integration\Meeting;
+namespace OCA\Decidiq\Tests\Integration\Meeting;
 
 use PHPUnit\Framework\TestCase;
 

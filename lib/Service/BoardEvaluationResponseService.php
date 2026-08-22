@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Board Evaluation Response Service
+ * Decidiq Board Evaluation Response Service
  *
  * Collects anonymous board-self-evaluation responses by reusing the existing
  * secret-ballot anonymity mechanism (VotingService's HMAC voter-token
@@ -11,7 +11,7 @@
  * object's roster fields.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,7 +27,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -109,7 +109,7 @@ class BoardEvaluationResponseService {
 			}
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: resolving the evaluation governance body failed',
+				'Decidiq: resolving the evaluation governance body failed',
 				['evaluationId' => $evaluationId, 'error' => $e->getMessage()]
 			);
 		}
@@ -198,7 +198,7 @@ class BoardEvaluationResponseService {
 			return ['success' => true, 'response' => $this->normaliseSaved(saved: $saved, fallback: $response)];
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: submitting board evaluation response failed',
+				'Decidiq: submitting board evaluation response failed',
 				['evaluationId' => $evaluationId, 'error' => $e->getMessage()]
 			);
 			return ['success' => false, 'message' => 'Submitting the response failed: ' . $e->getMessage()];

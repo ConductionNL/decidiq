@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Mail Vote Reply Processor
+ * Decidiq Mail Vote Reply Processor
  *
  * Turns the `_mail` metadata entries on a VotingRound into cast votes,
  * re-prompts, or abandonments.
@@ -13,7 +13,7 @@
  * into the array it is iterating.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -29,7 +29,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -233,7 +233,7 @@ class MailVoteReplyProcessor {
 		}
 
 		$this->logger->warning(
-			'Decidesk: MailReplyHandler — _mail entry rejected: missing or invalid HMAC signature',
+			'Decidiq: MailReplyHandler — _mail entry rejected: missing or invalid HMAC signature',
 			[
 				'participantId' => $participantId,
 				'votingRoundId' => $roundId,
@@ -264,7 +264,7 @@ class MailVoteReplyProcessor {
 		}
 
 		$this->logger->warning(
-			'Decidesk: MailReplyHandler — unknown participantId in _mail metadata, skipping',
+			'Decidiq: MailReplyHandler — unknown participantId in _mail metadata, skipping',
 			[
 				'participantId' => $participantId,
 				'votingRoundId' => $roundId,
@@ -291,7 +291,7 @@ class MailVoteReplyProcessor {
 	 */
 	private function rejectSecretBallot(array $entry, string $participantId, string $roundId): array {
 		$this->logger->warning(
-			'Decidesk: MailReplyHandler — email vote rejected: round is a secret ballot',
+			'Decidiq: MailReplyHandler — email vote rejected: round is a secret ballot',
 			[
 				'participantId' => $participantId,
 				'votingRoundId' => $roundId,
@@ -334,7 +334,7 @@ class MailVoteReplyProcessor {
 				delegatorId: null
 			);
 		} catch (Throwable $e) {
-			$this->logger->warning('Decidesk: email vote cast failed', ['error' => $e->getMessage()]);
+			$this->logger->warning('Decidiq: email vote cast failed', ['error' => $e->getMessage()]);
 			return null;
 		}
 
@@ -345,12 +345,12 @@ class MailVoteReplyProcessor {
 				'value' => $keyword,
 				'votingRoundId' => $roundId,
 			],
-			failureMessage: 'Decidesk: vote confirmation notification failed',
+			failureMessage: 'Decidiq: vote confirmation notification failed',
 			roundId: $roundId
 		);
 
 		$entry['processed'] = true;
-		$this->logger->info('Decidesk: email vote processed', ['participant' => $participantId]);
+		$this->logger->info('Decidiq: email vote processed', ['participant' => $participantId]);
 
 		return $entry;
 	}//end castVote()
@@ -377,7 +377,7 @@ class MailVoteReplyProcessor {
 				notifyUid: $notifyUid,
 				subject: 'email_vote_abandoned',
 				parameters: ['votingRoundId' => $roundId],
-				failureMessage: 'Decidesk: abandoned vote notification failed',
+				failureMessage: 'Decidiq: abandoned vote notification failed',
 				roundId: $roundId
 			);
 
@@ -393,7 +393,7 @@ class MailVoteReplyProcessor {
 				'votingRoundId' => $roundId,
 				'attempt' => $retries,
 			],
-			failureMessage: 'Decidesk: reprompt notification failed',
+			failureMessage: 'Decidiq: reprompt notification failed',
 			roundId: $roundId
 		);
 
@@ -432,7 +432,7 @@ class MailVoteReplyProcessor {
 			}
 		} catch (Throwable) {
 			$this->logger->warning(
-				'Decidesk: could not resolve Nextcloud UID for participant',
+				'Decidiq: could not resolve Nextcloud UID for participant',
 				['participantId' => $participantId]
 			);
 		}

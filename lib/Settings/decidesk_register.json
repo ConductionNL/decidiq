@@ -2116,8 +2116,8 @@
               "en": "Meeting starts soon: {{title}}"
             },
             "message": {
-              "nl": "{{title}} begint in Decidesk. Openen?",
-              "en": "{{title}} is starting in Decidesk. Open it?"
+              "nl": "{{title}} begint in Decidiq. Openen?",
+              "en": "{{title}} is starting in Decidiq. Open it?"
             },
             "actions": [
               {
@@ -3244,8 +3244,8 @@
               "en": "Your vote is requested: {{title}}"
             },
             "message": {
-              "nl": "Dit besluit staat in Decidesk. Openen?",
-              "en": "This decision is in Decidesk. Open it?"
+              "nl": "Dit besluit staat in Decidiq. Openen?",
+              "en": "This decision is in Decidiq. Open it?"
             },
             "actions": [
               {
@@ -4228,8 +4228,8 @@
               "en": "Assigned to you: {{title}}"
             },
             "message": {
-              "nl": "Dit actiepunt staat in Decidesk. Openen?",
-              "en": "This action item is in Decidesk. Open it?"
+              "nl": "Dit actiepunt staat in Decidiq. Openen?",
+              "en": "This action item is in Decidiq. Open it?"
             },
             "actions": [
               {
@@ -5736,7 +5736,7 @@
           "awardedTo": {
             "title": "Awarded to",
             "type": "string",
-            "description": "consultationType=tender: the winning party recorded when the award decision is made (status=awarded). Decidesk owns publish/manage/award only; authoring is procest and bidding is pipelinq."
+            "description": "consultationType=tender: the winning party recorded when the award decision is made (status=awarded). Decidiq owns publish/manage/award only; authoring is procest and bidding is pipelinq."
           },
           "procestProcessRef": {
             "title": "Procest process reference",
@@ -6151,7 +6151,7 @@
         "icon": "BellCogOutline",
         "version": "0.2.0",
         "title": "NotificationPreference",
-        "description": "Per-user personal preferences for Decidesk (user-settings spec): notification event toggles + delivery channels, meeting-reminder timing, absence delegation (delegate + period, automatic expiry by date comparison), and governance communication preferences. One object per person; reads/writes are scoped to the session user by NotificationPreferenceController.",
+        "description": "Per-user personal preferences for Decidiq (user-settings spec): notification event toggles + delivery channels, meeting-reminder timing, absence delegation (delegate + period, automatic expiry by date comparison), and governance communication preferences. One object per person; reads/writes are scoped to the session user by NotificationPreferenceController.",
         "type": "object",
         "x-openregister": {
           "schemaType": "schema:Intangible",
@@ -6202,7 +6202,7 @@
           "meetingReminder": {
             "title": "Meeting reminder",
             "type": "boolean",
-            "description": "Send Decidesk meeting reminders (calendar reminders are independent).",
+            "description": "Send Decidiq meeting reminders (calendar reminders are independent).",
             "default": true
           },
           "reminderTimes": {
@@ -6227,7 +6227,7 @@
           "deliveryMethod": {
             "title": "Delivery method",
             "type": "string",
-            "description": "Delivery channels for Decidesk notifications.",
+            "description": "Delivery channels for Decidiq notifications.",
             "enum": [
               "in-app",
               "email",

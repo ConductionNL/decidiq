@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "decidesk-collection",
-		"name": "Decidesk Integration Tests",
+		"name": "Decidiq Integration Tests",
 		"description": "Integration test collection for the decidesk Nextcloud app.\nReplace this with your actual API tests.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Governance Reporting Service
+ * Decidiq Governance Reporting Service
  *
  * Phase 5 aggregations: per-quarter (or per-year) governance reports
  * surfacing meeting count, resolution count, vote tallies, attendance,
@@ -9,7 +9,7 @@
  * on the `governance-report` schema so historical reports remain queryable.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,7 +26,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
@@ -211,7 +211,7 @@ class GovernanceReportingService {
 			];
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: GovernanceReportingService::generateAnnualReport failed',
+				'Decidiq: GovernanceReportingService::generateAnnualReport failed',
 				['exception' => $e->getMessage()]
 			);
 			return null;
@@ -243,7 +243,7 @@ class GovernanceReportingService {
 			return (array)$saved->jsonSerialize();
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: GovernanceReportingService failed to persist report',
+				'Decidiq: GovernanceReportingService failed to persist report',
 				['exception' => $e->getMessage()]
 			);
 		}//end try
@@ -292,7 +292,7 @@ class GovernanceReportingService {
 			$report = $entity->getObject();
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: GovernanceReportingService::exportReport failed',
+				'Decidiq: GovernanceReportingService::exportReport failed',
 				['exception' => $e->getMessage()]
 			);
 			return [
@@ -392,7 +392,7 @@ class GovernanceReportingService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: GovernanceReportingService::listReports failed',
+				'Decidiq: GovernanceReportingService::listReports failed',
 				['exception' => $e->getMessage()]
 			);
 			return [

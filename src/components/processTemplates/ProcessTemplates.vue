@@ -4,7 +4,7 @@
 <!--
  Admin process-template management section. Lists built-in (read-only) and
  custom templates, and offers create / edit / duplicate / delete. Rendered
- inside the Decidesk admin settings panel (admin-gated by the NC settings
+ inside the Decidiq admin settings panel (admin-gated by the NC settings
  framework + AuthorizedAdminSetting on the controller).
 
  @spec openspec/specs/process-configuration/spec.md

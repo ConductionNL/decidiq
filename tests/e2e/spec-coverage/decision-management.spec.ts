@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — decision-management spec
@@ -116,7 +116,7 @@ test('decisions list shows existing decisions', async ({ page }) => {
 // rejection contract lives in Newman + PHPUnit while this drives the happy UI.
 test('decisions list page title is correct', async ({ page }) => {
 	await page.goto(`${BASE}/apps/decidesk/decisions`)
-	await expect(page).toHaveTitle(/Decidesk/i)
+	await expect(page).toHaveTitle(/Decidiq/i)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 })
 

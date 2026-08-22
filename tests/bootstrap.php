@@ -1,10 +1,10 @@
 <?php
 
 /**
- * PHPUnit bootstrap for Decidesk integration tests.
+ * PHPUnit bootstrap for Decidiq integration tests.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests
+ * @package  OCA\Decidiq\Tests
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2024 Conduction B.V.

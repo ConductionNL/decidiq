@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Meeting Package Service
+ * Decidiq Meeting Package Service
  *
  * Assembles the documents linked to a meeting's agenda items into a
  * structured "Meeting package" folder (vergaderstukken) inside the
@@ -9,7 +9,7 @@
  * (agenda-management "Agenda Document Package" requirement).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,7 +26,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -98,7 +98,7 @@ class MeetingPackageService {
 			$entity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: MeetingPackageService::assemble lookup failed',
+				'Decidiq: MeetingPackageService::assemble lookup failed',
 				['meetingId' => $meetingId, 'exception' => $e->getMessage()]
 			);
 			return $this->failure(message: 'Failed to load meeting.');
@@ -217,7 +217,7 @@ class MeetingPackageService {
 			}
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: meeting package assembly failed',
+				'Decidiq: meeting package assembly failed',
 				['meetingId' => $meetingId, 'exception' => $e->getMessage()]
 			);
 			return $this->failure(
@@ -230,7 +230,7 @@ class MeetingPackageService {
 		}//end try
 
 		$this->logger->info(
-			'Decidesk: meeting package assembled',
+			'Decidiq: meeting package assembled',
 			[
 				'meetingId' => $meetingId,
 				'userId' => $userId,
@@ -451,7 +451,7 @@ class MeetingPackageService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: package agenda-item lookup failed',
+				'Decidiq: package agenda-item lookup failed',
 				['meetingId' => $meetingId, 'exception' => $e->getMessage()]
 			);
 			return [];
@@ -511,7 +511,7 @@ class MeetingPackageService {
 			$nodes = $fileService->getFiles($itemId);
 		} catch (\Throwable $e) {
 			$this->logger->debug(
-				'Decidesk: package file resolution skipped for agenda item',
+				'Decidiq: package file resolution skipped for agenda item',
 				['itemId' => $itemId, 'error' => $e->getMessage()]
 			);
 			return [];

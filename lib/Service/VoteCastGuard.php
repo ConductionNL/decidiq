@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Vote Cast Guard
+ * Decidiq Vote Cast Guard
  *
  * Enforces everything a cast vote must satisfy before a ballot is written: the
  * round is open, the caster is a member of the owning meeting, the caster holds
@@ -9,7 +9,7 @@
  * been registered for that delegator in the round.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,7 +27,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
@@ -312,7 +312,7 @@ class VoteCastGuard {
 			}
 		} catch (Throwable $e) {
 			// Both outcomes deny the vote; this only selects the error text.
-			$this->logger->debug('Decidesk: delegation consult failed', ['error' => $e->getMessage()]);
+			$this->logger->debug('Decidiq: delegation consult failed', ['error' => $e->getMessage()]);
 		}
 
 		return false;

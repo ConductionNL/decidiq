@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Migrate Legacy Templates To DecisionTemplate Repair Step
+ * Decidiq Migrate Legacy Templates To DecisionTemplate Repair Step
  *
  * One-shot, idempotent, resume-safe repair migration for the
  * unified-decision-templates schema-declaration change (ADR-032 chain link 1
@@ -23,7 +23,7 @@
  * throwing or returning empty exits cleanly with no error.
  *
  * @category Migration
- * @package  OCA\Decidesk\Migration
+ * @package  OCA\Decidiq\Migration
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -41,9 +41,9 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Migration;
+namespace OCA\Decidiq\Migration;
 
-use OCA\Decidesk\Service\SettingsService;
+use OCA\Decidiq\Service\SettingsService;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -111,7 +111,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	 * @spec openspec/changes/unified-decision-templates/tasks.md#task-1
 	 */
 	public function getName(): string {
-		return 'Migrate legacy Decidesk ProcessTemplate/VveDecisionTemplate objects to the unified DecisionTemplate schema';
+		return 'Migrate legacy Decidiq ProcessTemplate/VveDecisionTemplate objects to the unified DecisionTemplate schema';
 	}//end getName()
 
 	/**
@@ -135,7 +135,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 		} catch (Throwable $e) {
 			$output->warning('Could not resolve OpenRegister ObjectService — skipping DecisionTemplate migration.');
 			$this->logger->warning(
-				'Decidesk: DecisionTemplate migration could not resolve ObjectService',
+				'Decidiq: DecisionTemplate migration could not resolve ObjectService',
 				['error' => $e->getMessage()]
 			);
 			return;
@@ -167,7 +167,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 		);
 
 		$output->info(
-			'Decidesk DecisionTemplate migration complete: ' . $migrated . ' migrated, ' . $skipped . ' skipped.'
+			'Decidiq DecisionTemplate migration complete: ' . $migrated . ' migrated, ' . $skipped . ' skipped.'
 		);
 
 	}//end run()
@@ -195,7 +195,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 			// step (info.xml ordering), so this is an unexpected but
 			// non-fatal state; the loop below simply migrates everything.
 			$this->logger->info(
-				'Decidesk: DecisionTemplate migration found no existing decision-template objects yet',
+				'Decidiq: DecisionTemplate migration found no existing decision-template objects yet',
 				['error' => $e->getMessage()]
 			);
 			return $index;
@@ -256,7 +256,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 		} catch (Throwable $e) {
 			$output->info('No legacy ' . $sourceSchema . ' objects found — nothing to migrate.');
 			$this->logger->info(
-				'Decidesk: DecisionTemplate migration found no legacy ' . $sourceSchema . ' schema/objects',
+				'Decidiq: DecisionTemplate migration found no legacy ' . $sourceSchema . ' schema/objects',
 				['error' => $e->getMessage()]
 			);
 			return;
@@ -291,14 +291,14 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 				);
 				$migrated++;
 				$this->logger->info(
-					'Decidesk: migrated ' . $sourceSchema . ' to decision-template',
+					'Decidiq: migrated ' . $sourceSchema . ' to decision-template',
 					['sourceUuid' => $uuid]
 				);
 			} catch (Throwable $e) {
 				$skipped++;
 				$output->warning('Failed to migrate ' . $sourceSchema . ' ' . $uuid . ': ' . $e->getMessage());
 				$this->logger->warning(
-					'Decidesk: DecisionTemplate migration failed for one object',
+					'Decidiq: DecisionTemplate migration failed for one object',
 					['sourceSchema' => $sourceSchema, 'sourceUuid' => $uuid, 'error' => $e->getMessage()]
 				);
 			}//end try

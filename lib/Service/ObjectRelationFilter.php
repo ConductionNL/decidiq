@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Object Relation Filter
+ * Decidiq Object Relation Filter
  *
  * Scopes an OpenRegister relation-filtered result set down to the objects that
  * genuinely reference a specific related id, and supplies the one relation
@@ -39,7 +39,7 @@
  * and the advisory citizen-vote path so the two can never drift apart.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -55,7 +55,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 /**
  * Exact-id scoping for OpenRegister relation-filtered result sets.

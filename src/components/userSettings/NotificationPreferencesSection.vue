@@ -31,7 +31,7 @@
 			{{
 				t(
 					'decidesk',
-					'Choose which Decidesk events notify you and how they are delivered.',
+					'Choose which Decidiq events notify you and how they are delivered.',
 				)
 			}}
 		</p>

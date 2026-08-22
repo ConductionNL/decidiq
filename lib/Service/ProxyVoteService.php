@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Proxy Vote Service
+ * Decidiq Proxy Vote Service
  *
  * Service governing proxy votes on meetings. Proxies are registered by the
  * grantor (a member) and approved by the secretary; they are automatically
@@ -31,7 +31,7 @@
  * `ObjectServiceInterface` RBAC contract, that authorization already ran.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -49,7 +49,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
@@ -361,7 +361,7 @@ class ProxyVoteService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: ProxyVoteService::register failed',
+				'Decidiq: ProxyVoteService::register failed',
 				['exception' => $e->getMessage(), 'meeting' => $meetingId]
 			);
 			return $this->registerFailure(message: 'Failed to register proxy.');
@@ -456,7 +456,7 @@ class ProxyVoteService {
 			}
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: max_proxies_per_holder config lookup failed — using default',
+				'Decidiq: max_proxies_per_holder config lookup failed — using default',
 				['exception' => $e->getMessage()]
 			);
 		}
@@ -496,7 +496,7 @@ class ProxyVoteService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: ProxyVoteService::forMeeting failed',
+				'Decidiq: ProxyVoteService::forMeeting failed',
 				['exception' => $e->getMessage(), 'meeting' => $meetingId]
 			);
 			return [
@@ -605,7 +605,7 @@ class ProxyVoteService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: ProxyVoteService::transition failed',
+				'Decidiq: ProxyVoteService::transition failed',
 				['exception' => $e->getMessage(), 'proxyId' => $proxyId]
 			);
 			return [
