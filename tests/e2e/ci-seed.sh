@@ -10,11 +10,11 @@
 # `php -S` is up and with cwd set to the Nextcloud server root, so this is
 # invoked as:
 #
-#     playwright-seed-command: 'bash apps/decidesk/tests/e2e/ci-seed.sh'
+#     playwright-seed-command: 'bash apps/decidiq/tests/e2e/ci-seed.sh'
 #
 # WHY THIS IS NEEDED
 # ------------------
-# `occ app:enable decidesk` runs a post-migration repair step which is supposed
+# `occ app:enable decidiq` runs a post-migration repair step which is supposed
 # to import `lib/Settings/decidesk_register.json` (plus the 24 fragment
 # overlays in `lib/Settings/register.d/`) into OpenRegister. Two things make
 # that unreliable as the sole fresh-install path, and BOTH fail silently:
@@ -23,7 +23,7 @@
 #      the acting user, so the import is denied outright with
 #      "User 'Anonymous' does not have permission to 'create' objects in schema
 #      '…'". The repair step catches `\Throwable` and downgrades it to a
-#      warning, so `occ app:enable decidesk` still exits 0.
+#      warning, so `occ app:enable decidiq` still exits 0.
 #   2. The repair path calls `loadConfiguration(force: false)`. The non-forced
 #      path is version-guarded: it can advance the recorded configuration
 #      version WITHOUT applying the register, so a second run then sees
@@ -120,16 +120,16 @@ echo "[ci-seed] target:  ${BASE}"
 echo "[ci-seed] app dir: ${APP_DIR}"
 
 # ── 0. Make Nextcloud emit the pretty URLs the specs navigate to ─────────────
-# decidesk's SPA router is `createWebHistory(generateUrl('/apps/decidesk'))`
+# decidiq's SPA router is `createWebHistory(generateUrl('/apps/decidiq'))`
 # (src/main.js). The JS `generateUrl` prefixes `/index.php` unless
 # `OC.config.modRewriteWorking` is true, and that flag is derived from the
 # `htaccess.IgnoreFrontController` system config — which `occ
 # maintenance:install` leaves at its default of FALSE.
 #
 # So on an unconfigured CI instance the router's base is
-# `/index.php/apps/decidesk`, while every spec navigates to
-# `${BASE}/apps/decidesk/...`. vue-router 4 only strips a base that the current
-# path actually starts with, so the resolved path stays `/apps/decidesk/...`,
+# `/index.php/apps/decidiq`, while every spec navigates to
+# `${BASE}/apps/decidiq/...`. vue-router 4 only strips a base that the current
+# path actually starts with, so the resolved path stays `/apps/decidiq/...`,
 # matches NO route, and the view never mounts. The failure surfaces as a
 # selector timeout naming an element — i.e. it reads like a broken component,
 # not like a misconfigured base.
@@ -155,8 +155,8 @@ if [ -f ./occ ]; then
 	echo "[ci-seed] htaccess.IgnoreFrontController -> '${FC_VALUE}'"
 	if [ "$FC_VALUE" != "true" ] && [ "$FC_VALUE" != "1" ]; then
 		echo "::error::htaccess.IgnoreFrontController is '${FC_VALUE}', not true."
-		echo "::error::generateUrl() will emit /index.php/apps/decidesk as the vue-router base while"
-		echo "::error::the specs navigate to /apps/decidesk/... — no route matches and every UI spec"
+		echo "::error::generateUrl() will emit /index.php/apps/decidiq as the vue-router base while"
+		echo "::error::the specs navigate to /apps/decidiq/... — no route matches and every UI spec"
 		echo "::error::fails on a selector timeout that names an element rather than the real cause."
 		exit 1
 	fi
@@ -233,17 +233,17 @@ fi
 PRETTY_HTML="$(mktemp)"
 PRETTY_CODE="$(curl -sS -o "$PRETTY_HTML" -w '%{http_code}' \
 	-u "${USER_NAME}:${USER_PASS}" -H 'OCS-APIRequest: true' \
-	"${BASE}/index.php/apps/decidesk/" || echo 000)"
+	"${BASE}/index.php/apps/decidiq/" || echo 000)"
 if [ "$PRETTY_CODE" != "200" ]; then
 	echo "::error::Could not fetch the Decidiq app page to verify pretty URLs (HTTP ${PRETTY_CODE})."
 	exit 1
 fi
 if grep -q '"modRewriteWorking":true\|"modRewriteWorking": *true' "$PRETTY_HTML"; then
-	echo "[ci-seed] served page reports modRewriteWorking:true — the SPA router base will be /apps/decidesk."
+	echo "[ci-seed] served page reports modRewriteWorking:true — the SPA router base will be /apps/decidiq."
 else
 	echo "::error::The served Decidiq page does NOT report modRewriteWorking:true."
-	echo "::error::generateUrl() will therefore return '/index.php/apps/decidesk' as the vue-router base,"
-	echo "::error::while every spec navigates to the pretty '/apps/decidesk/...' form. Those disagree, so"
+	echo "::error::generateUrl() will therefore return '/index.php/apps/decidiq' as the vue-router base,"
+	echo "::error::while every spec navigates to the pretty '/apps/decidiq/...' form. Those disagree, so"
 	echo "::error::vue-router matches nothing and the view never mounts — every UI spec then fails on a"
 	echo "::error::selector timeout that names an element rather than the real cause."
 	grep -o 'modRewriteWorking[^,}]*' "$PRETTY_HTML" | head -3 || echo "  (key not present in the page at all)"
@@ -253,7 +253,7 @@ fi
 # ── 1. Import the Decidiq configuration ─────────────────────────────────────
 # Decidiq's `appinfo/routes.php` returns
 # `\OCA\OpenRegister\AppHost\Routes::standard([...])`, whose canonical table
-# ships `settings#load` at POST /api/settings/load. On decidesk that name
+# ships `settings#load` at POST /api/settings/load. On decidiq that name
 # resolves to OCA\Decidiq\Controller\SettingsController::load(), which calls
 # `loadConfiguration(force: true)` — precisely the forced import the repair step
 # cannot perform, and the only entry point that merges the register.d/ fragment
@@ -267,7 +267,7 @@ fi
 # to true on that header (the strict-cookie precondition is satisfied because a
 # Basic-auth request carries no session cookie at all). Without the header this
 # POST is rejected as a CSRF failure.
-IMPORT_URL="${BASE}/index.php/apps/decidesk/api/settings/load"
+IMPORT_URL="${BASE}/index.php/apps/decidiq/api/settings/load"
 echo "[ci-seed] POST ${IMPORT_URL} (forced import)"
 
 IMPORT_BODY="$(mktemp)"
@@ -292,22 +292,22 @@ head -c 2000 "$IMPORT_BODY"; echo
 IMPORT_OK=0
 if [ "$IMPORT_CODE" = "200" ] && grep -q '"success":[[:space:]]*true' "$IMPORT_BODY"; then
 	IMPORT_OK=1
-	echo "[ci-seed] decidesk settings#load reported success."
+	echo "[ci-seed] decidiq settings#load reported success."
 else
-	echo "[ci-seed] decidesk settings#load did not report success; falling back to the OpenRegister importer."
+	echo "[ci-seed] decidiq settings#load did not report success; falling back to the OpenRegister importer."
 fi
 
 # ── 1b. Fallback: OpenRegister's generic configuration importer ──────────────
-# Independent of decidesk's own controller wiring, so it still provisions the
+# Independent of decidiq's own controller wiring, so it still provisions the
 # register if `settings#load` is unavailable (e.g. an OpenRegister build whose
-# AppHost route table predates `settings#load`) or if the decidesk
+# AppHost route table predates `settings#load`) or if the decidiq
 # SettingsService rejects the file. Admin-only. It reads the upload under the
 # literal form key `file`; a raw JSON request body is NOT one of its accepted
 # shapes. `force` is compared `=== 'true' || === true` there, so the
 # form-encoded string is fine.
 #
 # ⚠️ This fallback imports ONLY the base register — it cannot merge the
-# register.d/ fragments, which is decidesk-specific logic living in
+# register.d/ fragments, which is decidiq-specific logic living in
 # SettingsService::mergeRegisterFragments(). It is a floor, not a substitute:
 # the verification below still has to pass.
 if [ "$IMPORT_OK" != "1" ]; then
@@ -617,8 +617,8 @@ else
 	# reading the magic table. (That is also why the eight action-item entries in
 	# the register's seedData are never served, and why
 	# lib/Migration/MigrateActionItemsToDeckLeaf.php is an explicit no-op.)
-	# Action items are seeded per-spec through decidesk's own endpoint,
-	# POST /apps/decidesk/api/action-items → ActionItemWriter → TaskService.
+	# Action items are seeded per-spec through decidiq's own endpoint,
+	# POST /apps/decidiq/api/action-items → ActionItemWriter → TaskService.
 	echo "[ci-seed] governance fixture seeded."
 fi
 
@@ -680,9 +680,9 @@ PY
 # Failures are ignored on purpose: this is a warm-up, not a gate. The real
 # checks are above and below.
 for path in \
-	"/index.php/apps/decidesk/" \
-	"/index.php/apps/decidesk/api/health" \
-	"/index.php/settings/admin/decidesk" \
+	"/index.php/apps/decidiq/" \
+	"/index.php/apps/decidiq/api/health" \
+	"/index.php/settings/admin/decidiq" \
 	"/index.php/apps/openregister/api/registers?_limit=1"
 do
 	code="$(curl -sS -o /dev/null -w '%{http_code}' -u "${USER_NAME}:${USER_PASS}" \
@@ -693,8 +693,8 @@ done
 # Pull the main webpack bundle once so it is in the page cache.
 #
 # Do NOT hardcode the URL. Nextcloud serves an app's assets from whichever apps
-# directory it was installed into — `/apps/decidesk/js/…` on the CI runner,
-# `/custom_apps/decidesk/js/…` in the docker dev images — and asking for the
+# directory it was installed into — `/apps/decidiq/js/…` on the CI runner,
+# `/custom_apps/decidiq/js/…` in the docker dev images — and asking for the
 # wrong one does not 404. It returns **HTTP 200 with `text/html`**: the NC error
 # page, served through index.php. A status-code check therefore reports success
 # while fetching a 40 KB HTML page instead of a multi-MB bundle, so the warm-up
@@ -704,13 +704,13 @@ done
 # response is actually JavaScript.
 APP_HTML="$(mktemp)"
 curl -sS -u "${USER_NAME}:${USER_PASS}" -H 'OCS-APIRequest: true' \
-	"${BASE}/index.php/apps/decidesk/" -o "$APP_HTML" || true
+	"${BASE}/index.php/apps/decidiq/" -o "$APP_HTML" || true
 
 # `|| true` is load-bearing: grep exits 1 when it matches nothing, and under
 # `set -euo pipefail` that aborts the script right here — so the case the gate
 # below exists to explain (no bundle) would die with a bare non-zero exit and
 # none of the diagnosis. Let it fall through to the gate instead.
-BUNDLE_SRC="$(grep -oE 'src="[^"]*decidesk-main[^"]*"' "$APP_HTML" \
+BUNDLE_SRC="$(grep -oE 'src="[^"]*decidiq-main[^"]*"' "$APP_HTML" \
 	| head -1 | sed 's/^src="//; s/"$//' || true)"
 
 BUNDLE_BYTES=0
@@ -731,7 +731,7 @@ fi
 # The floor exists because the content-type check ALONE cannot fail on the
 # case it was written for.
 #
-# `truncate -s 0 js/decidesk-main.js` leaves a file that Nextcloud still serves
+# `truncate -s 0 js/decidiq-main.js` leaves a file that Nextcloud still serves
 # as **HTTP 200 with Content-Type application/javascript** — length zero. So a
 # `case "$BUNDLE_INFO" in *javascript*)` gate passes a bundle that contains no
 # application at all, and every UI spec then fails on a selector timeout whose

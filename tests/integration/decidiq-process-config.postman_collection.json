@@ -1,7 +1,7 @@
 {
 	"info": {
 		"name": "Decidiq Process Configuration (process-config-v1)",
-		"description": "Contract + authorization tests for the admin process-template management API (process-config-v1). Admin requests expect 200/201; the non-admin probe and unauthenticated requests expect 403/401. Mirrors the decidesk-lifecycle / decidesk-admin-settings auth model.\n\n@spec openspec/specs/process-configuration/spec.md",
+		"description": "Contract + authorization tests for the admin process-template management API (process-config-v1). Admin requests expect 200/201; the non-admin probe and unauthenticated requests expect 403/401. Mirrors the decidiq-lifecycle / decidiq-admin-settings auth model.\n\n@spec openspec/specs/process-configuration/spec.md",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"auth": { "type": "noauth" },
@@ -69,7 +69,7 @@
 						"method": "GET",
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/process-templates", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "process-templates" ] }
 					},
 					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
 						"pm.test('admin can list templates (200)', () => pm.response.to.have.status(200));",
@@ -91,7 +91,7 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{\"initialState\":\"draft\",\"stateMachine\":{\"states\":[{\"name\":\"draft\"}],\"transitions\":[{\"from\":\"draft\",\"to\":\"ghost\"}]}}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates/validate", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates", "validate" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/process-templates/validate", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "process-templates", "validate" ] }
 					},
 					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
 						"pm.test('validate endpoint responds 200 with a verdict', () => pm.response.to.have.status(200));",
@@ -107,7 +107,7 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{\"name\":\"Newman Invalid\",\"initialState\":\"draft\",\"stateMachine\":{\"states\":[{\"name\":\"draft\"},{\"name\":\"orphan\"}],\"transitions\":[]}}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/process-templates", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "process-templates" ] }
 					},
 					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
 						"pm.test('invalid graph create is rejected (400)', () => pm.response.to.have.status(400));"
@@ -120,7 +120,7 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{\"name\":\"Newman Process Template\",\"context\":\"association\",\"initialState\":\"draft\",\"stateMachine\":{\"states\":[{\"name\":\"draft\"},{\"name\":\"proposed\"},{\"name\":\"decided\"}],\"transitions\":[{\"from\":\"draft\",\"to\":\"proposed\"},{\"from\":\"proposed\",\"to\":\"decided\"}]},\"votingRule\":{\"voteThreshold\":\"simple-majority\",\"abstentionHandling\":\"exclude\",\"tieBreakRule\":\"rejected\"},\"quorumRequired\":true}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/process-templates", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "process-templates" ] }
 					},
 					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
 						"pm.test('valid template created (201)', () => pm.response.to.have.status(201));",
@@ -136,7 +136,7 @@
 						"method": "DELETE",
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates/{{createdTemplateId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates", "{{createdTemplateId}}" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/process-templates/{{createdTemplateId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "process-templates", "{{createdTemplateId}}" ] }
 					},
 					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
 						"pm.test('created template deletable when an id was captured', () => {",
@@ -155,7 +155,7 @@
 					"request": {
 						"method": "GET",
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/process-templates", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates" ] }
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/process-templates", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidiq", "api", "process-templates" ] }
 					},
 					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
 						"pm.test('unauthenticated list is rejected (401)', () => pm.expect(pm.response.code).to.be.oneOf([401, 403]));"
@@ -185,7 +185,7 @@
 						"method": "GET",
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{nonAdminUser}}", "type": "string" }, { "key": "password", "value": "{{nonAdminPass}}", "type": "string" } ] },
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/process-templates", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "process-templates" ] }
 					},
 					"event": [
 						{ "listen": "test", "script": { "type": "text/javascript", "exec": [
@@ -200,7 +200,7 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{nonAdminUser}}", "type": "string" }, { "key": "password", "value": "{{nonAdminPass}}", "type": "string" } ] },
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{\"name\":\"hacker\",\"initialState\":\"draft\",\"stateMachine\":{\"states\":[{\"name\":\"draft\"}],\"transitions\":[]}}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/process-templates", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "process-templates" ] }
 					},
 					"event": [
 						{ "listen": "test", "script": { "type": "text/javascript", "exec": [
@@ -215,7 +215,7 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{nonAdminUser}}", "type": "string" }, { "key": "password", "value": "{{nonAdminPass}}", "type": "string" } ] },
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{\"initialState\":\"draft\",\"stateMachine\":{\"states\":[{\"name\":\"draft\"}],\"transitions\":[]}}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates/validate", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates", "validate" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/process-templates/validate", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "process-templates", "validate" ] }
 					},
 					"event": [
 						{ "listen": "test", "script": { "type": "text/javascript", "exec": [

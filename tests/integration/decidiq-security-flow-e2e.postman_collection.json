@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "a6a7bfcf-9a5f-4be4-817c-86dc00e136d1",
 		"name": "Decidiq Security-Flow e2e Coverage (security-flow-e2e-coverage)",
-		"description": "Newman/Postman real-HTTP e2e coverage for four security-relevant endpoint groups that were previously exercised only by PHPUnit tests instantiating the controller directly (bypassing router/SecurityMiddleware/CSRF/session auth): proxy-vote delegation (register/revoke + the board-proxy-vote-authorization-guard IDOR check), eIDAS QES signing-endpoint reachability + auth posture, and governance-report / regulator-export reachability. Per the gate-19 split, API/contract correctness lives in Newman; Playwright drives the UI only (feedback_playwright-ui-only-newman-api) \u2014 this collection is that Newman-side coverage, not a Playwright spec.\n\nAUTH MODEL: collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. No-auth requests target {{noAuthBase}} (127.0.0.1) so the host-scoped NC session cookie established by authed localhost requests never leaks to them, matching decidesk.postman_collection.json's convention.\n\nSelf-contained and idempotent: folder 1 seeds and tears down its own two non-admin probe users + one participant. Folders 2-3 need no fixtures beyond the existing adminUser/adminPass.\n\n@spec openspec/changes/security-flow-e2e-coverage/specs/security-sensitive-e2e-coverage/spec.md",
+		"description": "Newman/Postman real-HTTP e2e coverage for four security-relevant endpoint groups that were previously exercised only by PHPUnit tests instantiating the controller directly (bypassing router/SecurityMiddleware/CSRF/session auth): proxy-vote delegation (register/revoke + the board-proxy-vote-authorization-guard IDOR check), eIDAS QES signing-endpoint reachability + auth posture, and governance-report / regulator-export reachability. Per the gate-19 split, API/contract correctness lives in Newman; Playwright drives the UI only (feedback_playwright-ui-only-newman-api) \u2014 this collection is that Newman-side coverage, not a Playwright spec.\n\nAUTH MODEL: collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. No-auth requests target {{noAuthBase}} (127.0.0.1) so the host-scoped NC session cookie established by authed localhost requests never leaks to them, matching decidiq.postman_collection.json's convention.\n\nSelf-contained and idempotent: folder 1 seeds and tears down its own two non-admin probe users + one participant. Folders 2-3 need no fixtures beyond the existing adminUser/adminPass.\n\n@spec openspec/changes/security-flow-e2e-coverage/specs/security-sensitive-e2e-coverage/spec.md",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"auth": {
@@ -497,14 +497,14 @@
 							"raw": "{\n  \"meetingId\": \"{{sfecMeetingId}}\",\n  \"grantorId\": \"{{sfecParticipantId}}\",\n  \"holderId\": \"{{sfecHolderParticipantId}}\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/proxies",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/proxies",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"index.php",
 								"apps",
-								"decidesk",
+								"decidiq",
 								"api",
 								"proxies"
 							]
@@ -628,14 +628,14 @@
 							"raw": "{\n  \"meetingId\": \"{{sfecMeetingId}}\",\n  \"grantorId\": \"{{sfecParticipantId}}\",\n  \"holderId\": \"e2e-sfec-holder-placeholder-2\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/proxies",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/proxies",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"index.php",
 								"apps",
-								"decidesk",
+								"decidiq",
 								"api",
 								"proxies"
 							]
@@ -683,14 +683,14 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/proxies/{{sfecProxyId}}",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/proxies/{{sfecProxyId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"index.php",
 								"apps",
-								"decidesk",
+								"decidiq",
 								"api",
 								"proxies",
 								"{{sfecProxyId}}"
@@ -739,14 +739,14 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/proxies/{{sfecProxyId}}",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/proxies/{{sfecProxyId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"index.php",
 								"apps",
-								"decidesk",
+								"decidiq",
 								"api",
 								"proxies",
 								"{{sfecProxyId}}"
@@ -1078,14 +1078,14 @@
 							"raw": "{\n  \"certificateThumbprint\": \"e2e-sfec-thumbprint-placeholder\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/eidas/validate-cert",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/eidas/validate-cert",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"index.php",
 								"apps",
-								"decidesk",
+								"decidiq",
 								"api",
 								"eidas",
 								"validate-cert"
@@ -1132,14 +1132,14 @@
 							"raw": "{\n  \"certificateThumbprint\": \"e2e-sfec-thumbprint-placeholder\"\n}"
 						},
 						"url": {
-							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/eidas/validate-cert",
+							"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/eidas/validate-cert",
 							"host": [
 								"{{noAuthBase}}"
 							],
 							"path": [
 								"index.php",
 								"apps",
-								"decidesk",
+								"decidiq",
 								"api",
 								"eidas",
 								"validate-cert"
@@ -1202,14 +1202,14 @@
 							"raw": "{\n  \"boardId\": \"e2e-sfec-board-placeholder\",\n  \"year\": 2026\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/governance-reports",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/governance-reports",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"index.php",
 								"apps",
-								"decidesk",
+								"decidiq",
 								"api",
 								"governance-reports"
 							]
@@ -1253,14 +1253,14 @@
 							"raw": "{\n  \"boardId\": \"e2e-sfec-board-placeholder\",\n  \"year\": 2026\n}"
 						},
 						"url": {
-							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/governance-reports",
+							"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/governance-reports",
 							"host": [
 								"{{noAuthBase}}"
 							],
 							"path": [
 								"index.php",
 								"apps",
-								"decidesk",
+								"decidiq",
 								"api",
 								"governance-reports"
 							]
@@ -1316,14 +1316,14 @@
 							"raw": "{\n  \"boardId\": \"e2e-sfec-board-placeholder\",\n  \"scope\": \"resolutions\",\n  \"format\": \"csv\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/regulator-exports",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/regulator-exports",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"index.php",
 								"apps",
-								"decidesk",
+								"decidiq",
 								"api",
 								"regulator-exports"
 							]
@@ -1367,14 +1367,14 @@
 							"raw": "{\n  \"boardId\": \"e2e-sfec-board-placeholder\",\n  \"scope\": \"resolutions\",\n  \"format\": \"csv\"\n}"
 						},
 						"url": {
-							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/regulator-exports",
+							"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/regulator-exports",
 							"host": [
 								"{{noAuthBase}}"
 							],
 							"path": [
 								"index.php",
 								"apps",
-								"decidesk",
+								"decidiq",
 								"api",
 								"regulator-exports"
 							]

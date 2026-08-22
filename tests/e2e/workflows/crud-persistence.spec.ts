@@ -186,7 +186,7 @@ async function dumpListWindow(page, schema: string, needle: string): Promise<voi
 
 /** Open a list page in the SPA and wait for the manifest shell to mount. */
 async function gotoList(page, path: string) {
-	await page.goto(`${BASE}/apps/decidesk/${path}`)
+	await page.goto(`${BASE}/apps/decidiq/${path}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await page.waitForSelector('[data-testid="cn-object-list"]', { timeout: 15_000 })
 }
@@ -293,7 +293,7 @@ test('Meeting: create persists, appears in list, detail shows values, delete rem
 	//
 	// EVERY test in the file — the three that keep passing as well as the two
 	// that fail — slowed by the SAME 1.20-1.33x factor, in step with total suite
-	// wall clock. That is CI runner speed, not a decidesk regression: a slow code
+	// wall clock. That is CI runner speed, not a decidiq regression: a slow code
 	// path could not also make the 5.5 s dialog test a third slower.
 	//
 	// So these two are NOT structurally over budget. They sit 1.7-2.0 s UNDER a
@@ -340,7 +340,7 @@ test('Meeting: create persists, appears in list, detail shows values, delete rem
 	}
 
 	// DETAIL: navigate to detail and assert the persisted values render.
-	await page.goto(`${BASE}/apps/decidesk/meetings/${id}`)
+	await page.goto(`${BASE}/apps/decidiq/meetings/${id}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await expect(page.getByText(title).first()).toBeVisible({ timeout: 10_000 })
 	// Persisted enum + scalar values surface somewhere in the detail view.
@@ -394,7 +394,7 @@ test('Meeting: create persists, appears in list, detail shows values, delete rem
 })
 
 // @e2e openspec/specs/meeting-management/spec.md#create-a-board-meeting-with-physical-location
-// BUG (decidesk, deploy-confirmed 2026-06-10): the manifest-shell EDIT dialog
+// BUG (decidiq, deploy-confirmed 2026-06-10): the manifest-shell EDIT dialog
 // for a meeting cannot be saved. OpenRegister stores scheduledDate
 // space-separated ("2026-10-15 14:30:00"), but the edit form re-validates that
 // persisted value against the schema's `date-time` format and rejects it —
@@ -495,7 +495,7 @@ test('Decision: create persists, appears in list, detail shows values, delete re
 	}
 
 	// DETAIL: navigate + assert persisted values.
-	await page.goto(`${BASE}/apps/decidesk/decisions/${id}`)
+	await page.goto(`${BASE}/apps/decidiq/decisions/${id}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await expect(page.getByText(title).first()).toBeVisible({ timeout: 10_000 })
 
@@ -549,7 +549,7 @@ test('Decision: create persists, appears in list, detail shows values, delete re
 // ── BUG: UI Create dialog cannot submit (required NcSelect never commits) ─────
 
 // @e2e openspec/specs/meeting-management/spec.md#create-a-board-meeting-with-physical-location
-// BUG (decidesk, deploy-confirmed 2026-06-10): the manifest-shell Create form's
+// BUG (decidiq, deploy-confirmed 2026-06-10): the manifest-shell Create form's
 // "Create" button stays disabled even after every required field — including the
 // required enum NcSelects (meetingType/meetingMode/lifecycle) — is filled and
 // shows a selected chip. Selecting via mouse-click, keyboard (ArrowDown+Enter),
@@ -606,7 +606,7 @@ test('Meeting Create dialog submit enables once required enums are selected', as
 })
 
 // @e2e openspec/specs/decision-management/spec.md#create-a-standalone-decision-outside-a-meeting
-// BUG (decidesk, deploy-confirmed 2026-06-10): the manifest-shell EDIT dialog
+// BUG (decidiq, deploy-confirmed 2026-06-10): the manifest-shell EDIT dialog
 // for a decision cannot be saved either. Its first text input is the `case`
 // field (a uuid-format relation), and the form re-validates the persisted
 // values, raising format alerts (e.g. "'case' should match format 'uuid'") that

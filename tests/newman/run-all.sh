@@ -3,15 +3,15 @@
 # Decidiq Newman aggregate runner.
 #
 # Runs every Postman/Newman collection in tests/integration/ against a live
-# Nextcloud instance serving the decidesk app. Each collection is self-contained
+# Nextcloud instance serving the decidiq app. Each collection is self-contained
 # and idempotent (it seeds + tears down its own OpenRegister objects), so the
 # order they run in does not matter.
 #
 # Collections covered:
-#   - decidesk.postman_collection.json       (council/local-government surface:
+#   - decidiq.postman_collection.json       (council/local-government surface:
 #                                             meeting + motion + voting-round +
 #                                             decision + settings)
-#   - decidesk-publication-anon-read.postman_collection.json
+#   - decidiq-publication-anon-read.postman_collection.json
 #                                             (anonymous published-predicate read
 #                                             contract: a PublicationPayload is
 #                                             anon-visible on the ORI harvest feed
@@ -73,16 +73,16 @@ else
 fi
 
 COLLECTIONS=(
-  "${INTEGRATION_DIR}/decidesk.postman_collection.json"
-  "${INTEGRATION_DIR}/decidesk-lifecycle.postman_collection.json"
-  "${INTEGRATION_DIR}/decidesk-meeting-agenda.postman_collection.json"
-  "${INTEGRATION_DIR}/decidesk-minutes.postman_collection.json"
-  "${INTEGRATION_DIR}/decidesk-user-settings.postman_collection.json"
-  "${INTEGRATION_DIR}/decidesk-voting-rules.postman_collection.json"
-  "${INTEGRATION_DIR}/decidesk-admin-settings.postman_collection.json"
-  "${INTEGRATION_DIR}/decidesk-process-config.postman_collection.json"
-  "${INTEGRATION_DIR}/decidesk-motion-amendment.postman_collection.json"
-  "${INTEGRATION_DIR}/decidesk-publication-anon-read.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-lifecycle.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-meeting-agenda.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-minutes.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-user-settings.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-voting-rules.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-admin-settings.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-process-config.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-motion-amendment.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-publication-anon-read.postman_collection.json"
   "${INTEGRATION_DIR}/board-portal.postman_collection.json"
 )
 

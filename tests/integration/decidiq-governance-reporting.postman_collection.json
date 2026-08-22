@@ -1,7 +1,7 @@
 {
 	"info": {
-		"name": "decidesk-governance-reporting",
-		"description": "Regulator export + multilingual reconciliation — the two governance-reporting surfaces that commit 2bb71af7 RETARGETED (its word) onto the universal entities when the board-portal parallel entities were retired.\n\nThis collection replaces board-portal.postman_collection.json. That file drove 40 requests at /api/boards, /api/boards/{id}/members, /api/boards/{id}/meetings, /api/board-meetings/{id}/resolutions and /api/resolutions/{id}/*. None of those routes exist: `boards`, `resolutions`, `board-member` and `board-meeting` appear ZERO times in appinfo/routes.php, because 2bb71af7 deleted the board-CRUD controllers outright (board=governance-body, board-meeting=meeting, resolution=decision, board-member=Person+Membership). Every write there 404'd to an HTML error page, so `pm.response.json()` threw and the whole file cascaded — it was the single largest block of Newman failures in the repo.\n\nThe 32 requests that exercised the DELETED parallel CRUD are gone: they asserted on endpoints the app deliberately no longer has, and the equivalent behaviour is covered against the universal entities by decidesk.postman_collection.json and its siblings. The 8 requests that exercised RETARGETED, still-live routes are preserved here verbatim — same methods, same bodies, same assertions — with one change: `boardId` is now seeded from a real `governance-body` object instead of a retired `board`. RegulatorExportController still names its parameter `boardId`, so the wire contract is unchanged; only the entity behind the id moved.",
+		"name": "decidiq-governance-reporting",
+		"description": "Regulator export + multilingual reconciliation — the two governance-reporting surfaces that commit 2bb71af7 RETARGETED (its word) onto the universal entities when the board-portal parallel entities were retired.\n\nThis collection replaces board-portal.postman_collection.json. That file drove 40 requests at /api/boards, /api/boards/{id}/members, /api/boards/{id}/meetings, /api/board-meetings/{id}/resolutions and /api/resolutions/{id}/*. None of those routes exist: `boards`, `resolutions`, `board-member` and `board-meeting` appear ZERO times in appinfo/routes.php, because 2bb71af7 deleted the board-CRUD controllers outright (board=governance-body, board-meeting=meeting, resolution=decision, board-member=Person+Membership). Every write there 404'd to an HTML error page, so `pm.response.json()` threw and the whole file cascaded — it was the single largest block of Newman failures in the repo.\n\nThe 32 requests that exercised the DELETED parallel CRUD are gone: they asserted on endpoints the app deliberately no longer has, and the equivalent behaviour is covered against the universal entities by decidiq.postman_collection.json and its siblings. The 8 requests that exercised RETARGETED, still-live routes are preserved here verbatim — same methods, same bodies, same assertions — with one change: `boardId` is now seeded from a real `governance-body` object instead of a retired `board`. RegulatorExportController still names its parameter `boardId`, so the wire contract is unchanged; only the entity behind the id moved.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
@@ -71,9 +71,9 @@
 				],
 				"body": { "mode": "raw", "raw": "{\n  \"scope\": \"resolutions\",\n  \"format\": \"csv\"\n}" },
 				"url": {
-					"raw": "{{baseUrl}}/index.php/apps/decidesk/api/regulator-exports",
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/regulator-exports",
 					"host": [ "{{baseUrl}}" ],
-					"path": [ "index.php", "apps", "decidesk", "api", "regulator-exports" ]
+					"path": [ "index.php", "apps", "decidiq", "api", "regulator-exports" ]
 				}
 			}
 		},
@@ -100,9 +100,9 @@
 				],
 				"body": { "mode": "raw", "raw": "{\n  \"boardId\": \"{{boardId}}\",\n  \"scope\": \"resolutions\",\n  \"format\": \"csv\"\n}" },
 				"url": {
-					"raw": "{{baseUrl}}/index.php/apps/decidesk/api/regulator-exports",
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/regulator-exports",
 					"host": [ "{{baseUrl}}" ],
-					"path": [ "index.php", "apps", "decidesk", "api", "regulator-exports" ]
+					"path": [ "index.php", "apps", "decidiq", "api", "regulator-exports" ]
 				}
 			}
 		},
@@ -130,9 +130,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{baseUrl}}/index.php/apps/decidesk/api/regulator-exports?boardId={{boardId}}",
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/regulator-exports?boardId={{boardId}}",
 					"host": [ "{{baseUrl}}" ],
-					"path": [ "index.php", "apps", "decidesk", "api", "regulator-exports" ],
+					"path": [ "index.php", "apps", "decidiq", "api", "regulator-exports" ],
 					"query": [ { "key": "boardId", "value": "{{boardId}}" } ]
 				}
 			}
@@ -157,9 +157,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/regulator-exports?boardId={{boardId}}",
+					"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/regulator-exports?boardId={{boardId}}",
 					"host": [ "{{noAuthBase}}" ],
-					"path": [ "index.php", "apps", "decidesk", "api", "regulator-exports" ],
+					"path": [ "index.php", "apps", "decidiq", "api", "regulator-exports" ],
 					"query": [ { "key": "boardId", "value": "{{boardId}}" } ]
 				}
 			}
@@ -189,9 +189,9 @@
 				],
 				"body": { "mode": "raw", "raw": "{}" },
 				"url": {
-					"raw": "{{baseUrl}}/index.php/apps/decidesk/api/multilingual/queue",
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/multilingual/queue",
 					"host": [ "{{baseUrl}}" ],
-					"path": [ "index.php", "apps", "decidesk", "api", "multilingual", "queue" ]
+					"path": [ "index.php", "apps", "decidiq", "api", "multilingual", "queue" ]
 				}
 			}
 		},
@@ -222,9 +222,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{baseUrl}}/index.php/apps/decidesk/api/multilingual/queue",
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/multilingual/queue",
 					"host": [ "{{baseUrl}}" ],
-					"path": [ "index.php", "apps", "decidesk", "api", "multilingual", "queue" ]
+					"path": [ "index.php", "apps", "decidiq", "api", "multilingual", "queue" ]
 				}
 			}
 		},
@@ -260,9 +260,9 @@
 				],
 				"body": { "mode": "raw", "raw": "{}" },
 				"url": {
-					"raw": "{{baseUrl}}/index.php/apps/decidesk/api/multilingual/queue/process",
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/multilingual/queue/process",
 					"host": [ "{{baseUrl}}" ],
-					"path": [ "index.php", "apps", "decidesk", "api", "multilingual", "queue", "process" ]
+					"path": [ "index.php", "apps", "decidiq", "api", "multilingual", "queue", "process" ]
 				}
 			}
 		},
@@ -286,9 +286,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/multilingual/queue",
+					"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/multilingual/queue",
 					"host": [ "{{noAuthBase}}" ],
-					"path": [ "index.php", "apps", "decidesk", "api", "multilingual", "queue" ]
+					"path": [ "index.php", "apps", "decidiq", "api", "multilingual", "queue" ]
 				}
 			}
 		},

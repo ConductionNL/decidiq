@@ -1,6 +1,6 @@
 {
 	"info": {
-		"name": "decidesk-participation-publication",
+		"name": "decidiq-participation-publication",
 		"description": "Wire contract for the four endpoints gate-25 found had never been called by any automated test:\n\n  GET  /api/settings/publication-config                       settings#getPublicationConfig\n  PUT  /api/settings/publication-config                       settings#setPublicationConfig\n  POST /api/participation/proposals/{proposalId}/vote         participationBudget#castAdvisoryVote\n  POST /api/participation/budgets/{budgetId}/publish          participationBudget#publishBudgetResults\n\nWriting this collection is what found three product defects, all of which it now pins. Every one of them was a HEALTHY HTTP 200/201 with an empty or wrong body, so none of them was visible from a status code alone:\n\n  1. A citizen could vote on the same advisory proposal without limit. The dedup query filtered on `_relations.budget-proposal` — the schema SLUG — and OpenRegister keys its `_relations` JSONB by the property path it walked (`relations.0.id`), never by the slug. Zero rows, guard skipped, second CitizenVote written with the same 'idempotency' slug as the first.\n  2. The advisory tally wrote votesFor=0/votesAgainst=0 back over real votes, from the same broken filter.\n  3. publishBudgetResults published `proposals: []` / `participationCount: 0` / `allocatedAmount: 0` for every round, because fetchValidatedProposals filtered on `_relations.participatory-budget` instead of the flat `participatoryBudget` property the portal actually writes.\n\nSo the duplicate-vote request here asserts 409 and the publish request asserts a NON-EMPTY allocation. Both fail on the pre-fix tree — that is the point of them; a test that only asserted 2xx passed the whole time the feature was broken.\n\nSelf-contained and idempotent: seeds its own ParticipatoryBudget + BudgetProposal through OpenRegister's object API (ADR-022) and deletes them in teardown.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -59,9 +59,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{baseUrl}}/index.php/apps/decidesk/api/health",
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/health",
 					"host": ["{{baseUrl}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "health"]
+					"path": ["index.php", "apps", "decidiq", "api", "health"]
 				}
 			}
 		},
@@ -185,9 +185,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{baseUrl}}/index.php/apps/decidesk/api/settings/publication-config",
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings/publication-config",
 					"host": ["{{baseUrl}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "settings", "publication-config"]
+					"path": ["index.php", "apps", "decidiq", "api", "settings", "publication-config"]
 				}
 			}
 		},
@@ -211,9 +211,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/settings/publication-config",
+					"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/settings/publication-config",
 					"host": ["{{noAuthBase}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "settings", "publication-config"]
+					"path": ["index.php", "apps", "decidiq", "api", "settings", "publication-config"]
 				}
 			}
 		},
@@ -272,9 +272,9 @@
 					"raw": "{\n  \"config\": {\n    \"newman-publication-body\": {\n      \"catalog\": \"newman-catalog\",\n      \"policy\": {\n        \"decision\": \"prompt-on-transition\",\n        \"minutes\": \"manual-only\",\n        \"agenda\": \"publish-everything-immediately\"\n      },\n      \"attendance\": \"full-roll-call\"\n    }\n  }\n}"
 				},
 				"url": {
-					"raw": "{{baseUrl}}/index.php/apps/decidesk/api/settings/publication-config",
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings/publication-config",
 					"host": ["{{baseUrl}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "settings", "publication-config"]
+					"path": ["index.php", "apps", "decidiq", "api", "settings", "publication-config"]
 				}
 			}
 		},
@@ -311,9 +311,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{baseUrl}}/index.php/apps/decidesk/api/settings/publication-config",
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings/publication-config",
 					"host": ["{{baseUrl}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "settings", "publication-config"]
+					"path": ["index.php", "apps", "decidiq", "api", "settings", "publication-config"]
 				}
 			}
 		},
@@ -339,9 +339,9 @@
 				],
 				"body": { "mode": "raw", "raw": "{\n  \"config\": {}\n}" },
 				"url": {
-					"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/settings/publication-config",
+					"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/settings/publication-config",
 					"host": ["{{noAuthBase}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "settings", "publication-config"]
+					"path": ["index.php", "apps", "decidiq", "api", "settings", "publication-config"]
 				}
 			}
 		},
@@ -381,9 +381,9 @@
 				],
 				"body": { "mode": "raw", "raw": "{\n  \"value\": \"misschien\"\n}" },
 				"url": {
-					"raw": "{{baseUrl}}/index.php/apps/decidesk/api/participation/proposals/{{proposalId}}/vote",
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/participation/proposals/{{proposalId}}/vote",
 					"host": ["{{baseUrl}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "participation", "proposals", "{{proposalId}}", "vote"]
+					"path": ["index.php", "apps", "decidiq", "api", "participation", "proposals", "{{proposalId}}", "vote"]
 				}
 			}
 		},
@@ -409,9 +409,9 @@
 				],
 				"body": { "mode": "raw", "raw": "{\n  \"value\": \"voor\"\n}" },
 				"url": {
-					"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/participation/proposals/{{proposalId}}/vote",
+					"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/participation/proposals/{{proposalId}}/vote",
 					"host": ["{{noAuthBase}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "participation", "proposals", "{{proposalId}}", "vote"]
+					"path": ["index.php", "apps", "decidiq", "api", "participation", "proposals", "{{proposalId}}", "vote"]
 				}
 			}
 		},
@@ -458,9 +458,9 @@
 				],
 				"body": { "mode": "raw", "raw": "{\n  \"value\": \"voor\"\n}" },
 				"url": {
-					"raw": "{{baseUrl}}/index.php/apps/decidesk/api/participation/proposals/{{proposalId}}/vote",
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/participation/proposals/{{proposalId}}/vote",
 					"host": ["{{baseUrl}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "participation", "proposals", "{{proposalId}}", "vote"]
+					"path": ["index.php", "apps", "decidiq", "api", "participation", "proposals", "{{proposalId}}", "vote"]
 				}
 			}
 		},
@@ -498,9 +498,9 @@
 				],
 				"body": { "mode": "raw", "raw": "{\n  \"value\": \"tegen\"\n}" },
 				"url": {
-					"raw": "{{baseUrl}}/index.php/apps/decidesk/api/participation/proposals/{{proposalId}}/vote",
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/participation/proposals/{{proposalId}}/vote",
 					"host": ["{{baseUrl}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "participation", "proposals", "{{proposalId}}", "vote"]
+					"path": ["index.php", "apps", "decidiq", "api", "participation", "proposals", "{{proposalId}}", "vote"]
 				}
 			}
 		},
@@ -563,9 +563,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/participation/budgets/{{budgetId}}/publish",
+					"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/participation/budgets/{{budgetId}}/publish",
 					"host": ["{{noAuthBase}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "participation", "budgets", "{{budgetId}}", "publish"]
+					"path": ["index.php", "apps", "decidiq", "api", "participation", "budgets", "{{budgetId}}", "publish"]
 				}
 			}
 		},
@@ -618,9 +618,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{baseUrl}}/index.php/apps/decidesk/api/participation/budgets/{{budgetId}}/publish",
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/participation/budgets/{{budgetId}}/publish",
 					"host": ["{{baseUrl}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "participation", "budgets", "{{budgetId}}", "publish"]
+					"path": ["index.php", "apps", "decidiq", "api", "participation", "budgets", "{{budgetId}}", "publish"]
 				}
 			}
 		},

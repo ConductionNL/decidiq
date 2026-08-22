@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "b7e3f2a1-44d2-4a0e-9c1b-202606120001",
 		"name": "Decidiq Admin Settings (admin-settings-v1)",
-		"description": "Contract tests for the admin-settings surface: member-import endpoints (Nextcloud group listing, group members, CSV email matching with validation + row cap) and the organization configuration round-trip. Auth model matches decidesk-lifecycle: collection-level noauth, per-request basic auth as {{adminUser}}, {{noAuthBase}} for unauthenticated 401 probes, and a temporary non-admin account for the 403 posture on the AuthorizedAdminSetting-gated endpoints. Idempotent: seeds and tears down its own non-admin user and resets the organization keys. @spec openspec/specs/admin-settings/spec.md",
+		"description": "Contract tests for the admin-settings surface: member-import endpoints (Nextcloud group listing, group members, CSV email matching with validation + row cap) and the organization configuration round-trip. Auth model matches decidiq-lifecycle: collection-level noauth, per-request basic auth as {{adminUser}}, {{noAuthBase}} for unauthenticated 401 probes, and a temporary non-admin account for the 403 posture on the AuthorizedAdminSetting-gated endpoints. Idempotent: seeds and tears down its own non-admin user and resets the organization keys. @spec openspec/specs/admin-settings/spec.md",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"auth": { "type": "noauth" },
@@ -95,9 +95,9 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/member-import/groups",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/member-import/groups",
 							"host": [ "{{baseUrl}}" ],
-							"path": [ "index.php", "apps", "decidesk", "api", "member-import", "groups" ]
+							"path": [ "index.php", "apps", "decidiq", "api", "member-import", "groups" ]
 						}
 					},
 					"event": [
@@ -127,9 +127,9 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/member-import/groups/admin/members",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/member-import/groups/admin/members",
 							"host": [ "{{baseUrl}}" ],
-							"path": [ "index.php", "apps", "decidesk", "api", "member-import", "groups", "admin", "members" ]
+							"path": [ "index.php", "apps", "decidiq", "api", "member-import", "groups", "admin", "members" ]
 						}
 					},
 					"event": [
@@ -159,9 +159,9 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/member-import/groups/decidesk-no-such-group/members",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/member-import/groups/decidesk-no-such-group/members",
 							"host": [ "{{baseUrl}}" ],
-							"path": [ "index.php", "apps", "decidesk", "api", "member-import", "groups", "decidesk-no-such-group", "members" ]
+							"path": [ "index.php", "apps", "decidiq", "api", "member-import", "groups", "decidesk-no-such-group", "members" ]
 						}
 					},
 					"event": [
@@ -192,9 +192,9 @@
 							"raw": "{\"emails\": [\"nobody-matches-this@decidesk-test.invalid\", \"not-an-email\"]}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/member-import/match",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/member-import/match",
 							"host": [ "{{baseUrl}}" ],
-							"path": [ "index.php", "apps", "decidesk", "api", "member-import", "match" ]
+							"path": [ "index.php", "apps", "decidiq", "api", "member-import", "match" ]
 						}
 					},
 					"event": [
@@ -226,9 +226,9 @@
 							"raw": "{\"emails\": \"not-a-list\"}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/member-import/match",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/member-import/match",
 							"host": [ "{{baseUrl}}" ],
-							"path": [ "index.php", "apps", "decidesk", "api", "member-import", "match" ]
+							"path": [ "index.php", "apps", "decidiq", "api", "member-import", "match" ]
 						}
 					},
 					"event": [
@@ -254,9 +254,9 @@
 							"raw": "{\"emails\": {{admsetBigEmailList}}}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/member-import/match",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/member-import/match",
 							"host": [ "{{baseUrl}}" ],
-							"path": [ "index.php", "apps", "decidesk", "api", "member-import", "match" ]
+							"path": [ "index.php", "apps", "decidiq", "api", "member-import", "match" ]
 						}
 					},
 					"event": [
@@ -294,9 +294,9 @@
 						"auth": { "type": "noauth" },
 						"header": [ { "key": "Accept", "value": "application/json" } ],
 						"url": {
-							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/member-import/groups",
+							"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/member-import/groups",
 							"host": [ "{{noAuthBase}}" ],
-							"path": [ "index.php", "apps", "decidesk", "api", "member-import", "groups" ]
+							"path": [ "index.php", "apps", "decidiq", "api", "member-import", "groups" ]
 						}
 					},
 					"event": [
@@ -347,9 +347,9 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{nonAdminUser}}", "type": "string" }, { "key": "password", "value": "{{nonAdminPass}}", "type": "string" } ] },
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/member-import/groups",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/member-import/groups",
 							"host": [ "{{baseUrl}}" ],
-							"path": [ "index.php", "apps", "decidesk", "api", "member-import", "groups" ]
+							"path": [ "index.php", "apps", "decidiq", "api", "member-import", "groups" ]
 						}
 					},
 					"event": [
@@ -371,9 +371,9 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{nonAdminUser}}", "type": "string" }, { "key": "password", "value": "{{nonAdminPass}}", "type": "string" } ] },
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/member-import/groups/admin/members",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/member-import/groups/admin/members",
 							"host": [ "{{baseUrl}}" ],
-							"path": [ "index.php", "apps", "decidesk", "api", "member-import", "groups", "admin", "members" ]
+							"path": [ "index.php", "apps", "decidiq", "api", "member-import", "groups", "admin", "members" ]
 						}
 					},
 					"event": [
@@ -399,9 +399,9 @@
 							"raw": "{\"emails\": [\"x@y.test\"]}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/member-import/match",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/member-import/match",
 							"host": [ "{{baseUrl}}" ],
-							"path": [ "index.php", "apps", "decidesk", "api", "member-import", "match" ]
+							"path": [ "index.php", "apps", "decidiq", "api", "member-import", "match" ]
 						}
 					},
 					"event": [
@@ -427,9 +427,9 @@
 							"raw": "{\"organisation_name\": \"intruder\"}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/settings",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings",
 							"host": [ "{{baseUrl}}" ],
-							"path": [ "index.php", "apps", "decidesk", "api", "settings" ]
+							"path": [ "index.php", "apps", "decidiq", "api", "settings" ]
 						}
 					},
 					"event": [
@@ -460,9 +460,9 @@
 							"raw": "{\"organisation_name\": \"Vereniging De Harmonie\", \"organisation_logo\": \"https://example.org/logo.png\", \"organisation_timezone\": \"Europe/Amsterdam\", \"organisation_locale\": \"nl\", \"organisation_currency\": \"EUR\"}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/settings",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings",
 							"host": [ "{{baseUrl}}" ],
-							"path": [ "index.php", "apps", "decidesk", "api", "settings" ]
+							"path": [ "index.php", "apps", "decidiq", "api", "settings" ]
 						}
 					},
 					"event": [
@@ -491,9 +491,9 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/settings",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings",
 							"host": [ "{{baseUrl}}" ],
-							"path": [ "index.php", "apps", "decidesk", "api", "settings" ]
+							"path": [ "index.php", "apps", "decidiq", "api", "settings" ]
 						}
 					},
 					"event": [
@@ -533,9 +533,9 @@
 							"raw": "{\"organisation_name\": \"\", \"organisation_logo\": \"\", \"organisation_timezone\": \"\", \"organisation_locale\": \"\", \"organisation_currency\": \"\"}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/settings",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings",
 							"host": [ "{{baseUrl}}" ],
-							"path": [ "index.php", "apps", "decidesk", "api", "settings" ]
+							"path": [ "index.php", "apps", "decidiq", "api", "settings" ]
 						}
 					},
 					"event": [

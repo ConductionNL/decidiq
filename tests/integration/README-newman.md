@@ -1,14 +1,14 @@
 # Decidiq API-contract tests (Newman)
 
-Newman/Postman contract tests that exercise decidesk's HTTP controllers directly,
+Newman/Postman contract tests that exercise decidiq's HTTP controllers directly,
 locking the API contract. Per the gate-19 split, **API/contract correctness lives
 in Newman**; Playwright drives the UI only.
 
-Canonical collection: **`decidesk.postman_collection.json`** (run via `run-newman.sh`).
+Canonical collection: **`decidiq.postman_collection.json`** (run via `run-newman.sh`).
 The older `agenda.json` / `motion-voting.json` fixtures predate this suite and are
 not maintained by it.
 
-**`decidesk-security-flow-e2e.postman_collection.json`** (security-flow-e2e-coverage,
+**`decidiq-security-flow-e2e.postman_collection.json`** (security-flow-e2e-coverage,
 also run via `run-newman.sh`) covers real-HTTP e2e for the four security-relevant
 endpoint groups that were previously exercised only by PHPUnit tests instantiating
 the controller directly: proxy-vote delegation (register/revoke, including the
@@ -90,7 +90,7 @@ change the quarantine to assert a 201 open + a quorum-not-met 400.
 ./run-newman.sh
 
 # or directly:
-npx newman run decidesk.postman_collection.json \
+npx newman run decidiq.postman_collection.json \
   --env-var baseUrl=http://localhost:8080 \
   --env-var noAuthBase=http://127.0.0.1:8080 \
   --env-var adminUser=admin \
@@ -132,7 +132,7 @@ OpenRegister object API (ADR-022). When seeding, related objects must be linked 
 the **flat field-name form** (`{"governanceBody": "<uuid>"}`, `{"meeting": "<uuid>"}`)
 to match what the seed data and the resolvers expect — passing a generic
 `relations: [{schema, id}]` array yields a flattened `relations.0.*` map that the
-decidesk resolvers do not parse (see bug 2). Date-time fields require ISO-8601
+decidiq resolvers do not parse (see bug 2). Date-time fields require ISO-8601
 (`2026-06-20T10:00:00+00:00`), and enum fields are strict (e.g. governance-body
 `bodyType` ∈ {legislative, association, corporate-board, operational,
 citizen-panel}; meeting `lifecycle` ∈ {draft, scheduled, opened, paused, adjourned,

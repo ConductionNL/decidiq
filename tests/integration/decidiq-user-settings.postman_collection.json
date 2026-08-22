@@ -1,7 +1,7 @@
 {
 	"info": {
 		"name": "Decidiq User Settings Contract Suite",
-		"description": "Newman contract tests for the user-settings-v1 REST surface: GET/PUT /api/notification-preference (defaults merge, accountEmail, the new reminder-timing / delegation / communication fields and their 422 validation matrix), the IConfig display-preference round-trip on /api/preferences/{key}, the castVote delegation gate ('Delegation does not include voting rights. A formal proxy (volmacht) is required for voting.') and the 401 authorization posture. Self-contained: seeds its own OpenRegister objects (participant, voting round, delegator preference) and tears them down.\n\nAUTH MODEL (same as decidesk.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The no-auth request carries NEITHER and targets {{noAuthBase}} so the host-scoped NC session cookie never leaks to it.\n\n@spec openspec/specs/user-settings/spec.md",
+		"description": "Newman contract tests for the user-settings-v1 REST surface: GET/PUT /api/notification-preference (defaults merge, accountEmail, the new reminder-timing / delegation / communication fields and their 422 validation matrix), the IConfig display-preference round-trip on /api/preferences/{key}, the castVote delegation gate ('Delegation does not include voting rights. A formal proxy (volmacht) is required for voting.') and the 401 authorization posture. Self-contained: seeds its own OpenRegister objects (participant, voting round, delegator preference) and tears them down.\n\nAUTH MODEL (same as decidiq.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The no-auth request carries NEITHER and targets {{noAuthBase}} so the host-scoped NC session cookie never leaks to it.\n\n@spec openspec/specs/user-settings/spec.md",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"auth": {
@@ -181,9 +181,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/notification-preference",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/notification-preference",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "notification-preference"]
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
 						}
 					}
 				},
@@ -225,9 +225,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/notification-preference",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/notification-preference",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "notification-preference"]
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
 						},
 						"body": {
 							"mode": "raw",
@@ -266,9 +266,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/notification-preference",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/notification-preference",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "notification-preference"]
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
 						}
 					}
 				}
@@ -306,9 +306,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/notification-preference",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/notification-preference",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "notification-preference"]
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
 						},
 						"body": {
 							"mode": "raw",
@@ -344,9 +344,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/notification-preference",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/notification-preference",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "notification-preference"]
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
 						},
 						"body": {
 							"mode": "raw",
@@ -382,9 +382,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/notification-preference",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/notification-preference",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "notification-preference"]
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
 						},
 						"body": {
 							"mode": "raw",
@@ -423,9 +423,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/notification-preference",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/notification-preference",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "notification-preference"]
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
 						},
 						"body": {
 							"mode": "raw",
@@ -461,9 +461,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/notification-preference",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/notification-preference",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "notification-preference"]
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
 						},
 						"body": {
 							"mode": "raw",
@@ -505,9 +505,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/preferences/default-view",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/preferences/default-view",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "preferences", "default-view"]
+							"path": ["index.php", "apps", "decidiq", "api", "preferences", "default-view"]
 						},
 						"body": {
 							"mode": "raw",
@@ -543,9 +543,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/preferences/default-view",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/preferences/default-view",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "preferences", "default-view"]
+							"path": ["index.php", "apps", "decidiq", "api", "preferences", "default-view"]
 						}
 					}
 				},
@@ -578,9 +578,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/preferences/default-view",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/preferences/default-view",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "preferences", "default-view"]
+							"path": ["index.php", "apps", "decidiq", "api", "preferences", "default-view"]
 						},
 						"body": {
 							"mode": "raw",
@@ -627,9 +627,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{usRoundId}}/cast",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{usRoundId}}/cast",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "voting-rounds", "{{usRoundId}}", "cast"]
+							"path": ["index.php", "apps", "decidiq", "api", "voting-rounds", "{{usRoundId}}", "cast"]
 						},
 						"body": {
 							"mode": "raw",
@@ -669,9 +669,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{usRoundId}}/cast",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{usRoundId}}/cast",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "voting-rounds", "{{usRoundId}}", "cast"]
+							"path": ["index.php", "apps", "decidiq", "api", "voting-rounds", "{{usRoundId}}", "cast"]
 						},
 						"body": {
 							"mode": "raw",
@@ -706,9 +706,9 @@
 							{ "key": "Accept", "value": "application/json" }
 						],
 						"url": {
-							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/notification-preference",
+							"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/notification-preference",
 							"host": ["{{noAuthBase}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "notification-preference"]
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
 						}
 					}
 				}
@@ -745,9 +745,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/notification-preference",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/notification-preference",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "notification-preference"]
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
 						},
 						"body": {
 							"mode": "raw",

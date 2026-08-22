@@ -133,7 +133,7 @@ async function openIntegrations(
 	route: string,
 	id: string,
 ): Promise<void> {
-	await page.goto(`${BASE}/apps/decidesk/${route}/${id}/integrations`)
+	await page.goto(`${BASE}/apps/decidiq/${route}/${id}/integrations`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 20_000 })
 }
 

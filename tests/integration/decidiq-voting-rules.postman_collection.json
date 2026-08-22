@@ -1,7 +1,7 @@
 {
  "info": {
   "name": "Decidiq Voting Rules Contract Suite",
-  "description": "Newman contract tests for voting-rules-v1 (qualified-majority thresholds, abstention handling, tie-breaking, per-member proxy limits, castAs stamping): POST /api/voting-rounds (rule validation + revote-once guard), POST /api/voting-rounds/{id}/tally (threshold-aware result + recorded base), POST /api/voting-rounds/{id}/close (chair casting vote, fail closed), POST /api/proxies (per-holder ACTIVE-proxy cap, decidesk/max_proxies_per_holder default 2) and POST /api/voting-rounds/{id}/cast (castAs attendance-mode stamping). Self-contained: seeds + tears down its own OpenRegister objects.\n\nAUTH MODEL (same as decidesk-lifecycle.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The no-auth requests carry NEITHER and target {{noAuthBase}} so the host-scoped NC session cookie never leaks to them.\n\n@spec openspec/specs/voting-system/spec.md",
+  "description": "Newman contract tests for voting-rules-v1 (qualified-majority thresholds, abstention handling, tie-breaking, per-member proxy limits, castAs stamping): POST /api/voting-rounds (rule validation + revote-once guard), POST /api/voting-rounds/{id}/tally (threshold-aware result + recorded base), POST /api/voting-rounds/{id}/close (chair casting vote, fail closed), POST /api/proxies (per-holder ACTIVE-proxy cap, decidiq/max_proxies_per_holder default 2) and POST /api/voting-rounds/{id}/cast (castAs attendance-mode stamping). Self-contained: seeds + tears down its own OpenRegister objects.\n\nAUTH MODEL (same as decidiq-lifecycle.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The no-auth requests carry NEITHER and target {{noAuthBase}} so the host-scoped NC session cookie never leaks to them.\n\n@spec openspec/specs/voting-system/spec.md",
   "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
  },
  "auth": {
@@ -1157,14 +1157,14 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds",
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds",
        "host": [
         "{{baseUrl}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "voting-rounds"
        ]
@@ -1221,14 +1221,14 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds",
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds",
        "host": [
         "{{baseUrl}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "voting-rounds"
        ]
@@ -1285,14 +1285,14 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds",
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds",
        "host": [
         "{{baseUrl}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "voting-rounds"
        ]
@@ -1349,14 +1349,14 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds",
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds",
        "host": [
         "{{baseUrl}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "voting-rounds"
        ]
@@ -1396,14 +1396,14 @@
        }
       ],
       "url": {
-       "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/voting-rounds",
+       "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/voting-rounds",
        "host": [
         "{{noAuthBase}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "voting-rounds"
        ]
@@ -1473,14 +1473,14 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{vrTwoThirdsRoundId}}/tally",
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{vrTwoThirdsRoundId}}/tally",
        "host": [
         "{{baseUrl}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "voting-rounds",
         "{{vrTwoThirdsRoundId}}",
@@ -1544,14 +1544,14 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{vrCountRoundId}}/tally",
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{vrCountRoundId}}/tally",
        "host": [
         "{{baseUrl}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "voting-rounds",
         "{{vrCountRoundId}}",
@@ -1615,14 +1615,14 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{vrGuardRoundId}}/close",
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{vrGuardRoundId}}/close",
        "host": [
         "{{baseUrl}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "voting-rounds",
         "{{vrGuardRoundId}}",
@@ -1681,14 +1681,14 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{vrGuardRoundId}}/close",
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{vrGuardRoundId}}/close",
        "host": [
         "{{baseUrl}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "voting-rounds",
         "{{vrGuardRoundId}}",
@@ -1747,14 +1747,14 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{vrChairRoundId}}/close",
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{vrChairRoundId}}/close",
        "host": [
         "{{baseUrl}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "voting-rounds",
         "{{vrChairRoundId}}",
@@ -1817,14 +1817,14 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{vrChairRoundId}}/close",
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{vrChairRoundId}}/close",
        "host": [
         "{{baseUrl}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "voting-rounds",
         "{{vrChairRoundId}}",
@@ -1888,14 +1888,14 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds",
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds",
        "host": [
         "{{baseUrl}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "voting-rounds"
        ]
@@ -1955,14 +1955,14 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds",
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds",
        "host": [
         "{{baseUrl}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "voting-rounds"
        ]
@@ -2019,14 +2019,14 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds",
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds",
        "host": [
         "{{baseUrl}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "voting-rounds"
        ]
@@ -2233,14 +2233,14 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/proxies",
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/proxies",
        "host": [
         "{{baseUrl}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "proxies"
        ]
@@ -2390,14 +2390,14 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/proxies",
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/proxies",
        "host": [
         "{{baseUrl}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "proxies"
        ]
@@ -2542,14 +2542,14 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/proxies",
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/proxies",
        "host": [
         "{{baseUrl}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "proxies"
        ]
@@ -2609,14 +2609,14 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/proxies",
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/proxies",
        "host": [
         "{{baseUrl}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "proxies"
        ]
@@ -2656,14 +2656,14 @@
        }
       ],
       "url": {
-       "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/proxies",
+       "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/proxies",
        "host": [
         "{{noAuthBase}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "proxies"
        ]
@@ -2728,14 +2728,14 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{vrCastRoundId}}/cast",
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{vrCastRoundId}}/cast",
        "host": [
         "{{baseUrl}}"
        ],
        "path": [
         "index.php",
         "apps",
-        "decidesk",
+        "decidiq",
         "api",
         "voting-rounds",
         "{{vrCastRoundId}}",

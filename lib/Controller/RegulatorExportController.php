@@ -115,7 +115,12 @@ class RegulatorExportController extends Controller {
 			['Content-Type' => $result['contentType']]
 		);
 		$response->addHeader('Content-Disposition', 'attachment; filename="' . $result['filename'] . '"');
-		$response->addHeader('X-Decidiq-Export-Sha256', (string)($result['export']['sha256'] ?? ''));
+		// FROZEN at the pre-rename spelling across the decidesk -> decidiq app-id
+		// rename. This is a response WIRE HEADER: supervisory-body clients read the
+		// export digest by this exact name, and a header they do not recognise is
+		// not an error to them — it simply reads as absent, so the integrity check
+		// they were given silently stops being performed.
+		$response->addHeader('X-Decidesk-Export-Sha256', (string)($result['export']['sha256'] ?? ''));
 		return $response;
 	}//end generate()
 

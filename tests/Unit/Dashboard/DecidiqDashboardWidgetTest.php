@@ -123,7 +123,7 @@ class DecidiqDashboardWidgetTest extends TestCase {
 		$this->assertSame('decidesk', $widget->getId());
 		$this->assertSame('Decidiq', $widget->getTitle());
 		$this->assertIsInt($widget->getOrder());
-		$this->assertSame('icon-decidesk', $widget->getIconClass());
+		$this->assertSame('icon-decidiq', $widget->getIconClass());
 		$this->assertStringContainsString('app-dark.svg', $widget->getIconUrl());
 
 	}//end testIdentity()

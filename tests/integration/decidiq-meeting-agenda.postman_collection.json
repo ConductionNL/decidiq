@@ -79,9 +79,9 @@
 							{ "key": "Accept", "value": "application/json" }
 						],
 						"url": {
-							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/meetings/{{maTemplateMeetingId}}/series",
+							"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/meetings/{{maTemplateMeetingId}}/series",
 							"host": ["{{noAuthBase}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "meetings", "{{maTemplateMeetingId}}", "series"]
+							"path": ["index.php", "apps", "decidiq", "api", "meetings", "{{maTemplateMeetingId}}", "series"]
 						},
 						"body": {
 							"mode": "raw",
@@ -120,9 +120,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/meetings/{{maTemplateMeetingId}}/series",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{maTemplateMeetingId}}/series",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "meetings", "{{maTemplateMeetingId}}", "series"]
+							"path": ["index.php", "apps", "decidiq", "api", "meetings", "{{maTemplateMeetingId}}", "series"]
 						},
 						"body": {
 							"mode": "raw",
@@ -161,9 +161,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/meetings/{{maTemplateMeetingId}}/series",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{maTemplateMeetingId}}/series",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "meetings", "{{maTemplateMeetingId}}", "series"]
+							"path": ["index.php", "apps", "decidiq", "api", "meetings", "{{maTemplateMeetingId}}", "series"]
 						},
 						"body": {
 							"mode": "raw",
@@ -199,9 +199,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/meetings/00000000-0000-4000-8000-000000000000/series",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/00000000-0000-4000-8000-000000000000/series",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "meetings", "00000000-0000-4000-8000-000000000000", "series"]
+							"path": ["index.php", "apps", "decidiq", "api", "meetings", "00000000-0000-4000-8000-000000000000", "series"]
 						},
 						"body": {
 							"mode": "raw",
@@ -248,9 +248,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/meetings/{{maTemplateMeetingId}}/series",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{maTemplateMeetingId}}/series",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "meetings", "{{maTemplateMeetingId}}", "series"]
+							"path": ["index.php", "apps", "decidiq", "api", "meetings", "{{maTemplateMeetingId}}", "series"]
 						},
 						"body": {
 							"mode": "raw",
@@ -284,9 +284,9 @@
 							{ "key": "Accept", "value": "application/json" }
 						],
 						"url": {
-							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/meetings/{{maTemplateMeetingId}}/package",
+							"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/meetings/{{maTemplateMeetingId}}/package",
 							"host": ["{{noAuthBase}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "meetings", "{{maTemplateMeetingId}}", "package"]
+							"path": ["index.php", "apps", "decidiq", "api", "meetings", "{{maTemplateMeetingId}}", "package"]
 						},
 						"body": {
 							"mode": "raw",
@@ -322,9 +322,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/meetings/00000000-0000-4000-8000-000000000000/package",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/00000000-0000-4000-8000-000000000000/package",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "meetings", "00000000-0000-4000-8000-000000000000", "package"]
+							"path": ["index.php", "apps", "decidiq", "api", "meetings", "00000000-0000-4000-8000-000000000000", "package"]
 						},
 						"body": {
 							"mode": "raw",
@@ -370,9 +370,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/meetings/{{maTemplateMeetingId}}/package",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{maTemplateMeetingId}}/package",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "meetings", "{{maTemplateMeetingId}}", "package"]
+							"path": ["index.php", "apps", "decidiq", "api", "meetings", "{{maTemplateMeetingId}}", "package"]
 						},
 						"body": {
 							"mode": "raw",

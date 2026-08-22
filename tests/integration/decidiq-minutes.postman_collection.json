@@ -1,7 +1,7 @@
 {
 	"info": {
 		"name": "Decidiq Minutes Workflow Contract Suite",
-		"description": "Newman contract tests for the minutes approval workflow + document generation (minutes-ui-v1): POST /api/minutes/{id}/corrections, PUT /api/minutes/{id}/corrections/{cid}, POST /api/minutes/{id}/reject, POST /api/minutes/{id}/generate-document, and POST /api/meetings/{id}/proof-package. Locks the correction server-attribution contract, the mandatory-comment reject contract (review → draft only), the honest Docudesk-fallback document contract, the hash-sealed proof package, and the 401 authorization posture. Self-contained: seeds its own Meeting + Minutes via the OpenRegister object API and tears them down.\n\nAUTH MODEL (same as decidesk-lifecycle.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The no-auth requests carry NEITHER and target {{noAuthBase}} so the host-scoped NC session cookie never leaks to them.\n\n@spec openspec/specs/resolution-minutes/spec.md",
+		"description": "Newman contract tests for the minutes approval workflow + document generation (minutes-ui-v1): POST /api/minutes/{id}/corrections, PUT /api/minutes/{id}/corrections/{cid}, POST /api/minutes/{id}/reject, POST /api/minutes/{id}/generate-document, and POST /api/meetings/{id}/proof-package. Locks the correction server-attribution contract, the mandatory-comment reject contract (review → draft only), the honest Docudesk-fallback document contract, the hash-sealed proof package, and the 401 authorization posture. Self-contained: seeds its own Meeting + Minutes via the OpenRegister object API and tears them down.\n\nAUTH MODEL (same as decidiq-lifecycle.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The no-auth requests carry NEITHER and target {{noAuthBase}} so the host-scoped NC session cookie never leaks to them.\n\n@spec openspec/specs/resolution-minutes/spec.md",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"auth": {
@@ -144,9 +144,9 @@
 							"raw": "{\n  \"text\": \"The vote count for item 5 should read 12 in favour\",\n  \"author\": \"forged-author\",\n  \"authorName\": \"Forged Name\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/minutes/{{workflowMinutesId}}/corrections",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/corrections",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "minutes", "{{workflowMinutesId}}", "corrections"]
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "corrections"]
 						}
 					}
 				},
@@ -183,9 +183,9 @@
 							"raw": "{\n  \"text\": \"   \"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/minutes/{{workflowMinutesId}}/corrections",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/corrections",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "minutes", "{{workflowMinutesId}}", "corrections"]
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "corrections"]
 						}
 					}
 				},
@@ -227,9 +227,9 @@
 							"raw": "{\n  \"status\": \"accepted\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/minutes/{{workflowMinutesId}}/corrections/{{workflowCorrectionId}}",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/corrections/{{workflowCorrectionId}}",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "minutes", "{{workflowMinutesId}}", "corrections", "{{workflowCorrectionId}}"]
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "corrections", "{{workflowCorrectionId}}"]
 						}
 					}
 				},
@@ -265,9 +265,9 @@
 							"raw": "{\n  \"status\": \"rejected\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/minutes/{{workflowMinutesId}}/corrections/{{workflowCorrectionId}}",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/corrections/{{workflowCorrectionId}}",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "minutes", "{{workflowMinutesId}}", "corrections", "{{workflowCorrectionId}}"]
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "corrections", "{{workflowCorrectionId}}"]
 						}
 					}
 				},
@@ -303,9 +303,9 @@
 							"raw": "{\n  \"status\": \"maybe\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/minutes/{{workflowMinutesId}}/corrections/{{workflowCorrectionId}}",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/corrections/{{workflowCorrectionId}}",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "minutes", "{{workflowMinutesId}}", "corrections", "{{workflowCorrectionId}}"]
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "corrections", "{{workflowCorrectionId}}"]
 						}
 					}
 				}
@@ -346,9 +346,9 @@
 							"raw": "{\n  \"comment\": \"Too early\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/minutes/{{workflowMinutesId}}/reject",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/reject",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "minutes", "{{workflowMinutesId}}", "reject"]
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "reject"]
 						}
 					}
 				},
@@ -381,9 +381,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/minutes/{{workflowMinutesId}}/submit-for-approval",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/submit-for-approval",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "minutes", "{{workflowMinutesId}}", "submit-for-approval"]
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "submit-for-approval"]
 						}
 					}
 				},
@@ -419,9 +419,9 @@
 							"raw": "{\n  \"comment\": \"\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/minutes/{{workflowMinutesId}}/reject",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/reject",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "minutes", "{{workflowMinutesId}}", "reject"]
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "reject"]
 						}
 					}
 				},
@@ -467,9 +467,9 @@
 							"raw": "{\n  \"comment\": \"Attendance list incomplete\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/minutes/{{workflowMinutesId}}/reject",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/reject",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "minutes", "{{workflowMinutesId}}", "reject"]
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "reject"]
 						}
 					}
 				}
@@ -516,9 +516,9 @@
 							"raw": "{\n  \"format\": \"markdown\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/minutes/{{workflowMinutesId}}/generate-document",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/generate-document",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "minutes", "{{workflowMinutesId}}", "generate-document"]
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "generate-document"]
 						}
 					}
 				},
@@ -563,9 +563,9 @@
 							"raw": "{\n  \"format\": \"pdf\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/minutes/{{workflowMinutesId}}/generate-document",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/generate-document",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "minutes", "{{workflowMinutesId}}", "generate-document"]
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "generate-document"]
 						}
 					}
 				},
@@ -601,9 +601,9 @@
 							"raw": "{\n  \"format\": \"odt\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/minutes/{{workflowMinutesId}}/generate-document",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/generate-document",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "minutes", "{{workflowMinutesId}}", "generate-document"]
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "generate-document"]
 						}
 					}
 				}
@@ -646,9 +646,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/meetings/{{minutesMeetingId}}/proof-package",
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{minutesMeetingId}}/proof-package",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "meetings", "{{minutesMeetingId}}", "proof-package"]
+							"path": ["index.php", "apps", "decidiq", "api", "meetings", "{{minutesMeetingId}}", "proof-package"]
 						}
 					}
 				}
@@ -681,9 +681,9 @@
 							"raw": "{\n  \"text\": \"anonymous correction\"\n}"
 						},
 						"url": {
-							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/minutes/{{workflowMinutesId}}/corrections",
+							"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/corrections",
 							"host": ["{{noAuthBase}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "minutes", "{{workflowMinutesId}}", "corrections"]
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "corrections"]
 						}
 					}
 				},
@@ -711,9 +711,9 @@
 							"raw": "{\n  \"comment\": \"anonymous reject\"\n}"
 						},
 						"url": {
-							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/minutes/{{workflowMinutesId}}/reject",
+							"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/reject",
 							"host": ["{{noAuthBase}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "minutes", "{{workflowMinutesId}}", "reject"]
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "reject"]
 						}
 					}
 				},
@@ -741,9 +741,9 @@
 							"raw": "{\n  \"format\": \"markdown\"\n}"
 						},
 						"url": {
-							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/minutes/{{workflowMinutesId}}/generate-document",
+							"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/generate-document",
 							"host": ["{{noAuthBase}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "minutes", "{{workflowMinutesId}}", "generate-document"]
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "generate-document"]
 						}
 					}
 				},
@@ -767,9 +767,9 @@
 							{ "key": "Accept", "value": "application/json" }
 						],
 						"url": {
-							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/meetings/{{minutesMeetingId}}/proof-package",
+							"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/meetings/{{minutesMeetingId}}/proof-package",
 							"host": ["{{noAuthBase}}"],
-							"path": ["index.php", "apps", "decidesk", "api", "meetings", "{{minutesMeetingId}}", "proof-package"]
+							"path": ["index.php", "apps", "decidiq", "api", "meetings", "{{minutesMeetingId}}", "proof-package"]
 						}
 					}
 				}

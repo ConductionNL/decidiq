@@ -1,7 +1,7 @@
 {
 	"info": {
 		"name": "Decidiq Motion & Amendment Contract Suite",
-		"description": "Newman contract tests for motion-amendment-v1: the chair-controlled amendment voting order endpoint (POST /api/motions/{id}/amendment-order), its validation envelope (400 on empty/invalid order, 404 on unknown motion) and authorization posture (401 unauthenticated), plus the voting-round subjectType contract (POST /api/voting-rounds rejects an unknown subjectType with 400). Self-contained: seeds a motion plus two amendments via the OpenRegister object API and tears them down.\n\nAUTH MODEL (same as decidesk-lifecycle.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The no-auth request carries NEITHER and targets {{noAuthBase}} so the host-scoped NC session cookie never leaks to it.\n\n@spec openspec/specs/motion-amendment/spec.md",
+		"description": "Newman contract tests for motion-amendment-v1: the chair-controlled amendment voting order endpoint (POST /api/motions/{id}/amendment-order), its validation envelope (400 on empty/invalid order, 404 on unknown motion) and authorization posture (401 unauthenticated), plus the voting-round subjectType contract (POST /api/voting-rounds rejects an unknown subjectType with 400). Self-contained: seeds a motion plus two amendments via the OpenRegister object API and tears them down.\n\nAUTH MODEL (same as decidiq-lifecycle.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The no-auth request carries NEITHER and targets {{noAuthBase}} so the host-scoped NC session cookie never leaks to it.\n\n@spec openspec/specs/motion-amendment/spec.md",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"auth": {
@@ -185,7 +185,7 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/motions/{{motionId}}/amendment-order", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "motions", "{{motionId}}", "amendment-order" ] },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/motions/{{motionId}}/amendment-order", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "motions", "{{motionId}}", "amendment-order" ] },
 						"body": { "mode": "raw", "raw": "{\n  \"orderedAmendmentIds\": []\n}" }
 					}
 				},
@@ -213,7 +213,7 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/motions/{{motionId}}/amendment-order", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "motions", "{{motionId}}", "amendment-order" ] },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/motions/{{motionId}}/amendment-order", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "motions", "{{motionId}}", "amendment-order" ] },
 						"body": { "mode": "raw", "raw": "{\n  \"orderedAmendmentIds\": [\"{{amendmentB}}\", \"{{amendmentA}}\"]\n}" }
 					}
 				},
@@ -234,7 +234,7 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/motions/00000000-0000-0000-0000-000000000000/amendment-order", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "motions", "00000000-0000-0000-0000-000000000000", "amendment-order" ] },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/motions/00000000-0000-0000-0000-000000000000/amendment-order", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "motions", "00000000-0000-0000-0000-000000000000", "amendment-order" ] },
 						"body": { "mode": "raw", "raw": "{\n  \"orderedAmendmentIds\": [\"{{amendmentA}}\"]\n}" }
 					}
 				}
@@ -269,7 +269,7 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "voting-rounds" ] },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds" ] },
 						"body": { "mode": "raw", "raw": "{\n  \"motionId\": \"{{motionId}}\",\n  \"meetingId\": \"{{maMeetingId}}\",\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"subjectType\": \"resolution\"\n}" }
 					}
 				}
@@ -294,7 +294,7 @@
 					"request": {
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" } ],
-						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/motions/{{motionId}}/amendment-order", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "motions", "{{motionId}}", "amendment-order" ] },
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/motions/{{motionId}}/amendment-order", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidiq", "api", "motions", "{{motionId}}", "amendment-order" ] },
 						"body": { "mode": "raw", "raw": "{\n  \"orderedAmendmentIds\": [\"{{amendmentA}}\"]\n}" }
 					}
 				}

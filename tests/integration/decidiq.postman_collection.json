@@ -1,7 +1,7 @@
 {
 	"info": {
 		"name": "Decidiq API Contract Suite",
-		"description": "Newman/Postman API-contract tests for the Decidiq Nextcloud governance app. Locks the HTTP contract of decidesk's controllers (appinfo/routes.php + lib/Controller/*): meeting lifecycle, motion lifecycle, decision publication, the voting/quorum surface (open round / cast vote / tally / close), and settings. Meeting/decision/motion/voting-round CRUD is delegated to the OpenRegister object API (ADR-022); decidesk owns only the guarded governance endpoints. Every endpoint family is exercised for a happy path, an error/validation case (4xx not 500), and an authorization case (no auth -> 401). The suite is self-contained and idempotent: setup requests seed the prerequisite OpenRegister objects and teardown deletes everything created.\n\nAUTH MODEL: collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block (admin:admin via adminUser/adminPass) plus the 'OCS-APIRequest: true' header (NC app-framework controllers reject session-less POSTs without it as a CSRF failure). The no-auth requests carry NEITHER, and target {{noAuthBase}} (127.0.0.1) so the host-scoped NC session cookie established by authed localhost requests never leaks to them.\n\nPHASE-0 VOTING FIX LOCKED: tally returns a real, correct result (votesFor>votesAgainst => 'adopted') with no 500; cast creates a Vote with no 500; both error/validation paths return static-message 4xx, not 500.\n\nQUARANTINED REAL BUGS (asserted at their current status, NOT faked green — flip to happy-path when fixed):\n  (1) DecisionController::publish 500 on unknown id: find() raises OR's DoesNotExistException instead of returning null, so the controller's `=== null` 404 branch is unreachable and the exception escapes unhandled.\n  (2) Voting per-meeting chair guard / quorum participant resolution returns 403/cannot resolve for OpenRegister-object-API-created data: ParticipantResolver filters on '_relations.governance-body' but objects created via the standard OR object API store the link as a flat property ('governanceBody') or a flattened 'relations.0.*' map, neither of which is indexed under that relation-slug filter. open() (per-meeting chair check on the request-body meetingId) therefore 403s for seeded data. tally/close use the global chair fallback (admin) and DO work, which is how the tally contract is asserted live.\n\nUsage: see run-newman.sh. Pass collection variables baseUrl, noAuthBase, adminUser, adminPass.",
+		"description": "Newman/Postman API-contract tests for the Decidiq Nextcloud governance app. Locks the HTTP contract of decidiq's controllers (appinfo/routes.php + lib/Controller/*): meeting lifecycle, motion lifecycle, decision publication, the voting/quorum surface (open round / cast vote / tally / close), and settings. Meeting/decision/motion/voting-round CRUD is delegated to the OpenRegister object API (ADR-022); decidiq owns only the guarded governance endpoints. Every endpoint family is exercised for a happy path, an error/validation case (4xx not 500), and an authorization case (no auth -> 401). The suite is self-contained and idempotent: setup requests seed the prerequisite OpenRegister objects and teardown deletes everything created.\n\nAUTH MODEL: collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block (admin:admin via adminUser/adminPass) plus the 'OCS-APIRequest: true' header (NC app-framework controllers reject session-less POSTs without it as a CSRF failure). The no-auth requests carry NEITHER, and target {{noAuthBase}} (127.0.0.1) so the host-scoped NC session cookie established by authed localhost requests never leaks to them.\n\nPHASE-0 VOTING FIX LOCKED: tally returns a real, correct result (votesFor>votesAgainst => 'adopted') with no 500; cast creates a Vote with no 500; both error/validation paths return static-message 4xx, not 500.\n\nQUARANTINED REAL BUGS (asserted at their current status, NOT faked green — flip to happy-path when fixed):\n  (1) DecisionController::publish 500 on unknown id: find() raises OR's DoesNotExistException instead of returning null, so the controller's `=== null` 404 branch is unreachable and the exception escapes unhandled.\n  (2) Voting per-meeting chair guard / quorum participant resolution returns 403/cannot resolve for OpenRegister-object-API-created data: ParticipantResolver filters on '_relations.governance-body' but objects created via the standard OR object API store the link as a flat property ('governanceBody') or a flattened 'relations.0.*' map, neither of which is indexed under that relation-slug filter. open() (per-meeting chair check on the request-body meetingId) therefore 403s for seeded data. tally/close use the global chair fallback (admin) and DO work, which is how the tally contract is asserted live.\n\nUsage: see run-newman.sh. Pass collection variables baseUrl, noAuthBase, adminUser, adminPass.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
@@ -229,7 +229,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{\n  \"votesFor\": 3,\n  \"votesAgainst\": 1,\n  \"votesAbstain\": 1\n}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{sohRoundId}}/tally", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "voting-rounds", "{{sohRoundId}}", "tally" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{sohRoundId}}/tally", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds", "{{sohRoundId}}", "tally" ] }
 					}
 				},
 				{
@@ -251,7 +251,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{\n  \"votesFor\": 1,\n  \"votesAgainst\": 0,\n  \"votesAbstain\": 0\n}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{fabRoundId}}/tally", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "voting-rounds", "{{fabRoundId}}", "tally" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{fabRoundId}}/tally", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds", "{{fabRoundId}}", "tally" ] }
 					}
 				},
 				{
@@ -271,7 +271,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{\n  \"votesFor\": 1,\n  \"votesAgainst\": 0,\n  \"votesAbstain\": 0\n}" },
-						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/voting-rounds/{{sohRoundId}}/tally", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "voting-rounds", "{{sohRoundId}}", "tally" ] }
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/voting-rounds/{{sohRoundId}}/tally", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds", "{{sohRoundId}}", "tally" ] }
 					}
 				},
 				{
@@ -296,7 +296,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{\n  \"value\": \"for\"\n}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{fabRoundId}}/cast", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "voting-rounds", "{{fabRoundId}}", "cast" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{fabRoundId}}/cast", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds", "{{fabRoundId}}", "cast" ] }
 					}
 				},
 				{
@@ -318,7 +318,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{\n  \"value\": \"banana\"\n}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{fabRoundId}}/cast", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "voting-rounds", "{{fabRoundId}}", "cast" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{fabRoundId}}/cast", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds", "{{fabRoundId}}", "cast" ] }
 					}
 				},
 				{
@@ -338,7 +338,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{\n  \"value\": \"for\"\n}" },
-						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/voting-rounds/{{fabRoundId}}/cast", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "voting-rounds", "{{fabRoundId}}", "cast" ] }
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/voting-rounds/{{fabRoundId}}/cast", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds", "{{fabRoundId}}", "cast" ] }
 					}
 				},
 				{
@@ -360,7 +360,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "voting-rounds" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds" ] }
 					}
 				},
 				{
@@ -380,7 +380,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{\n  \"motionId\": \"{{openMotionId}}\",\n  \"meetingId\": \"{{meetingId}}\",\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false\n}" },
-						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/voting-rounds", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "voting-rounds" ] }
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/voting-rounds", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds" ] }
 					}
 				},
 				{
@@ -430,7 +430,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{\n  \"motionId\": \"{{openMotionId}}\",\n  \"meetingId\": \"{{meetingId}}\",\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false\n}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "voting-rounds" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds" ] }
 					}
 				}
 			]
@@ -459,7 +459,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{\n  \"action\": \"close\"\n}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/meetings/{{meetingId}}/lifecycle", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "meetings", "{{meetingId}}", "lifecycle" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{meetingId}}/lifecycle", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "meetings", "{{meetingId}}", "lifecycle" ] }
 					}
 				},
 				{
@@ -481,7 +481,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/meetings/{{meetingId}}/lifecycle", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "meetings", "{{meetingId}}", "lifecycle" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{meetingId}}/lifecycle", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "meetings", "{{meetingId}}", "lifecycle" ] }
 					}
 				},
 				{
@@ -501,7 +501,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{\n  \"action\": \"close\"\n}" },
-						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/meetings/{{meetingId}}/lifecycle", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "meetings", "{{meetingId}}", "lifecycle" ] }
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/meetings/{{meetingId}}/lifecycle", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidiq", "api", "meetings", "{{meetingId}}", "lifecycle" ] }
 					}
 				}
 			]
@@ -528,7 +528,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{\n  \"newState\": \"bogus-state\"\n}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/motions/{{motionId}}/transition", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "motions", "{{motionId}}", "transition" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/motions/{{motionId}}/transition", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "motions", "{{motionId}}", "transition" ] }
 					}
 				},
 				{
@@ -552,7 +552,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{\n  \"newState\": \"deliberating\"\n}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/motions/{{motionId}}/transition", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "motions", "{{motionId}}", "transition" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/motions/{{motionId}}/transition", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "motions", "{{motionId}}", "transition" ] }
 					}
 				},
 				{
@@ -572,7 +572,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{\n  \"newState\": \"deliberating\"\n}" },
-						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/motions/{{motionId}}/transition", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "motions", "{{motionId}}", "transition" ] }
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/motions/{{motionId}}/transition", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidiq", "api", "motions", "{{motionId}}", "transition" ] }
 					}
 				}
 			]
@@ -601,7 +601,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/decisions/{{decisionId}}/publish", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "decisions", "{{decisionId}}", "publish" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{decisionId}}/publish", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "decisions", "{{decisionId}}", "publish" ] }
 					}
 				},
 				{
@@ -623,7 +623,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/decisions/{{decisionId}}/publish", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "decisions", "{{decisionId}}", "publish" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{decisionId}}/publish", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "decisions", "{{decisionId}}", "publish" ] }
 					}
 				},
 				{
@@ -643,7 +643,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/decisions/{{decisionId}}/publish", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "decisions", "{{decisionId}}", "publish" ] }
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/decisions/{{decisionId}}/publish", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidiq", "api", "decisions", "{{decisionId}}", "publish" ] }
 					}
 				},
 				{
@@ -667,7 +667,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/decisions/newman-nonexistent-decision/publish", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "decisions", "newman-nonexistent-decision", "publish" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/newman-nonexistent-decision/publish", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "decisions", "newman-nonexistent-decision", "publish" ] }
 					}
 				}
 			]
@@ -695,7 +695,7 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "GET",
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/settings", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "settings" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "settings" ] }
 					}
 				},
 				{
@@ -716,7 +716,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/settings/load", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "settings", "load" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings/load", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "settings", "load" ] }
 					}
 				},
 				{
@@ -735,7 +735,7 @@
 					"request": {
 						"method": "GET",
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/settings", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "settings" ] }
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/settings", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidiq", "api", "settings" ] }
 					}
 				},
 				{
@@ -755,7 +755,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/settings", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "settings" ] }
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/settings", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidiq", "api", "settings" ] }
 					}
 				}
 			]
