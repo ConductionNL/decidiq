@@ -16,6 +16,26 @@
     </projectFiles>
     <stubs>
         <file name="vendor/nextcloud/ocp/OCP/Capabilities/ICapability.php" preloadClasses="true" />
+        <!--
+            OpenRegister's data-access contract, which this app's lib/ typehints
+            but does not own. OpenRegister supplies it at RUNTIME; these are
+            analysis stubs only.
+
+            hydra-gates used to make them resolvable by declaring
+            `OCA\OpenRegister\Contract\` as a psr-4 prefix, which was a bug: that
+            prefix is longer than openregister's own, so a vendored copy in ANY
+            app defined the contract for the whole process (ConductionNL/.github#531).
+            v1.9.0 removed it, and the runtime side is handled by the guarded
+            require in tests/bootstrap-unit.php.
+
+            Psalm never runs that bootstrap — it resolves types through the
+            composer autoload map — so removing the prefix left 204 UndefinedClass
+            errors here. A stub is the right seam: it teaches the analyser the
+            shape without putting the class back into the runtime autoloader,
+            which is what caused the original defect.
+        -->
+        <file name="vendor/conduction/hydra-gates/hydra-gates/contracts/ObjectServiceInterface.php" />
+        <file name="vendor/conduction/hydra-gates/hydra-gates/contracts/ObjectEntityInterface.php" />
     </stubs>
     <issueHandlers>
         <UndefinedDocblockClass errorLevel="suppress"/>
