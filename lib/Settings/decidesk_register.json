@@ -5842,7 +5842,9 @@
             "trigger": {
               "type": "created",
               "filter": {
-                "moderationStatus": "pending"
+                "field": "moderationStatus",
+                "operator": "equals",
+                "value": "pending"
               }
             },
             "enabled": true,
