@@ -1,5 +1,6 @@
-{
-    "translations": {
+OC.L10N.register(
+    "decidesk",
+    {
         "{completed} of {total} agenda items completed ({percent}%)": "{completed} of {total} agenda items completed ({percent}%)",
         "{count} attendees × {rate}/h": "{count} attendees × {rate}/h",
         "{count} decision": "{count} decision",
@@ -1534,5 +1535,5 @@
         "Failed to add member.": "Failed to add member.",
         "name@example.org": "name@example.org"
     },
-    "pluralForm": "nplurals=2; plural=(n != 1);"
-}
+    "nplurals=2; plural=(n != 1);"
+)

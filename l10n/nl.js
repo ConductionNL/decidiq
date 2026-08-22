@@ -1,5 +1,6 @@
-{
-    "translations": {
+OC.L10N.register(
+    "decidesk",
+    {
         "{completed} of {total} agenda items completed ({percent}%)": "{completed} van {total} agendapunten afgerond ({percent}%)",
         "{count} attendees × {rate}/h": "{count} aanwezigen × {rate}/u",
         "{count} decision": "{count} besluit",
@@ -1537,6 +1538,5 @@
         "Your vote was recorded": "Uw stem is geregistreerd",
         "Zoek op motietitel…": "Zoek op motietitel…"
     },
-    "plurals": null,
-    "pluralForm": "nplurals=2; plural=(n != 1);"
-}
+    "nplurals=2; plural=(n != 1);"
+)
