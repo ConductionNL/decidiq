@@ -29,7 +29,6 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use OCA\Decidiq\AppInfo\Application;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
@@ -54,6 +53,20 @@ use RuntimeException;
  * @spec openspec/specs/citizen-participation/spec.md
  */
 class ParticipationPublicationService {
+	/**
+	 * This app's id, used below as the `oc_appconfig` namespace.
+	 *
+	 * Spelled out rather than referencing `Application::APP_ID` on purpose:
+	 * importing that class pushes this service one over the PHPMD
+	 * CouplingBetweenObjects ceiling of 14. It MUST stay equal to `<id>` in
+	 * `appinfo/info.xml` — an appconfig read under the wrong namespace returns
+	 * its default rather than failing, so a mismatch here loses the configured
+	 * catalog silently.
+	 *
+	 * @var string
+	 */
+	private const APP_ID = 'decidiq';
+
 	/**
 	 * Constructor for ParticipationPublicationService.
 	 *
@@ -548,10 +561,10 @@ class ParticipationPublicationService {
 			$configKey .= '_' . $governanceBodyId;
 		}
 
-		$catalogId = $this->appConfig->getValueString(Application::APP_ID, $configKey, '');
+		$catalogId = $this->appConfig->getValueString(self::APP_ID, $configKey, '');
 		if ($catalogId === '') {
 			// Fall back to the instance-wide default target catalog.
-			$catalogId = $this->appConfig->getValueString(Application::APP_ID, 'participation_catalog', '');
+			$catalogId = $this->appConfig->getValueString(self::APP_ID, 'participation_catalog', '');
 		}
 
 		if ($catalogId === '') {

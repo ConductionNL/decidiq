@@ -1,13 +1,13 @@
 # embargo-geheimhouding Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - embargo-geheimhouding
 
 ## Purpose
 
-Gives decidesk the juridical geheimhouding and embargo layer on top of its existing confidentiality classifiers: a formal `Geheimhouding` record with a structured, configurable legal ground (Gemeentewet art. 87-89 with pre-2023 article labels, Woo art. 5.1), a bekrachtiging workflow where the ground requires it, an opheffing workflow whose lifting besluit routes the object into the normal publication machinery, a member-facing embargo with scheduled timed release, a geheimhoudingenregister per body, a view audit trail for stukken under geheimhouding, and declarative notifications. It builds ON the existing classifiers — `AgendaItem.confidentiality` (meeting-pack-board-book), `Decision.isPublished` (p3-citizen-participation), the public-publication deny-list and future-`publicatiedatum` primitive, the commissievergaderingen besloten access + audit precedent (REQ-CVG-010), and the records-management classification vocabulary (REQ-RMA-009) — and never introduces a parallel confidentiality vocabulary.
+Gives decidiq the juridical geheimhouding and embargo layer on top of its existing confidentiality classifiers: a formal `Geheimhouding` record with a structured, configurable legal ground (Gemeentewet art. 87-89 with pre-2023 article labels, Woo art. 5.1), a bekrachtiging workflow where the ground requires it, an opheffing workflow whose lifting besluit routes the object into the normal publication machinery, a member-facing embargo with scheduled timed release, a geheimhoudingenregister per body, a view audit trail for stukken under geheimhouding, and declarative notifications. It builds ON the existing classifiers — `AgendaItem.confidentiality` (meeting-pack-board-book), `Decision.isPublished` (p3-citizen-participation), the public-publication deny-list and future-`publicatiedatum` primitive, the commissievergaderingen besloten access + audit precedent (REQ-CVG-010), and the records-management classification vocabulary (REQ-RMA-009) — and never introduces a parallel confidentiality vocabulary.
 
 **Standards**: Gemeentewet art. 87-89 (geheimhouding, post Wet bevorderen integriteit en functioneren decentraal bestuur 2023; voorheen art. 25/55/86), Woo art. 5.1 (uitzonderingsgronden), Schema.org (`Action` for Geheimhouding, `DefinedTerm`/`DefinedTermSet` for grounds, `DigitalDocument` + `DigitalDocumentPermission` semantics for embargo), OpenRaadsinformatie (Geheimhouding records are never exposed on ORI; post-opheffing publications keep the existing `legalBasis` → `classification` mapping)
 **Feature tier**: V1

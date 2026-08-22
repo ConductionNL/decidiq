@@ -206,7 +206,7 @@ When staff transition a consultation to `results-published`, or set `resultsPubl
 #### Scenario: No app-local public surface
 
 @e2e exclude negative routing assertion — covered by Newman (unauthenticated requests to app routes)
-- **WHEN** an unauthenticated client requests any decidesk route other than the reaction intake endpoint
+- **WHEN** an unauthenticated client requests any decidiq route other than the reaction intake endpoint
 - **THEN** no participation data is returned (the only anonymous read path is OR/OpenCatalogi's publication surface)
 
 ---
@@ -223,7 +223,7 @@ Staff with governance-body authority SHALL create and configure participation ro
 
 #### Scenario: Admin sets instance defaults
 
-- **GIVEN** an admin on the decidesk admin settings page
+- **GIVEN** an admin on the decidiq admin settings page
 - **WHEN** they set the default moderation policy and target catalog
 - **THEN** newly created rounds pre-fill those defaults while staff can still override per round
 

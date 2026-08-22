@@ -1,12 +1,12 @@
 # Spec Delta: mcp-tools — ADR-063 adoption
 
-Decidesk's MCP surface moves from a hand-written `IMcpToolProvider` to OpenRegister's declarative + attribute-driven chains (ADR-063). The provider is deleted; two curated tools survive on real services; one write tool is withdrawn from the agent surface entirely.
+Decidiq's MCP surface moves from a hand-written `IMcpToolProvider` to OpenRegister's declarative + attribute-driven chains (ADR-063). The provider is deleted; two curated tools survive on real services; one write tool is withdrawn from the agent surface entirely.
 
 ## ADDED Requirements
 
 ### Requirement: REQ-DMCP-011 — Declarative CRUD via the `x-openregister-mcp` dialect
 
-Decidesk MUST declare its agent-visible CRUD surface with the `x-openregister-mcp` schema dialect and MUST NOT hand-write any MCP CRUD tool. Exactly ten schemas opt in — `meeting`, `decision`, `agenda-item`, `action-item`, `minutes`, `governance-body`, `person`, `membership`, `voting-round`, `conflict-of-interest` — each declaring `enabled: true` and the verbs `search` and `get` only. Every verb config SHALL declare `scope: read`, `readOnlyHint: true`, and an agent-facing `description`. Every entry in a `search.filters` list SHALL be a real property of that schema. All other Decidesk schemas SHALL omit the dialect (default OFF).
+Decidiq MUST declare its agent-visible CRUD surface with the `x-openregister-mcp` schema dialect and MUST NOT hand-write any MCP CRUD tool. Exactly ten schemas opt in — `meeting`, `decision`, `agenda-item`, `action-item`, `minutes`, `governance-body`, `person`, `membership`, `voting-round`, `conflict-of-interest` — each declaring `enabled: true` and the verbs `search` and `get` only. Every verb config SHALL declare `scope: read`, `readOnlyHint: true`, and an agent-facing `description`. Every entry in a `search.filters` list SHALL be a real property of that schema. All other Decidiq schemas SHALL omit the dialect (default OFF).
 
 The block is placed at schema root; `Schema::hydrate()` folds root-level `x-openregister-*` keys into `configuration`, where `SchemaMapper` validates them and `SchemaDerivedToolProvider` reads them.
 
@@ -35,7 +35,7 @@ The block is placed at schema root; `Schema::hydrate()` folds root-level `x-open
 
 ### Requirement: REQ-DMCP-012 — Curated non-CRUD tools live on services with honest annotations
 
-Every retained non-CRUD tool MUST be a `#[McpTool]`-annotated method on a real service class, and MUST declare a `scope` and explicit hints. Exactly two curated tools survive: `MeetingService::getMeetingDossier()` (a read aggregation over meeting + agenda items + decisions + action items) and `ActionItemWriter::addActionItemToMeeting()` (the sole write on Decidesk's agent surface). Business logic MUST NOT live in an MCP provider class.
+Every retained non-CRUD tool MUST be a `#[McpTool]`-annotated method on a real service class, and MUST declare a `scope` and explicit hints. Exactly two curated tools survive: `MeetingService::getMeetingDossier()` (a read aggregation over meeting + agenda items + decisions + action items) and `ActionItemWriter::addActionItemToMeeting()` (the sole write on Decidiq's agent surface). Business logic MUST NOT live in an MCP provider class.
 
 | Method | scope | readOnlyHint | destructiveHint | idempotentHint |
 |---|---|---|---|---|
@@ -62,10 +62,10 @@ Every retained non-CRUD tool MUST be a `#[McpTool]`-annotated method on a real s
 
 ### Requirement: REQ-DMCP-013 — Scannable-services opt-in
 
-Decidesk MUST register an `IMcpScannableServices` implementation naming every class that carries a `#[McpTool]`. `lib/Mcp/DecideskScannableServices.php` SHALL return `[MeetingService::class, ActionItemWriter::class]` from `getScannableServiceClasses()`, and `Application.php` SHALL register it. Without this opt-in, OpenRegister never scans the app and every curated tool is silently absent.
+Decidiq MUST register an `IMcpScannableServices` implementation naming every class that carries a `#[McpTool]`. `lib/Mcp/DecidiqScannableServices.php` SHALL return `[MeetingService::class, ActionItemWriter::class]` from `getScannableServiceClasses()`, and `Application.php` SHALL register it. Without this opt-in, OpenRegister never scans the app and every curated tool is silently absent.
 
 #### Scenario: The opt-in lists exactly the annotated classes
-- **WHEN** `DecideskScannableServices::getScannableServiceClasses()` is called
+- **WHEN** `DecidiqScannableServices::getScannableServiceClasses()` is called
 - **THEN** it returns exactly `MeetingService::class` and `ActionItemWriter::class`
 - **AND** every class it names contains at least one `#[McpTool]` method
 
@@ -98,7 +98,7 @@ Every curated tool that targets a specific object MUST enforce per-object author
 | `MeetingService::getMeetingDossier()` | curated | Participant of the meeting OR governance-body admin. |
 | `ActionItemWriter::addActionItemToMeeting()` | curated | Participant of the meeting OR governance-body admin. |
 
-The participant/chair guards previously private to `DecideskToolProvider` SHALL move into the receiving services intact — no guard is weakened or dropped by this change.
+The participant/chair guards previously private to `DecidiqToolProvider` SHALL move into the receiving services intact — no guard is weakened or dropped by this change.
 
 #### Scenario: Non-participant cannot read a meeting dossier
 - **GIVEN** a meeting `<uuid>` with participants `alice, bob`
@@ -123,14 +123,14 @@ The participant/chair guards previously private to `DecideskToolProvider` SHALL 
 The system MUST ship automated tests for both surviving MCP surfaces, and MUST NOT retain tests for the deleted provider.
 
 1. **Unit tests** covering:
-   - `DecideskScannableServices::getScannableServiceClasses()` returns exactly the two annotated classes.
+   - `DecidiqScannableServices::getScannableServiceClasses()` returns exactly the two annotated classes.
    - Every `#[McpTool]` in `lib/` declares a non-null `scope` and an explicit `readOnlyHint`.
    - `getMeetingDossier()` happy path (mocked services) and its `forbidden` path.
    - `addActionItemToMeeting()` happy path (mocked writer) and its `forbidden` path.
    - Exactly 10 schemas in `decidesk_register.json` declare `x-openregister-mcp.enabled: true`.
    - Every declared `search.filters` entry names a real property of its schema.
    - No schema declares a `create`, `update`, or `delete` verb.
-2. `tests/Unit/Mcp/DecideskToolProviderTest.php` and `tests/Integration/Mcp/DecideskToolProviderIntegrationTest.php` SHALL be deleted along with the provider.
+2. `tests/Unit/Mcp/DecidiqToolProviderTest.php` and `tests/Integration/Mcp/DecidiqToolProviderIntegrationTest.php` SHALL be deleted along with the provider.
 3. The `composer check:strict` script SHALL exit zero after this change.
 
 #### Scenario: Register dialect is asserted from the JSON
@@ -146,9 +146,9 @@ The system MUST ship automated tests for both surviving MCP surfaces, and MUST N
 
 ### Requirement: REQ-DMCP-001 — Implement IMcpToolProvider
 
-**Reason**: ADR-063 forbids hand-written MCP tool code. OpenRegister's `SchemaDerivedToolProvider` and `AttributeToolProvider` now supply the entire surface; `lib/Mcp/DecideskToolProvider.php` is deleted.
+**Reason**: ADR-063 forbids hand-written MCP tool code. OpenRegister's `SchemaDerivedToolProvider` and `AttributeToolProvider` now supply the entire surface; `lib/Mcp/DecidiqToolProvider.php` is deleted.
 
-**Migration**: The provider class and its service alias are removed from `Application.php`. `lib/Mcp/DecideskScannableServices.php` (REQ-DMCP-013) replaces it as the app's only MCP registration.
+**Migration**: The provider class and its service alias are removed from `Application.php`. `lib/Mcp/DecidiqScannableServices.php` (REQ-DMCP-013) replaces it as the app's only MCP registration.
 
 ### Requirement: REQ-DMCP-002 — Tool catalogue (v1)
 
@@ -158,7 +158,7 @@ The system MUST ship automated tests for both surviving MCP surfaces, and MUST N
 
 ### Requirement: REQ-DMCP-003 — `invokeTool()` dispatch and error envelope
 
-**Reason**: Dispatch, argument validation, UUID validation, and the error envelope are OpenRegister's responsibility for derived tools and the `AttributeToolProvider`'s for curated ones. Decidesk hand-rolled all four.
+**Reason**: Dispatch, argument validation, UUID validation, and the error envelope are OpenRegister's responsibility for derived tools and the `AttributeToolProvider`'s for curated ones. Decidiq hand-rolled all four.
 
 **Migration**: No app-side dispatch remains. Callers receive OpenRegister's standard MCP error envelope.
 
@@ -188,6 +188,6 @@ The system MUST ship automated tests for both surviving MCP surfaces, and MUST N
 
 ### Requirement: REQ-DMCP-009 — Interface resolution via runtime autoloader
 
-**Reason**: Decidesk no longer implements `IMcpToolProvider`, so there is no interface to resolve and no stub to maintain.
+**Reason**: Decidiq no longer implements `IMcpToolProvider`, so there is no interface to resolve and no stub to maintain.
 
 **Migration**: `tests/Stubs/Mcp/IMcpToolProvider.php` is replaced by a stub for `IMcpScannableServices` (the one interface the app still implements), following the same runtime-autoloader convention.

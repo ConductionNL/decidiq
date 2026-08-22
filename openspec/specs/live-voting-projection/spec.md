@@ -10,11 +10,11 @@ Provides a public fullscreen projection screen that displays the live state of a
 ## Requirements
 
 ### Requirement: REQ-LVP-001 A public fullscreen projection route displays the live VotingRound state
-The app SHALL expose a fullscreen route `/apps/decidesk/projection/{votingRoundId}` accessible without Nextcloud login. The route renders `ProjectionView.vue` showing: motion title, voting method, aggregate vote counts, and a preselected option tile when one option leads.
+The app SHALL expose a fullscreen route `/apps/decidiq/projection/{votingRoundId}` accessible without Nextcloud login. The route renders `ProjectionView.vue` showing: motion title, voting method, aggregate vote counts, and a preselected option tile when one option leads.
 
 #### Scenario: Projector screen displays live vote totals
 - **GIVEN** an open VotingRound linked to the motion "Motie Duurzame Energie"
-- **WHEN** the projector URL `/apps/decidesk/projection/{id}` is opened on a device not logged in to Nextcloud
+- **WHEN** the projector URL `/apps/decidiq/projection/{id}` is opened on a device not logged in to Nextcloud
 - **THEN** the page renders in fullscreen with the motion title, vote counts (Voor: 15, Tegen: 4, Onthouding: 1), and the elapsed time since `openedAt`; no individual Participant names are shown
 
 #### Scenario: Projection view refreshes every 3 seconds without requiring login
@@ -65,4 +65,4 @@ The app SHALL display a "Projectielink kopiëren" button in `VotingRoundPanel.vu
 #### Scenario: Chair copies projection URL during voting
 - **GIVEN** an open VotingRound and the chair is viewing `VotingRoundPanel.vue`
 - **WHEN** the chair clicks "Projectielink kopiëren"
-- **THEN** the URL `/apps/decidesk/projection/{votingRoundId}` is written to the system clipboard and a transient "Link gekopieerd" toast notification appears
+- **THEN** the URL `/apps/decidiq/projection/{votingRoundId}` is written to the system clipboard and a transient "Link gekopieerd" toast notification appears

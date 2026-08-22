@@ -196,7 +196,7 @@ class MigrateAppConfigKeys implements IRepairStep {
 					Application::APP_ID,
 					$key,
 					$old,
-					sensitive: $this->isSensitiveKey($key)
+					sensitive: $this->isSensitiveKey(key: $key)
 				);
 				$migrated++;
 			} catch (Throwable $e) {

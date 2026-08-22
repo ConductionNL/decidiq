@@ -1,7 +1,7 @@
 # inspraak-agenda-live Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - [inspreekrecht-plenair](../../changes/inspreekrecht-plenair/)
 

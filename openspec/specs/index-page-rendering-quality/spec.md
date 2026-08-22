@@ -1,7 +1,7 @@
 # index-page-rendering-quality Specification
 
 ## Purpose
-Defines the rendering-correctness contract for decidesk's manifest-driven index pages (`type:"index"` pages built on `CnIndexPage`/`CnDataTable`/`CnCellRenderer` from `@conduction/nextcloud-vue`): every reference field SHALL resolve to a readable label, every numeric and date/datetime column SHALL render through its correct formatter, every index page SHALL reach a terminal loading state (table or empty state, never a perpetual spinner), quick-filter labels SHALL render intact, the first-run walkthrough SHALL target real, resolvable elements, and seed/fixture data SHALL NOT accumulate unbounded on the shared instance. This capability governs the manifest column-declaration layer only — it does not own the underlying library rendering primitives (`CnCellRenderer`, `CnFkResolveCell`, `liveUpdatesPlugin`), which are `@conduction/nextcloud-vue`'s.
+Defines the rendering-correctness contract for decidiq's manifest-driven index pages (`type:"index"` pages built on `CnIndexPage`/`CnDataTable`/`CnCellRenderer` from `@conduction/nextcloud-vue`): every reference field SHALL resolve to a readable label, every numeric and date/datetime column SHALL render through its correct formatter, every index page SHALL reach a terminal loading state (table or empty state, never a perpetual spinner), quick-filter labels SHALL render intact, the first-run walkthrough SHALL target real, resolvable elements, and seed/fixture data SHALL NOT accumulate unbounded on the shared instance. This capability governs the manifest column-declaration layer only — it does not own the underlying library rendering primitives (`CnCellRenderer`, `CnFkResolveCell`, `liveUpdatesPlugin`), which are `@conduction/nextcloud-vue`'s.
 
 ## Requirements
 
@@ -9,7 +9,7 @@ Defines the rendering-correctness contract for decidesk's manifest-driven index 
 
 Every index-page column whose schema property is a reference to another OpenRegister object (`format: "uuid"` with an `x-openregister-ref`/`$ref` target, or a name-hinted reference field such as a governance body, person, or decision) SHALL declare `widget: "fkResolve"` with `widgetProps: {register, schema, labelField}` naming the referenced register/schema/display field. The column SHALL render the referenced object's resolved label for both a UUID-keyed reference and a slug-keyed reference (the seed importer stores some references as raw slugs, not UUIDs — both SHALL resolve). A reference value that does not resolve to any object (including the literal nil UUID `00000000-0000-0000-0000-000000000000` used as an unset placeholder in some seed examples) MAY still render as its raw id — this is a fallback, not a passing case, and SHALL be tracked as residual seed-data debt rather than silently accepted as correct.
 
-@e2e exclude this requirement governs `CnFkResolveCell`/`CnCellRenderer`, rendering primitives owned by `@conduction/nextcloud-vue` (see this capability's own Purpose: "does not own the underlying library rendering primitives"), not decidesk's own UI code; no decidesk e2e test isolates the UUID-vs-slug reference-resolution distinction this scenario names — genuine coverage gap tracked as e2e debt (many index pages incidentally exercise fkResolve columns, e.g. tests/e2e/spec-coverage/facets-organisation-detail.spec.ts, but none asserts this specific UUID/slug equivalence).
+@e2e exclude this requirement governs `CnFkResolveCell`/`CnCellRenderer`, rendering primitives owned by `@conduction/nextcloud-vue` (see this capability's own Purpose: "does not own the underlying library rendering primitives"), not decidiq's own UI code; no decidiq e2e test isolates the UUID-vs-slug reference-resolution distinction this scenario names — genuine coverage gap tracked as e2e debt (many index pages incidentally exercise fkResolve columns, e.g. tests/e2e/spec-coverage/facets-organisation-detail.spec.ts, but none asserts this specific UUID/slug equivalence).
 
 #### Scenario: A UUID reference column resolves to a name
 - **GIVEN** an index page column bound to a schema property that is a reference to a `governance-body` object, with a valid UUID value
@@ -36,7 +36,7 @@ Any index-page column bound to a schema property that represents a calendar or f
 
 Every index-page column bound to a schema property of type `date`/`date-time` (by schema `format`, or a computed/convenience field with no matching schema property) SHALL render through `CnCellRenderer`'s date path (`NcDateTime`), never as a raw ISO or SQL-style timestamp string. Columns bound to a schema property lacking an explicit `format` SHALL declare a column-level `format` hint so the renderer can still apply date formatting.
 
-@e2e exclude this requirement governs `CnCellRenderer`'s date path (`NcDateTime`), a rendering primitive owned by `@conduction/nextcloud-vue`, not decidesk's own UI code (see this capability's own Purpose); the same untested gap is recorded per-register in `verordeningenregister`'s REQ-VOR-011 and `governing-documents-register`'s REQ-GDR-010 scenarios — genuine coverage gap tracked as e2e debt.
+@e2e exclude this requirement governs `CnCellRenderer`'s date path (`NcDateTime`), a rendering primitive owned by `@conduction/nextcloud-vue`, not decidiq's own UI code (see this capability's own Purpose); the same untested gap is recorded per-register in `verordeningenregister`'s REQ-VOR-011 and `governing-documents-register`'s REQ-GDR-010 scenarios — genuine coverage gap tracked as e2e debt.
 
 #### Scenario: A raw-looking timestamp field renders formatted
 - **GIVEN** an index column bound to a datetime-typed field with no schema-level `format` declared
@@ -47,7 +47,7 @@ Every index-page column bound to a schema property of type `date`/`date-time` (b
 
 An index page SHALL, within a bounded time after mount, show either its data table (populated or not) or its empty-state — it SHALL NOT remain on the loading spinner indefinitely regardless of live-update subscription activity. A page whose live-update subscription cannot safely coexist with its initial fetch (per the known `liveUpdatesPlugin` race — see Notes) SHALL opt out via `config.subscribe: false` until the underlying library defect is fixed upstream.
 
-@e2e exclude this requirement governs `liveUpdatesPlugin`'s interaction with `CnIndexPage`'s initial fetch, a rendering-primitive concern owned by `@conduction/nextcloud-vue` (see this capability's own Purpose); many decidesk index-page e2e tests incidentally load past the spinner without asserting the terminal-state guarantee itself — genuine coverage gap tracked as e2e debt.
+@e2e exclude this requirement governs `liveUpdatesPlugin`'s interaction with `CnIndexPage`'s initial fetch, a rendering-primitive concern owned by `@conduction/nextcloud-vue` (see this capability's own Purpose); many decidiq index-page e2e tests incidentally load past the spinner without asserting the terminal-state guarantee itself — genuine coverage gap tracked as e2e debt.
 
 #### Scenario: A zero-row index page shows the empty state, not a stuck spinner
 - **GIVEN** an index page bound to a schema with zero objects

@@ -11,7 +11,7 @@
  * @e2e openspec/specs/dashboard/spec.md#show-pending-votes-with-urgency-indicators
  * @e2e openspec/specs/dashboard/spec.md#no-pending-votes
  * @e2e openspec/specs/dashboard/spec.md#show-upcoming-meetings-with-context
- * @e2e openspec/specs/dashboard/spec.md#view-decidesk-widget-on-nextcloud-dashboard
+ * @e2e openspec/specs/dashboard/spec.md#view-decidiq-widget-on-nextcloud-dashboard
  */
 import { test, expect } from '@playwright/test'
 
@@ -55,7 +55,7 @@ test('dashboard page loads at the root route', async ({ page }) => {
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 })
 
-// @e2e openspec/specs/dashboard/spec.md#view-decidesk-widget-on-nextcloud-dashboard
+// @e2e openspec/specs/dashboard/spec.md#view-decidiq-widget-on-nextcloud-dashboard
 test('Nextcloud dashboard shows the decidiq app in the app bar', async ({
 	page,
 }) => {

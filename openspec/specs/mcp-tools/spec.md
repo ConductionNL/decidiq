@@ -29,13 +29,15 @@ The system SHALL provide a class `OCA\Decidiq\Mcp\DecidiqToolProvider` that impl
 service container via `IRegistrationContext::registerServiceAlias` in
 `lib/AppInfo/Application.php` using the alias key
 `OCA\OpenRegister\Mcp\IMcpToolProvider::decidiq` so OpenRegister's `McpToolsService`
-discovers it.
+discovers it. The suffix is the Nextcloud app id and therefore moved with `<id>`;
+it is deliberately NOT the same string as `getAppId()`, which stays `decidesk` so
+that the published `decidesk.*` tool ids keep working for existing callers.
 
 The class MUST implement three methods:
 
 | Method | Return | Behaviour |
 |---|---|---|
-| `getAppId(): string` | `"decidiq"` (constant) | Identifies the owning app. |
+| `getAppId(): string` | `"decidesk"` (constant) | Identifies the owning app. |
 | `getTools(): array` | List of 5 tool descriptors | See REQ-DMCP-002. |
 | `invokeTool(string $toolId, array $arguments): array` | Tool result payload | See REQ-DMCP-003. |
 
@@ -46,7 +48,7 @@ The class MUST implement three methods:
 
 #### Scenario: getAppId returns the canonical slug
 - **WHEN** `getAppId()` is called on the provider
-- **THEN** it returns the string `"decidiq"` (case-sensitive, no whitespace)
+- **THEN** it returns the string `"decidesk"` (case-sensitive, no whitespace)
 
 ---
 
@@ -54,47 +56,47 @@ The class MUST implement three methods:
 
 The system SHALL expose exactly the following 5 tool descriptors from `getTools()`. Each
 descriptor MUST be an associative array with the keys `id`, `name`, `description`, and
-`inputSchema`. The `id` MUST start with `decidiq.` (the value of `getAppId()` followed
+`inputSchema`. The `id` MUST start with `decidesk.` (the value of `getAppId()` followed
 by a literal `.`).
 
 | Tool ID | Purpose |
 |---|---|
-| `decidiq.listOpenActionItems` | List incomplete action items (scope: mine or all visible). |
-| `decidiq.listRecentMeetings` | List the caller's recent meetings, ordered by date desc. |
-| `decidiq.getMeetingDetails` | Fetch a meeting with agenda + decisions + action items inlined. |
-| `decidiq.startMeeting` | Transition a `scheduled` meeting to `in-progress` (chair-only). |
-| `decidiq.addActionItem` | Create an action item attached to a meeting. |
+| `decidesk.listOpenActionItems` | List incomplete action items (scope: mine or all visible). |
+| `decidesk.listRecentMeetings` | List the caller's recent meetings, ordered by date desc. |
+| `decidesk.getMeetingDetails` | Fetch a meeting with agenda + decisions + action items inlined. |
+| `decidesk.startMeeting` | Transition a `scheduled` meeting to `in-progress` (chair-only). |
+| `decidesk.addActionItem` | Create an action item attached to a meeting. |
 
 **Input schemas** (JSON Schema fragments):
 
 ```yaml
-decidiq.listOpenActionItems:
+decidesk.listOpenActionItems:
   type: object
   properties:
     scope: { type: string, enum: [mine, all], default: mine }
     limit: { type: integer, minimum: 1, maximum: 50, default: 20 }
   required: []
 
-decidiq.listRecentMeetings:
+decidesk.listRecentMeetings:
   type: object
   properties:
     limit: { type: integer, minimum: 1, maximum: 20, default: 10 }
     statusFilter: { type: string, enum: [any, scheduled, in-progress, closed], default: any }
   required: []
 
-decidiq.getMeetingDetails:
+decidesk.getMeetingDetails:
   type: object
   properties:
     meetingUuid: { type: string, format: uuid }
   required: [meetingUuid]
 
-decidiq.startMeeting:
+decidesk.startMeeting:
   type: object
   properties:
     meetingUuid: { type: string, format: uuid }
   required: [meetingUuid]
 
-decidiq.addActionItem:
+decidesk.addActionItem:
   type: object
   properties:
     meetingUuid:    { type: string, format: uuid }
@@ -107,12 +109,12 @@ decidiq.addActionItem:
 #### Scenario: getTools returns exactly 5 tools
 - **WHEN** `getTools()` is called
 - **THEN** it returns an array of length 5
-- **AND** the set of `id` values equals `{decidiq.listOpenActionItems, decidiq.listRecentMeetings, decidiq.getMeetingDetails, decidiq.startMeeting, decidiq.addActionItem}`
+- **AND** the set of `id` values equals `{decidesk.listOpenActionItems, decidesk.listRecentMeetings, decidesk.getMeetingDetails, decidesk.startMeeting, decidesk.addActionItem}`
 
 #### Scenario: Every tool id is namespaced under getAppId
 - **GIVEN** the list returned by `getTools()`
 - **WHEN** each tool's `id` is examined
-- **THEN** every `id` starts with `"decidiq."` (the value of `getAppId()` plus a dot)
+- **THEN** every `id` starts with `"decidesk."` (the value of `getAppId()` plus a dot)
 
 #### Scenario: Every tool descriptor declares the required keys
 - **WHEN** a caller iterates `getTools()`
@@ -143,21 +145,21 @@ with `error` drawn from the closed enum:
 
 #### Scenario: Unknown tool id returns structured error
 - **GIVEN** the provider is registered
-- **WHEN** `invokeTool('decidiq.doesNotExist', [])` is called
+- **WHEN** `invokeTool('decidesk.doesNotExist', [])` is called
 - **THEN** the return value is `{isError: true, error: 'unknown_tool', message: '...'}`
 - **AND** no exception is thrown
 
 #### Scenario: Missing required argument returns structured error
-- **WHEN** `invokeTool('decidiq.startMeeting', [])` is called (no `meetingUuid`)
+- **WHEN** `invokeTool('decidesk.startMeeting', [])` is called (no `meetingUuid`)
 - **THEN** the return value is `{isError: true, error: 'invalid_arguments', message: '...'}` mentioning the missing field
 
 #### Scenario: Invalid UUID format returns structured error
-- **WHEN** `invokeTool('decidiq.getMeetingDetails', ['meetingUuid' => 'not-a-uuid'])` is called
+- **WHEN** `invokeTool('decidesk.getMeetingDetails', ['meetingUuid' => 'not-a-uuid'])` is called
 - **THEN** the return value is `{isError: true, error: 'invalid_arguments', message: '...'}`
 
 #### Scenario: Target object not found returns structured error
 - **GIVEN** no meeting exists with uuid `00000000-0000-0000-0000-000000000000`
-- **WHEN** `invokeTool('decidiq.getMeetingDetails', ['meetingUuid' => '00000000-0000-0000-0000-000000000000'])` is called
+- **WHEN** `invokeTool('decidesk.getMeetingDetails', ['meetingUuid' => '00000000-0000-0000-0000-000000000000'])` is called
 - **THEN** the return value is `{isError: true, error: 'not_found', message: '...'}`
 
 ---
@@ -189,27 +191,27 @@ no dead code paths.
 #### Scenario: Non-chair cannot start meeting
 - **GIVEN** a meeting `<uuid>` in state `scheduled` whose chair is user `alice`
 - **AND** an authenticated caller `bob` who is a participant but not the chair
-- **WHEN** `bob` invokes `decidiq.startMeeting` with `{meetingUuid: '<uuid>'}`
+- **WHEN** `bob` invokes `decidesk.startMeeting` with `{meetingUuid: '<uuid>'}`
 - **THEN** the return value is `{isError: true, error: 'forbidden', message: 'Only the chair or an admin can start this meeting.'}`
 - **AND** the meeting remains in state `scheduled`
 
 #### Scenario: Non-participant cannot read meeting details
 - **GIVEN** a meeting `<uuid>` with participants `alice, bob`
 - **AND** an authenticated caller `carol` who is neither a participant nor an admin
-- **WHEN** `carol` invokes `decidiq.getMeetingDetails` with `{meetingUuid: '<uuid>'}`
+- **WHEN** `carol` invokes `decidesk.getMeetingDetails` with `{meetingUuid: '<uuid>'}`
 - **THEN** the return value is `{isError: true, error: 'forbidden', message: '...'}`
 
 #### Scenario: Admin can start any meeting
 - **GIVEN** a meeting `<uuid>` in state `scheduled`
 - **AND** an authenticated caller with governance-body admin rights for the owning body
-- **WHEN** the admin invokes `decidiq.startMeeting` with `{meetingUuid: '<uuid>'}`
+- **WHEN** the admin invokes `decidesk.startMeeting` with `{meetingUuid: '<uuid>'}`
 - **THEN** the meeting transitions to `in-progress` and the return payload reports success
 
 ---
 
 ### Requirement: REQ-DMCP-005 — `startMeeting` state-machine guard
 
-The system SHALL reject `decidiq.startMeeting` calls that target a meeting whose
+The system SHALL reject `decidesk.startMeeting` calls that target a meeting whose
 current state is not `scheduled`. The provider SHALL return
 `{isError: true, error: 'invalid_state', message: '...'}` describing the actual state.
 On success the provider SHALL transition the meeting via the existing
@@ -218,12 +220,12 @@ transition in OpenRegister's audit trail.
 
 #### Scenario: Cannot start an already in-progress meeting
 - **GIVEN** a meeting `<uuid>` in state `in-progress` and a caller who is the chair
-- **WHEN** the chair invokes `decidiq.startMeeting` with `{meetingUuid: '<uuid>'}`
+- **WHEN** the chair invokes `decidesk.startMeeting` with `{meetingUuid: '<uuid>'}`
 - **THEN** the return value is `{isError: true, error: 'invalid_state', message: 'Meeting is already in progress.'}`
 
 #### Scenario: Successful start returns structured payload
 - **GIVEN** a meeting `<uuid>` in state `scheduled` and a caller who is the chair
-- **WHEN** the chair invokes `decidiq.startMeeting` with `{meetingUuid: '<uuid>'}`
+- **WHEN** the chair invokes `decidesk.startMeeting` with `{meetingUuid: '<uuid>'}`
 - **THEN** the return value contains `started: true`, `meetingUuid: '<uuid>'`, an ISO 8601 `startedAt` timestamp, and a `sources` array (see REQ-DMCP-006)
 
 ---
@@ -239,7 +241,7 @@ links.
 **Source descriptor shape:**
 
 ```yaml
-type:  string  # 'decidiq.meeting' | 'decidiq.agendaItem' | 'decidiq.decision' | 'decidiq.actionItem'
+type:  string  # 'decidesk.meeting' | 'decidesk.agendaItem' | 'decidesk.decision' | 'decidesk.actionItem'
 uuid:  string  # the object's UUID
 url:   string  # deep link, e.g. '/apps/decidiq/meetings/<uuid>'
 label: string  # human-readable label (meeting title, action-item title, etc.)
@@ -249,11 +251,11 @@ label: string  # human-readable label (meeting title, action-item title, etc.)
 
 | Tool | Sources contents |
 |---|---|
-| `listOpenActionItems` | One `decidiq.actionItem` source per returned item. |
-| `listRecentMeetings` | One `decidiq.meeting` source per returned meeting. |
-| `getMeetingDetails` | One `decidiq.meeting` source for the meeting, plus one per inlined agenda item, decision, and action item. |
-| `startMeeting` | Exactly one `decidiq.meeting` source for the started meeting. |
-| `addActionItem` | One `decidiq.actionItem` source for the new item, plus one `decidiq.meeting` source for its parent meeting. |
+| `listOpenActionItems` | One `decidesk.actionItem` source per returned item. |
+| `listRecentMeetings` | One `decidesk.meeting` source per returned meeting. |
+| `getMeetingDetails` | One `decidesk.meeting` source for the meeting, plus one per inlined agenda item, decision, and action item. |
+| `startMeeting` | Exactly one `decidesk.meeting` source for the started meeting. |
+| `addActionItem` | One `decidesk.actionItem` source for the new item, plus one `decidesk.meeting` source for its parent meeting. |
 
 **Truncation:** if a tool result would carry more than 20 source descriptors, the
 provider SHALL truncate to the first 20 and append a `sourcesTruncated: true` key plus
@@ -289,13 +291,13 @@ parse correctly but reference no existing object SHALL return
 that does not leak existence by message text.
 
 #### Scenario: Syntactically invalid UUID is rejected before lookup
-- **WHEN** `invokeTool('decidiq.startMeeting', ['meetingUuid' => 'abc'])` is called
+- **WHEN** `invokeTool('decidesk.startMeeting', ['meetingUuid' => 'abc'])` is called
 - **THEN** the return value is `{isError: true, error: 'invalid_arguments', message: '...'}`
 - **AND** the underlying `MeetingService` is not queried
 
 #### Scenario: Valid UUID with no matching object returns not_found
 - **GIVEN** no meeting exists with uuid `00000000-0000-0000-0000-000000000000`
-- **WHEN** `invokeTool('decidiq.getMeetingDetails', ['meetingUuid' => '00000000-0000-0000-0000-000000000000'])` is called
+- **WHEN** `invokeTool('decidesk.getMeetingDetails', ['meetingUuid' => '00000000-0000-0000-0000-000000000000'])` is called
 - **THEN** the return value is `{isError: true, error: 'not_found', message: 'Meeting not found.'}`
 
 ---
@@ -316,7 +318,7 @@ NOT duplicate business logic that already lives in `MeetingService`, `AgendaServ
 | `addActionItem` | `TaskService::saveTask([...])` | Map inputSchema fields onto the task array; delegate creation. |
 
 #### Scenario: Provider delegates startMeeting to MeetingService
-- **GIVEN** the provider is invoked with a valid `decidiq.startMeeting` call
+- **GIVEN** the provider is invoked with a valid `decidesk.startMeeting` call
 - **WHEN** the provider passes authorisation and validation
 - **THEN** it calls `MeetingService::transition()` exactly once with the resolved meeting
 - **AND** it does NOT directly mutate any OpenRegister object
@@ -343,9 +345,9 @@ for unit-test environments where the full openregister runtime is unavailable.
 The system SHALL ship the following automated tests:
 
 1. **Unit tests** at `tests/Unit/Mcp/DecidiqToolProviderTest.php` covering:
-   - `getAppId()` returns `"decidiq"`.
+   - `getAppId()` returns `"decidesk"`.
    - `getTools()` returns exactly 5 descriptors with the canonical ids.
-   - Every tool id is namespaced under `decidiq.`.
+   - Every tool id is namespaced under `decidesk.`.
    - Each tool's happy path (mocked services).
    - Each tool's auth-failure path returns `forbidden`.
    - Invalid UUID returns `invalid_arguments`.
@@ -355,7 +357,7 @@ The system SHALL ship the following automated tests:
    - Source truncation kicks in past 20 descriptors.
 
 2. **Integration test** at `tests/Integration/Mcp/DecidiqToolProviderIntegrationTest.php`
-   exercising one full happy-path round-trip (e.g. `decidiq.startMeeting`) through the
+   exercising one full happy-path round-trip (e.g. `decidesk.startMeeting`) through the
    real Nextcloud DI container against a real Meeting fixture, asserting the post-call
    state mutation and the structure of the returned payload. The test class MUST skip
    when `class_exists(\OCA\OpenRegister\Mcp\McpToolsService::class) === false`.

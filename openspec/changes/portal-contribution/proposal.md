@@ -1,6 +1,6 @@
 ---
 kind: code
-tracking_issue: https://github.com/ConductionNL/decidesk/issues/113
+tracking_issue: https://github.com/ConductionNL/decidiq/issues/113
 ---
 
 # Proposal: portal-contribution
@@ -14,7 +14,7 @@ the convention FQCN `OCA\{App}\Portal\PortalContributionProvider`, which
 portaliq discovers and duck-types (`method_exists`, never `instanceof`). The
 class is inert when portaliq is not installed (amendment A1).
 
-Decidesk has one natural external audience that today has **no** self-service
+Decidiq has one natural external audience that today has **no** self-service
 surface: the **citizen** — a resident who submits a reaction to a public
 consultation, an idea to an idea-box, a proposal to a participatory-budget
 round, or an advisory vote, all WITHOUT a Nextcloud account. That is exactly the
@@ -22,7 +22,7 @@ round, or an advisory vote, all WITHOUT a Nextcloud account. That is exactly the
 
 **Why now, without a broker:** DigiD/eHerkenning is DEFERRED. Citizens log in
 through portaliq's ordinary password/`portalAccount` edge at trust `low` —
-exactly like pipelinq's `client` / `customer` audiences. Decidesk's citizen data
+exactly like pipelinq's `client` / `customer` audiences. Decidiq's citizen data
 is already portal-shaped: the scope fields `submitterId` (ConsultationReaction),
 `voterId` (CitizenVote), `submitter` (BudgetProposal) and `recipientId`
 (Notification) each hold "a Nextcloud UID OR an opaque pseudonymous token". For
@@ -31,13 +31,13 @@ portaliq derives as the subject's `subjectRef`. So every collection scopes by
 the subject directly (`scopeField == subjectRef`, the default): no broker, no
 BSN, no claim indirection. This is why the slice can ship today.
 
-Tracking issue: Conduction/decidesk#113 (referenced, not closed).
+Tracking issue: Conduction/decidiq#113 (referenced, not closed).
 
 ## What
 
 Ship one plain class `lib/Portal/PortalContributionProvider.php` (no portaliq
 import, no `implements`, no info.xml dependency, no constructor) that returns a
-pure-data manifest for the `citizen` audience over register `decidesk`:
+pure-data manifest for the `citizen` audience over register `decidiq`:
 
 1. **`citizenReactions`** — read `consultation-reaction`, scoped by
    `submitterId` (default subjectRef), projected to the citizen's own content +
@@ -60,13 +60,13 @@ frontend or info.xml change.
 
 ### Added Capabilities
 
-- `portal-contribution`: Decidesk contributes a `citizen` read + inbox surface
+- `portal-contribution`: Decidiq contributes a `citizen` read + inbox surface
   to portaliq via a plain, dependency-free provider class with server-side field
   projection and default pseudonymous-token (subjectRef) scoping (ADR-046 v2.2).
 
 ## Affected Projects
 
-- [x] Project: `decidesk` — new `lib/Portal/PortalContributionProvider.php`, unit tests under `tests/Unit/Portal/`, this OpenSpec change. No register or runtime-wiring changes.
+- [x] Project: `decidiq` — new `lib/Portal/PortalContributionProvider.php`, unit tests under `tests/Unit/Portal/`, this OpenSpec change. No register or runtime-wiring changes.
 - Reference: `apps-extra/pipelinq` — multi-audience + field-projection + register-drift-pin reference (`client`/`customer` password-edge audiences).
 - Reference: `apps-extra/docudesk` — read-only wave + field-projection + inbox-analysis reference.
 - Reference: `hydra` ADR-046 (portaliq external portal, contribution contract v2.2).
@@ -75,7 +75,7 @@ frontend or info.xml change.
 ## Out of Scope
 
 - Any portal UI, auth edge, inbox rendering, session or password edge — portaliq
-  owns the entire external surface (ADR-046); Decidesk ships zero portal
+  owns the entire external surface (ADR-046); Decidiq ships zero portal
   frontend.
 - The **external board-member** audience — a separate later slice.
 - DigiD/eHerkenning and any BSN-based scoping / credential broker — deferred; the

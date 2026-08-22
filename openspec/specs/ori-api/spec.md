@@ -9,7 +9,7 @@ openspec-changes:
 # ori-api Specification
 
 ## Purpose
-Exposes Decidesk meetings, motions, persons, and memberships through publicly accessible, ORI-compatible open-data endpoints using Popolo and Akoma Ntoso vocabularies. Meeting events are serialized from CalDAV VEVENTs and motions from published typed decisions, with support for date and organisation filtering, pagination, and JSON-LD or XML content negotiation so external consumers such as Dutch municipalities can harvest the data without authentication.
+Exposes Decidiq meetings, motions, persons, and memberships through publicly accessible, ORI-compatible open-data endpoints using Popolo and Akoma Ntoso vocabularies. Meeting events are serialized from CalDAV VEVENTs and motions from published typed decisions, with support for date and organisation filtering, pagination, and JSON-LD or XML content negotiation so external consumers such as Dutch municipalities can harvest the data without authentication.
 ## Requirements
 ### Requirement: REQ-ORI-001 — ORI Meeting endpoint
 

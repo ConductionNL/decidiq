@@ -145,9 +145,9 @@ class MigrateUserPreferences implements IRepairStep {
 		$alreadyPresent = 0;
 
 		$walked = $this->walkSeenUsers(
-			function (IUser $user) use (&$migrated, &$alreadyPresent): void {
+			callback: function (IUser $user) use (&$migrated, &$alreadyPresent): void {
 				$userId = $user->getUID();
-				foreach ($this->oldKeysFor($userId) as $key) {
+				foreach ($this->oldKeysFor(userId: $userId) as $key) {
 					/*
 					 * Both READS sit inside the try alongside the write. A read
 					 * that throws from a step registered under <install> stops

@@ -1,8 +1,8 @@
-# Design: decidesk-mcp-adoption
+# Design: decidiq-mcp-adoption
 
 ## Context
 
-Decidesk was the ADR-034/035 MCP pilot. `lib/Mcp/DecideskToolProvider.php` (1,279 lines) hand-writes 5 tools, their input schemas, their authorization, their validators, and their citation builder. ADR-063 (merged, hydra #102) makes all of that OpenRegister's job.
+Decidiq was the ADR-034/035 MCP pilot. `lib/Mcp/DecidiqToolProvider.php` (1,279 lines) hand-writes 5 tools, their input schemas, their authorization, their validators, and their citation builder. ADR-063 (merged, hydra #102) makes all of that OpenRegister's job.
 
 Three OpenRegister chains, all verified at `origin/development` on 2026-07-13:
 
@@ -12,7 +12,7 @@ Three OpenRegister chains, all verified at `origin/development` on 2026-07-13:
 | 2. Curated non-CRUD | `#[McpTool]` on a service method | `decidesk.{toolName}` |
 | 3. Opt-in | `IMcpScannableServices::getScannableServiceClasses()` | tells OR which classes to scan |
 
-**Placement (verified).** `Schema::hydrate()` folds root-level `x-openregister-*` keys into `configuration` before validation (`Schema.php`, the `ANNOTATION_VOCABULARY` allow-list — `x-openregister-mcp` is a member). `SchemaMapper` then validates `configuration['x-openregister-mcp']` with `McpAnnotationValidator`, and `SchemaDerivedToolProvider` reads it from the same place. Decidesk already places `x-openregister-lifecycle` / `-notifications` / `-calculations` / `-aggregations` at **schema root**, so the MCP block goes at schema root too — matching the file's existing convention rather than pipelinq's `configuration{}` nesting. Both land in the same column.
+**Placement (verified).** `Schema::hydrate()` folds root-level `x-openregister-*` keys into `configuration` before validation (`Schema.php`, the `ANNOTATION_VOCABULARY` allow-list — `x-openregister-mcp` is a member). `SchemaMapper` then validates `configuration['x-openregister-mcp']` with `McpAnnotationValidator`, and `SchemaDerivedToolProvider` reads it from the same place. Decidiq already places `x-openregister-lifecycle` / `-notifications` / `-calculations` / `-aggregations` at **schema root**, so the MCP block goes at schema root too — matching the file's existing convention rather than pipelinq's `configuration{}` nesting. Both land in the same column.
 
 **Dialect grammar (from `McpAnnotationValidator`).**
 - `enabled: bool` — **required**, the opt-in gate. Default (absent) is OFF.
@@ -24,7 +24,7 @@ Three OpenRegister chains, all verified at `origin/development` on 2026-07-13:
 ## Goals / Non-Goals
 
 **Goals**
-- Zero hand-written MCP tool code left in Decidesk.
+- Zero hand-written MCP tool code left in Decidiq.
 - Every agent-visible write carries an honest `scope` + hints.
 - A curated, defensible read surface — not blanket exposure.
 
@@ -37,7 +37,7 @@ Three OpenRegister chains, all verified at `origin/development` on 2026-07-13:
 
 ### D1: Curate 10 of 37 schemas — read verbs only
 
-ADR-063 targets 5–15 schemas; 10 is 27% of Decidesk's 37. Every inclusion answers a question a human would plausibly put to an assistant. **No schema declares a write verb.**
+ADR-063 targets 5–15 schemas; 10 is 27% of Decidiq's 37. Every inclusion answers a question a human would plausibly put to an assistant. **No schema declares a write verb.**
 
 | # | Schema (slug) | Verbs | `search` filters (all verified real properties) | Why an agent needs it |
 |---|---|---|---|---|
@@ -50,7 +50,7 @@ ADR-063 targets 5–15 schemas; 10 is 27% of Decidesk's 37. Every inclusion answ
 | 7 | `person` | search, get | `name`, `email` | Resolves a proposer/chair/assignee UUID to a human name — without it every other answer is a bare UUID. |
 | 8 | `membership` | search, get | `role`, `person`, `governanceBody`, `party` | The **only** place `role` lives — "who chairs the audit committee?" is unanswerable from Person + GovernanceBody alone. Popolo first-class entity, not a join table. |
 | 9 | `voting-round` | search, get | `result`, `quorumMet`, `votingMethod`, `decisionStage` | "How did the vote go? Was quorum met?" Aggregate tallies only (see D4). |
-| 10 | `conflict-of-interest` | search, get | `boardMember`, `agendaItem`, `declarationType`, `severity` | Core governance-compliance ask — "were any conflicts declared on this item?" Decidesk is a compliance product; this is its differentiator. |
+| 10 | `conflict-of-interest` | search, get | `boardMember`, `agendaItem`, `declarationType`, `severity` | Core governance-compliance ask — "were any conflicts declared on this item?" Decidiq is a compliance product; this is its differentiator. |
 
 ### D2: What is left OFF, and why
 
@@ -87,7 +87,7 @@ This is precisely why `addActionItem` is **retained** as a curated tool rather t
 | 4 | `decidesk.startMeeting` | **(c) DELETE — write REFUSED** | Not derivable (a guarded lifecycle transition), but **deliberately not re-exposed either**. See D5. `MeetingService::transition()` survives untouched for the UI; it simply carries no `#[McpTool]`. |
 | 5 | `decidesk.addActionItem` | **(b) KEEP — genuine non-CRUD** | Not derivable (D3: CalDAV write path). Moves to **`ActionItemWriter::addActionItemToMeeting()`** with `#[McpTool(scope: 'create', readOnlyHint: false, destructiveHint: false, idempotentHint: false)]`. The participant guard moves with it. |
 
-**The provider ends with zero tools → `lib/Mcp/DecideskToolProvider.php` is DELETED.** No empty seam is left behind (ADR-063).
+**The provider ends with zero tools → `lib/Mcp/DecidiqToolProvider.php` is DELETED.** No empty seam is left behind (ADR-063).
 
 ### D5: `startMeeting` — the write verb this change deliberately refuses
 
@@ -106,7 +106,7 @@ The same reasoning is why **no schema declares `create`/`update`/`delete`**: cre
 
 ### D6: The one write we DO allow, and why
 
-`addActionItem` is the single write on Decidesk's whole agent surface. It is defensible where `startMeeting` is not:
+`addActionItem` is the single write on Decidiq's whole agent surface. It is defensible where `startMeeting` is not:
 
 - **Additive** — it creates a new object; it mutates no existing governance state.
 - **Trivially reversible** — delete the VTODO.
@@ -119,7 +119,7 @@ Annotated honestly: `scope: 'create'`, `readOnlyHint: false`, `destructiveHint: 
 
 - **Keep the provider, just add hints.** Rejected: leaves 1,279 lines of business logic in an MCP provider (ADR-063 rule 4), keeps both schema-mismatch bugs, and leaves CRUD hand-written where the platform derives it.
 - **Declare all 37 schemas.** Rejected: blanket exposure is the documented failure mode (~9.5% accuracy degradation, 30k+ tokens) and would expose secret ballots and anonymous evaluations.
-- **Nest the dialect under `configuration{}` like pipelinq.** Rejected: Decidesk's register consistently uses root-level `x-openregister-*`, and `Schema::hydrate()` folds root keys into `configuration` anyway. Root placement is both correct and consistent.
+- **Nest the dialect under `configuration{}` like pipelinq.** Rejected: Decidiq's register consistently uses root-level `x-openregister-*`, and `Schema::hydrate()` folds root keys into `configuration` anyway. Root placement is both correct and consistent.
 - **Move `addActionItem` onto `MeetingService`.** Rejected: `ActionItemWriter` is the ADR-002 canonical write path; putting an action-item write on `MeetingService` would sprawl business logic across services.
 
 ## Risks / Trade-offs
@@ -133,8 +133,8 @@ Annotated honestly: `scope: 'create'`, `readOnlyHint: false`, `destructiveHint: 
 
 1. Add the 10 `x-openregister-mcp` blocks to `lib/Settings/decidesk_register.json`; `python3 -m json.tool` after every edit.
 2. Add `getMeetingDossier()` to `MeetingService` and `addActionItemToMeeting()` to `ActionItemWriter`, relocating the participant guards.
-3. Add `lib/Mcp/DecideskScannableServices.php`; register it in `Application.php`; drop the provider registration.
-4. Delete `lib/Mcp/DecideskToolProvider.php` and its unit/integration tests.
+3. Add `lib/Mcp/DecidiqScannableServices.php`; register it in `Application.php`; drop the provider registration.
+4. Delete `lib/Mcp/DecidiqToolProvider.php` and its unit/integration tests.
 5. Bump the register version so the repair-step importer re-imports (schema re-import is version-gated).
 6. Verify: `decidesk.meeting.search` and `decidesk.action-item.search` appear on `/api/mcp`; `decidesk.startMeeting` does **not**; `decidesk.addActionItem` reports `scope: create`.
 

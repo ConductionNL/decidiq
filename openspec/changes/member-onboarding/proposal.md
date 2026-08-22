@@ -6,11 +6,11 @@ kind: code
 
 ## Summary
 
-Add a guided member onboarding & offboarding workflow to decidesk: an `OnboardingTraject` and an `OffboardingTraject` OpenRegister schema (delivered as a `lib/Settings/register.d/` fragment per ADR-037) that carry a structured checklist per incoming/departing member — beëdiging recording (date, eed/belofte, meeting where sworn in), Nextcloud account linkage with role-based group/RBAC-scope assignment, induction-pack delivery into the member's Files, and reference-only steps for nevenfuncties intake and fractie assignment — with a declarative lifecycle (`gestart → in-uitvoering → afgerond`), declarative step reminders, a raadswisseling batch orchestration that diffs a completed Member Import into griffie-confirmed onboarding/offboarding suggestions, a griffie progress dashboard, and list/detail pages. This covers the raadswisseling/installatie after municipal elections and its analogues for boards and associations (new board member, ALV-elected member).
+Add a guided member onboarding & offboarding workflow to decidiq: an `OnboardingTraject` and an `OffboardingTraject` OpenRegister schema (delivered as a `lib/Settings/register.d/` fragment per ADR-037) that carry a structured checklist per incoming/departing member — beëdiging recording (date, eed/belofte, meeting where sworn in), Nextcloud account linkage with role-based group/RBAC-scope assignment, induction-pack delivery into the member's Files, and reference-only steps for nevenfuncties intake and fractie assignment — with a declarative lifecycle (`gestart → in-uitvoering → afgerond`), declarative step reminders, a raadswisseling batch orchestration that diffs a completed Member Import into griffie-confirmed onboarding/offboarding suggestions, a griffie progress dashboard, and list/detail pages. This covers the raadswisseling/installatie after municipal elections and its analogues for boards and associations (new board member, ALV-elected member).
 
 ## Motivation
 
-Demand cluster `onboard-new-council-member-digitally` scores **763 (must)** in the 2026-07-16 market deep-dive: every raadswisseling a griffie onboards 20–45 members at once (accounts, oaths, iPads, induction packs, group memberships) and offboards the departed — today with Excel checklists next to iBabs/Notubiz, because no RIS vendor ships the workflow. Novelty verification against this worktree (2026-07-17) confirms decidesk covers only fragments:
+Demand cluster `onboard-new-council-member-digitally` scores **763 (must)** in the 2026-07-16 market deep-dive: every raadswisseling a griffie onboards 20–45 members at once (accounts, oaths, iPads, induction packs, group memberships) and offboards the departed — today with Excel checklists next to iBabs/Notubiz, because no RIS vendor ships the workflow. Novelty verification against this worktree (2026-07-17) confirms decidiq covers only fragments:
 
 - `admin-settings` has bulk **Member Import** (Groups/Contacts/CSV with matching and manual-link flagging) — it creates member records, but no workflow around them.
 - The `fractievoorzitter-fractie-koppeling` change carries the Raadslid vocabulary (`beëdigings-datum`, `einde-raadslidmaatschap` as a FractieLidmaatschap `redenEind`) and creates Raadslid/FractieLidmaatschap records *after* beëdiging — but nothing records the beëdiging itself as an event, and nothing guides the steps around it.
@@ -20,7 +20,7 @@ There is **no onboarding workflow object, no oath recording, no induction pack, 
 
 ## Affected Projects
 
-- [ ] Project: `decidesk` — new `OnboardingTraject` + `OffboardingTraject` schemas (`lib/Settings/register.d/59-member-onboarding.json`), manifest pages + menu (manifest.d fragment), provisioning/de-provisioning service, induction-pack delivery, raadswisseling batch orchestration, dashboard widgets, seed data, docs, tests.
+- [ ] Project: `decidiq` — new `OnboardingTraject` + `OffboardingTraject` schemas (`lib/Settings/register.d/59-member-onboarding.json`), manifest pages + menu (manifest.d fragment), provisioning/de-provisioning service, induction-pack delivery, raadswisseling batch orchestration, dashboard widgets, seed data, docs, tests.
 
 No other apps change. OpenRegister is consumed as-is (lifecycle, notifications, RBAC scopes, FileService, widget aggregations are existing capabilities).
 

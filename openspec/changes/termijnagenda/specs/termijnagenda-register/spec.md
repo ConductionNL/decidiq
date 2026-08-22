@@ -1,7 +1,7 @@
 # termijnagenda-register Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - [termijnagenda](../../changes/termijnagenda/)
 
@@ -30,7 +30,7 @@ The system SHALL define a `TermijnagendaItem` schema in the decidesk register vi
 
 #### Scenario: Register fragment is additive
 
-- GIVEN a decidesk installation upgrading to this change
+- GIVEN a decidiq installation upgrading to this change
 - WHEN the register configuration is loaded
 - THEN the TermijnagendaItem schema is registered from fragment 50
 - AND no existing schema in `decidesk_register.json` is modified

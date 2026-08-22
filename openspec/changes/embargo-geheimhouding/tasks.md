@@ -89,7 +89,7 @@
 ## Quality checklist
 
 - All new/changed business logic covered by PHPUnit unit tests (`tests/Unit/`)
-- New/changed API endpoints covered by Newman/Postman tests (`tests/integration/decidesk-embargo-geheimhouding.postman_collection.json`)
+- New/changed API endpoints covered by Newman/Postman tests (`tests/integration/decidiq-embargo-geheimhouding.postman_collection.json`)
 - UI changes covered by Playwright browser tests
 - All tests pass (`composer test`, `newman run`); `composer check:strict` clean
 - Feature documentation updated in `docs/` (ADR-010) with screenshot

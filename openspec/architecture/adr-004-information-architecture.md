@@ -23,7 +23,7 @@ StUF/ZGW/Digikoppeling via OpenConnector) and against Boardable/Diligent
 (government-grade compliance + Dutch standards out of the box).
 
 This ADR captures the cross-cutting IA design rules extracted from the
-fleet-wide IA proposal (`/tmp/ia-doc-dec-cat-conn.md`, decidesk section). It
+fleet-wide IA proposal (`/tmp/ia-doc-dec-cat-conn.md`, decidiq section). It
 exists to govern future spec placement decisions so that 34 specs today and 50
 specs tomorrow do not produce 50 nav items.
 

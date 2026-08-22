@@ -5,14 +5,14 @@ status: done
 # Specs: Motion and Voting — Core T3
 
 **Change:** p2-motion-and-voting-core-t3
-**App:** Decidesk
+**App:** Decidiq
 **Entities:** Motion, VotingRound, Vote, ActionItem
 
 ---
 
 ## Purpose
 
-This spec defines motion execution tracking, vote anonymisation, the quorum calculator, and written/circular resolution approval for Decidesk.
+This spec defines motion execution tracking, vote anonymisation, the quorum calculator, and written/circular resolution approval for Decidiq.
 
 # Requirements
 

@@ -2,13 +2,13 @@
 
 ## Context
 
-Proxy voting exists and works: member-initiated "Volmacht verlenen" with pre-open revocation (proxy-voting REQ-PRX-001/003), one proxy per delegate per round (REQ-PRX-002), proxy rows persisted on the unified `vote` schema with statuses `pending-approval/active/suspended/revoked` (`ProxyVoteService`, `SCHEMA = 'vote'`), a who-may-create/revoke guard (board-proxy-vote-authorization-guard REQ-BPV-001/002 on `ProxyVoteController`), and a single global cap `decidesk`/`max_proxies_per_holder` (default 2, fail closed — `ProxyVoteService::maxProxiesPerHolder()`). Two gaps: the volmacht has no signed instrument (nothing proves the absent member authorized it), and the cap cannot differ per body although statuten do. Constraints: thin client (ADR-022), register fragments (ADR-037, fragment number **63** assigned to this change; 40–62/64–65 belong to siblings), declarative-first (ADR-031), and mandatory reuse of the eIDAS/docudesk signing seam (REQ-DCDH-005, `EIDASSignatureService`/`IEIDASSignatureService` already in `lib/Service/`) and the Docudesk-with-honest-markdown-fallback pattern (`MinutesDocumentService`).
+Proxy voting exists and works: member-initiated "Volmacht verlenen" with pre-open revocation (proxy-voting REQ-PRX-001/003), one proxy per delegate per round (REQ-PRX-002), proxy rows persisted on the unified `vote` schema with statuses `pending-approval/active/suspended/revoked` (`ProxyVoteService`, `SCHEMA = 'vote'`), a who-may-create/revoke guard (board-proxy-vote-authorization-guard REQ-BPV-001/002 on `ProxyVoteController`), and a single global cap `decidiq`/`max_proxies_per_holder` (default 2, fail closed — `ProxyVoteService::maxProxiesPerHolder()`). Two gaps: the volmacht has no signed instrument (nothing proves the absent member authorized it), and the cap cannot differ per body although statuten do. Constraints: thin client (ADR-022), register fragments (ADR-037, fragment number **63** assigned to this change; 40–62/64–65 belong to siblings), declarative-first (ADR-031), and mandatory reuse of the eIDAS/docudesk signing seam (REQ-DCDH-005, `EIDASSignatureService`/`IEIDASSignatureService` already in `lib/Service/`) and the Docudesk-with-honest-markdown-fallback pattern (`MinutesDocumentService`).
 
 ## Goals / Non-Goals
 
 **Goals**: signed machtiging instrument attached to the proxy record; signature status visible wherever the proxy is used; per-body `requireSignedProxy` gate (default off = behaviour-identical upgrade); per-body `maxProxiesPerHolder` superseding the global config (global stays the fail-closed fallback); revocation as a signed timestamped act with REQ-PRX-003 effect semantics untouched; per-meeting proxy register attachable to minutes.
 
-**Non-Goals**: identity assurance levels (DigiD/eHerkenning), wet-specific volmacht texts, any change to ballot mechanics or to who may register/revoke proxies, a decidesk-owned signature engine.
+**Non-Goals**: identity assurance levels (DigiD/eHerkenning), wet-specific volmacht texts, any change to ballot mechanics or to who may register/revoke proxies, a decidiq-owned signature engine.
 
 ## Architecture Overview
 
@@ -28,7 +28,7 @@ The proxy row (unified `vote` schema) is ballot machinery: it is created/suspend
 
 Signing composes a docudesk `signingRequest` from the machtiging document with the grantor as signatory, selected via the ADR-019 integration registry, with openconnector's `e-sign` Source as fallback provider; the returned reference is stored as `signingReference`, and provider completion/refusal is resolved onto the instrument (`getekend`+`signedAt` / `geweigerd`) through the same resolution path the `EIDASSignatureService` seam already implements for signature stages. No provider → the instrument stays `ongetekend` with an honest notice — the app never marks signed on its own authority (the anti-signature-theatre contract, identical to REQ-DCDH-005's fail-closed clause). Countersign by the holder is the same flow with the holder as signatory, writing `countersignStatus`/`countersignedAt`.
 
-**Alternative considered:** a decidesk-local "click to confirm" pseudo-signature — rejected outright: REQ-DCDH-005 exists precisely so decidesk never grows its own signature engine, and a checkbox is not a machtiging under BW 2:38-style statuten clauses.
+**Alternative considered:** a decidiq-local "click to confirm" pseudo-signature — rejected outright: REQ-DCDH-005 exists precisely so decidiq never grows its own signature engine, and a checkbox is not a machtiging under BW 2:38-style statuten clauses.
 
 ### D3: Per-body values live on `ProcessTemplate.votingRule`, not on GovernanceBody
 
@@ -38,7 +38,7 @@ Signing composes a docudesk `signingRequest` from the machtiging document with t
 
 ### D4: Effective-cap resolution order and dual enforcement points
 
-Effective cap = body's assigned template `votingRule.maxProxiesPerHolder` (when set and ≥1) → global app config `decidesk`/`max_proxies_per_holder` → default 2. Resolution lives in one method used by both enforcement points: **registration** (existing `ProxyVoteService` cap check, which today reads only the global config) and **round open** (new `VotingService` check: any holder whose ACTIVE proxy count in the meeting exceeds the effective cap blocks the open, naming holder and excess — covers caps lowered after registration and template reassignment). Fail closed on every branch: unreadable template, config, or proxy rows → reject, mirroring the existing `maxProxiesPerHolder()` fail-closed contract. The voting-system global-cap scenarios stay true verbatim whenever no body value is set — stated as an explicit compatibility scenario (REQ-MPA-006), not assumed.
+Effective cap = body's assigned template `votingRule.maxProxiesPerHolder` (when set and ≥1) → global app config `decidiq`/`max_proxies_per_holder` → default 2. Resolution lives in one method used by both enforcement points: **registration** (existing `ProxyVoteService` cap check, which today reads only the global config) and **round open** (new `VotingService` check: any holder whose ACTIVE proxy count in the meeting exceeds the effective cap blocks the open, naming holder and excess — covers caps lowered after registration and template reassignment). Fail closed on every branch: unreadable template, config, or proxy rows → reject, mirroring the existing `maxProxiesPerHolder()` fail-closed contract. The voting-system global-cap scenarios stay true verbatim whenever no body value is set — stated as an explicit compatibility scenario (REQ-MPA-006), not assumed.
 
 **Alternative considered:** silent trimming of excess proxies at round open — rejected: destroys member intent without a decision-maker in the loop; the chair must resolve explicitly.
 
@@ -101,7 +101,7 @@ docs/features/member-proxy-authorization.md                 (new)
 
 ## Seed Data
 
-Realistic Dutch examples (ADR-016); references use existing decidesk seed objects (participants, meetings, the seed proxy row `stem-proxy-vandam-begroting` on the `vote` schema) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder resolved at import. All objects carry the `@self` envelope (`register: decidesk`, `schema: proxyAuthorization`, slug as below).
+Realistic Dutch examples (ADR-016); references use existing decidiq seed objects (participants, meetings, the seed proxy row `stem-proxy-vandam-begroting` on the `vote` schema) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder resolved at import. All objects carry the `@self` envelope (`register: decidesk`, `schema: proxyAuthorization`, slug as below).
 
 ### Schema: `proxyAuthorization` (fragment 63 seeds)
 
@@ -128,7 +128,7 @@ Object 1 completes the existing seed proxy vote with a fully signed + countersig
 
 ## Migration Plan
 
-1. Land fragment 63, the fragment-43 additive keys, the base-file `vote.authorizationRef` property, services, routes, manifest fragment, seeds, tests, docs in one decidesk PR (fragments are additive; the repair step / `ConfigurationService::importFromApp()` picks them up on upgrade).
+1. Land fragment 63, the fragment-43 additive keys, the base-file `vote.authorizationRef` property, services, routes, manifest fragment, seeds, tests, docs in one decidiq PR (fragments are additive; the repair step / `ConfigurationService::importFromApp()` picks them up on upgrade).
 2. Zero-configuration upgrade is behaviour-identical: no template carries the new keys, so the global cap stays authoritative and `requireSignedProxy` is off everywhere; existing proxy rows simply have no instrument (`authorizationRef` null) — instruments are created for proxies granted after the upgrade, and the register report labels pre-existing proxies honestly as "geen machtiging geregistreerd".
 3. Ordering: fragment 63 is disjoint from sibling fragments 40–62/64–65; the fragment-43 edit is additive keys only (no existing key touched), so concurrent sibling merges union cleanly — verified against the merge base at PR time.
 4. Rollback: revert the PR (see proposal Rollback Strategy) — no data migration in either direction.
@@ -144,5 +144,5 @@ Object 1 completes the existing seed proxy vote with a fully signed + countersig
 
 ## Open Questions
 
-- Whether the seam's completion resolution needs a decidesk-side callback route or the existing `EIDASSignatureService` resolution path covers instrument targets too — decided at apply time against the seam's actual extension surface.
+- Whether the seam's completion resolution needs a decidiq-side callback route or the existing `EIDASSignatureService` resolution path covers instrument targets too — decided at apply time against the seam's actual extension surface.
 - Whether countersign should become mandatory when `requireSignedProxy` is on (proposal Open Question) — provisionally optional.

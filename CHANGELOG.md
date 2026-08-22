@@ -99,7 +99,7 @@ All notable changes to Decidiq are documented in this file.
     returns a structured `{isError, error: 'forbidden'}` envelope on denial.
   - Every success path carries a mandatory `sources` citation array (deep links),
     capped at 20 with `sourcesTruncated` / `sourcesTotalCount` markers.
-  - Registered via `registerServiceAlias('OCA\OpenRegister\Mcp\IMcpToolProvider::decidesk', …)`
+  - Registered via `registerServiceAlias('OCA\OpenRegister\Mcp\IMcpToolProvider::decidiq', …)`
     so OpenRegister's `McpToolsService` discovers it.
   - Consumes existing decidiq services (MeetingService, TaskService, ParticipantResolver)
     and OpenRegister's `ObjectService` (ADR-022/ADR-001) — no new schemas, endpoints,

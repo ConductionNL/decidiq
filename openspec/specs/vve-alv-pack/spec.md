@@ -10,7 +10,7 @@ schema, non-destructively. `VveConfiguration` and `KascommissieVerklaring`
 (the rest of REQ-VVE-001) are unaffected in shape; only
 `VveConfiguration.modelRegulation` is retargeted from a
 `ModelreglementPreset` reference to a plain version enum, since the schema it
-referenced is superseded. Note (2026-08-19, decidesk `refactor/back-to-six`
+referenced is superseded. Note (2026-08-19, decidiq `refactor/back-to-six`
 programme): as of this delta, `vve-alv-pack` remains `Status: planned` and
 unarchived, and grep confirms `VveDecisionTemplate`, `ModelreglementPreset`,
 `VveConfiguration` have zero PHP/Vue consumers today — this delta is a

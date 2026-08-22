@@ -2,28 +2,28 @@
 
 ## Context
 
-The decidesk platform aims to disintermediate municipal political decision-making by exposing vendor-controlled data (NOTUBIZ/iBabs) through an open data model. The sync layer bridges proprietary systems and open standards without requiring immediate vendor exit — incremental migration over 2–5 years.
+The decidiq platform aims to disintermediate municipal political decision-making by exposing vendor-controlled data (NOTUBIZ/iBabs) through an open data model. The sync layer bridges proprietary systems and open standards without requiring immediate vendor exit — incremental migration over 2–5 years.
 
 **Current state:**
 
-- Decidesk schemas (`Meeting`, `AgendaItem`, `Person`, `Motion`, `Vote`, `Decision`, etc.) are defined in ADR-000 and map to Popolo standard.
+- Decidiq schemas (`Meeting`, `AgendaItem`, `Person`, `Motion`, `Vote`, `Decision`, etc.) are defined in ADR-000 and map to Popolo standard.
 - No external sync layer exists today.
 - OpenRegister provides `ObjectService`, `RelationService`, `AuditTrailService`, file attachment, schema management, and webhook support.
 - OpenConnector provides app hosting, cron scheduling, background job runner, and webhook receiver framework.
 
 **Stakeholders:**
 
-- **Decidesk team** — owns the canonical data model; sync populates it.
+- **Decidiq team** — owns the canonical data model; sync populates it.
 - **OpenConnector team** — hosts the adapters; owns sync orchestration, job runner, webhook dispatch.
 - **OpenRegister team** — provides platform services (ObjectService, audit trails, permissions).
 - **Griffies** (primary users) — stay in NOTUBIZ/iBabs for official workflows; get real-time open-data mirror.
-- **Raadsleden** — use decidesk for better UX; changes in decidesk don't disrupt official workflow.
+- **Raadsleden** — use decidiq for better UX; changes in decidiq don't disrupt official workflow.
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-1. Ship full bidirectional sync: pull all governance objects from NOTUBIZ/iBabs every 15 min (cron) or on webhook (iBabs); push decidesk changes to provider for writable fields.
+1. Ship full bidirectional sync: pull all governance objects from NOTUBIZ/iBabs every 15 min (cron) or on webhook (iBabs); push decidiq changes to provider for writable fields.
 2. Detect and surface conflicts when same field edited locally + externally since last sync, requiring manual resolution.
 3. Sync per-fraction role data (fractievoorzitter, portefeuilles, woordvoerderschappen) with succession handling.
 4. Sync voting with full per-person breakdown (hoofdelijke stemming, fractie-stemming).
@@ -47,8 +47,8 @@ The decidesk platform aims to disintermediate municipal political decision-makin
 
 **Alternatives considered:**
 
-- Per-type join tables (ExternalMeetingId, ExternalPersonId, etc.) — matches traditional SQL join pattern but becomes unmaintainable with 12+ decidesk object types.
-- Inline vendor fields directly in decidesk schemas (e.g., `meeting.notubizId`, `meeting.ibabsId`) — tight coupling, hard to add third provider.
+- Per-type join tables (ExternalMeetingId, ExternalPersonId, etc.) — matches traditional SQL join pattern but becomes unmaintainable with 12+ decidiq object types.
+- Inline vendor fields directly in decidiq schemas (e.g., `meeting.notubizId`, `meeting.ibabsId`) — tight coupling, hard to add third provider.
 
 **Why polymorph:** Single index structure `(localObjectType, localObjectId, provider)` covers all 12 types; unique constraint `(provider, externalId)` prevents duplicate imports; clean separation of concern (sync metadata lives in sync register, not domain schemas).
 
@@ -59,7 +59,7 @@ The decidesk platform aims to disintermediate municipal political decision-makin
 **Alternatives considered:**
 
 - Automatic CRDT merge on text fields (e.g., `motie.text`) — unsafe for legal documents; auto-merge can produce juridically incorrect content.
-- Always prefer external (provider-of-truth) — loses decidesk-user edits; violates data integrity.
+- Always prefer external (provider-of-truth) — loses decidiq-user edits; violates data integrity.
 - Per-field conflict strategy (auto-merge for safe fields like `location`, manual for risky like `motie.text`) — complex config, fragile.
 
 **Why last-writer-wins + conflict flag:** Motie text, besluit formulering, etc. are legal documents; automatic merge is a liability. For low-risk fields (`location`, `email`), conflict rate is low and manual resolution is acceptable. Griffier gets a clear UI showing both values + who changed when.
@@ -70,10 +70,10 @@ The decidesk platform aims to disintermediate municipal political decision-makin
 
 **Alternatives considered:**
 
-- Always bidirectional (push by default) — risks corrupting official agenda if decidesk has bugs.
+- Always bidirectional (push by default) — risks corrupting official agenda if decidiq has bugs.
 - Separate "read-only" and "sync-back" instances — duplicate infrastructure; confusing for users.
 
-**Why opt-in push:** Griffie is the authority for official workflow. Decidesk is initially a mirror. Push introduces risk (bad data back to vendor); enable only when org is confident. Writable-field allowlist prevents accidental write to read-only provider fields (e.g., `Stemming.uitslag` in NOTUBIZ is never writable).
+**Why opt-in push:** Griffie is the authority for official workflow. Decidiq is initially a mirror. Push introduces risk (bad data back to vendor); enable only when org is confident. Writable-field allowlist prevents accidental write to read-only provider fields (e.g., `Stemming.uitslag` in NOTUBIZ is never writable).
 
 ### D4: Schemas in decidesk-sync register, not domain registers
 
@@ -84,7 +84,7 @@ The decidesk platform aims to disintermediate municipal political decision-makin
 - Embed sync metadata directly in domain schemas (`meeting.externalId`, `meeting.externalEtag`) — pollutes domain model; makes sync optional/optional.
 - Separate app per adapter (notubiz-app, ibabs-app) — prevents unified sync engine.
 
-**Why separate register:** Sync is a technical layer, not a domain concern. Domain schemas remain clean. Separation of concerns: openconnector owns sync; decidesk owns governance model. FK relations make it clear when an object is sync-bound.
+**Why separate register:** Sync is a technical layer, not a domain concern. Domain schemas remain clean. Separation of concerns: openconnector owns sync; decidiq owns governance model. FK relations make it clear when an object is sync-bound.
 
 ### D5: Webhook-first for iBabs, cron-fallback for NOTUBIZ
 
@@ -272,17 +272,17 @@ No duplication; all new code is justified.
 |---|---|
 | **R1 — Vendor API contract breakage.** NOTUBIZ/iBabs can introduce breaking changes with short notice (API versioning, endpoint removal, field removal, format changes). | Daily contract tests against sandbox endpoints; alert if test fails; feature flags per provider version in adapter code; ADR-specific version pinning in openconnector config. |
 | **R2 — Performance at large gemeenten.** Amsterdam: 45 raadsleden, 18 commissies/maand, 3–4 meetings/week → 10K+ sync events/day; 1GB+ of documents/month. | Per-organization sharding of sync jobs (each gemeente's sync runs on dedicated pool); rate-limit awareness (token-bucket per provider); bulk endpoints preferred over per-object GETs; document streaming not memory-loaded. |
-| **R3 — Conflict explosion during dual-editing.** Griffier edits meeting in NOTUBIZ while decidesk-user edits same meeting in decidesk → conflicts pile up; griffier's queue becomes unmanageable. | UI field-locking hints ("this field is being edited in NOTUBIZ now"); SSE push of external changes for reactive UI; conflict-quota alert when >10 conflicts/week per org. |
-| **R4 — Push-back corrupts official workflow.** Bad data pushed back to NOTUBIZ (due to decidesk bug or misconfiguration) alters the official agenda, damaging griffie credibility. | Push default OFF per org; per-(org, provider, objecttype, field) granular enable switch; dry-run mode (mock pushes logged for 7 days before actual write); push limited to non-governance-critical fields (titles, descriptions); never touch `Stemming.uitslag` or `Besluit.tekst` without explicit org policy. |
+| **R3 — Conflict explosion during dual-editing.** Griffier edits meeting in NOTUBIZ while decidiq-user edits same meeting in decidiq → conflicts pile up; griffier's queue becomes unmanageable. | UI field-locking hints ("this field is being edited in NOTUBIZ now"); SSE push of external changes for reactive UI; conflict-quota alert when >10 conflicts/week per org. |
+| **R4 — Push-back corrupts official workflow.** Bad data pushed back to NOTUBIZ (due to decidiq bug or misconfiguration) alters the official agenda, damaging griffie credibility. | Push default OFF per org; per-(org, provider, objecttype, field) granular enable switch; dry-run mode (mock pushes logged for 7 days before actual write); push limited to non-governance-critical fields (titles, descriptions); never touch `Stemming.uitslag` or `Besluit.tekst` without explicit org policy. |
 | **R5 — LLM spoofing persons in chat companion.** Future AI Chat integration: LLM invents a realistic-sounding name for person creating action item → collides with real raadslid, causing confusion. | Action-item creation by chat uses explicit person UUID lookup (not free-text name input); no free-text person creation in sync; schema validation prevents invalid person FK. |
-| **R6 — Sync latency masking real-time changes.** Griffier makes change at 10:00 in NOTUBIZ; cron at 10:15 pulls it; user in decidesk doesn't see it until 10:15 → appears stale. | 15-min pull frequency is acceptable for governance data. If iBabs, webhook reduces to 60s. For NOTUBIZ, document roadmap item: webhook support. UI shows "last synced at X" timestamp. |
+| **R6 — Sync latency masking real-time changes.** Griffier makes change at 10:00 in NOTUBIZ; cron at 10:15 pulls it; user in decidiq doesn't see it until 10:15 → appears stale. | 15-min pull frequency is acceptable for governance data. If iBabs, webhook reduces to 60s. For NOTUBIZ, document roadmap item: webhook support. UI shows "last synced at X" timestamp. |
 
 ## Migration Plan
 
 **Forward path:**
 
 1. Add `decidesk_sync_register.json` with 4 schemas + seed data to openconnector.
-2. Add `ExternalIdentifier` FK relation to decidesk domain schemas in `decidesk_register.json` (backwards-compatible; no data migration).
+2. Add `ExternalIdentifier` FK relation to decidiq domain schemas in `decidesk_register.json` (backwards-compatible; no data migration).
 3. Implement NOTUBIZ adapter as new openconnector app.
 4. Implement iBabs adapter as new openconnector app.
 5. Implement SyncService orchestration in openconnector/lib/Service/SyncService.
@@ -292,7 +292,7 @@ No duplication; all new code is justified.
 9. Gather feedback; iterate.
 10. Expand to production.
 
-**No breaking changes to decidesk.** Domain schemas are only extended with optional `externalIdentifier` FK; existing objects unaffected.
+**No breaking changes to decidiq.** Domain schemas are only extended with optional `externalIdentifier` FK; existing objects unaffected.
 
 **Rollback:** Disable adapters in openconnector config; sync stops. All data remains (no deletion). Can re-enable later.
 

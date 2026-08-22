@@ -296,22 +296,22 @@ The system MUST provide the n8n-webhook-events capability as specified by the RE
 ---
 
 ### Requirement: REQ-N8N-001 — Governance event publication via CloudEvents
-The system SHALL publish the following governance domain events using OpenRegister's `WebhookService` in CloudEvents RFC 9547 format. Each event SHALL include `source` (`/decidiq/{governanceBodyUuid}`), `type` (`nl.decidiq.{eventName}`), `specversion: "1.0"`, `id` (UUID), `time` (ISO 8601), and `data` containing the serialized entity.
+The system SHALL publish the following governance domain events using OpenRegister's `WebhookService` in CloudEvents RFC 9547 format. Each event SHALL include `source` (`/decidesk/{governanceBodyUuid}`), `type` (`nl.decidesk.{eventName}`), `specversion: "1.0"`, `id` (UUID), `time` (ISO 8601), and `data` containing the serialized entity.
 
 **Governance events:**
-- `nl.decidiq.meeting.scheduled` — Meeting created or `scheduledDate` changed
-- `nl.decidiq.meeting.lifecycle-changed` — Meeting lifecycle state transition
-- `nl.decidiq.motion.submitted` — Motion created
-- `nl.decidiq.votinground.opened` — VotingRound `openedAt` set
-- `nl.decidiq.votinground.closed` — VotingRound `closedAt` set
-- `nl.decidiq.motion.adopted` — Decision outcome `adopted`
-- `nl.decidiq.motion.rejected` — Decision outcome `rejected`
-- `nl.decidiq.actionitem.created` — ActionItem created
-- `nl.decidiq.actionitem.completed` — ActionItem `taskStatus` changed to `completed`
+- `nl.decidesk.meeting.scheduled` — Meeting created or `scheduledDate` changed
+- `nl.decidesk.meeting.lifecycle-changed` — Meeting lifecycle state transition
+- `nl.decidesk.motion.submitted` — Motion created
+- `nl.decidesk.votinground.opened` — VotingRound `openedAt` set
+- `nl.decidesk.votinground.closed` — VotingRound `closedAt` set
+- `nl.decidesk.motion.adopted` — Decision outcome `adopted`
+- `nl.decidesk.motion.rejected` — Decision outcome `rejected`
+- `nl.decidesk.actionitem.created` — ActionItem created
+- `nl.decidesk.actionitem.completed` — ActionItem `taskStatus` changed to `completed`
 
 #### Scenario: Motion adopted event dispatched
 - **WHEN** a Motion's lifecycle changes to `adopted`
-- **THEN** a CloudEvent with `type = "nl.decidiq.motion.adopted"` SHALL be dispatched to all subscribed webhook endpoints
+- **THEN** a CloudEvent with `type = "nl.decidesk.motion.adopted"` SHALL be dispatched to all subscribed webhook endpoints
 - **THEN** the event `data` SHALL include the Motion UUID, title, votingRound result, and adopting GovernanceBody UUID
 
 #### Scenario: CloudEvents envelope structure
@@ -342,11 +342,11 @@ The system SHALL provide an admin UI at Settings → Decidiq → Webhooks to con
 ---
 
 ### Requirement: REQ-N8N-003 — Webhook HMAC signing
-When an HMAC signing secret is configured for a webhook endpoint, the system SHALL include an `X-Decidiq-Signature-256` header with the HMAC-SHA256 signature of the request body. This allows the receiving system (n8n) to verify event authenticity.
+When an HMAC signing secret is configured for a webhook endpoint, the system SHALL include an `X-Decidesk-Signature-256` header with the HMAC-SHA256 signature of the request body. This allows the receiving system (n8n) to verify event authenticity.
 
 #### Scenario: HMAC signature header present
 - **WHEN** a governance event is dispatched to an endpoint with a configured HMAC secret
-- **THEN** the HTTP request SHALL include `X-Decidiq-Signature-256: sha256={hex-digest}`
+- **THEN** the HTTP request SHALL include `X-Decidesk-Signature-256: sha256={hex-digest}`
 
 ---
 
@@ -369,7 +369,7 @@ The system SHALL support webhook subscriptions via the OpenConnector protocol fo
 - **THEN** the request SHALL include the `Content-Type: application/cloudevents+json` header
 
 #### Scenario: OpenConnector and n8n endpoints coexist
-- **WHEN** both an n8n and an OpenConnector endpoint are subscribed to `nl.decidiq.motion.adopted`
+- **WHEN** both an n8n and an OpenConnector endpoint are subscribed to `nl.decidesk.motion.adopted`
 - **THEN** both endpoints SHALL receive the event independently
 
 ---

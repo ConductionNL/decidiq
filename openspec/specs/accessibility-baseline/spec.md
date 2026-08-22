@@ -5,7 +5,7 @@ status: done
 # accessibility-baseline Specification
 
 ## Purpose
-Establishes a WCAG 2.1 accessibility baseline across every Decidesk page. Each page carries a single H1, a skip-navigation link, standard ARIA landmarks, and fully keyboard-operable interactive elements, while all user-visible strings are routed through translation wrappers.
+Establishes a WCAG 2.1 accessibility baseline across every Decidiq page. Each page carries a single H1, a skip-navigation link, standard ARIA landmarks, and fully keyboard-operable interactive elements, while all user-visible strings are routed through translation wrappers.
 
 ## Requirements
 
@@ -39,7 +39,7 @@ Every page SHALL include a visually hidden "Sla navigatie over" skip link as the
 Every page SHALL include the following ARIA landmark roles: `banner` (app header), `navigation` (MainMenu), `main` (NcAppContent), and `contentinfo` (footer if present). These SHALL be provided by the Nextcloud/conduction component wrappers and SHALL NOT require custom ARIA attributes in app components unless the wrappers are absent.
 
 #### Scenario: Landmark roles present
-- **WHEN** any Decidesk page is rendered
+- **WHEN** any Decidiq page is rendered
 - **THEN** a screen reader can navigate by landmarks to `navigation`, `main`, and `banner`
 
 ---

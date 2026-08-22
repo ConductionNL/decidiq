@@ -6,7 +6,7 @@ kind: code
 
 ## Summary
 
-Add shared governance bodies (gemeenschappelijke regelingen per Wgr, joint committees, federaties) to decidesk: a `BodyParticipation` register that links a shared GovernanceBody to the member GovernanceBodies participating in it (with per-participant seats, voting weight, and toetreding/uittreding dates), membership provenance so a person's Membership in the shared body records namens which participating organisation they sit, and the core Wgr workflow — the zienswijzeprocedure: the shared body opens a zienswijzeronde on a document or decision (e.g. de ontwerpbegroting van de GR), every participating organisation receives it with a tracked deadline, records its zienswijze (standpunt + response document), and the shared body sees the aggregated zienswijzen overview and records how each was processed. Delivered as a `lib/Settings/register.d/56-shared-governance-bodies.json` schema fragment plus manifest pages, with declarative lifecycles (`x-openregister-lifecycle`), declarative deadline rappels (`x-openregister-notifications`, the toezeggingen-register pattern), and a dashboard KPI for open zienswijzen. Weighted voting inside the shared body reuses the existing Membership `votingWeight` machinery (meeting-attendees REQ-MAT-006) — no new voting mechanics.
+Add shared governance bodies (gemeenschappelijke regelingen per Wgr, joint committees, federaties) to decidiq: a `BodyParticipation` register that links a shared GovernanceBody to the member GovernanceBodies participating in it (with per-participant seats, voting weight, and toetreding/uittreding dates), membership provenance so a person's Membership in the shared body records namens which participating organisation they sit, and the core Wgr workflow — the zienswijzeprocedure: the shared body opens a zienswijzeronde on a document or decision (e.g. de ontwerpbegroting van de GR), every participating organisation receives it with a tracked deadline, records its zienswijze (standpunt + response document), and the shared body sees the aggregated zienswijzen overview and records how each was processed. Delivered as a `lib/Settings/register.d/56-shared-governance-bodies.json` schema fragment plus manifest pages, with declarative lifecycles (`x-openregister-lifecycle`), declarative deadline rappels (`x-openregister-notifications`, the toezeggingen-register pattern), and a dashboard KPI for open zienswijzen. Weighted voting inside the shared body reuses the existing Membership `votingWeight` machinery (meeting-attendees REQ-MAT-006) — no new voting mechanics.
 
 ## Motivation
 
@@ -14,7 +14,7 @@ A novelty sweep of the active specs and changes (2026-07-17) confirms Governance
 
 ## Affected Projects
 
-- [ ] Project: `decidesk` — new `BodyParticipation`, `Zienswijzeronde`, and `Zienswijze` schemas (register.d fragment 56), additive base-register edits (`shared-body` value on the GovernanceBody `bodyType` enum + optional `namens` provenance property on Membership), manifest pages + menu (manifest.d fragment), participation section on the GovernanceBody detail page, one dashboard KPI widget, a small zienswijze-generation service action, seed data, docs, tests.
+- [ ] Project: `decidiq` — new `BodyParticipation`, `Zienswijzeronde`, and `Zienswijze` schemas (register.d fragment 56), additive base-register edits (`shared-body` value on the GovernanceBody `bodyType` enum + optional `namens` provenance property on Membership), manifest pages + menu (manifest.d fragment), participation section on the GovernanceBody detail page, one dashboard KPI widget, a small zienswijze-generation service action, seed data, docs, tests.
 
 No other apps change. OpenRegister is consumed as-is (lifecycle, notifications, relations are existing capabilities). All participating organisations share one Nextcloud instance in this change.
 
@@ -44,7 +44,7 @@ Pure thin-client extension per ADR-022/ADR-037: three new schemas shipped as `li
 
 ## New Dependencies
 
-None. All capabilities used (lifecycle, notifications, relations, manifest pages/widgets) already exist in OpenRegister, nc-vue, and decidesk.
+None. All capabilities used (lifecycle, notifications, relations, manifest pages/widgets) already exist in OpenRegister, nc-vue, and decidiq.
 
 ## Impact
 
@@ -57,7 +57,7 @@ None. All capabilities used (lifecycle, notifications, relations, manifest pages
 
 ## Cross-Project Dependencies
 
-- `pc-cyclus` (sibling decidesk change, in flight): a Zienswijzeronde optionally links to a `CyclusStap` (the GR ontwerpbegroting behandeling). The reference is soft — a nullable reference field; the ronde works standalone if that change lands later. Not declared in `depends_on` to keep the two changes independently archivable.
+- `pc-cyclus` (sibling decidiq change, in flight): a Zienswijzeronde optionally links to a `CyclusStap` (the GR ontwerpbegroting behandeling). The reference is soft — a nullable reference field; the ronde works standalone if that change lands later. Not declared in `depends_on` to keep the two changes independently archivable.
 - `works-council-consultation` (sibling): both changes make additive edits to the same GovernanceBody `bodyType` enum in `decidesk_register.json` — union merge on conflict, never dropping a sibling's value.
 - `toezeggingen-ingekomen-stukken` (sibling/landed): the deadline/rappel notification dialect is reused as a pattern, not a dependency.
 - OpenRegister: consumed, not changed.

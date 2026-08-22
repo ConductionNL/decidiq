@@ -1,13 +1,13 @@
 # inspraak-register Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - [inspreekrecht-plenair](../../changes/inspreekrecht-plenair/)
 
 ## Purpose
 
-One canonical, meeting-generic inspraak registration record for every meeting type whose governance body enables speaking rights — plenary raadsvergaderingen, ALVs, board meetings with public sessions, and (via adoption) commissievergaderingen. Generalizes the `InspraakAanmelding` defined by the `commissievergaderingen` change (REQ-CVG-009): same privacy field split (contactgegevens internal, onderwerp public), same status enum, but anchored on a generic `meeting` reference and governed by a per-body `inspraak-beleid` policy object. The public FORM stays with portaliq/`portal-contribution`; decidesk owns the API, moderation, and the record.
+One canonical, meeting-generic inspraak registration record for every meeting type whose governance body enables speaking rights — plenary raadsvergaderingen, ALVs, board meetings with public sessions, and (via adoption) commissievergaderingen. Generalizes the `InspraakAanmelding` defined by the `commissievergaderingen` change (REQ-CVG-009): same privacy field split (contactgegevens internal, onderwerp public), same status enum, but anchored on a generic `meeting` reference and governed by a per-body `inspraak-beleid` policy object. The public FORM stays with portaliq/`portal-contribution`; decidiq owns the API, moderation, and the record.
 
 ## ADDED Requirements
 
@@ -18,14 +18,14 @@ The system SHALL define an `inspraak-aanmelding` schema in the decidesk register
 #### Scenario: Citizen registers to speak on a plenary agenda item
 
 - GIVEN a governance body with an `inspraak-beleid` object with `inspraakMogelijk: true` and `niveau: per-agendapunt`, and an upcoming raadsvergadering with a published agenda
-- WHEN a registration is submitted via the decidesk API with contactgegevens, onderwerp fields, the meeting, and an agenda item
+- WHEN a registration is submitted via the decidiq API with contactgegevens, onderwerp fields, the meeting, and an agenda item
 - THEN an `inspraak-aanmelding` object is created in the decidesk register with status `aangemeld`
 - AND the object validates against the schema (missing sprekerNaam, onderwerpTekst, meeting, or governanceBody is rejected by OpenRegister)
 
 #### Scenario: Register fragment is additive
 
 @e2e exclude register-config contract — covered by PHPUnit on ConfigurationService import, not a UI flow
-- GIVEN a decidesk installation upgrading to this change
+- GIVEN a decidiq installation upgrading to this change
 - WHEN the register configuration is loaded
 - THEN the `inspraak-aanmelding` and `inspraak-beleid` schemas are registered from fragment 64
 - AND no existing schema in `decidesk_register.json` is modified

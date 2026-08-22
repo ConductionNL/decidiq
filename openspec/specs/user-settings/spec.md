@@ -7,7 +7,7 @@ status-note: completed 2026-06-12 via user-settings-v1 — all 4 requirements bu
 
 ## Purpose
 
-User settings allow individual Decidesk users to configure their personal preferences for notifications, display, and participation. These settings control how and when users receive alerts about meetings, votes, and decisions, as well as display preferences for the dashboard and meeting interface.
+User settings allow individual Decidiq users to configure their personal preferences for notifications, display, and participation. These settings control how and when users receive alerts about meetings, votes, and decisions, as well as display preferences for the dashboard and meeting interface.
 
 **Standards**: Nextcloud Settings API (`OCP\Settings\ISettings`), Nextcloud Notification API
 **Feature tier**: MVP
@@ -17,13 +17,13 @@ User settings allow individual Decidesk users to configure their personal prefer
 
 ### Requirement: Notification Preferences
 
-The system MUST allow users to configure their notification preferences for Decidesk events. Users MUST be able to enable or disable notifications per event type and choose delivery channels (Nextcloud notification, email, or both).
+The system MUST allow users to configure their notification preferences for Decidiq events. Users MUST be able to enable or disable notifications per event type and choose delivery channels (Nextcloud notification, email, or both).
 
 **Feature tier**: MVP
 
 #### Scenario: Configure vote notification preferences
 
-- GIVEN a user in their Decidesk personal settings
+- GIVEN a user in their Decidiq personal settings
 - WHEN they enable "Pending vote" notifications via both Nextcloud notification and email
 - THEN the user MUST receive a Nextcloud notification AND an email when a new vote is initiated in their body
 - AND the notification MUST include the decision title, body, and voting deadline
@@ -32,7 +32,7 @@ The system MUST allow users to configure their notification preferences for Deci
 
 - GIVEN a user who prefers to use their calendar for reminders
 - WHEN they disable "Meeting reminder" notifications
-- THEN the user MUST NOT receive Decidesk meeting reminders
+- THEN the user MUST NOT receive Decidiq meeting reminders
 - AND calendar events (if synced) MUST still have their own reminders
 
 #### Scenario: Configure notification timing for meeting reminders
@@ -46,7 +46,7 @@ The system MUST allow users to configure their notification preferences for Deci
 
 ### Requirement: Display Preferences
 
-The system MUST allow users to configure display preferences for the Decidesk interface including: default view (dashboard, meetings, decisions), items per page in list views, date/time format, and preferred language.
+The system MUST allow users to configure display preferences for the Decidiq interface including: default view (dashboard, meetings, decisions), items per page in list views, date/time format, and preferred language.
 
 **Feature tier**: MVP
 
@@ -54,13 +54,13 @@ The system MUST allow users to configure display preferences for the Decidesk in
 
 - GIVEN a secretary who primarily works with meetings
 - WHEN they set their default view to "Meetings"
-- THEN opening Decidesk MUST navigate directly to the meetings list instead of the dashboard
+- THEN opening Decidiq MUST navigate directly to the meetings list instead of the dashboard
 
 #### Scenario: Configure date format preference
 
 - GIVEN a user who prefers DD-MM-YYYY format
 - WHEN they set date format to "DD-MM-YYYY"
-- THEN all dates in the Decidesk interface MUST use this format
+- THEN all dates in the Decidiq interface MUST use this format
 - AND the default MUST follow the Nextcloud locale setting
 
 ---
@@ -75,13 +75,13 @@ The system MUST allow users to configure a delegate who receives their notificat
 
 - GIVEN a board member going on vacation from 2026-07-01 to 2026-07-14
 - WHEN they configure member B as their delegate for that period
-- THEN member B MUST receive all of member A's Decidesk notifications during the period
+- THEN member B MUST receive all of member A's Decidiq notifications during the period
 - AND member B MUST be able to view member A's pending votes and action items
 - AND the delegation MUST expire automatically on 2026-07-14
 
 #### Scenario: Delegate cannot vote without explicit proxy
 
-@e2e exclude server-side voting guard inside VotingService::castVote; requires a seeded two-member voting round with an active absence delegation, which has no deterministic UI fixture — verified by PHPUnit (VotingServiceDelegationGateTest) and the Newman cast-vote negative request in decidesk-user-settings.postman_collection.json
+@e2e exclude server-side voting guard inside VotingService::castVote; requires a seeded two-member voting round with an active absence delegation, which has no deterministic UI fixture — verified by PHPUnit (VotingServiceDelegationGateTest) and the Newman cast-vote negative request in decidiq-user-settings.postman_collection.json
 
 - GIVEN member B is a delegate for member A during absence
 - WHEN member B attempts to cast a vote on member A's behalf
@@ -100,7 +100,7 @@ The system MUST allow users to set their preferred communication channel for gov
 
 - GIVEN a member with both personal and work email addresses
 - WHEN they set their governance communication email to their work address
-- THEN all Decidesk-related emails (convocations, minutes, reminders) MUST be sent to the work address
+- THEN all Decidiq-related emails (convocations, minutes, reminders) MUST be sent to the work address
 - AND the default MUST be the Nextcloud account email
 
 ## User Stories

@@ -6,20 +6,20 @@
 ## Implementation
 
 - [x] Ship the plain, dependency-free provider class `lib/Portal/PortalContributionProvider.php`
-  - Namespace `OCA\Decidesk\Portal`; no `use` of any portaliq symbol; no `implements`; no constructor; no info.xml dependency; repo-standard EUPL-1.2/SPDX docblock + `@spec` tags.
+  - Namespace `OCA\Decidiq\Portal`; no `use` of any portaliq symbol; no `implements`; no constructor; no info.xml dependency; repo-standard EUPL-1.2/SPDX docblock + `@spec` tags.
   - Not registered in `lib/AppInfo/Application.php` — discovery is pull-based by FQCN from portaliq.
 
 - [x] Implement the v2 + v1 audience contract
   - `getAudiences()` returns `['citizen']`; `getAudience()` returns `'citizen'`; `getContribution()` returns `null` for any other/absent audience (fail-closed).
 
-- [x] Declare the `citizen` read manifest over register `decidesk`
+- [x] Declare the `citizen` read manifest over register `decidiq`
   - `citizenReactions` (`consultation-reaction`, `scopeField: submitterId`), `citizenVotes` (`citizen-vote`, `scopeField: voterId`), `citizenBudgetProposals` (`budget-proposal`, `scopeField: submitter`) — all default subjectRef scope (no `scopeClaim`), `minTrust: low`, listable, each with its documented `fields` whitelist.
 
 - [x] Declare the `citizenNotifications` inbox collection
   - `notification`, `scopeField: recipientId`, `kind: 'inbox'`, `minTrust: low`, listable, projected to `type`/`subject`/`content`/`channel`/`status`/`sentAt`/`readAt`.
 
 - [x] Keep this wave read-only and document the deferrals
-  - `actions` and manifest-level `notifications` empty; both creates deferred (parent-relation link has no writable scalar property); public consultation/results lists deferred (not per-subject) — all recorded on Conduction/decidesk#113 in design.md.
+  - `actions` and manifest-level `notifications` empty; both creates deferred (parent-relation link has no writable scalar property); public consultation/results lists deferred (not per-subject) — all recorded on Conduction/decidiq#113 in design.md.
 
 - [x] Unit-test the full provider contract (`tests/Unit/Portal/PortalContributionProviderTest.php`)
   - Direct construction (no mocks/container); pins audiences, fail-closed null, the four collections, default subjectRef scoping (no `scopeClaim`/`via`), the inbox `kind`, field whitelists and forbidden exclusions.

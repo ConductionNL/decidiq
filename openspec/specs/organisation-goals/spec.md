@@ -5,7 +5,7 @@ status: done
 # organisation-goals Specification
 
 **Status**: done
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - organisation-goals (archived) — Organisation Goals capability (Goal schema, owner/body linkage, progress rollup from Toezegging/ActionItem, ISO 9001 §6.2 alignment)
 

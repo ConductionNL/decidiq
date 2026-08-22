@@ -1,4 +1,4 @@
-# Specs — Decidesk Fractievoorzitter en Fractie Koppeling
+# Specs — Decidiq Fractievoorzitter en Fractie Koppeling
 
 ## Requirements
 

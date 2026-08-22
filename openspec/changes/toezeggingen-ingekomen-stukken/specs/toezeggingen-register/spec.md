@@ -1,7 +1,7 @@
 # toezeggingen-register Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - [toezeggingen-ingekomen-stukken](../../changes/toezeggingen-ingekomen-stukken/)
 
@@ -24,7 +24,7 @@ The system SHALL define a `Toezegging` schema in the decidesk register (via a `l
 
 #### Scenario: Register fragment is additive
 
-- GIVEN a decidesk installation upgrading to this change
+- GIVEN a decidiq installation upgrading to this change
 - WHEN the register configuration is loaded
 - THEN the Toezegging schema is registered from the register.d fragment
 - AND no existing schema in `decidesk_register.json` is modified

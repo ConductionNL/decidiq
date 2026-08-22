@@ -7,15 +7,15 @@ depends_on: [toezeggingen-ingekomen-stukken, motie-amendement-administratie]
 
 ## Summary
 
-Add a Termijnagenda (long-term agenda / LTA) to decidesk: the forward-planning register of upcoming proposals and topics per governance body, jointly maintained by griffie and college. Each item records what is expected (raadsvoorstel, raadsinformatiebrief, themabijeenkomst, begrotingsstuk), for which body, in which planned period (month or quarter), who owns it, and where it came from (toezegging, motie, or earlier decision). Items move through a declarative lifecycle `gepland → verschoven → gerealiseerd | vervallen` with a mandatory reason and a preserved shift history on every reschedule. The register gets a per-body board view grouped by period with drag-to-reschedule, a list view with CSV export, declarative rappel notifications to owners when a planned period arrives without a linked agenda item, public publication via the existing OR published-predicate machinery, and a dashboard KPI for overdue items.
+Add a Termijnagenda (long-term agenda / LTA) to decidiq: the forward-planning register of upcoming proposals and topics per governance body, jointly maintained by griffie and college. Each item records what is expected (raadsvoorstel, raadsinformatiebrief, themabijeenkomst, begrotingsstuk), for which body, in which planned period (month or quarter), who owns it, and where it came from (toezegging, motie, or earlier decision). Items move through a declarative lifecycle `gepland → verschoven → gerealiseerd | vervallen` with a mandatory reason and a preserved shift history on every reschedule. The register gets a per-body board view grouped by period with drag-to-reschedule, a list view with CSV export, declarative rappel notifications to owners when a planned period arrives without a linked agenda item, public publication via the existing OR published-predicate machinery, and a dashboard KPI for overdue items.
 
 ## Motivation
 
-The termijnagenda is the classic griffie planning instrument that every Dutch raadsinformatiesysteem ships (iBabs LTA, NotuBiz bestuurlijke planning): without it, griffies plan the council's forward calendar in Excel next to decidesk, and the accountability chain breaks — toezeggingen and moties promise future proposals, but nothing tracks whether those proposals actually arrive in the period the college promised. Novelty was verified against the decidesk spec corpus on 2026-07-17: zero hits for termijnagenda/LTA/bestuurlijke planning. The linkage targets now exist in sibling changes (`toezeggingen-ingekomen-stukken` for Toezegging, `motie-amendement-administratie` for motion execution), so this is the right moment to close the gap: origin links can be first-class references instead of free text. The termijnagenda is also a transparency instrument — municipalities publish it so residents can see what is coming — which the existing publication machinery supports without new anonymous surfaces.
+The termijnagenda is the classic griffie planning instrument that every Dutch raadsinformatiesysteem ships (iBabs LTA, NotuBiz bestuurlijke planning): without it, griffies plan the council's forward calendar in Excel next to decidiq, and the accountability chain breaks — toezeggingen and moties promise future proposals, but nothing tracks whether those proposals actually arrive in the period the college promised. Novelty was verified against the decidiq spec corpus on 2026-07-17: zero hits for termijnagenda/LTA/bestuurlijke planning. The linkage targets now exist in sibling changes (`toezeggingen-ingekomen-stukken` for Toezegging, `motie-amendement-administratie` for motion execution), so this is the right moment to close the gap: origin links can be first-class references instead of free text. The termijnagenda is also a transparency instrument — municipalities publish it so residents can see what is coming — which the existing publication machinery supports without new anonymous surfaces.
 
 ## Affected Projects
 
-- [ ] Project: `decidesk` — new TermijnagendaItem schema (register.d fragment 50), manifest pages (board + list + detail), rappel notifications, publication predicate, dashboard KPI, seed data
+- [ ] Project: `decidiq` — new TermijnagendaItem schema (register.d fragment 50), manifest pages (board + list + detail), rappel notifications, publication predicate, dashboard KPI, seed data
 - [ ] Project: `openregister` — consumer only; uses existing lifecycle/notifications dialects, RBAC published-predicate, and object API (no OR changes)
 
 ## Scope
@@ -52,8 +52,8 @@ None. Board drag-and-drop uses the drag capabilities already shipped in the shar
 
 ## Cross-Project Dependencies
 
-- `toezeggingen-ingekomen-stukken` (decidesk change): `originToezegging` references the `toezegging` schema. Nullable reference — degrades gracefully if that change lands later.
-- `motie-amendement-administratie` (decidesk change): `originMotie` references a `Decision` of `decisionType: motion`; execution narrative stays on that change's UitvoeringsUpdate log — the termijnagenda only points at it.
+- `toezeggingen-ingekomen-stukken` (decidiq change): `originToezegging` references the `toezegging` schema. Nullable reference — degrades gracefully if that change lands later.
+- `motie-amendement-administratie` (decidiq change): `originMotie` references a `Decision` of `decisionType: motion`; execution narrative stays on that change's UitvoeringsUpdate log — the termijnagenda only points at it.
 - OpenRegister: existing dialects and predicate surface only; no OR-side work.
 
 ## Risks

@@ -1,7 +1,7 @@
 # mondelinge-vragen-register Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - [vragenuur-interpellatie](../../changes/vragenuur-interpellatie/)
 
@@ -25,7 +25,7 @@ The system SHALL define a `MondelingeVraag` schema in the decidesk register via 
 #### Scenario: Register fragment is additive
 
 @e2e exclude register-config contract — covered by PHPUnit on ConfigurationService import, not a UI flow
-- GIVEN a decidesk installation upgrading to this change
+- GIVEN a decidiq installation upgrading to this change
 - WHEN the register configuration is loaded
 - THEN the MondelingeVraag, Interpellatieverzoek, and VragenuurConfiguratie schemas are registered from fragment 49
 - AND no existing schema in `decidesk_register.json` is modified
@@ -138,7 +138,7 @@ The `MondelingeVraag` schema SHALL declare its notifications exclusively via the
 
 ### Requirement: REQ-VRI-008 List and detail pages for oral questions
 
-The system SHALL provide a Mondelinge vragen index page (columns: vraagNummer, onderwerp, indiener, fractie, portefeuillehouder, targetMeeting, lifecycle; quick filters on lifecycle, fractie, and portefeuillehouder) and a MondelingeVraag detail page (all fields; navigable references to meeting, agenda item, bron/vervolg written question, and vervolgToezegging; Files leaf and audit-trail sidebar; submission, admission, scheduling, and answer actions in explicit dialogs) as manifest-v2 pages in a `src/manifest.d/` fragment rendered by `CnPageRenderer`, referencing the schema by slug `mondelinge-vraag`. No decidesk CRUD controllers SHALL be added for listing or reading (redundant-controller gate).
+The system SHALL provide a Mondelinge vragen index page (columns: vraagNummer, onderwerp, indiener, fractie, portefeuillehouder, targetMeeting, lifecycle; quick filters on lifecycle, fractie, and portefeuillehouder) and a MondelingeVraag detail page (all fields; navigable references to meeting, agenda item, bron/vervolg written question, and vervolgToezegging; Files leaf and audit-trail sidebar; submission, admission, scheduling, and answer actions in explicit dialogs) as manifest-v2 pages in a `src/manifest.d/` fragment rendered by `CnPageRenderer`, referencing the schema by slug `mondelinge-vraag`. No decidiq CRUD controllers SHALL be added for listing or reading (redundant-controller gate).
 
 #### Scenario: Griffier works the vragenuur pipeline from the index
 

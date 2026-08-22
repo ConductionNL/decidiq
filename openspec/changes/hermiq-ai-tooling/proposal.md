@@ -4,9 +4,9 @@ kind: code
 
 # Proposal: hermiq-ai-tooling
 
-**Extends `decidesk-mcp-adoption` and MUST land after it.** That change gives decidesk a
+**Extends `decidiq-mcp-adoption` and MUST land after it.** That change gives decidiq a
 clean, curated, read-mostly agent surface (20 derived read tools + a dossier read + one
-create) and deletes the legacy `DecideskToolProvider`. This change does not reopen any of it
+create) and deletes the legacy `DecidiqToolProvider`. This change does not reopen any of it
 — it builds the next layer on top: the write side of the product vision, made safe by the
 hermiq grant model that did not exist when the legacy tools were written.
 
@@ -15,7 +15,7 @@ hermiq grant model that did not exist when the legacy tools were written.
 Product framing: **every user action an app offers should also exist as an MCP tool, so any
 action can in principle be automated by an AI agent — and chat becomes a way of commanding
 the app.** A chair should be able to say "open today's board meeting and put the budget
-overrun on next week's draft agenda" and have decidesk execute it, with exactly the same
+overrun on next week's draft agenda" and have decidiq execute it, with exactly the same
 guards a click would hit, plus the agent-specific ones a click does not need.
 
 What makes that sane now — and made it insane before — is hermiq's grant model: every tool
@@ -25,16 +25,16 @@ are **default-deny** (`ToolGrantResolver::requiresGrant()`, fail-closed on anyth
 positively classify as a low-reach read), users grant tools **per agent, per tool, optionally
 argument-scoped**, high-impact invocations pass a **human approval gate**
 (`ApprovalService`), and dry-runs **neutralise** side-effecting calls
-(`ToolClassificationService::isSideEffecting()`). `decidesk-mcp-adoption` withdrew
+(`ToolClassificationService::isSideEffecting()`). `decidiq-mcp-adoption` withdrew
 `startMeeting` precisely because, pre-model, it was failing open. This change enumerates
-decidesk's real user actions from its controllers/services, ships **one curated `#[McpTool]`
+decidiq's real user actions from its controllers/services, ships **one curated `#[McpTool]`
 per action** on the owning service, annotates every write honestly for the grant model, and
 **reinstates the meeting-lifecycle capability behind the approval gate** — the safety layer
 whose absence justified the withdrawal.
 
 ## Motivation
 
-After `decidesk-mcp-adoption`, an agent can answer nearly any question about decidesk but can
+After `decidiq-mcp-adoption`, an agent can answer nearly any question about decidiq but can
 *do* almost nothing: of the dozens of state-changing user actions reachable through
 `lib/Controller/` (39 controllers) and `lib/Service/`, exactly one — add an action item — has
 a tool. The product promise "chat away while your apps execute your commands" needs the
@@ -46,11 +46,11 @@ approval, or is denied.
 
 ## Affected Projects
 
-- [x] Project: `decidesk` — new `#[McpTool]` methods on existing owning services
+- [x] Project: `decidiq` — new `#[McpTool]` methods on existing owning services
   (`MeetingService`, `AgendaService`, `MotionService`, `VotingRoundOpener`,
   `VotingRoundCloser`, `MinutesDraftService`, `MinutesWorkflowService`, `ActionItemWriter`,
   `ConflictOfInterestService`, `ProxyDelegationService`, `DecisionPublicationService`),
-  extension of `DecideskScannableServices`, one notification-rule fix, audit-trail hook.
+  extension of `DecidiqScannableServices`, one notification-rule fix, audit-trail hook.
 - [ ] Project: `openregister` — **issue only, not a blocker**: add a `reach` parameter to the
   `McpTool` attribute (it has `scope`/hints but no `reach` today; see Approach).
 
@@ -58,7 +58,7 @@ approval, or is denied.
 
 ### In Scope
 
-- An **action inventory** (design.md) of every state-changing user action in decidesk's
+- An **action inventory** (design.md) of every state-changing user action in decidiq's
   controllers/services, each dispositioned: derived-read (already covered), curated tool
   (this change), or **withdrawn with reasons** (never a tool).
 - Curated write tools, one per action, on the owning service, each annotated
@@ -67,20 +67,20 @@ approval, or is denied.
   hermiq until the attribute can carry it.
 - Reinstating meeting lifecycle transitions (`MeetingService::transition()`) as approval-gated
   agent tools — explicitly superseding the "withdrawn, not replaced" posture of
-  decidesk-mcp-adoption D5 *only* under the grant model's protections.
-- Answering decidesk-mcp-adoption's Open Questions: draft-only `scheduleDraftMeeting` and
+  decidiq-mcp-adoption D5 *only* under the grant model's protections.
+- Answering decidiq-mcp-adoption's Open Questions: draft-only `scheduleDraftMeeting` and
   `addAgendaItem` as curated tools (a curated method can pin `lifecycle: draft`; the
   declarative dialect cannot pin values on a derived `create`).
 - Fixing the `meetingScheduled` notification rule so a draft-only create genuinely does not
   fan out (measured: today it triggers on `created` with **no** lifecycle filter).
 - Audit-trail coverage: every curated agent write appends to the tamper-evident chain via
   `AuditLogService::append()`, recording the agent identity and tool id.
-- 2–3 end-to-end chat scenarios in decidesk's domain as acceptance material.
+- 2–3 end-to-end chat scenarios in decidiq's domain as acceptance material.
 
 ### Out of Scope
 
 - Any change to the 10-schema derived read surface, the dossier tool, or
-  `addActionItemToMeeting` — decidesk-mcp-adoption owns those.
+  `addActionItemToMeeting` — decidiq-mcp-adoption owns those.
 - `VoteCastingService::castVote()` — **withdrawn forever**, not approval-gated: casting a
   ballot is a personal democratic act; an agent voting "on behalf of" a member is a
   legitimacy problem no approval flow cures. Same for any read of individual `Vote` objects
@@ -94,10 +94,10 @@ approval, or is denied.
 
 ## Approach
 
-Same two mechanical chains as decidesk-mcp-adoption, plus governance annotations:
+Same two mechanical chains as decidiq-mcp-adoption, plus governance annotations:
 
 1. **Curated tools** — `#[McpTool]` methods on the owning services (never a provider class,
-   ADR-063 rule 4), discovered via `DecideskScannableServices`, which grows from 2 classes to
+   ADR-063 rule 4), discovered via `DecidiqScannableServices`, which grows from 2 classes to
    the full owning-service list.
 2. **Grant-model annotations** — `scope` + hints come from the `McpTool` attribute
    (verified parameters: `name`, `description`, `readOnlyHint`, `destructiveHint`,
@@ -105,16 +105,16 @@ Same two mechanical chains as decidesk-mcp-adoption, plus governance annotations
    `ToolReachResolver` reads a descriptor `reach` key when present and otherwise resolves
    **fail-closed to `external`** — which over-gates but never under-gates. We therefore ship
    with documented intended reach + fail-closed behaviour, and file an OpenRegister issue to
-   add `reach` to the attribute; when it lands, decidesk declares the documented values.
+   add `reach` to the attribute; when it lands, decidiq declares the documented values.
 3. **Approval gating** — hermiq gates write/destructive and high-reach tools for approval by
    default (`agent-capability-reach`: default-deny and the approval gate key off reach in
-   union with the write/destructive rule). decidesk's job is honest annotation; the spec adds
+   union with the write/destructive rule). decidiq's job is honest annotation; the spec adds
    scenarios asserting the gate actually engages for the formal governance acts.
 
 ## New Dependencies
 
 None at build time. Runtime governance is hermiq's (the sole agent consumer, as in
-decidesk-mcp-adoption). One OpenRegister enhancement is requested (attribute `reach`) but not
+decidiq-mcp-adoption). One OpenRegister enhancement is requested (attribute `reach`) but not
 depended on — fail-closed resolution covers the gap.
 
 ## Impact
@@ -123,7 +123,7 @@ depended on — fail-closed resolution covers the gap.
   methods largely exist: `transition`, `publishAgenda`, `reorderItems`, `addCoSigner`,
   `forwardMotion`, `openVotingRound`, `close`, `generate`, `submitForApproval`, `update`,
   `declare`, `grantProxy`, `revokeProxy`, `publish`).
-- `lib/Mcp/DecideskScannableServices.php` — service-class list grows.
+- `lib/Mcp/DecidiqScannableServices.php` — service-class list grows.
 - `lib/Settings/decidesk_register.json` — `meetingScheduled` rule gains a lifecycle
   condition; register version bump.
 - `lib/Service/AuditLogService.php` callers — agent writes append audit entries.
@@ -132,7 +132,7 @@ depended on — fail-closed resolution covers the gap.
 
 ## Cross-Project Dependencies
 
-- **decidesk-mcp-adoption** (this repo): must be merged first — this change extends its
+- **decidiq-mcp-adoption** (this repo): must be merged first — this change extends its
   scannable-services opt-in and its spec capability (`mcp-tools`).
 - **hermiq**: `ToolGrantResolver` / `ToolReachResolver` / `ApprovalService` /
   `ToolClassificationService` at `origin/development` — consumed, not changed.
@@ -141,7 +141,7 @@ depended on — fail-closed resolution covers the gap.
 
 ## Risks
 
-### Risk 1: Reinstating meeting transitions contradicts decidesk-mcp-adoption D5
+### Risk 1: Reinstating meeting transitions contradicts decidiq-mcp-adoption D5
 **Severity**: High — this is the change's central judgement call.
 **Mitigation**: D5's stated reason was concrete: as a tool with no `scope`, no
 `destructiveHint` and no approval gate, `startMeeting` was *failing open*, and the chair
@@ -157,7 +157,7 @@ problem.
 ### Risk 2: The `reach` axis is documented but not yet machine-declared
 **Severity**: Medium.
 **Mitigation**: Hermiq's resolver is fail-closed: an undeclared reach resolves to
-`external`, the *most* gated class. Until the OpenRegister attribute gains `reach`, decidesk
+`external`, the *most* gated class. Until the OpenRegister attribute gains `reach`, decidiq
 tools are over-gated, never under-gated. The spec requires the documented reach table so the
 values are ready the day the attribute lands.
 
@@ -180,7 +180,7 @@ construction.
 ## Rollback Strategy
 
 Revert the commit: the `#[McpTool]` attributes and scannable-service entries disappear and
-the surface returns exactly to decidesk-mcp-adoption's. The notification-rule condition is
+the surface returns exactly to decidiq-mcp-adoption's. The notification-rule condition is
 the only register change; reverting it restores the previous rule (bump version again).
 Guards and service logic are untouched by rollback since tools delegate to pre-existing
 methods. No data migration; audit entries already written are ordinary chain entries and
@@ -194,5 +194,5 @@ remain valid.
 - Should `publishDecision` (reach `external` — Woo/ORI publication) be grantable at all by
   default policy, or only via per-deployment opt-in? Spec default: grantable, always
   approval-gated, waiver ignored.
-- When OpenRegister's `McpTool` gains `reach`, should hermiq treat a decidesk-declared
+- When OpenRegister's `McpTool` gains `reach`, should hermiq treat a decidiq-declared
   `reach` as authoritative or clamp it to its own resolver's floor? To raise on the OR issue.

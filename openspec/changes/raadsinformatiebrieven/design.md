@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-Pure thin-client extension (ADR-022/ADR-037). Two new OpenRegister schemas — `Raadsinformatiebrief` and `TechnischeVraag` — ship as one `lib/Settings/register.d/51-raadsinformatiebrieven.json` fragment (OpenAPI `components.schemas`, merged onto `decidesk_register.json` at load via `ConfigurationService::importFromApp()`; the base file is never edited; number 51 is assigned to this change, 40–50 and 52–65 belong to siblings). All workflow behaviour is declared in OpenRegister dialects; all UI is manifest-v2 pages in a `src/manifest.d/raadsinformatiebrieven.json` fragment rendered by `CnPageRenderer` (the frontend talks to `/apps/openregister/api/objects` directly via the shared object stores — no decidesk CRUD controllers, per the redundant-controller gate).
+Pure thin-client extension (ADR-022/ADR-037). Two new OpenRegister schemas — `Raadsinformatiebrief` and `TechnischeVraag` — ship as one `lib/Settings/register.d/51-raadsinformatiebrieven.json` fragment (OpenAPI `components.schemas`, merged onto `decidesk_register.json` at load via `ConfigurationService::importFromApp()`; the base file is never edited; number 51 is assigned to this change, 40–50 and 52–65 belong to siblings). All workflow behaviour is declared in OpenRegister dialects; all UI is manifest-v2 pages in a `src/manifest.d/raadsinformatiebrieven.json` fragment rendered by `CnPageRenderer` (the frontend talks to `/apps/openregister/api/objects` directly via the shared object stores — no decidiq CRUD controllers, per the redundant-controller gate).
 
 Unlike the sibling `toezeggingen-ingekomen-stukken` change, this change needs **no service or controller edits at all**: publication is predicate-on-live-object (no derived payloads, so `PublicationEligibilityService`/`PublicationPayloadService` stay untouched), the Q&A thread is an ordinary filtered object list, and the toezegging linkage is a reverse-relation display.
 
@@ -56,9 +56,9 @@ RIBs are the textbook case for the live-predicate carve-out established by the t
 
 ### D5: RIB numbering is user-visible, schema-validated, and pre-filled — not service-generated
 
-`number` (`RIB-{jaar}-{volgnummer}`) is the municipality's official letter number: often assigned by the college's own systems before the letter reaches the griffie, so decidesk must accept an externally given number rather than force-generate one. Mechanism: required property with `pattern: ^RIB-\d{4}-\d+$`; the creation dialog pre-fills the next free volgnummer for the current year (one max-aggregation query on `raadsinformatiebrief`), editable by the user. Uniqueness per year is a review/validation concern, not a hard DB constraint (OR has no cross-object unique constraint today); the index sorts by number so duplicates are immediately visible.
+`number` (`RIB-{jaar}-{volgnummer}`) is the municipality's official letter number: often assigned by the college's own systems before the letter reaches the griffie, so decidiq must accept an externally given number rather than force-generate one. Mechanism: required property with `pattern: ^RIB-\d{4}-\d+$`; the creation dialog pre-fills the next free volgnummer for the current year (one max-aggregation query on `raadsinformatiebrief`), editable by the user. Uniqueness per year is a review/validation concern, not a hard DB constraint (OR has no cross-object unique constraint today); the index sorts by number so duplicates are immediately visible.
 
-**Alternative considered:** imperative numbering service on create (like the SV-YYYY-NNN plan in fractievoorzitter-fractie-koppeling) — rejected: it would require a decidesk controller in an otherwise controller-free change, and it fights the reality that RIB numbers originate at the college.
+**Alternative considered:** imperative numbering service on create (like the SV-YYYY-NNN plan in fractievoorzitter-fractie-koppeling) — rejected: it would require a decidiq controller in an otherwise controller-free change, and it fights the reality that RIB numbers originate at the college.
 
 ### D6: fractie and beantwoordDoor are plain strings, relatedDossier is a forward-compatible ref
 
@@ -85,7 +85,7 @@ docs/features/raadsinformatiebrieven.md                  (new)
 
 ## Seed Data
 
-Realistic Dutch municipal examples (fictional municipality, consistent with sibling seeds); references use existing decidesk seed objects (gemeenteraad governance body, scheduled raadsvergadering, seeded wethouder Persons) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder where a cross-seed reference is resolved at import. `@self` envelope per object: `register: decidesk`, schema slug as below, slug per table.
+Realistic Dutch municipal examples (fictional municipality, consistent with sibling seeds); references use existing decidiq seed objects (gemeenteraad governance body, scheduled raadsvergadering, seeded wethouder Persons) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder where a cross-seed reference is resolved at import. `@self` envelope per object: `register: decidesk`, schema slug as below, slug per table.
 
 ### Schema: `raadsinformatiebrief`
 
@@ -135,7 +135,7 @@ Object 1 is answered **and published** so the public Q&A path is visible on a fr
 
 ## Migration Plan
 
-1. Land register.d fragment 51 + manifest.d fragment + dialogs + seed + tests + docs in one decidesk PR (fragments are additive; the repair step / `ConfigurationService::importFromApp()` picks up the new schemas on upgrade).
+1. Land register.d fragment 51 + manifest.d fragment + dialogs + seed + tests + docs in one decidiq PR (fragments are additive; the repair step / `ConfigurationService::importFromApp()` picks up the new schemas on upgrade).
 2. `toezeggingen-ingekomen-stukken` must land first or concurrently: `afgedaneToezegging` targets its `Toezegging` schema and the seed references its seeded toezegging. The field is nullable, so a delay degrades gracefully (link renders as plain reference), but the spec text assumes the model.
 3. Rollback: revert the PR — fragments disappear, pages unregister. Existing objects remain soft-retained in OR; published objects are withdrawn by clearing the predicate (`depublicatiedatum`) via the normal staff flow if desired. No data migration.
 

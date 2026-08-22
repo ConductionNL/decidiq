@@ -235,7 +235,7 @@ corrupted meeting object in the register.
 
 **Tools do not appear in the AI Chat Companion**
 
-The alias `OCA\OpenRegister\Mcp\IMcpToolProvider::decidesk` is registered in
+The alias `OCA\OpenRegister\Mcp\IMcpToolProvider::decidiq` is registered in
 `Application::register()`. If OpenRegister's `McpToolsService` cannot resolve it,
 verify that OpenRegister is loaded and that no DI container error appears on app
 bootstrap (`occ check`).

@@ -11,12 +11,12 @@ Verified first-hand against openregister at commit `ebedbdd5a`. Everything below
 | Selectielijst storage | `lib/Db/SelectionList.php` + `SelectionListMapper.php` | Fields: `category`, `retentionYears`, `action`, `description`, `schemaOverrides`, `organisation`. |
 | Destruction | `lib/Service/Archival/DestructionService.php` | Dual approval with a distinct-approver check (L366-382), legal-hold re-check before each delete (L552), certificate generation (L618-676). |
 | Legal holds | `lib/Service/Archival/LegalHoldService.php` | `hasActiveHold()` consulted at DestructionService L228/L552/L700. |
-| Destruction jobs | `lib/BackgroundJob/{DestructionCheckJob,DestructionExecutionJob}.php` | Daily sweep + execution. Decidesk needs no sweep job of its own. |
+| Destruction jobs | `lib/BackgroundJob/{DestructionCheckJob,DestructionExecutionJob}.php` | Daily sweep + execution. Decidiq needs no sweep job of its own. |
 | MDTO serialization | `lib/Service/Edepot/MdtoXmlGenerator.php::generate()` (L99) | Emits `naam`, `toelichting`, `waardering`, `bewaartermijn`, `informatiecategorie` (from `retention.classificatie`, L272-273), `omvang`, `bestandsformaat`. |
 | SIP packaging | `lib/Service/Edepot/SipPackageBuilder.php::build()` (L108) | `zip` or `bagit` (RFC 8493), METS + PREMIS namespaces (L67/L72), size splitting via `splitIntoBatches` (L126). |
 | Transfer lists | `lib/Service/Edepot/TransferListService.php` | `createTransferList(array $objects)` (L134), approve/reject/exclude, archivist notification. |
 | Transfer execution | `lib/Service/Edepot/EdepotTransferService.php` | `executeTransfer(array $transferList, TransportInterface $transport)` (L111); `lib/BackgroundJob/TransferExecutionJob.php`. |
-| Transports | `lib/Service/Edepot/Transport/{OpenConnectorTransport,RestApiTransport,SftpTransport}.php` | OpenConnector is reached through OR, not by decidesk. |
+| Transports | `lib/Service/Edepot/Transport/{OpenConnectorTransport,RestApiTransport,SftpTransport}.php` | OpenConnector is reached through OR, not by decidiq. |
 | Confidentiality ordinal | `lib/Service/ZaaktypeAuthorizationService.php::VERTROUWELIJKHEIDAANDUIDING_LEVELS` (L61-70) | 8 ordered ZGW levels; order drives OR's clearance decisions. |
 | Routes | `appinfo/routes.php` L1169-1183 | `/api/archival/destruction-lists/{id}/approve|reject`, `/api/archival/legal-holds`, `/api/archival/certificates` (L1177), `/api/settings/edepot`, `/api/transfers`. |
 
@@ -27,15 +27,15 @@ Verified first-hand against openregister at commit `ebedbdd5a`. Everything below
 
 ## Architecture Overview
 
-Decidesk contributes exactly one thing OR lacks: the **aggregate**. (`openspec/specs/document-zaakdossier/spec.md` in OR is a `status: redirect` stub owned by Procest; OR has no dossier concept.) Everything downstream of the dossier is an OR call.
+Decidiq contributes exactly one thing OR lacks: the **aggregate**. (`openspec/specs/document-zaakdossier/spec.md` in OR is a `status: redirect` stub owned by Procest; OR has no dossier concept.) Everything downstream of the dossier is an OR call.
 
 ```
-Meeting/Decision/Minutes/Vote/DigitalDocument  (existing decidesk schemas)
-        │  assembled by ArchivalDossierService  ← the only new decidesk service
+Meeting/Decision/Minutes/Vote/DigitalDocument  (existing decidiq schemas)
+        │  assembled by ArchivalDossierService  ← the only new decidiq service
         ▼
-ArchivalDossier (forming → closed → transferred | destroyed)   ← the only new decidesk schema
+ArchivalDossier (forming → closed → transferred | destroyed)   ← the only new decidiq schema
         │
-        │ decidesk sets schema archive.classificatie; OR's RetentionService::applyArchivalMetadata()
+        │ decidiq sets schema archive.classificatie; OR's RetentionService::applyArchivalMetadata()
         │ resolves nominatie/bewaartermijn/archiefactiedatum into the PERSISTED `retention` field
         │
         ├─ bewaren  → OR TransferListService.createTransferList(member UUIDs)
@@ -45,7 +45,7 @@ ArchivalDossier (forming → closed → transferred | destroyed)   ← the only 
                           └─ OR DestructionCheckJob / DestructionExecutionJob (dual approval, legal holds)
                                → dossier reflects `destroyed`
                                → OR certificate `verklaring_van_vernietiging` (GET /api/archival/certificates)
-                                    └─ decidesk renders it (Docudesk PDF, markdown fallback), retains permanently
+                                    └─ decidiq renders it (Docudesk PDF, markdown fallback), retains permanently
 Compliance dashboard = x-openregister-aggregations over OR's `retention.archiefactiedatum`/`.archiefstatus`
                        + manifest.d widgets (no reporting backend; OR's dashboard is spec-only)
 ```
@@ -66,21 +66,21 @@ Default is declarative via `x-openregister-{lifecycle,aggregations,calculations,
 | Transfer-deadline approaching | **Declarative** `x-openregister-notifications` (ADR-031 dialect; gate-18 forbids imperative dispatch) | Trigger-condition notification |
 | Dossier ↔ members, dossier ↔ OR transfer/destruction list links | **Declarative** `x-openregister-relations` | UUID reference relations |
 | Dashboard widgets, dossier index/detail pages | **Declarative** manifest v2 fragment `src/manifest.d/records-management.json` (ADR-037; schema refs by **slug**, e.g. `archival-dossier`, never PascalCase) | Rendering is manifest-driven |
-| Retention resolution, MDTO, packaging, transfer, destruction, certificate | **Consumed from OpenRegister** | Already shipped upstream (ADR-022) — not decidesk's to declare or implement |
+| Retention resolution, MDTO, packaging, transfer, destruction, certificate | **Consumed from OpenRegister** | Already shipped upstream (ADR-022) — not decidiq's to declare or implement |
 | **ArchivalDossierService** | Imperative | Cross-schema enumeration (minutes/decisions/votes/attachments per meeting), override-gated close, and the OR transfer/destruction-list hand-off exceed the declarative dialects; assembly is a staff-triggered composite write |
 
 ### Other key decisions
 
-- **Verklaring = render OR's certificate, do not compose one.** OR's `DestructionService::generateCertificate()` already emits the legally-relevant record (approvers, counts, objectsBySchema, objectsBySelectielijst, complianceStatement citing Archiefwet/Archiefbesluit, `immutable: true`). Decidesk fetches it from `/api/archival/certificates` and renders it via the established minutes document pattern (Docudesk PDF opportunistic, markdown canonical fallback). *Alternative:* decidesk composes its own verklaring — rejected, it would be a second legal artefact contradicting OR's.
-- **No decidesk MDTO mapping.** Populate `tmlo`/`retention`; OR's `MdtoXmlGenerator` serializes. *Alternative:* a decidesk mapping table — rejected, it duplicates OR's serializer and would drift from it.
-- **Retention is OR's, addressed by schema config.** Decidesk declares `archive.classificatie` on archivable schemas and ships `SelectionList` seeds; OR resolves. Decidesk computes no dates. *Alternative:* a decidesk `RetentionRule` schema — rejected, it duplicates `SelectionList`.
-- **Destruction is OR's, including separation of duties.** OR's `DestructionService` compares the first and second approver and pops an invalid second approval (L366-382) — decidesk MUST NOT add a parallel check or claim OR lacks one. Note also that OR's execution calls `DeleteObject::delete(..., permanent: true)` after a legal-hold re-check: it is a **permanent delete gated by OR's pre-flight**, not a "retention-aware soft delete" (`DeleteObject::deleteObject()` has no retention gate). Do not describe it as one.
-- **Classification aligns to OR's ordinal.** Decidesk's four values are a documented strict subset of `VERTROUWELIJKHEIDAANDUIDING_LEVELS`, order preserved, with a mapping table. `beperkingGebruik` in MDTO is an OR follow-up — OR emits no such element and owns MDTO serialization.
+- **Verklaring = render OR's certificate, do not compose one.** OR's `DestructionService::generateCertificate()` already emits the legally-relevant record (approvers, counts, objectsBySchema, objectsBySelectielijst, complianceStatement citing Archiefwet/Archiefbesluit, `immutable: true`). Decidiq fetches it from `/api/archival/certificates` and renders it via the established minutes document pattern (Docudesk PDF opportunistic, markdown canonical fallback). *Alternative:* decidiq composes its own verklaring — rejected, it would be a second legal artefact contradicting OR's.
+- **No decidiq MDTO mapping.** Populate `tmlo`/`retention`; OR's `MdtoXmlGenerator` serializes. *Alternative:* a decidiq mapping table — rejected, it duplicates OR's serializer and would drift from it.
+- **Retention is OR's, addressed by schema config.** Decidiq declares `archive.classificatie` on archivable schemas and ships `SelectionList` seeds; OR resolves. Decidiq computes no dates. *Alternative:* a decidiq `RetentionRule` schema — rejected, it duplicates `SelectionList`.
+- **Destruction is OR's, including separation of duties.** OR's `DestructionService` compares the first and second approver and pops an invalid second approval (L366-382) — decidiq MUST NOT add a parallel check or claim OR lacks one. Note also that OR's execution calls `DeleteObject::delete(..., permanent: true)` after a legal-hold re-check: it is a **permanent delete gated by OR's pre-flight**, not a "retention-aware soft delete" (`DeleteObject::deleteObject()` has no retention gate). Do not describe it as one.
+- **Classification aligns to OR's ordinal.** Decidiq's four values are a documented strict subset of `VERTROUWELIJKHEIDAANDUIDING_LEVELS`, order preserved, with a mapping table. `beperkingGebruik` in MDTO is an OR follow-up — OR emits no such element and owns MDTO serialization.
 - **Classification deny integration**: `PublicationEligibilityService` gains one structural check (classification > `openbaar` refused) — extending the existing deny-list rather than a new surface.
 
 ## API Design
 
-Frontend CRUD goes through OR's object API via `useObjectStore` (no redundant pass-through controllers — hydra gate `redundant-controller`). Transfer and destruction are driven against **OR's** endpoints (`/api/transfers`, `/api/archival/destruction-lists/{id}/approve`, `/api/archival/certificates`), so decidesk adds only the two dossier actions OR cannot serve:
+Frontend CRUD goes through OR's object API via `useObjectStore` (no redundant pass-through controllers — hydra gate `redundant-controller`). Transfer and destruction are driven against **OR's** endpoints (`/api/transfers`, `/api/archival/destruction-lists/{id}/approve`, `/api/archival/certificates`), so decidiq adds only the two dossier actions OR cannot serve:
 
 ### `POST /api/dossiers/{id}/assemble` — (re)enumerate members for a forming dossier
 ### `POST /api/dossiers/{id}/close` — completeness check; body: `{ "overrideReason": "..." }` optional
@@ -101,10 +101,10 @@ None. `ArchivalDossier` is an OpenRegister object; retention lives in OR's exist
 
 ## Security Considerations
 
-- **Destruction is not decidesk's to execute**: OR freezes the approved enumeration, enforces dual approval, re-checks legal holds before each delete, and emits the immutable certificate. Decidesk's only security-relevant contribution is the frozen dossier member list — a wrong UUID in a dossier is the realistic failure mode, so close freezes membership and assembly is audit-trailed.
+- **Destruction is not decidiq's to execute**: OR freezes the approved enumeration, enforces dual approval, re-checks legal holds before each delete, and emits the immutable certificate. Decidiq's only security-relevant contribution is the frozen dossier member list — a wrong UUID in a dossier is the realistic failure mode, so close freezes membership and assembly is audit-trailed.
 - Classification labels gate the public-publication payload builder structurally (before eligibility).
 - Dossier endpoints check records-management authority per object (no IDOR); dossier member enumeration exposes no data the caller cannot already read.
-- No secrets in schemas (ADR-064) — e-depot/transport credentials live in OR's e-depot settings and OpenConnector, never decidesk.
+- No secrets in schemas (ADR-064) — e-depot/transport credentials live in OR's e-depot settings and OpenConnector, never decidiq.
 
 ## NL Design System
 
@@ -123,7 +123,7 @@ lib/
 appinfo/routes.php                             (modified — 2 routes)
 src/manifest.d/records-management.json         (new — pages, menu, dashboard widgets)
 tests/Unit/Service/ArchivalDossierServiceTest.php (new)
-tests/integration/decidesk-records-management.postman_collection.json (new)
+tests/integration/decidiq-records-management.postman_collection.json (new)
 ```
 
 **Deleted vs the pre-rewrite design:** `TransferPackageController`, `DestructionController`, `TransferPackageService`, `IArchiveConnectorService`, `ArchiveConnectorService`, `LogArchiveConnectorService`, `DestructionService`, `BackgroundJob/RetentionSweepJob.php`, `src/dialogs/DestructionAuthorizeDialog.vue` — every one of them duplicated an OpenRegister capability.
@@ -132,7 +132,7 @@ tests/integration/decidesk-records-management.postman_collection.json (new)
 
 Seeds ship as `x-openregister-seeds` inside the register fragment (convention: `43-process-config-v1.json`), realistic for a Dutch municipality and neutral enough for other governance domains. All cross-references use seed slugs; example UUIDs are the nil placeholder `00000000-0000-0000-0000-000000000000`.
 
-**Selectielijst rules are seeded as OpenRegister `SelectionList` objects — not as a decidesk schema.** Fields follow OR's entity (`category`, `retentionYears`, `action`, `description`, `schemaOverrides`, `organisation`); decidesk's archivable schemas reference them through `archive.classificatie`, and OR resolves the rest.
+**Selectielijst rules are seeded as OpenRegister `SelectionList` objects — not as a decidiq schema.** Fields follow OR's entity (`category`, `retentionYears`, `action`, `description`, `schemaOverrides`, `organisation`); decidiq's archivable schemas reference them through `archive.classificatie`, and OR resolves the rest.
 
 ### OpenRegister entity: `SelectionList` (seeded, editable)
 | Field | Object 1 | Object 2 | Object 3 | Object 4 |
@@ -144,7 +144,7 @@ Seeds ship as `x-openregister-seeds` inside the register fragment (convention: `
 | schemaOverrides | — | — | — | — |
 | organisation | gm0344 | gm0344 | gm0344 | gm0344 |
 
-### Schema: `archival-dossier` (the one new decidesk schema)
+### Schema: `archival-dossier` (the one new decidiq schema)
 | Field | Object 1 | Object 2 | Object 3 |
 |-------|----------|----------|----------|
 | @self.slug | dossier-raad-2026-04-10 | dossier-verordening-parkeren-2025 | dossier-mt-overleg-2016-q1 |
@@ -171,11 +171,11 @@ Rows marked *OR-resolved* are **not authored in the seed** — `RetentionService
 ## Risks / Trade-offs
 
 - [Duplicating OR] → the risk this rewrite closes: every OR-shipped concern is out of scope by name, with file citations in the table above (proposal Risk 2).
-- [Wrongful destruction] → OR owns freeze, dual approval, legal-hold re-check, certificate; decidesk's exposure is the dossier member list, frozen on close (proposal Risk 1).
+- [Wrongful destruction] → OR owns freeze, dual approval, legal-hold re-check, certificate; decidiq's exposure is the dossier member list, frozen on close (proposal Risk 1).
 - [Wrong OR field targeted] → `retention`/`tmlo`, never `_retention`/`_tmlo`; verified against a live OR instance, not fakes (proposal Risk 3).
 - [Declarative aggregation limits] → if a completeness counter proves inexpressible in the aggregation dialect, it degrades to a calculated field on the dossier — never a bespoke reporting backend.
 - [Lifecycle dialect drift] → fragment uses the exact canonical keys Decision already uses; register-import verified on a clean instance (known fleet defect class: non-canonical keys are silently ignored).
-- [OR follow-ups not landed] → `beperkingGebruik` and a first-class council-term trigger are OR's; decidesk ships without them rather than building local workarounds that would later have to be unwound.
+- [OR follow-ups not landed] → `beperkingGebruik` and a first-class council-term trigger are OR's; decidiq ships without them rather than building local workarounds that would later have to be unwound.
 
 ## Migration Plan
 

@@ -1,11 +1,11 @@
-# Design: Decidesk web-push notification rules
+# Design: Decidiq web-push notification rules
 
 ## Approach
 
-The whole change is declarative data in `lib/Settings/decidesk_register.json`. There is no decidesk
+The whole change is declarative data in `lib/Settings/decidesk_register.json`. There is no decidiq
 backend involvement: OpenRegister reads the `x-openregister-notifications` block per schema, evaluates
 triggers, resolves recipients, renders the title (`subject`) + body (`message`) in the recipient's
-language, and delivers over each declared channel. Decidesk's only job is to author the rules correctly
+language, and delivers over each declared channel. Decidiq's only job is to author the rules correctly
 within the canonical dialect (ADR-031, hydra gate-18) and not to clobber the rules it already has.
 
 ## Dialect mapping (title vs body)
@@ -15,11 +15,11 @@ within the canonical dialect (ADR-031, hydra gate-18) and not to clobber the rul
 | `subject`    | i18n `{nl,en}` → notification **TITLE**                                 |
 | `message`    | i18n `{nl,en}` → notification **BODY** (from `openregister-notification-body`) |
 | `channels`   | `["nc-notification", "web-push"]`                                       |
-| `originApp`  | `"decidesk"`                                                            |
+| `originApp`  | `"decidiq"`                                                            |
 | `actions`    | one entry `{label:{nl,en}, primary:true, target:{kind:"object-detail"}}` |
-| placeholders | `{{title}}` (safe, matches decidesk's existing rules)                   |
+| placeholders | `{{title}}` (safe, matches decidiq's existing rules)                   |
 
-`{kind:object-detail}` with no `object` deeplinks to the **triggering** object. Decidesk has registered
+`{kind:object-detail}` with no `object` deeplinks to the **triggering** object. Decidiq has registered
 deeplinks for `meeting`, `action-item`, and `decision`, so all three "Open X" actions resolve.
 
 ## Per-rule decisions
@@ -41,7 +41,7 @@ deeplinks for `meeting`, `action-item`, and `decision`, so all three "Open X" ac
   honoured verbatim.
 
 ### Decision `voteRequested`
-- Trigger `updated` + `condition {field:"lifecycle", operator:"equals", value:"voting"}`. The decidesk
+- Trigger `updated` + `condition {field:"lifecycle", operator:"equals", value:"voting"}`. The decidiq
   register never uses a `transition` trigger — every lifecycle rule (e.g. `decisionProposed`,
   `outcomeEmitted`) is an `updated` trigger with a `condition`. Using the same shape keeps the rule
   consistent and valid against the dialect. `voting` is the lifecycle state in which a vote is

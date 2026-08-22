@@ -1,4 +1,4 @@
-# Tasks: decidesk-mcp-adoption
+# Tasks: decidiq-mcp-adoption
 
 All `@spec` tags added to code in these tasks MUST point at the **canonical** spec
 (`openspec/specs/mcp-tools/spec.md`), never at a change directory — change dirs evaporate
@@ -42,19 +42,19 @@ on archive. The current provider's tags point at the already-archived
 
 ### Task 4: Add the `IMcpScannableServices` opt-in
 - **spec_ref**: `openspec/specs/mcp-tools/spec.md#requirement-req-dmcp-013-scannable-services-opt-in`
-- **files**: `lib/Mcp/DecideskScannableServices.php`, `lib/AppInfo/Application.php`, `tests/Stubs/Mcp/IMcpScannableServices.php`
+- **files**: `lib/Mcp/DecidiqScannableServices.php`, `lib/AppInfo/Application.php`, `tests/Stubs/Mcp/IMcpScannableServices.php`
 - **acceptance_criteria**:
-  - GIVEN `DecideskScannableServices::getScannableServiceClasses()` WHEN it is called THEN it returns exactly `MeetingService::class` and `ActionItemWriter::class`
+  - GIVEN `DecidiqScannableServices::getScannableServiceClasses()` WHEN it is called THEN it returns exactly `MeetingService::class` and `ActionItemWriter::class`
   - GIVEN the app is booted WHEN the MCP catalogue is listed THEN both curated tools appear
   - AND a runtime-autoloader stub exists at `tests/Stubs/Mcp/IMcpScannableServices.php` (replacing the `IMcpToolProvider` stub)
 - [ ] Implement
 - [ ] Test
 
-### Task 5: Delete `DecideskToolProvider` and its tests
+### Task 5: Delete `DecidiqToolProvider` and its tests
 - **spec_ref**: `openspec/specs/mcp-tools/spec.md#requirement-req-dmcp-011-declarative-crud-via-the-x-openregister-mcp-dialect`
-- **files**: `lib/Mcp/DecideskToolProvider.php`, `lib/AppInfo/Application.php`, `tests/Unit/Mcp/DecideskToolProviderTest.php`, `tests/Integration/Mcp/DecideskToolProviderIntegrationTest.php`, `tests/Stubs/Mcp/IMcpToolProvider.php`
+- **files**: `lib/Mcp/DecidiqToolProvider.php`, `lib/AppInfo/Application.php`, `tests/Unit/Mcp/DecidiqToolProviderTest.php`, `tests/Integration/Mcp/DecidiqToolProviderIntegrationTest.php`, `tests/Stubs/Mcp/IMcpToolProvider.php`
 - **acceptance_criteria**:
-  - GIVEN the provider has zero remaining tools WHEN the change is applied THEN `lib/Mcp/DecideskToolProvider.php` is deleted outright (no empty seam) and its registration is removed from `Application.php`
+  - GIVEN the provider has zero remaining tools WHEN the change is applied THEN `lib/Mcp/DecidiqToolProvider.php` is deleted outright (no empty seam) and its registration is removed from `Application.php`
   - GIVEN the MCP catalogue WHEN it is listed THEN `decidesk.startMeeting` is **absent** and is not replaced by any derived tool (no schema declares a write verb)
   - AND `MeetingService::transition()` is untouched, so the UI can still open a meeting
   - AND `lib/Mcp/` contains no authorisation helper, UUID validator, or deep-link builder
@@ -73,13 +73,13 @@ on archive. The current provider's tags point at the already-archived
 
 ## Verification
 - [ ] All tasks checked off
-- [ ] `openspec validate decidesk-mcp-adoption --type change --strict` passes
+- [ ] `openspec validate decidiq-mcp-adoption --type change --strict` passes
 - [ ] Manual testing against acceptance criteria
 - [ ] Code review against spec requirements
 
 ## Tests (company-wide ADR-009)
 - [ ] PHPUnit unit tests for new/changed business logic (`tests/Unit/`) — dialect assertions (10-schema opt-in, filters resolve to real properties, no write verbs) + the two curated tools' happy/`forbidden` paths
-- [ ] Newman/Postman tests for new/changed API endpoints — N/A: no Decidesk HTTP endpoint changes; the MCP surface is served by OpenRegister's `/api/mcp`
+- [ ] Newman/Postman tests for new/changed API endpoints — N/A: no Decidiq HTTP endpoint changes; the MCP surface is served by OpenRegister's `/api/mcp`
 - [ ] Browser tests (Playwright MCP) for UI changes — N/A: no frontend changes
 - [ ] All tests pass (`composer test`), with zero new failures against a self-measured baseline
 

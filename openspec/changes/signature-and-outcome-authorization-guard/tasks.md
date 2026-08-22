@@ -41,7 +41,7 @@
     the two facts that make it safe: no caller-supplied object identifier, and a response sourced
     entirely from the public EU Trusted List
   - GIVEN an authenticated caller THEN the endpoint still returns `200` (the Newman contract in
-    `tests/integration/decidesk-security-flow-e2e.postman_collection.json` folder 2 is unchanged)
+    `tests/integration/decidiq-security-flow-e2e.postman_collection.json` folder 2 is unchanged)
 - [x] Add the reason-bearing exemption tag and the supporting docblock note.
 
 ### Task 5: Guard `getOutcome()` on the Decision's raiser / publication state

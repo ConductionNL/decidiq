@@ -29,7 +29,7 @@ Default declarative; imperative only where a dialect cannot express the behaviou
 | Impose action (create Geheimhouding + set target classifier + create bekrachtiging agenda item, transactionally, with authority guard) | **Imperative** `GeheimhoudingService::impose()` | Multi-object transaction across schemas tied to organ authority; not expressible as a dialect |
 | Bekrachtiging / opheffing recording (link besluit, transition, restore classifier) | **Imperative** `GeheimhoudingService` | Same: cross-object transaction + authority guard |
 | Member-side embargo release at `embargoUntil` | **Imperative** `EmbargoReleaseJob` (OCP `TimedJob`, 15 min) flipping `embargoActive` via the OR object API | Group-scoped RBAC cannot time-switch per object for member groups (see Security Considerations); a scheduled field flip is honest and testable — no magic |
-| Publication guard (refuse payload build for targets under active geheimhouding) | **Imperative** extension of the existing publication payload/eligibility service | Payload construction is by design imperative in decidesk (existing pattern) |
+| Publication guard (refuse payload build for targets under active geheimhouding) | **Imperative** extension of the existing publication payload/eligibility service | Payload construction is by design imperative in decidiq (existing pattern) |
 | View-audit of stukken under geheimhouding | **Imperative** logging on the app's document read/download path writing to the OR audit trail | OR does not declaratively audit reads; the CVG-010 precedent is imperative too |
 
 ### Other key decisions
@@ -52,7 +52,7 @@ All endpoints `#[NoAdminRequired]` + `#[NoCSRFRequired]` where API-consumed, wit
 
 ## Database Changes
 
-None. Decidesk owns no tables (ADR-022); all data lives in OpenRegister objects.
+None. Decidiq owns no tables (ADR-022); all data lives in OpenRegister objects.
 
 ## Nextcloud Integration
 

@@ -13,11 +13,11 @@ Provides the app's landing dashboard, shown at the root route when OpenRegister 
 The system SHALL render the Dashboard page at the root route (`/`) when the app is opened and OpenRegister is available.
 
 #### Scenario: User opens the app with OpenRegister configured
-- **WHEN** a user navigates to the Decidesk app in Nextcloud
+- **WHEN** a user navigates to the Decidiq app in Nextcloud
 - **THEN** the Dashboard page is displayed at `/`
 
 #### Scenario: User opens the app without OpenRegister installed
-- **WHEN** a user navigates to the Decidesk app and `openRegisters` is `false` in settings
+- **WHEN** a user navigates to the Decidiq app and `openRegisters` is `false` in settings
 - **THEN** an `NcEmptyContent` is shown with a message directing the user to install OpenRegister
 
 ---

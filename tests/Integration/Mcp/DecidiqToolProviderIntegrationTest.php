@@ -78,12 +78,16 @@ class DecidiqToolProviderIntegrationTest extends TestCase {
 	 */
 	public function testContainerResolvesAliasToDecidiqToolProvider(): void {
 		// @phpstan-ignore-next-line — OC is a Nextcloud runtime class, available when NC is installed.
-		$instance = \OC::$server->query('OCA\\OpenRegister\\Mcp\\IMcpToolProvider::decidesk');
+		$instance = \OC::$server->query('OCA\\OpenRegister\\Mcp\\IMcpToolProvider::decidiq');
 
 		self::assertInstanceOf(
 			DecidiqToolProvider::class,
 			$instance,
-			'The service alias OCA\OpenRegister\Mcp\IMcpToolProvider::decidesk must resolve to DecidiqToolProvider'
+			// The alias SUFFIX is the Nextcloud app id, which moved to `decidiq`:
+			// OpenRegister builds this key over the enumerated installed apps. It is
+			// deliberately NOT the same string as DecidiqToolProvider::getAppId(),
+			// which stays `decidesk` so the published `decidesk.*` tool ids do not move.
+			'The service alias OCA\OpenRegister\Mcp\IMcpToolProvider::decidiq must resolve to DecidiqToolProvider'
 		);
 
 		$this->provider = $instance;
@@ -107,7 +111,7 @@ class DecidiqToolProviderIntegrationTest extends TestCase {
 	public function testStartMeeting_roundTrip_mutatesStateAndReturnsSources(): void {
 		if ($this->provider === null) {
 			// @phpstan-ignore-next-line — OC runtime class.
-			$this->provider = \OC::$server->query('OCA\\OpenRegister\\Mcp\\IMcpToolProvider::decidesk');
+			$this->provider = \OC::$server->query('OCA\\OpenRegister\\Mcp\\IMcpToolProvider::decidiq');
 		}
 
 		// This test will be skipped with a clear message in environments where the
@@ -143,7 +147,7 @@ class DecidiqToolProviderIntegrationTest extends TestCase {
 	public function testListRecentMeetings_fixtureRoundTrip_returnsSourcesArray(): void {
 		if ($this->provider === null) {
 			// @phpstan-ignore-next-line — OC runtime class.
-			$this->provider = \OC::$server->query('OCA\\OpenRegister\\Mcp\\IMcpToolProvider::decidesk');
+			$this->provider = \OC::$server->query('OCA\\OpenRegister\\Mcp\\IMcpToolProvider::decidiq');
 		}
 
 		$result = $this->provider->invokeTool('decidesk.listRecentMeetings', ['limit' => 5]);
@@ -173,7 +177,7 @@ class DecidiqToolProviderIntegrationTest extends TestCase {
 	public function testAddActionItem_persistenceVerification(): void {
 		if ($this->provider === null) {
 			// @phpstan-ignore-next-line — OC runtime class.
-			$this->provider = \OC::$server->query('OCA\\OpenRegister\\Mcp\\IMcpToolProvider::decidesk');
+			$this->provider = \OC::$server->query('OCA\\OpenRegister\\Mcp\\IMcpToolProvider::decidiq');
 		}
 
 		// Provider DI resolution is sufficient to verify the integration wiring.
