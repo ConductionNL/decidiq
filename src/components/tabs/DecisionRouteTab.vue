@@ -244,12 +244,18 @@ export default {
 			}
 		},
 
+		/**
+		 * @spec openspec/specs/decision-route/spec.md#requirement-declarative-route-progress-and-currentstage
+		 */
 		effectiveStatusTitle() {
 			return this.effectiveStatus === 'repealed'
 				? this.t('decidiq', 'Repealed')
 				: this.t('decidiq', 'Superseded')
 		},
 
+		/**
+		 * @spec openspec/specs/decision-route/spec.md#requirement-declarative-route-progress-and-currentstage
+		 */
 		effectiveStatusMessage() {
 			const date =
 				this.effectingDecision?.enactedAt
@@ -292,6 +298,9 @@ export default {
 			)
 		},
 
+		/**
+		 * @spec openspec/specs/decision-route/spec.md#requirement-declarative-route-progress-and-currentstage
+		 */
 		stateLabel(state) {
 			const labels = {
 				draft: this.t('decidiq', 'Draft'),
@@ -305,6 +314,9 @@ export default {
 			return labels[state] || state
 		},
 
+		/**
+		 * @spec openspec/specs/decision-route/spec.md#requirement-declarative-route-progress-and-currentstage
+		 */
 		stageTypeLabel(type) {
 			const labels = {
 				preparatory: this.t('decidiq', 'preparatory'),
@@ -315,6 +327,9 @@ export default {
 			return labels[type] || type || ''
 		},
 
+		/**
+		 * @spec openspec/specs/decision-route/spec.md#requirement-declarative-route-progress-and-currentstage
+		 */
 		methodLabel(method) {
 			const labels = {
 				manual: this.t('decidiq', 'manual'),
@@ -326,6 +341,9 @@ export default {
 			return labels[method] || method || ''
 		},
 
+		/**
+		 * @spec openspec/specs/decision-route/spec.md#requirement-declarative-route-progress-and-currentstage
+		 */
 		statusLabel(status) {
 			const labels = {
 				pending: this.t('decidiq', 'pending'),
@@ -336,6 +354,9 @@ export default {
 			return labels[status] || status || ''
 		},
 
+		/**
+		 * @spec openspec/specs/decision-route/spec.md#requirement-declarative-route-progress-and-currentstage
+		 */
 		outcomeLabel(outcome) {
 			const labels = {
 				for: this.t('decidiq', 'for'),

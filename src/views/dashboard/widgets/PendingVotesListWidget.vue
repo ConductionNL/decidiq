@@ -40,6 +40,9 @@
 				@keydown.space.prevent="openVote(round)">
 				<div class="dashboard-list-widget__main">
 					<span class="dashboard-list-widget__title">{{
+						/**
+						 * @spec openspec/specs/dashboard/spec.md#requirement-my-pending-votes-widget
+						 */
 						voteTitle(round)
 					}}</span>
 					<span class="dashboard-list-widget__meta">{{
@@ -113,6 +116,8 @@ export default {
 		 * pending set-difference. Called on mount and on dashboard refresh.
 		 *
 		 * @return {Promise<void>}
+		 *
+		 * @spec openspec/specs/dashboard/spec.md#requirement-my-pending-votes-widget
 		 */
 		async load() {
 			this.loading = true
@@ -155,6 +160,8 @@ export default {
 		 *
 		 * @param {object} round The voting-round object.
 		 * @return {string} A human countdown label.
+		 *
+		 * @spec openspec/specs/dashboard/spec.md#requirement-my-pending-votes-widget
 		 */
 		countdownLabel(round) {
 			const { key } = countdownBucket(round.deadline, Date.now())

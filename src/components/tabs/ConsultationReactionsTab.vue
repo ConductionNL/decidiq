@@ -113,7 +113,9 @@ export default {
 	},
 
 	methods: {
-		/** Load pending reactions, scoped to this consultation when objectId is set. */
+		/** Load pending reactions, scoped to this consultation when objectId is set. *
+		 * @spec openspec/specs/citizen-participation/spec.md#requirement-reaction-moderation-queue
+		 */
 		async load() {
 			this.loading = true
 			try {
@@ -153,6 +155,9 @@ export default {
 			this.rejecting = reaction
 		},
 
+		/**
+		 * @spec openspec/specs/citizen-participation/spec.md#requirement-reaction-moderation-queue
+		 */
 		async confirmApprove(note) {
 			const reaction = this.approving
 			this.approving = null
@@ -165,6 +170,9 @@ export default {
 			}
 		},
 
+		/**
+		 * @spec openspec/specs/citizen-participation/spec.md#requirement-reaction-moderation-queue
+		 */
 		async confirmReject(reason) {
 			const reaction = this.rejecting
 			this.rejecting = null

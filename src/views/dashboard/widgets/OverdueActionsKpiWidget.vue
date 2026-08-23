@@ -71,6 +71,8 @@ export default {
 		 * Fetch open / in-progress action items. Called on mount and refresh.
 		 *
 		 * @return {Promise<void>}
+		 *
+		 * @spec openspec/specs/dashboard/spec.md#requirement-kpi-cards
 		 */
 		async load() {
 			this.loading = true

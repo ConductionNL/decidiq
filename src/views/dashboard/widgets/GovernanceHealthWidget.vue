@@ -89,6 +89,8 @@ export default {
 		 * series names are translated; the data is always live.
 		 *
 		 * @return {{ series: Array<object>, categories: string[] }} Chart data.
+		 *
+		 * @spec openspec/specs/dashboard/spec.md#requirement-kpi-cards
 		 */
 		chart() {
 			const { series, categories } = healthSeries(this.points)
@@ -122,6 +124,8 @@ export default {
 		 * Fetch meetings for the health chart. Called on mount and on refresh.
 		 *
 		 * @return {Promise<void>}
+		 *
+		 * @spec openspec/specs/dashboard/spec.md#requirement-kpi-cards
 		 */
 		async load() {
 			this.loading = true

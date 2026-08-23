@@ -60,6 +60,8 @@ export default {
 		 * Fetch scheduled meetings. Called on mount and on dashboard refresh.
 		 *
 		 * @return {Promise<void>}
+		 *
+		 * @spec openspec/specs/dashboard/spec.md#requirement-upcoming-meetings-widget
 		 */
 		async load() {
 			this.loading = true

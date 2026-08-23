@@ -105,6 +105,8 @@ export default {
 		 * pending set-difference. Called on mount and on dashboard refresh.
 		 *
 		 * @return {Promise<void>}
+		 *
+		 * @spec openspec/specs/dashboard/spec.md#requirement-my-pending-votes-widget
 		 */
 		async load() {
 			this.loading = true

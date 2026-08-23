@@ -235,6 +235,9 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * @spec openspec/specs/decision-evolution-and-cascade/spec.md
+		 */
 		outgoingLabel(type) {
 			const labels = {
 				supersedes: this.t('decidiq', 'Supersedes'),
@@ -246,6 +249,9 @@ export default {
 			return labels[type] || type
 		},
 
+		/**
+		 * @spec openspec/specs/decision-evolution-and-cascade/spec.md
+		 */
 		incomingLabel(type) {
 			const labels = {
 				supersedes: this.t('decidiq', 'Superseded by'),
