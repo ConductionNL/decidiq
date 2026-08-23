@@ -612,7 +612,7 @@
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"qualified-majority-two-thirds\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
+       "raw": "{\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"qualified-majority-two-thirds\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidiq\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
       }
      }
     },
@@ -681,7 +681,7 @@
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"qualified-majority-two-thirds\",\n  \"abstentionHandling\": \"count\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
+       "raw": "{\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"qualified-majority-two-thirds\",\n  \"abstentionHandling\": \"count\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidiq\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
       }
      }
     },
@@ -750,7 +750,7 @@
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
+       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidiq\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
       }
      }
     },
@@ -819,7 +819,7 @@
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"result\": \"tied\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"revote\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
+       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"result\": \"tied\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"revote\",\n  \"relations\": [\n    {\n      \"register\": \"decidiq\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
       }
      }
     },
@@ -888,7 +888,7 @@
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"chair-decides\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrChairMotionId}}\"\n    }\n  ]\n}"
+       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"chair-decides\",\n  \"relations\": [\n    {\n      \"register\": \"decidiq\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrChairMotionId}}\"\n    }\n  ]\n}"
       }
      }
     },
@@ -957,7 +957,7 @@
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"value\": \"for\",\n  \"weight\": 1,\n  \"isProxy\": false,\n  \"castAt\": \"2026-06-20T10:06:00+00:00\",\n  \"castAs\": \"in-person\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"voting-round\",\n      \"id\": \"{{vrChairRoundId}}\"\n    }\n  ]\n}"
+       "raw": "{\n  \"value\": \"for\",\n  \"weight\": 1,\n  \"isProxy\": false,\n  \"castAt\": \"2026-06-20T10:06:00+00:00\",\n  \"castAs\": \"in-person\",\n  \"relations\": [\n    {\n      \"register\": \"decidiq\",\n      \"schema\": \"voting-round\",\n      \"id\": \"{{vrChairRoundId}}\"\n    }\n  ]\n}"
       }
      }
     },
@@ -1026,7 +1026,7 @@
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"value\": \"against\",\n  \"weight\": 1,\n  \"isProxy\": false,\n  \"castAt\": \"2026-06-20T10:07:00+00:00\",\n  \"castAs\": \"in-person\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"voting-round\",\n      \"id\": \"{{vrChairRoundId}}\"\n    }\n  ]\n}"
+       "raw": "{\n  \"value\": \"against\",\n  \"weight\": 1,\n  \"isProxy\": false,\n  \"castAt\": \"2026-06-20T10:07:00+00:00\",\n  \"castAs\": \"in-person\",\n  \"relations\": [\n    {\n      \"register\": \"decidiq\",\n      \"schema\": \"voting-round\",\n      \"id\": \"{{vrChairRoundId}}\"\n    }\n  ]\n}"
       }
      }
     },
@@ -1095,7 +1095,7 @@
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrChairMotionId}}\"\n    }\n  ]\n}"
+       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidiq\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrChairMotionId}}\"\n    }\n  ]\n}"
       }
      }
     }
