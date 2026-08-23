@@ -132,7 +132,7 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 	await page.goto('/apps/decidiq/')
 	await page.evaluate(() => {
 		try {
-			window.localStorage.setItem('cn-walkthrough-seen:decidesk', '9999.0.0')
+			window.localStorage.setItem('cn-walkthrough-seen:decidiq', '9999.0.0')
 		} catch (e) {
 			// Non-fatal: private mode / no storage.
 		}
