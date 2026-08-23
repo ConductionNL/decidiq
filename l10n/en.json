@@ -1533,5 +1533,6 @@
         "e.g. Roos de Vries": "e.g. Roos de Vries",
         "Failed to add member.": "Failed to add member.",
         "name@example.org": "name@example.org"
-    }
+    },
+    "pluralForm": "nplurals=2; plural=(n != 1);"
 }

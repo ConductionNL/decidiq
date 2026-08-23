@@ -1537,5 +1537,6 @@
         "Your vote was recorded": "Uw stem is geregistreerd",
         "Zoek op motietitel…": "Zoek op motietitel…"
     },
-    "plurals": null
+    "plurals": null,
+    "pluralForm": "nplurals=2; plural=(n != 1);"
 }
