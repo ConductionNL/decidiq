@@ -107,7 +107,7 @@ Per ADR-016, fragment 59 seeds realistic objects for **each** new schema so the 
 1. Trigger `raadswisseling-batch`, batch `raadswisseling-2026`, eindeReden `einde-raadslidmaatschap`, lifecycle `in-uitvoering`: lidmaatschap-beeindigen `afgerond`, groepen-intrekken `open` (shows the completion block of REQ-MOB-008 live).
 2. Trigger `individueel`, eindeReden `ontslag-op-eigen-verzoek`, lifecycle `afgerond`: all steps `afgerond` with exitBevestigdDoor/exitBevestigdOp set.
 
-Seeds use general organisation data (works for municipality, association, corporate board) and Dutch names consistent with existing decidesk seeds. The `raadswisseling-2026` batch label ties objects 1+1 together so the batch filter and dashboard widgets are demoable immediately.
+Seeds use general organisation data (works for municipality, association, corporate board) and Dutch names consistent with existing decidiq seeds. The `raadswisseling-2026` batch label ties objects 1+1 together so the batch filter and dashboard widgets are demoable immediately.
 
 ## Migration Plan
 

@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 Conduction / Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Conduction / Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Unit tests for the dashboard refresh mixin (src/views/dashboard/widgets/

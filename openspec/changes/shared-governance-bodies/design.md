@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-Pure thin-client extension (ADR-022/ADR-037). Three new OpenRegister schemas — `BodyParticipation` (slug `body-participation`), `Zienswijzeronde` (slug `zienswijzeronde`), `Zienswijze` (slug `zienswijze`) — ship as `lib/Settings/register.d/56-shared-governance-bodies.json` (OpenAPI `components.schemas`, merged onto `decidesk_register.json` at load). The base file gains exactly two additive edits that fragments structurally cannot make (see D2): the `shared-body` value on GovernanceBody's `bodyType` enum and the optional `namens` property on Membership. All workflow behaviour is declared in OpenRegister dialects; all UI is manifest-v2 pages in a `src/manifest.d/shared-governance-bodies.json` fragment rendered by `CnPageRenderer` (the frontend talks to `/apps/openregister/api/objects` directly via the shared object stores — no decidesk CRUD controllers, per the redundant-controller gate).
+Pure thin-client extension (ADR-022/ADR-037). Three new OpenRegister schemas — `BodyParticipation` (slug `body-participation`), `Zienswijzeronde` (slug `zienswijzeronde`), `Zienswijze` (slug `zienswijze`) — ship as `lib/Settings/register.d/56-shared-governance-bodies.json` (OpenAPI `components.schemas`, merged onto `decidesk_register.json` at load). The base file gains exactly two additive edits that fragments structurally cannot make (see D2): the `shared-body` value on GovernanceBody's `bodyType` enum and the optional `namens` property on Membership. All workflow behaviour is declared in OpenRegister dialects; all UI is manifest-v2 pages in a `src/manifest.d/shared-governance-bodies.json` fragment rendered by `CnPageRenderer` (the frontend talks to `/apps/openregister/api/objects` directly via the shared object stores — no decidiq CRUD controllers, per the redundant-controller gate).
 
 Imperative code is limited to one small service: `ZienswijzerondeService::openRonde()` — fan-out generation of one Zienswijze per active BodyParticipation when a ronde opens (object generation is not expressible as a dialect; the pc-cyclus step-generation precedent).
 
@@ -93,7 +93,7 @@ docs/features/gemeenschappelijke-regelingen.md             (new)
 
 ## Seed Data
 
-A realistic gemeenschappelijke regeling modelled on the SED organisatie pattern: three fictional municipalities sharing one uitvoeringsorganisatie ("NOZ organisatie" for Noorderbrug, Oostwoud, Zuidermeer). References use existing decidesk seed objects where available or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder where a cross-seed reference is resolved at import. All objects carry the `@self` envelope `register: decidesk` with their schema slug.
+A realistic gemeenschappelijke regeling modelled on the SED organisatie pattern: three fictional municipalities sharing one uitvoeringsorganisatie ("NOZ organisatie" for Noorderbrug, Oostwoud, Zuidermeer). References use existing decidiq seed objects where available or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder where a cross-seed reference is resolved at import. All objects carry the `@self` envelope `register: decidesk` with their schema slug.
 
 ### Schema: `governance-body` (seed additions, existing schema)
 
@@ -160,7 +160,7 @@ Ronde 2's zienswijze (object 4) is `uitstaand`, so the "Openstaande zienswijzen"
 
 ## Migration Plan
 
-1. Land the register.d fragment, the two additive base-register edits, the manifest.d fragment, the GovernanceBodyDetail section + dashboard widget, `ZienswijzerondeService`, seed data, tests, and docs in one decidesk PR (fragments are additive; the repair step / `ConfigurationService::importFromApp()` picks up the new schemas on upgrade).
+1. Land the register.d fragment, the two additive base-register edits, the manifest.d fragment, the GovernanceBodyDetail section + dashboard widget, `ZienswijzerondeService`, seed data, tests, and docs in one decidiq PR (fragments are additive; the repair step / `ConfigurationService::importFromApp()` picks up the new schemas on upgrade).
 2. `pc-cyclus` (sibling) is a soft reference only — `cyclusStap` is nullable, so the changes land in any order. `works-council-consultation` (sibling) edits the same `bodyType` enum — union merge, both values survive.
 3. Rollback: revert the PR — the fragments disappear, pages unregister, the enum value / `namens` property / detail section / widget revert (all additive). Existing objects remain soft-retained in OR; a `shared-body` typed body or a `namens`-carrying membership would fail re-validation only on edit and can be re-typed/cleared manually.
 

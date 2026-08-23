@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Proxy Vote Service
+ * Decidiq Proxy Vote Service
  *
  * Service governing proxy votes on meetings. Proxies are registered by the
  * grantor (a member) and approved by the secretary; they are automatically
@@ -31,7 +31,7 @@
  * `ObjectServiceInterface` RBAC contract, that authorization already ran.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -49,8 +49,9 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\AppInfo\Application;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -262,7 +263,7 @@ class ProxyVoteService {
 	 * must call approve() before the proxy counts toward quorum.
 	 *
 	 * Enforces the per-holder per-meeting cap on ACTIVE proxies (app config
-	 * `decidesk`/`max_proxies_per_holder`, NL governance default 2). Fail
+	 * `decidiq`/`max_proxies_per_holder`, NL governance default 2). Fail
 	 * closed: when the existing proxies cannot be counted, registration is
 	 * rejected rather than allowed through.
 	 *
@@ -361,7 +362,7 @@ class ProxyVoteService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: ProxyVoteService::register failed',
+				'Decidiq: ProxyVoteService::register failed',
 				['exception' => $e->getMessage(), 'meeting' => $meetingId]
 			);
 			return $this->registerFailure(message: 'Failed to register proxy.');
@@ -439,7 +440,7 @@ class ProxyVoteService {
 	/**
 	 * Resolve the configured per-holder per-meeting ACTIVE-proxy cap.
 	 *
-	 * Reads app config `decidesk`/`max_proxies_per_holder`; values below 1 and
+	 * Reads app config `decidiq`/`max_proxies_per_holder`; values below 1 and
 	 * resolution failures fall back to the NL governance default of 2 (a
 	 * misconfigured cap never disables the limit — fail closed).
 	 *
@@ -450,13 +451,13 @@ class ProxyVoteService {
 	private function maxProxiesPerHolder(): int {
 		try {
 			$appConfig = $this->container->get(\OCP\IAppConfig::class);
-			$value = $appConfig->getValueInt('decidesk', self::MAX_PROXIES_CONFIG_KEY, self::MAX_PROXIES_DEFAULT);
+			$value = $appConfig->getValueInt(Application::APP_ID, self::MAX_PROXIES_CONFIG_KEY, self::MAX_PROXIES_DEFAULT);
 			if ($value >= 1) {
 				return $value;
 			}
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: max_proxies_per_holder config lookup failed — using default',
+				'Decidiq: max_proxies_per_holder config lookup failed — using default',
 				['exception' => $e->getMessage()]
 			);
 		}
@@ -482,7 +483,7 @@ class ProxyVoteService {
 			// 'register'/'schema' key is silently ignored, findAll() then runs with
 			// no register/schema context and returns an empty array. It does not
 			// throw, so the caller cannot tell "no proxies" from "never looked",
-			// and the per-holder cap below counted 0 every time (decidesk#443
+			// and the per-holder cap below counted 0 every time (decidiq#443
 			// follow-up: a third proxy was accepted at a cap of 2).
 			$rows = $this->objectService->findAll(
 				[
@@ -496,7 +497,7 @@ class ProxyVoteService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: ProxyVoteService::forMeeting failed',
+				'Decidiq: ProxyVoteService::forMeeting failed',
 				['exception' => $e->getMessage(), 'meeting' => $meetingId]
 			);
 			return [
@@ -605,7 +606,7 @@ class ProxyVoteService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: ProxyVoteService::transition failed',
+				'Decidiq: ProxyVoteService::transition failed',
 				['exception' => $e->getMessage(), 'proxyId' => $proxyId]
 			);
 			return [

@@ -31,13 +31,13 @@
 
 		<div class="cn-delegation-chain">
 			<p v-if="loading && !hasLoaded" class="cn-delegation-chain__loading">
-				{{ t('decidesk', 'Loading chain…') }}
+				{{ t('decidiq', 'Loading chain…') }}
 			</p>
 
 			<CnNoteCard
 				v-else-if="error"
 				type="error"
-				:heading="t('decidesk', 'Could not load the ondermandaat chain')"
+				:heading="t('decidiq', 'Could not load the ondermandaat chain')"
 				data-testid="delegation-chain-error">
 				{{ error }}
 			</CnNoteCard>
@@ -46,7 +46,7 @@
 				<nav
 					v-if="breadcrumb.length > 1"
 					class="cn-delegation-chain__breadcrumb"
-					:aria-label="t('decidesk', 'Ondermandaat chain')"
+					:aria-label="t('decidiq', 'Ondermandaat chain')"
 					data-testid="delegation-chain-breadcrumb">
 					<template v-for="(entry, index) in breadcrumb" :key="entry.id">
 						<NcButton
@@ -77,13 +77,11 @@
 						subject
 					}}</span>
 					<span v-if="delegansLabel" class="cn-delegation-chain__party">
-						{{
-							t('decidesk', 'Delegans: {who}', { who: delegansLabel })
-						}}
+						{{ t('decidiq', 'Delegans: {who}', { who: delegansLabel }) }}
 					</span>
 					<span v-if="delegatarisLabel" class="cn-delegation-chain__party">
 						{{
-							t('decidesk', 'Delegataris: {who}', {
+							t('decidiq', 'Delegataris: {who}', {
 								who: delegatarisLabel,
 							})
 						}}
@@ -93,7 +91,7 @@
 						variant="tertiary"
 						data-testid="delegation-chain-decision-link"
 						@click="openDecision(decisionId)">
-						{{ decisionLabel || t('decidesk', 'View decision') }}
+						{{ decisionLabel || t('decidiq', 'View decision') }}
 					</NcButton>
 				</div>
 
@@ -102,7 +100,7 @@
 					class="cn-delegation-chain__children"
 					data-testid="delegation-chain-children">
 					<h4 class="cn-delegation-chain__children-title">
-						{{ t('decidesk', 'Ondermandaten') }}
+						{{ t('decidiq', 'Ondermandaten') }}
 					</h4>
 					<ul class="cn-delegation-chain__children-list">
 						<li v-for="child in children" :key="child.id">
@@ -122,7 +120,7 @@
 					data-testid="delegation-chain-standalone">
 					{{
 						t(
-							'decidesk',
+							'decidiq',
 							'This delegation/mandate has no parent or sub-mandates.',
 						)
 					}}
@@ -161,7 +159,7 @@ export default {
 		objectData: { type: Object, default: () => ({}) },
 		objectType: { type: String, default: '' },
 		store: { type: Object, default: null },
-		title: { type: String, default: () => t('decidesk', 'Ondermandaat chain') },
+		title: { type: String, default: () => t('decidiq', 'Ondermandaat chain') },
 		icon: { type: String, default: 'Sitemap' },
 	},
 
@@ -332,7 +330,7 @@ export default {
 			}
 			const store = this.getStore()
 			if (!store) {
-				this.error = t('decidesk', 'No object store available')
+				this.error = t('decidiq', 'No object store available')
 				return
 			}
 			this.loading = true
@@ -395,7 +393,7 @@ export default {
 			} catch (e) {
 				this.error =
 					e?.message
-					|| t('decidesk', 'Failed to load the ondermandaat chain.')
+					|| t('decidiq', 'Failed to load the ondermandaat chain.')
 			} finally {
 				this.loading = false
 				this.hasLoaded = true

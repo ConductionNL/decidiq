@@ -1,7 +1,7 @@
 /**
  * Board self-evaluation ACTION API client.
  *
- * Thin wrappers over the decidesk board-evaluation action endpoints. Plain
+ * Thin wrappers over the decidiq board-evaluation action endpoints. Plain
  * object reads/writes (creating a BoardEvaluation, listing cycles, editing an
  * EvaluationTemplate) use useObjectStore (the OpenRegister object API) per
  * ADR-022 — only the anonymous-respond / close / publish / report ACTIONS,
@@ -17,7 +17,7 @@
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 
-const base = '/apps/decidesk/api/board-evaluations'
+const base = '/apps/decidiq/api/board-evaluations'
 
 /**
  * Submit the authenticated user's anonymous response to an evaluation cycle.

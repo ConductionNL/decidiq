@@ -1,7 +1,7 @@
 # interpellatie-register Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - [vragenuur-interpellatie](../../changes/vragenuur-interpellatie/)
 
@@ -87,7 +87,7 @@ The system SHALL record the outcome of a `geagendeerd` interpellation by transit
 
 ### Requirement: REQ-VRI-014 Notifications and list/detail pages for interpellations
 
-The `Interpellatieverzoek` schema SHALL declare notifications exclusively via `x-openregister-notifications` (ADR-031): `created` confirming submission to the verzoeker and the griffie group, and `updated` triggers notifying the verzoeker and portefeuillehouder on the admission decision (including afwijzingsReden on rejection) and on scheduling, with nl and en subjects. The system SHALL provide an Interpellaties index page (columns: verzoekNummer, onderwerp, verzoeker, fractie, portefeuillehouder, lifecycle, support status; quick filters on lifecycle and fractie) and a detail page (all fields; support recording; navigable meeting/agenda-item references; Files leaf and audit-trail sidebar; actions in explicit dialogs) as manifest-v2 pages in the same `src/manifest.d/` fragment, schema referenced by slug `interpellatieverzoek`. No decidesk CRUD controllers SHALL be added for listing or reading.
+The `Interpellatieverzoek` schema SHALL declare notifications exclusively via `x-openregister-notifications` (ADR-031): `created` confirming submission to the verzoeker and the griffie group, and `updated` triggers notifying the verzoeker and portefeuillehouder on the admission decision (including afwijzingsReden on rejection) and on scheduling, with nl and en subjects. The system SHALL provide an Interpellaties index page (columns: verzoekNummer, onderwerp, verzoeker, fractie, portefeuillehouder, lifecycle, support status; quick filters on lifecycle and fractie) and a detail page (all fields; support recording; navigable meeting/agenda-item references; Files leaf and audit-trail sidebar; actions in explicit dialogs) as manifest-v2 pages in the same `src/manifest.d/` fragment, schema referenced by slug `interpellatieverzoek`. No decidiq CRUD controllers SHALL be added for listing or reading.
 
 #### Scenario: Submission confirmation for an interpellation
 

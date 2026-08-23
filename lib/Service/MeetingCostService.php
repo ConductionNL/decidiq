@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Meeting Cost Service
+ * Decidiq Meeting Cost Service
  *
  * Computes the cost of a meeting (elapsed time x attendee count x the
  * governance body's hourly rate). The live cost panel in the SPA computes a
@@ -10,7 +10,7 @@
  * client-computed persisted cost could be spoofed).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,7 +27,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -168,7 +168,7 @@ class MeetingCostService {
 			return (float)$rate;
 		} catch (Throwable $e) {
 			$this->logger->debug(
-				'Decidesk MeetingCostService: hourlyRate resolution failed',
+				'Decidiq MeetingCostService: hourlyRate resolution failed',
 				['error' => $e->getMessage()]
 			);
 			return null;
@@ -265,7 +265,7 @@ class MeetingCostService {
 			return count($results);
 		} catch (Throwable $e) {
 			$this->logger->debug(
-				'Decidesk MeetingCostService: attendee count failed',
+				'Decidiq MeetingCostService: attendee count failed',
 				['meetingId' => $meetingId, 'error' => $e->getMessage()]
 			);
 			return 0;

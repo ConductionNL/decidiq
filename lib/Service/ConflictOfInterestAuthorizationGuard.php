@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Conflict-of-Interest Authorization Guard
+ * Decidiq Conflict-of-Interest Authorization Guard
  *
  * Answers the two authorization questions the conflict-of-interest endpoints
  * ask: does the caller identify as the Membership a declaration is about, and
@@ -15,7 +15,7 @@
  * Fails CLOSED: an unresolvable meeting or participant is never authorized.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -32,7 +32,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
@@ -211,7 +211,7 @@ class ConflictOfInterestAuthorizationGuard {
 			$entity = $this->objectService->find(id: $agendaItemId, register: 'decidesk', schema: 'agenda-item');
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: ConflictOfInterestAuthorizationGuard could not resolve the agenda item\'s meeting',
+				'Decidiq: ConflictOfInterestAuthorizationGuard could not resolve the agenda item\'s meeting',
 				['agendaItemId' => $agendaItemId, 'exception' => $e->getMessage()]
 			);
 			return null;

@@ -132,7 +132,7 @@ be created simultaneously, storing `caldavUid`, `calendarId`, and governance rel
 #### Scenario: Calendar auto-created on first meeting
 - **GIVEN** no calendar exists for governance body `gem-utrecht`
 - **WHEN** the first meeting for that body is created via `POST /api/meetings`
-- **THEN** a CalDAV calendar named `Decidesk — Gemeente Utrecht` with slug `decidesk-gem-utrecht` is created and the VEVENT is placed in it
+- **THEN** a CalDAV calendar named `Decidiq — Gemeente Utrecht` with slug `decidesk-gem-utrecht` is created and the VEVENT is placed in it
 
 #### Scenario: Update meeting date and location
 - **GIVEN** an existing meeting in `draft` or `scheduled` state
@@ -455,7 +455,7 @@ the ICS blob via `CalDavService`. `CalDavService` SHALL use
 ### Requirement: REQ-CAL-002 — Dedicated CalDAV calendar per governance body
 
 The system SHALL create one dedicated Nextcloud Calendar per governance body with the
-naming convention `decidesk-{bodySlug}` (display name: `Decidesk — {bodyName}`).
+naming convention `decidesk-{bodySlug}` (display name: `Decidiq — {bodyName}`).
 The calendar SHALL be created automatically (lazy creation) when the first meeting for
 that body is scheduled. Subsequent meetings for the same body SHALL use the existing
 calendar. The calendar SHALL be visible in the Nextcloud Calendar app alongside personal

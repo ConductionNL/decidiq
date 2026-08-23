@@ -1,13 +1,13 @@
 # vve-alv-pack Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - [vve-alv-pack](../../changes/vve-alv-pack/)
 
 ## Purpose
 
-The VvE ALV statutory pack: the thin statutory layer that lets decidesk's association domain serve a Vereniging van Eigenaars. It owns VvE statutory decision *content* (built-in decision templates with their default majorities), modelreglement presets (1992/2006/2017) with per-splitsingsakte overrides, breukdelen *presentation and validation* over the existing `votingWeight` machinery, the kascommissie verslag/verklaring flow feeding decharge, and the VvE-specific statutory agenda-items warning. The weighted tally, thresholds, and quorum calculation stay in `voting-system`/`process-configuration`; recurring year cycles stay in `pc-cyclus`; registering the splitsingsakte stays in `governing-documents-register`.
+The VvE ALV statutory pack: the thin statutory layer that lets decidiq's association domain serve a Vereniging van Eigenaars. It owns VvE statutory decision *content* (built-in decision templates with their default majorities), modelreglement presets (1992/2006/2017) with per-splitsingsakte overrides, breukdelen *presentation and validation* over the existing `votingWeight` machinery, the kascommissie verslag/verklaring flow feeding decharge, and the VvE-specific statutory agenda-items warning. The weighted tally, thresholds, and quorum calculation stay in `voting-system`/`process-configuration`; recurring year cycles stay in `pc-cyclus`; registering the splitsingsakte stays in `governing-documents-register`.
 
 **Standards**: Schema.org (`HowTo`, `AssessAction`, `AuthorizeAction`), BW 5:112/5:124–139 (splitsing, VvE), BW 2:38/2:48 (ALV, decharge), Modelreglementen 1992/2006/2017, Woningwet (reservefonds/MJOP per 2018)
 **Feature tier**: V1
@@ -20,7 +20,7 @@ The system SHALL define four schemas in the decidesk register via the `lib/Setti
 
 #### Scenario: Register fragment is additive
 
-- GIVEN a decidesk installation upgrading to this change
+- GIVEN a decidiq installation upgrading to this change
 - WHEN the register configuration is loaded
 - THEN the four schemas register from the `57-vve-alv-pack.json` fragment
 - AND no existing schema in `decidesk_register.json` is modified
@@ -38,7 +38,7 @@ The system SHALL ship six built-in `VveDecisionTemplate` seeds via the fragment'
 
 #### Scenario: Fresh install has usable VvE decision templates
 
-- GIVEN a fresh decidesk installation
+- GIVEN a fresh decidiq installation
 - WHEN the VvE decision templates are listed
 - THEN all six built-ins are available with their default majorities, quorum fractions, and reglement sources, immediately usable without configuration
 

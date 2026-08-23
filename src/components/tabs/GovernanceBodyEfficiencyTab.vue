@@ -15,28 +15,28 @@
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--efficiency"
+		class="decidiq-tab decidiq-tab--efficiency"
 		data-testid="body-efficiency-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Efficiency') }}
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Efficiency') }}
 			</h3>
 		</div>
 
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load analytics')">
+			:title="t('decidiq', 'Could not load analytics')">
 			{{ error }}
 		</CnNoteCard>
 
-		<div v-if="loading" class="decidesk-tab__loading">
-			{{ t('decidesk', 'Loading analytics…') }}
+		<div v-if="loading" class="decidiq-tab__loading">
+			{{ t('decidiq', 'Loading analytics…') }}
 		</div>
 
 		<template v-else-if="!hasData">
-			<p class="decidesk-tab__empty" data-testid="body-efficiency-empty">
-				{{ t('decidesk', 'No meetings recorded for this body yet.') }}
+			<p class="decidiq-tab__empty" data-testid="body-efficiency-empty">
+				{{ t('decidiq', 'No meetings recorded for this body yet.') }}
 			</p>
 		</template>
 
@@ -45,10 +45,10 @@
 			<section
 				class="efficiency-section"
 				data-testid="body-efficiency-duration">
-				<h4>{{ t('decidesk', 'Meeting duration') }}</h4>
+				<h4>{{ t('decidiq', 'Meeting duration') }}</h4>
 				<p class="efficiency-section__summary">
 					{{
-						t('decidesk', 'Average actual duration: {minutes} min', {
+						t('decidiq', 'Average actual duration: {minutes} min', {
 							minutes: duration.averageActualMinutes,
 						})
 					}}
@@ -57,7 +57,7 @@
 						class="efficiency-section__flag">
 						{{
 							t(
-								'decidesk',
+								'decidiq',
 								'{n} meeting(s) exceeded the scheduled time',
 								{ n: duration.overrunCount },
 							)
@@ -71,7 +71,7 @@
 						class="efficiency-bars__row"
 						role="listitem">
 						<span class="efficiency-bars__label">{{
-							p.title || t('decidesk', 'Meeting')
+							p.title || t('decidiq', 'Meeting')
 						}}</span>
 						<span class="efficiency-bars__track">
 							<span
@@ -95,11 +95,11 @@
 			<section
 				class="efficiency-section"
 				data-testid="body-efficiency-completion">
-				<h4>{{ t('decidesk', 'Agenda completion') }}</h4>
+				<h4>{{ t('decidiq', 'Agenda completion') }}</h4>
 				<p class="efficiency-section__summary">
 					{{
 						t(
-							'decidesk',
+							'decidiq',
 							'{completed} of {total} agenda items completed ({percent}%)',
 							{
 								completed: completion.completed,
@@ -116,7 +116,7 @@
 				v-if="speaking.rows.length"
 				class="efficiency-section"
 				data-testid="body-efficiency-speaking">
-				<h4>{{ t('decidesk', 'Speaking-time distribution') }}</h4>
+				<h4>{{ t('decidiq', 'Speaking-time distribution') }}</h4>
 				<ul class="efficiency-bars" role="list">
 					<li
 						v-for="row in speaking.rows"
@@ -143,11 +143,11 @@
 				v-if="cost.points.length"
 				class="efficiency-section"
 				data-testid="body-efficiency-cost">
-				<h4>{{ t('decidesk', 'Cost trend') }}</h4>
+				<h4>{{ t('decidiq', 'Cost trend') }}</h4>
 				<p class="efficiency-section__summary">
 					{{
 						t(
-							'decidesk',
+							'decidiq',
 							'Total: {total} · Average per meeting: {average}',
 							{
 								total: formatEur(cost.total),
@@ -163,7 +163,7 @@
 						class="efficiency-bars__row"
 						role="listitem">
 						<span class="efficiency-bars__label">{{
-							p.title || t('decidesk', 'Meeting')
+							p.title || t('decidiq', 'Meeting')
 						}}</span>
 						<span class="efficiency-bars__track">
 							<span
@@ -182,10 +182,10 @@
 				v-if="itemCostBreakdown.length"
 				class="efficiency-section"
 				data-testid="body-efficiency-item-cost">
-				<h4>{{ t('decidesk', 'Cost per agenda item') }}</h4>
+				<h4>{{ t('decidiq', 'Cost per agenda item') }}</h4>
 				<p class="efficiency-section__summary">
 					{{
-						t('decidesk', 'Latest meeting: {title}', {
+						t('decidiq', 'Latest meeting: {title}', {
 							title: latestCostMeetingTitle,
 						})
 					}}
@@ -201,7 +201,7 @@
 							:class="{
 								'efficiency-bars__label--flag': row.mostExpensive,
 							}">
-							{{ row.title || t('decidesk', 'Item') }}
+							{{ row.title || t('decidiq', 'Item') }}
 						</span>
 						<span class="efficiency-bars__track">
 							<span
@@ -225,7 +225,7 @@
 				v-if="accuracy.length"
 				class="efficiency-section"
 				data-testid="body-efficiency-accuracy">
-				<h4>{{ t('decidesk', 'Time allocation accuracy') }}</h4>
+				<h4>{{ t('decidiq', 'Time allocation accuracy') }}</h4>
 				<ul class="efficiency-accuracy" role="list">
 					<li
 						v-for="row in accuracy"
@@ -236,7 +236,7 @@
 						>:
 						{{
 							t(
-								'decidesk',
+								'decidiq',
 								'avg {actual} min actual vs {estimated} min allocated',
 								{
 									actual: row.avgActual,
@@ -374,7 +374,7 @@ export default {
 
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		latestCostMeetingTitle() {
-			return this.latestCostMeeting?.title || this.t('decidesk', 'Meeting')
+			return this.latestCostMeeting?.title || this.t('decidiq', 'Meeting')
 		},
 
 		/**
@@ -497,7 +497,7 @@ export default {
 				)
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Failed to load analytics.')
+					e?.message || this.t('decidiq', 'Failed to load analytics.')
 			} finally {
 				this.loading = false
 			}
@@ -528,7 +528,7 @@ export default {
 		 */
 		formatMinutes(minutes) {
 			return Number.isFinite(minutes)
-				? this.t('decidesk', '{m} min', { m: minutes })
+				? this.t('decidiq', '{m} min', { m: minutes })
 				: '—'
 		},
 
@@ -539,27 +539,27 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: calc(var(--default-grid-baseline) * 2);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__empty,
-.decidesk-tab__loading {
+.decidiq-tab__empty,
+.decidiq-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }

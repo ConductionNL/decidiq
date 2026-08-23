@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — GovernanceBodyDetail's `body-factions` facet
@@ -112,7 +112,7 @@ test("GovernanceBodyDetail: factions facet lists a faction created with the pare
 		factionId = objectId(await factionResp.json())
 		test.skip(!factionId, 'Seeded faction has no id')
 
-		await page.goto(`${BASE}/apps/decidesk/governance-bodies/${bodyId}`)
+		await page.goto(`${BASE}/apps/decidiq/governance-bodies/${bodyId}`)
 		// app-root appearing only proves the shell mounted, not that data has
 		// arrived — mount itself blocks on initializeStores()'s settings round
 		// trip, so 30s (double the old budget) before even the shell shows up.

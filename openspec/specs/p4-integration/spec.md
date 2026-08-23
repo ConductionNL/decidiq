@@ -5,12 +5,12 @@ status: done
 # p4-integration Specification
 
 ## Purpose
-Exposes Decidesk governance data to external systems through a versioned public REST API following Dutch REST-API Design Rules, OAuth 2.0 read scopes, and ORI API 1.4 endpoints for organizations, persons, meetings, motions, votes, and minutes. The capability also synchronizes meetings and action items to CalDAV calendars, links Nextcloud Files to governance objects, integrates Nextcloud Talk video calls, publishes governance events as CloudEvents to n8n and OpenConnector webhooks, and supports reverse-proxy deployment with configurable base URLs.
+Exposes Decidiq governance data to external systems through a versioned public REST API following Dutch REST-API Design Rules, OAuth 2.0 read scopes, and ORI API 1.4 endpoints for organizations, persons, meetings, motions, votes, and minutes. The capability also synchronizes meetings and action items to CalDAV calendars, links Nextcloud Files to governance objects, integrates Nextcloud Talk video calls, publishes governance events as CloudEvents to n8n and OpenConnector webhooks, and supports reverse-proxy deployment with configurable base URLs.
 
 ## Requirements
 
 ### Requirement: REQ-API-001 — Public REST API foundation
-The system SHALL expose a versioned public REST API at `/index.php/apps/decidesk/api/v1/` following the Dutch REST-API Design Rules. All endpoints SHALL support pagination via `_page` and `_limit` query parameters. Responses SHALL include `total`, `page`, `pages`, and `results` fields. Authentication SHALL use Nextcloud session tokens. Public endpoints SHALL be annotated `#[PublicPage]` + `#[NoCSRFRequired]` and SHALL register a CORS `OPTIONS` route.
+The system SHALL expose a versioned public REST API at `/index.php/apps/decidiq/api/v1/` following the Dutch REST-API Design Rules. All endpoints SHALL support pagination via `_page` and `_limit` query parameters. Responses SHALL include `total`, `page`, `pages`, and `results` fields. Authentication SHALL use Nextcloud session tokens. Public endpoints SHALL be annotated `#[PublicPage]` + `#[NoCSRFRequired]` and SHALL register a CORS `OPTIONS` route.
 
 **OCP interfaces used:** `OCP\AppFramework\Http\JSONResponse`, `OCP\IRequest`, `OCP\AppFramework\Controller`
 
@@ -82,7 +82,7 @@ All API error responses SHALL use a consistent JSON envelope. HTTP 4xx responses
 ---
 
 ### Requirement: REQ-API-004 — API health check
-The system SHALL expose `GET /api/v1/health` as a public endpoint (no authentication required) returning the Nextcloud instance base URL, Decidesk app version, and OpenRegister connection status. This endpoint SHALL be used to verify reverse proxy base URL configuration.
+The system SHALL expose `GET /api/v1/health` as a public endpoint (no authentication required) returning the Nextcloud instance base URL, Decidiq app version, and OpenRegister connection status. This endpoint SHALL be used to verify reverse proxy base URL configuration.
 
 #### Scenario: Health check response structure
 - **WHEN** `GET /api/v1/health` is requested (no authentication)
@@ -105,13 +105,13 @@ The system MUST provide the icalendar-sync capability as specified by the REQ-IC
 ---
 
 ### Requirement: REQ-ICAL-001 — Per-governance-body CalDAV calendar
-The system SHALL create one Nextcloud Calendar per GovernanceBody during the repair step, named `{GovernanceBody.name} — Decidesk`. Calendar creation SHALL be idempotent — re-running the repair step SHALL NOT create duplicate calendars. Calendars SHALL be scoped to the Nextcloud user account associated with the governance body's owning organization.
+The system SHALL create one Nextcloud Calendar per GovernanceBody during the repair step, named `{GovernanceBody.name} — Decidiq`. Calendar creation SHALL be idempotent — re-running the repair step SHALL NOT create duplicate calendars. Calendars SHALL be scoped to the Nextcloud user account associated with the governance body's owning organization.
 
 **OCP interfaces used:** `\OCA\DAV\CalDAV\CalDavBackend`, `OCP\BackgroundJob\IJobList`
 
 #### Scenario: Calendar created on repair
-- **WHEN** the Decidesk repair step runs after installation
-- **THEN** one Nextcloud Calendar SHALL exist for each GovernanceBody with the name `{name} — Decidesk`
+- **WHEN** the Decidiq repair step runs after installation
+- **THEN** one Nextcloud Calendar SHALL exist for each GovernanceBody with the name `{name} — Decidiq`
 
 #### Scenario: Idempotent calendar creation
 - **WHEN** the repair step runs a second time
@@ -139,7 +139,7 @@ The system SHALL synchronize each Meeting object to a CalDAV VEVENT. The VEVENT 
 VEVENT creation SHALL be triggered when a Meeting is created or its lifecycle changes. The `X-DECIDESK-*` properties SHALL be read-only — changes to these properties from CalDAV clients SHALL be ignored on inbound sync.
 
 #### Scenario: Meeting creation creates VEVENT
-- **WHEN** a new Meeting is created in Decidesk
+- **WHEN** a new Meeting is created in Decidiq
 - **THEN** a corresponding VEVENT SHALL appear in the GovernanceBody's Nextcloud Calendar within 5 seconds
 
 #### Scenario: Meeting reschedule updates VEVENT
@@ -147,7 +147,7 @@ VEVENT creation SHALL be triggered when a Meeting is created or its lifecycle ch
 - **THEN** the VEVENT `DTSTART` SHALL be updated to match
 
 #### Scenario: External VEVENT edit updates meeting scheduling fields
-- **WHEN** an external CalDAV client updates `DTSTART`, `DTEND`, `LOCATION`, or `SUMMARY` on a Decidesk VEVENT
+- **WHEN** an external CalDAV client updates `DTSTART`, `DTEND`, `LOCATION`, or `SUMMARY` on a Decidiq VEVENT
 - **THEN** the corresponding Meeting object SHALL be updated with the new values
 - **THEN** the change SHALL appear in the Meeting's OpenRegister audit trail
 
@@ -196,7 +196,7 @@ The system SHALL allow users to link Nextcloud Files nodes (files or folders) to
 **OCP interfaces used:** `OCP\Files\IRootFolder`, `OCP\Files\Node`, `OCP\Files\Events\Node\NodeDeletedEvent`
 
 #### Scenario: User links a file to a meeting
-- **GIVEN** a Meeting detail page in Decidesk
+- **GIVEN** a Meeting detail page in Decidiq
 - **WHEN** the user opens the "Add document" file picker and selects a file from Nextcloud Files
 - **THEN** the file SHALL appear in the meeting's linked documents section
 - **THEN** an OpenRegister relation of type `document` SHALL be created between the Meeting and the Nextcloud Files node
@@ -261,7 +261,7 @@ The system SHALL display a "Launch video call" button on Meeting detail pages wh
 #### Scenario: Button hidden when Talk not installed
 - **WHEN** Nextcloud Talk app is not installed or not enabled
 - **THEN** the "Launch video call" button SHALL NOT be displayed
-- **THEN** an administrator warning SHALL appear in Settings → Decidesk → Integration
+- **THEN** an administrator warning SHALL appear in Settings → Decidiq → Integration
 
 ---
 
@@ -321,10 +321,10 @@ The system SHALL publish the following governance domain events using OpenRegist
 ---
 
 ### Requirement: REQ-N8N-002 — n8n webhook endpoint configuration
-The system SHALL provide an admin UI at Settings → Decidesk → Webhooks to configure n8n webhook trigger endpoints. Administrators SHALL be able to add, test, and remove n8n endpoint URLs. Each endpoint configuration SHALL specify: URL, event type filter (all events or specific types), and an optional HMAC signing secret.
+The system SHALL provide an admin UI at Settings → Decidiq → Webhooks to configure n8n webhook trigger endpoints. Administrators SHALL be able to add, test, and remove n8n endpoint URLs. Each endpoint configuration SHALL specify: URL, event type filter (all events or specific types), and an optional HMAC signing secret.
 
 #### Scenario: Admin adds n8n webhook endpoint
-- **GIVEN** the Decidesk webhooks admin page
+- **GIVEN** the Decidiq webhooks admin page
 - **WHEN** the admin enters an n8n webhook URL and clicks "Save"
 - **THEN** the endpoint SHALL be stored as a webhook subscription in OpenRegister
 - **THEN** governance events SHALL be dispatched to the configured n8n URL
@@ -396,7 +396,7 @@ The system MUST provide the oauth-applications capability as specified by the RE
 ---
 
 ### Requirement: REQ-OAUTH-001 — OAuth 2.0 application registration
-The system SHALL define Decidesk-specific OAuth 2.0 read scopes via Nextcloud's `oauth2` app. External applications SHALL register via the standard Nextcloud OAuth2 client registration UI. Decidesk SHALL add the following scope definitions to the Nextcloud scope registry:
+The system SHALL define Decidiq-specific OAuth 2.0 read scopes via Nextcloud's `oauth2` app. External applications SHALL register via the standard Nextcloud OAuth2 client registration UI. Decidiq SHALL add the following scope definitions to the Nextcloud scope registry:
 
 | Scope | Access granted |
 |---|---|
@@ -424,7 +424,7 @@ The system SHALL define Decidesk-specific OAuth 2.0 read scopes via Nextcloud's 
 ---
 
 ### Requirement: REQ-OAUTH-002 — OAuth token validation middleware
-The system's API controllers SHALL validate Bearer tokens using Nextcloud's built-in OAuth2 token validation. Token expiry, scope enforcement, and revocation checks SHALL be delegated entirely to the `oauth2` app. Decidesk SHALL NOT implement custom token validation logic.
+The system's API controllers SHALL validate Bearer tokens using Nextcloud's built-in OAuth2 token validation. Token expiry, scope enforcement, and revocation checks SHALL be delegated entirely to the `oauth2` app. Decidiq SHALL NOT implement custom token validation logic.
 
 #### Scenario: Expired token rejected
 - **WHEN** an API request is made with an expired Bearer token
@@ -437,12 +437,12 @@ The system's API controllers SHALL validate Bearer tokens using Nextcloud's buil
 ---
 
 ### Requirement: REQ-OAUTH-003 — Authorization code flow with PKCE
-External applications SHALL authenticate using OAuth 2.0 Authorization Code flow with PKCE (RFC 7636) as provided by the Nextcloud `oauth2` app. The authorization endpoint, token endpoint, and redirect URI validation SHALL be handled entirely by the Nextcloud `oauth2` app. Decidesk SHALL document the flow in `docs/api.md`.
+External applications SHALL authenticate using OAuth 2.0 Authorization Code flow with PKCE (RFC 7636) as provided by the Nextcloud `oauth2` app. The authorization endpoint, token endpoint, and redirect URI validation SHALL be handled entirely by the Nextcloud `oauth2` app. Decidiq SHALL document the flow in `docs/api.md`.
 
 #### Scenario: Authorization code flow completes
 - **GIVEN** an external application registered in Nextcloud with `governance-bodies:read` scope
 - **WHEN** the application initiates Authorization Code + PKCE flow and the user approves
-- **THEN** the application receives an access token valid for Decidesk API calls
+- **THEN** the application receives an access token valid for Decidiq API calls
 
 ---
 
@@ -450,7 +450,7 @@ External applications SHALL authenticate using OAuth 2.0 Authorization Code flow
 The system SHALL include `docs/api.md` documenting all available OAuth scopes, the authorization flow, example requests with Bearer token headers, and instructions for registering an OAuth client in Nextcloud.
 
 #### Scenario: API documentation accessible
-- **WHEN** a developer accesses `docs/api.md` in the Decidesk repository
+- **WHEN** a developer accesses `docs/api.md` in the Decidiq repository
 - **THEN** the document SHALL list all scopes, describe the authorization flow, and include at least one complete cURL example per scope
 
 ---
@@ -466,7 +466,7 @@ The system MUST provide the reverse-proxy-support capability as specified by the
 ---
 
 ### Requirement: REQ-PROXY-001 — Reverse proxy base URL configuration
-The system SHALL support deployment behind HTTP reverse proxies by respecting Nextcloud's `overwrite.cli.url`, `overwrite.protocol`, and `overwrite.webroot` configuration keys. All API URLs, CalDAV calendar URLs, and Talk deep-links generated by Decidesk SHALL use the configured base URL rather than auto-detected server hostname. An admin settings field SHALL allow overriding the effective base URL from the Decidesk admin panel.
+The system SHALL support deployment behind HTTP reverse proxies by respecting Nextcloud's `overwrite.cli.url`, `overwrite.protocol`, and `overwrite.webroot` configuration keys. All API URLs, CalDAV calendar URLs, and Talk deep-links generated by Decidiq SHALL use the configured base URL rather than auto-detected server hostname. An admin settings field SHALL allow overriding the effective base URL from the Decidiq admin panel.
 
 #### Scenario: API URLs use configured base URL
 - **GIVEN** Nextcloud is configured with `overwrite.cli.url = "https://gemeente.amsterdam.nl/intranet"`
@@ -509,7 +509,7 @@ The system SHALL expose `GET /api/ori/v1/organizations` and `GET /api/ori/v1/org
 
 **ORI field mapping (GovernanceBody → ORI Organization):**
 
-| ORI field | Decidesk field | Notes |
+| ORI field | Decidiq field | Notes |
 |---|---|---|
 | `@type` | — | `"Organization"` |
 | `@context` | — | ORI context URL |
@@ -535,7 +535,7 @@ The system SHALL expose `GET /api/ori/v1/persons` and `GET /api/ori/v1/membershi
 
 **ORI field mapping (Person → ORI Person):**
 
-| ORI field | Decidesk field |
+| ORI field | Decidiq field |
 |---|---|
 | `@type` | `"Person"` |
 | `id` | `Person.uuid` |
@@ -554,7 +554,7 @@ The system SHALL expose `GET /api/ori/v1/events` and `GET /api/ori/v1/events/{id
 
 **ORI field mapping (Meeting → ORI Event):**
 
-| ORI field | Decidesk field | Akoma Ntoso equivalent |
+| ORI field | Decidiq field | Akoma Ntoso equivalent |
 |---|---|---|
 | `@type` | — | `"Event"` / `FRBRdate` |
 | `id` | `Meeting.uuid` | |
@@ -588,7 +588,7 @@ The system SHALL expose ORI API 1.4 endpoints for legislative actions:
 
 **Motion → ORI Motion field mapping (Akoma Ntoso `<act>` overlay):**
 
-| ORI field | Decidesk field | Akoma Ntoso |
+| ORI field | Decidiq field | Akoma Ntoso |
 |---|---|---|
 | `id` | `Motion.uuid` | `FRBRuri` |
 | `name` | `Motion.title` | `FRBRname` |

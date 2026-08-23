@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Public REST API Controller
+ * Decidiq Public REST API Controller
  *
  * Thin pass-through over OpenRegister ObjectService that exposes
  * governance entities at `/api/v1/{resource}` per the Dutch
  * REST-API Design Rules (REQ-API-001, REQ-API-002, REQ-API-003).
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,9 +27,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidiq\AppInfo\Application;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -43,12 +43,12 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
- * Public REST API for Decidesk governance entities.
+ * Public REST API for Decidiq governance entities.
  *
  * Authentication is delegated to Nextcloud session tokens and (when present)
  * the built-in `oauth2` app. Scope enforcement is read against the per-schema
  * OAuthScope register entries declared by `lib/Settings/decidesk_register.json`
- * — Decidesk does not implement custom token validation (REQ-OAUTH-002).
+ * — Decidiq does not implement custom token validation (REQ-OAUTH-002).
  *
  * @spec openspec/changes/p4-integration/tasks.md#task-1
  * @spec openspec/changes/p4-integration/tasks.md#task-2

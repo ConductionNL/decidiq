@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Governance Scope Guard
+ * Decidiq Governance Scope Guard
  *
  * Thin consumer of the OpenRegister-projected governance RBAC scopes
  * (per-body Nextcloud groups `decidesk:body:{bodyId}:chair` and
@@ -28,7 +28,7 @@
  * parallel role-resolution service.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -44,7 +44,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;

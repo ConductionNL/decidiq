@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Transcript Repository
+ * Decidiq Transcript Repository
  *
  * All OpenRegister / Files access the transcription pipeline needs: fetching
  * the meeting, the transcript and its agenda items, persisting a transcript,
@@ -9,7 +9,7 @@
  * TranscriptionService with the pipeline itself.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,9 +25,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\FileService;
 use RuntimeException;
@@ -97,7 +97,7 @@ class TranscriptRepository {
 	}//end fetchTranscript()
 
 	/**
-	 * Fetch one decidesk object by id, or raise MissingObjectException.
+	 * Fetch one Decidiq object by id, or raise MissingObjectException.
 	 *
 	 * THE SEAM THIS REPAIRS. This repository is the place the transcription
 	 * surface converts "absent object" into the app's own
@@ -120,7 +120,7 @@ class TranscriptRepository {
 	 * data is absent when the data layer is simply down.
 	 *
 	 * @param string $id The object UUID.
-	 * @param string $schema The decidesk schema slug.
+	 * @param string $schema The Decidiq schema slug.
 	 * @param string $absentMessage Message for the MissingObjectException.
 	 *
 	 * @return array<string,mixed> The object.

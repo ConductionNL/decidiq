@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Voting Behaviour Controller
+ * Decidiq Voting Behaviour Controller
  *
  * REST API endpoint for voting behaviour statistics.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -21,11 +21,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
 use InvalidArgumentException;
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\VotingBehaviourService;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\VotingBehaviourService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;

@@ -48,7 +48,7 @@
             "document": "statuten-vng",
             "versionNumber": 1,
             "effectiveDate": "1990-05-01",
-            "notes": "Constitutieve versie bij oprichting van de vereniging; opgericht bij notariële akte, geen verband met een besluit in decidesk.",
+            "notes": "Constitutieve versie bij oprichting van de vereniging; opgericht bij notariële akte, geen verband met een besluit in Decidiq.",
             "deedDate": "1990-04-12",
             "notary": "mr. C. van Dam",
             "status": "replaced"
@@ -144,7 +144,7 @@
               "to": "lapsed"
             }
           ],
-          "_note": "Declarative guarded transition map (ADR-031, REQ-GDR-001). Canonical dialect (keyword 'initial', never 'initialState'/'default'). geldend initial, vervallen terminal; the only transition is geldend → vervallen. Transitions outside this map are rejected by OpenRegister; decidesk implements no parallel state machine. Drafting is a version-level concern (GoverningDocumentVersie concept state), so there is deliberately no document-level draft/concept state."
+          "_note": "Declarative guarded transition map (ADR-031, REQ-GDR-001). Canonical dialect (keyword 'initial', never 'initialState'/'default'). geldend initial, vervallen terminal; the only transition is geldend → vervallen. Transitions outside this map are rejected by OpenRegister; Decidiq implements no parallel state machine. Drafting is a version-level concern (GoverningDocumentVersie concept state), so there is deliberately no document-level draft/concept state."
         },
         "authorization": {
           "read": [
@@ -307,7 +307,7 @@
               "nl": "Nieuwe geldende versie: {{title}}",
               "en": "New effective version: {{title}}"
             },
-            "_note": "REQ-GDR-008: notify members of the owning governance body's organisation when a version takes effect. Canonical x-openregister-notifications dialect (ADR-031), verified keys only: trigger.type 'updated' with a filter on the lifecycle state field (status equals in-werking), channels[], recipients[] via kind:object-acl (read) + kind:groups (decidesk-members) — kind:field is NOT used on any non-uid property. Fires ONLY on the in-werking transition (not on concept → vastgesteld). Decidesk dispatches no notification imperatively."
+            "_note": "REQ-GDR-008: notify members of the owning governance body's organisation when a version takes effect. Canonical x-openregister-notifications dialect (ADR-031), verified keys only: trigger.type 'updated' with a filter on the lifecycle state field (status equals in-werking), channels[], recipients[] via kind:object-acl (read) + kind:groups (decidesk-members) — kind:field is NOT used on any non-uid property. Fires ONLY on the in-werking transition (not on concept → vastgesteld). Decidiq dispatches no notification imperatively."
           }
         },
         "required": [

@@ -13,9 +13,9 @@
 -->
 <template>
 	<CnStatsBlock
-		:title="t('decidesk', 'Pending votes')"
+		:title="t('decidiq', 'Pending votes')"
 		:count="count"
-		:countLabel="t('decidesk', 'votes')"
+		:countLabel="t('decidiq', 'votes')"
 		:icon="VoteOutline"
 		:variant="variant"
 		:loading="loading"
@@ -105,6 +105,8 @@ export default {
 		 * pending set-difference. Called on mount and on dashboard refresh.
 		 *
 		 * @return {Promise<void>}
+		 *
+		 * @spec openspec/specs/dashboard/spec.md#requirement-my-pending-votes-widget
 		 */
 		async load() {
 			this.loading = true
@@ -119,7 +121,7 @@ export default {
 				const participantId = resolveParticipantId(participants, uid)
 				this.pending = pendingVotingRounds(openRounds, votes, participantId)
 			} catch (e) {
-				console.error('[decidesk] PendingVotesKpiWidget load failed', e)
+				console.error('[decidiq] PendingVotesKpiWidget load failed', e)
 				this.error = e
 				this.pending = []
 			} finally {

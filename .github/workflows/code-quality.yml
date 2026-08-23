@@ -39,7 +39,7 @@ jobs:
   quality:
     uses: ConductionNL/.github/.github/workflows/quality.yml@main
     with:
-      app-name: decidesk
+      app-name: decidiq
       php-version: "8.3"
       php-test-versions: '["8.3", "8.4"]'
       # stable31 is REMOVED because it tested an impossible configuration, not
@@ -73,7 +73,7 @@ jobs:
       enable-newman: true
       # Every Newman collection seeds its own fixtures through OpenRegister's
       # object API (`/apps/openregister/api/objects/decidesk/<schema>`) — ADR-022
-      # keeps plain CRUD there rather than in decidesk controllers. Without
+      # keeps plain CRUD there rather than in decidiq controllers. Without
       # OpenRegister checked out the seed POSTs answer 404, every downstream id
       # interpolates to the empty string, and the collections fail wholesale on
       # a cause that has nothing to do with the code under test (measured:
@@ -81,18 +81,18 @@ jobs:
       #
       # `ref: development` matches the rest of the fleet (opencatalogi,
       # openconnector, procest, softwarecatalog, scholiq, pipelinq). It is not
-      # interchangeable with `main`: decidesk's appinfo/routes.php builds on
+      # interchangeable with `main`: decidiq's appinfo/routes.php builds on
       # `\OCA\OpenRegister\AppHost\Routes`, which does not exist on OpenRegister
       # `main` (0.2.19) at all — only on `development`.
       additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"development"}]'
-      # Two collections (decidesk-meeting-agenda, decidesk-user-settings) carry
+      # Two collections (decidiq-meeting-agenda, decidiq-user-settings) carry
       # no collection-level `baseUrl`/`noAuthBase`/`adminUser`/`adminPass`, and
       # the workflow's ad-hoc fallback defines `base_url`-style names instead.
       # Every request in those two therefore left `{{baseUrl}}` unresolved and
       # errored before it was sent — 42 assertions failing with no server
       # involved. The committed environment file supplies all four to every
       # collection uniformly.
-      newman-environment-path: tests/integration/decidesk-environment.json
+      newman-environment-path: tests/integration/decidiq-environment.json
       enable-sbom: true
 
       # ── E2E browser tests ────────────────────────────────────────────────
@@ -127,7 +127,7 @@ jobs:
       playwright-test-path: tests/e2e
 
       # OpenRegister being INSTALLED is not the same as decidesk's register
-      # being IMPORTED, and the difference is silent. `occ app:enable decidesk`
+      # being IMPORTED, and the difference is silent. `occ app:enable decidiq`
       # runs a repair step that is supposed to import
       # `lib/Settings/decidesk_register.json` + the 24 `register.d/` fragments,
       # but an IRepairStep has no user session, OpenRegister's RBAC denies the
@@ -146,15 +146,15 @@ jobs:
       #
       # It also sets and reads back `htaccess.IgnoreFrontController`. Without
       # it, `occ maintenance:install` leaves that flag FALSE, JS `generateUrl`
-      # therefore prefixes `/index.php`, and decidesk's
-      # `createWebHistory(generateUrl('/apps/decidesk'))` router base becomes
-      # `/index.php/apps/decidesk` while every spec navigates to
-      # `/apps/decidesk/...`. vue-router only strips a base the path starts
+      # therefore prefixes `/index.php`, and decidiq's
+      # `createWebHistory(generateUrl('/apps/decidiq'))` router base becomes
+      # `/index.php/apps/decidiq` while every spec navigates to
+      # `/apps/decidiq/...`. vue-router only strips a base the path starts
       # with, so nothing matched and the catch-all `redirect: '/'` landed EVERY
       # deep link on the dashboard.
       #
       # cwd for this step is the Nextcloud server root.
-      playwright-seed-command: 'bash apps/decidesk/tests/e2e/ci-seed.sh'
+      playwright-seed-command: 'bash apps/decidiq/tests/e2e/ci-seed.sh'
 
       # ── Frontend Check legs ──────────────────────────────────────────────
       # `frontend-checks` defaults to `[]`, and an empty list means the shared

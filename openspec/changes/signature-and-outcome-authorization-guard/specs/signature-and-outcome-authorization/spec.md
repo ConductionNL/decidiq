@@ -49,7 +49,7 @@ signer's `certificateThumbprint`, which under eIDAS identifies a natural person.
 to every authenticated caller and MUST NOT acquire a per-object authorization guard. It accepts no
 caller-supplied object identifier: its only input is a certificate SHA-256 thumbprint and its only
 output is `valid` / `issuer` / `trustListLevel`, all sourced from the public EU Trusted List. No
-decidesk object is reachable through it and it returns nothing derived from app data. This posture
+decidiq object is reachable through it and it returns nothing derived from app data. This posture
 MUST be recorded explicitly in the method docblock as a reason-bearing
 `@no-admin-idor-exempt` tag so it reads as a decision rather than an omission. The authoritative
 chain validation remains server-side inside `finalizeMinutes()`, which REQ-SIG-101 guards.

@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * Unit tests for the pure / stateless algorithms behind decidesk's three
+ * Unit tests for the pure / stateless algorithms behind decidiq's three
  * register-detail catalog widgets (src/components/widgets/registerDetailWidgets.js):
  * version ordering (RegisterVersionTimelineWidget), the ondermandaat
  * ancestor-chain cycle-safety model (DelegationChainWidget), the

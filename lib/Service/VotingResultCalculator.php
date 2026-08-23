@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Voting Result Calculator
+ * Decidiq Voting Result Calculator
  *
  * The rule-aware result computation for a set of vote counts: threshold,
  * abstention handling and tie-break rules, in integer math only. Pure — it
  * touches no storage and no session.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,7 +23,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 /**
  * Pure calculation of a voting round's outcome.

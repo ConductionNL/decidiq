@@ -1,4 +1,4 @@
-# Tasks — Beta surface alignment (Decidesk)
+# Tasks — Beta surface alignment (Decidiq)
 
 - [x] 1. Read `appinfo/info.xml`, `src/manifest.json` nav/menu, and skim
       `lib/Controller/` + `lib/Mcp/` to derive the real shipped feature list.
@@ -13,7 +13,7 @@
       integrations are real — `OpenCatalogiPublisher.php`, `PublicationController.php`,
       `DecisionIntegrationService.php`.
 - [x] 6. Verify the 5 MCP tools advertised on the product page match
-      `lib/Mcp/DecideskToolProvider.php` (id, description, behaviour).
+      `lib/Mcp/DecidiqToolProvider.php` (id, description, behaviour).
 - [x] 7. Confirm `info.xml` Dutch summary/description are genuine Dutch (ADR-007) — yes, no change.
 - [x] 8. Rewrite `info.xml` EN + NL "Key Features" bullets to the canonical
       feature vocabulary (was: tech-stack bullets).

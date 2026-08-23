@@ -1,0 +1,37 @@
+{
+  "id": "decidiq-local",
+  "name": "Decidiq Local",
+  "_postman_variable_scope": "environment",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "noAuthBase",
+      "value": "http://127.0.0.1:8080",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "adminUser",
+      "value": "admin",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "adminPass",
+      "value": "admin",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "register",
+      "value": "decidesk",
+      "type": "default",
+      "enabled": true
+    }
+  ]
+}

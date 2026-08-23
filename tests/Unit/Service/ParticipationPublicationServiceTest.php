@@ -4,7 +4,7 @@
  * Unit tests for ParticipationPublicationService.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -17,11 +17,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\BudgetVotingService;
-use OCA\Decidesk\Service\ObjectRelationFilter;
-use OCA\Decidesk\Service\ParticipationPublicationService;
+use OCA\Decidiq\Service\BudgetVotingService;
+use OCA\Decidiq\Service\ObjectRelationFilter;
+use OCA\Decidiq\Service\ParticipationPublicationService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\App\IAppManager;
@@ -71,7 +71,7 @@ class ParticipationPublicationServiceTest extends TestCase {
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();
-		// Since ADR-083 the container resolves ONE collaborator here: decidesk's
+		// Since ADR-083 the container resolves ONE collaborator here: decidiq's
 		// own ObjectRelationFilter. OpenRegister is injected instead (see
 		// makeService()), so a double parked on the container would never be
 		// consulted. ObjectRelationFilter is a dependency-free pure filter, so

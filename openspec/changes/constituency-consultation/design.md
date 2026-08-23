@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-Thin-client extension (ADR-022/ADR-037). Two new OpenRegister schemas — `MemberConsultation` and `MemberConsultationResponse` — ship as one `lib/Settings/register.d/48-constituency-consultation.json` fragment (OpenAPI `components.schemas`, merged onto `decidesk_register.json` at load; the base file is never edited; fragment number 48 is assigned to this change, 40–47/49–65 belong to sibling changes). Lifecycle and notifications are declared in OpenRegister dialects; UI is manifest-v2 pages in `src/manifest.d/constituency-consultation.json` rendered by `CnPageRenderer` (frontend talks to `/apps/openregister/api/objects` via the shared object stores — no decidesk CRUD controllers, per the redundant-controller gate).
+Thin-client extension (ADR-022/ADR-037). Two new OpenRegister schemas — `MemberConsultation` and `MemberConsultationResponse` — ship as one `lib/Settings/register.d/48-constituency-consultation.json` fragment (OpenAPI `components.schemas`, merged onto `decidesk_register.json` at load; the base file is never edited; fragment number 48 is assigned to this change, 40–47/49–65 belong to sibling changes). Lifecycle and notifications are declared in OpenRegister dialects; UI is manifest-v2 pages in `src/manifest.d/constituency-consultation.json` rendered by `CnPageRenderer` (frontend talks to `/apps/openregister/api/objects` via the shared object stores — no decidiq CRUD controllers, per the redundant-controller gate).
 
 Imperative code is limited to the three places declarative dialects genuinely cannot reach:
 
@@ -87,7 +87,7 @@ docs/features/achterbanraadpleging.md                       (new)
 
 ## Seed Data
 
-Realistic Dutch examples (fictional municipality "Gemeente Voorbeeldingen" and a fictional OR); references use existing decidesk seed objects (council governance body, scheduled raadsvergadering, agenda items) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder resolved at import. Seeded via the fragment's `x-openregister.seedData` path (`@self`: register `decidesk`, schema slug per table).
+Realistic Dutch examples (fictional municipality "Gemeente Voorbeeldingen" and a fictional OR); references use existing decidiq seed objects (council governance body, scheduled raadsvergadering, agenda items) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder resolved at import. Seeded via the fragment's `x-openregister.seedData` path (`@self`: register `decidiq`, schema slug per table).
 
 ### Schema: `member-consultation`
 
@@ -131,7 +131,7 @@ Two responses on the open object 1 make the initiator's progress view ("2 van N 
 
 ## Migration Plan
 
-1. Land register.d fragment 48 + manifest.d fragment, services, controller/routes, seed data, tests, docs in one decidesk PR (fragments are additive; the repair step / `ConfigurationService::importFromApp()` picks up the new schemas on upgrade).
+1. Land register.d fragment 48 + manifest.d fragment, services, controller/routes, seed data, tests, docs in one decidiq PR (fragments are additive; the repair step / `ConfigurationService::importFromApp()` picks up the new schemas on upgrade).
 2. No landing-order dependency on any sibling change: the fractie audience uses `Membership.party` (already live), and `works-council-consultation` references this change (not the reverse).
 3. Rollback: revert the PR — fragments disappear, pages unregister, routes/services vanish. Existing consultation/response objects remain soft-retained in OR. No data migration to undo.
 

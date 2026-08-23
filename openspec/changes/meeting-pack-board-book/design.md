@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-Decidesk stays a thin client: `MeetingPack` is an OpenRegister object (no Decidesk tables), the pack file lives in the meeting's Files folder tree (created by the existing `MeetingFolderService`), and only the *compilation action* gets a Decidesk controller — reading packs, versions, and change notes goes straight from the Vue frontend to the OpenRegister objects API via `useObjectStore` (ADR-022; the redundant-controller gate forbids pass-through CRUD wrappers).
+Decidiq stays a thin client: `MeetingPack` is an OpenRegister object (no Decidiq tables), the pack file lives in the meeting's Files folder tree (created by the existing `MeetingFolderService`), and only the *compilation action* gets a Decidiq controller — reading packs, versions, and change notes goes straight from the Vue frontend to the OpenRegister objects API via `useObjectStore` (ADR-022; the redundant-controller gate forbids pass-through CRUD wrappers).
 
 ```
 Meeting detail page ── POST /api/meetings/{id}/board-book ──► BoardBookController
@@ -62,7 +62,7 @@ No download or list endpoints: MeetingPack objects are read via the OpenRegister
 
 ## Database Changes
 
-None. Decidesk owns no tables; `MeetingPack` is a new schema in `lib/Settings/decidesk_register.json` (OpenRegister storage). The `AgendaItem` schema gains an optional `confidentiality` enum (`public` | `internal` | `confidential`, default `internal`) — additive, no migration needed for existing objects (absent = `internal`).
+None. Decidiq owns no tables; `MeetingPack` is a new schema in `lib/Settings/decidesk_register.json` (OpenRegister storage). The `AgendaItem` schema gains an optional `confidentiality` enum (`public` | `internal` | `confidential`, default `internal`) — additive, no migration needed for existing objects (absent = `internal`).
 
 ## Nextcloud Integration
 
@@ -102,7 +102,7 @@ None. Decidesk owns no tables; `MeetingPack` is a new schema in `lib/Settings/de
 ## File Structure
 
 ```
-decidesk/
+decidiq/
   lib/
     Controller/BoardBookController.php        (new — compile + status)
     Service/BoardBookService.php              (new — compose, delegate, version, fingerprint, deliver)
@@ -150,13 +150,13 @@ New schema `meeting-pack` gets seeds referencing the existing Meeting seeds (`ra
 
 1. Merge docudesk `mergePdfs()` first (additive, independently releasable).
 2. Merge decidesk register changes (MeetingPack schema + seeds + `AgendaItem.confidentiality`) — register re-import is additive.
-3. Merge decidesk service/controller/UI. Feature is dormant until a secretary compiles.
-4. Rollback: revert decidesk PRs; MeetingPack objects/files stay as inert data; docudesk method may remain (unused, additive).
+3. Merge decidiq service/controller/UI. Feature is dormant until a secretary compiles.
+4. Rollback: revert decidiq PRs; MeetingPack objects/files stay as inert data; docudesk method may remain (unused, additive).
 
 ## Trade-offs
 
 - **One pack for everyone (confidential items always excluded)** over per-clearance pack variants: variants multiply storage, complicate delivery (wrong-variant risk = a leak), and every competitor's baseline is satisfied by the single-pack rule. Members with clearance still reach confidential documents per item.
-- **Merge in Docudesk, not Decidesk**: Decidesk stays free of PDF libraries; Docudesk already bundles mPDF 8.2 (FPDI import). Cost: a cross-project PR and a runtime soft-dependency — accepted, because minutes rendering already set this contract.
+- **Merge in Docudesk, not Decidiq**: Decidiq stays free of PDF libraries; Docudesk already bundles mPDF 8.2 (FPDI import). Cost: a cross-project PR and a runtime soft-dependency — accepted, because minutes rendering already set this contract.
 - **Queued job + polling** over synchronous compile: 50 MB merges will not fit in a web request; cost is a status endpoint and UI polling.
 - **Fingerprint stored on the pack** over event-listener invalidation: no listener wiring across agenda/attachment mutations (which historically arrive via many paths); cost is a cheap fingerprint recomputation on detail-page load.
 - **Placeholder pages for non-PDF/unmergeable attachments** over document conversion: conversion (LibreOffice) is a heavy new moving part; deferred until demand shows.

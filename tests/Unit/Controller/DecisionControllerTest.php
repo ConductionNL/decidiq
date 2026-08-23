@@ -7,7 +7,7 @@
  * Copyright (C) 2026 Conduction B.V.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Controller
+ * @package  OCA\Decidiq\Tests\Unit\Controller
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
  *
@@ -20,10 +20,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Controller;
+namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\Decidesk\Controller\DecisionController;
-use OCA\Decidesk\Service\DecisionLifecycleService;
+use OCA\Decidiq\Controller\DecisionController;
+use OCA\Decidiq\Service\DecisionLifecycleService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;

@@ -8,7 +8,7 @@
  * via x-openregister-aggregations on the Meeting schema (ADR-031, ADR-019).
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.5
@@ -22,9 +22,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\ActionItemAnalyticsService;
+use OCA\Decidiq\Service\ActionItemAnalyticsService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;

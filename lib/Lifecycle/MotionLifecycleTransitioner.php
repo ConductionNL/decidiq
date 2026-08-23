@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Motion Lifecycle Transitioner
+ * Decidiq Motion Lifecycle Transitioner
  *
  * The guarded lifecycle state machine for motion- and amendment-typed Decision
  * objects: the transition tables, the co-signer gate, the outcome axis, and the
@@ -9,7 +9,7 @@
  * recorded as decided.
  *
  * @category Lifecycle
- * @package  OCA\Decidesk\Lifecycle
+ * @package  OCA\Decidiq\Lifecycle
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,11 +26,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Lifecycle;
+namespace OCA\Decidiq\Lifecycle;
 
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
+use OCA\Decidiq\AppInfo\Application;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
@@ -217,7 +218,7 @@ class MotionLifecycleTransitioner {
 		);
 
 		$this->logger->info(
-			"Decidesk: $objectType $objectId transitioned from $currentState to $newState by $actorId"
+			"Decidiq: $objectType $objectId transitioned from $currentState to $newState by $actorId"
 		);
 
 	}//end transition()
@@ -314,7 +315,7 @@ class MotionLifecycleTransitioner {
 		}
 
 		$appConfig = $this->container->get(IAppConfig::class);
-		$minCoSigners = (int)$appConfig->getValueString('decidesk', 'motion_min_cosigners', '0');
+		$minCoSigners = (int)$appConfig->getValueString(Application::APP_ID, 'motion_min_cosigners', '0');
 		$coSignerCount = count($objectArray['coSigners'] ?? []);
 
 		if ($minCoSigners > 0 && $coSignerCount < $minCoSigners) {

@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Notification Preference Service
+ * Decidiq Notification Preference Service
  *
  * Stateless service handling per-person notification preferences. Stores
  * preferences as OpenRegister objects (one per Person) so other services
  * can query them server-side before dispatching alerts.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,7 +25,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use Psr\Container\ContainerInterface;
@@ -113,7 +113,7 @@ class NotificationPreferenceService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->debug(
-				'Decidesk: findPreference failed',
+				'Decidiq: findPreference failed',
 				['personId' => $personId, 'error' => $e->getMessage()]
 			);
 			return null;
@@ -154,7 +154,7 @@ class NotificationPreferenceService {
 			schema: 'notification-preference',
 		);
 
-		$this->logger->info('Decidesk: NotificationPreference updated', ['personId' => $personId]);
+		$this->logger->info('Decidiq: NotificationPreference updated', ['personId' => $personId]);
 
 		if (is_array($saved) === true) {
 			return $saved;
@@ -287,7 +287,7 @@ class NotificationPreferenceService {
 	 * Expand a notification recipient to include their active delegate.
 	 *
 	 * Per the user-settings spec, the delegate receives all of the absent
-	 * member's Decidesk notifications during the configured period (and can
+	 * member's Decidiq notifications during the configured period (and can
 	 * thereby view the same pending votes and action items via the deep
 	 * links) — read-only coverage, never voting rights.
 	 *
@@ -336,7 +336,7 @@ class NotificationPreferenceService {
 			}
 		} catch (\Throwable $e) {
 			$this->logger->debug(
-				'Decidesk: account email lookup failed',
+				'Decidiq: account email lookup failed',
 				['personId' => $personId, 'error' => $e->getMessage()]
 			);
 		}
@@ -414,7 +414,7 @@ class NotificationPreferenceService {
 			return 1;
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: in-app notification failed',
+				'Decidiq: in-app notification failed',
 				['recipientId' => $recipientId, 'error' => $e->getMessage()]
 			);
 			return 0;
@@ -437,7 +437,7 @@ class NotificationPreferenceService {
 		try {
 			$address = $this->getGovernanceEmail(personId: $recipientId);
 			if ($address === null) {
-				$this->logger->debug('Decidesk: no governance email for recipient', ['recipientId' => $recipientId]);
+				$this->logger->debug('Decidiq: no governance email for recipient', ['recipientId' => $recipientId]);
 				return 0;
 			}
 
@@ -450,7 +450,7 @@ class NotificationPreferenceService {
 			return 1;
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: notification email failed',
+				'Decidiq: notification email failed',
 				['recipientId' => $recipientId, 'error' => $e->getMessage()]
 			);
 			return 0;

@@ -1,7 +1,7 @@
 {
   "spec_slug": "commissievergaderingen",
   "title": "Commissievergaderingen",
-  "app": "decidesk",
+  "app": "decidiq",
   "repo": "https://github.com/ConductionNL/decidesk",
   "depends_on": [],
   "issue": null

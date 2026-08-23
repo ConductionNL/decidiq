@@ -1,5 +1,5 @@
 /**
- * App-registered cell-formatter registry for decidesk's manifest-driven
+ * App-registered cell-formatter registry for decidiq's manifest-driven
  * index pages. Passed as the `formatters` prop to `CnAppRoot` (see
  * src/App.vue), which merges it under `BUILT_IN_FORMATTERS` into the
  * `cnFormatters` registry provided to descendant `CnDataTable` /

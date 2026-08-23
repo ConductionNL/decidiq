@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Health Controller
+ * Decidiq Health Controller
  *
  * AppHost adopter by COMPOSITION, not inheritance: the OpenRegister AppHost
  * observability engine is resolved lazily out of the DI container by FQCN
@@ -14,12 +14,12 @@
  * ⚠️ This class MUST NOT `extends` — nor name in any resolved position — a
  * class from another app. Nextcloud's router `ReflectionClass()`es every file
  * in `lib/Controller/` while MATCHING a route, so an unresolvable parent makes
- * EVERY route in decidesk return HTTP 500, not just this one. `extends` is
+ * EVERY route in Decidiq return HTTP 500, not just this one. `extends` is
  * resolved by the autoloader, not the container, so no amount of lazy DI
- * registration can rescue it. See decidesk#377.
+ * registration can rescue it. See decidiq#377.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -38,9 +38,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidiq\AppInfo\Application;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
@@ -58,7 +58,7 @@ use Psr\Container\ContainerInterface;
  * check (manifest `observability.health.checks`); this controller maps the
  * engine result back onto the historical reverse-proxy-verification body.
  * The engine collaborators are pulled from the container by FQCN string at
- * dispatch time, so decidesk never binds the OpenRegister classes at
+ * dispatch time, so Decidiq never binds the OpenRegister classes at
  * class-declaration time.
  *
  * @spec openspec/specs/apphost-adoption/spec.md

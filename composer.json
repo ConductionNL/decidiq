@@ -1,5 +1,5 @@
 {
-    "name": "conductionnl/decidesk",
+    "name": "conductionnl/decidiq",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
     "license": "EUPL-1.2",
     "authors": [
@@ -11,7 +11,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "OCA\\Decidesk\\": "lib/"
+            "OCA\\Decidiq\\": "lib/"
         }
     },
     "require": {

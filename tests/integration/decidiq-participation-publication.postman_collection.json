@@ -1,0 +1,695 @@
+{
+	"info": {
+		"name": "decidiq-participation-publication",
+		"description": "Wire contract for the four endpoints gate-25 found had never been called by any automated test:\n\n  GET  /api/settings/publication-config                       settings#getPublicationConfig\n  PUT  /api/settings/publication-config                       settings#setPublicationConfig\n  POST /api/participation/proposals/{proposalId}/vote         participationBudget#castAdvisoryVote\n  POST /api/participation/budgets/{budgetId}/publish          participationBudget#publishBudgetResults\n\nWriting this collection is what found three product defects, all of which it now pins. Every one of them was a HEALTHY HTTP 200/201 with an empty or wrong body, so none of them was visible from a status code alone:\n\n  1. A citizen could vote on the same advisory proposal without limit. The dedup query filtered on `_relations.budget-proposal` — the schema SLUG — and OpenRegister keys its `_relations` JSONB by the property path it walked (`relations.0.id`), never by the slug. Zero rows, guard skipped, second CitizenVote written with the same 'idempotency' slug as the first.\n  2. The advisory tally wrote votesFor=0/votesAgainst=0 back over real votes, from the same broken filter.\n  3. publishBudgetResults published `proposals: []` / `participationCount: 0` / `allocatedAmount: 0` for every round, because fetchValidatedProposals filtered on `_relations.participatory-budget` instead of the flat `participatoryBudget` property the portal actually writes.\n\nSo the duplicate-vote request here asserts 409 and the publish request asserts a NON-EMPTY allocation. Both fail on the pre-fix tree — that is the point of them; a test that only asserted 2xx passed the whole time the feature was broken.\n\nSelf-contained and idempotent: seeds its own ParticipatoryBudget + BudgetProposal through OpenRegister's object API (ADR-022) and deletes them in teardown.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "baseUrl", "value": "http://localhost:8080" },
+		{ "key": "noAuthBase", "value": "http://localhost:8080" },
+		{ "key": "adminUser", "value": "admin" },
+		{ "key": "adminPass", "value": "admin" },
+		{ "key": "register", "value": "decidesk" },
+		{ "key": "budgetId", "value": "" },
+		{ "key": "proposalId", "value": "" },
+		{ "key": "votingDeadline", "value": "" }
+	],
+	"item": [
+		{
+			"name": "Setup: compute a voting deadline 30 days out",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// budgetAcceptsVotes() requires status 'voting' AND a deadline strictly in",
+							"// the future, so the fixture cannot carry a hardcoded date.",
+							"const d = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);",
+							"pm.collectionVariables.set('votingDeadline', d.toISOString().replace(/\\.\\d{3}Z$/, 'Z'));"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Setup: health endpoint reachable (200)', () => pm.response.to.have.status(200));",
+							"pm.test('Setup: a future voting deadline was computed', () => {",
+							"  const v = pm.collectionVariables.get('votingDeadline');",
+							"  pm.expect(v, 'votingDeadline').to.be.a('string').and.to.have.length.above(0);",
+							"  pm.expect(new Date(v).getTime()).to.be.above(Date.now());",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+						{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+					]
+				},
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/health",
+					"host": ["{{baseUrl}}"],
+					"path": ["index.php", "apps", "decidiq", "api", "health"]
+				}
+			}
+		},
+		{
+			"name": "Setup: seed a ParticipatoryBudget open for voting",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Setup: participatory budget created (201)', () => pm.response.to.have.status(201));",
+							"const b = pm.response.json();",
+							"const id = (b['@self'] && b['@self'].id) || b.id;",
+							"pm.expect(id, 'budget id captured').to.be.a('string');",
+							"pm.collectionVariables.set('budgetId', id);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+						{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+					]
+				},
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Newman participation round\",\n  \"totalAmount\": 50000,\n  \"currency\": \"EUR\",\n  \"status\": \"voting\",\n  \"votingDeadline\": \"{{votingDeadline}}\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/participatory-budget",
+					"host": ["{{baseUrl}}"],
+					"path": ["index.php", "apps", "openregister", "api", "objects", "{{register}}", "participatory-budget"]
+				}
+			}
+		},
+		{
+			"name": "Setup: seed a validated BudgetProposal in that round",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Setup: budget proposal created (201)', () => pm.response.to.have.status(201));",
+							"const b = pm.response.json();",
+							"const id = (b['@self'] && b['@self'].id) || b.id;",
+							"pm.expect(id, 'proposal id captured').to.be.a('string');",
+							"pm.collectionVariables.set('proposalId', id);",
+							"pm.test('Setup: proposal starts with an empty tally', () => {",
+							"  pm.expect(b.votesFor, 'votesFor').to.eql(0);",
+							"  pm.expect(b.votesAgainst, 'votesAgainst').to.eql(0);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+						{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+					]
+				},
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"title\": \"Newman advisory proposal\",\n  \"description\": \"Fixture for the advisory-vote contract.\",\n  \"requestedAmount\": 2000,\n  \"status\": \"validated\",\n  \"participatoryBudget\": \"{{budgetId}}\",\n  \"votesFor\": 0,\n  \"votesAgainst\": 0\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/budget-proposal",
+					"host": ["{{baseUrl}}"],
+					"path": ["index.php", "apps", "openregister", "api", "objects", "{{register}}", "budget-proposal"]
+				}
+			}
+		},
+
+		{
+			"name": "GET /api/settings/publication-config (authed staff)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('getPublicationConfig: 200', () => pm.response.to.have.status(200));",
+							"const b = pm.response.json();",
+							"pm.test('getPublicationConfig: envelopes the config under `config`', () => {",
+							"  pm.expect(b).to.have.property('config');",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+						{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+					]
+				},
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings/publication-config",
+					"host": ["{{baseUrl}}"],
+					"path": ["index.php", "apps", "decidiq", "api", "settings", "publication-config"]
+				}
+			}
+		},
+		{
+			"name": "GET publication-config no-auth -> 401",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('getPublicationConfig anon: 401', () => pm.response.to.have.status(401));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"url": {
+					"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/settings/publication-config",
+					"host": ["{{noAuthBase}}"],
+					"path": ["index.php", "apps", "decidiq", "api", "settings", "publication-config"]
+				}
+			}
+		},
+		{
+			"name": "PUT /api/settings/publication-config drops values outside the enums",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('setPublicationConfig: 200', () => pm.response.to.have.status(200));",
+							"const b = pm.response.json();",
+							"pm.test('setPublicationConfig: reports success and echoes the cleaned config', () => {",
+							"  pm.expect(b.success).to.eql(true);",
+							"  pm.expect(b).to.have.property('config');",
+							"});",
+							"const body = b.config['newman-publication-body'];",
+							"pm.test('setPublicationConfig: the body survives the round trip', () => {",
+							"  pm.expect(body, 'newman-publication-body').to.be.an('object');",
+							"  pm.expect(body.catalog).to.eql('newman-catalog');",
+							"});",
+							"// PublicationConfigService::save() validates both enums and DROPS what does",
+							"// not match, rather than rejecting the request. That silent narrowing is the",
+							"// contract, so it is asserted rather than assumed.",
+							"pm.test('setPublicationConfig: a policy value outside POLICIES is dropped', () => {",
+							"  pm.expect(body.policy).to.not.have.property('agenda');",
+							"});",
+							"pm.test('setPublicationConfig: a valid policy value is kept, per source type', () => {",
+							"  pm.expect(body.policy.decision).to.eql('prompt-on-transition');",
+							"  pm.expect(body.policy.minutes).to.eql('manual-only');",
+							"});",
+							"pm.test('setPublicationConfig: an attendance value outside ATTENDANCE_POLICIES falls back to counts', () => {",
+							"  pm.expect(body.attendance).to.eql('counts');",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+						{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"config\": {\n    \"newman-publication-body\": {\n      \"catalog\": \"newman-catalog\",\n      \"policy\": {\n        \"decision\": \"prompt-on-transition\",\n        \"minutes\": \"manual-only\",\n        \"agenda\": \"publish-everything-immediately\"\n      },\n      \"attendance\": \"full-roll-call\"\n    }\n  }\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings/publication-config",
+					"host": ["{{baseUrl}}"],
+					"path": ["index.php", "apps", "decidiq", "api", "settings", "publication-config"]
+				}
+			}
+		},
+		{
+			"name": "GET publication-config reads back what PUT stored",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('publication-config round trip: 200', () => pm.response.to.have.status(200));",
+							"const cfg = pm.response.json().config;",
+							"pm.test('publication-config round trip: the PUT is durable, not echo-only', () => {",
+							"  pm.expect(cfg['newman-publication-body'], 'stored body').to.be.an('object');",
+							"  pm.expect(cfg['newman-publication-body'].catalog).to.eql('newman-catalog');",
+							"  pm.expect(cfg['newman-publication-body'].policy.decision).to.eql('prompt-on-transition');",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+						{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+					]
+				},
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings/publication-config",
+					"host": ["{{baseUrl}}"],
+					"path": ["index.php", "apps", "decidiq", "api", "settings", "publication-config"]
+				}
+			}
+		},
+		{
+			"name": "PUT publication-config no-auth -> 401",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('setPublicationConfig anon: 401', () => pm.response.to.have.status(401));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"body": { "mode": "raw", "raw": "{\n  \"config\": {}\n}" },
+				"url": {
+					"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/settings/publication-config",
+					"host": ["{{noAuthBase}}"],
+					"path": ["index.php", "apps", "decidiq", "api", "settings", "publication-config"]
+				}
+			}
+		},
+
+		{
+			"name": "POST castAdvisoryVote rejects a value outside voor/tegen (400)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// InvalidArgumentException maps to 400 via ParticipationResponder::statusForException;",
+							"// everything else maps to 409. Asserting 400 specifically is what distinguishes",
+							"// 'the enum was checked' from 'something went wrong'.",
+							"pm.test('castAdvisoryVote bad value: 400', () => pm.response.to.have.status(400));",
+							"pm.test('castAdvisoryVote bad value: names the allowed values', () => {",
+							"  pm.expect(pm.response.json().message).to.match(/voor.*tegen/);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+						{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+					]
+				},
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"body": { "mode": "raw", "raw": "{\n  \"value\": \"misschien\"\n}" },
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/participation/proposals/{{proposalId}}/vote",
+					"host": ["{{baseUrl}}"],
+					"path": ["index.php", "apps", "decidiq", "api", "participation", "proposals", "{{proposalId}}", "vote"]
+				}
+			}
+		},
+		{
+			"name": "POST castAdvisoryVote no-auth -> 401",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('castAdvisoryVote anon: 401', () => pm.response.to.have.status(401));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"body": { "mode": "raw", "raw": "{\n  \"value\": \"voor\"\n}" },
+				"url": {
+					"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/participation/proposals/{{proposalId}}/vote",
+					"host": ["{{noAuthBase}}"],
+					"path": ["index.php", "apps", "decidiq", "api", "participation", "proposals", "{{proposalId}}", "vote"]
+				}
+			}
+		},
+		{
+			"name": "POST castAdvisoryVote records the vote (201) and tallies it",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('castAdvisoryVote: 201', () => pm.response.to.have.status(201));",
+							"const b = pm.response.json();",
+							"pm.test('castAdvisoryVote: returns the stored CitizenVote', () => {",
+							"  pm.expect(b.vote, 'vote').to.be.an('object');",
+							"  pm.expect(b.vote.voteValue).to.eql('voor');",
+							"  pm.expect(b.vote.voterId).to.eql(pm.collectionVariables.get('adminUser'));",
+							"  pm.expect(b.vote.proposalId).to.eql(pm.collectionVariables.get('proposalId'));",
+							"});",
+							"// The tally is the assertion that matters. It came back 0 for every vote",
+							"// ever cast while the dedup/tally query filtered on the schema slug, and a",
+							"// test that only checked the 201 would have been green throughout.",
+							"pm.test('castAdvisoryVote: the response carries the recomputed tally', () => {",
+							"  pm.expect(b.votesFor, 'votesFor').to.eql(1);",
+							"  pm.expect(b.votesAgainst, 'votesAgainst').to.eql(0);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+						{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+					]
+				},
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"body": { "mode": "raw", "raw": "{\n  \"value\": \"voor\"\n}" },
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/participation/proposals/{{proposalId}}/vote",
+					"host": ["{{baseUrl}}"],
+					"path": ["index.php", "apps", "decidiq", "api", "participation", "proposals", "{{proposalId}}", "vote"]
+				}
+			}
+		},
+		{
+			"name": "POST castAdvisoryVote a SECOND time as the same citizen -> 409",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// One CitizenVote per citizen per proposal. This request answered 201 and",
+							"// wrote a second row for months; the guard's query could not match anything.",
+							"pm.test('castAdvisoryVote duplicate: 409', () => pm.response.to.have.status(409));",
+							"pm.test('castAdvisoryVote duplicate: says why', () => {",
+							"  pm.expect(pm.response.json().message).to.match(/already voted/i);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+						{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+					]
+				},
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"body": { "mode": "raw", "raw": "{\n  \"value\": \"tegen\"\n}" },
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/participation/proposals/{{proposalId}}/vote",
+					"host": ["{{baseUrl}}"],
+					"path": ["index.php", "apps", "decidiq", "api", "participation", "proposals", "{{proposalId}}", "vote"]
+				}
+			}
+		},
+		{
+			"name": "The tally is DURABLE on the proposal, not just in the response",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('proposal readback: 200', () => pm.response.to.have.status(200));",
+							"const b = pm.response.json();",
+							"pm.test('proposal readback: votesFor persisted as 1', () => {",
+							"  pm.expect(b.votesFor, 'votesFor').to.eql(1);",
+							"  pm.expect(b.votesAgainst, 'votesAgainst').to.eql(0);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+						{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+					]
+				},
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/budget-proposal/{{proposalId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["index.php", "apps", "openregister", "api", "objects", "{{register}}", "budget-proposal", "{{proposalId}}"]
+				}
+			}
+		},
+
+		{
+			"name": "POST publishBudgetResults no-auth -> 401",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('publishBudgetResults anon: 401', () => pm.response.to.have.status(401));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"url": {
+					"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/participation/budgets/{{budgetId}}/publish",
+					"host": ["{{noAuthBase}}"],
+					"path": ["index.php", "apps", "decidiq", "api", "participation", "budgets", "{{budgetId}}", "publish"]
+				}
+			}
+		},
+		{
+			"name": "POST publishBudgetResults publishes a NON-EMPTY allocation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('publishBudgetResults: 200', () => pm.response.to.have.status(200));",
+							"const s = pm.response.json().summary;",
+							"pm.test('publishBudgetResults: returns a budget-results summary for this round', () => {",
+							"  pm.expect(s, 'summary').to.be.an('object');",
+							"  pm.expect(s.summaryType).to.eql('budget-results');",
+							"  pm.expect(s.sourceId).to.eql(pm.collectionVariables.get('budgetId'));",
+							"  pm.expect(s.totalAmount).to.eql(50000);",
+							"});",
+							"// The whole defect this pins: the round has one validated proposal carrying",
+							"// one vote, and the published summary used to report none of it. Asserting",
+							"// only 'summary is an object' would have been green the entire time.",
+							"pm.test('publishBudgetResults: the round\\'s proposal is IN the published result', () => {",
+							"  pm.expect(s.proposals, 'proposals').to.be.an('array').with.lengthOf(1);",
+							"  pm.expect(s.proposals[0].title).to.eql('Newman advisory proposal');",
+							"});",
+							"pm.test('publishBudgetResults: participation and allocation are counted', () => {",
+							"  pm.expect(s.participationCount, 'participationCount').to.eql(1);",
+							"  pm.expect(s.allocatedAmount, 'allocatedAmount').to.eql(2000);",
+							"});",
+							"pm.test('publishBudgetResults: the round is marked as published', () => {",
+							"  pm.expect(s.sourceObject.resultsPublished).to.eql(true);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+						{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+					]
+				},
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/participation/budgets/{{budgetId}}/publish",
+					"host": ["{{baseUrl}}"],
+					"path": ["index.php", "apps", "decidiq", "api", "participation", "budgets", "{{budgetId}}", "publish"]
+				}
+			}
+		},
+
+		{
+			"name": "Teardown: delete the budget proposal",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Teardown: proposal removed (2xx)', () => pm.expect(pm.response.code).to.be.oneOf([200, 204]));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+						{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/budget-proposal/{{proposalId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["index.php", "apps", "openregister", "api", "objects", "{{register}}", "budget-proposal", "{{proposalId}}"]
+				}
+			}
+		},
+		{
+			"name": "Teardown: delete the participatory budget",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Teardown: budget removed (2xx)', () => pm.expect(pm.response.code).to.be.oneOf([200, 204]));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+						{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/participatory-budget/{{budgetId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["index.php", "apps", "openregister", "api", "objects", "{{register}}", "participatory-budget", "{{budgetId}}"]
+				}
+			}
+		}
+	]
+}

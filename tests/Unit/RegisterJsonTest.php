@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Unit tests for the Decidesk register JSON (decidesk_register.json).
+ * Unit tests for the Decidiq register JSON (decidesk_register.json).
  *
  * Validates that all schemas are defined with correct properties, types,
  * required fields, enum values, relations, and seed data.
@@ -19,7 +19,7 @@
  * model.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit
+ * @package  OCA\Decidiq\Tests\Unit
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2024 Conduction B.V.
@@ -34,8 +34,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit;
+namespace OCA\Decidiq\Tests\Unit;
 
+use OCA\Decidiq\AppInfo\Application;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -84,6 +85,16 @@ class RegisterJsonTest extends TestCase {
 	public function testRegisterIsValidOpenApi(): void {
 		self::assertSame(expected: '3.0.0', actual: $this->register['openapi']);
 		self::assertArrayHasKey(key: 'x-openregister', array: $this->register);
+		// FROZEN at 'decidesk', and NOT Application::APP_ID. Measured, not
+		// assumed: with this field set to the new app id, the seeded Goal
+		// objects stopped appearing on the Goals index — 'Goals: index lists
+		// all five seeded goals' failed twice in a row, then passed as soon as
+		// the field went back to 'decidesk', with nothing else changed.
+		//
+		// x-openregister.app is therefore load-bearing at IMPORT time, not the
+		// descriptive metadata it looks like: it participates in resolving
+		// which register the fragment seedData is imported into. It moves only
+		// together with the register slug, which stays 'decidesk'.
 		self::assertSame(expected: 'decidesk', actual: $this->register['x-openregister']['app']);
 		self::assertSame(expected: 'application', actual: $this->register['x-openregister']['type']);
 

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Board Evaluation Score Service
+ * Decidiq Board Evaluation Score Service
  *
  * Governance-specific scoring for a board self-evaluation cycle
  * (board-self-evaluation): per-dimension Likert means, an overall
@@ -13,7 +13,7 @@
  * computation time so no breakdown ever exists to leak, even internally.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -29,7 +29,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -251,7 +251,7 @@ class BoardEvaluationScoreService {
 			];
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: closing board evaluation cycle failed',
+				'Decidiq: closing board evaluation cycle failed',
 				['evaluationId' => $evaluationId, 'error' => $e->getMessage()]
 			);
 			return ['success' => false, 'message' => 'Closing the evaluation failed: ' . $e->getMessage()];

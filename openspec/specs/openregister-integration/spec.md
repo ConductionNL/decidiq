@@ -6,9 +6,9 @@ status-note: 2026-06-12 audit — all 3 requirements verified in code. Delivered
 # OpenRegister Integration Specification
 
 ## Purpose
-@e2e exclude Pure backend/data-layer spec — register JSON config, repair step, and OR API access patterns are server-side contracts verified by RegisterJsonTest.php and PHP unit tests. The frontend data-access pattern (useObjectStore) is a library contract with no dedicated decidesk UI form to drive.
+@e2e exclude Pure backend/data-layer spec — register JSON config, repair step, and OR API access patterns are server-side contracts verified by RegisterJsonTest.php and PHP unit tests. The frontend data-access pattern (useObjectStore) is a library contract with no dedicated decidiq UI form to drive.
 
-OpenRegister is the data layer for Decidesk. All Decidesk entities (meetings, decisions, agenda items, votes, resolutions, bodies, process templates) are stored as OpenRegister objects with schema validation. This specification covers the register and schema definitions, the repair step that imports them, the JSON-based register configuration file, and the data access patterns used by the frontend and backend.
+OpenRegister is the data layer for Decidiq. All Decidiq entities (meetings, decisions, agenda items, votes, resolutions, bodies, process templates) are stored as OpenRegister objects with schema validation. This specification covers the register and schema definitions, the repair step that imports them, the JSON-based register configuration file, and the data access patterns used by the frontend and backend.
 
 **Standards**: OpenAPI 3.0.0 (register config format), JSON Schema (validation), Schema.org (type annotations)
 **Feature tier**: MVP
@@ -23,7 +23,7 @@ The register configuration file `lib/Settings/decidesk_register.json` defines al
 
 ### Requirement: Register Configuration File
 
-The system MUST define all Decidesk schemas in a single `lib/Settings/decidesk_register.json` file using OpenAPI 3.0.0 format. The file MUST define schemas for: `meeting`, `agendaItem`, `decision`, `vote`, `votingRound`, `motion`, `amendment`, `resolution`, `minutes`, `body`, `processTemplate`, `actionItem`, and `member`.
+The system MUST define all Decidiq schemas in a single `lib/Settings/decidesk_register.json` file using OpenAPI 3.0.0 format. The file MUST define schemas for: `meeting`, `agendaItem`, `decision`, `vote`, `votingRound`, `motion`, `amendment`, `resolution`, `minutes`, `body`, `processTemplate`, `actionItem`, and `member`.
 
 **Feature tier**: MVP
 
@@ -59,7 +59,7 @@ The system MUST import the register configuration during app installation and up
 
 #### Scenario: Initial installation creates register and schemas
 
-- GIVEN a fresh Nextcloud installation with Decidesk enabled
+- GIVEN a fresh Nextcloud installation with Decidiq enabled
 - WHEN the repair step runs
 - THEN a register named `decidesk` MUST be created in OpenRegister
 - AND all schemas from `decidesk_register.json` MUST be imported
@@ -67,7 +67,7 @@ The system MUST import the register configuration during app installation and up
 
 #### Scenario: App upgrade updates schemas without data loss
 
-- GIVEN an existing Decidesk installation with data
+- GIVEN an existing Decidiq installation with data
 - WHEN the app is upgraded and the repair step runs
 - THEN schema changes MUST be applied to the `decidesk` register
 - AND existing data MUST be preserved
@@ -77,7 +77,7 @@ The system MUST import the register configuration during app installation and up
 
 ### Requirement: Frontend Data Access Pattern
 
-The frontend MUST access Decidesk data via the OpenRegister API using `useObjectStore` from `@conduction/nextcloud-vue`. The frontend MUST NOT make direct API calls to a Decidesk backend for CRUD operations.
+The frontend MUST access Decidiq data via the OpenRegister API using `useObjectStore` from `@conduction/nextcloud-vue`. The frontend MUST NOT make direct API calls to a Decidiq backend for CRUD operations.
 
 **Feature tier**: MVP
 
@@ -101,7 +101,7 @@ The frontend MUST access Decidesk data via the OpenRegister API using `useObject
 
 ### Requirement: Backend Service Access
 
-Backend services (VotingService, WorkflowService) MUST access OpenRegister data via the ObjectService or mapper classes. The backend MUST NOT maintain its own database tables for Decidesk entities.
+Backend services (VotingService, WorkflowService) MUST access OpenRegister data via the ObjectService or mapper classes. The backend MUST NOT maintain its own database tables for Decidiq entities.
 
 **Feature tier**: MVP
 
@@ -115,15 +115,15 @@ Backend services (VotingService, WorkflowService) MUST access OpenRegister data 
 
 ## User Stories
 
-1. **Administrator setting up Decidesk**: As an administrator, I want Decidesk to automatically create its data schemas when installed so that the app is ready to use without manual database configuration. (Source: OpenRegister integration pattern)
+1. **Administrator setting up Decidiq**: As an administrator, I want Decidiq to automatically create its data schemas when installed so that the app is ready to use without manual database configuration. (Source: OpenRegister integration pattern)
 
-2. **Developer extending the data model**: As a developer, I want all Decidesk entities defined in a single JSON config file so that schema changes are versioned, reviewable, and automatically applied on upgrade. (Source: OpenRegister integration pattern)
+2. **Developer extending the data model**: As a developer, I want all Decidiq entities defined in a single JSON config file so that schema changes are versioned, reviewable, and automatically applied on upgrade. (Source: OpenRegister integration pattern)
 
 3. **Frontend developer querying decisions**: As a frontend developer, I want to use the standard useObjectStore composable to query decisions so that I do not need to implement custom API clients or state management. (Source: @conduction/nextcloud-vue pattern)
 
 ## Acceptance Criteria
 
-- All Decidesk schemas are defined in `lib/Settings/decidesk_register.json` (OpenAPI 3.0.0 format)
+- All Decidiq schemas are defined in `lib/Settings/decidesk_register.json` (OpenAPI 3.0.0 format)
 - Repair step creates/updates the `decidesk` register via ConfigurationService::importFromApp()
 - Frontend uses useObjectStore from @conduction/nextcloud-vue for all CRUD
 - Backend uses ObjectService/mappers for data access (no own DB tables)

@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Meeting Service
+ * Decidiq Meeting Service
  *
  * Service for managing meeting lifecycle state transitions.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,11 +24,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use OCA\Decidesk\Lifecycle\MeetingTransitionGuard;
+use OCA\Decidiq\Lifecycle\MeetingTransitionGuard;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Container\ContainerInterface;
@@ -146,7 +146,7 @@ class MeetingService {
 			return $this->refusal(message: "Meeting '$meetingId' not found.");
 		} catch (Throwable $e) {
 			$this->logger->error(
-				'Decidesk: meeting lifecycle transition failed',
+				'Decidiq: meeting lifecycle transition failed',
 				['id' => $meetingId, 'action' => $action, 'exception' => $e->getMessage()]
 			);
 			return $this->refusal(message: 'Transition failed. See server log for details.');
@@ -216,7 +216,7 @@ class MeetingService {
 		);
 
 		$this->logger->info(
-			'Decidesk: meeting lifecycle transitioned',
+			'Decidiq: meeting lifecycle transitioned',
 			['id' => $meetingId, 'action' => $action, 'to' => $transition['to']]
 		);
 
@@ -358,8 +358,8 @@ class MeetingService {
 	 */
 	private function publishTransitionActivity(array $meetingData, string $meetingId, string $newState): void {
 		try {
-			$this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
-				subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_MEETING_TRANSITION,
+			$this->container->get(\OCA\Decidiq\Service\ActivityPublisherService::class)->publishGovernanceEvent(
+				subject: \OCA\Decidiq\Activity\DecidiqProvider::SUBJECT_MEETING_TRANSITION,
 				title: (string)($meetingData['title'] ?? $meetingId),
 				status: $newState,
 				objectType: 'meeting',
@@ -367,7 +367,7 @@ class MeetingService {
 				segment: 'meetings'
 			);
 		} catch (Throwable $activityError) {
-			$this->logger->debug('Decidesk: activity publish skipped', ['error' => $activityError->getMessage()]);
+			$this->logger->debug('Decidiq: activity publish skipped', ['error' => $activityError->getMessage()]);
 		}
 
 	}//end publishTransitionActivity()
@@ -487,7 +487,7 @@ class MeetingService {
 			} catch (\Throwable $e) {
 				// Fail-soft: cost errors must never block closing a meeting.
 				$this->logger->debug(
-					'Decidesk: meetingCost computation skipped on close',
+					'Decidiq: meetingCost computation skipped on close',
 					['meetingId' => $meetingId, 'error' => $e->getMessage()]
 				);
 			}

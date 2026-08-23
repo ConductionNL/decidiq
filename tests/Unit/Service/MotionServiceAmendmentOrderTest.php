@@ -15,7 +15,7 @@
  * never mocked directly (avoids the stub-vs-real signature mismatch of #90).
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -30,9 +30,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\MotionService;
+use OCA\Decidiq\Service\MotionService;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IUserManager;
@@ -333,8 +333,8 @@ class MotionServiceAmendmentOrderTest extends TestCase {
 				// container; MotionLinkResolver is a pure resolver over the same
 				// ObjectService, so wiring the real one keeps this test
 				// end-to-end rather than stubbing the behaviour under test.
-				if ($id === \OCA\Decidesk\Service\MotionLinkResolver::class) {
-					return new \OCA\Decidesk\Service\MotionLinkResolver(container: $container);
+				if ($id === \OCA\Decidiq\Service\MotionLinkResolver::class) {
+					return new \OCA\Decidiq\Service\MotionLinkResolver(container: $container);
 				}
 
 				throw new \RuntimeException('not wired in test: ' . $id);

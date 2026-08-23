@@ -4,7 +4,7 @@
  * Unit tests for VotingDeadlineReminderJob.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\BackgroundJob
+ * @package  OCA\Decidiq\Tests\Unit\BackgroundJob
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,10 +20,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\BackgroundJob;
+namespace OCA\Decidiq\Tests\Unit\BackgroundJob;
 
-use OCA\Decidesk\BackgroundJob\VotingDeadlineReminderJob;
-use OCA\Decidesk\Service\VotingDeadlineReminderService;
+use OCA\Decidiq\BackgroundJob\VotingDeadlineReminderJob;
+use OCA\Decidiq\Service\VotingDeadlineReminderService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;

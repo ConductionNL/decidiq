@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Budget Voting Service
+ * Decidiq Budget Voting Service
  *
  * Participatory-budget proposal submission, staff validation, advisory voting
  * (delegating to the shared tally machinery), and greedy allocation results.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,7 +24,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;

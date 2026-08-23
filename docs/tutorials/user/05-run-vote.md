@@ -17,11 +17,11 @@ By the end you will have run a voting round to completion: votes cast, quorum ch
 - An admissible motion or amendment (see [Add a motion to the agenda](03-add-motion.md) and [Propose an amendment](04-propose-amendment.md)).
 - Chair (or whoever the body's workflow names as the vote operator) — only that role can open and close a round.
 - A participant list for the meeting so quorum and proxy assignments resolve correctly.
-- For email voting: the **email voting** setting enabled (see [Manage Decidesk settings](../admin/03-admin-settings.md)).
+- For email voting: the **email voting** setting enabled (see [Manage Decidiq settings](../admin/03-admin-settings.md)).
 
 ## Steps
 
-1. From the meeting's live view (or the motion's **Votes** tab), open a **voting round** on the motion or amendment. Decidesk records who is present and checks the quorum before the round opens.
+1. From the meeting's live view (or the motion's **Votes** tab), open a **voting round** on the motion or amendment. Decidiq records who is present and checks the quorum before the round opens.
 
    ![Open a voting round](/screenshots/tutorials/user/05-run-vote-01.png)
 
@@ -33,11 +33,11 @@ By the end you will have run a voting round to completion: votes cast, quorum ch
 
    ![Voting round with email and proxy votes](/screenshots/tutorials/user/05-run-vote-03.png)
 
-4. The chair **closes** the round. Decidesk computes the **tally** — counts per option, whether the motion carries given the body's majority rule, and whether quorum was met.
+4. The chair **closes** the round. Decidiq computes the **tally** — counts per option, whether the motion carries given the body's majority rule, and whether quorum was met.
 
    ![Closed round with the tally](/screenshots/tutorials/user/05-run-vote-04.png)
 
-5. **Publish** the result. The tally becomes a **decision** in Decidesk (and, if an ORI endpoint is configured, can be pushed there); the motion's lifecycle moves to *carried* or *rejected*.
+5. **Publish** the result. The tally becomes a **decision** in Decidiq (and, if an ORI endpoint is configured, can be pushed there); the motion's lifecycle moves to *carried* or *rejected*.
 
    ![Published voting result](/screenshots/tutorials/user/05-run-vote-05.png)
 
@@ -58,4 +58,4 @@ The voting round shows as *closed* with a tally, the motion's lifecycle reads *c
 
 - [Track decisions and action items](07-track-decisions.md) — what happens to the decision this vote produced.
 - [Take and publish the minutes](06-take-minutes.md) — the vote result lands in the minutes.
-- [Manage Decidesk settings](../admin/03-admin-settings.md) — email voting and the ORI endpoint.
+- [Manage Decidiq settings](../admin/03-admin-settings.md) — email voting and the ORI endpoint.

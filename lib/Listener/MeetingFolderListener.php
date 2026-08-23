@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Meeting Folder Listener
+ * Decidiq Meeting Folder Listener
  *
  * Creates the structured Files folder tree when a meeting object is
  * created in OpenRegister (nextcloud-integration spec, Files requirement).
  *
  * @category Listener
- * @package  OCA\Decidesk\Listener
+ * @package  OCA\Decidiq\Listener
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,10 +23,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Listener;
+namespace OCA\Decidiq\Listener;
 
-use OCA\Decidesk\Service\ListenerSchemaResolver;
-use OCA\Decidesk\Service\MeetingFolderService;
+use OCA\Decidiq\Service\ListenerSchemaResolver;
+use OCA\Decidiq\Service\MeetingFolderService;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -103,7 +103,7 @@ class MeetingFolderListener implements IEventListener {
 		} catch (\Throwable $e) {
 			// Fail soft: folder creation must never break the object write path.
 			$this->logger->warning(
-				'Decidesk: meeting folder listener failed',
+				'Decidiq: meeting folder listener failed',
 				['exception' => $e->getMessage()]
 			);
 		}//end try

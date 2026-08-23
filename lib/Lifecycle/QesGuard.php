@@ -9,7 +9,7 @@
  * with the persisted signedBy list on the linked BoardMinutes row.
  *
  * @category Lifecycle
- * @package  OCA\Decidesk\Lifecycle
+ * @package  OCA\Decidiq\Lifecycle
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,9 +25,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Lifecycle;
+namespace OCA\Decidiq\Lifecycle;
 
-use OCA\Decidesk\Service\IEIDASSignatureService;
+use OCA\Decidiq\Service\IEIDASSignatureService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 
@@ -87,7 +87,7 @@ class QesGuard {
 			$signed = $this->loadSignedBy(resolutionId: $resolutionId);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: QesGuard could not load signed-by list',
+				'Decidiq: QesGuard could not load signed-by list',
 				['resolutionId' => $resolutionId, 'exception' => $e->getMessage()]
 			);
 			return $this->refuse(

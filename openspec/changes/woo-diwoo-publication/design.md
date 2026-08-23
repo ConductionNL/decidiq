@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-Decidesk stays a thin client on OpenRegister (ADR-022). The Woo/DiWoo layer is a *decoration* of the existing public-publication machinery — it introduces one config schema, one decorator step inside the payload builders, one public read-only endpoint, and one optional connector service. It never re-implements eligibility, PII stripping, immutability, or withdraw/rectify.
+Decidiq stays a thin client on OpenRegister (ADR-022). The Woo/DiWoo layer is a *decoration* of the existing public-publication machinery — it introduces one config schema, one decorator step inside the payload builders, one public read-only endpoint, and one optional connector service. It never re-implements eligibility, PII stripping, immutability, or withdraw/rectify.
 
 ```
 WooCategorieMapping (config, fragment 58)      Admin settings (Woo section)
@@ -53,7 +53,7 @@ No app-local state machine anywhere: mappings have no lifecycle; publication lif
 
 Frontend CRUD on mappings goes through OR's object API via `useObjectStore` (no pass-through controllers — redundant-controller gate). App endpoints exist only where imperative services act:
 
-### `GET /apps/decidesk/woo-index.xml` (+ `?page=N`) — public DiWoo sitemap; `#[PublicPage]` `#[NoCSRFRequired]`; lists only `publicatiedatum <= now` and not depublished, `diwoo`-decorated entries; metadata + public resource URLs only
+### `GET /apps/decidiq/woo-index.xml` (+ `?page=N`) — public DiWoo sitemap; `#[PublicPage]` `#[NoCSRFRequired]`; lists only `publicatiedatum <= now` and not depublished, `diwoo`-decorated entries; metadata + public resource URLs only
 ### `GET /api/woo/coverage` — staff coverage report (aggregation results + type-not-installed residue); `#[NoAdminRequired]` + governance-body authority guard in body
 ### `POST /api/woo/push/{publicationRecordId}` — (re)push one publication via OpenConnector; 409 when no Source configured; `#[NoAdminRequired]` + authority guard
 
@@ -67,7 +67,7 @@ None. All entities are OpenRegister objects; no Nextcloud migrations.
 
 - Controllers: `WooIndexController` (public sitemap), `WooCoverageController`, `WooPushController`
 - Services: `DiWooMetadataService`, `IWooIndexConnectorService`, `WooIndexConnectorService`, `LogWooIndexConnectorService`
-- Settings: existing decidesk admin settings gain a Woo section (`OCP\Settings\ISettings`; data via `IInitialState`/`loadState`, never DOM data-attributes; component NOT in vue-router — admin-router gate)
+- Settings: existing decidiq admin settings gain a Woo section (`OCP\Settings\ISettings`; data via `IInitialState`/`loadState`, never DOM data-attributes; component NOT in vue-router — admin-router gate)
 - DI: lazy OpenConnector lookup via `ContainerInterface` (pattern: `EIDASSignatureService`); registrations in `AppInfo\Application`
 - Events/Hooks: none imperative — notifications declarative (gate-18)
 
@@ -75,7 +75,7 @@ None. All entities are OpenRegister objects; no Nextcloud migrations.
 
 - The public sitemap is the only new anonymous surface: it enumerates references + DiWoo metadata under the exact published predicate OR enforces, never payload bodies, never NC UIDs; Newman negative tests cover unpublished/withdrawn/deny-listed objects.
 - Coverage and push endpoints carry `#[NoAdminRequired]` + per-request governance-body authority guards (no IDOR on `publicationRecordId`).
-- No secrets in schemas (ADR-064): the push Source credentials live in OpenConnector; decidesk stores only the Source slug.
+- No secrets in schemas (ADR-064): the push Source credentials live in OpenConnector; decidiq stores only the Source slug.
 - Input validation on override URIs (TOOI pattern) server-side, not only in the UI.
 
 ## NL Design System
@@ -101,7 +101,7 @@ appinfo/routes.php                             (modified)
 src/manifest.d/woo-diwoo.json                  (new — coverage widget, mapping list page)
 src/settings/ (Woo admin section component)    (new — settings framework only)
 tests/Unit/Service/{DiWooMetadataServiceTest,WooIndexConnectorServiceTest}.php (new)
-tests/integration/decidesk-woo-diwoo.postman_collection.json (new)
+tests/integration/decidiq-woo-diwoo.postman_collection.json (new)
 ```
 
 ## Seed Data

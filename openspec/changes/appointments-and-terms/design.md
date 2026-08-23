@@ -4,7 +4,7 @@
 
 Everything data lives in OpenRegister via fragment `61-appointments-and-terms.json`: `Voordracht` (the nomination workflow object), `TermijnRegeling` (per body-role term rules), `RoosterVanAftreden` (one live projection object per body), and `RoosterRegel` (one first-class object per active Membership under a rule). The change **reads** but never redefines Person/Membership/Post (`person-and-membership`), GovernanceBody (`governance-body-crud`), VotingRound (`voting-system` + ballot specs), Decision, and AgendaItem — voordrachten reference them through `x-openregister-relations`.
 
-Declarative surface: voordracht lifecycle, herbenoemingsrappels, publication predicate, pages, filters, and the expiring-terms KPI. Imperative surface (thin, decidesk backend): `BenoemingService` (assistive Membership creation from a `benoemd` voordracht), `RoosterService` (term derivation + rooster (re)generation + CSV export), and the vacancy-suggestion computation. Frontend consumes the OR API directly per the thin-client pattern; pages come from a `src/manifest.d/` fragment.
+Declarative surface: voordracht lifecycle, herbenoemingsrappels, publication predicate, pages, filters, and the expiring-terms KPI. Imperative surface (thin, decidiq backend): `BenoemingService` (assistive Membership creation from a `benoemd` voordracht), `RoosterService` (term derivation + rooster (re)generation + CSV export), and the vacancy-suggestion computation. Frontend consumes the OR API directly per the thin-client pattern; pages come from a `src/manifest.d/` fragment.
 
 ```
 Voordracht ──besluit──> Decision          TermijnRegeling ─┐ (effective rule)
@@ -160,7 +160,7 @@ Additive only: new fragment 61, new manifest fragment, new services/routes. Depl
 
 - [Regels go stale between regenerations (new appointment, early resignation)] → rooster page shows `gegenereerdOp` prominently and offers one-click regenerate; rappels fire from materialized dates, so a regenerate after membership changes is part of the secretary flow (documented); a stale rooster is visibly stale, never silently wrong.
 - [Scheduled-notification dialect may not support per-object configurable windows] → default 6/3-month windows declared in the fragment; if per-body configurability is not expressible, config lives in the TermijnRegeling and regeneration stamps the window onto the regel (documented fallback, never an imperative job).
-- [Term derivation across pre-decidesk history] → derivation uses whatever Membership history exists; imported partial history yields term number 1 — acceptable, correctable by importing older memberships and regenerating.
+- [Term derivation across pre-decidiq history] → derivation uses whatever Membership history exists; imported partial history yields term number 1 — acceptable, correctable by importing older memberships and regenerating.
 - [Sibling vocabulary drift (parallel wave: member-onboarding, fractievoorzitter)] → enums pinned to person-and-membership's role enum; voordragende-partij vocabulary pinned to the fractievoorzitter change; deferred review question raised.
 
 ## Open Questions

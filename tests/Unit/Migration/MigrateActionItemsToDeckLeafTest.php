@@ -4,7 +4,7 @@
  * Unit tests for MigrateActionItemsToDeckLeaf repair step (retired no-op).
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Migration
+ * @package  OCA\Decidiq\Tests\Unit\Migration
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,9 +20,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Migration;
+namespace OCA\Decidiq\Tests\Unit\Migration;
 
-use OCA\Decidesk\Migration\MigrateActionItemsToDeckLeaf;
+use OCA\Decidiq\Migration\MigrateActionItemsToDeckLeaf;
 use OCP\Migration\IOutput;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

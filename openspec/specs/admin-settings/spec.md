@@ -6,7 +6,7 @@ status-note: 2026-06-12 admin-settings-v1 — all 4 requirements now have workin
 # Admin Settings Specification
 
 ## Purpose
-Admin settings enable organization administrators to configure Decidesk for their specific governance context. This includes setting up governing bodies (bodies), assigning members with roles, selecting process templates, configuring voting rules, and managing the OpenRegister schema setup. The admin interface is the first thing configured after installation and determines how the entire system behaves.
+Admin settings enable organization administrators to configure Decidiq for their specific governance context. This includes setting up governing bodies (bodies), assigning members with roles, selecting process templates, configuring voting rules, and managing the OpenRegister schema setup. The admin interface is the first thing configured after installation and determines how the entire system behaves.
 
 **Standards**: Nextcloud Settings API (`OCP\Settings\ISettings`), Schema.org (`Organization`, `Role`)
 **Feature tier**: MVP
@@ -28,7 +28,7 @@ The system MUST support creating and managing governing bodies (bestuursorganen)
 
 @e2e openspec/specs/admin-settings/spec.md#create-a-governing-body-for-an-association-board
 
-- GIVEN an administrator in the Decidesk admin settings
+- GIVEN an administrator in the Decidiq admin settings
 - WHEN they create a body with name "Bestuur", type "board", and add 5 members with roles (chair, secretary, treasurer, member, member)
 - THEN the system MUST create an OpenRegister object with the `body` schema
 - AND each member MUST be linked to a Nextcloud user account
@@ -101,7 +101,7 @@ The system MUST support importing members from Nextcloud Groups, Nextcloud Conta
 @e2e openspec/specs/admin-settings/spec.md#import-members-from-a-nextcloud-group
 
 - GIVEN a Nextcloud group "bestuur" with 5 members
-- WHEN the administrator imports the group into a Decidesk body
+- WHEN the administrator imports the group into a Decidiq body
 - THEN all 5 Nextcloud users MUST be added as body members
 - AND their display names and email addresses MUST be populated from Nextcloud
 - AND the administrator MUST be able to assign roles after import
@@ -141,7 +141,7 @@ The system MUST expose an `organisatie_modus` setting whose value is one of
 be persisted via `IAppConfig` through `SettingsService` (added to
 `SettingsService::CONFIG_KEYS`), returned by `getSettings()` with the `gov`
 default when unset, and writable via `updateSettings()`. The setting MUST be
-selectable in the Decidesk admin settings UI. The value MUST drive the
+selectable in the Decidiq admin settings UI. The value MUST drive the
 navigation label map (per the app-navigation capability) and MUST NOT alter the
 entity/schema set or the navigation structure (ADR-006: mode adaptation, never
 parallel entities).
@@ -159,7 +159,7 @@ parallel entities).
 
 @e2e openspec/specs/admin-settings/spec.md#admin-selects-a-tenant-mode
 
-- GIVEN an administrator in the Decidesk admin settings
+- GIVEN an administrator in the Decidiq admin settings
 - WHEN they set the organisation mode to "corp"
 - THEN `updateSettings()` persists `organisatie_modus = "corp"` via `IAppConfig`
 - AND `getSettings()` subsequently returns `"corp"`

@@ -5,14 +5,14 @@ status: done
 # Specs: Minutes and Decisions — Other T1
 
 **Change:** p2-minutes-and-decisions-other-t1
-**App:** Decidesk
+**App:** Decidiq
 **Entities:** Decision, Motion, ActionItem, Minutes
 
 ---
 
 ## Purpose
 
-This spec defines the digital approval workflow, strategic decision review, decision analytics, outcome tracking, auto record creation, action item tracking, and the weekly email digest for Decidesk.
+This spec defines the digital approval workflow, strategic decision review, decision analytics, outcome tracking, auto record creation, action item tracking, and the weekly email digest for Decidiq.
 
 # Requirements
 
@@ -299,7 +299,7 @@ Chairs and secretaries receive a weekly email listing decisions requiring attent
 **GIVEN** `DecisionDigestJob` runs on Monday at 09:00 for a GovernanceBody that has digest enabled
 **WHEN** the job assembles and sends the digest email
 **THEN** the email recipient list includes all Person records with role `chair` or `secretary` in the GovernanceBody's Membership records (non-empty email addresses only)
-**AND** the email subject is: "Decidesk weekoverzicht — {governanceBodyName} — {date}"
+**AND** the email subject is: "Decidiq weekoverzicht — {governanceBodyName} — {date}"
 **AND** the email body includes three sections:
   - "Aankomende actiepunten" — ActionItems linked to Decisions of this body with `dueDate` within 14 days and `taskStatus != completed`, sorted ascending by `dueDate`
   - "Achterstallige actiepunten" — ActionItems with `taskStatus: overdue`, sorted ascending by `dueDate`
@@ -311,7 +311,7 @@ Chairs and secretaries receive a weekly email listing decisions requiring attent
 
 An administrator can disable the weekly digest for a specific governance body.
 
-**GIVEN** the admin settings page (`/settings/admin/decidesk`) is open
+**GIVEN** the admin settings page (`/settings/admin/decidiq`) is open
 **WHEN** the administrator finds the "Wekelijks overzicht" section and disables the digest for a specific GovernanceBody using the toggle
 **THEN** `IAppConfig` key `digest_enabled_{governanceBodyId}` is set to `false`
 **AND** `DecisionDigestJob` skips that governance body on its next run
@@ -319,11 +319,11 @@ An administrator can disable the weekly digest for a specific governance body.
 
 ### REQ-WED-003 — Weekly digest includes deep links to each item
 
-The weekly email digest includes deep links into the Decidesk app.
+The weekly email digest includes deep links into the Decidiq app.
 
 **GIVEN** `DecisionDigestJob` is assembling the HTML email body
 **WHEN** an ActionItem or Decision is included in a digest section
-**THEN** the HTML version of the email includes a hyperlink to the relevant detail page using `generateUrl('/apps/decidesk/')` with the entity route appended
+**THEN** the HTML version of the email includes a hyperlink to the relevant detail page using `generateUrl('/apps/decidiq/')` with the entity route appended
 **AND** the plain-text version includes the full URL on a separate line after the item title
 **AND** a footer note states: "Inloggen in Nextcloud is vereist om de links te openen"
 
@@ -349,7 +349,7 @@ All status indicators, timeline stages, chart colours, and overdue highlights MU
 All Decision/ActionItem listing, filtering, relation creation, audit trail display, and chart rendering MUST use `ObjectService`, `CnIndexPage`, `CnDetailPage`, `CnObjectSidebar`, and `CnChartWidget` from the OpenRegister/conduction platform. No custom CRUD controllers, audit log handlers, or chart libraries.
 
 ### REQ-NFR-006 — Analytics endpoint caching
-`GET /api/decisions/analytics` MUST return a `Cache-Control: max-age=900` header. The controller MUST check `ICache` before running aggregate queries. Cache key: `decidesk_analytics_{governanceBodyId}`. Cache TTL: 900 seconds (15 minutes).
+`GET /api/decisions/analytics` MUST return a `Cache-Control: max-age=900` header. The controller MUST check `ICache` before running aggregate queries. Cache key: `decidiq_analytics_{governanceBodyId}`. Cache TTL: 900 seconds (15 minutes).
 
 ### REQ-NFR-007 — Digest job error handling
 `DecisionDigestJob` MUST wrap all `IMailer::send()` calls in try/catch. Failures MUST be logged at `ERROR` level with governance body ID and exception context. A failed send MUST NOT stop the job from processing remaining governance bodies.

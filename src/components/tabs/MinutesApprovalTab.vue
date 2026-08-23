@@ -15,30 +15,28 @@
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--approval"
+		class="decidiq-tab decidiq-tab--approval"
 		data-testid="minutes-approval-tab">
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Approval workflow error')">
+			:title="t('decidiq', 'Approval workflow error')">
 			{{ error }}
 		</CnNoteCard>
 
 		<NcLoadingIcon v-if="loading" :size="32" />
 
 		<template v-else-if="minutes">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Approval workflow') }}
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Approval workflow') }}
 			</h3>
 
 			<CnTimelineStages
 				:stages="stages"
 				:current="currentStageIndex"
-				:aria-label="t('decidesk', 'Minutes lifecycle')" />
+				:aria-label="t('decidiq', 'Minutes lifecycle')" />
 
-			<div
-				class="decidesk-tab__actions"
-				data-testid="minutes-approval-actions">
+			<div class="decidiq-tab__actions" data-testid="minutes-approval-actions">
 				<template v-for="action in actions" :key="action.action">
 					<NcButton
 						:variant="action.action === 'reject' ? 'error' : 'primary'"
@@ -48,9 +46,9 @@
 						{{ actionLabel(action.action) }}
 					</NcButton>
 				</template>
-				<p v-if="minutes.approvedAt" class="decidesk-tab__meta">
+				<p v-if="minutes.approvedAt" class="decidiq-tab__meta">
 					{{
-						t('decidesk', 'Approved at {date} by {names}', {
+						t('decidiq', 'Approved at {date} by {names}', {
 							date: minutes.approvedAt,
 							names: signedByLabel,
 						})
@@ -60,69 +58,69 @@
 
 			<div
 				v-if="lastRejection"
-				class="decidesk-tab__rejection"
+				class="decidiq-tab__rejection"
 				data-testid="minutes-last-rejection">
 				<CnNoteCard
 					type="warning"
-					:title="t('decidesk', 'Returned to draft')">
+					:title="t('decidiq', 'Returned to draft')">
 					{{ lastRejection.comment }}
 				</CnNoteCard>
 			</div>
 
-			<div class="decidesk-tab__corrections">
-				<div class="decidesk-tab__header">
-					<h3 class="decidesk-tab__title">
-						{{ t('decidesk', 'Correction suggestions') }}
-						<span class="decidesk-tab__count"
+			<div class="decidiq-tab__corrections">
+				<div class="decidiq-tab__header">
+					<h3 class="decidiq-tab__title">
+						{{ t('decidiq', 'Correction suggestions') }}
+						<span class="decidiq-tab__count"
 							>({{ corrections.length }})</span
 						>
 					</h3>
 					<NcButton
 						v-if="canSuggest"
 						data-testid="minutes-correction-add"
-						:aria-label="t('decidesk', 'Suggest a correction')"
+						:aria-label="t('decidiq', 'Suggest a correction')"
 						@click="correctionModalOpen = true">
-						{{ t('decidesk', 'Suggest a correction') }}
+						{{ t('decidiq', 'Suggest a correction') }}
 					</NcButton>
 				</div>
 
-				<p v-if="corrections.length === 0" class="decidesk-tab__empty">
-					{{ t('decidesk', 'No corrections suggested.') }}
+				<p v-if="corrections.length === 0" class="decidiq-tab__empty">
+					{{ t('decidiq', 'No corrections suggested.') }}
 				</p>
-				<ul v-else class="decidesk-tab__list" role="list">
+				<ul v-else class="decidiq-tab__list" role="list">
 					<li
 						v-for="correction in corrections"
 						:key="correction.id"
-						class="decidesk-tab__correction"
+						class="decidiq-tab__correction"
 						role="listitem">
-						<div class="decidesk-tab__correction-body">
+						<div class="decidiq-tab__correction-body">
 							<CnStatusBadge
 								:label="statusLabel(correction.status)"
 								:colorMap="correctionColors" />
-							<span class="decidesk-tab__correction-text">{{
+							<span class="decidiq-tab__correction-text">{{
 								correction.text
 							}}</span>
-							<span class="decidesk-tab__meta">
+							<span class="decidiq-tab__meta">
 								{{ correction.authorName || correction.author }}
 							</span>
 						</div>
 						<div
 							v-if="correction.status === 'proposed'"
-							class="decidesk-tab__correction-actions">
+							class="decidiq-tab__correction-actions">
 							<NcButton
 								size="small"
 								variant="primary"
 								:disabled="working"
-								:aria-label="t('decidesk', 'Accept correction')"
+								:aria-label="t('decidiq', 'Accept correction')"
 								@click="resolveCorrection(correction, 'accepted')">
-								{{ t('decidesk', 'Accept') }}
+								{{ t('decidiq', 'Accept') }}
 							</NcButton>
 							<NcButton
 								size="small"
 								:disabled="working"
-								:aria-label="t('decidesk', 'Reject correction')"
+								:aria-label="t('decidiq', 'Reject correction')"
 								@click="resolveCorrection(correction, 'rejected')">
-								{{ t('decidesk', 'Dismiss') }}
+								{{ t('decidiq', 'Dismiss') }}
 							</NcButton>
 						</div>
 					</li>
@@ -266,14 +264,14 @@ export default {
 		 */
 		statusLabel(value) {
 			const labels = {
-				draft: this.t('decidesk', 'Draft'),
-				review: this.t('decidesk', 'In review'),
-				approved: this.t('decidesk', 'Approved'),
-				signed: this.t('decidesk', 'Signed'),
-				published: this.t('decidesk', 'Published'),
-				proposed: this.t('decidesk', 'Proposed'),
-				accepted: this.t('decidesk', 'Accepted'),
-				rejected: this.t('decidesk', 'Rejected'),
+				draft: this.t('decidiq', 'Draft'),
+				review: this.t('decidiq', 'In review'),
+				approved: this.t('decidiq', 'Approved'),
+				signed: this.t('decidiq', 'Signed'),
+				published: this.t('decidiq', 'Published'),
+				proposed: this.t('decidiq', 'Proposed'),
+				accepted: this.t('decidiq', 'Accepted'),
+				rejected: this.t('decidiq', 'Rejected'),
 			}
 			return labels[value] || value
 		},
@@ -287,11 +285,11 @@ export default {
 		 */
 		actionLabel(action) {
 			const labels = {
-				submit: this.t('decidesk', 'Submit for review'),
-				approve: this.t('decidesk', 'Approve'),
-				reject: this.t('decidesk', 'Reject…'),
-				sign: this.t('decidesk', 'Sign'),
-				publish: this.t('decidesk', 'Publish'),
+				submit: this.t('decidiq', 'Submit for review'),
+				approve: this.t('decidiq', 'Approve'),
+				reject: this.t('decidiq', 'Reject…'),
+				sign: this.t('decidiq', 'Sign'),
+				publish: this.t('decidiq', 'Publish'),
 			}
 			return labels[action] || action
 		},
@@ -306,23 +304,23 @@ export default {
 				this.minutes = await store.fetchObject('minutes', this.objectId)
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Failed to load the minutes.')
+					e?.message || this.t('decidiq', 'Failed to load the minutes.')
 			} finally {
 				this.loading = false
 			}
 		},
 
 		/**
-		 * POST helper against the decidesk minutes API.
+		 * POST helper against the decidiq minutes API.
 		 *
-		 * @param {string} path Path under /apps/decidesk/api.
+		 * @param {string} path Path under /apps/decidiq/api.
 		 * @param {object} body JSON body.
 		 * @param {string} method HTTP method.
 		 * @return {Promise<object>} Parsed response body.
 		 * @spec openspec/specs/resolution-minutes/spec.md
 		 */
 		async callApi(path, body = {}, method = 'POST') {
-			const response = await fetch(generateUrl(`/apps/decidesk/api${path}`), {
+			const response = await fetch(generateUrl(`/apps/decidiq/api${path}`), {
 				method,
 				headers: {
 					'Content-Type': 'application/json',
@@ -333,7 +331,7 @@ export default {
 			const data = await response.json().catch(() => ({}))
 			if (!response.ok) {
 				throw new Error(
-					data.message || this.t('decidesk', 'The action failed.'),
+					data.message || this.t('decidiq', 'The action failed.'),
 				)
 			}
 			return data
@@ -438,40 +436,40 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: calc(var(--default-grid-baseline) * 2);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__count {
+.decidiq-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
 
-.decidesk-tab__actions {
+.decidiq-tab__actions {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__list {
+.decidiq-tab__list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -480,7 +478,7 @@ export default {
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__correction {
+.decidiq-tab__correction {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
@@ -488,28 +486,28 @@ export default {
 	border-bottom: 1px solid var(--color-border);
 }
 
-.decidesk-tab__correction:last-child {
+.decidiq-tab__correction:last-child {
 	border-bottom: none;
 }
 
-.decidesk-tab__correction-body {
+.decidiq-tab__correction-body {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__correction-text {
+.decidiq-tab__correction-text {
 	flex: 1;
 }
 
-.decidesk-tab__correction-actions {
+.decidiq-tab__correction-actions {
 	display: flex;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__meta,
-.decidesk-tab__empty {
+.decidiq-tab__meta,
+.decidiq-tab__empty {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }

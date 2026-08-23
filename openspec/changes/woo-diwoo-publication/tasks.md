@@ -64,7 +64,7 @@
 
 ### Task 7: Admin mapping UI, i18n, docs
 - **spec_ref**: `openspec/changes/woo-diwoo-publication/specs/woo-diwoo-publication/spec.md#requirement-req-woo-006-admin-mapping-ui`
-- **files**: decidesk admin settings section (`src/settings/`), `lib/Settings/` ISettings wiring, `l10n/`, `docs/features/woo-diwoo.md`
+- **files**: decidiq admin settings section (`src/settings/`), `lib/Settings/` ISettings wiring, `l10n/`, `docs/features/woo-diwoo.md`
 - **acceptance_criteria**:
   - GIVEN an admin in the Woo settings section WHEN they edit mappings (via `useObjectStore`), the bestuursorgaan TOOI id (per-body override), and the push Source slug THEN all round-trip; server data flows via `IInitialState`/`loadState`; the component is NOT in vue-router (admin-router gate); no secrets stored (ADR-064)
   - GIVEN the UI WHEN strings render THEN Dutch and English exist (statutory Dutch terms with English gloss), NcSelects carry `inputLabel`, and the section meets WCAG 2.1 AA
@@ -82,7 +82,7 @@
 ## Quality checklist
 
 - PHPUnit unit tests for new/changed business logic (`tests/Unit/Service/DiWooMetadataServiceTest.php`, `WooIndexConnectorServiceTest.php`)
-- Newman/Postman tests for new endpoints incl. the negative security suite (`tests/integration/decidesk-woo-diwoo.postman_collection.json`)
+- Newman/Postman tests for new endpoints incl. the negative security suite (`tests/integration/decidiq-woo-diwoo.postman_collection.json`)
 - Playwright browser tests for the publish-override dialog, coverage widget, and admin section
 - All tests pass (`composer test`, `newman run`); `composer check:strict` clean
 - Feature documentation updated in `docs/` with screenshot (ADR-010)

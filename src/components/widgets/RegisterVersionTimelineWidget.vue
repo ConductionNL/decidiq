@@ -35,13 +35,13 @@
 
 		<div class="cn-version-timeline">
 			<p v-if="loading && !rows.length" class="cn-version-timeline__loading">
-				{{ t('decidesk', 'Loading versions…') }}
+				{{ t('decidiq', 'Loading versions…') }}
 			</p>
 
 			<CnNoteCard
 				v-else-if="error"
 				type="error"
-				:heading="t('decidesk', 'Could not load versions')"
+				:heading="t('decidiq', 'Could not load versions')"
 				data-testid="version-timeline-error">
 				{{ error }}
 			</CnNoteCard>
@@ -49,11 +49,11 @@
 			<CnNoteCard
 				v-else-if="!rows.length"
 				type="info"
-				:heading="t('decidesk', 'No versions yet')"
+				:heading="t('decidiq', 'No versions yet')"
 				data-testid="version-timeline-empty">
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'No versions have been recorded for this record yet.',
 					)
 				}}
@@ -73,7 +73,7 @@
 						<div class="cn-version-timeline__line1">
 							<span class="cn-version-timeline__version">
 								{{
-									t('decidesk', 'Version {n}', {
+									t('decidiq', 'Version {n}', {
 										n: row.versionNumber,
 									})
 								}}
@@ -89,7 +89,7 @@
 								v-if="row.effectiveDate"
 								class="cn-version-timeline__date">
 								{{
-									t('decidesk', 'In force from {date}', {
+									t('decidiq', 'In force from {date}', {
 										date: formatDate(row.effectiveDate),
 									})
 								}}
@@ -98,7 +98,7 @@
 								v-if="row.lapseDate"
 								class="cn-version-timeline__date">
 								{{
-									t('decidesk', 'until {date}', {
+									t('decidiq', 'until {date}', {
 										date: formatDate(row.lapseDate),
 									})
 								}}
@@ -122,7 +122,7 @@
 							@click="openDecision(row.decisionId)">
 							{{
 								decisionLabels[row.decisionId]
-								|| t('decidesk', 'View decision')
+								|| t('decidiq', 'View decision')
 							}}
 						</NcButton>
 					</div>
@@ -148,11 +148,11 @@ import {
 
 /** Shared version-lifecycle status enum across regeling-versie / governing-document-versie. */
 const STATUS_LABELS = {
-	draft: () => t('decidesk', 'concept'),
-	adopted: () => t('decidesk', 'adopted'),
-	'in-effect': () => t('decidesk', 'in force'),
-	replaced: () => t('decidesk', 'replaced'),
-	lapsed: () => t('decidesk', 'lapsed'),
+	draft: () => t('decidiq', 'concept'),
+	adopted: () => t('decidiq', 'adopted'),
+	'in-effect': () => t('decidiq', 'in force'),
+	replaced: () => t('decidiq', 'replaced'),
+	lapsed: () => t('decidiq', 'lapsed'),
 }
 
 export default {
@@ -177,7 +177,7 @@ export default {
 		/** Effective object store (forwarded by CnDetailPage). Falls back to the library's default. */
 		store: { type: Object, default: null },
 		/** Card title. Filled from `content.title` via the host's v-bind spread when set. */
-		title: { type: String, default: () => t('decidesk', 'Version timeline') },
+		title: { type: String, default: () => t('decidiq', 'Version timeline') },
 		/** Card icon (must be registered in src/icons.js, ADR-077). */
 		icon: { type: String, default: 'Timeline' },
 	},
@@ -360,7 +360,7 @@ export default {
 			}
 			const store = this.getStore()
 			if (!store) {
-				this.error = t('decidesk', 'No object store available')
+				this.error = t('decidiq', 'No object store available')
 				return
 			}
 			this.loading = true
@@ -397,7 +397,7 @@ export default {
 			} catch (e) {
 				this.error =
 					e?.message
-					|| t('decidesk', 'Failed to load the version timeline.')
+					|| t('decidiq', 'Failed to load the version timeline.')
 				this.versions = []
 			} finally {
 				this.loading = false

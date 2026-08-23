@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * UI e2e for meeting transcription + AI-assisted draft minutes
@@ -9,7 +9,7 @@
  *
  * PROVIDER determinism, DATA reality
  * ----------------------------------
- * Every decidesk transcription API call and the Transcript / AgendaItem reads
+ * Every decidiq transcription API call and the Transcript / AgendaItem reads
  * the panel makes are still intercepted with `page.route`, so the run never
  * depends on a live SpeechToText/AI provider. That is the "mocked provider
  * fixture" the change's tasks call for and it is unchanged.
@@ -17,12 +17,12 @@
  * What changed (run 31083903075 burndown) is the MEETING the panel is mounted
  * on. The spec used to navigate to
  *
- *     ${BASE}/index.php/apps/decidesk/meetings/e2e-transcription-meeting
+ *     ${BASE}/index.php/apps/decidiq/meetings/e2e-transcription-meeting
  *
  * — a hard-coded id for an object that has never existed, behind an
  * `/index.php/` prefix the SPA router cannot match. `src/main.js` builds its
- * history as `createWebHistory(generateUrl('/apps/decidesk'))`, and on the CI
- * instance `generateUrl` resolves to `/apps/decidesk` (no `index.php`), so the
+ * history as `createWebHistory(generateUrl('/apps/decidiq'))`, and on the CI
+ * instance `generateUrl` resolves to `/apps/decidiq` (no `index.php`), so the
  * requested path fell through to the router's catch-all
  * `{ path: '/:pathMatch(.*)*', redirect: '/' }` and the browser sat on the
  * DASHBOARD. The trace for that run confirms it: the only requests after the
@@ -120,7 +120,7 @@ async function mockTranscriptionApi(
 ): Promise<void> {
 	// Source list + provider availability.
 	await page.route(
-		'**/apps/decidesk/api/meetings/*/transcription/sources',
+		'**/apps/decidiq/api/meetings/*/transcription/sources',
 		(route) =>
 			route.fulfill({
 				status: 200,
@@ -141,7 +141,7 @@ async function mockTranscriptionApi(
 
 	// Attach (consent precondition lives server-side; here we echo a done transcript).
 	await page.route(
-		'**/apps/decidesk/api/meetings/*/transcription/attach',
+		'**/apps/decidiq/api/meetings/*/transcription/attach',
 		(route) =>
 			route.fulfill({
 				status: 201,
@@ -150,7 +150,7 @@ async function mockTranscriptionApi(
 			}),
 	)
 
-	await page.route('**/apps/decidesk/api/transcripts/*/transcribe', (route) =>
+	await page.route('**/apps/decidiq/api/transcripts/*/transcribe', (route) =>
 		route.fulfill({
 			status: 200,
 			contentType: 'application/json',
@@ -158,7 +158,7 @@ async function mockTranscriptionApi(
 		}),
 	)
 
-	await page.route('**/apps/decidesk/api/transcripts/*/generate-draft', (route) =>
+	await page.route('**/apps/decidiq/api/transcripts/*/generate-draft', (route) =>
 		route.fulfill({
 			status: 200,
 			contentType: 'application/json',
@@ -232,7 +232,7 @@ async function mockTranscriptionApi(
  * one honest failure naming the missing panel.
  */
 async function gotoTranscription(page: Page, meetingId: string): Promise<void> {
-	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
+	await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 10_000 })
 	await page.waitForSelector('[data-testid="meeting-transcription-tab"]', {
 		timeout: 10_000,

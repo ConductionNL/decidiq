@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Migrate Comments To Talk Leaf Repair Step
+ * Decidiq Migrate Comments To Talk Leaf Repair Step
  *
  * One-shot, idempotent, resume-safe migration of legacy in-app Comment
  * objects onto the ADR-019 Talk integration leaf
@@ -24,7 +24,7 @@
  * installed exit cleanly — no error is raised.
  *
  * @category Migration
- * @package  OCA\Decidesk\Migration
+ * @package  OCA\Decidiq\Migration
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -44,10 +44,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Migration;
+namespace OCA\Decidiq\Migration;
 
 use DateTimeImmutable;
-use OCA\Decidesk\Service\SettingsService;
+use OCA\Decidiq\Service\SettingsService;
 use OCP\App\IAppManager;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -121,7 +121,7 @@ class MigrateCommentsToTalkLeaf implements IRepairStep {
 	 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.1
 	 */
 	public function getName(): string {
-		return 'Migrate legacy Decidesk Comment objects to the Talk integration leaf';
+		return 'Migrate legacy Decidiq Comment objects to the Talk integration leaf';
 	}//end getName()
 
 	/**
@@ -147,7 +147,7 @@ class MigrateCommentsToTalkLeaf implements IRepairStep {
 		} catch (Throwable $e) {
 			$output->warning('Could not resolve OpenRegister ObjectService — skipping Comment migration.');
 			$this->logger->warning(
-				'Decidesk: Comment migration could not resolve ObjectService',
+				'Decidiq: Comment migration could not resolve ObjectService',
 				['error' => $e->getMessage()]
 			);
 			return;
@@ -174,7 +174,7 @@ class MigrateCommentsToTalkLeaf implements IRepairStep {
 		} catch (Throwable $e) {
 			$output->info('No legacy Comment objects found — nothing to migrate.');
 			$this->logger->info(
-				'Decidesk: Comment migration found no legacy comment schema/objects',
+				'Decidiq: Comment migration found no legacy comment schema/objects',
 				['error' => $e->getMessage()]
 			);
 			return;
@@ -200,7 +200,7 @@ class MigrateCommentsToTalkLeaf implements IRepairStep {
 		}//end foreach
 
 		$output->info(
-			'Decidesk Comment migration complete: ' . $migrated . ' migrated, ' . $skipped . ' skipped.'
+			'Decidiq Comment migration complete: ' . $migrated . ' migrated, ' . $skipped . ' skipped.'
 		);
 
 	}//end run()
@@ -260,14 +260,14 @@ class MigrateCommentsToTalkLeaf implements IRepairStep {
 			);
 
 			$this->logger->info(
-				'Decidesk: migrated Comment to Talk leaf',
+				'Decidiq: migrated Comment to Talk leaf',
 				['uuid' => $uuid, 'target' => $target]
 			);
 			return true;
 		} catch (Throwable $e) {
 			$output->warning('Failed to migrate Comment ' . $uuid . ': ' . $e->getMessage());
 			$this->logger->warning(
-				'Decidesk: Comment migration failed for one object',
+				'Decidiq: Comment migration failed for one object',
 				['uuid' => $uuid, 'error' => $e->getMessage()]
 			);
 			return false;

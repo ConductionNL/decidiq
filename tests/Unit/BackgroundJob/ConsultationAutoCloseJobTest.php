@@ -7,7 +7,7 @@
  * Copyright (C) 2026 Conduction B.V.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\BackgroundJob
+ * @package  OCA\Decidiq\Tests\Unit\BackgroundJob
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,10 +20,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\BackgroundJob;
+namespace OCA\Decidiq\Tests\Unit\BackgroundJob;
 
-use OCA\Decidesk\BackgroundJob\ConsultationAutoCloseJob;
-use OCA\Decidesk\Service\ParticipationLifecycleService;
+use OCA\Decidiq\BackgroundJob\ConsultationAutoCloseJob;
+use OCA\Decidiq\Service\ParticipationLifecycleService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\AppFramework\Utility\ITimeFactory;

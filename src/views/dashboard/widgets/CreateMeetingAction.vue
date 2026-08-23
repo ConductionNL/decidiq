@@ -5,7 +5,7 @@
 		<template #icon>
 			<Plus :size="16" />
 		</template>
-		{{ t('decidesk', 'Create meeting') }}
+		{{ t('decidiq', 'Create meeting') }}
 	</NcButton>
 </template>
 

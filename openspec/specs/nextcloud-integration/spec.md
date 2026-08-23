@@ -8,7 +8,7 @@ status-note: Completed 2026-06-12 via nc-platform-integration-v1 (Activity provi
 ## Purpose
 @e2e exclude V1 feature — all scenarios are OCP backend integrations (Calendar IManager, Files IRootFolder, Talk IBroker, Activity IManager, Notification IManager, Search IProvider). None of the integrations have a dedicated UI page built in the SPA; they are server-side hooks with no Playwright-accessible surface.
 
-Decidesk leverages Nextcloud's platform capabilities to provide a seamless governance experience without reinventing existing functionality. This specification covers integration with Nextcloud Calendar (meeting scheduling), Files (document management), Mail (convocation delivery), Talk (meeting communication), Tasks (action item tracking), Activity (audit feed), Notifications (alerts), Search (universal search), and References (rich link previews). Each integration uses the appropriate OCP interface.
+Decidiq leverages Nextcloud's platform capabilities to provide a seamless governance experience without reinventing existing functionality. This specification covers integration with Nextcloud Calendar (meeting scheduling), Files (document management), Mail (convocation delivery), Talk (meeting communication), Tasks (action item tracking), Activity (audit feed), Notifications (alerts), Search (universal search), and References (rich link previews). Each integration uses the appropriate OCP interface.
 
 **Standards**: Nextcloud OCP interfaces, CalDAV (RFC 4791), WebDAV
 **Feature tier**: V1
@@ -18,14 +18,14 @@ Decidesk leverages Nextcloud's platform capabilities to provide a seamless gover
 
 ### Requirement: Calendar Integration
 
-The system MUST create Nextcloud Calendar events for scheduled meetings via `OCP\Calendar\IManager`. Calendar events MUST include meeting title, date/time, location, body, and a link back to the Decidesk meeting. Changes to the meeting schedule MUST update the calendar event.
+The system MUST create Nextcloud Calendar events for scheduled meetings via `OCP\Calendar\IManager`. Calendar events MUST include meeting title, date/time, location, body, and a link back to the Decidiq meeting. Changes to the meeting schedule MUST update the calendar event.
 
 **Feature tier**: V1
 
 #### Scenario: Create calendar event when meeting is scheduled
 
 - GIVEN a meeting "Board Meeting Q2" scheduled for 2026-07-15 14:00-16:00 in "Boardroom A"
-- WHEN the meeting is created in Decidesk
+- WHEN the meeting is created in Decidiq
 - THEN a calendar event MUST be created in each attendee's Nextcloud Calendar
 - AND the event MUST include the meeting link, agenda summary, and document links
 - AND the event MUST have a reminder set to the user's configured preference
@@ -54,7 +54,7 @@ The system MUST store and manage meeting documents using Nextcloud Files. Each m
 
 #### Scenario: Create meeting folder structure on meeting creation
 
-@e2e exclude server-side OR-event hook with no decidesk SPA surface (folders appear in NC Files chrome); covered by PHPUnit (MeetingFolderServiceTest, MeetingFolderListenerTest)
+@e2e exclude server-side OR-event hook with no decidiq SPA surface (folders appear in NC Files chrome); covered by PHPUnit (MeetingFolderServiceTest, MeetingFolderListenerTest)
 - GIVEN a meeting "Board Meeting Q2 2026" for body "Board of Directors" scheduled 2026-07-15
 - WHEN the meeting object is created (app UI or OR API)
 - THEN a folder MUST be created at `Decidesk/Board of Directors/2026-07-15 Board Meeting Q2 2026/`
@@ -88,18 +88,18 @@ The system MUST create Nextcloud Talk conversations for meetings via `OCP\Talk\I
 
 ### Requirement: Activity Integration
 
-The system MUST publish Decidesk events to the Nextcloud Activity feed via `OCP\Activity\IManager` under a registered activity type `decidesk_governance` with an `OCP\Activity\IProvider`, an `ActivitySettings` entry, and an `OCP\Activity\IFilter` declared in `appinfo/info.xml`. Events MUST include: decision recorded, decision published (status change), meeting lifecycle transitions (both operational meetings and board meetings), vote initiation (voting rounds and board resolution votes), and resolution adoption. Activity publication MUST be fail-soft: a failure to publish MUST never abort the underlying governance transition.
+The system MUST publish Decidiq events to the Nextcloud Activity feed via `OCP\Activity\IManager` under a registered activity type `decidesk_governance` with an `OCP\Activity\IProvider`, an `ActivitySettings` entry, and an `OCP\Activity\IFilter` declared in `appinfo/info.xml`. Events MUST include: decision recorded, decision published (status change), meeting lifecycle transitions (both operational meetings and board meetings), vote initiation (voting rounds and board resolution votes), and resolution adoption. Activity publication MUST be fail-soft: a failure to publish MUST never abort the underlying governance transition.
 
 **Feature tier**: V1
 
 #### Scenario: Decision status change appears in Activity feed
 
-@e2e exclude NC Activity stream is platform chrome (no decidesk SPA surface); provider parse + publish call sites covered by PHPUnit (DecideskProviderTest, ActivityPublisherServiceTest)
+@e2e exclude NC Activity stream is platform chrome (no decidiq SPA surface); provider parse + publish call sites covered by PHPUnit (DecidiqProviderTest, ActivityPublisherServiceTest)
 - GIVEN a decision "Approve Budget 2026" is published (status change to published)
 - WHEN the transition is completed
 - THEN an Activity entry MUST be created with subject `decision_published` and the decision title
 - AND the entry MUST be addressed to the members of the governing body resolvable for the event plus the acting user
-- AND the entry's link MUST navigate to the decision in Decidesk (`/apps/decidesk/#/decisions/{uuid}`)
+- AND the entry's link MUST navigate to the decision in Decidiq (`/apps/decidiq/#/decisions/{uuid}`)
 
 #### Scenario: Meeting lifecycle transition appears in Activity feed
 
@@ -133,7 +133,7 @@ The system MUST send Nextcloud Notifications for time-sensitive governance event
 
 #### Scenario: Send voting deadline reminder
 
-@e2e exclude background-job + NC notification chrome (no decidesk SPA surface); window calculation, selection, skip-already-voted and dedup covered by PHPUnit (VotingDeadlineReminderServiceTest, VotingDeadlineReminderJobTest)
+@e2e exclude background-job + NC notification chrome (no decidiq SPA surface); window calculation, selection, skip-already-voted and dedup covered by PHPUnit (VotingDeadlineReminderServiceTest, VotingDeadlineReminderJobTest)
 - GIVEN an open voting round with `closedAt` 20 hours from now and a participant who has not yet voted
 - WHEN the hourly reminder job runs
 - THEN that participant MUST receive a notification "Reminder: your vote on '{motion}' is due soon" with a deep link to the voting round
@@ -142,18 +142,18 @@ The system MUST send Nextcloud Notifications for time-sensitive governance event
 
 ### Requirement: Search Integration
 
-The system MUST register a search provider via `OCP\Search\IProvider` (`IRegistrationContext::registerSearchProvider`) so that decisions, meetings, and resolutions are findable from Nextcloud's universal search. The provider MUST query OpenRegister's `ObjectService` full-text search with RBAC enabled under the searching user's session so that ONLY objects the user is permitted to read are returned (per-user visibility is a security requirement). Results MUST deep-link into the corresponding Decidesk detail route.
+The system MUST register a search provider via `OCP\Search\IProvider` (`IRegistrationContext::registerSearchProvider`) so that decisions, meetings, and resolutions are findable from Nextcloud's universal search. The provider MUST query OpenRegister's `ObjectService` full-text search with RBAC enabled under the searching user's session so that ONLY objects the user is permitted to read are returned (per-user visibility is a security requirement). Results MUST deep-link into the corresponding Decidiq detail route.
 
 **Feature tier**: V1
 
 #### Scenario: Find a decision via Nextcloud search
 
-@e2e exclude NC universal-search UI is platform chrome (no decidesk SPA surface); provider behaviour covered by PHPUnit (DecideskSearchProviderTest)
+@e2e exclude NC universal-search UI is platform chrome (no decidiq SPA surface); provider behaviour covered by PHPUnit (DecidiqSearchProviderTest)
 - GIVEN decisions exist including "Budget 2026 Approval"
 - WHEN the user searches for "budget" in Nextcloud's universal search
-- THEN the Decidesk search provider MUST return "Budget 2026 Approval" as a result
-- AND the result MUST show the decision title, a status subline, and the Decidesk app icon as thumbnail
-- AND clicking the result MUST navigate to the decision detail view in Decidesk
+- THEN the Decidiq search provider MUST return "Budget 2026 Approval" as a result
+- AND the result MUST show the decision title, a status subline, and the Decidiq app icon as thumbnail
+- AND clicking the result MUST navigate to the decision detail view in Decidiq
 
 #### Scenario: Search results respect per-user visibility
 

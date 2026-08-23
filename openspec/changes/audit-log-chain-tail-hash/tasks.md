@@ -10,7 +10,7 @@
     an OpenRegister query bounded to a single row (`limit: 1`, `order: timestamp DESC`), not a
     query bounded to N (or 10000) rows
 - [ ] Add a private `loadLastEntry(object $objectService): ?array` method using
-      `$objectService->findAll(['register' => 'decidesk', 'schema' => 'audit-trail', 'order' =>
+      `$objectService->findAll(['register' => 'decidiq', 'schema' => 'audit-trail', 'order' =>
       ['timestamp' => 'DESC'], 'limit' => 1])` and returning the single row (or `null` when the
       log is empty).
 - [ ] Test: `loadLastEntry()` returns the most-recent row (by `timestamp`) for a fixture chain of

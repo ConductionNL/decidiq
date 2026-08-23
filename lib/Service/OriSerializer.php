@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Decidesk ORI 1.4 JSON-LD serializer
+ * Decidiq ORI 1.4 JSON-LD serializer
  *
- * Turns Decidesk/OpenRegister object payloads into ORI 1.4 JSON-LD resources
+ * Turns Decidiq/OpenRegister object payloads into ORI 1.4 JSON-LD resources
  * and evaluates the anonymous published-predicate window for PublicationPayload
  * objects. Extracted from OriController so the controller keeps only its HTTP
  * responsibility (REQ-ORI-001..004).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,13 +27,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use Throwable;
 
 /**
- * ORI 1.4 JSON-LD serialization for Decidesk register objects.
+ * ORI 1.4 JSON-LD serialization for Decidiq register objects.
  *
  * Field renaming follows ORI 1.4 conventions and is expressed declaratively in
  * the rule tables below: each ORI target key lists the source properties to try,
@@ -171,7 +171,7 @@ class OriSerializer {
 	}//end serializePayload()
 
 	/**
-	 * Serialize a Decidesk register object as a JSON-LD ORI resource.
+	 * Serialize a Decidiq register object as a JSON-LD ORI resource.
 	 *
 	 * @param string $type The ORI @type label
 	 * @param array<string, mixed> $object The OpenRegister object payload

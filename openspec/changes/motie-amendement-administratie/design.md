@@ -1,15 +1,15 @@
-# Design — Decidesk Motie en Amendement Administratie
+# Design — Decidiq Motie en Amendement Administratie
 
 ## Context
 
-Decidesk levert vandaag Meeting, AgendaItem, en Proposal uit decidesk-base, en Fractie-register/Raadslid-fractie-historie uit decidesk-besluitvorming-workflow. De motie-administratie-spec koppelt hieraan:
+Decidiq levert vandaag Meeting, AgendaItem, en Proposal uit decidesk-base, en Fractie-register/Raadslid-fractie-historie uit decidesk-besluitvorming-workflow. De motie-administratie-spec koppelt hieraan:
 
 - Moties worden geagendeerd als AgendaItem en vergaderden als Meeting
 - Amendementen wijzigen een gekoppelde Proposal
 - Stemmingen gebeuren op basis van aanwezigheid in Meeting
 - Fractie-context wordt via Raadslid-fractie-historie opgehaald op stemdatum
 
-**Huidige staat decidesk:**
+**Huidige staat decidiq:**
 
 - Meeting, AgendaItem, Proposal schema's bestaan (decidesk-base)
 - Fractie-register + Raadslid-fractie-historie bestaan (decidesk-besluitvorming-workflow)
@@ -210,7 +210,7 @@ Geen nieuwe business logic buiten motie/amendement/stemming/execution: alles is 
 
 1. Land decidesk-base (Meeting, AgendaItem, Proposal) en decidesk-besluitvorming-workflow (Fractie, Raadslid-fractie-historie).
 2. Patch openregister met Motie/Amendement/Stemresultaat/UitvoeringsUpdate schema's (OR-PR).
-3. Land deze decidesk PR:
+3. Land deze decidiq PR:
    - Add lib/Service/MotionService, AmendmentService, VotingService, ExecutionService
    - Add lib/Controller/MotionController, AmendmentController, VotingController, ExecutionController
    - Add lib/Jobs/ReminderJob, PublishMotionJob

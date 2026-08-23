@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Notification Preference Controller
+ * Decidiq Notification Preference Controller
  *
  * REST controller for the current user's NotificationPreference object.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,11 +23,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\NotificationPreferenceRequestValidator;
-use OCA\Decidesk\Service\NotificationPreferenceService;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\NotificationPreferenceRequestValidator;
+use OCA\Decidiq\Service\NotificationPreferenceService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;

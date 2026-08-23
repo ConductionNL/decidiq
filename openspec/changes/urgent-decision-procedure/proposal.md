@@ -6,15 +6,15 @@ kind: code
 
 ## Summary
 
-Add an urgent/expedited decision procedure (spoedprocedure) to decidesk: an authorised actor (chair or a role configured per body) can flag a `Decision` as urgent with a recorded justification, run it through an expedited route variant — an emergency meeting with shortened convocation (recording the deviation from the body's regular notice period) or an expedited written round with a response deadline in hours — and a mandatory ratification (bekrachtiging) stage is auto-appended so the provisionally effective decision MUST land on the agenda of the ratifying body's next regular meeting, where ratification confirms it or triggers reversal via the existing decision-evolution relations. The whole flow reuses the existing route/stage machinery (`DecisionStage` with `stageType=ratifying`), the existing written-resolution path (BW 2:40, `VotingRound.votingDeadline`), and the existing convocation/notice-period computation — no parallel system.
+Add an urgent/expedited decision procedure (spoedprocedure) to decidiq: an authorised actor (chair or a role configured per body) can flag a `Decision` as urgent with a recorded justification, run it through an expedited route variant — an emergency meeting with shortened convocation (recording the deviation from the body's regular notice period) or an expedited written round with a response deadline in hours — and a mandatory ratification (bekrachtiging) stage is auto-appended so the provisionally effective decision MUST land on the agenda of the ratifying body's next regular meeting, where ratification confirms it or triggers reversal via the existing decision-evolution relations. The whole flow reuses the existing route/stage machinery (`DecisionStage` with `stageType=ratifying`), the existing written-resolution path (BW 2:40, `VotingRound.votingDeadline`), and the existing convocation/notice-period computation — no parallel system.
 
 ## Motivation
 
-Market evidence (2026-07-16 deep-dive, intelligence-DB feature `trigger-urgent-decision-process`, demand 1467, priority "must" — the 2nd-highest unresolved demand for decidesk): governance bodies across all 5 decidesk domains regularly need decisions faster than the regular meeting cadence — a college takes spoedbesluiten later bekrachtigd door de raad, corporate boards act under statutory urgent-resolution clauses subject to RvC/AVA ratification, association boards act between ALVs. Decidesk today covers only the regular route (decision-route: college → commissie → raad, MT → RvB → RvC) and BW 2:40 written resolutions between meetings (decision-management user story 4, `resolutionType=written-resolution`, `VotingRound.votingDeadline`). There is no urgency trigger, no shortened-notice path (the notice machinery only *warns* when a convocation is late — it cannot *record a deliberate deviation*), and no mandatory ratification follow-up. Without ratification tracking, urgent decisions are the exact place where governance accountability silently leaks.
+Market evidence (2026-07-16 deep-dive, intelligence-DB feature `trigger-urgent-decision-process`, demand 1467, priority "must" — the 2nd-highest unresolved demand for decidiq): governance bodies across all 5 decidiq domains regularly need decisions faster than the regular meeting cadence — a college takes spoedbesluiten later bekrachtigd door de raad, corporate boards act under statutory urgent-resolution clauses subject to RvC/AVA ratification, association boards act between ALVs. Decidiq today covers only the regular route (decision-route: college → commissie → raad, MT → RvB → RvC) and BW 2:40 written resolutions between meetings (decision-management user story 4, `resolutionType=written-resolution`, `VotingRound.votingDeadline`). There is no urgency trigger, no shortened-notice path (the notice machinery only *warns* when a convocation is late — it cannot *record a deliberate deviation*), and no mandatory ratification follow-up. Without ratification tracking, urgent decisions are the exact place where governance accountability silently leaks.
 
 ## Affected Projects
 
-- [ ] Project: `decidesk` — Decision urgency fields + guard, Meeting shortened-notice recording, expedited written round deadline, auto-appended ratifying stage + agenda placement, ProcessTemplate urgency policy, list/detail/dashboard indicators, declarative notifications, seed data
+- [ ] Project: `decidiq` — Decision urgency fields + guard, Meeting shortened-notice recording, expedited written round deadline, auto-appended ratifying stage + agenda placement, ProcessTemplate urgency policy, list/detail/dashboard indicators, declarative notifications, seed data
 
 ## Scope
 
@@ -55,7 +55,7 @@ None.
 
 ## Cross-Project Dependencies
 
-None — self-contained within decidesk on existing OpenRegister capabilities (lifecycle, calculations, notifications dialect already in use). No OpenRegister changes required.
+None — self-contained within decidiq on existing OpenRegister capabilities (lifecycle, calculations, notifications dialect already in use). No OpenRegister changes required.
 
 ## Risks
 

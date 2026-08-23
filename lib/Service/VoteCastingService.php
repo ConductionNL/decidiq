@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Vote Casting Service
+ * Decidiq Vote Casting Service
  *
  * Implements the cast-a-vote path: round state guard, meeting membership,
  * proxy rules, duplicate detection and the idempotent ballot write.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,7 +24,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;

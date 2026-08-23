@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Minutes Document Service
+ * Decidiq Minutes Document Service
  *
  * Renders the minutes content into a formatted document and persists it into
  * the linked meeting's Files folder ('Minutes' subfolder). PDF rendering is
@@ -10,7 +10,7 @@
  * the response says so honestly.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @spec openspec/specs/resolution-minutes/spec.md
  *
@@ -26,13 +26,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
-use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\Decidesk\Exception\MissingRelationException;
+use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingRelationException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -353,7 +353,7 @@ class MinutesDocumentService {
 			}
 		} catch (\Throwable $e) {
 			$this->logger->debug(
-				'Decidesk: agenda item title lookup failed for document generation',
+				'Decidiq: agenda item title lookup failed for document generation',
 				['agendaItemId' => $agendaItemId, 'error' => $e->getMessage()]
 			);
 		}
@@ -382,7 +382,7 @@ class MinutesDocumentService {
 			}
 		} catch (\Throwable $e) {
 			$this->logger->info(
-				'Decidesk: Docudesk PDF pathway unavailable, falling back to markdown',
+				'Decidiq: Docudesk PDF pathway unavailable, falling back to markdown',
 				['error' => $e->getMessage()]
 			);
 		}
@@ -475,7 +475,7 @@ class MinutesDocumentService {
 			// The document itself was persisted; a failed bookkeeping write must
 			// not fail the request. Log and continue.
 			$this->logger->warning(
-				'Decidesk: failed to record generated document on minutes object',
+				'Decidiq: failed to record generated document on minutes object',
 				['minutesId' => $minutesId, 'error' => $e->getMessage()]
 			);
 		}
@@ -516,7 +516,7 @@ class MinutesDocumentService {
 			return $meetingEntity->getObject();
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: failed to fetch linked Meeting for document generation',
+				'Decidiq: failed to fetch linked Meeting for document generation',
 				['meetingId' => $meetingId, 'error' => $e->getMessage()]
 			);
 			throw new RuntimeException(

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Publication Eligibility Service
+ * Decidiq Publication Eligibility Service
  *
  * Single home for the public-publication structural deny-list and the
  * server-side gates governing which governance objects may be published to the
@@ -22,7 +22,7 @@
  * The two deny-lists are unioned here so the merge reconciles cleanly.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -39,11 +39,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DomainException;
-use OCA\Decidesk\Exception\AccessDeniedException;
-use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\AccessDeniedException;
+use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 
@@ -444,7 +444,7 @@ class PublicationEligibilityService {
 		try {
 			$entity = $this->objectService->find(id: $id, register: 'decidesk', schema: $schema);
 		} catch (\Throwable $e) {
-			$this->logger->error('Decidesk publication: failed to load source object', ['exception' => $e->getMessage()]);
+			$this->logger->error('Decidiq publication: failed to load source object', ['exception' => $e->getMessage()]);
 			throw new MissingObjectException(message: 'Source object could not be loaded.');
 		}
 

@@ -3,7 +3,7 @@
 /**
  * Unit tests for the Portaliq portal contribution provider.
  *
- * Pins Decidesk's ADR-046 contract-v2.2 contribution: the dependency-free
+ * Pins Decidiq's ADR-046 contract-v2.2 contribution: the dependency-free
  * duck-typed shape (inert without portaliq), the v2 getAudiences() + v1
  * getAudience() pair, the `citizen` read + inbox manifest (scoping map, default
  * subjectRef scoping, minTrust, the inbox `kind`) and the subject-safe field
@@ -18,7 +18,7 @@
  * (amendment A1), so no mocks and no container are involved.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Portal
+ * @package  OCA\Decidiq\Tests\Unit\Portal
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -33,9 +33,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Portal;
+namespace OCA\Decidiq\Tests\Unit\Portal;
 
-use OCA\Decidesk\Portal\PortalContributionProvider;
+use OCA\Decidiq\Portal\PortalContributionProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -134,7 +134,7 @@ final class PortalContributionProviderTest extends TestCase {
 		$manifest = $this->provider->getContribution(self::CITIZEN_SUBJECT);
 
 		self::assertIsArray(actual: $manifest);
-		self::assertSame(expected: 'Decidesk', actual: $manifest['label']);
+		self::assertSame(expected: 'Decidiq', actual: $manifest['label']);
 		self::assertCount(expectedCount: 2, haystack: $manifest['actions'], message: 'Exactly createReaction + createBudgetProposal this wave');
 		self::assertSame(expected: [], actual: $manifest['notifications'], message: 'No manifest-level notification dispatch this wave');
 

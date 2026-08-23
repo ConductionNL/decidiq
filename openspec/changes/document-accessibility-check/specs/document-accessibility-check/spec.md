@@ -1,13 +1,13 @@
 # document-accessibility-check Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - document-accessibility-check (active)
 
 ## Purpose
 
-Validates the accessibility of uploaded meeting/agenda documents (PDF first) before they reach the public surface. Provides an honest heuristic scan — explicitly not a certified PDF/UA or EN 301 549 audit — a per-document status badge, a configurable publication gate with recorded overrides, remediation guidance, and a per-body aggregate report supporting the organisation's toegankelijkheidsverklaring (Besluit digitale toegankelijkheid overheid; WCAG 2.1 AA). Distinct from the `accessibility-baseline` spec, which covers decidesk's own UI, not uploaded documents. Precedent: `p3-citizen-participation` already mandates tagged PDF/UA output for generated voting forms; this capability closes the gap for user-uploaded documents. Follows ADR-022 (all persistence via OpenRegister objects) and ADR-031 (declarative aggregations/notifications; parsing is a justified imperative exception).
+Validates the accessibility of uploaded meeting/agenda documents (PDF first) before they reach the public surface. Provides an honest heuristic scan — explicitly not a certified PDF/UA or EN 301 549 audit — a per-document status badge, a configurable publication gate with recorded overrides, remediation guidance, and a per-body aggregate report supporting the organisation's toegankelijkheidsverklaring (Besluit digitale toegankelijkheid overheid; WCAG 2.1 AA). Distinct from the `accessibility-baseline` spec, which covers decidiq's own UI, not uploaded documents. Precedent: `p3-citizen-participation` already mandates tagged PDF/UA output for generated voting forms; this capability closes the gap for user-uploaded documents. Follows ADR-022 (all persistence via OpenRegister objects) and ADR-031 (declarative aggregations/notifications; parsing is a justified imperative exception).
 
 ## ADDED Requirements
 
@@ -131,11 +131,11 @@ The system SHALL provide an aggregate accessibility report per governance body a
 
 ### Requirement: REQ-006 Admin settings for enforcement and scanning
 
-Admins SHALL configure, via decidesk admin settings stored in `IAppConfig` (per the existing `SettingsService` pattern): the enforcement mode (`off` / `warn` / `block`; default `warn`) and the scan-on-upload toggle (default on). When scan-on-upload is enabled, newly uploaded attachments SHALL be queued for scanning via a background job; when disabled, documents remain `not-scanned` until scanned on demand or at publish time.
+Admins SHALL configure, via decidiq admin settings stored in `IAppConfig` (per the existing `SettingsService` pattern): the enforcement mode (`off` / `warn` / `block`; default `warn`) and the scan-on-upload toggle (default on). When scan-on-upload is enabled, newly uploaded attachments SHALL be queued for scanning via a background job; when disabled, documents remain `not-scanned` until scanned on demand or at publish time.
 
 #### Scenario: Admin switches to block mode
 
-- GIVEN an admin on the decidesk admin settings page
+- GIVEN an admin on the decidiq admin settings page
 - WHEN they set enforcement mode to `block` and save
 - THEN subsequent publish attempts with failing documents are refused per REQ-003 without any code deployment
 

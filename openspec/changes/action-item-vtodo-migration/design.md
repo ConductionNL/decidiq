@@ -24,7 +24,7 @@ cannot be a repair step or a system-context job — it must establish each ownin
 ## Decisions
 
 ### D1 — occ command as the primary driver (+ optional one-shot background job)
-Primary entry point is an `occ decidesk:migrate-action-items` command an admin runs deliberately;
+Primary entry point is an `occ decidiq:migrate-action-items` command an admin runs deliberately;
 it enumerates owning users and migrates per user. A guarded one-shot background job MAY schedule it
 post-upgrade. **Why over a repair step:** repair steps have no user session for CalDAV; an occ command
 runs interactively with controllable impersonation + progress, and admins expect data migrations to be

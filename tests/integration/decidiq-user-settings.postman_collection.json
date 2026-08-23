@@ -1,0 +1,866 @@
+{
+	"info": {
+		"name": "Decidiq User Settings Contract Suite",
+		"description": "Newman contract tests for the user-settings-v1 REST surface: GET/PUT /api/notification-preference (defaults merge, accountEmail, the new reminder-timing / delegation / communication fields and their 422 validation matrix), the IConfig display-preference round-trip on /api/preferences/{key}, the castVote delegation gate ('Delegation does not include voting rights. A formal proxy (volmacht) is required for voting.') and the 401 authorization posture. Self-contained: seeds its own OpenRegister objects (participant, voting round, delegator preference) and tears them down.\n\nAUTH MODEL (same as decidiq.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The no-auth request carries NEITHER and targets {{noAuthBase}} so the host-scoped NC session cookie never leaks to it.\n\n@spec openspec/specs/user-settings/spec.md",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "noauth"
+	},
+	"item": [
+		{
+			"name": "0. Setup",
+			"item": [
+				{
+					"name": "Seed admin participant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: admin participant created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'participant id captured').to.be.a('string');",
+									"pm.collectionVariables.set('usParticipantId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "participant"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"displayName\": \"Newman UserSettings Admin\",\n  \"role\": \"member\",\n  \"nextcloudUserId\": \"{{adminUser}}\"\n}"
+						}
+					}
+				},
+				{
+					"name": "Seed open voting round",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: voting round created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'voting round id captured').to.be.a('string');",
+									"pm.collectionVariables.set('usRoundId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "voting-round"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-01-01T09:00:00Z\",\n  \"closedAt\": null\n}"
+						}
+					}
+				},
+				{
+					"name": "Seed delegator absence preference",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: delegator preference created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'delegator preference id captured').to.be.a('string');",
+									"pm.collectionVariables.set('usDelegatorPrefId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/notification-preference",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "notification-preference"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"person\": \"newman-us-delegator\",\n  \"delegate\": \"{{adminUser}}\",\n  \"delegationFrom\": \"2000-01-01\",\n  \"delegationUntil\": \"2099-12-31\"\n}"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "1. Preference round-trip",
+			"item": [
+				{
+					"name": "GET own preference exposes defaults + accountEmail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('GET preference is 200', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.test('person is the session user (no IDOR surface)', () => {",
+									"    pm.expect(b.person).to.eql(pm.variables.get('adminUser'));",
+									"});",
+									"pm.test('deliveryMethod is a valid enum value', () => {",
+									"    pm.expect(['in-app', 'email', 'both']).to.include(b.deliveryMethod);",
+									"});",
+									"pm.test('reminderTimes is an array', () => pm.expect(b.reminderTimes).to.be.an('array'));",
+									"pm.test('meetingReminder toggle present', () => pm.expect(b).to.have.property('meetingReminder'));",
+									"pm.test('accountEmail key present (NC default for governance email)', () => {",
+									"    pm.expect(b).to.have.property('accountEmail');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/notification-preference",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
+						}
+					}
+				},
+				{
+					"name": "PUT full preference update echoes the new fields",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('PUT preference is 200', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.test('reminder timing 48h + 1h persisted', () => pm.expect(b.reminderTimes).to.eql(['48h', '1h']));",
+									"pm.test('meetingReminder disabled', () => pm.expect(b.meetingReminder).to.eql(false));",
+									"pm.test('deliveryMethod both persisted', () => pm.expect(b.deliveryMethod).to.eql('both'));",
+									"pm.test('governance email override persisted', () => pm.expect(b.governanceEmail).to.eql('newman-work@example.com'));",
+									"pm.test('delegation persisted with expiry', () => {",
+									"    pm.expect(b.delegate).to.eql('newman-us-buddy');",
+									"    pm.expect(b.delegationUntil).to.eql('2099-12-31');",
+									"});",
+									"pm.test('communication language persisted', () => pm.expect(b.communicationLanguage).to.eql('nl'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/notification-preference",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"votingOpened\": true,\n  \"meetingReminder\": false,\n  \"reminderTimes\": [\"48h\", \"1h\"],\n  \"deliveryMethod\": \"both\",\n  \"delegate\": \"newman-us-buddy\",\n  \"delegationFrom\": \"2000-01-01\",\n  \"delegationUntil\": \"2099-12-31\",\n  \"governanceEmail\": \"newman-work@example.com\",\n  \"urgentPhone\": \"+31 6 12345678\",\n  \"communicationLanguage\": \"nl\"\n}"
+						}
+					}
+				},
+				{
+					"name": "GET reflects the persisted update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('GET preference is 200', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.test('round-trip: reminderTimes', () => pm.expect(b.reminderTimes).to.eql(['48h', '1h']));",
+									"pm.test('round-trip: deliveryMethod', () => pm.expect(b.deliveryMethod).to.eql('both'));",
+									"pm.test('round-trip: governanceEmail', () => pm.expect(b.governanceEmail).to.eql('newman-work@example.com'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/notification-preference",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Validation matrix (422)",
+			"item": [
+				{
+					"name": "PUT invalid deliveryMethod (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('invalid deliveryMethod is 422', () => pm.response.to.have.status(422));",
+									"pm.test('error envelope has a message', () => pm.expect(pm.response.json().message).to.be.a('string'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/notification-preference",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"deliveryMethod\": \"pigeon\"\n}"
+						}
+					}
+				},
+				{
+					"name": "PUT unknown reminder token (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('unknown reminder token is 422', () => pm.response.to.have.status(422));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/notification-preference",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"reminderTimes\": [\"24h\", \"3d\"]\n}"
+						}
+					}
+				},
+				{
+					"name": "PUT invalid governance email (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('invalid governance email is 422', () => pm.response.to.have.status(422));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/notification-preference",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"governanceEmail\": \"not-an-email\"\n}"
+						}
+					}
+				},
+				{
+					"name": "PUT delegate without expiry (422 — delegation must expire)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('delegate without expiry is 422', () => pm.response.to.have.status(422));",
+									"pm.test('message explains automatic expiry', () => {",
+									"    pm.expect(pm.response.json().message).to.include('expire');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/notification-preference",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"delegate\": \"newman-us-buddy\"\n}"
+						}
+					}
+				},
+				{
+					"name": "PUT inverted delegation period (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('inverted delegation period is 422', () => pm.response.to.have.status(422));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/notification-preference",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"delegate\": \"newman-us-buddy\",\n  \"delegationFrom\": \"2026-07-14\",\n  \"delegationUntil\": \"2026-07-01\"\n}"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Display preferences (IConfig)",
+			"item": [
+				{
+					"name": "PUT default-view = meetings",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('PUT display preference is 200', () => pm.response.to.have.status(200));",
+									"pm.test('value echoed', () => pm.expect(pm.response.json().value).to.eql('meetings'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/preferences/default-view",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "preferences", "default-view"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"value\": \"meetings\"\n}"
+						}
+					}
+				},
+				{
+					"name": "GET default-view round-trips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('GET display preference is 200', () => pm.response.to.have.status(200));",
+									"pm.test('stored value returned', () => pm.expect(pm.response.json().value).to.eql('meetings'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/preferences/default-view",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "preferences", "default-view"]
+						}
+					}
+				},
+				{
+					"name": "PUT empty value clears default-view",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('clear display preference is 200', () => pm.response.to.have.status(200));",
+									"pm.test('cleared value is null', () => pm.expect(pm.response.json().value).to.eql(null));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/preferences/default-view",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "preferences", "default-view"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"value\": \"\"\n}"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Voting delegation gate",
+			"item": [
+				{
+					"name": "Cast as absence delegate without proxy is rejected with the spec message",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('delegation-only proxy cast is rejected (400)', () => pm.response.to.have.status(400));",
+									"pm.test('spec-mandated message returned', () => {",
+									"    pm.expect(pm.response.json().message).to.include('Delegation does not include voting rights. A formal proxy (volmacht) is required for voting.');",
+									"});",
+									"pm.test('message points to the proxy-granting process', () => {",
+									"    pm.expect(pm.response.json().message).to.include('/api/voting-rounds/{id}/proxy');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{usRoundId}}/cast",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "voting-rounds", "{{usRoundId}}", "cast"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"value\": \"for\",\n  \"isProxy\": true,\n  \"delegatorId\": \"newman-us-delegator\"\n}"
+						}
+					}
+				},
+				{
+					"name": "Cast without any delegation keeps the generic proxy rejection",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('unknown delegator proxy cast is rejected (400)', () => pm.response.to.have.status(400));",
+									"pm.test('generic no-proxy message returned (not the delegation message)', () => {",
+									"    const msg = pm.response.json().message;",
+									"    pm.expect(msg).to.include('Geen geldige volmacht gevonden');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{usRoundId}}/cast",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "voting-rounds", "{{usRoundId}}", "cast"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"value\": \"for\",\n  \"isProxy\": true,\n  \"delegatorId\": \"newman-us-nobody\"\n}"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Authorization",
+			"item": [
+				{
+					"name": "GET preference unauthenticated (401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('unauthenticated preference read is 401', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/notification-preference",
+							"host": ["{{noAuthBase}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "9. Teardown",
+			"item": [
+				{
+					"name": "Reset own preference to defaults",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Teardown: preference reset (200)', () => pm.response.to.have.status(200));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/notification-preference",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "notification-preference"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"meetingCreated\": true,\n  \"votingOpened\": true,\n  \"decisionPublished\": true,\n  \"taskAssigned\": true,\n  \"commentMention\": true,\n  \"meetingReminder\": true,\n  \"reminderTimes\": [\"24h\", \"1h\"],\n  \"deliveryMethod\": \"in-app\",\n  \"delegate\": \"\",\n  \"governanceEmail\": \"\",\n  \"urgentPhone\": \"\",\n  \"communicationLanguage\": \"\"\n}"
+						}
+					}
+				},
+				{
+					"name": "Delete seeded voting round",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Teardown: voting round deleted (2xx)', () => {",
+									"    pm.expect(pm.response.code).to.be.within(200, 299);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round/{{usRoundId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "voting-round", "{{usRoundId}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete seeded participant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Teardown: participant deleted (2xx)', () => {",
+									"    pm.expect(pm.response.code).to.be.within(200, 299);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant/{{usParticipantId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "participant", "{{usParticipantId}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete seeded delegator preference",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Teardown: delegator preference deleted (2xx)', () => {",
+									"    pm.expect(pm.response.code).to.be.within(200, 299);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/notification-preference/{{usDelegatorPrefId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "notification-preference", "{{usDelegatorPrefId}}"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

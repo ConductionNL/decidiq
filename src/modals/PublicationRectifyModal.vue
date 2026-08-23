@@ -11,14 +11,14 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Rectify publication')"
+		:name="t('decidiq', 'Rectify publication')"
 		data-testid="publication-rectify-modal"
 		@closing="$emit('close')">
 		<template #default>
 			<p>
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'Rectification publishes a corrected new version and withdraws the current one in a single operation. The new version references the version it corrects.',
 					)
 				}}
@@ -26,8 +26,8 @@
 			<NcTextArea
 				v-model="reason"
 				data-testid="publication-rectify-reason"
-				:label="t('decidesk', 'Reason for the correction (optional)')"
-				:placeholder="t('decidesk', 'e.g. Corrected vote totals')"
+				:label="t('decidiq', 'Reason for the correction (optional)')"
+				:placeholder="t('decidiq', 'e.g. Corrected vote totals')"
 				resize="vertical" />
 		</template>
 		<template #actions>
@@ -35,10 +35,10 @@
 				variant="primary"
 				data-testid="publication-rectify-confirm"
 				@click="$emit('confirm', reason.trim())">
-				{{ t('decidesk', 'Rectify') }}
+				{{ t('decidiq', 'Rectify') }}
 			</NcButton>
 			<NcButton @click="$emit('close')">
-				{{ t('decidesk', 'Cancel') }}
+				{{ t('decidiq', 'Cancel') }}
 			</NcButton>
 		</template>
 	</NcDialog>

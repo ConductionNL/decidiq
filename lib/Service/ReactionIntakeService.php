@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Reaction Intake Service
+ * Decidiq Reaction Intake Service
  *
  * Reaction submission + moderation for citizen-participation consultations.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,10 +23,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
+use OCA\Decidiq\AppInfo\Application;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
@@ -371,10 +372,10 @@ class ReactionIntakeService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	private function pseudonymousId(string $consultationId, string $seed): string {
-		$secret = $this->appConfig->getValueString('decidesk', 'participation_pseudonym_secret', '');
+		$secret = $this->appConfig->getValueString(Application::APP_ID, 'participation_pseudonym_secret', '');
 		if ($secret === '') {
 			$secret = bin2hex(random_bytes(32));
-			$this->appConfig->setValueString('decidesk', 'participation_pseudonym_secret', $secret);
+			$this->appConfig->setValueString(Application::APP_ID, 'participation_pseudonym_secret', $secret);
 		}
 
 		return 'anon-' . hash_hmac('sha256', $consultationId . ':' . $seed, $secret);

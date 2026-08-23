@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — meeting-management spec
@@ -26,7 +26,7 @@ const TS = Date.now()
 // @e2e openspec/specs/meeting-management/spec.md#create-a-board-meeting-with-physical-location
 // @e2e openspec/specs/meeting-management/spec.md#create-a-hybrid-alv-meeting
 test('meetings list renders and shows Add Meeting button', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/meetings`)
+	await page.goto(`${BASE}/apps/decidiq/meetings`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	// List loads with at least one meeting
@@ -38,7 +38,7 @@ test('meetings list renders and shows Add Meeting button', async ({ page }) => {
 
 // @e2e openspec/specs/meeting-management/spec.md#create-a-board-meeting-with-physical-location
 test('Add Meeting dialog opens with required fields', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/meetings`)
+	await page.goto(`${BASE}/apps/decidiq/meetings`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	await page.getByTestId('cn-cta-primary').click()
@@ -72,7 +72,7 @@ test('Add Meeting dialog opens with required fields', async ({ page }) => {
 // @e2e openspec/specs/meeting-management/spec.md#create-a-hybrid-alv-meeting
 // @e2e openspec/specs/meeting-management/spec.md#schedule-a-recurring-monthly-meeting
 test('meetings list shows multiple meeting rows', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/meetings`)
+	await page.goto(`${BASE}/apps/decidiq/meetings`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	// The list shows N of N (seed data has 17 meetings)
@@ -87,11 +87,11 @@ test('meetings list page loads without errors', async ({ page }) => {
 		if (msg.type() === 'error') consoleErrors.push(msg.text())
 	})
 
-	await page.goto(`${BASE}/apps/decidesk/meetings`)
+	await page.goto(`${BASE}/apps/decidiq/meetings`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	// Page title is correct
-	await expect(page).toHaveTitle(/Decidesk/i)
+	await expect(page).toHaveTitle(/Decidiq/i)
 
 	// App is mounted and navigation is functional ("Meetings" exactly —
 	// non-exact role name also matches the "Board meetings" entry).
@@ -105,7 +105,7 @@ test('meetings list page loads without errors', async ({ page }) => {
 // These scenarios require the convocation send flow (not yet built in the SPA — the send action
 // is a backend concern). We verify the meetings list loads correctly as the entry point.
 test('meetings list shows lifecycle column values', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/meetings`)
+	await page.goto(`${BASE}/apps/decidiq/meetings`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	// NO VIEW-TOGGLE CLICK. There used to be one, guarded by
@@ -176,7 +176,7 @@ test('live meeting view mounts for an existing meeting', async ({ page }) => {
 	const meetingId = first.id ?? first['@self']?.id
 	test.skip(!meetingId, 'First meeting has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}/live`)
+	await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}/live`)
 	await page.waitForSelector('[data-testid="meeting-live"]', { timeout: 15_000 })
 	// The live meeting view renders (meeting-live testid)
 	await expect(page.locator('[data-testid="meeting-live"]')).toBeVisible()
@@ -200,7 +200,7 @@ test('meeting detail Series tab shows pattern form, preview and generate action'
 	const meetingId = first.id ?? first['@self']?.id
 	test.skip(!meetingId, 'First meeting has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
+	await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	// Activate the Series sidebar tab (defensive: older deployments lack it).
@@ -258,7 +258,7 @@ test('board meeting detail renders send-notice surface and delivery table when s
 	const meetingId = target.id ?? target['@self']?.id
 	test.skip(!meetingId, 'Board meeting has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/board-meetings/${meetingId}`)
+	await page.goto(`${BASE}/apps/decidiq/board-meetings/${meetingId}`)
 	await page.waitForSelector('[data-testid="board-meeting-detail"]', {
 		timeout: 15_000,
 	})

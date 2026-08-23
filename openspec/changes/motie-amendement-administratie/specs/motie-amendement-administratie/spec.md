@@ -2,11 +2,11 @@
 status: draft
 ---
 
-# Spec: Decidesk Motie en Amendement Administratie
+# Spec: Decidiq Motie en Amendement Administratie
 
 ## Purpose
 
-Decidesk implements a comprehensive motion (motie) and amendment (amendement) administration system for Dutch municipal councils. This spec captures the data model, lifecycle workflows, voting mechanics with fractie-snapshot immutability, execution status tracking, automated escalation at 90+ days of silence, searchable historical archive across terms, public publication to the griffie portal with WCAG AA compliance, and detection of "motion bingo" (vague takeovers without concrete action).
+Decidiq implements a comprehensive motion (motie) and amendment (amendement) administration system for Dutch municipal councils. This spec captures the data model, lifecycle workflows, voting mechanics with fractie-snapshot immutability, execution status tracking, automated escalation at 90+ days of silence, searchable historical archive across terms, public publication to the griffie portal with WCAG AA compliance, and detection of "motion bingo" (vague takeovers without concrete action).
 
 ## ADDED Requirements
 

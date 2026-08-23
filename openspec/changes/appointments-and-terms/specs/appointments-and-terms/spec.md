@@ -1,7 +1,7 @@
 # appointments-and-terms Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - appointments-and-terms
 

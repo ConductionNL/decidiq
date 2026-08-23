@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk RenameDutchVocabularyColumns Repair Step
+ * Decidiq RenameDutchVocabularyColumns Repair Step
  *
  * Moves stored data from the Dutch column names to the English ones the
  * decidesk register now declares.
@@ -22,13 +22,13 @@
  * the reference install, so this is not a theoretical case here.
  *
  * WHY IT IS SCOPED BY REGISTER, NOT BY COLUMN NAME. Several of these words are
- * not unique to decidesk — procest also stores `onderwerp`, for one. A repair
+ * not unique to decidiq — procest also stores `onderwerp`, for one. A repair
  * step that scanned every shard table for a matching column would migrate
  * another app's data as a side effect. It therefore resolves the decidesk
  * register BY SLUG at runtime and only touches shard tables belonging to it.
  *
  * Scoping by register rather than by an enumerated list of schema titles is
- * also more complete: decidesk declares 36 schemas across fifteen register
+ * also more complete: decidiq declares 36 schemas across fifteen register
  * fragments, and a hand-maintained title list would silently miss whichever
  * ones were added after it was written.
  *
@@ -43,7 +43,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  *
  * @category Repair
- * @package  OCA\Decidesk\Repair
+ * @package  OCA\Decidiq\Repair
  *
  * @author    Conduction Development Team <dev@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -56,7 +56,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Repair;
+namespace OCA\Decidiq\Repair;
 
 use OCP\DB\Exception;
 use OCP\IDBConnection;
@@ -65,13 +65,20 @@ use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
 
 /**
- * Rename decidesk's Dutch vocabulary columns to their English equivalents.
+ * Rename decidiq's Dutch vocabulary columns to their English equivalents.
  *
  * @spec openspec/specs/agenda-publication/spec.md
  */
 class RenameDutchVocabularyColumns implements IRepairStep {
 	/**
 	 * The register slug whose shard tables are in scope.
+	 *
+	 * FROZEN at the pre-rename spelling, and deliberately NOT Application::APP_ID.
+	 * This is the OpenRegister REGISTER SLUG, not the app id: OpenRegister matches
+	 * registers by slug, and the shard tables already on disk are named from it.
+	 * Renaming it here would resolve no register, this step would report "no shard
+	 * tables on this install" and do nothing — silently — while the data it was
+	 * meant to migrate sat untouched under the old slug.
 	 *
 	 * @var string
 	 */
@@ -85,7 +92,7 @@ class RenameDutchVocabularyColumns implements IRepairStep {
 	 * de-duplication path then drops.
 	 *
 	 * `toelichting` maps to `notes`, NOT `description`: the two co-occur in
-	 * four schemas fleet-wide (including decidesk's own Geschenk), so they are
+	 * four schemas fleet-wide (including decidiq's own Geschenk), so they are
 	 * distinct concepts and collapsing them would produce a duplicate key.
 	 *
 	 * @var array<string, string>

@@ -5,14 +5,14 @@ status: done
 # Specs: Minutes and Decisions — Core T2
 
 **Change:** p2-minutes-and-decisions-core-t2
-**App:** Decidesk
+**App:** Decidiq
 **Entities:** Decision, Minutes, ActionItem
 
 ---
 
 ## Purpose
 
-This spec defines decision and minutes state notifications, minutes version control and digital approval, decision portal publication, unified search, and Smart Picker integration for Decidesk.
+This spec defines decision and minutes state notifications, minutes version control and digital approval, decision portal publication, unified search, and Smart Picker integration for Decidiq.
 
 # Requirements
 
@@ -48,7 +48,7 @@ A subscribed user receives a notification when a Decision transitions to a new l
 **AND** a Nextcloud notification is created via `NotificationService` for every user subscribed to that Decision
 **AND** the notification subject is `decision_state_changed`
 **AND** the notification message includes the Decision title and the new lifecycle state
-**AND** the notification contains a deep link to the Decision detail page in path format (`/apps/decidesk/decisions/{uuid}`)
+**AND** the notification contains a deep link to the Decision detail page in path format (`/apps/decidiq/decisions/{uuid}`)
 
 ### REQ-DSN-004 — Receive notification on Minutes lifecycle change
 A subscribed user receives a notification when a Minutes object transitions lifecycle state.
@@ -250,7 +250,7 @@ A user can find Decision objects by searching in the Nextcloud global search.
 **AND** matching Decision objects are returned via `ObjectService.findAll()` with the query as a full-text filter
 **AND** results appear in the search results under a "Besluiten en notulen" provider section
 **AND** each Decision result shows: title, lifecycle state, and `decisionDate`
-**AND** clicking a result navigates to the Decision detail page using a path-format deep link (`/apps/decidesk/decisions/{uuid}`)
+**AND** clicking a result navigates to the Decision detail page using a path-format deep link (`/apps/decidiq/decisions/{uuid}`)
 
 ### REQ-NSP-002 — Minutes appear in Nextcloud unified search
 A user can find Minutes objects by searching in the Nextcloud global search.
@@ -292,7 +292,7 @@ The system SHALL satisfy the REQ-SMP (Smart Picker Reference Provider) requireme
 When a user pastes a Decision URL in Nextcloud Mail, Text, or Talk, it renders as a rich reference card.
 
 **GIVEN** a user is composing a message in Nextcloud Mail, Text, or Talk
-**WHEN** the user pastes a URL matching the pattern `{baseUrl}/apps/decidesk/decisions/{uuid}`
+**WHEN** the user pastes a URL matching the pattern `{baseUrl}/apps/decidiq/decisions/{uuid}`
 **THEN** `DecisionReferenceProvider::matchesUrl(url)` returns `true`
 **AND** `DecisionReferenceProvider::resolveReference(url)` is called
 **AND** the Decision is fetched via `ObjectService.findObject()`
@@ -306,12 +306,12 @@ When a user pastes a Decision URL in Nextcloud Mail, Text, or Talk, it renders a
 ### REQ-SMP-002 — Search for Decisions via Smart Picker type-ahead
 A user can search for and insert a Decision reference using the Smart Picker type-ahead in a Nextcloud app.
 
-**GIVEN** a user opens the Smart Picker in Nextcloud Mail, Text, or Talk and selects the Decidesk provider
+**GIVEN** a user opens the Smart Picker in Nextcloud Mail, Text, or Talk and selects the Decidiq provider
 **WHEN** the user types a search query
 **THEN** `GET /api/decisions/search?q={query}` is called
 **AND** the endpoint returns up to 20 Decision objects with `{ id, title, decisionDate, outcome, url }` matching the query
 **AND** results are displayed in the Smart Picker picker interface with title and `decisionDate`
-**AND** selecting a result inserts the Decision URL (`/apps/decidesk/decisions/{uuid}`) into the editor
+**AND** selecting a result inserts the Decision URL (`/apps/decidiq/decisions/{uuid}`) into the editor
 
 ### REQ-SMP-003 — Reference card shows accurate and current Decision data
 The decision reference card reflects the current state of the Decision at resolution time.
@@ -322,4 +322,4 @@ The decision reference card reflects the current state of the Decision at resolu
 **AND** if `isPublished: true`, the card shows a "Gepubliceerd" indicator
 **AND** if `isPublished: false`, the card shows "Niet gepubliceerd" as a status note
 **AND** the reference is cached for `3600` seconds (1 hour) to reduce repeated OpenRegister lookups
-**AND** the cache prefix is `'decidesk-decision'` for proper cache key isolation
+**AND** the cache prefix is `'decidiq-decision'` for proper cache key isolation

@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Action Item Analytics Service
+ * Decidiq Action Item Analytics Service
  *
  * Personal action-item list service.  Generic aggregation metrics (completion
  * rate, overdue counts) moved to x-openregister-aggregations on the Meeting
  * schema and are rendered by the ADR-019 analytics integration leaf.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
@@ -22,7 +22,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTime;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;

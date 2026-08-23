@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Settings Controller
+ * Decidiq Settings Controller
  *
- * Controller for managing Decidesk application settings.
+ * Controller for managing Decidiq application settings.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2024 Conduction B.V.
@@ -21,12 +21,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\PublicationConfigService;
-use OCA\Decidesk\Service\SettingsService;
-use OCA\Decidesk\Settings\AdminSettings;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\PublicationConfigService;
+use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -36,7 +36,7 @@ use OCP\IRequest;
 use OCP\IUserSession;
 
 /**
- * Controller for managing Decidesk application settings.
+ * Controller for managing Decidiq application settings.
  *
  * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
  */
@@ -55,7 +55,7 @@ class SettingsController extends Controller {
 		IRequest $request,
 		private SettingsService $settingsService,
 		private IUserSession $userSession,
-		private \OCA\Decidesk\Service\PublicationConfigService $publicationConfig,
+		private \OCA\Decidiq\Service\PublicationConfigService $publicationConfig,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -87,13 +87,13 @@ class SettingsController extends Controller {
 	 * This is the canonical write, matching
 	 * `\OCA\OpenRegister\AppHost\Controller\GenericSettingsControllerBase::update()`.
 	 * The AppHost canonical route table routes `PUT /api/settings` to
-	 * `settings#update`, and because decidesk ships its own SettingsController
+	 * `settings#update`, and because Decidiq ships its own SettingsController
 	 * the generic is never aliased in (see
 	 * `AppHost\Bootstrap::aliasControllerUnlessLeafDefinesIt()`) — so this
 	 * method has to exist here or the request dies with a 500, not a 404.
-	 * Measured 2026-08-08 on the dev instance: `PUT /apps/decidesk/api/settings`
+	 * Measured 2026-08-08 on the dev instance: `PUT /apps/decidiq/api/settings`
 	 * returned 500 with `ReflectionException: Method
-	 * OCA\Decidesk\Controller\SettingsController::update() does not exist`.
+	 * OCA\Decidiq\Controller\SettingsController::update() does not exist`.
 	 *
 	 * Writes the whitelisted `SettingsService::CONFIG_KEYS` into the
 	 * instance-wide `IAppConfig` and returns the refreshed settings map
@@ -126,7 +126,7 @@ class SettingsController extends Controller {
 	 * Legacy POST alias for {@see update()}.
 	 *
 	 * The canonical AppHost route table still ships `settings#create`
-	 * (POST /api/settings), and decidesk's own
+	 * (POST /api/settings), and Decidiq's own
 	 * `src/store/modules/settings.js::saveSettings()` posts to it, so it stays
 	 * reachable and byte-identical in behaviour (ADR-029).
 	 *

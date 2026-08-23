@@ -11,9 +11,9 @@
 -->
 <template>
 	<CnStatsBlock
-		:title="t('decidesk', 'Active decisions')"
+		:title="t('decidiq', 'Active decisions')"
 		:count="count"
-		:countLabel="t('decidesk', 'decisions')"
+		:countLabel="t('decidiq', 'decisions')"
 		:icon="GavelIcon"
 		:loading="loading"
 		:route="{ name: 'Decisions' }"
@@ -60,6 +60,8 @@ export default {
 		 * Fetch decisions. Called on mount and on dashboard refresh.
 		 *
 		 * @return {Promise<void>}
+		 *
+		 * @spec openspec/specs/dashboard/spec.md#requirement-kpi-cards
 		 */
 		async load() {
 			this.loading = true
@@ -67,7 +69,7 @@ export default {
 			try {
 				this.decisions = await getDecisions()
 			} catch (e) {
-				console.error('[decidesk] ActiveDecisionsKpiWidget load failed', e)
+				console.error('[decidiq] ActiveDecisionsKpiWidget load failed', e)
 				this.error = e
 				this.decisions = []
 			} finally {

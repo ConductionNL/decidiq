@@ -9,34 +9,34 @@
  via Docudesk when available — the server reports honestly when it falls
  back to markdown), lists the previously generated documents recorded on
  the Minutes object, and triggers the hash-sealed notarial proof package
- for the linked meeting. All writes go through the guarded decidesk
+ for the linked meeting. All writes go through the guarded decidiq
  endpoints; the server stays authoritative.
 
  @spec openspec/specs/resolution-minutes/spec.md
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--documents"
+		class="decidiq-tab decidiq-tab--documents"
 		data-testid="minutes-document-tab">
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Document generation error')">
+			:title="t('decidiq', 'Document generation error')">
 			{{ error }}
 		</CnNoteCard>
 
 		<NcLoadingIcon v-if="loading" :size="32" />
 
 		<template v-else-if="minutes">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Generate document') }}
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Generate document') }}
 			</h3>
 
-			<div class="decidesk-tab__generate">
+			<div class="decidiq-tab__generate">
 				<NcSelect
 					v-model="format"
 					data-testid="minutes-document-format"
-					:inputLabel="t('decidesk', 'Document format')"
+					:inputLabel="t('decidiq', 'Document format')"
 					:options="formatOptions"
 					:clearable="false"
 					label="label" />
@@ -45,7 +45,7 @@
 					data-testid="minutes-document-generate"
 					:disabled="working"
 					@click="generateDocument">
-					{{ t('decidesk', 'Generate document') }}
+					{{ t('decidiq', 'Generate document') }}
 				</NcButton>
 			</div>
 
@@ -53,42 +53,40 @@
 				v-if="lastResult && lastResult.note"
 				type="warning"
 				data-testid="minutes-document-note"
-				:title="t('decidesk', 'Markdown fallback')">
+				:title="t('decidiq', 'Markdown fallback')">
 				{{ lastResult.note }}
 			</CnNoteCard>
 			<p
 				v-else-if="lastResult"
-				class="decidesk-tab__meta"
+				class="decidiq-tab__meta"
 				data-testid="minutes-document-result">
 				{{
-					t('decidesk', 'Document stored at {path}', {
+					t('decidiq', 'Document stored at {path}', {
 						path: lastResult.path,
 					})
 				}}
 			</p>
 
-			<div class="decidesk-tab__documents">
-				<h3 class="decidesk-tab__title">
-					{{ t('decidesk', 'Generated documents') }}
-					<span class="decidesk-tab__count"
+			<div class="decidiq-tab__documents">
+				<h3 class="decidiq-tab__title">
+					{{ t('decidiq', 'Generated documents') }}
+					<span class="decidiq-tab__count"
 						>({{ generatedDocuments.length }})</span
 					>
 				</h3>
-				<p
-					v-if="generatedDocuments.length === 0"
-					class="decidesk-tab__empty">
-					{{ t('decidesk', 'No documents generated yet.') }}
+				<p v-if="generatedDocuments.length === 0" class="decidiq-tab__empty">
+					{{ t('decidiq', 'No documents generated yet.') }}
 				</p>
-				<ul v-else class="decidesk-tab__list" role="list">
+				<ul v-else class="decidiq-tab__list" role="list">
 					<li
 						v-for="(doc, index) in generatedDocuments"
 						:key="index"
-						class="decidesk-tab__document"
+						class="decidiq-tab__document"
 						role="listitem">
-						<span class="decidesk-tab__document-path">{{
+						<span class="decidiq-tab__document-path">{{
 							doc.path
 						}}</span>
-						<span class="decidesk-tab__meta">
+						<span class="decidiq-tab__meta">
 							{{ doc.format }} — {{ doc.generatedAt }} —
 							{{ doc.generatedBy }}
 						</span>
@@ -96,14 +94,14 @@
 				</ul>
 			</div>
 
-			<div class="decidesk-tab__proof">
-				<h3 class="decidesk-tab__title">
-					{{ t('decidesk', 'Notarial proof package') }}
+			<div class="decidiq-tab__proof">
+				<h3 class="decidiq-tab__title">
+					{{ t('decidiq', 'Notarial proof package') }}
 				</h3>
-				<p class="decidesk-tab__meta">
+				<p class="decidiq-tab__meta">
 					{{
 						t(
-							'decidesk',
+							'decidiq',
 							'Assembles convocation, quorum, voting results, and the adopted decision texts into a tamper-evident package in the meeting folder.',
 						)
 					}}
@@ -112,22 +110,22 @@
 					data-testid="minutes-proof-package"
 					:disabled="working || !meetingId"
 					@click="generateProofPackage">
-					{{ t('decidesk', 'Generate proof package') }}
+					{{ t('decidiq', 'Generate proof package') }}
 				</NcButton>
-				<p v-if="!meetingId" class="decidesk-tab__empty">
+				<p v-if="!meetingId" class="decidiq-tab__empty">
 					{{
 						t(
-							'decidesk',
+							'decidiq',
 							'No meeting is linked to these minutes — the proof package needs a meeting.',
 						)
 					}}
 				</p>
 				<p
 					v-if="proofResult"
-					class="decidesk-tab__meta"
+					class="decidiq-tab__meta"
 					data-testid="minutes-proof-result">
 					{{
-						t('decidesk', 'Proof package sealed (SHA-256 {hash}).', {
+						t('decidiq', 'Proof package sealed (SHA-256 {hash}).', {
 							hash: proofResult.sha256,
 						})
 					}}
@@ -172,10 +170,10 @@ export default {
 		/** @spec openspec/specs/resolution-minutes/spec.md */
 		formatOptions() {
 			return [
-				{ id: 'markdown', label: this.t('decidesk', 'Markdown') },
+				{ id: 'markdown', label: this.t('decidiq', 'Markdown') },
 				{
 					id: 'pdf',
-					label: this.t('decidesk', 'PDF (via Docudesk when available)'),
+					label: this.t('decidiq', 'PDF (via Docudesk when available)'),
 				},
 			]
 		},
@@ -222,22 +220,22 @@ export default {
 				this.minutes = await store.fetchObject('minutes', this.objectId)
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Failed to load the minutes.')
+					e?.message || this.t('decidiq', 'Failed to load the minutes.')
 			} finally {
 				this.loading = false
 			}
 		},
 
 		/**
-		 * POST helper against the decidesk API.
+		 * POST helper against the decidiq API.
 		 *
-		 * @param {string} path Path under /apps/decidesk/api.
+		 * @param {string} path Path under /apps/decidiq/api.
 		 * @param {object} body JSON body.
 		 * @return {Promise<object>} Parsed response body.
 		 * @spec openspec/specs/resolution-minutes/spec.md
 		 */
 		async callApi(path, body = {}) {
-			const response = await fetch(generateUrl(`/apps/decidesk/api${path}`), {
+			const response = await fetch(generateUrl(`/apps/decidiq/api${path}`), {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -248,7 +246,7 @@ export default {
 			const data = await response.json().catch(() => ({}))
 			if (!response.ok) {
 				throw new Error(
-					data.message || this.t('decidesk', 'The action failed.'),
+					data.message || this.t('decidiq', 'The action failed.'),
 				)
 			}
 			return data
@@ -292,33 +290,33 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: calc(var(--default-grid-baseline) * 2);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__count {
+.decidiq-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
 
-.decidesk-tab__generate {
+.decidiq-tab__generate {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: flex-end;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__list {
+.decidiq-tab__list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -327,7 +325,7 @@ export default {
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__document {
+.decidiq-tab__document {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
@@ -335,21 +333,21 @@ export default {
 	border-bottom: 1px solid var(--color-border);
 }
 
-.decidesk-tab__document:last-child {
+.decidiq-tab__document:last-child {
 	border-bottom: none;
 }
 
-.decidesk-tab__document-path {
+.decidiq-tab__document-path {
 	word-break: break-all;
 }
 
-.decidesk-tab__meta,
-.decidesk-tab__empty {
+.decidiq-tab__meta,
+.decidiq-tab__empty {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
 
-.decidesk-tab__proof {
+.decidiq-tab__proof {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);

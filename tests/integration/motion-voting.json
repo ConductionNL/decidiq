@@ -1,8 +1,8 @@
 {
 	"info": {
-		"_postman_id": "decidesk-motion-voting",
-		"name": "Decidesk — Motion and Voting Integration Tests",
-		"description": "Integration tests for the 11 new API endpoints introduced by p2-motion-and-voting.\nRequires a running Nextcloud instance with the decidesk app enabled and seed data loaded.\n\n@spec openspec/changes/p2-motion-and-voting/tasks.md#task-11.3",
+		"_postman_id": "decidiq-motion-voting",
+		"name": "Decidiq — Motion and Voting Integration Tests",
+		"description": "Integration tests for the 11 new API endpoints introduced by p2-motion-and-voting.\nRequires a running Nextcloud instance with the decidiq app enabled and seed data loaded.\n\n@spec openspec/changes/p2-motion-and-voting/tasks.md#task-11.3",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"auth": {
@@ -209,7 +209,7 @@
 							"mode": "raw",
 							"raw": "{\"newState\": \"deliberating\"}"
 						},
-						"url": "{{base_url}}/index.php/apps/decidesk/api/motions/{{motion_id}}/transition"
+						"url": "{{base_url}}/index.php/apps/decidiq/api/motions/{{motion_id}}/transition"
 					},
 					"event": [
 						{
@@ -249,7 +249,7 @@
 							"mode": "raw",
 							"raw": "{\"newState\": \"adopted\"}"
 						},
-						"url": "{{base_url}}/index.php/apps/decidesk/api/motions/{{motion_id}}/transition"
+						"url": "{{base_url}}/index.php/apps/decidiq/api/motions/{{motion_id}}/transition"
 					},
 					"event": [
 						{
@@ -287,7 +287,7 @@
 							"mode": "raw",
 							"raw": "{\"participantIds\": [\"{{participant_id}}\"]}"
 						},
-						"url": "{{base_url}}/index.php/apps/decidesk/api/motions/{{motion_id}}/co-sign-request"
+						"url": "{{base_url}}/index.php/apps/decidiq/api/motions/{{motion_id}}/co-sign-request"
 					},
 					"event": [
 						{
@@ -325,7 +325,7 @@
 							"mode": "raw",
 							"raw": "{\"displayName\": \"A. Pietersen\"}"
 						},
-						"url": "{{base_url}}/index.php/apps/decidesk/api/motions/{{motion_id}}/co-sign-confirm"
+						"url": "{{base_url}}/index.php/apps/decidiq/api/motions/{{motion_id}}/co-sign-confirm"
 					},
 					"event": [
 						{
@@ -365,7 +365,7 @@
 							"mode": "raw",
 							"raw": "{\"budgetLine\": \"Programma 4 - Jeugdzorg\", \"amountDelta\": 50000, \"rationale\": \"Extra budget voor jeugdzorg\"}"
 						},
-						"url": "{{base_url}}/index.php/apps/decidesk/api/motions/{{motion_id}}/budget-impact"
+						"url": "{{base_url}}/index.php/apps/decidiq/api/motions/{{motion_id}}/budget-impact"
 					},
 					"event": [
 						{
@@ -411,7 +411,7 @@
 							"mode": "raw",
 							"raw": "{\"newState\": \"deliberating\"}"
 						},
-						"url": "{{base_url}}/index.php/apps/decidesk/api/amendments/{{amendment_id}}/transition"
+						"url": "{{base_url}}/index.php/apps/decidiq/api/amendments/{{amendment_id}}/transition"
 					},
 					"event": [
 						{
@@ -456,7 +456,7 @@
 							"mode": "raw",
 							"raw": "{\"motionId\": \"{{motion_id}}\", \"votingMethod\": \"for-against-abstain\", \"isSecret\": false, \"meetingId\": \"{{meeting_id}}\"}"
 						},
-						"url": "{{base_url}}/index.php/apps/decidesk/api/voting-rounds"
+						"url": "{{base_url}}/index.php/apps/decidiq/api/voting-rounds"
 					},
 					"event": [
 						{
@@ -497,7 +497,7 @@
 							"mode": "raw",
 							"raw": "{\"participantId\": \"{{participant_id}}\", \"value\": \"for\", \"isProxy\": false}"
 						},
-						"url": "{{base_url}}/index.php/apps/decidesk/api/voting-rounds/{{voting_round_id}}/cast"
+						"url": "{{base_url}}/index.php/apps/decidiq/api/voting-rounds/{{voting_round_id}}/cast"
 					},
 					"event": [
 						{
@@ -537,7 +537,7 @@
 							"mode": "raw",
 							"raw": "{\"fromParticipantId\": \"{{participant_id}}\", \"toParticipantId\": \"{{participant_id}}\"}"
 						},
-						"url": "{{base_url}}/index.php/apps/decidesk/api/voting-rounds/{{voting_round_id}}/proxy"
+						"url": "{{base_url}}/index.php/apps/decidiq/api/voting-rounds/{{voting_round_id}}/proxy"
 					},
 					"event": [
 						{
@@ -575,7 +575,7 @@
 							"mode": "raw",
 							"raw": "{\"fromParticipantId\": \"{{participant_id}}\"}"
 						},
-						"url": "{{base_url}}/index.php/apps/decidesk/api/voting-rounds/{{voting_round_id}}/proxy"
+						"url": "{{base_url}}/index.php/apps/decidiq/api/voting-rounds/{{voting_round_id}}/proxy"
 					},
 					"event": [
 						{
@@ -613,7 +613,7 @@
 							"mode": "raw",
 							"raw": "{}"
 						},
-						"url": "{{base_url}}/index.php/apps/decidesk/api/voting-rounds/{{voting_round_id}}/close"
+						"url": "{{base_url}}/index.php/apps/decidiq/api/voting-rounds/{{voting_round_id}}/close"
 					},
 					"event": [
 						{
@@ -654,7 +654,7 @@
 							"mode": "raw",
 							"raw": "{}"
 						},
-						"url": "{{base_url}}/index.php/apps/decidesk/api/voting-rounds/{{voting_round_id}}/publish"
+						"url": "{{base_url}}/index.php/apps/decidiq/api/voting-rounds/{{voting_round_id}}/publish"
 					},
 					"event": [
 						{

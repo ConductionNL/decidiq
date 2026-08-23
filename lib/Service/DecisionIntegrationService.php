@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Decision Integration Service
+ * Decidiq Decision Integration Service
  *
  * Assembles the cross-app outcome envelope from existing Decision +
  * DecisionStage + Minutes data; dispatches registry callbacks; implements
@@ -10,7 +10,7 @@
  * stays on OpenRegister's object surface.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,7 +26,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -537,7 +537,7 @@ class DecisionIntegrationService {
 			if (method_exists($registry, 'isRegisteredConsumer') === true) {
 				// Positional, not named: the registry is resolved from a class-name
 				// string at runtime, so its parameter names are not part of any
-				// contract decidesk can rely on.
+				// contract Decidiq can rely on.
 				return (bool)$registry->isRegisteredConsumer($url);
 			}
 		} catch (\Throwable) {

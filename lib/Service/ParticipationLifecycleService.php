@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Participation Lifecycle Service
+ * Decidiq Participation Lifecycle Service
  *
  * Guarded lifecycle transitions and server-side deadline enforcement for
  * citizen-participation rounds (PublicConsultation + ParticipatoryBudget).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,7 +24,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;

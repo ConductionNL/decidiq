@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Motion Amendment Service
+ * Decidiq Motion Amendment Service
  *
  * The amendment side of a motion: resolving a motion's amendments, stamping the
  * parliamentary voting order, detecting overlapping amendments, and merging an
  * adopted amendment into the motion text.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,7 +25,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -250,7 +250,7 @@ class MotionAmendmentService {
 		}
 
 		$this->logger->info(
-			"Decidesk: amendment voting order set on motion $motionId by $actorId",
+			"Decidiq: amendment voting order set on motion $motionId by $actorId",
 			['order' => array_values($orderedAmendmentIds)]
 		);
 
@@ -324,7 +324,7 @@ class MotionAmendmentService {
 			uuid: $newAmendmentId,
 		);
 
-		$this->logger->info("Decidesk: Amendment conflict detected for amendment $newAmendmentId on motion $motionId");
+		$this->logger->info("Decidiq: Amendment conflict detected for amendment $newAmendmentId on motion $motionId");
 
 	}//end detectConflicts()
 

@@ -6,22 +6,22 @@ kind: code
 
 ## Summary
 
-Add the two integrity registers every Dutch governance body needs and decidesk lacks: a structured **nevenfunctiesregister** (other-positions register — person-linked declarations with bezoldigd/onbezoldigd, hours, q.q. flag, a declarative disclosure lifecycle `gemeld → openbaar | intern → beëindigd`, and a live public register per body via the OR published-predicate) and a **geschenken/uitnodigingenregister** (gifts register — recipient, giver, estimated value, per-body threshold policy, decision aanvaard/geweigerd/overgedragen, optional public register). A small per-body `Integriteitsbeleid` policy object drives disclosure defaults (council: statutorily public per Gemeentewet; corporate boards: internal by default), the gift threshold, and a configurable integrity notification to a designated role (burgemeester/voorzitter/compliance officer). Declarative annual-review rappels, a my-declarations self-service page, per-body register pages, a compliance view, and a dashboard KPI complete the capability. All three schemas ship as register fragment `lib/Settings/register.d/62-interests-and-integrity.json` (ADR-037).
+Add the two integrity registers every Dutch governance body needs and decidiq lacks: a structured **nevenfunctiesregister** (other-positions register — person-linked declarations with bezoldigd/onbezoldigd, hours, q.q. flag, a declarative disclosure lifecycle `gemeld → openbaar | intern → beëindigd`, and a live public register per body via the OR published-predicate) and a **geschenken/uitnodigingenregister** (gifts register — recipient, giver, estimated value, per-body threshold policy, decision aanvaard/geweigerd/overgedragen, optional public register). A small per-body `Integriteitsbeleid` policy object drives disclosure defaults (council: statutorily public per Gemeentewet; corporate boards: internal by default), the gift threshold, and a configurable integrity notification to a designated role (burgemeester/voorzitter/compliance officer). Declarative annual-review rappels, a my-declarations self-service page, per-body register pages, a compliance view, and a dashboard KPI complete the capability. All three schemas ship as register fragment `lib/Settings/register.d/62-interests-and-integrity.json` (ADR-037).
 
 ## Motivation
 
 Novelty verification (2026-07-17) confirmed the gap is real and specific:
 
-- **Per-agenda-item COI is covered, structural interests are not.** `conflict-of-interest` (REQ-COI-001..004) fully covers declaring belangenverstrengeling against a specific agenda item with recusal notes and audit. But the *standing* registers behind those declarations — which nevenfuncties does this member hold, which gifts did they accept — do not exist anywhere in decidesk.
+- **Per-agenda-item COI is covered, structural interests are not.** `conflict-of-interest` (REQ-COI-001..004) fully covers declaring belangenverstrengeling against a specific agenda item with recusal notes and audit. But the *standing* registers behind those declarations — which nevenfuncties does this member hold, which gifts did they accept — do not exist anywhere in decidiq.
 - **`Membership.otherPositions` is a free-text string array** (corp-mode convenience from `popolo-decision-makers`): no lifecycle, no bezoldigd/q.q. structure, no publication, no review. It cannot satisfy Gemeentewet openbaarmaking of nevenfuncties for raadsleden and wethouders.
-- **`fractievoorzitter-fractie-koppeling` REQ-012** proposes a *council-scoped* nevenfuncties register with burgemeester notification and an annual rappel. That intent is correct but too narrow: associations, corporate boards (MCCG), works councils, and project boards all keep interest/gift registers. This change generalizes it across all five decidesk governance domains (see Cross-Project Dependencies for the explicit supersedes/composes split).
+- **`fractievoorzitter-fractie-koppeling` REQ-012** proposes a *council-scoped* nevenfuncties register with burgemeester notification and an annual rappel. That intent is correct but too narrow: associations, corporate boards (MCCG), works councils, and project boards all keep interest/gift registers. This change generalizes it across all five decidiq governance domains (see Cross-Project Dependencies for the explicit supersedes/composes split).
 - **Missing outright:** a geschenkenregister (standard in every gemeentelijke gedragscode: gifts above ~EUR 50 must be declared and refused/handed over), structured nevenfunctie objects with a public-disclosure lifecycle, and cross-register integrity views (who has not reviewed their declarations this year).
 
 Without these registers a griffie or bestuurssecretaris keeps a parallel Excel for statutory integrity obligations — an adoption blocker orthogonal to meeting management.
 
 ## Affected Projects
 
-- [ ] Project: `decidesk` — new `Nevenfunctie`, `Geschenk`, `Integriteitsbeleid` schemas (register.d fragment 62 with lifecycle/notification dialects, public-predicate RBAC rules, and seed data), manifest.d fragment with self-service + register pages, dashboard KPI, assistive COI-panel integration, docs, tests.
+- [ ] Project: `decidiq` — new `Nevenfunctie`, `Geschenk`, `Integriteitsbeleid` schemas (register.d fragment 62 with lifecycle/notification dialects, public-predicate RBAC rules, and seed data), manifest.d fragment with self-service + register pages, dashboard KPI, assistive COI-panel integration, docs, tests.
 
 No other apps change. OpenRegister is consumed as-is (lifecycle, notifications, RBAC published-predicate, aggregations are existing capabilities).
 
@@ -52,7 +52,7 @@ Pure thin-client, fully declarative extension per ADR-022/ADR-031/ADR-037: three
 
 ## New Dependencies
 
-None. All capabilities used (lifecycle, notifications, RBAC published-predicate, stat-widget aggregation, ExportService) already exist in OpenRegister, nc-vue, and decidesk.
+None. All capabilities used (lifecycle, notifications, RBAC published-predicate, stat-widget aggregation, ExportService) already exist in OpenRegister, nc-vue, and decidiq.
 
 ## Impact
 
@@ -64,7 +64,7 @@ None. All capabilities used (lifecycle, notifications, RBAC published-predicate,
 
 ## Cross-Project Dependencies
 
-None hard (decidesk-internal; OpenRegister consumed, not changed). Explicit relations to sibling decidesk changes and canonical specs:
+None hard (decidiq-internal; OpenRegister consumed, not changed). Explicit relations to sibling decidiq changes and canonical specs:
 
 - **`conflict-of-interest` (canonical, done)** — *integrates, never re-specs*: COI declarations stay the REQ-COI-001 notes mechanism; this change only adds assistive context to the REQ-COI-001 dialog and REQ-COI-002 panel.
 - **`fractievoorzitter-fractie-koppeling` REQ-012 (sibling change, planned)** — *superseded for the register mechanics, composed for the portal surface*: the nevenfuncties register, public disclosure, burgemeester notification, and annual rappel proposed there are delivered here, generalized to all bodies and via the OR predicate surface instead of an app-local `/raad/nevenfuncties` page; the fractie-portaal keeps only a deep link into these pages. That change should drop or thin REQ-012 to a reference when it lands after this one.

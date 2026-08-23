@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * DEEP, data-dependent e2e — the consume-or-rbac-authorization migration
@@ -16,7 +16,7 @@
  *   - a non-admin is denied on every previously `requireAdmin()`-gated
  *     controller surface; an admin is allowed.
  *
- * LIVE-RUN STATUS (honest): decidesk is NOT deployed / bind-mounted on the
+ * LIVE-RUN STATUS (honest): decidiq is NOT deployed / bind-mounted on the
  * shared localhost:8080 instance at authoring time (no built bundle, shared DB
  * isolation), so these UI scenarios are committed gate-19-annotated and are
  * live-run-DEFERRED. The authorization decisions they assert are additionally
@@ -47,18 +47,18 @@ import { BASE } from './governance-fixture'
 const ADMIN_GATED_ENDPOINTS = [
 	{
 		name: 'GovernanceReport',
-		url: '/apps/decidesk/api/governance-report/generate',
+		url: '/apps/decidiq/api/governance-report/generate',
 		verb: 'POST',
 	},
 	{
 		name: 'MultilingualReconciliation',
-		url: '/apps/decidesk/api/multilingual/reconcile',
+		url: '/apps/decidiq/api/multilingual/reconcile',
 		verb: 'POST',
 	},
-	{ name: 'AuditLog', url: '/apps/decidesk/api/audit-log', verb: 'GET' },
+	{ name: 'AuditLog', url: '/apps/decidiq/api/audit-log', verb: 'GET' },
 	{
 		name: 'RegulatorExport',
-		url: '/apps/decidesk/api/regulator-export',
+		url: '/apps/decidiq/api/regulator-export',
 		verb: 'POST',
 	},
 ]
@@ -67,16 +67,16 @@ test.describe('consume-or-rbac-authorization — who-may-act preserved via OR RB
 	test('a signatory may initiate signing; a non-signatory is denied (403)', async ({
 		page,
 	}) => {
-		// Deferred live run: requires decidesk deployed with a Minutes record on a
+		// Deferred live run: requires decidiq deployed with a Minutes record on a
 		// body whose signatory scope (decidesk:body:{id}:signatory) is populated by
 		// the role projector. A signatory's POST to
-		// /apps/decidesk/api/eidas/{minutesId}/initiate is accepted (202); a
+		// /apps/decidiq/api/eidas/{minutesId}/initiate is accepted (202); a
 		// non-signatory's is rejected (403) and initializeSigningRequest is never
 		// reached. Asserted at unit level in EIDASSignatureControllerTest +
 		// GovernanceScopeGuardTest.
 		test.skip(
 			true,
-			'decidesk not deployed on the shared instance — live-run deferred (unit-proven)',
+			'decidiq not deployed on the shared instance — live-run deferred (unit-proven)',
 		)
 		expect(BASE).toBeTruthy()
 	})
@@ -91,7 +91,7 @@ test.describe('consume-or-rbac-authorization — who-may-act preserved via OR RB
 		// / fail-closed when the body scope is unresolvable).
 		test.skip(
 			true,
-			'decidesk not deployed on the shared instance — live-run deferred (unit-proven)',
+			'decidiq not deployed on the shared instance — live-run deferred (unit-proven)',
 		)
 		expect(BASE).toBeTruthy()
 	})
@@ -104,7 +104,7 @@ test.describe('consume-or-rbac-authorization — who-may-act preserved via OR RB
 		// at unit level in MeetingServiceTest testDomainDisallowedTransitionReturnsFailure.
 		test.skip(
 			true,
-			'decidesk not deployed on the shared instance — live-run deferred (unit-proven)',
+			'decidiq not deployed on the shared instance — live-run deferred (unit-proven)',
 		)
 		expect(BASE).toBeTruthy()
 	})
@@ -117,7 +117,7 @@ test.describe('consume-or-rbac-authorization — who-may-act preserved via OR RB
 		// Asserted at unit level in AuditLogControllerTest (admin allow / non-admin deny).
 		test.skip(
 			true,
-			'decidesk not deployed on the shared instance — live-run deferred (unit-proven)',
+			'decidiq not deployed on the shared instance — live-run deferred (unit-proven)',
 		)
 		expect(ADMIN_GATED_ENDPOINTS.length).toBe(4)
 	})

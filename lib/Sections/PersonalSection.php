@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Personal Settings Section
+ * Decidiq Personal Settings Section
  *
- * Defines the Decidesk section in the Nextcloud personal settings
+ * Defines the Decidiq section in the Nextcloud personal settings
  * (user-settings spec).
  *
  * @category Sections
- * @package  OCA\Decidesk\Sections
+ * @package  OCA\Decidiq\Sections
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,14 +24,15 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Sections;
+namespace OCA\Decidiq\Sections;
 
+use OCA\Decidiq\AppInfo\Application;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\Settings\IIconSection;
 
 /**
- * Defines the Decidesk section in the Nextcloud personal settings.
+ * Defines the Decidiq section in the Nextcloud personal settings.
  *
  * @spec openspec/specs/user-settings/spec.md
  */
@@ -58,7 +59,7 @@ class PersonalSection implements IIconSection {
 	 * @spec openspec/specs/user-settings/spec.md
 	 */
 	public function getID(): string {
-		return 'decidesk';
+		return Application::APP_ID;
 	}//end getID()
 
 	/**
@@ -69,7 +70,7 @@ class PersonalSection implements IIconSection {
 	 * @spec openspec/specs/user-settings/spec.md
 	 */
 	public function getName(): string {
-		return $this->l->t('Decidesk');
+		return $this->l->t('Decidiq');
 	}//end getName()
 
 	/**
@@ -91,6 +92,6 @@ class PersonalSection implements IIconSection {
 	 * @spec openspec/specs/user-settings/spec.md
 	 */
 	public function getIcon(): string {
-		return $this->urlGenerator->imagePath('decidesk', 'app-dark.svg');
+		return $this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg');
 	}//end getIcon()
 }//end class

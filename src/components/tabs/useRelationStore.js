@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Conduction B.V.
 //
 // useRelationStore — small helper that wires the lib's useObjectStore
-// to the decidesk register/schema map for cross-schema relation tabs.
+// to the decidiq register/schema map for cross-schema relation tabs.
 //
 // Tabs mounted inside `CnObjectSidebar` need to fetch child objects
 // (e.g. participants under a meeting, agenda-items under a meeting).
@@ -14,14 +14,14 @@
 // fields, populated server-side from lib/Settings/decidesk_register.json).
 // Falls back to the literal slug when the settings store hasn't loaded.
 
-// Use the decidesk-specific store instance (id 'decidesk-objects'),
+// Use the decidiq-specific store instance (id 'decidiq-objects'),
 // not the lib's default 'conduction-objects' store. initializeStores()
 // in src/store/store.js registers all object types on this instance,
 // so the relation tabs share state with the rest of the app.
 import { useObjectStore, useSettingsStore } from '../../store/store.js'
 
 /**
- * Logical type slugs used inside the decidesk tab components.
+ * Logical type slugs used inside the decidiq tab components.
  * Each maps to the settings key holding the OpenRegister schema slug.
  */
 const TYPE_TO_SETTINGS_KEY = {

@@ -1,7 +1,7 @@
 # constituency-consultation Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - [constituency-consultation](../../changes/constituency-consultation/)
 
@@ -30,7 +30,7 @@ The system SHALL define a `MemberConsultation` schema in the decidesk register (
 
 #### Scenario: Register fragment is additive
 
-- GIVEN a decidesk installation upgrading to this change
+- GIVEN a decidiq installation upgrading to this change
 - WHEN the register configuration is loaded
 - THEN the MemberConsultation and MemberConsultationResponse schemas are registered from the `48-constituency-consultation.json` fragment
 - AND no existing schema in `decidesk_register.json` is modified
@@ -129,7 +129,7 @@ A MemberConsultation SHALL NOT create, feed, or be counted in any `VotingRound`,
 #### Scenario: No public surface
 
 - GIVEN a MemberConsultation in any lifecycle state
-- WHEN an unauthenticated client queries OpenRegister's published-predicate surface or any decidesk route
+- WHEN an unauthenticated client queries OpenRegister's published-predicate surface or any decidiq route
 - THEN no MemberConsultation or MemberConsultationResponse data is returned
 
 #### Scenario: Non-binding label everywhere

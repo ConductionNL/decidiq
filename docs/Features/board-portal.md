@@ -3,7 +3,7 @@
 > **Let op — architectuurwijziging (ADR-006, change `retire-board-portal`, Cycle-1 refactor 2026-06-14):**
 > Het afzonderlijke "board portal" met eigen `Board*`-schema's is **buiten gebruik gesteld**. Corporate
 > governance (RvC, RvB, audit- en remuneratiecommissies) wordt nu bediend via de **universele entiteiten**
-> van Decidesk in `organisatie_modus=corp`. Een bestuur is een `GovernanceBody` met `bodyType=supervisory-board`
+> van Decidiq in `organisatie_modus=corp`. Een bestuur is een `GovernanceBody` met `bodyType=supervisory-board`
 > of `bodyType=executive-board`; een bestuursvergadering is een gewone `Meeting`; een resolutie is een
 > `Decision` met `decisionType=resolution`; bestuursleden zijn `Person`-objecten verbonden via `Membership`.
 > De gekoppelde bestuursfeatures (eIDAS-ondertekening, belangenconflicten, volmachtstemmen, governance-rapportage,
@@ -16,7 +16,7 @@
 
 ## 1. Waar vind ik de corporate governance-functies?
 
-Na installatie van Decidesk en het instellen van `organisatie_modus=corp` in
+Na installatie van Decidiq en het instellen van `organisatie_modus=corp` in
 de beheerinstellingen past de zijbalk zich automatisch aan:
 
 - **Dashboard** — overzicht van aankomende vergaderingen, openstaande resoluties en actiepunten.

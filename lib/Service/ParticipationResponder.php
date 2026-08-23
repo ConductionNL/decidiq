@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Participation Responder
+ * Decidiq Participation Responder
  *
  * Runs one citizen-participation service call behind the right authorization
  * guard and maps its outcome onto a JSONResponse — the guard/try/catch ladder
@@ -22,7 +22,7 @@
  * Shared by ParticipationController and ParticipationBudgetController.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -38,7 +38,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;

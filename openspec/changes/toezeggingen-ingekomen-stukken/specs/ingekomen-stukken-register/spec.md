@@ -1,7 +1,7 @@
 # ingekomen-stukken-register Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - [toezeggingen-ingekomen-stukken](../../changes/toezeggingen-ingekomen-stukken/)
 
@@ -46,7 +46,7 @@ The `IngekomenStuk` schema SHALL declare its follow-up workflow exclusively via 
 
 ### Requirement: REQ-003 Placement on the lijst-ingekomen-stukken agenda item
 
-The system SHALL let the griffie place registered stukken on the "Lijst ingekomen stukken" AgendaItem of the next scheduled council meeting of the governance body: the placement action sets `listAgendaItem` on each selected stuk and moves it to `geagendeerd`. The lijst agenda item SHALL be a regular decidesk AgendaItem (typically tagged `hamerstuk`), so agenda publication, the live meeting view, and minutes treat it like any other item. The agenda item detail SHALL show the stukken placed on it with their routing advice.
+The system SHALL let the griffie place registered stukken on the "Lijst ingekomen stukken" AgendaItem of the next scheduled council meeting of the governance body: the placement action sets `listAgendaItem` on each selected stuk and moves it to `geagendeerd`. The lijst agenda item SHALL be a regular decidiq AgendaItem (typically tagged `hamerstuk`), so agenda publication, the live meeting view, and minutes treat it like any other item. The agenda item detail SHALL show the stukken placed on it with their routing advice.
 
 #### Scenario: Griffie places the week's stukken on the next meeting
 

@@ -1,7 +1,7 @@
 # urgent-decision-procedure Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - urgent-decision-procedure
 

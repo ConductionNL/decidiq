@@ -1,13 +1,13 @@
 # governing-documents-register Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - governing-documents-register
 
 ## Purpose
 
-Gives decidesk a versioned register of an organisation's own constitutive and internal governing documents — statuten, huishoudelijk reglement, reglement van orde, directiestatuut, splitsingsakte: `GoverningDocument` objects owned by a GovernanceBody with a `geldend → vervallen` lifecycle, immutable `GoverningDocumentVersie` objects where every amendment traces to the Decision that enacted it (besluit tot statutenwijziging etc.) and carries a consolidated-text document plus optional notarial-deed metadata, deterministic in-force resolution per date with a version timeline, a simple `{document, versie?, artikel?}` reference shape consumed by decisions and by the urgent-decision-procedure and vve-alv-pack siblings, member access by default with an optional public predicate, and declarative notifications when a new version takes effect. Boundary: the verordeningenregister sibling owns public-law regelingen with CVDR/DROP publication; this register owns private-law/internal documents and carries no bekendmaking machinery.
+Gives decidiq a versioned register of an organisation's own constitutive and internal governing documents — statuten, huishoudelijk reglement, reglement van orde, directiestatuut, splitsingsakte: `GoverningDocument` objects owned by a GovernanceBody with a `geldend → vervallen` lifecycle, immutable `GoverningDocumentVersie` objects where every amendment traces to the Decision that enacted it (besluit tot statutenwijziging etc.) and carries a consolidated-text document plus optional notarial-deed metadata, deterministic in-force resolution per date with a version timeline, a simple `{document, versie?, artikel?}` reference shape consumed by decisions and by the urgent-decision-procedure and vve-alv-pack siblings, member access by default with an optional public predicate, and declarative notifications when a new version takes effect. Boundary: the verordeningenregister sibling owns public-law regelingen with CVDR/DROP publication; this register owns private-law/internal documents and carries no bekendmaking machinery.
 
 **Standards**: Schema.org (`DigitalDocument`, `Organization`), Akoma Ntoso (`doc`, FRBR work/expression versioning — mirrors the verordeningenregister `Regeling`/`RegelingVersie` conventions), OpenRaadsinformatie (`Besluit` linkage via the enacting Decision)
 **Feature tier**: V1
@@ -17,7 +17,7 @@ Gives decidesk a versioned register of an organisation's own constitutive and in
 
 ### Requirement: REQ-GDR-001 GoverningDocument schema
 
-The system MUST provide a `GoverningDocument` OpenRegister schema (Schema.org `DigitalDocument`, Akoma Ntoso `doc` work level) in the decidesk register carrying: `type` (required enum: `statuten`, `huishoudelijk-reglement`, `reglement-van-orde`, `directiestatuut`, `splitsingsakte`, `other`), `citeertitel` (required — the document's citable name), `omschrijving` (optional), `governingBody` (required UUID reference to the owning GovernanceBody), and `isPublic` (boolean, default false — see the access requirement). The schema MUST declare a lifecycle via `x-openregister-lifecycle` (canonical `field`/`initial`/`states`/`terminal`/`transitions` keys) with states `geldend → vervallen` (`geldend` initial, `vervallen` terminal); drafting happens at version level (`concept` versions), so no document-level draft state exists. Transitions outside the declared map MUST be rejected by OpenRegister; decidesk SHALL NOT implement a parallel state machine. This register MUST NOT carry CVDR identifiers, DROP delivery, or any bekendmaking fields — public-law regelingen belong to the verordeningenregister capability.
+The system MUST provide a `GoverningDocument` OpenRegister schema (Schema.org `DigitalDocument`, Akoma Ntoso `doc` work level) in the decidesk register carrying: `type` (required enum: `statuten`, `huishoudelijk-reglement`, `reglement-van-orde`, `directiestatuut`, `splitsingsakte`, `other`), `citeertitel` (required — the document's citable name), `omschrijving` (optional), `governingBody` (required UUID reference to the owning GovernanceBody), and `isPublic` (boolean, default false — see the access requirement). The schema MUST declare a lifecycle via `x-openregister-lifecycle` (canonical `field`/`initial`/`states`/`terminal`/`transitions` keys) with states `geldend → vervallen` (`geldend` initial, `vervallen` terminal); drafting happens at version level (`concept` versions), so no document-level draft state exists. Transitions outside the declared map MUST be rejected by OpenRegister; decidiq SHALL NOT implement a parallel state machine. This register MUST NOT carry CVDR identifiers, DROP delivery, or any bekendmaking fields — public-law regelingen belong to the verordeningenregister capability.
 
 #### Scenario: Create the reglement van orde of a gemeenteraad
 
@@ -180,7 +180,7 @@ Governing documents and their versions MUST be internal by default: readable by 
 
 ### Requirement: REQ-GDR-008 Notification on a new effective version
 
-The system MUST notify members of the owning governance body's organisation when a GoverningDocumentVersie takes effect (transitions to `in-werking`). The notification MUST be declared via the canonical `x-openregister-notifications` dialect (ADR-031) using only verified keys (`trigger.type: "updated"` with a condition on the version's lifecycle state field equalling `in-werking`, `channels[]`, `recipients[]`, inline `subject{nl,en}` — e.g. nl "Nieuwe geldende versie: {{title}}" / en "New effective version: {{title}}"). Recipients MUST be routed via `kind:object-acl` and `kind:groups` (group `decidesk-members`); `kind:field` MUST NOT be used on any non-uid property. Decidesk SHALL NOT dispatch this notification imperatively.
+The system MUST notify members of the owning governance body's organisation when a GoverningDocumentVersie takes effect (transitions to `in-werking`). The notification MUST be declared via the canonical `x-openregister-notifications` dialect (ADR-031) using only verified keys (`trigger.type: "updated"` with a condition on the version's lifecycle state field equalling `in-werking`, `channels[]`, `recipients[]`, inline `subject{nl,en}` — e.g. nl "Nieuwe geldende versie: {{title}}" / en "New effective version: {{title}}"). Recipients MUST be routed via `kind:object-acl` and `kind:groups` (group `decidesk-members`); `kind:field` MUST NOT be used on any non-uid property. Decidiq SHALL NOT dispatch this notification imperatively.
 
 #### Scenario: Members notified when a statutenwijziging takes effect
 

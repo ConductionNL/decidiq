@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Analytics Controller
+ * Decidiq Analytics Controller
  *
  * Controller for personal action-item list.  Generic dashboard metrics
  * (completion rates, overdue counts) have been migrated to the analytics
@@ -9,7 +9,7 @@
  * (ADR-031, ADR-019).
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
@@ -23,10 +23,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\ActionItemAnalyticsService;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\ActionItemAnalyticsService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;

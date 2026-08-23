@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Voting Round Projection
+ * Decidiq Voting Round Projection
  *
  * Builds the unauthenticated public-state view of a voting round for the
  * projection display: aggregate counts only, never individual vote values.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,7 +24,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
@@ -182,7 +182,7 @@ class VotingRoundProjection {
 	}//end preselectedOption()
 
 	/**
-	 * Load any decidesk object as an array.
+	 * Load any Decidiq object as an array.
 	 *
 	 * @param string $objectId The object UUID
 	 * @param string $schema The schema slug

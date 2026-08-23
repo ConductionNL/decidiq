@@ -5,7 +5,7 @@ status: done
 # app-navigation Specification
 
 **Status**: done
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - ia-six-item-nav (archived) — restructures the menu to ADR-004's six-item, mode-aware IA
 - ia-six-clusters (archived) — collapses the nav from 44 fragment-accreted top-level entries back to ADR-004's six-item ceiling (Dashboard, Meetings, Decisions, Tasks & Commitments, Organisation, Registers) via `src/menu-layout.json`'s relocation/removal/settings-lift mechanism
@@ -51,7 +51,7 @@ gear, or removed) via `src/menu-layout.json`, never left as a 7th+ primary
 entry. Motions SHALL NOT appear as a standalone top-level item (unchanged
 from REQ-RMN-001). "Beheer" (operator-only configuration) is NOT a menu
 item in v2 — it is served by the Nextcloud settings framework
-(`/settings/admin/decidesk`, ADR-079 Decision 1) plus the `NcAppNavigationSettings`
+(`/settings/admin/decidiq`, ADR-079 Decision 1) plus the `NcAppNavigationSettings`
 gear foldout (ADR-079 Decision 2), not a nav row.
 
 #### Scenario: Exactly six primary top-level items are rendered
@@ -84,7 +84,7 @@ gear foldout (ADR-079 Decision 2), not a nav row.
 - THEN the Meetings navigation item is marked as active
 
 ### Requirement: REQ-NAV-003 Router uses history mode with flat named routes
-The router SHALL operate in history mode with base `/index.php/apps/decidesk/`.
+The router SHALL operate in history mode with base `/index.php/apps/decidiq/`.
 All routes SHALL be named and flat (no nesting). A catch-all `*` route SHALL
 redirect to `/`. Routes for demoted surfaces (Minutes, Workspaces, Engagement)
 SHALL remain registered even though they no longer appear as top-level menu items.
@@ -139,7 +139,7 @@ The Settings page SHALL render in order: `CnVersionInfoCard` (first, always), `C
 
 #### Scenario: Re-import button triggers register reload
 - **WHEN** the user clicks the "Re-import register" button
-- **THEN** a POST request is sent to `/apps/decidesk/api/settings/load` and a success notification is shown
+- **THEN** a POST request is sent to `/apps/decidiq/api/settings/load` and a success notification is shown
 
 ### Requirement: REQ-NAV-006 Mode-aware label resolution at the translate chokepoint
 The app shell SHALL resolve every navigation label through a declarative
@@ -149,7 +149,7 @@ mode-keyed label map BEFORE applying the i18n translation. The label map
 canonical English label to a mode-specific label key. The `translate` function
 passed to `CnAppRoot` (`translateForApp` in `App.vue`) SHALL look up the canonical
 label in the map for the active mode, fall back to the canonical label when no
-mapping exists, and pass the result to `t('decidesk', …)`. The navigation
+mapping exists, and pass the result to `t('decidiq', …)`. The navigation
 structure SHALL NOT branch per mode — only the displayed label SHALL change.
 
 #### Scenario: Bodies item relabels by mode
@@ -162,7 +162,7 @@ structure SHALL NOT branch per mode — only the displayed label SHALL change.
 #### Scenario: Unmapped label falls back to canonical
 - GIVEN a menu item whose canonical label has no entry in the active mode's map
 - WHEN the navigation renders that item
-- THEN the canonical label is passed to `t('decidesk', …)` unchanged
+- THEN the canonical label is passed to `t('decidiq', …)` unchanged
 
 #### Scenario: Default mode keeps governance labels
 - GIVEN no `organisatie_modus` is configured
@@ -171,7 +171,7 @@ structure SHALL NOT branch per mode — only the displayed label SHALL change.
 
 ### Requirement: REQ-RMN-001 — Retire the standalone Motions top-level menu item
 
-The system SHALL remove the standalone **Motions** top-level navigation item from the decidesk
+The system SHALL remove the standalone **Motions** top-level navigation item from the decidiq
 `src/manifest.json` `menu` so that Motions is no longer presented as a sibling of Decisions.
 The removed entry is the `menu` object `{ id: "Motions", label: "Motions", route: "Motions",
 order: 50 }`. The removal SHALL follow the repo's established demote-not-delete pattern (the
@@ -181,7 +181,7 @@ top-level menu item SHALL be removed or reordered by this change.
 
 #### Scenario: Top navigation no longer shows a standalone Motions item
 
-- GIVEN the decidesk app is in the ready state
+- GIVEN the decidiq app is in the ready state
 - WHEN the top-level navigation renders from the manifest `menu`
 - THEN no menu item whose route is `Motions` is shown
 - AND the Dashboard, Meetings, Decisions, Action items, and Bodies items remain present
@@ -362,13 +362,13 @@ surface (ADR-004 Rule 4, "Beheer is operator-only"). The list SHALL be:
 `CnAppNav`'s auto-prepended generic "Personal settings" entry (which opens
 `NcAppSettingsDialog` via a route-less `#` click handler) does not render.
 Nextcloud's own standard "Personal settings" link-out to `/settings/user`
-remains (it is shell-provided and not suppressible), so decidesk's own
+remains (it is shell-provided and not suppressible), so decidiq's own
 `UserSettingsMenu` fragment entry (the real `/user-settings` route
 rendering `UserSettingsPage` — notification/display/delegation/
 communication sections) SHALL be labelled **"Preferences"** so no two gear
 entries share a label. The gear SHALL therefore show at most one entry per
 label: "Personal settings" (Nextcloud, `/settings/user`), "Preferences"
-(decidesk, `/user-settings`), plus the admin-gated admin-settings link-out.
+(decidiq, `/user-settings`), plus the admin-gated admin-settings link-out.
 
 #### Scenario: No two gear entries share a label
 

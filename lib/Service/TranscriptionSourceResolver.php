@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Transcription Source Resolver
+ * Decidiq Transcription Source Resolver
  *
  * Lists candidate transcription sources for a meeting: audio files in the
  * meeting's NC Files folder and — best-effort — Talk call recordings of the
  * meeting's conversation.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -121,7 +121,7 @@ class TranscriptionSourceResolver {
 			$folderNode = $fileService->createFolder($meetingPath);
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk TranscriptionSourceResolver: cannot open meeting folder',
+				'Decidiq TranscriptionSourceResolver: cannot open meeting folder',
 				['path' => $meetingPath, 'error' => $e->getMessage()]
 			);
 			return [];
@@ -143,7 +143,7 @@ class TranscriptionSourceResolver {
 			}
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk TranscriptionSourceResolver: directory listing failed',
+				'Decidiq TranscriptionSourceResolver: directory listing failed',
 				['path' => $meetingPath, 'error' => $e->getMessage()]
 			);
 		}

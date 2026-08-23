@@ -12,14 +12,14 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Confirm recording consent')"
+		:name="t('decidiq', 'Confirm recording consent')"
 		data-testid="transcription-consent-modal"
 		@closing="$emit('close')">
 		<template #default>
 			<p>
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'Attaching a recording for transcription requires confirming that all participants were informed that the meeting was recorded (AVG/GDPR). The recording and raw transcript stay restricted to this governance body and are never published.',
 					)
 				}}
@@ -30,7 +30,7 @@
 				type="checkbox">
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'I confirm participants were informed of the recording.',
 					)
 				}}
@@ -42,10 +42,10 @@
 				data-testid="transcription-consent-confirm"
 				:disabled="!confirmed"
 				@click="$emit('confirm')">
-				{{ t('decidesk', 'Attach with consent') }}
+				{{ t('decidiq', 'Attach with consent') }}
 			</NcButton>
 			<NcButton @click="$emit('close')">
-				{{ t('decidesk', 'Cancel') }}
+				{{ t('decidiq', 'Cancel') }}
 			</NcButton>
 		</template>
 	</NcDialog>

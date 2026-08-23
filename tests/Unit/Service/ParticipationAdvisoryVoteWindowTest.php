@@ -4,7 +4,7 @@
  * The advisory voting-window guard fails CLOSED.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,11 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\AdvisoryVoteService;
-use OCA\Decidesk\Service\BudgetVotingService;
-use OCA\Decidesk\Service\ParticipationLifecycleService;
+use OCA\Decidiq\Service\AdvisoryVoteService;
+use OCA\Decidiq\Service\BudgetVotingService;
+use OCA\Decidiq\Service\ParticipationLifecycleService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\MockObject\MockObject;

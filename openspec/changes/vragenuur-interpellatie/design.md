@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-Pure thin-client extension (ADR-022/ADR-037). Three new OpenRegister schemas — `MondelingeVraag`, `Interpellatieverzoek`, and `VragenuurConfiguratie` — ship as one assigned `lib/Settings/register.d/49-vragenuur-interpellatie.json` fragment (OpenAPI `components.schemas`, merged onto `decidesk_register.json` at load; the base file is never edited; numbers 40–48 and 50–65 belong to sibling changes). Workflow behaviour is declared in OpenRegister dialects (`x-openregister-lifecycle`, `x-openregister-notifications`, RBAC authorization); all UI is manifest-v2 pages in a `src/manifest.d/vragenuur-interpellatie.json` fragment rendered by `CnPageRenderer` (frontend talks to `/apps/openregister/api/objects` via the shared object stores — no decidesk CRUD controllers, per the redundant-controller gate).
+Pure thin-client extension (ADR-022/ADR-037). Three new OpenRegister schemas — `MondelingeVraag`, `Interpellatieverzoek`, and `VragenuurConfiguratie` — ship as one assigned `lib/Settings/register.d/49-vragenuur-interpellatie.json` fragment (OpenAPI `components.schemas`, merged onto `decidesk_register.json` at load; the base file is never edited; numbers 40–48 and 50–65 belong to sibling changes). Workflow behaviour is declared in OpenRegister dialects (`x-openregister-lifecycle`, `x-openregister-notifications`, RBAC authorization); all UI is manifest-v2 pages in a `src/manifest.d/vragenuur-interpellatie.json` fragment rendered by `CnPageRenderer` (frontend talks to `/apps/openregister/api/objects` via the shared object stores — no decidiq CRUD controllers, per the redundant-controller gate).
 
 Imperative code is limited to the places declarative dialects genuinely cannot reach:
 
@@ -43,7 +43,7 @@ Default declarative; imperative only where a dialect cannot express the behaviou
 | MV/INT number generation (per body per year) | **Imperative** — `OralQuestionService` submission action | Sequence allocation is not expressible as a dialect (same reason the SV numbering in the fractie change is imperative) |
 | Submission deadline (`targetMeeting.start − indieningstermijnUren`, griffier override) | **Imperative** — same service, server-side validation | Cross-object datetime comparison; no dialect evaluates a related object's field |
 | SV → `vervallen-door-mondelinge-beantwoording` on oral answering | **Imperative** — same service, PUT-semantic saveObject carrying all SV fields forward | Cross-object side effect on another schema's lifecycle |
-| Publication eligibility + payloads for the two new types | **Imperative** — existing eligibility/payload services | Allow-list payload construction is by design imperative in decidesk (existing pattern) |
+| Publication eligibility + payloads for the two new types | **Imperative** — existing eligibility/payload services | Allow-list payload construction is by design imperative in decidiq (existing pattern) |
 
 ### D4: Publication via derived payloads; delta is ADDED-only
 
@@ -92,7 +92,7 @@ docs/features/vragenuur.md, docs/features/interpellaties.md (new)
 
 ## Seed Data
 
-Realistic Dutch municipal examples (fictional "Gemeente Voorbeeldingen"), planted via the fragment's `x-openregister.seedData` path (ADR-016). References use existing decidesk seed objects (gemeenteraad governance body, seeded raadsvergadering and its vragenuur agenda item — added by this seed) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder resolved at import. Envelope per object: register `decidesk`, schema slug as listed, slug as listed.
+Realistic Dutch municipal examples (fictional "Gemeente Voorbeeldingen"), planted via the fragment's `x-openregister.seedData` path (ADR-016). References use existing decidiq seed objects (gemeenteraad governance body, seeded raadsvergadering and its vragenuur agenda item — added by this seed) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder resolved at import. Envelope per object: register `decidiq`, schema slug as listed, slug as listed.
 
 ### Schema: `vragenuur-configuratie`
 
@@ -146,7 +146,7 @@ Object 1 exercises the full path (escalated from a written question, answered, w
 ## Migration Plan
 
 1. `fractievoorzitter-fractie-koppeling` lands first or concurrently (hard `depends_on` — SchriftelijkeVraag/Fractie references and the SV status value).
-2. Land fragment 49 + manifest fragment + `OralQuestionService` + publication extensions + seed + tests + docs in one decidesk PR (fragments are additive; `ConfigurationService::importFromApp()` / repair step picks up the schemas on upgrade).
+2. Land fragment 49 + manifest fragment + `OralQuestionService` + publication extensions + seed + tests + docs in one decidiq PR (fragments are additive; `ConfigurationService::importFromApp()` / repair step picks up the schemas on upgrade).
 3. `toezeggingen-ingekomen-stukken` ordering is soft: `vervolgToezegging` is nullable and degrades to a plain link if delayed.
 4. Rollback: revert the PR — fragments disappear, pages unregister, payload types refuse again. MV/INT objects stay soft-retained in OR; an SV already set to `vervallen-door-mondelinge-beantwoording` keeps a status its own schema declares.
 

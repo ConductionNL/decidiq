@@ -1,0 +1,859 @@
+{
+	"info": {
+		"name": "Decidiq Minutes Workflow Contract Suite",
+		"description": "Newman contract tests for the minutes approval workflow + document generation (minutes-ui-v1): POST /api/minutes/{id}/corrections, PUT /api/minutes/{id}/corrections/{cid}, POST /api/minutes/{id}/reject, POST /api/minutes/{id}/generate-document, and POST /api/meetings/{id}/proof-package. Locks the correction server-attribution contract, the mandatory-comment reject contract (review → draft only), the honest Docudesk-fallback document contract, the hash-sealed proof package, and the 401 authorization posture. Self-contained: seeds its own Meeting + Minutes via the OpenRegister object API and tears them down.\n\nAUTH MODEL (same as decidiq-lifecycle.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The no-auth requests carry NEITHER and target {{noAuthBase}} so the host-scoped NC session cookie never leaks to them.\n\n@spec openspec/specs/resolution-minutes/spec.md",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "noauth"
+	},
+	"item": [
+		{
+			"name": "0. Setup",
+			"item": [
+				{
+					"name": "Seed meeting",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: meeting created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'meeting id captured').to.be.a('string');",
+									"pm.collectionVariables.set('minutesMeetingId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Newman minutes meeting\",\n  \"meetingType\": \"regular\",\n  \"meetingMode\": \"in-person\",\n  \"scheduledDate\": \"2026-06-12T19:00:00Z\",\n  \"lifecycle\": \"closed\",\n  \"quorumRequired\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "meeting"]
+						}
+					}
+				},
+				{
+					"name": "Seed draft minutes linked to the meeting",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: minutes created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'minutes id captured').to.be.a('string');",
+									"pm.collectionVariables.set('workflowMinutesId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Newman workflow minutes\",\n  \"lifecycle\": \"draft\",\n  \"version\": 1,\n  \"content\": \"# Notulen\\n\\nNewman contract content.\",\n  \"meeting\": \"{{minutesMeetingId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/minutes",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "minutes"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "1. Corrections contract",
+			"item": [
+				{
+					"name": "POST correction (server-attributed author)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Correction accepted (200)', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.expect(b.corrections, 'corrections array').to.be.an('array').with.lengthOf.at.least(1);",
+									"const c = b.corrections[b.corrections.length - 1];",
+									"pm.test('Author is server-attributed (client-sent author ignored)', () => {",
+									"  pm.expect(c.author).to.eql(pm.variables.get('adminUser'));",
+									"  pm.expect(c.author).to.not.eql('forged-author');",
+									"});",
+									"pm.test('Status starts as proposed with a created timestamp', () => {",
+									"  pm.expect(c.status).to.eql('proposed');",
+									"  pm.expect(c.createdAt).to.be.a('string');",
+									"});",
+									"pm.collectionVariables.set('workflowCorrectionId', c.id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"The vote count for item 5 should read 12 in favour\",\n  \"author\": \"forged-author\",\n  \"authorName\": \"Forged Name\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/corrections",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "corrections"]
+						}
+					}
+				},
+				{
+					"name": "POST correction with empty text (400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Empty correction text rejected (400)', () => pm.response.to.have.status(400));",
+									"pm.expect(pm.response.json().message).to.be.a('string');"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"   \"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/corrections",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "corrections"]
+						}
+					}
+				},
+				{
+					"name": "PUT resolve correction accepted",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Correction resolved (200)', () => pm.response.to.have.status(200));",
+									"const c = pm.response.json().correction;",
+									"pm.test('Resolution is recorded server-side', () => {",
+									"  pm.expect(c.status).to.eql('accepted');",
+									"  pm.expect(c.resolvedBy).to.eql(pm.variables.get('adminUser'));",
+									"  pm.expect(c.resolvedAt).to.be.a('string');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"accepted\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/corrections/{{workflowCorrectionId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "corrections", "{{workflowCorrectionId}}"]
+						}
+					}
+				},
+				{
+					"name": "PUT resolve correction again (409)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Already-resolved correction conflicts (409)', () => pm.response.to.have.status(409));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"rejected\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/corrections/{{workflowCorrectionId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "corrections", "{{workflowCorrectionId}}"]
+						}
+					}
+				},
+				{
+					"name": "PUT resolve with invalid status (400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Invalid status rejected (400)', () => pm.response.to.have.status(400));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"maybe\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/corrections/{{workflowCorrectionId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "corrections", "{{workflowCorrectionId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Reject contract (review → draft)",
+			"item": [
+				{
+					"name": "POST reject while draft (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Reject from draft refused (422) — only review can be rejected', () => pm.response.to.have.status(422));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"comment\": \"Too early\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/reject",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "reject"]
+						}
+					}
+				},
+				{
+					"name": "POST submit-for-approval (draft → review)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Submitted for review (200)', () => pm.response.to.have.status(200));",
+									"pm.expect(pm.response.json().lifecycle).to.eql('review');"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/submit-for-approval",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "submit-for-approval"]
+						}
+					}
+				},
+				{
+					"name": "POST reject without comment (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Reject without a comment refused (422)', () => pm.response.to.have.status(422));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"comment\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/reject",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "reject"]
+						}
+					}
+				},
+				{
+					"name": "POST reject with comment (review → draft)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Rejected back to draft (200)', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.expect(b.lifecycle).to.eql('draft');",
+									"pm.test('Rejection is recorded with comment, author, timestamp', () => {",
+									"  pm.expect(b.reviewComments).to.be.an('array').with.lengthOf.at.least(1);",
+									"  const r = b.reviewComments[b.reviewComments.length - 1];",
+									"  pm.expect(r.action).to.eql('rejected');",
+									"  pm.expect(r.comment).to.eql('Attendance list incomplete');",
+									"  pm.expect(r.author).to.eql(pm.variables.get('adminUser'));",
+									"  pm.expect(r.createdAt).to.be.a('string');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"comment\": \"Attendance list incomplete\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/reject",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "reject"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Document generation contract",
+			"item": [
+				{
+					"name": "POST generate-document markdown",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Document generated (200)', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.test('Contract: path + format + honest docudesk flag', () => {",
+									"  pm.expect(b.path).to.be.a('string').and.to.include('Minutes/');",
+									"  pm.expect(b.format).to.eql('markdown');",
+									"  pm.expect(b.docudesk).to.be.a('boolean');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"format\": \"markdown\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/generate-document",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "generate-document"]
+						}
+					}
+				},
+				{
+					"name": "POST generate-document pdf (honest Docudesk availability)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('PDF request succeeds (200)', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.test('Honest fallback contract: pdf+docudesk:true OR markdown+docudesk:false+note', () => {",
+									"  if (b.docudesk === true) {",
+									"    pm.expect(b.format).to.eql('pdf');",
+									"  } else {",
+									"    pm.expect(b.format).to.eql('markdown');",
+									"    pm.expect(b.note, 'explanatory note on fallback').to.be.a('string');",
+									"  }",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"format\": \"pdf\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/generate-document",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "generate-document"]
+						}
+					}
+				},
+				{
+					"name": "POST generate-document unsupported format (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Unsupported format refused (422) — no fake ODT', () => pm.response.to.have.status(422));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"format\": \"odt\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/generate-document",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "generate-document"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Proof package contract",
+			"item": [
+				{
+					"name": "POST proof-package (hash-sealed)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Proof package assembled (200)', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.test('Contract: two files (json + md) and a SHA-256 seal', () => {",
+									"  pm.expect(b.files).to.be.an('array').with.lengthOf(2);",
+									"  pm.expect(b.sha256).to.match(/^[0-9a-f]{64}$/);",
+									"  pm.expect(b.generatedAt).to.be.a('string');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{minutesMeetingId}}/proof-package",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "meetings", "{{minutesMeetingId}}", "proof-package"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Authorization",
+			"item": [
+				{
+					"name": "POST correction unauthenticated (401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Unauthenticated correction denied (401)', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"anonymous correction\"\n}"
+						},
+						"url": {
+							"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/corrections",
+							"host": ["{{noAuthBase}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "corrections"]
+						}
+					}
+				},
+				{
+					"name": "POST reject unauthenticated (401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Unauthenticated reject denied (401)', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"comment\": \"anonymous reject\"\n}"
+						},
+						"url": {
+							"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/reject",
+							"host": ["{{noAuthBase}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "reject"]
+						}
+					}
+				},
+				{
+					"name": "POST generate-document unauthenticated (401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Unauthenticated document generation denied (401)', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"format\": \"markdown\"\n}"
+						},
+						"url": {
+							"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/minutes/{{workflowMinutesId}}/generate-document",
+							"host": ["{{noAuthBase}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "minutes", "{{workflowMinutesId}}", "generate-document"]
+						}
+					}
+				},
+				{
+					"name": "POST proof-package unauthenticated (401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Unauthenticated proof package denied (401)', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/meetings/{{minutesMeetingId}}/proof-package",
+							"host": ["{{noAuthBase}}"],
+							"path": ["index.php", "apps", "decidiq", "api", "meetings", "{{minutesMeetingId}}", "proof-package"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "9. Teardown",
+			"item": [
+				{
+					"name": "Delete workflow minutes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Teardown: minutes deleted (2xx)', () => pm.expect(pm.response.code).to.be.within(200, 299));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/minutes/{{workflowMinutesId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "minutes", "{{workflowMinutesId}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete minutes meeting",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Teardown: meeting deleted (2xx)', () => pm.expect(pm.response.code).to.be.within(200, 299));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting/{{minutesMeetingId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "meeting", "{{minutesMeetingId}}"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{ "key": "baseUrl", "value": "http://localhost:8080" },
+		{ "key": "noAuthBase", "value": "http://127.0.0.1:8080" },
+		{ "key": "adminUser", "value": "admin" },
+		{ "key": "adminPass", "value": "admin" },
+		{ "key": "minutesMeetingId", "value": "" },
+		{ "key": "workflowMinutesId", "value": "" },
+		{ "key": "workflowCorrectionId", "value": "" }
+	]
+}

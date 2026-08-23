@@ -10,11 +10,11 @@ Create a meeting record, give it a type and a date, then add agenda items and pu
 
 ## Goal
 
-By the end you will have a meeting in Decidesk with a date, a meeting mode, an ordered list of agenda items, and a published agenda.
+By the end you will have a meeting in Decidiq with a date, a meeting mode, an ordered list of agenda items, and a published agenda.
 
 ## Prerequisites
 
-- Decidesk open and the OpenRegister back end connected (see [Open Decidesk for the first time](01-first-launch.md)).
+- Decidiq open and the OpenRegister back end connected (see [Open Decidiq for the first time](01-first-launch.md)).
 - The right to create meetings — chair or secretary of the relevant governance body. Read-only members can view a meeting but not schedule one.
 - The governance body that owns the meeting already exists (an admin creates these — see [Configure a governance workflow](../admin/01-configure-workflow.md)).
 

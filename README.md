@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="img/app-store.svg" alt="Decidesk logo" width="80" height="80">
+  <img src="img/app-store.svg" alt="Decidiq logo" width="80" height="80">
 </p>
 
-<h1 align="center">Decidesk</h1>
+<h1 align="center">Decidiq</h1>
 
 <p align="center">
   <strong>Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings</strong>
@@ -16,7 +16,7 @@
 
 ---
 
-Decidesk manages meetings, agendas, motions, amendments, voting, minutes, and decision tracking with configurable workflows per organization type. It serves 5 governance domains: legislative/democratic bodies, associations/NGOs, corporate governance, corporate operations, and citizen participation..
+Decidiq manages meetings, agendas, motions, amendments, voting, minutes, and decision tracking with configurable workflows per organization type. It serves 5 governance domains: legislative/democratic bodies, associations/NGOs, corporate governance, corporate operations, and citizen participation..
 
 > **Pre-wired for [OpenRegister](https://codeberg.org/Conduction/openregister)** — all data is stored as OpenRegister objects. If your app needs OpenRegister, install it first. If not, remove the dependency from `appinfo/info.xml` and `openspec/app-config.json`.
 
@@ -60,7 +60,7 @@ _Data model is defined using OpenRegister schemas. See [`openspec/specs/`](opens
 ### Directory Structure
 
 ```
-decidesk/
+decidiq/
 ├── appinfo/                    # Nextcloud app manifest, routes, navigation
 ├── lib/                        # PHP backend
 │   ├── AppInfo/Application.php
@@ -105,7 +105,7 @@ decidesk/
 ### From the Nextcloud App Store
 
 1. Go to **Apps** in your Nextcloud instance
-2. Search for **Decidesk**
+2. Search for **Decidiq**
 3. Click **Download and enable**
 
 > OpenRegister must be installed first. [Install OpenRegister →](https://apps.nextcloud.com/apps/openregister)
@@ -114,10 +114,10 @@ decidesk/
 
 ```bash
 cd /var/www/html/custom_apps
-git clone https://codeberg.org/Conduction/decidesk.git decidesk
-cd decidesk
+git clone https://codeberg.org/Conduction/decidesk.git decidiq
+cd decidiq
 npm install && npm run build
-php occ app:enable decidesk
+php occ app:enable decidiq
 ```
 
 ## Development
@@ -152,15 +152,15 @@ npm run stylelint       # CSS linting
 
 ### Enable locally
 
-Nextcloud requires the app directory name to match the `<id>` in `appinfo/info.xml` (`decidesk`).
-When this repo is cloned as `nextcloud-decidesk`, create a relative symlink first.
+Nextcloud requires the app directory name to match the `<id>` in `appinfo/info.xml` (`decidiq`).
+When this repo is cloned as `nextcloud-decidiq`, create a relative symlink first.
 
 > **Note:** The `js/` build output is not committed. You must build the frontend before enabling the app, or the UI will be blank.
 
 ```bash
 make dev-link
 npm install && npm run build
-docker exec nextcloud php occ app:enable decidesk
+docker exec nextcloud php occ app:enable decidiq
 ```
 
 ## Tech Stack
@@ -216,18 +216,18 @@ The `js/` build output is not committed to the repo. Run the frontend build befo
 npm install && npm run build
 ```
 
-### "Could not download app decidesk" when running `occ app:enable`
+### "Could not download app decidiq" when running `occ app:enable`
 
-Nextcloud requires the app directory name to exactly match the `<id>` in `appinfo/info.xml`. When this repo is cloned as `nextcloud-decidesk`, create a symlink first:
+Nextcloud requires the app directory name to exactly match the `<id>` in `appinfo/info.xml`. When this repo is cloned as `nextcloud-decidiq`, create a symlink first:
 
 ```bash
-make dev-link   # creates apps-extra/decidesk -> nextcloud-decidesk
+make dev-link   # creates apps-extra/decidiq -> nextcloud-decidiq
 ```
 
 Then enable the app again:
 
 ```bash
-docker exec nextcloud php occ app:enable decidesk
+docker exec nextcloud php occ app:enable decidiq
 ```
 
 ## Support

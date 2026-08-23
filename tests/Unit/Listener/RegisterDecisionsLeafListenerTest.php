@@ -3,10 +3,10 @@
 /**
  * Unit tests for RegisterDecisionsLeafListener (ADR-066 leaf registration).
  *
- * Asserts that decidesk contributes exactly one `decidesk-decisions` leaf,
+ * Asserts that decidiq contributes exactly one `decidesk-decisions` leaf,
  * render-only (null provider), through OpenRegister's `RegisterLeafProvidersEvent`
  * — i.e. that the leaf is discoverable SERVER-side, without evaluating any of
- * decidesk's JavaScript.
+ * decidiq's JavaScript.
  *
  * This is the half that has no rendered state. The leaf renders today from its JS
  * half alone, so no browser test, no screenshot and no e2e run can observe the
@@ -14,7 +14,7 @@
  * was. The assertion has to live here.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Listener
+ * @package  OCA\Decidiq\Tests\Unit\Listener
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -32,11 +32,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Listener;
+namespace OCA\Decidiq\Tests\Unit\Listener;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\AppInfo\Registrar\IntegrationLeafRegistrar;
-use OCA\Decidesk\Listener\RegisterDecisionsLeafListener;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\AppInfo\Registrar\IntegrationLeafRegistrar;
+use OCA\Decidiq\Listener\RegisterDecisionsLeafListener;
 use OCA\OpenRegister\Event\RegisterLeafProvidersEvent;
 use OCA\OpenRegister\Service\Integration\LeafDescriptor;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
@@ -83,7 +83,7 @@ class RegisterDecisionsLeafListenerTest extends TestCase {
 		$this->assertCount(
 			1,
 			$leaves,
-			'decidesk must contribute exactly one leaf to the OpenRegister catalogue.'
+			'decidiq must contribute exactly one leaf to the OpenRegister catalogue.'
 		);
 
 		return $leaves[0];
@@ -103,7 +103,7 @@ class RegisterDecisionsLeafListenerTest extends TestCase {
 		$descriptor = $leaf['descriptor'];
 		$this->assertInstanceOf(LeafDescriptor::class, $descriptor);
 		$this->assertSame('decidesk-decisions', $descriptor->getId());
-		$this->assertSame('decidesk', $descriptor->getRequiredApp());
+		$this->assertSame('decidiq', $descriptor->getRequiredApp());
 		$this->assertTrue($descriptor->hasKind(LeafDescriptor::KIND_RENDER_SURFACE));
 
 		// Render-and-read boundary (ADR-066 decision 2): this leaf serves no
@@ -144,7 +144,7 @@ class RegisterDecisionsLeafListenerTest extends TestCase {
 				'id' => 'decidesk-decisions',
 				'label' => 'Besluitvorming',
 				'icon' => 'Gavel',
-				'requiredApp' => 'decidesk',
+				'requiredApp' => 'decidiq',
 				'group' => 'workflow',
 				'surfaces' => ['user-dashboard', 'app-dashboard', 'detail-page', 'single-entity'],
 				'kinds' => ['render-surface'],
@@ -224,7 +224,7 @@ class RegisterDecisionsLeafListenerTest extends TestCase {
 			RegisterLeafProvidersEvent::class,
 			$subscriptions,
 			'IntegrationLeafRegistrar must subscribe a listener to RegisterLeafProvidersEvent, '
-				. 'or decidesk contributes no leaf and the JS registration is an ADR-066 orphan again.'
+				. 'or decidiq contributes no leaf and the JS registration is an ADR-066 orphan again.'
 		);
 
 		$subscribed = $subscriptions[RegisterLeafProvidersEvent::class];

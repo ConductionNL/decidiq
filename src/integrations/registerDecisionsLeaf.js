@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
 //
-// Registers decidesk's "Besluitvorming" (decisions) integration leaf on
+// Registers decidiq's "Besluitvorming" (decisions) integration leaf on
 // the shared OpenRegister integration registry (ADR-019 / ADR-022).
 //
-// This is decidesk's FIRST integration leaf: it surfaces decision-making
+// This is decidiq's FIRST integration leaf: it surfaces decision-making
 // — proposals, advice and final decisions — as a sidebar tab + detail-page
 // widget on ANY consuming object's detail page (a procest case being the
 // canonical consumer). The leaf is generic; it reads the host object's
 // identity from the registry-supplied context and never hard-codes procest.
 //
-// Bootstrap-order safety: decidesk's bundle may load before OR's main
+// Bootstrap-order safety: decidiq's bundle may load before OR's main
 // bundle installs the real registry. We therefore install a `{ _queue,
 // register }` stub before registering, so OR replays the descriptor when
 // it later calls installIntegrationRegistry(). When OR is already
-// installed (the common case in decidesk's own pages, where main.js calls
+// installed (the common case in decidiq's own pages, where main.js calls
 // installIntegrationRegistry() first), register() lands live.
 
 import { translate as t } from '@nextcloud/l10n'
@@ -78,11 +78,11 @@ function componentForSurface(surface) {
 }
 
 /**
- * Mount hand-off (renderMode 'mount', ADR-066 / openregister#2127). decidesk is
+ * Mount hand-off (renderMode 'mount', ADR-066 / openregister#2127). decidiq is
  * Vue 3 while a consuming OpenBuild/OpenRegister host may be Vue 2.7. A Vue-3 SFC
  * handed to the host is interpreted under the host's own (incompatible) runtime
  * and renders blank. Instead the host hands us a bare, host-owned DOM element and
- * we root decidesk's OWN Vue 3 app at it with the forwarded object context as
+ * we root decidiq's OWN Vue 3 app at it with the forwarded object context as
  * root props, so each side runs its own framework across the neutral DOM
  * boundary. Idempotent per element.
  *
@@ -129,11 +129,11 @@ function unmount(el) {
  */
 export const decisionsLeafDescriptor = {
 	id: DECISIONS_INTEGRATION_ID,
-	label: t('decidesk', 'Besluitvorming'),
+	label: t('decidiq', 'Besluitvorming'),
 	icon: 'Gavel',
-	// decidesk's brand accent (cobalt) for the integration tab/header tint.
+	// decidiq's brand accent (cobalt) for the integration tab/header tint.
 	accentColor: '#21468B',
-	requiredApp: 'decidesk',
+	requiredApp: 'decidiq',
 	order: 55,
 	group: 'workflow',
 	// Declared explicitly and identically on both halves of the registration
@@ -186,7 +186,7 @@ export function registerDecisionsLeaf(globalRef) {
 		} catch (e) {
 			// AD-13: duplicate id throws in dev — non-fatal for boot.
 			// eslint-disable-next-line no-console
-			console.warn('[decidesk] decisions leaf already registered', e)
+			console.warn('[decidiq] decisions leaf already registered', e)
 		}
 		return
 	}

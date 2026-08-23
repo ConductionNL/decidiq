@@ -86,7 +86,7 @@
         "icon": "FileSign",
         "version": "0.2.0",
         "title": "ProxyAuthorization",
-        "description": "A signed machtiging instrument (Schema.org AuthorizeAction over a DigitalDocument) evidencing that an absent member (grantor) authorized another member (holder) to cast their proxy vote for a meeting. It is a sibling of the proxy row on the unified vote schema, never a replacement: the vote row stays the ballot machinery (proxy-voting REQ-PRX-001/002, the REQ-BPV guard, cap counting) and back-references its instrument via the nullable authorizationRef property; this object owns the evidentiary lifecycle (generated -> getekend | geweigerd, plus a later signed revocation act). Signature status (signatureStatus) is a declarative guarded state machine (x-openregister-lifecycle, ADR-031): getekend is writable ONLY from a signing-provider completion through the reused eIDAS/docudesk seam (decidesk-contract-decision-hub REQ-DCDH-005) — decidesk never marks a machtiging signed on its own authority (no signature theatre; fail closed when no provider). The machtiging document, the signing/countersigning orchestration, the revocation signing act, and the per-meeting proxy register are IMPERATIVE (ProxyAuthorizationService reusing the REQ-DCDH-005 seam and the resolution-minutes markdown-fallback pattern) — out of declarative scope. All widget/filter/manifest sources reference this schema by its slug proxy-authorization, never a PascalCase key. As of model-debt-cleanup-schema (REQ-SDM-024), grantor/holder reference Person (was Participant — an identity question, not a governance-role question) and the schema additionally carries proxyStatus, the approval-workflow concept folded in from the now-retired BoardProxy schema.",
+        "description": "A signed machtiging instrument (Schema.org AuthorizeAction over a DigitalDocument) evidencing that an absent member (grantor) authorized another member (holder) to cast their proxy vote for a meeting. It is a sibling of the proxy row on the unified vote schema, never a replacement: the vote row stays the ballot machinery (proxy-voting REQ-PRX-001/002, the REQ-BPV guard, cap counting) and back-references its instrument via the nullable authorizationRef property; this object owns the evidentiary lifecycle (generated -> getekend | geweigerd, plus a later signed revocation act). Signature status (signatureStatus) is a declarative guarded state machine (x-openregister-lifecycle, ADR-031): getekend is writable ONLY from a signing-provider completion through the reused eIDAS/docudesk seam (decidesk-contract-decision-hub REQ-DCDH-005) — Decidiq never marks a machtiging signed on its own authority (no signature theatre; fail closed when no provider). The machtiging document, the signing/countersigning orchestration, the revocation signing act, and the per-meeting proxy register are IMPERATIVE (ProxyAuthorizationService reusing the REQ-DCDH-005 seam and the resolution-minutes markdown-fallback pattern) — out of declarative scope. All widget/filter/manifest sources reference this schema by its slug proxy-authorization, never a PascalCase key. As of model-debt-cleanup-schema (REQ-SDM-024), grantor/holder reference Person (was Participant — an identity question, not a governance-role question) and the schema additionally carries proxyStatus, the approval-workflow concept folded in from the now-retired BoardProxy schema.",
         "type": "object",
         "x-schema-org": "schema:AuthorizeAction",
         "x-openregister": {
@@ -176,7 +176,7 @@
               "nl": "Volmacht ondertekend",
               "en": "Proxy authorization signed"
             },
-            "_note": "REQ-MPA-004: surface signature completion. Canonical x-openregister-notifications dialect (ADR-031), verified keys only: trigger.type 'updated' with a filter on the lifecycle field (signatureStatus equals getekend), channels[], recipients[] via kind:object-acl (read) + kind:groups (decidesk-members). Fires only on the getekend transition. Because getekend is reachable only from a provider completion, this notification cannot fire on a decidesk-forged status. decidesk dispatches no notification imperatively for this event."
+            "_note": "REQ-MPA-004: surface signature completion. Canonical x-openregister-notifications dialect (ADR-031), verified keys only: trigger.type 'updated' with a filter on the lifecycle field (signatureStatus equals getekend), channels[], recipients[] via kind:object-acl (read) + kind:groups (decidesk-members). Fires only on the getekend transition. Because getekend is reachable only from a provider completion, this notification cannot fire on a Decidiq-forged status. Decidiq dispatches no notification imperatively for this event."
           }
         },
         "authorization": {
@@ -302,7 +302,7 @@
             "title": "Proxy status",
             "type": "string",
             "facetable": true,
-            "description": "Optional approval-workflow state of this proxy authorization (REQ-SDM-024), folded in from the now-retired BoardProxy schema. Distinct from signatureStatus (which governs the machtiging instrument's own provider-gated signing lifecycle, ADR-031): proxyStatus is decidesk's own approval-transition axis (pending-approval -> active -> suspended/revoked), resolved imperatively by ProxyVoteService::transition() and never force-fit onto the signing-provider-gated signatureStatus field. Defaults to pending-approval.",
+            "description": "Optional approval-workflow state of this proxy authorization (REQ-SDM-024), folded in from the now-retired BoardProxy schema. Distinct from signatureStatus (which governs the machtiging instrument's own provider-gated signing lifecycle, ADR-031): proxyStatus is Decidiq's own approval-transition axis (pending-approval -> active -> suspended/revoked), resolved imperatively by ProxyVoteService::transition() and never force-fit onto the signing-provider-gated signatureStatus field. Defaults to pending-approval.",
             "enum": [
               "pending-approval",
               "active",
@@ -332,7 +332,7 @@
       "ProcessTemplate": {
         "slug": "process-template",
         "version": "0.2.0",
-        "description": "Additive delta (ADR-037 fragment-located additive pattern): this fragment merges ONLY maxProxiesPerHolder and requireSignedProxy onto the existing votingRule.properties, next to voteThreshold/abstentionHandling/tieBreakRule (fragment 43). No existing key is touched and both new keys are optional/unset on the built-in templates, so a zero-configuration upgrade is behaviour-identical: the global decidesk/max_proxies_per_holder config stays authoritative and requireSignedProxy is off everywhere until an admin sets a body-level value (REQ-MPA-005/006). The full ProcessTemplate schema remains defined in fragment 43-process-config-v1.json.",
+        "description": "Additive delta (ADR-037 fragment-located additive pattern): this fragment merges ONLY maxProxiesPerHolder and requireSignedProxy onto the existing votingRule.properties, next to voteThreshold/abstentionHandling/tieBreakRule (fragment 43). No existing key is touched and both new keys are optional/unset on the built-in templates, so a zero-configuration upgrade is behaviour-identical: the global decidiq/max_proxies_per_holder config stays authoritative and requireSignedProxy is off everywhere until an admin sets a body-level value (REQ-MPA-005/006). The full ProcessTemplate schema remains defined in fragment 43-process-config-v1.json.",
         "properties": {
           "votingRule": {
             "title": "Voting rule",
@@ -342,7 +342,7 @@
                 "title": "Max proxies per holder",
                 "type": "integer",
                 "minimum": 1,
-                "description": "Optional per-body statutory cap on how many proxies one holder may hold in a meeting (REQ-MPA-006). When set (>=1) it supersedes the global decidesk/max_proxies_per_holder app config; when unset the global config (default 2) remains authoritative — the existing voting-system cap scenarios hold verbatim. Enforced fail-closed at proxy registration and at round open by ProxyVoteService/VotingService (imperative — cross-object counting against a resolved per-body value is beyond schema constraints).",
+                "description": "Optional per-body statutory cap on how many proxies one holder may hold in a meeting (REQ-MPA-006). When set (>=1) it supersedes the global decidiq/max_proxies_per_holder app config; when unset the global config (default 2) remains authoritative — the existing voting-system cap scenarios hold verbatim. Enforced fail-closed at proxy registration and at round open by ProxyVoteService/VotingService (imperative — cross-object counting against a resolved per-body value is beyond schema constraints).",
                 "example": 1
               },
               "requireSignedProxy": {

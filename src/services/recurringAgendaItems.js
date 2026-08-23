@@ -35,7 +35,7 @@ import { useSettingsStore } from '../store/modules/settings.js'
 /**
  * Fetch every agenda item flagged as a recurring template.
  *
- * Register and schema slugs are resolved from the decidesk settings exactly as
+ * Register and schema slugs are resolved from the decidiq settings exactly as
  * `initializeStores()` resolves them, so an instance that overrides either one
  * keeps working.
  *

@@ -1,7 +1,7 @@
 # pc-cyclus Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - [pc-cyclus](../../changes/pc-cyclus/)
 
@@ -24,7 +24,7 @@ The system SHALL define `PCCyclus` and `CyclusTemplate` schemas in the decidesk 
 
 #### Scenario: Register fragment is additive
 
-- GIVEN a decidesk installation upgrading to this change
+- GIVEN a decidiq installation upgrading to this change
 - WHEN the register configuration is loaded
 - THEN the three schemas register from the `52-pc-cyclus.json` fragment
 - AND no existing schema in `decidesk_register.json` is modified
@@ -35,7 +35,7 @@ The system SHALL ship two built-in `CyclusTemplate` seeds via the register fragm
 
 #### Scenario: Fresh install has usable templates
 
-- GIVEN a fresh decidesk installation
+- GIVEN a fresh decidiq installation
 - WHEN the user creates a PCCyclus and selects a template
 - THEN both `municipal-pc-cyclus` and `association-jaarstukken` are available with their seeded step lists, immediately usable without configuration
 

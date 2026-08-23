@@ -4,7 +4,7 @@
  * Unit tests for ProjectionController.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Controller
+ * @package  OCA\Decidiq\Tests\Unit\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -17,10 +17,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Controller;
+namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\Decidesk\Controller\ProjectionController;
-use OCA\Decidesk\Service\VotingService;
+use OCA\Decidiq\Controller\ProjectionController;
+use OCA\Decidiq\Service\VotingService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;

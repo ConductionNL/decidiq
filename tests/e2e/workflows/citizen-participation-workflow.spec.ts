@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * DEEP, data-dependent e2e for the citizen-participation domain, driven through
@@ -58,7 +58,7 @@ const past = () => new Date(Date.now() - 86_400_000).toISOString()
 
 /** Open the participation SPA page and wait for the manifest shell to mount. */
 async function gotoParticipation(page: Page): Promise<void> {
-	await page.goto(`${BASE}/apps/decidesk/participation`)
+	await page.goto(`${BASE}/apps/decidiq/participation`)
 	await page.waitForSelector('[data-testid="participation-page"]', {
 		timeout: 20_000,
 	})
@@ -66,7 +66,7 @@ async function gotoParticipation(page: Page): Promise<void> {
 
 /** Open the moderation queue SPA page. */
 async function gotoModerationQueue(page: Page): Promise<void> {
-	await page.goto(`${BASE}/apps/decidesk/moderation-queue`)
+	await page.goto(`${BASE}/apps/decidiq/moderation-queue`)
 	await page.waitForSelector('[data-testid="moderation-queue-page"]', {
 		timeout: 20_000,
 	})
@@ -342,7 +342,7 @@ test.describe('Citizen participation — participatory budgeting', () => {
 
 test.describe('Citizen participation — admin defaults', () => {
 	test('admin sets instance participation defaults', async ({ page }) => {
-		await page.goto(`${BASE}/settings/admin/decidesk`)
+		await page.goto(`${BASE}/settings/admin/decidiq`)
 		const section = page.locator('[data-testid="participation-settings"]')
 		await expect(section).toBeVisible({ timeout: 20_000 })
 

@@ -26,12 +26,12 @@
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--routed-documents"
+		class="decidiq-tab decidiq-tab--routed-documents"
 		data-testid="meeting-routed-documents-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Incoming documents') }}
-				<span v-if="!loading" class="decidesk-tab__count"
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Incoming documents') }}
+				<span v-if="!loading" class="decidiq-tab__count"
 					>({{ rows.length }})</span
 				>
 			</h3>
@@ -40,7 +40,7 @@
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load routed documents')">
+			:title="t('decidiq', 'Could not load routed documents')">
 			{{ error }}
 		</CnNoteCard>
 
@@ -50,9 +50,9 @@
 			:loading="loading"
 			rowKey="id"
 			:emptyText="
-				t('decidesk', 'No incoming documents routed to this meeting yet.')
+				t('decidiq', 'No incoming documents routed to this meeting yet.')
 			"
-			:loadingText="t('decidesk', 'Loading routed documents…')"
+			:loadingText="t('decidiq', 'Loading routed documents…')"
 			@rowClick="openDetail" />
 	</div>
 </template>
@@ -109,15 +109,15 @@ export default {
 			return [
 				{
 					key: 'typeLabel',
-					label: this.t('decidesk', 'Type'),
+					label: this.t('decidiq', 'Type'),
 					widget: 'badge',
 					widgetProps: { colorMap: this.typeColors },
 				},
-				{ key: 'title', label: this.t('decidesk', 'Title') },
-				{ key: 'category', label: this.t('decidesk', 'Category') },
+				{ key: 'title', label: this.t('decidiq', 'Title') },
+				{ key: 'category', label: this.t('decidiq', 'Category') },
 				{
 					key: 'lifecycle',
-					label: this.t('decidesk', 'Status'),
+					label: this.t('decidiq', 'Status'),
 					widget: 'badge',
 				},
 			]
@@ -187,7 +187,7 @@ export default {
 			} catch (e) {
 				this.error =
 					e?.message
-					|| this.t('decidesk', 'Failed to load routed documents.')
+					|| this.t('decidiq', 'Failed to load routed documents.')
 			} finally {
 				this.loading = false
 			}
@@ -210,27 +210,27 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__count {
+.decidiq-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;

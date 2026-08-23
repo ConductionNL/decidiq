@@ -2,9 +2,9 @@
 
 ## Context
 
-Decidesk base levert basismodel Meeting (plenaire raadsvergaderingen), AgendaItem, Participant, Membership. Commissievergaderingen zijn sub-type van Meeting met aanvullende velden: commissie-koppeling, commissie-specifieke agendapunt-types, adviesvorming per agendapunt, belangenverstrengeling-registratie, inspraak-aanmelding, en besloten-zittings-afhandeling.
+Decidiq base levert basismodel Meeting (plenaire raadsvergaderingen), AgendaItem, Participant, Membership. Commissievergaderingen zijn sub-type van Meeting met aanvullende velden: commissie-koppeling, commissie-specifieke agendapunt-types, adviesvorming per agendapunt, belangenverstrengeling-registratie, inspraak-aanmelding, en besloten-zittings-afhandeling.
 
-**Huidige decidesk-staat:**
+**Huidige decidiq-staat:**
 - Meeting, AgendaItem, Participant, Membership, GovernanceBody zijn gedefinieerd in p1-schemas-en-data-model en p3-governance-bodies
 - Geen commissie-specifieke logica bestaat nog
 - Griffie-workflows (plaatsvervanging, adviesvorming, belangenverstrengeling) zijn handmatig en error-prone
@@ -92,14 +92,14 @@ Commissie heeft `type`-enum (vast, tijdelijk, ad-hoc) en `portefeuille-scope` (a
 
 | Code-pad | Bron | Hergebruik-strategie |
 |---|---|---|
-| Meeting-lifecycle (scheduled, opened, closed, etc.) | decidesk p2-meeting-management | CommissieVergadering uses relation naar Meeting; lifecycle-transitions via bestaande StateEngine |
-| Participant/Membership model | decidesk p3-governance-bodies | CommissieLidmaatschap erft relatie-patronen van Membership; voegt commissie-specifieke velden toe |
-| AgendaItem | decidesk p2-agenda-management | CommissieAgendapunt is separate schema; koppelt via relation naar CommissieVergadering |
-| Speech/Vote/VotingRound | decidesk p2-motion-voting | CommissieAdvies is lighter-weight (geen formal voting, alleen stemmingsverhouding-samenvatting + fractie-standpunten) |
+| Meeting-lifecycle (scheduled, opened, closed, etc.) | decidiq p2-meeting-management | CommissieVergadering uses relation naar Meeting; lifecycle-transitions via bestaande StateEngine |
+| Participant/Membership model | decidiq p3-governance-bodies | CommissieLidmaatschap erft relatie-patronen van Membership; voegt commissie-specifieke velden toe |
+| AgendaItem | decidiq p2-agenda-management | CommissieAgendapunt is separate schema; koppelt via relation naar CommissieVergadering |
+| Speech/Vote/VotingRound | decidiq p2-motion-voting | CommissieAdvies is lighter-weight (geen formal voting, alleen stemmingsverhouding-samenvatting + fractie-standpunten) |
 | OpenRegister ConfigurationService | openregister core | `importFromApp('commissievergaderingen')` voor register-import |
 | Relation management | openregister core | Alle cross-entity-relaties via x-openregister-relaties in schema JSON (geen foreign keys) |
 | ObjectService CRUD | openregister core | Reused voor alle schema-operations (list, get, create, update) |
-| REST API | openregister core + decidesk controllers | Decidesk-controllers voor griffie-workflows (samenstelling, plaatsvervanging, adviesvorming); inheritance uit decidesk patterns |
+| REST API | openregister core + decidiq controllers | Decidiq-controllers voor griffie-workflows (samenstelling, plaatsvervanging, adviesvorming); inheritance uit decidiq patterns |
 
 **Geen nieuwe business-logic in provider** — services leveren alleen orchestration van existing CRUD + validatie.
 

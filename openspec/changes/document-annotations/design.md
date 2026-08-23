@@ -2,10 +2,10 @@
 
 ## Architecture Overview
 
-decidesk stays a thin client over OpenRegister (ADR-022): annotations are objects of a new `Annotation` schema in the decidesk register, no app tables. Two things cannot be thin, and the design is explicit about both:
+decidiq stays a thin client over OpenRegister (ADR-022): annotations are objects of a new `Annotation` schema in the decidesk register, no app tables. Two things cannot be thin, and the design is explicit about both:
 
-1. **Visibility filtering must be server-side.** The frontend normally queries OR directly, but "private by default, optionally shared with faction/body" is per-object, per-relationship authorization that OR property-RBAC cannot express (it evaluates literal NC group ids and cannot template a group name with a per-object id — the documented deviation in `x-decidesk-rbac-scopes`). All annotation reads and writes therefore go through a decidesk `AnnotationController` + `AnnotationVisibilityService` that filters/guards before delegating persistence to OR's ObjectService. This is not a redundant pass-through (hydra gate 22): every method adds an authorization decision.
-2. **The overlay cannot live inside the Nextcloud Viewer.** NC's Viewer delegates PDFs to files_pdfviewer, which renders pdf.js inside a sandboxed iframe decidesk cannot reach into, and neither app exposes an annotation-layer API. decidesk therefore ships its own annotation view (`AnnotationView.vue`, lazy-loaded route) that renders the PDF with `pdfjs-dist` (canvas + text layer) and draws a decidesk-owned SVG overlay per page. Plain viewing stays with NC Viewer; the annotator is opened deliberately, only for PDFs.
+1. **Visibility filtering must be server-side.** The frontend normally queries OR directly, but "private by default, optionally shared with faction/body" is per-object, per-relationship authorization that OR property-RBAC cannot express (it evaluates literal NC group ids and cannot template a group name with a per-object id — the documented deviation in `x-decidesk-rbac-scopes`). All annotation reads and writes therefore go through a decidiq `AnnotationController` + `AnnotationVisibilityService` that filters/guards before delegating persistence to OR's ObjectService. This is not a redundant pass-through (hydra gate 22): every method adds an authorization decision.
+2. **The overlay cannot live inside the Nextcloud Viewer.** NC's Viewer delegates PDFs to files_pdfviewer, which renders pdf.js inside a sandboxed iframe decidiq cannot reach into, and neither app exposes an annotation-layer API. decidiq therefore ships its own annotation view (`AnnotationView.vue`, lazy-loaded route) that renders the PDF with `pdfjs-dist` (canvas + text layer) and draws a decidiq-owned SVG overlay per page. Plain viewing stays with NC Viewer; the annotator is opened deliberately, only for PDFs.
 
 Flow: Documents leaf (meeting / agenda-item detail) → "Annoteren" → `#/annotate/{fileId}` → view loads file content via WebDAV, current version identity via files_versions, and visible annotations via `GET /api/documents/{fileId}/annotations` → overlay renders anchored marks for the current version; the side panel lists all visible annotations including prior-version ones with a "gemaakt op v(N)" state.
 
@@ -102,10 +102,10 @@ Seeds make the panel, counts, visibility filtering, and export testable on insta
 
 ## Trade-offs / Decisions
 
-- **Own pdf.js surface vs extending NC Viewer:** extending Viewer/files_pdfviewer would mean patching core apps decidesk does not own (rejected). A dedicated annotator duplicates PDF rendering but uses the same engine (pdf.js), is lazily loaded, and is scoped to annotation only. Alternative "sidecar panel without overlay" (page-anchored notes only) was rejected: the market demand is explicitly inline highlights/sticky/drawing.
+- **Own pdf.js surface vs extending NC Viewer:** extending Viewer/files_pdfviewer would mean patching core apps decidiq does not own (rejected). A dedicated annotator duplicates PDF rendering but uses the same engine (pdf.js), is lazily loaded, and is scoped to annotation only. Alternative "sidecar panel without overlay" (page-anchored notes only) was rejected: the market demand is explicitly inline highlights/sticky/drawing.
 - **Controller-mediated reads vs direct OR queries:** direct OR queries with client-side filtering would leak private notes to anyone with the API; a per-object visibility guard needs the app boundary. Accepted cost: one more imperative service, documented next to the existing RBAC deviation.
 - **Bind-to-version + label vs carry-forward:** carry-forward re-anchoring is genuinely hard (text may move or vanish) and incumbents get it wrong; v1 chooses honest labeling ("gemaakt op v(N)") over silently misplaced marks. Re-anchoring stays out of scope.
-- **`pdfjs-dist` in decidesk vs shared via nc-vue:** decidesk-local for now (single consumer, lazy chunk); promote to nc-vue when a second consumer (board book, docudesk) materializes.
+- **`pdfjs-dist` in decidiq vs shared via nc-vue:** decidiq-local for now (single consumer, lazy chunk); promote to nc-vue when a second consumer (board book, docudesk) materializes.
 - **Documents-leaf row action:** the `files` integration leaf is registry-driven from nc-vue; if it cannot host a custom "Annoteren" row action without an nc-vue change, the fallback is an "Annoteren" entry point in the annotation panel widget/agenda tab listing the item's PDFs. Provisional: try the integration-registry action hook first, fall back without blocking the change.
 
 ## Migration Plan
@@ -115,4 +115,4 @@ Additive only: register import adds the schema + seeds (idempotent via the Repai
 ## Open Questions
 
 - Whether the nc-vue files leaf exposes a per-row custom action hook (fallback documented above).
-- Whether seeded annotations should be pruned by a cleanup step on production installs or kept as demo content (provisional: keep, consistent with other decidesk seeds).
+- Whether seeded annotations should be pruned by a cleanup step on production installs or kept as demo content (provisional: keep, consistent with other decidiq seeds).

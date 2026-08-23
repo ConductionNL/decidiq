@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Quorum Verification Service
+ * Decidiq Quorum Verification Service
  *
  * Computes meeting quorum from meeting attendance + active proxies and
  * exposes a structured report per member (in-person, remote, proxy,
  * absent).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,7 +25,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -174,7 +174,7 @@ class QuorumVerificationService {
 			];
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: failed to build attendance report',
+				'Decidiq: failed to build attendance report',
 				['meetingId' => $meetingId, 'exception' => $e->getMessage()]
 			);
 			return null;

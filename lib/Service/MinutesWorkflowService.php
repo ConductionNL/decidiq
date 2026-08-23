@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Minutes Workflow Service
+ * Decidiq Minutes Workflow Service
  *
  * The action-item extraction and approval-submission steps of the minutes
  * workflow.
@@ -15,7 +15,7 @@
  * in the exception code, so the endpoint never has to restate the rule.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -31,9 +31,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use RuntimeException;
 

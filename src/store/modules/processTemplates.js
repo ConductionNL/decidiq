@@ -24,7 +24,7 @@ export {
  *
  * @spec openspec/specs/process-configuration/spec.md
  */
-export const useProcessTemplatesStore = defineStore('decidesk-process-templates', {
+export const useProcessTemplatesStore = defineStore('decidiq-process-templates', {
 	state: () => ({
 		templates: [],
 		loading: false,
@@ -45,7 +45,7 @@ export const useProcessTemplatesStore = defineStore('decidesk-process-templates'
 			this.error = ''
 			try {
 				const response = await fetch(
-					generateUrl('/apps/decidesk/api/process-templates'),
+					generateUrl('/apps/decidiq/api/process-templates'),
 					{
 						headers: { requesttoken: getRequestToken() },
 					},
@@ -70,7 +70,7 @@ export const useProcessTemplatesStore = defineStore('decidesk-process-templates'
 		 */
 		async createTemplate(template) {
 			return this.write(
-				generateUrl('/apps/decidesk/api/process-templates'),
+				generateUrl('/apps/decidiq/api/process-templates'),
 				'POST',
 				template,
 			)
@@ -84,7 +84,7 @@ export const useProcessTemplatesStore = defineStore('decidesk-process-templates'
 		async updateTemplate(id, template) {
 			return this.write(
 				generateUrl(
-					'/apps/decidesk/api/process-templates/' + encodeURIComponent(id),
+					'/apps/decidiq/api/process-templates/' + encodeURIComponent(id),
 				),
 				'PUT',
 				template,
@@ -99,7 +99,7 @@ export const useProcessTemplatesStore = defineStore('decidesk-process-templates'
 		async duplicateTemplate(id, name) {
 			return this.write(
 				generateUrl(
-					'/apps/decidesk/api/process-templates/'
+					'/apps/decidiq/api/process-templates/'
 						+ encodeURIComponent(id)
 						+ '/duplicate',
 				),
@@ -117,7 +117,7 @@ export const useProcessTemplatesStore = defineStore('decidesk-process-templates'
 			try {
 				const response = await fetch(
 					generateUrl(
-						'/apps/decidesk/api/process-templates/'
+						'/apps/decidiq/api/process-templates/'
 							+ encodeURIComponent(id),
 					),
 					{

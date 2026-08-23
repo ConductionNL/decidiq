@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Motion Forwarding Service
+ * Decidiq Motion Forwarding Service
  *
  * Forwards a motion to another governance body: copies it into the target
  * body, cross-links both copies with an audit note, and notifies when the
  * instance requires approval for forwarding.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,10 +25,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\AppInfo\Application;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use OCP\IUserManager;
@@ -129,7 +130,7 @@ class MotionForwardingService {
 		);
 
 		// Send notification if approval is required.
-		if ($appConfig->getValueBool('decidesk', 'motion_forwarding_requires_approval', false) === true) {
+		if ($appConfig->getValueBool(Application::APP_ID, 'motion_forwarding_requires_approval', false) === true) {
 			$this->notifyApprovalRequired(
 				actorId: $actorId,
 				forwardedMotionId: (string)($created['id'] ?? $created['uuid'] ?? ''),
@@ -270,7 +271,7 @@ class MotionForwardingService {
 				'title' => $title,
 				'body' => $targetBodyId,
 			],
-			failureLog: 'Decidesk: notification send failed: '
+			failureLog: 'Decidiq: notification send failed: '
 		);
 
 	}//end notifyApprovalRequired()

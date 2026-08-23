@@ -4,14 +4,14 @@
  *
  * Gate-19 e2e coverage — User settings (user-settings-v1).
  *
- * Drives the Nextcloud personal settings panel (/settings/user/decidesk,
+ * Drives the Nextcloud personal settings panel (/settings/user/decidiq,
  * the spec's required ISettings surface) and the in-app /user-settings SPA
  * page through the four preference sections: notification preferences
  * (per-event toggles + delivery channels + reminder timing), display
  * preferences (default view + date format), absence delegation (delegate +
  * period + the no-voting-rights notice) and communication preferences
  * (governance email). API/contract assertions live in Newman
- * (tests/integration/decidesk-user-settings.postman_collection.json), not
+ * (tests/integration/decidiq-user-settings.postman_collection.json), not
  * here.
  *
  * Defensive skips: when the deployed instance does not serve this branch's
@@ -31,12 +31,12 @@ import { test, expect, type Page } from '@playwright/test'
 import { BASE_URL as BASE } from '../base-url'
 
 /**
- * Open the Decidesk personal settings panel; skip the test when this branch
+ * Open the Decidiq personal settings panel; skip the test when this branch
  * is not deployed (panel absent).
  */
 async function openPersonalSettings(page: Page): Promise<boolean> {
-	await page.goto(`${BASE}/settings/user/decidesk`)
-	const panel = page.locator('[data-testid="decidesk-personal-settings"]')
+	await page.goto(`${BASE}/settings/user/decidiq`)
+	const panel = page.locator('[data-testid="decidiq-personal-settings"]')
 	try {
 		await panel.waitFor({ state: 'visible', timeout: 15_000 })
 		return true
@@ -80,7 +80,7 @@ test('Notification preferences: enable Pending vote with both Nextcloud notifica
 }) => {
 	test.skip(
 		!(await openPersonalSettings(page)),
-		'decidesk personal settings panel not deployed on this instance',
+		'decidiq personal settings panel not deployed on this instance',
 	)
 
 	await setSwitch(page, 'notification-toggle-votingOpened', true)
@@ -93,7 +93,7 @@ test('Notification preferences: enable Pending vote with both Nextcloud notifica
 	// Persistence proof: a reload shows the same enabled state.
 	await page.reload()
 	await page
-		.locator('[data-testid="decidesk-personal-settings"]')
+		.locator('[data-testid="decidiq-personal-settings"]')
 		.waitFor({ state: 'visible', timeout: 15_000 })
 	await expect(
 		page.locator('[data-testid="notification-toggle-votingOpened"]').first(),
@@ -107,7 +107,7 @@ test('Notification preferences: both channels off is rejected client-side with a
 }) => {
 	test.skip(
 		!(await openPersonalSettings(page)),
-		'decidesk personal settings panel not deployed on this instance',
+		'decidiq personal settings panel not deployed on this instance',
 	)
 
 	await setSwitch(page, 'channel-in-app', false)
@@ -132,7 +132,7 @@ test('Meeting reminders: the toggle can be disabled and persists', async ({
 }) => {
 	test.skip(
 		!(await openPersonalSettings(page)),
-		'decidesk personal settings panel not deployed on this instance',
+		'decidiq personal settings panel not deployed on this instance',
 	)
 
 	await setSwitch(page, 'notification-toggle-meetingReminder', false)
@@ -141,7 +141,7 @@ test('Meeting reminders: the toggle can be disabled and persists', async ({
 
 	await page.reload()
 	await page
-		.locator('[data-testid="decidesk-personal-settings"]')
+		.locator('[data-testid="decidiq-personal-settings"]')
 		.waitFor({ state: 'visible', timeout: 15_000 })
 	await expect(
 		page.locator('[data-testid="notification-toggle-meetingReminder"]').first(),
@@ -159,7 +159,7 @@ test('Reminder timing: defaults to 24h + 1h and accepts 48h + 1h', async ({
 }) => {
 	test.skip(
 		!(await openPersonalSettings(page)),
-		'decidesk personal settings panel not deployed on this instance',
+		'decidiq personal settings panel not deployed on this instance',
 	)
 
 	// The default hint documents the spec default (24h + 1h before).
@@ -177,7 +177,7 @@ test('Reminder timing: defaults to 24h + 1h and accepts 48h + 1h', async ({
 
 	await page.reload()
 	await page
-		.locator('[data-testid="decidesk-personal-settings"]')
+		.locator('[data-testid="decidiq-personal-settings"]')
 		.waitFor({ state: 'visible', timeout: 15_000 })
 	await expect(
 		page.locator('[data-testid="reminder-time-48h"]').first(),
@@ -218,7 +218,7 @@ test('Display preferences: default view Meetings redirects the app root to the m
 
 	test.skip(
 		!(await openPersonalSettings(page)),
-		'decidesk personal settings panel not deployed on this instance',
+		'decidiq personal settings panel not deployed on this instance',
 	)
 
 	// Pick "Meetings" in the default-view NcSelect.
@@ -229,14 +229,14 @@ test('Display preferences: default view Meetings redirects the app root to the m
 	await expect(page.getByText('Display preferences saved.')).toBeVisible()
 
 	// Opening the app root must land on the meetings list, not the dashboard.
-	await page.goto(`${BASE}/apps/decidesk/`)
-	await page.waitForURL(/\/apps\/decidesk\/meetings/, { timeout: 15_000 })
-	await expect(page).toHaveURL(/\/apps\/decidesk\/meetings/)
+	await page.goto(`${BASE}/apps/decidiq/`)
+	await page.waitForURL(/\/apps\/decidiq\/meetings/, { timeout: 15_000 })
+	await expect(page).toHaveURL(/\/apps\/decidiq\/meetings/)
 
 	// A deep link is never overridden by the preference.
-	await page.goto(`${BASE}/apps/decidesk/decisions`)
+	await page.goto(`${BASE}/apps/decidiq/decisions`)
 	await page.waitForTimeout(1500)
-	await expect(page).toHaveURL(/\/apps\/decidesk\/decisions/)
+	await expect(page).toHaveURL(/\/apps\/decidiq\/decisions/)
 
 	// Restore the default for subsequent runs — via the API, not the UI.
 	//
@@ -253,7 +253,7 @@ test('Display preferences: default view Meetings redirects the app root to the m
 	// only — no acceptance criterion is asserted through the UI restore.
 	const csrf = await page.request.get(`${BASE}/index.php/csrftoken`)
 	const reset = await page.request.put(
-		`${BASE}/apps/decidesk/api/preferences/default-view`,
+		`${BASE}/apps/decidiq/api/preferences/default-view`,
 		{
 			headers: {
 				'Content-Type': 'application/json',
@@ -274,7 +274,7 @@ test('Display preferences: date format DD-MM-YYYY previews and saves', async ({
 }) => {
 	test.skip(
 		!(await openPersonalSettings(page)),
-		'decidesk personal settings panel not deployed on this instance',
+		'decidiq personal settings panel not deployed on this instance',
 	)
 
 	await page.locator('[data-testid="display-date-format"] input').first().click()
@@ -311,7 +311,7 @@ test('Delegation: requires an expiry, shows the no-voting-rights notice, saves a
 }) => {
 	test.skip(
 		!(await openPersonalSettings(page)),
-		'decidesk personal settings panel not deployed on this instance',
+		'decidiq personal settings panel not deployed on this instance',
 	)
 
 	// The delegation section always explains that delegation ≠ proxy.
@@ -341,13 +341,13 @@ test('Delegation: requires an expiry, shows the no-voting-rights notice, saves a
 	// Configure the vacation window and save.
 	await page
 		.locator(
-			'[data-testid="delegation-from"] input, input#decidesk-delegation-from',
+			'[data-testid="delegation-from"] input, input#decidiq-delegation-from',
 		)
 		.first()
 		.fill('2026-07-01')
 	await page
 		.locator(
-			'[data-testid="delegation-until"] input, input#decidesk-delegation-until',
+			'[data-testid="delegation-until"] input, input#decidiq-delegation-until',
 		)
 		.first()
 		.fill('2026-07-14')
@@ -365,7 +365,7 @@ test('Communication: governance email overrides the account default and saves', 
 }) => {
 	test.skip(
 		!(await openPersonalSettings(page)),
-		'decidesk personal settings panel not deployed on this instance',
+		'decidiq personal settings panel not deployed on this instance',
 	)
 
 	// The section documents the account-email default.
@@ -388,7 +388,7 @@ test('Communication: governance email overrides the account default and saves', 
 
 	await page.reload()
 	await page
-		.locator('[data-testid="decidesk-personal-settings"]')
+		.locator('[data-testid="decidiq-personal-settings"]')
 		.waitFor({ state: 'visible', timeout: 15_000 })
 	await expect(
 		page.locator('[data-testid="communication-email"]').first(),
@@ -414,7 +414,7 @@ test('Communication: governance email overrides the account default and saves', 
 // having no e2e test while this test had been driving it all along. Recording an
 // existing truth, not waiving a gap — delete this note only together with the
 // test below.
-test('SPA mount: /apps/decidesk/user-settings renders the four sections without decidesk errors', async ({
+test('SPA mount: /apps/decidiq/user-settings renders the four sections without decidiq errors', async ({
 	page,
 }) => {
 	const appErrors: string[] = []
@@ -423,24 +423,24 @@ test('SPA mount: /apps/decidesk/user-settings renders the four sections without 
 		if (
 			m.type() === 'error'
 			&& !/user_status|heartbeat|user status/i.test(t)
-			&& /decidesk/i.test(t)
+			&& /decidiq/i.test(t)
 		) {
 			appErrors.push(t)
 		}
 	})
 	page.on('response', (r) => {
-		if (r.status() >= 500 && /decidesk/i.test(r.url()))
+		if (r.status() >= 500 && /decidiq/i.test(r.url()))
 			appErrors.push(`HTTP ${r.status()} ${r.url()}`)
 	})
 
-	await page.goto(`${BASE}/apps/decidesk/user-settings`)
+	await page.goto(`${BASE}/apps/decidiq/user-settings`)
 	const spaPage = page.locator('[data-testid="user-settings-page"]')
 	try {
 		await spaPage.waitFor({ state: 'visible', timeout: 15_000 })
 	} catch {
 		test.skip(
 			true,
-			'decidesk user-settings SPA page not deployed on this instance',
+			'decidiq user-settings SPA page not deployed on this instance',
 		)
 	}
 
@@ -454,6 +454,6 @@ test('SPA mount: /apps/decidesk/user-settings renders the four sections without 
 	await expect(page.locator('[data-testid="communication-section"]')).toBeVisible()
 	expect(
 		appErrors,
-		`decidesk errors on user-settings:\n${appErrors.join('\n')}`,
+		`decidiq errors on user-settings:\n${appErrors.join('\n')}`,
 	).toHaveLength(0)
 })

@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Minutes Controller
+ * Decidiq Minutes Controller
  *
  * Controller for Minutes-specific operations such as draft generation
  * and server-side lifecycle transition enforcement.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  *
@@ -20,14 +20,14 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\ALVMinutesService;
-use OCA\Decidesk\Service\MinutesAccessGuard;
-use OCA\Decidesk\Service\MinutesDocumentService;
-use OCA\Decidesk\Service\MinutesGenerationService;
-use OCA\Decidesk\Service\MinutesWorkflowService;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\ALVMinutesService;
+use OCA\Decidiq\Service\MinutesAccessGuard;
+use OCA\Decidiq\Service\MinutesDocumentService;
+use OCA\Decidiq\Service\MinutesGenerationService;
+use OCA\Decidiq\Service\MinutesWorkflowService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;

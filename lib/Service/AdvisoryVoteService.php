@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Advisory Vote Service
+ * Decidiq Advisory Vote Service
  *
  * Advisory (non-statutory) citizen votes on a BudgetProposal.
  *
@@ -12,7 +12,7 @@
  * live in different classes.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -29,7 +29,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;

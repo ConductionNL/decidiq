@@ -1,6 +1,6 @@
 {
   "generated_at": "2026-05-25T00:00:00Z",
-  "app": "decidesk",
+  "app": "decidiq",
   "branch": "development",
   "scanned_commit": "2c2191f149af0f36097fb76c59e29aa977956e28",
   "scanner_version": "1",
@@ -93,9 +93,9 @@
   },
   "ignored": 0,
   "notes": [
-    "decidesk is ALREADY fully retrofit-annotated: every lib/ method + 8 frontend files carry valid @spec tags (473 occurrences) pointing at 15 ARCHIVED phase changes. There is effectively nothing in Bucket 1 to annotate via /opsx-annotate — the annotate step is a no-op for this app.",
+    "decidiq is ALREADY fully retrofit-annotated: every lib/ method + 8 frontend files carry valid @spec tags (473 occurrences) pointing at 15 ARCHIVED phase changes. There is effectively nothing in Bucket 1 to annotate via /opsx-annotate — the annotate step is a no-op for this app.",
     "ANNOTATION-vs-ACTIVE-SPEC MISMATCH: annotations reference the original p1/p2/p4 PHASE changes (archived), NOT the 14 current consolidated 'idea'-status specs (meeting-management, voting-system, etc.). The active specs were authored as a later consolidation and use prose REQ titles, while archived-change tasks use the build-time taxonomy. /opsx-annotate cannot re-point these without a fresh ghost change.",
-    "13 of 14 active specs are status: idea (consolidation specs); mcp-tools is the one concrete spec (10 REQ-DMCP REQs) and is fully implemented in lib/Mcp/DecideskToolProvider.php (18 methods, all annotated). No redirect/deprecated/moved frontmatter on any spec.",
+    "13 of 14 active specs are status: idea (consolidation specs); mcp-tools is the one concrete spec (10 REQ-DMCP REQs) and is fully implemented in lib/Mcp/DecidiqToolProvider.php (18 methods, all annotated). No redirect/deprecated/moved frontmatter on any spec.",
     "The in-flight change openspec/changes/mcp-tools/specs/mcp-tools/spec.md (10 REQs) mirrors the active mcp-tools spec — already synced, not double-counted.",
     "Reverse-pass removed-lines cache built in 2s (24,606 lines) — well under the 30s budget.",
     "Bucket 3 totals 12 REQs (2x 3a, 10x 3b) out of 68 active-spec REQs. The other 56 REQs map to implemented + annotated code across the 9 core capabilities + mcp-tools."

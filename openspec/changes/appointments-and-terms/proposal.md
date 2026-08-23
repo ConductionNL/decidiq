@@ -6,11 +6,11 @@ kind: code
 
 ## Summary
 
-Add an appointments & terms register to decidesk: a `Voordracht` (nomination) schema carrying candidates, the nominating party, motivation, and a declarative status lifecycle (`ingediend → behandeld → benoemd | niet-benoemd | ingetrokken`) linked to the deciding agenda item and (secret) voting round; a benoemingsbesluit linkage so every accepted voordracht produces a Decision reference AND an assistively created Membership prefilled from the voordracht (every Membership traceable to its appointing decision); a `TermijnRegeling` (term-rule) model per body-role (term length, max consecutive terms) from which each Membership's term number and end-of-term date are derived; a regeneratable, CSV-exportable, optionally publicly published **rooster van aftreden** (rotation schedule) per body; declarative herbenoemingsrappels (e.g. 6/3 months ahead of term end) to the secretary; and a vacancy flow that opens the Post on term end or resignation and suggests a voordracht — plus pages, menu, and a terms-expiring-within-N-months KPI. All delivered as register fragment `61-appointments-and-terms.json` (ADR-037) + manifest fragments, reusing the existing Person/Membership/Post, GovernanceBody, and ballot capabilities.
+Add an appointments & terms register to decidiq: a `Voordracht` (nomination) schema carrying candidates, the nominating party, motivation, and a declarative status lifecycle (`ingediend → behandeld → benoemd | niet-benoemd | ingetrokken`) linked to the deciding agenda item and (secret) voting round; a benoemingsbesluit linkage so every accepted voordracht produces a Decision reference AND an assistively created Membership prefilled from the voordracht (every Membership traceable to its appointing decision); a `TermijnRegeling` (term-rule) model per body-role (term length, max consecutive terms) from which each Membership's term number and end-of-term date are derived; a regeneratable, CSV-exportable, optionally publicly published **rooster van aftreden** (rotation schedule) per body; declarative herbenoemingsrappels (e.g. 6/3 months ahead of term end) to the secretary; and a vacancy flow that opens the Post on term end or resignation and suggests a voordracht — plus pages, menu, and a terms-expiring-within-N-months KPI. All delivered as register fragment `61-appointments-and-terms.json` (ADR-037) + manifest fragments, reusing the existing Person/Membership/Post, GovernanceBody, and ballot capabilities.
 
 ## Motivation
 
-Demand cluster `nomination-management` scores **740** in the 2026-07-16 market deep-dive — standard iBabs/board-portal territory (RvC/RvT rotation schedules and reappointment tracking are table stakes in corporate board portals; municipal committee and commissie benoemingen run through voordrachten every raadsperiode). Novelty verification against this worktree (2026-07-17) confirms decidesk covers only the substrate, verdict **PARTIAL**:
+Demand cluster `nomination-management` scores **740** in the 2026-07-16 market deep-dive — standard iBabs/board-portal territory (RvC/RvT rotation schedules and reappointment tracking are table stakes in corporate board portals; municipal committee and commissie benoemingen run through voordrachten every raadsperiode). Novelty verification against this worktree (2026-07-17) confirms decidiq covers only the substrate, verdict **PARTIAL**:
 
 - `person-and-membership` gives Membership `startDate`/`endDate` (REQ-PMB-002/011) and Post as a vacancy-capable formal position (REQ-PMB-012) — the data model of holding a seat, with no appointment process on top.
 - `governance-body-crud` gives GovernanceBody `termStart`/`termEnd` — the body's period, not its members' terms.
@@ -20,7 +20,7 @@ Demand cluster `nomination-management` scores **740** in the 2026-07-16 market d
 
 ## Affected Projects
 
-- [ ] Project: `decidesk` — new `Voordracht`, `TermijnRegeling`, `RoosterVanAftreden`, `RoosterRegel` schemas (`lib/Settings/register.d/61-appointments-and-terms.json`), benoeming/rooster services + CSV export endpoint, manifest.d pages + menu, dashboard KPI widgets, seed data, docs, tests.
+- [ ] Project: `decidiq` — new `Voordracht`, `TermijnRegeling`, `RoosterVanAftreden`, `RoosterRegel` schemas (`lib/Settings/register.d/61-appointments-and-terms.json`), benoeming/rooster services + CSV export endpoint, manifest.d pages + menu, dashboard KPI widgets, seed data, docs, tests.
 
 No other apps change. OpenRegister is consumed as-is (lifecycle, notifications, RBAC published-predicate, relations, widget aggregations are existing capabilities).
 
@@ -61,7 +61,7 @@ None. All capabilities used (OpenRegister lifecycle/notifications/relations/RBAC
 
 ## Cross-Project Dependencies
 
-None outside decidesk. Within decidesk this change **references** sibling wave changes without overlapping ownership: `member-onboarding` (post-benoeming handoff), `fractievoorzitter-fractie-koppeling` (Raadslid/fractie vocabulary for the voordragende partij), and follows the rappel dialect of `toezeggingen-ingekomen-stukken` (scheduled `x-openregister-notifications`, gate-18).
+None outside decidiq. Within decidiq this change **references** sibling wave changes without overlapping ownership: `member-onboarding` (post-benoeming handoff), `fractievoorzitter-fractie-koppeling` (Raadslid/fractie vocabulary for the voordragende partij), and follows the rappel dialect of `toezeggingen-ingekomen-stukken` (scheduled `x-openregister-notifications`, gate-18).
 
 ## Risks
 

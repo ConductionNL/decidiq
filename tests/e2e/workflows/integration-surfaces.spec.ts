@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * The three per-object "integrations" surfaces (ADR-019 pluggable integration
@@ -133,7 +133,7 @@ async function openIntegrations(
 	route: string,
 	id: string,
 ): Promise<void> {
-	await page.goto(`${BASE}/apps/decidesk/${route}/${id}/integrations`)
+	await page.goto(`${BASE}/apps/decidiq/${route}/${id}/integrations`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 20_000 })
 }
 

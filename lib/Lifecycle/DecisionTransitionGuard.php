@@ -10,7 +10,7 @@
  * exhaustively unit-testable.
  *
  * @category Lifecycle
- * @package  OCA\Decidesk\Lifecycle
+ * @package  OCA\Decidiq\Lifecycle
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,12 +26,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Lifecycle;
+namespace OCA\Decidiq\Lifecycle;
 
 /**
  * Guard for decision lifecycle transitions.
  *
- * Implements the decidesk guarded-transition-map pattern (NOT a Symfony
+ * Implements the Decidiq guarded-transition-map pattern (NOT a Symfony
  * Workflow dependency): a const transition map is the single source of
  * truth for the lifecycle graph, and per-domain policy modulates quorum
  * enforcement, chair-only transitions, and decide-without-vote.

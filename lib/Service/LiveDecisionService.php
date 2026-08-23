@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Live Decision Service
+ * Decidiq Live Decision Service
  *
  * Service for recording decisions during active meetings via the live decision panel.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
  *
@@ -19,10 +19,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Exception;
-use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -126,8 +126,8 @@ class LiveDecisionService {
 			// Activity feed (fail-soft): a decision was recorded.
 			// @spec openspec/specs/nextcloud-integration/spec.md
 			try {
-				$this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
-					subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_DECISION_RECORDED,
+				$this->container->get(\OCA\Decidiq\Service\ActivityPublisherService::class)->publishGovernanceEvent(
+					subject: \OCA\Decidiq\Activity\DecidiqProvider::SUBJECT_DECISION_RECORDED,
 					title: (string)($decision['title'] ?? $decisionSlug),
 					status: (string)($decision['outcome'] ?? ''),
 					objectType: 'decision',
@@ -135,7 +135,7 @@ class LiveDecisionService {
 					segment: 'decisions'
 				);
 			} catch (\Throwable $activityError) {
-				$this->logger->debug('Decidesk: activity publish skipped', ['error' => $activityError->getMessage()]);
+				$this->logger->debug('Decidiq: activity publish skipped', ['error' => $activityError->getMessage()]);
 			}
 
 			return $decisionSlug;

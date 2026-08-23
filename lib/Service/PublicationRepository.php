@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Publication Repository
+ * Decidiq Publication Repository
  *
  * Owns every OpenRegister object read/write of the publication flow:
  * persisting PublicationPayload and PublicationRecord objects, loading a
@@ -11,7 +11,7 @@
  * the flow itself.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,9 +26,9 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 
@@ -146,7 +146,7 @@ class PublicationRepository {
 				uuid: $payloadId,
 			);
 		} catch (\Throwable $e) {
-			$this->logger->warning('Decidesk publication: failed to set depublicationDate on payload', ['exception' => $e->getMessage()]);
+			$this->logger->warning('Decidiq publication: failed to set depublicationDate on payload', ['exception' => $e->getMessage()]);
 		}//end try
 
 	}//end setDepublicationDate()
@@ -194,7 +194,7 @@ class PublicationRepository {
 
 			$objectService->saveObject(object: $source, register: 'decidesk', schema: 'decision', uuid: $sourceId);
 		} catch (\Throwable $e) {
-			$this->logger->warning('Decidesk publication: failed to stamp source published state', ['exception' => $e->getMessage()]);
+			$this->logger->warning('Decidiq publication: failed to stamp source published state', ['exception' => $e->getMessage()]);
 		}//end try
 
 	}//end markSourcePublished()

@@ -1,6 +1,6 @@
 publiccodeYmlVersion: "0.4"
 
-name: Decidesk
+name: Decidiq
 url: "https://codeberg.org/Conduction/decidesk"
 softwareVersion: "0.1.4"
 releaseDate: "2026-05-26"
@@ -19,7 +19,7 @@ description:
     shortDescription: >
       Decision management and governance administration for Nextcloud.
     longDescription: >
-      Decidesk provides decision management and governance administration for
+      Decidiq provides decision management and governance administration for
       organisations within Nextcloud. It supports recording, tracking, and publishing
       formal decisions, meeting agendas, and governance documentation. Built on Open
       Register, it integrates with Nextcloud's collaboration tools and is designed
@@ -34,7 +34,7 @@ description:
     shortDescription: >
       Besluitvorming en bestuurlijke administratie voor Nextcloud.
     longDescription: >
-      Decidesk biedt besluitvormingsbeheer en bestuurlijke administratie voor
+      Decidiq biedt besluitvormingsbeheer en bestuurlijke administratie voor
       organisaties binnen Nextcloud. Het ondersteunt het vastleggen, bijhouden en
       publiceren van formele besluiten, vergaderagenda's en bestuurlijke documentatie.
       Gebouwd op Open Register integreert het met de samenwerkingstools van Nextcloud

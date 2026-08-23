@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk repair step — backfill governance RBAC scopes
+ * Decidiq repair step — backfill governance RBAC scopes
  *
  * One-shot idempotent backfill that projects every existing GovernanceBody's
  * chair/signatory roster into its OpenRegister RBAC scopes via
@@ -11,7 +11,7 @@
  * denies rather than over-grants).
  *
  * @category Migration
- * @package  OCA\Decidesk\Migration
+ * @package  OCA\Decidiq\Migration
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,9 +27,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Migration;
+namespace OCA\Decidiq\Migration;
 
-use OCA\Decidesk\Service\GovernanceRoleScopeProjector;
+use OCA\Decidiq\Service\GovernanceRoleScopeProjector;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
@@ -60,7 +60,7 @@ class ProjectGovernanceRoleScopes implements IRepairStep {
 	 * @spec exclude Trivial repair-step label accessor.
 	 */
 	public function getName(): string {
-		return 'Project decidesk governance-body roles into OpenRegister RBAC scopes';
+		return 'Project Decidiq governance-body roles into OpenRegister RBAC scopes';
 	}//end getName()
 
 	/**
@@ -79,7 +79,7 @@ class ProjectGovernanceRoleScopes implements IRepairStep {
 		} catch (\Throwable $e) {
 			// Fail soft: OpenRegister may not yet be initialised at repair time.
 			$this->logger->warning(
-				'Decidesk: governance role scope backfill skipped',
+				'Decidiq: governance role scope backfill skipped',
 				['exception' => $e->getMessage()]
 			);
 			$output->warning('Governance RBAC scope backfill skipped: ' . $e->getMessage());

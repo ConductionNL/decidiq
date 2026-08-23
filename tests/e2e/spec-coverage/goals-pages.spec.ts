@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — the Goals index and detail pages
@@ -40,7 +40,7 @@ async function dismissSupportDialog(page: Page): Promise<void> {
 }
 
 /**
- * Navigate to a decidesk page, preferring the APP's left navigation entry
+ * Navigate to a decidiq page, preferring the APP's left navigation entry
  * (app-scoped) when it exists. `menu-layout.json` folds the "Goals" nav
  * entry into the "ActionItems" (Tasks & Commitments) cluster, so
  * `cn-nav-entry-Goals` is not expected to exist as a top-level entry — the
@@ -53,7 +53,7 @@ async function appNavClick(
 	entryId: string,
 	route: string,
 ): Promise<void> {
-	await page.goto(`${BASE}/apps/decidesk/`)
+	await page.goto(`${BASE}/apps/decidiq/`)
 	// app-root appearing only proves the shell mounted, not that data has
 	// arrived — mount itself blocks on initializeStores()'s settings round
 	// trip, so 30s (double the old budget) before even the shell shows up.
@@ -64,7 +64,7 @@ async function appNavClick(
 		await entry.click()
 		return
 	}
-	await page.goto(`${BASE}/apps/decidesk${route}`)
+	await page.goto(`${BASE}/apps/decidiq${route}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 30_000 })
 	await dismissSupportDialog(page)
 }
@@ -88,7 +88,7 @@ test('Goals: index lists all five seeded goals', async ({ page }) => {
 	test.setTimeout(120_000)
 	await appNavClick(page, 'Goals', '/goals')
 
-	await expect(page).toHaveURL(/\/apps\/decidesk\/.*goals/, { timeout: 45_000 })
+	await expect(page).toHaveURL(/\/apps\/decidiq\/.*goals/, { timeout: 45_000 })
 	await expect(page.getByTestId('cn-index-page').first()).toBeVisible({
 		timeout: 45_000,
 	})
@@ -118,7 +118,7 @@ test('Goals: detail page renders a seeded goal via the generic data/related widg
 	const goalId = target.id ?? target['@self']?.id
 	test.skip(!goalId, 'Seed goal has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/goals/${goalId}`)
+	await page.goto(`${BASE}/apps/decidiq/goals/${goalId}`)
 	// app-root appearing only proves the shell mounted, not that data has
 	// arrived — mount itself blocks on initializeStores()'s settings round
 	// trip, so 30s (double the old budget) before even the shell shows up.

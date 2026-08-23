@@ -21,7 +21,7 @@
  *   createFolder() line 1290
  *   getFiles()     line 1562
  *
- * Only the two methods decidesk actually calls are declared
+ * Only the two methods decidiq actually calls are declared
  * (`lib/Service/VotingRoundCloser.php`, plus container-resolved use in
  * `lib/Service/TranscriptionSourceResolver.php` and
  * `lib/BackgroundJob/TranscriptRetentionJob.php`). A stub method that
@@ -33,7 +33,7 @@
  * CI clones the real OpenRegister at ref: development. A local suite that
  * cannot run is not a suite that passes.
  *
- * @package OCA\Decidesk\Tests\Stubs
+ * @package OCA\Decidiq\Tests\Stubs
  */
 
 namespace OCA\OpenRegister\Service;

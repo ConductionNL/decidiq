@@ -6,7 +6,7 @@
  * returns a non-empty (non-zero) response when action-items exist.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Integration\Service
+ * @package  OCA\Decidiq\Tests\Integration\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -19,9 +19,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Integration\Service;
+namespace OCA\Decidiq\Tests\Integration\Service;
 
-use OCA\Decidesk\Service\ActionItemAnalyticsService;
+use OCA\Decidiq\Service\ActionItemAnalyticsService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 

@@ -4,7 +4,7 @@
  * Unit tests for RegulatorExportService.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,10 +20,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\AuditLogService;
-use OCA\Decidesk\Service\RegulatorExportService;
+use OCA\Decidiq\Service\AuditLogService;
+use OCA\Decidiq\Service\RegulatorExportService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
@@ -213,7 +213,7 @@ class RegulatorExportServiceTest extends TestCase {
 		$this->assertSame('application/pdf', $result['contentType']);
 		$this->assertStringStartsWith('%PDF-1.4', $result['body']);
 		$this->assertStringContainsString('%%EOF', $result['body']);
-		$this->assertStringContainsString('decidesk-resolutions-b-1-', $result['filename']);
+		$this->assertStringContainsString('decidiq-resolutions-b-1-', $result['filename']);
 		$this->assertStringEndsWith('.pdf', $result['filename']);
 
 		$recordSaves = array_values(

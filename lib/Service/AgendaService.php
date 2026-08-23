@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Agenda Service
+ * Decidiq Agenda Service
  *
  * Service for managing agenda lifecycle operations including publication,
  * BOB phase advancement, consent item (hamerstukken) processing, and reordering.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,11 +24,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTime;
 use InvalidArgumentException;
-use OCA\Decidesk\Exception\NotFoundException;
+use OCA\Decidiq\Exception\NotFoundException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\CalendarEventService;
 use OCP\Notification\IManager as INotificationManager;
@@ -185,7 +185,7 @@ class AgendaService {
 	private function sendAgendaPublishedNotification(string $userId, string $meetingId): void {
 		try {
 			$notification = $this->notificationManager->createNotification();
-			$notification->setApp('decidesk')
+			$notification->setApp('decidiq')
 				->setUser($userId)
 				->setDateTime(new DateTime())
 				->setObject('meeting', $meetingId)

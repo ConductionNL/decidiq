@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Proxy Delegation Service
+ * Decidiq Proxy Delegation Service
  *
  * Grant and revoke a proxy (volmacht) on a VotingRound.
  *
@@ -11,7 +11,7 @@
  * VotingService with the ballot lifecycle alone.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,7 +27,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTime;
 use DateTimeImmutable;
@@ -228,14 +228,14 @@ class ProxyDelegationService {
 
 			$notificationManager = $this->container->get(IManager::class);
 			$notification = $notificationManager->createNotification();
-			$notification->setApp('decidesk')
+			$notification->setApp('decidiq')
 				->setUser($nextcloudUserId)
 				->setDateTime(new DateTime())
 				->setObject('voting-round', $votingRoundId)
 				->setSubject('proxy_granted', ['from' => $fromParticipantId, 'votingRoundId' => $votingRoundId]);
 			$notificationManager->notify($notification);
 		} catch (Throwable $e) {
-			$this->logger->warning('Decidesk: proxy grant notification failed', ['error' => $e->getMessage()]);
+			$this->logger->warning('Decidiq: proxy grant notification failed', ['error' => $e->getMessage()]);
 		}//end try
 
 	}//end notifyDelegate()

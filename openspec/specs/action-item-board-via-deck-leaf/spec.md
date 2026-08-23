@@ -94,7 +94,7 @@ The "Open action items" KPI and any action-item list/filter SHALL count VTODO-ba
 ### Requirement: REQ-AI-DECK-006 Virtual-schema-over-leaf is an OpenRegister capability
 OpenRegister SHALL provide the mechanism that exposes a non-OR-native source (a CalDAV VTODO
 collection, or any leaf-integration entity) as queryable OpenRegister objects, as a virtual /
-projected-objects capability. Decidesk's read-only `ActionItem` projection SHALL be a thin
+projected-objects capability. Decidiq's read-only `ActionItem` projection SHALL be a thin
 declarative binding to that capability and SHALL NOT implement a bespoke CalDAV-to-OR copier. Where
 the capability is not yet present in OpenRegister, this change MUST depend on an OpenRegister change
 adding it.
@@ -103,5 +103,5 @@ adding it.
 - GIVEN the read-only `ActionItem` projection
 - WHEN it is queried (e.g. by the dashboard KPI)
 - THEN it resolves via the OpenRegister virtual-schema-over-leaf capability bound to the VTODO source,
-  not via decidesk-local copy/sync code.
+  not via decidiq-local copy/sync code.
 

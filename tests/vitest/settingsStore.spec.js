@@ -1,8 +1,8 @@
 /**
- * SPDX-FileCopyrightText: 2026 Conduction / Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Conduction / Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
- * Unit tests for the decidesk settings Pinia store
+ * Unit tests for the decidiq settings Pinia store
  * (src/store/modules/settings.js): fetch envelope handling, the
  * hasOpenRegisters / isAdmin flag derivation, the loading lifecycle, and the
  * save round-trip. global fetch is mocked; @nextcloud/auth + router stubbed.
@@ -19,7 +19,7 @@ function mockFetchOnce({ ok = true, json = {} }) {
 	})
 }
 
-describe('decidesk settings store', () => {
+describe('decidiq settings store', () => {
 	beforeEach(() => {
 		setActivePinia(createPinia())
 	})
@@ -46,7 +46,7 @@ describe('decidesk settings store', () => {
 		const store = useSettingsStore()
 		const data = await store.fetchSettings()
 		expect(globalThis.fetch).toHaveBeenCalledWith(
-			'/index.php/apps/decidesk/api/settings',
+			'/index.php/apps/decidiq/api/settings',
 			expect.objectContaining({ headers: { requesttoken: 'test-token' } }),
 		)
 		expect(data).toMatchObject({ meetingSchema: 'meeting' })

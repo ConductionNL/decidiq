@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Mail Reply Handler Background Job
+ * Decidiq Mail Reply Handler Background Job
  *
  * Polls for email replies to voting notification threads and casts votes
  * based on the first non-empty line of the reply body.
@@ -16,7 +16,7 @@
  * motion/decision object via the registry, not an EmailLink object.
  *
  * @category BackgroundJob
- * @package  OCA\Decidesk\BackgroundJob
+ * @package  OCA\Decidiq\BackgroundJob
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -34,11 +34,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\BackgroundJob;
+namespace OCA\Decidiq\BackgroundJob;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\MailVoteReplyProcessor;
-use OCA\Decidesk\Service\MailVoteSigner;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\MailVoteReplyProcessor;
+use OCA\Decidiq\Service\MailVoteSigner;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
@@ -160,7 +160,7 @@ class MailReplyHandler extends TimedJob {
 		try {
 			$this->processOpenRounds();
 		} catch (\Throwable $e) {
-			$this->logger->error('Decidesk: MailReplyHandler failed', ['error' => $e->getMessage()]);
+			$this->logger->error('Decidiq: MailReplyHandler failed', ['error' => $e->getMessage()]);
 		}
 
 	}//end run()

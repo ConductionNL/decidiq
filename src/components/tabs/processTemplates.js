@@ -24,29 +24,29 @@ export function getProcessTemplates() {
 	return [
 		{
 			id: 'standard-decision',
-			label: t('decidesk', 'Standard decision'),
+			label: t('decidiq', 'Standard decision'),
 			description: t(
-				'decidesk',
+				'decidiq',
 				'Simple majority of votes cast, default quorum.',
 			),
 		},
 		{
 			id: 'statute-amendment',
-			label: t('decidesk', 'Statute amendment'),
+			label: t('decidiq', 'Statute amendment'),
 			description: t(
-				'decidesk',
+				'decidiq',
 				'Qualified majority (2/3) with elevated quorum.',
 			),
 		},
 		{
 			id: 'board-election',
-			label: t('decidesk', 'Board election'),
-			description: t('decidesk', 'Secret ballot with candidate rounds.'),
+			label: t('decidiq', 'Board election'),
+			description: t('decidiq', 'Secret ballot with candidate rounds.'),
 		},
 		{
 			id: 'urgent-decision',
-			label: t('decidesk', 'Urgent decision'),
-			description: t('decidesk', 'Shortened debate and voting windows.'),
+			label: t('decidiq', 'Urgent decision'),
+			description: t('decidiq', 'Shortened debate and voting windows.'),
 		},
 	]
 }

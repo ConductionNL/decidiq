@@ -26,18 +26,18 @@
 	<div
 		class="user-settings-section"
 		data-testid="notification-preferences-section">
-		<h3>{{ t('decidesk', 'Notification preferences') }}</h3>
+		<h3>{{ t('decidiq', 'Notification preferences') }}</h3>
 		<p class="user-settings-section__hint">
 			{{
 				t(
-					'decidesk',
-					'Choose which Decidesk events notify you and how they are delivered.',
+					'decidiq',
+					'Choose which Decidiq events notify you and how they are delivered.',
 				)
 			}}
 		</p>
 
 		<fieldset class="user-settings-section__group">
-			<legend>{{ t('decidesk', 'Notify me about') }}</legend>
+			<legend>{{ t('decidiq', 'Notify me about') }}</legend>
 			<NcCheckboxRadioSwitch
 				v-for="event in eventToggles"
 				:key="event.key"
@@ -50,25 +50,25 @@
 		</fieldset>
 
 		<fieldset class="user-settings-section__group">
-			<legend>{{ t('decidesk', 'Delivery channels') }}</legend>
+			<legend>{{ t('decidiq', 'Delivery channels') }}</legend>
 			<NcCheckboxRadioSwitch
 				type="switch"
 				:modelValue="channels.inApp"
 				data-testid="channel-in-app"
 				@update:modelValue="channels.inApp = $event">
-				{{ t('decidesk', 'Nextcloud notification') }}
+				{{ t('decidiq', 'Nextcloud notification') }}
 			</NcCheckboxRadioSwitch>
 			<NcCheckboxRadioSwitch
 				type="switch"
 				:modelValue="channels.email"
 				data-testid="channel-email"
 				@update:modelValue="channels.email = $event">
-				{{ t('decidesk', 'Email') }}
+				{{ t('decidiq', 'Email') }}
 			</NcCheckboxRadioSwitch>
 			<NcNoteCard v-if="channelError" type="warning">
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'Keep at least one delivery channel enabled. Use the per-event switches to mute specific notifications.',
 					)
 				}}
@@ -76,10 +76,10 @@
 		</fieldset>
 
 		<fieldset class="user-settings-section__group">
-			<legend>{{ t('decidesk', 'Meeting reminder timing') }}</legend>
+			<legend>{{ t('decidiq', 'Meeting reminder timing') }}</legend>
 			<p class="user-settings-section__hint">
 				{{
-					t('decidesk', 'Default: 24 hours and 1 hour before the meeting.')
+					t('decidiq', 'Default: 24 hours and 1 hour before the meeting.')
 				}}
 			</p>
 			<NcCheckboxRadioSwitch
@@ -101,8 +101,8 @@
 				@click="save">
 				{{
 					saving
-						? t('decidesk', 'Saving …')
-						: t('decidesk', 'Save notification preferences')
+						? t('decidiq', 'Saving …')
+						: t('decidiq', 'Save notification preferences')
 				}}
 			</NcButton>
 		</div>
@@ -110,7 +110,7 @@
 			{{ error }}
 		</NcNoteCard>
 		<NcNoteCard v-if="saved" type="success">
-			{{ t('decidesk', 'Notification preferences saved.') }}
+			{{ t('decidiq', 'Notification preferences saved.') }}
 		</NcNoteCard>
 	</div>
 </template>
@@ -166,24 +166,24 @@ export default {
 			return [
 				{
 					key: 'meetingCreated',
-					label: this.t('decidesk', 'Meeting scheduled'),
+					label: this.t('decidiq', 'Meeting scheduled'),
 				},
-				{ key: 'votingOpened', label: this.t('decidesk', 'Pending vote') },
+				{ key: 'votingOpened', label: this.t('decidiq', 'Pending vote') },
 				{
 					key: 'decisionPublished',
-					label: this.t('decidesk', 'Decision published'),
+					label: this.t('decidiq', 'Decision published'),
 				},
 				{
 					key: 'taskAssigned',
-					label: this.t('decidesk', 'Action item assigned'),
+					label: this.t('decidiq', 'Action item assigned'),
 				},
 				{
 					key: 'commentMention',
-					label: this.t('decidesk', 'Mentioned in a comment'),
+					label: this.t('decidiq', 'Mentioned in a comment'),
 				},
 				{
 					key: 'meetingReminder',
-					label: this.t('decidesk', 'Meeting reminder'),
+					label: this.t('decidiq', 'Meeting reminder'),
 				},
 			]
 		},
@@ -191,11 +191,11 @@ export default {
 		/** @spec openspec/specs/user-settings/spec.md */
 		reminderOptions() {
 			const labels = {
-				'1h': this.t('decidesk', '1 hour before'),
-				'4h': this.t('decidesk', '4 hours before'),
-				'24h': this.t('decidesk', '24 hours before'),
-				'48h': this.t('decidesk', '48 hours before'),
-				'1w': this.t('decidesk', '1 week before'),
+				'1h': this.t('decidiq', '1 hour before'),
+				'4h': this.t('decidiq', '4 hours before'),
+				'24h': this.t('decidiq', '24 hours before'),
+				'48h': this.t('decidiq', '48 hours before'),
+				'1w': this.t('decidiq', '1 week before'),
 			}
 			return REMINDER_TIME_OPTIONS.map((value) => ({
 				value,
@@ -288,7 +288,7 @@ export default {
 				this.saved = true
 				this.$emit('updated', saved)
 			} catch (e) {
-				this.error = e.message || this.t('decidesk', 'Saving failed.')
+				this.error = e.message || this.t('decidiq', 'Saving failed.')
 			} finally {
 				this.saving = false
 			}

@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Decidesk Participant Resolver Service
+ * Decidiq Participant Resolver Service
  *
  * Centralised resolver that translates a meeting UUID into its participant list
  * via the canonical schema path: meeting → governanceBody → participants.
  *
  * All five previously-diverging participant-filter sites (AgendaController,
- * MinutesController, LiveMeetingController, VotingService, DecideskToolProvider)
+ * MinutesController, LiveMeetingController, VotingService, DecidiqToolProvider)
  * delegate to this service so that schema correctness is enforced in one place.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,7 +26,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -142,7 +142,7 @@ class ParticipantResolver {
 		$governanceBodyId = $this->resolveGovernanceBodyId(meetingId: $meetingId);
 		if ($governanceBodyId === null) {
 			$this->logger->warning(
-				'Decidesk ParticipantResolver: no governance body linked to meeting',
+				'Decidiq ParticipantResolver: no governance body linked to meeting',
 				['meetingId' => $meetingId]
 			);
 			return [];

@@ -1,10 +1,11 @@
 <?php
 
 /**
- * Decidesk Integration Leaf Registrar
+ * Decidiq Integration Leaf Registrar
  *
- * Server-side half of decidesk's OpenRegister integration leaves (ADR-066).
- * Today that is one leaf, `decidesk-decisions`.
+ * Server-side half of decidiq's OpenRegister integration leaves (ADR-066).
+ * Today that is one leaf, `decidesk-decisions` — the leaf id deliberately keeps
+ * its pre-rename spelling; see the note in AppInfo\Application::register().
  *
  * Its own registrar rather than a method on {@see PlatformIntegrationRegistrar},
  * for the reason that file's own docblock gives: a registrar accumulates one
@@ -13,7 +14,7 @@
  * The leaf's two references would have taken it to 14 and turned a correct
  * registration into a red static-analysis job. Extraction is the move this
  * codebase already makes at that boundary — the same reason the four existing
- * registrars were split out of {@see \OCA\Decidesk\AppInfo\Application}.
+ * registrars were split out of {@see \OCA\Decidiq\AppInfo\Application}.
  *
  * It is also the honest grouping: a leaf is contributed to a SIBLING APP's
  * registry through a typed collect-event, which is a different thing from the
@@ -21,7 +22,7 @@
  * PlatformIntegrationRegistrar owns.
  *
  * @category AppInfo
- * @package  OCA\Decidesk\AppInfo\Registrar
+ * @package  OCA\Decidiq\AppInfo\Registrar
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -38,27 +39,27 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\AppInfo\Registrar;
+namespace OCA\Decidiq\AppInfo\Registrar;
 
-use OCA\Decidesk\Listener\RegisterDecisionsLeafListener;
+use OCA\Decidiq\Listener\RegisterDecisionsLeafListener;
 use OCA\OpenRegister\Event\RegisterLeafProvidersEvent;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
 /**
- * Subscribes decidesk's leaf descriptors to OpenRegister's collect-event.
+ * Subscribes decidiq's leaf descriptors to OpenRegister's collect-event.
  *
  * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-008-the-decidesk-decisions-leaf-is-declared-on-both-layers
  */
 class IntegrationLeafRegistrar {
 	/**
-	 * Register the server-side half of every decidesk integration leaf.
+	 * Register the server-side half of every decidiq integration leaf.
 	 *
 	 * The "Besluitvorming" leaf has always registered its RENDER half from JS
 	 * (`src/integrations/registerDecisionsLeaf.js`, loaded on every Nextcloud page
-	 * by {@see \OCA\Decidesk\AppInfo\Application::boot()}). This subscribes the
+	 * by {@see \OCA\Decidiq\AppInfo\Application::boot()}). This subscribes the
 	 * matching SERVER half, so the leaf also reaches OpenRegister's
 	 * `openregister.integrations.leaves` capability and a manifest app or admin UI
-	 * can enumerate it without loading decidesk's bundle (ADR-066).
+	 * can enumerate it without loading decidiq's bundle (ADR-066).
 	 *
 	 * Registered UNCONDITIONALLY and from `register()`, unlike the object-lifecycle
 	 * subscriptions in {@see ObjectListenerRegistrar}, and the difference is not an

@@ -33,7 +33,7 @@ status-note: |
 
 ## Purpose
 
-Process configuration enables administrators to define and customize decision-making workflows for different governance contexts. A process template defines the state machine, voting rules, quorum requirements, and procedural rules for a specific type of decision or meeting. The system stores state machines as structured JSON (1:1 convertible to Symfony Workflow YAML) and voting rules as a DMN-inspired rule object. This allows Decidesk to serve municipal councils, corporate boards, associations, and operational teams with their own procedural rules.
+Process configuration enables administrators to define and customize decision-making workflows for different governance contexts. A process template defines the state machine, voting rules, quorum requirements, and procedural rules for a specific type of decision or meeting. The system stores state machines as structured JSON (1:1 convertible to Symfony Workflow YAML) and voting rules as a DMN-inspired rule object. This allows Decidiq to serve municipal councils, corporate boards, associations, and operational teams with their own procedural rules.
 
 **Standards**: Symfony Workflow Component (YAML config), DMN (Decision Model and Notation) for voting rules, Schema.org (`HowTo`, `HowToStep`)
 **Feature tier**: V1
@@ -58,7 +58,7 @@ read-only (edit and delete refused) but MUST be duplicable into an editable copy
 
 #### Scenario: Create a process template for ALV decisions
 
-- GIVEN an administrator on the Decidesk admin process-templates section
+- GIVEN an administrator on the Decidiq admin process-templates section
 - WHEN they create a template "ALV Standard Decision"
 - THEN the template MUST persist as a `processTemplate` object with its state set
 - AND the template MUST carry a default voting rule (simple-majority)
@@ -156,7 +156,7 @@ default voting rule for its context.
 
 @e2e exclude Built-in seed presence + usability is asserted via Newman (list returns the five built-ins) and the read-only built-in row in process-configuration.spec.ts; no distinct UI surface for "use without customization".
 
-- GIVEN a fresh Decidesk installation
+- GIVEN a fresh Decidiq installation
 - WHEN the administrator selects the built-in "Association ALV" template for a body
 - THEN the template MUST be immediately usable with its seeded states and voting
   rule, without further configuration
@@ -316,7 +316,7 @@ The migration SHALL never modify or delete the source `process-template` /
 
 #### Scenario: A live custom ProcessTemplate is repaired
 
-- **GIVEN** a Decidesk install with an administrator-created custom
+- **GIVEN** a Decidiq install with an administrator-created custom
   `process-template` object "Waterschap Bestuur" (not a built-in seed)
 - **WHEN** the repair migration runs
 - **THEN** an equivalent `decision-template` object is created with the same

@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Voting Deadline Reminder Service
+ * Decidiq Voting Deadline Reminder Service
  *
  * Finds open voting rounds whose deadline falls within the next 24 hours
  * and notifies participants who have not voted yet
  * (nextcloud-integration spec, notification requirement).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use Psr\Container\ContainerInterface;
@@ -107,7 +107,7 @@ class VotingDeadlineReminderService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: failed to scan voting rounds for deadline reminders',
+				'Decidiq: failed to scan voting rounds for deadline reminders',
 				['exception' => $e->getMessage()]
 			);
 			return [];
@@ -247,7 +247,7 @@ class VotingDeadlineReminderService {
 					$sent++;
 				} catch (\Throwable $e) {
 					$this->logger->warning(
-						'Decidesk: deadline reminder notification failed',
+						'Decidiq: deadline reminder notification failed',
 						['roundId' => $roundId, 'uid' => $uid, 'exception' => $e->getMessage()]
 					);
 				}
@@ -264,14 +264,14 @@ class VotingDeadlineReminderService {
 			);
 
 			$this->logger->info(
-				'Decidesk: voting deadline reminders sent',
+				'Decidiq: voting deadline reminders sent',
 				['roundId' => $roundId, 'sent' => $sent, 'pending' => count($pending)]
 			);
 
 			return $sent;
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: deadline reminder failed for round',
+				'Decidiq: deadline reminder failed for round',
 				['roundId' => $roundId, 'exception' => $e->getMessage()]
 			);
 			return 0;

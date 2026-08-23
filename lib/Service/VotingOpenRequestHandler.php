@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Voting Open Request Handler
+ * Decidiq Voting Open Request Handler
  *
  * Turns a POST /api/voting-rounds body into an opened voting round: parses and
  * validates the request, assembles the configurable decision rules, and calls
  * the voting service.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,7 +26,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;

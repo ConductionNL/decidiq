@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Governance Role Scope Projector
+ * Decidiq Governance Role Scope Projector
  *
  * Projects each GovernanceBody's signatory roster into OpenRegister RBAC scopes
  * — the OR/Nextcloud-native scope primitive is a group, so the projector
@@ -18,7 +18,7 @@
  * (consume-or-rbac-authorization).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -34,7 +34,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;

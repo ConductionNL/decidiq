@@ -1,7 +1,7 @@
 # Tasks — Raadsvergadering Livestream met Automatische Transcriptie
 
 > Scope reminder: this change implements livestream embedding, automatic transcription via Whisper-NL,
-> speaker recognition, transcript search, and archival for decidesk.
+> speaker recognition, transcript search, and archival for decidiq.
 > See `proposal.md`, `design.md`, and `specs.md` for context.
 >
 > Acceptance gates: every task's checkbox flips only when its acceptance criteria pass.
@@ -25,7 +25,7 @@
 - [ ] 1.3 Register schemas in Nextcloud app config
   - File: `lib/AppInfo/Application.php` in the `register()` method
   - Use `IRegistrationContext::registerEntitySchema()` (if available) or OpenRegister's equivalent
-  - **Acceptance:** OpenRegister admin panel lists all 4 schemas under decidesk app
+  - **Acceptance:** OpenRegister admin panel lists all 4 schemas under decidiq app
 
 ## 2. LivestreamService (embedding & streaming)
 
@@ -43,9 +43,9 @@
   - **Acceptance:** unit test `testInvalidStatusTransition` returns error for scheduled→ended
 
 - [ ] 2.3 Integrate HLS/DASH player support (API level)
-  - GET `/api/decidesk/v1/livestreams/{livestreamId}` returns Livestream object with streamUrl, recordingUrl, status
+  - GET `/api/decidiq/v1/livestreams/{livestreamId}` returns Livestream object with streamUrl, recordingUrl, status
   - Response includes CORS headers so player can fetch .m3u8/.mpd from third-party CDNs
-  - **Acceptance:** `curl -H "Authorization: Bearer TOKEN" /api/decidesk/v1/livestreams/{id}` returns 200 with streamUrl
+  - **Acceptance:** `curl -H "Authorization: Bearer TOKEN" /api/decidiq/v1/livestreams/{id}` returns 200 with streamUrl
 
 ## 3. TranscriptionService (ASR pipeline)
 
@@ -189,7 +189,7 @@
   - **Acceptance:** unit test generates correctly-formatted speaker tags
 
 - [ ] 7.4 Implement WebVTT endpoint for player
-  - GET `/api/decidesk/v1/transcripts/{transcriptId}/webvtt` returns WebVTT file
+  - GET `/api/decidiq/v1/transcripts/{transcriptId}/webvtt` returns WebVTT file
   - Content-Type: `text/vtt`
   - CORS headers for cross-origin player access
   - **Acceptance:** curl request returns valid WebVTT; player can parse and render captions
@@ -289,19 +289,19 @@
 ## 11. API Controllers
 
 - [ ] 11.1 Create `lib/Controller/LivestreamController.php`
-  - POST `/api/decidesk/v1/livestreams` — create
-  - GET `/api/decidesk/v1/livestreams/{id}` — read
-  - PATCH `/api/decidesk/v1/livestreams/{id}` — update
-  - DELETE `/api/decidesk/v1/livestreams/{id}` — soft-delete
+  - POST `/api/decidiq/v1/livestreams` — create
+  - GET `/api/decidiq/v1/livestreams/{id}` — read
+  - PATCH `/api/decidiq/v1/livestreams/{id}` — update
+  - DELETE `/api/decidiq/v1/livestreams/{id}` — soft-delete
   - Auth: chair-only for creation/update
   - **Acceptance:** phpunit tests pass; all endpoints return correct status codes
 
 - [ ] 11.2 Create `lib/Controller/TranscriptController.php`
-  - GET `/api/decidesk/v1/transcripts/{id}` — read metadata
-  - GET `/api/decidesk/v1/transcripts/{id}/segments` — list segments
-  - GET `/api/decidesk/v1/transcripts/{id}/webvtt` — export captions
-  - PATCH `/api/decidesk/v1/transcripts/{id}/segments/{segmentId}` — correct segment
-  - POST `/api/decidesk/v1/transcripts/search` — search
+  - GET `/api/decidiq/v1/transcripts/{id}` — read metadata
+  - GET `/api/decidiq/v1/transcripts/{id}/segments` — list segments
+  - GET `/api/decidiq/v1/transcripts/{id}/webvtt` — export captions
+  - PATCH `/api/decidiq/v1/transcripts/{id}/segments/{segmentId}` — correct segment
+  - POST `/api/decidiq/v1/transcripts/search` — search
   - Auth: participant for view; griffier for correct
   - **Acceptance:** all endpoints tested; auth checks work
 

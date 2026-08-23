@@ -93,14 +93,14 @@ On publish, the system SHALL set `publicatiedatum` on the payload object via the
 #### Scenario: No app-local public surface
 
 @e2e exclude negative routing assertion — covered by Newman (unauthenticated requests to app routes)
-- **WHEN** an unauthenticated client requests any decidesk route
+- **WHEN** an unauthenticated client requests any decidiq route
 - **THEN** no published governance data is returned by the app itself; the only anonymous read path is OR/OpenCatalogi's publication surface
 
 ---
 
 ### Requirement: OpenRaadsinformatie-aligned payload shape
 
-Publication payloads SHALL carry the OpenRaadsinformatie mappings the decidesk specs already cite, as structured fields alongside the schema.org annotations: decision payloads as ORI `Besluit`, agenda payloads as ORI `Vergadering` with `AgendaPunt` items, minutes payloads as ORI `Verslag`. Each payload SHALL declare its `oriType` so OpenCatalogi/OR public API consumers can interpret records ORI-compatibly without a bespoke harvester. An OAI-PMH/ORI harvester endpoint is explicitly out of scope for decidesk.
+Publication payloads SHALL carry the OpenRaadsinformatie mappings the decidiq specs already cite, as structured fields alongside the schema.org annotations: decision payloads as ORI `Besluit`, agenda payloads as ORI `Vergadering` with `AgendaPunt` items, minutes payloads as ORI `Verslag`. Each payload SHALL declare its `oriType` so OpenCatalogi/OR public API consumers can interpret records ORI-compatibly without a bespoke harvester. An OAI-PMH/ORI harvester endpoint is explicitly out of scope for decidiq.
 
 #### Scenario: Published decision exposes Besluit mapping
 
@@ -147,7 +147,7 @@ Admins SHALL configure, per governance body: the target OpenCatalogi catalog, th
 
 #### Scenario: Admin configures a catalog target
 
-- **GIVEN** an admin on the decidesk admin settings page
+- **GIVEN** an admin on the decidiq admin settings page
 - **WHEN** they set a target catalog and `prompt-on-transition` policy for the council body
 - **THEN** publishing council decisions routes to that catalog and staff are prompted to publish when a decision reaches `enacted`
 

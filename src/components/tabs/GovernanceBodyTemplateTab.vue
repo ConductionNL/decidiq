@@ -15,61 +15,61 @@
  @spec openspec/specs/admin-settings/spec.md
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--template" data-testid="body-template-tab">
-		<h3 class="decidesk-tab__title">
-			{{ t('decidesk', 'Process template') }}
+	<div class="decidiq-tab decidiq-tab--template" data-testid="body-template-tab">
+		<h3 class="decidiq-tab__title">
+			{{ t('decidiq', 'Process template') }}
 		</h3>
 
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load template assignment')">
+			:title="t('decidiq', 'Could not load template assignment')">
 			{{ error }}
 		</CnNoteCard>
 
-		<div v-if="loading" class="decidesk-tab__loading">
-			{{ t('decidesk', 'Loading template assignment…') }}
+		<div v-if="loading" class="decidiq-tab__loading">
+			{{ t('decidiq', 'Loading template assignment…') }}
 		</div>
 
 		<template v-else>
 			<NcSelect
 				v-model="defaultTemplate"
-				:inputLabel="t('decidesk', 'Default process template')"
+				:inputLabel="t('decidiq', 'Default process template')"
 				:options="templateOptions"
 				label="label"
 				:clearable="true"
 				data-testid="body-template-default" />
-			<p v-if="defaultTemplate" class="decidesk-tab__hint">
+			<p v-if="defaultTemplate" class="decidiq-tab__hint">
 				{{ defaultTemplate.description }}
 			</p>
 
 			<NcSelect
 				v-model="specializedTemplates"
-				:inputLabel="t('decidesk', 'Specialized templates')"
+				:inputLabel="t('decidiq', 'Specialized templates')"
 				:options="specializedOptions"
 				label="label"
 				multiple
 				data-testid="body-template-specialized" />
-			<p class="decidesk-tab__hint">
+			<p class="decidiq-tab__hint">
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'Specialized templates apply to specific decision types; the default applies when none is chosen.',
 					)
 				}}
 			</p>
 
-			<div class="decidesk-tab__footer">
+			<div class="decidiq-tab__footer">
 				<NcButton
 					variant="primary"
 					:disabled="saving"
 					data-testid="body-template-save"
 					@click="save">
-					{{ saving ? t('decidesk', 'Saving…') : t('decidesk', 'Save') }}
+					{{ saving ? t('decidiq', 'Saving…') : t('decidiq', 'Save') }}
 				</NcButton>
 				<span
 					v-if="savedMessage"
-					class="decidesk-tab__saved"
+					class="decidiq-tab__saved"
 					data-testid="body-template-saved">
 					{{ savedMessage }}
 				</span>
@@ -156,7 +156,7 @@ export default {
 			} catch (e) {
 				this.error =
 					e?.message
-					|| this.t('decidesk', 'Failed to load the governance body.')
+					|| this.t('decidiq', 'Failed to load the governance body.')
 			} finally {
 				this.loading = false
 			}
@@ -177,11 +177,11 @@ export default {
 						(tpl) => tpl.id,
 					),
 				})
-				this.savedMessage = this.t('decidesk', 'Template assignment saved')
+				this.savedMessage = this.t('decidiq', 'Template assignment saved')
 			} catch (e) {
 				this.error =
 					e?.message
-					|| this.t('decidesk', 'Failed to save the template assignment.')
+					|| this.t('decidiq', 'Failed to save the template assignment.')
 			} finally {
 				this.saving = false
 			}
@@ -191,37 +191,37 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__hint {
+.decidiq-tab__hint {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
 
-.decidesk-tab__loading {
+.decidiq-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
 
-.decidesk-tab__footer {
+.decidiq-tab__footer {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 	margin-top: 4px;
 }
 
-.decidesk-tab__saved {
+.decidiq-tab__saved {
 	color: var(--color-success);
 }
 </style>

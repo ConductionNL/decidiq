@@ -4,7 +4,7 @@
  * Unit tests for ProofPackageService.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @spec openspec/specs/resolution-minutes/spec.md
  *
@@ -20,12 +20,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\Decidesk\Service\MeetingFolderService;
-use OCA\Decidesk\Service\ParticipantResolver;
-use OCA\Decidesk\Service\ProofPackageService;
+use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Service\MeetingFolderService;
+use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Service\ProofPackageService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
@@ -218,7 +218,7 @@ class ProofPackageServiceTest extends TestCase {
 		$this->folderService->method('writeMeetingFile')->willReturnCallback(
 			static function (array $meeting, string $subfolder, string $fileName, string $content) use (&$writes): string {
 				$writes[$fileName] = ['subfolder' => $subfolder, 'content' => $content];
-				return 'Decidesk/x/' . $subfolder . '/' . $fileName;
+				return 'Decidiq/x/' . $subfolder . '/' . $fileName;
 			}
 		);
 

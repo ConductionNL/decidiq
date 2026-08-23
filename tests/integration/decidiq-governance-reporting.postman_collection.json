@@ -1,0 +1,323 @@
+{
+	"info": {
+		"name": "decidiq-governance-reporting",
+		"description": "Regulator export + multilingual reconciliation — the two governance-reporting surfaces that commit 2bb71af7 RETARGETED (its word) onto the universal entities when the board-portal parallel entities were retired.\n\nThis collection replaces board-portal.postman_collection.json. That file drove 40 requests at /api/boards, /api/boards/{id}/members, /api/boards/{id}/meetings, /api/board-meetings/{id}/resolutions and /api/resolutions/{id}/*. None of those routes exist: `boards`, `resolutions`, `board-member` and `board-meeting` appear ZERO times in appinfo/routes.php, because 2bb71af7 deleted the board-CRUD controllers outright (board=governance-body, board-meeting=meeting, resolution=decision, board-member=Person+Membership). Every write there 404'd to an HTML error page, so `pm.response.json()` threw and the whole file cascaded — it was the single largest block of Newman failures in the repo.\n\nThe 32 requests that exercised the DELETED parallel CRUD are gone: they asserted on endpoints the app deliberately no longer has, and the equivalent behaviour is covered against the universal entities by decidiq.postman_collection.json and its siblings. The 8 requests that exercised RETARGETED, still-live routes are preserved here verbatim — same methods, same bodies, same assertions — with one change: `boardId` is now seeded from a real `governance-body` object instead of a retired `board`. RegulatorExportController still names its parameter `boardId`, so the wire contract is unchanged; only the entity behind the id moved.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "baseUrl", "value": "http://localhost:8080" },
+		{ "key": "noAuthBase", "value": "http://localhost:8080" },
+		{ "key": "adminUser", "value": "admin" },
+		{ "key": "adminPass", "value": "admin" },
+		{ "key": "register", "value": "decidesk" },
+		{ "key": "boardId", "value": "" }
+	],
+	"item": [
+		{
+			"name": "Seed governance body (the retargeted 'board')",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Setup: governance body created (201)', () => pm.response.to.have.status(201));",
+							"const b = pm.response.json();",
+							"const id = (b['@self'] && b['@self'].id) || b.id;",
+							"pm.expect(id, 'governance body id captured').to.be.a('string');",
+							"pm.collectionVariables.set('boardId', id);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"body": { "mode": "raw", "raw": "{\n  \"name\": \"Newman Governance Reporting Body\",\n  \"bodyType\": \"supervisory-board\",\n  \"domain\": \"newman-governance-reporting\"\n}" },
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/governance-body",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "governance-body" ]
+				}
+			}
+		},
+		{
+			"name": "POST /api/regulator-exports missing boardId (422)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Regulator export missing boardId: 422', () => pm.response.to.have.status(422));",
+							"const b = pm.response.json();",
+							"pm.expect(b.message).to.match(/Missing required parameter 'boardId'/i);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"body": { "mode": "raw", "raw": "{\n  \"scope\": \"resolutions\",\n  \"format\": \"csv\"\n}" },
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/regulator-exports",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "index.php", "apps", "decidiq", "api", "regulator-exports" ]
+				}
+			}
+		},
+		{
+			"name": "POST /api/regulator-exports (generate CSV resolutions)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Regulator export generate: 200 (binary) or 422 (no data)', () => pm.expect(pm.response.code).to.be.oneOf([200, 422]));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"body": { "mode": "raw", "raw": "{\n  \"boardId\": \"{{boardId}}\",\n  \"scope\": \"resolutions\",\n  \"format\": \"csv\"\n}" },
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/regulator-exports",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "index.php", "apps", "decidiq", "api", "regulator-exports" ]
+				}
+			}
+		},
+		{
+			"name": "GET /api/regulator-exports?boardId=...",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Regulator export list: 200', () => pm.response.to.have.status(200));",
+							"const b = pm.response.json();",
+							"pm.expect(b).to.have.property('results');",
+							"pm.expect(b).to.have.property('total');"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/regulator-exports?boardId={{boardId}}",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "index.php", "apps", "decidiq", "api", "regulator-exports" ],
+					"query": [ { "key": "boardId", "value": "{{boardId}}" } ]
+				}
+			}
+		},
+		{
+			"name": "GET regulator-exports no-auth -> 401",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Regulator export list anon: 401', () => pm.response.to.have.status(401));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"url": {
+					"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/regulator-exports?boardId={{boardId}}",
+					"host": [ "{{noAuthBase}}" ],
+					"path": [ "index.php", "apps", "decidiq", "api", "regulator-exports" ],
+					"query": [ { "key": "boardId", "value": "{{boardId}}" } ]
+				}
+			}
+		},
+		{
+			"name": "POST /api/multilingual/queue missing params (422)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Queue missing params: 422', () => pm.response.to.have.status(422));",
+							"const b = pm.response.json();",
+							"pm.expect(b.message).to.match(/Missing required parameters/i);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"body": { "mode": "raw", "raw": "{}" },
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/multilingual/queue",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "index.php", "apps", "decidiq", "api", "multilingual", "queue" ]
+				}
+			}
+		},
+		{
+			"name": "GET /api/multilingual/queue (status)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Queue status: 200', () => pm.response.to.have.status(200));",
+							"const b = pm.response.json();",
+							"// Asserted against what MultilingualReconciliationController::status()",
+							"// actually returns — {summary, results}. The retired collection",
+							"// asserted a 'queue' property this endpoint has never emitted.",
+							"pm.expect(b).to.have.property('summary');",
+							"pm.expect(b).to.have.property('results');"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/multilingual/queue",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "index.php", "apps", "decidiq", "api", "multilingual", "queue" ]
+				}
+			}
+		},
+		{
+			"name": "POST /api/multilingual/queue/process",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// process() returns 200 when processQueue() reports success and 422",
+							"// when it does not. On a clean instance the queue is empty, which is",
+							"// not an error condition the test can control, so both are accepted —",
+							"// and the response SHAPE is asserted either way, so a 422 still has to",
+							"// be a well-formed answer from the controller rather than an HTML",
+							"// error page or an empty body.",
+							"pm.test('Queue process: 200 (work done) or 422 (nothing processable)', () => pm.expect(pm.response.code).to.be.oneOf([200, 422]));",
+							"const b = pm.response.json();",
+							"pm.expect(b).to.have.property('processed');",
+							"pm.expect(b).to.have.property('message');"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"body": { "mode": "raw", "raw": "{}" },
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/decidiq/api/multilingual/queue/process",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "index.php", "apps", "decidiq", "api", "multilingual", "queue", "process" ]
+				}
+			}
+		},
+		{
+			"name": "GET multilingual/queue no-auth -> 401",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Queue status anon: 401', () => pm.response.to.have.status(401));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"url": {
+					"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/multilingual/queue",
+					"host": [ "{{noAuthBase}}" ],
+					"path": [ "index.php", "apps", "decidiq", "api", "multilingual", "queue" ]
+				}
+			}
+		},
+		{
+			"name": "Teardown: delete governance body",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Teardown: governance body deleted (200/204)', () => pm.expect(pm.response.code).to.be.oneOf([200, 204]));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+				"method": "DELETE",
+				"header": [
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/governance-body/{{boardId}}",
+					"host": [ "{{baseUrl}}" ],
+					"path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "governance-body", "{{boardId}}" ]
+				}
+			}
+		}
+	]
+}

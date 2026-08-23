@@ -22,7 +22,7 @@
  * defect, and testAFilterKeyIsNeverASchemaSlug() is what pins it.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -35,13 +35,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\ObjectRelationFilter;
+use OCA\Decidiq\Service\ObjectRelationFilter;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Pins the one relation filter that matches how decidesk writes relations.
+ * Pins the one relation filter that matches how decidiq writes relations.
  *
  * @spec openspec/specs/voting-system/spec.md
  */

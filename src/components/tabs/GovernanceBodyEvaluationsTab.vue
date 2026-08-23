@@ -18,34 +18,34 @@
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--evaluations"
+		class="decidiq-tab decidiq-tab--evaluations"
 		data-testid="body-evaluations-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Self-evaluation') }}
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Self-evaluation') }}
 			</h3>
 			<NcButton
 				v-if="templates.length"
 				data-testid="body-evaluations-start"
 				@click="startEvaluation">
-				{{ t('decidesk', 'Start evaluation') }}
+				{{ t('decidiq', 'Start evaluation') }}
 			</NcButton>
 		</div>
 
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load evaluations')">
+			:title="t('decidiq', 'Could not load evaluations')">
 			{{ error }}
 		</CnNoteCard>
 
-		<div v-if="loading" class="decidesk-tab__loading">
-			{{ t('decidesk', 'Loading…') }}
+		<div v-if="loading" class="decidiq-tab__loading">
+			{{ t('decidiq', 'Loading…') }}
 		</div>
 
 		<template v-else-if="!evaluations.length">
-			<p class="decidesk-tab__empty" data-testid="body-evaluations-empty">
-				{{ t('decidesk', 'No self-evaluation cycles yet for this body.') }}
+			<p class="decidiq-tab__empty" data-testid="body-evaluations-empty">
+				{{ t('decidiq', 'No self-evaluation cycles yet for this body.') }}
 			</p>
 		</template>
 
@@ -64,7 +64,7 @@
 
 				<p class="evaluation-card__meta">
 					{{
-						t('decidesk', '{responded} of {invited} responded', {
+						t('decidiq', '{responded} of {invited} responded', {
 							responded: evaluation.respondedCount || 0,
 							invited: evaluation.invitedMemberCount || 0,
 						})
@@ -76,25 +76,25 @@
 						v-if="evaluation.lifecycle === 'draft'"
 						data-testid="evaluation-open"
 						@click="openEvaluation(evaluation)">
-						{{ t('decidesk', 'Open for responses') }}
+						{{ t('decidiq', 'Open for responses') }}
 					</NcButton>
 					<NcButton
 						v-if="evaluation.lifecycle === 'open'"
 						data-testid="evaluation-respond"
 						@click="beginRespond(evaluation)">
-						{{ t('decidesk', 'Respond anonymously') }}
+						{{ t('decidiq', 'Respond anonymously') }}
 					</NcButton>
 					<NcButton
 						v-if="evaluation.lifecycle === 'open'"
 						data-testid="evaluation-close"
 						@click="closeEvaluation(evaluation)">
-						{{ t('decidesk', 'Close cycle') }}
+						{{ t('decidiq', 'Close cycle') }}
 					</NcButton>
 					<NcButton
 						v-if="evaluation.lifecycle === 'closed'"
 						data-testid="evaluation-publish"
 						@click="publishEvaluationResults(evaluation)">
-						{{ t('decidesk', 'Publish summary') }}
+						{{ t('decidiq', 'Publish summary') }}
 					</NcButton>
 					<NcButton
 						v-if="
@@ -103,7 +103,7 @@
 						"
 						data-testid="evaluation-report"
 						@click="generateReport(evaluation)">
-						{{ t('decidesk', 'Generate report') }}
+						{{ t('decidiq', 'Generate report') }}
 					</NcButton>
 				</div>
 
@@ -113,7 +113,7 @@
 					:data-testid="`evaluation-results-${evaluation.id}`">
 					<p class="evaluation-card__overall">
 						{{
-							t('decidesk', 'Overall score: {score}', {
+							t('decidiq', 'Overall score: {score}', {
 								score:
 									scoreSummaryFor(evaluation).overallScore ?? '—',
 							})
@@ -126,7 +126,7 @@
 						data-testid="evaluation-suppressed-note">
 						{{
 							t(
-								'decidesk',
+								'decidiq',
 								'Per-dimension and free-text breakdowns are hidden: too few respondents to protect anonymity.',
 							)
 						}}
@@ -304,7 +304,7 @@ export default {
 				)
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Failed to load evaluations.')
+					e?.message || this.t('decidiq', 'Failed to load evaluations.')
 			} finally {
 				this.loading = false
 			}
@@ -388,7 +388,7 @@ export default {
 			} catch (e) {
 				this.error =
 					e?.message
-					|| this.t('decidesk', 'Failed to start the evaluation.')
+					|| this.t('decidiq', 'Failed to start the evaluation.')
 			}
 		},
 
@@ -409,7 +409,7 @@ export default {
 				this.error =
 					e?.message
 					|| this.t(
-						'decidesk',
+						'decidiq',
 						'Only the chair or secretary can open this cycle.',
 					)
 			}
@@ -435,7 +435,7 @@ export default {
 				this.error =
 					e?.response?.data?.message
 					|| e?.message
-					|| this.t('decidesk', 'Failed to submit your response.')
+					|| this.t('decidiq', 'Failed to submit your response.')
 			}
 		},
 
@@ -451,7 +451,7 @@ export default {
 				this.error =
 					e?.response?.data?.message
 					|| e?.message
-					|| this.t('decidesk', 'Failed to close the cycle.')
+					|| this.t('decidiq', 'Failed to close the cycle.')
 			}
 		},
 
@@ -467,7 +467,7 @@ export default {
 				this.error =
 					e?.response?.data?.message
 					|| e?.message
-					|| this.t('decidesk', 'Failed to publish the summary.')
+					|| this.t('decidiq', 'Failed to publish the summary.')
 			}
 		},
 
@@ -482,7 +482,7 @@ export default {
 				this.error =
 					e?.response?.data?.message
 					|| e?.message
-					|| this.t('decidesk', 'Failed to generate the report.')
+					|| this.t('decidiq', 'Failed to generate the report.')
 			}
 		},
 	},
@@ -490,27 +490,27 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: calc(var(--default-grid-baseline) * 2);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__empty,
-.decidesk-tab__loading {
+.decidiq-tab__empty,
+.decidiq-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }

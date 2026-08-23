@@ -15,7 +15,7 @@ from OpenRegister on every single write, just to read the hash of the last row.
   `$this->loadChain(objectService: $objectService)` and then does `end($chain)` — i.e. it fetches
   **every** row just to read the last one.
 - `lib/Service/AuditLogService.php:478-490` (`loadChain()`) issues
-  `$objectService->findAll(['register' => 'decidesk', 'schema' => 'audit-trail', 'order' =>
+  `$objectService->findAll(['register' => 'decidiq', 'schema' => 'audit-trail', 'order' =>
   ['timestamp' => 'ASC'], 'limit' => 10000])` — an OpenRegister query capped at 10,000 rows, fully
   rendered and hydrated into PHP arrays.
 - `verify()` (`:210,214`) and `export()` (`:284,299`) also call `loadChain()` for their own

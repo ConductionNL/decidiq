@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Proof Package Service
+ * Decidiq Proof Package Service
  *
  * Assembles the notarial evidence package for a meeting's decision-making:
  * convocation record, quorum snapshot, votes tally, and the adopted decision
@@ -10,7 +10,7 @@
  * Files folder.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @spec openspec/specs/resolution-minutes/spec.md
  *
@@ -26,11 +26,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -525,7 +525,7 @@ class ProofPackageService {
 				);
 			} catch (\Throwable $e) {
 				$this->logger->warning(
-					'Decidesk: failed to fetch related objects for proof package',
+					'Decidiq: failed to fetch related objects for proof package',
 					['schema' => $schema, 'meetingId' => $meetingId, 'error' => $e->getMessage()]
 				);
 				break;

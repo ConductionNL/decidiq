@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — resolution-minutes spec (minutes-ui-v1).
@@ -13,7 +13,7 @@
  *
  * Fixtures are seeded through the OpenRegister object API (setup only —
  * all assertions go through the UI) and torn down per spec run. Every test
- * skips defensively when the deployed decidesk predates minutes-ui-v1
+ * skips defensively when the deployed decidiq predates minutes-ui-v1
  * (deploy drift on the shared dev container, never a false green).
  *
  * @e2e openspec/specs/resolution-minutes/spec.md#take-structured-minutes-during-a-meeting
@@ -75,7 +75,7 @@ async function seedFixture(page: Page): Promise<void> {
 
 /** Open the Minutes detail page and activate a sidebar tab by its label. */
 async function openMinutesTab(page: Page, tabLabel: string): Promise<boolean> {
-	await page.goto(`${BASE}/apps/decidesk/minutes/${minutesId}`)
+	await page.goto(`${BASE}/apps/decidiq/minutes/${minutesId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	const tab = page
 		.getByRole('tab', { name: tabLabel })
@@ -104,13 +104,13 @@ test.afterAll(async ({ browser }) => {
 test('live meeting: minutes panel offers per-agenda-item notes with autosave', async ({
 	page,
 }) => {
-	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}/live`)
+	await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}/live`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	const panel = page.getByTestId('minutes-panel')
 	test.skip(
 		!(await becomesVisible(panel)),
-		'Deploy drift: the deployed decidesk predates minutes-ui-v1 (no minutes panel in LiveMeeting)',
+		'Deploy drift: the deployed decidiq predates minutes-ui-v1 (no minutes panel in LiveMeeting)',
 	)
 
 	// A draft Minutes record exists for this meeting → the editor renders
@@ -142,13 +142,13 @@ test('live meeting: minutes panel offers per-agenda-item notes with autosave', a
 test('live meeting: action-item capture shortcut creates a tracked action item', async ({
 	page,
 }) => {
-	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}/live`)
+	await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}/live`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	const panel = page.getByTestId('minutes-panel')
 	test.skip(
 		!(await becomesVisible(panel)),
-		'Deploy drift: the deployed decidesk predates minutes-ui-v1 (no minutes panel in LiveMeeting)',
+		'Deploy drift: the deployed decidiq predates minutes-ui-v1 (no minutes panel in LiveMeeting)',
 	)
 
 	const itemBlock = page.getByTestId(`minutes-panel-item-${agendaItemId}`)
@@ -194,7 +194,7 @@ test('approval tab: submit for review, then reject back to draft with a mandator
 	const hasTab = await openMinutesTab(page, 'Approval')
 	test.skip(
 		!hasTab,
-		'Deploy drift: the deployed decidesk predates minutes-ui-v1 (no Approval tab)',
+		'Deploy drift: the deployed decidiq predates minutes-ui-v1 (no Approval tab)',
 	)
 
 	const tab = page.getByTestId('minutes-approval-tab')
@@ -233,7 +233,7 @@ test('approval tab: participants can suggest corrections and the chair resolves 
 	const hasTab = await openMinutesTab(page, 'Approval')
 	test.skip(
 		!hasTab,
-		'Deploy drift: the deployed decidesk predates minutes-ui-v1 (no Approval tab)',
+		'Deploy drift: the deployed decidiq predates minutes-ui-v1 (no Approval tab)',
 	)
 
 	const tab = page.getByTestId('minutes-approval-tab')
@@ -265,7 +265,7 @@ test('approval tab: approving review minutes locks editing and records the appro
 	const hasTab = await openMinutesTab(page, 'Approval')
 	test.skip(
 		!hasTab,
-		'Deploy drift: the deployed decidesk predates minutes-ui-v1 (no Approval tab)',
+		'Deploy drift: the deployed decidiq predates minutes-ui-v1 (no Approval tab)',
 	)
 
 	const tab = page.getByTestId('minutes-approval-tab')
@@ -292,7 +292,7 @@ test('documents tab: generate document persists into the meeting folder and list
 	const hasTab = await openMinutesTab(page, 'Documents')
 	test.skip(
 		!hasTab,
-		'Deploy drift: the deployed decidesk predates minutes-ui-v1 (no Documents tab)',
+		'Deploy drift: the deployed decidiq predates minutes-ui-v1 (no Documents tab)',
 	)
 
 	const tab = page.getByTestId('minutes-document-tab')
@@ -309,7 +309,7 @@ test('documents tab: generate document persists into the meeting folder and list
 
 	// The generated document is recorded on the Minutes object and listed.
 	await expect(tab.getByText('Generated documents')).toBeVisible()
-	await expect(tab.locator('.decidesk-tab__document').first()).toBeVisible({
+	await expect(tab.locator('.decidiq-tab__document').first()).toBeVisible({
 		timeout: 10_000,
 	})
 })
@@ -321,7 +321,7 @@ test('documents tab: notarial proof package is assembled and hash-sealed', async
 	const hasTab = await openMinutesTab(page, 'Documents')
 	test.skip(
 		!hasTab,
-		'Deploy drift: the deployed decidesk predates minutes-ui-v1 (no Documents tab)',
+		'Deploy drift: the deployed decidiq predates minutes-ui-v1 (no Documents tab)',
 	)
 
 	const tab = page.getByTestId('minutes-document-tab')

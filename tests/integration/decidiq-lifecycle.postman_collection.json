@@ -1,0 +1,617 @@
+{
+	"info": {
+		"name": "Decidiq Decision Lifecycle Contract Suite",
+		"description": "Newman contract tests for the guarded decision state machine (decision-state-machine-v1): GET /api/decisions/{id}/transitions and POST /api/decisions/{id}/transition. Locks the transition-map contract (allowed actions per state), the 422 rejection envelope for invalid/unknown transitions, and the 401 authorization posture. Self-contained: seeds its own draft Decision via the OpenRegister object API and tears it down.\n\nAUTH MODEL (same as decidiq.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The no-auth request carries NEITHER and targets {{noAuthBase}} so the host-scoped NC session cookie never leaks to it.\n\n@spec openspec/specs/decision-management/spec.md",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "noauth"
+	},
+	"item": [
+		{
+			"name": "0. Setup",
+			"item": [
+				{
+					"name": "Seed draft decision",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: draft decision created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'decision id captured').to.be.a('string');",
+									"pm.collectionVariables.set('lifecycleDecisionId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidesk",
+								"decision"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"decisionType\": \"meeting-outcome\",\n  \"title\": \"Newman lifecycle decision\",\n  \"text\": \"Contract test decision.\",\n  \"lifecycle\": \"draft\"\n}"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "1. Transitions contract",
+			"item": [
+				{
+					"name": "GET transitions exposes draft actions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Lifecycle: transitions contract (200)', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.expect(b.lifecycle).to.eql('draft');",
+									"pm.expect(b.states).to.eql(['draft','proposed','deliberating','voting','decided','enacted','archived']);",
+									"const actions = (b.actions || []).map(a => a.action);",
+									"pm.expect(actions).to.include('propose');"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{lifecycleDecisionId}}/transitions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"decidiq",
+								"api",
+								"decisions",
+								"{{lifecycleDecisionId}}",
+								"transitions"
+							]
+						}
+					}
+				},
+				{
+					"name": "GET transitions for unknown id is 404 not 500",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Lifecycle: unknown id is 404 (no 500)', () => pm.response.to.have.status(404));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/00000000-0000-0000-0000-000000000000/transitions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"decidiq",
+								"api",
+								"decisions",
+								"00000000-0000-0000-0000-000000000000",
+								"transitions"
+							]
+						}
+					}
+				},
+				{
+					"name": "POST propose transition (happy)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Lifecycle: propose succeeds (200)', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.expect(b.success).to.eql(true);",
+									"pm.expect(b.decision.lifecycle).to.eql('proposed');"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{lifecycleDecisionId}}/transition",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"decidiq",
+								"api",
+								"decisions",
+								"{{lifecycleDecisionId}}",
+								"transition"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"propose\",\n  \"comment\": \"Newman contract\"\n}"
+						}
+					}
+				},
+				{
+					"name": "POST invalid transition from proposed (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Lifecycle: invalid transition rejected (422)', () => pm.response.to.have.status(422));",
+									"const b = pm.response.json();",
+									"pm.expect(b.message).to.include('Cannot');",
+									"pm.expect(b.message).to.include('deliberate');"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{lifecycleDecisionId}}/transition",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"decidiq",
+								"api",
+								"decisions",
+								"{{lifecycleDecisionId}}",
+								"transition"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"enact\"\n}"
+						}
+					}
+				},
+				{
+					"name": "POST unknown action (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Lifecycle: unknown action rejected (422)', () => pm.response.to.have.status(422));",
+									"const b = pm.response.json();",
+									"pm.expect(b.message).to.include('Unknown action');"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{lifecycleDecisionId}}/transition",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"decidiq",
+								"api",
+								"decisions",
+								"{{lifecycleDecisionId}}",
+								"transition"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"teleport\"\n}"
+						}
+					}
+				},
+				{
+					"name": "POST missing action (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Lifecycle: missing action rejected (422)', () => pm.response.to.have.status(422));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{lifecycleDecisionId}}/transition",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"decidiq",
+								"api",
+								"decisions",
+								"{{lifecycleDecisionId}}",
+								"transition"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Authorization",
+			"item": [
+				{
+					"name": "POST transition unauthenticated (401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Lifecycle: unauthenticated rejected (401)', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/decisions/{{lifecycleDecisionId}}/transition",
+							"host": [
+								"{{noAuthBase}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"decidiq",
+								"api",
+								"decisions",
+								"{{lifecycleDecisionId}}",
+								"transition"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"deliberate\"\n}"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "9. Teardown",
+			"item": [
+				{
+					"name": "Delete lifecycle decision",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Teardown: lifecycle decision deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204]));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision/{{lifecycleDecisionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidesk",
+								"decision",
+								"{{lifecycleDecisionId}}"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "noAuthBase",
+			"value": "http://127.0.0.1:8080"
+		},
+		{
+			"key": "adminUser",
+			"value": "admin"
+		},
+		{
+			"key": "adminPass",
+			"value": "admin"
+		},
+		{
+			"key": "lifecycleDecisionId",
+			"value": ""
+		}
+	]
+}

@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Meeting Series Service
+ * Decidiq Meeting Series Service
  *
  * Expands a recurrence pattern on a template meeting into individual
  * Meeting instances sharing a series identifier (meeting-series
  * REQ-MSR-001, meeting-management "Schedule a recurring monthly meeting").
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,7 +25,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateInterval;
 use DateTimeImmutable;
@@ -137,7 +137,7 @@ class MeetingSeriesService {
 		);
 		if ($result['truncated'] === true) {
 			$this->logger->warning(
-				'Decidesk: series expansion truncated at ' . self::MAX_INSTANCES . ' instances',
+				'Decidiq: series expansion truncated at ' . self::MAX_INSTANCES . ' instances',
 				['startDate' => $startDate, 'until' => $untilRaw]
 			);
 		}
@@ -375,7 +375,7 @@ class MeetingSeriesService {
 			$entity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: MeetingSeriesService::generateSeries lookup failed',
+				'Decidiq: MeetingSeriesService::generateSeries lookup failed',
 				['meetingId' => $meetingId, 'exception' => $e->getMessage()]
 			);
 			return $this->failure(message: 'Failed to load template meeting.');
@@ -425,7 +425,7 @@ class MeetingSeriesService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: MeetingSeriesService::generateSeries failed',
+				'Decidiq: MeetingSeriesService::generateSeries failed',
 				['meetingId' => $meetingId, 'exception' => $e->getMessage()]
 			);
 			return $this->failure(message: 'Failed to generate series instances.', series: $series);
@@ -443,7 +443,7 @@ class MeetingSeriesService {
 		);
 
 		$this->logger->info(
-			'Decidesk: meeting series generated',
+			'Decidiq: meeting series generated',
 			['meetingId' => $meetingId, 'series' => $series, 'instances' => count($instances)]
 		);
 

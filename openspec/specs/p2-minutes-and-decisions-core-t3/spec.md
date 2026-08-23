@@ -182,7 +182,7 @@ The system SHALL support status transitions for ActionItems (CalDAV VTODOs) acro
 
 #### Scenario: Action item marked complete
 - **GIVEN** a CalDAV VTODO with `STATUS: IN-PROCESS` and `X-DECIDESK-MEETING-UID` set
-- **WHEN** the assignee marks it complete in the Decidesk interface
+- **WHEN** the assignee marks it complete in the Decidiq interface
 - **THEN** the system SHALL update the VTODO to `STATUS: COMPLETED` with `COMPLETED` timestamp set to the current UTC datetime
 
 ---

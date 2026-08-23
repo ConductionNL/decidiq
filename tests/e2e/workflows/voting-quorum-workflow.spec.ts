@@ -1,16 +1,16 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * DEEP, data-dependent e2e — the decision/voting workflow with QUORUM and
  * TALLY correctness, plus the chair AUTHORIZATION guard.
  *
- * decidesk has a documented history of voting/quorum logic gaps
+ * decidiq has a documented history of voting/quorum logic gaps
  * (isTransitionAllowed / validateQuorum defined-but-uncalled, fail-open auth
  * resolvers), so this spec exercises the state-change + quorum + tally paths
  * hard and asserts the *exact* computed outcomes — not just that pages render.
  *
- * It drives the REAL decidesk endpoints through Playwright's authenticated
+ * It drives the REAL decidiq endpoints through Playwright's authenticated
  * request context (carries the admin session cookie + CSRF token):
  *   POST /api/voting-rounds            (open — chair-guarded, quorum-gated)
  *   POST /api/voting-rounds/{id}/cast  (cast a for/against/abstain vote)
@@ -19,13 +19,13 @@
  * Fixtures are seeded via the OpenRegister object API (real verbs).
  *
  * ── DEPLOY REALITY (re-measured 2026-08-06 against CI run 31083903075) ────────
- * The older header here described "BUG-A" as decidesk filtering on
+ * The older header here described "BUG-A" as decidiq filtering on
  * `relations.<schema>` where OpenRegister wanted `_relations.<schema>`. That
  * diagnosis was wrong in its second half, and the wrong half is why the tally
  * assertions kept failing after the "fix": the call sites HAD been changed to
  * `_relations.<schema-slug>`, and a slug-keyed filter still matches nothing.
  *
- * The real mechanism: decidesk writes links as a structured
+ * The real mechanism: decidiq writes links as a structured
  * `relations: [{register, schema, id}]` array, and OpenRegister's
  * SaveObject::scanForRelations() flattens that into the `_relations` JSONB keyed
  * by the PROPERTY PATH it walked — `relations.0.id` — never by the related
@@ -58,7 +58,7 @@ import {
 	type SeedLedger,
 } from './governance-fixture'
 
-const API = `${BASE}/index.php/apps/decidesk/api`
+const API = `${BASE}/index.php/apps/decidiq/api`
 
 let ledger: SeedLedger
 
@@ -67,7 +67,7 @@ test.beforeAll(() => {
 })
 
 test.beforeEach(async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/`)
+	await page.goto(`${BASE}/apps/decidiq/`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 })
 

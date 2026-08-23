@@ -4,7 +4,7 @@
  * Unit tests for ProxyVoteService.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,12 +20,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\AuditLogService;
-use OCA\Decidesk\Service\ParticipantResolver;
-use OCA\Decidesk\Service\ParticipantToPersonMembershipResolver;
-use OCA\Decidesk\Service\ProxyVoteService;
+use OCA\Decidiq\Service\AuditLogService;
+use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
+use OCA\Decidiq\Service\ProxyVoteService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
@@ -212,7 +212,7 @@ class ProxyVoteServiceTest extends TestCase {
 		$appConfig = $this->createMock(\OCP\IAppConfig::class);
 		$appConfig->method('getValueInt')->willReturnCallback(
 			static function (string $app, string $key, int $default = 0) use ($maxProxies): int {
-				if ($app === 'decidesk' && $key === ProxyVoteService::MAX_PROXIES_CONFIG_KEY) {
+				if ($app === 'decidiq' && $key === ProxyVoteService::MAX_PROXIES_CONFIG_KEY) {
 					return $maxProxies;
 				}
 
@@ -557,7 +557,7 @@ class ProxyVoteServiceTest extends TestCase {
 	}//end testRegisterCapCountsOnlyActiveProxiesInMeetingForHolder()
 
 	/**
-	 * The cap is configurable via app config decidesk/max_proxies_per_holder.
+	 * The cap is configurable via app config decidiq/max_proxies_per_holder.
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
 	 *

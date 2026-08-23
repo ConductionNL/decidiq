@@ -4,7 +4,7 @@
  * Unit tests for RepointConflictOfInterestBoardMember repair step.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Repair
+ * @package  OCA\Decidiq\Tests\Unit\Repair
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,10 +20,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Repair;
+namespace OCA\Decidiq\Tests\Unit\Repair;
 
-use OCA\Decidesk\Repair\RepointConflictOfInterestBoardMember;
-use OCA\Decidesk\Service\ParticipantToPersonMembershipResolver;
+use OCA\Decidiq\Repair\RepointConflictOfInterestBoardMember;
+use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\Migration\IOutput;

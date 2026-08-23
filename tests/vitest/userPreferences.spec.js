@@ -153,7 +153,7 @@ describe('notification preference fetch/save envelopes', () => {
 		mockFetchOnce({ json: { person: 'admin', deliveryMethod: 'both' } })
 		const pref = await fetchNotificationPreference()
 		expect(globalThis.fetch).toHaveBeenCalledWith(
-			'/index.php/apps/decidesk/api/notification-preference',
+			'/index.php/apps/decidiq/api/notification-preference',
 			expect.objectContaining({ headers: { requesttoken: 'test-token' } }),
 		)
 		expect(pref).toMatchObject({ deliveryMethod: 'both' })
@@ -163,7 +163,7 @@ describe('notification preference fetch/save envelopes', () => {
 		mockFetchOnce({ json: { person: 'admin', meetingReminder: false } })
 		const saved = await saveNotificationPreference({ meetingReminder: false })
 		const [url, options] = globalThis.fetch.mock.calls[0]
-		expect(url).toBe('/index.php/apps/decidesk/api/notification-preference')
+		expect(url).toBe('/index.php/apps/decidiq/api/notification-preference')
 		expect(options.method).toBe('PUT')
 		expect(JSON.parse(options.body)).toEqual({ meetingReminder: false })
 		expect(saved.meetingReminder).toBe(false)
@@ -208,7 +208,7 @@ describe('display preference fetch/save envelopes', () => {
 		mockFetchOnce({ json: {} })
 		await saveDisplayPreference('date-format', 'DD-MM-YYYY')
 		const [url, options] = globalThis.fetch.mock.calls[0]
-		expect(url).toBe('/index.php/apps/decidesk/api/preferences/date-format')
+		expect(url).toBe('/index.php/apps/decidiq/api/preferences/date-format')
 		expect(options.method).toBe('PUT')
 		expect(JSON.parse(options.body)).toEqual({ value: 'DD-MM-YYYY' })
 	})

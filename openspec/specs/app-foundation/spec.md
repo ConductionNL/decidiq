@@ -5,18 +5,18 @@ status: done
 # app-foundation Specification
 
 **Status**: in-progress
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - ia-six-item-nav (active) — updates the MainMenu requirement to ADR-004's six-item IA
 
 ## Purpose
-Establishes the foundational app scaffolding: importing the Decidesk OpenRegister register and its entity schemas on install and upgrade, loading Dutch-language seed data so the app is usable immediately, an admin settings page with register mapping and re-import, an OpenRegister dependency check with an empty state, and the six-item navigation menu and KPI dashboard.
+Establishes the foundational app scaffolding: importing the Decidiq OpenRegister register and its entity schemas on install and upgrade, loading Dutch-language seed data so the app is usable immediately, an admin settings page with register mapping and re-import, an OpenRegister dependency check with an empty state, and the six-item navigation menu and KPI dashboard.
 ## Requirements
 ### Requirement: Register import on install
-The app SHALL import the Decidesk OpenRegister register and all entity schemas from `lib/Settings/decidesk_register.json` during installation and upgrades via an `IRepairStep`.
+The app SHALL import the Decidiq OpenRegister register and all entity schemas from `lib/Settings/decidesk_register.json` during installation and upgrades via an `IRepairStep`.
 
 #### Scenario: Fresh install imports register
-- **WHEN** the Nextcloud admin installs the Decidesk app for the first time
+- **WHEN** the Nextcloud admin installs the Decidiq app for the first time
 - **THEN** the repair step runs `ConfigurationService::importFromApp('decidesk')` and all 17 entity schemas are available in OpenRegister
 
 #### Scenario: Upgrade preserves existing data
@@ -38,7 +38,7 @@ The app SHALL load 3–5 Dutch-language example objects per core entity (Governa
 The app SHALL provide an admin settings page that displays the app version, allows register mapping configuration, and provides a re-import button.
 
 #### Scenario: Admin opens settings page
-- **WHEN** an admin navigates to the Decidesk settings page
+- **WHEN** an admin navigates to the Decidiq settings page
 - **THEN** `CnVersionInfoCard` is displayed first, followed by `CnRegisterMapping` and a re-import button
 
 #### Scenario: Re-import register
