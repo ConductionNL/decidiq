@@ -67,9 +67,7 @@
 				:disabled="linking || !name.trim()"
 				data-testid="member-add-submit"
 				@click="link">
-				{{
-					linking ? t('decidiq', 'Adding…') : t('decidiq', 'Add member')
-				}}
+				{{ linking ? t('decidiq', 'Adding…') : t('decidiq', 'Add member') }}
 			</NcButton>
 			<NcButton data-testid="member-add-cancel" @click="$emit('close')">
 				{{ t('decidiq', 'Cancel') }}
@@ -173,8 +171,7 @@ export default {
 				this.$emit('linked')
 				this.$emit('close')
 			} catch (e) {
-				this.error =
-					e?.message || this.t('decidiq', 'Failed to add member.')
+				this.error = e?.message || this.t('decidiq', 'Failed to add member.')
 			} finally {
 				this.linking = false
 			}

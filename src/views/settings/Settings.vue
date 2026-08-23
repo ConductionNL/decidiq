@@ -52,9 +52,7 @@
 						v-model="form.organisation_name"
 						type="text"
 						data-testid="organisation-name"
-						:placeholder="
-							t('decidiq', 'e.g. Vereniging De Harmonie')
-						" />
+						:placeholder="t('decidiq', 'e.g. Vereniging De Harmonie')" />
 				</div>
 				<div class="form-group">
 					<label for="organisation_logo">{{
@@ -189,9 +187,7 @@
 
 				<NcButton variant="primary" type="submit" :disabled="savingOri">
 					{{
-						savingOri
-							? t('decidiq', 'Saving...')
-							: t('decidiq', 'Save')
+						savingOri ? t('decidiq', 'Saving...') : t('decidiq', 'Save')
 					}}
 				</NcButton>
 			</form>

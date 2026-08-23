@@ -407,8 +407,7 @@ export default {
 				await this.deriveEffectiveStatus(decision)
 				await this.countOpenActionItems()
 			} catch (e) {
-				this.error =
-					e?.message || this.t('decidiq', 'Failed to load route.')
+				this.error = e?.message || this.t('decidiq', 'Failed to load route.')
 			} finally {
 				this.loading = false
 			}

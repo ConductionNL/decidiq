@@ -15,9 +15,7 @@
  @spec openspec/specs/meeting-transcription/spec.md
 -->
 <template>
-	<div
-		class="decidiq-tab decidiq-tab--retention"
-		data-testid="body-retention-tab">
+	<div class="decidiq-tab decidiq-tab--retention" data-testid="body-retention-tab">
 		<div class="decidiq-tab__header">
 			<h3 class="decidiq-tab__title">
 				{{ t('decidiq', 'Recording retention') }}

@@ -449,8 +449,7 @@ export default {
 				this.createOpen = false
 				await this.refresh()
 			} catch (e) {
-				this.error =
-					e?.message || t('decidiq', 'Could not create proposal.')
+				this.error = e?.message || t('decidiq', 'Could not create proposal.')
 			} finally {
 				this.creating = false
 			}

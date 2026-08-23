@@ -156,8 +156,7 @@ export default {
 				this.votes = all
 				await this.hydrateCasters(all)
 			} catch (e) {
-				this.error =
-					e?.message || this.t('decidiq', 'Failed to load votes.')
+				this.error = e?.message || this.t('decidiq', 'Failed to load votes.')
 			} finally {
 				this.loading = false
 			}

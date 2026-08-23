@@ -34,9 +34,7 @@
 			</div>
 
 			<div class="form-group">
-				<label for="pt-description">{{
-					t('decidiq', 'Description')
-				}}</label>
+				<label for="pt-description">{{ t('decidiq', 'Description') }}</label>
 				<input
 					id="pt-description"
 					v-model="form.description"

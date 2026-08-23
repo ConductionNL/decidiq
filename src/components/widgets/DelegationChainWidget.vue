@@ -77,9 +77,7 @@
 						subject
 					}}</span>
 					<span v-if="delegansLabel" class="cn-delegation-chain__party">
-						{{
-							t('decidiq', 'Delegans: {who}', { who: delegansLabel })
-						}}
+						{{ t('decidiq', 'Delegans: {who}', { who: delegansLabel }) }}
 					</span>
 					<span v-if="delegatarisLabel" class="cn-delegation-chain__party">
 						{{

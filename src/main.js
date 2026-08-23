@@ -70,10 +70,7 @@ try {
 } catch (e) {
 	// Non-fatal — lib translations fall back to English source.
 	// eslint-disable-next-line no-console
-	console.warn(
-		'[decidiq] registerTranslations failed; falling back to English',
-		e,
-	)
+	console.warn('[decidiq] registerTranslations failed; falling back to English', e)
 }
 
 // Fire-and-forget translation load. Some Nextcloud installs (including

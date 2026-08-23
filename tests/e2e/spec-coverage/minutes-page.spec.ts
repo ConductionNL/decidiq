@@ -88,9 +88,7 @@ test('Minutes: Add Minutes opens a real create form dialog', async ({ page }) =>
 })
 
 // @e2e openspec/specs/minutes-management/spec.md#view-the-minutes-list
-test('Minutes: no decidiq-origin console error or 500 on load', async ({
-	page,
-}) => {
+test('Minutes: no decidiq-origin console error or 500 on load', async ({ page }) => {
 	const appErrors: string[] = []
 	page.on('console', (m) => {
 		const t = m.text()

@@ -36,9 +36,7 @@
 				:current="currentStageIndex"
 				:aria-label="t('decidiq', 'Minutes lifecycle')" />
 
-			<div
-				class="decidiq-tab__actions"
-				data-testid="minutes-approval-actions">
+			<div class="decidiq-tab__actions" data-testid="minutes-approval-actions">
 				<template v-for="action in actions" :key="action.action">
 					<NcButton
 						:variant="action.action === 'reject' ? 'error' : 'primary'"

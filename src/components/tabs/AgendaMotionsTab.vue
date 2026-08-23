@@ -63,9 +63,7 @@
 			:schema="motionSchema"
 			:item="editTarget"
 			:dialogTitle="
-				editTarget
-					? t('decidiq', 'Edit motion')
-					: t('decidiq', 'Add motion')
+				editTarget ? t('decidiq', 'Edit motion') : t('decidiq', 'Add motion')
 			"
 			:excludeFields="excludedFields"
 			@confirm="onConfirm"

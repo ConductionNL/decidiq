@@ -42,9 +42,7 @@
 				role="dialog"
 				:aria-label="t('decidiq', 'Open voting round')">
 				<h3>{{ t('decidiq', 'Open voting round') }}</h3>
-				<label for="votingMethod">{{
-					t('decidiq', 'Voting method')
-				}}</label>
+				<label for="votingMethod">{{ t('decidiq', 'Voting method') }}</label>
 				<select id="votingMethod" v-model="newRound.votingMethod">
 					<option value="for-against-abstain">
 						{{ t('decidiq', 'For / Against / Abstain') }}

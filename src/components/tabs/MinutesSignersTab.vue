@@ -12,9 +12,7 @@
  transition endpoint when the current user matches a pending signer.
 -->
 <template>
-	<div
-		class="decidiq-tab decidiq-tab--signers"
-		data-testid="minutes-signers-tab">
+	<div class="decidiq-tab decidiq-tab--signers" data-testid="minutes-signers-tab">
 		<div class="decidiq-tab__header">
 			<h3 class="decidiq-tab__title">
 				{{ t('decidiq', 'Signers') }}
@@ -299,8 +297,7 @@ export default {
 				this.addDialogOpen = false
 				this.refresh()
 			} catch (e) {
-				this.error =
-					e?.message || this.t('decidiq', 'Failed to add signer.')
+				this.error = e?.message || this.t('decidiq', 'Failed to add signer.')
 			}
 		},
 

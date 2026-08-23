@@ -15,9 +15,7 @@
  @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#requirement-per-meeting-notulen-authoring-tab
 -->
 <template>
-	<div
-		class="decidiq-tab decidiq-tab--minutes"
-		data-testid="meeting-minutes-tab">
+	<div class="decidiq-tab decidiq-tab--minutes" data-testid="meeting-minutes-tab">
 		<div class="decidiq-tab__header">
 			<h3 class="decidiq-tab__title">
 				{{ t('decidiq', 'Minutes') }}

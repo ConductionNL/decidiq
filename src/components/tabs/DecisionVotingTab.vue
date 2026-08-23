@@ -186,8 +186,7 @@ export default {
 				this.votes = all
 			} catch (e) {
 				this.error =
-					e?.message
-					|| this.t('decidiq', 'Failed to load voting results.')
+					e?.message || this.t('decidiq', 'Failed to load voting results.')
 			} finally {
 				this.loading = false
 			}

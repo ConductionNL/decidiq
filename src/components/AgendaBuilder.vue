@@ -177,11 +177,9 @@
 						v-if="coiCount(node.item) > 0"
 						class="agenda-builder__item-coi"
 						:aria-label="
-							t(
-								'decidiq',
-								'{n} conflict of interest declaration(s)',
-								{ n: coiCount(node.item) },
-							)
+							t('decidiq', '{n} conflict of interest declaration(s)', {
+								n: coiCount(node.item),
+							})
 						">
 						{{ t('decidiq', 'COI ({n})', { n: coiCount(node.item) }) }}
 					</span>

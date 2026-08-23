@@ -74,9 +74,7 @@
 						>({{ generatedDocuments.length }})</span
 					>
 				</h3>
-				<p
-					v-if="generatedDocuments.length === 0"
-					class="decidiq-tab__empty">
+				<p v-if="generatedDocuments.length === 0" class="decidiq-tab__empty">
 					{{ t('decidiq', 'No documents generated yet.') }}
 				</p>
 				<ul v-else class="decidiq-tab__list" role="list">

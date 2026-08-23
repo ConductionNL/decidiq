@@ -17,9 +17,7 @@
 		@closing="$emit('close')">
 		<template #default>
 			<p>
-				{{
-					t('decidiq', 'Pick a participant to request a signature from.')
-				}}
+				{{ t('decidiq', 'Pick a participant to request a signature from.') }}
 			</p>
 			<div v-if="loading" class="decidiq-tab__loading">
 				{{ t('decidiq', 'Loading participants…') }}

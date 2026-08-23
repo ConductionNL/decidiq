@@ -36,6 +36,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit;
 
+use OCA\Decidiq\AppInfo\Application;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -84,7 +85,11 @@ class RegisterJsonTest extends TestCase {
 	public function testRegisterIsValidOpenApi(): void {
 		self::assertSame(expected: '3.0.0', actual: $this->register['openapi']);
 		self::assertArrayHasKey(key: 'x-openregister', array: $this->register);
-		self::assertSame(expected: 'decidesk', actual: $this->register['x-openregister']['app']);
+		// Assert against APP_ID rather than a literal: this field attributes the
+		// register to its owning app, so it must track the app id automatically.
+		// A hardcoded literal here silently became the stale half when the id
+		// moved, and reported the CORRECT descriptor as the failure.
+		self::assertSame(expected: Application::APP_ID, actual: $this->register['x-openregister']['app']);
 		self::assertSame(expected: 'application', actual: $this->register['x-openregister']['type']);
 
 	}//end testRegisterIsValidOpenApi()

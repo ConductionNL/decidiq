@@ -521,8 +521,7 @@ export default {
 				if (this.transcript) this.transcript.status = 'processing'
 			} catch (e) {
 				this.error =
-					e?.message
-					|| this.t('decidiq', 'Could not start transcription.')
+					e?.message || this.t('decidiq', 'Could not start transcription.')
 			} finally {
 				this.working = false
 			}

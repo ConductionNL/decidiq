@@ -322,10 +322,7 @@ export default {
 				this.reactionDrafts[consultation.id] = ''
 			} catch (e) {
 				showError(
-					this.apiError(
-						e,
-						t('decidiq', 'Could not submit your reaction'),
-					),
+					this.apiError(e, t('decidiq', 'Could not submit your reaction')),
 				)
 			}
 		},
@@ -350,10 +347,7 @@ export default {
 				}
 			} catch (e) {
 				showError(
-					this.apiError(
-						e,
-						t('decidiq', 'Could not submit your proposal'),
-					),
+					this.apiError(e, t('decidiq', 'Could not submit your proposal')),
 				)
 			}
 		},
