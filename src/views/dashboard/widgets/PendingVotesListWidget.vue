@@ -40,9 +40,6 @@
 				@keydown.space.prevent="openVote(round)">
 				<div class="dashboard-list-widget__main">
 					<span class="dashboard-list-widget__title">{{
-						/**
-						 * @spec openspec/specs/dashboard/spec.md#requirement-my-pending-votes-widget
-						 */
 						voteTitle(round)
 					}}</span>
 					<span class="dashboard-list-widget__meta">{{
@@ -146,6 +143,8 @@ export default {
 		 *
 		 * @param {object} round The voting-round object.
 		 * @return {string} A display title.
+		 *
+		 * @spec openspec/specs/dashboard/spec.md#requirement-my-pending-votes-widget
 		 */
 		voteTitle(round) {
 			const motion = round.motion
