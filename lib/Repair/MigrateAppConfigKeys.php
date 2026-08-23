@@ -111,8 +111,8 @@ class MigrateAppConfigKeys implements IRepairStep {
 	/**
 	 * Constructor for MigrateAppConfigKeys.
 	 *
-	 * @param IAppConfig      $appConfig The app config store to read and write.
-	 * @param LoggerInterface $logger    Logger for keys that fail to copy.
+	 * @param IAppConfig $appConfig The app config store to read and write.
+	 * @param LoggerInterface $logger Logger for keys that fail to copy.
 	 *
 	 * @return void
 	 */
@@ -133,7 +133,6 @@ class MigrateAppConfigKeys implements IRepairStep {
 	 */
 	public function getName(): string {
 		return 'Copy Decidiq app configuration from the decidesk namespace to decidiq';
-
 	}//end getName()
 
 	/**
@@ -208,9 +207,9 @@ class MigrateAppConfigKeys implements IRepairStep {
 		}//end foreach
 
 		$output->info(
-			'MigrateAppConfigKeys: '.$migrated.' key(s) migrated, '.$alreadyPresent
-			.' already present, '.$emptySource.' had no value to migrate, '
-			.$skippedReserved.' skipped as Nextcloud-reserved.'
+			'MigrateAppConfigKeys: ' . $migrated . ' key(s) migrated, ' . $alreadyPresent
+			. ' already present, ' . $emptySource . ' had no value to migrate, '
+			. $skippedReserved . ' skipped as Nextcloud-reserved.'
 		);
 
 	}//end run()
@@ -257,7 +256,7 @@ class MigrateAppConfigKeys implements IRepairStep {
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: could not read the sensitivity flag for an app config key; '
-				.'copying it as sensitive to avoid exposing a secret',
+				. 'copying it as sensitive to avoid exposing a secret',
 				['key' => $key, 'exception' => $e->getMessage()]
 			);
 			return true;

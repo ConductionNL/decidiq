@@ -100,9 +100,9 @@ class MigrateUserPreferences implements IRepairStep {
 	/**
 	 * Constructor for MigrateUserPreferences.
 	 *
-	 * @param IConfig         $config      The user-value store to read and write.
-	 * @param IUserManager    $userManager The user enumeration used to walk seen users.
-	 * @param LoggerInterface $logger      Logger for preferences that fail to copy.
+	 * @param IConfig $config The user-value store to read and write.
+	 * @param IUserManager $userManager The user enumeration used to walk seen users.
+	 * @param LoggerInterface $logger Logger for preferences that fail to copy.
 	 *
 	 * @return void
 	 */
@@ -125,7 +125,6 @@ class MigrateUserPreferences implements IRepairStep {
 	 */
 	public function getName(): string {
 		return 'Copy Decidiq per-user preferences from the decidesk app id';
-
 	}//end getName()
 
 	/**
@@ -170,7 +169,7 @@ class MigrateUserPreferences implements IRepairStep {
 					} catch (Throwable $e) {
 						$this->logger->warning(
 							'Decidiq: could not migrate one per-user preference; '
-							.'leaving it under the old app id',
+							. 'leaving it under the old app id',
 							['key' => $key, 'exception' => $e->getMessage()]
 						);
 					}//end try
@@ -181,7 +180,7 @@ class MigrateUserPreferences implements IRepairStep {
 		if ($walked === false) {
 			$output->warning(
 				'MigrateUserPreferences: could not enumerate users; '
-				.'decidesk preferences were left in place.'
+				. 'decidesk preferences were left in place.'
 			);
 			return;
 		}

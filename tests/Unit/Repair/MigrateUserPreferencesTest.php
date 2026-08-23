@@ -76,12 +76,12 @@ class MigrateUserPreferencesTest extends TestCase {
 	/**
 	 * Build the step over an in-memory per-user preference double.
 	 *
-	 * @param array<string, array<string, string>> $old      Old-namespace values per user id.
-	 * @param array<string, array<string, string>> $new      New-namespace values per user id.
-	 * @param array<string, string>                &$written Receives every write performed.
-	 * @param string[]                             $failReads Keys whose READ throws.
-	 * @param bool                                 $failWalk Whether the user walk throws.
-	 * @param bool                                 &$byValueUsed Set true if getUsersForUserValue is called.
+	 * @param array<string, array<string, string>> $old Old-namespace values per user id.
+	 * @param array<string, array<string, string>> $new New-namespace values per user id.
+	 * @param array<string, string> &$written Receives every write performed.
+	 * @param string[] $failReads Keys whose READ throws.
+	 * @param bool $failWalk Whether the user walk throws.
+	 * @param bool &$byValueUsed Set true if getUsersForUserValue is called.
 	 *
 	 * @return MigrateUserPreferences
 	 */
@@ -113,7 +113,7 @@ class MigrateUserPreferencesTest extends TestCase {
 				string $default = '',
 			) use ($old, $new, $failReads): string {
 				if (in_array($key, $failReads, true) === true) {
-					throw new RuntimeException('read exploded for '.$key);
+					throw new RuntimeException('read exploded for ' . $key);
 				}
 
 				if ($app === self::OLD) {
@@ -126,7 +126,7 @@ class MigrateUserPreferencesTest extends TestCase {
 
 		$config->method('setUserValue')->willReturnCallback(
 			static function (string $uid, string $app, string $key, string $value) use (&$written): void {
-				$written[$uid.'/'.$app.'/'.$key] = $value;
+				$written[$uid . '/' . $app . '/' . $key] = $value;
 			}
 		);
 
@@ -177,9 +177,9 @@ class MigrateUserPreferencesTest extends TestCase {
 
 		$step->run($this->createMock(originalClassName: IOutput::class));
 
-		self::assertSame('false', $written['alice/'.self::NEW.'/pref_notify-vote-open'] ?? null);
-		self::assertSame('2026-09-01', $written['alice/'.self::NEW.'/pref_delegate-until'] ?? null);
-		self::assertSame('true', $written['bob/'.self::NEW.'/pref_notify-vote-open'] ?? null);
+		self::assertSame('false', $written['alice/' . self::NEW . '/pref_notify-vote-open'] ?? null);
+		self::assertSame('2026-09-01', $written['alice/' . self::NEW . '/pref_delegate-until'] ?? null);
+		self::assertSame('true', $written['bob/' . self::NEW . '/pref_notify-vote-open'] ?? null);
 
 	}//end testCopiesEveryStoredPreferenceForEverySeenUser()
 
@@ -208,7 +208,7 @@ class MigrateUserPreferencesTest extends TestCase {
 		$step->run($this->createMock(originalClassName: IOutput::class));
 
 		self::assertFalse($byValueUsed, 'getUsersForUserValue() must never be used to enumerate an open-valued key.');
-		self::assertSame('an-arbitrary-value', $written['alice/'.self::NEW.'/pref_some-open-valued-key'] ?? null);
+		self::assertSame('an-arbitrary-value', $written['alice/' . self::NEW . '/pref_some-open-valued-key'] ?? null);
 
 	}//end testEnumeratesByStoredKeysAndNeverByValue()
 
@@ -227,7 +227,7 @@ class MigrateUserPreferencesTest extends TestCase {
 
 		$step->run($this->createMock(originalClassName: IOutput::class));
 
-		self::assertArrayNotHasKey('alice/'.self::NEW.'/pref_notify-vote-open', $written);
+		self::assertArrayNotHasKey('alice/' . self::NEW . '/pref_notify-vote-open', $written);
 
 	}//end testNeverOverwritesAPreferenceSetAfterTheRename()
 
@@ -253,8 +253,8 @@ class MigrateUserPreferencesTest extends TestCase {
 
 		$step->run($this->createMock(originalClassName: IOutput::class));
 
-		self::assertSame('true', $written['bob/'.self::NEW.'/pref_notify-vote-open'] ?? null);
-		self::assertArrayNotHasKey('alice/'.self::NEW.'/pref_broken', $written);
+		self::assertSame('true', $written['bob/' . self::NEW . '/pref_notify-vote-open'] ?? null);
+		self::assertArrayNotHasKey('alice/' . self::NEW . '/pref_broken', $written);
 
 	}//end testAReadThatThrowsDoesNotAbortTheWalk()
 

@@ -85,11 +85,17 @@ class RegisterJsonTest extends TestCase {
 	public function testRegisterIsValidOpenApi(): void {
 		self::assertSame(expected: '3.0.0', actual: $this->register['openapi']);
 		self::assertArrayHasKey(key: 'x-openregister', array: $this->register);
-		// Assert against APP_ID rather than a literal: this field attributes the
-		// register to its owning app, so it must track the app id automatically.
-		// A hardcoded literal here silently became the stale half when the id
-		// moved, and reported the CORRECT descriptor as the failure.
-		self::assertSame(expected: Application::APP_ID, actual: $this->register['x-openregister']['app']);
+		// FROZEN at 'decidesk', and NOT Application::APP_ID. Measured, not
+		// assumed: with this field set to the new app id, the seeded Goal
+		// objects stopped appearing on the Goals index — 'Goals: index lists
+		// all five seeded goals' failed twice in a row, then passed as soon as
+		// the field went back to 'decidesk', with nothing else changed.
+		//
+		// x-openregister.app is therefore load-bearing at IMPORT time, not the
+		// descriptive metadata it looks like: it participates in resolving
+		// which register the fragment seedData is imported into. It moves only
+		// together with the register slug, which stays 'decidesk'.
+		self::assertSame(expected: 'decidesk', actual: $this->register['x-openregister']['app']);
 		self::assertSame(expected: 'application', actual: $this->register['x-openregister']['type']);
 
 	}//end testRegisterIsValidOpenApi()

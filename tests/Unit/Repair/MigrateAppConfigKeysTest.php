@@ -58,13 +58,13 @@ class MigrateAppConfigKeysTest extends TestCase {
 	/**
 	 * Build the step over an in-memory two-namespace app-config double.
 	 *
-	 * @param array<string, string> $old        Values stored under the old app id.
-	 * @param array<string, string> $new        Values already stored under the new app id.
-	 * @param array<string, string> &$written   Receives every write the step performs.
-	 * @param array<string, bool>   &$sensitive Receives the sensitive flag of every write.
-	 * @param string[]              $failReads  Keys whose READ throws.
-	 * @param bool                  $failKeys   Whether getKeys() itself throws.
-	 * @param array<string, bool>   $sensitiveSource Sensitivity of the old values.
+	 * @param array<string, string> $old Values stored under the old app id.
+	 * @param array<string, string> $new Values already stored under the new app id.
+	 * @param array<string, string> &$written Receives every write the step performs.
+	 * @param array<string, bool> &$sensitive Receives the sensitive flag of every write.
+	 * @param string[] $failReads Keys whose READ throws.
+	 * @param bool $failKeys Whether getKeys() itself throws.
+	 * @param array<string, bool> $sensitiveSource Sensitivity of the old values.
 	 *
 	 * @return MigrateAppConfigKeys
 	 */
@@ -96,7 +96,7 @@ class MigrateAppConfigKeysTest extends TestCase {
 		$appConfig->method('getValueString')->willReturnCallback(
 			static function (string $app, string $key, string $default = '') use ($old, $new, $failReads): string {
 				if (in_array($key, $failReads, true) === true) {
-					throw new RuntimeException('read exploded for '.$key);
+					throw new RuntimeException('read exploded for ' . $key);
 				}
 
 				if ($app === self::OLD) {
@@ -121,8 +121,8 @@ class MigrateAppConfigKeysTest extends TestCase {
 				bool $lazy = false,
 				bool $isSensitive = false,
 			) use (&$written, &$sensitive): bool {
-				$written[$app.'/'.$key] = $value;
-				$sensitive[$app.'/'.$key] = $isSensitive;
+				$written[$app . '/' . $key] = $value;
+				$sensitive[$app . '/' . $key] = $isSensitive;
 				return true;
 			}
 		);
@@ -151,8 +151,8 @@ class MigrateAppConfigKeysTest extends TestCase {
 
 		$step->run($this->createMock(originalClassName: IOutput::class));
 
-		self::assertSame('abc123', $written[self::NEW.'/voter_token_secret'] ?? null);
-		self::assertSame('30', $written[self::NEW.'/retention_days'] ?? null);
+		self::assertSame('abc123', $written[self::NEW . '/voter_token_secret'] ?? null);
+		self::assertSame('30', $written[self::NEW . '/retention_days'] ?? null);
 
 	}//end testCopiesStoredValuesToTheNewNamespace()
 
@@ -186,10 +186,10 @@ class MigrateAppConfigKeysTest extends TestCase {
 
 		$step->run($this->createMock(originalClassName: IOutput::class));
 
-		self::assertArrayNotHasKey(self::NEW.'/enabled', $written);
-		self::assertArrayNotHasKey(self::NEW.'/installed_version', $written);
-		self::assertArrayNotHasKey(self::NEW.'/types', $written);
-		self::assertSame('30', $written[self::NEW.'/retention_days'] ?? null);
+		self::assertArrayNotHasKey(self::NEW . '/enabled', $written);
+		self::assertArrayNotHasKey(self::NEW . '/installed_version', $written);
+		self::assertArrayNotHasKey(self::NEW . '/types', $written);
+		self::assertSame('30', $written[self::NEW . '/retention_days'] ?? null);
 
 	}//end testSkipsNextcloudReservedKeys()
 
@@ -210,7 +210,7 @@ class MigrateAppConfigKeysTest extends TestCase {
 
 		$step->run($this->createMock(originalClassName: IOutput::class));
 
-		self::assertArrayNotHasKey(self::NEW.'/retention_days', $written);
+		self::assertArrayNotHasKey(self::NEW . '/retention_days', $written);
 
 	}//end testNeverOverwritesAValueAlreadySetUnderTheNewAppId()
 
@@ -235,8 +235,8 @@ class MigrateAppConfigKeysTest extends TestCase {
 
 		$step->run($this->createMock(originalClassName: IOutput::class));
 
-		self::assertTrue($sensitive[self::NEW.'/voter_token_secret'] ?? false);
-		self::assertFalse($sensitive[self::NEW.'/retention_days'] ?? true);
+		self::assertTrue($sensitive[self::NEW . '/voter_token_secret'] ?? false);
+		self::assertFalse($sensitive[self::NEW . '/retention_days'] ?? true);
 
 	}//end testCarriesTheSensitiveFlagAcrossTheCopy()
 
@@ -264,8 +264,8 @@ class MigrateAppConfigKeysTest extends TestCase {
 
 		$step->run($this->createMock(originalClassName: IOutput::class));
 
-		self::assertSame('30', $written[self::NEW.'/retention_days'] ?? null);
-		self::assertArrayNotHasKey(self::NEW.'/broken_key', $written);
+		self::assertSame('30', $written[self::NEW . '/retention_days'] ?? null);
+		self::assertArrayNotHasKey(self::NEW . '/broken_key', $written);
 
 	}//end testAReadThatThrowsDoesNotAbortTheRun()
 
