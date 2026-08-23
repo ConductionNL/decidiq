@@ -327,7 +327,7 @@ if [ "$IMPORT_OK" != "1" ]; then
 			-H 'OCS-APIRequest: true' \
 			-F "file=@${REGISTER_JSON}" \
 			-F 'force=true' \
-			-F 'appId=decidesk' \
+			-F 'appId=decidiq' \
 			"$OR_URL" || echo 000
 	)"
 	echo "[ci-seed] configurations/import HTTP ${OR_CODE}"
@@ -357,7 +357,7 @@ import json, sys
 path, kind, code = sys.argv[1], sys.argv[2], sys.argv[3]
 required = {
     # x-openregister.app in decidesk_register.json.
-    'registers': ['decidesk'],
+    'registers': ['decidiq'],
     # Verbatim `slug` values from components.schemas in
     # lib/Settings/decidesk_register.json — the ones the e2e specs address.
     'schemas': [
@@ -416,7 +416,7 @@ for slug in meeting decision governance-body participant; do
 		"${BASE}/index.php/apps/openregister/api/objects/decidiq/${slug}?_limit=1" || echo 000)"
 	echo "[ci-seed] objects/decidiq/${slug} probe -> ${OBJ_CODE}"
 	if [ "$OBJ_CODE" -ge 400 ] 2>/dev/null; then
-		echo "::error::The decidesk ${slug} collection is not readable (HTTP ${OBJ_CODE})."
+		echo "::error::The decidiq ${slug} collection is not readable (HTTP ${OBJ_CODE})."
 		echo "::error::Specs that assert resp.ok() on this URL would fail with no indication the cause is provisioning."
 		exit 1
 	fi
