@@ -28,7 +28,7 @@ import type { Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from '../base-url.ts'
 
-const OR = `${BASE}/index.php/apps/openregister/api/objects/decidesk`
+const OR = `${BASE}/index.php/apps/openregister/api/objects/decidiq`
 
 /** GET a collection through the authenticated page session (read-only). */
 async function listObjects(page: Page, schema: string): Promise<any[]> {

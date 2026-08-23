@@ -31,7 +31,7 @@ import type { APIRequestContext, Page, PlaywrightWorkerArgs } from '@playwright/
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from '../base-url.ts'
 
-const OR = `${BASE}/index.php/apps/openregister/api/objects/decidesk`
+const OR = `${BASE}/index.php/apps/openregister/api/objects/decidiq`
 const ADMIN_USER = process.env.NEXTCLOUD_USER || 'admin'
 const ADMIN_PASS = process.env.NEXTCLOUD_PASS || 'admin'
 
