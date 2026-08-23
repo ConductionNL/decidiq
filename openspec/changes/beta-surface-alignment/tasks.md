@@ -25,7 +25,7 @@
 - [x] 11. Reconcile the NL translation at
       `conduction-website/i18n/nl/docusaurus-plugin-content-pages/apps/decidesk.mdx`:
       same content changes + fix wrong docs URL
-      (`docs.conduction.nl/decidesk` → `decidesk.conduction.nl`).
+      (`docs.conduction.nl/decidesk` → `decidiq.conduction.nl`).
 - [x] 12. Check `img/app.svg` against the brand icon convention (white fill,
       24×24) — compliant, no change.
 - [x] 13. Note the 3 dead Showcase CTA links in `decidesk.mdx`

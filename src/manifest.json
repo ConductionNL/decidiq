@@ -95,7 +95,7 @@
 			"id": "Documentation",
 			"label": "Documentation",
 			"icon": "BookOpenVariantOutline",
-			"href": "https://decidesk.conduction.nl",
+			"href": "https://decidiq.conduction.nl",
 			"section": "footer",
 			"order": 90
 		},
@@ -317,7 +317,7 @@
 						"dateChip": false
 					}
 				],
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			},
 			"slots": {
 				"header-actions": "DashboardQuickActions",
@@ -355,7 +355,7 @@
 					"enabled": true,
 					"showMetadata": true
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -417,7 +417,7 @@
 						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
 					]
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -445,7 +445,7 @@
 					"enabled": true,
 					"showMetadata": true
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -504,7 +504,7 @@
 						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
 					]
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			},
 			"slots": {
 				"widget-meeting-participants": "MeetingParticipantsTab",
@@ -546,7 +546,7 @@
 					"schema": "meeting",
 					"useRegistry": true
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			},
 			"_note": "Comms/collaboration workspace for a meeting — the ADR-019 integration surface, deliberately distinct from the MeetingDetail record page. The leaves promoted onto the body are exactly the providers bound to the meeting object through the registry: the Deck action-items board (migrate-action-items-to-deck-leaf), projecting the CalDAV VTODO ActionItems (ADR-002 source of truth) as cards and replacing the retired in-app TaskService/DelegationService board; Discussion (Talk); meeting Files and Notes. Comms leaves are legitimate here because these are the meeting's registry-bound integration providers. The useRegistry sidebar still lists every provider and hides each gracefully when its backing app is absent — action items then remain reachable via the Nextcloud Tasks app over the same VTODOs."
 		},
@@ -575,7 +575,7 @@
 					"schema": "decision",
 					"useRegistry": true
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			},
 			"_note": "Email linking is consumed from the ADR-019 Email integration leaf bound to the decision object (migrate-email-links-to-email-leaf), replacing the retired in-app EmailLink store. The Action items board is consumed from the ADR-019 Deck integration leaf bound to the decision object (migrate-action-items-to-deck-leaf), projecting CalDAV VTODO ActionItems (ADR-002) as cards and replacing the retired in-app TaskService/DelegationService board. The registry hides each tab gracefully when its backing app is absent — action items then remain reachable via the Nextcloud Tasks app over the same VTODOs."
 		},
@@ -604,7 +604,7 @@
 					"schema": "agenda-item",
 					"useRegistry": true
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			},
 			"_note": "Email linking is consumed from the ADR-019 Email integration leaf bound to the agenda-item object (migrate-email-links-to-email-leaf), replacing the retired in-app EmailLink store. Registry hides the Email tab gracefully when Mail is absent."
 		},
@@ -636,7 +636,7 @@
 					"enabled": true,
 					"showMetadata": true
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -665,7 +665,7 @@
 						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
 					]
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -706,7 +706,7 @@
 					"enabled": true,
 					"showMetadata": true
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -738,7 +738,7 @@
 						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
 					]
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -782,7 +782,7 @@
 					"enabled": true,
 					"showMetadata": true
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -823,7 +823,7 @@
 						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
 					]
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -871,7 +871,7 @@
 						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
 					]
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			},
 			"slots": {
 				"widget-amend-diff": "AmendmentDiffTab",
@@ -898,7 +898,7 @@
 					"enabled": true,
 					"showMetadata": true
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -937,7 +937,7 @@
 						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
 					]
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -1035,7 +1035,7 @@
 					"enabled": true,
 					"showMetadata": true
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -1100,7 +1100,7 @@
 						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
 					]
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -1127,7 +1127,7 @@
 					"enabled": true,
 					"showMetadata": true
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -1156,7 +1156,7 @@
 						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
 					]
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -1182,7 +1182,7 @@
 					"schema": "engagement-record",
 					"useRegistry": true
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -1191,7 +1191,7 @@
 			"type": "roadmap",
 			"title": "Features & roadmap",
 			"config": {
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		}
 	]

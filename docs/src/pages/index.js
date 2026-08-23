@@ -276,7 +276,7 @@ export default function Home() {
           secondaryCta={{ label: 'Read the docs', href: '/docs/intro' }}
           tertiaryCta={{
             label: 'View on GitHub',
-            href: 'https://codeberg.org/Conduction/decidesk',
+            href: 'https://github.com/ConductionNL/decidesk',
           }}
           iconColor="var(--c-orange-knvb)"
           icon={DECIDIQ_ICON}
