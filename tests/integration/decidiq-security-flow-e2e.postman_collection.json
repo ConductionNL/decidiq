@@ -288,7 +288,7 @@
 							"raw": "{\n  \"displayName\": \"SFEC Grantor\",\n  \"name\": \"SFEC Grantor\",\n  \"nextcloudUserId\": \"{{sfecGrantorUser}}\",\n  \"role\": \"member\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -298,7 +298,7 @@
 								"openregister",
 								"api",
 								"objects",
-								"decidesk",
+								"decidiq",
 								"participant"
 							]
 						}
@@ -358,7 +358,7 @@
 							"raw": "{\n  \"displayName\": \"SFEC Holder\",\n  \"name\": \"SFEC Holder\",\n  \"role\": \"member\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -368,7 +368,7 @@
 								"openregister",
 								"api",
 								"objects",
-								"decidesk",
+								"decidiq",
 								"participant"
 							]
 						}
@@ -428,7 +428,7 @@
 							"raw": "{\n  \"title\": \"SFEC Proxy Meeting\",\n  \"meetingType\": \"regular\",\n  \"scheduledDate\": \"2026-06-20T10:00:00+00:00\",\n  \"meetingMode\": \"hybrid\",\n  \"lifecycle\": \"opened\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -438,7 +438,7 @@
 								"openregister",
 								"api",
 								"objects",
-								"decidesk",
+								"decidiq",
 								"meeting"
 							]
 						}
@@ -797,7 +797,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant/{{sfecParticipantId}}",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant/{{sfecParticipantId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -807,7 +807,7 @@
 								"openregister",
 								"api",
 								"objects",
-								"decidesk",
+								"decidiq",
 								"participant",
 								"{{sfecParticipantId}}"
 							]
@@ -844,7 +844,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant/{{sfecHolderParticipantId}}",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant/{{sfecHolderParticipantId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -854,7 +854,7 @@
 								"openregister",
 								"api",
 								"objects",
-								"decidesk",
+								"decidiq",
 								"participant",
 								"{{sfecHolderParticipantId}}"
 							]
@@ -891,7 +891,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting/{{sfecMeetingId}}",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting/{{sfecMeetingId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -901,7 +901,7 @@
 								"openregister",
 								"api",
 								"objects",
-								"decidesk",
+								"decidiq",
 								"meeting",
 								"{{sfecMeetingId}}"
 							]

@@ -210,7 +210,7 @@ class MeetingService {
 		// a generic error response without leaking object details.
 		$updated = $this->objectService->saveObject(
 			object: array_merge($meetingData, ['lifecycle' => $transition['to']], $efficiencyPatch),
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'meeting',
 			uuid: $meetingId,
 		);

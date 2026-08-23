@@ -26,7 +26,7 @@
 			"title": "Oral questions",
 			"_note": "spec: openspec/changes/vragenuur-interpellatie/specs/mondelinge-vragen-register/spec.md#requirement-req-vri-008-list-and-detail-pages-for-oral-questions",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "mondelinge-vraag",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -51,10 +51,10 @@
 				"columns": [
 					{ "key": "questionNumber", "label": "Number", "widget": "link" },
 					{ "key": "subject", "label": "Subject" },
-					{ "key": "submitter", "label": "Submitter", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
+					{ "key": "submitter", "label": "Submitter", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
 					{ "key": "politicalGroup", "label": "Fraction" },
-					{ "key": "portfolioHolder", "label": "Portefeuillehouder", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
-					{ "key": "targetMeeting", "label": "Meeting", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "meeting", "labelField": "title" } },
+					{ "key": "portfolioHolder", "label": "Portefeuillehouder", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
+					{ "key": "targetMeeting", "label": "Meeting", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "meeting", "labelField": "title" } },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 				],
 				"actions": [
@@ -72,7 +72,7 @@
 			"title": "Oral question",
 			"_note": "spec: openspec/changes/vragenuur-interpellatie/specs/mondelinge-vragen-register/spec.md#requirement-req-vri-008-list-and-detail-pages-for-oral-questions",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "mondelinge-vraag",
 				"_note": "MondelingeVraagDetail (REQ-VRI-008). Question data leads 8-wide, admission/scheduling/answer actions stacked right; the linked indiener/fractie/portefeuillehouder/governanceBody/targetMeeting/vragenuurAgendaItem/beantwoordDoor/vervolgToezegging/bronSchriftelijkeVraag/vervolgSchriftelijkeVraag render as resolved references in the data + Related widgets (navigable links, REQ-VRI-006/REQ-VRI-005 link back to the written question and the toezegging). Files leaf for the original schriftelijke-vraag PDF. Audit trail is a sidebar tab. Submission/admission/scheduling/answer run in dedicated dialogs (modal-isolation gate) wired to OralQuestionService.",
 				"widgets": [
@@ -102,7 +102,7 @@
 			"title": "Interpellations",
 			"_note": "spec: openspec/changes/vragenuur-interpellatie/specs/interpellatie-register/spec.md#requirement-req-vri-014-notifications-and-list-detail-pages-for-interpellations",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "interpellatieverzoek",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -126,9 +126,9 @@
 				"columns": [
 					{ "key": "requestNumber", "label": "Number", "widget": "link" },
 					{ "key": "subject", "label": "Subject" },
-					{ "key": "requester", "label": "Requester", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
+					{ "key": "requester", "label": "Requester", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
 					{ "key": "politicalGroup", "label": "Fraction" },
-					{ "key": "portfolioHolder", "label": "Portefeuillehouder", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
+					{ "key": "portfolioHolder", "label": "Portefeuillehouder", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 				],
 				"actions": [
@@ -146,7 +146,7 @@
 			"title": "Interpellation request",
 			"_note": "spec: openspec/changes/vragenuur-interpellatie/specs/interpellatie-register/spec.md#requirement-req-vri-014-notifications-and-list-detail-pages-for-interpellations",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "interpellatieverzoek",
 				"_note": "InterpellatieverzoekDetail (REQ-VRI-011/REQ-VRI-012/REQ-VRI-013/REQ-VRI-014). Request data leads 8-wide, admission/scheduling/treatment actions stacked right; the linked verzoeker/fractie/portefeuillehouder/governanceBody/behandeldIn/agendaItem render as resolved references in the data + Related widgets (navigable links). Support recording (steunbetuigingen) runs in a dedicated dialog while ingediend; the support status ('N of M required', ceil) is computed client-side from VragenuurConfiguratie and the body's member count and informs, never gates. Files leaf for the written interpellation request PDF. Audit trail is a sidebar tab. Actions wired to OralQuestionService (modal-isolation gate).",
 				"widgets": [

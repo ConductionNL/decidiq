@@ -58,7 +58,7 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 	 *
 	 * @var string
 	 */
-	private const REGISTER = 'decidesk';
+	private const REGISTER = 'decidiq';
 
 	/**
 	 * The conflict-of-interest schema slug.

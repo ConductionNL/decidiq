@@ -7,7 +7,7 @@
  * Creates and tears down the governance entities the workflow specs need —
  * GovernanceBody, Meeting (with quorumRequired), Participants (members for
  * quorum), Motion, Decision, VotingRound — through the OpenRegister object
- * REST API (`/index.php/apps/openregister/api/objects/decidesk/{schema}`)
+ * REST API (`/index.php/apps/openregister/api/objects/decidiq/{schema}`)
  * using a Playwright-authenticated `APIRequestContext` so the calls carry the
  * admin session cookie + CSRF requesttoken.
  *

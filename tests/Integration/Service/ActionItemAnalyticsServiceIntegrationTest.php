@@ -96,7 +96,7 @@ class ActionItemAnalyticsServiceIntegrationTest extends TestCase {
 			foreach ($this->createdIds as $id) {
 				try {
 					$this->objectService->deleteObject(
-						register: 'decidesk',
+						register: 'decidiq',
 						schema: 'action-item',
 						id: $id
 					);
@@ -129,7 +129,7 @@ class ActionItemAnalyticsServiceIntegrationTest extends TestCase {
 		// Seed one overdue open action-item.
 		try {
 			$entity = $this->objectService->saveObject(
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'action-item',
 				object: [
 					'title' => 'Integration test action item (wave-9 C1)',

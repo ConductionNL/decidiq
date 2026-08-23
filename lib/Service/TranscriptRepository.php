@@ -133,7 +133,7 @@ class TranscriptRepository {
 		$objectService = $this->getObjectService();
 
 		try {
-			$entity = $objectService->find(id: $id, register: 'decidesk', schema: $schema);
+			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
 		} catch (\OCP\AppFramework\Db\DoesNotExistException) {
 			throw new MissingObjectException(message: $absentMessage);
 		}
@@ -158,10 +158,10 @@ class TranscriptRepository {
 		$objectService = $this->getObjectService();
 		$entities = $objectService->findAll(
 			[
-				'register' => 'decidesk',
+				'register' => 'decidiq',
 				'schema' => 'agenda-item',
 				'filters' => [
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'agenda-item',
 					'_relations.meeting' => $meetingId,
 				],
@@ -202,7 +202,7 @@ class TranscriptRepository {
 
 		$saved = $objectService->saveObject(
 			object: $transcript,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'transcript',
 			uuid: $this->transcriptId(transcript: $transcript)
 		);
@@ -257,7 +257,7 @@ class TranscriptRepository {
 
 		$this->getObjectService()->saveObject(
 			object: $body,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'governance-body',
 			uuid: $bodyId
 		);

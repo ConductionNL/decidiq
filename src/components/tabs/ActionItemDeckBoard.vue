@@ -227,7 +227,7 @@ export default {
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
 		register() {
 			const settings = useSettingsStore().getSettings || {}
-			return settings.register || 'decidesk'
+			return settings.register || 'decidiq'
 		},
 
 		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */

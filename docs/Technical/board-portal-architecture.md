@@ -90,7 +90,7 @@ mode-specific field values. All schemas are registered in
 The `Board*`-prefixed routes (`/api/boards`, `/api/board-meetings`, etc.) were
 removed in C3 retire-board-portal. Corporate governance entities are now
 accessed via the standard OpenRegister object API
-(`/api/objects/decidesk/{schema}/{id}`).
+(`/api/objects/decidiq/{schema}/{id}`).
 
 The following **corporate-specific** feature controllers are retained, their
 routes updated to reference universal entity IDs:

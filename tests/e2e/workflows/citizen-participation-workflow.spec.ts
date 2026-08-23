@@ -139,7 +139,7 @@ test.describe('Citizen participation — consultations', () => {
 			submitterId: 'admin',
 			submittedAt: new Date().toISOString(),
 			relations: [
-				{ register: 'decidesk', schema: 'public-consultation', id: cid },
+				{ register: 'decidiq', schema: 'public-consultation', id: cid },
 			],
 		})
 		await createObject(page, ledger, 'consultation-reaction', {
@@ -148,7 +148,7 @@ test.describe('Citizen participation — consultations', () => {
 			submitterId: 'admin',
 			submittedAt: new Date().toISOString(),
 			relations: [
-				{ register: 'decidesk', schema: 'public-consultation', id: cid },
+				{ register: 'decidiq', schema: 'public-consultation', id: cid },
 			],
 		})
 
@@ -261,7 +261,7 @@ test.describe('Citizen participation — participatory budgeting', () => {
 			votesFor: 0,
 			votesAgainst: 0,
 			relations: [
-				{ register: 'decidesk', schema: 'participatory-budget', id: bid },
+				{ register: 'decidiq', schema: 'participatory-budget', id: bid },
 			],
 		})
 		await createObject(page, ledger, 'budget-proposal', {
@@ -270,7 +270,7 @@ test.describe('Citizen participation — participatory budgeting', () => {
 			status: 'submitted',
 			submitter: 'admin',
 			relations: [
-				{ register: 'decidesk', schema: 'participatory-budget', id: bid },
+				{ register: 'decidiq', schema: 'participatory-budget', id: bid },
 			],
 		})
 
@@ -311,7 +311,7 @@ test.describe('Citizen participation — participatory budgeting', () => {
 			votesAgainst: 1,
 			relations: [
 				{
-					register: 'decidesk',
+					register: 'decidiq',
 					schema: 'participatory-budget',
 					id: objId(round),
 				},

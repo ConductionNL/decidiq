@@ -78,7 +78,7 @@ export function ensureRelationType(type) {
 	const objectStore = useObjectStore()
 	const settingsStore = useSettingsStore()
 	const settings = settingsStore.getSettings || {}
-	const register = settings.register || 'decidesk'
+	const register = settings.register || 'decidiq'
 
 	const settingsKey = TYPE_TO_SETTINGS_KEY[type]
 	const schemaSlug = (settingsKey && settings[settingsKey]) || type

@@ -321,7 +321,7 @@ export default {
 		 * is `v-if`'d on this method, so a closed cycle with a perfectly good
 		 * summary — including the seeded 2025 comparison cycle — rendered no
 		 * score at all, with no error anywhere. Measured on a live instance:
-		 * `GET /api/objects/decidesk/board-evaluation` returns
+		 * `GET /api/objects/decidiq/board-evaluation` returns
 		 * `scoreSummary: {overallScore: 3.6, …}`, an object.
 		 *
 		 * Accept both shapes rather than betting on one.

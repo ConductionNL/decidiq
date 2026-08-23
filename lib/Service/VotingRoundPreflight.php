@@ -153,7 +153,7 @@ class VotingRoundPreflight {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function assertRevoteAllowed(string $revoteOfRoundId): void {
-		$originalEntity = $this->objectService->find(id: $revoteOfRoundId, register: 'decidesk', schema: 'voting-round');
+		$originalEntity = $this->objectService->find(id: $revoteOfRoundId, register: 'decidiq', schema: 'voting-round');
 		if ($originalEntity === null) {
 			throw new RuntimeException("Revote refused: round {$revoteOfRoundId} not found");
 		}
@@ -168,7 +168,7 @@ class VotingRoundPreflight {
 		}
 
 		// The "once" guarantee: no other round may already reference this round.
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('voting-round');
 		$existingRevotes = $this->objectService->findAll(['filters' => ['revoteOfRound' => $revoteOfRoundId]]);
 		foreach ($existingRevotes as $revoteEntity) {
@@ -241,9 +241,9 @@ class VotingRoundPreflight {
 		?string $revoteOfRoundId,
 		array $participantIds,
 	): array {
-		$relations = [['register' => 'decidesk', 'schema' => $subjectType, 'id' => $motionId]];
+		$relations = [['register' => 'decidiq', 'schema' => $subjectType, 'id' => $motionId]];
 		foreach ($participantIds as $uuid) {
-			$relations[] = ['register' => 'decidesk', 'schema' => 'participant', 'id' => $uuid];
+			$relations[] = ['register' => 'decidiq', 'schema' => 'participant', 'id' => $uuid];
 		}
 
 		$round = [

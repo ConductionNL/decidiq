@@ -32,7 +32,7 @@
 			"title": "My declarations",
 			"_note": "spec: openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010. Self-service page (REQ-INT-010) — stable deep-link target for member-onboarding's nevenfuncties-intake step. Declarative index shell over the current user's own nevenfuncties; add/edit, end-position, and annual-confirm actions plus the member's geschenken block are plain saveObject field writes wired by frontend components (Task 4, out of the declarative core). Members see and edit only their own objects via OR per-object RBAC (owner scope).",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "nevenfunctie",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -49,7 +49,7 @@
 				"columns": [
 					{ "key": "organisation", "label": "Organisation", "widget": "link" },
 					{ "key": "role", "label": "Function" },
-					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "remunerated", "label": "Remunerated", "widget": "badge" },
 					{ "key": "reviewedAt", "label": "Reviewed" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
@@ -68,7 +68,7 @@
 			"title": "Other positions",
 			"_note": "spec: openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010. Per-body nevenfunctiesregister (REQ-INT-001/REQ-INT-010). Columns person/organisatie/functie/remunerated/qualitateQua/governanceBody/lifecycle; quick filters on lifecycle; per-body filtering via the index facet on governanceBody. CSV export via ExportService + CnMassExportDialog. The overdue-review KPI deep-link (Dashboard, base manifest) targets this page pre-filtered; the per-body compliance panel (client-side join of memberships × nevenfuncties) is a frontend addition (Task 5), not part of this declarative fragment.",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "nevenfunctie",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -82,12 +82,12 @@
 					{ "label": "Ended", "filter": { "lifecycle": "ended" } }
 				],
 				"columns": [
-					{ "key": "person", "label": "Person", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
+					{ "key": "person", "label": "Person", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
 					{ "key": "organisation", "label": "Organisation" },
 					{ "key": "role", "label": "Function" },
 					{ "key": "remunerated", "label": "Remunerated", "widget": "badge" },
 					{ "key": "qualitateQua", "label": "Ex officio", "widget": "badge" },
-					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 				],
 				"actions": [
@@ -105,7 +105,7 @@
 			"title": "Other position",
 			"_note": "spec: openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-001. Nevenfunctie detail. Declaration data leads 8-wide, publication stacked right; the linked person/governanceBody render as resolved references in the data + Related widgets. Publish/withdraw, end-position, and annual-confirm are plain saveObject field writes wired by frontend components (Task 4). Audit trail is a sidebar tab.",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "nevenfunctie",
 				"widgets": [
 					{ "id": "nevenfunctie-data", "type": "data", "title": "Other position", "icon": "Briefcase", "content": { "columns": 2 } },
@@ -132,7 +132,7 @@
 			"title": "Gifts",
 			"_note": "spec: openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005. Per-body geschenkenregister (REQ-INT-005/REQ-INT-006/REQ-INT-010). Columns recipient/type/gever/omschrijving/geschatteWaarde/besluit; quick filters on type and besluit; per-body filtering and the boven-drempel filter via the index facet (boven-drempel is a frontend render rule comparing geschatteWaarde to the body's policy threshold — REQ-INT-006). CSV export via ExportService + CnMassExportDialog.",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "geschenk",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -147,7 +147,7 @@
 					{ "label": "Handed over", "filter": { "decision": "transferred" } }
 				],
 				"columns": [
-					{ "key": "recipient", "label": "Recipient", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
+					{ "key": "recipient", "label": "Recipient", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
 					{ "key": "type", "label": "Type", "widget": "badge" },
 					{ "key": "giver", "label": "Giver" },
 					{ "key": "description", "label": "Description" },
@@ -169,7 +169,7 @@
 			"title": "Gift",
 			"_note": "spec: openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005. Geschenk detail. Registration data leads 8-wide, publication stacked right; the linked recipient/governanceBody render as resolved references in the data + Related widgets. The boven-drempel badge and publish/withdraw (per body policy) are frontend actions (Task 4/5). Audit trail is a sidebar tab.",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "geschenk",
 				"widgets": [
 					{ "id": "geschenk-data", "type": "data", "title": "Gift", "icon": "Package", "content": { "columns": 2 } },

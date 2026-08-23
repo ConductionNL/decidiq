@@ -200,7 +200,7 @@ async function mockTranscriptionApi(
 
 	// OR object reads the panel does (existing transcript + agenda titles).
 	await page.route(
-		'**/apps/openregister/api/objects/decidesk/transcript**',
+		'**/apps/openregister/api/objects/decidiq/transcript**',
 		(route) =>
 			route.fulfill({
 				status: 200,
@@ -212,7 +212,7 @@ async function mockTranscriptionApi(
 			}),
 	)
 	await page.route(
-		'**/apps/openregister/api/objects/decidesk/agenda-item**',
+		'**/apps/openregister/api/objects/decidiq/agenda-item**',
 		(route) =>
 			route.fulfill({
 				status: 200,

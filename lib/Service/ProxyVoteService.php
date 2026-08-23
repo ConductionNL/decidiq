@@ -126,7 +126,7 @@ class ProxyVoteService {
 	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-1
 	 */
 	private function resolveParticipantUuid(string $nextcloudUid): ?string {
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('participant');
 		$entities = $this->objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
 
@@ -356,7 +356,7 @@ class ProxyVoteService {
 			// REQ-BPV-001; see the class docblock's RBAC note.
 			$saved = $this->objectService->saveObject(
 				object: $row,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: self::SCHEMA,
 				_rbac: false
 			);
@@ -488,7 +488,7 @@ class ProxyVoteService {
 			$rows = $this->objectService->findAll(
 				[
 					'filters' => [
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => self::SCHEMA,
 						'meeting' => $meetingId,
 					],
@@ -562,7 +562,7 @@ class ProxyVoteService {
 		try {
 			$entity = $this->objectService->find(
 				id: $proxyId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: self::SCHEMA
 			);
 			if ($entity === null) {
@@ -599,7 +599,7 @@ class ProxyVoteService {
 			// REQ-BPV-002; see the class docblock's RBAC note.
 			$saved = $this->objectService->saveObject(
 				object: $merged,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: self::SCHEMA,
 				uuid: $proxyId,
 				_rbac: false

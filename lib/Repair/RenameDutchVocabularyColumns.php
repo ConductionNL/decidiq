@@ -82,7 +82,7 @@ class RenameDutchVocabularyColumns implements IRepairStep {
 	 *
 	 * @var string
 	 */
-	private const REGISTER_SLUG = 'decidesk';
+	private const REGISTER_SLUG = 'decidiq';
 
 	/**
 	 * Old snake_case column name => new snake_case column name.

@@ -10,7 +10,7 @@
  * ── WHY `_relations.<schema-slug>` MATCHES NOTHING ──────────────────────────
  * Decidiq writes links as a STRUCTURED relations array on the object payload:
  *
- *     'relations' => [['register' => 'decidesk', 'schema' => 'vote', 'id' => $id]]
+ *     'relations' => [['register' => 'decidiq', 'schema' => 'vote', 'id' => $id]]
  *
  * OpenRegister's SaveObject::scanForRelations() flattens that into the
  * `_relations` JSONB keyed by the PROPERTY PATH it walked — `relations.0.id`,

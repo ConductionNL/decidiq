@@ -89,7 +89,7 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 	 *
 	 * @var string
 	 */
-	private const REGISTER = 'decidesk';
+	private const REGISTER = 'decidiq';
 
 	/**
 	 * The schema slug this listener recognises as a consultation reaction.

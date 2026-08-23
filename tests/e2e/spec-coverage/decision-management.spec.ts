@@ -126,7 +126,7 @@ test('lifecycle tab renders the 7-state timeline with current state and actions'
 	page,
 }) => {
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/decision?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/decision?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(resp.ok(), 'Decision API should be reachable').toBe(true)
@@ -183,7 +183,7 @@ test('lifecycle tab renders the 7-state timeline with current state and actions'
 // @e2e openspec/specs/decision-management/spec.md#view-decision-detail-with-voting-results
 test('voting results tab renders on decision detail', async ({ page }) => {
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/decision?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/decision?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(resp.ok(), 'Decision API should be reachable').toBe(true)
@@ -226,7 +226,7 @@ test('voting results tab renders on decision detail', async ({ page }) => {
 // Audit trail is rendered in the sidebar tab; verify by navigating to a decision detail
 test('decision detail view renders for an existing decision', async ({ page }) => {
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/decision?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/decision?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(resp.ok(), 'Decision API should be reachable').toBe(true)

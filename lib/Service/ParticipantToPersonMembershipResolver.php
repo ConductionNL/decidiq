@@ -62,7 +62,7 @@ class ParticipantToPersonMembershipResolver {
 	 *
 	 * @var string
 	 */
-	private const REGISTER = 'decidesk';
+	private const REGISTER = 'decidiq';
 
 	/**
 	 * The deprecated Participant schema slug.

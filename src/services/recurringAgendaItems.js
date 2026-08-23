@@ -45,7 +45,7 @@ import { useSettingsStore } from '../store/modules/settings.js'
  */
 export async function fetchRecurringAgendaItems(limit = 200) {
 	const settings = useSettingsStore().getSettings || {}
-	const register = settings.register || 'decidesk'
+	const register = settings.register || 'decidiq'
 	const schema = settings.agendaItemSchema || 'agenda-item'
 
 	const { data } = await axios.get(

@@ -110,7 +110,7 @@ class MotionAmendmentService {
 		// decisionType=amendment, and the retired Amendment schema's flat
 		// `parentMotion` property is now the `amends` relation declared on
 		// Decision.
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('decision');
 		$byProperty = $objectService->findAll(
 			[
@@ -133,7 +133,7 @@ class MotionAmendmentService {
 		// MagicSearchHandler::applyRelationFieldFilter), which ADR-005 moved from
 		// the retired `parentMotion` to `amends`. Each hit is still re-checked
 		// for an exact motion-id reference before it counts.
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('decision');
 		$byRelation = $objectService->findAll(
 			[
@@ -238,11 +238,11 @@ class MotionAmendmentService {
 			// restates what is already true rather than deciding anything.
 			$amendment['decisionType'] = 'amendment';
 
-			$objectService->setRegister('decidesk');
+			$objectService->setRegister('decidiq');
 			$objectService->setSchema('decision');
 			$objectService->saveObject(
 				object: $amendment,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'decision',
 				uuid: $amendmentId,
 			);
@@ -280,7 +280,7 @@ class MotionAmendmentService {
 
 		// Fetch the new amendment. ADR-005: a `decision` lookup by id no longer
 		// proves the object is an amendment, so the discriminator is re-checked.
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('decision');
 		$newAmendment = $objectService->find($newAmendmentId);
 		$newData = ($newAmendment?->getObject() ?? []);
@@ -302,7 +302,7 @@ class MotionAmendmentService {
 		}
 
 		// Store conflict note on the new amendment.
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('decision');
 		$notes = ($newData['notes'] ?? []);
 		$notes[] = [
@@ -319,7 +319,7 @@ class MotionAmendmentService {
 					'decisionType' => 'amendment',
 				]
 			),
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision',
 			uuid: $newAmendmentId,
 		);
@@ -415,7 +415,7 @@ class MotionAmendmentService {
 
 		// ADR-005: both sides are `decision` objects; the discriminator carries
 		// the identity the retired schemas used to carry.
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('decision');
 		$amendmentObject = $objectService->find($amendmentId);
 		$amendmentData = [];
@@ -432,7 +432,7 @@ class MotionAmendmentService {
 		$amendTitle = $amendmentData['title'] ?? 'Amendement';
 		$amendText = $amendmentData['text'] ?? '';
 
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('decision');
 		$motionObject = $objectService->find($motionId);
 		$motionData = [];
@@ -451,7 +451,7 @@ class MotionAmendmentService {
 
 		$objectService->saveObject(
 			object: array_merge($motionData, ['text' => $updatedText]),
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision',
 			uuid: $motionId,
 		);

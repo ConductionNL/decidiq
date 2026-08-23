@@ -122,7 +122,7 @@ class MinutesDocumentService {
 		$objectService = $this->getObjectService();
 
 		// ACL applies via session-scoped register/schema context (OWASP A01).
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('minutes');
 		$minutesEntity = $objectService->find($minutesId);
 
@@ -346,7 +346,7 @@ class MinutesDocumentService {
 		}
 
 		try {
-			$entity = $objectService->find(id: $agendaItemId, register: 'decidesk', schema: 'agenda-item');
+			$entity = $objectService->find(id: $agendaItemId, register: 'decidiq', schema: 'agenda-item');
 			if ($entity !== null) {
 				$item = $entity->getObject();
 				return (string)($item['title'] ?? ($item['name'] ?? $agendaItemId));
@@ -470,7 +470,7 @@ class MinutesDocumentService {
 			$documents[] = $record;
 			$updated = array_merge($minutes, ['generatedDocuments' => $documents]);
 
-			$objectService->saveObject(object: $updated, register: 'decidesk', schema: 'minutes', uuid: $minutesId);
+			$objectService->saveObject(object: $updated, register: 'decidiq', schema: 'minutes', uuid: $minutesId);
 		} catch (\Throwable $e) {
 			// The document itself was persisted; a failed bookkeeping write must
 			// not fail the request. Log and continue.
@@ -508,7 +508,7 @@ class MinutesDocumentService {
 		}
 
 		try {
-			$meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+			$meetingEntity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 			if ($meetingEntity === null) {
 				return null;
 			}

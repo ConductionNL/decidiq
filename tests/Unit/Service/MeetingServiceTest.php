@@ -191,7 +191,7 @@ class MeetingServiceTest extends TestCase {
 					}
 				),
 				$this->anything(),
-				'decidesk',
+				'decidiq',
 				'meeting',
 				$uuid,
 			)

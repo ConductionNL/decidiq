@@ -222,7 +222,7 @@ class MinutesContextResolver {
 	 */
 	public function agendaItems(string $meetingId): array {
 		$objectService = $this->objectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('agenda-item');
 
 		$entities = $objectService->findAll(
@@ -249,7 +249,7 @@ class MinutesContextResolver {
 	 */
 	private function findParticipants(array $filters): array {
 		$objectService = $this->objectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('participant');
 
 		$entities = $objectService->findAll(['filters' => $filters]);
@@ -268,7 +268,7 @@ class MinutesContextResolver {
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
 	 */
 	private function findObject(string $id, string $schema): ?array {
-		$entity = $this->objectService()->find(id: $id, register: 'decidesk', schema: $schema);
+		$entity = $this->objectService()->find(id: $id, register: 'decidiq', schema: $schema);
 		if ($entity === null) {
 			return null;
 		}

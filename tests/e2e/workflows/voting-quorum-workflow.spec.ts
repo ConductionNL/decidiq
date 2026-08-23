@@ -311,7 +311,7 @@ for (const c of TALLY_CASES) {
 				weight: 1,
 				castAt: '2026-09-01T10:05:00Z',
 				relations: [
-					{ register: 'decidesk', schema: 'voting-round', id: vrId },
+					{ register: 'decidiq', schema: 'voting-round', id: vrId },
 				],
 			})
 		}

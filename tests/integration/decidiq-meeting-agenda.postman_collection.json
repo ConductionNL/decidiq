@@ -43,9 +43,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "meeting"]
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidiq", "meeting"]
 						},
 						"body": {
 							"mode": "raw",
@@ -404,7 +404,7 @@
 									"        const id = (row['@self'] && row['@self'].id) || row.id;",
 									"        if (!id || id === templateId) { return; }",
 									"        pm.sendRequest({",
-									"            url: pm.variables.get('baseUrl') + '/index.php/apps/openregister/api/objects/decidesk/meeting/' + id,",
+									"            url: pm.variables.get('baseUrl') + '/index.php/apps/openregister/api/objects/decidiq/meeting/' + id,",
 									"            method: 'DELETE',",
 									"            header: { Authorization: authHeader, 'OCS-APIRequest': 'true', Accept: 'application/json' },",
 									"        }, () => {});",
@@ -428,9 +428,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting?series={{maSeriesSlug}}&_limit=100",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting?series={{maSeriesSlug}}&_limit=100",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "meeting"],
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidiq", "meeting"],
 							"query": [
 								{ "key": "series", "value": "{{maSeriesSlug}}" },
 								{ "key": "_limit", "value": "100" }
@@ -467,9 +467,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting/{{maTemplateMeetingId}}",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting/{{maTemplateMeetingId}}",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "meeting", "{{maTemplateMeetingId}}"]
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidiq", "meeting", "{{maTemplateMeetingId}}"]
 						}
 					}
 				}

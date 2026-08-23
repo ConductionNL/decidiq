@@ -372,7 +372,7 @@ class MeetingSeriesService {
 	public function generateSeries(string $meetingId, array $pattern, string $actor): array {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+			$entity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		} catch (\Throwable $e) {
 			$this->logger->error(
 				'Decidiq: MeetingSeriesService::generateSeries lookup failed',
@@ -411,7 +411,7 @@ class MeetingSeriesService {
 			// is stored as JSON on the first/template meeting).
 			$objectService->saveObject(
 				object: array_merge($template, ['series' => $series, 'seriesPattern' => $pattern]),
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'meeting',
 				uuid: $meetingId
 			);
@@ -518,7 +518,7 @@ class MeetingSeriesService {
 
 			$saved = $objectService->saveObject(
 				object: $instance,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'meeting'
 			);
 

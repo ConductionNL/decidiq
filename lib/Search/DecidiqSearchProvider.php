@@ -167,7 +167,7 @@ class DecidiqSearchProvider implements IProvider {
 			foreach (self::SCHEMAS as $schema => $segment) {
 				$rows = $objectService->findAll(
 					[
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => $schema,
 						'search' => $term,
 						'limit' => self::LIMIT_PER_SCHEMA,

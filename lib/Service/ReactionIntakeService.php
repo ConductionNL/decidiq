@@ -138,7 +138,7 @@ class ReactionIntakeService {
 		}
 
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $consultationId, register: 'decidesk', schema: 'public-consultation');
+		$entity = $objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation');
 		if ($entity === null) {
 			throw new RuntimeException("PublicConsultation {$consultationId} not found");
 		}
@@ -173,11 +173,11 @@ class ReactionIntakeService {
 			'submitterId' => $submitterId,
 			'submittedAt' => (new DateTimeImmutable())->format(\DateTimeInterface::ATOM),
 			'relations' => [
-				['register' => 'decidesk', 'schema' => 'public-consultation', 'id' => $consultationId],
+				['register' => 'decidiq', 'schema' => 'public-consultation', 'id' => $consultationId],
 			],
 		];
 
-		$saved = $objectService->saveObject(register: 'decidesk', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
 		$result = $this->normaliseSaved(saved: $saved, fallback: $reaction);
 
 		return $result;
@@ -200,7 +200,7 @@ class ReactionIntakeService {
 	 */
 	public function approveReaction(string $reactionId, ?string $reason = null): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $reactionId, register: 'decidesk', schema: 'consultation-reaction');
+		$entity = $objectService->find(id: $reactionId, register: 'decidiq', schema: 'consultation-reaction');
 		if ($entity === null) {
 			throw new RuntimeException("ConsultationReaction {$reactionId} not found");
 		}
@@ -212,7 +212,7 @@ class ReactionIntakeService {
 			$reaction['moderationReason'] = $reason;
 		}
 
-		$saved = $objectService->saveObject(register: 'decidesk', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
 
 		// Increment the parent consultation's submissionCount when a reaction is
 		// approved (pre-moderation: reactions start as pending and only count
@@ -252,14 +252,14 @@ class ReactionIntakeService {
 		}
 
 		try {
-			$consultationEntity = $objectService->find(id: $consultationId, register: 'decidesk', schema: 'public-consultation');
+			$consultationEntity = $objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation');
 			if ($consultationEntity === null) {
 				return;
 			}
 
 			$consultation = $consultationEntity->jsonSerialize();
 			$consultation['submissionCount'] = ((int)($consultation['submissionCount'] ?? 0)) + 1;
-			$objectService->saveObject(register: 'decidesk', schema: 'public-consultation', object: $consultation);
+			$objectService->saveObject(register: 'decidiq', schema: 'public-consultation', object: $consultation);
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'ReactionIntakeService: could not increment consultation submissionCount: ' . $e->getMessage()
@@ -292,7 +292,7 @@ class ReactionIntakeService {
 		}
 
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $reactionId, register: 'decidesk', schema: 'consultation-reaction');
+		$entity = $objectService->find(id: $reactionId, register: 'decidiq', schema: 'consultation-reaction');
 		if ($entity === null) {
 			throw new RuntimeException("ConsultationReaction {$reactionId} not found");
 		}
@@ -301,7 +301,7 @@ class ReactionIntakeService {
 		$reaction['moderationStatus'] = 'rejected';
 		$reaction['moderationReason'] = $reason;
 
-		$saved = $objectService->saveObject(register: 'decidesk', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $reaction);
 	}//end rejectReaction()

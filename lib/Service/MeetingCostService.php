@@ -110,7 +110,7 @@ class MeetingCostService {
 		$objectService = $this->getObjectService();
 
 		if ($meeting === null) {
-			$entity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+			$entity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 			if ($entity === null) {
 				return null;
 			}
@@ -152,7 +152,7 @@ class MeetingCostService {
 		try {
 			$bodyEntity = $this->getObjectService()->find(
 				id: $bodyId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'governance-body'
 			);
 			if ($bodyEntity === null) {
@@ -255,7 +255,7 @@ class MeetingCostService {
 	private function resolveAttendeeCount(string $meetingId): int {
 		try {
 			$objectService = $this->getObjectService();
-			$objectService->setRegister('decidesk');
+			$objectService->setRegister('decidiq');
 			$objectService->setSchema('participant');
 
 			// Config-array form (matches EngagementController::resolveParticipantUuid

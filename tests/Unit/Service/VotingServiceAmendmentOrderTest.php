@@ -669,7 +669,7 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 				'closedAt' => null,
 				'isSecret' => false,
 				'relations' => [
-					['register' => 'decidesk', 'schema' => 'amendment', 'id' => 'amendment-1'],
+					['register' => 'decidiq', 'schema' => 'amendment', 'id' => 'amendment-1'],
 				],
 			],
 		];
@@ -680,7 +680,7 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 				'value' => 'for',
 				'weight' => 1,
 				'relations' => [
-					['register' => 'decidesk', 'schema' => 'voting-round', 'id' => 'round-1'],
+					['register' => 'decidiq', 'schema' => 'voting-round', 'id' => 'round-1'],
 				],
 			],
 		];
@@ -728,7 +728,7 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 				'result' => 'tied',
 				'tieBreakRule' => 'revote',
 				'relations' => [
-					['register' => 'decidesk', 'schema' => 'motion', 'id' => 'motion-1'],
+					['register' => 'decidiq', 'schema' => 'motion', 'id' => 'motion-1'],
 				],
 			],
 		];

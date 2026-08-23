@@ -95,7 +95,7 @@ class MeetingPackageService {
 	public function assemble(string $meetingId, string $userId): array {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+			$entity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		} catch (\Throwable $e) {
 			$this->logger->error(
 				'Decidiq: MeetingPackageService::assemble lookup failed',
@@ -443,7 +443,7 @@ class MeetingPackageService {
 		try {
 			$rows = $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'agenda-item',
 					'filters' => ['meeting' => $meetingId],
 					'limit' => 500,

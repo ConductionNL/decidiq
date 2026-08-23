@@ -65,7 +65,7 @@ class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 	 *
 	 * @var string
 	 */
-	private const REGISTER = 'decidesk';
+	private const REGISTER = 'decidiq';
 
 	/**
 	 * The retired board-proxy schema slug (source).

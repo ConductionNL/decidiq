@@ -151,7 +151,7 @@ class VotingBehaviourService {
 
 		// Step 1: Fetch all motions for this governance body. ADR-005: motions
 		// are `decision` objects selected by the decisionType discriminator.
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('decision');
 		$motionEntities = $objectService->findAll(
 			[
@@ -191,7 +191,7 @@ class VotingBehaviourService {
 	 */
 	private function closedRoundsForMotion(string $motionId): array {
 		$objectService = $this->objectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('voting-round');
 		$roundEntities = $objectService->findAll(
 			['filters' => ['_relations.motion' => $motionId]]
@@ -281,7 +281,7 @@ class VotingBehaviourService {
 	 */
 	private function participantVotes(string $roundId, string $participantId): array {
 		$objectService = $this->objectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('vote');
 		$voteEntities = $objectService->findAll(
 			[
@@ -307,7 +307,7 @@ class VotingBehaviourService {
 	 */
 	private function proxiesReceived(string $roundId, string $participantId): int {
 		$objectService = $this->objectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('vote');
 		$proxyVoteEntities = $objectService->findAll(
 			[

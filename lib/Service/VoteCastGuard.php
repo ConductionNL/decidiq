@@ -91,7 +91,7 @@ class VoteCastGuard {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function loadOpenRound(string $votingRoundId): array {
-		$roundEntity = $this->objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
+		$roundEntity = $this->objectService->find(id: $votingRoundId, register: 'decidiq', schema: 'voting-round');
 		$round = null;
 		if ($roundEntity !== null) {
 			$round = $roundEntity->jsonSerialize();
@@ -329,7 +329,7 @@ class VoteCastGuard {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function votesInRound(string $votingRoundId, array $extraFilters): array {
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('vote');
 
 		return $this->relationFilter->matching(

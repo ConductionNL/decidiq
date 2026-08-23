@@ -223,7 +223,7 @@ class PortalCreateOpenParentGuardListenerTest extends TestCase {
 				'moderationStatus' => 'pending',
 				'submitterId' => 'user-1',
 				'relations' => [
-					['register' => 'decidesk', 'schema' => 'public-consultation', 'id' => 'c-1'],
+					['register' => 'decidiq', 'schema' => 'public-consultation', 'id' => 'c-1'],
 				],
 			]
 		);

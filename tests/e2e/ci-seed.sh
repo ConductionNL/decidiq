@@ -32,7 +32,7 @@
 # Either way the app enables cleanly, the SPA boots, and the register simply is
 # not there. The suite's failure mode in that state is every UI spec timing out
 # on an empty list and every `expect(resp.ok()).toBe(true)` against
-# `/apps/openregister/api/objects/decidesk/<schema>` failing — messages that
+# `/apps/openregister/api/objects/decidiq/<schema>` failing — messages that
 # accuse the selectors, not the missing import.
 #
 # So this script does the import EXPLICITLY over the admin HTTP API (which has
@@ -338,7 +338,7 @@ fi
 # An import reporting success is not the same as the register existing. Verify
 # against OpenRegister directly, using the same slugs the specs resolve by
 # (they build object URLs as
-# /index.php/apps/openregister/api/objects/decidesk/<schema>).
+# /index.php/apps/openregister/api/objects/decidiq/<schema>).
 #
 # ⚠️ The required slugs below are READ OUT OF lib/Settings/decidesk_register.json
 # verbatim (`components.schemas.<Name>.slug`), NOT mechanically kebab-cased from
@@ -413,8 +413,8 @@ verify "$SCH_BODY" schemas "$SCH_CODE"
 for slug in meeting decision governance-body participant; do
 	OBJ_CODE="$(curl -sS -o /dev/null -w '%{http_code}' \
 		-u "${USER_NAME}:${USER_PASS}" -H 'OCS-APIRequest: true' \
-		"${BASE}/index.php/apps/openregister/api/objects/decidesk/${slug}?_limit=1" || echo 000)"
-	echo "[ci-seed] objects/decidesk/${slug} probe -> ${OBJ_CODE}"
+		"${BASE}/index.php/apps/openregister/api/objects/decidiq/${slug}?_limit=1" || echo 000)"
+	echo "[ci-seed] objects/decidiq/${slug} probe -> ${OBJ_CODE}"
 	if [ "$OBJ_CODE" -ge 400 ] 2>/dev/null; then
 		echo "::error::The decidesk ${slug} collection is not readable (HTTP ${OBJ_CODE})."
 		echo "::error::Specs that assert resp.ok() on this URL would fail with no indication the cause is provisioning."
@@ -480,7 +480,7 @@ seed_object() {
 		-H 'Content-Type: application/json' \
 		-H 'OCS-APIRequest: true' \
 		--data "$body" \
-		"${BASE}/index.php/apps/openregister/api/objects/decidesk/${slug}" || echo 000)"
+		"${BASE}/index.php/apps/openregister/api/objects/decidiq/${slug}" || echo 000)"
 
 	if [ "$code" -lt 200 ] 2>/dev/null || [ "$code" -ge 300 ] 2>/dev/null; then
 		{
@@ -516,7 +516,7 @@ print(o.get("id") or (o.get("@self") or {}).get("id") or o.get("uuid") or "")
 }
 
 EXISTING_BODY="$(curl -sS -u "${USER_NAME}:${USER_PASS}" -H 'OCS-APIRequest: true' \
-	"${BASE}/index.php/apps/openregister/api/objects/decidesk/governance-body?_limit=100" 2>/dev/null \
+	"${BASE}/index.php/apps/openregister/api/objects/decidiq/governance-body?_limit=100" 2>/dev/null \
 	| python3 -c '
 import json, sys
 try:
@@ -642,7 +642,7 @@ required = {
 
 failed = []
 for slug, minimum in required.items():
-    url = f'{base}/index.php/apps/openregister/api/objects/decidesk/{slug}?_limit=200'
+    url = f'{base}/index.php/apps/openregister/api/objects/decidiq/{slug}?_limit=200'
     req = urllib.request.Request(url, headers={
         'Authorization': f'Basic {token}',
         'OCS-APIRequest': 'true',

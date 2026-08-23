@@ -165,7 +165,7 @@ class VoteCastingService {
 			)
 		);
 
-		$saved = $this->objectService()->saveObject(register: 'decidesk', schema: 'vote', object: $vote);
+		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'vote', object: $vote);
 
 		// The saveObject() call returns an ObjectEntity; normalise to satisfy the `: array` return type.
 		return $this->normaliseSaved(saved: $saved, fallback: $vote);
@@ -252,7 +252,7 @@ class VoteCastingService {
 	 */
 	private function votesInRound(string $votingRoundId, array $extraFilters): array {
 		$objectService = $this->objectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('vote');
 
 		return $this->relationFilter->matching(

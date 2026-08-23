@@ -81,7 +81,7 @@ class ActionItemAnalyticsService {
 			// Resolve the Participant UUID for this Nextcloud user so we can filter
 			// action items by the participant UUID stored in the assignee field.
 			// This is the canonical pattern used by VotingController/VotingBehaviourController.
-			$this->objectService->setRegister('decidesk');
+			$this->objectService->setRegister('decidiq');
 			$this->objectService->setSchema('participant');
 			$participantEntities = $this->objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
 
@@ -113,7 +113,7 @@ class ActionItemAnalyticsService {
 				'_limit' => 999,
 				'_offset' => 0,
 			];
-			$this->objectService->setRegister('decidesk');
+			$this->objectService->setRegister('decidiq');
 			$this->objectService->setSchema('action-item');
 			$itemEntities = $this->objectService->findAll(['filters' => $params]);
 

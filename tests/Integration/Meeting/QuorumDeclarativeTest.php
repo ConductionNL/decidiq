@@ -243,7 +243,7 @@ class QuorumDeclarativeTest extends TestCase {
 					'bodyType' => 'legislative',
 					'domain' => 'test',
 				],
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'governance-body',
 			)
 		);
@@ -280,7 +280,7 @@ class QuorumDeclarativeTest extends TestCase {
 		$meeting = $this->objectService->runAsSystem(
 			fn () => $this->objectService->saveObject(
 				object: $data,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'meeting',
 			)
 		);
@@ -320,7 +320,7 @@ class QuorumDeclarativeTest extends TestCase {
 						'governanceBody' => $governanceBodyId,
 						'attendanceStatus' => $status,
 					],
-					register: 'decidesk',
+					register: 'decidiq',
 					schema: 'participant',
 				)
 			);
@@ -336,9 +336,9 @@ class QuorumDeclarativeTest extends TestCase {
 	 * @return array<string,mixed> The meeting data.
 	 */
 	private function fetchMeeting(string $meetingId): array {
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('meeting');
-		$entity = $this->objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+		$entity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 
 		if ($entity === null) {
 			return [];
@@ -365,7 +365,7 @@ class QuorumDeclarativeTest extends TestCase {
 	 */
 	private function cleanupTestData(string $meetingId, string $governanceBodyId): void {
 		try {
-			$this->objectService->setRegister('decidesk');
+			$this->objectService->setRegister('decidiq');
 			$this->objectService->setSchema('participant');
 			$participantEntities = $this->objectService->findAll([
 				'filters' => ['governanceBody' => $governanceBodyId, '_limit' => 100],
@@ -381,7 +381,7 @@ class QuorumDeclarativeTest extends TestCase {
 					$this->objectService->runAsSystem(
 						fn () => $this->objectService->deleteObject(
 							uuid: $pid,
-							register: 'decidesk',
+							register: 'decidiq',
 							schema: 'participant',
 						)
 					);
@@ -391,14 +391,14 @@ class QuorumDeclarativeTest extends TestCase {
 			$this->objectService->runAsSystem(
 				fn () => $this->objectService->deleteObject(
 					uuid: $meetingId,
-					register: 'decidesk',
+					register: 'decidiq',
 					schema: 'meeting',
 				)
 			);
 			$this->objectService->runAsSystem(
 				fn () => $this->objectService->deleteObject(
 					uuid: $governanceBodyId,
-					register: 'decidesk',
+					register: 'decidiq',
 					schema: 'governance-body',
 				)
 			);

@@ -205,7 +205,7 @@ class MotionService {
 	 */
 	public function requestCoSignature(string $motionId, array $participantIds): void {
 		$objectService = $this->getObjectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('decision');
 
 		$motionData = $this->findMotionData(objectService: $objectService, motionId: $motionId);
@@ -246,11 +246,11 @@ class MotionService {
 					$pendingSignerUids,
 				)
 			);
-			$objectService->setRegister('decidesk');
+			$objectService->setRegister('decidiq');
 			$objectService->setSchema('decision');
 			$objectService->saveObject(
 				object: array_merge($motionData, ['pendingCoSignerUids' => array_values($existing)]),
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'decision',
 				uuid: $motionId,
 			);
@@ -272,7 +272,7 @@ class MotionService {
 	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
 	 */
 	private function coSignerUid(object $objectService, string $participantId): ?string {
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('participant');
 		$participant = $objectService->find($participantId);
 		if ($participant === null) {
@@ -313,7 +313,7 @@ class MotionService {
 	 */
 	public function addCoSigner(string $motionId, string $coSignerName): void {
 		$objectService = $this->getObjectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('decision');
 
 		$motionData = $this->findMotionData(objectService: $objectService, motionId: $motionId);
@@ -323,7 +323,7 @@ class MotionService {
 			$coSigners[] = $coSignerName;
 			$objectService->saveObject(
 				object: array_merge($motionData, ['coSigners' => $coSigners]),
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'decision',
 				uuid: $motionId,
 			);
@@ -345,7 +345,7 @@ class MotionService {
 	 */
 	public function isPendingCoSigner(string $motionId, string $nextcloudUid): bool {
 		$objectService = $this->getObjectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('decision');
 
 		$motionObject = $objectService->find($motionId);
@@ -379,7 +379,7 @@ class MotionService {
 	 */
 	public function saveBudgetImpact(string $motionId, string $budgetLine, float $amountDelta, string $rationale): void {
 		$objectService = $this->getObjectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('decision');
 
 		$motionData = $this->findMotionData(objectService: $objectService, motionId: $motionId);
@@ -419,7 +419,7 @@ class MotionService {
 
 		$objectService->saveObject(
 			object: array_merge($motionData, ['notes' => $notes]),
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision',
 			uuid: $motionId,
 		);

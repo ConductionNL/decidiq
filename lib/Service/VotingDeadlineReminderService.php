@@ -101,7 +101,7 @@ class VotingDeadlineReminderService {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$rows = $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'voting-round',
 				]
 			);
@@ -258,7 +258,7 @@ class VotingDeadlineReminderService {
 			$round['deadlineReminderSentAt'] = gmdate('Y-m-d\TH:i:s\Z', $now);
 			$objectService->saveObject(
 				object: $round,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'voting-round',
 				uuid: $roundId,
 			);
@@ -311,7 +311,7 @@ class VotingDeadlineReminderService {
 		try {
 			$votes = $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'vote',
 					'filters' => ['votingRound' => $roundId],
 				]
@@ -361,7 +361,7 @@ class VotingDeadlineReminderService {
 		try {
 			$participants = $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'participant',
 					'filters' => ['meeting' => $meetingId],
 				]
@@ -404,7 +404,7 @@ class VotingDeadlineReminderService {
 
 		try {
 			// ADR-005: the motion is a `decision` discriminated by decisionType.
-			$motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'decision');
+			$motionEntity = $objectService->find(id: $motionId, register: 'decidiq', schema: 'decision');
 		} catch (\Throwable) {
 			return null;
 		}
@@ -430,7 +430,7 @@ class VotingDeadlineReminderService {
 	 */
 	private function participantUserId(object $objectService, string $participantId): ?string {
 		try {
-			$entity = $objectService->find(id: $participantId, register: 'decidesk', schema: 'participant');
+			$entity = $objectService->find(id: $participantId, register: 'decidiq', schema: 'participant');
 		} catch (\Throwable) {
 			return null;
 		}

@@ -175,7 +175,7 @@ class VotingOpenedNotifier {
 
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: $lookupSchema);
+			$motionEntity = $objectService->find(id: $motionId, register: 'decidiq', schema: $lookupSchema);
 			if ($motionEntity === null) {
 				return $fallback;
 			}

@@ -67,7 +67,7 @@ Diligent's `Director` REST API exposes:
    - **Pass 1** — `Board` + `BoardMember` (no dependencies);
    - **Pass 2** — `BoardMeeting` + `AgendaItem` + `BoardMaterial` +
      `Resolution` + `BoardVote` + `ConflictOfInterest` (depend on Pass 1).
-3. Drive every write through the OR REST surface (`POST /apps/openregister/api/objects/decidesk/<schema>`),
+3. Drive every write through the OR REST surface (`POST /apps/openregister/api/objects/decidiq/<schema>`),
    not via direct DB writes — this keeps OR's per-object RBAC + audit
    mirrors honest.
 4. Verify by walking `GET /api/audit-log` for each imported record's

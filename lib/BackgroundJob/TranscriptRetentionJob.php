@@ -196,7 +196,7 @@ class TranscriptRetentionJob extends TimedJob {
 		$transcript['retentionState'] = $currentState;
 		$objectService->saveObject(
 			object: $transcript,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'transcript',
 			uuid: $this->objectId(object: $transcript)
 		);
@@ -296,10 +296,10 @@ class TranscriptRetentionJob extends TimedJob {
 	private function resolveMinutesApprovedAt(object $objectService, string $meetingId): ?DateTimeImmutable {
 		$entities = $objectService->findAll(
 			[
-				'register' => 'decidesk',
+				'register' => 'decidiq',
 				'schema' => 'minutes',
 				'filters' => [
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'minutes',
 					'_relations.meeting' => $meetingId,
 				],
@@ -340,10 +340,10 @@ class TranscriptRetentionJob extends TimedJob {
 	private function fetchActiveDoneTranscripts(object $objectService): array {
 		$entities = $objectService->findAll(
 			[
-				'register' => 'decidesk',
+				'register' => 'decidiq',
 				'schema' => 'transcript',
 				'filters' => [
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'transcript',
 					'status' => 'done',
 				],
@@ -426,7 +426,7 @@ class TranscriptRetentionJob extends TimedJob {
 	 */
 	private function fetchObject(object $objectService, string $id, string $schema): ?array {
 		try {
-			$entity = $objectService->find(id: $id, register: 'decidesk', schema: $schema);
+			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
 		} catch (\Throwable) {
 			return null;
 		}

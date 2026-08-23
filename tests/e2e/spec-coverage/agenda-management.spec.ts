@@ -89,7 +89,7 @@ test('Add Agenda Item dialog opens with item type field', async ({ page }) => {
 // on a meeting detail page. We verify the agenda tab renders within the meeting sidebar.
 test('meeting detail sidebar has Agenda tab', async ({ page }) => {
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(resp.ok()).toBe(true)
@@ -112,7 +112,7 @@ test('meeting detail sidebar has Agenda tab', async ({ page }) => {
 // Verify via the live meeting view rendering for an existing meeting.
 test('live meeting view renders agenda items section', async ({ page }) => {
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(resp.ok()).toBe(true)
@@ -177,7 +177,7 @@ test('general assembly agenda warns about missing statutory ALV items', async ({
 	let meetingId: string | null = null
 	try {
 		const createResp = await api.post(
-			`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting`,
+			`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting`,
 			{
 				data: {
 					title: `E2E ALV statutory warning ${Date.now()}`,
@@ -226,7 +226,7 @@ test('general assembly agenda warns about missing statutory ALV items', async ({
 		if (meetingId) {
 			await api
 				.delete(
-					`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting/${meetingId}`,
+					`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting/${meetingId}`,
 				)
 				.catch(() => null)
 		}
@@ -253,7 +253,7 @@ test('sub-items render nested under their parent in the agenda tab', async ({
 	let meetingId: string | null = null
 	try {
 		const meetingResp = await api.post(
-			`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting`,
+			`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting`,
 			{
 				data: {
 					title: `E2E sub-items ${Date.now()}`,
@@ -274,7 +274,7 @@ test('sub-items render nested under their parent in the agenda tab', async ({
 		test.skip(!meetingId, 'Seeded meeting has no id')
 
 		const parentResp = await api.post(
-			`${BASE}/index.php/apps/openregister/api/objects/decidesk/agenda-item`,
+			`${BASE}/index.php/apps/openregister/api/objects/decidiq/agenda-item`,
 			{
 				data: {
 					title: 'Committee Reports',
@@ -293,7 +293,7 @@ test('sub-items render nested under their parent in the agenda tab', async ({
 		created.push(parentId!)
 
 		const childResp = await api.post(
-			`${BASE}/index.php/apps/openregister/api/objects/decidesk/agenda-item`,
+			`${BASE}/index.php/apps/openregister/api/objects/decidiq/agenda-item`,
 			{
 				data: {
 					title: 'Finance Committee',
@@ -334,14 +334,14 @@ test('sub-items render nested under their parent in the agenda tab', async ({
 		for (const id of created) {
 			await api
 				.delete(
-					`${BASE}/index.php/apps/openregister/api/objects/decidesk/agenda-item/${id}`,
+					`${BASE}/index.php/apps/openregister/api/objects/decidiq/agenda-item/${id}`,
 				)
 				.catch(() => null)
 		}
 		if (meetingId) {
 			await api
 				.delete(
-					`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting/${meetingId}`,
+					`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting/${meetingId}`,
 				)
 				.catch(() => null)
 		}
@@ -352,7 +352,7 @@ test('sub-items render nested under their parent in the agenda tab', async ({
 // @e2e openspec/specs/agenda-management/spec.md#assemble-meeting-package-from-agenda-documents
 test('agenda tab offers the Assemble meeting package action', async ({ page }) => {
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(resp.ok()).toBe(true)

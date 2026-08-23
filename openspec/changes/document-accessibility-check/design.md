@@ -127,7 +127,7 @@ New schema introduced ⇒ seeds required (ADR-016), shipped as `x-openregister-s
 | scannerVersion | `1.0.0` | `1.0.0` | `1.0.0` | `1.0.0` |
 | scannedAt | `2026-06-02T09:15:00Z` | `2026-06-02T09:16:00Z` | `2026-06-10T14:30:00Z` | `2026-06-12T08:00:00Z` |
 
-`@self` envelope per object: `{ "register": "decidesk", "schema": "accessibility-scan-report", "slug": "…" }`.
+`@self` envelope per object: `{ "register": "decidiq", "schema": "accessibility-scan-report", "slug": "…" }`.
 
 **Related items per object:**
 - Files: seed PDFs are not shipped as binaries; reports reference fileName/fileId so badges, the report view, and aggregations are demonstrable on install. The e2e fixture set adds one real tiny tagged PDF and one scanned-image PDF for live scan tests.

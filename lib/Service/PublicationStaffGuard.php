@@ -135,7 +135,7 @@ class PublicationStaffGuard {
 			return self::ALLOWED;
 		}
 
-		$record = $this->objectService->find(id: $recordId, register: 'decidesk', schema: 'publication-record');
+		$record = $this->objectService->find(id: $recordId, register: 'decidiq', schema: 'publication-record');
 		if ($record === null) {
 			return self::RECORD_NOT_FOUND;
 		}
@@ -198,7 +198,7 @@ class PublicationStaffGuard {
 			$schema = 'minutes';
 		}
 
-		$entity = $this->objectService->find(id: $sourceId, register: 'decidesk', schema: $schema);
+		$entity = $this->objectService->find(id: $sourceId, register: 'decidiq', schema: $schema);
 		if ($entity === null) {
 			return null;
 		}

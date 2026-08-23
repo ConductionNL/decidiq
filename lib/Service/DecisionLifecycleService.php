@@ -249,7 +249,7 @@ class DecisionLifecycleService {
 			// write access on this specific object (caught below, generic error).
 			$updated = $this->objectService->saveObject(
 				object: array_merge($decision, $patch),
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'decision',
 				uuid: $decisionId,
 			);
@@ -739,7 +739,7 @@ class DecisionLifecycleService {
 
 			$objectService->saveObject(
 				object: $resolution,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'decision'
 			);
 		} catch (\Throwable $e) {
@@ -829,7 +829,7 @@ class DecisionLifecycleService {
 
 				$created = $objectService->saveObject(
 					object: $membership,
-					register: 'decidesk',
+					register: 'decidiq',
 					schema: 'membership'
 				);
 
@@ -838,7 +838,7 @@ class DecisionLifecycleService {
 
 			$objectService->saveObject(
 				object: array_merge($decision, ['appointedMemberships' => $membershipIds]),
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'decision',
 				uuid: $decisionId
 			);

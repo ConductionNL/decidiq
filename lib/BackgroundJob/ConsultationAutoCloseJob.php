@@ -140,12 +140,12 @@ class ConsultationAutoCloseJob extends TimedJob {
 	 */
 	private function fetchOpenConsultations(object $objectService, int $offset): ?array {
 		try {
-			$objectService->setRegister('decidesk');
+			$objectService->setRegister('decidiq');
 			$objectService->setSchema('public-consultation');
 			return $objectService->findAll(
 				[
 					'filters' => [
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => 'public-consultation',
 						'status' => 'open',
 					],

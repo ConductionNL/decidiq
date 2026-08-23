@@ -233,7 +233,7 @@ class VotingRoundGuard {
 	 * @return array<string,mixed>|null The object data, or null when not found
 	 */
 	private function findData(object $objectService, mixed $id, string $schema): ?array {
-		$entity = $objectService->find(id: $id, register: 'decidesk', schema: $schema);
+		$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
 		if ($entity === null) {
 			return null;
 		}

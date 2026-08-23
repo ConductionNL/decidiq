@@ -112,7 +112,7 @@ class AdvisoryVoteService {
 		// this guard let every duplicate through. Measured on a live instance:
 		// voting twice as the same user produced two CitizenVote rows sharing one
 		// idempotency slug, both answered 201.
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('citizen-vote');
 		$existing = $this->relationFilter->matching(
 			entities: $objectService->findAll(
@@ -142,11 +142,11 @@ class AdvisoryVoteService {
 			'isProxy' => false,
 			'castAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
 			'relations' => [
-				['register' => 'decidesk', 'schema' => 'budget-proposal', 'id' => $proposalId],
+				['register' => 'decidiq', 'schema' => 'budget-proposal', 'id' => $proposalId],
 			],
 		];
 
-		$saved = $objectService->saveObject(register: 'decidesk', schema: 'citizen-vote', object: $vote);
+		$saved = $objectService->saveObject(register: 'decidiq', schema: 'citizen-vote', object: $vote);
 		$savedArr = $this->normaliseSaved(saved: $saved, fallback: $vote);
 
 		// Re-tally all CitizenVotes for this proposal (atomic count path) and persist
@@ -173,7 +173,7 @@ class AdvisoryVoteService {
 	public function tallyAdvisoryProposal(string $proposalId): array {
 		$objectService = $this->objectService();
 
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('citizen-vote');
 		// Same correction as applyAdvisoryTally(): the filter key is
 		// ObjectRelationFilter::filterFor()'s, not the schema slug. With
@@ -197,12 +197,12 @@ class AdvisoryVoteService {
 			}
 		}
 
-		$proposalEntity = $objectService->find(id: $proposalId, register: 'decidesk', schema: 'budget-proposal');
+		$proposalEntity = $objectService->find(id: $proposalId, register: 'decidiq', schema: 'budget-proposal');
 		if ($proposalEntity !== null) {
 			$proposal = $proposalEntity->jsonSerialize();
 			$proposal['votesFor'] = $for;
 			$proposal['votesAgainst'] = $against;
-			$objectService->saveObject(register: 'decidesk', schema: 'budget-proposal', object: $proposal);
+			$objectService->saveObject(register: 'decidiq', schema: 'budget-proposal', object: $proposal);
 		}
 
 		return [

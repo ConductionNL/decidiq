@@ -20,6 +20,16 @@ define('PHPUNIT_RUN', 1);
 $autoloader = require __DIR__ . '/../vendor/autoload.php';
 
 // Register the OpenRegister test-stub namespace at test time ONLY. These stubs are
+// Doctrine placeholders, loaded BEFORE anything can mock an OCP DB interface.
+// IQueryBuilder evaluates class constants referencing Doctrine\DBAL\ParameterType
+// at parse time, and IDBConnection::getQueryBuilder() returns IQueryBuilder — so
+// without these, createMock(IDBConnection::class) dies with
+// `Class "Doctrine\DBAL\ParameterType" not found`, raised from inside
+// createMock(), which reads as a broken test rather than a missing dependency.
+// Only the two CONSTANT HOLDERS are stubbed: stubbing Doctrine\DBAL\Connection
+// as well fatals a full-server run, because OC\DB\Connection extends it.
+require_once __DIR__ . '/stubs/DoctrineStubs.php';
+
 // deliberately NOT registered via composer autoload-dev: a dev-built vendor bakes
 // autoload-dev into the runtime classmap, and OCA\OpenRegister\* stubs then shadow
 // the REAL OpenRegister classes instance-wide (see openregister#2036 / hermiq#21).

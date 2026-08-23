@@ -176,7 +176,7 @@ class MotionLifecycleTransitioner {
 
 		$transitions = $this->transitionTableFor(objectType: $objectType);
 
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('decision');
 
 		$objectArray = $this->loadDecision(
@@ -212,7 +212,7 @@ class MotionLifecycleTransitioner {
 
 		$this->objectService->saveObject(
 			object: array_merge($payload, ['lifecycle' => $newState, 'status' => $newState]),
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision',
 			uuid: $objectId,
 		);

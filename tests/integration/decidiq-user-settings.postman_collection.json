@@ -43,9 +43,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "participant"]
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidiq", "participant"]
 						},
 						"body": {
 							"mode": "raw",
@@ -85,9 +85,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "voting-round"]
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidiq", "voting-round"]
 						},
 						"body": {
 							"mode": "raw",
@@ -127,9 +127,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/notification-preference",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/notification-preference",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "notification-preference"]
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidiq", "notification-preference"]
 						},
 						"body": {
 							"mode": "raw",
@@ -784,9 +784,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round/{{usRoundId}}",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round/{{usRoundId}}",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "voting-round", "{{usRoundId}}"]
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidiq", "voting-round", "{{usRoundId}}"]
 						}
 					}
 				},
@@ -819,9 +819,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant/{{usParticipantId}}",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant/{{usParticipantId}}",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "participant", "{{usParticipantId}}"]
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidiq", "participant", "{{usParticipantId}}"]
 						}
 					}
 				},
@@ -854,9 +854,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/notification-preference/{{usDelegatorPrefId}}",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/notification-preference/{{usDelegatorPrefId}}",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "notification-preference", "{{usDelegatorPrefId}}"]
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidiq", "notification-preference", "{{usDelegatorPrefId}}"]
 						}
 					}
 				}

@@ -165,7 +165,7 @@ class MultilingualReconciliationService {
 			try {
 				$saved = $objectService->saveObject(
 					object: $entry,
-					register: 'decidesk',
+					register: 'decidiq',
 					schema: self::SCHEMA
 				);
 				if (is_object($saved) === true && method_exists($saved, 'jsonSerialize') === true) {
@@ -238,7 +238,7 @@ class MultilingualReconciliationService {
 			$rows = $this->normalize(
 				rows: $objectService->findAll(
 					[
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => self::SCHEMA,
 						'limit' => $limit,
 					]
@@ -312,7 +312,7 @@ class MultilingualReconciliationService {
 			$queued = $this->normalize(
 				rows: $objectService->findAll(
 					[
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => self::SCHEMA,
 						'filters' => ['status' => 'queued'],
 						'limit' => $maxEntries,
@@ -528,7 +528,7 @@ class MultilingualReconciliationService {
 		try {
 			$entity = $objectService->find(
 				id: $minutesId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'minutes'
 			);
 			if ($entity === null) {
@@ -582,7 +582,7 @@ class MultilingualReconciliationService {
 		try {
 			$saved = $objectService->saveObject(
 				object: $candidate,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'minutes'
 			);
 
@@ -617,7 +617,7 @@ class MultilingualReconciliationService {
 		try {
 			$objectService->saveObject(
 				object: $payload,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: self::SCHEMA,
 				uuid: $entryId
 			);

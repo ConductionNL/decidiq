@@ -180,7 +180,7 @@ class BoardEvaluationScoreService {
 
 		try {
 			$objectService = $this->objectService();
-			$entity = $objectService->find(id: $evaluationId, register: 'decidesk', schema: 'board-evaluation');
+			$entity = $objectService->find(id: $evaluationId, register: 'decidiq', schema: 'board-evaluation');
 			if ($entity === null) {
 				return ['success' => false, 'message' => "BoardEvaluation {$evaluationId} not found."];
 			}
@@ -190,7 +190,7 @@ class BoardEvaluationScoreService {
 				return ['success' => false, 'message' => 'Only an open evaluation can be closed.'];
 			}
 
-			$objectService->setRegister('decidesk');
+			$objectService->setRegister('decidiq');
 			$objectService->setSchema('evaluation-response');
 			// NOT `_relations.board-evaluation`: responses are written with a
 			// structured `relations` array (BoardEvaluationResponseService), which
@@ -243,7 +243,7 @@ class BoardEvaluationScoreService {
 			$evaluation['closedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 			$evaluation['respondedCount'] = $summary['respondentCount'];
 
-			$saved = $objectService->saveObject(register: 'decidesk', schema: 'board-evaluation', object: $evaluation);
+			$saved = $objectService->saveObject(register: 'decidiq', schema: 'board-evaluation', object: $evaluation);
 
 			return [
 				'success' => true,

@@ -206,7 +206,7 @@ class ObjectRelationFilterTest extends TestCase {
 			[
 				'relations' => [
 					[
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => 'budget-proposal',
 						'id' => 'proposal-1',
 					],

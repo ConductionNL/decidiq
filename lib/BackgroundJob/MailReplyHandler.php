@@ -173,7 +173,7 @@ class MailReplyHandler extends TimedJob {
 	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	private function processOpenRounds(): void {
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('voting-round');
 		$roundEntities = $this->objectService->findAll(['filters' => ['closedAt' => null, 'openedAt' => ['!=' => null]]]);
 

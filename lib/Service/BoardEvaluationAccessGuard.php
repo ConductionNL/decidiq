@@ -239,7 +239,7 @@ class BoardEvaluationAccessGuard {
 		try {
 			$entity = $this->objectService->find(
 				id: $evaluationId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'board-evaluation'
 			);
 		} catch (DoesNotExistException) {

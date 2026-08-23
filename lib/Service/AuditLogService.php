@@ -170,7 +170,7 @@ class AuditLogService {
 
 			$saved = $this->objectService->saveObject(
 				object: $entry,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'audit-trail'
 			);
 
@@ -524,7 +524,7 @@ class AuditLogService {
 	private function loadLastEntry(object $objectService): ?array {
 		$rows = $objectService->findAll(
 			[
-				'register' => 'decidesk',
+				'register' => 'decidiq',
 				'schema' => 'audit-trail',
 				'order' => ['timestamp' => 'DESC'],
 				'limit' => 1,
@@ -556,7 +556,7 @@ class AuditLogService {
 	private function loadChain(object $objectService): array {
 		$rows = $objectService->findAll(
 			[
-				'register' => 'decidesk',
+				'register' => 'decidiq',
 				'schema' => 'audit-trail',
 				'order' => ['timestamp' => 'ASC'],
 				'limit' => 10000,

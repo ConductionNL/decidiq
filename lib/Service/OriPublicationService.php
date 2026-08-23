@@ -156,7 +156,7 @@ class OriPublicationService {
 		}
 
 		try {
-			$this->objectService->setRegister('decidesk');
+			$this->objectService->setRegister('decidiq');
 			$this->objectService->setSchema('voting-round');
 			$roundObject = $this->objectService->find($votingRoundId);
 
@@ -201,7 +201,7 @@ class OriPublicationService {
 			// Stamp oriPublishedAt to distinguish "published" from merely "closed".
 			$this->objectService->saveObject(
 				object: array_merge($roundData, ['oriPublishedAt' => (new DateTimeImmutable())->format(\DateTimeInterface::ATOM)]),
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'voting-round',
 				uuid: $votingRoundId,
 			);
@@ -269,7 +269,7 @@ class OriPublicationService {
 		}
 
 		try {
-			$this->objectService->setRegister('decidesk');
+			$this->objectService->setRegister('decidiq');
 			$this->objectService->setSchema('voting-round');
 			$roundObject = $this->objectService->find($votingRoundId);
 

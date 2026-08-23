@@ -72,7 +72,7 @@ jobs:
       enable-phpunit: true
       enable-newman: true
       # Every Newman collection seeds its own fixtures through OpenRegister's
-      # object API (`/apps/openregister/api/objects/decidesk/<schema>`) — ADR-022
+      # object API (`/apps/openregister/api/objects/decidiq/<schema>`) — ADR-022
       # keeps plain CRUD there rather than in decidiq controllers. Without
       # OpenRegister checked out the seed POSTs answer 404, every downstream id
       # interpolates to the empty string, and the collections fail wholesale on
@@ -121,7 +121,7 @@ jobs:
       #
       # OpenRegister is already checked out for Newman above (`additional-apps`)
       # and the Playwright job honours the same input — which it must: the specs
-      # read and seed fixtures through `/apps/openregister/api/objects/decidesk/
+      # read and seed fixtures through `/apps/openregister/api/objects/decidiq/
       # <schema>` and assert on `window.OCA.OpenRegister.integrations`.
       enable-playwright: true
       playwright-test-path: tests/e2e
@@ -135,7 +135,7 @@ jobs:
       # to a warning — so `occ app:enable` exits 0 with no register at all.
       # In that state every UI spec times out on an empty list and every
       # `expect(resp.ok()).toBe(true)` against
-      # /apps/openregister/api/objects/decidesk/<schema> fails with a message
+      # /apps/openregister/api/objects/decidiq/<schema> fails with a message
       # that accuses the selector, never the missing import.
       #
       # ci-seed.sh does the import explicitly over the admin HTTP API (which

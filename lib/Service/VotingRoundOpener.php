@@ -104,7 +104,7 @@ class VotingRoundOpener {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function checkQuorum(string $meetingId): bool {
-		$meetingEntity = $this->objectService()->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+		$meetingEntity = $this->objectService()->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		$meeting = null;
 		if ($meetingEntity !== null) {
 			$meeting = $meetingEntity->jsonSerialize();
@@ -229,7 +229,7 @@ class VotingRoundOpener {
 			participantIds: $presets['eligible']
 		);
 
-		$created = $this->objectService()->saveObject(register: 'decidesk', schema: 'voting-round', object: $votingRound);
+		$created = $this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $votingRound);
 
 		if ($isFreshRound === true) {
 			$this->preflight->transitionSubjectToVoting(subjectId: $motionId, subjectType: $subjectType);

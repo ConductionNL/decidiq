@@ -75,7 +75,7 @@ class BoardEvaluationReportService {
 	 */
 	public function generate(string $evaluationId): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $evaluationId, register: 'decidesk', schema: 'board-evaluation');
+		$entity = $objectService->find(id: $evaluationId, register: 'decidiq', schema: 'board-evaluation');
 		if ($entity === null) {
 			throw new MissingObjectException(message: "BoardEvaluation {$evaluationId} not found.");
 		}
@@ -380,7 +380,7 @@ class BoardEvaluationReportService {
 		}
 
 		try {
-			$entity = $objectService->find(id: $bodyId, register: 'decidesk', schema: 'governance-body');
+			$entity = $objectService->find(id: $bodyId, register: 'decidiq', schema: 'governance-body');
 		} catch (\Throwable) {
 			return '';
 		}

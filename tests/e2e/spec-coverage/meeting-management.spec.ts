@@ -165,7 +165,7 @@ test('meetings list shows lifecycle column values', async ({ page }) => {
 test('live meeting view mounts for an existing meeting', async ({ page }) => {
 	// Get the first available meeting ID via the OR API
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(resp.ok(), 'Meeting API should be reachable').toBe(true)
@@ -190,7 +190,7 @@ test('meeting detail Series tab shows pattern form, preview and generate action'
 	page,
 }) => {
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(resp.ok(), 'Meeting API should be reachable').toBe(true)
@@ -239,7 +239,7 @@ test('board meeting detail renders send-notice surface and delivery table when s
 	page,
 }) => {
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/board-meeting?_limit=10`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/board-meeting?_limit=10`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	test.skip(!resp.ok(), 'board-meeting schema not available on this instance')

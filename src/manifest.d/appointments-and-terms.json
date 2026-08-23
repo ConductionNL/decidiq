@@ -26,7 +26,7 @@
 			"title": "Retirement schedules",
 			"_note": "spec: openspec/changes/appointments-and-terms/specs/appointments-and-terms/spec.md (REQ-APT-007/009/012). One rooster van aftreden per governance body. Columns body (link) / gegenereerdOp / publicationDate; regenerate, CSV export, and publication actions live on the detail page (imperative RoosterService endpoints, out of scope for this declarative core).",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "rooster-van-aftreden",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -36,7 +36,7 @@
 					{ "label": "All", "filter": {}, "default": true }
 				],
 				"columns": [
-					{ "key": "body", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "body", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "generatedOn", "label": "Generated at" },
 					{ "key": "publicationDate", "label": "Published" }
 				],
@@ -55,7 +55,7 @@
 			"title": "Retirement schedule",
 			"_note": "spec: openspec/changes/appointments-and-terms/specs/appointments-and-terms/spec.md (REQ-APT-007). Rooster metadata (body / gegenereerdOp / publication) leads 8-wide; the ordered RoosterRegel term entries render in the Related widget with their derived term data. gegenereerdOp is shown prominently so a stale rooster is visibly stale. Audit trail is a sidebar tab.",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "rooster-van-aftreden",
 				"widgets": [
 					{ "id": "rooster-data", "type": "data", "title": "Retirement schedule", "icon": "Calendar", "content": { "columns": 2 } },
@@ -82,7 +82,7 @@
 			"title": "Term entries",
 			"_note": "spec: openspec/changes/appointments-and-terms/specs/appointments-and-terms/spec.md (REQ-APT-008/010/012). The ordered per-regel view the Dashboard expiring-terms KPI deep-links to. Columns persoonNaam (link) / role / termijnNummer / eindeTermijnDatum / herbenoembaar / rappelStatus; quick filters on herbenoembaar. CSV export (UTF-8 BOM, end-of-term order) via ExportService + CnMassExportDialog. Term warnings (termijnNummer > max) are conveyed in text, not colour alone (WCAG 2.1 AA).",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "rooster-regel",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -116,7 +116,7 @@
 			"title": "Term entry",
 			"_note": "spec: openspec/changes/appointments-and-terms/specs/appointments-and-terms/spec.md (REQ-APT-006/010). Derived term data leads 8-wide; the linked rooster and source membership render as resolved references in the Related widget. Audit trail is a sidebar tab.",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "rooster-regel",
 				"widgets": [
 					{ "id": "regel-data", "type": "data", "title": "Term entry", "icon": "Calendar", "content": { "columns": 2 } },
@@ -143,7 +143,7 @@
 			"title": "Term rules",
 			"_note": "spec: openspec/changes/appointments-and-terms/specs/appointments-and-terms/spec.md (REQ-APT-005/012). Termijnregeling configuration surface. Columns body (link) / role / termijnDuurMaanden / maxAansluitendeTermijnen; quick filters on role.",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "termijn-regeling",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -156,7 +156,7 @@
 					{ "label": "Member", "filter": { "role": "member" } }
 				],
 				"columns": [
-					{ "key": "body", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "body", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "role", "label": "Role", "widget": "badge" },
 					{ "key": "termDurationMonths", "label": "Term (months)" },
 					{ "key": "maxConsecutivePeriods", "label": "Max consecutive terms" }
@@ -176,7 +176,7 @@
 			"title": "Term rule",
 			"_note": "spec: openspec/changes/appointments-and-terms/specs/appointments-and-terms/spec.md (REQ-APT-005). Term rule data leads 8-wide; the linked body renders as a resolved reference in the Related widget. Audit trail is a sidebar tab.",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "termijn-regeling",
 				"widgets": [
 					{ "id": "regeling-data", "type": "data", "title": "Term rule", "icon": "Calendar", "content": { "columns": 2 } },

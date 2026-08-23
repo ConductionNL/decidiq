@@ -96,7 +96,7 @@ Seeds make the panel, counts, visibility filtering, and export testable on insta
 | document (context) | Raadsvoorstel "Bestemmingsplan Centrum" | "Programmabegroting 2026" | Bijlage "Situatietekening herinrichting Stationsweg" | Concept-notulen raadsvergadering 15 januari |
 | agendaItem | seeded agenda-item ref | seeded agenda-item ref | seeded agenda-item ref | seeded agenda-item ref |
 
-`@self` envelope for each: `{ "register": "decidesk", "schema": "Annotation", "slug": "<slug>" }`.
+`@self` envelope for each: `{ "register": "decidiq", "schema": "Annotation", "slug": "<slug>" }`.
 
 **Related items per object:** Files: the referenced seeded document (placeholder binding as above). Notes/Tasks/Contacts: none — the annotation *is* the note.
 

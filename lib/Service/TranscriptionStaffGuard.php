@@ -206,7 +206,7 @@ class TranscriptionStaffGuard {
 	 * @spec openspec/specs/meeting-transcription/spec.md
 	 */
 	private function meetingsOfTranscript(string $transcriptId): ?array {
-		$entity = $this->objectService->find(id: $transcriptId, register: 'decidesk', schema: 'transcript');
+		$entity = $this->objectService->find(id: $transcriptId, register: 'decidiq', schema: 'transcript');
 		if ($entity === null) {
 			// Fail closed: do not leak existence to non-staff.
 			return null;
@@ -238,10 +238,10 @@ class TranscriptionStaffGuard {
 		try {
 			$entities = $this->objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'meeting',
 					'filters' => [
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => 'meeting',
 						'_relations.GovernanceBody' => $bodyId,
 					],

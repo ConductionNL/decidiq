@@ -47,9 +47,9 @@
 							"raw": "{\n  \"title\": \"Newman minutes meeting\",\n  \"meetingType\": \"regular\",\n  \"meetingMode\": \"in-person\",\n  \"scheduledDate\": \"2026-06-12T19:00:00Z\",\n  \"lifecycle\": \"closed\",\n  \"quorumRequired\": 1\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "meeting"]
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidiq", "meeting"]
 						}
 					}
 				},
@@ -89,9 +89,9 @@
 							"raw": "{\n  \"title\": \"Newman workflow minutes\",\n  \"lifecycle\": \"draft\",\n  \"version\": 1,\n  \"content\": \"# Notulen\\n\\nNewman contract content.\",\n  \"meeting\": \"{{minutesMeetingId}}\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/minutes",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/minutes",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "minutes"]
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidiq", "minutes"]
 						}
 					}
 				}
@@ -805,9 +805,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/minutes/{{workflowMinutesId}}",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/minutes/{{workflowMinutesId}}",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "minutes", "{{workflowMinutesId}}"]
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidiq", "minutes", "{{workflowMinutesId}}"]
 						}
 					}
 				},
@@ -838,9 +838,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting/{{minutesMeetingId}}",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting/{{minutesMeetingId}}",
 							"host": ["{{baseUrl}}"],
-							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "meeting", "{{minutesMeetingId}}"]
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidiq", "meeting", "{{minutesMeetingId}}"]
 						}
 					}
 				}

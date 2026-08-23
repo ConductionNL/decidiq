@@ -75,7 +75,7 @@ class LiveDecisionService {
 	public function recordDecision(string $meetingId, array $decisionData, string $actorId): string {
 		try {
 			// Fetch Meeting.
-			$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+			$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 			$meeting = null;
 			if ($meetingEntity !== null) {
 				$meeting = $meetingEntity->jsonSerialize();
@@ -113,7 +113,7 @@ class LiveDecisionService {
 			];
 
 			$decisionEntity = $this->objectService->saveObject(
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'Decision',
 				object: $decisionToSave
 			);
@@ -168,7 +168,7 @@ class LiveDecisionService {
 				'_limit' => 999,
 				'_offset' => 0,
 			];
-			$this->objectService->setRegister('decidesk');
+			$this->objectService->setRegister('decidiq');
 			$this->objectService->setSchema('minutes');
 			$existingMinutes = $this->objectService->findAll(['filters' => $params]);
 
@@ -185,7 +185,7 @@ class LiveDecisionService {
 			}
 
 			// No Minutes found, create one.
-			$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+			$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 			$meeting = null;
 			if ($meetingEntity !== null) {
 				$meeting = $meetingEntity->jsonSerialize();
@@ -206,7 +206,7 @@ class LiveDecisionService {
 			];
 
 			$minutesEntity = $this->objectService->saveObject(
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'Minutes',
 				object: $minutesToCreate
 			);

@@ -249,7 +249,7 @@ class McpMeetingTools {
 	 */
 	private function collectRecentMeetings(int $limit, string $statusFilter): array {
 		$filters = [
-			'register' => 'decidesk',
+			'register' => 'decidiq',
 			'schema' => 'meeting',
 			'_limit' => $limit,
 			'_order' => ['scheduledDate' => 'DESC'],
@@ -379,7 +379,7 @@ class McpMeetingTools {
 		$raws = $objectService->findAll(
 			[
 				'filters' => [
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => $schema,
 					'_relations.meeting' => $meetingUuid,
 				],
