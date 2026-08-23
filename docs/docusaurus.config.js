@@ -26,7 +26,7 @@ const BRAND_THEME = require.resolve('@conduction/docusaurus-preset/theme');
 const config = createConfig({
   title: 'Decidiq',
   tagline: 'Universal decision-making platform for Nextcloud — meetings, agendas, motions, amendments, voting, minutes, and decision tracking',
-  url: 'https://decidesk.conduction.nl',
+  url: 'https://decidiq.conduction.nl',
   baseUrl: '/',
 
   organizationName: 'ConductionNL',
@@ -64,7 +64,7 @@ const config = createConfig({
              plus the standard node_modules bucket. */
           exclude: ['**/node_modules/**', 'src/**'],
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://codeberg.org/Conduction/decidesk/src/branch/development/docs/',
+          editUrl: 'https://github.com/ConductionNL/decidesk/tree/development/docs/',
         },
         blog: false,
         theme: {
@@ -89,8 +89,8 @@ const config = createConfig({
         label: 'Documentation',
       },
       {
-        href: 'https://codeberg.org/Conduction/decidesk',
-        label: 'Codeberg',
+        href: 'https://github.com/ConductionNL/decidesk',
+        label: 'GitHub',
         position: 'right',
       },
       { type: 'localeDropdown', position: 'right' },

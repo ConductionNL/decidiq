@@ -17,7 +17,7 @@ Docusaurus docs (`decidiq/docs/`) had drifted apart:
 - The product page version badge (`v0.5`) did not match `info.xml`'s
   `<version>0.3.9</version>`.
 - The NL product page linked docs at `https://docs.conduction.nl/decidesk`
-  instead of the app's actual docs subdomain `https://decidesk.conduction.nl`.
+  instead of the app's actual docs subdomain `https://decidiq.conduction.nl`.
 - `info.xml` had no record of Decidiq's real dependency on OpenRegister (only
   expressible as a comment, per NC's `info.xsd`, following the `procest`
   convention) or its optional runtime dependencies on OpenConnector, Docudesk,
@@ -79,7 +79,7 @@ public page), not over-claiming.
 3. `conduction-website/i18n/nl/docusaurus-plugin-content-pages/apps/decidesk.mdx` (NL)
    - Same reconciliation, real Dutch (not machine-translated English).
    - Fixed the docs link from the wrong `https://docs.conduction.nl/decidesk`
-     to the correct `https://decidesk.conduction.nl` (matches the EN page and
+     to the correct `https://decidiq.conduction.nl` (matches the EN page and
      this app's actual docs deploy subdomain).
 4. `decidiq/docs/` — no edits needed. `docs/compliance/board-portal-compliance.md`,
    `docs/Features/board-portal.md`, and the `docs/tutorials/user/05-run-vote.md`
@@ -90,7 +90,7 @@ public page), not over-claiming.
 ## Still misaligned / needs a decision
 
 - The product page's `Showcase` integration items link to
-  `https://decidesk.conduction.nl/calendar-contacts-notes`,
+  `https://decidiq.conduction.nl/calendar-contacts-notes`,
   `/deck`, and `/mail-files` — none of these doc pages exist in
   `decidiq/docs/` today (closest real content: `docs/Features/board-portal.md`,
   `docs/tutorials/user/*`). Left as-is (out of scope to fabricate new docs

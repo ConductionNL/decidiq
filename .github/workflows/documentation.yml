@@ -12,4 +12,6 @@ jobs:
     # Docusaurus site now lives there (journeydoc / ADR-030).
     uses: ConductionNL/.github/.github/workflows/documentation.yml@main
     with:
-      cname: decidesk.conduction.nl
+      cname: decidiq.conduction.nl
+
+      docs-hosts: decidesk.conduction.nl,decidiq.conduction.nl
