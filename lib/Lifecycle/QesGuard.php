@@ -181,7 +181,7 @@ class QesGuard {
 	private function loadSignedBy(string $resolutionId): array {
 		$resolution = $this->objectService->find(
 			id: $resolutionId,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision'
 		);
 		if ($resolution === null) {
@@ -200,7 +200,7 @@ class QesGuard {
 
 		$minutesRows = $this->objectService->findAll(
 			[
-				'register' => 'decidesk',
+				'register' => 'decidiq',
 				'schema' => 'minutes',
 				'filters' => ['meetingIntegration' => $meetingId],
 				'limit' => 50,

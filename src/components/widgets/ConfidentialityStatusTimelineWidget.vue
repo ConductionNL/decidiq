@@ -284,7 +284,7 @@ export default {
 		cfg() {
 			const c = this.content || {}
 			return {
-				register: c.register || this.register || 'decidesk',
+				register: c.register || this.register || 'decidiq',
 				groundSchema: c.groundSchema || 'geheimhouding-grond',
 			}
 		},

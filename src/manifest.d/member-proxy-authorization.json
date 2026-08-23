@@ -19,7 +19,7 @@
 			"title": "Proxy authorizations",
 			"_note": "spec: openspec/changes/member-proxy-authorization/specs/member-proxy-authorization/spec.md#requirement-req-mpa-004-signature-status-is-visible-wherever-the-proxy-is-used",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "proxy-authorization",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -34,9 +34,9 @@
 					{ "label": "Refused", "filter": { "signatureStatus": "refused" } }
 				],
 				"columns": [
-					{ "key": "grantor", "label": "Grantor", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
-					{ "key": "holder", "label": "Holder", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
-					{ "key": "meeting", "label": "Meeting", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "meeting", "labelField": "title" } },
+					{ "key": "grantor", "label": "Grantor", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
+					{ "key": "holder", "label": "Holder", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
+					{ "key": "meeting", "label": "Meeting", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "meeting", "labelField": "title" } },
 					{ "key": "signatureStatus", "label": "Signature", "widget": "badge" }
 				],
 				"actions": [
@@ -54,7 +54,7 @@
 			"title": "Proxy authorization",
 			"_note": "spec: openspec/changes/member-proxy-authorization/specs/member-proxy-authorization/spec.md#requirement-req-mpa-001-proxyauthorization-instrument-schema",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "proxy-authorization",
 				"_note": "ProxyAuthorizationDetail (REQ-MPA-001/003/004/007). The data widget leads 8-wide with grantor/holder/meeting/signatureStatus and, where present, countersignStatus and the revocation act (revokedAt + revocationSignatureStatus). The sign (grantor-only) and countersign (holder-only) actions ride the existing REQ-BPV guard on the ProxyVoteController surface and are wired imperatively by the page/service tasks — getekend is reachable only from a signing-provider completion (REQ-MPA-003, no signature theatre), never from this UI. The Related widget surfaces the linked proxy row on the vote schema (authorizationRef back-reference); the machtiging document (REQ-MPA-002 honest markdown fallback) attaches via the Files leaf. Audit trail is a sidebar tab.",
 				"widgets": [

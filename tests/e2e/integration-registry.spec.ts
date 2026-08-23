@@ -199,7 +199,7 @@ async function openMeetingIntegrations(page: Page): Promise<string> {
 	// Fetch the first meeting via the OR API (we're authenticated
 	// already by the time this runs).
 	const r = await page.request.get(
-		'/index.php/apps/openregister/api/objects/decidesk/meeting?_limit=1',
+		'/index.php/apps/openregister/api/objects/decidiq/meeting?_limit=1',
 		{
 			headers: { Accept: 'application/json' },
 		},

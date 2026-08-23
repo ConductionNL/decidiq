@@ -42,7 +42,7 @@ describe('fetchRecurringAgendaItems', () => {
 		expect(get).toHaveBeenCalledTimes(1)
 		const [url, options] = get.mock.calls[0]
 		expect(url).toBe(
-			'/index.php/apps/openregister/api/objects/decidesk/agenda-item',
+			'/index.php/apps/openregister/api/objects/decidiq/agenda-item',
 		)
 		expect(options.params).toEqual({ isRecurring: true, _limit: 200 })
 		// A bare `limit` would be read as a property filter and return nothing.

@@ -201,7 +201,7 @@ export default {
 		cfg() {
 			const c = this.content || {}
 			return {
-				versionRegister: c.versionRegister || this.register || 'decidesk',
+				versionRegister: c.versionRegister || this.register || 'decidiq',
 				versionSchema: c.versionSchema || '',
 				parentRefField: c.parentRefField || '',
 				effectiveDateField: c.effectiveDateField || 'effectiveDate',

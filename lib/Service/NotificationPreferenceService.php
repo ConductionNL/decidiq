@@ -97,7 +97,7 @@ class NotificationPreferenceService {
 	public function findPreference(string $personId): ?array {
 		try {
 			$objectService = $this->getObjectService();
-			$objectService->setRegister('decidesk');
+			$objectService->setRegister('decidiq');
 			$objectService->setSchema('notification-preference');
 
 			// ObjectService::findAll() takes a single $config array — the
@@ -150,7 +150,7 @@ class NotificationPreferenceService {
 		$objectService = $this->getObjectService();
 		$saved = $objectService->saveObject(
 			object: $merged,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'notification-preference',
 		);
 

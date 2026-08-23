@@ -164,7 +164,7 @@ class GovernanceReportingService {
 				'meetings' => $this->normalize(
 					rows: $this->objectService->findAll(
 						[
-							'register' => 'decidesk',
+							'register' => 'decidiq',
 							'schema' => 'meeting',
 							'filters' => ['boardIntegration' => $boardId],
 							'limit' => 5000,
@@ -174,7 +174,7 @@ class GovernanceReportingService {
 				'resolutions' => $this->normalize(
 					rows: $this->objectService->findAll(
 						[
-							'register' => 'decidesk',
+							'register' => 'decidiq',
 							'schema' => 'decision',
 							'limit' => 5000,
 						]
@@ -183,7 +183,7 @@ class GovernanceReportingService {
 				'votes' => $this->normalize(
 					rows: $this->objectService->findAll(
 						[
-							'register' => 'decidesk',
+							'register' => 'decidiq',
 							'schema' => 'vote',
 							'limit' => 50000,
 						]
@@ -192,7 +192,7 @@ class GovernanceReportingService {
 				'members' => $this->normalize(
 					rows: $this->objectService->findAll(
 						[
-							'register' => 'decidesk',
+							'register' => 'decidiq',
 							'schema' => 'membership',
 							'filters' => ['boardIntegration' => $boardId],
 							'limit' => 1000,
@@ -202,7 +202,7 @@ class GovernanceReportingService {
 				'conflicts' => $this->normalize(
 					rows: $this->objectService->findAll(
 						[
-							'register' => 'decidesk',
+							'register' => 'decidiq',
 							'schema' => 'conflict-of-interest',
 							'limit' => 5000,
 						]
@@ -235,7 +235,7 @@ class GovernanceReportingService {
 		try {
 			$saved = $this->objectService->saveObject(
 				object: $report,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: self::SCHEMA
 			);
 			// OpenRegister's saveObject() returns ObjectEntityInterface — is_object() could
@@ -275,7 +275,7 @@ class GovernanceReportingService {
 		try {
 			$entity = $this->objectService->find(
 				id: $reportId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: self::SCHEMA
 			);
 			if ($entity === null) {
@@ -384,7 +384,7 @@ class GovernanceReportingService {
 		try {
 			$rows = $this->objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => self::SCHEMA,
 					'filters' => ['boardIntegration' => $boardId],
 					'limit' => 500,

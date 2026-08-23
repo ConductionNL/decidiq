@@ -88,7 +88,7 @@ class MotionForwardingService {
 
 		// Fetch the source motion. ADR-005: motions are `decision` objects
 		// discriminated by decisionType=motion.
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('decision');
 		$sourceMotionObject = $this->objectService->find($motionId);
 		$sourceMotionData = [];
@@ -110,14 +110,14 @@ class MotionForwardingService {
 			justification: $justification
 		);
 
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('decision');
 		// Under ADR-084 saveObject() hands back an ObjectEntityInterface, and
 		// everything below this line reads the created motion as an array, so
 		// normalise once here rather than array-accessing an entity.
 		$created = $this->objectService->saveObject(
 			object: $forwardedMotion,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision',
 		)->jsonSerialize();
 
@@ -180,8 +180,8 @@ class MotionForwardingService {
 			'lifecycle' => 'proposed',
 			'submittedAt' => $this->nowIso(),
 			'relations' => [
-				['register' => 'decidesk', 'schema' => 'governance-body', 'id' => $targetBodyId],
-				['register' => 'decidesk', 'schema' => 'decision', 'id' => $motionId],
+				['register' => 'decidiq', 'schema' => 'governance-body', 'id' => $targetBodyId],
+				['register' => 'decidiq', 'schema' => 'decision', 'id' => $motionId],
 			],
 			'notes' => [
 				[
@@ -233,11 +233,11 @@ class MotionForwardingService {
 			),
 		];
 
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('decision');
 		$objectService->saveObject(
 			object: $sourceMotionData,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision',
 			uuid: $motionId,
 		);

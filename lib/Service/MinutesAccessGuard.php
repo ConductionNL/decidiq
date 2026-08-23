@@ -95,7 +95,7 @@ class MinutesAccessGuard {
 
 		// A missing Minutes object is the caller's 404 to raise, not this
 		// guard's 403 — return null so the action can produce it.
-		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
+		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidiq', schema: 'minutes');
 		if ($minutesEntity === null) {
 			return null;
 		}
@@ -181,7 +181,7 @@ class MinutesAccessGuard {
 	 * @spec openspec/specs/resolution-minutes/spec.md
 	 */
 	public function resolveMeetingId(string $minutesId): ?string {
-		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
+		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidiq', schema: 'minutes');
 		if ($minutesEntity === null) {
 			return null;
 		}

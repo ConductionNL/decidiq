@@ -239,7 +239,7 @@ class DecisionIntegrationAuthorizationGuard {
 	private function loadDecisionForGuard(string $decisionId, string $callerUid, string $guard): array|false|null {
 		try {
 			$objectService = $this->container->get('OCA\\OpenRegister\\Service\\ObjectService');
-			$entity = $objectService->find(id: $decisionId, register: 'decidesk', schema: 'decision');
+			$entity = $objectService->find(id: $decisionId, register: 'decidiq', schema: 'decision');
 		} catch (\Throwable $e) {
 			$this->logger->warning(
 				'DecisionIntegrationAuthorizationGuard: could not resolve Decision for the ' . $guard . ' guard; denying',

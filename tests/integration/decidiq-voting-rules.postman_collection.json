@@ -182,7 +182,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/governance-body",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body",
        "host": [
         "{{baseUrl}}"
        ],
@@ -192,7 +192,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "governance-body"
        ]
       },
@@ -251,7 +251,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant",
        "host": [
         "{{baseUrl}}"
        ],
@@ -261,7 +261,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "participant"
        ]
       },
@@ -320,7 +320,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting",
        "host": [
         "{{baseUrl}}"
        ],
@@ -330,7 +330,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "meeting"
        ]
       },
@@ -389,7 +389,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision",
        "host": [
         "{{baseUrl}}"
        ],
@@ -399,7 +399,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "decision"
        ]
       },
@@ -458,7 +458,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision",
        "host": [
         "{{baseUrl}}"
        ],
@@ -468,7 +468,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "decision"
        ]
       },
@@ -527,7 +527,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision",
        "host": [
         "{{baseUrl}}"
        ],
@@ -537,7 +537,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "decision"
        ]
       },
@@ -596,7 +596,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round",
        "host": [
         "{{baseUrl}}"
        ],
@@ -606,13 +606,13 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "voting-round"
        ]
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"qualified-majority-two-thirds\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
+       "raw": "{\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"qualified-majority-two-thirds\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidiq\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
       }
      }
     },
@@ -665,7 +665,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round",
        "host": [
         "{{baseUrl}}"
        ],
@@ -675,13 +675,13 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "voting-round"
        ]
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"qualified-majority-two-thirds\",\n  \"abstentionHandling\": \"count\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
+       "raw": "{\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"qualified-majority-two-thirds\",\n  \"abstentionHandling\": \"count\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidiq\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
       }
      }
     },
@@ -734,7 +734,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round",
        "host": [
         "{{baseUrl}}"
        ],
@@ -744,13 +744,13 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "voting-round"
        ]
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
+       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidiq\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
       }
      }
     },
@@ -803,7 +803,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round",
        "host": [
         "{{baseUrl}}"
        ],
@@ -813,13 +813,13 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "voting-round"
        ]
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"result\": \"tied\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"revote\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
+       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"result\": \"tied\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"revote\",\n  \"relations\": [\n    {\n      \"register\": \"decidiq\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
       }
      }
     },
@@ -872,7 +872,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round",
        "host": [
         "{{baseUrl}}"
        ],
@@ -882,13 +882,13 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "voting-round"
        ]
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"chair-decides\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrChairMotionId}}\"\n    }\n  ]\n}"
+       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"chair-decides\",\n  \"relations\": [\n    {\n      \"register\": \"decidiq\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrChairMotionId}}\"\n    }\n  ]\n}"
       }
      }
     },
@@ -941,7 +941,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/vote",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/vote",
        "host": [
         "{{baseUrl}}"
        ],
@@ -951,13 +951,13 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "vote"
        ]
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"value\": \"for\",\n  \"weight\": 1,\n  \"isProxy\": false,\n  \"castAt\": \"2026-06-20T10:06:00+00:00\",\n  \"castAs\": \"in-person\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"voting-round\",\n      \"id\": \"{{vrChairRoundId}}\"\n    }\n  ]\n}"
+       "raw": "{\n  \"value\": \"for\",\n  \"weight\": 1,\n  \"isProxy\": false,\n  \"castAt\": \"2026-06-20T10:06:00+00:00\",\n  \"castAs\": \"in-person\",\n  \"relations\": [\n    {\n      \"register\": \"decidiq\",\n      \"schema\": \"voting-round\",\n      \"id\": \"{{vrChairRoundId}}\"\n    }\n  ]\n}"
       }
      }
     },
@@ -1010,7 +1010,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/vote",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/vote",
        "host": [
         "{{baseUrl}}"
        ],
@@ -1020,13 +1020,13 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "vote"
        ]
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"value\": \"against\",\n  \"weight\": 1,\n  \"isProxy\": false,\n  \"castAt\": \"2026-06-20T10:07:00+00:00\",\n  \"castAs\": \"in-person\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"voting-round\",\n      \"id\": \"{{vrChairRoundId}}\"\n    }\n  ]\n}"
+       "raw": "{\n  \"value\": \"against\",\n  \"weight\": 1,\n  \"isProxy\": false,\n  \"castAt\": \"2026-06-20T10:07:00+00:00\",\n  \"castAs\": \"in-person\",\n  \"relations\": [\n    {\n      \"register\": \"decidiq\",\n      \"schema\": \"voting-round\",\n      \"id\": \"{{vrChairRoundId}}\"\n    }\n  ]\n}"
       }
      }
     },
@@ -1079,7 +1079,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round",
        "host": [
         "{{baseUrl}}"
        ],
@@ -1089,13 +1089,13 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "voting-round"
        ]
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrChairMotionId}}\"\n    }\n  ]\n}"
+       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidiq\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrChairMotionId}}\"\n    }\n  ]\n}"
       }
      }
     }
@@ -2092,7 +2092,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant",
        "host": [
         "{{baseUrl}}"
        ],
@@ -2102,7 +2102,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "participant"
        ]
       },
@@ -2162,7 +2162,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant",
        "host": [
         "{{baseUrl}}"
        ],
@@ -2172,7 +2172,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "participant"
        ]
       },
@@ -2319,7 +2319,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/proxy-authorization/{{vrProxy1Id}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/proxy-authorization/{{vrProxy1Id}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -2329,7 +2329,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "proxy-authorization",
         "{{vrProxy1Id}}"
        ]
@@ -2475,7 +2475,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/proxy-authorization/{{vrProxy2Id}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/proxy-authorization/{{vrProxy2Id}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -2485,7 +2485,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "proxy-authorization",
         "{{vrProxy2Id}}"
        ]
@@ -2787,7 +2787,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/vote/{{vrCastVoteId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/vote/{{vrCastVoteId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -2797,7 +2797,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "vote",
         "{{vrCastVoteId}}"
        ]
@@ -2838,7 +2838,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/vote/{{vrVoteForId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/vote/{{vrVoteForId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -2848,7 +2848,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "vote",
         "{{vrVoteForId}}"
        ]
@@ -2889,7 +2889,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/vote/{{vrVoteAgainstId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/vote/{{vrVoteAgainstId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -2899,7 +2899,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "vote",
         "{{vrVoteAgainstId}}"
        ]
@@ -2940,7 +2940,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round/{{vrOpenedRoundId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round/{{vrOpenedRoundId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -2950,7 +2950,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "voting-round",
         "{{vrOpenedRoundId}}"
        ]
@@ -2991,7 +2991,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round/{{vrRevoteRoundId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round/{{vrRevoteRoundId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3001,7 +3001,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "voting-round",
         "{{vrRevoteRoundId}}"
        ]
@@ -3042,7 +3042,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round/{{vrTwoThirdsRoundId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round/{{vrTwoThirdsRoundId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3052,7 +3052,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "voting-round",
         "{{vrTwoThirdsRoundId}}"
        ]
@@ -3093,7 +3093,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round/{{vrCountRoundId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round/{{vrCountRoundId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3103,7 +3103,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "voting-round",
         "{{vrCountRoundId}}"
        ]
@@ -3144,7 +3144,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round/{{vrGuardRoundId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round/{{vrGuardRoundId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3154,7 +3154,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "voting-round",
         "{{vrGuardRoundId}}"
        ]
@@ -3195,7 +3195,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round/{{vrTiedRevoteRoundId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round/{{vrTiedRevoteRoundId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3205,7 +3205,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "voting-round",
         "{{vrTiedRevoteRoundId}}"
        ]
@@ -3246,7 +3246,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round/{{vrChairRoundId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round/{{vrChairRoundId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3256,7 +3256,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "voting-round",
         "{{vrChairRoundId}}"
        ]
@@ -3297,7 +3297,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round/{{vrCastRoundId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round/{{vrCastRoundId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3307,7 +3307,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "voting-round",
         "{{vrCastRoundId}}"
        ]
@@ -3348,7 +3348,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/proxy-authorization/{{vrProxy1Id}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/proxy-authorization/{{vrProxy1Id}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3358,7 +3358,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "proxy-authorization",
         "{{vrProxy1Id}}"
        ]
@@ -3399,7 +3399,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/proxy-authorization/{{vrProxy2Id}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/proxy-authorization/{{vrProxy2Id}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3409,7 +3409,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "proxy-authorization",
         "{{vrProxy2Id}}"
        ]
@@ -3450,7 +3450,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/proxy-authorization/{{vrProxyOkId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/proxy-authorization/{{vrProxyOkId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3460,7 +3460,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "proxy-authorization",
         "{{vrProxyOkId}}"
        ]
@@ -3501,7 +3501,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant/{{vrProxyGrantorId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant/{{vrProxyGrantorId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3511,7 +3511,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "participant",
         "{{vrProxyGrantorId}}"
        ]
@@ -3552,7 +3552,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant/{{vrHolderAltId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant/{{vrHolderAltId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3562,7 +3562,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "participant",
         "{{vrHolderAltId}}"
        ]
@@ -3603,7 +3603,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision/{{vrRulesMotionId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{vrRulesMotionId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3613,7 +3613,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "decision",
         "{{vrRulesMotionId}}"
        ]
@@ -3654,7 +3654,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision/{{vrTallyMotionId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{vrTallyMotionId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3664,7 +3664,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "decision",
         "{{vrTallyMotionId}}"
        ]
@@ -3705,7 +3705,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision/{{vrChairMotionId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{vrChairMotionId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3715,7 +3715,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "decision",
         "{{vrChairMotionId}}"
        ]
@@ -3756,7 +3756,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting/{{vrMeetingId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting/{{vrMeetingId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3766,7 +3766,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "meeting",
         "{{vrMeetingId}}"
        ]
@@ -3807,7 +3807,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant/{{vrParticipantId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant/{{vrParticipantId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3817,7 +3817,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "participant",
         "{{vrParticipantId}}"
        ]
@@ -3858,7 +3858,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/governance-body/{{vrGovBodyId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body/{{vrGovBodyId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3868,7 +3868,7 @@
         "openregister",
         "api",
         "objects",
-        "decidesk",
+        "decidiq",
         "governance-body",
         "{{vrGovBodyId}}"
        ]

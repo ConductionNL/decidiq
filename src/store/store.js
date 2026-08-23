@@ -63,7 +63,7 @@ export async function initializeStores() {
 	await settingsStore.fetchSettings()
 
 	const settings = settingsStore.getSettings || {}
-	const register = settings.register || 'decidesk'
+	const register = settings.register || 'decidiq'
 
 	// Register every logical type the app actually fetches/subscribes.
 	// Pre-migration this map only covered minutes/decision/action-item

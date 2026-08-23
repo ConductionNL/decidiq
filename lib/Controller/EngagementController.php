@@ -78,7 +78,7 @@ class EngagementController extends Controller {
 	private function resolveParticipantUuid(string $nextcloudUid): ?string {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$objectService->setRegister('decidesk');
+			$objectService->setRegister('decidiq');
 			$objectService->setSchema('participant');
 			$entities = $objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
 

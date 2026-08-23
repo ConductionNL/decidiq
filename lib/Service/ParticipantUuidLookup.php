@@ -62,7 +62,7 @@ class ParticipantUuidLookup {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function forNextcloudUser(string $nextcloudUid): ?string {
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('participant');
 		$entities = $this->objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
 
@@ -104,7 +104,7 @@ class ParticipantUuidLookup {
 			return null;
 		}
 
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('participant');
 		$entities = $this->objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
 

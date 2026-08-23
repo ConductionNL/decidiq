@@ -137,7 +137,7 @@ test.afterEach(async ({}, testInfo) => {
  * CnIndexPage's self-fetch mode (useListView) requests `_limit=20&_page=1`.
  */
 async function dumpListWindow(page, schema: string, needle: string): Promise<void> {
-	const url = `${BASE}/index.php/apps/openregister/api/objects/decidesk/${schema}?_limit=20&_page=1`
+	const url = `${BASE}/index.php/apps/openregister/api/objects/decidiq/${schema}?_limit=20&_page=1`
 	const resp = await page.request
 		.get(url, { headers: { Accept: 'application/json' } })
 		.catch(() => null)

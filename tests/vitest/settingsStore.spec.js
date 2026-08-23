@@ -101,15 +101,15 @@ describe('decidiq settings store', () => {
 			ok: true,
 			json: async () => ({
 				success: true,
-				config: { register: 'decidesk', organisation_name: 'ACME' },
+				config: { register: 'decidiq', organisation_name: 'ACME' },
 			}),
 		})
 		const store = useSettingsStore()
 		const result = await store.saveSettings({ organisation_name: 'ACME' })
-		expect(result).toEqual({ register: 'decidesk', organisation_name: 'ACME' })
+		expect(result).toEqual({ register: 'decidiq', organisation_name: 'ACME' })
 		// The flat settings map must not be replaced by the envelope —
 		// useRelationStore reads settings.register after a save.
-		expect(store.settings.register).toBe('decidesk')
+		expect(store.settings.register).toBe('decidiq')
 		expect(store.settings.success).toBeUndefined()
 	})
 })

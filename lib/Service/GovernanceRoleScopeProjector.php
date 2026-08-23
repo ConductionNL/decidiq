@@ -157,7 +157,7 @@ class GovernanceRoleScopeProjector {
 	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
 	 */
 	public function reconcileAll(): int {
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('governancebody');
 		$bodies = $this->objectService->findAll(['filters' => ['_limit' => 9999]]);
 
@@ -182,7 +182,7 @@ class GovernanceRoleScopeProjector {
 	 * @return array{0: string[], 1: string[]} [chairUids, signatoryUids]
 	 */
 	private function desiredMembers(string $bodyId): array {
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('participant');
 		$participants = $this->objectService->findAll(
 			[

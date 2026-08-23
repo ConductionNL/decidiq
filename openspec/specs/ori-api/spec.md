@@ -139,7 +139,7 @@ and the `/api/ori/v1/memberships` resource from the `membership` schema (not fro
 `participant`). The `OriController::RESOURCE_MAP` MUST map `persons` → `person` and
 `memberships` → `membership`. The list path MUST use the OpenRegister config-array
 pattern where `register`/`schema` live inside `filters`
-(`findAll(['limit' => N, 'filters' => ['register' => 'decidesk', 'schema' => $schema, ...]])`).
+(`findAll(['limit' => N, 'filters' => ['register' => 'decidiq', 'schema' => $schema, ...]])`).
 The ORI `@type` labels (`Person`, `Membership`), endpoint paths, and JSON-LD envelope
 MUST remain unchanged.
 

@@ -224,7 +224,7 @@ class ConflictOfInterestService {
 			// (same convention as ProxyVoteService::register()).
 			$saved = $this->objectService->saveObject(
 				object: $row,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'conflict-of-interest',
 				_rbac: false
 			);
@@ -301,7 +301,7 @@ class ConflictOfInterestService {
 		try {
 			$entity = $this->objectService->find(
 				id: $declarationId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'conflict-of-interest'
 			);
 
@@ -334,7 +334,7 @@ class ConflictOfInterestService {
 			// chair/secretary-only rule; see the class docblock note on declare().
 			$saved = $this->objectService->saveObject(
 				object: $updated,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'conflict-of-interest',
 				uuid: $declarationId,
 				_rbac: false
@@ -419,7 +419,7 @@ class ConflictOfInterestService {
 			$rows = $this->objectService->findAll(
 				[
 					'filters' => [
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => 'conflict-of-interest',
 						'boardMember' => $membershipId,
 						'agendaItem' => $agendaItemId,

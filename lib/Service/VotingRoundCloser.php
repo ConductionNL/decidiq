@@ -143,7 +143,7 @@ class VotingRoundCloser {
 		}
 
 		$round['chairCastingVote'] = $chairCasting;
-		$objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
+		$objectService->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
 
 	}//end applyChairCastingVote()
 
@@ -164,7 +164,7 @@ class VotingRoundCloser {
 
 		if (($round['closedAt'] ?? null) === null) {
 			$round['closedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
-			$this->objectService()->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
+			$this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
 		}
 
 		return $round;
@@ -352,7 +352,7 @@ class VotingRoundCloser {
 	private function anonymiseVotes(string $votingRoundId): void {
 		try {
 			$objectService = $this->objectService();
-			$objectService->setRegister('decidesk');
+			$objectService->setRegister('decidiq');
 			$objectService->setSchema('vote');
 			$voteEntities = $this->relationFilter->matching(
 				entities: $objectService->findAll(
@@ -365,7 +365,7 @@ class VotingRoundCloser {
 			foreach ($voteEntities as $voteEntity) {
 				$vote = $voteEntity->jsonSerialize();
 				$vote['value'] = null;
-				$objectService->saveObject(register: 'decidesk', schema: 'vote', object: $vote);
+				$objectService->saveObject(register: 'decidiq', schema: 'vote', object: $vote);
 			}
 
 			$this->logger->info('Decidiq: votes anonymised', ['votingRoundId' => $votingRoundId]);
@@ -463,7 +463,7 @@ class VotingRoundCloser {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function findObject(string $objectId, string $schema): ?array {
-		$entity = $this->objectService()->find(id: $objectId, register: 'decidesk', schema: $schema);
+		$entity = $this->objectService()->find(id: $objectId, register: 'decidiq', schema: $schema);
 		if ($entity === null) {
 			return null;
 		}

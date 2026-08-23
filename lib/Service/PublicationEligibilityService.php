@@ -442,7 +442,7 @@ class PublicationEligibilityService {
 	 */
 	private function loadObject(string $schema, string $id): array {
 		try {
-			$entity = $this->objectService->find(id: $id, register: 'decidesk', schema: $schema);
+			$entity = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema);
 		} catch (\Throwable $e) {
 			$this->logger->error('Decidiq publication: failed to load source object', ['exception' => $e->getMessage()]);
 			throw new MissingObjectException(message: 'Source object could not be loaded.');

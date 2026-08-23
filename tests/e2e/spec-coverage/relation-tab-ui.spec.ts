@@ -28,7 +28,7 @@ async function getFirstObject(
 	schema: string,
 ) {
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/${schema}?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/${schema}?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	if (!resp.ok()) return null

@@ -19,7 +19,7 @@
 			"title": "Woo category mappings",
 			"_note": "spec: openspec/changes/woo-diwoo-publication/specs/woo-diwoo-publication/spec.md#requirement-req-woo-001-woo-informatiecategorie-mapping-configuration",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "woo-categorie-mapping",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -57,7 +57,7 @@
 			"title": "Woo category mapping",
 			"_note": "spec: openspec/changes/woo-diwoo-publication/specs/woo-diwoo-publication/spec.md#requirement-req-woo-001-woo-informatiecategorie-mapping-configuration",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "woo-categorie-mapping",
 				"_note": "WooCategorieMappingDetail (REQ-WOO-001 / REQ-WOO-006). The mapping data (objectType, informatiecategorie TOOI URI + label, active, notes) renders in the data widget; edit runs in a dedicated dialog (modal-isolation gate). Audit trail is a sidebar tab. A mapping whose objectType schema is not installed stays inert — the coverage view (imperative, out of core scope) surfaces it as 'type not installed'.",
 				"widgets": [
@@ -83,7 +83,7 @@
 			"title": "Woo governing bodies",
 			"_note": "spec: openspec/changes/woo-diwoo-publication/specs/woo-diwoo-publication/spec.md#requirement-req-woo-006-admin-mapping-ui",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "woo-bestuursorgaan",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -101,7 +101,7 @@
 					{ "label": "Inactive", "filter": { "active": false } }
 				],
 				"columns": [
-					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "governingBody", "label": "Bestuursorgaan (TOOI id)" },
 					{ "key": "label", "label": "Label" },
 					{ "key": "active", "label": "Active", "widget": "badge" }
@@ -121,7 +121,7 @@
 			"title": "Woo governing body",
 			"_note": "spec: openspec/changes/woo-diwoo-publication/specs/woo-diwoo-publication/spec.md#requirement-req-woo-006-admin-mapping-ui",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "woo-bestuursorgaan",
 				"_note": "WooBestuursorgaanDetail (REQ-WOO-006). The per-body bestuursorgaan override (governanceBody reference, bestuursorgaan TOOI id, label, active, notes) renders in the data widget with the linked GovernanceBody as a resolved reference; edit runs in a dedicated dialog (modal-isolation gate). Audit trail is a sidebar tab.",
 				"widgets": [

@@ -71,7 +71,7 @@ class MotionLinkResolver {
 	public function resolveMeetingId(string $motionId): ?string {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'decision');
+			$motionEntity = $objectService->find(id: $motionId, register: 'decidiq', schema: 'decision');
 			if ($motionEntity === null) {
 				return null;
 			}

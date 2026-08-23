@@ -229,7 +229,7 @@ class SubmissionDeadlineListener implements IEventListener {
 			return null;
 		}
 
-		$motionEntity = $this->objectService->find(id: $parentMotionId, register: 'decidesk', schema: 'decision');
+		$motionEntity = $this->objectService->find(id: $parentMotionId, register: 'decidiq', schema: 'decision');
 		if ($motionEntity === null) {
 			return null;
 		}
@@ -284,7 +284,7 @@ class SubmissionDeadlineListener implements IEventListener {
 	 * @return int|null Deadline timestamp, or null when unset/unparseable/meeting missing
 	 */
 	private function resolveSubmissionDeadline(string $meetingId): ?int {
-		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		if ($meetingEntity === null) {
 			return null;
 		}

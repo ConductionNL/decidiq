@@ -281,7 +281,7 @@ class PublicationPayloadService {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$entities = $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'agenda-item',
 					'filters' => ['meeting' => $meetingId],
 				]

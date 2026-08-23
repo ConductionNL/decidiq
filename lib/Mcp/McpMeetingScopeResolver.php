@@ -83,7 +83,7 @@ class McpMeetingScopeResolver {
 			$participants = $this->objectService->findAll(
 				[
 					'filters' => [
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => 'participant',
 						'nextcloudUserId' => $userId,
 					],
@@ -151,7 +151,7 @@ class McpMeetingScopeResolver {
 		$meetingEntities = $objectService->findAll(
 			[
 				'filters' => [
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'meeting',
 					'_relations.governance-body' => $bodyId,
 				],

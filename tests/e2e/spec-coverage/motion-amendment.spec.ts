@@ -110,11 +110,11 @@ test('motion detail route renders with amendments tab accessible', async ({
 }) => {
 	// ADR-005 (accepted): the standalone `motion` schema was folded into the
 	// `Decision` supertype under `decisionType: 'motion'`. Addressing
-	// /objects/decidesk/motion returns 404 "Schema not found: 'motion'", which is
+	// /objects/decidiq/motion returns 404 "Schema not found: 'motion'", which is
 	// what this test was failing on — note the manifest already routes
 	// /motions/:id at schema `decision`, so only this URL was stale.
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/decision?decisionType=motion&_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/decision?decisionType=motion&_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(
@@ -144,7 +144,7 @@ test('amendment detail route renders for the diff view', async ({ page }) => {
 	// standalone `amendment` schema was removed); /amendments/:id is already
 	// routed at schema `decision` in the manifest.
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/decision?decisionType=amendment&_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/decision?decisionType=amendment&_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(
@@ -180,7 +180,7 @@ test('live meeting view shows motions context for in-meeting motion submission',
 	page,
 }) => {
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(resp.ok()).toBe(true)

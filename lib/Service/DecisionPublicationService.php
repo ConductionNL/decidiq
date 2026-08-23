@@ -77,7 +77,7 @@ class DecisionPublicationService {
 			return $this->envelope(status: Http::STATUS_SERVICE_UNAVAILABLE, message: 'OpenRegister is not available.');
 		}
 
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('decision');
 
 		$decision = $this->loadDecision(objectService: $objectService, decisionId: $decisionId);
@@ -179,7 +179,7 @@ class DecisionPublicationService {
 		try {
 			$saved = $objectService->saveObject(
 				object: $updated,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'decision',
 				uuid: $decisionId
 			);

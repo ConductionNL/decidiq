@@ -65,7 +65,7 @@ class DecisionContextResolver {
 	 */
 	public function loadDecision(object $objectService, string $decisionId): ?array {
 		try {
-			$entity = $objectService->find(id: $decisionId, register: 'decidesk', schema: 'decision');
+			$entity = $objectService->find(id: $decisionId, register: 'decidiq', schema: 'decision');
 		} catch (DoesNotExistException) {
 			return null;
 		}
@@ -98,7 +98,7 @@ class DecisionContextResolver {
 		}
 
 		try {
-			$entity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+			$entity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		} catch (DoesNotExistException) {
 			return null;
 		}
@@ -213,7 +213,7 @@ class DecisionContextResolver {
 		try {
 			$chairParticipant = $objectService->find(
 				id: $chairId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'participant'
 			);
 		} catch (DoesNotExistException) {

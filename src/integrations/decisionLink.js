@@ -54,11 +54,11 @@ export const PROPOSAL_LIFECYCLE = ['draft', 'proposed', 'deliberating', 'voting'
 /**
  * OpenRegister objects endpoint for decidiq `decision` objects.
  *
- * @return {string} The resolved `/apps/openregister/api/objects/decidesk/decision` URL.
+ * @return {string} The resolved `/apps/openregister/api/objects/decidiq/decision` URL.
  */
 function decisionsUrl() {
 	return generateUrl('/apps/openregister/api/objects/{register}/{schema}', {
-		register: 'decidesk',
+		register: 'decidiq',
 		schema: 'decision',
 	})
 }

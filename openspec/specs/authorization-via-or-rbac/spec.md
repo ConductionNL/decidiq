@@ -125,7 +125,7 @@ OpenRegister action (`read`, `list`, `create`, `update`, `delete`). `read`, `lis
 SHALL be granted to `authenticated`; `update` and `delete` SHALL NOT be, so that a user who is
 neither the object's owner, nor a Nextcloud admin, nor a member of the named administrator group
 cannot rewrite or destroy another user's decidiq object through OpenRegister's own
-`/apps/openregister/api/objects/decidesk/<schema>` API. Schemas that declare their own
+`/apps/openregister/api/objects/decidiq/<schema>` API. Schemas that declare their own
 `authorization` block SHALL keep it — OpenRegister resolves the schema block first and falls back to
 the register's only when a schema has none — and those blocks SHALL continue to name read actions
 only. The register version, the configuration version and the app version SHALL all be bumped in the

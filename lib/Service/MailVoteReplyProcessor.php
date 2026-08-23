@@ -124,7 +124,7 @@ class MailVoteReplyProcessor {
 
 		// Persist mutations: write the updated _mail metadata back to OpenRegister.
 		$round['_mail'] = $entries;
-		$objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
+		$objectService->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
 
 	}//end processRound()
 
@@ -258,7 +258,7 @@ class MailVoteReplyProcessor {
 	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	private function findParticipant(object $objectService, string $participantId, string $roundId): ?array {
-		$entity = $objectService->find(id: $participantId, register: 'decidesk', schema: 'participant');
+		$entity = $objectService->find(id: $participantId, register: 'decidiq', schema: 'participant');
 		if ($entity !== null) {
 			return $entity->jsonSerialize();
 		}

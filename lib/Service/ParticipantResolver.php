@@ -90,7 +90,7 @@ class ParticipantResolver {
 		// "Not found" is this method's documented answer, so it is translated here
 		// and only here; every other failure still propagates.
 		try {
-			$meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+			$meetingEntity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		} catch (DoesNotExistException) {
 			return null;
 		}
@@ -149,7 +149,7 @@ class ParticipantResolver {
 		}
 
 		$objectService = $this->objectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('participant');
 
 		// NOTE: objects created via the standard OpenRegister object API store the

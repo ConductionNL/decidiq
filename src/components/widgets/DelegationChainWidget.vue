@@ -181,7 +181,7 @@ export default {
 		cfg() {
 			const c = this.content || {}
 			return {
-				register: c.register || this.register || 'decidesk',
+				register: c.register || this.register || 'decidiq',
 				schema: c.schema || this.schema || 'bevoegdheidstoedeling',
 				parentRefField: c.parentRefField || 'parentAllocation',
 				decisionRefField: c.decisionRefField || 'decision',

@@ -178,7 +178,7 @@ class ConflictOfInterestAuthorizationGuard {
 	 * @return string|null
 	 */
 	private function resolveParticipantUuid(string $nextcloudUid): ?string {
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('participant');
 		$entities = $this->objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
 
@@ -208,7 +208,7 @@ class ConflictOfInterestAuthorizationGuard {
 		}
 
 		try {
-			$entity = $this->objectService->find(id: $agendaItemId, register: 'decidesk', schema: 'agenda-item');
+			$entity = $this->objectService->find(id: $agendaItemId, register: 'decidiq', schema: 'agenda-item');
 		} catch (\Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: ConflictOfInterestAuthorizationGuard could not resolve the agenda item\'s meeting',

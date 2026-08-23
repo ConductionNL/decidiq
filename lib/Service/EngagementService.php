@@ -109,7 +109,7 @@ class EngagementService {
 		$objectService = $this->getObjectService();
 		$saved = $objectService->saveObject(
 			object: $record,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'engagement-record',
 			uuid: ($existing['id'] ?? null),
 		);
@@ -215,7 +215,7 @@ class EngagementService {
 	): ?array {
 		try {
 			$objectService = $this->getObjectService();
-			$objectService->setRegister('decidesk');
+			$objectService->setRegister('decidiq');
 			$objectService->setSchema('engagement-record');
 
 			// ObjectService::findAll() takes a single $config array — the
@@ -264,7 +264,7 @@ class EngagementService {
 	public function findEngagementForMeeting(string $meetingId): array {
 		try {
 			$objectService = $this->getObjectService();
-			$objectService->setRegister('decidesk');
+			$objectService->setRegister('decidiq');
 			$objectService->setSchema('engagement-record');
 
 			// ObjectService::findAll() takes a single $config array — the

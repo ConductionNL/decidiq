@@ -50,7 +50,7 @@ class ActionItemWriter {
 	 *
 	 * @var string
 	 */
-	private const REGISTER_SLUG = 'decidesk';
+	private const REGISTER_SLUG = 'decidiq';
 
 	/**
 	 * The action-item schema slug (the read-only VTODO projection).

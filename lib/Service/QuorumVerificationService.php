@@ -152,7 +152,7 @@ class QuorumVerificationService {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-			$meeting = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+			$meeting = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 			if ($meeting === null) {
 				return null;
 			}
@@ -165,7 +165,7 @@ class QuorumVerificationService {
 				'boardId' => $boardId,
 				'members' => $objectService->findAll(
 					[
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => 'membership',
 						'filters' => ['boardIntegration' => $boardId],
 						'limit' => 1000,

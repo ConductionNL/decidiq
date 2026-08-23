@@ -4,7 +4,7 @@
  * Contract tests for decidiq's OpenRegister `authorization` baseline.
  *
  * Every decidiq object is reachable at
- * `/apps/openregister/api/objects/decidesk/<schema>` — the register slug is
+ * `/apps/openregister/api/objects/decidiq/<schema>` — the register slug is
  * FROZEN on the old value — the API the frontend uses
  * directly under ADR-022 — and NO decidiq controller guard sits in front of it.
  * What decides who may write there is the `authorization` block on the schema, or
@@ -113,7 +113,7 @@ class RegisterAuthorizationTest extends TestCase {
 	 * @return array<string,mixed> The register row.
 	 */
 	private function registerRow(): array {
-		$row = $this->register['components']['registers']['decidesk'] ?? null;
+		$row = $this->register['components']['registers']['decidiq'] ?? null;
 		$this->assertIsArray($row, 'The decidesk register row must exist.');
 
 		return $row;

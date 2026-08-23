@@ -193,7 +193,7 @@ class GovernanceScopeGuard {
 	 * @return string|null
 	 */
 	private function resolveBodyIdForMinutes(string $minutesId): ?string {
-		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
+		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidiq', schema: 'minutes');
 		if ($minutesEntity === null) {
 			return null;
 		}
@@ -203,7 +203,7 @@ class GovernanceScopeGuard {
 			return null;
 		}
 
-		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		if ($meetingEntity === null) {
 			return null;
 		}

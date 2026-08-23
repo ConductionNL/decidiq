@@ -207,7 +207,7 @@ class MeetingFolderService {
 
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(id: $bodyId, register: 'decidesk', schema: 'governance-body');
+			$entity = $objectService->find(id: $bodyId, register: 'decidiq', schema: 'governance-body');
 		} catch (\Throwable) {
 			return '';
 		}

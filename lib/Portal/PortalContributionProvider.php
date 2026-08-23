@@ -82,7 +82,7 @@ class PortalContributionProvider {
 	 *
 	 * @var string
 	 */
-	private const REGISTER = 'decidesk';
+	private const REGISTER = 'decidiq';
 
 	/**
 	 * The human label portaliq renders for this app's portal section.

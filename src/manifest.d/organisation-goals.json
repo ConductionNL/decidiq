@@ -18,7 +18,7 @@
 			"title": "Goals",
 			"_note": "spec: openspec/changes/organisation-goals/specs/organisation-goals/spec.md#requirement-req-009-goals-index-and-detail-pages-are-declared-not-custom-built",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "goal",
 				"sortKey": "deadline",
 				"sortOrder": "asc",
@@ -35,7 +35,7 @@
 				],
 				"columns": [
 					{ "key": "title", "label": "Title", "widget": "link" },
-					{ "key": "body", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "body", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "horizon", "label": "Horizon", "widget": "badge" },
 					{ "key": "deadline", "label": "Deadline" },
 					{ "key": "status", "label": "Status", "widget": "badge" }
@@ -55,7 +55,7 @@
 			"title": "Goal",
 			"_note": "spec: openspec/changes/organisation-goals/specs/organisation-goals/spec.md#requirement-req-009-goals-index-and-detail-pages-are-declared-not-custom-built",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "goal",
 				"_note": "GoalDetail (REQ-001/002/004/005/009). Goal data (title/description/horizon/body/owner/startDate/deadline/status/targetValue/currentValue/unit) plus the declarative rollup fields (linkedCommitmentCount/settledCommitmentCount/commitmentSettlementRate, linkedActionItemCount/completedActionItemCount/actionItemCompletionRate, childGoalCount/achievedChildGoalCount/childGoalAchievedRate) render as plain fields in the data widget, same posture as the Meeting quorum aggregation display — no custom progress-visualisation widget (design.md Non-Goals). parentGoal/owner/body render as resolved references in the Related widget.",
 				"widgets": [

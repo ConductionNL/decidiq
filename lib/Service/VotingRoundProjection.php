@@ -192,7 +192,7 @@ class VotingRoundProjection {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function findObject(string $objectId, string $schema): ?array {
-		$entity = $this->objectService->find(id: $objectId, register: 'decidesk', schema: $schema);
+		$entity = $this->objectService->find(id: $objectId, register: 'decidiq', schema: $schema);
 		if ($entity === null) {
 			return null;
 		}

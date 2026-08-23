@@ -201,7 +201,7 @@ class McpActionItemTools {
 		$currentUserId = $this->gate->currentUserId();
 
 		$filters = [
-			'register' => 'decidesk',
+			'register' => 'decidiq',
 			'schema' => 'action-item',
 			'completed' => false,
 			'_limit' => $limit,

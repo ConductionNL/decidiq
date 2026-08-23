@@ -26,7 +26,7 @@
 			"title": "Onboarding",
 			"_note": "spec: openspec/changes/member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Onboarding index; columns person/targetBody/targetRole/trigger/lifecycle; quick filters on lifecycle, trigger and batch. The dashboard overdue-KPI/status widgets (REQ-MOB-011) deep-link here pre-filtered.",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "onboarding-traject",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -42,8 +42,8 @@
 					{ "label": "Raadswisseling batch", "filter": { "trigger": "council-turnover-batch" } }
 				],
 				"columns": [
-					{ "key": "person", "label": "Person", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
-					{ "key": "targetBody", "label": "Body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "person", "label": "Person", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
+					{ "key": "targetBody", "label": "Body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "targetRole", "label": "Role", "widget": "badge" },
 					{ "key": "trigger", "label": "Trigger", "widget": "badge" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
@@ -63,7 +63,7 @@
 			"title": "Onboarding traject",
 			"_note": "spec: openspec/changes/member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Traject data leads 8-wide (person/targetBody/targetRole/trigger/beëdiging fields/lifecycle); the checklist steps render inside the data widget; person/targetBody/beëdigingsVergadering/membership render as resolved references in the Related widget. Audit trail is a sidebar tab. The per-step complete/skip/execute-provisioning actions and the induction-pack delivery are imperative surfaces DEFERRED (design D3/D6, out of declarative core).",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "onboarding-traject",
 				"_note": "OnboardingTrajectDetail (REQ-MOB-012). Schema BY SLUG onboarding-traject.",
 				"widgets": [
@@ -91,7 +91,7 @@
 			"title": "Offboarding",
 			"_note": "spec: openspec/changes/member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Offboarding index; columns person/body/eindeReden/trigger/eindeDatum/lifecycle; quick filters on lifecycle, trigger and batch.",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "offboarding-traject",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -107,8 +107,8 @@
 					{ "label": "Raadswisseling batch", "filter": { "trigger": "council-turnover-batch" } }
 				],
 				"columns": [
-					{ "key": "person", "label": "Person", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
-					{ "key": "body", "label": "Body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "person", "label": "Person", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
+					{ "key": "body", "label": "Body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "endReason", "label": "End reason", "widget": "badge" },
 					{ "key": "endDate", "label": "End date" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
@@ -128,7 +128,7 @@
 			"title": "Offboarding traject",
 			"_note": "spec: openspec/changes/member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Traject data leads 8-wide (person/body/membership/trigger/eindeDatum/eindeReden/exit-confirmation/lifecycle); the checklist steps render inside the data widget; person/body/membership render as resolved references in the Related widget. Audit trail is a sidebar tab. The per-step revocation/end-date execution is an imperative surface DEFERRED (design D3, out of declarative core).",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "offboarding-traject",
 				"_note": "OffboardingTrajectDetail (REQ-MOB-012). Schema BY SLUG offboarding-traject.",
 				"widgets": [

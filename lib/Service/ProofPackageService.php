@@ -91,7 +91,7 @@ class ProofPackageService {
 	public function assemble(string $meetingId, string $generatedBy): array {
 		$objectService = $this->getObjectService();
 
-		$meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+		$meetingEntity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		if ($meetingEntity === null) {
 			throw new MissingObjectException(
 				message: sprintf('Meeting "%s" not found.', $meetingId)
@@ -507,7 +507,7 @@ class ProofPackageService {
 		$offset = 0;
 		$result = [];
 
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema($schema);
 
 		do {
@@ -515,7 +515,7 @@ class ProofPackageService {
 				$entities = $objectService->findAll(
 					[
 						'filters' => [
-							'register' => 'decidesk',
+							'register' => 'decidiq',
 							'schema' => $schema,
 							'_relations.meeting' => $meetingId,
 						],

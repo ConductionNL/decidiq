@@ -171,7 +171,7 @@ class ApiController extends Controller {
 			$objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
 			$offset = (($page - 1) * $limit);
 			$filters = [
-				'register' => 'decidesk',
+				'register' => 'decidiq',
 				'schema' => $schema,
 			];
 			// ADR-005: /motions and /amendments are decisions narrowed by the
@@ -236,7 +236,7 @@ class ApiController extends Controller {
 
 		try {
 			$objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
-			$entity = $objectService->find(id: $id, register: 'decidesk', schema: $schema);
+			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
 			$object = null;
 			if ($entity !== null) {
 				$object = $entity->jsonSerialize();

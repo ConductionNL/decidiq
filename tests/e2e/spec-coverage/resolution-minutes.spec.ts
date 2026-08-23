@@ -169,7 +169,7 @@ test('live meeting: action-item capture shortcut creates a tracked action item',
 	// The action item is now a real OR object linked into action tracking
 	// (fixture-style verification through the object API; UI created it).
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/action-item?_limit=200`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/action-item?_limit=200`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(resp.ok()).toBeTruthy()

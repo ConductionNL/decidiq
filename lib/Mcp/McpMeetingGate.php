@@ -169,7 +169,7 @@ class McpMeetingGate {
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	public function loadMeeting(string $meetingUuid): ?array {
-		$meetingEntity = $this->objectService->find(id: $meetingUuid, register: 'decidesk', schema: 'meeting');
+		$meetingEntity = $this->objectService->find(id: $meetingUuid, register: 'decidiq', schema: 'meeting');
 		if ($meetingEntity === null) {
 			return null;
 		}

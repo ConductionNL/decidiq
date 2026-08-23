@@ -142,7 +142,7 @@ class ParticipationPublicationService {
 	 */
 	public function publishConsultationResults(string $consultationId, string $staffResponse = ''): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $consultationId, register: 'decidesk', schema: 'public-consultation');
+		$entity = $objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation');
 		if ($entity === null) {
 			throw new RuntimeException("PublicConsultation {$consultationId} not found");
 		}
@@ -188,7 +188,7 @@ class ParticipationPublicationService {
 	 */
 	public function publishBudgetResults(string $budgetId): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $budgetId, register: 'decidesk', schema: 'participatory-budget');
+		$entity = $objectService->find(id: $budgetId, register: 'decidiq', schema: 'participatory-budget');
 		if ($entity === null) {
 			throw new RuntimeException("ParticipatoryBudget {$budgetId} not found");
 		}
@@ -244,7 +244,7 @@ class ParticipationPublicationService {
 	 */
 	public function publishEvaluationResults(string $evaluationId): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $evaluationId, register: 'decidesk', schema: 'board-evaluation');
+		$entity = $objectService->find(id: $evaluationId, register: 'decidiq', schema: 'board-evaluation');
 		if ($entity === null) {
 			throw new RuntimeException("BoardEvaluation {$evaluationId} not found");
 		}
@@ -329,7 +329,7 @@ class ParticipationPublicationService {
 	 */
 	public function buildReactionDigest(string $consultationId): array {
 		$objectService = $this->objectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('consultation-reaction');
 		// NOT `_relations.public-consultation`: reactions are written with a
 		// structured `relations` array (ReactionIntakeService), which OpenRegister
@@ -409,7 +409,7 @@ class ParticipationPublicationService {
 		$objectService = $this->objectService();
 
 		if ($sourceObject === null) {
-			$entity = $objectService->find(id: $sourceId, register: 'decidesk', schema: $sourceSchema);
+			$entity = $objectService->find(id: $sourceId, register: 'decidiq', schema: $sourceSchema);
 			$sourceObject = [];
 			if ($entity !== null) {
 				$sourceObject = $entity->jsonSerialize();
@@ -436,7 +436,7 @@ class ParticipationPublicationService {
 		$predicateSet = false;
 		$persistError = null;
 		try {
-			$saved = $objectService->saveObject(register: 'decidesk', schema: $sourceSchema, object: $sourceObject);
+			$saved = $objectService->saveObject(register: 'decidiq', schema: $sourceSchema, object: $sourceObject);
 			$summary = array_merge($summary, ['sourceObject' => $this->normaliseSaved(saved: $saved, fallback: $sourceObject)]);
 			$predicateSet = true;
 		} catch (\Throwable $e) {
@@ -507,7 +507,7 @@ class ParticipationPublicationService {
 	 */
 	public function publishReaction(string $reactionId): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $reactionId, register: 'decidesk', schema: 'consultation-reaction');
+		$entity = $objectService->find(id: $reactionId, register: 'decidiq', schema: 'consultation-reaction');
 		if ($entity === null) {
 			throw new RuntimeException("ConsultationReaction {$reactionId} not found");
 		}
@@ -519,7 +519,7 @@ class ParticipationPublicationService {
 
 		$reaction['publicationDate'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 		$reaction['depublicationDate'] = null;
-		$saved = $objectService->saveObject(register: 'decidesk', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $reaction);
 	}//end publishReaction()

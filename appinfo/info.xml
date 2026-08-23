@@ -147,6 +147,27 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Repair\MigrateAppConfigKeys</step>
             <step>OCA\Decidiq\Repair\MigrateUserPreferences</step>
+            <!--
+                Third leg of the rename, on the OpenRegister register ROW. The
+                slug moves too (`decidesk` -> `decidiq`), together with
+                `x-openregister.app`, which for a `type: application`
+                configuration IS a register slug rather than an attribution
+                label — ImportHandler::autoCreateRegisterIfApplication() reads
+                `$xOpenregister['app'] ?? $appId` as the slug.
+
+                MUST run before InitializeSettings, which triggers the import.
+                OpenRegister resolves a register by slug and its not-found branch
+                CREATES a second, empty register rather than failing, so an
+                import that ran first would fork the register and leave every
+                stored object behind on the old row, silently.
+
+                It moves no data: an object is bound to its register by NUMERIC
+                id (`_register` in every shard table, and the tables are named
+                `oc_openregister_table_<registerId>_<schemaId>`), so this is one
+                column on one row. Idempotent, non-destructive, and it refuses
+                rather than merges if both slugs already exist.
+            -->
+            <step>OCA\Decidiq\Repair\MigrateRegisterSlug</step>
             <step>OCA\Decidiq\Repair\InitializeSettings</step>
             <!--
                 After InitializeSettings imports the register. The schema edit
@@ -163,11 +184,12 @@ Vrij en open source onder de EUPL-1.2-licentie.
             <!--
                 Must run AFTER the register sync that adds the English columns, so it
                 can tell the rename case from the back-fill case. Scoped to the
-                `decidesk` register only — several of these words (onderwerp) also
-                exist in procest. The register SLUG deliberately stays `decidesk`
-                across the app-id rename: OpenRegister matches registers by slug,
-                so renaming it would import a fresh empty register and orphan
-                every stored object. Idempotent and non-destructive.
+                `decidiq` register only — several of these words (onderwerp) also
+                exist in dossiq's. The register SLUG moves with the app id, and
+                MigrateRegisterSlug above renames the row before anything here
+                resolves it; renaming the slug WITHOUT that step is what would
+                import a fresh empty register and orphan every stored object.
+                Idempotent and non-destructive.
             -->
             <step>OCA\Decidiq\Repair\RenameDutchVocabularyColumns</step>
             <!--
@@ -201,6 +223,27 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Repair\MigrateAppConfigKeys</step>
             <step>OCA\Decidiq\Repair\MigrateUserPreferences</step>
+            <!--
+                Third leg of the rename, on the OpenRegister register ROW. The
+                slug moves too (`decidesk` -> `decidiq`), together with
+                `x-openregister.app`, which for a `type: application`
+                configuration IS a register slug rather than an attribution
+                label — ImportHandler::autoCreateRegisterIfApplication() reads
+                `$xOpenregister['app'] ?? $appId` as the slug.
+
+                MUST run before InitializeSettings, which triggers the import.
+                OpenRegister resolves a register by slug and its not-found branch
+                CREATES a second, empty register rather than failing, so an
+                import that ran first would fork the register and leave every
+                stored object behind on the old row, silently.
+
+                It moves no data: an object is bound to its register by NUMERIC
+                id (`_register` in every shard table, and the tables are named
+                `oc_openregister_table_<registerId>_<schemaId>`), so this is one
+                column on one row. Idempotent, non-destructive, and it refuses
+                rather than merges if both slugs already exist.
+            -->
+            <step>OCA\Decidiq\Repair\MigrateRegisterSlug</step>
             <step>OCA\Decidiq\Repair\InitializeSettings</step>
             <!--
                 After InitializeSettings imports the register. The schema edit

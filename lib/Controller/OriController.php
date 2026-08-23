@@ -236,7 +236,7 @@ class OriController extends Controller {
 	 */
 	private function buildFilters(string $resource, string $schema): array {
 		$filters = [
-			'register' => 'decidesk',
+			'register' => 'decidiq',
 			'schema' => $schema,
 		];
 
@@ -321,7 +321,7 @@ class OriController extends Controller {
 
 		try {
 			$objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
-			$entity = $objectService->find(id: $id, register: 'decidesk', schema: $schema);
+			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
 			$object = null;
 			if ($entity !== null) {
 				$object = $entity->jsonSerialize();

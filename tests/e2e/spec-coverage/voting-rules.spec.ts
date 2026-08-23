@@ -69,7 +69,7 @@ async function createObject(
 	body: object,
 ): Promise<string | null> {
 	const resp = await api.post(
-		`/index.php/apps/openregister/api/objects/decidesk/${schema}`,
+		`/index.php/apps/openregister/api/objects/decidiq/${schema}`,
 		{ data: body },
 	)
 	if (!resp.ok()) {
@@ -90,7 +90,7 @@ async function deleteObject(
 	if (!id) return
 	try {
 		await api.delete(
-			`/index.php/apps/openregister/api/objects/decidesk/${schema}/${id}`,
+			`/index.php/apps/openregister/api/objects/decidiq/${schema}/${id}`,
 		)
 	} catch {
 		// Teardown is best-effort; leftover fixtures are namespaced ("E2E VR …").
@@ -255,7 +255,7 @@ test('closed-round result shows the active rules and the computed base', async (
 			abstentionHandling: 'exclude',
 			tieBreakRule: 'rejected',
 			voteBase: 19,
-			relations: [{ register: 'decidesk', schema: 'motion', id: motionId }],
+			relations: [{ register: 'decidiq', schema: 'motion', id: motionId }],
 		})
 		test.skip(!roundId, 'OpenRegister seeding API unavailable on this instance')
 
@@ -310,7 +310,7 @@ test('live tally shows the active rules and the computed base while the round is
 			voteThreshold: 'qualified-majority-three-quarters',
 			abstentionHandling: 'count',
 			tieBreakRule: 'revote',
-			relations: [{ register: 'decidesk', schema: 'motion', id: motionId }],
+			relations: [{ register: 'decidiq', schema: 'motion', id: motionId }],
 		})
 		test.skip(!roundId, 'OpenRegister seeding API unavailable on this instance')
 

@@ -340,10 +340,10 @@ class MinutesDraftService {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$entities = $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => $schema,
 					'filters' => [
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => $schema,
 						'_relations.meeting' => $meetingId,
 					],
@@ -384,7 +384,7 @@ class MinutesDraftService {
 	private function fetchObject(string $id, string $schema): ?array {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(id: $id, register: 'decidesk', schema: $schema);
+			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
 		} catch (\Throwable) {
 			return null;
 		}
@@ -416,7 +416,7 @@ class MinutesDraftService {
 
 			$objectService->saveObject(
 				object: $transcript,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'transcript',
 				uuid: $uuid
 			);

@@ -136,7 +136,7 @@ New schema `meeting-pack` gets seeds referencing the existing Meeting seeds (`ra
 | pageCount | 42 | 58 | 23 | 12 |
 | skipped | [] | ["04 - Kadernota begroting 2026/begroting-detail.xlsx (non-PDF attachment)"] | [] | [] |
 
-`@self` envelope for each: `{ "register": "decidesk", "schema": "MeetingPack", "slug": "<slug>" }` (inline `x-openregister-seeds`, same mechanism as the existing Meeting/AgendaItem seeds).
+`@self` envelope for each: `{ "register": "decidiq", "schema": "MeetingPack", "slug": "<slug>" }` (inline `x-openregister-seeds`, same mechanism as the existing Meeting/AgendaItem seeds).
 
 **Modified seed** — AgendaItem `jaarrekening-2024` gains `confidentiality: confidential` (its pack section then shows the closed-doors placeholder); the other AgendaItem seeds stay `internal` by default.
 

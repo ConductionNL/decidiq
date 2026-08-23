@@ -19,7 +19,7 @@
 			"title": "Governing documents",
 			"_note": "spec: openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-006-governing-documents-list-and-detail-pages",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "governing-document",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -59,7 +59,7 @@
 						"widget": "link"
 					},
 					{ "key": "type", "label": "Type", "widget": "badge" },
-					{ "key": "governingBody", "label": "Governing body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "governingBody", "label": "Governing body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "status", "label": "Status", "widget": "badge" }
 				],
 				"actions": [
@@ -84,7 +84,7 @@
 			"title": "Governing document",
 			"_note": "spec: openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-006-governing-documents-list-and-detail-pages",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "governing-document",
 				"_note": "GoverningDocumentDetail (REQ-GDR-003/004/005/006). Document metadata leads 8-wide; the linked governingBody renders as a resolved reference in the data + Related widgets. The Related widget surfaces the full version timeline (each GoverningDocumentVersie with versienummer, inwerkingtreding, state, its enacting-decision link where present — navigating to the existing Decision detail page — and notarial-deed metadata where present), the 'geldend op' date control driving the REQ-GDR-004 resolution, and the reverse lookup of decisions citing this document via citesGoverningDocuments (REQ-GDR-005) — all wired imperatively by the page/service tasks; keyboard-navigable, WCAG 2.1 AA. Files leaf for the consolidated-text PDF per sealed version (OR file abstraction). Audit trail is a sidebar tab.",
 				"widgets": [
@@ -117,7 +117,7 @@
 						"content": {
 							"title": "Version timeline",
 							"icon": "Timeline",
-							"versionRegister": "decidesk",
+							"versionRegister": "decidiq",
 							"versionSchema": "governing-document-versie",
 							"parentRefField": "document",
 							"effectiveDateField": "effectiveDate",

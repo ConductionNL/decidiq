@@ -9,7 +9,7 @@
 		{ "key": "noAuthBase", "value": "http://localhost:8080" },
 		{ "key": "adminUser", "value": "admin" },
 		{ "key": "adminPass", "value": "admin" },
-		{ "key": "register", "value": "decidesk" },
+		{ "key": "register", "value": "decidiq" },
 		{ "key": "boardId", "value": "" }
 	],
 	"item": [
@@ -40,9 +40,9 @@
 				],
 				"body": { "mode": "raw", "raw": "{\n  \"name\": \"Newman Governance Reporting Body\",\n  \"bodyType\": \"supervisory-board\",\n  \"domain\": \"newman-governance-reporting\"\n}" },
 				"url": {
-					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/governance-body",
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body",
 					"host": [ "{{baseUrl}}" ],
-					"path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "governance-body" ]
+					"path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "governance-body" ]
 				}
 			}
 		},
@@ -313,9 +313,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/governance-body/{{boardId}}",
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body/{{boardId}}",
 					"host": [ "{{baseUrl}}" ],
-					"path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "governance-body", "{{boardId}}" ]
+					"path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "governance-body", "{{boardId}}" ]
 				}
 			}
 		}

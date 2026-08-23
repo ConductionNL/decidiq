@@ -170,7 +170,7 @@ class RegulatorExportService {
 		try {
 			$saved = $objectService->saveObject(
 				object: $exportRecord,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: self::SCHEMA
 			);
 			if (is_object($saved) === true && method_exists($saved, 'jsonSerialize') === true) {
@@ -255,7 +255,7 @@ class RegulatorExportService {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$entity = $objectService->find(
 				id: $exportId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: self::SCHEMA
 			);
 			if ($entity === null) {
@@ -318,7 +318,7 @@ class RegulatorExportService {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$rows = $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => self::SCHEMA,
 					'filters' => ['boardIntegration' => $boardId],
 					'limit' => 500,
@@ -358,7 +358,7 @@ class RegulatorExportService {
 		$meetings = $this->normalize(
 			rows: $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'meeting',
 					'filters' => ['boardIntegration' => $boardId],
 					'limit' => 5000,
@@ -371,7 +371,7 @@ class RegulatorExportService {
 			$all = $this->normalize(
 				rows: $objectService->findAll(
 					[
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => 'decision',
 						'limit' => 5000,
 					]
@@ -389,7 +389,7 @@ class RegulatorExportService {
 			$all = $this->normalize(
 				rows: $objectService->findAll(
 					[
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => 'minutes',
 						'limit' => 5000,
 					]
@@ -410,7 +410,7 @@ class RegulatorExportService {
 		return $this->normalize(
 			rows: $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'audit-trail',
 					'limit' => 5000,
 				]

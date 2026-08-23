@@ -216,7 +216,7 @@ class DecisionIntegrationService {
 		try {
 			$existing = $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'decision',
 					'filters' => $filters,
 				]
@@ -250,7 +250,7 @@ class DecisionIntegrationService {
 		try {
 			$saved = $objectService->saveObject(
 				object: $object,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'decision'
 			);
 
@@ -328,7 +328,7 @@ class DecisionIntegrationService {
 		}
 
 		try {
-			$entity = $objectService->find(id: $decisionId, register: 'decidesk', schema: 'decision');
+			$entity = $objectService->find(id: $decisionId, register: 'decidiq', schema: 'decision');
 		} catch (\Throwable $e) {
 			return null;
 		}
@@ -450,7 +450,7 @@ class DecisionIntegrationService {
 
 		// Load and guard the target Decision.
 		try {
-			$entity = $objectService->find(id: $decisionId, register: 'decidesk', schema: 'decision');
+			$entity = $objectService->find(id: $decisionId, register: 'decidiq', schema: 'decision');
 		} catch (\Throwable $e) {
 			$entity = null;
 		}
@@ -467,7 +467,7 @@ class DecisionIntegrationService {
 		try {
 			$objectService->saveObject(
 				object: $updated,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'decision',
 				uuid: $decisionId
 			);
@@ -596,7 +596,7 @@ class DecisionIntegrationService {
 		try {
 			$stages = $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'decision-stage',
 					'filters' => ['decision' => $decisionId, 'method' => 'signature'],
 				]

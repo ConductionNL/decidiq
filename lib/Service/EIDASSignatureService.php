@@ -476,7 +476,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			$results = $this->objectService->findAll(
 				[
 					'filters' => [
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => 'decision-stage',
 						'method' => 'signature',
 						'signedDocument' => $minutesId,
@@ -509,7 +509,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 
 				$this->objectService->saveObject(
 					object: array_merge($current, $patch),
-					register: 'decidesk',
+					register: 'decidiq',
 					schema: 'decision-stage',
 					uuid: $stageId
 				);
@@ -663,7 +663,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		try {
 			$entity = $this->objectService->find(
 				id: $minutesId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'minutes'
 			);
 			if ($entity === null) {
@@ -672,7 +672,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 
 			$this->objectService->saveObject(
 				object: array_merge($this->toObjectArray(entity: $entity), $patch),
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'minutes',
 				uuid: $minutesId
 			);

@@ -87,7 +87,7 @@ export default {
 		 */
 		sidebarConfig() {
 			return {
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'motion',
 				useRegistry: true,
 			}

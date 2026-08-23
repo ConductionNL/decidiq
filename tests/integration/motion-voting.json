@@ -76,7 +76,7 @@
 								"value": "application/json"
 							}
 						],
-						"url": "{{base_url}}/index.php/apps/openregister/api/objects/decidesk/motion?limit=1"
+						"url": "{{base_url}}/index.php/apps/openregister/api/objects/decidiq/motion?limit=1"
 					},
 					"event": [
 						{
@@ -105,7 +105,7 @@
 								"value": "application/json"
 							}
 						],
-						"url": "{{base_url}}/index.php/apps/openregister/api/objects/decidesk/amendment?limit=1"
+						"url": "{{base_url}}/index.php/apps/openregister/api/objects/decidiq/amendment?limit=1"
 					},
 					"event": [
 						{
@@ -134,7 +134,7 @@
 								"value": "application/json"
 							}
 						],
-						"url": "{{base_url}}/index.php/apps/openregister/api/objects/decidesk/participant?limit=1"
+						"url": "{{base_url}}/index.php/apps/openregister/api/objects/decidiq/participant?limit=1"
 					},
 					"event": [
 						{
@@ -163,7 +163,7 @@
 								"value": "application/json"
 							}
 						],
-						"url": "{{base_url}}/index.php/apps/openregister/api/objects/decidesk/meeting?limit=1"
+						"url": "{{base_url}}/index.php/apps/openregister/api/objects/decidiq/meeting?limit=1"
 					},
 					"event": [
 						{

@@ -55,9 +55,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/publication-payload",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/publication-payload",
 							"host": [ "{{baseUrl}}" ],
-							"path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "publication-payload" ]
+							"path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "publication-payload" ]
 						},
 						"body": {
 							"mode": "raw",
@@ -166,9 +166,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/publication-payload/{{payloadId}}",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/publication-payload/{{payloadId}}",
 							"host": [ "{{baseUrl}}" ],
-							"path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "publication-payload", "{{payloadId}}" ]
+							"path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "publication-payload", "{{payloadId}}" ]
 						},
 						"body": {
 							"mode": "raw",
@@ -269,9 +269,9 @@
 							{ "key": "Accept", "value": "application/json" }
 						],
 						"url": {
-							"raw": "{{noAuthBase}}/index.php/apps/openregister/api/objects/decidesk/publication-payload/{{payloadId}}",
+							"raw": "{{noAuthBase}}/index.php/apps/openregister/api/objects/decidiq/publication-payload/{{payloadId}}",
 							"host": [ "{{noAuthBase}}" ],
-							"path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "publication-payload", "{{payloadId}}" ]
+							"path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "publication-payload", "{{payloadId}}" ]
 						},
 						"body": {
 							"mode": "raw",
@@ -322,9 +322,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/publication-payload/{{payloadId}}",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/publication-payload/{{payloadId}}",
 							"host": [ "{{baseUrl}}" ],
-							"path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "publication-payload", "{{payloadId}}" ]
+							"path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "publication-payload", "{{payloadId}}" ]
 						},
 						"body": {
 							"mode": "raw",
@@ -417,9 +417,9 @@
 							{ "key": "OCS-APIRequest", "value": "true" }
 						],
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/publication-payload/{{payloadId}}",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/publication-payload/{{payloadId}}",
 							"host": [ "{{baseUrl}}" ],
-							"path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "publication-payload", "{{payloadId}}" ]
+							"path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "publication-payload", "{{payloadId}}" ]
 						}
 					}
 				}

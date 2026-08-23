@@ -156,18 +156,18 @@ class VoteBallotFactory {
 		bool $isSecret,
 	): array {
 		$relations = [
-			['register' => 'decidesk', 'schema' => 'voting-round', 'id' => $votingRoundId],
+			['register' => 'decidiq', 'schema' => 'voting-round', 'id' => $votingRoundId],
 		];
 
 		if ($isSecret === true) {
 			return $relations;
 		}
 
-		$relations[] = ['register' => 'decidesk', 'schema' => 'participant', 'id' => $participantId];
+		$relations[] = ['register' => 'decidiq', 'schema' => 'participant', 'id' => $participantId];
 
 		if ($isProxy === true && $delegatorId !== null) {
 			$relations[] = [
-				'register' => 'decidesk',
+				'register' => 'decidiq',
 				'schema' => 'participant',
 				'id' => $delegatorId,
 				'type' => 'delegator',
@@ -237,7 +237,7 @@ class VoteBallotFactory {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$participantEntity = $objectService->find(
 				id: $participantId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'participant'
 			);
 			if ($participantEntity !== null) {

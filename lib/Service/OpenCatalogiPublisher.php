@@ -87,7 +87,7 @@ class OpenCatalogiPublisher {
 					'catalog' => $catalogId,
 					'published' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
 					'reference' => $payloadId,
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'publication-payload',
 				],
 				register: 'opencatalogi',

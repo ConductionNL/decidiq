@@ -343,7 +343,7 @@ class DashboardWidgetService {
 		try {
 			$rows = $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => $schema,
 				]
 			);

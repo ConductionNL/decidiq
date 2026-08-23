@@ -89,7 +89,7 @@ class MotionCoauthorService {
 		// M4: use named-arg find() instead of setRegister/setSchema pattern.
 		// ADR-005: motions live in the unified `decision` schema, so the id
 		// lookup no longer proves the type — `decisionType` does.
-		$entity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'decision');
+		$entity = $objectService->find(id: $motionId, register: 'decidiq', schema: 'decision');
 		$motion = [];
 		if ($entity !== null) {
 			$motion = $entity->jsonSerialize();
@@ -117,7 +117,7 @@ class MotionCoauthorService {
 	 */
 	private function resolveParticipantUuid(string $nextcloudUid): ?string {
 		$objectService = $this->getObjectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('participant');
 		$entities = $objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
 
@@ -208,7 +208,7 @@ class MotionCoauthorService {
 			$objectService = $this->getObjectService();
 			$objectService->saveObject(
 				object: $motion,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'decision',
 				uuid: $motionId,
 			);
@@ -257,7 +257,7 @@ class MotionCoauthorService {
 		$objectService = $this->getObjectService();
 		$objectService->saveObject(
 			object: $motion,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision',
 			uuid: $motionId,
 		);
@@ -331,7 +331,7 @@ class MotionCoauthorService {
 		$objectService = $this->getObjectService();
 		$objectService->saveObject(
 			object: $motion,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision',
 			uuid: $motionId,
 		);
@@ -486,7 +486,7 @@ class MotionCoauthorService {
 		$objectService = $this->getObjectService();
 		$objectService->saveObject(
 			object: $motion,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision',
 			uuid: $motionId,
 		);

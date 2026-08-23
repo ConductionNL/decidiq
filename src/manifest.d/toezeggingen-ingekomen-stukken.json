@@ -26,7 +26,7 @@
 			"title": "Commitments",
 			"_note": "spec: openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "toezegging",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -42,8 +42,8 @@
 				],
 				"columns": [
 					{ "key": "text", "label": "Commitment", "widget": "link" },
-					{ "key": "madeBy", "label": "Made by", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "person", "labelField": "name" } },
-					{ "key": "directedTo", "label": "Directed to", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "madeBy", "label": "Made by", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
+					{ "key": "directedTo", "label": "Directed to", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "deadline", "label": "Deadline" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 				],
@@ -62,7 +62,7 @@
 			"title": "Commitment",
 			"_note": "spec: openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "toezegging",
 				"_note": "ToezeggingDetail (REQ-006). Commitment data leads 8-wide, publication + evidence stacked right; the linked meeting/agendaItem/madeBy/directedTo/relatedMotion render as resolved references in the data widget and the Related widget. Files leaf for the raadsbrief/evidence. Audit trail is a sidebar tab (REQ-006). No comms leaf: the toezegging schema declares no email/calendar linkedType.",
 				"widgets": [
@@ -92,7 +92,7 @@
 			"title": "Incoming documents",
 			"_note": "spec: openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "ingekomen-stuk",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -130,7 +130,7 @@
 			"title": "Incoming document",
 			"_note": "spec: openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "ingekomen-stuk",
 				"_note": "IngekomenStukDetail (REQ-006). Document data leads 8-wide; the routing advice/decision, the linked listAgendaItem/targetAgendaItem and their meeting, and directedTo render as resolved references in the data + Related widgets. Files leaf for the scanned letter/petition PDF. Audit trail is a sidebar tab (REQ-006).",
 				"widgets": [

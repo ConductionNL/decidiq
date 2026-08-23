@@ -60,7 +60,7 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 	 *
 	 * @var string
 	 */
-	private const REGISTER = 'decidesk';
+	private const REGISTER = 'decidiq';
 
 	/**
 	 * The legacy email-link schema slug being retired.

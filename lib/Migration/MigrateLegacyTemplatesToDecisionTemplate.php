@@ -64,7 +64,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	 *
 	 * @var string
 	 */
-	private const REGISTER = 'decidesk';
+	private const REGISTER = 'decidiq';
 
 	/**
 	 * The legacy process-template schema slug.

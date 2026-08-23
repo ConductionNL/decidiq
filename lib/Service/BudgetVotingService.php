@@ -126,7 +126,7 @@ class BudgetVotingService {
 		}
 
 		$objectService = $this->objectService();
-		$roundEntity = $objectService->find(id: $budgetId, register: 'decidesk', schema: 'participatory-budget');
+		$roundEntity = $objectService->find(id: $budgetId, register: 'decidiq', schema: 'participatory-budget');
 		if ($roundEntity === null) {
 			throw new RuntimeException("ParticipatoryBudget {$budgetId} not found");
 		}
@@ -155,7 +155,7 @@ class BudgetVotingService {
 			'votesFor' => 0,
 			'votesAgainst' => 0,
 			'relations' => [
-				['register' => 'decidesk', 'schema' => 'participatory-budget', 'id' => $budgetId],
+				['register' => 'decidiq', 'schema' => 'participatory-budget', 'id' => $budgetId],
 			],
 		];
 
@@ -163,7 +163,7 @@ class BudgetVotingService {
 			$proposal['category'] = $category;
 		}
 
-		$saved = $objectService->saveObject(register: 'decidesk', schema: 'budget-proposal', object: $proposal);
+		$saved = $objectService->saveObject(register: 'decidiq', schema: 'budget-proposal', object: $proposal);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $proposal);
 	}//end submitProposal()
@@ -185,7 +185,7 @@ class BudgetVotingService {
 	 */
 	public function validateProposal(string $proposalId, bool $approve): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $proposalId, register: 'decidesk', schema: 'budget-proposal');
+		$entity = $objectService->find(id: $proposalId, register: 'decidiq', schema: 'budget-proposal');
 		if ($entity === null) {
 			throw new RuntimeException("BudgetProposal {$proposalId} not found");
 		}
@@ -200,7 +200,7 @@ class BudgetVotingService {
 			$proposal['status'] = 'validated';
 		}
 
-		$saved = $objectService->saveObject(register: 'decidesk', schema: 'budget-proposal', object: $proposal);
+		$saved = $objectService->saveObject(register: 'decidiq', schema: 'budget-proposal', object: $proposal);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $proposal);
 	}//end validateProposal()
@@ -230,7 +230,7 @@ class BudgetVotingService {
 	 */
 	public function castAdvisoryVote(string $proposalId, string $voterId, string $value): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $proposalId, register: 'decidesk', schema: 'budget-proposal');
+		$entity = $objectService->find(id: $proposalId, register: 'decidiq', schema: 'budget-proposal');
 		if ($entity === null) {
 			throw new RuntimeException("BudgetProposal {$proposalId} not found");
 		}
@@ -253,7 +253,7 @@ class BudgetVotingService {
 			throw new RuntimeException('Voting is closed for this budget round');
 		}
 
-		$roundEntity = $objectService->find(id: $budgetId, register: 'decidesk', schema: 'participatory-budget');
+		$roundEntity = $objectService->find(id: $budgetId, register: 'decidiq', schema: 'participatory-budget');
 		if ($roundEntity === null) {
 			throw new RuntimeException('Voting is closed for this budget round');
 		}
@@ -285,7 +285,7 @@ class BudgetVotingService {
 	 */
 	public function calculateAllocation(string $budgetId): array {
 		$objectService = $this->objectService();
-		$roundEntity = $objectService->find(id: $budgetId, register: 'decidesk', schema: 'participatory-budget');
+		$roundEntity = $objectService->find(id: $budgetId, register: 'decidiq', schema: 'participatory-budget');
 		if ($roundEntity === null) {
 			throw new RuntimeException("ParticipatoryBudget {$budgetId} not found");
 		}
@@ -327,7 +327,7 @@ class BudgetVotingService {
 			// Persist the award decision on the proposal.
 			if ($funded === true && $proposalId !== '') {
 				$proposal['status'] = 'awarded';
-				$objectService->saveObject(register: 'decidesk', schema: 'budget-proposal', object: $proposal);
+				$objectService->saveObject(register: 'decidiq', schema: 'budget-proposal', object: $proposal);
 			}
 
 			$ranked[] = [
@@ -374,7 +374,7 @@ class BudgetVotingService {
 	 */
 	private function fetchValidatedProposals(string $budgetId): array {
 		$objectService = $this->objectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('budget-proposal');
 		$entities = $objectService->findAll(['filters' => ['participatoryBudget' => $budgetId]]);
 

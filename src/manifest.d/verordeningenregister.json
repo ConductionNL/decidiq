@@ -19,7 +19,7 @@
 			"title": "Regulations",
 			"_note": "spec: openspec/changes/verordeningenregister/specs/verordeningenregister/spec.md#requirement-req-vor-008-regelingen-list-and-detail-pages",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "regeling",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -54,7 +54,7 @@
 						"widget": "link"
 					},
 					{ "key": "type", "label": "Type", "widget": "badge" },
-					{ "key": "determiningBody", "label": "Adopting body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "determiningBody", "label": "Adopting body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{
 						"key": "currentEffectiveDate",
 						"label": "In force since",
@@ -85,7 +85,7 @@
 			"title": "Regulation",
 			"_note": "spec: openspec/changes/verordeningenregister/specs/verordeningenregister/spec.md#requirement-req-vor-008-regelingen-list-and-detail-pages",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "regeling",
 				"_note": "RegelingDetail (REQ-VOR-004/008). Regeling metadata leads 8-wide, publication/CVDR stacked right; the linked vaststellendOrgaan renders as a resolved reference in the data + Related widgets. The Related widget surfaces the version timeline — every RegelingVersie (via its regeling ref) with versienummer, inwerkingtreding, state and its wijzigingsbesluit link to the Decision detail page — plus the current in-force version. The 'geldend op' date control driving REQ-VOR-004 resolution and the per-version export/publication state are wired by the imperative RegelingConsolidationService / RegelingExportService slices; this fragment provides the declarative skeleton. Files leaf for supporting documents. Audit trail is a sidebar tab.",
 				"widgets": [
@@ -192,7 +192,7 @@
 			"title": "Regulation version",
 			"_note": "spec: openspec/changes/verordeningenregister/specs/verordeningenregister/spec.md#requirement-req-vor-002-regelingversie-traced-to-its-amending-decision",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "regeling-versie",
 				"_note": "RegelingVersieDetail (REQ-VOR-002/003). Version metadata leads 8-wide; the linked regeling (parent work) and vastgesteldDoor (wijzigingsbesluit Decision) render as resolved references in the data + Related widgets — the amending-decision link navigates to the existing Decision detail page (REQ-VOR-008). The consolidated-text document is the Files leaf (attached via the OR file abstraction, not a schema property). Once the version is in-werking it is sealed and immutable (REQ-VOR-003) — the seal is enforced server-side by OpenRegister, independent of this UI. Audit trail is a sidebar tab.",
 				"widgets": [
