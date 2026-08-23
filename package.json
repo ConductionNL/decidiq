@@ -17,6 +17,8 @@
     "test:coverage": "vitest run --coverage --coverage.provider=v8 --coverage.reporter=json-summary --coverage.reporter=text-summary --coverage.include=src/** --coverage.reportsDirectory=coverage-vitest",
     "test:coverage-ratchet": "npm run test:coverage && bash tests/coverage-ratchet.sh vitest coverage-vitest/coverage-summary.json",
     "check:manifest": "node tests/validate-manifest.js",
+    "l10n:build": "node scripts/build-l10n-js.js",
+    "check:l10n-js": "node scripts/build-l10n-js.js --check",
     "check:nav-ceiling": "node scripts/check-nav-ceiling.js",
     "stylelint": "stylelint \"src/**/*.{vue,scss,css}\"",
     "format": "prettier --check \"**/*.{js,ts,vue,css,scss}\"",
