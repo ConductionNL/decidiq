@@ -9,7 +9,7 @@
 		{ "key": "noAuthBase", "value": "http://localhost:8080" },
 		{ "key": "adminUser", "value": "admin" },
 		{ "key": "adminPass", "value": "admin" },
-		{ "key": "register", "value": "decidesk" },
+		{ "key": "register", "value": "decidiq" },
 		{ "key": "boardId", "value": "" }
 	],
 	"item": [
