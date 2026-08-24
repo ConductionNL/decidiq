@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Rooster van aftreden (retirement schedule) + Termijnregelingen (term rules) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages for rooster-van-aftreden and termijn-regeling, plus a rooster-regel index (the ordered per-body term view the dashboard expiring-terms KPI deep-links to). Schema refs BY SLUG (termijn-regeling / rooster-van-aftreden / rooster-regel), never PascalCase. The Voordrachten/VoordrachtDetail pages and menu entry were removed by the appointment-decision-type-schema change — the retired voordracht schema is folded into Decision (decisionType=appointment); see that change's spec. The Dashboard 'termijnen die binnen N maanden aflopen' KPI stat widget (REQ-APT-012) lives in the base src/manifest.json (design D6/mergePages replaces a same-id page wholesale, so a fragment cannot add one widget to Dashboard without duplicating it) — out of scope for this declarative-core fragment.",
 	"_spec": "openspec/changes/appointments-and-terms/specs/appointments-and-terms/spec.md",
 	"menu": [

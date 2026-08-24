@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Advisory-opinion-workflow (adviesaanvraag / advies) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages for the adviesaanvraag register; schema refs BY SLUG (adviesaanvraag / advies), never PascalCase. DEFERRED (design D6, out of this fragment): the two Dashboard stat widgets 'Open adviesaanvragen' (non-terminal lifecycle) and 'Adviezen wachtend op afdoening' (lifecycle advies-uitgebracht) must be added to the Dashboard page in the base src/manifest.json — mergePages replaces a same-id page wholesale, so a fragment cannot add a widget to Dashboard without duplicating the whole page. Both KPIs deep-link to the Adviesaanvragen index pre-filtered to the same set (REQ-AOW-008).",
 	"_spec": "openspec/changes/advisory-opinion-workflow/specs/advisory-opinion-workflow/spec.md",
 	"menu": [

@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Toezeggingen (commitments) + Ingekomen stukken (incoming documents) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages for both registers; schema refs BY SLUG (toezegging / ingekomen-stuk), never PascalCase. The Dashboard 'Open toezeggingen over deadline' stat widget lives in the base src/manifest.json (design D6: mergePages replaces a same-id page wholesale, so a fragment cannot add one widget to Dashboard without duplicating it).",
 	"_spec": "openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md",
 	"menu": [

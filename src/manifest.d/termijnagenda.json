@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Termijnagenda (long-term agenda / LTA) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Declarative core only: index + detail pages for the termijnagenda-item register; schema refs BY SLUG (termijnagenda-item), never PascalCase. DEFERRED (imperative frontend, out of this declarative-core fragment): the per-body board page with drag-to-reschedule (REQ-LTA-005 — a custom component + reschedule/realise/vervallen dialogs) and the Dashboard 'Termijnagenda over termijn' stat widget (REQ-LTA-010), which lives in the base src/manifest.json (design D6: mergePages replaces a same-id page wholesale, so a fragment cannot add one widget to Dashboard without duplicating it). This fragment does NOT edit src/manifest.json.",
 	"menu": [
 		{

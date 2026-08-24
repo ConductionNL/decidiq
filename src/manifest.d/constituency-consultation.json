@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Constituency consultation (achterbanraadpleging / ledenraadpleging) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages for MemberConsultation; schema refs BY SLUG (member-consultation / member-consultation-response), never PascalCase. Every surface carries the 'niet-bindende raadpleging' non-binding label (REQ-CCO-005). DEFERRED: the Dashboard KPI widget (e.g. open raadplegingen / awaiting-verwerkt) is intentionally NOT added here — a fragment cannot add a single widget to the base Dashboard page without duplicating it (mergePages replaces a same-id page wholesale), that base src/manifest.json path has a known OR aggregation limitation, and it would conflict with parallel sibling work; the KPI is deferred to a follow-up. The respond/edit surface and the linked-item 'Raadpleging (niet-bindend)' reverse-lookup section (REQ-CCO-006/008) require imperative/component work beyond this declarative core and are added when the services/controller land.",
 	"_spec": "openspec/changes/constituency-consultation/specs/constituency-consultation/spec.md",
 	"menu": [
