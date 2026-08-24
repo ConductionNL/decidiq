@@ -29,15 +29,13 @@
     "test:e2e:docs": "playwright test --project docs-capture",
     "test:l10n": "node tests/l10n/check-l10n.js",
     "test:l10n:write": "node tests/l10n/check-l10n.js --write",
-    "test:l10n:parity": "node tests/l10n/check-l10n-parity.js",
-    "l10n:build": "node scripts/build-l10n-js.js",
-    "check:l10n-js": "node scripts/build-l10n-js.js --check"
+    "test:l10n:parity": "node tests/l10n/check-l10n-parity.js"
   },
   "browserslist": [
     "extends @nextcloud/browserslist-config"
   ],
   "dependencies": {
-    "@conduction/nextcloud-vue": "^2.3.0",
+    "@conduction/nextcloud-vue": "^2.16.0",
     "@nextcloud/auth": "^2.6.0",
     "@nextcloud/axios": "~2.5.2",
     "@nextcloud/capabilities": "^1.2.1",
