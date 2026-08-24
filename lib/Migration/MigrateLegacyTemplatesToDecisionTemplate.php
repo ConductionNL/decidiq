@@ -115,6 +115,19 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	}//end getName()
 
 	/**
+	 * OpenRegister's ObjectService for the duration of one migration pass.
+	 *
+	 * A PROPERTY because the mappers are handed to migrateSchema() as
+	 * first-class callables (`$this->mapProcessTemplate(...)`) and invoked as
+	 * `$mapper($source, $uuid)` — so there is no argument slot to pass a
+	 * collaborator through without changing both mapper signatures and the
+	 * call contract between them.
+	 *
+	 * @var object|null
+	 */
+	private ?object $mappingObjectService = null;
+
+	/**
 	 * Run the migration.
 	 *
 	 * @param IOutput $output Progress reporting.
@@ -173,6 +186,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	 * @spec openspec/changes/unified-decision-templates/tasks.md
 	 */
 	private function migrateAll(object $objectService, IOutput $output): void {
+		$this->mappingObjectService = $objectService;
 		$alreadyMigrated = $this->buildMigratedIndex(objectService: $objectService);
 
 		$migrated = 0;
@@ -370,11 +384,99 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 		];
 
 		if (isset($source['urgencyPolicy']) === true) {
-			$payload['urgencyPolicy'] = $source['urgencyPolicy'];
+			$payload['urgencyPolicy'] = $this->resolveUrgencyPolicyRefs(
+				policy: (array)$source['urgencyPolicy'],
+			);
 		}
 
 		return $payload;
 	}//end mapProcessTemplate()
+
+	/**
+	 * Resolve slug-shaped body references inside an urgencyPolicy to UUIDs.
+	 *
+	 * `urgencyPolicy.ratifyingBody` declares `format: uuid`, and its own
+	 * description says seed refs "are stored by slug and mapped to UUID at
+	 * import". The IMPORTER does that mapping; this migration did not — it
+	 * copied the policy through verbatim, so a seeded template carrying
+	 * `gemeenteraad-amsterdam` was rejected by format validation.
+	 *
+	 * This was invisible until the runAsSystem fix landed: every template
+	 * previously failed on the identity error first, so the 2 that fail on
+	 * their DATA only became reachable once the other 12 started succeeding.
+	 * Fixing an outer error is what made the inner one observable.
+	 *
+	 * An unresolvable slug is left AS IS rather than blanked. The save then
+	 * fails loudly with the same format message, which is a better outcome than
+	 * silently dropping the body a template says must ratify its urgent
+	 * decisions.
+	 *
+	 * @param array<string, mixed> $policy The source urgencyPolicy.
+	 *
+	 * @return array<string, mixed> The policy with body refs resolved.
+	 *
+	 * @spec openspec/changes/unified-decision-templates/tasks.md
+	 */
+	private function resolveUrgencyPolicyRefs(array $policy): array {
+		$ref = (string)($policy['ratifyingBody'] ?? '');
+		if ($ref === '' || $this->looksLikeUuid(value: $ref) === true) {
+			return $policy;
+		}
+
+		$uuid = $this->bodyUuidForSlug(slug: $ref);
+		if ($uuid !== null) {
+			$policy['ratifyingBody'] = $uuid;
+		}
+
+		return $policy;
+	}//end resolveUrgencyPolicyRefs()
+
+	/**
+	 * Whether a value is already a UUID.
+	 *
+	 * @param string $value The value.
+	 *
+	 * @return bool True when it is UUID-shaped.
+	 */
+	private function looksLikeUuid(string $value): bool {
+		return (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $value) === 1);
+	}//end looksLikeUuid()
+
+	/**
+	 * The GovernanceBody UUID for a slug, or null when it cannot be resolved.
+	 *
+	 * @param string $slug The body slug.
+	 *
+	 * @return string|null The uuid, or null.
+	 */
+	private function bodyUuidForSlug(string $slug): ?string {
+		$objectService = $this->mappingObjectService;
+		if ($objectService === null) {
+			return null;
+		}
+
+		try {
+			$objectService->setRegister(self::REGISTER);
+			$objectService->setSchema('governance-body');
+			$rows = $objectService->findAll(['filters' => ['slug' => $slug], 'limit' => 1]);
+		} catch (Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: could not resolve a governance-body slug during template migration',
+				['slug' => $slug, 'error' => $e->getMessage()]
+			);
+			return null;
+		}
+
+		foreach (($rows ?? []) as $row) {
+			$body = $this->toArray(entity: $row);
+			$uuid = (string)(($body['id'] ?? $body['uuid']) ?? '');
+			if ($uuid !== '') {
+				return $uuid;
+			}
+		}
+
+		return null;
+	}//end bodyUuidForSlug()
 
 	/**
 	 * Map a legacy `vve-decision-template` object to a `decision-template`
