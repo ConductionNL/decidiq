@@ -77,11 +77,20 @@ class ApprovalRouteController extends Controller {
 		$route = $this->request->getParam('route');
 		$subject = (string)$this->request->getParam('subject', '');
 		$subjectSchema = (string)$this->request->getParam('subjectSchema', '');
-		if (is_array($route) === false || $subject === '') {
-			return new JSONResponse(['message' => 'route and subject are required'], Http::STATUS_BAD_REQUEST);
+		if (is_array($route) === false || $subject === '' || $subjectSchema === '') {
+			return new JSONResponse(
+				['message' => 'route, subject and subjectSchema are required'],
+				Http::STATUS_BAD_REQUEST
+			);
 		}
 
 		try {
+			// AUTHORISATION, before any write. Being signed in is not permission
+			// to start a sign-off route on someone else's object; this asks
+			// whether the caller can reach the subject at all, and OpenRegister's
+			// RBAC answers as the acting user.
+			$this->service->assertSubjectAccessible(subject: $subject, subjectSchema: $subjectSchema);
+
 			$stages = $this->service->instantiate(route: $route, subject: $subject, subjectSchema: $subjectSchema);
 		} catch (Throwable $e) {
 			// The engine's refusals are the point of the engine, so the caller

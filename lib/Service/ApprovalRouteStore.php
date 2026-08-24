@@ -29,11 +29,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\AppInfo\Application;
-use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use RuntimeException;
-use Throwable;
 
 /**
  * Reads and writes the objects an approval route is made of.
@@ -49,12 +46,17 @@ class ApprovalRouteStore {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container Service container, for OpenRegister.
-	 * @param LoggerInterface $logger Logger.
+	 * TYPED INJECTION, not a container lookup. ADR-083 rule 1: a dependency
+	 * fetched by string from the container is declared nowhere a reader or a
+	 * gate can see it. `ObjectServiceInterface` is aliased to OpenRegister's
+	 * ObjectService in Application::register() — an alias, so it resolves only
+	 * when something asks for it, and an instance without OpenRegister still
+	 * boots and fails at the route that needed the data.
+	 *
+	 * @param ObjectServiceInterface $objectService OpenRegister's object facade.
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
-		private readonly LoggerInterface $logger,
+		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
 
@@ -68,9 +70,11 @@ class ApprovalRouteStore {
 	 * @return array<string, mixed> The stored object.
 	 *
 	 * @throws RuntimeException When OpenRegister is unavailable.
+	 *
+	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
 	 */
 	public function save(string $schema, array $object, ?string $uuid = null): array {
-		$stored = $this->objectService()->saveObject(
+		$stored = $this->objectService->saveObject(
 			object: $object,
 			register: self::REGISTER,
 			schema: $schema,
@@ -89,17 +93,19 @@ class ApprovalRouteStore {
 	 * @return array<int, array<string, mixed>> The objects.
 	 *
 	 * @throws RuntimeException When OpenRegister is unavailable.
+	 *
+	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
 	 */
 	public function findAll(string $schema, array $filters): array {
-		$results = $this->objectService()->findAll(
+		$results = $this->objectService->findAll(
 			[
 				'filters' => (['register' => self::REGISTER, 'schema' => $schema] + $filters),
 			]
 		);
-		if (is_array($results) === false) {
-			return [];
-		}
-
+		// No is_array() guard: ObjectServiceInterface::findAll() is typed `: array`,
+		// so the check was unreachable — phpstan proved it. It was defensible
+		// against the untyped container lookup this class used to do; against the
+		// typed injection it is dead code pretending to be caution.
 		$rows = [];
 		foreach ($results as $row) {
 			$rows[] = $this->normalise(row: $row);
@@ -123,25 +129,4 @@ class ApprovalRouteStore {
 		return (array)$row;
 	}//end normalise()
 
-	/**
-	 * OpenRegister's ObjectService, resolved by name.
-	 *
-	 * By name and not by type-hint: decidiq must install and boot without
-	 * OpenRegister, where the class does not exist to hint against.
-	 *
-	 * @return object The service.
-	 *
-	 * @throws RuntimeException When OpenRegister is unavailable.
-	 */
-	private function objectService(): object {
-		try {
-			return $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		} catch (Throwable $e) {
-			$this->logger->error(
-				'Decidiq: OpenRegister is unavailable, so no approval route can run',
-				['app' => Application::APP_ID, 'exception' => $e->getMessage()]
-			);
-			throw new RuntimeException('OpenRegister is unavailable.');
-		}
-	}//end objectService()
 }//end class

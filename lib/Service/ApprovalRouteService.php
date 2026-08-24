@@ -74,6 +74,37 @@ class ApprovalRouteService {
 	}//end __construct()
 
 	/**
+	 * Refuse a caller who cannot reach the subject.
+	 *
+	 * A REAL authorisation check, not an authentication one. Instantiating a
+	 * route writes sign-off stages against someone else's object, so "is signed
+	 * in" is not the question — "may this user see this subject" is.
+	 *
+	 * The check is delegated to OpenRegister: the read runs as the acting user,
+	 * so OR's register RBAC and multitenancy decide. A user who cannot reach the
+	 * subject gets nothing back, and nothing back is a refusal.
+	 *
+	 * @param string $subject The subject's uuid.
+	 * @param string $subjectSchema The subject's schema slug.
+	 *
+	 * @return void
+	 *
+	 * @throws RuntimeException When the subject cannot be reached.
+	 *
+	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+	 */
+	public function assertSubjectAccessible(string $subject, string $subjectSchema): void {
+		if ($subject === '' || $subjectSchema === '') {
+			throw new RuntimeException('A subject and its schema are required.');
+		}
+
+		$found = $this->store->findAll(schema: $subjectSchema, filters: ['id' => $subject]);
+		if ($found === []) {
+			throw new RuntimeException('This subject cannot be reached, so no route may be started on it.');
+		}
+	}//end assertSubjectAccessible()
+
+	/**
 	 * Materialise a route's steps as stages against a subject.
 	 *
 	 * Idempotent: a subject that already has stages is left alone, so a repeated

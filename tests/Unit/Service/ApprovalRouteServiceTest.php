@@ -18,9 +18,9 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\ApprovalRouteService;
 use OCA\Decidiq\Service\ApprovalRouteStore;
+use OCA\OpenRegister\Contract\ObjectEntityInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 /**
@@ -126,12 +126,43 @@ class ApprovalRouteServiceTest extends TestCase {
 	 * @return ApprovalRouteService The service.
 	 */
 	private function service(): ApprovalRouteService {
-		$container = $this->createMock(ContainerInterface::class);
-		$container->method('get')->willReturn($this->objectService);
+		// The store takes OpenRegister's facade by TYPE (ADR-083 rule 1), so the
+		// stateful fake cannot be passed straight in. A typed mock is backed BY
+		// that fake instead: the type satisfies the constructor, and the state
+		// still lives, which is what lets these tests assert the route ADVANCING
+		// rather than merely that a call was made.
+		$state = $this->objectService;
+		$facade = $this->createMock(ObjectServiceInterface::class);
+		// The callback mirrors ObjectServiceInterface::saveObject()'s REAL
+		// signature, whose second parameter is `?array $extend` — not the
+		// register. PHPUnit forwards every argument positionally, so a callback
+		// shaped like the call site (which uses named arguments and skips
+		// $extend) receives the wrong values in the wrong order.
+		$facade->method('saveObject')->willReturnCallback(
+			function (
+				array $object,
+				?array $extend = [],
+				string|int|null $register = null,
+				string|int|null $schema = null,
+				?string $uuid = null,
+			) use ($state): ObjectEntityInterface {
+				$row = $state->saveObject($object, (string)$register, (string)$schema, $uuid);
 
-		return new ApprovalRouteService(
-			new ApprovalRouteStore($container, $this->createMock(LoggerInterface::class))
+				// saveObject returns an ENTITY, not an array. The store already
+				// collapses it via jsonSerialize(), so the fake has to hand back
+				// something that serialises — returning the raw array would type-
+				// error before the store ever normalised it.
+				$entity = $this->createMock(ObjectEntityInterface::class);
+				$entity->method('jsonSerialize')->willReturn($row);
+
+				return $entity;
+			}
 		);
+		$facade->method('findAll')->willReturnCallback(
+			static fn (array $config = []): array => $state->findAll($config)
+		);
+
+		return new ApprovalRouteService(new ApprovalRouteStore($facade));
 	}
 
 	/**
