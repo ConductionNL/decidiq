@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Shared governance bodies (gemeenschappelijke regeling per Wgr) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Zienswijzerondes index + ronde detail, and a zienswijzen index; schema refs BY SLUG (zienswijzeronde / zienswijze / body-participation), never the PascalCase keys (multi-word schemas — the exact silent-breakage case). The 'Deelnemende organisaties' section on GovernanceBodyDetail and the 'Openstaande zienswijzen' Dashboard stat widget live in the base src/manifest.json (design D6/REQ-SGB-010: mergePages replaces a same-id page wholesale, so a fragment cannot add one section/widget to an existing page without redefining it) — out of scope for this declarative-core fragment. Object creation on ronde opening (fan-out of one zienswijze per active participation) is imperative (ZienswijzerondeService); this declarative fragment provides the page skeletons, quick filters, and the data + files + related widgets.",
 	"_spec": "openspec/changes/shared-governance-bodies/specs/shared-governance-bodies/spec.md",
 	"menu": [

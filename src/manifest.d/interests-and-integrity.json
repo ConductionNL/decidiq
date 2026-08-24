@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Interests & integrity (interests-and-integrity) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). MyDeclarations self-service page + Nevenfuncties/NevenfunctieDetail + Geschenken/GeschenkDetail index/detail pages; schema refs BY SLUG (nevenfunctie / geschenk), never PascalCase. Stable-name contract for member-onboarding: capability interests-and-integrity, slug nevenfunctie, page id MyDeclarations. The Dashboard 'Nevenfuncties zonder actuele review' stat widget and the per-body compliance panel on the Nevenfuncties index (REQ-INT-010) are frontend/base-manifest work (Task 5) and are NOT part of this declarative-core fragment: mergePages replaces a same-id page wholesale, so the Dashboard widget lives in the base src/manifest.json. MyDeclarations here is the declarative index shell over the member's own nevenfuncties; the geschenken register, annual-confirm, end-position, and publish/withdraw actions are plain saveObject field writes wired by frontend components (Task 4).",
 	"menu": [
 		{

@@ -2,7 +2,7 @@
   "spec_slug": "decidiq-push-notifications",
   "title": "Web-push notification rules (title-vs-body content model)",
   "app": "decidiq",
-  "repo": "https://codeberg.org/Conduction/decidesk",
+  "repo": "https://github.com/ConductionNL/decidiq",
   "kind": "config",
   "depends_on": [
     "openregister-notification-body"

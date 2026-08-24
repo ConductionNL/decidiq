@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "VvE ALV statutory pack — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages for the four VvE schemas; schema refs BY SLUG (vve-decision-template / modelreglement-preset / vve-configuration / kascommissie-verklaring), never PascalCase. Menu orders 71-74 (unique, above the sibling fragments' 45-70 band). Templates and presets are read-only-but-duplicable built-ins (server-side guard, out of this declarative-core fragment); the index/detail pages list and inspect them. Breukdelen presentation, the kascommissie dialog, and the majority resolver are imperative/frontend and are not part of this fragment.",
 	"_spec": "openspec/changes/vve-alv-pack/specs/vve-alv-pack/spec.md",
 	"menu": [

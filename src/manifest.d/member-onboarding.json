@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Member onboarding + offboarding trajecten (member-onboarding) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages for both registers; schema refs BY SLUG (onboarding-traject / offboarding-traject), never PascalCase. DECLARATIVE CORE ONLY: the griffie progress dashboard widgets of REQ-MOB-011 (trajecten-per-lifecycle + overdue-steps KPI) belong in the base src/manifest.json Dashboard page (design D6: mergePages replaces a same-id page wholesale, so a fragment cannot add one widget to Dashboard without duplicating it) and are DEFERRED here to keep this change to the two allowed files. The detail-page checklist actions (complete/skip/execute provisioning) and the raadswisseling suggestion-list are imperative surfaces also out of core scope; these pages render the traject + steps + references declaratively.",
 	"_spec": "openspec/changes/member-onboarding/specs/member-onboarding/spec.md",
 	"menu": [
