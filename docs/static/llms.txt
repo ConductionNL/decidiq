@@ -12,7 +12,7 @@ Decidiq is an open-source decision-making app for the Nextcloud workspace. It ru
 ## Optional
 
 - [Install](https://www.conduction.nl/install): self-host on your Nextcloud instance.
-- [Source code](https://github.com/ConductionNL/decidesk): repository and issue tracker.
+- [Source code](https://github.com/ConductionNL/decidiq): repository and issue tracker.
 - [App page](https://www.conduction.nl/apps/decidesk): product positioning on conduction.nl.
 
 ## Contact
