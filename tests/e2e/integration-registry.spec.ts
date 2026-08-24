@@ -602,8 +602,18 @@ test.describe('Integration registry — tab activation', () => {
 			// We don't assert content here — the 13 greenfield stubs
 			// return empty lists by design, so "panel exists" is the
 			// only universal assertion.
+			//
+			// `:visible` on BOTH branches, and this is the whole bug the old
+			// selector had. It was a union whose second branch —
+			// `.app-sidebar__tab` — did not exclude hidden elements, and the
+			// sidebar renders one such element per tab with all but the active
+			// one hidden. `.first()` takes the first match in DOM ORDER, not
+			// the first visible one, so it kept landing on a hidden sibling and
+			// reported "Received: hidden" for a panel that had opened correctly.
+			// `:not([hidden])` could not save it either: these panels are hidden
+			// by CSS, not by the `hidden` attribute.
 			const panel = page.locator(
-				'aside.app-sidebar [role="tabpanel"]:not([hidden]), aside.app-sidebar .app-sidebar__tab',
+				'aside.app-sidebar [role="tabpanel"]:visible, aside.app-sidebar .app-sidebar__tab:visible',
 			)
 			await expect(panel.first()).toBeVisible({ timeout: 5_000 })
 		})
