@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkdecidiq_docs=globalThis.webpackChunkdecidiq_docs||[]).push([[4229],{4229(e,c,i){i.d(c,{createCynefinServices:()=>s.t});var s=i(3486);i(1400)}}]);
