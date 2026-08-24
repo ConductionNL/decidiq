@@ -43,6 +43,14 @@ $extra = [
         ['name' => 'publication#withdraw', 'url' => '/api/publications/{recordId}/withdraw', 'verb' => 'POST'],
         ['name' => 'publication#rectify',  'url' => '/api/publications/{recordId}/rectify',  'verb' => 'POST'],
 
+        // Approval routes (approval-routes) — instantiate a sign-off route against
+        // a subject, and record an action on it. Two DISTINCT route names: a
+        // duplicate name is the route identifier colliding, which throws while
+        // the table is built and takes every route in the app down with it.
+        // @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+        ['name' => 'approvalRoute#instantiate', 'url' => '/api/approval-routes/instantiate', 'verb' => 'POST'],
+        ['name' => 'approvalRoute#record',      'url' => '/api/approval-routes/actions',     'verb' => 'POST'],
+
         // Process template management (admin-only — AuthorizedAdminSetting on every method).
         // @spec openspec/specs/process-configuration/spec.md
         ['name' => 'processTemplate#index',     'url' => '/api/process-templates',                  'verb' => 'GET'],
@@ -261,6 +269,28 @@ $extra = [
         ['name' => 'integration#createDecision', 'url' => '/api/v1/decisions',                   'verb' => 'POST'],
         ['name' => 'integration#getOutcome',     'url' => '/api/v1/decisions/{id}/outcome',       'verb' => 'GET'],
         ['name' => 'integration#subscribe',      'url' => '/api/v1/decisions/{id}/subscriptions', 'verb' => 'POST'],
+
+        // Writes on the public REST surface. DECLARED AFTER the integration
+        // routes above, and that ordering is load-bearing: Nextcloud matches in
+        // declaration order, so a `{resource}` wildcard placed earlier would
+        // capture `POST /api/v1/decisions` and answer "Unknown resource" where
+        // integration#createDecision used to create one. The literal routes
+        // must win.
+        //
+        // Only `governance-bodies` is accepted, enforced by
+        // ApiController::RESOURCE_WRITABLE rather than by the route pattern — a
+        // pattern naming the one resource would silently stop matching the day
+        // another is added, and read as "no route" instead of "not writable".
+        // Authorization is OpenRegister's RBAC; see the method.
+        //
+        // TWO NAMES, not one shared `api#write`. A route `name` becomes the route
+        // IDENTIFIER (`decidiq.api.write`), so declaring it twice collides — and
+        // it does not fail locally at the duplicate. It throws out of
+        // Routes::standard() while the table is built, which takes down EVERY
+        // route in the app: measured, the whole /api/v1 surface answered 500,
+        // including endpoints this change never touched.
+        ['name' => 'api#create',             'url' => '/api/v1/{resource}',      'verb' => 'POST', 'requirements' => ['resource' => '[a-z\-]+']],
+        ['name' => 'api#update',             'url' => '/api/v1/{resource}/{id}', 'verb' => 'PUT',  'requirements' => ['resource' => '[a-z\-]+']],
 
         // Citizen-participation ACTION endpoints (lifecycle, intake, moderation, voting,
         // publication). Plain CRUD stays on the OpenRegister object API per ADR-022.
