@@ -14,9 +14,11 @@
  *      leaves (hermiq-agent, sync-contract) are asserted conditionally: this
  *      CI installs only openregister, so they cannot register here, and
  *      demanding them is what made the whole spec stand down at 27/29.
- *   2. <CnObjectSidebar :use-registry="true"> mounts one tab per
- *      registered provider (DOM check on `[role="tab"]` inside the
- *      sidebar — 24 tabs total).
+ *   2. <CnObjectSidebar :use-registry="true"> mounts one tab per AVAILABLE
+ *      COMPONENT-MODE provider (DOM check on `[role="tab"]` inside the
+ *      sidebar). Not a fixed total: the count follows what the server reports
+ *      as `available`, and `renderMode:'mount'` leaves are excluded because
+ *      they render no tab by design.
  *   3. Every registered provider id has a matching `tab-button-{id}`
  *      element (registry → DOM mapping is intact).
  *   4. Clicking each tab activates it (aria-selected=true) and
@@ -101,6 +103,21 @@ const CROSS_APP_MOUNT_IDS = [
 ] as const
 
 const EXPECTED_IDS = [...BUILTIN_IDS, ...EXTERNAL_IDS, ...LEAF_IDS, ...MOUNT_IDS]
+
+/**
+ * The providers that render a SIDEBAR TAB — component-mode only.
+ *
+ * `renderMode: 'mount'` leaves deliberately do not: they expose
+ * `mount()`/`unmount()` instead of a `tab` + `widget` component, which is why
+ * the parity gate below asserts a mount function for them rather than a tab.
+ *
+ * Getting this wrong is easy and the old code did: the per-id tab loop ran over
+ * EXPECTED_IDS, mount leaves included, and then skipped when their tab was
+ * (correctly) absent — so the mistake was invisible. Removing the stand-down
+ * turned it into a failure for `decidesk-decisions`, which is the spec being
+ * wrong, not the app.
+ */
+const TAB_IDS = [...BUILTIN_IDS, ...EXTERNAL_IDS, ...LEAF_IDS]
 
 /**
  * Ensure an authenticated NC session.
@@ -507,17 +524,19 @@ test.describe('Integration registry — sidebar tab rendering', () => {
 		// (which installs only openregister): 5 of 29. The old code compared
 		// against 29, found 5, and skipped, reporting "leaves PR not deployed
 		// yet" for a sidebar that was behaving correctly.
+		// TAB_IDS, not EXPECTED_IDS: a `renderMode: 'mount'` leaf is available
+		// and correctly renders NO tab, so counting it here demands a tab that
+		// is not supposed to exist.
 		const caps = await providerCaps(page)
-		const renderable = EXPECTED_IDS.filter(
-			(id) => absenceReason(caps, id) === null,
-		)
+		const renderable = TAB_IDS.filter((id) => absenceReason(caps, id) === null)
 		expect(
 			count,
-			`one tab per available provider (available: ${renderable.join(', ')})`,
+			`one tab per available component-mode provider (available: ${renderable.join(', ')})`,
 		).toBeGreaterThanOrEqual(renderable.length)
 	})
 
-	for (const id of EXPECTED_IDS) {
+	// TAB_IDS, not EXPECTED_IDS — mount-mode leaves render no tab by design.
+	for (const id of TAB_IDS) {
 		test(`tab-button-${id} renders in the registry sidebar`, async ({
 			page,
 		}) => {
