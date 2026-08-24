@@ -310,6 +310,19 @@
             "domain": "municipality",
             "parentBody": "gemeenteraad-amsterdam",
             "votingDefault": "for-against-abstain"
+          },
+          {
+            "slug": "bezwaaradviescommissie-amsterdam",
+            "name": "Bezwaaradviescommissie Amsterdam",
+            "bodyType": "advisory-body",
+            "domain": "municipality",
+            "statutoryBasis": "Awb 7:13",
+            "jurisdiction": "Gemeente Amsterdam — algemene bezwaren",
+            "quorum": 3,
+            "quorumRule": "majority",
+            "active": true,
+            "termStart": "2024-01-01T00:00:00Z",
+            "termEnd": "2028-01-01T00:00:00Z"
           }
         ],
         "meeting": [
@@ -1806,13 +1819,19 @@
           "independenceStatus": {
             "title": "Independence status",
             "type": "string",
-            "description": "Corporate-governance extension (beyond Popolo, MCCG): board-member independence, mode=corp",
+            "description": "Corporate-governance extension (beyond Popolo, MCCG): board-member independence, mode=corp. NOT the same question as `external`, which records whether the member sits from outside the administrative organ. A member can be external and non-independent, or internal and independent; neither value is derivable from the other.",
             "enum": [
               "independent",
               "non-independent",
               "unknown"
             ],
             "example": "independent"
+          },
+          "external": {
+            "title": "External member",
+            "type": "boolean",
+            "default": false,
+            "description": "Whether this member sits from OUTSIDE the administrative organ — i.e. is not employed by it. Awb 7:13(2) requires this of the chair of an objection advisory committee. NOT the same question as `independenceStatus`, which encodes corporate-governance independence and cannot carry an employment relationship."
           },
           "otherPositions": {
             "title": "Other positions",
@@ -1985,8 +2004,31 @@
           "quorumRule": {
             "title": "Quorum rule",
             "type": "string",
-            "description": "Quorum calculation method",
+            "description": "How a quorum is CALCULATED (e.g. majority). Not how many members are required — that is `quorum`, which is a number. A calculation method cannot express a statutory minimum member count.",
             "example": "majority"
+          },
+          "quorum": {
+            "title": "Quorum (members)",
+            "type": "integer",
+            "minimum": 2,
+            "description": "How MANY members are required for a valid sitting. Not how a quorum is calculated — that is `quorumRule`. Deliberately has NO default: an unset value means 'not specified', and a default of 0 would assert that no members are needed. Awb 7:13 objection advisory committees state this as a number."
+          },
+          "active": {
+            "title": "Active",
+            "type": "boolean",
+            "default": true,
+            "description": "Whether this body may be assigned new work. Independent of termStart/termEnd: a body can sit inside its term and be suspended, or be past its term and still finishing open cases, so availability cannot be derived from the dates. Unrelated to the schema-level x-openregister.active flag, which says nothing about an individual body."
+          },
+          "jurisdiction": {
+            "title": "Jurisdiction",
+            "type": "string",
+            "description": "The territorial or subject-matter competence of this body."
+          },
+          "statutoryBasis": {
+            "title": "Statutory basis",
+            "type": "string",
+            "description": "The legal instrument this body is constituted under (e.g. 'Awb 7:13', a local verordening). Free text on purpose: a closed vocabulary drawn from one country's law cannot express the instruments behind bodies in another, and a caller forced to pick from a list that does not fit will pick a wrong value.",
+            "example": "Awb 7:13"
           },
           "votingDefault": {
             "title": "Default voting method",

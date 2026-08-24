@@ -262,6 +262,28 @@ $extra = [
         ['name' => 'integration#getOutcome',     'url' => '/api/v1/decisions/{id}/outcome',       'verb' => 'GET'],
         ['name' => 'integration#subscribe',      'url' => '/api/v1/decisions/{id}/subscriptions', 'verb' => 'POST'],
 
+        // Writes on the public REST surface. DECLARED AFTER the integration
+        // routes above, and that ordering is load-bearing: Nextcloud matches in
+        // declaration order, so a `{resource}` wildcard placed earlier would
+        // capture `POST /api/v1/decisions` and answer "Unknown resource" where
+        // integration#createDecision used to create one. The literal routes
+        // must win.
+        //
+        // Only `governance-bodies` is accepted, enforced by
+        // ApiController::RESOURCE_WRITABLE rather than by the route pattern — a
+        // pattern naming the one resource would silently stop matching the day
+        // another is added, and read as "no route" instead of "not writable".
+        // Authorization is OpenRegister's RBAC; see the method.
+        //
+        // TWO NAMES, not one shared `api#write`. A route `name` becomes the route
+        // IDENTIFIER (`decidiq.api.write`), so declaring it twice collides — and
+        // it does not fail locally at the duplicate. It throws out of
+        // Routes::standard() while the table is built, which takes down EVERY
+        // route in the app: measured, the whole /api/v1 surface answered 500,
+        // including endpoints this change never touched.
+        ['name' => 'api#create',             'url' => '/api/v1/{resource}',      'verb' => 'POST', 'requirements' => ['resource' => '[a-z\-]+']],
+        ['name' => 'api#update',             'url' => '/api/v1/{resource}/{id}', 'verb' => 'PUT',  'requirements' => ['resource' => '[a-z\-]+']],
+
         // Citizen-participation ACTION endpoints (lifecycle, intake, moderation, voting,
         // publication). Plain CRUD stays on the OpenRegister object API per ADR-022.
         // @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
