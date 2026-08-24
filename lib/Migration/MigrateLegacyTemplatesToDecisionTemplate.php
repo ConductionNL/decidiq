@@ -141,6 +141,38 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 			return;
 		}
 
+		// RUN AS SYSTEM. A migration executes during `occ upgrade`, where there
+		// is no session — so OpenRegister sees the actor as 'Anonymous' and
+		// refuses `create` on DecisionTemplate. Measured on a live upgrade before
+		// this line existed: all 14 legacy templates failed with "User
+		// 'Anonymous' does not have permission to 'create' objects in schema
+		// 'DecisionTemplate'", and the step reported them one by one as
+		// `$output->warning()` — which does not fail the upgrade. So the upgrade
+		// said "Update successful", the summary said "0 migrated, 14 skipped",
+		// and nothing anyone reads said the migration had not happened.
+		$objectService->runAsSystem(
+			function () use ($objectService, $output): void {
+				$this->migrateAll(objectService: $objectService, output: $output);
+			}
+		);
+
+	}//end run()
+
+	/**
+	 * Migrate both legacy template schemas.
+	 *
+	 * Split out of run() so the whole traversal sits inside ONE runAsSystem()
+	 * scope: a per-save wrapper would re-enter for every object and leave the
+	 * index build outside it.
+	 *
+	 * @param object $objectService OpenRegister's ObjectService.
+	 * @param IOutput $output Progress reporting.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/unified-decision-templates/tasks.md
+	 */
+	private function migrateAll(object $objectService, IOutput $output): void {
 		$alreadyMigrated = $this->buildMigratedIndex(objectService: $objectService);
 
 		$migrated = 0;
@@ -170,7 +202,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 			'Decidiq DecisionTemplate migration complete: ' . $migrated . ' migrated, ' . $skipped . ' skipped.'
 		);
 
-	}//end run()
+	}//end migrateAll()
 
 	/**
 	 * Read every existing `decision-template` object and build a lookup of

@@ -802,6 +802,23 @@ class MigrateLegacyTemplatesToDecisionTemplateTest extends TestCase {
 			 *
 			 * @return self
 			 */
+			/**
+			 * Run the callable, as OpenRegister does under a system identity.
+			 *
+			 * The fake needs this because the production migration is WRAPPED in
+			 * it: an `occ upgrade` has no session, so without a system identity
+			 * OpenRegister refuses every create as 'Anonymous'. A fake missing the
+			 * method does not merely fail — it would let the wrapper be removed
+			 * and the suite stay green while every real upgrade migrated nothing.
+			 *
+			 * @param callable $operation The operation to run.
+			 *
+			 * @return mixed The operation's result.
+			 */
+			public function runAsSystem(callable $operation) {
+				return $operation();
+			}
+
 			public function setRegister(string $register): self {
 				return $this;
 			}//end setRegister()
