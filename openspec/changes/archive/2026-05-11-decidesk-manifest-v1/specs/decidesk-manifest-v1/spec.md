@@ -116,7 +116,7 @@ MUST keep its `component` field intact (referencing
 `src/manifest.json`'s top-level `version` field MUST bump from
 `"0.4.0"` to `"1.0.0"` to mark this migration. The
 `$schema` URL MUST remain pointed at the canonical
-`https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest.schema.json`
+`https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest.schema.json`
 URL (the schema is versioned via its own `version` field, not via
 URL rotation).
 

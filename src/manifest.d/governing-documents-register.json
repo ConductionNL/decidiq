@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Governing-documents register (statuten, reglement van orde, splitsingsakte) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages for the governing-document register; schema refs BY SLUG (governing-document), never the PascalCase key GoverningDocument (multi-word schema — the exact silent-breakage case). The version timeline with the 'geldend op' (in-force-on-date) control (REQ-GDR-004/006) and the citing-decisions reverse lookup (REQ-GDR-005) are wired imperatively by the page/service tasks; this declarative fragment provides the page skeleton, quick filters on type/status, the data + files (consolidated text) + related widgets, and mass export.",
 	"_spec": "openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md",
 	"menu": [

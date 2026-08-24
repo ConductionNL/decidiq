@@ -19,5 +19,5 @@ Decidiq is an open-source decision-making app for the Nextcloud workspace. It ru
 
 - Email: info@conduction.nl
 - Web: https://www.conduction.nl
-- GitHub: https://codeberg.org/Conduction
+- GitHub: https://github.com/ConductionNL
 - Conduction B.V. · KvK 76741850 · Lauriergracht 14h, Amsterdam, Netherlands

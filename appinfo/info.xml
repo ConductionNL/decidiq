@@ -51,7 +51,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
         version is <= the stored one, and unlike the SCHEMA path it has no
         content-differs escape hatch to fall back on.
     -->
-    <version>1.0.1-unstable.20260824071923</version>
+    <version>1.0.1-unstable.20260824155206</version>
     <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidiq</namespace>
@@ -168,6 +168,40 @@ Vrij en open source onder de EUPL-1.2-licentie.
                 rather than merges if both slugs already exist.
             -->
             <step>OCA\Decidiq\Repair\MigrateRegisterSlug</step>
+            <!--
+                SIBLING OF MigrateRegisterSlug, AND NEITHER COVERS THE OTHER.
+                OpenRegister resolves the two halves of a configuration by
+                DIFFERENT keys: a REGISTER by slug alone (RegisterMapper::find),
+                a SCHEMA by the PAIR —
+                SchemaMapper::findByApplicationAndSlug(slug, application).
+
+                This app now passes `appId: Application::APP_ID` = `decidiq`,
+                while every schema it already owns still carries
+                `application = decidesk`, so the pair matches nothing — and
+                ImportHandler's not-found branch is not an error path, it is the
+                "create a new one" path. The import InitializeSettings triggers
+                would build a SECOND, EMPTY schema set under the new application
+                id while every stored object stayed bound to the old rows.
+                Nothing errors; the app renders empty collections.
+
+                MUST run before InitializeSettings, for the same reason
+                MigrateRegisterSlug does — the import is the thing that forks.
+
+                Measured on a live install: 98 schemas still under `decidesk`,
+                and zero of their slugs collide with a twin under `decidiq`, so
+                all 98 move.
+
+                Where a slug DOES already have a twin under the new application
+                id it refuses rather than merges: two rows sharing
+                (application, slug) means findByApplicationAndSlug(), which caps
+                at one row, silently picks one and the other's objects become
+                unreachable. That is a decision about data, not a migration.
+
+                Never deletes a schema, and never throws — it runs under
+                <install>, where an escaping exception aborts the install and
+                the app never enables.
+            -->
+            <step>OCA\Decidiq\Repair\MigrateSchemaApplicationId</step>
             <step>OCA\Decidiq\Repair\InitializeSettings</step>
             <!--
                 After InitializeSettings imports the register. The schema edit
@@ -244,6 +278,40 @@ Vrij en open source onder de EUPL-1.2-licentie.
                 rather than merges if both slugs already exist.
             -->
             <step>OCA\Decidiq\Repair\MigrateRegisterSlug</step>
+            <!--
+                SIBLING OF MigrateRegisterSlug, AND NEITHER COVERS THE OTHER.
+                OpenRegister resolves the two halves of a configuration by
+                DIFFERENT keys: a REGISTER by slug alone (RegisterMapper::find),
+                a SCHEMA by the PAIR —
+                SchemaMapper::findByApplicationAndSlug(slug, application).
+
+                This app now passes `appId: Application::APP_ID` = `decidiq`,
+                while every schema it already owns still carries
+                `application = decidesk`, so the pair matches nothing — and
+                ImportHandler's not-found branch is not an error path, it is the
+                "create a new one" path. The import InitializeSettings triggers
+                would build a SECOND, EMPTY schema set under the new application
+                id while every stored object stayed bound to the old rows.
+                Nothing errors; the app renders empty collections.
+
+                MUST run before InitializeSettings, for the same reason
+                MigrateRegisterSlug does — the import is the thing that forks.
+
+                Measured on a live install: 98 schemas still under `decidesk`,
+                and zero of their slugs collide with a twin under `decidiq`, so
+                all 98 move.
+
+                Where a slug DOES already have a twin under the new application
+                id it refuses rather than merges: two rows sharing
+                (application, slug) means findByApplicationAndSlug(), which caps
+                at one row, silently picks one and the other's objects become
+                unreachable. That is a decision about data, not a migration.
+
+                Never deletes a schema, and never throws — it runs under
+                <install>, where an escaping exception aborts the install and
+                the app never enables.
+            -->
+            <step>OCA\Decidiq\Repair\MigrateSchemaApplicationId</step>
             <step>OCA\Decidiq\Repair\InitializeSettings</step>
             <!--
                 After InitializeSettings imports the register. The schema edit

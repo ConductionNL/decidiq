@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Organisation Goals — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Declarative core only: index + detail pages for the goal register; schema ref BY SLUG (goal), never PascalCase. No new Vue component (organisation-goals REQ-009) — generic data/related widgets only, same shape as src/manifest.d/termijnagenda.json. Menu placement: this fragment declares menu id 'Goals' as a CONTRACT — the concurrent ia-six-clusters change has already forward-declared the relocation \"Goals\": \"ActionItems\" in src/menu-layout.json, so this entry is swallowed into the 'Tasks & Commitments' (ActionItems) cluster group once merged; this fragment does not edit src/menu-layout.json or openspec/changes/ia-six-clusters/ (organisation-goals REQ-009 Scenario 2).",
 	"menu": [
 		{

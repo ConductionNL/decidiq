@@ -2,9 +2,9 @@
   "spec_slug": "p1-crud-operations",
   "title": "CRUD Operations",
   "app": "decidesk",
-  "repo": "https://codeberg.org/Conduction/decidesk",
+  "repo": "https://github.com/ConductionNL/decidiq",
   "depends_on": [],
-  "issue": "https://codeberg.org/Conduction/decidesk/issues/7",
+  "issue": "Codeberg issue #7 (pre-migration, not migrated to GitHub)",
   "pipeline": {
     "review_rounds": 6,
     "build_count": 1,
