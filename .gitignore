@@ -159,3 +159,10 @@ openspec/test-site-results/**/*.jpeg
 openspec/test-site-results/**/*.gif
 openspec/test-site-results/**/*.webp
 /coverage-vitest/
+
+# SBOM is generated per run and published as the sbom-<app> workflow artifact
+# and a stable-release asset — never stored in the repo (hydra sbom-generation
+# spec; ConductionNL/.github#572).
+sbom.cdx.json
+bom-php.cdx.json
+bom-npm.cdx.json
