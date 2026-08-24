@@ -2,14 +2,14 @@
   "spec_slug": "p2-meeting-management",
   "title": "Meeting Management",
   "app": "decidesk",
-  "repo": "https://codeberg.org/Conduction/decidesk",
+  "repo": "https://github.com/ConductionNL/decidiq",
   "depends_on": [
     "integration-calendar",
     "p1-crud-operations",
     "p1-dashboard-and-navigation",
     "p1-schemas-and-data-model"
   ],
-  "issue": "https://codeberg.org/Conduction/decidesk/issues/71",
+  "issue": "Codeberg issue #71 (pre-migration, not migrated to GitHub)",
   "schema_version": 2,
   "cycles": [
     {

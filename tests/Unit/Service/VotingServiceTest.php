@@ -99,7 +99,7 @@ class VotingServiceTest extends TestCase {
 		parent::setUp();
 
 		$this->markTestSkipped(
-			'See https://codeberg.org/Conduction/decidesk/issues/90 — '
+			'See Codeberg issue #90 (pre-migration, not migrated to GitHub) — '
 			. 'real OpenRegister ObjectService loads instead of the stub when tests run '
 			. 'in an environment with OpenRegister installed, causing signature/return-type mismatches. '
 			. 'Unskip once #90 is resolved.'

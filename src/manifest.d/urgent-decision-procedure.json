@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Urgent-decision-procedure (spoedbesluiten) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). DECLARATIVE CORE ONLY: a single index page listing urgent decisions (isUrgent=true) with quick filters on awaitingRatification, the pre-filtered list the dashboard KPI navigates to (Task 7 / REQ-006). Schema ref BY SLUG (decision), never the PascalCase key Decision. The declare-urgency dialog, the 'urgent — awaiting ratification' detail banner, the list-row badge, and the dashboard KPI stat widget are IMPERATIVE Vue (src/dialogs, src/components, dashboard) wired by Task 7 — this fragment adds no Dashboard widget because mergePages replaces a same-id page wholesale (a fragment cannot add one widget to Dashboard without duplicating it, same constraint as toezeggingen). Detail navigation reuses the existing DecisionDetail page.",
 	"_spec": "openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi",
 	"menu": [

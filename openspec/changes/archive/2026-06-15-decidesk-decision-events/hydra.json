@@ -2,7 +2,7 @@
   "spec_slug": "decidesk-decision-events",
   "title": "Event contract for delegated decisions (DecisionRequested/Concluded)",
   "app": "decidesk",
-  "repo": "https://codeberg.org/Conduction/decidesk",
+  "repo": "https://github.com/ConductionNL/decidiq",
   "depends_on": [
     "decidesk-contract-decision-hub"
   ],

@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Consultations & engagement hub (consultations-engagement-hub) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Collapses the former Participation / Consultations / Participatory budgets leaves into ONE Consultations hub (typed via consultationType quick-filters), keeps the hub-wide Moderation queue, and folds reaction moderation into the consultation detail via the shared ConsultationReactionsTab. The Participation action page and BudgetRounds pages are retained but reachable from the hub rather than as top-level peers.",
 	"_spec": "openspec/changes/consultations-engagement-hub/specs/p3-citizen-participation/spec.md",
 	"menu": [

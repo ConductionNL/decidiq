@@ -2,9 +2,9 @@
   "spec_slug": "p1-dashboard-and-navigation",
   "title": "Dashboard and Navigation",
   "app": "decidesk",
-  "repo": "https://codeberg.org/Conduction/decidesk",
+  "repo": "https://github.com/ConductionNL/decidiq",
   "depends_on": [],
-  "issue": "https://codeberg.org/Conduction/decidesk/issues/8",
+  "issue": "Codeberg issue #8 (pre-migration, not migrated to GitHub)",
   "pipeline": {
     "review_rounds": 8,
     "build_count": 1,

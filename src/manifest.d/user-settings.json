@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "User-settings manifest fragment (user-settings-v1) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments. Adds the in-app personal settings page; the canonical mount is the Nextcloud personal settings panel at /settings/user/decidiq.",
 	"menu": [
 		{

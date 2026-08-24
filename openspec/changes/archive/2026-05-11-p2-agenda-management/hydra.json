@@ -2,14 +2,14 @@
   "spec_slug": "p2-agenda-management",
   "title": "Agenda Management",
   "app": "decidesk",
-  "repo": "https://codeberg.org/Conduction/decidesk",
+  "repo": "https://github.com/ConductionNL/decidiq",
   "depends_on": [
     "integration-calendar",
     "p1-crud-operations",
     "p1-dashboard-and-navigation",
     "p1-schemas-and-data-model"
   ],
-  "issue": "https://codeberg.org/Conduction/decidesk/issues/15",
+  "issue": "Codeberg issue #15 (pre-migration, not migrated to GitHub)",
   "pipeline": {
     "review_rounds": 7,
     "build_count": 1,
