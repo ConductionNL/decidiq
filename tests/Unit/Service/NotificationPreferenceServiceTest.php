@@ -8,8 +8,8 @@
  * dispatch channel matrix. The OpenRegister ObjectService is replaced by a
  * plain anonymous double (NOT a PHPUnit mock of the stub class) so the
  * service's named-argument calls never depend on a stub signature — see
- * https://codeberg.org/Conduction/decidesk/issues/90 for why mocking the
- * stub is brittle.
+ * Codeberg issue #90 (pre-migration, not migrated to GitHub) for why mocking
+ * the stub is brittle.
  *
  * @category Test
  * @package  OCA\Decidiq\Tests\Unit\Service

@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Embargo & geheimhouding (DECLARATIVE CORE) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages for the geheimhoudingenregister and the configurable grounds list; schema refs BY SLUG (geheimhouding / geheimhouding-grond), never PascalCase. The geheimhoudingenregister index is the per-body overview (REQ-EMB-006). The awaiting-bekrachtiging KPI reads the declarative awaitingBekrachtigingCount aggregation; the OVERDUE narrowing (bekrachtigingDeadline < now) is computed in this view over the deadline column, because the aggregation filter DSL is equality-only (see fragment 65 aggregations _note). OUT-OF-CORE (imperative, not in this fragment): the impose/bekrachtig/opheffen dialogs (src/dialogs/*), the Dashboard stat widgets (mergePages replaces a same-id page wholesale, so a fragment cannot add a widget to the base Dashboard page without duplicating it), and the workflow action buttons wired to GeheimhoudingController routes.",
 	"_spec": "openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md",
 	"menu": [

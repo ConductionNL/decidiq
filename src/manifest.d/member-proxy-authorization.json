@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Member proxy authorization (signed machtiging instrument + per-body statutory caps) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages over the proxy-authorization register; schema refs BY SLUG (proxy-authorization), never a PascalCase key. The signature-status badges (ongetekend/getekend/geweigerd), the sign/countersign actions, the meeting proxy-register view, and the register export (REQ-MPA-004/007/008) are wired imperatively by the page/service tasks against the ProxyVoteController surface and ProxyAuthorizationService; this declarative fragment provides the page skeleton, quick filters on signatureStatus, and the data + related widgets. Menu order 71 (unique; 45-70/98 belong to siblings).",
 	"_spec": "openspec/changes/member-proxy-authorization/specs/member-proxy-authorization/spec.md",
 	"menu": [

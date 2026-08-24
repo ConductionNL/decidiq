@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Woo/DiWoo publication — DECLARATIVE CORE ONLY: renders the two pure-config schemas of fragment 58 (woo-categorie-mapping per-type TOOI informatiecategorie mapping, woo-bestuursorgaan per-body bestuursorgaan id) as the admin-facing configuration surface (REQ-WOO-001 / REQ-WOO-006). Appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages; schema refs BY SLUG (woo-categorie-mapping / woo-bestuursorgaan), never PascalCase (manifest schema-ref = slug rule). The Woo-index sitemap harvest, the DiWoo payload decoration, the optional OpenConnector LV-Woo push, and the coverage KPI aggregation view are IMPERATIVE services rendered elsewhere and are OUT of this declarative-core scope. Frontend CRUD on both schemas goes through OR's object API via useObjectStore (no pass-through controllers — redundant-controller gate).",
 	"_spec": "openspec/changes/woo-diwoo-publication/specs/woo-diwoo-publication/spec.md",
 	"menu": [

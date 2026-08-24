@@ -2,7 +2,7 @@
   "spec_slug": "p3-document-management",
   "title": "Document Management",
   "app": "decidesk",
-  "repo": "https://codeberg.org/Conduction/decidesk",
+  "repo": "https://github.com/ConductionNL/decidiq",
   "depends_on": [
     "p2-agenda-management",
     "p2-meeting-management",

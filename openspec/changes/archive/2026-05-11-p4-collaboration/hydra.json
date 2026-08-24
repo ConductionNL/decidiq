@@ -2,11 +2,11 @@
   "spec_slug": "p4-collaboration",
   "title": "Collaboration",
   "app": "decidesk",
-  "repo": "https://codeberg.org/Conduction/decidesk",
+  "repo": "https://github.com/ConductionNL/decidiq",
   "depends_on": [
     "p3-governance-bodies",
     "p3-citizen-participation",
     "p3-document-management"
   ],
-  "issue": "https://codeberg.org/Conduction/decidesk/issues/67"
+  "issue": "Codeberg issue #67 (pre-migration, not migrated to GitHub)"
 }
