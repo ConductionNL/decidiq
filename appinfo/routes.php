@@ -43,6 +43,14 @@ $extra = [
         ['name' => 'publication#withdraw', 'url' => '/api/publications/{recordId}/withdraw', 'verb' => 'POST'],
         ['name' => 'publication#rectify',  'url' => '/api/publications/{recordId}/rectify',  'verb' => 'POST'],
 
+        // Approval routes (approval-routes) — instantiate a sign-off route against
+        // a subject, and record an action on it. Two DISTINCT route names: a
+        // duplicate name is the route identifier colliding, which throws while
+        // the table is built and takes every route in the app down with it.
+        // @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+        ['name' => 'approvalRoute#instantiate', 'url' => '/api/approval-routes/instantiate', 'verb' => 'POST'],
+        ['name' => 'approvalRoute#record',      'url' => '/api/approval-routes/actions',     'verb' => 'POST'],
+
         // Process template management (admin-only — AuthorizedAdminSetting on every method).
         // @spec openspec/specs/process-configuration/spec.md
         ['name' => 'processTemplate#index',     'url' => '/api/process-templates',                  'verb' => 'GET'],

@@ -3977,13 +3977,20 @@
             "minimum": 1,
             "example": 1
           },
+          "mandatory": {
+            "title": "Mandatory",
+            "type": "boolean",
+            "default": true,
+            "description": "Whether this stage must be taken. COPIED from the ApprovalRoute step at instantiation, deliberately: reading it from the route at decision time would give a different answer whenever the template changed after a subject started travelling it."
+          },
           "stageType": {
             "title": "Stage type",
             "type": "string",
-            "description": "Functional type of this stage — determines the role it plays in the route.",
+            "description": "Functional type of this stage — determines the role it plays in the route. `endorsement` is the parafering case: a sign-off that is not itself the decision.",
             "enum": [
               "preparatory",
               "advisory",
+              "endorsement",
               "decisive",
               "ratifying"
             ],
@@ -4005,14 +4012,18 @@
           "outcome": {
             "title": "Outcome",
             "type": "string",
-            "description": "Decision outcome recorded when status=decided. Null when status is pending/active/skipped.",
+            "description": "Decision outcome recorded when status=decided. Null when status is pending/active/skipped. `returned` is the sign-off case and behaves unlike the rest: it re-opens an EARLIER stage rather than ending this one, which is why `rejected` and `deferred` could not express it — both end a stage and neither reopens one.",
             "enum": [
               "for",
               "against",
               "adopted",
               "rejected",
               "advised",
-              "deferred"
+              "deferred",
+              "approved",
+              "endorsed",
+              "returned",
+              "skipped"
             ],
             "nullable": true,
             "example": "adopted"
