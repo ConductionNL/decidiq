@@ -6,7 +6,7 @@ description: Add participants to a governance body, assign roles (chair, secreta
 
 # Manage members and roles
 
-Members are the people in a governance body; their **role** is what Decidesk checks before letting them act. This page covers adding participants, assigning roles, and the details that affect votes — voting rights, party affiliation, proxies.
+Members are the people in a governance body; their **role** is what Decidiq checks before letting them act. This page covers adding participants, assigning roles, and the details that affect votes — voting rights, party affiliation, proxies.
 
 ## Goal
 
@@ -51,7 +51,7 @@ The body's **Members** tab lists everyone with the role you set, a chair can ope
 | A member can't do something you expected | Check their **role** on this body — rights are role-based and per-body, so a chair on one body is just a member on another. |
 | Can't assign a proxy | The body must allow proxies, the proxy must be a present member of the meeting, and one member can hold only a limited number of proxies. |
 | The same person appears twice | They're a member of two bodies — that's expected; each membership is separate, with its own role. |
-| External participant has no account link | That's fine — Decidesk records external participants by display name and email; they just can't log in to act themselves. |
+| External participant has no account link | That's fine — Decidiq records external participants by display name and email; they just can't log in to act themselves. |
 
 ## Reference
 

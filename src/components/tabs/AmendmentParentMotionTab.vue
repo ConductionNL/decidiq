@@ -14,40 +14,42 @@
  @spec openspec/changes/decidesk-manifest-v1/design.md (open question 3)
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--parent-motion" data-testid="amendment-parent-tab">
-		<h3 class="decidesk-tab__title">
-			{{ t('decidesk', 'Parent motion') }}
+	<div
+		class="decidiq-tab decidiq-tab--parent-motion"
+		data-testid="amendment-parent-tab">
+		<h3 class="decidiq-tab__title">
+			{{ t('decidiq', 'Parent motion') }}
 		</h3>
 
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load parent motion')">
+			:title="t('decidiq', 'Could not load parent motion')">
 			{{ error }}
 		</CnNoteCard>
 
-		<p v-else-if="loading" class="decidesk-tab__loading">
-			{{ t('decidesk', 'Loading…') }}
+		<p v-else-if="loading" class="decidiq-tab__loading">
+			{{ t('decidiq', 'Loading…') }}
 		</p>
 
 		<CnNoteCard
 			v-else-if="!parentMotionId"
 			type="info"
-			:title="t('decidesk', 'No parent motion')">
-			{{ t('decidesk', 'This amendment is not linked to a motion.') }}
+			:title="t('decidiq', 'No parent motion')">
+			{{ t('decidiq', 'This amendment is not linked to a motion.') }}
 		</CnNoteCard>
 
 		<CnDetailCard
 			v-else-if="motion"
-			:title="motion.title || t('decidesk', 'Motion')">
+			:title="motion.title || t('decidiq', 'Motion')">
 			<CnDetailGrid :items="propertyItems" />
-			<div class="decidesk-tab__cta">
+			<div class="decidiq-tab__cta">
 				<NcButton
-					type="primary"
+					variant="primary"
 					data-testid="amendment-parent-open"
-					:aria-label="t('decidesk', 'Open parent motion')"
+					:aria-label="t('decidiq', 'Open parent motion')"
 					@click="openParent">
-					{{ t('decidesk', 'View motion') }}
+					{{ t('decidiq', 'View motion') }}
 				</NcButton>
 			</div>
 		</CnDetailCard>
@@ -55,8 +57,12 @@
 		<CnNoteCard
 			v-else
 			type="warning"
-			:title="t('decidesk', 'Parent motion not found')">
-			{{ t('decidesk', 'The referenced motion ({id}) could not be loaded.', { id: parentMotionId }) }}
+			:title="t('decidiq', 'Parent motion not found')">
+			{{
+				t('decidiq', 'The referenced motion ({id}) could not be loaded.', {
+					id: parentMotionId,
+				})
+			}}
 		</CnNoteCard>
 	</div>
 </template>
@@ -72,6 +78,7 @@ export default {
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -80,31 +87,51 @@ export default {
 			motion: null,
 		}
 	},
+
 	computed: {
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		parentMotionId() {
-			const ref = this.amendment?.parentMotion
+			// ADR-005: parent motion is referenced via the folded `amends` field.
+			const ref = this.amendment?.amends ?? this.amendment?.parentMotion
 			if (!ref) return ''
 			if (typeof ref === 'object') return ref.id || ref.uuid || ''
 			return ref
 		},
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		propertyItems() {
 			if (!this.motion) return []
 			return [
-				{ label: this.t('decidesk', 'Title'), value: this.motion.title },
-				{ label: this.t('decidesk', 'Proposer'), value: this.motion.proposer },
-				{ label: this.t('decidesk', 'Type'), value: this.motion.motionType },
-				{ label: this.t('decidesk', 'Status'), value: this.motion.lifecycle },
-				{ label: this.t('decidesk', 'Submitted'), value: this.motion.submittedAt },
+				{ label: this.t('decidiq', 'Title'), value: this.motion.title },
+				{
+					label: this.t('decidiq', 'Proposer'),
+					value: this.motion.proposer,
+				},
+				{ label: this.t('decidiq', 'Type'), value: this.motion.motionType },
+				{
+					label: this.t('decidiq', 'Status'),
+					value: this.motion.lifecycle,
+				},
+				{
+					label: this.t('decidiq', 'Submitted'),
+					value: this.motion.submittedAt,
+				},
 			]
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
-			handler() { this.refresh() },
+			/** @spec openspec/specs/relation-tab-ui/spec.md */
+			handler() {
+				this.refresh()
+			},
 		},
 	},
+
 	methods: {
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -112,42 +139,57 @@ export default {
 			this.motion = null
 			try {
 				const amendmentStore = ensureRelationType('amendment')
-				this.amendment = await amendmentStore.fetchObject('amendment', this.objectId)
+				this.amendment = await amendmentStore.fetchObject(
+					'amendment',
+					this.objectId,
+				)
 				if (this.parentMotionId) {
 					const motionStore = ensureRelationType('motion')
-					this.motion = await motionStore.fetchObject('motion', this.parentMotionId)
+					this.motion = await motionStore.fetchObject(
+						'motion',
+						this.parentMotionId,
+					)
 				}
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load parent motion.')
+				this.error =
+					e?.message || this.t('decidiq', 'Failed to load parent motion.')
 			} finally {
 				this.loading = false
 			}
 		},
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		openParent() {
 			if (!this.parentMotionId) return
-			this.$router.push({ name: 'MotionDetail', params: { id: this.parentMotionId } })
+			this.$router.push({
+				name: 'MotionDetail',
+				params: { id: this.parentMotionId },
+			})
 		},
 	},
 }
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
-.decidesk-tab__title {
+
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
-.decidesk-tab__loading {
+
+.decidiq-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
-.decidesk-tab__cta {
+
+.decidiq-tab__cta {
 	margin-top: var(--default-grid-baseline);
 }
 </style>

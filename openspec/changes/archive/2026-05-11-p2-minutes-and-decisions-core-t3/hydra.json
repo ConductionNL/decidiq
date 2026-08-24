@@ -2,7 +2,7 @@
   "spec_slug": "p2-minutes-and-decisions-core-t3",
   "title": "Minutes and Decisions \u2014 Core T3",
   "app": "decidesk",
-  "repo": "https://github.com/ConductionNL/decidesk",
+  "repo": "https://codeberg.org/Conduction/decidesk",
   "depends_on": [
     "p2-minutes-and-decisions"
   ],

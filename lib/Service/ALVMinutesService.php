@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk ALV Minutes Service
+ * Decidiq ALV Minutes Service
  *
  * Service for generating ALV (Algemene Ledenvergadering) minutes templates
  * and distributing them to members.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
  *
@@ -20,10 +20,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use OCA\Decidesk\Exception\MissingObjectException;
-use Psr\Container\ContainerInterface;
+use Exception;
+use OCA\Decidiq\Exception\MissingObjectException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -33,16 +33,20 @@ use Psr\Log\LoggerInterface;
  * quorum statements, member rolls, and formal resolution language. Handles
  * distribution of approved minutes to active members via notifications.
  *
+ * OpenRegister lookups are delegated to MinutesContextResolver and notification
+ * delivery to ParticipantNotifier; what stays here is the ALV domain rules —
+ * what counts as an ALV, what quorum means, and when minutes may be
+ * distributed.
+ *
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
  */
-class ALVMinutesService
-{
-    /**
-     * ALV Dutch minutes template.
-     *
-     * @var string
-     */
-    private const ALV_TEMPLATE = <<<'TEMPLATE'
+class ALVMinutesService {
+	/**
+	 * ALV Dutch minutes template.
+	 *
+	 * @var string
+	 */
+	private const ALV_TEMPLATE = <<<'TEMPLATE'
 {title}
 
 Datum: {date}
@@ -65,319 +69,269 @@ Notulen opgesteld door: {secretary}
 Notulen goedgekeurd door: {chair}
 TEMPLATE;
 
-    /**
-     * Constructor.
-     *
-     * @param ContainerInterface $container The DI container
-     * @param LoggerInterface    $logger    The logger
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
-     */
-    public function __construct(
-        private ContainerInterface $container,
-        private LoggerInterface $logger,
-    ) {
-    }//end __construct()
+	/**
+	 * Lifecycle states from which approved minutes may be distributed.
+	 *
+	 * @var array<int,string>
+	 */
+	private const DISTRIBUTABLE_LIFECYCLES = [
+		'approved',
+		'signed',
+	];
 
-    /**
-     * Generate an ALV draft based on the Minutes and linked Meeting.
-     *
-     * Fetches the Minutes and linked Meeting, validates that meetingType
-     * contains 'alv', fetches AgendaItems and active Participants of the
-     * linked GovernanceBody, and renders the ALV Dutch template.
-     *
-     * @param string $minutesId The Minutes ID
-     *
-     * @return array{
-     *   content: string,
-     *   recipientCount: int
-     * } Generated content and recipient count
-     *
-     * @throws MissingObjectException If Minutes or Meeting not found
-     * @throws \Exception If meeting is not ALV type
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
-     */
-    public function generateALVDraft(string $minutesId): array
-    {
-        try {
-            $objectService = $this->container->get('OpenRegisterObjectService');
+	/**
+	 * Constructor.
+	 *
+	 * @param LoggerInterface $logger The logger
+	 * @param MinutesContextResolver $context Resolves Minutes/Meeting/Participant context
+	 * @param ParticipantNotifier $notifier Delivers notifications to participants
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+	 */
+	public function __construct(
+		private LoggerInterface $logger,
+		private MinutesContextResolver $context,
+		private ParticipantNotifier $notifier,
+	) {
+	}//end __construct()
 
-            // Fetch Minutes.
-            $minutes = $objectService->findObject(
-                register: 'decidesk',
-                schema: 'Minutes',
-                id: $minutesId
-            );
+	/**
+	 * Generate an ALV draft based on the Minutes and linked Meeting.
+	 *
+	 * Fetches the Minutes and linked Meeting, validates that meetingType
+	 * contains 'alv', fetches AgendaItems and active Participants of the
+	 * linked GovernanceBody, and renders the ALV Dutch template.
+	 *
+	 * @param string $minutesId The Minutes ID
+	 *
+	 * @return array{
+	 *   content: string,
+	 *   recipientCount: int
+	 * } Generated content and recipient count
+	 *
+	 * @throws MissingObjectException If Minutes or Meeting not found
+	 * @throws Exception If meeting is not ALV type
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 */
+	public function generateALVDraft(string $minutesId): array {
+		try {
+			$minutes = $this->context->requireMinutes(minutesId: $minutesId);
+			$meetingId = $this->context->linkedMeetingId(minutes: $minutes);
 
-            if ($minutes === null) {
-                throw new MissingObjectException(message: "Minutes not found: $minutesId");
-            }
+			if ($meetingId === null) {
+				throw new Exception('No Meeting linked to Minutes');
+			}
 
-            // Get linked Meeting.
-            $meetingId = null;
-            if (empty($minutes['relations']['Meeting']) === false) {
-                $meetingRels = $minutes['relations']['Meeting'];
-                if (is_array($meetingRels) === true) {
-                    $meetingId = $meetingRels[0];
-                } else {
-                    $meetingId = $meetingRels;
-                }
-            }
+			$meeting = $this->context->requireMeeting(meetingId: $meetingId);
+			$this->assertAlvMeeting(meeting: $meeting);
 
-            if (empty($meetingId) === true) {
-                throw new \Exception('No Meeting linked to Minutes');
-            }
+			$participants = $this->context->activeParticipants(
+				bodyId: $this->context->governanceBodyId(meeting: $meeting)
+			);
 
-            $meeting = $objectService->findObject(
-                register: 'decidesk',
-                schema: 'Meeting',
-                id: $meetingId
-            );
+			$memberCount = count($participants);
+			$presentCount = $this->presentCount(memberCount: $memberCount, meeting: $meeting);
 
-            if ($meeting === null) {
-                throw new MissingObjectException(message: "Meeting not found: $meetingId");
-            }
+			$content = $this->renderAlvTemplate(
+				minutes: $minutes,
+				meeting: $meeting,
+				agendaItems: $this->context->agendaItems(meetingId: $meetingId),
+				presentCount: $presentCount,
+				memberCount: $memberCount
+			);
 
-            // Validate meeting type is ALV.
-            $meetingType = strtolower($meeting['meetingType'] ?? '');
-            if (strpos($meetingType, 'alv') === false && strpos($meetingType, 'algemene-ledenvergadering') === false) {
-                throw new \Exception("Meeting is not an ALV (type: $meetingType)", 422);
-            }
+			$this->logger->info("ALV draft generated for minutes $minutesId");
 
-            // Get GovernanceBody ID.
-            $bodyId = null;
-            if (empty($meeting['relations']['GovernanceBody']) === false) {
-                $bodyRels = $meeting['relations']['GovernanceBody'];
-                if (is_array($bodyRels) === true) {
-                    $bodyId = $bodyRels[0];
-                } else {
-                    $bodyId = $bodyRels;
-                }
-            }
+			return [
+				'content' => $content,
+				'recipientCount' => $memberCount,
+			];
+		} catch (Exception $e) {
+			$this->logger->error('ALVMinutesService::generateALVDraft failed: ' . $e->getMessage());
+			throw $e;
+		}//end try
 
-            // Fetch active participants scoped to this governance body.
-            $params = [
-                'leftAt' => null,
-                '_limit' => 999,
-            ];
-            if ($bodyId !== null) {
-                $params['relations.governance-body'] = $bodyId;
-                $participants = $objectService->findObjects(
-                    register: 'decidesk',
-                    schema: 'Participant',
-                    params: $params
-                );
-            } else {
-                $participants = [];
-            }
+	}//end generateALVDraft()
 
-            // Count active members.
-            $memberCount = count($participants);
-            if (empty($meeting['quorumRequired']) === false) {
-                $presentCount = min($memberCount, $meeting['quorumRequired']);
-            } else {
-                $presentCount = $memberCount;
-            }
+	/**
+	 * Distribute approved minutes to all active members.
+	 *
+	 * Fetches the Minutes (must be in approved or signed state), fetches
+	 * active Participants of the linked GovernanceBody, and sends Nextcloud
+	 * notifications to each with minutes title and deep link.
+	 *
+	 * @param string $minutesId The Minutes ID
+	 *
+	 * @return int The count of notifications sent
+	 *
+	 * @throws MissingObjectException If Minutes not found
+	 * @throws Exception If lifecycle is not approved or signed
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 */
+	public function distribute(string $minutesId): int {
+		try {
+			$minutes = $this->context->requireMinutes(minutesId: $minutesId);
+			$this->assertDistributable(minutes: $minutes);
 
-            // Fetch agenda items scoped to this meeting.
-            $agendaParams = [
-                'relations.meeting' => $meetingId,
-                '_limit'            => 999,
-                '_order'            => 'orderNumber:ASC',
-            ];
-            $agendaItems  = $objectService->findObjects(
-                register: 'decidesk',
-                schema: 'AgendaItem',
-                params: $agendaParams
-            );
+			$participants = $this->context->activeParticipants(
+				bodyId: $this->context->governanceBodyIdForMinutes(minutes: $minutes)
+			);
 
-            // Format agenda items.
-            $agendaText = '';
-            foreach ($agendaItems as $item) {
-                $agendaText .= sprintf(
-                    "- %s: %s\n",
-                    $item['orderNumber'] ?? '',
-                    $item['title'] ?? 'Untitled'
-                );
-            }
+			$sentCount = $this->notifier->notifyAll(
+				participants: $participants,
+				title: 'Notulen gepubliceerd: ' . ($minutes['title'] ?? 'Untitled'),
+				message: 'De notulen zijn nu beschikbaar.',
+				deepLink: "/minutes/$minutesId"
+			);
 
-            // Determine quorum status.
-            $quorumMet = $presentCount >= ($meeting['quorumRequired'] ?? 0);
-            if ($quorumMet === true) {
-                $quorumStatus = "Quorum bereikt ($presentCount/$memberCount leden)";
-            } else {
-                $quorumStatus = "Quorum niet bereikt ($presentCount/$memberCount leden)";
-            }
+			$this->logger->info("ALV minutes distributed to $sentCount participants");
 
-            // Render template.
-            $searchKeys = [
-                '{title}',
-                '{date}',
-                '{location}',
-                '{presentCount}',
-                '{totalCount}',
-                '{quorumStatus}',
-                '{agendaItems}',
-                '{resolutions}',
-                '{secretary}',
-                '{chair}',
-                '{aob}',
-            ];
-            $content    = str_replace(
-                $searchKeys,
-                [
-                    $minutes['title'] ?? 'Algemene Ledenvergadering',
-                    $meeting['scheduledDate'] ?? date('d-m-Y'),
-                    $meeting['location'] ?? '',
-                    $presentCount,
-                    $memberCount,
-                    $quorumStatus,
-                    trim($agendaText),
-                    '[Resoluties met stemming in aparte tabel]',
-                    '[Secretaris naam]',
-                    '[Voorzitter naam]',
-                    '[Rondvraag: geen bijzonderheden / gesloten om ...]',
-                ],
-                self::ALV_TEMPLATE
-            );
+			return $sentCount;
+		} catch (Exception $e) {
+			$this->logger->error('ALVMinutesService::distribute failed: ' . $e->getMessage());
+			throw $e;
+		}//end try
 
-            $this->logger->info("ALV draft generated for minutes $minutesId");
+	}//end distribute()
 
-            return [
-                'content'        => $content,
-                'recipientCount' => $memberCount,
-            ];
-        } catch (\Exception $e) {
-            $this->logger->error("ALVMinutesService::generateALVDraft failed: ".$e->getMessage());
-            throw $e;
-        }//end try
-    }//end generateALVDraft()
+	/**
+	 * Assert that a Meeting is an ALV.
+	 *
+	 * @param array<string,mixed> $meeting The Meeting data
+	 *
+	 * @return void
+	 *
+	 * @throws Exception When the meeting is not an ALV (HTTP 422)
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 */
+	private function assertAlvMeeting(array $meeting): void {
+		$meetingType = strtolower((string)($meeting['meetingType'] ?? ''));
 
-    /**
-     * Distribute approved minutes to all active members.
-     *
-     * Fetches the Minutes (must be in approved or signed state), fetches
-     * active Participants of the linked GovernanceBody, and sends Nextcloud
-     * notifications to each with minutes title and deep link.
-     *
-     * @param string $minutesId The Minutes ID
-     *
-     * @return int The count of notifications sent
-     *
-     * @throws MissingObjectException If Minutes not found
-     * @throws \Exception If lifecycle is not approved or signed
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
-     */
-    public function distribute(string $minutesId): int
-    {
-        try {
-            $objectService       = $this->container->get('OpenRegisterObjectService');
-            $notificationService = $this->container->get('OpenRegisterNotificationService');
+		if (strpos($meetingType, 'alv') === false
+			&& strpos($meetingType, 'algemene-ledenvergadering') === false
+		) {
+			throw new Exception("Meeting is not an ALV (type: $meetingType)", 422);
+		}
 
-            // Fetch Minutes.
-            $minutes = $objectService->findObject(
-                register: 'decidesk',
-                schema: 'Minutes',
-                id: $minutesId
-            );
+	}//end assertAlvMeeting()
 
-            if ($minutes === null) {
-                throw new MissingObjectException(message: "Minutes not found: $minutesId");
-            }
+	/**
+	 * Assert that Minutes have reached a lifecycle state that may be distributed.
+	 *
+	 * @param array<string,mixed> $minutes The Minutes data
+	 *
+	 * @return void
+	 *
+	 * @throws Exception When the lifecycle is not approved or signed (HTTP 403)
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 */
+	private function assertDistributable(array $minutes): void {
+		$lifecycle = ($minutes['lifecycle'] ?? null);
 
-            // Validate lifecycle.
-            $lifecycle = $minutes['lifecycle'] ?? null;
-            if ($lifecycle !== 'approved' && $lifecycle !== 'signed') {
-                throw new \Exception("Minutes must be approved or signed before distribution (current: $lifecycle)", 403);
-            }
+		if (in_array($lifecycle, self::DISTRIBUTABLE_LIFECYCLES, true) === false) {
+			throw new Exception(
+				"Minutes must be approved or signed before distribution (current: $lifecycle)",
+				403
+			);
+		}
 
-            // Get linked Meeting.
-            $meetingId = null;
-            if (empty($minutes['relations']['Meeting']) === false) {
-                $meetingRels = $minutes['relations']['Meeting'];
-                if (is_array($meetingRels) === true) {
-                    $meetingId = $meetingRels[0];
-                } else {
-                    $meetingId = $meetingRels;
-                }
-            }
+	}//end assertDistributable()
 
-            // Get GovernanceBody ID.
-            $bodyId = null;
-            if ($meetingId !== null) {
-                $meeting = $objectService->findObject(
-                    register: 'decidesk',
-                    schema: 'Meeting',
-                    id: $meetingId
-                );
-                if ($meeting !== null && empty($meeting['relations']['GovernanceBody']) === false) {
-                    $bodyRels = $meeting['relations']['GovernanceBody'];
-                    if (is_array($bodyRels) === true) {
-                        $bodyId = $bodyRels[0];
-                    } else {
-                        $bodyId = $bodyRels;
-                    }
-                }
-            }
+	/**
+	 * Determine how many members count as present.
+	 *
+	 * Without a quorum requirement every active member counts as present; with
+	 * one, the present count is capped at the requirement.
+	 *
+	 * @param int $memberCount The active member count
+	 * @param array<string,mixed> $meeting The Meeting data
+	 *
+	 * @return int The present count
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 */
+	private function presentCount(int $memberCount, array $meeting): int {
+		if (empty($meeting['quorumRequired']) === true) {
+			return $memberCount;
+		}
 
-            // Fetch active participants scoped to this governance body.
-            $params = [
-                'leftAt' => null,
-                '_limit' => 999,
-            ];
-            if ($bodyId !== null) {
-                $params['relations.governance-body'] = $bodyId;
-                $participants = $objectService->findObjects(
-                    register: 'decidesk',
-                    schema: 'Participant',
-                    params: $params
-                );
-            } else {
-                $participants = [];
-            }
+		return (int)min($memberCount, $meeting['quorumRequired']);
+	}//end presentCount()
 
-            // Resolve Nextcloud UID for each participant and send notifications.
-            $userManager = $this->container->get(\OCP\IUserManager::class);
-            $sentCount   = 0;
-            foreach ($participants as $participant) {
-                $ncUid = $participant['nextcloudUserId'] ?? null;
-                if (empty($ncUid) === true) {
-                    $email = $participant['email'] ?? null;
-                    if (empty($email) === false) {
-                        $users = $userManager->getByEmail(email: $email);
-                        if (empty($users) === false) {
-                            $ncUid = array_values($users)[0]->getUID();
-                        }
-                    }
-                }
+	/**
+	 * Render the ALV Dutch template.
+	 *
+	 * @param array<string,mixed> $minutes The Minutes data
+	 * @param array<string,mixed> $meeting The Meeting data
+	 * @param array<int,array<string,mixed>> $agendaItems The agenda items
+	 * @param int $presentCount The present member count
+	 * @param int $memberCount The total member count
+	 *
+	 * @return string The rendered ALV minutes text
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 */
+	private function renderAlvTemplate(
+		array $minutes,
+		array $meeting,
+		array $agendaItems,
+		int $presentCount,
+		int $memberCount,
+	): string {
+		$agendaText = '';
+		foreach ($agendaItems as $item) {
+			$agendaText .= sprintf(
+				"- %s: %s\n",
+				$item['orderNumber'] ?? '',
+				$item['title'] ?? 'Untitled'
+			);
+		}
 
-                if (empty($ncUid) === true) {
-                    $displayName = $participant['displayName'] ?? '?';
-                    $this->logger->warning('ALVMinutesService: cannot resolve Nextcloud UID for participant', ['participant' => $displayName]);
-                    continue;
-                }
+		$quorumStatus = "Quorum niet bereikt ($presentCount/$memberCount leden)";
+		if ($presentCount >= ($meeting['quorumRequired'] ?? 0)) {
+			$quorumStatus = "Quorum bereikt ($presentCount/$memberCount leden)";
+		}
 
-                try {
-                    $notificationService->sendNotification(
-                        userId: $ncUid,
-                        title: "Notulen gepubliceerd: ".($minutes['title'] ?? 'Untitled'),
-                        message: "De notulen zijn nu beschikbaar.",
-                        deepLink: "/minutes/$minutesId"
-                    );
-                    $sentCount++;
-                } catch (\Exception $e) {
-                    $this->logger->warning("Failed to send notification to $ncUid: ".$e->getMessage());
-                }
-            }//end foreach
+		$searchKeys = [
+			'{title}',
+			'{date}',
+			'{location}',
+			'{presentCount}',
+			'{totalCount}',
+			'{quorumStatus}',
+			'{agendaItems}',
+			'{resolutions}',
+			'{secretary}',
+			'{chair}',
+			'{aob}',
+		];
 
-            $this->logger->info("ALV minutes distributed to $sentCount participants");
+		// Every replacement is cast to string. `$minutes` / `$meeting` are
+		// decoded object payloads, so their values are `mixed` — str_replace
+		// declares `array<string>|string` and PHP would coerce silently
+		// (an array replacement raises "Array to string conversion" and
+		// substitutes the literal "Array").
+		return str_replace(
+			$searchKeys,
+			[
+				(string)($minutes['title'] ?? 'Algemene Ledenvergadering'),
+				(string)($meeting['scheduledDate'] ?? date('d-m-Y')),
+				(string)($meeting['location'] ?? ''),
+				(string)$presentCount,
+				(string)$memberCount,
+				(string)$quorumStatus,
+				trim($agendaText),
+				'[Resoluties met stemming in aparte tabel]',
+				'[Secretaris naam]',
+				'[Voorzitter naam]',
+				'[Rondvraag: geen bijzonderheden / gesloten om ...]',
+			],
+			self::ALV_TEMPLATE
+		);
 
-            return $sentCount;
-        } catch (\Exception $e) {
-            $this->logger->error("ALVMinutesService::distribute failed: ".$e->getMessage());
-            throw $e;
-        }//end try
-    }//end distribute()
+	}//end renderAlvTemplate()
 }//end class

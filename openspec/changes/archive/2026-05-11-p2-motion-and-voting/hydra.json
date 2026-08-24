@@ -2,7 +2,7 @@
   "spec_slug": "p2-motion-and-voting",
   "title": "Motion and Voting",
   "app": "decidesk",
-  "repo": "https://github.com/ConductionNL/decidesk",
+  "repo": "https://codeberg.org/Conduction/decidesk",
   "depends_on": [
     "p1-schemas-and-data-model",
     "p1-dashboard-and-navigation",

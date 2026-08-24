@@ -2,12 +2,12 @@
   "spec_slug": "p2-meeting-management-core-t1",
   "title": "Meeting Management \u2014 Core T1",
   "app": "decidesk",
-  "repo": "https://github.com/ConductionNL/decidesk",
+  "repo": "https://codeberg.org/Conduction/decidesk",
   "depends_on": [
     "integration-calendar",
     "p2-meeting-management"
   ],
-  "issue": "https://github.com/ConductionNL/decidesk/issues/60",
+  "issue": "https://codeberg.org/Conduction/decidesk/issues/60",
   "schema_version": 2,
   "cycles": [
     {

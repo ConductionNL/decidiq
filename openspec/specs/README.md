@@ -23,6 +23,7 @@ needs more thinking
 | `planned` | User stories and acceptance criteria defined — **ready for `/opsx:ff`** |
 | `in-progress` | One or more OpenSpec changes have been created from this feature |
 | `done` | All associated OpenSpec changes have been archived |
+| `partial` | Reconciliation audit found some requirements verified in code, the rest unbuilt — see the spec's `status-note` for the gap list |
 
 ## Spec Format
 

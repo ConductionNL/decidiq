@@ -1,13 +1,14 @@
 <?php
+
 /**
- * Decidesk Engagement Service
+ * Decidiq Engagement Service
  *
  * Stateless service handling EngagementRecord aggregation: speeches,
  * questions, topics suggested, and a derived engagement score per
  * participant per meeting.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -21,268 +22,311 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use Psr\Container\ContainerInterface;
+use DateTimeImmutable;
+use InvalidArgumentException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * Service for capturing and querying participant engagement data.
  *
  * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
  */
-class EngagementService
-{
-    /**
-     * Construct the EngagementService.
-     *
-     * @param ContainerInterface $container DI container (lazy-loads OR services)
-     * @param LoggerInterface    $logger    Logger interface
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
-     */
-    public function __construct(
-        private readonly ContainerInterface $container,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+class EngagementService {
+	/**
+	 * Construct the EngagementService.
+	 *
+	 * @param LoggerInterface $logger Logger interface
+	 * @param ObjectServiceInterface $objectService The OpenRegister object service
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 */
+	public function __construct(
+		private readonly LoggerInterface $logger,
+		private readonly ObjectServiceInterface $objectService,
+	) {
+	}//end __construct()
 
-    /**
-     * Get the OpenRegister ObjectService from the container.
-     *
-     * @return object
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
-     */
-    private function getObjectService(): object
-    {
-        return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+	/**
+	 * Get the OpenRegister ObjectService from the container.
+	 *
+	 * @return object
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 */
+	private function getObjectService(): object {
+		return $this->objectService;
+	}//end getObjectService()
 
-    }//end getObjectService()
+	/**
+	 * Capture an engagement event (speech, question, or topic suggestion).
+	 *
+	 * If an EngagementRecord exists for the (meeting, participant) tuple,
+	 * the new event is appended. Otherwise a new record is created.
+	 *
+	 * @param string $meetingId UUID of the Meeting object
+	 * @param string $participant Participant UUID
+	 * @param string $eventType One of 'speech', 'question', 'topic'
+	 * @param array<string, mixed> $eventData Event payload
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @throws InvalidArgumentException When event type is unknown
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 */
+	public function captureEngagement(
+		string $meetingId,
+		string $participant,
+		string $eventType,
+		array $eventData,
+	): array {
+		$existing = $this->findEngagementForMeetingAndParticipant(meetingId: $meetingId, participant: $participant);
 
-    /**
-     * Capture an engagement event (speech, question, or topic suggestion).
-     *
-     * If an EngagementRecord exists for the (meeting, participant) tuple,
-     * the new event is appended. Otherwise a new record is created.
-     *
-     * @param string               $meetingId   UUID of the Meeting object
-     * @param string               $participant Participant UUID
-     * @param string               $eventType   One of 'speech', 'question', 'topic'
-     * @param array<string, mixed> $eventData   Event payload
-     *
-     * @return array<string, mixed>
-     *
-     * @throws \InvalidArgumentException When event type is unknown
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
-     */
-    public function captureEngagement(
-        string $meetingId,
-        string $participant,
-        string $eventType,
-        array $eventData
-    ): array {
-        $existing = $this->findEngagementForMeetingAndParticipant(meetingId: $meetingId, participant: $participant);
+		$record = $existing;
+		if ($existing === null) {
+			$record = [
+				'meeting' => $meetingId,
+				'participant' => $participant,
+				'speeches' => [],
+				'questionsRaised' => [],
+				'topicsSuggested' => [],
+				'speakingDuration' => 0,
+				'engagementScore' => 0,
+			];
+		}
 
-        if ($existing === null) {
-            $record = [
-                'meeting'          => $meetingId,
-                'participant'      => $participant,
-                'speeches'         => [],
-                'questionsRaised'  => [],
-                'topicsSuggested'  => [],
-                'speakingDuration' => 0,
-                'engagementScore'  => 0,
-            ];
-        } else {
-            $record = $existing;
-        }
+		$record = $this->applyEvent(record: $record, eventType: $eventType, eventData: $eventData);
 
-        switch ($eventType) {
-            case 'speech':
-                $record['speeches'][] = $eventData;
-                $duration = (int) ($eventData['duration'] ?? 0);
-                if ($duration === 0
-                    && isset($eventData['startTime'], $eventData['endTime']) === true
-                ) {
-                    try {
-                        $start    = new \DateTimeImmutable((string) $eventData['startTime']);
-                        $end      = new \DateTimeImmutable((string) $eventData['endTime']);
-                        $duration = max(0, $end->getTimestamp() - $start->getTimestamp());
-                    } catch (\Throwable $e) {
-                        $duration = 0;
-                    }
-                }
+		$record['engagementScore'] = $this->calculateScore(record: $record);
 
-                $record['speakingDuration'] = ((int) ($record['speakingDuration'] ?? 0)) + $duration;
-                break;
+		$objectService = $this->getObjectService();
+		$saved = $objectService->saveObject(
+			object: $record,
+			register: 'decidiq',
+			schema: 'engagement-record',
+			uuid: ($existing['id'] ?? null),
+		);
 
-            case 'question':
-                $record['questionsRaised'][] = $eventData;
-                break;
+		$this->logger->info(
+			'Decidiq: Engagement captured',
+			['meetingId' => $meetingId, 'participant' => $participant, 'eventType' => $eventType]
+		);
 
-            case 'topic':
-                $record['topicsSuggested'][] = $eventData;
-                break;
+		if (is_array($saved) === true) {
+			return $saved;
+		}
 
-            default:
-                throw new \InvalidArgumentException("Unknown engagement event type '$eventType'");
-        }//end switch
+		if (is_object($saved) === true && method_exists($saved, 'getObject') === true) {
+			return (array)$saved->getObject();
+		}
 
-        $record['engagementScore'] = $this->calculateScore(record: $record);
+		return (array)$saved;
+	}//end captureEngagement()
 
-        $objectService = $this->getObjectService();
-        $saved         = $objectService->saveObject(
-            object: $record,
-            register: 'decidesk',
-            schema: 'engagement-record',
-            uuid: ($existing['id'] ?? null),
-        );
+	/**
+	 * Fold one engagement event into the record it belongs to.
+	 *
+	 * @param array<string, mixed> $record The engagement record
+	 * @param string $eventType One of 'speech', 'question', 'topic'
+	 * @param array<string, mixed> $eventData Event payload
+	 *
+	 * @return array<string, mixed> The updated record.
+	 *
+	 * @throws InvalidArgumentException When event type is unknown
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 */
+	private function applyEvent(array $record, string $eventType, array $eventData): array {
+		if ($eventType === 'speech') {
+			$record['speeches'][] = $eventData;
+			$record['speakingDuration'] = (((int)($record['speakingDuration'] ?? 0)) + $this->speechDuration(eventData: $eventData));
 
-        $this->logger->info(
-            'Decidesk: Engagement captured',
-            ['meetingId' => $meetingId, 'participant' => $participant, 'eventType' => $eventType]
-        );
+			return $record;
+		}
 
-        if (is_array($saved) === true) {
-            return $saved;
-        }
+		if ($eventType === 'question') {
+			$record['questionsRaised'][] = $eventData;
 
-        if (is_object($saved) === true && method_exists($saved, 'getObject') === true) {
-            return (array) $saved->getObject();
-        }
+			return $record;
+		}
 
-        return (array) $saved;
+		if ($eventType === 'topic') {
+			$record['topicsSuggested'][] = $eventData;
 
-    }//end captureEngagement()
+			return $record;
+		}
 
-    /**
-     * Find an existing EngagementRecord for a (meeting, participant) pair.
-     *
-     * @param string $meetingId   Meeting UUID
-     * @param string $participant Participant UUID
-     *
-     * @return array<string, mixed>|null
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
-     */
-    public function findEngagementForMeetingAndParticipant(
-        string $meetingId,
-        string $participant
-    ): ?array {
-        try {
-            $objectService = $this->getObjectService();
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('engagement-record');
+		throw new InvalidArgumentException("Unknown engagement event type '$eventType'");
+	}//end applyEvent()
 
-            $results = $objectService->findAll(
-                limit: 1,
-                offset: 0,
-                filters: [
-                    'meeting'     => $meetingId,
-                    'participant' => $participant,
-                ],
-            );
-        } catch (\Throwable $e) {
-            $this->logger->debug(
-                'Decidesk: findEngagementForMeetingAndParticipant failed',
-                ['error' => $e->getMessage()]
-            );
-            return null;
-        }
+	/**
+	 * The duration of one speech event, in seconds.
+	 *
+	 * Prefers the reported duration; when it is absent or zero, derives it from
+	 * startTime/endTime. An unparseable timestamp pair yields zero.
+	 *
+	 * @param array<string, mixed> $eventData Event payload
+	 *
+	 * @return int The duration in seconds.
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 */
+	private function speechDuration(array $eventData): int {
+		$duration = (int)($eventData['duration'] ?? 0);
+		if ($duration !== 0) {
+			return $duration;
+		}
 
-        foreach ($results as $entity) {
-            if (is_object($entity) === true && method_exists($entity, 'getObject') === true) {
-                return $entity->getObject();
-            }
+		if (isset($eventData['startTime'], $eventData['endTime']) === false) {
+			return 0;
+		}
 
-            if (is_array($entity) === true) {
-                return $entity;
-            }
-        }
+		try {
+			$start = new DateTimeImmutable((string)$eventData['startTime']);
+			$end = new DateTimeImmutable((string)$eventData['endTime']);
 
-        return null;
+			return max(0, ($end->getTimestamp() - $start->getTimestamp()));
+		} catch (Throwable $e) {
+			return 0;
+		}
 
-    }//end findEngagementForMeetingAndParticipant()
+	}//end speechDuration()
 
-    /**
-     * List EngagementRecords for a meeting.
-     *
-     * @param string $meetingId Meeting UUID
-     *
-     * @return array<int, array<string, mixed>>
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
-     */
-    public function findEngagementForMeeting(string $meetingId): array
-    {
-        try {
-            $objectService = $this->getObjectService();
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('engagement-record');
+	/**
+	 * Find an existing EngagementRecord for a (meeting, participant) pair.
+	 *
+	 * @param string $meetingId Meeting UUID
+	 * @param string $participant Participant UUID
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 */
+	public function findEngagementForMeetingAndParticipant(
+		string $meetingId,
+		string $participant,
+	): ?array {
+		try {
+			$objectService = $this->getObjectService();
+			$objectService->setRegister('decidiq');
+			$objectService->setSchema('engagement-record');
 
-            $results = $objectService->findAll(
-                limit: 500,
-                offset: 0,
-                filters: ['meeting' => $meetingId],
-            );
-        } catch (\Throwable $e) {
-            $this->logger->warning(
-                'Decidesk: findEngagementForMeeting failed',
-                ['meetingId' => $meetingId, 'error' => $e->getMessage()]
-            );
-            return [];
-        }
+			// ObjectService::findAll() takes a single $config array — the
+			// named-argument form (limit:/offset:/filters:) threw
+			// "Unknown named parameter" and was swallowed by the catch below.
+			$results = $objectService->findAll(
+				[
+					'filters' => [
+						'meeting' => $meetingId,
+						'participant' => $participant,
+					],
+					'limit' => 1,
+					'offset' => 0,
+				]
+			);
+		} catch (Throwable $e) {
+			$this->logger->debug(
+				'Decidiq: findEngagementForMeetingAndParticipant failed',
+				['error' => $e->getMessage()]
+			);
+			return null;
+		}//end try
 
-        $out = [];
-        foreach ($results as $entity) {
-            if (is_object($entity) === true && method_exists($entity, 'getObject') === true) {
-                $out[] = $entity->getObject();
-            } else if (is_array($entity) === true) {
-                $out[] = $entity;
-            }
-        }
+		foreach ($results as $entity) {
+			if (is_object($entity) === true && method_exists($entity, 'getObject') === true) {
+				return $entity->getObject();
+			}
 
-        return $out;
+			if (is_array($entity) === true) {
+				return $entity;
+			}
+		}
 
-    }//end findEngagementForMeeting()
+		return null;
+	}//end findEngagementForMeetingAndParticipant()
 
-    /**
-     * Calculate the engagement score (0-100) for a record.
-     *
-     * Simple heuristic combining speaking duration, questions, and topics.
-     *
-     * @param array<string, mixed> $record EngagementRecord
-     *
-     * @return int
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
-     */
-    public function calculateScore(array $record): int
-    {
-        $speakingMinutes = ((int) ($record['speakingDuration'] ?? 0)) / 60;
+	/**
+	 * List EngagementRecords for a meeting.
+	 *
+	 * @param string $meetingId Meeting UUID
+	 *
+	 * @return array<int, array<string, mixed>>
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 */
+	public function findEngagementForMeeting(string $meetingId): array {
+		try {
+			$objectService = $this->getObjectService();
+			$objectService->setRegister('decidiq');
+			$objectService->setSchema('engagement-record');
 
-        $speeches = 0;
-        if (is_array(($record['speeches'] ?? null)) === true) {
-            $speeches = count($record['speeches']);
-        }
+			// ObjectService::findAll() takes a single $config array — the
+			// named-argument form (limit:/offset:/filters:) threw
+			// "Unknown named parameter" and was swallowed by the catch below.
+			$results = $objectService->findAll(
+				[
+					'filters' => ['meeting' => $meetingId],
+					'limit' => 500,
+					'offset' => 0,
+				]
+			);
+		} catch (Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: findEngagementForMeeting failed',
+				['meetingId' => $meetingId, 'error' => $e->getMessage()]
+			);
+			return [];
+		}//end try
 
-        $questions = 0;
-        if (is_array(($record['questionsRaised'] ?? null)) === true) {
-            $questions = count($record['questionsRaised']);
-        }
+		$out = [];
+		foreach ($results as $entity) {
+			if (is_object($entity) === true && method_exists($entity, 'getObject') === true) {
+				$out[] = $entity->getObject();
+			} elseif (is_array($entity) === true) {
+				$out[] = $entity;
+			}
+		}
 
-        $topics = 0;
-        if (is_array(($record['topicsSuggested'] ?? null)) === true) {
-            $topics = count($record['topicsSuggested']);
-        }
+		return $out;
+	}//end findEngagementForMeeting()
 
-        $score = (int) min(100, ($speakingMinutes * 2) + ($speeches * 5) + ($questions * 4) + ($topics * 6));
-        return max(0, $score);
+	/**
+	 * Calculate the engagement score (0-100) for a record.
+	 *
+	 * Simple heuristic combining speaking duration, questions, and topics.
+	 *
+	 * @param array<string, mixed> $record EngagementRecord
+	 *
+	 * @return int
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 */
+	public function calculateScore(array $record): int {
+		$speakingMinutes = ((int)($record['speakingDuration'] ?? 0)) / 60;
 
-    }//end calculateScore()
+		$speeches = 0;
+		if (is_array(($record['speeches'] ?? null)) === true) {
+			$speeches = count($record['speeches']);
+		}
+
+		$questions = 0;
+		if (is_array(($record['questionsRaised'] ?? null)) === true) {
+			$questions = count($record['questionsRaised']);
+		}
+
+		$topics = 0;
+		if (is_array(($record['topicsSuggested'] ?? null)) === true) {
+			$topics = count($record['topicsSuggested']);
+		}
+
+		$score = (int)min(100, ($speakingMinutes * 2) + ($speeches * 5) + ($questions * 4) + ($topics * 6));
+		return max(0, $score);
+	}//end calculateScore()
 }//end class

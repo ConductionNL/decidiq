@@ -4,7 +4,7 @@
  * Test Suite for ALVMinutesService
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.5
  *
@@ -17,10 +17,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\ALVMinutesService;
-use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidiq\Service\ALVMinutesService;
+use OCA\Decidiq\Service\MinutesContextResolver;
+use OCA\Decidiq\Service\ParticipantNotifier;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -30,187 +32,202 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.5
  */
-class ALVMinutesServiceTest extends TestCase
-{
-    private ALVMinutesService $service;
-    private ContainerInterface|\PHPUnit\Framework\MockObject\MockObject $container;
-    private LoggerInterface|\PHPUnit\Framework\MockObject\MockObject $logger;
+class ALVMinutesServiceTest extends TestCase {
+	private ALVMinutesService $service;
+	private ContainerInterface|\PHPUnit\Framework\MockObject\MockObject $container;
+	private LoggerInterface|\PHPUnit\Framework\MockObject\MockObject $logger;
+	private ObjectServiceInterface|\PHPUnit\Framework\MockObject\MockObject $objectService;
 
-    /**
-     * Set up test fixtures.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.5
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->container = $this->createMock(ContainerInterface::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
-        $this->service = new ALVMinutesService($this->container, $this->logger);
-    }
+	/**
+	 * Set up test fixtures.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.5
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		$this->container = $this->createMock(ContainerInterface::class);
+		$this->logger = $this->createMock(LoggerInterface::class);
 
-    /**
-     * Test that generateALVDraft produces correct quorum statement for quorum met.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.5
-     */
-    public function testGenerateALVDraftProducesCorrectQuorumStatement(): void
-    {
-        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
-        $mockObjectService->expects($this->any())
-            ->method('findObject')
-            ->willReturnCallback(function (string $register, string $schema, string $id) {
-                if ($schema === 'Minutes') {
-                    return [
-                        'id' => 'minutes-1',
-                        'title' => 'ALV 2025',
-                        'relations' => [
-                            'Meeting' => ['meeting-1'],
-                        ],
-                    ];
-                } elseif ($schema === 'Meeting') {
-                    return [
-                        'id' => 'meeting-1',
-                        'meetingType' => 'alv',
-                        'title' => 'Algemene Ledenvergadering',
-                        'scheduledDate' => '2025-04-15',
-                        'location' => 'Amsterdam',
-                        'quorumRequired' => 0, // 0 = quorum always met regardless of attendance.
-                        'relations' => [
-                            'GovernanceBody' => ['body-1'],
-                        ],
-                    ];
-                }
-                return null;
-            });
+		// ADR-083/084: the lookup collaborator takes the injected OpenRegister
+		// contract, so every ObjectService expectation below is set on the SAME
+		// double and still exercises the identical OpenRegister calls it always
+		// did. The notifier keeps the container for its own lookups.
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
+		$this->objectService->method('setRegister')->willReturnSelf();
+		$this->objectService->method('setSchema')->willReturnSelf();
 
-        $mockObjectService->expects($this->any())
-            ->method('findObjects')
-            ->willReturn([]); // No participants or agenda items.
+		$this->service = new ALVMinutesService(
+			$this->logger,
+			new MinutesContextResolver(objectService: $this->objectService),
+			new ParticipantNotifier($this->container, $this->logger),
+		);
+	}
 
-        $this->container->expects($this->any())
-            ->method('get')
-            ->willReturn($mockObjectService);
+	/**
+	 * Build a mock ObjectEntity that returns $data from jsonSerialize().
+	 *
+	 * @param array<string,mixed> $data Object data
+	 *
+	 * @return object
+	 */
+	private function makeEntity(array $data): object {
+		$entity = $this->createMock(\OCA\OpenRegister\Db\ObjectEntity::class);
+		$entity->method('jsonSerialize')->willReturn($data);
+		return $entity;
+	}
 
-        $result = $this->service->generateALVDraft('minutes-1');
+	/**
+	 * Test that generateALVDraft produces correct quorum statement for quorum met.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.5
+	 */
+	public function testGenerateALVDraftProducesCorrectQuorumStatement(): void {
+		$minutesData = [
+			'id' => 'minutes-1',
+			'title' => 'ALV 2025',
+			'relations' => ['Meeting' => ['meeting-1']],
+		];
+		$meetingData = [
+			'id' => 'meeting-1',
+			'meetingType' => 'alv',
+			'title' => 'Algemene Ledenvergadering',
+			'scheduledDate' => '2025-04-15',
+			'location' => 'Amsterdam',
+			'quorumRequired' => 0,
+			'relations' => ['GovernanceBody' => ['body-1']],
+		];
 
-        $this->assertIsArray($result);
-        $this->assertNotEmpty($result['content']);
-        $this->assertStringContainsString('Quorum bereikt', $result['content']);
-    }
+		$minutesEntity = $this->makeEntity($minutesData);
+		$meetingEntity = $this->makeEntity($meetingData);
 
-    /**
-     * Test that generateALVDraft returns validation error for non-ALV meeting.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.5
-     */
-    public function testGenerateALVDraftReturnsValidationErrorForNonALVMeeting(): void
-    {
-        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
-        $mockObjectService->expects($this->any())
-            ->method('findObject')
-            ->willReturnCallback(function (string $register, string $schema, string $id) {
-                if ($schema === 'Minutes') {
-                    return [
-                        'id' => 'minutes-1',
-                        'relations' => [
-                            'Meeting' => ['meeting-1'],
-                        ],
-                    ];
-                } elseif ($schema === 'Meeting') {
-                    return [
-                        'id' => 'meeting-1',
-                        'meetingType' => 'council', // Not ALV.
-                    ];
-                }
-                return null;
-            });
+		$this->objectService->expects($this->any())
+			->method('find')
+			->willReturnCallback(function (int|string $id) use ($minutesEntity, $meetingEntity): ?object {
+				if ($id === 'minutes-1') {
+					return $minutesEntity;
+				}
+				if ($id === 'meeting-1') {
+					return $meetingEntity;
+				}
+				return null;
+			});
 
-        $this->container->expects($this->any())
-            ->method('get')
-            ->willReturn($mockObjectService);
+		$this->objectService->expects($this->any())
+			->method('findAll')
+			->willReturn([]);
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionCode(422);
+		$result = $this->service->generateALVDraft('minutes-1');
 
-        $this->service->generateALVDraft('minutes-1');
-    }
+		$this->assertIsArray($result);
+		$this->assertNotEmpty($result['content']);
+		$this->assertStringContainsString('Quorum bereikt', $result['content']);
+	}
 
-    /**
-     * Test that distribute returns 0 when no active participants.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.5
-     */
-    public function testDistributeReturns0ForNoParticipants(): void
-    {
-        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
-        $mockObjectService->expects($this->any())
-            ->method('findObject')
-            ->willReturnCallback(function (string $register, string $schema, string $id) {
-                if ($schema === 'Minutes') {
-                    return [
-                        'id' => 'minutes-1',
-                        'lifecycle' => 'approved',
-                        'relations' => [
-                            'Meeting' => ['meeting-1'],
-                        ],
-                    ];
-                } elseif ($schema === 'Meeting') {
-                    return [
-                        'id' => 'meeting-1',
-                        'relations' => [
-                            'GovernanceBody' => ['body-1'],
-                        ],
-                    ];
-                }
-                return null;
-            });
+	/**
+	 * Test that generateALVDraft returns validation error for non-ALV meeting.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.5
+	 */
+	public function testGenerateALVDraftReturnsValidationErrorForNonALVMeeting(): void {
+		$minutesData = [
+			'id' => 'minutes-1',
+			'relations' => ['Meeting' => ['meeting-1']],
+		];
+		$meetingData = [
+			'id' => 'meeting-1',
+			'meetingType' => 'council',
+		];
 
-        $mockObjectService->expects($this->any())
-            ->method('findObjects')
-            ->willReturn([]); // No participants.
+		$minutesEntity = $this->makeEntity($minutesData);
+		$meetingEntity = $this->makeEntity($meetingData);
 
-        $this->container->expects($this->any())
-            ->method('get')
-            ->willReturn($mockObjectService);
+		$this->objectService->expects($this->any())
+			->method('find')
+			->willReturnCallback(function (int|string $id) use ($minutesEntity, $meetingEntity): ?object {
+				if ($id === 'minutes-1') {
+					return $minutesEntity;
+				}
+				if ($id === 'meeting-1') {
+					return $meetingEntity;
+				}
+				return null;
+			});
 
-        $result = $this->service->distribute('minutes-1');
+		$this->expectException(\Exception::class);
+		$this->expectExceptionCode(422);
 
-        $this->assertEquals(0, $result);
-    }
+		$this->service->generateALVDraft('minutes-1');
+	}
 
-    /**
-     * Test that distribute throws 403 when lifecycle is draft.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.5
-     */
-    public function testDistributeThrows403ForDraftLifecycle(): void
-    {
-        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
-        $mockObjectService->expects($this->any())
-            ->method('findObject')
-            ->willReturn([
-                'id' => 'minutes-1',
-                'lifecycle' => 'draft', // Not approved.
-            ]);
+	/**
+	 * Test that distribute returns 0 when no active participants.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.5
+	 */
+	public function testDistributeReturns0ForNoParticipants(): void {
+		$minutesData = [
+			'id' => 'minutes-1',
+			'lifecycle' => 'approved',
+			'relations' => ['Meeting' => ['meeting-1']],
+		];
+		$meetingData = [
+			'id' => 'meeting-1',
+			'relations' => ['GovernanceBody' => ['body-1']],
+		];
 
-        $this->container->expects($this->any())
-            ->method('get')
-            ->willReturn($mockObjectService);
+		$minutesEntity = $this->makeEntity($minutesData);
+		$meetingEntity = $this->makeEntity($meetingData);
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionCode(403);
+		$this->objectService->expects($this->any())
+			->method('find')
+			->willReturnCallback(function (int|string $id) use ($minutesEntity, $meetingEntity): ?object {
+				if ($id === 'minutes-1') {
+					return $minutesEntity;
+				}
+				if ($id === 'meeting-1') {
+					return $meetingEntity;
+				}
+				return null;
+			});
 
-        $this->service->distribute('minutes-1');
-    }
+		$this->objectService->expects($this->any())
+			->method('findAll')
+			->willReturn([]);
+
+		$result = $this->service->distribute('minutes-1');
+
+		$this->assertEquals(0, $result);
+	}
+
+	/**
+	 * Test that distribute throws 403 when lifecycle is draft.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.5
+	 */
+	public function testDistributeThrows403ForDraftLifecycle(): void {
+		$minutesData = [
+			'id' => 'minutes-1',
+			'lifecycle' => 'draft',
+		];
+		$minutesEntity = $this->makeEntity($minutesData);
+
+		$this->objectService->expects($this->any())
+			->method('find')
+			->willReturn($minutesEntity);
+
+		$this->expectException(\Exception::class);
+		$this->expectExceptionCode(403);
+
+		$this->service->distribute('minutes-1');
+	}
 }

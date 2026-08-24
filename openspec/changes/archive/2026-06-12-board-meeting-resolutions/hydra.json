@@ -1,0 +1,8 @@
+{
+  "spec_slug": "board-meeting-resolutions",
+  "title": "Board Meeting Resolutions",
+  "app": "decidesk",
+  "repo": "https://codeberg.org/Conduction/decidesk",
+  "depends_on": [],
+  "issue": "https://codeberg.org/Conduction/decidesk/issues/245"
+}

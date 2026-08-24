@@ -1,0 +1,15 @@
+{
+  "x-openregister": {
+    "consumes": {
+      "integrations": [
+        {
+          "leaf": "collectives",
+          "via": "openregister-integration-registry",
+          "boundSchemas": ["governance-body"],
+          "replaces": "in-app WorkspaceService / CollaborationWorkspace schema (retired in migrate-workspaces-to-collectives-leaf, ADR-022); bounded faction/committee/task-group workspaces are now Nextcloud Collectives surfaced via the ADR-019 registry tab/widget",
+          "gracefulDegradation": "registry hides the collectives tab when the Collectives app is absent; governance bodies remain fully usable without a workspace"
+        }
+      ]
+    }
+  }
+}

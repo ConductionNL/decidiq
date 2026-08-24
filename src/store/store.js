@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
 //
-// Decidesk store — thin wrapper around @conduction/nextcloud-vue's shared
-// object store, plus the decidesk-specific settings store.
+// Decidiq store — thin wrapper around @conduction/nextcloud-vue's shared
+// object store, plus the decidiq-specific settings store.
 //
 // The custom Pinia object store that previously lived in
 // src/store/modules/object.js (with `fetchObjects`, no `subscribe`,
@@ -19,30 +19,30 @@
 // audit-trails / relations live behind the per-tab CnObjectSidebar
 // integration which uses the lib's own default store id.
 //
-// Pinia store id `'decidesk-objects'` is unique to this app so that a
-// future change which mounts both decidesk and an embedded openregister
+// Pinia store id `'decidiq-objects'` is unique to this app so that a
+// future change which mounts both decidiq and an embedded openregister
 // sidebar in the same Pinia tree can't collide on the default
 // `'conduction-objects'` id.
 //
-// @spec openspec/changes/decidesk-store-migration/specs/decidesk-store-migration/spec.md#REQ-DSM-1
-// @spec openspec/changes/decidesk-store-migration/specs/decidesk-store-migration/spec.md#REQ-DSM-2
+// @spec openspec/specs/decidesk-store-migration/spec.md
+// @spec openspec/specs/decidesk-store-migration/spec.md
 
-import { generateUrl } from '@nextcloud/router'
 import { createObjectStore, liveUpdatesPlugin } from '@conduction/nextcloud-vue'
+import { generateUrl } from '@nextcloud/router'
 import { useSettingsStore } from './modules/settings.js'
 
 /**
- * Shared object store for all decidesk OpenRegister CRUD.
+ * Shared object store for all decidiq OpenRegister CRUD.
  *
  * @type {import('pinia').StoreDefinition}
  */
-export const useObjectStore = createObjectStore('decidesk-objects', {
+export const useObjectStore = createObjectStore('decidiq-objects', {
 	plugins: [liveUpdatesPlugin()],
 	baseUrl: generateUrl('/apps/openregister/api/objects'),
 })
 
 /**
- * Boot hook called from App.vue and AdminRoot.vue. Loads decidesk's
+ * Boot hook called from App.vue and AdminRoot.vue. Loads decidiq's
  * settings (register slug, schema slug overrides, isAdmin flag), then
  * registers every logical object type the consumer Vue files use
  * against the shared lib store.
@@ -54,7 +54,7 @@ export const useObjectStore = createObjectStore('decidesk-objects', {
  *
  * @return {Promise<{settingsStore: object, objectStore: object}>}
  *
- * @spec openspec/changes/decidesk-store-migration/specs/decidesk-store-migration/spec.md#REQ-DSM-3
+ * @spec openspec/specs/decidesk-store-migration/spec.md
  */
 export async function initializeStores() {
 	const settingsStore = useSettingsStore()
@@ -63,7 +63,7 @@ export async function initializeStores() {
 	await settingsStore.fetchSettings()
 
 	const settings = settingsStore.getSettings || {}
-	const register = settings.register || 'decidesk'
+	const register = settings.register || 'decidiq'
 
 	// Register every logical type the app actually fetches/subscribes.
 	// Pre-migration this map only covered minutes/decision/action-item
@@ -79,11 +79,41 @@ export async function initializeStores() {
 		['meeting', settings.meetingSchema || 'meeting'],
 		['agenda-item', settings.agendaItemSchema || 'agenda-item'],
 		['participant', settings.participantSchema || 'participant'],
-		['motion', settings.motionSchema || 'motion'],
-		['amendment', settings.amendmentSchema || 'amendment'],
+		// ADR-005: motion and amendment are folded into the unified Decision
+		// supertype (decisionType discriminator). The standalone Motion/Amendment
+		// schemas were removed from decidesk_register.json, so the logical relation
+		// types must resolve to the `decision` schema here too. Registering them to
+		// the deleted 'motion'/'amendment' slugs would shadow the same remap in
+		// useRelationStore.ensureRelationType (guarded by !objectTypeRegistry[type]),
+		// causing the motion/amendment tabs to query dead schemas at runtime.
+		['motion', settings.decisionSchema || 'decision'],
+		['amendment', settings.decisionSchema || 'decision'],
 		['voting-round', settings.votingRoundSchema || 'voting-round'],
 		['governance-body', settings.governanceBodySchema || 'governance-body'],
 		['vote', settings.voteSchema || 'vote'],
+		// meeting-efficiency: engagement records back the speaking-time
+		// distribution on the GovernanceBodyEfficiencyTab analytics surface.
+		[
+			'engagement-record',
+			settings.engagementRecordSchema || 'engagement-record',
+		],
+		// citizen-participation: public consultations, reactions, participatory
+		// budgeting and advisory citizen votes (read/write via the object store;
+		// lifecycle/intake/moderation/voting/publish go through the controller).
+		[
+			'public-consultation',
+			settings.publicConsultationSchema || 'public-consultation',
+		],
+		[
+			'consultation-reaction',
+			settings.consultationReactionSchema || 'consultation-reaction',
+		],
+		[
+			'participatory-budget',
+			settings.participatoryBudgetSchema || 'participatory-budget',
+		],
+		['budget-proposal', settings.budgetProposalSchema || 'budget-proposal'],
+		['citizen-vote', settings.citizenVoteSchema || 'citizen-vote'],
 	]
 
 	for (const [type, schema] of types) {

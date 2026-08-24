@@ -2,10 +2,10 @@
   "spec_slug": "p2-meeting-management-other-t2",
   "title": "Meeting Management \u2014 Other T2",
   "app": "decidesk",
-  "repo": "https://github.com/ConductionNL/decidesk",
+  "repo": "https://codeberg.org/Conduction/decidesk",
   "depends_on": [
     "integration-calendar",
     "p2-meeting-management"
   ],
-  "issue": "https://github.com/ConductionNL/decidesk/issues/42"
+  "issue": "https://codeberg.org/Conduction/decidesk/issues/42"
 }

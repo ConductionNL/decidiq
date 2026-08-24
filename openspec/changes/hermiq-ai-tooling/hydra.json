@@ -1,0 +1,11 @@
+{
+  "spec_slug": "hermiq-ai-tooling",
+  "title": "Full-action MCP surface under the hermiq grant model (scope × reach, default-deny, approval gates)",
+  "app": "decidiq",
+  "repo": "https://github.com/ConductionNL/decidesk",
+  "kind": "code",
+  "depends_on": [
+    "decidiq-mcp-adoption"
+  ],
+  "issue": null
+}

@@ -1,0 +1,252 @@
+<?php
+
+/**
+ * Unit tests for VotingService template voting-rule defaults (process-config).
+ *
+ * @category Test
+ * @package  OCA\Decidiq\Tests\Unit\Service
+ *
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @link https://conduction.nl
+ *
+ * @spec openspec/specs/process-configuration/spec.md
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+declare(strict_types=1);
+
+namespace OCA\Decidiq\Tests\Unit\Service;
+
+use OCA\Decidiq\Service\AmendmentOrderService;
+use OCA\Decidiq\Service\MotionService;
+use OCA\Decidiq\Service\ObjectRelationFilter;
+use OCA\Decidiq\Service\OriPublicationService;
+use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Service\ParticipantUuidLookup;
+use OCA\Decidiq\Service\ProcessTemplateService;
+use OCA\Decidiq\Service\VoteCastingService;
+use OCA\Decidiq\Service\VotingOpenedNotifier;
+use OCA\Decidiq\Service\VotingRoundCloser;
+use OCA\Decidiq\Service\VotingRoundOpener;
+use OCA\Decidiq\Service\VotingRoundPreflight;
+use OCA\Decidiq\Service\VotingRoundProjection;
+use OCA\Decidiq\Service\VotingRoundResults;
+use OCA\Decidiq\Service\VotingRoundRules;
+use OCA\Decidiq\Service\VotingService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Service\FileService;
+use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
+use Psr\Log\NullLogger;
+
+/**
+ * Verifies the round-open path applies a body template's voting-rule defaults
+ * when the caller leaves a rule null, and that an explicit caller value wins.
+ *
+ * @spec openspec/specs/process-configuration/spec.md
+ */
+class VotingServiceTemplateRuleTest extends TestCase {
+
+	/**
+	 * Captured saved voting-round objects.
+	 *
+	 * @var array<int, array<string, mixed>>
+	 */
+	private array $saved = [];
+
+	/**
+	 * Build a VotingService whose ProcessTemplateService returns $templateRule.
+	 *
+	 * @param array<string,string>|null $templateRule The template voting rule, or null
+	 *
+	 * @return VotingService
+	 */
+	private function buildService(?array $templateRule): VotingService {
+		$this->saved = [];
+
+		$meeting = $this->createMock(ObjectEntity::class);
+		// quorumRequired=0 -> checkQuorum() returns true (no participants needed).
+		$meeting->method('jsonSerialize')->willReturn(['id' => 'meeting-1', 'quorumRequired' => 0]);
+
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('setRegister')->willReturnSelf();
+		$objectService->method('setSchema')->willReturnSelf();
+		$objectService->method('find')->willReturn($meeting);
+		$objectService->method('saveObject')->willReturnCallback(
+			// saveObject() is typed `: ObjectEntity` in production and can never
+			// return the payload array it was handed (#399). Returning an entity
+			// double keeps VotingRoundOpener on its real normalisation path.
+			function (array $object): ObjectEntity {
+				$this->saved[] = $object;
+
+				$saved = $this->createMock(ObjectEntity::class);
+				$saved->method('jsonSerialize')->willReturn($object);
+				return $saved;
+			}
+		);
+
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willReturnCallback(
+			static function (string $id) use ($objectService): object {
+				if ($id === 'OCA\OpenRegister\Service\ObjectService') {
+					return $objectService;
+				}
+
+				throw new \RuntimeException('not wired in test: ' . $id);
+			}
+		);
+
+		$participantResolver = $this->createMock(ParticipantResolver::class);
+		$participantResolver->method('resolveMeetingParticipants')->willReturn([]);
+
+		$templateService = $this->createMock(ProcessTemplateService::class);
+		$templateService->method('resolveVotingRuleForBody')->willReturn($templateRule);
+
+		$motionService = $this->createMock(MotionService::class);
+
+		// VotingService is a thin facade: every operation is delegated to a
+		// single-purpose collaborator, so the graph is built explicitly here
+		// where production relies on Nextcloud's constructor auto-wiring.
+		$logger = new NullLogger();
+		$amendmentOrder = new AmendmentOrderService(
+			motionService: $motionService,
+			objectService: $objectService,
+		);
+		$relationFilter = new ObjectRelationFilter();
+
+		return new VotingService(
+			opener: new VotingRoundOpener(
+				motionService: $motionService,
+				participantResolver: $participantResolver,
+				preflight: new VotingRoundPreflight(
+					logger: $logger,
+					motionService: $motionService,
+					participantResolver: $participantResolver,
+					templateService: $templateService,
+					objectService: $objectService,
+				),
+				notifier: new VotingOpenedNotifier(
+					logger: $logger,
+					participantResolver: $participantResolver,
+					container: $container,
+				),
+				objectService: $objectService,
+			),
+			caster: new VoteCastingService(
+				logger: $logger,
+				participantResolver: $participantResolver,
+				amendmentOrder: $amendmentOrder,
+				relationFilter: $relationFilter,
+				objectService: $objectService,
+				container: $container,
+			),
+			closer: new VotingRoundCloser(
+				logger: $logger,
+				oriService: $this->createMock(OriPublicationService::class),
+				motionService: $motionService,
+				amendmentOrder: $amendmentOrder,
+				relationFilter: $relationFilter,
+				objectService: $objectService,
+				fileService: $this->createMock(FileService::class),
+			),
+			results: new VotingRoundResults(
+				motionService: $motionService,
+				participantResolver: $participantResolver,
+				objectService: $objectService,
+			),
+			projection: new VotingRoundProjection(
+				objectService: $objectService,
+			),
+			participants: new ParticipantUuidLookup(
+				objectService: $objectService,
+			),
+		);
+
+	}//end buildService()
+
+	/**
+	 * When the caller omits rule values, the body template defaults apply.
+	 *
+	 * @return void
+	 */
+	public function testTemplateDefaultsApplyWhenCallerOmitsRules(): void {
+		$service = $this->buildService(
+			[
+				'voteThreshold' => 'qualified-majority-two-thirds',
+				'abstentionHandling' => 'count',
+				'tieBreakRule' => 'chair-decides',
+			]
+		);
+
+		$service->openVotingRound(
+			motionId: 'motion-1',
+			meetingId: 'meeting-1',
+			votingMethod: 'for-against-abstain',
+			isSecret: false,
+			closedAt: null,
+			roundRules: new VotingRoundRules(
+				voteThreshold: null,
+				abstentionHandling: null,
+				tieBreakRule: null,
+				governanceBodyId: 'body-1'
+			)
+		);
+
+		self::assertNotEmpty($this->saved);
+		$round = $this->saved[0];
+		self::assertSame('qualified-majority-two-thirds', $round['voteThreshold']);
+		self::assertSame('count', $round['abstentionHandling']);
+		self::assertSame('chair-decides', $round['tieBreakRule']);
+
+	}//end testTemplateDefaultsApplyWhenCallerOmitsRules()
+
+	/**
+	 * An explicit caller value wins over the template default.
+	 *
+	 * @return void
+	 */
+	public function testExplicitCallerValueWinsOverTemplate(): void {
+		$service = $this->buildService(['voteThreshold' => 'qualified-majority-two-thirds']);
+
+		$service->openVotingRound(
+			motionId: 'motion-1',
+			meetingId: 'meeting-1',
+			votingMethod: 'for-against-abstain',
+			isSecret: false,
+			closedAt: null,
+			roundRules: new VotingRoundRules(voteThreshold: 'unanimous', governanceBodyId: 'body-1')
+		);
+
+		self::assertSame('unanimous', $this->saved[0]['voteThreshold']);
+
+	}//end testExplicitCallerValueWinsOverTemplate()
+
+	/**
+	 * No template -> the built-in method defaults remain in place (fail-soft).
+	 *
+	 * @return void
+	 */
+	public function testNoTemplateFallsBackToBuiltInDefaults(): void {
+		$service = $this->buildService(null);
+
+		$service->openVotingRound(
+			motionId: 'motion-1',
+			meetingId: 'meeting-1',
+			votingMethod: 'for-against-abstain',
+			isSecret: false,
+			closedAt: null,
+			roundRules: new VotingRoundRules(governanceBodyId: null)
+		);
+
+		self::assertSame('simple-majority', $this->saved[0]['voteThreshold']);
+		self::assertSame('exclude', $this->saved[0]['abstentionHandling']);
+		self::assertSame('rejected', $this->saved[0]['tieBreakRule']);
+
+	}//end testNoTemplateFallsBackToBuiltInDefaults()
+}//end class

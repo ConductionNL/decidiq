@@ -1,0 +1,81 @@
+{
+	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "Member proxy authorization (signed machtiging instrument + per-body statutory caps) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages over the proxy-authorization register; schema refs BY SLUG (proxy-authorization), never a PascalCase key. The signature-status badges (ongetekend/getekend/geweigerd), the sign/countersign actions, the meeting proxy-register view, and the register export (REQ-MPA-004/007/008) are wired imperatively by the page/service tasks against the ProxyVoteController surface and ProxyAuthorizationService; this declarative fragment provides the page skeleton, quick filters on signatureStatus, and the data + related widgets. Menu order 71 (unique; 45-70/98 belong to siblings).",
+	"_spec": "openspec/changes/member-proxy-authorization/specs/member-proxy-authorization/spec.md",
+	"menu": [
+		{
+			"id": "ProxyAuthorizations",
+			"label": "Proxy authorizations",
+			"icon": "ShieldKeyOutline",
+			"route": "ProxyAuthorizations",
+			"order": 71
+		}
+	],
+	"pages": [
+		{
+			"id": "ProxyAuthorizations",
+			"route": "/proxy-authorizations",
+			"type": "index",
+			"title": "Proxy authorizations",
+			"_note": "spec: openspec/changes/member-proxy-authorization/specs/member-proxy-authorization/spec.md#requirement-req-mpa-004-signature-status-is-visible-wherever-the-proxy-is-used",
+			"config": {
+				"register": "decidiq",
+				"schema": "proxy-authorization",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
+				"subscribe": false,
+				"_note": "Proxy authorizations list (REQ-MPA-004). Columns grantor/holder/meeting/signatureStatus (badge); quick filters on signatureStatus so unsigned proxies are immediately distinguishable (WCAG 2.1 AA — status never by colour alone). CSV export via the shared ExportService + CnMassExportDialog. The per-meeting proxy register view and its document export (REQ-MPA-008) are surfaced imperatively on the meeting detail page, not here.",
+				"quickFilterMode": "dropdown",
+				"quickFilterMultiple": true,
+				"quickFilters": [
+					{ "label": "All", "filter": {}, "default": true },
+					{ "label": "Unsigned", "filter": { "signatureStatus": "unsigned" } },
+					{ "label": "Signed", "filter": { "signatureStatus": "signed" } },
+					{ "label": "Refused", "filter": { "signatureStatus": "refused" } }
+				],
+				"columns": [
+					{ "key": "grantor", "label": "Grantor", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
+					{ "key": "holder", "label": "Holder", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
+					{ "key": "meeting", "label": "Meeting", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "meeting", "labelField": "title" } },
+					{ "key": "signatureStatus", "label": "Signature", "widget": "badge" }
+				],
+				"actions": [
+					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "ProxyAuthorizationDetail", "primary": true }
+				],
+				"showMassExport": true,
+				"sidebar": { "enabled": true, "showMetadata": true },
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		},
+		{
+			"id": "ProxyAuthorizationDetail",
+			"route": "/proxy-authorizations/:id",
+			"type": "detail",
+			"title": "Proxy authorization",
+			"_note": "spec: openspec/changes/member-proxy-authorization/specs/member-proxy-authorization/spec.md#requirement-req-mpa-001-proxyauthorization-instrument-schema",
+			"config": {
+				"register": "decidiq",
+				"schema": "proxy-authorization",
+				"_note": "ProxyAuthorizationDetail (REQ-MPA-001/003/004/007). The data widget leads 8-wide with grantor/holder/meeting/signatureStatus and, where present, countersignStatus and the revocation act (revokedAt + revocationSignatureStatus). The sign (grantor-only) and countersign (holder-only) actions ride the existing REQ-BPV guard on the ProxyVoteController surface and are wired imperatively by the page/service tasks — getekend is reachable only from a signing-provider completion (REQ-MPA-003, no signature theatre), never from this UI. The Related widget surfaces the linked proxy row on the vote schema (authorizationRef back-reference); the machtiging document (REQ-MPA-002 honest markdown fallback) attaches via the Files leaf. Audit trail is a sidebar tab.",
+				"widgets": [
+					{ "id": "authorization-data", "type": "data", "title": "Proxy authorization", "icon": "FileSign", "content": { "columns": 2 } },
+					{ "id": "authorization-files", "type": "integration", "integrationId": "files", "title": "Machtiging document", "icon": "FolderOutline" },
+					{ "id": "authorization-related", "type": "related", "title": "Proxy row & meeting", "icon": "LinkVariant" }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "authorization-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
+					{ "id": "2", "widgetId": "authorization-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
+					{ "id": "3", "widgetId": "authorization-related", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 3 }
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+					]
+				},
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		}
+	]
+}

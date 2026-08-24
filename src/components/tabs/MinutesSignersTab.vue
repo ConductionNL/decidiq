@@ -12,28 +12,30 @@
  transition endpoint when the current user matches a pending signer.
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--signers" data-testid="minutes-signers-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Signers') }}
-				<span v-if="!loading" class="decidesk-tab__count">({{ signersWithName.length }})</span>
+	<div class="decidiq-tab decidiq-tab--signers" data-testid="minutes-signers-tab">
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Signers') }}
+				<span v-if="!loading" class="decidiq-tab__count"
+					>({{ signersWithName.length }})</span
+				>
 			</h3>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="minutes-signers-add"
-				:aria-label="t('decidesk', 'Add signer')"
+				:aria-label="t('decidiq', 'Add signer')"
 				@click="addDialogOpen = true">
 				<template #icon>
 					<Plus :size="20" />
 				</template>
-				{{ t('decidesk', 'Add signer') }}
+				{{ t('decidiq', 'Add signer') }}
 			</NcButton>
 		</div>
 
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load signers')">
+			:title="t('decidiq', 'Could not load signers')">
 			{{ error }}
 		</CnNoteCard>
 
@@ -41,16 +43,16 @@
 			:columns="columns"
 			:rows="signersWithName"
 			:loading="loading"
-			row-key="id"
-			:empty-text="t('decidesk', 'No signers added yet.')"
-			:loading-text="t('decidesk', 'Loading signers…')">
+			rowKey="id"
+			:emptyText="t('decidiq', 'No signers added yet.')"
+			:loadingText="t('decidiq', 'Loading signers…')">
 			<template #column-signedAt="{ value }">
 				<CnStatusBadge
 					v-if="value"
-					:label="t('decidesk', 'Signed')"
-					:color-map="{ Signed: 'success' }" />
-				<span v-else class="decidesk-tab__pending">
-					{{ t('decidesk', 'Pending') }}
+					:label="t('decidiq', 'Signed')"
+					:colorMap="{ Signed: 'success' }" />
+				<span v-else class="decidiq-tab__pending">
+					{{ t('decidiq', 'Pending') }}
 				</span>
 			</template>
 			<template #row-actions="{ row }">
@@ -58,63 +60,66 @@
 			</template>
 		</CnDataTable>
 
-		<div v-if="canSignNow" class="decidesk-tab__cta">
-			<NcButton type="primary" @click="signNow">
-				{{ t('decidesk', 'Sign now') }}
+		<div v-if="canSignNow" class="decidiq-tab__cta">
+			<NcButton variant="primary" @click="signNow">
+				{{ t('decidiq', 'Sign now') }}
 			</NcButton>
-			<p v-if="signError" class="decidesk-tab__error" role="alert">
+			<p v-if="signError" class="decidiq-tab__error" role="alert">
 				{{ signError }}
 			</p>
 		</div>
 
-		<NcDialog
+		<MinutesSignerAddDialog
 			v-if="addDialogOpen"
-			:name="t('decidesk', 'Add signer')"
-			@closing="addDialogOpen = false">
-			<template #default>
-				<p>{{ t('decidesk', 'Pick a participant to request a signature from.') }}</p>
-				<div v-if="loadingCandidates" class="decidesk-tab__loading">
-					{{ t('decidesk', 'Loading participants…') }}
-				</div>
-				<ul v-else-if="candidates.length" class="decidesk-tab__list">
-					<li v-for="cand in candidates" :key="cand.id">
-						<NcButton @click="addSigner(cand)">
-							{{ candidateLabel(cand) }}
-						</NcButton>
-					</li>
-				</ul>
-				<p v-else class="decidesk-tab__empty">
-					{{ t('decidesk', 'All participants already added as signers.') }}
-				</p>
-			</template>
-		</NcDialog>
+			:candidates="candidates"
+			:loading="loadingCandidates"
+			@select="addSigner"
+			@close="addDialogOpen = false" />
 
 		<CnDeleteDialog
 			v-if="removeTarget"
 			ref="removeDialog"
 			:item="removeTarget"
-			name-field="displayName"
-			:dialog-title="t('decidesk', 'Remove signer')"
+			nameField="displayName"
+			:dialogTitle="t('decidiq', 'Remove signer')"
 			@confirm="confirmRemove"
 			@close="removeTarget = null" />
 	</div>
 </template>
 
 <script>
-import { CnDataTable, CnDeleteDialog, CnNoteCard, CnRowActions, CnStatusBadge } from '@conduction/nextcloud-vue'
-import { NcButton, NcDialog } from '@nextcloud/vue'
-import { generateUrl } from '@nextcloud/router'
+import {
+	CnDataTable,
+	CnDeleteDialog,
+	CnNoteCard,
+	CnRowActions,
+	CnStatusBadge,
+} from '@conduction/nextcloud-vue'
 import { getCurrentUser } from '@nextcloud/auth'
-import Plus from 'vue-material-design-icons/Plus.vue'
+import { generateUrl } from '@nextcloud/router'
+import { NcButton } from '@nextcloud/vue'
 import LinkOff from 'vue-material-design-icons/LinkOff.vue'
+import Plus from 'vue-material-design-icons/Plus.vue'
+import MinutesSignerAddDialog from '../../dialogs/MinutesSignerAddDialog.vue'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'MinutesSignersTab',
-	components: { CnDataTable, CnDeleteDialog, CnNoteCard, CnRowActions, CnStatusBadge, NcButton, NcDialog, Plus },
+	components: {
+		CnDataTable,
+		CnDeleteDialog,
+		CnNoteCard,
+		CnRowActions,
+		CnStatusBadge,
+		MinutesSignerAddDialog,
+		NcButton,
+		Plus,
+	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -128,22 +133,29 @@ export default {
 			signError: '',
 		}
 	},
+
 	computed: {
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		columns() {
 			return [
-				{ key: 'displayName', label: this.t('decidesk', 'Name') },
-				{ key: 'role', label: this.t('decidesk', 'Role') },
-				{ key: 'signedAt', label: this.t('decidesk', 'Status') },
+				{ key: 'displayName', label: this.t('decidiq', 'Name') },
+				{ key: 'role', label: this.t('decidiq', 'Role') },
+				{ key: 'signedAt', label: this.t('decidiq', 'Status') },
 			]
 		},
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		rawSigners() {
 			return Array.isArray(this.minutes?.signers) ? this.minutes.signers : []
 		},
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		signersWithName() {
 			return this.rawSigners.map((entry) => {
-				const participantId = typeof entry === 'object'
-					? (entry.participant || entry.id || entry.uuid)
-					: entry
+				const participantId =
+					typeof entry === 'object'
+						? entry.participant || entry.id || entry.uuid
+						: entry
 				const p = this.participantsById[participantId] || {}
 				const signedAt = typeof entry === 'object' ? entry.signedAt : null
 				return {
@@ -155,109 +167,171 @@ export default {
 				}
 			})
 		},
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		canSignNow() {
 			const user = getCurrentUser()
 			if (!user) return false
-			return this.signersWithName.some(s => !s.signedAt
-				&& (s.participantId === user.uid
-					|| this.participantsById[s.participantId]?.owner === user.uid))
+			return this.signersWithName.some(
+				(s) =>
+					!s.signedAt
+					&& (s.participantId === user.uid
+						|| this.participantsById[s.participantId]?.owner
+							=== user.uid),
+			)
 		},
 	},
+
 	watch: {
 		objectId: {
 			immediate: true,
-			handler() { this.refresh() },
+			/** @spec openspec/specs/relation-tab-ui/spec.md */
+			handler() {
+				this.refresh()
+			},
 		},
+
+		/**
+		 * @param open
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		addDialogOpen(open) {
 			if (open) this.loadCandidates()
 		},
 	},
+
 	methods: {
+		/**
+		 * @param row
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		rowActionsFor(row) {
 			return [
 				{
-					label: this.t('decidesk', 'Remove signer'),
+					label: this.t('decidiq', 'Remove signer'),
 					icon: LinkOff,
 					destructive: true,
-					handler: () => { this.removeTarget = { ...row } },
+					handler: () => {
+						this.removeTarget = { ...row }
+					},
 				},
 			]
 		},
-		candidateLabel(p) {
-			return p.displayName || p.name || p.id
-		},
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
 			this.error = ''
 			try {
 				const minutesStore = ensureRelationType('minutes')
-				this.minutes = await minutesStore.fetchObject('minutes', this.objectId)
+				this.minutes = await minutesStore.fetchObject(
+					'minutes',
+					this.objectId,
+				)
 
 				const participantStore = ensureRelationType('participant')
 				const ids = this.rawSigners
-					.map(e => typeof e === 'object' ? (e.participant || e.id || e.uuid) : e)
+					.map((e) =>
+						typeof e === 'object' ? e.participant || e.id || e.uuid : e,
+					)
 					.filter(Boolean)
 				if (ids.length) {
 					// Fetch a page wide enough to cover the signer ids and index
 					// by id. Server-side `id IN (...)` filtering varies across
 					// OpenRegister versions, so we hydrate via a single call.
-					const list = await participantStore.fetchCollection('participant', { _limit: 200 })
+					const list = await participantStore.fetchCollection(
+						'participant',
+						{ _limit: 200 },
+					)
 					const map = {}
 					for (const p of list || []) map[p.id || p.uuid] = p
 					this.participantsById = map
 				}
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to load signers.')
+				this.error =
+					e?.message || this.t('decidiq', 'Failed to load signers.')
 			} finally {
 				this.loading = false
 			}
 		},
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async loadCandidates() {
 			this.loadingCandidates = true
 			try {
 				const store = ensureRelationType('participant')
-				const items = await store.fetchCollection('participant', { _limit: 200 })
-				const taken = new Set(this.rawSigners.map(e => (typeof e === 'object' ? (e.participant || e.id || e.uuid) : e)))
-				this.candidates = (items || []).filter(p => !taken.has(p.id || p.uuid))
+				const items = await store.fetchCollection('participant', {
+					_limit: 200,
+				})
+				const taken = new Set(
+					this.rawSigners.map((e) =>
+						typeof e === 'object' ? e.participant || e.id || e.uuid : e,
+					),
+				)
+				this.candidates = (items || []).filter(
+					(p) => !taken.has(p.id || p.uuid),
+				)
 			} catch {
 				this.candidates = []
 			} finally {
 				this.loadingCandidates = false
 			}
 		},
+
+		/**
+		 * @param participant
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
 		async addSigner(participant) {
 			const minutesStore = ensureRelationType('minutes')
-			const next = (this.rawSigners.slice()).concat([{ participant: participant.id || participant.uuid }])
+			const next = this.rawSigners
+				.slice()
+				.concat([{ participant: participant.id || participant.uuid }])
 			try {
-				const updated = await minutesStore.saveObject('minutes', { ...this.minutes, signers: next })
+				const updated = await minutesStore.saveObject('minutes', {
+					...this.minutes,
+					signers: next,
+				})
 				this.minutes = updated || this.minutes
 				this.addDialogOpen = false
 				this.refresh()
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Failed to add signer.')
+				this.error = e?.message || this.t('decidiq', 'Failed to add signer.')
 			}
 		},
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async confirmRemove() {
 			const target = this.removeTarget
 			const next = this.rawSigners.filter((e) => {
-				const id = typeof e === 'object' ? (e.participant || e.id || e.uuid) : e
+				const id =
+					typeof e === 'object' ? e.participant || e.id || e.uuid : e
 				return id !== target.participantId
 			})
 			const minutesStore = ensureRelationType('minutes')
 			try {
-				const updated = await minutesStore.saveObject('minutes', { ...this.minutes, signers: next })
+				const updated = await minutesStore.saveObject('minutes', {
+					...this.minutes,
+					signers: next,
+				})
 				this.minutes = updated || this.minutes
 				this.$refs.removeDialog?.setResult({ success: true })
 				this.refresh()
 			} catch (e) {
-				this.$refs.removeDialog?.setResult({ error: e?.message || this.t('decidesk', 'Remove failed.') })
+				this.$refs.removeDialog?.setResult({
+					error: e?.message || this.t('decidiq', 'Remove failed.'),
+				})
 			}
 		},
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async signNow() {
 			this.signError = ''
 			try {
-				const url = generateUrl(`/apps/decidesk/api/minutes/${this.objectId}/transition`)
+				const url = generateUrl(
+					`/apps/decidiq/api/minutes/${this.objectId}/transition`,
+				)
 				const response = await fetch(url, {
 					method: 'POST',
 					headers: {
@@ -268,12 +342,13 @@ export default {
 				})
 				if (!response.ok) {
 					const data = await response.json().catch(() => ({}))
-					this.signError = data.message || this.t('decidesk', 'Signing failed.')
+					this.signError =
+						data.message || this.t('decidiq', 'Signing failed.')
 					return
 				}
 				this.refresh()
 			} catch (e) {
-				this.signError = e?.message || this.t('decidesk', 'Signing failed.')
+				this.signError = e?.message || this.t('decidiq', 'Signing failed.')
 			}
 		},
 	},
@@ -281,49 +356,42 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
-.decidesk-tab__header {
+
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
-.decidesk-tab__title {
+
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
-.decidesk-tab__count {
+
+.decidiq-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
-.decidesk-tab__list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-}
-.decidesk-tab__pending {
+
+.decidiq-tab__pending {
 	color: var(--color-text-maxcontrast);
 }
-.decidesk-tab__cta {
+
+.decidiq-tab__cta {
 	margin-top: var(--default-grid-baseline);
 }
-.decidesk-tab__error {
+
+.decidiq-tab__error {
 	color: var(--color-error);
 	margin: 4px 0 0;
-}
-.decidesk-tab__empty,
-.decidesk-tab__loading {
-	color: var(--color-text-maxcontrast);
-	margin: 0;
 }
 </style>

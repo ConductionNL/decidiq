@@ -1,0 +1,156 @@
+{
+  "change": "decidesk-dashboard-v2-widgets",
+  "project": "decidesk",
+  "repo": "Conduction/decidesk",
+  "base_branch": "development",
+  "feature_branch": "feature/52/decidesk-dashboard-v2-widgets",
+  "created": "2026-06-12",
+  "tracking_issue": 52,
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Task 1: dashboardData service + dashboardRefreshMixin",
+      "description": "",
+      "status": "pending",
+      "spec_ref": "REQ-006 (refresh behaviour)",
+      "acceptance_criteria": [
+        "Implement `src/services/dashboardData.js` with named fetch helpers: `getMeetings`, `getVotingRounds`, `getVotes`, `getActionItems`, `getMotions`, `getDecisions`, `getParticipants`, `getMinutes` \u2014 each calls `useObjectStore` with appropriate OR filter params",
+        "Implement `dashboardRefreshMixin.js` following pipelinq's pattern (reactive `dashboardRefreshToken`, mounted \u2192 `load()`, watch token \u2192 `load()`), exporting a `getDashboardRefreshSignal()` reactive ref that the header refresh action can bump",
+        "Add `widget()` registry-entry helper to `src/registry.js`"
+      ],
+      "files_likely_affected": [
+        "src/services/dashboardData.js",
+        "src/views/dashboard/widgets/dashboardRefreshMixin.js"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Task 2: PendingVotesKpiWidget + UpcomingMeetingsKpiWidget + OverdueActionsKpiWidget + ActiveDecisionsKpiWidget",
+      "description": "",
+      "status": "pending",
+      "spec_ref": "REQ-009, REQ-008, REQ-010, REQ-013",
+      "acceptance_criteria": [
+        "Implement all four KPI widgets using `CnStatsBlock` + `dashboardRefreshMixin` + `dashboardData` service; pending-votes uses set-difference (open voting-rounds minus user's cast votes), no participant record matching the current user \u21d2 count 0; active-decisions counts decisions with `outcome == null` client-side (click \u2192 Decisions view)",
+        "Write vitest unit tests: pending-votes set-difference logic, no-participant \u21d2 0 case, overdue date calculation (dueDate < now AND taskStatus not in completed/cancelled), upcoming meetings date filter (scheduledDate >= now), active = outcome null count, variant switching (warning when pending>0, error when overdue>0)"
+      ],
+      "files_likely_affected": [
+        "src/views/dashboard/widgets/PendingVotesKpiWidget.vue",
+        "src/views/dashboard/widgets/UpcomingMeetingsKpiWidget.vue",
+        "src/views/dashboard/widgets/OverdueActionsKpiWidget.vue",
+        "src/views/dashboard/widgets/ActiveDecisionsKpiWidget.vue",
+        "tests/unit/dashboard/PendingVotesKpiWidget.spec.js",
+        "tests/unit/dashboard/UpcomingMeetingsKpiWidget.spec.js",
+        "tests/unit/dashboard/OverdueActionsKpiWidget.spec.js",
+        "tests/unit/dashboard/ActiveDecisionsKpiWidget.spec.js"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Task 3: UpcomingMeetingsListWidget",
+      "description": "",
+      "status": "pending",
+      "spec_ref": "REQ-011",
+      "acceptance_criteria": [
+        "Implement widget fetching meetings lifecycle=scheduled, sorting by scheduledDate, flagging entries within 24h for urgency highlight, rendering title/date/body-name/agenda-item-count per row; click navigates to meeting detail",
+        "Write vitest unit tests: 24h urgency threshold logic, sorting order"
+      ],
+      "files_likely_affected": [
+        "src/views/dashboard/widgets/UpcomingMeetingsListWidget.vue",
+        "tests/unit/dashboard/UpcomingMeetingsListWidget.spec.js"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Task 4: PendingVotesListWidget",
+      "description": "",
+      "status": "pending",
+      "spec_ref": "REQ-012",
+      "acceptance_criteria": [
+        "Implement widget resolving open voting-rounds minus user's cast votes (no participant record \u21d2 empty state); render each entry with decision/motion title and deadline countdown; <24h \u2192 red urgency indicator; click \u2192 voting interface; empty state with checkmark icon + \"No pending votes\"",
+        "Write vitest unit tests: urgency threshold (<24h), countdown display, set-difference, empty-state condition (including no-participant case)"
+      ],
+      "files_likely_affected": [
+        "src/views/dashboard/widgets/PendingVotesListWidget.vue",
+        "tests/unit/dashboard/PendingVotesListWidget.spec.js"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Task 5: RunningProcessesWidget + MyActionItemsWidget",
+      "description": "",
+      "status": "pending",
+      "spec_ref": "REQ-001, REQ-002",
+      "acceptance_criteria": [
+        "Implement `RunningProcessesWidget`: fetch motions lifecycle IN [submitted, under-discussion, voting], group by lifecycle using reduce in computed property; click navigates to motion detail",
+        "Implement `MyActionItemsWidget`: fetch action items with OR filter assignee=currentUserId & status IN [open, in-progress], sort by dueDate ascending; show overdue indicator for past-due items; click navigates to action item detail",
+        "Write vitest unit tests: lifecycle grouping algorithm (groupBy reduce), overdue detection, sort order"
+      ],
+      "files_likely_affected": [
+        "src/views/dashboard/widgets/RunningProcessesWidget.vue",
+        "src/views/dashboard/widgets/MyActionItemsWidget.vue",
+        "tests/unit/dashboard/RunningProcessesWidget.spec.js",
+        "tests/unit/dashboard/MyActionItemsWidget.spec.js"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Task 6: RecentDecisionsWidget + GovernanceHealthWidget",
+      "description": "",
+      "status": "pending",
+      "spec_ref": "REQ-003, REQ-004",
+      "acceptance_criteria": [
+        "Implement `RecentDecisionsWidget` (fetch decisions sorted decisionDate DESC, limit 10; title + outcome badge + publication badge; click \u2192 decision detail) and `GovernanceHealthWidget` (fetch \u226412 recent meetings with non-null materialized `quorumPercentage`/`actionItemCompletionRate`; render two LIVE series via the lib's exported chart component or vue-apexcharts \u2014 verify which export exists, document in the component; \"Not enough data\" when <2 data points; never hardcoded series)",
+        "Write vitest unit tests: empty/insufficient data states, null-field guard, badge value mapping (adopted/rejected + publication status)"
+      ],
+      "files_likely_affected": [
+        "src/views/dashboard/widgets/RecentDecisionsWidget.vue",
+        "src/views/dashboard/widgets/GovernanceHealthWidget.vue",
+        "tests/unit/dashboard/RecentDecisionsWidget.spec.js",
+        "tests/unit/dashboard/GovernanceHealthWidget.spec.js"
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Task 7: DashboardEmptyState + registry registration",
+      "description": "",
+      "status": "pending",
+      "spec_ref": "REQ-005",
+      "acceptance_criteria": [
+        "Implement `DashboardEmptyState`: welcome message, \"Set Up Body\" \u2192 Settings nav, \"Create Meeting\" \u2192 Meetings nav, \"Create Decision\" \u2192 Decisions nav",
+        "Add all 11 widgets to `src/registry.js` using `widget()` helper entries with the lib-required metadata fields `defaultSize`, `minSize`, `maxSize`, `allowedSlots`, `propsSchema` (kind \"widget\" support verified in the local nextcloud-vue lib \u2014 see design.md Decision 2)",
+        "Write vitest unit test: DashboardEmptyState renders correct message and action buttons"
+      ],
+      "files_likely_affected": [
+        "src/views/dashboard/widgets/DashboardEmptyState.vue",
+        "src/registry.js"
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Task 8: l10n string stubs for nl/de/fr/es/it",
+      "description": "",
+      "status": "pending",
+      "spec_ref": "REQ-007",
+      "acceptance_criteria": [
+        "Add all new English source key strings (from tasks 2\u20137) to all five language files with correct translations following the app's l10n tooling conventions"
+      ],
+      "files_likely_affected": [
+        "l10n/nl.js`, `l10n/nl.json"
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Task 9: Playwright e2e coverage for component-renderable scenarios",
+      "description": "",
+      "status": "pending",
+      "spec_ref": "REQ-001 through REQ-013",
+      "acceptance_criteria": [
+        "Write Playwright tests for component-renderable widget scenarios: empty state renders, KPI widget count display, list widget item click navigation, overdue/urgency indicator rendering \u2014 mount via stub dashboard page or direct route with seed data",
+        "Annotate layout-dependent scenarios (REQ-011 grid layout, KPI grid row) in the spec with `@e2e exclude full-dashboard-only \u2014 covered by decidesk-dashboard-v2-layout` on a standalone line per gate-19 honest-coverage rules"
+      ],
+      "files_likely_affected": [
+        "tests/e2e/dashboard-widgets.spec.js"
+      ]
+    }
+  ]
+}

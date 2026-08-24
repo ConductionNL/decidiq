@@ -16,9 +16,30 @@
     </projectFiles>
     <stubs>
         <file name="vendor/nextcloud/ocp/OCP/Capabilities/ICapability.php" preloadClasses="true" />
+        <!--
+            OpenRegister's data-access contract, which this app's lib/ typehints
+            but does not own. OpenRegister supplies it at RUNTIME; these are
+            analysis stubs only.
+
+            hydra-gates used to make them resolvable by declaring
+            `OCA\OpenRegister\Contract\` as a psr-4 prefix, which was a bug: that
+            prefix is longer than openregister's own, so a vendored copy in ANY
+            app defined the contract for the whole process (ConductionNL/.github#531).
+            v1.9.0 removed it, and the runtime side is handled by the guarded
+            require in tests/bootstrap-unit.php.
+
+            Psalm never runs that bootstrap — it resolves types through the
+            composer autoload map — so removing the prefix left 204 UndefinedClass
+            errors here. A stub is the right seam: it teaches the analyser the
+            shape without putting the class back into the runtime autoloader,
+            which is what caused the original defect.
+        -->
+        <file name="vendor/conduction/hydra-gates/hydra-gates/contracts/ObjectServiceInterface.php" />
+        <file name="vendor/conduction/hydra-gates/hydra-gates/contracts/ObjectEntityInterface.php" />
     </stubs>
     <issueHandlers>
         <UndefinedDocblockClass errorLevel="suppress"/>
+        <UnusedClosureParam errorLevel="suppress"/>
         <UndefinedClass>
             <errorLevel type="suppress">
                 <!-- Nextcloud OCP Classes -->
@@ -60,17 +81,37 @@
                 <referencedClass name="OCP\Notification\IManager"/>
                 <referencedClass name="OCP\Share\IManager"/>
                 <!-- OpenRegister cross-app classes (loaded dynamically) -->
+                <referencedClass name="OCA\OpenRegister\Db\ObjectEntity"/>
+                <referencedClass name="OCA\OpenRegister\Db\RegisterMapper"/>
+                <referencedClass name="OCA\OpenRegister\Db\SchemaMapper"/>
                 <referencedClass name="OCA\OpenRegister\Event\DeepLinkRegistrationEvent"/>
+                <referencedClass name="OCA\OpenRegister\Event\ObjectCreatingEvent"/>
+                <referencedClass name="OCA\OpenRegister\Event\ObjectCreatedEvent"/>
+                <referencedClass name="OCA\OpenRegister\Event\ObjectUpdatingEvent"/>
+                <referencedClass name="OCA\OpenRegister\Event\ObjectUpdatedEvent"/>
+                <!-- ADR-066 sibling-app leaf registration (RegisterDecisionsLeafListener). -->
+                <referencedClass name="OCA\OpenRegister\Event\RegisterLeafProvidersEvent"/>
+                <referencedClass name="OCA\OpenRegister\Service\Integration\LeafDescriptor"/>
+                <referencedClass name="OCA\OpenRegister\Event\ObjectDeletedEvent"/>
                 <referencedClass name="OCA\OpenRegister\Service\ObjectService"/>
+                <referencedClass name="OCA\OpenRegister\Service\TaskService"/>
                 <referencedClass name="OCA\OpenRegister\Service\ConfigurationService"/>
+                <referencedClass name="OCA\OpenRegister\Service\RegisterService"/>
+                <referencedClass name="OCA\OpenRegister\Service\FileService"/>
                 <referencedClass name="OCA\OpenRegister\Service\CalendarEventService"/>
-                <!--
-                    IMcpToolProvider is declared in openregister PR #1466
-                    (change: ai-chat-companion-orchestrator, not yet merged).
-                    Decidesk resolves it via NC's runtime autoloader once OR is installed.
-                    Suppressed until the openregister release ships the interface.
-                -->
                 <referencedClass name="OCA\OpenRegister\Mcp\IMcpToolProvider"/>
+                <referencedClass name="OCA\OpenRegister\AppHost\Controller\GenericDashboardController"/>
+                <referencedClass name="OCA\OpenRegister\AppHost\Controller\GenericHealthController"/>
+                <referencedClass name="OCA\OpenRegister\AppHost\Controller\GenericMetricsController"/>
+                <referencedClass name="OCA\OpenRegister\AppHost\Listener\GenericDeepLinkRegistrationListener"/>
+                <!-- Additional OCP infrastructure types used across the fleet -->
+                <referencedClass name="OCP\AppFramework\Bootstrap\IBootContext"/>
+                <referencedClass name="OCP\AppFramework\Bootstrap\IRegistrationContext"/>
+                <referencedClass name="OCP\AppFramework\Db\DoesNotExistException"/>
+                <referencedClass name="OCP\DB\Exception"/>
+                <referencedClass name="OCP\IGroup"/>
+                <referencedClass name="OCP\IUser"/>
+                <referencedClass name="OCP\Migration\IRepairStep"/>
                 <!-- Nextcloud server internals -->
                 <referencedClass name="OC"/>
                 <!-- GuzzleHttp (loaded via composer at runtime) -->
@@ -105,6 +146,7 @@
         <MismatchingDocblockReturnType errorLevel="suppress"/>
         <EmptyArrayAccess errorLevel="suppress"/>
         <ImplementedReturnTypeMismatch errorLevel="suppress"/>
+        <LessSpecificImplementedReturnType errorLevel="suppress"/>
         <InvalidMethodCall errorLevel="suppress"/>
         <UndefinedInterfaceMethod errorLevel="suppress"/>
         <MissingTemplateParam errorLevel="suppress"/>

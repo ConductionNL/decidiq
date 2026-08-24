@@ -1,0 +1,490 @@
+<!-- SPDX-License-Identifier: EUPL-1.2 -->
+<!-- Copyright (C) 2026 Conduction B.V. -->
+
+<!--
+ Sidebar tab: public-publication actions on a decision, meeting (agenda), or
+ set of minutes (publish-decisions-via-opencatalogi).
+
+ Shows the current publication status and exposes publish / withdraw / rectify
+ actions to authorized staff — the publish action is only rendered when the
+ object meets the server-side eligibility gates (the server stays
+ authoritative; this is UI gating only). Anonymous read of published data is
+ NOT served by this app — it happens exclusively through OR's published-
+ predicate / OpenCatalogi surface.
+
+ @spec openspec/specs/public-publication/spec.md
+-->
+<template>
+	<div
+		class="decidiq-tab decidiq-tab--publication"
+		data-testid="publication-actions-tab">
+		<CnNoteCard
+			v-if="error"
+			type="error"
+			:title="t('decidiq', 'Publication error')">
+			{{ error }}
+		</CnNoteCard>
+
+		<CnNoteCard
+			v-for="warning in warnings"
+			:key="warning"
+			type="warning"
+			:title="t('decidiq', 'Publication warning')"
+			data-testid="publication-warning">
+			{{ warningLabel(warning) }}
+		</CnNoteCard>
+
+		<NcLoadingIcon v-if="loading" :size="32" />
+
+		<template v-else>
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Public publication') }}
+			</h3>
+
+			<p
+				v-if="activeRecord"
+				class="decidiq-tab__meta"
+				data-testid="publication-status">
+				{{
+					t(
+						'decidiq',
+						'Published as {oriType} (version {version}) on {date}',
+						{
+							oriType: activeRecord.oriType,
+							version: activeRecord.payloadVersion,
+							date: activeRecord.publishedAt,
+						},
+					)
+				}}
+			</p>
+			<p v-else class="decidiq-tab__meta" data-testid="publication-status">
+				{{ t('decidiq', 'Not published.') }}
+			</p>
+
+			<div class="decidiq-tab__actions" data-testid="publication-actions">
+				<NcButton
+					v-if="!activeRecord && eligible"
+					variant="primary"
+					data-testid="publication-publish"
+					:disabled="working"
+					@click="publish">
+					{{ t('decidiq', 'Publish') }}
+				</NcButton>
+				<NcButton
+					v-if="activeRecord"
+					variant="error"
+					data-testid="publication-withdraw"
+					:disabled="working"
+					@click="withdrawModalOpen = true">
+					{{ t('decidiq', 'Withdraw…') }}
+				</NcButton>
+				<NcButton
+					v-if="activeRecord"
+					data-testid="publication-rectify"
+					:disabled="working"
+					@click="rectifyModalOpen = true">
+					{{ t('decidiq', 'Rectify…') }}
+				</NcButton>
+			</div>
+
+			<div
+				v-if="history.length"
+				class="decidiq-tab__history"
+				data-testid="publication-history">
+				<h3 class="decidiq-tab__title">
+					{{ t('decidiq', 'Publication history') }}
+				</h3>
+				<ul class="decidiq-tab__list" role="list">
+					<li
+						v-for="record in history"
+						:key="record.id"
+						class="decidiq-tab__history-row"
+						role="listitem">
+						<span>{{
+							t('decidiq', 'v{version}', {
+								version: record.payloadVersion,
+							})
+						}}</span>
+						<span>{{ statusLabel(record.status) }}</span>
+						<span class="decidiq-tab__meta">{{
+							record.withdrawReason || ''
+						}}</span>
+					</li>
+				</ul>
+			</div>
+		</template>
+
+		<PublicationWithdrawModal
+			v-if="withdrawModalOpen"
+			@confirm="confirmWithdraw"
+			@close="withdrawModalOpen = false" />
+		<PublicationRectifyModal
+			v-if="rectifyModalOpen"
+			@confirm="confirmRectify"
+			@close="rectifyModalOpen = false" />
+	</div>
+</template>
+
+<script>
+import { CnNoteCard } from '@conduction/nextcloud-vue'
+import { generateUrl } from '@nextcloud/router'
+import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
+import PublicationRectifyModal from '../../modals/PublicationRectifyModal.vue'
+import PublicationWithdrawModal from '../../modals/PublicationWithdrawModal.vue'
+import { ensureRelationType } from './useRelationStore.js'
+
+export default {
+	name: 'PublicationActionsTab',
+	components: {
+		CnNoteCard,
+		NcButton,
+		NcLoadingIcon,
+		PublicationWithdrawModal,
+		PublicationRectifyModal,
+	},
+
+	inject: {
+		/**
+		 * CnDetailPage's reactive `{ objectId, object, register, schema }`
+		 * holder.
+		 *
+		 * A manifest `type: "custom"` body widget is mounted through
+		 * CnDetailPage's `widget-<id>` slot, and that slot binds ONLY
+		 * `{ item, widget }` — it does not bind the page's object id. So the
+		 * `objectId` prop arrives empty on that mount path and every fetch
+		 * below would silently no-op (the tab renders its "Not published."
+		 * empty state with no network call at all). This is the same context
+		 * the declarative `@objectId` filter token resolves against, so it is
+		 * the documented route to the page's object.
+		 */
+		cnObjectContext: { default: null },
+	},
+
+	props: {
+		objectId: { type: [String, Number], default: '' },
+		// The publication source type — set by the per-schema wrapper tab.
+		sourceType: { type: String, default: 'decision' },
+	},
+
+	data() {
+		return {
+			loading: false,
+			working: false,
+			error: '',
+			warnings: [],
+			source: null,
+			records: [],
+			withdrawModalOpen: false,
+			rectifyModalOpen: false,
+		}
+	},
+
+	computed: {
+		/**
+		 * The object this tab acts on: the explicit `objectId` prop when the tab
+		 * is mounted directly (sidebar tab / parent wrapper), otherwise the id
+		 * CnDetailPage provides on `cnObjectContext` (manifest body-widget
+		 * mount, where no id prop is bound).
+		 *
+		 * @return {string} The source object UUID, or '' when not resolvable.
+		 * @spec openspec/specs/public-publication/spec.md
+		 */
+		sourceObjectId() {
+			if (this.objectId) {
+				return String(this.objectId)
+			}
+			const context = this.cnObjectContext
+			// Vue unwraps an injected ref for the Options API, but the compat
+			// build can hand back the ref itself — accept both shapes.
+			const value =
+				context && typeof context === 'object' && 'value' in context
+					? context.value
+					: context
+			return value && value.objectId ? String(value.objectId) : ''
+		},
+
+		/** @spec openspec/specs/public-publication/spec.md */
+		records_sorted() {
+			return [...this.records].sort(
+				(a, b) => (b.payloadVersion || 0) - (a.payloadVersion || 0),
+			)
+		},
+
+		/** @spec openspec/specs/public-publication/spec.md */
+		activeRecord() {
+			return this.records_sorted.find((r) => r.status === 'published') || null
+		},
+
+		/** @spec openspec/specs/public-publication/spec.md */
+		history() {
+			return this.records_sorted
+		},
+
+		/**
+		 * Client-side eligibility mirror of the server gates — controls whether
+		 * the Publish action is offered. The server remains authoritative.
+		 *
+		 * @return {boolean} Whether the object appears publishable.
+		 * @spec openspec/specs/public-publication/spec.md
+		 */
+		eligible() {
+			if (!this.source) return false
+			if (this.sourceType === 'decision') {
+				return ['decided', 'enacted'].includes(this.source.lifecycle)
+			}
+			if (this.sourceType === 'agenda') {
+				return (
+					this.source.isPublic === true
+					&& !!(
+						this.source.convocationSentAt || this.source.convocationSent
+					)
+				)
+			}
+			if (this.sourceType === 'minutes') {
+				return ['approved', 'signed', 'published'].includes(
+					this.source.lifecycle,
+				)
+			}
+			return false
+		},
+	},
+
+	watch: {
+		sourceObjectId: {
+			immediate: true,
+			/** @spec openspec/specs/public-publication/spec.md */
+			handler() {
+				this.refresh()
+			},
+		},
+	},
+
+	methods: {
+		/**
+		 * Translated status label.
+		 *
+		 * @param {string} status Record status.
+		 * @return {string} The translated label.
+		 * @spec openspec/specs/public-publication/spec.md
+		 */
+		statusLabel(status) {
+			const labels = {
+				published: this.t('decidiq', 'Published'),
+				withdrawn: this.t('decidiq', 'Withdrawn'),
+				rectified: this.t('decidiq', 'Rectified'),
+			}
+			return labels[status] || status
+		},
+
+		/**
+		 * Translated label for a publication warning code.
+		 *
+		 * @param {string} code Warning code.
+		 * @return {string} The translated label.
+		 * @spec openspec/specs/public-publication/spec.md
+		 */
+		warningLabel(code) {
+			const labels = {
+				'opencatalogi-absent': this.t(
+					'decidiq',
+					'OpenCatalogi is not installed — the record received the public predicate but was not routed to a catalog.',
+				),
+
+				'catalog-publish-failed': this.t(
+					'decidiq',
+					'Publishing to the OpenCatalogi catalog failed.',
+				),
+
+				'catalog-retraction-failed': this.t(
+					'decidiq',
+					'Retraction from the OpenCatalogi catalog failed and is pending retry — the record is no longer publicly readable but the catalog still lists it.',
+				),
+
+				'predicate-unavailable': this.t(
+					'decidiq',
+					'The published predicate could not be set on this OpenRegister version — anonymous read is not yet available.',
+				),
+			}
+			return labels[code] || code
+		},
+
+		/** @spec openspec/specs/public-publication/spec.md */
+		async refresh() {
+			if (!this.sourceObjectId) return
+			this.loading = true
+			this.error = ''
+			try {
+				const sourceStore = ensureRelationType(this.sourceSchemaType())
+				this.source = await sourceStore.fetchObject(
+					this.sourceSchemaType(),
+					this.sourceObjectId,
+				)
+
+				const recordStore = ensureRelationType('publication-record')
+				this.records =
+					(await recordStore.fetchCollection('publication-record', {
+						sourceObject: this.sourceObjectId,
+						_limit: 100,
+					})) || []
+			} catch (e) {
+				this.error =
+					e?.message
+					|| this.t('decidiq', 'Failed to load publication state.')
+			} finally {
+				this.loading = false
+			}
+		},
+
+		/**
+		 * Map the publication source type to the OR schema relation type.
+		 *
+		 * @return {string} The relation type slug.
+		 * @spec openspec/specs/public-publication/spec.md
+		 */
+		sourceSchemaType() {
+			return this.sourceType === 'agenda' ? 'meeting' : this.sourceType
+		},
+
+		/**
+		 * POST helper against the decidiq publication API.
+		 *
+		 * @param {string} path Path under /apps/decidiq/api.
+		 * @param {object} body JSON body.
+		 * @return {Promise<object>} Parsed response body.
+		 * @spec openspec/specs/public-publication/spec.md
+		 */
+		async callApi(path, body = {}) {
+			const response = await fetch(generateUrl(`/apps/decidiq/api${path}`), {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					requesttoken: window.OC?.requestToken,
+				},
+				body: JSON.stringify(body),
+			})
+			const data = await response.json().catch(() => ({}))
+			if (!response.ok) {
+				throw new Error(
+					data.message || this.t('decidiq', 'The action failed.'),
+				)
+			}
+			return data
+		},
+
+		/** @spec openspec/specs/public-publication/spec.md */
+		async publish() {
+			this.working = true
+			this.error = ''
+			this.warnings = []
+			try {
+				const result = await this.callApi('/publications', {
+					sourceType: this.sourceType,
+					sourceId: this.sourceObjectId,
+				})
+				this.warnings = result?.warnings || []
+				await this.refresh()
+			} catch (e) {
+				this.error = e.message
+			} finally {
+				this.working = false
+			}
+		},
+
+		/**
+		 * Withdraw the active publication with a mandatory reason.
+		 *
+		 * @param {string} reason The withdraw reason.
+		 * @spec openspec/specs/public-publication/spec.md
+		 */
+		async confirmWithdraw(reason) {
+			this.withdrawModalOpen = false
+			if (!this.activeRecord) return
+			this.working = true
+			this.error = ''
+			this.warnings = []
+			try {
+				const result = await this.callApi(
+					`/publications/${this.activeRecord.id}/withdraw`,
+					{ reason },
+				)
+				this.warnings = result?.warnings || []
+				await this.refresh()
+			} catch (e) {
+				this.error = e.message
+			} finally {
+				this.working = false
+			}
+		},
+
+		/**
+		 * Rectify the active publication (publish a corrected version).
+		 *
+		 * @param {string} reason Optional reason for the correction.
+		 * @spec openspec/specs/public-publication/spec.md
+		 */
+		async confirmRectify(reason) {
+			this.rectifyModalOpen = false
+			if (!this.activeRecord) return
+			this.working = true
+			this.error = ''
+			this.warnings = []
+			try {
+				const result = await this.callApi(
+					`/publications/${this.activeRecord.id}/rectify`,
+					{ reason },
+				)
+				this.warnings = result?.warnings || []
+				await this.refresh()
+			} catch (e) {
+				this.error = e.message
+			} finally {
+				this.working = false
+			}
+		},
+	},
+}
+</script>
+
+<style scoped>
+.decidiq-tab {
+	display: flex;
+	flex-direction: column;
+	gap: calc(var(--default-grid-baseline) * 2);
+	padding: var(--default-grid-baseline);
+}
+
+.decidiq-tab__title {
+	margin: 0;
+	font-size: 1rem;
+	font-weight: bold;
+}
+
+.decidiq-tab__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--default-grid-baseline);
+}
+
+.decidiq-tab__list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--default-grid-baseline);
+}
+
+.decidiq-tab__history-row {
+	display: flex;
+	gap: var(--default-grid-baseline);
+	align-items: center;
+	padding: 4px 0;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.decidiq-tab__meta {
+	color: var(--color-text-maxcontrast);
+	margin: 0;
+}
+</style>

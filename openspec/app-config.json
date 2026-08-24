@@ -1,14 +1,14 @@
 {
-  "id": "decidesk",
-  "name": "Decidesk",
-  "namespace": "Decidesk",
+  "id": "decidiq",
+  "name": "Decidiq",
+  "namespace": "Decidiq",
   "summary": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-  "goal": "Decidesk manages meetings, agendas, motions, amendments, voting, minutes, and decision tracking with configurable workflows per organization type. It serves 5 governance domains: legislative/democratic bodies, associations/NGOs, corporate governance, corporate operations, and citizen participation.",
+  "goal": "Decidiq manages meetings, agendas, motions, amendments, voting, minutes, and decision tracking with configurable workflows per organization type. It serves 5 governance domains: legislative/democratic bodies, associations/NGOs, corporate governance, corporate operations, and citizen participation.",
   "category": "organization",
   "version": "0.1.0",
   "license": "EUPL-1.2",
   "author": "Conduction B.V.",
-  "repository": "https://github.com/ConductionNL/decidesk",
+  "repository": "https://codeberg.org/Conduction/decidesk",
   "dependencies": {
     "requiresOpenRegister": true,
     "additionalCiApps": [
@@ -17,7 +17,7 @@
   },
   "cicd": {
     "phpVersions": ["8.3", "8.4"],
-    "nextcloudRefs": ["stable31", "stable32"],
+    "nextcloudRefs": ["stable32"],
     "enableNewman": false
   },
   "createdAt": "2026-03-26",

@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk ORI API 1.4 Controller
+ * Decidiq ORI API 1.4 Controller
  *
  * ORI-compliant JSON-LD endpoints at `/api/ori/v1/{resource}` for council
  * information transparency (REQ-ORI-001..004).
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -18,18 +18,21 @@
  * @link https://conduction.nl
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
- * SPDX-License-Identifier: EUPL-1.2.
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * @spec openspec/changes/p4-integration/tasks.md#task-11
  */
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\OriSerializer;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\JSONResponse;
@@ -42,318 +45,453 @@ use Throwable;
 /**
  * ORI API 1.4 compatibility controller.
  *
- * Serializes Decidesk register objects per the VNG ORI specification. ORI is
+ * Serializes Decidiq register objects per the VNG ORI specification. ORI is
  * versioned independently from the general v1 REST API (REQ-ORI-001) so its
  * URL and response envelope live in this dedicated controller.
  *
  * @spec openspec/changes/p4-integration/tasks.md#task-11
  */
-class OriController extends Controller
-{
+class OriController extends Controller {
 
-    /**
-     * Map of ORI resource slug → register schema slug.
-     *
-     * @var array<string, string>
-     */
-    private const RESOURCE_MAP = [
-        'organizations' => 'governance-body',
-        'persons'       => 'participant',
-        'memberships'   => 'participant',
-        'events'        => 'meeting',
-        'agendaitems'   => 'agenda-item',
-        'motions'       => 'motion',
-        'amendments'    => 'amendment',
-        'voteevents'    => 'voting-round',
-        'votes'         => 'vote',
-        'reports'       => 'minutes',
-    ];
+	/**
+	 * Map of ORI resource slug → register schema slug.
+	 *
+	 * @var array<string, string>
+	 */
+	private const RESOURCE_MAP = [
+		'organizations' => 'governance-body',
+		'persons' => 'person',
+		'memberships' => 'membership',
+		'events' => 'meeting',
+		'agendaitems' => 'agenda-item',
+		'motions' => 'decision',
+		'amendments' => 'decision',
+		'voteevents' => 'voting-round',
+		'votes' => 'vote',
+		'reports' => 'minutes',
+		// Publish-decisions-via-opencatalogi task 5.2 — ORI harvest feed over the
+		// derived, immutable PublicationPayload objects produced by the publication
+		// flow. This is the harvest-able feed the deferred follow-up specifies: a
+		// single ORI surface a national/OAI-PMH harvester can poll to discover all
+		// published decisions/agendas/minutes without per-type endpoints. Visibility
+		// is gated by the same RBAC published-predicate the payload schema declares
+		// (publicationDate <= $now, not depublished).
+		'publications' => 'publication-payload',
+	];
 
-    /**
-     * Map of ORI resource slug → ORI/Akoma Ntoso @type label.
-     *
-     * @var array<string, string>
-     */
-    private const ORI_TYPE_MAP = [
-        'organizations' => 'Organization',
-        'persons'       => 'Person',
-        'memberships'   => 'Membership',
-        'events'        => 'Event',
-        'agendaitems'   => 'AgendaItem',
-        'motions'       => 'Motion',
-        'amendments'    => 'Amendment',
-        'voteevents'    => 'VoteEvent',
-        'votes'         => 'Vote',
-        'reports'       => 'Report',
-    ];
+	/**
+	 * ORI resource slugs that are now sourced from the unified `decision`
+	 * schema (ADR-005). Maps the resource slug to the `decisionType`
+	 * discriminator used to filter decisions down to that ORI resource.
+	 *
+	 * @var array<string, string>
+	 */
+	private const DECISION_TYPE_MAP = [
+		'motions' => 'motion',
+		'amendments' => 'amendment',
+	];
 
-    /**
-     * ORI JSON-LD context URL.
-     */
-    private const ORI_CONTEXT = 'https://argu.co/ns/core';
+	/**
+	 * ORI resource slugs that must NOT be filtered by lifecycle.
+	 *
+	 * Person and Membership are public reference data (Popolo identity and
+	 * org-relationship) and carry no lifecycle field. Adding a lifecycle=published
+	 * filter would return zero objects.
+	 *
+	 * @var list<string>
+	 */
+	private const NO_LIFECYCLE_GATE = [
+		'persons',
+		'memberships',
+	];
 
-    /**
-     * Constructor.
-     *
-     * @param IRequest           $request   The request object
-     * @param IConfig            $config    The Nextcloud config service
-     * @param ContainerInterface $container The DI container
-     * @param LoggerInterface    $logger    PSR-3 logger
-     *
-     * @return void
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly IConfig $config,
-        private readonly ContainerInterface $container,
-        private readonly LoggerInterface $logger,
-    ) {
-        parent::__construct(appName: Application::APP_ID, request: $request);
+	/**
+	 * Map of ORI resource slug → ORI/Akoma Ntoso @type label.
+	 *
+	 * @var array<string, string>
+	 */
+	private const ORI_TYPE_MAP = [
+		'organizations' => 'Organization',
+		'persons' => 'Person',
+		'memberships' => 'Membership',
+		'events' => 'Event',
+		'agendaitems' => 'AgendaItem',
+		'motions' => 'Motion',
+		'amendments' => 'Amendment',
+		'voteevents' => 'VoteEvent',
+		'votes' => 'Vote',
+		'reports' => 'Report',
+		// The publication-payload feed self-declares its ORI @type per item via the
+		// payload's own `oriType` (Besluit / Vergadering / Verslag); this envelope
+		// label describes the harvest collection.
+		'publications' => 'Publication',
+	];
 
-    }//end __construct()
+	/**
+	 * ORI JSON-LD context URL.
+	 */
+	private const ORI_CONTEXT = OriSerializer::ORI_CONTEXT;
 
-    /**
-     * List ORI resources.
-     *
-     * @param string $resource The ORI resource slug (e.g. `events`)
-     *
-     * @return JSONResponse JSON-LD list envelope or error
-     *
-     * @spec openspec/changes/p4-integration/tasks.md#task-11
-     */
-    #[PublicPage]
-    #[NoCSRFRequired]
-    public function index(string $resource): JSONResponse
-    {
-        $schema = self::RESOURCE_MAP[$resource] ?? null;
-        if ($schema === null) {
-            return $this->errorResponse(message: 'Unknown resource', status: Http::STATUS_NOT_FOUND);
-        }
+	/**
+	 * The ORI resource slug backed by derived PublicationPayload objects.
+	 */
+	private const PUBLICATIONS = OriSerializer::PUBLICATIONS_RESOURCE;
 
-        try {
-            $objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
-            $objects       = $objectService->findAll(register: 'decidesk', schema: $schema, params: ['limit' => 100]);
-        } catch (Throwable $e) {
-            $this->logger->error(message: 'OriController index failed', context: ['resource' => $resource, 'exception' => $e]);
-            return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request The request object
+	 * @param IConfig $config The Nextcloud config service
+	 * @param ContainerInterface $container The DI container
+	 * @param LoggerInterface $logger PSR-3 logger
+	 * @param OriSerializer $serializer The ORI JSON-LD serializer
+	 *
+	 * @return void
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly IConfig $config,
+		private readonly ContainerInterface $container,
+		private readonly LoggerInterface $logger,
+		private readonly OriSerializer $serializer,
+	) {
+		parent::__construct(appName: Application::APP_ID, request: $request);
 
-        $type  = self::ORI_TYPE_MAP[$resource];
-        $items = [];
-        foreach (($objects ?? []) as $object) {
-            $items[] = $this->serializeOri(type: $type, object: (array) $object);
-        }
+	}//end __construct()
 
-        $payload = [
-            '@context' => self::ORI_CONTEXT,
-            '@type'    => $type,
-            'count'    => count($items),
-            'items'    => $items,
-        ];
+	/**
+	 * List ORI resources.
+	 *
+	 * ORI (Open Raads Informatie) is an OPEN DATA API by design: the ids are
+	 * published resource identifiers, not credentials, and enumerating council
+	 * decisions is the intended use rather than an attack. So these endpoints
+	 * get a volume ceiling and deliberately NO #[BruteForceProtection] --
+	 * there is no secret to guess, and a brute-force counter here would
+	 * throttle exactly the consumers the standard exists to serve.
+	 * See ADR-082 for the distinction.
+	 *
+	 * @param string $resource The ORI resource slug (e.g. `events`)
+	 *
+	 * @return JSONResponse JSON-LD list envelope or error
+	 *
+	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	#[PublicPage]
+	#[NoCSRFRequired]
+	#[AnonRateLimit(limit: 120, period: 60)]
+	public function index(string $resource): JSONResponse {
+		$schema = self::RESOURCE_MAP[$resource] ?? null;
+		if ($schema === null) {
+			return $this->errorResponse(message: 'Unknown resource', status: Http::STATUS_NOT_FOUND);
+		}
 
-        $response = new JSONResponse($payload);
-        $response->addHeader(name: 'Content-Type', value: 'application/ld+json');
-        $this->applyCorsHeaders(response: $response);
+		try {
+			$objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
+			$objects = $objectService->findAll(
+				[
+					'limit' => 100,
+					'filters' => $this->buildFilters(resource: $resource, schema: $schema),
+				]
+			);
+		} catch (Throwable $e) {
+			$this->logger->error(message: 'OriController index failed', context: ['resource' => $resource, 'exception' => $e]);
+			return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
+		}//end try
 
-        return $response;
+		$type = self::ORI_TYPE_MAP[$resource];
+		$items = $this->serializer->serializeCollection(resource: $resource, type: $type, objects: ($objects ?? []));
 
-    }//end index()
+		return $this->jsonLdResponse(
+			payload: [
+				'@context' => self::ORI_CONTEXT,
+				'@type' => $type,
+				'count' => count($items),
+				'items' => $items,
+			]
+		);
 
-    /**
-     * Retrieve a single ORI resource by id.
-     *
-     * @param string $resource The ORI resource slug
-     * @param string $id       The entity UUID
-     *
-     * @return JSONResponse The JSON-LD entity or error
-     *
-     * @spec openspec/changes/p4-integration/tasks.md#task-11
-     */
-    #[PublicPage]
-    #[NoCSRFRequired]
-    public function show(string $resource, string $id): JSONResponse
-    {
-        $schema = self::RESOURCE_MAP[$resource] ?? null;
-        if ($schema === null) {
-            return $this->errorResponse(message: 'Unknown resource', status: Http::STATUS_NOT_FOUND);
-        }
+	}//end index()
 
-        try {
-            $objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
-            $object        = $objectService->findObject(register: 'decidesk', schema: $schema, id: $id);
-        } catch (Throwable $e) {
-            $this->logger->error(message: 'OriController show failed', context: ['resource' => $resource, 'id' => $id, 'exception' => $e]);
-            return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
+	/**
+	 * Build the OpenRegister findAll() filter set for an ORI resource.
+	 *
+	 * #316: Only return published objects on public ORI endpoints — draft/closed/
+	 * unpublished objects must not be visible to anonymous callers.
+	 * ADR-005: motions/amendments are now `decision` objects discriminated by
+	 * `decisionType`; decisions gate public visibility via `isPublished=public`
+	 * (not the meeting `lifecycle=published` state used by other resources).
+	 * OpenRegister resolves the register/schema context from INSIDE the `filters`
+	 * array (ObjectService::prepareFindAllConfig) and takes a single config array
+	 * — not named register:/schema:/params: arguments (the latter raised
+	 * "Unknown named parameter $register").
+	 *
+	 * @param string $resource The ORI resource slug
+	 * @param string $schema The resolved register schema slug
+	 *
+	 * @return array<string, string> The filter set
+	 *
+	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function buildFilters(string $resource, string $schema): array {
+		$filters = [
+			'register' => 'decidiq',
+			'schema' => $schema,
+		];
 
-        if ($object === null) {
-            return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
-        }
+		if ($resource === self::PUBLICATIONS) {
+			// Publish-decisions-via-opencatalogi task 5.2 — the PublicationPayload
+			// feed has no `lifecycle`/`isPublished` field; its anonymous visibility
+			// is governed solely by the RBAC published-predicate the schema declares
+			// (public group when publicationDate <= $now). OR enforces that rule for
+			// anonymous callers; the serializer additionally filters the window in
+			// PHP (defence-in-depth so a misconfigured RBAC rule cannot leak
+			// future-dated or depublished payloads through the harvest feed).
+			return $filters;
+		}
 
-        $type    = self::ORI_TYPE_MAP[$resource];
-        $payload = $this->serializeOri(type: $type, object: (array) $object);
+		$decisionType = self::DECISION_TYPE_MAP[$resource] ?? null;
+		if ($decisionType !== null) {
+			// ADR-005: motion/amendment ORI resources are decisions gated by
+			// `isPublished=public` and discriminated by `decisionType`.
+			$filters['isPublished'] = 'public';
+			$filters['decisionType'] = $decisionType;
 
-        $response = new JSONResponse($payload);
-        $response->addHeader(name: 'Content-Type', value: 'application/ld+json');
-        $this->applyCorsHeaders(response: $response);
+			return $filters;
+		}
 
-        return $response;
+		if (in_array(needle: $resource, haystack: self::NO_LIFECYCLE_GATE, strict: true) === false) {
+			// Person/Membership are public reference data without a lifecycle field;
+			// all other resources require the published lifecycle gate (#316).
+			$filters['lifecycle'] = 'published';
+		}
 
-    }//end show()
+		return $filters;
+	}//end buildFilters()
 
-    /**
-     * CORS preflight handler for the list endpoint.
-     *
-     * @param string $resource The ORI resource slug
-     *
-     * @return JSONResponse HTTP 200 with Access-Control-* headers
-     *
-     * @spec openspec/changes/p4-integration/tasks.md#task-1.4
-     */
-    #[PublicPage]
-    #[NoCSRFRequired]
-    public function preflight(string $resource): JSONResponse
-    {
-        unset($resource);
+	/**
+	 * Drop an object whose `decisionType` does not match the ORI resource.
+	 *
+	 * ADR-005 folded motion and amendment into the one `decision` schema, so
+	 * `/motions/{id}` and `/amendments/{id}` resolve through the same schema and
+	 * the schema no longer distinguishes them. index() narrows by `decisionType`
+	 * (DECISION_TYPE_MAP); the detail endpoint must apply the same discriminator,
+	 * or `/amendments/{id}` would serve a motion as an ORI Amendment.
+	 *
+	 * @param string $resource The ORI resource slug
+	 * @param array<string, mixed>|null $object The serialized object, or null
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return array<string, mixed>|null The object, or null when it is the wrong type
+	 */
+	private function narrowToDecisionType(string $resource, ?array $object): ?array {
+		$decisionType = (self::DECISION_TYPE_MAP[$resource] ?? null);
+		if ($object === null || $decisionType === null) {
+			return $object;
+		}
 
-        $response = new JSONResponse([], Http::STATUS_OK);
-        $this->applyCorsHeaders(response: $response);
+		if (($object['decisionType'] ?? null) !== $decisionType) {
+			return null;
+		}
 
-        return $response;
+		return $object;
+	}//end narrowToDecisionType()
 
-    }//end preflight()
+	/**
+	 * Retrieve a single ORI resource by id.
+	 *
+	 * @param string $resource The ORI resource slug
+	 * @param string $id The entity UUID
+	 *
+	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/specs/public-publication/spec.md
+	 *
+	 * @return JSONResponse The JSON-LD entity or error
+	 */
+	#[PublicPage]
+	#[NoCSRFRequired]
+	#[AnonRateLimit(limit: 120, period: 60)]
+	public function show(string $resource, string $id): JSONResponse {
+		$schema = self::RESOURCE_MAP[$resource] ?? null;
+		if ($schema === null) {
+			return $this->errorResponse(message: 'Unknown resource', status: Http::STATUS_NOT_FOUND);
+		}
 
-    /**
-     * CORS preflight handler for the item endpoint.
-     *
-     * @param string $resource The ORI resource slug
-     * @param string $id       The entity UUID
-     *
-     * @return JSONResponse HTTP 200 with Access-Control-* headers
-     *
-     * @spec openspec/changes/p4-integration/tasks.md#task-1.4
-     */
-    #[PublicPage]
-    #[NoCSRFRequired]
-    public function preflightItem(string $resource, string $id): JSONResponse
-    {
-        unset($resource, $id);
+		try {
+			$objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
+			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+			$object = null;
+			if ($entity !== null) {
+				$object = $entity->jsonSerialize();
+			}
 
-        $response = new JSONResponse([], Http::STATUS_OK);
-        $this->applyCorsHeaders(response: $response);
+			$object = $this->narrowToDecisionType(resource: $resource, object: $object);
+		} catch (DoesNotExistException $e) {
+			// OpenRegister's published-predicate RBAC hides a future-dated or
+			// depublished payload from an anonymous caller by making find() THROW,
+			// not by returning null — so the not-live 404 branch below was never
+			// reached and the blanket Throwable catch turned it into a 500. A 500
+			// is itself a disclosure (it separates "exists but hidden" from
+			// "unknown id"), which is exactly what this endpoint must not do.
+			// An id we cannot read is not-found, full stop.
+			return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
+		} catch (Throwable $e) {
+			$this->logger->error(message: 'OriController show failed', context: ['resource' => $resource, 'id' => $id, 'exception' => $e]);
+			return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
+		}//end try
 
-        return $response;
+		if ($object === null) {
+			return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
+		}
 
-    }//end preflightItem()
+		$type = self::ORI_TYPE_MAP[$resource];
 
-    /**
-     * Serialize a Decidesk register object as a JSON-LD ORI resource.
-     *
-     * Field renaming follows ORI 1.4 conventions:
-     *   `title` → `name`, `scheduledDate` → `start_date`, `endDate` → `end_date`,
-     *   `lifecycle` → `status`, `meetingType`/`bodyType` → `classification`.
-     *
-     * @param string               $type   The ORI @type label
-     * @param array<string, mixed> $object The OpenRegister object payload
-     *
-     * @return array<string, mixed> The serialized ORI resource
-     *
-     * @spec openspec/changes/p4-integration/tasks.md#task-11
-     */
-    private function serializeOri(string $type, array $object): array
-    {
-        $self = ($object['@self'] ?? []);
-        $id   = ($self['id'] ?? ($object['id'] ?? ($object['uuid'] ?? null)));
+		if ($resource === self::PUBLICATIONS) {
+			// PublicationPayload visibility is the RBAC published-predicate window
+			// (publicationDate <= $now, not depublished). A future-dated or
+			// depublished payload is not-found for anonymous callers — return 404
+			// (not 403) so the endpoint never confirms an unpublished payload exists.
+			if ($this->serializer->isPayloadLive(object: (array)$object) === false) {
+				return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
+			}
 
-        $payload = [
-            '@context' => self::ORI_CONTEXT,
-            '@type'    => $type,
-            'id'       => $id,
-        ];
+			return $this->jsonLdResponse(
+				payload: $this->serializer->serializePayload(object: (array)$object, fallbackType: $type)
+			);
+		}//end if
 
-        if (isset($object['title']) === true) {
-            $payload['name'] = $object['title'];
-        } else if (isset($object['name']) === true) {
-            $payload['name'] = $object['name'];
-        }
+		// #316: Treat non-published objects as not-found for anonymous callers.
+		// Return 404 (not 403) to avoid confirming the object exists.
+		if ($this->isLifecycleBlocked(object: (array)$object) === true) {
+			return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
+		}
 
-        if (isset($object['scheduledDate']) === true) {
-            $payload['start_date'] = $object['scheduledDate'];
-        }
+		return $this->jsonLdResponse(payload: $this->serializer->serialize(type: $type, object: (array)$object));
+	}//end show()
 
-        if (isset($object['endDate']) === true) {
-            $payload['end_date'] = $object['endDate'];
-        }
+	/**
+	 * Decide whether the lifecycle gate hides an object from anonymous callers.
+	 *
+	 * M2: only enforce the lifecycle gate when the object actually carries a
+	 * lifecycle/status field; schemas without it (votes, persons, etc.) pass
+	 * through.
+	 *
+	 * @param array<string, mixed> $object The serialized register object
+	 *
+	 * @return bool True when the object must be reported as not-found
+	 *
+	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 */
+	private function isLifecycleBlocked(array $object): bool {
+		$lifecycle = ($object['lifecycle'] ?? ($object['status'] ?? null));
 
-        if (isset($object['location']) === true) {
-            $payload['location'] = $object['location'];
-        }
+		return ($lifecycle !== null && $lifecycle !== 'published');
+	}//end isLifecycleBlocked()
 
-        if (isset($object['lifecycle']) === true) {
-            $payload['status'] = $object['lifecycle'];
-        }
+	/**
+	 * Wrap a payload in a CORS-decorated JSON-LD response.
+	 *
+	 * @param array<string, mixed> $payload The JSON-LD body
+	 *
+	 * @return JSONResponse The decorated response
+	 *
+	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 */
+	private function jsonLdResponse(array $payload): JSONResponse {
+		$response = new JSONResponse($payload);
+		$response->addHeader(name: 'Content-Type', value: 'application/ld+json');
+		$this->applyCorsHeaders(response: $response);
 
-        if (isset($object['meetingType']) === true) {
-            $payload['classification'] = $object['meetingType'];
-        } else if (isset($object['bodyType']) === true) {
-            $payload['classification'] = $object['bodyType'];
-        } else if (isset($object['motionType']) === true) {
-            $payload['classification'] = $object['motionType'];
-        }
+		return $response;
+	}//end jsonLdResponse()
 
-        if (isset($object['text']) === true) {
-            $payload['text'] = $object['text'];
-        }
+	/**
+	 * CORS preflight handler for the list endpoint.
+	 *
+	 * @param string $resource The ORI resource slug
+	 *
+	 * @return JSONResponse HTTP 200 with Access-Control-* headers
+	 *
+	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+	 */
+	#[PublicPage]
+	#[NoCSRFRequired]
+	#[AnonRateLimit(limit: 240, period: 60)]
+	public function preflight(string $resource): JSONResponse {
+		unset($resource);
 
-        if (isset($object['email']) === true) {
-            $payload['email'] = $object['email'];
-        }
+		$response = new JSONResponse([], Http::STATUS_OK);
+		$this->applyCorsHeaders(response: $response);
 
-        return $payload;
+		return $response;
+	}//end preflight()
 
-    }//end serializeOri()
+	/**
+	 * CORS preflight handler for the item endpoint.
+	 *
+	 * The browser sends one preflight before each cross-origin call, so the
+	 * AnonRateLimit ceiling is deliberately looser than on the data endpoints
+	 * it precedes.
+	 *
+	 * @param string $resource The ORI resource slug
+	 * @param string $id The entity UUID
+	 *
+	 * @return JSONResponse HTTP 200 with Access-Control-* headers
+	 *
+	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+	 */
+	#[PublicPage]
+	#[NoCSRFRequired]
+	#[AnonRateLimit(limit: 240, period: 60)]
+	public function preflightItem(string $resource, string $id): JSONResponse {
+		unset($resource, $id);
 
-    /**
-     * Build a consistent JSON error envelope (REQ-API-003).
-     *
-     * @param string $message The user-facing message
-     * @param int    $status  The HTTP status code
-     *
-     * @return JSONResponse The decorated error response
-     *
-     * @spec openspec/changes/p4-integration/tasks.md#task-1.2
-     */
-    private function errorResponse(string $message, int $status): JSONResponse
-    {
-        $response = new JSONResponse(['message' => $message, 'code' => $status], $status);
-        $this->applyCorsHeaders(response: $response);
+		$response = new JSONResponse([], Http::STATUS_OK);
+		$this->applyCorsHeaders(response: $response);
 
-        return $response;
+		return $response;
+	}//end preflightItem()
 
-    }//end errorResponse()
+	/**
+	 * Build a consistent JSON error envelope (REQ-API-003).
+	 *
+	 * @param string $message The user-facing message
+	 * @param int $status The HTTP status code
+	 *
+	 * @return JSONResponse The decorated error response
+	 *
+	 * @spec openspec/changes/p4-integration/tasks.md#task-1.2
+	 */
+	private function errorResponse(string $message, int $status): JSONResponse {
+		$response = new JSONResponse(['message' => $message, 'code' => $status], $status);
+		$this->applyCorsHeaders(response: $response);
 
-    /**
-     * Apply CORS headers using the configured proxy origin when available.
-     *
-     * @param JSONResponse $response The response to decorate
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p4-integration/tasks.md#task-1.4
-     * @spec openspec/changes/p4-integration/tasks.md#task-10.4
-     */
-    private function applyCorsHeaders(JSONResponse $response): void
-    {
-        $origin = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '*');
+		return $response;
+	}//end errorResponse()
 
-        $allowedOrigin = '*';
-        if ($origin !== '') {
-            $allowedOrigin = $origin;
-        }
+	/**
+	 * Apply CORS headers using the configured proxy origin when available.
+	 *
+	 * @param JSONResponse $response The response to decorate
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+	 * @spec openspec/changes/p4-integration/tasks.md#task-10.4
+	 */
+	private function applyCorsHeaders(JSONResponse $response): void {
+		$origin = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '*');
 
-        $response->addHeader(name: 'Access-Control-Allow-Origin', value: $allowedOrigin);
-        $response->addHeader(name: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS');
-        $response->addHeader(name: 'Access-Control-Allow-Headers', value: 'Authorization, Content-Type, X-Requested-With');
+		$allowedOrigin = '*';
+		if ($origin !== '') {
+			$allowedOrigin = $origin;
+		}
 
-    }//end applyCorsHeaders()
+		$response->addHeader(name: 'Access-Control-Allow-Origin', value: $allowedOrigin);
+		$response->addHeader(name: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS');
+		$response->addHeader(name: 'Access-Control-Allow-Headers', value: 'Authorization, Content-Type, X-Requested-With');
+
+	}//end applyCorsHeaders()
 }//end class

@@ -7,7 +7,7 @@
  * Copyright (C) 2026 Conduction B.V.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
  *
@@ -20,283 +20,408 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\MinutesGenerationService;
+use OCA\Decidiq\Service\MinutesDraftRenderer;
+use OCA\Decidiq\Service\MinutesGenerationService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
  * Tests for MinutesGenerationService.
  *
  * The service uses ObjectService::find() and ObjectService::findAll() from
- * OpenRegister. All tests mock the ObjectService via the DI container.
+ * OpenRegister. All tests mock the injected OpenRegister object-service
+ * contract (ADR-083/084).
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
  */
-class MinutesGenerationServiceTest extends TestCase
-{
+class MinutesGenerationServiceTest extends TestCase {
 
-    /**
-     * Mock DI container.
-     *
-     * @var ContainerInterface&MockObject
-     */
-    private ContainerInterface&MockObject $container;
+	/**
+	 * Mock logger.
+	 *
+	 * @var LoggerInterface&MockObject
+	 */
+	private LoggerInterface&MockObject $logger;
 
-    /**
-     * Mock logger.
-     *
-     * @var LoggerInterface&MockObject
-     */
-    private LoggerInterface&MockObject $logger;
+	/**
+	 * Mock ObjectService.
+	 *
+	 * @var ObjectServiceInterface&MockObject
+	 */
+	private ObjectServiceInterface&MockObject $objectService;
 
-    /**
-     * Mock ObjectService (stdClass with added methods).
-     *
-     * @var MockObject
-     */
-    private MockObject $objectService;
+	/**
+	 * The service under test.
+	 *
+	 * @var MinutesGenerationService
+	 */
+	private MinutesGenerationService $service;
 
-    /**
-     * The service under test.
-     *
-     * @var MinutesGenerationService
-     */
-    private MinutesGenerationService $service;
+	/**
+	 * Set up test fixtures.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-    /**
-     * Set up test fixtures.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+		// Mock the published OpenRegister contract itself so that named-argument
+		// calls (saveObject(object: ..., register: ...)) bind correctly — an
+		// stdClass addMethods() mock has no parameter names.
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 
-        $this->objectService = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['find', 'findAll', 'setRegister', 'setSchema', 'saveObject'])
-            ->getMock();
+		$this->objectService->method('setRegister')->willReturnSelf();
+		$this->objectService->method('setSchema')->willReturnSelf();
 
-        $this->objectService->method('setRegister')->willReturnSelf();
-        $this->objectService->method('setSchema')->willReturnSelf();
+		$this->logger = $this->createMock(LoggerInterface::class);
 
-        $this->container = $this->createMock(ContainerInterface::class);
-        $this->logger    = $this->createMock(LoggerInterface::class);
+		// The renderer is a pure, dependency-free collaborator, so the real one
+		// is used here: these tests assert on the rendered text, and a mock
+		// would only assert that a mock was called.
+		$this->service = new MinutesGenerationService(
+			logger: $this->logger,
+			renderer: new MinutesDraftRenderer(),
+			objectService: $this->objectService,
+		);
 
-        $this->container->method('get')
-            ->with('OCA\OpenRegister\Service\ObjectService')
-            ->willReturn($this->objectService);
+	}//end setUp()
 
-        $this->service = new MinutesGenerationService(
-            container: $this->container,
-            logger: $this->logger,
-        );
+	/**
+	 * Happy path: generates a Dutch template with meeting title and agenda items.
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
+	 *
+	 * @return void
+	 */
+	public function testGenerateDraftHappyPathProducesStructuredDutchTemplate(): void {
+		$minutesData = [
+			'id' => 'minutes-001',
+			'title' => 'Notulen Testgemeente 1 april 2025',
+			'lifecycle' => 'draft',
+			'meeting' => 'meeting-001',
+		];
 
-    }//end setUp()
+		$meetingData = [
+			'id' => 'meeting-001',
+			'title' => 'Raadsvergadering 1 april 2025',
+			'scheduledDate' => '2025-04-01T19:00:00Z',
+			'location' => 'Raadzaal',
+		];
 
-    /**
-     * Happy path: generates a Dutch template with meeting title and agenda items.
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
-     *
-     * @return void
-     */
-    public function testGenerateDraftHappyPathProducesStructuredDutchTemplate(): void
-    {
-        $minutesData = [
-            'id'        => 'minutes-001',
-            'title'     => 'Notulen Testgemeente 1 april 2025',
-            'lifecycle' => 'draft',
-            'meeting'   => 'meeting-001',
-        ];
+		$agendaItemData = [
+			'id' => 'ai-001',
+			'title' => 'Woningbouwplan Oost',
+			'orderNumber' => 1,
+		];
 
-        $meetingData = [
-            'id'            => 'meeting-001',
-            'title'         => 'Raadsvergadering 1 april 2025',
-            'scheduledDate' => '2025-04-01T19:00:00Z',
-            'location'      => 'Raadzaal',
-        ];
+		$minutesEntity = $this->createEntityMock($minutesData);
+		$meetingEntity = $this->createEntityMock($meetingData);
+		$agendaEntity = $this->createEntityMock($agendaItemData);
 
-        $agendaItemData = [
-            'id'          => 'ai-001',
-            'title'       => 'Woningbouwplan Oost',
-            'orderNumber' => 1,
-        ];
+		$this->objectService->method('find')
+			->willReturnCallback(static function (string $id) use ($minutesEntity, $meetingEntity): ?object {
+				if ($id === 'minutes-001') {
+					return $minutesEntity;
+				}
 
-        $minutesEntity = $this->createEntityMock($minutesData);
-        $meetingEntity = $this->createEntityMock($meetingData);
-        $agendaEntity  = $this->createEntityMock($agendaItemData);
+				if ($id === 'meeting-001') {
+					return $meetingEntity;
+				}
 
-        $this->objectService->method('find')
-            ->willReturnCallback(static function (string $id) use ($minutesEntity, $meetingEntity): ?object {
-                if ($id === 'minutes-001') {
-                    return $minutesEntity;
-                }
+				return null;
+			});
 
-                if ($id === 'meeting-001') {
-                    return $meetingEntity;
-                }
+		$this->objectService->method('findAll')
+			->willReturnCallback(static function (array $config) use ($agendaEntity): array {
+				$schema = $config['filters']['schema'] ?? '';
+				if ($schema === 'agenda-item') {
+					return [$agendaEntity];
+				}
 
-                return null;
-            });
+				return [];
+			});
 
-        $this->objectService->method('findAll')
-            ->willReturnCallback(static function (array $config) use ($agendaEntity): array {
-                $schema = $config['filters']['schema'] ?? '';
-                if ($schema === 'agenda-item') {
-                    return [$agendaEntity];
-                }
+		$result = $this->service->generateDraft(minutesId: 'minutes-001');
 
-                return [];
-            });
+		self::assertStringContainsString('Notulen Testgemeente 1 april 2025', $result);
+		self::assertStringContainsString('Raadsvergadering 1 april 2025', $result);
+		self::assertStringContainsString('Woningbouwplan Oost', $result);
+		self::assertStringContainsString('automatisch gegenereerd concept', $result);
 
-        $result = $this->service->generateDraft(minutesId: 'minutes-001');
+	}//end testGenerateDraftHappyPathProducesStructuredDutchTemplate()
 
-        self::assertStringContainsString('Notulen Testgemeente 1 april 2025', $result);
-        self::assertStringContainsString('Raadsvergadering 1 april 2025', $result);
-        self::assertStringContainsString('Woningbouwplan Oost', $result);
-        self::assertStringContainsString('automatisch gegenereerd concept', $result);
+	/**
+	 * Meeting with no agenda items returns a minimal valid template.
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
+	 *
+	 * @return void
+	 */
+	public function testGenerateDraftWithNoAgendaItemsReturnsMinimalTemplate(): void {
+		$minutesData = [
+			'id' => 'minutes-002',
+			'title' => 'Concept notulen zonder agenda',
+			'lifecycle' => 'draft',
+			'meeting' => 'meeting-002',
+		];
 
-    }//end testGenerateDraftHappyPathProducesStructuredDutchTemplate()
+		$meetingData = [
+			'id' => 'meeting-002',
+			'title' => 'Lege vergadering',
+		];
 
-    /**
-     * Meeting with no agenda items returns a minimal valid template.
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
-     *
-     * @return void
-     */
-    public function testGenerateDraftWithNoAgendaItemsReturnsMinimalTemplate(): void
-    {
-        $minutesData = [
-            'id'        => 'minutes-002',
-            'title'     => 'Concept notulen zonder agenda',
-            'lifecycle' => 'draft',
-            'meeting'   => 'meeting-002',
-        ];
+		$minutesEntity = $this->createEntityMock($minutesData);
+		$meetingEntity = $this->createEntityMock($meetingData);
 
-        $meetingData = [
-            'id'    => 'meeting-002',
-            'title' => 'Lege vergadering',
-        ];
+		$this->objectService->method('find')
+			->willReturnCallback(static function (string $id) use ($minutesEntity, $meetingEntity): ?object {
+				if ($id === 'minutes-002') {
+					return $minutesEntity;
+				}
 
-        $minutesEntity = $this->createEntityMock($minutesData);
-        $meetingEntity = $this->createEntityMock($meetingData);
+				if ($id === 'meeting-002') {
+					return $meetingEntity;
+				}
 
-        $this->objectService->method('find')
-            ->willReturnCallback(static function (string $id) use ($minutesEntity, $meetingEntity): ?object {
-                if ($id === 'minutes-002') {
-                    return $minutesEntity;
-                }
+				return null;
+			});
 
-                if ($id === 'meeting-002') {
-                    return $meetingEntity;
-                }
+		$this->objectService->method('findAll')->willReturn([]);
 
-                return null;
-            });
+		$result = $this->service->generateDraft(minutesId: 'minutes-002');
 
-        $this->objectService->method('findAll')->willReturn([]);
+		self::assertStringContainsString('Concept notulen zonder agenda', $result);
+		self::assertStringContainsString('Opening', $result);
+		self::assertStringContainsString('Sluiting', $result);
+		// No agenda section when no items.
+		self::assertStringNotContainsString('## 2. Agenda', $result);
 
-        $result = $this->service->generateDraft(minutesId: 'minutes-002');
+	}//end testGenerateDraftWithNoAgendaItemsReturnsMinimalTemplate()
 
-        self::assertStringContainsString('Concept notulen zonder agenda', $result);
-        self::assertStringContainsString('Opening', $result);
-        self::assertStringContainsString('Sluiting', $result);
-        // No agenda section when no items.
-        self::assertStringNotContainsString('## 2. Agenda', $result);
+	/**
+	 * Minutes not found throws InvalidArgumentException.
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
+	 *
+	 * @return void
+	 */
+	public function testGenerateDraftMissingMinutesThrowsInvalidArgumentException(): void {
+		$this->objectService->method('find')->willReturn(null);
 
-    }//end testGenerateDraftWithNoAgendaItemsReturnsMinimalTemplate()
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('minutes-999');
 
-    /**
-     * Minutes not found throws InvalidArgumentException.
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
-     *
-     * @return void
-     */
-    public function testGenerateDraftMissingMinutesThrowsInvalidArgumentException(): void
-    {
-        $this->objectService->method('find')->willReturn(null);
+		$this->service->generateDraft(minutesId: 'minutes-999');
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('minutes-999');
+	}//end testGenerateDraftMissingMinutesThrowsInvalidArgumentException()
 
-        $this->service->generateDraft(minutesId: 'minutes-999');
+	/**
+	 * No linked meeting throws RuntimeException.
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
+	 *
+	 * @return void
+	 */
+	public function testGenerateDraftMissingMeetingThrowsRuntimeException(): void {
+		$minutesData = ['id' => 'minutes-003', 'title' => 'No meeting', 'lifecycle' => 'draft'];
+		$minutesEntity = $this->createEntityMock($minutesData);
 
-    }//end testGenerateDraftMissingMinutesThrowsInvalidArgumentException()
+		$this->objectService->method('find')
+			->willReturnCallback(static function (string $id) use ($minutesEntity): ?object {
+				if ($id === 'minutes-003') {
+					return $minutesEntity;
+				}
 
-    /**
-     * No linked meeting throws RuntimeException.
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
-     *
-     * @return void
-     */
-    public function testGenerateDraftMissingMeetingThrowsRuntimeException(): void
-    {
-        $minutesData   = ['id' => 'minutes-003', 'title' => 'No meeting', 'lifecycle' => 'draft'];
-        $minutesEntity = $this->createEntityMock($minutesData);
+				return null;
+			});
 
-        $this->objectService->method('find')
-            ->willReturnCallback(static function (string $id) use ($minutesEntity): ?object {
-                if ($id === 'minutes-003') {
-                    return $minutesEntity;
-                }
+		$this->expectException(\RuntimeException::class);
+		$this->expectExceptionMessage('No linked Meeting');
 
-                return null;
-            });
+		$this->service->generateDraft(minutesId: 'minutes-003');
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('No linked Meeting');
+	}//end testGenerateDraftMissingMeetingThrowsRuntimeException()
 
-        $this->service->generateDraft(minutesId: 'minutes-003');
+	/*
+	 * REMOVED: testGenerateDraftThrowsRuntimeExceptionWhenOpenRegisterUnavailable().
+	 *
+	 * It asserted `RuntimeException: 'OpenRegister ObjectService is not
+	 * available'` out of generateDraft(). ADR-083 deleted that failure mode —
+	 * getObjectService() is now a property read, and the production comment at
+	 * lib/Service/MinutesGenerationService.php says so in as many words: "a
+	 * property read throws nothing, so the old catch was unreachable". The
+	 * string it expected exists nowhere in lib/. With ObjectServiceInterface a
+	 * REQUIRED constructor argument, "OpenRegister is absent" is a
+	 * DI-construction failure, not a generateDraft() outcome, so no honest
+	 * wiring of this test can produce it. Removed rather than weakened.
+	 */
 
-    }//end testGenerateDraftMissingMeetingThrowsRuntimeException()
+	/**
+	 * reject() moves review → draft and appends the server-attributed
+	 * rejection to reviewComments.
+	 *
+	 * @spec openspec/specs/resolution-minutes/spec.md
+	 *
+	 * @return void
+	 */
+	public function testRejectMovesReviewBackToDraftWithComment(): void {
+		$minutesEntity = $this->createEntityMock(
+			[
+				'id' => 'minutes-010',
+				'lifecycle' => 'review',
+				'title' => 'Notulen',
+			]
+		);
 
-    /**
-     * OpenRegister unavailable throws RuntimeException.
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
-     *
-     * @return void
-     */
-    public function testGenerateDraftThrowsRuntimeExceptionWhenOpenRegisterUnavailable(): void
-    {
-        $containerNoOR = $this->createMock(ContainerInterface::class);
-        $containerNoOR->method('get')
-            ->willThrowException(new \Exception('Service not found'));
+		$this->objectService->method('find')->willReturn($minutesEntity);
 
-        $service = new MinutesGenerationService(
-            container: $containerNoOR,
-            logger: $this->logger,
-        );
+		$savedObject = null;
+		$this->objectService->expects($this->once())
+			->method('saveObject')
+			// saveObject() is typed `: ObjectEntity` in production and can never
+			// return the payload array it was handed (#399).
+			->willReturnCallback(function (array $object) use (&$savedObject): ObjectEntity {
+				$savedObject = $object;
+				return $this->createEntityMock($object);
+			});
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('OpenRegister ObjectService is not available');
+		$result = $this->service->reject(
+			minutesId: 'minutes-010',
+			comment: 'Attendance list incomplete',
+			userId: 'chair-user',
+		);
 
-        $service->generateDraft(minutesId: 'any-id');
+		self::assertSame('draft', $savedObject['lifecycle']);
+		self::assertCount(1, $savedObject['reviewComments']);
+		self::assertSame('rejected', $savedObject['reviewComments'][0]['action']);
+		self::assertSame('Attendance list incomplete', $savedObject['reviewComments'][0]['comment']);
+		self::assertSame('chair-user', $savedObject['reviewComments'][0]['author']);
+		self::assertNotEmpty($savedObject['reviewComments'][0]['createdAt']);
+		self::assertSame('draft', $result['lifecycle']);
 
-    }//end testGenerateDraftThrowsRuntimeExceptionWhenOpenRegisterUnavailable()
+	}//end testRejectMovesReviewBackToDraftWithComment()
 
-    /**
-     * Helper: create a mock ObjectEntity with getObject().
-     *
-     * @param array<string,mixed> $data Object data
-     *
-     * @return object
-     */
-    private function createEntityMock(array $data): object
-    {
-        $mock = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['getObject'])
-            ->getMock();
-        $mock->method('getObject')->willReturn($data);
-        return $mock;
+	/**
+	 * reject() preserves earlier review comments (append, not replace).
+	 *
+	 * @spec openspec/specs/resolution-minutes/spec.md
+	 *
+	 * @return void
+	 */
+	public function testRejectAppendsToExistingReviewComments(): void {
+		$existing = [
+			'action' => 'rejected',
+			'comment' => 'First round',
+			'author' => 'chair-user',
+			'createdAt' => '2026-06-01T10:00:00+00:00',
+		];
 
-    }//end createEntityMock()
+		$minutesEntity = $this->createEntityMock(
+			[
+				'id' => 'minutes-011',
+				'lifecycle' => 'review',
+				'reviewComments' => [$existing],
+			]
+		);
+
+		$this->objectService->method('find')->willReturn($minutesEntity);
+
+		$savedObject = null;
+		$this->objectService->method('saveObject')
+			// saveObject() is typed `: ObjectEntity` in production and can never
+			// return the payload array it was handed (#399).
+			->willReturnCallback(function (array $object) use (&$savedObject): ObjectEntity {
+				$savedObject = $object;
+				return $this->createEntityMock($object);
+			});
+
+		$this->service->reject(minutesId: 'minutes-011', comment: 'Second round', userId: 'chair-user');
+
+		self::assertCount(2, $savedObject['reviewComments']);
+		self::assertSame('First round', $savedObject['reviewComments'][0]['comment']);
+		self::assertSame('Second round', $savedObject['reviewComments'][1]['comment']);
+
+	}//end testRejectAppendsToExistingReviewComments()
+
+	/**
+	 * reject() without a comment is refused (mandatory comment).
+	 *
+	 * @spec openspec/specs/resolution-minutes/spec.md
+	 *
+	 * @return void
+	 */
+	public function testRejectWithEmptyCommentThrowsInvalidArgumentException(): void {
+		$this->objectService->expects($this->never())->method('saveObject');
+
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('rejection comment is required');
+
+		$this->service->reject(minutesId: 'minutes-010', comment: '   ', userId: 'chair-user');
+
+	}//end testRejectWithEmptyCommentThrowsInvalidArgumentException()
+
+	/**
+	 * reject() from a non-review lifecycle is refused — the forward
+	 * transition map stays intact, only review → draft is possible.
+	 *
+	 * @spec openspec/specs/resolution-minutes/spec.md
+	 *
+	 * @return void
+	 */
+	public function testRejectFromDraftThrowsInvalidArgumentException(): void {
+		$minutesEntity = $this->createEntityMock(
+			[
+				'id' => 'minutes-012',
+				'lifecycle' => 'draft',
+			]
+		);
+
+		$this->objectService->method('find')->willReturn($minutesEntity);
+		$this->objectService->expects($this->never())->method('saveObject');
+
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('review');
+
+		$this->service->reject(minutesId: 'minutes-012', comment: 'Nope', userId: 'chair-user');
+
+	}//end testRejectFromDraftThrowsInvalidArgumentException()
+
+	/**
+	 * reject() on unknown minutes throws MissingObjectException.
+	 *
+	 * @spec openspec/specs/resolution-minutes/spec.md
+	 *
+	 * @return void
+	 */
+	public function testRejectUnknownMinutesThrowsMissingObjectException(): void {
+		$this->objectService->method('find')->willReturn(null);
+
+		$this->expectException(\OCA\Decidiq\Exception\MissingObjectException::class);
+
+		$this->service->reject(minutesId: 'minutes-404', comment: 'Hello', userId: 'chair-user');
+
+	}//end testRejectUnknownMinutesThrowsMissingObjectException()
+
+	/**
+	 * Helper: create an ObjectEntity double with getObject().
+	 *
+	 * Must be an ObjectEntity double, not a stdClass one: ObjectService::find()
+	 * is typed `?ObjectEntity` in production, so a stdClass mock is a value the
+	 * service can never hand the code under test (#399).
+	 *
+	 * @param array<string,mixed> $data Object data
+	 *
+	 * @return ObjectEntity&MockObject
+	 */
+	private function createEntityMock(array $data): ObjectEntity&MockObject {
+		$mock = $this->createMock(ObjectEntity::class);
+		$mock->method('getObject')->willReturn($data);
+		return $mock;
+	}//end createEntityMock()
 
 }//end class

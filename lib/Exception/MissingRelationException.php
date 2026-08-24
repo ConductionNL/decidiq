@@ -1,13 +1,14 @@
 <?php
+
 /**
- * Decidesk MissingRelationException
+ * Decidiq MissingRelationException
  *
  * Thrown when a required object relation (e.g. a linked Meeting) cannot be
  * resolved. Maps to HTTP 422 Unprocessable Entity — this is a client data
  * problem, not a server availability issue.
  *
  * @category Exception
- * @package  OCA\Decidesk\Exception
+ * @package  OCA\Decidiq\Exception
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  *
@@ -20,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Exception;
+namespace OCA\Decidiq\Exception;
 
 /**
  * Thrown when a required object relation cannot be resolved.
@@ -30,6 +31,5 @@ namespace OCA\Decidesk\Exception;
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  */
-class MissingRelationException extends \RuntimeException
-{
+class MissingRelationException extends \RuntimeException {
 }//end class

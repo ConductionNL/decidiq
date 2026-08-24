@@ -1,60 +1,22 @@
 {
-  "spec": "openspec/changes/quorum-schema-declaration",
+  "spec": "openspec/changes/migrate-comments-to-talk-leaf",
   "verified": [
-    {
-      "task": "1",
-      "file": "lib/Settings/decidesk_register.json",
-      "ok": true,
-      "note": "Engine spike decision recorded in tasks.md; spike block was not written to register (live occ unavailable in build container). Proceeding on assumption engine supports cross-schema aggregations."
-    },
-    {
-      "task": "2",
-      "file": "lib/Settings/decidesk_register.json",
-      "ok": true,
-      "note": "x-openregister-aggregations added to Meeting: totalParticipantCount, presentParticipantCount."
-    },
-    {
-      "task": "3",
-      "file": "lib/Settings/decidesk_register.json",
-      "ok": true,
-      "note": "x-openregister-calculations added to Meeting: quorumPercentage, quorumMet with materialise:true."
-    },
-    {
-      "task": "4",
-      "file": "lib/Settings/decidesk_register.json",
-      "ok": true,
-      "note": "Meeting version bumped from 0.1.0 to 0.2.0 (spec expected 0.4.0 baseline but development branch is at 0.1.0; earlier meeting management specs have not yet merged)."
-    },
-    {
-      "task": "5",
-      "file": "tests/Integration/Meeting/QuorumDeclarativeTest.php",
-      "ok": true,
-      "note": "Three test cases: testQuorumMetWithRequiredAndPresent, testQuorumNotMetBelowRequired, testQuorumMetWhenNotRequired. All skip cleanly via markTestSkipped when OR engine is unavailable. phpunit exits 0."
-    },
-    {
-      "task": "6",
-      "file": "lib/Settings/decidesk_register.json",
-      "ok": true,
-      "note": "materialise:true retained; live refresh check deferred to live OR environment per tasks.md note."
-    },
-    {
-      "task": "7",
-      "file": "tests/Integration/Meeting/QuorumDeclarativeTest.php",
-      "ok": true,
-      "note": "License @license EUPL-1.2 + @copyright 2026 Conduction B.V. + @spec tags all present."
-    },
-    {
-      "task": "8",
-      "file": "lib/Settings/decidesk_register.json",
-      "ok": true,
-      "note": "composer check:strict ALL CHECKS PASSED. phpunit 149 tests, 33 skipped (3 integration + 30 pre-existing). No new QuorumService hits."
-    },
-    {
-      "task": "9",
-      "file": "openspec/architecture/adr-000-data-model.md",
-      "ok": true,
-      "note": "Meeting section updated with derived fields table for quorumPercentage, quorumMet, totalParticipantCount, presentParticipantCount."
-    }
+    {"task": "1.1", "file": "lib/Settings/decidesk_register.json", "ok": true},
+    {"task": "1.2", "file": "src/views/MeetingIntegrations.vue", "ok": true},
+    {"task": "1.3", "file": "src/views/MotionIntegrations.vue", "ok": true},
+    {"task": "1.4", "file": "src/views/MotionIntegrations.vue", "ok": true},
+    {"task": "2.1", "file": "lib/Migration/MigrateCommentsToTalkLeaf.php", "ok": true},
+    {"task": "2.2", "file": "lib/Migration/MigrateCommentsToTalkLeaf.php", "ok": true},
+    {"task": "2.3", "file": "lib/Migration/MigrateCommentsToTalkLeaf.php", "ok": true},
+    {"task": "2.4", "file": "lib/Migration/MigrateCommentsToTalkLeaf.php", "ok": true},
+    {"task": "3.1", "file": "lib/AppInfo/Application.php", "ok": true},
+    {"task": "3.2", "file": "appinfo/routes.php", "ok": true},
+    {"task": "3.3", "file": "src/manifest.json", "ok": true},
+    {"task": "3.4", "file": "src/manifest.json", "ok": true},
+    {"task": "4.1", "file": "tests/Unit/Migration/MigrateCommentsToTalkLeafTest.php", "ok": true},
+    {"task": "4.2", "file": "tests/Unit/Migration/MigrateCommentsToTalkLeafTest.php", "ok": true},
+    {"task": "4.3", "file": "tests/Unit/Migration/MigrateCommentsToTalkLeafTest.php", "ok": true},
+    {"task": "4.4", "file": "phpunit+phpcs passing", "ok": true}
   ],
   "stubs": [],
   "missing_routes": []

@@ -1,17 +1,17 @@
 // @ts-check
 
 /**
- * Decidesk documentation site.
+ * Decidiq documentation site.
  *
  * Built on @conduction/docusaurus-preset for brand defaults (tokens,
  * theme swizzles for Navbar / Footer, i18n scaffolding, KvK / BTW
  * copyright). Site-specific overrides — locale (en only), sidebar
- * path, mermaid theme, custom prism themes, decidesk-only navbar
+ * path, mermaid theme, custom prism themes, decidiq-only navbar
  * items — are passed through createConfig() opts.
  *
  * Scaffolded via /journeydoc-init (ADR-030). Adapted from the
  * pipelinq / scholiq docs sites. This config is a best-effort
- * starting point — decidesk previously had no Docusaurus site at all,
+ * starting point — decidiq previously had no Docusaurus site at all,
  * only `docs/features/`; review and tune as needed.
  */
 
@@ -24,13 +24,13 @@ const { createConfig, baseFooterLinks } = require('@conduction/docusaurus-preset
 const BRAND_THEME = require.resolve('@conduction/docusaurus-preset/theme');
 
 const config = createConfig({
-  title: 'Decidesk',
+  title: 'Decidiq',
   tagline: 'Universal decision-making platform for Nextcloud — meetings, agendas, motions, amendments, voting, minutes, and decision tracking',
   url: 'https://decidesk.conduction.nl',
   baseUrl: '/',
 
   organizationName: 'ConductionNL',
-  projectName: 'decidesk',
+  projectName: 'decidiq',
 
   /* English-only for now (ADR-030). The brand preset ships a
      multi-locale i18n block (nl/en/de/fr), but enabling locales
@@ -46,10 +46,10 @@ const config = createConfig({
     },
   },
 
-  /* The decidesk docs source lives at the repo root of `docs/` rather
+  /* The decidiq docs source lives at the repo root of `docs/` rather
      than under a `docs/` subfolder, so we override the preset's default
      `presets:` block to point `docs.path` at './' and disable the blog
-     plugin. customCss carries decidesk-specific CSS only — brand tokens
+     plugin. customCss carries decidiq-specific CSS only — brand tokens
      and the theme swizzles are auto-loaded by the brand theme entry in
      `themes:` below. */
   presets: [
@@ -64,7 +64,7 @@ const config = createConfig({
              plus the standard node_modules bucket. */
           exclude: ['**/node_modules/**', 'src/**'],
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/ConductionNL/decidesk/tree/development/docs/',
+          editUrl: 'https://codeberg.org/Conduction/decidesk/src/branch/development/docs/',
         },
         blog: false,
         theme: {
@@ -77,8 +77,8 @@ const config = createConfig({
   themes: [BRAND_THEME, '@docusaurus/theme-mermaid'],
 
   /* Brand navbar provides locale dropdown + GitHub by default; we
-     replace items[] with decidesk's own (Documentation sidebar link,
-     decidesk GitHub link). Object.assign in createConfig is shallow,
+     replace items[] with decidiq's own (Documentation sidebar link,
+     decidiq GitHub link). Object.assign in createConfig is shallow,
      so items: replaces wholesale. */
   navbar: {
     items: [
@@ -89,8 +89,8 @@ const config = createConfig({
         label: 'Documentation',
       },
       {
-        href: 'https://github.com/ConductionNL/decidesk',
-        label: 'GitHub',
+        href: 'https://codeberg.org/Conduction/decidesk',
+        label: 'Codeberg',
         position: 'right',
       },
       { type: 'localeDropdown', position: 'right' },
@@ -114,7 +114,7 @@ const config = createConfig({
   /* themeConfig is shallow-merged into the preset's defaults
      (colorMode + navbar + footer). prism + mermaid land alongside. */
   themeConfig: {
-    image: 'img/og-decidesk.png',
+    image: 'img/og-decidiq.png',
     prism: {
       theme: require('prism-react-renderer/themes/github'),
       darkTheme: require('prism-react-renderer/themes/dracula'),

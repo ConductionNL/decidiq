@@ -1,0 +1,53 @@
+{
+  "components": {
+    "schemas": {
+      "Participant": {
+        "version": "0.3.0",
+        "properties": {
+          "role": {
+            "title": "Role",
+            "description": "Role of the participant within the governance body.",
+            "enum": ["treasurer"]
+          },
+          "governanceBody": {
+            "type": "string",
+            "title": "Body",
+            "description": "UUID of the GovernanceBody this participant is a member of. Materialises the governanceBody relation (previously declared only in x-openregister-relations, which OpenRegister does not turn into a queryable property) so the body members tab can filter participants per body. Empty/absent = not linked to a body.",
+            "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+          }
+        }
+      },
+      "Meeting": {
+        "version": "0.3.0",
+        "properties": {
+          "governanceBody": {
+            "type": "string",
+            "title": "Body",
+            "description": "UUID of the GovernanceBody this meeting belongs to. Materialises the governanceBody relation as a real property so per-body meeting filters and the totalParticipantCount/presentParticipantCount aggregations (which filter on @self.governanceBody) can resolve.",
+            "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+          }
+        }
+      },
+      "GovernanceBody": {
+        "version": "0.3.0",
+        "properties": {
+          "processTemplate": {
+            "type": "string",
+            "title": "Process template",
+            "description": "Identifier of the default process template assigned to this body (built-in catalogue id, e.g. standard-decision; becomes an OR object reference once the process-configuration capability ships template objects). Applies when no specialized template is chosen for a decision.",
+            "example": "standard-decision"
+          },
+          "additionalTemplates": {
+            "type": "array",
+            "title": "Additional templates",
+            "description": "Identifiers of specialized process templates available to this body for specific decision types (e.g. statute-amendment, board-election), in addition to the default processTemplate.",
+            "items": {
+              "type": "string"
+            },
+            "example": ["statute-amendment", "board-election"]
+          }
+        }
+      }
+    }
+  }
+}

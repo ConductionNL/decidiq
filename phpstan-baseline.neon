@@ -1,0 +1,29 @@
+# Tracked phpstan debt. One entry left, and it is deliberately NOT a lint nit.
+#
+# ApiController::SCOPE_MAP is a slug -> required-OAuth-scope table that nothing
+# reads. The class docblock says scope enforcement is read from the per-schema
+# OAuthScope register entries in lib/Settings/decidesk_register.json instead, so
+# this constant is a stale hardcoded duplicate — but "the authorisation table is
+# unused" is exactly the shape of a missing check, and deleting the evidence is
+# the wrong way to make phpstan quiet. It stays baselined, with this note, until
+# somebody confirms which of the two mechanisms is actually enforcing and
+# removes or wires the constant on purpose.
+#
+# Do NOT regenerate this file with `phpstan --generate-baseline`. Entries are
+# removed one at a time as the underlying code is fixed.
+#
+# Removed 2026-08-04, verified no longer firing in CI:
+#   - ActionItemAnalyticsService: "Comparison operation > between int<1, max>
+#     and 0 is always true"
+#   - EmailLinkService: "Offset 0 on array{...} in isset() always exists"
+# Fixed 2026-08-04 rather than baselined:
+#   - MotionCoauthorService: the is_array() guard was provably dead because the
+#     @param over-promised the shape OpenRegister hands back; the docblock was
+#     widened to array<int, mixed> so the guard is live again.
+
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Constant OCA\\\\Decidiq\\\\Controller\\\\ApiController\\:\\:SCOPE_MAP is unused\\.$#"
+			count: 1
+			path: lib/Controller/ApiController.php

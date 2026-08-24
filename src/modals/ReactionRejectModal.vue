@@ -1,0 +1,59 @@
+<!-- SPDX-License-Identifier: EUPL-1.2 -->
+<!-- Copyright (C) 2026 Conduction B.V. -->
+
+<!--
+ Reject-with-reason dialog for the consultation reaction moderation queue
+ (citizen-participation). The reason is mandatory — the server refuses a
+ rejection without one; this dialog enforces the same rule client-side.
+
+ @spec openspec/specs/citizen-participation/spec.md
+-->
+<template>
+	<NcDialog
+		:name="t('decidiq', 'Reject reaction')"
+		data-testid="reaction-reject-modal"
+		@closing="$emit('close')">
+		<template #default>
+			<p>
+				{{
+					t(
+						'decidiq',
+						'The reaction is retained for audit but never counts toward the consultation. A reason is required.',
+					)
+				}}
+			</p>
+			<NcTextArea
+				v-model="reason"
+				data-testid="reaction-reject-reason"
+				:label="t('decidiq', 'Rejection reason')"
+				:placeholder="t('decidiq', 'e.g. Off-topic or abusive')"
+				resize="vertical" />
+		</template>
+		<template #actions>
+			<NcButton
+				variant="error"
+				data-testid="reaction-reject-confirm"
+				:disabled="!reason.trim()"
+				@click="$emit('confirm', reason.trim())">
+				{{ t('decidiq', 'Reject') }}
+			</NcButton>
+			<NcButton @click="$emit('close')">
+				{{ t('decidiq', 'Cancel') }}
+			</NcButton>
+		</template>
+	</NcDialog>
+</template>
+
+<script>
+import { NcButton, NcDialog, NcTextArea } from '@nextcloud/vue'
+
+export default {
+	name: 'ReactionRejectModal',
+	components: { NcButton, NcDialog, NcTextArea },
+	data() {
+		return {
+			reason: '',
+		}
+	},
+}
+</script>

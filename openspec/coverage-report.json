@@ -1,0 +1,103 @@
+{
+  "generated_at": "2026-05-25T00:00:00Z",
+  "app": "decidiq",
+  "branch": "development",
+  "scanned_commit": "2c2191f149af0f36097fb76c59e29aa977956e28",
+  "scanner_version": "1",
+  "summary": {
+    "active_specs": 14,
+    "active_spec_reqs": 68,
+    "php_files": 60,
+    "frontend_files": 24,
+    "spec_tag_occurrences_in_lib": 473
+  },
+  "buckets": {
+    "annotated": [
+      {"file": "lib/**", "method": "*", "spec_tag": "openspec/changes/{p1-*,p2-*,p4-*,decidesk-*}/tasks.md#task-N", "note": "All 60 lib/ PHP files carry @spec tags at file, class, and method level (473 occurrences). Every public/protected method and most private helpers are annotated. Tags point at the 15 ARCHIVED phase changes (p1-crud-operations, p1-dashboard-and-navigation, p1-schemas-and-data-model, p2-agenda-management, p2-meeting-management, p2-meeting-management-core-t1, p2-minutes-and-decisions, p2-minutes-and-decisions-core-t3, p2-motion-and-voting, p2-motion-and-voting-core-t2, p4-collaboration, p4-integration, decidesk-manifest-v1, decidesk-mcp-tools, decidesk-store-migration) — all valid (resolve to openspec/changes/archive/*)."},
+      {"file": "src/App.vue", "method": "file", "spec_tag": "openspec/changes/*/tasks.md"},
+      {"file": "src/store/store.js", "method": "file", "spec_tag": "openspec/changes/*/tasks.md"},
+      {"file": "src/views/LiveMeeting.vue", "method": "file", "spec_tag": "openspec/changes/*/tasks.md"},
+      {"file": "src/views/settings/Settings.vue", "method": "file", "spec_tag": "openspec/changes/*/tasks.md"},
+      {"file": "src/components/AgendaBuilder.vue", "method": "file", "spec_tag": "openspec/changes/*/tasks.md"},
+      {"file": "src/components/VotingRoundPanel.vue", "method": "file", "spec_tag": "openspec/changes/*/tasks.md"},
+      {"file": "src/components/tabs/AmendmentParentMotionTab.vue", "method": "file", "spec_tag": "openspec/changes/*/tasks.md"},
+      {"file": "src/assets/nl-design.css", "method": "file", "spec_tag": "openspec/changes/*/tasks.md"}
+    ],
+    "plumbing": [
+      {"file": "lib/Service/VotingService.php", "method": "objectService()", "reason": "DI-container accessor private helper, no @spec"},
+      {"file": "lib/Service/VotingService.php", "method": "notificationManager()", "reason": "DI-container accessor private helper, no @spec"},
+      {"file": "lib/Service/VotingService.php", "method": "fileService()", "reason": "DI-container accessor private helper, no @spec"},
+      {"file": "lib/Service/MotionService.php", "method": "getObjectService()", "reason": "DI-container accessor (annotated, but pure plumbing pattern)"},
+      {"file": "lib/Controller/DashboardController.php", "method": "page()/catchAll()", "reason": "single-line TemplateResponse routing (annotated)"},
+      {"file": "src/pinia.js", "method": "file", "reason": "store bootstrap"},
+      {"file": "src/customComponents.js", "method": "file", "reason": "component registration bootstrap"},
+      {"file": "src/settings.js", "method": "file", "reason": "settings entrypoint bootstrap"},
+      {"file": "src/registry.js", "method": "file", "reason": "integration-registry bootstrap"},
+      {"file": "src/store/modules/settings.js", "method": "file", "reason": "vuex settings module plumbing"},
+      {"file": "src/components/tabs/useRelationStore.js", "method": "file", "reason": "shared relation-store composable plumbing"}
+    ],
+    "bucket_1": [],
+    "bucket_2a": {
+      "meeting-management": [
+        {"file": "src/views/MeetingIntegrations.vue", "observed_behavior": "Per-meeting integration registry panel (ADR-019)."},
+        {"file": "src/components/tabs/MeetingAgendaTab.vue", "observed_behavior": "Meeting -> agenda items relation tab."},
+        {"file": "src/components/tabs/MeetingParticipantsTab.vue", "observed_behavior": "Meeting -> participants relation tab."}
+      ],
+      "agenda-management": [
+        {"file": "src/components/tabs/AgendaMotionsTab.vue", "observed_behavior": "Agenda item -> motions relation tab."}
+      ],
+      "motion-amendment": [
+        {"file": "src/components/tabs/MotionAmendmentsTab.vue", "observed_behavior": "Motion -> amendments relation tab."},
+        {"file": "src/components/tabs/MotionVotesTab.vue", "observed_behavior": "Motion -> votes relation tab."}
+      ],
+      "decision-management": [
+        {"file": "src/components/tabs/DecisionActionItemsTab.vue", "observed_behavior": "Decision -> action items relation tab."}
+      ],
+      "resolution-minutes": [
+        {"file": "src/components/tabs/MinutesSignersTab.vue", "observed_behavior": "Minutes -> signers relation tab."}
+      ],
+      "admin-settings": [
+        {"file": "src/views/settings/AdminRoot.vue", "observed_behavior": "Admin settings root view."},
+        {"file": "src/components/tabs/GovernanceBodyMembersTab.vue", "observed_behavior": "Governance body -> members relation tab."}
+      ],
+      "user-settings": [
+        {"file": "src/views/settings/UserSettings.vue", "observed_behavior": "Per-user preferences view."}
+      ]
+    },
+    "bucket_2b": {},
+    "bucket_3a": [
+      {"req": "nextcloud-integration#Search Integration", "evidence": "removed-lines cache matched 345 hits for search/provider/result keywords; no ISearchProvider in current lib/src. Search likely existed and was removed/refactored. Verify."},
+      {"req": "nextcloud-integration#Calendar Integration", "evidence": "removed-lines cache matched 54 hits; current calendar refs (5 files) are incidental date handling in AgendaService/AnalyticsController, not CalDAV. Possible prior implementation removed. Verify."}
+    ],
+    "bucket_3b": [
+      {"req": "meeting-efficiency#Agenda Item Timer", "note": "0 timer keyword hits in code; V1 future feature, never implemented."},
+      {"req": "meeting-efficiency#Speaking Time Management", "note": "0 speakingTime hits; never implemented."},
+      {"req": "meeting-efficiency#Meeting Cost Calculator", "note": "0 cost-calculator hits; never implemented."},
+      {"req": "meeting-efficiency#Meeting Analytics Dashboard", "note": "No meeting-duration/throughput analytics; ActionItemAnalyticsService is action-item scoped, not meeting-efficiency. Never implemented."},
+      {"req": "nextcloud-integration#Talk Integration", "note": "0 spreed/Talk-room hits in lib/; never implemented."},
+      {"req": "dashboard#KPI Cards", "note": "0 KPI hits; DashboardController only does page()/catchAll() routing. Never implemented as a distinct feature."},
+      {"req": "dashboard#My Pending Votes Widget", "note": "0 pending-votes-widget hits; never implemented."},
+      {"req": "dashboard#Upcoming Meetings Widget", "note": "0 upcoming-meetings-widget hits; never implemented."},
+      {"req": "dashboard#Nextcloud Dashboard Widget Integration", "note": "No IWidget / OCP\\Dashboard registration anywhere. Never implemented."},
+      {"req": "process-configuration#Built-in Process Templates", "note": "0 seed/builtin process-template hits; WorkflowService exists but no shipped template seed. Never implemented."}
+    ],
+    "bucket_4": {
+      "clean": [
+        {"note": "ADR conformance sweep found NO findings: no forbidden patterns (var_dump/dd/die/error_log/print_r) in lib/, no direct SQL ($this->db->query/prepare/getQueryBuilder), and every lib/ PHP file docblock carries @license + @copyright. SPDX present."}
+      ],
+      "spec-drift": [
+        {"file": "lib/Lifecycle/MeetingTransitionGuard.php", "rule": "malformed @spec target", "detail": "@spec openspec/changes/spec/tasks.md#task-1 points at a non-existent change 'spec' (placeholder slug). 3 occurrences."},
+        {"file": "lib/Service/MeetingService.php", "rule": "malformed @spec target", "detail": "@spec openspec/changes/spec/tasks.md#task-1 points at non-existent change 'spec'. 3 occurrences."}
+      ]
+    }
+  },
+  "ignored": 0,
+  "notes": [
+    "decidiq is ALREADY fully retrofit-annotated: every lib/ method + 8 frontend files carry valid @spec tags (473 occurrences) pointing at 15 ARCHIVED phase changes. There is effectively nothing in Bucket 1 to annotate via /opsx-annotate — the annotate step is a no-op for this app.",
+    "ANNOTATION-vs-ACTIVE-SPEC MISMATCH: annotations reference the original p1/p2/p4 PHASE changes (archived), NOT the 14 current consolidated 'idea'-status specs (meeting-management, voting-system, etc.). The active specs were authored as a later consolidation and use prose REQ titles, while archived-change tasks use the build-time taxonomy. /opsx-annotate cannot re-point these without a fresh ghost change.",
+    "13 of 14 active specs are status: idea (consolidation specs); mcp-tools is the one concrete spec (10 REQ-DMCP REQs) and is fully implemented in lib/Mcp/DecidiqToolProvider.php (18 methods, all annotated). No redirect/deprecated/moved frontmatter on any spec.",
+    "The in-flight change openspec/changes/mcp-tools/specs/mcp-tools/spec.md (10 REQs) mirrors the active mcp-tools spec — already synced, not double-counted.",
+    "Reverse-pass removed-lines cache built in 2s (24,606 lines) — well under the 30s budget.",
+    "Bucket 3 totals 12 REQs (2x 3a, 10x 3b) out of 68 active-spec REQs. The other 56 REQs map to implemented + annotated code across the 9 core capabilities + mcp-tools."
+  ]
+}

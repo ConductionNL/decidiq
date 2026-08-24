@@ -1,17 +1,17 @@
 ---
 sidebar_position: 1
-description: Get started with Decidesk, meeting and decision management on Nextcloud. Agendas, motions, voting, minutes, and a permanent decision log.
+description: Get started with Decidiq, meeting and decision management on Nextcloud. Agendas, motions, voting, minutes, and a permanent decision log.
 ---
 
-# Decidesk
+# Decidiq
 
 Universal decision-making platform for Nextcloud — meetings, agendas, motions,
-amendments, voting, minutes, and decision tracking, with configurable workflows
+resolutions, voting, minutes, and decision tracking, with configurable workflows
 per organisation type. No separate governance database, no second login.
 
-## What is Decidesk?
+## What is Decidiq?
 
-Decidesk runs the full decision-making cycle for governance bodies on top of
+Decidiq runs the full decision-making cycle for governance bodies on top of
 Nextcloud: schedule a meeting, build the agenda, submit motions, propose
 amendments, run a vote, take and publish the minutes, and track every decision
 and action item through to completion. Workflows are configurable per
@@ -23,13 +23,20 @@ organisation type across five governance domains:
 - **Corporate operations** — management teams, operational meetings
 - **Citizen participation** — participatory budgeting, advisory panels
 
+All formal decisions — motions, resolutions, contracts, appointments,
+management points — share a single universal `Decision` model distinguished
+by type. Corporate governance uses the same entities in mode=corp: board
+meetings are meetings, board members are persons with memberships, resolutions
+are decisions with `decisionType=resolution`. There is no separate board portal
+schema set; the experience adapts to the organisation mode automatically.
+
 All data lives as typed OpenRegister objects with a per-record audit trail. A
 built-in AI chat companion exposes meeting and action-item tools over MCP so the
 assistant can answer governance questions with live data.
 
 ## Getting started
 
-Install Decidesk from the [Nextcloud app store](https://apps.nextcloud.com/apps/decidesk)
+Install Decidiq from the [Nextcloud app store](https://apps.nextcloud.com/apps/decidesk)
 or enable it in your Nextcloud admin settings, then configure a governance
 workflow on the settings page.
 
