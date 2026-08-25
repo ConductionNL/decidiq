@@ -458,7 +458,17 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 		try {
 			$objectService->setRegister(self::REGISTER);
 			$objectService->setSchema('governance-body');
-			$rows = $objectService->findAll(['filters' => ['slug' => $slug], 'limit' => 1]);
+			// THE SLUG LIVES IN `@self`, NOT IN THE OBJECT BODY.
+			//
+			// A seeded `slug:` key is an import-time identifier that OpenRegister
+			// keeps as metadata; it is NOT a stored property. Filtering
+			// `['slug' => …]` therefore matches nothing — measured on a live
+			// instance: that filter returned 0 rows, and scanning all 60
+			// governance bodies found no object carrying `slug` as a field at
+			// all, while `['@self' => ['slug' => …]]` returned exactly 1.
+			$rows = $objectService->findAll(
+				['filters' => ['@self' => ['slug' => $slug]], 'limit' => 1]
+			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: could not resolve a governance-body slug during template migration',
