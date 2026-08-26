@@ -263,8 +263,13 @@ test.describe('per-object integration surfaces', () => {
 			page.getByRole('heading', { name: 'E2E integrations agenda item' }),
 		).toBeVisible({ timeout: 20_000 })
 		// Copy the AGENDA-ITEM page's manifest entry declares and no other does.
+		// The discriminator is the LIST of surfaces, which is unique per page:
+		// the meeting page names Deck + Talk + files + notes, the dossier page
+		// names emails + Deck + files, and only this one names emails + files
+		// + tasks. The verb after it ("appear on the page itself") is shared,
+		// so it is deliberately left out of the pattern.
 		await expect(page.getByRole('main')).toContainText(
-			/linked Emails, files and tasks surface on the body/i,
+			/linked emails, files and tasks/i,
 		)
 		for (const widgetId of ['ai-email', 'ai-files', 'ai-tasks']) {
 			await expect(
