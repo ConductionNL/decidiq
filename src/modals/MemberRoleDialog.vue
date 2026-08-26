@@ -16,17 +16,17 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Change role')"
+		:name="t('decidiq', 'Change role')"
 		size="small"
 		data-testid="member-role-dialog"
 		@closing="$emit('close')">
 		<template #default>
 			<p data-testid="member-role-member">
-				{{ t('decidesk', 'Assign a role to {name}.', { name: memberName }) }}
+				{{ t('decidiq', 'Assign a role to {name}.', { name: memberName }) }}
 			</p>
 			<NcSelect
 				v-model="selectedRole"
-				:inputLabel="t('decidesk', 'Role')"
+				:inputLabel="t('decidiq', 'Role')"
 				:options="roleOptions"
 				label="label"
 				:clearable="false"
@@ -44,10 +44,10 @@
 				:disabled="saving || !selectedRole"
 				data-testid="member-role-save"
 				@click="save">
-				{{ saving ? t('decidesk', 'Saving…') : t('decidesk', 'Save') }}
+				{{ saving ? t('decidiq', 'Saving…') : t('decidiq', 'Save') }}
 			</NcButton>
 			<NcButton data-testid="member-role-cancel" @click="$emit('close')">
-				{{ t('decidesk', 'Cancel') }}
+				{{ t('decidiq', 'Cancel') }}
 			</NcButton>
 		</template>
 	</NcDialog>
@@ -87,13 +87,13 @@ export default {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		roleOptions() {
 			const labels = {
-				chair: this.t('decidesk', 'Chair'),
-				'vice-chair': this.t('decidesk', 'Vice-chair'),
-				secretary: this.t('decidesk', 'Secretary'),
-				treasurer: this.t('decidesk', 'Treasurer'),
-				member: this.t('decidesk', 'Member'),
-				observer: this.t('decidesk', 'Observer'),
-				guest: this.t('decidesk', 'Guest'),
+				chair: this.t('decidiq', 'Chair'),
+				'vice-chair': this.t('decidiq', 'Vice-chair'),
+				secretary: this.t('decidiq', 'Secretary'),
+				treasurer: this.t('decidiq', 'Treasurer'),
+				member: this.t('decidiq', 'Member'),
+				observer: this.t('decidiq', 'Observer'),
+				guest: this.t('decidiq', 'Guest'),
 			}
 			return MEMBER_ROLES.map((role) => ({
 				id: role,
@@ -138,7 +138,7 @@ export default {
 				this.$emit('close')
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Failed to change role.')
+					e?.message || this.t('decidiq', 'Failed to change role.')
 			} finally {
 				this.saving = false
 			}

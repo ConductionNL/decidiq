@@ -10,7 +10,7 @@
  * never fail-open).
  *
  * @category Lifecycle
- * @package  OCA\Decidesk\Lifecycle
+ * @package  OCA\Decidiq\Lifecycle
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,7 +26,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Lifecycle;
+namespace OCA\Decidiq\Lifecycle;
 
 /**
  * Translates a process template into a guard policy override.

@@ -4,7 +4,7 @@
  * Unit tests for AgendaController — auth guard assertions.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Controller
+ * @package  OCA\Decidiq\Tests\Unit\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -18,12 +18,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Controller;
+namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\Decidesk\Controller\AgendaController;
-use OCA\Decidesk\Service\AgendaAuthorizationGuard;
-use OCA\Decidesk\Service\AgendaService;
-use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidiq\Controller\AgendaController;
+use OCA\Decidiq\Service\AgendaAuthorizationGuard;
+use OCA\Decidiq\Service\AgendaService;
+use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;

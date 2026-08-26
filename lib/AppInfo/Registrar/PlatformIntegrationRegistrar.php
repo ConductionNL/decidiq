@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Decidesk NC Platform Integration Registrar
+ * Decidiq NC Platform Integration Registrar
  *
  * Nextcloud platform integration bindings: unified search, the object-write
  * guard listeners, and the Nextcloud main-dashboard widget.
  *
- * Extracted from {@see \OCA\Decidesk\AppInfo\Application} so the bootstrap
+ * Extracted from {@see \OCA\Decidiq\AppInfo\Application} so the bootstrap
  * class stops accumulating a class reference for every registration it makes
  * (PHPMD CouplingBetweenObjects); the imports move with the registrations.
  *
  * @category AppInfo
- * @package  OCA\Decidesk\AppInfo\Registrar
+ * @package  OCA\Decidiq\AppInfo\Registrar
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -28,13 +28,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\AppInfo\Registrar;
+namespace OCA\Decidiq\AppInfo\Registrar;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Dashboard\DecideskDashboardWidget;
-use OCA\Decidesk\Listener\PortalCreateOpenParentGuardListener;
-use OCA\Decidesk\Search\DecideskSearchProvider;
-use OCA\Decidesk\Service\DashboardWidgetService;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Dashboard\DecidiqDashboardWidget;
+use OCA\Decidiq\Listener\PortalCreateOpenParentGuardListener;
+use OCA\Decidiq\Search\DecidiqSearchProvider;
+use OCA\Decidiq\Service\DashboardWidgetService;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\AppFramework\Utility\ITimeFactory;
@@ -92,9 +92,9 @@ class PlatformIntegrationRegistrar {
 	 */
 	private function registerSearch(IRegistrationContext $context): void {
 		$context->registerService(
-			DecideskSearchProvider::class,
-			static function ($c): DecideskSearchProvider {
-				return new DecideskSearchProvider(
+			DecidiqSearchProvider::class,
+			static function ($c): DecidiqSearchProvider {
+				return new DecidiqSearchProvider(
 					container: $c->get(ContainerInterface::class),
 					urlGenerator: $c->get(IURLGenerator::class),
 					l10n: $c->get(IFactory::class)->get(Application::APP_ID),
@@ -102,7 +102,7 @@ class PlatformIntegrationRegistrar {
 				);
 			}
 		);
-		$context->registerSearchProvider(DecideskSearchProvider::class);
+		$context->registerSearchProvider(DecidiqSearchProvider::class);
 
 	}//end registerSearch()
 
@@ -151,7 +151,7 @@ class PlatformIntegrationRegistrar {
 	/**
 	 * Nextcloud main-dashboard widget (dashboard-iwidget-v1).
 	 *
-	 * A per-user "Decidesk" widget showing pending votes count + next meeting
+	 * A per-user "Decidiq" widget showing pending votes count + next meeting
 	 * on the Nextcloud Hub, deep-linking into the app. Fail-soft, OR-scoped.
 	 * Registered explicitly because its IL10N has to be obtained from IFactory
 	 * for this app id, which the container cannot infer.
@@ -167,9 +167,9 @@ class PlatformIntegrationRegistrar {
 	 */
 	private function registerDashboardWidget(IRegistrationContext $context): void {
 		$context->registerService(
-			DecideskDashboardWidget::class,
-			static function ($c): DecideskDashboardWidget {
-				return new DecideskDashboardWidget(
+			DecidiqDashboardWidget::class,
+			static function ($c): DecidiqDashboardWidget {
+				return new DecidiqDashboardWidget(
 					l10n: $c->get(IFactory::class)->get(Application::APP_ID),
 					urlGenerator: $c->get(IURLGenerator::class),
 					timeFactory: $c->get(ITimeFactory::class),
@@ -177,7 +177,7 @@ class PlatformIntegrationRegistrar {
 				);
 			}
 		);
-		$context->registerDashboardWidget(DecideskDashboardWidget::class);
+		$context->registerDashboardWidget(DecidiqDashboardWidget::class);
 
 	}//end registerDashboardWidget()
 }//end class

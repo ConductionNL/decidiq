@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Proxy Delegation Service
+ * Decidiq Proxy Delegation Service
  *
  * Grant and revoke a proxy (volmacht) on a VotingRound.
  *
@@ -11,7 +11,7 @@
  * VotingService with the ballot lifecycle alone.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,19 +27,19 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IUserManager;
 use OCP\Notification\IManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Proxy (volmacht) delegation on a VotingRound.
@@ -96,7 +96,7 @@ class ProxyDelegationService {
 
 		$objectService = $this->objectService();
 
-		$toParticipantEntity = $objectService->find(id: $toParticipantId, register: 'decidesk', schema: 'participant');
+		$toParticipantEntity = $objectService->find(id: $toParticipantId, register: 'decidiq', schema: 'participant');
 		$toParticipant = null;
 		if ($toParticipantEntity !== null) {
 			$toParticipant = $toParticipantEntity->jsonSerialize();
@@ -119,7 +119,7 @@ class ProxyDelegationService {
 		];
 
 		// Store proxy as a structured note on the VotingRound.
-		$roundEntity = $objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
+		$roundEntity = $objectService->find(id: $votingRoundId, register: 'decidiq', schema: 'voting-round');
 		$round = null;
 		if ($roundEntity !== null) {
 			$round = $roundEntity->jsonSerialize();
@@ -132,7 +132,7 @@ class ProxyDelegationService {
 				'body' => json_encode($proxyRecord),
 			];
 			$round['notes'] = $notes;
-			$objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
+			$objectService->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
 		}
 
 		if ($toParticipant !== null) {
@@ -159,7 +159,7 @@ class ProxyDelegationService {
 	 */
 	public function revokeProxy(string $votingRoundId, string $fromParticipantId): void {
 		$objectService = $this->objectService();
-		$roundEntity = $objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
+		$roundEntity = $objectService->find(id: $votingRoundId, register: 'decidiq', schema: 'voting-round');
 		$round = null;
 		if ($roundEntity !== null) {
 			$round = $roundEntity->jsonSerialize();
@@ -189,7 +189,7 @@ class ProxyDelegationService {
 		);
 
 		$round['notes'] = $filtered;
-		$objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
+		$objectService->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
 
 	}//end revokeProxy()
 
@@ -228,14 +228,14 @@ class ProxyDelegationService {
 
 			$notificationManager = $this->container->get(IManager::class);
 			$notification = $notificationManager->createNotification();
-			$notification->setApp('decidesk')
+			$notification->setApp('decidiq')
 				->setUser($nextcloudUserId)
 				->setDateTime(new DateTime())
 				->setObject('voting-round', $votingRoundId)
 				->setSubject('proxy_granted', ['from' => $fromParticipantId, 'votingRoundId' => $votingRoundId]);
 			$notificationManager->notify($notification);
 		} catch (Throwable $e) {
-			$this->logger->warning('Decidesk: proxy grant notification failed', ['error' => $e->getMessage()]);
+			$this->logger->warning('Decidiq: proxy grant notification failed', ['error' => $e->getMessage()]);
 		}//end try
 
 	}//end notifyDelegate()

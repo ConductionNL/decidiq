@@ -11,9 +11,9 @@ Nederlandse gemeenten zijn wettelijk verplicht om raadsvergaderingen openbaar te
 
 Bovendien zijn de huidige streams meestal niet WCAG-conform (geen closed captions, geen transcript, geen hoofdstuk-navigatie), wat een toegankelijkheidsprobleem vormt voor ongeveer 1,5 miljoen doven en slechthorenden in Nederland.
 
-Deze spec voegt aan decidesk een livestream- en transcriptie-laag toe die:
+Deze spec voegt aan decidiq een livestream- en transcriptie-laag toe die:
 
-1. De HLS/MPEG-DASH stream van de griffie-aanbieder embed in de decidesk-vergaderpagina
+1. De HLS/MPEG-DASH stream van de griffie-aanbieder embed in de decidiq-vergaderpagina
 2. Automatisch een Nederlandstalig transcript genereert met Whisper-NL of de NOTUBIZ ASR-API
 3. Sprekers detecteert door koppeling met de microfoonbron uit het zaalsysteem
 4. Transcript-segmenten linkt aan agendapunten zodat de tijdlijn navigeerbaar is
@@ -26,7 +26,7 @@ De waarde voor gemeenten zit in drie hoeken:
 
 ## What Changes
 
-**NEW entities in decidesk:**
+**NEW entities in decidiq:**
 - `Livestream` — koppelt een Vergadering aan een streaming-bron (provider, streamUrl, status, recordingUrl, DVR-enabled, embargo-control)
 - `Transcript` — volledige transcript van één vergadering (language, engine, confidence, status, fullText, VTT-export)
 - `TranscriptSegment` — atomair transcript-fragment per spreker-turn (speaker, startTime, endTime, text, confidence, agendapunt-koppeling, flags)
@@ -85,7 +85,7 @@ De waarde voor gemeenten zit in drie hoeken:
 
 ### Unchanged Capabilities
 
-Alle bestaande decidesk-specs (`p2-meeting-management`, `p2-motion-and-voting`, etc.) blijven ongewijzigd. Livestream/transcript zijn zuiver additieve features.
+Alle bestaande decidiq-specs (`p2-meeting-management`, `p2-motion-and-voting`, etc.) blijven ongewijzigd. Livestream/transcript zijn zuiver additieve features.
 
 ## Impact
 
@@ -114,8 +114,8 @@ Alle bestaande decidesk-specs (`p2-meeting-management`, `p2-motion-and-voting`, 
 - Existing: CalDAV storage for meeting lifecycle
 
 **Reused (no changes):**
-- `OCA\Decidesk\Service\MeetingService` — meeting CRUD
-- `OCA\Decidesk\Service\AgendaService` — agenda items
+- `OCA\Decidiq\Service\MeetingService` — meeting CRUD
+- `OCA\Decidiq\Service\AgendaService` — agenda items
 - `OCA\OpenRegister\Service\ObjectService` — entity queries
 
 ## Standards & Sources
@@ -131,7 +131,7 @@ Alle bestaande decidesk-specs (`p2-meeting-management`, `p2-motion-and-voting`, 
 
 ## Cross-app Integration
 
-- **decidesk** (base) — owns `Vergadering`, `Agendapunt`, `Besluit`, `Stemming`. New entities: `Livestream`, `Transcript`, `TranscriptSegment`, `Spreker`
+- **decidiq** (base) — owns `Vergadering`, `Agendapunt`, `Besluit`, `Stemming`. New entities: `Livestream`, `Transcript`, `TranscriptSegment`, `Spreker`
 - **openconnector** — provides NOTUBIZ/iBabs adapters; publishes events for livestream and microphone data
 - **openregister** — hosts schema definitions; provides full-text search
 - **docudesk** — can embed transcript-excerpt in PDF export
@@ -142,7 +142,7 @@ Alle bestaande decidesk-specs (`p2-meeting-management`, `p2-motion-and-voting`, 
 A change is complete when:
 
 1. All four new entities are defined in OpenRegister schema + migrations exist
-2. Livestream player renders HLS/DASH streams in decidesk UI with player controls (play/pause/speed/volume)
+2. Livestream player renders HLS/DASH streams in decidiq UI with player controls (play/pause/speed/volume)
 3. Transcript is automatically generated within 60 minutes after livestream ends (transcriptionPolicy=auto)
 4. TranscriptSegments are linked to Agendapunten (90%+ accuracy)
 5. Speakers are recognized and linked to TranscriptSegments via microphone IDs

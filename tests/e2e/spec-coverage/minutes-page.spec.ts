@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — Minutes index page (genuine behavioural).
@@ -29,7 +29,7 @@ async function dismissSupportDialog(page: Page): Promise<void> {
 }
 
 /**
- * Navigate to a decidesk page, preferring the APP's left navigation entry
+ * Navigate to a decidiq page, preferring the APP's left navigation entry
  * (app-scoped) when it exists. The nav is org-mode-aware: in the gov-mode
  * layout the Minutes page is not a top-level nav entry, so we fall back to
  * the app-scoped route (still never via the global NC header). `route` is the
@@ -40,7 +40,7 @@ async function appNavClick(
 	entryId: string,
 	route: string,
 ): Promise<void> {
-	await page.goto(`${BASE}/apps/decidesk/`)
+	await page.goto(`${BASE}/apps/decidiq/`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await dismissSupportDialog(page)
 	const entry = page.locator(`[data-testid="cn-nav-entry-${entryId}"]`).first()
@@ -48,7 +48,7 @@ async function appNavClick(
 		await entry.click()
 		return
 	}
-	await page.goto(`${BASE}/apps/decidesk${route}`)
+	await page.goto(`${BASE}/apps/decidiq${route}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await dismissSupportDialog(page)
 }
@@ -59,8 +59,8 @@ test('Minutes: app-scoped nav lands on the Minutes index with its real content',
 }) => {
 	await appNavClick(page, 'Minutes', '/minutes')
 
-	// URL stayed inside the decidesk SPA on the minutes route (no false-green out-nav)
-	await expect(page).toHaveURL(/\/apps\/decidesk\/.*minutes/)
+	// URL stayed inside the decidiq SPA on the minutes route (no false-green out-nav)
+	await expect(page).toHaveURL(/\/apps\/decidiq\/.*minutes/)
 
 	// Real index surface: object-list table + "Showing N of N" + primary CTA.
 	// NOTE: the migrated CnIndexPage (nc-vue v2) no longer renders a page-title
@@ -88,19 +88,17 @@ test('Minutes: Add Minutes opens a real create form dialog', async ({ page }) =>
 })
 
 // @e2e openspec/specs/minutes-management/spec.md#view-the-minutes-list
-test('Minutes: no decidesk-origin console error or 500 on load', async ({
-	page,
-}) => {
+test('Minutes: no decidiq-origin console error or 500 on load', async ({ page }) => {
 	const appErrors: string[] = []
 	page.on('console', (m) => {
 		const t = m.text()
-		// Ignore NC-core user_status noise; only flag decidesk-origin failures.
+		// Ignore NC-core user_status noise; only flag decidiq-origin failures.
 		if (m.type() === 'error' && !/user_status|heartbeat|user status/i.test(t)) {
-			if (/decidesk/i.test(t)) appErrors.push(t)
+			if (/decidiq/i.test(t)) appErrors.push(t)
 		}
 	})
 	page.on('response', (r) => {
-		if (r.status() >= 500 && /decidesk/i.test(r.url()))
+		if (r.status() >= 500 && /decidiq/i.test(r.url()))
 			appErrors.push(`HTTP ${r.status()} ${r.url()}`)
 	})
 
@@ -108,6 +106,6 @@ test('Minutes: no decidesk-origin console error or 500 on load', async ({
 	await expect(page.getByTestId('cn-object-list-table')).toBeVisible()
 	expect(
 		appErrors,
-		`decidesk errors on Minutes:\n${appErrors.join('\n')}`,
+		`decidiq errors on Minutes:\n${appErrors.join('\n')}`,
 	).toHaveLength(0)
 })

@@ -4,7 +4,7 @@
  * Unit tests for MigrateLegacyTemplatesToDecisionTemplate repair step.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Migration
+ * @package  OCA\Decidiq\Tests\Unit\Migration
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -19,10 +19,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Migration;
+namespace OCA\Decidiq\Tests\Unit\Migration;
 
-use OCA\Decidesk\Migration\MigrateLegacyTemplatesToDecisionTemplate;
-use OCA\Decidesk\Service\SettingsService;
+use OCA\Decidiq\Migration\MigrateLegacyTemplatesToDecisionTemplate;
+use OCA\Decidiq\Service\SettingsService;
 use OCP\Migration\IOutput;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -375,7 +375,7 @@ class MigrateLegacyTemplatesToDecisionTemplateTest extends TestCase {
 
 		// An object whose jsonSerialize() does not return an array — toArray()
 		// must fall back to null rather than treating the string as a payload.
-		$badJsonSerializeEntity = new class () {
+		$badJsonSerializeEntity = new class() {
 			/**
 			 * @return string
 			 */
@@ -684,13 +684,15 @@ class MigrateLegacyTemplatesToDecisionTemplateTest extends TestCase {
 	 * @return object
 	 */
 	private function jsonSerializableEntity(array $data): object {
-		return new class ($data) {
+		return new class($data) {
 			/**
 			 * Constructor.
 			 *
 			 * @param array<string,mixed> $data The object payload.
 			 */
-			public function __construct(private readonly array $data) {
+			public function __construct(
+				private readonly array $data,
+			) {
 			}//end __construct()
 
 			/**
@@ -712,13 +714,15 @@ class MigrateLegacyTemplatesToDecisionTemplateTest extends TestCase {
 	 * @return object
 	 */
 	private function getObjectOnlyEntity(array $data): object {
-		return new class ($data) {
+		return new class($data) {
 			/**
 			 * Constructor.
 			 *
 			 * @param array<string,mixed> $data The object payload.
 			 */
-			public function __construct(private readonly array $data) {
+			public function __construct(
+				private readonly array $data,
+			) {
 			}//end __construct()
 
 			/**
@@ -751,13 +755,7 @@ class MigrateLegacyTemplatesToDecisionTemplateTest extends TestCase {
 		array $throwFindAllForSchemas = [],
 		array $failSaveForSourceUuids = [],
 	): object {
-		return new class (
-			$decisionTemplates,
-			$processTemplates,
-			$vveDecisionTemplates,
-			$throwFindAllForSchemas,
-			$failSaveForSourceUuids,
-		) {
+		return new class($decisionTemplates, $processTemplates, $vveDecisionTemplates, $throwFindAllForSchemas, $failSaveForSourceUuids, ) {
 			/**
 			 * Saved objects in call order.
 			 *
@@ -804,6 +802,23 @@ class MigrateLegacyTemplatesToDecisionTemplateTest extends TestCase {
 			 *
 			 * @return self
 			 */
+			/**
+			 * Run the callable, as OpenRegister does under a system identity.
+			 *
+			 * The fake needs this because the production migration is WRAPPED in
+			 * it: an `occ upgrade` has no session, so without a system identity
+			 * OpenRegister refuses every create as 'Anonymous'. A fake missing the
+			 * method does not merely fail — it would let the wrapper be removed
+			 * and the suite stay green while every real upgrade migrated nothing.
+			 *
+			 * @param callable $operation The operation to run.
+			 *
+			 * @return mixed The operation's result.
+			 */
+			public function runAsSystem(callable $operation) {
+				return $operation();
+			}
+
 			public function setRegister(string $register): self {
 				return $this;
 			}//end setRegister()

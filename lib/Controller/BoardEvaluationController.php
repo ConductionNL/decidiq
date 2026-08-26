@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Board Evaluation Controller
+ * Decidiq Board Evaluation Controller
  *
  * REST surface for the board self-evaluation workflow (board-self-evaluation):
  * anonymous response submission, closing a cycle (materialises scoring),
@@ -10,7 +10,7 @@
  * the standard OpenRegister object API and needs no bespoke endpoint here.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,14 +26,14 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\BoardEvaluationAccessGuard;
-use OCA\Decidesk\Service\BoardEvaluationReportService;
-use OCA\Decidesk\Service\BoardEvaluationResponseService;
-use OCA\Decidesk\Service\BoardEvaluationScoreService;
-use OCA\Decidesk\Service\ParticipationPublicationService;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\BoardEvaluationAccessGuard;
+use OCA\Decidiq\Service\BoardEvaluationReportService;
+use OCA\Decidiq\Service\BoardEvaluationResponseService;
+use OCA\Decidiq\Service\BoardEvaluationScoreService;
+use OCA\Decidiq\Service\ParticipationPublicationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;

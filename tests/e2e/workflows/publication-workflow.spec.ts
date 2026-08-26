@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * DEEP, data-dependent e2e — the public-publication flow
@@ -56,7 +56,7 @@ test.afterAll(async ({ browser }) => {
 
 /** Open a decision detail page and switch to its Publication sidebar tab. */
 async function openPublicationTab(page, schema: string, route: string, id: string) {
-	await page.goto(`${BASE}/apps/decidesk/${route}/${id}`)
+	await page.goto(`${BASE}/apps/decidiq/${route}/${id}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	// Open the Publication sidebar tab.
 	const tab = page.getByRole('tab', { name: /Publication/i }).first()
@@ -232,7 +232,7 @@ test.describe('public publication flow', () => {
 	})
 
 	test('admin configures a catalog target + policy', async ({ page }) => {
-		await page.goto(`${BASE}/settings/admin/decidesk`)
+		await page.goto(`${BASE}/settings/admin/decidiq`)
 		await page.waitForSelector('[data-testid="publication-settings"]', {
 			timeout: 15_000,
 		})

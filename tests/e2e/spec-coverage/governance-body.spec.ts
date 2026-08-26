@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — admin-settings spec (governance body management)
@@ -22,7 +22,7 @@ import { BASE_URL as BASE } from '../base-url'
 test('governance bodies list renders with Add GovernanceBody button', async ({
 	page,
 }) => {
-	await page.goto(`${BASE}/apps/decidesk/governance-bodies`)
+	await page.goto(`${BASE}/apps/decidiq/governance-bodies`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	// List loads with the "Showing N of N" indicator
@@ -38,7 +38,7 @@ test('governance bodies list renders with Add GovernanceBody button', async ({
 test('Create GovernanceBody dialog opens with name, bodyType and domain required fields', async ({
 	page,
 }) => {
-	await page.goto(`${BASE}/apps/decidesk/governance-bodies`)
+	await page.goto(`${BASE}/apps/decidiq/governance-bodies`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	await page.getByRole('button', { name: 'Add GovernanceBody' }).click()
@@ -82,7 +82,7 @@ test('Create GovernanceBody dialog opens with name, bodyType and domain required
 test('Create GovernanceBody dialog exposes the quorumRule configuration field', async ({
 	page,
 }) => {
-	await page.goto(`${BASE}/apps/decidesk/governance-bodies`)
+	await page.goto(`${BASE}/apps/decidiq/governance-bodies`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	await page.getByRole('button', { name: 'Add GovernanceBody' }).click()

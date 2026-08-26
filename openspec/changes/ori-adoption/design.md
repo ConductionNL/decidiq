@@ -6,13 +6,13 @@ ORI → Popolo mapping table; the procest change references it and must not fork
 ## Principles
 
 1. **Popolo is the storage model; ORI is a wire format.** Every ORI concept is
-   stored in decidesk's existing English/Popolo schemas. Dutch statutory field
+   stored in decidiq's existing English/Popolo schemas. Dutch statutory field
    names (`vergadering`, `aangenomen`, `zetels`, …) appear only in the
    `OriExportMapper` adapter.
-2. **Additive schema deltas only.** No decidesk property is renamed or removed;
+2. **Additive schema deltas only.** No decidiq property is renamed or removed;
    ORI properties with no Popolo counterpart become additive properties or enum
-   values on the existing schemas (listed per-schema below). Existing decidesk
-   objects remain valid, so no data migration is needed *inside* decidesk — the
+   values on the existing schemas (listed per-schema below). Existing decidiq
+   objects remain valid, so no data migration is needed *inside* decidiq — the
    only data migration is the ORI-source import.
 3. **Never fabricate data.** Where ORI stores an aggregate that Popolo models
    per-entity (party-level vote results vs per-participant `Vote`), the
@@ -25,12 +25,12 @@ ORI → Popolo mapping table; the procest change references it and must not fork
 ## Schema mapping table (canonical)
 
 Enum-value translations are part of the mapping: **a property or enum-value
-rename is a data migration**, executed by `occ decidesk:import-ori`, never by
+rename is a data migration**, executed by `occ decidiq:import-ori`, never by
 hand-editing schemas.
 
 ### `vergadering` → `Meeting`
 
-| ORI property | decidesk target | Notes |
+| ORI property | decidiq target | Notes |
 | --- | --- | --- |
 | `name` | `Meeting.title` | |
 | `type` | `Meeting.meetingType` | `raadsvergadering`→`regular`, `commissievergadering`→`committee`, `hearing`→`public hearing`, `informatiebijeenkomst`→`informational-session` (**new enum value**) |
@@ -40,12 +40,12 @@ hand-editing schemas.
 | `location` | `Meeting.location` | |
 | `organisation` | `Meeting.governanceBody` | resolved/created as a `GovernanceBody` (`bodyType: legislative`, e.g. the municipal council); the original organisation *name* survives as that body's `name` |
 | `committee` | `Meeting.governanceBody` | committee meetings reference the committee `GovernanceBody` instead (created with `bodyType: advisory-body`, per `commissievergaderingen` / `shared-governance-bodies` modelling); `organisation` then only disambiguates the parent |
-| — | `Meeting.meetingMode` | required in decidesk, absent in ORI → import default `in-person` |
+| — | `Meeting.meetingMode` | required in decidiq, absent in ORI → import default `in-person` |
 | — | `Meeting.isPublic` | ORI data is public by definition → import sets `true` |
 
 ### `agendapunt` → `AgendaItem`
 
-| ORI property | decidesk target | Notes |
+| ORI property | decidiq target | Notes |
 | --- | --- | --- |
 | `subject` | `AgendaItem.title` | |
 | `omschrijving` | `AgendaItem.description` | |
@@ -53,28 +53,28 @@ hand-editing schemas.
 | `vergadering` | `AgendaItem.meeting` | slug ref → imported `Meeting` ref |
 | `parentAgendaItem` | `AgendaItem.parentItem` | |
 | `attachments` | `AgendaItem.documents` | **new additive property**: array of `DigitalDocument` refs |
-| — | `AgendaItem.itemType` | required in decidesk, absent in ORI → derived: `decision` when a `stemming` references the item, else `discussion` when `omschrijving`/attachments present, else `informational` (opening/closing/procedural items) |
+| — | `AgendaItem.itemType` | required in decidiq, absent in ORI → derived: `decision` when a `stemming` references the item, else `discussion` when `omschrijving`/attachments present, else `informational` (opening/closing/procedural items) |
 
 ### `raadsdocument` → `DigitalDocument`
 
-| ORI property | decidesk target | Notes |
+| ORI property | decidiq target | Notes |
 | --- | --- | --- |
 | `title` | `DigitalDocument.name` | |
 | `type` | `DigitalDocument.documentType` | value map: `motion`→`motion`, `amendment`→`amendment`, `decision`→`decision`, `brief`→`letter` (**value translation**), `report`→`report`, `minutes`→`minutes` |
 | `classification` | `DigitalDocument.classification` | **new additive property** (free-text category) |
 | `url` | `DigitalDocument.url` | **new additive property** (`format: uri`, schema.org `url`) |
 | `fileName` | `DigitalDocument.fileName` | **new additive property** |
-| `fileSize` | `DigitalDocument.contentSize` | integer bytes → string (decidesk/schema.org `contentSize` is a string; importer stringifies) |
+| `fileSize` | `DigitalDocument.contentSize` | integer bytes → string (decidiq/schema.org `contentSize` is a string; importer stringifies) |
 | `contentType` | `DigitalDocument.encodingFormat` | |
 
 ### `stemming` → `VotingRound` + `Decision`
 
 One ORI `stemming` becomes a `Decision` (the thing voted on) plus a
-`VotingRound` (the vote event). decidesk's per-participant `Vote` objects are
+`VotingRound` (the vote event). decidiq's per-participant `Vote` objects are
 **not** created: ORI only stores party-level aggregates, and per-person votes
 cannot be reconstructed without inventing data (principle 3).
 
-| ORI property | decidesk target | Notes |
+| ORI property | decidiq target | Notes |
 | --- | --- | --- |
 | `subject` | `Decision.title` (and `Decision.text`) | |
 | `type` | `Decision.decisionType` | `motion`→`motion`, `amendment`→`amendment`, `proposal`→`resolution` (**value translation**) |
@@ -85,11 +85,11 @@ cannot be reconstructed without inventing data (principle 3).
 | `onthoudingen` | `VotingRound.votesAbstain` | |
 | `politicalGroupResults[]` | `VotingRound.partyResults[]` | **new additive property**: array of `{party (GovernanceBody ref or name), value (for/against/abstain), seatCount}`; sub-field renames `fractie`→`party`, `stem`→`vote value`, `zetels`→`seatCount` are part of the import |
 | — | `VotingRound.subjectDecision` | **new additive property**: ref to the created `Decision` (the round↔decision link without forcing a full `DecisionStage` route for imported historical votes) |
-| — | `VotingRound.votingMethod` / `isSecret` | required in decidesk → import defaults `for-against-abstain` / `false` (ORI results are public party-level votes) |
+| — | `VotingRound.votingMethod` / `isSecret` | required in decidiq → import defaults `for-against-abstain` / `false` (ORI results are public party-level votes) |
 
 ### `raadslid` → `Person` + `Membership`(s)
 
-| ORI property | decidesk target | Notes |
+| ORI property | decidiq target | Notes |
 | --- | --- | --- |
 | `name` | `Person.name` | |
 | `role` | `Membership.role` on the council body | `councilMember`→`member`, `mayor`→`chair`, `clerk`→`secretary` — all on the legislative `GovernanceBody`; `alderman`→`member` on the **executive** `GovernanceBody` (`bodyType: executive-board`), created on demand |
@@ -98,11 +98,11 @@ cannot be reconstructed without inventing data (principle 3).
 
 ### `fractie` → `GovernanceBody`
 
-| ORI property | decidesk target | Notes |
+| ORI property | decidiq target | Notes |
 | --- | --- | --- |
 | `name` | `GovernanceBody.name` | |
 | — | `GovernanceBody.bodyType` | `political-group` (**new enum value**) |
-| — | `GovernanceBody.domain` | required in decidesk → inherits the council body's domain |
+| — | `GovernanceBody.domain` | required in decidiq → inherits the council body's domain |
 | `zetels` | `GovernanceBody.seatCount` | **new additive property** (integer). Steady-state it is derivable from memberships; kept as a stored aggregate because imported ORI data has seats without complete member lists |
 | `classification` | `GovernanceBody.coalitionRole` | **new additive property**, enum `coalition` \| `opposition`; value map `coalitiepartij`→`coalition`, `oppositiepartij`→`opposition` (**value translation**) |
 
@@ -139,15 +139,15 @@ scoped to objects whose visibility is public).
 
 - Schema deltas are additive → rollback is a no-op for existing data.
 - Imported objects are tagged `externalReference: ori:<uuid>` → rollback =
-  delete objects carrying the tag (`occ decidesk:import-ori --rollback`,
+  delete objects carrying the tag (`occ decidiq:import-ori --rollback`,
   dry-run first). The source `ori` register is untouched by this change, so the
   pre-import state remains fully recoverable until procest's `ori-removal`
   deletes it — which that change only does after verified import parity.
 
 ## Alternatives considered
 
-- **Import the six Dutch schemas as-is into decidesk.** Rejected by the product
-  owner: perpetuates a second, Dutch-named model of decidesk's own domain and
+- **Import the six Dutch schemas as-is into decidiq.** Rejected by the product
+  owner: perpetuates a second, Dutch-named model of decidiq's own domain and
   violates the English-identifier fleet rule.
 - **Map `raadsdocument` motions/amendments to `Decision` instead of
   `DigitalDocument`.** Rejected: an ORI `raadsdocument` is a *file record*
@@ -157,5 +157,5 @@ scoped to objects whose visibility is public).
 - **Decompose `politicalGroupResults` into per-participant `Vote` objects.**
   Rejected: fabricates individual votes from party aggregates.
 - **A dedicated `PoliticalGroup` schema.** Rejected: Popolo models parties as
-  organizations; decidesk's organization concept is `GovernanceBody`, so a
+  organizations; decidiq's organization concept is `GovernanceBody`, so a
   `political-group` bodyType keeps one organization model.

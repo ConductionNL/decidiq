@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Voting Round Results
+ * Decidiq Voting Round Results
  *
  * Counting and result computation for a voting round: the ballot tally, the
  * chair-entered show-of-hands tally, and the rule-aware outcome that both share.
@@ -9,7 +9,7 @@
  * the counts so the decision stays auditable.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,10 +26,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use RuntimeException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use RuntimeException;
 
 /**
  * Rule-aware tallying for a voting round, extracted from VotingService.
@@ -187,7 +187,7 @@ class VotingRoundResults {
 		$computed = $this->compute(for: $votesFor, against: $votesAgainst, abstain: $votesAbstain, round: $round);
 		$round = $this->withOutcome(round: $round, counts: $counts, computed: $computed);
 
-		$saved = $this->objectService()->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
+		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
 
 		// The saveObject() call returns an ObjectEntity; normalise to satisfy the `: array` return type.
 		return $this->normaliser->toArray(saved: $saved, fallback: $round);
@@ -197,7 +197,7 @@ class VotingRoundResults {
 	 * Return every ballot that genuinely belongs to the given round.
 	 *
 	 * The filter is keyed via {@see ObjectRelationFilter::filterFor()}, NOT on the
-	 * `voting-round` schema slug: decidesk writes ballots with a structured
+	 * `voting-round` schema slug: Decidiq writes ballots with a structured
 	 * `relations` array, which OpenRegister flattens to `_relations` keys of the
 	 * form `relations.<n>.id`, so a slug-keyed filter matched zero rows and every
 	 * tally computed 0/0/0 on a healthy 200. The filter pins the related id but
@@ -211,7 +211,7 @@ class VotingRoundResults {
 	 */
 	private function ballotsInRound(string $votingRoundId): array {
 		$objectService = $this->objectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('vote');
 
 		return $this->relationFilter->matching(
@@ -271,7 +271,7 @@ class VotingRoundResults {
 		}
 
 		$this->objectService()->saveObject(
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'voting-round',
 			object: $this->withOutcome(round: $round, counts: $counts, computed: $computed)
 		);
@@ -366,7 +366,7 @@ class VotingRoundResults {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function loadRound(string $votingRoundId): ?array {
-		$entity = $this->objectService()->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
+		$entity = $this->objectService()->find(id: $votingRoundId, register: 'decidiq', schema: 'voting-round');
 		if ($entity === null) {
 			return null;
 		}

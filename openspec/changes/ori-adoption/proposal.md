@@ -5,14 +5,14 @@ Paired with procest change `ori-removal` (procest/openspec/changes/ori-removal/)
 
 ## Summary
 
-decidesk becomes the **sole home of raadsinformatie** (Dutch council information).
+decidiq becomes the **sole home of raadsinformatie** (Dutch council information).
 procest currently ships `lib/Settings/ori_register.json` — an "ORI (Open
 Raadsinformatie)" OpenRegister register with six Dutch-named schemas
 (`vergadering`, `agendapunt`, `raadsdocument`, `stemming`, `raadslid`,
-`fractie`) plus Voorbeeldstad demo data — which duplicates decidesk's Popolo-
+`fractie`) plus Voorbeeldstad demo data — which duplicates decidiq's Popolo-
 flavoured governance domain. Per the product-owner decision, those registers move
-to decidesk **purely**, and they are modelled on Popolo from the start: the ORI
-concepts are aligned onto decidesk's existing schemas (`Meeting`, `AgendaItem`,
+to decidiq **purely**, and they are modelled on Popolo from the start: the ORI
+concepts are aligned onto decidiq's existing schemas (`Meeting`, `AgendaItem`,
 `DigitalDocument`, `VotingRound`, `Decision`, `Person`, `Membership`,
 `GovernanceBody`) rather than importing the Dutch-named schemas as-is.
 
@@ -37,12 +37,12 @@ English.
      data) and `subjectDecision` (ref to the `Decision` voted on).
    - `GovernanceBody.bodyType` gains `political-group`; `GovernanceBody` gains
      `seatCount` and `coalitionRole` (`coalition` | `opposition`).
-   No property is removed or renamed; all existing decidesk objects stay valid.
+   No property is removed or renamed; all existing decidiq objects stay valid.
 
 2. **ORI import command (the migration target's own importer).**
-   `occ decidesk:import-ori` reads objects from a source ORI-shaped OpenRegister
+   `occ decidiq:import-ori` reads objects from a source ORI-shaped OpenRegister
    register (default slug `ori`, the register procest provisioned) and writes
-   Popolo-aligned decidesk objects, applying the mapping table. Supports
+   Popolo-aligned decidiq objects, applying the mapping table. Supports
    `--dry-run` (report-only, counts + per-object mapping preview), is idempotent
    (each created object records its source ORI uuid in `externalReference`), and
    never deletes source data. procest's `ori-removal` change invokes this and
@@ -59,23 +59,23 @@ English.
    duplicated.
 
 4. **Demo seed (dev only).** The Voorbeeldstad demo dataset from procest's
-   `ori_register.json` is translated through the same mapping into a decidesk
+   `ori_register.json` is translated through the same mapping into a decidiq
    `register.d` seed fragment so demo environments keep a populated council.
 
 ## Why
 
 - **One canonical home per domain** (ADR-022): meetings, agenda items, votes,
-  decisions, people and political groups are decidesk's core domain. Two
-  parallel models (Popolo in decidesk, ORI-Dutch in procest) split the record
+  decisions, people and political groups are decidiq's core domain. Two
+  parallel models (Popolo in decidiq, ORI-Dutch in procest) split the record
   and force every consumer to pick a side.
 - **English identifiers are a fleet contract**: procest's ORI register violates
   it structurally (`vergadering`, `zetels`, `aangenomen`, …). Moving the data
-  onto decidesk's English/Popolo schemas fixes the model; the ORI adapter keeps
+  onto decidiq's English/Popolo schemas fixes the model; the ORI adapter keeps
   the statutory Dutch wire format where it legally belongs — at the interface.
 - **procest sheds a domain it never owned**: its ORI surfaces (feed controller,
   data-quality cron, register repair step) are removed by the paired
   `ori-removal` change; procest cases that reference a council meeting link to
-  the decidesk `Meeting` instead.
+  the decidiq `Meeting` instead.
 
 ## Out of scope
 
@@ -95,4 +95,4 @@ English.
   live `ori` register, verifies counts, then removes its register, repair step,
   cron and feeds.
 - Depends on OpenRegister (`ObjectService`, `ConfigurationService`) — already a
-  decidesk dependency.
+  decidiq dependency.

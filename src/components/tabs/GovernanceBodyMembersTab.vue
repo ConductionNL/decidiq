@@ -21,16 +21,16 @@
  @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--members" data-testid="body-members-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Members') }}
-				<span v-if="!loading" class="decidesk-tab__count"
+	<div class="decidiq-tab decidiq-tab--members" data-testid="body-members-tab">
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Members') }}
+				<span v-if="!loading" class="decidiq-tab__count"
 					>({{ rows.length }})</span
 				>
 			</h3>
-			<div class="decidesk-tab__actions">
-				<NcActions :aria-label="t('decidesk', 'Import members')">
+			<div class="decidiq-tab__actions">
+				<NcActions :aria-label="t('decidiq', 'Import members')">
 					<template #icon>
 						<AccountMultiplePlus :size="20" />
 					</template>
@@ -41,7 +41,7 @@
 						<template #icon>
 							<AccountGroup :size="20" />
 						</template>
-						{{ t('decidesk', 'Import from Nextcloud group') }}
+						{{ t('decidiq', 'Import from Nextcloud group') }}
 					</NcActionButton>
 					<NcActionButton
 						data-testid="body-members-import-csv"
@@ -50,18 +50,18 @@
 						<template #icon>
 							<FileDelimited :size="20" />
 						</template>
-						{{ t('decidesk', 'Import from CSV') }}
+						{{ t('decidiq', 'Import from CSV') }}
 					</NcActionButton>
 				</NcActions>
 				<NcButton
 					variant="primary"
 					data-testid="body-members-add"
-					:aria-label="t('decidesk', 'Add member')"
+					:aria-label="t('decidiq', 'Add member')"
 					@click="addDialogOpen = true">
 					<template #icon>
 						<Plus :size="20" />
 					</template>
-					{{ t('decidesk', 'Add member') }}
+					{{ t('decidiq', 'Add member') }}
 				</NcButton>
 			</div>
 		</div>
@@ -69,7 +69,7 @@
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load members')">
+			:title="t('decidiq', 'Could not load members')">
 			{{ error }}
 		</CnNoteCard>
 
@@ -78,8 +78,8 @@
 			:rows="rows"
 			:loading="loading"
 			rowKey="id"
-			:emptyText="t('decidesk', 'No members linked to this body yet.')"
-			:loadingText="t('decidesk', 'Loading members…')">
+			:emptyText="t('decidiq', 'No members linked to this body yet.')"
+			:loadingText="t('decidiq', 'Loading members…')">
 			<template #row-actions="{ row }">
 				<CnRowActions :row="row" :actions="rowActions" />
 			</template>
@@ -116,7 +116,7 @@
 			ref="removeDialog"
 			:item="removeTarget"
 			nameField="displayName"
-			:dialogTitle="t('decidesk', 'Remove member')"
+			:dialogTitle="t('decidiq', 'Remove member')"
 			@confirm="confirmRemove"
 			@close="removeTarget = null" />
 	</div>
@@ -190,9 +190,9 @@ export default {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		columns() {
 			return [
-				{ key: 'displayName', label: this.t('decidesk', 'Name') },
-				{ key: 'role', label: this.t('decidesk', 'Role') },
-				{ key: 'party', label: this.t('decidesk', 'Party') },
+				{ key: 'displayName', label: this.t('decidiq', 'Name') },
+				{ key: 'role', label: this.t('decidiq', 'Role') },
+				{ key: 'party', label: this.t('decidiq', 'Party') },
 			]
 		},
 
@@ -200,14 +200,14 @@ export default {
 		rowActions() {
 			return [
 				{
-					label: this.t('decidesk', 'Change role'),
+					label: this.t('decidiq', 'Change role'),
 					icon: AccountEdit,
 					handler: (row) => {
 						this.roleTarget = { ...row }
 					},
 				},
 				{
-					label: this.t('decidesk', 'Remove from body'),
+					label: this.t('decidiq', 'Remove from body'),
 					icon: LinkOff,
 					destructive: true,
 					handler: (row) => {
@@ -262,7 +262,7 @@ export default {
 				this.rows = buildMemberRows(active, personsById)
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Failed to load members.')
+					e?.message || this.t('decidiq', 'Failed to load members.')
 			} finally {
 				this.loading = false
 			}
@@ -291,7 +291,7 @@ export default {
 				this.refresh()
 			} catch (e) {
 				this.$refs.removeDialog?.setResult({
-					error: e?.message || this.t('decidesk', 'Remove failed.'),
+					error: e?.message || this.t('decidiq', 'Remove failed.'),
 				})
 			}
 		},
@@ -300,33 +300,33 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__actions {
+.decidiq-tab__actions {
 	display: flex;
 	align-items: center;
 	gap: 4px;
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__count {
+.decidiq-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;

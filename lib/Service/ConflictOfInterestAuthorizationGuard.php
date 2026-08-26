@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Conflict-of-Interest Authorization Guard
+ * Decidiq Conflict-of-Interest Authorization Guard
  *
  * Answers the two authorization questions the conflict-of-interest endpoints
  * ask: does the caller identify as the Membership a declaration is about, and
@@ -15,7 +15,7 @@
  * Fails CLOSED: an unresolvable meeting or participant is never authorized.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -32,10 +32,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use Psr\Log\LoggerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Per-object authorization guard for the conflict-of-interest endpoints.
@@ -178,7 +178,7 @@ class ConflictOfInterestAuthorizationGuard {
 	 * @return string|null
 	 */
 	private function resolveParticipantUuid(string $nextcloudUid): ?string {
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('participant');
 		$entities = $this->objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
 
@@ -208,10 +208,10 @@ class ConflictOfInterestAuthorizationGuard {
 		}
 
 		try {
-			$entity = $this->objectService->find(id: $agendaItemId, register: 'decidesk', schema: 'agenda-item');
+			$entity = $this->objectService->find(id: $agendaItemId, register: 'decidiq', schema: 'agenda-item');
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: ConflictOfInterestAuthorizationGuard could not resolve the agenda item\'s meeting',
+				'Decidiq: ConflictOfInterestAuthorizationGuard could not resolve the agenda item\'s meeting',
 				['agendaItemId' => $agendaItemId, 'exception' => $e->getMessage()]
 			);
 			return null;

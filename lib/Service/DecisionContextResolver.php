@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Decision Context Resolver
+ * Decidiq Decision Context Resolver
  *
  * Resolves the OpenRegister objects and identities that surround a decision:
  * the decision itself, its linked meeting, its governance domain, its
@@ -10,7 +10,7 @@
  * machine itself.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,7 +26,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Log\LoggerInterface;
@@ -65,7 +65,7 @@ class DecisionContextResolver {
 	 */
 	public function loadDecision(object $objectService, string $decisionId): ?array {
 		try {
-			$entity = $objectService->find(id: $decisionId, register: 'decidesk', schema: 'decision');
+			$entity = $objectService->find(id: $decisionId, register: 'decidiq', schema: 'decision');
 		} catch (DoesNotExistException) {
 			return null;
 		}
@@ -98,7 +98,7 @@ class DecisionContextResolver {
 		}
 
 		try {
-			$entity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+			$entity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		} catch (DoesNotExistException) {
 			return null;
 		}
@@ -213,7 +213,7 @@ class DecisionContextResolver {
 		try {
 			$chairParticipant = $objectService->find(
 				id: $chairId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'participant'
 			);
 		} catch (DoesNotExistException) {
@@ -222,7 +222,7 @@ class DecisionContextResolver {
 
 		if ($chairParticipant === null) {
 			$this->logger->warning(
-				'Decidesk DecisionLifecycleService: chair participant not found',
+				'Decidiq DecisionLifecycleService: chair participant not found',
 				['chairParticipantId' => $chairId]
 			);
 			return null;

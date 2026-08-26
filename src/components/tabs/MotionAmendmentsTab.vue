@@ -12,31 +12,31 @@
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--amendments"
+		class="decidiq-tab decidiq-tab--amendments"
 		data-testid="motion-amendments-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Amendments') }}
-				<span v-if="!loading" class="decidesk-tab__count"
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Amendments') }}
+				<span v-if="!loading" class="decidiq-tab__count"
 					>({{ rows.length }})</span
 				>
 			</h3>
 			<NcButton
 				variant="primary"
 				data-testid="motion-amendments-add"
-				:aria-label="t('decidesk', 'Submit amendment')"
+				:aria-label="t('decidiq', 'Submit amendment')"
 				@click="openCreate">
 				<template #icon>
 					<Plus :size="20" />
 				</template>
-				{{ t('decidesk', 'Submit amendment') }}
+				{{ t('decidiq', 'Submit amendment') }}
 			</NcButton>
 		</div>
 
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load amendments')">
+			:title="t('decidiq', 'Could not load amendments')">
 			{{ error }}
 		</CnNoteCard>
 
@@ -45,8 +45,8 @@
 			:rows="rows"
 			:loading="loading"
 			rowKey="id"
-			:emptyText="t('decidesk', 'No amendments for this motion yet.')"
-			:loadingText="t('decidesk', 'Loading amendments…')"
+			:emptyText="t('decidiq', 'No amendments for this motion yet.')"
+			:loadingText="t('decidiq', 'Loading amendments…')"
 			@rowClick="openEdit">
 			<template #column-lifecycle="{ value }">
 				<CnStatusBadge
@@ -66,8 +66,8 @@
 			:item="editTarget"
 			:dialogTitle="
 				editTarget
-					? t('decidesk', 'Edit amendment')
-					: t('decidesk', 'Submit amendment')
+					? t('decidiq', 'Edit amendment')
+					: t('decidiq', 'Submit amendment')
 			"
 			:excludeFields="excludedFields"
 			@confirm="onConfirm"
@@ -78,7 +78,7 @@
 			ref="deleteDialog"
 			:item="deleteTarget"
 			nameField="title"
-			:dialogTitle="t('decidesk', 'Delete amendment')"
+			:dialogTitle="t('decidiq', 'Delete amendment')"
 			@confirm="confirmDelete"
 			@close="deleteTarget = null" />
 	</div>
@@ -133,9 +133,9 @@ export default {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		columns() {
 			return [
-				{ key: 'title', label: this.t('decidesk', 'Title') },
-				{ key: 'proposer', label: this.t('decidesk', 'Proposer') },
-				{ key: 'lifecycle', label: this.t('decidesk', 'Status') },
+				{ key: 'title', label: this.t('decidiq', 'Title') },
+				{ key: 'proposer', label: this.t('decidiq', 'Proposer') },
+				{ key: 'lifecycle', label: this.t('decidiq', 'Status') },
 			]
 		},
 
@@ -148,12 +148,12 @@ export default {
 		rowActions() {
 			return [
 				{
-					label: this.t('decidesk', 'Edit'),
+					label: this.t('decidiq', 'Edit'),
 					icon: Pencil,
 					handler: (row) => this.openEdit(row),
 				},
 				{
-					label: this.t('decidesk', 'Delete'),
+					label: this.t('decidiq', 'Delete'),
 					icon: TrashCanOutline,
 					destructive: true,
 					handler: (row) => {
@@ -197,7 +197,7 @@ export default {
 				this.rows = items || []
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Failed to load amendments.')
+					e?.message || this.t('decidiq', 'Failed to load amendments.')
 			} finally {
 				this.loading = false
 			}
@@ -240,7 +240,7 @@ export default {
 				this.refresh()
 			} catch (e) {
 				this.$refs.formDialog?.setResult({
-					error: e?.message || this.t('decidesk', 'Save failed.'),
+					error: e?.message || this.t('decidiq', 'Save failed.'),
 				})
 			}
 		},
@@ -254,7 +254,7 @@ export default {
 				this.refresh()
 			} catch (e) {
 				this.$refs.deleteDialog?.setResult({
-					error: e?.message || this.t('decidesk', 'Delete failed.'),
+					error: e?.message || this.t('decidiq', 'Delete failed.'),
 				})
 			}
 		},
@@ -263,27 +263,27 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__count {
+.decidiq-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;

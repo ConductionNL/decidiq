@@ -96,7 +96,7 @@
 - All new/changed business logic covered by PHPUnit unit tests (`tests/Unit/`)
 - New/changed API endpoints covered by Newman/Postman tests
 - UI changes covered by Playwright browser tests
-- All tests pass (`composer test`, `newman run`); `composer check:strict` clean in decidesk and docudesk
+- All tests pass (`composer test`, `newman run`); `composer check:strict` clean in decidiq and docudesk
 - Feature documentation updated in `docs/` (user-facing feature, ADR-010) with screenshot
 - Dutch (`nl_NL`) and English (`en_US`) translation strings added for all new user-facing strings (ADR-005/ADR-007)
 - `openspec validate` passes; hydra gates green (incl. notification-dialect, redundant-controller, orphan-auth, e2e-coverage)

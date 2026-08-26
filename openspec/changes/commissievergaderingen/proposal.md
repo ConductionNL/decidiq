@@ -9,7 +9,7 @@ depends_on: [decidesk-base]
 
 Vrijwel elke Nederlandse gemeenteraad werkt met raadscommissies als voorbereidende organen op de plenaire raadsvergadering. De griffie moet commissievergaderingen plannen, samenstelling beheren, belangenconflicten registreren, en commissieadviezen traceerbaar koppelen aan plenaire besluiten. Commissieleden en burgers hebben grote handmatige lasten: fractie-voorzitters moeten per e-mail plaatsvervangers doorgeven, commissieadviezen verdwijnen in PDF-bijlagen, en insprekers moeten hun persoonlijke gegevens publiek maken.
 
-Deze spec breidt Decidesk uit met een eersteklas commissie-model dat:
+Deze spec breidt Decidiq uit met een eersteklas commissie-model dat:
 - Sub-vergaderingen voor commissies beheert (planning, agendavoorbereiding, verslaglegging)
 - Vaste samenstelling per commissie (leden, plaatsvervangers, voorzitter, griffier) bijhoudt
 - Belangenverstrengelings-declaraties per agendapunt verplicht stelt (artikel 28 Gemeentewet)
@@ -80,7 +80,7 @@ De spec adresseert drie pijnpunten uit griffies-interviews:
 - 8 new OpenRegister schemas; no existing data affected
 
 **Dependencies:**
-- Decidesk base (decidesk-base)
+- Decidiq base (decidesk-base)
 - OpenRegister app (runtime autoloader)
 - Nextcloud Vue for frontend components
 

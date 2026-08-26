@@ -1,7 +1,7 @@
 # delegatie-mandaatregister Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - delegatie-mandaatregister
 
@@ -33,7 +33,7 @@ The system MUST provide a `Bevoegdheidstoedeling` OpenRegister schema in the dec
 
 #### Scenario: Register fragment is additive
 
-- GIVEN a decidesk installation upgrading to this change
+- GIVEN a decidiq installation upgrading to this change
 - WHEN the register configuration is loaded
 - THEN the Bevoegdheidstoedeling schema is registered from fragment `54-delegatie-mandaatregister.json`
 - AND no existing schema definition in `decidesk_register.json` is removed or restructured

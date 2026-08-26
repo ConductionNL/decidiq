@@ -4,7 +4,7 @@
  * Unit tests for MultilingualReconciliationController.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Controller
+ * @package  OCA\Decidiq\Tests\Unit\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,10 +20,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Controller;
+namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\Decidesk\Controller\MultilingualReconciliationController;
-use OCA\Decidesk\Service\MultilingualReconciliationService;
+use OCA\Decidiq\Controller\MultilingualReconciliationController;
+use OCA\Decidiq\Service\MultilingualReconciliationService;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
 use OCP\IRequest;

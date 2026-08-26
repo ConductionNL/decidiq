@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk — legacy Task/Delegation → ActionItem migration (RETIRED to a no-op).
+ * Decidiq — legacy Task/Delegation → ActionItem migration (RETIRED to a no-op).
  *
  * Action items are now CalDAV VTODOs exposed as a READ-ONLY OpenRegister
  * projection (action-items-vtodo-deck-reconcile). The original repair step wrote
@@ -15,7 +15,7 @@
  * removal does not break the repair-step registry.
  *
  * @category Migration
- * @package  OCA\Decidesk\Migration
+ * @package  OCA\Decidiq\Migration
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -30,7 +30,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Migration;
+namespace OCA\Decidiq\Migration;
 
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -49,7 +49,7 @@ class MigrateActionItemsToDeckLeaf implements IRepairStep {
 	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
 	 */
 	public function getName(): string {
-		return 'Migrate legacy Decidesk Task/Delegation objects to Deck-leaf VTODO action items (deferred to per-user follow-up)';
+		return 'Migrate legacy Decidiq Task/Delegation objects to Deck-leaf VTODO action items (deferred to per-user follow-up)';
 	}//end getName()
 
 	/**
@@ -65,7 +65,7 @@ class MigrateActionItemsToDeckLeaf implements IRepairStep {
 	 */
 	public function run(IOutput $output): void {
 		$output->info(
-			'Decidesk action-item migration skipped: action items are a read-only VTODO '
+			'Decidiq action-item migration skipped: action items are a read-only VTODO '
 			. 'projection; legacy task/delegation → VTODO migration is a per-user follow-up.'
 		);
 	}//end run()

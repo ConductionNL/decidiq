@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-Decidesk stays a thin client: all new persistence is OpenRegister objects (`AccessibilityScanReport` in the decidesk register) plus `IAppConfig` keys — no tables, no migrations. The moving parts:
+Decidiq stays a thin client: all new persistence is OpenRegister objects (`AccessibilityScanReport` in the decidesk register) plus `IAppConfig` keys — no tables, no migrations. The moving parts:
 
 ```
 upload (OR FileService attach, agenda builder / Files tab)
@@ -39,7 +39,7 @@ The scanner runs entirely locally; no document content leaves the instance (unli
   - Per-body/period status aggregation → `x-openregister-aggregations` on the `AccessibilityScanReport` schema (counts grouped by `status`, filtered by `governanceBody` + `scannedAt` range), consumed by the report view and any dashboard widget. No imperative counting service.
   - Notifications (e.g. "scan completed with failures" to the uploader) → `x-openregister-notifications` on `AccessibilityScanReport` (created trigger, condition `status == fail`). No imperative dispatch (notification-dialect gate 18).
   - Report status field is a plain enum, not a lifecycle — reports are immutable snapshots, superseded by newer reports, so no `x-openregister-lifecycle` (canonical `initial` key not needed here at all).
-- **Gate wiring is imperative but minimal**: a pre-condition check inside the two existing publish paths; it reads pre-computed report objects and app config. Putting a publication gate in a declarative dialect would require an OR-side "conditional write refusal across related files" dialect that does not exist; per ADR-031 this stays a thin server-side guard in decidesk.
+- **Gate wiring is imperative but minimal**: a pre-condition check inside the two existing publish paths; it reads pre-computed report objects and app config. Putting a publication gate in a declarative dialect would require an OR-side "conditional write refusal across related files" dialect that does not exist; per ADR-031 this stays a thin server-side guard in decidiq.
 
 ## API Design
 
@@ -87,7 +87,7 @@ None. All persistence is OR objects + `IAppConfig` (ADR-022; thin-client archite
 
 - Badges: NC-standard components with CSS variables (`--color-success`, `--color-warning`, `--color-error`) — text + colour, never colour alone (beware nldesign `--color-error` foreground inversion, nldesign#40).
 - Gate dialog: own file under `src/dialogs/` (modal-isolation gate), `NcDialog`-based, keyboard operable per `accessibility-baseline`.
-- All strings through `t('decidesk', …)`, Dutch + English (ADR-005); i18n keys in English.
+- All strings through `t('decidiq', …)`, Dutch + English (ADR-005); i18n keys in English.
 
 ## File Structure
 
@@ -127,7 +127,7 @@ New schema introduced ⇒ seeds required (ADR-016), shipped as `x-openregister-s
 | scannerVersion | `1.0.0` | `1.0.0` | `1.0.0` | `1.0.0` |
 | scannedAt | `2026-06-02T09:15:00Z` | `2026-06-02T09:16:00Z` | `2026-06-10T14:30:00Z` | `2026-06-12T08:00:00Z` |
 
-`@self` envelope per object: `{ "register": "decidesk", "schema": "accessibility-scan-report", "slug": "…" }`.
+`@self` envelope per object: `{ "register": "decidiq", "schema": "accessibility-scan-report", "slug": "…" }`.
 
 **Related items per object:**
 - Files: seed PDFs are not shipped as binaries; reports reference fileName/fileId so badges, the report view, and aggregations are demonstrable on install. The e2e fixture set adds one real tiny tagged PDF and one scanned-image PDF for live scan tests.
@@ -139,7 +139,7 @@ New schema introduced ⇒ seeds required (ADR-016), shipped as `x-openregister-s
 
 - **`smalot/pdfparser` (pure PHP) over `verapdf`/poppler binaries or an ExApp**: no binary/sidecar dependency keeps the gate working on every NC install; the cost is heuristic depth (no full PDF/UA validation) — accepted and honestly labelled. Alternative veraPDF-based certified validation could later become an optional ExApp without changing the report schema.
 - **Reports as separate OR objects over properties on `DigitalDocument`**: attachments are NC files via OR `FileService`, not `DigitalDocument` objects — there is no object to hang properties on for most attachments. A dedicated report schema covers both cases, keeps scan history superseding clean, and gives declarative aggregation a natural target.
-- **Gate at the two service chokepoints over an OR-side write guard**: OR has no dialect for cross-file publication preconditions; the decidesk services are already the single publish paths (`publishAgenda`, publication payload construction), mirroring how eligibility gates are enforced today.
+- **Gate at the two service chokepoints over an OR-side write guard**: OR has no dialect for cross-file publication preconditions; the decidiq services are already the single publish paths (`publishAgenda`, publication payload construction), mirroring how eligibility gates are enforced today.
 - **Default `warn` over `block`**: non-breaking on upgrade; municipalities opt into `block` consciously. `off` preserves exact legacy behaviour as config-level rollback.
 
 ## Migration Plan

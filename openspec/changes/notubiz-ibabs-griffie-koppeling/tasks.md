@@ -1,6 +1,6 @@
 # Tasks — NOTUBIZ en iBabs Griffie-Koppeling (Bidirectional Sync)
 
-> Scope reminder: this change implements bidirectional synchronization between decidesk and NOTUBIZ/iBabs via openconnector adapters. See `proposal.md`, `design.md`, and `specs/*/spec.md` for context.
+> Scope reminder: this change implements bidirectional synchronization between decidiq and NOTUBIZ/iBabs via openconnector adapters. See `proposal.md`, `design.md`, and `specs/*/spec.md` for context.
 >
 > Acceptance gates: every task's checkbox flips only when its acceptance criteria pass. Do not mark tasks done by inspection — run the listed commands.
 
@@ -14,13 +14,13 @@
   Per ADR-001 (data-layer), MUST include 3–5 seed objects per schema with realistic Dutch values (gemeente names, dates, person names per KNAW naming conventions).
   **Acceptance:** `composer check:strict` is clean; schema validation passes; seed objects load via `ConfigurationService::importFromApp()` without duplicates on re-import.
 
-- [ ] 1.2 Extend `decidesk/lib/Settings/decidesk_register.json` to add optional `externalIdentifier` FK relation to domain schemas:
+- [ ] 1.2 Extend `decidiq/lib/Settings/decidesk_register.json` to add optional `externalIdentifier` FK relation to domain schemas:
   - `Meeting` → `ExternalIdentifier`
   - `AgendaItem` → `ExternalIdentifier`
   - `Person` → `ExternalIdentifier`
   - `Motion`, `Amendment`, `Vote`, `Decision`, `Vergaderstuk` — same pattern
   (Backwards-compatible; no data migration required for existing objects.)
-  **Acceptance:** Schema validation passes; no existing decidesk objects are modified; FK relations resolve correctly in `ObjectService::findAll()`.
+  **Acceptance:** Schema validation passes; no existing decidiq objects are modified; FK relations resolve correctly in `ObjectService::findAll()`.
 
 ---
 
@@ -30,7 +30,7 @@
   - `appinfo/info.xml` (app metadata)
   - `lib/NotubizAdapterApp.php` (app entry point)
   - `lib/Service/NotubizApiClient.php` (REST client, OAuth2 auth, rate-limit handling)
-  - `lib/Service/NotubizFieldMapper.php` (vendor fields → decidesk schema mapping)
+  - `lib/Service/NotubizFieldMapper.php` (vendor fields → decidiq schema mapping)
   - Unit tests at `tests/Unit/Service/NotubizApiClientTest.php` and `NotubizFieldMapperTest.php`
   **Acceptance:** `composer check:strict` is clean; unit tests pass; PHPStan level 8.
 
@@ -46,11 +46,11 @@
   Rate-limit: 60 requests/min per tenant (token-bucket backpressure in client).
   **Acceptance:** Unit tests mock HTTP responses; all methods handle 200/404/403/429 status codes correctly; rate-limit backpressure tested.
 
-- [ ] 2.3 Implement `NotubizFieldMapper` mapping vendor fields to decidesk schemas:
-  - NOTUBIZ `Meeting` → decidesk `Meeting` (map `id`, `title`, `date`, `location`, `status`)
-  - NOTUBIZ `AgendaItem` → decidesk `AgendaItem` (map `id`, `title`, `order`, `duration`)
-  - NOTUBIZ `Document` → decidesk `Vergaderstuk` (map `id`, `filename`, `size`, `confidentiality_level`)
-  - NOTUBIZ `Vote` → decidesk `Vote` (map `id`, `person_id`, `value` ∈ {voor, tegen, onthouden}, `timestamp`)
+- [ ] 2.3 Implement `NotubizFieldMapper` mapping vendor fields to decidiq schemas:
+  - NOTUBIZ `Meeting` → decidiq `Meeting` (map `id`, `title`, `date`, `location`, `status`)
+  - NOTUBIZ `AgendaItem` → decidiq `AgendaItem` (map `id`, `title`, `order`, `duration`)
+  - NOTUBIZ `Document` → decidiq `Vergaderstuk` (map `id`, `filename`, `size`, `confidentiality_level`)
+  - NOTUBIZ `Vote` → decidiq `Vote` (map `id`, `person_id`, `value` ∈ {voor, tegen, onthouden}, `timestamp`)
   - etc. for Motion, Amendment, Decision, Attendance
   **Acceptance:** Mapper is stateless; unit tests verify each entity type maps correctly; no field is dropped without explicit comment explaining why.
 
@@ -69,7 +69,7 @@
   - `appinfo/info.xml` (app metadata)
   - `lib/IbabsAdapterApp.php` (app entry point)
   - `lib/Service/IbabsApiClient.php` (SOAP + JSON-REST client, OAuth2 auth)
-  - `lib/Service/IbabsFieldMapper.php` (vendor fields → decidesk schema mapping)
+  - `lib/Service/IbabsFieldMapper.php` (vendor fields → decidiq schema mapping)
   - `lib/Controller/WebhookController.php` (receive `meeting.updated` webhooks)
   - Unit tests
   **Acceptance:** `composer check:strict` is clean; unit tests pass; PHPStan level 8.
@@ -87,7 +87,7 @@
   **Acceptance:** Unit tests verify SOAP/REST dual support; error handling for both protocols.
 
 - [ ] 3.3 Implement `IbabsFieldMapper` with same entity coverage as NOTUBIZ mapper (Meeting, AgendaItem, Document, Vote, Motion, Amendment, Decision, Attendance).
-  Map iBabs field names → decidesk schema.
+  Map iBabs field names → decidiq schema.
   **Acceptance:** Mapper is stateless; unit tests verify each entity type maps correctly.
 
 - [ ] 3.4 Create `IbabsAdapterWebhookController` to receive `meeting.updated` webhooks:
@@ -155,8 +155,8 @@
 - [ ] 4.6 Implement `SyncService::resolveConflict()`:
   - Accept `conflictId`, `resolution` (enum: local, external, merged), `mergedValue` (if merged), `userId`.
   - Update SyncConflict: `status`, `resolvedBy`, `resolvedAt`, `resolution` (text).
-  - If local/merged: update the decidesk object; push change back to provider if push is enabled.
-  - If external: pull the external value into decidesk.
+  - If local/merged: update the decidiq object; push change back to provider if push is enabled.
+  - If external: pull the external value into decidiq.
   - Update ExternalIdentifier `lastSyncedAt = now`.
   **Acceptance:** Unit tests verify all three resolution paths; audit trail is created.
 

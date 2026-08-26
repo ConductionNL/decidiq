@@ -273,8 +273,11 @@
           "mvToegelaten": {
             "trigger": {
               "type": "updated",
-              "filter": {
-                "lifecycle": "admitted"
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "admitted",
+                "from": "submitted"
               }
             },
             "enabled": true,
@@ -302,8 +305,11 @@
           "mvAfgewezen": {
             "trigger": {
               "type": "updated",
-              "filter": {
-                "lifecycle": "rejected"
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "rejected",
+                "from": "submitted"
               }
             },
             "enabled": true,
@@ -329,10 +335,13 @@
             "_note": "Rejection notification to the indiener including the afwijzingsReden (REQ-VRI-007). updated-trigger filtered on lifecycle afgewezen."
           },
           "mvIngepland": {
+            "_note": "No `from` here: `scheduled` is reachable from both `admitted` and `not-handled`, and the updated-condition grammar takes a single `from`. Without it the rule fires on any update while lifecycle is already `scheduled`, which is still far narrower than the ignored `filter` it replaces (that fired on EVERY update). Tighten once the grammar accepts a from-set.",
             "trigger": {
               "type": "updated",
-              "filter": {
-                "lifecycle": "scheduled"
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "scheduled"
               }
             },
             "enabled": true,
@@ -581,8 +590,11 @@
           "intToegelaten": {
             "trigger": {
               "type": "updated",
-              "filter": {
-                "lifecycle": "admitted"
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "admitted",
+                "from": "submitted"
               }
             },
             "enabled": true,
@@ -610,8 +622,11 @@
           "intAfgewezen": {
             "trigger": {
               "type": "updated",
-              "filter": {
-                "lifecycle": "rejected"
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "rejected",
+                "from": "submitted"
               }
             },
             "enabled": true,
@@ -639,8 +654,11 @@
           "intGeagendeerd": {
             "trigger": {
               "type": "updated",
-              "filter": {
-                "lifecycle": "agendised"
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "agendised",
+                "from": "admitted"
               }
             },
             "enabled": true,

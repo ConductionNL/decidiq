@@ -6,17 +6,17 @@ kind: code
 
 ## Summary
 
-Add a compiled meeting pack (vergaderbundel / board book) to Decidesk: one-click compilation of a complete, single-PDF meeting bundle per meeting — cover page, table of contents, the agenda in order, and all agenda-item attachments merged with continuous pagination and per-item bookmarks — rendered via Docudesk (same delegation pattern as minutes rendering). Packs are versioned (regeneration keeps prior versions with a change note), an "outdated" indicator appears on the meeting detail page when the agenda or attachments change after compilation, access follows meeting confidentiality (confidential agenda items are excluded from the compiled pack), attendees are notified declaratively when a pack becomes available, and the pack is delivered into each attendee's own Nextcloud Files so native NC clients sync it for offline reading.
+Add a compiled meeting pack (vergaderbundel / board book) to Decidiq: one-click compilation of a complete, single-PDF meeting bundle per meeting — cover page, table of contents, the agenda in order, and all agenda-item attachments merged with continuous pagination and per-item bookmarks — rendered via Docudesk (same delegation pattern as minutes rendering). Packs are versioned (regeneration keeps prior versions with a change note), an "outdated" indicator appears on the meeting detail page when the agenda or attachments change after compilation, access follows meeting confidentiality (confidential agenda items are excluded from the compiled pack), attendees are notified declaratively when a pack becomes available, and the pack is delivered into each attendee's own Nextcloud Files so native NC clients sync it for offline reading.
 
 ## Motivation
 
-The compiled board book is table stakes for every board portal (iBabs "vergaderset", OnBoard, Diligent) and is absent from Decidesk. The 2026-07-16 intelligence-DB deep-dive lists it as the largest unresolved must-feature cluster for Decidesk: digital-board-books-with-annotations-and-version-control (demand 482), online-board-books-privacy-robust (436), agenda-native-board-books-one-click-publishing (330), easy-access-to-board-books (220), board-book-topic-highlighting (209), secure-offline-access-offline-sync-traveling-board-members (207), secure-board-books-offline-mobile-approvals (201).
+The compiled board book is table stakes for every board portal (iBabs "vergaderset", OnBoard, Diligent) and is absent from Decidiq. The 2026-07-16 intelligence-DB deep-dive lists it as the largest unresolved must-feature cluster for Decidiq: digital-board-books-with-annotations-and-version-control (demand 482), online-board-books-privacy-robust (436), agenda-native-board-books-one-click-publishing (330), easy-access-to-board-books (220), board-book-topic-highlighting (209), secure-offline-access-offline-sync-traveling-board-members (207), secure-board-books-offline-mobile-approvals (201).
 
-Decidesk today has only per-agenda-item attachments (`agenda-publication` REQ-PUB-003) and a **folder-based** package: `MeetingPackageService::assemble()` copies item documents into a `Meeting package/` folder tree with a markdown table of contents (`agenda-management` "Agenda Document Package"). There is no single compiled document, no pagination/bookmarks, no version tracking, no outdated indicator, no confidentiality filtering, and no per-attendee offline delivery. A councillor or board member preparing on a train cannot read "the bundle" the way every competing portal offers it.
+Decidiq today has only per-agenda-item attachments (`agenda-publication` REQ-PUB-003) and a **folder-based** package: `MeetingPackageService::assemble()` copies item documents into a `Meeting package/` folder tree with a markdown table of contents (`agenda-management` "Agenda Document Package"). There is no single compiled document, no pagination/bookmarks, no version tracking, no outdated indicator, no confidentiality filtering, and no per-attendee offline delivery. A councillor or board member preparing on a train cannot read "the bundle" the way every competing portal offers it.
 
 ## Affected Projects
 
-- [ ] Project: `decidesk` — new `MeetingPack` schema (with seeds + declarative notification), new `BoardBookService` building on `MeetingPackageService`/`MeetingFolderService`, `BoardBookController` + routes, meeting detail page pack section with version list and outdated indicator, per-attendee delivery of the pack file.
+- [ ] Project: `decidiq` — new `MeetingPack` schema (with seeds + declarative notification), new `BoardBookService` building on `MeetingPackageService`/`MeetingFolderService`, `BoardBookController` + routes, meeting detail page pack section with version list and outdated indicator, per-attendee delivery of the pack file.
 - [ ] Project: `docudesk` — small additive API on `PdfService`: merge pre-rendered PDF byte streams into one document with continuous pagination and named bookmarks (mPDF 8.2 already ships the FPDI import capability; no new library).
 
 ## Scope
@@ -43,7 +43,7 @@ Reuse before build: `MeetingFolderService` locates/creates the meeting Files tre
 
 ## New Dependencies
 
-None. Docudesk already bundles mPDF ^8.2 (which requires setasign/fpdi for PDF import); Decidesk gains no new composer packages.
+None. Docudesk already bundles mPDF ^8.2 (which requires setasign/fpdi for PDF import); Decidiq gains no new composer packages.
 
 ## Impact
 

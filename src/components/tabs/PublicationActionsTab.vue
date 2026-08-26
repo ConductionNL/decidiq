@@ -16,12 +16,12 @@
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--publication"
+		class="decidiq-tab decidiq-tab--publication"
 		data-testid="publication-actions-tab">
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Publication error')">
+			:title="t('decidiq', 'Publication error')">
 			{{ error }}
 		</CnNoteCard>
 
@@ -29,7 +29,7 @@
 			v-for="warning in warnings"
 			:key="warning"
 			type="warning"
-			:title="t('decidesk', 'Publication warning')"
+			:title="t('decidiq', 'Publication warning')"
 			data-testid="publication-warning">
 			{{ warningLabel(warning) }}
 		</CnNoteCard>
@@ -37,17 +37,17 @@
 		<NcLoadingIcon v-if="loading" :size="32" />
 
 		<template v-else>
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Public publication') }}
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Public publication') }}
 			</h3>
 
 			<p
 				v-if="activeRecord"
-				class="decidesk-tab__meta"
+				class="decidiq-tab__meta"
 				data-testid="publication-status">
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'Published as {oriType} (version {version}) on {date}',
 						{
 							oriType: activeRecord.oriType,
@@ -57,18 +57,18 @@
 					)
 				}}
 			</p>
-			<p v-else class="decidesk-tab__meta" data-testid="publication-status">
-				{{ t('decidesk', 'Not published.') }}
+			<p v-else class="decidiq-tab__meta" data-testid="publication-status">
+				{{ t('decidiq', 'Not published.') }}
 			</p>
 
-			<div class="decidesk-tab__actions" data-testid="publication-actions">
+			<div class="decidiq-tab__actions" data-testid="publication-actions">
 				<NcButton
 					v-if="!activeRecord && eligible"
 					variant="primary"
 					data-testid="publication-publish"
 					:disabled="working"
 					@click="publish">
-					{{ t('decidesk', 'Publish') }}
+					{{ t('decidiq', 'Publish') }}
 				</NcButton>
 				<NcButton
 					v-if="activeRecord"
@@ -76,37 +76,37 @@
 					data-testid="publication-withdraw"
 					:disabled="working"
 					@click="withdrawModalOpen = true">
-					{{ t('decidesk', 'Withdraw…') }}
+					{{ t('decidiq', 'Withdraw…') }}
 				</NcButton>
 				<NcButton
 					v-if="activeRecord"
 					data-testid="publication-rectify"
 					:disabled="working"
 					@click="rectifyModalOpen = true">
-					{{ t('decidesk', 'Rectify…') }}
+					{{ t('decidiq', 'Rectify…') }}
 				</NcButton>
 			</div>
 
 			<div
 				v-if="history.length"
-				class="decidesk-tab__history"
+				class="decidiq-tab__history"
 				data-testid="publication-history">
-				<h3 class="decidesk-tab__title">
-					{{ t('decidesk', 'Publication history') }}
+				<h3 class="decidiq-tab__title">
+					{{ t('decidiq', 'Publication history') }}
 				</h3>
-				<ul class="decidesk-tab__list" role="list">
+				<ul class="decidiq-tab__list" role="list">
 					<li
 						v-for="record in history"
 						:key="record.id"
-						class="decidesk-tab__history-row"
+						class="decidiq-tab__history-row"
 						role="listitem">
 						<span>{{
-							t('decidesk', 'v{version}', {
+							t('decidiq', 'v{version}', {
 								version: record.payloadVersion,
 							})
 						}}</span>
 						<span>{{ statusLabel(record.status) }}</span>
-						<span class="decidesk-tab__meta">{{
+						<span class="decidiq-tab__meta">{{
 							record.withdrawReason || ''
 						}}</span>
 					</li>
@@ -269,9 +269,9 @@ export default {
 		 */
 		statusLabel(status) {
 			const labels = {
-				published: this.t('decidesk', 'Published'),
-				withdrawn: this.t('decidesk', 'Withdrawn'),
-				rectified: this.t('decidesk', 'Rectified'),
+				published: this.t('decidiq', 'Published'),
+				withdrawn: this.t('decidiq', 'Withdrawn'),
+				rectified: this.t('decidiq', 'Rectified'),
 			}
 			return labels[status] || status
 		},
@@ -286,22 +286,22 @@ export default {
 		warningLabel(code) {
 			const labels = {
 				'opencatalogi-absent': this.t(
-					'decidesk',
+					'decidiq',
 					'OpenCatalogi is not installed — the record received the public predicate but was not routed to a catalog.',
 				),
 
 				'catalog-publish-failed': this.t(
-					'decidesk',
+					'decidiq',
 					'Publishing to the OpenCatalogi catalog failed.',
 				),
 
 				'catalog-retraction-failed': this.t(
-					'decidesk',
+					'decidiq',
 					'Retraction from the OpenCatalogi catalog failed and is pending retry — the record is no longer publicly readable but the catalog still lists it.',
 				),
 
 				'predicate-unavailable': this.t(
-					'decidesk',
+					'decidiq',
 					'The published predicate could not be set on this OpenRegister version — anonymous read is not yet available.',
 				),
 			}
@@ -329,7 +329,7 @@ export default {
 			} catch (e) {
 				this.error =
 					e?.message
-					|| this.t('decidesk', 'Failed to load publication state.')
+					|| this.t('decidiq', 'Failed to load publication state.')
 			} finally {
 				this.loading = false
 			}
@@ -346,15 +346,15 @@ export default {
 		},
 
 		/**
-		 * POST helper against the decidesk publication API.
+		 * POST helper against the decidiq publication API.
 		 *
-		 * @param {string} path Path under /apps/decidesk/api.
+		 * @param {string} path Path under /apps/decidiq/api.
 		 * @param {object} body JSON body.
 		 * @return {Promise<object>} Parsed response body.
 		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		async callApi(path, body = {}) {
-			const response = await fetch(generateUrl(`/apps/decidesk/api${path}`), {
+			const response = await fetch(generateUrl(`/apps/decidiq/api${path}`), {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -365,7 +365,7 @@ export default {
 			const data = await response.json().catch(() => ({}))
 			if (!response.ok) {
 				throw new Error(
-					data.message || this.t('decidesk', 'The action failed.'),
+					data.message || this.t('decidiq', 'The action failed.'),
 				)
 			}
 			return data
@@ -446,27 +446,27 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: calc(var(--default-grid-baseline) * 2);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__actions {
+.decidiq-tab__actions {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__list {
+.decidiq-tab__list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -475,7 +475,7 @@ export default {
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__history-row {
+.decidiq-tab__history-row {
 	display: flex;
 	gap: var(--default-grid-baseline);
 	align-items: center;
@@ -483,7 +483,7 @@ export default {
 	border-bottom: 1px solid var(--color-border);
 }
 
-.decidesk-tab__meta {
+.decidiq-tab__meta {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }

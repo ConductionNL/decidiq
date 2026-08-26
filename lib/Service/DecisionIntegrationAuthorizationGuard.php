@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Decision Integration Authorization Guard
+ * Decidiq Decision Integration Authorization Guard
  *
  * The two per-object authorization questions the ADR-019 integration-surface
  * endpoints ask: "may this caller READ this Decision's outcome envelope?"
@@ -23,7 +23,7 @@
  * for UUIDs the app never issued.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -39,7 +39,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -75,7 +75,7 @@ class DecisionIntegrationAuthorizationGuard {
 	 *   (a) they are the Decision's OpenRegister owner (`@self.owner`) — the
 	 *       identity that raised it through `POST /api/v1/decisions`, i.e. the
 	 *       consumer REQ-DCDH-003 exists to serve. This is also the established
-	 *       decidesk per-object guard on this very `decision` schema; see
+	 *       Decidiq per-object guard on this very `decision` schema; see
 	 *       `MotionCoauthorService::checkMotionAccess()`; OR
 	 *   (b) the Decision is published (`isPublished === 'public'`) — the app's
 	 *       own citizen-visibility flag, set by `DecisionController::publish()`.
@@ -239,7 +239,7 @@ class DecisionIntegrationAuthorizationGuard {
 	private function loadDecisionForGuard(string $decisionId, string $callerUid, string $guard): array|false|null {
 		try {
 			$objectService = $this->container->get('OCA\\OpenRegister\\Service\\ObjectService');
-			$entity = $objectService->find(id: $decisionId, register: 'decidesk', schema: 'decision');
+			$entity = $objectService->find(id: $decisionId, register: 'decidiq', schema: 'decision');
 		} catch (\Throwable $e) {
 			$this->logger->warning(
 				'DecisionIntegrationAuthorizationGuard: could not resolve Decision for the ' . $guard . ' guard; denying',

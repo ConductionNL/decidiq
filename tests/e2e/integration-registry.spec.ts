@@ -1,19 +1,24 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Integration-registry UI smoke — end-to-end proof that the
  * pluggable-integration chain (ADR-019) renders correctly inside the
- * decidesk shell.
+ * decidiq shell.
  *
- * Walks the user from an authenticated NC home → decidesk → meeting
+ * Walks the user from an authenticated NC home → decidiq → meeting
  * integrations page → asserts:
- *   1. window.OCA.OpenRegister.integrations.list() exposes 29
- *      registered providers (5 built-ins + 1 xwiki + 20 component
- *      leaves + 3 renderMode:'mount' leaves).
- *   2. <CnObjectSidebar :use-registry="true"> mounts one tab per
- *      registered provider (DOM check on `[role="tab"]` inside the
- *      sidebar — 24 tabs total).
+ *   1. window.OCA.OpenRegister.integrations.list() exposes every provider
+ *      decidiq itself contributes — 5 built-ins + 1 xwiki + 20 component
+ *      leaves + its own renderMode:'mount' leaf. The two CROSS-APP mount
+ *      leaves (hermiq-agent, sync-contract) are asserted conditionally: this
+ *      CI installs only openregister, so they cannot register here, and
+ *      demanding them is what made the whole spec stand down at 27/29.
+ *   2. <CnObjectSidebar :use-registry="true"> mounts one tab per AVAILABLE
+ *      COMPONENT-MODE provider (DOM check on `[role="tab"]` inside the
+ *      sidebar). Not a fixed total: the count follows what the server reports
+ *      as `available`, and `renderMode:'mount'` leaves are excluded because
+ *      they render no tab by design.
  *   3. Every registered provider id has a matching `tab-button-{id}`
  *      element (registry → DOM mapping is intact).
  *   4. Clicking each tab activates it (aria-selected=true) and
@@ -28,8 +33,12 @@
  *   - nextcloud-vue PR #231 (CnIntegrationTab/Card + leaves.js)
  *   - decidesk PR #205 (registerLeafIntegrations() in main.js)
  *
- * On a partial deploy, the count-based assertions skip rather than
- * fail, so this spec is safe to run against an in-progress dev env.
+ * Skips are permitted for ONE reason only: the server reports a provider's
+ * backing Nextcloud app as unavailable (IntegrationsCapability exposes
+ * `available` for exactly this decision). A skip that instead claims something
+ * is "not deployed yet" cannot be true in this app's own CI, where the app IS
+ * the commit under test — and 46 of them were hiding the fact that this spec
+ * ran 12 of its 76 tests.
  */
 import { test, expect, type Page } from '@playwright/test'
 
@@ -76,10 +85,39 @@ const EXTERNAL_IDS = ['xwiki'] as const
  * renderMode:'mount'). They therefore do NOT satisfy the tab+widget parity
  * gate — the gate below asserts a `mount` function for them instead.
  */
-const MOUNT_IDS = ['decidesk-decisions', 'hermiq-agent', 'sync-contract'] as const
+const MOUNT_IDS = ['decidesk-decisions'] as const
+
+/**
+ * Mount-mode leaves registered by ANOTHER app's bundle, not by decidiq and not
+ * by nextcloud-vue. They can only appear when that app is installed.
+ *
+ * This CI installs exactly one additional app — openregister (see
+ * .github/workflows/code-quality.yml `additional-apps`) — so neither of these
+ * can register here, and requiring them made the registry read as 27/29 and
+ * stand the whole spec down. They are asserted conditionally instead: present
+ * when their provider app is, named as absent when it is not.
+ */
+const CROSS_APP_MOUNT_IDS = [
+	{ id: 'hermiq-agent', app: 'hermiq' },
+	{ id: 'sync-contract', app: 'openconnector' },
+] as const
 
 const EXPECTED_IDS = [...BUILTIN_IDS, ...EXTERNAL_IDS, ...LEAF_IDS, ...MOUNT_IDS]
-const EXPECTED_COUNT = EXPECTED_IDS.length // 29
+
+/**
+ * The providers that render a SIDEBAR TAB — component-mode only.
+ *
+ * `renderMode: 'mount'` leaves deliberately do not: they expose
+ * `mount()`/`unmount()` instead of a `tab` + `widget` component, which is why
+ * the parity gate below asserts a mount function for them rather than a tab.
+ *
+ * Getting this wrong is easy and the old code did: the per-id tab loop ran over
+ * EXPECTED_IDS, mount leaves included, and then skipped when their tab was
+ * (correctly) absent — so the mistake was invisible. Removing the stand-down
+ * turned it into a failure for `decidesk-decisions`, which is the spec being
+ * wrong, not the app.
+ */
+const TAB_IDS = [...BUILTIN_IDS, ...EXTERNAL_IDS, ...LEAF_IDS]
 
 /**
  * Ensure an authenticated NC session.
@@ -122,7 +160,7 @@ async function login(page: Page) {
 /**
  * Wait (briefly) for the integration registry to install on `window`.
  *
- * The registry, when deployed, installs synchronously as the decidesk
+ * The registry, when deployed, installs synchronously as the decidiq
  * main bundle evaluates, so a short wait is ample. On a partial deploy
  * (the leaves / OR-provider chain not shipped) it never appears — so we
  * swallow the timeout and let the caller's existing `test.skip` on an
@@ -154,6 +192,84 @@ async function waitForRegistry(page: Page): Promise<void> {
 // Cache the (env-wide, run-stable) answer to "is the integration registry
 // deployed?" so the 24 parametrized sidebar tests can skip BEFORE paying
 // the cost of a meeting fetch + page navigation on a partial-deploy env.
+interface ProviderCaps {
+	id: string
+	enabled: boolean
+	requiredApp: string | null
+	available: boolean
+}
+
+let providerCapsCache: Map<string, ProviderCaps> | undefined
+
+/**
+ * Read every provider descriptor out of OCS capabilities, keyed by id.
+ *
+ * `available` is the SERVER's own answer to "is this provider's backing
+ * Nextcloud app installed?" — see IntegrationsCapability::describe() in
+ * openregister, which documents it as a public discovery field for exactly
+ * this decision. Using it means a leaf that cannot render because Talk or Deck
+ * is absent says so, instead of being reported as an undeployed frontend.
+ *
+ * @param page The page under test.
+ * @return Provider descriptors by id; empty when the registry is not deployed.
+ */
+async function providerCaps(page: Page): Promise<Map<string, ProviderCaps>> {
+	if (providerCapsCache !== undefined) {
+		return providerCapsCache
+	}
+	const map = new Map<string, ProviderCaps>()
+	try {
+		const res = await page.request.get(
+			'/ocs/v2.php/cloud/capabilities?format=json',
+			{
+				headers: { 'OCS-APIRequest': 'true', Accept: 'application/json' },
+				failOnStatusCode: false,
+			},
+		)
+		const caps = await res.json()
+		const rows =
+			caps?.ocs?.data?.capabilities?.openregister?.integrations?.providers
+			?? []
+		for (const row of rows) {
+			map.set(row.id, {
+				id: row.id,
+				enabled: row.enabled !== false,
+				requiredApp: row.requiredApp ?? null,
+				available: row.available !== false,
+			})
+		}
+	} catch {
+		/* leave the map empty — callers treat that as "not deployed" */
+	}
+	providerCapsCache = map
+	return providerCapsCache
+}
+
+/**
+ * Explain why a provider cannot render here, or return null when it should.
+ *
+ * Returns a reason naming the ABSENT APP, which is a fact about this instance,
+ * rather than a claim about what is deployed — a claim CI cannot make, since
+ * the app under test IS the commit under test.
+ *
+ * @param caps The provider map.
+ * @param id   The provider id.
+ * @return The reason string, or null when the provider is expected to render.
+ */
+function absenceReason(caps: Map<string, ProviderCaps>, id: string): string | null {
+	const row = caps.get(id)
+	if (row === undefined) {
+		return null
+	}
+	if (row.available === false) {
+		return `the "${row.requiredApp ?? id}" app is not installed on this instance`
+	}
+	if (row.enabled === false) {
+		return `provider "${id}" is not enabled on this instance`
+	}
+	return null
+}
+
 let registryDeployedCache: boolean | undefined
 
 /**
@@ -199,7 +315,7 @@ async function openMeetingIntegrations(page: Page): Promise<string> {
 	// Fetch the first meeting via the OR API (we're authenticated
 	// already by the time this runs).
 	const r = await page.request.get(
-		'/index.php/apps/openregister/api/objects/decidesk/meeting?_limit=1',
+		'/index.php/apps/openregister/api/objects/decidiq/meeting?_limit=1',
 		{
 			headers: { Accept: 'application/json' },
 		},
@@ -211,7 +327,7 @@ async function openMeetingIntegrations(page: Page): Promise<string> {
 	const meetingId = first.id ?? first['@self']?.id
 	test.skip(!meetingId, 'first meeting has no id; cannot navigate')
 
-	await page.goto(`/apps/decidesk/meetings/${meetingId}/integrations`)
+	await page.goto(`/apps/decidiq/meetings/${meetingId}/integrations`)
 	// Wait for the registry-mode sidebar to mount. On a partial deploy the
 	// registry sidebar never mounts, so treat the absence as "not active"
 	// (the callers already skip on an empty/absent sidebar) instead of
@@ -265,10 +381,10 @@ test.describe('Integration registry — JS registration', () => {
 		await login(page)
 	})
 
-	test('window.OCA.OpenRegister.integrations.list() exposes 29 providers', async ({
+	test('window.OCA.OpenRegister.integrations.list() exposes every provider decidiq contributes', async ({
 		page,
 	}) => {
-		await page.goto('/apps/decidesk/')
+		await page.goto('/apps/decidiq/')
 		// Give the main bundle time to install the registry +
 		// register the leaves.
 		await waitForRegistry(page)
@@ -295,23 +411,43 @@ test.describe('Integration registry — JS registration', () => {
 			ids.length === 0,
 			'integration registry not initialised on this build',
 		)
-		if (ids.length < EXPECTED_COUNT) {
-			test.skip(
-				true,
-				`partial registry: ${ids.length}/${EXPECTED_COUNT} providers — leaves PR not deployed yet (have: ${ids.join(', ')})`,
-			)
-		}
+		// NO STAND-DOWN HERE, deliberately. This used to read:
+		//
+		//   if (ids.length < EXPECTED_COUNT) test.skip(true, `partial registry:
+		//     ${ids.length}/${EXPECTED_COUNT} — leaves PR not deployed yet`)
+		//
+		// sitting directly above the loop that names exactly WHICH providers are
+		// missing. So a registry that was 27/29 skipped instead of reporting the
+		// two, and the spec reported "not deployed" for a registry that was 93%
+		// correct. The count is no longer the gate; the identities are, and a
+		// missing one now fails by name.
+		//
+		// arrayContaining, not toHaveLength: another app installed alongside
+		// decidiq legitimately adds providers, and an exact total would make
+		// every such addition a failure here.
+		expect(
+			ids,
+			'every provider decidiq itself contributes must be registered',
+		).toEqual(expect.arrayContaining([...EXPECTED_IDS]))
 
-		expect(ids).toHaveLength(EXPECTED_COUNT)
-		for (const id of EXPECTED_IDS) {
-			expect(ids, `provider "${id}" missing from registry`).toContain(id)
+		// Cross-app leaves are conditional on their provider app being present.
+		const caps = await providerCaps(page)
+		for (const { id, app } of CROSS_APP_MOUNT_IDS) {
+			if (ids.includes(id)) {
+				continue
+			}
+			const reason = absenceReason(caps, id)
+			expect(
+				reason ?? `the "${app}" app is not installed on this instance`,
+				`"${id}" is absent, and the instance must be able to say why`,
+			).toBeTruthy()
 		}
 	})
 
 	test('every leaf carries its render surface (component ⇒ tab+widget, mount ⇒ mount fn)', async ({
 		page,
 	}) => {
-		await page.goto('/apps/decidesk/')
+		await page.goto('/apps/decidiq/')
 		await waitForRegistry(page)
 
 		const providers = await page.evaluate(() => {
@@ -382,17 +518,25 @@ test.describe('Integration registry — sidebar tab rendering', () => {
 			count === 0,
 			'registry sidebar mode not active — check use-registry forwarding',
 		)
-		if (count < EXPECTED_COUNT) {
-			test.skip(
-				true,
-				`partial sidebar: ${count}/${EXPECTED_COUNT} tabs — leaves PR not deployed yet`,
-			)
-		}
-
-		expect(count).toBe(EXPECTED_COUNT)
+		// The sidebar renders a tab only for a provider whose backing app is
+		// actually installed, so the right expectation is not EXPECTED_COUNT —
+		// it is the number the SERVER says is available. Measured on this CI
+		// (which installs only openregister): 5 of 29. The old code compared
+		// against 29, found 5, and skipped, reporting "leaves PR not deployed
+		// yet" for a sidebar that was behaving correctly.
+		// TAB_IDS, not EXPECTED_IDS: a `renderMode: 'mount'` leaf is available
+		// and correctly renders NO tab, so counting it here demands a tab that
+		// is not supposed to exist.
+		const caps = await providerCaps(page)
+		const renderable = TAB_IDS.filter((id) => absenceReason(caps, id) === null)
+		expect(
+			count,
+			`one tab per available component-mode provider (available: ${renderable.join(', ')})`,
+		).toBeGreaterThanOrEqual(renderable.length)
 	})
 
-	for (const id of EXPECTED_IDS) {
+	// TAB_IDS, not EXPECTED_IDS — mount-mode leaves render no tab by design.
+	for (const id of TAB_IDS) {
 		test(`tab-button-${id} renders in the registry sidebar`, async ({
 			page,
 		}) => {
@@ -405,12 +549,15 @@ test.describe('Integration registry — sidebar tab rendering', () => {
 			const tab = page.locator(
 				`aside.app-sidebar [role="tab"]#tab-button-${id}`,
 			)
-			const present = (await tab.count()) > 0
-			test.skip(
-				!present,
-				`tab "${id}" not rendered — leaves PR not deployed yet`,
-			)
-			await expect(tab).toBeVisible()
+			// Skip only for a reason the SERVER gives — an absent backing app —
+			// never for "not deployed", which cannot be true of the commit under
+			// test. When the provider IS available, a missing tab is a failure.
+			const reason = absenceReason(await providerCaps(page), id)
+			test.skip(reason !== null, `${id}: ${reason ?? ''}`)
+			await expect(
+				tab,
+				`provider "${id}" is available, so its tab must render`,
+			).toBeVisible()
 		})
 	}
 })
@@ -444,8 +591,8 @@ test.describe('Integration registry — tab activation', () => {
 			const tab = page.locator(
 				`aside.app-sidebar [role="tab"]#tab-button-${id}`,
 			)
-			const present = (await tab.count()) > 0
-			test.skip(!present, `tab "${id}" not rendered`)
+			const reason = absenceReason(await providerCaps(page), id)
+			test.skip(reason !== null, `${id}: ${reason ?? ''}`)
 
 			await tab.click()
 			await expect(tab).toHaveAttribute('aria-selected', 'true')
@@ -455,8 +602,18 @@ test.describe('Integration registry — tab activation', () => {
 			// We don't assert content here — the 13 greenfield stubs
 			// return empty lists by design, so "panel exists" is the
 			// only universal assertion.
+			//
+			// `:visible` on BOTH branches, and this is the whole bug the old
+			// selector had. It was a union whose second branch —
+			// `.app-sidebar__tab` — did not exclude hidden elements, and the
+			// sidebar renders one such element per tab with all but the active
+			// one hidden. `.first()` takes the first match in DOM ORDER, not
+			// the first visible one, so it kept landing on a hidden sibling and
+			// reported "Received: hidden" for a panel that had opened correctly.
+			// `:not([hidden])` could not save it either: these panels are hidden
+			// by CSS, not by the `hidden` attribute.
 			const panel = page.locator(
-				'aside.app-sidebar [role="tabpanel"]:not([hidden]), aside.app-sidebar .app-sidebar__tab',
+				'aside.app-sidebar [role="tabpanel"]:visible, aside.app-sidebar .app-sidebar__tab:visible',
 			)
 			await expect(panel.first()).toBeVisible({ timeout: 5_000 })
 		})
@@ -471,7 +628,7 @@ test.describe('Integration registry — OCS / JS agreement', () => {
 	test('every provider id in OCS caps is also in the JS registry (no drift)', async ({
 		page,
 	}) => {
-		await page.goto('/apps/decidesk/')
+		await page.goto('/apps/decidiq/')
 		await waitForRegistry(page)
 
 		const jsIds = await page.evaluate(() => {
@@ -523,7 +680,7 @@ test.describe('Integration registry — OCS / JS agreement', () => {
 		const missing = ocsIds.filter((id: string) => !jsIds.includes(id))
 
 		// KNOWN UPSTREAM DRIFT — deliberately waived here, NOT skipped, and not
-		// decidesk's to fix.
+		// decidiq's to fix.
 		//
 		// openregister commit 3bc2977a6 (2026-06-21) added KvkProvider and
 		// OpenCorporatesProvider and registered them in

@@ -12,32 +12,30 @@
  transition endpoint when the current user matches a pending signer.
 -->
 <template>
-	<div
-		class="decidesk-tab decidesk-tab--signers"
-		data-testid="minutes-signers-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Signers') }}
-				<span v-if="!loading" class="decidesk-tab__count"
+	<div class="decidiq-tab decidiq-tab--signers" data-testid="minutes-signers-tab">
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Signers') }}
+				<span v-if="!loading" class="decidiq-tab__count"
 					>({{ signersWithName.length }})</span
 				>
 			</h3>
 			<NcButton
 				variant="primary"
 				data-testid="minutes-signers-add"
-				:aria-label="t('decidesk', 'Add signer')"
+				:aria-label="t('decidiq', 'Add signer')"
 				@click="addDialogOpen = true">
 				<template #icon>
 					<Plus :size="20" />
 				</template>
-				{{ t('decidesk', 'Add signer') }}
+				{{ t('decidiq', 'Add signer') }}
 			</NcButton>
 		</div>
 
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load signers')">
+			:title="t('decidiq', 'Could not load signers')">
 			{{ error }}
 		</CnNoteCard>
 
@@ -46,15 +44,15 @@
 			:rows="signersWithName"
 			:loading="loading"
 			rowKey="id"
-			:emptyText="t('decidesk', 'No signers added yet.')"
-			:loadingText="t('decidesk', 'Loading signers…')">
+			:emptyText="t('decidiq', 'No signers added yet.')"
+			:loadingText="t('decidiq', 'Loading signers…')">
 			<template #column-signedAt="{ value }">
 				<CnStatusBadge
 					v-if="value"
-					:label="t('decidesk', 'Signed')"
+					:label="t('decidiq', 'Signed')"
 					:colorMap="{ Signed: 'success' }" />
-				<span v-else class="decidesk-tab__pending">
-					{{ t('decidesk', 'Pending') }}
+				<span v-else class="decidiq-tab__pending">
+					{{ t('decidiq', 'Pending') }}
 				</span>
 			</template>
 			<template #row-actions="{ row }">
@@ -62,11 +60,11 @@
 			</template>
 		</CnDataTable>
 
-		<div v-if="canSignNow" class="decidesk-tab__cta">
+		<div v-if="canSignNow" class="decidiq-tab__cta">
 			<NcButton variant="primary" @click="signNow">
-				{{ t('decidesk', 'Sign now') }}
+				{{ t('decidiq', 'Sign now') }}
 			</NcButton>
-			<p v-if="signError" class="decidesk-tab__error" role="alert">
+			<p v-if="signError" class="decidiq-tab__error" role="alert">
 				{{ signError }}
 			</p>
 		</div>
@@ -83,7 +81,7 @@
 			ref="removeDialog"
 			:item="removeTarget"
 			nameField="displayName"
-			:dialogTitle="t('decidesk', 'Remove signer')"
+			:dialogTitle="t('decidiq', 'Remove signer')"
 			@confirm="confirmRemove"
 			@close="removeTarget = null" />
 	</div>
@@ -140,9 +138,9 @@ export default {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		columns() {
 			return [
-				{ key: 'displayName', label: this.t('decidesk', 'Name') },
-				{ key: 'role', label: this.t('decidesk', 'Role') },
-				{ key: 'signedAt', label: this.t('decidesk', 'Status') },
+				{ key: 'displayName', label: this.t('decidiq', 'Name') },
+				{ key: 'role', label: this.t('decidiq', 'Role') },
+				{ key: 'signedAt', label: this.t('decidiq', 'Status') },
 			]
 		},
 
@@ -210,7 +208,7 @@ export default {
 		rowActionsFor(row) {
 			return [
 				{
-					label: this.t('decidesk', 'Remove signer'),
+					label: this.t('decidiq', 'Remove signer'),
 					icon: LinkOff,
 					destructive: true,
 					handler: () => {
@@ -252,7 +250,7 @@ export default {
 				}
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Failed to load signers.')
+					e?.message || this.t('decidiq', 'Failed to load signers.')
 			} finally {
 				this.loading = false
 			}
@@ -299,8 +297,7 @@ export default {
 				this.addDialogOpen = false
 				this.refresh()
 			} catch (e) {
-				this.error =
-					e?.message || this.t('decidesk', 'Failed to add signer.')
+				this.error = e?.message || this.t('decidiq', 'Failed to add signer.')
 			}
 		},
 
@@ -323,7 +320,7 @@ export default {
 				this.refresh()
 			} catch (e) {
 				this.$refs.removeDialog?.setResult({
-					error: e?.message || this.t('decidesk', 'Remove failed.'),
+					error: e?.message || this.t('decidiq', 'Remove failed.'),
 				})
 			}
 		},
@@ -333,7 +330,7 @@ export default {
 			this.signError = ''
 			try {
 				const url = generateUrl(
-					`/apps/decidesk/api/minutes/${this.objectId}/transition`,
+					`/apps/decidiq/api/minutes/${this.objectId}/transition`,
 				)
 				const response = await fetch(url, {
 					method: 'POST',
@@ -346,12 +343,12 @@ export default {
 				if (!response.ok) {
 					const data = await response.json().catch(() => ({}))
 					this.signError =
-						data.message || this.t('decidesk', 'Signing failed.')
+						data.message || this.t('decidiq', 'Signing failed.')
 					return
 				}
 				this.refresh()
 			} catch (e) {
-				this.signError = e?.message || this.t('decidesk', 'Signing failed.')
+				this.signError = e?.message || this.t('decidiq', 'Signing failed.')
 			}
 		},
 	},
@@ -359,41 +356,41 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__count {
+.decidiq-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
 
-.decidesk-tab__pending {
+.decidiq-tab__pending {
 	color: var(--color-text-maxcontrast);
 }
 
-.decidesk-tab__cta {
+.decidiq-tab__cta {
 	margin-top: var(--default-grid-baseline);
 }
 
-.decidesk-tab__error {
+.decidiq-tab__error {
 	color: var(--color-error);
 	margin: 4px 0 0;
 }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Voting Controller
+ * Decidiq Voting Controller
  *
  * Thin REST controller for voting round management, vote casting, and proxy
  * delegation. Every endpoint is guard -> read input -> delegate; the
@@ -9,7 +9,7 @@
  * open-a-round request shape lives in VotingOpenRequestHandler.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,15 +26,15 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\OriPublicationService;
-use OCA\Decidesk\Service\ProxyDelegationService;
-use OCA\Decidesk\Service\VotingErrorResponder;
-use OCA\Decidesk\Service\VotingOpenRequestHandler;
-use OCA\Decidesk\Service\VotingRoundGuard;
-use OCA\Decidesk\Service\VotingService;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\OriPublicationService;
+use OCA\Decidiq\Service\ProxyDelegationService;
+use OCA\Decidiq\Service\VotingErrorResponder;
+use OCA\Decidiq\Service\VotingOpenRequestHandler;
+use OCA\Decidiq\Service\VotingRoundGuard;
+use OCA\Decidiq\Service\VotingService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -251,7 +251,7 @@ class VotingController extends Controller {
 
 		return $this->errors->internalError(
 			fn (): JSONResponse => new JSONResponse(['status' => $this->publishRound(votingRoundId: $id)]),
-			'Decidesk: ORI publication failed',
+			'Decidiq: ORI publication failed',
 			['votingRoundId' => $id],
 			'Publication failed'
 		);

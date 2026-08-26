@@ -4,7 +4,7 @@
  * Test Suite for ALVMinutesService
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.5
  *
@@ -17,11 +17,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\ALVMinutesService;
-use OCA\Decidesk\Service\MinutesContextResolver;
-use OCA\Decidesk\Service\ParticipantNotifier;
+use OCA\Decidiq\Service\ALVMinutesService;
+use OCA\Decidiq\Service\MinutesContextResolver;
+use OCA\Decidiq\Service\ParticipantNotifier;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;

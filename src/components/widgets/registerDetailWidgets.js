@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
 //
-// Registration module for decidesk's three register-detail catalog widgets
+// Registration module for decidiq's three register-detail catalog widgets
 // (register-detail-optimisation, design.md D4). `registerDetailWidgets()`
 // (bottom of this file) registers each widget's type into
 // @conduction/nextcloud-vue's shared, consumer-extensible

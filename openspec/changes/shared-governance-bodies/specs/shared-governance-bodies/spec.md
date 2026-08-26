@@ -1,7 +1,7 @@
 # shared-governance-bodies Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - [shared-governance-bodies](../../changes/shared-governance-bodies/)
 

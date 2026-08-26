@@ -18,25 +18,23 @@
 			<h2>
 				{{
 					isEdit
-						? t('decidesk', 'Edit process template')
-						: t('decidesk', 'Create process template')
+						? t('decidiq', 'Edit process template')
+						: t('decidiq', 'Create process template')
 				}}
 			</h2>
 
 			<div class="form-group">
-				<label for="pt-name">{{ t('decidesk', 'Name') }}</label>
+				<label for="pt-name">{{ t('decidiq', 'Name') }}</label>
 				<input
 					id="pt-name"
 					v-model="form.name"
 					type="text"
 					data-testid="process-template-name"
-					:placeholder="t('decidesk', 'e.g. ALV Statute Amendment')" />
+					:placeholder="t('decidiq', 'e.g. ALV Statute Amendment')" />
 			</div>
 
 			<div class="form-group">
-				<label for="pt-description">{{
-					t('decidesk', 'Description')
-				}}</label>
+				<label for="pt-description">{{ t('decidiq', 'Description') }}</label>
 				<input
 					id="pt-description"
 					v-model="form.description"
@@ -47,7 +45,7 @@
 			<div class="form-group">
 				<NcSelect
 					v-model="form.context"
-					:inputLabel="t('decidesk', 'Governance context')"
+					:inputLabel="t('decidiq', 'Governance context')"
 					:options="contextOptions"
 					data-testid="process-template-context" />
 			</div>
@@ -56,25 +54,25 @@
 				v-model="form"
 				data-testid="process-template-state-machine" />
 
-			<h3>{{ t('decidesk', 'Default voting rule') }}</h3>
+			<h3>{{ t('decidiq', 'Default voting rule') }}</h3>
 			<div class="form-group">
 				<NcSelect
 					v-model="form.votingRule.voteThreshold"
-					:inputLabel="t('decidesk', 'Majority threshold')"
+					:inputLabel="t('decidiq', 'Majority threshold')"
 					:options="thresholdOptions"
 					data-testid="process-template-threshold" />
 			</div>
 			<div class="form-group">
 				<NcSelect
 					v-model="form.votingRule.abstentionHandling"
-					:inputLabel="t('decidesk', 'Abstention handling')"
+					:inputLabel="t('decidiq', 'Abstention handling')"
 					:options="abstentionOptions"
 					data-testid="process-template-abstention" />
 			</div>
 			<div class="form-group">
 				<NcSelect
 					v-model="form.votingRule.tieBreakRule"
-					:inputLabel="t('decidesk', 'Tie-break rule')"
+					:inputLabel="t('decidiq', 'Tie-break rule')"
 					:options="tieBreakOptions"
 					data-testid="process-template-tiebreak" />
 			</div>
@@ -84,9 +82,9 @@
 					id="pt-quorum"
 					v-model="form.quorumRequired"
 					type="checkbox"
-					:aria-label="t('decidesk', 'Quorum required')" />
+					:aria-label="t('decidiq', 'Quorum required')" />
 				<label for="pt-quorum">{{
-					t('decidesk', 'Quorum required before voting')
+					t('decidiq', 'Quorum required before voting')
 				}}</label>
 			</div>
 
@@ -103,10 +101,10 @@
 					data-testid="process-template-save"
 					:disabled="saving || !validation.valid || !form.name"
 					@click="save">
-					{{ saving ? t('decidesk', 'Saving...') : t('decidesk', 'Save') }}
+					{{ saving ? t('decidiq', 'Saving...') : t('decidiq', 'Save') }}
 				</NcButton>
 				<NcButton @click="$emit('close')">
-					{{ t('decidesk', 'Cancel') }}
+					{{ t('decidiq', 'Cancel') }}
 				</NcButton>
 			</div>
 		</div>

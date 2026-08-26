@@ -15,7 +15,7 @@
 
 		<NcEmptyContent
 			v-else-if="rows.length === 0"
-			:name="t('decidesk', 'No upcoming meetings')"
+			:name="t('decidiq', 'No upcoming meetings')"
 			data-testid="upcoming-meetings-list-empty">
 			<template #icon>
 				<CalendarBlankOutline :size="32" />
@@ -48,7 +48,7 @@
 					}}</span>
 					<span class="dashboard-list-widget__meta">
 						{{
-							t('decidesk', '{n} agenda items', {
+							t('decidiq', '{n} agenda items', {
 								n: agendaCount(meeting),
 							})
 						}}
@@ -106,6 +106,8 @@ export default {
 		 * Fetch scheduled meetings. Called on mount and on dashboard refresh.
 		 *
 		 * @return {Promise<void>}
+		 *
+		 * @spec openspec/specs/dashboard/spec.md#requirement-upcoming-meetings-widget
 		 */
 		async load() {
 			this.loading = true
@@ -113,7 +115,7 @@ export default {
 			try {
 				this.meetings = await getMeetings({ lifecycle: 'scheduled' })
 			} catch (e) {
-				console.error('[decidesk] UpcomingMeetingsListWidget load failed', e)
+				console.error('[decidiq] UpcomingMeetingsListWidget load failed', e)
 				this.error = e
 				this.meetings = []
 			} finally {
@@ -152,16 +154,18 @@ export default {
 		 *
 		 * @param {object} meeting The meeting object.
 		 * @return {string} "today" / "tomorrow" / a generic urgent label.
+		 *
+		 * @spec openspec/specs/dashboard/spec.md#requirement-upcoming-meetings-widget
 		 */
 		countdownLabel(meeting) {
 			const { key } = countdownBucket(meeting.scheduledDate, Date.now())
 			if (key === 'today' || key === 'overdue') {
-				return t('decidesk', 'today')
+				return t('decidiq', 'today')
 			}
 			if (key === 'tomorrow') {
-				return t('decidesk', 'tomorrow')
+				return t('decidiq', 'tomorrow')
 			}
-			return t('decidesk', 'today')
+			return t('decidiq', 'today')
 		},
 
 		/**

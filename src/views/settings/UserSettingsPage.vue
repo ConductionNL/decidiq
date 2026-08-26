@@ -2,9 +2,9 @@
 <!-- Copyright (C) 2026 Conduction B.V. -->
 
 <!--
- SPA page /apps/decidesk/user-settings — the in-app mount of the personal
+ SPA page /apps/decidiq/user-settings — the in-app mount of the personal
  settings sections (user-settings spec). Same four sections as the Nextcloud
- personal settings panel (/settings/user/decidesk); registered via the
+ personal settings panel (/settings/user/decidiq); registered via the
  ADR-037 manifest fragment src/manifest.d/user-settings.json.
 
  @spec openspec/specs/user-settings/spec.md
@@ -12,11 +12,11 @@
 <template>
 	<div class="user-settings-page" data-testid="user-settings-page">
 		<header class="user-settings-page__header">
-			<h2>{{ t('decidesk', 'Personal settings') }}</h2>
+			<h2>{{ t('decidiq', 'Personal settings') }}</h2>
 			<p>
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'Notification, display, delegation and communication preferences for your account.',
 					)
 				}}
@@ -78,7 +78,7 @@ export default {
 			try {
 				this.preference = await fetchNotificationPreference()
 			} catch (e) {
-				console.error('decidesk: failed to load user preferences', e)
+				console.error('decidiq: failed to load user preferences', e)
 			} finally {
 				this.loading = false
 			}

@@ -6,15 +6,15 @@ kind: code
 
 ## Summary
 
-Add a delegatie- en mandaatregister to decidesk: a queryable register of delegated authorities as `Bevoegdheidstoedeling` objects — type (delegatie / mandaat / volmacht / machtiging), delegans/mandaatgever, delegataris/gemandateerde, scope, limits (financial ceiling, subject constraints, ondermandaat allowed), wettelijke grondslag, a link to the authorizing delegatie-/mandaatbesluit (`Decision`), a validity window, and a declarative status lifecycle (`concept → van-kracht → ingetrokken | vervallen`) with intrekking traced to a revoking Decision. Includes ondermandaat chains (parent reference, depth display, cycle-free), register views (per delegans, per delegataris, in-force-on-date, full-text search, CSV export), public publication of the register through OpenRegister's published-predicate on the live object, an assistive (never blocking) bevoegdheidsgrondslag link from a Decision detail to the toedeling under which it was taken, and declarative expiry notifications.
+Add a delegatie- en mandaatregister to decidiq: a queryable register of delegated authorities as `Bevoegdheidstoedeling` objects — type (delegatie / mandaat / volmacht / machtiging), delegans/mandaatgever, delegataris/gemandateerde, scope, limits (financial ceiling, subject constraints, ondermandaat allowed), wettelijke grondslag, a link to the authorizing delegatie-/mandaatbesluit (`Decision`), a validity window, and a declarative status lifecycle (`concept → van-kracht → ingetrokken | vervallen`) with intrekking traced to a revoking Decision. Includes ondermandaat chains (parent reference, depth display, cycle-free), register views (per delegans, per delegataris, in-force-on-date, full-text search, CSV export), public publication of the register through OpenRegister's published-predicate on the live object, an assistive (never blocking) bevoegdheidsgrondslag link from a Decision detail to the toedeling under which it was taken, and declarative expiry notifications.
 
 ## Motivation
 
-Novelty verification (2026-07-17) shows zero coverage: `delegatie`, `mandaat`, `mandaatregister`, and `delegatiebesluit` have no hits anywhere in decidesk's specs, changes, or code; `bevoegdheid` appears only as committee-competence prose (commissievergaderingen) and the urgent change's spoedbevoegdheid. Yet every Dutch gemeente is legally required to maintain and publish a delegatie- en mandaatregister (Awb afdeling 10.1.1 mandaat, afdeling 10.1.2 delegatie; mandaatbesluiten are bekendgemaakt and the register must be raadpleegbaar). Market demand sits in the entity/authority-management cluster at 740 (intelligence DB). Decidesk already holds every building block — GovernanceBody (who can hold authority), Person/Membership (Popolo decision-makers), the Decision supertype (the delegatie-/mandaatbesluit and the revoking besluit), and the published-predicate publication pattern — but the register that connects them, the answer to "who may decide what, on whose behalf, within which limits, on date X", has no home. Governance suites (iBabs, Notubiz) do not cover this either; it lives today in unmaintained Word annexes to the mandaatbesluit.
+Novelty verification (2026-07-17) shows zero coverage: `delegatie`, `mandaat`, `mandaatregister`, and `delegatiebesluit` have no hits anywhere in decidiq's specs, changes, or code; `bevoegdheid` appears only as committee-competence prose (commissievergaderingen) and the urgent change's spoedbevoegdheid. Yet every Dutch gemeente is legally required to maintain and publish a delegatie- en mandaatregister (Awb afdeling 10.1.1 mandaat, afdeling 10.1.2 delegatie; mandaatbesluiten are bekendgemaakt and the register must be raadpleegbaar). Market demand sits in the entity/authority-management cluster at 740 (intelligence DB). Decidiq already holds every building block — GovernanceBody (who can hold authority), Person/Membership (Popolo decision-makers), the Decision supertype (the delegatie-/mandaatbesluit and the revoking besluit), and the published-predicate publication pattern — but the register that connects them, the answer to "who may decide what, on whose behalf, within which limits, on date X", has no home. Governance suites (iBabs, Notubiz) do not cover this either; it lives today in unmaintained Word annexes to the mandaatbesluit.
 
 ## Affected Projects
 
-- [ ] Project: `decidesk` — new OR schema `bevoegdheidstoedeling` in register fragment `lib/Settings/register.d/54-delegatie-mandaatregister.json` with declarative lifecycle and expiry notifications (ADR-031 dialects), a nullable `bevoegdheidsgrondslag` property on the existing `Decision` schema (assistive display only), a small ondermandaat cycle/permission guard, manifest register views with in-force-on-date filtering and CSV export, public publication via the OR published-predicate on the live object, seed data, tests, docs.
+- [ ] Project: `decidiq` — new OR schema `bevoegdheidstoedeling` in register fragment `lib/Settings/register.d/54-delegatie-mandaatregister.json` with declarative lifecycle and expiry notifications (ADR-031 dialects), a nullable `bevoegdheidsgrondslag` property on the existing `Decision` schema (assistive display only), a small ondermandaat cycle/permission guard, manifest register views with in-force-on-date filtering and CSV export, public publication via the OR published-predicate on the live object, seed data, tests, docs.
 - [ ] Project: `openregister` — consumed only: ObjectService storage, declarative lifecycle enforcement, notifications dialect, anonymous published-predicate RBAC surface (ADR-022). No OR changes.
 
 ## Scope
@@ -30,7 +30,7 @@ Novelty verification (2026-07-17) shows zero coverage: `delegatie`, `mandaat`, `
 
 ### Out of Scope
 
-- **Enforcement** — decidesk never blocks or warns away a decision taken without (or outside) a mandate; `bevoegdheidsgrondslag` is assistive display only. Bevoegdheidstoetsing is a legal judgement, not a data constraint.
+- **Enforcement** — decidiq never blocks or warns away a decision taken without (or outside) a mandate; `bevoegdheidsgrondslag` is assistive display only. Bevoegdheidstoetsing is a legal judgement, not a data constraint.
 - **HR function management** — delegataris function descriptions are plain text on the toedeling; no function/formatie register, no HR system coupling.
 - **CVDR/DROP publication of the delegatiebesluit document itself** — the verordeningenregister sibling owns regeling-type document publication (a mandaatbesluit publishes there as a besluit van algemene strekking when applicable). The register rows here are *relations between bodies, roles, and decisions*, not documents; this change publishes the register, never the besluit text.
 - Provincial/waterschap register variants beyond the generic model — validate later on concrete demand.
@@ -53,7 +53,7 @@ None.
 
 ## Cross-Project Dependencies
 
-None — self-contained within decidesk on existing OpenRegister capabilities (lifecycle, notifications dialect, published-predicate RBAC already in use by siblings). No OpenRegister or OpenConnector changes required.
+None — self-contained within decidiq on existing OpenRegister capabilities (lifecycle, notifications dialect, published-predicate RBAC already in use by siblings). No OpenRegister or OpenConnector changes required.
 
 ## Risks
 

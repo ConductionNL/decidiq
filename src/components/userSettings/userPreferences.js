@@ -186,7 +186,7 @@ export function formatDate(value, format = 'locale') {
  */
 export async function fetchNotificationPreference() {
 	const response = await fetch(
-		generateUrl('/apps/decidesk/api/notification-preference'),
+		generateUrl('/apps/decidiq/api/notification-preference'),
 		{
 			headers: { requesttoken: getRequestToken() },
 		},
@@ -208,7 +208,7 @@ export async function fetchNotificationPreference() {
  */
 export async function saveNotificationPreference(changes) {
 	const response = await fetch(
-		generateUrl('/apps/decidesk/api/notification-preference'),
+		generateUrl('/apps/decidiq/api/notification-preference'),
 		{
 			method: 'PUT',
 			headers: {
@@ -237,7 +237,7 @@ export async function saveNotificationPreference(changes) {
  */
 export async function fetchDisplayPreference(key) {
 	const response = await fetch(
-		generateUrl(`/apps/decidesk/api/preferences/${key}`),
+		generateUrl(`/apps/decidiq/api/preferences/${key}`),
 		{
 			headers: { requesttoken: getRequestToken() },
 		},
@@ -261,7 +261,7 @@ export async function fetchDisplayPreference(key) {
  */
 export async function saveDisplayPreference(key, value) {
 	const response = await fetch(
-		generateUrl(`/apps/decidesk/api/preferences/${key}`),
+		generateUrl(`/apps/decidiq/api/preferences/${key}`),
 		{
 			method: 'PUT',
 			headers: {

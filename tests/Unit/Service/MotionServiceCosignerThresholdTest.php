@@ -16,7 +16,7 @@
  * never mocked directly (avoids the stub-vs-real signature mismatch of #90).
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -31,11 +31,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
-use OCA\Decidesk\Lifecycle\MotionLifecycleTransitioner;
-use OCA\Decidesk\Service\MotionService;
+use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
+use OCA\Decidiq\Lifecycle\MotionLifecycleTransitioner;
+use OCA\Decidiq\Service\MotionService;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;

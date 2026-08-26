@@ -6,7 +6,7 @@
 
 ## Context
 
-Decidesk is a universal decision-making platform (ADR-004, FEATURES.md). Its
+Decidiq is a universal decision-making platform (ADR-004, FEATURES.md). Its
 whole wedge is that *every* kind of governance outcome — a council motion, a
 corporate resolution, a procurement contract award, an appointment, a management
 team go/no-go, a meeting outcome — is the same kind of thing: **something that

@@ -1,7 +1,7 @@
 # meeting-pack-board-book Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - meeting-pack-board-book
 
@@ -171,7 +171,7 @@ The meeting detail page (`meeting-detail-view`) SHALL show a "Vergaderbundel" `C
 
 ## Notes
 
-- Rendering/merging is delegated to Docudesk `PdfService` (mPDF 8.2 + FPDI import); Decidesk itself takes no PDF library dependency. The `PdfService::mergePdfs()` extension lives in the docudesk project.
+- Rendering/merging is delegated to Docudesk `PdfService` (mPDF 8.2 + FPDI import); Decidiq itself takes no PDF library dependency. The `PdfService::mergePdfs()` extension lives in the docudesk project.
 - The existing folder-based package (`agenda-management` "Agenda Document Package", `MeetingPackageService`) is unchanged and doubles as the non-Docudesk fallback.
 - In-app annotations on packs are the sibling change `document-annotations`; bookmarks are named stably per agenda item so annotations can anchor to them later.
 - OCP surfaces used: `OCP\Share\IManager` (per-attendee read-only shares), `OCP\BackgroundJob\IJobList` (compilation job); notifications flow through OpenRegister's declarative dialect, not `OCP\Notification\IManager` directly.

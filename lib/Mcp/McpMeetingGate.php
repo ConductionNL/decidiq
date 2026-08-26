@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk MCP Meeting Gate
+ * Decidiq MCP Meeting Gate
  *
  * Single entry point for the "load a meeting and prove the caller may touch
  * it" step that every meeting-scoped MCP tool performs before doing work.
  *
  * @category Mcp
- * @package  OCA\Decidesk\Mcp
+ * @package  OCA\Decidiq\Mcp
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,18 +24,18 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Mcp;
+namespace OCA\Decidiq\Mcp;
 
-use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Loads a meeting and enforces per-object authorisation for MCP tools.
  *
- * Extracted from DecideskToolProvider so the argument -> load -> not_found ->
+ * Extracted from DecidiqToolProvider so the argument -> load -> not_found ->
  * authorise ladder is written once instead of three times, and so the
  * authorisation helpers stay a testable unit of their own.
  *
@@ -169,7 +169,7 @@ class McpMeetingGate {
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	public function loadMeeting(string $meetingUuid): ?array {
-		$meetingEntity = $this->objectService->find(id: $meetingUuid, register: 'decidesk', schema: 'meeting');
+		$meetingEntity = $this->objectService->find(id: $meetingUuid, register: 'decidiq', schema: 'meeting');
 		if ($meetingEntity === null) {
 			return null;
 		}

@@ -24,7 +24,7 @@ export const DEFAULT_MODE = 'gov'
  * Declarative map: organisatie_modus → canonical label → i18n key.
  *
  * Each inner object maps the canonical menu label (as used in manifest.json)
- * to the translated label key that should be passed to t('decidesk', …).
+ * to the translated label key that should be passed to t('decidiq', …).
  * When a canonical label is absent from a mode's map the canonical label
  * itself is used as the t() key, which resolves to the standard l10n string.
  *

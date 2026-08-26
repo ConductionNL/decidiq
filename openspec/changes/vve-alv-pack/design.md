@@ -103,7 +103,7 @@ docs/features/vve-alv-pack.md                    (new)
 
 ## Seed Data
 
-Realistic data per ADR-016: the fictional **VvE Zeewaarts** (Boulevard 1–47, Zandvoort) — 24 appartementsrechten, breukdelen out of **10.000**, splitsingsakte of 2019 on **modelreglement 2017**. References use existing decidesk seed objects (association governance body, seeded Persons/Memberships) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder resolved at import. Envelope for every object: `@self = { register: decidesk, schema: <slug>, slug: <below> }`.
+Realistic data per ADR-016: the fictional **VvE Zeewaarts** (Boulevard 1–47, Zandvoort) — 24 appartementsrechten, breukdelen out of **10.000**, splitsingsakte of 2019 on **modelreglement 2017**. References use existing decidiq seed objects (association governance body, seeded Persons/Memberships) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder resolved at import. Envelope for every object: `@self = { register: decidesk, schema: <slug>, slug: <below> }`.
 
 ### Schema: `modelreglement-preset` (built-ins, `builtIn: true`)
 
@@ -157,7 +157,7 @@ Supporting seeds ride the same fragment: the `vve-zeewaarts` governance body plu
 
 ## Migration Plan
 
-1. Land register.d + manifest.d fragments, resolver + controller, breukdelen/agendaRules frontend work, dialogs, seeds, tests, docs in one decidesk PR (fragments are additive; `ConfigurationService::importFromApp()` / repair step picks up new schemas on upgrade).
+1. Land register.d + manifest.d fragments, resolver + controller, breukdelen/agendaRules frontend work, dialogs, seeds, tests, docs in one decidiq PR (fragments are additive; `ConfigurationService::importFromApp()` / repair step picks up new schemas on upgrade).
 2. No coordination needed with `pc-cyclus` or `governing-documents-register` (boundary only; the splitsingsakte reference is a plain relation that resolves once the sibling lands — nil-UUID placeholder until then). Fragment 57 is this change's, exclusively.
 3. Rollback: revert the PR — fragment disappears, pages unregister, routes vanish. Existing VvE objects remain soft-retained in OR; Decisions created from templates are ordinary decisions and survive untouched. No data migration.
 

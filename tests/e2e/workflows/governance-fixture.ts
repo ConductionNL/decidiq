@@ -1,13 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
- * Seeded-fixture helper for the DEEP, data-dependent decidesk e2e layer.
+ * Seeded-fixture helper for the DEEP, data-dependent decidiq e2e layer.
  *
  * Creates and tears down the governance entities the workflow specs need —
  * GovernanceBody, Meeting (with quorumRequired), Participants (members for
  * quorum), Motion, Decision, VotingRound — through the OpenRegister object
- * REST API (`/index.php/apps/openregister/api/objects/decidesk/{schema}`)
+ * REST API (`/index.php/apps/openregister/api/objects/decidiq/{schema}`)
  * using a Playwright-authenticated `APIRequestContext` so the calls carry the
  * admin session cookie + CSRF requesttoken.
  *
@@ -21,7 +21,7 @@
  *
  * NOTE ON RELATIONS (deploy reality, 2026-06-10): OpenRegister materialises a
  * `governanceBody` / `meeting` scalar UUID property into `@self.relations` keyed
- * by the *property name*, but decidesk's ParticipantResolver filters
+ * by the *property name*, but decidiq's ParticipantResolver filters
  * participants by the *schema slug* (`relations.governance-body`). In this
  * deployment neither linking form makes that filter match, so quorum /
  * chair-role resolution returns an empty member set. The workflow specs assert
@@ -31,7 +31,7 @@ import type { Page } from '@playwright/test'
 
 import { BASE_URL as BASE } from '../base-url.ts'
 
-const OR = `${BASE}/index.php/apps/openregister/api/objects/decidesk`
+const OR = `${BASE}/index.php/apps/openregister/api/objects/decidiq`
 
 export interface SeedLedger {
 	runId: string

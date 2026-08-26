@@ -17,10 +17,10 @@
 -->
 <template>
 	<CnDetailPage
-		:title="t('decidesk', 'Motion integrations')"
+		:title="t('decidiq', 'Motion integrations')"
 		:description="
 			t(
-				'decidesk',
+				'decidiq',
 				'External integrations linked to this motion — open the sidebar to browse the Discussion (Talk), files, notes, tags, tasks and the audit trail.',
 			)
 		"
@@ -32,7 +32,7 @@
 			<p>
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'This page is backed by the pluggable integration registry. The Discussion tab is provided by the Talk integration leaf — messages posted there are linked to this motion object and visible to all participants.',
 					)
 				}}
@@ -40,9 +40,9 @@
 			<NcButton
 				variant="tertiary"
 				data-testid="motion-integrations-back"
-				:aria-label="t('decidesk', 'Back to motion')"
+				:aria-label="t('decidiq', 'Back to motion')"
 				@click="$router.push({ name: 'MotionDetail', params: { id } })">
-				← {{ t('decidesk', 'Back to motion') }}
+				← {{ t('decidiq', 'Back to motion') }}
 			</NcButton>
 		</div>
 	</CnDetailPage>
@@ -87,7 +87,7 @@ export default {
 		 */
 		sidebarConfig() {
 			return {
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'motion',
 				useRegistry: true,
 			}

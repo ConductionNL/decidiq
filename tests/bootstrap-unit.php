@@ -1,10 +1,10 @@
 <?php
 
 /**
- * PHPUnit bootstrap for Decidesk unit tests.
+ * PHPUnit bootstrap for Decidiq unit tests.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests
+ * @package  OCA\Decidiq\Tests
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2024 Conduction B.V.
@@ -20,6 +20,16 @@ define('PHPUNIT_RUN', 1);
 $autoloader = require __DIR__ . '/../vendor/autoload.php';
 
 // Register the OpenRegister test-stub namespace at test time ONLY. These stubs are
+// Doctrine placeholders, loaded BEFORE anything can mock an OCP DB interface.
+// IQueryBuilder evaluates class constants referencing Doctrine\DBAL\ParameterType
+// at parse time, and IDBConnection::getQueryBuilder() returns IQueryBuilder — so
+// without these, createMock(IDBConnection::class) dies with
+// `Class "Doctrine\DBAL\ParameterType" not found`, raised from inside
+// createMock(), which reads as a broken test rather than a missing dependency.
+// Only the two CONSTANT HOLDERS are stubbed: stubbing Doctrine\DBAL\Connection
+// as well fatals a full-server run, because OC\DB\Connection extends it.
+require_once __DIR__ . '/stubs/DoctrineStubs.php';
+
 // deliberately NOT registered via composer autoload-dev: a dev-built vendor bakes
 // autoload-dev into the runtime classmap, and OCA\OpenRegister\* stubs then shadow
 // the REAL OpenRegister classes instance-wide (see openregister#2036 / hermiq#21).
@@ -27,6 +37,34 @@ $autoloader = require __DIR__ . '/../vendor/autoload.php';
 // runtime autoloader. Loading stays lazy, so OCP is fully registered before any stub
 // (which extends OCP\...\Event) is actually loaded.
 $autoloader->addPsr4('OCA\\OpenRegister\\', __DIR__ . '/Stubs/');
+
+// THE OpenRegister CONTRACT INTERFACES, OPTED INTO RATHER THAN AUTOLOADED.
+//
+// conduction/hydra-gates claims `OCA\OpenRegister\Contract\` as a RUNTIME psr-4
+// prefix, so consumers get these interfaces implicitly. That prefix is LONGER
+// than both openregister's own `OCA\OpenRegister\` -> `lib/` AND the stub root
+// registered on the line above, and PSR-4 is longest-prefix-wins — so whichever
+// app's autoloader registers first defines OpenRegister's contract for the whole
+// process (ConductionNL/.github#531).
+//
+// Once that prefix is dropped, the stub root above resolves
+// `...\Contract\ObjectServiceInterface` to tests/Stubs/Contract/, which this app
+// does not ship. MEASURED without this block: 662 errors, every one
+// "Class or interface OCA\OpenRegister\Contract\ObjectServiceInterface does not
+// exist" from MockBuilder.
+//
+// interface_exists() is order-independent — it asks whether the interface is
+// RESOLVABLE, not who registered first. Appending a fallback autoloader does NOT
+// work: spl_autoload_register appends relative to registration order, and that
+// order across independently loaded apps is exactly what nobody controls.
+foreach (['ObjectEntityInterface', 'ObjectServiceInterface'] as $contract) {
+	if (interface_exists('\\OCA\\OpenRegister\\Contract\\' . $contract) === false) {
+		$shipped = __DIR__ . '/../vendor/conduction/hydra-gates/hydra-gates/contracts/' . $contract . '.php';
+		if (file_exists($shipped) === true) {
+			require_once $shipped;
+		}
+	}
+}
 
 // Register OCP\ and NCU\ namespaces.
 // vendor/nextcloud/ocp/OCP is a symlink to the live NC server (/var/www/html/lib/public)
@@ -104,7 +142,7 @@ if (class_exists(\OCA\OpenRegister\Service\CalendarEventService::class) === fals
 }
 
 // IMcpToolProvider stub — loaded when the openregister runtime (PR #1466) is absent.
-// This allows DecideskToolProvider unit tests to run in standalone CI environments.
+// This allows DecidiqToolProvider unit tests to run in standalone CI environments.
 if (interface_exists(\OCA\OpenRegister\Mcp\IMcpToolProvider::class) === false) {
 	require_once __DIR__ . '/Stubs/Mcp/IMcpToolProvider.php';
 }

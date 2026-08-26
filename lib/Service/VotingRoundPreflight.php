@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Voting Round Preflight
+ * Decidiq Voting Round Preflight
  *
  * The fail-closed checks and preparations that precede persisting a voting
  * round: resolving and validating the configurable voting rules, the
@@ -9,7 +9,7 @@
  * lifecycle transition.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,14 +24,14 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Fail-closed preflight for opening a voting round.
@@ -153,7 +153,7 @@ class VotingRoundPreflight {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function assertRevoteAllowed(string $revoteOfRoundId): void {
-		$originalEntity = $this->objectService->find(id: $revoteOfRoundId, register: 'decidesk', schema: 'voting-round');
+		$originalEntity = $this->objectService->find(id: $revoteOfRoundId, register: 'decidiq', schema: 'voting-round');
 		if ($originalEntity === null) {
 			throw new RuntimeException("Revote refused: round {$revoteOfRoundId} not found");
 		}
@@ -168,7 +168,7 @@ class VotingRoundPreflight {
 		}
 
 		// The "once" guarantee: no other round may already reference this round.
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('voting-round');
 		$existingRevotes = $this->objectService->findAll(['filters' => ['revoteOfRound' => $revoteOfRoundId]]);
 		foreach ($existingRevotes as $revoteEntity) {
@@ -241,9 +241,9 @@ class VotingRoundPreflight {
 		?string $revoteOfRoundId,
 		array $participantIds,
 	): array {
-		$relations = [['register' => 'decidesk', 'schema' => $subjectType, 'id' => $motionId]];
+		$relations = [['register' => 'decidiq', 'schema' => $subjectType, 'id' => $motionId]];
 		foreach ($participantIds as $uuid) {
-			$relations[] = ['register' => 'decidesk', 'schema' => 'participant', 'id' => $uuid];
+			$relations[] = ['register' => 'decidiq', 'schema' => 'participant', 'id' => $uuid];
 		}
 
 		$round = [
@@ -292,7 +292,7 @@ class VotingRoundPreflight {
 		} catch (InvalidArgumentException $e) {
 			throw new RuntimeException('Cannot open voting round: ' . $e->getMessage(), 0, $e);
 		} catch (\Throwable $e) {
-			$this->logger->warning('Decidesk: failed to transition motion lifecycle', ['error' => $e->getMessage()]);
+			$this->logger->warning('Decidiq: failed to transition motion lifecycle', ['error' => $e->getMessage()]);
 		}//end try
 
 	}//end transitionSubjectToVoting()

@@ -27,7 +27,7 @@
 			}"
 			:role="overTime ? 'alert' : undefined"
 			:aria-label="
-				t('decidesk', 'Time remaining for {title}', { title: item.title })
+				t('decidiq', 'Time remaining for {title}', { title: item.title })
 			"
 			data-testid="agenda-item-timer-clock">
 			{{ clockText }}
@@ -35,10 +35,10 @@
 				v-if="isPaused"
 				class="agenda-timer__paused-tag"
 				data-testid="agenda-item-timer-paused">
-				{{ t('decidesk', 'Paused') }}
+				{{ t('decidiq', 'Paused') }}
 			</span>
 			<span v-else-if="overTime" class="agenda-timer__over-tag">
-				{{ t('decidesk', 'Over time') }}
+				{{ t('decidiq', 'Over time') }}
 			</span>
 		</div>
 		<p
@@ -47,7 +47,7 @@
 			data-testid="agenda-item-timer-no-allocation">
 			{{
 				t(
-					'decidesk',
+					'decidiq',
 					'No time allocated — elapsed time is tracked for analytics.',
 				)
 			}}
@@ -59,46 +59,46 @@
 				v-if="!started"
 				variant="primary"
 				data-testid="agenda-item-timer-start"
-				:aria-label="t('decidesk', 'Start timer')"
+				:aria-label="t('decidiq', 'Start timer')"
 				@click="start">
-				{{ t('decidesk', 'Start') }}
+				{{ t('decidiq', 'Start') }}
 			</NcButton>
 			<template v-else-if="!finished">
 				<NcButton
 					v-if="!isPaused"
 					data-testid="agenda-item-timer-pause"
-					:aria-label="t('decidesk', 'Pause timer')"
+					:aria-label="t('decidiq', 'Pause timer')"
 					@click="pause">
-					{{ t('decidesk', 'Pause') }}
+					{{ t('decidiq', 'Pause') }}
 				</NcButton>
 				<NcButton
 					v-else
 					data-testid="agenda-item-timer-resume"
-					:aria-label="t('decidesk', 'Resume timer')"
+					:aria-label="t('decidiq', 'Resume timer')"
 					@click="resume">
-					{{ t('decidesk', 'Resume') }}
+					{{ t('decidiq', 'Resume') }}
 				</NcButton>
 				<NcButton
 					v-if="hasAllocation"
 					data-testid="agenda-item-timer-extend5"
-					:aria-label="t('decidesk', 'Extend 5 minutes')"
+					:aria-label="t('decidiq', 'Extend 5 minutes')"
 					@click="extend(5)">
-					{{ t('decidesk', 'Extend 5 min') }}
+					{{ t('decidiq', 'Extend 5 min') }}
 				</NcButton>
 				<NcButton
 					v-if="hasAllocation"
 					data-testid="agenda-item-timer-extend10"
-					:aria-label="t('decidesk', 'Extend 10 minutes')"
+					:aria-label="t('decidiq', 'Extend 10 minutes')"
 					@click="extend(10)">
-					{{ t('decidesk', 'Extend 10 min') }}
+					{{ t('decidiq', 'Extend 10 min') }}
 				</NcButton>
 				<NcButton
 					variant="secondary"
 					:loading="closing"
 					data-testid="agenda-item-timer-close"
-					:aria-label="t('decidesk', 'Close agenda item')"
+					:aria-label="t('decidiq', 'Close agenda item')"
 					@click="close">
-					{{ t('decidesk', 'Close item') }}
+					{{ t('decidiq', 'Close item') }}
 				</NcButton>
 			</template>
 			<span
@@ -106,7 +106,7 @@
 				class="agenda-timer__closed"
 				data-testid="agenda-item-timer-closed">
 				{{
-					t('decidesk', 'Item closed ({minutes} min)', {
+					t('decidiq', 'Item closed ({minutes} min)', {
 						minutes: closedMinutes,
 					})
 				}}

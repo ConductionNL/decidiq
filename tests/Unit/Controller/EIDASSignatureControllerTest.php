@@ -4,7 +4,7 @@
  * Unit tests for EIDASSignatureController.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Controller
+ * @package  OCA\Decidiq\Tests\Unit\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,11 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Controller;
+namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\Decidesk\Controller\EIDASSignatureController;
-use OCA\Decidesk\Service\GovernanceScopeGuard;
-use OCA\Decidesk\Service\IEIDASSignatureService;
+use OCA\Decidiq\Controller\EIDASSignatureController;
+use OCA\Decidiq\Service\GovernanceScopeGuard;
+use OCA\Decidiq\Service\IEIDASSignatureService;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;
@@ -415,7 +415,7 @@ class EIDASSignatureControllerTest extends TestCase {
 	 * fails and the ADR-044 functionality question gets asked deliberately.
 	 * Its counterpart — the 401 for an unauthenticated caller through the real
 	 * middleware chain — is folder 2 of
-	 * tests/integration/decidesk-security-flow-e2e.postman_collection.json.
+	 * tests/integration/decidiq-security-flow-e2e.postman_collection.json.
 	 *
 	 * @return void
 	 *

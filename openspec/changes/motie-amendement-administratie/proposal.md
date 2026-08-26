@@ -3,7 +3,7 @@ kind: code
 depends_on: [decidesk-base, decidesk-besluitvorming-workflow]
 ---
 
-# Decidesk — Motie en Amendement Administratie
+# Decidiq — Motie en Amendement Administratie
 
 ## Why
 

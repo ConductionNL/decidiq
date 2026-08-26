@@ -6,21 +6,21 @@ description: Create a governance body and set the rules — quorum, majority, co
 
 # Configure a governance workflow
 
-A *governance body* in Decidesk is the thing that meets and decides — a board, a council, a general assembly, a working group. Its workflow is the set of rules Decidesk enforces for its meetings: quorum, majority, co-signature threshold, and which roles may schedule meetings, submit motions, and operate votes.
+A *governance body* in Decidiq is the thing that meets and decides — a board, a council, a general assembly, a working group. Its workflow is the set of rules Decidiq enforces for its meetings: quorum, majority, co-signature threshold, and which roles may schedule meetings, submit motions, and operate votes.
 
 ## Goal
 
-By the end you will have a governance body in Decidesk with a type, a domain, term dates, and the workflow rules that its meetings, motions, and votes will follow.
+By the end you will have a governance body in Decidiq with a type, a domain, term dates, and the workflow rules that its meetings, motions, and votes will follow.
 
 ## Prerequisites
 
-- The **Decidesk** and **OpenRegister** apps installed and enabled, with the Decidesk register imported (see [Manage Decidesk settings](03-admin-settings.md)).
+- The **Decidiq** and **OpenRegister** apps installed and enabled, with the Decidesk register imported (see [Manage Decidiq settings](03-admin-settings.md)).
 - Admin (or whoever your organisation appoints) — creating governance bodies and setting workflow rules is an administrative act.
 - A clear picture of the body's actual rules of order (quorum, majority threshold, co-signature requirement, term length).
 
 ## Steps
 
-1. Go to **Governance bodies** (under the Decidesk navigation) and click **Add Item**. The *Create Item* dialog opens.
+1. Go to **Governance bodies** (under the Decidiq navigation) and click **Add Item**. The *Create Item* dialog opens.
 
    ![Create governance body dialog](/screenshots/tutorials/admin/01-configure-workflow-01.png)
 
@@ -48,7 +48,7 @@ The body shows under **Governance bodies** with its type and domain, its Overvie
 
 | Symptom | Fix |
 |---|---|
-| **Add Item** opens an empty dialog | The `governance-body` schema isn't imported — re-run **Settings → Registers → Re-import configuration** (see [Manage Decidesk settings](03-admin-settings.md)). |
+| **Add Item** opens an empty dialog | The `governance-body` schema isn't imported — re-run **Settings → Registers → Re-import configuration** (see [Manage Decidiq settings](03-admin-settings.md)). |
 | Motions on this body never need co-signatures | The co-signature threshold is 0 — set it to the number the body's rules require. |
 | Quorum warning never appears | Quorum is unset or 0 — set the body's quorum so the check has something to compare against. |
 | A member can't schedule a meeting for the body | They don't have a role that grants meeting-scheduling rights — adjust their role on the **Members** tab. |
@@ -56,5 +56,5 @@ The body shows under **Governance bodies** with its type and domain, its Overvie
 ## Reference
 
 - [Manage members and roles](02-manage-members.md) — assign chair / voting rights / secretary on this body.
-- [Manage Decidesk settings](03-admin-settings.md) — the register import these schemas depend on.
+- [Manage Decidiq settings](03-admin-settings.md) — the register import these schemas depend on.
 - [Schedule a meeting and build the agenda](../user/02-schedule-meeting.md) — what a member does once the body exists.

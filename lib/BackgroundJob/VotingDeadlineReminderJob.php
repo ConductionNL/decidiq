@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Voting Deadline Reminder Job
+ * Decidiq Voting Deadline Reminder Job
  *
  * Hourly background job delegating to VotingDeadlineReminderService
  * (nextcloud-integration spec, notification requirement).
  *
  * @category BackgroundJob
- * @package  OCA\Decidesk\BackgroundJob
+ * @package  OCA\Decidiq\BackgroundJob
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,16 +23,16 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\BackgroundJob;
+namespace OCA\Decidiq\BackgroundJob;
 
-use OCA\Decidesk\Service\VotingDeadlineReminderService;
+use OCA\Decidiq\Service\VotingDeadlineReminderService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
 
 /**
  * Hourly sweep for 24-hour pre-deadline voting reminders. Registered in
- * appinfo/info.xml <background-jobs> (the proven decidesk job pattern).
+ * appinfo/info.xml <background-jobs> (the proven Decidiq job pattern).
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
@@ -79,11 +79,11 @@ class VotingDeadlineReminderJob extends TimedJob {
 		try {
 			$sent = $this->reminderService->run(now: $this->time->getTime());
 			if ($sent > 0) {
-				$this->logger->info('Decidesk: voting deadline reminder job sent notifications', ['sent' => $sent]);
+				$this->logger->info('Decidiq: voting deadline reminder job sent notifications', ['sent' => $sent]);
 			}
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: voting deadline reminder job failed',
+				'Decidiq: voting deadline reminder job failed',
 				['exception' => $e->getMessage()]
 			);
 		}

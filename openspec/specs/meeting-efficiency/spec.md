@@ -8,7 +8,7 @@ status-note: >-
 
 ## Purpose
 
-Meeting efficiency features help governance bodies run productive meetings. This includes real-time timers for agenda items and speaking time, a meeting cost calculator (based on participant hourly rates), analytics on meeting duration and decision throughput, and tools to keep discussions focused. These features transform Decidesk from a compliance tool into a productivity platform that actively improves organizational decision-making.
+Meeting efficiency features help governance bodies run productive meetings. This includes real-time timers for agenda items and speaking time, a meeting cost calculator (based on participant hourly rates), analytics on meeting duration and decision throughput, and tools to keep discussions focused. These features transform Decidiq from a compliance tool into a productivity platform that actively improves organizational decision-making.
 
 **Standards**: Schema.org (`Duration`, `MonetaryAmount`)
 **Feature tier**: V1

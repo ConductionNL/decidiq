@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Decision Lifecycle Service
+ * Decidiq Decision Lifecycle Service
  *
  * Orchestrates guarded decision lifecycle transitions: validates the action
  * against DecisionTransitionGuard's transition map and per-domain policy,
@@ -10,7 +10,7 @@
  * hash-chained `decision-transition` audit entry.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,14 +26,14 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use OCA\Decidesk\Event\DecisionConcludedEvent;
-use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
+use OCA\Decidiq\Event\DecisionConcludedEvent;
+use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Service for guarded decision lifecycle state transitions.
@@ -165,7 +165,7 @@ class DecisionLifecycleService {
 			];
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: failed to resolve available decision transitions',
+				'Decidiq: failed to resolve available decision transitions',
 				['id' => $decisionId, 'exception' => $e->getMessage()]
 			);
 			return [
@@ -249,7 +249,7 @@ class DecisionLifecycleService {
 			// write access on this specific object (caught below, generic error).
 			$updated = $this->objectService->saveObject(
 				object: array_merge($decision, $patch),
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'decision',
 				uuid: $decisionId,
 			);
@@ -278,7 +278,7 @@ class DecisionLifecycleService {
 			];
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: decision lifecycle transition failed',
+				'Decidiq: decision lifecycle transition failed',
 				['id' => $decisionId, 'action' => $action, 'exception' => $e->getMessage()]
 			);
 			return [
@@ -610,13 +610,13 @@ class DecisionLifecycleService {
 			// The transition itself persisted (and OR's own object audit trail
 			// recorded the change); surface the chain failure loudly.
 			$this->logger->error(
-				'Decidesk: decision transition persisted but audit chain append failed',
+				'Decidiq: decision transition persisted but audit chain append failed',
 				['id' => $decisionId, 'action' => $action, 'message' => $audit['message']]
 			);
 		}
 
 		$this->logger->info(
-			'Decidesk: decision lifecycle transitioned',
+			'Decidiq: decision lifecycle transitioned',
 			['id' => $decisionId, 'action' => $action, 'from' => $currentLifecycle, 'to' => $newState]
 		);
 
@@ -688,14 +688,14 @@ class DecisionLifecycleService {
 			$this->eventDispatcher->dispatchTyped($event);
 
 			$this->logger->info(
-				'Decidesk: dispatched DecisionConcludedEvent',
+				'Decidiq: dispatched DecisionConcludedEvent',
 				['id' => $decisionId, 'sourceApp' => $sourceApp, 'state' => $newState]
 			);
 		} catch (\Throwable $e) {
 			// The transition has already persisted; a dispatch failure must not
 			// roll it back (matches generateResolutionRecord's fail-loud contract).
 			$this->logger->error(
-				'Decidesk: decision concluded but DecisionConcludedEvent dispatch failed',
+				'Decidiq: decision concluded but DecisionConcludedEvent dispatch failed',
 				['id' => $decisionId, 'exception' => $e->getMessage()]
 			);
 		}//end try
@@ -739,12 +739,12 @@ class DecisionLifecycleService {
 
 			$objectService->saveObject(
 				object: $resolution,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'decision'
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: decision enacted but resolution record generation failed',
+				'Decidiq: decision enacted but resolution record generation failed',
 				['id' => $decisionId, 'exception' => $e->getMessage()]
 			);
 		}//end try
@@ -829,7 +829,7 @@ class DecisionLifecycleService {
 
 				$created = $objectService->saveObject(
 					object: $membership,
-					register: 'decidesk',
+					register: 'decidiq',
 					schema: 'membership'
 				);
 
@@ -838,13 +838,13 @@ class DecisionLifecycleService {
 
 			$objectService->saveObject(
 				object: array_merge($decision, ['appointedMemberships' => $membershipIds]),
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'decision',
 				uuid: $decisionId
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: decision enacted but appointment Membership materialization failed',
+				'Decidiq: decision enacted but appointment Membership materialization failed',
 				['id' => $decisionId, 'exception' => $e->getMessage()]
 			);
 		}//end try

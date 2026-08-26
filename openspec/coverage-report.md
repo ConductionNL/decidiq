@@ -1,4 +1,4 @@
-# Coverage Report — decidesk
+# Coverage Report — decidiq
 
 Generated: 2026-05-25 UTC
 Branch: development (commit `2c2191f1`, post-#259/#260 merge)
@@ -11,7 +11,7 @@ Scanner: opsx-coverage-scan v1
 | annotated | ~470 (60 lib files + 8 frontend, 473 `@spec` occurrences) | — (already tagged) |
 | plumbing | ~11 | — (never tagged) |
 | 1 — REQ matched | 0 | — (nothing un-annotated to annotate) |
-| 2a — existing capability, no REQ | 12 (7 clusters) | `/opsx-reverse-spec decidesk --extend <cap>` |
+| 2a — existing capability, no REQ | 12 (7 clusters) | `/opsx-reverse-spec decidiq --extend <cap>` |
 | 2b — no capability owner | 0 | — |
 | 3a — REQ possibly broken (code removed) | 2 | Verify against git history |
 | 3b — REQ never implemented | 10 | Mark deferred (mostly V1 future) |
@@ -19,7 +19,7 @@ Scanner: opsx-coverage-scan v1
 
 ## Headline finding
 
-**decidesk is already fully retrofit-annotated.** Every one of the 60 `lib/` PHP files carries `@spec openspec/changes/...` tags at file, class, and method level — 473 occurrences total. Every public/protected method and most private helpers are tagged. 8 frontend files are also tagged. The `/opsx-annotate` step is effectively a **no-op** for this app; there is nothing in Bucket 1.
+**decidiq is already fully retrofit-annotated.** Every one of the 60 `lib/` PHP files carries `@spec openspec/changes/...` tags at file, class, and method level — 473 occurrences total. Every public/protected method and most private helpers are tagged. 8 frontend files are also tagged. The `/opsx-annotate` step is effectively a **no-op** for this app; there is nothing in Bucket 1.
 
 All `@spec` targets resolve to the **15 archived phase changes** (`p1-*`, `p2-*`, `p4-*`, `decidesk-manifest-v1`, `decidesk-mcp-tools`, `decidesk-store-migration`) under `openspec/changes/archive/` — valid annotation targets.
 
@@ -28,7 +28,7 @@ All `@spec` targets resolve to the **15 archived phase changes** (`p1-*`, `p2-*`
 The 473 annotations point at the original **build-time phase changes** (archived). The 14 **current consolidated specs** (`meeting-management`, `voting-system`, `decision-management`, …) are a *later* consolidation authored at `status: idea` with prose REQ titles. The two taxonomies do not line up 1:1. So:
 
 - Code is annotated, but **not against the active specs** — it's annotated against the historical changes that built it.
-- 13 of 14 active specs are `status: idea`. Only `mcp-tools` is a concrete spec (10 `REQ-DMCP-*` REQs), and it is fully implemented + annotated in `lib/Mcp/DecideskToolProvider.php`.
+- 13 of 14 active specs are `status: idea`. Only `mcp-tools` is a concrete spec (10 `REQ-DMCP-*` REQs), and it is fully implemented + annotated in `lib/Mcp/DecidiqToolProvider.php`.
 - The in-flight `openspec/changes/mcp-tools/` delta (10 REQs) mirrors the active mcp-tools spec — already synced.
 
 ## Bucket 2a — Existing capability, no active REQ (reverse-spec --extend)

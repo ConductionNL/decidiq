@@ -10,11 +10,11 @@ import { createApp } from 'vue'
 import AdminRoot from './views/settings/AdminRoot.vue'
 import pinia from './pinia.js'
 
-loadTranslations('decidesk', () => {
+loadTranslations('decidiq', () => {
 	const app = createApp(AdminRoot)
 	// Vue 3 (ADR-066): t/n install on globalProperties (was Vue.mixin).
 	app.config.globalProperties.t = t
 	app.config.globalProperties.n = n
 	app.use(pinia)
-	app.mount('#decidesk-settings')
+	app.mount('#decidiq-settings')
 })

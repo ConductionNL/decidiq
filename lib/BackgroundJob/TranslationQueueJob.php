@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Translation Queue Background Job
+ * Decidiq Translation Queue Background Job
  *
  * Phase 6 — hourly background job that processes a batch of queued
  * translation requests through MultilingualReconciliationService. The
@@ -10,7 +10,7 @@
  * job logs the request and leaves the source text in place.
  *
  * @category BackgroundJob
- * @package  OCA\Decidesk\BackgroundJob
+ * @package  OCA\Decidiq\BackgroundJob
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
  *
@@ -26,9 +26,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\BackgroundJob;
+namespace OCA\Decidiq\BackgroundJob;
 
-use OCA\Decidesk\Service\MultilingualReconciliationService;
+use OCA\Decidiq\Service\MultilingualReconciliationService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
@@ -80,13 +80,13 @@ class TranslationQueueJob extends TimedJob {
 	 * no argument, so the parameter cannot be removed.
 	 */
 	protected function run(mixed $argument): void {
-		$this->logger->info('Decidesk: TranslationQueueJob started');
+		$this->logger->info('Decidiq: TranslationQueueJob started');
 
 		try {
 			$result = $this->reconciler->processQueue(maxEntries: self::BATCH_SIZE);
 			$this->logger->info(
 				sprintf(
-					'Decidesk: TranslationQueueJob finished — processed %d (%d completed, %d failed)',
+					'Decidiq: TranslationQueueJob finished — processed %d (%d completed, %d failed)',
 					$result['processed'],
 					$result['completed'],
 					$result['failed']
@@ -94,7 +94,7 @@ class TranslationQueueJob extends TimedJob {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: TranslationQueueJob failed',
+				'Decidiq: TranslationQueueJob failed',
 				['exception' => $e->getMessage()]
 			);
 		}

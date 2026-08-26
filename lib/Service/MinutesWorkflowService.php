@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Minutes Workflow Service
+ * Decidiq Minutes Workflow Service
  *
  * The action-item extraction and approval-submission steps of the minutes
  * workflow.
@@ -15,7 +15,7 @@
  * in the exception code, so the endpoint never has to restate the rule.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -31,9 +31,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use RuntimeException;
 
@@ -125,7 +125,7 @@ class MinutesWorkflowService {
 
 		$minutes['lifecycle'] = 'review';
 		$this->objectService->saveObject(
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'minutes',
 			object: $minutes
 		);
@@ -154,7 +154,7 @@ class MinutesWorkflowService {
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
 	 */
 	private function requireMinutes(string $minutesId): array {
-		$entity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
+		$entity = $this->objectService->find(id: $minutesId, register: 'decidiq', schema: 'minutes');
 		if ($entity === null) {
 			throw new MissingObjectException(message: 'Minutes not found.');
 		}

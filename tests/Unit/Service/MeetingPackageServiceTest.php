@@ -4,7 +4,7 @@
  * Unit tests for MeetingPackageService.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,12 +20,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\MeetingFolderService;
-use OCA\Decidesk\Service\MeetingPackageService;
-use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\Decidiq\Service\MeetingFolderService;
+use OCA\Decidiq\Service\MeetingPackageService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -57,7 +57,7 @@ class MeetingPackageServiceTest extends TestCase {
 		array $items,
 		array $itemFiles,
 		\ArrayObject $written,
-		?string $meetingPath = 'Decidesk/2026-06-12 Board meeting',
+		?string $meetingPath = 'Decidiq/2026-06-12 Board meeting',
 	): MeetingPackageService {
 		$logger = $this->createMock(LoggerInterface::class);
 
@@ -257,19 +257,19 @@ class MeetingPackageServiceTest extends TestCase {
 		$result = $service->assemble('m-1', 'alice');
 
 		$this->assertTrue($result['success']);
-		$this->assertSame('Decidesk/2026-06-12 Board meeting/Meeting package', $result['path']);
+		$this->assertSame('Decidiq/2026-06-12 Board meeting/Meeting package', $result['path']);
 		$this->assertSame(2, $result['items']);
 		$this->assertSame(1, $result['files']);
 		$this->assertSame([], $result['skipped']);
 
 		// TOC written at the package root; document copied into the
 		// orderNumber-sorted "02 - Begroting" folder.
-		$tocPath = 'Decidesk/2026-06-12 Board meeting/Meeting package/00 - Table of contents.md';
+		$tocPath = 'Decidiq/2026-06-12 Board meeting/Meeting package/00 - Table of contents.md';
 		$this->assertTrue($written->offsetExists($tocPath));
 		$this->assertStringContainsString('01. Opening', $written[$tocPath]);
 		$this->assertStringContainsString('02. Begroting', $written[$tocPath]);
 
-		$docPath = 'Decidesk/2026-06-12 Board meeting/Meeting package/02 - Begroting/begroting.pdf';
+		$docPath = 'Decidiq/2026-06-12 Board meeting/Meeting package/02 - Begroting/begroting.pdf';
 		$this->assertTrue($written->offsetExists($docPath));
 		$this->assertSame('%PDF begroting', $written[$docPath]);
 
@@ -319,7 +319,7 @@ class MeetingPackageServiceTest extends TestCase {
 		$this->assertTrue($result['success']);
 		$this->assertSame(1, $result['items']);
 
-		$tocPath = 'Decidesk/2026-06-12 Board meeting/Meeting package/00 - Table of contents.md';
+		$tocPath = 'Decidiq/2026-06-12 Board meeting/Meeting package/00 - Table of contents.md';
 		$this->assertStringContainsString('01. Ours', $written[$tocPath]);
 		$this->assertStringNotContainsString('Foreign', $written[$tocPath]);
 

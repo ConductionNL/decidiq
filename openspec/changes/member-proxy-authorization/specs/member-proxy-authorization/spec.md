@@ -1,13 +1,13 @@
 # member-proxy-authorization Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - member-proxy-authorization
 
 ## Purpose
 
-Layers a signed authorization instrument and per-body statutory caps on top of decidesk's existing proxy voting. A `ProxyAuthorization` object carries the generated machtiging document, signed by the grantor through the existing eIDAS/docudesk signing seam (decidesk-contract-decision-hub REQ-DCDH-005 — reused, never re-implemented), with signature status visible wherever the proxy is used and revocation recorded as a signed, timestamped act. The body's process/voting configuration gains `maxProxiesPerHolder` (superseding the global `decidesk`/`max_proxies_per_holder` app config, which remains the fail-closed fallback) and `requireSignedProxy` (default off — current behaviour preserved; on — the round refuses unsigned proxy ballots). A per-meeting proxy register (who held whose vote, with signature status) is attachable to the minutes. Ballot mechanics (proxy-voting REQ-PRX-001/002/004), the create/revoke authorization guard (board-proxy-vote-authorization-guard REQ-BPV-001/002), and revocation-effect semantics (REQ-PRX-003) are referenced and unchanged.
+Layers a signed authorization instrument and per-body statutory caps on top of decidiq's existing proxy voting. A `ProxyAuthorization` object carries the generated machtiging document, signed by the grantor through the existing eIDAS/docudesk signing seam (decidesk-contract-decision-hub REQ-DCDH-005 — reused, never re-implemented), with signature status visible wherever the proxy is used and revocation recorded as a signed, timestamped act. The body's process/voting configuration gains `maxProxiesPerHolder` (superseding the global `decidiq`/`max_proxies_per_holder` app config, which remains the fail-closed fallback) and `requireSignedProxy` (default off — current behaviour preserved; on — the round refuses unsigned proxy ballots). A per-meeting proxy register (who held whose vote, with signature status) is attachable to the minutes. Ballot mechanics (proxy-voting REQ-PRX-001/002/004), the create/revoke authorization guard (board-proxy-vote-authorization-guard REQ-BPV-001/002), and revocation-effect semantics (REQ-PRX-003) are referenced and unchanged.
 
 **Standards**: eIDAS (via the signing provider), BW 2:38 (ALV proxy per statuten), BW 2:227 (shareholder proxy), Schema.org (`AuthorizeAction` for the instrument, `DigitalDocument` for the machtiging)
 **Feature tier**: V1
@@ -28,7 +28,7 @@ The system MUST provide a `ProxyAuthorization` OpenRegister schema in the decide
 
 #### Scenario: Register fragment is additive
 
-- GIVEN a decidesk installation upgrading to this change
+- GIVEN a decidiq installation upgrading to this change
 - WHEN the register configuration is loaded
 - THEN the ProxyAuthorization schema is registered from fragment `63-member-proxy-authorization.json`
 - AND the only base-file change is the nullable `authorizationRef` property on the existing `vote` schema; no existing schema content is removed or restructured
@@ -57,7 +57,7 @@ The system MUST generate a machtiging document for a ProxyAuthorization from a c
 
 ### Requirement: REQ-MPA-003 Grantor signs the machtiging via the existing eIDAS signing seam
 
-The system MUST let the grantor digitally sign the machtiging through the **existing** signing seam established by decidesk-contract-decision-hub REQ-DCDH-005: compose a docudesk `signingRequest` (openconnector `e-sign` Source as fallback provider, selected via the ADR-019 registry) from the machtiging document with the grantor as signatory, store the returned `signingReference` on the instrument, and on provider completion set `signatureStatus = getekend` with `signedAt`; on provider refusal set `signatureStatus = geweigerd`. The holder MAY optionally countersign through the same seam (`countersignStatus`/`countersignedAt`). The system MUST fail closed: when no signing provider is available the instrument stays `ongetekend` — it MUST NOT be marked signed by any path other than a provider completion. decidesk SHALL NOT implement its own e-signature engine (reuse of the REQ-DCDH-005 machinery is mandatory).
+The system MUST let the grantor digitally sign the machtiging through the **existing** signing seam established by decidesk-contract-decision-hub REQ-DCDH-005: compose a docudesk `signingRequest` (openconnector `e-sign` Source as fallback provider, selected via the ADR-019 registry) from the machtiging document with the grantor as signatory, store the returned `signingReference` on the instrument, and on provider completion set `signatureStatus = getekend` with `signedAt`; on provider refusal set `signatureStatus = geweigerd`. The holder MAY optionally countersign through the same seam (`countersignStatus`/`countersignedAt`). The system MUST fail closed: when no signing provider is available the instrument stays `ongetekend` — it MUST NOT be marked signed by any path other than a provider completion. decidiq SHALL NOT implement its own e-signature engine (reuse of the REQ-DCDH-005 machinery is mandatory).
 
 #### Scenario: Grantor signs the machtiging
 
@@ -127,7 +127,7 @@ The system MUST support a boolean `requireSignedProxy` on the body's process/vot
 
 ### Requirement: REQ-MPA-006 Per-body maxProxiesPerHolder supersedes the global cap
 
-The system MUST support an optional integer `maxProxiesPerHolder` (minimum 1) on the body's process/voting configuration (`ProcessTemplate.votingRule`). The effective cap for a meeting MUST resolve as: the body's assigned template value when set → otherwise the global app config `decidesk`/`max_proxies_per_holder` → otherwise the default 2 (the existing voting-system Proxy Voting requirement and its scenarios remain true verbatim whenever no body value is set — explicit compatibility). The effective cap MUST be enforced at proxy registration (existing `ProxyVoteService` cap check, now resolving the body value first) AND at round open: when any holder's ACTIVE proxies exceed the effective cap, the round MUST refuse to open, naming the holder and the excess, until the chair resolves it (revoke/suspend). Cap resolution and counting MUST fail closed: when the template, config, or existing proxies cannot be read, registration and round open MUST be rejected. This cap is independent of proxy-voting REQ-PRX-002's one-proxy-per-delegate-per-round rule; both MUST hold.
+The system MUST support an optional integer `maxProxiesPerHolder` (minimum 1) on the body's process/voting configuration (`ProcessTemplate.votingRule`). The effective cap for a meeting MUST resolve as: the body's assigned template value when set → otherwise the global app config `decidiq`/`max_proxies_per_holder` → otherwise the default 2 (the existing voting-system Proxy Voting requirement and its scenarios remain true verbatim whenever no body value is set — explicit compatibility). The effective cap MUST be enforced at proxy registration (existing `ProxyVoteService` cap check, now resolving the body value first) AND at round open: when any holder's ACTIVE proxies exceed the effective cap, the round MUST refuse to open, naming the holder and the excess, until the chair resolves it (revoke/suspend). Cap resolution and counting MUST fail closed: when the template, config, or existing proxies cannot be read, registration and round open MUST be rejected. This cap is independent of proxy-voting REQ-PRX-002's one-proxy-per-delegate-per-round rule; both MUST hold.
 
 #### Scenario: Body value overrides the global config
 

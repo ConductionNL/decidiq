@@ -6,11 +6,11 @@ description: Find a published decision, follow its action items to completion, a
 
 # Track decisions and action items
 
-Once a vote closes and minutes publish, Decidesk keeps the trail open — the decision, the action items it spawned, who owns them, and whether they got done.
+Once a vote closes and minutes publish, Decidiq keeps the trail open — the decision, the action items it spawned, who owns them, and whether they got done.
 
 ## Goal
 
-By the end you will know how to find a decision, see and update the action items linked to it, and read the completion-rate and engagement figures Decidesk derives from them.
+By the end you will know how to find a decision, see and update the action items linked to it, and read the completion-rate and engagement figures Decidiq derives from them.
 
 ## Prerequisites
 
@@ -35,7 +35,7 @@ By the end you will know how to find a decision, see and update the action items
 
    ![Dashboard with the open-action-items tile](/screenshots/tutorials/user/07-track-decisions-04.png)
 
-5. Check **Engagement** for the meeting-level figures Decidesk derives — speaking time and an engagement score per participant — and **Tasks** for delegated follow-ups that aren't formal action items.
+5. Check **Engagement** for the meeting-level figures Decidiq derives — speaking time and an engagement score per participant — and **Tasks** for delegated follow-ups that aren't formal action items.
 
    ![Engagement and tasks views](/screenshots/tutorials/user/07-track-decisions-05.png)
 

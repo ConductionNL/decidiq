@@ -15,30 +15,30 @@
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--amendment-diff"
+		class="decidiq-tab decidiq-tab--amendment-diff"
 		data-testid="amendment-diff-tab">
-		<h3 class="decidesk-tab__title">
-			{{ t('decidesk', 'Text changes') }}
+		<h3 class="decidiq-tab__title">
+			{{ t('decidiq', 'Text changes') }}
 		</h3>
 
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load the diff')">
+			:title="t('decidiq', 'Could not load the diff')">
 			{{ error }}
 		</CnNoteCard>
 
-		<p v-else-if="loading" class="decidesk-tab__loading">
-			{{ t('decidesk', 'Loading…') }}
+		<p v-else-if="loading" class="decidiq-tab__loading">
+			{{ t('decidiq', 'Loading…') }}
 		</p>
 
 		<CnNoteCard
 			v-else-if="!parentMotionId"
 			type="info"
-			:title="t('decidesk', 'No parent motion')">
+			:title="t('decidiq', 'No parent motion')">
 			{{
 				t(
-					'decidesk',
+					'decidiq',
 					'This amendment is not linked to a motion, so there is no original text to compare against.',
 				)
 			}}
@@ -48,10 +48,10 @@
 			<CnNoteCard
 				v-if="!hasProposedText"
 				type="info"
-				:title="t('decidesk', 'No proposed text')">
+				:title="t('decidiq', 'No proposed text')">
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'This amendment has no proposed replacement text; the amendment text itself is compared against the motion text.',
 					)
 				}}
@@ -150,7 +150,7 @@ export default {
 			} catch (e) {
 				this.error =
 					e?.message
-					|| this.t('decidesk', 'Failed to load the amendment diff.')
+					|| this.t('decidiq', 'Failed to load the amendment diff.')
 			} finally {
 				this.loading = false
 			}
@@ -160,20 +160,20 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__loading {
+.decidiq-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }

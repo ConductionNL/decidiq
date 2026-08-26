@@ -4,17 +4,17 @@
 <!--
  Admin process-template management section. Lists built-in (read-only) and
  custom templates, and offers create / edit / duplicate / delete. Rendered
- inside the Decidesk admin settings panel (admin-gated by the NC settings
+ inside the Decidiq admin settings panel (admin-gated by the NC settings
  framework + AuthorizedAdminSetting on the controller).
 
  @spec openspec/specs/process-configuration/spec.md
 -->
 <template>
 	<CnSettingsSection
-		:name="t('decidesk', 'Process templates')"
+		:name="t('decidiq', 'Process templates')"
 		:description="
 			t(
-				'decidesk',
+				'decidiq',
 				'Define the state machine, voting rule and quorum policy a governance body follows. Built-in templates are read-only but can be duplicated.',
 			)
 		">
@@ -23,7 +23,7 @@
 				variant="primary"
 				data-testid="process-template-create"
 				@click="openCreate">
-				{{ t('decidesk', 'Create template') }}
+				{{ t('decidiq', 'Create template') }}
 			</NcButton>
 
 			<NcLoadingIcon v-if="store.loading" :size="32" />
@@ -47,31 +47,31 @@
 							v-if="tpl.builtIn"
 							class="builtin-badge"
 							data-testid="process-template-builtin"
-							>{{ t('decidesk', 'Built-in') }}</span
+							>{{ t('decidiq', 'Built-in') }}</span
 						>
 						<span class="context">{{ tpl.context }}</span>
 					</div>
 					<div class="template-actions">
 						<NcButton
 							v-if="!tpl.builtIn"
-							:aria-label="t('decidesk', 'Edit')"
+							:aria-label="t('decidiq', 'Edit')"
 							data-testid="process-template-edit"
 							@click="openEdit(tpl)">
-							{{ t('decidesk', 'Edit') }}
+							{{ t('decidiq', 'Edit') }}
 						</NcButton>
 						<NcButton
-							:aria-label="t('decidesk', 'Duplicate')"
+							:aria-label="t('decidiq', 'Duplicate')"
 							data-testid="process-template-duplicate"
 							@click="duplicate(tpl)">
-							{{ t('decidesk', 'Duplicate') }}
+							{{ t('decidiq', 'Duplicate') }}
 						</NcButton>
 						<NcButton
 							v-if="!tpl.builtIn"
 							variant="error"
-							:aria-label="t('decidesk', 'Delete')"
+							:aria-label="t('decidiq', 'Delete')"
 							data-testid="process-template-delete"
 							@click="remove(tpl)">
-							{{ t('decidesk', 'Delete') }}
+							{{ t('decidiq', 'Delete') }}
 						</NcButton>
 					</div>
 				</li>

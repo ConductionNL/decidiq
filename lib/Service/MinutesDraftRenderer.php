@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Minutes Draft Renderer
+ * Decidiq Minutes Draft Renderer
  *
  * Renders the structured Dutch minutes draft from data that has already been
  * gathered by MinutesGenerationService. Pure presentation: it performs no I/O,
@@ -10,7 +10,7 @@
  * change for completely different reasons.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,7 +26,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use Throwable;

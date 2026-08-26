@@ -7,7 +7,7 @@ Action items are a read-only OpenRegister projection over CalDAV VTODOs
 through `/api/action-items` (ActionItemWriter → OR TaskService). The detail page currently shows them
 in a table tab (`DecisionActionItemsTab`). This change adds a **Deck-board view** of the same data.
 
-The OpenRegister integration registry (ADR-019) is already installed by decidesk's
+The OpenRegister integration registry (ADR-019) is already installed by decidiq's
 `main.js::registerBuiltinIntegrations()`, which includes the Deck leaf. The board reuses that registry
 rather than introducing a new mechanism.
 
@@ -25,12 +25,12 @@ rather than introducing a new mechanism.
 ## Decision: real Nextcloud Deck via the leaf (chosen 2026-06-23)
 Action items are surfaced as **real Nextcloud Deck cards** on a per-object Deck board, via the
 existing OpenRegister Deck leaf (`DeckProvider` → `DeckLinkService`/`DeckCardService` +
-`DeckLink` entity/mapper), NOT a decidesk-drawn in-app kanban. The VTODO remains authoritative; the
+`DeckLink` entity/mapper), NOT a decidiq-drawn in-app kanban. The VTODO remains authoritative; the
 Deck card is a **projection** of the VTODO that the leaf links to the meeting/decision object. This is
 a one-way VTODO→Deck bridge (v1), reusing the leaf's board/stack picker + card create/link/list.
 
 ### D1 — Per-object Deck card projection via the leaf HTTP API (frontend)
-For a meeting/decision, decidesk's action-items surface ensures each of its action-item VTODOs has a
+For a meeting/decision, decidiq's action-items surface ensures each of its action-item VTODOs has a
 corresponding **real linked Deck card**, created through the existing OpenRegister Deck leaf HTTP API
 (`POST /api/objects/{register}/{schema}/{id}/deck/new` → `DeckLinkService::createAndLinkCard`,
 persisted in `oc_openregister_deck_links`), bound to the meeting/decision object. **Idempotency** is via
@@ -38,8 +38,8 @@ a `deckCardId` written back onto the VTODO (it rides the X-OPENREGISTER-DATA `fi
 `ActionItemWriter::update`): a VTODO that already carries a still-valid `deckCardId` is skipped on
 re-run. **Why frontend, not a backend service:** the Deck leaf is a frontend link-table integration
 surfaced through the ADR-019 registry; its services are OR-internal and not server-callable cross-app.
-Driving the projection from decidesk's Vue layer over the public HTTP endpoints needs **zero
-OpenRegister code change** and keeps the leaf generic. Alternative (a decidesk PHP `ActionItemDeckProjector`
+Driving the projection from decidiq's Vue layer over the public HTTP endpoints needs **zero
+OpenRegister code change** and keeps the leaf generic. Alternative (a decidiq PHP `ActionItemDeckProjector`
 calling `DeckLinkService` directly) rejected — forces cross-app server coupling the leaf doesn't expose.
 
 ### D2 — Status → Deck stack mapping
@@ -48,7 +48,7 @@ absent). Moving a card between Deck stacks reflects the action item's status. **
 ARE Deck stacks in this approach; mirrors the VTODO STATUS mapping (NEEDS-ACTION/IN-PROCESS/COMPLETED).
 
 ### D3 — VTODO stays authoritative; status changes flow through the existing write path
-v1 is a forward projection (VTODO→card). The in-decidesk board's lane move calls the existing
+v1 is a forward projection (VTODO→card). The in-decidiq board's lane move calls the existing
 `/api/action-items/{uid}` PUT (ActionItemWriter → TaskService), so the VTODO is the authoritative
 record and the in-app board re-lanes immediately. Two re-stacking limits are explicit in v1:
 - A status change does **not** physically move an already-linked card between Deck stacks — the OR Deck
@@ -64,17 +64,17 @@ otherwise. **Why:** additive; the action-items tab must never break when Deck is
 
 ### D5 — Resolve the surface via the integration registry (ADR-019)
 The Deck surface is the registered `deck` leaf's widget/tab from `OCA.OpenRegister.integrations`, bound
-to the meeting/decision object; decidesk wires the action-items tab to it + supplies the VTODO→card
+to the meeting/decision object; decidiq wires the action-items tab to it + supplies the VTODO→card
 projection trigger. **Why:** ADR-019 reuse; the leaf already renders linked Deck cards for an object.
 
 ## Implementation scope note
-Realized entirely in decidesk's frontend over the existing OR Deck leaf — **no OpenRegister code change**:
+Realized entirely in decidiq's frontend over the existing OR Deck leaf — **no OpenRegister code change**:
 - **OpenRegister** (unchanged): `DeckLinksController` already exposes `GET/POST .../deck`,
   `.../deck/new`, `GET /api/integrations/deck/boards`, `.../boards/{id}/stacks`, and the schema sticky
   default (`GET/PUT /api/integrations/deck/schemas/{schema}/default`). The leaf can list/create boards'
   stacks but **cannot create boards or stacks** — so the projection targets an existing board + its
   status-named stacks (sticky default, else first board).
-- **decidesk**: `src/services/deckProjection.js` (ensure one real Deck card per action-item VTODO via
+- **decidiq**: `src/services/deckProjection.js` (ensure one real Deck card per action-item VTODO via
   the leaf HTTP API, idempotent via a `deckCardId` stored back on the VTODO), `ActionItemDeckBoard.vue`
   (status-laned view of the projection linking each card to its real Deck card + the sync action),
   `ActionItemsSurface.vue` (board when Deck enabled, existing table otherwise), surface wiring +

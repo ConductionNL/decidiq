@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Workflow Service
+ * Decidiq Workflow Service
  *
  * Service for managing workflow transitions and governance-domain-specific configurations.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 /**
  * Service for managing meeting workflow transitions per governance domain.

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — Action items index page (genuine behavioural).
@@ -32,13 +32,13 @@ import { writeHeaders } from '../workflows/governance-fixture'
  * `cn-object-list-table` was absent.
  *
  * The only write path that can create one is the app's own
- * `POST /apps/decidesk/api/action-items` (ActionItemController::create →
+ * `POST /apps/decidiq/api/action-items` (ActionItemController::create →
  * ActionItemWriter → OpenRegister TaskService), which writes a VTODO into the
  * ACTING USER's calendar. Playwright's `page.request` shares the browser
  * context's session cookies, so this seeds for exactly the user the page runs
  * as.
  */
-const ACTION_API = `${BASE}/index.php/apps/decidesk/api/action-items`
+const ACTION_API = `${BASE}/index.php/apps/decidiq/api/action-items`
 const seededUids: string[] = []
 
 async function seedActionItem(page: Page, title: string): Promise<void> {
@@ -84,7 +84,7 @@ async function dismissSupportDialog(page: Page): Promise<void> {
 }
 
 async function appNavClick(page: Page, entryId: string): Promise<void> {
-	await page.goto(`${BASE}/apps/decidesk/`)
+	await page.goto(`${BASE}/apps/decidiq/`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await dismissSupportDialog(page)
 	const nav = page
@@ -100,7 +100,7 @@ test('Action items: app-scoped nav lands on the index with its real content', as
 	await seedActionItem(page, `e2e action item ${Date.now()}`)
 	await appNavClick(page, 'ActionItems')
 
-	await expect(page).toHaveURL(/\/apps\/decidesk\/.*action-items/)
+	await expect(page).toHaveURL(/\/apps\/decidiq\/.*action-items/)
 	// NOTE: the migrated CnIndexPage (nc-vue v2) no longer renders a page-title
 	// heading inside <main>; the real index surface is the object-list table +
 	// "Showing N of N" + primary CTA, which is what we assert below.
@@ -128,7 +128,7 @@ test('Action items: Add ActionItem opens a real create form dialog', async ({
 })
 
 // @e2e openspec/specs/action-item-management/spec.md#view-the-action-items-list
-test('Action items: no decidesk-origin console error or 500 on load', async ({
+test('Action items: no decidiq-origin console error or 500 on load', async ({
 	page,
 }) => {
 	await seedActionItem(page, `e2e action item ${Date.now()}`)
@@ -138,13 +138,13 @@ test('Action items: no decidesk-origin console error or 500 on load', async ({
 		if (
 			m.type() === 'error'
 			&& !/user_status|heartbeat|user status/i.test(t)
-			&& /decidesk/i.test(t)
+			&& /decidiq/i.test(t)
 		) {
 			appErrors.push(t)
 		}
 	})
 	page.on('response', (r) => {
-		if (r.status() >= 500 && /decidesk/i.test(r.url()))
+		if (r.status() >= 500 && /decidiq/i.test(r.url()))
 			appErrors.push(`HTTP ${r.status()} ${r.url()}`)
 	})
 
@@ -152,6 +152,6 @@ test('Action items: no decidesk-origin console error or 500 on load', async ({
 	await expect(page.getByTestId('cn-object-list-table')).toBeVisible()
 	expect(
 		appErrors,
-		`decidesk errors on Action items:\n${appErrors.join('\n')}`,
+		`decidiq errors on Action items:\n${appErrors.join('\n')}`,
 	).toHaveLength(0)
 })

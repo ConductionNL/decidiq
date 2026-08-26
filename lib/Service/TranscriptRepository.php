@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Transcript Repository
+ * Decidiq Transcript Repository
  *
  * All OpenRegister / Files access the transcription pipeline needs: fetching
  * the meeting, the transcript and its agenda items, persisting a transcript,
@@ -9,7 +9,7 @@
  * TranscriptionService with the pipeline itself.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,12 +25,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use OCA\Decidesk\Exception\MissingObjectException;
-use RuntimeException;
-use OCA\OpenRegister\Service\FileService;
+use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Service\FileService;
+use RuntimeException;
 
 /**
  * Object + file access for the meeting-transcription pipeline.
@@ -97,7 +97,7 @@ class TranscriptRepository {
 	}//end fetchTranscript()
 
 	/**
-	 * Fetch one decidesk object by id, or raise MissingObjectException.
+	 * Fetch one Decidiq object by id, or raise MissingObjectException.
 	 *
 	 * THE SEAM THIS REPAIRS. This repository is the place the transcription
 	 * surface converts "absent object" into the app's own
@@ -120,7 +120,7 @@ class TranscriptRepository {
 	 * data is absent when the data layer is simply down.
 	 *
 	 * @param string $id The object UUID.
-	 * @param string $schema The decidesk schema slug.
+	 * @param string $schema The Decidiq schema slug.
 	 * @param string $absentMessage Message for the MissingObjectException.
 	 *
 	 * @return array<string,mixed> The object.
@@ -133,7 +133,7 @@ class TranscriptRepository {
 		$objectService = $this->getObjectService();
 
 		try {
-			$entity = $objectService->find(id: $id, register: 'decidesk', schema: $schema);
+			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
 		} catch (\OCP\AppFramework\Db\DoesNotExistException) {
 			throw new MissingObjectException(message: $absentMessage);
 		}
@@ -158,10 +158,10 @@ class TranscriptRepository {
 		$objectService = $this->getObjectService();
 		$entities = $objectService->findAll(
 			[
-				'register' => 'decidesk',
+				'register' => 'decidiq',
 				'schema' => 'agenda-item',
 				'filters' => [
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'agenda-item',
 					'_relations.meeting' => $meetingId,
 				],
@@ -202,7 +202,7 @@ class TranscriptRepository {
 
 		$saved = $objectService->saveObject(
 			object: $transcript,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'transcript',
 			uuid: $this->transcriptId(transcript: $transcript)
 		);
@@ -257,7 +257,7 @@ class TranscriptRepository {
 
 		$this->getObjectService()->saveObject(
 			object: $body,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'governance-body',
 			uuid: $bodyId
 		);
@@ -343,6 +343,5 @@ class TranscriptRepository {
 		// Injected (ADR-083): a property read throws nothing, so the old
 		// catch was unreachable.
 		return $this->objectService;
-
 	}//end getObjectService()
 }//end class

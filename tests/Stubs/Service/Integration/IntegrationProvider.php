@@ -7,7 +7,7 @@
  * OpenRegister is not installed (standalone CI), so the `?IntegrationProvider`
  * type hint on `RegisterLeafProvidersEvent::registerLeaf()` resolves.
  *
- * decidesk's decisions leaf is render-only and passes `null` for the provider, so
+ * decidiq's decisions leaf is render-only and passes `null` for the provider, so
  * no method here is ever exercised. The FULL interface surface is mirrored
  * anyway: an interface stub that declares fewer methods than the real one would
  * let a class that does not actually satisfy the contract be written against it,

@@ -12,23 +12,23 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Add participant')"
+		:name="t('decidiq', 'Add participant')"
 		data-testid="meeting-participant-add-dialog"
 		@closing="$emit('close')">
 		<template #default>
-			<p>{{ t('decidesk', 'Pick a participant to link to this meeting.') }}</p>
-			<div v-if="loading" class="decidesk-tab__loading">
-				{{ t('decidesk', 'Loading participants…') }}
+			<p>{{ t('decidiq', 'Pick a participant to link to this meeting.') }}</p>
+			<div v-if="loading" class="decidiq-tab__loading">
+				{{ t('decidiq', 'Loading participants…') }}
 			</div>
-			<ul v-else-if="candidates.length" class="decidesk-tab__list">
+			<ul v-else-if="candidates.length" class="decidiq-tab__list">
 				<li v-for="cand in candidates" :key="cand.id">
 					<NcButton @click="$emit('select', cand)">
 						{{ candidateLabel(cand) }}
 					</NcButton>
 				</li>
 			</ul>
-			<p v-else class="decidesk-tab__empty">
-				{{ t('decidesk', 'No more participants available to link.') }}
+			<p v-else class="decidiq-tab__empty">
+				{{ t('decidiq', 'No more participants available to link.') }}
 			</p>
 		</template>
 	</NcDialog>
@@ -64,7 +64,7 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab__list {
+.decidiq-tab__list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -73,8 +73,8 @@ export default {
 	gap: 4px;
 }
 
-.decidesk-tab__empty,
-.decidesk-tab__loading {
+.decidiq-tab__empty,
+.decidiq-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }

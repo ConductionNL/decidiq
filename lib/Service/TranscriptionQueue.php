@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Transcription Queue
+ * Decidiq Transcription Queue
  *
  * Owns the asynchronous transcription hand-off: which background job runs a
  * submitted Transcript and what arguments it carries. Extracted from
@@ -9,7 +9,7 @@
  * class or the job-list API.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,9 +25,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use OCA\Decidesk\BackgroundJob\TranscriptionJob;
+use OCA\Decidiq\BackgroundJob\TranscriptionJob;
 use OCP\BackgroundJob\IJobList;
 
 /**

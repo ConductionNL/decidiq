@@ -1,4 +1,4 @@
-# Tasks — Beta surface alignment (Decidesk)
+# Tasks — Beta surface alignment (Decidiq)
 
 - [x] 1. Read `appinfo/info.xml`, `src/manifest.json` nav/menu, and skim
       `lib/Controller/` + `lib/Mcp/` to derive the real shipped feature list.
@@ -13,7 +13,7 @@
       integrations are real — `OpenCatalogiPublisher.php`, `PublicationController.php`,
       `DecisionIntegrationService.php`.
 - [x] 6. Verify the 5 MCP tools advertised on the product page match
-      `lib/Mcp/DecideskToolProvider.php` (id, description, behaviour).
+      `lib/Mcp/DecidiqToolProvider.php` (id, description, behaviour).
 - [x] 7. Confirm `info.xml` Dutch summary/description are genuine Dutch (ADR-007) — yes, no change.
 - [x] 8. Rewrite `info.xml` EN + NL "Key Features" bullets to the canonical
       feature vocabulary (was: tech-stack bullets).
@@ -25,7 +25,7 @@
 - [x] 11. Reconcile the NL translation at
       `conduction-website/i18n/nl/docusaurus-plugin-content-pages/apps/decidesk.mdx`:
       same content changes + fix wrong docs URL
-      (`docs.conduction.nl/decidesk` → `decidesk.conduction.nl`).
+      (`docs.conduction.nl/decidesk` → `decidiq.conduction.nl`).
 - [x] 12. Check `img/app.svg` against the brand icon convention (white fill,
       24×24) — compliant, no change.
 - [x] 13. Note the 3 dead Showcase CTA links in `decidesk.mdx`

@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Shared governance bodies (gemeenschappelijke regeling per Wgr) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Zienswijzerondes index + ronde detail, and a zienswijzen index; schema refs BY SLUG (zienswijzeronde / zienswijze / body-participation), never the PascalCase keys (multi-word schemas — the exact silent-breakage case). The 'Deelnemende organisaties' section on GovernanceBodyDetail and the 'Openstaande zienswijzen' Dashboard stat widget live in the base src/manifest.json (design D6/REQ-SGB-010: mergePages replaces a same-id page wholesale, so a fragment cannot add one section/widget to an existing page without redefining it) — out of scope for this declarative-core fragment. Object creation on ronde opening (fan-out of one zienswijze per active participation) is imperative (ZienswijzerondeService); this declarative fragment provides the page skeletons, quick filters, and the data + files + related widgets.",
 	"_spec": "openspec/changes/shared-governance-bodies/specs/shared-governance-bodies/spec.md",
 	"menu": [
@@ -26,7 +26,7 @@
 			"title": "Zienswijzerondes",
 			"_note": "spec: openspec/changes/shared-governance-bodies/specs/shared-governance-bodies/spec.md#requirement-req-sgb-010-participation-and-zienswijze-views-plus-dashboard-kpi",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "zienswijzeronde",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -50,7 +50,7 @@
 				],
 				"columns": [
 					{ "key": "title", "label": "Title", "widget": "link" },
-					{ "key": "sharedBody", "label": "Shared body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "sharedBody", "label": "Shared body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "subjectType", "label": "Subject", "widget": "badge" },
 					{ "key": "deadline", "label": "Deadline", "widget": "date" },
 					{ "key": "status", "label": "Status", "widget": "badge" }
@@ -60,7 +60,7 @@
 				],
 				"showMassExport": true,
 				"sidebar": { "enabled": true, "showMetadata": true },
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -70,7 +70,7 @@
 			"title": "Zienswijzeronde",
 			"_note": "spec: openspec/changes/shared-governance-bodies/specs/shared-governance-bodies/spec.md#requirement-req-sgb-007-aggregated-zienswijzen-overview-and-verwerking-by-the-shared-body",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "zienswijzeronde",
 				"_note": "ZienswijzerondeDetail (REQ-SGB-004/007). Ronde data leads 8-wide; the subject document(s) attach via the Files leaf (OR file abstraction). The Related widget surfaces the aggregated overview of all its Zienswijze objects (reverse lookup on ronde) with participant/status/standpunt/ingediendDatum/verwerking, plus the resolved sharedBody, cyclusStap (soft), and closing decision (vaststellingsbesluit) references — read from the declared x-openregister-relations, no bespoke aggregation endpoint. Status is declared in x-openregister-lifecycle. Audit trail is a sidebar tab. Schema ref by slug (zienswijzeronde).",
 				"widgets": [
@@ -90,7 +90,7 @@
 						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
 					]
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -100,7 +100,7 @@
 			"title": "Zienswijzen",
 			"_note": "spec: openspec/changes/shared-governance-bodies/specs/shared-governance-bodies/spec.md#requirement-req-sgb-010-participation-and-zienswijze-views-plus-dashboard-kpi",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "zienswijze",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -118,7 +118,7 @@
 				],
 				"columns": [
 					{ "key": "ronde", "label": "Ronde", "widget": "link" },
-					{ "key": "participant", "label": "Participant", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "participant", "label": "Participant", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "standpunt", "label": "Standpunt", "widget": "badge" },
 					{ "key": "deadline", "label": "Deadline", "widget": "date" },
 					{ "key": "status", "label": "Status", "widget": "badge" }
@@ -128,7 +128,7 @@
 				],
 				"showMassExport": true,
 				"sidebar": { "enabled": true, "showMetadata": true },
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		}
 	]

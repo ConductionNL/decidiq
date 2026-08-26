@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Agenda Service
+ * Decidiq Agenda Service
  *
  * Service for managing agenda lifecycle operations including publication,
  * BOB phase advancement, consent item (hamerstukken) processing, and reordering.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,13 +24,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTime;
 use InvalidArgumentException;
-use OCA\Decidesk\Exception\NotFoundException;
-use OCA\OpenRegister\Service\CalendarEventService;
+use OCA\Decidiq\Exception\NotFoundException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Service\CalendarEventService;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -110,7 +110,7 @@ class AgendaService {
 		$items = $this->objectService->findAll(
 			[
 				'filters' => [
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'agenda-item',
 					'_relations.meeting' => $meetingId,
 				],
@@ -153,7 +153,7 @@ class AgendaService {
 
 		// #315: Read the full meeting object before saving so that a partial payload cannot
 		// silently wipe required fields that are not included in the update.
-		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		if ($meetingEntity === null) {
 			throw new NotFoundException(message: "Meeting {$meetingId} not found");
 		}
@@ -163,7 +163,7 @@ class AgendaService {
 		// Update meeting lifecycle to 'opened' using a full-object merge.
 		$this->objectService->saveObject(
 			object: array_merge($meetingData, ['lifecycle' => 'opened']),
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'meeting',
 			uuid: $meetingId,
 		);
@@ -185,7 +185,7 @@ class AgendaService {
 	private function sendAgendaPublishedNotification(string $userId, string $meetingId): void {
 		try {
 			$notification = $this->notificationManager->createNotification();
-			$notification->setApp('decidesk')
+			$notification->setApp('decidiq')
 				->setUser($userId)
 				->setDateTime(new DateTime())
 				->setObject('meeting', $meetingId)
@@ -269,7 +269,7 @@ class AgendaService {
 				'id' => $agendaItemId,
 				'status' => $nextStatus,
 			],
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'agenda-item',
 			uuid: $agendaItemId,
 		);
@@ -297,7 +297,7 @@ class AgendaService {
 		$items = $this->objectService->findAll(
 			[
 				'filters' => [
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'agenda-item',
 					'_relations.meeting' => $meetingId,
 				],
@@ -323,7 +323,7 @@ class AgendaService {
 					'id' => $itemId,
 					'status' => 'completed',
 				],
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'agenda-item',
 				uuid: (string)$itemId,
 			);
@@ -352,7 +352,7 @@ class AgendaService {
 	 */
 	public function reviseAgenda(string $meetingId): void {
 		// #315: Read the full meeting object before saving to avoid wiping required fields.
-		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		if ($meetingEntity === null) {
 			throw new NotFoundException(message: "Meeting {$meetingId} not found");
 		}
@@ -361,7 +361,7 @@ class AgendaService {
 
 		$this->objectService->saveObject(
 			object: array_merge($meetingData, ['lifecycle' => 'scheduled']),
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'meeting',
 			uuid: $meetingId,
 		);
@@ -388,7 +388,7 @@ class AgendaService {
 		$meetingItems = $this->objectService->findAll(
 			[
 				'filters' => [
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'agenda-item',
 					'_relations.meeting' => $meetingId,
 				],
@@ -419,7 +419,7 @@ class AgendaService {
 					'id' => $itemId,
 					'orderNumber' => $orderNumber,
 				],
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'agenda-item',
 				uuid: (string)$itemId,
 			);

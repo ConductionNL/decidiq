@@ -16,11 +16,11 @@
  @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#requirement-per-meeting-stemmingen-overview-tab
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--votes" data-testid="meeting-votes-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Votes') }}
-				<span v-if="!loading" class="decidesk-tab__count"
+	<div class="decidiq-tab decidiq-tab--votes" data-testid="meeting-votes-tab">
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Votes') }}
+				<span v-if="!loading" class="decidiq-tab__count"
 					>({{ rounds.length }})</span
 				>
 			</h3>
@@ -29,20 +29,20 @@
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load voting overview')">
+			:title="t('decidiq', 'Could not load voting overview')">
 			{{ error }}
 		</CnNoteCard>
 
 		<CnNoteCard
 			v-else-if="!loading && !rounds.length"
 			type="info"
-			:title="t('decidesk', 'No voting recorded for this meeting')"
+			:title="t('decidiq', 'No voting recorded for this meeting')"
 			data-testid="meeting-votes-empty">
-			{{ t('decidesk', 'No voting recorded for this meeting.') }}
+			{{ t('decidiq', 'No voting recorded for this meeting.') }}
 		</CnNoteCard>
 
-		<p v-else-if="loading" class="decidesk-tab__loading">
-			{{ t('decidesk', 'Loading voting overview…') }}
+		<p v-else-if="loading" class="decidiq-tab__loading">
+			{{ t('decidiq', 'Loading voting overview…') }}
 		</p>
 
 		<CnDataTable
@@ -51,7 +51,7 @@
 			:rows="rounds"
 			:loading="loading"
 			rowKey="id"
-			:emptyText="t('decidesk', 'No voting recorded for this meeting.')"
+			:emptyText="t('decidiq', 'No voting recorded for this meeting.')"
 			@rowClick="openMotion">
 			<template #column-result="{ value }">
 				<CnStatusBadge
@@ -88,13 +88,13 @@ export default {
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting */
 		columns() {
 			return [
-				{ key: 'motionTitle', label: this.t('decidesk', 'Motion') },
-				{ key: 'motionType', label: this.t('decidesk', 'Type') },
-				{ key: 'votesFor', label: this.t('decidesk', 'For') },
-				{ key: 'votesAgainst', label: this.t('decidesk', 'Against') },
-				{ key: 'votesAbstain', label: this.t('decidesk', 'Abstain') },
-				{ key: 'result', label: this.t('decidesk', 'Result') },
-				{ key: 'timestamp', label: this.t('decidesk', 'When') },
+				{ key: 'motionTitle', label: this.t('decidiq', 'Motion') },
+				{ key: 'motionType', label: this.t('decidiq', 'Type') },
+				{ key: 'votesFor', label: this.t('decidiq', 'For') },
+				{ key: 'votesAgainst', label: this.t('decidiq', 'Against') },
+				{ key: 'votesAbstain', label: this.t('decidiq', 'Abstain') },
+				{ key: 'result', label: this.t('decidiq', 'Result') },
+				{ key: 'timestamp', label: this.t('decidiq', 'When') },
 			]
 		},
 
@@ -164,7 +164,7 @@ export default {
 								id: round.id || round.uuid,
 								motionId,
 								motionTitle:
-									motion.title || this.t('decidesk', 'Motion'),
+									motion.title || this.t('decidiq', 'Motion'),
 								motionType: motion.motionType || '',
 								votesFor: round.votesFor ?? 0,
 								votesAgainst: round.votesAgainst ?? 0,
@@ -179,7 +179,7 @@ export default {
 			} catch (e) {
 				this.error =
 					e?.message
-					|| this.t('decidesk', 'Failed to load voting overview.')
+					|| this.t('decidiq', 'Failed to load voting overview.')
 			} finally {
 				this.loading = false
 			}
@@ -204,33 +204,33 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__count {
+.decidiq-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
 
-.decidesk-tab__loading {
+.decidiq-tab__loading {
 	color: var(--color-text-maxcontrast);
 }
 </style>

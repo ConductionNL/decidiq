@@ -5,12 +5,12 @@ status: done
 # nl-design-theming Specification
 
 ## Purpose
-Enforces government NL Design System theming across Decidesk by requiring every component to reference Nextcloud CSS custom properties rather than hardcoded colours. A single token-mapping file maps NL Design System token names to their Nextcloud variable equivalents, and the theme adapts automatically when users switch between Nextcloud light and dark mode.
+Enforces government NL Design System theming across Decidiq by requiring every component to reference Nextcloud CSS custom properties rather than hardcoded colours. A single token-mapping file maps NL Design System token names to their Nextcloud variable equivalents, and the theme adapts automatically when users switch between Nextcloud light and dark mode.
 
 ## Requirements
 
 ### Requirement: REQ-THM-001 All colours use Nextcloud CSS custom properties
-Every component in Decidesk SHALL reference only Nextcloud CSS variables (e.g. `var(--color-primary)`, `var(--color-main-background)`, `var(--color-text-maxcontrast)`). No hexadecimal, RGB, or named colour values SHALL appear in component `<style>` blocks. No `--nldesign-*` tokens SHALL be referenced directly in components.
+Every component in Decidiq SHALL reference only Nextcloud CSS variables (e.g. `var(--color-primary)`, `var(--color-main-background)`, `var(--color-text-maxcontrast)`). No hexadecimal, RGB, or named colour values SHALL appear in component `<style>` blocks. No `--nldesign-*` tokens SHALL be referenced directly in components.
 
 #### Scenario: Colour audit passes
 - **WHEN** a CSS linting rule scans all `*.vue` and `*.css` files
@@ -32,4 +32,4 @@ All UI elements SHALL remain readable and correctly themed when the Nextcloud us
 
 #### Scenario: Dark mode active
 - **WHEN** a user enables dark mode in Nextcloud personal settings
-- **THEN** all Decidesk pages adapt their background and text colours without custom JavaScript
+- **THEN** all Decidiq pages adapt their background and text colours without custom JavaScript

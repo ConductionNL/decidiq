@@ -1,0 +1,843 @@
+{
+	"info": {
+		"name": "Decidiq API Contract Suite",
+		"description": "Newman/Postman API-contract tests for the Decidiq Nextcloud governance app. Locks the HTTP contract of decidiq's controllers (appinfo/routes.php + lib/Controller/*): meeting lifecycle, motion lifecycle, decision publication, the voting/quorum surface (open round / cast vote / tally / close), and settings. Meeting/decision/motion/voting-round CRUD is delegated to the OpenRegister object API (ADR-022); decidiq owns only the guarded governance endpoints. Every endpoint family is exercised for a happy path, an error/validation case (4xx not 500), and an authorization case (no auth -> 401). The suite is self-contained and idempotent: setup requests seed the prerequisite OpenRegister objects and teardown deletes everything created.\n\nAUTH MODEL: collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block (admin:admin via adminUser/adminPass) plus the 'OCS-APIRequest: true' header (NC app-framework controllers reject session-less POSTs without it as a CSRF failure). The no-auth requests carry NEITHER, and target {{noAuthBase}} (127.0.0.1) so the host-scoped NC session cookie established by authed localhost requests never leaks to them.\n\nPHASE-0 VOTING FIX LOCKED: tally returns a real, correct result (votesFor>votesAgainst => 'adopted') with no 500; cast creates a Vote with no 500; both error/validation paths return static-message 4xx, not 500.\n\nQUARANTINED REAL BUGS (asserted at their current status, NOT faked green — flip to happy-path when fixed):\n  (1) DecisionController::publish 500 on unknown id: find() raises OR's DoesNotExistException instead of returning null, so the controller's `=== null` 404 branch is unreachable and the exception escapes unhandled.\n  (2) Voting per-meeting chair guard / quorum participant resolution returns 403/cannot resolve for OpenRegister-object-API-created data: ParticipantResolver filters on '_relations.governance-body' but objects created via the standard OR object API store the link as a flat property ('governanceBody') or a flattened 'relations.0.*' map, neither of which is indexed under that relation-slug filter. open() (per-meeting chair check on the request-body meetingId) therefore 403s for seeded data. tally/close use the global chair fallback (admin) and DO work, which is how the tally contract is asserted live.\n\nUsage: see run-newman.sh. Pass collection variables baseUrl, noAuthBase, adminUser, adminPass.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "baseUrl", "value": "http://localhost:8080" },
+		{ "key": "noAuthBase", "value": "http://127.0.0.1:8080" },
+		{ "key": "adminUser", "value": "admin" },
+		{ "key": "adminPass", "value": "admin" },
+		{ "key": "register", "value": "decidiq" },
+		{ "key": "govBodyId", "value": "" },
+		{ "key": "participantId", "value": "" },
+		{ "key": "meetingId", "value": "" },
+		{ "key": "motionId", "value": "" },
+		{ "key": "openMotionId", "value": "" },
+		{ "key": "sohRoundId", "value": "" },
+		{ "key": "fabRoundId", "value": "" },
+		{ "key": "decisionId", "value": "" }
+	],
+	"auth": { "type": "noauth" },
+	"item": [
+		{
+			"name": "0. Setup",
+			"item": [
+				{
+					"name": "Seed governance body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: governance body created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'governance body id captured').to.be.a('string');",
+									"pm.collectionVariables.set('govBodyId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"Newman GB\",\n  \"bodyType\": \"legislative\",\n  \"domain\": \"newman-contract\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "governance-body" ] }
+					}
+				},
+				{
+					"name": "Seed chair participant (admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: participant created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'participant id captured').to.be.a('string');",
+									"pm.collectionVariables.set('participantId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"displayName\": \"Newman Admin\",\n  \"name\": \"Newman Admin\",\n  \"nextcloudUserId\": \"{{adminUser}}\",\n  \"role\": \"chair\",\n  \"governanceBody\": \"{{govBodyId}}\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "participant" ] }
+					}
+				},
+				{
+					"name": "Seed meeting (quorumRequired=1, opened)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: meeting created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'meeting id captured').to.be.a('string');",
+									"pm.collectionVariables.set('meetingId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"title\": \"Newman Meeting\",\n  \"meetingType\": \"regular\",\n  \"scheduledDate\": \"2026-06-20T10:00:00+00:00\",\n  \"meetingMode\": \"in-person\",\n  \"lifecycle\": \"opened\",\n  \"quorumRequired\": 1,\n  \"governanceBody\": \"{{govBodyId}}\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "meeting" ] }
+					}
+				},
+				{
+					"name": "Seed motion (linked to meeting)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: motion created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'motion id captured').to.be.a('string');",
+									"pm.collectionVariables.set('motionId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"decisionType\": \"motion\",\n  \"title\": \"Newman Motion\",\n  \"text\": \"That this contract suite be adopted.\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman Admin\",\n  \"lifecycle\": \"proposed\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\",\n  \"meeting\": \"{{meetingId}}\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "decision" ] }
+					}
+				},
+				{
+					"name": "Seed OPEN show-of-hands voting round",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: show-of-hands round created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'soh round id captured').to.be.a('string');",
+									"pm.collectionVariables.set('sohRoundId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"votesFor\": 0,\n  \"votesAgainst\": 0,\n  \"votesAbstain\": 0,\n  \"motion\": \"{{motionId}}\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "voting-round" ] }
+					}
+				},
+				{
+					"name": "Seed OPEN for-against-abstain voting round",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: for-against-abstain round created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'fab round id captured').to.be.a('string');",
+									"pm.collectionVariables.set('fabRoundId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"motion\": \"{{motionId}}\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "voting-round" ] }
+					}
+				},
+				{
+					"name": "Seed adopted/internal decision",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: decision created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'decision id captured').to.be.a('string');",
+									"pm.collectionVariables.set('decisionId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"decisionType\": \"meeting-outcome\",\n  \"title\": \"Newman Decision\",\n  \"text\": \"Adopted by the assembly.\",\n  \"lifecycle\": \"decided\",\n  \"decisionDate\": \"2026-06-20T10:00:00+00:00\",\n  \"outcome\": \"adopted\",\n  \"isPublished\": \"internal\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "decision" ] }
+					}
+				}
+			]
+		},
+		{
+			"name": "1. Voting & Quorum",
+			"item": [
+				{
+					"name": "Tally show-of-hands round (happy: chair via admin fallback, real result)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Tally: 200 (no 500 — Phase-0 voting fix)', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.test('Tally: persisted counts echo the submitted tally', () => {",
+									"  pm.expect(b.votesFor).to.eql(3);",
+									"  pm.expect(b.votesAgainst).to.eql(1);",
+									"  pm.expect(b.votesAbstain).to.eql(1);",
+									"});",
+									"pm.test('Tally: result computed correctly (for>against => adopted)', () => pm.expect(b.result).to.eql('adopted'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"votesFor\": 3,\n  \"votesAgainst\": 1,\n  \"votesAbstain\": 1\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{sohRoundId}}/tally", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds", "{{sohRoundId}}", "tally" ] }
+					}
+				},
+				{
+					"name": "Tally rejects a non-show-of-hands round (error: 400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Tally on for-against-abstain round: 400 (not 500)', () => pm.response.to.have.status(400));",
+									"pm.test('Tally: static guard message', () => pm.expect(pm.response.json().message).to.include('show-of-hands'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"votesFor\": 1,\n  \"votesAgainst\": 0,\n  \"votesAbstain\": 0\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{fabRoundId}}/tally", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds", "{{fabRoundId}}", "tally" ] }
+					}
+				},
+				{
+					"name": "Tally requires auth (authz: 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Tally no-auth: 401', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"votesFor\": 1,\n  \"votesAgainst\": 0,\n  \"votesAbstain\": 0\n}" },
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/voting-rounds/{{sohRoundId}}/tally", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds", "{{sohRoundId}}", "tally" ] }
+					}
+				},
+				{
+					"name": "Cast a vote (happy: participant resolved from session, no 500)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Cast: 201 (no 500 — Phase-0 voting fix)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"pm.test('Cast: vote value persisted as for', () => pm.expect(b.value).to.eql('for'));",
+									"pm.test('Cast: vote carries a default weight of 1', () => pm.expect(b.weight).to.eql(1));",
+									"pm.test('Cast: not flagged as proxy', () => pm.expect(b.isProxy).to.eql(false));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"value\": \"for\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{fabRoundId}}/cast", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds", "{{fabRoundId}}", "cast" ] }
+					}
+				},
+				{
+					"name": "Cast rejects an invalid value (error: 400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Cast bad value: 400 (not 500)', () => pm.response.to.have.status(400));",
+									"pm.test('Cast: enum validation message', () => pm.expect(pm.response.json().message).to.include('for, against, or abstain'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"value\": \"banana\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{fabRoundId}}/cast", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds", "{{fabRoundId}}", "cast" ] }
+					}
+				},
+				{
+					"name": "Cast requires auth (authz: 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Cast no-auth: 401', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"value\": \"for\"\n}" },
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/voting-rounds/{{fabRoundId}}/cast", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds", "{{fabRoundId}}", "cast" ] }
+					}
+				},
+				{
+					"name": "Open round validates required body (error: 400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Open empty body: 400 (not 500)', () => pm.response.to.have.status(400));",
+									"pm.test('Open: requires motionId and meetingId', () => pm.expect(pm.response.json().message).to.include('motionId and meetingId'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds" ] }
+					}
+				},
+				{
+					"name": "Open round requires auth (authz: 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Open no-auth: 401', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"motionId\": \"{{openMotionId}}\",\n  \"meetingId\": \"{{meetingId}}\",\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false\n}" },
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/voting-rounds", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds" ] }
+					}
+				},
+				{
+					"name": "Open round — per-meeting chair guard + quorum (happy: 201)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// The open-round happy path needs a motion in 'deliberating' (open()",
+									"// transitions motion deliberating -> voting and would mutate the shared",
+									"// seed motion). Create a DEDICATED deliberating motion for this test so",
+									"// the later 'proposed -> deliberating' test keeps its own seed motion.",
+									"const base = pm.collectionVariables.get('baseUrl');",
+									"const auth = 'Basic ' + btoa(pm.collectionVariables.get('adminUser') + ':' + pm.collectionVariables.get('adminPass'));",
+									"pm.sendRequest({",
+									"  url: base + '/index.php/apps/openregister/api/objects/decidiq/decision',",
+									"  method: 'POST',",
+									"  header: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'OCS-APIRequest': 'true', 'Authorization': auth },",
+									"  body: { mode: 'raw', raw: JSON.stringify({ title: 'Newman Open Motion', text: 'Round-open motion', motionType: 'motion', proposer: 'Newman Admin', lifecycle: 'deliberating', meeting: pm.collectionVariables.get('meetingId') }) }",
+									"}, function (err, res) {",
+									"  if (!err && res) { const b = res.json(); const id = (b['@self'] && b['@self'].id) || b.id; pm.collectionVariables.set('openMotionId', id); }",
+									"});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// FIXED (bug 2): open() does a per-meeting chair/secretary check on the",
+									"// request-body meetingId. ParticipantResolver now resolves the seeded",
+									"// chair because it reads the flat field-keyed relation map",
+									"// ('@self.relations.governanceBody') the OR object API produces, so the",
+									"// admin chair is recognised. checkQuorum() was fixed the same way, so",
+									"// quorum (quorumRequired=1, 1 active chair) is met and the round opens.",
+									"pm.test('Open: round opens for the seeded chair (201)', () => pm.response.to.have.status(201));",
+									"pm.test('Open: response carries the voting-round id', () => { const b = pm.response.json(); const id = (b['@self'] && b['@self'].id) || b.id; pm.expect(id, 'voting-round id').to.be.a('string'); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"motionId\": \"{{openMotionId}}\",\n  \"meetingId\": \"{{meetingId}}\",\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "voting-rounds" ] }
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Meeting lifecycle",
+			"item": [
+				{
+					"name": "Transition meeting (happy: opened -> closed)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Lifecycle close: 200', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.test('Lifecycle: service reports success', () => pm.expect(b.success).to.eql(true));",
+									"pm.test('Lifecycle: confirmation message returned', () => pm.expect(b.message).to.include('closed'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"action\": \"close\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{meetingId}}/lifecycle", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "meetings", "{{meetingId}}", "lifecycle" ] }
+					}
+				},
+				{
+					"name": "Transition meeting missing action (error: 422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Lifecycle missing action: 422 (not 500)', () => pm.response.to.have.status(422));",
+									"pm.test('Lifecycle: missing-parameter message', () => pm.expect(pm.response.json().message).to.include('action'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{meetingId}}/lifecycle", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "meetings", "{{meetingId}}", "lifecycle" ] }
+					}
+				},
+				{
+					"name": "Transition meeting requires auth (authz: 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Lifecycle no-auth: 401', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"action\": \"close\"\n}" },
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/meetings/{{meetingId}}/lifecycle", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidiq", "api", "meetings", "{{meetingId}}", "lifecycle" ] }
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Motion lifecycle",
+			"item": [
+				{
+					"name": "Transition motion to an invalid state (error: 400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Motion transition invalid: 400 (not 500)', () => pm.response.to.have.status(400));",
+									"pm.test('Motion: rejects an illegal lifecycle hop', () => pm.expect(pm.response.json().message).to.include('not allowed'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"newState\": \"bogus-state\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/motions/{{motionId}}/transition", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "motions", "{{motionId}}", "transition" ] }
+					}
+				},
+				{
+					"name": "Transition motion (happy: proposed -> deliberating)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Motion transition valid: 200', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.test('Motion: success true', () => pm.expect(b.success).to.eql(true));",
+									"pm.test('Motion: newState echoed', () => pm.expect(b.newState).to.eql('deliberating'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"newState\": \"deliberating\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/motions/{{motionId}}/transition", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "motions", "{{motionId}}", "transition" ] }
+					}
+				},
+				{
+					"name": "Transition motion requires auth (authz: 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Motion transition no-auth: 401', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"newState\": \"deliberating\"\n}" },
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/motions/{{motionId}}/transition", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidiq", "api", "motions", "{{motionId}}", "transition" ] }
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Decision publication",
+			"item": [
+				{
+					"name": "Publish decision (happy: adopted+internal -> public)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Publish: 200', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.test('Publish: isPublished flipped to public', () => pm.expect(b.isPublished).to.eql('public'));",
+									"pm.test('Publish: publishedAt timestamp stamped', () => pm.expect(b.publishedAt).to.be.a('string'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{decisionId}}/publish", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "decisions", "{{decisionId}}", "publish" ] }
+					}
+				},
+				{
+					"name": "Publish already-public decision (error: 422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Re-publish: 422 (not 500)', () => pm.response.to.have.status(422));",
+									"pm.test('Re-publish: already-published guard message', () => pm.expect(pm.response.json().message).to.include('already published'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{decisionId}}/publish", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "decisions", "{{decisionId}}", "publish" ] }
+					}
+				},
+				{
+					"name": "Publish requires auth (authz: 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Publish no-auth: 401', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{}" },
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/decisions/{{decisionId}}/publish", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidiq", "api", "decisions", "{{decisionId}}", "publish" ] }
+					}
+				},
+				{
+					"name": "Publish unknown decision (404)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// FIXED (bug 1): DecisionController::publish now catches OpenRegister's",
+									"// DoesNotExistException from find() and returns the intended 404 not-found",
+									"// response instead of letting the exception escape as a 500.",
+									"pm.test('Publish unknown id: 404', () => pm.response.to.have.status(404));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/newman-nonexistent-decision/publish", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "decisions", "newman-nonexistent-decision", "publish" ] }
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Settings",
+			"item": [
+				{
+					"name": "Get settings (happy: 200 + contract shape)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Settings index: 200', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.test('Settings: carries the isAdmin flag', () => pm.expect(b).to.have.property('isAdmin'));",
+									"pm.test('Settings: exposes schema configuration keys', () => pm.expect(b).to.have.property('minutesSchema'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "settings" ] }
+					}
+				},
+				{
+					"name": "Reload configuration (happy: admin -> 200)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Settings load: 200', () => pm.response.to.have.status(200));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings/load", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidiq", "api", "settings", "load" ] }
+					}
+				},
+				{
+					"name": "Get settings requires auth (authz: 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Settings index no-auth: 401', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/settings", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidiq", "api", "settings" ] }
+					}
+				},
+				{
+					"name": "Update settings requires admin (authz: 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Settings create no-auth: 401', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{}" },
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/settings", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidiq", "api", "settings" ] }
+					}
+				}
+			]
+		},
+		{
+			"name": "9. Teardown",
+			"item": [
+				{
+					"name": "Delete decision",
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "DELETE",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{decisionId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "decision", "{{decisionId}}" ] }
+					}
+				},
+				{
+					"name": "Delete show-of-hands round",
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "DELETE",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round/{{sohRoundId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "voting-round", "{{sohRoundId}}" ] }
+					}
+				},
+				{
+					"name": "Delete for-against-abstain round",
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "DELETE",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round/{{fabRoundId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "voting-round", "{{fabRoundId}}" ] }
+					}
+				},
+				{
+					"name": "Delete motion",
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "DELETE",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{motionId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "decision", "{{motionId}}" ] }
+					}
+				},
+				{
+					"name": "Delete meeting",
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "DELETE",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting/{{meetingId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "meeting", "{{meetingId}}" ] }
+					}
+				},
+				{
+					"name": "Delete chair participant",
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "DELETE",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant/{{participantId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "participant", "{{participantId}}" ] }
+					}
+				},
+				{
+					"name": "Delete governance body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Teardown: all seeded objects deleted (governance body 200/204)', () => pm.expect(pm.response.code).to.be.oneOf([200, 204]));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "DELETE",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body/{{govBodyId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidiq", "governance-body", "{{govBodyId}}" ] }
+					}
+				}
+			]
+		}
+	]
+}

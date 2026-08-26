@@ -11,9 +11,10 @@ Hydra ADR-034 introduces an AI Chat Companion that exposes per-app MCP (Model Co
 Protocol) tools through an OpenRegister-owned orchestrator. The orchestrator discovers
 implementations of the new `OCA\OpenRegister\Mcp\IMcpToolProvider` interface registered
 in the Nextcloud DI container and routes tool calls to the owning app. The interface
-itself lands in [openregister PR #1466](https://codeberg.org/Conduction/openregister/pulls)
-(open, awaiting review) and is contractually frozen by ADR-034 plus the spec at
-[`openspec/specs/ai-chat-companion/spec.md`](https://codeberg.org/Conduction/hydra) in
+itself lands in [openregister](https://github.com/ConductionNL/openregister), Codeberg PR #1466
+(pre-migration, not migrated to GitHub — open, awaiting review at the time of writing), and is
+contractually frozen by ADR-034 plus the spec at
+[`openspec/specs/ai-chat-companion/spec.md`](https://github.com/ConductionNL/hydra) in
 hydra.
 
 Decidesk is the first per-app exemplar. Until at least one app implements the interface,
@@ -75,10 +76,10 @@ modifies a requirement.
 
 **Dependencies:**
 
-- Hard dependency on the [openregister change `ai-chat-companion-orchestrator`](https://codeberg.org/Conduction/openregister)
+- Hard dependency on the [openregister change `ai-chat-companion-orchestrator`](https://github.com/ConductionNL/openregister)
   shipping `OCA\OpenRegister\Mcp\IMcpToolProvider`. Implementation cannot land before
   the openregister PR merges.
-- Hydra ADR-034 + hydra spec [`openspec/specs/ai-chat-companion/spec.md`](https://codeberg.org/Conduction/hydra)
+- Hydra ADR-034 + hydra spec [`openspec/specs/ai-chat-companion/spec.md`](https://github.com/ConductionNL/hydra)
   define the contract this change implements.
 
 **Reused (no changes needed):**

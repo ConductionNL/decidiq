@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk ALV Minutes Service
+ * Decidiq ALV Minutes Service
  *
  * Service for generating ALV (Algemene Ledenvergadering) minutes templates
  * and distributing them to members.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
  *
@@ -20,10 +20,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Exception;
-use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingObjectException;
 use Psr\Log\LoggerInterface;
 
 /**

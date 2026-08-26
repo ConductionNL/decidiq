@@ -25,7 +25,7 @@
  *   saveObject()   line 1189
  *   deleteObject() line 1923
  *
- * Only the six methods decidesk actually calls are declared. A stub method that
+ * Only the six methods decidiq actually calls are declared. A stub method that
  * production does NOT have is the same defect in the other direction: a mock
  * configured against it passes here and raises
  * "Call to undefined method" / MethodCannotBeConfiguredException in the app.

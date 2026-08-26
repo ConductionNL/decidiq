@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Transcription Background Job
+ * Decidiq Transcription Background Job
  *
  * Asynchronous job that runs a queued meeting transcription through the
  * Nextcloud SpeechToText provider abstraction via TranscriptionService.
  *
  * @category BackgroundJob
- * @package  OCA\Decidesk\BackgroundJob
+ * @package  OCA\Decidiq\BackgroundJob
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,9 +23,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\BackgroundJob;
+namespace OCA\Decidiq\BackgroundJob;
 
-use OCA\Decidesk\Service\TranscriptionService;
+use OCA\Decidiq\Service\TranscriptionService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\QueuedJob;
 use Psr\Log\LoggerInterface;
@@ -76,7 +76,7 @@ class TranscriptionJob extends QueuedJob {
 		}
 
 		if ($transcriptId === '') {
-			$this->logger->warning('Decidesk TranscriptionJob: missing transcriptId argument, skipping.');
+			$this->logger->warning('Decidiq TranscriptionJob: missing transcriptId argument, skipping.');
 			return;
 		}
 
@@ -87,7 +87,7 @@ class TranscriptionJob extends QueuedJob {
 			// this catch covers infrastructure faults (e.g. OR briefly down) so
 			// the cron worker never crashes on a single bad job.
 			$this->logger->error(
-				'Decidesk TranscriptionJob: transcription run failed',
+				'Decidiq TranscriptionJob: transcription run failed',
 				['transcriptId' => $transcriptId, 'exception' => $e->getMessage()]
 			);
 		}

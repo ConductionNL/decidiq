@@ -17,12 +17,12 @@
 		<div class="amendment-diff__legend" aria-hidden="false">
 			<span class="amendment-diff__legend-item">
 				<ins class="amendment-diff__added">{{
-					t('decidesk', 'Added text')
+					t('decidiq', 'Added text')
 				}}</ins>
 			</span>
 			<span class="amendment-diff__legend-item">
 				<del class="amendment-diff__removed">{{
-					t('decidesk', 'Removed text')
+					t('decidiq', 'Removed text')
 				}}</del>
 			</span>
 		</div>
@@ -31,7 +31,7 @@
 			v-if="!segments.length"
 			class="amendment-diff__empty"
 			data-testid="amendment-diff-empty">
-			{{ t('decidesk', 'There is no text to compare yet.') }}
+			{{ t('decidiq', 'There is no text to compare yet.') }}
 		</p>
 
 		<p v-else class="amendment-diff__body" data-testid="amendment-diff-body">

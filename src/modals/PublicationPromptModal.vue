@@ -12,14 +12,14 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Publish this decision?')"
+		:name="t('decidiq', 'Publish this decision?')"
 		data-testid="publication-prompt-modal"
 		@closing="$emit('dismiss')">
 		<template #default>
 			<p>
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'This decision has been enacted and the governance body is configured to prompt for publication. Publishing makes a derived public record available through OpenCatalogi. You can also publish later from the Publication tab.',
 					)
 				}}
@@ -30,12 +30,12 @@
 				variant="primary"
 				data-testid="publication-prompt-publish"
 				@click="$emit('publish')">
-				{{ t('decidesk', 'Publish now') }}
+				{{ t('decidiq', 'Publish now') }}
 			</NcButton>
 			<NcButton
 				data-testid="publication-prompt-dismiss"
 				@click="$emit('dismiss')">
-				{{ t('decidesk', 'Not now') }}
+				{{ t('decidiq', 'Not now') }}
 			</NcButton>
 		</template>
 	</NcDialog>

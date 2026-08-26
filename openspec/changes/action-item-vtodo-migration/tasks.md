@@ -25,7 +25,7 @@
 - **spec_ref**: `openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration`
 - **files**: `lib/Command/MigrateActionItems.php` (new), `lib/Migration/MigrateActionItemsToDeckLeaf.php`, `lib/AppInfo/Application.php`
 - **acceptance_criteria**:
-  - GIVEN legacy data across users WHEN `occ decidesk:migrate-action-items` runs THEN each owning user is impersonated and their items migrated
+  - GIVEN legacy data across users WHEN `occ decidiq:migrate-action-items` runs THEN each owning user is impersonated and their items migrated
   - GIVEN a user whose context can't be established WHEN run THEN they are skipped + logged (no partial corruption)
   - GIVEN re-run THEN it resumes/skips already-migrated objects
 - [ ] Implement the occ command (admin-only) enumerating owning users + per-user impersonation calling the service; chunked/paginated/resumable with progress logging; repoint/retire the old repair-step no-op to reference this.
@@ -42,7 +42,7 @@
 
 ## Verification
 - [ ] `openspec validate action-item-vtodo-migration --strict` passes.
-- [ ] Live on :8080: seed legacy `task`/`delegation`/`ActionItem` for a test user → run `occ decidesk:migrate-action-items` → they appear as that user's VTODOs in the projection; legacy archived+marked; re-run is a no-op; empty instance is a clean no-op.
+- [ ] Live on :8080: seed legacy `task`/`delegation`/`ActionItem` for a test user → run `occ decidiq:migrate-action-items` → they appear as that user's VTODOs in the projection; legacy archived+marked; re-run is a no-op; empty instance is a clean no-op.
 - [ ] `composer check:strict` green; Hydra gates (no app-local write store post-migration; admin-only trigger; no hard delete).
 
 ## Acceptance Criteria

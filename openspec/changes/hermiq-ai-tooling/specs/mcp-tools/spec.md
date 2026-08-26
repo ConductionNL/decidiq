@@ -1,6 +1,6 @@
 # Spec Delta: mcp-tools — full-action agent surface under the hermiq grant model
 
-Extends the `mcp-tools` capability established by `decidesk-mcp-adoption` (REQ-DMCP-011..014).
+Extends the `mcp-tools` capability established by `decidiq-mcp-adoption` (REQ-DMCP-011..014).
 That change's read surface and its single write are unchanged; this delta adds the write side
 of the agent surface — one curated tool per real user action — governed by hermiq's
 scope × reach grant model: default-deny writes, per-agent granular grants, human approval
@@ -11,7 +11,7 @@ the REQ-DMCP series from 015.
 
 ### Requirement: REQ-DMCP-015 — Every user action SHALL be dispositioned on the agent surface
 
-Every state-changing user action reachable through decidesk's controllers/services MUST have
+Every state-changing user action reachable through decidiq's controllers/services MUST have
 exactly one disposition in the action inventory (design.md D1): served by the derived read
 surface, exposed as exactly one curated `#[McpTool]` on the owning service, or **withdrawn
 with recorded reasons**. Reads and writes SHALL be separate tools (a tool SHALL NOT both
@@ -77,7 +77,7 @@ The tools `decidesk.transitionMeeting`, `decidesk.publishAgenda`, `decidesk.revi
 approval-gated by hermiq in addition to requiring a grant. The approval prompt SHALL identify
 the resolved target object (title, date, governance body) so a human confirms the *object*,
 not merely the intent — this is the wrong-object check that superseded requirement
-REQ-DMCP-005 (removed by `decidesk-mcp-adoption`) correctly observed the chair guard cannot
+REQ-DMCP-005 (removed by `decidiq-mcp-adoption`) correctly observed the chair guard cannot
 perform. Meeting lifecycle transitions thereby return to the agent surface **only** in this
 gated form; `decidesk.publishDecision` (reach `external`: public Woo/DiWoo/ORI publication)
 SHALL remain approval-gated even when a grant carries a `#noapproval` waiver.
@@ -104,7 +104,7 @@ The system SHALL NOT expose `VoteCastingService::castVote()` or any eIDAS signin
 (`EIDASSignatureService`) as an MCP tool, gated or otherwise: casting a ballot and placing a
 qualified signature are personally attributable acts whose delegation to an agent no approval
 flow can legitimise. Individual `Vote` objects SHALL remain absent from the derived surface
-(reaffirming `decidesk-mcp-adoption` D2). The governed alternative — proxy delegation to
+(reaffirming `decidiq-mcp-adoption` D2). The governed alternative — proxy delegation to
 another human — is served by `decidesk.grantProxy`/`decidesk.revokeProxy`.
 
 #### Scenario: No ballot tool exists
@@ -140,7 +140,7 @@ append.
 
 `decidesk.scheduleDraftMeeting` (new `MeetingService` method) and `decidesk.addAgendaItem`
 (new `AgendaService` method) SHALL create meetings pinned to `lifecycle: draft` and agenda
-items on unpublished agendas only — answering `decidesk-mcp-adoption`'s Open Questions with
+items on unpublished agendas only — answering `decidiq-mcp-adoption`'s Open Questions with
 curated methods, since the declarative dialect cannot pin a property value on a derived
 `create`. Before either tool is enabled, the `Meeting` schema's `meetingScheduled`
 notification rule (which today triggers on `created` with no lifecycle filter) SHALL be
@@ -162,7 +162,7 @@ change deploys.
 - **WHEN** the agent invokes `decidesk.addAgendaItem` against it
 - **THEN** the call is refused with a domain error and no agenda item is created (the published path requires the approval-gated `decidesk.reviseAgenda`)
 
-### Requirement: REQ-DMCP-021 — Chat SHALL be able to command decidesk end-to-end
+### Requirement: REQ-DMCP-021 — Chat SHALL be able to command decidiq end-to-end
 
 With the granted tools, the following conversational flows MUST be executable through the
 hermiq chat companion using only tools on this surface, and SHALL be covered by acceptance
@@ -190,7 +190,7 @@ follow-up as done" — `decidesk.action-item.search` → `decidesk.updateActionI
 Every curated tool MUST be a `#[McpTool]`-annotated method on a real service class and MUST
 declare a `scope` and explicit hints. The curated set is no longer fixed at two: it comprises
 `MeetingService::getMeetingDossier()`, `ActionItemWriter::addActionItemToMeeting()` (both
-unchanged from `decidesk-mcp-adoption`), and the tools enumerated in this change's action
+unchanged from `decidiq-mcp-adoption`), and the tools enumerated in this change's action
 inventory (design.md D1/D2). Business logic MUST NOT live in an MCP provider class. The
 annotation table in design.md D2 is normative for scope and hints.
 
@@ -202,8 +202,8 @@ annotation table in design.md D2 is normative for scope and hints.
 
 ### Requirement: REQ-DMCP-013 — Scannable-services opt-in
 
-Decidesk MUST register an `IMcpScannableServices` implementation naming every class that
-carries a `#[McpTool]`. `DecideskScannableServices::getScannableServiceClasses()` SHALL
+Decidiq MUST register an `IMcpScannableServices` implementation naming every class that
+carries a `#[McpTool]`. `DecidiqScannableServices::getScannableServiceClasses()` SHALL
 return exactly the owning-service classes of the curated surface — after this change:
 `MeetingService`, `ActionItemWriter`, `AgendaService`, `MotionService`, `VotingRoundOpener`,
 `VotingRoundCloser`, `MinutesDraftService`, `MinutesWorkflowService`,

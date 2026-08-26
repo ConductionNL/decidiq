@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — Meeting efficiency (meeting-efficiency).
@@ -72,7 +72,7 @@ async function dismissSupportDialog(page: Page): Promise<void> {
 }
 
 async function openApp(page: Page): Promise<boolean> {
-	await page.goto(`${BASE}/apps/decidesk/`)
+	await page.goto(`${BASE}/apps/decidiq/`)
 	const ready = await page
 		.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 		.then(() => true)
@@ -152,7 +152,7 @@ async function seedChairedMeeting(page: Page): Promise<void> {
 
 /** Navigate straight to the seeded meeting's live view. */
 async function openSeededLiveMeeting(page: Page): Promise<void> {
-	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}/live`)
+	await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}/live`)
 	await expect(
 		page.getByTestId('meeting-live'),
 		'the live meeting view must mount for the seeded meeting',
@@ -245,7 +245,7 @@ test('GovernanceBody: Efficiency tab shows the analytics surface', async ({
 	page,
 }) => {
 	if (!(await openApp(page))) {
-		test.skip(true, 'Decidesk app did not load in this environment.')
+		test.skip(true, 'Decidiq app did not load in this environment.')
 		return
 	}
 	const nav = page

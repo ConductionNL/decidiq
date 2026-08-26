@@ -2,7 +2,7 @@
 
 ## Context
 
-Decidesk covers per-agenda-item conflict-of-interest declarations (`conflict-of-interest`, done) but has no standing interest registers: nevenfuncties exist only as `Membership.otherPositions` free-text strings (corp mode) and as a council-scoped proposal inside `fractievoorzitter-fractie-koppeling` (REQ-012); a geschenkenregister does not exist at all. Gemeentewet obliges public disclosure of raadsleden's and wethouders' nevenfuncties; every gemeentelijke gedragscode requires gift registration above ~EUR 50; MCCG expects RvC interest transparency (internally). Stakeholders: members (self-service declarations), griffie/bestuurssecretaris (verification, register upkeep), burgemeester/voorzitter/compliance officer (integrity notifications), the public (statutory register). Constraints: thin client (ADR-022), declarative-first (ADR-031), fragments only (ADR-037), no modification of the `public-publication` eligibility gates.
+Decidiq covers per-agenda-item conflict-of-interest declarations (`conflict-of-interest`, done) but has no standing interest registers: nevenfuncties exist only as `Membership.otherPositions` free-text strings (corp mode) and as a council-scoped proposal inside `fractievoorzitter-fractie-koppeling` (REQ-012); a geschenkenregister does not exist at all. Gemeentewet obliges public disclosure of raadsleden's and wethouders' nevenfuncties; every gemeentelijke gedragscode requires gift registration above ~EUR 50; MCCG expects RvC interest transparency (internally). Stakeholders: members (self-service declarations), griffie/bestuurssecretaris (verification, register upkeep), burgemeester/voorzitter/compliance officer (integrity notifications), the public (statutory register). Constraints: thin client (ADR-022), declarative-first (ADR-031), fragments only (ADR-037), no modification of the `public-publication` eligibility gates.
 
 ## Goals / Non-Goals
 
@@ -12,7 +12,7 @@ Decidesk covers per-agenda-item conflict-of-interest declarations (`conflict-of-
 
 ## Architecture Overview
 
-A fully declarative thin-client extension — the first wave-2 change expected to ship **zero new PHP**. Three schemas (`Nevenfunctie`, `Geschenk`, `Integriteitsbeleid`) in one fragment `lib/Settings/register.d/62-interests-and-integrity.json` (OpenAPI `components.schemas`, merged at load; base file never edited). Lifecycle, rappels, integrity notifications, and public readability are all OpenRegister dialects/RBAC rules declared in the fragment. UI is a `src/manifest.d/interests-and-integrity.json` fragment (5 pages + menu) rendered by `CnPageRenderer`; publish/withdraw, end-position, and annual-confirm are field writes through the shared object stores against `/apps/openregister/api/objects` (redundant-controller gate: no decidesk CRUD wrappers).
+A fully declarative thin-client extension — the first wave-2 change expected to ship **zero new PHP**. Three schemas (`Nevenfunctie`, `Geschenk`, `Integriteitsbeleid`) in one fragment `lib/Settings/register.d/62-interests-and-integrity.json` (OpenAPI `components.schemas`, merged at load; base file never edited). Lifecycle, rappels, integrity notifications, and public readability are all OpenRegister dialects/RBAC rules declared in the fragment. UI is a `src/manifest.d/interests-and-integrity.json` fragment (5 pages + menu) rendered by `CnPageRenderer`; publish/withdraw, end-position, and annual-confirm are field writes through the shared object stores against `/apps/openregister/api/objects` (redundant-controller gate: no decidiq CRUD wrappers).
 
 Cross-references, not duplication:
 - `Nevenfunctie.person` / `Geschenk.recipient` → `Person`; the compliance panel joins against `Membership` (person-and-membership) client-side.
@@ -135,7 +135,7 @@ Object 3 demonstrates the pending-verification state; object 4 mirrors the exist
 
 ## Migration Plan
 
-1. Land register.d fragment 62 + manifest.d fragment + Dashboard widget edit + seed + tests + docs in one decidesk PR (fragments additive; repair step imports the schemas on upgrade).
+1. Land register.d fragment 62 + manifest.d fragment + Dashboard widget edit + seed + tests + docs in one decidiq PR (fragments additive; repair step imports the schemas on upgrade).
 2. No dependency ordering: `conflict-of-interest` is done; `fractievoorzitter-fractie-koppeling` and `member-onboarding` are planned siblings that reference this change's stable names (`interests-and-integrity`, slug `nevenfunctie`, page `MyDeclarations`) — they align at their own apply time (D2).
 3. Existing `Membership.otherPositions` values stay untouched; griffie re-enters structured declarations at the next annual review cycle (communicated in docs).
 4. Rollback: revert the PR — schemas/pages de-register; objects remain soft-retained in OR; published declarations withdrawable by setting `depublicatiedatum` via the normal staff flow.

@@ -1,13 +1,13 @@
 # verordeningenregister Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - verordeningenregister
 
 ## Purpose
 
-Gives decidesk a register of local regulations (verordeningen, beleidsregels, nadere regels, reglementen, externe statuten): `Regeling` objects carrying legal identity and a status lifecycle, immutable `RegelingVersie` objects where every version traces to its amending decision (wijzigingsbesluit), deterministic in-force resolution per date, a public register page of regelingen in force with consolidated texts, DROP/STOP-TPOD export packages delivered through OpenConnector (external-integration exception under ADR-031, honest degradation when absent), and notifications when an inwerkingtreding approaches without a published consolidated text. This is the register foundation the notubiz-ibabs change defers its STOP/TPOD bulk-export to, and it provides the immutable verordening-versie reference that commissievergaderingen REQ-CVG-013 consumes. Decidesk is not a bekendmakingsplatform: it produces the publication package; the connector delivers it.
+Gives decidiq a register of local regulations (verordeningen, beleidsregels, nadere regels, reglementen, externe statuten): `Regeling` objects carrying legal identity and a status lifecycle, immutable `RegelingVersie` objects where every version traces to its amending decision (wijzigingsbesluit), deterministic in-force resolution per date, a public register page of regelingen in force with consolidated texts, DROP/STOP-TPOD export packages delivered through OpenConnector (external-integration exception under ADR-031, honest degradation when absent), and notifications when an inwerkingtreding approaches without a published consolidated text. This is the register foundation the notubiz-ibabs change defers its STOP/TPOD bulk-export to, and it provides the immutable verordening-versie reference that commissievergaderingen REQ-CVG-013 consumes. Decidiq is not a bekendmakingsplatform: it produces the publication package; the connector delivers it.
 
 **Standards**: CVDR (Centrale Voorziening Decentrale Regelgeving), DROP (Decentrale Regelgeving en Officiële Publicaties), STOP/TPOD (Standaard Officiële Publicaties / Toepassingsprofielen), Schema.org (`Legislation`, `LegislationObject`), Akoma Ntoso (`act`, FRBR work/expression versioning), OpenRaadsinformatie (`Besluit` linkage), Gemeentewet art. 139-144, Bekendmakingswet
 **Feature tier**: V1
@@ -17,7 +17,7 @@ Gives decidesk a register of local regulations (verordeningen, beleidsregels, na
 
 ### Requirement: REQ-VOR-001 Regeling schema
 
-The system MUST provide a `Regeling` OpenRegister schema (Schema.org `Legislation`, Akoma Ntoso `act` work level) in the decidesk register carrying: `type` (enum: `verordening`, `beleidsregel`, `nadere-regel`, `reglement`, `statuut-extern`), `citeertitel` (required), `officieleTitel`, `wettelijkeGrondslag` (array of legal-basis citations, e.g. "Gemeentewet art. 149"), `vaststellendOrgaan` (UUID reference to a GovernanceBody), and `cvdrIdentifier` (optional string, the CVDR identifier assigned by the national CVDR after first publication). The schema MUST declare a lifecycle via `x-openregister-lifecycle` (canonical `field`/`initial`/`states`/`terminal`/`transitions` keys) with states `in-voorbereiding → vastgesteld → in-werking → vervallen` (`vervallen` terminal). Transitions outside the declared map MUST be rejected by OpenRegister; decidesk SHALL NOT implement a parallel state machine.
+The system MUST provide a `Regeling` OpenRegister schema (Schema.org `Legislation`, Akoma Ntoso `act` work level) in the decidesk register carrying: `type` (enum: `verordening`, `beleidsregel`, `nadere-regel`, `reglement`, `statuut-extern`), `citeertitel` (required), `officieleTitel`, `wettelijkeGrondslag` (array of legal-basis citations, e.g. "Gemeentewet art. 149"), `vaststellendOrgaan` (UUID reference to a GovernanceBody), and `cvdrIdentifier` (optional string, the CVDR identifier assigned by the national CVDR after first publication). The schema MUST declare a lifecycle via `x-openregister-lifecycle` (canonical `field`/`initial`/`states`/`terminal`/`transitions` keys) with states `in-voorbereiding → vastgesteld → in-werking → vervallen` (`vervallen` terminal). Transitions outside the declared map MUST be rejected by OpenRegister; decidiq SHALL NOT implement a parallel state machine.
 
 #### Scenario: Create a verordening
 
@@ -128,7 +128,7 @@ The system MUST provide a public register page listing all regelingen currently 
 
 ### Requirement: REQ-VOR-006 DROP/STOP-TPOD export package via OpenConnector
 
-The system MUST generate a `RegelingExportPackage` OpenRegister object for one or more sealed regeling-versies, containing STOP/TPOD-structured XML plus the consolidated-text documents, with lifecycle `building → ready → delivering → delivered | failed` (package generation is an accepted imperative document-generation exception under ADR-031). Structural validation failures MUST set the package to `failed` with errors stored and block delivery. Delivery MUST go through an OpenConnector Source resolved lazily by slug (external-integration exception under ADR-031, same pattern as records-management-archiving transfer delivery): decidesk produces the package and calls the connector; it MUST NOT communicate with officielebekendmakingen.nl or DROP directly. When OpenConnector or the Source is absent, the package MUST remain `ready`, MUST be downloadable for manual DROP submission, and the UI MUST state honestly that automatic delivery is unavailable — the system MUST NOT fail or pretend delivery happened. On acknowledged delivery the package MUST store the remote reference, and staff MUST be able to record the CVDR identifier returned by the national register onto the Regeling.
+The system MUST generate a `RegelingExportPackage` OpenRegister object for one or more sealed regeling-versies, containing STOP/TPOD-structured XML plus the consolidated-text documents, with lifecycle `building → ready → delivering → delivered | failed` (package generation is an accepted imperative document-generation exception under ADR-031). Structural validation failures MUST set the package to `failed` with errors stored and block delivery. Delivery MUST go through an OpenConnector Source resolved lazily by slug (external-integration exception under ADR-031, same pattern as records-management-archiving transfer delivery): decidiq produces the package and calls the connector; it MUST NOT communicate with officielebekendmakingen.nl or DROP directly. When OpenConnector or the Source is absent, the package MUST remain `ready`, MUST be downloadable for manual DROP submission, and the UI MUST state honestly that automatic delivery is unavailable — the system MUST NOT fail or pretend delivery happened. On acknowledged delivery the package MUST store the remote reference, and staff MUST be able to record the CVDR identifier returned by the national register onto the Regeling.
 
 #### Scenario: Build and deliver an export package
 
@@ -153,7 +153,7 @@ The system MUST generate a `RegelingExportPackage` OpenRegister object for one o
 
 ### Requirement: REQ-VOR-007 Inwerkingtreding notifications
 
-The system MUST notify responsible staff when a RegelingVersie's `inwerkingtreding` is approaching (14 days ahead, and again at 3 days) while the version has no published consolidated text — i.e. the version is not sealed, lacks a consolidated-text document, or has no delivered/manually-confirmed export package. Notifications MUST be declared via the canonical `x-openregister-notifications` dialect (ADR-031); decidesk SHALL NOT dispatch these imperatively. No notification MUST be sent when the consolidated text is published in time.
+The system MUST notify responsible staff when a RegelingVersie's `inwerkingtreding` is approaching (14 days ahead, and again at 3 days) while the version has no published consolidated text — i.e. the version is not sealed, lacks a consolidated-text document, or has no delivered/manually-confirmed export package. Notifications MUST be declared via the canonical `x-openregister-notifications` dialect (ADR-031); decidiq SHALL NOT dispatch these imperatively. No notification MUST be sent when the consolidated text is published in time.
 
 #### Scenario: Approaching inwerkingtreding without published text
 
@@ -204,4 +204,4 @@ The system MUST provide an internal regelingen list page (filterable by type, st
 - Fragment number 53 is assigned to this change (ADR-037); 40–52 and 54–65 belong to sibling changes.
 - commissievergaderingen REQ-CVG-013 consumes the sealed-version reference of REQ-VOR-003; the consuming wiring stays in that change.
 - notubiz-ibabs-griffie-koppeling explicitly parks STOP/TPOD bulk-export as a separate publicatie-spec; REQ-VOR-006 is the register-side foundation for it.
-- CVDR identifiers are assigned by the national register; decidesk stores them (REQ-VOR-001/006), it never mints them.
+- CVDR identifiers are assigned by the national register; decidiq stores them (REQ-VOR-001/006), it never mints them.

@@ -2,7 +2,7 @@
 <!-- Copyright (C) 2026 Conduction B.V. -->
 
 <!--
- Decidesk app shell. Mounts CnAppRoot with the bundled manifest and the
+ Decidiq app shell. Mounts CnAppRoot with the bundled manifest and the
  v2 kind-tagged registry prop (ADR-036); provides the `objectSidebarState`
  channel so detail pages (CnDetailPage) can drive a single host-rendered
  CnObjectSidebar through the #sidebar slot.
@@ -16,7 +16,7 @@
 		:registry="registry"
 		:pageTypes="pageTypes"
 		:formatters="cellFormatters"
-		appId="decidesk"
+		appId="decidiq"
 		data-testid="app-root"
 		:translate="translateForApp"
 		:permissions="permissions">
@@ -175,7 +175,7 @@ export default {
 			const mode = this.organisatieModus
 			const modeMap = MODE_LABELS[mode] || {}
 			const resolved = modeMap[key] || key
-			return ncT('decidesk', resolved)
+			return ncT('decidiq', resolved)
 		},
 	},
 }

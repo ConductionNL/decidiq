@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-Pure thin-client extension (ADR-022/ADR-037). One new OpenRegister schema — `ConsultationRequest` (slug `consultation-request`) — ships as `lib/Settings/register.d/47-works-council-consultation.json` (OpenAPI `components.schemas`, merged onto `decidesk_register.json` at load; the base file gains only one additive enum value, see D2). All workflow behaviour is declared in OpenRegister dialects; all UI is manifest-v2 pages in a `src/manifest.d/works-council-consultation.json` fragment rendered by `CnPageRenderer` (the frontend talks to `/apps/openregister/api/objects` directly via the shared object stores — no decidesk CRUD controllers, per the redundant-controller gate).
+Pure thin-client extension (ADR-022/ADR-037). One new OpenRegister schema — `ConsultationRequest` (slug `consultation-request`) — ships as `lib/Settings/register.d/47-works-council-consultation.json` (OpenAPI `components.schemas`, merged onto `decidesk_register.json` at load; the base file gains only one additive enum value, see D2). All workflow behaviour is declared in OpenRegister dialects; all UI is manifest-v2 pages in a `src/manifest.d/works-council-consultation.json` fragment rendered by `CnPageRenderer` (the frontend talks to `/apps/openregister/api/objects` directly via the shared object stores — no decidiq CRUD controllers, per the redundant-controller gate).
 
 Imperative code is limited to one service: `ConsultationResponseDocumentService`, generating the formal advies/instemming document by mirroring `MinutesDocumentService` (markdown canonical, Docudesk PDF opportunistic, honest fallback).
 
@@ -37,12 +37,12 @@ Default declarative via `x-openregister-{lifecycle,notifications,aggregations,re
 | `opschortingTot` = `besluitDate` + 1 month (adviesaanvraag + afwijkend only) | `x-openregister-calculations` | Field derivation from sibling fields; if the dialect cannot do date arithmetic, documented fallback: plain date field set in the besluit dialog with server-side validation — never silently wrong |
 | Dashboard KPIs "Open WOR-trajecten" / "Reactie over gevraagde datum" | Manifest stat-widget `source` aggregation (`metric: count`) | Declarative count like every existing KPI widget |
 | Meeting/agenda/raadpleging/decision linkage | `x-openregister-relations` | Typed relations; reverse lookup via standard OR relation queries |
-| Formal response document generation | **Imperative** — `ConsultationResponseDocumentService` | Document rendering + Files persistence + Docudesk delegation with honest fallback is by design imperative in decidesk (`MinutesDocumentService` pattern); no dialect renders documents |
+| Formal response document generation | **Imperative** — `ConsultationResponseDocumentService` | Document rendering + Files persistence + Docudesk delegation with honest fallback is by design imperative in decidiq (`MinutesDocumentService` pattern); no dialect renders documents |
 | Advisory-stage outcome on `relatedDecision` | **None new** — existing decision-methods `method=advice` semantics (actor sets `advised` directly in the stage flow) | Reuse; introducing a derivation here would duplicate decision-methods ownership |
 
 ### D4: Lifecycle models the WOR practice, not the legal proceedings
 
-States map 1:1 to the statutory traject: ontvangst, behandeling, optionele achterbanraadpleging (art. 17-facilitated but mechanically owned by `constituency-consultation`), overlegvergadering (art. 25 lid 4 verplicht overleg), vaststelling van het advies/de instemming, verzending, bestuurdersbesluit (art. 25 lid 5 schriftelijke mededeling), afronding. `overlegvergadering → in-behandeling` allows repeat overleg rounds (common in practice). `ingetrokken` covers the bestuurder withdrawing the request before the response is sent. Art. 26 beroep and art. 27 lid 4–6 nietigheid/kantonrechter are deliberately NOT states — they are separate legal proceedings (out of scope); the terminal record simply holds `besluitOutcome` + `responseOutcome` for whatever follows outside decidesk.
+States map 1:1 to the statutory traject: ontvangst, behandeling, optionele achterbanraadpleging (art. 17-facilitated but mechanically owned by `constituency-consultation`), overlegvergadering (art. 25 lid 4 verplicht overleg), vaststelling van het advies/de instemming, verzending, bestuurdersbesluit (art. 25 lid 5 schriftelijke mededeling), afronding. `overlegvergadering → in-behandeling` allows repeat overleg rounds (common in practice). `ingetrokken` covers the bestuurder withdrawing the request before the response is sent. Art. 26 beroep and art. 27 lid 4–6 nietigheid/kantonrechter are deliberately NOT states — they are separate legal proceedings (out of scope); the terminal record simply holds `besluitOutcome` + `responseOutcome` for whatever follows outside decidiq.
 
 **Alternative considered:** separate lifecycles per type (advies vs instemming) — rejected: the flows are identical except the opschorting derivation, which is field-conditional, not state-conditional; two lifecycles would double every filter and KPI.
 
@@ -82,7 +82,7 @@ docs/features/wor-trajecten.md                               (new)
 
 ## Seed Data
 
-Realistic Dutch examples for a fictional company ("Voorbeeldingen B.V.", ondernemingsraad of 9 zetels); references use existing decidesk seed objects where available or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder where a cross-seed reference is resolved at import.
+Realistic Dutch examples for a fictional company ("Voorbeeldingen B.V.", ondernemingsraad of 9 zetels); references use existing decidiq seed objects where available or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder where a cross-seed reference is resolved at import.
 
 ### Schema: `governance-body` (seed addition, existing schema)
 
@@ -127,7 +127,7 @@ Object 1's `requestedResponseDate` lies in the past at seed time while non-termi
 
 ## Migration Plan
 
-1. Land the register.d fragment, the one-line bodyType enum edit, the manifest.d fragment, the two dashboard widgets, `ConsultationResponseDocumentService`, seed data, tests, and docs in one decidesk PR (fragments are additive; the repair step / `ConfigurationService::importFromApp()` picks up the new schema on upgrade).
+1. Land the register.d fragment, the one-line bodyType enum edit, the manifest.d fragment, the two dashboard widgets, `ConsultationResponseDocumentService`, seed data, tests, and docs in one decidiq PR (fragments are additive; the repair step / `ConfigurationService::importFromApp()` picks up the new schema on upgrade).
 2. `constituency-consultation` (sibling) is a soft reference only — `achterbanraadpleging` is a nullable reference and the lifecycle step is skippable, so the changes land in any order.
 3. Rollback: revert the PR — the fragment disappears, pages unregister, the enum value and widgets revert (both additive). Existing ConsultationRequest objects remain soft-retained in OR; a `bodyType=works-council` body would fail re-validation only on edit and can be re-typed manually.
 

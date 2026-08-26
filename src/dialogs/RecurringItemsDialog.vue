@@ -12,7 +12,7 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Add recurring items')"
+		:name="t('decidiq', 'Add recurring items')"
 		data-testid="recurring-items-dialog"
 		@closing="$emit('close')">
 		<template #default>
@@ -41,14 +41,14 @@
 				</li>
 			</ul>
 			<p v-else>
-				{{ t('decidesk', 'No recurring agenda items found.') }}
+				{{ t('decidiq', 'No recurring agenda items found.') }}
 			</p>
 		</template>
 		<template #actions>
 			<NcButton
 				:disabled="selected.length === 0"
 				@click="$emit('add', selected.slice())">
-				{{ t('decidesk', 'Add selected') }}
+				{{ t('decidiq', 'Add selected') }}
 			</NcButton>
 		</template>
 	</NcDialog>

@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Voting Round Closer
+ * Decidiq Voting Round Closer
  *
  * Implements the close-a-round path: optional chair casting vote, the tally,
  * stamping closedAt, the subject lifecycle transition, ORI publication and the
  * optional GDPR anonymisation of individual ballots.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,16 +26,16 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Service\FileService;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
-use OCA\OpenRegister\Service\FileService;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * The close-a-round path, extracted from VotingService.
@@ -143,7 +143,7 @@ class VotingRoundCloser {
 		}
 
 		$round['chairCastingVote'] = $chairCasting;
-		$objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
+		$objectService->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
 
 	}//end applyChairCastingVote()
 
@@ -164,7 +164,7 @@ class VotingRoundCloser {
 
 		if (($round['closedAt'] ?? null) === null) {
 			$round['closedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
-			$this->objectService()->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
+			$this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
 		}
 
 		return $round;
@@ -234,7 +234,7 @@ class VotingRoundCloser {
 			// Transient infrastructure failure: log at ERROR level and continue.
 			// #318: Previously logged at WARNING and lost in monitoring noise.
 			$this->logger->error(
-				'Decidesk: lifecycle transition after close failed — round is closed but motion state may be stale',
+				'Decidiq: lifecycle transition after close failed — round is closed but motion state may be stale',
 				['votingRoundId' => $votingRoundId, 'motionId' => $subject['id'], 'error' => $e->getMessage()]
 			);
 		}//end try
@@ -327,7 +327,7 @@ class VotingRoundCloser {
 			$this->oriService->publish($votingRoundId);
 		} catch (Throwable $e) {
 			$this->logger->error(
-				'Decidesk: ORI publication failed after round close',
+				'Decidiq: ORI publication failed after round close',
 				['votingRoundId' => $votingRoundId, 'error' => $e->getMessage()]
 			);
 
@@ -352,7 +352,7 @@ class VotingRoundCloser {
 	private function anonymiseVotes(string $votingRoundId): void {
 		try {
 			$objectService = $this->objectService();
-			$objectService->setRegister('decidesk');
+			$objectService->setRegister('decidiq');
 			$objectService->setSchema('vote');
 			$voteEntities = $this->relationFilter->matching(
 				entities: $objectService->findAll(
@@ -365,12 +365,12 @@ class VotingRoundCloser {
 			foreach ($voteEntities as $voteEntity) {
 				$vote = $voteEntity->jsonSerialize();
 				$vote['value'] = null;
-				$objectService->saveObject(register: 'decidesk', schema: 'vote', object: $vote);
+				$objectService->saveObject(register: 'decidiq', schema: 'vote', object: $vote);
 			}
 
-			$this->logger->info('Decidesk: votes anonymised', ['votingRoundId' => $votingRoundId]);
+			$this->logger->info('Decidiq: votes anonymised', ['votingRoundId' => $votingRoundId]);
 		} catch (Throwable $e) {
-			$this->logger->warning('Decidesk: vote anonymisation failed', ['error' => $e->getMessage()]);
+			$this->logger->warning('Decidiq: vote anonymisation failed', ['error' => $e->getMessage()]);
 		}//end try
 
 	}//end anonymiseVotes()
@@ -390,10 +390,10 @@ class VotingRoundCloser {
 			$slug = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', $motionTitle) ?? $motionId);
 			$folderPath = "motions/{$slug}-{$motionId}";
 			$this->fileService->createFolder($folderPath);
-			$this->logger->info('Decidesk: dossier folder created', ['path' => $folderPath, 'motionId' => $motionId]);
+			$this->logger->info('Decidiq: dossier folder created', ['path' => $folderPath, 'motionId' => $motionId]);
 		} catch (Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: dossier folder creation failed',
+				'Decidiq: dossier folder creation failed',
 				['motionId' => $motionId, 'error' => $e->getMessage()]
 			);
 		}
@@ -432,7 +432,7 @@ class VotingRoundCloser {
 			$this->motionService->applyAmendment(motionId: $parentMotionId, amendmentId: $amendmentId);
 		} catch (Throwable $e) {
 			$this->logger->error(
-				'Decidesk: failed to incorporate adopted amendment into the parent motion text',
+				'Decidiq: failed to incorporate adopted amendment into the parent motion text',
 				['amendmentId' => $amendmentId, 'error' => $e->getMessage()]
 			);
 		}//end try
@@ -453,7 +453,7 @@ class VotingRoundCloser {
 	}//end findRound()
 
 	/**
-	 * Load any decidesk object as an array.
+	 * Load any Decidiq object as an array.
 	 *
 	 * @param string $objectId The object UUID
 	 * @param string $schema The schema slug
@@ -463,7 +463,7 @@ class VotingRoundCloser {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function findObject(string $objectId, string $schema): ?array {
-		$entity = $this->objectService()->find(id: $objectId, register: 'decidesk', schema: $schema);
+		$entity = $this->objectService()->find(id: $objectId, register: 'decidiq', schema: $schema);
 		if ($entity === null) {
 			return null;
 		}

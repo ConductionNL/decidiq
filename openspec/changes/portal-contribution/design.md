@@ -7,20 +7,20 @@ without a Nextcloud account. Contribution contract v2.2: an app contributes via
 a single plain class at the convention FQCN
 `OCA\{App}\Portal\PortalContributionProvider`, duck-typed by portaliq
 (`method_exists()`, never `instanceof`) — inert without portaliq installed
-(amendment A1). Decidesk ships that one class; nothing else in the runtime app
+(amendment A1). Decidiq ships that one class; nothing else in the runtime app
 is touched.
 
 All register facts below were verified against HEAD
-(`lib/Settings/decidesk_register.json`, 34 schemas). Decidesk uses **one**
-OpenRegister register, `decidesk`, and the citizen portal reads four schemas
+(`lib/Settings/decidesk_register.json`, 34 schemas). Decidiq uses **one**
+OpenRegister register, `decidiq`, and the citizen portal reads four schemas
 from it:
 
 | Register slug | Schema (slug at HEAD) | Role |
 |---|---|---|
-| `decidesk` | `consultation-reaction` | Citizen's own consultation reaction / idea |
-| `decidesk` | `citizen-vote` | Citizen's own advisory vote |
-| `decidesk` | `budget-proposal` | Citizen's own participatory-budget proposal |
-| `decidesk` | `notification` | Citizen's own notification inbox |
+| `decidiq` | `consultation-reaction` | Citizen's own consultation reaction / idea |
+| `decidiq` | `citizen-vote` | Citizen's own advisory vote |
+| `decidiq` | `budget-proposal` | Citizen's own participatory-budget proposal |
+| `decidiq` | `notification` | Citizen's own notification inbox |
 
 The manifest is an explicit **allowlist**: every register/schema not named below
 is out of portal scope by default.
@@ -30,7 +30,7 @@ is out of portal scope by default.
 DigiD/eHerkenning is **deferred**. Citizens authenticate at portaliq's ordinary
 password/`portalAccount` edge, at trust `low`, exactly like pipelinq's `client`
 / `customer` audiences. There is **no credential broker and no BSN** in this
-slice. The rationale is that Decidesk's citizen data is already portal-shaped and
+slice. The rationale is that Decidiq's citizen data is already portal-shaped and
 subject-keyed by a pseudonymous token (below), so scoping needs neither a broker
 nor a national identity number.
 
@@ -68,10 +68,10 @@ boundary.
 
 | Audience | Collection id | Register | Schema | scopeField | scopeClaim | kind | minTrust |
 |---|---|---|---|---|---|---|---|
-| `citizen` | `citizenReactions` | `decidesk` | `consultation-reaction` | `submitterId` | *(default subjectRef)* | — | `low` |
-| `citizen` | `citizenVotes` | `decidesk` | `citizen-vote` | `voterId` | *(default subjectRef)* | — | `low` |
-| `citizen` | `citizenBudgetProposals` | `decidesk` | `budget-proposal` | `submitter` | *(default subjectRef)* | — | `low` |
-| `citizen` | `citizenNotifications` | `decidesk` | `notification` | `recipientId` | *(default subjectRef)* | `inbox` | `low` |
+| `citizen` | `citizenReactions` | `decidiq` | `consultation-reaction` | `submitterId` | *(default subjectRef)* | — | `low` |
+| `citizen` | `citizenVotes` | `decidiq` | `citizen-vote` | `voterId` | *(default subjectRef)* | — | `low` |
+| `citizen` | `citizenBudgetProposals` | `decidiq` | `budget-proposal` | `submitter` | *(default subjectRef)* | — | `low` |
+| `citizen` | `citizenNotifications` | `decidiq` | `notification` | `recipientId` | *(default subjectRef)* | `inbox` | `low` |
 
 ### minTrust decisions
 
@@ -211,7 +211,7 @@ create-action `fields[]` vocabulary cannot express safely:
 **Unblocking follow-up:** add a scalar parent-ref property to each schema PLUS a
 receiver-side guard that verifies the target parent is open/published, OR give
 portaliq an endpoint-action vocabulary that verifies the parent server-side.
-Recorded on Conduction/decidesk#113.
+Recorded on Conduction/decidiq#113.
 
 ## Deferred public lists (no public browse/results surface this wave)
 
@@ -226,7 +226,7 @@ pre-publication rows with staff `resultsSummary` — a governance-internals leak
 There is thus no way to express a safely-filtered public list in the per-subject
 reader. A public consultation/results browser belongs on a **different surface**
 (a public read API that keeps OR's `publicatiedatum`/RBAC publication filters
-on), not the "my own data" portal. Recorded on Conduction/decidesk#113.
+on), not the "my own data" portal. Recorded on Conduction/decidiq#113.
 
 ## Declarative vs imperative
 
@@ -238,7 +238,7 @@ constants. Rejected alternatives:
   already scopes reads server-side and verifies per row; app-side queries would
   duplicate the authz path (ADR-022 violation) and add OR coupling to a class
   whose entire value is being dependency-free.
-- *Reusing Decidesk's stores/services*: couples the contribution to services
+- *Reusing Decidiq's stores/services*: couples the contribution to services
   with constructor dependencies, breaking the duck-typed inertness guarantee.
 
 Consequence: anything needing per-subject logic stays in portaliq; the manifest
@@ -249,8 +249,8 @@ only because ADR-046 mandates FQCN discovery.
 
 This slice ships **no** `scopeClaim`: the scope value is the subject's own
 `subjectRef` (the pseudonymous token). The load-bearing contract with portaliq
-operators is therefore only the pairing **"the `portalAccount` for a Decidesk
-citizen carries, as its `subjectRef`, the same pseudonymous token that Decidesk
+operators is therefore only the pairing **"the `portalAccount` for a Decidiq
+citizen carries, as its `subjectRef`, the same pseudonymous token that Decidiq
 stamps into `submitterId` / `voterId` / `submitter` / `recipientId`."** If a
 future edge (a broker) mints a different subject identifier than the token stored
 on the record, this slice must switch to an explicit `scopeClaim` mapping that

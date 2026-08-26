@@ -8,14 +8,14 @@
  * parent `PublicConsultation` is `status: open`; a `budget-proposal` create is
  * rejected unless its parent `ParticipatoryBudget` is `status: submission`.
  * Covers both write-path shapes (the portaliq create action's scalar
- * reference field, and Decidesk's own `ReactionIntakeService`/
+ * reference field, and Decidiq's own `ReactionIntakeService`/
  * `BudgetVotingService` `relations` array shape), unrelated schemas being
  * ignored, a missing parent, and an infrastructure failure — deliberately
  * fail-CLOSED (a documented contrast with `SubmissionDeadlineListener`'s
  * fail-soft business-rule posture, since this is a security invariant).
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Listener
+ * @package  OCA\Decidiq\Tests\Unit\Listener
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -31,9 +31,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Listener;
+namespace OCA\Decidiq\Tests\Unit\Listener;
 
-use OCA\Decidesk\Listener\PortalCreateOpenParentGuardListener;
+use OCA\Decidiq\Listener\PortalCreateOpenParentGuardListener;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCP\EventDispatcher\Event;
@@ -208,7 +208,7 @@ class PortalCreateOpenParentGuardListenerTest extends TestCase {
 	}//end testReactionOnClosedConsultationRejected()
 
 	/**
-	 * A reaction resolved through the generic `relations` array (Decidesk's
+	 * A reaction resolved through the generic `relations` array (Decidiq's
 	 * own ReactionIntakeService shape, no scalar `consultation` key) on an
 	 * open consultation is allowed.
 	 *
@@ -223,7 +223,7 @@ class PortalCreateOpenParentGuardListenerTest extends TestCase {
 				'moderationStatus' => 'pending',
 				'submitterId' => 'user-1',
 				'relations' => [
-					['register' => 'decidesk', 'schema' => 'public-consultation', 'id' => 'c-1'],
+					['register' => 'decidiq', 'schema' => 'public-consultation', 'id' => 'c-1'],
 				],
 			]
 		);

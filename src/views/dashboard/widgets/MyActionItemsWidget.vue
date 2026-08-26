@@ -16,7 +16,7 @@
 
 		<NcEmptyContent
 			v-else-if="rows.length === 0"
-			:name="t('decidesk', 'No action items assigned to you')"
+			:name="t('decidiq', 'No action items assigned to you')"
 			data-testid="my-action-items-empty">
 			<template #icon>
 				<ClipboardCheckOutline :size="32" />
@@ -47,7 +47,7 @@
 					<span
 						v-if="item._overdue"
 						class="dashboard-list-widget__badge dashboard-list-widget__badge--overdue">
-						{{ t('decidesk', 'Overdue') }}
+						{{ t('decidiq', 'Overdue') }}
 					</span>
 					<span class="dashboard-list-widget__badge">{{
 						item.taskStatus
@@ -102,6 +102,8 @@ export default {
 		 * mount and on dashboard refresh.
 		 *
 		 * @return {Promise<void>}
+		 *
+		 * @spec openspec/specs/dashboard/spec.md#requirement-kpi-cards
 		 */
 		async load() {
 			this.loading = true
@@ -117,7 +119,7 @@ export default {
 					taskStatus: ['open', 'in-progress'],
 				})
 			} catch (e) {
-				console.error('[decidesk] MyActionItemsWidget load failed', e)
+				console.error('[decidiq] MyActionItemsWidget load failed', e)
 				this.error = e
 				this.items = []
 			} finally {

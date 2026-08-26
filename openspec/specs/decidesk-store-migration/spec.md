@@ -2,32 +2,32 @@
 status: done
 ---
 
-# Decidesk store migration — spec
+# Decidiq store migration — spec
 
 ## Purpose
 
-Decidesk MUST share the OpenRegister object store provided by
+Decidiq MUST share the OpenRegister object store provided by
 `@conduction/nextcloud-vue` (`useObjectStore` /
 `createObjectStore`) for all Pinia-backed CRUD against OpenRegister
-objects. Decidesk MUST NOT ship a parallel custom store with a
+objects. Decidiq MUST NOT ship a parallel custom store with a
 divergent API.
 
 ## Requirements
 
 ### REQ-DSM-1 Single shared object store
 
-Decidesk MUST instantiate exactly one object store via
+Decidiq MUST instantiate exactly one object store via
 `createObjectStore(id, { plugins })` from `@conduction/nextcloud-vue`,
-with Pinia store id `'decidesk-objects'`. All Vue components and
+with Pinia store id `'decidiq-objects'`. All Vue components and
 helpers MUST reach the same store instance through `useObjectStore()`
 (re-exported from `src/store/store.js`).
 
 #### Scenario: One store id
 
-- **GIVEN** the decidesk frontend bundle
+- **GIVEN** the decidiq frontend bundle
 - **WHEN** the bundle is loaded in the browser
 - **THEN** Pinia MUST have exactly one store registered with id
-  `'decidesk-objects'`
+  `'decidiq-objects'`
 - **AND** there MUST NOT be a Pinia store registered with id `'object'`
   (the previous local-store id).
 
@@ -50,7 +50,7 @@ on the store without `try/catch` fallbacks.
 `initializeStores()` MUST call `registerObjectType(slug, schema,
 register)` on the lib store for **every** logical type that consumer
 components subscribe to or fetch, populating slug values from the
-decidesk settings response. The required minimum set is:
+decidiq settings response. The required minimum set is:
 
 `minutes`, `decision`, `action-item`, `meeting`, `agenda-item`,
 `participant`, `motion`, `amendment`, `voting-round`.
@@ -70,15 +70,15 @@ All Vue files that fetch collections MUST call
 
 #### Scenario: No fetchObjects calls
 
-- **GIVEN** the decidesk source tree under `src/`
+- **GIVEN** the decidiq source tree under `src/`
 - **WHEN** searched for the substring `objectStore.fetchObjects`
   or `this.objectStore.fetchObjects`
 - **THEN** no matches MUST be found.
 
 ### REQ-DSM-5 Settings store preserved
 
-The decidesk-specific `useSettingsStore` (`src/store/modules/settings.js`) MUST remain in place, since it talks
-to `/apps/decidesk/api/settings` and exposes
+The decidiq-specific `useSettingsStore` (`src/store/modules/settings.js`) MUST remain in place, since it talks
+to `/apps/decidiq/api/settings` and exposes
 `{ register, openregisters, isAdmin, … }` used to wire the lib store
 and to gate admin-only UI.
 
@@ -97,7 +97,7 @@ lib store.
 
 #### Scenario: No orphan store modules
 
-- **GIVEN** the decidesk source tree
+- **GIVEN** the decidiq source tree
 - **WHEN** the directory `src/store/modules/` is listed
 - **THEN** it MUST contain only `settings.js`.
 

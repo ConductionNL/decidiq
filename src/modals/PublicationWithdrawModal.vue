@@ -10,14 +10,14 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Withdraw publication')"
+		:name="t('decidiq', 'Withdraw publication')"
 		data-testid="publication-withdraw-modal"
 		@closing="$emit('close')">
 		<template #default>
 			<p>
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'Withdrawing removes the published record from the public surface and retracts the OpenCatalogi publication. A reason is required and recorded in the audit trail (WOO correction duty).',
 					)
 				}}
@@ -25,10 +25,10 @@
 			<NcTextArea
 				v-model="reason"
 				data-testid="publication-withdraw-reason"
-				:label="t('decidesk', 'Withdraw reason')"
+				:label="t('decidiq', 'Withdraw reason')"
 				:placeholder="
 					t(
-						'decidesk',
+						'decidiq',
 						'e.g. Contained an error, corrected version follows',
 					)
 				"
@@ -40,10 +40,10 @@
 				data-testid="publication-withdraw-confirm"
 				:disabled="!reason.trim()"
 				@click="$emit('confirm', reason.trim())">
-				{{ t('decidesk', 'Withdraw') }}
+				{{ t('decidiq', 'Withdraw') }}
 			</NcButton>
 			<NcButton @click="$emit('close')">
-				{{ t('decidesk', 'Cancel') }}
+				{{ t('decidiq', 'Cancel') }}
 			</NcButton>
 		</template>
 	</NcDialog>

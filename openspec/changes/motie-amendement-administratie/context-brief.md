@@ -1,6 +1,6 @@
 ---
 status: draft
-app: decidesk
+app: decidiq
 spec: motie-amendement-administratie
 target_users: gemeenteraad, raadsleden, griffie, fractie-ondersteuners, college van B&W
 depends_on:
@@ -170,9 +170,9 @@ Een MotieGroep optionele koppeling maakt het mogelijk samenhangende moties (bv a
 
 ## Cross-app
 
-- **decidesk besluitvorming-workflow**: levert vergaderingen, agendapunten en raadsvoorstellen waar moties en amendementen aan koppelen; ontvangt aangenomen-amendement-doorvoer voor automatische integratie van wijzigingen in raadsvoorstel-tekst
-- **decidesk fractievoorzitter-fractie-koppeling**: levert het fractie-register en raadslid-fractie-historie nodig voor de Stemresultaat-snapshot; levert ook de schriftelijke-vragen-flow waar opvolgvragen op aangenomen moties via lopen
-- **decidesk commissievergaderingen**: amendementen kunnen via commissieadvies pre-geformuleerd worden; commissie-besluitvormings-advies wordt zichtbaar bij plenaire stemming
+- **decidiq besluitvorming-workflow**: levert vergaderingen, agendapunten en raadsvoorstellen waar moties en amendementen aan koppelen; ontvangt aangenomen-amendement-doorvoer voor automatische integratie van wijzigingen in raadsvoorstel-tekst
+- **decidiq fractievoorzitter-fractie-koppeling**: levert het fractie-register en raadslid-fractie-historie nodig voor de Stemresultaat-snapshot; levert ook de schriftelijke-vragen-flow waar opvolgvragen op aangenomen moties via lopen
+- **decidiq commissievergaderingen**: amendementen kunnen via commissieadvies pre-geformuleerd worden; commissie-besluitvormings-advies wordt zichtbaar bij plenaire stemming
 - **docudesk**: PDF-rendering van moties en amendementen voor archivering, eIDAS-niveau SES of AdES voor authentieke besluit-pdf
 - **openconnector**: synchronisatie naar iBabs of GemeenteOplossingen voor gemeenten in transitiefase, met bi-directionele sync zodat raadsleden zowel oude als nieuwe tool kunnen gebruiken
 - **opencatalogi**: publicatie van openbare moties als publieke catalogus met TOOI-trefwoorden en OWMS-metadata

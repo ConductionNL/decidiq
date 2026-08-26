@@ -14,14 +14,14 @@
  @spec openspec/specs/public-publication/spec.md
 -->
 <template>
-	<div class="decidesk-pub-settings" data-testid="publication-settings">
-		<h3 class="decidesk-pub-settings__title">
-			{{ t('decidesk', 'Public publication') }}
+	<div class="decidiq-pub-settings" data-testid="publication-settings">
+		<h3 class="decidiq-pub-settings__title">
+			{{ t('decidiq', 'Public publication') }}
 		</h3>
-		<p class="decidesk-pub-settings__intro">
+		<p class="decidiq-pub-settings__intro">
 			{{
 				t(
-					'decidesk',
+					'decidiq',
 					'Configure, per governance body, where adopted decisions, public agendas, and approved minutes are published. Anonymous read access is served exclusively through OpenCatalogi / OpenRegister — never an app-local public page.',
 				)
 			}}
@@ -30,56 +30,56 @@
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Settings error')">
+			:title="t('decidiq', 'Settings error')">
 			{{ error }}
 		</CnNoteCard>
-		<CnNoteCard v-if="saved" type="success" :title="t('decidesk', 'Saved')">
-			{{ t('decidesk', 'Publication configuration saved.') }}
+		<CnNoteCard v-if="saved" type="success" :title="t('decidiq', 'Saved')">
+			{{ t('decidiq', 'Publication configuration saved.') }}
 		</CnNoteCard>
 
 		<NcLoadingIcon v-if="loading" :size="32" />
 
-		<p v-else-if="!bodies.length" class="decidesk-pub-settings__empty">
-			{{ t('decidesk', 'No governance bodies found.') }}
+		<p v-else-if="!bodies.length" class="decidiq-pub-settings__empty">
+			{{ t('decidiq', 'No governance bodies found.') }}
 		</p>
 
 		<div
 			v-for="body in bodies"
 			v-else
 			:key="body.id"
-			class="decidesk-pub-settings__body"
+			class="decidiq-pub-settings__body"
 			:data-testid="`publication-body-${body.id}`">
 			<h4>{{ body.name || body.title || body.id }}</h4>
-			<div class="decidesk-pub-settings__fields">
-				<label class="decidesk-pub-settings__field">
-					<span>{{ t('decidesk', 'Target OpenCatalogi catalog') }}</span>
+			<div class="decidiq-pub-settings__fields">
+				<label class="decidiq-pub-settings__field">
+					<span>{{ t('decidiq', 'Target OpenCatalogi catalog') }}</span>
 					<input
 						v-model="config[body.id].catalog"
 						type="text"
 						:data-testid="`publication-catalog-${body.id}`"
-						:placeholder="t('decidesk', 'Catalog id')" />
+						:placeholder="t('decidiq', 'Catalog id')" />
 				</label>
 				<NcSelect
 					v-model="config[body.id].policy.decision"
-					:inputLabel="t('decidesk', 'Decision policy')"
+					:inputLabel="t('decidiq', 'Decision policy')"
 					:options="policyOptions"
 					:reduce="(o) => o.value"
 					:data-testid="`publication-policy-decision-${body.id}`" />
 				<NcSelect
 					v-model="config[body.id].policy.agenda"
-					:inputLabel="t('decidesk', 'Agenda policy')"
+					:inputLabel="t('decidiq', 'Agenda policy')"
 					:options="policyOptions"
 					:reduce="(o) => o.value"
 					:data-testid="`publication-policy-agenda-${body.id}`" />
 				<NcSelect
 					v-model="config[body.id].policy.minutes"
-					:inputLabel="t('decidesk', 'Minutes policy')"
+					:inputLabel="t('decidiq', 'Minutes policy')"
 					:options="policyOptions"
 					:reduce="(o) => o.value"
 					:data-testid="`publication-policy-minutes-${body.id}`" />
 				<NcSelect
 					v-model="config[body.id].attendance"
-					:inputLabel="t('decidesk', 'Minutes attendance rendering')"
+					:inputLabel="t('decidiq', 'Minutes attendance rendering')"
 					:options="attendanceOptions"
 					:reduce="(o) => o.value"
 					:data-testid="`publication-attendance-${body.id}`" />
@@ -92,7 +92,7 @@
 			data-testid="publication-settings-save"
 			:disabled="saving"
 			@click="save">
-			{{ t('decidesk', 'Save publication configuration') }}
+			{{ t('decidiq', 'Save publication configuration') }}
 		</NcButton>
 	</div>
 </template>
@@ -108,7 +108,7 @@ export default {
 	name: 'PublicationSettings',
 	components: { CnNoteCard, NcButton, NcLoadingIcon, NcSelect },
 	data() {
-		const policies = loadState('decidesk', 'publicationPolicies', {
+		const policies = loadState('decidiq', 'publicationPolicies', {
 			policies: ['manual-only', 'prompt-on-transition'],
 			attendance: ['counts', 'role-holders'],
 		})
@@ -121,7 +121,7 @@ export default {
 			config: {},
 			policyEnums: policies.policies,
 			attendanceEnums: policies.attendance,
-			initialConfig: loadState('decidesk', 'publicationConfig', {}),
+			initialConfig: loadState('decidiq', 'publicationConfig', {}),
 		}
 	},
 
@@ -129,8 +129,8 @@ export default {
 		/** @spec openspec/specs/public-publication/spec.md */
 		policyOptions() {
 			const labels = {
-				'manual-only': this.t('decidesk', 'Manual only'),
-				'prompt-on-transition': this.t('decidesk', 'Prompt on transition'),
+				'manual-only': this.t('decidiq', 'Manual only'),
+				'prompt-on-transition': this.t('decidiq', 'Prompt on transition'),
 			}
 			return this.policyEnums.map((v) => ({ value: v, label: labels[v] || v }))
 		},
@@ -138,8 +138,8 @@ export default {
 		/** @spec openspec/specs/public-publication/spec.md */
 		attendanceOptions() {
 			const labels = {
-				counts: this.t('decidesk', 'Counts only'),
-				'role-holders': this.t('decidesk', 'Names of role-holders'),
+				counts: this.t('decidiq', 'Counts only'),
+				'role-holders': this.t('decidiq', 'Names of role-holders'),
 			}
 			return this.attendanceEnums.map((v) => ({
 				value: v,
@@ -181,7 +181,7 @@ export default {
 			} catch (e) {
 				this.error =
 					e?.message
-					|| this.t('decidesk', 'Failed to load governance bodies.')
+					|| this.t('decidiq', 'Failed to load governance bodies.')
 			} finally {
 				this.loading = false
 			}
@@ -194,7 +194,7 @@ export default {
 			this.error = ''
 			try {
 				const res = await fetch(
-					generateUrl('/apps/decidesk/api/settings/publication-config'),
+					generateUrl('/apps/decidiq/api/settings/publication-config'),
 					{
 						method: 'PUT',
 						headers: {
@@ -208,7 +208,7 @@ export default {
 				const body = await res.json().catch(() => ({}))
 				if (!res.ok) {
 					throw new Error(
-						body.message || this.t('decidesk', 'Save failed.'),
+						body.message || this.t('decidiq', 'Save failed.'),
 					)
 				}
 				this.saved = true
@@ -223,7 +223,7 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-pub-settings {
+.decidiq-pub-settings {
 	display: flex;
 	flex-direction: column;
 	gap: calc(var(--default-grid-baseline) * 2);
@@ -231,12 +231,12 @@ export default {
 	margin-block-start: calc(var(--default-grid-baseline) * 3);
 }
 
-.decidesk-pub-settings__title {
+.decidiq-pub-settings__title {
 	margin: 0;
 	font-weight: bold;
 }
 
-.decidesk-pub-settings__body {
+.decidiq-pub-settings__body {
 	border: 1px solid var(--color-border);
 	border-radius: var(--border-radius-large);
 	padding: calc(var(--default-grid-baseline) * 2);
@@ -245,24 +245,24 @@ export default {
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-pub-settings__fields {
+.decidiq-pub-settings__fields {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-pub-settings__field {
+.decidiq-pub-settings__field {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
 }
 
-.decidesk-pub-settings__field input {
+.decidiq-pub-settings__field input {
 	width: 100%;
 }
 
-.decidesk-pub-settings__intro,
-.decidesk-pub-settings__empty {
+.decidiq-pub-settings__intro,
+.decidiq-pub-settings__empty {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }

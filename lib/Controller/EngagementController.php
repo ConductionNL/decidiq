@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Engagement Controller
+ * Decidiq Engagement Controller
  *
  * REST controller for participant engagement capture during meetings.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,11 +23,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\EngagementService;
-use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\EngagementService;
+use OCA\Decidiq\Service\ParticipantResolver;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -78,7 +78,7 @@ class EngagementController extends Controller {
 	private function resolveParticipantUuid(string $nextcloudUid): ?string {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$objectService->setRegister('decidesk');
+			$objectService->setRegister('decidiq');
 			$objectService->setSchema('participant');
 			$entities = $objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
 

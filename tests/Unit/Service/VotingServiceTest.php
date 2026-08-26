@@ -4,7 +4,7 @@
  * Unit tests for VotingService.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -19,21 +19,21 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\AmendmentOrderService;
-use OCA\Decidesk\Service\MotionService;
-use OCA\Decidesk\Service\ObjectRelationFilter;
-use OCA\Decidesk\Service\OriPublicationService;
-use OCA\Decidesk\Service\ParticipantUuidLookup;
-use OCA\Decidesk\Service\VoteCastingService;
-use OCA\Decidesk\Service\VotingOpenedNotifier;
-use OCA\Decidesk\Service\VotingRoundCloser;
-use OCA\Decidesk\Service\VotingRoundOpener;
-use OCA\Decidesk\Service\VotingRoundPreflight;
-use OCA\Decidesk\Service\VotingRoundProjection;
-use OCA\Decidesk\Service\VotingRoundResults;
-use OCA\Decidesk\Service\VotingService;
+use OCA\Decidiq\Service\AmendmentOrderService;
+use OCA\Decidiq\Service\MotionService;
+use OCA\Decidiq\Service\ObjectRelationFilter;
+use OCA\Decidiq\Service\OriPublicationService;
+use OCA\Decidiq\Service\ParticipantUuidLookup;
+use OCA\Decidiq\Service\VoteCastingService;
+use OCA\Decidiq\Service\VotingOpenedNotifier;
+use OCA\Decidiq\Service\VotingRoundCloser;
+use OCA\Decidiq\Service\VotingRoundOpener;
+use OCA\Decidiq\Service\VotingRoundPreflight;
+use OCA\Decidiq\Service\VotingRoundProjection;
+use OCA\Decidiq\Service\VotingRoundResults;
+use OCA\Decidiq\Service\VotingService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\FileService;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -99,7 +99,7 @@ class VotingServiceTest extends TestCase {
 		parent::setUp();
 
 		$this->markTestSkipped(
-			'See https://codeberg.org/Conduction/decidesk/issues/90 — '
+			'See Codeberg issue #90 (pre-migration, not migrated to GitHub) — '
 			. 'real OpenRegister ObjectService loads instead of the stub when tests run '
 			. 'in an environment with OpenRegister installed, causing signature/return-type mismatches. '
 			. 'Unskip once #90 is resolved.'
@@ -119,10 +119,10 @@ class VotingServiceTest extends TestCase {
 			->method('get')
 			->willReturn($this->objectService);
 
-		$participantResolver = $this->createMock(\OCA\Decidesk\Service\ParticipantResolver::class);
+		$participantResolver = $this->createMock(\OCA\Decidiq\Service\ParticipantResolver::class);
 		$participantResolver->method('resolveMeetingParticipants')->willReturn([]);
 
-		$templateService = $this->createMock(\OCA\Decidesk\Service\ProcessTemplateService::class);
+		$templateService = $this->createMock(\OCA\Decidiq\Service\ProcessTemplateService::class);
 		$templateService->method('resolveVotingRuleForBody')->willReturn(null);
 
 		// VotingService is a thin facade: every operation is delegated to a

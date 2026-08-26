@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Reaction Intake Service
+ * Decidiq Reaction Intake Service
  *
  * Reaction submission + moderation for citizen-participation consultations.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,15 +23,16 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service handling ConsultationReaction intake and moderation.
@@ -137,7 +138,7 @@ class ReactionIntakeService {
 		}
 
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $consultationId, register: 'decidesk', schema: 'public-consultation');
+		$entity = $objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation');
 		if ($entity === null) {
 			throw new RuntimeException("PublicConsultation {$consultationId} not found");
 		}
@@ -172,11 +173,11 @@ class ReactionIntakeService {
 			'submitterId' => $submitterId,
 			'submittedAt' => (new DateTimeImmutable())->format(\DateTimeInterface::ATOM),
 			'relations' => [
-				['register' => 'decidesk', 'schema' => 'public-consultation', 'id' => $consultationId],
+				['register' => 'decidiq', 'schema' => 'public-consultation', 'id' => $consultationId],
 			],
 		];
 
-		$saved = $objectService->saveObject(register: 'decidesk', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
 		$result = $this->normaliseSaved(saved: $saved, fallback: $reaction);
 
 		return $result;
@@ -199,7 +200,7 @@ class ReactionIntakeService {
 	 */
 	public function approveReaction(string $reactionId, ?string $reason = null): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $reactionId, register: 'decidesk', schema: 'consultation-reaction');
+		$entity = $objectService->find(id: $reactionId, register: 'decidiq', schema: 'consultation-reaction');
 		if ($entity === null) {
 			throw new RuntimeException("ConsultationReaction {$reactionId} not found");
 		}
@@ -211,7 +212,7 @@ class ReactionIntakeService {
 			$reaction['moderationReason'] = $reason;
 		}
 
-		$saved = $objectService->saveObject(register: 'decidesk', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
 
 		// Increment the parent consultation's submissionCount when a reaction is
 		// approved (pre-moderation: reactions start as pending and only count
@@ -251,14 +252,14 @@ class ReactionIntakeService {
 		}
 
 		try {
-			$consultationEntity = $objectService->find(id: $consultationId, register: 'decidesk', schema: 'public-consultation');
+			$consultationEntity = $objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation');
 			if ($consultationEntity === null) {
 				return;
 			}
 
 			$consultation = $consultationEntity->jsonSerialize();
 			$consultation['submissionCount'] = ((int)($consultation['submissionCount'] ?? 0)) + 1;
-			$objectService->saveObject(register: 'decidesk', schema: 'public-consultation', object: $consultation);
+			$objectService->saveObject(register: 'decidiq', schema: 'public-consultation', object: $consultation);
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'ReactionIntakeService: could not increment consultation submissionCount: ' . $e->getMessage()
@@ -291,7 +292,7 @@ class ReactionIntakeService {
 		}
 
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $reactionId, register: 'decidesk', schema: 'consultation-reaction');
+		$entity = $objectService->find(id: $reactionId, register: 'decidiq', schema: 'consultation-reaction');
 		if ($entity === null) {
 			throw new RuntimeException("ConsultationReaction {$reactionId} not found");
 		}
@@ -300,7 +301,7 @@ class ReactionIntakeService {
 		$reaction['moderationStatus'] = 'rejected';
 		$reaction['moderationReason'] = $reason;
 
-		$saved = $objectService->saveObject(register: 'decidesk', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $reaction);
 	}//end rejectReaction()
@@ -371,10 +372,10 @@ class ReactionIntakeService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	private function pseudonymousId(string $consultationId, string $seed): string {
-		$secret = $this->appConfig->getValueString('decidesk', 'participation_pseudonym_secret', '');
+		$secret = $this->appConfig->getValueString(Application::APP_ID, 'participation_pseudonym_secret', '');
 		if ($secret === '') {
 			$secret = bin2hex(random_bytes(32));
-			$this->appConfig->setValueString('decidesk', 'participation_pseudonym_secret', $secret);
+			$this->appConfig->setValueString(Application::APP_ID, 'participation_pseudonym_secret', $secret);
 		}
 
 		return 'anon-' . hash_hmac('sha256', $consultationId . ':' . $seed, $secret);

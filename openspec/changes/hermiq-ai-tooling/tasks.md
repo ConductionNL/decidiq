@@ -1,6 +1,6 @@
 # Tasks: hermiq-ai-tooling
 
-Sequencing: `decidesk-mcp-adoption` MUST be merged first — this change extends its
+Sequencing: `decidiq-mcp-adoption` MUST be merged first — this change extends its
 scannable-services opt-in and continues its `mcp-tools` capability (REQ-DMCP-015+). All
 `@spec` tags added to code MUST point at the canonical spec
 (`openspec/specs/mcp-tools/spec.md`), never at a change directory — change dirs evaporate on
@@ -48,9 +48,9 @@ archive.
 - [ ] Implement
 - [ ] Test
 
-### Task 5: Extend `DecideskScannableServices` — two-way agreement with the annotations
+### Task 5: Extend `DecidiqScannableServices` — two-way agreement with the annotations
 - **spec_ref**: `openspec/changes/hermiq-ai-tooling/specs/mcp-tools/spec.md#requirement-req-dmcp-013-scannable-services-opt-in`
-- **files**: `lib/Mcp/DecideskScannableServices.php`
+- **files**: `lib/Mcp/DecidiqScannableServices.php`
 - **acceptance_criteria**:
   - GIVEN `getScannableServiceClasses()` WHEN compared against a scan of `#[McpTool]` under `lib/` THEN the two sets are identical (a unit test enforces both directions)
   - GIVEN the booted app WHEN the MCP catalogue is listed THEN every tool id from the inventory's ✅/♻ rows is present
@@ -77,7 +77,7 @@ archive.
 - [ ] Test
 
 ### Task 8: Live grant-model verification + chat flows + OR issue
-- **spec_ref**: `openspec/changes/hermiq-ai-tooling/specs/mcp-tools/spec.md#requirement-req-dmcp-021-chat-shall-be-able-to-command-decidesk-end-to-end`
+- **spec_ref**: `openspec/changes/hermiq-ai-tooling/specs/mcp-tools/spec.md#requirement-req-dmcp-021-chat-shall-be-able-to-command-decidiq-end-to-end`
 - **files**: `CHANGELOG.md`, e2e material under `tests/`
 - **acceptance_criteria**:
   - GIVEN a dev instance with hermiq WHEN an agent holds no grants THEN every write tool from this change is absent from its catalogue (default-deny observed, not assumed), and reads remain present
@@ -100,8 +100,8 @@ archive.
 ## Tests (company-wide ADR-009)
 
 - [ ] PHPUnit unit tests — attribute/matrix conformance (Task 3), scannable-services two-way agreement (Task 5), withdrawal pins (Task 7), audit exactly-one-entry (Task 6), draft-pin and published-agenda refusal (Task 2), notification-rule condition (Task 1, JSON-level).
-- [ ] Newman/Postman tests — N/A: no decidesk HTTP endpoint changes; the MCP surface is served by OpenRegister's `/api/mcp`.
-- [ ] Browser tests (Playwright MCP) — the hermiq approval flow for `transitionMeeting` (approve + reject branches) and chat flow (1); N/A for decidesk's own UI (unchanged).
+- [ ] Newman/Postman tests — N/A: no decidiq HTTP endpoint changes; the MCP surface is served by OpenRegister's `/api/mcp`.
+- [ ] Browser tests (Playwright MCP) — the hermiq approval flow for `transitionMeeting` (approve + reject branches) and chat flow (1); N/A for decidiq's own UI (unchanged).
 - [ ] All tests pass (`composer test`), zero new failures against a self-measured baseline.
 
 ## Documentation (company-wide ADR-010)
@@ -111,4 +111,4 @@ archive.
 
 ## i18n (company-wide ADR-005)
 
-- [ ] N/A for tool `description` fields (agent-facing prose, not UI copy — same ruling as decidesk-mcp-adoption). Approval-card strings live in hermiq, not decidesk.
+- [ ] N/A for tool `description` fields (agent-facing prose, not UI copy — same ruling as decidiq-mcp-adoption). Approval-card strings live in hermiq, not decidiq.

@@ -2,32 +2,32 @@
 status: draft
 ---
 
-# Spec: ORI adoption — decidesk as the sole home of raadsinformatie
+# Spec: ORI adoption — decidiq as the sole home of raadsinformatie
 
 ## Purpose
 
-decidesk absorbs the raadsinformatie (council information) domain that procest
+decidiq absorbs the raadsinformatie (council information) domain that procest
 provisioned as the ORI OpenRegister register. Storage is Popolo-aligned on
-decidesk's existing schemas; the Dutch ORI wire format survives only as an
+decidiq's existing schemas; the Dutch ORI wire format survives only as an
 adapter. Paired with procest change `ori-removal`, which ships second.
 
 ## ADDED Requirements
 
-### Requirement: REQ-ORIA-001 — decidesk SHALL be the sole storage home of raadsinformatie
+### Requirement: REQ-ORIA-001 — decidiq SHALL be the sole storage home of raadsinformatie
 
 All council-information concepts formerly stored in the procest ORI register
 (`vergadering`, `agendapunt`, `raadsdocument`, `stemming`, `raadslid`,
-`fractie`) SHALL be storable losslessly in decidesk's Popolo-aligned schemas
+`fractie`) SHALL be storable losslessly in decidiq's Popolo-aligned schemas
 (`Meeting`, `AgendaItem`, `DigitalDocument`, `VotingRound` + `Decision`,
 `Person` + `Membership`, `GovernanceBody`) per the mapping table in
-`design.md`. decidesk SHALL NOT introduce any Dutch-named schema or property
+`design.md`. decidiq SHALL NOT introduce any Dutch-named schema or property
 for this domain; Dutch identifiers are confined to the ORI adapter
 (REQ-ORIA-004).
 
 #### Scenario: Every ORI schema has a mapped Popolo home
 - **GIVEN** the six ORI schemas in procest's `ori_register.json`
 - **WHEN** each schema and each of its properties is checked against the mapping table
-- **THEN** every property has a decidesk target (an existing property, an additive property from REQ-ORIA-002, or a documented derived/default) and none maps to a new Dutch-named identifier
+- **THEN** every property has a decidiq target (an existing property, an additive property from REQ-ORIA-002, or a documented derived/default) and none maps to a new Dutch-named identifier
 
 ### Requirement: REQ-ORIA-002 — Schema deltas SHALL be additive only
 
@@ -42,7 +42,7 @@ ref); `GovernanceBody.bodyType` value `political-group`,
 `coalition` | `opposition`).
 
 #### Scenario: Existing objects remain valid
-- **GIVEN** a decidesk instance with existing Meeting/AgendaItem/VotingRound/GovernanceBody objects
+- **GIVEN** a decidiq instance with existing Meeting/AgendaItem/VotingRound/GovernanceBody objects
 - **WHEN** the updated register is imported via `ConfigurationService::importFromApp()`
 - **THEN** every pre-existing object still validates against its schema and no property was removed or renamed
 
@@ -53,10 +53,10 @@ ref); `GovernanceBody.bodyType` value `political-group`,
 
 ### Requirement: REQ-ORIA-003 — The ORI importer SHALL migrate source objects idempotently, with dry-run and rollback
 
-`occ decidesk:import-ori` SHALL read all objects from a source ORI-shaped
+`occ decidiq:import-ori` SHALL read all objects from a source ORI-shaped
 register (default slug `ori`), apply the mapping table (including enum-value
 translations such as `aangenomen`→`adopted` — value renames are data
-migrations executed here, nowhere else), and write decidesk objects in
+migrations executed here, nowhere else), and write decidiq objects in
 dependency order (bodies → persons → meetings → documents → agenda items →
 decisions/voting rounds). Each created object SHALL carry
 `externalReference: ori:<source-uuid>`. The command SHALL support `--dry-run`
@@ -67,7 +67,7 @@ never modify or delete the source register.
 
 #### Scenario: Dry run reports counts without writing
 - **GIVEN** a source `ori` register containing N objects across the six schemas
-- **WHEN** `occ decidesk:import-ori --dry-run` runs
+- **WHEN** `occ decidiq:import-ori --dry-run` runs
 - **THEN** it reports per-schema source counts and the target objects that would be created, and the decidesk register's object count is unchanged
 
 #### Scenario: Import is idempotent
@@ -81,8 +81,8 @@ never modify or delete the source register.
 - **THEN** the object is reported as unresolvable (and fails the run in strict mode) instead of being silently skipped or imported with a null meeting
 
 #### Scenario: Rollback removes only imported objects
-- **GIVEN** a completed import and pre-existing native decidesk objects
-- **WHEN** `occ decidesk:import-ori --rollback` runs
+- **GIVEN** a completed import and pre-existing native decidiq objects
+- **WHEN** `occ decidiq:import-ori --rollback` runs
 - **THEN** exactly the objects tagged `ori:*` are deleted and every native object survives
 
 #### Scenario: Party aggregates are preserved, not decomposed
@@ -94,7 +94,7 @@ never modify or delete the source register.
 
 An `OriExportMapper` service SHALL render stored Popolo objects in the Dutch
 ORI wire shape (Dutch statutory field names and enum values). It SHALL be the
-only decidesk component emitting Dutch identifiers, and it SHALL be a stateless
+only decidiq component emitting Dutch identifiers, and it SHALL be a stateless
 projection — the ORI shape SHALL NOT be persisted. Public read-only feed
 endpoints `/feed/ori/meetings.rss`, `/feed/ori/agenda-items.rss` and
 `/feed/ori/documents.rss` SHALL serve the adapter's output (replacing procest's
@@ -108,7 +108,7 @@ retired `/apps/procest/feed/ori/*.rss` feeds), declared `#[PublicPage]` +
 
 #### Scenario: Public feeds serve without a session
 - **GIVEN** an anonymous client with no Nextcloud session
-- **WHEN** it requests `/apps/decidesk/feed/ori/meetings.rss`
+- **WHEN** it requests `/apps/decidiq/feed/ori/meetings.rss`
 - **THEN** it receives HTTP 200 with an RSS document listing public meetings, and non-public objects are absent
 
 ### Requirement: REQ-ORIA-005 — The Voorbeeldstad demo dataset SHALL be re-seeded Popolo-aligned
@@ -116,12 +116,12 @@ retired `/apps/procest/feed/ori/*.rss` feeds), declared `#[PublicPage]` +
 The demo objects shipped in procest's `ori_register.json` (8 fracties, 33
 raadsleden, 10 vergaderingen, 40 agendapunten, 15 raadsdocumenten, 6
 stemmingen for the fictional municipality of Voorbeeldstad) SHALL be translated
-through the same mapping table into a decidesk `register.d` seed fragment so
+through the same mapping table into a decidiq `register.d` seed fragment so
 demo/dev environments keep a populated council. Seed objects SHALL use English
 identifiers throughout (Dutch proper names and titles in *values* are data,
 not identifiers, and are kept).
 
 #### Scenario: Demo seed loads idempotently
-- **GIVEN** a fresh decidesk install with the seed fragment present
+- **GIVEN** a fresh decidiq install with the seed fragment present
 - **WHEN** the register configuration is imported twice
 - **THEN** the Voorbeeldstad bodies, persons, meetings, agenda items, documents and voting rounds exist exactly once

@@ -1,13 +1,13 @@
 # document-annotations Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - document-annotations
 
 ## Purpose
 
-Lets members of a governance body annotate the PDF documents attached to agenda items and meetings while preparing: highlights, sticky notes, and freehand drawings, private by default and optionally shared with the author's faction or the whole body. Annotations are OpenRegister objects bound to the exact document version they were made on, surfaced in a decidesk annotation view (overlay + panel), counted on agenda-item rows, and deletable/exportable by their author as personal notes (GDPR). Complements file attachments (REQ-PUB-003, agenda-publication) and follows the OR-RBAC authorization pattern (authorization-via-or-rbac, ADR-022).
+Lets members of a governance body annotate the PDF documents attached to agenda items and meetings while preparing: highlights, sticky notes, and freehand drawings, private by default and optionally shared with the author's faction or the whole body. Annotations are OpenRegister objects bound to the exact document version they were made on, surfaced in a decidiq annotation view (overlay + panel), counted on agenda-item rows, and deletable/exportable by their author as personal notes (GDPR). Complements file attachments (REQ-PUB-003, agenda-publication) and follows the OR-RBAC authorization pattern (authorization-via-or-rbac, ADR-022).
 
 ## ADDED Requirements
 
@@ -72,7 +72,7 @@ Every annotation SHALL have `visibility` ∈ {`private`, `faction`, `body`}, def
 
 ### Requirement: REQ-ANN-003 Annotation view with overlay and panel on meeting and agenda-item documents
 
-The system SHALL provide a decidesk annotation view that renders a PDF attached to a meeting or agenda item with an annotation overlay (creating and displaying highlights, sticky notes, and drawings in place) and a side panel listing all annotations visible to the current user, ordered by page, with author, type, visibility badge, and body text, filterable by visibility and author. The view SHALL be reachable via an "Annoteren" action on the Documents leaves of the meeting and agenda-item detail pages. Activating a panel entry SHALL scroll the overlay to that annotation. Plain document viewing SHALL remain with the Nextcloud Viewer; the annotation view SHALL NOT attempt to inject an overlay into the Nextcloud Viewer or files_pdfviewer. For non-PDF attachments the "Annoteren" action SHALL NOT be offered.
+The system SHALL provide a decidiq annotation view that renders a PDF attached to a meeting or agenda item with an annotation overlay (creating and displaying highlights, sticky notes, and drawings in place) and a side panel listing all annotations visible to the current user, ordered by page, with author, type, visibility badge, and body text, filterable by visibility and author. The view SHALL be reachable via an "Annoteren" action on the Documents leaves of the meeting and agenda-item detail pages. Activating a panel entry SHALL scroll the overlay to that annotation. Plain document viewing SHALL remain with the Nextcloud Viewer; the annotation view SHALL NOT attempt to inject an overlay into the Nextcloud Viewer or files_pdfviewer. For non-PDF attachments the "Annoteren" action SHALL NOT be offered.
 
 #### Scenario: Open the annotator from an agenda item
 

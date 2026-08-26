@@ -17,32 +17,32 @@
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--decisions"
+		class="decidiq-tab decidiq-tab--decisions"
 		data-testid="meeting-decisions-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Decisions') }}
-				<span v-if="!loading" class="decidesk-tab__count"
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Decisions') }}
+				<span v-if="!loading" class="decidiq-tab__count"
 					>({{ rows.length }})</span
 				>
 			</h3>
 			<NcButton
 				variant="primary"
 				data-testid="meeting-decisions-create"
-				:aria-label="t('decidesk', 'Create decision')"
+				:aria-label="t('decidiq', 'Create decision')"
 				:disabled="creating"
 				@click="createDecision">
 				<template #icon>
 					<Plus :size="20" />
 				</template>
-				{{ t('decidesk', 'Create decision') }}
+				{{ t('decidiq', 'Create decision') }}
 			</NcButton>
 		</div>
 
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load decisions')">
+			:title="t('decidiq', 'Could not load decisions')">
 			{{ error }}
 		</CnNoteCard>
 
@@ -51,8 +51,8 @@
 			:rows="rows"
 			:loading="loading"
 			rowKey="id"
-			:emptyText="t('decidesk', 'No decisions yet for this meeting.')"
-			:loadingText="t('decidesk', 'Loading decisions…')"
+			:emptyText="t('decidiq', 'No decisions yet for this meeting.')"
+			:loadingText="t('decidiq', 'Loading decisions…')"
 			@rowClick="openDetail">
 			<template #column-outcome="{ value }">
 				<CnStatusBadge
@@ -90,10 +90,10 @@ export default {
 		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
 		columns() {
 			return [
-				{ key: 'title', label: this.t('decidesk', 'Title') },
-				{ key: 'outcome', label: this.t('decidesk', 'Outcome') },
-				{ key: 'decisionDate', label: this.t('decidesk', 'Decided') },
-				{ key: 'isPublished', label: this.t('decidesk', 'Published') },
+				{ key: 'title', label: this.t('decidiq', 'Title') },
+				{ key: 'outcome', label: this.t('decidiq', 'Outcome') },
+				{ key: 'decisionDate', label: this.t('decidiq', 'Decided') },
+				{ key: 'isPublished', label: this.t('decidiq', 'Published') },
 			]
 		},
 
@@ -133,7 +133,7 @@ export default {
 				this.rows = items || []
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Failed to load decisions.')
+					e?.message || this.t('decidiq', 'Failed to load decisions.')
 			} finally {
 				this.loading = false
 			}
@@ -147,7 +147,7 @@ export default {
 			try {
 				const store = ensureRelationType('decision')
 				const created = await store.saveObject('decision', {
-					title: this.t('decidesk', 'Decision'),
+					title: this.t('decidiq', 'Decision'),
 					meeting: this.objectId,
 				})
 				const newId = created?.id || created?.uuid
@@ -155,7 +155,7 @@ export default {
 				if (newId) this.openDetail({ id: newId })
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Could not create decision.')
+					e?.message || this.t('decidiq', 'Could not create decision.')
 			} finally {
 				this.creating = false
 			}
@@ -177,27 +177,27 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__count {
+.decidiq-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;

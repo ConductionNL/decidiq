@@ -18,21 +18,21 @@
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--amendment-order"
+		class="decidiq-tab decidiq-tab--amendment-order"
 		data-testid="motion-amendment-order-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Voting order') }}
-				<span v-if="!loading" class="decidesk-tab__count"
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Voting order') }}
+				<span v-if="!loading" class="decidiq-tab__count"
 					>({{ rows.length }})</span
 				>
 			</h3>
 		</div>
 
-		<p class="decidesk-tab__hint">
+		<p class="decidiq-tab__hint">
 			{{
 				t(
-					'decidesk',
+					'decidiq',
 					'Amendments are voted before the main motion, most far-reaching first. Only the chair can save the order.',
 				)
 			}}
@@ -41,19 +41,19 @@
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load amendments')">
+			:title="t('decidiq', 'Could not load amendments')">
 			{{ error }}
 		</CnNoteCard>
 
-		<p v-else-if="loading" class="decidesk-tab__loading">
-			{{ t('decidesk', 'Loading amendments…') }}
+		<p v-else-if="loading" class="decidiq-tab__loading">
+			{{ t('decidiq', 'Loading amendments…') }}
 		</p>
 
 		<CnNoteCard
 			v-else-if="!rows.length"
 			type="info"
-			:title="t('decidesk', 'No amendments')">
-			{{ t('decidesk', 'This motion has no amendments to order.') }}
+			:title="t('decidiq', 'No amendments')">
+			{{ t('decidiq', 'This motion has no amendments to order.') }}
 		</CnNoteCard>
 
 		<template v-else>
@@ -74,7 +74,7 @@
 					<span class="amendment-order__actions">
 						<NcButton
 							variant="tertiary"
-							:aria-label="t('decidesk', 'Move amendment up')"
+							:aria-label="t('decidiq', 'Move amendment up')"
 							:disabled="busy || index === 0 || isDecided(row)"
 							:data-testid="`amendment-order-up-${index}`"
 							@click="move(index, -1)">
@@ -84,7 +84,7 @@
 						</NcButton>
 						<NcButton
 							variant="tertiary"
-							:aria-label="t('decidesk', 'Move amendment down')"
+							:aria-label="t('decidiq', 'Move amendment down')"
 							:disabled="
 								busy || index === rows.length - 1 || isDecided(row)
 							"
@@ -104,32 +104,32 @@
 					data-testid="amendment-order-suggest"
 					:disabled="busy"
 					:aria-label="
-						t('decidesk', 'Suggest order, most far-reaching first')
+						t('decidiq', 'Suggest order, most far-reaching first')
 					"
 					@click="suggest">
-					{{ t('decidesk', 'Suggest order') }}
+					{{ t('decidiq', 'Suggest order') }}
 				</NcButton>
 				<NcButton
 					variant="primary"
 					data-testid="amendment-order-save"
 					:disabled="busy || !dirty"
-					:aria-label="t('decidesk', 'Save voting order')"
+					:aria-label="t('decidiq', 'Save voting order')"
 					@click="save">
-					{{ t('decidesk', 'Save order') }}
+					{{ t('decidiq', 'Save order') }}
 				</NcButton>
 			</div>
 
 			<CnNoteCard
 				v-if="saveError"
 				type="error"
-				:title="t('decidesk', 'Saving the order failed')">
+				:title="t('decidiq', 'Saving the order failed')">
 				{{ saveError }}
 			</CnNoteCard>
 			<CnNoteCard
 				v-else-if="saved"
 				type="success"
-				:title="t('decidesk', 'Order saved')">
-				{{ t('decidesk', 'The amendment voting order has been saved.') }}
+				:title="t('decidiq', 'Order saved')">
+				{{ t('decidiq', 'The amendment voting order has been saved.') }}
 			</CnNoteCard>
 		</template>
 	</div>
@@ -244,7 +244,7 @@ export default {
 				this.rows = this.sortByVotingOrder(items || [])
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Failed to load amendments.')
+					e?.message || this.t('decidiq', 'Failed to load amendments.')
 			} finally {
 				this.loading = false
 			}
@@ -290,7 +290,7 @@ export default {
 			try {
 				const res = await fetch(
 					generateUrl(
-						`/apps/decidesk/api/motions/${this.objectId}/amendment-order`,
+						`/apps/decidiq/api/motions/${this.objectId}/amendment-order`,
 					),
 					{
 						method: 'POST',
@@ -310,7 +310,7 @@ export default {
 				if (!res.ok) {
 					this.saveError =
 						body?.message
-						|| this.t('decidesk', 'Saving the order failed.')
+						|| this.t('decidiq', 'Saving the order failed.')
 					return
 				}
 				this.saved = true
@@ -319,7 +319,7 @@ export default {
 				this.saved = true
 			} catch (e) {
 				this.saveError =
-					e?.message || this.t('decidesk', 'Saving the order failed.')
+					e?.message || this.t('decidiq', 'Saving the order failed.')
 			} finally {
 				this.busy = false
 			}
@@ -329,39 +329,39 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__count {
+.decidiq-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
 
-.decidesk-tab__hint {
+.decidiq-tab__hint {
 	margin: 0;
 	color: var(--color-text-maxcontrast);
 	font-size: 0.9rem;
 }
 
-.decidesk-tab__loading {
+.decidiq-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }

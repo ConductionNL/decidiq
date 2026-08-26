@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Motion Notifier
+ * Decidiq Motion Notifier
  *
  * Delivers the Nextcloud notifications raised by the motion workflow
  * (co-signature requests and forwarding-approval notices). Extracted from
@@ -14,7 +14,7 @@
  * the call sites already had.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -30,7 +30,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTime;
 use OCP\Notification\IManager;
@@ -75,7 +75,7 @@ class MotionNotifier {
 		try {
 			$manager = $this->container->get(IManager::class);
 			$notification = $manager->createNotification();
-			$notification->setApp('decidesk')
+			$notification->setApp('decidiq')
 				->setUser($userId)
 				->setDateTime(new DateTime())
 				->setObject('motion', $motionId)

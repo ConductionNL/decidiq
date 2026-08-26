@@ -1,8 +1,8 @@
 <!-- SPDX-License-Identifier: EUPL-1.2 -->
 <template>
 	<CnAdminSettingsShell
-		appId="decidesk"
-		appName="Decidesk"
+		appId="decidiq"
+		appName="Decidiq"
 		data-testid="admin-root"
 		@reimported="onReimported">
 		<Settings v-if="storesReady" />

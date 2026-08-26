@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk OpenCatalogi Publisher
+ * Decidiq OpenCatalogi Publisher
  *
  * Routes derived publication payloads into a configured OpenCatalogi catalog
  * and retracts them on withdraw. Degrades gracefully when OpenCatalogi is
  * absent (the caller surfaces a staff-visible warning).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,7 +23,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -87,7 +87,7 @@ class OpenCatalogiPublisher {
 					'catalog' => $catalogId,
 					'published' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
 					'reference' => $payloadId,
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'publication-payload',
 				],
 				register: 'opencatalogi',
@@ -96,7 +96,7 @@ class OpenCatalogiPublisher {
 
 			return $this->referenceOf(publication: $publication);
 		} catch (\Throwable $e) {
-			$this->logger->warning('Decidesk publication: OpenCatalogi publish failed', ['exception' => $e->getMessage()]);
+			$this->logger->warning('Decidiq publication: OpenCatalogi publish failed', ['exception' => $e->getMessage()]);
 			return '';
 		}//end try
 
@@ -171,7 +171,7 @@ class OpenCatalogiPublisher {
 			);
 			return true;
 		} catch (\Throwable $e) {
-			$this->logger->warning('Decidesk publication: OpenCatalogi retraction failed', ['exception' => $e->getMessage()]);
+			$this->logger->warning('Decidiq publication: OpenCatalogi retraction failed', ['exception' => $e->getMessage()]);
 			return false;
 		}
 
@@ -188,7 +188,7 @@ class OpenCatalogiPublisher {
 		try {
 			return $this->container->get('OCA\OpenRegister\Service\ObjectService');
 		} catch (\Throwable $e) {
-			$this->logger->warning('Decidesk publication: OpenCatalogi ObjectService unresolvable', ['exception' => $e->getMessage()]);
+			$this->logger->warning('Decidiq publication: OpenCatalogi ObjectService unresolvable', ['exception' => $e->getMessage()]);
 			return null;
 		}
 
