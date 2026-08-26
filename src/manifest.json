@@ -18,9 +18,9 @@
 				"trigger": "first-visit",
 				"minAppVersion": "0.3.5",
 				"steps": [
-					{ "id": "welcome", "sinceVersion": "0.3.5", "placement": "center", "title": "Welcome to Decidiq", "body": "Let's take a quick spin through decision-making — we'll schedule a meeting together so you can see how the pieces fit. You'll add the record yourself.", "target": { "kind": "page", "ref": "Dashboard" }, "advanceOn": { "type": "manual" } },
+					{ "id": "welcome", "sinceVersion": "0.3.5", "placement": "center", "title": "Welcome to Decidiq", "body": "Let's take a quick spin through decision-making. We'll schedule a meeting together so you can see how the pieces fit, and you'll add the record yourself.", "target": { "kind": "page", "ref": "Dashboard" }, "advanceOn": { "type": "manual" } },
 					{ "id": "go-meetings", "sinceVersion": "0.3.5", "placement": "right", "body": "Meetings are the heart of Decidiq. Open Meetings from the menu to see everything on the agenda.", "task": "Click Meetings in the menu", "target": { "kind": "nav-item", "ref": "Meetings" }, "advanceOn": { "type": "route-match", "route": "Meetings" } },
-					{ "id": "create-meeting", "sinceVersion": "0.3.5", "placement": "bottom", "allowManualNext": true, "body": "Schedule your first meeting — give it a title and a date, then save. You can add agenda items, motions and decisions later.", "task": "Click New and save a meeting", "target": { "kind": "element", "ref": "index-add" }, "advanceOn": { "type": "object-created", "register": "decidiq", "schema": "meeting", "capture": { "meetingId": ":id" } } },
+					{ "id": "create-meeting", "sinceVersion": "0.3.5", "placement": "bottom", "allowManualNext": true, "body": "Schedule your first meeting. Give it a title and a date, then save. You can add agenda items, motions and decisions later.", "task": "Click New and save a meeting", "target": { "kind": "element", "ref": "index-add" }, "advanceOn": { "type": "object-created", "register": "decidiq", "schema": "meeting", "capture": { "meetingId": ":id" } } },
 					{ "id": "done", "sinceVersion": "0.3.5", "placement": "center", "title": "Your first meeting is scheduled", "body": "Decisions, Tasks and Commitments, your Organisation and shared Registers are one click away in the menu. The documentation covers the rest.", "task": "Open the documentation to keep going", "target": { "kind": "nav-item", "ref": "Documentation" }, "advanceOn": { "type": "manual" } }
 				]
 			}
@@ -527,7 +527,7 @@
 			"config": {
 				"register": "decidiq",
 				"schema": "meeting",
-				"description": "External integrations linked to this meeting — the Action items board (Deck), Discussion (Talk), files and notes surface on the body; linked articles, tags and the audit trail remain in the sidebar.",
+				"description": "External integrations linked to this meeting. The Action items board (Deck), Discussion (Talk), files and notes appear on the page itself; linked articles, tags and the audit trail stay in the sidebar.",
 				"widgets": [
 					{ "id": "mi-deck", "type": "integration", "integrationId": "deck", "title": "Action items", "icon": "ClipboardList" },
 					{ "id": "mi-talk", "type": "integration", "integrationId": "talk", "title": "Discussion", "icon": "MessageTextOutline" },
@@ -558,7 +558,7 @@
 			"config": {
 				"register": "decidiq",
 				"schema": "decision",
-				"description": "External integrations linked to this decision dossier — linked Emails, the Action items board (Deck) and files surface on the body; notes, tags and the audit trail remain in the sidebar.",
+				"description": "External integrations linked to this decision dossier. Linked emails, the Action items board (Deck) and files appear on the page itself; notes, tags and the audit trail stay in the sidebar.",
 				"widgets": [
 					{ "id": "di-email", "type": "integration", "integrationId": "email", "title": "Emails", "icon": "Email" },
 					{ "id": "di-deck", "type": "integration", "integrationId": "deck", "title": "Action items", "icon": "ClipboardList" },
@@ -587,7 +587,7 @@
 			"config": {
 				"register": "decidiq",
 				"schema": "agenda-item",
-				"description": "External integrations linked to this agenda item — linked Emails, files and tasks surface on the body; notes, tags and the audit trail remain in the sidebar.",
+				"description": "External integrations linked to this agenda item. Linked emails, files and tasks appear on the page itself; notes, tags and the audit trail stay in the sidebar.",
 				"widgets": [
 					{ "id": "ai-email", "type": "integration", "integrationId": "email", "title": "Emails", "icon": "Email" },
 					{ "id": "ai-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
@@ -835,7 +835,7 @@
 			"config": {
 				"register": "decidiq",
 				"schema": "decision",
-				"description": "External integrations linked to this motion — open the sidebar for Discussion (Talk), files, notes, tags, tasks and the audit trail.",
+				"description": "External integrations linked to this motion. Open the sidebar for Discussion (Talk), files, notes, tags, tasks and the audit trail.",
 				"sidebar": {
 					"enabled": true,
 					"register": "decidiq",
