@@ -16,6 +16,7 @@
 		:countLabel="t('decidiq', 'decisions')"
 		:icon="GavelIcon"
 		:loading="loading"
+		:error="error"
 		:route="{ name: 'Decisions' }"
 		showZeroCount
 		horizontal

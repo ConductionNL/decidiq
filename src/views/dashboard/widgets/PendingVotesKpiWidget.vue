@@ -19,6 +19,7 @@
 		:icon="VoteOutline"
 		:variant="variant"
 		:loading="loading"
+		:error="error"
 		:route="{ name: 'Decisions' }"
 		showZeroCount
 		horizontal
