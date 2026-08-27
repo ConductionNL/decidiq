@@ -16,6 +16,7 @@
 		:countLabel="t('decidiq', 'meetings')"
 		:icon="CalendarClockOutline"
 		:loading="loading"
+		:error="error"
 		:route="{ name: 'Meetings' }"
 		showZeroCount
 		horizontal
