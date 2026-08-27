@@ -8,7 +8,7 @@
  * window not-yet-elapsed case, and the not-yet-approved case.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\BackgroundJob
+ * @package  OCA\Decidiq\Tests\Unit\BackgroundJob
  *
  * @spec openspec/changes/meeting-transcription-ai-minutes/tasks.md#task-5.1
  *
@@ -21,9 +21,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\BackgroundJob;
+namespace OCA\Decidiq\Tests\Unit\BackgroundJob;
 
-use OCA\Decidesk\BackgroundJob\TranscriptRetentionJob;
+use OCA\Decidiq\BackgroundJob\TranscriptRetentionJob;
 use OCP\AppFramework\Utility\ITimeFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -221,7 +221,7 @@ class TranscriptRetentionJobTest extends TestCase {
 				return match ($id) {
 					'OCA\OpenRegister\Service\ObjectService' => $objectService,
 					'OCA\OpenRegister\Service\FileService' => $fileService,
-					\OCA\Decidesk\Service\AuditLogService::class => $audit,
+					\OCA\Decidiq\Service\AuditLogService::class => $audit,
 					default => throw new \RuntimeException('unexpected ' . $id),
 				};
 			}

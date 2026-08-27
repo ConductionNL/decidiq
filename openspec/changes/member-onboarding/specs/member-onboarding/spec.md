@@ -1,7 +1,7 @@
 # member-onboarding Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - member-onboarding
 
@@ -198,5 +198,5 @@ The system SHALL provide Onboarding and Offboarding index pages and traject deta
 
 ## Notes
 
-- Reference-only boundaries: nevenfuncties register = `interests-and-integrity`; Fractie/FractieLidmaatschap = `fractievoorzitter-fractie-koppeling`; annotation export = `document-annotations`; Member Import = `admin-settings`. Steps targeting an absent capability render as informational links and stay completable (the work happens outside decidesk until the sibling lands).
+- Reference-only boundaries: nevenfuncties register = `interests-and-integrity`; Fractie/FractieLidmaatschap = `fractievoorzitter-fractie-koppeling`; annotation export = `document-annotations`; Member Import = `admin-settings`. Steps targeting an absent capability render as informational links and stay completable (the work happens outside decidiq until the sibling lands).
 - Related ADRs: ADR-031 (declarative dialects), ADR-037 (register/manifest fragments), ADR-016 (seed data), ADR-005 (i18n).

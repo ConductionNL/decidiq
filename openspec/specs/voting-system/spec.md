@@ -1,6 +1,6 @@
 ---
 status: done
-status-note: 2026-06-12 voting-rules-v1 — closed the five audit gaps. qualified-majority thresholds (simple/2-3/3-4/unanimous via additive voteThreshold), abstention handling (exclude|count), configurable tie-breaking (rejected|chair-decides with chair-only casting vote|revote-once via revoteOfRound), per-member proxy limits (decidesk/max_proxies_per_holder app config, default 2, fail closed) and castAs attendance-mode stamping (replacing remote-session verification theater with honest recording, per the modified Remote Voting requirement). All 5 requirements built; covered by PHPUnit (tally matrix, proxy cap, castAs), vitest (votingRules.js), Playwright (rule selectors + active-rules display) and Newman (decidesk-voting-rules collection — authored against this branch; runs green once the branch is the deployed instance). In progress 2026-06-14 via decision-methods (VotingRound retargeted motion→DecisionStage; a VotingRound now resolves a method=vote DecisionStage and the stage outcome derives from VotingRound.result; vote sub-variants stay on VotingRound.isSecret/votingMethod).
+status-note: 2026-06-12 voting-rules-v1 — closed the five audit gaps. qualified-majority thresholds (simple/2-3/3-4/unanimous via additive voteThreshold), abstention handling (exclude|count), configurable tie-breaking (rejected|chair-decides with chair-only casting vote|revote-once via revoteOfRound), per-member proxy limits (decidiq/max_proxies_per_holder app config, default 2, fail closed) and castAs attendance-mode stamping (replacing remote-session verification theater with honest recording, per the modified Remote Voting requirement). All 5 requirements built; covered by PHPUnit (tally matrix, proxy cap, castAs), vitest (votingRules.js), Playwright (rule selectors + active-rules display) and Newman (decidiq-voting-rules collection — authored against this branch; runs green once the branch is the deployed instance). In progress 2026-06-14 via decision-methods (VotingRound retargeted motion→DecisionStage; a VotingRound now resolves a method=vote DecisionStage and the stage outcome derives from VotingRound.result; vote sub-variants stay on VotingRound.isSecret/votingMethod).
 openspec-changes:
   - decision-methods
 ---
@@ -10,7 +10,7 @@ openspec-changes:
 ## Purpose
 @e2e exclude All voting scenarios require a live meeting in-progress with active voting rounds, quorum calculations, and multi-user ballot state that cannot be deterministically set up via pure UI interactions. The VotingRoundPanel component exists but its scenarios are integration-level (vote casting, real-time tallying, secret ballot, proxy enforcement) requiring backend state that must be tested at the PHP/WebSocket layer.
 
-The voting system is Decidesk's most critical feature. It supports multiple voting methods (open vote, secret ballot, roll call, weighted voting), real-time ballot casting and result calculation, quorum-aware majority thresholds, proxy vote handling, and configurable voting rules per governing body. The system ensures legally compliant voting for associations (ALV), corporate boards (BV/NV), and government councils.
+The voting system is Decidiq's most critical feature. It supports multiple voting methods (open vote, secret ballot, roll call, weighted voting), real-time ballot casting and result calculation, quorum-aware majority thresholds, proxy vote handling, and configurable voting rules per governing body. The system ensures legally compliant voting for associations (ALV), corporate boards (BV/NV), and government councils.
 
 **Standards**: Schema.org (`VoteAction`, `ChooseAction`), Akoma Ntoso (`voting`, `count`), OpenRaadsinformatie (`Stemming`, `Stem`)
 **Feature tier**: MVP
@@ -184,7 +184,7 @@ The system MUST support digital proxy voting (volmacht) where a member
 authorizes another member to vote on their behalf. Proxy votes MUST be
 verifiable and count toward both quorum and voting. The system MUST enforce a
 maximum number of ACTIVE proxies a single member may hold per meeting,
-configurable via app config `decidesk`/`max_proxies_per_holder` (NL governance
+configurable via app config `decidiq`/`max_proxies_per_holder` (NL governance
 default: 2). The cap MUST fail closed: when existing proxies cannot be counted,
 registration MUST be rejected.
 

@@ -209,7 +209,7 @@
             "title": "CVDR identifier",
             "type": "string",
             "facetable": true,
-            "description": "The CVDR (Centrale Voorziening Decentrale Regelgeving) identifier assigned by the national register after first publication. Stored, never minted by decidesk — captured manually or from the DROP delivery acknowledgement (REQ-VOR-001/006). Optional (absent until first publication).",
+            "description": "The CVDR (Centrale Voorziening Decentrale Regelgeving) identifier assigned by the national register after first publication. Stored, never minted by Decidiq — captured manually or from the DROP delivery acknowledgement (REQ-VOR-001/006). Optional (absent until first publication).",
             "example": "CVDR641871"
           },
           "currentVersionNumber": {
@@ -429,7 +429,7 @@
         "icon": "PackageVariantClosed",
         "version": "0.1.0",
         "title": "RegelingExportPackage",
-        "description": "A DROP/STOP-TPOD publication package for one or more sealed regeling-versies (REQ-VOR-006). Schema.org DigitalDocument. It bundles STOP/TPOD-structured XML plus the consolidated-text documents and carries a declarative build/deliver lifecycle. DECLARATIVE CORE: this fragment ships only the schema, its lifecycle, and one seed package in state ready to demonstrate the honest-degradation download path. The IMPERATIVE slice is deferred — the STOP/TPOD XML build + structural validation (document-generation exception) and delivery through an OpenConnector Source resolved lazily by slug (external-integration exception, drop-bekendmakingen convention) live in RegelingExportService (+ LogRegelingExportService fallback). When OpenConnector or the Source is absent the package stays ready and is downloadable for manual DROP submission; decidesk never talks to DROP/officielebekendmakingen.nl directly. On acknowledged delivery the package stores the remote reference and staff record the returned CVDR identifier onto the Regeling.",
+        "description": "A DROP/STOP-TPOD publication package for one or more sealed regeling-versies (REQ-VOR-006). Schema.org DigitalDocument. It bundles STOP/TPOD-structured XML plus the consolidated-text documents and carries a declarative build/deliver lifecycle. DECLARATIVE CORE: this fragment ships only the schema, its lifecycle, and one seed package in state ready to demonstrate the honest-degradation download path. The IMPERATIVE slice is deferred — the STOP/TPOD XML build + structural validation (document-generation exception) and delivery through an OpenConnector Source resolved lazily by slug (external-integration exception, drop-bekendmakingen convention) live in RegelingExportService (+ LogRegelingExportService fallback). When OpenConnector or the Source is absent the package stays ready and is downloadable for manual DROP submission; Decidiq never talks to DROP/officielebekendmakingen.nl directly. On acknowledged delivery the package stores the remote reference and staff record the returned CVDR identifier onto the Regeling.",
         "type": "object",
         "x-schema-org": "schema:DigitalDocument",
         "x-openregister": {

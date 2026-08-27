@@ -20,7 +20,7 @@ By the end you will have a minutes document for the meeting that has moved from 
 
 ## Steps
 
-1. Open the meeting and go to **Minutes** in the navigation, then create a minutes record for the meeting — or use **Generate draft** to have Decidesk assemble a first draft from the meeting record (agenda items, motions, voting results, decisions).
+1. Open the meeting and go to **Minutes** in the navigation, then create a minutes record for the meeting — or use **Generate draft** to have Decidiq assemble a first draft from the meeting record (agenda items, motions, voting results, decisions).
 
    ![Generate a minutes draft](/screenshots/tutorials/user/06-take-minutes-01.png)
 
@@ -36,7 +36,7 @@ By the end you will have a minutes document for the meeting that has moved from 
 
    ![Approved and published minutes](/screenshots/tutorials/user/06-take-minutes-04.png)
 
-5. **Extract action items** from the minutes — Decidesk pulls out the "X to do Y by Z" lines so they become tracked action items (see [Track decisions and action items](07-track-decisions.md)). For a general assembly (ALV), generate the ALV-format minutes and **distribute** them to members.
+5. **Extract action items** from the minutes — Decidiq pulls out the "X to do Y by Z" lines so they become tracked action items (see [Track decisions and action items](07-track-decisions.md)). For a general assembly (ALV), generate the ALV-format minutes and **distribute** them to members.
 
    ![Action items extracted from the minutes](/screenshots/tutorials/user/06-take-minutes-05.png)
 

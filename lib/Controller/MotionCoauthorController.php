@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Motion Coauthor Controller
+ * Decidiq Motion Coauthor Controller
  *
  * REST controller for motion co-authoring (add/remove coauthor, update text
  * with version capture, get history).
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,10 +24,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\MotionCoauthorService;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\MotionCoauthorService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;

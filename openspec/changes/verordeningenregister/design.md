@@ -2,12 +2,12 @@
 
 ## Architecture Overview
 
-Thin-client per ADR-022: three new OpenRegister schemas (`regeling`, `regeling-versie`, `regeling-export-package`) live in the ADR-037 register fragment `lib/Settings/register.d/53-verordeningenregister.json` (number 53 is assigned to this change; 40–52 and 54–65 belong to siblings). The frontend queries OR directly through the shared object stores; decidesk's backend adds only two narrow services plus a small controller surface:
+Thin-client per ADR-022: three new OpenRegister schemas (`regeling`, `regeling-versie`, `regeling-export-package`) live in the ADR-037 register fragment `lib/Settings/register.d/53-verordeningenregister.json` (number 53 is assigned to this change; 40–52 and 54–65 belong to siblings). The frontend queries OR directly through the shared object stores; decidiq's backend adds only two narrow services plus a small controller surface:
 
 - **RegelingConsolidationService** — pure read-side computation: "which RegelingVersie of Regeling R is in force on date X" (REQ-VOR-004), plus the activation-ordering guard used before sealing a version. Exposed as a service method (callable by other capabilities, e.g. commissievergaderingen's future REQ-CVG-013 wiring) and via one GET endpoint for the UI date picker.
 - **RegelingExportService** (+ `LogRegelingExportService` fallback) — builds the STOP/TPOD export package (imperative document-generation exception) and delivers it through an OpenConnector Source resolved lazily by slug (external-integration exception), mirroring `TransferPackageService`/`ArchiveConnectorService` from records-management-archiving and the `EIDASSignatureService`/`LogEIDASSignatureService` pair.
 
-Versioning model follows Akoma Ntoso FRBR: `Regeling` is the work, `RegelingVersie` the expression. Every expression traces to the Decision (wijzigingsbesluit) that enacted it — reusing the existing Decision supertype (decision-management) and sitting naturally next to decision-evolution-and-cascade's relation links. The consolidated text is an attached document via OR's file abstraction (as Meeting attachments already do), not text authored in decidesk.
+Versioning model follows Akoma Ntoso FRBR: `Regeling` is the work, `RegelingVersie` the expression. Every expression traces to the Decision (wijzigingsbesluit) that enacted it — reusing the existing Decision supertype (decision-management) and sitting naturally next to decision-evolution-and-cascade's relation links. The consolidated text is an attached document via OR's file abstraction (as Meeting attachments already do), not text authored in decidiq.
 
 The public page reuses public-publication's conventions: server-side eligibility (only `in-werking` regelingen with sealed current versions), exposure through OR's published-predicate RBAC surface, anonymous access to the derived listing and consolidated-text downloads.
 
@@ -33,7 +33,7 @@ Default is declarative via `x-openregister-{lifecycle,relations,notifications,ca
 - **Corrections are new versions, never edits.** A rectificatie is legally a new decision producing a new expression; modelling it as an edit would break both the audit chain and every external immutable reference. *Alternative considered:* admin-only unseal — rejected, destroys the REQ-CVG-013 guarantee.
 - **In-force ordering enforced at activation** (a new version's inwerkingtreding must be after the latest sealed one), so resolution is a simple deterministic max-≤-date scan. *Alternative:* allow overlaps and resolve with tie-break rules — rejected, retroactive regulation is the rare exception and is handled as a rectification chain, not silent overlap.
 - **Consolidated text = attached document** (PDF/ODT via OR file abstraction), not structured text. STOP/TPOD XML wraps metadata + the text artefact. *Alternative:* Akoma Ntoso structured authoring — out of scope (no drafting UI); the existing amendment-diff machinery stays for proposal texts.
-- **decidesk never talks to DROP directly.** The export package is handed to an OpenConnector Source (`drop-bekendmakingen` slug convention, configurable); absence degrades to a downloadable package for manual DROP submission with a truthful UI notice. Mirrors records-management-archiving REQ-RMA-005 exactly.
+- **decidiq never talks to DROP directly.** The export package is handed to an OpenConnector Source (`drop-bekendmakingen` slug convention, configurable); absence degrades to a downloadable package for manual DROP submission with a truthful UI notice. Mirrors records-management-archiving REQ-RMA-005 exactly.
 - **CVDR identifier is stored, never minted** — captured on the Regeling after the national register assigns it (manually or from the delivery acknowledgement when the Source returns it).
 
 ## API Design
@@ -54,7 +54,7 @@ All CRUD on regelingen/versies goes directly to OR's object API from the fronten
 
 ## Database Changes
 
-None. Decidesk owns no tables (ADR-022); all storage is OR objects plus OR-managed file attachments.
+None. Decidiq owns no tables (ADR-022); all storage is OR objects plus OR-managed file attachments.
 
 ## Nextcloud Integration
 

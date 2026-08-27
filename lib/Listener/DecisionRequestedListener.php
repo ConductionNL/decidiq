@@ -1,18 +1,18 @@
 <?php
 
 /**
- * Decidesk DecisionRequestedListener
+ * Decidiq DecisionRequestedListener
  *
  * Maps an inbound cross-app DecisionRequestedEvent to the existing
  * DecisionIntegrationService::createDecision() create logic (idempotent,
  * provenance-persisting). The in-process replacement for the broken
  * IntegrationService::getLeaf HTTP delegation path: any installed consumer app
- * dispatches DecisionRequestedEvent and decidesk raises the Decision here,
+ * dispatches DecisionRequestedEvent and Decidiq raises the Decision here,
  * writing the resolved decisionId back onto the event for the synchronous
  * producer.
  *
  * @category Listener
- * @package  OCA\Decidesk\Listener
+ * @package  OCA\Decidiq\Listener
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -28,10 +28,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Listener;
+namespace OCA\Decidiq\Listener;
 
-use OCA\Decidesk\Event\DecisionRequestedEvent;
-use OCA\Decidesk\Service\DecisionIntegrationService;
+use OCA\Decidiq\Event\DecisionRequestedEvent;
+use OCA\Decidiq\Service\DecisionIntegrationService;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -101,7 +101,7 @@ class DecisionRequestedListener implements IEventListener {
 
 				$event->setHandled(true);
 				$this->logger->info(
-					'Decidesk: handled DecisionRequestedEvent',
+					'Decidiq: handled DecisionRequestedEvent',
 					[
 						'sourceApp' => $event->getSourceApp(),
 						'subjectId' => $event->getSubjectId(),
@@ -115,7 +115,7 @@ class DecisionRequestedListener implements IEventListener {
 			// Non-success service result: leave the event unhandled (the producer
 			// sees isHandled() === false) and log the reason. Never throw.
 			$this->logger->warning(
-				'Decidesk: DecisionRequestedEvent not handled',
+				'Decidiq: DecisionRequestedEvent not handled',
 				[
 					'sourceApp' => $event->getSourceApp(),
 					'subjectId' => $event->getSubjectId(),
@@ -123,10 +123,10 @@ class DecisionRequestedListener implements IEventListener {
 				]
 			);
 		} catch (\Throwable $e) {
-			// The event bus must never surface a decidesk failure as an exception
+			// The event bus must never surface a Decidiq failure as an exception
 			// to the dispatching consumer; log and leave unhandled.
 			$this->logger->error(
-				'Decidesk: DecisionRequestedListener failed',
+				'Decidiq: DecisionRequestedListener failed',
 				[
 					'sourceApp' => $event->getSourceApp(),
 					'subjectId' => $event->getSubjectId(),

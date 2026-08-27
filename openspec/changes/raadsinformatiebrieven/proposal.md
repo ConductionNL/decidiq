@@ -7,17 +7,17 @@ depends_on: [toezeggingen-ingekomen-stukken]
 
 ## Summary
 
-Add a **raadsinformatiebrieven register** (RIB / collegebrieven) to decidesk: the college's formal outbound information letters to the council — a classic raadsinformatiesysteem artifact that is explicitly distinct from ingekomen stukken (inbound external mail). A `Raadsinformatiebrief` schema (number `RIB-{jaar}-{volgnummer}`, onderwerp, portefeuillehouder, configurable category, sent date, letter document + bijlagen, links to dossier/decision/motie and — crucially — an optional toezegging-afdoening link) ships as a `lib/Settings/register.d/51-raadsinformatiebrieven.json` fragment with a declarative lifecycle `verzonden → geagendeerd → betrokken-bij-behandeling`. A companion `TechnischeVraag` schema carries the short Q&A thread per RIB (question by a council member/fractie, answer by the organisation) that griffies run alongside RIBs, explicitly bounded away from formal art. 33 schriftelijke vragen. RIBs and answered technische vragen publish via the existing OR published-predicate machinery, WOO-aware; list/detail pages follow manifest conventions; council members get a declarative notification on every new RIB.
+Add a **raadsinformatiebrieven register** (RIB / collegebrieven) to decidiq: the college's formal outbound information letters to the council — a classic raadsinformatiesysteem artifact that is explicitly distinct from ingekomen stukken (inbound external mail). A `Raadsinformatiebrief` schema (number `RIB-{jaar}-{volgnummer}`, onderwerp, portefeuillehouder, configurable category, sent date, letter document + bijlagen, links to dossier/decision/motie and — crucially — an optional toezegging-afdoening link) ships as a `lib/Settings/register.d/51-raadsinformatiebrieven.json` fragment with a declarative lifecycle `verzonden → geagendeerd → betrokken-bij-behandeling`. A companion `TechnischeVraag` schema carries the short Q&A thread per RIB (question by a council member/fractie, answer by the organisation) that griffies run alongside RIBs, explicitly bounded away from formal art. 33 schriftelijke vragen. RIBs and answered technische vragen publish via the existing OR published-predicate machinery, WOO-aware; list/detail pages follow manifest conventions; council members get a declarative notification on every new RIB.
 
 ## Motivation
 
 Novelty verified against the worktree (2026-07-17): `collegebrief` appears only as an example attachment string in the motie change (`UitvoeringsUpdate.attachments`), and `raadsinformatiebrief` only as an expected-type *string* on the termijnagenda — there is no RIB register anywhere. The ingekomen-stukken register (`toezeggingen-ingekomen-stukken`) models **inbound** mail: its `category: collegestuk` could file a *received* college document, but it has none of the RIB semantics (college-issued numbering, portefeuillehouder, toezegging-afdoening, technische-vragen thread, ter-kennisname agendering). `technische vragen` has zero coverage anywhere in the repo.
 
-In Dutch municipal practice the RIB is the college's primary instrument for its actieve informatieplicht (Gemeentewet art. 169): every RIS (iBabs, GO, NotuBiz) ships a RIB list with per-brief technische vragen. A griffie that cannot register, agender, publish, and question RIBs in decidesk keeps a parallel system — and the toezeggingenlijst stays incomplete, because a large share of toezeggingen are afgedaan *by* a RIB ("u ontvangt vóór 1 maart een raadsbrief").
+In Dutch municipal practice the RIB is the college's primary instrument for its actieve informatieplicht (Gemeentewet art. 169): every RIS (iBabs, GO, NotuBiz) ships a RIB list with per-brief technische vragen. A griffie that cannot register, agender, publish, and question RIBs in decidiq keeps a parallel system — and the toezeggingenlijst stays incomplete, because a large share of toezeggingen are afgedaan *by* a RIB ("u ontvangt vóór 1 maart een raadsbrief").
 
 ## Affected Projects
 
-- [ ] Project: `decidesk` — new `Raadsinformatiebrief` + `TechnischeVraag` schemas (register.d fragment 51), manifest pages + menu (manifest.d fragment), toezegging-afdoening evidence surfacing, declarative notification, publication predicates, seed data, docs, tests. One new capability spec: `raadsinformatiebrieven-register`.
+- [ ] Project: `decidiq` — new `Raadsinformatiebrief` + `TechnischeVraag` schemas (register.d fragment 51), manifest pages + menu (manifest.d fragment), toezegging-afdoening evidence surfacing, declarative notification, publication predicates, seed data, docs, tests. One new capability spec: `raadsinformatiebrieven-register`.
 
 No other apps change. OpenRegister is consumed as-is (lifecycle, notifications, RBAC published-predicate are existing capabilities).
 
@@ -36,7 +36,7 @@ No other apps change. OpenRegister is consumed as-is (lifecycle, notifications, 
 
 ### Out of Scope
 
-- College-internal drafting/parafering workflow for RIBs — procest domain; decidesk registers the *sent* letter.
+- College-internal drafting/parafering workflow for RIBs — procest domain; decidiq registers the *sent* letter.
 - Inbound mail — `ingekomen-stukken-register` (change `toezeggingen-ingekomen-stukken`) owns that; a RIB is never registered as an IngekomenStuk.
 - Formal art. 33 schriftelijke vragen (question deadlines, college answer workflow) — `SchriftelijkeVraag` in `changes/fractievoorzitter-fractie-koppeling`; escalating a technische vraag is a manual re-filing there.
 - Embargo/geheimhouding handling for confidential RIBs — a RIB simply stays unpublished; classified-material machinery is the `embargo-geheimhouding` change's concern.
@@ -49,7 +49,7 @@ Pure thin-client extension per ADR-022/ADR-037: two new schemas in `lib/Settings
 
 ## New Dependencies
 
-None. All capabilities used (lifecycle, notifications, published-predicate RBAC, Files leaf, ExportService, manifest-v2 pages) already exist in OpenRegister, nc-vue, and decidesk.
+None. All capabilities used (lifecycle, notifications, published-predicate RBAC, Files leaf, ExportService, manifest-v2 pages) already exist in OpenRegister, nc-vue, and decidiq.
 
 ## Impact
 
@@ -61,7 +61,7 @@ None. All capabilities used (lifecycle, notifications, published-predicate RBAC,
 
 ## Cross-Project Dependencies
 
-- `toezeggingen-ingekomen-stukken` (decidesk change, declared in `depends_on`): the `afgedaneToezegging` link and the "surface as afdoeningsBewijs, never duplicate the lifecycle" rule assume that change's `Toezegging` model, and the inbound/outbound boundary is defined against its `IngekomenStuk`. The runtime dependency is soft (`afgedaneToezegging` is nullable), but the spec text references its schemas, so it must land first or concurrently.
+- `toezeggingen-ingekomen-stukken` (decidiq change, declared in `depends_on`): the `afgedaneToezegging` link and the "surface as afdoeningsBewijs, never duplicate the lifecycle" rule assume that change's `Toezegging` model, and the inbound/outbound boundary is defined against its `IngekomenStuk`. The runtime dependency is soft (`afgedaneToezegging` is nullable), but the spec text references its schemas, so it must land first or concurrently.
 - `fractievoorzitter-fractie-koppeling` (referenced only): the technische-vragen boundary names its planned `SchriftelijkeVraag`; nothing here blocks on it landing.
 - OpenRegister: consumed, not changed.
 

@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Engagement Service
+ * Decidiq Engagement Service
  *
  * Stateless service handling EngagementRecord aggregation: speeches,
  * questions, topics suggested, and a derived engagement score per
  * participant per meeting.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,13 +25,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Service for capturing and querying participant engagement data.
@@ -109,13 +109,13 @@ class EngagementService {
 		$objectService = $this->getObjectService();
 		$saved = $objectService->saveObject(
 			object: $record,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'engagement-record',
 			uuid: ($existing['id'] ?? null),
 		);
 
 		$this->logger->info(
-			'Decidesk: Engagement captured',
+			'Decidiq: Engagement captured',
 			['meetingId' => $meetingId, 'participant' => $participant, 'eventType' => $eventType]
 		);
 
@@ -215,7 +215,7 @@ class EngagementService {
 	): ?array {
 		try {
 			$objectService = $this->getObjectService();
-			$objectService->setRegister('decidesk');
+			$objectService->setRegister('decidiq');
 			$objectService->setSchema('engagement-record');
 
 			// ObjectService::findAll() takes a single $config array — the
@@ -233,7 +233,7 @@ class EngagementService {
 			);
 		} catch (Throwable $e) {
 			$this->logger->debug(
-				'Decidesk: findEngagementForMeetingAndParticipant failed',
+				'Decidiq: findEngagementForMeetingAndParticipant failed',
 				['error' => $e->getMessage()]
 			);
 			return null;
@@ -264,7 +264,7 @@ class EngagementService {
 	public function findEngagementForMeeting(string $meetingId): array {
 		try {
 			$objectService = $this->getObjectService();
-			$objectService->setRegister('decidesk');
+			$objectService->setRegister('decidiq');
 			$objectService->setSchema('engagement-record');
 
 			// ObjectService::findAll() takes a single $config array — the
@@ -279,7 +279,7 @@ class EngagementService {
 			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: findEngagementForMeeting failed',
+				'Decidiq: findEngagementForMeeting failed',
 				['meetingId' => $meetingId, 'error' => $e->getMessage()]
 			);
 			return [];

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Conflict-of-Interest Service
+ * Decidiq Conflict-of-Interest Service
  *
  * Manages `conflict-of-interest` declarations: detection, declaration, action
  * recording, and lookup. Material declarations append a `conflict-declaration`
@@ -26,7 +26,7 @@
  * ran (same convention as `ProxyVoteService`).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -43,10 +43,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use Psr\Log\LoggerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Service for managing conflict-of-interest declarations and their effect on
@@ -224,7 +224,7 @@ class ConflictOfInterestService {
 			// (same convention as ProxyVoteService::register()).
 			$saved = $this->objectService->saveObject(
 				object: $row,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'conflict-of-interest',
 				_rbac: false
 			);
@@ -244,7 +244,7 @@ class ConflictOfInterestService {
 			}
 
 			$this->logger->info(
-				'Decidesk: conflict-of-interest declared',
+				'Decidiq: conflict-of-interest declared',
 				[
 					'membershipId' => $membershipId,
 					'agendaItemId' => $agendaItemId,
@@ -260,7 +260,7 @@ class ConflictOfInterestService {
 			];
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: failed to record conflict-of-interest declaration',
+				'Decidiq: failed to record conflict-of-interest declaration',
 				['exception' => $e->getMessage()]
 			);
 			return [
@@ -301,7 +301,7 @@ class ConflictOfInterestService {
 		try {
 			$entity = $this->objectService->find(
 				id: $declarationId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'conflict-of-interest'
 			);
 
@@ -334,7 +334,7 @@ class ConflictOfInterestService {
 			// chair/secretary-only rule; see the class docblock note on declare().
 			$saved = $this->objectService->saveObject(
 				object: $updated,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'conflict-of-interest',
 				uuid: $declarationId,
 				_rbac: false
@@ -351,7 +351,7 @@ class ConflictOfInterestService {
 			];
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: failed to update conflict action',
+				'Decidiq: failed to update conflict action',
 				['declarationId' => $declarationId, 'exception' => $e->getMessage()]
 			);
 			return [
@@ -415,11 +415,11 @@ class ConflictOfInterestService {
 			// 'register'/'schema' key (as this call previously used) is silently
 			// ignored, so findAll() ran with no register/schema context and
 			// returned nothing (same landmine documented on
-			// ProxyVoteService::forMeeting(), decidesk#443).
+			// ProxyVoteService::forMeeting(), decidiq#443).
 			$rows = $this->objectService->findAll(
 				[
 					'filters' => [
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => 'conflict-of-interest',
 						'boardMember' => $membershipId,
 						'agendaItem' => $agendaItemId,
@@ -429,7 +429,7 @@ class ConflictOfInterestService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: failed to query conflict declarations',
+				'Decidiq: failed to query conflict declarations',
 				['exception' => $e->getMessage()]
 			);
 			return [];

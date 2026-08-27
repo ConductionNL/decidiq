@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Decision Controller
+ * Decidiq Decision Controller
  *
  * Controller for Decision-specific operations such as server-side publication
  * enforcement (OWASP A01 — Broken Access Control).
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
  *
@@ -20,12 +20,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\DecisionLifecycleService;
-use OCA\Decidesk\Service\DecisionPublicationService;
-use OCA\Decidesk\Settings\AdminSettings;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\DecisionLifecycleService;
+use OCA\Decidiq\Service\DecisionPublicationService;
+use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -151,7 +151,7 @@ class DecisionController extends Controller {
 	 * OpenRegister's ObjectService with `_rbac` and `_multitenancy` left at
 	 * their defaults (both true), so this endpoint is exactly at parity with
 	 * what the same caller can already GET from OpenRegister's own object API
-	 * (`/apps/openregister/api/objects/decidesk/decision/{id}`) — which is the
+	 * (`/apps/openregister/api/objects/decidiq/decision/{id}`) — which is the
 	 * route the frontend itself uses under ADR-022. It discloses strictly less
 	 * than that call: lifecycle state, domain, and the available action names.
 	 *
@@ -178,7 +178,7 @@ class DecisionController extends Controller {
 	 *   already read directly from OpenRegister's object API for the same UUID,
 	 *   under the same RBAC and multitenancy scoping (defaults, both true). A
 	 *   per-object guard added HERE would refuse nothing that is not already
-	 *   served by /apps/openregister/api/objects/decidesk/decision/{id}, so it
+	 *   served by /apps/openregister/api/objects/decidiq/decision/{id}, so it
 	 *   would be a guard that cannot say no. The real control is a schema-level
 	 *   `authorization` block on `Decision`; see the CORRECTION above.
 	 *

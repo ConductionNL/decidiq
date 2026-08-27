@@ -7,7 +7,7 @@
  * computed quorumMet field from the Meeting schema.
  *
  * @category Lifecycle
- * @package  OCA\Decidesk\Lifecycle
+ * @package  OCA\Decidiq\Lifecycle
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,7 +23,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Lifecycle;
+namespace OCA\Decidiq\Lifecycle;
 
 /**
  * Guard for meeting lifecycle transitions.

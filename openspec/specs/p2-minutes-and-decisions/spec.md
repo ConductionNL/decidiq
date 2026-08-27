@@ -382,7 +382,7 @@ The `initializeStores()` function in `src/store/store.js` SHALL register Pinia o
 **Replaces:** REQ-AF-001 from p1-crud-operations (originally registered Meeting and GovernanceBody stores only)
 
 #### Scenario: Stores initialized on app boot
-- **GIVEN** the Decidesk app boots and settings are fetched
+- **GIVEN** the Decidiq app boots and settings are fetched
 - **WHEN** `initializeStores()` runs
 - **THEN** Pinia stores for `minutes`, `decision`, and `actionItem` are registered with correct register/schema slugs from settings
 

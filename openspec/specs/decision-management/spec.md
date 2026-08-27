@@ -15,7 +15,7 @@ openspec-changes:
 
 ## Purpose
 
-Decision management is the core capability of Decidesk. A decision represents a formal choice made by a governance body, association, corporate board, or operational team. Each decision follows a configurable state machine lifecycle from proposal through deliberation, voting, and resolution. This specification covers the decision entity, status transitions, the Symfony Workflow-backed state machine, and audit trail recording.
+Decision management is the core capability of Decidiq. A decision represents a formal choice made by a governance body, association, corporate board, or operational team. Each decision follows a configurable state machine lifecycle from proposal through deliberation, voting, and resolution. This specification covers the decision entity, status transitions, the Symfony Workflow-backed state machine, and audit trail recording.
 
 **Standards**: Schema.org (`Action`, `VoteAction`, `ChooseAction`), Akoma Ntoso (`decision`, `judgment`), OpenRaadsinformatie (`Besluit`)
 **Feature tier**: MVP
@@ -62,7 +62,7 @@ The system MUST support creating decision records linked to a meeting, agenda it
 
 ### Requirement: Decision State Machine
 
-The system MUST enforce a configurable state machine for decision lifecycle management, implemented as a guarded transition map (`DecisionTransitionGuard` in `lib/Lifecycle/` — the decidesk lifecycle pattern, no workflow-library dependency). The lifecycle MUST be stored in an additive `lifecycle` field on the `Decision` schema and MUST include the states `draft`, `proposed`, `deliberating`, `voting`, `decided`, `enacted`, `archived`. Only valid transitions MUST be allowed; an invalid transition MUST be rejected with an error naming the allowed transitions from the current state. Transition policy MUST be configurable per governance domain (quorum enforcement, chair-only transitions, decide-without-vote for operational domains) with a default-deny fallback for unknown domains. Entering `voting` in a quorum-enforced domain with a linked meeting MUST be blocked while the meeting's quorum is not met. Chair-only transitions MUST be rejected when the caller is not the resolved meeting chair, and MUST fail closed when no chair can be resolved. The `enact` transition MUST require `outcome=adopted` and MUST record the enacted date. Every transition MUST be appended to the hash-chained audit log with actor and timestamp.
+The system MUST enforce a configurable state machine for decision lifecycle management, implemented as a guarded transition map (`DecisionTransitionGuard` in `lib/Lifecycle/` — the decidiq lifecycle pattern, no workflow-library dependency). The lifecycle MUST be stored in an additive `lifecycle` field on the `Decision` schema and MUST include the states `draft`, `proposed`, `deliberating`, `voting`, `decided`, `enacted`, `archived`. Only valid transitions MUST be allowed; an invalid transition MUST be rejected with an error naming the allowed transitions from the current state. Transition policy MUST be configurable per governance domain (quorum enforcement, chair-only transitions, decide-without-vote for operational domains) with a default-deny fallback for unknown domains. Entering `voting` in a quorum-enforced domain with a linked meeting MUST be blocked while the meeting's quorum is not met. Chair-only transitions MUST be rejected when the caller is not the resolved meeting chair, and MUST fail closed when no chair can be resolved. The `enact` transition MUST require `outcome=adopted` and MUST record the enacted date. Every transition MUST be appended to the hash-chained audit log with actor and timestamp.
 
 **Feature tier**: MVP
 **Legal reference**: Awb 3:40-3:45 (formal decision requirements), Gemeentewet 56 (council decision procedures)
@@ -321,7 +321,7 @@ A `decisionType = contract` decision SHALL be able to carry `offer`, `order`, an
 #### Scenario: Procurement schemas are not orphaned nav items
 
 @e2e exclude navigation-structure invariant — verified by manifest/nav assertion, not a distinct UI flow
-- **GIVEN** the decidesk navigation
+- **GIVEN** the decidiq navigation
 - **WHEN** the nav is rendered
 - **THEN** `offer`, `order`, and `product` do not appear as standalone top-level stores; they are reached through contract decisions
 

@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Amendment Order Service
+ * Decidiq Amendment Order Service
  *
  * The parliamentary amendment-before-motion ordering rules (fail closed) and
  * the relation walks those rules share: an amendment's parent motion and the
  * meeting a voting round ultimately belongs to.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,10 +23,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use RuntimeException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use RuntimeException;
 
 /**
  * Ordering rules and subject resolution for amendment voting.
@@ -170,7 +170,7 @@ class AmendmentOrderService {
 	private function assertAmendmentIsNext(string $amendmentId): void {
 		// ADR-005: amendments are `decision` objects; `decisionType` carries the
 		// identity the retired `amendment` schema used to carry.
-		$amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidesk', schema: 'decision');
+		$amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidiq', schema: 'decision');
 		$amendment = ($amendmentEntity?->jsonSerialize() ?? []);
 
 		// A missing object and a decision of the wrong type are the same answer:
@@ -337,7 +337,7 @@ class AmendmentOrderService {
 			return null;
 		}
 
-		$motionEntity = $this->objectService()->find(id: $motionId, register: 'decidesk', schema: 'decision');
+		$motionEntity = $this->objectService()->find(id: $motionId, register: 'decidiq', schema: 'decision');
 		if ($motionEntity === null) {
 			return null;
 		}
@@ -384,7 +384,7 @@ class AmendmentOrderService {
 			return null;
 		}
 
-		$amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidesk', schema: 'decision');
+		$amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidiq', schema: 'decision');
 		if ($amendmentEntity === null) {
 			return null;
 		}

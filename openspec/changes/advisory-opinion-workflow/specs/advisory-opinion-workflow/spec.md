@@ -1,7 +1,7 @@
 # advisory-opinion-workflow Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - [advisory-opinion-workflow](../../changes/advisory-opinion-workflow/)
 
@@ -27,7 +27,7 @@ The system SHALL define an `Adviesaanvraag` schema (slug `adviesaanvraag`) in th
 
 #### Scenario: Register fragment is additive
 
-- GIVEN a decidesk installation upgrading to this change
+- GIVEN a decidiq installation upgrading to this change
 - WHEN the register configuration is loaded
 - THEN the Adviesaanvraag and Advies schemas are registered from the `60-advisory-opinion-workflow.json` fragment
 - AND no existing schema is modified by the fragment

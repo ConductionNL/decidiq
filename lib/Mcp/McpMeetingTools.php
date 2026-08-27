@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk MCP Meeting Tools
+ * Decidiq MCP Meeting Tools
  *
  * Implements the three meeting MCP tools — decidesk.listRecentMeetings,
  * decidesk.getMeetingDetails and decidesk.startMeeting — behind the
- * DecideskToolProvider dispatcher.
+ * DecidiqToolProvider dispatcher.
  *
  * @category Mcp
- * @package  OCA\Decidesk\Mcp
+ * @package  OCA\Decidiq\Mcp
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,20 +25,20 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Mcp;
+namespace OCA\Decidiq\Mcp;
 
-use OCA\Decidesk\Service\MeetingService;
-use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidiq\Service\MeetingService;
+use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
- * The meeting half of the decidesk MCP tool catalogue.
+ * The meeting half of the Decidiq MCP tool catalogue.
  *
- * Extracted from DecideskToolProvider (which now only dispatches) so that the
+ * Extracted from DecidiqToolProvider (which now only dispatches) so that the
  * three handlers and their supporting logic form a class of their own rather
  * than 400 lines inside a 1200-line provider.
  *
@@ -129,7 +129,7 @@ class McpMeetingTools {
 			return $this->collectRecentMeetings(limit: $limit, statusFilter: (string)$statusFilter);
 		} catch (Throwable $e) {
 			$this->logger->error(
-				'Decidesk MCP: listRecentMeetings failed',
+				'Decidiq MCP: listRecentMeetings failed',
 				['exception' => $e->getMessage()]
 			);
 			return $this->formatter->error(
@@ -167,7 +167,7 @@ class McpMeetingTools {
 			);
 		} catch (Throwable $e) {
 			$this->logger->error(
-				'Decidesk MCP: getMeetingDetails failed',
+				'Decidiq MCP: getMeetingDetails failed',
 				['meetingUuid' => $resolved['uuid'], 'exception' => $e->getMessage()]
 			);
 			return $this->formatter->error(
@@ -249,7 +249,7 @@ class McpMeetingTools {
 	 */
 	private function collectRecentMeetings(int $limit, string $statusFilter): array {
 		$filters = [
-			'register' => 'decidesk',
+			'register' => 'decidiq',
 			'schema' => 'meeting',
 			'_limit' => $limit,
 			'_order' => ['scheduledDate' => 'DESC'],
@@ -379,7 +379,7 @@ class McpMeetingTools {
 		$raws = $objectService->findAll(
 			[
 				'filters' => [
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => $schema,
 					'_relations.meeting' => $meetingUuid,
 				],

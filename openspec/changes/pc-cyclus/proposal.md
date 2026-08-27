@@ -6,15 +6,15 @@ kind: code
 
 ## Summary
 
-Add the **Planning & Control cyclus** to decidesk: the recurring annual decision/document cycle every governance body runs — municipal kadernota → programmabegroting → bestuursrapportage(s) → jaarrekening, and the association/corporate analogue jaarplan → begroting → tussenrapportage → jaarstukken + decharge. A `PCCyclus` (one body, one year, one template) generates `CyclusStap` objects from a configurable `CyclusTemplate` (municipal + association built-ins shipped as seeds, following the process-configuration built-in-template pattern). Each step carries an aanlever-deadline, a technische-vragen window, behandeling targets (commissie and/or raad/ALV), a declarative status lifecycle, document slots, and links to the actual AgendaItem/Decision once scheduled. Declarative rappels fire when aanlevering is late or behandeling approaches unscheduled; a year-view timeline per body plus a dashboard KPI (steps past deadline) give the griffie/bestuur oversight; next-year generation shifts all dates forward.
+Add the **Planning & Control cyclus** to decidiq: the recurring annual decision/document cycle every governance body runs — municipal kadernota → programmabegroting → bestuursrapportage(s) → jaarrekening, and the association/corporate analogue jaarplan → begroting → tussenrapportage → jaarstukken + decharge. A `PCCyclus` (one body, one year, one template) generates `CyclusStap` objects from a configurable `CyclusTemplate` (municipal + association built-ins shipped as seeds, following the process-configuration built-in-template pattern). Each step carries an aanlever-deadline, a technische-vragen window, behandeling targets (commissie and/or raad/ALV), a declarative status lifecycle, document slots, and links to the actual AgendaItem/Decision once scheduled. Declarative rappels fire when aanlevering is late or behandeling approaches unscheduled; a year-view timeline per body plus a dashboard KPI (steps past deadline) give the griffie/bestuur oversight; next-year generation shifts all dates forward.
 
 ## Motivation
 
-Novelty-verified MISSING (2026-07-17): begroting/kadernota/jaarrekening exist in decidesk only as example seed titles (`lib/Settings/decidesk_register.json` seeds like "Kadernota begroting 2026", "jaarrekening-2024"); `meeting-series` covers recurring *meetings* but no recurring *decision/document cycle* exists anywhere in the app. Market evidence: demand cluster p-c-cycle-management scores 741 in the intelligence DB, and **begrotingsbehandeling is a named GemeenteOplossingen competitor module**. The P&C cyclus is the single most predictable, most deadline-critical workflow a griffie and a bestuur run each year — today they track it in Excel next to decidesk. Without it, the app manages the meetings but not the year: nobody sees that the programmabegroting stukken are a week late, that the technische-vragen window closes Friday, or that the jaarrekening behandeling still has no agenda item. The association/corporate analogue (jaarstukken + decharge, BW Book 2) is the same shape with different step names, so one capability serves all five governance domains.
+Novelty-verified MISSING (2026-07-17): begroting/kadernota/jaarrekening exist in decidiq only as example seed titles (`lib/Settings/decidesk_register.json` seeds like "Kadernota begroting 2026", "jaarrekening-2024"); `meeting-series` covers recurring *meetings* but no recurring *decision/document cycle* exists anywhere in the app. Market evidence: demand cluster p-c-cycle-management scores 741 in the intelligence DB, and **begrotingsbehandeling is a named GemeenteOplossingen competitor module**. The P&C cyclus is the single most predictable, most deadline-critical workflow a griffie and a bestuur run each year — today they track it in Excel next to decidiq. Without it, the app manages the meetings but not the year: nobody sees that the programmabegroting stukken are a week late, that the technische-vragen window closes Friday, or that the jaarrekening behandeling still has no agenda item. The association/corporate analogue (jaarstukken + decharge, BW Book 2) is the same shape with different step names, so one capability serves all five governance domains.
 
 ## Affected Projects
 
-- [ ] Project: `decidesk` — new `PCCyclus`, `CyclusTemplate`, `CyclusStap` schemas (register.d fragment 52), built-in template + example-cycle seed data, step-generation and next-year service, manifest pages + year-view timeline, dashboard KPI, declarative rappels, docs, tests.
+- [ ] Project: `decidiq` — new `PCCyclus`, `CyclusTemplate`, `CyclusStap` schemas (register.d fragment 52), built-in template + example-cycle seed data, step-generation and next-year service, manifest pages + year-view timeline, dashboard KPI, declarative rappels, docs, tests.
 
 No other apps change. OpenRegister is consumed as-is (lifecycle, notifications, aggregations, FileService attachments are existing capabilities).
 
@@ -44,7 +44,7 @@ Pure thin-client extension per ADR-022/ADR-037: three new schemas in `lib/Settin
 
 ## New Dependencies
 
-None. Lifecycle, notifications, aggregations, FileService attachments, manifest-v2 pages, and the built-in-template pattern all exist in OpenRegister, nc-vue, and decidesk.
+None. Lifecycle, notifications, aggregations, FileService attachments, manifest-v2 pages, and the built-in-template pattern all exist in OpenRegister, nc-vue, and decidiq.
 
 ## Impact
 
@@ -57,7 +57,7 @@ None. Lifecycle, notifications, aggregations, FileService attachments, manifest-
 
 ## Cross-Project Dependencies
 
-- `vve-alv-pack` (sibling decidesk change, boundary only — no build dependency): it owns VvE statutory decision templates; this change only records decharge as a step outcome whose besluit lives in the Decision model. Neither change blocks the other.
+- `vve-alv-pack` (sibling decidiq change, boundary only — no build dependency): it owns VvE statutory decision templates; this change only records decharge as a step outcome whose besluit lives in the Decision model. Neither change blocks the other.
 - OpenRegister: consumed, not changed.
 
 ## Risks

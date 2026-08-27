@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Voting-Opened Notifier
+ * Decidiq Voting-Opened Notifier
  *
  * The announcement side effects of opening a voting round: the governance
  * activity-feed entry and the preference-aware "pending vote" notifications.
@@ -9,7 +9,7 @@
  * was just opened.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,7 +24,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -93,8 +93,8 @@ class VotingOpenedNotifier {
 	 */
 	private function publishActivity(array $round): void {
 		try {
-			$this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
-				subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_VOTE_INITIATED,
+			$this->container->get(\OCA\Decidiq\Service\ActivityPublisherService::class)->publishGovernanceEvent(
+				subject: \OCA\Decidiq\Activity\DecidiqProvider::SUBJECT_VOTE_INITIATED,
 				title: (string)($round['votingMethod'] ?? 'voting round'),
 				status: 'open',
 				objectType: 'voting-round',
@@ -102,7 +102,7 @@ class VotingOpenedNotifier {
 				segment: 'voting-rounds'
 			);
 		} catch (\Throwable $activityError) {
-			$this->logger->debug('Decidesk: activity publish skipped', ['error' => $activityError->getMessage()]);
+			$this->logger->debug('Decidiq: activity publish skipped', ['error' => $activityError->getMessage()]);
 		}
 
 	}//end publishActivity()
@@ -150,7 +150,7 @@ class VotingOpenedNotifier {
 				);
 			}
 		} catch (\Throwable $e) {
-			$this->logger->warning('Decidesk: votingOpened notification dispatch failed', ['error' => $e->getMessage()]);
+			$this->logger->warning('Decidiq: votingOpened notification dispatch failed', ['error' => $e->getMessage()]);
 		}//end try
 
 	}//end notifyParticipants()
@@ -175,7 +175,7 @@ class VotingOpenedNotifier {
 
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: $lookupSchema);
+			$motionEntity = $objectService->find(id: $motionId, register: 'decidiq', schema: $lookupSchema);
 			if ($motionEntity === null) {
 				return $fallback;
 			}
@@ -184,7 +184,7 @@ class VotingOpenedNotifier {
 
 			return (string)($motion['title'] ?? $fallback);
 		} catch (\Throwable $e) {
-			$this->logger->debug('Decidesk: motion lookup for vote notification failed', ['error' => $e->getMessage()]);
+			$this->logger->debug('Decidiq: motion lookup for vote notification failed', ['error' => $e->getMessage()]);
 			return $fallback;
 		}//end try
 

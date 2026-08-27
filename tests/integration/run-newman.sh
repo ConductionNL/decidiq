@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
-# Decidesk API-contract test runner (Newman / Postman).
+# Decidiq API-contract test runner (Newman / Postman).
 #
-# Runs tests/integration/decidesk.postman_collection.json, then
-# tests/integration/decidesk-security-flow-e2e.postman_collection.json (proxy-vote
+# Runs tests/integration/decidiq.postman_collection.json, then
+# tests/integration/decidiq-security-flow-e2e.postman_collection.json (proxy-vote
 # authorization guard + eIDAS/governance-report/regulator-export reachability,
 # security-flow-e2e-coverage), against a live Nextcloud instance serving the
-# decidesk app. Both collections are self-contained and idempotent: they seed
+# decidiq app. Both collections are self-contained and idempotent: they seed
 # the OpenRegister objects / Nextcloud users they need and delete them again in
 # teardown.
 #

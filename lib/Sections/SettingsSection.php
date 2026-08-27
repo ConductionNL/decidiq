@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Settings Section
+ * Decidiq Settings Section
  *
- * Defines the Decidesk section in the Nextcloud admin settings.
+ * Defines the Decidiq section in the Nextcloud admin settings.
  *
  * @category Sections
- * @package  OCA\Decidesk\Sections
+ * @package  OCA\Decidiq\Sections
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2024 Conduction B.V.
@@ -21,14 +21,15 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Sections;
+namespace OCA\Decidiq\Sections;
 
+use OCA\Decidiq\AppInfo\Application;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\Settings\IIconSection;
 
 /**
- * Defines the Decidesk section in the Nextcloud admin settings.
+ * Defines the Decidiq section in the Nextcloud admin settings.
  *
  * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.5
  * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
@@ -59,7 +60,7 @@ class SettingsSection implements IIconSection {
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function getID(): string {
-		return 'decidesk';
+		return Application::APP_ID;
 	}//end getID()
 
 	/**
@@ -72,7 +73,7 @@ class SettingsSection implements IIconSection {
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function getName(): string {
-		return $this->l->t('Decidesk');
+		return $this->l->t('Decidiq');
 	}//end getName()
 
 	/**
@@ -98,6 +99,6 @@ class SettingsSection implements IIconSection {
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function getIcon(): string {
-		return $this->urlGenerator->imagePath(appName: 'decidesk', file: 'app-dark.svg');
+		return $this->urlGenerator->imagePath(appName: Application::APP_ID, file: 'app-dark.svg');
 	}//end getIcon()
 }//end class

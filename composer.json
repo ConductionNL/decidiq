@@ -1,5 +1,5 @@
 {
-    "name": "conductionnl/decidesk",
+    "name": "conductionnl/decidiq",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
     "license": "EUPL-1.2",
     "authors": [
@@ -11,7 +11,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "OCA\\Decidesk\\": "lib/"
+            "OCA\\Decidiq\\": "lib/"
         }
     },
     "require": {
@@ -29,7 +29,7 @@
         "phpstan/phpstan": "^2.0",
         "phpunit/phpunit": "^10.5",
         "roave/security-advisories": "dev-latest",
-        "squizlabs/php_codesniffer": "^3.9",
+        "squizlabs/php_codesniffer": "^4.0",
         "vimeo/psalm": "^5.26"
     },
     "scripts": {

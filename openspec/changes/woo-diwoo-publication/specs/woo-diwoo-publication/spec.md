@@ -1,13 +1,13 @@
 # woo-diwoo-publication Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - [woo-diwoo-publication](../../) _(active)_ — Woo/DiWoo compliance layer decorating the existing publication machinery (kind: code)
 
 ## Purpose
 
-Makes decidesk publications compliant with the Woo (Wet open overheid) actieve-openbaarmaking duty for vergaderstukken of decentrale overheden: every published object carries DiWoo metadata (Woo informatiecategorie as a TOOI waardelijst URI, bestuursorgaan TOOI id, openbaarmakingsdatum, documenthandeling) and is discoverable by the KOOP/LV Woo harvester through a Woo-index sitemap. This capability *decorates* the payloads produced by the existing public-publication machinery — it never changes publication eligibility, PII stripping, or the type deny-list, which public-publication owns (and which sibling changes toezeggingen-ingekomen-stukken and vragenuur-interpellatie already extend).
+Makes decidiq publications compliant with the Woo (Wet open overheid) actieve-openbaarmaking duty for vergaderstukken of decentrale overheden: every published object carries DiWoo metadata (Woo informatiecategorie as a TOOI waardelijst URI, bestuursorgaan TOOI id, openbaarmakingsdatum, documenthandeling) and is discoverable by the KOOP/LV Woo harvester through a Woo-index sitemap. This capability *decorates* the payloads produced by the existing public-publication machinery — it never changes publication eligibility, PII stripping, or the type deny-list, which public-publication owns (and which sibling changes toezeggingen-ingekomen-stukken and vragenuur-interpellatie already extend).
 
 **Standards**: Woo (Wet open overheid, actieve openbaarmaking art. 3.3), DiWoo (metadata standard + Woo-index sitemap of KOOP/LV Woo), TOOI (waardelijst woo-informatiecategorieën for informatiecategorie URIs; gemeente identifiers for bestuursorgaan, same convention as records-management-archiving's MDTO archiefvormer), OpenRaadsinformatie (payloads keep their existing `oriType` mappings), Schema.org (`CreativeWork` publication annotations preserved).
 
@@ -143,13 +143,13 @@ The system MUST provide an aggregate Woo-coverage view answering: which publisha
 
 ### Requirement: REQ-WOO-006 Admin mapping UI
 
-The decidesk admin settings MUST gain a Woo/DiWoo section where admins manage: the per-type `WooCategorieMapping` rows (categorie URI + label from the TOOI waardelijst, active flag), the bestuursorgaan TOOI identifier for the instance (with per-governance-body override), and the optional OpenConnector push Source slug. All configuration MUST be stored as OpenRegister objects or app config — no bespoke tables and no secrets in schemas (ADR-064: any Source credentials live in OpenConnector). The section MUST be rendered through Nextcloud's settings framework only (never registered as an in-app vue-router route), MUST use `IInitialState`/`loadState` for server data, and MUST meet WCAG 2.1 AA with Dutch and English strings (statutory Dutch terms kept, English gloss).
+The decidiq admin settings MUST gain a Woo/DiWoo section where admins manage: the per-type `WooCategorieMapping` rows (categorie URI + label from the TOOI waardelijst, active flag), the bestuursorgaan TOOI identifier for the instance (with per-governance-body override), and the optional OpenConnector push Source slug. All configuration MUST be stored as OpenRegister objects or app config — no bespoke tables and no secrets in schemas (ADR-064: any Source credentials live in OpenConnector). The section MUST be rendered through Nextcloud's settings framework only (never registered as an in-app vue-router route), MUST use `IInitialState`/`loadState` for server data, and MUST meet WCAG 2.1 AA with Dutch and English strings (statutory Dutch terms kept, English gloss).
 
 **Nextcloud OCP interface:** `OCP\Settings\ISettings`, `OCP\AppFramework\Services\IInitialState`
 
 #### Scenario: Admin activates a mapping
 
-- GIVEN an admin in the decidesk admin settings Woo section
+- GIVEN an admin in the decidiq admin settings Woo section
 - WHEN they set the informatiecategorie for `toezegging` and mark it active
 - THEN subsequent toezegging publications carry that TOOI URI in their `diwoo` block and the coverage report no longer lists the type as unmapped
 

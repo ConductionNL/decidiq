@@ -26,17 +26,17 @@
 -->
 <template>
 	<div class="state-machine-editor" data-testid="state-machine-editor">
-		<h3>{{ t('decidesk', 'State machine') }}</h3>
+		<h3>{{ t('decidiq', 'State machine') }}</h3>
 
 		<div class="form-group">
 			<NcSelect
 				v-model="initialState"
-				:inputLabel="t('decidesk', 'Initial state')"
+				:inputLabel="t('decidiq', 'Initial state')"
 				:options="stateNames"
 				data-testid="state-machine-initial" />
 		</div>
 
-		<h4>{{ t('decidesk', 'States') }}</h4>
+		<h4>{{ t('decidiq', 'States') }}</h4>
 		<div
 			v-for="(state, i) in modelValue.stateMachine.states"
 			:key="'state-' + i"
@@ -45,21 +45,21 @@
 			<input
 				v-model="state.name"
 				type="text"
-				:aria-label="t('decidesk', 'State name')"
-				:placeholder="t('decidesk', 'State name')"
+				:aria-label="t('decidiq', 'State name')"
+				:placeholder="t('decidiq', 'State name')"
 				@input="emit" />
 			<NcButton
 				variant="tertiary"
-				:aria-label="t('decidesk', 'Remove state')"
+				:aria-label="t('decidiq', 'Remove state')"
 				@click="removeState(i)">
-				{{ t('decidesk', 'Remove') }}
+				{{ t('decidiq', 'Remove') }}
 			</NcButton>
 		</div>
 		<NcButton data-testid="state-machine-add-state" @click="addState">
-			{{ t('decidesk', 'Add state') }}
+			{{ t('decidiq', 'Add state') }}
 		</NcButton>
 
-		<h4>{{ t('decidesk', 'Transitions') }}</h4>
+		<h4>{{ t('decidiq', 'Transitions') }}</h4>
 		<div
 			v-for="(tr, i) in modelValue.stateMachine.transitions"
 			:key="'tr-' + i"
@@ -67,27 +67,27 @@
 			data-testid="transition-row">
 			<NcSelect
 				v-model="tr.from"
-				:inputLabel="t('decidesk', 'From')"
+				:inputLabel="t('decidiq', 'From')"
 				:options="stateNames"
 				@input="emit" />
 			<NcSelect
 				v-model="tr.to"
-				:inputLabel="t('decidesk', 'To')"
+				:inputLabel="t('decidiq', 'To')"
 				:options="stateNames"
 				@input="emit" />
 			<label class="chair-only">
 				<input v-model="tr.chairOnly" type="checkbox" @change="emit" />
-				{{ t('decidesk', 'Chair only') }}
+				{{ t('decidiq', 'Chair only') }}
 			</label>
 			<NcButton
 				variant="tertiary"
-				:aria-label="t('decidesk', 'Remove transition')"
+				:aria-label="t('decidiq', 'Remove transition')"
 				@click="removeTransition(i)">
-				{{ t('decidesk', 'Remove') }}
+				{{ t('decidiq', 'Remove') }}
 			</NcButton>
 		</div>
 		<NcButton data-testid="state-machine-add-transition" @click="addTransition">
-			{{ t('decidesk', 'Add transition') }}
+			{{ t('decidiq', 'Add transition') }}
 		</NcButton>
 
 		<p class="graph-summary" data-testid="state-machine-summary">
@@ -140,7 +140,7 @@ export default {
 		/** @spec openspec/specs/process-configuration/spec.md */
 		graphSummary() {
 			const transitions = this.modelValue.stateMachine.transitions || []
-			return this.t('decidesk', '{states} states, {transitions} transitions', {
+			return this.t('decidiq', '{states} states, {transitions} transitions', {
 				states: this.stateNames.length,
 				transitions: transitions.length,
 			})

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Minutes Draft Service
+ * Decidiq Minutes Draft Service
  *
  * Thin orchestration over the Nextcloud TaskProcessing/AI provider abstraction
  * that turns an aligned transcript into a structured DRAFT for the existing
@@ -9,7 +9,7 @@
  * bearing Minutes object, never auto-approved or auto-published.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,12 +25,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
 use DomainException;
-use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingObjectException;
 use OCP\TaskProcessing\Task;
 use OCP\TaskProcessing\TaskTypes\TextToText;
 use Psr\Container\ContainerInterface;
@@ -79,7 +79,7 @@ class MinutesDraftService {
 			$manager = $this->container->get(\OCP\TaskProcessing\IManager::class);
 		} catch (\Throwable $e) {
 			$this->logger->debug(
-				'Decidesk MinutesDraftService: TaskProcessing manager unavailable',
+				'Decidiq MinutesDraftService: TaskProcessing manager unavailable',
 				['error' => $e->getMessage()]
 			);
 			return false;
@@ -89,7 +89,7 @@ class MinutesDraftService {
 			return $manager->hasProviders();
 		} catch (\Throwable $e) {
 			$this->logger->debug(
-				'Decidesk MinutesDraftService: hasProviders() failed',
+				'Decidiq MinutesDraftService: hasProviders() failed',
 				['error' => $e->getMessage()]
 			);
 			return false;
@@ -296,7 +296,7 @@ class MinutesDraftService {
 			return '';
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk MinutesDraftService: prompt run failed',
+				'Decidiq MinutesDraftService: prompt run failed',
 				['error' => $e->getMessage()]
 			);
 			return '';
@@ -340,10 +340,10 @@ class MinutesDraftService {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$entities = $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => $schema,
 					'filters' => [
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => $schema,
 						'_relations.meeting' => $meetingId,
 					],
@@ -351,7 +351,7 @@ class MinutesDraftService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk MinutesDraftService: related fetch failed',
+				'Decidiq MinutesDraftService: related fetch failed',
 				['schema' => $schema, 'error' => $e->getMessage()]
 			);
 			return [];
@@ -384,7 +384,7 @@ class MinutesDraftService {
 	private function fetchObject(string $id, string $schema): ?array {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(id: $id, register: 'decidesk', schema: $schema);
+			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
 		} catch (\Throwable) {
 			return null;
 		}
@@ -416,13 +416,13 @@ class MinutesDraftService {
 
 			$objectService->saveObject(
 				object: $transcript,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'transcript',
 				uuid: $uuid
 			);
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk MinutesDraftService: provenance save failed',
+				'Decidiq MinutesDraftService: provenance save failed',
 				['error' => $e->getMessage()]
 			);
 		}

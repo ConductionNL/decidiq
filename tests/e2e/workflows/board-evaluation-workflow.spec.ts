@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * DEEP, data-dependent e2e — the board self-evaluation flow
@@ -85,7 +85,7 @@ async function seedTemplate(page) {
 
 /** Open the "Self-evaluation" sidebar tab on a GovernanceBody detail page. */
 async function openEvaluationsTab(page, bodyId: string) {
-	await page.goto(`${BASE}/apps/decidesk/governance-bodies/${bodyId}`)
+	await page.goto(`${BASE}/apps/decidiq/governance-bodies/${bodyId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	const tab = page.getByRole('tab', { name: /Self-evaluation/i }).first()
 	if (await tab.count()) {

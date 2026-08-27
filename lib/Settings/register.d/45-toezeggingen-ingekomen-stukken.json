@@ -184,8 +184,11 @@
           "toezeggingAfgedaan": {
             "trigger": {
               "type": "updated",
-              "filter": {
-                "lifecycle": "disposed"
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "disposed",
+                "from": "in-execution"
               }
             },
             "enabled": true,

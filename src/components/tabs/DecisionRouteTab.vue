@@ -22,10 +22,10 @@
  @spec openspec/specs/decision-route/spec.md
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--route" data-testid="decision-route-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Route') }}
+	<div class="decidiq-tab decidiq-tab--route" data-testid="decision-route-tab">
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Route') }}
 			</h3>
 			<CnStatusBadge
 				v-if="lifecycle"
@@ -37,7 +37,7 @@
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load route')">
+			:title="t('decidiq', 'Could not load route')">
 			{{ error }}
 		</CnNoteCard>
 
@@ -50,18 +50,18 @@
 			{{ effectiveStatusMessage }}
 			<NcButton
 				variant="tertiary"
-				class="decidesk-route__banner-link"
+				class="decidiq-route__banner-link"
 				data-testid="effective-status-navigate"
 				:aria-label="
-					t('decidesk', 'Open the decision that replaced this one')
+					t('decidiq', 'Open the decision that replaced this one')
 				"
 				@click="openDecision(effectingDecision)">
-				{{ effectingDecision.title || t('decidesk', 'View decision') }}
+				{{ effectingDecision.title || t('decidiq', 'View decision') }}
 			</NcButton>
 		</CnNoteCard>
 
-		<p v-if="!error && loading" class="decidesk-tab__loading">
-			{{ t('decidesk', 'Loading route…') }}
+		<p v-if="!error && loading" class="decidiq-tab__loading">
+			{{ t('decidiq', 'Loading route…') }}
 		</p>
 
 		<!-- Progress + empty state. -->
@@ -69,31 +69,31 @@
 			<CnNoteCard
 				v-if="!stages.length"
 				type="info"
-				:title="t('decidesk', 'No staged route configured')"
+				:title="t('decidiq', 'No staged route configured')"
 				data-testid="route-empty">
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'This decision has no staged route. A stageless decision is valid.',
 					)
 				}}
 			</CnNoteCard>
 
 			<template v-else>
-				<div class="decidesk-route__progress" data-testid="route-progress">
-					<span class="decidesk-route__progress-dots" aria-hidden="true">
+				<div class="decidiq-route__progress" data-testid="route-progress">
+					<span class="decidiq-route__progress-dots" aria-hidden="true">
 						<span
 							v-for="(s, i) in stages"
 							:key="'dot-' + i"
-							class="decidesk-route__progress-dot"
+							class="decidiq-route__progress-dot"
 							:class="{
-								'decidesk-route__progress-dot--done':
+								'decidiq-route__progress-dot--done':
 									s.status === 'decided' || s.status === 'skipped',
 							}" />
 					</span>
-					<span class="decidesk-route__progress-label">
+					<span class="decidiq-route__progress-label">
 						{{
-							t('decidesk', '{decided} of {total} stages decided', {
+							t('decidiq', '{decided} of {total} stages decided', {
 								decided: decidedCount,
 								total: stages.length,
 							})
@@ -101,55 +101,55 @@
 					</span>
 				</div>
 
-				<ol class="decidesk-route__timeline" data-testid="route-timeline">
+				<ol class="decidiq-route__timeline" data-testid="route-timeline">
 					<li
 						v-for="stage in stages"
 						:key="stage.id"
-						class="decidesk-route__step"
+						class="decidiq-route__step"
 						:class="{
-							'decidesk-route__step--current': isCurrent(stage),
+							'decidiq-route__step--current': isCurrent(stage),
 						}"
 						:data-testid="'route-stage-' + stage.sequence">
 						<span
-							class="decidesk-route__marker"
-							:class="'decidesk-route__marker--' + stage.status"
+							class="decidiq-route__marker"
+							:class="'decidiq-route__marker--' + stage.status"
 							aria-hidden="true" />
-						<div class="decidesk-route__body">
-							<div class="decidesk-route__line1">
-								<span class="decidesk-route__seq">{{
-									t('decidesk', 'seq {n}', { n: stage.sequence })
+						<div class="decidiq-route__body">
+							<div class="decidiq-route__line1">
+								<span class="decidiq-route__seq">{{
+									t('decidiq', 'seq {n}', { n: stage.sequence })
 								}}</span>
-								<span class="decidesk-route__maker">{{
+								<span class="decidiq-route__maker">{{
 									makerName(stage)
 								}}</span>
-								<span class="decidesk-route__meta"
+								<span class="decidiq-route__meta"
 									>{{ stageTypeLabel(stage.stageType) }} ·
 									{{ methodLabel(stage.method) }}</span
 								>
 								<CnStatusBadge
 									v-if="isCurrent(stage)"
-									:label="t('decidesk', 'Current')"
+									:label="t('decidiq', 'Current')"
 									:colorMap="{
-										[t('decidesk', 'Current')]: 'primary',
+										[t('decidiq', 'Current')]: 'primary',
 									}" />
 							</div>
-							<div class="decidesk-route__line2">
+							<div class="decidiq-route__line2">
 								<CnStatusBadge
 									:label="statusLabel(stage.status)"
 									:colorMap="statusColors" />
 								<span
 									v-if="stage.outcome"
-									class="decidesk-route__outcome"
+									class="decidiq-route__outcome"
 									>{{ outcomeLabel(stage.outcome) }}</span
 								>
 								<span
 									v-if="stage.decidedAt"
-									class="decidesk-route__date"
+									class="decidiq-route__date"
 									>{{ formatDate(stage.decidedAt) }}</span
 								>
 								<span
 									v-if="stage.label"
-									class="decidesk-route__stage-label"
+									class="decidiq-route__stage-label"
 									>{{ stage.label }}</span
 								>
 							</div>
@@ -159,10 +159,10 @@
 
 				<p
 					v-if="currentStageObj"
-					class="decidesk-route__todo"
+					class="decidiq-route__todo"
 					data-testid="route-todo">
 					{{
-						t('decidesk', 'Still to do: stage {seq} ({maker})', {
+						t('decidiq', 'Still to do: stage {seq} ({maker})', {
 							seq: currentStageObj.sequence,
 							maker: makerName(currentStageObj),
 						})
@@ -170,7 +170,7 @@
 					<span v-if="openActionItemCount > 0">
 						·
 						{{
-							t('decidesk', '{n} open action items', {
+							t('decidiq', '{n} open action items', {
 								n: openActionItemCount,
 							})
 						}}
@@ -244,26 +244,32 @@ export default {
 			}
 		},
 
+		/**
+		 * @spec openspec/specs/decision-route/spec.md#requirement-declarative-route-progress-and-currentstage
+		 */
 		effectiveStatusTitle() {
 			return this.effectiveStatus === 'repealed'
-				? this.t('decidesk', 'Repealed')
-				: this.t('decidesk', 'Superseded')
+				? this.t('decidiq', 'Repealed')
+				: this.t('decidiq', 'Superseded')
 		},
 
+		/**
+		 * @spec openspec/specs/decision-route/spec.md#requirement-declarative-route-progress-and-currentstage
+		 */
 		effectiveStatusMessage() {
 			const date =
 				this.effectingDecision?.enactedAt
 				|| this.effectingDecision?.decisionDate
 			const when = date ? this.formatDate(date) : ''
 			return this.effectiveStatus === 'repealed'
-				? this.t('decidesk', 'This decision was repealed{by}.', {
+				? this.t('decidiq', 'This decision was repealed{by}.', {
 						by: when
-							? ' ' + this.t('decidesk', 'on {date}', { date: when })
+							? ' ' + this.t('decidiq', 'on {date}', { date: when })
 							: '',
 					})
-				: this.t('decidesk', 'This decision was superseded{by}.', {
+				: this.t('decidiq', 'This decision was superseded{by}.', {
 						by: when
-							? ' ' + this.t('decidesk', 'on {date}', { date: when })
+							? ' ' + this.t('decidiq', 'on {date}', { date: when })
 							: '',
 					})
 		},
@@ -292,58 +298,73 @@ export default {
 			)
 		},
 
+		/**
+		 * @spec openspec/specs/decision-route/spec.md#requirement-declarative-route-progress-and-currentstage
+		 */
 		stateLabel(state) {
 			const labels = {
-				draft: this.t('decidesk', 'Draft'),
-				proposed: this.t('decidesk', 'Proposed'),
-				deliberating: this.t('decidesk', 'Deliberating'),
-				voting: this.t('decidesk', 'Voting'),
-				decided: this.t('decidesk', 'Decided'),
-				enacted: this.t('decidesk', 'Enacted'),
-				archived: this.t('decidesk', 'Archived'),
+				draft: this.t('decidiq', 'Draft'),
+				proposed: this.t('decidiq', 'Proposed'),
+				deliberating: this.t('decidiq', 'Deliberating'),
+				voting: this.t('decidiq', 'Voting'),
+				decided: this.t('decidiq', 'Decided'),
+				enacted: this.t('decidiq', 'Enacted'),
+				archived: this.t('decidiq', 'Archived'),
 			}
 			return labels[state] || state
 		},
 
+		/**
+		 * @spec openspec/specs/decision-route/spec.md#requirement-declarative-route-progress-and-currentstage
+		 */
 		stageTypeLabel(type) {
 			const labels = {
-				preparatory: this.t('decidesk', 'preparatory'),
-				advisory: this.t('decidesk', 'advisory'),
-				decisive: this.t('decidesk', 'decisive'),
-				ratifying: this.t('decidesk', 'ratifying'),
+				preparatory: this.t('decidiq', 'preparatory'),
+				advisory: this.t('decidiq', 'advisory'),
+				decisive: this.t('decidiq', 'decisive'),
+				ratifying: this.t('decidiq', 'ratifying'),
 			}
 			return labels[type] || type || ''
 		},
 
+		/**
+		 * @spec openspec/specs/decision-route/spec.md#requirement-declarative-route-progress-and-currentstage
+		 */
 		methodLabel(method) {
 			const labels = {
-				manual: this.t('decidesk', 'manual'),
-				vote: this.t('decidesk', 'vote'),
-				signature: this.t('decidesk', 'signature'),
-				'chair-register': this.t('decidesk', 'chair register'),
-				advice: this.t('decidesk', 'advice'),
+				manual: this.t('decidiq', 'manual'),
+				vote: this.t('decidiq', 'vote'),
+				signature: this.t('decidiq', 'signature'),
+				'chair-register': this.t('decidiq', 'chair register'),
+				advice: this.t('decidiq', 'advice'),
 			}
 			return labels[method] || method || ''
 		},
 
+		/**
+		 * @spec openspec/specs/decision-route/spec.md#requirement-declarative-route-progress-and-currentstage
+		 */
 		statusLabel(status) {
 			const labels = {
-				pending: this.t('decidesk', 'pending'),
-				active: this.t('decidesk', 'active'),
-				decided: this.t('decidesk', 'decided'),
-				skipped: this.t('decidesk', 'skipped'),
+				pending: this.t('decidiq', 'pending'),
+				active: this.t('decidiq', 'active'),
+				decided: this.t('decidiq', 'decided'),
+				skipped: this.t('decidiq', 'skipped'),
 			}
 			return labels[status] || status || ''
 		},
 
+		/**
+		 * @spec openspec/specs/decision-route/spec.md#requirement-declarative-route-progress-and-currentstage
+		 */
 		outcomeLabel(outcome) {
 			const labels = {
-				for: this.t('decidesk', 'for'),
-				against: this.t('decidesk', 'against'),
-				adopted: this.t('decidesk', 'adopted'),
-				rejected: this.t('decidesk', 'rejected'),
-				advised: this.t('decidesk', 'advised'),
-				deferred: this.t('decidesk', 'deferred'),
+				for: this.t('decidiq', 'for'),
+				against: this.t('decidiq', 'against'),
+				adopted: this.t('decidiq', 'adopted'),
+				rejected: this.t('decidiq', 'rejected'),
+				advised: this.t('decidiq', 'advised'),
+				deferred: this.t('decidiq', 'deferred'),
 			}
 			return labels[outcome] || outcome || ''
 		},
@@ -357,16 +378,16 @@ export default {
 				stage?.decisionMakerType === 'person'
 					? stage.assignedPerson
 					: stage.assignedBody
-			if (!ref) return this.t('decidesk', 'Unassigned')
+			if (!ref) return this.t('decidiq', 'Unassigned')
 			if (typeof ref === 'object')
 				return (
 					ref.name
 					|| ref.title
 					|| ref.displayName
-					|| this.t('decidesk', 'Unassigned')
+					|| this.t('decidiq', 'Unassigned')
 				)
 			// Reference is an id we did not expand; show a stable fallback.
-			return this.t('decidesk', 'Decision maker')
+			return this.t('decidiq', 'Decision maker')
 		},
 
 		/**
@@ -407,8 +428,7 @@ export default {
 				await this.deriveEffectiveStatus(decision)
 				await this.countOpenActionItems()
 			} catch (e) {
-				this.error =
-					e?.message || this.t('decidesk', 'Failed to load route.')
+				this.error = e?.message || this.t('decidiq', 'Failed to load route.')
 			} finally {
 				this.loading = false
 			}
@@ -484,64 +504,64 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__loading {
+.decidiq-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
 
-.decidesk-route__banner-link {
+.decidiq-route__banner-link {
 	margin-top: 4px;
 }
 
-.decidesk-route__progress {
+.decidiq-route__progress {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 }
 
-.decidesk-route__progress-dots {
+.decidiq-route__progress-dots {
 	display: inline-flex;
 	gap: 4px;
 }
 
-.decidesk-route__progress-dot {
+.decidiq-route__progress-dot {
 	width: 10px;
 	height: 10px;
 	border-radius: 50%;
 	border: 2px solid var(--color-border-dark);
 }
 
-.decidesk-route__progress-dot--done {
+.decidiq-route__progress-dot--done {
 	background: var(--color-success);
 	border-color: var(--color-success);
 }
 
-.decidesk-route__progress-label {
+.decidiq-route__progress-label {
 	color: var(--color-text-maxcontrast);
 	font-size: 0.9rem;
 }
 
-.decidesk-route__timeline {
+.decidiq-route__timeline {
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -550,18 +570,18 @@ export default {
 	gap: 8px;
 }
 
-.decidesk-route__step {
+.decidiq-route__step {
 	display: flex;
 	gap: 8px;
 	padding: 6px 8px;
 	border-radius: var(--border-radius);
 }
 
-.decidesk-route__step--current {
+.decidiq-route__step--current {
 	background: var(--color-primary-element-light);
 }
 
-.decidesk-route__marker {
+.decidiq-route__marker {
 	width: 12px;
 	height: 12px;
 	border-radius: 50%;
@@ -570,43 +590,43 @@ export default {
 	margin-top: 4px;
 }
 
-.decidesk-route__marker--decided,
-.decidesk-route__marker--skipped {
+.decidiq-route__marker--decided,
+.decidiq-route__marker--skipped {
 	background: var(--color-success);
 	border-color: var(--color-success);
 }
 
-.decidesk-route__marker--active {
+.decidiq-route__marker--active {
 	background: var(--color-primary-element);
 	border-color: var(--color-primary-element);
 }
 
-.decidesk-route__body {
+.decidiq-route__body {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
 }
 
-.decidesk-route__line1,
-.decidesk-route__line2 {
+.decidiq-route__line1,
+.decidiq-route__line2 {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 8px;
 }
 
-.decidesk-route__seq {
+.decidiq-route__seq {
 	font-weight: bold;
 }
 
-.decidesk-route__meta,
-.decidesk-route__date,
-.decidesk-route__stage-label {
+.decidiq-route__meta,
+.decidiq-route__date,
+.decidiq-route__stage-label {
 	color: var(--color-text-maxcontrast);
 	font-size: 0.85rem;
 }
 
-.decidesk-route__todo {
+.decidiq-route__todo {
 	margin: 0;
 	color: var(--color-text-maxcontrast);
 	font-size: 0.9rem;

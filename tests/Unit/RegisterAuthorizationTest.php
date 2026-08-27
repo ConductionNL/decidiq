@@ -1,11 +1,12 @@
 <?php
 
 /**
- * Contract tests for decidesk's OpenRegister `authorization` baseline.
+ * Contract tests for decidiq's OpenRegister `authorization` baseline.
  *
- * Every decidesk object is reachable at
- * `/apps/openregister/api/objects/decidesk/<schema>` — the API the frontend uses
- * directly under ADR-022 — and NO decidesk controller guard sits in front of it.
+ * Every decidiq object is reachable at
+ * `/apps/openregister/api/objects/decidiq/<schema>` — the register slug is
+ * FROZEN on the old value — the API the frontend uses
+ * directly under ADR-022 — and NO decidiq controller guard sits in front of it.
  * What decides who may write there is the `authorization` block on the schema, or
  * failing that on the REGISTER row.
  *
@@ -33,7 +34,7 @@
  * version fields without which the declaration never reaches an instance.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit
+ * @package  OCA\Decidiq\Tests\Unit
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -51,7 +52,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit;
+namespace OCA\Decidiq\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 
@@ -112,7 +113,7 @@ class RegisterAuthorizationTest extends TestCase {
 	 * @return array<string,mixed> The register row.
 	 */
 	private function registerRow(): array {
-		$row = $this->register['components']['registers']['decidesk'] ?? null;
+		$row = $this->register['components']['registers']['decidiq'] ?? null;
 		$this->assertIsArray($row, 'The decidesk register row must exist.');
 
 		return $row;
@@ -216,7 +217,7 @@ class RegisterAuthorizationTest extends TestCase {
 				$authorization[$action],
 				sprintf(
 					'`%s` must still name `public`. Before this block existed the default-OPEN branch '
-						. "granted it to the anonymous principal too, so dropping it 403s every "
+						. 'granted it to the anonymous principal too, so dropping it 403s every '
 						. '#[PublicPage] surface — a policy change, not a security fix.',
 					$action
 				)
@@ -360,7 +361,7 @@ class RegisterAuthorizationTest extends TestCase {
 
 		// Positive control on the same reader: the file really was read and matched,
 		// so a failure above means "not bumped", never "read an empty document".
-		$this->assertStringContainsString('<id>decidesk</id>', $source);
+		$this->assertStringContainsString('<id>decidiq</id>', $source);
 	}//end testTheAppVersionMovedSoTheRepairStepRuns()
 
 	/**

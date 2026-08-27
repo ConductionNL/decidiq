@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Governance Role Scope Projector
+ * Decidiq Governance Role Scope Projector
  *
  * Projects each GovernanceBody's signatory roster into OpenRegister RBAC scopes
  * — the OR/Nextcloud-native scope primitive is a group, so the projector
@@ -18,7 +18,7 @@
  * (consume-or-rbac-authorization).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -34,12 +34,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;
 use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Reconciles per-body chair/signatory OR RBAC scopes from the Participant
@@ -157,7 +157,7 @@ class GovernanceRoleScopeProjector {
 	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
 	 */
 	public function reconcileAll(): int {
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('governancebody');
 		$bodies = $this->objectService->findAll(['filters' => ['_limit' => 9999]]);
 
@@ -182,7 +182,7 @@ class GovernanceRoleScopeProjector {
 	 * @return array{0: string[], 1: string[]} [chairUids, signatoryUids]
 	 */
 	private function desiredMembers(string $bodyId): array {
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('participant');
 		$participants = $this->objectService->findAll(
 			[

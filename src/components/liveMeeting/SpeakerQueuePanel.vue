@@ -19,20 +19,20 @@
 	<section
 		class="speaker-queue"
 		data-testid="speaker-queue-panel"
-		:aria-label="t('decidesk', 'Speaker queue')">
+		:aria-label="t('decidiq', 'Speaker queue')">
 		<div class="speaker-queue__header">
 			<h4 class="speaker-queue__title">
-				{{ t('decidesk', 'Speaker queue') }}
+				{{ t('decidiq', 'Speaker queue') }}
 			</h4>
 			<div v-if="isChair" class="speaker-queue__limit">
 				<label class="speaker-queue__limit-label" for="speaker-queue-limit">
-					{{ t('decidesk', 'Speaking limit (min)') }}
+					{{ t('decidiq', 'Speaking limit (min)') }}
 				</label>
 				<NcTextField
 					id="speaker-queue-limit"
 					v-model="limitMinutes"
 					type="number"
-					:label="t('decidesk', 'Speaking limit (min)')"
+					:label="t('decidiq', 'Speaking limit (min)')"
 					data-testid="speaker-queue-limit-input"
 					min="0" />
 			</div>
@@ -42,17 +42,17 @@
 			<NcSelect
 				v-model="selectedParticipant"
 				:options="participantOptions"
-				:inputLabel="t('decidesk', 'Add speaker to queue')"
-				:placeholder="t('decidesk', 'Select a participant')"
+				:inputLabel="t('decidiq', 'Add speaker to queue')"
+				:placeholder="t('decidiq', 'Select a participant')"
 				label="label"
 				data-testid="speaker-queue-add-select" />
 			<NcButton
 				variant="primary"
 				:disabled="!selectedParticipant"
 				data-testid="speaker-queue-add-button"
-				:aria-label="t('decidesk', 'Add to queue')"
+				:aria-label="t('decidiq', 'Add to queue')"
 				@click="addSelected">
-				{{ t('decidesk', 'Add to queue') }}
+				{{ t('decidiq', 'Add to queue') }}
 			</NcButton>
 		</div>
 
@@ -93,7 +93,7 @@
 					class="speaker-queue__over-tag"
 					role="alert"
 					data-testid="speaker-queue-over-limit">
-					{{ t('decidesk', 'Over limit') }}
+					{{ t('decidiq', 'Over limit') }}
 				</span>
 				<template v-if="isChair">
 					<NcButton
@@ -101,12 +101,12 @@
 						size="small"
 						data-testid="speaker-queue-give-floor"
 						:aria-label="
-							t('decidesk', 'Give floor to {name}', {
+							t('decidiq', 'Give floor to {name}', {
 								name: entry.displayName,
 							})
 						"
 						@click="giveFloor(entry.participantId)">
-						{{ t('decidesk', 'Give floor') }}
+						{{ t('decidiq', 'Give floor') }}
 					</NcButton>
 					<NcButton
 						v-else
@@ -114,16 +114,16 @@
 						variant="secondary"
 						data-testid="speaker-queue-stop"
 						:aria-label="
-							t('decidesk', 'Stop {name}', { name: entry.displayName })
+							t('decidiq', 'Stop {name}', { name: entry.displayName })
 						"
 						@click="stop">
-						{{ t('decidesk', 'Stop') }}
+						{{ t('decidiq', 'Stop') }}
 					</NcButton>
 					<NcButton
 						size="small"
 						:disabled="idx === 0"
 						:aria-label="
-							t('decidesk', 'Move {name} up', {
+							t('decidiq', 'Move {name} up', {
 								name: entry.displayName,
 							})
 						"
@@ -134,7 +134,7 @@
 						size="small"
 						:disabled="idx === queue.length - 1"
 						:aria-label="
-							t('decidesk', 'Move {name} down', {
+							t('decidiq', 'Move {name} down', {
 								name: entry.displayName,
 							})
 						"
@@ -146,7 +146,7 @@
 						variant="tertiary"
 						data-testid="speaker-queue-remove"
 						:aria-label="
-							t('decidesk', 'Remove {name} from queue', {
+							t('decidiq', 'Remove {name} from queue', {
 								name: entry.displayName,
 							})
 						"
@@ -157,7 +157,7 @@
 			</li>
 		</ol>
 		<p v-else class="speaker-queue__empty" data-testid="speaker-queue-empty">
-			{{ t('decidesk', 'No speakers in the queue.') }}
+			{{ t('decidiq', 'No speakers in the queue.') }}
 		</p>
 	</section>
 </template>
@@ -307,7 +307,7 @@ export default {
 		async recordSpeech(stopped) {
 			if (!stopped || stopped.durationSeconds <= 0) return
 			try {
-				await fetch(OC.generateUrl('/apps/decidesk/api/engagement'), {
+				await fetch(OC.generateUrl('/apps/decidiq/api/engagement'), {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',

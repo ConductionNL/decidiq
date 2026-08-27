@@ -4,9 +4,9 @@
 TBD - created by archiving change fix-inert-seeds. Update Purpose after archive.
 ## Requirements
 ### Requirement: REQ-SEED-001 Seed data is declared where OpenRegister reads it
-Decidesk's register configuration SHALL declare seed objects under the top-level
+Decidiq's register configuration SHALL declare seed objects under the top-level
 `x-openregister.seedData.objects` key, mapping each **schema slug** to an array of seed objects.
-Decidesk SHALL NOT declare seeds under any `x-openregister-seed`/`x-openregister-seeds` schema-level
+Decidiq SHALL NOT declare seeds under any `x-openregister-seed`/`x-openregister-seeds` schema-level
 annotation: neither spelling exists in OpenRegister's `Schema::ANNOTATION_VOCABULARY`, so
 `setConfiguration()` drops them silently and no seed can plant.
 
@@ -39,7 +39,7 @@ merge and reach OpenRegister's importer, so a fragment is a first-class place to
 - AND those objects plant.
 
 ### Requirement: REQ-SEED-003 A corrected configuration is not skipped by the import version gate
-Decidesk SHALL bump `info.version` in `decidesk_register.json` whenever it changes its register
+Decidiq SHALL bump `info.version` in `decidesk_register.json` whenever it changes its register
 configuration in a way that must reach existing installs. OpenRegister's
 `ImportHandler::importFromJson()` early-returns when the computed version is `<=` the stored version
 and the content hash is unchanged, and that return happens before seed import runs — so a corrected
@@ -47,7 +47,7 @@ config with an unbumped version is itself inert.
 
 #### Scenario: Version bump lets the corrected config through
 - GIVEN an install whose stored `imported_config_decidesk_version` predates this change
-- WHEN decidesk is upgraded and `info.version` is newer
+- WHEN decidiq is upgraded and `info.version` is newer
 - THEN the import proceeds past the version gate and seed data is imported.
 
 #### Scenario: The fragment signature alone is not relied on

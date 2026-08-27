@@ -1,6 +1,6 @@
 ---
 status: draft
-app: decidesk
+app: decidiq
 spec: fractievoorzitter-fractie-koppeling
 target_users: griffie, fractievoorzitters, raadsleden, fractie-ondersteuners, college, kiezers, politicologen
 depends_on:
@@ -201,10 +201,10 @@ De spec scheidt nadrukkelijk vier concepten die in legacy-systemen vaak verward 
 
 ## Cross-app
 
-- **decidesk base**: levert basismodel voor raadsperiode, gemeente, persoon-register
-- **decidesk motie-amendement-administratie**: gebruikt FractieLidmaatschap-snapshot voor stemresultaat-correctheid; SchriftelijkeVraag kan opvolging zijn van aangenomen motie
-- **decidesk commissievergaderingen**: gebruikt evenredigheidsberekening voor commissie-samenstelling; commissielid-rol koppelt aan fractie-rol
-- **decidesk besluitvorming-workflow**: schriftelijke vragen kunnen leiden tot raadsvoorstellen; raadsvoorstellen worden door fracties beoordeeld
+- **decidiq base**: levert basismodel voor raadsperiode, gemeente, persoon-register
+- **decidiq motie-amendement-administratie**: gebruikt FractieLidmaatschap-snapshot voor stemresultaat-correctheid; SchriftelijkeVraag kan opvolging zijn van aangenomen motie
+- **decidiq commissievergaderingen**: gebruikt evenredigheidsberekening voor commissie-samenstelling; commissielid-rol koppelt aan fractie-rol
+- **decidiq besluitvorming-workflow**: schriftelijke vragen kunnen leiden tot raadsvoorstellen; raadsvoorstellen worden door fracties beoordeeld
 - **docudesk**: antwoorden van het college worden PDF-gerendeerd en gearchiveerd; concept-vragen worden samenwerkings-documenten binnen fractie
 - **openconnector**: synchronisatie met Kiesraad voor verkiezingsuitslagen (sZNL2-format), met landelijke partij-registers, met KvK voor partij-rechtspersoon-controle
 - **opencatalogi**: publicatie van openbaar fractie-register, nevenfuncties-register, en schriftelijke-vragen-archief als publieke catalogus

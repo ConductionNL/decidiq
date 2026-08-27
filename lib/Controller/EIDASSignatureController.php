@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk eIDAS Signature Controller
+ * Decidiq eIDAS Signature Controller
  *
  * Thin REST surface around the IEIDASSignatureService. Endpoints map
  * one-to-one onto the four interface methods so external integrations
@@ -9,7 +9,7 @@
  * flow without learning the openconnector source name.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,11 +25,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\GovernanceScopeGuard;
-use OCA\Decidesk\Service\IEIDASSignatureService;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\GovernanceScopeGuard;
+use OCA\Decidiq\Service\IEIDASSignatureService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -241,7 +241,7 @@ class EIDASSignatureController extends Controller {
 	 * without a Minutes id (`POST /api/eidas/validate-cert`) and accepts no
 	 * caller-supplied object identifier at all. Its only input is a certificate
 	 * SHA-256 thumbprint and its only output is `valid` / `issuer` /
-	 * `trustListLevel` — facts published on the EU Trusted List. No decidesk
+	 * `trustListLevel` — facts published on the EU Trusted List. No Decidiq
 	 * object is reachable through it and nothing it returns is derived from app
 	 * data, so there is no per-object rule to enforce and narrowing it would
 	 * invent an authorization rule no spec states. Both the action and the
@@ -253,7 +253,7 @@ class EIDASSignatureController extends Controller {
 	 * @NoAdminRequired
 	 * @no-admin-idor-exempt Takes no caller-supplied object identifier — the only input is a
 	 *   certificate SHA-256 thumbprint and the response is sourced entirely from the public EU
-	 *   Trusted List, so no decidesk object is reachable and nothing app-owned is disclosed.
+	 *   Trusted List, so no Decidiq object is reachable and nothing app-owned is disclosed.
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
 	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-103-certificate-trust-status-lookup-is-a-deliberately-app-wide-authenticated-read

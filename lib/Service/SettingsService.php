@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Settings Service
+ * Decidiq Settings Service
  *
- * Service for managing Decidesk application configuration and settings.
+ * Service for managing Decidiq application configuration and settings.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2024 Conduction B.V.
@@ -21,9 +21,9 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidiq\AppInfo\Application;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
 use OCP\IGroupManager;
@@ -32,7 +32,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Service for managing Decidesk application configuration and settings.
+ * Service for managing Decidiq application configuration and settings.
  *
  * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
  */
@@ -254,7 +254,7 @@ class SettingsService {
 	 */
 	private function importConfiguration(bool $force): array {
 		if ($this->isOpenRegisterAvailable() === false) {
-			$this->logger->warning('Decidesk: OpenRegister not available, skipping register initialization');
+			$this->logger->warning('Decidiq: OpenRegister not available, skipping register initialization');
 			return [
 				'success' => false,
 				'message' => 'OpenRegister is not installed or enabled.',
@@ -276,7 +276,7 @@ class SettingsService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: configuration import failed',
+				'Decidiq: configuration import failed',
 				['exception' => $e->getMessage()]
 			);
 			return [
@@ -297,7 +297,7 @@ class SettingsService {
 	private function readBaseRegisterConfig(): array {
 		$configPath = __DIR__ . '/../Settings/decidesk_register.json';
 		if (file_exists($configPath) === false) {
-			$this->logger->error('Decidesk: decidesk_register.json not found at ' . $configPath);
+			$this->logger->error('Decidiq: decidesk_register.json not found at ' . $configPath);
 			return [
 				[],
 				[
@@ -309,7 +309,7 @@ class SettingsService {
 
 		$configContent = file_get_contents($configPath);
 		if ($configContent === false) {
-			$this->logger->error('Decidesk: failed to read decidesk_register.json');
+			$this->logger->error('Decidiq: failed to read decidesk_register.json');
 			return [
 				[],
 				[
@@ -321,7 +321,7 @@ class SettingsService {
 
 		$configData = json_decode($configContent, true);
 		if (json_last_error() !== JSON_ERROR_NONE) {
-			$this->logger->error('Decidesk: failed to parse decidesk_register.json: ' . json_last_error_msg());
+			$this->logger->error('Decidiq: failed to parse decidesk_register.json: ' . json_last_error_msg());
 			return [
 				[],
 				[
@@ -366,7 +366,7 @@ class SettingsService {
 			$fragmentData = json_decode($fragmentContent, true);
 			if (json_last_error() !== JSON_ERROR_NONE) {
 				$this->logger->warning(
-					'Decidesk: skipping malformed register fragment ' . basename($fragmentFile)
+					'Decidiq: skipping malformed register fragment ' . basename($fragmentFile)
 					. ': ' . json_last_error_msg()
 				);
 				continue;
@@ -415,7 +415,7 @@ class SettingsService {
 			];
 		}
 
-		$this->logger->info('Decidesk: register configuration imported successfully');
+		$this->logger->info('Decidiq: register configuration imported successfully');
 
 		return [
 			'success' => true,

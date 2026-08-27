@@ -1,6 +1,6 @@
 # Design: hermiq-ai-tooling
 
-Extension of `decidesk-mcp-adoption` (read there first: its D1–D7 remain in force except
+Extension of `decidiq-mcp-adoption` (read there first: its D1–D7 remain in force except
 where D5 is explicitly superseded below). This document owns the **action inventory** and the
 **scope × reach matrix**.
 
@@ -29,7 +29,7 @@ where D5 is explicitly superseded below). This document owns the **action invent
 ## D1: Action inventory — every user action, dispositioned
 
 Sources: `lib/Controller/` (39 controllers) and the owning services. Reads are already served
-by decidesk-mcp-adoption's derived surface and dossier tool and are listed only where a
+by decidiq-mcp-adoption's derived surface and dossier tool and are listed only where a
 disposition needs stating. **Legend**: ✅ = new curated tool (this change), ♻ = existing
 method gains the attribute, ✋ = withdrawn, never a tool.
 
@@ -49,7 +49,7 @@ method gains the attribute, ✋ = withdrawn, never a tool.
 | 12 | Generate a minutes draft from a transcript | `MinutesDraftService::generate(transcriptId)` | ♻ | `decidesk.generateMinutesDraft` |
 | 13 | Submit minutes for approval | `MinutesWorkflowService::submitForApproval(minutesId, actorId)` | ♻ | `decidesk.submitMinutesForApproval` |
 | 14 | Extract action items from minutes | `MinutesWorkflowService::extractActionItems(minutesId)` (read/propose) + `saveExtractedActionItems(minutesId, confirmed)` (write) | ✅ two tools, read and write separated | `decidesk.previewMinutesActionItems`, `decidesk.saveMinutesActionItems` |
-| 15 | Add an action item | `ActionItemWriter::addActionItemToMeeting()` | already shipped by decidesk-mcp-adoption — untouched | `decidesk.addActionItem` |
+| 15 | Add an action item | `ActionItemWriter::addActionItemToMeeting()` | already shipped by decidiq-mcp-adoption — untouched | `decidesk.addActionItem` |
 | 16 | Update / complete an action item | `ActionItemWriter::update(uid, changes)` | ♻ | `decidesk.updateActionItem` |
 | 17 | Delete an action item | `ActionItemWriter::delete(uid)` | ♻ approval-gated (`destructiveHint: true`) | `decidesk.deleteActionItem` |
 | 18 | Declare a conflict of interest (own) | `ConflictOfInterestService::declare(...)` | ♻ | `decidesk.declareConflictOfInterest` |
@@ -94,7 +94,7 @@ Reads (`checkQuorum`, `previewMinutesActionItems`, the existing dossier): `scope
 
 ## D3: Superseding D5 — the meeting transition returns, gated
 
-decidesk-mcp-adoption D5 withdrew `startMeeting` for three named reasons. Each is now
+decidiq-mcp-adoption D5 withdrew `startMeeting` for three named reasons. Each is now
 structurally addressed rather than re-argued:
 
 | D5 reason | Then | Now |
@@ -143,12 +143,12 @@ Hermiq grants may carry a `#noapproval` waiver. For this surface:
   label un-gate a destructive tool, and the fail-closed `external` resolution keeps
   `publishDecision` in the gated set regardless of descriptor drift.
 - Grant-only tools rely on default-deny + the explicit per-agent grant; an org can still
-  tighten them to `confirm` via hermiq's guardrail policy (org-configurable), which decidesk
+  tighten them to `confirm` via hermiq's guardrail policy (org-configurable), which decidiq
   neither reads nor overrides.
 
 ## D7: Audit trail
 
-`AuditLogService::append()` is decidesk's tamper-evident hash chain for governance actions
+`AuditLogService::append()` is decidiq's tamper-evident hash chain for governance actions
 (votes, conflicts, proxies, …). Requirement: **every curated write tool appends one entry**
 recording `{toolId, agentId, actingUserId, objectIds, arguments-digest}` — through the same
 `append()` path (which, per change `audit-log-chain-tail-hash`, resolves the previous hash
@@ -178,9 +178,9 @@ existing entry instead of writing a second one — one action, one chain entry.
 1. Fix the `meetingScheduled` rule condition; bump register version; measure the draft/no-notification and scheduled/one-notification pair.
 2. Add the two new service methods (`scheduleDraftMeeting`, `addItemToDraftAgenda`) with guards.
 3. Annotate the existing methods per D2, thin-wrapping where signatures need an agent-facing shape.
-4. Extend `DecideskScannableServices::getScannableServiceClasses()`.
+4. Extend `DecidiqScannableServices::getScannableServiceClasses()`.
 5. Wire audit attribution (D7).
 6. Verify the live catalogue on `/api/mcp`; verify grant classification against hermiq on a dev instance (an ungranted `transitionMeeting` is stripped; a granted one queues for approval).
 7. File the OpenRegister `reach` issue and link it in the PR.
 
-**Rollback**: revert; surface returns to decidesk-mcp-adoption's exactly (see proposal).
+**Rollback**: revert; surface returns to decidiq-mcp-adoption's exactly (see proposal).

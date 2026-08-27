@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Minutes Responder
+ * Decidiq Minutes Responder
  *
  * The one place that decides which HTTP status a failed Minutes operation
  * carries.
@@ -13,7 +13,7 @@
  * no longer drift between two endpoints that were meant to agree.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -29,12 +29,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
 use Exception;
 use InvalidArgumentException;
-use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\Decidesk\Exception\MissingRelationException;
+use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingRelationException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use RuntimeException;

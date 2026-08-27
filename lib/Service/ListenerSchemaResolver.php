@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Listener Schema Resolver
+ * Decidiq Listener Schema Resolver
  *
  * Resolves an OpenRegister object entity's schema **slug** for the
  * object-lifecycle listeners, which compare against slug literals
  * (`meeting`, `decision`, `participant`, ...).
  *
  * Two independent defects made every one of those comparisons impossible, and
- * fixing either alone leaves the listener dead (decidesk#471):
+ * fixing either alone leaves the listener dead (decidiq#471):
  *
  * ⚠️ **The probe half is MOOT on current OpenRegister, and the class is still
  * required.** OpenRegister published its ObjectService/ObjectEntity interfaces
@@ -51,7 +51,7 @@
  * mistaken for a match.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -67,14 +67,14 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
- * Turns an OpenRegister entity's schema value into the slug decidesk's
+ * Turns an OpenRegister entity's schema value into the slug Decidiq's
  * listeners compare against.
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
@@ -121,7 +121,7 @@ class ListenerSchemaResolver {
 	 * Constructor.
 	 *
 	 * @param ContainerInterface $container DI container — OpenRegister's mapper is
-	 *                                      resolved lazily so decidesk boots without it
+	 *                                      resolved lazily so Decidiq boots without it
 	 * @param LoggerInterface $logger Logger for fail-soft diagnostics
 	 *
 	 * @spec openspec/specs/nextcloud-integration/spec.md
@@ -280,7 +280,7 @@ class ListenerSchemaResolver {
 			$slug = $this->readValue(entity: $schema, getter: 'getSlug');
 		} catch (Throwable $e) {
 			$this->logger->debug(
-				'Decidesk: could not resolve an OpenRegister schema slug for a listener guard',
+				'Decidiq: could not resolve an OpenRegister schema slug for a listener guard',
 				[
 					'schemaId' => $id,
 					'exception' => $e->getMessage(),

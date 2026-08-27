@@ -19,10 +19,10 @@
 	<section
 		class="meeting-cost"
 		data-testid="meeting-cost-panel"
-		:aria-label="t('decidesk', 'Meeting cost')">
+		:aria-label="t('decidiq', 'Meeting cost')">
 		<div class="meeting-cost__header">
 			<h4 class="meeting-cost__title">
-				{{ t('decidesk', 'Meeting cost') }}
+				{{ t('decidiq', 'Meeting cost') }}
 			</h4>
 			<NcButton
 				size="small"
@@ -30,11 +30,11 @@
 				:aria-pressed="visible"
 				:aria-label="
 					visible
-						? t('decidesk', 'Hide meeting cost')
-						: t('decidesk', 'Show meeting cost')
+						? t('decidiq', 'Hide meeting cost')
+						: t('decidiq', 'Show meeting cost')
 				"
 				@click="visible = !visible">
-				{{ visible ? t('decidesk', 'Hide') : t('decidesk', 'Show') }}
+				{{ visible ? t('decidiq', 'Hide') : t('decidiq', 'Show') }}
 			</NcButton>
 		</div>
 
@@ -45,7 +45,7 @@
 				data-testid="meeting-cost-no-rate">
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'No hourly rate configured on this governance body — set one to see the running cost.',
 					)
 				}}
@@ -59,7 +59,7 @@
 				</p>
 				<p class="meeting-cost__detail">
 					{{
-						t('decidesk', '{count} attendees × {rate}/h', {
+						t('decidiq', '{count} attendees × {rate}/h', {
 							count: attendeeCount,
 							rate: formattedRate,
 						})

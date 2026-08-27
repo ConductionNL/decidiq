@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Agenda Controller
+ * Decidiq Agenda Controller
  *
  * Thin REST controller exposing agenda lifecycle operations.
  * Delegates all business logic to AgendaService and all authorization to
  * AgendaAuthorizationGuard.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,12 +25,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Exception\NotFoundException;
-use OCA\Decidesk\Service\AgendaAuthorizationGuard;
-use OCA\Decidesk\Service\AgendaService;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Exception\NotFoundException;
+use OCA\Decidiq\Service\AgendaAuthorizationGuard;
+use OCA\Decidiq\Service\AgendaService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;

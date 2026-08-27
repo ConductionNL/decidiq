@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — urgent-decision-procedure spec
@@ -31,7 +31,7 @@ test('quick-filter dropdown label "All urgent" renders intact at every tested vi
 
 	for (const viewport of viewports) {
 		await page.setViewportSize(viewport)
-		await page.goto(`${BASE}/apps/decidesk/urgent-decisions`)
+		await page.goto(`${BASE}/apps/decidiq/urgent-decisions`)
 		await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 		// Dropdown-mode quick filter renders as an NcSelect (vue-select under the

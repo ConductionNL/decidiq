@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Public REST API Controller
+ * Decidiq Public REST API Controller
  *
  * Thin pass-through over OpenRegister ObjectService that exposes
  * governance entities at `/api/v1/{resource}` per the Dutch
  * REST-API Design Rules (REQ-API-001, REQ-API-002, REQ-API-003).
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,9 +27,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidiq\AppInfo\Application;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -43,12 +43,12 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
- * Public REST API for Decidesk governance entities.
+ * Public REST API for Decidiq governance entities.
  *
  * Authentication is delegated to Nextcloud session tokens and (when present)
  * the built-in `oauth2` app. Scope enforcement is read against the per-schema
  * OAuthScope register entries declared by `lib/Settings/decidesk_register.json`
- * — Decidesk does not implement custom token validation (REQ-OAUTH-002).
+ * — Decidiq does not implement custom token validation (REQ-OAUTH-002).
  *
  * @spec openspec/changes/p4-integration/tasks.md#task-1
  * @spec openspec/changes/p4-integration/tasks.md#task-2
@@ -93,7 +93,26 @@ class ApiController extends Controller {
 	];
 
 	/**
+	 * REST resource slugs this API accepts WRITES for.
+	 *
+	 * An allowlist rather than a denylist: a new entry in `RESOURCE_MAP` is
+	 * readable by default and writable only by a deliberate addition here.
+	 *
+	 * @var array<int, string>
+	 */
+	private const RESOURCE_WRITABLE = [
+		'governance-bodies',
+	];
+
+	/**
 	 * Map of public REST resource slug → required OAuth scope.
+	 *
+	 * ⚠️ DECORATIVE. This constant is referenced by no method in this class, so
+	 * no request has ever been checked against it. It reads as an access
+	 * control and is not one. Do not add an entry here believing it will gate
+	 * anything, and do not cite it in a spec as the guard on a route — the
+	 * write path below delegates authorization to OpenRegister's RBAC for
+	 * exactly this reason.
 	 *
 	 * @var array<string, string>
 	 */
@@ -171,7 +190,7 @@ class ApiController extends Controller {
 			$objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
 			$offset = (($page - 1) * $limit);
 			$filters = [
-				'register' => 'decidesk',
+				'register' => 'decidiq',
 				'schema' => $schema,
 			];
 			// ADR-005: /motions and /amendments are decisions narrowed by the
@@ -236,7 +255,7 @@ class ApiController extends Controller {
 
 		try {
 			$objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
-			$entity = $objectService->find(id: $id, register: 'decidesk', schema: $schema);
+			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
 			$object = null;
 			if ($entity !== null) {
 				$object = $entity->jsonSerialize();
@@ -267,6 +286,129 @@ class ApiController extends Controller {
 
 		return $response;
 	}//end show()
+
+	/**
+	 * Create or update a governance body.
+	 *
+	 * THE ONLY WRITABLE RESOURCE HERE, deliberately. Another app needs a
+	 * supported way to place a governance body in decidiq — an objection
+	 * advisory committee is a governance body, and the alternative is a second
+	 * committee schema in the consuming app, or that app reaching into this
+	 * register directly, which ADR-022 and ADR-066 both forbid. Nothing else
+	 * becomes writable: `RESOURCE_WRITABLE` is checked before `RESOURCE_MAP`.
+	 *
+	 * AUTHORIZATION IS OPENREGISTER'S. The write goes through `ObjectService`
+	 * as the acting user, so it is subject to the same RBAC that governs the
+	 * register's own UI. This is not the design that looks obvious from reading
+	 * this class: `SCOPE_MAP` above reads like a scope control and enforces
+	 * NOTHING — it is declared and referenced by no method, so no request has
+	 * ever been checked against it. Guarding this path with a
+	 * `governance-bodies:write` scope would have named a gate that does not
+	 * exist. The posture otherwise matches `integration#createDecision`, the
+	 * cross-app write that already exists: authenticated, no admin gate.
+	 *
+	 * @param string $resource The REST resource slug; only `governance-bodies`.
+	 *
+	 * @return JSONResponse The stored entity, or an error.
+	 *
+	 * @spec openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md
+	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function create(string $resource): JSONResponse {
+		return $this->write(resource: $resource, id: null);
+	}//end create()
+
+	/**
+	 * Update a governance body.
+	 *
+	 * A SEPARATE METHOD from create() only because a route `name` is the route
+	 * IDENTIFIER: two entries sharing one name collide, and the collision does
+	 * not surface as a duplicate-route warning — it throws while the table is
+	 * built, taking down EVERY route in the app. Measured on the running
+	 * instance: the whole /api/v1 surface answered 500, including endpoints this
+	 * change never touched.
+	 *
+	 * PUT REPLACES, it does not patch. The body must carry every required
+	 * property or OpenRegister rejects it — measured: a body of
+	 * `{name, active}` comes back 400 naming `bodyType` and `domain` as
+	 * missing. That is the safe direction (a partial update is refused rather
+	 * than silently blanking fields), but a caller expecting PATCH semantics
+	 * will meet it, so it is stated here rather than discovered.
+	 *
+	 * @param string $resource The REST resource slug; only `governance-bodies`.
+	 * @param string $id The entity UUID to update.
+	 *
+	 * @return JSONResponse The stored entity, or an error.
+	 *
+	 * @spec openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md
+	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function update(string $resource, string $id): JSONResponse {
+		return $this->write(resource: $resource, id: $id);
+	}//end update()
+
+	/**
+	 * Shared create/update implementation.
+	 *
+	 * @param string $resource The REST resource slug.
+	 * @param string|null $id The entity UUID when updating, or null to create.
+	 *
+	 * @return JSONResponse The stored entity, or an error.
+	 */
+	private function write(string $resource, ?string $id): JSONResponse {
+		if (in_array($resource, self::RESOURCE_WRITABLE, true) === false) {
+			return $this->errorResponse(message: 'Unknown resource', status: Http::STATUS_NOT_FOUND);
+		}
+
+		// No `?? null` guard here, deliberately: RESOURCE_WRITABLE is a subset of
+		// RESOURCE_MAP, so the check above has already proved this key exists.
+		// A defensive null branch would be unreachable, and phpstan says so.
+		// The containment is an INVARIANT, not a hope — ApiControllerWriteTest
+		// asserts it, so adding a writable slug without a schema mapping fails a
+		// test rather than 500ing a request.
+		$schema = self::RESOURCE_MAP[$resource];
+
+		if ($this->userSession->getUser() === null) {
+			return $this->errorResponse(message: 'Unauthorized', status: Http::STATUS_UNAUTHORIZED);
+		}
+
+		$body = $this->request->getParams();
+		unset($body['resource'], $body['id'], $body['_route']);
+		if ($body === []) {
+			return $this->errorResponse(message: 'Empty body', status: Http::STATUS_BAD_REQUEST);
+		}
+
+		try {
+			$objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
+			$stored = $objectService->saveObject(
+				object: $body,
+				register: 'decidiq',
+				schema: $schema,
+				uuid: $id,
+			);
+		} catch (Throwable $e) {
+			// A schema-validation rejection and an infrastructure failure arrive
+			// the same way here, so the message says which fields were rejected
+			// rather than claiming the server broke.
+			$this->logger->error(
+				message: 'ApiController write failed',
+				context: ['resource' => $resource, 'id' => $id, 'exception' => $e]
+			);
+			return $this->errorResponse(message: $e->getMessage(), status: Http::STATUS_BAD_REQUEST);
+		}//end try
+
+		$status = Http::STATUS_CREATED;
+		if ($id !== null) {
+			$status = Http::STATUS_OK;
+		}
+
+		$response = new JSONResponse($stored, $status);
+		$this->applyCorsHeaders(response: $response);
+
+		return $response;
+	}//end write()
 
 	/**
 	 * CORS preflight handler for `/api/v1/{resource}`.

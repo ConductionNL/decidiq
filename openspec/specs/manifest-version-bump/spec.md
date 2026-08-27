@@ -5,13 +5,13 @@ status: done
 # manifest-version-bump Specification
 
 ## Purpose
-Bumps the decidesk app manifest version in src/manifest.json from 0.3.0 to 0.4.0 per the content-versioning rules, changing only the top-level version field and leaving all other manifest fields untouched.
+Bumps the decidiq app manifest version in src/manifest.json from 0.3.0 to 0.4.0 per the content-versioning rules, changing only the top-level version field and leaving all other manifest fields untouched.
 
 ## Requirements
 
 ### Requirement: REQ-MVB-1 — manifest.version reflects 0.4.0
 
-The decidesk app manifest at `src/manifest.json` MUST declare `version: "0.4.0"` (incremented from `0.3.0`) per ADR-024 §7 content-versioning rules. No other manifest fields change in this spec.
+The decidiq app manifest at `src/manifest.json` MUST declare `version: "0.4.0"` (incremented from `0.3.0`) per ADR-024 §7 content-versioning rules. No other manifest fields change in this spec.
 
 #### Scenario: Manifest version is bumped
 - **GIVEN** the post-change `src/manifest.json`

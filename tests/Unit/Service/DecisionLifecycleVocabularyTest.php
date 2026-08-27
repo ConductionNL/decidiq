@@ -4,7 +4,7 @@
  * Decision lifecycle vocabulary conformance.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -19,11 +19,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
-use OCA\Decidesk\Lifecycle\MotionLifecycleTransitioner;
-use OCA\Decidesk\Service\AmendmentOrderService;
+use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
+use OCA\Decidiq\Lifecycle\MotionLifecycleTransitioner;
+use OCA\Decidiq\Service\AmendmentOrderService;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 

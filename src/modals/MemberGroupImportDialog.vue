@@ -6,7 +6,7 @@
  isolation).
 
  Group + member listing comes from the admin-gated
- /apps/decidesk/api/member-import endpoints (AuthorizedAdminSetting).
+ /apps/decidiq/api/member-import endpoints (AuthorizedAdminSetting).
  model-debt-cleanup-code: each imported user becomes a Person (matched by
  email against an existing Person, else created) + Membership pair, not a
  Participant, going through the OpenRegister object API via the shared
@@ -17,14 +17,14 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Import from Nextcloud group')"
+		:name="t('decidiq', 'Import from Nextcloud group')"
 		size="normal"
 		data-testid="member-group-import-dialog"
 		@closing="$emit('close')">
 		<template #default>
 			<NcSelect
 				v-model="selectedGroup"
-				:inputLabel="t('decidesk', 'Nextcloud group')"
+				:inputLabel="t('decidiq', 'Nextcloud group')"
 				:options="groupOptions"
 				label="label"
 				:loading="loadingGroups"
@@ -32,7 +32,7 @@
 				data-testid="group-import-select" />
 
 			<div v-if="loadingMembers" class="group-import__loading">
-				{{ t('decidesk', 'Loading group members…') }}
+				{{ t('decidiq', 'Loading group members…') }}
 			</div>
 
 			<table
@@ -42,13 +42,13 @@
 				<thead>
 					<tr>
 						<th scope="col">
-							{{ t('decidesk', 'Name') }}
+							{{ t('decidiq', 'Name') }}
 						</th>
 						<th scope="col">
-							{{ t('decidesk', 'Email') }}
+							{{ t('decidiq', 'Email') }}
 						</th>
 						<th scope="col">
-							{{ t('decidesk', 'Status') }}
+							{{ t('decidiq', 'Status') }}
 						</th>
 					</tr>
 				</thead>
@@ -58,10 +58,10 @@
 						<td>{{ row.email }}</td>
 						<td>
 							<span v-if="row.duplicate" class="group-import__dup">
-								{{ t('decidesk', 'Already a member — skipped') }}
+								{{ t('decidiq', 'Already a member — skipped') }}
 							</span>
 							<span v-else>{{
-								t('decidesk', 'Will be imported')
+								t('decidiq', 'Will be imported')
 							}}</span>
 						</td>
 					</tr>
@@ -89,14 +89,14 @@
 				@click="runImport">
 				{{
 					importing
-						? t('decidesk', 'Importing…')
-						: t('decidesk', 'Import {count} members', {
+						? t('decidiq', 'Importing…')
+						: t('decidiq', 'Import {count} members', {
 								count: importableCount,
 							})
 				}}
 			</NcButton>
 			<NcButton data-testid="group-import-cancel" @click="$emit('close')">
-				{{ t('decidesk', 'Close') }}
+				{{ t('decidiq', 'Close') }}
 			</NcButton>
 		</template>
 	</NcDialog>
@@ -182,7 +182,7 @@ export default {
 			this.error = ''
 			try {
 				const response = await fetch(
-					generateUrl('/apps/decidesk/api/member-import/groups'),
+					generateUrl('/apps/decidiq/api/member-import/groups'),
 					{
 						headers: { requesttoken: getRequestToken() },
 					},
@@ -190,7 +190,7 @@ export default {
 				if (!response.ok) {
 					throw new Error(
 						this.t(
-							'decidesk',
+							'decidiq',
 							'Could not load groups (admin access required).',
 						),
 					)
@@ -199,7 +199,7 @@ export default {
 				this.groups = data?.groups || []
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Could not load groups.')
+					e?.message || this.t('decidiq', 'Could not load groups.')
 			} finally {
 				this.loadingGroups = false
 			}
@@ -217,7 +217,7 @@ export default {
 			this.error = ''
 			try {
 				const url = generateUrl(
-					'/apps/decidesk/api/member-import/groups/{groupId}/members',
+					'/apps/decidiq/api/member-import/groups/{groupId}/members',
 					{ groupId },
 				)
 				const response = await fetch(url, {
@@ -225,7 +225,7 @@ export default {
 				})
 				if (!response.ok) {
 					throw new Error(
-						this.t('decidesk', 'Could not load group members.'),
+						this.t('decidiq', 'Could not load group members.'),
 					)
 				}
 				const data = await response.json()
@@ -235,7 +235,7 @@ export default {
 				)
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Could not load group members.')
+					e?.message || this.t('decidiq', 'Could not load group members.')
 				this.preview = []
 			} finally {
 				this.loadingMembers = false
@@ -275,7 +275,7 @@ export default {
 						}),
 					)
 				}
-				this.doneMessage = this.t('decidesk', '{count} members imported.', {
+				this.doneMessage = this.t('decidiq', '{count} members imported.', {
 					count: rows.length,
 				})
 				this.$emit('imported')
@@ -285,7 +285,7 @@ export default {
 					duplicate: true,
 				}))
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Import failed.')
+				this.error = e?.message || this.t('decidiq', 'Import failed.')
 			} finally {
 				this.importing = false
 			}

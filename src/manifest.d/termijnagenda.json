@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Termijnagenda (long-term agenda / LTA) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Declarative core only: index + detail pages for the termijnagenda-item register; schema refs BY SLUG (termijnagenda-item), never PascalCase. DEFERRED (imperative frontend, out of this declarative-core fragment): the per-body board page with drag-to-reschedule (REQ-LTA-005 — a custom component + reschedule/realise/vervallen dialogs) and the Dashboard 'Termijnagenda over termijn' stat widget (REQ-LTA-010), which lives in the base src/manifest.json (design D6: mergePages replaces a same-id page wholesale, so a fragment cannot add one widget to Dashboard without duplicating it). This fragment does NOT edit src/manifest.json.",
 	"menu": [
 		{
@@ -18,7 +18,7 @@
 			"title": "Long-term agenda",
 			"_note": "spec: openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "termijnagenda-item",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -34,7 +34,7 @@
 				],
 				"columns": [
 					{ "key": "subject", "label": "Subject", "widget": "link" },
-					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "plannedPeriod", "label": "Planned period" },
 					{ "key": "expectedType", "label": "Expected type", "widget": "badge" },
 					{ "key": "ownerType", "label": "Owner" },
@@ -45,7 +45,7 @@
 				],
 				"showMassExport": true,
 				"sidebar": { "enabled": true, "showMetadata": true },
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -55,7 +55,7 @@
 			"title": "Long-term agenda item",
 			"_note": "spec: openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "termijnagenda-item",
 				"_note": "TermijnagendaDetail (REQ-LTA-006/007). Plan data leads 8-wide, publication stacked right; governanceBody/owner and the origin links (originToezegging/originMotie/originDecision) and realisation links (realisedAgendaItem/realisedDecision) render as resolved references in the data + Related widgets. verschuifHistorie (shift history) renders in the data widget as an embedded array. Files leaf for a startnotitie. Audit trail is a sidebar tab. Execution narrative for a linked motion stays on that motion's UitvoeringsUpdate log — never duplicated here (REQ-LTA-006).",
 				"widgets": [
@@ -75,7 +75,7 @@
 						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
 					]
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		}
 	]

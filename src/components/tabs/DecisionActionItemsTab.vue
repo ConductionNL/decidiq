@@ -11,31 +11,31 @@
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--action-items"
+		class="decidiq-tab decidiq-tab--action-items"
 		data-testid="decision-action-items-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Action items') }}
-				<span v-if="!loading" class="decidesk-tab__count"
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Action items') }}
+				<span v-if="!loading" class="decidiq-tab__count"
 					>({{ rows.length }})</span
 				>
 			</h3>
 			<NcButton
 				variant="primary"
 				data-testid="decision-action-items-add"
-				:aria-label="t('decidesk', 'Add action item')"
+				:aria-label="t('decidiq', 'Add action item')"
 				@click="openCreate">
 				<template #icon>
 					<Plus :size="20" />
 				</template>
-				{{ t('decidesk', 'Add action item') }}
+				{{ t('decidiq', 'Add action item') }}
 			</NcButton>
 		</div>
 
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load action items')">
+			:title="t('decidiq', 'Could not load action items')">
 			{{ error }}
 		</CnNoteCard>
 
@@ -45,9 +45,9 @@
 			:loading="loading"
 			rowKey="id"
 			:emptyText="
-				t('decidesk', 'No action items spawned by this decision yet.')
+				t('decidiq', 'No action items spawned by this decision yet.')
 			"
-			:loadingText="t('decidesk', 'Loading action items…')"
+			:loadingText="t('decidiq', 'Loading action items…')"
 			@rowClick="openEdit">
 			<template #column-taskStatus="{ value }">
 				<CnStatusBadge
@@ -67,8 +67,8 @@
 			:item="editTarget"
 			:dialogTitle="
 				editTarget
-					? t('decidesk', 'Edit action item')
-					: t('decidesk', 'Add action item')
+					? t('decidiq', 'Edit action item')
+					: t('decidiq', 'Add action item')
 			"
 			:excludeFields="excludedFields"
 			@confirm="onConfirm"
@@ -79,7 +79,7 @@
 			ref="deleteDialog"
 			:item="deleteTarget"
 			nameField="title"
-			:dialogTitle="t('decidesk', 'Delete action item')"
+			:dialogTitle="t('decidiq', 'Delete action item')"
 			@confirm="confirmDelete"
 			@close="deleteTarget = null" />
 	</div>
@@ -138,10 +138,10 @@ export default {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		columns() {
 			return [
-				{ key: 'title', label: this.t('decidesk', 'Title') },
-				{ key: 'assignee', label: this.t('decidesk', 'Assignee') },
-				{ key: 'dueDate', label: this.t('decidesk', 'Due') },
-				{ key: 'taskStatus', label: this.t('decidesk', 'Status') },
+				{ key: 'title', label: this.t('decidiq', 'Title') },
+				{ key: 'assignee', label: this.t('decidiq', 'Assignee') },
+				{ key: 'dueDate', label: this.t('decidiq', 'Due') },
+				{ key: 'taskStatus', label: this.t('decidiq', 'Status') },
 			]
 		},
 
@@ -159,12 +159,12 @@ export default {
 		rowActions() {
 			return [
 				{
-					label: this.t('decidesk', 'Edit'),
+					label: this.t('decidiq', 'Edit'),
 					icon: Pencil,
 					handler: (row) => this.openEdit(row),
 				},
 				{
-					label: this.t('decidesk', 'Delete'),
+					label: this.t('decidiq', 'Delete'),
 					icon: TrashCanOutline,
 					destructive: true,
 					handler: (row) => {
@@ -207,7 +207,7 @@ export default {
 				this.rows = items || []
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Failed to load action items.')
+					e?.message || this.t('decidiq', 'Failed to load action items.')
 			} finally {
 				this.loading = false
 			}
@@ -259,7 +259,7 @@ export default {
 				this.refresh()
 			} catch (e) {
 				this.$refs.formDialog?.setResult({
-					error: e?.message || this.t('decidesk', 'Save failed.'),
+					error: e?.message || this.t('decidiq', 'Save failed.'),
 				})
 			}
 		},
@@ -277,7 +277,7 @@ export default {
 				this.refresh()
 			} catch (e) {
 				this.$refs.deleteDialog?.setResult({
-					error: e?.message || this.t('decidesk', 'Delete failed.'),
+					error: e?.message || this.t('decidiq', 'Delete failed.'),
 				})
 			}
 		},
@@ -286,27 +286,27 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__count {
+.decidiq-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;

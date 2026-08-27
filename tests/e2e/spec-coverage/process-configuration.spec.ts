@@ -4,7 +4,7 @@
  *
  * Gate-19 e2e coverage — Process configuration (process-config-v1).
  *
- * Drives the admin process-template management surface in the Decidesk admin
+ * Drives the admin process-template management surface in the Decidiq admin
  * settings panel: the template list (built-in vs custom), the create/edit modal
  * with the state-machine editor + client-side graph validation, and the
  * duplicate action. The guard-wiring, round-open-defaults and built-in
@@ -25,11 +25,11 @@ import { BASE_URL as BASE } from '../base-url'
 import { becomesVisible } from '../becomes-visible.js'
 
 /**
- * Open the Decidesk admin settings and wait for the process-templates section.
+ * Open the Decidiq admin settings and wait for the process-templates section.
  * Returns false (→ defensive skip) when the surface is not deployed.
  */
 async function openProcessTemplates(page: Page): Promise<boolean> {
-	await page.goto(`${BASE}/settings/admin/decidesk`)
+	await page.goto(`${BASE}/settings/admin/decidiq`)
 	const section = page.locator('[data-testid="process-templates"]')
 	return section
 		.waitFor({ state: 'visible', timeout: 15_000 })

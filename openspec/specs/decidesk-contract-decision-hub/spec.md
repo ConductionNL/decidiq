@@ -5,7 +5,7 @@ status: done
 # decidesk-contract-decision-hub Specification
 
 ## Purpose
-Turns decidesk into a decision hub that any fleet app can call to raise a governance decision (such as a contract approval or report adoption) about an object it owns. It adds subject-reference and provenance fields to the Decision schema, an idempotent create-decision API endpoint, a queryable outcome envelope and callback subscriptions, and delegation of document signing to docudesk — while owning only the decision itself and leaving downstream side effects to the consuming app.
+Turns decidiq into a decision hub that any fleet app can call to raise a governance decision (such as a contract approval or report adoption) about an object it owns. It adds subject-reference and provenance fields to the Decision schema, an idempotent create-decision API endpoint, a queryable outcome envelope and callback subscriptions, and delegation of document signing to docudesk — while owning only the decision itself and leaving downstream side effects to the consuming app.
 ## Requirements
 ### Requirement: REQ-DCDH-001 — Subject reference and provenance on a Decision
 
@@ -22,10 +22,10 @@ per ADR-037, with no required field added so existing decisions stay valid.
 #### Scenario: A finance app raises a contract decision with a subject reference
 
 - GIVEN shillinq holds a `Contract` object that requires board approval
-- WHEN shillinq raises a decidesk Decision with `decisionType=contract`, `sourceApp=shillinq`,
+- WHEN shillinq raises a decidiq Decision with `decisionType=contract`, `sourceApp=shillinq`,
   `subjectRegister=shillinq`, `subjectSchema=Contract`, `subjectId=<uuid>`, and a `subjectLabel`
 - THEN the Decision is stored with those provenance fields populated
-- AND the decidesk Decision detail shows a read-only "raised by" provenance block resolving to that
+- AND the decidiq Decision detail shows a read-only "raised by" provenance block resolving to that
   originating object
 
 #### Scenario: Existing decisions remain valid after the additive delta
@@ -44,7 +44,7 @@ per ADR-037, with no required field added so existing decisions stay valid.
 
 ### Requirement: REQ-DCDH-002 — Generic create-decision integration endpoint
 
-The system SHALL expose `POST /index.php/apps/decidesk/api/v1/decisions` so any fleet app can raise a
+The system SHALL expose `POST /index.php/apps/decidiq/api/v1/decisions` so any fleet app can raise a
 Decision of any `decisionType`, supplying the REQ-DCDH-001 subject reference and provenance. The
 endpoint SHALL follow the `p4-integration` conventions (auth posture declared via a Nextcloud
 attribute, consistent error envelope). The endpoint SHALL be **idempotent** on the tuple
@@ -75,7 +75,7 @@ optional route/method) and returns its id.
 
 ### Requirement: REQ-DCDH-003 — Queryable outcome envelope
 
-The system SHALL expose `GET /index.php/apps/decidesk/api/v1/decisions/{id}/outcome` returning a
+The system SHALL expose `GET /index.php/apps/decidiq/api/v1/decisions/{id}/outcome` returning a
 stable outcome envelope so a consumer can poll the result of a delegated decision. The envelope SHALL
 contain `decisionId`, `decisionType`, a `status` derived from the existing `Decision.lifecycle` +
 `Decision.outcome` (`approved` when lifecycle is `decided`/`enacted` with an adopting outcome,
@@ -109,7 +109,7 @@ machine (ADR-031).
 
 ### Requirement: REQ-DCDH-004 — Subscribe to outcome via registry callback
 
-The system SHALL expose `POST /index.php/apps/decidesk/api/v1/decisions/{id}/subscriptions` so a
+The system SHALL expose `POST /index.php/apps/decidiq/api/v1/decisions/{id}/subscriptions` so a
 consumer can register an outcome callback (push delivery), complementing polling (REQ-DCDH-003). When
 the Decision reaches a terminal outcome, the system SHALL dispatch the outcome envelope to the
 registered callback via the ADR-019 integration registry. The callback target SHALL be validated
@@ -121,7 +121,7 @@ avoiding imperative leaf-app dispatch.
 
 - GIVEN shillinq has registered a callback for a `decisionType=contract` Decision
 - WHEN that Decision becomes `decided` with `outcome=adopted`
-- THEN decidesk dispatches the outcome envelope to shillinq's registry callback
+- THEN decidiq dispatches the outcome envelope to shillinq's registry callback
 
 #### Scenario: Callback to a non-registry URL is rejected
 
@@ -142,13 +142,13 @@ reference on the signature stage. When docudesk reports the signing complete, th
 The system SHALL retain openconnector's `e-sign` Source as a fallback provider when docudesk is
 absent, selecting the provider via the registry. The signature method SHALL fail **closed** (the
 stage stays unresolved) when no signing provider is available — it SHALL NOT silently mark a document
-signed. decidesk SHALL NOT implement its own document e-signature engine.
+signed. decidiq SHALL NOT implement its own document e-signature engine.
 
 #### Scenario: A signature stage composes a docudesk signing request
 
 - GIVEN a `method=signature` stage on a contract Decision with a `signedDocument` and signatories
 - WHEN the signature method runs with docudesk available
-- THEN decidesk composes a docudesk `signingRequest` via the registry and stores the returned signing
+- THEN decidiq composes a docudesk `signingRequest` via the registry and stores the returned signing
   reference on the stage
 
 #### Scenario: Completed docudesk signing resolves the stage
@@ -168,53 +168,53 @@ signed. decidesk SHALL NOT implement its own document e-signature engine.
 
 ---
 
-### Requirement: REQ-DCDH-006 — Position decidesk Decision vs OpenRegister ApprovalChain
+### Requirement: REQ-DCDH-006 — Position decidiq Decision vs OpenRegister ApprovalChain
 
 The system SHALL document, and consumers SHALL choose between, two approval paths without
 duplication: OpenRegister's generic `ApprovalChainPanel`/`ApprovalStepList` is the lightweight,
 in-place, single-object sign-off (no governance route, no bodies/quorum, no eIDAS, no ORI/Popolo
-publication); the decidesk Decision is the richer governance path (typed multi-stage route across
+publication); the decidiq Decision is the richer governance path (typed multi-stage route across
 Persons/GovernanceBodies, quorum + chair rules, pluggable methods incl. eIDAS signature via docudesk,
-audit hash-chain, ORI/Popolo/OpenCatalogi publication). A consumer SHALL use the decidesk hub when it
+audit hash-chain, ORI/Popolo/OpenCatalogi publication). A consumer SHALL use the decidiq hub when it
 needs a governance decision, a document signature, or a cross-body route; otherwise it MAY stay on the
 OR ApprovalChain. This change SHALL add no code to OpenRegister and SHALL NOT remove or wrap the OR
 approval framework.
 
-#### Scenario: A cross-body contract approval routes to the decidesk hub
+#### Scenario: A cross-body contract approval routes to the decidiq hub
 
 - GIVEN a contract approval that must pass an ambtelijk preparing body then a politiek deciding body
   and be signed
 - WHEN the consumer chooses an approval path
-- THEN it raises a decidesk Decision (route + `method=signature`) rather than the OR ApprovalChain
+- THEN it raises a decidiq Decision (route + `method=signature`) rather than the OR ApprovalChain
 
 #### Scenario: A trivial single-object sign-off stays on the OR ApprovalChain
 
 - GIVEN a simple "needs one approval" on a single object with no governance/signing requirement
 - WHEN the consumer chooses an approval path
-- THEN it MAY use the OR ApprovalChain and need not raise a decidesk Decision
+- THEN it MAY use the OR ApprovalChain and need not raise a decidiq Decision
 
 ---
 
 ### Requirement: REQ-DCDH-007 — Own the decision only, not downstream side effects
 
 The system SHALL emit the decision outcome (via REQ-DCDH-003 query and REQ-DCDH-004 callback) and
-SHALL stop at that boundary. decidesk SHALL NOT post to a finance ledger, SHALL NOT advance a ZGW
+SHALL stop at that boundary. decidiq SHALL NOT post to a finance ledger, SHALL NOT advance a ZGW
 case, and SHALL NOT mutate any consuming app's lifecycle. Consuming the outcome is the consumer app's
 responsibility — shillinq posts the GL / advances its bookkeeping lifecycle, procest advances its ZGW
 case — owned by `shillinq-delegate-signing` and `procest-delegate-contract-decision` respectively.
 
-#### Scenario: decidesk does not post the consumer's side effects
+#### Scenario: decidiq does not post the consumer's side effects
 
 - GIVEN a `decisionType=contract` Decision becomes `decided` with `outcome=adopted`
 - WHEN the outcome is emitted to shillinq
-- THEN decidesk performs no GL posting and no case transition itself; shillinq's delegate change
+- THEN decidiq performs no GL posting and no case transition itself; shillinq's delegate change
   consumes the outcome and posts the GL
 
 #### Scenario: Side-effect ownership is documented for both consumers
 
 - GIVEN the hub is consumed by both shillinq and procest
 - WHEN a contract decision concludes
-- THEN decidesk emits the same outcome envelope to each, and each consumer (shillinq GL post, procest
+- THEN decidiq emits the same outcome envelope to each, and each consumer (shillinq GL post, procest
   ZGW advance) owns its own downstream action
 
 ---
@@ -235,13 +235,13 @@ ADR-066 leaf contract under the shared id `decidesk-decisions`: the client half 
 `LeafDescriptor` contributed to OpenRegister's `RegisterLeafProvidersEvent`
 (`lib/Listener/RegisterDecisionsLeafListener.php`). The server half exists so a manifest
 app or admin UI can enumerate the leaf through the
-`openregister.integrations.leaves` capability **without loading decidesk's JS bundle**
+`openregister.integrations.leaves` capability **without loading decidiq's JS bundle**
 (ADR-066 Consequences → Cross-app / governance); a client-only registration renders but
 is invisible to every server-side consumer.
 
 The descriptor SHALL declare `kinds: ['render-surface']` only and SHALL contribute a
 **null** `IntegrationProvider`: the leaf reads and appends decisions through
-OpenRegister's own object API from the browser (ADR-022), so decidesk serves no
+OpenRegister's own object API from the browser (ADR-022), so decidiq serves no
 app-local store behind it. The leaf SHALL expose no verb — raising a decision from
 another app remains the ADR-041 `DecisionRequestedEvent` path (REQ-DCDH-002), never the
 leaf seam (ADR-066 decision 2).
@@ -252,14 +252,14 @@ EXPLICITLY rather than left to a default — a half that declares a value by omi
 gives the cross-layer parity check nothing to compare, which is how two halves drift
 without either compiler noticing (ADR-066 decisions 4 and 7).
 
-#### Scenario: The leaf is discoverable server-side without loading decidesk's bundle
+#### Scenario: The leaf is discoverable server-side without loading decidiq's bundle
 
 - GIVEN OpenRegister collects its leaf catalogue by dispatching `RegisterLeafProvidersEvent`
-- WHEN decidesk's `RegisterDecisionsLeafListener` handles it
-- THEN exactly one leaf is contributed, with id `decidesk-decisions`, `requiredApp` `decidesk`,
+- WHEN decidiq's `RegisterDecisionsLeafListener` handles it
+- THEN exactly one leaf is contributed, with id `decidesk-decisions`, `requiredApp` `decidiq`,
   kind `render-surface`, `renderMode` `mount`, and a null provider
 - AND the descriptor reaches the `openregister.integrations.leaves` capability, so a consumer
-  can enumerate the leaf without evaluating any decidesk JavaScript
+  can enumerate the leaf without evaluating any decidiq JavaScript
 
 #### Scenario: A non-matching event contributes nothing
 

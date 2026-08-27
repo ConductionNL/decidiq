@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 Conduction / Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Conduction / Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Unit tests for the action-item → Deck-card projection
@@ -123,7 +123,7 @@ describe('projectActionItems', () => {
 			{ uuid: 'u3', title: 'Notulen', taskStatus: 'done' },
 		]
 		const res = await projectActionItems({
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision',
 			objectId: 'obj-1',
 			items,
@@ -158,7 +158,7 @@ describe('projectActionItems', () => {
 			{ uuid: 'u2', title: 'New one', taskStatus: 'open' },
 		]
 		const res = await projectActionItems({
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision',
 			objectId: 'obj-1',
 			items,
@@ -177,7 +177,7 @@ describe('projectActionItems', () => {
 			{ uuid: 'u1', title: 'Stale', taskStatus: 'open', deckCardId: 100 },
 		]
 		const res = await projectActionItems({
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision',
 			objectId: 'obj-1',
 			items,
@@ -199,7 +199,7 @@ describe('projectActionItems', () => {
 			{ uuid: 'u2', title: 'Works', taskStatus: 'open' },
 		]
 		const res = await projectActionItems({
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision',
 			objectId: 'obj-1',
 			items,

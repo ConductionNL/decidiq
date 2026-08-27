@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * CI regression config for the shared `E2E Tests (Playwright)` job.
@@ -35,8 +35,8 @@
  * point for local runs, `npm run test:e2e:docs` and `--project visual`.
  *
  * The report/output paths also differ deliberately: the workflow uploads
- * `server/apps/decidesk/playwright-report/` and
- * `server/apps/decidesk/test-results/`, so on CI the artifacts must land at
+ * `server/apps/decidiq/playwright-report/` and
+ * `server/apps/decidiq/test-results/`, so on CI the artifacts must land at
  * the app root, not under `tests/e2e/`. With the root config's paths the
  * "Upload Playwright report" step matches nothing and silently uploads an
  * empty artifact (`if-no-files-found: ignore`) — a failing run with no report

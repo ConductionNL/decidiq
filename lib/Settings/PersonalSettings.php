@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Personal Settings
+ * Decidiq Personal Settings
  *
- * Provides the personal (per-user) settings form for the Decidesk
+ * Provides the personal (per-user) settings form for the Decidiq
  * application: notification preferences, display preferences, absence
  * delegation, and communication preferences (user-settings spec).
  *
  * @category Settings
- * @package  OCA\Decidesk\Settings
+ * @package  OCA\Decidiq\Settings
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,14 +25,14 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Settings;
+namespace OCA\Decidiq\Settings;
 
-use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidiq\AppInfo\Application;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\Settings\ISettings;
 
 /**
- * Personal settings panel (OCP\Settings\ISettings) for Decidesk.
+ * Personal settings panel (OCP\Settings\ISettings) for Decidiq.
  *
  * Renders the Vue mount point; all data flows through the per-user REST
  * endpoints (/api/notification-preference and /api/preferences/{key}), which
@@ -64,7 +64,7 @@ class PersonalSettings implements ISettings {
 	 * @spec openspec/specs/user-settings/spec.md
 	 */
 	public function getSection(): string {
-		return 'decidesk';
+		return Application::APP_ID;
 	}//end getSection()
 
 	/**

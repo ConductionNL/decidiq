@@ -4,7 +4,7 @@
 TBD - created by archiving change done-spec-fixes. Update Purpose after archive.
 ## Requirements
 ### Requirement: REQ-DIALECT-001 Notification triggers use OpenRegister's canonical vocabulary
-Every `x-openregister-notifications` trigger decidesk declares SHALL use a `trigger.type` drawn from
+Every `x-openregister-notifications` trigger decidiq declares SHALL use a `trigger.type` drawn from
 OpenRegister's `NotificationAnnotationValidator::VALID_TRIGGERS`
 (`created`, `updated`, `transition`, `scheduled`, `threshold`, `calculatedChange`). A value outside
 that set matches no dispatch branch, so the notification is inert — declared, reviewed, and never
@@ -22,7 +22,7 @@ firing.
 - AND the failure states that the notification can never fire.
 
 ### Requirement: REQ-DIALECT-002 Relations use the canonical property-level $ref dialect
-Decidesk SHALL declare every schema relation as a property-level `$ref` — on the property for a
+Decidiq SHALL declare every schema relation as a property-level `$ref` — on the property for a
 to-one relation, or under `items` for a to-many relation. The bespoke per-schema
 `x-openregister-relations` block was retired 2026-07-08 (ADR-062 rule 7) and SHALL NOT be used: no
 engine reads it, so a relation declared there is inert.
@@ -45,12 +45,12 @@ engine reads it, so a relation declared there is inert.
 - THEN a property of that name exists to hold the reference.
 
 ### Requirement: REQ-DIALECT-003 A corrected register reaches existing installs
-Decidesk SHALL bump `info.version` in `decidesk_register.json` whenever it corrects its register in a
+Decidiq SHALL bump `info.version` in `decidesk_register.json` whenever it corrects its register in a
 way that must reach existing installs, because OpenRegister's `importFromJson()` early-returns when
 the computed version is not newer than the stored version — leaving an unbumped correction inert.
 
 #### Scenario: A dialect correction is not skipped by the import gate
 - GIVEN an install whose stored configuration version predates this change
-- WHEN decidesk is upgraded
+- WHEN decidiq is upgraded
 - THEN `info.version` is newer, so the corrected register is imported rather than skipped.
 

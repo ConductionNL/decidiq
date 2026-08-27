@@ -11,14 +11,14 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Confirm adoption')"
+		:name="t('decidiq', 'Confirm adoption')"
 		data-testid="adopt-consent-dialog"
 		@closing="$emit('close')">
 		<template #default>
 			<p>
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'This will set all {n} consent agenda items to "Adopted" (afgerond). Continue?',
 						{ n: count },
 					)
@@ -30,10 +30,10 @@
 				variant="primary"
 				:loading="processing"
 				@click="$emit('confirm')">
-				{{ t('decidesk', 'Confirm') }}
+				{{ t('decidiq', 'Confirm') }}
 			</NcButton>
 			<NcButton @click="$emit('close')">
-				{{ t('decidesk', 'Cancel') }}
+				{{ t('decidiq', 'Cancel') }}
 			</NcButton>
 		</template>
 	</NcDialog>

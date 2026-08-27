@@ -2,13 +2,13 @@
 status: done
 ---
 
-# Spec: Decidesk MCP Tools Provider
+# Spec: Decidiq MCP Tools Provider
 
 ## Purpose
-@e2e exclude Pure PHP backend spec — all scenarios are server-side DI/service-layer contracts covered by PHPUnit (tests/Unit/Mcp/DecideskToolProviderTest.php and tests/Integration/Mcp/DecideskToolProviderIntegrationTest.php). No browser UI surface exists.
+@e2e exclude Pure PHP backend spec — all scenarios are server-side DI/service-layer contracts covered by PHPUnit (tests/Unit/Mcp/DecidiqToolProviderTest.php and tests/Integration/Mcp/DecidiqToolProviderIntegrationTest.php). No browser UI surface exists.
 
-Decidesk implements `OCA\OpenRegister\Mcp\IMcpToolProvider` so the AI Chat Companion's
-tool dispatcher can offer decidesk capabilities — listing action items and meetings,
+Decidiq implements `OCA\OpenRegister\Mcp\IMcpToolProvider` so the AI Chat Companion's
+tool dispatcher can offer decidiq capabilities — listing action items and meetings,
 reading meeting details, starting a meeting, and adding action items — to an LLM. This
 spec captures the tool catalogue, the contract for each tool's input schema, output
 schema, authorisation rule, and error envelope, plus the inline-citation `sources` array
@@ -24,12 +24,14 @@ convention.
 
 ### Requirement: REQ-DMCP-001 — Implement IMcpToolProvider
 
-The system SHALL provide a class `OCA\Decidesk\Mcp\DecideskToolProvider` that implements
+The system SHALL provide a class `OCA\Decidiq\Mcp\DecidiqToolProvider` that implements
 `OCA\OpenRegister\Mcp\IMcpToolProvider`. The class SHALL be registered in the Nextcloud
 service container via `IRegistrationContext::registerServiceAlias` in
 `lib/AppInfo/Application.php` using the alias key
-`OCA\OpenRegister\Mcp\IMcpToolProvider::decidesk` so OpenRegister's `McpToolsService`
-discovers it.
+`OCA\OpenRegister\Mcp\IMcpToolProvider::decidiq` so OpenRegister's `McpToolsService`
+discovers it. The suffix is the Nextcloud app id and therefore moved with `<id>`;
+it is deliberately NOT the same string as `getAppId()`, which stays `decidesk` so
+that the published `decidesk.*` tool ids keep working for existing callers.
 
 The class MUST implement three methods:
 
@@ -40,9 +42,9 @@ The class MUST implement three methods:
 | `invokeTool(string $toolId, array $arguments): array` | Tool result payload | See REQ-DMCP-003. |
 
 #### Scenario: Service alias resolves to provider
-- **GIVEN** decidesk is enabled and openregister is installed
-- **WHEN** `\OC::$server->query('OCA\\OpenRegister\\Mcp\\IMcpToolProvider::decidesk')` is called
-- **THEN** the container returns an instance of `OCA\Decidesk\Mcp\DecideskToolProvider`
+- **GIVEN** decidiq is enabled and openregister is installed
+- **WHEN** `\OC::$server->query('OCA\\OpenRegister\\Mcp\\IMcpToolProvider::decidiq')` is called
+- **THEN** the container returns an instance of `OCA\Decidiq\Mcp\DecidiqToolProvider`
 
 #### Scenario: getAppId returns the canonical slug
 - **WHEN** `getAppId()` is called on the provider
@@ -241,7 +243,7 @@ links.
 ```yaml
 type:  string  # 'decidesk.meeting' | 'decidesk.agendaItem' | 'decidesk.decision' | 'decidesk.actionItem'
 uuid:  string  # the object's UUID
-url:   string  # deep link, e.g. '/apps/decidesk/meetings/<uuid>'
+url:   string  # deep link, e.g. '/apps/decidiq/meetings/<uuid>'
 label: string  # human-readable label (meeting title, action-item title, etc.)
 ```
 
@@ -302,7 +304,7 @@ that does not leak existence by message text.
 
 ### Requirement: REQ-DMCP-008 — Service reuse via DI
 
-The provider SHALL delegate to existing decidesk services via constructor injection. The
+The provider SHALL delegate to existing decidiq services via constructor injection. The
 provider MUST NOT issue HTTP calls, MUST NOT instantiate services with `new`, and MUST
 NOT duplicate business logic that already lives in `MeetingService`, `AgendaService`, or
 `TaskService` (action items).
@@ -326,7 +328,7 @@ NOT duplicate business logic that already lives in `MeetingService`, `AgendaServ
 ### Requirement: REQ-DMCP-009 — Interface resolution via runtime autoloader
 
 The provider MUST rely on Nextcloud's runtime autoloader to resolve
-`OCA\OpenRegister\Mcp\IMcpToolProvider`, consistent with how all existing decidesk
+`OCA\OpenRegister\Mcp\IMcpToolProvider`, consistent with how all existing decidiq
 controllers consume OpenRegister services (no `composer require` entry for openregister).
 A minimal interface stub SHALL be maintained at `tests/Stubs/Mcp/IMcpToolProvider.php`
 for unit-test environments where the full openregister runtime is unavailable.
@@ -342,7 +344,7 @@ for unit-test environments where the full openregister runtime is unavailable.
 
 The system SHALL ship the following automated tests:
 
-1. **Unit tests** at `tests/Unit/Mcp/DecideskToolProviderTest.php` covering:
+1. **Unit tests** at `tests/Unit/Mcp/DecidiqToolProviderTest.php` covering:
    - `getAppId()` returns `"decidesk"`.
    - `getTools()` returns exactly 5 descriptors with the canonical ids.
    - Every tool id is namespaced under `decidesk.`.
@@ -354,7 +356,7 @@ The system SHALL ship the following automated tests:
    - Every success response carries a non-empty `sources` array of the right shape.
    - Source truncation kicks in past 20 descriptors.
 
-2. **Integration test** at `tests/Integration/Mcp/DecideskToolProviderIntegrationTest.php`
+2. **Integration test** at `tests/Integration/Mcp/DecidiqToolProviderIntegrationTest.php`
    exercising one full happy-path round-trip (e.g. `decidesk.startMeeting`) through the
    real Nextcloud DI container against a real Meeting fixture, asserting the post-call
    state mutation and the structure of the returned payload. The test class MUST skip

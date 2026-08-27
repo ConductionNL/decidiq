@@ -1,7 +1,7 @@
 # decision-management Specification (delta)
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - urgent-decision-procedure
 

@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Decidesk Participant Resolver Service
+ * Decidiq Participant Resolver Service
  *
  * Centralised resolver that translates a meeting UUID into its participant list
  * via the canonical schema path: meeting → governanceBody → participants.
  *
  * All five previously-diverging participant-filter sites (AgendaController,
- * MinutesController, LiveMeetingController, VotingService, DecideskToolProvider)
+ * MinutesController, LiveMeetingController, VotingService, DecidiqToolProvider)
  * delegate to this service so that schema correctness is enforced in one place.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,11 +26,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Resolves participants for a meeting through the canonical schema path.
@@ -90,7 +90,7 @@ class ParticipantResolver {
 		// "Not found" is this method's documented answer, so it is translated here
 		// and only here; every other failure still propagates.
 		try {
-			$meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+			$meetingEntity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		} catch (DoesNotExistException) {
 			return null;
 		}
@@ -142,14 +142,14 @@ class ParticipantResolver {
 		$governanceBodyId = $this->resolveGovernanceBodyId(meetingId: $meetingId);
 		if ($governanceBodyId === null) {
 			$this->logger->warning(
-				'Decidesk ParticipantResolver: no governance body linked to meeting',
+				'Decidiq ParticipantResolver: no governance body linked to meeting',
 				['meetingId' => $meetingId]
 			);
 			return [];
 		}
 
 		$objectService = $this->objectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('participant');
 
 		// NOTE: objects created via the standard OpenRegister object API store the

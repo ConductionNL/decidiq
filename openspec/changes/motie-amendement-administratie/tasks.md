@@ -1,4 +1,4 @@
-# Tasks — Decidesk Motie en Amendement Administratie
+# Tasks — Decidiq Motie en Amendement Administratie
 
 > Scope reminder: this change implements Motie, Amendement, Stemresultaat, and
 > UitvoeringsUpdate schemas on OpenRegister, plus full UI/API for motion and

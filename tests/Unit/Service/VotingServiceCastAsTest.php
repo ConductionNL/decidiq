@@ -11,7 +11,7 @@
  * the stub-vs-real signature mismatch of issue #90 cannot occur.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,23 +26,23 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\AmendmentOrderService;
-use OCA\Decidesk\Service\MotionService;
-use OCA\Decidesk\Service\ObjectRelationFilter;
-use OCA\Decidesk\Service\OriPublicationService;
-use OCA\Decidesk\Service\ParticipantResolver;
-use OCA\Decidesk\Service\ParticipantUuidLookup;
-use OCA\Decidesk\Service\VoteCastingService;
-use OCA\Decidesk\Service\VotingOpenedNotifier;
-use OCA\Decidesk\Service\VotingRoundCloser;
-use OCA\Decidesk\Service\VotingRoundOpener;
-use OCA\Decidesk\Service\VotingRoundPreflight;
-use OCA\Decidesk\Service\VotingRoundProjection;
-use OCA\Decidesk\Service\VotingRoundResults;
-use OCA\Decidesk\Service\VotingRoundRules;
-use OCA\Decidesk\Service\VotingService;
+use OCA\Decidiq\Service\AmendmentOrderService;
+use OCA\Decidiq\Service\MotionService;
+use OCA\Decidiq\Service\ObjectRelationFilter;
+use OCA\Decidiq\Service\OriPublicationService;
+use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Service\ParticipantUuidLookup;
+use OCA\Decidiq\Service\VoteCastingService;
+use OCA\Decidiq\Service\VotingOpenedNotifier;
+use OCA\Decidiq\Service\VotingRoundCloser;
+use OCA\Decidiq\Service\VotingRoundOpener;
+use OCA\Decidiq\Service\VotingRoundPreflight;
+use OCA\Decidiq\Service\VotingRoundProjection;
+use OCA\Decidiq\Service\VotingRoundResults;
+use OCA\Decidiq\Service\VotingRoundRules;
+use OCA\Decidiq\Service\VotingService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\FileService;
@@ -109,7 +109,7 @@ class VotingServiceCastAsTest extends TestCase {
 		$participantResolver = $this->createMock(ParticipantResolver::class);
 		$participantResolver->method('resolveMeetingParticipants')->willReturn([]);
 
-		$templateService = $this->createMock(\OCA\Decidesk\Service\ProcessTemplateService::class);
+		$templateService = $this->createMock(\OCA\Decidiq\Service\ProcessTemplateService::class);
 		$templateService->method('resolveVotingRuleForBody')->willReturn(null);
 
 		// VotingService is a thin facade: every operation is delegated to a
@@ -263,7 +263,6 @@ class VotingServiceCastAsTest extends TestCase {
 		);
 
 		return $objectService;
-
 	}//end makeObjectService()
 
 	/**
@@ -281,7 +280,6 @@ class VotingServiceCastAsTest extends TestCase {
 		$entity->method('jsonSerialize')->willReturn($object);
 		$entity->method('getObject')->willReturn($object);
 		return $entity;
-
 	}//end entity()
 
 	/**

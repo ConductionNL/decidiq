@@ -4,7 +4,7 @@
  * Wire-contract tests for the live-decision recording endpoint.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Controller
+ * @package  OCA\Decidiq\Tests\Unit\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -18,12 +18,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Controller;
+namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\Decidesk\Controller\LiveMeetingController;
-use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\Decidesk\Service\LiveDecisionService;
-use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidiq\Controller\LiveMeetingController;
+use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Service\LiveDecisionService;
+use OCA\Decidiq\Service\ParticipantResolver;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
 use OCP\IRequest;

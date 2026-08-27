@@ -25,7 +25,7 @@
  * one than a stub assertion, because it renders in the report as "not
  * applicable" rather than as a gap, and the reason looks investigated. It also
  * inflates the skip count, which is the number that separates a flake from a
- * regression. decidesk skipped 58 of 178.
+ * regression. decidiq skipped 58 of 178.
  *
  * `waitFor` polls. **The skip that survives it is a real one.**
  *

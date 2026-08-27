@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Board Evaluation Access Guard
+ * Decidiq Board Evaluation Access Guard
  *
  * The two per-object authorisation questions the board self-evaluation ACTION
  * endpoints ask: "may this caller act as the evaluating body's chair or
@@ -29,7 +29,7 @@
  * into an existence oracle.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -45,7 +45,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -239,7 +239,7 @@ class BoardEvaluationAccessGuard {
 		try {
 			$entity = $this->objectService->find(
 				id: $evaluationId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'board-evaluation'
 			);
 		} catch (DoesNotExistException) {

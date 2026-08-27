@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk MCP Source Formatter
+ * Decidiq MCP Source Formatter
  *
  * Normalises OpenRegister objects and builds the `sources` descriptors and
  * error envelopes every MCP tool result shares, so the individual tool
  * handlers stay free of presentation branching.
  *
  * @category Mcp
- * @package  OCA\Decidesk\Mcp
+ * @package  OCA\Decidiq\Mcp
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,7 +25,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Mcp;
+namespace OCA\Decidiq\Mcp;
 
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -33,7 +33,7 @@ use DateTimeInterface;
 /**
  * Shapes MCP tool results.
  *
- * Extracted from DecideskToolProvider so the source-descriptor cap
+ * Extracted from DecidiqToolProvider so the source-descriptor cap
  * (REQ-DMCP-006), object normalisation and the error envelope live in one
  * collaborator instead of being repeated across five tool handlers.
  *
@@ -90,24 +90,24 @@ class McpSourceFormatter {
 	}//end extractUuid()
 
 	/**
-	 * Build a deep link URL for a decidesk resource.
+	 * Build a deep link URL for a Decidiq resource.
 	 *
 	 * @param string $type One of: meeting, agendaItem, decision, actionItem
 	 * @param string $uuid The object UUID
 	 *
-	 * @return string The deep link path, e.g. /apps/decidesk/meetings/<uuid>.
+	 * @return string The deep link path, e.g. /apps/decidiq/meetings/<uuid>.
 	 *
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	public function deepLink(string $type, string $uuid): string {
 		$paths = [
-			'meeting' => '/apps/decidesk/meetings',
-			'agendaItem' => '/apps/decidesk/agenda-items',
-			'decision' => '/apps/decidesk/decisions',
-			'actionItem' => '/apps/decidesk/action-items',
+			'meeting' => '/apps/decidiq/meetings',
+			'agendaItem' => '/apps/decidiq/agenda-items',
+			'decision' => '/apps/decidiq/decisions',
+			'actionItem' => '/apps/decidiq/action-items',
 		];
 
-		$base = $paths[$type] ?? "/apps/decidesk/{$type}s";
+		$base = $paths[$type] ?? "/apps/decidiq/{$type}s";
 		return "{$base}/{$uuid}";
 	}//end deepLink()
 

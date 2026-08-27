@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk eIDAS Signature Service interface
+ * Decidiq eIDAS Signature Service interface
  *
  * Contract for eIDAS Qualified Electronic Signature (QES) integrations used by
  * the board portal. Two implementations are provided:
@@ -14,10 +14,10 @@
  *    eIDAS QSP, so the controller never fans out unconfigured 500s.
  *
  * Both implementations are wired into the DI container via
- * {@see \OCA\Decidesk\AppInfo\Application::registerEidasSignatureBindings()}.
+ * {@see \OCA\Decidiq\AppInfo\Application::registerEidasSignatureBindings()}.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -32,7 +32,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 /**
  * Contract for the eIDAS QES integration used by the board portal.

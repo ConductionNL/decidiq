@@ -194,6 +194,8 @@ export function itemUid(item) {
  * @param {object[]} params.items        Action-item rows (need title/dueDate/taskStatus + uid).
  * @param {Function} [params.persistCardId] Override for the write-back (testing).
  * @return {Promise<{created: number, skipped: number, errors: object[]}>}
+ *
+ * @spec openspec/specs/decision-management/spec.md#requirement-decision-list-and-search
  */
 export async function projectActionItems({
 	register,
@@ -243,7 +245,7 @@ export async function projectActionItems({
 				boardId: target.boardId,
 				stackId,
 				title: String(item.title || 'Action item'),
-				description: `Decidesk action item (${uid})`,
+				description: `Decidiq action item (${uid})`,
 			}
 			if (item.dueDate) body.duedate = String(item.dueDate)
 

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Meeting Cost Service
+ * Decidiq Meeting Cost Service
  *
  * Computes the cost of a meeting (elapsed time x attendee count x the
  * governance body's hourly rate). The live cost panel in the SPA computes a
@@ -10,7 +10,7 @@
  * client-computed persisted cost could be spoofed).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,12 +27,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Pure cost math plus server-side resolution of the inputs from OpenRegister.
@@ -110,7 +110,7 @@ class MeetingCostService {
 		$objectService = $this->getObjectService();
 
 		if ($meeting === null) {
-			$entity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+			$entity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 			if ($entity === null) {
 				return null;
 			}
@@ -152,7 +152,7 @@ class MeetingCostService {
 		try {
 			$bodyEntity = $this->getObjectService()->find(
 				id: $bodyId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'governance-body'
 			);
 			if ($bodyEntity === null) {
@@ -168,7 +168,7 @@ class MeetingCostService {
 			return (float)$rate;
 		} catch (Throwable $e) {
 			$this->logger->debug(
-				'Decidesk MeetingCostService: hourlyRate resolution failed',
+				'Decidiq MeetingCostService: hourlyRate resolution failed',
 				['error' => $e->getMessage()]
 			);
 			return null;
@@ -255,7 +255,7 @@ class MeetingCostService {
 	private function resolveAttendeeCount(string $meetingId): int {
 		try {
 			$objectService = $this->getObjectService();
-			$objectService->setRegister('decidesk');
+			$objectService->setRegister('decidiq');
 			$objectService->setSchema('participant');
 
 			// Config-array form (matches EngagementController::resolveParticipantUuid
@@ -265,7 +265,7 @@ class MeetingCostService {
 			return count($results);
 		} catch (Throwable $e) {
 			$this->logger->debug(
-				'Decidesk MeetingCostService: attendee count failed',
+				'Decidiq MeetingCostService: attendee count failed',
 				['meetingId' => $meetingId, 'error' => $e->getMessage()]
 			);
 			return 0;

@@ -50,7 +50,7 @@ export function isKascommissieVisible(organisatieModus) {
  */
 export function kascommissieContent() {
 	return {
-		register: 'decidesk',
+		register: 'decidiq',
 		schema: 'kascommissie-verklaring',
 		filter: { governanceBody: '@object.governanceBody' },
 		sort: { field: 'financialYear', dir: 'desc' },

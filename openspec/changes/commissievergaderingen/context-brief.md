@@ -1,6 +1,6 @@
 ---
 status: draft
-app: decidesk
+app: decidiq
 spec: commissievergaderingen
 target_users: raadsleden, commissieleden, voorzitters, griffie, ambtelijke ondersteuning, college
 depends_on:
@@ -30,7 +30,7 @@ _Source: /tmp/ia-doc-dec-cat-conn.md_
 
 Vrijwel elke Nederlandse gemeenteraad werkt met raadscommissies als voorbereidende organen op de plenaire raadsvergadering. Veelvoorkomende commissies zijn de audit-commissie (financiën en rekenkamer), commissie ruimte (ruimtelijke ordening, wonen, mobiliteit), commissie sociaal (zorg, jeugd, participatie), en commissie bestuur (algemeen bestuur, veiligheid, dienstverlening). De commissies hebben geen besluitvormende bevoegdheid maar geven advies aan de raad over voorliggende voorstellen, voeren technische beraadslagingen, en horen burgers en organisaties via inspraak. Een gemeente kent typisch 3 tot 6 commissies die elk maandelijks vergaderen — voor de griffie een aanzienlijke planningslast, en voor commissieleden een complex puzzelstuk van agenda's, dossiers en belangenverstrengelings-meldingen. Daarnaast worden in toenemende mate raadsbrede thema-bijeenkomsten en informele beeldvormende sessies onder de commissie-vlag georganiseerd, wat aparte planning-, presentie- en publicatie-regels vraagt.
 
-Deze spec breidt decidesk uit met een eersteklas commissie-model dat sub-vergaderingen voor commissies beheert, vaste samenstelling per commissie (leden, plaatsvervangers, voorzitter, griffier) bijhoudt, het adviestraject naar de raadsvergadering automatiseert, en belangenverstrengelings-declaraties per agendapunt verplicht stelt conform artikel 28 Gemeentewet. Daarnaast ondersteunt de spec besloten zittingen met aparte toegangsregels, openbare verslaglegging met audio/videoregistratie waar gemeenten dat al doen, en inspraak-aanmelding voor burgers via een publiek portaal. Het sluit aan op de bredere besluitvormings-workflow en garandeert dat commissieadvies traceerbaar terechtkomt bij het agendapunt in de plenaire raadsvergadering.
+Deze spec breidt decidiq uit met een eersteklas commissie-model dat sub-vergaderingen voor commissies beheert, vaste samenstelling per commissie (leden, plaatsvervangers, voorzitter, griffier) bijhoudt, het adviestraject naar de raadsvergadering automatiseert, en belangenverstrengelings-declaraties per agendapunt verplicht stelt conform artikel 28 Gemeentewet. Daarnaast ondersteunt de spec besloten zittingen met aparte toegangsregels, openbare verslaglegging met audio/videoregistratie waar gemeenten dat al doen, en inspraak-aanmelding voor burgers via een publiek portaal. Het sluit aan op de bredere besluitvormings-workflow en garandeert dat commissieadvies traceerbaar terechtkomt bij het agendapunt in de plenaire raadsvergadering.
 
 De ontwerpkeuzes adresseren expliciet drie pijnpunten die uit interviews met griffies naar voren komen. Ten eerste de hoge handmatige last bij wisseling van plaatsvervangers: een fractie-voorzitter die op het laatste moment iemand vervangt voor commissie-deelname moet nu vaak per e-mail aan de griffier doorgeven wie er komt, waarna de griffier handmatig de stemrecht-status omklapt. In deze spec verloopt dit via een fractie-portaal-actie die direct presentie, agenda-toegang en stemrecht synchroniseert. Ten tweede de zwakke link tussen commissieadvies en plenaire besluitvorming: in legacy-systemen verdwijnt het commissieadvies vaak in een PDF-bijlage waar de raadsleden niet doorklikken. De spec maakt het advies een eersteklas annotatie op het plenaire agendapunt met fractie-standpunten als gestructureerde data, niet als losse tekst. Ten derde de privacy-paradox bij inspraak: burgers willen inspreken maar niet altijd hun adres en telefoonnummer publiek hebben — de InspraakAanmelding scheidt contactgegevens (intern) van inspraak-onderwerp en spreker-naam (publiek) automatisch. Voor besloten zittingen zoals personeels-aangelegenheden en grond-aankopen wordt een aparte audit-track gevoerd die alleen via dual-control geopend kan worden, zodat de Woo-toets achteraf altijd reproduceerbaar is.
 
@@ -176,10 +176,10 @@ Een bewuste keuze in deze spec is om verschillende commissie-typen via één Com
 
 ## Cross-app
 
-- **decidesk base**: levert basismodel vergadering, agendapunt, raadslid, fractie, presentielijst
-- **decidesk motie-amendement-administratie**: amendementen kunnen voortkomen uit commissieadvies; commissieadvies bepaalt vaak indieningsstrategie van moties
-- **decidesk fractievoorzitter-fractie-koppeling**: levert evenredigheidsberekening bij commissie-samenstelling en plaatsvervangers-management via fractie-portaal
-- **decidesk besluitvorming-workflow**: commissieadvies wordt onderdeel van besluitvormings-flow en zichtbaar bij plenaire agendapunten
+- **decidiq base**: levert basismodel vergadering, agendapunt, raadslid, fractie, presentielijst
+- **decidiq motie-amendement-administratie**: amendementen kunnen voortkomen uit commissieadvies; commissieadvies bepaalt vaak indieningsstrategie van moties
+- **decidiq fractievoorzitter-fractie-koppeling**: levert evenredigheidsberekening bij commissie-samenstelling en plaatsvervangers-management via fractie-portaal
+- **decidiq besluitvorming-workflow**: commissieadvies wordt onderdeel van besluitvormings-flow en zichtbaar bij plenaire agendapunten
 - **docudesk**: vergaderstukken en verslagen worden PDF-gerendeerd, eIDAS-handtekening op definitieve verslagen, geheimhouding-watermark op besloten stukken
 - **opentalk**: livestream van openbare commissievergaderingen, met tijdcode-koppeling per agendapunt voor deeplinks; automatische onderbreking bij besloten zitting
 - **opencatalogi**: publicatie van publieke commissie-stukken als openbare catalogus met TOOI-metadata

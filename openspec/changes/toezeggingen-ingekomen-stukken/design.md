@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-Pure thin-client extension (ADR-022/ADR-037). Two new OpenRegister schemas — `Toezegging` and `IngekomenStuk` — ship as one `lib/Settings/register.d/45-toezeggingen-ingekomen-stukken.json` fragment (OpenAPI `components.schemas`, merged onto `decidesk_register.json` at load; the base file is never edited). All workflow behaviour is declared in OpenRegister dialects; all UI is manifest-v2 pages in a `src/manifest.d/toezeggingen-ingekomen-stukken.json` fragment rendered by `CnPageRenderer` (the frontend talks to `/apps/openregister/api/objects` directly via the shared object stores — no decidesk CRUD controllers, per the redundant-controller gate).
+Pure thin-client extension (ADR-022/ADR-037). Two new OpenRegister schemas — `Toezegging` and `IngekomenStuk` — ship as one `lib/Settings/register.d/45-toezeggingen-ingekomen-stukken.json` fragment (OpenAPI `components.schemas`, merged onto `decidesk_register.json` at load; the base file is never edited). All workflow behaviour is declared in OpenRegister dialects; all UI is manifest-v2 pages in a `src/manifest.d/toezeggingen-ingekomen-stukken.json` fragment rendered by `CnPageRenderer` (the frontend talks to `/apps/openregister/api/objects` directly via the shared object stores — no decidiq CRUD controllers, per the redundant-controller gate).
 
 Imperative code is limited to the two places declarative dialects genuinely cannot reach:
 
@@ -39,7 +39,7 @@ Default declarative; imperative only where a dialect cannot express the behaviou
 | Deadline rappels before/after deadline | `x-openregister-notifications` scheduled triggers (filter on non-terminal lifecycle + deadline window), recipients = madeBy + griffie group, nl/en subjects | ADR-031 default for reminders; the notification-dialect gate (gate-18) hard-fails legacy/imperative dispatch; no bespoke `ReminderJob` (deliberate contrast with the motie change's older imperative design) |
 | "Toezegging registered / afgedaan" notifications | `x-openregister-notifications` `created`/`updated` triggers | Same |
 | Dashboard KPI "open toezeggingen over deadline" | Manifest stat-widget `source` aggregation (`metric: count`) | Declarative count like every existing KPI widget |
-| IngekomenStuk payload anonymisation | **Imperative** — `PublicationPayloadService` | Allow-list payload construction with conditional sender rendering is by design imperative in decidesk (existing pattern); no dialect builds derived payloads |
+| IngekomenStuk payload anonymisation | **Imperative** — `PublicationPayloadService` | Allow-list payload construction with conditional sender rendering is by design imperative in decidiq (existing pattern); no dialect builds derived payloads |
 | Bulk routing confirmation | **Imperative** — small service action batching lifecycle transitions | Multi-object transactional action tied to chair authority; not expressible as a dialect |
 
 ### D4: Public toezeggingenlijst = predicate on the live object; ingekomen stukken = derived payload
@@ -95,7 +95,7 @@ docs/features/toezeggingen.md, docs/features/ingekomen-stukken.md (new)
 
 ## Seed Data
 
-Realistic Dutch municipal examples (fictional municipality "Gemeente Voorbeeldingen"); all references use existing decidesk seed objects (council governance body, scheduled raadsvergadering) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder where a cross-seed reference is resolved at import.
+Realistic Dutch municipal examples (fictional municipality "Gemeente Voorbeeldingen"); all references use existing decidiq seed objects (council governance body, scheduled raadsvergadering) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder where a cross-seed reference is resolved at import.
 
 ### Schema: `toezegging`
 
@@ -140,7 +140,7 @@ Object 1 is seeded as *published* (payload with anonymised sender "Inwoner") so 
 
 ## Migration Plan
 
-1. Land register.d + manifest.d fragments, service edits, seed data, tests, docs in one decidesk PR (fragments are additive; repair step / `ConfigurationService::importFromApp()` picks up the new schemas on upgrade).
+1. Land register.d + manifest.d fragments, service edits, seed data, tests, docs in one decidiq PR (fragments are additive; repair step / `ConfigurationService::importFromApp()` picks up the new schemas on upgrade).
 2. `motie-amendement-administratie` must land first or concurrently only for the `relatedMotion` cross-reference target semantics; the field is a nullable reference and degrades to a plain link if that change is delayed.
 3. Rollback: revert the PR — fragments disappear, pages unregister, publication types refuse again. Existing objects remain soft-retained in OR; published toezeggingen are withdrawn by clearing the predicate (`depublicatiedatum`) via the normal staff flow if desired.
 

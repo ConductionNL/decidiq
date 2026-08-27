@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Governance Scope Guard
+ * Decidiq Governance Scope Guard
  *
  * Thin consumer of the OpenRegister-projected governance RBAC scopes
  * (per-body Nextcloud groups `decidesk:body:{bodyId}:chair` and
@@ -28,7 +28,7 @@
  * parallel role-resolution service.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -44,11 +44,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Consumes the OR-projected per-body governance scopes to authorize signatory
@@ -193,7 +193,7 @@ class GovernanceScopeGuard {
 	 * @return string|null
 	 */
 	private function resolveBodyIdForMinutes(string $minutesId): ?string {
-		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
+		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidiq', schema: 'minutes');
 		if ($minutesEntity === null) {
 			return null;
 		}
@@ -203,7 +203,7 @@ class GovernanceScopeGuard {
 			return null;
 		}
 
-		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		if ($meetingEntity === null) {
 			return null;
 		}

@@ -64,7 +64,7 @@ and `isRegistryConsumer()` validates a callback *URL*, not a caller. So the only
 that exists is OpenRegister's own `@self.owner` — which is exactly the Nextcloud identity that
 raised the Decision through `POST /api/v1/decisions`, i.e. precisely the consumer REQ-DCDH-003
 exists to serve ("so a consumer can poll the result of a delegated decision"). This is also the
-established decidesk convention for a per-object guard on this same `decision` schema:
+established decidiq convention for a per-object guard on this same `decision` schema:
 `MotionCoauthorService::checkMotionAccess()` authorises on `@self.owner`.
 
 A caller may therefore read a Decision's outcome envelope when they are **the raiser
@@ -83,7 +83,7 @@ returns `404` from the envelope assembler — the guard does not convert a miss 
 
 `POST /api/eidas/validate-cert` takes **no caller-supplied object identifier**. Its single input
 is a certificate SHA-256 thumbprint, and its single output is `valid` / `issuer` /
-`trustListLevel` — facts from the **public** EU Trusted List. No decidesk object is reachable
+`trustListLevel` — facts from the **public** EU Trusted List. No decidiq object is reachable
 from it, nothing it returns is derived from app data, and its own docblock states it is an
 informational pre-flight whose verdict is *not* authoritative (the binding chain validation
 happens server-side inside `finalizeMinutes()`, which is now scope-guarded). The action and the
@@ -102,10 +102,10 @@ orchestrator to apply; the controller guard above does not depend on it.
 
 ## Impact
 
-- **decidesk backend**: `GovernanceScopeGuard` (+1 public method, one shared implementation),
+- **decidiq backend**: `GovernanceScopeGuard` (+1 public method, one shared implementation),
   `EIDASSignatureController` (2 guarded methods, 1 documented exemption), `IntegrationController`
   (+`IGroupManager`, 1 guarded method), `DecisionIntegrationService` (+1 public guard method).
-- **decidesk frontend**: none — no frontend caller exists for any of the four endpoints.
+- **decidiq frontend**: none — no frontend caller exists for any of the four endpoints.
 - **OpenRegister**: none.
 
 Not marked BREAKING: this closes an authorization gap that should never have been open. No

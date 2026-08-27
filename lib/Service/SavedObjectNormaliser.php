@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Saved Object Normaliser
+ * Decidiq Saved Object Normaliser
  *
  * Normalises the return value of OpenRegister's ObjectService::saveObject() to
  * a plain array so that callers declaring an `: array` return type do not raise
  * a TypeError on the ObjectEntity that saveObject() actually returns.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,7 +25,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 /**
  * Array normalisation for OpenRegister save results.

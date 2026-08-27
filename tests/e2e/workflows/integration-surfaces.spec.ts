@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * The three per-object "integrations" surfaces (ADR-019 pluggable integration
@@ -133,7 +133,7 @@ async function openIntegrations(
 	route: string,
 	id: string,
 ): Promise<void> {
-	await page.goto(`${BASE}/apps/decidesk/${route}/${id}/integrations`)
+	await page.goto(`${BASE}/apps/decidiq/${route}/${id}/integrations`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 20_000 })
 }
 
@@ -263,8 +263,13 @@ test.describe('per-object integration surfaces', () => {
 			page.getByRole('heading', { name: 'E2E integrations agenda item' }),
 		).toBeVisible({ timeout: 20_000 })
 		// Copy the AGENDA-ITEM page's manifest entry declares and no other does.
+		// The discriminator is the LIST of surfaces, which is unique per page:
+		// the meeting page names Deck + Talk + files + notes, the dossier page
+		// names emails + Deck + files, and only this one names emails + files
+		// + tasks. The verb after it ("appear on the page itself") is shared,
+		// so it is deliberately left out of the pattern.
 		await expect(page.getByRole('main')).toContainText(
-			/linked Emails, files and tasks surface on the body/i,
+			/linked emails, files and tasks/i,
 		)
 		for (const widgetId of ['ai-email', 'ai-files', 'ai-tasks']) {
 			await expect(

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — GovernanceBodyDetail's `body-factions` facet
@@ -31,7 +31,7 @@ import type { APIRequestContext, Page, PlaywrightWorkerArgs } from '@playwright/
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from '../base-url.ts'
 
-const OR = `${BASE}/index.php/apps/openregister/api/objects/decidesk`
+const OR = `${BASE}/index.php/apps/openregister/api/objects/decidiq`
 const ADMIN_USER = process.env.NEXTCLOUD_USER || 'admin'
 const ADMIN_PASS = process.env.NEXTCLOUD_PASS || 'admin'
 
@@ -112,7 +112,7 @@ test("GovernanceBodyDetail: factions facet lists a faction created with the pare
 		factionId = objectId(await factionResp.json())
 		test.skip(!factionId, 'Seeded faction has no id')
 
-		await page.goto(`${BASE}/apps/decidesk/governance-bodies/${bodyId}`)
+		await page.goto(`${BASE}/apps/decidiq/governance-bodies/${bodyId}`)
 		// app-root appearing only proves the shell mounted, not that data has
 		// arrived — mount itself blocks on initializeStores()'s settings round
 		// trip, so 30s (double the old budget) before even the shell shows up.

@@ -2,9 +2,9 @@
   "spec_slug": "p1-schemas-and-data-model",
   "title": "Schemas and Data Model",
   "app": "decidesk",
-  "repo": "https://codeberg.org/Conduction/decidesk",
+  "repo": "https://github.com/ConductionNL/decidiq",
   "depends_on": [],
-  "issue": "https://codeberg.org/Conduction/decidesk/issues/4",
+  "issue": "Codeberg issue #4 (pre-migration, not migrated to GitHub)",
   "pipeline": {
     "review_rounds": 0,
     "build_count": 1,

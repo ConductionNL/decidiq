@@ -23,7 +23,7 @@ projection, so there is no second store and no data duplication, and degrades cl
 when Deck is absent.
 
 ## Affected Projects
-- [x] Project: `decidesk` — add a Deck-board action-items surface (new tab component + registry
+- [x] Project: `decidiq` — add a Deck-board action-items surface (new tab component + registry
   leaf wiring + a thin read/status endpoint); no schema changes.
 
 ## Scope
@@ -43,13 +43,13 @@ when Deck is absent.
   (all shipped in `action-items-vtodo-deck-reconcile`).
 - A standalone, full Deck board app surface outside the meeting/decision detail.
 - Bi-directional sync where editing the card in the *native Deck app* writes back to the VTODO —
-  deferred; this change owns the in-decidesk board only.
+  deferred; this change owns the in-decidiq board only.
 - The legacy task/delegation → VTODO data migration (separate change
   `action-item-vtodo-migration`).
 
 ## Approach
 Use the OpenRegister integration registry (already installed via `registerBuiltinIntegrations()` in
-decidesk's `main.js`, which includes the Deck leaf). Register/resolve a Deck surface bound to the
+decidiq's `main.js`, which includes the Deck leaf). Register/resolve a Deck surface bound to the
 `meeting`/`decision` object whose cards are the action-item VTODOs (scoped by the existing
 `_relations`/source link). The board component reads the action-item projection
 (`fetchCollection('action-item')` filtered to the object) and groups by `taskStatus`; lane moves and
@@ -61,9 +61,9 @@ None. Reuses the merged OpenRegister object-source capability, the existing `/ap
 endpoints, and the nc-vue/OpenRegister integration registry + Deck leaf.
 
 ## Impact
-- **decidesk frontend**: new board tab component; `ConsultationDetail`/meeting + decision detail
+- **decidiq frontend**: new board tab component; `ConsultationDetail`/meeting + decision detail
   manifest tab config gains a Deck-aware surface; reuses `actionItemApi.js`.
-- **decidesk backend**: possibly a thin read endpoint to list action-item VTODOs grouped/scoped for
+- **decidiq backend**: possibly a thin read endpoint to list action-item VTODOs grouped/scoped for
   the board (or reuse the object API projection directly — decided in design).
 - **No** schema, write-path, or OR-capability changes.
 

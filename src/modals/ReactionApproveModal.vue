@@ -11,14 +11,14 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Approve reaction')"
+		:name="t('decidiq', 'Approve reaction')"
 		data-testid="reaction-approve-modal"
 		@closing="$emit('close')">
 		<template #default>
 			<p>
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'Approving counts this reaction toward the consultation and allows it to be published.',
 					)
 				}}
@@ -26,7 +26,7 @@
 			<NcTextArea
 				v-model="note"
 				data-testid="reaction-approve-note"
-				:label="t('decidesk', 'Moderation note (optional)')"
+				:label="t('decidiq', 'Moderation note (optional)')"
 				resize="vertical" />
 		</template>
 		<template #actions>
@@ -34,10 +34,10 @@
 				variant="success"
 				data-testid="reaction-approve-confirm"
 				@click="$emit('confirm', note.trim())">
-				{{ t('decidesk', 'Approve') }}
+				{{ t('decidiq', 'Approve') }}
 			</NcButton>
 			<NcButton @click="$emit('close')">
-				{{ t('decidesk', 'Cancel') }}
+				{{ t('decidiq', 'Cancel') }}
 			</NcButton>
 		</template>
 	</NcDialog>

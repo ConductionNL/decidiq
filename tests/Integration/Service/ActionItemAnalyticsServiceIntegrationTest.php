@@ -6,7 +6,7 @@
  * returns a non-empty (non-zero) response when action-items exist.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Integration\Service
+ * @package  OCA\Decidiq\Tests\Integration\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -19,9 +19,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Integration\Service;
+namespace OCA\Decidiq\Tests\Integration\Service;
 
-use OCA\Decidesk\Service\ActionItemAnalyticsService;
+use OCA\Decidiq\Service\ActionItemAnalyticsService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -75,9 +75,9 @@ class ActionItemAnalyticsServiceIntegrationTest extends TestCase {
 			$this->objectService = \OC::$server->get(\OCA\OpenRegister\Service\ObjectService::class);
 			$container = \OC::$server->get(\Psr\Container\ContainerInterface::class);
 			$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
-			$this->service = new ActionItemAnalyticsService( $logger,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		);
+			$this->service = new ActionItemAnalyticsService($logger,
+				objectService: $this->createMock(ObjectServiceInterface::class),
+			);
 		} catch (\Throwable $e) {
 			$this->markTestSkipped(
 				message: 'Could not resolve dependencies from DI container: ' . $e->getMessage()
@@ -96,7 +96,7 @@ class ActionItemAnalyticsServiceIntegrationTest extends TestCase {
 			foreach ($this->createdIds as $id) {
 				try {
 					$this->objectService->deleteObject(
-						register: 'decidesk',
+						register: 'decidiq',
 						schema: 'action-item',
 						id: $id
 					);
@@ -129,7 +129,7 @@ class ActionItemAnalyticsServiceIntegrationTest extends TestCase {
 		// Seed one overdue open action-item.
 		try {
 			$entity = $this->objectService->saveObject(
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'action-item',
 				object: [
 					'title' => 'Integration test action item (wave-9 C1)',

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk dormant eIDAS Signature Service fallback
+ * Decidiq dormant eIDAS Signature Service fallback
  *
  * A no-external-call fallback that satisfies {@see IEIDASSignatureService}
  * for deployments that have not (yet) configured openconnector with an
@@ -13,12 +13,12 @@
  *  - the openconnector app is absent, OR
  *  - the openconnector Source with slug `eidas-qes` does not resolve at boot.
  *
- * Controllers and the {@see \OCA\Decidesk\Lifecycle\QesGuard} treat the
+ * Controllers and the {@see \OCA\Decidiq\Lifecycle\QesGuard} treat the
  * `success: false` shape as a soft-block rather than a hard 500, so the
  * resolution lifecycle remains usable without a QES adapter in place.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -33,7 +33,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Log\LoggerInterface;
 
@@ -75,7 +75,7 @@ class LogEIDASSignatureService implements IEIDASSignatureService {
 	 */
 	public function initializeSigningRequest(string $minutesId, array $signatories): array {
 		$this->logger->warning(
-			'Decidesk: dormant eIDAS adapter received initializeSigningRequest',
+			'Decidiq: dormant eIDAS adapter received initializeSigningRequest',
 			['minutesId' => $minutesId, 'signatories' => $signatories]
 		);
 
@@ -111,7 +111,7 @@ class LogEIDASSignatureService implements IEIDASSignatureService {
 	 */
 	public function verifySignature(string $requestId, string $signature): array {
 		$this->logger->warning(
-			'Decidesk: dormant eIDAS adapter received verifySignature',
+			'Decidiq: dormant eIDAS adapter received verifySignature',
 			['requestId' => $requestId]
 		);
 
@@ -136,7 +136,7 @@ class LogEIDASSignatureService implements IEIDASSignatureService {
 	 */
 	public function finalizeMinutes(string $minutesId, array $signatureList): array {
 		$this->logger->warning(
-			'Decidesk: dormant eIDAS adapter received finalizeMinutes',
+			'Decidiq: dormant eIDAS adapter received finalizeMinutes',
 			['minutesId' => $minutesId, 'signatureCount' => count($signatureList)]
 		);
 
@@ -171,7 +171,7 @@ class LogEIDASSignatureService implements IEIDASSignatureService {
 	 */
 	public function validateCertificateChain(string $certThumbprint): array {
 		$this->logger->warning(
-			'Decidesk: dormant eIDAS adapter received validateCertificateChain',
+			'Decidiq: dormant eIDAS adapter received validateCertificateChain',
 			['certificateThumbprint' => $certThumbprint]
 		);
 

@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
 //
-// Global integration-leaf bootstrap for decidesk (ADR-019 / ADR-022).
+// Global integration-leaf bootstrap for decidiq (ADR-019 / ADR-022).
 //
 // This is the small "leaf bundle" loaded on EVERY Nextcloud page via
-// `\OCP\Util::addInitScript('decidesk', 'decidesk-integration-init')` (see
-// lib/AppInfo/Application.php::boot). It registers decidesk's
+// `\OCP\Util::addInitScript('decidiq', 'decidiq-integration-init')` (see
+// lib/AppInfo/Application.php::boot). It registers decidiq's
 // "Besluitvorming" decisions leaf on the shared OpenRegister integration
 // registry so the tab + widget surface on a host object's detail page —
-// e.g. a procest case — without decidesk's full app bundle being loaded.
+// e.g. a procest case — without decidiq's full app bundle being loaded.
 //
 // Per the registry contract a LEAF app must NOT install OR's singleton; it
 // only registers its descriptor (via the load-order-safe queue stub). When

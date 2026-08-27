@@ -4,7 +4,7 @@
  * NotFoundException — thrown when a requested resource cannot be found.
  *
  * @category Exception
- * @package  OCA\Decidesk\Exception
+ * @package  OCA\Decidiq\Exception
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Exception;
+namespace OCA\Decidiq\Exception;
 
 use RuntimeException;
 

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — agenda-management spec
@@ -22,7 +22,7 @@ import { becomesVisible } from '../becomes-visible.js'
 // @e2e openspec/specs/agenda-management/spec.md#create-a-decision-agenda-item
 // @e2e openspec/specs/agenda-management/spec.md#create-an-informational-agenda-item-with-documents
 test('agenda items list renders with Add Agenda item button', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/agenda-items`)
+	await page.goto(`${BASE}/apps/decidiq/agenda-items`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	// Showing N of N indicator visible
@@ -35,7 +35,7 @@ test('agenda items list renders with Add Agenda item button', async ({ page }) =
 // @e2e openspec/specs/agenda-management/spec.md#create-a-decision-agenda-item
 // @e2e openspec/specs/agenda-management/spec.md#create-an-informational-agenda-item-with-documents
 test('Add Agenda Item dialog opens with item type field', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/agenda-items`)
+	await page.goto(`${BASE}/apps/decidiq/agenda-items`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	await page.getByTestId('cn-cta-primary').click()
@@ -89,7 +89,7 @@ test('Add Agenda Item dialog opens with item type field', async ({ page }) => {
 // on a meeting detail page. We verify the agenda tab renders within the meeting sidebar.
 test('meeting detail sidebar has Agenda tab', async ({ page }) => {
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(resp.ok()).toBe(true)
@@ -99,7 +99,7 @@ test('meeting detail sidebar has Agenda tab', async ({ page }) => {
 	const meetingId = first.id ?? first['@self']?.id
 	test.skip(!meetingId, 'First meeting has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
+	await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	// App root mounts for meeting detail route
 	await expect(page.locator('[data-testid="app-root"]')).toBeVisible()
@@ -112,7 +112,7 @@ test('meeting detail sidebar has Agenda tab', async ({ page }) => {
 // Verify via the live meeting view rendering for an existing meeting.
 test('live meeting view renders agenda items section', async ({ page }) => {
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(resp.ok()).toBe(true)
@@ -122,7 +122,7 @@ test('live meeting view renders agenda items section', async ({ page }) => {
 	const meetingId = first.id ?? first['@self']?.id
 	test.skip(!meetingId, 'First meeting has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}/live`)
+	await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}/live`)
 	await page.waitForSelector('[data-testid="meeting-live"]', { timeout: 15_000 })
 	// LiveMeeting renders — shows the "Agenda items" section heading
 	await expect(page.getByText('Agenda items', { exact: false })).toBeVisible()
@@ -132,8 +132,8 @@ test('live meeting view renders agenda items section', async ({ page }) => {
 // Document package assembly is a backend action triggered from the meeting detail view.
 // Verified via the agenda items list rendering existing records.
 test('agenda items list page loads correctly', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/agenda-items`)
-	await expect(page).toHaveTitle(/Decidesk/i)
+	await page.goto(`${BASE}/apps/decidiq/agenda-items`)
+	await expect(page).toHaveTitle(/Decidiq/i)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 })
 
@@ -177,7 +177,7 @@ test('general assembly agenda warns about missing statutory ALV items', async ({
 	let meetingId: string | null = null
 	try {
 		const createResp = await api.post(
-			`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting`,
+			`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting`,
 			{
 				data: {
 					title: `E2E ALV statutory warning ${Date.now()}`,
@@ -200,7 +200,7 @@ test('general assembly agenda warns about missing statutory ALV items', async ({
 		meetingId = objectId(await createResp.json())
 		test.skip(!meetingId, 'Seeded meeting has no id')
 
-		await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
+		await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}`)
 		await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 		const agendaTab = page.getByRole('tab', { name: 'Agenda' })
@@ -226,7 +226,7 @@ test('general assembly agenda warns about missing statutory ALV items', async ({
 		if (meetingId) {
 			await api
 				.delete(
-					`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting/${meetingId}`,
+					`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting/${meetingId}`,
 				)
 				.catch(() => null)
 		}
@@ -253,7 +253,7 @@ test('sub-items render nested under their parent in the agenda tab', async ({
 	let meetingId: string | null = null
 	try {
 		const meetingResp = await api.post(
-			`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting`,
+			`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting`,
 			{
 				data: {
 					title: `E2E sub-items ${Date.now()}`,
@@ -274,7 +274,7 @@ test('sub-items render nested under their parent in the agenda tab', async ({
 		test.skip(!meetingId, 'Seeded meeting has no id')
 
 		const parentResp = await api.post(
-			`${BASE}/index.php/apps/openregister/api/objects/decidesk/agenda-item`,
+			`${BASE}/index.php/apps/openregister/api/objects/decidiq/agenda-item`,
 			{
 				data: {
 					title: 'Committee Reports',
@@ -293,7 +293,7 @@ test('sub-items render nested under their parent in the agenda tab', async ({
 		created.push(parentId!)
 
 		const childResp = await api.post(
-			`${BASE}/index.php/apps/openregister/api/objects/decidesk/agenda-item`,
+			`${BASE}/index.php/apps/openregister/api/objects/decidiq/agenda-item`,
 			{
 				data: {
 					title: 'Finance Committee',
@@ -311,7 +311,7 @@ test('sub-items render nested under their parent in the agenda tab', async ({
 		const childId = objectId(await childResp.json())
 		if (childId) created.push(childId)
 
-		await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
+		await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}`)
 		await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 		const agendaTab = page.getByRole('tab', { name: 'Agenda' })
@@ -334,14 +334,14 @@ test('sub-items render nested under their parent in the agenda tab', async ({
 		for (const id of created) {
 			await api
 				.delete(
-					`${BASE}/index.php/apps/openregister/api/objects/decidesk/agenda-item/${id}`,
+					`${BASE}/index.php/apps/openregister/api/objects/decidiq/agenda-item/${id}`,
 				)
 				.catch(() => null)
 		}
 		if (meetingId) {
 			await api
 				.delete(
-					`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting/${meetingId}`,
+					`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting/${meetingId}`,
 				)
 				.catch(() => null)
 		}
@@ -352,7 +352,7 @@ test('sub-items render nested under their parent in the agenda tab', async ({
 // @e2e openspec/specs/agenda-management/spec.md#assemble-meeting-package-from-agenda-documents
 test('agenda tab offers the Assemble meeting package action', async ({ page }) => {
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(resp.ok()).toBe(true)
@@ -362,7 +362,7 @@ test('agenda tab offers the Assemble meeting package action', async ({ page }) =
 	const meetingId = first.id ?? first['@self']?.id
 	test.skip(!meetingId, 'First meeting has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
+	await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	const agendaTab = page.getByRole('tab', { name: 'Agenda' })

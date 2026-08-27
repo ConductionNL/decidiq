@@ -17,9 +17,9 @@
 	<section
 		class="minutes-panel"
 		data-testid="minutes-panel"
-		:aria-label="t('decidesk', 'Minute taking')">
+		:aria-label="t('decidiq', 'Minute taking')">
 		<div class="minutes-panel__header">
-			<h3>{{ t('decidesk', 'Minutes (live)') }}</h3>
+			<h3>{{ t('decidiq', 'Minutes (live)') }}</h3>
 			<span
 				class="minutes-panel__save-state"
 				data-testid="minutes-panel-save-state"
@@ -32,15 +32,15 @@
 
 		<template v-else-if="!minutes">
 			<p>
-				{{ t('decidesk', 'No draft minutes exist for this meeting yet.') }}
+				{{ t('decidiq', 'No draft minutes exist for this meeting yet.') }}
 			</p>
 			<NcButton
 				variant="primary"
 				data-testid="minutes-panel-start"
 				:disabled="creating"
-				:aria-label="t('decidesk', 'Start taking minutes')"
+				:aria-label="t('decidiq', 'Start taking minutes')"
 				@click="startMinutes">
-				{{ t('decidesk', 'Start taking minutes') }}
+				{{ t('decidiq', 'Start taking minutes') }}
 			</NcButton>
 			<p v-if="error" class="minutes-panel__error" role="alert">
 				{{ error }}
@@ -51,7 +51,7 @@
 			<p v-if="!editable" class="minutes-panel__locked">
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'The minutes are no longer in draft — editing is locked.',
 					)
 				}}
@@ -93,12 +93,12 @@
 						v-if="editable"
 						size="small"
 						:aria-label="
-							t('decidesk', '+ Action item for {title}', {
+							t('decidiq', '+ Action item for {title}', {
 								title: item.title,
 							})
 						"
 						@click="actionItemTarget = item">
-						{{ t('decidesk', '+ Action item') }}
+						{{ t('decidiq', '+ Action item') }}
 					</NcButton>
 				</div>
 				<!--
@@ -112,15 +112,15 @@
 				-->
 				<NcTextArea
 					:modelValue="noteFor(item.id).notes"
-					:label="t('decidesk', 'Discussion notes')"
-					:placeholder="t('decidesk', 'What was discussed…')"
+					:label="t('decidiq', 'Discussion notes')"
+					:placeholder="t('decidiq', 'What was discussed…')"
 					:disabled="!editable"
 					resize="vertical"
 					@update:modelValue="onNoteInput(item.id, 'notes', $event)" />
 				<NcTextArea
 					:modelValue="noteFor(item.id).decisions"
-					:label="t('decidesk', 'Decisions')"
-					:placeholder="t('decidesk', 'Decisions taken on this item…')"
+					:label="t('decidiq', 'Decisions')"
+					:placeholder="t('decidiq', 'Decisions taken on this item…')"
 					:disabled="!editable"
 					resize="vertical"
 					@update:modelValue="onNoteInput(item.id, 'decisions', $event)" />
@@ -182,12 +182,12 @@ export default {
 			switch (this.saveState) {
 				case 'pending':
 				case 'saving':
-					return this.t('decidesk', 'Saving…')
+					return this.t('decidiq', 'Saving…')
 				case 'saved':
-					return this.t('decidesk', 'All changes saved')
+					return this.t('decidiq', 'All changes saved')
 				case 'error':
 					return this.t(
-						'decidesk',
+						'decidiq',
 						'Autosave failed — retrying on next edit',
 					)
 				default:
@@ -235,7 +235,7 @@ export default {
 					: []
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Failed to load minutes.')
+					e?.message || this.t('decidiq', 'Failed to load minutes.')
 			} finally {
 				this.loading = false
 			}
@@ -253,7 +253,7 @@ export default {
 			try {
 				const store = ensureRelationType('minutes')
 				await store.saveObject('minutes', {
-					title: this.t('decidesk', 'Minutes'),
+					title: this.t('decidiq', 'Minutes'),
 					lifecycle: 'draft',
 					version: 1,
 					meeting: this.meetingId,
@@ -262,7 +262,7 @@ export default {
 				await this.fetchMinutes()
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Could not create minutes.')
+					e?.message || this.t('decidiq', 'Could not create minutes.')
 			} finally {
 				this.creating = false
 			}

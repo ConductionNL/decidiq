@@ -5,7 +5,7 @@ The proxy-vote delegation flow (`proxyVote#register`, `#suspend`, `#revoke` — 
 
 #### Scenario: Grantor registers and later revokes their own proxy over real HTTP
 
-@e2e exclude API/authorization scenario, not a UI flow (feedback_playwright-ui-only-newman-api); covered by tests/integration/decidesk-security-flow-e2e.postman_collection.json folder 1 ("Register proxy as grantor", "Revoke proxy as grantor succeeds") — real HTTP through the actual route, not a direct controller call.
+@e2e exclude API/authorization scenario, not a UI flow (feedback_playwright-ui-only-newman-api); covered by tests/integration/decidiq-security-flow-e2e.postman_collection.json folder 1 ("Register proxy as grantor", "Revoke proxy as grantor succeeds") — real HTTP through the actual route, not a direct controller call.
 
 - **GIVEN** two seeded meeting participants A (grantor) and B (holder)
 - **WHEN** a Newman test issues `POST /api/proxies` as A, then `DELETE /api/proxies/{id}`
@@ -14,7 +14,7 @@ The proxy-vote delegation flow (`proxyVote#register`, `#suspend`, `#revoke` — 
 
 #### Scenario: Unrelated participant cannot revoke another member's proxy over real HTTP
 
-@e2e exclude API/authorization scenario, not a UI flow; covered by tests/integration/decidesk-security-flow-e2e.postman_collection.json folder 1 ("Revoke proxy as unrelated user is rejected (authz: 403, unchanged)").
+@e2e exclude API/authorization scenario, not a UI flow; covered by tests/integration/decidiq-security-flow-e2e.postman_collection.json folder 1 ("Revoke proxy as unrelated user is rejected (authz: 403, unchanged)").
 
 - **GIVEN** a proxy registered between A and B
 - **WHEN** a Newman test issues `DELETE /api/proxies/{id}` authenticated as an unrelated
@@ -26,7 +26,7 @@ The eIDAS QES signing endpoints (`eIDASSignature#initiate|verify|finalize|certSt
 
 #### Scenario: Authenticated caller can reach the certificate-status endpoint
 
-@e2e exclude API reachability/auth-posture scenario, not a UI flow; covered by tests/integration/decidesk-security-flow-e2e.postman_collection.json folder 2 ("certStatus reachable for an authenticated caller").
+@e2e exclude API reachability/auth-posture scenario, not a UI flow; covered by tests/integration/decidiq-security-flow-e2e.postman_collection.json folder 2 ("certStatus reachable for an authenticated caller").
 
 - **GIVEN** an authenticated Nextcloud session
 - **WHEN** a Newman test issues `POST /api/eidas/validate-cert`
@@ -35,7 +35,7 @@ The eIDAS QES signing endpoints (`eIDASSignature#initiate|verify|finalize|certSt
 
 #### Scenario: Unauthenticated request is rejected by the real middleware
 
-@e2e exclude API auth-posture scenario, not a UI flow; covered by tests/integration/decidesk-security-flow-e2e.postman_collection.json folder 2 ("certStatus rejects an unauthenticated request").
+@e2e exclude API auth-posture scenario, not a UI flow; covered by tests/integration/decidiq-security-flow-e2e.postman_collection.json folder 2 ("certStatus rejects an unauthenticated request").
 
 - **GIVEN** no authenticated session
 - **WHEN** a Newman test issues a request to any eIDAS endpoint
@@ -46,7 +46,7 @@ The `governanceReport#*` (`appinfo/routes.php:187-190`) and `regulatorExport#*` 
 
 #### Scenario: Authorized caller generates a governance report and a regulator export
 
-@e2e exclude API reachability scenario, not a UI flow; covered by tests/integration/decidesk-security-flow-e2e.postman_collection.json folder 3 ("Generate governance report as admin", "Generate regulator export as admin").
+@e2e exclude API reachability scenario, not a UI flow; covered by tests/integration/decidiq-security-flow-e2e.postman_collection.json folder 3 ("Generate governance report as admin", "Generate regulator export as admin").
 
 - **GIVEN** an authenticated caller with an appropriate role
 - **WHEN** a Newman test issues `POST /api/governance-reports` and `POST
@@ -55,7 +55,7 @@ The `governanceReport#*` (`appinfo/routes.php:187-190`) and `regulatorExport#*` 
 
 #### Scenario: Unauthenticated request is rejected
 
-@e2e exclude API auth-posture scenario, not a UI flow; covered by tests/integration/decidesk-security-flow-e2e.postman_collection.json folder 3 (the two "unauthenticated (401)" requests).
+@e2e exclude API auth-posture scenario, not a UI flow; covered by tests/integration/decidiq-security-flow-e2e.postman_collection.json folder 3 (the two "unauthenticated (401)" requests).
 
 - **GIVEN** no authenticated session
 - **WHEN** a Newman test issues a request to either route group

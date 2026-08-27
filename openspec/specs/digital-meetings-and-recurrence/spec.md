@@ -5,14 +5,14 @@ status: done
 # Specs: Meeting Management — Other T1
 
 **Change:** p2-meeting-management-other-t1
-**App:** Decidesk
+**App:** Decidiq
 **Entities:** Meeting (CalDAV VEVENT + OpenRegister wrapper), AgendaItem
 
 ---
 
 ## Purpose
 
-This spec defines digital council meetings, speaking time management, and recurring meeting series for Decidesk.
+This spec defines digital council meetings, speaking time management, and recurring meeting series for Decidiq.
 
 # Requirements
 
@@ -71,7 +71,7 @@ Citizens, journalists, and remote participants can follow a live meeting without
 **WHEN** a browser requests `GET /api/meetings/{id}/live` without authentication
 **THEN** the endpoint returns HTTP 200 with: `{ title, lifecycle, meetingMode, location, scheduledDate, currentAgendaItem: { title, orderNumber, estimatedDuration } }`
 **AND** the response excludes all ATTENDEE data, internal notes, and other non-public fields
-**AND** `MeetingLiveView.vue` (loaded at `/apps/decidesk/meetings/{id}/live`) displays this data in a clean public-facing layout with the meeting title, the current agenda item title, and (if `digital`/`hybrid`) a "Deelnemen" link
+**AND** `MeetingLiveView.vue` (loaded at `/apps/decidiq/meetings/{id}/live`) displays this data in a clean public-facing layout with the meeting title, the current agenda item title, and (if `digital`/`hybrid`) a "Deelnemen" link
 
 **GIVEN** the Meeting has `lifecycle` other than `opened`
 **WHEN** a browser requests `GET /api/meetings/{id}/live`

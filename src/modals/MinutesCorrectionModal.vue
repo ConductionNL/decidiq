@@ -11,14 +11,14 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Suggest a correction')"
+		:name="t('decidiq', 'Suggest a correction')"
 		data-testid="minutes-correction-modal"
 		@closing="$emit('close')">
 		<template #default>
 			<p>
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'Describe the correction you propose. The chair or secretary reviews every suggestion before approving the minutes.',
 					)
 				}}
@@ -26,10 +26,10 @@
 			<NcTextArea
 				v-model="text"
 				data-testid="minutes-correction-text"
-				:label="t('decidesk', 'Correction')"
+				:label="t('decidiq', 'Correction')"
 				:placeholder="
 					t(
-						'decidesk',
+						'decidiq',
 						'e.g. The vote count for item 5 should read 12 in favour',
 					)
 				"
@@ -41,10 +41,10 @@
 				data-testid="minutes-correction-confirm"
 				:disabled="!text.trim()"
 				@click="$emit('confirm', text.trim())">
-				{{ t('decidesk', 'Submit suggestion') }}
+				{{ t('decidiq', 'Submit suggestion') }}
 			</NcButton>
 			<NcButton @click="$emit('close')">
-				{{ t('decidesk', 'Cancel') }}
+				{{ t('decidiq', 'Cancel') }}
 			</NcButton>
 		</template>
 	</NcDialog>

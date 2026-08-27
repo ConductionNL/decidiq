@@ -4,7 +4,7 @@
  * Unit tests for MigrateBoardProxyToProxyAuthorization repair step.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Repair
+ * @package  OCA\Decidiq\Tests\Unit\Repair
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,10 +20,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Repair;
+namespace OCA\Decidiq\Tests\Unit\Repair;
 
-use OCA\Decidesk\Repair\MigrateBoardProxyToProxyAuthorization;
-use OCA\Decidesk\Service\ParticipantToPersonMembershipResolver;
+use OCA\Decidiq\Repair\MigrateBoardProxyToProxyAuthorization;
+use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\Migration\IOutput;
@@ -117,7 +117,7 @@ class MigrateBoardProxyToProxyAuthorizationTest extends TestCase {
 				?array $_extend = [],
 				bool $files = false,
 				string|int|null $register = null,
-				string|int|null $schema = null
+				string|int|null $schema = null,
 			) use ($knownMeetings) {
 				if ($schema === 'meeting' && in_array($id, $knownMeetings, true) === true) {
 					return $this->entity(data: ['id' => $id]);
@@ -134,7 +134,7 @@ class MigrateBoardProxyToProxyAuthorizationTest extends TestCase {
 				?array $extend = [],
 				string|int|null $register = null,
 				string|int|null $schema = null,
-				?string $uuid = null
+				?string $uuid = null,
 			) use (&$savedRef, $saveObjectThrowsForGrantor) {
 				if (in_array(($object['grantor'] ?? null), $saveObjectThrowsForGrantor, true) === true) {
 					throw new \RuntimeException('save failed for grantor ' . (string)($object['grantor'] ?? ''));

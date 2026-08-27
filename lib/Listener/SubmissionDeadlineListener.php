@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Submission Deadline Listener
+ * Decidiq Submission Deadline Listener
  *
  * Rejects motion/amendment creations after the linked meeting's submission
  * deadline (motion-amendment spec, Motion Submission requirement).
  *
  * @category Listener
- * @package  OCA\Decidesk\Listener
+ * @package  OCA\Decidiq\Listener
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,13 +23,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Listener;
+namespace OCA\Decidiq\Listener;
 
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Pre-save hook on OpenRegister's ObjectCreatingEvent: when a motion or
@@ -124,7 +124,7 @@ class SubmissionDeadlineListener implements IEventListener {
 				);
 				$event->stopPropagation();
 				$this->logger->info(
-					'Decidesk: rejected late submission',
+					'Decidiq: rejected late submission',
 					['schema' => $slug, 'decisionType' => $decisionType, 'meetingId' => $meetingId]
 				);
 			}
@@ -132,7 +132,7 @@ class SubmissionDeadlineListener implements IEventListener {
 			// Fail soft on infrastructure errors: the deadline rule must never
 			// break the OR write path (deliberate — see class docblock).
 			$this->logger->warning(
-				'Decidesk: submission deadline listener failed',
+				'Decidiq: submission deadline listener failed',
 				['exception' => $e->getMessage()]
 			);
 		}//end try
@@ -229,7 +229,7 @@ class SubmissionDeadlineListener implements IEventListener {
 			return null;
 		}
 
-		$motionEntity = $this->objectService->find(id: $parentMotionId, register: 'decidesk', schema: 'decision');
+		$motionEntity = $this->objectService->find(id: $parentMotionId, register: 'decidiq', schema: 'decision');
 		if ($motionEntity === null) {
 			return null;
 		}
@@ -284,7 +284,7 @@ class SubmissionDeadlineListener implements IEventListener {
 	 * @return int|null Deadline timestamp, or null when unset/unparseable/meeting missing
 	 */
 	private function resolveSubmissionDeadline(string $meetingId): ?int {
-		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		if ($meetingEntity === null) {
 			return null;
 		}
@@ -298,7 +298,7 @@ class SubmissionDeadlineListener implements IEventListener {
 		$timestamp = strtotime($deadline);
 		if ($timestamp === false) {
 			$this->logger->warning(
-				'Decidesk: unparseable submissionDeadline on meeting',
+				'Decidiq: unparseable submissionDeadline on meeting',
 				['meetingId' => $meetingId, 'submissionDeadline' => $deadline]
 			);
 			return null;

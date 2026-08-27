@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Motion Link Resolver
+ * Decidiq Motion Link Resolver
  *
  * Reads and compares the object links a motion carries: the meeting it belongs
  * to, and whether a given amendment is a child of it. Both questions are asked
@@ -16,7 +16,7 @@
  * ObjectService just to answer "which meeting is this motion on?").
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -32,7 +32,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Container\ContainerInterface;
 
@@ -71,7 +71,7 @@ class MotionLinkResolver {
 	public function resolveMeetingId(string $motionId): ?string {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'decision');
+			$motionEntity = $objectService->find(id: $motionId, register: 'decidiq', schema: 'decision');
 			if ($motionEntity === null) {
 				return null;
 			}

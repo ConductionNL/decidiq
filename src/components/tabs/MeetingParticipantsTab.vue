@@ -11,31 +11,31 @@
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--participants"
+		class="decidiq-tab decidiq-tab--participants"
 		data-testid="meeting-participants-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Participants') }}
-				<span v-if="!loading" class="decidesk-tab__count"
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Participants') }}
+				<span v-if="!loading" class="decidiq-tab__count"
 					>({{ rows.length }})</span
 				>
 			</h3>
 			<NcButton
 				variant="primary"
 				data-testid="meeting-participants-add"
-				:aria-label="t('decidesk', 'Add participant')"
+				:aria-label="t('decidiq', 'Add participant')"
 				@click="addDialogOpen = true">
 				<template #icon>
 					<Plus :size="20" />
 				</template>
-				{{ t('decidesk', 'Add participant') }}
+				{{ t('decidiq', 'Add participant') }}
 			</NcButton>
 		</div>
 
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load participants')">
+			:title="t('decidiq', 'Could not load participants')">
 			{{ error }}
 		</CnNoteCard>
 
@@ -44,8 +44,8 @@
 			:rows="rows"
 			:loading="loading"
 			rowKey="id"
-			:emptyText="t('decidesk', 'No participants linked to this meeting yet.')"
-			:loadingText="t('decidesk', 'Loading participants…')">
+			:emptyText="t('decidiq', 'No participants linked to this meeting yet.')"
+			:loadingText="t('decidiq', 'Loading participants…')">
 			<template #row-actions="{ row }">
 				<CnRowActions :row="row" :actions="rowActions" />
 			</template>
@@ -63,7 +63,7 @@
 			ref="removeDialog"
 			:item="removeTarget"
 			nameField="displayName"
-			:dialogTitle="t('decidesk', 'Remove from meeting')"
+			:dialogTitle="t('decidiq', 'Remove from meeting')"
 			@confirm="confirmRemove"
 			@close="removeTarget = null" />
 	</div>
@@ -114,9 +114,9 @@ export default {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		columns() {
 			return [
-				{ key: 'displayName', label: this.t('decidesk', 'Name') },
-				{ key: 'role', label: this.t('decidesk', 'Role') },
-				{ key: 'party', label: this.t('decidesk', 'Party') },
+				{ key: 'displayName', label: this.t('decidiq', 'Name') },
+				{ key: 'role', label: this.t('decidiq', 'Role') },
+				{ key: 'party', label: this.t('decidiq', 'Party') },
 			]
 		},
 
@@ -124,7 +124,7 @@ export default {
 		rowActions() {
 			return [
 				{
-					label: this.t('decidesk', 'Remove from meeting'),
+					label: this.t('decidiq', 'Remove from meeting'),
 					icon: LinkOff,
 					destructive: true,
 					handler: (row) => {
@@ -187,7 +187,7 @@ export default {
 				this.rows = filtered.length ? filtered : items || []
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Failed to load participants.')
+					e?.message || this.t('decidiq', 'Failed to load participants.')
 			} finally {
 				this.loading = false
 			}
@@ -242,7 +242,7 @@ export default {
 				this.refresh()
 			} catch (e) {
 				this.$refs.removeDialog?.setResult({
-					error: e?.message || this.t('decidesk', 'Remove failed.'),
+					error: e?.message || this.t('decidiq', 'Remove failed.'),
 				})
 			}
 		},
@@ -251,27 +251,27 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__count {
+.decidiq-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;

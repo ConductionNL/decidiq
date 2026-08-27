@@ -4,7 +4,7 @@
 TBD - created by archiving change consume-or-rbac-authorization. Update Purpose after archive.
 ## Requirements
 ### Requirement: REQ-RBAC-001 Governance-body roles project into OpenRegister RBAC scopes
-decidesk SHALL maintain, per GovernanceBody, two OpenRegister RBAC scopes derived from the body's
+decidiq SHALL maintain, per GovernanceBody, two OpenRegister RBAC scopes derived from the body's
 member roles: a **chair scope** (`decidesk:body:{bodyId}:chair`) containing members whose role is
 `chair` or `chairman`, and a **signatory scope** (`decidesk:body:{bodyId}:signatory`) containing
 members whose role is `chair`, `chairman`, `vice-chairman`, or `secretary`. A role-projection hook
@@ -42,7 +42,7 @@ be authorized by an OpenRegister property-RBAC rule that write-gates the signing
 the owning body's `signatory` scope. The app-local `MinutesAuthorizationService` SHALL be removed and
 SHALL NOT be reintroduced; the signing controller SHALL rely on OpenRegister returning a
 403/`null` for a non-signatory. No app-local `*AuthorizationService` or `*PermissionService` for
-decidesk OpenRegister objects SHALL remain.
+decidiq OpenRegister objects SHALL remain.
 
 #### Scenario: A signatory may initiate signing
 - **GIVEN** a Minutes record on a body and a user in that body's `signatory` scope
@@ -56,9 +56,9 @@ decidesk OpenRegister objects SHALL remain.
 - **AND** no app-local authorization service is consulted.
 
 #### Scenario: The anti-pattern gate is clean
-- **GIVEN** the decidesk worktree after this change
+- **GIVEN** the decidiq worktree after this change
 - **WHEN** `lint-or-abstraction-anti-patterns.sh` runs
-- **THEN** it reports no `consume-or-rbac-fleet-wide` finding for decidesk.
+- **THEN** it reports no `consume-or-rbac-fleet-wide` finding for decidiq.
 
 @e2e exclude build-time lint-gate assertion, not a runtime UI flow; verified by running lint-or-abstraction-anti-patterns.sh (reports clean; no *AuthorizationService/*PermissionService remains under lib/).
 
@@ -86,7 +86,7 @@ data state, not actor authorization.
 - **AND** the refusal is independent of the actor's scope membership.
 
 ### Requirement: REQ-RBAC-004 The duplicated admin guards consume OpenRegister's admin determination
-decidesk SHALL replace the four per-controller `requireAdmin()` copies
+decidiq SHALL replace the four per-controller `requireAdmin()` copies
 (`GovernanceReportController`, `MultilingualReconciliationController`, `AuditLogController`,
 `RegulatorExportController`) with a single shared admin guard that consumes OpenRegister's admin
 determination (`PropertyRbacHandler::isAdmin()` / the OpenRegister authorization decision). Each
@@ -124,8 +124,8 @@ The `decidesk` register row SHALL declare an `authorization` block naming EVERY 
 OpenRegister action (`read`, `list`, `create`, `update`, `delete`). `read`, `list` and `create`
 SHALL be granted to `authenticated`; `update` and `delete` SHALL NOT be, so that a user who is
 neither the object's owner, nor a Nextcloud admin, nor a member of the named administrator group
-cannot rewrite or destroy another user's decidesk object through OpenRegister's own
-`/apps/openregister/api/objects/decidesk/<schema>` API. Schemas that declare their own
+cannot rewrite or destroy another user's decidiq object through OpenRegister's own
+`/apps/openregister/api/objects/decidiq/<schema>` API. Schemas that declare their own
 `authorization` block SHALL keep it — OpenRegister resolves the schema block first and falls back to
 the register's only when a schema has none — and those blocks SHALL continue to name read actions
 only. The register version, the configuration version and the app version SHALL all be bumped in the
@@ -142,7 +142,7 @@ the `<post-migration>` repair step that performs the import runs only on `occ up
 
 #### Scenario: Reads and creates are unchanged
 - **GIVEN** any authenticated user
-- **WHEN** the user lists or reads decidesk objects, or creates a new one
+- **WHEN** the user lists or reads decidiq objects, or creates a new one
 - **THEN** the action is permitted exactly as before the baseline was declared.
 
 #### Scenario: The baseline names every action

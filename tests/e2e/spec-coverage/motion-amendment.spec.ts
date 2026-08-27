@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — motion-amendment spec
@@ -22,7 +22,7 @@ import { BASE_URL as BASE } from '../base-url'
 
 // @e2e openspec/specs/motion-amendment/spec.md#submit-a-motion-with-co-signers
 test('motions list renders with Add Motion button', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/motions`)
+	await page.goto(`${BASE}/apps/decidiq/motions`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	await expect(page.getByText('Showing')).toBeVisible()
@@ -34,7 +34,7 @@ test('motions list renders with Add Motion button', async ({ page }) => {
 test('Add Motion dialog opens with co-signers and lifecycle fields', async ({
 	page,
 }) => {
-	await page.goto(`${BASE}/apps/decidesk/motions`)
+	await page.goto(`${BASE}/apps/decidiq/motions`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	await page.getByTestId('cn-cta-primary').click()
@@ -88,7 +88,7 @@ test('Add Motion dialog opens with co-signers and lifecycle fields', async ({
 // Live meeting motion submission is accessible via the LiveMeeting view.
 // Verify the live meeting view loads for an existing meeting.
 test('motions list shows existing motions', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/motions`)
+	await page.goto(`${BASE}/apps/decidiq/motions`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	// Switch to table view if available
@@ -110,11 +110,11 @@ test('motion detail route renders with amendments tab accessible', async ({
 }) => {
 	// ADR-005 (accepted): the standalone `motion` schema was folded into the
 	// `Decision` supertype under `decisionType: 'motion'`. Addressing
-	// /objects/decidesk/motion returns 404 "Schema not found: 'motion'", which is
+	// /objects/decidiq/motion returns 404 "Schema not found: 'motion'", which is
 	// what this test was failing on — note the manifest already routes
 	// /motions/:id at schema `decision`, so only this URL was stale.
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/decision?decisionType=motion&_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/decision?decisionType=motion&_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(
@@ -130,7 +130,7 @@ test('motion detail route renders with amendments tab accessible', async ({
 	const motionId = first.id ?? first['@self']?.id
 	expect(motionId, 'the seeded motion must carry an id').toBeTruthy()
 
-	await page.goto(`${BASE}/apps/decidesk/motions/${motionId}`)
+	await page.goto(`${BASE}/apps/decidiq/motions/${motionId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await expect(page.locator('[data-testid="app-root"]')).toBeVisible()
 })
@@ -144,7 +144,7 @@ test('amendment detail route renders for the diff view', async ({ page }) => {
 	// standalone `amendment` schema was removed); /amendments/:id is already
 	// routed at schema `decision` in the manifest.
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/decision?decisionType=amendment&_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/decision?decisionType=amendment&_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(
@@ -160,7 +160,7 @@ test('amendment detail route renders for the diff view', async ({ page }) => {
 	const amendmentId = first.id ?? first['@self']?.id
 	expect(amendmentId, 'the seeded amendment must carry an id').toBeTruthy()
 
-	await page.goto(`${BASE}/apps/decidesk/amendments/${amendmentId}`)
+	await page.goto(`${BASE}/apps/decidiq/amendments/${amendmentId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await expect(page.locator('[data-testid="app-root"]')).toBeVisible()
 })
@@ -180,7 +180,7 @@ test('live meeting view shows motions context for in-meeting motion submission',
 	page,
 }) => {
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(resp.ok()).toBe(true)
@@ -190,7 +190,7 @@ test('live meeting view shows motions context for in-meeting motion submission',
 	const meetingId = first.id ?? first['@self']?.id
 	test.skip(!meetingId, 'First meeting has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}/live`)
+	await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}/live`)
 	await page.waitForSelector('[data-testid="meeting-live"]', { timeout: 15_000 })
 	await expect(page.locator('[data-testid="meeting-live"]')).toBeVisible()
 })
@@ -199,7 +199,7 @@ test('live meeting view shows motions context for in-meeting motion submission',
 // Lifecycle transitions on motions are driven from the motion detail sidebar/actions.
 // Verified via motion detail rendering.
 test('motions page title is correct', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/motions`)
-	await expect(page).toHaveTitle(/Decidesk/i)
+	await page.goto(`${BASE}/apps/decidiq/motions`)
+	await expect(page).toHaveTitle(/Decidiq/i)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 })

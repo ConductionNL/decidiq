@@ -479,7 +479,7 @@ The `Meeting` schema definition in `decidesk_register.json` SHALL be updated to 
 - **THEN** it does NOT appear in any `/api/citizens/` endpoint
 
 #### Scenario: Existing meetings default to non-public
-- **WHEN** Decidesk is upgraded and existing Meeting objects have no `isPublic` field
+- **WHEN** Decidiq is upgraded and existing Meeting objects have no `isPublic` field
 - **THEN** those meetings behave as `isPublic: false` (staff-only) — no change in behavior
 
 #### Scenario: Governance body sets default publication policy
@@ -506,7 +506,7 @@ The `Motion` schema definition in `decidesk_register.json` SHALL be updated to i
 - **THEN** the motion appears in `GET /api/citizens/motions/{motionId}/votes/active` and citizens can cast CitizenVote objects
 
 #### Scenario: Existing motions unaffected by upgrade
-- **WHEN** Decidesk is upgraded and existing Motion objects have no `citizenVotingAllowed` field
+- **WHEN** Decidiq is upgraded and existing Motion objects have no `citizenVotingAllowed` field
 - **THEN** those motions behave as `citizenVotingAllowed: false` — citizens cannot vote on them
 
 #### Scenario: Voting results show separate tabs
@@ -555,7 +555,7 @@ The `Decision` schema definition in `decidesk_register.json` SHALL be updated to
 - **THEN** the field value is updated to `"public"` without data loss
 
 #### Scenario: Existing decisions default to internal on upgrade
-- **WHEN** Decidesk is upgraded and an existing Decision has no `isPublished` field
+- **WHEN** Decidiq is upgraded and an existing Decision has no `isPublished` field
 - **THEN** it behaves as `isPublished: "internal"` — no change in behavior for staff workflows
 
 ### Requirement: Consultation supertype with consultationType
@@ -612,7 +612,7 @@ pipelinq-sourced responses where present.
 #### Scenario: Authoring and bidding are out of scope
 - GIVEN a tender consultation
 - WHEN a user looks for tender-document authoring or bid submission
-- THEN decidesk does not provide them; the schema carries a `procestProcessRef` link-back field for
+- THEN decidiq does not provide them; the schema carries a `procestProcessRef` link-back field for
   the procest authoring process (rendering the link-out + surfacing pipelinq responses is a
   documented follow-up).
 

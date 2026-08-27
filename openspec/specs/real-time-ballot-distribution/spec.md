@@ -10,7 +10,7 @@ Notifies eligible participants when a voting round opens and lets the chair trac
 ## Requirements
 
 ### Requirement: REQ-RBD-001 Opening a VotingRound automatically notifies all eligible Participants
-When `VotingService::openVotingRound()` succeeds, it SHALL call `NotificationService` to push a Nextcloud notification to every Participant with an active Membership in the GovernanceBody (`startDate` set, `endDate` null or in the future). Each notification SHALL include the motion title, the VotingRound title, and a deep-link to the vote-casting screen in path format (`/apps/decidesk/motions/{motionId}`).
+When `VotingService::openVotingRound()` succeeds, it SHALL call `NotificationService` to push a Nextcloud notification to every Participant with an active Membership in the GovernanceBody (`startDate` set, `endDate` null or in the future). Each notification SHALL include the motion title, the VotingRound title, and a deep-link to the vote-casting screen in path format (`/apps/decidiq/motions/{motionId}`).
 
 #### Scenario: Chair opens a voting round and participants receive notifications
 - **GIVEN** a `GovernanceBody` with 30 active Participants and a Motion in `lifecycle: "debating"`

@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Advisory-opinion-workflow (adviesaanvraag / advies) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages for the adviesaanvraag register; schema refs BY SLUG (adviesaanvraag / advies), never PascalCase. DEFERRED (design D6, out of this fragment): the two Dashboard stat widgets 'Open adviesaanvragen' (non-terminal lifecycle) and 'Adviezen wachtend op afdoening' (lifecycle advies-uitgebracht) must be added to the Dashboard page in the base src/manifest.json — mergePages replaces a same-id page wholesale, so a fragment cannot add a widget to Dashboard without duplicating the whole page. Both KPIs deep-link to the Adviesaanvragen index pre-filtered to the same set (REQ-AOW-008).",
 	"_spec": "openspec/changes/advisory-opinion-workflow/specs/advisory-opinion-workflow/spec.md",
 	"menu": [
@@ -19,7 +19,7 @@
 			"title": "Advisory opinions",
 			"_note": "spec: openspec/changes/advisory-opinion-workflow/specs/advisory-opinion-workflow/spec.md (REQ-AOW-008 / REQ-AOW-006). Adviesaanvragen index. Columns subject/advisoryBody/requestingBody/sentDate/requestedByDate/lifecycle; quick filters on lifecycle (advisory-body / requesting-body quick filters are documented in the spec but modelled here as the lifecycle dropdown plus the shared sidebar facets, since GovernanceBody references are facet-filtered through the sidebar rather than a static dropdown). The workload view (REQ-AOW-006) is this index filtered to one advisory body via the sidebar facet. Both Dashboard KPI deep-links (DEFERRED base-manifest widgets) target this page pre-filtered.",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "advice-request",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -36,8 +36,8 @@
 				],
 				"columns": [
 					{ "key": "subject", "label": "Subject", "widget": "link" },
-					{ "key": "advisoryBody", "label": "Advisory body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
-					{ "key": "requestingBody", "label": "Requesting body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "advisoryBody", "label": "Advisory body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "requestingBody", "label": "Requesting body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "sentDate", "label": "Sent" },
 					{ "key": "requestedByDate", "label": "Requested by" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
@@ -47,7 +47,7 @@
 				],
 				"showMassExport": true,
 				"sidebar": { "enabled": true, "showMetadata": true },
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -57,7 +57,7 @@
 			"title": "Advisory opinion",
 			"_note": "spec: openspec/changes/advisory-opinion-workflow/specs/advisory-opinion-workflow/spec.md (REQ-AOW-008). AdviesaanvraagDetail. Aanvraag data leads 8-wide (question, all dates, verantwoording when set), publication stacked right; the linked requestingBody/advisoryBody/relatedDecision/agendaItem/advisoryStage and the recorded Advies (strekking, samenvatting, document) render as resolved references in the data + Related widgets. Files leaf for submitted documents. Audit trail is a sidebar tab. Out-of-route aanvragen (advisoryStage/relatedDecision empty) render without error, showing no linked decision (REQ-AOW-004).",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "advice-request",
 				"widgets": [
 					{ "id": "adviesaanvraag-data", "type": "data", "title": "Advisory opinion", "icon": "MessageTextOutline", "content": { "columns": 2 } },
@@ -76,7 +76,7 @@
 						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
 					]
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		}
 	]

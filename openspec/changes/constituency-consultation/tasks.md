@@ -72,7 +72,7 @@
 - **files**: `src/manifest.d/constituency-consultation.json` (reverse-lookup sections), `tests/e2e/`
 - **acceptance_criteria**:
   - GIVEN a `verwerkt` consultation linked to an agenda item WHEN that agenda item's detail page opens THEN a "Raadpleging (niet-bindend)" section shows the question, lifecycle, and summary counts via reverse lookup (same for a linked decision)
-  - GIVEN an unauthenticated client WHEN it queries the OR published-predicate surface or any decidesk route THEN no consultation or response data is returned (Newman negative test)
+  - GIVEN an unauthenticated client WHEN it queries the OR published-predicate surface or any decidiq route THEN no consultation or response data is returned (Newman negative test)
   - GIVEN a decision with a raadpleging summary and a later formal VotingRound THEN the round's tallies contain only formal Votes and no raadpleging counts
 - [ ] Implement
 - [ ] Test

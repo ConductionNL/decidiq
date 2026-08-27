@@ -1,16 +1,16 @@
 <?php
 
 /**
- * Decidesk Portal Contribution Provider
+ * Decidiq Portal Contribution Provider
  *
- * Decidesk's contribution to the shared Portaliq external portal (hydra
+ * Decidiq's contribution to the shared Portaliq external portal (hydra
  * ADR-046, contribution contract v2.2). Portaliq — the ONE shared portal for
  * people WITHOUT a Nextcloud account — discovers this class by convention FQCN
  * (`OCA\{Namespace}\Portal\PortalContributionProvider`) and duck-types it via
  * method_exists(), never instanceof. This class is therefore deliberately
  * PLAIN: no portaliq imports, no `implements` clause, no info.xml dependency,
  * no constructor dependencies. Without portaliq installed it is inert and
- * Decidesk behaves exactly as before (amendment A1).
+ * Decidiq behaves exactly as before (amendment A1).
  *
  * It declares — for the `citizen` audience (a resident participating in a
  * consultation, participatory-budget round or advisory vote WITHOUT a Nextcloud
@@ -19,7 +19,7 @@
  * in through portaliq's ordinary password/`portalAccount` edge at trust `low`,
  * exactly like pipelinq's `client` / `customer` audiences.
  *
- * Decidesk's citizen data is ALREADY portal-shaped: the scope fields
+ * Decidiq's citizen data is ALREADY portal-shaped: the scope fields
  * `submitterId` / `voterId` / `submitter` / `recipientId` each hold a Nextcloud
  * UID OR an opaque pseudonymous token. For an accountless portal citizen the
  * value IS the pseudonymous token, which portaliq derives as the subject's
@@ -29,7 +29,7 @@
  * field-whitelist tables and the deferred creates + public-list surfaces.
  *
  * @category Portal
- * @package  OCA\Decidesk\Portal
+ * @package  OCA\Decidiq\Portal
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -47,19 +47,19 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Portal;
+namespace OCA\Decidiq\Portal;
 
 use DateTimeImmutable;
 use DateTimeInterface;
 
 /**
- * Declares what an external portal subject may see and do in Decidesk.
+ * Declares what an external portal subject may see and do in Decidiq.
  *
  * The contribution is a declarative manifest (pure data — no I/O, no
  * callbacks). All subject identity (subjectRef, audience, organisation, trust)
  * is derived server-side by portaliq's auth edge and MUST never be trusted from
  * the client (ADR-005). Scoping uses the subject's own pseudonymous token
- * (== subjectRef) as the scope value, because Decidesk's citizen records already
+ * (== subjectRef) as the scope value, because Decidiq's citizen records already
  * carry that token in their scope field — never a Nextcloud user id, because
  * portal citizens have no Nextcloud account by premise (amendment A4).
  *
@@ -82,19 +82,19 @@ class PortalContributionProvider {
 	 *
 	 * @var string
 	 */
-	private const REGISTER = 'decidesk';
+	private const REGISTER = 'decidiq';
 
 	/**
 	 * The human label portaliq renders for this app's portal section.
 	 *
 	 * @var string
 	 */
-	private const LABEL = 'Decidesk';
+	private const LABEL = 'Decidiq';
 
 	/**
 	 * The audiences this provider contributes to (contract v2, preferred).
 	 *
-	 * The registry probes for this method first. Decidesk serves accountless
+	 * The registry probes for this method first. Decidiq serves accountless
 	 * residents participating in citizen-participation surfaces (`citizen`).
 	 *
 	 * @return array<int, string> The audience identifiers.
@@ -124,7 +124,7 @@ class PortalContributionProvider {
 	 *
 	 * The subject array is server-derived by portaliq (subjectRef token,
 	 * audience, organisation, trust level low|substantial|high). Returns null
-	 * for any audience Decidesk does not serve (fail-closed; the registry
+	 * for any audience Decidiq does not serve (fail-closed; the registry
 	 * already filters by audience, but a provider must not rely on that).
 	 *
 	 * @param array<string, mixed> $subject The resolved portal subject.
@@ -171,7 +171,7 @@ class PortalContributionProvider {
 	 *   resolved subjectRef by portaliq's writer (never client-writable), and
 	 *   `defaults` stamps the intake state `moderationStatus: 'pending'` plus
 	 *   `submittedAt` (now) server-side, over the whitelist. `parentConstraint`
-	 *   declares (and Decidesk's `PortalCreateOpenParentGuardListener` enforces,
+	 *   declares (and Decidiq's `PortalCreateOpenParentGuardListener` enforces,
 	 *   fail-closed) that the parent `PublicConsultation` must be `status: 'open'`.
 	 * - `createBudgetProposal` (`budget-proposal`) — client whitelist
 	 *   `{participatoryBudget, title, description, requestedAmount, category}`;
@@ -185,7 +185,7 @@ class PortalContributionProvider {
 	 * `voteCount`, `votesFor`, `votesAgainst`) — closing the write-IDOR class
 	 * filed as portaliq#16. Portaliq's shared create receiver (contract v2.2)
 	 * consumes `scopeField` + `defaults`; it does not read `parentConstraint`, so
-	 * the open-parent invariant is ALSO enforced server-side by Decidesk (see
+	 * the open-parent invariant is ALSO enforced server-side by Decidiq (see
 	 * `PortalCreateOpenParentGuardListener`'s docblock for why identification is
 	 * field-signature based rather than schema-slug based).
 	 *

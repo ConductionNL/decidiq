@@ -5,7 +5,7 @@ status: done
 # schemas-and-data-model Specification
 
 ## Purpose
-Defines the decidesk OpenRegister register and its full set of schemas — governance bodies, meetings, agenda items, motions, amendments, voting rounds, votes, decisions, action items, minutes, participants, documents, and the commercial schemas (monetary amount, offer, order, product, report). It specifies each schema's required fields and enumerated values, their relations, the install-time register import and idempotent seed data, email-to-decision linking via _mail metadata, and decision publication flags for ORI integration, providing the data foundation all other decidesk capabilities build on.
+Defines the decidesk OpenRegister register and its full set of schemas — governance bodies, meetings, agenda items, motions, amendments, voting rounds, votes, decisions, action items, minutes, participants, documents, and the commercial schemas (monetary amount, offer, order, product, report). It specifies each schema's required fields and enumerated values, their relations, the install-time register import and idempotent seed data, email-to-decision linking via _mail metadata, and decision publication flags for ORI integration, providing the data foundation all other decidiq capabilities build on.
 
 ## Requirements
 
@@ -17,12 +17,12 @@ The system SHALL provide a `decidesk` OpenRegister register defined in `lib/Sett
 
 #### Scenario: Register file is present and valid
 
-- **WHEN** the Decidesk app is installed on a Nextcloud instance with OpenRegister active
+- **WHEN** the Decidiq app is installed on a Nextcloud instance with OpenRegister active
 - **THEN** the file `lib/Settings/decidesk_register.json` exists and is valid OpenAPI 3.0.0 JSON
 
 #### Scenario: RepairStep imports register on install
 
-- **WHEN** Nextcloud runs the Decidesk repair step (`RepairStep.php`)
+- **WHEN** Nextcloud runs the Decidiq repair step (`RepairStep.php`)
 - **THEN** `ConfigurationService::importFromApp('decidesk')` is called and the `decidesk` register appears in OpenRegister
 
 ---
@@ -320,7 +320,7 @@ The system SHALL load 3–5 seed objects per schema into the `decidesk` register
 
 The system SHALL support linking incoming emails to Decision objects using OpenRegister's `_mail` metadata column, so that related correspondence is part of the decision dossier.
 
-@e2e exclude Nextcloud Mail cross-app integration plumbing (`_mail` metadata column) — schema enablement is covered by tests/Unit/RegisterJsonTest.php::testDecisionMailEnabled; exercising the Mail sidebar itself requires a Mail-app fixture the decidesk e2e suite does not provision. See `email-linking-via-email-leaf` for the dedicated capability spec.
+@e2e exclude Nextcloud Mail cross-app integration plumbing (`_mail` metadata column) — schema enablement is covered by tests/Unit/RegisterJsonTest.php::testDecisionMailEnabled; exercising the Mail sidebar itself requires a Mail-app fixture the decidiq e2e suite does not provision. See `email-linking-via-email-leaf` for the dedicated capability spec.
 
 #### Scenario: Email linked to decision by reference number
 
@@ -329,7 +329,7 @@ The system SHALL support linking incoming emails to Decision objects using OpenR
 
 #### Scenario: Linked email visible in decision dossier
 
-- **WHEN** a user opens a Decision object in Decidesk
+- **WHEN** a user opens a Decision object in Decidiq
 - **THEN** all linked emails are shown in the related mail section via `_mail` metadata
 
 ---

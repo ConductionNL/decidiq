@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Organisation Goals — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Declarative core only: index + detail pages for the goal register; schema ref BY SLUG (goal), never PascalCase. No new Vue component (organisation-goals REQ-009) — generic data/related widgets only, same shape as src/manifest.d/termijnagenda.json. Menu placement: this fragment declares menu id 'Goals' as a CONTRACT — the concurrent ia-six-clusters change has already forward-declared the relocation \"Goals\": \"ActionItems\" in src/menu-layout.json, so this entry is swallowed into the 'Tasks & Commitments' (ActionItems) cluster group once merged; this fragment does not edit src/menu-layout.json or openspec/changes/ia-six-clusters/ (organisation-goals REQ-009 Scenario 2).",
 	"menu": [
 		{
@@ -18,7 +18,7 @@
 			"title": "Goals",
 			"_note": "spec: openspec/changes/organisation-goals/specs/organisation-goals/spec.md#requirement-req-009-goals-index-and-detail-pages-are-declared-not-custom-built",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "goal",
 				"sortKey": "deadline",
 				"sortOrder": "asc",
@@ -35,7 +35,7 @@
 				],
 				"columns": [
 					{ "key": "title", "label": "Title", "widget": "link" },
-					{ "key": "body", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidesk", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "body", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "horizon", "label": "Horizon", "widget": "badge" },
 					{ "key": "deadline", "label": "Deadline" },
 					{ "key": "status", "label": "Status", "widget": "badge" }
@@ -45,7 +45,7 @@
 				],
 				"showMassExport": true,
 				"sidebar": { "enabled": true, "showMetadata": true },
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -55,7 +55,7 @@
 			"title": "Goal",
 			"_note": "spec: openspec/changes/organisation-goals/specs/organisation-goals/spec.md#requirement-req-009-goals-index-and-detail-pages-are-declared-not-custom-built",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "goal",
 				"_note": "GoalDetail (REQ-001/002/004/005/009). Goal data (title/description/horizon/body/owner/startDate/deadline/status/targetValue/currentValue/unit) plus the declarative rollup fields (linkedCommitmentCount/settledCommitmentCount/commitmentSettlementRate, linkedActionItemCount/completedActionItemCount/actionItemCompletionRate, childGoalCount/achievedChildGoalCount/childGoalAchievedRate) render as plain fields in the data widget, same posture as the Meeting quorum aggregation display — no custom progress-visualisation widget (design.md Non-Goals). parentGoal/owner/body render as resolved references in the Related widget.",
 				"widgets": [
@@ -73,7 +73,7 @@
 						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
 					]
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		}
 	]

@@ -1,17 +1,17 @@
 ---
 sidebar_position: 1
-description: Get started with Decidesk, meeting and decision management on Nextcloud. Agendas, motions, voting, minutes, and a permanent decision log.
+description: Get started with Decidiq, meeting and decision management on Nextcloud. Agendas, motions, voting, minutes, and a permanent decision log.
 ---
 
-# Decidesk
+# Decidiq
 
 Universal decision-making platform for Nextcloud — meetings, agendas, motions,
 resolutions, voting, minutes, and decision tracking, with configurable workflows
 per organisation type. No separate governance database, no second login.
 
-## What is Decidesk?
+## What is Decidiq?
 
-Decidesk runs the full decision-making cycle for governance bodies on top of
+Decidiq runs the full decision-making cycle for governance bodies on top of
 Nextcloud: schedule a meeting, build the agenda, submit motions, propose
 amendments, run a vote, take and publish the minutes, and track every decision
 and action item through to completion. Workflows are configurable per
@@ -36,7 +36,7 @@ assistant can answer governance questions with live data.
 
 ## Getting started
 
-Install Decidesk from the [Nextcloud app store](https://apps.nextcloud.com/apps/decidesk)
+Install Decidiq from the [Nextcloud app store](https://apps.nextcloud.com/apps/decidesk)
 or enable it in your Nextcloud admin settings, then configure a governance
 workflow on the settings page.
 

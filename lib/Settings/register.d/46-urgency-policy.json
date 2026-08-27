@@ -254,7 +254,7 @@
               "nl": "Spoedbesluit: {{title}}",
               "en": "Urgent decision: {{title}}"
             },
-            "_note": "decidesk-notifications delta (urgent-decision-procedure). Canonical x-openregister-notifications dialect (ADR-031), verified keys only: trigger.type 'updated' with a condition on isUrgent equals true, channels[], recipients[] via kind:object-acl (read) covering readers of the deciding and ratifying bodies + kind:groups (decidesk-members). kind:field is NOT used on any non-uid property (never urgencyDeclaredBy). A precise per-body-membership recipient form is deferred (same deferral posture as the base lifecycle-entered trigger). Decidesk dispatches no notification imperatively."
+            "_note": "decidesk-notifications delta (urgent-decision-procedure). Canonical x-openregister-notifications dialect (ADR-031), verified keys only: trigger.type 'updated' with a condition on isUrgent equals true, channels[], recipients[] via kind:object-acl (read) covering readers of the deciding and ratifying bodies + kind:groups (decidesk-members). kind:field is NOT used on any non-uid property (never urgencyDeclaredBy). A precise per-body-membership recipient form is deferred (same deferral posture as the base lifecycle-entered trigger). Decidiq dispatches no notification imperatively."
           },
           "urgentRatificationDue": {
             "trigger": {

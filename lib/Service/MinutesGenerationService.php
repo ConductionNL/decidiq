@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Minutes Generation Service
+ * Decidiq Minutes Generation Service
  *
  * Service for generating initial minutes drafts from linked meeting data.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  *
@@ -19,16 +19,16 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
-use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\Decidesk\Exception\MissingRelationException;
+use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingRelationException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Stateless service that generates an initial Dutch minutes draft from linked meeting data.
@@ -93,7 +93,7 @@ class MinutesGenerationService {
 		// Fetch the Minutes object.
 		// setRegister/setSchema are called first so that OpenRegister's session-based
 		// ACL is applied — any caller without read access gets null (same as MeetingService).
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('minutes');
 		$minutesEntity = $objectService->find($minutesId);
 
@@ -175,7 +175,7 @@ class MinutesGenerationService {
 
 		// SetRegister/setSchema are called first so that OpenRegister's session-based
 		// ACL is applied — callers without access to this object get null (OWASP A01).
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('minutes');
 		$minutesEntity = $objectService->find($minutesId);
 
@@ -214,7 +214,7 @@ class MinutesGenerationService {
 		// Named arguments: the positional form ($object, 'decidesk', 'minutes', $id)
 		// silently bound the register string to ObjectService::saveObject()'s second
 		// parameter ($extend) — a latent pre-existing defect fixed here.
-		$saved = $objectService->saveObject(object: $updated, register: 'decidesk', schema: 'minutes', uuid: $minutesId);
+		$saved = $objectService->saveObject(object: $updated, register: 'decidiq', schema: 'minutes', uuid: $minutesId);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $updated);
 	}//end transition()
@@ -293,7 +293,7 @@ class MinutesGenerationService {
 		$objectService = $this->getObjectService();
 
 		// SetRegister/setSchema first so OpenRegister's session-based ACL applies (OWASP A01).
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('minutes');
 		$minutesEntity = $objectService->find($minutesId);
 
@@ -332,7 +332,7 @@ class MinutesGenerationService {
 			]
 		);
 
-		$saved = $objectService->saveObject(object: $updated, register: 'decidesk', schema: 'minutes', uuid: $minutesId);
+		$saved = $objectService->saveObject(object: $updated, register: 'decidiq', schema: 'minutes', uuid: $minutesId);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $updated);
 	}//end reject()
@@ -379,7 +379,7 @@ class MinutesGenerationService {
 			// parameter ($files) — a latent pre-existing defect fixed here.
 			$meetingEntity = $objectService->find(
 				id: $meetingId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'meeting'
 			);
 			if ($meetingEntity === null) {
@@ -389,7 +389,7 @@ class MinutesGenerationService {
 			return $meetingEntity->getObject();
 		} catch (Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: Failed to fetch linked Meeting for minutes draft generation',
+				'Decidiq: Failed to fetch linked Meeting for minutes draft generation',
 				['exception' => $e->getMessage(), 'meetingId' => $meetingId]
 			);
 			// Re-throw as RuntimeException (503) so the caller distinguishes a transient
@@ -427,7 +427,7 @@ class MinutesGenerationService {
 		$offset = 0;
 		$result = [];
 
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema($schema);
 
 		do {
@@ -437,7 +437,7 @@ class MinutesGenerationService {
 						'filters' => array_merge(
 							$extraFilters,
 							[
-								'register' => 'decidesk',
+								'register' => 'decidiq',
 								'schema' => $schema,
 								'_relations.meeting' => $meetingId,
 							]
@@ -448,7 +448,7 @@ class MinutesGenerationService {
 				);
 			} catch (Throwable $e) {
 				$this->logger->warning(
-					'Decidesk: Failed to fetch related objects for minutes draft',
+					'Decidiq: Failed to fetch related objects for minutes draft',
 					['schema' => $schema, 'meetingId' => $meetingId, 'offset' => $offset, 'exception' => $e->getMessage()]
 				);
 				break;
@@ -482,6 +482,5 @@ class MinutesGenerationService {
 		// Injected (ADR-083): a property read throws nothing, so the old
 		// catch was unreachable.
 		return $this->objectService;
-
 	}//end getObjectService()
 }//end class

@@ -7,7 +7,7 @@
  * Copyright (C) 2026 Conduction B.V.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Controller
+ * @package  OCA\Decidiq\Tests\Unit\Controller
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
  *
@@ -20,21 +20,21 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Controller;
+namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\Decidesk\Controller\MinutesController;
-use OCA\Decidesk\Controller\MinutesCorrectionController;
-use OCA\Decidesk\Controller\MinutesResponder;
-use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\Decidesk\Exception\MissingRelationException;
-use OCA\Decidesk\Service\ALVMinutesService;
-use OCA\Decidesk\Service\MinutesAccessGuard;
-use OCA\Decidesk\Service\MinutesDocumentService;
-use OCA\Decidesk\Service\MinutesGenerationService;
-use OCA\Decidesk\Service\MinutesWorkflowService;
-use OCA\Decidesk\Service\ParticipantResolver;
-use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\Decidiq\Controller\MinutesController;
+use OCA\Decidiq\Controller\MinutesCorrectionController;
+use OCA\Decidiq\Controller\MinutesResponder;
+use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingRelationException;
+use OCA\Decidiq\Service\ALVMinutesService;
+use OCA\Decidiq\Service\MinutesAccessGuard;
+use OCA\Decidiq\Service\MinutesDocumentService;
+use OCA\Decidiq\Service\MinutesGenerationService;
+use OCA\Decidiq\Service\MinutesWorkflowService;
+use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;

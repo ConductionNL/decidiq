@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk MigrateBoardProxyToProxyAuthorization Repair Step
+ * Decidiq MigrateBoardProxyToProxyAuthorization Repair Step
  *
  * `board-proxy` is retired in favour of `proxy-authorization`
  * (model-debt-cleanup-schema, REQ-SDM-024): the approval-workflow concept
@@ -23,7 +23,7 @@
  * (migration.md's "transient note/log line").
  *
  * @category Repair
- * @package  OCA\Decidesk\Repair
+ * @package  OCA\Decidiq\Repair
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -40,9 +40,9 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Repair;
+namespace OCA\Decidiq\Repair;
 
-use OCA\Decidesk\Service\ParticipantToPersonMembershipResolver;
+use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -57,11 +57,15 @@ use Throwable;
 class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 
 	/**
-	 * The decidesk register slug.
+	 * The OpenRegister register slug.
+	 *
+	 * FROZEN at the pre-rename spelling, and deliberately NOT Application::APP_ID.
+	 * OpenRegister matches registers by slug; renaming it would resolve no
+	 * register and this step would silently migrate nothing.
 	 *
 	 * @var string
 	 */
-	private const REGISTER = 'decidesk';
+	private const REGISTER = 'decidiq';
 
 	/**
 	 * The retired board-proxy schema slug (source).
@@ -132,7 +136,7 @@ class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 		} catch (Throwable $e) {
 			$output->info('MigrateBoardProxyToProxyAuthorization: no board-proxy rows on this install; nothing to do.');
 			$this->logger->info(
-				'Decidesk: MigrateBoardProxyToProxyAuthorization found no board-proxy schema/objects',
+				'Decidiq: MigrateBoardProxyToProxyAuthorization found no board-proxy schema/objects',
 				['exception' => $e->getMessage()]
 			);
 			return;
@@ -216,7 +220,7 @@ class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 
 		if ($grantor === null || $holder === null || $meetingExists === false) {
 			$this->logger->warning(
-				'Decidesk: MigrateBoardProxyToProxyAuthorization skipped an unresolvable board-proxy row',
+				'Decidiq: MigrateBoardProxyToProxyAuthorization skipped an unresolvable board-proxy row',
 				[
 					'sourceBoardProxyUuid' => $sourceId,
 					'grantorResolved' => ($grantor !== null),
@@ -262,7 +266,7 @@ class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 		try {
 			$this->objectService->saveObject(object: $payload, register: self::REGISTER, schema: self::TARGET_SCHEMA);
 			$this->logger->info(
-				'Decidesk: MigrateBoardProxyToProxyAuthorization created a proxy-authorization object',
+				'Decidiq: MigrateBoardProxyToProxyAuthorization created a proxy-authorization object',
 				[
 					'sourceBoardProxyUuid' => $resolved['sourceId'],
 					'grantor' => $resolved['grantor'],
@@ -274,7 +278,7 @@ class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 		} catch (Throwable $e) {
 			$output->warning('Failed to migrate board-proxy ' . $resolved['sourceId'] . ': ' . $e->getMessage());
 			$this->logger->warning(
-				'Decidesk: MigrateBoardProxyToProxyAuthorization failed to save one object',
+				'Decidiq: MigrateBoardProxyToProxyAuthorization failed to save one object',
 				['sourceBoardProxyUuid' => $resolved['sourceId'], 'exception' => $e->getMessage()]
 			);
 			return false;

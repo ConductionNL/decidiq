@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-Pure thin-client extension (ADR-022/ADR-037). Two new OpenRegister schemas — `Adviesaanvraag` (slug `adviesaanvraag`) and `Advies` (slug `advies`) — ship as `lib/Settings/register.d/60-advisory-opinion-workflow.json` (OpenAPI `components.schemas`, merged onto `decidesk_register.json` at load; the base file gains only additive edits, see D2). Workflow behaviour is declared in OpenRegister dialects; all UI is manifest-v2 pages in a `src/manifest.d/advisory-opinion-workflow.json` fragment rendered by `CnPageRenderer` (frontend talks to `/apps/openregister/api/objects` directly via the shared object stores — no decidesk CRUD controllers, per the redundant-controller gate).
+Pure thin-client extension (ADR-022/ADR-037). Two new OpenRegister schemas — `Adviesaanvraag` (slug `adviesaanvraag`) and `Advies` (slug `advies`) — ship as `lib/Settings/register.d/60-advisory-opinion-workflow.json` (OpenAPI `components.schemas`, merged onto `decidesk_register.json` at load; the base file gains only additive edits, see D2). Workflow behaviour is declared in OpenRegister dialects; all UI is manifest-v2 pages in a `src/manifest.d/advisory-opinion-workflow.json` fragment rendered by `CnPageRenderer` (frontend talks to `/apps/openregister/api/objects` directly via the shared object stores — no decidiq CRUD controllers, per the redundant-controller gate).
 
 Imperative code is limited to one guard: `AdviceAccountabilityGuard`, wired into the existing decision status-transition path, blocking decision completion when a linked advies deviates and no verantwoording is recorded (fail-closed).
 
@@ -44,7 +44,7 @@ Default declarative via `x-openregister-{lifecycle,notifications,relations}` + m
 
 Deviation = (`strekking` ∈ {`positief`, `positief-met-kanttekeningen`} ∧ outcome rejected) ∨ (`strekking` = `negatief` ∧ outcome adopted). `geen-advies`, conform outcomes, `niet-uitgebracht` trajecten, and decisions without linked aanvragen never block. Whether kanttekeningen were honoured is political judgment the guard cannot evaluate — staff can always record a verantwoording voluntarily, and the guard's error names exactly which aanvraag is missing its motivering. Recording the verantwoording is one dialog action that writes both objects (Decision fields + aanvraag `verantwoordingText` and the `verantwoord` transition) — the save carries **all** fields forward (OR saveObject is PUT-semantic; a partial update would silently null schema props).
 
-**Alternative considered:** a required-field validation note on Decision — rejected: whether the field is required depends on another object's state (the advies), which schema validation cannot see; a lifecycle guard at the transition point is the established decidesk precedent for exactly this shape of rule.
+**Alternative considered:** a required-field validation note on Decision — rejected: whether the field is required depends on another object's state (the advies), which schema validation cannot see; a lifecycle guard at the transition point is the established decidiq precedent for exactly this shape of rule.
 
 ### D5: The requested-by date warns, never blocks
 
@@ -81,7 +81,7 @@ docs/features/adviesaanvragen.md                            (new)
 
 ## Seed Data
 
-Realistic Dutch examples for the existing seed municipality context; references use existing decidesk seed objects where available or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder where a cross-seed reference is resolved at import. All seed objects carry the `@self` envelope (`register: decidesk`, schema slug, slug below).
+Realistic Dutch examples for the existing seed municipality context; references use existing decidiq seed objects where available or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder where a cross-seed reference is resolved at import. All seed objects carry the `@self` envelope (`register: decidesk`, schema slug, slug below).
 
 ### Schema: `governance-body` (seed additions, existing schema)
 
@@ -131,7 +131,7 @@ Object 1's `requestedByDate` lies in the past at seed time while non-terminal (o
 
 ## Migration Plan
 
-1. Land the register.d fragment, the additive base edits (bodyType enum value, Decision verantwoording fields), the manifest.d fragment, the two dashboard widgets, `AdviceAccountabilityGuard` + wiring, seed data, tests, and docs in one decidesk PR (fragments are additive; the repair step / `ConfigurationService::importFromApp()` picks up the new schemas on upgrade).
+1. Land the register.d fragment, the additive base edits (bodyType enum value, Decision verantwoording fields), the manifest.d fragment, the two dashboard widgets, `AdviceAccountabilityGuard` + wiring, seed data, tests, and docs in one decidiq PR (fragments are additive; the repair step / `ConfigurationService::importFromApp()` picks up the new schemas on upgrade).
 2. No dependency ordering with siblings: fragment number 60 is assigned to this change (40–59 and 61–65 belong to siblings); the enum edit unions with `works-council` / `shared-body` additions.
 3. Rollback: revert the PR — the fragment disappears, pages unregister, the enum value/fields/widgets revert (all additive), the guard unhooks restoring previous completion behaviour. Existing Adviesaanvraag/Advies objects remain soft-retained in OR; a `bodyType=advisory-body` body would fail re-validation only on edit and can be re-typed manually.
 

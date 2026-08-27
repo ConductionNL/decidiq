@@ -12,9 +12,9 @@
 -->
 <template>
 	<CnStatsBlock
-		:title="t('decidesk', 'Overdue actions')"
+		:title="t('decidiq', 'Overdue actions')"
 		:count="count"
-		:countLabel="t('decidesk', 'actions')"
+		:countLabel="t('decidiq', 'actions')"
 		:icon="AlertCircleOutline"
 		:variant="variant"
 		:loading="loading"
@@ -71,6 +71,8 @@ export default {
 		 * Fetch open / in-progress action items. Called on mount and refresh.
 		 *
 		 * @return {Promise<void>}
+		 *
+		 * @spec openspec/specs/dashboard/spec.md#requirement-kpi-cards
 		 */
 		async load() {
 			this.loading = true
@@ -80,7 +82,7 @@ export default {
 					taskStatus: ['open', 'in-progress'],
 				})
 			} catch (e) {
-				console.error('[decidesk] OverdueActionsKpiWidget load failed', e)
+				console.error('[decidiq] OverdueActionsKpiWidget load failed', e)
 				this.error = e
 				this.items = []
 			} finally {

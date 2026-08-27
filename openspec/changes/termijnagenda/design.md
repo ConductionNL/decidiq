@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-Pure thin-client extension (ADR-022/ADR-037). One new OpenRegister schema — `TermijnagendaItem` — ships as the assigned `lib/Settings/register.d/50-termijnagenda.json` fragment (OpenAPI `components.schemas`, merged onto `decidesk_register.json` at load via `ConfigurationService::importFromApp()`; the base file is never edited; numbers 40–49 and 51–65 belong to sibling wave-2 changes). All workflow behaviour is declared in OpenRegister dialects (lifecycle, notifications, publication predicate); all UI is manifest-v2 pages in a `src/manifest.d/termijnagenda.json` fragment rendered by `CnPageRenderer` — the frontend talks to `/apps/openregister/api/objects` directly via the shared object stores, no decidesk CRUD controllers (redundant-controller gate).
+Pure thin-client extension (ADR-022/ADR-037). One new OpenRegister schema — `TermijnagendaItem` — ships as the assigned `lib/Settings/register.d/50-termijnagenda.json` fragment (OpenAPI `components.schemas`, merged onto `decidesk_register.json` at load via `ConfigurationService::importFromApp()`; the base file is never edited; numbers 40–49 and 51–65 belong to sibling wave-2 changes). All workflow behaviour is declared in OpenRegister dialects (lifecycle, notifications, publication predicate); all UI is manifest-v2 pages in a `src/manifest.d/termijnagenda.json` fragment rendered by `CnPageRenderer` — the frontend talks to `/apps/openregister/api/objects` directly via the shared object stores, no decidiq CRUD controllers (redundant-controller gate).
 
 Cross-references, not duplication:
 - `originToezegging` → `toezegging` (`toezeggingen-ingekomen-stukken`); `originMotie` → `Decision` (`decisionType: motion`, `motie-amendement-administratie`); `originDecision` → `Decision`. All nullable; execution narrative stays on the motie change's UitvoeringsUpdate log.
@@ -66,7 +66,7 @@ Same constraint as the toezeggingen change: `buildManifest()`'s `mergePages()` r
 
 ## Security Considerations
 
-- **Write access:** TermijnagendaItem writes are staff-only via OR RBAC (griffie/college roles per governance-body scoping); no decidesk endpoints exist to guard (no new attack surface, no no-admin-idor exposure).
+- **Write access:** TermijnagendaItem writes are staff-only via OR RBAC (griffie/college roles per governance-body scoping); no decidiq endpoints exist to guard (no new attack surface, no no-admin-idor exposure).
 - **Public predicate:** the schema carries no non-public fields by construction (D4); publish/withdraw is an explicit staff action; no writeOnly fields exist on the schema (no render-boundary exposure).
 - **Lifecycle integrity:** terminal states and the transition map are enforced server-side by OR regardless of client behaviour; the mandatory-reason UI rule degrades to audit-trail traceability for raw API writes (D3, accepted).
 - **CSRF/auth posture:** no new app routes; the only anonymous surface is the OR published-predicate.
@@ -85,7 +85,7 @@ docs/features/termijnagenda.md                  (new)
 
 ## Seed Data
 
-Realistic Dutch municipal examples (fictional "Gemeente Voorbeeldingen"), per ADR-016. References use existing decidesk seed objects (gemeenteraad governance body, seeded raadsvergadering/agenda items, wethouder Person) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder resolved at import. `@self` envelope for every object: register `decidesk`, schema `termijnagenda-item`, slug as below.
+Realistic Dutch municipal examples (fictional "Gemeente Voorbeeldingen"), per ADR-016. References use existing decidiq seed objects (gemeenteraad governance body, seeded raadsvergadering/agenda items, wethouder Person) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder resolved at import. `@self` envelope for every object: register `decidiq`, schema `termijnagenda-item`, slug as below.
 
 ### Schema: `termijnagenda-item`
 
@@ -115,7 +115,7 @@ Object 5's `2026-Q1` planned period lies in the past at seed time and object 1 h
 
 ## Migration Plan
 
-1. Land register.d fragment 50 + manifest.d fragment + Dashboard widget edit + dialogs + seed data + tests + docs in one decidesk PR (fragments are additive; the repair step / `ConfigurationService::importFromApp()` picks up the new schema on upgrade).
+1. Land register.d fragment 50 + manifest.d fragment + Dashboard widget edit + dialogs + seed data + tests + docs in one decidiq PR (fragments are additive; the repair step / `ConfigurationService::importFromApp()` picks up the new schema on upgrade).
 2. `toezeggingen-ingekomen-stukken` and `motie-amendement-administratie` provide the origin-link target semantics; both fields are nullable references and degrade to absent links if those changes land later.
 3. Rollback: revert the PR — fragment disappears, pages/menu unregister, KPI edit reverts, notification rules stop evaluating. Existing objects remain soft-retained in OR; published items are withdrawn by setting `depublicatiedatum` via the normal staff flow if desired. No data migration in either direction.
 

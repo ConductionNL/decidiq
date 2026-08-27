@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Meeting Controller
+ * Decidiq Meeting Controller
  *
  * Controller for meeting lifecycle transitions.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,15 +23,15 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\Decidesk\Service\MeetingPackageService;
-use OCA\Decidesk\Service\MeetingRoleGate;
-use OCA\Decidesk\Service\MeetingSeriesService;
-use OCA\Decidesk\Service\MeetingService;
-use OCA\Decidesk\Service\ProofPackageService;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Service\MeetingPackageService;
+use OCA\Decidiq\Service\MeetingRoleGate;
+use OCA\Decidiq\Service\MeetingSeriesService;
+use OCA\Decidiq\Service\MeetingService;
+use OCA\Decidiq\Service\ProofPackageService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;

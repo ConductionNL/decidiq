@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * The per-object INTEGRATION SURFACE for a motion, driven in a browser.
@@ -36,7 +36,7 @@ import { test, expect, type Page } from '@playwright/test'
 
 import { BASE_URL as BASE } from './base-url'
 
-const OR = `${BASE}/index.php/apps/openregister/api/objects/decidesk`
+const OR = `${BASE}/index.php/apps/openregister/api/objects/decidiq`
 
 /** Pull the UUID out of an OR object response (covers both id shapes). */
 function objId(o: Record<string, unknown>): string {
@@ -131,7 +131,7 @@ const SURFACES: Surface[] = [
 		name: 'MotionIntegrations',
 		schema: 'decision',
 		prefer: (o) => o.decisionType === 'motion',
-		route: '/apps/decidesk/motions/{id}/integrations',
+		route: '/apps/decidiq/motions/{id}/integrations',
 		testId: 'motion-integrations',
 	},
 ]

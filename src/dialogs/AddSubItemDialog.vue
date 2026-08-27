@@ -13,32 +13,32 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Add sub-item')"
+		:name="t('decidiq', 'Add sub-item')"
 		data-testid="add-sub-item-dialog"
 		@closing="$emit('close')">
 		<template #default>
 			<p>
 				{{
-					t('decidesk', 'Add a sub-item under "{title}".', {
+					t('decidiq', 'Add a sub-item under "{title}".', {
 						title: parentTitle,
 					})
 				}}
 			</p>
 			<NcTextField
 				v-model="title"
-				:label="t('decidesk', 'Title')"
-				:placeholder="t('decidesk', 'Sub-item title')"
+				:label="t('decidiq', 'Title')"
+				:placeholder="t('decidiq', 'Sub-item title')"
 				required />
 			<NcSelect
 				v-model="itemType"
-				:inputLabel="t('decidesk', 'Type')"
+				:inputLabel="t('decidiq', 'Type')"
 				:options="typeOptions"
 				:clearable="false" />
 			<NcTextField
 				v-model="estimatedDuration"
 				type="number"
-				:label="t('decidesk', 'Allocated time (minutes)')"
-				:placeholder="t('decidesk', 'e.g. 10')" />
+				:label="t('decidiq', 'Allocated time (minutes)')"
+				:placeholder="t('decidiq', 'e.g. 10')" />
 		</template>
 		<template #actions>
 			<NcButton
@@ -46,7 +46,7 @@
 				data-testid="add-sub-item-confirm"
 				:disabled="!title"
 				@click="submit">
-				{{ t('decidesk', 'Add sub-item') }}
+				{{ t('decidiq', 'Add sub-item') }}
 			</NcButton>
 		</template>
 	</NcDialog>

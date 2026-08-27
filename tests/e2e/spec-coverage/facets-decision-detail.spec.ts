@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — DecisionDetail's eight decision-facet-composition
@@ -32,7 +32,7 @@ import type { APIRequestContext, PlaywrightWorkerArgs } from '@playwright/test'
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from '../base-url.ts'
 
-const OR = `${BASE}/index.php/apps/openregister/api/objects/decidesk`
+const OR = `${BASE}/index.php/apps/openregister/api/objects/decidiq`
 const ADMIN_USER = process.env.NEXTCLOUD_USER || 'admin'
 const ADMIN_PASS = process.env.NEXTCLOUD_PASS || 'admin'
 
@@ -154,7 +154,7 @@ test('DecisionDetail: commitments facet lists a toezegging linked via relatedMot
 		commitmentId = objectId(await commitmentResp.json())
 		test.skip(!commitmentId, 'Seeded toezegging has no id')
 
-		await page.goto(`${BASE}/apps/decidesk/decisions/${decisionId}`)
+		await page.goto(`${BASE}/apps/decidiq/decisions/${decisionId}`)
 		// app-root appearing only proves the shell mounted, not that data has
 		// arrived — mount itself blocks on initializeStores()'s settings round
 		// trip, so 30s (double the old budget) before even the shell shows up.
@@ -215,7 +215,7 @@ test('DecisionDetail: consultation, advisory-opinion, zienswijze and confidentia
 		decisionId = objectId(await decisionResp.json())
 		test.skip(!decisionId, 'Seeded decision has no id')
 
-		await page.goto(`${BASE}/apps/decidesk/decisions/${decisionId}`)
+		await page.goto(`${BASE}/apps/decidiq/decisions/${decisionId}`)
 		// app-root appearing only proves the shell mounted, not that data has
 		// arrived — mount itself blocks on initializeStores()'s settings round
 		// trip, so 30s (double the old budget) before even the shell shows up.

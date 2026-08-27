@@ -1,19 +1,19 @@
 <?php
 
 /**
- * Decidesk Domain Service Registrar
+ * Decidiq Domain Service Registrar
  *
- * The decidesk-specific container bindings that the autowiring container
+ * The decidiq-specific container bindings that the autowiring container
  * cannot infer from a constructor signature: the delegated-decision event
  * listener, the MCP tool-provider alias, the eIDAS QES implementation
  * resolver, and the dormant default translation adapter.
  *
- * Extracted from {@see \OCA\Decidesk\AppInfo\Application} so the bootstrap
+ * Extracted from {@see \OCA\Decidiq\AppInfo\Application} so the bootstrap
  * class stops accumulating a class reference for every registration it makes
  * (PHPMD CouplingBetweenObjects); the imports move with the registrations.
  *
  * @category AppInfo
- * @package  OCA\Decidesk\AppInfo\Registrar
+ * @package  OCA\Decidiq\AppInfo\Registrar
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -30,24 +30,24 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\AppInfo\Registrar;
+namespace OCA\Decidiq\AppInfo\Registrar;
 
-use OCA\Decidesk\Event\DecisionRequestedEvent;
-use OCA\Decidesk\Listener\DecisionRequestedListener;
-use OCA\Decidesk\Mcp\DecideskToolProvider;
-use OCA\Decidesk\Service\EIDASSignatureService;
-use OCA\Decidesk\Service\IEIDASSignatureService;
-use OCA\Decidesk\Service\ITranslationAdapter;
-use OCA\Decidesk\Service\LogEIDASSignatureService;
-use OCA\Decidesk\Service\LogTranslationAdapter;
+use OCA\Decidiq\Event\DecisionRequestedEvent;
+use OCA\Decidiq\Listener\DecisionRequestedListener;
+use OCA\Decidiq\Mcp\DecidiqToolProvider;
+use OCA\Decidiq\Service\EIDASSignatureService;
+use OCA\Decidiq\Service\IEIDASSignatureService;
+use OCA\Decidiq\Service\ITranslationAdapter;
+use OCA\Decidiq\Service\LogEIDASSignatureService;
+use OCA\Decidiq\Service\LogTranslationAdapter;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Decidesk domain bindings the container cannot infer.
+ * Decidiq domain bindings the container cannot infer.
  *
- * Decidesk's services, controllers and background jobs are otherwise resolved
+ * Decidiq's services, controllers and background jobs are otherwise resolved
  * by Nextcloud's autowiring container. `SimpleContainer::query()` resolves an
  * unregistered class through `resolve()` -> `buildClass()`, which injects each
  * constructor parameter by its declared type, and then caches the built
@@ -63,7 +63,7 @@ use Psr\Log\LoggerInterface;
  */
 class DomainServiceRegistrar {
 	/**
-	 * Register the decidesk domain bindings.
+	 * Register the decidiq domain bindings.
 	 *
 	 * @param IRegistrationContext $context The registration context
 	 *
@@ -103,12 +103,18 @@ class DomainServiceRegistrar {
 	}//end registerDecisionEvents()
 
 	/**
-	 * Register DecideskToolProvider as the MCP tool provider for the AI Chat Companion.
+	 * Register DecidiqToolProvider as the MCP tool provider for the AI Chat Companion.
 	 *
-	 * The alias key 'OCA\OpenRegister\Mcp\IMcpToolProvider::decidesk' is the
+	 * The alias key 'OCA\OpenRegister\Mcp\IMcpToolProvider::decidiq' is the
 	 * format that OR's McpToolsService enumerates to discover per-app providers
 	 * (design D3). The interface ships in openregister PR #1466
 	 * (ai-chat-companion-orchestrator).
+	 *
+	 * The app-id suffix MUST track this app's `<id>`: OpenRegister builds the
+	 * lookup key as `'…\IMcpToolProvider::' . $appId` over the enumerated
+	 * installed apps (see openregister AppHost\Bootstrap and AppInfo\Application),
+	 * so a stale suffix here is not a cosmetic miss — the provider is simply
+	 * never discovered and all five tools disappear without an error.
 	 *
 	 * @param IRegistrationContext $context The registration context
 	 *
@@ -118,8 +124,8 @@ class DomainServiceRegistrar {
 	 */
 	private function registerMcpToolProvider(IRegistrationContext $context): void {
 		$context->registerServiceAlias(
-			'OCA\\OpenRegister\\Mcp\\IMcpToolProvider::decidesk',
-			DecideskToolProvider::class
+			'OCA\\OpenRegister\\Mcp\\IMcpToolProvider::decidiq',
+			DecidiqToolProvider::class
 		);
 
 	}//end registerMcpToolProvider()

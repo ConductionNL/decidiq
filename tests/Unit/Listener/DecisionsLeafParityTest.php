@@ -5,7 +5,7 @@
  *
  * The two halves of one leaf registration live in different languages and
  * different build outputs, so nothing in either compiler can notice when they
- * disagree — and for as long as decidesk shipped only the JS half, there was
+ * disagree — and for as long as decidiq shipped only the JS half, there was
  * nothing to disagree WITH. This reads the JS source and compares each of its
  * declarations to the value the PHP listener contributes.
  *
@@ -21,7 +21,7 @@
  * descriptor.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Listener
+ * @package  OCA\Decidiq\Tests\Unit\Listener
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -39,9 +39,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Listener;
+namespace OCA\Decidiq\Tests\Unit\Listener;
 
-use OCA\Decidesk\Listener\RegisterDecisionsLeafListener;
+use OCA\Decidiq\Listener\RegisterDecisionsLeafListener;
 use OCA\OpenRegister\Event\RegisterLeafProvidersEvent;
 use OCA\OpenRegister\Service\Integration\LeafDescriptor;
 use OCP\IL10N;
@@ -143,11 +143,11 @@ class DecisionsLeafParityTest extends TestCase {
 		$this->assertSame(RegisterDecisionsLeafListener::LEAF_ID, $descriptor->getId());
 
 		// label — the l10n SOURCE key each side hands to its own translator.
-		$matchedLabel = preg_match("/\n\tlabel: t\('decidesk', '([^']*)'\),/", $source, $labelMatch);
+		$matchedLabel = preg_match("/\n\tlabel: t\('decidiq', '([^']*)'\),/", $source, $labelMatch);
 		$this->assertSame(
 			1,
 			$matchedLabel,
-			"The JS half must declare `label: t('decidesk', '…')` on the descriptor object."
+			"The JS half must declare `label: t('decidiq', '…')` on the descriptor object."
 		);
 		$this->assertSame($labelMatch[1], $descriptor->getLabel());
 

@@ -4,7 +4,7 @@
  * Unit tests for MotionService.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -19,9 +19,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\MotionService;
+use OCA\Decidiq\Service\MotionService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\IUserManager;
@@ -81,7 +81,7 @@ class MotionServiceTest extends TestCase {
 		parent::setUp();
 
 		$this->markTestSkipped(
-			'See https://codeberg.org/Conduction/decidesk/issues/90 — '
+			'See Codeberg issue #90 (pre-migration, not migrated to GitHub) — '
 			. 'real OpenRegister ObjectService loads instead of the stub when tests run '
 			. 'in an environment with OpenRegister installed, causing signature/return-type mismatches. '
 			. 'Unskip once #90 is resolved.'

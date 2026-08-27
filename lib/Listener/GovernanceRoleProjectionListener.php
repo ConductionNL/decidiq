@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Governance Role Projection Listener
+ * Decidiq Governance Role Projection Listener
  *
  * Keeps each GovernanceBody's OpenRegister RBAC scopes in sync with its roster:
  * on any Participant/Membership create/update/delete, it reconciles the
@@ -11,7 +11,7 @@
  * missed reconcile can only ever deny, never over-grant.
  *
  * @category Listener
- * @package  OCA\Decidesk\Listener
+ * @package  OCA\Decidiq\Listener
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,9 +27,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Listener;
+namespace OCA\Decidiq\Listener;
 
-use OCA\Decidesk\Service\GovernanceRoleScopeProjector;
+use OCA\Decidiq\Service\GovernanceRoleScopeProjector;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
@@ -98,7 +98,7 @@ class GovernanceRoleProjectionListener implements IEventListener {
 		} catch (\Throwable $e) {
 			// Fail soft: scope projection must never break the object write path.
 			$this->logger->warning(
-				'Decidesk: governance role projection listener failed',
+				'Decidiq: governance role projection listener failed',
 				['exception' => $e->getMessage()]
 			);
 		}//end try

@@ -2,9 +2,9 @@
 
 ## Context
 
-Decidesk base levert basismodel Meeting (plenaire raadsvergaderingen), AgendaItem, Participant, Membership. Commissievergaderingen zijn sub-type van Meeting met aanvullende velden: commissie-koppeling, commissie-specifieke agendapunt-types, adviesvorming per agendapunt, belangenverstrengeling-registratie, inspraak-aanmelding, en besloten-zittings-afhandeling.
+Decidiq base levert basismodel Meeting (plenaire raadsvergaderingen), AgendaItem, Participant, Membership. Commissievergaderingen zijn sub-type van Meeting met aanvullende velden: commissie-koppeling, commissie-specifieke agendapunt-types, adviesvorming per agendapunt, belangenverstrengeling-registratie, inspraak-aanmelding, en besloten-zittings-afhandeling.
 
-**Huidige decidesk-staat:**
+**Huidige decidiq-staat:**
 - Meeting, AgendaItem, Participant, Membership, GovernanceBody zijn gedefinieerd in p1-schemas-en-data-model en p3-governance-bodies
 - Geen commissie-specifieke logica bestaat nog
 - Griffie-workflows (plaatsvervanging, adviesvorming, belangenverstrengeling) zijn handmatig en error-prone
@@ -92,14 +92,14 @@ Commissie heeft `type`-enum (vast, tijdelijk, ad-hoc) en `portefeuille-scope` (a
 
 | Code-pad | Bron | Hergebruik-strategie |
 |---|---|---|
-| Meeting-lifecycle (scheduled, opened, closed, etc.) | decidesk p2-meeting-management | CommissieVergadering uses relation naar Meeting; lifecycle-transitions via bestaande StateEngine |
-| Participant/Membership model | decidesk p3-governance-bodies | CommissieLidmaatschap erft relatie-patronen van Membership; voegt commissie-specifieke velden toe |
-| AgendaItem | decidesk p2-agenda-management | CommissieAgendapunt is separate schema; koppelt via relation naar CommissieVergadering |
-| Speech/Vote/VotingRound | decidesk p2-motion-voting | CommissieAdvies is lighter-weight (geen formal voting, alleen stemmingsverhouding-samenvatting + fractie-standpunten) |
+| Meeting-lifecycle (scheduled, opened, closed, etc.) | decidiq p2-meeting-management | CommissieVergadering uses relation naar Meeting; lifecycle-transitions via bestaande StateEngine |
+| Participant/Membership model | decidiq p3-governance-bodies | CommissieLidmaatschap erft relatie-patronen van Membership; voegt commissie-specifieke velden toe |
+| AgendaItem | decidiq p2-agenda-management | CommissieAgendapunt is separate schema; koppelt via relation naar CommissieVergadering |
+| Speech/Vote/VotingRound | decidiq p2-motion-voting | CommissieAdvies is lighter-weight (geen formal voting, alleen stemmingsverhouding-samenvatting + fractie-standpunten) |
 | OpenRegister ConfigurationService | openregister core | `importFromApp('commissievergaderingen')` voor register-import |
 | Relation management | openregister core | Alle cross-entity-relaties via x-openregister-relaties in schema JSON (geen foreign keys) |
 | ObjectService CRUD | openregister core | Reused voor alle schema-operations (list, get, create, update) |
-| REST API | openregister core + decidesk controllers | Decidesk-controllers voor griffie-workflows (samenstelling, plaatsvervanging, adviesvorming); inheritance uit decidesk patterns |
+| REST API | openregister core + decidiq controllers | Decidiq-controllers voor griffie-workflows (samenstelling, plaatsvervanging, adviesvorming); inheritance uit decidiq patterns |
 
 **Geen nieuwe business-logic in provider** — services leveren alleen orchestration van existing CRUD + validatie.
 
@@ -114,14 +114,14 @@ Commissie heeft `type`-enum (vast, tijdelijk, ad-hoc) en `portefeuille-scope` (a
     "naam": "Commissie Ruimte",
     "type": "vast",
     "portefeuille-scope": ["ruimtelijke-ordening", "wonen", "mobiliteit"],
-    "voorzitter": { "register": "decidesk", "schema": "Raadslid", "id": "rd-001" },
-    "griffier": { "register": "decidesk", "schema": "Medewerker", "id": "mw-001" },
+    "voorzitter": { "register": "decidiq", "schema": "Raadslid", "id": "rd-001" },
+    "griffier": { "register": "decidiq", "schema": "Medewerker", "id": "mw-001" },
     "vergader-frequentie": "maandelijks",
     "vaste-vergaderdag": "donderdag",
     "vergader-tijdstip": "19:30",
     "vergader-locatie": "Raadzaal Westerkwartier",
     "instellings-datum": "2022-06-15",
-    "instellings-besluit": { "register": "decidesk", "schema": "RaadsBesluit", "id": "rb-001" },
+    "instellings-besluit": { "register": "decidiq", "schema": "RaadsBesluit", "id": "rb-001" },
     "openbaarheids-default": "openbaar"
   },
   {
@@ -129,14 +129,14 @@ Commissie heeft `type`-enum (vast, tijdelijk, ad-hoc) en `portefeuille-scope` (a
     "naam": "Commissie Sociaal",
     "type": "vast",
     "portefeuille-scope": ["zorg", "jeugd", "participatie"],
-    "voorzitter": { "register": "decidesk", "schema": "Raadslid", "id": "rd-002" },
-    "griffier": { "register": "decidesk", "schema": "Medewerker", "id": "mw-001" },
+    "voorzitter": { "register": "decidiq", "schema": "Raadslid", "id": "rd-002" },
+    "griffier": { "register": "decidiq", "schema": "Medewerker", "id": "mw-001" },
     "vergader-frequentie": "maandelijks",
     "vaste-vergaderdag": "dinsdag",
     "vergader-tijdstip": "19:00",
     "vergader-locatie": "Raadzaal Westerkwartier",
     "instellings-datum": "2022-06-15",
-    "instellings-besluit": { "register": "decidesk", "schema": "RaadsBesluit", "id": "rb-001" },
+    "instellings-besluit": { "register": "decidiq", "schema": "RaadsBesluit", "id": "rb-001" },
     "openbaarheids-default": "openbaar"
   },
   {
@@ -144,14 +144,14 @@ Commissie heeft `type`-enum (vast, tijdelijk, ad-hoc) en `portefeuille-scope` (a
     "naam": "Commissie Audit",
     "type": "vast",
     "portefeuille-scope": ["financiën", "rekenkamer"],
-    "voorzitter": { "register": "decidesk", "schema": "Raadslid", "id": "rd-003" },
-    "griffier": { "register": "decidesk", "schema": "Medewerker", "id": "mw-002" },
+    "voorzitter": { "register": "decidiq", "schema": "Raadslid", "id": "rd-003" },
+    "griffier": { "register": "decidiq", "schema": "Medewerker", "id": "mw-002" },
     "vergader-frequentie": "tweewekelijks",
     "vaste-vergaderdag": "vrijdag",
     "vergader-tijdstip": "13:30",
     "vergader-locatie": "Kantoor Griffie",
     "instellings-datum": "2022-06-15",
-    "instellings-besluit": { "register": "decidesk", "schema": "RaadsBesluit", "id": "rb-001" },
+    "instellings-besluit": { "register": "decidiq", "schema": "RaadsBesluit", "id": "rb-001" },
     "openbaarheids-default": "openbaar"
   }
 ]
@@ -164,7 +164,7 @@ Commissie heeft `type`-enum (vast, tijdelijk, ad-hoc) en `portefeuille-scope` (a
   {
     "@self": { "register": "commissievergaderingen", "schema": "CommissieLidmaatschap", "slug": "lid-commissie-ruimte-001" },
     "commissie": { "register": "commissievergaderingen", "schema": "Commissie", "id": "commissie-ruimte-westerkwartier" },
-    "raadslid": { "register": "decidesk", "schema": "Raadslid", "id": "rd-004" },
+    "raadslid": { "register": "decidiq", "schema": "Raadslid", "id": "rd-004" },
     "fractie": "Lokaal Belang",
     "rol": "lid",
     "begin-datum": "2022-06-15",
@@ -173,7 +173,7 @@ Commissie heeft `type`-enum (vast, tijdelijk, ad-hoc) en `portefeuille-scope` (a
   {
     "@self": { "register": "commissievergaderingen", "schema": "CommissieLidmaatschap", "slug": "lid-commissie-ruimte-002" },
     "commissie": { "register": "commissievergaderingen", "schema": "Commissie", "id": "commissie-ruimte-westerkwartier" },
-    "raadslid": { "register": "decidesk", "schema": "Raadslid", "id": "rd-005" },
+    "raadslid": { "register": "decidiq", "schema": "Raadslid", "id": "rd-005" },
     "fractie": "GroenLinks",
     "rol": "lid",
     "begin-datum": "2022-06-15",
@@ -182,7 +182,7 @@ Commissie heeft `type`-enum (vast, tijdelijk, ad-hoc) en `portefeuille-scope` (a
   {
     "@self": { "register": "commissievergaderingen", "schema": "CommissieLidmaatschap", "slug": "lid-commissie-ruimte-plaatsvervanger" },
     "commissie": { "register": "commissievergaderingen", "schema": "Commissie", "id": "commissie-ruimte-westerkwartier" },
-    "raadslid": { "register": "decidesk", "schema": "Raadslid", "id": "rd-006" },
+    "raadslid": { "register": "decidiq", "schema": "Raadslid", "id": "rd-006" },
     "fractie": "GroenLinks",
     "rol": "plaatsvervanger",
     "begin-datum": "2022-06-15",
@@ -191,7 +191,7 @@ Commissie heeft `type`-enum (vast, tijdelijk, ad-hoc) en `portefeuille-scope` (a
   {
     "@self": { "register": "commissievergaderingen", "schema": "CommissieLidmaatschap", "slug": "lid-commissie-sociaal-001" },
     "commissie": { "register": "commissievergaderingen", "schema": "Commissie", "id": "commissie-sociaal-westerkwartier" },
-    "raadslid": { "register": "decidesk", "schema": "Raadslid", "id": "rd-007" },
+    "raadslid": { "register": "decidiq", "schema": "Raadslid", "id": "rd-007" },
     "fractie": "VVD",
     "rol": "lid",
     "begin-datum": "2022-06-15",
@@ -200,7 +200,7 @@ Commissie heeft `type`-enum (vast, tijdelijk, ad-hoc) en `portefeuille-scope` (a
   {
     "@self": { "register": "commissievergaderingen", "schema": "CommissieLidmaatschap", "slug": "lid-commissie-audit-001" },
     "commissie": { "register": "commissievergaderingen", "schema": "Commissie", "id": "commissie-audit-westerkwartier" },
-    "raadslid": { "register": "decidesk", "schema": "Raadslid", "id": "rd-008" },
+    "raadslid": { "register": "decidiq", "schema": "Raadslid", "id": "rd-008" },
     "fractie": "CDA",
     "rol": "lid",
     "begin-datum": "2022-06-15",

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Meeting Role Gate
+ * Decidiq Meeting Role Gate
  *
  * Answers the single domain question "may this actor act as chair or secretary
  * of this meeting?" by combining the meeting-role lookup (ParticipantResolver)
@@ -13,7 +13,7 @@
  * the gate denies.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -30,7 +30,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCP\IGroupManager;
 

@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Voting Deadline Reminder Service
+ * Decidiq Voting Deadline Reminder Service
  *
  * Finds open voting rounds whose deadline falls within the next 24 hours
  * and notifies participants who have not voted yet
  * (nextcloud-integration spec, notification requirement).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use Psr\Container\ContainerInterface;
@@ -101,13 +101,13 @@ class VotingDeadlineReminderService {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$rows = $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'voting-round',
 				]
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: failed to scan voting rounds for deadline reminders',
+				'Decidiq: failed to scan voting rounds for deadline reminders',
 				['exception' => $e->getMessage()]
 			);
 			return [];
@@ -247,7 +247,7 @@ class VotingDeadlineReminderService {
 					$sent++;
 				} catch (\Throwable $e) {
 					$this->logger->warning(
-						'Decidesk: deadline reminder notification failed',
+						'Decidiq: deadline reminder notification failed',
 						['roundId' => $roundId, 'uid' => $uid, 'exception' => $e->getMessage()]
 					);
 				}
@@ -258,20 +258,20 @@ class VotingDeadlineReminderService {
 			$round['deadlineReminderSentAt'] = gmdate('Y-m-d\TH:i:s\Z', $now);
 			$objectService->saveObject(
 				object: $round,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'voting-round',
 				uuid: $roundId,
 			);
 
 			$this->logger->info(
-				'Decidesk: voting deadline reminders sent',
+				'Decidiq: voting deadline reminders sent',
 				['roundId' => $roundId, 'sent' => $sent, 'pending' => count($pending)]
 			);
 
 			return $sent;
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: deadline reminder failed for round',
+				'Decidiq: deadline reminder failed for round',
 				['roundId' => $roundId, 'exception' => $e->getMessage()]
 			);
 			return 0;
@@ -311,7 +311,7 @@ class VotingDeadlineReminderService {
 		try {
 			$votes = $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'vote',
 					'filters' => ['votingRound' => $roundId],
 				]
@@ -361,7 +361,7 @@ class VotingDeadlineReminderService {
 		try {
 			$participants = $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'participant',
 					'filters' => ['meeting' => $meetingId],
 				]
@@ -404,7 +404,7 @@ class VotingDeadlineReminderService {
 
 		try {
 			// ADR-005: the motion is a `decision` discriminated by decisionType.
-			$motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'decision');
+			$motionEntity = $objectService->find(id: $motionId, register: 'decidiq', schema: 'decision');
 		} catch (\Throwable) {
 			return null;
 		}
@@ -430,7 +430,7 @@ class VotingDeadlineReminderService {
 	 */
 	private function participantUserId(object $objectService, string $participantId): ?string {
 		try {
-			$entity = $objectService->find(id: $participantId, register: 'decidesk', schema: 'participant');
+			$entity = $objectService->find(id: $participantId, register: 'decidiq', schema: 'participant');
 		} catch (\Throwable) {
 			return null;
 		}

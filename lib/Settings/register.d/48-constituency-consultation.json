@@ -141,8 +141,11 @@
           "consultationOpened": {
             "trigger": {
               "type": "updated",
-              "filter": {
-                "lifecycle": "open"
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "open",
+                "from": "draft"
               }
             },
             "enabled": true,

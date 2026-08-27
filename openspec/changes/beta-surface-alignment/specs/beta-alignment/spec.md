@@ -1,19 +1,19 @@
-# Spec: Beta cross-surface alignment (Decidesk)
+# Spec: Beta cross-surface alignment (Decidiq)
 
 ## ADDED Requirements
 
 ### Requirement: Canonical feature vocabulary is consistent across surfaces
-The feature names and claims presented in `decidesk/appinfo/info.xml`, the
+The feature names and claims presented in `decidiq/appinfo/info.xml`, the
 `src/manifest.json` navigation/menu, the public product page
 (`conduction-website/src/pages/apps/decidesk.mdx` and its NL translation), and
-`decidesk/docs/` SHALL use the same canonical feature vocabulary: meetings &
+`decidiq/docs/` SHALL use the same canonical feature vocabulary: meetings &
 agendas, motions & amendments, voting (including proxy voting), eIDAS-qualified
 signatures (QES), governance reports & regulator export, action items &
 decisions, and the AI chat companion (MCP).
 
 #### Scenario: info.xml description matches shipped features
 - **WHEN** a reader compares `info.xml`'s "Key Features" bullets against
-  `lib/Controller/` and `lib/Mcp/DecideskToolProvider.php`
+  `lib/Controller/` and `lib/Mcp/DecidiqToolProvider.php`
 - **THEN** every bullet corresponds to a feature that is actually implemented,
   not a generic tech-stack description
 

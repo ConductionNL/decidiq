@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Regulator Export Service
+ * Decidiq Regulator Export Service
  *
  * Phase 6 — exports resolutions and meeting minutes in regulator-friendly
  * archive formats. Provides a self-contained PDF skeleton renderer (no
@@ -14,7 +14,7 @@
  * otherwise so the regulator export endpoint always works.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -31,7 +31,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -125,7 +125,7 @@ class RegulatorExportService {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: RegulatorExportService unable to resolve ObjectService',
+				'Decidiq: RegulatorExportService unable to resolve ObjectService',
 				['exception' => $e->getMessage()]
 			);
 			return $this->failure(message: 'OpenRegister is unavailable.');
@@ -135,14 +135,14 @@ class RegulatorExportService {
 			$rows = $this->collect(objectService: $objectService, boardId: $boardId, scope: $scope);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: RegulatorExportService failed to collect data',
+				'Decidiq: RegulatorExportService failed to collect data',
 				['scope' => $scope, 'exception' => $e->getMessage()]
 			);
 			return $this->failure(message: 'Failed to collect data for scope: ' . $scope);
 		}
 
 		$generatedAt = gmdate('Y-m-d\TH:i:s\Z');
-		$title = 'Decidesk Regulator Export — ' . $scope . ' — board ' . $boardId;
+		$title = 'Decidiq Regulator Export — ' . $scope . ' — board ' . $boardId;
 		$body = $this->renderer->render(
 			format: $format,
 			title: $title,
@@ -154,7 +154,7 @@ class RegulatorExportService {
 		// The extension is always the format label ('csv' / 'pdf').
 		$contentType = self::CONTENT_TYPES[$format];
 		$checksum = hash('sha256', $body);
-		$filename = sprintf('decidesk-%s-%s-%s.%s', $scope, $boardId, substr($generatedAt, 0, 10), $format);
+		$filename = sprintf('decidiq-%s-%s-%s.%s', $scope, $boardId, substr($generatedAt, 0, 10), $format);
 
 		$exportRecord = [
 			'boardIntegration' => $boardId,
@@ -170,7 +170,7 @@ class RegulatorExportService {
 		try {
 			$saved = $objectService->saveObject(
 				object: $exportRecord,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: self::SCHEMA
 			);
 			if (is_object($saved) === true && method_exists($saved, 'jsonSerialize') === true) {
@@ -179,7 +179,7 @@ class RegulatorExportService {
 		} catch (\Throwable $e) {
 			// Persist failure is non-fatal — the export body is still returned.
 			$this->logger->warning(
-				'Decidesk: RegulatorExportService failed to persist export record',
+				'Decidiq: RegulatorExportService failed to persist export record',
 				['exception' => $e->getMessage()]
 			);
 		}
@@ -255,7 +255,7 @@ class RegulatorExportService {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$entity = $objectService->find(
 				id: $exportId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: self::SCHEMA
 			);
 			if ($entity === null) {
@@ -268,7 +268,7 @@ class RegulatorExportService {
 			}
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: RegulatorExportService::download failed',
+				'Decidiq: RegulatorExportService::download failed',
 				['exception' => $e->getMessage()]
 			);
 			return $this->failureDownload(message: 'Failed to load export record.');
@@ -318,7 +318,7 @@ class RegulatorExportService {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$rows = $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => self::SCHEMA,
 					'filters' => ['boardIntegration' => $boardId],
 					'limit' => 500,
@@ -326,7 +326,7 @@ class RegulatorExportService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: RegulatorExportService::listExports failed',
+				'Decidiq: RegulatorExportService::listExports failed',
 				['exception' => $e->getMessage()]
 			);
 			return [
@@ -358,7 +358,7 @@ class RegulatorExportService {
 		$meetings = $this->normalize(
 			rows: $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'meeting',
 					'filters' => ['boardIntegration' => $boardId],
 					'limit' => 5000,
@@ -371,7 +371,7 @@ class RegulatorExportService {
 			$all = $this->normalize(
 				rows: $objectService->findAll(
 					[
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => 'decision',
 						'limit' => 5000,
 					]
@@ -389,7 +389,7 @@ class RegulatorExportService {
 			$all = $this->normalize(
 				rows: $objectService->findAll(
 					[
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => 'minutes',
 						'limit' => 5000,
 					]
@@ -410,7 +410,7 @@ class RegulatorExportService {
 		return $this->normalize(
 			rows: $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'audit-trail',
 					'limit' => 5000,
 				]

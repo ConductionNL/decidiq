@@ -1,4 +1,4 @@
-# Decidesk — Feature Analysis & Product Strategy
+# Decidiq — Feature Analysis & Product Strategy
 
 ## Executive Summary
 
@@ -90,7 +90,7 @@ There is **no universal decision-making platform** that covers the full governan
 | 23 | Meeting cost calculator (duration x attendee hourly rates) | **V1** | Analytics insight — $541B wasted globally, make cost visible |
 | 24 | Speaking time tracking with balance indicators | **V1** | DEI impact — women's speaking time increased 65% when tracked (Equal Time study) |
 | 25 | Meeting package/board book builder (auto-assemble agenda + documents) | **Enterprise** | Board portal feature — Diligent's AI Smart Book Builder is their key differentiator |
-| 26 | Video/audio integration via Nextcloud Talk | **Enterprise** | Full meeting experience — join, record, transcribe without leaving Decidesk |
+| 26 | Video/audio integration via Nextcloud Talk | **Enterprise** | Full meeting experience — join, record, transcribe without leaving Decidiq |
 
 ### 2.3 Agenda Management
 
@@ -191,7 +191,7 @@ There is **no universal decision-making platform** that covers the full governan
 | 85 | Action items assigned to me with due dates | **MVP** | Accountability — see what you owe from past decisions |
 | 86 | Cross-body overview (all governance bodies I belong to) | **V1** | Members often sit on multiple committees/boards |
 | 87 | Overdue item highlighting with escalation | **V1** | Proactive management — surface items that need attention |
-| 88 | Nextcloud Dashboard widget integration | **V1** | Platform integration — Decidesk data on the Nextcloud home screen |
+| 88 | Nextcloud Dashboard widget integration | **V1** | Platform integration — Decidiq data on the Nextcloud home screen |
 | 89 | Workload analytics per member (items assigned, completion rate) | **Enterprise** | Management visibility — identify overloaded or disengaged members |
 
 ### 2.10 Admin Settings
@@ -338,7 +338,7 @@ Derived from feature matrix items #104-113:
 
 No competitor covers all five decision-making domains. This is the fundamental market gap:
 
-| Domain | GO/Notubiz | Diligent/OnBoard | Fellow/Otter | Loomio | Decidim | OpenSlides | **Decidesk** |
+| Domain | GO/Notubiz | Diligent/OnBoard | Fellow/Otter | Loomio | Decidim | OpenSlides | **Decidiq** |
 |--------|-----------|-----------------|-------------|--------|---------|------------|-------------|
 | Legislative (councils, parliaments) | Yes | No | No | No | No | Partial | **Yes** |
 | Corporate governance (boards, AGM) | No | Yes | No | Partial | No | No | **Yes** |
@@ -348,13 +348,13 @@ No competitor covers all five decision-making domains. This is the fundamental m
 
 Additional gaps across the market:
 
-| Gap | Impact | Decidesk Advantage |
+| Gap | Impact | Decidiq Advantage |
 |-----|--------|-------------------|
 | No self-hosted AI meeting intelligence | Otter.ai/Fireflies face lawsuits over consent and biometric data; no GDPR-native alternative exists | Self-hosted transcription via Nextcloud AI (Whisper), data never leaves the server |
 | No integrated collaboration platform | Every competitor requires 5+ separate tool integrations for chat, files, calendar, email, tasks | Nextcloud provides all of these natively — zero integration cost |
 | No cross-organization federation | Municipalities cooperating in a Gemeenschappelijke Regeling cannot share governance data | Nextcloud federation protocol enables cross-instance decision sharing |
 | No design token theming | No competitor supports Dutch government design standards (Rijkshuisstijl) | NL Design System via nldesign app provides compliant theming |
-| Meeting tools lack formal governance | Fellow/Otter have no voting, no motions, no minutes-as-legal-documents | Decidesk treats formal governance as core, not an afterthought |
+| Meeting tools lack formal governance | Fellow/Otter have no voting, no motions, no minutes-as-legal-documents | Decidiq treats formal governance as core, not an afterthought |
 | Governance tools lack meeting efficiency | Diligent/iBabs do not track meeting costs, speaking time, or participation patterns | Analytics from day one — make $541B meeting waste visible |
 | Dutch RIS search is broken | Half of 342 municipalities have inadequate search (NOS Nieuwsuur) | Full-text search via OpenRegister with faceting by body, date, topic |
 | Price gap | Diligent: $48-155K/yr; GO/Notubiz: EUR 10-60K/yr; iBabs: opaque per-user pricing | Open source core; self-hosted; no per-user fees |
@@ -377,17 +377,17 @@ Additional gaps across the market:
 
 ### 5.1 Positioning Statement
 
-**Decidesk is the decision-making platform that works everywhere decisions happen.** From municipal council chambers to corporate boardrooms, from association assemblies to management team meetings — one tool for the entire governance spectrum. Built natively into Nextcloud, it turns your collaboration platform into a universal decision engine with voting, minutes, motions, and analytics already connected to your files, calendar, and chat. Corporate governance (supervisory boards, executive boards, AGM) is served by the same unified Decision + Membership model, mode-adapted for the corporate context — not a separate feature set.
+**Decidiq is the decision-making platform that works everywhere decisions happen.** From municipal council chambers to corporate boardrooms, from association assemblies to management team meetings — one tool for the entire governance spectrum. Built natively into Nextcloud, it turns your collaboration platform into a universal decision engine with voting, minutes, motions, and analytics already connected to your files, calendar, and chat. Corporate governance (supervisory boards, executive boards, AGM) is served by the same unified Decision + Membership model, mode-adapted for the corporate context — not a separate feature set.
 
 ### 5.2 Differentiation Strategy
 
 Three pillars:
 
-1. **Universal governance** — The only platform spanning all five decision-making domains (legislative, corporate governance, corporate operations, associations, citizen participation). Competitors serve one or two domains; Decidesk serves all with configurable process templates.
+1. **Universal governance** — The only platform spanning all five decision-making domains (legislative, corporate governance, corporate operations, associations, citizen participation). Competitors serve one or two domains; Decidiq serves all with configurable process templates.
 
 2. **Privacy-first intelligence** — Self-hosted AI transcription and minutes generation without sending audio/video to third-party clouds. Addresses the Otter.ai/Fireflies consent lawsuit problem. GDPR-native by architecture, not by policy.
 
-3. **Platform leverage** — Every Nextcloud capability (Talk, Files, Calendar, Mail, AI, Flows, Federation, NL Design System) automatically benefits Decidesk. Competitors must build or buy these integrations. This structural advantage compounds over time.
+3. **Platform leverage** — Every Nextcloud capability (Talk, Files, Calendar, Mail, AI, Flows, Federation, NL Design System) automatically benefits Decidiq. Competitors must build or buy these integrations. This structural advantage compounds over time.
 
 ### 5.3 Risks
 

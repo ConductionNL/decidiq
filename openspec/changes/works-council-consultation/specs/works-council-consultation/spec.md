@@ -1,7 +1,7 @@
 # works-council-consultation Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - [works-council-consultation](../../changes/works-council-consultation/)
 
@@ -27,7 +27,7 @@ The system SHALL define a `ConsultationRequest` schema (slug `consultation-reque
 
 #### Scenario: Register fragment is additive
 
-- GIVEN a decidesk installation upgrading to this change
+- GIVEN a decidiq installation upgrading to this change
 - WHEN the register configuration is loaded
 - THEN the ConsultationRequest schema is registered from the `47-works-council-consultation.json` fragment
 - AND no existing schema is modified by the fragment
@@ -69,7 +69,7 @@ The optional `achterbanraadpleging` step SHALL be represented by the `achterbanr
 
 #### Scenario: Step degrades without the sibling capability
 
-- GIVEN a decidesk instance where the constituency-consultation capability is not present
+- GIVEN a decidiq instance where the constituency-consultation capability is not present
 - WHEN a traject passes through lifecycle `achterbanraadpleging` without a linked raadpleging
 - THEN the transition is accepted and the detail page renders without error, showing an empty raadpleging reference
 

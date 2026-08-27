@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "decidesk-agenda-collection",
-		"name": "Decidesk Agenda Integration Tests",
+		"_postman_id": "decidiq-agenda-collection",
+		"name": "Decidiq Agenda Integration Tests",
 		"description": "Integration tests for the p2-agenda-management API endpoints.\nTests the 4 agenda lifecycle REST endpoints against a live Nextcloud instance.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -60,9 +60,9 @@
 					{ "key": "Content-Type",   "value": "application/json" }
 				],
 				"url": {
-					"raw": "{{base_url}}/index.php/apps/decidesk/api/agendas/{{meeting_id}}/publish",
+					"raw": "{{base_url}}/index.php/apps/decidiq/api/agendas/{{meeting_id}}/publish",
 					"host": ["{{base_url}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "agendas", "{{meeting_id}}", "publish"]
+					"path": ["index.php", "apps", "decidiq", "api", "agendas", "{{meeting_id}}", "publish"]
 				}
 			}
 		},
@@ -90,9 +90,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{base_url}}/index.php/apps/decidesk/api/agenda-items/{{item_id}}/bob-phase",
+					"raw": "{{base_url}}/index.php/apps/decidiq/api/agenda-items/{{item_id}}/bob-phase",
 					"host": ["{{base_url}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "agenda-items", "{{item_id}}", "bob-phase"]
+					"path": ["index.php", "apps", "decidiq", "api", "agenda-items", "{{item_id}}", "bob-phase"]
 				}
 			}
 		},
@@ -123,9 +123,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{base_url}}/index.php/apps/decidesk/api/agendas/{{meeting_id}}/hamerstukken",
+					"raw": "{{base_url}}/index.php/apps/decidiq/api/agendas/{{meeting_id}}/hamerstukken",
 					"host": ["{{base_url}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "agendas", "{{meeting_id}}", "hamerstukken"]
+					"path": ["index.php", "apps", "decidiq", "api", "agendas", "{{meeting_id}}", "hamerstukken"]
 				}
 			}
 		},
@@ -161,9 +161,9 @@
 					"raw": "{\"ids\": [\"{{item_id}}\"]}"
 				},
 				"url": {
-					"raw": "{{base_url}}/index.php/apps/decidesk/api/agendas/{{meeting_id}}/reorder",
+					"raw": "{{base_url}}/index.php/apps/decidiq/api/agendas/{{meeting_id}}/reorder",
 					"host": ["{{base_url}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "agendas", "{{meeting_id}}", "reorder"]
+					"path": ["index.php", "apps", "decidiq", "api", "agendas", "{{meeting_id}}", "reorder"]
 				}
 			}
 		},
@@ -196,9 +196,9 @@
 					"raw": "{}"
 				},
 				"url": {
-					"raw": "{{base_url}}/index.php/apps/decidesk/api/agendas/{{meeting_id}}/reorder",
+					"raw": "{{base_url}}/index.php/apps/decidiq/api/agendas/{{meeting_id}}/reorder",
 					"host": ["{{base_url}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "agendas", "{{meeting_id}}", "reorder"]
+					"path": ["index.php", "apps", "decidiq", "api", "agendas", "{{meeting_id}}", "reorder"]
 				}
 			}
 		},
@@ -227,9 +227,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{base_url}}/index.php/apps/decidesk/api/agendas/{{meeting_id}}/publish",
+					"raw": "{{base_url}}/index.php/apps/decidiq/api/agendas/{{meeting_id}}/publish",
 					"host": ["{{base_url}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "agendas", "{{meeting_id}}", "publish"]
+					"path": ["index.php", "apps", "decidiq", "api", "agendas", "{{meeting_id}}", "publish"]
 				}
 			}
 		},
@@ -264,9 +264,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{base_url}}/index.php/apps/decidesk/api/agendas/{{meeting_id}}/publish",
+					"raw": "{{base_url}}/index.php/apps/decidiq/api/agendas/{{meeting_id}}/publish",
 					"host": ["{{base_url}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "agendas", "{{meeting_id}}", "publish"]
+					"path": ["index.php", "apps", "decidiq", "api", "agendas", "{{meeting_id}}", "publish"]
 				}
 			}
 		},
@@ -295,9 +295,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{base_url}}/index.php/apps/decidesk/api/agenda-items/{{item_id}}/bob-phase",
+					"raw": "{{base_url}}/index.php/apps/decidiq/api/agenda-items/{{item_id}}/bob-phase",
 					"host": ["{{base_url}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "agenda-items", "{{item_id}}", "bob-phase"]
+					"path": ["index.php", "apps", "decidiq", "api", "agenda-items", "{{item_id}}", "bob-phase"]
 				}
 			}
 		},
@@ -332,9 +332,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{base_url}}/index.php/apps/decidesk/api/agenda-items/{{item_id}}/bob-phase",
+					"raw": "{{base_url}}/index.php/apps/decidiq/api/agenda-items/{{item_id}}/bob-phase",
 					"host": ["{{base_url}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "agenda-items", "{{item_id}}", "bob-phase"]
+					"path": ["index.php", "apps", "decidiq", "api", "agenda-items", "{{item_id}}", "bob-phase"]
 				}
 			}
 		},
@@ -363,9 +363,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{base_url}}/index.php/apps/decidesk/api/agendas/{{meeting_id}}/hamerstukken",
+					"raw": "{{base_url}}/index.php/apps/decidiq/api/agendas/{{meeting_id}}/hamerstukken",
 					"host": ["{{base_url}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "agendas", "{{meeting_id}}", "hamerstukken"]
+					"path": ["index.php", "apps", "decidiq", "api", "agendas", "{{meeting_id}}", "hamerstukken"]
 				}
 			}
 		},
@@ -400,9 +400,9 @@
 					{ "key": "OCS-APIRequest", "value": "true" }
 				],
 				"url": {
-					"raw": "{{base_url}}/index.php/apps/decidesk/api/agendas/{{meeting_id}}/hamerstukken",
+					"raw": "{{base_url}}/index.php/apps/decidiq/api/agendas/{{meeting_id}}/hamerstukken",
 					"host": ["{{base_url}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "agendas", "{{meeting_id}}", "hamerstukken"]
+					"path": ["index.php", "apps", "decidiq", "api", "agendas", "{{meeting_id}}", "hamerstukken"]
 				}
 			}
 		},
@@ -436,9 +436,9 @@
 					"raw": "{\"ids\": [\"{{item_id}}\"]}"
 				},
 				"url": {
-					"raw": "{{base_url}}/index.php/apps/decidesk/api/agendas/{{meeting_id}}/reorder",
+					"raw": "{{base_url}}/index.php/apps/decidiq/api/agendas/{{meeting_id}}/reorder",
 					"host": ["{{base_url}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "agendas", "{{meeting_id}}", "reorder"]
+					"path": ["index.php", "apps", "decidiq", "api", "agendas", "{{meeting_id}}", "reorder"]
 				}
 			}
 		},
@@ -478,9 +478,9 @@
 					"raw": "{\"ids\": [\"{{item_id}}\"]}"
 				},
 				"url": {
-					"raw": "{{base_url}}/index.php/apps/decidesk/api/agendas/{{meeting_id}}/reorder",
+					"raw": "{{base_url}}/index.php/apps/decidiq/api/agendas/{{meeting_id}}/reorder",
 					"host": ["{{base_url}}"],
-					"path": ["index.php", "apps", "decidesk", "api", "agendas", "{{meeting_id}}", "reorder"]
+					"path": ["index.php", "apps", "decidiq", "api", "agendas", "{{meeting_id}}", "reorder"]
 				}
 			}
 		}

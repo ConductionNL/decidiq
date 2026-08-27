@@ -15,18 +15,18 @@
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--transcription"
+		class="decidiq-tab decidiq-tab--transcription"
 		data-testid="meeting-transcription-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Transcription') }}
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Transcription') }}
 			</h3>
 		</div>
 
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Transcription error')">
+			:title="t('decidiq', 'Transcription error')">
 			{{ error }}
 		</CnNoteCard>
 
@@ -35,21 +35,21 @@
 			v-if="loaded && !providerAvailable"
 			type="warning"
 			data-testid="transcription-unavailable"
-			:title="t('decidesk', 'Transcription unavailable')">
+			:title="t('decidiq', 'Transcription unavailable')">
 			{{
 				t(
-					'decidesk',
+					'decidiq',
 					'No speech-to-text provider is installed on this instance. You can still attach a recording and record consent; transcription becomes available once a provider (e.g. a local Whisper app) is installed.',
 				)
 			}}
 		</CnNoteCard>
 
 		<!-- Attach a source. -->
-		<section class="decidesk-transcription__attach">
+		<section class="decidiq-transcription__attach">
 			<label
-				class="decidesk-transcription__label"
+				class="decidiq-transcription__label"
 				for="transcription-source-select">
-				{{ t('decidesk', 'Recording source') }}
+				{{ t('decidiq', 'Recording source') }}
 			</label>
 			<!--
 				@nextcloud/vue v9 renamed the NcSelect model to
@@ -64,17 +64,17 @@
 			<NcSelect
 				inputId="transcription-source-select"
 				data-testid="transcription-source-select"
-				:inputLabel="t('decidesk', 'Recording source')"
+				:inputLabel="t('decidiq', 'Recording source')"
 				:options="sourceOptions"
 				:modelValue="selectedSource"
 				label="label"
 				@update:modelValue="onSelectSource" />
 			<p
 				v-if="loaded && sourceOptions.length === 0"
-				class="decidesk-transcription__hint">
+				class="decidiq-transcription__hint">
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						"No audio files found in this meeting's folder. Upload a recording to the meeting folder, then refresh.",
 					)
 				}}
@@ -84,20 +84,20 @@
 				data-testid="transcription-attach"
 				:disabled="!selectedSource"
 				@click="openConsent">
-				{{ t('decidesk', 'Attach recording') }}
+				{{ t('decidiq', 'Attach recording') }}
 			</NcButton>
 		</section>
 
 		<!-- Existing transcript + lifecycle. -->
 		<section
 			v-if="transcript"
-			class="decidesk-transcription__status"
+			class="decidiq-transcription__status"
 			data-testid="transcription-status">
 			<CnStatusBadge :label="statusLabel" :colorMap="statusColors" />
 			<p
 				v-if="transcript.status === 'failed' && transcript.failureReason"
-				class="decidesk-transcription__hint">
-				{{ t('decidesk', 'Reason:') }} {{ transcript.failureReason }}
+				class="decidiq-transcription__hint">
+				{{ t('decidiq', 'Reason:') }} {{ transcript.failureReason }}
 			</p>
 			<NcButton
 				v-if="canTranscribe"
@@ -107,8 +107,8 @@
 				@click="transcribe">
 				{{
 					transcript.status === 'failed'
-						? t('decidesk', 'Retry transcription')
-						: t('decidesk', 'Transcribe')
+						? t('decidiq', 'Retry transcription')
+						: t('decidiq', 'Transcribe')
 				}}
 			</NcButton>
 			<NcButton
@@ -117,31 +117,31 @@
 				data-testid="transcription-realign"
 				:disabled="working"
 				@click="realign">
-				{{ t('decidesk', 'Re-align to agenda') }}
+				{{ t('decidiq', 'Re-align to agenda') }}
 			</NcButton>
 		</section>
 
 		<!-- Transcript grouped per agenda item. -->
 		<section
 			v-if="transcript && transcript.status === 'done'"
-			class="decidesk-transcription__transcript"
+			class="decidiq-transcription__transcript"
 			data-testid="transcript-view">
 			<div
 				v-for="group in groupedSegments"
 				:key="group.key"
-				class="decidesk-transcription__group"
+				class="decidiq-transcription__group"
 				:data-testid="
 					group.key === 'unassigned'
 						? 'transcript-group-unassigned'
 						: 'transcript-group'
 				">
-				<h4 class="decidesk-transcription__group-title">
+				<h4 class="decidiq-transcription__group-title">
 					{{ group.title }}
 				</h4>
 				<p
 					v-for="(seg, i) in group.segments"
 					:key="i"
-					class="decidesk-transcription__segment">
+					class="decidiq-transcription__segment">
 					<strong>{{ seg.speakerLabel }}:</strong> {{ seg.text }}
 				</p>
 			</div>
@@ -150,28 +150,28 @@
 		<!-- Generate draft (hidden without an AI provider). -->
 		<section
 			v-if="transcript && transcript.status === 'done' && aiAvailable"
-			class="decidesk-transcription__draft">
+			class="decidiq-transcription__draft">
 			<NcButton
 				variant="primary"
 				data-testid="transcription-generate-draft"
 				:disabled="working"
 				@click="generateDraft">
-				{{ t('decidesk', 'Generate draft minutes') }}
+				{{ t('decidiq', 'Generate draft minutes') }}
 			</NcButton>
 		</section>
 
 		<!-- Draft review banner + per-section markers. -->
 		<section
 			v-if="draft"
-			class="decidesk-transcription__draft-review"
+			class="decidiq-transcription__draft-review"
 			data-testid="draft-review">
 			<CnNoteCard
 				type="info"
 				data-testid="draft-provenance-banner"
-				:title="t('decidesk', 'AI-generated draft')">
+				:title="t('decidiq', 'AI-generated draft')">
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'This draft was generated by AI from the transcript. Review every section before it enters the minutes. AI never approves or publishes minutes — the normal approval workflow is unchanged.',
 					)
 				}}
@@ -180,30 +180,30 @@
 			<div
 				v-for="(section, idx) in draft.sections"
 				:key="idx"
-				class="decidesk-transcription__section"
+				class="decidiq-transcription__section"
 				:data-testid="
 					section.discarded ? 'draft-section-discarded' : 'draft-section'
 				">
-				<div class="decidesk-transcription__section-head">
+				<div class="decidiq-transcription__section-head">
 					<h4>{{ section.title }}</h4>
 					<span
 						v-if="!section.discarded"
-						class="decidesk-transcription__ai-marker"
+						class="decidiq-transcription__ai-marker"
 						data-testid="ai-section-marker">
-						{{ t('decidesk', 'AI') }}
+						{{ t('decidiq', 'AI') }}
 					</span>
 				</div>
 
 				<NcTextArea
 					v-if="!section.discarded"
 					v-model="section.summary"
-					:label="t('decidesk', 'Section summary')"
+					:label="t('decidiq', 'Section summary')"
 					resize="vertical"
 					@update:modelValue="markEdited(section)" />
-				<p v-else class="decidesk-transcription__hint">
+				<p v-else class="decidiq-transcription__hint">
 					{{
 						t(
-							'decidesk',
+							'decidiq',
 							'Section discarded — write your own text in the minutes editor.',
 						)
 					}}
@@ -215,7 +215,7 @@
 						&& section.suggestions
 						&& section.suggestions.length
 					"
-					class="decidesk-transcription__suggestions">
+					class="decidiq-transcription__suggestions">
 					<li
 						v-for="(sug, sIdx) in section.suggestions"
 						:key="sIdx"
@@ -227,23 +227,23 @@
 						{{ sug.title }}
 						<span
 							v-if="sug.unverified"
-							class="decidesk-transcription__unverified">
-							{{ t('decidesk', 'unverified — no recorded outcome') }}
+							class="decidiq-transcription__unverified">
+							{{ t('decidiq', 'unverified — no recorded outcome') }}
 						</span>
-						<span v-else class="decidesk-transcription__verified">
-							{{ t('decidesk', 'linked to recorded outcome') }}
+						<span v-else class="decidiq-transcription__verified">
+							{{ t('decidiq', 'linked to recorded outcome') }}
 						</span>
 					</li>
 				</ul>
 
 				<div
 					v-if="!section.discarded"
-					class="decidesk-transcription__section-actions">
+					class="decidiq-transcription__section-actions">
 					<NcButton
 						variant="tertiary"
 						data-testid="draft-section-discard"
 						@click="discardSection(section)">
-						{{ t('decidesk', 'Discard section') }}
+						{{ t('decidiq', 'Discard section') }}
 					</NcButton>
 				</div>
 			</div>
@@ -348,10 +348,10 @@ export default {
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		statusLabel() {
 			const map = {
-				pending: this.t('decidesk', 'Pending'),
-				processing: this.t('decidesk', 'Processing'),
-				done: this.t('decidesk', 'Done'),
-				failed: this.t('decidesk', 'Failed'),
+				pending: this.t('decidiq', 'Pending'),
+				processing: this.t('decidiq', 'Processing'),
+				done: this.t('decidiq', 'Done'),
+				failed: this.t('decidiq', 'Failed'),
 			}
 			return map[this.transcript?.status] || this.transcript?.status || ''
 		},
@@ -383,9 +383,9 @@ export default {
 						id: key,
 						title:
 							key === 'unassigned'
-								? this.t('decidesk', 'Unassigned')
+								? this.t('decidiq', 'Unassigned')
 								: this.agendaTitles[key]
-									|| this.t('decidesk', 'Agenda item'),
+									|| this.t('decidiq', 'Agenda item'),
 						segments: [],
 					}
 					order.push(key)
@@ -425,7 +425,7 @@ export default {
 				this.providerAvailable = !!data.providerAvailable
 				this.aiAvailable = !!data.aiAvailable
 				this.sourceOptions = (data.sources || []).map((s) => ({
-					label: `${s.name} (${s.type === 'talk-recording' ? this.t('decidesk', 'Talk recording') : this.t('decidesk', 'File')})`,
+					label: `${s.name} (${s.type === 'talk-recording' ? this.t('decidiq', 'Talk recording') : this.t('decidiq', 'File')})`,
 					...s,
 				}))
 				await this.loadExistingTranscript()
@@ -433,7 +433,7 @@ export default {
 			} catch (e) {
 				this.error =
 					e?.message
-					|| this.t('decidesk', 'Could not load transcription state.')
+					|| this.t('decidiq', 'Could not load transcription state.')
 			} finally {
 				this.loaded = true
 			}
@@ -505,7 +505,7 @@ export default {
 			} catch (e) {
 				this.error =
 					e?.message
-					|| this.t('decidesk', 'Could not attach the recording.')
+					|| this.t('decidiq', 'Could not attach the recording.')
 			} finally {
 				this.working = false
 			}
@@ -521,8 +521,7 @@ export default {
 				if (this.transcript) this.transcript.status = 'processing'
 			} catch (e) {
 				this.error =
-					e?.message
-					|| this.t('decidesk', 'Could not start transcription.')
+					e?.message || this.t('decidiq', 'Could not start transcription.')
 			} finally {
 				this.working = false
 			}
@@ -540,7 +539,7 @@ export default {
 			} catch (e) {
 				this.error =
 					e?.message
-					|| this.t('decidesk', 'Could not re-align the transcript.')
+					|| this.t('decidiq', 'Could not re-align the transcript.')
 			} finally {
 				this.working = false
 			}
@@ -565,7 +564,7 @@ export default {
 				}
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Could not generate the draft.')
+					e?.message || this.t('decidiq', 'Could not generate the draft.')
 			} finally {
 				this.working = false
 			}
@@ -597,9 +596,9 @@ export default {
 		},
 
 		/**
-		 * Call the decidesk transcription API.
+		 * Call the decidiq transcription API.
 		 *
-		 * @param {string} path Path under /apps/decidesk/api.
+		 * @param {string} path Path under /apps/decidiq/api.
 		 * @param {object} body JSON body.
 		 * @param {string} method HTTP method.
 		 * @return {Promise<object>} Parsed response.
@@ -615,13 +614,13 @@ export default {
 			}
 			if (method !== 'GET') opts.body = JSON.stringify(body)
 			const response = await fetch(
-				generateUrl(`/apps/decidesk/api${path}`),
+				generateUrl(`/apps/decidiq/api${path}`),
 				opts,
 			)
 			const data = await response.json().catch(() => ({}))
 			if (!response.ok) {
 				throw new Error(
-					data.message || this.t('decidesk', 'The action failed.'),
+					data.message || this.t('decidiq', 'The action failed.'),
 				)
 			}
 			return data
@@ -631,76 +630,76 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-transcription__attach,
-.decidesk-transcription__status,
-.decidesk-transcription__draft {
+.decidiq-transcription__attach,
+.decidiq-transcription__status,
+.decidiq-transcription__draft {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-transcription__status {
+.decidiq-transcription__status {
 	flex-direction: row;
 	align-items: center;
 	flex-wrap: wrap;
 }
 
-.decidesk-transcription__label {
+.decidiq-transcription__label {
 	font-weight: bold;
 }
 
-.decidesk-transcription__hint {
+.decidiq-transcription__hint {
 	color: var(--color-text-maxcontrast);
 	font-size: 0.9em;
 }
 
-.decidesk-transcription__group {
+.decidiq-transcription__group {
 	border-inline-start: 3px solid var(--color-primary-element);
 	padding-inline-start: var(--default-grid-baseline);
 	margin-block-end: var(--default-grid-baseline);
 }
 
-.decidesk-transcription__group-title {
+.decidiq-transcription__group-title {
 	margin: 0 0 4px;
 }
 
-.decidesk-transcription__segment {
+.decidiq-transcription__segment {
 	margin: 2px 0;
 }
 
-.decidesk-transcription__section {
+.decidiq-transcription__section {
 	border: 1px solid var(--color-border);
 	border-radius: var(--border-radius-large);
 	padding: var(--default-grid-baseline);
 	margin-block-end: var(--default-grid-baseline);
 }
 
-.decidesk-transcription__section-head {
+.decidiq-transcription__section-head {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 }
 
-.decidesk-transcription__ai-marker {
+.decidiq-transcription__ai-marker {
 	background: var(--color-primary-element-light);
 	color: var(--color-primary-element);
 	border-radius: var(--border-radius);
@@ -709,13 +708,13 @@ export default {
 	font-weight: bold;
 }
 
-.decidesk-transcription__unverified {
+.decidiq-transcription__unverified {
 	color: var(--color-warning-text, var(--color-warning));
 	font-style: italic;
 	margin-inline-start: 6px;
 }
 
-.decidesk-transcription__verified {
+.decidiq-transcription__verified {
 	color: var(--color-success-text, var(--color-success));
 	margin-inline-start: 6px;
 }
