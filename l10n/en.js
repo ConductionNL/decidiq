@@ -587,7 +587,7 @@ OC.L10N.register(
         "File": "File",
         "Fill in the agenda item details. The chair will approve or reject your proposal.": "Fill in the agenda item details. The chair will approve or reject your proposal.",
         "Financial statements": "Financial statements",
-        "Flows are what happens without anyone clicking: a reminder before a deadline passes, a confirmation sent on submission. This is where you read and edit them — nothing to build now.": "Flows are what happens without anyone clicking: a reminder before a deadline passes, a confirmation sent on submission. This is where you read and edit them — nothing to build now.",
+        "Flows are what happens without anyone clicking: a reminder before a deadline passes, a confirmation sent on submission. This is where you read and edit them. Nothing to build now.": "Flows are what happens without anyone clicking: a reminder before a deadline passes, a confirmation sent on submission. This is where you read and edit them. Nothing to build now.",
         "For": "For",
         "For / Against / Abstain": "For / Against / Abstain",
         "For support, contact us at": "For support, contact us at",
