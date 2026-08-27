@@ -1,0 +1,365 @@
+
+> decidiq@0.1.0 lint
+> eslint src
+
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/AgendaBuilder.vue
+  109:8  warning  'itemList' is defined as ref, but never used                                vue/no-unused-refs
+  489:1  warning  Missing JSDoc @param "val" description                                      jsdoc/require-param-description
+  509:1  warning  Missing JSDoc @param "event" description                                    jsdoc/require-param-description
+  510:1  warning  Missing JSDoc @param "index" description                                    jsdoc/require-param-description
+  521:1  warning  Missing JSDoc @param "event" description                                    jsdoc/require-param-description
+  522:1  warning  Missing JSDoc @param "index" description                                    jsdoc/require-param-description
+  531:1  warning  Missing JSDoc @param "event" description                                    jsdoc/require-param-description
+  532:1  warning  Missing JSDoc @param "targetIndex" description                              jsdoc/require-param-description
+  550:1  warning  Missing JSDoc @param "index" description                                    jsdoc/require-param-description
+  551:1  warning  Missing JSDoc @param "delta" description                                    jsdoc/require-param-description
+  563:1  warning  Missing JSDoc @param "parentIndex" description                              jsdoc/require-param-description
+  564:1  warning  Missing JSDoc @param "childIndex" description                               jsdoc/require-param-description
+  565:1  warning  Missing JSDoc @param "delta" description                                    jsdoc/require-param-description
+  599:1  warning  Missing JSDoc @param "ids" description                                      jsdoc/require-param-description
+  605:6  warning  The property or function OC.generateUrl was deprecated in Nextcloud 19.0.0  @nextcloud/no-deprecated-globals
+  635:1  warning  Missing JSDoc @param "parent" description                                   jsdoc/require-param-description
+  643:1  warning  Missing JSDoc @param "payload" description                                  jsdoc/require-param-description
+  675:1  warning  Missing JSDoc @param "item" description                                     jsdoc/require-param-description
+  683:1  warning  Missing JSDoc @param "item" description                                     jsdoc/require-param-description
+  691:1  warning  Missing JSDoc @param "item" description                                     jsdoc/require-param-description
+  692:1  warning  Missing JSDoc @param "participant" description                              jsdoc/require-param-description
+  713:1  warning  Missing JSDoc @param "item" description                                     jsdoc/require-param-description
+  737:1  warning  Missing JSDoc @param "item" description                                     jsdoc/require-param-description
+  784:1  warning  Missing JSDoc @param "selectedIds" description                              jsdoc/require-param-description
+  818:1  warning  Missing JSDoc @param "item" description                                     jsdoc/require-param-description
+  837:1  warning  Missing JSDoc @param "item" description                                     jsdoc/require-param-description
+  857:1  warning  Missing JSDoc @param "payload" description                                  jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/VotingRoundPanel.vue
+  553:1   warning  Unexpected inline JSDoc tag. Did you mean to use {@spec}, \@spec, or `@spec`?  jsdoc/escape-inline-tags
+  568:1   warning  Unexpected inline JSDoc tag. Did you mean to use {@spec}, \@spec, or `@spec`?  jsdoc/escape-inline-tags
+  573:1   warning  Unexpected inline JSDoc tag. Did you mean to use {@spec}, \@spec, or `@spec`?  jsdoc/escape-inline-tags
+  578:1   warning  Unexpected inline JSDoc tag. Did you mean to use {@spec}, \@spec, or `@spec`?  jsdoc/escape-inline-tags
+  583:1   warning  Unexpected inline JSDoc tag. Did you mean to use {@spec}, \@spec, or `@spec`?  jsdoc/escape-inline-tags
+  661:1   warning  Missing JSDoc @param "value" description                                       jsdoc/require-param-description
+  668:6   warning  The property or function OC.generateUrl was deprecated in Nextcloud 19.0.0     @nextcloud/no-deprecated-globals
+  678:23  warning  The property or function OC.currentUser was deprecated in Nextcloud 19.0.0     @nextcloud/no-deprecated-globals
+  704:6   warning  The property or function OC.generateUrl was deprecated in Nextcloud 19.0.0     @nextcloud/no-deprecated-globals
+  750:6   warning  The property or function OC.generateUrl was deprecated in Nextcloud 19.0.0     @nextcloud/no-deprecated-globals
+  780:6   warning  The property or function OC.generateUrl was deprecated in Nextcloud 19.0.0     @nextcloud/no-deprecated-globals
+  837:6   warning  The property or function OC.generateUrl was deprecated in Nextcloud 19.0.0     @nextcloud/no-deprecated-globals
+  865:6   warning  The property or function OC.generateUrl was deprecated in Nextcloud 19.0.0     @nextcloud/no-deprecated-globals
+  875:27  warning  The property or function OC.currentUser was deprecated in Nextcloud 19.0.0     @nextcloud/no-deprecated-globals
+  893:6   warning  The property or function OC.generateUrl was deprecated in Nextcloud 19.0.0     @nextcloud/no-deprecated-globals
+  902:49  warning  The property or function OC.currentUser was deprecated in Nextcloud 19.0.0     @nextcloud/no-deprecated-globals
+  917:6   warning  The property or function OC.generateUrl was deprecated in Nextcloud 19.0.0     @nextcloud/no-deprecated-globals
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/liveMeeting/AgendaItemTimer.vue
+  226:1   warning  Missing JSDoc @param "item" description                                   jsdoc/require-param-description
+  253:1   warning  Missing JSDoc @param "minutes" description                                jsdoc/require-param-description
+  283:16  warning  The "closed" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/liveMeeting/SpeakerQueuePanel.vue
+  246:1   warning  Missing JSDoc @param "participantId" description                                   jsdoc/require-param-description
+  254:1   warning  Missing JSDoc @param "participantId" description                                   jsdoc/require-param-description
+  255:1   warning  Missing JSDoc @param "direction" description                                       jsdoc/require-param-description
+  263:1   warning  Missing JSDoc @param "participantId" description                                   jsdoc/require-param-description
+  284:1   warning  Missing JSDoc @param "entry" description                                           jsdoc/require-param-description
+  292:1   warning  Missing JSDoc @param "entry" description                                           jsdoc/require-param-description
+  310:17  warning  The property or function OC.generateUrl was deprecated in Nextcloud 19.0.0         @nextcloud/no-deprecated-globals
+  323:16  warning  The "speech-recorded" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/minutesEditor/minutesEditor.js
+  75:1  warning  Prefer a more specific type to `Function`  jsdoc/reject-function-type
+  77:1  warning  Prefer a more specific type to `Function`  jsdoc/reject-function-type
+  78:1  warning  Prefer a more specific type to `Function`  jsdoc/reject-function-type
+  78:1  warning  Prefer a more specific type to `Function`  jsdoc/reject-function-type
+  78:1  warning  Prefer a more specific type to `Function`  jsdoc/reject-function-type
+  78:1  warning  Prefer a more specific type to `Function`  jsdoc/reject-function-type
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/processTemplates/ProcessTemplates.vue
+  125:1  warning  Missing JSDoc @param "tpl" description  jsdoc/require-param-description
+  134:1  warning  Missing JSDoc @param "tpl" description  jsdoc/require-param-description
+  145:1  warning  Missing JSDoc @param "tpl" description  jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/processTemplates/StateMachineEditor.vue
+  129:1  warning  Missing JSDoc @param "v" description             jsdoc/require-param-description
+  157:1  warning  Missing JSDoc @param "stateMachine" description  jsdoc/require-param-description
+  180:1  warning  Missing JSDoc @param "i" description             jsdoc/require-param-description
+  200:1  warning  Missing JSDoc @param "i" description             jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/tabs/ActionItemDeckBoard.vue
+  282:1  warning  Missing JSDoc @param "item" description  jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/tabs/AgendaMotionsTab.vue
+  212:1  warning  Missing JSDoc @param "row" description       jsdoc/require-param-description
+  224:1  warning  Missing JSDoc @param "formData" description  jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/tabs/ConsultationReactionsTab.vue
+   91:3  warning  'register' of property found, but never used             vue/no-unused-properties
+   93:3  warning  'schema' of property found, but never used               vue/no-unused-properties
+  116:1  warning  Expected 1 lines after block description                 jsdoc/tag-lines
+  116:3  warning  Should have no text on the "0th" line (after the `/**`)  jsdoc/multiline-blocks
+  158:3  warning  Missing JSDoc @param "note" declaration                  jsdoc/require-param
+  173:3  warning  Missing JSDoc @param "reason" declaration                jsdoc/require-param
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/tabs/DecisionActionItemsTab.vue
+  226:1  warning  Missing JSDoc @param "row" description       jsdoc/require-param-description
+  238:1  warning  Missing JSDoc @param "formData" description  jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/tabs/DecisionLifecycleTab.vue
+  135:1   warning  Missing JSDoc @param "state" description                                   jsdoc/require-param-description
+  152:1   warning  Missing JSDoc @param "action" description                                  jsdoc/require-param-description
+  203:1   warning  Missing JSDoc @param "action" description                                  jsdoc/require-param-description
+  231:16  warning  The "refresh" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+  304:16  warning  The "refresh" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/tabs/DecisionRouteTab.vue
+  290:1  warning  Missing JSDoc @param "stage" description     jsdoc/require-param-description
+  301:3  warning  Missing JSDoc @param "state" declaration     jsdoc/require-param
+  317:3  warning  Missing JSDoc @param "type" declaration      jsdoc/require-param
+  330:3  warning  Missing JSDoc @param "method" declaration    jsdoc/require-param
+  344:3  warning  Missing JSDoc @param "status" declaration    jsdoc/require-param
+  357:3  warning  Missing JSDoc @param "outcome" declaration   jsdoc/require-param
+  373:1  warning  Missing JSDoc @param "stage" description     jsdoc/require-param-description
+  394:1  warning  Missing JSDoc @param "value" description     jsdoc/require-param-description
+  494:1  warning  Missing JSDoc @param "decision" description  jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/tabs/GovernanceBodyEfficiencyTab.vue
+  282:3  warning  'objectType' of property found, but never used  vue/no-unused-properties
+  283:3  warning  'register' of property found, but never used    vue/no-unused-properties
+  284:3  warning  'schema' of property found, but never used      vue/no-unused-properties
+  507:1  warning  Missing JSDoc @param "value" description        jsdoc/require-param-description
+  508:1  warning  Missing JSDoc @param "max" description          jsdoc/require-param-description
+  518:1  warning  Missing JSDoc @param "share" description        jsdoc/require-param-description
+  526:1  warning  Missing JSDoc @param "minutes" description      jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/tabs/GovernanceBodyEvaluationsTab.vue
+  204:3  warning  'objectType' of property found, but never used  vue/no-unused-properties
+  205:3  warning  'register' of property found, but never used    vue/no-unused-properties
+  206:3  warning  'schema' of property found, but never used      vue/no-unused-properties
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/tabs/GovernanceBodyMembersTab.vue
+  171:3  warning  'objectType' of property found, but never used  vue/no-unused-properties
+  172:3  warning  'register' of property found, but never used    vue/no-unused-properties
+  173:3  warning  'schema' of property found, but never used      vue/no-unused-properties
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/tabs/GovernanceBodyTemplateTab.vue
+  92:3  warning  'objectType' of property found, but never used  vue/no-unused-properties
+  93:3  warning  'register' of property found, but never used    vue/no-unused-properties
+  94:3  warning  'schema' of property found, but never used      vue/no-unused-properties
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/tabs/MeetingAgendaTab.vue
+  357:1  warning  Missing JSDoc @param "row" description       jsdoc/require-param-description
+  372:1  warning  Missing JSDoc @param "formData" description  jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/tabs/MeetingParticipantsTab.vue
+  148:1  warning  Missing JSDoc @param "open" description         jsdoc/require-param-description
+  158:1  warning  Missing JSDoc @param "participant" description  jsdoc/require-param-description
+  159:1  warning  Missing JSDoc @param "meetingId" description    jsdoc/require-param-description
+  215:1  warning  Missing JSDoc @param "participant" description  jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/tabs/MinutesSignersTab.vue
+  195:1  warning  Missing JSDoc @param "open" description         jsdoc/require-param-description
+  205:1  warning  Missing JSDoc @param "row" description          jsdoc/require-param-description
+  283:1  warning  Missing JSDoc @param "participant" description  jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/tabs/MotionAmendmentOrderTab.vue
+  187:1  warning  Missing JSDoc @param "row" description    jsdoc/require-param-description
+  254:1  warning  Missing JSDoc @param "index" description  jsdoc/require-param-description
+  255:1  warning  Missing JSDoc @param "delta" description  jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/tabs/MotionAmendmentsTab.vue
+  216:1  warning  Missing JSDoc @param "row" description       jsdoc/require-param-description
+  228:1  warning  Missing JSDoc @param "formData" description  jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/tabs/MotionVotesTab.vue
+  170:1  warning  Missing JSDoc @param "votes" description  jsdoc/require-param-description
+  204:1  warning  Missing JSDoc @param "row" description    jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/tabs/RelatedDecisionsTab.vue
+  238:3  warning  Missing JSDoc @param "type" declaration          jsdoc/require-param
+  252:3  warning  Missing JSDoc @param "type" declaration          jsdoc/require-param
+  319:1  warning  Missing JSDoc @param "query" description         jsdoc/require-param-description
+  339:1  warning  Missing JSDoc @param "root0" description         jsdoc/require-param-description
+  340:1  warning  Missing JSDoc @param "root0.type" description    jsdoc/require-param-description
+  341:1  warning  Missing JSDoc @param "root0.target" description  jsdoc/require-param-description
+  383:1  warning  Missing JSDoc @param "type" description          jsdoc/require-param-description
+  384:1  warning  Missing JSDoc @param "row" description           jsdoc/require-param-description
+  417:1  warning  Missing JSDoc @param "row" description           jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/userSettings/CommunicationSection.vue
+  200:16  warning  The "updated" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/userSettings/DelegationSection.vue
+  267:16  warning  The "updated" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+  290:16  warning  The "updated" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/userSettings/NotificationPreferencesSection.vue
+  289:16  warning  The "updated" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/widgets/ConfidentialityStatusTimelineWidget.vue
+  256:3  warning  'objectId' of property found, but never used    vue/no-unused-properties
+  258:3  warning  'schema' of property found, but never used      vue/no-unused-properties
+  260:3  warning  'objectType' of property found, but never used  vue/no-unused-properties
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/widgets/DelegationChainWidget.vue
+  160:3  warning  'objectType' of property found, but never used  vue/no-unused-properties
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/components/widgets/RegisterVersionTimelineWidget.vue
+  174:3  warning  'schema' of property found, but never used      vue/no-unused-properties
+  176:3  warning  'objectType' of property found, but never used  vue/no-unused-properties
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/dialogs/MeetingParticipantAddDialog.vue
+  56:1  warning  Missing JSDoc @param "p" description  jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/dialogs/MinutesSignerAddDialog.vue
+  58:1  warning  Missing JSDoc @param "p" description  jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/dialogs/RecurringItemsDialog.vue
+  80:1  warning  Missing JSDoc @param "id" description  jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/integrations/CnDecisionsTab.vue
+  154:3  warning  'integrationId' of property found, but never used  vue/no-unused-properties
+  292:1  warning  Missing JSDoc @param "decision" description        jsdoc/require-param-description
+  300:1  warning  Missing JSDoc @param "decision" description        jsdoc/require-param-description
+  311:1  warning  Missing JSDoc @param "decision" description        jsdoc/require-param-description
+  326:1  warning  Missing JSDoc @param "decision" description        jsdoc/require-param-description
+  351:1  warning  Missing JSDoc @param "decision" description        jsdoc/require-param-description
+  373:1  warning  Missing JSDoc @param "decision" description        jsdoc/require-param-description
+  384:1  warning  Missing JSDoc @param "decision" description        jsdoc/require-param-description
+  426:1  warning  Missing JSDoc @param "formData" description        jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/integrations/CnDecisionsWidget.vue
+  148:3   warning  'integrationId' of property found, but never used  vue/no-unused-properties
+  162:42  warning  Boolean prop should only be defaulted to false     vue/no-boolean-default
+  325:1   warning  Missing JSDoc @param "decision" description        jsdoc/require-param-description
+  333:1   warning  Missing JSDoc @param "decision" description        jsdoc/require-param-description
+  344:1   warning  Missing JSDoc @param "decision" description        jsdoc/require-param-description
+  369:1   warning  Missing JSDoc @param "decision" description        jsdoc/require-param-description
+  391:1   warning  Missing JSDoc @param "decision" description        jsdoc/require-param-description
+  434:1   warning  Missing JSDoc @param "formData" description        jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/modals/ActionItemCaptureModal.vue
+   18:19  warning  The "close" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+   49:28  warning  The "close" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+  131:16  warning  The "saved" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+  132:16  warning  The "close" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/modals/MinutesCorrectionModal.vue
+  16:19  warning  The "close" event has been triggered but not declared on `emits` option    vue/require-explicit-emits
+  43:19  warning  The "confirm" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+  46:28  warning  The "close" event has been triggered but not declared on `emits` option    vue/require-explicit-emits
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/modals/MinutesRejectModal.vue
+  15:19  warning  The "close" event has been triggered but not declared on `emits` option    vue/require-explicit-emits
+  37:19  warning  The "confirm" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+  40:28  warning  The "close" event has been triggered but not declared on `emits` option    vue/require-explicit-emits
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/modals/ProcessTemplateEditModal.vue
+   16:17  warning  The "close" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+  106:29  warning  The "close" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+  182:1   warning  Missing JSDoc @param "template" description                              jsdoc/require-param-description
+  235:16  warning  The "saved" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+  236:16  warning  The "close" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/modals/PublicationPromptModal.vue
+  17:19  warning  The "dismiss" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+  32:19  warning  The "publish" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+  37:19  warning  The "dismiss" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/modals/PublicationRectifyModal.vue
+  16:19  warning  The "close" event has been triggered but not declared on `emits` option    vue/require-explicit-emits
+  37:19  warning  The "confirm" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+  40:28  warning  The "close" event has been triggered but not declared on `emits` option    vue/require-explicit-emits
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/modals/PublicationWithdrawModal.vue
+  15:19  warning  The "close" event has been triggered but not declared on `emits` option    vue/require-explicit-emits
+  42:19  warning  The "confirm" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+  45:28  warning  The "close" event has been triggered but not declared on `emits` option    vue/require-explicit-emits
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/modals/ReactionApproveModal.vue
+  16:19  warning  The "close" event has been triggered but not declared on `emits` option    vue/require-explicit-emits
+  36:19  warning  The "confirm" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+  39:28  warning  The "close" event has been triggered but not declared on `emits` option    vue/require-explicit-emits
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/modals/ReactionRejectModal.vue
+  15:19  warning  The "close" event has been triggered but not declared on `emits` option    vue/require-explicit-emits
+  37:19  warning  The "confirm" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+  40:28  warning  The "close" event has been triggered but not declared on `emits` option    vue/require-explicit-emits
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/modals/RelatedDecisionAddModal.vue
+   18:19  warning  The "close" event has been triggered but not declared on `emits` option    vue/require-explicit-emits
+   89:1   warning  Missing JSDoc @param "query" description                                   jsdoc/require-param-description
+  107:15  warning  The "confirm" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/modals/TranscriptionConsentModal.vue
+  17:19  warning  The "close" event has been triggered but not declared on `emits` option    vue/require-explicit-emits
+  44:19  warning  The "confirm" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+  47:28  warning  The "close" event has been triggered but not declared on `emits` option    vue/require-explicit-emits
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/services/deckProjection.js
+  195:1  warning  Prefer a more specific type to `Function`  jsdoc/reject-function-type
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/store/modules/processTemplates.js
+   68:1  warning  Missing JSDoc @param "template" description  jsdoc/require-param-description
+   68:1  warning  Missing JSDoc @param "template" type         jsdoc/require-param-type
+   80:1  warning  Missing JSDoc @param "id" description        jsdoc/require-param-description
+   80:1  warning  Missing JSDoc @param "id" type               jsdoc/require-param-type
+   81:1  warning  Missing JSDoc @param "template" description  jsdoc/require-param-description
+   81:1  warning  Missing JSDoc @param "template" type         jsdoc/require-param-type
+   95:1  warning  Missing JSDoc @param "id" description        jsdoc/require-param-description
+   95:1  warning  Missing JSDoc @param "id" type               jsdoc/require-param-type
+   96:1  warning  Missing JSDoc @param "name" description      jsdoc/require-param-description
+   96:1  warning  Missing JSDoc @param "name" type             jsdoc/require-param-type
+  112:1  warning  Missing JSDoc @param "id" description        jsdoc/require-param-description
+  112:1  warning  Missing JSDoc @param "id" type               jsdoc/require-param-type
+  141:1  warning  Missing JSDoc @param "url" description       jsdoc/require-param-description
+  141:1  warning  Missing JSDoc @param "url" type              jsdoc/require-param-type
+  142:1  warning  Missing JSDoc @param "method" description    jsdoc/require-param-description
+  142:1  warning  Missing JSDoc @param "method" type           jsdoc/require-param-type
+  143:1  warning  Missing JSDoc @param "payload" description   jsdoc/require-param-description
+  143:1  warning  Missing JSDoc @param "payload" type          jsdoc/require-param-type
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/store/modules/settings.js
+  45:1  warning  Missing JSDoc @param "settings" description  jsdoc/require-param-description
+  45:1  warning  Missing JSDoc @param "settings" type         jsdoc/require-param-type
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/utils/meetingAnalytics.js
+  25:1  warning  Prefer a more specific type to `*`  jsdoc/reject-any-type
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/utils/votingRules.js
+  78:1  warning  Prefer a more specific type to `Function`  jsdoc/reject-function-type
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/views/LiveMeeting.vue
+  456:1  warning  Missing JSDoc @param "item" description                                     jsdoc/require-param-description
+  466:1  warning  Missing JSDoc @param "item" description                                     jsdoc/require-param-description
+  474:1  warning  Missing JSDoc @param "item" description                                     jsdoc/require-param-description
+  482:1  warning  Missing JSDoc @param "item" description                                     jsdoc/require-param-description
+  489:6  warning  The property or function OC.generateUrl was deprecated in Nextcloud 19.0.0  @nextcloud/no-deprecated-globals
+  515:6  warning  The property or function OC.generateUrl was deprecated in Nextcloud 19.0.0  @nextcloud/no-deprecated-globals
+  536:1  warning  Missing JSDoc @param "item" description                                     jsdoc/require-param-description
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/views/dashboard/widgets/RunningProcessesWidget.vue
+  106:1  warning  Use object shorthand or index signatures instead of `Object`, e.g., `{[key: string]: string}`  jsdoc/check-types
+
+/home/rubenlinde/fleet-work/fx/decidiq/src/views/participation/ParticipationPage.vue
+  291:1  warning  Missing JSDoc @param "round" description         jsdoc/require-param-description
+  310:1  warning  Missing JSDoc @param "consultation" description  jsdoc/require-param-description
+  331:1  warning  Missing JSDoc @param "round" description         jsdoc/require-param-description
+  356:1  warning  Missing JSDoc @param "proposal" description      jsdoc/require-param-description
+  357:1  warning  Missing JSDoc @param "value" description         jsdoc/require-param-description
+  374:1  warning  Missing JSDoc @param "consultation" description  jsdoc/require-param-description
+  375:1  warning  Missing JSDoc @param "status" description        jsdoc/require-param-description
+  389:1  warning  Missing JSDoc @param "round" description         jsdoc/require-param-description
+  390:1  warning  Missing JSDoc @param "status" description        jsdoc/require-param-description
+  404:1  warning  Missing JSDoc @param "consultation" description  jsdoc/require-param-description
+  417:1  warning  Missing JSDoc @param "round" description         jsdoc/require-param-description
+  430:1  warning  Missing JSDoc @param "result" description        jsdoc/require-param-description
+  444:1  warning  Missing JSDoc @param "status" description        jsdoc/require-param-description
+  452:1  warning  Missing JSDoc @param "status" description        jsdoc/require-param-description
+  467:1  warning  Missing JSDoc @param "amount" description        jsdoc/require-param-description
+  468:1  warning  Missing JSDoc @param "currency" description      jsdoc/require-param-description
+  477:1  warning  Missing JSDoc @param "e" description             jsdoc/require-param-description
+  478:1  warning  Missing JSDoc @param "fallback" description      jsdoc/require-param-description
+
+✖ 249 problems (0 errors, 249 warnings)
+  0 errors and 11 warnings potentially fixable with the `--fix` option.
+
