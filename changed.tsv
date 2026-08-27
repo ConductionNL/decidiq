@@ -1,7 +1,0 @@
-dependencies	gridstack	^13.2.0	^12.6.0
-dependencies	sass-loader	^17.0.0	^16.0.2
-devDependencies	@babel/core	^8.0.1	^7.22.9
-devDependencies	node-polyfill-webpack-plugin	^4.1.0	4.0.0
-devDependencies	postcss-html	^2.0.0	^1.0.0
-devDependencies	stylelint-config-html	^2.0.0	^1.1.0
-devDependencies	stylelint-config-recommended-vue	^2.0.0	^1.6.1
