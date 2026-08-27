@@ -1,4 +1,4 @@
-# Tasks — Decidesk Fractievoorzitter en Fractie Koppeling
+# Tasks — Decidiq Fractievoorzitter en Fractie Koppeling
 
 > Scope reminder: this change implements 6 new OpenRegister schemas (PolitiekePartij, Kandidatenlijst, Fractie, FractieLidmaatschap, SchriftelijkeVraag, FractieOndersteuning) with computed fields and migrations to integrate faction tracking into DecideDesk. See `proposal.md`, `design.md`, and `specs.md` for context.
 >

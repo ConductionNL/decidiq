@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Multilingual Reconciliation Service
+ * Decidiq Multilingual Reconciliation Service
  *
  * Queues minutes for translation, persists queue entries
  * via OpenRegister, and processes them through a pluggable
@@ -9,7 +9,7 @@
  * driven by the TranslationQueueJob on a recurring schedule.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,7 +26,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -138,7 +138,7 @@ class MultilingualReconciliationService {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: MultilingualReconciliationService unable to resolve ObjectService',
+				'Decidiq: MultilingualReconciliationService unable to resolve ObjectService',
 				['exception' => $e->getMessage()]
 			);
 			return [
@@ -165,7 +165,7 @@ class MultilingualReconciliationService {
 			try {
 				$saved = $objectService->saveObject(
 					object: $entry,
-					register: 'decidesk',
+					register: 'decidiq',
 					schema: self::SCHEMA
 				);
 				if (is_object($saved) === true && method_exists($saved, 'jsonSerialize') === true) {
@@ -173,7 +173,7 @@ class MultilingualReconciliationService {
 				}
 			} catch (\Throwable $e) {
 				$this->logger->warning(
-					'Decidesk: MultilingualReconciliationService failed to persist queue entry',
+					'Decidiq: MultilingualReconciliationService failed to persist queue entry',
 					['exception' => $e->getMessage(), 'targetLocale' => $targetLocale]
 				);
 			}
@@ -238,7 +238,7 @@ class MultilingualReconciliationService {
 			$rows = $this->normalize(
 				rows: $objectService->findAll(
 					[
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => self::SCHEMA,
 						'limit' => $limit,
 					]
@@ -246,7 +246,7 @@ class MultilingualReconciliationService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: MultilingualReconciliationService::status failed',
+				'Decidiq: MultilingualReconciliationService::status failed',
 				['exception' => $e->getMessage()]
 			);
 			return [
@@ -296,7 +296,7 @@ class MultilingualReconciliationService {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: MultilingualReconciliationService::processQueue unable to resolve ObjectService',
+				'Decidiq: MultilingualReconciliationService::processQueue unable to resolve ObjectService',
 				['exception' => $e->getMessage()]
 			);
 			return [
@@ -312,7 +312,7 @@ class MultilingualReconciliationService {
 			$queued = $this->normalize(
 				rows: $objectService->findAll(
 					[
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => self::SCHEMA,
 						'filters' => ['status' => 'queued'],
 						'limit' => $maxEntries,
@@ -321,7 +321,7 @@ class MultilingualReconciliationService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: MultilingualReconciliationService::processQueue failed to load queue',
+				'Decidiq: MultilingualReconciliationService::processQueue failed to load queue',
 				['exception' => $e->getMessage()]
 			);
 			return [
@@ -508,7 +508,7 @@ class MultilingualReconciliationService {
 			}
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: ITranslationAdapter not bound; using LogTranslationAdapter',
+				'Decidiq: ITranslationAdapter not bound; using LogTranslationAdapter',
 				['exception' => $e->getMessage()]
 			);
 		}
@@ -528,7 +528,7 @@ class MultilingualReconciliationService {
 		try {
 			$entity = $objectService->find(
 				id: $minutesId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'minutes'
 			);
 			if ($entity === null) {
@@ -542,7 +542,7 @@ class MultilingualReconciliationService {
 			return (array)$entity->jsonSerialize();
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: MultilingualReconciliationService failed to load minutes',
+				'Decidiq: MultilingualReconciliationService failed to load minutes',
 				['exception' => $e->getMessage(), 'minutesId' => $minutesId]
 			);
 			return null;
@@ -582,7 +582,7 @@ class MultilingualReconciliationService {
 		try {
 			$saved = $objectService->saveObject(
 				object: $candidate,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'minutes'
 			);
 
@@ -592,7 +592,7 @@ class MultilingualReconciliationService {
 			}
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: MultilingualReconciliationService failed to persist translated minutes',
+				'Decidiq: MultilingualReconciliationService failed to persist translated minutes',
 				['exception' => $e->getMessage()]
 			);
 		}
@@ -617,13 +617,13 @@ class MultilingualReconciliationService {
 		try {
 			$objectService->saveObject(
 				object: $payload,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: self::SCHEMA,
 				uuid: $entryId
 			);
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: MultilingualReconciliationService failed to update queue entry',
+				'Decidiq: MultilingualReconciliationService failed to update queue entry',
 				['exception' => $e->getMessage(), 'entryId' => $entryId]
 			);
 		}

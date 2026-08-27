@@ -10,7 +10,7 @@ Create a motion, link it to a decision-type agenda item, and — where the body 
 
 ## Goal
 
-By the end you will have a motion in Decidesk attached to an agenda item, with its proposer set and (if needed) the required co-signatures gathered, ready for debate and a vote.
+By the end you will have a motion in Decidiq attached to an agenda item, with its proposer set and (if needed) the required co-signatures gathered, ready for debate and a vote.
 
 ## Prerequisites
 
@@ -32,7 +32,7 @@ By the end you will have a motion in Decidesk attached to an agenda item, with i
 
    ![Motion detail page](/screenshots/tutorials/user/03-add-motion-03.png)
 
-4. If the body requires co-signatures, request them — Decidesk sends a co-sign request to each named member, and the motion stays *pending* until enough confirmations come in. The **Audit trail** records each confirmation.
+4. If the body requires co-signatures, request them — Decidiq sends a co-sign request to each named member, and the motion stays *pending* until enough confirmations come in. The **Audit trail** records each confirmation.
 
    ![Co-signature requests on a motion](/screenshots/tutorials/user/03-add-motion-04.png)
 

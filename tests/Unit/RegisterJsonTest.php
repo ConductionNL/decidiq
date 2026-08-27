@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Unit tests for the Decidesk register JSON (decidesk_register.json).
+ * Unit tests for the Decidiq register JSON (decidesk_register.json).
  *
  * Validates that all schemas are defined with correct properties, types,
  * required fields, enum values, relations, and seed data.
@@ -19,7 +19,7 @@
  * model.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit
+ * @package  OCA\Decidiq\Tests\Unit
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2024 Conduction B.V.
@@ -34,8 +34,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit;
+namespace OCA\Decidiq\Tests\Unit;
 
+use OCA\Decidiq\AppInfo\Application;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -84,7 +85,30 @@ class RegisterJsonTest extends TestCase {
 	public function testRegisterIsValidOpenApi(): void {
 		self::assertSame(expected: '3.0.0', actual: $this->register['openapi']);
 		self::assertArrayHasKey(key: 'x-openregister', array: $this->register);
-		self::assertSame(expected: 'decidesk', actual: $this->register['x-openregister']['app']);
+		// PINNED TO THE REGISTER SLUG, and NOT to Application::APP_ID — which
+		// now happen to read the same, and must not be conflated.
+		//
+		// Measured, not assumed: with this field alone set to the new app id,
+		// the seeded Goal objects stopped appearing on the Goals index —
+		// 'Goals: index lists all five seeded goals' failed twice in a row,
+		// then passed as soon as the field went back to 'decidesk', with
+		// nothing else changed.
+		//
+		// The mechanism is now known rather than inferred: for a
+		// `type: application` configuration,
+		// ImportHandler::autoCreateRegisterIfApplication() reads
+		// `$slug = $xOpenregister['app'] ?? $appId` — this field IS the register
+		// slug. So it is load-bearing at IMPORT time, not the descriptive
+		// metadata it looks like, and moving it ALONE points the import at a
+		// register that does not exist yet.
+		//
+		// It moves here because the slug moves with it, and because
+		// MigrateRegisterSlug renames the existing register row first, so the
+		// import updates that row rather than forking a second, empty one.
+		// Asserting the literal rather than Application::APP_ID is deliberate:
+		// pinning it to the constant would re-break this the next time an app
+		// id moves without its register.
+		self::assertSame(expected: 'decidiq', actual: $this->register['x-openregister']['app']);
 		self::assertSame(expected: 'application', actual: $this->register['x-openregister']['type']);
 
 	}//end testRegisterIsValidOpenApi()

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Minutes Access Guard
+ * Decidiq Minutes Access Guard
  *
  * The two per-object authorisation questions every Minutes endpoint asks:
  * "may this caller act as chair/secretary on the linked meeting?" and "is this
@@ -15,7 +15,7 @@
  * Fails CLOSED: an unresolvable meeting is 403 for every non-admin.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -31,7 +31,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Http;
@@ -95,7 +95,7 @@ class MinutesAccessGuard {
 
 		// A missing Minutes object is the caller's 404 to raise, not this
 		// guard's 403 — return null so the action can produce it.
-		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
+		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidiq', schema: 'minutes');
 		if ($minutesEntity === null) {
 			return null;
 		}
@@ -181,7 +181,7 @@ class MinutesAccessGuard {
 	 * @spec openspec/specs/resolution-minutes/spec.md
 	 */
 	public function resolveMeetingId(string $minutesId): ?string {
-		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
+		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidiq', schema: 'minutes');
 		if ($minutesEntity === null) {
 			return null;
 		}

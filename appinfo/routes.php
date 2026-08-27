@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk route table.
+ * Decidiq route table.
  *
  * Adopts the OpenRegister AppHost canonical route table
  * ({@see \OCA\OpenRegister\AppHost\Routes::standard()}) for the mechanical
  * fleet-standard routes (dashboard page + SPA catch-all, settings API,
  * per-user preferences, the observability /api/health + /api/metrics
- * endpoints), and appends decidesk's domain routes via `$extra`.
+ * endpoints), and appends decidiq's domain routes via `$extra`.
  *
  * `$extra` routes are inserted before the SPA catch-all so they keep priority
  * over the `/{path}` fallback; an `$extra` route whose name matches a canonical
@@ -15,12 +15,12 @@
  * the canonical `settings#*` controller without re-declaring it).
  *
  * ⚠️ The AppHost builder is invoked through a `class_exists()` guard. This file
- * is `include`d by Nextcloud's router for EVERY decidesk request, so an
+ * is `include`d by Nextcloud's router for EVERY decidiq request, so an
  * unguarded static call to a class in another app makes every route in the app
  * fatal with HTTP 500 when openregister is absent — not just the AppHost ones.
  * The `$fallback` branch below is a byte-equivalent local copy of
- * `Routes::standard()`'s output so decidesk still routes (and degrades
- * per-endpoint) without openregister. See decidesk#377.
+ * `Routes::standard()`'s output so decidiq still routes (and degrades
+ * per-endpoint) without openregister. See decidiq#377.
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
@@ -42,6 +42,14 @@ $extra = [
         ['name' => 'publication#publish',  'url' => '/api/publications',                     'verb' => 'POST'],
         ['name' => 'publication#withdraw', 'url' => '/api/publications/{recordId}/withdraw', 'verb' => 'POST'],
         ['name' => 'publication#rectify',  'url' => '/api/publications/{recordId}/rectify',  'verb' => 'POST'],
+
+        // Approval routes (approval-routes) — instantiate a sign-off route against
+        // a subject, and record an action on it. Two DISTINCT route names: a
+        // duplicate name is the route identifier colliding, which throws while
+        // the table is built and takes every route in the app down with it.
+        // @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+        ['name' => 'approvalRoute#instantiate', 'url' => '/api/approval-routes/instantiate', 'verb' => 'POST'],
+        ['name' => 'approvalRoute#record',      'url' => '/api/approval-routes/actions',     'verb' => 'POST'],
 
         // Process template management (admin-only — AuthorizedAdminSetting on every method).
         // @spec openspec/specs/process-configuration/spec.md
@@ -216,13 +224,13 @@ $extra = [
         // Public REST API — versioned v1 (REQ-API-001..004).
         // @spec openspec/changes/p4-integration/tasks.md#task-1
         // Legacy health endpoint — public, no auth. Re-pointed at the AppHost
-        // engine via the decidesk HealthController subclass; kept on the
+        // engine via the decidiq HealthController subclass; kept on the
         // historical /api/v1/health URL for reverse-proxy probes (deprecation
         // window — see openspec/changes/adopt-apphost/tasks.md#task-2.3). The
         // canonical /api/health (health#index) comes from Routes::standard().
         // @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
         // Canonical /api/health re-declared here (identical to the entry
-        // Routes::standard() would inject) so the decidesk HealthController
+        // Routes::standard() would inject) so the decidiq HealthController
         // subclass route target is statically visible (gate-14); the $extra
         // override is behaviour-neutral. @spec openspec/changes/adopt-apphost/tasks.md#task-2.2
         ['name' => 'health#index',           'url' => '/api/health',     'verb' => 'GET'],
@@ -261,6 +269,28 @@ $extra = [
         ['name' => 'integration#createDecision', 'url' => '/api/v1/decisions',                   'verb' => 'POST'],
         ['name' => 'integration#getOutcome',     'url' => '/api/v1/decisions/{id}/outcome',       'verb' => 'GET'],
         ['name' => 'integration#subscribe',      'url' => '/api/v1/decisions/{id}/subscriptions', 'verb' => 'POST'],
+
+        // Writes on the public REST surface. DECLARED AFTER the integration
+        // routes above, and that ordering is load-bearing: Nextcloud matches in
+        // declaration order, so a `{resource}` wildcard placed earlier would
+        // capture `POST /api/v1/decisions` and answer "Unknown resource" where
+        // integration#createDecision used to create one. The literal routes
+        // must win.
+        //
+        // Only `governance-bodies` is accepted, enforced by
+        // ApiController::RESOURCE_WRITABLE rather than by the route pattern — a
+        // pattern naming the one resource would silently stop matching the day
+        // another is added, and read as "no route" instead of "not writable".
+        // Authorization is OpenRegister's RBAC; see the method.
+        //
+        // TWO NAMES, not one shared `api#write`. A route `name` becomes the route
+        // IDENTIFIER (`decidiq.api.write`), so declaring it twice collides — and
+        // it does not fail locally at the duplicate. It throws out of
+        // Routes::standard() while the table is built, which takes down EVERY
+        // route in the app: measured, the whole /api/v1 surface answered 500,
+        // including endpoints this change never touched.
+        ['name' => 'api#create',             'url' => '/api/v1/{resource}',      'verb' => 'POST', 'requirements' => ['resource' => '[a-z\-]+']],
+        ['name' => 'api#update',             'url' => '/api/v1/{resource}/{id}', 'verb' => 'PUT',  'requirements' => ['resource' => '[a-z\-]+']],
 
         // Citizen-participation ACTION endpoints (lifecycle, intake, moderation, voting,
         // publication). Plain CRUD stays on the OpenRegister object API per ADR-022.

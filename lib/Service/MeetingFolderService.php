@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Meeting Folder Service
+ * Decidiq Meeting Folder Service
  *
  * Creates the structured Files folder tree for a meeting:
  * "Decidesk/<body>/<date> <title>/" with "Agenda Documents" and
  * "Minutes" subfolders (nextcloud-integration spec, Files requirement).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use Psr\Container\ContainerInterface;
@@ -119,12 +119,12 @@ class MeetingFolderService {
 				$fileService->createFolder($path . '/' . $subfolder);
 			}
 
-			$this->logger->info('Decidesk: meeting folder tree ensured', ['path' => $path, 'meetingId' => $uuid]);
+			$this->logger->info('Decidiq: meeting folder tree ensured', ['path' => $path, 'meetingId' => $uuid]);
 			return $path;
 		} catch (\Throwable $e) {
 			// Fail soft: a meeting must never fail to save because Files is unavailable.
 			$this->logger->warning(
-				'Decidesk: meeting folder creation failed',
+				'Decidiq: meeting folder creation failed',
 				['meetingId' => $uuid, 'error' => $e->getMessage()]
 			);
 			return null;
@@ -172,13 +172,13 @@ class MeetingFolderService {
 			}
 
 			$filePath = $folderPath . '/' . $safeName;
-			$this->logger->info('Decidesk: meeting file written', ['path' => $filePath]);
+			$this->logger->info('Decidiq: meeting file written', ['path' => $filePath]);
 			return $filePath;
 		} catch (\Throwable $e) {
 			// Fail soft, same posture as ensureMeetingFolders: document generation
 			// surfaces the failure to the caller (null), nothing fatals.
 			$this->logger->warning(
-				'Decidesk: meeting file write failed',
+				'Decidiq: meeting file write failed',
 				['subfolder' => $subfolder, 'fileName' => $fileName, 'error' => $e->getMessage()]
 			);
 			return null;
@@ -207,7 +207,7 @@ class MeetingFolderService {
 
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(id: $bodyId, register: 'decidesk', schema: 'governance-body');
+			$entity = $objectService->find(id: $bodyId, register: 'decidiq', schema: 'governance-body');
 		} catch (\Throwable) {
 			return '';
 		}

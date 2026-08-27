@@ -20,7 +20,7 @@ fall back to English with a green pipeline."* It is never invoked:
 Running `node tests/l10n/check-l10n-parity.js` directly against the current tree confirms the gap
 this dead gate would have caught: `nl.json` (the flagship locale for a Dutch governance app
 positioned on the NL Design System, per `openspec/specs/nl-design-theming/`) is missing 29 of
-1,318 backend translation keys (e.g. `"Withdraw"`, `"Advice"`, `"None"`, `"Open in decidesk"` —
+1,318 backend translation keys (e.g. `"Withdraw"`, `"Advice"`, `"None"`, `"Open in decidiq"` —
 common, frequently-rendered UI strings), and every other required locale is missing 275+ keys.
 Every one of these silently falls back to the English source in production with a fully green
 CI pipeline — exactly the failure mode `check-l10n-parity.js` was written to prevent.

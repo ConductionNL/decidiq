@@ -1,18 +1,18 @@
 <?php
 
 /**
- * Decidesk Participant Notifier
+ * Decidiq Participant Notifier
  *
- * Sends a Nextcloud notification to a set of Decidesk participants, resolving
+ * Sends a Nextcloud notification to a set of Decidiq participants, resolving
  * each participant's Nextcloud UID first.
  *
- * A participant record is a Decidesk object, not a Nextcloud account: its UUID
+ * A participant record is a Decidiq object, not a Nextcloud account: its UUID
  * is NOT a valid userId. Every notification path therefore has to resolve a UID
  * before it can notify anybody, and every path that did so carried its own
  * copy of the resolution ladder. This is that ladder, once.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -28,7 +28,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Exception;
 use Psr\Container\ContainerInterface;
@@ -82,7 +82,7 @@ class ParticipantNotifier {
 			if ($ncUid === null) {
 				$displayName = ($participant['displayName'] ?? '?');
 				$this->logger->warning(
-					'Decidesk: cannot resolve Nextcloud UID for participant',
+					'Decidiq: cannot resolve Nextcloud UID for participant',
 					['participant' => $displayName]
 				);
 				continue;

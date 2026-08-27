@@ -4,13 +4,13 @@
  * Forwards the value migration's three operations to the real connection.
  *
  * Deliberately thin, and deliberately the ONLY part of this migration that a
- * decidesk unit test cannot reach: the app's unit environment has no
+ * decidiq unit test cannot reach: the app's unit environment has no
  * doctrine/dbal, so IDBConnection cannot be doubled here at all. Everything
  * that makes a decision lives behind ValueMigrationGateway instead, where it is
  * tested.
  *
  * @category  Repair
- * @package   OCA\Decidesk\Repair
+ * @package   OCA\Decidiq\Repair
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -22,7 +22,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Repair;
+namespace OCA\Decidiq\Repair;
 
 use OCP\DB\Exception;
 use OCP\IDBConnection;
@@ -36,14 +36,14 @@ class DbValueMigrationGateway implements ValueMigrationGateway {
 	/**
 	 * Constructor.
 	 *
-	 * @param IDBConnection                     $db        Database connection.
-	 * @param LoggerInterface                   $logger    Logger.
-	 * @param RenameDutchDecideskValueDecisions $decisions Pure predicates.
+	 * @param IDBConnection $db Database connection.
+	 * @param LoggerInterface $logger Logger.
+	 * @param RenameDutchDecidiqValueDecisions $decisions Pure predicates.
 	 */
 	public function __construct(
 		private readonly IDBConnection $db,
 		private readonly LoggerInterface $logger,
-		private readonly RenameDutchDecideskValueDecisions $decisions = new RenameDutchDecideskValueDecisions(),
+		private readonly RenameDutchDecidiqValueDecisions $decisions = new RenameDutchDecidiqValueDecisions(),
 	) {
 	}//end __construct()
 
@@ -100,10 +100,10 @@ class DbValueMigrationGateway implements ValueMigrationGateway {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @param string $table  Table name.
+	 * @param string $table Table name.
 	 * @param string $column Column name.
-	 * @param string $old    Stored Dutch value.
-	 * @param string $new    English replacement.
+	 * @param string $old Stored Dutch value.
+	 * @param string $new English replacement.
 	 *
 	 * @return int
 	 *

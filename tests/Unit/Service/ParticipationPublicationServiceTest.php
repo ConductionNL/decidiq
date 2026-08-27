@@ -4,7 +4,7 @@
  * Unit tests for ParticipationPublicationService.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -17,13 +17,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\BudgetVotingService;
-use OCA\Decidesk\Service\ObjectRelationFilter;
-use OCA\Decidesk\Service\ParticipationPublicationService;
-use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\Decidiq\Service\BudgetVotingService;
+use OCA\Decidiq\Service\ObjectRelationFilter;
+use OCA\Decidiq\Service\ParticipationPublicationService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -71,7 +71,7 @@ class ParticipationPublicationServiceTest extends TestCase {
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();
-		// Since ADR-083 the container resolves ONE collaborator here: decidesk's
+		// Since ADR-083 the container resolves ONE collaborator here: decidiq's
 		// own ObjectRelationFilter. OpenRegister is injected instead (see
 		// makeService()), so a double parked on the container would never be
 		// consulted. ObjectRelationFilter is a dependency-free pure filter, so
@@ -135,12 +135,12 @@ class ParticipationPublicationServiceTest extends TestCase {
 		// writes; the digest re-checks it, so a fixture without one is not a
 		// reaction the service would ever see.
 		$reactions = [
-			$this->entity(['body' => 'Idea one', 'submittedAt' => '2026-06-15T10:00:00+00:00', 'submitterId' => 'alice', 'moderationStatus' => 'approved', 'relations' => [['register' => 'decidesk', 'schema' => 'public-consultation', 'id' => 'c1']]]),
-			$this->entity(['body' => 'Idea two', 'submittedAt' => '2026-06-15T11:00:00+00:00', 'submitterId' => 'anon-deadbeef', 'moderationStatus' => 'approved', 'relations' => [['register' => 'decidesk', 'schema' => 'public-consultation', 'id' => 'c1']]]),
+			$this->entity(['body' => 'Idea one', 'submittedAt' => '2026-06-15T10:00:00+00:00', 'submitterId' => 'alice', 'moderationStatus' => 'approved', 'relations' => [['register' => 'decidiq', 'schema' => 'public-consultation', 'id' => 'c1']]]),
+			$this->entity(['body' => 'Idea two', 'submittedAt' => '2026-06-15T11:00:00+00:00', 'submitterId' => 'anon-deadbeef', 'moderationStatus' => 'approved', 'relations' => [['register' => 'decidiq', 'schema' => 'public-consultation', 'id' => 'c1']]]),
 			// Disclosure boundary: the OpenRegister filter pins the related id
 			// but not the related SCHEMA, so a row reached via some other
 			// relation must not be published under this consultation.
-			$this->entity(['body' => 'Other consultation', 'submittedAt' => '2026-06-15T12:00:00+00:00', 'submitterId' => 'bob', 'moderationStatus' => 'approved', 'relations' => [['register' => 'decidesk', 'schema' => 'public-consultation', 'id' => 'c2']]]),
+			$this->entity(['body' => 'Other consultation', 'submittedAt' => '2026-06-15T12:00:00+00:00', 'submitterId' => 'bob', 'moderationStatus' => 'approved', 'relations' => [['register' => 'decidiq', 'schema' => 'public-consultation', 'id' => 'c2']]]),
 		];
 		$this->objectService->method('findAll')->willReturn($reactions);
 

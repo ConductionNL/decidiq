@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — decision-management spec
@@ -25,7 +25,7 @@ import { BASE_URL as BASE } from '../base-url'
 // @e2e openspec/specs/decision-management/spec.md#create-a-standalone-decision-outside-a-meeting
 // @e2e openspec/specs/decision-management/spec.md#create-a-decision-from-a-meeting-agenda-item
 test('decisions list renders with Add Decision button', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/decisions`)
+	await page.goto(`${BASE}/apps/decidiq/decisions`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	// Decisions list is rendered
@@ -38,7 +38,7 @@ test('decisions list renders with Add Decision button', async ({ page }) => {
 // @e2e openspec/specs/decision-management/spec.md#create-a-standalone-decision-outside-a-meeting
 // @e2e openspec/specs/decision-management/spec.md#fail-to-create-a-decision-without-a-title
 test('Add Decision dialog opens', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/decisions`)
+	await page.goto(`${BASE}/apps/decidiq/decisions`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	await page.getByTestId('cn-cta-primary').click()
@@ -99,7 +99,7 @@ test('Add Decision dialog opens', async ({ page }) => {
 // @e2e openspec/specs/decision-management/spec.md#filter-decisions-by-status
 // @e2e openspec/specs/decision-management/spec.md#search-decisions-by-title
 test('decisions list shows existing decisions', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/decisions`)
+	await page.goto(`${BASE}/apps/decidiq/decisions`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	// Seed data has at least 1 decision
@@ -115,8 +115,8 @@ test('decisions list shows existing decisions', async ({ page }) => {
 // (DecisionTransitionGuard); the UI only offers server-allowed actions, so the
 // rejection contract lives in Newman + PHPUnit while this drives the happy UI.
 test('decisions list page title is correct', async ({ page }) => {
-	await page.goto(`${BASE}/apps/decidesk/decisions`)
-	await expect(page).toHaveTitle(/Decidesk/i)
+	await page.goto(`${BASE}/apps/decidiq/decisions`)
+	await expect(page).toHaveTitle(/Decidiq/i)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 })
 
@@ -126,7 +126,7 @@ test('lifecycle tab renders the 7-state timeline with current state and actions'
 	page,
 }) => {
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/decision?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/decision?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(resp.ok(), 'Decision API should be reachable').toBe(true)
@@ -137,7 +137,7 @@ test('lifecycle tab renders the 7-state timeline with current state and actions'
 	const decisionId = first.id ?? first['@self']?.id
 	test.skip(!decisionId, 'First decision has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/decisions/${decisionId}`)
+	await page.goto(`${BASE}/apps/decidiq/decisions/${decisionId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	// The lifecycle state machine is a BODY WIDGET on the decision dossier, not
@@ -169,7 +169,7 @@ test('lifecycle tab renders the 7-state timeline with current state and actions'
 	}
 
 	// Exactly one current-state marker is highlighted.
-	await expect(page.locator('.decidesk-lifecycle__step--current')).toHaveCount(1)
+	await expect(page.locator('.decidiq-lifecycle__step--current')).toHaveCount(1)
 
 	// Allowed next transitions are presented as actions (or the empty notice).
 	const buttons = page.locator('[data-testid^="lifecycle-action-"]')
@@ -183,7 +183,7 @@ test('lifecycle tab renders the 7-state timeline with current state and actions'
 // @e2e openspec/specs/decision-management/spec.md#view-decision-detail-with-voting-results
 test('voting results tab renders on decision detail', async ({ page }) => {
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/decision?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/decision?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(resp.ok(), 'Decision API should be reachable').toBe(true)
@@ -194,7 +194,7 @@ test('voting results tab renders on decision detail', async ({ page }) => {
 	const decisionId = first.id ?? first['@self']?.id
 	test.skip(!decisionId, 'First decision has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/decisions/${decisionId}`)
+	await page.goto(`${BASE}/apps/decidiq/decisions/${decisionId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	// Voting results is a BODY WIDGET (ADR-062), not a sidebar tab — see the
@@ -226,7 +226,7 @@ test('voting results tab renders on decision detail', async ({ page }) => {
 // Audit trail is rendered in the sidebar tab; verify by navigating to a decision detail
 test('decision detail view renders for an existing decision', async ({ page }) => {
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/decision?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/decision?_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(resp.ok(), 'Decision API should be reachable').toBe(true)
@@ -237,7 +237,7 @@ test('decision detail view renders for an existing decision', async ({ page }) =
 	const decisionId = first.id ?? first['@self']?.id
 	test.skip(!decisionId, 'First decision has no id')
 
-	await page.goto(`${BASE}/apps/decidesk/decisions/${decisionId}`)
+	await page.goto(`${BASE}/apps/decidiq/decisions/${decisionId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	// App root mounts — decision detail rendered in the SPA
 	await expect(page.locator('[data-testid="app-root"]')).toBeVisible()

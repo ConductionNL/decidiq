@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 Conduction / Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Conduction / Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Unit tests for ensureRelationType (src/components/tabs/useRelationStore.js):
@@ -40,32 +40,32 @@ beforeEach(() => {
 
 describe('ensureRelationType', () => {
 	it('resolves the schema slug from the matching settings key', () => {
-		settingsData = { meetingSchema: 'meeting-123', register: 'decidesk' }
+		settingsData = { meetingSchema: 'meeting-123', register: 'decidiq' }
 		ensureRelationType('meeting')
 		expect(registerObjectType).toHaveBeenCalledWith(
 			'meeting',
 			'meeting-123',
-			'decidesk',
+			'decidiq',
 		)
 	})
 
 	it('falls back to the literal type slug when the settings key is unset', () => {
-		settingsData = { register: 'decidesk' }
+		settingsData = { register: 'decidiq' }
 		ensureRelationType('amendment')
 		expect(registerObjectType).toHaveBeenCalledWith(
 			'amendment',
 			'amendment',
-			'decidesk',
+			'decidiq',
 		)
 	})
 
-	it('falls back to the "decidesk" register when settings has none', () => {
+	it('falls back to the "decidiq" register when settings has none', () => {
 		settingsData = {}
 		ensureRelationType('motion')
 		expect(registerObjectType).toHaveBeenCalledWith(
 			'motion',
 			'motion',
-			'decidesk',
+			'decidiq',
 		)
 	})
 

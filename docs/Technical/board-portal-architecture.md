@@ -7,18 +7,18 @@
 > and the dedicated board CRUD controllers/services no longer exist in the codebase.
 >
 > Corporate governance is now served by **mode-adaptation** (`organisatie_modus=corp`) of the
-> universal Decidesk entities. See `docs/ARCHITECTURE.md` section 3.3b for the entity mapping table.
+> universal Decidiq entities. See `docs/ARCHITECTURE.md` section 3.3b for the entity mapping table.
 > This document is retained as the technical reference for the **corporate governance experience**
 > delivered through the universal architecture.
 >
-> Audience: developers / integrators working on the corporate governance mode of Decidesk.
+> Audience: developers / integrators working on the corporate governance mode of Decidiq.
 >
 > Source spec: `openspec/changes/board-meeting-resolutions/` (archived), superseded by
 > ADR-005 (Decision supertype) and ADR-006 (mode adaptation).
 
 ## 1. Layered architecture (post-ADR-006, unified)
 
-Corporate governance uses the same layered architecture as all other Decidesk
+Corporate governance uses the same layered architecture as all other Decidiq
 domains. There are no `Board*`-prefixed layers. The mode-specific behaviour is
 injected at render time via `organisatie_modus=corp`.
 
@@ -90,7 +90,7 @@ mode-specific field values. All schemas are registered in
 The `Board*`-prefixed routes (`/api/boards`, `/api/board-meetings`, etc.) were
 removed in C3 retire-board-portal. Corporate governance entities are now
 accessed via the standard OpenRegister object API
-(`/api/objects/decidesk/{schema}/{id}`).
+(`/api/objects/decidiq/{schema}/{id}`).
 
 The following **corporate-specific** feature controllers are retained, their
 routes updated to reference universal entity IDs:
@@ -204,7 +204,7 @@ EIDASSignatureService::finalize(minutesId, attestationBundle)
 Certificate validation goes through the EU Trusted List (LOTL); when
 LOTL fetch fails, the controller returns `503` with a
 `Trusted List unavailable` body. Per ADR-031, the actual handshake with
-the QTSP is done by `openconnector` so decidesk never holds a private
+the QTSP is done by `openconnector` so decidiq never holds a private
 key.
 
 ## 7. CalDAV bridge {#caldav}
@@ -293,7 +293,7 @@ scenarios are covered by the universal test suites:
 | Unit | `tests/Unit/Service/RegulatorExportServiceTest.php` | regulator export |
 | Unit | `tests/Unit/Service/CalDavSyncServiceTest.php` | CalDAV bridge |
 | Vitest | `tests/vitest/**` | UI behaviour incl. corp mode labels |
-| Newman API | `tests/integration/decidesk.postman_collection.json` | universal + corp scenarios |
+| Newman API | `tests/integration/decidiq.postman_collection.json` | universal + corp scenarios |
 | Playwright e2e | `tests/e2e/**` | UI happy paths incl. resolution flow |
 
 `composer test:unit:strict` + `tests/newman/run-all.sh` cover the contract; CI gates on both.

@@ -4,7 +4,7 @@
  * Unit tests for ConflictOfInterestService.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,15 +20,15 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\AuditLogService;
-use OCA\Decidesk\Service\ConflictOfInterestAuthorizationGuard;
-use OCA\Decidesk\Service\ConflictOfInterestService;
-use OCA\Decidesk\Service\ParticipantResolver;
-use OCA\Decidesk\Service\ParticipantToPersonMembershipResolver;
-use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\Decidiq\Service\AuditLogService;
+use OCA\Decidiq\Service\ConflictOfInterestAuthorizationGuard;
+use OCA\Decidiq\Service\ConflictOfInterestService;
+use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -66,8 +66,8 @@ class ConflictOfInterestServiceTest extends TestCase {
 	 * @param array<int, array<string, string>> $participants Fixture `participant` rows: ['uuid' => .., 'nextcloudUserId' => ..]
 	 * @param array<string, array<int, string>> $chairsByMeeting Map of meetingId => Nextcloud UIDs holding chair/secretary role
 	 * @param array<string, array{person: string, membership: string}|null> $crosswalk Non-identity Participant->Person/Membership map;
-	 *                                                                                  defaults to an identity map (membership =
-	 *                                                                                  participantId . '-membership')
+	 *                                                                                 defaults to an identity map (membership =
+	 *                                                                                 participantId . '-membership')
 	 * @param array<int, array<string, mixed>> $agendaItems Fixture `agenda-item` rows: ['id' => .., 'meeting' => ..]
 	 *
 	 * @return ConflictOfInterestService

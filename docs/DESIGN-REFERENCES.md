@@ -1,4 +1,4 @@
-# Decidesk -- Design References & Dashboard Wireframes
+# Decidiq -- Design References & Dashboard Wireframes
 
 ## 1. Design Inspiration Sources
 
@@ -55,7 +55,7 @@
 | Ideals Board | idealsboard.com | Document-centric resolution view with version history and annotations |
 | Dribbble "meeting minutes UI" | Search Dribbble | Structured minutes with decision highlights and action item extraction |
 
-> **Note (ADR-005):** Resolutions in Decidesk are Decision objects with `decisionType=resolution`. Design patterns for resolution views apply to the universal Decision detail view in mode=corp.
+> **Note (ADR-005):** Resolutions in Decidiq are Decision objects with `decisionType=resolution`. Design patterns for resolution views apply to the universal Decision detail view in mode=corp.
 
 ### Admin Settings / Process Configuration
 | Source | URL / Search | Key Patterns |
@@ -105,7 +105,7 @@ Features not currently in FEATURES.md but commonly present in governance and boa
 
 ```
 +-----------------------------------------------------------------------+
-|  DECIDESK                                            [Search...] [+]  |
+|  DECIDIQ                                             [Search...] [+]  |
 +----------+----------+----------+----------+----------+----------------+
 | Dashboard| Meetings | Decisions|  Agenda  |  My Work |    Admin       |
 +----------+----------+----------+----------+----------+----------------+
@@ -158,7 +158,7 @@ Features not currently in FEATURES.md but commonly present in governance and boa
 
 ```
 +-----------------------------------------------------------------------+
-|  DECIDESK > Meetings                          [+ New Meeting] [Filter] |
+|  DECIDIQ > Meetings                           [+ New Meeting] [Filter] |
 +----------+----------+----------+----------+----------+----------------+
 | Dashboard| Meetings | Decisions|  Agenda  |  My Work |    Admin       |
 +----------+----------+----------+----------+----------+----------------+
@@ -198,7 +198,7 @@ Features not currently in FEATURES.md but commonly present in governance and boa
 
 ```
 +-----------------------------------------------------------------------+
-|  DECIDESK > Meetings > Raadsvergadering 27 maart 2026   [Edit] [...] |
+|  DECIDIQ > Meetings > Raadsvergadering 27 maart 2026    [Edit] [...] |
 +-----------------------------------------------------------------------+
 |                                                                       |
 |  +--------------------------------+ +-------------------------------+ |
@@ -247,7 +247,7 @@ Features not currently in FEATURES.md but commonly present in governance and boa
 
 ```
 +-----------------------------------------------------------------------+
-|  DECIDESK > Decisions                    [Kanban | List]  [Filter]    |
+|  DECIDIQ > Decisions                     [Kanban | List]  [Filter]    |
 +----------+----------+----------+----------+----------+----------------+
 | Dashboard| Meetings | Decisions|  Agenda  |  My Work |    Admin       |
 +----------+----------+----------+----------+----------+----------------+
@@ -313,7 +313,7 @@ Features not currently in FEATURES.md but commonly present in governance and boa
 
 ```
 +-----------------------------------------------------------------------+
-|  DECIDESK > Decisions > Bestemmingsplan Westpark         [Edit] [...] |
+|  DECIDIQ > Decisions > Bestemmingsplan Westpark          [Edit] [...] |
 +-----------------------------------------------------------------------+
 |                                                                       |
 |  +----------------------------------+ +------- SIDEBAR -----------+   |
@@ -393,7 +393,7 @@ Features not currently in FEATURES.md but commonly present in governance and boa
 **Active Vote -- Roll Call:**
 ```
 +-----------------------------------------------------------------------+
-|  DECIDESK > LIVE VOTE                                    [End Vote]   |
+|  DECIDIQ > LIVE VOTE                                     [End Vote]   |
 +-----------------------------------------------------------------------+
 |                                                                       |
 |  +----------------------------------------------------------------+   |
@@ -446,7 +446,7 @@ Features not currently in FEATURES.md but commonly present in governance and boa
 **Active Vote -- Secret Ballot:**
 ```
 +-----------------------------------------------------------------------+
-|  DECIDESK > LIVE VOTE                                    [End Vote]   |
+|  DECIDIQ > LIVE VOTE                                     [End Vote]   |
 +-----------------------------------------------------------------------+
 |                                                                       |
 |  +----------------------------------------------------------------+   |
@@ -481,7 +481,7 @@ Features not currently in FEATURES.md but commonly present in governance and boa
 **Active Vote -- Weighted Voting:**
 ```
 +-----------------------------------------------------------------------+
-|  DECIDESK > LIVE VOTE                                    [End Vote]   |
+|  DECIDIQ > LIVE VOTE                                     [End Vote]   |
 +-----------------------------------------------------------------------+
 |                                                                       |
 |  +----------------------------------------------------------------+   |
@@ -521,7 +521,7 @@ Features not currently in FEATURES.md but commonly present in governance and boa
 
 ```
 +-----------------------------------------------------------------------+
-|  DECIDESK > Meetings > Raadsvergadering 27 maart > Agenda    [Save]  |
+|  DECIDIQ > Meetings > Raadsvergadering 27 maart > Agenda     [Save]  |
 +-----------------------------------------------------------------------+
 |                                                                       |
 | Meeting: Raadsvergadering 27 maart 2026                               |
@@ -570,7 +570,7 @@ Features not currently in FEATURES.md but commonly present in governance and boa
 
 ```
 +-----------------------------------------------------------------------+
-|  DECIDESK > My Work                                 [Filter v] [Sort] |
+|  DECIDIQ > My Work                                  [Filter v] [Sort] |
 +----------+----------+----------+----------+----------+----------------+
 | Dashboard| Meetings | Decisions|  Agenda  |  My Work |    Admin       |
 +----------+----------+----------+----------+----------+----------------+
@@ -654,11 +654,11 @@ Features not currently in FEATURES.md but commonly present in governance and boa
 
 ```
 +-----------------------------------------------------------------------+
-|  Administration > Decidesk                                             |
+|  Administration > Decidiq                                              |
 +-----------------------------------------------------------------------+
 |                                                                       |
 |  +----------------------------------------------------------------+   |
-|  | VERSION INFO                                  Decidesk v0.1.0  |   |
+|  | VERSION INFO                                   Decidiq v0.1.0  |   |
 |  |                                                                 |   |
 |  | Nextcloud 30.0.0  |  PHP 8.3  |  Database: PostgreSQL 16       |   |
 |  | License: EUPL-1.2   |  Author: ConductionNL                    |   |
@@ -770,7 +770,7 @@ Features not currently in FEATURES.md but commonly present in governance and boa
 ```
 +-----------------------------------------------------------------------+
 |  +---------------------------------------------------------------+    |
-|  |                     Decidesk Settings                    [X]  |    |
+|  |                     Decidiq Settings                     [X]  |    |
 |  +---------------------------------------------------------------+    |
 |  |                                                               |    |
 |  |  NOTIFICATIONS                                                |    |

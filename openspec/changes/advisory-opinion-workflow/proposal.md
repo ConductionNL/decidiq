@@ -6,7 +6,7 @@ kind: code
 
 ## Summary
 
-Add a formal advisory-opinion workflow (adviesaanvraag → advies → verantwoording) to decidesk: an `Adviesaanvraag` register in which a deciding body formally requests advice from an external advisory body (jongerenraad, adviesraad sociaal domein, cliëntenraad — universal GovernanceBody objects), an `Advies` artifact in which the advisory body's secretary records the response document, summary, and strekking (positief / positief-met-kanttekeningen / negatief / geen-advies), and a mandatory verantwoording: when the deciding body's final decision deviates from the advies strekking, a motivering is required (fail-closed) before the decision can complete, recorded on both the Decision and the Adviesaanvraag. Delivered as a `lib/Settings/register.d/60-advisory-opinion-workflow.json` schema fragment plus manifest pages, with declarative lifecycle (`x-openregister-lifecycle`), declarative deadline rappels (`x-openregister-notifications`, the toezeggingen-register pattern), advisory-body workload views, public publication of advies + verantwoording via the predicate-on-live-object pattern, and dashboard KPIs.
+Add a formal advisory-opinion workflow (adviesaanvraag → advies → verantwoording) to decidiq: an `Adviesaanvraag` register in which a deciding body formally requests advice from an external advisory body (jongerenraad, adviesraad sociaal domein, cliëntenraad — universal GovernanceBody objects), an `Advies` artifact in which the advisory body's secretary records the response document, summary, and strekking (positief / positief-met-kanttekeningen / negatief / geen-advies), and a mandatory verantwoording: when the deciding body's final decision deviates from the advies strekking, a motivering is required (fail-closed) before the decision can complete, recorded on both the Decision and the Adviesaanvraag. Delivered as a `lib/Settings/register.d/60-advisory-opinion-workflow.json` schema fragment plus manifest pages, with declarative lifecycle (`x-openregister-lifecycle`), declarative deadline rappels (`x-openregister-notifications`, the toezeggingen-register pattern), advisory-body workload views, public publication of advies + verantwoording via the predicate-on-live-object pattern, and dashboard KPIs.
 
 ## Motivation
 
@@ -14,7 +14,7 @@ A novelty sweep of the active specs and changes (2026-07-17) finds the advisory-
 
 ## Affected Projects
 
-- [ ] Project: `decidesk` — new `Adviesaanvraag` + `Advies` schemas (register.d fragment 60), `advisory-body` value on the GovernanceBody `bodyType` enum (additive base register edit), a fail-closed verantwoording guard on decision completion, `verantwoording` fields on Decision (additive base register edit), manifest pages + menu (manifest.d fragment), advisory-body workload views, two dashboard KPI widgets, seed data, docs, tests.
+- [ ] Project: `decidiq` — new `Adviesaanvraag` + `Advies` schemas (register.d fragment 60), `advisory-body` value on the GovernanceBody `bodyType` enum (additive base register edit), a fail-closed verantwoording guard on decision completion, `verantwoording` fields on Decision (additive base register edit), manifest pages + menu (manifest.d fragment), advisory-body workload views, two dashboard KPI widgets, seed data, docs, tests.
 
 No other apps change. OpenRegister is consumed as-is (lifecycle, notifications, relations, RBAC published-predicate are existing capabilities).
 
@@ -44,7 +44,7 @@ Pure thin-client extension per ADR-022/ADR-037: two new schemas shipped as `lib/
 
 ## New Dependencies
 
-None. All capabilities used (lifecycle, notifications, relations, RBAC published-predicate, manifest pages/widgets) already exist in OpenRegister, nc-vue, and decidesk.
+None. All capabilities used (lifecycle, notifications, relations, RBAC published-predicate, manifest pages/widgets) already exist in OpenRegister, nc-vue, and decidiq.
 
 ## Impact
 
@@ -57,7 +57,7 @@ None. All capabilities used (lifecycle, notifications, relations, RBAC published
 
 ## Cross-Project Dependencies
 
-- `works-council-consultation` (sibling decidesk change, in flight): boundary sibling only — no shared objects; vocabulary mirrored (request/response/besluit recording) where sensible. Independent landing order.
+- `works-council-consultation` (sibling decidiq change, in flight): boundary sibling only — no shared objects; vocabulary mirrored (request/response/besluit recording) where sensible. Independent landing order.
 - `decision-route` / `decision-methods`: consumed, not modified — in-route advice stages keep `method=advice` semantics; the Adviesaanvraag references the routed Decision/stage.
 - OpenRegister: consumed, not changed.
 

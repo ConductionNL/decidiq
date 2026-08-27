@@ -11,7 +11,7 @@
  * It is NOT scanned by PHPCS.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Stubs\Mcp
+ * @package  OCA\Decidiq\Tests\Stubs\Mcp
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,7 +27,7 @@ if (interface_exists(IMcpToolProvider::class) === false) {
 	 * Stub interface for IMcpToolProvider — used only in standalone unit tests.
 	 *
 	 * Deferred until openregister PR #1466 (ai-chat-companion-orchestrator) ships
-	 * the real interface. Decidesk implements this stub in production; the stub is
+	 * the real interface. Decidiq implements this stub in production; the stub is
 	 * replaced by the real interface when the openregister app is installed.
 	 */
 	interface IMcpToolProvider {

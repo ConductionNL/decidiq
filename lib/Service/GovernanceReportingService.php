@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Governance Reporting Service
+ * Decidiq Governance Reporting Service
  *
  * Phase 5 aggregations: per-quarter (or per-year) governance reports
  * surfacing meeting count, resolution count, vote tallies, attendance,
@@ -9,7 +9,7 @@
  * on the `governance-report` schema so historical reports remain queryable.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,10 +26,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use Psr\Log\LoggerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Governance reporting aggregation service.
@@ -164,7 +164,7 @@ class GovernanceReportingService {
 				'meetings' => $this->normalize(
 					rows: $this->objectService->findAll(
 						[
-							'register' => 'decidesk',
+							'register' => 'decidiq',
 							'schema' => 'meeting',
 							'filters' => ['boardIntegration' => $boardId],
 							'limit' => 5000,
@@ -174,7 +174,7 @@ class GovernanceReportingService {
 				'resolutions' => $this->normalize(
 					rows: $this->objectService->findAll(
 						[
-							'register' => 'decidesk',
+							'register' => 'decidiq',
 							'schema' => 'decision',
 							'limit' => 5000,
 						]
@@ -183,7 +183,7 @@ class GovernanceReportingService {
 				'votes' => $this->normalize(
 					rows: $this->objectService->findAll(
 						[
-							'register' => 'decidesk',
+							'register' => 'decidiq',
 							'schema' => 'vote',
 							'limit' => 50000,
 						]
@@ -192,7 +192,7 @@ class GovernanceReportingService {
 				'members' => $this->normalize(
 					rows: $this->objectService->findAll(
 						[
-							'register' => 'decidesk',
+							'register' => 'decidiq',
 							'schema' => 'membership',
 							'filters' => ['boardIntegration' => $boardId],
 							'limit' => 1000,
@@ -202,7 +202,7 @@ class GovernanceReportingService {
 				'conflicts' => $this->normalize(
 					rows: $this->objectService->findAll(
 						[
-							'register' => 'decidesk',
+							'register' => 'decidiq',
 							'schema' => 'conflict-of-interest',
 							'limit' => 5000,
 						]
@@ -211,7 +211,7 @@ class GovernanceReportingService {
 			];
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: GovernanceReportingService::generateAnnualReport failed',
+				'Decidiq: GovernanceReportingService::generateAnnualReport failed',
 				['exception' => $e->getMessage()]
 			);
 			return null;
@@ -235,7 +235,7 @@ class GovernanceReportingService {
 		try {
 			$saved = $this->objectService->saveObject(
 				object: $report,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: self::SCHEMA
 			);
 			// OpenRegister's saveObject() returns ObjectEntityInterface — is_object() could
@@ -243,7 +243,7 @@ class GovernanceReportingService {
 			return (array)$saved->jsonSerialize();
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: GovernanceReportingService failed to persist report',
+				'Decidiq: GovernanceReportingService failed to persist report',
 				['exception' => $e->getMessage()]
 			);
 		}//end try
@@ -275,7 +275,7 @@ class GovernanceReportingService {
 		try {
 			$entity = $this->objectService->find(
 				id: $reportId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: self::SCHEMA
 			);
 			if ($entity === null) {
@@ -292,7 +292,7 @@ class GovernanceReportingService {
 			$report = $entity->getObject();
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: GovernanceReportingService::exportReport failed',
+				'Decidiq: GovernanceReportingService::exportReport failed',
 				['exception' => $e->getMessage()]
 			);
 			return [
@@ -384,7 +384,7 @@ class GovernanceReportingService {
 		try {
 			$rows = $this->objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => self::SCHEMA,
 					'filters' => ['boardIntegration' => $boardId],
 					'limit' => 500,
@@ -392,7 +392,7 @@ class GovernanceReportingService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: GovernanceReportingService::listReports failed',
+				'Decidiq: GovernanceReportingService::listReports failed',
 				['exception' => $e->getMessage()]
 			);
 			return [

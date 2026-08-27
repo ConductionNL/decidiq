@@ -1,7 +1,7 @@
 # Board portal — admin runbook
 
 > Audience: Nextcloud administrators and corporate secretaries operating
-> the Decidesk board portal.
+> the Decidiq board portal.
 >
 > Scope: install / upgrade, schema bootstrap, role-based access, eIDAS
 > integration, multilingual queue ops, regulator export, observability,
@@ -10,9 +10,9 @@
 ## 1. Install / upgrade
 
 1. Install **decidesk** from the app store or place the directory under
-   `custom_apps/decidesk/` and run `occ app:enable decidesk`.
+   `custom_apps/decidiq/` and run `occ app:enable decidiq`.
 2. **Run upgrade** — `occ upgrade` triggers the
-   `OCA\Decidesk\Repair\InitializeSettings` repair step, which calls
+   `OCA\Decidiq\Repair\InitializeSettings` repair step, which calls
    `ConfigurationService::importFromApp('decidesk')`. That import seeds
    the nine board-portal schemas (`board`, `board-member`,
    `board-meeting`, `resolution`, `board-vote`, `board-minutes`,
@@ -23,14 +23,14 @@
 
 Background jobs registered by `appinfo/info.xml`:
 
-- `OCA\Decidesk\BackgroundJob\TranslationQueueJob` — hourly, processes
+- `OCA\Decidiq\BackgroundJob\TranslationQueueJob` — hourly, processes
   queued multilingual reconciliation entries.
 
 If neither shows up under `oc_jobs`, re-run `occ upgrade`.
 
 ## 2. Granting access
 
-Decidesk uses Nextcloud's standard auth: any signed-in user can hit the
+Decidiq uses Nextcloud's standard auth: any signed-in user can hit the
 controllers, but the OpenRegister object API enforces per-object RBAC.
 A user only sees a `Board` row when they (a) created it, (b) are the
 admin, or (c) are listed as a `BoardMember` of that board (the OR
@@ -75,7 +75,7 @@ Configuration:
 
 1. Install + enable `openconnector`.
 2. Configure an eIDAS-QTSP source (e.g. Connective / Itsme / DigiD HSM).
-3. Decidesk's `EIDASSignatureService` will auto-discover the source on
+3. Decidiq's `EIDASSignatureService` will auto-discover the source on
    startup. To pin a specific source, set the appconfig key
    `decidesk:eidas_source_id` to the openconnector source UUID.
 4. Validate the integration with **Validate certificate** (a POST to
@@ -91,7 +91,7 @@ The QES flow:
    signed PDF + the QTSP attestation.
 
 Verify EU Trusted List freshness with
-`occ decidesk:eidas:tl-status` (currently logged at INFO; expose to a
+`occ decidiq:eidas:tl-status` (currently logged at INFO; expose to a
 controller surface as part of the
 `decidesk-board-portal-v1` umbrella).
 
@@ -168,11 +168,11 @@ falls back to writing the ICS blob to `caldavIcsBlob` on the
 Standard NC logs cover service failures
 (`docker exec nextcloud tail -f data/nextcloud.log`). Key log lines:
 
-- `Decidesk: BoardService::create failed` — the OR `saveObject` raised.
-- `Decidesk: failed to stamp noticeSentDate; transition retained` — the
+- `Decidiq: BoardService::create failed` — the OR `saveObject` raised.
+- `Decidiq: failed to stamp noticeSentDate; transition retained` — the
   lifecycle transition succeeded but the `noticeSentDate` patch did not.
-- `Decidesk: TranslationQueueJob processed N entries` — queue progress.
-- `Decidesk: failed to record vote` — `BoardVoteService::cast` error.
+- `Decidiq: TranslationQueueJob processed N entries` — queue progress.
+- `Decidiq: failed to record vote` — `BoardVoteService::cast` error.
 
 The `regulator-export` records include a `processedAtMs` field for
 latency tracking.

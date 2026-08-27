@@ -14,35 +14,35 @@
  /agenda-items index — out of scope for the sidebar tab.
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--agenda" data-testid="agenda-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Agenda') }}
-				<span v-if="!loading" class="decidesk-tab__count"
+	<div class="decidiq-tab decidiq-tab--agenda" data-testid="agenda-tab">
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Agenda') }}
+				<span v-if="!loading" class="decidiq-tab__count"
 					>({{ rows.length }})</span
 				>
 			</h3>
-			<div class="decidesk-tab__header-actions">
+			<div class="decidiq-tab__header-actions">
 				<NcButton
 					data-testid="agenda-assemble-package"
 					:disabled="assembling"
-					:aria-label="t('decidesk', 'Assemble meeting package')"
+					:aria-label="t('decidiq', 'Assemble meeting package')"
 					@click="assemblePackage">
 					{{
 						assembling
-							? t('decidesk', 'Assembling…')
-							: t('decidesk', 'Assemble meeting package')
+							? t('decidiq', 'Assembling…')
+							: t('decidiq', 'Assemble meeting package')
 					}}
 				</NcButton>
 				<NcButton
 					variant="primary"
 					data-testid="agenda-add-item"
-					:aria-label="t('decidesk', 'Add agenda item')"
+					:aria-label="t('decidiq', 'Add agenda item')"
 					@click="openCreate">
 					<template #icon>
 						<Plus :size="20" />
 					</template>
-					{{ t('decidesk', 'Add agenda item') }}
+					{{ t('decidiq', 'Add agenda item') }}
 				</NcButton>
 			</div>
 		</div>
@@ -50,7 +50,7 @@
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load agenda items')">
+			:title="t('decidiq', 'Could not load agenda items')">
 			{{ error }}
 		</CnNoteCard>
 
@@ -58,18 +58,18 @@
 			v-if="missingStatutory.length > 0"
 			type="warning"
 			data-testid="statutory-items-warning"
-			:title="t('decidesk', 'Missing statutory ALV agenda items')">
+			:title="t('decidiq', 'Missing statutory ALV agenda items')">
 			<p>
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'This general assembly agenda is missing legally required items:',
 					)
 				}}
 			</p>
-			<ul class="decidesk-tab__statutory-list">
+			<ul class="decidiq-tab__statutory-list">
 				<li v-for="required in missingStatutory" :key="required.id">
-					{{ t('decidesk', required.label) }}
+					{{ t('decidiq', required.label) }}
 				</li>
 			</ul>
 		</CnNoteCard>
@@ -77,7 +77,7 @@
 		<CnNoteCard
 			v-if="packageError"
 			type="error"
-			:title="t('decidesk', 'Package assembly failed')">
+			:title="t('decidiq', 'Package assembly failed')">
 			{{ packageError }}
 		</CnNoteCard>
 
@@ -85,14 +85,14 @@
 			v-if="packageResult"
 			type="success"
 			data-testid="agenda-package-result"
-			:title="t('decidesk', 'Meeting package assembled')">
+			:title="t('decidiq', 'Meeting package assembled')">
 			<p>{{ packageResult.message }}</p>
 			<a
 				v-if="packageResult.path"
 				:href="packageFolderUrl"
 				target="_blank"
 				rel="noopener noreferrer">
-				{{ t('decidesk', 'Open package folder') }}
+				{{ t('decidiq', 'Open package folder') }}
 			</a>
 		</CnNoteCard>
 
@@ -101,8 +101,8 @@
 			:rows="rows"
 			:loading="loading"
 			rowKey="id"
-			:emptyText="t('decidesk', 'No agenda items yet for this meeting.')"
-			:loadingText="t('decidesk', 'Loading agenda…')"
+			:emptyText="t('decidiq', 'No agenda items yet for this meeting.')"
+			:loadingText="t('decidiq', 'Loading agenda…')"
 			@rowClick="openEdit">
 			<template #row-actions="{ row }">
 				<CnRowActions :row="row" :actions="rowActions" />
@@ -116,8 +116,8 @@
 			:item="editTarget"
 			:dialogTitle="
 				editTarget
-					? t('decidesk', 'Edit agenda item')
-					: t('decidesk', 'Add agenda item')
+					? t('decidiq', 'Edit agenda item')
+					: t('decidiq', 'Add agenda item')
 			"
 			:excludeFields="excludedFields"
 			@confirm="onConfirm"
@@ -128,7 +128,7 @@
 			ref="deleteDialog"
 			:item="deleteTarget"
 			nameField="title"
-			:dialogTitle="t('decidesk', 'Delete agenda item')"
+			:dialogTitle="t('decidiq', 'Delete agenda item')"
 			@confirm="confirmDelete"
 			@close="deleteTarget = null" />
 	</div>
@@ -192,14 +192,14 @@ export default {
 			return [
 				{
 					key: 'orderNumber',
-					label: this.t('decidesk', '#'),
+					label: this.t('decidiq', '#'),
 					width: '60px',
 				},
-				{ key: 'titleDisplay', label: this.t('decidesk', 'Title') },
-				{ key: 'itemType', label: this.t('decidesk', 'Type') },
+				{ key: 'titleDisplay', label: this.t('decidiq', 'Title') },
+				{ key: 'itemType', label: this.t('decidiq', 'Type') },
 				{
 					key: 'estimatedDuration',
-					label: this.t('decidesk', 'Duration (min)'),
+					label: this.t('decidiq', 'Duration (min)'),
 				},
 			]
 		},
@@ -223,12 +223,12 @@ export default {
 		rowActions() {
 			return [
 				{
-					label: this.t('decidesk', 'Edit'),
+					label: this.t('decidiq', 'Edit'),
 					icon: Pencil,
 					handler: (row) => this.openEdit(row),
 				},
 				{
-					label: this.t('decidesk', 'Delete'),
+					label: this.t('decidiq', 'Delete'),
 					icon: TrashCanOutline,
 					destructive: true,
 					handler: (row) => {
@@ -280,7 +280,7 @@ export default {
 				await this.loadMeeting()
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Failed to load agenda.')
+					e?.message || this.t('decidiq', 'Failed to load agenda.')
 			} finally {
 				this.loading = false
 			}
@@ -300,7 +300,7 @@ export default {
 					this.objectId,
 				)
 			} catch (e) {
-				console.error('[decidesk] MeetingAgendaTab meeting fetch failed', e)
+				console.error('[decidiq] MeetingAgendaTab meeting fetch failed', e)
 			}
 		},
 
@@ -317,7 +317,7 @@ export default {
 			try {
 				const response = await fetch(
 					generateUrl(
-						`/apps/decidesk/api/meetings/${this.objectId}/package`,
+						`/apps/decidiq/api/meetings/${this.objectId}/package`,
 					),
 					{
 						method: 'POST',
@@ -332,13 +332,13 @@ export default {
 				if (!response.ok || payload?.success === false) {
 					this.packageError =
 						payload?.message
-						|| this.t('decidesk', 'Package assembly failed.')
+						|| this.t('decidiq', 'Package assembly failed.')
 					return
 				}
 				this.packageResult = payload
 			} catch (e) {
 				this.packageError =
-					e?.message || this.t('decidesk', 'Package assembly failed.')
+					e?.message || this.t('decidiq', 'Package assembly failed.')
 			} finally {
 				this.assembling = false
 			}
@@ -383,7 +383,7 @@ export default {
 				this.refresh()
 			} catch (e) {
 				this.$refs.formDialog?.setResult({
-					error: e?.message || this.t('decidesk', 'Save failed.'),
+					error: e?.message || this.t('decidiq', 'Save failed.'),
 				})
 			}
 		},
@@ -397,7 +397,7 @@ export default {
 				this.refresh()
 			} catch (e) {
 				this.$refs.deleteDialog?.setResult({
-					error: e?.message || this.t('decidesk', 'Delete failed.'),
+					error: e?.message || this.t('decidiq', 'Delete failed.'),
 				})
 			}
 		},
@@ -406,39 +406,39 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__count {
+.decidiq-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
 
-.decidesk-tab__header-actions {
+.decidiq-tab__header-actions {
 	display: flex;
 	gap: var(--default-grid-baseline);
 	flex-wrap: wrap;
 }
 
-.decidesk-tab__statutory-list {
+.decidiq-tab__statutory-list {
 	margin: 0;
 	padding-inline-start: calc(var(--default-grid-baseline) * 4);
 	list-style: disc;

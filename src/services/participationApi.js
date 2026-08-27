@@ -1,7 +1,7 @@
 /**
  * Citizen-participation ACTION API client.
  *
- * Thin wrappers over the decidesk participation action endpoints. Plain object
+ * Thin wrappers over the decidiq participation action endpoints. Plain object
  * reads/writes use useObjectStore (the OpenRegister object API) per ADR-022 —
  * only the lifecycle/intake/moderation/voting/publication ACTIONS live here.
  *
@@ -14,7 +14,7 @@
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 
-const base = '/apps/decidesk/api/participation'
+const base = '/apps/decidiq/api/participation'
 
 /**
  * Transition a consultation to a new lifecycle status.

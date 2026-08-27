@@ -5,14 +5,14 @@ status: done
 # Specs: Minutes and Decisions — Core T1
 
 **Change:** p2-minutes-and-decisions-core-t1
-**App:** Decidesk
+**App:** Decidiq
 **Entities:** Decision, Minutes, ActionItem, DigitalDocument
 
 ---
 
 ## Purpose
 
-This spec defines case decision documents, permit and publication decisions, statutory deadlines, urgent decisions, decision lists, audit trail completeness, and the extended decision archive for Decidesk.
+This spec defines case decision documents, permit and publication decisions, statutory deadlines, urgent decisions, decision lists, audit trail completeness, and the extended decision archive for Decidiq.
 
 # Requirements
 

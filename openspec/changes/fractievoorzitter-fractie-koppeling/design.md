@@ -1,4 +1,4 @@
-# Design — Decidesk Fractievoorzitter en Fractie Koppeling
+# Design — Decidiq Fractievoorzitter en Fractie Koppeling
 
 ## Context
 
@@ -117,9 +117,9 @@ A raadslid is nominated on a Kandidatenlijst, elected via that list, and assigne
 | Concept | Source | Reuse |
 |---------|--------|-------|
 | Raadslid, Raadsperiode, Gemeente | decidesk-base | Fractie and FractieLidmaatschap reference these; no schema changes. |
-| Stemgedrag (Vote) | decidesk moties-en-amendementen | Add fractieSnapshot field via computed relation; existing votes unchanged. |
-| Motie / Amendement | decidesk moties-en-amendementen | Add optional `proposingFractie` field (in later change). |
-| Commissie, Commissiezetels | decidesk commissies | No schema changes; D'Hondt reallocation triggered by fractie change (in later change). |
+| Stemgedrag (Vote) | decidiq moties-en-amendementen | Add fractieSnapshot field via computed relation; existing votes unchanged. |
+| Motie / Amendement | decidiq moties-en-amendementen | Add optional `proposingFractie` field (in later change). |
+| Commissie, Commissiezetels | decidiq commissies | No schema changes; D'Hondt reallocation triggered by fractie change (in later change). |
 | Person (identity) | OpenRegister common | Raadsleden are Persons; Fractie chair links to Raadslid (which links to Person). |
 
 ### REST API Pattern
@@ -203,7 +203,7 @@ No custom endpoints needed; all operations flow through the generic OpenRegister
 
 **Rollback:** Delete the 6 new schemas; Raadsleden return to being standalone (lose faction tracking, but votes and council operations continue unaffected).
 
-**Compatibility:** All changes are additive. Existing decidesk functionality (Raadslid, Raadsperiode, Motie, Stemgedrag) is unaffected by schema creation. Stemgedrag `fractieSnapshot` is optional (null for pre-migration votes).
+**Compatibility:** All changes are additive. Existing decidiq functionality (Raadslid, Raadsperiode, Motie, Stemgedrag) is unaffected by schema creation. Stemgedrag `fractieSnapshot` is optional (null for pre-migration votes).
 
 ## Data Privacy & Compliance
 

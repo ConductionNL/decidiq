@@ -5,14 +5,14 @@ status: done
 # Specs: Meeting Management — Other T2
 
 **Change:** p2-meeting-management-other-t2
-**App:** Decidesk
+**App:** Decidiq
 **Entities:** Meeting, Participant, ActionItem, Speech, Area
 
 ---
 
 ## Purpose
 
-This spec defines meeting management extensions for Decidesk: virtual-only meetings, participant list limits, space indicators, attendance tracking, speech recognition, area visualization, and the shared task inbox.
+This spec defines meeting management extensions for Decidiq: virtual-only meetings, participant list limits, space indicators, attendance tracking, speech recognition, area visualization, and the shared task inbox.
 
 # Requirements
 

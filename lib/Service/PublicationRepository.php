@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Publication Repository
+ * Decidiq Publication Repository
  *
  * Owns every OpenRegister object read/write of the publication flow:
  * persisting PublicationPayload and PublicationRecord objects, loading a
@@ -11,7 +11,7 @@
  * the flow itself.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,11 +26,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use OCA\Decidesk\Exception\MissingObjectException;
-use Psr\Log\LoggerInterface;
+use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * OpenRegister persistence gateway for the publication flow.
@@ -67,7 +67,7 @@ class PublicationRepository {
 	 * @return string The created payload object UUID.
 	 */
 	public function persistPayload(array $payload): string {
-		$saved = $this->objectService()->saveObject(object: $payload, register: 'decidesk', schema: 'publication-payload');
+		$saved = $this->objectService()->saveObject(object: $payload, register: 'decidiq', schema: 'publication-payload');
 
 		return $this->extractId(saved: $saved);
 	}//end persistPayload()
@@ -84,11 +84,11 @@ class PublicationRepository {
 	 */
 	public function persistRecord(array $record, ?string $uuid = null): string {
 		if ($uuid !== null) {
-			$this->objectService()->saveObject(object: $record, register: 'decidesk', schema: 'publication-record', uuid: $uuid);
+			$this->objectService()->saveObject(object: $record, register: 'decidiq', schema: 'publication-record', uuid: $uuid);
 			return $uuid;
 		}
 
-		$saved = $this->objectService()->saveObject(object: $record, register: 'decidesk', schema: 'publication-record');
+		$saved = $this->objectService()->saveObject(object: $record, register: 'decidiq', schema: 'publication-record');
 
 		return $this->extractId(saved: $saved);
 	}//end persistRecord()
@@ -105,7 +105,7 @@ class PublicationRepository {
 	 * @return array<string,mixed> The record data.
 	 */
 	public function loadRecord(string $recordId): array {
-		$entity = $this->objectService()->find(id: $recordId, register: 'decidesk', schema: 'publication-record');
+		$entity = $this->objectService()->find(id: $recordId, register: 'decidiq', schema: 'publication-record');
 		if ($entity === null) {
 			throw new MissingObjectException(message: 'Publication record not found: ' . $recordId);
 		}
@@ -131,7 +131,7 @@ class PublicationRepository {
 	public function setDepublicationDate(string $payloadId, string $timestamp): void {
 		try {
 			$objectService = $this->objectService();
-			$entity = $objectService->find(id: $payloadId, register: 'decidesk', schema: 'publication-payload');
+			$entity = $objectService->find(id: $payloadId, register: 'decidiq', schema: 'publication-payload');
 			if ($entity === null) {
 				return;
 			}
@@ -141,12 +141,12 @@ class PublicationRepository {
 
 			$objectService->saveObject(
 				object: $data,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'publication-payload',
 				uuid: $payloadId,
 			);
 		} catch (\Throwable $e) {
-			$this->logger->warning('Decidesk publication: failed to set depublicationDate on payload', ['exception' => $e->getMessage()]);
+			$this->logger->warning('Decidiq publication: failed to set depublicationDate on payload', ['exception' => $e->getMessage()]);
 		}//end try
 
 	}//end setDepublicationDate()
@@ -176,7 +176,7 @@ class PublicationRepository {
 		try {
 			$objectService = $this->objectService();
 			if ($source === null) {
-				$entity = $objectService->find(id: $sourceId, register: 'decidesk', schema: 'decision');
+				$entity = $objectService->find(id: $sourceId, register: 'decidiq', schema: 'decision');
 				if ($entity === null) {
 					return;
 				}
@@ -192,9 +192,9 @@ class PublicationRepository {
 			$source['isPublished'] = $isPublished;
 			$source['publishedAt'] = $publishedAt;
 
-			$objectService->saveObject(object: $source, register: 'decidesk', schema: 'decision', uuid: $sourceId);
+			$objectService->saveObject(object: $source, register: 'decidiq', schema: 'decision', uuid: $sourceId);
 		} catch (\Throwable $e) {
-			$this->logger->warning('Decidesk publication: failed to stamp source published state', ['exception' => $e->getMessage()]);
+			$this->logger->warning('Decidiq publication: failed to stamp source published state', ['exception' => $e->getMessage()]);
 		}//end try
 
 	}//end markSourcePublished()

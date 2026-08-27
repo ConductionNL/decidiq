@@ -1,19 +1,19 @@
 <?php
 
 /**
- * Decidesk AppHost Registrar
+ * Decidiq AppHost Registrar
  *
  * AppHost boilerplate adoption (ADR-040 / ADR-022): re-points the mechanical,
  * fleet-standard plumbing at the OpenRegister AppHost generics — keeping
- * decidesk's existing URLs unchanged — while leaving every domain-entangled
+ * decidiq's existing URLs unchanged — while leaving every domain-entangled
  * class bespoke.
  *
- * Extracted from {@see \OCA\Decidesk\AppInfo\Application} so the bootstrap
+ * Extracted from {@see \OCA\Decidiq\AppInfo\Application} so the bootstrap
  * class stops accumulating a class reference for every registration it makes
  * (PHPMD CouplingBetweenObjects); the imports move with the registrations.
  *
  * @category AppInfo
- * @package  OCA\Decidesk\AppInfo\Registrar
+ * @package  OCA\Decidiq\AppInfo\Registrar
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -31,21 +31,22 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\AppInfo\Registrar;
+namespace OCA\Decidiq\AppInfo\Registrar;
 
-use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidiq\AppInfo\Application;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use Psr\Log\LoggerInterface;
 
 /**
- * Registers the AppHost-generic plumbing decidesk adopts.
+ * Registers the AppHost-generic plumbing decidiq adopts.
  *
  * Deliberately NOT adopted (kept bespoke — domain behaviour the generics
  * cannot express, per the "don't force" rule):
  *   - `Controller\SettingsController` + `Service\SettingsService`
- *     (decidesk-register import, publication-config CRUD).
+ *     (`decidesk` register import — the register SLUG is frozen across the
+ *     app-id rename, see appinfo/info.xml — plus publication-config CRUD).
  *   - `Settings\AdminSettings` (domain initial state: publication config,
  *     transcript-retention defaults) and `Sections\SettingsSection`,
  *     `Settings\PersonalSettings`, `Sections\PersonalSection`.
@@ -72,7 +73,7 @@ class AppHostRegistrar {
 	/**
 	 * Register the adopted AppHost boilerplate.
 	 *
-	 * The dashboard / metrics / health route targets are bespoke decidesk
+	 * The dashboard / metrics / health route targets are bespoke decidiq
 	 * controllers (`Controller\DashboardController`,
 	 * `Controller\MetricsController`, `Controller\HealthController`) that adopt
 	 * the AppHost by COMPOSITION, not inheritance — concrete classes so the
@@ -85,8 +86,8 @@ class AppHostRegistrar {
 	 * ⚠️ Do NOT "simplify" those three back into subclasses of the AppHost
 	 * generics. Nextcloud's router `ReflectionClass()`es every file in
 	 * `lib/Controller/` while MATCHING a route, so an unresolvable parent
-	 * returns HTTP 500 for EVERY route in decidesk, and `extends` is resolved
-	 * by the autoloader — lazy DI cannot rescue it. See decidesk#377.
+	 * returns HTTP 500 for EVERY route in decidiq, and `extends` is resolved
+	 * by the autoloader — lazy DI cannot rescue it. See decidiq#377.
 	 *
 	 * Lazy by construction: the binding is a `registerService` closure, so a
 	 * disabled OpenRegister never loads an AppHost class at bootstrap (the

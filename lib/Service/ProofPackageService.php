@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Proof Package Service
+ * Decidiq Proof Package Service
  *
  * Assembles the notarial evidence package for a meeting's decision-making:
  * convocation record, quorum snapshot, votes tally, and the adopted decision
@@ -10,7 +10,7 @@
  * Files folder.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @spec openspec/specs/resolution-minutes/spec.md
  *
@@ -26,14 +26,14 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Notarial proof package assembly (resolution-minutes spec, "Provide proof of
@@ -91,7 +91,7 @@ class ProofPackageService {
 	public function assemble(string $meetingId, string $generatedBy): array {
 		$objectService = $this->getObjectService();
 
-		$meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+		$meetingEntity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		if ($meetingEntity === null) {
 			throw new MissingObjectException(
 				message: sprintf('Meeting "%s" not found.', $meetingId)
@@ -507,7 +507,7 @@ class ProofPackageService {
 		$offset = 0;
 		$result = [];
 
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema($schema);
 
 		do {
@@ -515,7 +515,7 @@ class ProofPackageService {
 				$entities = $objectService->findAll(
 					[
 						'filters' => [
-							'register' => 'decidesk',
+							'register' => 'decidiq',
 							'schema' => $schema,
 							'_relations.meeting' => $meetingId,
 						],
@@ -525,7 +525,7 @@ class ProofPackageService {
 				);
 			} catch (\Throwable $e) {
 				$this->logger->warning(
-					'Decidesk: failed to fetch related objects for proof package',
+					'Decidiq: failed to fetch related objects for proof package',
 					['schema' => $schema, 'meetingId' => $meetingId, 'error' => $e->getMessage()]
 				);
 				break;
@@ -557,6 +557,5 @@ class ProofPackageService {
 		// Injected (ADR-083): a property read throws nothing, so the old
 		// catch was unreachable.
 		return $this->objectService;
-
 	}//end getObjectService()
 }//end class

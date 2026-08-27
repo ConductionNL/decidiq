@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * Unit tests for the pure / stateless algorithms behind decidesk's three
+ * Unit tests for the pure / stateless algorithms behind decidiq's three
  * register-detail catalog widgets (src/components/widgets/registerDetailWidgets.js):
  * version ordering (RegisterVersionTimelineWidget), the ondermandaat
  * ancestor-chain cycle-safety model (DelegationChainWidget), the
@@ -225,10 +225,10 @@ describe('buildConfidentialityStages (REQ-EMB-010)', () => {
 describe('resolveObjectLabel (shared reference-label resolver)', () => {
 	it('returns an empty string when no id is given', async () => {
 		expect(
-			await resolveObjectLabel(null, 'decision', 'decision', 'decidesk', ''),
+			await resolveObjectLabel(null, 'decision', 'decision', 'decidiq', ''),
 		).toBe('')
 		expect(
-			await resolveObjectLabel(null, 'decision', 'decision', 'decidesk', null),
+			await resolveObjectLabel(null, 'decision', 'decision', 'decidiq', null),
 		).toBe('')
 	})
 
@@ -238,7 +238,7 @@ describe('resolveObjectLabel (shared reference-label resolver)', () => {
 				null,
 				'decision',
 				'decision',
-				'decidesk',
+				'decidiq',
 				'abc-123',
 			),
 		).toBe('abc-123')
@@ -258,7 +258,7 @@ describe('resolveObjectLabel (shared reference-label resolver)', () => {
 			store,
 			'decision',
 			'decision',
-			'decidesk',
+			'decidiq',
 			'd-1',
 			'title',
 		)
@@ -281,13 +281,13 @@ describe('resolveObjectLabel (shared reference-label resolver)', () => {
 			store,
 			'geheimhouding-grond',
 			'geheimhouding-grond',
-			'decidesk',
+			'decidiq',
 			'g-1',
 		)
 		expect(registered).toEqual({
 			typeSlug: 'geheimhouding-grond',
 			schemaSlug: 'geheimhouding-grond',
-			registerSlug: 'decidesk',
+			registerSlug: 'decidiq',
 		})
 	})
 
@@ -304,7 +304,7 @@ describe('resolveObjectLabel (shared reference-label resolver)', () => {
 				store,
 				'decision',
 				'decision',
-				'decidesk',
+				'decidiq',
 				'd-2',
 			),
 		).toBe('d-2')
@@ -323,7 +323,7 @@ describe('resolveObjectLabel (shared reference-label resolver)', () => {
 				store,
 				'decision',
 				'decision',
-				'decidesk',
+				'decidiq',
 				'd-3',
 			),
 		).toBe('d-3')

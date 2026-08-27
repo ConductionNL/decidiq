@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Consultation Auto-Close Background Job
+ * Decidiq Consultation Auto-Close Background Job
  *
  * Scheduled job that auto-transitions open PublicConsultations past their
  * submissionDeadline to 'closed' (citizen-participation).
  *
  * @category BackgroundJob
- * @package  OCA\Decidesk\BackgroundJob
+ * @package  OCA\Decidiq\BackgroundJob
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,7 +24,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\BackgroundJob;
+namespace OCA\Decidiq\BackgroundJob;
 
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
@@ -82,14 +82,14 @@ class ConsultationAutoCloseJob extends TimedJob {
 	 * no argument, so the parameter cannot be removed.
 	 */
 	protected function run(mixed $argument): void {
-		$this->logger->info('Decidesk: ConsultationAutoCloseJob started');
+		$this->logger->info('Decidiq: ConsultationAutoCloseJob started');
 
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$lifecycleService = $this->container->get(\OCA\Decidesk\Service\ParticipationLifecycleService::class);
+			$lifecycleService = $this->container->get(\OCA\Decidiq\Service\ParticipationLifecycleService::class);
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk ConsultationAutoCloseJob: dependencies unavailable, skipping.',
+				'Decidiq ConsultationAutoCloseJob: dependencies unavailable, skipping.',
 				['exception' => $e->getMessage()]
 			);
 			return;
@@ -123,7 +123,7 @@ class ConsultationAutoCloseJob extends TimedJob {
 		}//end while
 
 		$this->logger->info(
-			sprintf('Decidesk ConsultationAutoCloseJob: closed %d consultations (%d errors)', $tally['closed'], $tally['errors'])
+			sprintf('Decidiq ConsultationAutoCloseJob: closed %d consultations (%d errors)', $tally['closed'], $tally['errors'])
 		);
 
 	}//end run()
@@ -140,12 +140,12 @@ class ConsultationAutoCloseJob extends TimedJob {
 	 */
 	private function fetchOpenConsultations(object $objectService, int $offset): ?array {
 		try {
-			$objectService->setRegister('decidesk');
+			$objectService->setRegister('decidiq');
 			$objectService->setSchema('public-consultation');
 			return $objectService->findAll(
 				[
 					'filters' => [
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => 'public-consultation',
 						'status' => 'open',
 					],
@@ -155,7 +155,7 @@ class ConsultationAutoCloseJob extends TimedJob {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk ConsultationAutoCloseJob: failed to fetch consultations',
+				'Decidiq ConsultationAutoCloseJob: failed to fetch consultations',
 				['offset' => $offset, 'exception' => $e->getMessage()]
 			);
 			return null;
@@ -188,7 +188,7 @@ class ConsultationAutoCloseJob extends TimedJob {
 		} catch (\Throwable $e) {
 			$tally['errors']++;
 			$this->logger->error(
-				'Decidesk ConsultationAutoCloseJob: failed to close consultation',
+				'Decidiq ConsultationAutoCloseJob: failed to close consultation',
 				['uuid' => $uuid, 'exception' => $e->getMessage()]
 			);
 		}

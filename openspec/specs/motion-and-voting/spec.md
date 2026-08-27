@@ -5,14 +5,14 @@ status: done
 # Specs: Motion and Voting — Core T1
 
 **Change:** p2-motion-and-voting-core-t1
-**App:** Decidesk
+**App:** Decidiq
 **Entities:** Motion, Amendment, Vote, VotingRound
 
 ---
 
 ## Purpose
 
-This spec defines motion management, amendments, voting rounds, vote casting, proxy voting, and voting results transparency for Decidesk.
+This spec defines motion management, amendments, voting rounds, vote casting, proxy voting, and voting results transparency for Decidiq.
 
 # Requirements
 

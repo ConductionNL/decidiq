@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Voting Round Opener
+ * Decidiq Voting Round Opener
  *
  * Opening a voting round: the quorum check, the fail-closed preflight (rule
  * resolution, revote-once guard, parliamentary ordering, preset validation), the
@@ -9,7 +9,7 @@
  * announcements that follow.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -28,11 +28,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
-use RuntimeException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use RuntimeException;
 
 /**
  * The open-a-voting-round path, extracted from VotingService.
@@ -104,7 +104,7 @@ class VotingRoundOpener {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function checkQuorum(string $meetingId): bool {
-		$meetingEntity = $this->objectService()->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+		$meetingEntity = $this->objectService()->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		$meeting = null;
 		if ($meetingEntity !== null) {
 			$meeting = $meetingEntity->jsonSerialize();
@@ -229,7 +229,7 @@ class VotingRoundOpener {
 			participantIds: $presets['eligible']
 		);
 
-		$created = $this->objectService()->saveObject(register: 'decidesk', schema: 'voting-round', object: $votingRound);
+		$created = $this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $votingRound);
 
 		if ($isFreshRound === true) {
 			$this->preflight->transitionSubjectToVoting(subjectId: $motionId, subjectType: $subjectType);

@@ -1,7 +1,7 @@
 ---
 status: done
 status-note: >-
-  2026-06-13 — ALL dashboard requirements built. The in-app CnDashboardPage dashboard was delivered by decidesk-dashboard-v2-widgets (11 widget components + registry + vitest + i18n) and decidesk-dashboard-v2-layout (manifest Dashboard-page rewire to the 11-widget v2 grid, English titles; host browser-verified — all widgets render with live data). The final requirement, "Nextcloud Dashboard Widget Integration", is now built by dashboard-iwidget-v1: an OCP\Dashboard\IWidget (IIconWidget + IButtonWidget + IAPIWidgetV2) that surfaces the current user's pending votes count + next meeting on the Nextcloud main dashboard and deep-links into the app, OR-scoped (per-user, no IDOR) and fail-soft, covered by PHPUnit. Browser coverage for that requirement is an honest @e2e exclude (NC-chrome — the Hub is platform-owned, the widget is server-rendered PHP with no Decidesk Vue surface).
+  2026-06-13 — ALL dashboard requirements built. The in-app CnDashboardPage dashboard was delivered by decidesk-dashboard-v2-widgets (11 widget components + registry + vitest + i18n) and decidesk-dashboard-v2-layout (manifest Dashboard-page rewire to the 11-widget v2 grid, English titles; host browser-verified — all widgets render with live data). The final requirement, "Nextcloud Dashboard Widget Integration", is now built by dashboard-iwidget-v1: an OCP\Dashboard\IWidget (IIconWidget + IButtonWidget + IAPIWidgetV2) that surfaces the current user's pending votes count + next meeting on the Nextcloud main dashboard and deep-links into the app, OR-scoped (per-user, no IDOR) and fail-soft, covered by PHPUnit. Browser coverage for that requirement is an honest @e2e exclude (NC-chrome — the Hub is platform-owned, the widget is server-rendered PHP with no Decidiq Vue surface).
 ---
 
 # Dashboard Specification
@@ -13,7 +13,7 @@ status-note: >-
 
 ## Purpose
 
-The Decidesk dashboard provides an at-a-glance overview of active decisions, upcoming meetings, pending votes, action items, and governance KPIs. It uses the `CnDashboardPage` component from `@conduction/nextcloud-vue` for a configurable grid layout and integrates with the Nextcloud Dashboard Widget API (`OCP\Dashboard\IWidget`) for platform-level widget exposure. The dashboard serves as the primary entry point for all Decidesk users.
+The Decidiq dashboard provides an at-a-glance overview of active decisions, upcoming meetings, pending votes, action items, and governance KPIs. It uses the `CnDashboardPage` component from `@conduction/nextcloud-vue` for a configurable grid layout and integrates with the Nextcloud Dashboard Widget API (`OCP\Dashboard\IWidget`) for platform-level widget exposure. The dashboard serves as the primary entry point for all Decidiq users.
 
 **Standards**: Schema.org (`Dashboard` pattern), Nextcloud Dashboard Widget API
 **Feature tier**: MVP
@@ -32,7 +32,7 @@ The dashboard MUST use the `CnDashboardPage` component to render a configurable 
 @e2e annotate REQ-dashboard-layout-default-grid
 
 - GIVEN the user has not customized their dashboard layout
-- WHEN the user navigates to `/apps/decidesk/`
+- WHEN the user navigates to `/apps/decidiq/`
 - THEN the layout MUST render with the default v2 configuration:
   - Row 1 (gridY=0, gridHeight=2): four KPI cards each 3 columns wide — `active-decisions` (custom, slot: `ActiveDecisionsKpiWidget`), `upcoming-meetings-kpi` (custom, slot: `UpcomingMeetingsKpiWidget`), `pending-votes-kpi` (custom, slot: `PendingVotesKpiWidget`), `overdue-actions-kpi` (custom, slot: `OverdueActionsKpiWidget`)
   - Row 2 (gridY=2, gridHeight=4): `upcoming-meetings-list` (6 cols) and `pending-votes-list` (6 cols)
@@ -45,11 +45,11 @@ The dashboard MUST use the `CnDashboardPage` component to render a configurable 
 
 @e2e annotate REQ-dashboard-layout-empty-state
 
-- GIVEN a fresh Decidesk installation with no widgets in the dashboard layout (empty `layout` array)
+- GIVEN a fresh Decidiq installation with no widgets in the dashboard layout (empty `layout` array)
 - WHEN the user views the dashboard
 - THEN `CnDashboardPage` SHALL render the `#empty` slot content
 - AND `DashboardEmptyState` SHALL be displayed via the manifest's `emptyComponent` configuration
-- AND the message "Welcome to Decidesk! Get started by setting up your first governing body in Settings." MUST be visible
+- AND the message "Welcome to Decidiq! Get started by setting up your first governing body in Settings." MUST be visible
 - AND quick action buttons MUST be shown: "Set Up Body", "Create Meeting", "Create Decision"
 
 ---
@@ -133,7 +133,7 @@ The dashboard MUST include a widget showing the user's upcoming meetings across 
 
 The system MUST register a Nextcloud Dashboard widget via `OCP\Dashboard\IWidget`
 (implementing `IIconWidget`, `IButtonWidget`, and the NC32 pure-backend
-`IAPIWidgetV2` data path) so that Decidesk summary data appears on the Nextcloud
+`IAPIWidgetV2` data path) so that Decidiq summary data appears on the Nextcloud
 main dashboard. The widget MUST resolve the **current user's** data
 (session-scoped, per-user — never an arbitrary object id) via the OpenRegister
 `ObjectService`, and MUST fail soft: a broken or absent register MUST NOT crash
@@ -141,20 +141,20 @@ the Nextcloud dashboard.
 
 **Feature tier**: MVP
 
-#### Scenario: View Decidesk widget on Nextcloud dashboard
+#### Scenario: View Decidiq widget on Nextcloud dashboard
 
-@e2e exclude nc-chrome — the Nextcloud main dashboard is platform chrome owned by the `dashboard` app and the Decidesk widget is server-rendered PHP (`OCP\Dashboard\IWidget`, no Decidesk-owned Vue surface); the widget logic (identity, per-user pending-votes + next-meeting resolution, fail-soft) is covered by PHPUnit in tests/Unit/Dashboard and tests/Unit/Service.
+@e2e exclude nc-chrome — the Nextcloud main dashboard is platform chrome owned by the `dashboard` app and the Decidiq widget is server-rendered PHP (`OCP\Dashboard\IWidget`, no Decidiq-owned Vue surface); the widget logic (identity, per-user pending-votes + next-meeting resolution, fail-soft) is covered by PHPUnit in tests/Unit/Dashboard and tests/Unit/Service.
 
-- GIVEN a user with Decidesk access
+- GIVEN a user with Decidiq access
 - WHEN they view the Nextcloud main dashboard
-- THEN a "Decidesk" widget MUST be available showing the user's pending votes count and their next upcoming meeting
+- THEN a "Decidiq" widget MUST be available showing the user's pending votes count and their next upcoming meeting
 - AND the pending votes count MUST be the number of open voting-rounds the current user has not yet voted in (a user with no participant record sees 0)
 - AND the next meeting MUST be the soonest future `lifecycle=scheduled` meeting the current user participates in (or an empty state when none)
-- AND clicking the widget (its url or its "Open Decidesk" button) MUST navigate to the Decidesk app at `/apps/decidesk/`
+- AND clicking the widget (its url or its "Open Decidiq" button) MUST navigate to the Decidiq app at `/apps/decidiq/`
 
 #### Scenario: Widget fails soft when the register is unavailable
 
-@e2e exclude nc-chrome — backend fail-soft path; covered by tests/Unit/Service/DashboardWidgetServiceTest and tests/Unit/Dashboard/DecideskDashboardWidgetTest.
+@e2e exclude nc-chrome — backend fail-soft path; covered by tests/Unit/Service/DashboardWidgetServiceTest and tests/Unit/Dashboard/DecidiqDashboardWidgetTest.
 
 - GIVEN the OpenRegister `decidesk` register is absent or a schema read throws
 - WHEN the Nextcloud dashboard requests the widget items for the current user
@@ -262,10 +262,10 @@ The dashboard MUST include a `DashboardEmptyState` component shown when no gover
 
 #### Scenario: Display empty state for fresh installation
 
-- GIVEN a fresh Decidesk installation with no governance bodies in the register
+- GIVEN a fresh Decidiq installation with no governance bodies in the register
 - WHEN the user navigates to the dashboard
 - THEN the `DashboardEmptyState` component SHALL be rendered
-- AND it SHALL display the message: "Welcome to Decidesk! Get started by setting up your first governing body in Settings."
+- AND it SHALL display the message: "Welcome to Decidiq! Get started by setting up your first governing body in Settings."
 - AND it SHALL show quick action buttons: "Set Up Body", "Create Meeting", "Create Decision"
 - AND clicking "Set Up Body" SHALL navigate to the Settings page
 
@@ -290,7 +290,7 @@ All dashboard widget components MUST respond to a dashboard-wide refresh signal 
 
 ### Requirement: Widget i18n — English Source Keys
 
-All user-visible strings in dashboard widget components MUST use `t('decidesk', '...')` with English source strings as keys.
+All user-visible strings in dashboard widget components MUST use `t('decidiq', '...')` with English source strings as keys.
 
 **Feature tier**: MVP
 
@@ -300,7 +300,7 @@ All user-visible strings in dashboard widget components MUST use `t('decidesk', 
 
 - GIVEN any dashboard widget component
 - WHEN inspecting the component template and script
-- THEN every user-visible string SHALL be wrapped in `t('decidesk', 'English source string')`
+- THEN every user-visible string SHALL be wrapped in `t('decidiq', 'English source string')`
 - AND no Dutch strings SHALL appear as raw text or as i18n keys
 
 ---

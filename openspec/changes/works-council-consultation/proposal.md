@@ -6,15 +6,15 @@ kind: code
 
 ## Summary
 
-Add WOR consultation trajecten to decidesk: a `ConsultationRequest` register for adviesaanvragen (art. 25 WOR) and instemmingsverzoeken (art. 27 WOR) submitted by the bestuurder to an ondernemingsraad, tracked as a declarative statutory lifecycle from ontvangst through (optional) achterbanraadpleging and overlegvergadering to a formally adopted and sent advies/instemming, including recording of the bestuurder's decision and the art. 25 lid 6 one-month opschortingstermijn when the bestuurder deviates from the advice. Delivered as a `lib/Settings/register.d/47-works-council-consultation.json` schema fragment plus manifest pages, with declarative lifecycle (`x-openregister-lifecycle`), declarative deadline rappels (`x-openregister-notifications`, the toezeggingen-register pattern), and dashboard KPIs for open trajecten and responses past the requested date.
+Add WOR consultation trajecten to decidiq: a `ConsultationRequest` register for adviesaanvragen (art. 25 WOR) and instemmingsverzoeken (art. 27 WOR) submitted by the bestuurder to an ondernemingsraad, tracked as a declarative statutory lifecycle from ontvangst through (optional) achterbanraadpleging and overlegvergadering to a formally adopted and sent advies/instemming, including recording of the bestuurder's decision and the art. 25 lid 6 one-month opschortingstermijn when the bestuurder deviates from the advice. Delivered as a `lib/Settings/register.d/47-works-council-consultation.json` schema fragment plus manifest pages, with declarative lifecycle (`x-openregister-lifecycle`), declarative deadline rappels (`x-openregister-notifications`, the toezeggingen-register pattern), and dashboard KPIs for open trajecten and responses past the requested date.
 
 ## Motivation
 
-Decidesk explicitly targets works councils (ondernemingsraden/medezeggenschap) as a governance domain, yet a novelty sweep of the active specs (2026-07-17) finds zero coverage of ondernemingsraad, medezeggenschap, adviesaanvraag, or instemming. The adviesaanvraag/instemmingsverzoek traject is *the* core workflow of every Dutch OR — statutory (WOR art. 25/27), deadline-driven, document-heavy, and meeting-linked — and is the workflow OR-support tooling is bought for (demand cluster initiate-works-council-consultation, score 759, must-have). Without it an OR can use decidesk for its vergaderingen but must run its actual legal consultation trajecten in Word + Excel. The building blocks all exist: GovernanceBody (the OR is a governance body), Meeting/AgendaItem (overlegvergadering), Decision + decision-route `method=advice` (the advisory outcome), the Docudesk document-generation pattern (resolution-minutes), and the declarative rappel pattern (toezeggingen-register). This change only assembles them around one new schema.
+Decidiq explicitly targets works councils (ondernemingsraden/medezeggenschap) as a governance domain, yet a novelty sweep of the active specs (2026-07-17) finds zero coverage of ondernemingsraad, medezeggenschap, adviesaanvraag, or instemming. The adviesaanvraag/instemmingsverzoek traject is *the* core workflow of every Dutch OR — statutory (WOR art. 25/27), deadline-driven, document-heavy, and meeting-linked — and is the workflow OR-support tooling is bought for (demand cluster initiate-works-council-consultation, score 759, must-have). Without it an OR can use decidiq for its vergaderingen but must run its actual legal consultation trajecten in Word + Excel. The building blocks all exist: GovernanceBody (the OR is a governance body), Meeting/AgendaItem (overlegvergadering), Decision + decision-route `method=advice` (the advisory outcome), the Docudesk document-generation pattern (resolution-minutes), and the declarative rappel pattern (toezeggingen-register). This change only assembles them around one new schema.
 
 ## Affected Projects
 
-- [ ] Project: `decidesk` — new `ConsultationRequest` schema (register.d fragment 47), `works-council` value on the GovernanceBody `bodyType` enum (base register edit), manifest pages + menu (manifest.d fragment), two dashboard KPI widgets, formal-response document generation service, seed data, docs, tests.
+- [ ] Project: `decidiq` — new `ConsultationRequest` schema (register.d fragment 47), `works-council` value on the GovernanceBody `bodyType` enum (base register edit), manifest pages + menu (manifest.d fragment), two dashboard KPI widgets, formal-response document generation service, seed data, docs, tests.
 
 No other apps change. OpenRegister is consumed as-is (lifecycle, notifications, calculations, relations are existing capabilities). Docudesk is an optional runtime dependency with an honest markdown fallback (existing pattern).
 
@@ -36,7 +36,7 @@ No other apps change. OpenRegister is consumed as-is (lifecycle, notifications, 
 - Ondernemingskamer beroep (art. 26 WOR) and any legal-proceedings tooling — different legal process.
 - Nietigheid inroepen / kantonrechter vervangende toestemming after a geweigerde instemming (art. 27 lid 4–6) — only the refusal itself is recorded.
 - CAO interpretation and CAO-derived instemmingsplichten — legal-content concern, not workflow.
-- Employer-side (bestuurder) tooling — decidesk serves the OR; the bestuurder is a Person reference, not a user persona of this change.
+- Employer-side (bestuurder) tooling — decidiq serves the OR; the bestuurder is a Person reference, not a user persona of this change.
 - Poll/raadpleging mechanics for the achterban — owned by the sibling change `constituency-consultation`; this change only links to it.
 - OR verkiezingen, reglementen, faciliteiten (art. 17/18) — separate future changes.
 
@@ -46,7 +46,7 @@ Pure thin-client extension per ADR-022/ADR-037: one new schema shipped as `lib/S
 
 ## New Dependencies
 
-None. All capabilities used (lifecycle, notifications, calculations, relations, manifest pages/widgets, Docudesk delegation with fallback) already exist in OpenRegister, nc-vue, and decidesk.
+None. All capabilities used (lifecycle, notifications, calculations, relations, manifest pages/widgets, Docudesk delegation with fallback) already exist in OpenRegister, nc-vue, and decidiq.
 
 ## Impact
 
@@ -59,7 +59,7 @@ None. All capabilities used (lifecycle, notifications, calculations, relations, 
 
 ## Cross-Project Dependencies
 
-- `constituency-consultation` (sibling decidesk change, in flight): the optional achterbanraadpleging lifecycle step links to that change's raadpleging/poll objects. The reference is soft — a nullable reference field; the step is skippable and the traject degrades to a plain link if that change lands later. Not declared in `depends_on` to keep the two changes independently archivable.
+- `constituency-consultation` (sibling decidiq change, in flight): the optional achterbanraadpleging lifecycle step links to that change's raadpleging/poll objects. The reference is soft — a nullable reference field; the step is skippable and the traject degrades to a plain link if that change lands later. Not declared in `depends_on` to keep the two changes independently archivable.
 - OpenRegister and Docudesk: consumed, not changed (Docudesk optional at runtime, honest fallback).
 
 ## Risks

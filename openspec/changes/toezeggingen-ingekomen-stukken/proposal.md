@@ -7,20 +7,20 @@ depends_on: [motie-amendement-administratie]
 
 ## Summary
 
-Add the two classic griffie registers every Dutch raadsinformatiesysteem ships and decidesk lacks: a standalone **toezeggingenlijst** (commitments register — political commitments made by a portefeuillehouder/college member to the council, tracked from utterance to afdoening with deadline rappels and a public list) and a **lijst ingekomen stukken** (incoming documents registry — registration, proposed routing advice, placement on the next council meeting's dedicated agenda item, bulk council confirmation via the existing hamerstuk flow, and WOO-aware public publication). Both are new OpenRegister schemas delivered as `lib/Settings/register.d/` fragments plus manifest pages, with declarative lifecycle (`x-openregister-lifecycle`), declarative rappels (`x-openregister-notifications`), and a dashboard KPI for open toezeggingen past deadline.
+Add the two classic griffie registers every Dutch raadsinformatiesysteem ships and decidiq lacks: a standalone **toezeggingenlijst** (commitments register — political commitments made by a portefeuillehouder/college member to the council, tracked from utterance to afdoening with deadline rappels and a public list) and a **lijst ingekomen stukken** (incoming documents registry — registration, proposed routing advice, placement on the next council meeting's dedicated agenda item, bulk council confirmation via the existing hamerstuk flow, and WOO-aware public publication). Both are new OpenRegister schemas delivered as `lib/Settings/register.d/` fragments plus manifest pages, with declarative lifecycle (`x-openregister-lifecycle`), declarative rappels (`x-openregister-notifications`), and a dashboard KPI for open toezeggingen past deadline.
 
 ## Motivation
 
-Market evidence (2026-07-16 deep-dive): GemeenteOplossingen ships a dedicated "GO Toezeggingen" module; live 2025–2026 RIS tenders demand integrated information provision for griffie workflows; related demand clusters q-a-management (928) and deadline-management (782). In decidesk today:
+Market evidence (2026-07-16 deep-dive): GemeenteOplossingen ships a dedicated "GO Toezeggingen" module; live 2025–2026 RIS tenders demand integrated information provision for griffie workflows; related demand clusters q-a-management (928) and deadline-management (782). In decidiq today:
 
 - **Toezeggingen** exist only as a side effect of the `motie-amendement-administratie` change, and there only for *motion-tied* commitments (a college takeover of a motion produces an `UitvoeringsUpdate`). The far more common case — a wethouder committing to something during debate on any agenda item ("ik zeg u toe dat u voor 1 maart een raadsbrief ontvangt") — has no home. Toezeggingen are also **not** action items: `ActionItem` is a CalDAV VTODO (REQ-AI-DECK-001/-004 forbid app-local task stores) for internal work, whereas a toezegging is a political commitment with public accountability, a deadline, an afdoening record, and a published list.
 - **Ingekomen stukken** appear only as seed text in an archived design (`"…vaststelling agenda, ingekomen stukken en mededelingen"`). There is no registration, no routing advice, no bulk confirmation, no public list.
 
-Without these registers a griffie cannot run its weekly cycle in decidesk and keeps a parallel Excel/GO instance — a hard adoption blocker for the municipal domain.
+Without these registers a griffie cannot run its weekly cycle in decidiq and keeps a parallel Excel/GO instance — a hard adoption blocker for the municipal domain.
 
 ## Affected Projects
 
-- [ ] Project: `decidesk` — new `Toezegging` + `IngekomenStuk` schemas (register.d fragment), manifest pages + menu (manifest.d fragment), dashboard KPI widget, publication-eligibility extension, bulk-routing confirmation action, seed data, docs, tests.
+- [ ] Project: `decidiq` — new `Toezegging` + `IngekomenStuk` schemas (register.d fragment), manifest pages + menu (manifest.d fragment), dashboard KPI widget, publication-eligibility extension, bulk-routing confirmation action, seed data, docs, tests.
 
 No other apps change. OpenRegister is consumed as-is (lifecycle, notifications, aggregations, RBAC published-predicate are existing capabilities).
 
@@ -51,7 +51,7 @@ Pure thin-client extension per ADR-022/ADR-037: two new schemas shipped as a `li
 
 ## New Dependencies
 
-None. All capabilities used (lifecycle, notifications, aggregations, RBAC published-predicate, ExportService, hamerstuk batch) already exist in OpenRegister, nc-vue, and decidesk.
+None. All capabilities used (lifecycle, notifications, aggregations, RBAC published-predicate, ExportService, hamerstuk batch) already exist in OpenRegister, nc-vue, and decidiq.
 
 ## Impact
 
@@ -64,7 +64,7 @@ None. All capabilities used (lifecycle, notifications, aggregations, RBAC publis
 
 ## Cross-Project Dependencies
 
-- `motie-amendement-administratie` (decidesk change, declared in `depends_on`): the `relatedMotion` cross-reference and the "afdoening via UitvoeringsUpdate" rule assume that change's Motion/UitvoeringsUpdate model. The dependency is soft at runtime (`relatedMotion` is nullable; a standalone toezegging never touches it) but the spec text references its schemas, so it must land first or concurrently.
+- `motie-amendement-administratie` (decidiq change, declared in `depends_on`): the `relatedMotion` cross-reference and the "afdoening via UitvoeringsUpdate" rule assume that change's Motion/UitvoeringsUpdate model. The dependency is soft at runtime (`relatedMotion` is nullable; a standalone toezegging never touches it) but the spec text references its schemas, so it must land first or concurrently.
 - OpenRegister: consumed, not changed.
 
 ## Risks

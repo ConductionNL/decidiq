@@ -5,7 +5,7 @@ TBD - created by archiving change portal-citizen-create-actions. Update Purpose 
 ## Requirements
 ### Requirement: Citizen reacts to an open consultation via a scope-stamped create action (REQ-DKPCA-001)
 
-`OCA\Decidesk\Portal\PortalContributionProvider`'s `citizen` manifest MUST
+`OCA\Decidiq\Portal\PortalContributionProvider`'s `citizen` manifest MUST
 declare a `type: create` action `createReaction` against the
 `consultation-reaction` (`ConsultationReaction`) schema with a client-writable
 field whitelist of exactly `{consultation, body}` and a server-stamped `set` of

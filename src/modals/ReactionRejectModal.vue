@@ -10,14 +10,14 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Reject reaction')"
+		:name="t('decidiq', 'Reject reaction')"
 		data-testid="reaction-reject-modal"
 		@closing="$emit('close')">
 		<template #default>
 			<p>
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'The reaction is retained for audit but never counts toward the consultation. A reason is required.',
 					)
 				}}
@@ -25,8 +25,8 @@
 			<NcTextArea
 				v-model="reason"
 				data-testid="reaction-reject-reason"
-				:label="t('decidesk', 'Rejection reason')"
-				:placeholder="t('decidesk', 'e.g. Off-topic or abusive')"
+				:label="t('decidiq', 'Rejection reason')"
+				:placeholder="t('decidiq', 'e.g. Off-topic or abusive')"
 				resize="vertical" />
 		</template>
 		<template #actions>
@@ -35,10 +35,10 @@
 				data-testid="reaction-reject-confirm"
 				:disabled="!reason.trim()"
 				@click="$emit('confirm', reason.trim())">
-				{{ t('decidesk', 'Reject') }}
+				{{ t('decidiq', 'Reject') }}
 			</NcButton>
 			<NcButton @click="$emit('close')">
-				{{ t('decidesk', 'Cancel') }}
+				{{ t('decidiq', 'Cancel') }}
 			</NcButton>
 		</template>
 	</NcDialog>

@@ -10,7 +10,7 @@ Create an amendment against an open motion — what changes, why — so it can b
 
 ## Goal
 
-By the end you will have an amendment in Decidesk linked to its parent motion, with the proposed change described, ready for the chair to put it to a vote ahead of the motion.
+By the end you will have an amendment in Decidiq linked to its parent motion, with the proposed change described, ready for the chair to put it to a vote ahead of the motion.
 
 ## Prerequisites
 

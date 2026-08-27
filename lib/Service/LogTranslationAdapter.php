@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Log Translation Adapter
+ * Decidiq Log Translation Adapter
  *
  * Default dormant ITranslationAdapter implementation. Logs the request and
  * either returns the original text or delegates to openconnector when its
@@ -10,7 +10,7 @@
  * no translation provider has been configured yet.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,7 +26,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -111,14 +111,14 @@ class LogTranslationAdapter implements ITranslationAdapter {
 				}//end if
 			} catch (\Throwable $e) {
 				$this->logger->warning(
-					'Decidesk: openconnector translation delegate failed; falling back to log adapter',
+					'Decidiq: openconnector translation delegate failed; falling back to log adapter',
 					['exception' => $e->getMessage()]
 				);
 			}//end try
 		}//end if
 
 		$this->logger->info(
-			'Decidesk: LogTranslationAdapter — translation requested (dormant default)',
+			'Decidiq: LogTranslationAdapter — translation requested (dormant default)',
 			[
 				'sourceLocale' => $sourceLocale,
 				'targetLocale' => $targetLocale,

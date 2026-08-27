@@ -146,8 +146,11 @@
           "adviesaanvraagVerantwoord": {
             "trigger": {
               "type": "updated",
-              "filter": {
-                "lifecycle": "accounted-for"
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "accounted-for",
+                "from": "advice-issued"
               }
             },
             "enabled": true,

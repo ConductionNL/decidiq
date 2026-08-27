@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Motion Coauthor Service
+ * Decidiq Motion Coauthor Service
  *
  * Stateless service handling motion co-authoring: adding/removing co-authors,
  * updating motion text with version capture, and detecting overlapping edits.
@@ -10,7 +10,7 @@
  * merged automatically).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,15 +27,15 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Service for motion co-authoring: members, text updates, version history,
@@ -89,7 +89,7 @@ class MotionCoauthorService {
 		// M4: use named-arg find() instead of setRegister/setSchema pattern.
 		// ADR-005: motions live in the unified `decision` schema, so the id
 		// lookup no longer proves the type — `decisionType` does.
-		$entity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'decision');
+		$entity = $objectService->find(id: $motionId, register: 'decidiq', schema: 'decision');
 		$motion = [];
 		if ($entity !== null) {
 			$motion = $entity->jsonSerialize();
@@ -117,7 +117,7 @@ class MotionCoauthorService {
 	 */
 	private function resolveParticipantUuid(string $nextcloudUid): ?string {
 		$objectService = $this->getObjectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('participant');
 		$entities = $objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
 
@@ -208,13 +208,13 @@ class MotionCoauthorService {
 			$objectService = $this->getObjectService();
 			$objectService->saveObject(
 				object: $motion,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'decision',
 				uuid: $motionId,
 			);
 
 			$this->logger->info(
-				'Decidesk: Motion coauthor added',
+				'Decidiq: Motion coauthor added',
 				['motionId' => $motionId, 'personId' => $personId]
 			);
 		}
@@ -257,7 +257,7 @@ class MotionCoauthorService {
 		$objectService = $this->getObjectService();
 		$objectService->saveObject(
 			object: $motion,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision',
 			uuid: $motionId,
 		);
@@ -310,7 +310,7 @@ class MotionCoauthorService {
 
 		if ($conflict !== null) {
 			$this->logger->warning(
-				'Decidesk: Motion edit conflict detected',
+				'Decidiq: Motion edit conflict detected',
 				['motionId' => $motionId, 'paragraph' => $conflict]
 			);
 			throw new RuntimeException(
@@ -331,13 +331,13 @@ class MotionCoauthorService {
 		$objectService = $this->getObjectService();
 		$objectService->saveObject(
 			object: $motion,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision',
 			uuid: $motionId,
 		);
 
 		$this->logger->info(
-			'Decidesk: Motion text updated',
+			'Decidiq: Motion text updated',
 			['motionId' => $motionId, 'author' => $author]
 		);
 
@@ -486,7 +486,7 @@ class MotionCoauthorService {
 		$objectService = $this->getObjectService();
 		$objectService->saveObject(
 			object: $motion,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision',
 			uuid: $motionId,
 		);

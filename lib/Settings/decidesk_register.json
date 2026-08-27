@@ -1,13 +1,13 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Decidesk Register",
+    "title": "Decidiq Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
     "version": "0.9.0"
   },
   "x-openregister": {
     "type": "application",
-    "app": "decidesk",
+    "app": "decidiq",
     "openregister": "^v0.2.10",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
     "x-decidesk-rbac-scopes": {
@@ -310,6 +310,19 @@
             "domain": "municipality",
             "parentBody": "gemeenteraad-amsterdam",
             "votingDefault": "for-against-abstain"
+          },
+          {
+            "slug": "bezwaaradviescommissie-amsterdam",
+            "name": "Bezwaaradviescommissie Amsterdam",
+            "bodyType": "advisory-body",
+            "domain": "municipality",
+            "statutoryBasis": "Awb 7:13",
+            "jurisdiction": "Gemeente Amsterdam — algemene bezwaren",
+            "quorum": 3,
+            "quorumRule": "majority",
+            "active": true,
+            "termStart": "2024-01-01T00:00:00Z",
+            "termEnd": "2028-01-01T00:00:00Z"
           }
         ],
         "meeting": [
@@ -1476,12 +1489,12 @@
   "paths": {},
   "components": {
     "registers": {
-      "decidesk": {
-        "slug": "decidesk",
-        "title": "Decidesk Register",
+      "decidiq": {
+        "slug": "decidiq",
+        "title": "Decidiq Register",
         "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings. Holds every governance body, meeting, agenda item, decision, vote, minutes, consultation and integrity object the app reads and writes.",
         "version": "0.8.0",
-        "_authorizationNote": "REGISTER-LEVEL BASELINE, and it is a BEHAVIOUR CHANGE. Until this block existed, every decidesk schema without its own `authorization` block was read AND WRITE open to every authenticated user through OpenRegister's own /apps/openregister/api/objects/decidesk/<schema> API — the API the frontend uses directly under ADR-022, which no decidesk controller guard sits in front of. OpenRegister's PermissionHandler::hasGroupPermission() tests `empty($authorization)`, and PHP's empty() is true for null and [] alike, so an ABSENT block takes the same default-OPEN branch as an empty one; `enforce_default_closed` defaults to false and, even when enabled, closes only create/update/delete. Measured on this tree before the change: 93 schemas, 24 carrying a block (all read-only), this register row carrying none — so 69 schemas, including Decision, VotingRound, Vote, Participant and EngagementRecord, granted create/update/delete to any logged-in account. Same shape as docudesk#631, where a plain user overwrote another user's template. THE CASCADE IS WHY THIS SITS ON THE REGISTER ROW: PermissionHandler::resolveAuthorization() uses a schema's own block when it has one and falls back to the register's only when it does not, so this baseline reaches exactly the 69 unprotected schemas and changes nothing for the 24 that already declare their own (their public-read rules are untouched). WHAT EACH ACTION IS FOR: read and list name BOTH `authenticated` AND `public`, and create names `authenticated`, so no read goes dark and any member can still raise a decision, cast a vote or file a reaction — those flows are unchanged. `public` on the READ actions is not a widening: before this block existed the default-OPEN branch granted every action to every principal INCLUDING the anonymous one, so omitting `public` here would have CLOSED anonymous reads — a separate and much larger policy change than the write hole this block exists to fix, and one that would 403 every #[PublicPage] citizen-participation surface. CI proved it rather than theory: the first version of this block omitted `public` and all six PHPUnit legs failed with `User 'Anonymous' does not have permission to 'read' objects in schema 'Meeting'`. `public` appears on NO write action, so the anonymous fail-closed rule from openregister#1955 keeps denying anonymous create/update/delete exactly as it did before. update/delete are NOT granted to `authenticated`, which is the whole fix: OpenRegister bypasses the object OWNER unconditionally and SQL-side before any rule is consulted, and bypasses `admin` too, so the author of an object keeps full control of it and only OTHER users lose the ability to rewrite or destroy it. `decidesk-administrators` is the named Nextcloud group for a griffie/secretariat that must edit records it did not create; it is admin-provisioned, and on an instance where it does not exist this simply resolves to owner-plus-admin, which is fail-closed. EVERY ACTION IS WRITTEN OUT ON PURPOSE: once a block is non-empty, OpenRegister DENIES any action the block omits, so an omitted `list` or `create` here would silently break the app rather than secure it. Per-body actor authorization (chair / signatory scopes, x-decidesk-rbac-scopes above) is a separate layer and is unaffected — OpenRegister cannot template a group name per object, which is why that determination is made at the app boundary.",
+        "_authorizationNote": "REGISTER-LEVEL BASELINE, and it is a BEHAVIOUR CHANGE. Until this block existed, every decidesk schema without its own `authorization` block was read AND WRITE open to every authenticated user through OpenRegister's own /apps/openregister/api/objects/decidiq/<schema> API — the API the frontend uses directly under ADR-022, which no decidesk controller guard sits in front of. OpenRegister's PermissionHandler::hasGroupPermission() tests `empty($authorization)`, and PHP's empty() is true for null and [] alike, so an ABSENT block takes the same default-OPEN branch as an empty one; `enforce_default_closed` defaults to false and, even when enabled, closes only create/update/delete. Measured on this tree before the change: 93 schemas, 24 carrying a block (all read-only), this register row carrying none — so 69 schemas, including Decision, VotingRound, Vote, Participant and EngagementRecord, granted create/update/delete to any logged-in account. Same shape as docudesk#631, where a plain user overwrote another user's template. THE CASCADE IS WHY THIS SITS ON THE REGISTER ROW: PermissionHandler::resolveAuthorization() uses a schema's own block when it has one and falls back to the register's only when it does not, so this baseline reaches exactly the 69 unprotected schemas and changes nothing for the 24 that already declare their own (their public-read rules are untouched). WHAT EACH ACTION IS FOR: read and list name BOTH `authenticated` AND `public`, and create names `authenticated`, so no read goes dark and any member can still raise a decision, cast a vote or file a reaction — those flows are unchanged. `public` on the READ actions is not a widening: before this block existed the default-OPEN branch granted every action to every principal INCLUDING the anonymous one, so omitting `public` here would have CLOSED anonymous reads — a separate and much larger policy change than the write hole this block exists to fix, and one that would 403 every #[PublicPage] citizen-participation surface. CI proved it rather than theory: the first version of this block omitted `public` and all six PHPUnit legs failed with `User 'Anonymous' does not have permission to 'read' objects in schema 'Meeting'`. `public` appears on NO write action, so the anonymous fail-closed rule from openregister#1955 keeps denying anonymous create/update/delete exactly as it did before. update/delete are NOT granted to `authenticated`, which is the whole fix: OpenRegister bypasses the object OWNER unconditionally and SQL-side before any rule is consulted, and bypasses `admin` too, so the author of an object keeps full control of it and only OTHER users lose the ability to rewrite or destroy it. `decidesk-administrators` is the named Nextcloud group for a griffie/secretariat that must edit records it did not create; it is admin-provisioned, and on an instance where it does not exist this simply resolves to owner-plus-admin, which is fail-closed. EVERY ACTION IS WRITTEN OUT ON PURPOSE: once a block is non-empty, OpenRegister DENIES any action the block omits, so an omitted `list` or `create` here would silently break the app rather than secure it. Per-body actor authorization (chair / signatory scopes, x-decidesk-rbac-scopes above) is a separate layer and is unaffected — OpenRegister cannot template a group name per object, which is why that determination is made at the app boundary.",
         "authorization": {
           "read": [
             "authenticated",
@@ -1806,13 +1819,19 @@
           "independenceStatus": {
             "title": "Independence status",
             "type": "string",
-            "description": "Corporate-governance extension (beyond Popolo, MCCG): board-member independence, mode=corp",
+            "description": "Corporate-governance extension (beyond Popolo, MCCG): board-member independence, mode=corp. NOT the same question as `external`, which records whether the member sits from outside the administrative organ. A member can be external and non-independent, or internal and independent; neither value is derivable from the other.",
             "enum": [
               "independent",
               "non-independent",
               "unknown"
             ],
             "example": "independent"
+          },
+          "external": {
+            "title": "External member",
+            "type": "boolean",
+            "default": false,
+            "description": "Whether this member sits from OUTSIDE the administrative organ — i.e. is not employed by it. Awb 7:13(2) requires this of the chair of an objection advisory committee. NOT the same question as `independenceStatus`, which encodes corporate-governance independence and cannot carry an employment relationship."
           },
           "otherPositions": {
             "title": "Other positions",
@@ -1985,8 +2004,31 @@
           "quorumRule": {
             "title": "Quorum rule",
             "type": "string",
-            "description": "Quorum calculation method",
+            "description": "How a quorum is CALCULATED (e.g. majority). Not how many members are required — that is `quorum`, which is a number. A calculation method cannot express a statutory minimum member count.",
             "example": "majority"
+          },
+          "quorum": {
+            "title": "Quorum (members)",
+            "type": "integer",
+            "minimum": 2,
+            "description": "How MANY members are required for a valid sitting. Not how a quorum is calculated — that is `quorumRule`. Deliberately has NO default: an unset value means 'not specified', and a default of 0 would assert that no members are needed. Awb 7:13 objection advisory committees state this as a number."
+          },
+          "active": {
+            "title": "Active",
+            "type": "boolean",
+            "default": true,
+            "description": "Whether this body may be assigned new work. Independent of termStart/termEnd: a body can sit inside its term and be suspended, or be past its term and still finishing open cases, so availability cannot be derived from the dates. Unrelated to the schema-level x-openregister.active flag, which says nothing about an individual body."
+          },
+          "jurisdiction": {
+            "title": "Jurisdiction",
+            "type": "string",
+            "description": "The territorial or subject-matter competence of this body."
+          },
+          "statutoryBasis": {
+            "title": "Statutory basis",
+            "type": "string",
+            "description": "The legal instrument this body is constituted under (e.g. 'Awb 7:13', a local verordening). Free text on purpose: a closed vocabulary drawn from one country's law cannot express the instruments behind bodies in another, and a caller forced to pick from a list that does not fit will pick a wrong value.",
+            "example": "Awb 7:13"
           },
           "votingDefault": {
             "title": "Default voting method",
@@ -2116,8 +2158,8 @@
               "en": "Meeting starts soon: {{title}}"
             },
             "message": {
-              "nl": "{{title}} begint in Decidesk. Openen?",
-              "en": "{{title}} is starting in Decidesk. Open it?"
+              "nl": "{{title}} begint in Decidiq. Openen?",
+              "en": "{{title}} is starting in Decidiq. Open it?"
             },
             "actions": [
               {
@@ -3105,7 +3147,7 @@
               "type": "updated",
               "condition": {
                 "field": "supersedes",
-                "operator": "isNotEmpty"
+                "operator": "changed"
               }
             },
             "enabled": true,
@@ -3134,7 +3176,7 @@
               "type": "updated",
               "condition": {
                 "field": "repeals",
-                "operator": "isNotEmpty"
+                "operator": "changed"
               }
             },
             "enabled": true,
@@ -3159,6 +3201,7 @@
             }
           },
           "outcomeEmitted": {
+            "_note": "`in` is not implemented for updated triggers. fieldChangeConditionMatches supports only `changed` and `equals`, and an unknown operator falls through to false — so this rule has never fired. Left declared rather than split into three near-identical rules: the scheduled path gained `in` in ConductionNL/openregister#2794, and bringing the same vocabulary to the updated path is the natural next step (the created-vs-updated-vs-scheduled convergence deferred there). Splitting now would only have to be undone then.",
             "trigger": {
               "type": "updated",
               "condition": {
@@ -3243,8 +3286,8 @@
               "en": "Your vote is requested: {{title}}"
             },
             "message": {
-              "nl": "Dit besluit staat in Decidesk. Openen?",
-              "en": "This decision is in Decidesk. Open it?"
+              "nl": "Dit besluit staat in Decidiq. Openen?",
+              "en": "This decision is in Decidiq. Open it?"
             },
             "actions": [
               {
@@ -3650,7 +3693,7 @@
             "title": "Subject label",
             "type": "string",
             "nullable": true,
-            "description": "Human-readable label for the originating object shown in decidesk list/detail (e.g. 'Lease contract 2027 — pand X', REQ-DCDH-001)."
+            "description": "Human-readable label for the originating object shown in Decidiq list/detail (e.g. 'Lease contract 2027 — pand X', REQ-DCDH-001)."
           },
           "outcomeCallbackUrl": {
             "title": "Outcome callback URL",
@@ -3934,13 +3977,20 @@
             "minimum": 1,
             "example": 1
           },
+          "mandatory": {
+            "title": "Mandatory",
+            "type": "boolean",
+            "default": true,
+            "description": "Whether this stage must be taken. COPIED from the ApprovalRoute step at instantiation, deliberately: reading it from the route at decision time would give a different answer whenever the template changed after a subject started travelling it."
+          },
           "stageType": {
             "title": "Stage type",
             "type": "string",
-            "description": "Functional type of this stage — determines the role it plays in the route.",
+            "description": "Functional type of this stage — determines the role it plays in the route. `endorsement` is the parafering case: a sign-off that is not itself the decision.",
             "enum": [
               "preparatory",
               "advisory",
+              "endorsement",
               "decisive",
               "ratifying"
             ],
@@ -3962,14 +4012,18 @@
           "outcome": {
             "title": "Outcome",
             "type": "string",
-            "description": "Decision outcome recorded when status=decided. Null when status is pending/active/skipped.",
+            "description": "Decision outcome recorded when status=decided. Null when status is pending/active/skipped. `returned` is the sign-off case and behaves unlike the rest: it re-opens an EARLIER stage rather than ending this one, which is why `rejected` and `deferred` could not express it — both end a stage and neither reopens one.",
             "enum": [
               "for",
               "against",
               "adopted",
               "rejected",
               "advised",
-              "deferred"
+              "deferred",
+              "approved",
+              "endorsed",
+              "returned",
+              "skipped"
             ],
             "nullable": true,
             "example": "adopted"
@@ -4175,7 +4229,14 @@
               "type": "scheduled",
               "intervalSec": 86400,
               "filter": {
-                "taskStatus": "overdue"
+                "dueDate": {
+                  "operator": "olderThan",
+                  "value": "PT0S"
+                },
+                "taskStatus": {
+                  "operator": "notEquals",
+                  "value": "completed"
+                }
               }
             },
             "enabled": true,
@@ -4220,8 +4281,8 @@
               "en": "Assigned to you: {{title}}"
             },
             "message": {
-              "nl": "Dit actiepunt staat in Decidesk. Openen?",
-              "en": "This action item is in Decidesk. Open it?"
+              "nl": "Dit actiepunt staat in Decidiq. Openen?",
+              "en": "This action item is in Decidiq. Open it?"
             },
             "actions": [
               {
@@ -4241,7 +4302,7 @@
         "icon": "CheckboxMarkedOutline",
         "version": "0.2.0",
         "title": "ActionItem",
-        "description": "A follow-up task from a meeting decision. Backed by CalDAV VTODOs (ADR-002): this schema is a READ-ONLY OpenRegister projection over the user's action-item VTODOs (action-items-vtodo-deck-reconcile). Writes go through the decidesk action-item endpoints / ActionItemWriter (OpenRegister TaskService), never ObjectService::saveObject.",
+        "description": "A follow-up task from a meeting decision. Backed by CalDAV VTODOs (ADR-002): this schema is a READ-ONLY OpenRegister projection over the user's action-item VTODOs (action-items-vtodo-deck-reconcile). Writes go through the Decidiq action-item endpoints / ActionItemWriter (OpenRegister TaskService), never ObjectService::saveObject.",
         "type": "object",
         "x-openregister": {
           "schemaType": "custom:ActionItem",
@@ -4554,8 +4615,10 @@
           "transcriptionDone": {
             "trigger": {
               "type": "updated",
-              "filter": {
-                "status": "done"
+              "condition": {
+                "field": "status",
+                "operator": "equals",
+                "value": "done"
               }
             },
             "enabled": true,
@@ -4582,8 +4645,10 @@
           "transcriptionFailed": {
             "trigger": {
               "type": "updated",
-              "filter": {
-                "status": "failed"
+              "condition": {
+                "field": "status",
+                "operator": "equals",
+                "value": "failed"
               }
             },
             "enabled": true,
@@ -5724,7 +5789,7 @@
           "awardedTo": {
             "title": "Awarded to",
             "type": "string",
-            "description": "consultationType=tender: the winning party recorded when the award decision is made (status=awarded). Decidesk owns publish/manage/award only; authoring is procest and bidding is pipelinq."
+            "description": "consultationType=tender: the winning party recorded when the award decision is made (status=awarded). Decidiq owns publish/manage/award only; authoring is procest and bidding is pipelinq."
           },
           "procestProcessRef": {
             "title": "Procest process reference",
@@ -5835,7 +5900,9 @@
             "trigger": {
               "type": "created",
               "filter": {
-                "moderationStatus": "pending"
+                "field": "moderationStatus",
+                "operator": "equals",
+                "value": "pending"
               }
             },
             "enabled": true,
@@ -6137,7 +6204,7 @@
         "icon": "BellCogOutline",
         "version": "0.2.0",
         "title": "NotificationPreference",
-        "description": "Per-user personal preferences for Decidesk (user-settings spec): notification event toggles + delivery channels, meeting-reminder timing, absence delegation (delegate + period, automatic expiry by date comparison), and governance communication preferences. One object per person; reads/writes are scoped to the session user by NotificationPreferenceController.",
+        "description": "Per-user personal preferences for Decidiq (user-settings spec): notification event toggles + delivery channels, meeting-reminder timing, absence delegation (delegate + period, automatic expiry by date comparison), and governance communication preferences. One object per person; reads/writes are scoped to the session user by NotificationPreferenceController.",
         "type": "object",
         "x-openregister": {
           "schemaType": "schema:Intangible",
@@ -6188,7 +6255,7 @@
           "meetingReminder": {
             "title": "Meeting reminder",
             "type": "boolean",
-            "description": "Send Decidesk meeting reminders (calendar reminders are independent).",
+            "description": "Send Decidiq meeting reminders (calendar reminders are independent).",
             "default": true
           },
           "reminderTimes": {
@@ -6213,7 +6280,7 @@
           "deliveryMethod": {
             "title": "Delivery method",
             "type": "string",
-            "description": "Delivery channels for Decidesk notifications.",
+            "description": "Delivery channels for Decidiq notifications.",
             "enum": [
               "in-app",
               "email",
@@ -6648,7 +6715,7 @@
           }
         },
         "@self": {
-          "register": "decidesk",
+          "register": "decidiq",
           "schema": "PublicationRecord"
         }
       },
@@ -6861,7 +6928,7 @@
           }
         },
         "@self": {
-          "register": "decidesk",
+          "register": "decidiq",
           "schema": "PublicationPayload"
         }
       },

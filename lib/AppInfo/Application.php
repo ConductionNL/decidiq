@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Application
+ * Decidiq Application
  *
- * Main application class for the Decidesk Nextcloud app.
+ * Main application class for the Decidiq Nextcloud app.
  *
  * @category AppInfo
- * @package  OCA\Decidesk\AppInfo
+ * @package  OCA\Decidiq\AppInfo
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2024 Conduction B.V.
@@ -21,13 +21,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\AppInfo;
+namespace OCA\Decidiq\AppInfo;
 
-use OCA\Decidesk\AppInfo\Registrar\AppHostRegistrar;
-use OCA\Decidesk\AppInfo\Registrar\DomainServiceRegistrar;
-use OCA\Decidesk\AppInfo\Registrar\IntegrationLeafRegistrar;
-use OCA\Decidesk\AppInfo\Registrar\ObjectListenerRegistrar;
-use OCA\Decidesk\AppInfo\Registrar\PlatformIntegrationRegistrar;
+use OCA\Decidiq\AppInfo\Registrar\AppHostRegistrar;
+use OCA\Decidiq\AppInfo\Registrar\DomainServiceRegistrar;
+use OCA\Decidiq\AppInfo\Registrar\IntegrationLeafRegistrar;
+use OCA\Decidiq\AppInfo\Registrar\ObjectListenerRegistrar;
+use OCA\Decidiq\AppInfo\Registrar\PlatformIntegrationRegistrar;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -37,11 +37,11 @@ use OCP\EventDispatcher\IEventDispatcher;
 use OCP\Util;
 
 /**
- * Main application class for the Decidesk Nextcloud app.
+ * Main application class for the Decidiq Nextcloud app.
  *
  * The bootstrap itself holds no registration detail. Every cohesive group of
  * bindings lives in a dedicated registrar under
- * {@see \OCA\Decidesk\AppInfo\Registrar}, so the class references (and the
+ * {@see \OCA\Decidiq\AppInfo\Registrar}, so the class references (and the
  * `use` imports that carry them) sit with the registrations they serve rather
  * than accumulating here:
  *
@@ -51,7 +51,7 @@ use OCP\Util;
  *   - {@see IntegrationLeafRegistrar}    server-side half of the OR integration leaves (ADR-066).
  *   - {@see ObjectListenerRegistrar}     boot()-time filtered object-lifecycle subscriptions.
  *
- * Decidesk's services, controllers and background jobs that are NOT listed in a
+ * Decidiq's services, controllers and background jobs that are NOT listed in a
  * registrar are resolved by Nextcloud's autowiring container from their
  * constructor signatures; only bindings the container cannot infer are
  * declared at all.
@@ -61,7 +61,7 @@ use OCP\Util;
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
  */
 class Application extends App implements IBootstrap {
-	public const APP_ID = 'decidesk';
+	public const APP_ID = 'decidiq';
 
 	/**
 	 * Constructor for the Application class.
@@ -102,21 +102,21 @@ class Application extends App implements IBootstrap {
 		);
 		// AppHost adoption (ADR-040 / ADR-022): re-point the mechanical
 		// dashboard + observability + deep-link plumbing at the OpenRegister
-		// AppHost generics, keeping decidesk's URLs unchanged. Decidesk's
+		// AppHost generics, keeping decidiq's URLs unchanged. Decidiq's
 		// domain-entangled Settings / Preferences / AdminSettings / repair /
 		// SettingsService stay bespoke.
 		(new AppHostRegistrar())->register(context: $context);
 
 		// The value migration talks to the database through a three-method port
-		// rather than IDBConnection, because decidesk's unit environment cannot
+		// rather than IDBConnection, because decidiq's unit environment cannot
 		// double that connection at all (no doctrine/dbal). Bind the port here.
 		$context->registerService(
-			\OCA\Decidesk\Repair\ValueMigrationGateway::class,
-			static fn ($c): \OCA\Decidesk\Repair\ValueMigrationGateway
-				=> $c->get(\OCA\Decidesk\Repair\DbValueMigrationGateway::class)
+			\OCA\Decidiq\Repair\ValueMigrationGateway::class,
+			static fn ($c): \OCA\Decidiq\Repair\ValueMigrationGateway
+				=> $c->get(\OCA\Decidiq\Repair\DbValueMigrationGateway::class)
 		);
 
-		// Decidesk domain bindings the autowiring container cannot infer:
+		// Decidiq domain bindings the autowiring container cannot infer:
 		// the delegated-decision event listener, the MCP tool-provider alias,
 		// the eIDAS QES resolver and the dormant translation adapter.
 		//
@@ -154,6 +154,15 @@ class Application extends App implements IBootstrap {
 		// The render half has always shipped from JS; without this the leaf renders
 		// but is invisible to the openregister.integrations.leaves capability, i.e.
 		// an orphan registration under ADR-066 decision 4.
+		//
+		// The leaf id KEEPS the pre-rename spelling on purpose. OpenRegister's
+		// LeafRegistry validates only the id SHAPE (`^[a-z0-9]+(-[a-z0-9]+)*$`)
+		// and never an app-id prefix — unlike McpToolsService, which DOES enforce
+		// the prefix and is why the MCP tool ids had to move. Usability is derived
+		// from the descriptor's `requiredApp`, which is Application::APP_ID and so
+		// tracks the rename on its own. The id is also named verbatim in the
+		// REQ-DCDH-008 requirement heading that the @spec anchor below
+		// dereferences, so moving it would break the anchor for no gain.
 		// @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-008-the-decidesk-decisions-leaf-is-declared-on-both-layers
 		(new IntegrationLeafRegistrar())->register(context: $context);
 
@@ -184,11 +193,11 @@ class Application extends App implements IBootstrap {
 		// not be scheduled until the feature is audited and enabled deliberately.
 		//
 		// ADR-019 / ADR-022: load the tiny global integration-leaf bootstrap on
-		// EVERY Nextcloud page so decidesk's "Besluitvorming" decisions leaf
+		// EVERY Nextcloud page so decidiq's "Besluitvorming" decisions leaf
 		// registers on the shared OpenRegister integration registry and surfaces
 		// as a sidebar tab + detail-page widget on host objects (e.g. a procest
-		// case) without the full decidesk app bundle being present.
-		Util::addInitScript(self::APP_ID, 'decidesk-integration-init');
+		// case) without the full decidiq app bundle being present.
+		Util::addInitScript(self::APP_ID, 'decidiq-integration-init');
 
 		$serverContainer = $context->getServerContainer();
 

@@ -2,7 +2,7 @@
 
 ## Context
 
-Three disjoint pieces of the inspraak story already exist in decidesk specs: the `commissievergaderingen` change defines the full registration loop (`InspraakAanmelding` with contactgegevens/onderwerp field split, griffier moderation, spreektijd-toewijzing, 24h auto-close, verslag publication — REQ-CVG-009/011) but scoped to commissievergaderingen only; `digital-meetings-and-recurrence` REQ-STM owns the live SpeakingTimePanel with a speaker queue that knows nothing about registrations; and `raadsvergadering-livestream-transcript` models `Spreker.rol=inspreker` for transcript attribution with no link back to who registered. This change generalizes the first and wires all three together. Decidesk is a thin client (no own tables); all data lives in OpenRegister, behaviour is declarative-first (ADR-031), register changes ship as additive fragments (ADR-037), and the citizen-facing form surface belongs to portaliq/`portal-contribution` (which ships no create surfaces this wave, REQ-DKPORT-006 — decidesk exposes the API it will consume later).
+Three disjoint pieces of the inspraak story already exist in decidiq specs: the `commissievergaderingen` change defines the full registration loop (`InspraakAanmelding` with contactgegevens/onderwerp field split, griffier moderation, spreektijd-toewijzing, 24h auto-close, verslag publication — REQ-CVG-009/011) but scoped to commissievergaderingen only; `digital-meetings-and-recurrence` REQ-STM owns the live SpeakingTimePanel with a speaker queue that knows nothing about registrations; and `raadsvergadering-livestream-transcript` models `Spreker.rol=inspreker` for transcript attribution with no link back to who registered. This change generalizes the first and wires all three together. Decidiq is a thin client (no own tables); all data lives in OpenRegister, behaviour is declarative-first (ADR-031), register changes ship as additive fragments (ADR-037), and the citizen-facing form surface belongs to portaliq/`portal-contribution` (which ships no create surfaces this wave, REQ-DKPORT-006 — decidiq exposes the API it will consume later).
 
 ## Goals / Non-Goals
 
@@ -38,7 +38,7 @@ Default declarative; imperative only where a dialect cannot express the behaviou
 | Deadline auto-close + policy validation (enabled, niveau, per-item ref) + griffier override | **Imperative** — `InspraakService` registration action, server-side | Cross-object datetime comparison against the meeting; no dialect evaluates a related object's field (same justification as vragenuur REQ-VRI-003) |
 | Queue preload of approved insprekers when an item opens | **Imperative** — service feeding REQ-STM's queue | Cross-capability side effect into the live session, not object state |
 | `gesproken`/`niet-verschenen` write-back from the SpeakingTimePanel | **Imperative** — PUT-semantic `saveObject()` carrying **all** fields forward | Cross-object side effect triggered by a UI action in another capability's component context |
-| Anonymised public projection (`aantal`/`voornaam`/`spreker-naam`) | **Imperative** — allow-list payload builder | Allow-list payload construction is by design imperative in decidesk (existing publication pattern); a filter-out approach risks leaking contactgegevens |
+| Anonymised public projection (`aantal`/`voornaam`/`spreker-naam`) | **Imperative** — allow-list payload builder | Allow-list payload construction is by design imperative in decidiq (existing publication pattern); a filter-out approach risks leaking contactgegevens |
 
 ### D4: Live wiring is a preload + write-back bridge, never a merged model
 
@@ -50,9 +50,9 @@ REQ-STM keeps sole ownership of the SpeakingTimePanel, queue mechanics, and cloc
 
 `bijdrageTekst` and `transcriptSegment` live on the aanmelding; the agenda item surfaces them via relation. One record per inspreker from registration through contribution — no duplication onto AgendaItem, mirroring the toezeggingen/vragenuur "one accountability record, cross-referenced" discipline. Both fields are nullable references so the change degrades gracefully when the livestream/transcript change is absent.
 
-### D6: Public surface stays with the portal; decidesk ships API + moderation
+### D6: Public surface stays with the portal; decidiq ships API + moderation
 
-Mirrors the commissie change and respects `portal-contribution` REQ-DKPORT-006 (no citizen create surfaces this wave, parent-relation problem): decidesk exposes the governed registration endpoint and all moderation/overview UI; portaliq renders the citizen form against that endpoint in its own change. Until then the endpoint is exercised by the griffier-assisted registration dialog and tests.
+Mirrors the commissie change and respects `portal-contribution` REQ-DKPORT-006 (no citizen create surfaces this wave, parent-relation problem): decidiq exposes the governed registration endpoint and all moderation/overview UI; portaliq renders the citizen form against that endpoint in its own change. Until then the endpoint is exercised by the griffier-assisted registration dialog and tests.
 
 ## Nextcloud Integration
 
@@ -84,7 +84,7 @@ openspec/changes/commissievergaderingen/…               # coordination amendme
 
 ## Seed Data
 
-Realistic Dutch municipal + association examples (fictional "Gemeente Voorbeeldingen" and "VvE De Linde"), planted via the fragment's `x-openregister.seedData` path (ADR-016). References use existing decidesk seed objects (seeded gemeenteraad governance body, seeded raadsvergadering and an agenda item) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder resolved at import. Envelope per object: register `decidesk`, schema slug as listed, slug as listed.
+Realistic Dutch municipal + association examples (fictional "Gemeente Voorbeeldingen" and "VvE De Linde"), planted via the fragment's `x-openregister.seedData` path (ADR-016). References use existing decidiq seed objects (seeded gemeenteraad governance body, seeded raadsvergadering and an agenda item) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder resolved at import. Envelope per object: register `decidiq`, schema slug as listed, slug as listed.
 
 ### Schema: `inspraak-beleid`
 
@@ -123,7 +123,7 @@ Object 1 exercises the full loop (approved → queue → gesproken → bijdrage 
 ## Migration Plan
 
 1. `commissievergaderingen` lands first or its artifacts are amended concurrently (hard `depends_on` — D1 coordination removes its embedded InspraakAanmelding before either register imports).
-2. Land fragment 64 + `InspraakService`/controller + manifest fragment + agenda/queue wiring + seed + tests + docs in one decidesk PR; `ConfigurationService::importFromApp()` via the existing repair step picks the schemas up on upgrade (fragments are additive).
+2. Land fragment 64 + `InspraakService`/controller + manifest fragment + agenda/queue wiring + seed + tests + docs in one decidiq PR; `ConfigurationService::importFromApp()` via the existing repair step picks the schemas up on upgrade (fragments are additive).
 3. `raadsvergadering-livestream-transcript` ordering is soft: `transcriptSegment` is nullable and the linkage degrades to absent.
 4. Rollback: revert the PR; fragment and manifest files are additive, service/routes have no external callers, existing objects remain inert (proposal's rollback strategy).
 

@@ -6,7 +6,7 @@
  * advisory voting.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Controller
+ * @package  OCA\Decidiq\Tests\Unit\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -22,16 +22,16 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Controller;
+namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\Decidesk\Controller\ParticipationBudgetController;
-use OCA\Decidesk\Controller\ParticipationController;
-use OCA\Decidesk\Service\BudgetVotingService;
-use OCA\Decidesk\Service\ParticipationLifecycleService;
-use OCA\Decidesk\Service\ParticipationPublicationService;
-use OCA\Decidesk\Service\ParticipationResponder;
-use OCA\Decidesk\Service\ParticipationStaffGuard;
-use OCA\Decidesk\Service\ReactionIntakeService;
+use OCA\Decidiq\Controller\ParticipationBudgetController;
+use OCA\Decidiq\Controller\ParticipationController;
+use OCA\Decidiq\Service\BudgetVotingService;
+use OCA\Decidiq\Service\ParticipationLifecycleService;
+use OCA\Decidiq\Service\ParticipationPublicationService;
+use OCA\Decidiq\Service\ParticipationResponder;
+use OCA\Decidiq\Service\ParticipationStaffGuard;
+use OCA\Decidiq\Service\ReactionIntakeService;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
 use PHPUnit\Framework\MockObject\MockObject;

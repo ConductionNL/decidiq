@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk MCP Action Item Tools
+ * Decidiq MCP Action Item Tools
  *
  * Implements the two action-item MCP tools — decidesk.listOpenActionItems and
- * decidesk.addActionItem — behind the DecideskToolProvider dispatcher.
+ * decidesk.addActionItem — behind the DecidiqToolProvider dispatcher.
  *
  * @category Mcp
- * @package  OCA\Decidesk\Mcp
+ * @package  OCA\Decidiq\Mcp
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,21 +24,21 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Mcp;
+namespace OCA\Decidiq\Mcp;
 
-use OCA\Decidesk\Service\ActionItemWriter;
-use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidiq\Service\ActionItemWriter;
+use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;
 use OCP\IUserSession;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
- * The action-item half of the decidesk MCP tool catalogue.
+ * The action-item half of the Decidiq MCP tool catalogue.
  *
- * Extracted from DecideskToolProvider (which now only dispatches) so that the
+ * Extracted from DecidiqToolProvider (which now only dispatches) so that the
  * two handlers and their supporting logic form a class of their own rather
  * than 270 lines inside a 1200-line provider.
  *
@@ -128,7 +128,7 @@ class McpActionItemTools {
 			return $this->collectOpenActionItems(scope: (string)$scope, limit: $limit);
 		} catch (Throwable $e) {
 			$this->logger->error(
-				'Decidesk MCP: listOpenActionItems failed',
+				'Decidiq MCP: listOpenActionItems failed',
 				['exception' => $e->getMessage()]
 			);
 			return $this->formatter->error(
@@ -172,7 +172,7 @@ class McpActionItemTools {
 			);
 		} catch (Throwable $e) {
 			$this->logger->error(
-				'Decidesk MCP: addActionItem failed',
+				'Decidiq MCP: addActionItem failed',
 				['meetingUuid' => $resolved['uuid'], 'exception' => $e->getMessage()]
 			);
 			return $this->formatter->error(
@@ -201,7 +201,7 @@ class McpActionItemTools {
 		$currentUserId = $this->gate->currentUserId();
 
 		$filters = [
-			'register' => 'decidesk',
+			'register' => 'decidiq',
 			'schema' => 'action-item',
 			'completed' => false,
 			'_limit' => $limit,

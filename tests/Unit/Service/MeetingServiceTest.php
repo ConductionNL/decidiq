@@ -4,7 +4,7 @@
  * Unit tests for MeetingService.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -22,15 +22,15 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Lifecycle\MeetingTransitionGuard;
-use OCA\Decidesk\Service\GovernanceScopeGuard;
-use OCA\Decidesk\Service\MeetingCostService;
-use OCA\Decidesk\Service\MeetingService;
-use OCA\Decidesk\Service\WorkflowService;
-use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\Decidiq\Lifecycle\MeetingTransitionGuard;
+use OCA\Decidiq\Service\GovernanceScopeGuard;
+use OCA\Decidiq\Service\MeetingCostService;
+use OCA\Decidiq\Service\MeetingService;
+use OCA\Decidiq\Service\WorkflowService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\AppFramework\Db\DoesNotExistException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -191,7 +191,7 @@ class MeetingServiceTest extends TestCase {
 					}
 				),
 				$this->anything(),
-				'decidesk',
+				'decidiq',
 				'meeting',
 				$uuid,
 			)

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Vote Cast Guard
+ * Decidiq Vote Cast Guard
  *
  * Enforces everything a cast vote must satisfy before a ballot is written: the
  * round is open, the caster is a member of the owning meeting, the caster holds
@@ -9,7 +9,7 @@
  * been registered for that delegator in the round.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,13 +27,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Fail-closed eligibility rules for the vote-casting path.
@@ -91,7 +91,7 @@ class VoteCastGuard {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function loadOpenRound(string $votingRoundId): array {
-		$roundEntity = $this->objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
+		$roundEntity = $this->objectService->find(id: $votingRoundId, register: 'decidiq', schema: 'voting-round');
 		$round = null;
 		if ($roundEntity !== null) {
 			$round = $roundEntity->jsonSerialize();
@@ -172,7 +172,7 @@ class VoteCastGuard {
 		if ($this->hasAbsenceDelegation(delegatorId: $delegatorId, participantId: $participantId, callerUid: $callerUid) === true) {
 			throw new RuntimeException(
 				'Delegation does not include voting rights. A formal proxy (volmacht) is required for voting. '
-				. 'Grant one via the voting round proxy process (POST /apps/decidesk/api/voting-rounds/{id}/proxy).'
+				. 'Grant one via the voting round proxy process (POST /apps/decidiq/api/voting-rounds/{id}/proxy).'
 			);
 		}
 
@@ -312,7 +312,7 @@ class VoteCastGuard {
 			}
 		} catch (Throwable $e) {
 			// Both outcomes deny the vote; this only selects the error text.
-			$this->logger->debug('Decidesk: delegation consult failed', ['error' => $e->getMessage()]);
+			$this->logger->debug('Decidiq: delegation consult failed', ['error' => $e->getMessage()]);
 		}
 
 		return false;
@@ -329,7 +329,7 @@ class VoteCastGuard {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function votesInRound(string $votingRoundId, array $extraFilters): array {
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('vote');
 
 		return $this->relationFilter->matching(

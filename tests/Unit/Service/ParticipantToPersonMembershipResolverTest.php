@@ -4,7 +4,7 @@
  * Unit tests for ParticipantToPersonMembershipResolver.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,9 +20,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\ParticipantToPersonMembershipResolver;
+use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
@@ -93,7 +93,7 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 				?array $_extend = [],
 				bool $files = false,
 				string|int|null $register = null,
-				string|int|null $schema = null
+				string|int|null $schema = null,
 			) use ($participant, $throwOnParticipantFind) {
 				if ($throwOnParticipantFind === true) {
 					throw new RuntimeException('Participant lookup failed.');
@@ -158,7 +158,7 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 				?array $extend = [],
 				string|int|null $register = null,
 				string|int|null $schema = null,
-				?string $uuid = null
+				?string $uuid = null,
 			) use (&$savedPersonsRef, &$savedMembershipsRef, $throwOnPersonCreateSave, $throwOnPersonBackfillSave, $throwOnMembershipSave) {
 				if ($schema === 'person') {
 					if ($uuid === null && $throwOnPersonCreateSave === true) {
@@ -484,7 +484,7 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 				?array $_extend = [],
 				bool $files = false,
 				string|int|null $register = null,
-				string|int|null $schema = null
+				string|int|null $schema = null,
 			) use ($participant) {
 				if ($schema === 'participant' && ($participant['id'] ?? null) === $id) {
 					return $this->entity($participant);
@@ -526,7 +526,7 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 				?array $extend = [],
 				string|int|null $register = null,
 				string|int|null $schema = null,
-				?string $uuid = null
+				?string $uuid = null,
 			) use (&$savedMemberships) {
 				$row = array_merge(['id' => $uuid ?? ('membership-' . count($savedMemberships))], $object);
 				$savedMemberships[] = $row;

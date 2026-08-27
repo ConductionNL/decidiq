@@ -21,7 +21,7 @@ export const useSettingsStore = defineStore('settings', {
 			this.loading = true
 			try {
 				const response = await fetch(
-					generateUrl('/apps/decidesk/api/settings'),
+					generateUrl('/apps/decidiq/api/settings'),
 					{
 						headers: { requesttoken: getRequestToken() },
 					},
@@ -49,7 +49,7 @@ export const useSettingsStore = defineStore('settings', {
 			this.loading = true
 			try {
 				const response = await fetch(
-					generateUrl('/apps/decidesk/api/settings'),
+					generateUrl('/apps/decidiq/api/settings'),
 					{
 						method: 'POST',
 						headers: {

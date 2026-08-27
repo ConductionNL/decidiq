@@ -21,7 +21,7 @@ superseded-by: organisation-facet-composition
 > start from `organisation-facet-composition`'s `GovernanceBody`-based model
 > instead.
 
-# Decidesk — Fractievoorzitter en Fractie Koppeling
+# Decidiq — Fractievoorzitter en Fractie Koppeling
 
 ## Why
 

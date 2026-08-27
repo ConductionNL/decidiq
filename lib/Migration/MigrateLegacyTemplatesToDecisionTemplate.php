@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Migrate Legacy Templates To DecisionTemplate Repair Step
+ * Decidiq Migrate Legacy Templates To DecisionTemplate Repair Step
  *
  * One-shot, idempotent, resume-safe repair migration for the
  * unified-decision-templates schema-declaration change (ADR-032 chain link 1
@@ -23,7 +23,7 @@
  * throwing or returning empty exits cleanly with no error.
  *
  * @category Migration
- * @package  OCA\Decidesk\Migration
+ * @package  OCA\Decidiq\Migration
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -41,9 +41,9 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Migration;
+namespace OCA\Decidiq\Migration;
 
-use OCA\Decidesk\Service\SettingsService;
+use OCA\Decidiq\Service\SettingsService;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -64,7 +64,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	 *
 	 * @var string
 	 */
-	private const REGISTER = 'decidesk';
+	private const REGISTER = 'decidiq';
 
 	/**
 	 * The legacy process-template schema slug.
@@ -111,8 +111,21 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	 * @spec openspec/changes/unified-decision-templates/tasks.md#task-1
 	 */
 	public function getName(): string {
-		return 'Migrate legacy Decidesk ProcessTemplate/VveDecisionTemplate objects to the unified DecisionTemplate schema';
+		return 'Migrate legacy Decidiq ProcessTemplate/VveDecisionTemplate objects to the unified DecisionTemplate schema';
 	}//end getName()
+
+	/**
+	 * OpenRegister's ObjectService for the duration of one migration pass.
+	 *
+	 * A PROPERTY because the mappers are handed to migrateSchema() as
+	 * first-class callables (`$this->mapProcessTemplate(...)`) and invoked as
+	 * `$mapper($source, $uuid)` — so there is no argument slot to pass a
+	 * collaborator through without changing both mapper signatures and the
+	 * call contract between them.
+	 *
+	 * @var object|null
+	 */
+	private ?object $mappingObjectService = null;
 
 	/**
 	 * Run the migration.
@@ -135,12 +148,45 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 		} catch (Throwable $e) {
 			$output->warning('Could not resolve OpenRegister ObjectService — skipping DecisionTemplate migration.');
 			$this->logger->warning(
-				'Decidesk: DecisionTemplate migration could not resolve ObjectService',
+				'Decidiq: DecisionTemplate migration could not resolve ObjectService',
 				['error' => $e->getMessage()]
 			);
 			return;
 		}
 
+		// RUN AS SYSTEM. A migration executes during `occ upgrade`, where there
+		// is no session — so OpenRegister sees the actor as 'Anonymous' and
+		// refuses `create` on DecisionTemplate. Measured on a live upgrade before
+		// this line existed: all 14 legacy templates failed with "User
+		// 'Anonymous' does not have permission to 'create' objects in schema
+		// 'DecisionTemplate'", and the step reported them one by one as
+		// `$output->warning()` — which does not fail the upgrade. So the upgrade
+		// said "Update successful", the summary said "0 migrated, 14 skipped",
+		// and nothing anyone reads said the migration had not happened.
+		$objectService->runAsSystem(
+			function () use ($objectService, $output): void {
+				$this->migrateAll(objectService: $objectService, output: $output);
+			}
+		);
+
+	}//end run()
+
+	/**
+	 * Migrate both legacy template schemas.
+	 *
+	 * Split out of run() so the whole traversal sits inside ONE runAsSystem()
+	 * scope: a per-save wrapper would re-enter for every object and leave the
+	 * index build outside it.
+	 *
+	 * @param object $objectService OpenRegister's ObjectService.
+	 * @param IOutput $output Progress reporting.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/unified-decision-templates/tasks.md
+	 */
+	private function migrateAll(object $objectService, IOutput $output): void {
+		$this->mappingObjectService = $objectService;
 		$alreadyMigrated = $this->buildMigratedIndex(objectService: $objectService);
 
 		$migrated = 0;
@@ -167,10 +213,10 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 		);
 
 		$output->info(
-			'Decidesk DecisionTemplate migration complete: ' . $migrated . ' migrated, ' . $skipped . ' skipped.'
+			'Decidiq DecisionTemplate migration complete: ' . $migrated . ' migrated, ' . $skipped . ' skipped.'
 		);
 
-	}//end run()
+	}//end migrateAll()
 
 	/**
 	 * Read every existing `decision-template` object and build a lookup of
@@ -195,7 +241,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 			// step (info.xml ordering), so this is an unexpected but
 			// non-fatal state; the loop below simply migrates everything.
 			$this->logger->info(
-				'Decidesk: DecisionTemplate migration found no existing decision-template objects yet',
+				'Decidiq: DecisionTemplate migration found no existing decision-template objects yet',
 				['error' => $e->getMessage()]
 			);
 			return $index;
@@ -222,7 +268,6 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 		}//end foreach
 
 		return $index;
-
 	}//end buildMigratedIndex()
 
 	/**
@@ -257,7 +302,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 		} catch (Throwable $e) {
 			$output->info('No legacy ' . $sourceSchema . ' objects found — nothing to migrate.');
 			$this->logger->info(
-				'Decidesk: DecisionTemplate migration found no legacy ' . $sourceSchema . ' schema/objects',
+				'Decidiq: DecisionTemplate migration found no legacy ' . $sourceSchema . ' schema/objects',
 				['error' => $e->getMessage()]
 			);
 			return;
@@ -292,14 +337,14 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 				);
 				$migrated++;
 				$this->logger->info(
-					'Decidesk: migrated ' . $sourceSchema . ' to decision-template',
+					'Decidiq: migrated ' . $sourceSchema . ' to decision-template',
 					['sourceUuid' => $uuid]
 				);
 			} catch (Throwable $e) {
 				$skipped++;
 				$output->warning('Failed to migrate ' . $sourceSchema . ' ' . $uuid . ': ' . $e->getMessage());
 				$this->logger->warning(
-					'Decidesk: DecisionTemplate migration failed for one object',
+					'Decidiq: DecisionTemplate migration failed for one object',
 					['sourceSchema' => $sourceSchema, 'sourceUuid' => $uuid, 'error' => $e->getMessage()]
 				);
 			}//end try
@@ -339,12 +384,109 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 		];
 
 		if (isset($source['urgencyPolicy']) === true) {
-			$payload['urgencyPolicy'] = $source['urgencyPolicy'];
+			$payload['urgencyPolicy'] = $this->resolveUrgencyPolicyRefs(
+				policy: (array)$source['urgencyPolicy'],
+			);
 		}
 
 		return $payload;
-
 	}//end mapProcessTemplate()
+
+	/**
+	 * Resolve slug-shaped body references inside an urgencyPolicy to UUIDs.
+	 *
+	 * `urgencyPolicy.ratifyingBody` declares `format: uuid`, and its own
+	 * description says seed refs "are stored by slug and mapped to UUID at
+	 * import". The IMPORTER does that mapping; this migration did not — it
+	 * copied the policy through verbatim, so a seeded template carrying
+	 * `gemeenteraad-amsterdam` was rejected by format validation.
+	 *
+	 * This was invisible until the runAsSystem fix landed: every template
+	 * previously failed on the identity error first, so the 2 that fail on
+	 * their DATA only became reachable once the other 12 started succeeding.
+	 * Fixing an outer error is what made the inner one observable.
+	 *
+	 * An unresolvable slug is left AS IS rather than blanked. The save then
+	 * fails loudly with the same format message, which is a better outcome than
+	 * silently dropping the body a template says must ratify its urgent
+	 * decisions.
+	 *
+	 * @param array<string, mixed> $policy The source urgencyPolicy.
+	 *
+	 * @return array<string, mixed> The policy with body refs resolved.
+	 *
+	 * @spec openspec/changes/unified-decision-templates/tasks.md
+	 */
+	private function resolveUrgencyPolicyRefs(array $policy): array {
+		$ref = (string)($policy['ratifyingBody'] ?? '');
+		if ($ref === '' || $this->looksLikeUuid(value: $ref) === true) {
+			return $policy;
+		}
+
+		$uuid = $this->bodyUuidForSlug(slug: $ref);
+		if ($uuid !== null) {
+			$policy['ratifyingBody'] = $uuid;
+		}
+
+		return $policy;
+	}//end resolveUrgencyPolicyRefs()
+
+	/**
+	 * Whether a value is already a UUID.
+	 *
+	 * @param string $value The value.
+	 *
+	 * @return bool True when it is UUID-shaped.
+	 */
+	private function looksLikeUuid(string $value): bool {
+		return (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $value) === 1);
+	}//end looksLikeUuid()
+
+	/**
+	 * The GovernanceBody UUID for a slug, or null when it cannot be resolved.
+	 *
+	 * @param string $slug The body slug.
+	 *
+	 * @return string|null The uuid, or null.
+	 */
+	private function bodyUuidForSlug(string $slug): ?string {
+		$objectService = $this->mappingObjectService;
+		if ($objectService === null) {
+			return null;
+		}
+
+		try {
+			$objectService->setRegister(self::REGISTER);
+			$objectService->setSchema('governance-body');
+			// THE SLUG LIVES IN `@self`, NOT IN THE OBJECT BODY.
+			//
+			// A seeded `slug:` key is an import-time identifier that OpenRegister
+			// keeps as metadata; it is NOT a stored property. Filtering
+			// `['slug' => …]` therefore matches nothing — measured on a live
+			// instance: that filter returned 0 rows, and scanning all 60
+			// governance bodies found no object carrying `slug` as a field at
+			// all, while `['@self' => ['slug' => …]]` returned exactly 1.
+			$rows = $objectService->findAll(
+				['filters' => ['@self' => ['slug' => $slug]], 'limit' => 1]
+			);
+		} catch (Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: could not resolve a governance-body slug during template migration',
+				['slug' => $slug, 'error' => $e->getMessage()]
+			);
+			return null;
+		}
+
+		foreach (($rows ?? []) as $row) {
+			$body = $this->toArray(entity: $row);
+			$uuid = (string)(($body['id'] ?? $body['uuid']) ?? '');
+			if ($uuid !== '') {
+				return $uuid;
+			}
+		}
+
+		return null;
+	}//end bodyUuidForSlug()
 
 	/**
 	 * Map a legacy `vve-decision-template` object to a `decision-template`
@@ -388,7 +530,6 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 		}
 
 		return $payload;
-
 	}//end mapVveDecisionTemplate()
 
 	/**

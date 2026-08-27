@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Regulator Export Renderer
+ * Decidiq Regulator Export Renderer
  *
  * Owns the *presentation* half of the regulator export: turning a collected
  * rowset into a PDF or CSV body. Extracted from RegulatorExportService so
@@ -10,7 +10,7 @@
  * PDF 1.4 skeleton, optional docudesk delegation) live in one place.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,7 +27,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -76,11 +76,24 @@ class RegulatorExportRenderer {
 	];
 
 	/**
-	 * Docudesk service candidates consulted for PDF delegation, in order.
+	 * Document-app service candidates consulted for PDF delegation, in order.
+	 *
+	 * NEWEST NAMESPACE FIRST. The document app renamed from OCA\Docudesk to
+	 * OCA\Filinq with no compatibility alias, and this list named only the old
+	 * one — so every candidate missed, the delegation silently fell back, and
+	 * nothing reported a problem, because "the optional app is not installed" is
+	 * exactly what an all-candidates-miss looks like. Measured on a running
+	 * instance: OCA\Filinq\Service\PdfService EXISTS while every Docudesk
+	 * spelling is MISSING.
+	 *
+	 * The old entries stay until no supported install still ships them; a
+	 * candidate that does not resolve costs one class_exists() call.
 	 *
 	 * @var string[]
 	 */
 	private const DOCUDESK_CANDIDATES = [
+		'\\OCA\\Filinq\\Service\\PdfService',
+		'\\OCA\\Filinq\\Service\\PdfConversionService',
 		'\\OCA\\Docudesk\\Service\\PdfRenderService',
 		'\\OCA\\Docudesk\\Service\\PdfService',
 	];
@@ -205,7 +218,7 @@ class RegulatorExportRenderer {
 			}
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: docudesk PDF delegation failed; falling back to skeleton',
+				'Decidiq: docudesk PDF delegation failed; falling back to skeleton',
 				['candidate' => $candidate, 'exception' => $e->getMessage()]
 			);
 		}//end try

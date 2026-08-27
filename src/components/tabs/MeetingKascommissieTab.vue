@@ -24,7 +24,7 @@
 <template>
 	<div
 		v-if="visible"
-		class="decidesk-tab decidesk-tab--kascommissie"
+		class="decidiq-tab decidiq-tab--kascommissie"
 		data-testid="meeting-kascommissie-tab">
 		<CnObjectListWidget :content="content" />
 	</div>

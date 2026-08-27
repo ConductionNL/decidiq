@@ -10,11 +10,11 @@ Add an **achterbanraadpleging / ledenraadpleging** capability: an informal, expl
 
 ## Motivation
 
-Novelty-verified missing (2026-07-17): decidesk's `citizen-participation` / `portal-contribution` cover **public/citizen** input only, and `voting-system` / `preferential-ballot` cover **formal ballots** only — there is no member-poll capability in between. Yet the between-space is exactly where Dutch governance practice lives: a fractie polls its leden before a council vote, an association board sounds out the ledenvergadering before tabling a proposal, an OR consults its achterban before an instemmingsbesluit. Demand evidence: `consult-constituency-before-council-vote` (1115) and `prepare-for-member-council-meeting-with-constituency-input` (780). Without this, members improvise in mail/Forms outside the meeting context, and the outcome never lands next to the agenda item it was meant to inform. The sibling change `works-council-consultation` will reference this capability for its achterban step, so the audience model must be generic (body membership *and* NC group).
+Novelty-verified missing (2026-07-17): decidiq's `citizen-participation` / `portal-contribution` cover **public/citizen** input only, and `voting-system` / `preferential-ballot` cover **formal ballots** only — there is no member-poll capability in between. Yet the between-space is exactly where Dutch governance practice lives: a fractie polls its leden before a council vote, an association board sounds out the ledenvergadering before tabling a proposal, an OR consults its achterban before an instemmingsbesluit. Demand evidence: `consult-constituency-before-council-vote` (1115) and `prepare-for-member-council-meeting-with-constituency-input` (780). Without this, members improvise in mail/Forms outside the meeting context, and the outcome never lands next to the agenda item it was meant to inform. The sibling change `works-council-consultation` will reference this capability for its achterban step, so the audience model must be generic (body membership *and* NC group).
 
 ## Affected Projects
 
-- [ ] Project: `decidesk` — new `MemberConsultation` + `MemberConsultationResponse` schemas (register.d fragment 48), manifest pages + menu (manifest.d fragment), audience-resolution/response-guard service + routes, results-summary step, seed data, docs, tests.
+- [ ] Project: `decidiq` — new `MemberConsultation` + `MemberConsultationResponse` schemas (register.d fragment 48), manifest pages + menu (manifest.d fragment), audience-resolution/response-guard service + routes, results-summary step, seed data, docs, tests.
 
 No other apps change. OpenRegister is consumed as-is (lifecycle, notifications, RBAC, relations are existing capabilities).
 
@@ -43,7 +43,7 @@ Thin-client extension per ADR-022/ADR-037: two schemas shipped as `lib/Settings/
 
 ## New Dependencies
 
-None. All capabilities used (lifecycle, notifications, relations, RBAC, Membership queries, manifest pages) already exist in OpenRegister, nc-vue, and decidesk.
+None. All capabilities used (lifecycle, notifications, relations, RBAC, Membership queries, manifest pages) already exist in OpenRegister, nc-vue, and decidiq.
 
 ## Impact
 
@@ -56,8 +56,8 @@ None. All capabilities used (lifecycle, notifications, relations, RBAC, Membersh
 
 ## Cross-Project Dependencies
 
-- `works-council-consultation` (decidesk sibling change) will REFERENCE this change's audience model for its achterban step (NC-group audience). This change must therefore keep the audience model generic; no reverse dependency.
-- `fractievoorzitter-fractie-koppeling` (decidesk sibling change) introduces a first-class `Fractie` schema. This change models a fractie audience via `Membership.party` within a body (works today, `person-and-membership`); upgrading the fractie audience to reference the `Fractie` object is deferred to after that change lands. Soft, forward-only relationship.
+- `works-council-consultation` (decidiq sibling change) will REFERENCE this change's audience model for its achterban step (NC-group audience). This change must therefore keep the audience model generic; no reverse dependency.
+- `fractievoorzitter-fractie-koppeling` (decidiq sibling change) introduces a first-class `Fractie` schema. This change models a fractie audience via `Membership.party` within a body (works today, `person-and-membership`); upgrading the fractie audience to reference the `Fractie` object is deferred to after that change lands. Soft, forward-only relationship.
 - OpenRegister: consumed, not changed.
 
 ## Risks

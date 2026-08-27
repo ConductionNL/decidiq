@@ -30,7 +30,7 @@ change dirs evaporate on archive.
 - **files**: `src/manifest.json`, `src/manifest.d/citizen-participation.json`
 - **acceptance_criteria**:
   - GIVEN `ConsultationDetail` (citizen-participation fragment) and `DecisionIntegrations` WHEN their widgets are read THEN each declares `{"type": "integration", "integrationId": "polls"}` with a "Straw poll" title
-  - GIVEN a completed straw poll on a dev instance WHEN decidesk objects are counted before/after THEN no `voting-round`, `vote` or `citizen-vote` object was created or modified by the poll surface (measure counts, not the UI)
+  - GIVEN a completed straw poll on a dev instance WHEN decidiq objects are counted before/after THEN no `voting-round`, `vote` or `citizen-vote` object was created or modified by the poll surface (measure counts, not the UI)
 - [ ] Implement
 - [ ] Test
 
@@ -76,7 +76,7 @@ change dirs evaporate on archive.
 ## Tests (company-wide ADR-009)
 
 - [ ] PHPUnit unit tests — register-JSON assertions (linkedTypes on exactly 4 schemas; mailObjectTemplate on exactly 1; template pins `lifecycle: draft`), reaction-intake idempotency.
-- [ ] Newman/Postman tests — N/A: no new decidesk HTTP endpoints (create-from-email and linking are OpenRegister surfaces).
+- [ ] Newman/Postman tests — N/A: no new decidiq HTTP endpoints (create-from-email and linking are OpenRegister surfaces).
 - [ ] Browser tests (Playwright MCP) — the four pages render their new widget with the app present; degrade with it absent.
 - [ ] All tests pass (`composer test`), zero new failures against a self-measured baseline.
 

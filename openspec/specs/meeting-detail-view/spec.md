@@ -5,7 +5,7 @@ status: in-progress
 # meeting-detail-view Specification
 
 **Status**: in-progress
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - meeting-facet-composition (in-progress) — composes 5 meeting-scoped facets (oral questions, interpellations, proxy authorizations, kascommissie verklaringen, routed incoming documents) onto the Meeting detail page per ADR-004 Rule 3
 

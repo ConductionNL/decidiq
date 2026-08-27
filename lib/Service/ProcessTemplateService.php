@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Process Template Service
+ * Decidiq Process Template Service
  *
  * Manages process templates (the state machine, default voting rule, and quorum
  * policy a governance body follows) as OpenRegister objects, validates their
@@ -10,7 +10,7 @@
  * round-open path consume.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -28,13 +28,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
-use OCA\Decidesk\Lifecycle\ProcessTemplatePolicyResolver;
+use OCA\Decidiq\Lifecycle\ProcessTemplatePolicyResolver;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Service for process-template management and template-driven policy resolution.
@@ -126,7 +126,7 @@ class ProcessTemplateService {
 		$rows = $this->objectService()->findAll(
 			[
 				'filters' => [
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'process-template',
 				],
 				'limit' => 1000,
@@ -151,7 +151,7 @@ class ProcessTemplateService {
 	 * @return array<string, mixed>|null The template object, or null when not found
 	 */
 	public function get(string $templateId): ?array {
-		$entity = $this->objectService()->find(id: $templateId, register: 'decidesk', schema: 'process-template');
+		$entity = $this->objectService()->find(id: $templateId, register: 'decidiq', schema: 'process-template');
 		if ($entity === null) {
 			return null;
 		}
@@ -176,7 +176,7 @@ class ProcessTemplateService {
 		// Created templates are never built-in; only seeds may be built-in.
 		$template['builtIn'] = false;
 
-		$saved = $this->objectService()->saveObject(register: 'decidesk', schema: 'process-template', object: $template);
+		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'process-template', object: $template);
 		return $this->toArray(row: $saved);
 	}//end create()
 
@@ -211,7 +211,7 @@ class ProcessTemplateService {
 		$template['id'] = $templateId;
 		$template['builtIn'] = false;
 
-		$saved = $this->objectService()->saveObject(register: 'decidesk', schema: 'process-template', object: $template);
+		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'process-template', object: $template);
 		return $this->toArray(row: $saved);
 	}//end update()
 
@@ -241,7 +241,7 @@ class ProcessTemplateService {
 		$copy['builtIn'] = false;
 		$copy['name'] = ($newName ?? (($source['name'] ?? 'Template') . ' (copy)'));
 
-		$saved = $this->objectService()->saveObject(register: 'decidesk', schema: 'process-template', object: $copy);
+		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'process-template', object: $copy);
 		return $this->toArray(row: $saved);
 	}//end duplicate()
 
@@ -266,7 +266,7 @@ class ProcessTemplateService {
 			throw new RuntimeException('Built-in templates are read-only and cannot be deleted.');
 		}
 
-		$this->objectService()->deleteObject(uuid: $templateId, register: 'decidesk', schema: 'process-template');
+		$this->objectService()->deleteObject(uuid: $templateId, register: 'decidiq', schema: 'process-template');
 
 	}//end delete()
 
@@ -356,7 +356,7 @@ class ProcessTemplateService {
 		}
 
 		try {
-			$bodyEntity = $this->objectService()->find(id: $governanceBodyId, register: 'decidesk', schema: 'governance-body');
+			$bodyEntity = $this->objectService()->find(id: $governanceBodyId, register: 'decidiq', schema: 'governance-body');
 			if ($bodyEntity === null) {
 				return null;
 			}
@@ -369,7 +369,7 @@ class ProcessTemplateService {
 
 			return $this->loadTemplateByRef(ref: $templateRef);
 		} catch (\Throwable $e) {
-			$this->logger->debug('Decidesk: body template resolution skipped', ['error' => $e->getMessage()]);
+			$this->logger->debug('Decidiq: body template resolution skipped', ['error' => $e->getMessage()]);
 			return null;
 		}
 
@@ -392,7 +392,7 @@ class ProcessTemplateService {
 			[
 				'limit' => 1,
 				'filters' => [
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'process-template',
 					'slug' => $ref,
 				],
@@ -404,7 +404,7 @@ class ProcessTemplateService {
 		}
 
 		// Fall back to a direct UUID lookup.
-		$entity = $this->objectService()->find(id: $ref, register: 'decidesk', schema: 'process-template');
+		$entity = $this->objectService()->find(id: $ref, register: 'decidiq', schema: 'process-template');
 		if ($entity === null) {
 			return null;
 		}

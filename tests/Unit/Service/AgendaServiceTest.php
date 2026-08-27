@@ -4,7 +4,7 @@
  * Unit tests for AgendaService.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,13 +20,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\AgendaService;
-use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidiq\Service\AgendaService;
+use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\CalendarEventService;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\Notification\IManager as INotificationManager;
 use OCP\Notification\INotification;
@@ -216,7 +216,7 @@ class AgendaServiceTest extends TestCase {
 	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-9.1
 	 */
 	public function testAdvanceBobPhaseCyclesThroughPhases(): void {
-		$this->markTestSkipped('See https://codeberg.org/Conduction/decidesk/issues/90 — real ObjectService loads instead of stub.');
+		$this->markTestSkipped('See Codeberg issue #90 (pre-migration, not migrated to GitHub) — real ObjectService loads instead of stub.');
 
 		$transitions = [
 			['from' => 'voorstel',        'to' => 'beeldvorming'],
@@ -267,7 +267,7 @@ class AgendaServiceTest extends TestCase {
 			->method('find')
 			->willReturn(null);
 
-		$this->expectException(\OCA\Decidesk\Exception\NotFoundException::class);
+		$this->expectException(\OCA\Decidiq\Exception\NotFoundException::class);
 
 		$this->service->advanceBobPhase('missing-uuid');
 
@@ -281,7 +281,7 @@ class AgendaServiceTest extends TestCase {
 	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-9.1
 	 */
 	public function testAdvanceBobPhaseThrowsForInformationalItem(): void {
-		$this->markTestSkipped('See https://codeberg.org/Conduction/decidesk/issues/90 — real ObjectService loads instead of stub.');
+		$this->markTestSkipped('See Codeberg issue #90 (pre-migration, not migrated to GitHub) — real ObjectService loads instead of stub.');
 
 		$itemId = 'item-info';
 		$itemData = ['id' => $itemId, 'itemType' => 'informational', 'status' => 'beeldvorming'];
@@ -305,7 +305,7 @@ class AgendaServiceTest extends TestCase {
 	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-9.1
 	 */
 	public function testAdvanceBobPhaseThrowsAtFinalPhase(): void {
-		$this->markTestSkipped('See https://codeberg.org/Conduction/decidesk/issues/90 — real ObjectService loads instead of stub.');
+		$this->markTestSkipped('See Codeberg issue #90 (pre-migration, not migrated to GitHub) — real ObjectService loads instead of stub.');
 
 		$itemId = 'item-final';
 		$itemData = ['id' => $itemId, 'itemType' => 'decision', 'status' => 'completed'];
@@ -333,7 +333,7 @@ class AgendaServiceTest extends TestCase {
 	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-9.1
 	 */
 	public function testProcessHamerstukkenUpdatesTaggedItemsOnly(): void {
-		$this->markTestSkipped('See https://codeberg.org/Conduction/decidesk/issues/90 — real ObjectService loads instead of stub.');
+		$this->markTestSkipped('See Codeberg issue #90 (pre-migration, not migrated to GitHub) — real ObjectService loads instead of stub.');
 
 		$meetingId = 'meeting-uuid-1';
 		$items = [
@@ -376,7 +376,7 @@ class AgendaServiceTest extends TestCase {
 	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-9.1
 	 */
 	public function testReorderItemsAssignsSequentialNumbers(): void {
-		$this->markTestSkipped('See https://codeberg.org/Conduction/decidesk/issues/90 — real ObjectService loads instead of stub.');
+		$this->markTestSkipped('See Codeberg issue #90 (pre-migration, not migrated to GitHub) — real ObjectService loads instead of stub.');
 
 		$meetingId = 'meeting-uuid-1';
 		$orderedIds = ['item-c', 'item-a', 'item-b'];

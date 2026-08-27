@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Vote Ballot Factory
+ * Decidiq Vote Ballot Factory
  *
  * Assembles the ballot payload a cast vote persists: the idempotency slug, the
  * relations, the anonymity tokens and the attendance stamp.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,7 +24,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -156,18 +156,18 @@ class VoteBallotFactory {
 		bool $isSecret,
 	): array {
 		$relations = [
-			['register' => 'decidesk', 'schema' => 'voting-round', 'id' => $votingRoundId],
+			['register' => 'decidiq', 'schema' => 'voting-round', 'id' => $votingRoundId],
 		];
 
 		if ($isSecret === true) {
 			return $relations;
 		}
 
-		$relations[] = ['register' => 'decidesk', 'schema' => 'participant', 'id' => $participantId];
+		$relations[] = ['register' => 'decidiq', 'schema' => 'participant', 'id' => $participantId];
 
 		if ($isProxy === true && $delegatorId !== null) {
 			$relations[] = [
-				'register' => 'decidesk',
+				'register' => 'decidiq',
 				'schema' => 'participant',
 				'id' => $delegatorId,
 				'type' => 'delegator',
@@ -237,7 +237,7 @@ class VoteBallotFactory {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$participantEntity = $objectService->find(
 				id: $participantId,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'participant'
 			);
 			if ($participantEntity !== null) {
@@ -248,7 +248,7 @@ class VoteBallotFactory {
 				}
 			}
 		} catch (Throwable $e) {
-			$this->logger->debug('Decidesk: castAs participant lookup failed', ['error' => $e->getMessage()]);
+			$this->logger->debug('Decidiq: castAs participant lookup failed', ['error' => $e->getMessage()]);
 		}
 
 		return 'unknown';

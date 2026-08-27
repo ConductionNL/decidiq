@@ -4,7 +4,7 @@
  * Unit tests for MeetingController.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Controller
+ * @package  OCA\Decidiq\Tests\Unit\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -22,16 +22,16 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Controller;
+namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\Decidesk\Controller\MeetingController;
-use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\Decidesk\Service\MeetingPackageService;
-use OCA\Decidesk\Service\MeetingRoleGate;
-use OCA\Decidesk\Service\MeetingSeriesService;
-use OCA\Decidesk\Service\MeetingService;
-use OCA\Decidesk\Service\ParticipantResolver;
-use OCA\Decidesk\Service\ProofPackageService;
+use OCA\Decidiq\Controller\MeetingController;
+use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Service\MeetingPackageService;
+use OCA\Decidiq\Service\MeetingRoleGate;
+use OCA\Decidiq\Service\MeetingSeriesService;
+use OCA\Decidiq\Service\MeetingService;
+use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Service\ProofPackageService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;

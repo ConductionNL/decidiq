@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Motion Forwarding Service
+ * Decidiq Motion Forwarding Service
  *
  * Forwards a motion to another governance body: copies it into the target
  * body, cross-links both copies with an audit note, and notifies when the
  * instance requires approval for forwarding.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,15 +25,16 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * The forward-a-motion path, extracted from MotionService.
@@ -85,10 +86,9 @@ class MotionForwardingService {
 			throw new RuntimeException("Actor {$actorId} not found");
 		}
 
-
 		// Fetch the source motion. ADR-005: motions are `decision` objects
 		// discriminated by decisionType=motion.
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('decision');
 		$sourceMotionObject = $this->objectService->find($motionId);
 		$sourceMotionData = [];
@@ -110,14 +110,14 @@ class MotionForwardingService {
 			justification: $justification
 		);
 
-		$this->objectService->setRegister('decidesk');
+		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('decision');
 		// Under ADR-084 saveObject() hands back an ObjectEntityInterface, and
 		// everything below this line reads the created motion as an array, so
 		// normalise once here rather than array-accessing an entity.
 		$created = $this->objectService->saveObject(
 			object: $forwardedMotion,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision',
 		)->jsonSerialize();
 
@@ -130,7 +130,7 @@ class MotionForwardingService {
 		);
 
 		// Send notification if approval is required.
-		if ($appConfig->getValueBool('decidesk', 'motion_forwarding_requires_approval', false) === true) {
+		if ($appConfig->getValueBool(Application::APP_ID, 'motion_forwarding_requires_approval', false) === true) {
 			$this->notifyApprovalRequired(
 				actorId: $actorId,
 				forwardedMotionId: (string)($created['id'] ?? $created['uuid'] ?? ''),
@@ -180,8 +180,8 @@ class MotionForwardingService {
 			'lifecycle' => 'proposed',
 			'submittedAt' => $this->nowIso(),
 			'relations' => [
-				['register' => 'decidesk', 'schema' => 'governance-body', 'id' => $targetBodyId],
-				['register' => 'decidesk', 'schema' => 'decision', 'id' => $motionId],
+				['register' => 'decidiq', 'schema' => 'governance-body', 'id' => $targetBodyId],
+				['register' => 'decidiq', 'schema' => 'decision', 'id' => $motionId],
 			],
 			'notes' => [
 				[
@@ -233,11 +233,11 @@ class MotionForwardingService {
 			),
 		];
 
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('decision');
 		$objectService->saveObject(
 			object: $sourceMotionData,
-			register: 'decidesk',
+			register: 'decidiq',
 			schema: 'decision',
 			uuid: $motionId,
 		);
@@ -271,7 +271,7 @@ class MotionForwardingService {
 				'title' => $title,
 				'body' => $targetBodyId,
 			],
-			failureLog: 'Decidesk: notification send failed: '
+			failureLog: 'Decidiq: notification send failed: '
 		);
 
 	}//end notifyApprovalRequired()

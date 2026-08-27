@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Minutes Draft Composer
+ * Decidiq Minutes Draft Composer
  *
  * Turns aligned transcript segments plus the recorded outcomes (voting rounds,
  * decisions) into provenance-stamped draft sections: it scopes the material to
@@ -14,7 +14,7 @@
  * persist" orchestration in the service where it belongs.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -30,7 +30,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 /**
  * Composes provenance-stamped minutes-draft sections from transcript material.

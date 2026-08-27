@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Action Item Analytics Service
+ * Decidiq Action Item Analytics Service
  *
  * Personal action-item list service.  Generic aggregation metrics (completion
  * rate, overdue counts) moved to x-openregister-aggregations on the Meeting
  * schema and are rendered by the ADR-019 analytics integration leaf.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
@@ -22,11 +22,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTime;
-use Psr\Log\LoggerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Stateless service providing personal action-item lists grouped by urgency.
@@ -81,7 +81,7 @@ class ActionItemAnalyticsService {
 			// Resolve the Participant UUID for this Nextcloud user so we can filter
 			// action items by the participant UUID stored in the assignee field.
 			// This is the canonical pattern used by VotingController/VotingBehaviourController.
-			$this->objectService->setRegister('decidesk');
+			$this->objectService->setRegister('decidiq');
 			$this->objectService->setSchema('participant');
 			$participantEntities = $this->objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
 
@@ -113,7 +113,7 @@ class ActionItemAnalyticsService {
 				'_limit' => 999,
 				'_offset' => 0,
 			];
-			$this->objectService->setRegister('decidesk');
+			$this->objectService->setRegister('decidiq');
 			$this->objectService->setSchema('action-item');
 			$itemEntities = $this->objectService->findAll(['filters' => $params]);
 

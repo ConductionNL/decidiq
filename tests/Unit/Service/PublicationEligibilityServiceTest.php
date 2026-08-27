@@ -10,7 +10,7 @@
  *     recording/transcript files (meeting-transcription-ai-minutes, task 2.7).
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,13 +27,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Exception\AccessDeniedException;
-use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\Decidesk\Service\PublicationEligibilityService;
-use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\Decidiq\Exception\AccessDeniedException;
+use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Service\PublicationEligibilityService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -73,7 +73,7 @@ class PublicationEligibilityServiceTest extends TestCase {
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);
 
-		return new PublicationEligibilityService( $logger,
+		return new PublicationEligibilityService($logger,
 			objectService: $objectService,
 		);
 	}//end makeService()
@@ -256,7 +256,7 @@ class PublicationEligibilityServiceTest extends TestCase {
 	 */
 	public function testRecordingFilesDenied(): void {
 		$service = $this->makeService([]);
-		self::assertTrue($service->isFileDenied('Decidesk/x/recording.mp3'));
+		self::assertTrue($service->isFileDenied('Decidiq/x/recording.mp3'));
 		self::assertTrue($service->isFileDenied('transcript-abc.txt'));
 		self::assertTrue($service->isFileDenied('call.wav'));
 		self::assertFalse($service->isFileDenied('minutes.pdf'));

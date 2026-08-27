@@ -4,7 +4,7 @@
  * Wire-contract tests for the board self-evaluation response endpoint.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Controller
+ * @package  OCA\Decidiq\Tests\Unit\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -17,14 +17,14 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Controller;
+namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\Decidesk\Controller\BoardEvaluationController;
-use OCA\Decidesk\Service\BoardEvaluationAccessGuard;
-use OCA\Decidesk\Service\BoardEvaluationReportService;
-use OCA\Decidesk\Service\BoardEvaluationResponseService;
-use OCA\Decidesk\Service\BoardEvaluationScoreService;
-use OCA\Decidesk\Service\ParticipationPublicationService;
+use OCA\Decidiq\Controller\BoardEvaluationController;
+use OCA\Decidiq\Service\BoardEvaluationAccessGuard;
+use OCA\Decidiq\Service\BoardEvaluationReportService;
+use OCA\Decidiq\Service\BoardEvaluationResponseService;
+use OCA\Decidiq\Service\BoardEvaluationScoreService;
+use OCA\Decidiq\Service\ParticipationPublicationService;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;

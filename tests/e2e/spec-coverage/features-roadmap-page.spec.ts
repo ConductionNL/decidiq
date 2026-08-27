@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — Features & roadmap page (genuine behavioural).
@@ -31,7 +31,7 @@ async function dismissSupportDialog(page: Page): Promise<void> {
 }
 
 /**
- * Navigate to a decidesk page, preferring the APP's left navigation entry
+ * Navigate to a decidiq page, preferring the APP's left navigation entry
  * (app-scoped) when it exists. The nav is org-mode-aware and, per
  * ia-six-clusters, the FeaturesRoadmapMenu row is removed as duplicate
  * navigation while its page stays routable — so we fall back to the
@@ -43,7 +43,7 @@ async function appNavClick(
 	entryId: string,
 	route: string,
 ): Promise<void> {
-	await page.goto(`${BASE}/apps/decidesk/`)
+	await page.goto(`${BASE}/apps/decidiq/`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await dismissSupportDialog(page)
 	const entry = page.locator(`[data-testid="cn-nav-entry-${entryId}"]`).first()
@@ -51,7 +51,7 @@ async function appNavClick(
 		await entry.click()
 		return
 	}
-	await page.goto(`${BASE}/apps/decidesk${route}`)
+	await page.goto(`${BASE}/apps/decidiq${route}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	await dismissSupportDialog(page)
 }
@@ -62,7 +62,7 @@ test('Features & roadmap: app-scoped nav lands on the roadmap surface', async ({
 }) => {
 	await appNavClick(page, 'FeaturesRoadmapMenu', '/features-roadmap')
 
-	await expect(page).toHaveURL(/\/apps\/decidesk\/.*features-roadmap/)
+	await expect(page).toHaveURL(/\/apps\/decidiq\/.*features-roadmap/)
 	await expect(
 		page.getByRole('heading', { name: 'Features', exact: true }),
 	).toBeVisible()
@@ -75,7 +75,7 @@ test('Features & roadmap: app-scoped nav lands on the roadmap surface', async ({
 })
 
 // @e2e openspec/specs/dashboard/spec.md#view-the-features-and-roadmap-page
-test('Features & roadmap: no decidesk-origin console error or 500 on load', async ({
+test('Features & roadmap: no decidiq-origin console error or 500 on load', async ({
 	page,
 }) => {
 	const appErrors: string[] = []
@@ -84,13 +84,13 @@ test('Features & roadmap: no decidesk-origin console error or 500 on load', asyn
 		if (
 			m.type() === 'error'
 			&& !/user_status|heartbeat|user status/i.test(t)
-			&& /decidesk/i.test(t)
+			&& /decidiq/i.test(t)
 		) {
 			appErrors.push(t)
 		}
 	})
 	page.on('response', (r) => {
-		if (r.status() >= 500 && /decidesk/i.test(r.url()))
+		if (r.status() >= 500 && /decidiq/i.test(r.url()))
 			appErrors.push(`HTTP ${r.status()} ${r.url()}`)
 	})
 
@@ -100,6 +100,6 @@ test('Features & roadmap: no decidesk-origin console error or 500 on load', asyn
 	).toBeVisible()
 	expect(
 		appErrors,
-		`decidesk errors on Features & roadmap:\n${appErrors.join('\n')}`,
+		`decidiq errors on Features & roadmap:\n${appErrors.join('\n')}`,
 	).toHaveLength(0)
 })

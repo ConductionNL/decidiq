@@ -41,7 +41,7 @@ Declarative (extends existing `x-openregister-*` declarations, no new Service lo
 
 Imperative exceptions (each justified, each fail-closed):
 - **A. Urgency-trigger guard** (`UrgencyTriggerGuard`, `lib/Lifecycle/`): who may set `isUrgent` depends on resolving the acting user against the meeting chair or `urgencyPolicy.allowedTriggerRoles` — actor-role resolution is not expressible in the schema dialect. This is precisely the existing, accepted pattern of `DecisionTransitionGuard` (chair-only transitions, fail closed when no chair resolves); we extend that pattern rather than invent one. It also enforces the `isUrgent`/`urgencyReason` field-guard (direct client writes rejected — same posture as the existing `isPublished` guard).
-- **B. Ratification orchestration** (`UrgentRatificationService`, `lib/Service/`): appending a `DecisionStage`, resolving the ratifying body's next `regular` meeting, and creating a linked `AgendaItem` is cross-object creation with a retry-when-meeting-appears fallback — multi-object write orchestration the declarative dialect cannot do. Precedent: `DecisionCascadeService` (cascade → ActionItems), the established decidesk pattern for exactly this shape. Also validates `minimumNoticeFloorHours` and `responseDeadlineHours` bounds at the two expedited entry points (config-vs-request comparison at write time).
+- **B. Ratification orchestration** (`UrgentRatificationService`, `lib/Service/`): appending a `DecisionStage`, resolving the ratifying body's next `regular` meeting, and creating a linked `AgendaItem` is cross-object creation with a retry-when-meeting-appears fallback — multi-object write orchestration the declarative dialect cannot do. Precedent: `DecisionCascadeService` (cascade → ActionItems), the established decidiq pattern for exactly this shape. Also validates `minimumNoticeFloorHours` and `responseDeadlineHours` bounds at the two expedited entry points (config-vs-request comparison at write time).
 - **Explicitly rejected imperative options**: a `DecisionUrgencyService` state machine (would duplicate the declarative lifecycle — ADR-031 violation); new Decision lifecycle states like `awaiting-ratification` (urgency is orthogonal, exactly like `isPublished`; a state would break every existing transition consumer); a scheduled background job polling for unratified decisions (the declarative `scheduled` notification rule already covers it).
 
 ## Decisions
@@ -65,7 +65,7 @@ Opens the expedited written round. **Request:** `{ "responseDeadlineHours": 24 }
 
 ## Database Changes
 
-None — decidesk owns no tables. All persistence is additive OpenRegister schema changes in `lib/Settings/decidesk_register.json` + one `register.d` fragment (`46-urgency-policy.json`) for `ProcessTemplate.urgencyPolicy`.
+None — decidiq owns no tables. All persistence is additive OpenRegister schema changes in `lib/Settings/decidesk_register.json` + one `register.d` fragment (`46-urgency-policy.json`) for `ProcessTemplate.urgencyPolicy`.
 
 ## Nextcloud Integration
 
@@ -76,7 +76,7 @@ None — decidesk owns no tables. All persistence is additive OpenRegister schem
 
 ## Security Considerations
 
-- Trigger guard fails closed (no policy / unresolvable role ⇒ reject) — never the decidesk#45 nullable-resolver fail-open shape; no `catch (\Throwable) { return null; }` around policy resolution.
+- Trigger guard fails closed (no policy / unresolvable role ⇒ reject) — never the decidiq#45 nullable-resolver fail-open shape; no `catch (\Throwable) { return null; }` around policy resolution.
 - Urgency fields are server-guarded against direct client writes (mirrors `isPublished`); Newman asserts the rejection.
 - Both endpoints validate per-object access (IDOR) and CSRF per NC defaults; declared auth attributes match the semantic requirement (semantic-auth gate).
 - All declarations/reversals land in the immutable audit trail; `urgencyReason` is stored verbatim (input length-validated, output escaped by Vue).
@@ -166,7 +166,7 @@ Built-ins are read-only: the urgency-enabled municipal/corporate templates are s
 - [PUT-semantic saves drop urgency fields] → carry-forward on every write path; regression test asserts an unrelated title edit preserves `isUrgent`/`urgencyReason`.
 - [Pending agenda placement never retried] → placement check runs on meeting save for the ratifying body; the decision detail shows the pending warning until placed; scheduled ratification-due notification keeps humans in the loop.
 - [`awaitingRatification` calculation not expressible over related stages in the current OR calculation dialect] → fallback: derive client-side from the same `route` query the timeline tab already makes, keeping the field read-only server-side (same fallback posture decision-management already specs for `effectiveStatus`).
-- [Guard added but never invoked (orphan-auth gate / decidesk#60 class)] → the two controller actions are the only writers of urgency fields and both call the guard; gate 6 verifies invocation.
+- [Guard added but never invoked (orphan-auth gate / decidiq#60 class)] → the two controller actions are the only writers of urgency fields and both call the guard; gate 6 verifies invocation.
 - [Seed drift: multi-word schema refs] → manifest/seed refs use slugs (`decision-stage`, `process-template`), never PascalCase.
 
 ## Migration Plan

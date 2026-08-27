@@ -5,7 +5,7 @@ status: done
 # Specs: Minutes and Decisions — Other T2
 
 **Change:** p2-minutes-and-decisions-other-t2
-**App:** Decidesk
+**App:** Decidiq
 **Entities:** Decision, ActionItem
 **Depends on:** p2-minutes-and-decisions
 
@@ -13,7 +13,7 @@ status: done
 
 ## Purpose
 
-This spec defines decision evolution links, stakeholder notifications, decision cascade to departments, and the related dashboard extension for Decidesk.
+This spec defines decision evolution links, stakeholder notifications, decision cascade to departments, and the related dashboard extension for Decidiq.
 
 # Requirements
 
@@ -93,7 +93,7 @@ The notification sent to each stakeholder contains the decision summary and a di
 **THEN** each selected participant receives a Nextcloud in-app notification with:
   - Title: the Decision `title` field value
   - Body: "Besluit gepubliceerd — uitkomst: {outcome}. Klik om het besluit te bekijken."
-  - Deep link: `/apps/decidesk/decisions/{uuid}` (history-mode path, not hash format)
+  - Deep link: `/apps/decidiq/decisions/{uuid}` (history-mode path, not hash format)
 **AND** the notification appears in the Nextcloud notification bell for each recipient
 
 ---
@@ -195,7 +195,7 @@ The system SHALL satisfy the REQ-DASH (Dashboard Extension) requirements specifi
 
 A manager can see at a glance how many cascade-generated ActionItems are still open.
 
-**GIVEN** the Decidesk Dashboard page is open
+**GIVEN** the Decidiq Dashboard page is open
 **WHEN** the page loads
 **THEN** a "Besluit-actiepunten open" `CnStatsBlock` KPI card is displayed
 **AND** it shows the count of ActionItems with `taskStatus: open` or `taskStatus: in-progress`

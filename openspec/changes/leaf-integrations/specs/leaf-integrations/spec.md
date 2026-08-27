@@ -6,7 +6,7 @@ status: draft
 
 ## Purpose
 
-decidesk adopts four more app-agnostic integration leaves from the OpenRegister/nc-vue
+decidiq adopts four more app-agnostic integration leaves from the OpenRegister/nc-vue
 integration registry (ADR-019) — `calendar`, `contacts`, `polls`, `forms` — and wires the
 Mail sidebar (`configuration.linkedTypes` + `configuration.mailObjectTemplate`) that its
 existing email tabs presuppose. Everything is declarative: manifest widgets and register
@@ -38,7 +38,7 @@ already surfaces via the existing `tasks` leaf and the Tasks app.
 
 The `ParticipantDetail` and `GovernanceBodyDetail` pages SHALL each declare a widget
 `{"type": "integration", "integrationId": "contacts"}`, surfacing Nextcloud Contacts against
-the people-shaped data decidesk stores (`Participant.email`, `Participant.nextcloudUserId`;
+the people-shaped data decidiq stores (`Participant.email`, `Participant.nextcloudUserId`;
 `Person.email`, `Person.contactDetails`; the `ContactDetail` schema's `type`/`value`/`label`
 records with `person` and `governanceBody` refs). Because no Person detail page exists in the
 manifest, the participant page is the person-facing placement; the widget SHALL move to a
@@ -61,7 +61,7 @@ The `ConsultationDetail` page and the `DecisionIntegrations` page SHALL declare 
 participation and pre-decision sounding can run an informal poll before a formal
 `VotingRound` is opened. The poll surface SHALL be advisory only: it SHALL NOT create,
 mutate or substitute for `VotingRound`, `Vote` or `CitizenVote` objects, and formal voting
-SHALL remain exclusively with decidesk's voting system (`VotingRoundOpener`,
+SHALL remain exclusively with decidiq's voting system (`VotingRoundOpener`,
 `VoteCastingService`, `VotingRoundCloser`).
 
 #### Scenario: Straw poll on a consultation
@@ -76,7 +76,7 @@ SHALL remain exclusively with decidesk's voting system (`VotingRoundOpener`,
 
 #### Scenario: A poll never becomes a ballot
 - **GIVEN** a completed straw poll linked to a decision
-- **WHEN** decidesk objects for that decision are inspected
+- **WHEN** decidiq objects for that decision are inspected
 - **THEN** no `VotingRound`, `Vote` or `CitizenVote` object was created or modified by the poll surface
 
 ### Requirement: REQ-LEAF-004 — Consultation intake SHALL be offered via the forms leaf into the existing reaction path
@@ -111,7 +111,7 @@ bumped in the same change (schema re-import is version-gated).
 - **GIVEN** the register has been re-imported after the version bump
 - **WHEN** a user opens the Mail sidebar's link action on an email
 - **THEN** `meeting`, `decision`, `agenda-item` and `action-item` are offered as link targets
-- **AND** no other decidesk schema is offered
+- **AND** no other decidiq schema is offered
 
 #### Scenario: Unknown linked-type id fails at import
 - **GIVEN** a `linkedTypes` entry not present in the registry ids or the legacy allow-list
@@ -123,7 +123,7 @@ bumped in the same change (schema re-import is version-gated).
 The `Decision` schema SHALL declare `configuration.mailObjectTemplate` mapping `title` ←
 `{{subject}}`, `text` ← `{{preview}}`, `externalReference` ← `{{mailRef}}`, with the verbatim
 values `lifecycle: "draft"` and `decisionType: "resolution"`, so the Mail sidebar's
-create-from-email button produces an inert draft decision. No other decidesk schema SHALL
+create-from-email button produces an inert draft decision. No other decidiq schema SHALL
 declare `mailObjectTemplate`; in particular `ActionItem` SHALL NOT, because create-from-email
 writes through `ObjectService::saveObject()` and the `action-item` schema is a read-only
 CalDAV VTODO projection that rejects such writes.

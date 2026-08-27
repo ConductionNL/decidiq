@@ -21,7 +21,7 @@
  *   createFolder() line 1290
  *   getFiles()     line 1562
  *
- * Only the two methods decidesk actually calls are declared
+ * Only the two methods decidiq actually calls are declared
  * (`lib/Service/VotingRoundCloser.php`, plus container-resolved use in
  * `lib/Service/TranscriptionSourceResolver.php` and
  * `lib/BackgroundJob/TranscriptRetentionJob.php`). A stub method that
@@ -33,7 +33,7 @@
  * CI clones the real OpenRegister at ref: development. A local suite that
  * cannot run is not a suite that passes.
  *
- * @package OCA\Decidesk\Tests\Stubs
+ * @package OCA\Decidiq\Tests\Stubs
  */
 
 namespace OCA\OpenRegister\Service;
@@ -44,30 +44,27 @@ use OCP\Files\Node;
 /**
  * Minimal stand-in for OpenRegister's FileService.
  */
-class FileService
-{
-    /**
-     * Create a folder at the given path.
-     *
-     * @param string $folderPath Path of the folder to create.
-     *
-     * @return Node The created folder node.
-     */
-    public function createFolder(string $folderPath): Node
-    {
-        throw new \RuntimeException('FileService stub: createFolder() must be mocked in tests.');
-    }//end createFolder()
+class FileService {
+	/**
+	 * Create a folder at the given path.
+	 *
+	 * @param string $folderPath Path of the folder to create.
+	 *
+	 * @return Node The created folder node.
+	 */
+	public function createFolder(string $folderPath): Node {
+		throw new \RuntimeException('FileService stub: createFolder() must be mocked in tests.');
+	}//end createFolder()
 
-    /**
-     * Get the files attached to an object.
-     *
-     * @param ObjectEntity|string $object          The object or its identifier.
-     * @param boolean|null        $sharedFilesOnly Whether to return only shared files.
-     *
-     * @return array The files attached to the object.
-     */
-    public function getFiles(ObjectEntity | string $object, ?bool $sharedFilesOnly = false): array
-    {
-        throw new \RuntimeException('FileService stub: getFiles() must be mocked in tests.');
-    }//end getFiles()
+	/**
+	 * Get the files attached to an object.
+	 *
+	 * @param ObjectEntity|string $object The object or its identifier.
+	 * @param boolean|null $sharedFilesOnly Whether to return only shared files.
+	 *
+	 * @return array The files attached to the object.
+	 */
+	public function getFiles(ObjectEntity|string $object, ?bool $sharedFilesOnly = false): array {
+		throw new \RuntimeException('FileService stub: getFiles() must be mocked in tests.');
+	}//end getFiles()
 }//end class

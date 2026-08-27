@@ -19,7 +19,7 @@
 
 		<NcEmptyContent
 			v-else-if="rows.length === 0"
-			:name="t('decidesk', 'No pending votes')"
+			:name="t('decidiq', 'No pending votes')"
 			data-testid="pending-votes-list-empty">
 			<template #icon>
 				<CheckCircleOutline :size="32" />
@@ -50,10 +50,10 @@
 					<span
 						v-if="round._urgent"
 						class="dashboard-list-widget__badge dashboard-list-widget__badge--urgent">
-						{{ t('decidesk', 'Urgent') }}
+						{{ t('decidiq', 'Urgent') }}
 					</span>
 					<NcButton variant="primary" @click.stop="openVote(round)">
-						{{ t('decidesk', 'Vote now') }}
+						{{ t('decidiq', 'Vote now') }}
 					</NcButton>
 				</div>
 			</li>
@@ -113,6 +113,8 @@ export default {
 		 * pending set-difference. Called on mount and on dashboard refresh.
 		 *
 		 * @return {Promise<void>}
+		 *
+		 * @spec openspec/specs/dashboard/spec.md#requirement-my-pending-votes-widget
 		 */
 		async load() {
 			this.loading = true
@@ -127,7 +129,7 @@ export default {
 				const participantId = resolveParticipantId(participants, uid)
 				this.pending = pendingVotingRounds(openRounds, votes, participantId)
 			} catch (e) {
-				console.error('[decidesk] PendingVotesListWidget load failed', e)
+				console.error('[decidiq] PendingVotesListWidget load failed', e)
 				this.error = e
 				this.pending = []
 			} finally {
@@ -141,13 +143,15 @@ export default {
 		 *
 		 * @param {object} round The voting-round object.
 		 * @return {string} A display title.
+		 *
+		 * @spec openspec/specs/dashboard/spec.md#requirement-my-pending-votes-widget
 		 */
 		voteTitle(round) {
 			const motion = round.motion
 			if (motion && typeof motion === 'object' && motion.title) {
 				return motion.title
 			}
-			return round.title || round.name || t('decidesk', 'Voting round')
+			return round.title || round.name || t('decidiq', 'Voting round')
 		},
 
 		/**
@@ -155,19 +159,21 @@ export default {
 		 *
 		 * @param {object} round The voting-round object.
 		 * @return {string} A human countdown label.
+		 *
+		 * @spec openspec/specs/dashboard/spec.md#requirement-my-pending-votes-widget
 		 */
 		countdownLabel(round) {
 			const { key } = countdownBucket(round.deadline, Date.now())
 			if (key === 'overdue' || key === 'today') {
-				return t('decidesk', 'Less than 24 hours remaining')
+				return t('decidiq', 'Less than 24 hours remaining')
 			}
 			if (key === 'tomorrow') {
-				return t('decidesk', 'tomorrow')
+				return t('decidiq', 'tomorrow')
 			}
 			if (key === 'unknown') {
 				return ''
 			}
-			return t('decidesk', 'today')
+			return t('decidiq', 'today')
 		},
 
 		/**

@@ -1,13 +1,13 @@
 # interests-and-integrity Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - [interests-and-integrity](../../changes/interests-and-integrity/)
 
 ## Purpose
 
-Structured interest and integrity registers for all five decidesk governance domains: a nevenfunctiesregister (person-linked other-positions declarations with a public-disclosure lifecycle, statutorily public for councils per Gemeentewet, internal by default for corporate boards) and a geschenken/uitnodigingenregister (gifts and invitations with a per-body value-threshold policy per gedragscode). A per-body `Integriteitsbeleid` policy object drives disclosure defaults, the gift threshold, and a configurable integrity notification to a designated role. The capability integrates with — and never re-specs — the per-agenda-item `conflict-of-interest` capability (REQ-COI-001..004): COI stays the declaration mechanism on agenda items; this register is the standing context behind it. It supersedes the register mechanics of `fractievoorzitter-fractie-koppeling` REQ-012 (council-scoped nevenfuncties) and supersedes `Membership.otherPositions` (`person-and-membership`) for new data. A nevenfunctie is a `schema:Role` held by a person at an organisation; a geschenk-registratie is a `schema:Action` (agent = recipient).
+Structured interest and integrity registers for all five decidiq governance domains: a nevenfunctiesregister (person-linked other-positions declarations with a public-disclosure lifecycle, statutorily public for councils per Gemeentewet, internal by default for corporate boards) and a geschenken/uitnodigingenregister (gifts and invitations with a per-body value-threshold policy per gedragscode). A per-body `Integriteitsbeleid` policy object drives disclosure defaults, the gift threshold, and a configurable integrity notification to a designated role. The capability integrates with — and never re-specs — the per-agenda-item `conflict-of-interest` capability (REQ-COI-001..004): COI stays the declaration mechanism on agenda items; this register is the standing context behind it. It supersedes the register mechanics of `fractievoorzitter-fractie-koppeling` REQ-012 (council-scoped nevenfuncties) and supersedes `Membership.otherPositions` (`person-and-membership`) for new data. A nevenfunctie is a `schema:Role` held by a person at an organisation; a geschenk-registratie is a `schema:Action` (agent = recipient).
 
 ## ADDED Requirements
 
@@ -30,7 +30,7 @@ The system SHALL define a `Nevenfunctie` schema in the decidesk register via `li
 
 #### Scenario: Register fragment is additive
 
-- GIVEN a decidesk installation upgrading to this change
+- GIVEN a decidiq installation upgrading to this change
 - WHEN the register configuration is loaded
 - THEN the Nevenfunctie, Geschenk, and Integriteitsbeleid schemas are registered from fragment `62-interests-and-integrity.json`
 - AND no existing schema in `decidesk_register.json` is modified

@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk MCP Meeting Scope Resolver
+ * Decidiq MCP Meeting Scope Resolver
  *
  * Resolves the set of meetings an MCP caller may legitimately see, so that
  * `scope=all` tool results can be narrowed to the caller's own governance
  * bodies.
  *
  * @category Mcp
- * @package  OCA\Decidesk\Mcp
+ * @package  OCA\Decidiq\Mcp
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,7 +25,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Mcp;
+namespace OCA\Decidiq\Mcp;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;
@@ -35,7 +35,7 @@ use Throwable;
 /**
  * Resolves the meeting UUIDs an MCP caller participates in.
  *
- * Extracted from DecideskToolProvider so the membership walk
+ * Extracted from DecidiqToolProvider so the membership walk
  * (participant -> governance-body -> meeting) is a unit of its own rather
  * than a branch-heavy private method inside a 1200-line tool provider.
  *
@@ -83,7 +83,7 @@ class McpMeetingScopeResolver {
 			$participants = $this->objectService->findAll(
 				[
 					'filters' => [
-						'register' => 'decidesk',
+						'register' => 'decidiq',
 						'schema' => 'participant',
 						'nextcloudUserId' => $userId,
 					],
@@ -108,7 +108,7 @@ class McpMeetingScopeResolver {
 			return array_unique(array_filter($meetingUuids));
 		} catch (Throwable $e) {
 			$this->logger->warning(
-				'Decidesk MCP: could not resolve caller meeting UUIDs, defaulting to empty',
+				'Decidiq MCP: could not resolve caller meeting UUIDs, defaulting to empty',
 				['userId' => $userId, 'error' => $e->getMessage()]
 			);
 			// Fail closed: if we can't determine memberships, return no meetings.
@@ -151,7 +151,7 @@ class McpMeetingScopeResolver {
 		$meetingEntities = $objectService->findAll(
 			[
 				'filters' => [
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'meeting',
 					'_relations.governance-body' => $bodyId,
 				],

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Translation Adapter Interface
+ * Decidiq Translation Adapter Interface
  *
  * Pluggable boundary for an external translation source. The default
  * `LogTranslationAdapter` implementation logs and returns the original
@@ -9,7 +9,7 @@
  * backed translation source.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,7 +25,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 /**
  * Translation adapter contract.

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Audit Log Service
+ * Decidiq Audit Log Service
  *
  * Append-only hash-chained audit log for governance actions. Every action
  * (vote, conflict declaration, material access, signature, notice send, proxy
@@ -12,7 +12,7 @@
  * auditTrail integration is finalised in Cycle 2. // TODO Cycle 2)
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -29,10 +29,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use Psr\Log\LoggerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Tamper-evident append-only audit log service.
@@ -170,12 +170,12 @@ class AuditLogService {
 
 			$saved = $this->objectService->saveObject(
 				object: $entry,
-				register: 'decidesk',
+				register: 'decidiq',
 				schema: 'audit-trail'
 			);
 
 			$this->logger->info(
-				'Decidesk: audit log entry appended',
+				'Decidiq: audit log entry appended',
 				['actor' => $actor, 'action' => $action, 'currentHash' => $currentHash]
 			);
 
@@ -190,7 +190,7 @@ class AuditLogService {
 			];
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: failed to append audit log entry',
+				'Decidiq: failed to append audit log entry',
 				['actor' => $actor, 'action' => $action, 'exception' => $e->getMessage()]
 			);
 			return [
@@ -219,7 +219,7 @@ class AuditLogService {
 			$chain = $this->loadChain(objectService: $this->objectService);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: failed to load audit log for verification',
+				'Decidiq: failed to load audit log for verification',
 				['exception' => $e->getMessage()]
 			);
 			return [
@@ -298,7 +298,7 @@ class AuditLogService {
 			$chain = $this->loadChain(objectService: $this->objectService);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: failed to load audit log for export',
+				'Decidiq: failed to load audit log for export',
 				['exception' => $e->getMessage()]
 			);
 			return [
@@ -379,7 +379,7 @@ class AuditLogService {
 			$chain = $this->loadChain(objectService: $this->objectService);
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: failed to load audit log for query',
+				'Decidiq: failed to load audit log for query',
 				['exception' => $e->getMessage()]
 			);
 			return [
@@ -524,7 +524,7 @@ class AuditLogService {
 	private function loadLastEntry(object $objectService): ?array {
 		$rows = $objectService->findAll(
 			[
-				'register' => 'decidesk',
+				'register' => 'decidiq',
 				'schema' => 'audit-trail',
 				'order' => ['timestamp' => 'DESC'],
 				'limit' => 1,
@@ -556,7 +556,7 @@ class AuditLogService {
 	private function loadChain(object $objectService): array {
 		$rows = $objectService->findAll(
 			[
-				'register' => 'decidesk',
+				'register' => 'decidiq',
 				'schema' => 'audit-trail',
 				'order' => ['timestamp' => 'ASC'],
 				'limit' => 10000,

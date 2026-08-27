@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Agenda Authorization Guard
+ * Decidiq Agenda Authorization Guard
  *
  * Answers the two authorization questions the agenda endpoints ask before they
  * do any work: "is there an authenticated user?" and "may this user act as
@@ -14,7 +14,7 @@
  * status codes are unchanged.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -31,7 +31,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Http;

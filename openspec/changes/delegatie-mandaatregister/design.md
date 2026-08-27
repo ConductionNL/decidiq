@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-Pure thin-client extension (ADR-022/ADR-037). One new OpenRegister schema — `Bevoegdheidstoedeling` — ships as `lib/Settings/register.d/54-delegatie-mandaatregister.json` (OpenAPI `components.schemas`, merged onto `decidesk_register.json` at load; the base file is never edited for new schemas). All workflow behaviour is declared in OpenRegister dialects; all UI is manifest-v2 pages in a `src/manifest.d/delegatie-mandaatregister.json` fragment rendered by `CnPageRenderer` (the frontend talks to `/apps/openregister/api/objects` directly via the shared object stores — no decidesk CRUD controllers, per the redundant-controller gate).
+Pure thin-client extension (ADR-022/ADR-037). One new OpenRegister schema — `Bevoegdheidstoedeling` — ships as `lib/Settings/register.d/54-delegatie-mandaatregister.json` (OpenAPI `components.schemas`, merged onto `decidesk_register.json` at load; the base file is never edited for new schemas). All workflow behaviour is declared in OpenRegister dialects; all UI is manifest-v2 pages in a `src/manifest.d/delegatie-mandaatregister.json` fragment rendered by `CnPageRenderer` (the frontend talks to `/apps/openregister/api/objects` directly via the shared object stores — no decidiq CRUD controllers, per the redundant-controller gate).
 
 Imperative code is limited to the single place a declarative dialect genuinely cannot reach: the ondermandaat guard (parent permits ondermandaat + the parent chain is acyclic), a small server-side save-path check that fails closed.
 
@@ -54,7 +54,7 @@ The register must be *live*: an intrekking or lapse must show on the public regi
 
 ### D6: `Decision.bevoegdheidsgrondslag` is a base-file property edit and strictly assistive
 
-The one nullable property on the existing `Decision` schema is a direct edit to `lib/Settings/decidesk_register.json` (fragments add schemas; they cannot add one property to an existing schema without wholesale replacement — same reasoning as urgent-decision-procedure's urgency fields and toezeggingen D6). It is display-only by design: no lifecycle guard, no transition hook, no warning reads it. Enforcement ("block decisions taken without mandate") is a legal judgement decidesk must not automate — the proposal marks it out of scope, and the spec carries a negative scenario so the boundary is testable. Reverse lookup ("decisions taken under this toedeling") uses the standard `fetchUsed` reverse-relation pattern (as governance-bodies REQ-GBD-002).
+The one nullable property on the existing `Decision` schema is a direct edit to `lib/Settings/decidesk_register.json` (fragments add schemas; they cannot add one property to an existing schema without wholesale replacement — same reasoning as urgent-decision-procedure's urgency fields and toezeggingen D6). It is display-only by design: no lifecycle guard, no transition hook, no warning reads it. Enforcement ("block decisions taken without mandate") is a legal judgement decidiq must not automate — the proposal marks it out of scope, and the spec carries a negative scenario so the boundary is testable. Reverse lookup ("decisions taken under this toedeling") uses the standard `fetchUsed` reverse-relation pattern (as governance-bodies REQ-GBD-002).
 
 ## Nextcloud Integration
 
@@ -87,7 +87,7 @@ docs/features/delegatie-mandaatregister.md                  (new)
 
 ## Seed Data
 
-Realistic Dutch municipal examples (ADR-016); references use existing decidesk seed objects (gemeenteraad and college governance bodies, seed decisions) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder resolved at import. All objects carry the `@self` envelope (`register: decidesk`, `schema: bevoegdheidstoedeling`, slug as below).
+Realistic Dutch municipal examples (ADR-016); references use existing decidiq seed objects (gemeenteraad and college governance bodies, seed decisions) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder resolved at import. All objects carry the `@self` envelope (`register: decidesk`, `schema: bevoegdheidstoedeling`, slug as below).
 
 ### Schema: `bevoegdheidstoedeling`
 
@@ -123,7 +123,7 @@ Object 3's `geldigTot` falls inside the 60-day rappel window at seed time so the
 
 ## Migration Plan
 
-1. Land register.d fragment, base-register property edit, guard service, manifest fragment, seed data, tests, docs in one decidesk PR (fragments are additive; the repair step / `ConfigurationService::importFromApp()` picks up the new schema on upgrade).
+1. Land register.d fragment, base-register property edit, guard service, manifest fragment, seed data, tests, docs in one decidiq PR (fragments are additive; the repair step / `ConfigurationService::importFromApp()` picks up the new schema on upgrade).
 2. No ordering dependency on siblings: `verordeningenregister` (fragment 53) and this change (54) touch disjoint files; the shared `wettelijkeGrondslag` citation shape is convention, not code.
 3. Rollback: revert the PR — fragment disappears, pages unregister, guard route removed; the `bevoegdheidsgrondslag` property edit reverts (stored values remain as harmless extra data). Published rows are withdrawn via `depublicatiedatum` through the normal staff flow if desired. No data migration — the register starts empty apart from seed data.
 
@@ -137,5 +137,5 @@ Object 3's `geldigTot` falls inside the 60-day rappel window at seed time so the
 
 ## Open Questions
 
-- Whether the ondermandaat guard can register as an OR save-path validator instead of a decidesk endpoint (preferred; decided at apply time against the available OR extension surface).
+- Whether the ondermandaat guard can register as an OR save-path validator instead of a decidiq endpoint (preferred; decided at apply time against the available OR extension surface).
 - Rappel windows (60/14 days) are provisional; griffie-configurable tuning deferred to a future admin-settings change.

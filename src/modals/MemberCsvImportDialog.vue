@@ -18,7 +18,7 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Import from CSV')"
+		:name="t('decidiq', 'Import from CSV')"
 		size="large"
 		data-testid="member-csv-import-dialog"
 		@closing="$emit('close')">
@@ -26,7 +26,7 @@
 			<p>
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'Upload a CSV file with the columns: name, email, role.',
 					)
 				}}
@@ -34,7 +34,7 @@
 			<input
 				type="file"
 				accept=".csv,text/csv"
-				:aria-label="t('decidesk', 'CSV file')"
+				:aria-label="t('decidiq', 'CSV file')"
 				data-testid="csv-import-file"
 				@change="onFile" />
 
@@ -45,22 +45,22 @@
 				<thead>
 					<tr>
 						<th scope="col">
-							{{ t('decidesk', 'Line') }}
+							{{ t('decidiq', 'Line') }}
 						</th>
 						<th scope="col">
-							{{ t('decidesk', 'Name') }}
+							{{ t('decidiq', 'Name') }}
 						</th>
 						<th scope="col">
-							{{ t('decidesk', 'Email') }}
+							{{ t('decidiq', 'Email') }}
 						</th>
 						<th scope="col">
-							{{ t('decidesk', 'Role') }}
+							{{ t('decidiq', 'Role') }}
 						</th>
 						<th scope="col">
-							{{ t('decidesk', 'Account') }}
+							{{ t('decidiq', 'Account') }}
 						</th>
 						<th scope="col">
-							{{ t('decidesk', 'Status') }}
+							{{ t('decidiq', 'Status') }}
 						</th>
 					</tr>
 				</thead>
@@ -77,7 +77,7 @@
 								class="csv-import__unmatched">
 								{{
 									t(
-										'decidesk',
+										'decidiq',
 										'No account — manual linking needed',
 									)
 								}}
@@ -110,14 +110,14 @@
 				@click="runImport">
 				{{
 					importing
-						? t('decidesk', 'Importing…')
-						: t('decidesk', 'Import {count} members', {
+						? t('decidiq', 'Importing…')
+						: t('decidiq', 'Import {count} members', {
 								count: importableCount,
 							})
 				}}
 			</NcButton>
 			<NcButton data-testid="csv-import-cancel" @click="$emit('close')">
-				{{ t('decidesk', 'Close') }}
+				{{ t('decidiq', 'Close') }}
 			</NcButton>
 		</template>
 	</NcDialog>
@@ -175,19 +175,19 @@ export default {
 		 */
 		statusLabel(row) {
 			if (row.status === 'ok') {
-				return this.t('decidesk', 'Will be imported')
+				return this.t('decidiq', 'Will be imported')
 			}
 			if (row.status === 'duplicate') {
 				return row.reason === 'duplicate-in-file'
-					? this.t('decidesk', 'Duplicate row — skipped')
-					: this.t('decidesk', 'Already a member — skipped')
+					? this.t('decidiq', 'Duplicate row — skipped')
+					: this.t('decidiq', 'Already a member — skipped')
 			}
 			const reasons = {
-				'missing-name': this.t('decidesk', 'Missing name'),
-				'invalid-email': this.t('decidesk', 'Invalid email address'),
-				'invalid-role': this.t('decidesk', 'Unknown role'),
+				'missing-name': this.t('decidiq', 'Missing name'),
+				'invalid-email': this.t('decidiq', 'Invalid email address'),
+				'invalid-role': this.t('decidiq', 'Unknown role'),
 			}
-			return reasons[row.reason] || this.t('decidesk', 'Invalid row')
+			return reasons[row.reason] || this.t('decidiq', 'Invalid row')
 		},
 
 		/**
@@ -209,21 +209,21 @@ export default {
 			const { rows, error } = parseMemberCsv(text)
 			if (error === 'header') {
 				this.error = this.t(
-					'decidesk',
+					'decidiq',
 					'The CSV must have a header row with name and email columns.',
 				)
 				return
 			}
 			if (error === 'too-many-rows') {
 				this.error = this.t(
-					'decidesk',
+					'decidiq',
 					'At most {max} rows can be imported at once.',
 					{ max: MAX_IMPORT_ROWS },
 				)
 				return
 			}
 			if (error === 'empty' || rows.length === 0) {
-				this.error = this.t('decidesk', 'The CSV file contains no rows.')
+				this.error = this.t('decidiq', 'The CSV file contains no rows.')
 				return
 			}
 			const validated = validateMemberRows(rows, this.existingMembers)
@@ -244,7 +244,7 @@ export default {
 			}
 			try {
 				const response = await fetch(
-					generateUrl('/apps/decidesk/api/member-import/match'),
+					generateUrl('/apps/decidiq/api/member-import/match'),
 					{
 						method: 'POST',
 						headers: {
@@ -257,7 +257,7 @@ export default {
 				if (!response.ok) {
 					throw new Error(
 						this.t(
-							'decidesk',
+							'decidiq',
 							'Account matching failed (admin access required).',
 						),
 					)
@@ -271,7 +271,7 @@ export default {
 			} catch (e) {
 				// Matching is best-effort: rows import unlinked when it fails.
 				this.error =
-					e?.message || this.t('decidesk', 'Account matching failed.')
+					e?.message || this.t('decidiq', 'Account matching failed.')
 				return rows.map((r) => ({ ...r, matchedUid: '' }))
 			}
 		},
@@ -309,7 +309,7 @@ export default {
 						}),
 					)
 				}
-				this.doneMessage = this.t('decidesk', '{count} members imported.', {
+				this.doneMessage = this.t('decidiq', '{count} members imported.', {
 					count: rows.length,
 				})
 				this.$emit('imported')
@@ -320,7 +320,7 @@ export default {
 						: row,
 				)
 			} catch (e) {
-				this.error = e?.message || this.t('decidesk', 'Import failed.')
+				this.error = e?.message || this.t('decidiq', 'Import failed.')
 			} finally {
 				this.importing = false
 			}

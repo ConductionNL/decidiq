@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Activity Filter
+ * Decidiq Activity Filter
  *
- * Adds a "Decidesk" filter tab to the Nextcloud Activity stream so users
- * can scope the feed to Decidesk governance events.
+ * Adds a "Decidiq" filter tab to the Nextcloud Activity stream so users
+ * can scope the feed to Decidiq governance events.
  *
  * @category Activity
- * @package  OCA\Decidesk\Activity
+ * @package  OCA\Decidiq\Activity
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -22,15 +22,15 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Activity;
+namespace OCA\Decidiq\Activity;
 
-use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidiq\AppInfo\Application;
 use OCP\Activity\IFilter;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 
 /**
- * Activity stream filter for Decidesk governance events.
+ * Activity stream filter for Decidiq governance events.
  *
  * Registered via appinfo/info.xml <activity><filters>.
  *
@@ -40,7 +40,7 @@ class GovernanceFilter implements IFilter {
 	/**
 	 * Constructor.
 	 *
-	 * @param IL10N $l10n Translation service for the decidesk app
+	 * @param IL10N $l10n Translation service for the decidiq app
 	 * @param IURLGenerator $urlGenerator URL generator for the filter icon
 	 */
 	public function __construct(
@@ -68,7 +68,7 @@ class GovernanceFilter implements IFilter {
 	 * @spec openspec/specs/nextcloud-integration/spec.md
 	 */
 	public function getName() {
-		return $this->l10n->t('Decidesk');
+		return $this->l10n->t('Decidiq');
 	}//end getName()
 
 	/**
@@ -97,7 +97,7 @@ class GovernanceFilter implements IFilter {
 	}//end getIcon()
 
 	/**
-	 * Restrict the stream to Decidesk activity types when this filter is active.
+	 * Restrict the stream to Decidiq activity types when this filter is active.
 	 *
 	 * @param string[] $types The active activity types
 	 *
@@ -113,7 +113,7 @@ class GovernanceFilter implements IFilter {
 	}//end filterTypes()
 
 	/**
-	 * Only Decidesk events appear under this filter.
+	 * Only Decidiq events appear under this filter.
 	 *
 	 * @return string[]
 	 *

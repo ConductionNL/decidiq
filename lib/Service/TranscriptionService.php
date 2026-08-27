@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Transcription Service
+ * Decidiq Transcription Service
  *
  * Thin orchestration over the Nextcloud SpeechToText provider abstraction:
  * source attachment with consent, provider discovery, status lifecycle,
@@ -9,7 +9,7 @@
  * re-runnable agenda-alignment derivation. No app-local STT pipeline.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,11 +25,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DomainException;
 use InvalidArgumentException;
-use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\FileService;
 use Psr\Container\ContainerInterface;
@@ -107,7 +107,7 @@ class TranscriptionService {
 			// The SpeechToText manager itself is unavailable (very old NC / DI
 			// gap): treat as no provider rather than failing the panel.
 			$this->logger->debug(
-				'Decidesk TranscriptionService: SpeechToText manager unavailable',
+				'Decidiq TranscriptionService: SpeechToText manager unavailable',
 				['error' => $e->getMessage()]
 			);
 			return false;
@@ -117,7 +117,7 @@ class TranscriptionService {
 			return $manager->hasProviders();
 		} catch (\Throwable $e) {
 			$this->logger->debug(
-				'Decidesk TranscriptionService: hasProviders() check failed',
+				'Decidiq TranscriptionService: hasProviders() check failed',
 				['error' => $e->getMessage()]
 			);
 			return false;
@@ -271,7 +271,7 @@ class TranscriptionService {
 			$segments = $this->aligner->parseSegments(raw: $rawText);
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk TranscriptionService: transcription failed',
+				'Decidiq TranscriptionService: transcription failed',
 				['transcriptId' => $transcriptId, 'error' => $e->getMessage()]
 			);
 			return $this->markFailed(transcript: $transcript, reason: $e->getMessage());

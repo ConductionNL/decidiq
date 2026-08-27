@@ -4,7 +4,7 @@
  * Unit tests for MeetingFolderListener.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Listener
+ * @package  OCA\Decidiq\Tests\Unit\Listener
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,11 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Listener;
+namespace OCA\Decidiq\Tests\Unit\Listener;
 
-use OCA\Decidesk\Listener\MeetingFolderListener;
-use OCA\Decidesk\Service\ListenerSchemaResolver;
-use OCA\Decidesk\Service\MeetingFolderService;
+use OCA\Decidiq\Listener\MeetingFolderListener;
+use OCA\Decidiq\Service\ListenerSchemaResolver;
+use OCA\Decidiq\Service\MeetingFolderService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Db\Schema;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;

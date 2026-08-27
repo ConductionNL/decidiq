@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-Pure thin-client extension (ADR-022/ADR-037). Three new OpenRegister schemas — `PCCyclus`, `CyclusTemplate`, `CyclusStap` — ship as one `lib/Settings/register.d/52-pc-cyclus.json` fragment (fragment number 52 is assigned to this change; 40–51 and 53–65 belong to sibling changes — never renumber). All workflow behaviour is declared in OpenRegister dialects; UI is manifest-v2 pages in `src/manifest.d/pc-cyclus.json` rendered by `CnPageRenderer` (frontend talks to `/apps/openregister/api/objects` via the shared object stores — no decidesk CRUD controllers, per the redundant-controller gate).
+Pure thin-client extension (ADR-022/ADR-037). Three new OpenRegister schemas — `PCCyclus`, `CyclusTemplate`, `CyclusStap` — ship as one `lib/Settings/register.d/52-pc-cyclus.json` fragment (fragment number 52 is assigned to this change; 40–51 and 53–65 belong to sibling changes — never renumber). All workflow behaviour is declared in OpenRegister dialects; UI is manifest-v2 pages in `src/manifest.d/pc-cyclus.json` rendered by `CnPageRenderer` (frontend talks to `/apps/openregister/api/objects` via the shared object stores — no decidiq CRUD controllers, per the redundant-controller gate).
 
 ```
 CyclusTemplate (builtIn seeds: municipal-pc-cyclus, association-jaarstukken)
@@ -100,7 +100,7 @@ docs/features/pc-cyclus.md                     (new)
 
 ## Seed Data
 
-Realistic data per ADR-016 (fictional "Gemeente Voorbeeldingen" + "Vereniging De Voorbeeldingen"); references use existing decidesk seed objects (gemeenteraad/ALV governance bodies, seeded meetings) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder resolved at import. Envelope for every object: `@self = { register: decidesk, schema: <slug>, slug: <below> }`.
+Realistic data per ADR-016 (fictional "Gemeente Voorbeeldingen" + "Vereniging De Voorbeeldingen"); references use existing decidiq seed objects (gemeenteraad/ALV governance bodies, seeded meetings) or the nil UUID `00000000-0000-0000-0000-000000000000` as an obvious placeholder resolved at import. Envelope for every object: `@self = { register: decidesk, schema: <slug>, slug: <below> }`.
 
 ### Schema: `cyclus-template` (built-ins, `builtIn: true`)
 
@@ -136,7 +136,7 @@ Association 2026: jaarstukken-2025 (`stukken-ontvangen`, slots filled) · dechar
 
 ## Migration Plan
 
-1. Land register.d + manifest.d fragments, generation service + controller, timeline widget, base-manifest KPI edit, seeds, tests, docs in one decidesk PR (fragments are additive; `ConfigurationService::importFromApp()` / repair step picks up new schemas on upgrade).
+1. Land register.d + manifest.d fragments, generation service + controller, timeline widget, base-manifest KPI edit, seeds, tests, docs in one decidiq PR (fragments are additive; `ConfigurationService::importFromApp()` / repair step picks up new schemas on upgrade).
 2. No coordination needed with `vve-alv-pack` (boundary only, no shared files except sibling-owned fragment numbers — 52 is this change's, exclusively).
 3. Rollback: revert the PR — fragments disappear, pages unregister, routes vanish. Existing cyclus/step objects remain soft-retained in OR; linked AgendaItems/Decisions untouched. No data migration.
 

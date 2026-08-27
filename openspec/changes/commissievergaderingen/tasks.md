@@ -60,49 +60,49 @@
 ## 3. REST Controllers
 
 - [ ] 3.1 Create `lib/Controller/CommissionController.php` with routes:
-  - `GET /apps/decidesk/api/commissions` → list all (with filters: type, governance-body)
-  - `GET /apps/decidesk/api/commissions/{uuid}` → get single
-  - `POST /apps/decidesk/api/commissions` → create (griffier+ required)
-  - `PUT /apps/decidesk/api/commissions/{uuid}` → update (griffier+ required)
-  - `PUT /apps/decidesk/api/commissions/{uuid}/composition` → update samenstelling (griffier+ required)
-  - `DELETE /apps/decidesk/api/commissions/{uuid}` → delete (griffier+ required)
+  - `GET /apps/decidiq/api/commissions` → list all (with filters: type, governance-body)
+  - `GET /apps/decidiq/api/commissions/{uuid}` → get single
+  - `POST /apps/decidiq/api/commissions` → create (griffier+ required)
+  - `PUT /apps/decidiq/api/commissions/{uuid}` → update (griffier+ required)
+  - `PUT /apps/decidiq/api/commissions/{uuid}/composition` → update samenstelling (griffier+ required)
+  - `DELETE /apps/decidiq/api/commissions/{uuid}` → delete (griffier+ required)
 - [ ] 3.2 Create `lib/Controller/CommissionMembershipController.php` with routes:
-  - `GET /apps/decidesk/api/commissions/{uuid}/members` → list leden per commissie
-  - `POST /apps/decidesk/api/commissions/{uuid}/members` → add lid (fractie-voorzitter or griffier+)
-  - `DELETE /apps/decidesk/api/commissions/{uuid}/members/{lid-uuid}` → remove lid
+  - `GET /apps/decidiq/api/commissions/{uuid}/members` → list leden per commissie
+  - `POST /apps/decidiq/api/commissions/{uuid}/members` → add lid (fractie-voorzitter or griffier+)
+  - `DELETE /apps/decidiq/api/commissions/{uuid}/members/{lid-uuid}` → remove lid
 - [ ] 3.3 Create `lib/Controller/CommissionMeetingController.php` with routes:
-  - `GET /apps/decidesk/api/commissions/{uuid}/meetings` → list vergaderingen
-  - `GET /apps/decidesk/api/commissions/{uuid}/meetings/{meeting-uuid}` → get vergadering
-  - `POST /apps/decidesk/api/commissions/{uuid}/meetings` → schedule vergadering (griffier+)
-  - `PUT /apps/decidesk/api/commissions/{uuid}/meetings/{meeting-uuid}` → update vergadering
-  - `PUT /apps/decidesk/api/commissions/{uuid}/meetings/{meeting-uuid}/transition` → change status (griffier+)
-  - `PUT /apps/decidesk/api/commissions/{uuid}/meetings/{meeting-uuid}/minutes` → approve minutes (griffier+)
+  - `GET /apps/decidiq/api/commissions/{uuid}/meetings` → list vergaderingen
+  - `GET /apps/decidiq/api/commissions/{uuid}/meetings/{meeting-uuid}` → get vergadering
+  - `POST /apps/decidiq/api/commissions/{uuid}/meetings` → schedule vergadering (griffier+)
+  - `PUT /apps/decidiq/api/commissions/{uuid}/meetings/{meeting-uuid}` → update vergadering
+  - `PUT /apps/decidiq/api/commissions/{uuid}/meetings/{meeting-uuid}/transition` → change status (griffier+)
+  - `PUT /apps/decidiq/api/commissions/{uuid}/meetings/{meeting-uuid}/minutes` → approve minutes (griffier+)
 - [ ] 3.4 Create `lib/Controller/CommissionAgendaController.php` with routes:
-  - `GET /apps/decidesk/api/meetings/{meeting-uuid}/agenda` → list agendapunten
-  - `POST /apps/decidesk/api/meetings/{meeting-uuid}/agenda` → add agendapunt (griffier+)
-  - `PUT /apps/decidesk/api/meetings/{meeting-uuid}/agenda/{item-uuid}` → update agendapunt
-  - `POST /apps/decidesk/api/meetings/{meeting-uuid}/agenda/{item-uuid}/finalize-advice` → sluit adviesvorming af (voorzitter+)
+  - `GET /apps/decidiq/api/meetings/{meeting-uuid}/agenda` → list agendapunten
+  - `POST /apps/decidiq/api/meetings/{meeting-uuid}/agenda` → add agendapunt (griffier+)
+  - `PUT /apps/decidiq/api/meetings/{meeting-uuid}/agenda/{item-uuid}` → update agendapunt
+  - `POST /apps/decidiq/api/meetings/{meeting-uuid}/agenda/{item-uuid}/finalize-advice` → sluit adviesvorming af (voorzitter+)
 - [ ] 3.5 Create `lib/Controller/CommissionAdviceController.php` with routes:
-  - `GET /apps/decidesk/api/advice/{uuid}` → get CommissieAdvies
-  - `GET /apps/decidesk/api/agenda-items/{item-uuid}/commission-advice` → get advies voor plenair (REQ-CVG-007)
-  - `POST /apps/decidesk/api/advice/{uuid}/link-to-plenary` → link naar plenaire item (griffier+)
+  - `GET /apps/decidiq/api/advice/{uuid}` → get CommissieAdvies
+  - `GET /apps/decidiq/api/agenda-items/{item-uuid}/commission-advice` → get advies voor plenair (REQ-CVG-007)
+  - `POST /apps/decidiq/api/advice/{uuid}/link-to-plenary` → link naar plenaire item (griffier+)
 - [ ] 3.6 Create `lib/Controller/ConflictDeclarationController.php` with routes:
-  - `GET /apps/decidesk/api/declarations` → list voor huidi ge lid
-  - `GET /apps/decidesk/api/declarations/{meeting-uuid}` → list per vergadering (griffier+)
-  - `POST /apps/decidesk/api/declarations/{uuid}` → submit/update declaratie (lid)
-  - `PUT /apps/decidesk/api/declarations/{uuid}/consequence` → set gevolg (voorzitter+)
-  - `GET /apps/decidesk/api/conflict-reports` → generate rapportage (griffier+, rekenkamer+)
+  - `GET /apps/decidiq/api/declarations` → list voor huidi ge lid
+  - `GET /apps/decidiq/api/declarations/{meeting-uuid}` → list per vergadering (griffier+)
+  - `POST /apps/decidiq/api/declarations/{uuid}` → submit/update declaratie (lid)
+  - `PUT /apps/decidiq/api/declarations/{uuid}/consequence` → set gevolg (voorzitter+)
+  - `GET /apps/decidiq/api/conflict-reports` → generate rapportage (griffier+, rekenkamer+)
 - [ ] 3.7 Create `lib/Controller/PresenceListController.php` with routes:
-  - `GET /apps/decidesk/api/meetings/{meeting-uuid}/presence` → get presentielijst
-  - `POST /apps/decidesk/api/meetings/{meeting-uuid}/presence/{lid-uuid}` → record presence (griffier+)
-  - `POST /apps/decidesk/api/meetings/{meeting-uuid}/absences/{lid-uuid}/substitute` → record plaatsvervanging (lid + griffier+)
+  - `GET /apps/decidiq/api/meetings/{meeting-uuid}/presence` → get presentielijst
+  - `POST /apps/decidiq/api/meetings/{meeting-uuid}/presence/{lid-uuid}` → record presence (griffier+)
+  - `POST /apps/decidiq/api/meetings/{meeting-uuid}/absences/{lid-uuid}/substitute` → record plaatsvervanging (lid + griffier+)
 - [ ] 3.8 Create `lib/Controller/InspraakPublicController.php` with routes (NO auth required for submission):
-  - `POST /apps/decidesk/api/public/commissions/{uuid}/inspraak` → submit request (public)
-  - `GET /apps/decidesk/api/public/commissions/{uuid}/meetings/{meeting-uuid}/inspraak` → list publieke inspraak (public)
+  - `POST /apps/decidiq/api/public/commissions/{uuid}/inspraak` → submit request (public)
+  - `GET /apps/decidiq/api/public/commissions/{uuid}/meetings/{meeting-uuid}/inspraak` → list publieke inspraak (public)
 - [ ] 3.9 Create `lib/Controller/InspraakController.php` with routes (griffier+):
-  - `GET /apps/decidesk/api/commissions/{uuid}/inspraak` → list alle aanmeldingen
-  - `PUT /apps/decidesk/api/inspraak/{uuid}/approve` → goedkeuren
-  - `PUT /apps/decidesk/api/inspraak/{uuid}/reject` → afwijzen
+  - `GET /apps/decidiq/api/commissions/{uuid}/inspraak` → list alle aanmeldingen
+  - `PUT /apps/decidiq/api/inspraak/{uuid}/approve` → goedkeuren
+  - `PUT /apps/decidiq/api/inspraak/{uuid}/reject` → afwijzen
 - [ ] 3.10 Add authorization middleware to all controllers: `requireCommissionMember()`, `requireChairOrSecretary()`, `requireGriffier()` checks
 - [ ] 3.11 Add input validation to all POST/PUT routes (JSON Schema validation per OpenAPI spec)
 

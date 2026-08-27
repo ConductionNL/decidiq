@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Decidesk AccessDeniedException
+ * Decidiq AccessDeniedException
  *
  * @category Exception
- * @package  OCA\Decidesk\Exception
+ * @package  OCA\Decidiq\Exception
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  *
@@ -17,7 +17,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Exception;
+namespace OCA\Decidiq\Exception;
 
 /**
  * Thrown when an authenticated user attempts to access an object they do not own.

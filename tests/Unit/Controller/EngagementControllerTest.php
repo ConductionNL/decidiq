@@ -8,7 +8,7 @@
  * else is confined to their own participant record.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Controller
+ * @package  OCA\Decidiq\Tests\Unit\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,11 +24,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Controller;
+namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\Decidesk\Controller\EngagementController;
-use OCA\Decidesk\Service\EngagementService;
-use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidiq\Controller\EngagementController;
+use OCA\Decidiq\Service\EngagementService;
+use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;
@@ -327,13 +327,14 @@ class EngagementControllerTest extends TestCase {
 	 */
 	private function participantEntity(string $uuid): object {
 		return new class($uuid) {
-
 			/**
 			 * Construct with the participant UUID.
 			 *
 			 * @param string $uuid The participant UUID.
 			 */
-			public function __construct(private readonly string $uuid) {
+			public function __construct(
+				private readonly string $uuid,
+			) {
 			}//end __construct()
 
 			/**

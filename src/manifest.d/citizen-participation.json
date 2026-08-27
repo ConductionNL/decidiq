@@ -1,5 +1,5 @@
 {
-	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Consultations & engagement hub (consultations-engagement-hub) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Collapses the former Participation / Consultations / Participatory budgets leaves into ONE Consultations hub (typed via consultationType quick-filters), keeps the hub-wide Moderation queue, and folds reaction moderation into the consultation detail via the shared ConsultationReactionsTab. The Participation action page and BudgetRounds pages are retained but reachable from the hub rather than as top-level peers.",
 	"_spec": "openspec/changes/consultations-engagement-hub/specs/p3-citizen-participation/spec.md",
 	"menu": [
@@ -33,7 +33,7 @@
 			"type": "index",
 			"title": "Consultations",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "public-consultation",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -111,7 +111,7 @@
 					"enabled": true,
 					"showMetadata": true
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -120,14 +120,14 @@
 			"type": "detail",
 			"title": "Consultation",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "public-consultation",
 				"_note": "Public consultation — the citizen/market engagement supertype (typed by consultationType: citizen-participation, market-consultation, tender, idea-box, participatory-budget), 28 fields across 5 sub-types. `consult-data` excludes market/tender-only (marketScope, referenceNumber, estimatedValue, currency, awardCriteria, questionDeadline, awardedTo), budget-only (votingEnabled, budgetCeiling, votingMethod, proposalDeadline, votingDeadline) and relation/system fields already shown elsewhere (relatedDecision, governanceBody, decision, reactions, procestProcessRef), leaving the 12 fields common across every consultation type (ADR-062 rule 3). The former standalone Reactions-count `stat` widget is now a `stats-block` card (ADR-062 rule 2), moved top-right beside the core data widget instead of floating below the reactions table. Bespoke consultation layout: consultation details lead 8-wide with the stats-block + a Documents leaf stacked right; the incoming Reactions/submissions (ConsultationReaction keyed on the consultation via OR relation) render full-width below as the object-list (`allowCreate:false` — citizens submit through the public Participation surface, staff never hand-create a reaction here) — reading and moderating what citizens submit is the core task — followed by Related. No comms leaf on the body: the public-consultation schema declares no email/calendar linkedType (citizens interact through the public Participation surface and moderation queue, not per-record correspondence). Audit trail stays a sidebar tab. The legacy uncarded `relatedCollections` table (duplicate of consult-reactions, raw camelCase columns, own +Add) has been removed — consult-reactions is the single carded reactions surface. The `consult-stats` KPI counts via `consultation` (the schema's actual FK property on ConsultationReaction), not the `_relations.public-consultation` dot-path the object-list search endpoint understands but the aggregation endpoint's flat filter lookup does not.",
 				"widgets": [
 					{ "id": "consult-data", "type": "data", "title": "Consultation", "icon": "MessageTextOutline", "content": { "columns": 2, "exclude": ["marketScope", "referenceNumber", "estimatedValue", "currency", "awardCriteria", "questionDeadline", "awardedTo", "votingEnabled", "budgetCeiling", "votingMethod", "proposalDeadline", "votingDeadline", "relatedDecision", "governanceBody", "decision", "reactions", "procestProcessRef"] } },
-					{ "id": "consult-stats", "type": "stats-block", "title": "Reactions", "icon": "ChartBar", "content": { "entries": [ { "title": "Reactions", "icon": "MessageTextOutline", "register": "decidesk", "schema": "consultation-reaction", "metric": "count", "filter": { "consultation": "@objectId" } } ] } },
+					{ "id": "consult-stats", "type": "stats-block", "title": "Reactions", "icon": "ChartBar", "content": { "entries": [ { "title": "Reactions", "icon": "MessageTextOutline", "register": "decidiq", "schema": "consultation-reaction", "metric": "count", "filter": { "consultation": "@objectId" } } ] } },
 					{ "id": "consult-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
-					{ "id": "consult-reactions", "type": "object-list", "title": "Reactions", "icon": "MessageTextOutline", "content": { "register": "decidesk", "schema": "consultation-reaction", "filter": { "_relations.public-consultation": "@objectId" }, "sort": { "field": "submittedAt", "dir": "desc" }, "columns": [ { "key": "body", "label": "Reaction" }, { "key": "moderationStatus", "label": "Status", "widget": "badge" }, { "key": "submitterId", "label": "Submitter" }, { "key": "submittedAt", "label": "Submitted" } ], "limit": 25, "allowCreate": false, "emptyText": "No reactions submitted yet — citizens submit through the public Participation surface." } },
+					{ "id": "consult-reactions", "type": "object-list", "title": "Reactions", "icon": "MessageTextOutline", "content": { "register": "decidiq", "schema": "consultation-reaction", "filter": { "_relations.public-consultation": "@objectId" }, "sort": { "field": "submittedAt", "dir": "desc" }, "columns": [ { "key": "body", "label": "Reaction" }, { "key": "moderationStatus", "label": "Status", "widget": "badge" }, { "key": "submitterId", "label": "Submitter" }, { "key": "submittedAt", "label": "Submitted" } ], "limit": 25, "allowCreate": false, "emptyText": "No reactions submitted yet. Citizens submit these through the public Participation page." } },
 					{ "id": "consult-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
 				"layout": [
@@ -144,7 +144,7 @@
 						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
 					]
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -154,7 +154,7 @@
 			"title": "Participatory budgets",
 			"_note": "Retained transitional view for the legacy participatory-budget flow; reachable from the Consultations hub Participatory budgets quick-filter, not a top-level menu peer.",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "participatory-budget",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
@@ -178,7 +178,7 @@
 					"enabled": true,
 					"showMetadata": true
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{
@@ -187,14 +187,14 @@
 			"type": "detail",
 			"title": "Participatory budget",
 			"config": {
-				"register": "decidesk",
+				"register": "decidiq",
 				"schema": "participatory-budget",
 				"_note": "Participatory budget round — a citizen budgeting exercise (name, total budget, currency, submission/voting deadlines, status, results). The 3 standalone KPI `stat` widgets (total budget / proposals / requested) are now ONE `stats-block` card with 3 entries (ADR-062 rule 2), moved top-right beside the round details instead of spanning the full top row — a coordinator still sees the round's health (total budget vs. proposals submitted vs. amount requested) at a glance, but without the header-collision anti-pattern. Bespoke budget layout: round details lead 8-wide with the stats-block + a Documents leaf for the regulations/results report stacked right, and the Budget proposals (budget-proposal children related to this round) as a full-width object-list showing requested amount and vote tallies (`allowCreate:false` — citizens submit through the public Participation surface, staff never hand-create a proposal here) — reviewing and validating proposals is the core task. No comms leaf: the participatory-budget schema declares no email/calendar linkedType (citizens submit and vote through the public Participation surface). Audit trail is a sidebar tab.",
 				"widgets": [
 					{ "id": "budget-data", "type": "data", "title": "Budget round", "icon": "CurrencyEur", "content": { "columns": 2 } },
-					{ "id": "budget-stats", "type": "stats-block", "title": "Budget", "icon": "ChartBar", "content": { "entries": [ { "title": "Total budget", "icon": "CashMultiple", "format": "currency", "register": "decidesk", "schema": "participatory-budget", "metric": "sum", "field": "totalAmount", "filter": { "id": "@objectId" } }, { "title": "Proposals", "icon": "FileDocument", "register": "decidesk", "schema": "budget-proposal", "metric": "count", "filter": { "_relations.participatory-budget": "@objectId" } }, { "title": "Requested", "icon": "Cash", "format": "currency", "register": "decidesk", "schema": "budget-proposal", "metric": "sum", "field": "requestedAmount", "filter": { "_relations.participatory-budget": "@objectId" } } ] } },
+					{ "id": "budget-stats", "type": "stats-block", "title": "Budget", "icon": "ChartBar", "content": { "entries": [ { "title": "Total budget", "icon": "CashMultiple", "format": "currency", "register": "decidiq", "schema": "participatory-budget", "metric": "sum", "field": "totalAmount", "filter": { "id": "@objectId" } }, { "title": "Proposals", "icon": "FileDocument", "register": "decidiq", "schema": "budget-proposal", "metric": "count", "filter": { "_relations.participatory-budget": "@objectId" } }, { "title": "Requested", "icon": "Cash", "format": "currency", "register": "decidiq", "schema": "budget-proposal", "metric": "sum", "field": "requestedAmount", "filter": { "_relations.participatory-budget": "@objectId" } } ] } },
 					{ "id": "budget-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
-					{ "id": "budget-proposals", "type": "object-list", "title": "Proposals", "icon": "ClipboardList", "content": { "register": "decidesk", "schema": "budget-proposal", "filter": { "_relations.participatory-budget": "@objectId" }, "sort": { "field": "requestedAmount", "dir": "desc" }, "columns": [ { "key": "title", "label": "Proposal" }, { "key": "category", "label": "Category" }, { "key": "requestedAmount", "label": "Requested" }, { "key": "status", "label": "Status", "widget": "badge" }, { "key": "votesFor", "label": "For" }, { "key": "votesAgainst", "label": "Against" } ], "limit": 25, "allowCreate": false, "emptyText": "No proposals submitted yet — citizens submit through the public Participation surface." } }
+					{ "id": "budget-proposals", "type": "object-list", "title": "Proposals", "icon": "ClipboardList", "content": { "register": "decidiq", "schema": "budget-proposal", "filter": { "_relations.participatory-budget": "@objectId" }, "sort": { "field": "requestedAmount", "dir": "desc" }, "columns": [ { "key": "title", "label": "Proposal" }, { "key": "category", "label": "Category" }, { "key": "requestedAmount", "label": "Requested" }, { "key": "status", "label": "Status", "widget": "badge" }, { "key": "votesFor", "label": "For" }, { "key": "votesAgainst", "label": "Against" } ], "limit": 25, "allowCreate": false, "emptyText": "No proposals submitted yet. Citizens submit these through the public Participation page." } }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "budget-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
@@ -209,7 +209,7 @@
 						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
 					]
 				},
-				"documentationUrl": "https://decidesk.conduction.nl"
+				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
 		{

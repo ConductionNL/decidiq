@@ -18,7 +18,7 @@
 - **spec_ref**: `openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-003-retention-via-openregister-selectielijst-and-retentionservice`
 - **files**: `lib/Settings/register.d/44-records-management-archiving.json` (`x-openregister-seeds`)
 - **acceptance_criteria**:
-  - GIVEN a clean install WHEN seeds import THEN 4 OpenRegister `SelectionList` objects exist (categories 2.1/3.1 bewaren, 19.1/11.1 vernietigen, per design Seed Data) — no decidesk-local retention-rule objects
+  - GIVEN a clean install WHEN seeds import THEN 4 OpenRegister `SelectionList` objects exist (categories 2.1/3.1 bewaren, 19.1/11.1 vernietigen, per design Seed Data) — no decidiq-local retention-rule objects
   - GIVEN the 3 seeded ArchivalDossiers (forming/closed/closed-due) WHEN they are saved THEN OR resolves `retention.classificatie`, `.archiefnominatie`, and `.archiefactiedatum` — the seeds MUST NOT author those values
   - GIVEN the seeded due dossier WHEN the compliance dashboard loads THEN the due-for-destruction and completeness counters are non-zero (seeds make the feature testable on install, ADR-016)
 - [ ] Implement
@@ -38,10 +38,10 @@
 - **spec_ref**: `openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-004-transfer-via-openregister-transfer-lists-and-e-depot`
 - **files**: `lib/Service/ArchivalDossierService.php`, `lib/Controller/ArchivalDossierController.php`
 - **acceptance_criteria**:
-  - GIVEN a dossier being closed WHEN it is saved THEN its OR `tmlo` field carries MDTO descriptive metadata and OR's `MdtoXmlGenerator` serves its MDTO record — decidesk contains no MDTO mapping table, serializer, or item-level derivation
-  - GIVEN a transfer-routed dossier and a configured OR e-depot transport WHEN transfer is triggered THEN decidesk creates an OR transfer list over the member UUIDs via `TransferListService` and OR performs packaging/delivery; on OR success the dossier becomes `transferred`
-  - GIVEN an unconfigured OR e-depot WHEN staff open a transfer-routed dossier THEN the UI states automated transfer is unavailable and points to OR's e-depot settings; no dossier state change and no decidesk-side package
-  - GIVEN a dossier past its `retention.archiefactiedatum` with a destruction nominatie WHEN destruction is proposed THEN it is an OR destruction list approved via OR's routes; decidesk implements no approval, deletion, or sweep job; the dossier reflects `destroyed` on OR execution
+  - GIVEN a dossier being closed WHEN it is saved THEN its OR `tmlo` field carries MDTO descriptive metadata and OR's `MdtoXmlGenerator` serves its MDTO record — decidiq contains no MDTO mapping table, serializer, or item-level derivation
+  - GIVEN a transfer-routed dossier and a configured OR e-depot transport WHEN transfer is triggered THEN decidiq creates an OR transfer list over the member UUIDs via `TransferListService` and OR performs packaging/delivery; on OR success the dossier becomes `transferred`
+  - GIVEN an unconfigured OR e-depot WHEN staff open a transfer-routed dossier THEN the UI states automated transfer is unavailable and points to OR's e-depot settings; no dossier state change and no decidiq-side package
+  - GIVEN a dossier past its `retention.archiefactiedatum` with a destruction nominatie WHEN destruction is proposed THEN it is an OR destruction list approved via OR's routes; decidiq implements no approval, deletion, or sweep job; the dossier reflects `destroyed` on OR execution
 - [ ] Implement
 - [ ] Test
 
@@ -49,7 +49,7 @@
 - **spec_ref**: `openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-006-vernietigingsverklaring-rendering`
 - **files**: `lib/Service/ArchivalDossierService.php`, `lib/Service/PublicationEligibilityService.php`
 - **acceptance_criteria**:
-  - GIVEN an OR destruction execution has produced a `verklaring_van_vernietiging` certificate WHEN decidesk renders it THEN it is fetched from OR's certificates route, rendered (Docudesk PDF, markdown fallback), persisted with permanent retention, never destruction-eligible, and OR-reported skipped objects are visible — decidesk does not compose or re-derive the certificate
+  - GIVEN an OR destruction execution has produced a `verklaring_van_vernietiging` certificate WHEN decidiq renders it THEN it is fetched from OR's certificates route, rendered (Docudesk PDF, markdown fallback), persisted with permanent retention, never destruction-eligible, and OR-reported skipped objects are visible — decidiq does not compose or re-derive the certificate
   - GIVEN a `vertrouwelijk` object WHEN a publish request targets it THEN the payload builder refuses structurally before eligibility evaluation
   - GIVEN a dossier classification WHEN it is validated THEN it maps onto OR's `VERTROUWELIJKHEIDAANDUIDING_LEVELS` at the same relative position, and a dossier less restrictive than a member surfaces the computed-classification warning
 - [ ] Implement
@@ -69,13 +69,13 @@
 - All tasks checked off; `openspec validate` passes
 - Register-import verified on a clean Postgres instance (lifecycle dialect actually applied — no silent-ignore; `retention` actually resolved by OR — no phantom seed values)
 - Live verification through the UI: form → close → OR transfer list → transfer (and degrade path) → OR destruction list → OR approval → OR execution → verklaring rendered
-- Grep-verified: no decidesk code writes `_retention`, references `_tmlo`, computes an archiefactiedatum, serializes MDTO, or deletes a member object
+- Grep-verified: no decidiq code writes `_retention`, references `_tmlo`, computes an archiefactiedatum, serializes MDTO, or deletes a member object
 - Hydra gates green (route-auth, semantic-auth, no-admin-idor, notification-dialect, manifest-validation, redundant-controller — the last one matters most here)
 
 ## Quality checklist
 
 - All new/changed business logic covered by PHPUnit unit tests (`tests/Unit/`)
-- New/changed API endpoints covered by Newman/Postman tests (`tests/integration/decidesk-records-management.postman_collection.json`)
+- New/changed API endpoints covered by Newman/Postman tests (`tests/integration/decidiq-records-management.postman_collection.json`)
 - UI changes covered by Playwright browser tests
 - All tests pass (`composer test`, `newman run`); `composer check:strict` clean
 - Feature documentation updated in `docs/` (ADR-010) with screenshot

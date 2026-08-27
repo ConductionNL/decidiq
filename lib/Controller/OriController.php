@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk ORI API 1.4 Controller
+ * Decidiq ORI API 1.4 Controller
  *
  * ORI-compliant JSON-LD endpoints at `/api/ori/v1/{resource}` for council
  * information transparency (REQ-ORI-001..004).
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -25,10 +25,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\OriSerializer;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\OriSerializer;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -45,7 +45,7 @@ use Throwable;
 /**
  * ORI API 1.4 compatibility controller.
  *
- * Serializes Decidesk register objects per the VNG ORI specification. ORI is
+ * Serializes Decidiq register objects per the VNG ORI specification. ORI is
  * versioned independently from the general v1 REST API (REQ-ORI-001) so its
  * URL and response envelope live in this dedicated controller.
  *
@@ -236,7 +236,7 @@ class OriController extends Controller {
 	 */
 	private function buildFilters(string $resource, string $schema): array {
 		$filters = [
-			'register' => 'decidesk',
+			'register' => 'decidiq',
 			'schema' => $schema,
 		];
 
@@ -321,7 +321,7 @@ class OriController extends Controller {
 
 		try {
 			$objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
-			$entity = $objectService->find(id: $id, register: 'decidesk', schema: $schema);
+			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
 			$object = null;
 			if ($entity !== null) {
 				$object = $entity->jsonSerialize();

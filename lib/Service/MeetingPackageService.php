@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Meeting Package Service
+ * Decidiq Meeting Package Service
  *
  * Assembles the documents linked to a meeting's agenda items into a
  * structured "Meeting package" folder (vergaderstukken) inside the
@@ -9,7 +9,7 @@
  * (agenda-management "Agenda Document Package" requirement).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -26,7 +26,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -95,10 +95,10 @@ class MeetingPackageService {
 	public function assemble(string $meetingId, string $userId): array {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+			$entity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: MeetingPackageService::assemble lookup failed',
+				'Decidiq: MeetingPackageService::assemble lookup failed',
 				['meetingId' => $meetingId, 'exception' => $e->getMessage()]
 			);
 			return $this->failure(message: 'Failed to load meeting.');
@@ -217,7 +217,7 @@ class MeetingPackageService {
 			}
 		} catch (\Throwable $e) {
 			$this->logger->error(
-				'Decidesk: meeting package assembly failed',
+				'Decidiq: meeting package assembly failed',
 				['meetingId' => $meetingId, 'exception' => $e->getMessage()]
 			);
 			return $this->failure(
@@ -230,7 +230,7 @@ class MeetingPackageService {
 		}//end try
 
 		$this->logger->info(
-			'Decidesk: meeting package assembled',
+			'Decidiq: meeting package assembled',
 			[
 				'meetingId' => $meetingId,
 				'userId' => $userId,
@@ -270,10 +270,10 @@ class MeetingPackageService {
 	 * @param string $packagePath Path of the package folder
 	 * @param int $number Sequential item number (1-based)
 	 * @param array<string> $skipped Skip log (mutated; by-reference). Same type
-	 *                              as writeFileDefensively()'s own `$skipped`,
-	 *                              which this method passes it straight into —
-	 *                              the narrower `array<int, string>` this
-	 *                              replaces conflicted with it on every call.
+	 *                               as writeFileDefensively()'s own `$skipped`,
+	 *                               which this method passes it straight into —
+	 *                               the narrower `array<int, string>` this
+	 *                               replaces conflicted with it on every call.
 	 * @param int $filesCount Running copied-document count (mutated; by-reference)
 	 *
 	 * @spec openspec/specs/agenda-management/spec.md
@@ -443,7 +443,7 @@ class MeetingPackageService {
 		try {
 			$rows = $objectService->findAll(
 				[
-					'register' => 'decidesk',
+					'register' => 'decidiq',
 					'schema' => 'agenda-item',
 					'filters' => ['meeting' => $meetingId],
 					'limit' => 500,
@@ -451,7 +451,7 @@ class MeetingPackageService {
 			);
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: package agenda-item lookup failed',
+				'Decidiq: package agenda-item lookup failed',
 				['meetingId' => $meetingId, 'exception' => $e->getMessage()]
 			);
 			return [];
@@ -511,7 +511,7 @@ class MeetingPackageService {
 			$nodes = $fileService->getFiles($itemId);
 		} catch (\Throwable $e) {
 			$this->logger->debug(
-				'Decidesk: package file resolution skipped for agenda item',
+				'Decidiq: package file resolution skipped for agenda item',
 				['itemId' => $itemId, 'error' => $e->getMessage()]
 			);
 			return [];

@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Decidesk Motion Controller
+ * Decidiq Motion Controller
  *
  * Thin REST controller for motion lifecycle, co-signature, and budget impact endpoints.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,11 +23,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\MotionService;
-use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\MotionService;
+use OCA\Decidiq\Service\ParticipantResolver;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -185,7 +185,7 @@ class MotionController extends Controller {
 	 * @return bool True when the user holds global chair authority
 	 */
 	private function hasGlobalChairAuthority(string $uid): bool {
-		$chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
+		$chairGroup = $this->appConfig->getValueString(Application::APP_ID, 'chair_group', '');
 		if ($chairGroup === '') {
 			return $this->groupManager->isAdmin($uid);
 		}

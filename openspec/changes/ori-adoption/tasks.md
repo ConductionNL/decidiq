@@ -1,6 +1,6 @@
 # Tasks — ori-adoption
 
-> Scope reminder: decidesk becomes the sole home of raadsinformatie; ORI
+> Scope reminder: decidiq becomes the sole home of raadsinformatie; ORI
 > concepts are stored Popolo-aligned per the mapping table in `design.md`; the
 > ORI wire format lives in an adapter only. Paired with procest `ori-removal`,
 > which MUST NOT start until tasks 1–3 here are merged and released.
@@ -36,15 +36,15 @@
   executive board) and the idempotency + dangling-ref behaviours;
   `composer check:strict` is clean.
 
-- [ ] 2.2 Create `lib/Command/ImportOriCommand.php` (`occ decidesk:import-ori`)
+- [ ] 2.2 Create `lib/Command/ImportOriCommand.php` (`occ decidiq:import-ori`)
   with `--source-register=ori`, `--dry-run`, `--rollback`, `--strict`,
   registered in `appinfo/info.xml`. Dry-run performs zero writes and prints
   per-schema source/target counts; rollback deletes only `ori:*`-tagged
   objects.
   **Acceptance:** on a dev instance seeded with procest's ORI register:
-  dry-run leaves decidesk object counts unchanged (measure counts before/after,
+  dry-run leaves decidiq object counts unchanged (measure counts before/after,
   not the command's own report); live run then re-run produce identical counts;
-  rollback restores the pre-import decidesk count while the source register is
+  rollback restores the pre-import decidiq count while the source register is
   untouched.
 
 ## 3. ORI interop adapter
@@ -78,8 +78,8 @@
 ## 5. Verification & handover
 
 - [ ] 5.1 Run the full check suite and the e2e smoke on the feeds; document the
-  release note "decidesk is now the home of raadsinformatie; procest instances
-  migrate via `occ decidesk:import-ori` (see procest change `ori-removal`)".
+  release note "decidiq is now the home of raadsinformatie; procest instances
+  migrate via `occ decidiq:import-ori` (see procest change `ori-removal`)".
   **Acceptance:** `composer check:strict` clean; feeds e2e green; release note
   present in the PR body; procest `ori-removal` is unblocked (its tasks
   reference this change by name).

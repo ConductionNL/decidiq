@@ -33,7 +33,7 @@
       `"Withdraw"`, `"{count} decision"` / `"{count} decisions"` (plural forms),
       `"Advice"`, `"Could not create proposal."`, `"Could not load decision-making."`,
       `"Could not update status."`, `"Deck board error"`, `"In Deck"`, `"None"`,
-      `"Nothing to project."`, `"Open in decidesk"`, and the remainder reported by running the
+      `"Nothing to project."`, `"Open in decidiq"`, and the remainder reported by running the
       script locally.
 - [ ] Re-run `npm run test:l10n:parity` locally to confirm 0 missing / 0 empty for `nl`.
 

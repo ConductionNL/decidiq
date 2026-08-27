@@ -11,7 +11,7 @@
  * computed-base summary shown with the live tally and the closed-round
  * result. API/contract assertions (rule validation, tally math, casting-vote
  * and revote guards, the proxy cap) live in Newman
- * (tests/integration/decidesk-voting-rules.postman_collection.json), not here.
+ * (tests/integration/decidiq-voting-rules.postman_collection.json), not here.
  *
  * Defensive skips: when the deployed instance does not serve this branch yet
  * (no "Voting round" tab on the motion detail page — deploy mismatch) or the
@@ -51,7 +51,7 @@ async function newApiContext(): Promise<APIRequestContext> {
 }
 
 /**
- * Create a decidesk object via the OR object API.
+ * Create a decidiq object via the OR object API.
  *
  * ⚠️ This used to `return null` on any non-2xx, and every caller then did
  * `test.skip(!id, 'OpenRegister seeding API unavailable on this instance')`. That
@@ -69,7 +69,7 @@ async function createObject(
 	body: object,
 ): Promise<string | null> {
 	const resp = await api.post(
-		`/index.php/apps/openregister/api/objects/decidesk/${schema}`,
+		`/index.php/apps/openregister/api/objects/decidiq/${schema}`,
 		{ data: body },
 	)
 	if (!resp.ok()) {
@@ -90,7 +90,7 @@ async function deleteObject(
 	if (!id) return
 	try {
 		await api.delete(
-			`/index.php/apps/openregister/api/objects/decidesk/${schema}/${id}`,
+			`/index.php/apps/openregister/api/objects/decidiq/${schema}/${id}`,
 		)
 	} catch {
 		// Teardown is best-effort; leftover fixtures are namespaced ("E2E VR …").
@@ -102,7 +102,7 @@ async function deleteObject(
  * Returns false when the tab is not served (deploy mismatch) so callers skip.
  */
 async function openVotingRoundTab(page: Page, motionId: string): Promise<boolean> {
-	await page.goto(`${BASE}/apps/decidesk/motions/${motionId}`)
+	await page.goto(`${BASE}/apps/decidiq/motions/${motionId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	// The sidebar tab is rendered from the manifest's MotionDetail sidebarTabs.
@@ -255,7 +255,7 @@ test('closed-round result shows the active rules and the computed base', async (
 			abstentionHandling: 'exclude',
 			tieBreakRule: 'rejected',
 			voteBase: 19,
-			relations: [{ register: 'decidesk', schema: 'motion', id: motionId }],
+			relations: [{ register: 'decidiq', schema: 'motion', id: motionId }],
 		})
 		test.skip(!roundId, 'OpenRegister seeding API unavailable on this instance')
 
@@ -310,7 +310,7 @@ test('live tally shows the active rules and the computed base while the round is
 			voteThreshold: 'qualified-majority-three-quarters',
 			abstentionHandling: 'count',
 			tieBreakRule: 'revote',
-			relations: [{ register: 'decidesk', schema: 'motion', id: motionId }],
+			relations: [{ register: 'decidiq', schema: 'motion', id: motionId }],
 		})
 		test.skip(!roundId, 'OpenRegister seeding API unavailable on this instance')
 

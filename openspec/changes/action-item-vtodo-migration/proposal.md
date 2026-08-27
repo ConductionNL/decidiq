@@ -23,7 +23,7 @@ each legacy item onto a VTODO owned by the right user, idempotently, preserving 
 (The dev environment has 0 legacy items; this matters for production instances.)
 
 ## Affected Projects
-- [x] Project: `decidesk` — add a per-user migration (background job + service) projecting legacy
+- [x] Project: `decidiq` — add a per-user migration (background job + service) projecting legacy
   task/delegation/ActionItem objects onto VTODOs; archive legacy objects. No schema additions.
 
 ## Scope
@@ -57,14 +57,14 @@ None. Reuses `ActionItemWriter` (OR TaskService) and the OR ObjectService for re
 objects. Per-user impersonation uses Nextcloud's `IUserSession`/`IUserManager`.
 
 ## Impact
-- **decidesk backend**: a migration service + background-job/occ driver; the retired
+- **decidiq backend**: a migration service + background-job/occ driver; the retired
   `MigrateActionItemsToDeckLeaf` becomes (or delegates to) the real per-user migration entry point.
 - **Data**: legacy `task`/`delegation`/`ActionItem` objects archived (soft, marker-stamped); new
   VTODOs created per user. No schema changes.
 
 ## Cross-Project Dependencies
 Depends on the merged OpenRegister object-source capability + the action-item VTODO write path
-(decidesk `ActionItemWriter`, shipped in `action-items-vtodo-deck-reconcile`). Requires the user
+(decidiq `ActionItemWriter`, shipped in `action-items-vtodo-deck-reconcile`). Requires the user
 context / CalDAV available at run time.
 
 ## Risks

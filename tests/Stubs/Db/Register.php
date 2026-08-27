@@ -6,7 +6,7 @@
 /**
  * Test stub for OCA\OpenRegister\Db\Register.
  *
- * decidesk never constructs a Register — it always addresses registers by slug.
+ * decidiq never constructs a Register — it always addresses registers by slug.
  * The class exists here purely so that the ObjectService stub can declare the
  * SAME union parameter types production declares
  * (`Register | string | int | null $register`). Without it the stub would have

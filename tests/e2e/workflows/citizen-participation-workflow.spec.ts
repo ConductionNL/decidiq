@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * DEEP, data-dependent e2e for the citizen-participation domain, driven through
@@ -58,7 +58,7 @@ const past = () => new Date(Date.now() - 86_400_000).toISOString()
 
 /** Open the participation SPA page and wait for the manifest shell to mount. */
 async function gotoParticipation(page: Page): Promise<void> {
-	await page.goto(`${BASE}/apps/decidesk/participation`)
+	await page.goto(`${BASE}/apps/decidiq/participation`)
 	await page.waitForSelector('[data-testid="participation-page"]', {
 		timeout: 20_000,
 	})
@@ -66,7 +66,7 @@ async function gotoParticipation(page: Page): Promise<void> {
 
 /** Open the moderation queue SPA page. */
 async function gotoModerationQueue(page: Page): Promise<void> {
-	await page.goto(`${BASE}/apps/decidesk/moderation-queue`)
+	await page.goto(`${BASE}/apps/decidiq/moderation-queue`)
 	await page.waitForSelector('[data-testid="moderation-queue-page"]', {
 		timeout: 20_000,
 	})
@@ -139,7 +139,7 @@ test.describe('Citizen participation — consultations', () => {
 			submitterId: 'admin',
 			submittedAt: new Date().toISOString(),
 			relations: [
-				{ register: 'decidesk', schema: 'public-consultation', id: cid },
+				{ register: 'decidiq', schema: 'public-consultation', id: cid },
 			],
 		})
 		await createObject(page, ledger, 'consultation-reaction', {
@@ -148,7 +148,7 @@ test.describe('Citizen participation — consultations', () => {
 			submitterId: 'admin',
 			submittedAt: new Date().toISOString(),
 			relations: [
-				{ register: 'decidesk', schema: 'public-consultation', id: cid },
+				{ register: 'decidiq', schema: 'public-consultation', id: cid },
 			],
 		})
 
@@ -261,7 +261,7 @@ test.describe('Citizen participation — participatory budgeting', () => {
 			votesFor: 0,
 			votesAgainst: 0,
 			relations: [
-				{ register: 'decidesk', schema: 'participatory-budget', id: bid },
+				{ register: 'decidiq', schema: 'participatory-budget', id: bid },
 			],
 		})
 		await createObject(page, ledger, 'budget-proposal', {
@@ -270,7 +270,7 @@ test.describe('Citizen participation — participatory budgeting', () => {
 			status: 'submitted',
 			submitter: 'admin',
 			relations: [
-				{ register: 'decidesk', schema: 'participatory-budget', id: bid },
+				{ register: 'decidiq', schema: 'participatory-budget', id: bid },
 			],
 		})
 
@@ -311,7 +311,7 @@ test.describe('Citizen participation — participatory budgeting', () => {
 			votesAgainst: 1,
 			relations: [
 				{
-					register: 'decidesk',
+					register: 'decidiq',
 					schema: 'participatory-budget',
 					id: objId(round),
 				},
@@ -342,7 +342,7 @@ test.describe('Citizen participation — participatory budgeting', () => {
 
 test.describe('Citizen participation — admin defaults', () => {
 	test('admin sets instance participation defaults', async ({ page }) => {
-		await page.goto(`${BASE}/settings/admin/decidesk`)
+		await page.goto(`${BASE}/settings/admin/decidiq`)
 		const section = page.locator('[data-testid="participation-settings"]')
 		await expect(section).toBeVisible({ timeout: 20_000 })
 

@@ -1,7 +1,7 @@
 # raadsinformatiebrieven-register Specification
 
 **Status**: planned
-**Scope**: decidesk
+**Scope**: decidiq
 **OpenSpec changes**:
 - [raadsinformatiebrieven](../../changes/raadsinformatiebrieven/)
 
@@ -30,7 +30,7 @@ The system SHALL define a `Raadsinformatiebrief` schema in the decidesk register
 
 #### Scenario: Register fragment is additive
 
-- GIVEN a decidesk installation upgrading to this change
+- GIVEN a decidiq installation upgrading to this change
 - WHEN the register configuration is loaded
 - THEN the Raadsinformatiebrief schema is registered from the register.d fragment 51
 - AND no existing schema in `decidesk_register.json` is modified
@@ -99,7 +99,7 @@ The system SHALL define a `TechnischeVraag` schema in the decidesk register (sam
 
 ### Requirement: REQ-RIB-005 Technische vragen are bounded away from schriftelijke vragen and inbound mail
 
-A technische vraag SHALL be a short informational Q&A entry scoped to one RIB and SHALL NOT implement the formal art. 33 schriftelijke-vragen instrument: the `TechnischeVraag` schema SHALL NOT carry answer deadlines/termijnbewaking, college-workflow states, or fractie-quorum machinery, and the system SHALL NOT convert a technische vraag into a schriftelijke vraag automatically — escalation is a manual re-filing as a `SchriftelijkeVraag` (planned in `changes/fractievoorzitter-fractie-koppeling`) once that capability lands. Likewise, a Raadsinformatiebrief SHALL NOT be registered as, or mirrored to, an `IngekomenStuk` (`ingekomen-stukken-register` owns inbound external mail), and college-internal drafting/parafering of RIBs SHALL remain out of decidesk (procest domain): decidesk registers the sent letter only.
+A technische vraag SHALL be a short informational Q&A entry scoped to one RIB and SHALL NOT implement the formal art. 33 schriftelijke-vragen instrument: the `TechnischeVraag` schema SHALL NOT carry answer deadlines/termijnbewaking, college-workflow states, or fractie-quorum machinery, and the system SHALL NOT convert a technische vraag into a schriftelijke vraag automatically — escalation is a manual re-filing as a `SchriftelijkeVraag` (planned in `changes/fractievoorzitter-fractie-koppeling`) once that capability lands. Likewise, a Raadsinformatiebrief SHALL NOT be registered as, or mirrored to, an `IngekomenStuk` (`ingekomen-stukken-register` owns inbound external mail), and college-internal drafting/parafering of RIBs SHALL remain out of decidiq (procest domain): decidiq registers the sent letter only.
 
 #### Scenario: Technische vraag carries no formal-instrument machinery
 

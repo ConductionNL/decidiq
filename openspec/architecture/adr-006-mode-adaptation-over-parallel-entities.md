@@ -105,7 +105,7 @@ advice). It is promoted to a pluggable decision *method* on the unified Decision
 
 **Change:** `consultation-discriminator`
 
-Decidesk carries three schemas whose names all contain "consultation":
+Decidiq carries three schemas whose names all contain "consultation":
 `PublicConsultation` (already a discriminated supertype, `consultationType`
 enum: `citizen-participation | market-consultation | tender | idea-box |
 participatory-budget`), `MemberConsultation` (the internal, non-binding

@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 Conduction / Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Conduction / Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Unit tests for the pure helpers behind MeetingKascommissieTab.vue
@@ -45,9 +45,9 @@ describe('kascommissieContent (REQ-MDV-012)', () => {
 		expect(content.filter).toEqual({ governanceBody: '@object.governanceBody' })
 	})
 
-	it('targets the kascommissie-verklaring schema on the decidesk register', () => {
+	it('targets the kascommissie-verklaring schema on the decidiq register', () => {
 		const content = kascommissieContent()
-		expect(content.register).toBe('decidesk')
+		expect(content.register).toBe('decidiq')
 		expect(content.schema).toBe('kascommissie-verklaring')
 	})
 

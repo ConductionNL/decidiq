@@ -17,7 +17,7 @@
  * could be a blanket refusal.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Controller
+ * @package  OCA\Decidiq\Tests\Unit\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -33,15 +33,15 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Controller;
+namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\Decidesk\Controller\BoardEvaluationController;
-use OCA\Decidesk\Service\BoardEvaluationAccessGuard;
-use OCA\Decidesk\Service\BoardEvaluationReportService;
-use OCA\Decidesk\Service\BoardEvaluationResponseService;
-use OCA\Decidesk\Service\BoardEvaluationScoreService;
-use OCA\Decidesk\Service\ParticipantUuidLookup;
-use OCA\Decidesk\Service\ParticipationPublicationService;
+use OCA\Decidiq\Controller\BoardEvaluationController;
+use OCA\Decidiq\Service\BoardEvaluationAccessGuard;
+use OCA\Decidiq\Service\BoardEvaluationReportService;
+use OCA\Decidiq\Service\BoardEvaluationResponseService;
+use OCA\Decidiq\Service\BoardEvaluationScoreService;
+use OCA\Decidiq\Service\ParticipantUuidLookup;
+use OCA\Decidiq\Service\ParticipationPublicationService;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Http;

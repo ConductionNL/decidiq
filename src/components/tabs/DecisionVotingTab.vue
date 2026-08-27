@@ -11,12 +11,12 @@
 -->
 <template>
 	<div
-		class="decidesk-tab decidesk-tab--decision-votes"
+		class="decidiq-tab decidiq-tab--decision-votes"
 		data-testid="decision-voting-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Voting results') }}
-				<span v-if="!loading" class="decidesk-tab__count"
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Voting results') }}
+				<span v-if="!loading" class="decidiq-tab__count"
 					>({{ votes.length }})</span
 				>
 			</h3>
@@ -25,41 +25,41 @@
 		<CnNoteCard
 			v-if="error"
 			type="error"
-			:title="t('decidesk', 'Could not load voting results')">
+			:title="t('decidiq', 'Could not load voting results')">
 			{{ error }}
 		</CnNoteCard>
 
 		<p
 			v-if="!loading && !error && !motionId"
-			class="decidesk-tab__none"
+			class="decidiq-tab__none"
 			data-testid="decision-voting-none">
 			{{
 				t(
-					'decidesk',
+					'decidiq',
 					'No motion is linked to this decision, so there are no voting results.',
 				)
 			}}
 		</p>
 
-		<div v-if="rounds.length" class="decidesk-tab__rounds">
+		<div v-if="rounds.length" class="decidiq-tab__rounds">
 			<div
 				v-for="round in rounds"
 				:key="round.id"
-				class="decidesk-tab__round"
+				class="decidiq-tab__round"
 				data-testid="decision-voting-round">
-				<header class="decidesk-tab__round-header">
+				<header class="decidiq-tab__round-header">
 					<strong>{{
-						round.votingMethod || t('decidesk', 'Voting round')
+						round.votingMethod || t('decidiq', 'Voting round')
 					}}</strong>
 					<CnStatusBadge
 						v-if="round.result"
 						:label="round.result"
 						:colorMap="roundColors" />
 				</header>
-				<p v-if="round.votesFor != null" class="decidesk-tab__round-tally">
+				<p v-if="round.votesFor != null" class="decidiq-tab__round-tally">
 					{{
 						t(
-							'decidesk',
+							'decidiq',
 							'For: {for} — Against: {against} — Abstain: {abstain}',
 							{
 								for: round.votesFor || 0,
@@ -78,8 +78,8 @@
 			:rows="votes"
 			:loading="loading"
 			rowKey="id"
-			:emptyText="t('decidesk', 'No votes recorded for this decision yet.')"
-			:loadingText="t('decidesk', 'Loading voting results…')">
+			:emptyText="t('decidiq', 'No votes recorded for this decision yet.')"
+			:loadingText="t('decidiq', 'Loading voting results…')">
 			<template #column-value="{ value }">
 				<CnStatusBadge v-if="value" :label="value" :colorMap="voteColors" />
 			</template>
@@ -112,9 +112,9 @@ export default {
 		/** @spec openspec/specs/decision-management/spec.md */
 		columns() {
 			return [
-				{ key: 'caster', label: this.t('decidesk', 'Voter') },
-				{ key: 'value', label: this.t('decidesk', 'Vote') },
-				{ key: 'castAt', label: this.t('decidesk', 'Cast at') },
+				{ key: 'caster', label: this.t('decidiq', 'Voter') },
+				{ key: 'value', label: this.t('decidiq', 'Vote') },
+				{ key: 'castAt', label: this.t('decidiq', 'Cast at') },
 			]
 		},
 
@@ -186,8 +186,7 @@ export default {
 				this.votes = all
 			} catch (e) {
 				this.error =
-					e?.message
-					|| this.t('decidesk', 'Failed to load voting results.')
+					e?.message || this.t('decidiq', 'Failed to load voting results.')
 			} finally {
 				this.loading = false
 			}
@@ -197,56 +196,56 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__count {
+.decidiq-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
 
-.decidesk-tab__none {
+.decidiq-tab__none {
 	margin: 0;
 	color: var(--color-text-maxcontrast);
 }
 
-.decidesk-tab__rounds {
+.decidiq-tab__rounds {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
 }
 
-.decidesk-tab__round {
+.decidiq-tab__round {
 	border: 1px solid var(--color-border);
 	border-radius: var(--border-radius);
 	padding: 8px;
 }
 
-.decidesk-tab__round-header {
+.decidiq-tab__round-header {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 }
 
-.decidesk-tab__round-tally {
+.decidiq-tab__round-tally {
 	margin: 4px 0 0;
 	color: var(--color-text-maxcontrast);
 	font-size: 0.9em;

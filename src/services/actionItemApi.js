@@ -4,7 +4,7 @@
  * Action items are CalDAV VTODOs exposed as a READ-ONLY OpenRegister projection
  * (action-items-vtodo-deck-reconcile), so the generic object API rejects writes.
  * Reads still use useObjectStore (the projection); these wrappers handle the
- * VTODO create/update/delete via the decidesk action-item endpoints.
+ * VTODO create/update/delete via the decidiq action-item endpoints.
  *
  * SPDX-License-Identifier: EUPL-1.2
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
@@ -15,7 +15,7 @@
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 
-const base = '/apps/decidesk/api/action-items'
+const base = '/apps/decidiq/api/action-items'
 
 /**
  * Create an action item (as a VTODO).

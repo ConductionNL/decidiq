@@ -8,7 +8,7 @@
  * cross-check (match links / no-match unverified flags).
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @spec openspec/changes/meeting-transcription-ai-minutes/tasks.md#task-5.1
  *
@@ -21,9 +21,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\MinutesDraftService;
+use OCA\Decidiq\Service\MinutesDraftService;
 use OCP\TaskProcessing\IManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -113,8 +113,8 @@ class MinutesDraftServiceTest extends TestCase {
 		// MinutesDraftService resolves its section composer from the container;
 		// the composer is pure (no collaborators), so wire the real one.
 		$this->container->method('get')
-			->with(\OCA\Decidesk\Service\MinutesDraftComposer::class)
-			->willReturn(new \OCA\Decidesk\Service\MinutesDraftComposer());
+			->with(\OCA\Decidiq\Service\MinutesDraftComposer::class)
+			->willReturn(new \OCA\Decidiq\Service\MinutesDraftComposer());
 
 		$segments = [
 			['agendaItem' => 'A', 'speakerLabel' => 'Speaker 1', 'text' => 'discuss A'],
@@ -156,8 +156,8 @@ class MinutesDraftServiceTest extends TestCase {
 		// MinutesDraftService resolves its section composer from the container;
 		// the composer is pure (no collaborators), so wire the real one.
 		$this->container->method('get')
-			->with(\OCA\Decidesk\Service\MinutesDraftComposer::class)
-			->willReturn(new \OCA\Decidesk\Service\MinutesDraftComposer());
+			->with(\OCA\Decidiq\Service\MinutesDraftComposer::class)
+			->willReturn(new \OCA\Decidiq\Service\MinutesDraftComposer());
 
 		$segments = [
 			['speakerLabel' => 'Speaker 1', 'text' => 'whole meeting'],
@@ -191,8 +191,8 @@ class MinutesDraftServiceTest extends TestCase {
 		// MinutesDraftService resolves its section composer from the container;
 		// the composer is pure (no collaborators), so wire the real one.
 		$this->container->method('get')
-			->with(\OCA\Decidesk\Service\MinutesDraftComposer::class)
-			->willReturn(new \OCA\Decidesk\Service\MinutesDraftComposer());
+			->with(\OCA\Decidiq\Service\MinutesDraftComposer::class)
+			->willReturn(new \OCA\Decidiq\Service\MinutesDraftComposer());
 
 		$summary = 'De raad nam het besluit Woningbouwplan Oost aan. '
 			. 'Er werd ook iets over een onbekend voorstel gezegd.';

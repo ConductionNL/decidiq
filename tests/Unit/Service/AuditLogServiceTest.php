@@ -4,7 +4,7 @@
  * Unit tests for AuditLogService.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,11 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\AuditLogService;
-use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\Decidiq\Service\AuditLogService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -93,7 +93,7 @@ class AuditLogServiceTest extends TestCase {
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);
 
-		return new AuditLogService( $logger,
+		return new AuditLogService($logger,
 			objectService: $objectService,
 		);
 	}//end makeService()
@@ -335,7 +335,7 @@ class AuditLogServiceTest extends TestCase {
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);
 
-		$service = new AuditLogService( $logger,
+		$service = new AuditLogService($logger,
 			objectService: $objectService,
 		);
 		$result = $service->append(actor: 'bob', action: 'vote', objectUids: ['r1']);

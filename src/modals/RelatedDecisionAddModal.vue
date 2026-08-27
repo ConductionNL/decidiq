@@ -13,15 +13,15 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Add related decision')"
+		:name="t('decidiq', 'Add related decision')"
 		data-testid="related-decision-add-modal"
 		@closing="$emit('close')">
 		<template #default>
-			<div class="decidesk-relation-add">
+			<div class="decidiq-relation-add">
 				<NcSelect
 					v-model="selectedType"
 					data-testid="related-decision-type"
-					:inputLabel="t('decidesk', 'Relation type')"
+					:inputLabel="t('decidiq', 'Relation type')"
 					:options="typeOptions"
 					:reduce="(o) => o.value"
 					label="label"
@@ -30,19 +30,19 @@
 				<NcSelect
 					v-model="selectedTarget"
 					data-testid="related-decision-target"
-					:inputLabel="t('decidesk', 'Target decision')"
+					:inputLabel="t('decidiq', 'Target decision')"
 					:options="targetOptions"
 					:loading="searching"
 					:filterable="false"
 					label="title"
-					:placeholder="t('decidesk', 'Search decisions…')"
+					:placeholder="t('decidiq', 'Search decisions…')"
 					@search="onSearch" />
 
 				<CnNoteCard
 					v-if="error"
 					type="error"
 					data-testid="related-decision-add-error"
-					:title="t('decidesk', 'Relation rejected')">
+					:title="t('decidiq', 'Relation rejected')">
 					{{ error }}
 				</CnNoteCard>
 			</div>
@@ -53,7 +53,7 @@
 				data-testid="related-decision-add-confirm"
 				:disabled="busy || !selectedTarget || !selectedType"
 				@click="confirm">
-				{{ t('decidesk', 'Add relation') }}
+				{{ t('decidiq', 'Add relation') }}
 			</NcButton>
 		</template>
 	</NcDialog>
@@ -126,7 +126,7 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-relation-add {
+.decidiq-relation-add {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);

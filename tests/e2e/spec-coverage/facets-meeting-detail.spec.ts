@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 Decidesk Contributors
+ * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 e2e coverage — MeetingDetail's five meeting-facet-composition
@@ -29,7 +29,7 @@ import type { APIRequestContext, PlaywrightWorkerArgs } from '@playwright/test'
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from '../base-url.ts'
 
-const OR = `${BASE}/index.php/apps/openregister/api/objects/decidesk`
+const OR = `${BASE}/index.php/apps/openregister/api/objects/decidiq`
 const ADMIN_USER = process.env.NEXTCLOUD_USER || 'admin'
 const ADMIN_PASS = process.env.NEXTCLOUD_PASS || 'admin'
 
@@ -138,7 +138,7 @@ test('MeetingDetail: oral-questions facet lists a mondelinge-vraag created via A
 		questionId = objectId(await questionResp.json())
 		test.skip(!questionId, 'Seeded mondelinge-vraag has no id')
 
-		await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
+		await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}`)
 		// app-root appearing only proves the shell mounted, not that data has
 		// arrived — mount itself blocks on initializeStores()'s settings round
 		// trip, so 30s (double the old budget) before even the shell shows up.
@@ -197,7 +197,7 @@ test('MeetingDetail: interpellations, proxy-authorizations and routed-documents 
 		meetingId = objectId(await meetingResp.json())
 		test.skip(!meetingId, 'Seeded meeting has no id')
 
-		await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
+		await page.goto(`${BASE}/apps/decidiq/meetings/${meetingId}`)
 		// app-root appearing only proves the shell mounted, not that data has
 		// arrived — mount itself blocks on initializeStores()'s settings round
 		// trip, so 30s (double the old budget) before even the shell shows up.

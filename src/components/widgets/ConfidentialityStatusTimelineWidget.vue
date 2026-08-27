@@ -63,12 +63,12 @@
 								v-if="stage.overdue"
 								class="cn-confidentiality-timeline__overdue-flag"
 								data-testid="confidentiality-stage-overdue">
-								{{ t('decidesk', 'Overdue') }}
+								{{ t('decidiq', 'Overdue') }}
 							</span>
 							<span
 								v-else-if="stage.pending"
 								class="cn-confidentiality-timeline__pending-flag">
-								{{ t('decidesk', 'Pending') }}
+								{{ t('decidiq', 'Pending') }}
 							</span>
 						</div>
 
@@ -95,7 +95,7 @@
 								v-if="stage.deadline"
 								class="cn-confidentiality-timeline__date">
 								{{
-									t('decidesk', 'Deadline {date}', {
+									t('decidiq', 'Deadline {date}', {
 										date: formatDate(stage.deadline),
 									})
 								}}
@@ -112,7 +112,7 @@
 								@click="openRoute(decisionRoute, stage.decisionId)">
 								{{
 									ratificationDecisionLabel
-									|| t('decidesk', 'View decision')
+									|| t('decidiq', 'View decision')
 								}}
 							</NcButton>
 							<NcButton
@@ -124,7 +124,7 @@
 								">
 								{{
 									ratificationAgendaItemLabel
-									|| t('decidesk', 'View agenda item')
+									|| t('decidiq', 'View agenda item')
 								}}
 							</NcButton>
 						</template>
@@ -142,7 +142,7 @@
 								@click="openRoute(decisionRoute, stage.decisionId)">
 								{{
 									dissolutionDecisionLabel
-									|| t('decidesk', 'View decision')
+									|| t('decidiq', 'View decision')
 								}}
 							</NcButton>
 							<span
@@ -160,7 +160,7 @@
 				class="cn-confidentiality-timeline__ground"
 				data-testid="confidentiality-ground">
 				<h4 class="cn-confidentiality-timeline__section-title">
-					{{ t('decidesk', 'Ground') }}
+					{{ t('decidiq', 'Ground') }}
 				</h4>
 				<p class="cn-confidentiality-timeline__citation">
 					{{ groundObj.name }} — {{ groundObj.citation }}
@@ -170,7 +170,7 @@
 					class="cn-confidentiality-timeline__legacy-citation"
 					data-testid="confidentiality-ground-legacy">
 					{{
-						t('decidesk', 'Formerly: {citation}', {
+						t('decidiq', 'Formerly: {citation}', {
 							citation: groundObj.legacyCitation,
 						})
 					}}
@@ -211,12 +211,12 @@ import {
 } from './registerDetailWidgets.js'
 
 const IMPOSED_BY_LABELS = {
-	body: () => t('decidesk', 'Imposed by the governing body'),
-	chair: () => t('decidesk', 'Imposed by the chair'),
-	'executive-board': () => t('decidesk', 'Imposed by the executive board'),
+	body: () => t('decidiq', 'Imposed by the governing body'),
+	chair: () => t('decidiq', 'Imposed by the chair'),
+	'executive-board': () => t('decidiq', 'Imposed by the executive board'),
 }
 
-/** Target scope → { field, schema, labelField, route }. Document has no decidesk detail route (see design.md deviation note). */
+/** Target scope → { field, schema, labelField, route }. Document has no decidiq detail route (see design.md deviation note). */
 const TARGET_KINDS = {
 	document: {
 		field: 'targetDocument',
@@ -261,7 +261,7 @@ export default {
 		store: { type: Object, default: null },
 		title: {
 			type: String,
-			default: () => t('decidesk', 'Confidentiality status timeline'),
+			default: () => t('decidiq', 'Confidentiality status timeline'),
 		},
 
 		icon: { type: String, default: 'ShieldLockOutline' },
@@ -284,7 +284,7 @@ export default {
 		cfg() {
 			const c = this.content || {}
 			return {
-				register: c.register || this.register || 'decidesk',
+				register: c.register || this.register || 'decidiq',
 				groundSchema: c.groundSchema || 'geheimhouding-grond',
 			}
 		},
@@ -363,9 +363,9 @@ export default {
 		 */
 		targetKindLabel() {
 			const labels = {
-				document: t('decidesk', 'Target document'),
-				item: t('decidesk', 'Target agenda item'),
-				decision: t('decidesk', 'Target decision'),
+				document: t('decidiq', 'Target document'),
+				item: t('decidiq', 'Target agenda item'),
+				decision: t('decidiq', 'Target decision'),
 			}
 			return labels[this.targetKind] || ''
 		},
@@ -403,9 +403,9 @@ export default {
 		 */
 		stageLabel(key) {
 			const labels = {
-				imposed: t('decidesk', 'Imposed'),
-				ratification: t('decidesk', 'Ratification'),
-				dissolution: t('decidesk', 'Dissolution'),
+				imposed: t('decidiq', 'Imposed'),
+				ratification: t('decidiq', 'Ratification'),
+				dissolution: t('decidiq', 'Dissolution'),
 			}
 			return labels[key] || key
 		},

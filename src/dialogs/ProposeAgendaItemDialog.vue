@@ -12,33 +12,33 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Propose agenda item')"
+		:name="t('decidiq', 'Propose agenda item')"
 		data-testid="propose-item-dialog"
 		@closing="$emit('close')">
 		<template #default>
 			<p>
 				{{
 					t(
-						'decidesk',
+						'decidiq',
 						'Fill in the agenda item details. The chair will approve or reject your proposal.',
 					)
 				}}
 			</p>
 			<NcTextField
 				v-model="title"
-				:label="t('decidesk', 'Title')"
-				:placeholder="t('decidesk', 'Agenda item title')"
+				:label="t('decidiq', 'Title')"
+				:placeholder="t('decidiq', 'Agenda item title')"
 				required />
 			<NcTextArea
 				v-model="description"
-				:label="t('decidesk', 'Description')"
-				:placeholder="t('decidesk', 'Describe the agenda item')" />
+				:label="t('decidiq', 'Description')"
+				:placeholder="t('decidiq', 'Describe the agenda item')" />
 		</template>
 		<template #actions>
 			<NcButton
 				:disabled="!title"
 				@click="$emit('submit', { title, description })">
-				{{ t('decidesk', 'Submit proposal') }}
+				{{ t('decidiq', 'Submit proposal') }}
 			</NcButton>
 		</template>
 	</NcDialog>

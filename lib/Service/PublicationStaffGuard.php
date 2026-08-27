@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Publication Staff Guard
+ * Decidiq Publication Staff Guard
  *
  * Answers the one authorisation question every publication endpoint asks: does
  * the acting user hold chair/secretary authority on the meeting a publication
@@ -15,7 +15,7 @@
  * Fails CLOSED: an unresolvable meeting is never authorised.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -31,7 +31,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;
@@ -135,7 +135,7 @@ class PublicationStaffGuard {
 			return self::ALLOWED;
 		}
 
-		$record = $this->objectService->find(id: $recordId, register: 'decidesk', schema: 'publication-record');
+		$record = $this->objectService->find(id: $recordId, register: 'decidiq', schema: 'publication-record');
 		if ($record === null) {
 			return self::RECORD_NOT_FOUND;
 		}
@@ -198,7 +198,7 @@ class PublicationStaffGuard {
 			$schema = 'minutes';
 		}
 
-		$entity = $this->objectService->find(id: $sourceId, register: 'decidesk', schema: $schema);
+		$entity = $this->objectService->find(id: $sourceId, register: 'decidiq', schema: $schema);
 		if ($entity === null) {
 			return null;
 		}

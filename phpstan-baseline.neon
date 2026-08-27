@@ -24,6 +24,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Constant OCA\\\\Decidesk\\\\Controller\\\\ApiController\\:\\:SCOPE_MAP is unused\\.$#"
+			message: "#^Constant OCA\\\\Decidiq\\\\Controller\\\\ApiController\\:\\:SCOPE_MAP is unused\\.$#"
 			count: 1
 			path: lib/Controller/ApiController.php

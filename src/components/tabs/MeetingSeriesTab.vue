@@ -13,26 +13,26 @@
  @spec openspec/specs/meeting-management/spec.md
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--series" data-testid="meeting-series-tab">
-		<div class="decidesk-tab__header">
-			<h3 class="decidesk-tab__title">
-				{{ t('decidesk', 'Recurring series') }}
+	<div class="decidiq-tab decidiq-tab--series" data-testid="meeting-series-tab">
+		<div class="decidiq-tab__header">
+			<h3 class="decidiq-tab__title">
+				{{ t('decidiq', 'Recurring series') }}
 				<span
 					v-if="!loading && instances.length > 0"
-					class="decidesk-tab__count"
+					class="decidiq-tab__count"
 					>({{ instances.length }})</span
 				>
 			</h3>
 		</div>
 
-		<CnNoteCard v-if="error" type="error" :title="t('decidesk', 'Series error')">
+		<CnNoteCard v-if="error" type="error" :title="t('decidiq', 'Series error')">
 			{{ error }}
 		</CnNoteCard>
 
 		<CnNoteCard
 			v-if="successMessage"
 			type="success"
-			:title="t('decidesk', 'Series generated')">
+			:title="t('decidiq', 'Series generated')">
 			{{ successMessage }}
 		</CnNoteCard>
 
@@ -43,25 +43,25 @@
 			@submit.prevent="generate">
 			<NcSelect
 				v-model="frequency"
-				:inputLabel="t('decidesk', 'Frequency')"
+				:inputLabel="t('decidiq', 'Frequency')"
 				:options="frequencyOptions"
 				:clearable="false" />
 			<NcTextField
 				v-model="interval"
 				type="number"
 				min="1"
-				:label="t('decidesk', 'Interval')"
-				:placeholder="t('decidesk', 'e.g. 1')" />
+				:label="t('decidiq', 'Interval')"
+				:placeholder="t('decidiq', 'e.g. 1')" />
 			<NcTextField
 				v-model="until"
 				type="date"
-				:label="t('decidesk', 'Until (inclusive)')" />
+				:label="t('decidiq', 'Until (inclusive)')" />
 			<NcTextField
 				v-model="exceptions"
-				:label="t('decidesk', 'Exception dates')"
+				:label="t('decidiq', 'Exception dates')"
 				:placeholder="
 					t(
-						'decidesk',
+						'decidiq',
 						'Comma-separated dates, e.g. 2026-07-14, 2026-08-11',
 					)
 				" />
@@ -72,12 +72,12 @@
 				data-testid="series-preview"
 				aria-live="polite">
 				{{
-					t('decidesk', 'This pattern creates {n} meeting(s).', {
+					t('decidiq', 'This pattern creates {n} meeting(s).', {
 						n: preview.dates.length,
 					})
 				}}
 				<span v-if="preview.truncated">
-					{{ t('decidesk', 'The series is capped at 52 instances.') }}
+					{{ t('decidiq', 'The series is capped at 52 instances.') }}
 				</span>
 			</p>
 
@@ -90,11 +90,11 @@
 					|| preview.error !== null
 					|| preview.dates.length === 0
 				"
-				:aria-label="t('decidesk', 'Generate meeting series')">
+				:aria-label="t('decidiq', 'Generate meeting series')">
 				{{
 					generating
-						? t('decidesk', 'Generating…')
-						: t('decidesk', 'Generate series')
+						? t('decidiq', 'Generating…')
+						: t('decidiq', 'Generate series')
 				}}
 			</NcButton>
 		</form>
@@ -103,7 +103,7 @@
 		<div v-if="meeting && meeting.series" class="series-instances">
 			<h4>
 				{{
-					t('decidesk', 'Instances in series {series}', {
+					t('decidiq', 'Instances in series {series}', {
 						series: meeting.series,
 					})
 				}}
@@ -113,8 +113,8 @@
 				:rows="instances"
 				:loading="loading"
 				rowKey="id"
-				:emptyText="t('decidesk', 'No other meetings in this series yet.')"
-				:loadingText="t('decidesk', 'Loading series instances…')" />
+				:emptyText="t('decidiq', 'No other meetings in this series yet.')"
+				:loadingText="t('decidiq', 'Loading series instances…')" />
 		</div>
 	</div>
 </template>
@@ -159,10 +159,10 @@ export default {
 			return [
 				{
 					key: 'scheduledDate',
-					label: this.t('decidesk', 'Scheduled date'),
+					label: this.t('decidiq', 'Scheduled date'),
 				},
-				{ key: 'title', label: this.t('decidesk', 'Title') },
-				{ key: 'lifecycle', label: this.t('decidesk', 'Lifecycle') },
+				{ key: 'title', label: this.t('decidiq', 'Title') },
+				{ key: 'lifecycle', label: this.t('decidiq', 'Lifecycle') },
 			]
 		},
 
@@ -210,7 +210,7 @@ export default {
 				await this.loadInstances()
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Failed to load the meeting.')
+					e?.message || this.t('decidiq', 'Failed to load the meeting.')
 			} finally {
 				this.loading = false
 			}
@@ -244,7 +244,7 @@ export default {
 			try {
 				const response = await fetch(
 					generateUrl(
-						`/apps/decidesk/api/meetings/${this.objectId}/series`,
+						`/apps/decidiq/api/meetings/${this.objectId}/series`,
 					),
 					{
 						method: 'POST',
@@ -260,14 +260,14 @@ export default {
 				if (!response.ok || payload?.success === false) {
 					this.error =
 						payload?.message
-						|| this.t('decidesk', 'Series generation failed.')
+						|| this.t('decidiq', 'Series generation failed.')
 					return
 				}
 				this.successMessage = payload.message
 				await this.refresh()
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidesk', 'Series generation failed.')
+					e?.message || this.t('decidiq', 'Series generation failed.')
 			} finally {
 				this.generating = false
 			}
@@ -277,27 +277,27 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-tab {
+.decidiq-tab {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
 
-.decidesk-tab__header {
+.decidiq-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
 
-.decidesk-tab__title {
+.decidiq-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
 
-.decidesk-tab__count {
+.decidiq-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;

@@ -1,19 +1,19 @@
 <?php
 
 /**
- * Decidesk Object Listener Registrar
+ * Decidiq Object Listener Registrar
  *
- * Subscribes decidesk's OpenRegister object-lifecycle listeners with their
+ * Subscribes decidiq's OpenRegister object-lifecycle listeners with their
  * schema interest declared up front, so an uninterested listener is neither
  * constructed nor invoked.
  *
- * Extracted from {@see \OCA\Decidesk\AppInfo\Application} so the bootstrap
+ * Extracted from {@see \OCA\Decidiq\AppInfo\Application} so the bootstrap
  * class stops accumulating a class reference for every listener and event it
  * subscribes (PHPMD CouplingBetweenObjects); the imports move with the
  * subscriptions.
  *
  * @category AppInfo
- * @package  OCA\Decidesk\AppInfo\Registrar
+ * @package  OCA\Decidiq\AppInfo\Registrar
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -30,12 +30,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\AppInfo\Registrar;
+namespace OCA\Decidiq\AppInfo\Registrar;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Listener\GovernanceRoleProjectionListener;
-use OCA\Decidesk\Listener\MeetingFolderListener;
-use OCA\Decidesk\Listener\SubmissionDeadlineListener;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
+use OCA\Decidiq\Listener\MeetingFolderListener;
+use OCA\Decidiq\Listener\SubmissionDeadlineListener;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
@@ -81,7 +81,7 @@ class ObjectListenerRegistrar {
 	}//end __construct()
 
 	/**
-	 * Subscribe every decidesk object-lifecycle listener.
+	 * Subscribe every decidiq object-lifecycle listener.
 	 *
 	 * @param IEventDispatcher $dispatcher The live event dispatcher
 	 *
@@ -97,7 +97,7 @@ class ObjectListenerRegistrar {
 		// constructed and invoked on every object create on the instance —
 		// a larpingapp character create reached `handle()` and bailed at that
 		// guard. No register is declared: schema-only is exactly the guard
-		// the handler already applies, and stays correct if a Decidesk
+		// the handler already applies, and stays correct if a Decidiq
 		// deployment ever splits meetings across registers.
 		$this->subscribe(
 			dispatcher: $dispatcher,
@@ -146,7 +146,7 @@ class ObjectListenerRegistrar {
 	 * OpenRegister's `ObjectEventSubscription` records the register/schema slugs
 	 * a listener reacts to and routes dispatches through a single shared proxy,
 	 * so an uninterested listener is neither constructed nor invoked. When
-	 * OpenRegister is absent — Decidesk carries no hard dependency on it — this
+	 * OpenRegister is absent — Decidiq carries no hard dependency on it — this
 	 * degrades to the plain global registration it replaced, which is exactly
 	 * the behaviour every listener had before.
 	 *

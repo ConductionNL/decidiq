@@ -8,12 +8,12 @@
  quick actions here as needed.
 -->
 <template>
-	<div class="decidesk-quick-actions">
+	<div class="decidiq-quick-actions">
 		<NcButton variant="primary" @click="startDecision">
 			<template #icon>
 				<Gavel :size="18" />
 			</template>
-			{{ t('decidesk', 'Start decision-making process') }}
+			{{ t('decidiq', 'Start decision-making process') }}
 		</NcButton>
 	</div>
 </template>
@@ -35,7 +35,7 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-quick-actions {
+.decidiq-quick-actions {
 	display: flex;
 	align-items: center;
 	gap: var(--default-grid-baseline, 8px);

@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Activity Publisher Service
+ * Decidiq Activity Publisher Service
  *
- * Publishes Decidesk governance events (decision recorded/published, meeting
+ * Publishes Decidiq governance events (decision recorded/published, meeting
  * lifecycle transitions, vote initiation, resolution adoption) to the
  * Nextcloud Activity feed via OCP\Activity\IManager.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,15 +23,15 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use OCA\Decidesk\Activity\GovernanceSetting;
-use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidiq\Activity\GovernanceSetting;
+use OCA\Decidiq\AppInfo\Application;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Fail-soft publisher for Decidesk governance activity events.
+ * Fail-soft publisher for Decidiq governance activity events.
  *
  * Every public method catches \Throwable internally: Activity is an
  * observability surface and must never abort the underlying governance
@@ -59,7 +59,7 @@ class ActivityPublisherService {
 	 * session user is always included so an event is never published to
 	 * nobody). Failures are logged at debug level and swallowed.
 	 *
-	 * @param string $subject Subject id (one of the DecideskProvider::SUBJECT_* constants)
+	 * @param string $subject Subject id (one of the DecidiqProvider::SUBJECT_* constants)
 	 * @param string $title The object title rendered in the subject
 	 * @param string $status Optional status/lifecycle rendered in the subject
 	 * @param string $objectType Activity object type (e.g. 'decision', 'meeting', 'voting-round', 'resolution')
@@ -92,7 +92,7 @@ class ActivityPublisherService {
 			$users = array_values(array_unique(array_filter($users, static fn ($uid) => is_string($uid) === true && $uid !== '')));
 			if ($users === []) {
 				$this->logger->debug(
-					'Decidesk: activity event has no resolvable audience, skipped',
+					'Decidiq: activity event has no resolvable audience, skipped',
 					['subject' => $subject, 'objectUuid' => $objectUuid]
 				);
 				return 0;
@@ -128,7 +128,7 @@ class ActivityPublisherService {
 					$published++;
 				} catch (\Throwable $e) {
 					$this->logger->debug(
-						'Decidesk: failed to publish activity entry for user',
+						'Decidiq: failed to publish activity entry for user',
 						['uid' => $uid, 'subject' => $subject, 'error' => $e->getMessage()]
 					);
 				}//end try
@@ -137,7 +137,7 @@ class ActivityPublisherService {
 			return $published;
 		} catch (\Throwable $e) {
 			$this->logger->debug(
-				'Decidesk: activity publication skipped',
+				'Decidiq: activity publication skipped',
 				['subject' => $subject, 'objectUuid' => $objectUuid, 'error' => $e->getMessage()]
 			);
 			return 0;
@@ -174,7 +174,7 @@ class ActivityPublisherService {
 			return array_values(array_unique($uids));
 		} catch (\Throwable $e) {
 			$this->logger->debug(
-				'Decidesk: meeting audience resolution failed',
+				'Decidiq: meeting audience resolution failed',
 				['meetingId' => $meetingId, 'error' => $e->getMessage()]
 			);
 			return [];
@@ -196,7 +196,7 @@ class ActivityPublisherService {
 			}
 		} catch (\Throwable $e) {
 			$this->logger->debug(
-				'Decidesk: could not resolve session user for activity',
+				'Decidiq: could not resolve session user for activity',
 				['error' => $e->getMessage()]
 			);
 		}

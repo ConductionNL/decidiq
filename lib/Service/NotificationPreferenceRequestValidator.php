@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Notification Preference Request Validator
+ * Decidiq Notification Preference Request Validator
  *
  * Reads the notification-preference update request and turns it into a
  * whitelisted set of changes, or the first validation error message.
@@ -17,7 +17,7 @@
  * resolves the session user and maps an error to 422.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -33,7 +33,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use OCP\IRequest;
 

@@ -4,7 +4,7 @@
  * Unit tests for PublicationService.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,16 +20,16 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\AuditLogService;
-use OCA\Decidesk\Service\OpenCatalogiPublisher;
-use OCA\Decidesk\Service\PublicationConfigService;
-use OCA\Decidesk\Service\PublicationEligibilityService;
-use OCA\Decidesk\Service\PublicationPayloadService;
-use OCA\Decidesk\Service\PublicationService;
-use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\Decidiq\Service\AuditLogService;
+use OCA\Decidiq\Service\OpenCatalogiPublisher;
+use OCA\Decidiq\Service\PublicationConfigService;
+use OCA\Decidiq\Service\PublicationEligibilityService;
+use OCA\Decidiq\Service\PublicationPayloadService;
+use OCA\Decidiq\Service\PublicationService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
 use PHPUnit\Framework\TestCase;
@@ -116,7 +116,7 @@ class PublicationServiceTest extends TestCase {
 			}
 		);
 
-		$eligibility = new PublicationEligibilityService( $logger,
+		$eligibility = new PublicationEligibilityService($logger,
 			objectService: $objectService,
 		);
 		$payload = new PublicationPayloadService($container, $logger, $configService);

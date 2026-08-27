@@ -25,7 +25,7 @@ See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for the full Motion and Amendm
 The system MUST support submitting motions with a title, body text, proposer,
 co-signers, and rationale. Motions MUST follow the governing body's rules for
 submission: a configurable minimum number of co-signers (app config
-`decidesk`/`motion_min_cosigners`, default 0 = disabled) MUST be enforced before a
+`decidiq`/`motion_min_cosigners`, default 0 = disabled) MUST be enforced before a
 motion may leave `submitted`, and when the linked meeting carries a
 `submissionDeadline`, motions and amendments submitted after that deadline MUST be
 rejected server-side. Motions MUST be stored as OpenRegister objects in the

@@ -11,11 +11,11 @@ Generalize the citizen speaking-right (inspreekrecht) registration loop — toda
 
 ## Motivation
 
-Inspreken is a statutory participation right (Gemeentewet / Reglement van Orde for councils; statuten for verenigingen), yet the market treats it as an afterthought: GO ships "GO Inspreken" as a standalone bolt-on module disconnected from the meeting itself. Decidesk already specs the full registration loop — public POST, privacy field split, griffier moderation, spreektijd-toewijzing, 24h auto-close, publication of public parts into the verslag — but ONLY for commissievergaderingen, and it is wired to nothing live: `digital-meetings-and-recurrence` REQ-STM has the SpeakingTimePanel and speaker queue but no connection to registrations, and `raadsvergadering-livestream-transcript` has `Spreker.rol=inspreker` for transcripts but no link back to who registered. Novelty verification (2026-07-17) rated this gap PARTIAL: the loop exists but is scoped and unwired. Generalizing one schema and wiring the three existing ends together closes the gap for all five governance domains at marginal cost, and turns inspraak from a form into a traceable end-to-end record: aanmelding → agenda slot → speaker queue → gesproken → bijdrage/transcript.
+Inspreken is a statutory participation right (Gemeentewet / Reglement van Orde for councils; statuten for verenigingen), yet the market treats it as an afterthought: GO ships "GO Inspreken" as a standalone bolt-on module disconnected from the meeting itself. Decidiq already specs the full registration loop — public POST, privacy field split, griffier moderation, spreektijd-toewijzing, 24h auto-close, publication of public parts into the verslag — but ONLY for commissievergaderingen, and it is wired to nothing live: `digital-meetings-and-recurrence` REQ-STM has the SpeakingTimePanel and speaker queue but no connection to registrations, and `raadsvergadering-livestream-transcript` has `Spreker.rol=inspreker` for transcripts but no link back to who registered. Novelty verification (2026-07-17) rated this gap PARTIAL: the loop exists but is scoped and unwired. Generalizing one schema and wiring the three existing ends together closes the gap for all five governance domains at marginal cost, and turns inspraak from a form into a traceable end-to-end record: aanmelding → agenda slot → speaker queue → gesproken → bijdrage/transcript.
 
 ## Affected Projects
 
-- [ ] Project: `decidesk` — register fragment `lib/Settings/register.d/64-inspreekrecht-plenair.json` (canonical `inspraak-aanmelding` superset + new `inspraak-beleid`), `InspraakService` (registration policy enforcement, moderation, queue preload/write-back), manifest fragment (griffie overview, list/detail pages, agenda slot rendering), coordination amendment to the `commissievergaderingen` change so it adopts the shared schema instead of defining its own copy.
+- [ ] Project: `decidiq` — register fragment `lib/Settings/register.d/64-inspreekrecht-plenair.json` (canonical `inspraak-aanmelding` superset + new `inspraak-beleid`), `InspraakService` (registration policy enforcement, moderation, queue preload/write-back), manifest fragment (griffie overview, list/detail pages, agenda slot rendering), coordination amendment to the `commissievergaderingen` change so it adopts the shared schema instead of defining its own copy.
 
 ## Scope
 
@@ -28,7 +28,7 @@ Two capabilities (one delta spec each):
 
 ### Out of Scope
 
-- The public portal FORM rendering — `portaliq` / the `portal-contribution` change own the citizen-facing surface (and that change explicitly ships no create surfaces this wave, REQ-DKPORT-006); decidesk exposes the API + moderation, mirroring the commissie change's approach.
+- The public portal FORM rendering — `portaliq` / the `portal-contribution` change own the citizen-facing surface (and that change explicitly ships no create surfaces this wave, REQ-DKPORT-006); decidiq exposes the API + moderation, mirroring the commissie change's approach.
 - Video capture, livestreaming, and transcription mechanics (`raadsvergadering-livestream-transcript` owns them; this change only references `TranscriptSegment`/`Spreker.rol=inspreker`).
 - Spreektijd clock mechanics, queue reordering, and the SpeakingTimePanel itself (REQ-STM owns them; this change only preloads entries and consumes the outcome).
 - Commissie-specific inspraak behaviour already specced (REQ-CVG-009/010/011 stay authoritative for the commissie flow; this change generalizes the schema they use).
@@ -40,7 +40,7 @@ Reuse, don't fork: because ADR-037 register fragments merge at whole-schema gran
 
 ## New Dependencies
 
-None. No new packages, libraries, or external services — only OpenRegister dialects and existing decidesk services.
+None. No new packages, libraries, or external services — only OpenRegister dialects and existing decidiq services.
 
 ## Impact
 
@@ -53,12 +53,12 @@ None. No new packages, libraries, or external services — only OpenRegister dia
 
 ## Cross-Project Dependencies
 
-None outside decidesk. Within decidesk: hard dependency on the `commissievergaderingen` change (we generalize its `InspraakAanmelding`; coordination amendment required); soft references to `digital-meetings-and-recurrence` REQ-STM (queue preload target), `raadsvergadering-livestream-transcript` (`TranscriptSegment`/`Spreker` references, nullable — degrade to absent links if it lands later), `governance-bodies` (per-body policy anchors on `GovernanceBody`), and `portal-contribution`/`portaliq` (consume the registration API later; no contract change here).
+None outside decidiq. Within decidiq: hard dependency on the `commissievergaderingen` change (we generalize its `InspraakAanmelding`; coordination amendment required); soft references to `digital-meetings-and-recurrence` REQ-STM (queue preload target), `raadsvergadering-livestream-transcript` (`TranscriptSegment`/`Spreker` references, nullable — degrade to absent links if it lands later), `governance-bodies` (per-body policy anchors on `GovernanceBody`), and `portal-contribution`/`portaliq` (consume the registration API later; no contract change here).
 
 ## Risks
 
 ### Risk 1: Duplicate schema definitions across two unarchived changes
-**Severity:** High — **Mitigation:** ADR-037 fragments merge whole schemas, so if both this fragment and `commissievergaderingen_register.json` define the aanmelding schema, load order silently decides. The coordination task amends the commissie change's artifacts before either implements; the depends_on ordering plus an import-time assertion (fragment fails loudly if a same-slug schema already exists in another decidesk-managed register) guard the race.
+**Severity:** High — **Mitigation:** ADR-037 fragments merge whole schemas, so if both this fragment and `commissievergaderingen_register.json` define the aanmelding schema, load order silently decides. The coordination task amends the commissie change's artifacts before either implements; the depends_on ordering plus an import-time assertion (fragment fails loudly if a same-slug schema already exists in another decidiq-managed register) guard the race.
 
 ### Risk 2: Post-approval writes vs the commissie immutability constraint
 **Severity:** Medium — **Mitigation:** The commissie change declares `InspraakAanmelding` immutable after `goedgekeurd`, but live wiring must write `gesproken`/`niet-verschenen` and attach bijdrage/transcript afterwards. The generalized schema scopes immutability to the citizen-entered field groups (`contactgegevens`, `onderwerp`) and keeps status transitions + griffie-owned attachment fields writable via RBAC; recorded as an explicit coordination point with the commissie change.
@@ -71,7 +71,7 @@ None outside decidesk. Within decidesk: hard dependency on the `commissievergade
 
 ## Rollback Strategy
 
-Revert the decidesk PR: fragment 64 and the manifest fragment are additive files (delete them and re-run the repair step; existing registers are untouched since no existing schema is modified), `InspraakService` and its routes are new code with no callers outside this change, and the commissie-change coordination amendment is a spec-file edit that reverts with the same commit. Aanmelding objects already created remain in OpenRegister as inert data and can be exported before removal if needed.
+Revert the decidiq PR: fragment 64 and the manifest fragment are additive files (delete them and re-run the repair step; existing registers are untouched since no existing schema is modified), `InspraakService` and its routes are new code with no callers outside this change, and the commissie-change coordination amendment is a spec-file edit that reverts with the same commit. Aanmelding objects already created remain in OpenRegister as inert data and can be exported before removal if needed.
 
 ## Open Questions
 

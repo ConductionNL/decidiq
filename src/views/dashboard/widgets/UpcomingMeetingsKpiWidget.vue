@@ -11,9 +11,9 @@
 -->
 <template>
 	<CnStatsBlock
-		:title="t('decidesk', 'Upcoming meetings')"
+		:title="t('decidiq', 'Upcoming meetings')"
 		:count="count"
-		:countLabel="t('decidesk', 'meetings')"
+		:countLabel="t('decidiq', 'meetings')"
 		:icon="CalendarClockOutline"
 		:loading="loading"
 		:route="{ name: 'Meetings' }"
@@ -60,6 +60,8 @@ export default {
 		 * Fetch scheduled meetings. Called on mount and on dashboard refresh.
 		 *
 		 * @return {Promise<void>}
+		 *
+		 * @spec openspec/specs/dashboard/spec.md#requirement-upcoming-meetings-widget
 		 */
 		async load() {
 			this.loading = true
@@ -67,7 +69,7 @@ export default {
 			try {
 				this.meetings = await getMeetings({ lifecycle: 'scheduled' })
 			} catch (e) {
-				console.error('[decidesk] UpcomingMeetingsKpiWidget load failed', e)
+				console.error('[decidiq] UpcomingMeetingsKpiWidget load failed', e)
 				this.error = e
 				this.meetings = []
 			} finally {

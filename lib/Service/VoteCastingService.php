@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Vote Casting Service
+ * Decidiq Vote Casting Service
  *
  * Implements the cast-a-vote path: round state guard, meeting membership,
  * proxy rules, duplicate detection and the idempotent ballot write.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,11 +24,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use Psr\Log\LoggerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * The cast-a-vote path, extracted from VotingService.
@@ -165,7 +165,7 @@ class VoteCastingService {
 			)
 		);
 
-		$saved = $this->objectService()->saveObject(register: 'decidesk', schema: 'vote', object: $vote);
+		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'vote', object: $vote);
 
 		// The saveObject() call returns an ObjectEntity; normalise to satisfy the `: array` return type.
 		return $this->normaliseSaved(saved: $saved, fallback: $vote);
@@ -252,7 +252,7 @@ class VoteCastingService {
 	 */
 	private function votesInRound(string $votingRoundId, array $extraFilters): array {
 		$objectService = $this->objectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('vote');
 
 		return $this->relationFilter->matching(

@@ -6,7 +6,7 @@ status: draft
 
 ## Purpose
 
-Decidesk synchronizes governance data bidirectionally with NOTUBIZ (±60% of Dutch municipalities) and iBabs (Gemeente Oplossingen, ±35%) to create an open-data mirror of official decision-making without requiring immediate vendor exit. This spec captures the sync adapter contracts, data-mapping rules, conflict-detection engine, and observability requirements.
+Decidiq synchronizes governance data bidirectionally with NOTUBIZ (±60% of Dutch municipalities) and iBabs (Gemeente Oplossingen, ±35%) to create an open-data mirror of official decision-making without requiring immediate vendor exit. This spec captures the sync adapter contracts, data-mapping rules, conflict-detection engine, and observability requirements.
 
 ## ADDED Requirements
 
@@ -28,7 +28,7 @@ The system SHALL support a full historical import of all governance objects for 
 #### Scenario: Duplicate detection across providers
 - **GIVEN** a gemeente later adds iBabs for some commissies (while NOTUBIZ covers others)
 - **WHEN** iBabs sync runs
-- **THEN** the system MUST deduplicate by `(Vergadering.datum + Vergadering.naam)` and link both ExternalIdentifiers to the same decidesk Meeting (no duplicates created)
+- **THEN** the system MUST deduplicate by `(Vergadering.datum + Vergadering.naam)` and link both ExternalIdentifiers to the same decidiq Meeting (no duplicates created)
 
 #### Scenario: Large document streaming
 - **GIVEN** a Vergaderstuk is 200MB
@@ -58,12 +58,12 @@ The system SHALL execute a delta-pull every 15 minutes (cron default) or via web
 
 ---
 
-### Requirement: REQ-NIK-003 — Push decidesk changes back to provider
+### Requirement: REQ-NIK-003 — Push decidiq changes back to provider
 
-Modifications to synchronized objects in decidesk MUST be pushed back to the provider for writable fields.
+Modifications to synchronized objects in decidiq MUST be pushed back to the provider for writable fields.
 
 #### Scenario: Agendapunt title push
-- **GIVEN** a griffier changes a Agendapunt title in decidesk
+- **GIVEN** a griffier changes a Agendapunt title in decidiq
 - **WHEN** the change is saved
 - **THEN** within 30 seconds, the system MUST push the change to the provider via `PATCH /agenda-items/{id}` (NOTUBIZ) or `agendaItems.update` (iBabs)
 
@@ -74,7 +74,7 @@ Modifications to synchronized objects in decidesk MUST be pushed back to the pro
 
 #### Scenario: Read-only field push skip
 - **GIVEN** a field is not writable in the provider (e.g., `Stemming.uitslag` in NOTUBIZ)
-- **WHEN** a decidesk change attempts a push on that field
+- **WHEN** a decidiq change attempts a push on that field
 - **THEN** the system MUST skip the push, log a warning, and keep the local change as "local-only"
 
 ---
@@ -86,7 +86,7 @@ When the same field is modified locally and externally since the last sync, a Sy
 #### Scenario: Simultaneous meeting location edit
 - **GIVEN** a Vergadering with `lastSyncedAt: 10:00`
 - **GIVEN** at 10:30, a griffier changes location to "Burgerzaal" in NOTUBIZ
-- **GIVEN** at 10:35, a decidesk-user changes location to "Raadszaal" in decidesk
+- **GIVEN** at 10:35, a decidiq-user changes location to "Raadszaal" in decidiq
 - **WHEN** the 10:45 sync runs
 - **THEN** a SyncConflict MUST be created with `status: open`, showing both values, who changed, and when
 
@@ -98,7 +98,7 @@ When the same field is modified locally and externally since the last sync, a Sy
 #### Scenario: Conflict escalation alert
 - **GIVEN** a SyncConflict remains `open` for 7 days
 - **WHEN** the health-check cron runs
-- **THEN** a notification MUST be sent to the griffier and decidesk-admin; the affected object MUST show a "in-conflict" badge in decidesk UI
+- **THEN** a notification MUST be sent to the griffier and decidiq-admin; the affected object MUST show a "in-conflict" badge in decidiq UI
 
 ---
 

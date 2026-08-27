@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Minutes Context Resolver
+ * Decidiq Minutes Context Resolver
  *
  * Answers the handful of OpenRegister lookup questions that every minutes
  * workflow asks: "give me this Minutes record", "which Meeting is it linked
@@ -13,7 +13,7 @@
  * that can silently drift, so there is exactly one here.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -29,9 +29,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
-use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
@@ -222,7 +222,7 @@ class MinutesContextResolver {
 	 */
 	public function agendaItems(string $meetingId): array {
 		$objectService = $this->objectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('agenda-item');
 
 		$entities = $objectService->findAll(
@@ -249,7 +249,7 @@ class MinutesContextResolver {
 	 */
 	private function findParticipants(array $filters): array {
 		$objectService = $this->objectService();
-		$objectService->setRegister('decidesk');
+		$objectService->setRegister('decidiq');
 		$objectService->setSchema('participant');
 
 		$entities = $objectService->findAll(['filters' => $filters]);
@@ -258,7 +258,7 @@ class MinutesContextResolver {
 	}//end findParticipants()
 
 	/**
-	 * Fetch a single decidesk object and serialise it.
+	 * Fetch a single Decidiq object and serialise it.
 	 *
 	 * @param string $id The object ID
 	 * @param string $schema The schema slug
@@ -268,7 +268,7 @@ class MinutesContextResolver {
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
 	 */
 	private function findObject(string $id, string $schema): ?array {
-		$entity = $this->objectService()->find(id: $id, register: 'decidesk', schema: $schema);
+		$entity = $this->objectService()->find(id: $id, register: 'decidiq', schema: $schema);
 		if ($entity === null) {
 			return null;
 		}

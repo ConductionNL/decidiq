@@ -2,9 +2,9 @@
 
 > Audience: corporate secretaries, compliance officers, internal audit, and the
 > regulators (DNB, AFM, ACM, local supervisory bodies) of organisations that
-> operate the Decidesk board portal.
+> operate the Decidiq board portal.
 >
-> Scope: how Decidesk's shipped feature surface maps onto the **Dutch Corporate
+> Scope: how Decidiq's shipped feature surface maps onto the **Dutch Corporate
 > Governance Code (MCCG, December 2022 revision)**, the **eIDAS Regulation
 > (EU 910/2014)** and its successor **eIDAS 2 (EU 2024/1183)**, the
 > **regulator-export obligations** that follow from sector law, and the
@@ -22,9 +22,9 @@ The Dutch Corporate Governance Code revision of December 2022 (MCCG-2022) sets
 out the conduct expectations for boards of listed and large unlisted Dutch
 entities ("rvc" + "rvb" + audit/remuneration/nomination committees). The
 mapping below identifies, for every MCCG principle that has a *systems*
-component, the Decidesk feature that operationalises it.
+component, the Decidiq feature that operationalises it.
 
-| MCCG principle | Decidesk feature | Concrete code surface |
+| MCCG principle | Decidiq feature | Concrete code surface |
 | --- | --- | --- |
 | **2.7** — independence of supervisory directors | `BoardMember.independenceStatus` + Independence ratio trend on `BoardDashboard` | `src/manifest.d/board-portal.json#independence-ratio-trend` (8-quarter window) |
 | **2.7.2 / 2.7.3** — declaration of conflicts of interest | `ConflictOfInterestController::declare` + `recordAction` | `POST /api/conflicts`, `PUT /api/conflicts/{id}/action`; service: `lib/Service/ConflictOfInterestService.php` |
@@ -43,7 +43,7 @@ addressed in the user guide `docs/Features/board-portal.md`.
 
 ## 2. eIDAS compliance — qualified electronic signatures
 
-Decidesk uses the openconnector e-sign adapter to drive **QES (Qualified
+Decidiq uses the openconnector e-sign adapter to drive **QES (Qualified
 Electronic Signature)** flows per eIDAS Article 25(2). QES is the only
 signature level that carries the legal equivalence of a hand-written
 signature across all EU member states, and it is the level the board-portal
@@ -51,7 +51,7 @@ spec requires for adopted minutes and signed written resolutions.
 
 ### 2.1 Signature levels recognised
 
-| Level | Decidesk handling |
+| Level | Decidiq handling |
 | --- | --- |
 | **SES** — simple electronic signature | Rejected for minutes + written-procedure resolutions; logged as failure |
 | **AdES** — advanced electronic signature | Rejected for minutes + written-procedure resolutions; logged as failure |
@@ -67,7 +67,7 @@ the controller — the lifecycle transition does not proceed.
 
 The verification logic lives in `lib/Service/EIDASSignatureService.php`:
 
-1. **Initiate**: `POST /api/minutes/{minutesId}/eidas/initiate` — Decidesk
+1. **Initiate**: `POST /api/minutes/{minutesId}/eidas/initiate` — Decidiq
    creates a signature-bag record, persists the minutes-hash to be signed,
    and delegates to openconnector's e-sign provider to obtain a redirect URL
    for the signer.
@@ -89,7 +89,7 @@ eIDAS 2 (EU 2024/1183) introduces the **European Digital Identity Wallet
 (EUDIW)** and brings remote QES into mainstream use. The
 `EIDASSignatureController` surface is provider-agnostic — it only depends on
 the openconnector `e-sign` interface contract — so EUDIW provider rollout
-becomes an openconnector configuration change rather than a Decidesk code
+becomes an openconnector configuration change rather than a Decidiq code
 change.
 
 ---
@@ -121,11 +121,11 @@ Every generated export persists a `regulator-export` record (sha256, record
 count, requesting user, generation timestamp). `GET /api/regulator-exports`
 lists them; `GET /api/regulator-exports/{id}` deterministically re-renders
 the same bytes — the regulator can therefore verify months later that the
-export they received is bit-identical to the one Decidesk has on record.
+export they received is bit-identical to the one Decidiq has on record.
 
 ### 3.4 Sector-specific obligations
 
-| Regulator | Typical demand | Decidesk fit |
+| Regulator | Typical demand | Decidiq fit |
 | --- | --- | --- |
 | **DNB** (banking / insurance prudential supervisor) | Board minutes + audit-committee records on demand, in PDF/A | `regulatorExport.generate` with `format=pdf` |
 | **AFM** (financial markets conduct supervisor) | Decisions + voting tallies + conflict declarations, CSV friendly | `regulatorExport.generate` with `format=csv` |
@@ -150,7 +150,7 @@ properties are:
   application code on every append; `GET /api/audit-log/{id}/verify` walks
   the chain and reports `checked` vs `tampered`.
 - **Independently verifiable** — the regulator-export bundle (§3) includes
-  the chain so the regulator can re-verify outside the Decidesk instance.
+  the chain so the regulator can re-verify outside the Decidiq instance.
 
 Tampering tests are exercised by `tests/Unit/Service/AuditLogServiceTest.php`
 (append + verify + tamper-detection) and

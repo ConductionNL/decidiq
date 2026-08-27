@@ -136,8 +136,10 @@
           "consultationBesluitAfwijkend": {
             "trigger": {
               "type": "updated",
-              "filter": {
-                "decisionOutcome": "contrary-to-advice"
+              "condition": {
+                "field": "decisionOutcome",
+                "operator": "equals",
+                "value": "contrary-to-advice"
               }
             },
             "enabled": true,

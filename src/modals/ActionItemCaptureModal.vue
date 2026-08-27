@@ -13,7 +13,7 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidesk', 'Add action item')"
+		:name="t('decidiq', 'Add action item')"
 		data-testid="minutes-action-item-modal"
 		@closing="$emit('close')">
 		<template #default>
@@ -21,18 +21,18 @@
 				<NcTextField
 					v-model="title"
 					data-testid="minutes-action-item-title"
-					:label="t('decidesk', 'Action item title')"
-					:placeholder="t('decidesk', 'e.g. Prepare budget proposal')" />
+					:label="t('decidiq', 'Action item title')"
+					:placeholder="t('decidiq', 'e.g. Prepare budget proposal')" />
 				<NcSelect
 					v-model="assignee"
-					:inputLabel="t('decidesk', 'Owner')"
+					:inputLabel="t('decidiq', 'Owner')"
 					:options="assigneeOptions"
-					:placeholder="t('decidesk', 'Pick a participant')" />
+					:placeholder="t('decidiq', 'Pick a participant')" />
 				<NcDateTimePickerNative
 					id="minutes-action-item-due"
 					v-model="dueDate"
 					type="date"
-					:label="t('decidesk', 'Deadline')" />
+					:label="t('decidiq', 'Deadline')" />
 				<p v-if="error" class="action-item-modal__error" role="alert">
 					{{ error }}
 				</p>
@@ -44,10 +44,10 @@
 				data-testid="minutes-action-item-save"
 				:disabled="saving || !title.trim()"
 				@click="save">
-				{{ t('decidesk', 'Add action item') }}
+				{{ t('decidiq', 'Add action item') }}
 			</NcButton>
 			<NcButton @click="$emit('close')">
-				{{ t('decidesk', 'Cancel') }}
+				{{ t('decidiq', 'Cancel') }}
 			</NcButton>
 		</template>
 	</NcDialog>
@@ -122,7 +122,7 @@ export default {
 					// The action-item schema relates to meeting/decision; the agenda
 					// item context is kept in the description for traceability.
 					payload.description = this.t(
-						'decidesk',
+						'decidiq',
 						'Recorded during minute-taking on agenda item: {title}',
 						{ title: this.agendaItem.title || this.agendaItem.id },
 					)
@@ -133,7 +133,7 @@ export default {
 			} catch (e) {
 				this.error =
 					e?.message
-					|| this.t('decidesk', 'Could not create the action item.')
+					|| this.t('decidiq', 'Could not create the action item.')
 			} finally {
 				this.saving = false
 			}

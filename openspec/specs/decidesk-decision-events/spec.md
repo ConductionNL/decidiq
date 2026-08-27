@@ -5,25 +5,25 @@ TBD - created by archiving change decidesk-decision-events. Update Purpose after
 ## Requirements
 ### Requirement: REQ-DDE-001 — Public DecisionRequestedEvent contract class
 
-The system SHALL provide an autoloaded public event class `OCA\Decidesk\Event\DecisionRequestedEvent`
-extending `OCP\EventDispatcher\Event`, available whenever decidesk is installed, that a consumer app
-dispatches to ask decidesk to raise a governance Decision for one of its objects. The event SHALL
+The system SHALL provide an autoloaded public event class `OCA\Decidiq\Event\DecisionRequestedEvent`
+extending `OCP\EventDispatcher\Event`, available whenever decidiq is installed, that a consumer app
+dispatches to ask decidiq to raise a governance Decision for one of its objects. The event SHALL
 expose immutable getters for `sourceApp`, `subjectRegister`, `subjectSchema`, `subjectId`,
 `subjectLabel`, `decisionType`, `actorId`, `payload` (array), `externalReference`, and
 `correlationId`, all supplied at construction. Because Nextcloud typed dispatch is synchronous, the
 event SHALL carry a single writable result slot — `setDecisionId(string)` / `getDecisionId(): ?string`
-and `setHandled(bool)` / `isHandled(): bool` — that decidesk's listener writes so the dispatching
+and `setHandled(bool)` / `isHandled(): bool` — that decidiq's listener writes so the dispatching
 producer can read the resolved `decisionId` back off the same instance. The request getters SHALL NOT
 be mutable.
 
 #### Scenario: A consumer dispatches a request and reads back the decision id
 
-@e2e exclude backend cross-app event contract — synchronous DecisionRequestedEvent dispatch + decisionId read-back is verified by PHPUnit; no decidesk UI flow exercises it
+@e2e exclude backend cross-app event contract — synchronous DecisionRequestedEvent dispatch + decisionId read-back is verified by PHPUnit; no decidiq UI flow exercises it
 - GIVEN procest holds a ZGW case requiring a contract decision
 - WHEN procest constructs a `DecisionRequestedEvent` with `sourceApp=procest`, the case subject
   reference, `decisionType=contract`, an `actorId`, and an `externalReference`, and dispatches it via
   `IEventDispatcher`
-- THEN after dispatch the event's `getDecisionId()` returns the id of the Decision decidesk created
+- THEN after dispatch the event's `getDecisionId()` returns the id of the Decision decidiq created
   and `isHandled()` is true
 
 #### Scenario: Request getters are immutable
@@ -38,8 +38,8 @@ be mutable.
 
 ### Requirement: REQ-DDE-002 — Public DecisionConcludedEvent contract class
 
-The system SHALL provide an autoloaded public event class `OCA\Decidesk\Event\DecisionConcludedEvent`
-extending `OCP\EventDispatcher\Event` that decidesk dispatches when a delegated Decision reaches a
+The system SHALL provide an autoloaded public event class `OCA\Decidiq\Event\DecisionConcludedEvent`
+extending `OCP\EventDispatcher\Event` that decidiq dispatches when a delegated Decision reaches a
 terminal outcome. The event SHALL carry, all immutable, the subject/provenance reference (`sourceApp`,
 `subjectRegister`, `subjectSchema`, `subjectId`, `externalReference`, `correlationId`) and the outcome
 envelope (`decisionId`, `decisionType`, `status`, `outcome`, `signed`, `signingReference`, `signers`,
@@ -50,16 +50,16 @@ side effects.
 #### Scenario: Concluded event exposes the outcome envelope to consumers
 
 @e2e exclude backend event-payload contract — the DecisionConcludedEvent outcome-envelope getters are verified by PHPUnit; consumers read them in-process, no UI flow
-- GIVEN decidesk dispatches a `DecisionConcludedEvent` for a concluded delegated Decision
+- GIVEN decidiq dispatches a `DecisionConcludedEvent` for a concluded delegated Decision
 - WHEN a consumer's listener reads the event
 - THEN it can read the subject reference and the full outcome envelope (`status`, `outcome`, `signed`,
-  `signingReference`, `signers`, `decisionId`, `decidedAt`) without any further query to decidesk
+  `signingReference`, `signers`, `decisionId`, `decidedAt`) without any further query to decidiq
 
 ---
 
 ### Requirement: REQ-DDE-003 — Listener maps a requested event to createDecision
 
-The system SHALL register a listener `OCA\Decidesk\Listener\DecisionRequestedListener` (implementing
+The system SHALL register a listener `OCA\Decidiq\Listener\DecisionRequestedListener` (implementing
 `OCP\EventDispatcher\IEventListener`) bound to `DecisionRequestedEvent` via
 `registerEventListener(DecisionRequestedEvent::class, DecisionRequestedListener::class)` in
 `lib/AppInfo/Application.php`. On handling, the listener SHALL build the decision-data array from the
@@ -72,8 +72,8 @@ exception SHALL escape into the dispatcher.
 
 #### Scenario: Requested event creates a provenance-carrying decision
 
-@e2e exclude backend listener contract — DecisionRequestedListener -> createDecision provenance persistence is verified by PHPUnit; not a decidesk UI flow
-- GIVEN decidesk is installed and a consumer dispatches a `DecisionRequestedEvent` with a complete
+@e2e exclude backend listener contract — DecisionRequestedListener -> createDecision provenance persistence is verified by PHPUnit; not a decidiq UI flow
+- GIVEN decidiq is installed and a consumer dispatches a `DecisionRequestedEvent` with a complete
   subject reference and provenance
 - WHEN the listener handles it
 - THEN `DecisionIntegrationService::createDecision` persists a Decision with the provenance fields set
@@ -112,7 +112,7 @@ SHALL NOT roll back the already-persisted lifecycle transition.
 @e2e exclude backend lifecycle-emission contract — DecisionConcludedEvent dispatch on a provenance-carrying terminal transition is verified by PHPUnit; not a UI flow
 - GIVEN a Decision raised by a consumer (with `sourceApp` set) is transitioned to `decided`
 - WHEN the lifecycle transition persists successfully
-- THEN decidesk builds the outcome envelope via `getOutcomeEnvelope()` and dispatches a
+- THEN decidiq builds the outcome envelope via `getOutcomeEnvelope()` and dispatches a
   `DecisionConcludedEvent` carrying that envelope and the subject reference
 
 #### Scenario: An internal decision does not emit

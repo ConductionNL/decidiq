@@ -10,7 +10,7 @@ DecideDesk manages council meetings from scheduling through decision-making and 
 4. **Search layer** — Full-text indexing of transcript content
 5. **UI layer** — Transcript viewer, deeplink generator, correction workflow
 
-**Current decidesk state:**
+**Current decidiq state:**
 - Meeting data stored in CalDAV (VEVENT) with OpenRegister wrappers (ADR-002)
 - Agenda items, decisions, motions stored in OpenRegister (ADR-000, ADR-001)
 - No streaming or transcription code exists
@@ -64,7 +64,7 @@ The context-brief defines four new schema: `Livestream`, `Transcript`, `Transcri
 
 ### D2: Whisper-NL as default ASR engine, with NOTUBIZ/iBabs fallback
 
-The `Transcript` entity stores `engine: enum(whisper-nl, notubiz-asr, ibabs-asr, human-corrected)`. Decidesk's transcription service tries Whisper-NL first (local GPU) and falls back to NOTUBIZ/iBabs if unavailable.
+The `Transcript` entity stores `engine: enum(whisper-nl, notubiz-asr, ibabs-asr, human-corrected)`. Decidiq's transcription service tries Whisper-NL first (local GPU) and falls back to NOTUBIZ/iBabs if unavailable.
 
 **Why:**
 - Whisper-NL (University of Twente / Common Voice) achieves 12% WER on Dutch parliamentary speech vs 18% for NOTUBIZ (based on gemeente Utrecht 2025 eval)
@@ -93,7 +93,7 @@ TranscriptSegment links to Spreker via `microfoonId` from the zaalsysteem (NOTUB
 
 ### D4: WebVTT for captions, not SRT or EBU-TT-D
 
-The Transcript entity exports `vtt: uri` pointing to a WebVTT file served by decidesk.
+The Transcript entity exports `vtt: uri` pointing to a WebVTT file served by decidiq.
 
 **Why:**
 - WebVTT is HTML5 video standard, native support in all modern browsers
@@ -136,7 +136,7 @@ A new `Spreker` entity holds per-meeting speaker context (role, fractie, microfo
 
 **Alternatives considered:**
 - Extend Person with optional microfoonId (loses transaction semantics; person records would be mutated per meeting)
-- Extend Speech (but Speech doesn't exist in current decidesk impl; deferred per ADR-001)
+- Extend Speech (but Speech doesn't exist in current decidiq impl; deferred per ADR-001)
 
 ### D7: Soft-delete for transcripts during retention, not hard-delete
 
@@ -158,7 +158,7 @@ Transcript.fullText field is indexed by OpenRegister's search service. Queries u
 
 **Why:**
 - OpenRegister already manages full-text indexing for all entities
-- Decidesk doesn't need custom Elasticsearch or Solr
+- Decidiq doesn't need custom Elasticsearch or Solr
 - Integration is REST call + filtering on response
 - Federation with other apps' searches (future: cross-app search)
 
@@ -322,7 +322,7 @@ Transcript.fullText field is indexed by OpenRegister's search service. Queries u
 
 ### API layer
 
-**REST endpoints** (all under `/api/decidesk/v1/`):
+**REST endpoints** (all under `/api/decidiq/v1/`):
 
 - `POST /livestreams` — create livestream (chair-only)
 - `GET /livestreams/{livestreamId}` — read livestream

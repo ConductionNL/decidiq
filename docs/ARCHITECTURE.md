@@ -1,14 +1,14 @@
-# Decidesk — Architecture & Data Model
+# Decidiq — Architecture & Data Model
 
 ## 1. Overview
 
-Decidesk is a universal decision-making platform for Nextcloud, built as a thin client on OpenRegister. It manages meetings, agendas, motions, amendments, voting, minutes, and decision tracking with configurable workflows. Decidesk covers five governance domains: legislative bodies (municipal councils, provincial states), associations (ALV, boards), corporate governance (AGM, supervisory boards), corporate operations (management teams, steering committees), and citizen participation (citizens' assemblies, referenda).
+Decidiq is a universal decision-making platform for Nextcloud, built as a thin client on OpenRegister. It manages meetings, agendas, motions, amendments, voting, minutes, and decision tracking with configurable workflows. Decidiq covers five governance domains: legislative bodies (municipal councils, provincial states), associations (ALV, boards), corporate governance (AGM, supervisory boards), corporate operations (management teams, steering committees), and citizen participation (citizens' assemblies, referenda).
 
 ### Architecture Pattern
 
 ```
 +------------------------------------------------------------+
-|  Decidesk Frontend (Vue 2 + Pinia)                         |
+|  Decidiq Frontend (Vue 2 + Pinia)                         |
 |  - Organization & body management                          |
 |  - Meeting calendar & agenda builder                       |
 |  - Decision lifecycle & state machine visualization        |
@@ -35,7 +35,7 @@ Decidesk is a universal decision-making platform for Nextcloud, built as a thin 
 +------------------------------------------------------------+
 ```
 
-Decidesk owns **no database tables**. All data is stored as OpenRegister objects, defined by schemas in a dedicated register. State machine logic is driven by Symfony Workflow definitions stored as ProcessTemplate objects.
+Decidiq owns **no database tables**. All data is stored as OpenRegister objects, defined by schemas in a dedicated register. State machine logic is driven by Symfony Workflow definitions stored as ProcessTemplate objects.
 
 ## 2. Standards Research
 
@@ -65,7 +65,7 @@ This means:
 - Document structure concepts follow **Akoma Ntoso** conventions for motions, amendments, and resolutions
 - Dutch legal requirements (Awb, Gemeentewet, BW Boek 2) are encoded as **configurable rules** in ProcessTemplate, not hardcoded into entities
 - When exposing ORI-compatible data, we **map** our international objects to Popolo/ORI field names
-- This makes Decidesk usable for any governance domain (corporate boards, associations, international bodies) while remaining interoperable with Dutch government systems
+- This makes Decidiq usable for any governance domain (corporate boards, associations, international bodies) while remaining interoperable with Dutch government systems
 
 ### 2.3 Key Findings
 
@@ -823,10 +823,10 @@ Coupled governance features (eIDAS signing, conflict-of-interest, proxy voting, 
 
 ### 3.4 Cross-App Relationships
 
-Decidesk integrates with Procest (case management) and Docudesk (document generation) within the Conduction app ecosystem:
+Decidiq integrates with Procest (case management) and Docudesk (document generation) within the Conduction app ecosystem:
 
 ```
-Decidesk (Decision-making)          Procest (Case Management)
+Decidiq (Decision-making)          Procest (Case Management)
 +--------------------+              +--------------------+
 |   Organization     |              |                    |
 |   Body             |              |                    |
@@ -874,7 +874,7 @@ Decidesk (Decision-making)          Procest (Case Management)
 | **Activity** | `OCP\Activity\IManager` | Audit trail of decision lifecycle | Publish events: "Decision submitted", "Vote completed", "Resolution adopted". Implement `IProvider`. |
 | **Notifications** | `OCP\Notification\IManager` | State change alerts, vote reminders | Notify on: meeting convened, vote starting, decision approved, action item assigned. |
 
-#### BUILD in OpenRegister (Decidesk-specific)
+#### BUILD in OpenRegister (Decidiq-specific)
 
 | What | Why Not Reuse |
 |------|---------------|
@@ -889,9 +889,9 @@ Decidesk (Decision-making)          Procest (Case Management)
 
 ### 3.6 @conduction/nextcloud-vue Library
 
-Decidesk uses shared components from `@conduction/nextcloud-vue`:
+Decidiq uses shared components from `@conduction/nextcloud-vue`:
 
-| Component | Usage in Decidesk |
+| Component | Usage in Decidiq |
 |-----------|-------------------|
 | `ObjectList` / `MagicTable` | List views for decisions, meetings, motions, resolutions |
 | `ObjectDetail` | Detail views for all entities with tab navigation |
@@ -1024,7 +1024,7 @@ $results = $contactsManager->search($userId, ['UID'], ['limit' => 1]);
 // Activity - audit trail for decision lifecycle
 $activityManager = \OCP\Server::get(\OCP\Activity\IManager::class);
 $event = $activityManager->generateEvent();
-$event->setApp('decidesk')
+$event->setApp('decidiq')
     ->setType('decision_lifecycle')
     ->setAffectedUser($proposerUid)
     ->setSubject('decision_approved', [
@@ -1039,7 +1039,7 @@ $activityManager->publish($event);
 // Notifications - state change alerts
 $notificationManager = \OCP\Server::get(\OCP\Notification\IManager::class);
 $notification = $notificationManager->createNotification();
-$notification->setApp('decidesk')
+$notification->setApp('decidiq')
     ->setUser($memberUid)
     ->setDateTime(new \DateTime())
     ->setObject('vote', (string)$vote->getId())
@@ -1091,19 +1091,19 @@ The configuration is imported via `ConfigurationService::importFromApp()` in the
 
 The following questions need further investigation as the app matures:
 
-1. **ORI API compliance depth** — OpenRaadsinformatie connects 265/345 Dutch municipalities. Should Decidesk expose a full ORI-compatible REST API, or just export data in ORI format? Current decision: start with ORI export, add API later based on demand.
+1. **ORI API compliance depth** — OpenRaadsinformatie connects 265/345 Dutch municipalities. Should Decidiq expose a full ORI-compatible REST API, or just export data in ORI format? Current decision: start with ORI export, add API later based on demand.
 
-2. **AI meeting transcription** — Market intelligence shows AI meeting assistant adoption grew 17x in 2024, but Otter.ai and Fireflies.ai face privacy lawsuits. Should Decidesk integrate with Nextcloud's ExApp AI infrastructure (Whisper, LLM summarization) for self-hosted transcription? Current decision: design Minutes entity to accept AI transcription (`transcriptSource` field), implement integration as a separate phase.
+2. **AI meeting transcription** — Market intelligence shows AI meeting assistant adoption grew 17x in 2024, but Otter.ai and Fireflies.ai face privacy lawsuits. Should Decidiq integrate with Nextcloud's ExApp AI infrastructure (Whisper, LLM summarization) for self-hosted transcription? Current decision: design Minutes entity to accept AI transcription (`transcriptSource` field), implement integration as a separate phase.
 
 3. **E-voting security level** — Council of Europe CM/Rec(2017)5 defines 49 standards for e-voting. POLYAS is the only BSI Common Criteria certified voting software. For legislative domain users, what security certification is needed? Current decision: start with non-binding votes and internal governance; formal e-voting certification is a future phase.
 
-4. **Speaking time tracking** — Equal Time case study shows 65% increase in women's speaking time when tracked. Should Decidesk include real-time speaking time tracking in the LiveMeeting view? Current decision: include as optional feature in live meeting view.
+4. **Speaking time tracking** — Equal Time case study shows 65% increase in women's speaking time when tracked. Should Decidiq include real-time speaking time tracking in the LiveMeeting view? Current decision: include as optional feature in live meeting view.
 
 5. **Multi-language resolutions** — ELI supports multilingual legislation. Should resolutions support multiple language versions? Current decision: single language per resolution, with `schema:inLanguage` field. Multilingual support via separate resolution objects with `schema:translationOfWork` references.
 
-6. **Archival integration** — Archiefwet 2021 mandates 10-year transfer to permanent archive. Should Decidesk integrate with specific archival systems (e-Depot, DMS)? Current decision: store MDTO metadata on decisions and resolutions; export capability for archival transfer as a future phase.
+6. **Archival integration** — Archiefwet 2021 mandates 10-year transfer to permanent archive. Should Decidiq integrate with specific archival systems (e-Depot, DMS)? Current decision: store MDTO metadata on decisions and resolutions; export capability for archival transfer as a future phase.
 
-7. **Citizen access portal** — Woo (Wet open overheid) requires active publication of decision documents. Should Decidesk include a public-facing portal? Current decision: expose public read-only API for ZaakAfhandelApp or external portals to consume. Woo publication via Docudesk export.
+7. **Citizen access portal** — Woo (Wet open overheid) requires active publication of decision documents. Should Decidiq include a public-facing portal? Current decision: expose public read-only API for ZaakAfhandelApp or external portals to consume. Woo publication via Docudesk export.
 
 8. **Real-time collaborative editing** — Should motion/amendment text editing support real-time collaboration (like Nextcloud Text)? Current decision: use Nextcloud Text integration for collaborative drafting, store final text in OpenRegister.
 

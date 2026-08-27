@@ -6,10 +6,10 @@ status: proposed
 
 ## Purpose
 
-Decidesk contributes a `citizen` read + inbox surface to **portaliq**, the shared
+Decidiq contributes a `citizen` read + inbox surface to **portaliq**, the shared
 external portal for people without a Nextcloud account (hydra ADR-046,
 contribution contract v2.2). The contribution is one plain, dependency-free
-provider class (`OCA\Decidesk\Portal\PortalContributionProvider`, duck-typed by
+provider class (`OCA\Decidiq\Portal\PortalContributionProvider`, duck-typed by
 FQCN — inert without portaliq) that returns a pure-data manifest for the
 `citizen` audience, with server-side field projection and **default
 pseudonymous-token scoping** (`scopeField == subjectRef`, no claim). The citizen
@@ -21,7 +21,7 @@ against HEAD.
 
 ### Requirement: Provider is a plain, dependency-free class (REQ-DKPORT-001)
 
-The app MUST ship `OCA\Decidesk\Portal\PortalContributionProvider` as a plain PHP
+The app MUST ship `OCA\Decidiq\Portal\PortalContributionProvider` as a plain PHP
 class: no imports from portaliq, no `implements` clause, no `info.xml` dependency
 on portaliq, and no constructor dependencies. portaliq discovers it by convention
 FQCN and duck-types it via `method_exists` (never `instanceof`), so without
@@ -35,7 +35,7 @@ portaliq installed the class MUST be inert and MUST NOT change any app behaviour
 - THEN the class instantiates without error
 - AND it declares no `implements` clause, no parent class, and no constructor
 - AND its code references no portaliq symbol (import or FQCN)
-- @e2e exclude backend-only contract class with no Decidesk UI surface; the portal renders inside portaliq — covered by PHPUnit (tests/Unit/Portal/PortalContributionProviderTest.php::testProviderIsPlainAndDependencyFree)
+- @e2e exclude backend-only contract class with no Decidiq UI surface; the portal renders inside portaliq — covered by PHPUnit (tests/Unit/Portal/PortalContributionProviderTest.php::testProviderIsPlainAndDependencyFree)
 
 ### Requirement: Provider declares both v2 and v1 audience methods (REQ-DKPORT-002)
 
@@ -53,12 +53,12 @@ any audience other than `citizen`, and for an absent/empty audience
 - THEN `getAudiences()` returns exactly `['citizen']`
 - AND `getAudience()` returns `'citizen'`, which is contained in `getAudiences()`
 - AND `getContribution()` returns `null` for audience `'client'`, `'signer'`, `[]`, and an empty-string audience
-- @e2e exclude backend-only contract methods with no Decidesk UI surface — covered by PHPUnit (testAudiencesOnBothContractVersions, testUnknownAudienceYieldsNull)
+- @e2e exclude backend-only contract methods with no Decidiq UI surface — covered by PHPUnit (testAudiencesOnBothContractVersions, testUnknownAudienceYieldsNull)
 
 ### Requirement: Citizen reads their own participation data, subject-scoped and projected (REQ-DKPORT-003)
 
 For a `citizen` subject, `getContribution()` MUST return a manifest labelled
-`Decidesk` with exactly four collections over register `decidesk`, each scoped by
+`Decidiq` with exactly four collections over register `decidiq`, each scoped by
 the DEFAULT subjectRef (the record's own pseudonymous token — NO `scopeClaim` and
 NO `via`), each `listable` and gated at `minTrust: low`:
 
@@ -80,15 +80,15 @@ Every projected field and every `scopeField` MUST exist on its schema in
 
 - GIVEN a subject array with `audience` `'citizen'`, a `subjectRef` pseudonymous token, an organisation and trust `low`
 - WHEN `getContribution($subject)` is called
-- THEN it returns a manifest labelled `Decidesk` with the three read collections `citizenReactions`, `citizenVotes`, `citizenBudgetProposals` over register `decidesk`
+- THEN it returns a manifest labelled `Decidiq` with the three read collections `citizenReactions`, `citizenVotes`, `citizenBudgetProposals` over register `decidiq`
 - AND each is scoped by its documented `scopeField` (`submitterId` / `voterId` / `submitter`), carries no `scopeClaim` and no `via`, and is gated `minTrust: low`
 - AND `citizenReactions.fields` is exactly the six documented fields and excludes `moderationReason`, `publicatiedatum`, `depublicatiedatum` and `submitterId`
-- @e2e exclude manifest is consumed and rendered by portaliq, not by any Decidesk UI — covered by PHPUnit (testCitizenManifestShape, testCitizenCollectionScopingAndProjection)
+- @e2e exclude manifest is consumed and rendered by portaliq, not by any Decidiq UI — covered by PHPUnit (testCitizenManifestShape, testCitizenCollectionScopingAndProjection)
 
 ### Requirement: Citizen has a notification inbox, subject-scoped and projected (REQ-DKPORT-004)
 
 For a `citizen` subject, the manifest MUST include one `kind: 'inbox'` collection
-`citizenNotifications` over register `decidesk`, schema `notification`, scoped by
+`citizenNotifications` over register `decidiq`, schema `notification`, scoped by
 `scopeField: recipientId` (default subjectRef), `listable`, gated `minTrust:
 low`, projected to exactly `type`, `subject`, `content`, `channel`, `status`,
 `sentAt`, `readAt`. It MUST NOT expose the scope field `recipientId`. No other
@@ -130,7 +130,7 @@ orphaning it (and a client-supplied parent ref would be an unverifiable
 cross-reference, cf. portaliq#16). No public consultation / participatory-budget
 browse or results collection ships, because those are non-per-subject public
 lists the per-subject reader cannot express safely. Both are deferred (tracking
-issue Conduction/decidesk#113).
+issue Conduction/decidiq#113).
 
 #### Scenario: Citizen manifest is read-only with no create actions
 
@@ -138,4 +138,4 @@ issue Conduction/decidesk#113).
 - WHEN its `actions`, manifest-level `notifications` and each collection are inspected
 - THEN `actions` is empty and `notifications` is empty
 - AND no collection targets `public-consultation` or `participatory-budget`
-- @e2e exclude backend-only manifest shape with no Decidesk UI surface — covered by PHPUnit (testCitizenManifestShape)
+- @e2e exclude backend-only manifest shape with no Decidiq UI surface — covered by PHPUnit (testCitizenManifestShape)

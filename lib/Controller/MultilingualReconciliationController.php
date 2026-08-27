@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Decidesk Multilingual Reconciliation Controller
+ * Decidiq Multilingual Reconciliation Controller
  *
  * Phase 6 — admin/secretary-gated REST surface for the multilingual minutes
  * reconciliation queue: enqueue, list, and force-process queued entries.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,11 +23,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\MultilingualReconciliationService;
-use OCA\Decidesk\Settings\AdminSettings;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\MultilingualReconciliationService;
+use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;

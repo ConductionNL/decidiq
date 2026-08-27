@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Decidesk Publication Controller
+ * Decidiq Publication Controller
  *
  * Action endpoints for the public-publication flow: publish, withdraw, and
  * rectify. Plain CRUD on PublicationRecord/PublicationPayload stays on the OR
  * object API per ADR-022 — this controller exposes ACTIONS only.
  *
  * @category Controller
- * @package  OCA\Decidesk\Controller
+ * @package  OCA\Decidiq\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,13 +23,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Controller;
+namespace OCA\Decidiq\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Exception\AccessDeniedException;
-use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\Decidesk\Service\PublicationService;
-use OCA\Decidesk\Service\PublicationStaffGuard;
+use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Exception\AccessDeniedException;
+use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Service\PublicationService;
+use OCA\Decidiq\Service\PublicationStaffGuard;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;

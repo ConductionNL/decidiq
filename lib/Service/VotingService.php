@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Voting Service
+ * Decidiq Voting Service
  *
  * The voting facade. Every operation is delegated to a single-purpose
  * collaborator: opening a round (VotingRoundOpener), casting a ballot
@@ -10,7 +10,7 @@
  * participant resolution (ParticipantUuidLookup).
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -27,7 +27,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
 use RuntimeException;

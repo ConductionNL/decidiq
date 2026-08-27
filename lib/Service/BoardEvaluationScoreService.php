@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Decidesk Board Evaluation Score Service
+ * Decidiq Board Evaluation Score Service
  *
  * Governance-specific scoring for a board self-evaluation cycle
  * (board-self-evaluation): per-dimension Likert means, an overall
@@ -13,7 +13,7 @@
  * computation time so no breakdown ever exists to leak, even internally.
  *
  * @category Service
- * @package  OCA\Decidesk\Service
+ * @package  OCA\Decidiq\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -29,13 +29,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Service;
+namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
  * Computes and materialises the `scoreSummary` on a BoardEvaluation.
@@ -180,7 +180,7 @@ class BoardEvaluationScoreService {
 
 		try {
 			$objectService = $this->objectService();
-			$entity = $objectService->find(id: $evaluationId, register: 'decidesk', schema: 'board-evaluation');
+			$entity = $objectService->find(id: $evaluationId, register: 'decidiq', schema: 'board-evaluation');
 			if ($entity === null) {
 				return ['success' => false, 'message' => "BoardEvaluation {$evaluationId} not found."];
 			}
@@ -190,7 +190,7 @@ class BoardEvaluationScoreService {
 				return ['success' => false, 'message' => 'Only an open evaluation can be closed.'];
 			}
 
-			$objectService->setRegister('decidesk');
+			$objectService->setRegister('decidiq');
 			$objectService->setSchema('evaluation-response');
 			// NOT `_relations.board-evaluation`: responses are written with a
 			// structured `relations` array (BoardEvaluationResponseService), which
@@ -243,7 +243,7 @@ class BoardEvaluationScoreService {
 			$evaluation['closedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 			$evaluation['respondedCount'] = $summary['respondentCount'];
 
-			$saved = $objectService->saveObject(register: 'decidesk', schema: 'board-evaluation', object: $evaluation);
+			$saved = $objectService->saveObject(register: 'decidiq', schema: 'board-evaluation', object: $evaluation);
 
 			return [
 				'success' => true,
@@ -251,7 +251,7 @@ class BoardEvaluationScoreService {
 			];
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidesk: closing board evaluation cycle failed',
+				'Decidiq: closing board evaluation cycle failed',
 				['evaluationId' => $evaluationId, 'error' => $e->getMessage()]
 			);
 			return ['success' => false, 'message' => 'Closing the evaluation failed: ' . $e->getMessage()];
