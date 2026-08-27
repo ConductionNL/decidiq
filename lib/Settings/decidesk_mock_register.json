@@ -1821,6 +1821,84 @@
             },
             "title": "Refers to",
             "description": "Decisions this decision merely references / relates to without modifying — array of Decision references. Informational; does not affect effective-status. Maps to Akoma Ntoso akn:cites / ORI 'verwijst naar' / schema.org isRelatedTo."
+          },
+          "isUrgent": {
+            "title": "Urgent",
+            "type": "boolean",
+            "facetable": true,
+            "default": false,
+            "description": "Whether this decision has been declared urgent (spoedbesluit). Orthogonal to lifecycle/outcome/isPublished — no lifecycle state or transition is added. Additive optional field. Server-guarded: settable ONLY through the guarded urgency-trigger flow (UrgencyTriggerGuard, imperative seam A), rejected on a direct object update — the same field-guard posture as isPublished. Because saveObject is PUT-semantic, every decision write path MUST carry this forward.",
+            "example": true
+          },
+          "urgencyReason": {
+            "title": "Urgency reason",
+            "type": "string",
+            "description": "Free-text justification for the urgency declaration (the statutory/urgency basis, e.g. a Gemeentewet college spoedbevoegdheid or an articles-of-association urgent-resolution clause). CONDITIONALLY REQUIRED when isUrgent is true — enforced save-time by the trigger flow, not by a JSON Schema constraint (OR rejects allOf/anyOf/oneOf). Stored verbatim (length-validated on input, escaped on output). Defaults the emergency meeting's noticeDeviationReason.",
+            "example": "Acute opvangcrisis; eerstvolgende reguliere raadsvergadering is pas over drie weken (Gemeentewet-spoedbevoegdheid college)."
+          },
+          "urgencyDeclaredBy": {
+            "title": "Urgency declared by",
+            "type": "string",
+            "description": "Nextcloud user id of the actor who declared the urgency (resolved and stored by the trigger guard). Not a Person/participant reference — a uid string for audit attribution; no kind:field notification recipient references it (recipient rule).",
+            "example": "burgemeester"
+          },
+          "urgencyDeclaredAt": {
+            "title": "Urgency declared at",
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp at which the urgency was declared (set by the trigger flow). Additive optional field.",
+            "example": "2026-06-02T09:15:00+02:00"
+          },
+          "citesGoverningDocuments": {
+            "title": "Cited governing documents",
+            "type": "array",
+            "description": "Optional, additive (REQ-GDR-005): the canonical governing-document reference shape used by all consumers ({document, versie?, artikel?}). Lets a decision cite the governing-document article it is based on (e.g. a spoedbesluit citing the statuten article that permits urgency). The citation is assistive metadata: it MUST NOT block or gate any decision workflow, and it grants no read access to the cited document. The urgent-decision-procedure and vve-alv-pack siblings adopt this same shape; their wiring stays in those changes.",
+            "items": {
+              "type": "object",
+              "required": [
+                "document"
+              ],
+              "properties": {
+                "document": {
+                  "title": "Governing document",
+                  "type": "string",
+                  "format": "uuid",
+                  "$ref": "GoverningDocument",
+                  "description": "Required reference to the cited GoverningDocument."
+                },
+                "version": {
+                  "title": "Governing document version",
+                  "type": "string",
+                  "format": "uuid",
+                  "$ref": "GoverningDocumentVersie",
+                  "description": "Optional reference to a specific sealed GoverningDocumentVersie. Omitted means 'the version in force at reading time' per the in-force resolution (REQ-GDR-004); a pinned versie gives the immutable-content guarantee (REQ-GDR-003)."
+                },
+                "article": {
+                  "title": "Article",
+                  "type": "string",
+                  "description": "Optional plain-string article reference, e.g. 'art. 14 lid 3'.",
+                  "example": "art. 20"
+                }
+              }
+            }
+          },
+          "meeting": {
+            "title": "Meeting",
+            "type": "string",
+            "format": "uuid",
+            "facetable": true,
+            "nullable": true,
+            "$ref": "Meeting",
+            "description": "Optional reference to the Meeting this decision was taken in (REQ-SDM-022). Written by MeetingDecisionsTab.vue when a decision is created from a meeting's decisions tab. Empty for decisions created outside a meeting flow (e.g. a citizen-panel or nomination decision)."
+          },
+          "agendaItem": {
+            "title": "Agenda item",
+            "type": "string",
+            "format": "uuid",
+            "facetable": true,
+            "nullable": true,
+            "$ref": "AgendaItem",
+            "description": "Optional reference to the AgendaItem this decision resolves (REQ-SDM-022). Written by AgendaMotionsTab.vue when a decision (motion) is created from an agenda item's motions tab. Empty for decisions not tied to a specific agenda item."
           }
         },
         "x-openregister-lifecycle": {
@@ -2779,6 +2857,24 @@
             "$ref": "GovernanceBody",
             "nullable": true,
             "description": "Reference to the parent GovernanceBody this body belongs to — used for factions (bodyType=faction) referencing their council, and generically available for other sub-body hierarchies. Optional."
+          },
+          "processTemplate": {
+            "type": "string",
+            "title": "Process template",
+            "description": "Identifier of the default process template assigned to this body (built-in catalogue id, e.g. standard-decision; becomes an OR object reference once the process-configuration capability ships template objects). Applies when no specialized template is chosen for a decision.",
+            "example": "standard-decision"
+          },
+          "additionalTemplates": {
+            "type": "array",
+            "title": "Additional templates",
+            "description": "Identifiers of specialized process templates available to this body for specific decision types (e.g. statute-amendment, board-election), in addition to the default processTemplate.",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "statute-amendment",
+              "board-election"
+            ]
           }
         }
       },
@@ -3161,6 +3257,26 @@
             "title": "Meeting cost",
             "type": "number",
             "description": "Total meeting cost in EUR, computed server-side on close from elapsed time x attendee count x the governance body's hourlyRate (meeting-efficiency). Schema.org MonetaryAmount value. NOT readOnly — see openedAt: it is stamped on close, i.e. always after create."
+          },
+          "shortenedNotice": {
+            "title": "Shortened notice",
+            "type": "boolean",
+            "facetable": true,
+            "default": false,
+            "description": "True when this extraordinary meeting's convocation was deliberately sent below the body's regular notice period (noticePeriodDays) for an urgent decision. Additive optional field; exclusive to meetingType=extraordinary (enforced save-time). The pre-send overdue hint (noticeRules) presents a recorded deviation as a deliberate shortened-notice state, not an error.",
+            "example": true
+          },
+          "actualNoticeHours": {
+            "title": "Actual notice (hours)",
+            "type": "integer",
+            "description": "The notice actually given, in hours, at convocation send time. Recorded on a shortened-notice deviation. The send is rejected save-time when this is below the governing body's urgencyPolicy.minimumNoticeFloorHours (Task 6, hour-granular floor sitting below the day-granular notice period).",
+            "example": 72
+          },
+          "noticeDeviationReason": {
+            "title": "Notice deviation reason",
+            "type": "string",
+            "description": "Reason the regular notice period could not be met. CONDITIONALLY REQUIRED when shortenedNotice is true (enforced save-time, not by a schema constraint), defaulting to the linked urgent decision's urgencyReason.",
+            "example": "Spoedbesluit noodopvang — reguliere oproeptermijn niet haalbaar."
           }
         },
         "x-openregister-aggregations": {
@@ -3407,6 +3523,14 @@
             },
             "title": "Post",
             "description": "Reference to the Post held under this membership (many-to-one). The picker is scoped to posts of the membership's own governance body."
+          },
+          "onBehalfOf": {
+            "title": "Namens",
+            "type": "string",
+            "format": "uuid",
+            "facetable": true,
+            "$ref": "GovernanceBody",
+            "description": "Optional reference (Popolo on_behalf_of, parallel to the existing party property) to the participating GovernanceBody the member sits namens in a shared body. Absent for every non-shared body; filterable/groupable in the shared body's roster via standard relation queries. Many-to-one."
           }
         }
       },
@@ -4336,6 +4460,13 @@
             },
             "title": "Contact details",
             "description": "References to the ContactDetail objects for this person (one-to-many)."
+          },
+          "nextcloudUserId": {
+            "title": "Nextcloud user",
+            "type": "string",
+            "nullable": true,
+            "description": "Optional Nextcloud user ID (login name / UID) of the Nextcloud user this Person represents. Carried over from Participant.nextcloudUserId by the code chain's crosswalk repair step (model-debt-cleanup-code) so vote-casting, proxy delegation, and vote-link personalisation keep a strong identity key once a Participant is retired in favour of Person + Membership.",
+            "example": "jdoe"
           }
         }
       },
@@ -5545,6 +5676,14 @@
             "$ref": "Participant",
             "title": "Participant",
             "description": "Reference to the Participant who cast this vote (many-to-one)."
+          },
+          "authorizationRef": {
+            "title": "Authorization instrument",
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "$ref": "ProxyAuthorization",
+            "description": "Nullable back-reference from a proxy row to its ProxyAuthorization instrument, so the row resolves its machtiging (and signature status) without a reverse query. Null on ordinary ballots and on proxy rows granted before this change (REQ-MPA-001)."
           }
         }
       },
@@ -6673,7 +6812,11 @@
         "hourlyRate": 1.0,
         "transcriptRetentionPolicy": "keep",
         "transcriptRetentionDays": 30,
-        "parentBody": "00000000-0000-4000-8000-000000000000"
+        "parentBody": "00000000-0000-4000-8000-000000000000",
+        "processTemplate": "Voorbeeld Processtemplate 1",
+        "additionalTemplates": [
+          "Voorbeeld Additionaltemplates 1"
+        ]
       },
       {
         "@self": {
@@ -6696,7 +6839,11 @@
         "hourlyRate": 2.0,
         "transcriptRetentionPolicy": "delete-recording",
         "transcriptRetentionDays": 30,
-        "parentBody": "00000000-0000-4000-8000-000000000001"
+        "parentBody": "00000000-0000-4000-8000-000000000001",
+        "processTemplate": "Voorbeeld Processtemplate 2",
+        "additionalTemplates": [
+          "Voorbeeld Additionaltemplates 2"
+        ]
       },
       {
         "@self": {
@@ -6719,7 +6866,11 @@
         "hourlyRate": 3.0,
         "transcriptRetentionPolicy": "delete-both",
         "transcriptRetentionDays": 30,
-        "parentBody": "00000000-0000-4000-8000-000000000002"
+        "parentBody": "00000000-0000-4000-8000-000000000002",
+        "processTemplate": "Voorbeeld Processtemplate 3",
+        "additionalTemplates": [
+          "Voorbeeld Additionaltemplates 3"
+        ]
       },
       {
         "@self": {
@@ -6806,7 +6957,10 @@
         "submissionDeadline": "2026-03-01T09:00:00+00:00",
         "openedAt": "2026-03-01T09:00:00+00:00",
         "closedAt": "2026-03-01T09:00:00+00:00",
-        "meetingCost": 1.0
+        "meetingCost": 1.0,
+        "shortenedNotice": false,
+        "actualNoticeHours": 1,
+        "noticeDeviationReason": "Voorbeeld Noticedeviationreason 1"
       },
       {
         "@self": {
@@ -6839,7 +6993,10 @@
         "submissionDeadline": "2026-03-02T09:00:00+00:00",
         "openedAt": "2026-03-02T09:00:00+00:00",
         "closedAt": "2026-03-02T09:00:00+00:00",
-        "meetingCost": 2.0
+        "meetingCost": 2.0,
+        "shortenedNotice": false,
+        "actualNoticeHours": 2,
+        "noticeDeviationReason": "Voorbeeld Noticedeviationreason 2"
       },
       {
         "@self": {
@@ -6872,7 +7029,10 @@
         "submissionDeadline": "2026-03-03T09:00:00+00:00",
         "openedAt": "2026-03-03T09:00:00+00:00",
         "closedAt": "2026-03-03T09:00:00+00:00",
-        "meetingCost": 3.0
+        "meetingCost": 3.0,
+        "shortenedNotice": false,
+        "actualNoticeHours": 3,
+        "noticeDeviationReason": "Voorbeeld Noticedeviationreason 3"
       },
       {
         "@self": {
@@ -6893,7 +7053,8 @@
         ],
         "person": "00000000-0000-4000-8000-000000000000",
         "governanceBody": "00000000-0000-4000-8000-000000000000",
-        "post": "00000000-0000-4000-8000-000000000000"
+        "post": "00000000-0000-4000-8000-000000000000",
+        "onBehalfOf": "00000000-0000-4000-8000-000000000000"
       },
       {
         "@self": {
@@ -6914,7 +7075,8 @@
         ],
         "person": "00000000-0000-4000-8000-000000000001",
         "governanceBody": "00000000-0000-4000-8000-000000000001",
-        "post": "00000000-0000-4000-8000-000000000001"
+        "post": "00000000-0000-4000-8000-000000000001",
+        "onBehalfOf": "00000000-0000-4000-8000-000000000001"
       },
       {
         "@self": {
@@ -6935,7 +7097,8 @@
         ],
         "person": "00000000-0000-4000-8000-000000000002",
         "governanceBody": "00000000-0000-4000-8000-000000000002",
-        "post": "00000000-0000-4000-8000-000000000002"
+        "post": "00000000-0000-4000-8000-000000000002",
+        "onBehalfOf": "00000000-0000-4000-8000-000000000002"
       },
       {
         "@self": {
@@ -7452,7 +7615,8 @@
         ],
         "contactDetails": [
           "00000000-0000-4000-8000-000000000000"
-        ]
+        ],
+        "nextcloudUserId": "Voorbeeld Nextclouduserid 1"
       },
       {
         "@self": {
@@ -7474,7 +7638,8 @@
         ],
         "contactDetails": [
           "00000000-0000-4000-8000-000000000001"
-        ]
+        ],
+        "nextcloudUserId": "Voorbeeld Nextclouduserid 2"
       },
       {
         "@self": {
@@ -7496,7 +7661,8 @@
         ],
         "contactDetails": [
           "00000000-0000-4000-8000-000000000002"
-        ]
+        ],
+        "nextcloudUserId": "Voorbeeld Nextclouduserid 3"
       },
       {
         "@self": {
@@ -8017,7 +8183,8 @@
         "isProxy": true,
         "castAs": "in-person",
         "votingRound": "00000000-0000-4000-8000-000000000000",
-        "participant": "00000000-0000-4000-8000-000000000000"
+        "participant": "00000000-0000-4000-8000-000000000000",
+        "authorizationRef": "00000000-0000-4000-8000-000000000000"
       },
       {
         "@self": {
@@ -8031,7 +8198,8 @@
         "isProxy": false,
         "castAs": "remote",
         "votingRound": "00000000-0000-4000-8000-000000000001",
-        "participant": "00000000-0000-4000-8000-000000000001"
+        "participant": "00000000-0000-4000-8000-000000000001",
+        "authorizationRef": "00000000-0000-4000-8000-000000000001"
       },
       {
         "@self": {
@@ -8045,7 +8213,8 @@
         "isProxy": true,
         "castAs": "unknown",
         "votingRound": "00000000-0000-4000-8000-000000000002",
-        "participant": "00000000-0000-4000-8000-000000000002"
+        "participant": "00000000-0000-4000-8000-000000000002",
+        "authorizationRef": "00000000-0000-4000-8000-000000000002"
       },
       {
         "@self": {
