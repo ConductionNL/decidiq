@@ -1906,7 +1906,10 @@ OC.L10N.register(
         "This motion has produced no commitments yet.": "Deze motie heeft nog geen toezeggingen opgeleverd.",
         "This decision has no confidentiality restriction.": "Op dit besluit rust geen geheimhouding.",
         "No reactions submitted yet. Citizens submit these through the public Participation page.": "Nog geen reacties ingediend. Inwoners dienen die in via de publieke Participatiepagina.",
-        "No proposals submitted yet. Citizens submit these through the public Participation page.": "Nog geen voorstellen ingediend. Inwoners dienen die in via de publieke Participatiepagina."
+        "No proposals submitted yet. Citizens submit these through the public Participation page.": "Nog geen voorstellen ingediend. Inwoners dienen die in via de publieke Participatiepagina.",
+        "Where the automation lives": "Waar de automatisering zit",
+        "Flows are what happens without anyone clicking: a reminder before a deadline passes, a confirmation sent on submission. This is where you read and edit them. Nothing to build now.": "Flows zijn wat er gebeurt zonder dat iemand klikt: een herinnering voordat een termijn verstrijkt, een bevestiging bij indiening. Hier lees en bewerk je ze. Je hoeft nu niets te bouwen.",
+        "Open Flows in the menu": "Open Flows in het menu"
     },
     "nplurals=2; plural=(n != 1);"
 )
