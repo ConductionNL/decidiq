@@ -202,6 +202,12 @@ export default {
 	display: flex;
 	flex-direction: column;
 	min-height: 0;
+	/* The card content box has no padding of its own; every decidiq-local
+	   dashboard widget therefore sits flush at gapTop 0, where shared-library
+	   widgets on the same dashboard inset by ~17px. Same fix as
+	   RunningProcessesWidget, applied to the whole class rather than the one
+	   widget where it happened to show. */
+	padding-block-start: 4px;
 }
 
 .dashboard-list-widget__list {

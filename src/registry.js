@@ -91,6 +91,8 @@ import StartProcessAction from './views/dashboard/widgets/StartProcessAction.vue
 import UpcomingMeetingsKpiWidget from './views/dashboard/widgets/UpcomingMeetingsKpiWidget.vue'
 import UpcomingMeetingsListWidget from './views/dashboard/widgets/UpcomingMeetingsListWidget.vue'
 import LiveMeetingView from './views/LiveMeeting.vue'
+import MeetingCalendarView from './views/meetings/MeetingCalendarView.vue'
+import MeetingViewToggle from './views/meetings/MeetingViewToggle.vue'
 import MotionIntegrations from './views/MotionIntegrations.vue'
 import ModerationQueuePage from './views/participation/ModerationQueuePage.vue'
 // Citizen-participation pages (citizen-participation). The consultation/budget
@@ -155,6 +157,16 @@ export default {
 	// per-vote-card animations. Documented as the canonical example for
 	// a future `type: "realtime"` lib extension.
 	LiveMeetingView: page(LiveMeetingView),
+
+	// --- Meeting calendar (configurable-types-domain-model). ---
+	// A month view alongside the manifest index table. CnIndexPage's
+	// viewMode validator accepts table/cards/list/map only, so `calendar`
+	// cannot be a shared view mode without editing
+	// @conduction/nextcloud-vue — which a leaf app must not fork. The
+	// toggle rides the index page's actionsComponent slot and routes
+	// between the two pages, leaving the table surface untouched.
+	MeetingCalendarView: page(MeetingCalendarView),
+	MeetingViewToggle: page(MeetingViewToggle),
 
 	// --- Integration-registry surfaces (ADR-019 / ADR-022). ---
 	// Mounts CnDetailPage in `useRegistry` mode bound to its OR object so
