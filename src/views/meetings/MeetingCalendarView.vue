@@ -193,7 +193,9 @@ export default {
 		 * @return {Array<object>} Undated meetings.
 		 */
 		undated() {
-			return this.meetings.filter((m) => this.dateKey(m.scheduledDate) === null)
+			return this.meetings.filter(
+				(m) => this.dateKey(m.scheduledDate) === null,
+			)
 		},
 
 		/**

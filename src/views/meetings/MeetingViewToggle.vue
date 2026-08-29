@@ -19,7 +19,10 @@
  @spec openspec/changes/configurable-types-domain-model/design.md
 -->
 <template>
-	<div class="meeting-view-toggle" role="group" :aria-label="t('decidiq', 'Meeting view')">
+	<div
+		class="meeting-view-toggle"
+		role="group"
+		:aria-label="t('decidiq', 'Meeting view')">
 		<NcButton
 			:variant="isCalendar ? 'tertiary' : 'secondary'"
 			:aria-pressed="String(!isCalendar)"
