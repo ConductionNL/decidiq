@@ -1724,7 +1724,15 @@
         "{n} meeting(s) exceeded the scheduled time": "{n} meeting(s) exceeded the scheduled time",
         "{n} open action items": "{n} open action items",
         "{responded} of {invited} responded": "{responded} of {invited} responded",
-        "{states} states, {transitions} transitions": "{states} states, {transitions} transitions"
+        "{states} states, {transitions} transitions": "{states} states, {transitions} transitions",
+        "Calendar": "Calendar",
+        "Meeting view": "Meeting view",
+        "Meetings without a date": "Meetings without a date",
+        "Next month": "Next month",
+        "No meetings": "No meetings",
+        "Previous month": "Previous month",
+        "Table": "Table",
+        "Today": "Today"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }
