@@ -68,11 +68,27 @@ test('Admin settings: the Nextcloud admin section mounts with the app configurat
 // proves the form round-trips and nothing else; the third clause — "the
 // navigation Bodies item relabels on next render" — went unasserted, and a mode
 // setting that persists while changing nothing a user sees is the whole failure
-// this scenario guards against. src/config/modeLabels.js maps Bodies to
-// "Factions & bodies" under gov and "Factions & committees" under assoc, so
-// reading the label in the SPA proves persistence AND the relabel in one
-// navigation. Mutating that map to any other string fails this test and no
-// other, which is the control that makes the anchor honest.
+// this scenario guards against. Reading the label in the SPA proves persistence
+// AND the relabel in one navigation. Mutating src/config/modeLabels.js to any
+// other string fails this test and no other, which is the control that makes
+// the anchor honest.
+//
+// ⚠️ THE MODE UNDER TEST IS `corp`, NOT `assoc`, AND IT HAS TO BE.
+// This test used to select Association and assert the Bodies entry read
+// "Factions & committees". configurable-types-domain-model (#957) applied
+// REQ-CTM-010 "one concept, one label" to src/config/modeLabels.js: a faction
+// IS a GovernanceBody with bodyType 'faction' and a committee IS one with
+// bodyType 'advisory-body' — there is no second schema — so both gov and assoc
+// now resolve Organisation to the single label 'Bodies'. That is the intended
+// behaviour, and it also destroys this test's control: gov and assoc are no
+// longer distinguishable by ANY nav label, so no assertion on that entry could
+// tell a saved mode from an ignored one. Simply updating the expected string to
+// 'Bodies' would leave a test that passes whether or not the save reached the
+// SPA at all — the exact hollow green this file's header argues against.
+// `corp` maps Organisation to 'Board' and is therefore the nearest mode that
+// still relabels, which keeps the scenario's third THEN clause under a real
+// assertion. If corp's label is ever collapsed into 'Bodies' too, the fix is to
+// move to `ops` ('Teams'), not to drop the assertion.
 test('Admin settings: organisation mode saves, reaches the SPA and relabels the nav', async ({
 	page,
 }) => {
