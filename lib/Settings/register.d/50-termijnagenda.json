@@ -206,7 +206,7 @@
             "title": "Governance body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "facetable": true,
             "description": "Reference to the GovernanceBody (council/committee) the item is planned for. Required; drives the per-body board scoping."
           },
@@ -349,7 +349,7 @@
             "title": "Realised agenda item",
             "type": "string",
             "format": "uuid",
-            "$ref": "AgendaItem",
+            "$ref": "agenda-item",
             "nullable": true,
             "description": "Reference to the actual AgendaItem that realised this planned item, set (assisted, always user-confirmed) when marking gerealiseerd (REQ-LTA-006). The termijnagenda NEVER creates, moves, or modifies agenda items or meetings itself. Nullable; presence means 'realised' for the overdue computation."
           },

@@ -195,7 +195,7 @@
             "type": "string",
             "format": "uuid",
             "facetable": true,
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Required reference to the owning GovernanceBody (the vereniging, raad, VvE, or board whose document this is)."
           },
           "isPublic": {
@@ -321,7 +321,7 @@
             "type": "string",
             "format": "uuid",
             "facetable": true,
-            "$ref": "GoverningDocument",
+            "$ref": "governing-document",
             "description": "Required reference to the parent GoverningDocument this version belongs to."
           },
           "versionNumber": {
@@ -407,14 +407,14 @@
                   "title": "Governing document",
                   "type": "string",
                   "format": "uuid",
-                  "$ref": "GoverningDocument",
+                  "$ref": "governing-document",
                   "description": "Required reference to the cited GoverningDocument."
                 },
                 "version": {
                   "title": "Governing document version",
                   "type": "string",
                   "format": "uuid",
-                  "$ref": "GoverningDocumentVersie",
+                  "$ref": "governing-document-versie",
                   "description": "Optional reference to a specific sealed GoverningDocumentVersie. Omitted means 'the version in force at reading time' per the in-force resolution (REQ-GDR-004); a pinned versie gives the immutable-content guarantee (REQ-GDR-003)."
                 },
                 "article": {

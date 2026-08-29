@@ -202,7 +202,7 @@
             "type": "string",
             "format": "uuid",
             "facetable": true,
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody that adopts the regulation (council, ledenraad, etc.). Required."
           },
           "cvdrIdentifier": {

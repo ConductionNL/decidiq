@@ -303,7 +303,7 @@
             "title": "Governance body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody under whose disclosure regime the declaration is made (its Integriteitsbeleid sets the disclosure default and integrity recipient). Required — a person holding roles in two bodies faces two regimes and declares once per body (design D5)."
           },
           "organisation": {
@@ -477,7 +477,7 @@
             "title": "Governance body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody whose Integriteitsbeleid governs the threshold, notification recipient, and public-register opt-in. Required."
           },
           "type": {
@@ -583,7 +583,7 @@
             "title": "Governance body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody this policy governs (one Integriteitsbeleid object per body). Required."
           },
           "ancillaryPositionDisclosureDefault": {

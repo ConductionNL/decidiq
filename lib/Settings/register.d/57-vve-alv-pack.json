@@ -215,14 +215,14 @@
             "title": "Governance body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody (the VvE) this configuration binds. Required; one configuration per body."
           },
           "modelRegulation": {
             "title": "Modelreglement preset",
             "type": "string",
             "format": "uuid",
-            "$ref": "ModelreglementPreset",
+            "$ref": "modelreglement-preset",
             "description": "Reference to the ModelreglementPreset (1992/2006/2017) this VvE follows. Required; picked at body setup."
           },
           "fractionDenominator": {
@@ -511,14 +511,14 @@
             "title": "Agenda item",
             "type": "string",
             "format": "uuid",
-            "$ref": "AgendaItem",
+            "$ref": "agenda-item",
             "description": "Reference to the jaarrekening AgendaItem of the ALV this verklaring is linked to. Optional (a verklaring may be recorded before the agenda exists)."
           },
           "governanceBody": {
             "title": "Governance body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody (the VvE) this verklaring belongs to. Required."
           }
         }

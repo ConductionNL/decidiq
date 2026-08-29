@@ -263,7 +263,7 @@
             "title": "Audience body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody whose active members form the audience. REQUIRED when audienceType is body-members or fractie (conditional-required, enforced at save time). Empty for nc-group."
           },
           "audienceParty": {
@@ -284,7 +284,7 @@
             "title": "Agenda item",
             "type": "string",
             "format": "uuid",
-            "$ref": "AgendaItem",
+            "$ref": "agenda-item",
             "description": "Optional reference to the AgendaItem this consultation prepares. At least one of agendaItem / decision MUST be set (REQ-CCO-001, enforced at save time). The linked agenda item's detail page reverse-looks-up this consultation for its 'Raadpleging (niet-bindend)' section."
           },
           "decision": {
@@ -383,7 +383,7 @@
             "title": "Consultation",
             "type": "string",
             "format": "uuid",
-            "$ref": "MemberConsultation",
+            "$ref": "member-consultation",
             "description": "Reference to the MemberConsultation this answer belongs to. Required."
           },
           "respondentId": {

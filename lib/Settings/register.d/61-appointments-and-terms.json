@@ -115,7 +115,7 @@
             "title": "Governance body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody this term rule applies to. Required."
           },
           "role": {
@@ -192,7 +192,7 @@
             "title": "Governance body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody this rooster van aftreden belongs to (one live rooster per body). Required."
           },
           "generatedOn": {
@@ -328,7 +328,7 @@
             "title": "Rooster",
             "type": "string",
             "format": "uuid",
-            "$ref": "RoosterVanAftreden",
+            "$ref": "rooster-van-aftreden",
             "description": "Reference to the parent RoosterVanAftreden. Required."
           },
           "membership": {

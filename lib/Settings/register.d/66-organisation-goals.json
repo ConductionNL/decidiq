@@ -185,7 +185,7 @@
             "title": "Governance body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "facetable": true,
             "description": "Reference to the GovernanceBody (council/board/department/commission) the goal is set at. Required; GovernanceBody.bodyType already spans every organisational level a goal can be scoped to (organisation-goals REQ-002)."
           },

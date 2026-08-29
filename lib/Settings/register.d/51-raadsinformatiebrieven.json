@@ -219,7 +219,7 @@
             "title": "Directed to",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody (council) the letter is directed to (schema:Message recipient). Required. Drives the new-RIB notification recipients (REQ-RIB-008)."
           },
           "letterDocument": {
@@ -240,7 +240,7 @@
             "title": "Agenda item",
             "type": "string",
             "format": "uuid",
-            "$ref": "AgendaItem",
+            "$ref": "agenda-item",
             "description": "Reference to the AgendaItem recording the ter-kennisname placement (typically the lijst-ingekomen-stukken / LIS item or a dedicated RIB list item of a meeting). Set when the lifecycle moves to geagendeerd (REQ-RIB-002). Optional."
           },
           "settledCommitment": {
