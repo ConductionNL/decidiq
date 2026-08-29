@@ -107,6 +107,8 @@ import Package from 'vue-material-design-icons/Package.vue'
 import PackageVariantClosed from 'vue-material-design-icons/PackageVariantClosed.vue'
 import ReceiptOutline from 'vue-material-design-icons/ReceiptOutline.vue'
 import ScaleBalance from 'vue-material-design-icons/ScaleBalance.vue'
+import SeatOutline from 'vue-material-design-icons/SeatOutline.vue'
+import SetMerge from 'vue-material-design-icons/SetMerge.vue'
 import ShieldCheckOutline from 'vue-material-design-icons/ShieldCheckOutline.vue'
 import ShieldKeyOutline from 'vue-material-design-icons/ShieldKeyOutline.vue'
 import ShieldLockOutline from 'vue-material-design-icons/ShieldLockOutline.vue'
@@ -220,6 +222,8 @@ export default {
 	PackageVariantClosed,
 	ReceiptOutline,
 	ScaleBalance,
+	SeatOutline,
+	SetMerge,
 	ShieldCheckOutline,
 	ShieldKeyOutline,
 	ShieldLockOutline,

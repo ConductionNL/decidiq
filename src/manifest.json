@@ -280,7 +280,7 @@
 						"id": "5",
 						"widgetId": "upcoming-meetings-list",
 						"gridX": 0,
-						"gridY": 2,
+						"gridY": 4,
 						"gridWidth": 6,
 						"gridHeight": 4,
 						"showTitle": true
@@ -289,7 +289,7 @@
 						"id": "6",
 						"widgetId": "pending-votes-list",
 						"gridX": 6,
-						"gridY": 2,
+						"gridY": 4,
 						"gridWidth": 6,
 						"gridHeight": 4,
 						"showTitle": true
@@ -298,7 +298,7 @@
 						"id": "7",
 						"widgetId": "running-processes",
 						"gridX": 0,
-						"gridY": 6,
+						"gridY": 8,
 						"gridWidth": 6,
 						"gridHeight": 4,
 						"showTitle": true
@@ -307,7 +307,7 @@
 						"id": "8",
 						"widgetId": "my-action-items",
 						"gridX": 6,
-						"gridY": 6,
+						"gridY": 8,
 						"gridWidth": 6,
 						"gridHeight": 4,
 						"showTitle": true
@@ -316,7 +316,7 @@
 						"id": "9",
 						"widgetId": "recent-decisions",
 						"gridX": 0,
-						"gridY": 10,
+						"gridY": 12,
 						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
@@ -324,18 +324,18 @@
 					{
 						"id": "10",
 						"widgetId": "minutes-in-review",
-						"gridX": 0,
-						"gridY": 14,
-						"gridWidth": 6,
-						"gridHeight": 4,
+						"gridX": 3,
+						"gridY": 2,
+						"gridWidth": 9,
+						"gridHeight": 2,
 						"showTitle": true
 					},
 					{
 						"id": "11",
 						"widgetId": "governance-health",
-						"gridX": 6,
-						"gridY": 14,
-						"gridWidth": 6,
+						"gridX": 0,
+						"gridY": 16,
+						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
 					},
@@ -344,7 +344,7 @@
 						"id": "12",
 						"widgetId": "open-toezeggingen-overdue",
 						"gridX": 0,
-						"gridY": 18,
+						"gridY": 2,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,
@@ -459,11 +459,13 @@
 			"route": "/meetings",
 			"type": "index",
 			"title": "Meetings",
+			"actionsComponent": "MeetingViewToggle",
 			"config": {
 				"register": "decidiq",
 				"schema": "meeting",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
+				"_note": "actionsComponent injects the Table/Calendar segmented control (configurable-types-domain-model). CnIndexPage offers table/cards/list/map and its viewMode validator rejects anything else, so a calendar cannot be a shared view mode without editing @conduction/nextcloud-vue, which a leaf app must not fork; the toggle routes to the sibling MeetingsCalendar page instead and leaves this table untouched. The new `type` reference is DELIBERATELY NOT a column here: an index cell renders a reference as its raw uuid, and a table of uuids is worse than no column at all. It is surfaced on MeetingDetail, where the reference resolves. Restoring it as a column needs a `meetingTypeName` formatter of dossiq's lookupRelatedName shape, which decidiq has no formatter plumbing for yet — that is the follow-up, not a silent omission.",
 				"columns": [
 					"title",
 					"meetingType",
@@ -483,6 +485,21 @@
 			}
 		},
 		{
+			"id": "MeetingsCalendar",
+			"route": "/meetings/calendar",
+			"type": "custom",
+			"title": "Meetings",
+			"component": "MeetingCalendarView",
+			"actionsComponent": "MeetingViewToggle",
+			"_note": "type:\"custom\" because no typed archetype fits. This is not a list, a record or a widget grid — it is a month grid of 42 date cells that places meetings by scheduledDate, which no index/detail/dashboard page component renders. The typed alternative would be an index page in a `calendar` view mode, and that is genuinely where this belongs: CnIndexPage already carries table/cards/list/map. It is custom here only because its viewMode validator rejects `calendar` and @conduction/nextcloud-vue is owned by another change this wave — a leaf app must not fork the shared library to add a view mode. RETIRE THIS PAGE when the shared calendar view mode lands: the table page keeps its config, gains `calendar` in viewModes, and this page and its toggle both delete. The table surface (page id Meetings) is untouched and remains the typed index.",
+			"config": {
+				"register": "decidiq",
+				"schema": "meeting",
+				"_note": "The calendar half of the meeting index (configurable-types-domain-model). A meeting is an event and a table is the wrong primary shape for one, but the table sorts and filters better — so this is a SECOND view, not a replacement, reached through the same MeetingViewToggle that sits on the index. Declared ABOVE MeetingDetail on purpose: /meetings/calendar must match before /meetings/:id, or the detail route would swallow it and render a 404 for the literal id \"calendar\".",
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		},
+		{
 			"id": "MeetingDetail",
 			"route": "/meetings/:id",
 			"type": "detail",
@@ -492,7 +509,7 @@
 				"schema": "meeting",
 				"_note": "Meeting — the operational hub of the app: the event that runs an agenda, gathers participants, produces minutes and decisions. Bespoke meeting-workspace layout: meeting fields split field-scoped (ADR-062 rule 3) into Planning (type, body, schedule, location, mode, chair, quorum, series, submission deadline — everything set BEFORE the meeting runs) 8-wide, and a thin Outcome strip below it (lifecycle, opened/closed timestamps, actual cost — everything only known AFTER/DURING the meeting) so neither widget clips or leaves dead cells; a Meeting stats KPI card and the live Participants roster stand right of both (who is expected/attending is the first thing a clerk checks); the ordered Agenda (agenda-item children keyed on `meeting`) sits full-width as the working document; Decisions taken and Minutes drafted render below as the meeting's outputs; a Documents leaf holds packets/attachments; the Votes aggregate and Publication actions render below the files (post-meeting outputs), with the lower-frequency Recurring series and Transcription surfaces at the bottom. No comms leaf on the body (the meeting schema declares no email/calendar/talk linkedType; calendar/Talk stay in the Integrations surface). Sidebar is audit-trail only. AUDIT FIX (visual-audit follow-ups): every `type:\"custom\"` widget on this page (participants/agenda/decisions/minutes/votes/publication/series/transcription) resolved to the CnDetailPage 'unavailable placeholder' because the page had no top-level `slots` map wiring `widget-<id>` to its registry component name (the ADR-062-rule pattern the manifest-v2 schema validator only enforces on `type:\"dashboard\"` pages) — that silent gap, not a data problem, produced the empty right column and the dead band above Documents; the `slots` block below fixes it. The new `meeting-stats` KPI card counts agenda items and action items via their real `meeting` FK property (verified in lib/Settings/decidesk_register.json); Decision carries NO `meeting` FK in the schema (only AgendaItem and ActionItem do) so a meeting-scoped Decisions count is not addable declaratively and is intentionally omitted. Participant likewise carries no `meeting` FK (only `governanceBody`) so no participants object-list collection is added — the existing MeetingParticipantsTab custom widget (now rendering, since it's wired via `slots`) covers the roster via its own `meetings`-array-based fetch. meeting-facet-composition adds 5 more meeting-scoped facets below the existing 12, closing the gap where wave-1 (ia-six-clusters) relocated oral-questions/interpellations/proxy-authorizations/kascommissie/routed-documents into the Meetings nav cluster without composing them onto this workspace: oral questions (mondelinge-vraag.targetMeeting) and proxy authorizations (proxy-authorization.meeting) are plain object-list widgets with add-in-context; interpellations (interpellatieverzoek.behandeldIn) is object-list, browse-only (the request is filed before a meeting is chosen — see openspec/changes/meeting-facet-composition/design.md Decision 2); kascommissie verklaringen needs a thin wrapper (MeetingKascommissieTab) because no manifest primitive gates a widget's visibility on organisatie_modus; routed incoming documents needs a thin wrapper (MeetingRoutedDocumentsTab) because it is a two-hop join (Meeting's own AgendaItems, then raadsinformatiebrief/ingekomen-stuk referencing those AgendaItems) no single declarative `filter` can express. THIS PAGE IS EDITED DIRECTLY, NOT via a manifest.d fragment (design.md Decision 1) — a fragment declaring `MeetingDetail` would REPLACE the page's widgets/layout wholesale (`mergePages` is by-id, not a deep merge), silently dropping every widget documented in this note.",
 				"widgets": [
-					{ "id": "meeting-planning", "type": "data", "title": "Planning", "icon": "Calendar", "content": { "columns": 2, "include": ["title", "meetingType", "governanceBody", "scheduledDate", "endDate", "location", "meetingMode", "virtualLocation", "eventAttendanceMode", "chair", "quorumRequired", "isPublic", "series", "seriesPattern", "submissionDeadline"] } },
+					{ "id": "meeting-planning", "type": "data", "title": "Planning", "icon": "Calendar", "content": { "columns": 2, "include": ["title", "type", "meetingType", "governanceBody", "scheduledDate", "endDate", "location", "meetingMode", "virtualLocation", "eventAttendanceMode", "chair", "quorumRequired", "isPublic", "series", "seriesPattern", "submissionDeadline"] } },
 					{ "id": "meeting-outcome", "type": "data", "title": "Outcome", "icon": "CheckCircleOutline", "content": { "columns": 2, "include": ["lifecycle", "openedAt", "closedAt", "meetingCost"], "overrides": { "lifecycle": { "editable": false }, "openedAt": { "editable": false }, "closedAt": { "editable": false } } } },
 					{ "id": "meeting-stats-agenda-items", "type": "stats-block", "title": "Agenda items", "icon": "ChartBar", "content": { "entries": [ { "title": "Agenda items", "icon": "ClipboardList", "register": "decidiq", "schema": "agenda-item", "metric": "count", "filter": { "meeting": "@objectId" } } ] } },
 					{ "id": "meeting-stats-action-items", "type": "stats-block", "title": "Action items", "icon": "ChartBar", "content": { "entries": [ { "title": "Action items", "icon": "CheckCircleOutline", "register": "decidiq", "schema": "action-item", "metric": "count", "filter": { "meeting": "@objectId" } } ] } },

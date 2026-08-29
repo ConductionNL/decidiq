@@ -160,17 +160,28 @@ export default {
 </script>
 
 <style scoped>
+/* The card's content box has no padding of its own, so a widget that renders a
+   left-aligned heading first puts it flush against the card edge — measured at
+   gapLeft 0 / gapTop 0, where the shared-library widgets on the same dashboard
+   inset by ~17px. This is a defect CLASS: every decidiq-local dashboard widget
+   sits at 0. It only SHOWS here because the sibling list widgets lead with a
+   centred empty state, while this one leads with "Submitted" and its count. */
 .running-processes {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
+	padding-block-start: 4px;
 }
 
+/* Matches .running-processes__row's 12px inline padding, so the stage heading
+   lines up with the motions listed beneath it instead of hanging 12px to their
+   left against the widget edge. */
 .running-processes__stage-title {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 	margin: 0 0 4px;
+	padding-inline: 12px;
 	font-size: 0.95em;
 	font-weight: 600;
 }
