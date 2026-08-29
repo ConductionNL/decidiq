@@ -3,6 +3,10 @@ OC.L10N.register(
     {
         "2026": "2026",
         "2027": "2027",
+        "A short setup to get this app ready. Nothing here is required; you can close it and come back later.": "Een korte installatie om deze app klaar te zetten. Niets hiervan is verplicht; je kunt dit sluiten en later terugkomen.",
+        "Demo data (optional)": "Demovoorbeelddata (optioneel)",
+        "Load a small example dataset so the lists, detail pages and dashboards show a working product straight away. The data is obviously sample data, it is safe to run more than once, and it can be removed afterwards. Skip this on a production install.": "Laad een kleine voorbeeldset zodat de lijsten, detailpagina's en dashboards meteen een werkend product laten zien. De data is duidelijk voorbeelddata, veilig om meerdere keren uit te voeren en achteraf te verwijderen. Sla dit over op een productie-installatie.",
+        "All set": "Klaar",
         "#": "#",
         "+ Action item": "+ Actiepunt",
         "+ Action item for {title}": "+ Actiepunt voor {title}",
