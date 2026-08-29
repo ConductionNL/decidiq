@@ -149,6 +149,8 @@ export default {
 		 * Localised weekday headers, Monday first.
 		 *
 		 * @return {Array<string>} Seven short weekday names.
+		 *
+		 * @spec openspec/changes/configurable-types-domain-model/tasks.md#task-1.23
 		 */
 		weekdayNames() {
 			const fmt = new Intl.DateTimeFormat(undefined, { weekday: 'short' })
@@ -162,6 +164,8 @@ export default {
 		 * The month being shown, as a localised heading.
 		 *
 		 * @return {string} e.g. "September 2026".
+		 *
+		 * @spec openspec/changes/configurable-types-domain-model/tasks.md#task-1.23
 		 */
 		monthLabel() {
 			return new Intl.DateTimeFormat(undefined, {
@@ -174,6 +178,8 @@ export default {
 		 * Meetings that carry a parseable scheduledDate, keyed by local Y-M-D.
 		 *
 		 * @return {Object<string, Array<object>>} Date key → meetings.
+		 *
+		 * @spec openspec/changes/configurable-types-domain-model/tasks.md#task-1.23
 		 */
 		byDate() {
 			const map = {}
@@ -191,6 +197,8 @@ export default {
 		 * Meetings with no usable scheduledDate. Listed rather than dropped.
 		 *
 		 * @return {Array<object>} Undated meetings.
+		 *
+		 * @spec openspec/changes/configurable-types-domain-model/tasks.md#task-1.23
 		 */
 		undated() {
 			return this.meetings.filter(
@@ -202,6 +210,8 @@ export default {
 		 * The 42 cells of a six-week month grid, Monday-first.
 		 *
 		 * @return {Array<object>} Cell descriptors with their meetings.
+		 *
+		 * @spec openspec/changes/configurable-types-domain-model/tasks.md#task-1.23
 		 */
 		cells() {
 			const first = new Date(this.year, this.month, 1)
@@ -237,6 +247,8 @@ export default {
 		 *
 		 * @param {string|Date} value The scheduled date.
 		 * @return {string|null} `YYYY-M-D`, or null when not parseable.
+		 *
+		 * @spec openspec/changes/configurable-types-domain-model/tasks.md#task-1.23
 		 */
 		dateKey(value) {
 			if (!value) {
@@ -253,6 +265,8 @@ export default {
 		 * Fetch every meeting once; the grid filters client-side by month.
 		 *
 		 * @return {Promise<void>}
+		 *
+		 * @spec openspec/changes/configurable-types-domain-model/tasks.md#task-1.23
 		 */
 		async load() {
 			this.loading = true
@@ -276,6 +290,8 @@ export default {
 		 *
 		 * @param {number} delta Months to add (negative goes back).
 		 * @return {void}
+		 *
+		 * @spec openspec/changes/configurable-types-domain-model/tasks.md#task-1.23
 		 */
 		step(delta) {
 			const next = new Date(this.year, this.month + delta, 1)
@@ -287,6 +303,8 @@ export default {
 		 * Return the grid to the current month.
 		 *
 		 * @return {void}
+		 *
+		 * @spec openspec/changes/configurable-types-domain-model/tasks.md#task-1.23
 		 */
 		goToday() {
 			const now = new Date()
@@ -300,6 +318,8 @@ export default {
 		 *
 		 * @param {object} meeting The clicked meeting.
 		 * @return {void}
+		 *
+		 * @spec openspec/changes/configurable-types-domain-model/tasks.md#task-1.23
 		 */
 		open(meeting) {
 			this.$router.push({

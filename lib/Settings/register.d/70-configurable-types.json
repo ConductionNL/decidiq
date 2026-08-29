@@ -603,15 +603,18 @@
               "properties": {
                 "key": {
                   "type": "string",
-                  "title": "Key"
+                  "title": "Key",
+                  "description": "The name this field's value is stored under on every agenda item of this kind. Choose it once and leave it alone: renaming it here does not move the values already recorded, so the old ones become unreachable."
                 },
                 "label": {
                   "type": "string",
-                  "title": "Label"
+                  "title": "Label",
+                  "description": "What the field is called on screen — the caption above the input when someone fills in an agenda item, and the column header where the field is listed."
                 },
                 "fieldType": {
                   "type": "string",
                   "title": "Field type",
+                  "description": "What kind of answer the field takes, which decides how it is shown and what is accepted: a single line of text, a longer text, a number, a yes/no tick, a date, a pick from the list of choices below, or a link to another record.",
                   "enum": [
                     "string",
                     "text",
@@ -624,11 +627,13 @@
                 },
                 "required": {
                   "type": "boolean",
-                  "title": "Required"
+                  "title": "Required",
+                  "description": "Tick this to make the field compulsory: an agenda item of this kind cannot be saved while it is left empty."
                 },
                 "enumValues": {
                   "type": "array",
                   "title": "Enum values",
+                  "description": "The choices someone may pick from, one per entry. Only used when the field type is a pick from a list; leave it empty for every other field type.",
                   "items": {
                     "type": "string"
                   }

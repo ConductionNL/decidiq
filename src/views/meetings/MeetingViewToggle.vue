@@ -61,6 +61,8 @@ export default {
 		 * Whether the calendar page is the one currently shown.
 		 *
 		 * @return {boolean} True on the calendar route.
+		 *
+		 * @spec openspec/changes/configurable-types-domain-model/tasks.md#task-1.23
 		 */
 		isCalendar() {
 			return this.$route && this.$route.name === 'MeetingsCalendar'
@@ -77,6 +79,8 @@ export default {
 		 *
 		 * @param {string} which Either 'table' or 'calendar'.
 		 * @return {void}
+		 *
+		 * @spec openspec/changes/configurable-types-domain-model/tasks.md#task-1.23
 		 */
 		show(which) {
 			const target = which === 'calendar' ? 'MeetingsCalendar' : 'Meetings'

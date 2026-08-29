@@ -23,4 +23,20 @@ test.describe('DecideSk — visual baselines', () => {
 	test('meetings list', async ({ page }) => {
 		await shootByNav(page, `${APP}/#/`, 'Meetings', 'meetings.png')
 	})
+
+	// The calendar half of the meeting index — a 42-cell month grid that is a
+	// different SHAPE from the table above it, so its own baseline is the only
+	// thing that would catch a regression in it. Reached by its route rather
+	// than by a nav click: the navigation lists the table page only, and the
+	// calendar is reached from there through MeetingViewToggle.
+	//
+	// The baseline PNG is generated on first run, per tests/e2e/visual/README:
+	//   npx playwright test --project visual --update-snapshots
+	test('meetings calendar — MeetingCalendarView', async ({ page }) => {
+		await shootSurface(
+			page,
+			`${APP}/#/meetings/calendar`,
+			'meetings-calendar.png',
+		)
+	})
 })
