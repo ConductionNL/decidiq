@@ -1687,7 +1687,7 @@
             "items": {
               "type": "string",
               "format": "uuid",
-              "$ref": "ContactDetail"
+              "$ref": "contact-detail"
             },
             "title": "Contact details",
             "description": "References to the ContactDetail objects for this person (one-to-many)."
@@ -1746,7 +1746,7 @@
           "governanceBody": {
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "title": "Governance body",
             "description": "Reference to the GovernanceBody this post belongs to (many-to-one)."
           }
@@ -1851,7 +1851,7 @@
           "governanceBody": {
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "title": "Governance body",
             "description": "Reference to the GovernanceBody this membership is in (many-to-one)."
           },
@@ -1939,7 +1939,7 @@
           "governanceBody": {
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "title": "Governance body",
             "description": "Reference to the GovernanceBody this contact detail belongs to (many-to-one)."
           }
@@ -2077,7 +2077,7 @@
             "title": "Parent body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "nullable": true,
             "description": "Reference to the parent GovernanceBody this body belongs to — used for factions (bodyType=faction) referencing their council, and generically available for other sub-body hierarchies. Optional."
           }
@@ -2219,7 +2219,7 @@
           "governanceBody": {
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "title": "Body",
             "description": "The governance body or team this meeting belongs to. Materialises the governanceBody relation as a real property so per-body meeting filters and the participant-count aggregations (which filter on @self.governanceBody) resolve.",
             "order": 6,
@@ -2619,7 +2619,7 @@
           "governanceBody": {
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "title": "Governance body",
             "description": "Reference to the GovernanceBody this participant belongs to (many-to-one)."
           }
@@ -2861,7 +2861,7 @@
           "decisionStage": {
             "type": "string",
             "format": "uuid",
-            "$ref": "DecisionStage",
+            "$ref": "decision-stage",
             "title": "Decision stage",
             "description": "The DecisionStage of method=vote that this VotingRound resolves. Retargeted from the retired motion schema (C5 decision-methods D1). The stage's outcome is derived declaratively from this round's result."
           }
@@ -3072,7 +3072,7 @@
           "votingRound": {
             "type": "string",
             "format": "uuid",
-            "$ref": "VotingRound",
+            "$ref": "voting-round",
             "title": "Voting round",
             "description": "Reference to the VotingRound this vote was cast in (many-to-one)."
           },
@@ -3563,7 +3563,7 @@
             "title": "Target governance body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Revealed when decisionType=appointment. Reference to the GovernanceBody the appointment is for (folded from the retired Voordracht schema's `body` field, renamed to avoid confusion with Decision's own `text`, which is the closest thing this schema has to a body-of-text field). Required for an appointment decision (enforced in the form)."
           },
           "targetPosts": {
@@ -3749,7 +3749,7 @@
             "items": {
               "type": "string",
               "format": "uuid",
-              "$ref": "DecisionStage"
+              "$ref": "decision-stage"
             },
             "x-relation-filter": {
               "decision": "@objectId"
@@ -4090,14 +4090,14 @@
           "assignedBody": {
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "title": "Assigned body",
             "description": "Group decision-maker for this stage. Populate when decisionMakerType=body; leave null when decisionMakerType=person. Exactly one of assignedPerson/assignedBody must be populated, consistent with the decisionMakerType discriminator (design D2)."
           },
           "votingRound": {
             "type": "string",
             "format": "uuid",
-            "$ref": "VotingRound",
+            "$ref": "voting-round",
             "x-relation-filter": {
               "decisionStage": "@objectId"
             },
@@ -4114,7 +4114,7 @@
           "signedDocument": {
             "type": "string",
             "format": "uuid",
-            "$ref": "DigitalDocument",
+            "$ref": "digital-document",
             "title": "Signed document",
             "description": "The signed DigitalDocument produced for this stage. Required when method=signature; leave null for other methods. Signatories are read from the related Minutes.signedBy. EIDASSignatureService resolves this stage (sets outcome=adopted + decidedAt) when eIDAS signing completes (C5 D2/D3/D5)."
           }
@@ -5254,14 +5254,14 @@
           "proposal": {
             "type": "string",
             "format": "uuid",
-            "$ref": "BudgetProposal",
+            "$ref": "budget-proposal",
             "title": "Proposal",
             "description": "Reference to the BudgetProposal this citizen vote concerns (many-to-one)."
           },
           "citizenPanel": {
             "type": "string",
             "format": "uuid",
-            "$ref": "CitizenPanel",
+            "$ref": "citizen-panel",
             "title": "Citizen panel",
             "description": "Reference to the CitizenPanel this citizen vote was cast within (many-to-one)."
           }
@@ -5345,7 +5345,7 @@
           "governanceBody": {
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "title": "Governance body",
             "description": "Reference to the GovernanceBody that owns this citizen panel (many-to-one)."
           }
@@ -5465,7 +5465,7 @@
           "governanceBody": {
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "title": "Governance body",
             "description": "Reference to the GovernanceBody that owns this participatory budget (many-to-one)."
           }
@@ -5581,7 +5581,7 @@
           "participatoryBudget": {
             "type": "string",
             "format": "uuid",
-            "$ref": "ParticipatoryBudget",
+            "$ref": "participatory-budget",
             "title": "Participatory budget",
             "description": "Reference to the ParticipatoryBudget this proposal belongs to (many-to-one)."
           }
@@ -5829,7 +5829,7 @@
           "governanceBody": {
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "title": "Governance body",
             "description": "Reference to the GovernanceBody that owns this public consultation (many-to-one)."
           },
@@ -5845,7 +5845,7 @@
             "items": {
               "type": "string",
               "format": "uuid",
-              "$ref": "ConsultationReaction"
+              "$ref": "consultation-reaction"
             },
             "title": "Reactions",
             "description": "References to the ConsultationReaction objects submitted to this consultation (one-to-many)."
@@ -6026,7 +6026,7 @@
           "consultation": {
             "type": "string",
             "format": "uuid",
-            "$ref": "PublicConsultation",
+            "$ref": "public-consultation",
             "title": "Consultation",
             "description": "Reference to the PublicConsultation this reaction was submitted to (many-to-one)."
           }
@@ -7198,14 +7198,14 @@
             "title": "Governance body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "The governance body this evaluation cycle belongs to (many-to-one). Canonical property-level $ref relation (ADR-062 rule 7): the retired x-openregister-relations block declared this relation but materialised no property, so the reference had nowhere to live and no engine read it."
           },
           "template": {
             "title": "Evaluation template",
             "type": "string",
             "format": "uuid",
-            "$ref": "EvaluationTemplate",
+            "$ref": "evaluation-template",
             "description": "The evaluation template this cycle instantiates (many-to-one). Canonical property-level $ref relation (ADR-062 rule 7)."
           }
         }
@@ -7280,7 +7280,7 @@
             "title": "Board evaluation",
             "type": "string",
             "format": "uuid",
-            "$ref": "BoardEvaluation",
+            "$ref": "board-evaluation",
             "description": "The evaluation cycle this response belongs to (many-to-one). Canonical property-level $ref relation (ADR-062 rule 7). Links the response to the CYCLE only — never to a participant, preserving the secret-ballot guarantee."
           }
         }

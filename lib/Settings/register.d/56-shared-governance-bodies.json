@@ -188,7 +188,7 @@
             "type": "string",
             "format": "uuid",
             "facetable": true,
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Required reference to the shared GovernanceBody (the gemeenschappelijke regeling / joint body). Many-to-one (see x-openregister-relations)."
           },
           "participant": {
@@ -196,7 +196,7 @@
             "type": "string",
             "format": "uuid",
             "facetable": true,
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Required reference to the participating GovernanceBody (the council/organisation). Many-to-one (see x-openregister-relations)."
           },
           "seats": {
@@ -308,7 +308,7 @@
             "type": "string",
             "format": "uuid",
             "facetable": true,
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Required reference to the shared GovernanceBody opening the ronde. Many-to-one (see x-openregister-relations)."
           },
           "subjectType": {
@@ -344,7 +344,7 @@
             "title": "P&C step",
             "type": "string",
             "format": "uuid",
-            "$ref": "CyclusStap",
+            "$ref": "cyclus-stap",
             "description": "Optional nullable soft reference to the pc-cyclus sibling's cyclus-stap (the GR ontwerpbegroting is a P&C artifact). The ronde works standalone; either change lands first."
           },
           "decision": {
@@ -536,7 +536,7 @@
             "type": "string",
             "format": "uuid",
             "facetable": true,
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Required reference to the GovernanceBody whose zienswijze this is. Many-to-one (see x-openregister-relations)."
           },
           "deadline": {
@@ -623,7 +623,7 @@
             "type": "string",
             "format": "uuid",
             "facetable": true,
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Optional reference (Popolo on_behalf_of, parallel to the existing party property) to the participating GovernanceBody the member sits namens in a shared body. Absent for every non-shared body; filterable/groupable in the shared body's roster via standard relation queries. Many-to-one."
           }
         }

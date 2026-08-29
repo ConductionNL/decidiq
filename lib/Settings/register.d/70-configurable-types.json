@@ -426,7 +426,7 @@
             "title": "Governance body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "The gremium that may hold meetings of this kind.",
             "facetable": true,
             "x-notes": "The gremium that may hold meetings of this kind. Required — a meeting type belongs to exactly one body, which is what keeps one body's meeting kinds out of another body's picker (REQ-CTM-001 Scenario 2)."
@@ -438,7 +438,7 @@
             "items": {
               "type": "string",
               "format": "uuid",
-              "$ref": "AgendaItemType"
+              "$ref": "agenda-item-type"
             },
             "default": [],
             "x-notes": "AgendaItemType references admitted on the agenda of a meeting of this kind. Empty means any type is admitted. Analogue of dossiq's caseType.decisionTypes many-to-many."
@@ -571,7 +571,7 @@
             "title": "Owning body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "The gremium that owns items of this kind. Need not be the body holding the meeting. Empty means the meeting’s own body.",
             "facetable": true,
             "nullable": true,
@@ -588,7 +588,7 @@
             "title": "Decision type",
             "type": "string",
             "format": "uuid",
-            "$ref": "DecisionTemplate",
+            "$ref": "decision-template",
             "description": "The decision type a vote on this kind of item produces.",
             "nullable": true,
             "x-notes": "The DecisionType a vote on an item of this kind produces. Only meaningful when votable is true."
@@ -742,7 +742,7 @@
             "title": "Governance body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "The gremium this position exists on.",
             "facetable": true,
             "x-notes": "The gremium this position exists on. Required — a position is part of ITS body's configuration, so a second body has no president unless it declares one (REQ-CTM-005)."
@@ -819,7 +819,7 @@
             "items": {
               "type": "string",
               "format": "uuid",
-              "$ref": "DecisionTemplate"
+              "$ref": "decision-template"
             },
             "default": [],
             "x-notes": "DecisionType references this position is competent to decide, in addition to the body's own competence. Consulted by DecisionCompetenceGuard."
@@ -874,7 +874,7 @@
             "title": "Position",
             "type": "string",
             "format": "uuid",
-            "$ref": "PositionType",
+            "$ref": "position-type",
             "description": "The position being held.",
             "facetable": true,
             "x-relation-filter": {
@@ -886,7 +886,7 @@
             "title": "Governance body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "The body the membership sits on.",
             "nullable": true,
             "visible": false,
@@ -971,7 +971,7 @@
             "title": "Composite body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "The gremium that is composed.",
             "facetable": true,
             "x-notes": "The gremium that IS composed — the Pub quiz. Required."
@@ -980,7 +980,7 @@
             "title": "Component body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "The gremium it is composed of.",
             "facetable": true,
             "x-notes": "The gremium it is composed OF — the Management team. Required."
@@ -1008,7 +1008,7 @@
             "title": "Seat position",
             "type": "string",
             "format": "uuid",
-            "$ref": "PositionType",
+            "$ref": "position-type",
             "description": "The position on the composite that a representative occupies.",
             "nullable": true,
             "x-notes": "The PositionType on the COMPOSITE that a representative occupies. Representation only. This is what makes the representation itself a position rather than an anonymous seat, so the delegate's tenure is an ordinary PositionHold (REQ-CTM-009 Scenario 2)."
@@ -1052,7 +1052,7 @@
             "title": "Meeting type",
             "type": "string",
             "format": "uuid",
-            "$ref": "MeetingType",
+            "$ref": "meeting-type",
             "description": "The meeting type this meeting is an instance of.",
             "facetable": true,
             "nullable": true,
@@ -1077,7 +1077,7 @@
             "title": "Agenda item type",
             "type": "string",
             "format": "uuid",
-            "$ref": "AgendaItemType",
+            "$ref": "agenda-item-type",
             "description": "The agenda item type this item is an instance of.",
             "facetable": true,
             "nullable": true,
@@ -1101,7 +1101,7 @@
             "title": "Decision type",
             "type": "string",
             "format": "uuid",
-            "$ref": "DecisionTemplate",
+            "$ref": "decision-template",
             "description": "The decision type this decision is an instance of.",
             "facetable": true,
             "nullable": true,
@@ -1118,7 +1118,7 @@
             "title": "Competent body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "The gremium competent to take decisions of this type.",
             "facetable": true,
             "nullable": true,
@@ -1131,7 +1131,7 @@
             "items": {
               "type": "string",
               "format": "uuid",
-              "$ref": "PositionType"
+              "$ref": "position-type"
             },
             "default": [],
             "x-notes": "PositionType references additionally competent to take decisions of this type — for example, only the president may. Consulted by the same guard."

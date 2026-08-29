@@ -361,7 +361,7 @@
             "title": "Target document",
             "type": "string",
             "format": "uuid",
-            "$ref": "DigitalDocument",
+            "$ref": "digital-document",
             "nullable": true,
             "description": "Reference to the target DigitalDocument. Populated (and only populated) when scope is 'document'; the document is excluded from every publication surface while the geheimhouding is active."
           },
@@ -369,7 +369,7 @@
             "title": "Target agenda item",
             "type": "string",
             "format": "uuid",
-            "$ref": "AgendaItem",
+            "$ref": "agenda-item",
             "nullable": true,
             "description": "Reference to the target AgendaItem. Populated (and only populated) when scope is 'item'; imposing drives the EXISTING AgendaItem.confidentiality classifier to 'confidential' (meeting-pack-board-book REQ-005 enum), never a new field."
           },
@@ -385,7 +385,7 @@
             "title": "Ground",
             "type": "string",
             "format": "uuid",
-            "$ref": "GeheimhoudingGrond",
+            "$ref": "geheimhouding-grond",
             "description": "Reference to the structured GeheimhoudingGrond (the legal basis — never free text, REQ-EMB-002). The ground's requiresBekrachtiging flag drives the bekrachtiging workflow and the opgelegd -> opgeheven shortcut guard. Required."
           },
           "imposedBy": {
@@ -404,7 +404,7 @@
             "title": "Imposing body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody whose organ imposed the geheimhouding (the Schema.org Action agent). Also the register-scoping key for the per-body geheimhoudingenregister aggregations. Required.",
             "example": "gemeenteraad-amsterdam"
           },
@@ -457,7 +457,7 @@
             "title": "Bekrachtiging agenda item",
             "type": "string",
             "format": "uuid",
-            "$ref": "AgendaItem",
+            "$ref": "agenda-item",
             "nullable": true,
             "description": "Reference to the AgendaItem created on the confirming body's next scheduled meeting for the bekrachtiging (REQ-EMB-003, created imperatively by GeheimhoudingService). Its confidentiality respects the underlying stukken."
           },

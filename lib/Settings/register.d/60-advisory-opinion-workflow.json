@@ -280,14 +280,14 @@
             "title": "Requesting body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the deciding GovernanceBody that asks for the advice (the requester). Required."
           },
           "advisoryBody": {
             "title": "Advisory body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the external advisory GovernanceBody being consulted (jongerenraad / adviesraad sociaal domein / cliëntenraad). Advisory bodies are universal GovernanceBody objects with bodyType advisory-body, never a parallel schema (ADR-006). Required."
           },
           "sentDate": {
@@ -334,7 +334,7 @@
             "title": "Advisory stage",
             "type": "string",
             "format": "uuid",
-            "$ref": "DecisionStage",
+            "$ref": "decision-stage",
             "nullable": true,
             "description": "Optional reference to an in-route advisory DecisionStage (method=advice). When set, the stage actor sets the advised/deferred outcome directly via existing decision-methods semantics (no new derivation mechanism, REQ-AOW-004); this aanvraag only adds the request metadata, the Advies artifact and the verantwoording the stage does not model. Empty for the out-of-route stand-alone case."
           },
@@ -342,7 +342,7 @@
             "title": "Agenda item",
             "type": "string",
             "format": "uuid",
-            "$ref": "AgendaItem",
+            "$ref": "agenda-item",
             "nullable": true,
             "description": "Optional reference to the AgendaItem the advice relates to. Raadscommissie advies on plenary agenda items remains owned by commissievergaderingen and is NOT registered through this capability (REQ-AOW-004)."
           },
@@ -448,7 +448,7 @@
             "title": "Advisory request",
             "type": "string",
             "format": "uuid",
-            "$ref": "Adviesaanvraag",
+            "$ref": "advice-request",
             "description": "Reference to the Adviesaanvraag this advice answers (many-to-one; an aanvraag can in principle carry more than one advies). Required."
           },
           "tenor": {
@@ -489,7 +489,7 @@
             "title": "Advice document",
             "type": "string",
             "format": "uuid",
-            "$ref": "DigitalDocument",
+            "$ref": "digital-document",
             "nullable": true,
             "description": "Optional reference to the response document (the advies PDF), attached via the Files leaf / DigitalDocument relation."
           },

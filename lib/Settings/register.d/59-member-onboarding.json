@@ -453,7 +453,7 @@
             "title": "Target body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody the member is being onboarded into. Required. With targetRole it derives the body-role→group mapping used by the (deferred, imperative) groepen-toewijzen provisioning."
           },
           "targetRole": {
@@ -796,7 +796,7 @@
             "title": "Body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody the member is leaving. Required. With the member's role it derives the body-role→group mapping used by the (deferred, imperative) groepen-intrekken revocation."
           },
           "membership": {

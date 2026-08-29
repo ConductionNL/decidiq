@@ -629,7 +629,7 @@
                 "title": "Ratifying body",
                 "type": "string",
                 "format": "uuid",
-                "$ref": "GovernanceBody",
+                "$ref": "governance-body",
                 "description": "Reference to the GovernanceBody that ratifies an urgent decision (overridable at trigger time). Seed refs are stored by slug and mapped to UUID at import."
               }
             }
@@ -742,7 +742,7 @@
             "title": "Modelreglement preset (superseded)",
             "type": "string",
             "format": "uuid",
-            "$ref": "ModelreglementPreset",
+            "$ref": "modelreglement-preset",
             "description": "SUPERSEDED — ModelreglementPreset is retired (unified-decision-templates). Kept declared/required only because ADR-037 additive merges cannot un-require a property; new code should read modelReglementVersion instead."
           },
           "modelReglementVersion": {

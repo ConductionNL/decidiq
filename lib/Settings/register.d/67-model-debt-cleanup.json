@@ -74,7 +74,7 @@
             "format": "uuid",
             "facetable": true,
             "nullable": true,
-            "$ref": "AgendaItem",
+            "$ref": "agenda-item",
             "description": "Optional reference to the AgendaItem this decision resolves (REQ-SDM-022). Written by AgendaMotionsTab.vue when a decision (motion) is created from an agenda item's motions tab. Empty for decisions not tied to a specific agenda item."
           }
         }
