@@ -108,6 +108,14 @@ test('Admin settings: organisation mode saves, reaches the SPA and relabels the 
 	//    space at the split point — an option named "Association (assoc)" never
 	//    exists. Match on text content instead, which is unaffected.
 	await section.locator('[data-testid="organisation-mode"] input').first().click()
+	// CORPORATE, not Association. `assoc` no longer relabels anything: under
+	// configurable-types-domain-model REQ-CTM-010 ("one concept, one label")
+	// MODE_LABELS.gov and MODE_LABELS.assoc are now the SAME map —
+	// `Organisation: 'Bodies'` in both — because 'Factions & bodies' implied two
+	// kinds of thing where a faction is just a GovernanceBody with
+	// bodyType 'faction'. Switching gov → assoc is therefore invisible in the
+	// nav, and this test could never pass again against it. `corp` maps
+	// Organisation → 'Board', so it still proves the round trip.
 	await page
 		.getByRole('option')
 		.filter({ hasText: /^Corporate \(corp\)$/ })
@@ -135,9 +143,12 @@ test('Admin settings: organisation mode saves, reaches the SPA and relabels the 
 		.first()
 	// Asserting the gov label is ABSENT as well as the corp label present is
 	// what separates "the label changed" from "something on the page matched".
-	// Both assertions are case-sensitive on purpose: the collapsed entry also
-	// contains the child items 'Offboarding' and 'Onboarding', which share the
-	// letters but not the capital B.
+	//
+	// This entry is now COLLAPSIBLE, so these read its whole subtree — the
+	// children are Proxy authorizations, Offboarding, Onboarding, Gifts, Other
+	// positions and Retirement schedules. That is safe in both directions only
+	// because the match is case-sensitive: 'Offboarding' and 'Onboarding'
+	// contain 'board', never 'Board'. Keep it that way.
 	await expect(bodiesEntry).toContainText('Board')
 	await expect(bodiesEntry).not.toContainText('Bodies')
 
