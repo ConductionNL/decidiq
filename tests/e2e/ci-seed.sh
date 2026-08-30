@@ -400,11 +400,43 @@ REG_CODE="$(curl -sS -u "${USER_NAME}:${USER_PASS}" -H 'OCS-APIRequest: true' \
 	"${BASE}/index.php/apps/openregister/api/registers?_limit=300" || echo 000)"
 verify "$REG_BODY" registers "$REG_CODE"
 
+# 🔴 THE PAGE SIZE IS PART OF THE ASSERTION, SO IT MUST OUTRUN THE INSTANCE.
+#
+# This asked for `_limit=1000` and then reported every required slug it could
+# not find as a MISSING SCHEMA. On a shared dev instance with 35 apps installed
+# the schema table holds 1111 rows, so ten decidiq schemas fell off the end of
+# the page and the script failed with:
+#
+#   ::error::Decidiq schemas missing after import:
+#     ['meeting', 'action-item', 'minutes', 'vote', 'transcript', ...]
+#
+# Every one of them was present in the database. The import had worked; the
+# QUESTION was too small. That is the worst shape a check can take: it names a
+# real-sounding cause, sends you to look at the import, and is wrong.
+#
+# So the limit is raised well past any plausible instance, AND truncation is
+# now detected rather than assumed away: if the response comes back exactly
+# full, the page is the suspect and the script says so instead of blaming the
+# import.
+SCH_LIMIT=20000
 SCH_BODY="$(mktemp)"
 SCH_CODE="$(curl -sS -u "${USER_NAME}:${USER_PASS}" -H 'OCS-APIRequest: true' \
 	-o "$SCH_BODY" -w '%{http_code}' \
-	"${BASE}/index.php/apps/openregister/api/schemas?_limit=1000" || echo 000)"
+	"${BASE}/index.php/apps/openregister/api/schemas?_limit=${SCH_LIMIT}" || echo 000)"
 verify "$SCH_BODY" schemas "$SCH_CODE"
+
+SCH_COUNT="$(python3 -c "
+import json,sys
+d=json.load(open('${SCH_BODY}'))
+r=d.get('results', d if isinstance(d, list) else [])
+print(len(r))
+" 2>/dev/null || echo 0)"
+if [ "${SCH_COUNT}" -ge "${SCH_LIMIT}" ] 2>/dev/null; then
+	echo "::error::The schema listing came back exactly full (${SCH_COUNT} of _limit=${SCH_LIMIT})."
+	echo "::error::It is TRUNCATED, so a 'missing schema' below would be a paging artefact, not a failed import. Raise SCH_LIMIT."
+	exit 1
+fi
+echo "[ci-seed] schema listing: ${SCH_COUNT} row(s), under the ${SCH_LIMIT} page limit"
 
 # The register existing is still not the same as it being READABLE by the admin
 # session the specs use. Several specs assert `expect(resp.ok()).toBe(true)` on
@@ -782,11 +814,20 @@ fi
 
 echo "[ci-seed] done."
 
-# ── Settle the demo-data decision ────────────────────────────────────────────
+# ── Settle the example-data decision ─────────────────────────────────────────
 # 🔴 OR THE SETUP WIZARD MASKS EVERY CLICK. ADR-111 added an OPTIONAL
-# `demo-data` step, and CnAppRoot opens the non-gating wizard as a full modal
+# demo-data step, and CnAppRoot opens the non-gating wizard as a full modal
 # mask while ANY optional step that is not info/summary is reported not-done —
 # in every fresh browser context, so once per spec.
+#
+# RENAMED BY seed-profiles, AND THE RENAME IS WHY THIS COMMENT IS LONG. The app
+# no longer plants 334 objects on install; it ships four example SETS and the
+# wizard asks which one. That split `demo-data` into a `choice` step and a
+# `run-action` step, and renamed the action this line posts:
+# `skip-demo-data` became `skip-example-set`. Posting the old name answers 404,
+# which this script tolerates as "no demo step" — so the wizard would have
+# stayed open and its <ol class="cn-wizard-dialog__progress"> would have
+# intercepted every click in the whole suite, exactly the failure below.
 #
 # Measured on this app's development at the ADR-111 merge: clicks failed with
 # "locator resolved to <button ...> - attempting click action", the call log
@@ -794,17 +835,17 @@ echo "[ci-seed] done."
 # was found; the click never landed.
 #
 # SKIPPED, not installed: recording the decision is what closes the wizard.
-# Installing would push the app's whole demo dataset into every list the suite
-# asserts on. `demo-data-setup-step.spec.ts` exercises the install deliberately.
+# Installing would push a whole example set into every list the suite asserts
+# on. `example-set-setup-step.spec.ts` exercises the load deliberately.
 #
 # Uses the workflow's own exported credentials rather than this script's, so it
 # does not depend on where in the file it sits.
 #
-# Tolerant on purpose: an app whose wizard has no demo-data step answers 400
+# Tolerant on purpose: an app whose wizard has no example-data step answers 400
 # here, and that is not a seeding failure.
 DEMO_BASE="${BASE_URL:-${NEXTCLOUD_URL:-http://localhost:8080}}"
 DEMO_CODE="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 300 \
 	-u "${ADMIN_USER:-admin}:${ADMIN_PASSWORD:-admin}" -X POST \
 	-H 'Content-Type: application/json' -H 'OCS-APIRequest: true' --data '{}' \
-	"${DEMO_BASE}/index.php/apps/decidiq/api/setup/action/skip-demo-data" || echo 000)"
-echo "[ci-seed] POST setup/action/skip-demo-data -> HTTP ${DEMO_CODE}"
+	"${DEMO_BASE}/index.php/apps/decidiq/api/setup/action/skip-example-set" || echo 000)"
+echo "[ci-seed] POST setup/action/skip-example-set -> HTTP ${DEMO_CODE}"

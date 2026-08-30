@@ -209,6 +209,43 @@ class SeedProfileServiceTest extends TestCase {
 		return $found;
 	}
 
+	public function testTheCiSeedScriptPostsAnActionTheControllerAnswers(): void {
+		// 🔴 A RENAMED ACTION BREAKS THE WHOLE E2E SUITE, SILENTLY.
+		//
+		// `tests/e2e/ci-seed.sh` settles the optional setup step before the suite
+		// runs, because CnAppRoot opens the wizard as a full modal mask in every
+		// fresh browser context while an optional step is outstanding. The script
+		// is deliberately TOLERANT of a non-200 there ("an app whose wizard has
+		// no such step answers 400, and that is not a seeding failure"), so a
+		// renamed action does not fail the seed step. It fails every later spec
+		// instead, on `<ol class="cn-wizard-dialog__progress">` intercepting the
+		// click — a message that accuses the selectors.
+		//
+		// seed-profiles renamed `skip-demo-data` to `skip-example-set`. This asserts
+		// the script and the controller still agree, so the next rename is caught
+		// here rather than in 194 timeouts.
+		$script = (string)file_get_contents(dirname(__DIR__, 3) . '/tests/e2e/ci-seed.sh');
+		$controller = (string)file_get_contents(dirname(__DIR__, 3) . '/lib/Controller/SetupController.php');
+
+		$this->assertMatchesRegularExpression(
+			'#api/setup/action/#',
+			$script,
+			'ci-seed.sh must still settle the setup step, or the wizard masks every click'
+		);
+
+		preg_match_all('#api/setup/action/([a-z0-9-]+)#', $script, $matches);
+		$posted = array_values(array_unique($matches[1]));
+		$this->assertNotEmpty($posted, 'ci-seed.sh must post at least one setup action');
+
+		foreach ($posted as $actionId) {
+			$this->assertStringContainsString(
+				"'" . $actionId . "'",
+				$controller,
+				'ci-seed.sh posts setup action "' . $actionId . '", which SetupController does not handle'
+			);
+		}
+	}
+
 	private function stubDemoData(bool $available): DemoDataService {
 		$stub = $this->createMock(DemoDataService::class);
 		$stub->method('isAvailable')->willReturn($available);
