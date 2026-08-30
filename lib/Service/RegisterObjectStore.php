@@ -1,12 +1,16 @@
 <?php
 
 /**
- * Decidiq approval-route persistence.
+ * Decidiq register persistence.
  *
- * The OpenRegister reads and writes the approval-route engine needs, split out
- * of {@see \OCA\Decidiq\Service\ApprovalRouteService} so the engine holds only
- * the rules — which stage is active, what an action does to it, what is refused
- * — and not the shape of the storage layer underneath.
+ * The OpenRegister reads and writes a decidiq service needs, kept out of the
+ * services themselves so each holds only its rules and not the shape of the
+ * storage layer underneath.
+ *
+ * Extracted from ApprovalRouteService as ApprovalRouteStore and generalised
+ * when GovernanceBodyCommandService became its second consumer. The alternative
+ * was a second store with the same three methods, which is the "second store
+ * that drifts" hazard in miniature.
  *
  * @category Service
  * @package  OCA\Decidiq\Service
@@ -33,11 +37,12 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use RuntimeException;
 
 /**
- * Reads and writes the objects an approval route is made of.
+ * Reads and writes decidiq's OpenRegister objects.
  *
  * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+ * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
  */
-class ApprovalRouteStore {
+class RegisterObjectStore {
 	/**
 	 * The register every schema here lives in.
 	 */
