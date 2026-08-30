@@ -141,6 +141,74 @@ class SeedProfileServiceTest extends TestCase {
 		$this->assertSame($expected, array_column($step['options'], 'value'));
 	}
 
+	public function testNoSeedIsReferencedByASlugTooLongToStore(): void {
+		// 🔴 A 37-CHARACTER SLUG SILENTLY DROPPED AN OBJECT.
+		//
+		// OpenRegister types a relation column as varchar(36), the width of a
+		// UUID. A seed that points at another object BY SLUG therefore fails to
+		// insert when that slug is 37 characters or more, and the importer skips
+		// the row with a warning nobody reads:
+		//
+		//   Skipping seed object for 'termijnagenda-item' - import failed:
+		//   SQLSTATE[22001] value too long for type character varying(36)
+		//
+		// Measured on a fresh instance: the municipality set reported "Imported
+		// 199 example object(s)" and 198 landed, because
+		// `lta-herziening-parkeerbeleid` referenced
+		// `goal-amsterdam-parkeerbeleid-kwartaal` (37). The count comes from the
+		// FILE, so the message could not tell the operator anything was wrong.
+		//
+		// The rule is about being REFERENCED, not about being long: `_slug`
+		// itself is a wider column, and 20 other seeds carry slugs past 36
+		// characters with no trouble because nothing points at them.
+		$objects = [];
+		foreach (glob(dirname(__DIR__, 3) . '/lib/Settings/profiles/*.json') as $file) {
+			$data = json_decode((string)file_get_contents($file), true, 512, JSON_THROW_ON_ERROR);
+			foreach (($data['x-openregister']['seedData']['objects'] ?? []) as $schema => $seeds) {
+				foreach ($seeds as $seed) {
+					$objects[] = [$schema, $seed];
+				}
+			}
+		}
+
+		$slugs = [];
+		foreach ($objects as [$schema, $seed]) {
+			$slugs[(string)($seed['slug'] ?? '')] = true;
+		}
+
+		$offenders = [];
+		foreach ($objects as [$schema, $seed]) {
+			$ownSlug = (string)($seed['slug'] ?? '');
+			foreach ($this->everyString($seed) as $value) {
+				if ($value !== $ownSlug && isset($slugs[$value]) === true && strlen($value) > 36) {
+					$offenders[] = $schema . '/' . $ownSlug . ' -> ' . $value . ' (' . strlen($value) . ' chars)';
+				}
+			}
+		}
+
+		$this->assertSame(
+			[],
+			array_values(array_unique($offenders)),
+			'A seed referenced by another seed must have a slug of at most 36 characters, '
+			. 'or OpenRegister cannot store the reference and drops the referring object.'
+		);
+	}
+
+	/** Every string anywhere in a seed, however deeply nested. */
+	private function everyString(array $seed): array {
+		$found = [];
+		array_walk_recursive(
+			$seed,
+			static function ($value) use (&$found): void {
+				if (is_string($value) === true) {
+					$found[] = $value;
+				}
+			}
+		);
+
+		return $found;
+	}
+
 	private function stubDemoData(bool $available): DemoDataService {
 		$stub = $this->createMock(DemoDataService::class);
 		$stub->method('isAvailable')->willReturn($available);
