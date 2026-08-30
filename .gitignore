@@ -173,3 +173,16 @@ bom-npm.cdx.json
 /.e2e-state/
 .phpunit.result.cache
 test-results/
+
+# Build and test transcripts written at the repo ROOT by local tooling. These
+# were tracked, so every local build produced a commit-shaped diff, and every
+# such commit triggered the full Code Quality suite — 34 jobs deciding a
+# changed log file. Root-anchored on purpose: .claude/skills/*/examples/*.log
+# are gate FIXTURES, not artefacts, and must stay tracked.
+/*.log
+/changed.tsv
+
+# Claude Code's per-machine settings — permissions and local overrides, never
+# shared. It has to sit AFTER the `!**/*.json` rescue above, which otherwise
+# re-includes it and makes a machine-local file committable.
+/.claude/settings.local.json

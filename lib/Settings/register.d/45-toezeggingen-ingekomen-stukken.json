@@ -324,14 +324,14 @@
             "title": "Agenda item",
             "type": "string",
             "format": "uuid",
-            "$ref": "AgendaItem",
+            "$ref": "agenda-item",
             "description": "Reference to the AgendaItem the commitment relates to. Optional."
           },
           "directedTo": {
             "title": "Directed to",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody the commitment is directed to (council/committee). Required."
           },
           "deadline": {
@@ -532,21 +532,21 @@
             "title": "Target agenda item",
             "type": "string",
             "format": "uuid",
-            "$ref": "AgendaItem",
+            "$ref": "agenda-item",
             "description": "Reference to the AgendaItem the document should be handled under. REQUIRED when routingAdvice is 'betrekken-bij-agendapunt' (conditional-required, enforced at save time — see routingAdvice). Optional otherwise."
           },
           "listAgendaItem": {
             "title": "List agenda item",
             "type": "string",
             "format": "uuid",
-            "$ref": "AgendaItem",
+            "$ref": "agenda-item",
             "description": "Reference to the 'Lijst ingekomen stukken' AgendaItem this document is placed on. Set by the placement action (which also moves lifecycle to geagendeerd). Optional until placed."
           },
           "directedTo": {
             "title": "Directed to",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody (council) the document is directed to. Required."
           },
           "lifecycle": {

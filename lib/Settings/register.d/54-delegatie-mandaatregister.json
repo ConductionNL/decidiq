@@ -244,7 +244,7 @@
             "type": "string",
             "format": "uuid",
             "facetable": true,
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the delegans / mandaatgever as a GovernanceBody (the authority that assigns). At least one of delegans or delegansOmschrijving MUST be present (schema-level anyOf)."
           },
           "delegansDescription": {
@@ -259,7 +259,7 @@
             "type": "string",
             "format": "uuid",
             "facetable": true,
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the delegataris / gemandateerde as a GovernanceBody. At least one of delegatarisBody, delegatarisFunctie, or delegatarisPersoon MUST be present (schema-level anyOf)."
           },
           "delegateRole": {

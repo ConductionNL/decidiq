@@ -68,11 +68,27 @@ test('Admin settings: the Nextcloud admin section mounts with the app configurat
 // proves the form round-trips and nothing else; the third clause — "the
 // navigation Bodies item relabels on next render" — went unasserted, and a mode
 // setting that persists while changing nothing a user sees is the whole failure
-// this scenario guards against. src/config/modeLabels.js maps Bodies to
-// "Factions & bodies" under gov and "Factions & committees" under assoc, so
-// reading the label in the SPA proves persistence AND the relabel in one
-// navigation. Mutating that map to any other string fails this test and no
-// other, which is the control that makes the anchor honest.
+// this scenario guards against. Reading the label in the SPA proves persistence
+// AND the relabel in one navigation. Mutating src/config/modeLabels.js to any
+// other string fails this test and no other, which is the control that makes
+// the anchor honest.
+//
+// ⚠️ THE MODE UNDER TEST IS `corp`, NOT `assoc`, AND IT HAS TO BE.
+// This test used to select Association and assert the Bodies entry read
+// "Factions & committees". configurable-types-domain-model (#957) applied
+// REQ-CTM-010 "one concept, one label" to src/config/modeLabels.js: a faction
+// IS a GovernanceBody with bodyType 'faction' and a committee IS one with
+// bodyType 'advisory-body' — there is no second schema — so both gov and assoc
+// now resolve Organisation to the single label 'Bodies'. That is the intended
+// behaviour, and it also destroys this test's control: gov and assoc are no
+// longer distinguishable by ANY nav label, so no assertion on that entry could
+// tell a saved mode from an ignored one. Simply updating the expected string to
+// 'Bodies' would leave a test that passes whether or not the save reached the
+// SPA at all — the exact hollow green this file's header argues against.
+// `corp` maps Organisation to 'Board' and is therefore the nearest mode that
+// still relabels, which keeps the scenario's third THEN clause under a real
+// assertion. If corp's label is ever collapsed into 'Bodies' too, the fix is to
+// move to `ops` ('Teams'), not to drop the assertion.
 test('Admin settings: organisation mode saves, reaches the SPA and relabels the nav', async ({
 	page,
 }) => {
@@ -92,19 +108,27 @@ test('Admin settings: organisation mode saves, reaches the SPA and relabels the 
 	//    space at the split point — an option named "Association (assoc)" never
 	//    exists. Match on text content instead, which is unaffected.
 	await section.locator('[data-testid="organisation-mode"] input').first().click()
+	// CORPORATE, not Association. `assoc` no longer relabels anything: under
+	// configurable-types-domain-model REQ-CTM-010 ("one concept, one label")
+	// MODE_LABELS.gov and MODE_LABELS.assoc are now the SAME map —
+	// `Organisation: 'Bodies'` in both — because 'Factions & bodies' implied two
+	// kinds of thing where a faction is just a GovernanceBody with
+	// bodyType 'faction'. Switching gov → assoc is therefore invisible in the
+	// nav, and this test could never pass again against it. `corp` maps
+	// Organisation → 'Board', so it still proves the round trip.
 	await page
 		.getByRole('option')
-		.filter({ hasText: /^Association \(assoc\)$/ })
+		.filter({ hasText: /^Corporate \(corp\)$/ })
 		.click()
 	await section.getByTestId('organisation-mode-save').click()
 
 	// The round trip is proven against a DIFFERENT consumer, which is both
 	// stronger evidence and one page load cheaper than re-reading the form that
 	// wrote it. The SPA reads organisatie_modus from the server on boot and
-	// resolves nav labels through src/config/modeLabels.js: the Bodies entry is
-	// 'Factions & bodies' under gov and 'Factions & committees' under assoc. So
-	// this single navigation covers the scenario's remaining two THEN clauses —
-	// the value persisted server-side, and the navigation relabelled.
+	// resolves nav labels through src/config/modeLabels.js: the Organisation
+	// entry is 'Bodies' under gov and 'Board' under corp. So this single
+	// navigation covers the scenario's remaining two THEN clauses — the value
+	// persisted server-side, and the navigation relabelled.
 	//
 	// ⚠️ Two page loads, not three. This app awaits initializeStores() BEFORE
 	// createApp().mount(), so every navigation blocks on a settings round trip;
@@ -115,12 +139,18 @@ test('Admin settings: organisation mode saves, reaches the SPA and relabels the 
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 	const bodiesEntry = page
 		.getByTestId('cn-nav-entry-GovernanceBodies')
-		.or(page.getByRole('link', { name: /^Factions & (bodies|committees)$/ }))
+		.or(page.getByRole('link', { name: /^(Bodies|Board)$/ }))
 		.first()
-	// Asserting the gov label is ABSENT as well as the assoc label present is
+	// Asserting the gov label is ABSENT as well as the corp label present is
 	// what separates "the label changed" from "something on the page matched".
-	await expect(bodiesEntry).toContainText('Factions & committees')
-	await expect(bodiesEntry).not.toContainText('Factions & bodies')
+	//
+	// This entry is now COLLAPSIBLE, so these read its whole subtree — the
+	// children are Proxy authorizations, Offboarding, Onboarding, Gifts, Other
+	// positions and Retirement schedules. That is safe in both directions only
+	// because the match is case-sensitive: 'Offboarding' and 'Onboarding'
+	// contain 'board', never 'Board'. Keep it that way.
+	await expect(bodiesEntry).toContainText('Board')
+	await expect(bodiesEntry).not.toContainText('Bodies')
 
 	// Restore the instance default so the assertion is not order-dependent for
 	// any later spec that reads the mode. Cleanup goes through the API on

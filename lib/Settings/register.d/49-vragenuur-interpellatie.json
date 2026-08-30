@@ -422,7 +422,7 @@
             "title": "Governance body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody (council) the question belongs to. Required. Drives the per-body vrageNummer sequence and the VragenuurConfiguratie lookup."
           },
           "targetMeeting": {
@@ -436,7 +436,7 @@
             "title": "Question-hour agenda item",
             "type": "string",
             "format": "uuid",
-            "$ref": "AgendaItem",
+            "$ref": "agenda-item",
             "description": "Reference to the vragenuur AgendaItem of the target meeting the question is scheduled into. An ordinary agenda item managed by agenda-item-crud; set at scheduling together with volgorde when the lifecycle moves to ingepland (REQ-VRI-004). Optional until scheduled."
           },
           "sortOrder": {
@@ -744,7 +744,7 @@
             "title": "Governance body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody (council). Required. Drives the per-body verzoekNummer sequence and the VragenuurConfiguratie threshold lookup."
           },
           "steunbetuigingen": {
@@ -796,7 +796,7 @@
             "title": "Agenda item",
             "type": "string",
             "format": "uuid",
-            "$ref": "AgendaItem",
+            "$ref": "agenda-item",
             "description": "Reference to the interpellation's OWN AgendaItem (created via agenda-item-crud — a separate item, never merged into the vragenuur item, REQ-VRI-012). Set at scheduling (geagendeerd). Optional until scheduled."
           },
           "handlingMinutes": {
@@ -829,7 +829,7 @@
             "title": "Governance body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody this configuration applies to (schema:StructuredValue). Required. At most one VragenuurConfiguratie per body — uniqueness is a review/validation concern (OR has no cross-object unique constraint)."
           },
           "submissionPeriodHours": {

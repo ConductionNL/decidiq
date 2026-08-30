@@ -219,7 +219,7 @@
             "title": "Voting round",
             "type": "string",
             "format": "uuid",
-            "$ref": "VotingRound",
+            "$ref": "voting-round",
             "description": "Optional reference to a specific VotingRound when the volmacht is round-specific rather than meeting-wide."
           },
           "proxyVote": {
@@ -324,7 +324,7 @@
             "type": "string",
             "format": "uuid",
             "nullable": true,
-            "$ref": "ProxyAuthorization",
+            "$ref": "proxy-authorization",
             "description": "Nullable back-reference from a proxy row to its ProxyAuthorization instrument, so the row resolves its machtiging (and signature status) without a reverse query. Null on ordinary ballots and on proxy rows granted before this change (REQ-MPA-001)."
           }
         }

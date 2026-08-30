@@ -463,6 +463,7 @@
 import { CnDetailCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { NcButton, NcTextField } from '@nextcloud/vue'
 import { useObjectStore, useSettingsStore } from '../store/store.js'
+import { matching, relationFilterFor } from '../utils/objectRelations.js'
 import {
 	ABSTENTION_MODES,
 	computeBase,
@@ -629,9 +630,29 @@ export default {
 		async fetchCurrentRound() {
 			this.loading = true
 			try {
+				// FILTER DIALECT — do not "restore" the `relations.motion` key
+				// this replaced. It scoped NOTHING: it is not `@self`, not
+				// `_`-prefixed and not a reserved context param, and its value
+				// was empty besides (the tab never received an objectId), so
+				// `buildQueryString` dropped it and the request went out as a
+				// bare `GET …/objects/decidiq/voting-round`. The collection came
+				// back UNSCOPED — every voting round on the instance, on a
+				// healthy HTTP 200 — and the heuristic below then displayed, and
+				// `castVote` posted to, whichever round happened to be open
+				// first. That is another motion's round on any instance holding
+				// more than one; it merely looked right for as long as every
+				// round in the database was closed except the one the test had
+				// just written. See src/utils/objectRelations.js for the filter
+				// dialect and the shapes `matching()` has to read.
+				//
+				// `matching()` is the load-bearing half: `_relations_contains`
+				// is a server-side narrowing that a given OpenRegister version
+				// may or may not honour, and a filter it does not honour is
+				// silently ignored rather than refused.
 				const [rounds, participants] = await Promise.all([
 					this.objectStore.fetchCollection('voting-round', {
-						'relations.motion': this.motionId,
+						...relationFilterFor(this.motionId),
+						_limit: 100,
 					}),
 					this.meetingId
 						? this.objectStore.fetchCollection('participant', {
@@ -639,7 +660,7 @@ export default {
 							})
 						: Promise.resolve(null),
 				])
-				const roundList = rounds || []
+				const roundList = matching(rounds, this.motionId)
 				// Show most recent open round, then most recent closed.
 				const open = roundList.find((r) => r.openedAt && !r.closedAt)
 				const recent = roundList

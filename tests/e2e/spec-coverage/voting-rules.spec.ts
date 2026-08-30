@@ -151,8 +151,20 @@ test('open-round dialog offers threshold, abstention and tie-break selectors wit
 		// schema no longer exists. `decisionDate`, `outcome` and `decisionType` are
 		// all in Decision.required[]; `lifecycle` is
 		// [draft, proposed, deliberating, voting, decided, enacted, archived,
-		// withdrawn] — there is no 'debating'. Decision has no `meeting` property
-		// (the AgendaItem carries that link), so passing one invents a field.
+		// withdrawn] — there is no 'debating'.
+		//
+		// `meeting` IS a Decision property. The note that used to stand here said
+		// the opposite ("Decision has no `meeting` property … passing one invents
+		// a field"), and that was true of the base register only:
+		// register.d/67-model-debt-cleanup.json adds an optional
+		// `meeting` $ref to Decision precisely so a decision taken in a meeting
+		// can say so. Leaving it off is what made this test SKIP rather than run
+		// — the panel's "Open voting round" button is disabled without a linked
+		// meeting, so the round this test exists to configure could never be
+		// opened, and the skip reason ("round already open or panel not
+		// deployed") named neither cause. It is set here so the fixture builds
+		// the motion the surrounding comment always claimed it did: in
+		// deliberation, with a meeting.
 		motionId = await createObject(api, MOTION_SCHEMA, {
 			decisionType: 'motion',
 			title: 'E2E VR Rules Motion',
@@ -163,6 +175,7 @@ test('open-round dialog offers threshold, abstention and tie-break selectors wit
 			proposer: 'E2E VR',
 			lifecycle: 'deliberating',
 			submittedAt: '2026-06-19T09:00:00+00:00',
+			meeting: meetingId,
 		})
 		expect(motionId, 'the seeded motion Decision must carry an id').toBeTruthy()
 

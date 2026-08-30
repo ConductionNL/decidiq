@@ -33,11 +33,18 @@ export const DEFAULT_MODE = 'gov'
 export const MODE_LABELS = {
 	/**
 	 * Government / municipal mode (default).
-	 * Organisation (canonical label since ia-six-clusters; menu id GovernanceBodies) = Fracties & Organen (political fractions and organs).
+	 * Organisation (canonical label since ia-six-clusters; menu id GovernanceBodies) = Organen.
 	 * Decisions = Besluiten, Meetings = Vergaderingen.
+	 *
+	 * ONE CONCEPT, ONE LABEL (configurable-types-domain-model REQ-CTM-010).
+	 * This read 'Factions & bodies', which invited the reader to believe decidiq
+	 * models two kinds of thing. It does not: a faction IS a GovernanceBody with
+	 * bodyType 'faction' — checked against the register, where the two seeded
+	 * factions are ordinary GovernanceBody objects with parentBody set and no
+	 * second schema exists. The duplication was only ever in this string.
 	 */
 	gov: {
-		Organisation: 'Factions & bodies',
+		Organisation: 'Bodies',
 		// Scaffold — canonical labels fall through to standard l10n:
 		// Meetings    → 'Meetings'    (resolved as 'Vergaderingen' by nl_NL)
 		// Decisions   → 'Decisions'   (resolved as 'Besluiten' by nl_NL)
@@ -60,10 +67,11 @@ export const MODE_LABELS = {
 
 	/**
 	 * Association / member-organisation mode.
-	 * Bodies = Fracties & commissies (fractions and committees).
+	 * Bodies = Organen. Same one-concept rule as gov: a committee is a
+	 * GovernanceBody with bodyType 'advisory-body', not a sibling concept.
 	 */
 	assoc: {
-		Organisation: 'Factions & committees',
+		Organisation: 'Bodies',
 		// Scaffold:
 		// Meetings    → 'Meetings'
 		// Decisions   → 'Decisions'

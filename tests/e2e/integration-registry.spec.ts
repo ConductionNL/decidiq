@@ -41,6 +41,45 @@
  * ran 12 of its 76 tests.
  */
 import { test, expect, type Page } from '@playwright/test'
+import {
+	newLedger,
+	seedGovernanceScenario,
+	cleanupAll,
+	type SeedLedger,
+} from './workflows/governance-fixture'
+
+/*
+ * Seed a meeting rather than skipping when the instance has none.
+ *
+ * This file used to `test.skip(!first, 'no meeting objects on this instance
+ * — seed at least one')`. The CI seeder (tests/e2e/ci-seed.sh) deliberately
+ * provisions REGISTERS AND SCHEMAS ONLY — its own header calls the register
+ * import "the ONLY legitimate seed source" — so no meeting object exists
+ * unless some earlier spec happened to create one. Measured on development:
+ * 21 tests in this file skipped in a single run, reported as passes.
+ *
+ * A skip cannot distinguish "not applicable here" from "the thing this needs
+ * was never created", and it reports the second as success. Seeding removes
+ * the ambiguity: the meeting is always there, so a failure now means the
+ * integration registry is actually broken.
+ *
+ * Follows the fixture-marker convention in ci-seed.sh: created through the
+ * established governance-fixture helper, tracked in a per-run ledger, and
+ * deleted in afterAll. `meeting` is already in that helper's TEARDOWN_ORDER,
+ * so nothing leaks.
+ */
+let ledger: SeedLedger
+let seededMeetingId: string | null = null
+
+test.beforeAll(() => {
+	ledger = newLedger()
+})
+
+test.afterAll(async ({ browser }) => {
+	const page = await browser.newPage()
+	await cleanupAll(page, ledger)
+	await page.close()
+})
 
 const NC_USER = process.env.NC_USER || 'admin'
 const NC_PASS = process.env.NC_PASS || 'admin'
@@ -323,9 +362,24 @@ async function openMeetingIntegrations(page: Page): Promise<string> {
 	expect(r.ok(), 'meeting listing reachable').toBe(true)
 	const body = await r.json()
 	const first = (body.results ?? body.items ?? [])[0]
-	test.skip(!first, 'no meeting objects on this instance — seed at least one')
-	const meetingId = first.id ?? first['@self']?.id
-	test.skip(!meetingId, 'first meeting has no id; cannot navigate')
+	let meetingId: string | undefined = first?.id ?? first?.['@self']?.id
+
+	// No meeting on this instance is NOT a reason to stand down — the CI
+	// seeder provisions registers and schemas only, so this is the normal
+	// state of a fresh run, and skipping here silently passed 21 tests.
+	if (!meetingId) {
+		if (!seededMeetingId) {
+			const seeded = await seedGovernanceScenario(page, ledger, {
+				memberCount: 1,
+			})
+			seededMeetingId = seeded.meetingId
+		}
+		meetingId = seededMeetingId
+	}
+	expect(
+		meetingId,
+		'a meeting must exist or be seedable before the integrations page can be opened',
+	).toBeTruthy()
 
 	await page.goto(`/apps/decidiq/meetings/${meetingId}/integrations`)
 	// Wait for the registry-mode sidebar to mount. On a partial deploy the

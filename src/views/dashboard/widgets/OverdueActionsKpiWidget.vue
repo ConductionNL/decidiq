@@ -18,6 +18,7 @@
 		:icon="AlertCircleOutline"
 		:variant="variant"
 		:loading="loading"
+		:error="error"
 		:route="{ name: 'ActionItems' }"
 		showZeroCount
 		horizontal

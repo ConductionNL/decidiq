@@ -354,14 +354,14 @@
             "title": "Governance body",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "description": "Reference to the GovernanceBody (raad / ALV) that runs this cyclus. Required."
           },
           "template": {
             "title": "Template",
             "type": "string",
             "format": "uuid",
-            "$ref": "CyclusTemplate",
+            "$ref": "cyclus-template",
             "description": "Reference to the CyclusTemplate the steps were generated from. Required. A template edit affects future generations only and never regenerates an in-flight cyclus (design D5)."
           },
           "stepCount": {
@@ -641,7 +641,7 @@
             "title": "Cyclus",
             "type": "string",
             "format": "uuid",
-            "$ref": "PCCyclus",
+            "$ref": "pc-cyclus",
             "description": "Reference to the parent PCCyclus. Required. One cyclus -> many steps, ordered by sequence."
           },
           "sequence": {
@@ -700,7 +700,7 @@
             "title": "Behandelende commissie",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "nullable": true,
             "description": "Optional reference to the GovernanceBody (commissie) that pre-advises on this step."
           },
@@ -716,7 +716,7 @@
             "title": "Besluitvormend orgaan",
             "type": "string",
             "format": "uuid",
-            "$ref": "GovernanceBody",
+            "$ref": "governance-body",
             "nullable": true,
             "description": "Reference to the decision-making GovernanceBody (raad / ALV) that treats this step."
           },
@@ -761,7 +761,7 @@
             "title": "Agenda item",
             "type": "string",
             "format": "uuid",
-            "$ref": "AgendaItem",
+            "$ref": "agenda-item",
             "nullable": true,
             "description": "Reference to the actual AgendaItem once behandeling is scheduled (REQ-PCC-007). Set once the item is placed on a meeting agenda; the step never creates the AgendaItem itself. Empty means behandeling is not yet scheduled (drives the unscheduled rappel)."
           },

@@ -419,6 +419,12 @@ test('Meeting edit dialog saves a title change without a scheduledDate format er
 	const row = page.getByTestId('cn-object-row').filter({ hasText: title }).first()
 	await row.getByTestId('cn-row-actions').locator('button').first().click()
 	await page.getByRole('menuitem', { name: 'Edit' }).click()
+	// Edit on an index row NAVIGATES to the detail page now; it no longer
+	// opens a modal over the list. A record that has its own detail page is
+	// edited there, where its nested collections are reachable, instead of
+	// through a dialog that shows only the schema's flat scalars
+	// (@conduction/nextcloud-vue 2.21.0). The form is one click further on.
+	await page.getByTestId('cn-detail-page-edit').click()
 	const editDialog = page.getByRole('dialog')
 	await expect(editDialog).toBeVisible({ timeout: 8_000 })
 	await editDialog
@@ -645,6 +651,12 @@ test('Decision edit dialog saves a title change without a format error', async (
 	}
 	await row.getByTestId('cn-row-actions').locator('button').first().click()
 	await page.getByRole('menuitem', { name: 'Edit' }).click()
+	// Edit on an index row NAVIGATES to the detail page now; it no longer
+	// opens a modal over the list. A record that has its own detail page is
+	// edited there, where its nested collections are reachable, instead of
+	// through a dialog that shows only the schema's flat scalars
+	// (@conduction/nextcloud-vue 2.21.0). The form is one click further on.
+	await page.getByTestId('cn-detail-page-edit').click()
 	const editDialog = page.getByRole('dialog')
 	await expect(editDialog).toBeVisible({ timeout: 8_000 })
 	// EXPECTED once fixed: a labelled title field exists and editing it + saving

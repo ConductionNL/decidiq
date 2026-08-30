@@ -369,7 +369,7 @@
                 "title": "Ratifying body",
                 "type": "string",
                 "format": "uuid",
-                "$ref": "GovernanceBody",
+                "$ref": "governance-body",
                 "description": "Reference to the GovernanceBody that ratifies an urgent decision (overridable at trigger time). Required when ratificationRequired is true (validated save-time). Seed refs are stored by slug and mapped to UUID at import."
               }
             }

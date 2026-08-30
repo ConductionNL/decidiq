@@ -837,4 +837,123 @@ class RegisterJsonTest extends TestCase {
 		}
 
 	}//end testEngagementRecordHasSeedData()
+
+
+	/**
+	 * Test that every cross-schema `$ref` names a slug that actually exists.
+	 *
+	 * 🔴 A `$ref` NAMES A SLUG, NOT THE DEFINITION KEY. `ImportHandler` resolves
+	 * a property's `$ref` through two maps, and BOTH are keyed by slug
+	 * (`$this->schemasMap[$schema->getSlug()] = $schema`). When neither matches
+	 * there is no `else` branch: the raw string is left in the stored property
+	 * and the reference silently points at nothing. At runtime
+	 * `SchemaMapper::find()` matches `uuid`, `LOWER(slug)` or a numeric `id` —
+	 * never `title` — so a definition key that is not also the slug resolves to
+	 * no schema and the relation endpoint 404s.
+	 *
+	 * This bites ONLY where the key and the slug differ, which is why it hid for
+	 * so long: a one-word key lowercases onto its own slug (`Person` ->
+	 * `person`) and works by coincidence, so 127 of this register's 269
+	 * references were always fine while 142 — every multi-word one, `GovernanceBody`
+	 * alone 69 times — were dead. The same defect is documented upstream in
+	 * `generate_mock_register.py` ("THE SLUG, NOT THE DEFINITION KEY"), which
+	 * measured larpinq referencing `event`/`item` whose real slugs are
+	 * `larping_event`/`larping_item`.
+	 *
+	 * `testRelationsAreConfigured()` could not catch this: it asserts a relation's
+	 * `$ref` is NOT EMPTY, which a dead reference satisfies perfectly. Existence
+	 * is not resolution, so this test resolves every one of them.
+	 *
+	 * Covers the whole shipped set — the base register, the `register.d`
+	 * fragments and the generated mock — because the importer reads them all and
+	 * a reference is equally dead in any of them.
+	 *
+	 * @return void
+	 *
+	 * @spec exclude Register-integrity guard; asserts a shipped JSON invariant, no behavioural spec.
+	 */
+	public function testEverySchemaRefResolvesToADeclaredSlug(): void {
+		$settingsDir = __DIR__ . '/../../lib/Settings';
+		$files       = array_merge(
+			[$settingsDir . '/decidesk_register.json', $settingsDir . '/decidiq_mock_register.json'],
+			(glob($settingsDir . '/register.d/*.json') ?: [])
+		);
+
+		// Collect every slug the shipped registers declare.
+		$slugs = [];
+		$docs  = [];
+		foreach ($files as $file) {
+			if (file_exists($file) === false) {
+				continue;
+			}
+
+			$decoded     = json_decode(
+				json: (string)file_get_contents(filename: $file),
+				associative: true,
+				depth: 512,
+				flags: JSON_THROW_ON_ERROR
+			);
+			$docs[$file] = $decoded;
+
+			foreach (($decoded['components']['schemas'] ?? []) as $schema) {
+				if (is_array($schema) === true && empty($schema['slug']) === false) {
+					$slugs[strtolower((string)$schema['slug'])] = true;
+				}
+			}
+		}//end foreach
+
+		self::assertNotEmpty(actual: $slugs, message: 'The register set must declare at least one schema slug');
+
+		// Every non-internal `$ref` must name one of them.
+		$dangling = [];
+		foreach ($docs as $file => $doc) {
+			foreach ($this->collectRefs(node: $doc) as $ref) {
+				// `#/...` is an intra-document JSON pointer, not an OpenRegister schema reference.
+				if (str_starts_with($ref, '#') === true) {
+					continue;
+				}
+
+				if (isset($slugs[strtolower($ref)]) === false) {
+					$dangling[] = basename($file) . ': $ref "' . $ref . '"';
+				}
+			}
+		}
+
+		self::assertSame(
+			expected: [],
+			actual: array_values(array_unique($dangling)),
+			message: 'Every cross-schema $ref must name a declared schema slug, not the definition key — '
+				. 'an unresolved $ref is left verbatim by ImportHandler and 404s at runtime'
+		);
+
+	}//end testEverySchemaRefResolvesToADeclaredSlug()
+
+
+	/**
+	 * Recursively collect every `$ref` string value in a decoded register.
+	 *
+	 * @param mixed $node The node to walk.
+	 *
+	 * @return array<int,string> The `$ref` values found, in document order.
+	 *
+	 * @spec exclude Test helper.
+	 */
+	private function collectRefs(mixed $node): array {
+		if (is_array($node) === false) {
+			return [];
+		}
+
+		$found = [];
+		foreach ($node as $key => $value) {
+			if ($key === '$ref' && is_string($value) === true) {
+				$found[] = $value;
+				continue;
+			}
+
+			$found = array_merge($found, $this->collectRefs(node: $value));
+		}
+
+		return $found;
+
+	}//end collectRefs()
 }//end class
