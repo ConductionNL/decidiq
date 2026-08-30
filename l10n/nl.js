@@ -2037,7 +2037,9 @@ OC.L10N.register(
         "{n} meeting(s) exceeded the scheduled time": "{n} vergadering(en) overschreden de geplande tijd",
         "{n} open action items": "{n} openstaande actiepunten",
         "{responded} of {invited} responded": "{responded} van {invited} gereageerd",
-        "{states} states, {transitions} transitions": "{states} statussen, {transitions} overgangen"
+        "{states} states, {transitions} transitions": "{states} statussen, {transitions} overgangen",
+        "Source app": "Bronapplicatie",
+        "External reference": "Externe referentie"
     },
     "nplurals=2; plural=(n != 1);"
 )

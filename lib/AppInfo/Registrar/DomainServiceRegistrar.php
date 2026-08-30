@@ -32,10 +32,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\AppInfo\Registrar;
 
-use OCA\Decidiq\Event\DecisionRequestedEvent;
-use OCA\Decidiq\Event\GovernanceBodyRequestedEvent;
-use OCA\Decidiq\Listener\DecisionRequestedListener;
-use OCA\Decidiq\Listener\GovernanceBodyRequestedListener;
 use OCA\Decidiq\Mcp\DecidiqToolProvider;
 use OCA\Decidiq\Service\EIDASSignatureService;
 use OCA\Decidiq\Service\IEIDASSignatureService;
@@ -75,45 +71,11 @@ class DomainServiceRegistrar {
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	public function register(IRegistrationContext $context): void {
-		$this->registerDecisionEvents(context: $context);
 		$this->registerMcpToolProvider(context: $context);
 		$this->registerEidasBindings(context: $context);
 		$this->registerTranslationAdapter(context: $context);
 
 	}//end register()
-
-	/**
-	 * The event contract for delegated decisions.
-	 *
-	 * Consumer apps dispatch DecisionRequestedEvent (handled here ->
-	 * createDecision) and listen for DecisionConcludedEvent (emitted from
-	 * DecisionLifecycleService). In-process replacement for the broken
-	 * IntegrationService::getLeaf path.
-	 *
-	 * @param IRegistrationContext $context The registration context
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/decidesk-decision-events/specs/decidesk-decision-events/spec.md
-	 */
-	private function registerDecisionEvents(IRegistrationContext $context): void {
-		$context->registerEventListener(
-			event: DecisionRequestedEvent::class,
-			listener: DecisionRequestedListener::class
-		);
-
-		// The same request/response-over-the-bus shape for governance bodies.
-		// ADR-041: a cross-app COMMAND travels as a typed event. The REST write
-		// path on ApiController is the door for EXTERNAL callers; an in-process
-		// call to our own instance has no session to authenticate with, so it
-		// would be refused by ApiController::write(). Specified by
-		// openspec/changes/governance-body-events/specs/governance-body-events/spec.md.
-		$context->registerEventListener(
-			event: GovernanceBodyRequestedEvent::class,
-			listener: GovernanceBodyRequestedListener::class
-		);
-
-	}//end registerDecisionEvents()
 
 	/**
 	 * Register DecidiqToolProvider as the MCP tool provider for the AI Chat Companion.

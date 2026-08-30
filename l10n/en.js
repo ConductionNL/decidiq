@@ -1738,7 +1738,9 @@ OC.L10N.register(
         "No meetings": "No meetings",
         "Previous month": "Previous month",
         "Table": "Table",
-        "Today": "Today"
+        "Today": "Today",
+        "Source app": "Source app",
+        "External reference": "External reference"
     },
     "nplurals=2; plural=(n != 1);"
 )
