@@ -37,6 +37,10 @@ $extra = [
         // First-time setup wizard (ADR-042) - the standard CnSetupWizard contract.
         ['name' => 'setup#status',    'url' => '/api/setup/status',            'verb' => 'GET'],
         ['name' => 'setup#runAction', 'url' => '/api/setup/action/{actionId}', 'verb' => 'POST', 'requirements' => ['actionId' => '[a-z0-9\\-]+']],
+        // A `choice` step POSTs its answer here before it advances; the
+        // `run-action` step that follows reads it back, because runAction()
+        // carries no body and so cannot carry the answer itself.
+        ['name' => 'setup#saveConfig', 'url' => '/api/setup/config',           'verb' => 'POST'],
         ['name' => 'settings#getPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'GET'],
         ['name' => 'settings#setPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'PUT'],
 
