@@ -1,0 +1,23 @@
+# Decidiq
+
+> Decidiq is an open-source decision-making app for the Nextcloud workspace.
+
+Decidiq is an open-source decision-making app for the Nextcloud workspace. It runs the full governance cycle in one place: scheduling meetings, building agendas, submitting motions and amendments, voting, publishing minutes, and tracking action items to completion. Workflows are configurable for legislative bodies, associations, corporate boards, management teams, and citizen-participation panels. All meetings, motions, and decisions live as typed OpenRegister objects with an audit trail, and a built-in AI chat companion exposes those records over MCP. Released under EUPL-1.2 and maintained by Conduction since 2019.
+
+## Docs
+
+- [Documentation](https://decidiq.conduction.nl/docs/intro): main entry, including tutorials, user guide, and admin guide.
+- [API reference](https://decidiq.conduction.nl/api): OpenAPI documentation.
+
+## Optional
+
+- [Install](https://www.conduction.nl/install): self-host on your Nextcloud instance.
+- [Source code](https://github.com/ConductionNL/decidiq): repository and issue tracker.
+- [App page](https://www.conduction.nl/apps/decidesk): product positioning on conduction.nl.
+
+## Contact
+
+- Email: info@conduction.nl
+- Web: https://www.conduction.nl
+- GitHub: https://github.com/ConductionNL
+- Conduction B.V. · KvK 76741850 · Lauriergracht 14h, Amsterdam, Netherlands

@@ -1,99 +1,356 @@
 <?xml version="1.0"?>
 <info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
-    <id>decidesk</id>
-    <name lang="en">Decidesk</name>
-    <name lang="nl">Decidesk</name>
+    <id>decidiq</id>
+    <name lang="en">Decidiq</name>
+    <name lang="nl">Decidiq</name>
     <summary lang="en">Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings</summary>
     <summary lang="nl">Universeel besluitvormingsplatform voor bestuursorganen, verenigingen, bedrijfsbesturen en operationele vergaderingen</summary>
-    <description lang="en"><![CDATA[> ⚠️ **Active development — not for production use yet.** This app is under active development. Although it may carry a stable release status, **please do not use it in production environments before 12 June 2026.** See the [app page on conduction.nl](https://conduction.nl/apps/decidesk) for release planning and what this app does.
-
-Decidesk manages meetings, agendas, motions, amendments, voting, minutes, and decision tracking with configurable workflows per organization type. It serves 5 governance domains: legislative/democratic bodies, associations/NGOs, corporate governance, corporate operations, and citizen participation.
+    <description lang="en"><![CDATA[Decidiq manages meetings, agendas, motions, amendments, voting, minutes, and decision tracking with configurable workflows per organization type. It serves 5 governance domains: legislative/democratic bodies, associations/NGOs, corporate governance, corporate operations, and citizen participation.
 
 **Key Features**
 
-- **Vue 2 + Pinia frontend** — Modern reactive UI with state management
-- **OpenRegister integration** — Built-in support for the OpenRegister data layer
-- **Admin settings** — Pre-wired settings page with version info
+- **Meetings & agendas** — Scheduling, agenda items, and per-item dossiers, all as typed OpenRegister objects
+- **Motions & amendments** — Submit, link to an agenda item, and track through a decision
+- **Voting, including proxy voting** — In person, electronic, or by proxy for an absent member; every vote and abstention logged
+- **eIDAS-qualified signatures (QES)** — Minutes and written-procedure resolutions signed and verified under eIDAS Article 25(2), via the OpenConnector e-sign connector
+- **Governance reports & regulator export** — Compliance-ready reporting and export for supervisory bodies
+- **Action items & decisions** — Tracked to completion with a tamper-evident audit trail
+- **AI chat companion (MCP)** — Meetings, action items, and decisions exposed as chat tools under the caller's own role
 - **NL Design System ready** — CSS variables, WCAG AA, government theming
-- **Full quality pipeline** — PHPCS, PHPMD, Psalm, PHPStan, ESLint, Stylelint
 
 Free and open source under the EUPL-1.2 license.
 
 **Support:** For support, contact support@conduction.nl.
     ]]></description>
-    <description lang="nl"><![CDATA[> ⚠️ **In actieve ontwikkeling — nog niet voor productiegebruik.** Deze app is volop in ontwikkeling. Hoewel de app een stabiele release-status kan hebben, **gebruik deze nog niet in productieomgevingen vóór 12 juni 2026.** Zie de [app-pagina op conduction.nl](https://conduction.nl/apps/decidesk) voor release-planning en het doel van deze app.
-
-Decidesk beheert vergaderingen, agenda's, moties, amendementen, stemmingen, notulen en besluitvorming met configureerbare workflows per organisatietype. Het bedient 5 bestuursdomeinen: wetgevende/democratische organen, verenigingen/NGO's, ondernemingsbestuur, bedrijfsvoering en burgerparticipatie.
+    <description lang="nl"><![CDATA[Decidiq beheert vergaderingen, agenda's, moties, amendementen, stemmingen, notulen en besluitvorming met configureerbare workflows per organisatietype. Het bedient 5 bestuursdomeinen: wetgevende/democratische organen, verenigingen/NGO's, ondernemingsbestuur, bedrijfsvoering en burgerparticipatie.
 
 **Belangrijkste functies**
 
-- **Vue 2 + Pinia frontend** — Moderne reactieve UI met state management
-- **OpenRegister-integratie** — Ingebouwde ondersteuning voor de OpenRegister-datalaag
-- **Beheerdersinstellingen** — Voorgeconfigureerde instellingenpagina met versie-informatie
+- **Vergaderingen & agenda's** — Planning, agendapunten en dossiers per punt, allemaal als getypeerde OpenRegister-objecten
+- **Moties & amendementen** — Indienen, koppelen aan een agendapunt en volgen tot een besluit
+- **Stemmingen, inclusief volmacht** — Fysiek, elektronisch of per volmacht voor een afwezig lid; elke stem en onthouding gelogd
+- **eIDAS-gekwalificeerde ondertekening (QES)** — Notulen en schriftelijke besluitvormingsprocedures ondertekend en geverifieerd onder eIDAS artikel 25(2), via de OpenConnector e-sign-connector
+- **Governance-rapportage & toezichthouder-export** — Compliance-rapportage en export voor toezichthoudende organen
+- **Actiepunten & besluiten** — Gevolgd tot afronding met een tamper-evident audit trail
+- **AI-chatassistent (MCP)** — Vergaderingen, actiepunten en besluiten beschikbaar als chattools, onder de rol van de aanroeper
 - **NL Design System klaar** — CSS-variabelen, WCAG AA, overheidsthema
-- **Volledige kwaliteitspipeline** — PHPCS, PHPMD, Psalm, PHPStan, ESLint, Stylelint
 
 Vrij en open source onder de EUPL-1.2-licentie.
 
 **Ondersteuning:** Voor ondersteuning, neem contact op via support@conduction.nl.
     ]]></description>
-    <version>0.1.0</version>
-    <licence>agpl</licence>
+    <!--
+        Bumped for the register authorization baseline (0.7.0 -> 0.8.0 on the
+        register row). The <post-migration> repair steps below, InitializeSettings
+        among them, run only on `occ upgrade`, and `occ upgrade` is a NO-OP when
+        the app version has not moved — so without this bump the security fix
+        would sit in the JSON on every existing instance and never be imported.
+        The register's OWN version bump is separately required: ImportHandler's
+        register path (importRegister, ~line 879) skips outright when the incoming
+        version is <= the stored one, and unlike the SCHEMA path it has no
+        content-differs escape hatch to fall back on.
+    -->
+    <version>1.1.4-unstable.20260830082716</version>
+    <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
-    <namespace>Decidesk</namespace>
+    <namespace>Decidiq</namespace>
     <documentation>
-        <user>https://github.com/ConductionNL/decidesk</user>
-        <admin>https://github.com/ConductionNL/decidesk</admin>
-        <developer>https://github.com/ConductionNL/decidesk</developer>
+        <user>https://github.com/ConductionNL/decidiq</user>
+        <admin>https://github.com/ConductionNL/decidiq</admin>
+        <developer>https://github.com/ConductionNL/decidiq</developer>
     </documentation>
     <category>organization</category>
-    <website>https://github.com/ConductionNL/decidesk</website>
-    <discussion>https://github.com/ConductionNL/decidesk/discussions</discussion>
-    <bugs>https://github.com/ConductionNL/decidesk/issues</bugs>
-    <repository>https://github.com/ConductionNL/decidesk</repository>
+    <website>https://github.com/ConductionNL/decidiq</website>
+    <discussion>https://github.com/ConductionNL/decidiq/discussions</discussion>
+    <bugs>https://github.com/ConductionNL/decidiq/issues</bugs>
+    <repository>https://github.com/ConductionNL/decidiq</repository>
 
-    <screenshot>https://raw.githubusercontent.com/ConductionNL/decidesk/main/img/app-store.svg</screenshot>
+    <screenshot>https://raw.githubusercontent.com/ConductionNL/decidiq/development/img/app-store.svg</screenshot>
 
     <dependencies>
-        <!--
-            Nextcloud floor raised to 32 fleet-wide (product directive): standardising on
-            NC 32 is what lets the fleet require PHP 8.3. Openregister declares a Nextcloud
-            floor of 32 on its development branch, so leaf apps that consume it must not
-            advertise support below that — the App Store would offer an install range the
-            dependency refuses to install into. max-version is unchanged.
-        -->
-        <nextcloud min-version="32" max-version="33"/>
         <php min-version="8.3"/>
-    </dependencies>
+        <!-- App dependency (not expressible in app-info.xsd): OpenRegister
+             (data layer for meetings/motions/decisions; src/manifest.json "dependencies": ["openregister"]).
+             Optional runtime dependency: OpenConnector (eIDAS QES e-sign Source), Docudesk (signing + AI minutes),
+             OpenCatalogi (decision publication) — all resolved lazily via the DI container and degrade gracefully
+             when absent. -->
+        <!-- min-version is 32, NOT 28. The OpenRegister dependency noted above is HARD
+             (src/manifest.json lists "openregister" under "dependencies"), and openregister
+             declares min-version="32" as of ConductionNL/openregister#2384. An app's floor
+             must be >= the maximum floor of every <app> it depends on; below that floor the
+             dependency refuses to install and every meeting, motion and decision — all of
+             which are OpenRegister objects — is unreachable. Declaring 28 advertised an
+             App Store range this app cannot deliver: the openconnector#1172/#1173 defect.
 
-    <navigations>
-        <navigation>
-            <id>decidesk</id>
-            <name>Decidesk</name>
-            <route>decidesk.dashboard.page</route>
-            <icon>app.svg</icon>
-        </navigation>
-    </navigations>
+             This reverses #424, which restored the 28 floor on the premise that openregister
+             had returned to 28 in openregister#2380. That premise expired: #2384 (merged
+             2026-08-08) moved it back to 32 deliberately and fleet-wide, and names decidiq
+             as one of eight consumers that must move their CI matrices to stable32. The
+             matrix move is in this same commit, so the two statements stay in agreement. -->
+        <nextcloud min-version="32" max-version="34"/>
+    </dependencies>
 
     <!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2 -->
     <!-- @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2 -->
     <background-jobs>
-        <job>OCA\Decidesk\BackgroundJob\MailReplyHandler</job>
-        <job>OCA\Decidesk\BackgroundJob\OverdueActionItemsJob</job>
+        <!--
+            OverdueActionItemsJob is GONE, not commented out. It was retired when
+            action items became a read-only VTODO projection ("overdue" is derived
+            at read time from dueDate), but the retirement only emptied its run()
+            body and left the declaration HERE — so Nextcloud re-registered it on
+            every app update and cron ran an empty job every 24 hours, forever.
+            The class comment claimed it was "kept as a no-op so the registered
+            oc_jobs row reaps cleanly"; while this line stood, that row could
+            never reap.
+
+            No repair step is needed to clear existing rows. MEASURED, not
+            assumed — read from the running server's own source,
+            lib/private/BackgroundJob/JobList.php::buildJob(): when a stored job
+            class cannot be resolved it logs "failed to create instance of
+            background job", then calls removeById($row['id']) with the comment
+            "Remove job from disabled app or old version of an app". Deleting the
+            class and this declaration is therefore the whole retirement; the
+            first cron tick after the upgrade drops the row.
+        -->
+        <!-- @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3 -->
+        <job>OCA\Decidiq\BackgroundJob\TranslationQueueJob</job>
+        <!-- @spec openspec/specs/nextcloud-integration/spec.md -->
+        <job>OCA\Decidiq\BackgroundJob\VotingDeadlineReminderJob</job>
+        <!-- @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md -->
+        <job>OCA\Decidiq\BackgroundJob\ConsultationAutoCloseJob</job>
+        <!-- @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md -->
+        <job>OCA\Decidiq\BackgroundJob\TranscriptRetentionJob</job>
     </background-jobs>
 
     <repair-steps>
-        <install>
-            <step>OCA\Decidesk\Repair\InitializeSettings</step>
-        </install>
         <post-migration>
-            <step>OCA\Decidesk\Repair\InitializeSettings</step>
+            <!--
+                decidesk -> decidiq app-id rename (Phase 3). Both steps MUST stay
+                ahead of InitializeSettings.
+
+                There is no in-place app-id upgrade in Nextcloud: `oc_appconfig`
+                and `oc_preferences` are namespaced by app id, so renaming <id>
+                does not rename the rows — it makes this app ask for its data
+                under a name nothing answers to.
+
+                The ordering is load-bearing rather than tidy. InitializeSettings
+                GENERATES a fresh `voter_token_secret` when it finds none, and
+                that value is the HMAC key signing every voting token and
+                mail-reply link. If it ran first it would mint a new key over the
+                orphaned old one and silently invalidate every outstanding vote
+                link — so the copy has to happen before it looks.
+
+                Both steps are idempotent and non-destructive: they never
+                overwrite a value already present under the new id and never
+                delete the old rows, so a rollback still finds its data.
+            -->
+            <step>OCA\Decidiq\Repair\MigrateAppConfigKeys</step>
+            <step>OCA\Decidiq\Repair\MigrateUserPreferences</step>
+            <!--
+                Third leg of the rename, on the OpenRegister register ROW. The
+                slug moves too (`decidesk` -> `decidiq`), together with
+                `x-openregister.app`, which for a `type: application`
+                configuration IS a register slug rather than an attribution
+                label — ImportHandler::autoCreateRegisterIfApplication() reads
+                `$xOpenregister['app'] ?? $appId` as the slug.
+
+                MUST run before InitializeSettings, which triggers the import.
+                OpenRegister resolves a register by slug and its not-found branch
+                CREATES a second, empty register rather than failing, so an
+                import that ran first would fork the register and leave every
+                stored object behind on the old row, silently.
+
+                It moves no data: an object is bound to its register by NUMERIC
+                id (`_register` in every shard table, and the tables are named
+                `oc_openregister_table_<registerId>_<schemaId>`), so this is one
+                column on one row. Idempotent, non-destructive, and it refuses
+                rather than merges if both slugs already exist.
+            -->
+            <step>OCA\Decidiq\Repair\MigrateRegisterSlug</step>
+            <!--
+                SIBLING OF MigrateRegisterSlug, AND NEITHER COVERS THE OTHER.
+                OpenRegister resolves the two halves of a configuration by
+                DIFFERENT keys: a REGISTER by slug alone (RegisterMapper::find),
+                a SCHEMA by the PAIR —
+                SchemaMapper::findByApplicationAndSlug(slug, application).
+
+                This app now passes `appId: Application::APP_ID` = `decidiq`,
+                while every schema it already owns still carries
+                `application = decidesk`, so the pair matches nothing — and
+                ImportHandler's not-found branch is not an error path, it is the
+                "create a new one" path. The import InitializeSettings triggers
+                would build a SECOND, EMPTY schema set under the new application
+                id while every stored object stayed bound to the old rows.
+                Nothing errors; the app renders empty collections.
+
+                MUST run before InitializeSettings, for the same reason
+                MigrateRegisterSlug does — the import is the thing that forks.
+
+                Measured on a live install: 98 schemas still under `decidesk`,
+                and zero of their slugs collide with a twin under `decidiq`, so
+                all 98 move.
+
+                Where a slug DOES already have a twin under the new application
+                id it refuses rather than merges: two rows sharing
+                (application, slug) means findByApplicationAndSlug(), which caps
+                at one row, silently picks one and the other's objects become
+                unreachable. That is a decision about data, not a migration.
+
+                Never deletes a schema, and never throws — it runs under
+                <install>, where an escaping exception aborts the install and
+                the app never enables.
+            -->
+            <step>OCA\Decidiq\Repair\MigrateSchemaApplicationId</step>
+            <step>OCA\Decidiq\Repair\InitializeSettings</step>
+            <!--
+                After InitializeSettings imports the register. The schema edit
+                changes the DECLARATION; every row already written still holds
+                the Dutch string, and a filter on the new value returns null
+                rather than an error. The Dutch legal terms themselves are not
+                lost — they live in l10n/nl.json against their English keys.
+            -->
+            <step>OCA\Decidiq\Repair\RenameDutchDecidiqValues</step>
+            <step>OCA\Decidiq\Migration\MigrateEmailLinksToRegistry</step>
+            <step>OCA\Decidiq\Migration\MigrateCommentsToTalkLeaf</step>
+            <step>OCA\Decidiq\Migration\MigrateActionItemsToDeckLeaf</step>
+            <step>OCA\Decidiq\Migration\ProjectGovernanceRoleScopes</step>
+            <!--
+                Must run AFTER the register sync that adds the English columns, so it
+                can tell the rename case from the back-fill case. Scoped to the
+                `decidiq` register only — several of these words (onderwerp) also
+                exist in dossiq's. The register SLUG moves with the app id, and
+                MigrateRegisterSlug above renames the row before anything here
+                resolves it; renaming the slug WITHOUT that step is what would
+                import a fresh empty register and orphan every stored object.
+                Idempotent and non-destructive.
+            -->
+            <step>OCA\Decidiq\Repair\RenameDutchVocabularyColumns</step>
+            <!--
+                After InitializeSettings imports the register (68-unified-decision-templates.json's
+                decision-template schema + built-in seeds must already exist). Repairs live
+                process-template/vve-decision-template objects into decision-template objects
+                (unified-decision-templates, ADR-032 chain link 1 of 3). Idempotent (matched by
+                migratedFrom.sourceUuid) and non-destructive — never deletes or edits a source object.
+            -->
+            <step>OCA\Decidiq\Migration\MigrateLegacyTemplatesToDecisionTemplate</step>
+            <!--
+                model-debt-cleanup-code: both steps below run AFTER InitializeSettings so they
+                read the NEW $ref declarations (Participant -> Membership/Person retargets,
+                model-debt-cleanup-schema fragment 67) to know what a valid target type looks
+                like. RepointConflictOfInterestBoardMember repoints ConflictOfInterest.boardMember
+                from Participant to Membership; MigrateBoardProxyToProxyAuthorization runs after
+                it, migrating retired board-proxy rows into proxyAuthorization objects via the
+                same crosswalk resolver. Both idempotent and non-destructive — see migration.md.
+            -->
+            <step>OCA\Decidiq\Repair\RepointConflictOfInterestBoardMember</step>
+            <step>OCA\Decidiq\Repair\MigrateBoardProxyToProxyAuthorization</step>
         </post-migration>
+        <install>
+            <!--
+                <install> is the path a REAL deployment takes, because Nextcloud
+                discovers `decidiq` as a new app rather than as an upgrade of
+                `decidesk` — so registering the two rename steps under
+                <post-migration> alone would mean they never run where it
+                matters. Same ordering rule as above: ahead of
+                InitializeSettings, for the voter_token_secret reason.
+            -->
+            <step>OCA\Decidiq\Repair\MigrateAppConfigKeys</step>
+            <step>OCA\Decidiq\Repair\MigrateUserPreferences</step>
+            <!--
+                Third leg of the rename, on the OpenRegister register ROW. The
+                slug moves too (`decidesk` -> `decidiq`), together with
+                `x-openregister.app`, which for a `type: application`
+                configuration IS a register slug rather than an attribution
+                label — ImportHandler::autoCreateRegisterIfApplication() reads
+                `$xOpenregister['app'] ?? $appId` as the slug.
+
+                MUST run before InitializeSettings, which triggers the import.
+                OpenRegister resolves a register by slug and its not-found branch
+                CREATES a second, empty register rather than failing, so an
+                import that ran first would fork the register and leave every
+                stored object behind on the old row, silently.
+
+                It moves no data: an object is bound to its register by NUMERIC
+                id (`_register` in every shard table, and the tables are named
+                `oc_openregister_table_<registerId>_<schemaId>`), so this is one
+                column on one row. Idempotent, non-destructive, and it refuses
+                rather than merges if both slugs already exist.
+            -->
+            <step>OCA\Decidiq\Repair\MigrateRegisterSlug</step>
+            <!--
+                SIBLING OF MigrateRegisterSlug, AND NEITHER COVERS THE OTHER.
+                OpenRegister resolves the two halves of a configuration by
+                DIFFERENT keys: a REGISTER by slug alone (RegisterMapper::find),
+                a SCHEMA by the PAIR —
+                SchemaMapper::findByApplicationAndSlug(slug, application).
+
+                This app now passes `appId: Application::APP_ID` = `decidiq`,
+                while every schema it already owns still carries
+                `application = decidesk`, so the pair matches nothing — and
+                ImportHandler's not-found branch is not an error path, it is the
+                "create a new one" path. The import InitializeSettings triggers
+                would build a SECOND, EMPTY schema set under the new application
+                id while every stored object stayed bound to the old rows.
+                Nothing errors; the app renders empty collections.
+
+                MUST run before InitializeSettings, for the same reason
+                MigrateRegisterSlug does — the import is the thing that forks.
+
+                Measured on a live install: 98 schemas still under `decidesk`,
+                and zero of their slugs collide with a twin under `decidiq`, so
+                all 98 move.
+
+                Where a slug DOES already have a twin under the new application
+                id it refuses rather than merges: two rows sharing
+                (application, slug) means findByApplicationAndSlug(), which caps
+                at one row, silently picks one and the other's objects become
+                unreachable. That is a decision about data, not a migration.
+
+                Never deletes a schema, and never throws — it runs under
+                <install>, where an escaping exception aborts the install and
+                the app never enables.
+            -->
+            <step>OCA\Decidiq\Repair\MigrateSchemaApplicationId</step>
+            <step>OCA\Decidiq\Repair\InitializeSettings</step>
+            <!--
+                After InitializeSettings imports the register. The schema edit
+                changes the DECLARATION; every row already written still holds
+                the Dutch string, and a filter on the new value returns null
+                rather than an error. The Dutch legal terms themselves are not
+                lost — they live in l10n/nl.json against their English keys.
+            -->
+            <step>OCA\Decidiq\Repair\RenameDutchDecidiqValues</step>
+        </install>
     </repair-steps>
 
     <settings>
-        <admin>OCA\Decidesk\Settings\AdminSettings</admin>
-        <admin-section>OCA\Decidesk\Sections\SettingsSection</admin-section>
+        <admin>OCA\Decidiq\Settings\AdminSettings</admin>
+        <admin-section>OCA\Decidiq\Sections\SettingsSection</admin-section>
+        <!-- @spec openspec/specs/user-settings/spec.md -->
+        <personal>OCA\Decidiq\Settings\PersonalSettings</personal>
+        <personal-section>OCA\Decidiq\Sections\PersonalSection</personal-section>
     </settings>
+
+    <!-- @spec openspec/specs/nextcloud-integration/spec.md -->
+    <activity>
+        <settings>
+            <setting>OCA\Decidiq\Activity\GovernanceSetting</setting>
+        </settings>
+        <filters>
+            <filter>OCA\Decidiq\Activity\GovernanceFilter</filter>
+        </filters>
+        <providers>
+            <provider>OCA\Decidiq\Activity\DecidiqProvider</provider>
+        </providers>
+    </activity>
+
+    <navigations>
+        <navigation>
+            <id>decidiq</id>
+            <name>Decidiq</name>
+            <route>decidiq.dashboard.page</route>
+            <icon>app.svg</icon>
+        </navigation>
+    </navigations>
 </info>

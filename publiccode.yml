@@ -1,0 +1,65 @@
+publiccodeYmlVersion: "0.4"
+
+name: Decidiq
+url: "https://github.com/ConductionNL/decidiq"
+softwareVersion: "0.1.4"
+releaseDate: "2026-05-26"
+developmentStatus: beta
+softwareType: "standalone/other"
+
+platforms:
+  - nextcloud
+
+categories:
+  - decision-support
+  - document-management
+
+description:
+  en:
+    shortDescription: >
+      Decision management and governance administration for Nextcloud.
+    longDescription: >
+      Decidiq provides decision management and governance administration for
+      organisations within Nextcloud. It supports recording, tracking, and publishing
+      formal decisions, meeting agendas, and governance documentation. Built on Open
+      Register, it integrates with Nextcloud's collaboration tools and is designed
+      to meet Dutch government transparency and governance requirements.
+    features:
+      - Decision recording and tracking
+      - Meeting agenda management
+      - Governance documentation
+      - AI-assisted decision support
+
+  nl:
+    shortDescription: >
+      Besluitvorming en bestuurlijke administratie voor Nextcloud.
+    longDescription: >
+      Decidiq biedt besluitvormingsbeheer en bestuurlijke administratie voor
+      organisaties binnen Nextcloud. Het ondersteunt het vastleggen, bijhouden en
+      publiceren van formele besluiten, vergaderagenda's en bestuurlijke documentatie.
+      Gebouwd op Open Register integreert het met de samenwerkingstools van Nextcloud
+      en is ontworpen om te voldoen aan de Nederlandse overheidsvereisten voor
+      transparantie en bestuur.
+    features:
+      - Besluiten vastleggen en bijhouden
+      - Vergaderagendabeheer
+      - Bestuurlijke documentatie
+      - AI-ondersteunde besluitvorming
+
+legal:
+  license: EUPL-1.2
+  mainCopyrightOwner: "Conduction B.V."
+  repoOwner: "Conduction B.V."
+
+maintenance:
+  type: community
+  contacts:
+    - name: Conduction B.V.
+      email: info@conduction.nl
+      affiliation: Conduction B.V.
+
+localisation:
+  localisationReady: true
+  availableLanguages:
+    - nl
+    - en

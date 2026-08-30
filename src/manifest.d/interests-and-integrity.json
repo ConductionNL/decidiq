@@ -1,0 +1,193 @@
+{
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "Interests & integrity (interests-and-integrity) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). MyDeclarations self-service page + Nevenfuncties/NevenfunctieDetail + Geschenken/GeschenkDetail index/detail pages; schema refs BY SLUG (nevenfunctie / geschenk), never PascalCase. Stable-name contract for member-onboarding: capability interests-and-integrity, slug nevenfunctie, page id MyDeclarations. The Dashboard 'Nevenfuncties zonder actuele review' stat widget and the per-body compliance panel on the Nevenfuncties index (REQ-INT-010) are frontend/base-manifest work (Task 5) and are NOT part of this declarative-core fragment: mergePages replaces a same-id page wholesale, so the Dashboard widget lives in the base src/manifest.json. MyDeclarations here is the declarative index shell over the member's own nevenfuncties; the geschenken register, annual-confirm, end-position, and publish/withdraw actions are plain saveObject field writes wired by frontend components (Task 4).",
+	"menu": [
+		{
+			"id": "MyDeclarations",
+			"label": "My declarations",
+			"icon": "ReceiptOutline",
+			"route": "MyDeclarations",
+			"order": 55
+		},
+		{
+			"id": "Nevenfuncties",
+			"label": "Other positions",
+			"icon": "Domain",
+			"route": "Nevenfuncties",
+			"order": 60
+		},
+		{
+			"id": "Geschenken",
+			"label": "Gifts",
+			"icon": "Star",
+			"route": "Geschenken",
+			"order": 65
+		}
+	],
+	"pages": [
+		{
+			"id": "MyDeclarations",
+			"route": "/mijn-opgaven",
+			"type": "index",
+			"title": "My declarations",
+			"_note": "spec: openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010. Self-service page (REQ-INT-010) — stable deep-link target for member-onboarding's nevenfuncties-intake step. Declarative index shell over the current user's own nevenfuncties; add/edit, end-position, and annual-confirm actions plus the member's geschenken block are plain saveObject field writes wired by frontend components (Task 4, out of the declarative core). Members see and edit only their own objects via OR per-object RBAC (owner scope).",
+			"config": {
+				"register": "decidiq",
+				"schema": "nevenfunctie",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
+				"_note": "Current-user filtering (own declarations only) is applied client-side / via OR owner-scoped RBAC; the manifest cannot express a 'current user' filter token declaratively.",
+				"quickFilterMode": "dropdown",
+				"quickFilterMultiple": true,
+				"quickFilters": [
+					{ "label": "All", "filter": {}, "default": true },
+					{ "label": "Declared", "filter": { "lifecycle": "reported" } },
+					{ "label": "Public", "filter": { "lifecycle": "public" } },
+					{ "label": "Internal", "filter": { "lifecycle": "internal" } },
+					{ "label": "Ended", "filter": { "lifecycle": "ended" } }
+				],
+				"columns": [
+					{ "key": "organisation", "label": "Organisation", "widget": "link" },
+					{ "key": "role", "label": "Function" },
+					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "remunerated", "label": "Remunerated", "widget": "badge" },
+					{ "key": "reviewedAt", "label": "Reviewed" },
+					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
+				],
+				"actions": [
+					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "NevenfunctieDetail", "primary": true }
+				],
+				"sidebar": { "enabled": true, "showMetadata": true },
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		},
+		{
+			"id": "Nevenfuncties",
+			"route": "/nevenfuncties",
+			"type": "index",
+			"title": "Other positions",
+			"_note": "spec: openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010. Per-body nevenfunctiesregister (REQ-INT-001/REQ-INT-010). Columns person/organisatie/functie/remunerated/qualitateQua/governanceBody/lifecycle; quick filters on lifecycle; per-body filtering via the index facet on governanceBody. CSV export via ExportService + CnMassExportDialog. The overdue-review KPI deep-link (Dashboard, base manifest) targets this page pre-filtered; the per-body compliance panel (client-side join of memberships × nevenfuncties) is a frontend addition (Task 5), not part of this declarative fragment.",
+			"config": {
+				"register": "decidiq",
+				"schema": "nevenfunctie",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
+				"quickFilterMode": "dropdown",
+				"quickFilterMultiple": true,
+				"quickFilters": [
+					{ "label": "All", "filter": {}, "default": true },
+					{ "label": "Declared", "filter": { "lifecycle": "reported" } },
+					{ "label": "Public", "filter": { "lifecycle": "public" } },
+					{ "label": "Internal", "filter": { "lifecycle": "internal" } },
+					{ "label": "Ended", "filter": { "lifecycle": "ended" } }
+				],
+				"columns": [
+					{ "key": "person", "label": "Person", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
+					{ "key": "organisation", "label": "Organisation" },
+					{ "key": "role", "label": "Function" },
+					{ "key": "remunerated", "label": "Remunerated", "widget": "badge" },
+					{ "key": "qualitateQua", "label": "Ex officio", "widget": "badge" },
+					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
+				],
+				"actions": [
+					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "NevenfunctieDetail", "primary": true }
+				],
+				"showMassExport": true,
+				"sidebar": { "enabled": true, "showMetadata": true },
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		},
+		{
+			"id": "NevenfunctieDetail",
+			"route": "/nevenfuncties/:id",
+			"type": "detail",
+			"title": "Other position",
+			"_note": "spec: openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-001. Nevenfunctie detail. Declaration data leads 8-wide, publication stacked right; the linked person/governanceBody render as resolved references in the data + Related widgets. Publish/withdraw, end-position, and annual-confirm are plain saveObject field writes wired by frontend components (Task 4). Audit trail is a sidebar tab.",
+			"config": {
+				"register": "decidiq",
+				"schema": "nevenfunctie",
+				"widgets": [
+					{ "id": "nevenfunctie-data", "type": "data", "title": "Other position", "icon": "Briefcase", "content": { "columns": 2 } },
+					{ "id": "nevenfunctie-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "nevenfunctie-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
+					{ "id": "2", "widgetId": "nevenfunctie-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 }
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+					]
+				},
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		},
+		{
+			"id": "Geschenken",
+			"route": "/geschenken",
+			"type": "index",
+			"title": "Gifts",
+			"_note": "spec: openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005. Per-body geschenkenregister (REQ-INT-005/REQ-INT-006/REQ-INT-010). Columns recipient/type/gever/omschrijving/geschatteWaarde/besluit; quick filters on type and besluit; per-body filtering and the boven-drempel filter via the index facet (boven-drempel is a frontend render rule comparing geschatteWaarde to the body's policy threshold — REQ-INT-006). CSV export via ExportService + CnMassExportDialog.",
+			"config": {
+				"register": "decidiq",
+				"schema": "geschenk",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
+				"quickFilterMode": "dropdown",
+				"quickFilterMultiple": true,
+				"quickFilters": [
+					{ "label": "All", "filter": {}, "default": true },
+					{ "label": "Gifts", "filter": { "type": "gift" } },
+					{ "label": "Invitations", "filter": { "type": "invitation" } },
+					{ "label": "Accepted", "filter": { "decision": "accepted" } },
+					{ "label": "Refused", "filter": { "decision": "refused" } },
+					{ "label": "Handed over", "filter": { "decision": "transferred" } }
+				],
+				"columns": [
+					{ "key": "recipient", "label": "Recipient", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
+					{ "key": "type", "label": "Type", "widget": "badge" },
+					{ "key": "giver", "label": "Giver" },
+					{ "key": "description", "label": "Description" },
+					{ "key": "estimatedValue", "label": "Value (EUR)" },
+					{ "key": "decision", "label": "Decision", "widget": "badge" }
+				],
+				"actions": [
+					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "GeschenkDetail", "primary": true }
+				],
+				"showMassExport": true,
+				"sidebar": { "enabled": true, "showMetadata": true },
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		},
+		{
+			"id": "GeschenkDetail",
+			"route": "/geschenken/:id",
+			"type": "detail",
+			"title": "Gift",
+			"_note": "spec: openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005. Geschenk detail. Registration data leads 8-wide, publication stacked right; the linked recipient/governanceBody render as resolved references in the data + Related widgets. The boven-drempel badge and publish/withdraw (per body policy) are frontend actions (Task 4/5). Audit trail is a sidebar tab.",
+			"config": {
+				"register": "decidiq",
+				"schema": "geschenk",
+				"widgets": [
+					{ "id": "geschenk-data", "type": "data", "title": "Gift", "icon": "Package", "content": { "columns": 2 } },
+					{ "id": "geschenk-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "geschenk-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
+					{ "id": "2", "widgetId": "geschenk-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 }
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+					]
+				},
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		}
+	]
+}

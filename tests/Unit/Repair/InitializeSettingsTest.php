@@ -4,9 +4,9 @@
  * Unit tests for InitializeSettings repair step.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Repair
+ * @package  OCA\Decidiq\Tests\Unit\Repair
  *
- * @author    Conduction Development Team <dev@conductio.nl>
+ * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2024 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
@@ -19,10 +19,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Repair;
+namespace OCA\Decidiq\Tests\Unit\Repair;
 
-use OCA\Decidesk\Repair\InitializeSettings;
-use OCA\Decidesk\Service\SettingsService;
+use OCA\Decidiq\Repair\InitializeSettings;
+use OCA\Decidiq\Service\SettingsService;
+use OCP\IAppConfig;
 use OCP\Migration\IOutput;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -33,151 +34,154 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
  */
-class InitializeSettingsTest extends TestCase
-{
+class InitializeSettingsTest extends TestCase {
 
-    /**
-     * The repair step under test.
-     *
-     * @var InitializeSettings
-     */
-    private InitializeSettings $repairStep;
+	/**
+	 * The repair step under test.
+	 *
+	 * @var InitializeSettings
+	 */
+	private InitializeSettings $repairStep;
 
-    /**
-     * Mock SettingsService.
-     *
-     * @var SettingsService&MockObject
-     */
-    private SettingsService&MockObject $settingsService;
+	/**
+	 * Mock SettingsService.
+	 *
+	 * @var SettingsService&MockObject
+	 */
+	private SettingsService&MockObject $settingsService;
 
-    /**
-     * Mock LoggerInterface.
-     *
-     * @var LoggerInterface&MockObject
-     */
-    private LoggerInterface&MockObject $logger;
+	/**
+	 * Mock LoggerInterface.
+	 *
+	 * @var LoggerInterface&MockObject
+	 */
+	private LoggerInterface&MockObject $logger;
 
-    /**
-     * Mock IOutput.
-     *
-     * @var IOutput&MockObject
-     */
-    private IOutput&MockObject $output;
+	/**
+	 * Mock IAppConfig.
+	 *
+	 * @var IAppConfig&MockObject
+	 */
+	private IAppConfig&MockObject $appConfig;
 
-    /**
-     * Set up test fixtures.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+	/**
+	 * Mock IOutput.
+	 *
+	 * @var IOutput&MockObject
+	 */
+	private IOutput&MockObject $output;
 
-        $this->settingsService = $this->createMock(originalClassName: SettingsService::class);
-        $this->logger          = $this->createMock(originalClassName: LoggerInterface::class);
-        $this->output          = $this->createMock(originalClassName: IOutput::class);
+	/**
+	 * Set up test fixtures.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-        $this->repairStep = new InitializeSettings(
-            settingsService: $this->settingsService,
-            logger: $this->logger,
-        );
+		$this->settingsService = $this->createMock(originalClassName: SettingsService::class);
+		$this->logger = $this->createMock(originalClassName: LoggerInterface::class);
+		$this->appConfig = $this->createMock(originalClassName: IAppConfig::class);
+		$this->output = $this->createMock(originalClassName: IOutput::class);
 
-    }//end setUp()
+		$this->repairStep = new InitializeSettings(
+			settingsService: $this->settingsService,
+			appConfig: $this->appConfig,
+			logger: $this->logger,
+		);
 
-    /**
-     * Test getName returns the expected description.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
-     */
-    public function testGetNameReturnsDescription(): void
-    {
-        self::assertStringContainsString(
-            needle: 'Initialize',
-            haystack: $this->repairStep->getName()
-        );
+	}//end setUp()
 
-    }//end testGetNameReturnsDescription()
+	/**
+	 * Test getName returns the expected description.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
+	 */
+	public function testGetNameReturnsDescription(): void {
+		self::assertStringContainsString(
+			needle: 'Initialize',
+			haystack: $this->repairStep->getName()
+		);
 
-    /**
-     * Test that run skips initialization when OpenRegister is not available.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
-     */
-    public function testRunSkipsWhenOpenRegisterUnavailable(): void
-    {
-        $this->settingsService->expects($this->once())
-            ->method(constraint: 'isOpenRegisterAvailable')
-            ->willReturn(false);
+	}//end testGetNameReturnsDescription()
 
-        $this->output->expects($this->atLeastOnce())
-            ->method(constraint: 'warning');
+	/**
+	 * Test that run skips initialization when OpenRegister is not available.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
+	 */
+	public function testRunSkipsWhenOpenRegisterUnavailable(): void {
+		$this->settingsService->expects($this->once())
+			->method(constraint: 'isOpenRegisterAvailable')
+			->willReturn(false);
 
-        $this->settingsService->expects($this->never())
-            ->method(constraint: 'loadConfiguration');
+		$this->output->expects($this->atLeastOnce())
+			->method(constraint: 'warning');
 
-        $this->repairStep->run(output: $this->output);
+		$this->settingsService->expects($this->never())
+			->method(constraint: 'loadConfiguration');
 
-    }//end testRunSkipsWhenOpenRegisterUnavailable()
+		$this->repairStep->run(output: $this->output);
 
-    /**
-     * Test that run imports configuration when OpenRegister is available.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
-     */
-    public function testRunImportsWhenOpenRegisterAvailable(): void
-    {
-        $this->settingsService->expects($this->once())
-            ->method(constraint: 'isOpenRegisterAvailable')
-            ->willReturn(true);
+	}//end testRunSkipsWhenOpenRegisterUnavailable()
 
-        $this->settingsService->expects($this->once())
-            ->method(constraint: 'loadConfiguration')
-            ->with(true)
-            ->willReturn(
-                    [
-                        'success' => true,
-                        'version' => '0.1.0',
-                    ]
-                    );
+	/**
+	 * Test that run imports configuration when OpenRegister is available.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
+	 */
+	public function testRunImportsWhenOpenRegisterAvailable(): void {
+		$this->settingsService->expects($this->once())
+			->method(constraint: 'isOpenRegisterAvailable')
+			->willReturn(true);
 
-        $this->output->expects($this->atLeastOnce())
-            ->method(constraint: 'info');
+		$this->settingsService->expects($this->once())
+			->method(constraint: 'loadConfiguration')
+			->with()
+			->willReturn(
+				[
+					'success' => true,
+					'version' => '0.1.0',
+				]
+			);
 
-        $this->repairStep->run(output: $this->output);
+		$this->output->expects($this->atLeastOnce())
+			->method(constraint: 'info');
 
-    }//end testRunImportsWhenOpenRegisterAvailable()
+		$this->repairStep->run(output: $this->output);
 
-    /**
-     * Test that run handles exceptions gracefully.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
-     */
-    public function testRunHandlesExceptionGracefully(): void
-    {
-        $this->settingsService->expects($this->once())
-            ->method(constraint: 'isOpenRegisterAvailable')
-            ->willReturn(true);
+	}//end testRunImportsWhenOpenRegisterAvailable()
 
-        $this->settingsService->expects($this->once())
-            ->method(constraint: 'loadConfiguration')
-            ->willThrowException(new \RuntimeException('Connection failed'));
+	/**
+	 * Test that run handles exceptions gracefully.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
+	 */
+	public function testRunHandlesExceptionGracefully(): void {
+		$this->settingsService->expects($this->once())
+			->method(constraint: 'isOpenRegisterAvailable')
+			->willReturn(true);
 
-        $this->output->expects($this->atLeastOnce())
-            ->method(constraint: 'warning');
+		$this->settingsService->expects($this->once())
+			->method(constraint: 'loadConfiguration')
+			->willThrowException(new \RuntimeException('Connection failed'));
 
-        $this->logger->expects($this->once())
-            ->method(constraint: 'error');
+		$this->output->expects($this->atLeastOnce())
+			->method(constraint: 'warning');
 
-        $this->repairStep->run(output: $this->output);
+		$this->logger->expects($this->once())
+			->method(constraint: 'error');
 
-    }//end testRunHandlesExceptionGracefully()
+		$this->repairStep->run(output: $this->output);
+
+	}//end testRunHandlesExceptionGracefully()
 
 }//end class

@@ -1,0 +1,1038 @@
+openapi: 3.0.3
+info:
+  title: Decidiq — Board portal API
+  version: 1.0.0
+  description: |
+    OpenAPI 3.0 specification for every board-portal endpoint shipped by
+    Decidiq under the `board-meeting-resolutions` change.
+
+    Wired in `appinfo/routes.php`; controllers live under `lib/Controller/`.
+    All endpoints are `#[NoAdminRequired]` unless explicitly marked admin —
+    per-object RBAC is enforced server-side by OpenRegister's `ObjectService`
+    (ADR-022).
+
+    Authentication is the Nextcloud session cookie (browser flow) or HTTP
+    Basic / Bearer for API clients. CSRF token is required on every state-
+    changing call (Nextcloud framework default).
+
+    See also:
+      - docs/Technical/board-portal-architecture.md
+      - docs/admin/board-portal-admin.md
+      - docs/compliance/board-portal-compliance.md
+  contact:
+    name: Conduction
+    url: https://conduction.nl
+  license:
+    name: EUPL-1.2
+    url: https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+servers:
+  - url: https://{host}/apps/decidiq
+    variables:
+      host:
+        default: nextcloud.example.org
+
+tags:
+  - name: Boards
+  - name: BoardMembers
+  - name: BoardMeetings
+  - name: Resolutions
+  - name: BoardVotes
+  - name: BoardMaterials
+  - name: ConflictsOfInterest
+  - name: AuditLog
+  - name: eIDAS
+  - name: ProxyVotes
+  - name: GovernanceReports
+  - name: RegulatorExports
+  - name: Multilingual
+
+security:
+  - sessionCookie: []
+  - basicAuth: []
+
+paths:
+  /api/boards:
+    get:
+      tags: [Boards]
+      summary: List boards visible to the caller
+      responses:
+        "200":
+          description: Array of boards
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Board" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    post:
+      tags: [Boards]
+      summary: Create a board
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BoardCreate" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Board" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+
+  /api/boards/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdPath"
+    get:
+      tags: [Boards]
+      responses:
+        "200":
+          description: Board
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Board" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    put:
+      tags: [Boards]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BoardUpdate" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Board" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+
+  /api/boards/{boardId}/members:
+    parameters:
+      - name: boardId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [BoardMembers]
+      responses:
+        "200":
+          description: Members of the board
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/BoardMember" }
+    post:
+      tags: [BoardMembers]
+      summary: Invite a member to the board
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BoardMemberInvite" }
+      responses:
+        "201":
+          description: Member invited
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BoardMember" }
+
+  /api/board-members/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdPath"
+    delete:
+      tags: [BoardMembers]
+      responses:
+        "204": { description: Removed }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/board-members/{id}/role:
+    parameters:
+      - $ref: "#/components/parameters/IdPath"
+    put:
+      tags: [BoardMembers]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum: [chair, vice-chair, member, secretary]
+              required: [role]
+      responses:
+        "200":
+          description: Role updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BoardMember" }
+
+  /api/boards/{boardId}/meetings:
+    parameters:
+      - name: boardId
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      tags: [BoardMeetings]
+      summary: Schedule a board meeting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BoardMeetingSchedule" }
+      responses:
+        "201":
+          description: Scheduled
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BoardMeeting" }
+
+  /api/board-meetings/{id}/send-notice:
+    parameters:
+      - $ref: "#/components/parameters/IdPath"
+    post:
+      tags: [BoardMeetings]
+      responses:
+        "200":
+          description: Notice sent
+
+  /api/board-meetings/{id}/lifecycle:
+    parameters:
+      - $ref: "#/components/parameters/IdPath"
+    post:
+      tags: [BoardMeetings]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transition:
+                  type: string
+                  enum: [open, suspend, resume, close, archive]
+              required: [transition]
+      responses:
+        "200":
+          description: Transitioned
+
+  /api/board-meetings/{meetingId}/resolutions:
+    parameters:
+      - name: meetingId
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      tags: [Resolutions]
+      summary: Propose a resolution
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ResolutionPropose" }
+      responses:
+        "201":
+          description: Proposed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Resolution" }
+
+  /api/resolutions/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdPath"
+    put:
+      tags: [Resolutions]
+      summary: Amend a draft resolution
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ResolutionAmend" }
+      responses:
+        "200":
+          description: Amended
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Resolution" }
+
+  /api/resolutions/{id}/open-vote:
+    parameters:
+      - $ref: "#/components/parameters/IdPath"
+    post:
+      tags: [Resolutions]
+      summary: Open vote (quorum-guarded)
+      responses:
+        "200":
+          description: Vote opened
+        "409":
+          description: Quorum not met / wrong lifecycle
+
+  /api/resolutions/{id}/conclude:
+    parameters:
+      - $ref: "#/components/parameters/IdPath"
+    post:
+      tags: [Resolutions]
+      responses:
+        "200":
+          description: Concluded — tally + threshold applied
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ResolutionTally" }
+
+  /api/resolutions/{resolutionId}/votes:
+    parameters:
+      - name: resolutionId
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      tags: [BoardVotes]
+      summary: Cast a board vote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BoardVoteCast" }
+      responses:
+        "201":
+          description: Vote recorded
+        "409":
+          description: Conflict-of-interest recusal / duplicate vote
+
+  /api/resolutions/{resolutionId}/tally:
+    parameters:
+      - name: resolutionId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [BoardVotes]
+      responses:
+        "200":
+          description: Running tally
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ResolutionTally" }
+
+  /api/resolutions/{resolutionId}/audit:
+    parameters:
+      - name: resolutionId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [BoardVotes]
+      responses:
+        "200":
+          description: Raw cast list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/BoardVote" }
+
+  /api/boards/{boardId}/materials:
+    parameters:
+      - name: boardId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [BoardMaterials]
+      responses:
+        "200":
+          description: Materials filtered by access-level + role
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/BoardMaterial" }
+
+  /api/board-materials/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdPath"
+    get:
+      tags: [BoardMaterials]
+      responses:
+        "200":
+          description: Material metadata
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BoardMaterial" }
+        "403":
+          description: Access denied (per-object RBAC)
+
+  /api/board-materials/{id}/download:
+    parameters:
+      - $ref: "#/components/parameters/IdPath"
+    post:
+      tags: [BoardMaterials]
+      summary: Download material (authorize + log)
+      responses:
+        "200":
+          description: Encrypted byte stream (delegated to docudesk)
+        "403":
+          description: Access denied
+
+  /api/conflicts:
+    post:
+      tags: [ConflictsOfInterest]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ConflictDeclare" }
+      responses:
+        "201":
+          description: Declared
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ConflictOfInterest" }
+
+  /api/board-members/{id}/conflicts:
+    parameters:
+      - $ref: "#/components/parameters/IdPath"
+    get:
+      tags: [ConflictsOfInterest]
+      responses:
+        "200":
+          description: Active conflicts for the member
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ConflictOfInterest" }
+
+  /api/conflicts/{id}/action:
+    parameters:
+      - $ref: "#/components/parameters/IdPath"
+    put:
+      tags: [ConflictsOfInterest]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                actionTaken:
+                  type: string
+                  enum:
+                    [
+                      recused-from-vote,
+                      recused-from-discussion,
+                      disclosed-and-participated,
+                      no-action-needed,
+                    ]
+              required: [actionTaken]
+      responses:
+        "200":
+          description: Updated
+
+  /api/audit-log:
+    get:
+      tags: [AuditLog]
+      summary: Query audit log (admin only)
+      description: |
+        ADMIN ONLY — gated by `IGroupManager::isAdmin` inside
+        `AuditLogController::index`.
+      parameters:
+        - name: actor
+          in: query
+          schema: { type: string }
+        - name: action
+          in: query
+          schema: { type: string }
+        - name: from
+          in: query
+          schema: { type: string, format: date-time }
+        - name: to
+          in: query
+          schema: { type: string, format: date-time }
+        - name: objectUuid
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: Paginated audit entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AuditLogEntry" }
+        "403":
+          description: Caller is not an admin
+
+  /api/audit-log/{id}/verify:
+    parameters:
+      - $ref: "#/components/parameters/IdPath"
+    get:
+      tags: [AuditLog]
+      summary: Walk the hash chain to this entry (admin only)
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  checked: { type: boolean }
+                  tampered: { type: boolean }
+                  brokenAtId: { type: string, nullable: true }
+
+  /api/audit-log/export:
+    get:
+      tags: [AuditLog]
+      summary: Export a date-range slice (admin only)
+      parameters:
+        - name: from
+          in: query
+          schema: { type: string, format: date }
+        - name: to
+          in: query
+          schema: { type: string, format: date }
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json, csv]
+      responses:
+        "200":
+          description: Export bytes
+          content:
+            application/json: {}
+            text/csv: {}
+
+  /api/minutes/{minutesId}/eidas/initiate:
+    parameters:
+      - name: minutesId
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      tags: [eIDAS]
+      summary: Initiate a QES signature flow
+      responses:
+        "200":
+          description: Signature-bag created; signer URL returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signerUrl: { type: string, format: uri }
+                  signatureBagId: { type: string }
+
+  /api/minutes/{minutesId}/eidas/verify:
+    parameters:
+      - name: minutesId
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      tags: [eIDAS]
+      summary: Re-fetch + verify QES status (pull-based)
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid: { type: boolean }
+                  qualified: { type: boolean }
+                  certificateThumbprint:
+                    { type: string, nullable: true }
+                  timestamp:
+                    { type: string, format: date-time, nullable: true }
+                  message: { type: string }
+
+  /api/minutes/{minutesId}/eidas/finalize:
+    parameters:
+      - name: minutesId
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      tags: [eIDAS]
+      summary: Persist the signature artefact onto the Minutes record
+      responses:
+        "200":
+          description: Finalized
+        "409":
+          description: Signature not qualified / verification failed
+
+  /api/eidas/validate-cert:
+    post:
+      tags: [eIDAS]
+      summary: Validate a certificate against the EU LOTL trusted list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pem: { type: string }
+              required: [pem]
+      responses:
+        "200":
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid: { type: boolean }
+                  qualified: { type: boolean }
+                  issuer: { type: string }
+                  serialNumber: { type: string }
+
+  /api/proxies:
+    get:
+      tags: [ProxyVotes]
+      responses:
+        "200":
+          description: Active proxy assignments visible to the caller
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ProxyVote" }
+    post:
+      tags: [ProxyVotes]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProxyVoteRegister" }
+      responses:
+        "201":
+          description: Registered
+
+  /api/proxies/{id}/suspend:
+    parameters:
+      - $ref: "#/components/parameters/IdPath"
+    put:
+      tags: [ProxyVotes]
+      responses:
+        "200":
+          description: Suspended
+
+  /api/proxies/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdPath"
+    delete:
+      tags: [ProxyVotes]
+      responses:
+        "204":
+          description: Revoked
+
+  /api/governance-reports:
+    get:
+      tags: [GovernanceReports]
+      responses:
+        "200":
+          description: Historical reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/GovernanceReport" }
+    post:
+      tags: [GovernanceReports]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GovernanceReportGenerate" }
+      responses:
+        "201":
+          description: Generated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GovernanceReport" }
+
+  /api/regulator-exports:
+    get:
+      tags: [RegulatorExports]
+      summary: List previously generated exports (admin only)
+      responses:
+        "200":
+          description: List of regulator-export bundles
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/RegulatorExport" }
+    post:
+      tags: [RegulatorExports]
+      summary: Generate + stream attachment (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RegulatorExportGenerate" }
+      responses:
+        "200":
+          description: Generated bundle (attachment)
+          content:
+            application/pdf: {}
+            text/csv: {}
+        "403":
+          description: Caller is not an admin
+
+  /api/regulator-exports/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdPath"
+    get:
+      tags: [RegulatorExports]
+      summary: Deterministic re-render of a persisted export
+      responses:
+        "200":
+          description: Bundle bytes
+          content:
+            application/pdf: {}
+            text/csv: {}
+
+  /api/multilingual/queue:
+    post:
+      tags: [Multilingual]
+      summary: Enqueue a translation pair
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sourceLanguage: { type: string }
+                targetLanguage: { type: string }
+                minutesKoppeling: { type: string }
+              required: [sourceLanguage, targetLanguage, minutesKoppeling]
+      responses:
+        "202":
+          description: Queued
+    get:
+      tags: [Multilingual]
+      responses:
+        "200":
+          description: Queue status
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/TranslationQueueEntry" }
+
+  /api/multilingual/queue/process:
+    post:
+      tags: [Multilingual]
+      summary: Drain the queue synchronously (admin/operator)
+      responses:
+        "200":
+          description: Processing result
+
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: nc_session_id
+    basicAuth:
+      type: http
+      scheme: basic
+
+  parameters:
+    IdPath:
+      name: id
+      in: path
+      required: true
+      schema: { type: string }
+
+  responses:
+    Unauthorized:
+      description: Caller is not authenticated
+    NotFound:
+      description: Object not found
+    ValidationError:
+      description: Request body failed schema validation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items: { type: string }
+
+  schemas:
+    Board:
+      type: object
+      properties:
+        id: { type: string }
+        slug: { type: string }
+        name: { type: string }
+        type: { type: string, enum: [rvc, rvb, audit-committee, ledenraad, directieteam] }
+        bylawsRef: { type: string }
+      required: [id, slug, name, type]
+
+    BoardCreate:
+      type: object
+      properties:
+        slug: { type: string }
+        name: { type: string }
+        type: { type: string }
+        bylawsRef: { type: string }
+      required: [slug, name, type]
+
+    BoardUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        bylawsRef: { type: string }
+
+    BoardMember:
+      type: object
+      properties:
+        id: { type: string }
+        boardId: { type: string }
+        userId: { type: string }
+        name: { type: string }
+        role:
+          type: string
+          enum: [chair, vice-chair, member, secretary]
+        independenceStatus:
+          type: string
+          enum: [independent, executive, related-party]
+        joinedAt: { type: string, format: date-time }
+        leftAt: { type: string, format: date-time, nullable: true }
+
+    BoardMemberInvite:
+      type: object
+      properties:
+        userId: { type: string }
+        role: { type: string }
+        independenceStatus: { type: string }
+      required: [userId, role]
+
+    BoardMeeting:
+      type: object
+      properties:
+        id: { type: string }
+        boardId: { type: string }
+        title: { type: string }
+        scheduledStart: { type: string, format: date-time }
+        scheduledEnd: { type: string, format: date-time }
+        location: { type: string }
+        quorumRequired: { type: integer }
+        lifecycle:
+          type: string
+          enum: [scheduled, open, suspended, closed, archived]
+        attendanceRate:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+
+    BoardMeetingSchedule:
+      type: object
+      properties:
+        title: { type: string }
+        scheduledStart: { type: string, format: date-time }
+        scheduledEnd: { type: string, format: date-time }
+        location: { type: string }
+        quorumRequired: { type: integer }
+      required: [title, scheduledStart]
+
+    Resolution:
+      type: object
+      properties:
+        id: { type: string }
+        boardMeetingId: { type: string }
+        title: { type: string }
+        text: { type: string }
+        threshold:
+          type: string
+          enum: [majority, two-thirds, three-quarters, unanimous]
+        status:
+          type: string
+          enum: [draft, vote-open, adopted, rejected, withdrawn]
+        decidedAt: { type: string, format: date-time, nullable: true }
+
+    ResolutionPropose:
+      type: object
+      properties:
+        title: { type: string }
+        text: { type: string }
+        threshold: { type: string }
+      required: [title, text]
+
+    ResolutionAmend:
+      type: object
+      properties:
+        title: { type: string }
+        text: { type: string }
+        threshold: { type: string }
+
+    ResolutionTally:
+      type: object
+      properties:
+        for: { type: integer }
+        against: { type: integer }
+        abstain: { type: integer }
+        recused: { type: integer }
+        thresholdMet: { type: boolean }
+
+    BoardVote:
+      type: object
+      properties:
+        id: { type: string }
+        resolutionId: { type: string }
+        boardMemberId: { type: string }
+        voteValue:
+          type: string
+          enum: [for, against, abstain, recused, imported]
+        voteMethod:
+          type: string
+          enum: [in-person, remote, proxy, written, imported]
+        castAt: { type: string, format: date-time }
+
+    BoardVoteCast:
+      type: object
+      properties:
+        boardMemberId: { type: string }
+        voteValue: { type: string }
+        voteMethod: { type: string }
+      required: [boardMemberId, voteValue]
+
+    BoardMaterial:
+      type: object
+      properties:
+        id: { type: string }
+        boardId: { type: string }
+        title: { type: string }
+        fileId: { type: string }
+        accessLevel:
+          type: string
+          enum: [public, board-only, executive-only, chair-only]
+
+    ConflictOfInterest:
+      type: object
+      properties:
+        id: { type: string }
+        declaredBy: { type: string }
+        agendaItemId: { type: string, nullable: true }
+        declaredAt: { type: string, format: date-time }
+        actionTaken:
+          type: string
+          enum:
+            [
+              recused-from-vote,
+              recused-from-discussion,
+              disclosed-and-participated,
+              no-action-needed,
+            ]
+
+    ConflictDeclare:
+      type: object
+      properties:
+        agendaItemId: { type: string, nullable: true }
+        nature: { type: string }
+        materialityNote: { type: string }
+      required: [nature]
+
+    AuditLogEntry:
+      type: object
+      properties:
+        id: { type: string }
+        actor: { type: string }
+        action: { type: string }
+        objectUuid: { type: string }
+        recordedAt: { type: string, format: date-time }
+        payloadHash: { type: string }
+        previousHash: { type: string }
+
+    ProxyVote:
+      type: object
+      properties:
+        id: { type: string }
+        principalMemberId: { type: string }
+        proxyMemberId: { type: string }
+        scope:
+          type: string
+          enum: [single-meeting, time-bounded, open-ended]
+        validFrom: { type: string, format: date-time }
+        validUntil: { type: string, format: date-time, nullable: true }
+        suspended: { type: boolean }
+
+    ProxyVoteRegister:
+      type: object
+      properties:
+        principalMemberId: { type: string }
+        proxyMemberId: { type: string }
+        scope: { type: string }
+        validFrom: { type: string, format: date-time }
+        validUntil: { type: string, format: date-time, nullable: true }
+      required: [principalMemberId, proxyMemberId, scope]
+
+    GovernanceReport:
+      type: object
+      properties:
+        id: { type: string }
+        boardId: { type: string }
+        period: { type: string }
+        generatedAt: { type: string, format: date-time }
+        sha256: { type: string }
+
+    GovernanceReportGenerate:
+      type: object
+      properties:
+        boardId: { type: string }
+        period: { type: string }
+      required: [boardId, period]
+
+    RegulatorExport:
+      type: object
+      properties:
+        id: { type: string }
+        boardId: { type: string }
+        from: { type: string, format: date }
+        to: { type: string, format: date }
+        format: { type: string, enum: [pdf, csv] }
+        sha256: { type: string }
+        recordCount: { type: integer }
+        generatedAt: { type: string, format: date-time }
+
+    RegulatorExportGenerate:
+      type: object
+      properties:
+        boardId: { type: string }
+        from: { type: string, format: date }
+        to: { type: string, format: date }
+        format: { type: string, enum: [pdf, csv] }
+        scope:
+          type: object
+          properties:
+            regulator: { type: string }
+      required: [boardId, format]
+
+    TranslationQueueEntry:
+      type: object
+      properties:
+        id: { type: string }
+        sourceLanguage: { type: string }
+        targetLanguage: { type: string }
+        minutesKoppeling: { type: string }
+        status: { type: string, enum: [queued, processing, done, failed] }
+        provider: { type: string, nullable: true }
+        lastError: { type: string, nullable: true }

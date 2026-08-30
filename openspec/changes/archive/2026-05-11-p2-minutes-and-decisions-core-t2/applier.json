@@ -1,0 +1,42 @@
+{
+  "ran": true,
+  "pass": false,
+  "blocking": [
+    {
+      "file": null,
+      "severity": "warning",
+      "note": ""
+    },
+    {
+      "file": null,
+      "severity": "warning",
+      "note": ""
+    },
+    {
+      "file": null,
+      "severity": "warning",
+      "note": ""
+    },
+    {
+      "file": null,
+      "severity": "warning",
+      "note": ""
+    },
+    {
+      "file": null,
+      "severity": "warning",
+      "note": ""
+    },
+    {
+      "file": null,
+      "severity": "warning",
+      "note": ""
+    }
+  ],
+  "turns": 13,
+  "cost_usd": 0.3786,
+  "cost_eur": 0.3483,
+  "pr": 122,
+  "commit": "e5bf608",
+  "timestamp": "2026-04-20T05:56:20.234761+00:00"
+}

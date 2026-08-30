@@ -1,0 +1,8 @@
+{
+  "spec_slug": "board-meeting-resolutions",
+  "title": "Board Meeting Resolutions",
+  "app": "decidesk",
+  "repo": "https://github.com/ConductionNL/decidiq",
+  "depends_on": [],
+  "issue": "Codeberg issue #245 (pre-migration, not migrated to GitHub)"
+}

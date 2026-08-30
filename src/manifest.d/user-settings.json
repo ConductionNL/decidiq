@@ -1,0 +1,24 @@
+{
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "User-settings manifest fragment (user-settings-v1) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments. Adds the in-app personal settings page; the canonical mount is the Nextcloud personal settings panel at /settings/user/decidiq.",
+	"menu": [
+		{
+			"id": "UserSettingsMenu",
+			"label": "Preferences",
+			"icon": "CogOutline",
+			"route": "UserSettings",
+			"section": "settings",
+			"order": 98
+		}
+	],
+	"pages": [
+		{
+			"id": "UserSettings",
+			"route": "/user-settings",
+			"type": "custom",
+			"title": "Personal settings",
+			"_note": "In-app mount of the PER-USER preference sections (notification, display, delegation, communication) — the SPA twin of the Nextcloud personal panel at /settings/user/decidiq. type:'settings' is the app-configuration surface, not the per-user one, and the four sections are bespoke components with their own save semantics rather than a declarative field set, so no standard page type fits. Spec: openspec/specs/user-settings/spec.md",
+			"component": "UserSettingsPage"
+		}
+	]
+}

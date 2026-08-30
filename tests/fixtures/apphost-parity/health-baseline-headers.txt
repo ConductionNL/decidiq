@@ -1,0 +1,25 @@
+HTTP/1.1 200 OK
+Date: Tue, 16 Jun 2026 08:35:59 GMT
+Server: Apache/2.4.66 (Debian)
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Permitted-Cross-Domain-Policies: none
+X-Robots-Tag: noindex, nofollow
+Referrer-Policy: no-referrer
+X-Powered-By: PHP/8.3.30
+Set-Cookie: ocy2k459bs75=910221ee823752ae5bf51dd05c3b5fd5; path=/; HttpOnly; SameSite=Lax
+Set-Cookie: oc_sessionPassphrase=fzonkAchP68APNJmhR9KRfIFMswdVWBKr2gj38bHJ5HFlXQc9LsabywdERtA31gv%2FTW1IFsK5wGJQL059GBLgsURpe%2Frubll1oJeuoVcTGIVP3h0g2wijZH%2BUREW8PC8; path=/; HttpOnly; SameSite=Lax
+Set-Cookie: ocy2k459bs75=910221ee823752ae5bf51dd05c3b5fd5; path=/; HttpOnly; SameSite=Lax
+Content-Security-Policy: default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+Set-Cookie: nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59 GMT; SameSite=lax
+Set-Cookie: nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59 GMT; SameSite=strict
+Set-Cookie: ocy2k459bs75=910221ee823752ae5bf51dd05c3b5fd5; path=/; HttpOnly; SameSite=Lax
+X-Request-Id: H8sAVsX2HgbDroyiYOKa
+Cache-Control: no-cache, no-store, must-revalidate
+Feature-Policy: autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone 'none';payment 'none'
+Access-Control-Allow-Origin: http://localhost
+Access-Control-Allow-Methods: GET, OPTIONS
+Access-Control-Allow-Headers: Authorization, Content-Type, X-Requested-With
+Content-Length: 91
+Content-Type: application/json; charset=utf-8
+

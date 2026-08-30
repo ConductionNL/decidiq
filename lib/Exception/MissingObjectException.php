@@ -1,16 +1,14 @@
 <?php
+
 /**
- * Decidesk MissingObjectException
- *
- * SPDX-License-Identifier: EUPL-1.2
- * Copyright (C) 2026 Conduction B.V.
+ * Decidiq MissingObjectException
  *
  * @category Exception
- * @package  OCA\Decidesk\Exception
+ * @package  OCA\Decidiq\Exception
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  *
- * @author    Conduction Development Team <dev@conductio.nl>
+ * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
@@ -19,7 +17,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Exception;
+namespace OCA\Decidiq\Exception;
 
 /**
  * Thrown when a requested object cannot be found in OpenRegister.
@@ -29,6 +27,5 @@ namespace OCA\Decidesk\Exception;
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  */
-class MissingObjectException extends \InvalidArgumentException
-{
+class MissingObjectException extends \InvalidArgumentException {
 }//end class
