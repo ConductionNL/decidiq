@@ -2039,7 +2039,9 @@ OC.L10N.register(
         "{responded} of {invited} responded": "{responded} van {invited} gereageerd",
         "{states} states, {transitions} transitions": "{states} statussen, {transitions} overgangen",
         "Source app": "Bronapplicatie",
-        "External reference": "Externe referentie"
+        "External reference": "Externe referentie",
+        "App id of the fleet app this route was held on behalf of (e.g. dossiq). Empty for routes authored in decidiq itself. Half of the idempotency key; never an authorization input.": "App-id van de applicatie waarvoor deze route wordt bewaard (bijvoorbeeld dossiq). Leeg voor routes die in decidiq zelf zijn gemaakt. De helft van de idempotentiesleutel; nooit een autorisatiegrond.",
+        "The producing app's own id for the route this one was migrated from. Paired with sourceApp it identifies the origin, so a repeated command updates this route rather than creating another.": "Het eigen id dat de bronapplicatie gebruikt voor de route waaruit deze is overgenomen. Samen met sourceApp bepaalt het de herkomst, zodat een herhaalde opdracht deze route bijwerkt in plaats van een tweede aanmaakt."
     },
     "nplurals=2; plural=(n != 1);"
 )

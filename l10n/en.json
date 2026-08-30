@@ -1739,7 +1739,9 @@
         "Table": "Table",
         "Today": "Today",
         "Source app": "Source app",
-        "External reference": "External reference"
+        "External reference": "External reference",
+        "App id of the fleet app this route was held on behalf of (e.g. dossiq). Empty for routes authored in decidiq itself. Half of the idempotency key; never an authorization input.": "App id of the fleet app this route was held on behalf of (e.g. dossiq). Empty for routes authored in decidiq itself. Half of the idempotency key; never an authorization input.",
+        "The producing app's own id for the route this one was migrated from. Paired with sourceApp it identifies the origin, so a repeated command updates this route rather than creating another.": "The producing app's own id for the route this one was migrated from. Paired with sourceApp it identifies the origin, so a repeated command updates this route rather than creating another."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }
