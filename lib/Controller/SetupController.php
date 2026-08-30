@@ -205,7 +205,23 @@ class SetupController extends Controller {
 		}
 
 		// DECLINING IS AN ANSWER — see DEMO_DECIDED_KEY.
+		//
+		// 🔴 AND IT ANSWERS *BOTH* STEPS, WHICH ONE WRITE HERE USED TO MISS.
+		// Splitting the old single `demo-data` step into a `choice` and a
+		// `run-action` gave the wizard TWO outstanding steps, and this action
+		// closed only the second. CnAppRoot opens the wizard while ANY optional
+		// step is outstanding, so `skip-example-set` returned 200, reported "no
+		// example data was loaded", and left the wizard open over every page.
+		//
+		// Measured 2026-08-30: after ci-seed.sh posted this action the status was
+		// still `example-set: {done: false}`, and the e2e suite failed on
+		// `<ol class="cn-wizard-dialog__progress">` intercepting clicks that
+		// Playwright had already resolved — "visible, enabled and stable", then a
+		// timeout.
+		//
+		// Skipping IS choosing none, so it records that choice.
 		if ($actionId === 'skip-example-set') {
+			$this->appConfig->setValueString(Application::APP_ID, self::PROFILE_KEY, SeedProfileService::NONE_PROFILE);
 			$this->appConfig->setValueString(Application::APP_ID, self::DEMO_DECIDED_KEY, 'skipped');
 
 			return new JSONResponse(data: ['success' => true, 'message' => 'No example data was loaded.']);
