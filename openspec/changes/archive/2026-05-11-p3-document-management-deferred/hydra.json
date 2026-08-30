@@ -1,0 +1,14 @@
+{
+  "spec_slug": "p3-document-management",
+  "title": "Document Management",
+  "app": "decidesk",
+  "repo": "https://github.com/ConductionNL/decidiq",
+  "depends_on": [
+    "p2-agenda-management",
+    "p2-meeting-management",
+    "p2-minutes-and-decisions",
+    "p2-motion-and-voting",
+    "pluggable-integration-registry"
+  ],
+  "issue": null
+}

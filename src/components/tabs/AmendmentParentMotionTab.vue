@@ -1,0 +1,195 @@
+<!-- SPDX-License-Identifier: EUPL-1.2 -->
+<!-- Copyright (C) 2026 Conduction B.V. -->
+
+<!--
+ Sidebar tab: parent Motion of an Amendment.
+
+ Posture: read-only summary + click-through. Resolves the current
+ amendment's `parentMotion` field to its motion record and displays
+ a summary card (title, proposer, lifecycle) plus a "View motion"
+ link to /motions/:parentMotionId. Cross-schema fetch lives inside
+ this component (the abstract-sidebar contract doesn't traverse
+ references for us).
+
+ @spec openspec/changes/decidesk-manifest-v1/design.md (open question 3)
+-->
+<template>
+	<div
+		class="decidiq-tab decidiq-tab--parent-motion"
+		data-testid="amendment-parent-tab">
+		<h3 class="decidiq-tab__title">
+			{{ t('decidiq', 'Parent motion') }}
+		</h3>
+
+		<CnNoteCard
+			v-if="error"
+			type="error"
+			:title="t('decidiq', 'Could not load parent motion')">
+			{{ error }}
+		</CnNoteCard>
+
+		<p v-else-if="loading" class="decidiq-tab__loading">
+			{{ t('decidiq', 'Loading…') }}
+		</p>
+
+		<CnNoteCard
+			v-else-if="!parentMotionId"
+			type="info"
+			:title="t('decidiq', 'No parent motion')">
+			{{ t('decidiq', 'This amendment is not linked to a motion.') }}
+		</CnNoteCard>
+
+		<CnDetailCard
+			v-else-if="motion"
+			:title="motion.title || t('decidiq', 'Motion')">
+			<CnDetailGrid :items="propertyItems" />
+			<div class="decidiq-tab__cta">
+				<NcButton
+					variant="primary"
+					data-testid="amendment-parent-open"
+					:aria-label="t('decidiq', 'Open parent motion')"
+					@click="openParent">
+					{{ t('decidiq', 'View motion') }}
+				</NcButton>
+			</div>
+		</CnDetailCard>
+
+		<CnNoteCard
+			v-else
+			type="warning"
+			:title="t('decidiq', 'Parent motion not found')">
+			{{
+				t('decidiq', 'The referenced motion ({id}) could not be loaded.', {
+					id: parentMotionId,
+				})
+			}}
+		</CnNoteCard>
+	</div>
+</template>
+
+<script>
+import { CnDetailCard, CnDetailGrid, CnNoteCard } from '@conduction/nextcloud-vue'
+import { NcButton } from '@nextcloud/vue'
+import { ensureRelationType } from './useRelationStore.js'
+
+export default {
+	name: 'AmendmentParentMotionTab',
+	components: { CnDetailCard, CnDetailGrid, CnNoteCard, NcButton },
+	props: {
+		objectId: { type: [String, Number], default: '' },
+	},
+
+	data() {
+		return {
+			loading: false,
+			error: '',
+			amendment: null,
+			motion: null,
+		}
+	},
+
+	computed: {
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
+		parentMotionId() {
+			// ADR-005: parent motion is referenced via the folded `amends` field.
+			const ref = this.amendment?.amends ?? this.amendment?.parentMotion
+			if (!ref) return ''
+			if (typeof ref === 'object') return ref.id || ref.uuid || ''
+			return ref
+		},
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
+		propertyItems() {
+			if (!this.motion) return []
+			return [
+				{ label: this.t('decidiq', 'Title'), value: this.motion.title },
+				{
+					label: this.t('decidiq', 'Proposer'),
+					value: this.motion.proposer,
+				},
+				{ label: this.t('decidiq', 'Type'), value: this.motion.motionType },
+				{
+					label: this.t('decidiq', 'Status'),
+					value: this.motion.lifecycle,
+				},
+				{
+					label: this.t('decidiq', 'Submitted'),
+					value: this.motion.submittedAt,
+				},
+			]
+		},
+	},
+
+	watch: {
+		objectId: {
+			immediate: true,
+			/** @spec openspec/specs/relation-tab-ui/spec.md */
+			handler() {
+				this.refresh()
+			},
+		},
+	},
+
+	methods: {
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
+		async refresh() {
+			if (!this.objectId) return
+			this.loading = true
+			this.error = ''
+			this.motion = null
+			try {
+				const amendmentStore = ensureRelationType('amendment')
+				this.amendment = await amendmentStore.fetchObject(
+					'amendment',
+					this.objectId,
+				)
+				if (this.parentMotionId) {
+					const motionStore = ensureRelationType('motion')
+					this.motion = await motionStore.fetchObject(
+						'motion',
+						this.parentMotionId,
+					)
+				}
+			} catch (e) {
+				this.error =
+					e?.message || this.t('decidiq', 'Failed to load parent motion.')
+			} finally {
+				this.loading = false
+			}
+		},
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
+		openParent() {
+			if (!this.parentMotionId) return
+			this.$router.push({
+				name: 'MotionDetail',
+				params: { id: this.parentMotionId },
+			})
+		},
+	},
+}
+</script>
+
+<style scoped>
+.decidiq-tab {
+	display: flex;
+	flex-direction: column;
+	gap: var(--default-grid-baseline);
+	padding: var(--default-grid-baseline);
+}
+
+.decidiq-tab__title {
+	margin: 0;
+	font-size: 1rem;
+	font-weight: bold;
+}
+
+.decidiq-tab__loading {
+	color: var(--color-text-maxcontrast);
+	margin: 0;
+}
+
+.decidiq-tab__cta {
+	margin-top: var(--default-grid-baseline);
+}
+</style>

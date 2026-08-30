@@ -1,0 +1,69 @@
+{
+  "spec_slug": "p2-minutes-and-decisions-core-t2",
+  "title": "Minutes and Decisions \u2014 Core T2",
+  "app": "decidesk",
+  "repo": "https://github.com/ConductionNL/decidiq",
+  "depends_on": [
+    "p2-minutes-and-decisions"
+  ],
+  "issue": null,
+  "pipeline": {
+    "code_review": {
+      "pass": null,
+      "fixes_applied": [],
+      "unfixed": []
+    },
+    "security_review": {
+      "pass": null,
+      "fixes_applied": [],
+      "unfixed": []
+    },
+    "applier": {
+      "ran": true,
+      "pass": false,
+      "blocking": [
+        {
+          "file": null,
+          "severity": "warning",
+          "note": ""
+        },
+        {
+          "file": null,
+          "severity": "warning",
+          "note": ""
+        },
+        {
+          "file": null,
+          "severity": "warning",
+          "note": ""
+        },
+        {
+          "file": null,
+          "severity": "warning",
+          "note": ""
+        },
+        {
+          "file": null,
+          "severity": "warning",
+          "note": ""
+        },
+        {
+          "file": null,
+          "severity": "warning",
+          "note": ""
+        }
+      ]
+    },
+    "build_count": 1,
+    "findings_fixed": 0,
+    "findings_open": 0,
+    "suggestions_open": 0,
+    "total_cost_usd": 1.1652,
+    "total_cost_eur": 1.07,
+    "total_turns": 99,
+    "last_code_review_pass": null,
+    "last_security_review_pass": null
+  },
+  "schema_version": 2,
+  "cycles": []
+}

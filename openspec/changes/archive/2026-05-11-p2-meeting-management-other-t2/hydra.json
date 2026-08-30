@@ -1,0 +1,11 @@
+{
+  "spec_slug": "p2-meeting-management-other-t2",
+  "title": "Meeting Management \u2014 Other T2",
+  "app": "decidesk",
+  "repo": "https://github.com/ConductionNL/decidiq",
+  "depends_on": [
+    "integration-calendar",
+    "p2-meeting-management"
+  ],
+  "issue": "Codeberg issue #42 (pre-migration, not migrated to GitHub)"
+}

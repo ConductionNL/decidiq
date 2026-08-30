@@ -1,0 +1,8 @@
+{
+  "spec_slug": "motie-amendement-administratie",
+  "title": "Motie en Amendement Administratie",
+  "app": "decidiq",
+  "repo": "https://github.com/ConductionNL/decidesk",
+  "depends_on": [],
+  "issue": null
+}

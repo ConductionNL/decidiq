@@ -1,13 +1,13 @@
 schema: conduction
 
 context: |
-  Project: Decidesk
-  Repo: ConductionNL/decidesk
+  Project: Decidiq
+  Repo: ConductionNL/decidiq
   Type: Nextcloud App (PHP backend + Vue 2 frontend)
   Description: Universal decision-making platform for governance bodies — manages meetings, agendas, motions, amendments, voting, minutes, and decision tracking with configurable workflows per organization type.
   Key components: Dashboard, Meeting Management, Agenda Builder, Motion/Voting, Minutes/Decisions, Governance Bodies, Citizen Participation
   Database: PostgreSQL (via OpenRegister's ObjectService)
-  Mount path: /var/www/html/custom_apps/decidesk
+  Mount path: /var/www/html/custom_apps/decidiq
 
   Governance Domains:
     1. Legislative/democratic bodies (municipalities, provinces, water boards)
@@ -17,7 +17,7 @@ context: |
     5. Citizen participation (initiatives, referenda, participatory budgets)
 
   Architecture:
-    Pattern: Thin client — Decidesk owns no database tables
+    Pattern: Thin client — Decidiq owns no database tables
     Data layer: OpenRegister (JSON object storage with schema validation)
     Frontend: Vue 2.7 + Pinia stores querying OpenRegister API directly
     Backend: Minimal — SettingsController + SettingsService for register setup, workflow orchestration

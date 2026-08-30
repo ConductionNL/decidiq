@@ -1,35 +1,53 @@
+# Decidesk — Conduction PHPStan config.
+#
+# The shared base is the single source of truth. Everything here is either the
+# app's own tracked debt or an ignore naming a symbol that exists in no other
+# fleet app. Anything you are tempted to add that another app would also need
+# belongs in the base, not here.
+includes:
+    - vendor/conduction/hydra-gates/quality-config/phpstan-base.neon
+    # One tracked entry left, and it is a security question rather than lint —
+    # read the file's header before touching it. Not regenerated; entries are
+    # removed one at a time as the underlying code is fixed.
+    - phpstan-baseline.neon
+
 parameters:
-    level: 5
-    paths:
-        - lib
-    bootstrapFiles:
-        - phpstan-bootstrap.php
+    # App-specific only. The base already sets level, paths, bootstrapFiles,
+    # excludePaths, scanDirectories and every fleet-wide ignore.
     excludePaths:
-        - vendor
-    scanDirectories:
-        - vendor/nextcloud/ocp
-    reportUnmatchedIgnoredErrors: false
+        # These controllers extend OpenRegister AppHost base controllers that are only
+        # available at runtime (dynamic app loading). PHPStan cannot resolve the parent
+        # class during static analysis; the inheritance chain is guarded by runtime
+        # app-availability checks in Application::register().
+        - lib/Controller/DashboardController.php
+        - lib/Controller/HealthController.php
+        - lib/Controller/MetricsController.php
+
+    scanFiles:
+        # OpenRegister ships IMcpToolProvider at runtime only. "implements unknown
+        # interface" is a non-ignorable PHPStan error, so hand it the same stub the
+        # phpunit bootstrap uses instead of muting it — this analyses the contract
+        # for real rather than suppressing it.
+        - tests/Stubs/Mcp/IMcpToolProvider.php
+
     ignoreErrors:
-        # Nextcloud internal classes that PHPStan might not recognize
-        - '#Call to an undefined method OC::#'
-        - '#Class OC not found#'
-        - '#Access to static property \$server on an unknown class OC#'
-        # OCA classes from other apps (OpenRegister) not available during static analysis
-        - '#unknown class OCA\\OpenRegister\\#'
-        - '#OCA\\OpenRegister\\[a-zA-Z\\]+.*not found#'
-        - '#on an unknown class OCA\\OpenRegister\\#'
-        - '#has invalid return type OCA\\OpenRegister\\#'
-        - '#has invalid type OCA\\OpenRegister\\#'
-        # CalendarEventService is an OpenRegister type unknown to PHPStan; the property IS
-        # read in publishAgenda() but PHPStan cannot resolve calls through an unknown class.
-        - '#Property OCA\\Decidesk\\Service\\AgendaService::\$calendarEventService is never read#'
-        # GuzzleHttp is available at runtime via Nextcloud but not in composer require
-        - '#unknown class GuzzleHttp\\#'
-        - '#GuzzleHttp\\[a-zA-Z\\]+.*not found#'
-        - '#on an unknown class GuzzleHttp\\#'
-        - '#invalid type GuzzleHttp\\#'
-        - '#Caught class GuzzleHttp\\#'
-        # Dynamic HTTP status codes from business rule validation results
-        - '#Parameter \$statusCode of class OCP\\AppFramework\\Http\\JSONResponse constructor expects#'
-        # registerRepairStep exists on server; not yet in nextcloud/ocp stub used for analysis
-        - '#Call to an undefined method OCP\\AppFramework\\Bootstrap\\IRegistrationContext::registerRepairStep#'
+        # NC Talk's room/conversation manager is an external app class not available during
+        # analysis; it is resolved dynamically at runtime and guarded with method_exists(),
+        # so phpstan infers stdClass and cannot see the real named-parameter signatures.
+        - '#Unknown parameter \$(objectType|objectId|type|name) in call to method stdClass::(getRoomForObject|createConversationFromObject)\(\)#'
+
+        # `LogTranslationAdapter::resolveOpenConnector()` probes
+        # OPENCONNECTOR_CANDIDATES with class_exists() before asking the
+        # container for them. OpenConnector is a SEPARATE app: its classes exist
+        # only when it is installed, so phpstan — which never sees them — is
+        # right that the call "will always evaluate to false" in ITS world and
+        # wrong about the runtime.
+        #
+        # The probe is the feature. Deleting it to satisfy the analyser would
+        # remove the only thing making the integration optional. Scoped to these
+        # two class names rather than the rule, so a genuinely impossible
+        # class_exists() elsewhere still fails.
+        -
+            identifier: function.impossibleType
+            message: '#Call to function class_exists\(\) with .*OpenConnector.* will always evaluate to false#'
+            path: lib/Service/LogTranslationAdapter.php

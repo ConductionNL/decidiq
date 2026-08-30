@@ -1,0 +1,13 @@
+{
+  "spec_slug": "p3-governance-bodies",
+  "title": "Governance Bodies",
+  "app": "decidesk",
+  "repo": "https://github.com/ConductionNL/decidiq",
+  "depends_on": [
+    "p2-minutes-and-decisions",
+    "p2-motion-and-voting",
+    "p2-agenda-management",
+    "p2-meeting-management"
+  ],
+  "issue": null
+}

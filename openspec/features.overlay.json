@@ -1,0 +1,256 @@
+[
+  {
+    "slug": "secret-ballot",
+    "title": "Secret ballots",
+    "title_nl": "Geheime stemmingen",
+    "summary": "Members vote anonymously, and even an admin cannot trace a ballot back.",
+    "summary_nl": "Leden stemmen anoniem, en zelfs een beheerder kan een stem niet herleiden.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/secret-ballot/spec.md"
+  },
+  {
+    "slug": "voting-system",
+    "title": "Voting engine",
+    "title_nl": "Stemmotor",
+    "summary": "Run thresholds and roll-call votes with the tally counted on the server.",
+    "summary_nl": "Tel drempels en hoofdelijke stemmingen server-side, zodat de uitslag klopt.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/voting-system/spec.md"
+  },
+  {
+    "slug": "proxy-voting",
+    "title": "Proxy and delegated voting",
+    "title_nl": "Volmacht en gedelegeerd stemmen",
+    "summary": "Let an absent member assign their vote to someone they trust.",
+    "summary_nl": "Laat een afwezig lid zijn stem veilig aan iemand anders overdragen.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/proxy-voting/spec.md"
+  },
+  {
+    "slug": "preferential-ballot",
+    "title": "Preferential elections",
+    "title_nl": "Voorkeursverkiezingen",
+    "summary": "Rank the candidates and let a Borda count pick the winner.",
+    "summary_nl": "Rangschik de kandidaten en laat een Borda-telling de winnaar kiezen.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/preferential-ballot/spec.md"
+  },
+  {
+    "slug": "meeting-quorum",
+    "title": "Quorum verification",
+    "title_nl": "Quorumcontrole",
+    "summary": "Know before you start whether you are allowed to decide.",
+    "summary_nl": "Weet voordat je begint of je bevoegd bent om te besluiten.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/meeting-quorum/spec.md"
+  },
+  {
+    "slug": "decision-management",
+    "title": "Decision register",
+    "title_nl": "Besluitenregister",
+    "summary": "Find at a glance which decision is in force right now.",
+    "summary_nl": "Vind in een oogopslag welk besluit nu geldt.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/decision-management/spec.md"
+  },
+  {
+    "slug": "decision-evolution-and-cascade",
+    "title": "Supersede and repeal",
+    "title_nl": "Vervangen en intrekken",
+    "summary": "Track which decision replaced or repealed which earlier one.",
+    "summary_nl": "Volg welk besluit een eerder besluit verving of introk.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/decision-evolution-and-cascade/spec.md"
+  },
+  {
+    "slug": "motion-amendment",
+    "title": "Motions and amendments",
+    "title_nl": "Moties en amendementen",
+    "summary": "See exactly what an amendment changes before you vote on it.",
+    "summary_nl": "Zie precies wat een amendement verandert voordat je stemt.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/motion-amendment/spec.md"
+  },
+  {
+    "slug": "resolution-minutes",
+    "title": "Minutes and approval",
+    "title_nl": "Notulen en vaststelling",
+    "summary": "Draft minutes, route them for sign-off and version the legal record.",
+    "summary_nl": "Stel notulen op, stuur ze rond voor akkoord en versioneer het verslag.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/resolution-minutes/spec.md"
+  },
+  {
+    "slug": "meeting-management",
+    "title": "Meeting management",
+    "title_nl": "Vergaderbeheer",
+    "summary": "Plan a meeting once and let the series repeat automatically.",
+    "summary_nl": "Plan een vergadering eenmaal en laat de reeks zich automatisch herhalen.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/meeting-management/spec.md"
+  },
+  {
+    "slug": "agenda-builder",
+    "title": "Agenda builder",
+    "title_nl": "Agendabouwer",
+    "summary": "Drag an agenda together in minutes instead of hours.",
+    "summary_nl": "Sleep een agenda in elkaar in minuten, niet in uren.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/agenda-builder/spec.md"
+  },
+  {
+    "slug": "process-configuration",
+    "title": "Process templates",
+    "title_nl": "Procesmodellen",
+    "summary": "Adapt the way of working to a council, association or board.",
+    "summary_nl": "Pas de werkwijze aan op een raad, vereniging of bestuur.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/process-configuration/spec.md"
+  },
+  {
+    "slug": "public-publication",
+    "title": "Public publication",
+    "title_nl": "Openbare publicatie",
+    "summary": "Publish agendas and decisions to ORI and open data sources.",
+    "summary_nl": "Publiceer agenda's en besluiten naar ORI en open databronnen.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/public-publication/spec.md"
+  },
+  {
+    "slug": "conflict-of-interest",
+    "title": "Conflict of interest",
+    "title_nl": "Belangenverstrengeling",
+    "summary": "Declare a conflict and record the recusal automatically.",
+    "summary_nl": "Meld een belang en leg de onthouding automatisch vast.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/conflict-of-interest/spec.md"
+  },
+  {
+    "slug": "immutable-audit-trail",
+    "title": "Immutable audit trail",
+    "title_nl": "Onveranderlijk auditspoor",
+    "summary": "Show who changed what and when, without a single exception.",
+    "summary_nl": "Toon wie wat wanneer wijzigde, zonder uitzondering.",
+    "status": "stable",
+    "providedBy": "openregister"
+  },
+  {
+    "slug": "governance-analytics",
+    "title": "Governance analytics",
+    "title_nl": "Bestuursanalyses",
+    "summary": "See attendance, meeting cost and how members actually vote.",
+    "summary_nl": "Zie opkomst, vergaderkosten en hoe leden daadwerkelijk stemmen.",
+    "status": "stable",
+    "providedBy": "openregister",
+    "docsUrl": "openspec/specs/governance-analytics-via-analytics-leaf/spec.md"
+  },
+  {
+    "slug": "citizen-participation",
+    "title": "Citizen participation",
+    "title_nl": "Burgerparticipatie",
+    "summary": "Open a consultation or participatory budget next to the decision.",
+    "summary_nl": "Open een consultatie of burgerbegroting naast het besluit.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/citizen-participation/spec.md"
+  },
+  {
+    "slug": "ai-chat-companion",
+    "title": "AI chat companion",
+    "title_nl": "AI-chatassistent",
+    "summary": "Ask for open action items or start a meeting by chat.",
+    "summary_nl": "Vraag om openstaande actiepunten of start een vergadering via de chat.",
+    "status": "stable",
+    "providedBy": "openregister",
+    "docsUrl": "openspec/specs/mcp-tools/spec.md"
+  },
+  {
+    "slug": "app-integrations",
+    "title": "App integrations",
+    "title_nl": "App-koppelingen",
+    "summary": "Link Deck, Talk, Mail and Collectives without extra tools.",
+    "summary_nl": "Koppel Deck, Talk, Mail en Collectives zonder extra tools.",
+    "status": "stable",
+    "providedBy": "openregister",
+    "docsUrl": "openspec/specs/nextcloud-integration/spec.md"
+  },
+  {
+    "slug": "member-import",
+    "title": "Member import",
+    "title_nl": "Ledenimport",
+    "summary": "Bring your full member list in at once.",
+    "summary_nl": "Breng je ledenlijst in een keer naar binnen.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/person-and-membership/spec.md"
+  },
+  {
+    "slug": "accessibility-and-theming",
+    "title": "Accessibility and theming",
+    "title_nl": "Toegankelijkheid en thema",
+    "summary": "WCAG-compliant, NL Design ready, in Dutch or English.",
+    "summary_nl": "WCAG-conform, klaar voor NL Design, in het Nederlands of Engels.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/nl-design-theming/spec.md"
+  },
+  {
+    "slug": "guided-onboarding",
+    "title": "Guided onboarding",
+    "title_nl": "Begeleide introductie",
+    "summary": "A four-step tour points new clerks at their first meeting.",
+    "summary_nl": "Een rondleiding in vier stappen wijst nieuwe griffiers hun eerste vergadering.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/app-navigation/spec.md"
+  },
+  {
+    "slug": "live-meeting-mode",
+    "title": "Live meeting mode",
+    "title_nl": "Live vergadermodus",
+    "summary": "Chair the meeting, open votes and show the result live.",
+    "summary_nl": "Leid de vergadering, open stemmingen en toon de uitslag live.",
+    "status": "beta",
+    "docsUrl": "openspec/specs/agenda-live-management/spec.md"
+  },
+  {
+    "slug": "action-items-on-deck-board",
+    "title": "Action items on a Deck board",
+    "title_nl": "Actiepunten op een Deck-bord",
+    "summary": "Turn decisions into tasks with owners and due dates.",
+    "summary_nl": "Zet besluiten om in taken met eigenaren en einddatums.",
+    "status": "beta",
+    "providedBy": "openregister",
+    "docsUrl": "openspec/specs/action-item-board-via-deck-leaf/spec.md"
+  },
+  {
+    "slug": "qualified-e-signatures",
+    "title": "Qualified e-signatures",
+    "title_nl": "Gekwalificeerde e-handtekeningen",
+    "summary": "Sign minutes with eIDAS through a connected signing provider.",
+    "summary_nl": "Onderteken notulen met eIDAS via een gekoppelde ondertekendienst.",
+    "status": "beta",
+    "providedBy": "openregister"
+  },
+  {
+    "slug": "ai-minutes-from-audio",
+    "title": "AI minutes from audio",
+    "title_nl": "AI-notulen uit audio",
+    "summary": "Transcribe a recording when a speech provider is installed.",
+    "summary_nl": "Transcribeer een opname zodra een spraakprovider is geinstalleerd.",
+    "status": "beta",
+    "docsUrl": "openspec/specs/meeting-transcription/spec.md"
+  },
+  {
+    "slug": "webcasting-and-redaction",
+    "title": "Webcasting and redaction",
+    "title_nl": "Webcasting en redactie",
+    "summary": "Stream a meeting live and redact the recording afterwards.",
+    "summary_nl": "Stream een vergadering live en redigeer de opname achteraf.",
+    "status": "soon"
+  },
+  {
+    "slug": "mobile-and-offline-access",
+    "title": "Mobile and offline access",
+    "title_nl": "Mobiele en offline toegang",
+    "summary": "Prepare for a meeting on your phone, even without a connection.",
+    "summary_nl": "Bereid een vergadering voor op je telefoon, ook zonder verbinding.",
+    "status": "soon"
+  }
+]

@@ -1,11 +1,12 @@
 <?php
+
 /**
  * NotFoundException — thrown when a requested resource cannot be found.
  *
  * @category Exception
- * @package  OCA\Decidesk\Exception
+ * @package  OCA\Decidiq\Exception
  *
- * @author    Conduction Development Team <dev@conductio.nl>
+ * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
@@ -16,11 +17,9 @@
  * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
  */
 
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Exception;
+namespace OCA\Decidiq\Exception;
 
 use RuntimeException;
 
@@ -29,6 +28,5 @@ use RuntimeException;
  *
  * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
  */
-class NotFoundException extends RuntimeException
-{
+class NotFoundException extends RuntimeException {
 }//end class

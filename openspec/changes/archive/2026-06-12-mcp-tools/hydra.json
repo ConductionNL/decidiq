@@ -1,0 +1,8 @@
+{
+  "spec_slug": "mcp-tools",
+  "title": "mcp-tools Specification",
+  "app": "decidesk",
+  "repo": "https://github.com/ConductionNL/decidiq",
+  "depends_on": [],
+  "issue": "Codeberg issue #239 (pre-migration, not migrated to GitHub)"
+}

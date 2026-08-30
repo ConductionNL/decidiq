@@ -4,9 +4,9 @@
  * Unit tests for MeetingService.
  *
  * @category Test
- * @package  OCA\Decidesk\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\Service
  *
- * @author    Conduction Development Team <dev@conductio.nl>
+ * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
@@ -15,15 +15,22 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/p2-meeting-management/tasks.md#task-3.1
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\Decidesk\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\MeetingService;
+use OCA\Decidiq\Lifecycle\MeetingTransitionGuard;
+use OCA\Decidiq\Service\GovernanceScopeGuard;
+use OCA\Decidiq\Service\MeetingCostService;
+use OCA\Decidiq\Service\MeetingService;
+use OCA\Decidiq\Service\WorkflowService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -35,257 +42,632 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/p2-meeting-management/tasks.md#task-3.1
  */
-class MeetingServiceTest extends TestCase
-{
+class MeetingServiceTest extends TestCase {
 
-    /**
-     * Service under test.
-     *
-     * @var MeetingService
-     */
-    private MeetingService $service;
+	/**
+	 * Service under test.
+	 *
+	 * @var MeetingService
+	 */
+	private MeetingService $service;
 
-    /**
-     * Mock DI container.
-     *
-     * @var ContainerInterface&MockObject
-     */
-    private ContainerInterface&MockObject $container;
+	/**
+	 * Mock DI container.
+	 *
+	 * @var ContainerInterface&MockObject
+	 */
+	private ContainerInterface&MockObject $container;
 
-    /**
-     * Mock logger.
-     *
-     * @var LoggerInterface&MockObject
-     */
-    private LoggerInterface&MockObject $logger;
+	/**
+	 * Mock logger.
+	 *
+	 * @var LoggerInterface&MockObject
+	 */
+	private LoggerInterface&MockObject $logger;
 
-    /**
-     * Mock ObjectService from OpenRegister.
-     *
-     * @var ObjectService&MockObject
-     */
-    private ObjectService&MockObject $objectService;
+	/**
+	 * Mock ObjectService from OpenRegister.
+	 *
+	 * @var ObjectServiceInterface&MockObject
+	 */
+	private ObjectServiceInterface&MockObject $objectService;
 
-    /**
-     * Set up test fixtures.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+	/**
+	 * Mock WorkflowService.
+	 *
+	 * @var WorkflowService&MockObject
+	 */
+	private WorkflowService&MockObject $workflowService;
 
-        $this->objectService = $this->createMock(originalClassName: ObjectService::class);
-        $this->container     = $this->createMock(originalClassName: ContainerInterface::class);
-        $this->logger        = $this->createMock(originalClassName: LoggerInterface::class);
+	/**
+	 * Mock MeetingTransitionGuard.
+	 *
+	 * @var MeetingTransitionGuard&MockObject
+	 */
+	private MeetingTransitionGuard&MockObject $transitionGuard;
 
-        $this->container->method('get')
-            ->with('OCA\OpenRegister\Service\ObjectService')
-            ->willReturn($this->objectService);
+	/**
+	 * Mock MeetingCostService (meeting-efficiency cost stamping on close).
+	 *
+	 * @var MeetingCostService&MockObject
+	 */
+	private MeetingCostService&MockObject $meetingCostService;
 
-        $this->service = new MeetingService(
-            container: $this->container,
-            logger: $this->logger,
-        );
+	/**
+	 * Mock GovernanceScopeGuard (consumes the OR-projected chair scope).
+	 *
+	 * @var GovernanceScopeGuard&MockObject
+	 */
+	private GovernanceScopeGuard&MockObject $scopeGuard;
 
-    }//end setUp()
+	/**
+	 * Set up test fixtures.
+	 *
+	 * Default workflow mocks permit all transitions (operations domain semantics)
+	 * so that existing tests continue to work without modification.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-    /**
-     * Helper to build a mock ObjectEntity with a given lifecycle value.
-     *
-     * @param string $lifecycle The lifecycle state to set on the mock entity
-     *
-     * @return ObjectEntity&MockObject
-     */
-    private function buildMockEntity(string $lifecycle): ObjectEntity&MockObject
-    {
-        $entity = $this->createMock(originalClassName: ObjectEntity::class);
-        $entity->method('getObject')->willReturn(['lifecycle' => $lifecycle]);
-        $entity->method('jsonSerialize')->willReturn(['lifecycle' => $lifecycle, 'id' => 'test-uuid']);
-        return $entity;
+		$this->objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
+		$this->container = $this->createMock(originalClassName: ContainerInterface::class);
+		$this->logger = $this->createMock(originalClassName: LoggerInterface::class);
+		$this->workflowService = $this->createMock(originalClassName: WorkflowService::class);
+		$this->transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
+		$this->meetingCostService = $this->createMock(originalClassName: MeetingCostService::class);
+		$this->scopeGuard = $this->createMock(originalClassName: GovernanceScopeGuard::class);
 
-    }//end buildMockEntity()
+		$this->service = new MeetingService(
+			container: $this->container,
+			logger: $this->logger,
+			workflowService: $this->workflowService,
+			transitionGuard: $this->transitionGuard,
+			meetingCostService: $this->meetingCostService,
+			scopeGuard: $this->scopeGuard,
+			objectService: $this->objectService,
+		);
 
-    /**
-     * Test that a valid transition (scheduled → open → opened) returns success.
-     *
-     * @return void
-     */
-    public function testValidTransitionReturnsSuccess(): void
-    {
-        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+	}//end setUp()
 
-        $uuid         = 'aaaaaaaa-0000-0000-0000-000000000001';
-        $currentState = 'scheduled';
-        $entity       = $this->buildMockEntity($currentState);
-        $updatedEntity = $this->buildMockEntity('opened');
+	/**
+	 * Helper to build a mock ObjectEntity with a given lifecycle, domain, and optional chair.
+	 *
+	 * @param string $lifecycle The lifecycle state to set on the mock entity
+	 * @param string $domain The governance domain (default: 'operations')
+	 * @param string|null $chair The Nextcloud UID of the meeting chair (default: null)
+	 * @param string|null $body The GovernanceBody UUID relation (default: null)
+	 *
+	 * @return ObjectEntity&MockObject
+	 */
+	private function buildMockEntity(string $lifecycle, string $domain = 'operations', ?string $chair = null, ?string $body = null): ObjectEntity&MockObject {
+		$entity = $this->createMock(originalClassName: ObjectEntity::class);
+		$data = ['lifecycle' => $lifecycle, 'domain' => $domain];
+		if ($chair !== null) {
+			$data['chair'] = $chair;
+		}
 
-        $this->objectService->expects($this->once())
-            ->method('find')
-            ->with(id: $uuid)
-            ->willReturn($entity);
+		if ($body !== null) {
+			$data['governanceBody'] = $body;
+		}
 
-        $this->objectService->expects($this->once())
-            ->method('updateFromArray')
-            ->with(
-                id: $uuid,
-                object: ['lifecycle' => 'opened'],
-                updateVersion: true,
-                patch: true,
-            )
-            ->willReturn($updatedEntity);
+		$entity->method('getObject')->willReturn($data);
+		$entity->method('jsonSerialize')->willReturn(array_merge($data, ['id' => 'test-uuid']));
+		return $entity;
+	}//end buildMockEntity()
 
-        $result = $this->service->transition(meetingId: $uuid, action: 'open');
+	/**
+	 * Test that a valid transition (scheduled → open → opened) returns success.
+	 *
+	 * @return void
+	 */
+	public function testValidTransitionReturnsSuccess(): void {
+		$uuid = 'aaaaaaaa-0000-0000-0000-000000000001';
+		$currentState = 'scheduled';
+		$entity = $this->buildMockEntity(lifecycle: $currentState);
+		$updatedEntity = $this->buildMockEntity(lifecycle: 'opened');
 
-        self::assertTrue(condition: $result['success']);
-        self::assertSame(expected: 'opened', actual: $result['meeting']['lifecycle']);
+		$this->objectService->expects($this->once())
+			->method('find')
+			->with($uuid)
+			->willReturn($entity);
 
-    }//end testValidTransitionReturnsSuccess()
+		// applyTransition() writes through ObjectServiceInterface::saveObject()
+		// (openregister lib/Contract/ObjectServiceInterface.php:152), called at
+		// lib/Service/MeetingService.php:211. updateFromArray() is not on the
+		// contract at all, so the previous expectation could never have matched
+		// a real call. openedAt is stamped from the wall clock
+		// (MeetingService::buildEfficiencyPatch(), line 470), so the payload is
+		// matched by predicate rather than by literal.
+		$this->objectService->expects($this->once())
+			->method('saveObject')
+			->with(
+				$this->callback(
+					static function (array $object): bool {
+						return $object['lifecycle'] === 'opened'
+							&& $object['domain'] === 'operations'
+							&& isset($object['openedAt']) === true;
+					}
+				),
+				$this->anything(),
+				'decidiq',
+				'meeting',
+				$uuid,
+			)
+			->willReturn($updatedEntity);
 
-    /**
-     * Test that trying to pause a draft meeting returns a failure with a descriptive message.
-     *
-     * @return void
-     */
-    public function testInvalidTransitionReturnsFailure(): void
-    {
-        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+		$this->workflowService->method('isTransitionAllowed')->willReturn(true);
+		$this->transitionGuard->method('isOpenAllowed')->willReturn(true);
 
-        $uuid   = 'aaaaaaaa-0000-0000-0000-000000000002';
-        $entity = $this->buildMockEntity('draft');
+		$result = $this->service->transition(meetingId: $uuid, action: 'open');
 
-        $this->objectService->expects($this->once())
-            ->method('find')
-            ->with(id: $uuid)
-            ->willReturn($entity);
+		self::assertTrue(condition: $result['success']);
+		self::assertSame(expected: 'opened', actual: $result['meeting']['lifecycle']);
 
-        $this->objectService->expects($this->never())
-            ->method('updateFromArray');
+	}//end testValidTransitionReturnsSuccess()
 
-        $result = $this->service->transition(meetingId: $uuid, action: 'pause');
+	/**
+	 * Test that trying to pause a draft meeting returns a failure with a descriptive message.
+	 *
+	 * @return void
+	 */
+	public function testInvalidTransitionReturnsFailure(): void {
+		$uuid = 'aaaaaaaa-0000-0000-0000-000000000002';
+		$entity = $this->buildMockEntity(lifecycle: 'draft');
 
-        self::assertFalse(condition: $result['success']);
-        self::assertNull(actual: $result['meeting']);
-        self::assertStringContainsString(needle: 'draft', haystack: $result['message']);
+		$this->objectService->expects($this->once())
+			->method('find')
+			->with($uuid)
+			->willReturn($entity);
 
-    }//end testInvalidTransitionReturnsFailure()
+		// The refused transition must not reach the store. saveObject() is the
+		// write path on the contract (ObjectServiceInterface.php:152); the
+		// previous expectation named updateFromArray(), which the contract does
+		// not declare, so "never called" was true for every possible run.
+		$this->objectService->expects($this->never())
+			->method('saveObject');
 
-    /**
-     * Test that an unknown action name returns a failure with a list of valid actions.
-     *
-     * @return void
-     */
-    public function testUnknownActionReturnsFailure(): void
-    {
-        $this->objectService->expects($this->never())
-            ->method('find');
+		$result = $this->service->transition(meetingId: $uuid, action: 'pause');
 
-        $result = $this->service->transition(meetingId: 'some-uuid', action: 'fly-to-the-moon');
+		self::assertFalse(condition: $result['success']);
+		self::assertNull(actual: $result['meeting']);
+		self::assertStringContainsString(needle: 'draft', haystack: $result['message']);
 
-        self::assertFalse(condition: $result['success']);
-        self::assertNull(actual: $result['meeting']);
-        self::assertStringContainsString(needle: 'Unknown action', haystack: $result['message']);
+	}//end testInvalidTransitionReturnsFailure()
 
-    }//end testUnknownActionReturnsFailure()
+	/**
+	 * Test that an unknown action name returns a failure with a list of valid actions.
+	 *
+	 * @return void
+	 */
+	public function testUnknownActionReturnsFailure(): void {
+		$this->objectService->expects($this->never())
+			->method('find');
 
-    /**
-     * Test that transitioning a non-existent meeting returns a failure.
-     *
-     * @return void
-     */
-    public function testMeetingNotFoundReturnsFailure(): void
-    {
-        $uuid = 'aaaaaaaa-0000-0000-0000-000000000099';
+		$result = $this->service->transition(meetingId: 'some-uuid', action: 'fly-to-the-moon');
 
-        $this->objectService->expects($this->once())
-            ->method('find')
-            ->with(id: $uuid)
-            ->willReturn(null);
+		self::assertFalse(condition: $result['success']);
+		self::assertNull(actual: $result['meeting']);
+		self::assertStringContainsString(needle: 'Unknown action', haystack: $result['message']);
 
-        $result = $this->service->transition(meetingId: $uuid, action: 'open');
+	}//end testUnknownActionReturnsFailure()
 
-        self::assertFalse(condition: $result['success']);
-        self::assertNull(actual: $result['meeting']);
-        self::assertStringContainsString(needle: 'not found', haystack: $result['message']);
+	/**
+	 * Test that transitioning a non-existent meeting returns a failure.
+	 *
+	 * @return void
+	 */
+	public function testMeetingNotFoundReturnsFailure(): void {
+		$uuid = 'aaaaaaaa-0000-0000-0000-000000000099';
 
-    }//end testMeetingNotFoundReturnsFailure()
+		$this->objectService->expects($this->once())
+			->method('find')
+			->with(id: $uuid)
+			->willReturn(null);
 
-    /**
-     * Test that a DoesNotExistException thrown by ObjectService is handled gracefully.
-     *
-     * Covers the catch (DoesNotExistException) path in MeetingService::transition().
-     *
-     * @spec openspec/changes/p2-meeting-management/tasks.md#task-3.1
-     *
-     * @return void
-     */
-    public function testDoesNotExistExceptionReturnsFailure(): void
-    {
-        $uuid = 'aaaaaaaa-0000-0000-0000-000000000098';
+		$result = $this->service->transition(meetingId: $uuid, action: 'open');
 
-        $this->objectService->expects($this->once())
-            ->method('find')
-            ->with(id: $uuid)
-            ->willThrowException(new DoesNotExistException('Meeting not found'));
+		self::assertFalse(condition: $result['success']);
+		self::assertNull(actual: $result['meeting']);
+		self::assertStringContainsString(needle: 'not found', haystack: $result['message']);
 
-        $result = $this->service->transition(meetingId: $uuid, action: 'open');
+	}//end testMeetingNotFoundReturnsFailure()
 
-        self::assertFalse(condition: $result['success']);
-        self::assertNull(actual: $result['meeting']);
-        self::assertStringContainsString(needle: 'not found', haystack: $result['message']);
+	/**
+	 * Test that a DoesNotExistException thrown by ObjectService is handled gracefully.
+	 *
+	 * Covers the catch (DoesNotExistException) path in MeetingService::transition().
+	 *
+	 * @spec openspec/changes/p2-meeting-management/tasks.md#task-3.1
+	 *
+	 * @return void
+	 */
+	public function testDoesNotExistExceptionReturnsFailure(): void {
+		$uuid = 'aaaaaaaa-0000-0000-0000-000000000098';
 
-    }//end testDoesNotExistExceptionReturnsFailure()
+		$this->objectService->expects($this->once())
+			->method('find')
+			->with(id: $uuid)
+			->willThrowException(new DoesNotExistException('Meeting not found'));
 
-    /**
-     * Test that the full close path (opened → close → closed) works correctly.
-     *
-     * @return void
-     */
-    public function testCloseFromOpenedReturnsSuccess(): void
-    {
-        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+		$result = $this->service->transition(meetingId: $uuid, action: 'open');
 
-        $uuid          = 'aaaaaaaa-0000-0000-0000-000000000003';
-        $entity        = $this->buildMockEntity('opened');
-        $updatedEntity = $this->buildMockEntity('closed');
+		self::assertFalse(condition: $result['success']);
+		self::assertNull(actual: $result['meeting']);
+		self::assertStringContainsString(needle: 'not found', haystack: $result['message']);
 
-        $this->objectService->method('find')->willReturn($entity);
-        $this->objectService->method('updateFromArray')->willReturn($updatedEntity);
+	}//end testDoesNotExistExceptionReturnsFailure()
 
-        $result = $this->service->transition(meetingId: $uuid, action: 'close');
+	/**
+	 * Test that the full close path (opened → close → closed) works correctly.
+	 *
+	 * @return void
+	 */
+	public function testCloseFromOpenedReturnsSuccess(): void {
+		$uuid = 'aaaaaaaa-0000-0000-0000-000000000003';
+		$entity = $this->buildMockEntity(lifecycle: 'opened');
+		$updatedEntity = $this->buildMockEntity(lifecycle: 'closed');
 
-        self::assertTrue(condition: $result['success']);
-        self::assertSame(expected: 'closed', actual: $result['meeting']['lifecycle']);
+		$this->objectService->method('find')->willReturn($entity);
+		// saveObject(), not updateFromArray() — see testValidTransitionReturnsSuccess.
+		$this->objectService->expects($this->once())
+			->method('saveObject')
+			->willReturn($updatedEntity);
+		$this->workflowService->method('isTransitionAllowed')->willReturn(true);
 
-    }//end testCloseFromOpenedReturnsSuccess()
+		$result = $this->service->transition(meetingId: $uuid, action: 'close');
 
-    /**
-     * Test getAvailableActions returns only valid actions for a given state.
-     *
-     * @return void
-     */
-    public function testGetAvailableActionsForScheduled(): void
-    {
-        $actions = $this->service->getAvailableActions('scheduled');
+		self::assertTrue(condition: $result['success']);
+		self::assertSame(expected: 'closed', actual: $result['meeting']['lifecycle']);
 
-        self::assertContains(needle: 'open', haystack: $actions);
-        self::assertContains(needle: 'close', haystack: $actions);
-        self::assertNotContains(needle: 'pause', haystack: $actions);
-        self::assertNotContains(needle: 'resume', haystack: $actions);
+	}//end testCloseFromOpenedReturnsSuccess()
 
-    }//end testGetAvailableActionsForScheduled()
+	/**
+	 * Test getAvailableActions returns only valid actions for a given state.
+	 *
+	 * @return void
+	 */
+	public function testGetAvailableActionsForScheduled(): void {
+		$actions = $this->service->getAvailableActions('scheduled');
 
-    /**
-     * Test getAvailableActions returns empty array for terminal 'closed' state.
-     *
-     * @return void
-     */
-    public function testGetAvailableActionsForClosedReturnsEmpty(): void
-    {
-        $actions = $this->service->getAvailableActions('closed');
+		self::assertContains(needle: 'open', haystack: $actions);
+		self::assertContains(needle: 'close', haystack: $actions);
+		self::assertNotContains(needle: 'pause', haystack: $actions);
+		self::assertNotContains(needle: 'resume', haystack: $actions);
 
-        self::assertEmpty(actual: $actions);
+	}//end testGetAvailableActionsForScheduled()
 
-    }//end testGetAvailableActionsForClosedReturnsEmpty()
+	/**
+	 * Test getAvailableActions returns empty array for terminal 'closed' state.
+	 *
+	 * @return void
+	 */
+	public function testGetAvailableActionsForClosedReturnsEmpty(): void {
+		$actions = $this->service->getAvailableActions('closed');
 
+		self::assertEmpty(actual: $actions);
+
+	}//end testGetAvailableActionsForClosedReturnsEmpty()
+
+	/**
+	 * Test that a domain-restricted transition (pause in 'corporate') is blocked.
+	 *
+	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.2
+	 *
+	 * @return void
+	 */
+	public function testDomainDisallowedTransitionReturnsFailure(): void {
+		$uuid = 'aaaaaaaa-0000-0000-0000-000000000010';
+		$entity = $this->buildMockEntity(lifecycle: 'opened', domain: 'corporate');
+
+		$this->objectService->expects($this->once())
+			->method('find')
+			->with(id: $uuid)
+			->willReturn($entity);
+
+		$workflowService = $this->createMock(originalClassName: WorkflowService::class);
+		$workflowService->method('isTransitionAllowed')->willReturn(false);
+
+		$transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
+
+		$service = new MeetingService(
+			container: $this->container,
+			logger: $this->logger,
+			workflowService: $workflowService,
+			transitionGuard: $transitionGuard,
+			meetingCostService: $this->meetingCostService,
+			scopeGuard: $this->scopeGuard,
+			objectService: $this->objectService,
+		);
+
+		$result = $service->transition(meetingId: $uuid, action: 'pause');
+
+		self::assertFalse(condition: $result['success']);
+		self::assertNull(actual: $result['meeting']);
+		self::assertStringContainsString(needle: 'not permitted', haystack: $result['message']);
+
+	}//end testDomainDisallowedTransitionReturnsFailure()
+
+	/**
+	 * Test that a chair-only transition is blocked when the caller is not the chair.
+	 *
+	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.2
+	 *
+	 * @return void
+	 */
+	public function testChairOnlyTransitionBlockedWithoutChairRole(): void {
+		$uuid = 'aaaaaaaa-0000-0000-0000-000000000011';
+		$bodyId = 'body-uuid-1';
+		$entity = $this->buildMockEntity(lifecycle: 'opened', domain: 'legislative', body: $bodyId);
+
+		$this->objectService->method('find')->with(id: $uuid)->willReturn($entity);
+
+		$workflowService = $this->createMock(originalClassName: WorkflowService::class);
+		$workflowService->method('isTransitionAllowed')->willReturn(true);
+		$workflowService->method('requiresChairAuthorization')->willReturn(true);
+
+		$transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
+
+		// Caller is NOT in the body's OR-projected chair scope → OR RBAC denies.
+		$scopeGuard = $this->createMock(originalClassName: GovernanceScopeGuard::class);
+		$scopeGuard->method('isInBodyScope')
+			->with('uid-other-user', $bodyId, GovernanceScopeGuard::SCOPE_CHAIR)
+			->willReturn(false);
+
+		$service = new MeetingService(
+			container: $this->container,
+			logger: $this->logger,
+			workflowService: $workflowService,
+			transitionGuard: $transitionGuard,
+			meetingCostService: $this->meetingCostService,
+			scopeGuard: $scopeGuard,
+			objectService: $this->objectService,
+		);
+
+		// Caller is NOT the chair.
+		$result = $service->transition(meetingId: $uuid, action: 'adjourn', currentUserId: 'uid-other-user');
+
+		self::assertFalse(condition: $result['success']);
+		self::assertNull(actual: $result['meeting']);
+		self::assertStringContainsString(needle: 'chair', haystack: $result['message']);
+
+	}//end testChairOnlyTransitionBlockedWithoutChairRole()
+
+	/**
+	 * Test that a chair-only transition is blocked when the body scope cannot be
+	 * resolved (fail-closed): a chair-only transition on a meeting with no
+	 * resolvable GovernanceBody is denied regardless of caller.
+	 *
+	 * @spec openspec/changes/consume-or-rbac-authorization/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-005-fail-closed-authorization-is-preserved-end-to-end
+	 *
+	 * @return void
+	 */
+	public function testChairOnlyTransitionFailsClosedWhenBodyUnresolved(): void {
+		$uuid = 'aaaaaaaa-0000-0000-0000-00000000001a';
+		// No governanceBody relation → resolveBodyId() returns null → deny.
+		$entity = $this->buildMockEntity(lifecycle: 'opened', domain: 'legislative');
+
+		$this->objectService->method('find')->with(id: $uuid)->willReturn($entity);
+
+		$workflowService = $this->createMock(originalClassName: WorkflowService::class);
+		$workflowService->method('isTransitionAllowed')->willReturn(true);
+		$workflowService->method('requiresChairAuthorization')->willReturn(true);
+
+		$transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
+
+		// The scope guard must not even be consulted with a null body — but if it
+		// were, it would also deny. Assert the transition is refused.
+		$scopeGuard = $this->createMock(originalClassName: GovernanceScopeGuard::class);
+		$scopeGuard->method('isInBodyScope')->willReturn(false);
+
+		$service = new MeetingService(
+			container: $this->container,
+			logger: $this->logger,
+			workflowService: $workflowService,
+			transitionGuard: $transitionGuard,
+			meetingCostService: $this->meetingCostService,
+			scopeGuard: $scopeGuard,
+			objectService: $this->objectService,
+		);
+
+		$result = $service->transition(meetingId: $uuid, action: 'adjourn', currentUserId: 'uid-chair');
+
+		self::assertFalse(condition: $result['success']);
+		self::assertNull(actual: $result['meeting']);
+		self::assertStringContainsString(needle: 'chair', haystack: $result['message']);
+
+	}//end testChairOnlyTransitionFailsClosedWhenBodyUnresolved()
+
+	/**
+	 * Test that a chair-only transition succeeds when the caller IS the chair.
+	 *
+	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.2
+	 *
+	 * @return void
+	 */
+	public function testChairOnlyTransitionSucceedsForChair(): void {
+		$uuid = 'aaaaaaaa-0000-0000-0000-000000000012';
+		$bodyId = 'body-uuid-2';
+		$entity = $this->buildMockEntity(lifecycle: 'opened', domain: 'legislative', body: $bodyId);
+		$updatedEntity = $this->buildMockEntity(lifecycle: 'adjourned', domain: 'legislative', body: $bodyId);
+
+		$this->objectService->method('find')->willReturn($entity);
+		$this->objectService->expects($this->once())
+			->method('saveObject')
+			->willReturn($updatedEntity);
+
+		$workflowService = $this->createMock(originalClassName: WorkflowService::class);
+		$workflowService->method('isTransitionAllowed')->willReturn(true);
+		$workflowService->method('requiresChairAuthorization')->willReturn(true);
+
+		$transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
+
+		// Caller IS in the body's OR-projected chair scope → OR RBAC allows.
+		$scopeGuard = $this->createMock(originalClassName: GovernanceScopeGuard::class);
+		$scopeGuard->method('isInBodyScope')
+			->with('uid-chair', $bodyId, GovernanceScopeGuard::SCOPE_CHAIR)
+			->willReturn(true);
+
+		$service = new MeetingService(
+			container: $this->container,
+			logger: $this->logger,
+			workflowService: $workflowService,
+			transitionGuard: $transitionGuard,
+			meetingCostService: $this->meetingCostService,
+			scopeGuard: $scopeGuard,
+			objectService: $this->objectService,
+		);
+
+		// Caller IS the chair.
+		$result = $service->transition(meetingId: $uuid, action: 'adjourn', currentUserId: 'uid-chair');
+
+		self::assertTrue(condition: $result['success']);
+		self::assertSame(expected: 'adjourned', actual: $result['meeting']['lifecycle']);
+
+	}//end testChairOnlyTransitionSucceedsForChair()
+
+	/**
+	 * Test that opening a meeting with quorum not met is blocked.
+	 *
+	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-3.3
+	 *
+	 * @return void
+	 */
+	public function testOpenBlockedWhenQuorumNotMet(): void {
+		$uuid = 'aaaaaaaa-0000-0000-0000-000000000013';
+		$entity = $this->buildMockEntity(lifecycle: 'scheduled', domain: 'legislative');
+
+		$this->objectService->expects($this->once())
+			->method('find')
+			->with(id: $uuid)
+			->willReturn($entity);
+
+		$workflowService = $this->createMock(originalClassName: WorkflowService::class);
+		$workflowService->method('isTransitionAllowed')->willReturn(true);
+		$workflowService->method('requiresChairAuthorization')->willReturn(false);
+		$workflowService->method('isQuorumRequired')->willReturn(true);
+
+		$transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
+		$transitionGuard->method('isOpenAllowed')->willReturn(false);
+
+		$service = new MeetingService(
+			container: $this->container,
+			logger: $this->logger,
+			workflowService: $workflowService,
+			transitionGuard: $transitionGuard,
+			meetingCostService: $this->meetingCostService,
+			scopeGuard: $this->scopeGuard,
+			objectService: $this->objectService,
+		);
+
+		$result = $service->transition(meetingId: $uuid, action: 'open');
+
+		self::assertFalse(condition: $result['success']);
+		self::assertNull(actual: $result['meeting']);
+		self::assertStringContainsString(needle: 'Quorum', haystack: $result['message']);
+
+	}//end testOpenBlockedWhenQuorumNotMet()
+
+	/**
+	 * Opening a meeting stamps openedAt (first open) into the saved object.
+	 *
+	 * @spec openspec/specs/meeting-efficiency/spec.md
+	 *
+	 * @return void
+	 */
+	public function testOpenStampsOpenedAt(): void {
+		$uuid = 'aaaaaaaa-0000-0000-0000-0000000000ee';
+		$entity = $this->buildMockEntity(lifecycle: 'scheduled');
+
+		$this->objectService->method('find')->with(id: $uuid)->willReturn($entity);
+		$this->workflowService->method('isTransitionAllowed')->willReturn(true);
+		$this->workflowService->method('requiresChairAuthorization')->willReturn(false);
+		$this->workflowService->method('isQuorumRequired')->willReturn(false);
+
+		$captured = null;
+		$this->objectService->method('saveObject')->willReturnCallback(
+			function (array $object) use (&$captured, $entity) {
+				$captured = $object;
+				return $entity;
+			}
+		);
+
+		$result = $this->service->transition(meetingId: $uuid, action: 'open');
+
+		self::assertTrue(condition: $result['success']);
+		self::assertIsArray(actual: $captured);
+		self::assertArrayHasKey('openedAt', $captured);
+		self::assertNotEmpty(actual: $captured['openedAt']);
+		self::assertArrayNotHasKey('closedAt', $captured);
+
+	}//end testOpenStampsOpenedAt()
+
+	/**
+	 * Closing a meeting stamps closedAt and the fail-soft meetingCost.
+	 *
+	 * @spec openspec/specs/meeting-efficiency/spec.md
+	 *
+	 * @return void
+	 */
+	public function testCloseStampsClosedAtAndCost(): void {
+		$uuid = 'aaaaaaaa-0000-0000-0000-0000000000ef';
+		$entity = $this->buildMockEntity(lifecycle: 'opened');
+
+		$this->objectService->method('find')->with(id: $uuid)->willReturn($entity);
+		$this->workflowService->method('isTransitionAllowed')->willReturn(true);
+		$this->workflowService->method('requiresChairAuthorization')->willReturn(false);
+
+		// Cost service resolves a final figure.
+		$this->meetingCostService->method('calculateForMeeting')->willReturn(675.0);
+
+		$captured = null;
+		$this->objectService->method('saveObject')->willReturnCallback(
+			function (array $object) use (&$captured, $entity) {
+				$captured = $object;
+				return $entity;
+			}
+		);
+
+		$result = $this->service->transition(meetingId: $uuid, action: 'close');
+
+		self::assertTrue(condition: $result['success']);
+		self::assertArrayHasKey('closedAt', $captured);
+		self::assertSame(expected: 675.0, actual: $captured['meetingCost']);
+
+	}//end testCloseStampsClosedAtAndCost()
+
+	/**
+	 * A meetingCost computation failure does not block closing (fail-soft).
+	 *
+	 * @spec openspec/specs/meeting-efficiency/spec.md
+	 *
+	 * @return void
+	 */
+	public function testCloseIsFailSoftWhenCostThrows(): void {
+		$uuid = 'aaaaaaaa-0000-0000-0000-0000000000f0';
+		$entity = $this->buildMockEntity(lifecycle: 'opened');
+
+		$this->objectService->method('find')->with(id: $uuid)->willReturn($entity);
+		$this->workflowService->method('isTransitionAllowed')->willReturn(true);
+		$this->workflowService->method('requiresChairAuthorization')->willReturn(false);
+
+		$this->meetingCostService->method('calculateForMeeting')
+			->willThrowException(new \RuntimeException('cost failed'));
+
+		$captured = null;
+		$this->objectService->method('saveObject')->willReturnCallback(
+			function (array $object) use (&$captured, $entity) {
+				$captured = $object;
+				return $entity;
+			}
+		);
+
+		$result = $this->service->transition(meetingId: $uuid, action: 'close');
+
+		self::assertTrue(condition: $result['success']);
+		self::assertArrayHasKey('closedAt', $captured);
+		self::assertArrayNotHasKey('meetingCost', $captured);
+
+	}//end testCloseIsFailSoftWhenCostThrows()
 }//end class

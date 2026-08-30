@@ -7,60 +7,128 @@
  @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6
 -->
 <template>
-	<CnDetailCard :title="t('decidesk', 'Stemronde')">
+	<CnDetailCard :title="t('decidiq', 'Voting round')">
 		<!-- Loading state -->
-		<p v-if="loading" class="decidesk-empty">
-			{{ t('decidesk', 'Laden…') }}
+		<p v-if="loading" class="decidiq-empty">
+			{{ t('decidiq', 'Loading…') }}
 		</p>
 
 		<!-- No round yet — chair can open one -->
 		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.3 -->
 		<template v-else-if="!currentRound">
-			<p class="decidesk-empty">
-				{{ t('decidesk', 'Geen actieve stemronde.') }}
+			<p class="decidiq-empty">
+				{{ t('decidiq', 'No active voting round.') }}
 			</p>
 			<NcButton
-				v-if="motionLifecycle === 'debating'"
-				type="primary"
+				v-if="motionLifecycle === 'deliberating'"
+				variant="primary"
 				:disabled="!meetingId"
-				:title="!meetingId ? t('decidesk', 'Vergadering niet gekoppeld — stemronde kan niet worden geopend') : undefined"
+				:title="
+					!meetingId
+						? t(
+								'decidiq',
+								'No meeting linked — the voting round cannot be opened',
+							)
+						: undefined
+				"
 				@click="showOpenRoundDialog = true">
-				{{ t('decidesk', 'Stemronde openen') }}
+				{{ t('decidiq', 'Open voting round') }}
 			</NcButton>
 
 			<!-- Open round dialog -->
-			<div v-if="showOpenRoundDialog"
-				class="decidesk-dialog"
+			<div
+				v-if="showOpenRoundDialog"
+				class="decidiq-dialog"
 				role="dialog"
-				:aria-label="t('decidesk', 'Stemronde openen')">
-				<h3>{{ t('decidesk', 'Stemronde openen') }}</h3>
-				<label for="votingMethod">{{ t('decidesk', 'Stemmethode') }}</label>
+				:aria-label="t('decidiq', 'Open voting round')">
+				<h3>{{ t('decidiq', 'Open voting round') }}</h3>
+				<label for="votingMethod">{{ t('decidiq', 'Voting method') }}</label>
 				<select id="votingMethod" v-model="newRound.votingMethod">
 					<option value="for-against-abstain">
-						{{ t('decidesk', 'Voor / Tegen / Onthouding') }}
+						{{ t('decidiq', 'For / Against / Abstain') }}
 					</option>
 					<option value="show-of-hands">
-						{{ t('decidesk', 'Handopsteking') }}
+						{{ t('decidiq', 'Show of hands') }}
 					</option>
 					<option value="weighted">
-						{{ t('decidesk', 'Gewogen stemming') }}
+						{{ t('decidiq', 'Weighted vote') }}
 					</option>
 				</select>
 				<label>
-					<input v-model="newRound.isSecret" type="checkbox">
-					{{ t('decidesk', 'Geheime stemming') }}
+					<input v-model="newRound.isSecret" type="checkbox" />
+					{{ t('decidiq', 'Secret ballot') }}
 				</label>
-				<label for="closedAt">{{ t('decidesk', 'Sluitingstijd (optioneel)') }}</label>
-				<input id="closedAt" v-model="newRound.closedAt" type="datetime-local">
-				<p v-if="openRoundError" class="decidesk-error" role="alert">
+				<!-- Configurable voting rules (voting-system spec) -->
+				<!-- @spec openspec/specs/voting-system/spec.md -->
+				<label for="voteThreshold">{{
+					t('decidiq', 'Vote threshold')
+				}}</label>
+				<select
+					id="voteThreshold"
+					v-model="newRound.voteThreshold"
+					data-testid="vote-threshold-select">
+					<option
+						v-for="value in voteThresholdOptions"
+						:key="value"
+						:value="value">
+						{{ labels.voteThreshold[value] }}
+					</option>
+				</select>
+				<label for="abstentionHandling">{{
+					t('decidiq', 'Abstention handling')
+				}}</label>
+				<select
+					id="abstentionHandling"
+					v-model="newRound.abstentionHandling"
+					data-testid="abstention-handling-select">
+					<option
+						v-for="value in abstentionModeOptions"
+						:key="value"
+						:value="value">
+						{{ labels.abstentionHandling[value] }}
+					</option>
+				</select>
+				<label for="tieBreakRule">{{
+					t('decidiq', 'Tie-break rule')
+				}}</label>
+				<select
+					id="tieBreakRule"
+					v-model="newRound.tieBreakRule"
+					data-testid="tie-break-rule-select">
+					<option
+						v-for="value in tieBreakRuleOptions"
+						:key="value"
+						:value="value">
+						{{ labels.tieBreakRule[value] }}
+					</option>
+				</select>
+				<p v-if="revoteOfRoundId" class="decidiq-revote-notice">
+					{{
+						t(
+							'decidiq',
+							'This round is the single permitted revote of the tied round.',
+						)
+					}}
+				</p>
+				<label for="closedAt">{{
+					t('decidiq', 'Closing time (optional)')
+				}}</label>
+				<input
+					id="closedAt"
+					v-model="newRound.closedAt"
+					type="datetime-local" />
+				<p v-if="openRoundError" class="decidiq-error" role="alert">
 					{{ openRoundError }}
 				</p>
-				<div class="decidesk-dialog-actions">
-					<NcButton type="primary" :disabled="openingRound" @click="openRound">
-						{{ t('decidesk', 'Openen') }}
+				<div class="decidiq-dialog-actions">
+					<NcButton
+						variant="primary"
+						:disabled="openingRound"
+						@click="openRound">
+						{{ t('decidiq', 'Open') }}
 					</NcButton>
 					<NcButton @click="showOpenRoundDialog = false">
-						{{ t('decidesk', 'Annuleren') }}
+						{{ t('decidiq', 'Cancel') }}
 					</NcButton>
 				</div>
 			</div>
@@ -70,105 +138,156 @@
 		<template v-else>
 			<!-- Show-of-hands entry (chair/secretary when round is open) -->
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.6 -->
-			<div v-if="isRoundOpen && currentRound.votingMethod === 'show-of-hands'" class="decidesk-show-of-hands">
-				<h4>{{ t('decidesk', 'Handopsteking resultaat opslaan') }}</h4>
-				<label for="showFor">{{ t('decidesk', 'Voor') }}</label>
-				<input id="showFor"
+			<div
+				v-if="isRoundOpen && currentRound.votingMethod === 'show-of-hands'"
+				class="decidiq-show-of-hands">
+				<h4>{{ t('decidiq', 'Save show-of-hands result') }}</h4>
+				<label for="showFor">{{ t('decidiq', 'For') }}</label>
+				<input
+					id="showFor"
 					v-model.number="showOfHands.for"
 					type="number"
 					min="0"
-					:aria-label="t('decidesk', 'Stemmen voor')">
-				<label for="showAgainst">{{ t('decidesk', 'Tegen') }}</label>
-				<input id="showAgainst"
+					:aria-label="t('decidiq', 'Votes for')" />
+				<label for="showAgainst">{{ t('decidiq', 'Against') }}</label>
+				<input
+					id="showAgainst"
 					v-model.number="showOfHands.against"
 					type="number"
 					min="0"
-					:aria-label="t('decidesk', 'Stemmen tegen')">
-				<label for="showAbstain">{{ t('decidesk', 'Onthouding') }}</label>
-				<input id="showAbstain"
+					:aria-label="t('decidiq', 'Votes against')" />
+				<label for="showAbstain">{{ t('decidiq', 'Abstain') }}</label>
+				<input
+					id="showAbstain"
 					v-model.number="showOfHands.abstain"
 					type="number"
 					min="0"
-					:aria-label="t('decidesk', 'Onthoudingen')">
-				<NcButton type="primary" @click="saveShowOfHands">
-					{{ t('decidesk', 'Resultaat opslaan') }}
+					:aria-label="t('decidiq', 'Abstentions')" />
+				<NcButton variant="primary" @click="saveShowOfHands">
+					{{ t('decidiq', 'Save result') }}
 				</NcButton>
 			</div>
 
 			<!-- Vote casting buttons -->
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 -->
-			<div v-if="isRoundOpen && currentRound.votingMethod !== 'show-of-hands' && !voteCast" class="decidesk-vote-buttons">
+			<div
+				v-if="
+					isRoundOpen
+					&& currentRound.votingMethod !== 'show-of-hands'
+					&& !voteCast
+				"
+				class="decidiq-vote-buttons">
 				<!-- Proxy notice -->
-				<p v-if="activeProxy" class="decidesk-proxy-notice">
-					{{ t('decidesk', 'U stemt namens: {name}', { name: activeProxy }) }}
+				<p v-if="activeProxy" class="decidiq-proxy-notice">
+					{{
+						t('decidiq', 'You are voting on behalf of: {name}', {
+							name: activeProxy,
+						})
+					}}
 				</p>
 				<NcButton
-					type="primary"
-					class="decidesk-vote-btn"
-					:aria-label="t('decidesk', 'Stem voor')"
+					variant="primary"
+					class="decidiq-vote-btn"
+					:aria-label="t('decidiq', 'Vote for')"
 					@click="castVote('for')">
-					{{ t('decidesk', 'Voor') }}
+					{{ t('decidiq', 'For') }}
 				</NcButton>
 				<NcButton
-					type="error"
-					class="decidesk-vote-btn"
-					:aria-label="t('decidesk', 'Stem tegen')"
+					variant="error"
+					class="decidiq-vote-btn"
+					:aria-label="t('decidiq', 'Vote against')"
 					@click="castVote('against')">
-					{{ t('decidesk', 'Tegen') }}
+					{{ t('decidiq', 'Against') }}
 				</NcButton>
 				<NcButton
-					type="secondary"
-					class="decidesk-vote-btn"
-					:aria-label="t('decidesk', 'Onthouding')"
+					variant="secondary"
+					class="decidiq-vote-btn"
+					:aria-label="t('decidiq', 'Abstain')"
 					@click="castVote('abstain')">
-					{{ t('decidesk', 'Onthouding') }}
+					{{ t('decidiq', 'Abstain') }}
 				</NcButton>
-				<p v-if="castVoteError" class="decidesk-error" role="alert">
+				<p v-if="castVoteError" class="decidiq-error" role="alert">
 					{{ castVoteError }}
 				</p>
 			</div>
 
 			<!-- Vote confirmation message -->
-			<p v-if="voteCast" class="decidesk-vote-confirmed" role="status">
-				{{ t('decidesk', 'Uw stem is geregistreerd.') }}
+			<p v-if="voteCast" class="decidiq-vote-confirmed" role="status">
+				{{ t('decidiq', 'Your vote has been recorded.') }}
 			</p>
 
 			<!-- Live tally (chair/secretary see full tally; members see only total count) -->
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 -->
-			<div v-if="isRoundOpen" class="decidesk-tally">
-				<p>{{ t('decidesk', 'Uitgebracht: {cast} / {total}', { cast: tallyTotal, total: participantCount }) }}</p>
+			<div v-if="isRoundOpen" class="decidiq-tally">
+				<p>
+					{{
+						t('decidiq', 'Cast: {cast} / {total}', {
+							cast: tallyTotal,
+							total: participantCount,
+						})
+					}}
+				</p>
 				<template v-if="isChairOrSecretary">
 					<p>
-						{{ t('decidesk', 'Voor: {for} — Tegen: {against} — Onthouding: {abstain}', {
-							for: currentRound.votesFor || 0,
-							against: currentRound.votesAgainst || 0,
-							abstain: currentRound.votesAbstain || 0,
-						}) }}
+						{{
+							t(
+								'decidiq',
+								'For: {for} — Against: {against} — Abstain: {abstain}',
+								{
+									for: currentRound.votesFor || 0,
+									against: currentRound.votesAgainst || 0,
+									abstain: currentRound.votesAbstain || 0,
+								},
+							)
+						}}
 					</p>
 				</template>
+				<!-- Active voting rules + computed base (voting-system spec) -->
+				<!-- @spec openspec/specs/voting-system/spec.md -->
+				<p class="decidiq-rules" data-testid="active-voting-rules">
+					{{ activeRulesSummary }}
+				</p>
 			</div>
 
 			<!-- Proxy management — proxy grant/revoke is enforced by the backend -->
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7 -->
-			<div class="decidesk-proxy">
-				<NcButton v-if="!activeProxy" type="secondary" @click="showProxyDialog = true">
-					{{ t('decidesk', 'Volmacht verlenen') }}
+			<div class="decidiq-proxy">
+				<NcButton
+					v-if="!activeProxy"
+					variant="secondary"
+					@click="showProxyDialog = true">
+					{{ t('decidiq', 'Grant proxy') }}
 				</NcButton>
-				<NcButton v-if="activeProxy" type="error" @click="revokeProxy">
-					{{ t('decidesk', 'Volmacht intrekken') }}
+				<NcButton v-if="activeProxy" variant="error" @click="revokeProxy">
+					{{ t('decidiq', 'Revoke proxy') }}
 				</NcButton>
-				<div v-if="showProxyDialog"
-					class="decidesk-dialog"
+				<div
+					v-if="showProxyDialog"
+					class="decidiq-dialog"
 					role="dialog"
-					:aria-label="t('decidesk', 'Volmacht verlenen')">
-					<h4>{{ t('decidesk', 'Volmacht verlenen aan') }}</h4>
-					<input v-model="proxyToId" type="text" :placeholder="t('decidesk', 'Deelnemer UUID')">
-					<div class="decidesk-dialog-actions">
-						<NcButton type="primary" @click="grantProxy">
-							{{ t('decidesk', 'Verlenen') }}
+					:aria-label="t('decidiq', 'Grant proxy')">
+					<h4>{{ t('decidiq', 'Grant proxy to') }}</h4>
+					<!--
+						A placeholder is not a label: it is not exposed as the
+						input's accessible name, and it disappears the moment the
+						user types, so the field loses its only description
+						exactly when a screen-reader user is filling it in (WCAG
+						3.3.2 Labels or Instructions, 4.1.2 Name Role Value).
+						NcTextField carries a real <label for> association, which
+						is why it is used here rather than an aria-label bolted
+						onto a raw <input> — it is also the idiom the rest of
+						this repo already uses.
+					-->
+					<NcTextField
+						v-model="proxyToId"
+						:label="t('decidiq', 'Participant UUID')"
+						:placeholder="t('decidiq', 'Participant UUID')" />
+					<div class="decidiq-dialog-actions">
+						<NcButton variant="primary" @click="grantProxy">
+							{{ t('decidiq', 'Grant') }}
 						</NcButton>
 						<NcButton @click="showProxyDialog = false">
-							{{ t('decidesk', 'Annuleren') }}
+							{{ t('decidiq', 'Cancel') }}
 						</NcButton>
 					</div>
 				</div>
@@ -178,45 +297,163 @@
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.4 -->
 			<NcButton
 				v-if="isRoundOpen && isChairOrSecretary"
-				type="error"
+				variant="error"
 				@click="confirmCloseRound = true">
-				{{ t('decidesk', 'Stemronde sluiten') }}
+				{{ t('decidiq', 'Close voting round') }}
 			</NcButton>
-			<div v-if="confirmCloseRound" class="decidesk-dialog" role="dialog">
-				<p>{{ t('decidesk', 'Stemronde sluiten? {notVoted} van {total} leden hebben nog niet gestemd.', { notVoted: participantCount - tallyTotal, total: participantCount }) }}</p>
-				<div class="decidesk-dialog-actions">
-					<NcButton type="error" @click="closeRound">
-						{{ t('decidesk', 'Sluiten') }}
+			<div v-if="confirmCloseRound" class="decidiq-dialog" role="dialog">
+				<p>
+					{{
+						t(
+							'decidiq',
+							'Close voting round? {notVoted} of {total} members have not voted yet.',
+							{
+								notVoted: participantCount - tallyTotal,
+								total: participantCount,
+							},
+						)
+					}}
+				</p>
+				<div class="decidiq-dialog-actions">
+					<NcButton variant="error" @click="closeRound">
+						{{ t('decidiq', 'Close') }}
 					</NcButton>
 					<NcButton @click="confirmCloseRound = false">
-						{{ t('decidesk', 'Annuleren') }}
+						{{ t('decidiq', 'Cancel') }}
 					</NcButton>
 				</div>
 			</div>
 
 			<!-- Result display (closed rounds) -->
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.5 -->
-			<div v-if="!isRoundOpen && currentRound.result" class="decidesk-result">
+			<div v-if="!isRoundOpen && currentRound.result" class="decidiq-result">
 				<p>
-					<strong>{{ t('decidesk', 'Uitslag:') }}</strong>
+					<strong>{{ t('decidiq', 'Result:') }}</strong>
 					<CnStatusBadge :status="currentRound.result" />
 				</p>
 				<p>
-					{{ t('decidesk', 'Voor: {for} — Tegen: {against} — Onthouding: {abstain}', {
-						for: currentRound.votesFor || 0,
-						against: currentRound.votesAgainst || 0,
-						abstain: currentRound.votesAbstain || 0,
-					}) }}
+					{{
+						t(
+							'decidiq',
+							'For: {for} — Against: {against} — Abstain: {abstain}',
+							{
+								for: currentRound.votesFor || 0,
+								against: currentRound.votesAgainst || 0,
+								abstain: currentRound.votesAbstain || 0,
+							},
+						)
+					}}
 				</p>
+				<!-- Active rules + computed base shown with the result (voting-system spec) -->
+				<!-- @spec openspec/specs/voting-system/spec.md -->
+				<p class="decidiq-rules" data-testid="result-voting-rules">
+					{{ activeRulesSummary }}
+				</p>
+				<p
+					v-if="currentRound.chairCastingVote"
+					class="decidiq-rules"
+					data-testid="chair-casting-recorded">
+					{{
+						t(
+							'decidiq',
+							"Tie resolved by the chair's casting vote: {value}",
+							{ value: currentRound.chairCastingVote },
+						)
+					}}
+				</p>
+
+				<!-- Tied round: chair casting vote (tieBreakRule = chair-decides) -->
+				<!-- @spec openspec/specs/voting-system/spec.md -->
+				<div
+					v-if="
+						currentRound.result === 'tied'
+						&& activeRules.tieBreakRule === 'chair-decides'
+						&& isChairOrSecretary
+					"
+					class="decidiq-chair-casting"
+					data-testid="chair-casting-controls">
+					<p>
+						{{
+							t(
+								'decidiq',
+								'The vote is tied. As chair you must resolve it with a casting vote.',
+							)
+						}}
+					</p>
+					<NcButton variant="primary" @click="castChairVote('for')">
+						{{ t('decidiq', 'Casting vote: for') }}
+					</NcButton>
+					<NcButton variant="error" @click="castChairVote('against')">
+						{{ t('decidiq', 'Casting vote: against') }}
+					</NcButton>
+					<p v-if="chairCastingError" class="decidiq-error" role="alert">
+						{{ chairCastingError }}
+					</p>
+				</div>
+
+				<!-- Tied round: single permitted revote (tieBreakRule = revote) -->
+				<!-- @spec openspec/specs/voting-system/spec.md -->
+				<div
+					v-if="
+						currentRound.result === 'tied'
+						&& activeRules.tieBreakRule === 'revote'
+						&& isChairOrSecretary
+					"
+					class="decidiq-revote"
+					data-testid="revote-controls">
+					<p>
+						{{
+							t(
+								'decidiq',
+								'The vote is tied. The round may be reopened once for a revote.',
+							)
+						}}
+					</p>
+					<NcButton variant="primary" @click="startRevote">
+						{{ t('decidiq', 'Reopen round (revote)') }}
+					</NcButton>
+				</div>
+
 				<NcButton
 					v-if="isChairOrSecretary"
-					type="secondary"
+					variant="secondary"
 					@click="publishToOri">
-					{{ t('decidesk', 'Publiceren naar ORI') }}
+					{{ t('decidiq', 'Publish to ORI') }}
 				</NcButton>
-				<p v-if="oriStatus" class="decidesk-ori-status">
+				<p v-if="oriStatus" class="decidiq-ori-status">
 					{{ oriStatusLabel }}
 				</p>
+			</div>
+
+			<!-- Revote open dialog (reuses the rule selectors with the tied round's rules prefilled) -->
+			<div
+				v-if="showOpenRoundDialog && revoteOfRoundId"
+				class="decidiq-dialog"
+				role="dialog"
+				:aria-label="t('decidiq', 'Reopen round (revote)')">
+				<h3>{{ t('decidiq', 'Reopen round (revote)') }}</h3>
+				<p>
+					{{
+						t(
+							'decidiq',
+							'This round is the single permitted revote of the tied round.',
+						)
+					}}
+				</p>
+				<p v-if="openRoundError" class="decidiq-error" role="alert">
+					{{ openRoundError }}
+				</p>
+				<div class="decidiq-dialog-actions">
+					<NcButton
+						variant="primary"
+						:disabled="openingRound"
+						@click="openRound">
+						{{ t('decidiq', 'Open') }}
+					</NcButton>
+					<NcButton @click="cancelRevote">
+						{{ t('decidiq', 'Cancel') }}
+					</NcButton>
+				</div>
 			</div>
 		</template>
 	</CnDetailCard>
@@ -224,22 +461,34 @@
 
 <script>
 import { CnDetailCard, CnStatusBadge } from '@conduction/nextcloud-vue'
-import { NcButton } from '@nextcloud/vue'
+import { NcButton, NcTextField } from '@nextcloud/vue'
 import { useObjectStore, useSettingsStore } from '../store/store.js'
+import { matching, relationFilterFor } from '../utils/objectRelations.js'
+import {
+	ABSTENTION_MODES,
+	computeBase,
+	effectiveRules,
+	ruleLabels,
+	TIE_BREAK_RULES,
+	VOTE_THRESHOLDS,
+} from '../utils/votingRules.js'
 
 export default {
 	name: 'VotingRoundPanel',
-	components: { CnDetailCard, CnStatusBadge, NcButton },
+	components: { CnDetailCard, CnStatusBadge, NcButton, NcTextField },
 	props: {
 		motionId: { type: String, required: true },
 		motionLifecycle: { type: String, default: '' },
 		meetingId: { type: String, default: '' },
 	},
+
+	/** @spec exclude setup() only wires the shared object + settings store refs; no domain logic */
 	setup() {
 		const objectStore = useObjectStore()
 		const settingsStore = useSettingsStore()
 		return { objectStore, settingsStore }
 	},
+
 	data() {
 		return {
 			loading: false,
@@ -259,16 +508,26 @@ export default {
 				votingMethod: 'for-against-abstain',
 				isSecret: false,
 				closedAt: '',
+				voteThreshold: 'simple-majority',
+				abstentionHandling: 'exclude',
+				tieBreakRule: 'rejected',
 			},
+
+			revoteOfRoundId: null,
+			chairCastingError: null,
 			pollInterval: null,
 			participantCount: 0,
 		}
 	},
+
 	computed: {
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
 		roundId() {
 			if (!this.currentRound) return null
 			return this.currentRound.id || this.currentRound.uuid || null
 		},
+
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
 		isRoundOpen() {
 			if (!this.currentRound) return false
 			if (!this.currentRound.openedAt) return false
@@ -276,22 +535,79 @@ export default {
 			if (closedAt && new Date(closedAt) <= new Date()) return false
 			return true
 		},
+
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 */
 		tallyTotal() {
 			if (!this.currentRound) return 0
-			return (this.currentRound.votesFor || 0) + (this.currentRound.votesAgainst || 0) + (this.currentRound.votesAbstain || 0)
+			return (
+				(this.currentRound.votesFor || 0)
+				+ (this.currentRound.votesAgainst || 0)
+				+ (this.currentRound.votesAbstain || 0)
+			)
 		},
+
 		isChairOrSecretary() {
 			return this.settingsStore.isAdmin === true
 		},
+
+		/** Rule enum option lists for the open-round dialog. @spec openspec/specs/voting-system/spec.md */
+		voteThresholdOptions() {
+			return VOTE_THRESHOLDS
+		},
+
+		/** @spec openspec/specs/voting-system/spec.md */
+		abstentionModeOptions() {
+			return ABSTENTION_MODES
+		},
+
+		/** @spec openspec/specs/voting-system/spec.md */
+		tieBreakRuleOptions() {
+			return TIE_BREAK_RULES
+		},
+
+		/** Translated labels per rule enum value. @spec openspec/specs/voting-system/spec.md */
+		labels() {
+			return ruleLabels((text) => this.t('decidiq', text))
+		},
+
+		/** Effective rules of the displayed round (defaults applied). @spec openspec/specs/voting-system/spec.md */
+		activeRules() {
+			return effectiveRules(this.currentRound || {})
+		},
+
+		/** Computed calculation base of the displayed round. @spec openspec/specs/voting-system/spec.md */
+		computedBase() {
+			return computeBase(this.currentRound || {})
+		},
+
+		/** One-line summary of active rules + computed base. @spec openspec/specs/voting-system/spec.md */
+		activeRulesSummary() {
+			const rules = this.activeRules
+			return this.t(
+				'decidiq',
+				'Rules: {threshold} · {abstentions} · {tieBreak} — base: {base}',
+				{
+					threshold: this.labels.voteThreshold[rules.voteThreshold],
+					abstentions:
+						this.labels.abstentionHandling[rules.abstentionHandling],
+					tieBreak: this.labels.tieBreakRule[rules.tieBreakRule],
+					base: this.computedBase,
+				},
+			)
+		},
+
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.5 */
 		oriStatusLabel() {
 			const labels = {
-				published: this.t('decidesk', 'Gepubliceerd naar ORI'),
-				pending: this.t('decidesk', 'Publicatie in behandeling'),
-				not_configured: this.t('decidesk', 'ORI niet geconfigureerd'),
+				published: this.t('decidiq', 'Published to ORI'),
+				pending: this.t('decidiq', 'Publication pending'),
+				not_configured: this.t('decidiq', 'ORI not configured'),
 			}
 			return labels[this.oriStatus] || this.oriStatus
 		},
 	},
+
+	/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 */
 	async mounted() {
 		await this.fetchCurrentRound()
 		// Poll every 5 seconds when round is open.
@@ -301,43 +617,84 @@ export default {
 			}
 		}, 5000)
 	},
-	beforeDestroy() {
+
+	/** @spec exclude lifecycle teardown; only clears the polling interval started in mounted() */
+	beforeUnmount() {
 		if (this.pollInterval) {
 			clearInterval(this.pollInterval)
 		}
 	},
+
 	methods: {
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
 		async fetchCurrentRound() {
 			this.loading = true
 			try {
-				const [roundResult, participantResult] = await Promise.all([
-					this.objectStore.fetchObjects('voting-round', {
-						'relations.motion': this.motionId,
+				// FILTER DIALECT — do not "restore" the `relations.motion` key
+				// this replaced. It scoped NOTHING: it is not `@self`, not
+				// `_`-prefixed and not a reserved context param, and its value
+				// was empty besides (the tab never received an objectId), so
+				// `buildQueryString` dropped it and the request went out as a
+				// bare `GET …/objects/decidiq/voting-round`. The collection came
+				// back UNSCOPED — every voting round on the instance, on a
+				// healthy HTTP 200 — and the heuristic below then displayed, and
+				// `castVote` posted to, whichever round happened to be open
+				// first. That is another motion's round on any instance holding
+				// more than one; it merely looked right for as long as every
+				// round in the database was closed except the one the test had
+				// just written. See src/utils/objectRelations.js for the filter
+				// dialect and the shapes `matching()` has to read.
+				//
+				// `matching()` is the load-bearing half: `_relations_contains`
+				// is a server-side narrowing that a given OpenRegister version
+				// may or may not honour, and a filter it does not honour is
+				// silently ignored rather than refused.
+				const [rounds, participants] = await Promise.all([
+					this.objectStore.fetchCollection('voting-round', {
+						...relationFilterFor(this.motionId),
+						_limit: 100,
 					}),
 					this.meetingId
-						? this.objectStore.fetchObjects('participant', { 'relations.meeting': this.meetingId })
+						? this.objectStore.fetchCollection('participant', {
+								'relations.meeting': this.meetingId,
+							})
 						: Promise.resolve(null),
 				])
-				const rounds = roundResult?.results || []
+				const roundList = matching(rounds, this.motionId)
 				// Show most recent open round, then most recent closed.
-				const open = rounds.find(r => r.openedAt && !r.closedAt)
-				const recent = rounds.sort((a, b) => new Date(b.openedAt || 0) - new Date(a.openedAt || 0))[0]
+				const open = roundList.find((r) => r.openedAt && !r.closedAt)
+				const recent = roundList
+					.slice()
+					.sort(
+						(a, b) =>
+							new Date(b.openedAt || 0) - new Date(a.openedAt || 0),
+					)[0]
 				this.currentRound = open || recent || null
-				this.participantCount = participantResult?.results?.length ?? 0
+				this.participantCount = participants?.length ?? 0
 			} catch (e) {
 				this.currentRound = null
 			} finally {
 				this.loading = false
 			}
 		},
+
+		/**
+		 * @param value
+		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1
+		 */
 		async castVote(value) {
 			this.castVoteError = null
 			try {
 				const resp = await fetch(
-					OC.generateUrl(`/apps/decidesk/api/voting-rounds/${this.roundId}/cast`),
+					OC.generateUrl(
+						`/apps/decidiq/api/voting-rounds/${this.roundId}/cast`,
+					),
 					{
 						method: 'POST',
-						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: OC.requestToken,
+						},
 						body: JSON.stringify({
 							participantId: OC.currentUser,
 							value,
@@ -351,51 +708,75 @@ export default {
 					await this.fetchCurrentRound()
 				} else {
 					const data = await resp.json()
-					this.castVoteError = data.message || this.t('decidesk', 'Stem uitbrengen mislukt')
+					this.castVoteError =
+						data.message || this.t('decidiq', 'Failed to cast vote')
 				}
 			} catch (e) {
-				this.castVoteError = this.t('decidesk', 'Stem uitbrengen mislukt')
+				this.castVoteError = this.t('decidiq', 'Failed to cast vote')
 			}
 		},
+
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.3 */
 		async openRound() {
 			this.openingRound = true
 			this.openRoundError = null
 			try {
 				const resp = await fetch(
-					OC.generateUrl('/apps/decidesk/api/voting-rounds'),
+					OC.generateUrl('/apps/decidiq/api/voting-rounds'),
 					{
 						method: 'POST',
-						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: OC.requestToken,
+						},
 						body: JSON.stringify({
 							motionId: this.motionId,
 							meetingId: this.meetingId,
 							votingMethod: this.newRound.votingMethod,
 							isSecret: this.newRound.isSecret,
 							closedAt: this.newRound.closedAt || null,
+							voteThreshold: this.newRound.voteThreshold,
+							abstentionHandling: this.newRound.abstentionHandling,
+							tieBreakRule: this.newRound.tieBreakRule,
+							revoteOfRound: this.revoteOfRoundId || null,
 						}),
 					},
 				)
 				if (resp.ok) {
 					this.showOpenRoundDialog = false
+					this.revoteOfRoundId = null
+					this.voteCast = false
 					await this.fetchCurrentRound()
 				} else {
 					const data = await resp.json()
-					this.openRoundError = data.message || this.t('decidesk', 'Stemronde openen mislukt')
+					this.openRoundError =
+						data.message
+						|| this.t('decidiq', 'Failed to open voting round')
 				}
 			} catch (e) {
-				this.openRoundError = this.t('decidesk', 'Stemronde openen mislukt')
+				this.openRoundError = this.t(
+					'decidiq',
+					'Failed to open voting round',
+				)
 			} finally {
 				this.openingRound = false
 			}
 		},
+
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.4 */
 		async closeRound() {
 			this.confirmCloseRound = false
 			try {
 				const resp = await fetch(
-					OC.generateUrl(`/apps/decidesk/api/voting-rounds/${this.roundId}/close`),
+					OC.generateUrl(
+						`/apps/decidiq/api/voting-rounds/${this.roundId}/close`,
+					),
 					{
 						method: 'POST',
-						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: OC.requestToken,
+						},
 					},
 				)
 				if (resp.ok) {
@@ -405,13 +786,84 @@ export default {
 				// ignore
 			}
 		},
+
+		/**
+		 * Chair's casting vote resolving a tie under tieBreakRule chair-decides:
+		 * re-runs close with the explicit chairCasting value (chair-only, backend-guarded).
+		 *
+		 * @spec openspec/specs/voting-system/spec.md
+		 * @param {string} value 'for' or 'against'
+		 */
+		async castChairVote(value) {
+			this.chairCastingError = null
+			try {
+				const resp = await fetch(
+					OC.generateUrl(
+						`/apps/decidiq/api/voting-rounds/${this.roundId}/close`,
+					),
+					{
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: OC.requestToken,
+						},
+						body: JSON.stringify({ chairCasting: value }),
+					},
+				)
+				if (resp.ok) {
+					await this.fetchCurrentRound()
+				} else {
+					const data = await resp.json()
+					this.chairCastingError =
+						data.message || this.t('decidiq', 'Casting vote failed')
+				}
+			} catch (e) {
+				this.chairCastingError = this.t('decidiq', 'Casting vote failed')
+			}
+		},
+
+		/**
+		 * Start the single permitted revote of a tied round: prefill the open
+		 * dialog with the tied round's rules and link the new round via revoteOfRound.
+		 *
+		 * @spec openspec/specs/voting-system/spec.md
+		 */
+		startRevote() {
+			const rules = this.activeRules
+			this.newRound = {
+				votingMethod:
+					this.currentRound?.votingMethod || 'for-against-abstain',
+
+				isSecret: this.currentRound?.isSecret === true,
+				closedAt: '',
+				voteThreshold: rules.voteThreshold,
+				abstentionHandling: rules.abstentionHandling,
+				tieBreakRule: rules.tieBreakRule,
+			}
+			this.revoteOfRoundId = this.roundId
+			this.openRoundError = null
+			this.showOpenRoundDialog = true
+		},
+
+		/** @spec openspec/specs/voting-system/spec.md */
+		cancelRevote() {
+			this.showOpenRoundDialog = false
+			this.revoteOfRoundId = null
+		},
+
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.6 */
 		async saveShowOfHands() {
 			try {
 				const resp = await fetch(
-					OC.generateUrl(`/apps/decidesk/api/voting-rounds/${this.roundId}/tally`),
+					OC.generateUrl(
+						`/apps/decidiq/api/voting-rounds/${this.roundId}/tally`,
+					),
 					{
 						method: 'POST',
-						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: OC.requestToken,
+						},
 						body: JSON.stringify({
 							votesFor: this.showOfHands.for,
 							votesAgainst: this.showOfHands.against,
@@ -426,13 +878,20 @@ export default {
 				// ignore
 			}
 		},
+
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7.1 */
 		async grantProxy() {
 			try {
 				const resp = await fetch(
-					OC.generateUrl(`/apps/decidesk/api/voting-rounds/${this.roundId}/proxy`),
+					OC.generateUrl(
+						`/apps/decidiq/api/voting-rounds/${this.roundId}/proxy`,
+					),
 					{
 						method: 'POST',
-						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: OC.requestToken,
+						},
 						body: JSON.stringify({
 							fromParticipantId: OC.currentUser,
 							toParticipantId: this.proxyToId,
@@ -447,13 +906,20 @@ export default {
 				// ignore
 			}
 		},
+
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7.2 */
 		async revokeProxy() {
 			try {
 				const resp = await fetch(
-					OC.generateUrl(`/apps/decidesk/api/voting-rounds/${this.roundId}/proxy`),
+					OC.generateUrl(
+						`/apps/decidiq/api/voting-rounds/${this.roundId}/proxy`,
+					),
 					{
 						method: 'DELETE',
-						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: OC.requestToken,
+						},
 						body: JSON.stringify({ fromParticipantId: OC.currentUser }),
 					},
 				)
@@ -464,13 +930,20 @@ export default {
 				// ignore
 			}
 		},
+
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.5 */
 		async publishToOri() {
 			try {
 				const resp = await fetch(
-					OC.generateUrl(`/apps/decidesk/api/voting-rounds/${this.roundId}/publish`),
+					OC.generateUrl(
+						`/apps/decidiq/api/voting-rounds/${this.roundId}/publish`,
+					),
 					{
 						method: 'POST',
-						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: OC.requestToken,
+						},
 					},
 				)
 				if (resp.ok) {
@@ -486,12 +959,12 @@ export default {
 </script>
 
 <style scoped>
-.decidesk-empty {
+.decidiq-empty {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
 
-.decidesk-vote-buttons {
+.decidiq-vote-buttons {
 	display: flex;
 	gap: var(--default-grid-baseline);
 	flex-wrap: wrap;
@@ -499,30 +972,30 @@ export default {
 	margin: var(--default-grid-baseline) 0;
 }
 
-.decidesk-vote-btn {
+.decidiq-vote-btn {
 	min-width: 100px;
 }
 
-.decidesk-vote-confirmed {
+.decidiq-vote-confirmed {
 	color: var(--color-success);
 	font-weight: bold;
 }
 
-.decidesk-tally {
+.decidiq-tally {
 	background: var(--color-background-dark);
 	padding: var(--default-grid-baseline);
 	border-radius: var(--border-radius);
 	margin: var(--default-grid-baseline) 0;
 }
 
-.decidesk-result {
+.decidiq-result {
 	background: var(--color-background-dark);
 	padding: var(--default-grid-baseline) calc(var(--default-grid-baseline) * 2);
 	border-radius: var(--border-radius);
 	margin: var(--default-grid-baseline) 0;
 }
 
-.decidesk-proxy-notice {
+.decidiq-proxy-notice {
 	background: var(--color-primary-element-light);
 	padding: calc(var(--default-grid-baseline) / 2) var(--default-grid-baseline);
 	border-radius: var(--border-radius);
@@ -530,11 +1003,11 @@ export default {
 	width: 100%;
 }
 
-.decidesk-proxy {
+.decidiq-proxy {
 	margin: var(--default-grid-baseline) 0;
 }
 
-.decidesk-dialog {
+.decidiq-dialog {
 	background: var(--color-main-background);
 	border: 1px solid var(--color-border);
 	border-radius: var(--border-radius-large);
@@ -542,46 +1015,68 @@ export default {
 	margin: var(--default-grid-baseline) 0;
 }
 
-.decidesk-dialog label {
+.decidiq-dialog label {
 	display: block;
 	margin: var(--default-grid-baseline) 0 calc(var(--default-grid-baseline) / 2);
 }
 
-.decidesk-dialog select,
-.decidesk-dialog input[type='datetime-local'],
-.decidesk-dialog input[type='text'],
-.decidesk-dialog input[type='number'] {
+.decidiq-dialog select,
+.decidiq-dialog input[type='datetime-local'],
+.decidiq-dialog input[type='text'],
+.decidiq-dialog input[type='number'] {
 	width: 100%;
 	max-width: 300px;
 }
 
-.decidesk-dialog-actions {
+.decidiq-dialog-actions {
 	display: flex;
 	gap: var(--default-grid-baseline);
 	margin-top: var(--default-grid-baseline);
 }
 
-.decidesk-error {
+.decidiq-error {
 	color: var(--color-error);
 	margin: var(--default-grid-baseline) 0 0;
 }
 
-.decidesk-ori-status {
+.decidiq-ori-status {
 	color: var(--color-text-maxcontrast);
 	font-style: italic;
 }
 
-.decidesk-show-of-hands {
+.decidiq-show-of-hands {
 	margin: var(--default-grid-baseline) 0;
 }
 
-.decidesk-show-of-hands label {
+.decidiq-show-of-hands label {
 	display: inline-block;
 	width: 100px;
 }
 
-.decidesk-show-of-hands input {
+.decidiq-show-of-hands input {
 	width: 80px;
 	margin-bottom: var(--default-grid-baseline);
+}
+
+.decidiq-rules {
+	color: var(--color-text-maxcontrast);
+	font-size: 0.9em;
+	margin: calc(var(--default-grid-baseline) / 2) 0 0;
+}
+
+.decidiq-chair-casting,
+.decidiq-revote {
+	border-top: 1px solid var(--color-border);
+	margin-top: var(--default-grid-baseline);
+	padding-top: var(--default-grid-baseline);
+	display: flex;
+	gap: var(--default-grid-baseline);
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.decidiq-revote-notice {
+	color: var(--color-text-maxcontrast);
+	font-style: italic;
 }
 </style>
