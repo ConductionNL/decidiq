@@ -66,10 +66,10 @@ class ApprovalRouteService {
 	/**
 	 * Constructor.
 	 *
-	 * @param ApprovalRouteStore $store Reads and writes the objects a route is made of.
+	 * @param RegisterObjectStore $store Reads and writes the objects a route is made of.
 	 */
 	public function __construct(
-		private readonly ApprovalRouteStore $store,
+		private readonly RegisterObjectStore $store,
 	) {
 	}//end __construct()
 
