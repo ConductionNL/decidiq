@@ -800,11 +800,57 @@ echo "[ci-seed] done."
 # Uses the workflow's own exported credentials rather than this script's, so it
 # does not depend on where in the file it sits.
 #
-# Tolerant on purpose: an app whose wizard has no demo-data step answers 400
-# here, and that is not a seeding failure.
+# 🔴 THE ACTION ID IS `skip-example-set`, AND THIS CALLED `skip-demo-data`.
+#
+# ADR-111's step was renamed demo-data -> example-set, and SetupController
+# implements exactly two ids (`load-example-set`, `skip-example-set`),
+# returning 404 "Unknown setup action" for anything else. So this POST had
+# been answering 404 on every run, the decision was never recorded, and the
+# wizard this block exists to close stayed open. Measured on development
+# 2026-08-31: E2E 45 failed / 123 passed, with 228 `intercepts pointer
+# events` lines naming the cn-wizard-dialog modal mask and 76 clicks timing
+# out at 20s. The failures were one seeding bug wearing 45 costumes.
+#
+# The old "tolerant on purpose" note is what hid it: a 404 read as the
+# benign 400 it described, so the log line printed the failure and nothing
+# treated it as one. Tolerance that cannot distinguish "this app has no such
+# step" from "this app renamed it" is not tolerance, it is blindness.
+#
+# `example_profile=none` rather than the skip action, because it closes BOTH
+# steps: status() reports `example-set.done` from `$picked !== ''` and
+# `load-example-set.done` from `$picked === NONE_PROFILE`. The skip action
+# writes only DEMO_DECIDED_KEY and would leave `example-set` open — still
+# enough wizard to mask every click.
 DEMO_BASE="${BASE_URL:-${NEXTCLOUD_URL:-http://localhost:8080}}"
 DEMO_CODE="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 300 \
 	-u "${ADMIN_USER:-admin}:${ADMIN_PASSWORD:-admin}" -X POST \
-	-H 'Content-Type: application/json' -H 'OCS-APIRequest: true' --data '{}' \
-	"${DEMO_BASE}/index.php/apps/decidiq/api/setup/action/skip-demo-data" || echo 000)"
-echo "[ci-seed] POST setup/action/skip-demo-data -> HTTP ${DEMO_CODE}"
+	-H 'Content-Type: application/json' -H 'OCS-APIRequest: true' \
+	--data '{"example_profile":"none"}' \
+	"${DEMO_BASE}/index.php/apps/decidiq/api/setup/config" || echo 000)"
+echo "[ci-seed] POST setup/config example_profile=none -> HTTP ${DEMO_CODE}"
+
+# ASSERT THE STATE, NOT THE STATUS CODE. A 200 says the endpoint answered; it
+# does not say the wizard will stay shut. Reading the steps back is the only
+# check that would still fail if the contract moved again — which is exactly
+# what happened last time.
+SETUP_STATUS="$(curl -sS --max-time 60 \
+	-u "${ADMIN_USER:-admin}:${ADMIN_PASSWORD:-admin}" \
+	-H 'OCS-APIRequest: true' \
+	"${DEMO_BASE}/index.php/apps/decidiq/api/setup/status" || echo '{}')"
+if printf '%s' "${SETUP_STATUS}" \
+	| python3 -c 'import json,sys
+try:
+    s = json.load(sys.stdin).get("steps", {})
+except Exception:
+    sys.exit(1)
+sys.exit(0 if all(s.get(k, {}).get("done") for k in ("example-set", "load-example-set")) else 1)'; then
+	echo "[ci-seed] setup steps report done — the wizard will not mask the suite."
+else
+	echo "[ci-seed] ERROR: setup steps are NOT done after seeding." >&2
+	echo "[ci-seed]        status was: ${SETUP_STATUS}" >&2
+	echo "[ci-seed]        The setup wizard will open as a modal mask and every" >&2
+	echo "[ci-seed]        click in every spec will time out. Failing here, where" >&2
+	echo "[ci-seed]        the cause is one line, instead of in 45 specs where it" >&2
+	echo "[ci-seed]        is not." >&2
+	exit 1
+fi
