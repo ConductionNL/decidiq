@@ -51,7 +51,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
         version is <= the stored one, and unlike the SCHEMA path it has no
         content-differs escape hatch to fall back on.
     -->
-    <version>1.1.6-unstable.20260831045941</version>
+    <version>1.1.7-unstable.20260831103930</version>
     <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidiq</namespace>
