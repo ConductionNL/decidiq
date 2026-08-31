@@ -2039,7 +2039,11 @@ OC.L10N.register(
         "{responded} of {invited} responded": "{responded} van {invited} gereageerd",
         "{states} states, {transitions} transitions": "{states} statussen, {transitions} overgangen",
         "Source app": "Bronapplicatie",
-        "External reference": "Externe referentie"
+        "External reference": "Externe referentie",
+        "Which kind of organisation is this for?": "Voor wat voor organisatie is dit?",
+        "Pick the organisation this app runs for and you get a worked example of it: bodies, meetings, decisions and templates that fit. Installing the app plants nothing on its own, so this is the only step that adds data. Choose \"None\" on a production install.": "Kies de organisatie waarvoor deze app draait en je krijgt een uitgewerkt voorbeeld: organen, vergaderingen, besluiten en sjablonen die daarbij passen. De app zet zelf niets klaar, dus dit is de enige stap die gegevens toevoegt. Kies \"Geen\" op een productieomgeving.",
+        "Load the example data": "Laad de voorbeeldgegevens",
+        "Loads the set you picked. The data is obviously sample data, it is safe to run more than once, and you can delete it afterwards.": "Laadt de set die je koos. De gegevens zijn herkenbaar voorbeeldgegevens, je kunt dit meer dan een keer uitvoeren en je kunt ze daarna verwijderen."
     },
     "nplurals=2; plural=(n != 1);"
 )

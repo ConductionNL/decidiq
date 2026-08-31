@@ -11,12 +11,46 @@
 					"body": "A short setup to get this app ready. Nothing here is required; you can close it and come back later."
 				},
 				{
-					"id": "demo-data",
-					"type": "run-action",
-					"action": "install-demo-data",
-					"title": "Demo data (optional)",
+					"id": "example-set",
+					"type": "choice",
+					"title": "Which kind of organisation is this for?",
+					"configKey": "example_profile",
 					"required": false,
-					"body": "Load a small example dataset so the lists, detail pages and dashboards show a working product straight away. The data is obviously sample data, it is safe to run more than once, and it can be removed afterwards. Skip this on a production install."
+					"body": "Pick the organisation this app runs for and you get a worked example of it: bodies, meetings, decisions and templates that fit. Installing the app plants nothing on its own, so this is the only step that adds data. Choose \"None\" on a production install.",
+					"options": [
+						{
+							"value": "none",
+							"label": "None, I will set this up myself"
+						},
+						{
+							"value": "municipality",
+							"label": "Municipality"
+						},
+						{
+							"value": "association",
+							"label": "Association or VvE"
+						},
+						{
+							"value": "corporate",
+							"label": "Company board"
+						},
+						{
+							"value": "works-council",
+							"label": "Works council"
+						},
+						{
+							"value": "generated",
+							"label": "Every schema, generated values"
+						}
+					]
+				},
+				{
+					"id": "load-example-set",
+					"type": "run-action",
+					"action": "load-example-set",
+					"title": "Load the example data",
+					"required": false,
+					"body": "Loads the set you picked. The data is obviously sample data, it is safe to run more than once, and you can delete it afterwards."
 				},
 				{
 					"id": "done",
