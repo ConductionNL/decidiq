@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\ApprovalRouteService;
-use OCA\Decidiq\Service\ApprovalRouteStore;
+use OCA\Decidiq\Service\RegisterObjectStore;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
@@ -162,7 +162,7 @@ class ApprovalRouteServiceTest extends TestCase {
 			static fn (array $config = []): array => $state->findAll($config)
 		);
 
-		return new ApprovalRouteService(new ApprovalRouteStore($facade));
+		return new ApprovalRouteService(new RegisterObjectStore($facade));
 	}
 
 	/**
