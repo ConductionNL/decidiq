@@ -280,7 +280,6 @@ class RegisterJsonTest extends TestCase {
 			'MonetaryAmount',
 			'Offer',
 			'Order',
-			'Product',
 			'Report',
 			// Citizen-participation schemas.
 			'BudgetProposal',
@@ -315,9 +314,9 @@ class RegisterJsonTest extends TestCase {
 		];
 
 		self::assertCount(
-			expectedCount: 39,
+			expectedCount: 38,
 			haystack: $this->schemas,
-			message: 'Register must contain exactly 39 schemas (unified Decision supertype model, board portal retired, board-self-evaluation added, BoardProxy + GovernanceReport declared for the services that already write them)'
+			message: 'Register must contain exactly 38 schemas (unified Decision supertype model, board portal retired, board-self-evaluation added, BoardProxy + GovernanceReport declared for the services that already write them, Product retired to pipelinq)'
 		);
 
 		foreach ($expected as $name) {
@@ -363,7 +362,6 @@ class RegisterJsonTest extends TestCase {
 			'MonetaryAmount' => 'schema:MonetaryAmount',
 			'Offer' => 'schema:Offer',
 			'Order' => 'schema:Order',
-			'Product' => 'schema:Product',
 			'Report' => 'schema:Report',
 		];
 

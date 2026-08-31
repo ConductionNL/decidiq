@@ -2,8 +2,8 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Decidiq Register",
-    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.10.0"
+    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings. v0.11.0 retires the `product` schema and the `Decision.product` relation that reached it. Pipelinq owns `product` for the fleet; decidiq, filinq and pipelinq all claimed the slug, and slugs are global on a shared OpenRegister. Nothing in decidiq read this copy.",
+    "version": "0.11.0"
   },
   "x-openregister": {
     "type": "application",
@@ -135,7 +135,6 @@
           "person",
           "post",
           "process-template",
-          "product",
           "proxy-authorization",
           "public-consultation",
           "publication-payload",
@@ -2298,16 +2297,7 @@
             "title": "Orders",
             "description": "Contract attachment: purchase orders related to a decisionType=contract decision (ADR-005)."
           },
-          "product": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid",
-              "$ref": "Product"
-            },
-            "title": "Products",
-            "description": "Contract attachment: products/services related to a decisionType=contract decision (ADR-005)."
-          },
+
           "route": {
             "type": "array",
             "items": {
@@ -3625,74 +3615,7 @@
           }
         }
       },
-      "Product": {
-        "slug": "product",
-        "icon": "PackageVariantClosed",
-        "version": "0.1.0",
-        "title": "Product",
-        "description": "Schema.org Product for product/service data",
-        "type": "object",
-        "x-schema-org": "schema:Product",
-        "x-openregister": {
-          "schemaType": "schema:Product",
-          "active": true,
-          "hardDelete": false,
-          "searchable": true,
-          "mailEnabled": false
-        },
-        "required": [
-          "name",
-          "unitPrice",
-          "currency"
-        ],
-        "properties": {
-          "name": {
-            "title": "Name",
-            "type": "string",
-            "description": "Product name",
-            "example": "Vergadermicrofoon Shure MX"
-          },
-          "sku": {
-            "title": "SKU",
-            "type": "string",
-            "description": "Stock keeping unit"
-          },
-          "description": {
-            "title": "Description",
-            "type": "string",
-            "description": "Product description"
-          },
-          "category": {
-            "title": "Category",
-            "type": "string",
-            "description": "Product category",
-            "example": "AV Equipment"
-          },
-          "unitPrice": {
-            "title": "Unit price",
-            "type": "number",
-            "description": "Unit price",
-            "example": 450
-          },
-          "currency": {
-            "title": "Currency",
-            "type": "string",
-            "description": "ISO 4217 currency code",
-            "example": "EUR"
-          },
-          "unitCode": {
-            "title": "Unit of measure",
-            "type": "string",
-            "description": "Unit of measure (UN/CEFACT)"
-          },
-          "taxRate": {
-            "title": "Tax rate",
-            "type": "number",
-            "description": "Applicable tax rate percentage",
-            "example": 21
-          }
-        }
-      },
+
       "Report": {
         "slug": "report",
         "icon": "FileChartOutline",
