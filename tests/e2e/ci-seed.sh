@@ -400,11 +400,42 @@ REG_CODE="$(curl -sS -u "${USER_NAME}:${USER_PASS}" -H 'OCS-APIRequest: true' \
 	"${BASE}/index.php/apps/openregister/api/registers?_limit=300" || echo 000)"
 verify "$REG_BODY" registers "$REG_CODE"
 
+# 🔴 THE PAGE SIZE IS PART OF THE ASSERTION, SO IT MUST OUTRUN THE INSTANCE.
+#
+# This asked for `_limit=1000` and then reported every required slug it could
+# not find as a MISSING SCHEMA. On a dev instance with 35 apps installed the
+# schema table holds 1111 rows, so ten decidiq schemas fell off the end of the
+# page and the script failed with:
+#
+#   ::error::Decidiq schemas missing after import:
+#     ['meeting', 'action-item', 'minutes', 'vote', 'transcript', ...]
+#
+# Every one of them was present in the database. The import had worked; the
+# QUESTION was too small. That is the worst shape a check can take: it names a
+# real-sounding cause and sends you to look at the import.
+#
+# So the limit outruns any plausible instance, AND truncation is detected rather
+# than assumed away: if the response comes back exactly full, the page is the
+# suspect and the script says so instead of blaming the import.
+SCH_LIMIT=20000
 SCH_BODY="$(mktemp)"
 SCH_CODE="$(curl -sS -u "${USER_NAME}:${USER_PASS}" -H 'OCS-APIRequest: true' \
 	-o "$SCH_BODY" -w '%{http_code}' \
-	"${BASE}/index.php/apps/openregister/api/schemas?_limit=1000" || echo 000)"
+	"${BASE}/index.php/apps/openregister/api/schemas?_limit=${SCH_LIMIT}" || echo 000)"
 verify "$SCH_BODY" schemas "$SCH_CODE"
+
+SCH_COUNT="$(python3 -c "
+import json
+d=json.load(open('${SCH_BODY}'))
+r=d.get('results', d if isinstance(d, list) else [])
+print(len(r))
+" 2>/dev/null || echo 0)"
+if [ "${SCH_COUNT}" -ge "${SCH_LIMIT}" ] 2>/dev/null; then
+	echo "::error::The schema listing came back exactly full (${SCH_COUNT} of _limit=${SCH_LIMIT})."
+	echo "::error::It is TRUNCATED, so a 'missing schema' below would be a paging artefact, not a failed import. Raise SCH_LIMIT."
+	exit 1
+fi
+echo "[ci-seed] schema listing: ${SCH_COUNT} row(s), under the ${SCH_LIMIT} page limit"
 
 # The register existing is still not the same as it being READABLE by the admin
 # session the specs use. Several specs assert `expect(resp.ok()).toBe(true)` on
