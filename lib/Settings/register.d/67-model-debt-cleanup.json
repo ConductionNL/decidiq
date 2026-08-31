@@ -1,57 +1,6 @@
 {
   "x-openregister": {
-    "seedData": {
-      "description": "Seed objects for the model-debt-cleanup-schema sweep (fragment 67, ADR-037). Demonstrates every new/retargeted property on a FRESHLY-CREATED object, never a patch to an existing seeded row (OpenRegister seed import is create-only). References resolve by slug against existing decidesk base seed objects. besluit-verordening-parkeren-2026 (decision) carries meeting: raadsvergadering-2025-01-15 and agendaItem: begroting-2026-bespreking (REQ-SDM-022, both existing base seed slugs) so the new join is demonstrable on a fresh install. coi-wethouder-vastgoedbelang (conflict-of-interest) references boardMember as the membership seed m-marie-amsterdam (REQ-SDM-023) rather than a participant slug. machtiging-jansen-alv-2026 (proxy-authorization — note the NEW kebab-case seed-object collection key, since this fragment ships together with the slug rename in 63-member-proxy-authorization.json) is a new sibling to the existing machtiging-vandam-begroting/machtiging-alv-jansen-ongetekend/machtiging-devries-ingetrokken fixtures, using person seed slugs marie-janssen/jan-de-vries for grantor/holder and proxyStatus active (REQ-SDM-024); the pre-existing seed objects in 63-member-proxy-authorization.json keep their historical Participant-shaped grantor/holder values untouched — they are the code chain's migration input, not something this schema-only change rewrites. huishoudelijk-reglement-acme-bv (governing-document) carries currentEffectiveDate 2025-09-01 (REQ-SDM-025) on the existing raad-van-bestuur-acme-bv corporate-domain governance body. No seed object demonstrates Person.nextcloudUserId (Task 1b) — that property is populated by the code chain's Participant-to-Person crosswalk repair step, not a fresh seed row here. NOTE (app-wide limitation, consistent with sibling fragments 45/54/55/60/63): relation refs stored as slugs may not resolve on detail pages until the register import maps them to UUIDs.",
-      "objects": {
-        "decision": [
-          {
-            "slug": "besluit-verordening-parkeren-2026",
-            "decisionType": "resolution",
-            "title": "Verordening parkeren 2026",
-            "text": "Vaststelling van de verordening parkeren 2026, voortvloeiend uit de bespreking van de kadernota begroting 2026.",
-            "decisionDate": "2026-06-15",
-            "outcome": "adopted",
-            "meeting": "raadsvergadering-2025-01-15",
-            "agendaItem": "begroting-2026-bespreking"
-          }
-        ],
-        "conflict-of-interest": [
-          {
-            "slug": "coi-wethouder-vastgoedbelang",
-            "boardMember": "m-marie-amsterdam",
-            "declarationType": "financial-interest",
-            "description": "Lid meldt een financieel belang in een vastgoedontwikkeling die onderwerp is van het agendapunt en onthoudt zich van beraadslaging en stemming.",
-            "severity": "material",
-            "actionTaken": "recused-from-vote",
-            "declarationTimestamp": "2026-06-15T19:05:00Z"
-          }
-        ],
-        "proxy-authorization": [
-          {
-            "slug": "machtiging-jansen-alv-2026",
-            "grantor": "marie-janssen",
-            "holder": "jan-de-vries",
-            "meeting": "ledenvergadering-vng-voorjaar-2025",
-            "signatureStatus": "signed",
-            "signedAt": "2026-04-10T08:30:00Z",
-            "signingReference": "docudesk:sign:seed-jansen-alv-2026",
-            "proxyStatus": "active"
-          }
-        ],
-        "governing-document": [
-          {
-            "slug": "huishoudelijk-reglement-acme-bv",
-            "type": "internal-regulations",
-            "citationTitle": "Huishoudelijk reglement ACME B.V.",
-            "description": "Huishoudelijk reglement van de raad van bestuur, aanvullend op de statuten.",
-            "governingBody": "raad-van-bestuur-acme-bv",
-            "isPublic": false,
-            "status": "in-force",
-            "currentEffectiveDate": "2025-09-01"
-          }
-        ]
-      }
-    }
+    "_seedDataNote": "Seed objects MOVED to lib/Settings/profiles/*.json (OpenSpec change seed-profiles). A register.d fragment declares SCHEMAS ONLY, so installing this app plants zero objects. The examples that used to live here are now part of an example set an operator picks in the first-time setup wizard, which is the only thing that imports them."
   },
   "components": {
     "schemas": {

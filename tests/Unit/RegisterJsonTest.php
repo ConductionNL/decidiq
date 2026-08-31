@@ -76,6 +76,47 @@ class RegisterJsonTest extends TestCase {
 	}//end setUp()
 
 	/**
+	 * Every example object this app ships, keyed by schema slug.
+	 *
+	 * 🔴 THE SEEDS MOVED OUT OF THE REGISTER, SO THESE ASSERTIONS FOLLOW THEM.
+	 * Until the seed-profiles change, `decidesk_register.json` and its 26
+	 * `register.d` fragments each carried their own
+	 * `x-openregister.seedData.objects`, and installing the app planted all 334
+	 * of them. They now live in `lib/Settings/profiles/*.json`, one file per
+	 * example set, and nothing is planted until an operator picks one. A test
+	 * that still read the register would report "no decision seeds" and be
+	 * describing the intended state as a failure.
+	 *
+	 * The union across sets is the right subject here: these tests ask whether
+	 * the app SHIPS demonstrable data for a schema, not which set carries it.
+	 *
+	 * @return array<string, array<int, array<string, mixed>>> Objects per schema slug.
+	 */
+	private function profileSeeds(): array {
+		$files = glob(__DIR__ . '/../../lib/Settings/profiles/*.json');
+		self::assertNotEmpty(actual: $files, message: 'App must ship at least one example set');
+
+		$merged = [];
+		foreach ($files as $file) {
+			$json = file_get_contents(filename: $file);
+			self::assertNotFalse(condition: $json, message: 'Example set must be readable: ' . basename($file));
+			$data = json_decode(json: $json, associative: true, depth: 512, flags: JSON_THROW_ON_ERROR);
+
+			foreach (($data['x-openregister']['seedData']['objects'] ?? []) as $slug => $objects) {
+				foreach ($objects as $object) {
+					// Sets overlap by design: a person can belong to a council and
+					// a company board alike, so de-duplicate on the slug that
+					// OpenRegister's own idempotency check uses.
+					$merged[$slug][($object['slug'] ?? spl_object_hash((object)$object))] = $object;
+				}
+			}
+		}
+
+		return array_map(static fn (array $bySlug): array => array_values($bySlug), $merged);
+
+	}//end profileSeeds()
+
+	/**
 	 * Test that the register JSON is valid OpenAPI 3.0.0 with x-openregister extensions.
 	 *
 	 * @return void
@@ -468,10 +509,10 @@ class RegisterJsonTest extends TestCase {
 			'minutes',
 		];
 
-		$seedObjects = ($this->register['x-openregister']['seedData']['objects'] ?? []);
+		$seedObjects = $this->profileSeeds();
 		self::assertNotEmpty(
 			actual: $seedObjects,
-			message: 'Register must declare x-openregister.seedData.objects'
+			message: 'The example sets must declare x-openregister.seedData.objects'
 		);
 
 		foreach ($coreSchemaSlugs as $slug) {
@@ -483,12 +524,37 @@ class RegisterJsonTest extends TestCase {
 			);
 
 			foreach ($seeds as $seed) {
-				// The importer takes register + schema from the import context, so a seed
-				// carries no @self envelope; its identity is a non-empty `slug` property.
-				self::assertArrayNotHasKey(
+				// 🔴 THIS ASSERTION USED TO SAY THE OPPOSITE, AND THE INVERSION IS
+				// THE WHOLE MECHANISM OF THE seed-profiles CHANGE.
+				//
+				// While the seeds lived in the app's own configuration, the
+				// importer took register + schema from the import context, so an
+				// @self envelope was redundant and the test forbade it.
+				//
+				// An example set declares NO `components.registers`, deliberately:
+				// ImportHandler::importRegister() calls setApplication($appId)
+				// unconditionally when it updates an existing register, so a
+				// profile that declared `decidiq` would re-point the register at
+				// that profile's config id and hydrate over its `authorization`
+				// baseline. With no register in the descriptor there is no import
+				// context to inherit, and importSeedDataObjects() would fall back
+				// to "register 0" and drop every object. @self is what resolves
+				// each object instead, and importSeedDataObjects() only consults
+				// `@self.register` / `@self.schema` when `@self.configuration` is
+				// also present, so all three are required rather than decorative.
+				//
+				// Verified on a live instance: this shape imported the objects and
+				// left application=decidiq, the version and the authorization block
+				// byte-identical.
+				self::assertArrayHasKey(
 					key: '@self',
 					array: $seed,
-					message: "Seed in '{$slug}' must not carry an @self envelope under seedData"
+					message: "Seed in '{$slug}' must carry an @self envelope so it resolves its own register"
+				);
+				self::assertSame(
+					expected: ['configuration' => 'decidiq', 'register' => 'decidiq', 'schema' => $slug],
+					actual: $seed['@self'],
+					message: "Seed in '{$slug}' must resolve the decidiq register and its own schema"
 				);
 				self::assertNotEmpty(
 					actual: ($seed['slug'] ?? ''),
@@ -513,8 +579,8 @@ class RegisterJsonTest extends TestCase {
 	 * @spec openspec/specs/decision-management/spec.md
 	 */
 	public function testDecisionSeedsRespectTerminalCompleteness(): void {
-		$seeds = ($this->register['x-openregister']['seedData']['objects']['decision'] ?? []);
-		self::assertNotEmpty(actual: $seeds, message: 'Register must seed decision objects');
+		$seeds = ($this->profileSeeds()['decision'] ?? []);
+		self::assertNotEmpty(actual: $seeds, message: 'The example sets must seed decision objects');
 
 		$terminalStates = ['decided', 'enacted', 'archived'];
 		$outcomeEnum = $this->schemas['Decision']['properties']['outcome']['enum'];
@@ -822,7 +888,7 @@ class RegisterJsonTest extends TestCase {
 	 */
 	public function testEngagementRecordHasSeedData(): void {
 		// Keyed by schema slug under the seedData map — the location the importer reads.
-		$seeds = ($this->register['x-openregister']['seedData']['objects']['engagement-record'] ?? []);
+		$seeds = ($this->profileSeeds()['engagement-record'] ?? []);
 		self::assertGreaterThanOrEqual(
 			expected: 3,
 			actual: count($seeds),
