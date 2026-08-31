@@ -1,58 +1,6 @@
 {
   "x-openregister": {
-    "seedData": {
-      "description": "Seed objects for the works-council-consultation capability (WOR-trajecten: adviesaanvraag art. 25 / instemmingsverzoek art. 27). One schema: ConsultationRequest (slug consultation-request). References resolve by slug against existing decidesk base seed objects (governance-body gemeenteraad-amsterdam, meeting raadsvergadering-2025-01-15, agenda-item begroting-2026-bespreking); the nil UUID 00000000-0000-0000-0000-000000000000 is an obvious placeholder where no matching seed object exists (the bestuurder Person M. van den Berg, the constituency-consultation raadpleging, the linked Decision). DEFERRED (design D2, out of declarative-core scope): a seeded ondernemingsraad governance-body with bodyType=works-council — a fragment cannot extend the base GovernanceBody enum, so the works-council enum value is a one-line additive edit to decidesk_register.json landed separately; until then these trajecten reference the existing gemeenteraad-amsterdam body as a resolvable demonstrable placeholder rather than a non-validatable works-council body. Object 1 (adviesaanvraag-reorganisatie-logistiek) is seeded non-terminal (overlegvergadering) with requestedResponseDate in the past so both dashboard KPIs are non-zero on a fresh install (ADR-016). Object 3 (adviesaanvraag-outsourcing-ict) exercises the full flow including the derived art. 25 lid 6 opschortingstermijn (afwijkend besluit). NOTE (app-wide limitation): relation refs stored as slugs do not resolve on detail pages yet — acceptable for now, consistent with the toezeggingen/constituency seed style.",
-      "objects": {
-        "consultation-request": [
-          {
-            "slug": "adviesaanvraag-reorganisatie-logistiek",
-            "type": "adviceRequest",
-            "worArticle": "art. 25 lid 1 sub d WOR",
-            "subject": "Voorgenomen reorganisatie afdeling logistiek (inkrimping 12 fte)",
-            "director": "00000000-0000-0000-0000-000000000000",
-            "governanceBody": "gemeenteraad-amsterdam",
-            "receivedDate": "2026-05-12",
-            "requestedResponseDate": "2026-06-30",
-            "consultationMeeting": "raadsvergadering-2025-01-15",
-            "agendaItem": "begroting-2026-bespreking",
-            "lifecycle": "consultationMeeting"
-          },
-          {
-            "slug": "instemmingsverzoek-werktijdenregeling",
-            "type": "consent-request",
-            "worArticle": "art. 27 lid 1 sub b WOR",
-            "subject": "Wijziging werktijdenregeling: invoering zelfroosteren productie",
-            "director": "00000000-0000-0000-0000-000000000000",
-            "governanceBody": "gemeenteraad-amsterdam",
-            "receivedDate": "2026-06-02",
-            "requestedResponseDate": "2026-08-15",
-            "constituencyConsultation": "00000000-0000-0000-0000-000000000000",
-            "lifecycle": "constituencyConsultation"
-          },
-          {
-            "slug": "adviesaanvraag-outsourcing-ict",
-            "type": "adviceRequest",
-            "worArticle": "art. 25 lid 1 sub n WOR",
-            "subject": "Uitbesteding ICT-beheer aan externe dienstverlener",
-            "director": "00000000-0000-0000-0000-000000000000",
-            "governanceBody": "gemeenteraad-amsterdam",
-            "receivedDate": "2026-01-15",
-            "requestedResponseDate": "2026-03-01",
-            "consultationMeeting": "raadsvergadering-2025-01-15",
-            "agendaItem": "begroting-2026-bespreking",
-            "responseOutcome": "advice-with-conditions",
-            "responseText": "De OR adviseert positief onder voorwaarde van een sociaal plan en een evaluatiemoment na 12 maanden.",
-            "responseDate": "2026-02-24",
-            "relatedDecision": "00000000-0000-0000-0000-000000000000",
-            "decisionOutcome": "contrary-to-advice",
-            "decisionText": "Bestuurder besluit tot uitbesteding zonder evaluatiemoment; sociaal plan wordt overgenomen.",
-            "decisionDate": "2026-03-10",
-            "suspensionTo": "2026-04-10",
-            "lifecycle": "completed"
-          }
-        ]
-      }
-    }
+    "_seedDataNote": "Seed objects MOVED to lib/Settings/profiles/*.json (OpenSpec change seed-profiles). A register.d fragment declares SCHEMAS ONLY, so installing this app plants zero objects. The examples that used to live here are now part of an example set an operator picks in the first-time setup wizard, which is the only thing that imports them."
   },
   "components": {
     "schemas": {
@@ -90,20 +38,62 @@
             "withdrawn"
           ],
           "transitions": [
-            { "from": "received", "to": "in-progress" },
-            { "from": "received", "to": "withdrawn" },
-            { "from": "in-progress", "to": "constituencyConsultation" },
-            { "from": "in-progress", "to": "consultationMeeting" },
-            { "from": "in-progress", "to": "withdrawn" },
-            { "from": "constituencyConsultation", "to": "consultationMeeting" },
-            { "from": "constituencyConsultation", "to": "withdrawn" },
-            { "from": "consultationMeeting", "to": "adopted" },
-            { "from": "consultationMeeting", "to": "in-progress" },
-            { "from": "consultationMeeting", "to": "withdrawn" },
-            { "from": "adopted", "to": "sent" },
-            { "from": "adopted", "to": "withdrawn" },
-            { "from": "sent", "to": "decision-received" },
-            { "from": "decision-received", "to": "completed" }
+            {
+              "from": "received",
+              "to": "in-progress"
+            },
+            {
+              "from": "received",
+              "to": "withdrawn"
+            },
+            {
+              "from": "in-progress",
+              "to": "constituencyConsultation"
+            },
+            {
+              "from": "in-progress",
+              "to": "consultationMeeting"
+            },
+            {
+              "from": "in-progress",
+              "to": "withdrawn"
+            },
+            {
+              "from": "constituencyConsultation",
+              "to": "consultationMeeting"
+            },
+            {
+              "from": "constituencyConsultation",
+              "to": "withdrawn"
+            },
+            {
+              "from": "consultationMeeting",
+              "to": "adopted"
+            },
+            {
+              "from": "consultationMeeting",
+              "to": "in-progress"
+            },
+            {
+              "from": "consultationMeeting",
+              "to": "withdrawn"
+            },
+            {
+              "from": "adopted",
+              "to": "sent"
+            },
+            {
+              "from": "adopted",
+              "to": "withdrawn"
+            },
+            {
+              "from": "sent",
+              "to": "decision-received"
+            },
+            {
+              "from": "decision-received",
+              "to": "completed"
+            }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-WCC-002). Canonical dialect verbatim (keyword 'initial', never 'initialState'/'states'-only/'default'). ontvangen -> in-behandeling -> (achterbanraadpleging) -> overlegvergadering -> vastgesteld -> verzonden -> besluit-ontvangen -> afgerond. achterbanraadpleging is an optional step (in-behandeling goes to either achterbanraadpleging or directly to overlegvergadering; achterbanraadpleging -> overlegvergadering). overlegvergadering -> in-behandeling allows repeat overleg rounds. ingetrokken is reachable from every non-terminal state before verzonden (ontvangen/in-behandeling/achterbanraadpleging/overlegvergadering/vastgesteld) and, with afgerond, is terminal. No app-side state machine."
         },

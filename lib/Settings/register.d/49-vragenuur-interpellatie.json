@@ -1,169 +1,6 @@
 {
   "x-openregister": {
-    "seedData": {
-      "description": "Seed objects for the vragenuur (oral questions), interpellatie (interpellation requests) and per-body vragenuur-configuratie registers (vragenuur-interpellatie). References resolve by slug against existing decidesk seed objects (governance-body gemeenteraad-amsterdam, meeting raadsvergadering-2025-01-15, and the toezegging toezegging-raadsbrief-jeugdzorg from the toezeggingen-ingekomen-stukken sibling fragment 45); the nil UUID 00000000-0000-0000-0000-000000000000 is an obvious placeholder where no matching seed object exists (raadslid/wethouder Person, and the SchriftelijkeVraag/Fractie references owned by the not-yet-seeded fractievoorzitter-fractie-koppeling change — hard depends_on, design D6). Three AgendaItems are appended to the agenda-item seed array (deepMergeConfig concatenates list arrays, ADR-037): one 'Vragenuur' item on the seeded raadsvergadering so scheduling is demoable on install, plus two dedicated interpellation agenda items for the behandeld/geagendeerd interpellatieverzoeken (ADR-016 testability). MondelingeVraag mv-wachtlijsten-jeugdzorg is seeded beantwoord + escalated from a written question (bronSchriftelijkeVraag placeholder) with a real vervolgToezegging so the full answer-with-commitment path is visible; mv-sluiting-zwembad stays ingediend so the admission action is demoable; mv-opvang-statushouders shows a stored afwijzingsReden. Interpellatieverzoek int-veiligheid-stationsgebied is behandeld (threshold met), int-jaarrekening-grondbedrijf ingediend (below threshold), int-subsidie-cultuurhuis geagendeerd.",
-      "objects": {
-        "vragenuur-configuratie": [
-          {
-            "slug": "vragenuur-configuratie-gemeenteraad",
-            "governanceBody": "gemeenteraad-amsterdam",
-            "submissionPeriodHours": 24,
-            "interpellationSupportThresholdType": "fraction",
-            "interpellationSupportThresholdValue": 0.2
-          }
-        ],
-        "mondelinge-vraag": [
-          {
-            "slug": "mv-wachtlijsten-jeugdzorg",
-            "questionNumber": "MV-2026-001",
-            "subject": "Wachtlijsten jeugdzorg na aanbesteding",
-            "rationale": "Na de recente aanbesteding jeugdhulp bereiken de fractie signalen van oplopende wachttijden. Graag een toelichting van de portefeuillehouder op de actuele stand en de te nemen maatregelen.",
-            "submitter": "00000000-0000-0000-0000-000000000000",
-            "politicalGroup": "00000000-0000-0000-0000-000000000000",
-            "portfolioHolder": "00000000-0000-0000-0000-000000000000",
-            "governanceBody": "gemeenteraad-amsterdam",
-            "targetMeeting": "raadsvergadering-2025-01-15",
-            "questionHourAgendaItem": "vragenuur-2025-01-15",
-            "sortOrder": 1,
-            "lifecycle": "answered",
-            "answerSummary": "Wethouder erkent oplopende wachttijden; raadsbrief met plan van aanpak toegezegd vóór 1 maart.",
-            "answeredBy": "00000000-0000-0000-0000-000000000000",
-            "followUpCommitment": "toezegging-raadsbrief-jeugdzorg",
-            "sourceWrittenQuestion": "00000000-0000-0000-0000-000000000000"
-          },
-          {
-            "slug": "mv-verkeersveiligheid-lindelaan",
-            "questionNumber": "MV-2026-002",
-            "subject": "Verkeersveiligheid schoolzone Lindelaan",
-            "rationale": "Ouders melden onveilige situaties tijdens de spits bij de schoolzone Lindelaan. Welke korte-termijnmaatregelen ziet het college?",
-            "submitter": "00000000-0000-0000-0000-000000000000",
-            "politicalGroup": "00000000-0000-0000-0000-000000000000",
-            "portfolioHolder": "00000000-0000-0000-0000-000000000000",
-            "governanceBody": "gemeenteraad-amsterdam",
-            "targetMeeting": "raadsvergadering-2025-01-15",
-            "questionHourAgendaItem": "vragenuur-2025-01-15",
-            "sortOrder": 2,
-            "lifecycle": "scheduled"
-          },
-          {
-            "slug": "mv-sluiting-zwembad",
-            "questionNumber": "MV-2026-003",
-            "subject": "Voorgenomen sluiting zwembad De Plons",
-            "rationale": "In de media wordt gesproken over een voorgenomen sluiting van zwembad De Plons. Klopt dit en is de raad hierover tijdig geïnformeerd?",
-            "submitter": "00000000-0000-0000-0000-000000000000",
-            "politicalGroup": "00000000-0000-0000-0000-000000000000",
-            "portfolioHolder": "00000000-0000-0000-0000-000000000000",
-            "governanceBody": "gemeenteraad-amsterdam",
-            "targetMeeting": "raadsvergadering-2025-01-15",
-            "lifecycle": "submitted"
-          },
-          {
-            "slug": "mv-opvang-statushouders",
-            "questionNumber": "MV-2026-004",
-            "subject": "Opvangcapaciteit statushouders Q3",
-            "rationale": "Graag inzicht in de opvangcapaciteit voor statushouders in het derde kwartaal en de gevolgen voor de taakstelling.",
-            "submitter": "00000000-0000-0000-0000-000000000000",
-            "politicalGroup": "00000000-0000-0000-0000-000000000000",
-            "portfolioHolder": "00000000-0000-0000-0000-000000000000",
-            "governanceBody": "gemeenteraad-amsterdam",
-            "targetMeeting": "raadsvergadering-2025-01-15",
-            "lifecycle": "rejected",
-            "rejectionReason": "Betreft een individuele casus, geen algemeen belang"
-          }
-        ],
-        "interpellatieverzoek": [
-          {
-            "slug": "int-veiligheid-stationsgebied",
-            "requestNumber": "INT-2026-001",
-            "subject": "Veiligheid stationsgebied",
-            "questions": "1. Sinds wanneer was het college bekend met de toename van incidenten in het stationsgebied? 2. Welke maatregelen zijn getroffen en waarom is de raad hierover niet eerder geïnformeerd?",
-            "rationale": "De aanhoudende onveiligheid in het stationsgebied rechtvaardigt een interpellatiedebat buiten de orde van de dag.",
-            "requester": "00000000-0000-0000-0000-000000000000",
-            "politicalGroup": "00000000-0000-0000-0000-000000000000",
-            "portfolioHolder": "00000000-0000-0000-0000-000000000000",
-            "governanceBody": "gemeenteraad-amsterdam",
-            "steunbetuigingen": [
-              "00000000-0000-0000-0000-000000000000",
-              "00000000-0000-0000-0000-000000000000",
-              "00000000-0000-0000-0000-000000000000",
-              "00000000-0000-0000-0000-000000000000"
-            ],
-            "lifecycle": "handled",
-            "councilResolutionDate": "2026-05-12",
-            "behandeldIn": "raadsvergadering-2025-01-15",
-            "agendaItem": "interpellatie-stationsgebied-2025",
-            "handlingMinutes": "Interpellatiedebat gevoerd; wethouder zegt extern onderzoek toe naar de veiligheidssituatie en informeert de raad per raadsbrief voor het zomerreces."
-          },
-          {
-            "slug": "int-jaarrekening-grondbedrijf",
-            "requestNumber": "INT-2026-002",
-            "subject": "Tekorten jaarrekening grondbedrijf",
-            "questions": "1. Waarom is de raad niet geïnformeerd over de tekorten in het grondbedrijf? 2. Welke gevolgen heeft dit voor de meerjarenbegroting?",
-            "rationale": "De omvang van de tekorten en het uitblijven van informatie aan de raad vragen om een interpellatie.",
-            "requester": "00000000-0000-0000-0000-000000000000",
-            "politicalGroup": "00000000-0000-0000-0000-000000000000",
-            "portfolioHolder": "00000000-0000-0000-0000-000000000000",
-            "governanceBody": "gemeenteraad-amsterdam",
-            "steunbetuigingen": [
-              "00000000-0000-0000-0000-000000000000",
-              "00000000-0000-0000-0000-000000000000"
-            ],
-            "lifecycle": "submitted"
-          },
-          {
-            "slug": "int-subsidie-cultuurhuis",
-            "requestNumber": "INT-2026-003",
-            "subject": "Subsidieverlening cultuurhuis",
-            "questions": "1. Op welke grond is de subsidie aan het cultuurhuis verhoogd? 2. Voldoet de verhoging aan het geldende subsidiekader?",
-            "rationale": "De onderbouwing van de subsidieverhoging is voor de raad onvoldoende inzichtelijk.",
-            "requester": "00000000-0000-0000-0000-000000000000",
-            "politicalGroup": "00000000-0000-0000-0000-000000000000",
-            "portfolioHolder": "00000000-0000-0000-0000-000000000000",
-            "governanceBody": "gemeenteraad-amsterdam",
-            "steunbetuigingen": [
-              "00000000-0000-0000-0000-000000000000",
-              "00000000-0000-0000-0000-000000000000",
-              "00000000-0000-0000-0000-000000000000",
-              "00000000-0000-0000-0000-000000000000",
-              "00000000-0000-0000-0000-000000000000"
-            ],
-            "lifecycle": "agendised",
-            "councilResolutionDate": "2026-06-30",
-            "behandeldIn": "raadsvergadering-2025-01-15",
-            "agendaItem": "interpellatie-cultuurhuis-2025-01-15"
-          }
-        ],
-        "agenda-item": [
-          {
-            "slug": "vragenuur-2025-01-15",
-            "title": "Vragenuur",
-            "itemType": "discussion",
-            "orderNumber": 6,
-            "estimatedDuration": 30,
-            "description": "Vragenuur van de raad (Reglement van Orde): raadsleden stellen mondelinge vragen aan de portefeuillehouders. Toegelaten mondelinge vragen worden op dit agendapunt ingepland (vragenuur-interpellatie REQ-VRI-004); de spreektijdklok blijft bij digital-meetings-and-recurrence REQ-STM. AgendaItem draagt geen tag-veld; 'vragenuur' is hier conventioneel via itemType 'discussion' + deze omschrijving vastgelegd.",
-            "meeting": "raadsvergadering-2025-01-15"
-          },
-          {
-            "slug": "interpellatie-stationsgebied-2025",
-            "title": "Interpellatie: veiligheid stationsgebied",
-            "itemType": "discussion",
-            "orderNumber": 7,
-            "estimatedDuration": 45,
-            "description": "Eigen agendapunt voor het toegelaten interpellatieverzoek int-veiligheid-stationsgebied (vragenuur-interpellatie REQ-VRI-012); een interpellatie krijgt een eigen agendapunt, nooit samengevoegd met het vragenuur.",
-            "meeting": "raadsvergadering-2025-01-15"
-          },
-          {
-            "slug": "interpellatie-cultuurhuis-2025-01-15",
-            "title": "Interpellatie: subsidieverlening cultuurhuis",
-            "itemType": "discussion",
-            "orderNumber": 8,
-            "estimatedDuration": 45,
-            "description": "Eigen agendapunt voor het geagendeerde interpellatieverzoek int-subsidie-cultuurhuis (vragenuur-interpellatie REQ-VRI-012).",
-            "meeting": "raadsvergadering-2025-01-15"
-          }
-        ]
-      }
-    }
+    "_seedDataNote": "Seed objects MOVED to lib/Settings/profiles/*.json (OpenSpec change seed-profiles). A register.d fragment declares SCHEMAS ONLY, so installing this app plants zero objects. The examples that used to live here are now part of an example set an operator picks in the first-time setup wizard, which is the only thing that imports them."
   },
   "components": {
     "schemas": {
@@ -335,7 +172,7 @@
             "_note": "Rejection notification to the indiener including the afwijzingsReden (REQ-VRI-007). updated-trigger filtered on lifecycle afgewezen."
           },
           "mvIngepland": {
-            "_note": "No `from` here: `scheduled` is reachable from both `admitted` and `not-handled`, and the updated-condition grammar takes a single `from`. Without it the rule fires on any update while lifecycle is already `scheduled`, which is still far narrower than the ignored `filter` it replaces (that fired on EVERY update). Tighten once the grammar accepts a from-set.",
+            "_note": "Scheduling notification to the indiener and portefeuillehouder (REQ-VRI-007). updated-trigger filtered on lifecycle ingepland; the target meeting date travels via the object's targetMeeting reference.",
             "trigger": {
               "type": "updated",
               "condition": {
@@ -363,8 +200,7 @@
             "subject": {
               "nl": "Mondelinge vraag ingepland voor het vragenuur: {{vraagNummer}} — {{onderwerp}}",
               "en": "Oral question scheduled for the question hour: {{vraagNummer}} — {{onderwerp}}"
-            },
-            "_note": "Scheduling notification to the indiener and portefeuillehouder (REQ-VRI-007). updated-trigger filtered on lifecycle ingepland; the target meeting date travels via the object's targetMeeting reference."
+            }
           }
         },
         "required": [
