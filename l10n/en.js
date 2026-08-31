@@ -1740,7 +1740,10 @@ OC.L10N.register(
         "Table": "Table",
         "Today": "Today",
         "Source app": "Source app",
-        "External reference": "External reference"
+        "External reference": "External reference",
+        "consultationType=tender: the winning party recorded when the award decision is made (status=awarded). Decidiq owns publish/manage/award only; authoring is procest and bidding is pipelinq.": "consultationType=tender: the winning party recorded when the award decision is made (status=awarded). Decidiq owns publish/manage/award only; authoring is procest and bidding is pipelinq.",
+        "schema.org annotation matching the ORI type (ChooseAction / Event / CreativeWork).": "schema.org annotation matching the ORI type (ChooseAction / Event / CreativeWork).",
+        "consultationType=tender: public tender reference/notice number.": "consultationType=tender: public tender reference/notice number."
     },
     "nplurals=2; plural=(n != 1);"
 )
