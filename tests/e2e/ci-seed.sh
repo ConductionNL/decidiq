@@ -681,6 +681,42 @@ else
 		'Alle leden kunnen digitaal diensten afnemen bij de vereniging.' \
 		'annual' '2026-01-01' '2026-12-31' 'draft' ''
 
+	# ── One built-in ProcessTemplate ───────────────────────────────────────────
+	#
+	# `process-configuration.spec.ts:41` failed at
+	# `expect(page.locator('[data-testid="process-template-list"]')).toBeVisible()`
+	# with `Received: hidden` — NOT because the list is missing, but because it is
+	# EMPTY. ProcessTemplates.vue renders `<ul v-if="!store.loading">` regardless
+	# of how many rows it has, and an empty `<ul>` is a zero-height box, which
+	# Playwright reports as hidden. ProcessTemplateService::list() already carries
+	# a comment describing exactly this shape from the last time it returned zero
+	# rows.
+	#
+	# The built-in templates are NOT shipped with the schema: like the Goals
+	# above, they live in the profile files (association.json, corporate.json and
+	# municipality.json declare three each), so `example_profile=none` leaves the
+	# catalogue empty. Same root cause, same fix.
+	#
+	# ONE is enough and one is deliberate. The spec asserts the list renders, then
+	# takes the FIRST item carrying `process-template-builtin` and checks it is
+	# read-only (duplicate offered, delete withheld). Seeding all nine would push
+	# a full catalogue into every other list that reads this schema, which is the
+	# thing the `none` profile exists to avoid.
+	#
+	# `Municipal Council` is the one that matches the rest of this fixture — the
+	# governance body seeded above is a Gemeenteraad — and it is copied verbatim
+	# from municipality.json (states, transitions, guards, voting rule and quorum
+	# rule included) so the fixture cannot drift from the shipped template. The
+	# profile's `@self` and `slug` are dropped: `@self` is import metadata the
+	# object API sets itself, and the slug is assigned server-side.
+	#
+	# Single-quoted deliberately — the payload contains double quotes throughout
+	# and no apostrophes, so this embeds it byte-for-byte with no escaping.
+	PROCESS_TEMPLATE_ID="$(seed_object process-template \
+		'{"name":"Municipal Council","description":"Legislative decision process for a municipal council (gemeenteraad), Gemeentewet.","context":"legislative","builtIn":true,"initialState":"draft","stateMachine":{"states":[{"name":"draft"},{"name":"proposed"},{"name":"deliberating"},{"name":"voting"},{"name":"decided"},{"name":"enacted"},{"name":"archived"}],"transitions":[{"name":"propose","from":"draft","to":"proposed"},{"name":"deliberate","from":"proposed","to":"deliberating"},{"name":"openVoting","from":"deliberating","to":"voting","chairOnly":true,"guards":["quorum_met","all_amendments_resolved"]},{"name":"decide","from":"voting","to":"decided","chairOnly":true},{"name":"enact","from":"decided","to":"enacted"},{"name":"archive","from":"enacted","to":"archived"}]},"votingRule":{"voteThreshold":"simple-majority","abstentionHandling":"exclude","tieBreakRule":"rejected"},"quorumRequired":true,"quorumRule":"More than half of the seats occupied (Gemeentewet art. 20)","allowDecideWithoutVote":false}' \
+		'the built-in Municipal Council process template')"
+	echo "[ci-seed]   process-template ${PROCESS_TEMPLATE_ID}  Municipal Council (built-in)"
+
 	echo "[ci-seed] governance fixture seeded."
 fi
 
@@ -705,6 +741,11 @@ required = {
     # found", which reads as a missing feature rather than a seed that did not
     # land.
     'goal': 5,
+    # process-configuration.spec.ts needs the list to be non-EMPTY, since an
+    # empty <ul> is a zero-height box that Playwright reports as hidden. One
+    # built-in template is the floor; see the seeding note above for why it is
+    # not the full catalogue.
+    'process-template': 1,
     # NOT action-item: CalDAV-backed and read-only through this API (see above).
 }
 
