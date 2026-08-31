@@ -1731,7 +1731,7 @@
 							"register": "decidiq",
 							"schema": "goal"
 						},
-						"slug": "goal-amsterdam-parkeerbeleid-kwartaal",
+						"slug": "goal-amsterdam-parkeerbeleid",
 						"title": "Herzien parkeerbeleid vastgesteld",
 						"description": "Vaststellen van het herziene parkeerbeleid binnenstad (koppeling met de termijnagenda).",
 						"horizon": "quarterly",
@@ -3595,7 +3595,7 @@
 							}
 						],
 						"originMotion": "00000000-0000-0000-0000-000000000000",
-						"goal": "goal-amsterdam-parkeerbeleid-kwartaal",
+						"goal": "goal-amsterdam-parkeerbeleid",
 						"publicationDate": "2026-06-20T09:00:00Z"
 					},
 					{

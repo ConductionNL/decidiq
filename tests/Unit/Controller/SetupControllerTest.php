@@ -129,16 +129,30 @@ class SetupControllerTest extends TestCase {
 		$this->assertFalse($response->getData()['success']);
 	}
 
-	public function testSkippingIsAnAnswerAndIsRecorded(): void {
-		// Declining must be persisted, otherwise the wizard re-offers the import
-		// on every visit and "no thanks" is impossible to express.
-		$this->appConfig->expects($this->once())
-			->method('setValueString')
-			->with('decidiq', 'demo_data_decided', 'skipped');
+	public function testSkippingClosesBOTHStepsOrTheWizardNeverCloses(): void {
+		// 🔴 THE POINT OF THIS TEST. Declining must be persisted, or the wizard
+		// re-offers on every visit and "no thanks" is impossible to express.
+		//
+		// AND IT MUST ANSWER BOTH STEPS. Splitting the old single `demo-data`
+		// step into a `choice` plus a `run-action` gave the wizard two
+		// outstanding steps, and this action first closed only the second.
+		// CnAppRoot opens the wizard while ANY optional step is outstanding, so
+		// skipping returned 200 and left the wizard covering every page — the
+		// e2e suite then failed on the progress list intercepting clicks
+		// Playwright had already resolved.
+		$written = [];
+		$this->appConfig->method('setValueString')
+			->willReturnCallback(static function (string $app, string $key, string $value) use (&$written): bool {
+				$written[$key] = $value;
+
+				return true;
+			});
 
 		$response = $this->controller->runAction('skip-example-set');
 
 		$this->assertTrue($response->getData()['success']);
+		$this->assertSame('skipped', $written['demo_data_decided'] ?? null);
+		$this->assertSame('none', $written['example_profile'] ?? null, 'skipping IS choosing none');
 	}
 
 	public function testUnknownActionIs404(): void {
