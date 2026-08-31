@@ -619,6 +619,68 @@ else
 	# lib/Migration/MigrateActionItemsToDeckLeaf.php is an explicit no-op.)
 	# Action items are seeded per-spec through decidiq's own endpoint,
 	# POST /apps/decidiq/api/action-items → ActionItemWriter → TaskService.
+	# ── The five Goals `goals-pages.spec.ts` asserts on ────────────────────────
+	#
+	# 🔴 THESE TITLES ARE THE ASSERTION, SO THEY CARRY NO ${SEED_TAG} PREFIX.
+	# `SEEDED_GOAL_TITLES` matches with `{ exact: true }`; prefixing them the way
+	# the objects above are prefixed would break the very test this seeds for.
+	#
+	# WHY THEY HAVE TO BE SEEDED HERE AT ALL. The spec's docblock points at
+	# lib/Settings/register.d/66-organisation-goals.json, but that file declares
+	# only the `Goal` SCHEMA. The five objects live in three different profile
+	# files — association.json (1), corporate.json (2), municipality.json (2) —
+	# so NO single `example_profile` produces all five, and CI picks `none`
+	# (see the setup/config call below) precisely to keep a whole demo dataset
+	# out of the lists other specs assert on. The spec was written against the
+	# older behaviour where installing planted everything.
+	#
+	# Measured on development 2026-08-31: E2E 4 failed / 139 passed, one of them
+	# `Goals: index lists all five seeded goals` failing on
+	# `getByText('Duurzame omzetgroei 2028')` → element(s) not found.
+	#
+	# Titles, descriptions, horizons, deadlines and statuses are copied verbatim
+	# from those profiles so the fixture and the shipped example sets cannot
+	# drift into disagreeing about what a Goal looks like.
+	#
+	# `body` is repointed at THIS run's governance body. The profiles reference
+	# their own bodies by slug (`gemeenteraad-amsterdam`, `ledenraad-vng`,
+	# `raad-van-bestuur-acme-bv`), none of which exist here — a dangling
+	# reference would seed an object the Goals index cannot resolve or render.
+	# `owner` is dropped for the same reason: `femke-halsema` is not a user on
+	# this instance, and it is not a required field.
+	seed_goal() {
+		# $1 = title, $2 = description, $3 = horizon, $4 = startDate,
+		# $5 = deadline, $6 = status, $7 = extra JSON fields (may be empty)
+		local id
+		id="$(seed_object goal \
+			"{\"title\":\"$1\",\"description\":\"$2\",\"horizon\":\"$3\",\"body\":\"${BODY_ID}\",\"startDate\":\"$4\",\"deadline\":\"$5\",\"status\":\"$6\"$7}" \
+			"the Goal \"$1\"")"
+		echo "[ci-seed]   goal ${id}  $1"
+	}
+
+	seed_goal 'Duurzame omzetgroei 2028' \
+		'Structurele omzetgroei realiseren binnen de duurzaamheidsdoelstellingen van de organisatie.' \
+		'multi-year' '2026-01-01' '2028-12-31' 'active' \
+		',"targetValue":20,"currentValue":6,"unit":"% omzetgroei"'
+
+	seed_goal 'Operationele effectiviteit 2026' \
+		'Procesdoorlooptijden binnen norm brengen als uitvoering van de groeidoelstelling.' \
+		'annual' '2026-01-01' '2026-12-31' 'active' \
+		',"targetValue":90,"currentValue":78,"unit":"% doorlooptijd binnen norm"'
+
+	seed_goal 'Amsterdam klimaatneutraal' \
+		'Netto CO2-uitstoot van de gemeentelijke organisatie naar nul in 2050.' \
+		'multi-year' '2026-01-01' '2050-01-01' 'active' \
+		',"targetValue":100,"currentValue":42,"unit":"% CO2-reductie behaald"'
+
+	seed_goal 'Herzien parkeerbeleid vastgesteld' \
+		'Vaststellen van het herziene parkeerbeleid binnenstad.' \
+		'quarterly' '2026-04-01' '2026-09-30' 'at-risk' ''
+
+	seed_goal 'Digitale dienstverlening leden' \
+		'Alle leden kunnen digitaal diensten afnemen bij de vereniging.' \
+		'annual' '2026-01-01' '2026-12-31' 'draft' ''
+
 	echo "[ci-seed] governance fixture seeded."
 fi
 
@@ -637,6 +699,12 @@ required = {
     'agenda-item': 3,
     'decision': 3,
     'minutes': 1,
+    # goals-pages.spec.ts asserts all FIVE by exact title, so five is the floor.
+    # Listed here for the reason this whole block exists: a create that answered
+    # 2xx but is not listable would leave the spec failing on "element(s) not
+    # found", which reads as a missing feature rather than a seed that did not
+    # land.
+    'goal': 5,
     # NOT action-item: CalDAV-backed and read-only through this API (see above).
 }
 
