@@ -10,6 +10,7 @@
         "version": "0.1.1",
         "title": "Regeling",
         "description": "A local regulation (regeling): verordening, beleidsregel, nadere regel, reglement, or externe statuut. Schema.org Legislation, Akoma Ntoso 'act' work level (FRBR work): the stable legal identity that a chain of immutable RegelingVersie expressions hangs off. It carries the citeertitel and officiële titel, the wettelijke grondslag, the vaststellend orgaan (a GovernanceBody), the CVDR identifier assigned by the national register after first publication (stored, never minted — REQ-VOR-001/006), and a declarative status lifecycle (ADR-031). In-werking regelingen are anonymously readable through the OpenRegister published-predicate (public register of regelingen in force, REQ-VOR-005); in-voorbereiding/vastgesteld/vervallen regelingen are not public. The regeling never stores consolidated text — that is an attached document on the RegelingVersie via the OR file abstraction. Publication of the regeling to DROP/CVDR runs through the RegelingExportPackage, whose STOP/TPOD build + OpenConnector delivery is the imperative slice (deferred).",
+        "_statusNote": "Regulation status, and the field x-openregister-lifecycle on this schema drives (field: status). It was REQUIRED and named by the lifecycle map from the day this fragment shipped, but never declared as a property, so OpenRegister created no magic-table column for it. Measured on a live instance: oc_openregister_table_21_262 (and its two duplicates) carried every other Regeling property and no status column at all, which means the declared in-preparation -> adopted -> in-effect -> lapsed transition map could never advance a regulation and the required field could never be satisfied. Enum mirrors x-openregister-lifecycle.states exactly; RegelingVersie.status is the per-version sibling and carries two extra states (draft, replaced) that a regulation as a whole does not have.",
         "type": "object",
         "x-schema-org": "schema:Legislation",
         "x-openregister": {
@@ -115,7 +116,7 @@
             "title": "Status",
             "type": "string",
             "facetable": true,
-            "description": "Regulation status, and the field x-openregister-lifecycle on this schema drives (field: status). It was REQUIRED and named by the lifecycle map from the day this fragment shipped, but never declared as a property, so OpenRegister created no magic-table column for it. Measured on a live instance: oc_openregister_table_21_262 (and its two duplicates) carried every other Regeling property and no status column at all, which means the declared in-preparation -> adopted -> in-effect -> lapsed transition map could never advance a regulation and the required field could never be satisfied. Enum mirrors x-openregister-lifecycle.states exactly; RegelingVersie.status is the per-version sibling and carries two extra states (draft, replaced) that a regulation as a whole does not have.",
+            "description": "The current status of this regulation. The lifecycle moves it from in preparation to adopted, in effect and lapsed.",
             "enum": [
               "in-preparation",
               "adopted",

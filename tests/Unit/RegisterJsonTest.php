@@ -117,6 +117,89 @@ class RegisterJsonTest extends TestCase {
 	}//end profileSeeds()
 
 	/**
+	 * Every schema slug the code asks OpenRegister for must actually exist.
+	 *
+	 * 🔴 A ONE-CHARACTER SLUG TYPO DISABLED AN ENTIRE BACKFILL, SILENTLY.
+	 *
+	 * `GovernanceRoleScopeProjector::reconcileAll()` called
+	 * `setSchema('governancebody')`. The register declares `governance-body`,
+	 * hyphenated, like every other slug in this app. `findAll()` therefore threw,
+	 * and its ONLY caller is a repair step that catches `\Throwable` and
+	 * downgrades it to a warning — correctly, because a repair must never fail an
+	 * upgrade. So every upgrade this app has ever run printed
+	 *
+	 *   Governance RBAC scope backfill skipped: Schema slug "governancebody" is
+	 *   not carried by register "decidiq"
+	 *
+	 * and REQ-RBAC-001 never projected a single body. Nothing failed. Nothing was
+	 * done.
+	 *
+	 * A `setSchema()` argument is a runtime lookup against a name the register
+	 * owns, so the two can drift with nothing to notice. This compares them.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
+	 */
+	public function testEverySchemaSlugTheCodeAsksForIsDeclared(): void {
+		$declared = [];
+		$files = array_merge(
+			[__DIR__ . '/../../lib/Settings/decidesk_register.json'],
+			(glob(__DIR__ . '/../../lib/Settings/register.d/*.json') ?: [])
+		);
+		foreach ($files as $file) {
+			$data = json_decode((string)file_get_contents($file), true, 512, JSON_THROW_ON_ERROR);
+			foreach (($data['components']['schemas'] ?? []) as $name => $schema) {
+				if (is_array($schema) === false) {
+					continue;
+				}
+
+				// A schema declares its slug; when it does not, OpenRegister derives
+				// one by kebab-casing the definition key.
+				$slug = ($schema['slug'] ?? strtolower(preg_replace('/(?<!^)[A-Z]/', '-$0', $name)));
+				$declared[$slug] = true;
+			}
+		}
+
+		self::assertNotEmpty(actual: $declared, message: 'The register must declare schemas');
+
+		$asked = [];
+		$phpFiles = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator(__DIR__ . '/../../lib')
+		);
+		foreach ($phpFiles as $phpFile) {
+			if ($phpFile->isFile() === false || $phpFile->getExtension() !== 'php') {
+				continue;
+			}
+
+			$body = (string)file_get_contents($phpFile->getPathname());
+			if (preg_match_all("/setSchema\(\s*'([a-zA-Z0-9_-]+)'\s*\)/", $body, $matches) === 0) {
+				continue;
+			}
+
+			foreach ($matches[1] as $slug) {
+				$asked[$slug][] = basename($phpFile->getPathname());
+			}
+		}
+
+		self::assertNotEmpty(actual: $asked, message: 'Some code must ask for a schema by slug');
+
+		$undeclared = [];
+		foreach ($asked as $slug => $callers) {
+			if (isset($declared[$slug]) === false) {
+				$undeclared[] = $slug . ' (asked for in ' . implode(', ', array_unique($callers)) . ')';
+			}
+		}
+
+		self::assertSame(
+			expected: [],
+			actual: $undeclared,
+			message: 'setSchema() names a slug the register does not declare, so the lookup throws at runtime'
+		);
+
+	}//end testEverySchemaSlugTheCodeAsksForIsDeclared()
+
+	/**
 	 * Test that the register JSON is valid OpenAPI 3.0.0 with x-openregister extensions.
 	 *
 	 * @return void

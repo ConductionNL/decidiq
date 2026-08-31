@@ -1751,7 +1751,8 @@ OC.L10N.register(
         "Every schema, generated values": "Every schema, generated values",
         "Municipality": "Municipality",
         "None, I will set this up myself": "None, I will set this up myself",
-        "Works council": "Works council"
+        "Works council": "Works council",
+        "The current status of this regulation. The lifecycle moves it from in preparation to adopted, in effect and lapsed.": "The current status of this regulation. The lifecycle moves it from in preparation to adopted, in effect and lapsed."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -2054,7 +2054,8 @@ OC.L10N.register(
         "Every schema, generated values": "Elk schema, gegenereerde waarden",
         "Municipality": "Gemeente",
         "None, I will set this up myself": "Geen, ik richt dit zelf in",
-        "Works council": "Ondernemingsraad"
+        "Works council": "Ondernemingsraad",
+        "The current status of this regulation. The lifecycle moves it from in preparation to adopted, in effect and lapsed.": "De huidige status van deze regeling. De levenscyclus loopt van in voorbereiding naar vastgesteld, in werking en vervallen."
     },
     "nplurals=2; plural=(n != 1);"
 )
