@@ -4,10 +4,10 @@
 	"_spec": "openspec/changes/vve-alv-pack/specs/vve-alv-pack/spec.md",
 	"menu": [
 		{
-			"id": "VveConfigurations",
-			"label": "VvE configuration",
+			"id": "BodyConfigurations",
+			"label": "Body configuration",
 			"icon": "CogOutline",
-			"route": "VveConfigurations",
+			"route": "BodyConfigurations",
 			"order": 73
 		},
 		{
@@ -20,17 +20,17 @@
 	],
 	"pages": [
 		{
-			"id": "VveConfigurations",
-			"route": "/vve-configurations",
+			"id": "BodyConfigurations",
+			"route": "/body-configurations",
 			"type": "index",
-			"title": "VvE configuration",
-			"_note": "spec: openspec/changes/vve-alv-pack/specs/vve-alv-pack/spec.md — REQ-VVE-001/003. Lists per-body VvE configurations (one per governance body): preset, breukdelen denominator, splitsingsakte reference, majority overrides.",
+			"title": "Body configuration",
+			"_note": "Per-body governance configuration for ANY organisation: the document that constitutes the body, the regulation version it follows, the denominator its weighted votes are expressed over, and any majority overrides. Replaces the VvE-only surface; generic-body-configuration supersedes VveConfiguration non-destructively.",
 			"config": {
 				"register": "decidiq",
-				"schema": "vve-configuration",
+				"schema": "body-governance-configuration",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
-				"_note": "Schema ref by slug (vve-configuration), never PascalCase.",
+				"_note": "Schema ref by slug (body-governance-configuration), never PascalCase.",
 				"columns": [
 					{
 						"key": "governanceBody",
@@ -43,18 +43,12 @@
 						}
 					},
 					{
-						"key": "modelRegulation",
-						"label": "Modelreglement",
-						"widget": "fkResolve",
-						"widgetProps": {
-							"register": "decidiq",
-							"schema": "modelreglement-preset",
-							"labelField": "name"
-						}
+						"key": "regulationVersion",
+						"label": "Regulation version"
 					},
 					{
-						"key": "fractionDenominator",
-						"label": "Denominator"
+						"key": "voteWeightDenominator",
+						"label": "Vote weight denominator"
 					}
 				],
 				"actions": [
@@ -63,7 +57,7 @@
 						"label": "View",
 						"icon": "EyeOutline",
 						"handler": "navigate",
-						"route": "VveConfigurationDetail",
+						"route": "BodyConfigurationDetail",
 						"primary": true
 					}
 				],
@@ -75,20 +69,20 @@
 			}
 		},
 		{
-			"id": "VveConfigurationDetail",
-			"route": "/vve-configurations/:id",
+			"id": "BodyConfigurationDetail",
+			"route": "/body-configurations/:id",
 			"type": "detail",
-			"title": "VvE configuration",
-			"_note": "spec: openspec/changes/vve-alv-pack/specs/vve-alv-pack/spec.md — REQ-VVE-001/003. Configuration data leads; the referenced body/preset/splitsingsakte and the majority overrides render as resolved references. Audit trail in a sidebar tab.",
+			"title": "Body configuration",
+			"_note": "Configuration data leads; the referenced body and constitutive document render as resolved references. Audit trail in a sidebar tab.",
 			"config": {
 				"register": "decidiq",
-				"schema": "vve-configuration",
-				"_note": "Schema ref by slug (vve-configuration), never PascalCase.",
+				"schema": "body-governance-configuration",
+				"_note": "Schema ref by slug (body-governance-configuration), never PascalCase.",
 				"widgets": [
 					{
 						"id": "config-data",
 						"type": "data",
-						"title": "VvE configuration",
+						"title": "Body configuration",
 						"icon": "OfficeBuilding",
 						"content": {
 							"columns": 2

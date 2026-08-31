@@ -235,6 +235,18 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\MigrateLegacyTemplatesToDecisionTemplate</step>
             <!--
+                After InitializeSettings imports the register (74-generic-body-configuration.json's
+                body-governance-configuration schema must already exist). Copies vve-configuration
+                rows onto the generic schema (generic-body-configuration). Idempotent by GOVERNANCE
+                BODY rather than by source uuid: the schema declares exactly one configuration per
+                body, so the body IS the identity, and keying on the source row would let a re-seed
+                create a second configuration for the same body — the defect that duplicated every
+                built-in decision template. Non-destructive: never deletes or edits a source row.
+                <post-migration> only, like the step above: a fresh install has no legacy rows, and
+                the example sets seed the GENERIC schema directly.
+            -->
+            <step>OCA\Decidiq\Migration\MigrateVveConfigurationToBodyConfiguration</step>
+            <!--
                 model-debt-cleanup-code: both steps below run AFTER InitializeSettings so they
                 read the NEW $ref declarations (Participant -> Membership/Person retargets,
                 model-debt-cleanup-schema fragment 67) to know what a valid target type looks
