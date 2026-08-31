@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "decidiq demo data",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Demo data covering every schema this app supplies, offered as the first step of the app's setup walkthrough. Generated from the schemas themselves, so every object satisfies the schema that will validate it."
   },
   "x-openregister": {
@@ -1759,16 +1759,7 @@
             "title": "Orders",
             "description": "Contract attachment: purchase orders related to a decisionType=contract decision (ADR-005)."
           },
-          "product": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid",
-              "$ref": "Product"
-            },
-            "title": "Products",
-            "description": "Contract attachment: products/services related to a decisionType=contract decision (ADR-005)."
-          },
+
           "route": {
             "type": "array",
             "items": {
@@ -4528,74 +4519,7 @@
           }
         }
       },
-      "Product": {
-        "slug": "product",
-        "icon": "PackageVariantClosed",
-        "version": "0.1.0",
-        "title": "Product",
-        "description": "Schema.org Product for product/service data",
-        "type": "object",
-        "x-schema-org": "schema:Product",
-        "x-openregister": {
-          "schemaType": "schema:Product",
-          "active": true,
-          "hardDelete": false,
-          "searchable": true,
-          "mailEnabled": false
-        },
-        "required": [
-          "name",
-          "unitPrice",
-          "currency"
-        ],
-        "properties": {
-          "name": {
-            "title": "Name",
-            "type": "string",
-            "description": "Product name",
-            "example": "Vergadermicrofoon Shure MX"
-          },
-          "sku": {
-            "title": "SKU",
-            "type": "string",
-            "description": "Stock keeping unit"
-          },
-          "description": {
-            "title": "Description",
-            "type": "string",
-            "description": "Product description"
-          },
-          "category": {
-            "title": "Category",
-            "type": "string",
-            "description": "Product category",
-            "example": "AV Equipment"
-          },
-          "unitPrice": {
-            "title": "Unit price",
-            "type": "number",
-            "description": "Unit price",
-            "example": 450
-          },
-          "currency": {
-            "title": "Currency",
-            "type": "string",
-            "description": "ISO 4217 currency code",
-            "example": "EUR"
-          },
-          "unitCode": {
-            "title": "Unit of measure",
-            "type": "string",
-            "description": "Unit of measure (UN/CEFACT)"
-          },
-          "taxRate": {
-            "title": "Tax rate",
-            "type": "number",
-            "description": "Applicable tax rate percentage",
-            "example": 21
-          }
-        }
-      },
+
       "PublicConsultation": {
         "x-openregister-notifications": {
           "consultationDeadline": {
@@ -7699,51 +7623,6 @@
         "startDate": "2026-03-03T09:00:00+00:00",
         "endDate": "2026-03-03T09:00:00+00:00",
         "governanceBody": "00000000-0000-4000-8000-000000000002"
-      },
-      {
-        "@self": {
-          "register": "decidiq",
-          "schema": "Product",
-          "slug": "product-voorbeeld-name-1-1"
-        },
-        "name": "Voorbeeld Name 1",
-        "unitPrice": 1.0,
-        "currency": "Voorbeeld Currency 1",
-        "sku": "Voorbeeld Sku 1",
-        "description": "Voorbeeld Description 1",
-        "category": "Voorbeeld Category 1",
-        "unitCode": "Voorbeeld Unitcode 1",
-        "taxRate": 1.0
-      },
-      {
-        "@self": {
-          "register": "decidiq",
-          "schema": "Product",
-          "slug": "product-voorbeeld-name-2-2"
-        },
-        "name": "Voorbeeld Name 2",
-        "unitPrice": 2.0,
-        "currency": "Voorbeeld Currency 2",
-        "sku": "Voorbeeld Sku 2",
-        "description": "Voorbeeld Description 2",
-        "category": "Voorbeeld Category 2",
-        "unitCode": "Voorbeeld Unitcode 2",
-        "taxRate": 2.0
-      },
-      {
-        "@self": {
-          "register": "decidiq",
-          "schema": "Product",
-          "slug": "product-voorbeeld-name-3-3"
-        },
-        "name": "Voorbeeld Name 3",
-        "unitPrice": 3.0,
-        "currency": "Voorbeeld Currency 3",
-        "sku": "Voorbeeld Sku 3",
-        "description": "Voorbeeld Description 3",
-        "category": "Voorbeeld Category 3",
-        "unitCode": "Voorbeeld Unitcode 3",
-        "taxRate": 3.0
       },
       {
         "@self": {
