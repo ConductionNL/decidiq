@@ -209,40 +209,71 @@ class SeedProfileServiceTest extends TestCase {
 		return $found;
 	}
 
-	public function testTheCiSeedScriptPostsAnActionTheControllerAnswers(): void {
-		// 🔴 A RENAMED ACTION BREAKS THE WHOLE E2E SUITE, SILENTLY.
+	public function testTheCiSeedScriptSettlesTheStepByARouteTheControllerAnswers(): void {
+		// 🔴 A RENAMED ROUTE BREAKS THE WHOLE E2E SUITE, SILENTLY.
 		//
 		// `tests/e2e/ci-seed.sh` settles the optional setup step before the suite
 		// runs, because CnAppRoot opens the wizard as a full modal mask in every
-		// fresh browser context while an optional step is outstanding. The script
-		// is deliberately TOLERANT of a non-200 there ("an app whose wizard has
-		// no such step answers 400, and that is not a seeding failure"), so a
-		// renamed action does not fail the seed step. It fails every later spec
-		// instead, on `<ol class="cn-wizard-dialog__progress">` intercepting the
-		// click — a message that accuses the selectors.
+		// fresh browser context while an optional step is outstanding. A rename
+		// therefore does not fail the seed step; it fails every later spec on
+		// `<ol class="cn-wizard-dialog__progress">` intercepting the click — a
+		// message that accuses the selectors.
 		//
-		// seed-profiles renamed `skip-demo-data` to `skip-example-set`. This asserts
-		// the script and the controller still agree, so the next rename is caught
-		// here rather than in 194 timeouts.
-		$script = (string)file_get_contents(dirname(__DIR__, 3) . '/tests/e2e/ci-seed.sh');
+		// The script has settled the step two different ways, and both are
+		// legitimate, so this asserts the AGREEMENT rather than one spelling:
+		//   - POST api/setup/action/<id>, which the controller must handle;
+		//   - POST api/setup/config with example_profile, which closes BOTH steps
+		//     and is what it does today.
+		// Either way, whatever the script names must exist in the controller.
+		$script     = (string)file_get_contents(dirname(__DIR__, 3) . '/tests/e2e/ci-seed.sh');
 		$controller = (string)file_get_contents(dirname(__DIR__, 3) . '/lib/Controller/SetupController.php');
 
 		$this->assertMatchesRegularExpression(
-			'#api/setup/action/#',
+			'#api/setup/(action/|config)#',
 			$script,
 			'ci-seed.sh must still settle the setup step, or the wizard masks every click'
 		);
 
+		// Route A: any posted action id must be one the controller answers.
 		preg_match_all('#api/setup/action/([a-z0-9-]+)#', $script, $matches);
-		$posted = array_values(array_unique($matches[1]));
-		$this->assertNotEmpty($posted, 'ci-seed.sh must post at least one setup action');
-
-		foreach ($posted as $actionId) {
+		foreach (array_unique($matches[1]) as $actionId) {
 			$this->assertStringContainsString(
 				"'" . $actionId . "'",
 				$controller,
 				'ci-seed.sh posts setup action "' . $actionId . '", which SetupController does not handle'
 			);
+		}
+
+		// Route B: settling through setup/config means sending the profile key,
+		// and the controller must read that exact key. Scoped to the key rather
+		// than to every JSON key in the file: ci-seed.sh also parses unrelated
+		// responses, so a blanket sweep picks up "error", "success", "provider"
+		// and asserts things about the wrong payload.
+		if (str_contains($script, 'api/setup/config') === true) {
+			// Bind the payload to ITS OWN url. Matching the first --data in the
+			// file picks up an unrelated empty '{}' from an earlier curl, and then
+			// the loop below has nothing to check and the test passes vacuously.
+			preg_match(
+				'#--data\s+\x27(\{[^\x27]*\})\x27[^\x27]{0,400}?api/setup/config#s',
+				$script,
+				$payload
+			);
+			$this->assertNotEmpty(
+				$payload,
+				'ci-seed.sh posts to setup/config but sends no --data payload'
+			);
+
+			preg_match_all('#"([a-z_]+)"\s*:#', $payload[1], $keys);
+			$sent = array_unique($keys[1]);
+			$this->assertNotEmpty($sent, 'the setup/config payload carries no key');
+
+			foreach ($sent as $key) {
+				$this->assertStringContainsString(
+					"'" . $key . "'",
+					$controller,
+					'ci-seed.sh posts setup config key "' . $key . '", which SetupController does not read'
+				);
+			}
 		}
 	}
 
