@@ -1751,7 +1751,25 @@
         "Municipality": "Municipality",
         "None, I will set this up myself": "None, I will set this up myself",
         "Works council": "Works council",
-        "The current status of this regulation. The lifecycle moves it from in preparation to adopted, in effect and lapsed.": "The current status of this regulation. The lifecycle moves it from in preparation to adopted, in effect and lapsed."
+        "The current status of this regulation. The lifecycle moves it from in preparation to adopted, in effect and lapsed.": "The current status of this regulation. The lifecycle moves it from in preparation to adopted, in effect and lapsed.",
+        "The governance body this configuration belongs to. One configuration per body.": "The governance body this configuration belongs to. One configuration per body.",
+        "Constitutive document": "Constitutive document",
+        "The document that constitutes this body: a splitsingsakte, articles of association, statutes or a gemeenschappelijke regeling.": "The document that constitutes this body: a splitsingsakte, articles of association, statutes or a gemeenschappelijke regeling.",
+        "Regulation version": "Regulation version",
+        "The version of the model regulation this body follows, as plain text.": "The version of the model regulation this body follows, as plain text.",
+        "Vote weight denominator": "Vote weight denominator",
+        "The total this body’s weighted votes are expressed over. Leave empty when every member has one equal vote.": "The total this body’s weighted votes are expressed over. Leave empty when every member has one equal vote.",
+        "Majority overrides": "Majority overrides",
+        "Categories where this body needs a different majority than its templates use by default.": "Categories where this body needs a different majority than its templates use by default.",
+        "Template category": "Template category",
+        "The template category this override applies to.": "The template category this override applies to.",
+        "The required majority for this category per the splitsingsakte (mirrors the VotingRound voteThreshold enum). Resolves into the existing round-open defaults; never a second threshold enum.": "The required majority for this category per the splitsingsakte (mirrors the VotingRound voteThreshold enum). Resolves into the existing round-open defaults; never a second threshold enum.",
+        "Quorum fraction": "Quorum fraction",
+        "Optional quorum fraction (e.g. '2/3') required for this category per the akte. Null means no quorum beyond the body default.": "Optional quorum fraction (e.g. '2/3') required for this category per the akte. Null means no quorum beyond the body default.",
+        "Free-text source note naming the splitsingsakte article this deviation stems from.": "Free-text source note naming the splitsingsakte article this deviation stems from.",
+        "Decision templates": "Decision templates",
+        "Body configuration": "Body configuration",
+        "Context": "Context"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }
