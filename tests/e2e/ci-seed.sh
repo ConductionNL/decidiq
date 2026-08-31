@@ -619,6 +619,104 @@ else
 	# lib/Migration/MigrateActionItemsToDeckLeaf.php is an explicit no-op.)
 	# Action items are seeded per-spec through decidiq's own endpoint,
 	# POST /apps/decidiq/api/action-items → ActionItemWriter → TaskService.
+	# ── The five Goals `goals-pages.spec.ts` asserts on ────────────────────────
+	#
+	# 🔴 THESE TITLES ARE THE ASSERTION, SO THEY CARRY NO ${SEED_TAG} PREFIX.
+	# `SEEDED_GOAL_TITLES` matches with `{ exact: true }`; prefixing them the way
+	# the objects above are prefixed would break the very test this seeds for.
+	#
+	# WHY THEY HAVE TO BE SEEDED HERE AT ALL. The spec's docblock points at
+	# lib/Settings/register.d/66-organisation-goals.json, but that file declares
+	# only the `Goal` SCHEMA. The five objects live in three different profile
+	# files — association.json (1), corporate.json (2), municipality.json (2) —
+	# so NO single `example_profile` produces all five, and CI picks `none`
+	# (see the setup/config call below) precisely to keep a whole demo dataset
+	# out of the lists other specs assert on. The spec was written against the
+	# older behaviour where installing planted everything.
+	#
+	# Measured on development 2026-08-31: E2E 4 failed / 139 passed, one of them
+	# `Goals: index lists all five seeded goals` failing on
+	# `getByText('Duurzame omzetgroei 2028')` → element(s) not found.
+	#
+	# Titles, descriptions, horizons, deadlines and statuses are copied verbatim
+	# from those profiles so the fixture and the shipped example sets cannot
+	# drift into disagreeing about what a Goal looks like.
+	#
+	# `body` is repointed at THIS run's governance body. The profiles reference
+	# their own bodies by slug (`gemeenteraad-amsterdam`, `ledenraad-vng`,
+	# `raad-van-bestuur-acme-bv`), none of which exist here — a dangling
+	# reference would seed an object the Goals index cannot resolve or render.
+	# `owner` is dropped for the same reason: `femke-halsema` is not a user on
+	# this instance, and it is not a required field.
+	seed_goal() {
+		# $1 = title, $2 = description, $3 = horizon, $4 = startDate,
+		# $5 = deadline, $6 = status, $7 = extra JSON fields (may be empty)
+		local id
+		id="$(seed_object goal \
+			"{\"title\":\"$1\",\"description\":\"$2\",\"horizon\":\"$3\",\"body\":\"${BODY_ID}\",\"startDate\":\"$4\",\"deadline\":\"$5\",\"status\":\"$6\"$7}" \
+			"the Goal \"$1\"")"
+		echo "[ci-seed]   goal ${id}  $1"
+	}
+
+	seed_goal 'Duurzame omzetgroei 2028' \
+		'Structurele omzetgroei realiseren binnen de duurzaamheidsdoelstellingen van de organisatie.' \
+		'multi-year' '2026-01-01' '2028-12-31' 'active' \
+		',"targetValue":20,"currentValue":6,"unit":"% omzetgroei"'
+
+	seed_goal 'Operationele effectiviteit 2026' \
+		'Procesdoorlooptijden binnen norm brengen als uitvoering van de groeidoelstelling.' \
+		'annual' '2026-01-01' '2026-12-31' 'active' \
+		',"targetValue":90,"currentValue":78,"unit":"% doorlooptijd binnen norm"'
+
+	seed_goal 'Amsterdam klimaatneutraal' \
+		'Netto CO2-uitstoot van de gemeentelijke organisatie naar nul in 2050.' \
+		'multi-year' '2026-01-01' '2050-01-01' 'active' \
+		',"targetValue":100,"currentValue":42,"unit":"% CO2-reductie behaald"'
+
+	seed_goal 'Herzien parkeerbeleid vastgesteld' \
+		'Vaststellen van het herziene parkeerbeleid binnenstad.' \
+		'quarterly' '2026-04-01' '2026-09-30' 'at-risk' ''
+
+	seed_goal 'Digitale dienstverlening leden' \
+		'Alle leden kunnen digitaal diensten afnemen bij de vereniging.' \
+		'annual' '2026-01-01' '2026-12-31' 'draft' ''
+
+	# ── One built-in ProcessTemplate ───────────────────────────────────────────
+	#
+	# `process-configuration.spec.ts:41` failed at
+	# `expect(page.locator('[data-testid="process-template-list"]')).toBeVisible()`
+	# with `Received: hidden` — NOT because the list is missing, but because it is
+	# EMPTY. ProcessTemplates.vue renders `<ul v-if="!store.loading">` regardless
+	# of how many rows it has, and an empty `<ul>` is a zero-height box, which
+	# Playwright reports as hidden. ProcessTemplateService::list() already carries
+	# a comment describing exactly this shape from the last time it returned zero
+	# rows.
+	#
+	# The built-in templates are NOT shipped with the schema: like the Goals
+	# above, they live in the profile files (association.json, corporate.json and
+	# municipality.json declare three each), so `example_profile=none` leaves the
+	# catalogue empty. Same root cause, same fix.
+	#
+	# ONE is enough and one is deliberate. The spec asserts the list renders, then
+	# takes the FIRST item carrying `process-template-builtin` and checks it is
+	# read-only (duplicate offered, delete withheld). Seeding all nine would push
+	# a full catalogue into every other list that reads this schema, which is the
+	# thing the `none` profile exists to avoid.
+	#
+	# `Municipal Council` is the one that matches the rest of this fixture — the
+	# governance body seeded above is a Gemeenteraad — and it is copied verbatim
+	# from municipality.json (states, transitions, guards, voting rule and quorum
+	# rule included) so the fixture cannot drift from the shipped template. The
+	# profile's `@self` and `slug` are dropped: `@self` is import metadata the
+	# object API sets itself, and the slug is assigned server-side.
+	#
+	# Single-quoted deliberately — the payload contains double quotes throughout
+	# and no apostrophes, so this embeds it byte-for-byte with no escaping.
+	PROCESS_TEMPLATE_ID="$(seed_object process-template \
+		'{"name":"Municipal Council","description":"Legislative decision process for a municipal council (gemeenteraad), Gemeentewet.","context":"legislative","builtIn":true,"initialState":"draft","stateMachine":{"states":[{"name":"draft"},{"name":"proposed"},{"name":"deliberating"},{"name":"voting"},{"name":"decided"},{"name":"enacted"},{"name":"archived"}],"transitions":[{"name":"propose","from":"draft","to":"proposed"},{"name":"deliberate","from":"proposed","to":"deliberating"},{"name":"openVoting","from":"deliberating","to":"voting","chairOnly":true,"guards":["quorum_met","all_amendments_resolved"]},{"name":"decide","from":"voting","to":"decided","chairOnly":true},{"name":"enact","from":"decided","to":"enacted"},{"name":"archive","from":"enacted","to":"archived"}]},"votingRule":{"voteThreshold":"simple-majority","abstentionHandling":"exclude","tieBreakRule":"rejected"},"quorumRequired":true,"quorumRule":"More than half of the seats occupied (Gemeentewet art. 20)","allowDecideWithoutVote":false}' \
+		'the built-in Municipal Council process template')"
+	echo "[ci-seed]   process-template ${PROCESS_TEMPLATE_ID}  Municipal Council (built-in)"
+
 	echo "[ci-seed] governance fixture seeded."
 fi
 
@@ -637,6 +735,17 @@ required = {
     'agenda-item': 3,
     'decision': 3,
     'minutes': 1,
+    # goals-pages.spec.ts asserts all FIVE by exact title, so five is the floor.
+    # Listed here for the reason this whole block exists: a create that answered
+    # 2xx but is not listable would leave the spec failing on "element(s) not
+    # found", which reads as a missing feature rather than a seed that did not
+    # land.
+    'goal': 5,
+    # process-configuration.spec.ts needs the list to be non-EMPTY, since an
+    # empty <ul> is a zero-height box that Playwright reports as hidden. One
+    # built-in template is the floor; see the seeding note above for why it is
+    # not the full catalogue.
+    'process-template': 1,
     # NOT action-item: CalDAV-backed and read-only through this API (see above).
 }
 
