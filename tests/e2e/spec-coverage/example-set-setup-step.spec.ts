@@ -117,9 +117,7 @@ test.describe('example sets', () => {
 		)
 	})
 
-	test('setup status offers the sets the app actually ships', async ({
-		page,
-	}) => {
+	test('setup status offers the sets the app actually ships', async ({ page }) => {
 		const res = await api(page, 'GET', `${BASE}/api/setup/status`)
 
 		const profiles = res.json?.profiles ?? []
@@ -210,9 +208,7 @@ test.describe('example sets', () => {
 		).toBe(true)
 	})
 
-	test('re-loading is safe, because the step promises it is', async ({
-		page,
-	}) => {
+	test('re-loading is safe, because the step promises it is', async ({ page }) => {
 		// The step body tells the operator it is "safe to run more than once".
 		// That sentence is a contract; this asserts the server keeps it rather
 		// than erroring or reporting failure on a second pass.

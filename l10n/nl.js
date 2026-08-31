@@ -2046,7 +2046,13 @@ OC.L10N.register(
         "Loads the set you picked. The data is obviously sample data, it is safe to run more than once, and you can delete it afterwards.": "Laadt de set die je koos. De gegevens zijn herkenbaar voorbeeldgegevens, je kunt dit meer dan een keer uitvoeren en je kunt ze daarna verwijderen.",
         "consultationType=tender: the winning party recorded when the award decision is made (status=awarded). Decidiq owns publish/manage/award only; authoring is procest and bidding is pipelinq.": "consultationType=tender: de winnende partij, vastgelegd zodra het gunningsbesluit is genomen (status=awarded). Decidiq beheert alleen publiceren, beheren en gunnen; het opstellen gebeurt in procest en het inschrijven in pipelinq.",
         "schema.org annotation matching the ORI type (ChooseAction / Event / CreativeWork).": "schema.org-annotatie die hoort bij het ORI-type (ChooseAction / Event / CreativeWork).",
-        "consultationType=tender: public tender reference/notice number.": "consultationType=tender: het openbare aanbestedings- of publicatienummer."
+        "consultationType=tender: public tender reference/notice number.": "consultationType=tender: het openbare aanbestedings- of publicatienummer.",
+        "Association or VvE": "Vereniging of VvE",
+        "Company board": "Raad van bestuur",
+        "Every schema, generated values": "Elk schema, gegenereerde waarden",
+        "Municipality": "Gemeente",
+        "None, I will set this up myself": "Geen, ik richt dit zelf in",
+        "Works council": "Ondernemingsraad"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1743,7 +1743,13 @@ OC.L10N.register(
         "External reference": "External reference",
         "consultationType=tender: the winning party recorded when the award decision is made (status=awarded). Decidiq owns publish/manage/award only; authoring is procest and bidding is pipelinq.": "consultationType=tender: the winning party recorded when the award decision is made (status=awarded). Decidiq owns publish/manage/award only; authoring is procest and bidding is pipelinq.",
         "schema.org annotation matching the ORI type (ChooseAction / Event / CreativeWork).": "schema.org annotation matching the ORI type (ChooseAction / Event / CreativeWork).",
-        "consultationType=tender: public tender reference/notice number.": "consultationType=tender: public tender reference/notice number."
+        "consultationType=tender: public tender reference/notice number.": "consultationType=tender: public tender reference/notice number.",
+        "Association or VvE": "Association or VvE",
+        "Company board": "Company board",
+        "Every schema, generated values": "Every schema, generated values",
+        "Municipality": "Municipality",
+        "None, I will set this up myself": "None, I will set this up myself",
+        "Works council": "Works council"
     },
     "nplurals=2; plural=(n != 1);"
 )
