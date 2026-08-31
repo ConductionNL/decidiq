@@ -2,7 +2,7 @@
 
 - [x] 1.1 Declare `BodyGovernanceConfiguration` in `74-generic-body-configuration.json`
 - [x] 1.2 Supersede `VveConfiguration` non-destructively (`active:false`, rows kept)
-- [x] 1.3 `MigrateVveConfigurationToBodyConfiguration`, idempotent by governance body
+- [x] 1.3 `MigrateVveToBodyConfiguration`, idempotent by governance body
 - [x] 1.4 Register the repair step in `<post-migration>`
 - [x] 1.5 Retarget the settings surface and the gear entry
 - [x] 1.6 Move the example-set seeds onto the generic schema; drop the orphaned one

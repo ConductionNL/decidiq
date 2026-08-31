@@ -245,7 +245,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
                 <post-migration> only, like the step above: a fresh install has no legacy rows, and
                 the example sets seed the GENERIC schema directly.
             -->
-            <step>OCA\Decidiq\Migration\MigrateVveConfigurationToBodyConfiguration</step>
+            <step>OCA\Decidiq\Migration\MigrateVveToBodyConfiguration</step>
             <!--
                 model-debt-cleanup-code: both steps below run AFTER InitializeSettings so they
                 read the NEW $ref declarations (Participant -> Membership/Person retargets,

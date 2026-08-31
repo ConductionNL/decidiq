@@ -274,6 +274,50 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	}//end buildMigratedIndex()
 
 	/**
+	 * Whether this legacy row is already represented in `decision-template`.
+	 *
+	 * TWO WAYS IT CAN BE, and both matter:
+	 *
+	 *  - it was migrated on an earlier run, matched on `migratedFrom.sourceUuid`;
+	 *  - a SEED already carries it, matched on name — see
+	 *    buildExistingNameIndex() for why that is the honest key.
+	 *
+	 * Extracted so migrateSchema() stays under the cyclomatic-complexity
+	 * threshold: adding the name check took it to exactly 10.
+	 *
+	 * @param array<string,bool> $alreadyMigrated Index keyed '<sourceSchema>|<sourceUuid>'.
+	 * @param array<string,bool> $existingNames   Lower-cased names that already exist.
+	 * @param string             $sourceSchema    The legacy schema slug.
+	 * @param string             $uuid            The legacy row's uuid.
+	 * @param string             $sourceName      The legacy row's lower-cased name.
+	 *
+	 * @return boolean True when it must be skipped.
+	 */
+	private function alreadyPresent(
+		array $alreadyMigrated,
+		array $existingNames,
+		string $sourceSchema,
+		string $uuid,
+		string $sourceName,
+	): bool {
+		if (($alreadyMigrated[$sourceSchema . '|' . $uuid] ?? false) === true) {
+			return true;
+		}
+
+		if ($sourceName !== '' && ($existingNames[$sourceName] ?? false) === true) {
+			$this->logger->info(
+				'Decidiq: skipping legacy template already present by name',
+				['sourceSchema' => $sourceSchema, 'sourceUuid' => $uuid, 'name' => $sourceName]
+			);
+
+			return true;
+		}
+
+		return false;
+
+	}//end alreadyPresent()
+
+	/**
 	 * The names of the decision-templates that already exist.
 	 *
 	 * 🔴 WITHOUT THIS, EVERY BUILT-IN TEMPLATE EXISTS TWICE.
@@ -389,22 +433,16 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 				continue;
 			}
 
-			if (($alreadyMigrated[$sourceSchema . '|' . $uuid] ?? false) === true) {
-				$skipped++;
-				continue;
-			}
-
-			// A template of this name already exists, which for the thirteen
-			// built-ins means the SEED already carries it — see
-			// buildExistingNameIndex(). Migrating it again is what produced a
-			// duplicate of every built-in.
 			$sourceName = mb_strtolower(trim((string)($source['name'] ?? '')));
-			if ($sourceName !== '' && ($existingNames[$sourceName] ?? false) === true) {
+			if ($this->alreadyPresent(
+				alreadyMigrated: $alreadyMigrated,
+				existingNames: $existingNames,
+				sourceSchema: $sourceSchema,
+				uuid: $uuid,
+				sourceName: $sourceName,
+			) === true
+			) {
 				$skipped++;
-				$this->logger->info(
-					'Decidiq: skipping legacy template already present by name',
-					['sourceSchema' => $sourceSchema, 'sourceUuid' => $uuid, 'name' => $source['name'] ?? '']
-				);
 				continue;
 			}
 

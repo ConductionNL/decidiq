@@ -35,7 +35,7 @@ A company limited by shares has articles of association, an articles version, an
 
 ## How it supersedes
 
-Non-destructively, exactly as `unified-decision-templates` did and as `67-model-debt-cleanup.json` did for `BoardProxy`: `VveConfiguration` keeps its definition and its rows (`active: false`, `hardDelete: false`), and `MigrateVveConfigurationToBodyConfiguration` copies each row onto the generic schema. Nothing is edited and nothing is deleted, so a rollback still finds its data.
+Non-destructively, exactly as `unified-decision-templates` did and as `67-model-debt-cleanup.json` did for `BoardProxy`: `VveConfiguration` keeps its definition and its rows (`active: false`, `hardDelete: false`), and `MigrateVveToBodyConfiguration` copies each row onto the generic schema. Nothing is edited and nothing is deleted, so a rollback still finds its data.
 
 `modelRegulation` is deliberately **not** carried across: it referenced a retired schema, and the majorities it used to resolve now live on each `DecisionTemplate`'s own `votingRule`. The plain `modelReglementVersion` string that `unified-decision-templates` added alongside it for exactly this reason becomes `regulationVersion`.
 

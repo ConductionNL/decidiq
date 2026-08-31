@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Unit tests for MigrateVveConfigurationToBodyConfiguration.
+ * Unit tests for MigrateVveToBodyConfiguration.
  *
  * @category Test
  * @package  OCA\Decidiq\Tests\Unit\Migration
@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Migration;
 
-use OCA\Decidiq\Migration\MigrateVveConfigurationToBodyConfiguration;
+use OCA\Decidiq\Migration\MigrateVveToBodyConfiguration;
 use OCA\Decidiq\Service\SettingsService;
 use OCP\Migration\IOutput;
 use PHPUnit\Framework\TestCase;
@@ -29,7 +29,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/generic-body-configuration/specs/generic-body-configuration/spec.md
  */
-class MigrateVveConfigurationToBodyConfigurationTest extends TestCase {
+class MigrateVveToBodyConfigurationTest extends TestCase {
 
 	private SettingsService $settingsService;
 
@@ -39,7 +39,7 @@ class MigrateVveConfigurationToBodyConfigurationTest extends TestCase {
 
 	private IOutput $output;
 
-	private MigrateVveConfigurationToBodyConfiguration $migration;
+	private MigrateVveToBodyConfiguration $migration;
 
 	/**
 	 * Set up test fixtures.
@@ -52,7 +52,7 @@ class MigrateVveConfigurationToBodyConfigurationTest extends TestCase {
 		$this->logger = $this->createMock(originalClassName: LoggerInterface::class);
 		$this->output = $this->createMock(originalClassName: IOutput::class);
 
-		$this->migration = new MigrateVveConfigurationToBodyConfiguration(
+		$this->migration = new MigrateVveToBodyConfiguration(
 			$this->settingsService,
 			$this->container,
 			$this->logger,

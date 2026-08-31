@@ -1,6 +1,6 @@
 <?php
 /**
- * Decidiq MigrateVveConfigurationToBodyConfiguration.
+ * Decidiq MigrateVveToBodyConfiguration.
  *
  * One-shot, idempotent, resume-safe repair migration for the
  * generic-body-configuration change: copies every `vve-configuration` row into
@@ -37,7 +37,7 @@ use Throwable;
  *
  * @spec openspec/changes/generic-body-configuration/specs/generic-body-configuration/spec.md
  */
-class MigrateVveConfigurationToBodyConfiguration implements IRepairStep {
+class MigrateVveToBodyConfiguration implements IRepairStep {
 	/**
 	 * The decidiq register slug.
 	 *
