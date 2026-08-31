@@ -337,11 +337,18 @@ class ApprovalRouteService {
 	/**
 	 * The subject's stages, ordered by sequence.
 	 *
+	 * PUBLIC because the cross-app command seam needs to answer "did that action
+	 * finish the route" and must do it by asking THIS class, not by running its
+	 * own query. A second reader of decision-stage rows is how the seam and the
+	 * engine start to disagree about what a route's state is.
+	 *
 	 * @param string $subject The subject uuid.
 	 *
 	 * @return array<int, array<string, mixed>> The stages.
+	 *
+	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
 	 */
-	private function stagesFor(string $subject): array {
+	public function stagesFor(string $subject): array {
 		$rows = $this->store->findAll(schema: 'decision-stage', filters: ['decision' => $subject]);
 		usort($rows, static fn (array $a, array $b): int => ((int)$a['sequence'] <=> (int)$b['sequence']));
 

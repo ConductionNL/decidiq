@@ -2040,6 +2040,8 @@ OC.L10N.register(
         "{states} states, {transitions} transitions": "{states} statussen, {transitions} overgangen",
         "Source app": "Bronapplicatie",
         "External reference": "Externe referentie",
+        "App id of the fleet app this route was held on behalf of (e.g. dossiq). Empty for routes authored in decidiq itself. Half of the idempotency key; never an authorization input.": "App-id van de applicatie waarvoor deze route wordt bewaard (bijvoorbeeld dossiq). Leeg voor routes die in decidiq zelf zijn gemaakt. De helft van de idempotentiesleutel; nooit een autorisatiegrond.",
+        "The producing app's own id for the route this one was migrated from. Paired with sourceApp it identifies the origin, so a repeated command updates this route rather than creating another.": "Het eigen id dat de bronapplicatie gebruikt voor de route waaruit deze is overgenomen. Samen met sourceApp bepaalt het de herkomst, zodat een herhaalde opdracht deze route bijwerkt in plaats van een tweede aanmaakt.",
         "Which kind of organisation is this for?": "Voor wat voor organisatie is dit?",
         "Pick the organisation this app runs for and you get a worked example of it: bodies, meetings, decisions and templates that fit. Installing the app plants nothing on its own, so this is the only step that adds data. Choose \"None\" on a production install.": "Kies de organisatie waarvoor deze app draait en je krijgt een uitgewerkt voorbeeld: organen, vergaderingen, besluiten en sjablonen die daarbij passen. De app zet zelf niets klaar, dus dit is de enige stap die gegevens toevoegt. Kies \"Geen\" op een productieomgeving.",
         "Load the example data": "Laad de voorbeeldgegevens",

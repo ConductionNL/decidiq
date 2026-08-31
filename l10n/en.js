@@ -1741,6 +1741,8 @@ OC.L10N.register(
         "Today": "Today",
         "Source app": "Source app",
         "External reference": "External reference",
+        "App id of the fleet app this route was held on behalf of (e.g. dossiq). Empty for routes authored in decidiq itself. Half of the idempotency key; never an authorization input.": "App id of the fleet app this route was held on behalf of (e.g. dossiq). Empty for routes authored in decidiq itself. Half of the idempotency key; never an authorization input.",
+        "The producing app's own id for the route this one was migrated from. Paired with sourceApp it identifies the origin, so a repeated command updates this route rather than creating another.": "The producing app's own id for the route this one was migrated from. Paired with sourceApp it identifies the origin, so a repeated command updates this route rather than creating another.",
         "consultationType=tender: the winning party recorded when the award decision is made (status=awarded). Decidiq owns publish/manage/award only; authoring is procest and bidding is pipelinq.": "consultationType=tender: the winning party recorded when the award decision is made (status=awarded). Decidiq owns publish/manage/award only; authoring is procest and bidding is pipelinq.",
         "schema.org annotation matching the ORI type (ChooseAction / Event / CreativeWork).": "schema.org annotation matching the ORI type (ChooseAction / Event / CreativeWork).",
         "consultationType=tender: public tender reference/notice number.": "consultationType=tender: public tender reference/notice number.",
