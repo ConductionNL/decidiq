@@ -1767,7 +1767,10 @@ OC.L10N.register(
         "The required majority for this category per the splitsingsakte (mirrors the VotingRound voteThreshold enum). Resolves into the existing round-open defaults; never a second threshold enum.": "The required majority for this category per the splitsingsakte (mirrors the VotingRound voteThreshold enum). Resolves into the existing round-open defaults; never a second threshold enum.",
         "Quorum fraction": "Quorum fraction",
         "Optional quorum fraction (e.g. '2/3') required for this category per the akte. Null means no quorum beyond the body default.": "Optional quorum fraction (e.g. '2/3') required for this category per the akte. Null means no quorum beyond the body default.",
-        "Free-text source note naming the splitsingsakte article this deviation stems from.": "Free-text source note naming the splitsingsakte article this deviation stems from."
+        "Free-text source note naming the splitsingsakte article this deviation stems from.": "Free-text source note naming the splitsingsakte article this deviation stems from.",
+        "Decision templates": "Decision templates",
+        "Body configuration": "Body configuration",
+        "Context": "Context"
     },
     "nplurals=2; plural=(n != 1);"
 )
