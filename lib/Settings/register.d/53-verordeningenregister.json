@@ -1,107 +1,13 @@
 {
   "x-openregister": {
-    "seedData": {
-      "description": "Seed objects for the verordeningenregister (local regulations register — regeling / regeling-versie / regeling-export-package). References resolve by slug against existing decidesk seed objects (governance-body gemeenteraad-amsterdam and ledenraad-vng from decidesk_register.json); the nil UUID 00000000-0000-0000-0000-000000000000 is an obvious placeholder resolved at import where no matching seed object exists (every vastgesteldDoor wijzigingsbesluit Decision — the DECLARATIVE-CORE change ships no Decision seeds of its own; the two extra wijzigingsbesluiten named in design.md Seed Data are added when the imperative slice lands). Two regelingen carry multi-version chains: afvalstoffenverordening-amsterdam has v1 (vervangen, inwerkingtreding 2024-01-01) → v2 (in-werking, 2025-06-01) so REQ-VOR-004 in-force resolution is demoable across a historical boundary on a fresh install (ADR-016); beleidsregel-terrassen-amsterdam has a single in-werking v1; huishoudelijk-reglement-vng is vastgesteld with a concept v1 dated in the future so the REQ-VOR-007 approaching-inwerkingtreding-without-published-text notification path and the 'draft never leaks' public exclusion are both demonstrable. One regeling-export-package in state ready demonstrates the honest-degradation download path (REQ-VOR-006); its STOP/TPOD build + OpenConnector delivery is the imperative slice, deferred. Objects grouped by schema slug (regeling / regeling-versie / regeling-export-package); the OR seedData import path resolves the schema from the object key.",
-      "objects": {
-        "regulation": [
-          {
-            "slug": "afvalstoffenverordening-amsterdam",
-            "type": "by-law",
-            "citationTitle": "Afvalstoffenverordening Amsterdam",
-            "officialTitle": "Verordening op de inzameling en verwerking van huishoudelijke afvalstoffen Amsterdam",
-            "statutoryBasis": [
-              "Gemeentewet art. 149",
-              "Wet milieubeheer art. 10.23"
-            ],
-            "determiningBody": "gemeenteraad-amsterdam",
-            "cvdrIdentifier": "CVDR641871",
-            "currentVersionNumber": 2,
-            "currentEffectiveDate": "2025-06-01",
-            "status": "in-effect"
-          },
-          {
-            "slug": "beleidsregel-terrassen-amsterdam",
-            "type": "policy-rule",
-            "citationTitle": "Beleidsregel terrassen Amsterdam 2025",
-            "officialTitle": "Beleidsregel inzake terrasvergunningen Amsterdam 2025",
-            "statutoryBasis": [
-              "APV Amsterdam art. 3.17"
-            ],
-            "determiningBody": "gemeenteraad-amsterdam",
-            "currentVersionNumber": 1,
-            "currentEffectiveDate": "2025-03-01",
-            "status": "in-effect"
-          },
-          {
-            "slug": "huishoudelijk-reglement-vng",
-            "type": "regulations",
-            "citationTitle": "Huishoudelijk reglement ledenraad VNG",
-            "officialTitle": "Huishoudelijk reglement van de ledenraad van de Vereniging van Nederlandse Gemeenten",
-            "statutoryBasis": [
-              "Statuten VNG art. 12"
-            ],
-            "determiningBody": "ledenraad-vng",
-            "status": "adopted"
-          }
-        ],
-        "regeling-versie": [
-          {
-            "slug": "afvalstoffen-v1",
-            "regulation": "afvalstoffenverordening-amsterdam",
-            "versionNumber": 1,
-            "determinedBy": "00000000-0000-0000-0000-000000000000",
-            "effectiveDate": "2024-01-01",
-            "notes": "Eerste vaststelling van de Afvalstoffenverordening Amsterdam.",
-            "status": "replaced"
-          },
-          {
-            "slug": "afvalstoffen-v2",
-            "regulation": "afvalstoffenverordening-amsterdam",
-            "versionNumber": 2,
-            "determinedBy": "00000000-0000-0000-0000-000000000000",
-            "effectiveDate": "2025-06-01",
-            "notes": "Wijziging 2025: gescheiden inzameling GFT-e uitgebreid naar het hele beheergebied.",
-            "status": "in-effect"
-          },
-          {
-            "slug": "terrassen-v1",
-            "regulation": "beleidsregel-terrassen-amsterdam",
-            "versionNumber": 1,
-            "determinedBy": "00000000-0000-0000-0000-000000000000",
-            "effectiveDate": "2025-03-01",
-            "notes": "Vaststelling beleidsregel terrassen 2025.",
-            "status": "in-effect"
-          },
-          {
-            "slug": "hr-vng-v1",
-            "regulation": "huishoudelijk-reglement-vng",
-            "versionNumber": 1,
-            "determinedBy": "00000000-0000-0000-0000-000000000000",
-            "effectiveDate": "2026-09-01",
-            "notes": "Concept eerste huishoudelijk reglement; treedt in werking na vaststelling door de ledenraad.",
-            "status": "draft"
-          }
-        ],
-        "regeling-export-package": [
-          {
-            "slug": "export-afvalstoffen-v2",
-            "regulation": "afvalstoffenverordening-amsterdam",
-            "versies": [
-              "afvalstoffen-v2"
-            ],
-            "sourceSlug": "drop-bekendmakingen",
-            "status": "ready"
-          }
-        ]
-      }
-    }
+    "_seedDataNote": "Seed objects MOVED to lib/Settings/profiles/*.json (OpenSpec change seed-profiles). A register.d fragment declares SCHEMAS ONLY, so installing this app plants zero objects. The examples that used to live here are now part of an example set an operator picks in the first-time setup wizard, which is the only thing that imports them."
   },
   "components": {
     "schemas": {
       "Regeling": {
         "slug": "regeling",
         "icon": "ScaleBalance",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "title": "Regeling",
         "description": "A local regulation (regeling): verordening, beleidsregel, nadere regel, reglement, or externe statuut. Schema.org Legislation, Akoma Ntoso 'act' work level (FRBR work): the stable legal identity that a chain of immutable RegelingVersie expressions hangs off. It carries the citeertitel and officiële titel, the wettelijke grondslag, the vaststellend orgaan (a GovernanceBody), the CVDR identifier assigned by the national register after first publication (stored, never minted — REQ-VOR-001/006), and a declarative status lifecycle (ADR-031). In-werking regelingen are anonymously readable through the OpenRegister published-predicate (public register of regelingen in force, REQ-VOR-005); in-voorbereiding/vastgesteld/vervallen regelingen are not public. The regeling never stores consolidated text — that is an attached document on the RegelingVersie via the OR file abstraction. Publication of the regeling to DROP/CVDR runs through the RegelingExportPackage, whose STOP/TPOD build + OpenConnector delivery is the imperative slice (deferred).",
         "type": "object",
@@ -204,6 +110,20 @@
             "facetable": true,
             "$ref": "governance-body",
             "description": "Reference to the GovernanceBody that adopts the regulation (council, ledenraad, etc.). Required."
+          },
+          "status": {
+            "title": "Status",
+            "type": "string",
+            "facetable": true,
+            "description": "Regulation status, and the field x-openregister-lifecycle on this schema drives (field: status). It was REQUIRED and named by the lifecycle map from the day this fragment shipped, but never declared as a property, so OpenRegister created no magic-table column for it. Measured on a live instance: oc_openregister_table_21_262 (and its two duplicates) carried every other Regeling property and no status column at all, which means the declared in-preparation -> adopted -> in-effect -> lapsed transition map could never advance a regulation and the required field could never be satisfied. Enum mirrors x-openregister-lifecycle.states exactly; RegelingVersie.status is the per-version sibling and carries two extra states (draft, replaced) that a regulation as a whole does not have.",
+            "enum": [
+              "in-preparation",
+              "adopted",
+              "in-effect",
+              "lapsed"
+            ],
+            "default": "in-preparation",
+            "example": "in-effect"
           },
           "cvdrIdentifier": {
             "title": "CVDR identifier",
