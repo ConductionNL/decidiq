@@ -39,6 +39,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use DateTimeZone;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\AuditTrail;
 use OCA\OpenRegister\Db\AuditTrailMapper;
@@ -611,7 +612,7 @@ class AuditLogService {
 		$timestamp = '';
 		$created = $entry->getCreated();
 		if ($created !== null) {
-			$timestamp = $created->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d\TH:i:s\Z');
+			$timestamp = $created->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d\TH:i:s\Z');
 		}
 
 		return [

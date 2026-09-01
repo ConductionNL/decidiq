@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\DecisionIntegrationService;
+use OCA\Decidiq\Service\DelegatedDecisionDefaults;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
@@ -36,6 +37,9 @@ use Psr\Log\LoggerInterface;
 /**
  * Tests for the contract-decision hub integration service:
  * outcome status derivation, idempotent create-decision, and SSRF guard.
+ *
+ * @covers \OCA\Decidiq\Service\DecisionIntegrationService
+ * @uses \OCA\Decidiq\Service\DelegatedDecisionDefaults
  *
  * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-5
  */
@@ -105,7 +109,7 @@ class DecisionIntegrationServiceTest extends TestCase {
 			container: $this->container,
 			logger: $this->createMock(LoggerInterface::class),
 			auditLog: $this->auditLog,
-			l10n: $l10n,
+			decisionDefaults: new DelegatedDecisionDefaults(l10n: $l10n),
 		);
 
 	}//end setUp()
@@ -441,7 +445,7 @@ class DecisionIntegrationServiceTest extends TestCase {
 	/**
 	 * A caller-supplied text always wins over the delegation context.
 	 *
-	 * @spec openspec/specs/decidesk-contract-decision-hub/tasks.md#phase-5
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 *
 	 * @return void
 	 */

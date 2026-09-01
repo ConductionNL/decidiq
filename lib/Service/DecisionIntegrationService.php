@@ -28,7 +28,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCP\IL10N;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -114,21 +113,6 @@ class DecisionIntegrationService {
 	];
 
 	/**
-	 * Delegation-context fields that can stand in for a missing decision
-	 * `text`, in priority order. Dossiq's requestDecision flow node sends the
-	 * ask as `context.question`; the delegation services send `reasoning` /
-	 * `motivation` / `description` depending on the decision kind.
-	 *
-	 * @var list<string>
-	 */
-	private const CONTEXT_TEXT_FIELDS = [
-		'question',
-		'reasoning',
-		'motivation',
-		'description',
-	];
-
-	/**
 	 * Hostnames that always identify the local machine (SSRF mitigation).
 	 *
 	 * @var list<string>
@@ -146,13 +130,13 @@ class DecisionIntegrationService {
 	 * @param ContainerInterface $container DI container (lazy ObjectService lookup)
 	 * @param LoggerInterface $logger PSR-3 logger
 	 * @param AuditLogService $auditLog Audit log dependency
-	 * @param IL10N $l10n Translator for the derived title/text fallbacks
+	 * @param DelegatedDecisionDefaults $decisionDefaults Derivation of the schema-required title/text
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly AuditLogService $auditLog,
-		private readonly IL10N $l10n,
+		private readonly DelegatedDecisionDefaults $decisionDefaults,
 	) {
 	}//end __construct()
 
@@ -219,8 +203,8 @@ class DecisionIntegrationService {
 		// be updated again).
 		$object = [
 			'decisionType' => $decisionType,
-			'title' => $this->deriveTitle(decisionData: $decisionData, provenance: $provenance),
-			'text' => $this->deriveText(decisionData: $decisionData, provenance: $provenance),
+			'title' => $this->decisionDefaults->title(decisionData: $decisionData, provenance: $provenance),
+			'text' => $this->decisionDefaults->text(decisionData: $decisionData, provenance: $provenance),
 			'outcome' => (string)($decisionData['outcome'] ?? 'adopted'),
 			'lifecycle' => 'draft',
 		];
@@ -240,115 +224,6 @@ class DecisionIntegrationService {
 		);
 
 	}//end createDecision()
-
-	/**
-	 * Resolve the decision `text`, which the schema requires on every Decision.
-	 *
-	 * Priority: the supplied `text`, then the first usable delegation-context
-	 * field (the ask's question / reasoning / motivation / description), then a
-	 * documented fallback sentence naming the source app and the subject the
-	 * decision was raised for.
-	 *
-	 * @param array<string, mixed> $decisionData Request body / event payload
-	 * @param array<string, string> $provenance The extracted provenance fields
-	 *
-	 * @return string A non-empty decision text
-	 *
-	 * @spec openspec/specs/decidesk-decision-events/spec.md
-	 */
-	private function deriveText(array $decisionData, array $provenance): string {
-		$text = trim((string)($decisionData['text'] ?? ''));
-		if ($text !== '') {
-			return $text;
-		}
-
-		$context = ($decisionData['context'] ?? []);
-		if (is_array($context) === true) {
-			foreach (self::CONTEXT_TEXT_FIELDS as $field) {
-				$value = ($context[$field] ?? '');
-				if (is_string($value) === true && trim($value) !== '') {
-					return trim($value);
-				}
-			}
-		}
-
-		$source = $this->describeSource(provenance: $provenance);
-		$subject = $this->describeSubject(provenance: $provenance);
-		if ($subject !== '') {
-			return $this->l10n->t('Decision requested by %1$s for %2$s.', [$source, $subject]);
-		}
-
-		return $this->l10n->t('Decision requested by %1$s.', [$source]);
-	}//end deriveText()
-
-	/**
-	 * Resolve the decision `title`, which the schema requires on every
-	 * Decision. Priority: the supplied `title`, then the subject label the
-	 * delegating app sent, then a fallback naming the source app.
-	 *
-	 * @param array<string, mixed> $decisionData Request body / event payload
-	 * @param array<string, string> $provenance The extracted provenance fields
-	 *
-	 * @return string A non-empty decision title
-	 *
-	 * @spec openspec/specs/decidesk-decision-events/spec.md
-	 */
-	private function deriveTitle(array $decisionData, array $provenance): string {
-		$title = trim((string)($decisionData['title'] ?? ''));
-		if ($title !== '') {
-			return $title;
-		}
-
-		$subjectLabel = trim((string)($provenance['subjectLabel'] ?? ''));
-		if ($subjectLabel !== '') {
-			return $subjectLabel;
-		}
-
-		return $this->l10n->t('Decision requested by %1$s', [$this->describeSource(provenance: $provenance)]);
-	}//end deriveTitle()
-
-	/**
-	 * Human-readable name of the app that raised the decision.
-	 *
-	 * @param array<string, string> $provenance The extracted provenance fields
-	 *
-	 * @return string The source app id, or a translated placeholder
-	 */
-	private function describeSource(array $provenance): string {
-		$sourceApp = trim((string)($provenance['sourceApp'] ?? ''));
-		if ($sourceApp !== '') {
-			return $sourceApp;
-		}
-
-		return $this->l10n->t('another app');
-	}//end describeSource()
-
-	/**
-	 * Human-readable reference to the subject the decision was raised for:
-	 * the label when the delegating app sent one, otherwise the subject
-	 * schema/id pair, otherwise the external reference.
-	 *
-	 * @param array<string, string> $provenance The extracted provenance fields
-	 *
-	 * @return string The subject description, or '' when nothing identifies it
-	 */
-	private function describeSubject(array $provenance): string {
-		$subjectLabel = trim((string)($provenance['subjectLabel'] ?? ''));
-		if ($subjectLabel !== '') {
-			return $subjectLabel;
-		}
-
-		$subjectRef = trim(
-			trim((string)($provenance['subjectSchema'] ?? ''))
-			. ' '
-			. trim((string)($provenance['subjectId'] ?? ''))
-		);
-		if ($subjectRef !== '') {
-			return $subjectRef;
-		}
-
-		return trim((string)($provenance['externalReference'] ?? ''));
-	}//end describeSubject()
 
 	/**
 	 * Look up the id of an existing Decision matching the provenance tuple.
