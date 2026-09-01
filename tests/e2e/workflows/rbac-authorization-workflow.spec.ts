@@ -64,9 +64,7 @@ const ADMIN_GATED_ENDPOINTS = [
 ]
 
 test.describe('consume-or-rbac-authorization — who-may-act preserved via OR RBAC', () => {
-	test('a signatory may initiate signing; a non-signatory is denied (403)', async ({
-		_page,
-	}) => {
+	test('a signatory may initiate signing; a non-signatory is denied (403)', async () => {
 		// Deferred live run: requires decidiq deployed with a Minutes record on a
 		// body whose signatory scope (decidesk:body:{id}:signatory) is populated by
 		// the role projector. A signatory's POST to
@@ -81,9 +79,7 @@ test.describe('consume-or-rbac-authorization — who-may-act preserved via OR RB
 		expect(BASE).toBeTruthy()
 	})
 
-	test('only the chair may run a chair-only lifecycle transition', async ({
-		_page,
-	}) => {
+	test('only the chair may run a chair-only lifecycle transition', async () => {
 		// Deferred live run: a chair-only transition (e.g. legislative opened→adjourned)
 		// succeeds for a member of decidesk:body:{id}:chair and is refused for a
 		// non-chair with "Only the meeting chair may perform this transition."
@@ -96,9 +92,7 @@ test.describe('consume-or-rbac-authorization — who-may-act preserved via OR RB
 		expect(BASE).toBeTruthy()
 	})
 
-	test('a disallowed domain transition is refused independent of actor scope', async ({
-		_page,
-	}) => {
+	test('a disallowed domain transition is refused independent of actor scope', async () => {
 		// Deferred live run: a domain whose workflow sets allowPause:false refuses
 		// opened→paused for the chair too (workflow policy, not actor auth). Asserted
 		// at unit level in MeetingServiceTest testDomainDisallowedTransitionReturnsFailure.
@@ -109,9 +103,7 @@ test.describe('consume-or-rbac-authorization — who-may-act preserved via OR RB
 		expect(BASE).toBeTruthy()
 	})
 
-	test('a non-admin is denied on every previously admin-gated surface; an admin is allowed', async ({
-		_page,
-	}) => {
+	test('a non-admin is denied on every previously admin-gated surface; an admin is allowed', async () => {
 		// Deferred live run: as a non-admin, each ADMIN_GATED_ENDPOINTS call returns
 		// 401/403 from the shared RequiresOrAdmin trait; as an admin each is permitted.
 		// Asserted at unit level in AuditLogControllerTest (admin allow / non-admin deny).
