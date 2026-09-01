@@ -111,7 +111,10 @@ test.beforeEach(({ page }) => {
 // That error aborts the WHOLE SUITE before a single test runs — 0 collected, no
 // tally, and the failure names this file rather than anything under test. `{}`
 // is the documented way to say "no fixtures, but give me testInfo".
-test.afterEach(async (_fixtures, testInfo) => {
+ 
+// argument to BE an object destructuring pattern; a plain identifier fails to
+// collect the file.
+test.afterEach(async ({}, testInfo) => {
 	if (testInfo.status === testInfo.expectedStatus) return
 	const dump = traffic
 		.map((c) =>
