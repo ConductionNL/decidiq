@@ -1,13 +1,13 @@
 OC.L10N.register(
     "decidiq",
     {
+        "2026": "2026",
+        "2027": "2027",
         "#": "#",
         "+ Action item": "+ Actiepunt",
         "+ Action item for {title}": "+ Actiepunt voor {title}",
         "1 hour before": "1 uur van tevoren",
         "1 week before": "1 week van tevoren",
-        "2026": "2026",
-        "2027": "2027",
         "24 hours before": "24 uur van tevoren",
         "30d": "30d",
         "4 hours before": "4 uur van tevoren",
