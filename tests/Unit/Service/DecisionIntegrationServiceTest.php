@@ -356,6 +356,105 @@ class DecisionIntegrationServiceTest extends TestCase {
 
 	}//end testCreateDecisionRejectsUnknownDecisionType()
 
+	/**
+	 * Fleet decision types raised by dossiq's delegation services are accepted.
+	 *
+	 * dossiq raises `advice` (AdviceDelegationService) and `bezwaar-decision`
+	 * (BezwaarDecisionDelegationService); before these joined ALLOWED_TYPES the
+	 * hub refused them and the whole decidiq leg of the case flow failed closed.
+	 *
+	 * @param string $decisionType The fleet-raised decision type slug.
+	 *
+	 * @dataProvider provideDelegatedDecisionTypes
+	 *
+	 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 any fleet app can raise a Decision of any decisionType.
+	 *
+	 * @return void
+	 */
+	public function testCreateDecisionAcceptsDelegatedDecisionType(string $decisionType): void {
+		$this->objectService->method('findAll')->willReturn([]);
+		$savedEntity = $this->entity(['id' => 'dec-'.$decisionType, 'uuid' => 'dec-'.$decisionType]);
+		$this->objectService->method('saveObject')->willReturn($savedEntity);
+		$this->auditLog->expects(self::once())->method('append');
+
+		$result = $this->service->createDecision(
+			decisionData: [
+				'decisionType' => $decisionType,
+				'title' => 'Delegated decision',
+				'text' => 'Raised by dossiq.',
+				'decisionDate' => '2026-09-01T10:00:00Z',
+				'sourceApp' => 'dossiq',
+				'subjectId' => 'case-789',
+			],
+			actorId: 'carol'
+		);
+
+		self::assertTrue($result['success']);
+		self::assertSame('dec-'.$decisionType, $result['decisionId']);
+		self::assertTrue($result['created']);
+
+	}//end testCreateDecisionAcceptsDelegatedDecisionType()
+
+	/**
+	 * Decision types dossiq's delegation services send to the hub.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function provideDelegatedDecisionTypes(): array {
+		return [
+			'advice' => ['advice'],
+			'bezwaar-decision' => ['bezwaar-decision'],
+		];
+	}//end provideDelegatedDecisionTypes()
+
+	/**
+	 * ALLOWED_TYPES mirrors every declared home of the decisionType vocabulary.
+	 *
+	 * The vocabulary lives in four places: the PHP guard, the Decision enum in
+	 * the monolithic register, its copy in the mock register, and the
+	 * DecisionTemplate narrowing fragment. A value added to one home but not
+	 * the others either refuses valid fleet decisions (guard behind schema) or
+	 * persists objects the schema rejects (guard ahead of schema). This pins
+	 * all four together (closed-vocabulary rule: extend the vocabulary
+	 * everywhere, never bypass the check).
+	 *
+	 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-001 decisionType enum gains the fleet-raised types additively.
+	 *
+	 * @return void
+	 */
+	public function testAllowedTypesMatchSchemaEnum(): void {
+		$reflection = new \ReflectionClassConstant(DecisionIntegrationService::class, 'ALLOWED_TYPES');
+		$allowedTypes = $reflection->getValue();
+
+		$settingsDir = __DIR__.'/../../../lib/Settings';
+		$homes = [
+			'decidesk_register.json Decision' => [
+				'file' => $settingsDir.'/decidesk_register.json',
+				'path' => ['components', 'schemas', 'Decision', 'properties', 'decisionType', 'enum'],
+			],
+			'decidiq_mock_register.json Decision' => [
+				'file' => $settingsDir.'/decidiq_mock_register.json',
+				'path' => ['components', 'schemas', 'Decision', 'properties', 'decisionType', 'enum'],
+			],
+			'register.d/68 DecisionTemplate' => [
+				'file' => $settingsDir.'/register.d/68-unified-decision-templates.json',
+				'path' => ['components', 'schemas', 'DecisionTemplate', 'properties', 'decisionType', 'enum'],
+			],
+		];
+
+		foreach ($homes as $label => $home) {
+			$data = json_decode(json: (string) file_get_contents($home['file']), associative: true);
+			self::assertIsArray($data, "{$label}: register JSON must parse");
+			foreach ($home['path'] as $key) {
+				self::assertArrayHasKey($key, $data, "{$label}: missing key '{$key}'");
+				$data = $data[$key];
+			}
+
+			self::assertSame($allowedTypes, $data, "{$label}: decisionType enum diverged from ALLOWED_TYPES");
+		}
+
+	}//end testAllowedTypesMatchSchemaEnum()
+
 	// ─── registerOutcomeCallback SSRF guard ──────────────────────────────────
 
 	/**

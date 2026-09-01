@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "decidiq demo data",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "description": "Demo data covering every schema this app supplies, offered as the first step of the app's setup walkthrough. Generated from the schemas themselves, so every object satisfies the schema that will validate it."
   },
   "x-openregister": {
@@ -1330,7 +1330,7 @@
         },
         "slug": "decision",
         "icon": "Gavel",
-        "version": "0.9.0",
+        "version": "0.10.0",
         "title": "Decision",
         "_authorizationNote": "decision declared no schema-level authorization block, so its read rule came from the decidesk register baseline rather than from anything this schema states. IntegrationController::getOutcome()'s docblock asserted that 'per-object read access is enforced by OpenRegister ObjectService RBAC'; that claim was unfounded precisely because this block was absent. This states the intended anonymous rule explicitly — only Decisions the app itself has published (isPublished === 'public') — leaving all others to authenticated callers, and mirrors ParticipatoryBudget / PublicConsultation / BoardEvaluation in this same file. Defence in depth only: the per-object controller guards added in signature-and-outcome-authorization-guard do not depend on it, and anonymous reads of this instance's object API return nothing regardless (measured 2026-08-20: schemas that DO grant 'public' read also return 0 anonymously). ONLY 'read' is declared: OpenRegister's action vocabulary is CRUD (create/read/update/delete) and CLOSED by default — 'list' is NOT an action, and adding it makes validateAuthorization() reject the schema, which the importer then silently SKIPS on an HTTP 200 'success'. Listing is governed by the read rule. create/update/delete are deliberately omitted — an omitted action is closed to everyone except the object owner and admin.",
         "authorization": {
@@ -1375,7 +1375,9 @@
               "appointment",
               "management-point",
               "policy",
-              "meeting-outcome"
+              "meeting-outcome",
+              "advice",
+              "bezwaar-decision"
             ],
             "default": "meeting-outcome",
             "example": "motion"

@@ -40,7 +40,7 @@ export const DECISION_TYPE = 'decision'
  */
 export const KIND_GROUPS = {
 	proposals: ['motion', 'amendment', 'policy', 'management-point'],
-	advice: ['report-adoption', 'appointment'],
+	advice: ['report-adoption', 'appointment', 'advice'],
 }
 
 /**

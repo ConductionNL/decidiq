@@ -55,6 +55,15 @@ class DecisionIntegrationService {
 	/**
 	 * Decision types the integration hub accepts on create-decision.
 	 *
+	 * This list mirrors the `Decision.decisionType` enum in
+	 * `lib/Settings/decidesk_register.json` (plus its copies in
+	 * `decidiq_mock_register.json` and the `DecisionTemplate` narrowing in
+	 * `register.d/68-unified-decision-templates.json`). Extending the
+	 * vocabulary means extending ALL of those homes together; the parity is
+	 * pinned by DecisionIntegrationServiceTest::testAllowedTypesMatchSchemaEnum.
+	 * `advice` and `bezwaar-decision` are raised by dossiq's delegation
+	 * services (AdviceDelegationService / BezwaarDecisionDelegationService).
+	 *
 	 * @var list<string>
 	 */
 	private const ALLOWED_TYPES = [
@@ -68,6 +77,8 @@ class DecisionIntegrationService {
 		'management-point',
 		'policy',
 		'meeting-outcome',
+		'advice',
+		'bezwaar-decision',
 	];
 
 	/**
