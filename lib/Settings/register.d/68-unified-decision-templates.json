@@ -7,7 +7,7 @@
       "DecisionTemplate": {
         "slug": "decision-template",
         "icon": "Sitemap",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "DecisionTemplate",
         "description": "Unified template for what governs a decision: route stages (state machine), voting rule, quorum policy, urgency policy, decision content (proposedText/regulationSource), and an ordered checklist of required/optional check items. Selected by decisionType (optional; absent = generic default for the context, mirroring GovernanceBody.processTemplate's existing default-template semantics) crossed with context. Supersedes ProcessTemplate (route/voting/quorum/urgency), VveDecisionTemplate, and ModelreglementPreset (decision content + modelreglement category majorities, now folded in as this template's own defaults) — see openspec/changes/unified-decision-templates/design.md. Schema-declaration only: no consumer (ProcessTemplateService, DecisionTransitionGuard, the admin Vue surface) reads this schema yet; that is unified-decision-templates-consumer-rewrite.",
         "configuration": {
@@ -50,7 +50,9 @@
               "appointment",
               "management-point",
               "policy",
-              "meeting-outcome"
+              "meeting-outcome",
+              "advice",
+              "bezwaar-decision"
             ],
             "example": "resolution"
           },

@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "NODE_ENV=production webpack --config webpack.config.js --progress",
+    "postbuild": "node scripts/check-single-dexie.js",
     "dev": "NODE_ENV=development webpack --config webpack.config.js --progress",
     "watch": "NODE_ENV=development webpack --config webpack.config.js --progress --watch",
     "lint": "eslint src tests scripts",
@@ -21,6 +22,7 @@
     "l10n:build": "node scripts/build-l10n-js.js",
     "check:l10n-js": "node scripts/build-l10n-js.js --check",
     "check:nav-ceiling": "node scripts/check-nav-ceiling.js",
+    "check:dexie": "node scripts/check-single-dexie.js",
     "stylelint": "stylelint \"src/**/*.{vue,scss,css}\"",
     "format": "prettier --check \"**/*.{js,ts,vue,css,scss}\"",
     "format:fix": "prettier --write \"**/*.{js,ts,vue,css,scss}\"",
