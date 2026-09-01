@@ -1,3 +1,5 @@
+import type { Page } from '@playwright/test'
+
 /*
  * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
@@ -32,9 +34,8 @@
  * guaranteed to be there. When it is not, the resolver fails LOUDLY rather than
  * skipping: a surface that was never opened must not report as a pass.
  */
-import { test, expect, type Page } from '@playwright/test'
-
-import { BASE_URL as BASE } from './base-url'
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from './base-url.ts'
 
 const OR = `${BASE}/index.php/apps/openregister/api/objects/decidiq`
 

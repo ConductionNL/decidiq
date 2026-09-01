@@ -1,3 +1,5 @@
+import type { SeedLedger } from './governance-fixture.ts'
+
 /*
  * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
@@ -43,20 +45,19 @@
  * @e2e openspec/specs/meeting-management/spec.md#quorum-not-met-meeting-cannot-proceed-to-voting
  * @e2e openspec/specs/decision-management/spec.md#transition-a-decision-from-draft-to-proposed
  */
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import {
 	BASE,
-	newLedger,
-	seedGovernanceScenario,
+	cleanupAll,
 	createObject,
 	getObject,
 	listObjects,
-	writeHeaders,
-	cleanupAll,
-	objId,
 	MOTION_SCHEMA,
-	type SeedLedger,
-} from './governance-fixture'
+	newLedger,
+	objId,
+	seedGovernanceScenario,
+	writeHeaders,
+} from './governance-fixture.ts'
 
 const API = `${BASE}/index.php/apps/decidiq/api`
 

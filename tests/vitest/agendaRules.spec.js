@@ -9,14 +9,14 @@
 // @spec openspec/specs/agenda-management/spec.md
 // @spec openspec/specs/meeting-management/spec.md
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
-	MAX_SERIES_INSTANCES,
-	STATUTORY_ALV_ITEMS,
-	missingStatutoryItems,
 	buildAgendaTree,
-	flattenTree,
 	expandRecurrence,
+	flattenTree,
+	MAX_SERIES_INSTANCES,
+	missingStatutoryItems,
+	STATUTORY_ALV_ITEMS,
 } from '../../src/services/agendaRules.js'
 import {
 	DEFAULT_NOTICE_PERIOD_DAYS,

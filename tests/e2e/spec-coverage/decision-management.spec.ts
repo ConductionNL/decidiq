@@ -18,9 +18,8 @@
  * @e2e openspec/specs/decision-management/spec.md#available-transitions-are-exposed-for-the-current-state
  * @e2e openspec/specs/decision-management/spec.md#state-machine-visualization-highlights-the-current-state
  */
-import { test, expect } from '@playwright/test'
-
-import { BASE_URL as BASE } from '../base-url'
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from '../base-url.ts'
 
 // @e2e openspec/specs/decision-management/spec.md#create-a-standalone-decision-outside-a-meeting
 // @e2e openspec/specs/decision-management/spec.md#create-a-decision-from-a-meeting-agenda-item

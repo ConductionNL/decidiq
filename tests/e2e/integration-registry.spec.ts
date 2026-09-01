@@ -1,3 +1,6 @@
+import type { Page } from '@playwright/test'
+import type { SeedLedger } from './workflows/governance-fixture.ts'
+
 /*
  * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
@@ -40,13 +43,12 @@
  * the commit under test — and 46 of them were hiding the fact that this spec
  * ran 12 of its 76 tests.
  */
-import { test, expect, type Page } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import {
+	cleanupAll,
 	newLedger,
 	seedGovernanceScenario,
-	cleanupAll,
-	type SeedLedger,
-} from './workflows/governance-fixture'
+} from './workflows/governance-fixture.ts'
 
 /*
  * Seed a meeting rather than skipping when the instance has none.

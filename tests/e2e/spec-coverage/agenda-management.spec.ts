@@ -14,9 +14,14 @@
  * @e2e openspec/specs/agenda-management/spec.md#track-time-during-meeting-conduct
  * @e2e openspec/specs/agenda-management/spec.md#assemble-meeting-package-from-agenda-documents
  */
-import { test, expect } from '@playwright/test'
+// This helper takes the whole `playwright` fixture, not a single export, so
+// it needs the MODULE's type. A namespace type import expresses that without
+// an inline `import()` annotation, which the rule bans everywhere including
+// inside a type alias.
+import type * as PlaywrightModule from '@playwright/test'
 
-import { BASE_URL as BASE } from '../base-url'
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from '../base-url.ts'
 import { becomesVisible } from '../becomes-visible.js'
 
 // @e2e openspec/specs/agenda-management/spec.md#create-a-decision-agenda-item
@@ -150,7 +155,7 @@ const ADMIN_PASS = process.env.NEXTCLOUD_PASS || 'admin'
  * Basic-auth API context for seeding fixtures (session cookies would
  * trip the CSRF check on writes).
  */
-async function newApiContext(playwright: typeof import('@playwright/test')) {
+async function newApiContext(playwright: typeof PlaywrightModule) {
 	return playwright.request.newContext({
 		extraHTTPHeaders: {
 			Authorization:

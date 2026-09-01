@@ -16,9 +16,8 @@
  * @e2e openspec/specs/motion-amendment/spec.md#reject-submission-after-the-meeting-deadline
  * @e2e openspec/specs/motion-amendment/spec.md#withdraw-a-motion-before-voting
  */
-import { test, expect } from '@playwright/test'
-
-import { BASE_URL as BASE } from '../base-url'
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from '../base-url.ts'
 
 // @e2e openspec/specs/motion-amendment/spec.md#submit-a-motion-with-co-signers
 test('motions list renders with Add Motion button', async ({ page }) => {

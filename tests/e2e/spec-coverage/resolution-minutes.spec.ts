@@ -1,3 +1,6 @@
+import type { Page } from '@playwright/test'
+import type { SeedLedger } from '../workflows/governance-fixture.ts'
+
 /*
  * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
@@ -24,17 +27,15 @@
  * @e2e openspec/specs/resolution-minutes/spec.md#generate-minutes-document-from-meeting-data
  * @e2e openspec/specs/resolution-minutes/spec.md#provide-proof-of-proper-adoption-for-notarial-deed
  */
-import { test, expect, type Page } from '@playwright/test'
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from '../base-url.ts'
+import { becomesVisible } from '../becomes-visible.js'
 import {
 	cleanupAll,
 	createObject,
 	newLedger,
 	objId,
-	type SeedLedger,
-} from '../workflows/governance-fixture'
-
-import { BASE_URL as BASE } from '../base-url'
-import { becomesVisible } from '../becomes-visible.js'
+} from '../workflows/governance-fixture.ts'
 
 let ledger: SeedLedger
 let meetingId = ''

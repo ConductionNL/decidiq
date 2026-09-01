@@ -1,3 +1,5 @@
+import type { Page } from '@playwright/test'
+
 /*
  * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
@@ -11,10 +13,9 @@
  * @e2e openspec/specs/action-item-management/spec.md#view-the-action-items-list
  * @e2e openspec/specs/action-item-management/spec.md#create-an-action-item
  */
-import { test, expect, type Page } from '@playwright/test'
-
-import { BASE_URL as BASE } from '../base-url'
-import { writeHeaders } from '../workflows/governance-fixture'
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from '../base-url.ts'
+import { writeHeaders } from '../workflows/governance-fixture.ts'
 
 /**
  * The action-item index needs at least one row to be an index at all.
