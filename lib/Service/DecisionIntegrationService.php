@@ -130,11 +130,13 @@ class DecisionIntegrationService {
 	 * @param ContainerInterface $container DI container (lazy ObjectService lookup)
 	 * @param LoggerInterface $logger PSR-3 logger
 	 * @param AuditLogService $auditLog Audit log dependency
+	 * @param DelegatedDecisionDefaults $decisionDefaults Derivation of the schema-required title/text
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly AuditLogService $auditLog,
+		private readonly DelegatedDecisionDefaults $decisionDefaults,
 	) {
 	}//end __construct()
 
@@ -191,15 +193,28 @@ class DecisionIntegrationService {
 			}
 		}
 
-		// Build the Decision object with provenance fields.
+		// Build the Decision object with provenance fields. `title` and `text`
+		// are schema-required, and a flow-raised decision arrives without a
+		// body (the delegation event carries the ask in its context payload),
+		// so both are DERIVED rather than written empty: a decision must be
+		// schema-valid from birth, or every later PUT is rejected on exactly
+		// the required-property validation the create path skipped (observed
+		// live: decision 7f2dc8f4 was created without `text` and could never
+		// be updated again).
 		$object = [
 			'decisionType' => $decisionType,
-			'title' => (string)($decisionData['title'] ?? ''),
-			'text' => (string)($decisionData['text'] ?? ''),
-			'decisionDate' => (string)($decisionData['decisionDate'] ?? ''),
+			'title' => $this->decisionDefaults->title(decisionData: $decisionData, provenance: $provenance),
+			'text' => $this->decisionDefaults->text(decisionData: $decisionData, provenance: $provenance),
 			'outcome' => (string)($decisionData['outcome'] ?? 'adopted'),
 			'lifecycle' => 'draft',
 		];
+
+		// `decisionDate` is `format: date-time`; an empty string is not a valid
+		// value for it, so it is only written when the caller supplied one.
+		$decisionDate = trim((string)($decisionData['decisionDate'] ?? ''));
+		if ($decisionDate !== '') {
+			$object['decisionDate'] = $decisionDate;
+		}
 
 		return $this->persistDecision(
 			objectService: $objectService,
