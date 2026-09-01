@@ -1,3 +1,5 @@
+import type { Page } from '@playwright/test'
+
 /*
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -22,9 +24,8 @@
  * @e2e openspec/specs/admin-settings/spec.md#import-members-from-a-nextcloud-group
  * @e2e openspec/specs/admin-settings/spec.md#import-members-from-csv
  */
-import { test, expect, type Page } from '@playwright/test'
-
-import { BASE_URL as BASE } from '../base-url'
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from '../base-url.ts'
 import { becomesVisible } from '../becomes-visible.js'
 
 /**

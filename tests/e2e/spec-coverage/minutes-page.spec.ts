@@ -1,3 +1,5 @@
+import type { Page } from '@playwright/test'
+
 /*
  * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
@@ -14,9 +16,8 @@
  * @e2e openspec/specs/minutes-management/spec.md#view-the-minutes-list
  * @e2e openspec/specs/minutes-management/spec.md#create-minutes-for-a-meeting
  */
-import { test, expect, type Page } from '@playwright/test'
-
-import { BASE_URL as BASE } from '../base-url'
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from '../base-url.ts'
 
 /** Dismiss the cn-support-dialog if it auto-opened and is intercepting clicks. */
 async function dismissSupportDialog(page: Page): Promise<void> {

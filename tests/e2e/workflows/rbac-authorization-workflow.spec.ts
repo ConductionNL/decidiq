@@ -38,8 +38,8 @@
  * @e2e openspec/changes/consume-or-rbac-authorization/specs/authorization-via-or-rbac/spec.md#a-non-admin-is-denied-on-every-previously-admin-gated-surface
  * @e2e openspec/changes/consume-or-rbac-authorization/specs/authorization-via-or-rbac/spec.md#an-admin-is-allowed
  */
-import { test, expect } from '@playwright/test'
-import { BASE } from './governance-fixture'
+import { expect, test } from '@playwright/test'
+import { BASE } from './governance-fixture.ts'
 
 // The four previously-requireAdmin() controller surfaces. A non-admin MUST be
 // denied (401/403) on every one; the guard is now the shared RequiresOrAdmin
@@ -65,7 +65,7 @@ const ADMIN_GATED_ENDPOINTS = [
 
 test.describe('consume-or-rbac-authorization — who-may-act preserved via OR RBAC', () => {
 	test('a signatory may initiate signing; a non-signatory is denied (403)', async ({
-		page,
+		_page,
 	}) => {
 		// Deferred live run: requires decidiq deployed with a Minutes record on a
 		// body whose signatory scope (decidesk:body:{id}:signatory) is populated by
@@ -82,7 +82,7 @@ test.describe('consume-or-rbac-authorization — who-may-act preserved via OR RB
 	})
 
 	test('only the chair may run a chair-only lifecycle transition', async ({
-		page,
+		_page,
 	}) => {
 		// Deferred live run: a chair-only transition (e.g. legislative opened→adjourned)
 		// succeeds for a member of decidesk:body:{id}:chair and is refused for a
@@ -97,7 +97,7 @@ test.describe('consume-or-rbac-authorization — who-may-act preserved via OR RB
 	})
 
 	test('a disallowed domain transition is refused independent of actor scope', async ({
-		page,
+		_page,
 	}) => {
 		// Deferred live run: a domain whose workflow sets allowPause:false refuses
 		// opened→paused for the chair too (workflow policy, not actor auth). Asserted
@@ -110,7 +110,7 @@ test.describe('consume-or-rbac-authorization — who-may-act preserved via OR RB
 	})
 
 	test('a non-admin is denied on every previously admin-gated surface; an admin is allowed', async ({
-		page,
+		_page,
 	}) => {
 		// Deferred live run: as a non-admin, each ADMIN_GATED_ENDPOINTS call returns
 		// 401/403 from the shared RequiresOrAdmin trait; as an admin each is permitted.

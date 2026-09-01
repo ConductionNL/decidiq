@@ -1,3 +1,5 @@
+import type { SeedLedger } from './governance-fixture.ts'
+
 /*
  * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
@@ -34,16 +36,15 @@
  * @e2e openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#publishing-exposes-only-the-aggregate
  * @e2e openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#lifecycle-gating-is-or-rbac-not-app-local
  */
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import {
 	BASE,
-	newLedger,
+	cleanupAll,
 	createObject,
 	getObject,
-	cleanupAll,
+	newLedger,
 	objId,
-	type SeedLedger,
-} from './governance-fixture'
+} from './governance-fixture.ts'
 
 let ledger: SeedLedger
 

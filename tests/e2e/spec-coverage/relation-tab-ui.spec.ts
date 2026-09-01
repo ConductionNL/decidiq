@@ -16,9 +16,10 @@
  * @e2e openspec/specs/relation-tab-ui/spec.md#sign-now-offered-only-to-a-pending-signer-who-is-the-current-user
  * @e2e openspec/specs/relation-tab-ui/spec.md#signed-entry-shows-a-signed-badge
  */
-import { test, expect } from '@playwright/test'
+import type { Page } from '@playwright/test'
 
-import { BASE_URL as BASE } from '../base-url'
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from '../base-url.ts'
 
 /**
  * Helper: get first object of given schema from OR API.
@@ -41,7 +42,7 @@ import { BASE_URL as BASE } from '../base-url'
  * stay skipped until it lands. It only makes the reason true.
  */
 async function getFirstObject(
-	page: import('@playwright/test').Page,
+	page: Page,
 	schema: string,
 ): Promise<Record<string, unknown> | string> {
 	const url = `${BASE}/index.php/apps/openregister/api/objects/decidiq/${schema}?_limit=1`

@@ -17,11 +17,9 @@
  * @e2e openspec/specs/meeting-management/spec.md#generate-a-meeting-series-from-a-recurrence-pattern
  * @e2e openspec/specs/meeting-management/spec.md#convocation-records-per-recipient-delivery-status
  */
-import { test, expect } from '@playwright/test'
-
-import { BASE_URL as BASE } from '../base-url'
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from '../base-url.ts'
 import { becomesVisible } from '../becomes-visible.js'
-const TS = Date.now()
 
 // @e2e openspec/specs/meeting-management/spec.md#create-a-board-meeting-with-physical-location
 // @e2e openspec/specs/meeting-management/spec.md#create-a-hybrid-alv-meeting

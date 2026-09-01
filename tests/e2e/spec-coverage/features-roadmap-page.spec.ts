@@ -1,3 +1,5 @@
+import type { Page } from '@playwright/test'
+
 /*
  * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
@@ -17,9 +19,8 @@
  *
  * @e2e openspec/specs/dashboard/spec.md#view-the-features-and-roadmap-page
  */
-import { test, expect, type Page } from '@playwright/test'
-
-import { BASE_URL as BASE } from '../base-url'
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from '../base-url.ts'
 
 async function dismissSupportDialog(page: Page): Promise<void> {
 	const dialog = page
