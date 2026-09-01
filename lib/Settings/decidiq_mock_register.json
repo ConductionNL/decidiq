@@ -1937,6 +1937,11 @@
               "to": "withdrawn"
             },
             {
+              "from": "deliberating",
+              "to": "decided",
+              "_note": "Decide-without-vote: DecisionTransitionGuard only permits this edge in domains whose policy sets allowDecideWithoutVote (operations, citizen); every other domain, and the default-deny fallback, rejects it before the save reaches OR."
+            },
+            {
               "from": "voting",
               "to": "decided"
             },
@@ -1953,11 +1958,15 @@
               "to": "withdrawn"
             },
             {
+              "from": "decided",
+              "to": "archived"
+            },
+            {
               "from": "enacted",
               "to": "archived"
             }
           ],
-          "_note": "Declarative guarded transition map (ADR-031). The proven 7-state flow draft → proposed → deliberating → voting → decided → enacted → archived is retained from decision-state-machine-v1; a terminal 'withdrawn' state is added, reachable from any non-terminal state before 'enacted' (design D2 + resolved deferred question). lifecycle is orthogonal to 'outcome' (voting result) and 'isPublished' (citizen visibility)."
+          "_note": "Declarative guarded transition map (ADR-031). The proven 7-state flow draft → proposed → deliberating → voting → decided → enacted → archived is retained from decision-state-machine-v1; a terminal 'withdrawn' state is added, reachable from any non-terminal state before 'enacted' (design D2 + resolved deferred question). lifecycle is orthogonal to 'outcome' (voting result) and 'isPublished' (citizen visibility). This map mirrors DecisionTransitionGuard::TRANSITIONS (the guard filters edges per governance domain on top of it; DecisionTransitionMatrixTest pins the parity): deliberating→decided is the guarded decide-without-vote edge, decided→archived archives a decision that was never enacted (a rejected outcome cannot enact)."
         },
         "x-openregister-aggregations": {
           "stageCount": {

@@ -27,6 +27,7 @@ use OCA\Decidiq\Service\DecisionIntegrationService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
+use OCP\IL10N;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -88,10 +89,23 @@ class DecisionIntegrationServiceTest extends TestCase {
 				throw new \RuntimeException("Service not found: {$id}");
 			});
 
+		$l10n = $this->createMock(IL10N::class);
+		$l10n->method('t')->willReturnCallback(
+			static function (string $text, $parameters = []): string {
+				$replacements = [];
+				foreach ((array)$parameters as $index => $value) {
+					$replacements['%' . ((int)$index + 1) . '$s'] = (string)$value;
+				}
+
+				return strtr($text, $replacements);
+			}
+		);
+
 		$this->service = new DecisionIntegrationService(
 			container: $this->container,
 			logger: $this->createMock(LoggerInterface::class),
 			auditLog: $this->auditLog,
+			l10n: $l10n,
 		);
 
 	}//end setUp()
@@ -332,6 +346,137 @@ class DecisionIntegrationServiceTest extends TestCase {
 		self::assertTrue($result['created']);
 
 	}//end testCreateDecisionCreatesNewWhenNoTupleMatch()
+
+	/**
+	 * A flow-raised decision without a `text` derives it from the delegation
+	 * context (the ask's question), so the created object carries the full
+	 * schema-required triple (title, text, decisionType) from birth. An empty
+	 * `decisionDate` is omitted entirely — an empty string is not a valid
+	 * `date-time` value.
+	 *
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
+	 *
+	 * @return void
+	 */
+	public function testCreateDecisionDerivesTextFromDelegationContext(): void {
+		$this->objectService->method('findAll')->willReturn([]);
+
+		$captured = null;
+		$savedEntity = $this->entity(['id' => 'dec-ctx', 'uuid' => 'dec-ctx']);
+		$this->objectService->method('saveObject')->willReturnCallback(
+			function (array $object) use (&$captured, $savedEntity) {
+				$captured = $object;
+				return $savedEntity;
+			}
+		);
+
+		$result = $this->service->createDecision(
+			decisionData: [
+				'decisionType' => 'advice',
+				'sourceApp' => 'dossiq',
+				'subjectRegister' => 'dossiq',
+				'subjectSchema' => 'case',
+				'subjectId' => 'case-9',
+				'subjectLabel' => 'Vergunning Hoofdstraat 12',
+				'externalReference' => 'case-9',
+				'context' => [
+					'question' => 'Kan de vergunning worden verleend?',
+					'advisor' => 'jan',
+				],
+			],
+			actorId: 'alice'
+		);
+
+		self::assertTrue($result['success']);
+		self::assertIsArray($captured);
+		self::assertSame('Kan de vergunning worden verleend?', $captured['text']);
+		self::assertSame('Vergunning Hoofdstraat 12', $captured['title']);
+		self::assertSame('advice', $captured['decisionType']);
+		self::assertArrayNotHasKey('decisionDate', $captured);
+
+	}//end testCreateDecisionDerivesTextFromDelegationContext()
+
+	/**
+	 * With no text and no usable delegation context, the fallback text and
+	 * title name the source app and the subject, so the decision is still
+	 * schema-valid from birth and traceable to the case it was raised for.
+	 *
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
+	 *
+	 * @return void
+	 */
+	public function testCreateDecisionFallbackTextNamesTheSource(): void {
+		$this->objectService->method('findAll')->willReturn([]);
+
+		$captured = null;
+		$savedEntity = $this->entity(['id' => 'dec-fb', 'uuid' => 'dec-fb']);
+		$this->objectService->method('saveObject')->willReturnCallback(
+			function (array $object) use (&$captured, $savedEntity) {
+				$captured = $object;
+				return $savedEntity;
+			}
+		);
+
+		$result = $this->service->createDecision(
+			decisionData: [
+				'decisionType' => 'bezwaar-decision',
+				'sourceApp' => 'dossiq',
+				'subjectRegister' => 'dossiq',
+				'subjectSchema' => 'case',
+				'subjectId' => 'case-42',
+				'externalReference' => 'case-42',
+			],
+			actorId: 'alice'
+		);
+
+		self::assertTrue($result['success']);
+		self::assertIsArray($captured);
+		self::assertSame('Decision requested by dossiq for case case-42.', $captured['text']);
+		self::assertSame('Decision requested by dossiq', $captured['title']);
+		self::assertNotSame('', trim((string)$captured['title']));
+		self::assertNotSame('', trim((string)$captured['text']));
+
+	}//end testCreateDecisionFallbackTextNamesTheSource()
+
+	/**
+	 * A caller-supplied text always wins over the delegation context.
+	 *
+	 * @spec openspec/specs/decidesk-contract-decision-hub/tasks.md#phase-5
+	 *
+	 * @return void
+	 */
+	public function testCreateDecisionKeepsSuppliedText(): void {
+		$this->objectService->method('findAll')->willReturn([]);
+
+		$captured = null;
+		$savedEntity = $this->entity(['id' => 'dec-sup', 'uuid' => 'dec-sup']);
+		$this->objectService->method('saveObject')->willReturnCallback(
+			function (array $object) use (&$captured, $savedEntity) {
+				$captured = $object;
+				return $savedEntity;
+			}
+		);
+
+		$result = $this->service->createDecision(
+			decisionData: [
+				'decisionType' => 'contract',
+				'title' => 'Contract 2027',
+				'text' => 'The supplied body.',
+				'decisionDate' => '2026-09-01T10:00:00Z',
+				'sourceApp' => 'openregister',
+				'subjectId' => 'obj-1',
+				'context' => ['question' => 'Ignored.'],
+			],
+			actorId: 'bob'
+		);
+
+		self::assertTrue($result['success']);
+		self::assertIsArray($captured);
+		self::assertSame('The supplied body.', $captured['text']);
+		self::assertSame('Contract 2027', $captured['title']);
+		self::assertSame('2026-09-01T10:00:00Z', $captured['decisionDate']);
+
+	}//end testCreateDecisionKeepsSuppliedText()
 
 	/**
 	 * An unrecognised decisionType is rejected with success=false.
