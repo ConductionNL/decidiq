@@ -24,10 +24,12 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\DecisionIntegrationService;
+use OCA\Decidiq\Service\DecisionTypeRegistry;
 use OCA\Decidiq\Service\DelegatedDecisionDefaults;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
+use OCP\IAppConfig;
 use OCP\IL10N;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -39,6 +41,7 @@ use Psr\Log\LoggerInterface;
  * outcome status derivation, idempotent create-decision, and SSRF guard.
  *
  * @covers \OCA\Decidiq\Service\DecisionIntegrationService
+ * @uses \OCA\Decidiq\Service\DecisionTypeRegistry
  * @uses \OCA\Decidiq\Service\DelegatedDecisionDefaults
  *
  * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-5
@@ -74,6 +77,23 @@ class DecisionIntegrationServiceTest extends TestCase {
 	private AuditLogService&MockObject $auditLog;
 
 	/**
+	 * Mock app config backing the decision-type registry.
+	 *
+	 * @var IAppConfig&MockObject
+	 */
+	private IAppConfig&MockObject $appConfig;
+
+	/**
+	 * The decisionType vocabulary the mocked app config serves.
+	 *
+	 * Empty by default, so DecisionTypeRegistry falls back to its shipped
+	 * seed. Tests that exercise an admin-edited vocabulary overwrite it.
+	 *
+	 * @var list<string>
+	 */
+	private array $configuredTypes = [];
+
+	/**
 	 * Set up test fixtures.
 	 *
 	 * @return void
@@ -83,6 +103,9 @@ class DecisionIntegrationServiceTest extends TestCase {
 		$this->container = $this->createMock(ContainerInterface::class);
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->auditLog = $this->createMock(AuditLogService::class);
+		$this->appConfig = $this->createMock(IAppConfig::class);
+		$this->appConfig->method('getValueArray')
+			->willReturnCallback(fn (): array => $this->configuredTypes);
 
 		$this->container->method('get')
 			->willReturnCallback(function (string $id) {
@@ -110,6 +133,7 @@ class DecisionIntegrationServiceTest extends TestCase {
 			logger: $this->createMock(LoggerInterface::class),
 			auditLog: $this->auditLog,
 			decisionDefaults: new DelegatedDecisionDefaults(l10n: $l10n),
+			typeRegistry: new DecisionTypeRegistry(appConfig: $this->appConfig),
 		);
 
 	}//end setUp()
@@ -502,15 +526,82 @@ class DecisionIntegrationServiceTest extends TestCase {
 
 		self::assertFalse($result['success']);
 		self::assertStringContainsString('totally-made-up', $result['message']);
+		// The refusal names the fix: an admin adds the type as configuration.
+		self::assertStringContainsString('decision_types', $result['message']);
+		self::assertStringContainsString('administrator', $result['message']);
 
 	}//end testCreateDecisionRejectsUnknownDecisionType()
 
 	/**
+	 * A type an administrator added to the stored vocabulary is accepted.
+	 *
+	 * This is the whole point of decision-types-as-configuration: the create
+	 * path consults the STORED vocabulary, so a new decision type is one
+	 * admin edit, never a release.
+	 *
+	 * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
+	 *
+	 * @return void
+	 */
+	public function testCreateDecisionAcceptsAdminAddedDecisionType(): void {
+		$this->configuredTypes = ['motion', 'subsidy-award'];
+		$this->objectService->method('findAll')->willReturn([]);
+		$this->objectService->method('saveObject')->willReturn(
+			$this->entity(['id' => 'dec-90', 'uuid' => 'dec-90'])
+		);
+
+		$result = $this->service->createDecision(
+			decisionData: [
+				'decisionType' => 'subsidy-award',
+				'title' => 'Subsidie 2027',
+				'text' => 'Toekenning subsidie.',
+			],
+			actorId: 'alice'
+		);
+
+		self::assertTrue($result['success']);
+		self::assertSame('dec-90', $result['decisionId']);
+
+	}//end testCreateDecisionAcceptsAdminAddedDecisionType()
+
+	/**
+	 * A type an administrator removed from the stored vocabulary is refused.
+	 *
+	 * The stored list is authoritative in BOTH directions: the shipped seed
+	 * carries `resolution`, and a vocabulary without it must refuse it. A
+	 * validator that quietly unions the seed back in would take the
+	 * vocabulary away from the administrator again.
+	 *
+	 * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
+	 *
+	 * @return void
+	 */
+	public function testCreateDecisionRefusesAdminRemovedDecisionType(): void {
+		$this->configuredTypes = ['motion', 'amendment'];
+
+		$result = $this->service->createDecision(
+			decisionData: [
+				'decisionType' => 'resolution',
+				'title' => 'Test',
+				'text' => 'Body',
+			],
+			actorId: 'alice'
+		);
+
+		self::assertFalse($result['success']);
+		self::assertStringContainsString('resolution', $result['message']);
+
+	}//end testCreateDecisionRefusesAdminRemovedDecisionType()
+
+	/**
 	 * Fleet decision types raised by dossiq's delegation services are accepted.
 	 *
-	 * dossiq raises `advice` (AdviceDelegationService) and `bezwaar-decision`
-	 * (BezwaarDecisionDelegationService); before these joined ALLOWED_TYPES the
-	 * hub refused them and the whole decidiq leg of the case flow failed closed.
+	 * dossiq raises `advice` (AdviceDelegationService), `bezwaar-decision`
+	 * (BezwaarDecisionDelegationService) and `woo-decision` (the WOO flow);
+	 * before these joined the vocabulary the hub refused them and the whole
+	 * decidiq leg of the case flow failed closed. The vocabulary is now the
+	 * seeded decision_types app setting, so the next such type is an admin
+	 * edit rather than a release.
 	 *
 	 * @param string $decisionType The fleet-raised decision type slug.
 	 *
@@ -553,41 +644,50 @@ class DecisionIntegrationServiceTest extends TestCase {
 		return [
 			'advice' => ['advice'],
 			'bezwaar-decision' => ['bezwaar-decision'],
+			'woo-decision' => ['woo-decision'],
 		];
 	}//end provideDelegatedDecisionTypes()
 
 	/**
-	 * ALLOWED_TYPES mirrors every declared home of the decisionType vocabulary.
+	 * The decisionType vocabulary has exactly ONE authority.
 	 *
-	 * The vocabulary lives in four places: the PHP guard, the Decision enum in
-	 * the monolithic register, its copy in the mock register, and the
-	 * DecisionTemplate narrowing fragment. A value added to one home but not
-	 * the others either refuses valid fleet decisions (guard behind schema) or
-	 * persists objects the schema rejects (guard ahead of schema). This pins
-	 * all four together (closed-vocabulary rule: extend the vocabulary
-	 * everywhere, never bypass the check).
+	 * This test is the INVERSE of the parity test it replaces. The vocabulary
+	 * used to be a closed list mirrored in four homes (a service constant,
+	 * two Decision schema enums, and the DecisionTemplate narrowing), pinned
+	 * together here; adding a type cost a release in four places. Now the
+	 * stored `decision_types` app-config value is the only authority, so
+	 * this test proves the other homes stayed GONE: no ALLOWED_TYPES
+	 * constant, and no `enum` on any of the three schema declarations. A
+	 * re-added enum would drift from the store and quietly resurrect the
+	 * four-homes problem.
 	 *
-	 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-001 decisionType enum gains the fleet-raised types additively.
+	 * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
 	 *
 	 * @return void
 	 */
-	public function testAllowedTypesMatchSchemaEnum(): void {
-		$reflection = new \ReflectionClassConstant(DecisionIntegrationService::class, 'ALLOWED_TYPES');
-		$allowedTypes = $reflection->getValue();
+	public function testDecisionTypeVocabularyHasExactlyOneAuthority(): void {
+		// Home 1, retired: the service constant.
+		$reflection = new \ReflectionClass(DecisionIntegrationService::class);
+		self::assertFalse(
+			$reflection->hasConstant('ALLOWED_TYPES'),
+			'DecisionIntegrationService must not re-grow an ALLOWED_TYPES constant; the vocabulary is the decision_types app setting.'
+		);
 
+		// Homes 2 to 4, retired: the schema enums. The property must still
+		// exist as a free string; only the closed list is gone.
 		$settingsDir = __DIR__.'/../../../lib/Settings';
 		$homes = [
 			'decidesk_register.json Decision' => [
 				'file' => $settingsDir.'/decidesk_register.json',
-				'path' => ['components', 'schemas', 'Decision', 'properties', 'decisionType', 'enum'],
+				'path' => ['components', 'schemas', 'Decision', 'properties', 'decisionType'],
 			],
 			'decidiq_mock_register.json Decision' => [
 				'file' => $settingsDir.'/decidiq_mock_register.json',
-				'path' => ['components', 'schemas', 'Decision', 'properties', 'decisionType', 'enum'],
+				'path' => ['components', 'schemas', 'Decision', 'properties', 'decisionType'],
 			],
 			'register.d/68 DecisionTemplate' => [
 				'file' => $settingsDir.'/register.d/68-unified-decision-templates.json',
-				'path' => ['components', 'schemas', 'DecisionTemplate', 'properties', 'decisionType', 'enum'],
+				'path' => ['components', 'schemas', 'DecisionTemplate', 'properties', 'decisionType'],
 			],
 		];
 
@@ -599,10 +699,49 @@ class DecisionIntegrationServiceTest extends TestCase {
 				$data = $data[$key];
 			}
 
-			self::assertSame($allowedTypes, $data, "{$label}: decisionType enum diverged from ALLOWED_TYPES");
+			self::assertSame('string', ($data['type'] ?? null), "{$label}: decisionType must stay a string property");
+			self::assertArrayNotHasKey(
+				'enum',
+				$data,
+				"{$label}: decisionType must not declare an enum; the vocabulary is the decision_types app setting (one authority)."
+			);
 		}
 
-	}//end testAllowedTypesMatchSchemaEnum()
+	}//end testDecisionTypeVocabularyHasExactlyOneAuthority()
+
+	/**
+	 * The shipped seed covers every decisionType a fleet caller sends today.
+	 *
+	 * dossiq raises contract-renewal, report-adoption, advice,
+	 * bezwaar-decision and woo-decision; stackiq raises contract and
+	 * contract-renewal. A seed missing one of these would fail the caller
+	 * closed on a fresh install before any admin ever edited the vocabulary.
+	 *
+	 * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
+	 *
+	 * @return void
+	 */
+	public function testSeedCoversEveryFleetCallerType(): void {
+		$fleetTypes = [
+			// dossiq (case flow delegation services and the WOO flow).
+			'contract-renewal',
+			'report-adoption',
+			'advice',
+			'bezwaar-decision',
+			'woo-decision',
+			// stackiq (contract decisions on catalogue entries).
+			'contract',
+		];
+
+		foreach ($fleetTypes as $type) {
+			self::assertContains(
+				$type,
+				DecisionTypeRegistry::DEFAULT_TYPES,
+				"Seed must cover fleet-raised type '{$type}'."
+			);
+		}
+
+	}//end testSeedCoversEveryFleetCallerType()
 
 	// ─── registerOutcomeCallback SSRF guard ──────────────────────────────────
 

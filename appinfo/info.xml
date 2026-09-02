@@ -51,7 +51,14 @@ Vrij en open source onder de EUPL-1.2-licentie.
         version is <= the stored one, and unlike the SCHEMA path it has no
         content-differs escape hatch to fall back on.
     -->
-    <version>1.1.9-unstable.20260831215055</version>
+    <!--
+        Bumped again for decision-types-as-configuration: SeedDecisionTypes is a
+        <post-migration> step, and without a version move `occ upgrade` is a
+        no-op, so existing instances would never get the visible decision_types
+        row (the code fallback keeps them working, but the admin would have
+        nothing to edit).
+    -->
+    <version>1.1.10-unstable.20260902090000</version>
     <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidiq</namespace>
@@ -257,6 +264,17 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Repair\RepointConflictOfInterestBoardMember</step>
             <step>OCA\Decidiq\Repair\MigrateBoardProxyToProxyAuthorization</step>
+            <!--
+                decision-types-as-configuration: writes the shipped decisionType
+                vocabulary into the `decision_types` app-config row, once. After
+                that the row is the ONLY authority; the schema declarations carry
+                no enum and DecisionTypeRegistry validates against the row. Never
+                overwrites a stored vocabulary, so an admin's additions and
+                removals survive every upgrade. Ordering is free: it touches app
+                config only, and until it runs DecisionTypeRegistry falls back to
+                the same shipped list, so nothing fails closed in the gap.
+            -->
+            <step>OCA\Decidiq\Repair\SeedDecisionTypes</step>
         </post-migration>
         <install>
             <!--
@@ -333,6 +351,14 @@ Vrij en open source onder de EUPL-1.2-licentie.
                 lost — they live in l10n/nl.json against their English keys.
             -->
             <step>OCA\Decidiq\Repair\RenameDutchDecidiqValues</step>
+            <!--
+                decision-types-as-configuration: same step as in
+                <post-migration>, for the same reason the rename steps appear in
+                both blocks — a fresh install never runs <post-migration>, and a
+                fresh install is exactly where the vocabulary row does not exist
+                yet. Idempotent; never overwrites a stored vocabulary.
+            -->
+            <step>OCA\Decidiq\Repair\SeedDecisionTypes</step>
         </install>
     </repair-steps>
 
