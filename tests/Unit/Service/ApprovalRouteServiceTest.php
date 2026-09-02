@@ -17,6 +17,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\ApprovalRouteService;
+use OCA\Decidiq\Service\ApprovalRouteStepMapper;
+use OCA\Decidiq\Service\ApprovalStageGuard;
 use OCA\Decidiq\Service\MandateDirectory;
 use OCA\Decidiq\Service\RegisterObjectStore;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
@@ -165,7 +167,7 @@ class ApprovalRouteServiceTest extends TestCase {
 
 		$store = new RegisterObjectStore($facade);
 
-		return new ApprovalRouteService($store, new MandateDirectory($store));
+		return new ApprovalRouteService($store, new ApprovalStageGuard(new MandateDirectory($store)), new ApprovalRouteStepMapper());
 	}
 
 	/**

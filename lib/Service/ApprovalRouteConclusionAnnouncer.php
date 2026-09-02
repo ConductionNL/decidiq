@@ -108,38 +108,12 @@ class ApprovalRouteConclusionAnnouncer {
 	 * @return void
 	 */
 	private function announce(string $subject, string $correlationId): void {
-		$stages = $this->engine->stagesFor(subject: $subject);
-		if ($stages === []) {
+		$conclusion = $this->conclusionOf(stages: $this->engine->stagesFor(subject: $subject));
+		if ($conclusion === null) {
 			return;
 		}
 
-		$subjectSchema = '';
-		$routeId = '';
-		$outcome = '';
-		foreach ($stages as $stage) {
-			if ((string)($stage['status'] ?? '') === 'active') {
-				// Still travelling.
-				return;
-			}
-
-			$stageOutcome = (string)($stage['outcome'] ?? '');
-			if ($stageOutcome !== '') {
-				$outcome = $stageOutcome;
-			}
-
-			if ($subjectSchema === '') {
-				$subjectSchema = (string)($stage['note'] ?? '');
-			}
-
-			if ($routeId === '') {
-				$routeId = (string)($stage['route'] ?? '');
-			}
-		}
-
-		if ($outcome === '') {
-			// No stage ever decided: instantiated and untouched, not concluded.
-			return;
-		}
+		[$subjectSchema, $routeId, $outcome] = $conclusion;
 
 		[$sourceApp, $externalReference] = $this->provenanceOf(routeId: $routeId);
 		if ($sourceApp === '') {
@@ -170,6 +144,53 @@ class ApprovalRouteConclusionAnnouncer {
 			)
 		);
 	}//end announce()
+
+	/**
+	 * What the stages say, when they say "concluded".
+	 *
+	 * Null when the subject never travelled a route, is still travelling (an
+	 * active stage remains), or was instantiated and never touched (no stage
+	 * ever decided anything).
+	 *
+	 * @param array<int, array<string, mixed>> $stages The subject's stages.
+	 *
+	 * @return array{0: string, 1: string, 2: string}|null [subjectSchema, routeId, outcome].
+	 */
+	private function conclusionOf(array $stages): ?array {
+		if ($stages === []) {
+			return null;
+		}
+
+		$subjectSchema = '';
+		$routeId = '';
+		$outcome = '';
+		foreach ($stages as $stage) {
+			if ((string)($stage['status'] ?? '') === 'active') {
+				// Still travelling.
+				return null;
+			}
+
+			$stageOutcome = (string)($stage['outcome'] ?? '');
+			if ($stageOutcome !== '') {
+				$outcome = $stageOutcome;
+			}
+
+			if ($subjectSchema === '') {
+				$subjectSchema = (string)($stage['note'] ?? '');
+			}
+
+			if ($routeId === '') {
+				$routeId = (string)($stage['route'] ?? '');
+			}
+		}
+
+		if ($outcome === '') {
+			// No stage ever decided: instantiated and untouched, not concluded.
+			return null;
+		}
+
+		return [$subjectSchema, $routeId, $outcome];
+	}//end conclusionOf()
 
 	/**
 	 * The provenance pair of the route these stages came from.

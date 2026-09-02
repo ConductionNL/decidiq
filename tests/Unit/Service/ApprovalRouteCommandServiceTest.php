@@ -18,6 +18,8 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\ApprovalRouteCommandService;
 use OCA\Decidiq\Service\ApprovalRouteService;
+use OCA\Decidiq\Service\ApprovalRouteStepMapper;
+use OCA\Decidiq\Service\ApprovalStageGuard;
 use OCA\Decidiq\Service\MandateDirectory;
 use OCA\Decidiq\Service\RegisterObjectStore;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
@@ -161,7 +163,7 @@ class ApprovalRouteCommandServiceTest extends TestCase {
 	 * @return ApprovalRouteService The engine.
 	 */
 	private function engine(): ApprovalRouteService {
-		return new ApprovalRouteService($this->store(), new MandateDirectory($this->store()));
+		return new ApprovalRouteService($this->store(), new ApprovalStageGuard(new MandateDirectory($this->store())), new ApprovalRouteStepMapper());
 
 	}//end engine()
 

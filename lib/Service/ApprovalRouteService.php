@@ -77,30 +77,11 @@ class ApprovalRouteService {
 	];
 
 	/**
-	 * The one completing verb each sign-off stage type accepts.
-	 *
-	 * Absorbed from dossiq's ParafeerStepGuard, where an advies step accepted
-	 * only `advised` and an accordering step only `accorded`. An `approved` on
-	 * an advisory stage is a stronger claim than the stage asked for, and a
-	 * chain that accepts it records a decision nobody was asked to take.
-	 *
-	 * A stage type absent from this map (preparatory, ratifying) keeps the
-	 * engine's original any-completing-verb behaviour: those stages predate the
-	 * parafering vocabulary and no producer constrains them yet.
-	 *
-	 * @var array<string, string>
-	 */
-	private const STAGE_COMPLETING_VERBS = [
-		'advisory' => 'advised',
-		'endorsement' => 'endorsed',
-		'decisive' => 'approved',
-	];
-
-	/**
 	 * Constructor.
 	 *
 	 * @param RegisterObjectStore $store Reads and writes the objects a route is made of.
-	 * @param MandateDirectory $mandates Judges a delegate's mandate reference.
+	 * @param ApprovalStageGuard $guard The fail-closed gate every action passes through.
+	 * @param ApprovalRouteStepMapper $mapper Pure shaping of steps into stage fields.
 	 * @param ApprovalStageTaskProjector|null $projector Mirrors active stages
 	 *        onto OpenRegister's task surface. Nullable so the engine's rules
 	 *        never depend on the projection: a missing task surface changes
@@ -108,7 +89,8 @@ class ApprovalRouteService {
 	 */
 	public function __construct(
 		private readonly RegisterObjectStore $store,
-		private readonly MandateDirectory $mandates,
+		private readonly ApprovalStageGuard $guard,
+		private readonly ApprovalRouteStepMapper $mapper,
 		private readonly ?ApprovalStageTaskProjector $projector = null,
 	) {
 	}//end __construct()
@@ -172,17 +154,17 @@ class ApprovalRouteService {
 			return $existing;
 		}
 
-		$steps = $this->orderedSteps(route: $route);
+		$steps = $this->mapper->orderedSteps(route: $route);
 		if ($steps === []) {
 			throw new RuntimeException('This route declares no steps, so there is nothing to travel.');
 		}
 
 		$routeId = (string)($route['id'] ?? ($route['@self']['id'] ?? ''));
-		$firstSequence = $this->sequenceOf(step: $steps[0], index: 0);
+		$firstSequence = $this->mapper->sequenceOf(step: $steps[0], index: 0);
 
 		$created = [];
 		foreach ($steps as $index => $step) {
-			$sequence = $this->sequenceOf(step: $step, index: $index);
+			$sequence = $this->mapper->sequenceOf(step: $step, index: $index);
 			$created[] = $this->store->save(
 				schema: 'decision-stage',
 				object: [
@@ -192,13 +174,13 @@ class ApprovalRouteService {
 					// immediately. A route whose every stage is pending is
 					// indistinguishable from one nobody has started, and
 					// nothing would ever start it.
-					'status' => $this->initialStatus(sequence: $sequence, firstSequence: $firstSequence),
-					'decisionMakerType' => $this->decisionMakerType(step: $step),
+					'status' => $this->mapper->initialStatus(sequence: $sequence, firstSequence: $firstSequence),
+					'decisionMakerType' => $this->mapper->decisionMakerType(step: $step),
 					'label' => (string)($step['label'] ?? ''),
 					'mandatory' => (bool)($step['mandatory'] ?? true),
 					'decision' => $subject,
-					'assignedPerson' => $this->assignedPerson(step: $step),
-					'assignedBody' => $this->assignedBody(step: $step),
+					'assignedPerson' => $this->mapper->assignedPerson(step: $step),
+					'assignedBody' => $this->mapper->assignedBody(step: $step),
 					'note' => $subjectSchema,
 					'route' => $routeId,
 				],
@@ -236,13 +218,13 @@ class ApprovalRouteService {
 			throw new RuntimeException('This subject has no active stage; there is nothing to act on.');
 		}
 
-		$active = $this->stageForAction(actives: $actives, action: $action);
+		$active = $this->guard->stageForAction(actives: $actives, action: $action);
 
 		if ($verb === 'returned') {
-			$this->assertRequiredFields(verb: $verb, action: $action);
+			$this->guard->assertRequiredFields(verb: $verb, action: $action);
 			// Validated BEFORE the append: a refused return must leave no
 			// action row, the same promise every other refusal keeps.
-			$this->assertReturnTargetValid(action: $action, active: $active);
+			$this->guard->assertReturnTargetValid(action: $action, active: $active);
 			$recorded = $this->appendAction(action: $action, stage: $active);
 			$this->applyReturnVerb(action: $action, stages: $stages, active: $active);
 			$this->projectTasks(subject: $subject);
@@ -258,8 +240,8 @@ class ApprovalRouteService {
 			throw new RuntimeException('This stage is mandatory and cannot be skipped.');
 		}
 
-		$this->assertVerbFitsStage(stage: $active, verb: $verb);
-		$this->assertRequiredFields(verb: $verb, action: $action);
+		$this->guard->assertVerbFitsStage(stage: $active, verb: $verb);
+		$this->guard->assertRequiredFields(verb: $verb, action: $action);
 
 		$recorded = $this->appendAction(action: $action, stage: $active);
 		$this->completeAndAdvance(stages: $stages, active: $active, verb: $verb);
@@ -267,184 +249,6 @@ class ApprovalRouteService {
 
 		return $recorded;
 	}//end record()
-
-	/**
-	 * The active stage this action addresses.
-	 *
-	 * One active stage is the ordinary case and is simply taken. A PARALLEL
-	 * group holds several, and the action lands on the one naming this actor
-	 * (or the delegate's principal) — falling back to a stage naming nobody.
-	 * An actor no active stage will have is refused here, with the same
-	 * refusal the single-stage actor check gives.
-	 *
-	 * @param array<int, array<string, mixed>> $actives The active stages.
-	 * @param array<string, mixed> $action The action.
-	 *
-	 * @return array<string, mixed> The addressed stage.
-	 *
-	 * @throws RuntimeException When no active stage accepts this actor.
-	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
-	 */
-	private function stageForAction(array $actives, array $action): array {
-		if (count($actives) === 1) {
-			$this->assertActorMayAct(stage: $actives[0], action: $action);
-
-			return $actives[0];
-		}
-
-		$unassigned = null;
-		foreach ($actives as $stage) {
-			$assigned = (string)($stage['assignedPerson'] ?? '');
-			if ($assigned === '') {
-				$unassigned = ($unassigned ?? $stage);
-				continue;
-			}
-
-			if ($this->actorMatchesAssignee(stage: $stage, action: $action) === true) {
-				$this->assertActorMayAct(stage: $stage, action: $action);
-
-				return $stage;
-			}
-		}
-
-		if ($unassigned !== null) {
-			$this->assertActorMayAct(stage: $unassigned, action: $action);
-
-			return $unassigned;
-		}
-
-		throw new RuntimeException('This stage is assigned to someone else.');
-	}//end stageForAction()
-
-	/**
-	 * Whether the acting identity (or their principal) is this stage's assignee.
-	 *
-	 * @param array<string, mixed> $stage The stage.
-	 * @param array<string, mixed> $action The action.
-	 *
-	 * @return boolean True when the stage names this action's signer.
-	 */
-	private function actorMatchesAssignee(array $stage, array $action): bool {
-		$assigned = (string)($stage['assignedPerson'] ?? '');
-		$actor = (string)($action['actor'] ?? '');
-		$onBehalfOf = (string)($action['onBehalfOf'] ?? '');
-
-		return ($assigned === $actor || ($onBehalfOf !== '' && $assigned === $onBehalfOf));
-	}//end actorMatchesAssignee()
-
-	/**
-	 * Refuse an actor the active stage does not name.
-	 *
-	 * A stage naming nobody accepts any authenticated actor — that is a
-	 * deliberate route design, not a gap.
-	 *
-	 * A DELEGATE may act when the stage's person is their `onBehalfOf`
-	 * principal AND they present a mandate. The mandate is judged by the
-	 * {@see MandateDirectory}: a local toedeling that is not effective, out of
-	 * window or issued to somebody else refuses; a reference this register
-	 * cannot resolve is the producer's mandate and travels verbatim. Absorbed
-	 * from dossiq's ParafeerStepGuard, which recorded the same fields but left
-	 * the registry check "for the future MandaatService" — this is that future.
-	 *
-	 * @param array<string, mixed> $stage The active stage.
-	 * @param array<string, mixed> $action The action, carrying actor / onBehalfOf / mandate.
-	 *
-	 * @return void
-	 *
-	 * @throws RuntimeException When the actor may not act.
-	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
-	 */
-	private function assertActorMayAct(array $stage, array $action): void {
-		$assigned = (string)($stage['assignedPerson'] ?? '');
-		$actor = (string)($action['actor'] ?? '');
-		if ($assigned === '' || $assigned === $actor) {
-			return;
-		}
-
-		$onBehalfOf = (string)($action['onBehalfOf'] ?? '');
-		$mandate = trim((string)($action['mandate'] ?? ''));
-		if ($onBehalfOf !== $assigned || $mandate === '') {
-			throw new RuntimeException('This stage is assigned to someone else.');
-		}
-
-		$this->mandates->assertMayActUnder(mandate: $mandate, actor: $actor);
-	}//end assertActorMayAct()
-
-	/**
-	 * Refuse a completing verb the stage's type did not ask for.
-	 *
-	 * @param array<string, mixed> $stage The active stage.
-	 * @param string $verb The completing verb.
-	 *
-	 * @return void
-	 *
-	 * @throws RuntimeException When the verb does not fit the stage type.
-	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
-	 */
-	private function assertVerbFitsStage(array $stage, string $verb): void {
-		if ($verb === 'skipped') {
-			return;
-		}
-
-		$stageType = (string)($stage['stageType'] ?? '');
-		$expected = (self::STAGE_COMPLETING_VERBS[$stageType] ?? '');
-		if ($expected !== '' && $verb !== $expected) {
-			throw new RuntimeException(
-				'A ' . $stageType . ' stage completes with "' . $expected . '", not "' . $verb . '".'
-			);
-		}
-	}//end assertVerbFitsStage()
-
-	/**
-	 * Refuse an action missing the free text its verb makes mandatory.
-	 *
-	 * A return without a reason strands the sender with a rejection nobody
-	 * explained; an advisory sign-off without the advice is a signature on an
-	 * empty page. Both rules are dossiq's, absorbed with the runtime.
-	 *
-	 * @param string $verb The verb.
-	 * @param array<string, mixed> $action The action.
-	 *
-	 * @return void
-	 *
-	 * @throws RuntimeException When a mandatory field is missing.
-	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
-	 */
-	private function assertRequiredFields(string $verb, array $action): void {
-		if ($verb === 'returned' && trim((string)($action['comment'] ?? '')) === '') {
-			throw new RuntimeException('A return needs a reason.');
-		}
-
-		if ($verb === 'advised' && trim((string)($action['advice'] ?? '')) === '') {
-			throw new RuntimeException('An advisory stage needs the advice text.');
-		}
-	}//end assertRequiredFields()
-
-	/**
-	 * Refuse a return target at or past the active stage, before anything is written.
-	 *
-	 * A target of zero (or none) is the terminal return and names no step, so
-	 * there is nothing to validate.
-	 *
-	 * @param array<string, mixed> $action The returned action.
-	 * @param array<string, mixed> $active The addressed active stage.
-	 *
-	 * @return void
-	 *
-	 * @throws RuntimeException When the target does not point backwards.
-	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
-	 */
-	private function assertReturnTargetValid(array $action, array $active): void {
-		$target = (int)($action['returnToStep'] ?? 0);
-		if ($target > 0 && $target >= (int)$active['sequence']) {
-			throw new RuntimeException('A return must name a step BEFORE the active one.');
-		}
-	}//end assertReturnTargetValid()
 
 	/**
 	 * Route a `returned` action to its meaning.
@@ -553,12 +357,9 @@ class ApprovalRouteService {
 		);
 
 		$sequence = (int)$active['sequence'];
-		foreach ($stages as $stage) {
-			$sibling = ((int)$stage['sequence'] === $sequence && (string)$stage['id'] !== (string)$active['id']);
-			if ($sibling === true && (string)($stage['status'] ?? '') === 'active') {
-				// A parallel sibling is still signing; the group is not done.
-				return;
-			}
+		if ($this->groupStillSigning(stages: $stages, active: $active) === true) {
+			// A parallel sibling is still signing; the group is not done.
+			return;
 		}
 
 		$nextSequence = $this->nextPendingSequence(stages: $stages, after: $sequence);
@@ -572,6 +373,26 @@ class ApprovalRouteService {
 			}
 		}
 	}//end completeAndAdvance()
+
+	/**
+	 * Whether the addressed stage's parallel group still has a live signer.
+	 *
+	 * @param array<int, array<string, mixed>> $stages All stages, in order.
+	 * @param array<string, mixed> $active The addressed stage.
+	 *
+	 * @return boolean True when a sibling at the same sequence is still active.
+	 */
+	private function groupStillSigning(array $stages, array $active): bool {
+		$sequence = (int)$active['sequence'];
+		foreach ($stages as $stage) {
+			$sibling = ((int)$stage['sequence'] === $sequence && (string)$stage['id'] !== (string)$active['id']);
+			if ($sibling === true && (string)($stage['status'] ?? '') === 'active') {
+				return true;
+			}
+		}
+
+		return false;
+	}//end groupStillSigning()
 
 	/**
 	 * Re-open an earlier stage and reset everything after it.
@@ -701,126 +522,6 @@ class ApprovalRouteService {
 
 		return null;
 	}//end nextPendingSequence()
-
-	/**
-	 * A route's steps, ordered.
-	 *
-	 * @param array<string, mixed> $route The route.
-	 *
-	 * @return array<int, array<string, mixed>> The steps.
-	 */
-	private function orderedSteps(array $route): array {
-		$steps = ($route['steps'] ?? []);
-		if (is_string($steps) === true) {
-			$decoded = json_decode($steps, true);
-			if (is_array($decoded) === false) {
-				return [];
-			}
-
-			$steps = $decoded;
-		}
-
-		if (is_array($steps) === false) {
-			return [];
-		}
-
-		$list = [];
-		foreach ($steps as $step) {
-			if (is_array($step) === true && isset($step['stageType']) === true) {
-				$list[] = $step;
-			}
-		}
-
-		usort($list, static fn (array $a, array $b): int => ((int)($a['order'] ?? 0) <=> (int)($b['order'] ?? 0)));
-
-		return $list;
-	}//end orderedSteps()
-
-	/**
-	 * The sequence a step's stage carries: the step's own order.
-	 *
-	 * @param array<string, mixed> $step The route step.
-	 * @param int $index The zero-based position, the fallback.
-	 *
-	 * @return int The sequence.
-	 */
-	private function sequenceOf(array $step, int $index): int {
-		$order = (int)($step['order'] ?? 0);
-		if ($order > 0) {
-			return $order;
-		}
-
-		return ($index + 1);
-	}//end sequenceOf()
-
-	/**
-	 * How a step's actor is recorded on the stage.
-	 *
-	 * @param array<string, mixed> $step The route step.
-	 *
-	 * @return string Either `person` or `body`.
-	 */
-	private function decisionMakerType(array $step): string {
-		if ((string)($step['actorType'] ?? 'role') === 'body') {
-			return 'body';
-		}
-
-		return 'person';
-	}//end decisionMakerType()
-
-	/**
-	 * The stage's assignedPerson, when the step names one.
-	 *
-	 * A `role` actor is NOT written here: a role is resolved by the consuming
-	 * context, and storing the role token in a field that means "this person"
-	 * would make every actor check compare a uid against a role name and refuse
-	 * everyone.
-	 *
-	 * @param array<string, mixed> $step The route step.
-	 *
-	 * @return string The person, or ''.
-	 */
-	private function assignedPerson(array $step): string {
-		if ((string)($step['actorType'] ?? 'role') !== 'person') {
-			return '';
-		}
-
-		return (string)($step['actor'] ?? '');
-	}//end assignedPerson()
-
-	/**
-	 * The stage's assignedBody, when the step names one.
-	 *
-	 * @param array<string, mixed> $step The route step.
-	 *
-	 * @return string The body, or ''.
-	 */
-	private function assignedBody(array $step): string {
-		if ((string)($step['actorType'] ?? 'role') !== 'body') {
-			return '';
-		}
-
-		return (string)($step['actor'] ?? '');
-	}//end assignedBody()
-
-	/**
-	 * The status a stage at this sequence starts in.
-	 *
-	 * A method rather than a ternary: phpcs.xml forbids inline IF, and this
-	 * decides whether a freshly instantiated route can be acted on at all.
-	 *
-	 * @param int $sequence The stage's sequence.
-	 * @param int $firstSequence The route's first (lowest) sequence.
-	 *
-	 * @return string Either `active` or `pending`.
-	 */
-	private function initialStatus(int $sequence, int $firstSequence): string {
-		if ($sequence === $firstSequence) {
-			return 'active';
-		}
-
-		return 'pending';
-	}//end initialStatus()
 
 	/**
 	 * Mirror the subject's stages onto the task surface, best effort.

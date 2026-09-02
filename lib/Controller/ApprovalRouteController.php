@@ -50,6 +50,7 @@ class ApprovalRouteController extends Controller {
 	 *
 	 * @param IRequest $request The request.
 	 * @param ApprovalRouteService $service The route engine.
+	 * @param ApprovalRouteConclusionAnnouncer $announcer The one door a conclusion leaves by.
 	 * @param IUserSession $userSession The session.
 	 * @param LoggerInterface $logger Logger.
 	 */
