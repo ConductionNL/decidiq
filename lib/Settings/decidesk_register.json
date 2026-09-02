@@ -2,8 +2,8 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Decidiq Register",
-    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings. v0.11.0 retires the `product` schema and the `Decision.product` relation that reached it. Pipelinq owns `product` for the fleet; decidiq, filinq and pipelinq all claimed the slug, and slugs are global on a shared OpenRegister. Nothing in decidiq read this copy. v0.12.0 adds `advice` and `bezwaar-decision` to Decision.decisionType. Dossiq delegates advice and objection decisions under those types, and the integration hub refuses any type outside this enum.",
-    "version": "0.12.0"
+    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings. v0.11.0 retires the `product` schema and the `Decision.product` relation that reached it. Pipelinq owns `product` for the fleet; decidiq, filinq and pipelinq all claimed the slug, and slugs are global on a shared OpenRegister. Nothing in decidiq read this copy. v0.12.0 adds `advice` and `bezwaar-decision` to Decision.decisionType. Dossiq delegates advice and objection decisions under those types, and the integration hub refuses any type outside this enum. v0.13.0 removes the Decision.decisionType enum entirely (decision-types-as-configuration): the vocabulary is now the decidiq decision_types app setting, seeded on install and enforced referentially by DecisionTypeRegistry, so adding a type is an admin action rather than a release.",
+    "version": "0.13.0"
   },
   "x-openregister": {
     "type": "application",
@@ -1868,7 +1868,7 @@
         },
         "slug": "decision",
         "icon": "Gavel",
-        "version": "0.10.0",
+        "version": "0.11.0",
         "title": "Decision",
         "_authorizationNote": "decision declared no schema-level authorization block, so its read rule came from the decidesk register baseline rather than from anything this schema states. IntegrationController::getOutcome()'s docblock asserted that 'per-object read access is enforced by OpenRegister ObjectService RBAC'; that claim was unfounded precisely because this block was absent. This states the intended anonymous rule explicitly — only Decisions the app itself has published (isPublished === 'public') — leaving all others to authenticated callers, and mirrors ParticipatoryBudget / PublicConsultation / BoardEvaluation in this same file. Defence in depth only: the per-object controller guards added in signature-and-outcome-authorization-guard do not depend on it, and anonymous reads of this instance's object API return nothing regardless (measured 2026-08-20: schemas that DO grant 'public' read also return 0 anonymously). ONLY 'read' is declared: OpenRegister's action vocabulary is CRUD (create/read/update/delete) and CLOSED by default — 'list' is NOT an action, and adding it makes validateAuthorization() reject the schema, which the importer then silently SKIPS on an HTTP 200 'success'. Listing is governed by the read rule. create/update/delete are deliberately omitted — an omitted action is closed to everyone except the object owner and admin.",
         "authorization": {
@@ -1902,21 +1902,7 @@
           "decisionType": {
             "title": "Decision type",
             "type": "string",
-            "description": "Discriminator selecting the kind of governance decision (ADR-005). Drives progressive disclosure of the type-specific field groups in the form. Per-type required fields (e.g. proposer for motion; resolutionNumber + voteThreshold for resolution; the amends relation for amendment) are enforced in the form/spec, not in this JSON-schema required[].",
-            "enum": [
-              "motion",
-              "amendment",
-              "resolution",
-              "contract",
-              "contract-renewal",
-              "report-adoption",
-              "appointment",
-              "management-point",
-              "policy",
-              "meeting-outcome",
-              "advice",
-              "bezwaar-decision"
-            ],
+            "description": "Discriminator selecting the kind of governance decision (ADR-005). The vocabulary is configuration, not code (decision-types-as-configuration): valid values are the entries of the decidiq decision_types app setting, seeded on install by SeedDecisionTypes and enforced referentially by DecisionTypeRegistry at the write path. Deliberately NO enum here: a declared enum drifts from the store and recreates the four-homes parity problem this change removed. Drives progressive disclosure of the type-specific field groups in the form. Per-type required fields (e.g. proposer for motion; resolutionNumber + voteThreshold for resolution; the amends relation for amendment) are enforced in the form/spec, not in this JSON-schema required[].",
             "default": "meeting-outcome",
             "example": "motion"
           },

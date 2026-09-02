@@ -37,10 +37,13 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit;
 
 use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\DecisionTypeRegistry;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for decidesk_register.json schema definitions.
+ *
+ * @uses \OCA\Decidiq\Service\DecisionTypeRegistry
  *
  * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-1
  */
@@ -503,11 +506,17 @@ class RegisterJsonTest extends TestCase {
 		// reader does not "restore" the unconditional requirement.
 		self::assertArrayHasKey(key: 'x-decidesk-terminal-completeness', array: $schema);
 
-		// The decisionType discriminator folds in the former standalone schemas.
-		$decisionType = $schema['properties']['decisionType']['enum'];
-		self::assertContains(needle: 'motion', haystack: $decisionType);
-		self::assertContains(needle: 'amendment', haystack: $decisionType);
-		self::assertContains(needle: 'resolution', haystack: $decisionType);
+		// The decisionType discriminator folds in the former standalone
+		// schemas, but its vocabulary is CONFIGURATION, not a schema enum
+		// (decision-types-as-configuration): valid values live in the
+		// decision_types app setting, and DecisionTypeRegistry seeds and
+		// enforces them. The declaration stays a free string on purpose.
+		$decisionType = $schema['properties']['decisionType'];
+		self::assertSame(expected: 'string', actual: $decisionType['type']);
+		self::assertArrayNotHasKey(key: 'enum', array: $decisionType);
+		self::assertContains(needle: 'motion', haystack: DecisionTypeRegistry::DEFAULT_TYPES);
+		self::assertContains(needle: 'amendment', haystack: DecisionTypeRegistry::DEFAULT_TYPES);
+		self::assertContains(needle: 'resolution', haystack: DecisionTypeRegistry::DEFAULT_TYPES);
 
 		$lifecycle = $schema['properties']['lifecycle']['enum'];
 		self::assertContains(needle: 'draft', haystack: $lifecycle);

@@ -53,35 +53,6 @@ class DecisionIntegrationService {
 	private const APPROVED_LIFECYCLES = ['decided', 'enacted'];
 
 	/**
-	 * Decision types the integration hub accepts on create-decision.
-	 *
-	 * This list mirrors the `Decision.decisionType` enum in
-	 * `lib/Settings/decidesk_register.json` (plus its copies in
-	 * `decidiq_mock_register.json` and the `DecisionTemplate` narrowing in
-	 * `register.d/68-unified-decision-templates.json`). Extending the
-	 * vocabulary means extending ALL of those homes together; the parity is
-	 * pinned by DecisionIntegrationServiceTest::testAllowedTypesMatchSchemaEnum.
-	 * `advice` and `bezwaar-decision` are raised by dossiq's delegation
-	 * services (AdviceDelegationService / BezwaarDecisionDelegationService).
-	 *
-	 * @var list<string>
-	 */
-	private const ALLOWED_TYPES = [
-		'motion',
-		'amendment',
-		'resolution',
-		'contract',
-		'contract-renewal',
-		'report-adoption',
-		'appointment',
-		'management-point',
-		'policy',
-		'meeting-outcome',
-		'advice',
-		'bezwaar-decision',
-	];
-
-	/**
 	 * Additive provenance fields copied onto a created Decision (REQ-DCDH-001).
 	 *
 	 * @var list<string>
@@ -131,12 +102,16 @@ class DecisionIntegrationService {
 	 * @param LoggerInterface $logger PSR-3 logger
 	 * @param AuditLogService $auditLog Audit log dependency
 	 * @param DelegatedDecisionDefaults $decisionDefaults Derivation of the schema-required title/text
+	 * @param DecisionTypeRegistry $typeRegistry The configured decisionType vocabulary
+	 *
+	 * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly AuditLogService $auditLog,
 		private readonly DelegatedDecisionDefaults $decisionDefaults,
+		private readonly DecisionTypeRegistry $typeRegistry,
 	) {
 	}//end __construct()
 
@@ -154,6 +129,7 @@ class DecisionIntegrationService {
 	 * @return array{success: bool, decisionId?: string, created?: bool, message?: string}
 	 *
 	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
 	 */
 	public function createDecision(array $decisionData, string $actorId): array {
 		try {
@@ -163,10 +139,18 @@ class DecisionIntegrationService {
 			return ['success' => false, 'message' => 'OpenRegister is not available.'];
 		}
 
-		// Validate decisionType against the integration-hub supported types.
+		// Referential validation against the CONFIGURED vocabulary (fail closed
+		// on an unknown type). The vocabulary is data, not code: an
+		// administrator extends it through the decision_types app setting and
+		// the next create accepts the new type, with no release involved.
 		$decisionType = (string)($decisionData['decisionType'] ?? '');
-		if (in_array($decisionType, self::ALLOWED_TYPES, true) === false) {
-			return ['success' => false, 'message' => "Unrecognised decisionType: '{$decisionType}'."];
+		if ($this->typeRegistry->isAllowed(decisionType: $decisionType) === false) {
+			return [
+				'success' => false,
+				'message' => "Unrecognised decisionType: '{$decisionType}'. "
+					. "An administrator can add it to the 'decision_types' app setting "
+					. '(occ config:app:set decidiq decision_types). No release is needed.',
+			];
 		}
 
 		// Additive provenance fields (REQ-DCDH-001) — empty/absent values are omitted.
