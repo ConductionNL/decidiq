@@ -1043,7 +1043,16 @@ OC.L10N.register(
         "{n} attachment(s)": "{n} allegat(i)",
         "{n} conflict of interest declaration(s)": "{n} dikjarazzjoni/jiet ta' kunflitt ta' interess",
         "{n} meeting(s) exceeded the scheduled time": "{n} laqgħa/laqgħat qabżet/qabżu l-ħin skedat",
-        "{states} states, {transitions} transitions": "{states} stati, {transitions} tranżizzjonijiet"
+        "{states} states, {transitions} transitions": "{states} stati, {transitions} tranżizzjonijiet",
+        "Contract": "Kuntratt",
+        "Contract renewal": "Tiġdid tal-kuntratt",
+        "Report adoption": "Adozzjoni tar-rapport",
+        "Appointment": "Ħatra",
+        "Management point": "Punt ta' ġestjoni",
+        "Policy": "Politika",
+        "Meeting outcome": "Riżultat tal-laqgħa",
+        "Objection decision": "Deċiżjoni dwar oġġezzjoni",
+        "Woo decision": "Deċiżjoni Woo"
     },
     "nplurals=2; plural=(n != 1);"
 )

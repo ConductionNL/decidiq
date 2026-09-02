@@ -1043,7 +1043,16 @@ OC.L10N.register(
         "{n} attachment(s)": "{n} melléklet",
         "{n} conflict of interest declaration(s)": "{n} érdekkonfliktus-nyilatkozat",
         "{n} meeting(s) exceeded the scheduled time": "{n} ülés túllépte az ütemezett időt",
-        "{states} states, {transitions} transitions": "{states} állapot, {transitions} átmenet"
+        "{states} states, {transitions} transitions": "{states} állapot, {transitions} átmenet",
+        "Contract": "Szerződés",
+        "Contract renewal": "Szerződés megújítása",
+        "Report adoption": "Jelentés elfogadása",
+        "Appointment": "Kinevezés",
+        "Management point": "Vezetési pont",
+        "Policy": "Szabályzat",
+        "Meeting outcome": "Ülés eredménye",
+        "Objection decision": "Kifogásról szóló döntés",
+        "Woo decision": "Woo-döntés"
     },
     "nplurals=2; plural=(n != 1);"
 )

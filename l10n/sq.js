@@ -1043,7 +1043,16 @@ OC.L10N.register(
         "{n} attachment(s)": "{n} bashkëngjitje",
         "{n} conflict of interest declaration(s)": "{n} deklaratë(a) konflikti interesash",
         "{n} meeting(s) exceeded the scheduled time": "{n} mbledhje tejkaluan kohën e planifikuar",
-        "{states} states, {transitions} transitions": "{states} gjendje, {transitions} tranzicione"
+        "{states} states, {transitions} transitions": "{states} gjendje, {transitions} tranzicione",
+        "Contract": "Kontratë",
+        "Contract renewal": "Rinovim i kontratës",
+        "Report adoption": "Miratim i raportit",
+        "Appointment": "Emërim",
+        "Management point": "Pikë menaxhimi",
+        "Policy": "Politikë",
+        "Meeting outcome": "Rezultat i mbledhjes",
+        "Objection decision": "Vendim për kundërshtimin",
+        "Woo decision": "Vendim Woo"
     },
     "nplurals=2; plural=(n != 1);"
 )

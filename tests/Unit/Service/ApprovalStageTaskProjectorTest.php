@@ -120,11 +120,11 @@ class ApprovalStageTaskProjectorTest extends TestCase {
 		}
 
 		$store = $this->createMock(RegisterObjectStore::class);
-		$store->method('save')->willReturnCallback(
-			function (string $schema, array $object, ?string $uuid = null) : array {
-				$this->stagePatches[] = [$schema, $object, $uuid];
+		$store->method('patch')->willReturnCallback(
+			function (string $schema, array $data, string $uuid) : array {
+				$this->stagePatches[] = [$schema, $data, $uuid];
 
-				return ($object + ['id' => (string)$uuid]);
+				return ($data + ['id' => $uuid]);
 			}
 		);
 

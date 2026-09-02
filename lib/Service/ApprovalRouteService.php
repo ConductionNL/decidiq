@@ -295,9 +295,9 @@ class ApprovalRouteService {
 	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
 	 */
 	private function applyTerminalReturn(array $stages, array $active): void {
-		$this->store->save(
+		$this->store->patch(
 			schema: 'decision-stage',
-			object: [
+			data: [
 				'status' => 'decided',
 				'outcome' => 'returned',
 				'decidedAt' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
@@ -315,9 +315,9 @@ class ApprovalRouteService {
 				continue;
 			}
 
-			$this->store->save(
+			$this->store->patch(
 				schema: 'decision-stage',
-				object: ['status' => 'pending', 'outcome' => null, 'decidedAt' => null],
+				data: ['status' => 'pending', 'outcome' => null, 'decidedAt' => null],
 				uuid: (string)$stage['id'],
 			);
 		}
@@ -346,9 +346,9 @@ class ApprovalRouteService {
 			$status = 'skipped';
 		}
 
-		$this->store->save(
+		$this->store->patch(
 			schema: 'decision-stage',
-			object: [
+			data: [
 				'status' => $status,
 				'outcome' => self::COMPLETING_ACTIONS[$verb],
 				'decidedAt' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
@@ -369,7 +369,7 @@ class ApprovalRouteService {
 
 		foreach ($stages as $stage) {
 			if ((int)$stage['sequence'] === $nextSequence && (string)($stage['status'] ?? '') === 'pending') {
-				$this->store->save(schema: 'decision-stage', object: ['status' => 'active'], uuid: (string)$stage['id']);
+				$this->store->patch(schema: 'decision-stage', data: ['status' => 'active'], uuid: (string)$stage['id']);
 			}
 		}
 	}//end completeAndAdvance()
@@ -430,9 +430,9 @@ class ApprovalRouteService {
 				$status = 'active';
 			}
 
-			$this->store->save(
+			$this->store->patch(
 				schema: 'decision-stage',
-				object: ['status' => $status, 'outcome' => null, 'decidedAt' => null],
+				data: ['status' => $status, 'outcome' => null, 'decidedAt' => null],
 				uuid: (string)$stage['id'],
 			);
 		}

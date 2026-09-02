@@ -1043,7 +1043,16 @@ OC.L10N.register(
         "{n} attachment(s)": "{n} συνημμένο/α",
         "{n} conflict of interest declaration(s)": "{n} δήλωση/δηλώσεις σύγκρουσης συμφερόντων",
         "{n} meeting(s) exceeded the scheduled time": "{n} συνεδρίαση/συνεδριάσεις υπερέβη/αν τον προγραμματισμένο χρόνο",
-        "{states} states, {transitions} transitions": "{states} καταστάσεις, {transitions} μεταβάσεις"
+        "{states} states, {transitions} transitions": "{states} καταστάσεις, {transitions} μεταβάσεις",
+        "Contract": "Σύμβαση",
+        "Contract renewal": "Ανανέωση σύμβασης",
+        "Report adoption": "Έγκριση έκθεσης",
+        "Appointment": "Διορισμός",
+        "Management point": "Σημείο διαχείρισης",
+        "Policy": "Πολιτική",
+        "Meeting outcome": "Αποτέλεσμα συνεδρίασης",
+        "Objection decision": "Απόφαση επί ένστασης",
+        "Woo decision": "Απόφαση Woo"
     },
     "nplurals=2; plural=(n != 1);"
 )

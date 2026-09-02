@@ -1043,7 +1043,16 @@ OC.L10N.register(
         "{n} attachment(s)": "{n} pielikums(-i)",
         "{n} conflict of interest declaration(s)": "{n} interešu konflikta deklarācija(-s)",
         "{n} meeting(s) exceeded the scheduled time": "{n} sanāksme(-es) pārsniedza paredzēto laiku",
-        "{states} states, {transitions} transitions": "{states} stāvokļi, {transitions} pārejas"
+        "{states} states, {transitions} transitions": "{states} stāvokļi, {transitions} pārejas",
+        "Contract": "Līgums",
+        "Contract renewal": "Līguma atjaunošana",
+        "Report adoption": "Ziņojuma pieņemšana",
+        "Appointment": "Iecelšana amatā",
+        "Management point": "Pārvaldības punkts",
+        "Policy": "Politika",
+        "Meeting outcome": "Sanāksmes iznākums",
+        "Objection decision": "Lēmums par iebildumu",
+        "Woo decision": "Woo lēmums"
     },
     "nplurals=2; plural=(n != 1);"
 )

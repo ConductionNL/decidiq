@@ -1043,7 +1043,16 @@ OC.L10N.register(
         "{n} attachment(s)": "{n} vedhæftning(er)",
         "{n} conflict of interest declaration(s)": "{n} interessekonfliktserklæring(er)",
         "{n} meeting(s) exceeded the scheduled time": "{n} møde(r) overskred den planlagte tid",
-        "{states} states, {transitions} transitions": "{states} tilstande, {transitions} overgange"
+        "{states} states, {transitions} transitions": "{states} tilstande, {transitions} overgange",
+        "Contract": "Kontrakt",
+        "Contract renewal": "Kontraktfornyelse",
+        "Report adoption": "Godkendelse af rapport",
+        "Appointment": "Udnævnelse",
+        "Management point": "Ledelsespunkt",
+        "Policy": "Politik",
+        "Meeting outcome": "Møderesultat",
+        "Objection decision": "Afgørelse om indsigelse",
+        "Woo decision": "Woo-afgørelse"
     },
     "nplurals=2; plural=(n != 1);"
 )

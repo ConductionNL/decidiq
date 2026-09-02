@@ -209,7 +209,7 @@ class ApprovalStageTaskProjector {
 			return;
 		}
 
-		$this->store->save(schema: 'decision-stage', object: ['taskUuid' => $uuid], uuid: (string)$stage['id']);
+		$this->store->patch(schema: 'decision-stage', data: ['taskUuid' => $uuid], uuid: (string)$stage['id']);
 	}//end openTask()
 
 	/**
@@ -245,7 +245,7 @@ class ApprovalStageTaskProjector {
 			}
 		}
 
-		$this->store->save(schema: 'decision-stage', object: ['taskUuid' => ''], uuid: (string)$stage['id']);
+		$this->store->patch(schema: 'decision-stage', data: ['taskUuid' => ''], uuid: (string)$stage['id']);
 	}//end closeTask()
 
 	/**

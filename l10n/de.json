@@ -1042,7 +1042,16 @@
         "{n} attachment(s)": "{n} Anhang/Anhänge",
         "{n} conflict of interest declaration(s)": "{n} Befangenheitserklärung(en)",
         "{n} meeting(s) exceeded the scheduled time": "{n} Sitzung(en) haben die geplante Zeit überschritten",
-        "{states} states, {transitions} transitions": "{states} Zustände, {transitions} Übergänge"
+        "{states} states, {transitions} transitions": "{states} Zustände, {transitions} Übergänge",
+        "Contract": "Vertrag",
+        "Contract renewal": "Vertragsverlängerung",
+        "Report adoption": "Annahme des Berichts",
+        "Appointment": "Ernennung",
+        "Management point": "Verwaltungspunkt",
+        "Policy": "Richtlinie",
+        "Meeting outcome": "Sitzungsergebnis",
+        "Objection decision": "Widerspruchsentscheidung",
+        "Woo decision": "Woo-Entscheidung"
     },
     "plurals": null
 }
