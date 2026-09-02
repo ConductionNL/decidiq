@@ -44,6 +44,7 @@ class ApprovalRouteStepMapper {
 	 * @param array<string, mixed> $route The route.
 	 *
 	 * @return array<int, array<string, mixed>> The steps.
+	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
 	 */
 	public function orderedSteps(array $route): array {
 		$steps = ($route['steps'] ?? []);
@@ -101,6 +102,7 @@ class ApprovalRouteStepMapper {
 	 * @param array<string, mixed> $step The route step.
 	 *
 	 * @return string Either `person` or `body`.
+	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
 	 */
 	public function decisionMakerType(array $step): string {
 		if ((string)($step['actorType'] ?? 'role') === 'body') {
@@ -121,6 +123,7 @@ class ApprovalRouteStepMapper {
 	 * @param array<string, mixed> $step The route step.
 	 *
 	 * @return string The person, or ''.
+	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
 	 */
 	public function assignedPerson(array $step): string {
 		if ((string)($step['actorType'] ?? 'role') !== 'person') {
@@ -136,6 +139,7 @@ class ApprovalRouteStepMapper {
 	 * @param array<string, mixed> $step The route step.
 	 *
 	 * @return string The body, or ''.
+	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
 	 */
 	public function assignedBody(array $step): string {
 		if ((string)($step['actorType'] ?? 'role') !== 'body') {
@@ -156,6 +160,7 @@ class ApprovalRouteStepMapper {
 	 * @param int $firstSequence The route's first (lowest) sequence.
 	 *
 	 * @return string Either `active` or `pending`.
+	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
 	 */
 	public function initialStatus(int $sequence, int $firstSequence): string {
 		if ($sequence === $firstSequence) {
