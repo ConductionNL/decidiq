@@ -51,7 +51,9 @@ describe('listDecisionTypes', () => {
 		const types = await listDecisionTypes()
 
 		expect(get).toHaveBeenCalledTimes(1)
-		expect(String(get.mock.calls[0][0])).toContain('/apps/decidiq/api/v1/decision-types')
+		expect(String(get.mock.calls[0][0])).toContain(
+			'/apps/decidiq/api/v1/decision-types',
+		)
 		expect(types).toEqual(['motion', 'advice', 'subsidie-besluit'])
 	})
 
@@ -88,24 +90,38 @@ describe('proposalFormSchema', () => {
 	})
 
 	it('an admin-added type appears even though it has no shipped label', () => {
-		const schema = proposalFormSchema([...FALLBACK_DECISION_TYPES, 'subsidie-besluit'])
+		const schema = proposalFormSchema([
+			...FALLBACK_DECISION_TYPES,
+			'subsidie-besluit',
+		])
 
 		expect(schema.properties.decisionType.enum).toContain('subsidie-besluit')
 		// No label entry: the slug renders as its own name.
-		expect(schema.properties.decisionType.enumLabels['subsidie-besluit']).toBeUndefined()
+		expect(
+			schema.properties.decisionType.enumLabels['subsidie-besluit'],
+		).toBeUndefined()
 	})
 
 	it('defaults to motion when the vocabulary carries it', () => {
-		expect(proposalFormSchema(['advice', 'motion']).properties.decisionType.default).toBe('motion')
+		expect(
+			proposalFormSchema(['advice', 'motion']).properties.decisionType.default,
+		).toBe('motion')
 	})
 
 	it('defaults to the first type when motion is absent', () => {
-		expect(proposalFormSchema(['advice', 'contract']).properties.decisionType.default).toBe('advice')
+		expect(
+			proposalFormSchema(['advice', 'contract']).properties.decisionType
+				.default,
+		).toBe('advice')
 	})
 
 	it('falls back to the shipped seed when handed nothing', () => {
-		expect(proposalFormSchema(null).properties.decisionType.enum).toEqual(FALLBACK_DECISION_TYPES)
-		expect(proposalFormSchema([]).properties.decisionType.enum).toEqual(FALLBACK_DECISION_TYPES)
+		expect(proposalFormSchema(null).properties.decisionType.enum).toEqual(
+			FALLBACK_DECISION_TYPES,
+		)
+		expect(proposalFormSchema([]).properties.decisionType.enum).toEqual(
+			FALLBACK_DECISION_TYPES,
+		)
 	})
 
 	it('labels every shipped type', () => {

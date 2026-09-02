@@ -146,10 +146,14 @@ export const FALLBACK_DECISION_TYPES = [
  */
 export async function listDecisionTypes() {
 	try {
-		const res = await axios.get(generateUrl('/apps/decidiq/api/v1/decision-types'))
+		const res = await axios.get(
+			generateUrl('/apps/decidiq/api/v1/decision-types'),
+		)
 		const types = res?.data?.types
 		if (Array.isArray(types)) {
-			const clean = types.filter((v) => typeof v === 'string' && v.trim() !== '')
+			const clean = types.filter(
+				(v) => typeof v === 'string' && v.trim() !== '',
+			)
 			if (clean.length > 0) {
 				return clean
 			}
@@ -173,17 +177,17 @@ export async function listDecisionTypes() {
  */
 export function decisionTypeLabels() {
 	return {
-		'motion': t('decidiq', 'Motion'),
-		'amendment': t('decidiq', 'Amendment'),
-		'resolution': t('decidiq', 'Resolution'),
-		'contract': t('decidiq', 'Contract'),
+		motion: t('decidiq', 'Motion'),
+		amendment: t('decidiq', 'Amendment'),
+		resolution: t('decidiq', 'Resolution'),
+		contract: t('decidiq', 'Contract'),
 		'contract-renewal': t('decidiq', 'Contract renewal'),
 		'report-adoption': t('decidiq', 'Report adoption'),
-		'appointment': t('decidiq', 'Appointment'),
+		appointment: t('decidiq', 'Appointment'),
 		'management-point': t('decidiq', 'Management point'),
-		'policy': t('decidiq', 'Policy'),
+		policy: t('decidiq', 'Policy'),
 		'meeting-outcome': t('decidiq', 'Meeting outcome'),
-		'advice': t('decidiq', 'Advice'),
+		advice: t('decidiq', 'Advice'),
 		'bezwaar-decision': t('decidiq', 'Objection decision'),
 		'woo-decision': t('decidiq', 'Woo decision'),
 	}
@@ -203,7 +207,8 @@ export function decisionTypeLabels() {
  * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create-proposal form schema.
  */
 export function proposalFormSchema(types) {
-	const offered = (Array.isArray(types) && types.length > 0) ? types : FALLBACK_DECISION_TYPES
+	const offered =
+		Array.isArray(types) && types.length > 0 ? types : FALLBACK_DECISION_TYPES
 	return {
 		title: t('decidiq', 'Proposal'),
 		properties: {
