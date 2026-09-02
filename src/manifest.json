@@ -1290,7 +1290,7 @@
 		{
 			"id": "FlowDetail",
 			"route": "/flows/:id",
-			"type": "flow",
+			"type": "flow-detail",
 			"title": "Flow",
 			"config": { "app": "decidiq" },
 			"_note": "The shared CnFlowDetail canvas over the same single engine. Controls render in the NC app sidebar so the canvas keeps full width."

@@ -17,6 +17,9 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\ApprovalRouteService;
+use OCA\Decidiq\Service\ApprovalRouteStepMapper;
+use OCA\Decidiq\Service\ApprovalStageGuard;
+use OCA\Decidiq\Service\MandateDirectory;
 use OCA\Decidiq\Service\RegisterObjectStore;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -54,7 +57,7 @@ class ApprovalRouteServiceTest extends TestCase {
 			 *
 			 * @var array<string, array<string, array<string, mixed>>>
 			 */
-			public array $rows = ['decision-stage' => [], 'approval-action' => []];
+			public array $rows = ['decision-stage' => [], 'approval-action' => [], 'bevoegdheidstoedeling' => []];
 
 			/**
 			 * @var int
@@ -162,7 +165,9 @@ class ApprovalRouteServiceTest extends TestCase {
 			static fn (array $config = []): array => $state->findAll($config)
 		);
 
-		return new ApprovalRouteService(new RegisterObjectStore($facade));
+		$store = new RegisterObjectStore($facade);
+
+		return new ApprovalRouteService($store, new ApprovalStageGuard(new MandateDirectory($store)), new ApprovalRouteStepMapper());
 	}
 
 	/**
@@ -249,10 +254,10 @@ class ApprovalRouteServiceTest extends TestCase {
 		$service = $this->service();
 		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
 
-		$service->record(['subject' => 'subj-1', 'step' => 1, 'actor' => 'bob', 'action' => 'approved']);
+		$service->record(['subject' => 'subj-1', 'step' => 1, 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
 
 		$this->assertSame(['decided', 'active', 'pending'], $this->statuses());
-		$this->assertSame('approved', $this->stages()[0]['outcome']);
+		$this->assertSame('advised', $this->stages()[0]['outcome']);
 	}
 
 	/**
@@ -267,7 +272,7 @@ class ApprovalRouteServiceTest extends TestCase {
 		$service = $this->service();
 		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
 
-		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'approved']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
 		$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
 		$service->record(['subject' => 'subj-1', 'actor' => 'carol', 'action' => 'approved']);
 
@@ -283,7 +288,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	public function testAnActionOnAFinishedRouteIsRefused(): void {
 		$service = $this->service();
 		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
-		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'approved']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
 		$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
 		$service->record(['subject' => 'subj-1', 'actor' => 'carol', 'action' => 'approved']);
 
@@ -299,14 +304,14 @@ class ApprovalRouteServiceTest extends TestCase {
 	public function testAReturnRewindsTheRoute(): void {
 		$service = $this->service();
 		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
-		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'approved']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
 		$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
 
 		// Now on step 3; send it back to step 2.
-		$service->record(['subject' => 'subj-1', 'actor' => 'carol', 'action' => 'returned', 'returnToStep' => 2]);
+		$service->record(['subject' => 'subj-1', 'actor' => 'carol', 'action' => 'returned', 'returnToStep' => 2, 'comment' => 'Onvolledig']);
 
 		$this->assertSame(['decided', 'active', 'pending'], $this->statuses());
-		$this->assertSame('approved', $this->stages()[0]['outcome'], 'Steps before the target keep their outcome.');
+		$this->assertSame('advised', $this->stages()[0]['outcome'], 'Steps before the target keep their outcome.');
 		$this->assertNull($this->stages()[1]['outcome'], 'A re-opened stage must not still read as decided.');
 	}
 
@@ -322,15 +327,15 @@ class ApprovalRouteServiceTest extends TestCase {
 	public function testAReturnPreservesTheActionTrail(): void {
 		$service = $this->service();
 		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
-		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'approved']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
 		$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
-		$service->record(['subject' => 'subj-1', 'actor' => 'carol', 'action' => 'returned', 'returnToStep' => 2]);
+		$service->record(['subject' => 'subj-1', 'actor' => 'carol', 'action' => 'returned', 'returnToStep' => 2, 'comment' => 'Onvolledig']);
 		$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
 
 		$actions = array_values($this->objectService->rows['approval-action']);
 		$this->assertCount(4, $actions, 'Every action is a new row; none is an edit of an earlier one.');
 		$verbs = array_map(static fn (array $a): string => (string)$a['action'], $actions);
-		$this->assertSame(['approved', 'endorsed', 'returned', 'endorsed'], $verbs);
+		$this->assertSame(['advised', 'endorsed', 'returned', 'endorsed'], $verbs);
 	}
 
 	/**
@@ -341,11 +346,11 @@ class ApprovalRouteServiceTest extends TestCase {
 	public function testAReturnCannotPointForwards(): void {
 		$service = $this->service();
 		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
-		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'approved']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
 
 		$before = $this->statuses();
 		try {
-			$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'returned', 'returnToStep' => 3]);
+			$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'returned', 'returnToStep' => 3, 'comment' => 'Terug']);
 			$this->fail('A forward return must be refused.');
 		} catch (RuntimeException) {
 			$this->assertSame($before, $this->statuses(), 'A refused return must change nothing.');
@@ -379,7 +384,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	public function testAnOptionalStageCanBeSkipped(): void {
 		$service = $this->service();
 		$service->instantiate(route: $this->route(thirdMandatory: false), subject: 'subj-1', subjectSchema: 'proposal');
-		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'approved']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
 		$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
 		$service->record(['subject' => 'subj-1', 'actor' => 'carol', 'action' => 'skipped']);
 
@@ -394,7 +399,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	public function testTheWrongActorIsRefused(): void {
 		$service = $this->service();
 		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
-		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'approved']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
 
 		// Step 2 is assigned to alice.
 		$before = $this->statuses();
@@ -434,7 +439,8 @@ class ApprovalRouteServiceTest extends TestCase {
 		$service->record([
 			'subject' => 'subj-1',
 			'actor' => 'bob',
-			'action' => 'approved',
+			'action' => 'advised',
+			'advice' => 'Namens Dave: akkoord',
 			'actorType' => 'delegate',
 			'onBehalfOf' => 'dave',
 			'mandate' => 'mandaat-2026-14',

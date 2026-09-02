@@ -39,6 +39,7 @@ use OCA\Decidiq\Event\DecisionRequestedEvent;
 use OCA\Decidiq\Event\GovernanceBodyRequestedEvent;
 use OCA\Decidiq\Listener\ApprovalActionRequestedListener;
 use OCA\Decidiq\Listener\ApprovalRouteRequestedListener;
+use OCA\Decidiq\Listener\ApprovalTaskDecisionListener;
 use OCA\Decidiq\Listener\DecisionRequestedListener;
 use OCA\Decidiq\Listener\GovernanceBodyRequestedListener;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
@@ -88,6 +89,35 @@ class CrossAppEventRegistrar {
 			$context->registerEventListener(event: $event, listener: $listener);
 		}
 
+		$this->registerTaskDecisionListener(context: $context);
+
 	}//end register()
+
+	/**
+	 * Register the listener that turns an answered approval-stage task into an
+	 * engine action.
+	 *
+	 * The event class is OpenRegister's and only newer releases ship it, so it
+	 * is named as an FQN STRING and registered only when it exists — the same
+	 * both-worlds posture the fleet's cross-app listeners use. `::class` on an
+	 * absent class would not fail here (it is compile-time), but registering a
+	 * listener for an event nothing can dispatch is a standing lie in the
+	 * registration table.
+	 *
+	 * @param IRegistrationContext $context The registration context.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 */
+	private function registerTaskDecisionListener(IRegistrationContext $context): void {
+		$event = 'OCA\OpenRegister\Event\TaskTerminalEvent';
+		if (class_exists('\\' . $event) === false) {
+			return;
+		}
+
+		$context->registerEventListener(event: $event, listener: ApprovalTaskDecisionListener::class);
+
+	}//end registerTaskDecisionListener()
 
 }//end class

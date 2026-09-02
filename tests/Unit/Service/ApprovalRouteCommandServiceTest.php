@@ -18,6 +18,9 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\ApprovalRouteCommandService;
 use OCA\Decidiq\Service\ApprovalRouteService;
+use OCA\Decidiq\Service\ApprovalRouteStepMapper;
+use OCA\Decidiq\Service\ApprovalStageGuard;
+use OCA\Decidiq\Service\MandateDirectory;
 use OCA\Decidiq\Service\RegisterObjectStore;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -160,7 +163,7 @@ class ApprovalRouteCommandServiceTest extends TestCase {
 	 * @return ApprovalRouteService The engine.
 	 */
 	private function engine(): ApprovalRouteService {
-		return new ApprovalRouteService($this->store());
+		return new ApprovalRouteService($this->store(), new ApprovalStageGuard(new MandateDirectory($this->store())), new ApprovalRouteStepMapper());
 
 	}//end engine()
 
@@ -330,7 +333,7 @@ class ApprovalRouteCommandServiceTest extends TestCase {
 		$service = $this->service($engine);
 		$service->holdRoute('dossiq', 'pr-1', $this->template(), 'voorstel-1', 'proposal');
 
-		$service->recordAction(['subject' => 'voorstel-1', 'actor' => 'anyone', 'action' => 'advised']);
+		$service->recordAction(['subject' => 'voorstel-1', 'actor' => 'anyone', 'action' => 'advised', 'advice' => 'Akkoord']);
 
 		$grown = $this->template();
 		$grown['steps'][] = ['order' => 4, 'stageType' => 'ratifying', 'actorType' => 'role', 'actor' => 'college', 'label' => 'Vaststelling'];
@@ -352,14 +355,14 @@ class ApprovalRouteCommandServiceTest extends TestCase {
 		$service = $this->service($engine);
 		$service->holdRoute('dossiq', 'pr-1', $this->template(), 'voorstel-1', 'proposal');
 
-		$first = $service->recordAction(['subject' => 'voorstel-1', 'actor' => 'anyone', 'action' => 'advised']);
+		$first = $service->recordAction(['subject' => 'voorstel-1', 'actor' => 'anyone', 'action' => 'advised', 'advice' => 'Akkoord']);
 		$this->assertTrue($first['recorded']);
 		$this->assertFalse($first['completed']);
 
 		$statuses = array_map(static fn (array $s): string => (string)$s['status'], $this->stagesOf('voorstel-1'));
 		$this->assertSame(['decided', 'active', 'pending'], $statuses);
 
-		$service->recordAction(['subject' => 'voorstel-1', 'actor' => 'alice', 'action' => 'approved']);
+		$service->recordAction(['subject' => 'voorstel-1', 'actor' => 'alice', 'action' => 'endorsed']);
 		$last = $service->recordAction(['subject' => 'voorstel-1', 'actor' => 'anyone', 'action' => 'approved']);
 
 		$this->assertTrue($last['completed']);
@@ -377,7 +380,7 @@ class ApprovalRouteCommandServiceTest extends TestCase {
 		$engine = $this->engine();
 		$service = $this->service($engine);
 		$service->holdRoute('dossiq', 'pr-1', $this->template(), 'voorstel-1', 'proposal');
-		$service->recordAction(['subject' => 'voorstel-1', 'actor' => 'anyone', 'action' => 'advised']);
+		$service->recordAction(['subject' => 'voorstel-1', 'actor' => 'anyone', 'action' => 'advised', 'advice' => 'Akkoord']);
 
 		$before = count($this->objectService->rows['approval-action']);
 
@@ -403,14 +406,15 @@ class ApprovalRouteCommandServiceTest extends TestCase {
 		$engine = $this->engine();
 		$service = $this->service($engine);
 		$service->holdRoute('dossiq', 'pr-1', $this->template(), 'voorstel-1', 'proposal');
-		$service->recordAction(['subject' => 'voorstel-1', 'actor' => 'anyone', 'action' => 'advised']);
-		$service->recordAction(['subject' => 'voorstel-1', 'actor' => 'alice', 'action' => 'approved']);
+		$service->recordAction(['subject' => 'voorstel-1', 'actor' => 'anyone', 'action' => 'advised', 'advice' => 'Akkoord']);
+		$service->recordAction(['subject' => 'voorstel-1', 'actor' => 'alice', 'action' => 'endorsed']);
 
 		$service->recordAction([
 			'subject' => 'voorstel-1',
 			'actor' => 'anyone',
 			'action' => 'returned',
 			'returnToStep' => 2,
+			'comment' => 'Onvolledig',
 		]);
 
 		$stages = $this->stagesOf('voorstel-1');
@@ -432,13 +436,18 @@ class ApprovalRouteCommandServiceTest extends TestCase {
 		$engine->instantiate(route: $this->template(), subject: 'via-service', subjectSchema: 'proposal');
 		$service->holdRoute('dossiq', 'pr-1', $this->template(), 'via-seam', 'proposal');
 
-		$engine->record(['subject' => 'via-service', 'actor' => 'anyone', 'action' => 'advised']);
-		$service->recordAction(['subject' => 'via-seam', 'actor' => 'anyone', 'action' => 'advised']);
+		$engine->record(['subject' => 'via-service', 'actor' => 'anyone', 'action' => 'advised', 'advice' => 'Akkoord']);
+		$service->recordAction(['subject' => 'via-seam', 'actor' => 'anyone', 'action' => 'advised', 'advice' => 'Akkoord']);
 
 		$strip = static function (array $stages): array {
 			return array_map(
 				static function (array $s): array {
-					unset($s['id'], $s['decision']);
+					// `route` and `taskUuid` are provenance LINKAGE, not route
+					// state: the direct path instantiates from a bare template
+					// (no stored id to link) where the seam links the stored
+					// row. Stripping them keeps this test about what REQ-ARE-005
+					// promises — the travelling state cannot diverge.
+					unset($s['id'], $s['decision'], $s['route'], $s['taskUuid']);
 
 					return $s;
 				},
@@ -463,8 +472,8 @@ class ApprovalRouteCommandServiceTest extends TestCase {
 		$engine = $this->engine();
 		$service = $this->service($engine);
 		$service->holdRoute('dossiq', 'pr-1', $this->template(), 'voorstel-1', 'proposal');
-		$service->recordAction(['subject' => 'voorstel-1', 'actor' => 'anyone', 'action' => 'advised']);
-		$service->recordAction(['subject' => 'voorstel-1', 'actor' => 'alice', 'action' => 'approved']);
+		$service->recordAction(['subject' => 'voorstel-1', 'actor' => 'anyone', 'action' => 'advised', 'advice' => 'Akkoord']);
+		$service->recordAction(['subject' => 'voorstel-1', 'actor' => 'alice', 'action' => 'endorsed']);
 		$service->recordAction(['subject' => 'voorstel-1', 'actor' => 'anyone', 'action' => 'approved']);
 
 		$this->assertSame('approved', $service->finalOutcomeOf('voorstel-1'));
