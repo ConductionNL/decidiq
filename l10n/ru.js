@@ -1043,7 +1043,16 @@ OC.L10N.register(
         "{n} attachment(s)": "{n} вложение(й)",
         "{n} conflict of interest declaration(s)": "{n} декларация(й) о конфликте интересов",
         "{n} meeting(s) exceeded the scheduled time": "{n} заседание(й) превысило запланированное время",
-        "{states} states, {transitions} transitions": "{states} состояний, {transitions} переходов"
+        "{states} states, {transitions} transitions": "{states} состояний, {transitions} переходов",
+        "Contract": "Договор",
+        "Contract renewal": "Продление договора",
+        "Report adoption": "Утверждение отчёта",
+        "Appointment": "Назначение",
+        "Management point": "Пункт управления",
+        "Policy": "Политика",
+        "Meeting outcome": "Итог заседания",
+        "Objection decision": "Решение по возражению",
+        "Woo decision": "Решение Woo"
     },
     "nplurals=2; plural=(n != 1);"
 )

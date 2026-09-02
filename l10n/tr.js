@@ -1043,7 +1043,16 @@ OC.L10N.register(
         "{n} attachment(s)": "{n} ek",
         "{n} conflict of interest declaration(s)": "{n} çıkar çatışması beyanı",
         "{n} meeting(s) exceeded the scheduled time": "{n} toplantı planlanan süreyi aştı",
-        "{states} states, {transitions} transitions": "{states} durum, {transitions} geçiş"
+        "{states} states, {transitions} transitions": "{states} durum, {transitions} geçiş",
+        "Contract": "Sözleşme",
+        "Contract renewal": "Sözleşme yenileme",
+        "Report adoption": "Rapor kabulü",
+        "Appointment": "Atama",
+        "Management point": "Yönetim maddesi",
+        "Policy": "Politika",
+        "Meeting outcome": "Toplantı sonucu",
+        "Objection decision": "İtiraz kararı",
+        "Woo decision": "Woo kararı"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -65,14 +65,26 @@ class ParaferingRouteRuntimeTest extends TestCase {
 			];
 
 			/**
+			 * Required properties per schema, mirroring lib/Settings — the fake
+			 * refuses a write exactly where live OpenRegister does.
+			 *
+			 * @var array<string, array<int, string>>
+			 */
+			private const REQUIRED = [
+				'decision-stage' => ['sequence', 'stageType', 'status', 'decisionMakerType', 'label'],
+				'approval-action' => ['subject', 'step', 'actor', 'action'],
+				'bevoegdheidstoedeling' => ['type', 'subject', 'decision', 'validFrom', 'status'],
+			];
+
+			/**
 			 * @var int
 			 */
 			private int $counter = 0;
 
 			/**
-			 * Create or patch a row.
+			 * Create or fully replace a row, validating as live OR does.
 			 *
-			 * @param array<string, mixed> $object The object or patch.
+			 * @param array<string, mixed> $object The COMPLETE object.
 			 * @param string $register The register.
 			 * @param string $schema The schema.
 			 * @param string|null $uuid The uuid.
@@ -83,14 +95,67 @@ class ParaferingRouteRuntimeTest extends TestCase {
 				if ($uuid === null) {
 					$this->counter++;
 					$uuid = $schema . '-' . $this->counter;
-					$this->rows[$schema][$uuid] = ($object + ['id' => $uuid]);
-
-					return $this->rows[$schema][$uuid];
 				}
 
-				$this->rows[$schema][$uuid] = (array_merge($this->rows[$schema][$uuid] ?? [], $object) + ['id' => $uuid]);
+				// A uuid-bearing save REPLACES and validates whole, as live
+				// OpenRegister does — a partial payload must refuse here the way
+				// it 400s on the rig, or this fake cannot fail.
+				$this->assertRequired(schema: $schema, object: $object);
+				$this->rows[$schema][$uuid] = ($object + ['id' => $uuid]);
 
 				return $this->rows[$schema][$uuid];
+			}
+
+			/**
+			 * Merge a partial payload, as OR's patchObject() does (RFC 7386
+			 * shaped): absent keys are preserved, an explicit null removes the
+			 * key, and the MERGED result is validated against the schema.
+			 *
+			 * @param string $objectId The uuid.
+			 * @param array<string, mixed> $data The partial data.
+			 * @param string $register The register.
+			 * @param string $schema The schema.
+			 *
+			 * @return array<string, mixed> The patched row.
+			 */
+			public function patchObject(string $objectId, array $data, string $register, string $schema): array {
+				$merged = ($this->rows[$schema][$objectId] ?? []);
+				foreach ($data as $key => $value) {
+					if ($value === null) {
+						unset($merged[$key]);
+						continue;
+					}
+
+					$merged[$key] = $value;
+				}
+
+				$this->assertRequired(schema: $schema, object: $merged);
+				$this->rows[$schema][$objectId] = ($merged + ['id' => $objectId]);
+
+				return $this->rows[$schema][$objectId];
+			}
+
+			/**
+			 * Refuse a payload missing required schema properties.
+			 *
+			 * @param string $schema The schema.
+			 * @param array<string, mixed> $object The payload to validate.
+			 *
+			 * @return void
+			 *
+			 * @throws RuntimeException When required properties are missing.
+			 */
+			private function assertRequired(string $schema, array $object): void {
+				$missing = [];
+				foreach ((self::REQUIRED[$schema] ?? []) as $property) {
+					if (array_key_exists($property, $object) === false) {
+						$missing[] = $property;
+					}
+				}
+
+				if ($missing !== []) {
+					throw new RuntimeException('required properties (' . implode(', ', $missing) . ') are missing');
+				}
 			}
 
 			/**
@@ -142,6 +207,20 @@ class ParaferingRouteRuntimeTest extends TestCase {
 				?string $uuid = null,
 			) use ($state): ObjectEntityInterface {
 				$row = $state->saveObject($object, (string)$register, (string)$schema, $uuid);
+				$entity = $this->createMock(ObjectEntityInterface::class);
+				$entity->method('jsonSerialize')->willReturn($row);
+
+				return $entity;
+			}
+		);
+		$facade->method('patchObject')->willReturnCallback(
+			function (
+				string $objectId,
+				array $data,
+				string|int|null $register = null,
+				string|int|null $schema = null,
+			) use ($state): ObjectEntityInterface {
+				$row = $state->patchObject($objectId, $data, (string)$register, (string)$schema);
 				$entity = $this->createMock(ObjectEntityInterface::class);
 				$entity->method('jsonSerialize')->willReturn($row);
 

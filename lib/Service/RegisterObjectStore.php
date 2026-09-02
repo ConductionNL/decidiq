@@ -68,8 +68,13 @@ class RegisterObjectStore {
 	/**
 	 * Write an object.
 	 *
+	 * With a uuid this is a FULL REPLACE, not a merge: OpenRegister validates
+	 * `$object` against the whole schema (a missing required property is a
+	 * 400) and drops every stored field the payload omits. A caller holding a
+	 * partial payload wants {@see self::patch()} instead.
+	 *
 	 * @param string $schema The schema slug.
-	 * @param array<string, mixed> $object The object or patch.
+	 * @param array<string, mixed> $object The COMPLETE object.
 	 * @param string|null $uuid The uuid when updating.
 	 *
 	 * @return array<string, mixed> The stored object.
@@ -88,6 +93,39 @@ class RegisterObjectStore {
 
 		return $this->normalise(row: $stored);
 	}//end save()
+
+	/**
+	 * Merge a partial payload onto an existing object.
+	 *
+	 * `save()` with a uuid is a FULL REPLACE: OpenRegister validates the payload
+	 * against the whole schema, so a partial payload 400s on every required
+	 * property it omits — and would silently erase the omitted fields on a
+	 * schema without required properties. This delegates to OpenRegister's
+	 * `patchObject()`, the sanctioned read-merge-save path: a key absent from
+	 * the payload is preserved, an explicit null clears the stored value, and
+	 * the merged result still passes schema validation, the audit trail and
+	 * event dispatch.
+	 *
+	 * @param string $schema The schema slug.
+	 * @param array<string, mixed> $data The partial data to merge.
+	 * @param string $uuid The object to patch.
+	 *
+	 * @return array<string, mixed> The patched object.
+	 *
+	 * @throws RuntimeException When OpenRegister is unavailable.
+	 *
+	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+	 */
+	public function patch(string $schema, array $data, string $uuid): array {
+		$stored = $this->objectService->patchObject(
+			objectId: $uuid,
+			data: $data,
+			register: self::REGISTER,
+			schema: $schema,
+		);
+
+		return $this->normalise(row: $stored);
+	}//end patch()
 
 	/**
 	 * Read objects.

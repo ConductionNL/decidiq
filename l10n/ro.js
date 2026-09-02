@@ -1043,7 +1043,16 @@ OC.L10N.register(
         "{n} attachment(s)": "{n} atașament(e)",
         "{n} conflict of interest declaration(s)": "{n} declarație(i) de conflict de interese",
         "{n} meeting(s) exceeded the scheduled time": "{n} ședință(e) au depășit timpul programat",
-        "{states} states, {transitions} transitions": "{states} stări, {transitions} tranziții"
+        "{states} states, {transitions} transitions": "{states} stări, {transitions} tranziții",
+        "Contract": "Contract",
+        "Contract renewal": "Reînnoirea contractului",
+        "Report adoption": "Adoptarea raportului",
+        "Appointment": "Numire",
+        "Management point": "Punct de gestiune",
+        "Policy": "Politică",
+        "Meeting outcome": "Rezultatul ședinței",
+        "Objection decision": "Decizie privind contestația",
+        "Woo decision": "Decizie Woo"
     },
     "nplurals=2; plural=(n != 1);"
 )

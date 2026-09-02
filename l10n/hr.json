@@ -1042,7 +1042,16 @@
         "{n} attachment(s)": "{n} prilog/a",
         "{n} conflict of interest declaration(s)": "{n} izjava/e o sukobu interesa",
         "{n} meeting(s) exceeded the scheduled time": "{n} sastanak/a je prekoračio zakazano vrijeme",
-        "{states} states, {transitions} transitions": "{states} stanja, {transitions} tranzicija"
+        "{states} states, {transitions} transitions": "{states} stanja, {transitions} tranzicija",
+        "Contract": "Ugovor",
+        "Contract renewal": "Obnova ugovora",
+        "Report adoption": "Usvajanje izvješća",
+        "Appointment": "Imenovanje",
+        "Management point": "Točka upravljanja",
+        "Policy": "Politika",
+        "Meeting outcome": "Ishod sastanka",
+        "Objection decision": "Odluka o prigovoru",
+        "Woo decision": "Woo odluka"
     },
     "plurals": null
 }

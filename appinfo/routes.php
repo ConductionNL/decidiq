@@ -273,6 +273,7 @@ $extra = [
 
         // Integration hub endpoints — create-decision, outcome query, subscribe (REQ-DCDH-002..004).
         // @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+        ['name' => 'decisionTypes#index',        'url' => '/api/v1/decision-types',              'verb' => 'GET'],
         ['name' => 'integration#createDecision', 'url' => '/api/v1/decisions',                   'verb' => 'POST'],
         ['name' => 'integration#getOutcome',     'url' => '/api/v1/decisions/{id}/outcome',       'verb' => 'GET'],
         ['name' => 'integration#subscribe',      'url' => '/api/v1/decisions/{id}/subscriptions', 'verb' => 'POST'],

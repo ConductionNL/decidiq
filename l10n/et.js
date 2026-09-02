@@ -1043,7 +1043,16 @@ OC.L10N.register(
         "{n} attachment(s)": "{n} manus(t)",
         "{n} conflict of interest declaration(s)": "{n} huvide konflikti deklaratsioon(i)",
         "{n} meeting(s) exceeded the scheduled time": "{n} koosolek(ut) ületas planeeritud aja",
-        "{states} states, {transitions} transitions": "{states} olekut, {transitions} üleminekut"
+        "{states} states, {transitions} transitions": "{states} olekut, {transitions} üleminekut",
+        "Contract": "Leping",
+        "Contract renewal": "Lepingu pikendamine",
+        "Report adoption": "Aruande vastuvõtmine",
+        "Appointment": "Ametisse nimetamine",
+        "Management point": "Juhtimispunkt",
+        "Policy": "Poliitika",
+        "Meeting outcome": "Koosoleku tulemus",
+        "Objection decision": "Vaideotsus",
+        "Woo decision": "Woo otsus"
     },
     "nplurals=2; plural=(n != 1);"
 )

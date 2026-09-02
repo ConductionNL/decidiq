@@ -1043,7 +1043,16 @@ OC.L10N.register(
         "{n} attachment(s)": "{n} pièce(s) jointe(s)",
         "{n} conflict of interest declaration(s)": "{n} déclaration(s) de conflit d'intérêts",
         "{n} meeting(s) exceeded the scheduled time": "{n} réunion(s) ont dépassé le temps planifié",
-        "{states} states, {transitions} transitions": "{states} états, {transitions} transitions"
+        "{states} states, {transitions} transitions": "{states} états, {transitions} transitions",
+        "Contract": "Contrat",
+        "Contract renewal": "Renouvellement de contrat",
+        "Report adoption": "Adoption du rapport",
+        "Appointment": "Nomination",
+        "Management point": "Point de gestion",
+        "Policy": "Politique",
+        "Meeting outcome": "Résultat de réunion",
+        "Objection decision": "Décision sur objection",
+        "Woo decision": "Décision Woo"
     },
     "nplurals=2; plural=(n != 1);"
 )

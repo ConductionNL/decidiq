@@ -1043,7 +1043,16 @@ OC.L10N.register(
         "{n} attachment(s)": "{n} ceangaltán/ceangaltáin",
         "{n} conflict of interest declaration(s)": "{n} dearbhú/dearbhuithe coinbhleachta leasa",
         "{n} meeting(s) exceeded the scheduled time": "Sháigh {n} cruinniú/cruinnithe an t-am sceidealaithe",
-        "{states} states, {transitions} transitions": "{states} staid, {transitions} trasdultan"
+        "{states} states, {transitions} transitions": "{states} staid, {transitions} trasdultan",
+        "Contract": "Conradh",
+        "Contract renewal": "Athnuachan conartha",
+        "Report adoption": "Glacadh tuarascála",
+        "Appointment": "Ceapachán",
+        "Management point": "Pointe bainistíochta",
+        "Policy": "Beartas",
+        "Meeting outcome": "Toradh cruinnithe",
+        "Objection decision": "Cinneadh agóide",
+        "Woo decision": "Cinneadh Woo"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1043,7 +1043,16 @@ OC.L10N.register(
         "{n} attachment(s)": "{n} viðhengi",
         "{n} conflict of interest declaration(s)": "{n} yfirlýsing(ar) um hagsmunaárekstur",
         "{n} meeting(s) exceeded the scheduled time": "{n} fundur(ir) fóru yfir dagskrártímann",
-        "{states} states, {transitions} transitions": "{states} stöður, {transitions} umbreytingar"
+        "{states} states, {transitions} transitions": "{states} stöður, {transitions} umbreytingar",
+        "Contract": "Samningur",
+        "Contract renewal": "Endurnýjun samnings",
+        "Report adoption": "Samþykkt skýrslu",
+        "Appointment": "Skipun",
+        "Management point": "Stjórnunaratriði",
+        "Policy": "Stefna",
+        "Meeting outcome": "Niðurstaða fundar",
+        "Objection decision": "Ákvörðun um andmæli",
+        "Woo decision": "Woo-ákvörðun"
     },
     "nplurals=2; plural=(n != 1);"
 )
