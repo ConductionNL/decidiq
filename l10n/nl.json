@@ -2075,7 +2075,9 @@
         "Free-text source note naming the splitsingsakte article this deviation stems from.": "Free-text source note naming the splitsingsakte article this deviation stems from.",
         "Decision templates": "Besluitsjablonen",
         "Body configuration": "Orgaanconfiguratie",
-        "Context": "Context"
+        "Context": "Context",
+        "Id of the ApprovalRoute this stage was instantiated from. Written at instantiation; empty on stages that predate the runtime absorption, which announce no cross-app conclusion.": "Id van de ApprovalRoute waaruit deze fase is aangemaakt. Geschreven bij het aanmaken; leeg bij fasen van voor de runtime-overname, die geen conclusie naar een andere app aankondigen.",
+        "Uuid of the OpenRegister task currently asking for this stage's sign-off. Set while the stage is active and a task surface exists; cleared when the stage stops waiting. Empty on an instance without the task surface, which changes where the ask is seen and nothing else.": "Uuid van de OpenRegister-taak die om de aftekening van deze fase vraagt. Gezet zolang de fase actief is en er een takenoppervlak bestaat; gewist zodra de fase niet meer wacht. Leeg op een omgeving zonder takenoppervlak, wat alleen verandert waar de vraag zichtbaar is."
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"

@@ -1774,7 +1774,9 @@ OC.L10N.register(
         "Free-text source note naming the splitsingsakte article this deviation stems from.": "Free-text source note naming the splitsingsakte article this deviation stems from.",
         "Decision templates": "Decision templates",
         "Body configuration": "Body configuration",
-        "Context": "Context"
+        "Context": "Context",
+        "Id of the ApprovalRoute this stage was instantiated from. Written at instantiation; empty on stages that predate the runtime absorption, which announce no cross-app conclusion.": "Id of the ApprovalRoute this stage was instantiated from. Written at instantiation; empty on stages that predate the runtime absorption, which announce no cross-app conclusion.",
+        "Uuid of the OpenRegister task currently asking for this stage's sign-off. Set while the stage is active and a task surface exists; cleared when the stage stops waiting. Empty on an instance without the task surface, which changes where the ask is seen and nothing else.": "Uuid of the OpenRegister task currently asking for this stage's sign-off. Set while the stage is active and a task surface exists; cleared when the stage stops waiting. Empty on an instance without the task surface, which changes where the ask is seen and nothing else."
     },
     "nplurals=2; plural=(n != 1);"
 )

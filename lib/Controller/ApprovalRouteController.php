@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\ApprovalRouteConclusionAnnouncer;
 use OCA\Decidiq\Service\ApprovalRouteService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -55,6 +56,7 @@ class ApprovalRouteController extends Controller {
 	public function __construct(
 		IRequest $request,
 		private readonly ApprovalRouteService $service,
+		private readonly ApprovalRouteConclusionAnnouncer $announcer,
 		private readonly IUserSession $userSession,
 		private readonly LoggerInterface $logger,
 	) {
@@ -146,6 +148,11 @@ class ApprovalRouteController extends Controller {
 			);
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
 		}
+
+		// A final signature given over THIS surface concludes the route just as
+		// surely as one arriving over the cross-app seam, and the producer that
+		// delegated its runtime here is waiting on the announcement.
+		$this->announcer->announceIfConcluded(subject: (string)$action['subject']);
 
 		return new JSONResponse($recorded, Http::STATUS_CREATED);
 	}//end record()
