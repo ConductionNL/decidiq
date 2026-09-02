@@ -111,6 +111,10 @@ test.beforeEach(({ page }) => {
 // That error aborts the WHOLE SUITE before a single test runs — 0 collected, no
 // tally, and the failure names this file rather than anything under test. `{}`
 // is the documented way to say "no fixtures, but give me testInfo".
+// eslint-disable-next-line no-empty-pattern -- Playwright resolves fixtures
+// BY NAME from this pattern, and `{}` is its documented way to say "no
+// fixtures, but give me testInfo". Naming it (`_fixtures`) makes Playwright
+// look for a fixture called _fixtures and refuse the whole file.
 test.afterEach(async ({}, testInfo) => {
 	if (testInfo.status === testInfo.expectedStatus) return
 	const dump = traffic
