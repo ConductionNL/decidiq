@@ -163,6 +163,12 @@ class MandateDirectory {
 	 * must not turn every external mandate reference into a refusal, and the
 	 * rows this register DOES hold are re-read on the next action.
 	 *
+	 * Resolved with find(), NOT findAll() with a top-level 'id' filter: that
+	 * filter runs against the object's own JSON properties, where no `id`
+	 * lives, so it matched NOTHING — every LOCAL mandate reference resolved
+	 * to null and passed as if it were an external one, which silently
+	 * skipped the effective/window/delegate checks (dossiq#1686's class).
+	 *
 	 * @param string $mandate The mandate reference.
 	 *
 	 * @return array<string, mixed>|null The row.
@@ -174,19 +180,10 @@ class MandateDirectory {
 		}
 
 		try {
-			$rows = $this->store->findAll(schema: self::SCHEMA_TOEDELING, filters: ['id' => $mandate]);
+			return $this->store->find(schema: self::SCHEMA_TOEDELING, uuid: $mandate);
 		} catch (Throwable) {
 			return null;
 		}
-
-		foreach ($rows as $row) {
-			$id = (string)($row['id'] ?? ($row['@self']['id'] ?? ''));
-			if ($id === $mandate) {
-				return $row;
-			}
-		}
-
-		return null;
 	}//end resolve()
 
 }//end class

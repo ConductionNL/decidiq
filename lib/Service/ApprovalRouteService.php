@@ -120,8 +120,11 @@ class ApprovalRouteService {
 			throw new RuntimeException('A subject and its schema are required.');
 		}
 
-		$found = $this->store->findAll(schema: $subjectSchema, filters: ['id' => $subject]);
-		if ($found === []) {
+		// Resolved with find(), NOT findAll() + a top-level 'id' filter: OpenRegister
+		// applies filters to the object's own JSON properties and its identity
+		// lives in `@self`, so the filter form matches nothing and reads as
+		// "unreachable" for every subject that exists (dossiq#1686's class).
+		if ($this->store->find(schema: $subjectSchema, uuid: $subject) === null) {
 			throw new RuntimeException('This subject cannot be reached, so no route may be started on it.');
 		}
 	}//end assertSubjectAccessible()
@@ -176,7 +179,12 @@ class ApprovalRouteService {
 					// nothing would ever start it.
 					'status' => $this->mapper->initialStatus(sequence: $sequence, firstSequence: $firstSequence),
 					'decisionMakerType' => $this->mapper->decisionMakerType(step: $step),
-					'label' => (string)($step['label'] ?? ''),
+					// Derived when the step carries none: the schema REQUIRES a
+					// label, an empty string stores as NULL, and a NULL label
+					// 400s the patch that records the FIRST sign-off — after
+					// the action row was already appended. Cross-app routes
+					// (dossiq) never carry step labels, so they always hit it.
+					'label' => $this->mapper->labelOf(step: $step, sequence: $sequence),
 					'mandatory' => (bool)($step['mandatory'] ?? true),
 					'decision' => $subject,
 					'assignedPerson' => $this->mapper->assignedPerson(step: $step),
@@ -194,6 +202,15 @@ class ApprovalRouteService {
 
 	/**
 	 * Record an action and advance the route.
+	 *
+	 * THE STAGE WRITE COMES FIRST, the action row after. The old order appended
+	 * the action and THEN patched the stage, so a stage write that failed left
+	 * an orphan action row claiming a sign-off the route never took — and the
+	 * signer's retry appended another. With this order a failed stage write
+	 * throws before any action row exists, so the retry starts clean. The
+	 * inverse gap (stage advanced, action append failed) surfaces loudly: the
+	 * caller gets the throw, and a retry is refused by the guard because the
+	 * next stage names a different actor.
 	 *
 	 * @param array<string, mixed> $action The action: subject, step, actor, action, and optional fields.
 	 *
@@ -222,11 +239,11 @@ class ApprovalRouteService {
 
 		if ($verb === 'returned') {
 			$this->guard->assertRequiredFields(verb: $verb, action: $action);
-			// Validated BEFORE the append: a refused return must leave no
+			// Validated BEFORE any write: a refused return must leave no
 			// action row, the same promise every other refusal keeps.
 			$this->guard->assertReturnTargetValid(action: $action, active: $active);
-			$recorded = $this->appendAction(action: $action, stage: $active);
 			$this->applyReturnVerb(action: $action, stages: $stages, active: $active);
+			$recorded = $this->appendAction(action: $action, stage: $active);
 			$this->projectTasks(subject: $subject);
 
 			return $recorded;
@@ -243,8 +260,8 @@ class ApprovalRouteService {
 		$this->guard->assertVerbFitsStage(stage: $active, verb: $verb);
 		$this->guard->assertRequiredFields(verb: $verb, action: $action);
 
-		$recorded = $this->appendAction(action: $action, stage: $active);
 		$this->completeAndAdvance(stages: $stages, active: $active, verb: $verb);
+		$recorded = $this->appendAction(action: $action, stage: $active);
 		$this->projectTasks(subject: $subject);
 
 		return $recorded;

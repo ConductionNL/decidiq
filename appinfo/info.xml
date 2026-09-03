@@ -275,6 +275,19 @@ Vrij en open source onder de EUPL-1.2-licentie.
                 the same shipped list, so nothing fails closed in the gap.
             -->
             <step>OCA\Decidiq\Repair\SeedDecisionTypes</step>
+            <!--
+                parafering-route-runtime label repair: instantiate() used to
+                write '' for route steps without labels, OpenRegister stored
+                NULL, and the required `label` then 400'd the patch recording
+                every advance — cross-app routes wedged on their first sign-off.
+                Backfills a derived label (stage type + step number) onto every
+                stage stored without one, via the engine so the derivation is
+                the same one instantiate() now uses. Idempotent, and it KEEPS
+                the orphan approval-action rows the defect appended: they are
+                the audit record of what the signer did. <post-migration> only —
+                a fresh install has no stages to repair.
+            -->
+            <step>OCA\Decidiq\Migration\RepairDecisionStageLabels</step>
         </post-migration>
         <install>
             <!--
