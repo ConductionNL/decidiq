@@ -157,6 +157,14 @@
 			"order": 90
 		},
 		{
+			"id": "ReportsMenu",
+			"label": "Reports",
+			"icon": "ChartBoxOutline",
+			"route": "Reports",
+			"section": "footer",
+			"order": 95
+		},
+		{
 			"id": "FeaturesRoadmapMenu",
 			"label": "Features & roadmap",
 			"icon": "MapMarkerPath",
@@ -1278,6 +1286,761 @@
 					"useRegistry": true
 				},
 				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		},
+		{
+			"id": "Reports",
+			"_note": "ADR-112 / ADR-114 Decision 3. Three new declarative type:dashboard pages plus Engagement, which already existed as an index over engagement-record and had NO menu entry — carding it gives an entry point rather than moving one. ⚠️ THE SCHEMA SLUG IS NOT THE SEED KEY: the seed keys are PascalCase (Decision, VotingRound) and the slugs are kebab-case (decision, voting-round). A widget naming the key renders an empty card and says nothing.",
+			"route": "/reports",
+			"type": "reports",
+			"title": "Reports",
+			"config": {
+				"description": "Pick a report to open it.",
+				"categories": {
+					"decisions": "Decisions and votes",
+					"meetings": "Meetings and people"
+				},
+				"cards": [
+					{
+						"id": "DecisionsReport",
+						"label": "Decisions",
+						"description": "What was decided, how it was framed, and what reached the public.",
+						"icon": "Gavel",
+						"category": "decisions",
+						"route": "DecisionsReport"
+					},
+					{
+						"id": "VotingReport",
+						"label": "Voting",
+						"description": "How rounds ended, and how the votes fell.",
+						"icon": "VoteOutline",
+						"category": "decisions",
+						"route": "VotingReport"
+					},
+					{
+						"id": "MeetingsReport",
+						"label": "Meetings and attendance",
+						"description": "Where meetings stand, how they are held, and who turned up.",
+						"icon": "CalendarCheckOutline",
+						"category": "meetings",
+						"route": "MeetingsReport"
+					},
+					{
+						"id": "Engagement",
+						"label": "Engagement",
+						"description": "Who spoke, for how long, and how engaged the room was.",
+						"icon": "AccountVoice",
+						"category": "meetings",
+						"route": "Engagement"
+					}
+				]
+			}
+		},
+		{
+			"id": "DecisionsReport",
+			"route": "/reports/decisions",
+			"type": "dashboard",
+			"title": "Decisions",
+			"_note": "Every filter is scalar equality, the only kind OpenRegister's aggregation endpoint can evaluate. A multi-value or relative-date filter is accepted and then silently not applied — which is how this app's own KPI cards came to show wrong numbers before they were rewritten as custom widgets.",
+			"config": {
+				"widgets": [
+					{
+						"id": "dec-adopted",
+						"title": "Adopted",
+						"type": "stat",
+						"content": {
+							"label": "Adopted",
+							"icon": "CheckCircleOutline",
+							"route": {
+								"name": "Decisions"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "decision",
+								"metric": "count",
+								"filter": {
+									"outcome": "adopted"
+								}
+							}
+						}
+					},
+					{
+						"id": "dec-rejected",
+						"title": "Rejected",
+						"type": "stat",
+						"content": {
+							"label": "Rejected",
+							"icon": "AlertOctagonOutline",
+							"route": {
+								"name": "Decisions"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "decision",
+								"metric": "count",
+								"filter": {
+									"outcome": "rejected"
+								}
+							}
+						}
+					},
+					{
+						"id": "dec-public",
+						"title": "Published publicly",
+						"type": "stat",
+						"content": {
+							"label": "Published publicly",
+							"icon": "BullhornOutline",
+							"route": {
+								"name": "Decisions"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "decision",
+								"metric": "count",
+								"filter": {
+									"isPublished": "public"
+								}
+							}
+						}
+					},
+					{
+						"id": "dec-by-outcome",
+						"title": "By outcome",
+						"type": "chart",
+						"content": {
+							"chartKind": "donut",
+							"legendPosition": "bottom",
+							"emptyLabel": "No decisions yet",
+							"dataSource": {
+								"register": "decidiq",
+								"schema": "decision",
+								"aggregate": {
+									"groupBy": "outcome",
+									"metric": "count"
+								}
+							}
+						}
+					},
+					{
+						"id": "dec-by-type",
+						"title": "By type",
+						"type": "chart",
+						"content": {
+							"chartKind": "donut",
+							"legendPosition": "bottom",
+							"emptyLabel": "No decisions yet",
+							"dataSource": {
+								"register": "decidiq",
+								"schema": "decision",
+								"aggregate": {
+									"groupBy": "decisionType",
+									"metric": "count"
+								}
+							}
+						}
+					},
+					{
+						"id": "dec-by-lifecycle",
+						"title": "By stage",
+						"type": "chart",
+						"content": {
+							"chartKind": "donut",
+							"legendPosition": "bottom",
+							"emptyLabel": "No decisions yet",
+							"dataSource": {
+								"register": "decidiq",
+								"schema": "decision",
+								"aggregate": {
+									"groupBy": "lifecycle",
+									"metric": "count"
+								}
+							}
+						}
+					},
+					{
+						"id": "dec-recent",
+						"title": "Most recent",
+						"type": "object-table",
+						"content": {
+							"register": "decidiq",
+							"schema": "decision",
+							"filter": {},
+							"sort": {
+								"field": "decisionDate",
+								"dir": "desc"
+							},
+							"limit": 8,
+							"hideHeader": true,
+							"emptyText": "No decisions yet",
+							"viewAllRoute": {
+								"name": "Decisions"
+							},
+							"viewAllLabel": "View all decisions",
+							"columns": [
+								{
+									"key": "decisionDate",
+									"label": "Date"
+								},
+								{
+									"key": "title",
+									"label": "Decision"
+								},
+								{
+									"key": "outcome",
+									"label": "Outcome"
+								}
+							]
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "dec-adopted",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "2",
+						"widgetId": "dec-rejected",
+						"gridX": 4,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "3",
+						"widgetId": "dec-public",
+						"gridX": 8,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "4",
+						"widgetId": "dec-by-outcome",
+						"gridX": 0,
+						"gridY": 2,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "5",
+						"widgetId": "dec-by-type",
+						"gridX": 4,
+						"gridY": 2,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "6",
+						"widgetId": "dec-by-lifecycle",
+						"gridX": 8,
+						"gridY": 2,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "7",
+						"widgetId": "dec-recent",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 12,
+						"gridHeight": 4,
+						"showTitle": true
+					}
+				]
+			}
+		},
+		{
+			"id": "VotingReport",
+			"route": "/reports/voting",
+			"type": "dashboard",
+			"title": "Voting",
+			"_note": "voting-round holds the outcome of a round; vote holds one participant's choice. Both are on this page because the question a reader has is how the room voted, and answering it from either alone would be a half answer.",
+			"config": {
+				"widgets": [
+					{
+						"id": "vote-rounds",
+						"title": "Rounds held",
+						"type": "stat",
+						"content": {
+							"label": "Rounds held",
+							"icon": "VoteOutline",
+							"route": {
+								"name": "Decisions"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "voting-round",
+								"metric": "count"
+							}
+						}
+					},
+					{
+						"id": "vote-adopted",
+						"title": "Rounds adopted",
+						"type": "stat",
+						"content": {
+							"label": "Rounds adopted",
+							"icon": "CheckCircleOutline",
+							"route": {
+								"name": "Decisions"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "voting-round",
+								"metric": "count",
+								"filter": {
+									"result": "adopted"
+								}
+							}
+						}
+					},
+					{
+						"id": "vote-tied",
+						"title": "Rounds tied",
+						"type": "stat",
+						"content": {
+							"label": "Rounds tied",
+							"icon": "AlertOutline",
+							"route": {
+								"name": "Decisions"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "voting-round",
+								"metric": "count",
+								"filter": {
+									"result": "tied"
+								}
+							}
+						}
+					},
+					{
+						"id": "vote-by-result",
+						"title": "By result",
+						"type": "chart",
+						"content": {
+							"chartKind": "donut",
+							"legendPosition": "bottom",
+							"emptyLabel": "No voting rounds yet",
+							"dataSource": {
+								"register": "decidiq",
+								"schema": "voting-round",
+								"aggregate": {
+									"groupBy": "result",
+									"metric": "count"
+								}
+							}
+						}
+					},
+					{
+						"id": "vote-by-method",
+						"title": "By method",
+						"type": "chart",
+						"content": {
+							"chartKind": "donut",
+							"legendPosition": "bottom",
+							"emptyLabel": "No voting rounds yet",
+							"dataSource": {
+								"register": "decidiq",
+								"schema": "voting-round",
+								"aggregate": {
+									"groupBy": "votingMethod",
+									"metric": "count"
+								}
+							}
+						}
+					},
+					{
+						"id": "vote-by-value",
+						"title": "How votes fell",
+						"type": "chart",
+						"content": {
+							"chartKind": "donut",
+							"legendPosition": "bottom",
+							"emptyLabel": "Nobody has voted yet",
+							"dataSource": {
+								"register": "decidiq",
+								"schema": "vote",
+								"aggregate": {
+									"groupBy": "value",
+									"metric": "count"
+								}
+							}
+						}
+					},
+					{
+						"id": "vote-recent",
+						"title": "Most recent rounds",
+						"type": "object-table",
+						"content": {
+							"register": "decidiq",
+							"schema": "voting-round",
+							"filter": {},
+							"sort": {
+								"field": "closedAt",
+								"dir": "desc"
+							},
+							"limit": 8,
+							"hideHeader": true,
+							"emptyText": "No voting rounds yet",
+							"viewAllRoute": {
+								"name": "Decisions"
+							},
+							"viewAllLabel": "View all decisions",
+							"columns": [
+								{
+									"key": "closedAt",
+									"label": "Closed"
+								},
+								{
+									"key": "votingMethod",
+									"label": "Method"
+								},
+								{
+									"key": "result",
+									"label": "Result"
+								}
+							]
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "vote-rounds",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "2",
+						"widgetId": "vote-adopted",
+						"gridX": 4,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "3",
+						"widgetId": "vote-tied",
+						"gridX": 8,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "4",
+						"widgetId": "vote-by-result",
+						"gridX": 0,
+						"gridY": 2,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "5",
+						"widgetId": "vote-by-method",
+						"gridX": 4,
+						"gridY": 2,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "6",
+						"widgetId": "vote-by-value",
+						"gridX": 8,
+						"gridY": 2,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "7",
+						"widgetId": "vote-recent",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 12,
+						"gridHeight": 4,
+						"showTitle": true
+					}
+				]
+			}
+		},
+		{
+			"id": "MeetingsReport",
+			"route": "/reports/meetings",
+			"type": "dashboard",
+			"title": "Meetings and attendance",
+			"config": {
+				"widgets": [
+					{
+						"id": "meet-scheduled",
+						"title": "Scheduled",
+						"type": "stat",
+						"content": {
+							"label": "Scheduled",
+							"icon": "CalendarClockOutline",
+							"route": {
+								"name": "Meetings"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "meeting",
+								"metric": "count",
+								"filter": {
+									"lifecycle": "scheduled"
+								}
+							}
+						}
+					},
+					{
+						"id": "meet-closed",
+						"title": "Closed",
+						"type": "stat",
+						"content": {
+							"label": "Closed",
+							"icon": "CalendarCheckOutline",
+							"route": {
+								"name": "Meetings"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "meeting",
+								"metric": "count",
+								"filter": {
+									"lifecycle": "closed"
+								}
+							}
+						}
+					},
+					{
+						"id": "meet-absent",
+						"title": "Recorded absences",
+						"type": "stat",
+						"content": {
+							"label": "Recorded absences",
+							"icon": "AccountMinusOutline",
+							"route": {
+								"name": "Meetings"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "participant",
+								"metric": "count",
+								"filter": {
+									"attendanceStatus": "absent"
+								}
+							}
+						}
+					},
+					{
+						"id": "meet-by-lifecycle",
+						"title": "By stage",
+						"type": "chart",
+						"content": {
+							"chartKind": "donut",
+							"legendPosition": "bottom",
+							"emptyLabel": "No meetings yet",
+							"dataSource": {
+								"register": "decidiq",
+								"schema": "meeting",
+								"aggregate": {
+									"groupBy": "lifecycle",
+									"metric": "count"
+								}
+							}
+						}
+					},
+					{
+						"id": "meet-by-mode",
+						"title": "In person, digital or hybrid",
+						"type": "chart",
+						"content": {
+							"chartKind": "donut",
+							"legendPosition": "bottom",
+							"emptyLabel": "No meetings yet",
+							"dataSource": {
+								"register": "decidiq",
+								"schema": "meeting",
+								"aggregate": {
+									"groupBy": "meetingMode",
+									"metric": "count"
+								}
+							}
+						}
+					},
+					{
+						"id": "meet-by-attendance",
+						"title": "Attendance",
+						"type": "chart",
+						"content": {
+							"chartKind": "donut",
+							"legendPosition": "bottom",
+							"emptyLabel": "Nobody has been recorded yet",
+							"dataSource": {
+								"register": "decidiq",
+								"schema": "participant",
+								"aggregate": {
+									"groupBy": "attendanceStatus",
+									"metric": "count"
+								}
+							}
+						}
+					},
+					{
+						"id": "meet-recent",
+						"title": "Most recent",
+						"type": "object-table",
+						"content": {
+							"register": "decidiq",
+							"schema": "meeting",
+							"filter": {},
+							"sort": {
+								"field": "scheduledDate",
+								"dir": "desc"
+							},
+							"limit": 8,
+							"hideHeader": true,
+							"emptyText": "No meetings yet",
+							"viewAllRoute": {
+								"name": "Meetings"
+							},
+							"viewAllLabel": "View all meetings",
+							"columns": [
+								{
+									"key": "scheduledDate",
+									"label": "Date"
+								},
+								{
+									"key": "title",
+									"label": "Meeting"
+								},
+								{
+									"key": "lifecycle",
+									"label": "Stage"
+								}
+							]
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "meet-scheduled",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "2",
+						"widgetId": "meet-closed",
+						"gridX": 4,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "3",
+						"widgetId": "meet-absent",
+						"gridX": 8,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "4",
+						"widgetId": "meet-by-lifecycle",
+						"gridX": 0,
+						"gridY": 2,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "5",
+						"widgetId": "meet-by-mode",
+						"gridX": 4,
+						"gridY": 2,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "6",
+						"widgetId": "meet-by-attendance",
+						"gridX": 8,
+						"gridY": 2,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "7",
+						"widgetId": "meet-recent",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 12,
+						"gridHeight": 4,
+						"showTitle": true
+					}
+				]
 			}
 		},
 		{
