@@ -558,6 +558,21 @@ class ApprovalRouteCommandServiceTest extends TestCase {
 					// promises — the travelling state cannot diverge.
 					unset($s['id'], $s['decision'], $s['route'], $s['taskUuid']);
 
+					// `decidedAt` is a WALL CLOCK reading, stamped independently
+					// by each path. The two calls above run microseconds apart,
+					// so whenever they straddle a second boundary the arrays
+					// differ by exactly one second and this test fails for a
+					// reason that has nothing to do with divergence. Observed
+					// 2026-09-03: 11:30:08 against 11:30:09.
+					//
+					// It is NORMALISED rather than unset, because whether a
+					// decided stage records a decision time at all is part of
+					// what must not diverge. Both paths still have to agree that
+					// there IS one; they no longer have to agree on the second.
+					if (isset($s['decidedAt']) === true && $s['decidedAt'] !== '') {
+						$s['decidedAt'] = '<recorded>';
+					}
+
 					return $s;
 				},
 				$stages
