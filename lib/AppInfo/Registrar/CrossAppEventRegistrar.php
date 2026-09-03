@@ -5,9 +5,9 @@
  *
  * Wires the typed events other fleet apps dispatch to command Decidiq, and the
  * listeners that answer them. Split out of DomainServiceRegistrar because the
- * set grew: what was one event/listener pair for decisions is now four, one per
- * thing another app can ask Decidiq to do, and each pair costs that class two
- * more imports — enough to push it past the coupling threshold, which is how
+ * set grew: what was one event/listener pair for decisions is now five, one per
+ * thing another app can ask Decidiq to do or read back, and each pair costs
+ * that class two more imports — enough to push it past the coupling threshold, which is how
  * this extraction was found rather than guessed.
  *
  * Per ADR-041 a cross-app COMMAND travels as a typed event. Decidiq's REST
@@ -36,11 +36,13 @@ namespace OCA\Decidiq\AppInfo\Registrar;
 use OCA\Decidiq\Event\ApprovalActionRequestedEvent;
 use OCA\Decidiq\Event\ApprovalRouteRequestedEvent;
 use OCA\Decidiq\Event\DecisionRequestedEvent;
+use OCA\Decidiq\Event\DecisionStateRequestedEvent;
 use OCA\Decidiq\Event\GovernanceBodyRequestedEvent;
 use OCA\Decidiq\Listener\ApprovalActionRequestedListener;
 use OCA\Decidiq\Listener\ApprovalRouteRequestedListener;
 use OCA\Decidiq\Listener\ApprovalTaskDecisionListener;
 use OCA\Decidiq\Listener\DecisionRequestedListener;
+use OCA\Decidiq\Listener\DecisionStateRequestedListener;
 use OCA\Decidiq\Listener\GovernanceBodyRequestedListener;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
@@ -63,6 +65,13 @@ class CrossAppEventRegistrar {
 		// Raise a governance Decision for a consumer's object, and conclude it
 		// back through DecisionConcludedEvent.
 		DecisionRequestedEvent::class => DecisionRequestedListener::class,
+
+		// Report what became of a Decision the consumer already raised. The
+		// READ half of the pair above: the conclusion is ANNOUNCED by
+		// DecisionConcludedEvent, and this is what a consumer consults when
+		// that announcement never reached it. It reuses the outcome envelope
+		// and the outcome-read guard rather than deriving either again.
+		DecisionStateRequestedEvent::class => DecisionStateRequestedListener::class,
 
 		// Hold a governance body — a committee, a board — with its roster.
 		GovernanceBodyRequestedEvent::class => GovernanceBodyRequestedListener::class,
