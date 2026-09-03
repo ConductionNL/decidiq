@@ -9,7 +9,7 @@
  * (`agendaItem`) / ingekomen-stuk (`targetAgendaItem` OR `listAgendaItem`).
  *
  * Kept in a plain .js module so Vitest can import it — see
- * kascommissieVisibility.js for why a .vue SFC is unimportable in this
+ * auditStatementVisibility.js for why a .vue SFC is unimportable in this
  * repo's vitest.config.js (no @vitejs/plugin-vue registered).
  *
  * @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#requirement-req-mdv-013-routed-incoming-documents-facet-read-only

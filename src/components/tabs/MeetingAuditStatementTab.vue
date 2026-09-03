@@ -6,7 +6,7 @@
  only) — meeting-facet-composition, REQ-MDV-012.
 
  Thin wrapper around the shared CnObjectListWidget (design.md Decision 3):
- the join itself (KascommissieVerklaring.governanceBody == this meeting's
+ the join itself (AuditStatement.governanceBody == this meeting's
  own governanceBody) is expressed declaratively via the `@object.governanceBody`
  filter token CnObjectListWidget already resolves from the CnDetailPage
  `cnObjectContext` inject — this component's only job is the mode gate no
@@ -19,13 +19,13 @@
  empty — no orphaned ARIA region, no focus trap (spec.md non-functional
  requirements).
 
- @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#requirement-req-mdv-012-kascommissie-verklaringen-facet-assoc-mode-only
+ @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#requirement-req-mdv-012-audit-statementen-facet-assoc-mode-only
 -->
 <template>
 	<div
 		v-if="visible"
 		class="decidiq-tab decidiq-tab--kascommissie"
-		data-testid="meeting-kascommissie-tab">
+		data-testid="meeting-audit-statements-tab">
 		<CnObjectListWidget :content="content" />
 	</div>
 </template>
@@ -35,12 +35,12 @@ import { CnObjectListWidget } from '@conduction/nextcloud-vue'
 import { DEFAULT_MODE } from '../../config/modeLabels.js'
 import { useSettingsStore } from '../../store/store.js'
 import {
-	isKascommissieVisible,
-	kascommissieContent,
-} from './kascommissieVisibility.js'
+	auditStatementContent,
+	isAuditStatementVisible,
+} from './auditStatementVisibility.js'
 
 export default {
-	name: 'MeetingKascommissieTab',
+	name: 'MeetingAuditStatementTab',
 
 	components: { CnObjectListWidget },
 
@@ -50,7 +50,7 @@ export default {
 		 * src/App.vue's `organisatieModus`. Defaults to DEFAULT_MODE ('gov')
 		 * when not yet configured.
 		 *
-		 * @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#requirement-req-mdv-012-kascommissie-verklaringen-facet-assoc-mode-only
+		 * @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#requirement-req-mdv-012-audit-statementen-facet-assoc-mode-only
 		 * @return {string}
 		 */
 		organisatieModus() {
@@ -65,7 +65,7 @@ export default {
 		 * @return {boolean}
 		 */
 		visible() {
-			return isKascommissieVisible(this.organisatieModus)
+			return isAuditStatementVisible(this.organisatieModus)
 		},
 
 		/**
@@ -75,7 +75,7 @@ export default {
 		 * @return {object}
 		 */
 		content() {
-			return kascommissieContent()
+			return auditStatementContent()
 		},
 	},
 }

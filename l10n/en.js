@@ -1785,7 +1785,9 @@ OC.L10N.register(
         "Policy": "Policy",
         "Meeting outcome": "Meeting outcome",
         "Objection decision": "Objection decision",
-        "Woo decision": "Woo decision"
+        "Woo decision": "Woo decision",
+        "Audit statement": "Audit statement",
+        "Audit statements": "Audit statements"
     },
     "nplurals=2; plural=(n != 1);"
 )

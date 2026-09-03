@@ -1,6 +1,6 @@
 {
 	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
-	"_note": "VvE ALV statutory pack. The DECISION-TEMPLATE and MODELREGLEMENT-PRESET surfaces were REMOVED here: unified-decision-templates (archived 2026-08-19) folded VveDecisionTemplate into DecisionTemplate and folded the 2017 modelreglement categoryRules into each template own votingRule/quorumRule, marking both schemas x-openregister.active:false with their rows kept. The pages outlived the model, so the gear listed two retired copies while the live decision-template schema (28 objects on a measured instance) had no surface at all. src/manifest.d/decision-templates.json is that surface now. What REMAINS here is what is still its own thing: per-body VvE configuration and the kascommissie verklaring. Schema refs BY SLUG, never PascalCase.",
+	"_note": "VvE ALV statutory pack, now nearly empty by design. The decision-template and modelreglement-preset surfaces went to src/manifest.d/decision-templates.json (unified-decision-templates had superseded both schemas); VveConfiguration became BodyGovernanceConfiguration (generic-body-configuration); KascommissieVerklaring became AuditStatement (generic-audit-statement). What is left is two generic surfaces that happen to have been introduced by this pack. Schema refs BY SLUG, never PascalCase.",
 	"_spec": "openspec/changes/vve-alv-pack/specs/vve-alv-pack/spec.md",
 	"menu": [
 		{
@@ -11,10 +11,10 @@
 			"order": 73
 		},
 		{
-			"id": "KascommissieVerklaringen",
-			"label": "Kascommissie verklaringen",
+			"id": "AuditStatements",
+			"label": "Audit statements",
 			"icon": "Check",
-			"route": "KascommissieVerklaringen",
+			"route": "AuditStatements",
 			"order": 74
 		}
 	],
@@ -133,17 +133,17 @@
 			}
 		},
 		{
-			"id": "KascommissieVerklaringen",
-			"route": "/kascommissie-verklaringen",
+			"id": "AuditStatements",
+			"route": "/audit-statementen",
 			"type": "index",
-			"title": "Kascommissie verklaringen",
-			"_note": "spec: openspec/changes/vve-alv-pack/specs/vve-alv-pack/spec.md — REQ-VVE-006. Lists kascommissie verklaringen per boekjaar with verdict and linked jaarrekening agenda item; verslag attached via FileService on the detail page.",
+			"title": "Audit statements",
+			"_note": "Audit statements per financial year, with the verdict and the agenda item where the accounts were adopted. Generic: a kascommissie is one kind of audit committee, and the Dutch label is supplied per organisatie_modus rather than baked into the schema.",
 			"config": {
 				"register": "decidiq",
-				"schema": "kascommissie-verklaring",
+				"schema": "audit-statement",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
-				"_note": "Schema ref by slug (kascommissie-verklaring), never PascalCase.",
+				"_note": "Schema ref by slug (audit-statement), never PascalCase.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
 				"quickFilters": [
@@ -200,7 +200,7 @@
 						"label": "View",
 						"icon": "EyeOutline",
 						"handler": "navigate",
-						"route": "KascommissieVerklaringDetail",
+						"route": "AuditStatementDetail",
 						"primary": true
 					}
 				],
@@ -212,20 +212,20 @@
 			}
 		},
 		{
-			"id": "KascommissieVerklaringDetail",
-			"route": "/kascommissie-verklaringen/:id",
+			"id": "AuditStatementDetail",
+			"route": "/audit-statementen/:id",
 			"type": "detail",
-			"title": "Kascommissie verklaring",
-			"_note": "spec: openspec/changes/vve-alv-pack/specs/vve-alv-pack/spec.md — REQ-VVE-006. Verklaring data leads 8-wide; the verslag PDF attaches via the Files leaf; the linked jaarrekening agenda item and governance body render as resolved references. Audit trail in a sidebar tab.",
+			"title": "Audit statement",
+			"_note": "One audit committee statement. Verslag attached via FileService. Audit trail in a sidebar tab.",
 			"config": {
 				"register": "decidiq",
-				"schema": "kascommissie-verklaring",
-				"_note": "Schema ref by slug (kascommissie-verklaring), never PascalCase.",
+				"schema": "audit-statement",
+				"_note": "Schema ref by slug (audit-statement), never PascalCase.",
 				"widgets": [
 					{
 						"id": "verklaring-data",
 						"type": "data",
-						"title": "Kascommissie verklaring",
+						"title": "Audit statement",
 						"icon": "ClipboardCheckOutline",
 						"content": {
 							"columns": 2

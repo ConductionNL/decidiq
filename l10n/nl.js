@@ -2118,7 +2118,9 @@ OC.L10N.register(
         "What was decided, how it was framed, and what reached the public.": "Wat er besloten is, hoe het geformuleerd was, en wat het publiek bereikte.",
         "How rounds ended, and how the votes fell.": "Hoe rondes eindigden, en hoe de stemmen vielen.",
         "Where meetings stand, how they are held, and who turned up.": "Waar vergaderingen staan, hoe ze gehouden worden, en wie er kwam.",
-        "Who spoke, for how long, and how engaged the room was.": "Wie er sprak, hoe lang, en hoe betrokken de zaal was."
+        "Who spoke, for how long, and how engaged the room was.": "Wie er sprak, hoe lang, en hoe betrokken de zaal was.",
+        "Audit statement": "Kascommissie verklaring",
+        "Audit statements": "Kascommissie verklaringen"
     },
     "nplurals=2; plural=(n != 1);"
 )
