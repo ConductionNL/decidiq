@@ -83,6 +83,40 @@
 			}
 		]
 	},
+	"store": {
+		"_note": "Decidiq's store exchanges CONFIGURATION, not rows. A configuration set carries the registers, schemas, objects, views, flows, sources and mappings that make one way of governing work together, which is what someone means by a default gemeente. `types` selects that path (store-over-federated-config); an app declaring none keeps the remote objects API. `builtIn` names the four example sets already in lib/Settings/profiles/, so the page states what decidiq ships rather than rendering blank without a registry. There is deliberately no `installable` allowlist: a set exists to introduce schemas the instance does not have yet, so a list of schemas decidiq already owns would refuse exactly the sets worth installing. The trust boundary for a bundle is its publisher, enforced by the engine's source allowlist and trusted-key check.",
+		"types": [
+			"openregister.configset",
+			"openregister.flows"
+		],
+		"localRegister": "decidiq",
+		"builtIn": [
+			{
+				"slug": "municipality",
+				"title": "Municipality",
+				"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
+				"kind": "openregister.configset"
+			},
+			{
+				"slug": "association",
+				"title": "Association or VvE",
+				"description": "A members' meeting with a board. House rules, weighted votes, audit statements and annual accounts.",
+				"kind": "openregister.configset"
+			},
+			{
+				"slug": "corporate",
+				"title": "Company board",
+				"description": "A supervisory board, an executive board and a management team. Terms, conflicts of interest and evaluations.",
+				"kind": "openregister.configset"
+			},
+			{
+				"slug": "works-council",
+				"title": "Works council",
+				"description": "A works council inside a company. Advice requests, consent requests and staff consultation.",
+				"kind": "openregister.configset"
+			}
+		]
+	},
 	"observability": {
 		"_note": "Decidiq adopts the OpenRegister AppHost observability engine (ADR-040 / ADR-006). The /api/health route is served by a thin GenericHealthController subclass (HealthController) that reshapes the engine result into the published REQ-API-004 body {status, baseUrl, version, openregister}; /api/metrics is aliased straight to GenericMetricsController. statusCodePolicy=always200 + cors=true reproduce the REQ-API-004 reverse-proxy probe contract (probes succeed even when degraded; CORS + OPTIONS preflight). The orAvailable check subsumes the former hand-rolled DI-container ObjectService lookup. No metrics[] descriptors: decidiq gains the implicit decidesk_info / decidesk_up gauges, a pure compliance upgrade over the no-metrics-endpoint baseline.",
 		"health": {
@@ -163,6 +197,14 @@
 			"route": "Reports",
 			"section": "footer",
 			"order": 95
+		},
+		{
+			"id": "StoreMenu",
+			"label": "Store",
+			"icon": "StoreOutline",
+			"route": "Store",
+			"section": "footer",
+			"order": 92
 		},
 		{
 			"id": "FeaturesRoadmapMenu",
@@ -2041,6 +2083,17 @@
 						"showTitle": true
 					}
 				]
+			}
+		},
+		{
+			"id": "Store",
+			"route": "/store",
+			"type": "store",
+			"title": "Store",
+			"config": {
+				"app": "decidiq",
+				"title": "Store",
+				"description": "Install governance configuration that other organisations have published: a council with its committees and factions, an association with its members' meeting, or the flows that move a decision through them."
 			}
 		},
 		{
