@@ -19,7 +19,7 @@
  empty — no orphaned ARIA region, no focus trap (spec.md non-functional
  requirements).
 
- @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#requirement-req-mdv-012-audit-statementen-facet-assoc-mode-only
+ @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-mdv-012-audit-statements-facet-assoc-mode-only
 -->
 <template>
 	<div
@@ -50,7 +50,7 @@ export default {
 		 * src/App.vue's `organisatieModus`. Defaults to DEFAULT_MODE ('gov')
 		 * when not yet configured.
 		 *
-		 * @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#requirement-req-mdv-012-audit-statementen-facet-assoc-mode-only
+		 * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-mdv-012-audit-statements-facet-assoc-mode-only
 		 * @return {string}
 		 */
 		organisatieModus() {
@@ -61,7 +61,7 @@ export default {
 		/**
 		 * Whether the facet renders at all — assoc mode only.
 		 *
-		 * @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-kascommissie-facet-hidden-outside-association-mode
+		 * @spec openspec/specs/meeting-detail-view/spec.md#scenario-audit-statement-facet-hidden-outside-association-mode
 		 * @return {boolean}
 		 */
 		visible() {
@@ -71,7 +71,7 @@ export default {
 		/**
 		 * The CnObjectListWidget content blob for this facet.
 		 *
-		 * @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-kascommissie-facet-visible-in-association-mode
+		 * @spec openspec/specs/meeting-detail-view/spec.md#scenario-audit-statement-facet-visible-in-association-mode
 		 * @return {object}
 		 */
 		content() {

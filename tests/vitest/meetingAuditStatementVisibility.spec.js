@@ -6,14 +6,14 @@
  * (src/components/tabs/auditStatementVisibility.js): the assoc-mode
  * visibility gate and the CnObjectListWidget content blob.
  *
- * @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#requirement-req-mdv-012-audit-statementen-facet-assoc-mode-only
+ * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-mdv-012-audit-statements-facet-assoc-mode-only
  */
 
 import { describe, expect, it } from 'vitest'
 import {
 	ASSOC_MODE,
-	isAuditStatementVisible,
 	auditStatementContent,
+	isAuditStatementVisible,
 } from '../../src/components/tabs/auditStatementVisibility.js'
 
 describe('isAuditStatementVisible (REQ-MDV-012)', () => {

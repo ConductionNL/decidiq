@@ -13,7 +13,7 @@
  * and tests/vitest/ensureRelationType.spec.js, which use the same pattern —
  * logic lives in an importable .js module the .vue component then calls).
  *
- * @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#requirement-req-mdv-012-audit-statementen-facet-assoc-mode-only
+ * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-mdv-012-audit-statements-facet-assoc-mode-only
  */
 
 /** The one organisatie_modus value that shows this facet (VvE/association tenants). */
@@ -28,7 +28,7 @@ export const ASSOC_MODE = 'assoc'
  *
  * @param {string} organisatieModus The tenant's active organisatie_modus setting.
  * @return {boolean} True only in association ('assoc') mode.
- * @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-kascommissie-facet-hidden-outside-association-mode
+ * @spec openspec/specs/meeting-detail-view/spec.md#scenario-audit-statement-facet-hidden-outside-association-mode
  */
 export function isAuditStatementVisible(organisatieModus) {
 	return organisatieModus === ASSOC_MODE
@@ -46,7 +46,7 @@ export function isAuditStatementVisible(organisatieModus) {
  * meeting — so no in-context create affordance fits here.
  *
  * @return {object} The widget content blob passed to CnObjectListWidget.
- * @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#requirement-req-mdv-012-audit-statementen-facet-assoc-mode-only
+ * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-mdv-012-audit-statements-facet-assoc-mode-only
  */
 export function auditStatementContent() {
 	return {

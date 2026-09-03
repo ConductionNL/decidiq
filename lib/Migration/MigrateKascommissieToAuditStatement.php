@@ -100,7 +100,7 @@ class MigrateKascommissieToAuditStatement implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/generic-audit-statement/specs/generic-audit-statement/spec.md#requirement-existing-configurations-are-carried-across
+	 * @spec openspec/changes/generic-audit-statement/specs/generic-audit-statement/spec.md#requirement-existing-statements-are-carried-across
 	 */
 	public function run(IOutput $output): void {
 		if ($this->settingsService->isOpenRegisterAvailable() === false) {
@@ -146,7 +146,7 @@ class MigrateKascommissieToAuditStatement implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/generic-audit-statement/specs/generic-audit-statement/spec.md#requirement-existing-configurations-are-carried-across
+	 * @spec openspec/changes/generic-audit-statement/specs/generic-audit-statement/spec.md#requirement-existing-statements-are-carried-across
 	 */
 	private function migrateAll(object $objectService, IOutput $output): void {
 		$migrated = 0;
