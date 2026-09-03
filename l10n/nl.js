@@ -2120,7 +2120,14 @@ OC.L10N.register(
         "Where meetings stand, how they are held, and who turned up.": "Waar vergaderingen staan, hoe ze gehouden worden, en wie er kwam.",
         "Who spoke, for how long, and how engaged the room was.": "Wie er sprak, hoe lang, en hoe betrokken de zaal was.",
         "Audit statement": "Kascommissie verklaring",
-        "Audit statements": "Kascommissie verklaringen"
+        "Audit statements": "Kascommissie verklaringen",
+        "Any qualification or remark the committee recorded.": "Elke voorbehoud of opmerking die de commissie heeft vastgelegd.",
+        "AuditStatement": "AuditStatement",
+        "Financial year": "Boekjaar",
+        "The agenda item where the accounts were adopted.": "Het agendapunt waar de jaarrekening is vastgesteld.",
+        "The body whose accounts were examined.": "Het orgaan waarvan de jaarrekening is onderzocht.",
+        "The committee’s conclusion on the accounts for that year.": "De conclusie van de commissie over de jaarrekening van dat jaar.",
+        "The financial year this statement covers.": "Het boekjaar waarop deze verklaring betrekking heeft."
     },
     "nplurals=2; plural=(n != 1);"
 )
