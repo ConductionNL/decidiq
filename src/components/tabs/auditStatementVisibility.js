@@ -2,9 +2,9 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * Pure helpers behind MeetingKascommissieTab.vue (meeting-facet-composition,
+ * Pure helpers behind MeetingAuditStatementTab.vue (meeting-facet-composition,
  * REQ-MDV-012): the assoc-mode visibility gate and the CnObjectListWidget
- * content blob for the kascommissie-verklaring facet.
+ * content blob for the audit-statement facet.
  *
  * Kept in a plain .js module (not the .vue SFC) specifically so Vitest can
  * import it — this repo's vitest.config.js runs on plain Vite with no
@@ -13,7 +13,7 @@
  * and tests/vitest/ensureRelationType.spec.js, which use the same pattern —
  * logic lives in an importable .js module the .vue component then calls).
  *
- * @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#requirement-req-mdv-012-kascommissie-verklaringen-facet-assoc-mode-only
+ * @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#requirement-req-mdv-012-audit-statementen-facet-assoc-mode-only
  */
 
 /** The one organisatie_modus value that shows this facet (VvE/association tenants). */
@@ -30,7 +30,7 @@ export const ASSOC_MODE = 'assoc'
  * @return {boolean} True only in association ('assoc') mode.
  * @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#scenario-kascommissie-facet-hidden-outside-association-mode
  */
-export function isKascommissieVisible(organisatieModus) {
+export function isAuditStatementVisible(organisatieModus) {
 	return organisatieModus === ASSOC_MODE
 }
 
@@ -40,18 +40,18 @@ export function isKascommissieVisible(organisatieModus) {
  * filter token — CnObjectListWidget resolves it from the `cnObjectContext`
  * inject the same way `Post`'s `x-relation-filter` does
  * (lib/Settings/decidesk_register.json:1817-1819). Read-only
- * (`allowCreate: false`): KascommissieVerklaring's `required` list
+ * (`allowCreate: false`): AuditStatement's `required` list
  * (financialYear, verdict, governanceBody) has no meeting-shaped field — a
  * verklaring is prepared by the kascommissie independently of any specific
  * meeting — so no in-context create affordance fits here.
  *
  * @return {object} The widget content blob passed to CnObjectListWidget.
- * @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#requirement-req-mdv-012-kascommissie-verklaringen-facet-assoc-mode-only
+ * @spec openspec/changes/meeting-facet-composition/specs/meeting-detail-view/spec.md#requirement-req-mdv-012-audit-statementen-facet-assoc-mode-only
  */
-export function kascommissieContent() {
+export function auditStatementContent() {
 	return {
 		register: 'decidiq',
-		schema: 'kascommissie-verklaring',
+		schema: 'audit-statement',
 		filter: { governanceBody: '@object.governanceBody' },
 		sort: { field: 'financialYear', dir: 'desc' },
 		columns: [
@@ -60,9 +60,9 @@ export function kascommissieContent() {
 		],
 		limit: 10,
 		allowCreate: false,
-		viewAllRoute: 'KascommissieVerklaringen',
+		viewAllRoute: 'AuditStatements',
 		viewAllQuery: { governanceBody: '@object.governanceBody' },
-		rowRoute: 'KascommissieVerklaringDetail',
+		rowRoute: 'AuditStatementDetail',
 		emptyText: 'No kascommissie statements for this association yet.',
 	}
 }

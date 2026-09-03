@@ -265,7 +265,7 @@ test('MeetingDetail: interpellations, proxy-authorizations and routed-documents 
 		// proven rendered above, so by this point Vue has already decided
 		// whether to mount it — an absence check with nothing rendered yet
 		// would pass for the wrong reason (not-loaded looks identical to gated-off).
-		await expect(page.getByTestId('meeting-kascommissie-tab')).toHaveCount(0)
+		await expect(page.getByTestId('meeting-audit-statements-tab')).toHaveCount(0)
 	} finally {
 		if (meetingId) {
 			await api.delete(`${OR}/meeting/${meetingId}`).catch(() => null)

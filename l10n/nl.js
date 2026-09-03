@@ -2072,7 +2072,9 @@ OC.L10N.register(
         "Free-text source note naming the splitsingsakte article this deviation stems from.": "Free-text source note naming the splitsingsakte article this deviation stems from.",
         "Decision templates": "Besluitsjablonen",
         "Body configuration": "Orgaanconfiguratie",
-        "Context": "Context"
+        "Context": "Context",
+        "Audit statement": "Kascommissie verklaring",
+        "Audit statements": "Kascommissie verklaringen"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -247,6 +247,14 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\MigrateVveToBodyConfiguration</step>
             <!--
+                After InitializeSettings imports the register (75-generic-audit-statement.json's
+                audit-statement schema must already exist). Copies kascommissie-verklaring rows
+                onto the generic schema (generic-audit-statement). Identity is (governance body,
+                financial year) rather than the source uuid: a body files one statement per year,
+                so that pair is what makes two rows the same record. Non-destructive.
+            -->
+            <step>OCA\Decidiq\Migration\MigrateKascommissieToAuditStatement</step>
+            <!--
                 model-debt-cleanup-code: both steps below run AFTER InitializeSettings so they
                 read the NEW $ref declarations (Participant -> Membership/Person retargets,
                 model-debt-cleanup-schema fragment 67) to know what a valid target type looks

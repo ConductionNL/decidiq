@@ -1770,7 +1770,9 @@ OC.L10N.register(
         "Free-text source note naming the splitsingsakte article this deviation stems from.": "Free-text source note naming the splitsingsakte article this deviation stems from.",
         "Decision templates": "Decision templates",
         "Body configuration": "Body configuration",
-        "Context": "Context"
+        "Context": "Context",
+        "Audit statement": "Audit statement",
+        "Audit statements": "Audit statements"
     },
     "nplurals=2; plural=(n != 1);"
 )

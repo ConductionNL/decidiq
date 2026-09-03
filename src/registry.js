@@ -43,12 +43,12 @@ import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab
 import GovernanceBodyRetentionTab from './components/tabs/GovernanceBodyRetentionTab.vue'
 import GovernanceBodyTemplateTab from './components/tabs/GovernanceBodyTemplateTab.vue'
 import MeetingAgendaTab from './components/tabs/MeetingAgendaTab.vue'
-import MeetingDecisionsTab from './components/tabs/MeetingDecisionsTab.vue'
 // Meeting-scoped facet composition (meeting-facet-composition): kascommissie
 // verklaringen (VvE mode-gated) and incoming documents routed onto this
 // meeting's agenda (two-hop join). See design.md Decisions 3/4 for why each
 // needs a thin wrapper rather than a pure declarative object-list widget.
-import MeetingKascommissieTab from './components/tabs/MeetingKascommissieTab.vue'
+import MeetingAuditStatementTab from './components/tabs/MeetingAuditStatementTab.vue'
+import MeetingDecisionsTab from './components/tabs/MeetingDecisionsTab.vue'
 import MeetingMinutesTab from './components/tabs/MeetingMinutesTab.vue'
 import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue'
 import MeetingRoutedDocumentsTab from './components/tabs/MeetingRoutedDocumentsTab.vue'
@@ -220,7 +220,7 @@ export default {
 	MeetingVotesTab: page(MeetingVotesTab),
 	// Meeting-scoped facet composition (meeting-facet-composition): mode-gated
 	// kascommissie facet + the routed-incoming-documents two-hop join.
-	MeetingKascommissieTab: page(MeetingKascommissieTab),
+	MeetingAuditStatementTab: page(MeetingAuditStatementTab),
 	MeetingRoutedDocumentsTab: page(MeetingRoutedDocumentsTab),
 	AgendaMotionsTab: page(AgendaMotionsTab),
 	MotionAmendmentsTab: page(MotionAmendmentsTab),
