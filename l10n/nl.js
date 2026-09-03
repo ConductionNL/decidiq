@@ -2127,7 +2127,15 @@ OC.L10N.register(
         "The agenda item where the accounts were adopted.": "Het agendapunt waar de jaarrekening is vastgesteld.",
         "The body whose accounts were examined.": "Het orgaan waarvan de jaarrekening is onderzocht.",
         "The committee’s conclusion on the accounts for that year.": "De conclusie van de commissie over de jaarrekening van dat jaar.",
-        "The financial year this statement covers.": "Het boekjaar waarop deze verklaring betrekking heeft."
+        "The financial year this statement covers.": "Het boekjaar waarop deze verklaring betrekking heeft.",
+        "Route Complete": "Route afgerond",
+        "Whether every stage of this decision's route is decided or skipped. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq and never edited by hand.": "Of elke fase van de route van dit besluit is genomen of overgeslagen. Wordt door OpenRegister bij het opslaan gematerialiseerd uit x-openregister-calculations. Wordt nooit door decidiq geschreven en nooit met de hand aangepast.",
+        "Quorum Percentage": "Quorumpercentage",
+        "Share of the governance body present at this meeting, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.": "Het aandeel van het bestuursorgaan dat bij deze vergadering aanwezig is, in procenten. Wordt door OpenRegister bij het opslaan gematerialiseerd uit x-openregister-calculations. Wordt nooit door decidiq geschreven.",
+        "Quorum Met": "Quorum gehaald",
+        "Whether the meeting met its quorum, true when no quorum is required. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.": "Of de vergadering het quorum haalde; waar zodra er geen quorum vereist is. Wordt door OpenRegister bij het opslaan gematerialiseerd uit x-openregister-calculations. Wordt nooit door decidiq geschreven.",
+        "Action Item Completion Rate": "Afrondingsgraad actiepunten",
+        "Share of this meeting's action items that are completed, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.": "Het aandeel actiepunten van deze vergadering dat is afgerond, in procenten. Wordt door OpenRegister bij het opslaan gematerialiseerd uit x-openregister-calculations. Wordt nooit door decidiq geschreven."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1794,7 +1794,15 @@ OC.L10N.register(
         "The agenda item where the accounts were adopted.": "The agenda item where the accounts were adopted.",
         "The body whose accounts were examined.": "The body whose accounts were examined.",
         "The committee’s conclusion on the accounts for that year.": "The committee’s conclusion on the accounts for that year.",
-        "The financial year this statement covers.": "The financial year this statement covers."
+        "The financial year this statement covers.": "The financial year this statement covers.",
+        "Route Complete": "Route Complete",
+        "Whether every stage of this decision's route is decided or skipped. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq and never edited by hand.": "Whether every stage of this decision's route is decided or skipped. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq and never edited by hand.",
+        "Quorum Percentage": "Quorum Percentage",
+        "Share of the governance body present at this meeting, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.": "Share of the governance body present at this meeting, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.",
+        "Quorum Met": "Quorum Met",
+        "Whether the meeting met its quorum, true when no quorum is required. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.": "Whether the meeting met its quorum, true when no quorum is required. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.",
+        "Action Item Completion Rate": "Action Item Completion Rate",
+        "Share of this meeting's action items that are completed, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.": "Share of this meeting's action items that are completed, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq."
     },
     "nplurals=2; plural=(n != 1);"
 )
