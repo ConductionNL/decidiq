@@ -50,10 +50,28 @@ class ApprovalRouteConclusionAnnouncerTest extends TestCase {
 		$engine->method('stagesFor')->willReturn($stages);
 
 		$store = $this->createMock(RegisterObjectStore::class);
+		// The route row resolves through find() BY UUID, like live
+		// OpenRegister. The findAll(['id' => ...]) form the announcer used to
+		// call matches nothing live — the defect that silenced every
+		// cross-app conclusion — so this fake's findAll refuses it too: a
+		// fake that resolved it would agree with the caller and could not
+		// fail.
+		$store->method('find')->willReturnCallback(
+			static function (string $schema, string $uuid) use ($routes): ?array {
+				foreach ($routes as $row) {
+					if ((string)($row['id'] ?? '') === $uuid) {
+						return $row;
+					}
+				}
+
+				return null;
+			}
+		);
 		$store->method('findAll')->willReturnCallback(
-			static function (string $schema, array $filters) use ($routes, $actions): array {
-				if ($schema === 'approval-route') {
-					return $routes;
+			static function (string $schema, array $filters) use ($actions): array {
+				if (isset($filters['id']) === true || isset($filters['uuid']) === true) {
+					// Live OR: identity lives in @self, so this matches nothing.
+					return [];
 				}
 
 				return $actions;

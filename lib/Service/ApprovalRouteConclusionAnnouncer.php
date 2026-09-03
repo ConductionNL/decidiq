@@ -195,6 +195,12 @@ class ApprovalRouteConclusionAnnouncer {
 	/**
 	 * The provenance pair of the route these stages came from.
 	 *
+	 * Resolved with find(), NOT findAll() with a top-level 'id' filter: that
+	 * filter runs against the object's own JSON properties, where no `id`
+	 * lives, so it matched NOTHING — every route's provenance resolved to
+	 * empty, read as "internal route, no producer waiting", and the
+	 * conclusion was silently skipped. dossiq never heard a single one.
+	 *
 	 * @param string $routeId The route id the stages back-reference.
 	 *
 	 * @return array{0: string, 1: string} [sourceApp, externalReference].
@@ -204,20 +210,15 @@ class ApprovalRouteConclusionAnnouncer {
 			return ['', ''];
 		}
 
-		$rows = $this->store->findAll(schema: 'approval-route', filters: ['id' => $routeId]);
-		foreach ($rows as $row) {
-			$id = (string)($row['id'] ?? ($row['@self']['id'] ?? ''));
-			if ($id !== $routeId) {
-				continue;
-			}
-
-			return [
-				(string)($row['sourceApp'] ?? ''),
-				(string)($row['externalReference'] ?? ''),
-			];
+		$row = $this->store->find(schema: 'approval-route', uuid: $routeId);
+		if ($row === null) {
+			return ['', ''];
 		}
 
-		return ['', ''];
+		return [
+			(string)($row['sourceApp'] ?? ''),
+			(string)($row['externalReference'] ?? ''),
+		];
 	}//end provenanceOf()
 
 	/**

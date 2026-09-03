@@ -150,6 +150,38 @@ class ApprovalRouteStepMapper {
 	}//end assignedBody()
 
 	/**
+	 * The label a step's stage carries, derived when the step has none.
+	 *
+	 * The decision-stage schema REQUIRES a label: the route timeline displays
+	 * it, so a stage without one is not a valid stage. That requirement is
+	 * kept — the fix lives here instead, because a route held over the
+	 * cross-app seam (dossiq's parafering routes) carries no step labels at
+	 * all. Writing '' for those stored a NULL, and the patch path re-validates
+	 * the whole stage on every advance, so the FIRST sign-off on such a route
+	 * 400'd with "Property 'label' should be type 'string' but is 'null'".
+	 * instantiate() must produce a stage that validates, whoever sent the
+	 * route; a stage the engine itself cannot advance is not a stage.
+	 *
+	 * The fallback is mechanical — the stage type plus the step number, e.g.
+	 * "Endorsement (step 2)" — so the timeline still tells the signer which
+	 * step they are looking at.
+	 *
+	 * @param array<string, mixed> $step The route step.
+	 * @param int $sequence The stage's sequence.
+	 *
+	 * @return string A non-empty label.
+	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 */
+	public function labelOf(array $step, int $sequence): string {
+		$label = trim((string)($step['label'] ?? ''));
+		if ($label !== '') {
+			return $label;
+		}
+
+		return ucfirst((string)$step['stageType']) . ' (step ' . $sequence . ')';
+	}//end labelOf()
+
+	/**
 	 * The status a stage at this sequence starts in.
 	 *
 	 * Every stage in the FIRST parallel group is active immediately: a route

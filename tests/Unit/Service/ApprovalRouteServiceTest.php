@@ -19,6 +19,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 use OCA\Decidiq\Service\ApprovalRouteService;
 use OCA\Decidiq\Service\ApprovalRouteStepMapper;
 use OCA\Decidiq\Service\ApprovalStageGuard;
+use OCA\Decidiq\Service\DecisionStageLabelRepair;
 use OCA\Decidiq\Service\MandateDirectory;
 use OCA\Decidiq\Service\RegisterObjectStore;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
@@ -169,6 +170,14 @@ class ApprovalRouteServiceTest extends TestCase {
 				$schema = $filters['schema'];
 				unset($filters['register'], $filters['schema']);
 
+				if (isset($filters['id']) === true || isset($filters['uuid']) === true) {
+					// Live OpenRegister matches filters against the object's own
+					// JSON properties; identity lives in @self, so a top-level
+					// id/uuid filter matches NOTHING. A fake resolving it would
+					// agree with the caller's bug and could not fail (dossiq#1686).
+					return [];
+				}
+
 				$out = [];
 				foreach (($this->rows[$schema] ?? []) as $row) {
 					$matches = true;
@@ -195,6 +204,17 @@ class ApprovalRouteServiceTest extends TestCase {
 	 * @return ApprovalRouteService The service.
 	 */
 	private function service(): ApprovalRouteService {
+		$store = $this->store();
+
+		return new ApprovalRouteService($store, new ApprovalStageGuard(new MandateDirectory($store)), new ApprovalRouteStepMapper());
+	}
+
+	/**
+	 * A store over the stateful fake.
+	 *
+	 * @return RegisterObjectStore The store.
+	 */
+	private function store(): RegisterObjectStore {
 		// The store takes OpenRegister's facade by TYPE (ADR-083 rule 1), so the
 		// stateful fake cannot be passed straight in. A typed mock is backed BY
 		// that fake instead: the type satisfies the constructor, and the state
@@ -247,10 +267,29 @@ class ApprovalRouteServiceTest extends TestCase {
 		$facade->method('findAll')->willReturnCallback(
 			static fn (array $config = []): array => $state->findAll($config)
 		);
+		// find() resolves by uuid, as live OpenRegister does — the resolving
+		// form a top-level 'id' filter never was.
+		$facade->method('find')->willReturnCallback(
+			function (
+				int|string $id,
+				?array $_extend = [],
+				bool $files = false,
+				string|int|null $register = null,
+				string|int|null $schema = null,
+			) use ($state): ?ObjectEntityInterface {
+				$row = ($state->rows[(string)$schema][(string)$id] ?? null);
+				if ($row === null) {
+					return null;
+				}
 
-		$store = new RegisterObjectStore($facade);
+				$entity = $this->createMock(ObjectEntityInterface::class);
+				$entity->method('jsonSerialize')->willReturn($row);
 
-		return new ApprovalRouteService($store, new ApprovalStageGuard(new MandateDirectory($store)), new ApprovalRouteStepMapper());
+				return $entity;
+			}
+		);
+
+		return new RegisterObjectStore($facade);
 	}
 
 	/**
@@ -546,5 +585,106 @@ class ApprovalRouteServiceTest extends TestCase {
 
 		$this->expectException(RuntimeException::class);
 		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'teleported']);
+	}
+
+	/**
+	 * A route whose steps carry no labels still instantiates valid stages.
+	 *
+	 * The cross-app case: dossiq's held routes declare no step labels, and the
+	 * decision-stage schema REQUIRES one. Writing '' stored NULL, and the
+	 * patch recording the FIRST sign-off then 400'd — every cross-app route
+	 * wedged on its first signature. The label is derived instead, and the
+	 * route must actually advance.
+	 *
+	 * @return void
+	 */
+	public function testAnUnlabeledRouteGetsDerivedLabelsAndAdvances(): void {
+		$route = [
+			'name' => 'Cross-app route',
+			'steps' => [
+				['order' => 1, 'stageType' => 'endorsement', 'actorType' => 'person', 'actor' => 'alice'],
+				['order' => 2, 'stageType' => 'decisive', 'actorType' => 'person', 'actor' => 'carol'],
+			],
+		];
+
+		$service = $this->service();
+		$service->instantiate(route: $route, subject: 'subj-1', subjectSchema: 'proposal');
+
+		$this->assertSame(
+			['Endorsement (step 1)', 'Decisive (step 2)'],
+			array_map(static fn (array $s): string => (string)$s['label'], $this->stages()),
+			'A step without a label gets one derived from its stage type and step number.'
+		);
+
+		// The first sign-off is the one that 400'd; it must advance now.
+		$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
+		$this->assertSame(['decided', 'active'], $this->statuses());
+	}
+
+	/**
+	 * A stage write that fails leaves NO action row behind.
+	 *
+	 * The old order appended the action FIRST and patched the stage after, so
+	 * a refused stage write left an orphan action row claiming a sign-off the
+	 * route never took — and every retry appended another. The stage write
+	 * comes first now; this pins the no-orphan property on exactly the shape
+	 * that produced the orphans: a legacy stage stored without its required
+	 * label, whose re-validation refuses the patch.
+	 *
+	 * @return void
+	 */
+	public function testAFailedStageWriteAppendsNoActionRow(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+
+		// A legacy NULL-label stage: stored before the label fix.
+		foreach ($this->objectService->rows['decision-stage'] as $uuid => $row) {
+			unset($this->objectService->rows['decision-stage'][$uuid]['label']);
+		}
+
+		$before = $this->statuses();
+		try {
+			$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
+			$this->fail('The stage patch must refuse a stage that no longer validates.');
+		} catch (RuntimeException) {
+			$this->assertSame(
+				[],
+				$this->objectService->rows['approval-action'],
+				'A failed stage write must leave no orphan action row.'
+			);
+			$this->assertSame($before, $this->statuses(), 'The refused advance changes no stage.');
+		}
+	}
+
+	/**
+	 * The label repair backfills legacy NULL-label stages, once.
+	 *
+	 * Idempotent: the second run finds every stage labeled and repairs
+	 * nothing. Existing action rows are never touched — they are the audit
+	 * record. The derivation is the mapper's own labelOf(), so the repaired
+	 * label and a freshly instantiated one cannot differ.
+	 *
+	 * @return void
+	 */
+	public function testTheLabelRepairBackfillsAndIsIdempotent(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
+
+		// Two legacy NULL-label stages among a healthy one.
+		unset($this->objectService->rows['decision-stage']['decision-stage-2']['label']);
+		unset($this->objectService->rows['decision-stage']['decision-stage-3']['label']);
+
+		$repair = new DecisionStageLabelRepair($this->store(), new ApprovalRouteStepMapper());
+
+		$this->assertSame(2, $repair->repair(), 'Exactly the unlabeled stages are repaired.');
+		$this->assertSame(
+			['Advies', 'Endorsement (step 2)', 'Decisive (step 3)'],
+			array_map(static fn (array $s): string => (string)$s['label'], $this->stages()),
+			'A stored label survives; a missing one is derived.'
+		);
+		$this->assertCount(1, $this->objectService->rows['approval-action'], 'The action trail is never edited by the repair.');
+
+		$this->assertSame(0, $repair->repair(), 'A re-run repairs nothing.');
 	}
 }

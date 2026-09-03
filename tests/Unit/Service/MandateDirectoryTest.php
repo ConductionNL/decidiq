@@ -35,13 +35,34 @@ class MandateDirectoryTest extends TestCase {
 	/**
 	 * A directory over the given toedeling rows.
 	 *
+	 * The store fake answers `find()` BY UUID, the way live OpenRegister
+	 * resolves an object — and `findAll()` with a top-level 'id' filter
+	 * answers nothing, because live OR matches such a filter against the
+	 * object's own JSON properties where no id lives. The previous fake
+	 * handed the canned rows back for that dead filter form, so it agreed
+	 * with the caller's bug and could not fail (dossiq#1686's class).
+	 *
 	 * @param array<int, array<string, mixed>> $rows The stored rows.
 	 *
 	 * @return MandateDirectory The directory.
 	 */
 	private function directory(array $rows): MandateDirectory {
 		$store = $this->createMock(RegisterObjectStore::class);
-		$store->method('findAll')->willReturn($rows);
+		$store->method('find')->willReturnCallback(
+			static function (string $schema, string $uuid) use ($rows): ?array {
+				foreach ($rows as $row) {
+					if ((string)($row['id'] ?? '') === $uuid) {
+						return $row;
+					}
+				}
+
+				return null;
+			}
+		);
+		// The dead filter form answers nothing, exactly like live OR: a
+		// top-level 'id'/'uuid' filter runs against the object's own JSON
+		// properties, where no identity lives.
+		$store->method('findAll')->willReturn([]);
 
 		return new MandateDirectory($store);
 	}
@@ -94,23 +115,21 @@ class MandateDirectoryTest extends TestCase {
 	}
 
 	/**
-	 * A store that answers loosely does not hand back somebody else's row.
+	 * An unrelated row is never handed back as this reference's mandate.
 	 *
-	 * A dropped filter returns every row; the directory re-checks the id
-	 * before judging, so an unrelated row neither passes nor refuses this
-	 * reference.
+	 * The directory resolves by uuid through find(), so a register holding
+	 * only somebody else's toedeling answers null for this reference — an
+	 * external reference, which passes; the withdrawn row is not it.
 	 *
 	 * @return void
 	 */
-	public function testALooseStoreAnswerIsReCheckedById(): void {
+	public function testAnUnrelatedRowIsNotThisMandate(): void {
 		$row = [
 			'id' => 'some-other-mandate',
 			'status' => 'withdrawn',
 			'delegatePerson' => 'bob',
 		];
 
-		// The reference resolves to nothing that carries ITS id, so it is an
-		// external reference and passes — the withdrawn row is not it.
 		$this->directory(rows: [$row])->assertMayActUnder(mandate: 'm-1', actor: 'bob');
 
 		$this->addToAssertionCount(1);

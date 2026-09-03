@@ -170,6 +170,14 @@ class ParaferingRouteRuntimeTest extends TestCase {
 				$schema = $filters['schema'];
 				unset($filters['register'], $filters['schema']);
 
+				if (isset($filters['id']) === true || isset($filters['uuid']) === true) {
+					// Live OpenRegister matches filters against the object's own
+					// JSON properties; identity lives in @self, so a top-level
+					// id/uuid filter matches NOTHING. A fake resolving it would
+					// agree with the caller's bug and could not fail (dossiq#1686).
+					return [];
+				}
+
 				$out = [];
 				foreach (($this->rows[$schema] ?? []) as $row) {
 					$matches = true;
@@ -229,6 +237,27 @@ class ParaferingRouteRuntimeTest extends TestCase {
 		);
 		$facade->method('findAll')->willReturnCallback(
 			static fn (array $config = []): array => $state->findAll($config)
+		);
+		// find() resolves by uuid, as live OpenRegister does — the resolving
+		// form a top-level 'id' filter never was.
+		$facade->method('find')->willReturnCallback(
+			function (
+				int|string $id,
+				?array $_extend = [],
+				bool $files = false,
+				string|int|null $register = null,
+				string|int|null $schema = null,
+			) use ($state): ?ObjectEntityInterface {
+				$row = ($state->rows[(string)$schema][(string)$id] ?? null);
+				if ($row === null) {
+					return null;
+				}
+
+				$entity = $this->createMock(ObjectEntityInterface::class);
+				$entity->method('jsonSerialize')->willReturn($row);
+
+				return $entity;
+			}
 		);
 
 		$store = new RegisterObjectStore($facade);

@@ -128,6 +128,47 @@ class RegisterObjectStore {
 	}//end patch()
 
 	/**
+	 * Read ONE object by its uuid, or null when it resolves to nothing.
+	 *
+	 * THE resolving form for "give me object X". A top-level `id` (or `uuid`)
+	 * key in a findAll() filter array is NOT: OpenRegister applies filters to
+	 * the object's own JSON properties, and an object's identity lives in
+	 * `@self`, so such a filter matches NOTHING — silently, which is how
+	 * decidiq's conclusion announcer resolved every route's provenance to
+	 * empty and skipped every cross-app announcement. Same defect class as
+	 * dossiq#1686.
+	 *
+	 * Runs as the acting user, so OR's register RBAC and multitenancy decide:
+	 * an object the caller may not reach comes back null, exactly like one
+	 * that does not exist.
+	 *
+	 * @param string $schema The schema slug.
+	 * @param string $uuid The object's uuid.
+	 *
+	 * @return array<string, mixed>|null The object, or null.
+	 *
+	 * @throws RuntimeException When OpenRegister is unavailable.
+	 *
+	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 */
+	public function find(string $schema, string $uuid): ?array {
+		if (trim($uuid) === '') {
+			return null;
+		}
+
+		$entity = $this->objectService->find(
+			id: $uuid,
+			register: self::REGISTER,
+			schema: $schema,
+		);
+		if ($entity === null) {
+			return null;
+		}
+
+		return $this->normalise(row: $entity);
+	}//end find()
+
+	/**
 	 * Read objects.
 	 *
 	 * @param string $schema The schema slug.
