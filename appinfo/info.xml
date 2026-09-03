@@ -288,6 +288,21 @@ Vrij en open source onder de EUPL-1.2-licentie.
                 a fresh install has no stages to repair.
             -->
             <step>OCA\Decidiq\Migration\RepairDecisionStageLabels</step>
+            <!--
+                Fifth leg of the rename, on the ADMINISTRATORS GROUP. The
+                register's authorization baseline named `decidesk-administrators`
+                and OpenRegister's GroupProvisioner creates every group an
+                authorization block names, so existing installs hold the group —
+                and its hand-granted memberships — under the OLD app id. The
+                baseline now names `decidiq-administrators` first (the old id
+                stays honored); this step copies the old group's members into
+                the new one. After InitializeSettings on purpose: the import it
+                triggers provisions the new group, so this step normally only
+                copies members. No rename exists for a Nextcloud gid, and the
+                old group is never deleted and never loses a member — same
+                rollback posture as the other rename legs. Idempotent.
+            -->
+            <step>OCA\Decidiq\Repair\MigrateAdminGroup</step>
         </post-migration>
         <install>
             <!--
@@ -372,6 +387,17 @@ Vrij en open source onder de EUPL-1.2-licentie.
                 yet. Idempotent; never overwrites a stored vocabulary.
             -->
             <step>OCA\Decidiq\Repair\SeedDecisionTypes</step>
+            <!--
+                Same step as in <post-migration>, for the same reason the other
+                rename legs appear in both blocks: <install> is the path a real
+                deployment takes, because Nextcloud discovers `decidiq` as a NEW
+                app rather than as an upgrade of `decidesk` — and an instance
+                that ran the old app is exactly where `decidesk-administrators`
+                exists with members to carry over. On a genuinely fresh install
+                the old group does not exist and the step is a no-op; the new
+                group is provisioned (empty) by the register import instead.
+            -->
+            <step>OCA\Decidiq\Repair\MigrateAdminGroup</step>
         </install>
     </repair-steps>
 

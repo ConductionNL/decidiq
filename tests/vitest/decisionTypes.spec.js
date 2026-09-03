@@ -19,6 +19,7 @@ import {
 	FALLBACK_DECISION_TYPES,
 	listDecisionTypes,
 	proposalFormSchema,
+	withDecisionTypeVocabulary,
 } from '../../src/integrations/decisionLink.js'
 
 const get = vi.fn()
@@ -129,5 +130,66 @@ describe('proposalFormSchema', () => {
 		for (const type of FALLBACK_DECISION_TYPES) {
 			expect(labels[type], `label for ${type}`).toBeTruthy()
 		}
+	})
+})
+
+// The defect this pins: decidiq's OWN "Add Decision" dialog (the built-in
+// index-page form on the Decisions and Motions pages) reads the STORED
+// schema's decisionType enum, which #1099 deliberately emptied — so the
+// picker showed "No results" while the cross-app pickers listed 14 types.
+// The manifest wires DecisionFormDialog into those pages' form-dialog slot,
+// and that wrapper enriches the schema through this helper.
+describe('withDecisionTypeVocabulary', () => {
+	const enumlessSchema = () => ({
+		title: 'Decision',
+		properties: {
+			title: { type: 'string', title: 'Title' },
+			decisionType: { type: 'string', title: 'Decision type' },
+		},
+		required: ['title', 'text', 'decisionType'],
+	})
+
+	it('splices the registry vocabulary into an enum-less schema', () => {
+		const enriched = withDecisionTypeVocabulary(enumlessSchema(), [
+			'motion',
+			'advice',
+			'subsidie-besluit',
+		])
+
+		expect(enriched.properties.decisionType.enum).toEqual([
+			'motion',
+			'advice',
+			'subsidie-besluit',
+		])
+		expect(enriched.properties.decisionType.enumLabels.motion).toBeTruthy()
+		// Everything else is preserved untouched.
+		expect(enriched.properties.decisionType.title).toBe('Decision type')
+		expect(enriched.properties.title).toEqual(enumlessSchema().properties.title)
+		expect(enriched.required).toEqual(enumlessSchema().required)
+	})
+
+	it('never mutates the input schema', () => {
+		const schema = enumlessSchema()
+		withDecisionTypeVocabulary(schema, ['motion'])
+
+		expect(schema.properties.decisionType.enum).toBeUndefined()
+	})
+
+	it('falls back to the shipped seed while the registry has not answered', () => {
+		expect(
+			withDecisionTypeVocabulary(enumlessSchema(), null).properties
+				.decisionType.enum,
+		).toEqual(FALLBACK_DECISION_TYPES)
+		expect(
+			withDecisionTypeVocabulary(enumlessSchema(), []).properties.decisionType
+				.enum,
+		).toEqual(FALLBACK_DECISION_TYPES)
+	})
+
+	it('hands back a schema without a decisionType property untouched', () => {
+		const other = { properties: { name: { type: 'string' } } }
+
+		expect(withDecisionTypeVocabulary(other, ['motion'])).toBe(other)
+		expect(withDecisionTypeVocabulary(null, ['motion'])).toBe(null)
 	})
 })

@@ -64,6 +64,7 @@ import MotionAmendmentsTab from './components/tabs/MotionAmendmentsTab.vue'
 import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
 import MotionVotingRoundTab from './components/tabs/MotionVotingRoundTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
+import DecisionFormDialog from './dialogs/DecisionFormDialog.vue'
 import ActiveDecisionsKpiWidget from './views/dashboard/widgets/ActiveDecisionsKpiWidget.vue'
 // Dashboard v2 widgets (decidesk-dashboard-v2-widgets). Bespoke CnDashboardPage
 // slot components registered under kind: "widget".
@@ -243,6 +244,17 @@ export default {
 	// Nextcloud Deck cards via the OR leaf) when Deck is installed, else the
 	// table tab. The manifest decision action-items tab points here.
 	ActionItemsSurface: page(ActionItemsSurface),
+
+	// --- Form-dialog slot replacement (decision-types-as-configuration). ---
+	// Mounted into CnIndexPage's `form-dialog` slot on the Decisions and
+	// Motions pages (each page's `slots` map). Same CnFormDialog over the
+	// same schema as the built-in dialog, except the decisionType picker is
+	// fed from the `decision_types` registry via the shared decisionLink.js
+	// helpers (#1104) — the stored schema deliberately carries no enum since
+	// #1099, so the built-in picker rendered "No results". Registered with
+	// page() because slot resolution (resolveRegistryName) ignores `kind`;
+	// what matters is that the kind is one CnAppRoot's validator knows.
+	DecisionFormDialog: page(DecisionFormDialog),
 
 	// --- Dashboard v2 widgets (decidesk-dashboard-v2-widgets). ---
 	// Eleven CnDashboardPage slot components. CnPageRenderer / CnWidgetGrid

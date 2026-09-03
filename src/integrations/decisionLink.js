@@ -233,6 +233,54 @@ export function proposalFormSchema(types) {
 }
 
 /**
+ * Inject the registry's decisionType vocabulary into an OpenRegister
+ * decision schema.
+ *
+ * decision-types-as-configuration (#1099) deliberately dropped the `enum`
+ * from the stored schema declaration — the `decision_types` app config is
+ * the only authority. That left every schema-driven form (the built-in
+ * create/edit dialog on the Decisions and Motions index pages) rendering an
+ * empty type picker: the select widget reads `properties.decisionType.enum`
+ * and found nothing. This helper closes the gap the same way the cross-app
+ * pickers were closed in #1104: the vocabulary comes from
+ * {@link listDecisionTypes} (registry endpoint, seed fallback) and gets
+ * spliced into the schema right before the form renders. The schema on the
+ * SERVER stays enum-free; only the client-side copy driving the picker is
+ * enriched.
+ *
+ * @param {object} schema The OpenRegister decision schema (as handed to the
+ *                        form dialog).
+ * @param {?string[]} types The registry vocabulary, or null while it loads —
+ *                          the shipped seed fills in.
+ *
+ * @return {object} A shallow clone with `properties.decisionType` carrying
+ *                  the vocabulary as `enum` + translated `enumLabels`, or
+ *                  the input untouched when it has no decisionType property.
+ *
+ * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
+ */
+export function withDecisionTypeVocabulary(schema, types) {
+	if (!schema || typeof schema !== 'object') return schema
+	const properties = schema.properties
+	if (!properties || typeof properties !== 'object' || !properties.decisionType) {
+		return schema
+	}
+	const offered =
+		Array.isArray(types) && types.length > 0 ? types : FALLBACK_DECISION_TYPES
+	return {
+		...schema,
+		properties: {
+			...properties,
+			decisionType: {
+				...properties.decisionType,
+				enum: offered,
+				enumLabels: decisionTypeLabels(),
+			},
+		},
+	}
+}
+
+/**
  * Classify a decision into one of the three presentation buckets.
  *
  * @param {object} decision A decidiq Decision object.
