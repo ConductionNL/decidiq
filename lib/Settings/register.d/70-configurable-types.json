@@ -690,7 +690,7 @@
       "AgendaItem": {
         "slug": "agenda-item",
         "version": "1.1.0",
-        "description": "Patched by configurable-types-domain-model: gains a `type` reference to AgendaItemType. The existing `itemType` enum (informational/discussion/decision) is retained as a coarse rendering hint; `type` carries the configurable kind. An item's OWNER comes from its type's owningBody and need not be the body holding the meeting (REQ-CTM-002).",
+        "description": "Patched by configurable-types-domain-model: gains a `type` reference to AgendaItemType. The existing `itemType` enum (informational/discussion/decision) is retained as a coarse rendering hint; `type` carries the configurable kind. An item's OWNER comes from its type's owningBody and need not be the body holding the meeting.",
         "properties": {
           "type": {
             "title": "Agenda item type",
@@ -714,7 +714,7 @@
       "Decision": {
         "slug": "decision",
         "version": "1.1.0",
-        "description": "Patched by configurable-types-domain-model: gains a `type` REFERENCE to a DecisionType. The reference is resolved at decision time, never copied at creation — which is the whole difference between a template and a type: a template is copied once, a type is consulted at every decision, so changing a type's voting rule governs every subsequent decision of that type (REQ-CTM-003).",
+        "description": "Patched by configurable-types-domain-model: gains a `type` REFERENCE to a DecisionType. The reference is resolved at decision time, never copied at creation — which is the whole difference between a template and a type: a template is copied once, a type is consulted at every decision, so changing a type's voting rule governs every subsequent decision of that type.",
         "properties": {
           "type": {
             "title": "Decision type",
@@ -731,7 +731,7 @@
       "DecisionTemplate": {
         "slug": "decision-template",
         "version": "1.1.0",
-        "description": "Promoted by configurable-types-domain-model from a copy-once TEMPLATE to a live TYPE. It already carried stateMachine, votingRule, quorumRule, voteThreshold and checklist; it lacked the one thing that matters for authorisation — which gremium is competent to take the decision — and nothing referenced it. Both are added here (REQ-CTM-003, REQ-CTM-004).",
+        "description": "Promoted by configurable-types-domain-model from a copy-once TEMPLATE to a live TYPE. It already carried stateMachine, votingRule, quorumRule, voteThreshold and checklist; it lacked the one thing that matters for authorisation — which gremium is competent to take the decision — and nothing referenced it. Both are added here.",
         "properties": {
           "competentBody": {
             "title": "Competent body",

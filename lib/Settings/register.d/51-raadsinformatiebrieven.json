@@ -139,7 +139,7 @@
             "type": "string",
             "format": "uuid",
             "$ref": "governance-body",
-            "description": "Reference to the GovernanceBody (council) the letter is directed to (schema:Message recipient). Required. Drives the new-RIB notification recipients (REQ-RIB-008)."
+            "description": "Reference to the GovernanceBody (council) the letter is directed to (schema:Message recipient). Required. Drives the new-RIB notification recipients."
           },
           "letterDocument": {
             "title": "Letter document",
@@ -160,14 +160,14 @@
             "type": "string",
             "format": "uuid",
             "$ref": "agenda-item",
-            "description": "Reference to the AgendaItem recording the ter-kennisname placement (typically the lijst-ingekomen-stukken / LIS item or a dedicated RIB list item of a meeting). Set when the lifecycle moves to geagendeerd (REQ-RIB-002). Optional."
+            "description": "Reference to the AgendaItem recording the ter-kennisname placement (typically the lijst-ingekomen-stukken / LIS item or a dedicated RIB list item of a meeting). Set when the lifecycle moves to geagendeerd. Optional."
           },
           "settledCommitment": {
             "title": "Settled commitment",
             "type": "string",
             "format": "uuid",
             "$ref": "Toezegging",
-            "description": "Optional reference to a Toezegging this letter afdoet. Afdoening state and log live EXCLUSIVELY on the Toezegging (toezeggingen-register REQ-002); the ToezeggingDetail surfaces linked RIBs as afdoening evidence via a reverse-relation query, and the RIB detail links back. This register copies no afdoening state and creates no second afdoening log (REQ-RIB-003)."
+            "description": "Optional reference to a Toezegging this letter afdoet. Afdoening state and log live EXCLUSIVELY on the Toezegging (toezeggingen-register REQ-002); the ToezeggingDetail surfaces linked RIBs as afdoening evidence via a reverse-relation query, and the RIB detail links back. This register copies no afdoening state and creates no second afdoening log."
           },
           "relatedFile": {
             "title": "Related dossier",
@@ -222,7 +222,7 @@
         "icon": "CommentQuestionOutline",
         "version": "0.1.0",
         "title": "TechnischeVraag",
-        "description": "A technische vraag: a short informational Q&A entry scoped to one raadsinformatiebrief — a brief question from a council member and the organisation's answer, rendered as a thread on the RIB detail. A technische vraag is explicitly NOT the formal art. 33 schriftelijke-vragen instrument (the planned SchriftelijkeVraag of fractievoorzitter-fractie-koppeling owns that): it carries NO answer deadlines/termijnbewaking, NO college-workflow states, and NO fractie-quorum machinery, and it is never auto-converted — escalation is a manual re-filing once SchriftelijkeVraag lands (REQ-RIB-005). CONSTRAINT (design D4): only publishable fields by construction (council members are public officeholders); an answered question is anonymously readable through the compound published-predicate (publicationDate <= $now AND lifecycle = beantwoord), so an unanswered question is never exposed even if its predicate is set prematurely.",
+        "description": "A technische vraag: a short informational Q&A entry scoped to one raadsinformatiebrief — a brief question from a council member and the organisation's answer, rendered as a thread on the RIB detail. A technische vraag is explicitly NOT the formal art. 33 schriftelijke-vragen instrument (the planned SchriftelijkeVraag of fractievoorzitter-fractie-koppeling owns that): it carries NO answer deadlines/termijnbewaking, NO college-workflow states, and NO fractie-quorum machinery, and it is never auto-converted — escalation is a manual re-filing once SchriftelijkeVraag lands. CONSTRAINT (design D4): only publishable fields by construction (council members are public officeholders); an answered question is anonymously readable through the compound published-predicate (publicationDate <= $now AND lifecycle = beantwoord), so an unanswered question is never exposed even if its predicate is set prematurely.",
         "type": "object",
         "x-schema-org": "schema:Question",
         "x-openregister": {

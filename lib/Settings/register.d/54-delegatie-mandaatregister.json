@@ -246,7 +246,7 @@
             "type": "string",
             "format": "date",
             "facetable": true,
-            "description": "Optional date until which the toedeling is valid. Empty means open-ended. Drives the declarative expiry rappels (REQ-DMR-007) and the 'geldig op' view; a toedeling without geldigTot never triggers an expiry notification.",
+            "description": "Optional date until which the toedeling is valid. Empty means open-ended. Drives the declarative expiry rappels and the 'geldig op' view; a toedeling without geldigTot never triggers an expiry notification.",
             "example": "2026-08-15"
           },
           "withdrawnBy": {
@@ -254,7 +254,7 @@
             "type": "string",
             "format": "uuid",
             "$ref": "Decision",
-            "description": "Optional reference to the revoking Decision (intrekkingsbesluit). Set together with the transition to status ingetrokken in the same save, so every ingetrokken toedeling traces to the besluit that revoked it (REQ-DMR-002). Absent for a vervallen lapse."
+            "description": "Optional reference to the revoking Decision (intrekkingsbesluit). Set together with the transition to status ingetrokken in the same save, so every ingetrokken toedeling traces to the besluit that revoked it. Absent for a vervallen lapse."
           },
           "status": {
             "title": "Status",

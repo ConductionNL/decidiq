@@ -113,7 +113,7 @@
             "type": "string",
             "format": "date-time",
             "facetable": true,
-            "description": "Timestamp of the most recent generation/regeneration (REQ-APT-007). Shown prominently so a stale rooster is visibly stale, never silently wrong.",
+            "description": "Timestamp of the most recent generation/regeneration. Shown prominently so a stale rooster is visibly stale, never silently wrong.",
             "example": "2026-07-01T09:00:00Z"
           },
           "generatedBy": {
@@ -144,7 +144,7 @@
         "icon": "CalendarClock",
         "version": "0.1.0",
         "title": "RoosterRegel",
-        "description": "One first-class term entry (design D3) per active Membership under an effective TermijnRegeling, materialized on generation of its RoosterVanAftreden (REQ-APT-007). Carries derived term data (termijnNummer, eindeTermijnDatum, herbenoembaar) computed by RoosterService::deriveTerm() from Membership startDate/endDate history and the effective regeling (REQ-APT-006, design D2) — the derived values are materialized here, visible/auditable/regeneratable, never written onto the Membership schema. First-class (not an array on the rooster) so eindeTermijnDatum can drive declarative scheduled herbenoemingsrappels (x-openregister-notifications) and the expiring-terms KPI (widget aggregation over objects). persoonNaam is an allow-list projection field (no contact details / NC UIDs / vote data), so a published rooster exposes only name/role/term data.",
+        "description": "One first-class term entry (design D3) per active Membership under an effective TermijnRegeling, materialized on generation of its RoosterVanAftreden. Carries derived term data (termijnNummer, eindeTermijnDatum, herbenoembaar) computed by RoosterService::deriveTerm() from Membership startDate/endDate history and the effective regeling (REQ-APT-006, design D2) — the derived values are materialized here, visible/auditable/regeneratable, never written onto the Membership schema. First-class (not an array on the rooster) so eindeTermijnDatum can drive declarative scheduled herbenoemingsrappels (x-openregister-notifications) and the expiring-terms KPI (widget aggregation over objects). persoonNaam is an allow-list projection field (no contact details / NC UIDs / vote data), so a published rooster exposes only name/role/term data.",
         "type": "object",
         "x-schema-org": "schema:ListItem",
         "x-openregister": {
@@ -279,7 +279,7 @@
             "type": "integer",
             "minimum": 1,
             "facetable": true,
-            "description": "Derived 1-based count of the person's consecutive terms in the same body-role (REQ-APT-006). A reappointment without a gap increments; a gap or role change resets to 1. When it exceeds maxAansluitendeTermijnen an advisory warning is surfaced (non-blocking, design D5).",
+            "description": "Derived 1-based count of the person's consecutive terms in the same body-role. A reappointment without a gap increments; a gap or role change resets to 1. When it exceeds maxAansluitendeTermijnen an advisory warning is surfaced (non-blocking, design D5).",
             "example": 2
           },
           "endTermDate": {
@@ -287,7 +287,7 @@
             "type": "string",
             "format": "date",
             "facetable": true,
-            "description": "Derived end-of-term date: start of the current term plus termijnDuurMaanden (REQ-APT-006). Drives the declarative herbenoemingsrappels and the expiring-terms KPI, ordered ascending on the rooster. Required.",
+            "description": "Derived end-of-term date: start of the current term plus termijnDuurMaanden. Drives the declarative herbenoemingsrappels and the expiring-terms KPI, ordered ascending on the rooster. Required.",
             "example": "2026-11-01"
           },
           "reappointable": {

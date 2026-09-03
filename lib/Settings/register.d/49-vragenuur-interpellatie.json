@@ -273,7 +273,7 @@
             "type": "string",
             "format": "uuid",
             "$ref": "agenda-item",
-            "description": "Reference to the vragenuur AgendaItem of the target meeting the question is scheduled into. An ordinary agenda item managed by agenda-item-crud; set at scheduling together with volgorde when the lifecycle moves to ingepland (REQ-VRI-004). Optional until scheduled."
+            "description": "Reference to the vragenuur AgendaItem of the target meeting the question is scheduled into. An ordinary agenda item managed by agenda-item-crud; set at scheduling together with volgorde when the lifecycle moves to ingepland. Optional until scheduled."
           },
           "sortOrder": {
             "title": "Order",
@@ -324,7 +324,7 @@
           "followUpWrittenQuestion": {
             "title": "Follow-up written question",
             "type": "string",
-            "description": "Optional reference to a follow-up SchriftelijkeVraag (fractievoorzitter-fractie-koppeling) created from a niet-behandeld or beantwoord oral question. Its answering workflow stays in that change (REQ-VRI-006). Declared as a PLAIN STRING — see the note on MondelingeVraag.politicalGroup: the SchriftelijkeVraag schema does not exist in this register yet. Restore format:uuid + $ref in the commit that introduces it."
+            "description": "Optional reference to a follow-up SchriftelijkeVraag (fractievoorzitter-fractie-koppeling) created from a niet-behandeld or beantwoord oral question. Its answering workflow stays in that change. Declared as a PLAIN STRING — see the note on MondelingeVraag.politicalGroup: the SchriftelijkeVraag schema does not exist in this register yet. Restore format:uuid + $ref in the commit that introduces it."
           },
           "sourceWrittenQuestion": {
             "title": "Source written question",
@@ -591,7 +591,7 @@
               "format": "uuid",
               "$ref": "Person"
             },
-            "description": "Support signatures — an array of raadslid (Person) references, added while the request is ingediend (REQ-VRI-011). The display threshold status ('N of M required', ceil rounding) is computed client-side from VragenuurConfiguratie and the body's member count and INFORMS, never gates, the council's decision. On publication only the COUNT is exposed, never the individual references (design D4)."
+            "description": "Support signatures — an array of raadslid (Person) references, added while the request is ingediend. The display threshold status ('N of M required', ceil rounding) is computed client-side from VragenuurConfiguratie and the body's member count and INFORMS, never gates, the council's decision. On publication only the COUNT is exposed, never the individual references (design D4)."
           },
           "lifecycle": {
             "title": "Lifecycle",
@@ -638,7 +638,7 @@
           "handlingMinutes": {
             "title": "Treatment record",
             "type": "string",
-            "description": "Record of the interpellation debate and the portefeuillehouder's answers (rich text). Required at the transition to behandeld (save-time enforced). May reference follow-up instruments (moties/toezeggingen) which live in their own registers — never duplicated here (REQ-VRI-013)."
+            "description": "Record of the interpellation debate and the portefeuillehouder's answers (rich text). Required at the transition to behandeld (save-time enforced). May reference follow-up instruments (moties/toezeggingen) which live in their own registers — never duplicated here."
           }
         }
       },
@@ -672,13 +672,13 @@
             "title": "Submission deadline (hours)",
             "type": "integer",
             "default": 24,
-            "description": "Number of hours before the target meeting's start by which oral questions must be submitted (Reglement van Orde). Default 24. Used by OralQuestionService to compute the deadline as targetMeeting.start − indieningstermijnUren; the griffier may override a late submission explicitly (REQ-VRI-003).",
+            "description": "Number of hours before the target meeting's start by which oral questions must be submitted (Reglement van Orde). Default 24. Used by OralQuestionService to compute the deadline as targetMeeting.start − indieningstermijnUren; the griffier may override a late submission explicitly.",
             "example": 24
           },
           "interpellationSupportThresholdType": {
             "title": "Support threshold type",
             "type": "string",
-            "description": "How the interpellation support threshold is expressed: 'breukdeel' (a fraction of the body's members, e.g. 0.2 = 1/5 per Reglement van Orde) or 'aantal' (an absolute number of supporters). Combined with interpellatieSteunDrempelWaarde. Informative only (REQ-VRI-011).",
+            "description": "How the interpellation support threshold is expressed: 'breukdeel' (a fraction of the body's members, e.g. 0.2 = 1/5 per Reglement van Orde) or 'aantal' (an absolute number of supporters). Combined with interpellatieSteunDrempelWaarde. Informative only.",
             "enum": [
               "fraction",
               "count"
