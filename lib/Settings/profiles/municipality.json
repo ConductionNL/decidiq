@@ -220,7 +220,7 @@
 						"itemType": "discussion",
 						"orderNumber": 8,
 						"estimatedDuration": 45,
-						"description": "Eigen agendapunt voor het geagendeerde interpellatieverzoek int-subsidie-cultuurhuis (vragenuur-interpellatie REQ-VRI-012).",
+						"description": "Eigen agendapunt voor het geagendeerde interpellatieverzoek int-subsidie-cultuurhuis (vragenuur-interpellatie).",
 						"meeting": "raadsvergadering-2025-01-15"
 					},
 					{
@@ -234,7 +234,7 @@
 						"itemType": "discussion",
 						"orderNumber": 7,
 						"estimatedDuration": 45,
-						"description": "Eigen agendapunt voor het toegelaten interpellatieverzoek int-veiligheid-stationsgebied (vragenuur-interpellatie REQ-VRI-012); een interpellatie krijgt een eigen agendapunt, nooit samengevoegd met het vragenuur.",
+						"description": "Eigen agendapunt voor het toegelaten interpellatieverzoek int-veiligheid-stationsgebied (vragenuur-interpellatie); een interpellatie krijgt een eigen agendapunt, nooit samengevoegd met het vragenuur.",
 						"meeting": "raadsvergadering-2025-01-15"
 					},
 					{
@@ -244,7 +244,7 @@
 							"schema": "agenda-item"
 						},
 						"slug": "jaarrekening-2024",
-						"title": "Jaarrekening 2024 — ter goedkeuring",
+						"title": "Jaarrekening 2024: ter goedkeuring",
 						"itemType": "decision",
 						"orderNumber": 3,
 						"estimatedDuration": 45,
@@ -261,7 +261,7 @@
 						"itemType": "decision",
 						"orderNumber": 5,
 						"estimatedDuration": 10,
-						"description": "Hamerstuk-verzamelagendapunt voor de lijst ingekomen stukken; de griffie-routeringsadviezen worden en bloc bekrachtigd via de hamerstuk-flow (agenda-live-management REQ-LIV-003). AgendaItem draagt geen tag-veld, zodat 'hamerstuk' hier conventioneel via itemType 'decision' + deze omschrijving is vastgelegd.",
+						"description": "Hamerstuk-verzamelagendapunt voor de lijst ingekomen stukken; de griffie-routeringsadviezen worden en bloc bekrachtigd via de hamerstuk-flow (agenda-live-management). AgendaItem draagt geen tag-veld, zodat 'hamerstuk' hier conventioneel via itemType 'decision' + deze omschrijving is vastgelegd.",
 						"meeting": "raadsvergadering-2025-01-15"
 					},
 					{
@@ -313,7 +313,7 @@
 						"itemType": "discussion",
 						"orderNumber": 6,
 						"estimatedDuration": 30,
-						"description": "Vragenuur van de raad (Reglement van Orde): raadsleden stellen mondelinge vragen aan de portefeuillehouders. Toegelaten mondelinge vragen worden op dit agendapunt ingepland (vragenuur-interpellatie REQ-VRI-004); de spreektijdklok blijft bij digital-meetings-and-recurrence REQ-STM. AgendaItem draagt geen tag-veld; 'vragenuur' is hier conventioneel via itemType 'discussion' + deze omschrijving vastgelegd.",
+						"description": "Vragenuur van de raad (Reglement van Orde): raadsleden stellen mondelinge vragen aan de portefeuillehouders. Toegelaten mondelinge vragen worden op dit agendapunt ingepland (vragenuur-interpellatie); de spreektijdklok blijft bij digital-meetings-and-recurrence REQ-STM. AgendaItem draagt geen tag-veld; 'vragenuur' is hier conventioneel via itemType 'discussion' + deze omschrijving vastgelegd.",
 						"meeting": "raadsvergadering-2025-01-15"
 					}
 				],
@@ -921,7 +921,7 @@
 						},
 						"slug": "besluit-amendement-cultuursubsidie-afgewezen",
 						"decisionType": "meeting-outcome",
-						"title": "Amendement verhoging cultuursubsidie — niet aanvaard",
+						"title": "Amendement verhoging cultuursubsidie: niet aanvaard",
 						"text": "Het amendement tot verhoging van het cultuursubsidiebudget 2026 met €75.000 wordt niet aanvaard.",
 						"decisionDate": "2025-04-10T21:00:00Z",
 						"outcome": "rejected",

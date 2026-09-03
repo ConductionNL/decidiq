@@ -9,7 +9,7 @@
         "icon": "CalendarClockOutline",
         "version": "0.1.0",
         "title": "TermijnagendaItem",
-        "description": "A termijnagenda (long-term agenda / LTA) item: a forward-planned proposal or topic a governance body can expect (raadsvoorstel, raadsinformatiebrief, themabijeenkomst, begrotingsstuk), in which period, owned by griffie/college/portefeuillehouder, optionally originating from a toezegging, motie, or earlier decision, and optionally realised into an actual AgendaItem/Decision. It closes the accountability loop between commitments (toezegging), motion execution (Decision/UitvoeringsUpdate — referenced, NEVER duplicated here) and the meeting agenda, and doubles as a live public transparency instrument via the OpenRegister published-predicate. CONSTRAINT (design D4): this schema contains ONLY publishable fields by construction (no internal-only property; shift reasons are deliberately public). Adding ANY non-public property requires revisiting the public-predicate design in D4, because the whole live object is exposed through the public-group authorization.read rule when publicationDate <= $now.",
+        "description": "A termijnagenda (long-term agenda / LTA) item: a forward-planned proposal or topic a governance body can expect (raadsvoorstel, raadsinformatiebrief, themabijeenkomst, begrotingsstuk), in which period, owned by griffie/college/portefeuillehouder, optionally originating from a toezegging, motie, or earlier decision, and optionally realised into an actual AgendaItem/Decision. It closes the accountability loop between commitments (toezegging), motion execution (Decision/UitvoeringsUpdate: referenced, NEVER duplicated here) and the meeting agenda, and doubles as a live public transparency instrument via the OpenRegister published-predicate. CONSTRAINT (design D4): this schema contains ONLY publishable fields by construction (no internal-only property; shift reasons are deliberately public). Adding ANY non-public property requires revisiting the public-predicate design in D4, because the whole live object is exposed through the public-group authorization.read rule when publicationDate <= $now.",
         "type": "object",
         "x-schema-org": "schema:PlanAction",
         "x-openregister": {
@@ -156,7 +156,7 @@
             "title": "Owner type",
             "type": "string",
             "facetable": true,
-            "description": "Who owns delivery of the item. Required. When 'portefeuillehouder', the owner Person reference is required (conditional-required — see owner).",
+            "description": "Who owns delivery of the item. Required. When 'portefeuillehouder', the owner Person reference is required (conditional-required: see owner).",
             "enum": [
               "council-registry",
               "executive-board",
@@ -181,7 +181,7 @@
             "title": "Lifecycle",
             "type": "string",
             "facetable": true,
-            "description": "Item status (declared in x-openregister-lifecycle, ADR-031): gepland -> verschoven (repeat shifts allowed) -> gerealiseerd | vervallen. gerealiseerd and vervallen are terminal. Entering vervallen requires redenVervallen; a reschedule to verschoven appends to verschuifHistorie (REQ-LTA-003/004).",
+            "description": "Item status (declared in x-openregister-lifecycle, ADR-031): gepland -> verschoven (repeat shifts allowed) -> gerealiseerd | vervallen. gerealiseerd and vervallen are terminal. Entering vervallen requires redenVervallen; a reschedule to verschoven appends to verschuifHistorie.",
             "enum": [
               "planned",
               "postponed",
@@ -231,7 +231,7 @@
             "title": "Drop reason",
             "type": "string",
             "nullable": true,
-            "description": "Reason the item was dropped (recorded when moving lifecycle to vervallen). REQUIRED when entering vervallen (REQ-LTA-003, enforced at the UI layer; not expressible as a state-dependent OR 'required' rule). Optional otherwise.",
+            "description": "Reason the item was dropped (recorded when moving lifecycle to vervallen). REQUIRED when entering vervallen (enforced at the UI layer; not expressible as a state-dependent OR 'required' rule). Optional otherwise.",
             "example": "Onderwerp opgegaan in omgevingsvisie"
           },
           "originCommitment": {
@@ -287,7 +287,7 @@
             "type": "string",
             "format": "date-time",
             "facetable": true,
-            "description": "Publication date (WOO/DIWOO). When set in the past, the live item is anonymously readable through the OpenRegister published-predicate (public-group authorization.read rule publicationDate <= $now). Publish is an explicit staff action; because the predicate sits on the live object the public termijnagenda reflects reschedules and lifecycle changes without republication (REQ-LTA-009 / design D4)."
+            "description": "Publication date (WOO/DIWOO). When set in the past, the live item is anonymously readable through the OpenRegister published-predicate (public-group authorization.read rule publicationDate <= $now). Publish is an explicit staff action; because the predicate sits on the live object the public termijnagenda reflects reschedules and lifecycle changes without republication (design D4)."
           },
           "depublicationDate": {
             "title": "Depublication date",
