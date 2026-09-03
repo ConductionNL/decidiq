@@ -831,6 +831,8 @@
 			"route": "/motions",
 			"type": "index",
 			"title": "Motions",
+			"slots": { "form-dialog": "DecisionFormDialog" },
+			"_note": "decision-types-as-configuration: the built-in create/edit dialog reads properties.decisionType.enum from the stored schema, which is deliberately empty since #1099 (the decision_types app config is the only authority), so its type picker rendered 'No results'. DecisionFormDialog is the same CnFormDialog over the same schema, with the vocabulary fetched from GET /api/v1/decision-types through the shared decisionLink.js helpers (#1104) and spliced in client-side. The note stays a SIBLING of slots: CnPageRenderer resolves every slots entry as a registry name and warns on one it cannot find.",
 			"config": {
 				"register": "decidiq",
 				"schema": "decision",
@@ -1030,6 +1032,8 @@
 			"route": "/decisions",
 			"type": "index",
 			"title": "Decisions",
+			"slots": { "form-dialog": "DecisionFormDialog" },
+			"_note": "Same wiring as the Motions page, and for the same reason: the stored decision schema carries no decisionType enum since #1099, so the built-in dialog's type picker rendered 'No results'. DecisionFormDialog feeds the picker from the decision_types registry via the shared decisionLink.js helpers (#1104).",
 			"config": {
 				"register": "decidiq",
 				"schema": "decision",
