@@ -1723,7 +1723,7 @@
             "title": "External reference",
             "type": "string",
             "nullable": true,
-            "description": "Consumer's own reference for idempotency and ledger linking. The create-decision endpoint is idempotent on (sourceApp, subjectRegister, subjectSchema, subjectId, externalReference) (REQ-DCDH-002)."
+            "description": "Consumer's own reference for idempotency and ledger linking. The create-decision endpoint is idempotent on (sourceApp, subjectRegister, subjectSchema, subjectId, externalReference)."
           },
           "amends": {
             "type": "string",
@@ -1835,7 +1835,7 @@
           "citesGoverningDocuments": {
             "title": "Cited governing documents",
             "type": "array",
-            "description": "Optional, additive (REQ-GDR-005): the canonical governing-document reference shape used by all consumers ({document, versie?, artikel?}). Lets a decision cite the governing-document article it is based on (e.g. a spoedbesluit citing the statuten article that permits urgency). The citation is assistive metadata: it MUST NOT block or gate any decision workflow, and it grants no read access to the cited document. The urgent-decision-procedure and vve-alv-pack siblings adopt this same shape; their wiring stays in those changes.",
+            "description": "Optional, additive: the canonical governing-document reference shape used by all consumers ({document, versie?, artikel?}). Lets a decision cite the governing-document article it is based on (e.g. a spoedbesluit citing the statuten article that permits urgency). The citation is assistive metadata: it MUST NOT block or gate any decision workflow, and it grants no read access to the cited document. The urgent-decision-procedure and vve-alv-pack siblings adopt this same shape; their wiring stays in those changes.",
             "items": {
               "type": "object",
               "required": [
@@ -1854,7 +1854,7 @@
                   "type": "string",
                   "format": "uuid",
                   "$ref": "governing-document-versie",
-                  "description": "Optional reference to a specific sealed GoverningDocumentVersie. Omitted means 'the version in force at reading time' per the in-force resolution (REQ-GDR-004); a pinned versie gives the immutable-content guarantee (REQ-GDR-003)."
+                  "description": "Optional reference to a specific sealed GoverningDocumentVersie. Omitted means 'the version in force at reading time' per the in-force resolution; a pinned versie gives the immutable-content guarantee."
                 },
                 "article": {
                   "title": "Article",
@@ -1872,7 +1872,7 @@
             "facetable": true,
             "nullable": true,
             "$ref": "Meeting",
-            "description": "Optional reference to the Meeting this decision was taken in (REQ-SDM-022). Written by MeetingDecisionsTab.vue when a decision is created from a meeting's decisions tab. Empty for decisions created outside a meeting flow (e.g. a citizen-panel or nomination decision)."
+            "description": "Optional reference to the Meeting this decision was taken in. Written by MeetingDecisionsTab.vue when a decision is created from a meeting's decisions tab. Empty for decisions created outside a meeting flow (e.g. a citizen-panel or nomination decision)."
           },
           "agendaItem": {
             "title": "Agenda item",
@@ -1881,7 +1881,7 @@
             "facetable": true,
             "nullable": true,
             "$ref": "agenda-item",
-            "description": "Optional reference to the AgendaItem this decision resolves (REQ-SDM-022). Written by AgendaMotionsTab.vue when a decision (motion) is created from an agenda item's motions tab. Empty for decisions not tied to a specific agenda item."
+            "description": "Optional reference to the AgendaItem this decision resolves. Written by AgendaMotionsTab.vue when a decision (motion) is created from an agenda item's motions tab. Empty for decisions not tied to a specific agenda item."
           }
         },
         "x-openregister-lifecycle": {
@@ -5660,7 +5660,7 @@
             "format": "uuid",
             "nullable": true,
             "$ref": "proxy-authorization",
-            "description": "Nullable back-reference from a proxy row to its ProxyAuthorization instrument, so the row resolves its machtiging (and signature status) without a reverse query. Null on ordinary ballots and on proxy rows granted before this change (REQ-MPA-001)."
+            "description": "Nullable back-reference from a proxy row to its ProxyAuthorization instrument, so the row resolves its machtiging (and signature status) without a reverse query. Null on ordinary ballots and on proxy rows granted before this change."
           }
         }
       },

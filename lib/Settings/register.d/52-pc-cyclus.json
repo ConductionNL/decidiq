@@ -122,7 +122,7 @@
           "steps": {
             "title": "Steps",
             "type": "array",
-            "description": "Ordered list of template steps. Required. Generation resolves each step's default month/day into a concrete date within the cyclus execution year and copies the document slots (REQ-PCC-004).",
+            "description": "Ordered list of template steps. Required. Generation resolves each step's default month/day into a concrete date within the cyclus execution year and copies the document slots.",
             "items": {
               "type": "object",
               "title": "Template step",
@@ -130,7 +130,7 @@
                 "stepType": {
                   "title": "Step type",
                   "type": "string",
-                  "description": "Canonical values kadernota, begroting, berap, jaarrekening, jaarplan, jaarstukken, decharge — NOT a closed enum: a duplicated template MAY declare a custom stepType (REQ-PCC-003)."
+                  "description": "Canonical values kadernota, begroting, berap, jaarrekening, jaarplan, jaarstukken, decharge — NOT a closed enum: a duplicated template MAY declare a custom stepType."
                 },
                 "label": {
                   "title": "Label",
@@ -205,7 +205,7 @@
         "icon": "CalendarCheckOutline",
         "version": "0.1.0",
         "title": "CyclusStap",
-        "description": "One step of a Planning & Control cyclus, generated from a CyclusTemplate step and tracked from aanlevering through behandeling to vaststelling. Related to its parent PCCyclus (one cyclus -> many steps, ordered by sequence). Cross-references the ordinary AgendaItem (once behandeling is scheduled) and the ordinary Decision (once the vaststellingsbesluit exists); the step NEVER creates meetings, agenda items or decisions itself (REQ-PCC-007) — scheduling stays with agenda-management, decision content with decision-management/decision-route. Decharge is recorded as an outcome, not a decision template (REQ-PCC-008; VvE statutory templates stay in vve-alv-pack). CONSTRAINT: steps carry NO financial figures or monetary properties by construction (REQ-PCC-003). The status workflow is declared exclusively in x-openregister-lifecycle and the rappels exclusively in x-openregister-notifications (ADR-031); no app-side state machine and no bespoke reminder BackgroundJob.",
+        "description": "One step of a Planning & Control cyclus, generated from a CyclusTemplate step and tracked from aanlevering through behandeling to vaststelling. Related to its parent PCCyclus (one cyclus -> many steps, ordered by sequence). Cross-references the ordinary AgendaItem (once behandeling is scheduled) and the ordinary Decision (once the vaststellingsbesluit exists); the step NEVER creates meetings, agenda items or decisions itself — scheduling stays with agenda-management, decision content with decision-management/decision-route. Decharge is recorded as an outcome, not a decision template (REQ-PCC-008; VvE statutory templates stay in vve-alv-pack). CONSTRAINT: steps carry NO financial figures or monetary properties by construction. The status workflow is declared exclusively in x-openregister-lifecycle and the rappels exclusively in x-openregister-notifications (ADR-031); no app-side state machine and no bespoke reminder BackgroundJob.",
         "type": "object",
         "x-schema-org": "schema:Action",
         "x-openregister": {
@@ -344,7 +344,7 @@
             "title": "Step type",
             "type": "string",
             "facetable": true,
-            "description": "Canonical values kadernota, begroting, berap, jaarrekening, jaarplan, jaarstukken, decharge. NOT a closed enum (REQ-PCC-003): a duplicated template MAY declare a custom stepType, so this property is deliberately not constrained by an enum.",
+            "description": "Canonical values kadernota, begroting, berap, jaarrekening, jaarplan, jaarstukken, decharge. NOT a closed enum: a duplicated template MAY declare a custom stepType, so this property is deliberately not constrained by an enum.",
             "example": "begroting"
           },
           "label": {
@@ -421,7 +421,7 @@
           "documentSlots": {
             "title": "Document slots",
             "type": "array",
-            "description": "Document slots copied from the template step (REQ-PCC-003). Each slot carries a name, a required flag, and the delivered file attached via OpenRegister's FileService — no app-local file storage.",
+            "description": "Document slots copied from the template step. Each slot carries a name, a required flag, and the delivered file attached via OpenRegister's FileService — no app-local file storage.",
             "items": {
               "type": "object",
               "title": "Document slot",
@@ -452,7 +452,7 @@
             "format": "uuid",
             "$ref": "agenda-item",
             "nullable": true,
-            "description": "Reference to the actual AgendaItem once behandeling is scheduled (REQ-PCC-007). Set once the item is placed on a meeting agenda; the step never creates the AgendaItem itself. Empty means behandeling is not yet scheduled (drives the unscheduled rappel)."
+            "description": "Reference to the actual AgendaItem once behandeling is scheduled. Set once the item is placed on a meeting agenda; the step never creates the AgendaItem itself. Empty means behandeling is not yet scheduled (drives the unscheduled rappel)."
           },
           "decision": {
             "title": "Decision",
@@ -480,7 +480,7 @@
             "title": "Outcome",
             "type": "string",
             "nullable": true,
-            "description": "Optional step outcome. For a decharge step: decharge-verleend or decharge-geweigerd (REQ-PCC-008); the resulting besluit lives in the normal Decision model via the decision reference. This capability defines no statutory decision templates.",
+            "description": "Optional step outcome. For a decharge step: decharge-verleend or decharge-geweigerd; the resulting besluit lives in the normal Decision model via the decision reference. This capability defines no statutory decision templates.",
             "example": "decharge-verleend"
           }
         }

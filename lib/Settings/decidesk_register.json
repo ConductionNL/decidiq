@@ -2311,7 +2311,7 @@
             "title": "External reference",
             "type": "string",
             "nullable": true,
-            "description": "Consumer's own reference for idempotency and ledger linking. The create-decision endpoint is idempotent on (sourceApp, subjectRegister, subjectSchema, subjectId, externalReference) (REQ-DCDH-002)."
+            "description": "Consumer's own reference for idempotency and ledger linking. The create-decision endpoint is idempotent on (sourceApp, subjectRegister, subjectSchema, subjectId, externalReference)."
           },
           "amends": {
             "type": "string",

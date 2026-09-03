@@ -268,13 +268,13 @@
             "format": "uuid",
             "$ref": "agenda-item",
             "nullable": true,
-            "description": "Optional reference to the AgendaItem the advice relates to. Raadscommissie advies on plenary agenda items remains owned by commissievergaderingen and is NOT registered through this capability (REQ-AOW-004)."
+            "description": "Optional reference to the AgendaItem the advice relates to. Raadscommissie advies on plenary agenda items remains owned by commissievergaderingen and is NOT registered through this capability."
           },
           "accountabilityText": {
             "title": "Verantwoording",
             "type": "string",
             "nullable": true,
-            "description": "Motivering recorded when the final besluit deviates from the advies strekking (REQ-AOW-005). Written alongside the transition to verantwoord. The same motivering also lands on the Decision's own verantwoording fields (the DEFERRED additive base-register edit) so the besluit record is self-contained for archiving (design D4). Optional; required only when a deviating decision is completed, enforced by the DEFERRED guard, not by this schema.",
+            "description": "Motivering recorded when the final besluit deviates from the advies strekking. Written alongside the transition to verantwoord. The same motivering also lands on the Decision's own verantwoording fields (the DEFERRED additive base-register edit) so the besluit record is self-contained for archiving (design D4). Optional; required only when a deviating decision is completed, enforced by the DEFERRED guard, not by this schema.",
             "example": "De raad kiest locatie B in afwijking van het advies (locatie A) vanwege geluidsnormen."
           },
           "accountabilityDate": {
