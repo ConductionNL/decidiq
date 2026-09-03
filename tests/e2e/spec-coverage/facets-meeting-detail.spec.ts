@@ -21,7 +21,7 @@
  * @e2e openspec/specs/meeting-detail-view/spec.md#oral-questions-scoped-to-the-current-meeting
  * @e2e openspec/specs/meeting-detail-view/spec.md#interpellations-scheduled-at-the-current-meeting
  * @e2e openspec/specs/meeting-detail-view/spec.md#proxy-authorizations-scoped-to-the-current-meeting
- * @e2e openspec/specs/meeting-detail-view/spec.md#kascommissie-facet-hidden-outside-association-mode
+ * @e2e openspec/specs/meeting-detail-view/spec.md#audit-statement-facet-hidden-outside-association-mode
  * @e2e openspec/specs/meeting-detail-view/spec.md#documents-routed-onto-the-meetings-agenda
  */
 import type { APIRequestContext, PlaywrightWorkerArgs } from '@playwright/test'
@@ -168,7 +168,7 @@ test('MeetingDetail: oral-questions facet lists a mondelinge-vraag created via A
 // @e2e openspec/specs/meeting-detail-view/spec.md#interpellations-scheduled-at-the-current-meeting
 // @e2e openspec/specs/meeting-detail-view/spec.md#proxy-authorizations-scoped-to-the-current-meeting
 // @e2e openspec/specs/meeting-detail-view/spec.md#documents-routed-onto-the-meetings-agenda
-// @e2e openspec/specs/meeting-detail-view/spec.md#kascommissie-facet-hidden-outside-association-mode
+// @e2e openspec/specs/meeting-detail-view/spec.md#audit-statement-facet-hidden-outside-association-mode
 test('MeetingDetail: interpellations, proxy-authorizations and routed-documents facets render their real empty states; kascommissie is absent in gov mode', async ({
 	page,
 	playwright,
@@ -265,7 +265,7 @@ test('MeetingDetail: interpellations, proxy-authorizations and routed-documents 
 		// proven rendered above, so by this point Vue has already decided
 		// whether to mount it — an absence check with nothing rendered yet
 		// would pass for the wrong reason (not-loaded looks identical to gated-off).
-		await expect(page.getByTestId('meeting-kascommissie-tab')).toHaveCount(0)
+		await expect(page.getByTestId('meeting-audit-statements-tab')).toHaveCount(0)
 	} finally {
 		if (meetingId) {
 			await api.delete(`${OR}/meeting/${meetingId}`).catch(() => null)

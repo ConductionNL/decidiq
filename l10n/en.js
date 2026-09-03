@@ -1785,7 +1785,16 @@ OC.L10N.register(
         "Policy": "Policy",
         "Meeting outcome": "Meeting outcome",
         "Objection decision": "Objection decision",
-        "Woo decision": "Woo decision"
+        "Woo decision": "Woo decision",
+        "Audit statement": "Audit statement",
+        "Audit statements": "Audit statements",
+        "Any qualification or remark the committee recorded.": "Any qualification or remark the committee recorded.",
+        "AuditStatement": "AuditStatement",
+        "Financial year": "Financial year",
+        "The agenda item where the accounts were adopted.": "The agenda item where the accounts were adopted.",
+        "The body whose accounts were examined.": "The body whose accounts were examined.",
+        "The committee’s conclusion on the accounts for that year.": "The committee’s conclusion on the accounts for that year.",
+        "The financial year this statement covers.": "The financial year this statement covers."
     },
     "nplurals=2; plural=(n != 1);"
 )
