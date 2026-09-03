@@ -1330,7 +1330,7 @@
         },
         "slug": "decision",
         "icon": "Gavel",
-        "version": "0.11.0",
+        "version": "0.12.0",
         "title": "Decision",
         "_authorizationNote": "decision declared no schema-level authorization block, so its read rule came from the decidesk register baseline rather than from anything this schema states. IntegrationController::getOutcome()'s docblock asserted that 'per-object read access is enforced by OpenRegister ObjectService RBAC'; that claim was unfounded precisely because this block was absent. This states the intended anonymous rule explicitly — only Decisions the app itself has published (isPublished === 'public') — leaving all others to authenticated callers, and mirrors ParticipatoryBudget / PublicConsultation / BoardEvaluation in this same file. Defence in depth only: the per-object controller guards added in signature-and-outcome-authorization-guard do not depend on it, and anonymous reads of this instance's object API return nothing regardless (measured 2026-08-20: schemas that DO grant 'public' read also return 0 anonymously). ONLY 'read' is declared: OpenRegister's action vocabulary is CRUD (create/read/update/delete) and CLOSED by default — 'list' is NOT an action, and adding it makes validateAuthorization() reject the schema, which the importer then silently SKIPS on an HTTP 200 'success'. Listing is governed by the read rule. create/update/delete are deliberately omitted — an omitted action is closed to everyone except the object owner and admin.",
         "authorization": {
@@ -1361,6 +1361,11 @@
           "decisionType"
         ],
         "properties": {
+          "routeComplete": {
+            "type": "boolean",
+            "title": "Route Complete",
+            "description": "Whether every stage of this decision's route is decided or skipped. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq and never edited by hand."
+          },
           "decisionType": {
             "title": "Decision type",
             "type": "string",
@@ -1747,7 +1752,6 @@
             "title": "Orders",
             "description": "Contract attachment: purchase orders related to a decisionType=contract decision (ADR-005)."
           },
-
           "route": {
             "type": "array",
             "items": {
@@ -1979,6 +1983,31 @@
             }
           }
         },
+        "x-openregister-aggregate-refs": {
+          "stageCount": {
+            "metric": "count",
+            "schema": "DecisionStage",
+            "filters": {
+              "decision": "@self.id"
+            }
+          },
+          "decidedStageCount": {
+            "metric": "count",
+            "schema": "DecisionStage",
+            "filters": {
+              "decision": "@self.id",
+              "status": "decided"
+            }
+          },
+          "skippedStageCount": {
+            "metric": "count",
+            "schema": "DecisionStage",
+            "filters": {
+              "decision": "@self.id",
+              "status": "skipped"
+            }
+          }
+        },
         "x-openregister-calculations": {
           "routeComplete": {
             "type": "boolean",
@@ -1989,7 +2018,7 @@
                 {
                   "gt": [
                     {
-                      "prop": "stageCount"
+                      "prop": "@aggregate.stageCount"
                     },
                     0
                   ]
@@ -1997,46 +2026,26 @@
                 {
                   "gte": [
                     {
-                      "add": [
+                      "+": [
                         {
-                          "prop": "decidedStageCount"
+                          "prop": "@aggregate.decidedStageCount"
                         },
                         {
-                          "prop": "skippedStageCount"
+                          "prop": "@aggregate.skippedStageCount"
                         }
                       ]
                     },
                     {
-                      "prop": "stageCount"
+                      "prop": "@aggregate.stageCount"
                     }
                   ]
                 }
               ]
             }
-          },
-          "currentStage": {
-            "type": "string",
-            "materialise": true,
-            "description": "UUID of the first DecisionStage whose status is not 'decided' or 'skipped', ordered by sequence. Null when all stages are decided/skipped (route complete) or when no route is configured. Declarative per ADR-031 (D4).",
-            "expression": {
-              "firstRelated": {
-                "schema": "DecisionStage",
-                "filter": {
-                  "decision": "@self.id",
-                  "status": {
-                    "notIn": [
-                      "decided",
-                      "skipped"
-                    ]
-                  }
-                },
-                "orderBy": "sequence",
-                "orderDir": "asc",
-                "returnField": "id"
-              }
-            }
           }
         },
+        "x-decidesk-routeComplete-note": "routeComplete is materialise: true, so OpenRegister PERSISTS it on save rather than computing it on read: CalculationOnSaveListener patches it into the payload before persistence, and RenderObject::applyVirtualCalculations() skips it for exactly that reason. A materialised value only survives if the schema DECLARES the property, because MagicMapper::prepareObjectDataForTable() is a whitelist by omission over the declared properties, with no JSON blob column to fall back on. It was not declared, so it was discarded on every write, 60 times in one install. It is declared under properties now, and nothing in decidiq writes it: the listener is the only legitimate writer. Two things also had to change for the value to be right rather than merely stored. The counts are declared a second time under x-openregister-aggregate-refs, because CalculationPayloadBuilder::build() resolves ONLY that key and injects each result as @aggregate.<name>, while x-openregister-aggregations is the reporting annotation AggregationController serves. Referencing the reporting names as bare props made each one null, so `null > 0` was false, the `and` short-circuited, and routeComplete was false on every decision whatever its route. Note `filters` (plural) in aggregate-refs against `filter` (singular) in aggregations: AggregateReferenceResolver::resolveOne() reads spec['filters']. And the sum operator is `+`; `add` is not in CalculationEvaluator's table and would have thrown Unknown operator.",
+        "x-decidesk-currentStage-note": "currentStage WAS declared as a materialised calculation over a `firstRelated` operator. No such operator exists: CalculationEvaluator's match falls through to `throw new EvaluationException(Unknown operator)`, CalculationOnSaveListener caught it and carried on, and the field never materialised on any decision. This is the same wall x-decidesk-effectiveStatus-note describes below, and it takes the same answer: the evaluator has no relation-traversal operator, so the first unresolved stage is derived where the route is read, from the DecisionStage rows the route UI already loads. Restore a calculation here only once OpenRegister ships a relation operator, and reference the counts as @aggregate rather than bare props.",
         "x-decidesk-effectiveStatus-note": "DESIGN D2 — effectiveStatus is NOT a declarative calculation. OpenRegister's CalculationEvaluator (openregister/lib/Service/Calculation/CalculationEvaluator.php) supports only scalar/arithmetic/date operators (prop, and, or, eq/ne/lt/lte/gt/gte, +, -, *, /, %, concat, if, now, diffDays, formatDate, dateDiff) — it has NO inverse/reverse-relation operator. The inbound 'which decided/enacted decision supersedes/repeals this one' lookup cannot be expressed as a materialised calculation. Per design D2 fallback, effectiveStatus is derived CLIENT-SIDE in RelatedDecisionsTab.vue + DecisionRouteTab.vue: query decisions whose supersedes/repeals array contains this id, filter to lifecycle in {decided, enacted}, precedence repealed > superseded > lifecycle."
       },
       "DecisionStage": {
@@ -3037,7 +3046,7 @@
         },
         "slug": "meeting",
         "icon": "CalendarAccountOutline",
-        "version": "0.6.0",
+        "version": "0.7.0",
         "title": "Meeting",
         "description": "A scheduled governance meeting with agenda, participants, and lifecycle",
         "type": "object",
@@ -3056,6 +3065,21 @@
           "lifecycle"
         ],
         "properties": {
+          "quorumPercentage": {
+            "type": "number",
+            "title": "Quorum Percentage",
+            "description": "Share of the governance body present at this meeting, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq."
+          },
+          "quorumWith": {
+            "type": "boolean",
+            "title": "Quorum Met",
+            "description": "Whether the meeting met its quorum, true when no quorum is required. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq."
+          },
+          "actionItemCompletionRate": {
+            "type": "number",
+            "title": "Action Item Completion Rate",
+            "description": "Share of this meeting's action items that are completed, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq."
+          },
           "title": {
             "title": "Title",
             "type": "string",
@@ -3306,6 +3330,38 @@
             }
           }
         },
+        "x-openregister-aggregate-refs": {
+          "totalParticipantCount": {
+            "metric": "count",
+            "schema": "Participant",
+            "filters": {
+              "governanceBody": "@self.governanceBody"
+            }
+          },
+          "presentParticipantCount": {
+            "metric": "count",
+            "schema": "Participant",
+            "filters": {
+              "governanceBody": "@self.governanceBody",
+              "attendanceStatus": "present"
+            }
+          },
+          "actionItemCount": {
+            "metric": "count",
+            "schema": "ActionItem",
+            "filters": {
+              "meeting": "@self.id"
+            }
+          },
+          "completedActionItemCount": {
+            "metric": "count",
+            "schema": "ActionItem",
+            "filters": {
+              "meeting": "@self.id",
+              "taskStatus": "completed"
+            }
+          }
+        },
         "x-openregister-calculations": {
           "quorumPercentage": {
             "type": "number",
@@ -3315,20 +3371,20 @@
                 {
                   "gt": [
                     {
-                      "prop": "totalParticipantCount"
+                      "prop": "@aggregate.totalParticipantCount"
                     },
                     0
                   ]
                 },
                 {
-                  "mul": [
+                  "*": [
                     {
-                      "div": [
+                      "/": [
                         {
-                          "prop": "presentParticipantCount"
+                          "prop": "@aggregate.presentParticipantCount"
                         },
                         {
-                          "prop": "totalParticipantCount"
+                          "prop": "@aggregate.totalParticipantCount"
                         }
                       ]
                     },
@@ -3355,7 +3411,7 @@
                 {
                   "gte": [
                     {
-                      "prop": "presentParticipantCount"
+                      "prop": "@aggregate.presentParticipantCount"
                     },
                     {
                       "prop": "quorumRequired"
@@ -3373,20 +3429,20 @@
                 {
                   "gt": [
                     {
-                      "prop": "actionItemCount"
+                      "prop": "@aggregate.actionItemCount"
                     },
                     0
                   ]
                 },
                 {
-                  "mul": [
+                  "*": [
                     {
-                      "div": [
+                      "/": [
                         {
-                          "prop": "completedActionItemCount"
+                          "prop": "@aggregate.completedActionItemCount"
                         },
                         {
-                          "prop": "actionItemCount"
+                          "prop": "@aggregate.actionItemCount"
                         }
                       ]
                     },
@@ -3397,7 +3453,8 @@
               ]
             }
           }
-        }
+        },
+        "x-decidesk-materialised-quorum-note": "Three materialised calculations here were discarded on every write and two of them are read in anger: MeetingTransitionGuard gates a transition on `quorumWith` and treats an absent value as false, and GovernanceHealthWidget filters out every meeting whose `quorumPercentage` is undefined, so the widget was always empty. Same mechanism as x-decidesk-routeComplete-note on Decision, in all three parts. MagicMapper::prepareObjectDataForTable() is a whitelist by omission over the DECLARED properties, so a materialised value with no property declaration is stored nowhere; the three are declared under properties now. CalculationPayloadBuilder::build() resolves only x-openregister-aggregate-refs and injects it as @aggregate.<name>, so the participant and action-item counts are declared there too and referenced that way, instead of as bare props that evaluated to null. And the operators are `*` and `/`: `mul` and `div` are not in CalculationEvaluator's table and threw Unknown operator, which the listener caught and swallowed. `quorumRequired` stays a bare prop because it is a real declared property."
       },
       "Membership": {
         "slug": "membership",
@@ -4516,7 +4573,6 @@
           }
         }
       },
-
       "PublicConsultation": {
         "x-openregister-notifications": {
           "consultationDeadline": {

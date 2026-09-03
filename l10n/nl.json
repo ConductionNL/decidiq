@@ -2117,7 +2117,15 @@
         "What was decided, how it was framed, and what reached the public.": "Wat er besloten is, hoe het geformuleerd was, en wat het publiek bereikte.",
         "How rounds ended, and how the votes fell.": "Hoe rondes eindigden, en hoe de stemmen vielen.",
         "Where meetings stand, how they are held, and who turned up.": "Waar vergaderingen staan, hoe ze gehouden worden, en wie er kwam.",
-        "Who spoke, for how long, and how engaged the room was.": "Wie er sprak, hoe lang, en hoe betrokken de zaal was."
+        "Who spoke, for how long, and how engaged the room was.": "Wie er sprak, hoe lang, en hoe betrokken de zaal was.",
+        "Route Complete": "Route afgerond",
+        "Whether every stage of this decision's route is decided or skipped. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq and never edited by hand.": "Of elke fase van de route van dit besluit is genomen of overgeslagen. Wordt door OpenRegister bij het opslaan gematerialiseerd uit x-openregister-calculations. Wordt nooit door decidiq geschreven en nooit met de hand aangepast.",
+        "Quorum Percentage": "Quorumpercentage",
+        "Share of the governance body present at this meeting, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.": "Het aandeel van het bestuursorgaan dat bij deze vergadering aanwezig is, in procenten. Wordt door OpenRegister bij het opslaan gematerialiseerd uit x-openregister-calculations. Wordt nooit door decidiq geschreven.",
+        "Quorum Met": "Quorum gehaald",
+        "Whether the meeting met its quorum, true when no quorum is required. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.": "Of de vergadering het quorum haalde; waar zodra er geen quorum vereist is. Wordt door OpenRegister bij het opslaan gematerialiseerd uit x-openregister-calculations. Wordt nooit door decidiq geschreven.",
+        "Action Item Completion Rate": "Afrondingsgraad actiepunten",
+        "Share of this meeting's action items that are completed, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.": "Het aandeel actiepunten van deze vergadering dat is afgerond, in procenten. Wordt door OpenRegister bij het opslaan gematerialiseerd uit x-openregister-calculations. Wordt nooit door decidiq geschreven."
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"
