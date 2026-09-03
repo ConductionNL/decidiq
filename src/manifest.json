@@ -640,6 +640,9 @@
 			"route": "/decisions/:id/integrations",
 			"type": "detail",
 			"title": "Decision integrations",
+			"slots": {
+				"form-dialog": "DecisionFormDialog"
+			},
 			"config": {
 				"register": "decidiq",
 				"schema": "decision",
@@ -876,7 +879,9 @@
 			"id": "MotionDetail",
 			"route": "/motions/:id",
 			"type": "detail",
+			"_note": "decision-types-as-configuration: same wiring and same reason as DecisionDetail. This page renders the Decision schema too, so its built-in Edit dialog showed an empty decisionType picker until the form-dialog slot (nextcloud-vue#944) let DecisionFormDialog splice the registry vocabulary in.",
 			"slots": {
+				"form-dialog": "DecisionFormDialog",
 				"widget-motion-amendments": "MotionAmendmentsTab",
 				"widget-motion-votes": "MotionVotesTab",
 				"widget-motion-amendment-order": "MotionAmendmentOrderTab",
@@ -960,7 +965,9 @@
 				},
 				"documentationUrl": "https://decidiq.conduction.nl"
 			},
+			"_note": "decision-types-as-configuration: same wiring and same reason as DecisionDetail. This page renders the Decision schema too, so its built-in Edit dialog showed an empty decisionType picker until the form-dialog slot (nextcloud-vue#944) let DecisionFormDialog splice the registry vocabulary in.",
 			"slots": {
+				"form-dialog": "DecisionFormDialog",
 				"widget-amend-diff": "AmendmentDiffTab",
 				"widget-amend-parent": "AmendmentParentMotionTab"
 			}
@@ -1131,7 +1138,9 @@
 			"id": "DecisionDetail",
 			"route": "/decisions/:id",
 			"type": "detail",
+			"_note": "decision-types-as-configuration: this detail page's built-in Edit dialog renders the same Decision schema the index pages do, and #1099 deliberately emptied properties.decisionType.enum (the decision_types app config is the only authority), so its type picker offered nothing and the required field blocked the save. #1109 fixed the two index pages through CnIndexPage's form-dialog slot; CnDetailPage grew the same slot with the same scope in nextcloud-vue#944, so the same DecisionFormDialog is wired here rather than a second copy of the vocabulary logic. The note stays a SIBLING of slots: CnPageRenderer resolves every slots entry as a registry name and warns on one it cannot find.",
 			"slots": {
+				"form-dialog": "DecisionFormDialog",
 				"widget-decision-lifecycle": "DecisionLifecycleTab",
 				"widget-decision-actions": "ActionItemsSurface",
 				"widget-decision-related": "RelatedDecisionsTab",

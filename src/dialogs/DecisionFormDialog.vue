@@ -5,9 +5,13 @@
  Dialog: schema-driven create/edit form for Decision objects, with the
  decisionType picker fed from the registry.
 
- This is a manifest `form-dialog` slot replacement for the Decisions and
- Motions index pages (wired via each page's `slots` map in
- src/manifest.json). The built-in dialog those pages otherwise render
+ This is a manifest `form-dialog` slot replacement for every decidiq
+ surface that renders the Decision schema in a form: the Decisions and
+ Motions INDEX pages, and the Decision, Motion, Amendment and Decision
+ integrations DETAIL pages (wired via each page's `slots` map in
+ src/manifest.json). CnIndexPage and CnDetailPage deliberately name the
+ slot the same and scope it the same, so one component serves both.
+ The built-in dialog those pages otherwise render
  builds its type picker from `properties.decisionType.enum` in the stored
  schema — and decision-types-as-configuration (#1099) deliberately
  emptied that enum, making the `decision_types` app config the only
@@ -30,10 +34,11 @@
 <template>
 	<CnFormDialog
 		v-if="show"
+		ref="dialog"
 		:schema="typedSchema"
 		:item="item"
 		register="decidiq"
-		@confirm="confirm"
+		@confirm="onConfirm"
 		@close="close" />
 </template>
 
@@ -43,6 +48,7 @@ import {
 	listDecisionTypes,
 	withDecisionTypeVocabulary,
 } from '../integrations/decisionLink.js'
+import { settleFormDialogResult } from './formDialogResult.js'
 
 export default {
 	name: 'DecisionFormDialog',
@@ -103,6 +109,35 @@ export default {
 	 */
 	async mounted() {
 		this.decisionTypes = await listDecisionTypes()
+	},
+
+	methods: {
+		/**
+		 * Save through the page's own persistence path, then hand the
+		 * outcome back to the dialog that submitted it.
+		 *
+		 * The result matters because this dialog is ours, not the page's:
+		 * CnFormDialog raises `loading` on submit and only `setResult()`
+		 * lowers it, with `no-close` bound to `loading`. On CnDetailPage a
+		 * failed edit leaves the form open, so dropping the result would
+		 * strand the user in a modal that can neither retry nor close.
+		 * CnIndexPage's `confirm` resolves to nothing and closes the dialog
+		 * by flipping `show` instead, which settleFormDialogResult() treats
+		 * as a normal outcome rather than a fault, so this one component
+		 * still serves both pages.
+		 *
+		 * @param {object} formData The submitted form data.
+		 * @param {?object} extra CnFormDialog's second confirm argument
+		 *   (extension answers), passed through untouched.
+		 *
+		 * @return {Promise<void>}
+		 *
+		 * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
+		 */
+		async onConfirm(formData, extra) {
+			const result = await this.confirm(formData, extra)
+			settleFormDialogResult(this.$refs.dialog, result)
+		},
 	},
 }
 </script>
