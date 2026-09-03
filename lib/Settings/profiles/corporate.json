@@ -64,7 +64,7 @@
 						"orderNumber": 2,
 						"estimatedDuration": 10,
 						"meeting": "c7d10000-0000-4000-a000-000000000041",
-						"description": "Votable quiz question. The teams present are the Management team and the Development team, resolved through the Pub quiz body's two direct compositions — nobody was added to the Pub quiz by hand.",
+						"description": "Votable quiz question. The teams present are the Management team and the Development team, resolved through the Pub quiz body's two direct compositions: nobody was added to the Pub quiz by hand.",
 						"id": "c7d10000-0000-4000-a000-000000000042",
 						"uuid": "c7d10000-0000-4000-a000-000000000042"
 					},
@@ -155,7 +155,7 @@
 						"isDraft": false,
 						"active": true,
 						"initialLifecycle": "open",
-						"description": "Non-votable housekeeping item — proves a meeting type admits more than one item kind.",
+						"description": "Non-votable housekeeping item: proves a meeting type admits more than one item kind.",
 						"id": "c7d10000-0000-4000-a000-000000000022",
 						"uuid": "c7d10000-0000-4000-a000-000000000022"
 					}
@@ -599,7 +599,7 @@
 						"decidedAt": "2026-05-01T09:15:00Z",
 						"method": "signature",
 						"decisionMakerType": "body",
-						"label": "Goedkeuring Raad van Commissarissen — eIDAS ondertekening",
+						"label": "Goedkeuring Raad van Commissarissen: eIDAS ondertekening",
 						"note": "RvC-besluit bekrachtigd via QES-handtekeningen. Notulen ondertekend door voorzitter en secretaris.",
 						"decision": "besluit-investering-acme",
 						"assignedBody": "raad-van-commissarissen-acme-bv",
@@ -796,7 +796,7 @@
 						"id": "c7d10000-0000-4000-a000-000000000051",
 						"uuid": "c7d10000-0000-4000-a000-000000000051",
 						"name": "Quiz answer",
-						"description": "A quiz question put to the assembled teams. Demonstrates REQ-CTM-003/004: the decision references this TYPE rather than copying it, and the type names the gremium competent to take it.",
+						"description": "A quiz question put to the assembled teams. Demonstrates 004: the decision references this TYPE rather than copying it, and the type names the gremium competent to take it.",
 						"decisionType": "motion",
 						"context": "operations",
 						"builtIn": false,
@@ -1359,7 +1359,7 @@
 							"schema": "meeting"
 						},
 						"slug": "directieoverleg-2025-04-14",
-						"title": "Directieoverleg week 16 — Gemeente Utrecht",
+						"title": "Directieoverleg week 16. Gemeente Utrecht",
 						"meetingType": "regular",
 						"scheduledDate": "2025-04-14T09:00:00Z",
 						"endDate": "2025-04-14T11:00:00Z",
@@ -1374,7 +1374,7 @@
 							"schema": "meeting"
 						},
 						"slug": "pub-quiz-night-2026-09",
-						"title": "Pub quiz — September 2026",
+						"title": "Pub quiz. September 2026",
 						"type": "c7d10000-0000-4000-a000-000000000031",
 						"governanceBody": "c7d10000-0000-4000-a000-000000000003",
 						"meetingType": "regular",
@@ -1410,7 +1410,7 @@
 							"schema": "meeting"
 						},
 						"slug": "rvc-vergadering-q1-2025",
-						"title": "RvC Vergadering Q1 2025 — Waterschap",
+						"title": "RvC Vergadering Q1 2025. Waterschap",
 						"meetingType": "regular",
 						"scheduledDate": "2025-02-05T10:00:00Z",
 						"endDate": "2025-02-05T13:00:00Z",
@@ -1443,7 +1443,7 @@
 						"isDraft": false,
 						"validFrom": "2026-01-01",
 						"active": true,
-						"description": "The Pub quiz body's own meeting kind. It exists in no enum anywhere in decidiq — that is the point: a gremium defined its own meeting type at runtime, with zero code changed.",
+						"description": "The Pub quiz body's own meeting kind. It exists in no enum anywhere in decidiq: that is the point: a gremium defined its own meeting type at runtime, with zero code changed.",
 						"id": "c7d10000-0000-4000-a000-000000000031",
 						"uuid": "c7d10000-0000-4000-a000-000000000031"
 					}
@@ -1693,7 +1693,7 @@
 						"maxConsecutiveTerms": 2,
 						"reappointable": true,
 						"active": true,
-						"description": "Chairs the management team. Its allowedHoldTypes admit an interim; the quizmaster's do not admit 'acting' — hold types are configured per position, not globally.",
+						"description": "Chairs the management team. Its allowedHoldTypes admit an interim; the quizmaster's do not admit 'acting': hold types are configured per position, not globally.",
 						"id": "c7d10000-0000-4000-a000-000000000012",
 						"uuid": "c7d10000-0000-4000-a000-000000000012"
 					},

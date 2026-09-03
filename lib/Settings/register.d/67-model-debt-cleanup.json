@@ -30,7 +30,7 @@
       },
       "Person": {
         "version": "0.2.0",
-        "description": "An individual person who participates in governance. Popolo: Person. Identity only — organisational role/relationship lives on Membership (ADR-001 §2). Replaces the flat Participant. Carries an optional nextcloudUserId (judge amendment, 2026-08-19, design.md Data-migration section): the Nextcloud account linkage carried over from the retired Participant shim, so the code chain's Participant-to-Person crosswalk has a strong identity key (match order: nextcloudUserId exact -> email exact -> create new) instead of relying on email heuristics alone.",
+        "description": "An individual person who participates in governance. Popolo: Person. Identity only: organisational role/relationship lives on Membership (ADR-001 §2). Replaces the flat Participant. Carries an optional nextcloudUserId (judge amendment, 2026-08-19, design.md Data-migration section): the Nextcloud account linkage carried over from the retired Participant shim, so the code chain's Participant-to-Person crosswalk has a strong identity key (match order: nextcloudUserId exact -> email exact -> create new) instead of relying on email heuristics alone.",
         "properties": {
           "nextcloudUserId": {
             "title": "Nextcloud user",
@@ -47,7 +47,7 @@
         "properties": {
           "boardMember": {
             "title": "Board member",
-            "description": "UUID of the Membership (the board member's role/relationship in this governance body) declaring the conflict of interest (REQ-SDM-023, was Participant).",
+            "description": "UUID of the Membership (the board member's role/relationship in this governance body) declaring the conflict of interest (was Participant).",
             "type": "string",
             "format": "uuid",
             "$ref": "Membership"
@@ -56,11 +56,11 @@
       },
       "Participant": {
         "version": "0.3.0",
-        "description": "DEPRECATED: superseded by Person + Membership (ADR-001 §2). Retained as a narrowed shim for exactly four remaining consumers: the Meeting quorum aggregation (totalParticipantCount/presentParticipantCount), VotingService::resolveParticipantUuid(), Vote.participant, and EngagementRecord.participant. As of this change, ConflictOfInterest.boardMember and ProxyAuthorization.grantor/holder no longer reference Participant (retargeted to Membership/Person respectively — REQ-SDM-023/024). A member or attendee of a governance body."
+        "description": "DEPRECATED: superseded by Person + Membership (ADR-001 §2). Retained as a narrowed shim for exactly four remaining consumers: the Meeting quorum aggregation (totalParticipantCount/presentParticipantCount), VotingService:resolveParticipantUuid, Vote.participant, and EngagementRecord.participant. As of this change, ConflictOfInterest.boardMember and ProxyAuthorization.grantor/holder no longer reference Participant (retargeted to Membership/Person respectively: 024). A member or attendee of a governance body."
       },
       "BoardProxy": {
         "version": "0.2.0",
-        "description": "RETIRED: superseded by ProxyAuthorization + its proxyStatus property, which now carries this schema's approval-workflow concept (pending-approval -> active -> suspended/revoked). Definition and slug are kept, not deleted (hardDelete: false, existing rows), but no new BoardProxy rows should be created — use ProxyAuthorization instead. Historical description: a proxy (volmacht) granted by one board member to another for a single meeting; the row ProxyVoteService wrote through /api/proxies and the row the per-holder proxy cap counted; the signed-document side of a volmacht lives on ProxyAuthorization.",
+        "description": "RETIRED: superseded by ProxyAuthorization + its proxyStatus property, which now carries this schema's approval-workflow concept (pending-approval -> active -> suspended/revoked). Definition and slug are kept, not deleted (hardDelete: false, existing rows), but no new BoardProxy rows should be created, use ProxyAuthorization instead. Historical description: a proxy (volmacht) granted by one board member to another for a single meeting; the row ProxyVoteService wrote through /api/proxies and the row the per-holder proxy cap counted; the signed-document side of a volmacht lives on ProxyAuthorization.",
         "x-openregister": {
           "schemaType": "custom:BoardProxy",
           "active": false,
