@@ -114,6 +114,7 @@ import ShieldKeyOutline from 'vue-material-design-icons/ShieldKeyOutline.vue'
 import ShieldLockOutline from 'vue-material-design-icons/ShieldLockOutline.vue'
 import Sitemap from 'vue-material-design-icons/Sitemap.vue'
 import Star from 'vue-material-design-icons/Star.vue'
+import StoreOutline from 'vue-material-design-icons/StoreOutline.vue'
 import SwapHorizontal from 'vue-material-design-icons/SwapHorizontal.vue'
 import TableColumn from 'vue-material-design-icons/TableColumn.vue'
 import TagOutline from 'vue-material-design-icons/TagOutline.vue'
@@ -229,6 +230,7 @@ export default {
 	ShieldLockOutline,
 	Sitemap,
 	Star,
+	StoreOutline,
 	SwapHorizontal,
 	TableColumn,
 	TagOutline,
