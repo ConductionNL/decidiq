@@ -2252,50 +2252,7 @@
           ],
           "_note": "Declarative guarded transition map (ADR-031 / design D4). Terminal states 'decided' and 'skipped' mirror the route-progress aggregation on Decision: a stage is resolved when it reaches either terminal state. The 'active' state marks the currentStage (derived declaratively on Decision via x-openregister-calculations)."
         },
-        "x-openregister-calculations": {
-          "outcome": {
-            "type": "string",
-            "materialise": false,
-            "description": "For method=vote: derives stage outcome from the linked VotingRound.result (adopted→adopted, rejected→rejected, tied→rejected, invalid→no outcome). Declarative per ADR-031 (C5 D4). For method=chair-register, advice, manual, and signature the outcome is set directly by the actor or EIDASSignatureService: no derivation.",
-            "expression": {
-              "if": [
-                {
-                  "eq": [
-                    {
-                      "prop": "method"
-                    },
-                    "vote"
-                  ]
-                },
-                {
-                  "switch": [
-                    {
-                      "prop": "votingRound.result"
-                    },
-                    [
-                      {
-                        "case": "adopted",
-                        "value": "adopted"
-                      },
-                      {
-                        "case": "rejected",
-                        "value": "rejected"
-                      },
-                      {
-                        "case": "tied",
-                        "value": "rejected"
-                      }
-                    ],
-                    null
-                  ]
-                },
-                {
-                  "prop": "outcome"
-                }
-              ]
-            }
-          }
-        }
+        "x-decidiq-outcome-note": "`outcome` is written by code, not derived by a calculation, and this schema deliberately declares no x-openregister-calculations. Three separate facts rule a calculation out. RenderObject::applyVirtualCalculations() assigns its result unconditionally, so a virtual calculation named after a stored property replaces that property on every read, and the only expression that would hand the stored value back ({\"prop\": \"outcome\"}) is a self-reference CalculationAnnotationValidator rejects as a cycle. CalculationOnSaveListener writes a materialised value whenever it differs from the stored one, null included, so materialise: true would clear every outcome an actor recorded. And the virtual read path builds its payload with @self only, never @ref or @aggregate, so a materialise: false calculation cannot read VotingRound.result across the votingRound relation at all. VotingRoundCloser::resolveDecisionStage() therefore records the vote outcome when the round closes: adopted to adopted, rejected and tied to rejected, invalid to no outcome. Every other method sets it directly: ApprovalRouteService for the route verbs, the chair for chair-register, EIDASSignatureService for signature."
       },
       "Deliberation": {
         "slug": "deliberation",
@@ -2490,41 +2447,7 @@
             "description": "Governance-specific engagement score (0–100), computed in-app by EngagementService.calculateScore() and stored on each capture"
           }
         },
-        "x-openregister-calculations": {
-          "speechCount": {
-            "type": "integer",
-            "description": "Number of speech events (generic count fed to the analytics leaf)",
-            "expression": {
-              "size": [
-                {
-                  "prop": "speeches"
-                }
-              ]
-            }
-          },
-          "questionCount": {
-            "type": "integer",
-            "description": "Number of questions raised (generic count fed to the analytics leaf)",
-            "expression": {
-              "size": [
-                {
-                  "prop": "questionsRaised"
-                }
-              ]
-            }
-          },
-          "topicCount": {
-            "type": "integer",
-            "description": "Number of topics suggested (generic count fed to the analytics leaf)",
-            "expression": {
-              "size": [
-                {
-                  "prop": "topicsSuggested"
-                }
-              ]
-            }
-          }
-        }
+        "x-decidiq-engagement-counts-note": "speechCount, questionCount and topicCount are deliberately not declared as calculations. No operator counts the entries of an array: the vocabulary CalculationEvaluator implements has neither size nor length, and an aggregate-reference counts objects of another schema rather than entries in an inline array on this one. The code that knows the answer already has it: EngagementService::applyEvent() appends the entry and calculateScore() counts all three in the same call, storing the result in engagementScore. If a reader ever needs the counts on their own they belong here as declared integer properties written by that service, not as a calculation."
       },
       "EvaluationResponse": {
         "slug": "evaluation-response",

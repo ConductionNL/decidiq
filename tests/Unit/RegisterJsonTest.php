@@ -881,11 +881,25 @@ class RegisterJsonTest extends TestCase {
 		self::assertContains(needle: 'meeting', haystack: $schema['required']);
 		self::assertContains(needle: 'participant', haystack: $schema['required']);
 
-		// Derived counts are exposed to the analytics leaf as calculations.
-		$calcs = ($schema['x-openregister-calculations'] ?? []);
-		self::assertArrayHasKey(key: 'speechCount', array: $calcs, message: 'speechCount calculation must exist');
-		self::assertArrayHasKey(key: 'questionCount', array: $calcs, message: 'questionCount calculation must exist');
-		self::assertArrayHasKey(key: 'topicCount', array: $calcs, message: 'topicCount calculation must exist');
+		// The three counts are NOT calculations. No operator counts the entries of
+		// an array, and an aggregate-reference counts objects of another schema,
+		// not entries in an inline array on this one. EngagementService appends
+		// the entry and counts all three in the same call, storing the result in
+		// engagementScore, which is a declared property.
+		self::assertArrayNotHasKey(
+			key: 'x-openregister-calculations',
+			array: $schema,
+			message: 'EngagementRecord declares no calculations; see x-decidiq-engagement-counts-note'
+		);
+		self::assertNotEmpty(
+			actual: ($schema['x-decidiq-engagement-counts-note'] ?? ''),
+			message: 'the note recording why the counts are not calculations must stay'
+		);
+		self::assertArrayHasKey(
+			key: 'engagementScore',
+			array: $schema['properties'],
+			message: 'engagementScore is the derived value EngagementService actually stores'
+		);
 
 		// Relations to Meeting and Participant must be declared as canonical property-level
 		// $refs (ADR-062 rule 7), not the retired x-openregister-relations block.

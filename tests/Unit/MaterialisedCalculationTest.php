@@ -44,14 +44,72 @@ use PHPUnit\Framework\TestCase;
 class MaterialisedCalculationTest extends TestCase {
 
 	/**
-	 * The register files whose schemas OpenRegister imports.
+	 * The operator vocabulary `CalculationEvaluator::evaluateNode()` implements,
+	 * which is also what `CalculationAnnotationValidator::VALID_OPS` accepts.
+	 *
+	 * Anything else throws "Unknown operator" at evaluation time, which the
+	 * listener and the render path both swallow: the field is silently absent
+	 * rather than wrong, and nothing surfaces where a user would see it. Three
+	 * plausible-sounding names have been written into this app's schemas and
+	 * none of them exist: `add` is `+`, `mul`/`div` are `*` and `/`, and
+	 * `switch`, `size` and `firstRelated` have no equivalent at all.
 	 *
 	 * @var array<int, string>
 	 */
-	private const REGISTERS = [
-		'decidesk_register.json',
-		'decidiq_mock_register.json',
+	private const OPERATORS = [
+		'prop',
+		'lit',
+		'concat',
+		'if',
+		'not',
+		'and',
+		'or',
+		'+',
+		'-',
+		'*',
+		'/',
+		'%',
+		'eq',
+		'ne',
+		'lt',
+		'lte',
+		'gt',
+		'gte',
+		'now',
+		'diffDays',
+		'formatDate',
+		'dateDiff',
+		'dateAdd',
+		'sequence',
+		'max',
+		'min',
+		'coalesce',
+		'abs',
+		'round',
+		'year',
+		'monthsElapsed',
+		'sha256',
 	];
+
+	/**
+	 * Every register document this app ships, base plus `register.d` fragments.
+	 *
+	 * `RegisterConfigurationLocator` deep-merges every `lib/Settings/register.d`
+	 * fragment over the base document, so a fragment's schemas are imported just
+	 * as the base file's are. Listing only the base files is how three broken
+	 * calculations on `Goal` shipped unmeasured.
+	 *
+	 * @return array<int, string> Absolute paths.
+	 */
+	private function registerFiles(): array {
+		$settings = __DIR__ . '/../../lib/Settings/';
+		$files = [$settings . 'decidesk_register.json', $settings . 'decidiq_mock_register.json'];
+		foreach ((glob($settings . 'register.d/*.json') ?: []) as $fragment) {
+			$files[] = $fragment;
+		}
+
+		return $files;
+	}//end registerFiles()
 
 	/**
 	 * Load every schema in every shipped register, keyed by file and name.
@@ -60,8 +118,8 @@ class MaterialisedCalculationTest extends TestCase {
 	 */
 	private function schemas(): array {
 		$out = [];
-		foreach (self::REGISTERS as $file) {
-			$path = __DIR__ . '/../../lib/Settings/' . $file;
+		foreach ($this->registerFiles() as $path) {
+			$file = basename($path);
 			$data = json_decode(file_get_contents($path), true);
 			$this->assertIsArray(actual: $data, message: $file . ' must parse as JSON');
 
@@ -76,6 +134,33 @@ class MaterialisedCalculationTest extends TestCase {
 
 		return $out;
 	}//end schemas()
+
+	/**
+	 * Every schema that declares calculations, with its calculations block.
+	 *
+	 * Asserts the sweep FOUND annotations. A sweep that silently matched nothing
+	 * passes every rule below it and proves nothing at all.
+	 *
+	 * @return array<int, array{0: string, 1: string, 2: array<string, mixed>, 3: array<string, mixed>}>
+	 */
+	private function declaredCalculations(): array {
+		$out = [];
+		foreach ($this->schemas() as [$file, $name, $schema]) {
+			$calcs = ($schema['x-openregister-calculations'] ?? null);
+			if (is_array($calcs) === false || $calcs === []) {
+				continue;
+			}
+
+			$out[] = [$file, $name, $schema, $calcs];
+		}
+
+		$this->assertNotEmpty(
+			actual: $out,
+			message: 'no schema declares x-openregister-calculations; the sweep below would assert nothing'
+		);
+
+		return $out;
+	}//end declaredCalculations()
 
 	/**
 	 * Every materialised calculation is declared as a property of its schema.
@@ -192,6 +277,205 @@ class MaterialisedCalculationTest extends TestCase {
 		$this->assertSame(expected: [], actual: $findings, message: implode("\n", $findings));
 
 	}//end testAggregateReferencesUseTheFiltersKey()
+
+	/**
+	 * Every shipped calculation uses operators the engine implements.
+	 *
+	 * `CalculationEvaluator::evaluateNode()` is a `match` with a default that
+	 * throws. `CalculationOnSaveListener` catches the throw and moves on, and
+	 * `RenderObject::applyVirtualCalculations()` catches it and writes a debug
+	 * line. Either way an invented operator costs the field its value with no
+	 * error anywhere a user or an operator would look.
+	 *
+	 * @return void
+	 */
+	public function testShippedCalculationsUseOperatorsTheEngineImplements(): void {
+		$findings = [];
+
+		foreach ($this->declaredCalculations() as [$file, $name, , $calcs]) {
+			foreach ($calcs as $calc => $spec) {
+				if (is_array($spec) === false) {
+					continue;
+				}
+
+				foreach ($this->expressionOperators(node: ($spec['expression'] ?? null)) as $op) {
+					if (in_array($op, self::OPERATORS, true) === true) {
+						continue;
+					}
+
+					$findings[] = $file . ' / ' . $name . ': calculation "' . $calc . '" uses operator "'
+						. $op . '", which CalculationEvaluator does not implement';
+				}
+			}
+		}
+
+		$this->assertSame(
+			expected: [],
+			actual: $findings,
+			message: "An operator the evaluator does not implement throws, both callers swallow the\n"
+			. "throw, and the field is silently absent. The vocabulary is: "
+			. implode(', ', self::OPERATORS) . ".\n\n" . implode("\n", $findings)
+		);
+
+	}//end testShippedCalculationsUseOperatorsTheEngineImplements()
+
+	/**
+	 * No calculation reads the property it is named after.
+	 *
+	 * A calculation and a property of the same name are the same key in the
+	 * rendered object, so `{"prop": "<own name>"}` reads the calculation, not the
+	 * stored value: `CalculationAnnotationValidator` rejects it as a cycle. It is
+	 * the shape you reach for when you want a calculation to fall back to what an
+	 * actor wrote, and it cannot be written. `DecisionStage.outcome` tried, and
+	 * the answer is that such a field belongs to the code that writes it.
+	 *
+	 * @return void
+	 */
+	public function testNoCalculationReadsItsOwnName(): void {
+		$findings = [];
+
+		foreach ($this->declaredCalculations() as [$file, $name, , $calcs]) {
+			foreach ($calcs as $calc => $spec) {
+				if (is_array($spec) === false) {
+					continue;
+				}
+
+				if (in_array((string)$calc, $this->propTokens(node: ($spec['expression'] ?? null)), true) === false) {
+					continue;
+				}
+
+				$findings[] = $file . ' / ' . $name . ': calculation "' . $calc
+					. '" reads "' . $calc . '", which is itself: a cycle, not a fallback to the stored value';
+			}
+		}
+
+		$this->assertSame(expected: [], actual: $findings, message: implode("\n", $findings));
+
+	}//end testNoCalculationReadsItsOwnName()
+
+	/**
+	 * A virtual calculation never takes the name of a declared property.
+	 *
+	 * `RenderObject::applyVirtualCalculations()` assigns `$data[$name] = $value`
+	 * unconditionally, so a `materialise: false` calculation named after a stored
+	 * property replaces that property on every read. A property an actor writes
+	 * and a calculation of the same name cannot both be right.
+	 *
+	 * @return void
+	 */
+	public function testVirtualCalculationsDoNotShadowADeclaredProperty(): void {
+		$findings = [];
+
+		foreach ($this->declaredCalculations() as [$file, $name, $schema, $calcs]) {
+			$properties = ($schema['properties'] ?? []);
+			foreach ($calcs as $calc => $spec) {
+				if (is_array($spec) === false || ($spec['materialise'] ?? false) === true) {
+					continue;
+				}
+
+				if (array_key_exists((string)$calc, $properties) === false) {
+					continue;
+				}
+
+				$findings[] = $file . ' / ' . $name . ': virtual calculation "' . $calc
+					. '" has the name of a declared property, so it replaces that property on every read';
+			}
+		}
+
+		$this->assertSame(expected: [], actual: $findings, message: implode("\n", $findings));
+
+	}//end testVirtualCalculationsDoNotShadowADeclaredProperty()
+
+	/**
+	 * A calculation reading `@ref` or `@aggregate` is materialised.
+	 *
+	 * Only the save-time path builds the enriched payload:
+	 * `CalculationOnSaveListener` calls `CalculationPayloadBuilder::build()`,
+	 * which resolves `x-openregister-references` into `@ref` and
+	 * `x-openregister-aggregate-refs` into `@aggregate`.
+	 * `RenderObject::applyVirtualCalculations()` builds its own payload with
+	 * `@self` alone. A `materialise: false` calculation reading either prefix
+	 * therefore resolves it to null, and the comparison around it quietly
+	 * answers false instead of throwing.
+	 *
+	 * @return void
+	 */
+	public function testCalculationsReadingReferencesOrAggregatesAreMaterialised(): void {
+		$findings = [];
+
+		foreach ($this->declaredCalculations() as [$file, $name, , $calcs]) {
+			foreach ($calcs as $calc => $spec) {
+				if (is_array($spec) === false || ($spec['materialise'] ?? false) === true) {
+					continue;
+				}
+
+				foreach ($this->propTokens(node: ($spec['expression'] ?? null)) as $token) {
+					if (str_starts_with($token, '@ref.') === false
+						&& str_starts_with($token, '@aggregate.') === false
+					) {
+						continue;
+					}
+
+					$findings[] = $file . ' / ' . $name . ': calculation "' . $calc . '" reads "' . $token
+						. '" but is materialise: false, and the render path resolves neither prefix';
+				}
+			}
+		}
+
+		$this->assertSame(
+			expected: [],
+			actual: $findings,
+			message: "Only CalculationOnSaveListener builds @ref and @aggregate. A virtual\n"
+			. "calculation reading either gets null, silently.\n\n" . implode("\n", $findings)
+		);
+
+	}//end testCalculationsReadingReferencesOrAggregatesAreMaterialised()
+
+	/**
+	 * Collect every operator key used in one calculation expression.
+	 *
+	 * Mirrors `CalculationAnnotationValidator::walk()`: an expression node is a
+	 * single-key array whose key is the operator, `dateDiff` alone takes a named
+	 * `{from, to, unit}` dict, and a bare scalar is a literal.
+	 *
+	 * @param mixed $node The expression, or any node inside it.
+	 *
+	 * @return array<int, string> The operator keys, in encounter order.
+	 */
+	private function expressionOperators(mixed $node): array {
+		if (is_array($node) === false) {
+			return [];
+		}
+
+		if (array_is_list($node) === true) {
+			$ops = [];
+			foreach ($node as $item) {
+				$ops = array_merge($ops, $this->expressionOperators(node: $item));
+			}
+
+			return $ops;
+		}
+
+		if (count($node) !== 1) {
+			return [];
+		}
+
+		$op = (string)array_key_first($node);
+		$args = $node[$op];
+		if ($op === 'prop' || $op === 'lit') {
+			return [$op];
+		}
+
+		if ($op === 'dateDiff' && is_array($args) === true) {
+			return array_merge(
+				['dateDiff'],
+				$this->expressionOperators(node: ($args['from'] ?? null)),
+				$this->expressionOperators(node: ($args['to'] ?? null))
+			);
+		}
+
+		return array_merge([$op], $this->expressionOperators(node: $args));
+	}//end expressionOperators()
 
 	/**
 	 * Collect every `prop` token used anywhere in a calculations block.
