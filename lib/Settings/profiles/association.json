@@ -34,6 +34,32 @@
 						"isRecurring": true
 					}
 				],
+				"audit-statement": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "audit-statement"
+						},
+						"slug": "audit-statement-parkstaete-2024",
+						"financialYear": 2024,
+						"verdict": "approving",
+						"notes": "De kascommissie heeft de administratie over 2024 gecontroleerd en stelt de ALV voor het bestuur decharge te verlenen.",
+						"governanceBody": "vve-parkstaete"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "audit-statement"
+						},
+						"slug": "audit-statement-parkstaete-2025",
+						"financialYear": 2025,
+						"verdict": "qualified",
+						"notes": "Goedkeurend met een kanttekening: twee facturen voor het MJOP-onderhoud ontbraken bij de stukken en zijn later nagestuurd.",
+						"governanceBody": "vve-parkstaete"
+					}
+				],
 				"body-governance-configuration": [
 					{
 						"@self": {
@@ -740,33 +766,6 @@
 						"status": "in-effect"
 					}
 				],
-				"kascommissie-verklaring": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "kascommissie-verklaring"
-						},
-						"slug": "kascommissie-verklaring-2024",
-						"financialYear": 2024,
-						"verdict": "qualified",
-						"notes": "Voorbehoud: onderhoudsfacturen Q3 ontbraken bij controle.",
-						"governanceBody": "00000000-0000-0000-0000-000000000000"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "kascommissie-verklaring"
-						},
-						"slug": "kascommissie-verklaring-2025",
-						"financialYear": 2025,
-						"verdict": "approving",
-						"notes": "Administratie ordelijk; reservefondsdotatie conform MJOP.",
-						"agendaItem": "00000000-0000-0000-0000-000000000000",
-						"governanceBody": "00000000-0000-0000-0000-000000000000"
-					}
-				],
 				"meeting": [
 					{
 						"@self": {
@@ -775,7 +774,7 @@
 							"schema": "meeting"
 						},
 						"slug": "ledenvergadering-vng-voorjaar-2025",
-						"title": "Algemene Ledenvergadering VNG — Voorjaar 2025",
+						"title": "Algemene Ledenvergadering VNG. Voorjaar 2025",
 						"meetingType": "public hearing",
 						"scheduledDate": "2025-06-18T13:00:00Z",
 						"endDate": "2025-06-18T17:00:00Z",
