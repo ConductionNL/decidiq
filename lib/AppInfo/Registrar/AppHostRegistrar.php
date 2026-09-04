@@ -125,5 +125,57 @@ class AppHostRegistrar {
 		// @phpstan-ignore-next-line
 		$context->registerEventListener(event: DeepLinkRegistrationEvent::class, listener: $listenerClass);
 
+		$this->bindStoreController(context: $context);
+
 	}//end register()
+
+	/**
+	 * Bind the store controller the adopted route table already declares.
+	 *
+	 * 🔴 THIS ROUTE ARRIVES WHETHER THE APP WANTS IT OR NOT.
+	 *
+	 * `Routes::standard()`, which appinfo/routes.php adopts, declares
+	 * `/api/store/items`. The binding normally comes from
+	 * `Bootstrap::register()`, and decidiq deliberately does not call that: it
+	 * keeps its own Settings, Preferences, AdminSettings and repair classes.
+	 * So the route matched a controller class that does not exist, and every
+	 * request to it returned HTTP 500 rather than 404. Measured on a running
+	 * instance 2026-09-03, alongside filinq and planninq.
+	 *
+	 * @param IRegistrationContext $context Registration context.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/apphost-adoption/spec.md
+	 */
+	private function bindStoreController(IRegistrationContext $context): void {
+		// ⚠️ THE AUTOLOAD PRELUDE IS NOT OPTIONAL HERE. `decidiq` sorts before
+		// `openregister`, and Nextcloud registers apps one at a time in sorted
+		// order, so `OCA\OpenRegister\` is NOT on the autoloader when this
+		// runs. Without this, the `class_exists()` below answers false on a
+		// perfectly healthy instance and the binding is silently skipped.
+		try {
+			$orPath = \OCP\Server::get(IAppManager::class)->getAppPath('openregister');
+			\OC_App::registerAutoloading('openregister', $orPath);
+		} catch (\Throwable) {
+			// OpenRegister absent or disabled. The store route degrades to the
+			// same unresolvable state it had before, which is the honest
+			// outcome when the engine that serves it is not installed.
+			return;
+		}
+
+		$bootstrap = 'OCA\\OpenRegister\\AppHost\\Bootstrap';
+		if (class_exists($bootstrap) === false || method_exists($bootstrap, 'aliasStoreController') === false) {
+			// An older OpenRegister that predates the helper. Skip rather than
+			// fatal: the route is no worse off than it is today.
+			return;
+		}
+
+		$bootstrap::aliasStoreController(
+			context: $context,
+			appId: Application::APP_ID,
+			controllerNs: 'OCA\\Decidiq\\Controller'
+		);
+
+	}//end bindStoreController()
 }//end class
