@@ -2141,7 +2141,13 @@ OC.L10N.register(
         "Action item completion rate": "Afrondingsgraad actiepunten",
         "Share of this goal's linked action items that are completed, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.": "Het aandeel actiepunten bij dit doel dat is afgerond, in procenten. Wordt door OpenRegister bij het opslaan gematerialiseerd uit x-openregister-calculations. Wordt nooit door decidiq geschreven.",
         "Child goal achieved rate": "Behaalgraad subdoelen",
-        "Share of this goal's direct child goals that are achieved, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.": "Het aandeel directe subdoelen van dit doel dat is behaald, in procenten. Wordt door OpenRegister bij het opslaan gematerialiseerd uit x-openregister-calculations. Wordt nooit door decidiq geschreven."
+        "Share of this goal's direct child goals that are achieved, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.": "Het aandeel directe subdoelen van dit doel dat is behaald, in procenten. Wordt door OpenRegister bij het opslaan gematerialiseerd uit x-openregister-calculations. Wordt nooit door decidiq geschreven.",
+        "Store": "Store",
+        "Install governance configuration that other organisations have published: a council with its committees and factions, an association with its members' meeting, or the flows that move a decision through them.": "Installeer bestuursconfiguratie die andere organisaties hebben gepubliceerd: een raad met commissies en fracties, een vereniging met haar ledenvergadering, of de flows waarmee een besluit zijn weg aflegt.",
+        "A council with committees and factions. Motions, commitments, information letters and a regulations register.": "Een raad met commissies en fracties. Moties, toezeggingen, informatiebrieven en een verordeningenregister.",
+        "A members' meeting with a board. House rules, weighted votes, audit statements and annual accounts.": "Een ledenvergadering met een bestuur. Huishoudelijk reglement, gewogen stemmen, kascommissieverklaringen en jaarrekeningen.",
+        "A supervisory board, an executive board and a management team. Terms, conflicts of interest and evaluations.": "Een raad van commissarissen, een raad van bestuur en een managementteam. Zittingstermijnen, belangenverstrengeling en evaluaties.",
+        "A works council inside a company. Advice requests, consent requests and staff consultation.": "Een ondernemingsraad binnen een bedrijf. Adviesaanvragen, instemmingsverzoeken en achterbanraadpleging."
     },
     "nplurals=2; plural=(n != 1);"
 )

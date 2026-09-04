@@ -1808,7 +1808,13 @@ OC.L10N.register(
         "Action item completion rate": "Action item completion rate",
         "Share of this goal's linked action items that are completed, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.": "Share of this goal's linked action items that are completed, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.",
         "Child goal achieved rate": "Child goal achieved rate",
-        "Share of this goal's direct child goals that are achieved, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.": "Share of this goal's direct child goals that are achieved, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq."
+        "Share of this goal's direct child goals that are achieved, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.": "Share of this goal's direct child goals that are achieved, as a percentage. Materialised by OpenRegister on save from x-openregister-calculations. Never written by decidiq.",
+        "Store": "Store",
+        "Install governance configuration that other organisations have published: a council with its committees and factions, an association with its members' meeting, or the flows that move a decision through them.": "Install governance configuration that other organisations have published: a council with its committees and factions, an association with its members' meeting, or the flows that move a decision through them.",
+        "A council with committees and factions. Motions, commitments, information letters and a regulations register.": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
+        "A members' meeting with a board. House rules, weighted votes, audit statements and annual accounts.": "A members' meeting with a board. House rules, weighted votes, audit statements and annual accounts.",
+        "A supervisory board, an executive board and a management team. Terms, conflicts of interest and evaluations.": "A supervisory board, an executive board and a management team. Terms, conflicts of interest and evaluations.",
+        "A works council inside a company. Advice requests, consent requests and staff consultation.": "A works council inside a company. Advice requests, consent requests and staff consultation."
     },
     "nplurals=2; plural=(n != 1);"
 )
