@@ -157,6 +157,25 @@ class AppHostRegistrar {
 	 * reason.
 	 *
 	 * @spec openspec/specs/apphost-adoption/spec.md
+	 *
+	 * 🔴 `$context` IS USED — psalm just cannot see it, and the error it prints
+	 * names the wrong thing.
+	 *
+	 * It is passed to `Bootstrap::aliasStoreController(context: $context, …)`
+	 * below. `OCA\OpenRegister\AppHost\Bootstrap` lives in a SIBLING app that
+	 * may be absent, so psalm cannot resolve it and does not count the call as a
+	 * use of the parameter. What it reports is
+	 * `UnusedParam: Param context is never referenced in this method`, which
+	 * reads as dead code and is not: deleting the parameter would break the
+	 * store-route binding at runtime.
+	 *
+	 * Suppressed HERE, on the one method, rather than by adding the class to
+	 * psalm.xml's UndefinedClass list: that was tried and changed nothing,
+	 * because psalm never raised UndefinedClass for it in the first place. A
+	 * config entry that suppresses an error nobody reports is noise that outlives
+	 * whoever added it.
+	 *
+	 * @psalm-suppress UnusedParam
 	 */
 	private function bindStoreController(IRegistrationContext $context): void {
 		// ⚠️ THE PRELUDE IS NOT OPTIONAL HERE. `decidiq` sorts before
