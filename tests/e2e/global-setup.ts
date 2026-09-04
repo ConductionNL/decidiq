@@ -130,10 +130,34 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 	// localStorage, so every spec that reuses this storage state starts with
 	// the walkthrough already marked as seen — no occ, no API, CI-safe and
 	// self-contained.
+	// The non-gating SETUP WIZARD needs the same treatment, and it is a
+	// different modal from the walkthrough above.
+	//
+	// CnAppRoot auto-opens it once per manifest `setup.version` whenever an
+	// OPTIONAL setup step is unmet — on decidiq that is "Load the example
+	// data", which is unmet on any instance nobody has seeded. Its backdrop
+	// intercepts pointer events, so every click-through spec resolves its
+	// locator and then times out at 30s while Playwright reports the target
+	// "visible, enabled and stable".
+	//
+	// Measured on a fresh instance: 115 of 131 specs failed this way, and
+	// `document.elementFromPoint()` over a nav link returned
+	// `DIV.modal-wrapper--large` rather than the link. Only app-chrome.spec.ts
+	// dismissed it, per-spec, so the suite could not run on a clean install at
+	// all — which is exactly what a throwaway e2e instance is.
+	//
+	// The dismissal key is `cn-setup-wizard-dismissed:<appId>:<setup.version>`
+	// (CnAppRoot.setupWizardDismissKey). Seeding it here rather than clicking
+	// Close in each spec keeps the fix in one place and out of the specs.
 	await page.goto('/apps/decidiq/')
 	await page.evaluate(() => {
 		try {
 			window.localStorage.setItem('cn-walkthrough-seen:decidiq', '9999.0.0')
+			// Cover the declared version and a few ahead, so a manifest bump
+			// does not silently reopen the wizard for the whole suite.
+			for (let v = 1; v <= 20; v++) {
+				window.localStorage.setItem('cn-setup-wizard-dismissed:decidiq:' + v, '1')
+			}
 		} catch {
 			// Non-fatal: private mode / no storage.
 		}
