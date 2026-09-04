@@ -16,33 +16,10 @@
 					"title": "Which kind of organisation is this for?",
 					"configKey": "example_profile",
 					"required": false,
-					"body": "Pick the organisation this app runs for and you get a worked example of it: bodies, meetings, decisions and templates that fit. Installing the app plants nothing on its own, so this is the only step that adds data. Choose \"None\" on a production install.",
-					"options": [
-						{
-							"value": "none",
-							"label": "None, I will set this up myself"
-						},
-						{
-							"value": "municipality",
-							"label": "Municipality"
-						},
-						{
-							"value": "association",
-							"label": "Association or VvE"
-						},
-						{
-							"value": "corporate",
-							"label": "Company board"
-						},
-						{
-							"value": "works-council",
-							"label": "Works council"
-						},
-						{
-							"value": "generated",
-							"label": "Every schema, generated values"
-						}
-					]
+					"body": "Pick the organisation this app runs for. You get a worked example of it: bodies, meetings, decisions and templates that fit. Pick several if you want to compare them. Installing the app plants nothing on its own, so this step is the only one that adds data. Choose \"None\" on a production install.",
+					"display": "cards",
+					"optionsSource": "profiles",
+					"multiple": true
 				},
 				{
 					"id": "load-example-set",
@@ -50,7 +27,7 @@
 					"action": "load-example-set",
 					"title": "Load the example data",
 					"required": false,
-					"body": "Loads the set you picked. The data is obviously sample data, it is safe to run more than once, and you can delete it afterwards."
+					"body": "Loads the sets you picked. The data is obviously sample data, it is safe to run more than once, and you can delete it afterwards."
 				},
 				{
 					"id": "done",
