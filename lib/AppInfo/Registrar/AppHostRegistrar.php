@@ -158,24 +158,26 @@ class AppHostRegistrar {
 	 *
 	 * @spec openspec/specs/apphost-adoption/spec.md
 	 *
-	 * 🔴 `$context` IS USED — psalm just cannot see it, and the error it prints
-	 * names the wrong thing.
+	 * 🔴 `$context` IS USED. psalm used to say otherwise, and the error it
+	 * printed named the wrong thing.
 	 *
 	 * It is passed to `Bootstrap::aliasStoreController(context: $context, …)`
 	 * below. `OCA\OpenRegister\AppHost\Bootstrap` lives in a SIBLING app that
-	 * may be absent, so psalm cannot resolve it and does not count the call as a
-	 * use of the parameter. What it reports is
-	 * `UnusedParam: Param context is never referenced in this method`, which
-	 * reads as dead code and is not: deleting the parameter would break the
-	 * store-route binding at runtime.
+	 * may be absent, so psalm could not resolve it, pruned the guarded block as
+	 * dead code, and then reported
+	 * `UnusedParam: Param context is never referenced in this method`. Read
+	 * literally that invites you to delete a parameter the store-route binding
+	 * needs at runtime.
 	 *
-	 * Suppressed HERE, on the one method, rather than by adding the class to
-	 * psalm.xml's UndefinedClass list: that was tried and changed nothing,
-	 * because psalm never raised UndefinedClass for it in the first place. A
-	 * config entry that suppresses an error nobody reports is noise that outlives
-	 * whoever added it.
+	 * There is no `@psalm-suppress UnusedParam` here any more. psalm now reads
+	 * the class from a shared analysis stub,
+	 * `vendor/conduction/hydra-gates/hydra-gates/stubs/openregister-apphost-bootstrap.stub.php`,
+	 * named in psalm.xml. The suppression worked, but it would also have hidden
+	 * the next genuinely unused parameter in this method; the stub answers the
+	 * question psalm is asking and leaves the call type-checked.
 	 *
-	 * @psalm-suppress UnusedParam
+	 * Shared rather than vendored here, because filinq and planninq adopted the
+	 * same route table and write the same call.
 	 */
 	private function bindStoreController(IRegistrationContext $context): void {
 		// ⚠️ THE PRELUDE IS NOT OPTIONAL HERE. `decidiq` sorts before
