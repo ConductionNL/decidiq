@@ -247,14 +247,14 @@
         "x-openregister-aggregate-refs": {
           "linkedCommitmentCount": {
             "metric": "count",
-            "schema": "Toezegging",
+            "schema": "toezegging",
             "filters": {
               "goal": "@self.id"
             }
           },
           "settledCommitmentCount": {
             "metric": "count",
-            "schema": "Toezegging",
+            "schema": "toezegging",
             "filters": {
               "goal": "@self.id",
               "lifecycle": "disposed"
@@ -262,14 +262,14 @@
           },
           "linkedActionItemCount": {
             "metric": "count",
-            "schema": "ActionItem",
+            "schema": "action-item",
             "filters": {
               "goal": "@self.id"
             }
           },
           "completedActionItemCount": {
             "metric": "count",
-            "schema": "ActionItem",
+            "schema": "action-item",
             "filters": {
               "goal": "@self.id",
               "taskStatus": "completed"
@@ -277,7 +277,7 @@
           },
           "childGoalCount": {
             "metric": "count",
-            "schema": "Goal",
+            "schema": "goal",
             "filters": {
               "parentGoal": "@self.id"
             },
@@ -285,7 +285,7 @@
           },
           "achievedChildGoalCount": {
             "metric": "count",
-            "schema": "Goal",
+            "schema": "goal",
             "filters": {
               "parentGoal": "@self.id",
               "status": "achieved"

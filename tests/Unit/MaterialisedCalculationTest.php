@@ -279,6 +279,91 @@ class MaterialisedCalculationTest extends TestCase {
 	}//end testAggregateReferencesUseTheFiltersKey()
 
 	/**
+	 * Every aggregate-reference names a target that actually RESOLVES.
+	 *
+	 * `AggregateReferenceResolver::resolveOne()` hands `schema` straight to
+	 * `AggregationRunner::runAdhocByRef()`, which resolves it through
+	 * `RegisterScopedSchemaResolver` and finally `SchemaMapper::findInIds()`.
+	 * That query matches a **uuid**, a **case-insensitive slug**, and — only
+	 * when the ref is numeric — the primary key. It never matches the key the
+	 * register document files the schema under, and never the schema `title`.
+	 *
+	 * A target that does not resolve throws inside the resolver, which catches
+	 * it, logs `Aggregate-reference resolution failed`, and injects **null**.
+	 * The save still succeeds. `Decision.routeComplete` named `DecisionStage`
+	 * where the slug is `decision-stage`, so all three of its counts were null,
+	 * `null > 0` was false, the `and` short-circuited, and routeComplete came
+	 * out false on every decision whatever its route: 129 warnings on one fresh
+	 * rig, and #1124 declared the property and corrected the annotation key
+	 * without the reference inside it ever resolving.
+	 *
+	 * The annotation validator cannot catch this. It checks the shape of the
+	 * block and that `@aggregate.<name>` names a declared reference; it never
+	 * loads the target, so an unresolvable target passes every check there is.
+	 *
+	 * @return void
+	 */
+	public function testAggregateReferenceTargetsResolveToAShippedSlug(): void {
+		$slugsByKey = [];
+		$slugs = [];
+		foreach ($this->schemas() as [, $name, $schema]) {
+			$slug = ($schema['slug'] ?? null);
+			if (is_string($slug) === false || $slug === '') {
+				continue;
+			}
+
+			$slugs[strtolower($slug)] = $slug;
+			$slugsByKey[$name] = $slug;
+		}
+
+		$this->assertNotEmpty(actual: $slugs, message: 'the registers must declare schema slugs to resolve against');
+
+		$checked = 0;
+		$findings = [];
+		foreach ($this->schemas() as [$file, $name, $schema]) {
+			foreach (($schema['x-openregister-aggregate-refs'] ?? []) as $ref => $spec) {
+				if (is_array($spec) === false) {
+					continue;
+				}
+
+				$target = ($spec['schema'] ?? null);
+				if (is_string($target) === false || $target === '') {
+					$findings[] = $file . ' / ' . $name . ': aggregate-reference "' . $ref . '" names no target schema';
+					continue;
+				}
+
+				$checked++;
+				if (array_key_exists(strtolower($target), $slugs) === true) {
+					continue;
+				}
+
+				$hint = ' and no shipped schema carries that slug';
+				if (array_key_exists($target, $slugsByKey) === true) {
+					$hint = ', which is the register document KEY of the schema whose slug is "'
+						. $slugsByKey[$target] . '". The resolver matches slugs, never keys';
+				}
+
+				$findings[] = $file . ' / ' . $name . ': aggregate-reference "' . $ref . '" targets "'
+					. $target . '"' . $hint;
+			}
+		}
+
+		$this->assertGreaterThan(
+			expected: 0,
+			actual: $checked,
+			message: 'no aggregate-reference target was checked; the sweep would assert nothing'
+		);
+		$this->assertSame(
+			expected: [],
+			actual: $findings,
+			message: "An aggregate-reference whose target does not resolve injects null and logs a\n"
+			. "warning. The calculation reading it then answers false or zero, and the save\n"
+			. "succeeds. Name the schema's SLUG.\n\n" . implode("\n", $findings)
+		);
+
+	}//end testAggregateReferenceTargetsResolveToAShippedSlug()
+
+	/**
 	 * Every shipped calculation uses operators the engine implements.
 	 *
 	 * `CalculationEvaluator::evaluateNode()` is a `match` with a default that
