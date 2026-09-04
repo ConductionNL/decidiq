@@ -295,7 +295,12 @@ test.describe('example sets', () => {
 		// can read what a set contains before choosing it, which is the whole
 		// reason the dropdown was replaced. A step that renders zero cards
 		// answers every API assertion in this file and is completely broken.
-		await page.goto(`${BASE}/settings/admin/decidiq`, {
+		// 🔴 NOT `${BASE}`. That constant is the APP path (`/apps/decidiq`), which
+		// every other test here uses to build API URLs; joining the settings
+		// route onto it lands on `/apps/decidiq/settings/admin/decidiq`, a
+		// vue-router route that renders the app shell. The admin section lives
+		// at the server root.
+		await page.goto('/settings/admin/decidiq', {
 			waitUntil: 'domcontentloaded',
 		})
 		await page.waitForSelector('[data-testid="admin-root"]', { timeout: 15_000 })
