@@ -262,6 +262,17 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\MigrateKascommissieToAuditStatement</step>
             <!--
+                After InitializeSettings imports the register (76-questions-as-agenda-items.json
+                must already have retired the three source schemas). Copies mondelinge-vraag and
+                interpellatieverzoek rows onto the generic agenda-item, carrying each row's
+                distinctive fields in `typeFields` and its kind in a per-body agenda-item-type,
+                then folds vragenuur-configuratie onto those types. Identity is the SOURCE object's
+                uuid, recorded as `typeFields.migratedFromObject`: unlike a body configuration a
+                body has many questions, so the body cannot be the identity and only the source row
+                can. Non-destructive: never deletes or edits a source row.
+            -->
+            <step>OCA\Decidiq\Migration\MigrateQuestionsToAgendaItems</step>
+            <!--
                 model-debt-cleanup-code: both steps below run AFTER InitializeSettings so they
                 read the NEW $ref declarations (Participant -> Membership/Person retargets,
                 model-debt-cleanup-schema fragment 67) to know what a valid target type looks

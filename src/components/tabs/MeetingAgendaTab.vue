@@ -177,6 +177,10 @@ export default {
 			rows: [],
 			meeting: null,
 			agendaSchema: null,
+			// uuid → name for the agenda-item types this instance has configured.
+			// Empty is a valid state, not a failure: an instance that seeds no
+			// types shows the coarse enum and nothing breaks.
+			itemTypeNames: {},
 			formOpen: false,
 			editTarget: null,
 			deleteTarget: null,
@@ -196,7 +200,15 @@ export default {
 					width: '60px',
 				},
 				{ key: 'titleDisplay', label: this.t('decidiq', 'Title') },
-				{ key: 'itemType', label: this.t('decidiq', 'Type') },
+				// The CONFIGURABLE kind, not the coarse enum. Since
+				// questions-as-agenda-items collapsed oral questions and
+				// interpellation requests into agenda items, `itemType`
+				// (informational/discussion/decision) would render every one of
+				// them as "discussion" and the column would stop telling a clerk
+				// anything. `kindDisplay` falls back to `itemType` for an item
+				// whose type is unset, so an instance that seeds no types reads
+				// exactly as it did before.
+				{ key: 'kindDisplay', label: this.t('decidiq', 'Type') },
 				{
 					key: 'estimatedDuration',
 					label: this.t('decidiq', 'Duration (min)'),
@@ -270,12 +282,14 @@ export default {
 					_order: JSON.stringify({ orderNumber: 'asc' }),
 					_limit: 100,
 				})
+				await this.loadItemTypes()
 				// Tree order: sub-items (`parentItem`) nest under their parent;
 				// flattened parent→children order with a nesting indicator.
 				const flat = flattenTree(buildAgendaTree(items || []))
 				this.rows = flat.map((item) => ({
 					...item,
 					titleDisplay: item.parentItem ? `↳ ${item.title}` : item.title,
+					kindDisplay: this.itemTypeNames[item.type] || item.itemType,
 				}))
 				await this.loadMeeting()
 			} catch (e) {
@@ -283,6 +297,33 @@ export default {
 					e?.message || this.t('decidiq', 'Failed to load agenda.')
 			} finally {
 				this.loading = false
+			}
+		},
+
+		/**
+		 * Fetch the configured agenda-item types, so the Type column can name
+		 * the kind an item actually is.
+		 *
+		 * Fail-soft on purpose: a fetch that throws leaves the map empty, every
+		 * row falls back to `itemType`, and the agenda still renders. An empty
+		 * agenda-item-type collection is the normal state of an instance that
+		 * has seeded no example set, so it must not read as an error.
+		 *
+		 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+		 */
+		async loadItemTypes() {
+			try {
+				const typeStore = ensureRelationType('agenda-item-type')
+				const types = await typeStore.fetchCollection('agenda-item-type', {
+					_limit: 200,
+				})
+				const names = {}
+				for (const type of types || []) {
+					if (type?.id && type?.name) names[type.id] = type.name
+				}
+				this.itemTypeNames = names
+			} catch {
+				this.itemTypeNames = {}
 			}
 		},
 
