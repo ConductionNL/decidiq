@@ -1009,14 +1009,14 @@
         "x-openregister-aggregate-refs": {
           "totalParticipantCount": {
             "metric": "count",
-            "schema": "Participant",
+            "schema": "participant",
             "filters": {
               "governanceBody": "@self.governanceBody"
             }
           },
           "presentParticipantCount": {
             "metric": "count",
-            "schema": "Participant",
+            "schema": "participant",
             "filters": {
               "governanceBody": "@self.governanceBody",
               "attendanceStatus": "present"
@@ -1024,14 +1024,14 @@
           },
           "actionItemCount": {
             "metric": "count",
-            "schema": "ActionItem",
+            "schema": "action-item",
             "filters": {
               "meeting": "@self.id"
             }
           },
           "completedActionItemCount": {
             "metric": "count",
-            "schema": "ActionItem",
+            "schema": "action-item",
             "filters": {
               "meeting": "@self.id",
               "taskStatus": "completed"
@@ -2496,14 +2496,14 @@
         "x-openregister-aggregate-refs": {
           "stageCount": {
             "metric": "count",
-            "schema": "DecisionStage",
+            "schema": "decision-stage",
             "filters": {
               "decision": "@self.id"
             }
           },
           "decidedStageCount": {
             "metric": "count",
-            "schema": "DecisionStage",
+            "schema": "decision-stage",
             "filters": {
               "decision": "@self.id",
               "status": "decided"
@@ -2511,7 +2511,7 @@
           },
           "skippedStageCount": {
             "metric": "count",
-            "schema": "DecisionStage",
+            "schema": "decision-stage",
             "filters": {
               "decision": "@self.id",
               "status": "skipped"
