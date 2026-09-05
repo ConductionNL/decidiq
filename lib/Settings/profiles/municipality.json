@@ -1049,6 +1049,7 @@
 						"decisionType": "resolution",
 						"title": "Besluit vaststelling reglement van orde gemeenteraad Amsterdam",
 						"text": "Besluit van de gemeenteraad van Amsterdam tot vaststelling van het reglement van orde (Gemeentewet art. 16).",
+						"lifecycle": "enacted",
 						"decisionDate": "2023-03-01",
 						"outcome": "adopted"
 					},
@@ -1062,6 +1063,7 @@
 						"decisionType": "resolution",
 						"title": "Verordening parkeren 2026",
 						"text": "Vaststelling van de verordening parkeren 2026, voortvloeiend uit de bespreking van de kadernota begroting 2026.",
+						"lifecycle": "decided",
 						"decisionDate": "2026-06-15",
 						"outcome": "adopted",
 						"meeting": "raadsvergadering-2025-01-15",
