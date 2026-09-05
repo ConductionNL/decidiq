@@ -3,6 +3,13 @@ OC.L10N.register(
     {
         "2026": "2026",
         "2027": "2027",
+        "De datum waarop het besluit is gepubliceerd. Onderscheiden van `publishedAt`, dat het moment van publiceren in dit systeem vastlegt; dit is de datum die het besluit zelf draagt. BRC `publicatiedatum`.": "De datum waarop het besluit is gepubliceerd. Onderscheiden van `publishedAt`, dat het moment van publiceren in dit systeem vastlegt; dit is de datum die het besluit zelf draagt. BRC `publicatiedatum`.",
+        "De datum waarop het besluit is verzonden aan de belanghebbende. BRC `verzenddatum`.": "De datum waarop het besluit is verzonden aan de belanghebbende. BRC `verzenddatum`.",
+        "De datum waarop het besluit vervalt. Onderscheiden van `effectiveDate`, die zegt wanneer het ingaat. BRC `vervaldatum`.": "De datum waarop het besluit vervalt. Onderscheiden van `effectiveDate`, die zegt wanneer het ingaat. BRC `vervaldatum`.",
+        "Het RSIN van de organisatie die verantwoordelijk is voor het besluit. Een RSIN en niet een `$ref`: de BRC identificeert de verantwoordelijke met dit nummer, en een verwijzing die alleen binnen deze instantie oplost zou het contract breken.": "Het RSIN van de organisatie die verantwoordelijk is voor het besluit. Een RSIN en niet een `$ref`: de BRC identificeert de verantwoordelijke met dit nummer, en een verwijzing die alleen binnen deze instantie oplost zou het contract breken.",
+        "Publicatiedatum": "Publicatiedatum",
+        "Verantwoordelijke organisatie": "Verantwoordelijke organisatie",
+        "Verzenddatum": "Verzenddatum",
         "#": "#",
         "+ Action item": "+ Actiepunt",
         "+ Action item for {title}": "+ Actiepunt voor {title}",
@@ -15,7 +22,7 @@ OC.L10N.register(
         "7d": "7d",
         "90d": "90d",
         "@objectId": "@objectId",
-        "A council with committees and factions. Motions, commitments, information letters and a regulations register.": "Een raad met commissies en fracties. Moties, toezeggingen, informatiebrieven en een verordeningenregister.",
+        "A council with committees and factions. Motions, commitments, information letters and a regulations register.": "Een raad met commissies en fracties. Moties, toezeggingen, raadsinformatiebrieven en een verordeningenregister.",
         "A delegation needs an end date — it expires automatically.": "Een delegatie heeft een einddatum nodig — deze verloopt automatisch.",
         "A draft type cannot back new agenda items.": "Een concepttype kan geen nieuwe agendapunten dragen.",
         "A draft type cannot back new meetings.": "Een concepttype kan geen nieuwe vergaderingen dragen.",
@@ -23,7 +30,7 @@ OC.L10N.register(
         "A members' meeting with a board. House rules, weighted votes, audit statements and annual accounts.": "Een ledenvergadering met een bestuur. Huishoudelijk reglement, gewogen stemmen, kascommissieverklaringen en jaarrekeningen.",
         "A short setup to get this app ready. Nothing here is required; you can close it and come back later.": "Een korte installatie om deze app klaar te zetten. Niets hiervan is verplicht; je kunt dit sluiten en later terugkomen.",
         "A supervisory board, an executive board and a management team. Terms, conflicts of interest and evaluations.": "Een raad van commissarissen, een raad van bestuur en een managementteam. Zittingstermijnen, belangenverstrengeling en evaluaties.",
-        "A works council inside a company. Advice requests, consent requests and staff consultation.": "Een ondernemingsraad binnen een bedrijf. Adviesaanvragen, instemmingsverzoeken en achterbanraadpleging.",
+        "A works council inside a company. Advice requests, consent requests and staff consultation.": "Een ondernemingsraad binnen een bedrijf. Adviesaanvragen, instemmingsaanvragen en achterbanraadpleging.",
         "AI": "AI",
         "AI generated": "AI-gegenereerd",
         "AI-generated draft": "Door AI gegenereerd concept",
@@ -894,7 +901,7 @@ OC.L10N.register(
         "Initial lifecycle state": "Beginstatus",
         "Initial state": "Beginstatus",
         "Install OpenRegister": "OpenRegister installeren",
-        "Install governance configuration that other organisations have published: a council with its committees and factions, an association with its members' meeting, or the flows that move a decision through them.": "Installeer bestuursconfiguratie die andere organisaties hebben gepubliceerd: een raad met commissies en fracties, een vereniging met haar ledenvergadering, of de flows waarmee een besluit zijn weg aflegt.",
+        "Install governance configuration that other organisations have published: a council with its committees and factions, an association with its members' meeting, or the flows that move a decision through them.": "Installeer bestuurlijke configuratie die andere organisaties hebben gepubliceerd: een raad met commissies en fracties, een vereniging met een ledenvergadering, of de flows die een besluit erdoorheen leiden.",
         "Instances in series {series}": "Exemplaren in reeks {series}",
         "Integrations": "Integraties",
         "Interface language follows your Nextcloud account language.": "De interfacetaal volgt de taal van je Nextcloud-account.",
@@ -2228,7 +2235,11 @@ OC.L10N.register(
         "{n} meeting(s) exceeded the scheduled time": "{n} vergadering(en) overschreden de geplande tijd",
         "{n} open action items": "{n} openstaande actiepunten",
         "{responded} of {invited} responded": "{responded} van {invited} gereageerd",
-        "{states} states, {transitions} transitions": "{states} statussen, {transitions} overgangen"
+        "{states} states, {transitions} transitions": "{states} statussen, {transitions} overgangen",
+        "Pick the organisation this app runs for. You get a worked example of it: bodies, meetings, decisions and templates that fit. Pick several if you want to compare them. Installing the app plants nothing on its own, so this step is the only one that adds data. Choose \"None\" on a production install.": "Kies de organisatie waarvoor deze app draait. Je krijgt een uitgewerkt voorbeeld: organen, vergaderingen, besluiten en sjablonen die daarbij passen. Kies er meerdere als je ze wilt vergelijken. De app zet zelf niets klaar, dus dit is de enige stap die gegevens toevoegt. Kies \"Geen\" op een productieomgeving.",
+        "Loads the sets you picked. The data is obviously sample data, it is safe to run more than once, and you can delete it afterwards.": "Laadt de sets die je koos. De gegevens zijn herkenbaar voorbeeldgegevens, je kunt dit meer dan een keer uitvoeren en je kunt ze daarna verwijderen.",
+        "Sample values generated from the schemas themselves. Use it to exercise the data model, not to demo the app.": "Voorbeeldwaarden die uit de schema's zelf worden gegenereerd. Gebruik dit om het datamodel te testen, niet om de app te demonstreren.",
+        "Nothing is imported. You start with an empty app and add your own bodies, meetings and decisions.": "Er wordt niets geïmporteerd. Je begint met een lege app en voegt zelf organen, vergaderingen en besluiten toe."
     },
     "nplurals=2; plural=(n != 1);"
 )

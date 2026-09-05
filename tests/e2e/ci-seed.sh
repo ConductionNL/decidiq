@@ -1007,7 +1007,15 @@ echo "[ci-seed] done."
 # `load-example-set.done` from `$picked === NONE_PROFILE`. The skip action
 # writes only DEMO_DECIDED_KEY and would leave `example-set` open — still
 # enough wizard to mask every click.
-DEMO_BASE="${BASE_URL:-${NEXTCLOUD_URL:-http://localhost:8080}}"
+# 🔴 `${BASE}`, NOT ITS OWN RESOLUTION. This line used to read
+# `${BASE_URL:-${NEXTCLOUD_URL:-http://localhost:8080}}`, which ignores
+# PLAYWRIGHT_BASE_URL and falls back to the SHARED dev container — the exact
+# default the top of this script refuses, in the block whose whole job is to
+# WRITE app config. On CI it worked because the workflow exports BASE_URL; on a
+# throwaway rig driven by PLAYWRIGHT_BASE_URL it aimed a POST at :8080 and the
+# run then failed on a status document it had never written, from an instance
+# it had never touched. `${BASE}` is already resolved and already guarded.
+DEMO_BASE="${BASE}"
 DEMO_CODE="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 300 \
 	-u "${ADMIN_USER:-admin}:${ADMIN_PASSWORD:-admin}" -X POST \
 	-H 'Content-Type: application/json' -H 'OCS-APIRequest: true' \
