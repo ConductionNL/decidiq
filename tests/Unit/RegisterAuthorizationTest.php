@@ -441,7 +441,7 @@ class RegisterAuthorizationTest extends TestCase {
 		// The count is the positive control: without it this loop passes vacuously
 		// if the schemas move, are renamed, or stop being found at all.
 		$this->assertSame(
-			29,
+			31,
 			$withBlock,
 			'Expected 27 schema-level authorization blocks. evaluation-response gained one that closes '
 				. '`read` (its raw anonymous board self-evaluation answers were readable by every '
@@ -453,7 +453,9 @@ class RegisterAuthorizationTest extends TestCase {
 				. 'signature-and-outcome-authorization-guard added Decision\'s, narrowing anonymous read/list '
 				. 'to isPublished === "public" (IntegrationController::getOutcome() had documented an '
 				. 'OpenRegister RBAC guarantee that did not exist, precisely because this block was absent). '
-				. 'integrity-disclosures-in-plain-words added the last two, and they are COPIES: renaming '
+				. 'confidentiality-in-plain-words added the last two the same way, renaming Geheimhouding '
+				. 'to ConfidentialityRestriction and GeheimhoudingGrond to ConfidentialityGround. '
+				. 'integrity-disclosures-in-plain-words added two before them, and they are COPIES: renaming '
 				. 'Nevenfunctie to AncillaryPosition and Geschenk to DeclaredGift carried each schema\'s own '
 				. 'read-only block across unchanged, which is the point rather than a side effect. A rename '
 				. 'that DROPPED the block would fall back to the register baseline\'s public read, publishing '
@@ -485,9 +487,14 @@ class RegisterAuthorizationTest extends TestCase {
 	 * @spec openspec/changes/integrity-disclosures-in-plain-words/specs/integrity-disclosures-in-plain-words/spec.md#requirement-existing-disclosures-are-carried-across
 	 */
 	public function testARenamedSchemaKeepsItsPredecessorsAuthorization(): void {
+		// Every rename this programme has made where the SOURCE carried its own
+		// block. Each new entry here is one more schema that cannot silently
+		// lose its authorization to a rename.
 		$renames = [
 			'Nevenfunctie' => 'AncillaryPosition',
 			'Geschenk' => 'DeclaredGift',
+			'Geheimhouding' => 'ConfidentialityRestriction',
+			'GeheimhoudingGrond' => 'ConfidentialityGround',
 		];
 
 		$blocks = [];
