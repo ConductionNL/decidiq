@@ -332,6 +332,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
                 itself Dutch. Non-destructive.
             -->
             <step>OCA\Decidiq\Migration\MigratePlanningCycles</step>
+            <!--
                 After InitializeSettings imports the register (83-confidentiality-in-plain-words.json
                 must already declare both schemas, AND the register's own `schemas` list must carry
                 both slugs). Copies geheimhouding-grond and geheimhouding across in that ORDER: a
