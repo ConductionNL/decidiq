@@ -546,6 +546,84 @@
 						]
 					}
 				],
+				"ancillary-position": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "ancillary-position"
+						},
+						"slug": "nf-adviseur-beeindigd",
+						"person": "jan-de-vries",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"organisation": "Adviesbureau De Kern",
+						"role": "adviseur",
+						"remunerated": true,
+						"qualitateQua": false,
+						"startDate": "2021-06-01",
+						"endDate": "2025-12-31",
+						"declaredAt": "2021-06-05",
+						"lifecycle": "ended",
+						"publicationDate": "2021-06-10T09:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "ancillary-position"
+						},
+						"slug": "nf-bestuurslid-welzijn",
+						"person": "marie-janssen",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"organisation": "Stichting Welzijn Noord",
+						"role": "bestuurslid",
+						"remunerated": false,
+						"hoursIndication": "4 uur/week",
+						"qualitateQua": false,
+						"startDate": "2024-03-01",
+						"declaredAt": "2024-03-05",
+						"reviewedAt": "2025-05-15",
+						"lifecycle": "public",
+						"publicationDate": "2024-03-10T09:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "ancillary-position"
+						},
+						"slug": "nf-docent-hogeschool",
+						"person": "marie-janssen",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"organisation": "Hogeschool Amsterdam",
+						"role": "docent bestuurskunde",
+						"remunerated": true,
+						"hoursIndication": "8 uur/week",
+						"qualitateQua": false,
+						"startDate": "2025-09-01",
+						"declaredAt": "2025-09-03",
+						"lifecycle": "reported"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "ancillary-position"
+						},
+						"slug": "nf-gr-afvalschap-qq",
+						"person": "jan-de-vries",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"organisation": "Gemeenschappelijke Regeling Afvalschap",
+						"role": "lid algemeen bestuur",
+						"remunerated": false,
+						"qualitateQua": true,
+						"startDate": "2023-05-01",
+						"declaredAt": "2023-05-08",
+						"reviewedAt": "2026-06-15",
+						"lifecycle": "public",
+						"publicationDate": "2023-05-12T09:00:00Z"
+					}
+				],
 				"approval-route": [
 					{
 						"@self": {
@@ -708,6 +786,21 @@
 						"decision": "00000000-0000-0000-0000-000000000000",
 						"validFrom": "2026-03-01",
 						"status": "draft"
+					}
+				],
+				"body-governance-configuration": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "body-governance-configuration"
+						},
+						"slug": "beleid-gemeenteraad",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"ancillaryPositionDisclosureDefault": "public",
+						"giftThresholdAmount": 50,
+						"giftsPublic": true,
+						"integrityNotificationGroup": "decidesk-burgemeester"
 					}
 				],
 				"body-participation": [
@@ -1676,6 +1769,45 @@
 						"checklist": []
 					}
 				],
+				"declared-gift": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "declared-gift"
+						},
+						"slug": "gs-boek-delegatie",
+						"recipient": "marie-janssen",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"type": "gift",
+						"giver": "Delegatie gemeente Aken",
+						"description": "Fotoboek stedenband",
+						"estimatedValue": 20,
+						"receivedOn": "2026-01-20",
+						"decision": "accepted",
+						"declaredAt": "2026-01-21",
+						"publicationDate": "2026-01-25T09:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "declared-gift"
+						},
+						"slug": "gs-diner-projectontwikkelaar",
+						"recipient": "marie-janssen",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"type": "invitation",
+						"giver": "Projectontwikkelaar BV",
+						"description": "Diner nieuwjaarsreceptie",
+						"estimatedValue": 95,
+						"receivedOn": "2026-01-08",
+						"decision": "refused",
+						"notes": "Boven het drempelbedrag; uitnodiging geweigerd conform gedragscode.",
+						"declaredAt": "2026-01-09",
+						"publicationDate": "2026-01-15T09:00:00Z"
+					}
+				],
 				"engagement-record": [
 					{
 						"@self": {
@@ -1895,45 +2027,6 @@
 						"description": "Relatieve uitzonderingsgrond (Woo art. 5.1 lid 2): eerbiediging van de persoonlijke levenssfeer.",
 						"builtIn": true,
 						"active": true
-					}
-				],
-				"geschenk": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "geschenk"
-						},
-						"slug": "gs-boek-delegatie",
-						"recipient": "marie-janssen",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"type": "gift",
-						"giver": "Delegatie gemeente Aken",
-						"description": "Fotoboek stedenband",
-						"estimatedValue": 20,
-						"receivedOn": "2026-01-20",
-						"decision": "accepted",
-						"declaredAt": "2026-01-21",
-						"publicationDate": "2026-01-25T09:00:00Z"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "geschenk"
-						},
-						"slug": "gs-diner-projectontwikkelaar",
-						"recipient": "marie-janssen",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"type": "invitation",
-						"giver": "Projectontwikkelaar BV",
-						"description": "Diner nieuwjaarsreceptie",
-						"estimatedValue": 95,
-						"receivedOn": "2026-01-08",
-						"decision": "refused",
-						"notes": "Boven het drempelbedrag; uitnodiging geweigerd conform gedragscode.",
-						"declaredAt": "2026-01-09",
-						"publicationDate": "2026-01-15T09:00:00Z"
 					}
 				],
 				"goal": [
@@ -2558,21 +2651,6 @@
 						"lifecycle": "registered"
 					}
 				],
-				"integriteitsbeleid": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "integriteitsbeleid"
-						},
-						"slug": "beleid-gemeenteraad",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"ancillaryPositionDisclosureDefault": "public",
-						"giftThresholdAmount": 50,
-						"giftsPublic": true,
-						"integrityNotificationGroup": "decidesk-burgemeester"
-					}
-				],
 				"meeting": [
 					{
 						"@self": {
@@ -2770,84 +2848,6 @@
 							"Jan Bakker"
 						],
 						"version": 2
-					}
-				],
-				"nevenfunctie": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "nevenfunctie"
-						},
-						"slug": "nf-adviseur-beeindigd",
-						"person": "jan-de-vries",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"organisation": "Adviesbureau De Kern",
-						"role": "adviseur",
-						"remunerated": true,
-						"qualitateQua": false,
-						"startDate": "2021-06-01",
-						"endDate": "2025-12-31",
-						"declaredAt": "2021-06-05",
-						"lifecycle": "ended",
-						"publicationDate": "2021-06-10T09:00:00Z"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "nevenfunctie"
-						},
-						"slug": "nf-bestuurslid-welzijn",
-						"person": "marie-janssen",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"organisation": "Stichting Welzijn Noord",
-						"role": "bestuurslid",
-						"remunerated": false,
-						"hoursIndication": "4 uur/week",
-						"qualitateQua": false,
-						"startDate": "2024-03-01",
-						"declaredAt": "2024-03-05",
-						"reviewedAt": "2025-05-15",
-						"lifecycle": "public",
-						"publicationDate": "2024-03-10T09:00:00Z"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "nevenfunctie"
-						},
-						"slug": "nf-docent-hogeschool",
-						"person": "marie-janssen",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"organisation": "Hogeschool Amsterdam",
-						"role": "docent bestuurskunde",
-						"remunerated": true,
-						"hoursIndication": "8 uur/week",
-						"qualitateQua": false,
-						"startDate": "2025-09-01",
-						"declaredAt": "2025-09-03",
-						"lifecycle": "reported"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "nevenfunctie"
-						},
-						"slug": "nf-gr-afvalschap-qq",
-						"person": "jan-de-vries",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"organisation": "Gemeenschappelijke Regeling Afvalschap",
-						"role": "lid algemeen bestuur",
-						"remunerated": false,
-						"qualitateQua": true,
-						"startDate": "2023-05-01",
-						"declaredAt": "2023-05-08",
-						"reviewedAt": "2026-06-15",
-						"lifecycle": "public",
-						"publicationDate": "2023-05-12T09:00:00Z"
 					}
 				],
 				"offboarding-traject": [
