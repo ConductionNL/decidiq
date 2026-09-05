@@ -62,6 +62,7 @@ import CloudUploadOutline from 'vue-material-design-icons/CloudUploadOutline.vue
 import Cog from 'vue-material-design-icons/Cog.vue'
 import CogOutline from 'vue-material-design-icons/CogOutline.vue'
 import CommentAccountOutline from 'vue-material-design-icons/CommentAccountOutline.vue'
+import CommentCheckOutline from 'vue-material-design-icons/CommentCheckOutline.vue'
 import CommentOutline from 'vue-material-design-icons/CommentOutline.vue'
 import CommentQuestionOutline from 'vue-material-design-icons/CommentQuestionOutline.vue'
 import CommentQuoteOutline from 'vue-material-design-icons/CommentQuoteOutline.vue'
@@ -179,6 +180,7 @@ export default {
 	CogOutline,
 	CommentAccountOutline,
 	CommentOutline,
+	CommentCheckOutline,
 	CommentQuestionOutline,
 	CommentQuoteOutline,
 	CommentTextOutline,

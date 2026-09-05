@@ -112,89 +112,6 @@
 						"taskStatus": "in-progress"
 					}
 				],
-				"advice-request": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "advice-request"
-						},
-						"slug": "adviesaanvraag-inkoopbeleid-wmo",
-						"subject": "Herziening inkoopbeleid Wmo-ondersteuning",
-						"question": "Welke gevolgen heeft het voorgenomen inkoopbeleid voor cliënten en mantelzorgers?",
-						"requestingBody": "00000000-0000-0000-0000-000000000000",
-						"advisoryBody": "adviesraad-sociaal-domein",
-						"sentDate": "2026-03-02",
-						"requestedByDate": "2026-04-13",
-						"lifecycle": "advice-issued",
-						"relatedDecision": "00000000-0000-0000-0000-000000000000",
-						"advisoryStage": "00000000-0000-0000-0000-000000000000"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "advice-request"
-						},
-						"slug": "adviesaanvraag-jongerenhuisvesting",
-						"subject": "Beleidsnota jongerenhuisvesting 2027–2031",
-						"question": "Sluit de nota aan bij de woonbehoeften van jongeren van 18–27 jaar?",
-						"requestingBody": "gemeenteraad-amsterdam",
-						"advisoryBody": "jongerenraad",
-						"sentDate": "2026-05-04",
-						"requestedByDate": "2026-06-15",
-						"lifecycle": "in-progress"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "advice-request"
-						},
-						"slug": "adviesaanvraag-skatepark-locatie",
-						"subject": "Locatiekeuze skatepark centrum",
-						"question": "Welke van de drie kandidaat-locaties heeft de voorkeur van jongeren?",
-						"requestingBody": "gemeenteraad-amsterdam",
-						"advisoryBody": "jongerenraad",
-						"sentDate": "2026-01-12",
-						"requestedByDate": "2026-02-16",
-						"lifecycle": "completed",
-						"relatedDecision": "00000000-0000-0000-0000-000000000000",
-						"accountabilityText": "De raad kiest locatie B in afwijking van het advies (locatie A) vanwege geluidsnormen; met de jongerenraad is een evaluatie na één jaar afgesproken.",
-						"accountabilityDate": "2026-03-24",
-						"publicationDate": "2026-03-25T09:00:00Z"
-					}
-				],
-				"advies": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "advies"
-						},
-						"slug": "advies-inkoopbeleid-wmo",
-						"adviceRequest": "adviesaanvraag-inkoopbeleid-wmo",
-						"tenor": "positive-with-reservations",
-						"summary": "De adviesraad adviseert positief, mits de continuïteit van lopende ondersteuning wordt geborgd en cliënten actief worden geïnformeerd.",
-						"adviceDate": "2026-04-10",
-						"recordedBy": "00000000-0000-0000-0000-000000000000",
-						"publicationDate": "2026-04-12T09:00:00Z"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "advies"
-						},
-						"slug": "advies-skatepark-locatie",
-						"adviceRequest": "adviesaanvraag-skatepark-locatie",
-						"tenor": "negative",
-						"summary": "De jongerenraad adviseert negatief over locatie B en positief over locatie A vanwege bereikbaarheid.",
-						"adviceDate": "2026-02-14",
-						"recordedBy": "00000000-0000-0000-0000-000000000000",
-						"publicationDate": "2026-03-25T09:00:00Z"
-					}
-				],
 				"agenda-item": [
 					{
 						"@self": {
@@ -2226,6 +2143,238 @@
 						"termEnd": "2026-12-31T00:00:00Z"
 					}
 				],
+				"governance-consultation": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation"
+						},
+						"slug": "adviesaanvraag-inkoopbeleid-wmo",
+						"subject": "Herziening inkoopbeleid Wmo-ondersteuning",
+						"askingBody": "00000000-0000-0000-0000-000000000000",
+						"audienceType": "bodies",
+						"audienceBody": "adviesraad-sociaal-domein",
+						"binding": true,
+						"deadline": "2026-04-13",
+						"question": "Welke gevolgen heeft het voorgenomen inkoopbeleid voor cliënten en mantelzorgers?",
+						"lifecycle": "advice-issued",
+						"relatedDecision": "00000000-0000-0000-0000-000000000000"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation"
+						},
+						"slug": "adviesaanvraag-jongerenhuisvesting",
+						"subject": "Beleidsnota jongerenhuisvesting 2027–2031",
+						"askingBody": "gemeenteraad-amsterdam",
+						"audienceType": "bodies",
+						"audienceBody": "jongerenraad",
+						"binding": true,
+						"deadline": "2026-06-15",
+						"question": "Sluit de nota aan bij de woonbehoeften van jongeren van 18–27 jaar?",
+						"lifecycle": "in-progress"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation"
+						},
+						"slug": "adviesaanvraag-skatepark-locatie",
+						"subject": "Locatiekeuze skatepark centrum",
+						"askingBody": "gemeenteraad-amsterdam",
+						"audienceType": "bodies",
+						"audienceBody": "jongerenraad",
+						"binding": true,
+						"deadline": "2026-02-16",
+						"question": "Welke van de drie kandidaat-locaties heeft de voorkeur van jongeren?",
+						"lifecycle": "completed",
+						"relatedDecision": "00000000-0000-0000-0000-000000000000",
+						"accountabilityText": "De raad kiest locatie B in afwijking van het advies (locatie A) vanwege geluidsnormen; met de jongerenraad is een evaluatie na één jaar afgesproken.",
+						"accountabilityDate": "2026-03-24"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation"
+						},
+						"slug": "zienswijzeronde-begroting-2027",
+						"subject": "Zienswijzeronde ontwerpbegroting 2027 NOZ organisatie",
+						"askingBody": "bestuur-noz-organisatie",
+						"audienceType": "bodies",
+						"binding": false,
+						"deadline": "2026-06-15",
+						"subjectType": "draft-budget",
+						"subjectDescription": "Ontwerpbegroting 2027, aangeboden aan de raden conform art. 35 Wgr.",
+						"cycleStep": "00000000-0000-0000-0000-000000000000",
+						"lifecycle": "draft"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation"
+						},
+						"slug": "zienswijzeronde-wijziging-gr-2026",
+						"subject": "Zienswijzeronde wijziging gemeenschappelijke regeling",
+						"askingBody": "bestuur-noz-organisatie",
+						"audienceType": "bodies",
+						"binding": false,
+						"deadline": "2026-09-30",
+						"subjectType": "amendment-of-arrangement",
+						"subjectDescription": "Voorstel tot wijziging van de regeling i.v.m. taakuitbreiding vergunningverlening.",
+						"lifecycle": "draft"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation"
+						},
+						"slug": "raadpleging-fractie-parkeervisie",
+						"subject": "Steunt de fractie het raadsvoorstel Parkeervisie 2026–2030 in de huidige vorm?",
+						"askingBody": "gemeenteraad-amsterdam",
+						"audienceType": "political-group",
+						"audienceBody": "gemeenteraad-amsterdam",
+						"binding": false,
+						"deadline": "2026-03-10T17:00:00Z",
+						"description": "Niet-bindende peiling ter voorbereiding op de raadsvergadering van 12 maart.",
+						"responseType": "single-choice",
+						"choiceOptions": [
+							"Voor",
+							"Tegen",
+							"Voor, mits aangepast"
+						],
+						"audienceParty": "Groen Voorbeeldingen",
+						"agendaItem": "begroting-2026-bespreking",
+						"opensAt": "2026-02-20T09:00:00Z",
+						"anonymousResponses": false,
+						"lifecycle": "open"
+					}
+				],
+				"governance-consultation-response": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation-response"
+						},
+						"slug": "advies-inkoopbeleid-wmo",
+						"consultation": "adviesaanvraag-inkoopbeleid-wmo",
+						"position": "positive-with-reservations",
+						"text": "De adviesraad adviseert positief, mits de continuïteit van lopende ondersteuning wordt geborgd en cliënten actief worden geïnformeerd.",
+						"respondentPerson": "00000000-0000-0000-0000-000000000000",
+						"submittedAt": "2026-04-10",
+						"status": "submitted"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation-response"
+						},
+						"slug": "advies-skatepark-locatie",
+						"consultation": "adviesaanvraag-skatepark-locatie",
+						"position": "negative",
+						"text": "De jongerenraad adviseert negatief over locatie B en positief over locatie A vanwege bereikbaarheid.",
+						"respondentPerson": "00000000-0000-0000-0000-000000000000",
+						"submittedAt": "2026-02-14",
+						"status": "submitted"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation-response"
+						},
+						"slug": "zienswijze-noorderbrug-begroting-2027",
+						"consultation": "zienswijzeronde-begroting-2027",
+						"position": "positive-with-reservations",
+						"text": "De raad stemt in met de ontwerpbegroting, met de kanttekening dat de indexatie van de gemeentelijke bijdrage maximaal 3% mag bedragen.",
+						"respondentBody": "gemeenteraad-noorderbrug",
+						"submittedAt": "2026-06-10T00:00:00Z",
+						"deadline": "2026-06-15",
+						"processing": "partly-adopted",
+						"processingNotes": "Indexatie verlaagd naar 3,2%; volledige inwilliging niet mogelijk binnen de CAO-ontwikkeling.",
+						"status": "processed"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation-response"
+						},
+						"slug": "zienswijze-noorderbrug-wijziging-gr",
+						"consultation": "zienswijzeronde-wijziging-gr-2026",
+						"respondentBody": "gemeenteraad-noorderbrug",
+						"deadline": "2026-09-30",
+						"status": "outstanding"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation-response"
+						},
+						"slug": "zienswijze-oostwoud-begroting-2027",
+						"consultation": "zienswijzeronde-begroting-2027",
+						"position": "positive",
+						"text": "De raad stemt zonder opmerkingen in met de ontwerpbegroting 2027.",
+						"respondentBody": "gemeenteraad-oostwoud",
+						"submittedAt": "2026-06-02T00:00:00Z",
+						"deadline": "2026-06-15",
+						"processing": "adopted",
+						"processingNotes": "Voor kennisgeving aangenomen.",
+						"status": "processed"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation-response"
+						},
+						"slug": "zienswijze-zuidermeer-begroting-2027",
+						"consultation": "zienswijzeronde-begroting-2027",
+						"respondentBody": "gemeenteraad-zuidermeer",
+						"deadline": "2026-06-15",
+						"status": "not-submitted"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation-response"
+						},
+						"slug": "respons-parkeervisie-lid-1",
+						"consultation": "raadpleging-fractie-parkeervisie",
+						"text": "Mits de parkeernorm voor de binnenstad wordt verlaagd.",
+						"submittedAt": "2026-02-21T10:15:00Z",
+						"respondentId": "jvandenberg",
+						"choices": [
+							"Voor, mits aangepast"
+						],
+						"status": "submitted"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation-response"
+						},
+						"slug": "respons-parkeervisie-lid-2",
+						"consultation": "raadpleging-fractie-parkeervisie",
+						"submittedAt": "2026-02-22T08:40:00Z",
+						"respondentId": "mjansen",
+						"choices": [
+							"Tegen"
+						],
+						"status": "submitted"
+					}
+				],
 				"governing-document": [
 					{
 						"@self": {
@@ -2438,63 +2587,6 @@
 						"location": "Stadhuis Amsterdam, Raadzaal",
 						"meetingMode": "hybrid",
 						"lifecycle": "closed"
-					}
-				],
-				"member-consultation": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "member-consultation"
-						},
-						"slug": "raadpleging-fractie-parkeervisie",
-						"question": "Steunt de fractie het raadsvoorstel Parkeervisie 2026–2030 in de huidige vorm?",
-						"description": "Niet-bindende peiling ter voorbereiding op de raadsvergadering van 12 maart.",
-						"responseType": "single-choice",
-						"choiceOptions": [
-							"Voor",
-							"Tegen",
-							"Voor, mits aangepast"
-						],
-						"audienceType": "politicalGroup",
-						"audienceBody": "gemeenteraad-amsterdam",
-						"audienceParty": "Groen Voorbeeldingen",
-						"agendaItem": "begroting-2026-bespreking",
-						"opensAt": "2026-02-20T09:00:00Z",
-						"closesAt": "2026-03-10T17:00:00Z",
-						"anonymousResponses": false,
-						"lifecycle": "open"
-					}
-				],
-				"member-consultation-response": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "member-consultation-response"
-						},
-						"slug": "respons-parkeervisie-lid-1",
-						"consultation": "raadpleging-fractie-parkeervisie",
-						"respondentId": "jvandenberg",
-						"choices": [
-							"Voor, mits aangepast"
-						],
-						"openText": "Mits de parkeernorm voor de binnenstad wordt verlaagd.",
-						"submittedAt": "2026-02-21T10:15:00Z"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "member-consultation-response"
-						},
-						"slug": "respons-parkeervisie-lid-2",
-						"consultation": "raadpleging-fractie-parkeervisie",
-						"respondentId": "mjansen",
-						"choices": [
-							"Tegen"
-						],
-						"submittedAt": "2026-02-22T08:40:00Z"
 					}
 				],
 				"membership": [
@@ -3884,98 +3976,6 @@
 						"informatiecategorieLabel": "Vergaderstukken decentrale overheden",
 						"active": true,
 						"notes": "Predicate-published (sibling toezeggingen-ingekomen-stukken, fragment 45). PLACEHOLDER informatiecategorie — copy verbatim at implementation."
-					}
-				],
-				"zienswijze": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "zienswijze"
-						},
-						"slug": "zienswijze-noorderbrug-begroting-2027",
-						"ronde": "zienswijzeronde-begroting-2027",
-						"participant": "gemeenteraad-noorderbrug",
-						"deadline": "2026-06-15",
-						"position": "positive-with-reservations",
-						"text": "De raad stemt in met de ontwerpbegroting, met de kanttekening dat de indexatie van de gemeentelijke bijdrage maximaal 3% mag bedragen.",
-						"submittedDate": "2026-06-10T00:00:00Z",
-						"decision": "00000000-0000-0000-0000-000000000000",
-						"processing": "partly-adopted",
-						"processingNotes": "Indexatie verlaagd naar 3,2%; volledige inwilliging niet mogelijk binnen de CAO-ontwikkeling.",
-						"status": "processed"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "zienswijze"
-						},
-						"slug": "zienswijze-noorderbrug-wijziging-gr",
-						"ronde": "zienswijzeronde-wijziging-gr-2026",
-						"participant": "gemeenteraad-noorderbrug",
-						"deadline": "2026-09-30",
-						"status": "outstanding"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "zienswijze"
-						},
-						"slug": "zienswijze-oostwoud-begroting-2027",
-						"ronde": "zienswijzeronde-begroting-2027",
-						"participant": "gemeenteraad-oostwoud",
-						"deadline": "2026-06-15",
-						"position": "positive",
-						"text": "De raad stemt zonder opmerkingen in met de ontwerpbegroting 2027.",
-						"submittedDate": "2026-06-02T00:00:00Z",
-						"processing": "adopted",
-						"processingNotes": "Voor kennisgeving aangenomen.",
-						"status": "processed"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "zienswijze"
-						},
-						"slug": "zienswijze-zuidermeer-begroting-2027",
-						"ronde": "zienswijzeronde-begroting-2027",
-						"participant": "gemeenteraad-zuidermeer",
-						"deadline": "2026-06-15",
-						"status": "not-submitted"
-					}
-				],
-				"zienswijzeronde": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "zienswijzeronde"
-						},
-						"slug": "zienswijzeronde-begroting-2027",
-						"title": "Zienswijzeronde ontwerpbegroting 2027 NOZ organisatie",
-						"sharedBody": "bestuur-noz-organisatie",
-						"subjectType": "draft-budget",
-						"subjectDescription": "Ontwerpbegroting 2027, aangeboden aan de raden conform art. 35 Wgr.",
-						"deadline": "2026-06-15",
-						"cyclusStep": "00000000-0000-0000-0000-000000000000",
-						"status": "processing"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "zienswijzeronde"
-						},
-						"slug": "zienswijzeronde-wijziging-gr-2026",
-						"title": "Zienswijzeronde wijziging gemeenschappelijke regeling",
-						"sharedBody": "bestuur-noz-organisatie",
-						"subjectType": "amendment-of-arrangement",
-						"subjectDescription": "Voorstel tot wijziging van de regeling i.v.m. taakuitbreiding vergunningverlening.",
-						"deadline": "2026-09-30",
-						"status": "opened"
 					}
 				]
 			}
