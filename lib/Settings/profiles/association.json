@@ -795,6 +795,34 @@
 						"votingDefault": "for-against-abstain"
 					}
 				],
+				"governance-consultation": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation"
+						},
+						"slug": "ledenraadpleging-alv-contributie",
+						"subject": "Welke contributieverhoging heeft uw voorkeur voor 2027?",
+						"askingBody": "00000000-0000-0000-0000-000000000000",
+						"audienceType": "body-members",
+						"audienceBody": "00000000-0000-0000-0000-000000000000",
+						"binding": false,
+						"deadline": "2026-04-01T17:00:00Z",
+						"description": "Peiling onder de leden ter voorbereiding op de ALV; het bestuur legt het definitieve voorstel voor aan de vergadering.",
+						"responseType": "multi-choice",
+						"choiceOptions": [
+							"Geen verhoging",
+							"+2%",
+							"+5%",
+							"Gedifferentieerd naar leeftijd"
+						],
+						"agendaItem": "rondvraag",
+						"opensAt": "2026-03-01T09:00:00Z",
+						"anonymousResponses": true,
+						"lifecycle": "draft"
+					}
+				],
 				"governing-document": [
 					{
 						"@self": {
@@ -919,32 +947,6 @@
 						"meetingMode": "in-person",
 						"lifecycle": "scheduled",
 						"quorumRequired": 50
-					}
-				],
-				"member-consultation": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "member-consultation"
-						},
-						"slug": "ledenraadpleging-alv-contributie",
-						"question": "Welke contributieverhoging heeft uw voorkeur voor 2027?",
-						"description": "Peiling onder de leden ter voorbereiding op de ALV; het bestuur legt het definitieve voorstel voor aan de vergadering.",
-						"responseType": "multi-choice",
-						"choiceOptions": [
-							"Geen verhoging",
-							"+2%",
-							"+5%",
-							"Gedifferentieerd naar leeftijd"
-						],
-						"audienceType": "body-members",
-						"audienceBody": "00000000-0000-0000-0000-000000000000",
-						"agendaItem": "rondvraag",
-						"opensAt": "2026-03-01T09:00:00Z",
-						"closesAt": "2026-04-01T17:00:00Z",
-						"anonymousResponses": true,
-						"lifecycle": "draft"
 					}
 				],
 				"membership": [

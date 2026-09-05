@@ -294,6 +294,73 @@
 						"parentBody": "raad-van-bestuur-acme-bv"
 					}
 				],
+				"governance-consultation": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation"
+						},
+						"slug": "achterban-or-thuiswerkregeling",
+						"subject": "Wat vindt de achterban van de voorgestelde thuiswerkregeling (instemmingsaanvraag art. 27 WOR)?",
+						"audienceType": "user-group",
+						"binding": false,
+						"deadline": "2026-02-15T17:00:00Z",
+						"description": "Informele raadpleging van de achterban voor het OR-besluit over de instemmingsaanvraag.",
+						"responseType": "open-text",
+						"audienceGroup": "or-achterban-acme",
+						"agendaItem": "or-2026-01-achterban",
+						"opensAt": "2026-02-01T09:00:00Z",
+						"anonymousResponses": true,
+						"lifecycle": "processed",
+						"results": {
+							"audienceSize": 12,
+							"responseCount": 9,
+							"openTextDigest": "Meerderheid positief. Zorgen over de bereikbaarheid van de servicedesk en over de productieploegen, die niet thuis kunnen werken."
+						}
+					}
+				],
+				"governance-consultation-response": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation-response"
+						},
+						"slug": "respons-or-achterban-1",
+						"consultation": "achterban-or-thuiswerkregeling",
+						"text": "Positief, maar de regeling moet ook voor de productieploegen een alternatief bieden.",
+						"submittedAt": "2026-02-03T12:05:00Z",
+						"respondentId": "pdevries",
+						"status": "submitted"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation-response"
+						},
+						"slug": "respons-or-achterban-2",
+						"consultation": "achterban-or-thuiswerkregeling",
+						"text": "Twee vaste thuiswerkdagen werkt goed. Graag wel duidelijkheid over de bezetting van de servicedesk.",
+						"submittedAt": "2026-02-05T08:40:00Z",
+						"respondentId": "mbakker",
+						"status": "submitted"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation-response"
+						},
+						"slug": "respons-or-achterban-3",
+						"consultation": "achterban-or-thuiswerkregeling",
+						"text": "Ik mis een regeling voor de reiskostenvergoeding op thuiswerkdagen.",
+						"submittedAt": "2026-02-11T16:20:00Z",
+						"respondentId": "janssen",
+						"status": "submitted"
+					}
+				],
 				"meeting": [
 					{
 						"@self": {
@@ -351,69 +418,6 @@
 						"quorumRequired": 4,
 						"chair": "or-sanne-de-groot",
 						"isPublic": false
-					}
-				],
-				"member-consultation": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "member-consultation"
-						},
-						"slug": "achterban-or-thuiswerkregeling",
-						"question": "Wat vindt de achterban van de voorgestelde thuiswerkregeling (instemmingsaanvraag art. 27 WOR)?",
-						"description": "Informele raadpleging van de achterban voor het OR-besluit over de instemmingsaanvraag.",
-						"responseType": "open-text",
-						"audienceType": "nc-group",
-						"audienceGroup": "or-achterban-acme",
-						"agendaItem": "or-2026-01-achterban",
-						"opensAt": "2026-02-01T09:00:00Z",
-						"closesAt": "2026-02-15T17:00:00Z",
-						"anonymousResponses": true,
-						"lifecycle": "processed",
-						"results": {
-							"audienceSize": 12,
-							"responseCount": 9,
-							"openTextDigest": "Meerderheid positief. Zorgen over de bereikbaarheid van de servicedesk en over de productieploegen, die niet thuis kunnen werken."
-						}
-					}
-				],
-				"member-consultation-response": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "member-consultation-response"
-						},
-						"slug": "respons-or-achterban-1",
-						"consultation": "achterban-or-thuiswerkregeling",
-						"respondentId": "pdevries",
-						"openText": "Positief, maar de regeling moet ook voor de productieploegen een alternatief bieden.",
-						"submittedAt": "2026-02-03T12:05:00Z"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "member-consultation-response"
-						},
-						"slug": "respons-or-achterban-2",
-						"consultation": "achterban-or-thuiswerkregeling",
-						"respondentId": "mbakker",
-						"openText": "Twee vaste thuiswerkdagen werkt goed. Graag wel duidelijkheid over de bezetting van de servicedesk.",
-						"submittedAt": "2026-02-05T08:40:00Z"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "member-consultation-response"
-						},
-						"slug": "respons-or-achterban-3",
-						"consultation": "achterban-or-thuiswerkregeling",
-						"respondentId": "janssen",
-						"openText": "Ik mis een regeling voor de reiskostenvergoeding op thuiswerkdagen.",
-						"submittedAt": "2026-02-11T16:20:00Z"
 					}
 				],
 				"membership": [

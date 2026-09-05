@@ -283,6 +283,17 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\MigrateRegulationsToGoverningDocuments</step>
             <!--
+                After InitializeSettings imports the register (78-one-consultation-schema.json must
+                already have declared `consultation` and `consultation-response`, AND the register's
+                own `schemas` list must carry both slugs, or every write throws "schema not carried
+                by register" and this step downgrades it to a warning nobody reads). Copies three
+                pairs onto one: advice-request/advies, zienswijzeronde/zienswijze and
+                member-consultation/member-consultation-response. Asks FIRST, then answers: an
+                answer references its ask. Identity is the SOURCE object's uuid, in the declared
+                `migratedFromObject` property. Non-destructive.
+            -->
+            <step>OCA\Decidiq\Migration\MigrateConsultationsToOneSchema</step>
+            <!--
                 model-debt-cleanup-code: both steps below run AFTER InitializeSettings so they
                 read the NEW $ref declarations (Participant -> Membership/Person retargets,
                 model-debt-cleanup-schema fragment 67) to know what a valid target type looks
