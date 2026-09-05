@@ -82,208 +82,6 @@
 						]
 					}
 				],
-				"cyclus-stap": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "cyclus-stap"
-						},
-						"slug": "begroting-2027-vereniging",
-						"cyclus": "jaarcyclus-2026-vereniging",
-						"sequence": 5,
-						"stepType": "begroting",
-						"label": "Begroting",
-						"concernsYear": 2027,
-						"deliveryDeadline": "2026-10-01",
-						"decisionMakingBody": "00000000-0000-0000-0000-000000000000",
-						"handlingDate": "2026-11-25",
-						"documentSlots": [
-							{
-								"name": "Begroting",
-								"required": true
-							}
-						],
-						"status": "planned"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "cyclus-stap"
-						},
-						"slug": "decharge-2025-vereniging",
-						"cyclus": "jaarcyclus-2026-vereniging",
-						"sequence": 2,
-						"stepType": "decharge",
-						"label": "Decharge bestuur",
-						"concernsYear": 2025,
-						"decisionMakingBody": "00000000-0000-0000-0000-000000000000",
-						"handlingDate": "2026-04-15",
-						"documentSlots": [],
-						"status": "planned"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "cyclus-stap"
-						},
-						"slug": "jaarplan-2027-vereniging",
-						"cyclus": "jaarcyclus-2026-vereniging",
-						"sequence": 4,
-						"stepType": "jaarplan",
-						"label": "Jaarplan",
-						"concernsYear": 2027,
-						"deliveryDeadline": "2026-10-01",
-						"decisionMakingBody": "00000000-0000-0000-0000-000000000000",
-						"handlingDate": "2026-11-25",
-						"documentSlots": [
-							{
-								"name": "Jaarplan",
-								"required": true
-							}
-						],
-						"status": "planned"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "cyclus-stap"
-						},
-						"slug": "jaarstukken-2025-vereniging",
-						"cyclus": "jaarcyclus-2026-vereniging",
-						"sequence": 1,
-						"stepType": "jaarstukken",
-						"label": "Jaarstukken",
-						"concernsYear": 2025,
-						"deliveryDeadline": "2026-03-01",
-						"decisionMakingBody": "00000000-0000-0000-0000-000000000000",
-						"handlingDate": "2026-04-15",
-						"documentSlots": [
-							{
-								"name": "Jaarrekening",
-								"required": true,
-								"file": "Jaarstukken 2025.pdf"
-							},
-							{
-								"name": "Bestuursverslag",
-								"required": true
-							},
-							{
-								"name": "Kascommissieverslag",
-								"required": true
-							}
-						],
-						"status": "documents-received"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "cyclus-stap"
-						},
-						"slug": "tussenrapportage-2026-vereniging",
-						"cyclus": "jaarcyclus-2026-vereniging",
-						"sequence": 3,
-						"stepType": "berap",
-						"label": "Tussenrapportage",
-						"concernsYear": 2026,
-						"deliveryDeadline": "2026-05-15",
-						"decisionMakingBody": "00000000-0000-0000-0000-000000000000",
-						"handlingDate": "2026-06-20",
-						"documentSlots": [
-							{
-								"name": "Tussenrapportage",
-								"required": true
-							}
-						],
-						"status": "planned"
-					}
-				],
-				"cyclus-template": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "cyclus-template"
-						},
-						"slug": "association-jaarstukken",
-						"name": "Verenigings-/jaarstukkencyclus",
-						"context": "association",
-						"builtIn": true,
-						"steps": [
-							{
-								"stepType": "jaarstukken",
-								"label": "Jaarstukken",
-								"subjectYearOffset": -1,
-								"deliveryDeadline": "03-01",
-								"handlingDate": "04-15",
-								"documentSlots": [
-									{
-										"name": "Jaarrekening",
-										"required": true
-									},
-									{
-										"name": "Bestuursverslag",
-										"required": true
-									},
-									{
-										"name": "Kascommissieverslag",
-										"required": true
-									}
-								]
-							},
-							{
-								"stepType": "decharge",
-								"label": "Decharge bestuur",
-								"subjectYearOffset": -1,
-								"handlingDate": "04-15",
-								"documentSlots": []
-							},
-							{
-								"stepType": "berap",
-								"label": "Tussenrapportage",
-								"subjectYearOffset": 0,
-								"deliveryDeadline": "05-15",
-								"handlingDate": "06-20",
-								"documentSlots": [
-									{
-										"name": "Tussenrapportage",
-										"required": true
-									}
-								]
-							},
-							{
-								"stepType": "jaarplan",
-								"label": "Jaarplan",
-								"subjectYearOffset": 1,
-								"deliveryDeadline": "10-01",
-								"handlingDate": "11-25",
-								"documentSlots": [
-									{
-										"name": "Jaarplan",
-										"required": true
-									}
-								]
-							},
-							{
-								"stepType": "begroting",
-								"label": "Begroting",
-								"subjectYearOffset": 1,
-								"deliveryDeadline": "10-01",
-								"handlingDate": "11-25",
-								"documentSlots": [
-									{
-										"name": "Begroting",
-										"required": true
-									}
-								]
-							}
-						]
-					}
-				],
 				"decision": [
 					{
 						"@self": {
@@ -1008,23 +806,6 @@
 						"votingWeight": 1
 					}
 				],
-				"pc-cyclus": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "pc-cyclus"
-						},
-						"slug": "jaarcyclus-2026-vereniging",
-						"name": "Jaarcyclus 2026",
-						"year": 2026,
-						"governanceBody": "00000000-0000-0000-0000-000000000000",
-						"template": "association-jaarstukken",
-						"stepCount": 5,
-						"completedStepCount": 0,
-						"overdueStepCount": 0
-					}
-				],
 				"person": [
 					{
 						"@self": {
@@ -1053,6 +834,225 @@
 						"gender": "female",
 						"email": "m.janssen@amsterdam.nl",
 						"biography": "Raadslid en lid van de VNG-ledenraad."
+					}
+				],
+				"planning-cycle": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planning-cycle"
+						},
+						"slug": "jaarcyclus-2026-vereniging",
+						"name": "Jaarcyclus 2026",
+						"year": 2026,
+						"governanceBody": "00000000-0000-0000-0000-000000000000",
+						"template": "association-jaarstukken",
+						"stepCount": 5,
+						"completedStepCount": 0,
+						"overdueStepCount": 0
+					}
+				],
+				"planning-cycle-step": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planning-cycle-step"
+						},
+						"slug": "begroting-2027-vereniging",
+						"sequence": 5,
+						"stepType": "begroting",
+						"label": "Begroting",
+						"concernsYear": 2027,
+						"deliveryDeadline": "2026-10-01",
+						"decisionMakingBody": "00000000-0000-0000-0000-000000000000",
+						"handlingDate": "2026-11-25",
+						"documentSlots": [
+							{
+								"name": "Begroting",
+								"required": true
+							}
+						],
+						"status": "planned",
+						"cycle": "jaarcyclus-2026-vereniging"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planning-cycle-step"
+						},
+						"slug": "decharge-2025-vereniging",
+						"sequence": 2,
+						"stepType": "decharge",
+						"label": "Decharge bestuur",
+						"concernsYear": 2025,
+						"decisionMakingBody": "00000000-0000-0000-0000-000000000000",
+						"handlingDate": "2026-04-15",
+						"documentSlots": [],
+						"status": "planned",
+						"cycle": "jaarcyclus-2026-vereniging"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planning-cycle-step"
+						},
+						"slug": "jaarplan-2027-vereniging",
+						"sequence": 4,
+						"stepType": "jaarplan",
+						"label": "Jaarplan",
+						"concernsYear": 2027,
+						"deliveryDeadline": "2026-10-01",
+						"decisionMakingBody": "00000000-0000-0000-0000-000000000000",
+						"handlingDate": "2026-11-25",
+						"documentSlots": [
+							{
+								"name": "Jaarplan",
+								"required": true
+							}
+						],
+						"status": "planned",
+						"cycle": "jaarcyclus-2026-vereniging"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planning-cycle-step"
+						},
+						"slug": "jaarstukken-2025-vereniging",
+						"sequence": 1,
+						"stepType": "jaarstukken",
+						"label": "Jaarstukken",
+						"concernsYear": 2025,
+						"deliveryDeadline": "2026-03-01",
+						"decisionMakingBody": "00000000-0000-0000-0000-000000000000",
+						"handlingDate": "2026-04-15",
+						"documentSlots": [
+							{
+								"name": "Jaarrekening",
+								"required": true,
+								"file": "Jaarstukken 2025.pdf"
+							},
+							{
+								"name": "Bestuursverslag",
+								"required": true
+							},
+							{
+								"name": "Kascommissieverslag",
+								"required": true
+							}
+						],
+						"status": "documents-received",
+						"cycle": "jaarcyclus-2026-vereniging"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planning-cycle-step"
+						},
+						"slug": "tussenrapportage-2026-vereniging",
+						"sequence": 3,
+						"stepType": "berap",
+						"label": "Tussenrapportage",
+						"concernsYear": 2026,
+						"deliveryDeadline": "2026-05-15",
+						"decisionMakingBody": "00000000-0000-0000-0000-000000000000",
+						"handlingDate": "2026-06-20",
+						"documentSlots": [
+							{
+								"name": "Tussenrapportage",
+								"required": true
+							}
+						],
+						"status": "planned",
+						"cycle": "jaarcyclus-2026-vereniging"
+					}
+				],
+				"planning-cycle-template": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planning-cycle-template"
+						},
+						"slug": "association-jaarstukken",
+						"name": "Verenigings-/jaarstukkencyclus",
+						"context": "association",
+						"builtIn": true,
+						"steps": [
+							{
+								"stepType": "jaarstukken",
+								"label": "Jaarstukken",
+								"subjectYearOffset": -1,
+								"deliveryDeadline": "03-01",
+								"handlingDate": "04-15",
+								"documentSlots": [
+									{
+										"name": "Jaarrekening",
+										"required": true
+									},
+									{
+										"name": "Bestuursverslag",
+										"required": true
+									},
+									{
+										"name": "Kascommissieverslag",
+										"required": true
+									}
+								]
+							},
+							{
+								"stepType": "decharge",
+								"label": "Decharge bestuur",
+								"subjectYearOffset": -1,
+								"handlingDate": "04-15",
+								"documentSlots": []
+							},
+							{
+								"stepType": "berap",
+								"label": "Tussenrapportage",
+								"subjectYearOffset": 0,
+								"deliveryDeadline": "05-15",
+								"handlingDate": "06-20",
+								"documentSlots": [
+									{
+										"name": "Tussenrapportage",
+										"required": true
+									}
+								]
+							},
+							{
+								"stepType": "jaarplan",
+								"label": "Jaarplan",
+								"subjectYearOffset": 1,
+								"deliveryDeadline": "10-01",
+								"handlingDate": "11-25",
+								"documentSlots": [
+									{
+										"name": "Jaarplan",
+										"required": true
+									}
+								]
+							},
+							{
+								"stepType": "begroting",
+								"label": "Begroting",
+								"subjectYearOffset": 1,
+								"deliveryDeadline": "10-01",
+								"handlingDate": "11-25",
+								"documentSlots": [
+									{
+										"name": "Begroting",
+										"required": true
+									}
+								]
+							}
+						]
 					}
 				],
 				"proxy-authorization": [

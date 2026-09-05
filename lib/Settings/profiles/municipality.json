@@ -928,240 +928,6 @@
 						"person": "femke-halsema"
 					}
 				],
-				"cyclus-stap": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "cyclus-stap"
-						},
-						"slug": "begroting-2027-gemeenteraad",
-						"cyclus": "pc-cyclus-2026-gemeenteraad",
-						"sequence": 5,
-						"stepType": "begroting",
-						"label": "Programmabegroting",
-						"concernsYear": 2027,
-						"deliveryDeadline": "2026-09-15",
-						"technicalQuestionsStart": "2026-09-16",
-						"technicalQuestionsEnd": "2026-10-05",
-						"handlingCommittee": "00000000-0000-0000-0000-000000000000",
-						"committeeDate": "2026-10-20",
-						"decisionMakingBody": "gemeenteraad-amsterdam",
-						"handlingDate": "2026-11-05",
-						"documentSlots": [
-							{
-								"name": "Programmabegroting",
-								"required": true,
-								"file": "Programmabegroting 2027 (concept).pdf"
-							},
-							{
-								"name": "Aanbiedingsbrief",
-								"required": true
-							},
-							{
-								"name": "Beantwoording technische vragen",
-								"required": false
-							}
-						],
-						"status": "planned"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "cyclus-stap"
-						},
-						"slug": "berap-1-2026-gemeenteraad",
-						"cyclus": "pc-cyclus-2026-gemeenteraad",
-						"sequence": 2,
-						"stepType": "berap",
-						"label": "Eerste bestuursrapportage (berap-1)",
-						"concernsYear": 2026,
-						"deliveryDeadline": "2026-05-01",
-						"decisionMakingBody": "gemeenteraad-amsterdam",
-						"handlingDate": "2026-06-10",
-						"documentSlots": [
-							{
-								"name": "Bestuursrapportage",
-								"required": true
-							}
-						],
-						"status": "completed"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "cyclus-stap"
-						},
-						"slug": "berap-2-2026-gemeenteraad",
-						"cyclus": "pc-cyclus-2026-gemeenteraad",
-						"sequence": 4,
-						"stepType": "berap",
-						"label": "Tweede bestuursrapportage (berap-2)",
-						"concernsYear": 2026,
-						"deliveryDeadline": "2026-07-10",
-						"decisionMakingBody": "gemeenteraad-amsterdam",
-						"handlingDate": "2026-11-04",
-						"documentSlots": [
-							{
-								"name": "Bestuursrapportage",
-								"required": true
-							}
-						],
-						"status": "planned"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "cyclus-stap"
-						},
-						"slug": "jaarrekening-2025-gemeenteraad",
-						"cyclus": "pc-cyclus-2026-gemeenteraad",
-						"sequence": 1,
-						"stepType": "jaarrekening",
-						"label": "Jaarrekening",
-						"concernsYear": 2025,
-						"deliveryDeadline": "2026-04-15",
-						"decisionMakingBody": "gemeenteraad-amsterdam",
-						"handlingDate": "2026-07-02",
-						"documentSlots": [
-							{
-								"name": "Jaarrekening",
-								"required": true,
-								"file": "00000000-0000-0000-0000-000000000000"
-							},
-							{
-								"name": "Accountantsverslag",
-								"required": true
-							}
-						],
-						"agendaItem": "00000000-0000-0000-0000-000000000000",
-						"decision": "00000000-0000-0000-0000-000000000000",
-						"status": "adopted",
-						"outcome": "vastgesteld"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "cyclus-stap"
-						},
-						"slug": "kadernota-2027-gemeenteraad",
-						"cyclus": "pc-cyclus-2026-gemeenteraad",
-						"sequence": 3,
-						"stepType": "kadernota",
-						"label": "Kadernota",
-						"concernsYear": 2027,
-						"deliveryDeadline": "2026-05-15",
-						"decisionMakingBody": "gemeenteraad-amsterdam",
-						"handlingDate": "2026-07-02",
-						"documentSlots": [
-							{
-								"name": "Kadernota",
-								"required": true
-							}
-						],
-						"agendaItem": "00000000-0000-0000-0000-000000000000",
-						"status": "in-progress"
-					}
-				],
-				"cyclus-template": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "cyclus-template"
-						},
-						"slug": "municipal-pc-cyclus",
-						"name": "Gemeentelijke P&C-cyclus",
-						"context": "legislative",
-						"builtIn": true,
-						"steps": [
-							{
-								"stepType": "jaarrekening",
-								"label": "Jaarrekening",
-								"subjectYearOffset": -1,
-								"deliveryDeadline": "04-15",
-								"handlingDate": "07-02",
-								"documentSlots": [
-									{
-										"name": "Jaarrekening",
-										"required": true
-									},
-									{
-										"name": "Accountantsverslag",
-										"required": true
-									}
-								]
-							},
-							{
-								"stepType": "berap",
-								"label": "Eerste bestuursrapportage (berap-1)",
-								"subjectYearOffset": 0,
-								"deliveryDeadline": "05-01",
-								"handlingDate": "06-10",
-								"documentSlots": [
-									{
-										"name": "Bestuursrapportage",
-										"required": true
-									}
-								]
-							},
-							{
-								"stepType": "kadernota",
-								"label": "Kadernota",
-								"subjectYearOffset": 1,
-								"deliveryDeadline": "05-15",
-								"handlingDate": "07-02",
-								"documentSlots": [
-									{
-										"name": "Kadernota",
-										"required": true
-									}
-								]
-							},
-							{
-								"stepType": "berap",
-								"label": "Tweede bestuursrapportage (berap-2)",
-								"subjectYearOffset": 0,
-								"deliveryDeadline": "09-20",
-								"handlingDate": "11-04",
-								"documentSlots": [
-									{
-										"name": "Bestuursrapportage",
-										"required": true
-									}
-								]
-							},
-							{
-								"stepType": "begroting",
-								"label": "Programmabegroting",
-								"subjectYearOffset": 1,
-								"deliveryDeadline": "09-15",
-								"technicalQuestionsStart": "09-16",
-								"technicalQuestionsEnd": "10-05",
-								"committeeDate": "10-20",
-								"handlingDate": "11-05",
-								"documentSlots": [
-									{
-										"name": "Programmabegroting",
-										"required": true
-									},
-									{
-										"name": "Aanbiedingsbrief",
-										"required": true
-									},
-									{
-										"name": "Beantwoording technische vragen",
-										"required": false
-									}
-								]
-							}
-						]
-					}
-				],
 				"decision": [
 					{
 						"@self": {
@@ -3210,23 +2976,6 @@
 						"votingWeight": 1
 					}
 				],
-				"pc-cyclus": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "pc-cyclus"
-						},
-						"slug": "pc-cyclus-2026-gemeenteraad",
-						"name": "P&C-cyclus 2026",
-						"year": 2026,
-						"governanceBody": "gemeenteraad-amsterdam",
-						"template": "municipal-pc-cyclus",
-						"stepCount": 5,
-						"completedStepCount": 2,
-						"overdueStepCount": 1
-					}
-				],
 				"person": [
 					{
 						"@self": {
@@ -3306,6 +3055,257 @@
 						"name": "W. van Dam",
 						"familyName": "van Dam",
 						"givenName": "W."
+					}
+				],
+				"planning-cycle": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planning-cycle"
+						},
+						"slug": "pc-cyclus-2026-gemeenteraad",
+						"name": "P&C-cyclus 2026",
+						"year": 2026,
+						"governanceBody": "gemeenteraad-amsterdam",
+						"template": "municipal-pc-cyclus",
+						"stepCount": 5,
+						"completedStepCount": 2,
+						"overdueStepCount": 1
+					}
+				],
+				"planning-cycle-step": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planning-cycle-step"
+						},
+						"slug": "begroting-2027-gemeenteraad",
+						"sequence": 5,
+						"stepType": "begroting",
+						"label": "Programmabegroting",
+						"concernsYear": 2027,
+						"deliveryDeadline": "2026-09-15",
+						"technicalQuestionsStart": "2026-09-16",
+						"technicalQuestionsEnd": "2026-10-05",
+						"handlingCommittee": "00000000-0000-0000-0000-000000000000",
+						"committeeDate": "2026-10-20",
+						"decisionMakingBody": "gemeenteraad-amsterdam",
+						"handlingDate": "2026-11-05",
+						"documentSlots": [
+							{
+								"name": "Programmabegroting",
+								"required": true,
+								"file": "Programmabegroting 2027 (concept).pdf"
+							},
+							{
+								"name": "Aanbiedingsbrief",
+								"required": true
+							},
+							{
+								"name": "Beantwoording technische vragen",
+								"required": false
+							}
+						],
+						"status": "planned",
+						"cycle": "pc-cyclus-2026-gemeenteraad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planning-cycle-step"
+						},
+						"slug": "berap-1-2026-gemeenteraad",
+						"sequence": 2,
+						"stepType": "berap",
+						"label": "Eerste bestuursrapportage (berap-1)",
+						"concernsYear": 2026,
+						"deliveryDeadline": "2026-05-01",
+						"decisionMakingBody": "gemeenteraad-amsterdam",
+						"handlingDate": "2026-06-10",
+						"documentSlots": [
+							{
+								"name": "Bestuursrapportage",
+								"required": true
+							}
+						],
+						"status": "completed",
+						"cycle": "pc-cyclus-2026-gemeenteraad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planning-cycle-step"
+						},
+						"slug": "berap-2-2026-gemeenteraad",
+						"sequence": 4,
+						"stepType": "berap",
+						"label": "Tweede bestuursrapportage (berap-2)",
+						"concernsYear": 2026,
+						"deliveryDeadline": "2026-07-10",
+						"decisionMakingBody": "gemeenteraad-amsterdam",
+						"handlingDate": "2026-11-04",
+						"documentSlots": [
+							{
+								"name": "Bestuursrapportage",
+								"required": true
+							}
+						],
+						"status": "planned",
+						"cycle": "pc-cyclus-2026-gemeenteraad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planning-cycle-step"
+						},
+						"slug": "jaarrekening-2025-gemeenteraad",
+						"sequence": 1,
+						"stepType": "jaarrekening",
+						"label": "Jaarrekening",
+						"concernsYear": 2025,
+						"deliveryDeadline": "2026-04-15",
+						"decisionMakingBody": "gemeenteraad-amsterdam",
+						"handlingDate": "2026-07-02",
+						"documentSlots": [
+							{
+								"name": "Jaarrekening",
+								"required": true,
+								"file": "00000000-0000-0000-0000-000000000000"
+							},
+							{
+								"name": "Accountantsverslag",
+								"required": true
+							}
+						],
+						"agendaItem": "00000000-0000-0000-0000-000000000000",
+						"decision": "00000000-0000-0000-0000-000000000000",
+						"status": "adopted",
+						"outcome": "vastgesteld",
+						"cycle": "pc-cyclus-2026-gemeenteraad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planning-cycle-step"
+						},
+						"slug": "kadernota-2027-gemeenteraad",
+						"sequence": 3,
+						"stepType": "kadernota",
+						"label": "Kadernota",
+						"concernsYear": 2027,
+						"deliveryDeadline": "2026-05-15",
+						"decisionMakingBody": "gemeenteraad-amsterdam",
+						"handlingDate": "2026-07-02",
+						"documentSlots": [
+							{
+								"name": "Kadernota",
+								"required": true
+							}
+						],
+						"agendaItem": "00000000-0000-0000-0000-000000000000",
+						"status": "in-progress",
+						"cycle": "pc-cyclus-2026-gemeenteraad"
+					}
+				],
+				"planning-cycle-template": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planning-cycle-template"
+						},
+						"slug": "municipal-pc-cyclus",
+						"name": "Gemeentelijke P&C-cyclus",
+						"context": "legislative",
+						"builtIn": true,
+						"steps": [
+							{
+								"stepType": "jaarrekening",
+								"label": "Jaarrekening",
+								"subjectYearOffset": -1,
+								"deliveryDeadline": "04-15",
+								"handlingDate": "07-02",
+								"documentSlots": [
+									{
+										"name": "Jaarrekening",
+										"required": true
+									},
+									{
+										"name": "Accountantsverslag",
+										"required": true
+									}
+								]
+							},
+							{
+								"stepType": "berap",
+								"label": "Eerste bestuursrapportage (berap-1)",
+								"subjectYearOffset": 0,
+								"deliveryDeadline": "05-01",
+								"handlingDate": "06-10",
+								"documentSlots": [
+									{
+										"name": "Bestuursrapportage",
+										"required": true
+									}
+								]
+							},
+							{
+								"stepType": "kadernota",
+								"label": "Kadernota",
+								"subjectYearOffset": 1,
+								"deliveryDeadline": "05-15",
+								"handlingDate": "07-02",
+								"documentSlots": [
+									{
+										"name": "Kadernota",
+										"required": true
+									}
+								]
+							},
+							{
+								"stepType": "berap",
+								"label": "Tweede bestuursrapportage (berap-2)",
+								"subjectYearOffset": 0,
+								"deliveryDeadline": "09-20",
+								"handlingDate": "11-04",
+								"documentSlots": [
+									{
+										"name": "Bestuursrapportage",
+										"required": true
+									}
+								]
+							},
+							{
+								"stepType": "begroting",
+								"label": "Programmabegroting",
+								"subjectYearOffset": 1,
+								"deliveryDeadline": "09-15",
+								"technicalQuestionsStart": "09-16",
+								"technicalQuestionsEnd": "10-05",
+								"committeeDate": "10-20",
+								"handlingDate": "11-05",
+								"documentSlots": [
+									{
+										"name": "Programmabegroting",
+										"required": true
+									},
+									{
+										"name": "Aanbiedingsbrief",
+										"required": true
+									},
+									{
+										"name": "Beantwoording technische vragen",
+										"required": false
+									}
+								]
+							}
+						]
 					}
 				],
 				"position-type": [
