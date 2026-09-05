@@ -4,7 +4,7 @@
  *
  * Gate-19 e2e coverage — the three register-detail-optimisation catalog
  * widgets: `version-timeline` (RegisterVersionTimelineWidget, on
- * RegelingDetail), `delegation-chain` (DelegationChainWidget, on
+ * GoverningDocumentDetail), `delegation-chain` (DelegationChainWidget, on
  * BevoegdheidstoedelingDetail) and `confidentiality-status-timeline`
  * (ConfidentialityStatusTimelineWidget, on GeheimhoudingDetail). None of the
  * three had e2e coverage — a green suite proved nothing about whether they
@@ -18,7 +18,7 @@
  * ship `x-openregister.seedData` that already demonstrates each widget's
  * populated state. No fixtures are created, so no cleanup is needed.
  *
- * @e2e openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+ * @e2e openspec/changes/fold-regulations-into-governing-documents/specs/fold-regulations-into-governing-documents/spec.md#requirement-existing-regulations-are-carried-across
  * @e2e openspec/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
  * @e2e openspec/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
  * @e2e openspec/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
@@ -45,8 +45,15 @@ function objId(o: any): string {
 	return o?.id ?? o?.['@self']?.id ?? ''
 }
 
-// @e2e openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-test('RegelingDetail: version-timeline widget renders both seeded versions of Afvalstoffenverordening Amsterdam', async ({
+// @e2e openspec/changes/fold-regulations-into-governing-documents/specs/fold-regulations-into-governing-documents/spec.md#requirement-existing-regulations-are-carried-across
+//
+// 🔴 THIS MOVED SCHEMA, NOT SUBJECT. fold-regulations-into-governing-documents
+// retired `regeling`, which modelled the same thing as `governing-document` in
+// a council's words, so the seeded Afvalstoffenverordening is now a governing
+// document and its detail page is the generic one. The widget was ALREADY
+// shared: RegisterVersionTimelineWidget served both detail pages, which is part
+// of how the duplication was found.
+test('GoverningDocumentDetail: version-timeline widget renders both seeded versions of Afvalstoffenverordening Amsterdam', async ({
 	page,
 }) => {
 	// Detail pages are widget-heavy: the composed detail pages in this app
@@ -56,16 +63,18 @@ test('RegelingDetail: version-timeline widget renders both seeded versions of Af
 	// nowhere near enough.
 	test.setTimeout(120_000)
 
-	const regelingen = await listObjects(page, 'regeling')
-	const afvalstoffen = regelingen.find(
+	const documents = await listObjects(page, 'governing-document')
+	const afvalstoffen = documents.find(
 		(r) => r.citationTitle === 'Afvalstoffenverordening Amsterdam',
 	)
 	test.skip(
 		!afvalstoffen,
-		'Seed regeling "Afvalstoffenverordening Amsterdam" not found',
+		'Seed governing document "Afvalstoffenverordening Amsterdam" not found',
 	)
 
-	await page.goto(`${BASE}/apps/decidiq/regelingen/${objId(afvalstoffen)}`)
+	await page.goto(
+		`${BASE}/apps/decidiq/governing-documents/${objId(afvalstoffen)}`,
+	)
 	// app-root appearing only proves the shell mounted, not that data has
 	// arrived — mount itself blocks on initializeStores()'s settings round
 	// trip, so 30s (double the old budget) before even the shell shows up.
