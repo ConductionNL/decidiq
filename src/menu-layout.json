@@ -5,8 +5,6 @@
 		"description": "Canonical navigation layout applied AFTER all manifest.d fragments merge (see buildManifest in main.js). Fragments stay the source of WHAT exists in the menu (ADR-037); this file is the single place deciding WHERE entries live. relocations: sourceId -> targetGroupId (groups dissolve into the target, leaves move under it). settingsSection: top-level config/definition/admin ids lifted into Nextcloud's settings foldout (NcAppNavigationSettings gear, outside the scrollable nav); operational/report/dashboard items (Dashboard, Meetings, Decisions, ActionItems, GovernanceBodies, Registers) stay in the main nav. removals: leaf menu-entry ids retired as duplicate navigation — their PAGES stay routable for deep links and e2e specs. Populated by ia-six-clusters (2026-08-19) to collapse the 44-entry flat nav that accreted from 22 uncoordinated manifest.d fragments back to ADR-004's six-item ceiling; see openspec/changes/ia-six-clusters/design.md for the full placement map and rationale."
 	},
 	"relocations": {
-		"IngekomenStukken": "Meetings",
-		"Raadsinformatiebrieven": "Meetings",
 		"AuditStatements": "Meetings",
 		"Consultations": "Decisions",
 		"WorTrajecten": "Decisions",

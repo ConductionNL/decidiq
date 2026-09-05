@@ -351,6 +351,17 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\MigrateCommitments</step>
             <!--
+                After InitializeSettings imports the register (85-documents-as-agenda-items.json must
+                already have retired the three source schemas). Copies ingekomen-stuk,
+                raadsinformatiebrief and technische-vraag onto agenda-item, each carrying its
+                distinctive fields in `typeFields` and its kind in a per-body agenda-item-type. LETTERS
+                BEFORE QUESTIONS: a technical question's parent is a letter, so the letters must exist
+                and be indexable before the questions that hang off them, and the question's `rib` is
+                retargeted at the letter's COPY. Identity is the SOURCE object's uuid in
+                `typeFields.migratedFromObject`. Non-destructive.
+            -->
+            <step>OCA\Decidiq\Migration\MigrateDocumentsToAgendaItems</step>
+            <!--
                 After InitializeSettings imports the register (86-the-last-two-dutch-names.json must
                 already declare both schemas, AND the register's own `schemas` list must carry both
                 slugs). Copies termijnagenda-item and bevoegdheidstoedeling rows across, renaming the

@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 192,
+			"objectCount": 195,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -380,6 +380,222 @@
 							],
 							"councilResolutionDate": "2026-05-12"
 						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "brief-verkeersveiligheid-schoolzone",
+						"title": "Brief inzake verkeersveiligheid schoolzone Lindelaan",
+						"itemType": "informational",
+						"orderNumber": 300,
+						"type": "type-ingekomen-stuk",
+						"parentItem": "lijst-ingekomen-stukken-2025-01-15",
+						"typeFields": {
+							"sender": "J. Jansen",
+							"senderType": "natural-person",
+							"receivedAt": "2026-01-12",
+							"category": "letter-resident",
+							"routingAdvice": "referred-to-executive-board-for-disposal",
+							"lifecycle": "routing-determined"
+						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "collegestuk-jaarverantwoording",
+						"title": "Jaarverantwoording kinderopvang 2025",
+						"itemType": "informational",
+						"orderNumber": 301,
+						"type": "type-ingekomen-stuk",
+						"parentItem": "lijst-ingekomen-stukken-2025-01-15",
+						"typeFields": {
+							"sender": "College van B&W",
+							"senderType": "governingBody",
+							"receivedAt": "2026-01-18",
+							"category": "executive-board-paper",
+							"routingAdvice": "noted-for-information",
+							"lifecycle": "routing-determined"
+						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "petitie-behoud-zwembad",
+						"title": "Petitie behoud zwembad De Plons (1.243 ondertekenaars)",
+						"itemType": "informational",
+						"orderNumber": 302,
+						"type": "type-ingekomen-stuk",
+						"parentItem": "lijst-ingekomen-stukken-2025-01-15",
+						"typeFields": {
+							"sender": "Actiecomité De Plons",
+							"senderType": "organisation",
+							"receivedAt": "2026-01-15",
+							"category": "petition",
+							"routingAdvice": "include-with-agenda-item",
+							"lifecycle": "agendised",
+							"targetAgendaItem": "begroting-2026-bespreking"
+						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "uitnodiging-veiligheidsregio",
+						"title": "Uitnodiging werkbezoek Veiligheidsregio",
+						"itemType": "informational",
+						"orderNumber": 303,
+						"type": "type-ingekomen-stuk",
+						"typeFields": {
+							"sender": "Veiligheidsregio Midden-Nederland",
+							"senderType": "governingBody",
+							"receivedAt": "2026-01-19",
+							"category": "invitation",
+							"routingAdvice": "noted-for-information",
+							"lifecycle": "registered"
+						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "rib-2026-012-wachtlijsten-jeugdzorg",
+						"title": "Wachtlijsten jeugdzorg: stand van zaken en maatregelen",
+						"itemType": "informational",
+						"orderNumber": 304,
+						"type": "type-raadsinformatiebrief",
+						"parentItem": "lijst-ingekomen-stukken-2025-01-15",
+						"typeFields": {
+							"number": "RIB-2026-012",
+							"portfolioHolder": "00000000-0000-0000-0000-000000000000",
+							"category": "toezegging-afdoening",
+							"sentAt": "2026-02-20",
+							"letterDocument": "Decidesk/Gemeenteraad Amsterdam/Raadsinformatiebrieven/RIB-2026-012 Wachtlijsten jeugdzorg.pdf",
+							"attachments": [
+								"Decidesk/Gemeenteraad Amsterdam/Raadsinformatiebrieven/RIB-2026-012 Bijlage rapportage wachtlijsten.pdf"
+							],
+							"settledCommitment": "toezegging-raadsbrief-jeugdzorg",
+							"lifecycle": "agendised",
+							"publicationDate": "2026-02-21T09:00:00Z"
+						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "rib-2026-013-energietransitie",
+						"title": "Voortgang energietransitie gebouwde omgeving",
+						"itemType": "informational",
+						"orderNumber": 305,
+						"type": "type-raadsinformatiebrief",
+						"typeFields": {
+							"number": "RIB-2026-013",
+							"portfolioHolder": "00000000-0000-0000-0000-000000000000",
+							"category": "actieve-informatieplicht",
+							"sentAt": "2026-03-05",
+							"letterDocument": "Decidesk/Gemeenteraad Amsterdam/Raadsinformatiebrieven/RIB-2026-013 Voortgang energietransitie.pdf",
+							"lifecycle": "sent"
+						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "rib-2026-014-afdoening-motie-fietsve",
+						"title": "Afdoening motie Fietsveiligheid schoolroutes",
+						"itemType": "informational",
+						"orderNumber": 306,
+						"type": "type-raadsinformatiebrief",
+						"parentItem": "lijst-ingekomen-stukken-2025-01-15",
+						"typeFields": {
+							"number": "RIB-2026-014",
+							"portfolioHolder": "00000000-0000-0000-0000-000000000000",
+							"category": "motie-afdoening",
+							"sentAt": "2026-03-12",
+							"letterDocument": "Decidesk/Gemeenteraad Amsterdam/Raadsinformatiebrieven/RIB-2026-014 Afdoening motie fietsveiligheid.pdf",
+							"relatedMotion": "00000000-0000-0000-0000-000000000000",
+							"lifecycle": "involved-in-handling",
+							"publicationDate": "2026-03-13T09:00:00Z"
+						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "tv-rib-2026-012-doorlooptijd",
+						"title": "Hoe verhoudt de genoemde gemiddelde doorlooptijd zich tot de landelijke norm?",
+						"itemType": "discussion",
+						"orderNumber": 307,
+						"type": "type-technische-vraag",
+						"parentItem": "rib-2026-012-wachtlijsten-jeugdzorg",
+						"typeFields": {
+							"question": "Hoe verhoudt de genoemde gemiddelde doorlooptijd zich tot de landelijke norm?",
+							"setBy": "00000000-0000-0000-0000-000000000000",
+							"politicalGroup": "GroenLinks",
+							"setOn": "2026-02-24",
+							"answer": "De doorlooptijd ligt 12% boven de landelijke norm; het plan van aanpak voorziet in een reductie naar de norm binnen twee kwartalen.",
+							"answeredBy": "Afdeling Sociaal Domein",
+							"answeredOn": "2026-03-02",
+							"lifecycle": "answered"
+						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "tv-rib-2026-012-regiocijfers",
+						"title": "Kunnen de wachtlijstcijfers worden uitgesplitst per regiogemeente?",
+						"itemType": "discussion",
+						"orderNumber": 308,
+						"type": "type-technische-vraag",
+						"parentItem": "rib-2026-012-wachtlijsten-jeugdzorg",
+						"typeFields": {
+							"question": "Kunnen de wachtlijstcijfers worden uitgesplitst per regiogemeente?",
+							"setBy": "00000000-0000-0000-0000-000000000000",
+							"politicalGroup": "VVD",
+							"setOn": "2026-02-25",
+							"lifecycle": "put"
+						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "tv-rib-2026-013-netcapaciteit",
+						"title": "Welke wijken lopen vertraging op door netcapaciteit?",
+						"itemType": "discussion",
+						"orderNumber": 309,
+						"type": "type-technische-vraag",
+						"parentItem": "rib-2026-013-energietransitie",
+						"typeFields": {
+							"question": "Welke wijken lopen vertraging op door netcapaciteit?",
+							"setBy": "00000000-0000-0000-0000-000000000000",
+							"politicalGroup": "D66",
+							"setOn": "2026-03-08",
+							"lifecycle": "put"
+						}
 					}
 				],
 				"agenda-item-type": [
@@ -544,6 +760,51 @@
 								"fieldType": "text"
 							}
 						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item-type"
+						},
+						"slug": "type-ingekomen-stuk",
+						"name": "Ingekomen stuk",
+						"description": "Post die bij de griffie binnenkomt en op de lijst van ingekomen stukken wordt geplaatst.",
+						"owningBody": "gemeenteraad-amsterdam",
+						"votable": false,
+						"order": 10,
+						"isDraft": false,
+						"active": true
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item-type"
+						},
+						"slug": "type-raadsinformatiebrief",
+						"name": "Raadsinformatiebrief",
+						"description": "Een brief van het college aan de raad, ter kennisname of ter bespreking geagendeerd.",
+						"owningBody": "gemeenteraad-amsterdam",
+						"votable": false,
+						"order": 30,
+						"isDraft": false,
+						"active": true
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item-type"
+						},
+						"slug": "type-technische-vraag",
+						"name": "Technische vraag",
+						"description": "Een technische vraag van een raadslid over een raadsinformatiebrief, met het antwoord erbij.",
+						"owningBody": "gemeenteraad-amsterdam",
+						"votable": false,
+						"order": 40,
+						"isDraft": false,
+						"active": true
 					}
 				],
 				"ancillary-position": [
@@ -2400,76 +2661,6 @@
 						"status": "in-effect"
 					}
 				],
-				"ingekomen-stuk": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "ingekomen-stuk"
-						},
-						"slug": "brief-verkeersveiligheid-schoolzone",
-						"title": "Brief inzake verkeersveiligheid schoolzone Lindelaan",
-						"sender": "J. Jansen",
-						"senderType": "natural-person",
-						"receivedAt": "2026-01-12",
-						"category": "letter-resident",
-						"routingAdvice": "referred-to-executive-board-for-disposal",
-						"listAgendaItem": "lijst-ingekomen-stukken-2025-01-15",
-						"directedTo": "gemeenteraad-amsterdam",
-						"lifecycle": "routing-determined"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "ingekomen-stuk"
-						},
-						"slug": "collegestuk-jaarverantwoording",
-						"title": "Jaarverantwoording kinderopvang 2025",
-						"sender": "College van B&W",
-						"senderType": "governingBody",
-						"receivedAt": "2026-01-18",
-						"category": "executive-board-paper",
-						"routingAdvice": "noted-for-information",
-						"listAgendaItem": "lijst-ingekomen-stukken-2025-01-15",
-						"directedTo": "gemeenteraad-amsterdam",
-						"lifecycle": "routing-determined"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "ingekomen-stuk"
-						},
-						"slug": "petitie-behoud-zwembad",
-						"title": "Petitie behoud zwembad De Plons (1.243 ondertekenaars)",
-						"sender": "Actiecomité De Plons",
-						"senderType": "organisation",
-						"receivedAt": "2026-01-15",
-						"category": "petition",
-						"routingAdvice": "include-with-agenda-item",
-						"targetAgendaItem": "begroting-2026-bespreking",
-						"listAgendaItem": "lijst-ingekomen-stukken-2025-01-15",
-						"directedTo": "gemeenteraad-amsterdam",
-						"lifecycle": "agendised"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "ingekomen-stuk"
-						},
-						"slug": "uitnodiging-veiligheidsregio",
-						"title": "Uitnodiging werkbezoek Veiligheidsregio",
-						"sender": "Veiligheidsregio Midden-Nederland",
-						"senderType": "governingBody",
-						"receivedAt": "2026-01-19",
-						"category": "invitation",
-						"routingAdvice": "noted-for-information",
-						"directedTo": "gemeenteraad-amsterdam",
-						"lifecycle": "registered"
-					}
-				],
 				"meeting": [
 					{
 						"@self": {
@@ -3538,65 +3729,6 @@
 						"countersignedAt": "2026-06-02T11:40:00Z"
 					}
 				],
-				"raadsinformatiebrief": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "raadsinformatiebrief"
-						},
-						"slug": "rib-2026-012-wachtlijsten-jeugdzorg",
-						"number": "RIB-2026-012",
-						"subject": "Wachtlijsten jeugdzorg: stand van zaken en maatregelen",
-						"portfolioHolder": "00000000-0000-0000-0000-000000000000",
-						"category": "toezegging-afdoening",
-						"sentAt": "2026-02-20",
-						"directedTo": "gemeenteraad-amsterdam",
-						"letterDocument": "Decidesk/Gemeenteraad Amsterdam/Raadsinformatiebrieven/RIB-2026-012 Wachtlijsten jeugdzorg.pdf",
-						"attachments": [
-							"Decidesk/Gemeenteraad Amsterdam/Raadsinformatiebrieven/RIB-2026-012 Bijlage rapportage wachtlijsten.pdf"
-						],
-						"agendaItem": "lijst-ingekomen-stukken-2025-01-15",
-						"settledCommitment": "toezegging-raadsbrief-jeugdzorg",
-						"lifecycle": "agendised",
-						"publicationDate": "2026-02-21T09:00:00Z"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "raadsinformatiebrief"
-						},
-						"slug": "rib-2026-013-energietransitie",
-						"number": "RIB-2026-013",
-						"subject": "Voortgang energietransitie gebouwde omgeving",
-						"portfolioHolder": "00000000-0000-0000-0000-000000000000",
-						"category": "actieve-informatieplicht",
-						"sentAt": "2026-03-05",
-						"directedTo": "gemeenteraad-amsterdam",
-						"letterDocument": "Decidesk/Gemeenteraad Amsterdam/Raadsinformatiebrieven/RIB-2026-013 Voortgang energietransitie.pdf",
-						"lifecycle": "sent"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "raadsinformatiebrief"
-						},
-						"slug": "rib-2026-014-afdoening-motie-fietsveiligheid",
-						"number": "RIB-2026-014",
-						"subject": "Afdoening motie Fietsveiligheid schoolroutes",
-						"portfolioHolder": "00000000-0000-0000-0000-000000000000",
-						"category": "motie-afdoening",
-						"sentAt": "2026-03-12",
-						"directedTo": "gemeenteraad-amsterdam",
-						"letterDocument": "Decidesk/Gemeenteraad Amsterdam/Raadsinformatiebrieven/RIB-2026-014 Afdoening motie fietsveiligheid.pdf",
-						"agendaItem": "lijst-ingekomen-stukken-2025-01-15",
-						"relatedMotion": "00000000-0000-0000-0000-000000000000",
-						"lifecycle": "involved-in-handling",
-						"publicationDate": "2026-03-13T09:00:00Z"
-					}
-				],
 				"regeling-export-package": [
 					{
 						"@self": {
@@ -3611,54 +3743,6 @@
 						],
 						"sourceSlug": "drop-bekendmakingen",
 						"status": "ready"
-					}
-				],
-				"technische-vraag": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "technische-vraag"
-						},
-						"slug": "tv-rib-2026-012-doorlooptijd",
-						"rib": "rib-2026-012-wachtlijsten-jeugdzorg",
-						"question": "Hoe verhoudt de genoemde gemiddelde doorlooptijd zich tot de landelijke norm?",
-						"setBy": "00000000-0000-0000-0000-000000000000",
-						"politicalGroup": "GroenLinks",
-						"setOn": "2026-02-24",
-						"answer": "De doorlooptijd ligt 12% boven de landelijke norm; het plan van aanpak voorziet in een reductie naar de norm binnen twee kwartalen.",
-						"answeredBy": "Afdeling Sociaal Domein",
-						"answeredOn": "2026-03-02",
-						"lifecycle": "answered",
-						"publicationDate": "2026-03-03T09:00:00Z"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "technische-vraag"
-						},
-						"slug": "tv-rib-2026-012-regiocijfers",
-						"rib": "rib-2026-012-wachtlijsten-jeugdzorg",
-						"question": "Kunnen de wachtlijstcijfers worden uitgesplitst per regiogemeente?",
-						"setBy": "00000000-0000-0000-0000-000000000000",
-						"politicalGroup": "VVD",
-						"setOn": "2026-02-25",
-						"lifecycle": "put"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "technische-vraag"
-						},
-						"slug": "tv-rib-2026-013-netcapaciteit",
-						"rib": "rib-2026-013-energietransitie",
-						"question": "Welke wijken lopen vertraging op door netcapaciteit?",
-						"setBy": "00000000-0000-0000-0000-000000000000",
-						"politicalGroup": "D66",
-						"setOn": "2026-03-08",
-						"lifecycle": "put"
 					}
 				],
 				"vote": [
