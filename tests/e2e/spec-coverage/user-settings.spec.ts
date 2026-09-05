@@ -1,3 +1,5 @@
+import type { Page } from '@playwright/test'
+
 /*
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -26,9 +28,8 @@
  * @e2e openspec/specs/user-settings/spec.md#configure-absence-delegation
  * @e2e openspec/specs/user-settings/spec.md#set-preferred-contact-for-governance-communications
  */
-import { test, expect, type Page } from '@playwright/test'
-
-import { BASE_URL as BASE } from '../base-url'
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from '../base-url.ts'
 
 /**
  * Open the Decidiq personal settings panel; skip the test when this branch

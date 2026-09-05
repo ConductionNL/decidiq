@@ -19,12 +19,13 @@
  * from launchpad's journeydoc setup.
  */
 
-import { chromium, request, type FullConfig } from '@playwright/test'
-import { execSync } from 'child_process'
-import * as path from 'path'
-import * as fs from 'fs'
+import type { FullConfig } from '@playwright/test'
 
-import { BASE_URL } from './base-url'
+import { chromium, request } from '@playwright/test'
+import { execSync } from 'child_process'
+import * as fs from 'fs'
+import * as path from 'path'
+import { BASE_URL } from './base-url.ts'
 
 const AUTH_DIR = path.resolve(__dirname, '.auth')
 const STORAGE_STATE = path.join(AUTH_DIR, 'admin.json')
@@ -48,7 +49,7 @@ function ensureBundleBuilt(): void {
 	if (fs.existsSync(BUNDLE_PATH)) {
 		return
 	}
-	// eslint-disable-next-line no-console
+
 	console.log(
 		`[playwright globalSetup] bundle missing at ${BUNDLE_PATH}; running 'npm run build' once…`,
 	)
@@ -133,7 +134,7 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 	await page.evaluate(() => {
 		try {
 			window.localStorage.setItem('cn-walkthrough-seen:decidiq', '9999.0.0')
-		} catch (e) {
+		} catch {
 			// Non-fatal: private mode / no storage.
 		}
 	})

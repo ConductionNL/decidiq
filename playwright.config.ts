@@ -27,6 +27,8 @@
 import { defineConfig, devices } from '@playwright/test'
 import * as path from 'path'
 
+import { BASE_URL } from './tests/e2e/base-url'
+
 export default defineConfig({
 	testDir: './tests/e2e',
 	globalSetup: path.resolve(__dirname, 'tests/e2e/global-setup.ts'),
@@ -53,7 +55,22 @@ export default defineConfig({
 	outputDir: 'tests/e2e/test-results',
 
 	use: {
-		baseURL: process.env.NEXTCLOUD_URL || 'http://localhost:8080',
+		// 🔴 RESOLVED BY base-url.ts, NEVER INLINE HERE.
+		//
+		// This line used to read `process.env.NEXTCLOUD_URL || 'http://localhost:8080'`,
+		// which is a SECOND resolution disagreeing with the guard in
+		// tests/e2e/base-url.ts. That guard accepts PLAYWRIGHT_BASE_URL
+		// (its own documented preference), so setting only that variable
+		// satisfied it, no error was raised, and this line still resolved to
+		// the SHARED dev instance.
+		//
+		// Measured 2026-09-04: a full run launched with
+		// PLAYWRIGHT_BASE_URL=http://localhost:8710 against a private throwaway
+		// container logged in to, and wrote governance fixtures into,
+		// localhost:8080 instead. The private instance was never contacted.
+		// The guard's whole purpose is to stop exactly that, and a hardcoded
+		// fallback beside it made the guard decorative.
+		baseURL: BASE_URL,
 		storageState: path.resolve(__dirname, 'tests/e2e/.auth/admin.json'),
 		// `on-first-retry` captures nothing on the first attempt, so a failure that
 		// a retry then fixes is the ONLY one that gets a trace — exactly inverted.

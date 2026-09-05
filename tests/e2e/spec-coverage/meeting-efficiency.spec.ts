@@ -1,3 +1,6 @@
+import type { Page } from '@playwright/test'
+import type { SeedLedger } from '../workflows/governance-fixture.ts'
+
 /*
  * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
@@ -46,17 +49,15 @@
  * @e2e openspec/specs/meeting-efficiency/spec.md#compare-allocated-vs-actual-time-per-item-type
  * @e2e openspec/specs/meeting-efficiency/spec.md#show-cost-per-agenda-item-in-analytics
  */
-import { test, expect, type Page } from '@playwright/test'
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from '../base-url.ts'
+import { becomesVisible } from '../becomes-visible.js'
 import {
 	cleanupAll,
 	createObject,
 	newLedger,
 	objId,
-	type SeedLedger,
-} from '../workflows/governance-fixture'
-
-import { BASE_URL as BASE } from '../base-url'
-import { becomesVisible } from '../becomes-visible.js'
+} from '../workflows/governance-fixture.ts'
 
 let ledger: SeedLedger
 let meetingId = ''

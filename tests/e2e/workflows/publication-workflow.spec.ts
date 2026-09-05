@@ -1,3 +1,5 @@
+import type { SeedLedger } from './governance-fixture.ts'
+
 /*
  * SPDX-FileCopyrightText: 2026 Decidiq Contributors
  * SPDX-License-Identifier: EUPL-1.2
@@ -31,16 +33,14 @@
  * @e2e openspec/specs/decision-management/spec.md#publish-action-visible-only-when-eligible
  * @e2e openspec/specs/decision-management/spec.md#publication-events-in-the-audit-trail
  */
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import {
 	BASE,
-	newLedger,
-	createObject,
-	getObject,
 	cleanupAll,
+	createObject,
+	newLedger,
 	objId,
-	type SeedLedger,
-} from './governance-fixture'
+} from './governance-fixture.ts'
 
 let ledger: SeedLedger
 
