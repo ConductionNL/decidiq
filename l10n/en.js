@@ -1,6 +1,13 @@
 OC.L10N.register(
     "decidiq",
     {
+        "De datum waarop het besluit is gepubliceerd. Onderscheiden van `publishedAt`, dat het moment van publiceren in dit systeem vastlegt; dit is de datum die het besluit zelf draagt. BRC `publicatiedatum`.": "The date the decision was published. Distinct from `publishedAt`, which records when this system published it; this is the date the decision itself carries. BRC `publicatiedatum`.",
+        "De datum waarop het besluit is verzonden aan de belanghebbende. BRC `verzenddatum`.": "The date the decision was sent to the interested party. BRC `verzenddatum`.",
+        "De datum waarop het besluit vervalt. Onderscheiden van `effectiveDate`, die zegt wanneer het ingaat. BRC `vervaldatum`.": "The date the decision expires. Distinct from `effectiveDate`, which says when it takes effect. BRC `vervaldatum`.",
+        "Het RSIN van de organisatie die verantwoordelijk is voor het besluit. Een RSIN en niet een `$ref`: de BRC identificeert de verantwoordelijke met dit nummer, en een verwijzing die alleen binnen deze instantie oplost zou het contract breken.": "The RSIN of the organisation responsible for the decision. An RSIN and not a `$ref`: the BRC identifies the responsible party by that number, and a reference that resolves only inside this instance would break the contract.",
+        "Publicatiedatum": "Publication date",
+        "Verantwoordelijke organisatie": "Responsible organisation",
+        "Verzenddatum": "Delivery date",
         "#": "#",
         "+ Action item": "+ Action item",
         "+ Action item for {title}": "+ Action item for {title}",
