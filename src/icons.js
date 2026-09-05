@@ -85,6 +85,7 @@ import FileLockOutline from 'vue-material-design-icons/FileLockOutline.vue'
 import FileReplaceOutline from 'vue-material-design-icons/FileReplaceOutline.vue'
 import FileSign from 'vue-material-design-icons/FileSign.vue'
 import FolderOutline from 'vue-material-design-icons/FolderOutline.vue'
+import FormatListBulleted from 'vue-material-design-icons/FormatListBulleted.vue'
 import FormatListChecks from 'vue-material-design-icons/FormatListChecks.vue'
 import FormatListNumbered from 'vue-material-design-icons/FormatListNumbered.vue'
 import ForumOutline from 'vue-material-design-icons/ForumOutline.vue'
@@ -203,6 +204,7 @@ export default {
 	FileSign,
 	FolderOutline,
 	FormatListChecks,
+	FormatListBulleted,
 	FormatListNumbered,
 	ForumOutline,
 	Gauge,
