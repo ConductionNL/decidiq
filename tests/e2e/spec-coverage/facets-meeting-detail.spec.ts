@@ -146,17 +146,20 @@ test('MeetingDetail: an agenda item renders under its configured type name', asy
 		// trip, so 30s (double the old budget) before even the shell shows up.
 		await page.waitForSelector('[data-testid="app-root"]', { timeout: 30_000 })
 
-		await expect(
-			page.getByRole('heading', { name: 'Agenda', exact: true }),
-		).toBeVisible({ timeout: 45_000 })
-		await expect(page.getByText(subject, { exact: true })).toBeVisible({
+		// Scoped to the agenda tab on purpose: "Agenda" is BOTH the widget's
+		// page-level title and the tab's own heading, so an unscoped
+		// getByRole('heading') matches two elements and fails strict mode
+		// without telling you the page rendered perfectly well.
+		const agenda = page.getByTestId('agenda-tab')
+		await expect(agenda).toBeVisible({ timeout: 45_000 })
+		await expect(agenda.getByText(subject, { exact: true })).toBeVisible({
 			timeout: 45_000,
 		})
 
 		// 🔑 THE TYPE NAME IS THE ASSERTION. Finding the item proves the agenda
 		// lists it; finding the type name proves the Type column resolved the
 		// configured kind rather than falling back to "discussion".
-		await expect(page.getByText(typeName, { exact: true })).toBeVisible({
+		await expect(agenda.getByText(typeName, { exact: true })).toBeVisible({
 			timeout: 45_000,
 		})
 	} finally {

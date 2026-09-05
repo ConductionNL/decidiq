@@ -260,7 +260,15 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 							mapping: $mapping,
 							typeId: $typeId,
 							origin: $origin,
-							fallbackOrder: ($index + 1)
+							fallbackOrder: ($index + 1),
+							// Resolved HERE, where the service is in scope: the
+							// target property validates as a uuid and a seeded
+							// row holds a slug.
+							meeting: $this->resolveReference(
+								objectService: $objectService,
+								schema: 'meeting',
+								reference: (string)($source[(string)$mapping['meetingField']] ?? '')
+							)
 						),
 					);
 					$alreadyMigrated[$origin] = true;
@@ -349,6 +357,7 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 	 * @param string              $typeId        The resolved agenda-item type.
 	 * @param string              $origin        The source object identifier.
 	 * @param int                 $fallbackOrder The order to use when the row names none.
+	 * @param string              $meeting       The already-resolved meeting identifier, or ''.
 	 *
 	 * @return array<string,mixed> The generic payload.
 	 */
@@ -358,6 +367,7 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 		string $typeId,
 		string $origin,
 		int $fallbackOrder,
+		string $meeting,
 	): array {
 		$subject = trim((string)($source['subject'] ?? ''));
 		if ($subject === '') {
@@ -390,7 +400,6 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 			$payload['description'] = $rationale;
 		}
 
-		$meeting = trim((string)($source[(string)$mapping['meetingField']] ?? ''));
 		if ($meeting !== '') {
 			$payload['meeting'] = $meeting;
 		}

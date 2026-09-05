@@ -319,7 +319,18 @@ export default {
 				})
 				const names = {}
 				for (const type of types || []) {
-					if (type?.id && type?.name) names[type.id] = type.name
+					if (!type?.name) continue
+					// 🔴 INDEXED BY BOTH, BECAUSE A SEED WRITES THE SLUG.
+					// A row created through the UI holds the type's uuid, but
+					// seedData stores a reference exactly as the file wrote it:
+					// measured on a live instance, seeded agenda items carry
+					// `meeting: "raadsvergadering-2025-01-15"`, the slug, not a
+					// uuid. Keying on `id` alone would leave every example-set
+					// item falling back to the coarse enum, so the set that
+					// exists to demonstrate configurable kinds would show none.
+					if (type.id) names[type.id] = type.name
+					const slug = type['@self']?.slug
+					if (slug) names[slug] = type.name
 				}
 				this.itemTypeNames = names
 			} catch {

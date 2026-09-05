@@ -96,7 +96,11 @@ class MigrateQuestionsToAgendaItemsTest extends TestCase {
 
 		$item = $items[0];
 		self::assertSame(expected: 'Opvangcapaciteit', actual: $item['title']);
-		self::assertSame(expected: 'meeting-1', actual: $item['meeting']);
+		// 🔴 RESOLVED, NOT COPIED. `agenda-item.meeting` declares `format: uuid`
+		// and a seeded legacy row holds the slug, so copying it across would be
+		// rejected by saveObject() and the row reported as a warning — which
+		// does not fail an upgrade.
+		self::assertSame(expected: 'uuid-of-meeting-1', actual: $item['meeting']);
 		self::assertSame(expected: 'Graag inzicht.', actual: $item['description']);
 		// The row's own order wins over the traversal position.
 		self::assertSame(expected: 3, actual: $item['orderNumber']);
@@ -396,12 +400,13 @@ class MigrateQuestionsToAgendaItemsTest extends TestCase {
 			 * @return array<int,array<string,mixed>> The rows.
 			 */
 			public function findAll(array $filters = []): array {
-				// The real service resolves a seeded slug through `@self`, which
-				// is why the migration must resolve a body BEFORE it compares.
-				if ($this->currentSchema === 'governance-body') {
-					$slug = (string)($filters['filters']['@self']['slug'] ?? '');
-
-					return $slug === '' ? [] : [['id' => 'uuid-of-' . $slug]];
+				// A slug lookup goes through `@self`, for ANY schema: every `$ref`
+				// property in this register declares `format: uuid`, so a seeded
+				// slug must be resolved before it is written or the save is
+				// rejected and the row silently skipped.
+				$slug = (string)($filters['filters']['@self']['slug'] ?? '');
+				if ($slug !== '') {
+					return [['id' => 'uuid-of-' . $slug]];
 				}
 
 				return match ($this->currentSchema) {

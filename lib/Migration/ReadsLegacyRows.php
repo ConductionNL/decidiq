@@ -109,36 +109,67 @@ trait ReadsLegacyRows {
 	 * @return string The resolved identifier, or '' when the source named none.
 	 */
 	protected function resolveBody(object $objectService, string $reference): string {
+		return $this->resolveReference(
+			objectService: $objectService,
+			schema: 'governance-body',
+			reference: $reference
+		);
+
+	}//end resolveBody()
+
+	/**
+	 * The identifier to use for a reference to any schema.
+	 *
+	 * 🔴 EVERY `$ref` PROPERTY IN THIS REGISTER DECLARES `format: uuid`, AND A
+	 * SEED STORES THE SLUG IT WROTE. Measured on a live instance: seeded agenda
+	 * items carry `meeting: "raadsvergadering-2025-01-15"`. So a migration that
+	 * copies a reference across verbatim hands a slug to a property that
+	 * validates as a uuid, `saveObject()` rejects the whole row, and the step
+	 * reports it as a warning — which does not fail an upgrade. The migration
+	 * then says "0 migrated, N skipped" and nothing anyone reads says why.
+	 *
+	 * An unresolvable slug is returned AS IS rather than blanked: the save then
+	 * fails loudly for that one row instead of silently writing a record bound
+	 * to nothing.
+	 *
+	 * @param object $objectService The OR ObjectService.
+	 * @param string $schema        The schema the reference points at.
+	 * @param string $reference     The reference as the source holds it.
+	 *
+	 * @return string The resolved identifier, or '' when the source named none.
+	 */
+	protected function resolveReference(object $objectService, string $schema, string $reference): string {
 		$reference = trim($reference);
 		if ($reference === '' || preg_match('/^[0-9a-f-]{36}$/i', $reference) === 1) {
 			return $reference;
 		}
 
-		return ($this->bodyUuidForSlug(objectService: $objectService, slug: $reference) ?? $reference);
+		return ($this->uuidForSlug(objectService: $objectService, schema: $schema, slug: $reference) ?? $reference);
 
-	}//end resolveBody()
+	}//end resolveReference()
 
 	/**
-	 * The GovernanceBody UUID for a slug, or null when it cannot be resolved.
+	 * The UUID a slug names in one schema, or null when it cannot be resolved.
 	 *
 	 * 🔑 THE SLUG LIVES IN `@self`, NOT IN THE OBJECT BODY. A seeded `slug:` key
 	 * is an import-time identifier OpenRegister keeps as metadata, not a stored
 	 * property, so filtering `['slug' => …]` matches nothing.
 	 *
 	 * @param object $objectService The OR ObjectService.
-	 * @param string $slug          The body slug.
+	 * @param string $schema        The schema to look the slug up in.
+	 * @param string $slug          The slug.
 	 *
 	 * @return string|null The UUID, or null.
 	 */
-	protected function bodyUuidForSlug(object $objectService, string $slug): ?string {
+	protected function uuidForSlug(object $objectService, string $schema, string $slug): ?string {
 		try {
 			$objectService->setRegister(self::REGISTER);
-			$objectService->setSchema('governance-body');
+			$objectService->setSchema($schema);
 			$rows = $objectService->findAll(['filters' => ['@self' => ['slug' => $slug]], 'limit' => 1]);
 		} catch (Throwable $e) {
 			$this->migrationLogger()->warning(
-				'Decidiq: could not resolve a governance-body slug during a supersession migration',
-				['slug' => $slug, 'error' => $e->getMessage()]
+				'Decidiq: could not resolve a slug during a supersession migration',
+				['schema' => $schema, 'slug' => $slug, 'error' => $e->getMessage()]
 			);
 			return null;
 		}
@@ -157,7 +188,7 @@ trait ReadsLegacyRows {
 
 		return null;
 
-	}//end bodyUuidForSlug()
+	}//end uuidForSlug()
 
 	/**
 	 * Normalise an OpenRegister entity to an array.
