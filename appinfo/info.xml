@@ -321,6 +321,17 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\MigrateIntegrityDisclosures</step>
             <!--
+                After InitializeSettings imports the register (82-planning-cycle-in-plain-words.json
+                must already declare the three planning-cycle schemas, AND the register's own
+                `schemas` list must carry all three slugs). Copies pc-cyclus, cyclus-template and
+                cyclus-stap across in DEPENDENCY ORDER: templates, then cycles, then steps, because a
+                cycle references its template and a step references its cycle. A reference to a copied
+                row FOLLOWS it to the new record; without that a step would live on the new schema
+                while pointing at the retired cycle, which is readable, plausible, and joined to the
+                wrong side of the migration. `cyclus` becomes `cycle`, the one property that was
+                itself Dutch. Non-destructive.
+            -->
+            <step>OCA\Decidiq\Migration\MigratePlanningCycles</step>
                 After InitializeSettings imports the register (83-confidentiality-in-plain-words.json
                 must already declare both schemas, AND the register's own `schemas` list must carry
                 both slugs). Copies geheimhouding-grond and geheimhouding across in that ORDER: a

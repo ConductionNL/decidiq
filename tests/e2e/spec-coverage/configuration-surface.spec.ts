@@ -29,6 +29,12 @@ const SURFACES = [
 	// Added by retire-the-unbuilt-rooster, which replaced the rooster van
 	// aftreden with the source data it was a projection of.
 	{ route: 'position-holds', heading: 'Position holders' },
+	// Renamed by integrity-disclosures-in-plain-words. Asserted here because a
+	// rename that leaves the manifest pointing at the RETIRED slug renders the
+	// heading and an empty list, which is indistinguishable from an instance
+	// that simply has no disclosures.
+	{ route: 'ancillary-positions', heading: 'Other positions' },
+	{ route: 'declared-gifts', heading: 'Gifts' },
 ]
 
 for (const surface of SURFACES) {
