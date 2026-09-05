@@ -174,7 +174,7 @@ export default {
 		return {
 			loading: false,
 			error: '',
-			rows: [],
+			rawRows: [],
 			meeting: null,
 			agendaSchema: null,
 			// uuid → name for the agenda-item types this instance has configured.
@@ -191,6 +191,24 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Agenda rows, with the Type column resolved against the configured
+		 * kinds.
+		 *
+		 * Computed rather than stored so the column fills in when the type names
+		 * arrive, without the agenda blocking on that fetch.
+		 *
+		 * @return {Array<object>} The rows to render.
+		 *
+		 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+		 */
+		rows() {
+			return this.rawRows.map((item) => ({
+				...item,
+				kindDisplay: this.itemTypeNames[item.type] || item.itemType,
+			}))
+		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		columns() {
 			return [
@@ -282,14 +300,18 @@ export default {
 					_order: JSON.stringify({ orderNumber: 'asc' }),
 					_limit: 100,
 				})
-				await this.loadItemTypes()
+				// 🔴 NOT AWAITED. The Type column is a label; the agenda is the
+				// page. Awaiting this put one more object-list query in front of
+				// every render, and on a loaded instance those cost about a
+				// second each. `rows` is computed, so the names appear as soon as
+				// they arrive and the agenda never waits for them.
+				this.loadItemTypes()
 				// Tree order: sub-items (`parentItem`) nest under their parent;
 				// flattened parent→children order with a nesting indicator.
 				const flat = flattenTree(buildAgendaTree(items || []))
-				this.rows = flat.map((item) => ({
+				this.rawRows = flat.map((item) => ({
 					...item,
 					titleDisplay: item.parentItem ? `↳ ${item.title}` : item.title,
-					kindDisplay: this.itemTypeNames[item.type] || item.itemType,
 				}))
 				await this.loadMeeting()
 			} catch (e) {
