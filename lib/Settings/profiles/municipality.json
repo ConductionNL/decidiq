@@ -672,19 +672,16 @@
 						]
 					}
 				],
-				"bevoegdheidstoedeling": [
+				"authority-delegation": [
 					{
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "bevoegdheidstoedeling"
+							"schema": "authority-delegation"
 						},
 						"slug": "delegatie-uitwerkingsplannen",
 						"type": "delegation",
-						"delegans": "gemeenteraad-amsterdam",
-						"delegatarisBody": "00000000-0000-0000-0000-000000000000",
 						"subject": "Vaststellen van uitwerkingsplannen als bedoeld in art. 3.6 Wro",
-						"beperkingen": "Uitsluitend binnen door de raad vastgestelde kaders",
 						"subMandatePermitted": false,
 						"statutoryBasis": [
 							"Awb art. 10:13",
@@ -693,17 +690,19 @@
 						"decision": "00000000-0000-0000-0000-000000000000",
 						"validFrom": "2026-01-01",
 						"status": "effective",
-						"publicationDate": "2026-01-05T09:00:00Z"
+						"publicationDate": "2026-01-05T09:00:00Z",
+						"delegatingBody": "gemeenteraad-amsterdam",
+						"delegateBody": "00000000-0000-0000-0000-000000000000",
+						"restrictions": "Uitsluitend binnen door de raad vastgestelde kaders"
 					},
 					{
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "bevoegdheidstoedeling"
+							"schema": "authority-delegation"
 						},
 						"slug": "machtiging-woo-vertegenwoordiging",
 						"type": "authorisation",
-						"delegans": "00000000-0000-0000-0000-000000000000",
 						"delegateRole": "juridisch adviseur team Recht",
 						"delegatePerson": "00000000-0000-0000-0000-000000000000",
 						"subject": "Vertegenwoordiging bij Woo-bezwaarprocedures",
@@ -716,21 +715,20 @@
 						"validTo": "2026-01-01",
 						"status": "withdrawn",
 						"withdrawnBy": "00000000-0000-0000-0000-000000000000",
-						"publicationDate": "2025-01-10T09:00:00Z"
+						"publicationDate": "2025-01-10T09:00:00Z",
+						"delegatingBody": "00000000-0000-0000-0000-000000000000"
 					},
 					{
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "bevoegdheidstoedeling"
+							"schema": "authority-delegation"
 						},
 						"slug": "mandaat-subsidies-secretaris",
 						"type": "mandate",
-						"delegans": "00000000-0000-0000-0000-000000000000",
 						"delegateRole": "gemeentesecretaris",
 						"subject": "Beslissen op subsidieaanvragen tot het genoemde plafond",
 						"financialCeiling": 25000,
-						"beperkingen": "Geen subsidies met precedentwerking",
 						"subMandatePermitted": true,
 						"statutoryBasis": [
 							"Awb art. 10:3",
@@ -739,21 +737,21 @@
 						"decision": "00000000-0000-0000-0000-000000000000",
 						"validFrom": "2026-01-01",
 						"status": "effective",
-						"publicationDate": "2026-01-05T09:00:00Z"
+						"publicationDate": "2026-01-05T09:00:00Z",
+						"delegatingBody": "00000000-0000-0000-0000-000000000000",
+						"restrictions": "Geen subsidies met precedentwerking"
 					},
 					{
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "bevoegdheidstoedeling"
+							"schema": "authority-delegation"
 						},
 						"slug": "ondermandaat-subsidies-samenleving",
 						"type": "mandate",
-						"delegansDescription": "gemeentesecretaris",
 						"delegateRole": "afdelingshoofd Samenleving",
 						"subject": "Beslissen op subsidieaanvragen binnen het programma Samenleving",
 						"financialCeiling": 5000,
-						"beperkingen": "Uitsluitend reguliere subsidieregelingen",
 						"subMandatePermitted": false,
 						"statutoryBasis": [
 							"Awb art. 10:9"
@@ -763,21 +761,21 @@
 						"validFrom": "2026-02-01",
 						"validTo": "2026-08-15",
 						"status": "effective",
-						"publicationDate": "2026-02-05T09:00:00Z"
+						"publicationDate": "2026-02-05T09:00:00Z",
+						"delegatingDescription": "gemeentesecretaris",
+						"restrictions": "Uitsluitend reguliere subsidieregelingen"
 					},
 					{
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "bevoegdheidstoedeling"
+							"schema": "authority-delegation"
 						},
 						"slug": "volmacht-inkoop-teamleider",
 						"type": "power-of-attorney",
-						"delegansDescription": "burgemeester",
 						"delegateRole": "teamleider Inkoop",
 						"subject": "Aangaan van privaatrechtelijke rechtshandelingen voor inkoop",
 						"financialCeiling": 50000,
-						"beperkingen": "Binnen het vastgestelde inkoopbeleid",
 						"subMandatePermitted": false,
 						"statutoryBasis": [
 							"BW art. 3:60",
@@ -785,7 +783,9 @@
 						],
 						"decision": "00000000-0000-0000-0000-000000000000",
 						"validFrom": "2026-03-01",
-						"status": "draft"
+						"status": "draft",
+						"delegatingDescription": "burgemeester",
+						"restrictions": "Binnen het vastgestelde inkoopbeleid"
 					}
 				],
 				"body-governance-configuration": [
@@ -3110,6 +3110,106 @@
 						"givenName": "W."
 					}
 				],
+				"planned-agenda-item": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planned-agenda-item"
+						},
+						"slug": "lta-herziening-parkeerbeleid",
+						"subject": "Herziening parkeerbeleid binnenstad",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"plannedPeriod": "2026-Q2",
+						"expectedType": "council-proposal",
+						"ownerType": "executive-board",
+						"notes": "Voortkomend uit de aangenomen motie parkeerdruk; college bereidt een raadsvoorstel voor.",
+						"lifecycle": "postponed",
+						"shiftHistory": [
+							{
+								"van": "2026-Q1",
+								"toPeriod": "2026-Q2",
+								"reason": "Wacht op uitkomst parkeeronderzoek regio",
+								"door": "00000000-0000-0000-0000-000000000000",
+								"op": "2026-03-15T10:00:00Z"
+							}
+						],
+						"originMotion": "00000000-0000-0000-0000-000000000000",
+						"goal": "goal-amsterdam-parkeerbeleid",
+						"publicationDate": "2026-06-20T09:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planned-agenda-item"
+						},
+						"slug": "lta-kadernota-2027",
+						"subject": "Kadernota 2027",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"plannedPeriod": "2027-Q2",
+						"expectedType": "budget-document",
+						"ownerType": "executive-board",
+						"notes": "Reguliere jaarlijkse kadernota in de P&C-cyclus.",
+						"lifecycle": "planned",
+						"shiftHistory": [],
+						"originDecision": "00000000-0000-0000-0000-000000000000"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planned-agenda-item"
+						},
+						"slug": "lta-rib-wachtlijsten-jeugdzorg",
+						"subject": "RIB wachtlijsten jeugdzorg",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"plannedPeriod": "2026-11",
+						"expectedType": "council-information-letter",
+						"ownerType": "portfolio-holder",
+						"owner": "00000000-0000-0000-0000-000000000000",
+						"notes": "Toegezegde raadsinformatiebrief over de aanpak van de wachtlijsten jeugdzorg.",
+						"lifecycle": "planned",
+						"shiftHistory": [],
+						"originCommitment": "00000000-0000-0000-0000-000000000000",
+						"publicationDate": "2026-06-20T09:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planned-agenda-item"
+						},
+						"slug": "lta-themabijeenkomst-energietransitie",
+						"subject": "Themabijeenkomst energietransitie",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"plannedPeriod": "2027-Q1",
+						"expectedType": "theme-session",
+						"ownerType": "council-registry",
+						"notes": "Beeldvormende bijeenkomst ter voorbereiding op de warmtevisie.",
+						"lifecycle": "planned",
+						"shiftHistory": [],
+						"publicationDate": "2026-06-20T09:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planned-agenda-item"
+						},
+						"slug": "lta-verordening-marktgelden",
+						"subject": "Actualisatie verordening marktgelden",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"plannedPeriod": "2026-Q1",
+						"expectedType": "council-proposal",
+						"ownerType": "portfolio-holder",
+						"owner": "00000000-0000-0000-0000-000000000000",
+						"lifecycle": "lapsed",
+						"shiftHistory": [],
+						"reasonExpired": "Opgegaan in de bredere herziening van de legesverordening",
+						"publicationDate": "2026-06-20T09:00:00Z"
+					}
+				],
 				"planning-cycle": [
 					{
 						"@self": {
@@ -3559,106 +3659,6 @@
 						"politicalGroup": "D66",
 						"setOn": "2026-03-08",
 						"lifecycle": "put"
-					}
-				],
-				"termijnagenda-item": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "termijnagenda-item"
-						},
-						"slug": "lta-herziening-parkeerbeleid",
-						"subject": "Herziening parkeerbeleid binnenstad",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"plannedPeriod": "2026-Q2",
-						"expectedType": "council-proposal",
-						"ownerType": "executive-board",
-						"notes": "Voortkomend uit de aangenomen motie parkeerdruk; college bereidt een raadsvoorstel voor.",
-						"lifecycle": "postponed",
-						"shiftHistory": [
-							{
-								"van": "2026-Q1",
-								"toPeriod": "2026-Q2",
-								"reason": "Wacht op uitkomst parkeeronderzoek regio",
-								"door": "00000000-0000-0000-0000-000000000000",
-								"op": "2026-03-15T10:00:00Z"
-							}
-						],
-						"originMotion": "00000000-0000-0000-0000-000000000000",
-						"goal": "goal-amsterdam-parkeerbeleid",
-						"publicationDate": "2026-06-20T09:00:00Z"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "termijnagenda-item"
-						},
-						"slug": "lta-kadernota-2027",
-						"subject": "Kadernota 2027",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"plannedPeriod": "2027-Q2",
-						"expectedType": "budget-document",
-						"ownerType": "executive-board",
-						"notes": "Reguliere jaarlijkse kadernota in de P&C-cyclus.",
-						"lifecycle": "planned",
-						"shiftHistory": [],
-						"originDecision": "00000000-0000-0000-0000-000000000000"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "termijnagenda-item"
-						},
-						"slug": "lta-rib-wachtlijsten-jeugdzorg",
-						"subject": "RIB wachtlijsten jeugdzorg",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"plannedPeriod": "2026-11",
-						"expectedType": "council-information-letter",
-						"ownerType": "portfolio-holder",
-						"owner": "00000000-0000-0000-0000-000000000000",
-						"notes": "Toegezegde raadsinformatiebrief over de aanpak van de wachtlijsten jeugdzorg.",
-						"lifecycle": "planned",
-						"shiftHistory": [],
-						"originCommitment": "00000000-0000-0000-0000-000000000000",
-						"publicationDate": "2026-06-20T09:00:00Z"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "termijnagenda-item"
-						},
-						"slug": "lta-themabijeenkomst-energietransitie",
-						"subject": "Themabijeenkomst energietransitie",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"plannedPeriod": "2027-Q1",
-						"expectedType": "theme-session",
-						"ownerType": "council-registry",
-						"notes": "Beeldvormende bijeenkomst ter voorbereiding op de warmtevisie.",
-						"lifecycle": "planned",
-						"shiftHistory": [],
-						"publicationDate": "2026-06-20T09:00:00Z"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "termijnagenda-item"
-						},
-						"slug": "lta-verordening-marktgelden",
-						"subject": "Actualisatie verordening marktgelden",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"plannedPeriod": "2026-Q1",
-						"expectedType": "council-proposal",
-						"ownerType": "portfolio-holder",
-						"owner": "00000000-0000-0000-0000-000000000000",
-						"lifecycle": "lapsed",
-						"shiftHistory": [],
-						"reasonExpired": "Opgegaan in de bredere herziening van de legesverordening",
-						"publicationDate": "2026-06-20T09:00:00Z"
 					}
 				],
 				"vote": [

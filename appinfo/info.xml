@@ -351,6 +351,16 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\MigrateCommitments</step>
             <!--
+                After InitializeSettings imports the register (86-the-last-two-dutch-names.json must
+                already declare both schemas, AND the register's own `schemas` list must carry both
+                slugs). Copies termijnagenda-item and bevoegdheidstoedeling rows across, renaming the
+                FOUR properties that were themselves Dutch: delegans, delegansDescription,
+                delegatarisBody and beperkingen. A value written under an old key would land on a
+                property the target does not declare, which OpenRegister stores nowhere while
+                answering 200. Non-destructive.
+            -->
+            <step>OCA\Decidiq\Migration\MigrateTheLastTwoDutchNames</step>
+            <!--
                 model-debt-cleanup-code: both steps below run AFTER InitializeSettings so they
                 read the NEW $ref declarations (Participant -> Membership/Person retargets,
                 model-debt-cleanup-schema fragment 67) to know what a valid target type looks
