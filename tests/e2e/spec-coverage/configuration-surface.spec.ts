@@ -26,6 +26,9 @@ const SURFACES = [
 	{ route: 'agenda-item-types', heading: 'Agenda item types' },
 	{ route: 'position-types', heading: 'Position types' },
 	{ route: 'body-compositions', heading: 'Body compositions' },
+	// Added by retire-the-unbuilt-rooster, which replaced the rooster van
+	// aftreden with the source data it was a projection of.
+	{ route: 'position-holds', heading: 'Position holders' },
 ]
 
 for (const surface of SURFACES) {

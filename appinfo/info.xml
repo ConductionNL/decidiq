@@ -294,6 +294,20 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\MigrateConsultationsToOneSchema</step>
             <!--
+                After InitializeSettings imports the register (80-retire-the-unbuilt-rooster.json
+                must already have added `notes` and `migratedFromObject` to PositionType, or every
+                copied row fails validation on them). Copies termijn-regeling rows onto position-type:
+                a term rule is a property of a position, and PositionType already declared
+                termDurationMonths, maxConsecutiveTerms and reappointable. The role ENUM becomes the
+                position's NAME. Identity is the SOURCE object's uuid. Non-destructive.
+
+                rooster-van-aftreden and rooster-regel are deliberately NOT migrated: both were a
+                projection whose generator (RoosterService) was never written, and PositionHold
+                requires a startDate a rooster regel never recorded, so any value written would be
+                invented. Their rows stay readable under their original schemas.
+            -->
+            <step>OCA\Decidiq\Migration\MigrateTermRulesToPositionTypes</step>
+            <!--
                 model-debt-cleanup-code: both steps below run AFTER InitializeSettings so they
                 read the NEW $ref declarations (Participant -> Membership/Person retargets,
                 model-debt-cleanup-schema fragment 67) to know what a valid target type looks
