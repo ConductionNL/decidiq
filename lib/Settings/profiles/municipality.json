@@ -2860,12 +2860,12 @@
 						"version": 2
 					}
 				],
-				"offboarding-traject": [
+				"member-offboarding": [
 					{
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "offboarding-traject"
+							"schema": "member-offboarding"
 						},
 						"slug": "offboarding-jan-de-vries-raadswisseling",
 						"person": "jan-de-vries",
@@ -2915,7 +2915,7 @@
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "offboarding-traject"
+							"schema": "member-offboarding"
 						},
 						"slug": "offboarding-janneke-de-bruin-individueel",
 						"person": "janneke-de-bruin",
@@ -2964,12 +2964,12 @@
 						]
 					}
 				],
-				"onboarding-traject": [
+				"member-onboarding": [
 					{
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "onboarding-traject"
+							"schema": "member-onboarding"
 						},
 						"slug": "onboarding-jan-de-vries-opvolging",
 						"person": "jan-de-vries",
@@ -3026,7 +3026,7 @@
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "onboarding-traject"
+							"schema": "member-onboarding"
 						},
 						"slug": "onboarding-janneke-de-bruin-nieuw-lid",
 						"person": "janneke-de-bruin",
@@ -3036,9 +3036,9 @@
 						"lifecycle": "completed",
 						"ncAccount": "jdebruin",
 						"membership": "00000000-0000-0000-0000-000000000000",
-						"swearingInDate": "2025-11-10",
-						"beëdigingsType": "oath",
-						"swearingInMeeting": "raadsvergadering-2025-01-15",
+						"installedOn": "2025-11-10",
+						"installationType": "oath",
+						"installationMeeting": "raadsvergadering-2025-01-15",
 						"steps": [
 							{
 								"stepType": "swearing-in",
@@ -3098,7 +3098,7 @@
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "onboarding-traject"
+							"schema": "member-onboarding"
 						},
 						"slug": "onboarding-marie-janssen-raadswisseling",
 						"person": "marie-janssen",
@@ -3109,9 +3109,9 @@
 						"lifecycle": "in-execution",
 						"ncAccount": "mjanssen",
 						"membership": "00000000-0000-0000-0000-000000000000",
-						"swearingInDate": "2026-03-26",
-						"beëdigingsType": "affirmation",
-						"swearingInMeeting": "raadsvergadering-2025-01-15",
+						"installedOn": "2026-03-26",
+						"installationType": "affirmation",
+						"installationMeeting": "raadsvergadering-2025-01-15",
 						"steps": [
 							{
 								"stepType": "swearing-in",

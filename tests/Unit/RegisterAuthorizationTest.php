@@ -441,9 +441,15 @@ class RegisterAuthorizationTest extends TestCase {
 		// The count is the positive control: without it this loop passes vacuously
 		// if the schemas move, are renamed, or stop being found at all.
 		$this->assertSame(
-			34,
+			36,
 			$withBlock,
-			'Expected 27 schema-level authorization blocks. evaluation-response gained one that closes '
+			'Expected 36 schema-level authorization blocks. member-onboarding-in-plain-words added the '
+				. 'latest TWO, and unlike every rename before them these are NEW, not carried: '
+				. 'OnboardingTraject and OffboardingTraject declared no block of their own, so a '
+				. 'person\'s name, account id, installation date and reason for leaving — including '
+				. 'death and relocation — were read AND list open to anonymous visitors through the '
+				. 'register baseline. MemberOnboarding and MemberOffboarding declare read and list for '
+				. '`authenticated` only. evaluation-response gained one that closes '
 				. '`read` (its raw anonymous board self-evaluation answers were readable by every '
 				. 'authenticated account, defeating the suppression threshold BoardEvaluation applies to '
 				. 'the aggregate) while keeping `create` open so members can still submit. '

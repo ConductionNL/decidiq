@@ -127,6 +127,8 @@
           "meeting",
           "member-consultation",
           "member-consultation-response",
+          "member-offboarding",
+          "member-onboarding",
           "membership",
           "minutes",
           "modelreglement-preset",
