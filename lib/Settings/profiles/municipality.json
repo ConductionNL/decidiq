@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 195,
+			"objectCount": 185,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -3629,22 +3629,6 @@
 						"countersignedAt": "2026-06-02T11:40:00Z"
 					}
 				],
-				"regeling-export-package": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "regeling-export-package"
-						},
-						"slug": "export-afvalstoffen-v2",
-						"regulation": "afvalstoffenverordening-amsterdam",
-						"versies": [
-							"afvalstoffen-v2"
-						],
-						"sourceSlug": "drop-bekendmakingen",
-						"status": "ready"
-					}
-				],
 				"termijnagenda-item": [
 					{
 						"@self": {
@@ -3896,127 +3880,6 @@
 						"votesFor": 28,
 						"votesAgainst": 3,
 						"votesAbstain": 2
-					}
-				],
-				"woo-bestuursorgaan": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "woo-bestuursorgaan"
-						},
-						"slug": "woo-bestuursorgaan-gemeenteraad-amsterdam",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"governingBody": "gm0344",
-						"label": "Gemeenteraad (example)",
-						"active": true,
-						"notes": "EXAMPLE bestuursorgaan TOOI gemeente-identificatie only (gm0344 is the id the records-management-archiving MDTO archiefvormer convention uses as its documented example). Replace with the real bestuursorgaan identifier of this governance body at implementation. The instance-wide default bestuursorgaan lives in app config (admin Woo section, REQ-WOO-006); this object is the per-governance-body override."
-					}
-				],
-				"woo-categorie-mapping": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "woo-categorie-mapping"
-						},
-						"slug": "woo-map-besluitenlijst",
-						"objectType": "decision-list",
-						"informatiecategorie": "https://identifier.overheid.nl/tooi/def/thes/kern/c_PLACEHOLDER_vergaderstukken-decentrale-overheden",
-						"informatiecategorieLabel": "Vergaderstukken decentrale overheden",
-						"active": true,
-						"notes": "Generated decision-list document (p2-minutes-and-decisions-core-t1). PLACEHOLDER informatiecategorie — copy verbatim from the published TOOI waardelijst at implementation."
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "woo-categorie-mapping"
-						},
-						"slug": "woo-map-decision",
-						"objectType": "decision",
-						"informatiecategorie": "https://identifier.overheid.nl/tooi/def/thes/kern/c_PLACEHOLDER_vergaderstukken-decentrale-overheden",
-						"informatiecategorieLabel": "Vergaderstukken decentrale overheden",
-						"active": true,
-						"notes": "ORI Besluit. PLACEHOLDER informatiecategorie — copy verbatim from the published TOOI waardelijst at implementation."
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "woo-categorie-mapping"
-						},
-						"slug": "woo-map-meeting-agenda",
-						"objectType": "meeting-agenda",
-						"informatiecategorie": "https://identifier.overheid.nl/tooi/def/thes/kern/c_PLACEHOLDER_vergaderstukken-decentrale-overheden",
-						"informatiecategorieLabel": "Vergaderstukken decentrale overheden",
-						"active": true,
-						"notes": "Meeting agenda payload. PLACEHOLDER informatiecategorie — copy the exact vergaderstukken-decentrale-overheden concept URI verbatim from the published TOOI waardelijst at implementation."
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "woo-categorie-mapping"
-						},
-						"slug": "woo-map-minutes",
-						"objectType": "minutes",
-						"informatiecategorie": "https://identifier.overheid.nl/tooi/def/thes/kern/c_PLACEHOLDER_vergaderstukken-decentrale-overheden",
-						"informatiecategorieLabel": "Vergaderstukken decentrale overheden",
-						"active": true,
-						"notes": "ORI Verslag. PLACEHOLDER informatiecategorie — copy verbatim from the published TOOI waardelijst at implementation."
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "woo-categorie-mapping"
-						},
-						"slug": "woo-map-motie",
-						"objectType": "motion",
-						"informatiecategorie": "https://identifier.overheid.nl/tooi/def/thes/kern/c_PLACEHOLDER_vergaderstukken-decentrale-overheden",
-						"informatiecategorieLabel": "Vergaderstukken decentrale overheden",
-						"active": true,
-						"notes": "Inert until the Motie schema (sibling motie-amendement-administratie) lands — REQ-WOO-001. PLACEHOLDER informatiecategorie — copy verbatim at implementation."
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "woo-categorie-mapping"
-						},
-						"slug": "woo-map-raadsinformatiebrief",
-						"objectType": "council-information-letter",
-						"informatiecategorie": "https://identifier.overheid.nl/tooi/def/thes/kern/c_PLACEHOLDER_vergaderstukken-decentrale-overheden",
-						"informatiecategorieLabel": "Vergaderstukken decentrale overheden",
-						"active": true,
-						"notes": "Predicate-published (sibling raadsinformatiebrieven, fragment 51). PLACEHOLDER informatiecategorie — copy verbatim at implementation."
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "woo-categorie-mapping"
-						},
-						"slug": "woo-map-regeling",
-						"objectType": "arrangement",
-						"informatiecategorie": "https://identifier.overheid.nl/tooi/def/thes/kern/c_PLACEHOLDER_wetten-en-algemeen-verbindende-voorschriften",
-						"informatiecategorieLabel": "Wetten en algemeen verbindende voorschriften",
-						"active": true,
-						"notes": "Inert until the Regeling schema (sibling verordeningenregister) lands — REQ-WOO-001. PLACEHOLDER informatiecategorie — copy the exact wetten-en-algemeen-verbindende-voorschriften concept URI verbatim at implementation."
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "woo-categorie-mapping"
-						},
-						"slug": "woo-map-toezegging",
-						"objectType": "commitment",
-						"informatiecategorie": "https://identifier.overheid.nl/tooi/def/thes/kern/c_PLACEHOLDER_vergaderstukken-decentrale-overheden",
-						"informatiecategorieLabel": "Vergaderstukken decentrale overheden",
-						"active": true,
-						"notes": "Predicate-published (sibling toezeggingen-ingekomen-stukken, fragment 45). PLACEHOLDER informatiecategorie — copy verbatim at implementation."
 					}
 				]
 			}
