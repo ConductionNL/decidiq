@@ -262,6 +262,27 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\MigrateKascommissieToAuditStatement</step>
             <!--
+                After InitializeSettings imports the register (76-questions-as-agenda-items.json
+                must already have retired the three source schemas). Copies mondelinge-vraag and
+                interpellatieverzoek rows onto the generic agenda-item, carrying each row's
+                distinctive fields in `typeFields` and its kind in a per-body agenda-item-type,
+                then folds vragenuur-configuratie onto those types. Identity is the SOURCE object's
+                uuid, recorded as `typeFields.migratedFromObject`: unlike a body configuration a
+                body has many questions, so the body cannot be the identity and only the source row
+                can. Non-destructive: never deletes or edits a source row.
+            -->
+            <step>OCA\Decidiq\Migration\MigrateQuestionsToAgendaItems</step>
+            <!--
+                After InitializeSettings imports the register (77-fold-regulations-into-governing-
+                documents.json must already have added the absorbed properties to GoverningDocument,
+                or every copied row fails validation on them). Copies regeling and regeling-versie
+                rows onto governing-document and governing-document-versie. Documents FIRST, then
+                versions: a version references its document, so the parents must exist and be
+                indexable before the children can point at them. Identity is the SOURCE object's
+                uuid, recorded in the declared `migratedFromObject` property. Non-destructive.
+            -->
+            <step>OCA\Decidiq\Migration\MigrateRegulationsToGoverningDocuments</step>
+            <!--
                 model-debt-cleanup-code: both steps below run AFTER InitializeSettings so they
                 read the NEW $ref declarations (Participant -> Membership/Person retargets,
                 model-debt-cleanup-schema fragment 67) to know what a valid target type looks

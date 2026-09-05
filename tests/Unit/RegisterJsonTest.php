@@ -120,6 +120,81 @@ class RegisterJsonTest extends TestCase {
 	}//end profileSeeds()
 
 	/**
+	 * The files matching a glob, with `glob()`'s `false` folded into an empty list.
+	 *
+	 * `glob()` returns false on an error rather than an empty array, so callers
+	 * that spread it need a list either way. Named rather than written inline
+	 * because the `?: []` shorthand that did this is an inline conditional, which
+	 * this repo's PHPCS standard prohibits.
+	 *
+	 * @param string $pattern Glob pattern to expand.
+	 *
+	 * @return array<int, string> Matching paths, possibly empty.
+	 */
+	private function globOrNothing(string $pattern): array {
+		$matches = glob($pattern);
+		if ($matches === false) {
+			return [];
+		}
+
+		return $matches;
+
+	}//end globOrNothing()
+
+	/**
+	 * Every example object this app ships for one schema, from BOTH of its sources.
+	 *
+	 * 🔴 `profileSeeds()` READS ONLY `lib/Settings/profiles`, AND THAT IS NOT
+	 * EVERYTHING THAT INSTALLS.
+	 *
+	 * `DemoDataService::DESCRIPTOR` imports `lib/Settings/decidiq_mock_register.json`,
+	 * and `SeedProfileService` offers it in the setup wizard as the `generated`
+	 * example set whenever it is on disk. Its `components.objects` therefore plant
+	 * exactly like a profile's `seedData`, but no assertion in this file had ever
+	 * looked at them: three contradictory decisions and two contradictory stages
+	 * shipped there unnoticed.
+	 *
+	 * The two sources key the schema differently — a profile object names the
+	 * SLUG (`decision`), a generated object names the schema NAME (`Decision`) —
+	 * so both spellings are required rather than guessed.
+	 *
+	 * @param string $slug Schema slug, as the example sets key it.
+	 * @param string $name Schema name, as the generated set names it in `@self.schema`.
+	 *
+	 * @return array<int, array{label: string, source: string, object: array<string, mixed>}>
+	 */
+	private function everyShippedObject(string $slug, string $name): array {
+		$shipped = [];
+		foreach (($this->profileSeeds()[$slug] ?? []) as $object) {
+			$shipped[] = [
+				'label' => ($object['slug'] ?? '?'),
+				'source' => 'example set',
+				'object' => $object,
+			];
+		}
+
+		$path = __DIR__ . '/../../lib/Settings/decidiq_mock_register.json';
+		$json = file_get_contents(filename: $path);
+		self::assertNotFalse(condition: $json, message: 'The generated example set must be readable');
+		$generated = json_decode(json: $json, associative: true, depth: 512, flags: JSON_THROW_ON_ERROR);
+
+		foreach (($generated['components']['objects'] ?? []) as $object) {
+			if ((($object['@self']['schema'] ?? '') === $name) === false) {
+				continue;
+			}
+
+			$shipped[] = [
+				'label' => ($object['@self']['slug'] ?? '?'),
+				'source' => 'generated set',
+				'object' => $object,
+			];
+		}
+
+		return $shipped;
+
+	}//end everyShippedObject()
+
+	/**
 	 * Every schema slug the code asks OpenRegister for must actually exist.
 	 *
 	 * 🔴 A ONE-CHARACTER SLUG TYPO DISABLED AN ENTIRE BACKFILL, SILENTLY.
@@ -148,7 +223,7 @@ class RegisterJsonTest extends TestCase {
 		$declared = [];
 		$files = array_merge(
 			[__DIR__ . '/../../lib/Settings/decidesk_register.json'],
-			(glob(__DIR__ . '/../../lib/Settings/register.d/*.json') ?: [])
+			($this->globOrNothing(pattern: __DIR__ . '/../../lib/Settings/register.d/*.json'))
 		);
 		foreach ($files as $file) {
 			$data = json_decode((string)file_get_contents($file), true, 512, JSON_THROW_ON_ERROR);
@@ -319,7 +394,9 @@ class RegisterJsonTest extends TestCase {
 		self::assertCount(
 			expectedCount: 38,
 			haystack: $this->schemas,
-			message: 'Register must contain exactly 38 schemas (unified Decision supertype model, board portal retired, board-self-evaluation added, BoardProxy + GovernanceReport declared for the services that already write them, Product retired to pipelinq)'
+			message: 'Register must contain exactly 38 schemas (unified Decision supertype model, board portal '
+				. 'retired, board-self-evaluation added, BoardProxy + GovernanceReport declared for the services '
+				. 'that already write them, Product retired to pipelinq)'
 		);
 
 		foreach ($expected as $name) {
@@ -407,7 +484,7 @@ class RegisterJsonTest extends TestCase {
 		self::assertContains(needle: 'advisory-body', haystack: $bodyTypeEnum);
 		self::assertContains(needle: 'works-council', haystack: $bodyTypeEnum);
 		self::assertContains(needle: 'shared-body', haystack: $bodyTypeEnum);
-		// organisation-facet-composition models factions as a bodyType
+		// The organisation-facet-composition change models factions as a bodyType
 		// discriminator (ADR-006) instead of the superseded parallel
 		// Fractie schema set.
 		self::assertContains(needle: 'faction', haystack: $bodyTypeEnum);
@@ -664,40 +741,70 @@ class RegisterJsonTest extends TestCase {
 	 * `decisionDate`; every in-flight seed carries neither, so the demo data
 	 * actually demonstrates the case that used to be refused.
 	 *
+	 * 🔴 THIS TEST EXISTED WHILE SIX CONTRADICTORY SEEDS SHIPPED, AND BOTH
+	 * REASONS WERE IN THE TEST RATHER THAN IN THE DATA.
+	 *
+	 * It read only `lib/Settings/profiles`, so the three in the generated set
+	 * were out of its sight entirely; and it skipped any seed that declared no
+	 * `lifecycle` at all, which is precisely the shape the other three had.
+	 * decidiq#1143 is the same lesson one level up: a check on a block's SHAPE
+	 * cannot see a value that contradicts a DESCRIPTION. The rule being checked
+	 * here is a sentence in the `outcome` property's description — "an in-flight
+	 * motion has NO outcome" — and nothing but a value-level sweep can enforce it,
+	 * because OpenRegister discards conditional-required constructs before its
+	 * validator runs (see x-decidesk-terminal-completeness on the schema).
+	 *
 	 * @return void
 	 *
 	 * @spec openspec/specs/decision-management/spec.md
 	 */
 	public function testDecisionSeedsRespectTerminalCompleteness(): void {
-		$seeds = ($this->profileSeeds()['decision'] ?? []);
+		$seeds = $this->everyShippedObject(slug: 'decision', name: 'Decision');
 		self::assertNotEmpty(actual: $seeds, message: 'The example sets must seed decision objects');
+		self::assertGreaterThan(
+			expected: 0,
+			actual: count(array_filter($seeds, static fn (array $s): bool => $s['source'] === 'generated set')),
+			message: 'The sweep must reach the GENERATED set too — that is where three of the six contradictions were'
+		);
 
 		$terminalStates = ['decided', 'enacted', 'archived'];
 		$outcomeEnum = $this->schemas['Decision']['properties']['outcome']['enum'];
 
+		// 🔴 AN ABSENT `lifecycle` IS NOT AN UNKNOWN ONE, AND READING IT AS
+		// UNKNOWN IS EXACTLY HOW SIX CONTRADICTORY SEEDS SHIPPED.
+		//
+		// This loop used to `continue` past any seed that declared no lifecycle,
+		// with the comment "not asserted either way". The schema declares
+		// `"default": "draft"`, so an object that omits the property IS a draft
+		// once OpenRegister stores it — in flight, and forbidden an outcome by
+		// the property's own description. Three example-set resolutions simply
+		// forgot to write the property and carried `outcome: adopted` through
+		// that exemption. The default is read from the schema rather than
+		// written here, so the two cannot drift apart.
+		$default = ($this->schemas['Decision']['properties']['lifecycle']['default'] ?? null);
+		self::assertContains(
+			needle: $default,
+			haystack: $this->schemas['Decision']['properties']['lifecycle']['enum'],
+			message: 'The lifecycle property must declare a default that is one of its own states'
+		);
+
 		$inFlightSeen = 0;
 		$terminalSeen = 0;
 
-		foreach ($seeds as $seed) {
-			$slug = ($seed['slug'] ?? '?');
-			$lifecycle = ($seed['lifecycle'] ?? null);
+		foreach ($seeds as ['label' => $slug, 'source' => $source, 'object' => $seed]) {
+			$lifecycle = ($seed['lifecycle'] ?? $default);
 
-			if ($lifecycle !== null && in_array($lifecycle, $terminalStates, true) === true) {
+			if (in_array($lifecycle, $terminalStates, true) === true) {
 				$terminalSeen++;
 				self::assertContains(
 					needle: ($seed['outcome'] ?? null),
 					haystack: $outcomeEnum,
-					message: "Terminal seed '{$slug}' (lifecycle {$lifecycle}) must record an outcome from the schema enum"
+					message: "Terminal seed '{$slug}' ({$source}, lifecycle {$lifecycle}) must record an outcome from the schema enum"
 				);
 				self::assertNotEmpty(
 					actual: ($seed['decisionDate'] ?? ''),
-					message: "Terminal seed '{$slug}' (lifecycle {$lifecycle}) must record a decisionDate"
+					message: "Terminal seed '{$slug}' ({$source}, lifecycle {$lifecycle}) must record a decisionDate"
 				);
-				continue;
-			}
-
-			if ($lifecycle === null) {
-				// Seeds that never declare a lifecycle are not asserted either way.
 				continue;
 			}
 
@@ -705,13 +812,19 @@ class RegisterJsonTest extends TestCase {
 			self::assertArrayNotHasKey(
 				key: 'outcome',
 				array: $seed,
-				message: "In-flight seed '{$slug}' (lifecycle {$lifecycle}) must NOT carry an outcome — "
+				message: "In-flight seed '{$slug}' ({$source}, lifecycle {$lifecycle}) must NOT carry an outcome — "
 					. 'lifecycle and outcome are orthogonal (ADR-005) and there is no placeholder value in the enum'
 			);
 			self::assertArrayNotHasKey(
 				key: 'decisionDate',
 				array: $seed,
-				message: "In-flight seed '{$slug}' (lifecycle {$lifecycle}) must NOT carry a decisionDate"
+				message: "In-flight seed '{$slug}' ({$source}, lifecycle {$lifecycle}) must NOT carry a decisionDate"
+			);
+			self::assertArrayNotHasKey(
+				key: 'enactedAt',
+				array: $seed,
+				message: "In-flight seed '{$slug}' ({$source}, lifecycle {$lifecycle}) must NOT carry an enactedAt — "
+					. 'the enact transition stamps it, so its presence claims a state the seed does not declare'
 			);
 		}//end foreach
 
@@ -728,6 +841,82 @@ class RegisterJsonTest extends TestCase {
 		);
 
 	}//end testDecisionSeedsRespectTerminalCompleteness()
+
+	/**
+	 * A route stage records a result only once it has one.
+	 *
+	 * DecisionStage states the same rule as Decision, one level down and in its
+	 * own words: `outcome` is "recorded when status=decided. Null when status is
+	 * pending/active/skipped", and `decidedAt` is "Null when status is not
+	 * decided". The generated set shipped a `pending` stage carrying
+	 * `outcome: for` and a `decidedAt`, and an `active` stage carrying
+	 * `outcome: against` and a `decidedAt` — a route demo that showed its first
+	 * two steps already answered before anyone had taken them.
+	 *
+	 * Swept beside the Decision seeds deliberately: the contradiction is one
+	 * class, not two instances, and the stage half was found only because the
+	 * sweep was written to walk the class.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 */
+	public function testDecisionStageSeedsRecordAnOutcomeOnlyWhenDecided(): void {
+		$stages = $this->everyShippedObject(slug: 'decision-stage', name: 'DecisionStage');
+		self::assertNotEmpty(actual: $stages, message: 'The example sets must seed decision-stage objects');
+
+		$outcomeEnum = $this->schemas['DecisionStage']['properties']['outcome']['enum'];
+		$default = ($this->schemas['DecisionStage']['properties']['status']['default'] ?? null);
+		self::assertContains(
+			needle: $default,
+			haystack: $this->schemas['DecisionStage']['properties']['status']['enum'],
+			message: 'The status property must declare a default that is one of its own states'
+		);
+
+		$decidedSeen = 0;
+		$openSeen = 0;
+
+		foreach ($stages as ['label' => $label, 'source' => $source, 'object' => $stage]) {
+			$status = ($stage['status'] ?? $default);
+
+			if ($status === 'decided') {
+				$decidedSeen++;
+				self::assertContains(
+					needle: ($stage['outcome'] ?? null),
+					haystack: $outcomeEnum,
+					message: "Decided stage '{$label}' ({$source}) must record an outcome from the schema enum"
+				);
+				continue;
+			}
+
+			$openSeen++;
+			self::assertArrayNotHasKey(
+				key: 'outcome',
+				array: $stage,
+				message: "Stage '{$label}' ({$source}, status {$status}) must NOT carry an outcome — "
+					. 'the schema records one only at status=decided'
+			);
+			self::assertArrayNotHasKey(
+				key: 'decidedAt',
+				array: $stage,
+				message: "Stage '{$label}' ({$source}, status {$status}) must NOT carry a decidedAt — "
+					. 'it stamps the moment the stage reached status=decided'
+			);
+		}//end foreach
+
+		self::assertGreaterThan(
+			expected: 0,
+			actual: $decidedSeen,
+			message: 'The seeds must include at least one DECIDED stage'
+		);
+		self::assertGreaterThan(
+			expected: 0,
+			actual: $openSeen,
+			message: 'The seeds must include at least one stage still open — a route where every step is '
+				. 'already answered demonstrates nothing about a route in progress'
+		);
+
+	}//end testDecisionStageSeedsRecordAnOutcomeOnlyWhenDecided()
 
 	/**
 	 * Guard the phantom: the out-of-vocabulary seed annotation must never come back.
@@ -1010,6 +1199,139 @@ class RegisterJsonTest extends TestCase {
 
 
 	/**
+	 * No example set may seed a schema the register has retired.
+	 *
+	 * 🔴 THIS IS THE GUARD FOR AN ENTIRE PROGRAMME, NOT ONE CHANGE.
+	 *
+	 * Retiring a schema is a two-part job: the fragment marks it
+	 * `active:false`, and the example sets stop seeding it. Only the first half
+	 * is visible. Miss the second and the import writes rows into a retired
+	 * schema on a fresh install, so the very data meant to demonstrate the new
+	 * generic model demonstrates the old one instead — and nothing reports it.
+	 * OpenRegister does not refuse a write to an inactive schema, the gates read
+	 * manifests rather than seeds, and the object count still goes up.
+	 *
+	 * Measured while collapsing oral questions into agenda items: the
+	 * municipality set carried eight rows across the three schemas that change
+	 * retired, and this test is the only thing that would have said so.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md#requirement-no-example-set-seeds-a-retired-schema
+	 */
+	public function testNoExampleSetSeedsARetiredSchema(): void {
+		$settingsDir = __DIR__ . '/../../lib/Settings';
+		$files       = array_merge(
+			[$settingsDir . '/decidesk_register.json', $settingsDir . '/decidiq_mock_register.json'],
+			(glob($settingsDir . '/register.d/*.json') ?: [])
+		);
+		sort($files);
+
+		// Fragments are additive and applied in order, so the LAST word on a
+		// schema is the effective one. Reading any earlier fragment alone would
+		// report a retired schema as live.
+		$retired = [];
+		foreach ($files as $file) {
+			if (file_exists($file) === false) {
+				continue;
+			}
+
+			$decoded = json_decode(
+				json: (string)file_get_contents(filename: $file),
+				associative: true,
+				depth: 512,
+				flags: JSON_THROW_ON_ERROR
+			);
+
+			foreach (($decoded['components']['schemas'] ?? []) as $name => $schema) {
+				if (is_array($schema) === false) {
+					continue;
+				}
+
+				$active = ($schema['x-openregister']['active'] ?? null);
+				if ($active === null) {
+					continue;
+				}
+
+				// A slug is only declared where the definition is; a supersession
+				// fragment carries the name and the flag, so fall back to the
+				// name lowered and hyphenated the way the register writes it.
+				$slug = strtolower((string)($schema['slug'] ?? ''));
+				if ($slug === '') {
+					$slug = strtolower((string)preg_replace('/(?<!^)[A-Z]/', '-$0', (string)$name));
+				}
+
+				if ($active === false) {
+					$retired[$slug] = $name;
+					continue;
+				}
+
+				unset($retired[$slug]);
+			}//end foreach
+		}//end foreach
+
+		self::assertNotEmpty(
+			actual: $retired,
+			message: 'This test is vacuous unless the register retires something; it has retired schemas since generic-body-configuration'
+		);
+
+		$offenders = [];
+		foreach (array_keys($this->profileSeeds()) as $slug) {
+			if (isset($retired[strtolower((string)$slug)]) === true) {
+				$offenders[] = $slug;
+			}
+		}
+
+		self::assertSame(
+			expected: [],
+			actual: $offenders,
+			message: 'An example set seeds a retired schema, so a fresh install demonstrates the superseded model: '
+				. implode(', ', $offenders)
+		);
+
+	}//end testNoExampleSetSeedsARetiredSchema()
+
+	/**
+	 * Each example set advertises the number of objects it actually carries.
+	 *
+	 * 🔑 THE COUNT IS HAND-WRITTEN AND THE WIZARD SHOWS IT. `objectCount` sits
+	 * in the descriptor beside the label, and `SeedProfileService` hands it
+	 * straight to the setup wizard, so an operator reads it before choosing. It
+	 * is not derived from the seeds, which means editing the seeds and leaving
+	 * the number alone is silent — and it drifted the first time a set was
+	 * edited after being written.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md#requirement-no-example-set-seeds-a-retired-schema
+	 */
+	public function testExampleSetsCountTheirOwnObjects(): void {
+		$files = glob(__DIR__ . '/../../lib/Settings/profiles/*.json');
+		self::assertNotEmpty(actual: $files, message: 'App must ship at least one example set');
+
+		foreach ($files as $file) {
+			$data = json_decode(
+				json: (string)file_get_contents(filename: $file),
+				associative: true,
+				depth: 512,
+				flags: JSON_THROW_ON_ERROR
+			);
+
+			$actual = 0;
+			foreach (($data['x-openregister']['seedData']['objects'] ?? []) as $objects) {
+				$actual += count($objects);
+			}
+
+			self::assertSame(
+				expected: $actual,
+				actual: (int)($data['x-openregister']['profile']['objectCount'] ?? -1),
+				message: basename($file) . ' advertises an object count its seeds do not match'
+			);
+		}//end foreach
+
+	}//end testExampleSetsCountTheirOwnObjects()
+
+	/**
 	 * Test that every cross-schema `$ref` names a slug that actually exists.
 	 *
 	 * 🔴 A `$ref` NAMES A SLUG, NOT THE DEFINITION KEY. `ImportHandler` resolves
@@ -1046,7 +1368,7 @@ class RegisterJsonTest extends TestCase {
 		$settingsDir = __DIR__ . '/../../lib/Settings';
 		$files       = array_merge(
 			[$settingsDir . '/decidesk_register.json', $settingsDir . '/decidiq_mock_register.json'],
-			(glob($settingsDir . '/register.d/*.json') ?: [])
+			($this->globOrNothing(pattern: $settingsDir . '/register.d/*.json'))
 		);
 
 		// Collect every slug the shipped registers declare.

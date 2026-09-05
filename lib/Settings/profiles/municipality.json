@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 199,
+			"objectCount": 195,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -216,34 +216,6 @@
 							"register": "decidiq",
 							"schema": "agenda-item"
 						},
-						"slug": "interpellatie-cultuurhuis-2025-01-15",
-						"title": "Interpellatie: subsidieverlening cultuurhuis",
-						"itemType": "discussion",
-						"orderNumber": 8,
-						"estimatedDuration": 45,
-						"description": "Eigen agendapunt voor het geagendeerde interpellatieverzoek int-subsidie-cultuurhuis (vragenuur-interpellatie).",
-						"meeting": "raadsvergadering-2025-01-15"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "agenda-item"
-						},
-						"slug": "interpellatie-stationsgebied-2025",
-						"title": "Interpellatie: veiligheid stationsgebied",
-						"itemType": "discussion",
-						"orderNumber": 7,
-						"estimatedDuration": 45,
-						"description": "Eigen agendapunt voor het toegelaten interpellatieverzoek int-veiligheid-stationsgebied (vragenuur-interpellatie); een interpellatie krijgt een eigen agendapunt, nooit samengevoegd met het vragenuur.",
-						"meeting": "raadsvergadering-2025-01-15"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "agenda-item"
-						},
 						"slug": "jaarrekening-2024",
 						"title": "Jaarrekening 2024: ter goedkeuring",
 						"itemType": "decision",
@@ -314,8 +286,347 @@
 						"itemType": "discussion",
 						"orderNumber": 6,
 						"estimatedDuration": 30,
-						"description": "Vragenuur van de raad (Reglement van Orde): raadsleden stellen mondelinge vragen aan de portefeuillehouders. Toegelaten mondelinge vragen worden op dit agendapunt ingepland (vragenuur-interpellatie); de spreektijdklok blijft bij digital-meetings-and-recurrence REQ-STM. AgendaItem draagt geen tag-veld; 'vragenuur' is hier conventioneel via itemType 'discussion' + deze omschrijving vastgelegd.",
+						"description": "Vragenuur van de raad (Reglement van Orde): raadsleden stellen mondelinge vragen aan de portefeuillehouders. Toegelaten mondelinge vragen hangen als subagendapunt onder dit punt; sinds questions-as-agenda-items is een mondelinge vraag zelf een agendapunt met het type \"Mondelinge vraag\", dus de koppeling is nu parentItem in plaats van een aparte administratie.",
 						"meeting": "raadsvergadering-2025-01-15"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "agendapunt-mv-opvang-statushouders",
+						"title": "Opvangcapaciteit statushouders Q3",
+						"itemType": "discussion",
+						"orderNumber": 100,
+						"type": "agendapunttype-mondelinge-vraag",
+						"description": "Graag inzicht in de opvangcapaciteit voor statushouders in het derde kwartaal en de gevolgen voor de taakstelling.",
+						"meeting": "raadsvergadering-2025-01-15",
+						"typeFields": {
+							"questionNumber": "MV-2026-004",
+							"submitter": "00000000-0000-0000-0000-000000000000",
+							"politicalGroup": "00000000-0000-0000-0000-000000000000",
+							"portfolioHolder": "00000000-0000-0000-0000-000000000000",
+							"lifecycle": "rejected",
+							"rejectionReason": "Betreft een individuele casus, geen algemeen belang"
+						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "agendapunt-mv-sluiting-zwembad",
+						"title": "Voorgenomen sluiting zwembad De Plons",
+						"itemType": "discussion",
+						"orderNumber": 101,
+						"type": "agendapunttype-mondelinge-vraag",
+						"description": "In de media wordt gesproken over een voorgenomen sluiting van zwembad De Plons. Klopt dit en is de raad hierover tijdig geïnformeerd?",
+						"meeting": "raadsvergadering-2025-01-15",
+						"typeFields": {
+							"questionNumber": "MV-2026-003",
+							"submitter": "00000000-0000-0000-0000-000000000000",
+							"politicalGroup": "00000000-0000-0000-0000-000000000000",
+							"portfolioHolder": "00000000-0000-0000-0000-000000000000",
+							"lifecycle": "submitted"
+						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "agendapunt-mv-verkeersveiligheid-lindelaan",
+						"title": "Verkeersveiligheid schoolzone Lindelaan",
+						"itemType": "discussion",
+						"orderNumber": 2,
+						"type": "agendapunttype-mondelinge-vraag",
+						"description": "Ouders melden onveilige situaties tijdens de spits bij de schoolzone Lindelaan. Welke korte-termijnmaatregelen ziet het college?",
+						"meeting": "raadsvergadering-2025-01-15",
+						"typeFields": {
+							"questionNumber": "MV-2026-002",
+							"submitter": "00000000-0000-0000-0000-000000000000",
+							"politicalGroup": "00000000-0000-0000-0000-000000000000",
+							"portfolioHolder": "00000000-0000-0000-0000-000000000000",
+							"lifecycle": "scheduled"
+						},
+						"parentItem": "vragenuur-2025-01-15"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "agendapunt-mv-wachtlijsten-jeugdzorg",
+						"title": "Wachtlijsten jeugdzorg na aanbesteding",
+						"itemType": "discussion",
+						"orderNumber": 1,
+						"type": "agendapunttype-mondelinge-vraag",
+						"description": "Na de recente aanbesteding jeugdhulp bereiken de fractie signalen van oplopende wachttijden. Graag een toelichting van de portefeuillehouder op de actuele stand en de te nemen maatregelen.",
+						"meeting": "raadsvergadering-2025-01-15",
+						"typeFields": {
+							"questionNumber": "MV-2026-001",
+							"submitter": "00000000-0000-0000-0000-000000000000",
+							"politicalGroup": "00000000-0000-0000-0000-000000000000",
+							"portfolioHolder": "00000000-0000-0000-0000-000000000000",
+							"lifecycle": "answered",
+							"answerSummary": "Wethouder erkent oplopende wachttijden; raadsbrief met plan van aanpak toegezegd vóór 1 maart.",
+							"answeredBy": "00000000-0000-0000-0000-000000000000",
+							"followUpCommitment": "toezegging-raadsbrief-jeugdzorg",
+							"sourceWrittenQuestion": "00000000-0000-0000-0000-000000000000"
+						},
+						"parentItem": "vragenuur-2025-01-15"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "agendapunt-int-jaarrekening-grondbedrijf",
+						"title": "Tekorten jaarrekening grondbedrijf",
+						"itemType": "discussion",
+						"orderNumber": 200,
+						"type": "agendapunttype-interpellatieverzoek",
+						"description": "De omvang van de tekorten en het uitblijven van informatie aan de raad vragen om een interpellatie.",
+						"typeFields": {
+							"requestNumber": "INT-2026-002",
+							"requester": "00000000-0000-0000-0000-000000000000",
+							"politicalGroup": "00000000-0000-0000-0000-000000000000",
+							"questions": "1. Waarom is de raad niet geïnformeerd over de tekorten in het grondbedrijf? 2. Welke gevolgen heeft dit voor de meerjarenbegroting?",
+							"portfolioHolder": "00000000-0000-0000-0000-000000000000",
+							"lifecycle": "submitted",
+							"steunbetuigingen": [
+								"00000000-0000-0000-0000-000000000000",
+								"00000000-0000-0000-0000-000000000000"
+							]
+						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "agendapunt-int-subsidie-cultuurhuis",
+						"title": "Subsidieverlening cultuurhuis",
+						"itemType": "discussion",
+						"orderNumber": 201,
+						"type": "agendapunttype-interpellatieverzoek",
+						"description": "De onderbouwing van de subsidieverhoging is voor de raad onvoldoende inzichtelijk.",
+						"meeting": "raadsvergadering-2025-01-15",
+						"typeFields": {
+							"requestNumber": "INT-2026-003",
+							"requester": "00000000-0000-0000-0000-000000000000",
+							"politicalGroup": "00000000-0000-0000-0000-000000000000",
+							"questions": "1. Op welke grond is de subsidie aan het cultuurhuis verhoogd? 2. Voldoet de verhoging aan het geldende subsidiekader?",
+							"portfolioHolder": "00000000-0000-0000-0000-000000000000",
+							"lifecycle": "agendised",
+							"steunbetuigingen": [
+								"00000000-0000-0000-0000-000000000000",
+								"00000000-0000-0000-0000-000000000000",
+								"00000000-0000-0000-0000-000000000000",
+								"00000000-0000-0000-0000-000000000000",
+								"00000000-0000-0000-0000-000000000000"
+							],
+							"councilResolutionDate": "2026-06-30"
+						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "agendapunt-int-veiligheid-stationsgebied",
+						"title": "Veiligheid stationsgebied",
+						"itemType": "discussion",
+						"orderNumber": 202,
+						"type": "agendapunttype-interpellatieverzoek",
+						"description": "De aanhoudende onveiligheid in het stationsgebied rechtvaardigt een interpellatiedebat buiten de orde van de dag.",
+						"meeting": "raadsvergadering-2025-01-15",
+						"typeFields": {
+							"requestNumber": "INT-2026-001",
+							"requester": "00000000-0000-0000-0000-000000000000",
+							"politicalGroup": "00000000-0000-0000-0000-000000000000",
+							"questions": "1. Sinds wanneer was het college bekend met de toename van incidenten in het stationsgebied? 2. Welke maatregelen zijn getroffen en waarom is de raad hierover niet eerder geïnformeerd?",
+							"portfolioHolder": "00000000-0000-0000-0000-000000000000",
+							"lifecycle": "handled",
+							"steunbetuigingen": [
+								"00000000-0000-0000-0000-000000000000",
+								"00000000-0000-0000-0000-000000000000",
+								"00000000-0000-0000-0000-000000000000",
+								"00000000-0000-0000-0000-000000000000"
+							],
+							"councilResolutionDate": "2026-05-12"
+						}
+					}
+				],
+				"agenda-item-type": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item-type"
+						},
+						"slug": "agendapunttype-mondelinge-vraag",
+						"name": "Mondelinge vraag",
+						"description": "Een raadslid stelt het college een vraag die in het vragenuur mondeling wordt beantwoord.",
+						"owningBody": "gemeenteraad-amsterdam",
+						"votable": false,
+						"initialLifecycle": "submitted",
+						"lifecycleStates": [
+							"submitted",
+							"admitted",
+							"rejected",
+							"scheduled",
+							"answered",
+							"not-handled",
+							"withdrawn"
+						],
+						"submissionWindowHours": 24,
+						"order": 10,
+						"isDraft": false,
+						"active": true,
+						"fields": [
+							{
+								"key": "questionNumber",
+								"label": "Nummer",
+								"fieldType": "string",
+								"required": true
+							},
+							{
+								"key": "submitter",
+								"label": "Indiener",
+								"fieldType": "reference"
+							},
+							{
+								"key": "politicalGroup",
+								"label": "Fractie",
+								"fieldType": "reference"
+							},
+							{
+								"key": "portfolioHolder",
+								"label": "Portefeuillehouder",
+								"fieldType": "reference"
+							},
+							{
+								"key": "lifecycle",
+								"label": "Status",
+								"fieldType": "enum",
+								"enumValues": [
+									"submitted",
+									"admitted",
+									"rejected",
+									"scheduled",
+									"answered",
+									"not-handled",
+									"withdrawn"
+								]
+							},
+							{
+								"key": "rejectionReason",
+								"label": "Reden van afwijzing",
+								"fieldType": "text"
+							},
+							{
+								"key": "answerSummary",
+								"label": "Samenvatting van het antwoord",
+								"fieldType": "text"
+							},
+							{
+								"key": "answeredBy",
+								"label": "Beantwoord door",
+								"fieldType": "reference"
+							}
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item-type"
+						},
+						"slug": "agendapunttype-interpellatieverzoek",
+						"name": "Interpellatieverzoek",
+						"description": "Een raadslid vraagt het college ter verantwoording. Het verzoek wordt pas geagendeerd als genoeg raadsleden het steunen.",
+						"owningBody": "gemeenteraad-amsterdam",
+						"votable": true,
+						"initialLifecycle": "submitted",
+						"lifecycleStates": [
+							"submitted",
+							"admitted",
+							"rejected",
+							"agendised",
+							"handled",
+							"withdrawn"
+						],
+						"submissionWindowHours": 24,
+						"supportThresholdType": "fraction",
+						"supportThresholdValue": 0.2,
+						"order": 20,
+						"isDraft": false,
+						"active": true,
+						"fields": [
+							{
+								"key": "requestNumber",
+								"label": "Nummer",
+								"fieldType": "string",
+								"required": true
+							},
+							{
+								"key": "requester",
+								"label": "Aanvrager",
+								"fieldType": "reference"
+							},
+							{
+								"key": "politicalGroup",
+								"label": "Fractie",
+								"fieldType": "reference"
+							},
+							{
+								"key": "questions",
+								"label": "Vragen",
+								"fieldType": "text",
+								"required": true
+							},
+							{
+								"key": "portfolioHolder",
+								"label": "Portefeuillehouder",
+								"fieldType": "reference"
+							},
+							{
+								"key": "steunbetuigingen",
+								"label": "Steunbetuigingen",
+								"fieldType": "reference"
+							},
+							{
+								"key": "lifecycle",
+								"label": "Status",
+								"fieldType": "enum",
+								"enumValues": [
+									"submitted",
+									"admitted",
+									"rejected",
+									"agendised",
+									"handled",
+									"withdrawn"
+								]
+							},
+							{
+								"key": "councilResolutionDate",
+								"label": "Datum raadsbesluit",
+								"fieldType": "date"
+							},
+							{
+								"key": "rejectionReason",
+								"label": "Reden van afwijzing",
+								"fieldType": "text"
+							}
+						]
 					}
 				],
 				"approval-route": [
@@ -1050,6 +1361,7 @@
 						"decisionType": "resolution",
 						"title": "Besluit vaststelling reglement van orde gemeenteraad Amsterdam",
 						"text": "Besluit van de gemeenteraad van Amsterdam tot vaststelling van het reglement van orde (Gemeentewet art. 16).",
+						"lifecycle": "enacted",
 						"decisionDate": "2023-03-01",
 						"outcome": "adopted"
 					},
@@ -1063,6 +1375,7 @@
 						"decisionType": "resolution",
 						"title": "Verordening parkeren 2026",
 						"text": "Vaststelling van de verordening parkeren 2026, voortvloeiend uit de bespreking van de kadernota begroting 2026.",
+						"lifecycle": "decided",
 						"decisionDate": "2026-06-15",
 						"outcome": "adopted",
 						"meeting": "raadsvergadering-2025-01-15",
@@ -1928,6 +2241,44 @@
 						"governingBody": "gemeenteraad-amsterdam",
 						"isPublic": false,
 						"status": "in-force"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governing-document"
+						},
+						"slug": "afvalstoffenverordening-amsterdam",
+						"type": "by-law",
+						"citationTitle": "Afvalstoffenverordening Amsterdam",
+						"officialTitle": "Verordening op de inzameling en verwerking van huishoudelijke afvalstoffen Amsterdam",
+						"statutoryBasis": [
+							"Gemeentewet art. 149",
+							"Wet milieubeheer art. 10.23"
+						],
+						"governingBody": "gemeenteraad-amsterdam",
+						"externalRegisterIdentifier": "CVDR641871",
+						"currentVersionNumber": 2,
+						"currentEffectiveDate": "2025-06-01",
+						"status": "in-effect"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governing-document"
+						},
+						"slug": "beleidsregel-terrassen-amsterdam",
+						"type": "policy-rule",
+						"citationTitle": "Beleidsregel terrassen Amsterdam 2025",
+						"officialTitle": "Beleidsregel inzake terrasvergunningen Amsterdam 2025",
+						"statutoryBasis": [
+							"APV Amsterdam art. 3.17"
+						],
+						"governingBody": "gemeenteraad-amsterdam",
+						"currentVersionNumber": 1,
+						"currentEffectiveDate": "2025-03-01",
+						"status": "in-effect"
 					}
 				],
 				"governing-document-versie": [
@@ -1943,6 +2294,48 @@
 						"determinedBy": "besluit-vaststelling-rvo-amsterdam",
 						"effectiveDate": "2023-03-01",
 						"notes": "Vaststelling van het reglement van orde door de gemeenteraad.",
+						"status": "in-effect"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governing-document-versie"
+						},
+						"slug": "afvalstoffen-v1",
+						"document": "afvalstoffenverordening-amsterdam",
+						"versionNumber": 1,
+						"determinedBy": "00000000-0000-0000-0000-000000000000",
+						"effectiveDate": "2024-01-01",
+						"notes": "Eerste vaststelling van de Afvalstoffenverordening Amsterdam.",
+						"status": "replaced"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governing-document-versie"
+						},
+						"slug": "afvalstoffen-v2",
+						"document": "afvalstoffenverordening-amsterdam",
+						"versionNumber": 2,
+						"determinedBy": "00000000-0000-0000-0000-000000000000",
+						"effectiveDate": "2025-06-01",
+						"notes": "Wijziging 2025: gescheiden inzameling GFT-e uitgebreid naar het hele beheergebied.",
+						"status": "in-effect"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governing-document-versie"
+						},
+						"slug": "terrassen-v1",
+						"document": "beleidsregel-terrassen-amsterdam",
+						"versionNumber": 1,
+						"determinedBy": "00000000-0000-0000-0000-000000000000",
+						"effectiveDate": "2025-03-01",
+						"notes": "Vaststelling beleidsregel terrassen 2025.",
 						"status": "in-effect"
 					}
 				],
@@ -2029,83 +2422,6 @@
 						"giftThresholdAmount": 50,
 						"giftsPublic": true,
 						"integrityNotificationGroup": "decidesk-burgemeester"
-					}
-				],
-				"interpellatieverzoek": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "interpellatieverzoek"
-						},
-						"slug": "int-jaarrekening-grondbedrijf",
-						"requestNumber": "INT-2026-002",
-						"subject": "Tekorten jaarrekening grondbedrijf",
-						"questions": "1. Waarom is de raad niet geïnformeerd over de tekorten in het grondbedrijf? 2. Welke gevolgen heeft dit voor de meerjarenbegroting?",
-						"rationale": "De omvang van de tekorten en het uitblijven van informatie aan de raad vragen om een interpellatie.",
-						"requester": "00000000-0000-0000-0000-000000000000",
-						"politicalGroup": "00000000-0000-0000-0000-000000000000",
-						"portfolioHolder": "00000000-0000-0000-0000-000000000000",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"steunbetuigingen": [
-							"00000000-0000-0000-0000-000000000000",
-							"00000000-0000-0000-0000-000000000000"
-						],
-						"lifecycle": "submitted"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "interpellatieverzoek"
-						},
-						"slug": "int-subsidie-cultuurhuis",
-						"requestNumber": "INT-2026-003",
-						"subject": "Subsidieverlening cultuurhuis",
-						"questions": "1. Op welke grond is de subsidie aan het cultuurhuis verhoogd? 2. Voldoet de verhoging aan het geldende subsidiekader?",
-						"rationale": "De onderbouwing van de subsidieverhoging is voor de raad onvoldoende inzichtelijk.",
-						"requester": "00000000-0000-0000-0000-000000000000",
-						"politicalGroup": "00000000-0000-0000-0000-000000000000",
-						"portfolioHolder": "00000000-0000-0000-0000-000000000000",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"steunbetuigingen": [
-							"00000000-0000-0000-0000-000000000000",
-							"00000000-0000-0000-0000-000000000000",
-							"00000000-0000-0000-0000-000000000000",
-							"00000000-0000-0000-0000-000000000000",
-							"00000000-0000-0000-0000-000000000000"
-						],
-						"lifecycle": "agendised",
-						"councilResolutionDate": "2026-06-30",
-						"behandeldIn": "raadsvergadering-2025-01-15",
-						"agendaItem": "interpellatie-cultuurhuis-2025-01-15"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "interpellatieverzoek"
-						},
-						"slug": "int-veiligheid-stationsgebied",
-						"requestNumber": "INT-2026-001",
-						"subject": "Veiligheid stationsgebied",
-						"questions": "1. Sinds wanneer was het college bekend met de toename van incidenten in het stationsgebied? 2. Welke maatregelen zijn getroffen en waarom is de raad hierover niet eerder geïnformeerd?",
-						"rationale": "De aanhoudende onveiligheid in het stationsgebied rechtvaardigt een interpellatiedebat buiten de orde van de dag.",
-						"requester": "00000000-0000-0000-0000-000000000000",
-						"politicalGroup": "00000000-0000-0000-0000-000000000000",
-						"portfolioHolder": "00000000-0000-0000-0000-000000000000",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"steunbetuigingen": [
-							"00000000-0000-0000-0000-000000000000",
-							"00000000-0000-0000-0000-000000000000",
-							"00000000-0000-0000-0000-000000000000",
-							"00000000-0000-0000-0000-000000000000"
-						],
-						"lifecycle": "handled",
-						"councilResolutionDate": "2026-05-12",
-						"behandeldIn": "raadsvergadering-2025-01-15",
-						"agendaItem": "interpellatie-stationsgebied-2025",
-						"handlingMinutes": "Interpellatiedebat gevoerd; wethouder zegt extern onderzoek toe naar de veiligheidssituatie en informeert de raad per raadsbrief voor het zomerreces."
 					}
 				],
 				"meeting": [
@@ -2362,85 +2678,6 @@
 							"Jan Bakker"
 						],
 						"version": 2
-					}
-				],
-				"mondelinge-vraag": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "mondelinge-vraag"
-						},
-						"slug": "mv-opvang-statushouders",
-						"questionNumber": "MV-2026-004",
-						"subject": "Opvangcapaciteit statushouders Q3",
-						"rationale": "Graag inzicht in de opvangcapaciteit voor statushouders in het derde kwartaal en de gevolgen voor de taakstelling.",
-						"submitter": "00000000-0000-0000-0000-000000000000",
-						"politicalGroup": "00000000-0000-0000-0000-000000000000",
-						"portfolioHolder": "00000000-0000-0000-0000-000000000000",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"targetMeeting": "raadsvergadering-2025-01-15",
-						"lifecycle": "rejected",
-						"rejectionReason": "Betreft een individuele casus, geen algemeen belang"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "mondelinge-vraag"
-						},
-						"slug": "mv-sluiting-zwembad",
-						"questionNumber": "MV-2026-003",
-						"subject": "Voorgenomen sluiting zwembad De Plons",
-						"rationale": "In de media wordt gesproken over een voorgenomen sluiting van zwembad De Plons. Klopt dit en is de raad hierover tijdig geïnformeerd?",
-						"submitter": "00000000-0000-0000-0000-000000000000",
-						"politicalGroup": "00000000-0000-0000-0000-000000000000",
-						"portfolioHolder": "00000000-0000-0000-0000-000000000000",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"targetMeeting": "raadsvergadering-2025-01-15",
-						"lifecycle": "submitted"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "mondelinge-vraag"
-						},
-						"slug": "mv-verkeersveiligheid-lindelaan",
-						"questionNumber": "MV-2026-002",
-						"subject": "Verkeersveiligheid schoolzone Lindelaan",
-						"rationale": "Ouders melden onveilige situaties tijdens de spits bij de schoolzone Lindelaan. Welke korte-termijnmaatregelen ziet het college?",
-						"submitter": "00000000-0000-0000-0000-000000000000",
-						"politicalGroup": "00000000-0000-0000-0000-000000000000",
-						"portfolioHolder": "00000000-0000-0000-0000-000000000000",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"targetMeeting": "raadsvergadering-2025-01-15",
-						"questionHourAgendaItem": "vragenuur-2025-01-15",
-						"sortOrder": 2,
-						"lifecycle": "scheduled"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "mondelinge-vraag"
-						},
-						"slug": "mv-wachtlijsten-jeugdzorg",
-						"questionNumber": "MV-2026-001",
-						"subject": "Wachtlijsten jeugdzorg na aanbesteding",
-						"rationale": "Na de recente aanbesteding jeugdhulp bereiken de fractie signalen van oplopende wachttijden. Graag een toelichting van de portefeuillehouder op de actuele stand en de te nemen maatregelen.",
-						"submitter": "00000000-0000-0000-0000-000000000000",
-						"politicalGroup": "00000000-0000-0000-0000-000000000000",
-						"portfolioHolder": "00000000-0000-0000-0000-000000000000",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"targetMeeting": "raadsvergadering-2025-01-15",
-						"questionHourAgendaItem": "vragenuur-2025-01-15",
-						"sortOrder": 1,
-						"lifecycle": "answered",
-						"answerSummary": "Wethouder erkent oplopende wachttijden; raadsbrief met plan van aanpak toegezegd vóór 1 maart.",
-						"answeredBy": "00000000-0000-0000-0000-000000000000",
-						"followUpCommitment": "toezegging-raadsbrief-jeugdzorg",
-						"sourceWrittenQuestion": "00000000-0000-0000-0000-000000000000"
 					}
 				],
 				"nevenfunctie": [
@@ -3005,270 +3242,6 @@
 						"governanceBody": "gemeenteraad-amsterdam"
 					}
 				],
-				"process-template": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "process-template"
-						},
-						"slug": "corporate-board",
-						"name": "Corporate Board (BV)",
-						"description": "Decision process for the management board of a Dutch private limited company (BV).",
-						"context": "corporate",
-						"builtIn": true,
-						"initialState": "draft",
-						"stateMachine": {
-							"states": [
-								{
-									"name": "draft"
-								},
-								{
-									"name": "proposed"
-								},
-								{
-									"name": "deliberating"
-								},
-								{
-									"name": "voting"
-								},
-								{
-									"name": "decided"
-								},
-								{
-									"name": "enacted"
-								},
-								{
-									"name": "archived"
-								}
-							],
-							"transitions": [
-								{
-									"name": "propose",
-									"from": "draft",
-									"to": "proposed"
-								},
-								{
-									"name": "deliberate",
-									"from": "proposed",
-									"to": "deliberating"
-								},
-								{
-									"name": "openVoting",
-									"from": "deliberating",
-									"to": "voting",
-									"chairOnly": true,
-									"guards": [
-										"quorum_met"
-									]
-								},
-								{
-									"name": "decide",
-									"from": "voting",
-									"to": "decided"
-								},
-								{
-									"name": "enact",
-									"from": "decided",
-									"to": "enacted"
-								},
-								{
-									"name": "archive",
-									"from": "enacted",
-									"to": "archived"
-								}
-							]
-						},
-						"votingRule": {
-							"voteThreshold": "simple-majority",
-							"abstentionHandling": "exclude",
-							"tieBreakRule": "chair-decides"
-						},
-						"quorumRequired": true,
-						"quorumRule": "Quorum per the articles of association",
-						"allowDecideWithoutVote": false
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "process-template"
-						},
-						"slug": "municipal-council",
-						"name": "Municipal Council",
-						"description": "Legislative decision process for a municipal council (gemeenteraad), Gemeentewet.",
-						"context": "legislative",
-						"builtIn": true,
-						"initialState": "draft",
-						"stateMachine": {
-							"states": [
-								{
-									"name": "draft"
-								},
-								{
-									"name": "proposed"
-								},
-								{
-									"name": "deliberating"
-								},
-								{
-									"name": "voting"
-								},
-								{
-									"name": "decided"
-								},
-								{
-									"name": "enacted"
-								},
-								{
-									"name": "archived"
-								}
-							],
-							"transitions": [
-								{
-									"name": "propose",
-									"from": "draft",
-									"to": "proposed"
-								},
-								{
-									"name": "deliberate",
-									"from": "proposed",
-									"to": "deliberating"
-								},
-								{
-									"name": "openVoting",
-									"from": "deliberating",
-									"to": "voting",
-									"chairOnly": true,
-									"guards": [
-										"quorum_met",
-										"all_amendments_resolved"
-									]
-								},
-								{
-									"name": "decide",
-									"from": "voting",
-									"to": "decided",
-									"chairOnly": true
-								},
-								{
-									"name": "enact",
-									"from": "decided",
-									"to": "enacted"
-								},
-								{
-									"name": "archive",
-									"from": "enacted",
-									"to": "archived"
-								}
-							]
-						},
-						"votingRule": {
-							"voteThreshold": "simple-majority",
-							"abstentionHandling": "exclude",
-							"tieBreakRule": "rejected"
-						},
-						"quorumRequired": true,
-						"quorumRule": "More than half of the seats occupied (Gemeentewet art. 20)",
-						"allowDecideWithoutVote": false
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "process-template"
-						},
-						"slug": "municipal-council-urgent",
-						"name": "Municipal Council (urgency-enabled)",
-						"description": "Municipal council (gemeenteraad) process template with the urgent-decision procedure enabled: college spoedbesluit routed to a mandatory ratification stage at the next regular raadsvergadering (design seed table, municipal column).",
-						"context": "legislative",
-						"builtIn": false,
-						"initialState": "draft",
-						"stateMachine": {
-							"states": [
-								{
-									"name": "draft"
-								},
-								{
-									"name": "proposed"
-								},
-								{
-									"name": "deliberating"
-								},
-								{
-									"name": "voting"
-								},
-								{
-									"name": "decided"
-								},
-								{
-									"name": "enacted"
-								},
-								{
-									"name": "archived"
-								}
-							],
-							"transitions": [
-								{
-									"name": "propose",
-									"from": "draft",
-									"to": "proposed"
-								},
-								{
-									"name": "deliberate",
-									"from": "proposed",
-									"to": "deliberating"
-								},
-								{
-									"name": "openVoting",
-									"from": "deliberating",
-									"to": "voting",
-									"chairOnly": true,
-									"guards": [
-										"quorum_met",
-										"all_amendments_resolved"
-									]
-								},
-								{
-									"name": "decide",
-									"from": "voting",
-									"to": "decided",
-									"chairOnly": true
-								},
-								{
-									"name": "enact",
-									"from": "decided",
-									"to": "enacted"
-								},
-								{
-									"name": "archive",
-									"from": "enacted",
-									"to": "archived"
-								}
-							]
-						},
-						"votingRule": {
-							"voteThreshold": "simple-majority",
-							"abstentionHandling": "exclude",
-							"tieBreakRule": "rejected"
-						},
-						"quorumRequired": true,
-						"quorumRule": "More than half of the seats occupied (Gemeentewet art. 20)",
-						"allowDecideWithoutVote": false,
-						"urgencyPolicy": {
-							"allowedTriggerRoles": [
-								"chair"
-							],
-							"minimumNoticeFloorHours": 24,
-							"responseDeadlineHours": {
-								"min": 12,
-								"max": 96
-							},
-							"ratificationRequired": true,
-							"ratifyingBody": "gemeenteraad-amsterdam"
-						}
-					}
-				],
 				"proxy-authorization": [
 					{
 						"@self": {
@@ -3365,46 +3338,6 @@
 						"publicationDate": "2026-03-13T09:00:00Z"
 					}
 				],
-				"regeling": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "regeling"
-						},
-						"slug": "afvalstoffenverordening-amsterdam",
-						"type": "by-law",
-						"citationTitle": "Afvalstoffenverordening Amsterdam",
-						"officialTitle": "Verordening op de inzameling en verwerking van huishoudelijke afvalstoffen Amsterdam",
-						"statutoryBasis": [
-							"Gemeentewet art. 149",
-							"Wet milieubeheer art. 10.23"
-						],
-						"determiningBody": "gemeenteraad-amsterdam",
-						"cvdrIdentifier": "CVDR641871",
-						"currentVersionNumber": 2,
-						"currentEffectiveDate": "2025-06-01",
-						"status": "in-effect"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "regeling"
-						},
-						"slug": "beleidsregel-terrassen-amsterdam",
-						"type": "policy-rule",
-						"citationTitle": "Beleidsregel terrassen Amsterdam 2025",
-						"officialTitle": "Beleidsregel inzake terrasvergunningen Amsterdam 2025",
-						"statutoryBasis": [
-							"APV Amsterdam art. 3.17"
-						],
-						"determiningBody": "gemeenteraad-amsterdam",
-						"currentVersionNumber": 1,
-						"currentEffectiveDate": "2025-03-01",
-						"status": "in-effect"
-					}
-				],
 				"regeling-export-package": [
 					{
 						"@self": {
@@ -3419,50 +3352,6 @@
 						],
 						"sourceSlug": "drop-bekendmakingen",
 						"status": "ready"
-					}
-				],
-				"regeling-versie": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "regeling-versie"
-						},
-						"slug": "afvalstoffen-v1",
-						"regulation": "afvalstoffenverordening-amsterdam",
-						"versionNumber": 1,
-						"determinedBy": "00000000-0000-0000-0000-000000000000",
-						"effectiveDate": "2024-01-01",
-						"notes": "Eerste vaststelling van de Afvalstoffenverordening Amsterdam.",
-						"status": "replaced"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "regeling-versie"
-						},
-						"slug": "afvalstoffen-v2",
-						"regulation": "afvalstoffenverordening-amsterdam",
-						"versionNumber": 2,
-						"determinedBy": "00000000-0000-0000-0000-000000000000",
-						"effectiveDate": "2025-06-01",
-						"notes": "Wijziging 2025: gescheiden inzameling GFT-e uitgebreid naar het hele beheergebied.",
-						"status": "in-effect"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "regeling-versie"
-						},
-						"slug": "terrassen-v1",
-						"regulation": "beleidsregel-terrassen-amsterdam",
-						"versionNumber": 1,
-						"determinedBy": "00000000-0000-0000-0000-000000000000",
-						"effectiveDate": "2025-03-01",
-						"notes": "Vaststelling beleidsregel terrassen 2025.",
-						"status": "in-effect"
 					}
 				],
 				"rooster-regel": [
@@ -3875,20 +3764,6 @@
 						"votesFor": 28,
 						"votesAgainst": 3,
 						"votesAbstain": 2
-					}
-				],
-				"vragenuur-configuratie": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "vragenuur-configuratie"
-						},
-						"slug": "vragenuur-configuratie-gemeenteraad",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"submissionPeriodHours": 24,
-						"interpellationSupportThresholdType": "fraction",
-						"interpellationSupportThresholdValue": 0.2
 					}
 				],
 				"woo-bestuursorgaan": [

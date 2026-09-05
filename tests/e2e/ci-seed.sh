@@ -748,6 +748,45 @@ else
 		'the built-in Municipal Council process template')"
 	echo "[ci-seed]   process-template ${PROCESS_TEMPLATE_ID}  Municipal Council (built-in)"
 
+	# ── One governing document with two versions ───────────────────────────────
+	#
+	# 🔴 THIS SPEC HAS NEVER RUN. `register-detail-widgets.spec.ts` asserts the
+	# version-timeline widget renders both versions of "Afvalstoffenverordening
+	# Amsterdam", and skips when it cannot find that record. It lives only in
+	# municipality.json, and CI picks `example_profile=none` (see the setup/config
+	# call below), so the record has never existed here and the test has skipped
+	# on every run since it was written. A skip reads exactly like a pass in the
+	# summary line, which is how it went unnoticed.
+	#
+	# Seeded here rather than by loading the profile, for the same reason as the
+	# Goals and the ProcessTemplate above: a whole demo dataset would land in
+	# every other list the specs assert on.
+	#
+	# The title carries no ${SEED_TAG} prefix because the spec matches it
+	# exactly, and the fields are copied from municipality.json so the fixture
+	# and the shipped example set cannot drift apart. `governingBody` is
+	# repointed at THIS run's body: the profile names `gemeenteraad-amsterdam`,
+	# which does not exist here, and a dangling reference would seed a document
+	# the detail page cannot resolve.
+	GOVERNING_DOC_ID="$(seed_object governing-document \
+		"{\"type\":\"by-law\",\"citationTitle\":\"Afvalstoffenverordening Amsterdam\",\"officialTitle\":\"Verordening op de inzameling en verwerking van huishoudelijke afvalstoffen Amsterdam\",\"statutoryBasis\":[\"Gemeentewet art. 149\"],\"governingBody\":\"${BODY_ID}\",\"externalRegisterIdentifier\":\"CVDR641871\",\"currentVersionNumber\":2,\"currentEffectiveDate\":\"2025-06-01\",\"status\":\"in-effect\"}" \
+		'the governing document "Afvalstoffenverordening Amsterdam"')"
+	echo "[ci-seed]   governing-document ${GOVERNING_DOC_ID}  Afvalstoffenverordening Amsterdam"
+
+	# BOTH versions, because the spec asserts both render and that the earlier
+	# one reads as replaced. One version would satisfy "the widget rendered" and
+	# prove nothing about the timeline.
+	for versie in \
+		'1|2024-01-01|replaced|Eerste vaststelling van de Afvalstoffenverordening Amsterdam.' \
+		'2|2025-06-01|in-force|Geactualiseerde verordening na evaluatie 2025.'
+	do
+		IFS='|' read -r v_num v_date v_status v_notes <<<"${versie}"
+		v_id="$(seed_object governing-document-versie \
+			"{\"document\":\"${GOVERNING_DOC_ID}\",\"versionNumber\":${v_num},\"effectiveDate\":\"${v_date}\",\"status\":\"${v_status}\",\"notes\":\"${v_notes}\"}" \
+			"governing-document version ${v_num}")"
+		echo "[ci-seed]   governing-document-versie ${v_id}  v${v_num} (${v_status})"
+	done
+
 	echo "[ci-seed] governance fixture seeded."
 fi
 
@@ -777,6 +816,13 @@ required = {
     # built-in template is the floor; see the seeding note above for why it is
     # not the full catalogue.
     'process-template': 1,
+    # register-detail-widgets.spec.ts asserts BOTH versions of the seeded
+    # governing document render in the version timeline. The document is the
+    # floor; the versions are counted separately below because a document with
+    # no versions renders an empty timeline, which is the shape that made this
+    # spec skip silently for its whole life.
+    'governing-document': 1,
+    'governing-document-versie': 2,
     # NOT action-item: CalDAV-backed and read-only through this API (see above).
 }
 
