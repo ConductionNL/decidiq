@@ -49,6 +49,11 @@
 						"example": "draft-budget",
 						"x-notes": "Deliberately NOT an enum. The retired Zienswijzeronde fixed seven values from one Dutch arrangement (draft-budget, framework-memorandum, accession-withdrawal and so on), which is exactly the kind of vocabulary this programme moves into configuration. It becomes a configurable type alongside the others when the Configuration surface lands."
 					},
+					"subjectDescription": {
+						"title": "Subject description",
+						"type": "string",
+						"description": "What is being consulted on, at more length than the subject line allows."
+					},
 					"askingBody": {
 						"title": "Asking body",
 						"type": "string",
