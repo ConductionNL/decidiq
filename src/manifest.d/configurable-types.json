@@ -30,6 +30,13 @@
 			"icon": "AccountGroupOutline",
 			"route": "BodyCompositions",
 			"order": 75
+		},
+		{
+			"id": "PositionHolds",
+			"label": "Position holders",
+			"icon": "AccountGroup",
+			"route": "PositionHolds",
+			"order": 76
 		}
 	],
 	"pages": [
@@ -46,16 +53,48 @@
 				"sortOrder": "asc",
 				"quickFilterMode": "dropdown",
 				"quickFilters": [
-					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "In use", "filter": { "active": true } },
-					{ "label": "Draft", "filter": { "isDraft": true } }
+					{
+						"label": "All",
+						"filter": {},
+						"default": true
+					},
+					{
+						"label": "In use",
+						"filter": {
+							"active": true
+						}
+					},
+					{
+						"label": "Draft",
+						"filter": {
+							"isDraft": true
+						}
+					}
 				],
 				"columns": [
-					{ "key": "name", "label": "Name", "widget": "link" },
-					{ "key": "governanceBody", "label": "Body" },
-					{ "key": "defaultDurationMinutes", "label": "Duration (min)" },
-					{ "key": "isPublic", "label": "Public", "widget": "boolean" },
-					{ "key": "active", "label": "In use", "widget": "boolean" }
+					{
+						"key": "name",
+						"label": "Name",
+						"widget": "link"
+					},
+					{
+						"key": "governanceBody",
+						"label": "Body"
+					},
+					{
+						"key": "defaultDurationMinutes",
+						"label": "Duration (min)"
+					},
+					{
+						"key": "isPublic",
+						"label": "Public",
+						"widget": "boolean"
+					},
+					{
+						"key": "active",
+						"label": "In use",
+						"widget": "boolean"
+					}
 				],
 				"rowRoute": "MeetingTypeDetail",
 				"allowCreate": true,
@@ -71,14 +110,56 @@
 				"register": "decidiq",
 				"schema": "meeting-type",
 				"widgets": [
-					{ "id": "meeting-type-data", "type": "data", "title": "Meeting type", "icon": "CalendarTextOutline", "content": { "columns": 2 } },
-					{ "id": "meeting-type-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+					{
+						"id": "meeting-type-data",
+						"type": "data",
+						"title": "Meeting type",
+						"icon": "CalendarTextOutline",
+						"content": {
+							"columns": 2
+						}
+					},
+					{
+						"id": "meeting-type-related",
+						"type": "related",
+						"title": "Related",
+						"icon": "LinkVariant"
+					}
 				],
 				"layout": [
-					{ "id": "1", "widgetId": "meeting-type-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 7 },
-					{ "id": "2", "widgetId": "meeting-type-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 7 }
+					{
+						"id": "1",
+						"widgetId": "meeting-type-data",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 8,
+						"gridHeight": 7
+					},
+					{
+						"id": "2",
+						"widgetId": "meeting-type-related",
+						"gridX": 8,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 7
+					}
 				],
-				"sidebar": { "enabled": true, "showMetadata": true, "tabs": [ { "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] } ] },
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{
+							"id": "audit",
+							"label": "History",
+							"icon": "History",
+							"widgets": [
+								{
+									"type": "audit"
+								}
+							]
+						}
+					]
+				},
 				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
@@ -95,17 +176,54 @@
 				"sortOrder": "asc",
 				"quickFilterMode": "dropdown",
 				"quickFilters": [
-					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "In use", "filter": { "active": true } },
-					{ "label": "Draft", "filter": { "isDraft": true } },
-					{ "label": "Votable", "filter": { "votable": true } }
+					{
+						"label": "All",
+						"filter": {},
+						"default": true
+					},
+					{
+						"label": "In use",
+						"filter": {
+							"active": true
+						}
+					},
+					{
+						"label": "Draft",
+						"filter": {
+							"isDraft": true
+						}
+					},
+					{
+						"label": "Votable",
+						"filter": {
+							"votable": true
+						}
+					}
 				],
 				"columns": [
-					{ "key": "name", "label": "Name", "widget": "link" },
-					{ "key": "owningBody", "label": "Owning body" },
-					{ "key": "votable", "label": "Votable", "widget": "boolean" },
-					{ "key": "submissionWindowHours", "label": "Submission window (hours)" },
-					{ "key": "active", "label": "In use", "widget": "boolean" }
+					{
+						"key": "name",
+						"label": "Name",
+						"widget": "link"
+					},
+					{
+						"key": "owningBody",
+						"label": "Owning body"
+					},
+					{
+						"key": "votable",
+						"label": "Votable",
+						"widget": "boolean"
+					},
+					{
+						"key": "submissionWindowHours",
+						"label": "Submission window (hours)"
+					},
+					{
+						"key": "active",
+						"label": "In use",
+						"widget": "boolean"
+					}
 				],
 				"rowRoute": "AgendaItemTypeDetail",
 				"allowCreate": true,
@@ -121,16 +239,99 @@
 				"register": "decidiq",
 				"schema": "agenda-item-type",
 				"widgets": [
-					{ "id": "agenda-item-type-data", "type": "data", "title": "Agenda item type", "icon": "FormatListNumbered", "content": { "columns": 2 } },
-					{ "id": "agenda-item-type-items", "type": "object-list", "title": "Items of this kind", "icon": "FormatListBulleted", "content": { "register": "decidiq", "schema": "agenda-item", "filter": { "type": "@objectId" }, "sort": { "field": "orderNumber", "dir": "asc" }, "columns": [ { "key": "title", "label": "Title", "widget": "link" }, { "key": "meeting", "label": "Meeting" }, { "key": "orderNumber", "label": "#" } ], "limit": 25, "allowCreate": false, "emptyText": "No agenda items use this kind yet." } },
-					{ "id": "agenda-item-type-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+					{
+						"id": "agenda-item-type-data",
+						"type": "data",
+						"title": "Agenda item type",
+						"icon": "FormatListNumbered",
+						"content": {
+							"columns": 2
+						}
+					},
+					{
+						"id": "agenda-item-type-items",
+						"type": "object-list",
+						"title": "Items of this kind",
+						"icon": "FormatListBulleted",
+						"content": {
+							"register": "decidiq",
+							"schema": "agenda-item",
+							"filter": {
+								"type": "@objectId"
+							},
+							"sort": {
+								"field": "orderNumber",
+								"dir": "asc"
+							},
+							"columns": [
+								{
+									"key": "title",
+									"label": "Title",
+									"widget": "link"
+								},
+								{
+									"key": "meeting",
+									"label": "Meeting"
+								},
+								{
+									"key": "orderNumber",
+									"label": "#"
+								}
+							],
+							"limit": 25,
+							"allowCreate": false,
+							"emptyText": "No agenda items use this kind yet."
+						}
+					},
+					{
+						"id": "agenda-item-type-related",
+						"type": "related",
+						"title": "Related",
+						"icon": "LinkVariant"
+					}
 				],
 				"layout": [
-					{ "id": "1", "widgetId": "agenda-item-type-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 7 },
-					{ "id": "2", "widgetId": "agenda-item-type-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 7 },
-					{ "id": "3", "widgetId": "agenda-item-type-items", "gridX": 0, "gridY": 7, "gridWidth": 12, "gridHeight": 6 }
+					{
+						"id": "1",
+						"widgetId": "agenda-item-type-data",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 8,
+						"gridHeight": 7
+					},
+					{
+						"id": "2",
+						"widgetId": "agenda-item-type-related",
+						"gridX": 8,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 7
+					},
+					{
+						"id": "3",
+						"widgetId": "agenda-item-type-items",
+						"gridX": 0,
+						"gridY": 7,
+						"gridWidth": 12,
+						"gridHeight": 6
+					}
 				],
-				"sidebar": { "enabled": true, "showMetadata": true, "tabs": [ { "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] } ] },
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{
+							"id": "audit",
+							"label": "History",
+							"icon": "History",
+							"widgets": [
+								{
+									"type": "audit"
+								}
+							]
+						}
+					]
+				},
 				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
@@ -147,16 +348,47 @@
 				"sortOrder": "asc",
 				"quickFilterMode": "dropdown",
 				"quickFilters": [
-					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "In use", "filter": { "active": true } },
-					{ "label": "Representation seats", "filter": { "isRepresentationSeat": true } }
+					{
+						"label": "All",
+						"filter": {},
+						"default": true
+					},
+					{
+						"label": "In use",
+						"filter": {
+							"active": true
+						}
+					},
+					{
+						"label": "Representation seats",
+						"filter": {
+							"isRepresentationSeat": true
+						}
+					}
 				],
 				"columns": [
-					{ "key": "name", "label": "Name", "widget": "link" },
-					{ "key": "governanceBody", "label": "Body" },
-					{ "key": "seats", "label": "Seats" },
-					{ "key": "termDurationMonths", "label": "Term (months)" },
-					{ "key": "active", "label": "In use", "widget": "boolean" }
+					{
+						"key": "name",
+						"label": "Name",
+						"widget": "link"
+					},
+					{
+						"key": "governanceBody",
+						"label": "Body"
+					},
+					{
+						"key": "seats",
+						"label": "Seats"
+					},
+					{
+						"key": "termDurationMonths",
+						"label": "Term (months)"
+					},
+					{
+						"key": "active",
+						"label": "In use",
+						"widget": "boolean"
+					}
 				],
 				"rowRoute": "PositionTypeDetail",
 				"allowCreate": true,
@@ -172,16 +404,105 @@
 				"register": "decidiq",
 				"schema": "position-type",
 				"widgets": [
-					{ "id": "position-type-data", "type": "data", "title": "Position type", "icon": "AccountBoxOutline", "content": { "columns": 2 } },
-					{ "id": "position-type-holds", "type": "object-list", "title": "Who holds it", "icon": "AccountGroupOutline", "content": { "register": "decidiq", "schema": "position-hold", "filter": { "position": "@objectId" }, "sort": { "field": "startDate", "dir": "desc" }, "columns": [ { "key": "membership", "label": "Member" }, { "key": "holdType", "label": "Hold", "widget": "badge" }, { "key": "startDate", "label": "From", "widget": "date" }, { "key": "endDate", "label": "Until", "widget": "date" } ], "limit": 25, "allowCreate": true, "emptyText": "Nobody holds this position yet." } },
-					{ "id": "position-type-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+					{
+						"id": "position-type-data",
+						"type": "data",
+						"title": "Position type",
+						"icon": "AccountBoxOutline",
+						"content": {
+							"columns": 2
+						}
+					},
+					{
+						"id": "position-type-holds",
+						"type": "object-list",
+						"title": "Who holds it",
+						"icon": "AccountGroupOutline",
+						"content": {
+							"register": "decidiq",
+							"schema": "position-hold",
+							"filter": {
+								"position": "@objectId"
+							},
+							"sort": {
+								"field": "startDate",
+								"dir": "desc"
+							},
+							"columns": [
+								{
+									"key": "membership",
+									"label": "Member"
+								},
+								{
+									"key": "holdType",
+									"label": "Hold",
+									"widget": "badge"
+								},
+								{
+									"key": "startDate",
+									"label": "From",
+									"widget": "date"
+								},
+								{
+									"key": "endDate",
+									"label": "Until",
+									"widget": "date"
+								}
+							],
+							"limit": 25,
+							"allowCreate": true,
+							"emptyText": "Nobody holds this position yet."
+						}
+					},
+					{
+						"id": "position-type-related",
+						"type": "related",
+						"title": "Related",
+						"icon": "LinkVariant"
+					}
 				],
 				"layout": [
-					{ "id": "1", "widgetId": "position-type-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 7 },
-					{ "id": "2", "widgetId": "position-type-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 7 },
-					{ "id": "3", "widgetId": "position-type-holds", "gridX": 0, "gridY": 7, "gridWidth": 12, "gridHeight": 6 }
+					{
+						"id": "1",
+						"widgetId": "position-type-data",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 8,
+						"gridHeight": 7
+					},
+					{
+						"id": "2",
+						"widgetId": "position-type-related",
+						"gridX": 8,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 7
+					},
+					{
+						"id": "3",
+						"widgetId": "position-type-holds",
+						"gridX": 0,
+						"gridY": 7,
+						"gridWidth": 12,
+						"gridHeight": 6
+					}
 				],
-				"sidebar": { "enabled": true, "showMetadata": true, "tabs": [ { "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] } ] },
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{
+							"id": "audit",
+							"label": "History",
+							"icon": "History",
+							"widgets": [
+								{
+									"type": "audit"
+								}
+							]
+						}
+					]
+				},
 				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		},
@@ -197,10 +518,24 @@
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
 				"columns": [
-					{ "key": "composite", "label": "Composite body", "widget": "link" },
-					{ "key": "component", "label": "Component body" },
-					{ "key": "compositionType", "label": "How", "widget": "badge" },
-					{ "key": "seats", "label": "Seats" }
+					{
+						"key": "composite",
+						"label": "Composite body",
+						"widget": "link"
+					},
+					{
+						"key": "component",
+						"label": "Component body"
+					},
+					{
+						"key": "compositionType",
+						"label": "How",
+						"widget": "badge"
+					},
+					{
+						"key": "seats",
+						"label": "Seats"
+					}
 				],
 				"rowRoute": "BodyCompositionDetail",
 				"allowCreate": true,
@@ -216,14 +551,178 @@
 				"register": "decidiq",
 				"schema": "governance-body-composition",
 				"widgets": [
-					{ "id": "body-composition-data", "type": "data", "title": "Body composition", "icon": "AccountGroupOutline", "content": { "columns": 2 } },
-					{ "id": "body-composition-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+					{
+						"id": "body-composition-data",
+						"type": "data",
+						"title": "Body composition",
+						"icon": "AccountGroupOutline",
+						"content": {
+							"columns": 2
+						}
+					},
+					{
+						"id": "body-composition-related",
+						"type": "related",
+						"title": "Related",
+						"icon": "LinkVariant"
+					}
 				],
 				"layout": [
-					{ "id": "1", "widgetId": "body-composition-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
-					{ "id": "2", "widgetId": "body-composition-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 }
+					{
+						"id": "1",
+						"widgetId": "body-composition-data",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 8,
+						"gridHeight": 6
+					},
+					{
+						"id": "2",
+						"widgetId": "body-composition-related",
+						"gridX": 8,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 6
+					}
 				],
-				"sidebar": { "enabled": true, "showMetadata": true, "tabs": [ { "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] } ] },
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{
+							"id": "audit",
+							"label": "History",
+							"icon": "History",
+							"widgets": [
+								{
+									"type": "audit"
+								}
+							]
+						}
+					]
+				},
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		},
+		{
+			"id": "PositionHolds",
+			"route": "/position-holds",
+			"type": "index",
+			"title": "Position holders",
+			"_note": "Who holds which position, and until when. This replaces the retired Roosterregels index, which asked the same question of a projection nothing regenerated. Sorted by end date because the reason anyone opens it is to see whose term runs out next.",
+			"config": {
+				"register": "decidiq",
+				"schema": "position-hold",
+				"sortKey": "endDate",
+				"sortOrder": "asc",
+				"quickFilterMode": "dropdown",
+				"quickFilters": [
+					{
+						"label": "All",
+						"filter": {},
+						"default": true
+					},
+					{
+						"label": "Reappointable",
+						"filter": {
+							"reappointable": true
+						}
+					}
+				],
+				"columns": [
+					{
+						"key": "membership",
+						"label": "Member",
+						"widget": "link"
+					},
+					{
+						"key": "position",
+						"label": "Position"
+					},
+					{
+						"key": "holdType",
+						"label": "Hold",
+						"widget": "badge"
+					},
+					{
+						"key": "termNumber",
+						"label": "Term"
+					},
+					{
+						"key": "startDate",
+						"label": "From",
+						"widget": "date"
+					},
+					{
+						"key": "endDate",
+						"label": "Until",
+						"widget": "date"
+					}
+				],
+				"rowRoute": "PositionHoldDetail",
+				"allowCreate": true,
+				"emptyText": "Nobody holds a position yet."
+			}
+		},
+		{
+			"id": "PositionHoldDetail",
+			"route": "/position-holds/:id",
+			"type": "detail",
+			"title": "Position holder",
+			"config": {
+				"register": "decidiq",
+				"schema": "position-hold",
+				"widgets": [
+					{
+						"id": "position-hold-data",
+						"type": "data",
+						"title": "Position holder",
+						"icon": "AccountGroup",
+						"content": {
+							"columns": 2
+						}
+					},
+					{
+						"id": "position-hold-related",
+						"type": "related",
+						"title": "Related",
+						"icon": "LinkVariant"
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "position-hold-data",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 8,
+						"gridHeight": 6
+					},
+					{
+						"id": "2",
+						"widgetId": "position-hold-related",
+						"gridX": 8,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 6
+					}
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{
+							"id": "audit",
+							"label": "History",
+							"icon": "History",
+							"widgets": [
+								{
+									"type": "audit"
+								}
+							]
+						}
+					]
+				},
 				"documentationUrl": "https://decidiq.conduction.nl"
 			}
 		}

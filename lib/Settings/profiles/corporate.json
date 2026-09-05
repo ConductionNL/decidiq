@@ -13,7 +13,7 @@
 			"label": "Company board",
 			"description": "A supervisory board, an executive board and a management team. Terms, conflicts of interest and evaluations.",
 			"order": 3,
-			"objectCount": 88,
+			"objectCount": 84,
 			"icon": "BriefcaseOutline"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -1721,6 +1721,19 @@
 						"description": "Runs the quiz and rules on disputed answers. Demonstrates a position declared by its own gremium: the Management team has no quizmaster unless it declares one.",
 						"id": "c7d10000-0000-4000-a000-000000000011",
 						"uuid": "c7d10000-0000-4000-a000-000000000011"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "position-type"
+						},
+						"slug": "termijn-regeling-rvc-acme",
+						"name": "Member",
+						"governanceBody": "raad-van-commissarissen-acme-bv",
+						"termDurationMonths": 48,
+						"maxConsecutiveTerms": 2,
+						"notes": "Statutair: eenmaal herbenoembaar (art. 12 statuten)."
 					}
 				],
 				"post": [
@@ -1747,82 +1760,6 @@
 						"role": "chair",
 						"startDate": "2022-04-01T00:00:00Z",
 						"governanceBody": "rvc-waterschap-amstel"
-					}
-				],
-				"rooster-regel": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "rooster-regel"
-						},
-						"slug": "rooster-regel-rvc-dewit",
-						"schedule": "rooster-rvc-acme",
-						"membership": "00000000-0000-0000-0000-000000000000",
-						"personName": "P. de Wit",
-						"role": "chair",
-						"termNumber": 2,
-						"endTermDate": "2026-11-01",
-						"reappointable": false,
-						"rappelStatus": "reminder-6-months"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "rooster-regel"
-						},
-						"slug": "rooster-regel-rvc-smit",
-						"schedule": "rooster-rvc-acme",
-						"membership": "00000000-0000-0000-0000-000000000000",
-						"personName": "A. Smit",
-						"role": "member",
-						"termNumber": 1,
-						"endTermDate": "2028-03-15",
-						"reappointable": true
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "rooster-regel"
-						},
-						"slug": "rooster-regel-rvc-vanduin",
-						"schedule": "rooster-rvc-acme",
-						"membership": "00000000-0000-0000-0000-000000000000",
-						"personName": "J. van Duin",
-						"role": "member",
-						"termNumber": 1,
-						"endTermDate": "2030-09-10",
-						"reappointable": true
-					}
-				],
-				"rooster-van-aftreden": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "rooster-van-aftreden"
-						},
-						"slug": "rooster-rvc-acme",
-						"body": "raad-van-commissarissen-acme-bv",
-						"generatedOn": "2026-07-01T09:00:00Z",
-						"generatedBy": "Griffie",
-						"publicationDate": "2026-07-02T09:00:00Z"
-					}
-				],
-				"termijn-regeling": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "termijn-regeling"
-						},
-						"slug": "termijn-regeling-rvc-acme",
-						"body": "raad-van-commissarissen-acme-bv",
-						"termDurationMonths": 48,
-						"maxConsecutivePeriods": 2,
-						"notes": "Statutair: eenmaal herbenoembaar (art. 12 statuten)."
 					}
 				],
 				"voting-round": [
