@@ -606,7 +606,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 
 		foreach (($rows ?? []) as $row) {
 			$body = $this->toArray(entity: $row);
-			$uuid = (string)(($body['id'] ?? $body['uuid']) ?? '');
+			$uuid = (string)($body['id'] ?? $body['uuid'] ?? '');
 			if ($uuid !== '') {
 				return $uuid;
 			}

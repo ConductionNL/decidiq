@@ -38,6 +38,8 @@ use Throwable;
  * @spec openspec/changes/generic-audit-statement/specs/generic-audit-statement/spec.md
  */
 class MigrateKascommissieToAuditStatement implements IRepairStep {
+	use ReadsLegacyRows;
+
 	/**
 	 * The decidiq register slug.
 	 *
@@ -74,6 +76,18 @@ class MigrateKascommissieToAuditStatement implements IRepairStep {
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
+
+	/**
+	 * The logger the shared legacy-row reads report through.
+	 *
+	 * @return LoggerInterface The logger.
+	 *
+	 * @spec exclude Trait accessor; exposes an already-injected dependency.
+	 */
+	protected function migrationLogger(): LoggerInterface {
+		return $this->logger;
+
+	}//end migrationLogger()
 
 	/**
 	 * Repair-step label.
@@ -154,7 +168,7 @@ class MigrateKascommissieToAuditStatement implements IRepairStep {
 
 		try {
 			$existingBodies = $this->existingBodyIndex(objectService: $objectService);
-			$sources        = $this->readSources(objectService: $objectService, output: $output);
+			$sources        = $this->readSources(objectService: $objectService);
 		} catch (Throwable $e) {
 			$output->warning('KascommissieVerklaring migration could not read its inputs: ' . $e->getMessage());
 			return;
@@ -267,30 +281,12 @@ class MigrateKascommissieToAuditStatement implements IRepairStep {
 	/**
 	 * Every legacy `vve-configuration` row, as arrays.
 	 *
-	 * @param object  $objectService The OR ObjectService.
-	 * @param IOutput $output        Progress reporting.
+	 * @param object $objectService The OR ObjectService.
 	 *
 	 * @return array<int, array<string,mixed>> The source rows.
 	 */
-	private function readSources(object $objectService, IOutput $output): array {
-		try {
-			$objectService->setRegister(self::REGISTER);
-			$objectService->setSchema(self::SOURCE_SCHEMA);
-			$found = $objectService->findAll(['limit' => 1000]);
-		} catch (Throwable $e) {
-			$output->info('No legacy vve-configuration objects found — nothing to migrate.');
-			return [];
-		}
-
-		$rows = [];
-		foreach ($found as $entity) {
-			$object = $this->toArray(entity: $entity);
-			if ($object !== null) {
-				$rows[] = $object;
-			}
-		}
-
-		return $rows;
+	private function readSources(object $objectService): array {
+		return $this->readRows(objectService: $objectService, schema: self::SOURCE_SCHEMA, limit: 10000);
 
 	}//end readSources()
 
@@ -322,98 +318,4 @@ class MigrateKascommissieToAuditStatement implements IRepairStep {
 		return $payload;
 
 	}//end mapStatement()
-
-	/**
-	 * The identifier to use for a source row's governance body.
-	 *
-	 * 🔴 THE LEGACY ROWS HOLD A SLUG WHERE THE SCHEMA WANTS A UUID. A seed
-	 * writes `governanceBody: vve-parkstaete`, and OpenRegister resolves slug
-	 * references at IMPORT time — but a direct saveObject() validates strictly,
-	 * so copying the value across fails with "Property 'governanceBody' should
-	 * match format 'uuid' but 'vve-parkstaete' does not". Measured on a live
-	 * instance.
-	 *
-	 * An unresolvable slug is returned AS IS rather than blanked: the save then
-	 * fails loudly for that one row instead of silently writing a configuration
-	 * bound to nothing.
-	 *
-	 * @param object $objectService The OR ObjectService.
-	 * @param string $reference     The body reference as the source holds it.
-	 *
-	 * @return string The resolved identifier, or '' when the source named none.
-	 */
-	private function resolveBody(object $objectService, string $reference): string {
-		$reference = trim($reference);
-		if ($reference === '' || preg_match('/^[0-9a-f-]{36}$/i', $reference) === 1) {
-			return $reference;
-		}
-
-		return ($this->bodyUuidForSlug(objectService: $objectService, slug: $reference) ?? $reference);
-
-	}//end resolveBody()
-
-	/**
-	 * The GovernanceBody UUID for a slug, or null when it cannot be resolved.
-	 *
-	 * 🔑 THE SLUG LIVES IN `@self`, NOT IN THE OBJECT BODY. A seeded `slug:` key
-	 * is an import-time identifier OpenRegister keeps as metadata, not a stored
-	 * property, so filtering `['slug' => …]` matches nothing — the sibling
-	 * template migration documents the same measurement.
-	 *
-	 * @param object $objectService The OR ObjectService.
-	 * @param string $slug          The body slug.
-	 *
-	 * @return string|null The UUID, or null.
-	 */
-	private function bodyUuidForSlug(object $objectService, string $slug): ?string {
-		try {
-			$objectService->setRegister(self::REGISTER);
-			$objectService->setSchema('governance-body');
-			$rows = $objectService->findAll(['filters' => ['@self' => ['slug' => $slug]], 'limit' => 1]);
-		} catch (Throwable $e) {
-			$this->logger->warning(
-				'Decidiq: could not resolve a governance-body slug during audit-statement migration',
-				['slug' => $slug, 'error' => $e->getMessage()]
-			);
-			return null;
-		}
-
-		foreach (($rows ?? []) as $row) {
-			$body = $this->toArray(entity: $row);
-			if ($body === null) {
-				continue;
-			}
-
-			$uuid = (string)(($body['id'] ?? $body['uuid']) ?? '');
-			if ($uuid !== '') {
-				return $uuid;
-			}
-		}
-
-		return null;
-
-	}//end bodyUuidForSlug()
-
-	/**
-	 * Normalise an OpenRegister entity to an array.
-	 *
-	 * @param mixed $entity The entity.
-	 *
-	 * @return array<string,mixed>|null The array, or null when unusable.
-	 */
-	private function toArray(mixed $entity): ?array {
-		if (is_array($entity) === true) {
-			return $entity;
-		}
-
-		if (is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true) {
-			$serialised = $entity->jsonSerialize();
-			if (is_array($serialised) === true) {
-				return $serialised;
-			}
-		}
-
-		return null;
-
-	}//end toArray()
 }//end class

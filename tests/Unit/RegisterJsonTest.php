@@ -1199,6 +1199,139 @@ class RegisterJsonTest extends TestCase {
 
 
 	/**
+	 * No example set may seed a schema the register has retired.
+	 *
+	 * 🔴 THIS IS THE GUARD FOR AN ENTIRE PROGRAMME, NOT ONE CHANGE.
+	 *
+	 * Retiring a schema is a two-part job: the fragment marks it
+	 * `active:false`, and the example sets stop seeding it. Only the first half
+	 * is visible. Miss the second and the import writes rows into a retired
+	 * schema on a fresh install, so the very data meant to demonstrate the new
+	 * generic model demonstrates the old one instead — and nothing reports it.
+	 * OpenRegister does not refuse a write to an inactive schema, the gates read
+	 * manifests rather than seeds, and the object count still goes up.
+	 *
+	 * Measured while collapsing oral questions into agenda items: the
+	 * municipality set carried eight rows across the three schemas that change
+	 * retired, and this test is the only thing that would have said so.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md#requirement-no-example-set-seeds-a-retired-schema
+	 */
+	public function testNoExampleSetSeedsARetiredSchema(): void {
+		$settingsDir = __DIR__ . '/../../lib/Settings';
+		$files       = array_merge(
+			[$settingsDir . '/decidesk_register.json', $settingsDir . '/decidiq_mock_register.json'],
+			(glob($settingsDir . '/register.d/*.json') ?: [])
+		);
+		sort($files);
+
+		// Fragments are additive and applied in order, so the LAST word on a
+		// schema is the effective one. Reading any earlier fragment alone would
+		// report a retired schema as live.
+		$retired = [];
+		foreach ($files as $file) {
+			if (file_exists($file) === false) {
+				continue;
+			}
+
+			$decoded = json_decode(
+				json: (string)file_get_contents(filename: $file),
+				associative: true,
+				depth: 512,
+				flags: JSON_THROW_ON_ERROR
+			);
+
+			foreach (($decoded['components']['schemas'] ?? []) as $name => $schema) {
+				if (is_array($schema) === false) {
+					continue;
+				}
+
+				$active = ($schema['x-openregister']['active'] ?? null);
+				if ($active === null) {
+					continue;
+				}
+
+				// A slug is only declared where the definition is; a supersession
+				// fragment carries the name and the flag, so fall back to the
+				// name lowered and hyphenated the way the register writes it.
+				$slug = strtolower((string)($schema['slug'] ?? ''));
+				if ($slug === '') {
+					$slug = strtolower((string)preg_replace('/(?<!^)[A-Z]/', '-$0', (string)$name));
+				}
+
+				if ($active === false) {
+					$retired[$slug] = $name;
+					continue;
+				}
+
+				unset($retired[$slug]);
+			}//end foreach
+		}//end foreach
+
+		self::assertNotEmpty(
+			actual: $retired,
+			message: 'This test is vacuous unless the register retires something; it has retired schemas since generic-body-configuration'
+		);
+
+		$offenders = [];
+		foreach (array_keys($this->profileSeeds()) as $slug) {
+			if (isset($retired[strtolower((string)$slug)]) === true) {
+				$offenders[] = $slug;
+			}
+		}
+
+		self::assertSame(
+			expected: [],
+			actual: $offenders,
+			message: 'An example set seeds a retired schema, so a fresh install demonstrates the superseded model: '
+				. implode(', ', $offenders)
+		);
+
+	}//end testNoExampleSetSeedsARetiredSchema()
+
+	/**
+	 * Each example set advertises the number of objects it actually carries.
+	 *
+	 * 🔑 THE COUNT IS HAND-WRITTEN AND THE WIZARD SHOWS IT. `objectCount` sits
+	 * in the descriptor beside the label, and `SeedProfileService` hands it
+	 * straight to the setup wizard, so an operator reads it before choosing. It
+	 * is not derived from the seeds, which means editing the seeds and leaving
+	 * the number alone is silent — and it drifted the first time a set was
+	 * edited after being written.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md#requirement-no-example-set-seeds-a-retired-schema
+	 */
+	public function testExampleSetsCountTheirOwnObjects(): void {
+		$files = glob(__DIR__ . '/../../lib/Settings/profiles/*.json');
+		self::assertNotEmpty(actual: $files, message: 'App must ship at least one example set');
+
+		foreach ($files as $file) {
+			$data = json_decode(
+				json: (string)file_get_contents(filename: $file),
+				associative: true,
+				depth: 512,
+				flags: JSON_THROW_ON_ERROR
+			);
+
+			$actual = 0;
+			foreach (($data['x-openregister']['seedData']['objects'] ?? []) as $objects) {
+				$actual += count($objects);
+			}
+
+			self::assertSame(
+				expected: $actual,
+				actual: (int)($data['x-openregister']['profile']['objectCount'] ?? -1),
+				message: basename($file) . ' advertises an object count its seeds do not match'
+			);
+		}//end foreach
+
+	}//end testExampleSetsCountTheirOwnObjects()
+
+	/**
 	 * Test that every cross-schema `$ref` names a slug that actually exists.
 	 *
 	 * 🔴 A `$ref` NAMES A SLUG, NOT THE DEFINITION KEY. `ImportHandler` resolves
