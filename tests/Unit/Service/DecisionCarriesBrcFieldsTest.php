@@ -1,7 +1,7 @@
 <?php
 
 /**
- * The Decision schema carries the four BRC Besluit fields, after the real merge.
+ * The Decision schema carries the five BRC Besluit fields, after the real merge.
  *
  * @category  Tests
  * @package   OCA\Decidiq\Tests\Unit\Service
@@ -39,7 +39,7 @@ use ReflectionMethod;
 final class DecisionCarriesBrcFieldsTest extends TestCase {
 
 	/**
-	 * The four fields the VNG BRC serves that the governance model lacked.
+	 * The fields the VNG BRC serves that the governance model lacked.
 	 *
 	 * `case` is deliberately absent: cases and decisions are already linked, and
 	 * a case reference here would be a second, competing link.
@@ -51,6 +51,7 @@ final class DecisionCarriesBrcFieldsTest extends TestCase {
 		'expiryDate',
 		'publicationDate',
 		'responsibleOrganisation',
+		'governingBody',
 	];
 
 	/**
@@ -85,7 +86,7 @@ final class DecisionCarriesBrcFieldsTest extends TestCase {
 	}//end mergedRegister()
 
 	/**
-	 * The merged Decision carries all four, each as a usable BRC field.
+	 * The merged Decision carries all five, each as a usable BRC field.
 	 *
 	 * @return void
 	 */
@@ -106,6 +107,24 @@ final class DecisionCarriesBrcFieldsTest extends TestCase {
 			'format',
 			$properties['responsibleOrganisation'],
 			'an RSIN is not a uuid and must not be formatted as one'
+		);
+
+		// `governingBody` is a bestuursorgaan name and NOT a uuid. The
+		// distinction is the reason it needed a field of its own: the only
+		// field already shaped like it, `targetBody`, is format uuid, so a
+		// besluit carrying 'college' was rejected on write and did not move
+		// at all. Asserting both sides keeps the two from being collapsed.
+		$this->assertArrayNotHasKey(
+			'format',
+			$properties['governingBody'],
+			'a bestuursorgaan is not a uuid and must not be formatted as one'
+		);
+
+		$this->assertSame(
+			'uuid',
+			$properties['targetBody']['format'],
+			'targetBody stays a uuid; it is the body an appointment is made FOR, '
+			.'not the body that took the decision'
 		);
 
 	}//end testTheMergedDecisionCarriesTheBrcFields()
