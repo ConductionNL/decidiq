@@ -1444,6 +1444,7 @@ OC.L10N.register(
         "Proxy authorizations": "Volmachten",
         "Proxy row & meeting": "Volmachtregel en vergadering",
         "Public": "Openbaar",
+        "Public consultation": "Publieke consultatie",
         "Public consultations": "Publieke consultaties",
         "Public publication": "Openbare publicatie",
         "Publicatie in behandeling": "Publicatie in behandeling",
