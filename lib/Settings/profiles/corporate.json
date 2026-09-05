@@ -161,6 +161,26 @@
 						"uuid": "c7d10000-0000-4000-a000-000000000022"
 					}
 				],
+				"ancillary-position": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "ancillary-position"
+						},
+						"slug": "nf-rvc-stedin",
+						"person": "janneke-de-bruin",
+						"governanceBody": "rvc-waterschap-amstel",
+						"organisation": "Stedin",
+						"role": "RvC vice-voorzitter",
+						"remunerated": true,
+						"qualitateQua": false,
+						"startDate": "2022-01-01",
+						"declaredAt": "2022-01-10",
+						"reviewedAt": "2026-06-15",
+						"lifecycle": "internal"
+					}
+				],
 				"board-evaluation": [
 					{
 						"@self": {
@@ -219,6 +239,21 @@
 						"scoreSummary": "{\"overallScore\":3.6,\"respondentCount\":2,\"invitedMemberCount\":3,\"minRespondentThreshold\":3,\"thresholdMet\":false,\"suppressed\":true,\"dimensionScores\":null,\"themes\":null,\"computedAt\":\"2025-12-20T17:05:00Z\"}",
 						"governanceBody": "rvc-waterschap-amstel",
 						"template": "template-bestuurlijke-effectiviteit"
+					}
+				],
+				"body-governance-configuration": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "body-governance-configuration"
+						},
+						"slug": "beleid-rvc-waterschap",
+						"governanceBody": "rvc-waterschap-amstel",
+						"ancillaryPositionDisclosureDefault": "internal",
+						"giftThresholdAmount": 100,
+						"giftsPublic": false,
+						"integrityNotificationGroup": "decidesk-compliance"
 					}
 				],
 				"conflict-of-interest": [
@@ -882,6 +917,26 @@
 						"checklist": []
 					}
 				],
+				"declared-gift": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "declared-gift"
+						},
+						"slug": "gs-congres-uitnodiging",
+						"recipient": "janneke-de-bruin",
+						"governanceBody": "rvc-waterschap-amstel",
+						"type": "invitation",
+						"giver": "Brancheorganisatie Water",
+						"description": "Congres met overnachting",
+						"estimatedValue": 400,
+						"receivedOn": "2026-02-03",
+						"decision": "transferred",
+						"notes": "Deelname overgedragen aan de organisatie; geen persoonlijk voordeel.",
+						"declaredAt": "2026-02-04"
+					}
+				],
 				"digital-document": [
 					{
 						"@self": {
@@ -1113,26 +1168,6 @@
 						]
 					}
 				],
-				"geschenk": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "geschenk"
-						},
-						"slug": "gs-congres-uitnodiging",
-						"recipient": "janneke-de-bruin",
-						"governanceBody": "rvc-waterschap-amstel",
-						"type": "invitation",
-						"giver": "Brancheorganisatie Water",
-						"description": "Congres met overnachting",
-						"estimatedValue": 400,
-						"receivedOn": "2026-02-03",
-						"decision": "transferred",
-						"notes": "Deelname overgedragen aan de organisatie; geen persoonlijk voordeel.",
-						"declaredAt": "2026-02-04"
-					}
-				],
 				"goal": [
 					{
 						"@self": {
@@ -1337,21 +1372,6 @@
 						"currentEffectiveDate": "2025-09-01"
 					}
 				],
-				"integriteitsbeleid": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "integriteitsbeleid"
-						},
-						"slug": "beleid-rvc-waterschap",
-						"governanceBody": "rvc-waterschap-amstel",
-						"ancillaryPositionDisclosureDefault": "internal",
-						"giftThresholdAmount": 100,
-						"giftsPublic": false,
-						"integrityNotificationGroup": "decidesk-compliance"
-					}
-				],
 				"meeting": [
 					{
 						"@self": {
@@ -1534,26 +1554,6 @@
 							"Secretaris"
 						],
 						"version": 1
-					}
-				],
-				"nevenfunctie": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "nevenfunctie"
-						},
-						"slug": "nf-rvc-stedin",
-						"person": "janneke-de-bruin",
-						"governanceBody": "rvc-waterschap-amstel",
-						"organisation": "Stedin",
-						"role": "RvC vice-voorzitter",
-						"remunerated": true,
-						"qualitateQua": false,
-						"startDate": "2022-01-01",
-						"declaredAt": "2022-01-10",
-						"reviewedAt": "2026-06-15",
-						"lifecycle": "internal"
 					}
 				],
 				"participant": [

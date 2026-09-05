@@ -308,6 +308,19 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\MigrateTermRulesToPositionTypes</step>
             <!--
+                After InitializeSettings imports the register (81-integrity-disclosures-in-plain-words
+                .json must already declare ancillary-position and declared-gift, AND the register's
+                own `schemas` list must carry both slugs, or every write throws "schema not carried by
+                register" and this step downgrades it to a warning nobody reads). Copies nevenfunctie
+                and geschenk rows across unchanged except for the schema, resolving every reference to
+                a uuid first; every property keeps its name because the properties were already in
+                plain words. Then folds integriteitsbeleid onto body-governance-configuration, which
+                is keyed on the SAME body: an existing configuration is UPDATED rather than replaced,
+                so the constitutive document and majority overrides another change wrote survive.
+                Non-destructive.
+            -->
+            <step>OCA\Decidiq\Migration\MigrateIntegrityDisclosures</step>
+            <!--
                 model-debt-cleanup-code: both steps below run AFTER InitializeSettings so they
                 read the NEW $ref declarations (Participant -> Membership/Person retargets,
                 model-debt-cleanup-schema fragment 67) to know what a valid target type looks
