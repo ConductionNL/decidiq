@@ -6,7 +6,7 @@
  * widgets: `version-timeline` (RegisterVersionTimelineWidget, on
  * GoverningDocumentDetail), `delegation-chain` (DelegationChainWidget, on
  * BevoegdheidstoedelingDetail) and `confidentiality-status-timeline`
- * (ConfidentialityStatusTimelineWidget, on GeheimhoudingDetail). None of the
+ * (ConfidentialityStatusTimelineWidget, on ConfidentialityRestrictionDetail). None of the
  * three had e2e coverage — a green suite proved nothing about whether they
  * render.
  *
@@ -147,7 +147,7 @@ test('BevoegdheidstoedelingDetail: delegation-chain widget shows the seeded onde
 
 // @e2e openspec/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
 // @e2e openspec/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
-test('GeheimhoudingDetail: confidentiality-status-timeline widget renders the imposed stage and resolves its ground', async ({
+test('ConfidentialityRestrictionDetail: confidentiality-status-timeline widget renders the imposed stage and resolves its ground', async ({
 	page,
 }) => {
 	// Detail pages are widget-heavy: the composed detail pages in this app
@@ -157,16 +157,18 @@ test('GeheimhoudingDetail: confidentiality-status-timeline widget renders the im
 	// nowhere near enough.
 	test.setTimeout(120_000)
 
-	const geheimhoudingen = await listObjects(page, 'geheimhouding')
-	const raadsnota = geheimhoudingen.find(
+	const restrictions = await listObjects(page, 'confidentiality-restriction')
+	const raadsnota = restrictions.find(
 		(g) => g.imposedAt === '2026-06-08T10:00:00Z',
 	)
 	test.skip(
 		!raadsnota,
-		'Seed geheimhouding "geheimhouding-raadsnota-grondexploitatie" not found',
+		'Seed confidentiality restriction "geheimhouding-raadsnota-grondexploitatie" not found',
 	)
 
-	await page.goto(`${BASE}/apps/decidiq/geheimhoudingen/${objId(raadsnota)}`)
+	await page.goto(
+		`${BASE}/apps/decidiq/confidentiality-restrictions/${objId(raadsnota)}`,
+	)
 	// app-root appearing only proves the shell mounted, not that data has
 	// arrived — mount itself blocks on initializeStores()'s settings round
 	// trip, so 30s (double the old budget) before even the shell shows up.

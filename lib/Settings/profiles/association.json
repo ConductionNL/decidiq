@@ -82,6 +82,24 @@
 						]
 					}
 				],
+				"confidentiality-ground": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "confidentiality-ground"
+						},
+						"slug": "grond-statutair",
+						"name": "Statutaire vertrouwelijkheid (niet-overheid)",
+						"citation": "statuten/reglement",
+						"legacyCitation": null,
+						"category": "other",
+						"requiresRatification": true,
+						"description": "Vertrouwelijkheidsgrond voor niet-overheidsgremia (vereniging, RvC, coöperatie) op basis van statuten of huishoudelijk reglement. Illustreert dat het bekrachtigingsvereiste een eigenschap van de configureerbare grond is, niet van de wet.",
+						"builtIn": true,
+						"active": true
+					}
+				],
 				"decision": [
 					{
 						"@self": {
@@ -528,24 +546,6 @@
 						"quorumRule": "2/3 van de stemmen (MR 1992 art. 38 lid 5)",
 						"checklist": [],
 						"quorumRequired": true
-					}
-				],
-				"geheimhouding-grond": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "geheimhouding-grond"
-						},
-						"slug": "grond-statutair",
-						"name": "Statutaire vertrouwelijkheid (niet-overheid)",
-						"citation": "statuten/reglement",
-						"legacyCitation": null,
-						"category": "other",
-						"requiresRatification": true,
-						"description": "Vertrouwelijkheidsgrond voor niet-overheidsgremia (vereniging, RvC, coöperatie) op basis van statuten of huishoudelijk reglement. Illustreert dat het bekrachtigingsvereiste een eigenschap van de configureerbare grond is, niet van de wet.",
-						"builtIn": true,
-						"active": true
 					}
 				],
 				"goal": [

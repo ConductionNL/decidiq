@@ -333,6 +333,16 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\MigratePlanningCycles</step>
             <!--
+                After InitializeSettings imports the register (83-confidentiality-in-plain-words.json
+                must already declare both schemas, AND the register's own `schemas` list must carry
+                both slugs). Copies geheimhouding-grond and geheimhouding across in that ORDER: a
+                restriction names the ground it was imposed on, so the grounds must exist and be
+                indexable first, and the `ground` reference is retargeted at the COPY. Without that a
+                restriction would live on the new schema while pointing at the retired ground.
+                Non-destructive.
+            -->
+            <step>OCA\Decidiq\Migration\MigrateConfidentialityRecords</step>
+            <!--
                 model-debt-cleanup-code: both steps below run AFTER InitializeSettings so they
                 read the NEW $ref declarations (Participant -> Membership/Person retargets,
                 model-debt-cleanup-schema fragment 67) to know what a valid target type looks
