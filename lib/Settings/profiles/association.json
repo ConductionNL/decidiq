@@ -823,6 +823,22 @@
 						"governingBody": "ledenraad-vng",
 						"isPublic": true,
 						"status": "in-force"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governing-document"
+						},
+						"slug": "huishoudelijk-reglement-vng",
+						"type": "regulations",
+						"citationTitle": "Huishoudelijk reglement ledenraad VNG",
+						"officialTitle": "Huishoudelijk reglement van de ledenraad van de Vereniging van Nederlandse Gemeenten",
+						"statutoryBasis": [
+							"Statuten VNG art. 12"
+						],
+						"governingBody": "ledenraad-vng",
+						"status": "adopted"
 					}
 				],
 				"governing-document-versie": [
@@ -871,6 +887,20 @@
 						"deedDate": "2021-12-15",
 						"notary": "mr. A. de Wit",
 						"status": "in-effect"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governing-document-versie"
+						},
+						"slug": "hr-vng-v1",
+						"document": "huishoudelijk-reglement-vng",
+						"versionNumber": 1,
+						"determinedBy": "00000000-0000-0000-0000-000000000000",
+						"effectiveDate": "2026-09-01",
+						"notes": "Concept eerste huishoudelijk reglement; treedt in werking na vaststelling door de ledenraad.",
+						"status": "draft"
 					}
 				],
 				"meeting": [
@@ -1049,40 +1079,6 @@
 						"signedAt": "2026-04-10T08:30:00Z",
 						"signingReference": "docudesk:sign:seed-jansen-alv-2026",
 						"proxyStatus": "active"
-					}
-				],
-				"regeling": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "regeling"
-						},
-						"slug": "huishoudelijk-reglement-vng",
-						"type": "regulations",
-						"citationTitle": "Huishoudelijk reglement ledenraad VNG",
-						"officialTitle": "Huishoudelijk reglement van de ledenraad van de Vereniging van Nederlandse Gemeenten",
-						"statutoryBasis": [
-							"Statuten VNG art. 12"
-						],
-						"determiningBody": "ledenraad-vng",
-						"status": "adopted"
-					}
-				],
-				"regeling-versie": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "regeling-versie"
-						},
-						"slug": "hr-vng-v1",
-						"regulation": "huishoudelijk-reglement-vng",
-						"versionNumber": 1,
-						"determinedBy": "00000000-0000-0000-0000-000000000000",
-						"effectiveDate": "2026-09-01",
-						"notes": "Concept eerste huishoudelijk reglement; treedt in werking na vaststelling door de ledenraad.",
-						"status": "draft"
 					}
 				]
 			}

@@ -2240,6 +2240,44 @@
 						"governingBody": "gemeenteraad-amsterdam",
 						"isPublic": false,
 						"status": "in-force"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governing-document"
+						},
+						"slug": "afvalstoffenverordening-amsterdam",
+						"type": "by-law",
+						"citationTitle": "Afvalstoffenverordening Amsterdam",
+						"officialTitle": "Verordening op de inzameling en verwerking van huishoudelijke afvalstoffen Amsterdam",
+						"statutoryBasis": [
+							"Gemeentewet art. 149",
+							"Wet milieubeheer art. 10.23"
+						],
+						"governingBody": "gemeenteraad-amsterdam",
+						"externalRegisterIdentifier": "CVDR641871",
+						"currentVersionNumber": 2,
+						"currentEffectiveDate": "2025-06-01",
+						"status": "in-effect"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governing-document"
+						},
+						"slug": "beleidsregel-terrassen-amsterdam",
+						"type": "policy-rule",
+						"citationTitle": "Beleidsregel terrassen Amsterdam 2025",
+						"officialTitle": "Beleidsregel inzake terrasvergunningen Amsterdam 2025",
+						"statutoryBasis": [
+							"APV Amsterdam art. 3.17"
+						],
+						"governingBody": "gemeenteraad-amsterdam",
+						"currentVersionNumber": 1,
+						"currentEffectiveDate": "2025-03-01",
+						"status": "in-effect"
 					}
 				],
 				"governing-document-versie": [
@@ -2255,6 +2293,48 @@
 						"determinedBy": "besluit-vaststelling-rvo-amsterdam",
 						"effectiveDate": "2023-03-01",
 						"notes": "Vaststelling van het reglement van orde door de gemeenteraad.",
+						"status": "in-effect"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governing-document-versie"
+						},
+						"slug": "afvalstoffen-v1",
+						"document": "afvalstoffenverordening-amsterdam",
+						"versionNumber": 1,
+						"determinedBy": "00000000-0000-0000-0000-000000000000",
+						"effectiveDate": "2024-01-01",
+						"notes": "Eerste vaststelling van de Afvalstoffenverordening Amsterdam.",
+						"status": "replaced"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governing-document-versie"
+						},
+						"slug": "afvalstoffen-v2",
+						"document": "afvalstoffenverordening-amsterdam",
+						"versionNumber": 2,
+						"determinedBy": "00000000-0000-0000-0000-000000000000",
+						"effectiveDate": "2025-06-01",
+						"notes": "Wijziging 2025: gescheiden inzameling GFT-e uitgebreid naar het hele beheergebied.",
+						"status": "in-effect"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governing-document-versie"
+						},
+						"slug": "terrassen-v1",
+						"document": "beleidsregel-terrassen-amsterdam",
+						"versionNumber": 1,
+						"determinedBy": "00000000-0000-0000-0000-000000000000",
+						"effectiveDate": "2025-03-01",
+						"notes": "Vaststelling beleidsregel terrassen 2025.",
 						"status": "in-effect"
 					}
 				],
@@ -3257,46 +3337,6 @@
 						"publicationDate": "2026-03-13T09:00:00Z"
 					}
 				],
-				"regeling": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "regeling"
-						},
-						"slug": "afvalstoffenverordening-amsterdam",
-						"type": "by-law",
-						"citationTitle": "Afvalstoffenverordening Amsterdam",
-						"officialTitle": "Verordening op de inzameling en verwerking van huishoudelijke afvalstoffen Amsterdam",
-						"statutoryBasis": [
-							"Gemeentewet art. 149",
-							"Wet milieubeheer art. 10.23"
-						],
-						"determiningBody": "gemeenteraad-amsterdam",
-						"cvdrIdentifier": "CVDR641871",
-						"currentVersionNumber": 2,
-						"currentEffectiveDate": "2025-06-01",
-						"status": "in-effect"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "regeling"
-						},
-						"slug": "beleidsregel-terrassen-amsterdam",
-						"type": "policy-rule",
-						"citationTitle": "Beleidsregel terrassen Amsterdam 2025",
-						"officialTitle": "Beleidsregel inzake terrasvergunningen Amsterdam 2025",
-						"statutoryBasis": [
-							"APV Amsterdam art. 3.17"
-						],
-						"determiningBody": "gemeenteraad-amsterdam",
-						"currentVersionNumber": 1,
-						"currentEffectiveDate": "2025-03-01",
-						"status": "in-effect"
-					}
-				],
 				"regeling-export-package": [
 					{
 						"@self": {
@@ -3311,50 +3351,6 @@
 						],
 						"sourceSlug": "drop-bekendmakingen",
 						"status": "ready"
-					}
-				],
-				"regeling-versie": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "regeling-versie"
-						},
-						"slug": "afvalstoffen-v1",
-						"regulation": "afvalstoffenverordening-amsterdam",
-						"versionNumber": 1,
-						"determinedBy": "00000000-0000-0000-0000-000000000000",
-						"effectiveDate": "2024-01-01",
-						"notes": "Eerste vaststelling van de Afvalstoffenverordening Amsterdam.",
-						"status": "replaced"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "regeling-versie"
-						},
-						"slug": "afvalstoffen-v2",
-						"regulation": "afvalstoffenverordening-amsterdam",
-						"versionNumber": 2,
-						"determinedBy": "00000000-0000-0000-0000-000000000000",
-						"effectiveDate": "2025-06-01",
-						"notes": "Wijziging 2025: gescheiden inzameling GFT-e uitgebreid naar het hele beheergebied.",
-						"status": "in-effect"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "regeling-versie"
-						},
-						"slug": "terrassen-v1",
-						"regulation": "beleidsregel-terrassen-amsterdam",
-						"versionNumber": 1,
-						"determinedBy": "00000000-0000-0000-0000-000000000000",
-						"effectiveDate": "2025-03-01",
-						"notes": "Vaststelling beleidsregel terrassen 2025.",
-						"status": "in-effect"
 					}
 				],
 				"rooster-regel": [
