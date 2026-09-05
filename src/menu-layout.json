@@ -7,7 +7,7 @@
 	"relocations": {
 		"AncillaryPositions": "GovernanceBodies",
 		"AuditStatements": "Meetings",
-		"Bevoegdheidstoedelingen": "Registers",
+		"AuthorityDelegations": "Registers",
 		"Commitments": "ActionItems",
 		"ConfidentialityRestrictions": "Registers",
 		"Consultations": "Decisions",
@@ -17,9 +17,9 @@
 		"GoverningDocuments": "Registers",
 		"OffboardingTrajecten": "GovernanceBodies",
 		"OnboardingTrajecten": "GovernanceBodies",
+		"PlannedAgenda": "ActionItems",
 		"PlanningCycles": "ActionItems",
 		"ProxyAuthorizations": "GovernanceBodies",
-		"Termijnagenda": "ActionItems",
 		"UrgentDecisions": "Decisions",
 		"WorTrajecten": "Decisions"
 	},
