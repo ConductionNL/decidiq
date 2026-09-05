@@ -15,13 +15,13 @@
 		"Goals": "ActionItems",
 		"GovernanceConsultations": "Decisions",
 		"GoverningDocuments": "Registers",
-		"OffboardingTrajecten": "GovernanceBodies",
-		"OnboardingTrajecten": "GovernanceBodies",
+		"MemberOffboarding": "GovernanceBodies",
+		"MemberOnboarding": "GovernanceBodies",
 		"PlannedAgenda": "ActionItems",
 		"PlanningCycles": "ActionItems",
 		"ProxyAuthorizations": "GovernanceBodies",
 		"UrgentDecisions": "Decisions",
-		"WorTrajecten": "Decisions"
+		"WorksCouncilConsultations": "Decisions"
 	},
 	"removals": [],
 	"_removalsNote": "EMPTY BY DECISION (2026-08-19, gate-53/ADR-044): a removal that orphans a live route is functionality loss. The four previously-removed ids were re-placed instead: UrgentDecisions and Zienswijzen nest under Decisions, MyDeclarations lifts into the gear (per-user self-service, stable-name contract with member-onboarding), FeaturesRoadmapMenu keeps its original footer section.",

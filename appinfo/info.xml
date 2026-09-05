@@ -372,6 +372,18 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\MigrateTheLastTwoDutchNames</step>
             <!--
+                member-onboarding-in-plain-words: onboarding-traject and offboarding-traject were
+                the last Dutch-named schemas in the app, and the-last-two-dutch-names said there
+                were none left. Copies their rows onto member-onboarding and member-offboarding,
+                renaming three properties with them: the Dutch-spelled beedigingsType becomes
+                installationType, swearingInDate becomes installedOn, and swearingInMeeting becomes
+                installationMeeting. That last one is a reference AND a rename, so its value is
+                resolved as a reference and written under the new key. A value written under an old
+                key lands on a property the target does not declare, which OpenRegister stores
+                nowhere while answering 200. Non-destructive.
+            -->
+            <step>OCA\Decidiq\Migration\MigrateMemberOnboarding</step>
+            <!--
                 model-debt-cleanup-code: both steps below run AFTER InitializeSettings so they
                 read the NEW $ref declarations (Participant -> Membership/Person retargets,
                 model-debt-cleanup-schema fragment 67) to know what a valid target type looks

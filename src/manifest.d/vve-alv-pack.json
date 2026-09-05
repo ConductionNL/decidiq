@@ -134,7 +134,7 @@
 		},
 		{
 			"id": "AuditStatements",
-			"route": "/audit-statementen",
+			"route": "/audit-statements",
 			"type": "index",
 			"title": "Audit statements",
 			"_note": "Audit statements per financial year, with the verdict and the agenda item where the accounts were adopted. Generic: a kascommissie is one kind of audit committee, and the Dutch label is supplied per organisatie_modus rather than baked into the schema.",
@@ -213,7 +213,7 @@
 		},
 		{
 			"id": "AuditStatementDetail",
-			"route": "/audit-statementen/:id",
+			"route": "/audit-statements/:id",
 			"type": "detail",
 			"title": "Audit statement",
 			"_note": "One audit committee statement. Verslag attached via FileService. Audit trail in a sidebar tab.",
