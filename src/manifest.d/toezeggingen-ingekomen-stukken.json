@@ -4,10 +4,10 @@
 	"_spec": "openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md",
 	"menu": [
 		{
-			"id": "Toezeggingen",
+			"id": "Commitments",
 			"label": "Commitments",
 			"icon": "Check",
-			"route": "Toezeggingen",
+			"route": "Commitments",
 			"order": 45
 		},
 		{
@@ -20,14 +20,14 @@
 	],
 	"pages": [
 		{
-			"id": "Toezeggingen",
-			"route": "/toezeggingen",
+			"id": "Commitments",
+			"route": "/commitments",
 			"type": "index",
 			"title": "Commitments",
 			"_note": "spec: openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md",
 			"config": {
 				"register": "decidiq",
-				"schema": "toezegging",
+				"schema": "governance-commitment",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
 				"_note": "Toezeggingenlijst (REQ-006). Columns text/madeBy/directedTo/deadline/lifecycle; quick filters on lifecycle and governance body. CSV export via the shared ExportService + CnMassExportDialog (mass-export exposed by the index chrome). The overdue-KPI deep-link (Dashboard) targets this page pre-filtered to non-terminal lifecycle (design D6).",
@@ -48,7 +48,7 @@
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 				],
 				"actions": [
-					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "ToezeggingDetail", "primary": true }
+					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "CommitmentDetail", "primary": true }
 				],
 				"showMassExport": true,
 				"sidebar": { "enabled": true, "showMetadata": true },
@@ -56,14 +56,14 @@
 			}
 		},
 		{
-			"id": "ToezeggingDetail",
-			"route": "/toezeggingen/:id",
+			"id": "CommitmentDetail",
+			"route": "/commitments/:id",
 			"type": "detail",
 			"title": "Commitment",
 			"_note": "spec: openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md",
 			"config": {
 				"register": "decidiq",
-				"schema": "toezegging",
+				"schema": "governance-commitment",
 				"_note": "ToezeggingDetail (REQ-006). Commitment data leads 8-wide, publication + evidence stacked right; the linked meeting/agendaItem/madeBy/directedTo/relatedMotion render as resolved references in the data widget and the Related widget. Files leaf for the raadsbrief/evidence. Audit trail is a sidebar tab (REQ-006). No comms leaf: the toezegging schema declares no email/calendar linkedType.",
 				"widgets": [
 					{ "id": "toezegging-data", "type": "data", "title": "Commitment", "icon": "HandshakeOutline", "content": { "columns": 2 } },

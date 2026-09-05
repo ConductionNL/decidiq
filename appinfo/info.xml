@@ -343,6 +343,14 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\MigrateConfidentialityRecords</step>
             <!--
+                After InitializeSettings imports the register (84-commitment-in-plain-words.json must
+                already declare Commitment, AND the register's own `schemas` list must carry
+                governance-commitment). Copies toezegging rows across unchanged except for the schema,
+                resolving directedTo/madeBy/meeting/agendaItem to uuids first because a SEEDED row
+                holds slugs and saveObject() rejects those outright. Non-destructive.
+            -->
+            <step>OCA\Decidiq\Migration\MigrateCommitments</step>
+            <!--
                 model-debt-cleanup-code: both steps below run AFTER InitializeSettings so they
                 read the NEW $ref declarations (Participant -> Membership/Person retargets,
                 model-debt-cleanup-schema fragment 67) to know what a valid target type looks

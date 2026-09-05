@@ -2003,6 +2003,59 @@
 						"termEnd": "2026-12-31T00:00:00Z"
 					}
 				],
+				"governance-commitment": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-commitment"
+						},
+						"slug": "toezegging-evaluatie-afvalbeleid",
+						"text": "Het college zegt toe de evaluatie van het afvalbeleid gelijktijdig met de kadernota aan te bieden.",
+						"madeBy": "00000000-0000-0000-0000-000000000000",
+						"meeting": "raadsvergadering-2025-01-15",
+						"directedTo": "gemeenteraad-amsterdam",
+						"deadline": "2026-06-30",
+						"lifecycle": "disposed",
+						"settlementNotes": "Evaluatierapport aangeboden bij kadernota 2026; besproken in commissie Middelen.",
+						"settlementEvidence": "https://gemeente-voorbeeldingen.nl/raadsbrieven/evaluatie-afvalbeleid-2026.pdf",
+						"relatedMotion": "00000000-0000-0000-0000-000000000000",
+						"publicationDate": "2026-02-10T09:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-commitment"
+						},
+						"slug": "toezegging-raadsbrief-jeugdzorg",
+						"text": "Wethouder Van Dijk zegt toe de raad vóór 1 maart per raadsbrief te informeren over de wachtlijsten jeugdzorg.",
+						"madeBy": "00000000-0000-0000-0000-000000000000",
+						"meeting": "raadsvergadering-2025-01-15",
+						"agendaItem": "begroting-2026-bespreking",
+						"directedTo": "gemeenteraad-amsterdam",
+						"deadline": "2026-03-01",
+						"lifecycle": "open",
+						"publicationDate": "2026-01-20T09:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-commitment"
+						},
+						"slug": "toezegging-schouw-marktplein",
+						"text": "Wethouder Pietersen zegt toe binnen zes weken een schouw van het Marktplein te organiseren met de klankbordgroep.",
+						"madeBy": "00000000-0000-0000-0000-000000000000",
+						"meeting": "raadsvergadering-2025-01-15",
+						"agendaItem": "rondvraag",
+						"directedTo": "gemeenteraad-amsterdam",
+						"deadline": "2026-05-15",
+						"lifecycle": "in-execution",
+						"goal": "goal-amsterdam-klimaatneutraal-2050",
+						"publicationDate": "2026-02-10T09:00:00Z"
+					}
+				],
 				"governance-consultation": [
 					{
 						"@self": {
@@ -3606,59 +3659,6 @@
 						"shiftHistory": [],
 						"reasonExpired": "Opgegaan in de bredere herziening van de legesverordening",
 						"publicationDate": "2026-06-20T09:00:00Z"
-					}
-				],
-				"toezegging": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "toezegging"
-						},
-						"slug": "toezegging-evaluatie-afvalbeleid",
-						"text": "Het college zegt toe de evaluatie van het afvalbeleid gelijktijdig met de kadernota aan te bieden.",
-						"madeBy": "00000000-0000-0000-0000-000000000000",
-						"meeting": "raadsvergadering-2025-01-15",
-						"directedTo": "gemeenteraad-amsterdam",
-						"deadline": "2026-06-30",
-						"lifecycle": "disposed",
-						"settlementNotes": "Evaluatierapport aangeboden bij kadernota 2026; besproken in commissie Middelen.",
-						"settlementEvidence": "https://gemeente-voorbeeldingen.nl/raadsbrieven/evaluatie-afvalbeleid-2026.pdf",
-						"relatedMotion": "00000000-0000-0000-0000-000000000000",
-						"publicationDate": "2026-02-10T09:00:00Z"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "toezegging"
-						},
-						"slug": "toezegging-raadsbrief-jeugdzorg",
-						"text": "Wethouder Van Dijk zegt toe de raad vóór 1 maart per raadsbrief te informeren over de wachtlijsten jeugdzorg.",
-						"madeBy": "00000000-0000-0000-0000-000000000000",
-						"meeting": "raadsvergadering-2025-01-15",
-						"agendaItem": "begroting-2026-bespreking",
-						"directedTo": "gemeenteraad-amsterdam",
-						"deadline": "2026-03-01",
-						"lifecycle": "open",
-						"publicationDate": "2026-01-20T09:00:00Z"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "toezegging"
-						},
-						"slug": "toezegging-schouw-marktplein",
-						"text": "Wethouder Pietersen zegt toe binnen zes weken een schouw van het Marktplein te organiseren met de klankbordgroep.",
-						"madeBy": "00000000-0000-0000-0000-000000000000",
-						"meeting": "raadsvergadering-2025-01-15",
-						"agendaItem": "rondvraag",
-						"directedTo": "gemeenteraad-amsterdam",
-						"deadline": "2026-05-15",
-						"lifecycle": "in-execution",
-						"goal": "goal-amsterdam-klimaatneutraal-2050",
-						"publicationDate": "2026-02-10T09:00:00Z"
 					}
 				],
 				"vote": [

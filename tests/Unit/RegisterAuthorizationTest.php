@@ -441,7 +441,7 @@ class RegisterAuthorizationTest extends TestCase {
 		// The count is the positive control: without it this loop passes vacuously
 		// if the schemas move, are renamed, or stop being found at all.
 		$this->assertSame(
-			31,
+			32,
 			$withBlock,
 			'Expected 27 schema-level authorization blocks. evaluation-response gained one that closes '
 				. '`read` (its raw anonymous board self-evaluation answers were readable by every '
@@ -453,7 +453,10 @@ class RegisterAuthorizationTest extends TestCase {
 				. 'signature-and-outcome-authorization-guard added Decision\'s, narrowing anonymous read/list '
 				. 'to isPublished === "public" (IntegrationController::getOutcome() had documented an '
 				. 'OpenRegister RBAC guarantee that did not exist, precisely because this block was absent). '
-				. 'confidentiality-in-plain-words added the last two the same way, renaming Geheimhouding '
+				. 'commitment-in-plain-words added the last ONE, renaming Toezegging to Commitment: a '
+				. 'rename adds exactly one block, because the retirement stub declares none of its own '
+				. 'while the source keeps the block it always had. '
+				. 'confidentiality-in-plain-words added two the same way, renaming Geheimhouding '
 				. 'to ConfidentialityRestriction and GeheimhoudingGrond to ConfidentialityGround. '
 				. 'integrity-disclosures-in-plain-words added two before them, and they are COPIES: renaming '
 				. 'Nevenfunctie to AncillaryPosition and Geschenk to DeclaredGift carried each schema\'s own '
@@ -495,6 +498,7 @@ class RegisterAuthorizationTest extends TestCase {
 			'Geschenk' => 'DeclaredGift',
 			'Geheimhouding' => 'ConfidentialityRestriction',
 			'GeheimhoudingGrond' => 'ConfidentialityGround',
+			'Toezegging' => 'Commitment',
 		];
 
 		$blocks = [];
