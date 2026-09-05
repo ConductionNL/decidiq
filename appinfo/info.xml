@@ -283,7 +283,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\MigrateRegulationsToGoverningDocuments</step>
             <!--
-                After InitializeSettings imports the register (78-one-consultation-schema.json must
+                After InitializeSettings imports the register (79-one-consultation-schema.json must
                 already have declared `consultation` and `consultation-response`, AND the register's
                 own `schemas` list must carry both slugs, or every write throws "schema not carried
                 by register" and this step downgrades it to a warning nobody reads). Copies three
