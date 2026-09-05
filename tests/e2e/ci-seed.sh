@@ -776,9 +776,16 @@ else
 	# BOTH versions, because the spec asserts both render and that the earlier
 	# one reads as replaced. One version would satisfy "the widget rendered" and
 	# prove nothing about the timeline.
+	#
+	# 🔴 `in-effect`, NOT `in-force`. The two schemas do NOT share a status
+	# vocabulary: GoverningDocument accepts both (register.d/77), and
+	# GoverningDocumentVersie accepts only
+	# ['draft','adopted','in-effect','replaced','lapsed'] (register.d/55). This
+	# line wrote the document's word onto a versie and the API answered 400,
+	# which exits the seed and takes the WHOLE suite with it.
 	for versie in \
 		'1|2024-01-01|replaced|Eerste vaststelling van de Afvalstoffenverordening Amsterdam.' \
-		'2|2025-06-01|in-force|Geactualiseerde verordening na evaluatie 2025.'
+		'2|2025-06-01|in-effect|Geactualiseerde verordening na evaluatie 2025.'
 	do
 		IFS='|' read -r v_num v_date v_status v_notes <<<"${versie}"
 		v_id="$(seed_object governing-document-versie \
