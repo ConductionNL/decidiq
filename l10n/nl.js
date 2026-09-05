@@ -3,6 +3,13 @@ OC.L10N.register(
     {
         "2026": "2026",
         "2027": "2027",
+        "De datum waarop het besluit is gepubliceerd. Onderscheiden van `publishedAt`, dat het moment van publiceren in dit systeem vastlegt; dit is de datum die het besluit zelf draagt. BRC `publicatiedatum`.": "De datum waarop het besluit is gepubliceerd. Onderscheiden van `publishedAt`, dat het moment van publiceren in dit systeem vastlegt; dit is de datum die het besluit zelf draagt. BRC `publicatiedatum`.",
+        "De datum waarop het besluit is verzonden aan de belanghebbende. BRC `verzenddatum`.": "De datum waarop het besluit is verzonden aan de belanghebbende. BRC `verzenddatum`.",
+        "De datum waarop het besluit vervalt. Onderscheiden van `effectiveDate`, die zegt wanneer het ingaat. BRC `vervaldatum`.": "De datum waarop het besluit vervalt. Onderscheiden van `effectiveDate`, die zegt wanneer het ingaat. BRC `vervaldatum`.",
+        "Het RSIN van de organisatie die verantwoordelijk is voor het besluit. Een RSIN en niet een `$ref`: de BRC identificeert de verantwoordelijke met dit nummer, en een verwijzing die alleen binnen deze instantie oplost zou het contract breken.": "Het RSIN van de organisatie die verantwoordelijk is voor het besluit. Een RSIN en niet een `$ref`: de BRC identificeert de verantwoordelijke met dit nummer, en een verwijzing die alleen binnen deze instantie oplost zou het contract breken.",
+        "Publicatiedatum": "Publicatiedatum",
+        "Verantwoordelijke organisatie": "Verantwoordelijke organisatie",
+        "Verzenddatum": "Verzenddatum",
         "#": "#",
         "+ Action item": "+ Actiepunt",
         "+ Action item for {title}": "+ Actiepunt voor {title}",
