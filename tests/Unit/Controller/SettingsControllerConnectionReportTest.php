@@ -79,8 +79,8 @@ class SettingsControllerConnectionReportTest extends TestCase {
 	 */
 	public function testASaveRefreshesWithThePayloadAndReportsBindings(): void {
 		$reporter = $this->createMock(originalClassName: ConnectionReportService::class);
-		$reporter->expects($this->once())->method('refreshFromSave')->with(self::ORI_SAVE)->willReturn(['ori']);
-		$reporter->expects($this->once())->method('reportBindings')->willReturn([]);
+		$reporter->expects($this->once())->method('refreshFromSave')->with(self::ORI_SAVE);
+		$reporter->expects($this->once())->method('reportBindings');
 
 		$response = $this->controller(reporter: $reporter)->update();
 

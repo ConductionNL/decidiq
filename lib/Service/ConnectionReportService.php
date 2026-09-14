@@ -98,14 +98,14 @@ class ConnectionReportService {
 	 * Never throws. Without integriq nothing is resolved, sent or logged,
 	 * because a missing optional app is not a fault.
 	 *
-	 * @return array<string, string> The status sent, keyed by connection key.
+	 * @return void
 	 *
 	 * @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
 	 */
-	public function reportBindings(): array {
+	public function reportBindings(): void {
 		$eventClass = $this->resolveEventClass(eventClass: self::STATUS_EVENT);
 		if ($eventClass === null) {
-			return [];
+			return;
 		}
 
 		$observations = [
@@ -113,9 +113,8 @@ class ConnectionReportService {
 			'translation' => $this->observeTranslation(),
 		];
 
-		$sent = [];
 		foreach ($observations as $key => [$status, $message]) {
-			$delivered = $this->send(
+			$this->send(
 				key: $key,
 				build: static fn (): object => new $eventClass(
 					app: Application::APP_ID,
@@ -124,12 +123,7 @@ class ConnectionReportService {
 					message: $message,
 				)
 			);
-			if ($delivered === true) {
-				$sent[$key] = $status;
-			}
 		}
-
-		return $sent;
 	}//end reportBindings()
 
 	/**
@@ -141,35 +135,29 @@ class ConnectionReportService {
 	 *
 	 * @param array<string, mixed> $saved The payload the settings save carried.
 	 *
-	 * @return array<int, string> The connection keys a refresh was sent for.
+	 * @return void
 	 *
 	 * @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md#requirement-req-adm-conn-001-decidiq-declares-its-outside-connections-in-one-static-file
 	 */
-	public function refreshFromSave(array $saved): array {
+	public function refreshFromSave(array $saved): void {
 		$eventClass = $this->resolveEventClass(eventClass: self::REFRESH_EVENT);
 		if ($eventClass === null) {
-			return [];
+			return;
 		}
 
-		$refreshed = [];
 		foreach (self::REFRESH_KEYS as $key => $configKeys) {
 			if (array_intersect($configKeys, array_keys($saved)) === []) {
 				continue;
 			}
 
-			$delivered = $this->send(
+			$this->send(
 				key: $key,
 				build: static fn (): object => new $eventClass(
 					app: Application::APP_ID,
 					key: $key,
 				)
 			);
-			if ($delivered === true) {
-				$refreshed[] = $key;
-			}
 		}
-
-		return $refreshed;
 	}//end refreshFromSave()
 
 	/**
@@ -286,23 +274,19 @@ class ConnectionReportService {
 	 * @param string             $key   The connection the event is about, for the log.
 	 * @param callable(): object $build Builds the event.
 	 *
-	 * @return bool True when the event was dispatched without an exception.
+	 * @return void
 	 */
-	private function send(string $key, callable $build): bool {
+	private function send(string $key, callable $build): void {
 		try {
 			$event = $build();
-			if (($event instanceof Event) === false) {
-				return false;
+			if (($event instanceof Event) === true) {
+				$this->eventDispatcher->dispatchTyped($event);
 			}
-
-			$this->eventDispatcher->dispatchTyped($event);
-			return true;
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: could not send a connection event to integriq',
 				['key' => $key, 'exception' => $e->getMessage()]
 			);
-			return false;
 		}
 	}//end send()
 }//end class

@@ -219,9 +219,8 @@ class ConnectionReportServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheLogFallbacksAreReportedSimulated(): void {
-		$result = $this->service(bindings: $this->fallbackBindings())->reportBindings();
+		$this->service(bindings: $this->fallbackBindings())->reportBindings();
 
-		$this->assertSame(expected: ['eidas' => 'simulated', 'translation' => 'simulated'], actual: $result);
 		$this->assertCount(expectedCount: 2, haystack: $this->sent);
 
 		[$eidas, $translation] = $this->sent;
@@ -347,9 +346,9 @@ class ConnectionReportServiceTest extends TestCase {
 		$bindings = $this->fallbackBindings();
 		unset($bindings[IEIDASSignatureService::class]);
 
-		$result = $this->service(bindings: $bindings)->reportBindings();
+		$this->service(bindings: $bindings)->reportBindings();
 
-		$this->assertSame(expected: ['eidas' => 'error', 'translation' => 'simulated'], actual: $result);
+		$this->assertSame(expected: ['error', 'simulated'], actual: array_map(static fn ($event): string => $event->status, $this->sent));
 		$this->assertStringContainsString(
 			needle: 'could not load the signing service: No binding for ' . IEIDASSignatureService::class,
 			haystack: $this->sent[0]->message
@@ -387,8 +386,9 @@ class ConnectionReportServiceTest extends TestCase {
 			}//end resolveEventClass()
 		};
 
-		$this->assertSame(expected: [], actual: $service->reportBindings());
-		$this->assertSame(expected: [], actual: $service->refreshFromSave(saved: ['ori_endpoint' => 'https://ori.example.nl']));
+		$service->reportBindings();
+		$service->refreshFromSave(saved: ['ori_endpoint' => 'https://ori.example.nl']);
+		$this->assertSame(expected: [], actual: $this->sent);
 	}//end testWithoutIntegriqNothingIsSentOrLogged()
 
 	/**
@@ -439,8 +439,10 @@ class ConnectionReportServiceTest extends TestCase {
 			logger: $this->logger,
 		);
 
-		$this->assertSame(expected: [], actual: $service->reportBindings());
-		$this->assertSame(expected: [], actual: $service->refreshFromSave(saved: ['ori_endpoint' => 'https://ori.example.nl']));
+		// Reaching the next line is the assertion that nothing escaped.
+		$service->reportBindings();
+		$service->refreshFromSave(saved: ['ori_endpoint' => 'https://ori.example.nl']);
+		$this->assertSame(expected: [], actual: $this->sent);
 	}//end testAThrowingListenerNeverEscapes()
 
 	/**
@@ -451,7 +453,8 @@ class ConnectionReportServiceTest extends TestCase {
 	public function testAnOriSaveRefreshesOri(): void {
 		$service = $this->service(bindings: []);
 
-		$this->assertSame(expected: ['ori'], actual: $service->refreshFromSave(saved: ['ori_bearer_secret' => 's3cret']));
+		$service->refreshFromSave(saved: ['ori_bearer_secret' => 's3cret']);
+
 		$this->assertCount(expectedCount: 1, haystack: $this->sent);
 		$this->assertInstanceOf(expected: ConnectionRefreshRequestedEvent::class, actual: $this->sent[0]);
 		$this->assertSame(expected: 'decidiq', actual: $this->sent[0]->app);
@@ -464,7 +467,8 @@ class ConnectionReportServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnUnrelatedSaveSendsNoRefresh(): void {
-		$this->assertSame(expected: [], actual: $this->service(bindings: [])->refreshFromSave(saved: ['organisation_name' => 'Waterschap']));
+		$this->service(bindings: [])->refreshFromSave(saved: ['organisation_name' => 'Waterschap']);
+
 		$this->assertSame(expected: [], actual: $this->sent);
 	}//end testAnUnrelatedSaveSendsNoRefresh()
 }//end class

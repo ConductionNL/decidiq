@@ -46,7 +46,7 @@ class ConnectionReportJobTest extends TestCase {
 	 */
 	public function testTheJobReportsOncePerRunOnADailyInterval(): void {
 		$reporter = $this->createMock(originalClassName: ConnectionReportService::class);
-		$reporter->expects($this->once())->method('reportBindings')->willReturn(['eidas' => 'simulated']);
+		$reporter->expects($this->once())->method('reportBindings');
 
 		$job = new ConnectionReportJob(
 			time: $this->createMock(originalClassName: ITimeFactory::class),
