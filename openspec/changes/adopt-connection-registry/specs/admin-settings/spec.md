@@ -16,6 +16,7 @@ Admins see decidiq's outside connections on one page, with a status the app can 
 Decidiq SHALL declare its outside connections in `lib/Settings/connections.json` in the shape of hydra connection-registry design D2 (hydra REQ-CONN-001). The file SHALL declare `ori`, `eidas` and `translation`. `ori` SHALL require `ori_endpoint` and link to the ORI section of the admin page. `eidas` and `translation` SHALL be `reportedOnly`, because a DI binding decides what answers. Every `settingsUrl` SHALL point at a section id that exists on the admin page.
 
 #### Scenario: The declaration names this app and passes integriq's schema
+@e2e exclude A static file with no browser surface; tests/Unit/Settings/ConnectionsDeclarationTest.php checks the shape, the app id, unique keys and the anchors.
 
 - **GIVEN** `lib/Settings/connections.json`
 - **WHEN** it is validated against integriq's `connections.schema.json`
@@ -24,6 +25,7 @@ Decidiq SHALL declare its outside connections in `lib/Settings/connections.json`
 - **AND** every key SHALL be unique
 
 #### Scenario: A saved ORI endpoint reads configured
+@e2e tests/e2e/workflows/connection-registry.spec.ts
 
 - **GIVEN** integriq has synced decidiq's declaration
 - **WHEN** an admin saves an ORI endpoint on the admin page
@@ -35,6 +37,7 @@ Decidiq SHALL declare its outside connections in `lib/Settings/connections.json`
 Decidiq SHALL report the service bound for `eidas` and `translation` with `ConnectionStatusReportedEvent`, once a day and after every settings save, never per request. A log-only fallback SHALL be reported `simulated`. A binding that cannot work SHALL be reported `error` with the reason. Without integriq, decidiq SHALL send nothing and log nothing.
 
 #### Scenario: The log signing service reports simulated
+@e2e exclude The binding depends on whether integriq is installed, which a browser run cannot switch; tests/Unit/Service/ConnectionReportServiceTest.php builds the real LogEIDASSignatureService and asserts the report.
 
 - **GIVEN** the container binds `LogEIDASSignatureService`
 - **WHEN** the daily report runs
@@ -42,12 +45,14 @@ Decidiq SHALL report the service bound for `eidas` and `translation` with `Conne
 - **AND** its message SHALL say that nothing is signed
 
 #### Scenario: The log translation adapter without a provider reports simulated
+@e2e exclude No browser flow can remove a translation provider; tests/Unit/Service/ConnectionReportServiceTest.php builds the real LogTranslationAdapter and asserts the report.
 
 - **GIVEN** the container binds `LogTranslationAdapter` and no integriq translation service resolves
 - **WHEN** the daily report runs
 - **THEN** the `translation` report SHALL be `simulated`
 
 #### Scenario: Without integriq nothing is sent
+@e2e exclude The CI instance installs integriq; tests/Unit/Service/ConnectionReportServiceTest.php and SettingsControllerConnectionReportTest.php cover the absent class and the unchanged save.
 
 - **GIVEN** integriq is not installed
 - **WHEN** an admin saves the settings
