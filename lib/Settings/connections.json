@@ -1,0 +1,30 @@
+{
+    "app": "decidiq",
+    "connections": [
+        {
+            "key": "ori",
+            "title": "ORI publication",
+            "description": "Voting results posted to an Open Raadsinformatie (ORI) API endpoint when a voting round closes.",
+            "order": 10,
+            "settingsUrl": "/settings/admin/decidiq#section-ori",
+            "requiredConfig": ["ori_endpoint"],
+            "unconfiguredMessage": "No ORI endpoint is set, so no voting result is published. Set it in the ORI endpoint section."
+        },
+        {
+            "key": "eidas",
+            "title": "eIDAS signatures",
+            "description": "Qualified electronic signatures on minutes, through Filinq or a trust service provider.",
+            "order": 20,
+            "reportedOnly": true,
+            "unconfiguredMessage": "Not checked yet. Decidiq reports which signing service answers here once a day."
+        },
+        {
+            "key": "translation",
+            "title": "Translation",
+            "description": "Minutes translated between languages by the multilingual reconciliation queue.",
+            "order": 30,
+            "reportedOnly": true,
+            "unconfiguredMessage": "Not checked yet. Decidiq reports which translation service answers here once a day."
+        }
+    ]
+}
