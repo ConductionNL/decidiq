@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Settings;
 
+use OCA\Decidiq\Service\ConnectionReportService;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -260,6 +261,49 @@ class ConnectionsDeclarationTest extends TestCase {
 			$this->assertArrayNotHasKey(key: 'available', array: $byKey[$key], message: $key . ' is called, so it is available');
 		}
 	}//end testBindingChosenConnectionsAreReportedOnly()
+
+	/**
+	 * The reported rows are exactly the ones the report service sends.
+	 *
+	 * A reportedOnly row nobody reports stays on Not checked yet forever, and a
+	 * report for a key the file does not declare is refused by integriq.
+	 *
+	 * @return void
+	 */
+	public function testTheReportServiceSendsExactlyTheReportedRows(): void {
+		$reported = array_keys(
+			array_filter(
+				$this->connectionsByKey(),
+				static fn (array $connection): bool => ($connection['reportedOnly'] ?? false) === true
+			)
+		);
+
+		$this->assertSame(expected: ConnectionReportService::REPORTED_KEYS, actual: $reported);
+	}//end testTheReportServiceSendsExactlyTheReportedRows()
+
+	/**
+	 * A save refreshes every connection with required settings, on at least those keys.
+	 *
+	 * Integriq decides from `requiredConfig`. A save that changed one of those
+	 * keys without a refresh would leave the row stale until the hourly job.
+	 *
+	 * @return void
+	 */
+	public function testTheRefreshMapCoversTheRequiredSettings(): void {
+		foreach ($this->connectionsByKey() as $key => $connection) {
+			if (isset($connection['requiredConfig']) === false) {
+				$this->assertArrayNotHasKey(key: $key, array: ConnectionReportService::REFRESH_KEYS);
+				continue;
+			}
+
+			$this->assertArrayHasKey(key: $key, array: ConnectionReportService::REFRESH_KEYS);
+			$this->assertSame(
+				expected: [],
+				actual: array_diff($connection['requiredConfig'], ConnectionReportService::REFRESH_KEYS[$key]),
+				message: $key . ' has a required key a save does not refresh'
+			);
+		}
+	}//end testTheRefreshMapCoversTheRequiredSettings()
 
 	/**
 	 * The JSON type name of a decoded value.
