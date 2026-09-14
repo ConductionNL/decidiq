@@ -16,6 +16,7 @@
 		:registry="registry"
 		:pageTypes="pageTypes"
 		:formatters="cellFormatters"
+		:customComponents="headerActionHandlers"
 		appId="decidiq"
 		data-testid="app-root"
 		:translate="translateForApp"
@@ -43,10 +44,12 @@
 <script>
 import { CnAppRoot, CnObjectSidebar } from '@conduction/nextcloud-vue'
 import { translate as ncT } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
 import { reactive } from 'vue'
 import { DEFAULT_MODE, MODE_LABELS } from './config/modeLabels.js'
 import { initializeStores, useSettingsStore } from './store/store.js'
 import cellFormatters from './utils/cellFormatters.js'
+import { createConnectionFormatters, createConnectionHandlers } from './utils/connectionRegistry.js'
 
 export default {
 	name: 'App',
@@ -132,7 +135,26 @@ export default {
 			 * prop (see src/utils/cellFormatters.js). Static — no need to
 			 * be reactive.
 			 */
-			cellFormatters,
+			cellFormatters: {
+				...cellFormatters,
+				// connectionStatus + connectionSettingsLabel for the Integrations
+				// page (adopt-connection-registry). nextcloud-vue 2.39.0 ships
+				// neither as a built-in.
+				...createConnectionFormatters((source) => ncT('decidiq', source)),
+			},
+
+			/**
+			 * Header-action handlers resolved by name. CnIndexPage looks a
+			 * `headerActions[].handler` name up in `customComponents` only, not
+			 * in `registry`, so the Integrations page's Add integration handler
+			 * has to travel through that prop. CnAppRoot logs a one-time
+			 * deprecation notice for it beside a v2 manifest.
+			 */
+			headerActionHandlers: createConnectionHandlers({
+				generateUrl,
+				assign: (url) => window.location.assign(url),
+			}),
+
 			objectSidebarState: reactive({
 				active: false,
 				open: true,
