@@ -70,13 +70,23 @@ let anon: Actor
 let citizen: Actor
 const ledger = new ObjectLedger(TEARDOWN)
 
+// Each test is a chain of 5 to 15 authenticated requests, and Basic auth
+// verifies the password on every one of them. On CI a chain finishes in a few
+// seconds; the headroom is for a loaded runner, not for a slow assertion, since
+// every assertion here is on a response already received.
+test.describe.configure({ timeout: 60_000 })
+
 test.beforeAll(async ({ playwright }) => {
+	// Creating an account and its first login (home directory, skeleton) is
+	// the slowest single step in the file.
+	test.setTimeout(90_000)
 	admin = await adminActor(playwright)
 	anon = await anonymousActor(playwright)
 	citizen = await provisionAccount(playwright, admin, `dq-p3-citizen-${RUN}`)
 })
 
 test.afterAll(async () => {
+	test.setTimeout(90_000)
 	// Objects the app wrote on the citizen's behalf never passed through the
 	// ledger. They are found by the run-unique account they belong to, which
 	// makes them this run's objects and nobody else's.
@@ -84,7 +94,9 @@ test.afterAll(async () => {
 		['citizen-vote', 'voterId'],
 		['notification-preference', 'person'],
 	]) {
-		const { results } = await listObjects(admin, schema, { [field]: citizen.uid })
+		const { results } = await listObjects(admin, schema, {
+			[field]: citizen.uid,
+		})
 		for (const obj of results) {
 			if (obj?.[field] === citizen.uid) {
 				ledger.track(schema, uuidOf(obj))
@@ -124,11 +136,15 @@ async function round(fields: Record<string, unknown> = {}): Promise<string> {
  * @return The raw response.
  */
 async function submitProposal(budgetId: string, title: string, amount: number) {
-	const resp = await appPost(citizen, `/participation/budgets/${budgetId}/proposals`, {
-		amount,
-		description: `${TAG} proposal body`,
-		title,
-	})
+	const resp = await appPost(
+		citizen,
+		`/participation/budgets/${budgetId}/proposals`,
+		{
+			amount,
+			description: `${TAG} proposal body`,
+			title,
+		},
+	)
 	if (resp.status() === 201) {
 		ledger.track('budget-proposal', uuidOf((await resp.json()).proposal))
 	}
@@ -142,18 +158,45 @@ async function submitProposal(budgetId: string, title: string, amount: number) {
  * @return The matching proposals.
  */
 async function proposalsTitled(title: string): Promise<any[]> {
-	const { results } = await listObjects(admin, 'budget-proposal', { _search: title })
+	const { results } = await listObjects(admin, 'budget-proposal', {
+		_search: title,
+	})
 	return results.filter((p) => p?.title === title)
 }
 
 test.describe('Participatory budget: citizen proposals and votes', () => {
+	// @e2e p3-citizen-participation::anonymous-citizen-views-open-budgets
+	test('the public sees a published budget round with its amount, currency, deadlines and phase', async () => {
+		// Visibility follows publication: the round's public-group read rule is
+		// `publicationDate <= now`, which is how staff put a round in front of
+		// citizens (citizen-participation::no-app-local-public-surface).
+		const name = `${TAG}-published-round`
+		const id = await round({ name, publicationDate: daysFromNow(-1) })
+
+		const { status, results } = await listObjects(anon, 'participatory-budget', {
+			_search: name,
+		})
+		expect(status).toBe(200)
+		const seen = results.find((r) => uuidOf(r) === id)
+		expect(seen, 'the published round is listed for the public').toBeTruthy()
+		expect(seen.name).toBe(name)
+		expect(seen.totalAmount).toBe(1000)
+		expect(seen.currency).toBe('EUR')
+		expect(seen.status).toBe('submission')
+		expect(seen.submissionDeadline).toBeTruthy()
+		expect(seen.votingDeadline).toBeTruthy()
+	})
+
 	// @e2e p3-citizen-participation::citizen-submits-a-valid-proposal
 	test('a citizen submits a valid proposal and it is stored as submitted, under their name', async () => {
 		const budgetId = await round()
 		const title = `${TAG}-valid`
 
 		const resp = await submitProposal(budgetId, title, 250)
-		expect(resp.status(), `${citizen.uid} submitting: ${await describeResponse(resp)}`).toBe(201)
+		expect(
+			resp.status(),
+			`${citizen.uid} submitting: ${await describeResponse(resp)}`,
+		).toBe(201)
 
 		const stored = await proposalsTitled(title)
 		expect(stored, 'exactly one proposal was created').toHaveLength(1)
@@ -168,14 +211,24 @@ test.describe('Participatory budget: citizen proposals and votes', () => {
 		const expired = await round({ submissionDeadline: daysFromNow(-1) })
 		const lateTitle = `${TAG}-late`
 		const late = await submitProposal(expired, lateTitle, 100)
-		expect(late.status(), `after the deadline: ${await describeResponse(late)}`).toBe(400)
-		expect((await late.json()).message).toBe('This budget round is not open for proposal submission')
+		expect(
+			late.status(),
+			`after the deadline: ${await describeResponse(late)}`,
+		).toBe(400)
+		expect((await late.json()).message).toBe(
+			'This budget round is not open for proposal submission',
+		)
 
 		const voting = await round({ status: 'voting' })
 		const wrongPhase = await submitProposal(voting, `${TAG}-wrong-phase`, 100)
-		expect(wrongPhase.status(), `in the voting phase: ${await describeResponse(wrongPhase)}`).toBe(400)
+		expect(
+			wrongPhase.status(),
+			`in the voting phase: ${await describeResponse(wrongPhase)}`,
+		).toBe(400)
 
-		expect(await proposalsTitled(lateTitle), 'nothing was created').toHaveLength(0)
+		expect(await proposalsTitled(lateTitle), 'nothing was created').toHaveLength(
+			0,
+		)
 	})
 
 	// @e2e p3-citizen-participation::oversized-proposal-rejected
@@ -201,22 +254,58 @@ test.describe('Participatory budget: citizen proposals and votes', () => {
 		expect(submitted.status(), await describeResponse(submitted)).toBe(201)
 		const proposalId = uuidOf((await submitted.json()).proposal)
 
-		const validated = await appPost(admin, `/participation/proposals/${proposalId}/validate`, { approve: true })
-		expect(validated.status(), `staff validating: ${await describeResponse(validated)}`).toBe(200)
+		const validated = await appPost(
+			admin,
+			`/participation/proposals/${proposalId}/validate`,
+			{ approve: true },
+		)
+		expect(
+			validated.status(),
+			`staff validating: ${await describeResponse(validated)}`,
+		).toBe(200)
 
 		// Outside the voting phase: the round is still taking submissions.
-		const early = await appPost(citizen, `/participation/proposals/${proposalId}/vote`, { value: 'voor' })
-		expect(early.status(), `voting during submission: ${await describeResponse(early)}`).toBe(400)
-		expect((await early.json()).message).toBe('Voting is closed for this budget round')
-		expect((await proposalsTitled(title))[0].votesFor, 'the refused vote did not count').toBe(0)
+		const early = await appPost(
+			citizen,
+			`/participation/proposals/${proposalId}/vote`,
+			{ value: 'voor' },
+		)
+		expect(
+			early.status(),
+			`voting during submission: ${await describeResponse(early)}`,
+		).toBe(400)
+		expect((await early.json()).message).toBe(
+			'Voting is closed for this budget round',
+		)
+		expect(
+			(await proposalsTitled(title))[0].votesFor,
+			'the refused vote did not count',
+		).toBe(0)
 
-		const opened = await appPost(admin, `/participation/budgets/${budgetId}/transition`, { status: 'voting' })
-		expect(opened.status(), `staff opening voting: ${await describeResponse(opened)}`).toBe(200)
+		const opened = await appPost(
+			admin,
+			`/participation/budgets/${budgetId}/transition`,
+			{ status: 'voting' },
+		)
+		expect(
+			opened.status(),
+			`staff opening voting: ${await describeResponse(opened)}`,
+		).toBe(200)
 
-		const vote = await appPost(citizen, `/participation/proposals/${proposalId}/vote`, { value: 'voor' })
-		expect(vote.status(), `${citizen.uid} voting: ${await describeResponse(vote)}`).toBe(201)
+		const vote = await appPost(
+			citizen,
+			`/participation/proposals/${proposalId}/vote`,
+			{ value: 'voor' },
+		)
+		expect(
+			vote.status(),
+			`${citizen.uid} voting: ${await describeResponse(vote)}`,
+		).toBe(201)
 		expect((await vote.json()).votesFor).toBe(1)
-		expect((await proposalsTitled(title))[0].votesFor, 'the stored tally moved').toBe(1)
+		expect(
+			(await proposalsTitled(title))[0].votesFor,
+			'the stored tally moved',
+		).toBe(1)
 	})
 })
 
@@ -227,7 +316,9 @@ test.describe('Consultation feedback', () => {
 	 * @param fields Overrides.
 	 * @return Its UUID.
 	 */
-	async function consultation(fields: Record<string, unknown> = {}): Promise<string> {
+	async function consultation(
+		fields: Record<string, unknown> = {},
+	): Promise<string> {
 		const obj = await createObject(admin, ledger, 'public-consultation', {
 			moderationPolicy: 'pre-moderation',
 			status: 'open',
@@ -239,16 +330,24 @@ test.describe('Consultation feedback', () => {
 	}
 
 	/**
-	 * Submit a reaction as the citizen, and track it.
+	 * Submit a reaction through the intake endpoint, and track it.
 	 *
 	 * @param consultationId The consultation.
 	 * @param body           The reaction text.
+	 * @param as             Who submits it.
 	 * @return The raw response.
 	 */
-	async function react(consultationId: string, body: string) {
-		const resp = await appPost(citizen, `/participation/consultations/${consultationId}/reactions`, { body })
+	async function react(consultationId: string, body: string, as: Actor = citizen) {
+		const resp = await appPost(
+			as,
+			`/participation/consultations/${consultationId}/reactions`,
+			{ body },
+		)
 		if (resp.status() === 201) {
-			ledger.track('consultation-reaction', uuidOf((await resp.json()).reaction))
+			ledger.track(
+				'consultation-reaction',
+				uuidOf((await resp.json()).reaction),
+			)
 		}
 		return resp
 	}
@@ -260,10 +359,17 @@ test.describe('Consultation feedback', () => {
 
 		const resp = await react(closedId, body)
 		expect(resp.status(), await describeResponse(resp)).toBe(400)
-		expect((await resp.json()).message).toBe('This consultation is not open for submissions')
+		expect((await resp.json()).message).toBe(
+			'This consultation is not open for submissions',
+		)
 
-		const { results } = await listObjects(admin, 'consultation-reaction', { _search: body })
-		expect(results.filter((r) => r?.body === body), 'nothing was created').toHaveLength(0)
+		const { results } = await listObjects(admin, 'consultation-reaction', {
+			_search: body,
+		})
+		expect(
+			results.filter((r) => r?.body === body),
+			'nothing was created',
+		).toHaveLength(0)
 	})
 
 	// @e2e p3-citizen-participation::published-feedback-visible-after-deadline
@@ -272,8 +378,15 @@ test.describe('Consultation feedback', () => {
 		const publishedBody = `${TAG} published feedback`
 		const heldBody = `${TAG} unpublished feedback`
 
-		const published = await react(consultationId, publishedBody)
-		const held = await react(consultationId, heldBody)
+		// Submitted by staff, not by the citizen account. What this scenario
+		// proves is who can READ feedback once staff published it, and the
+		// submitter plays no part in that. A citizen's own submission is refused
+		// today because ReactionIntakeService saves as the caller and
+		// ConsultationReaction grants nobody `create` (decidiq#1277, W4); tying
+		// this scenario to that defect would hide a working publication rule
+		// behind an unrelated one.
+		const published = await react(consultationId, publishedBody, admin)
+		const held = await react(consultationId, heldBody, admin)
 		expect(published.status(), await describeResponse(published)).toBe(201)
 		expect(held.status(), await describeResponse(held)).toBe(201)
 		const publishedId = uuidOf((await published.json()).reaction)
@@ -281,11 +394,23 @@ test.describe('Consultation feedback', () => {
 
 		// Both approved, only one published: approval alone is not publication.
 		for (const id of [publishedId, heldId]) {
-			const approved = await appPost(admin, `/participation/reactions/${id}/approve`)
-			expect(approved.status(), `approving ${id}: ${await describeResponse(approved)}`).toBe(200)
+			const approved = await appPost(
+				admin,
+				`/participation/reactions/${id}/approve`,
+			)
+			expect(
+				approved.status(),
+				`approving ${id}: ${await describeResponse(approved)}`,
+			).toBe(200)
 		}
-		const publish = await appPost(admin, `/participation/reactions/${publishedId}/publish`)
-		expect(publish.status(), `publishing: ${await describeResponse(publish)}`).toBe(200)
+		const publish = await appPost(
+			admin,
+			`/participation/reactions/${publishedId}/publish`,
+		)
+		expect(
+			publish.status(),
+			`publishing: ${await describeResponse(publish)}`,
+		).toBe(200)
 
 		const seen = await listObjects(anon, 'consultation-reaction', {
 			'_relations.public-consultation': consultationId,
@@ -325,8 +450,10 @@ test.describe('Decision publication status on the public surfaces', () => {
 	 *
 	 * @return The status and the ids found.
 	 */
-	async function anonymousSearch(): Promise<{ status: number, found: string[] }> {
-		const { status, results } = await listObjects(anon, 'decision', { _search: term })
+	async function anonymousSearch(): Promise<{ status: number; found: string[] }> {
+		const { status, results } = await listObjects(anon, 'decision', {
+			_search: term,
+		})
 		return { found: results.map(uuidOf), status }
 	}
 
@@ -355,7 +482,9 @@ test.describe('Decision publication status on the public surfaces', () => {
 		const onFeed = (await oriMotions()).items.map((i: any) => i.id)
 
 		for (const key of ['internal', 'confidential', 'unset']) {
-			expect(found, `${key} is not in the anonymous search`).not.toContain(ids[key])
+			expect(found, `${key} is not in the anonymous search`).not.toContain(
+				ids[key],
+			)
 			expect(onFeed, `${key} is not on the ORI feed`).not.toContain(ids[key])
 			const direct = await readObject(anon, 'decision', ids[key])
 			expect(direct.status(), `${key} is not readable by id`).toBe(404)
@@ -396,7 +525,10 @@ test.describe('Decision publication status on the public surfaces', () => {
 			text: stored.text,
 			title: `${term} unset, edited`,
 		})
-		expect(edited.status(), `staff editing it: ${await describeResponse(edited)}`).toBe(200)
+		expect(
+			edited.status(),
+			`staff editing it: ${await describeResponse(edited)}`,
+		).toBe(200)
 		expect((await anonymousSearch()).found).not.toContain(ids.unset)
 	})
 
@@ -408,7 +540,9 @@ test.describe('Decision publication status on the public surfaces', () => {
 			text: `${term} citizen vote`,
 			title: `${term} citizen vote`,
 		})
-		const stored = await (await readObject(admin, 'decision', uuidOf(obj))).json()
+		const stored = await (
+			await readObject(admin, 'decision', uuidOf(obj))
+		).json()
 		expect(stored.citizenVotingAllowed).toBe(true)
 		expect(stored.citizenVotingMethod).toBe('simple')
 	})
@@ -445,9 +579,16 @@ test.describe('Consultation types and the tender lifecycle', () => {
 	// @e2e p3-citizen-participation::default-type-for-legacy-consultations
 	test('a consultation stored without a type is a citizen-participation consultation', async () => {
 		const title = `${TAG}-untyped`
-		const id = uuidOf(await createObject(admin, ledger, 'public-consultation', { status: 'draft', title }))
+		const id = uuidOf(
+			await createObject(admin, ledger, 'public-consultation', {
+				status: 'draft',
+				title,
+			}),
+		)
 
-		const stored = await (await readObject(admin, 'public-consultation', id)).json()
+		const stored = await (
+			await readObject(admin, 'public-consultation', id)
+		).json()
 		expect(stored.consultationType).toBe('citizen-participation')
 
 		// The hub's type filter is a server-side filter on that stored value.
@@ -461,20 +602,36 @@ test.describe('Consultation types and the tender lifecycle', () => {
 	// @e2e p3-citizen-participation::tender-phase-progression
 	test('staff move a tender through questions, submission and evaluation, one stored phase at a time', async () => {
 		const fields = { consultationType: 'tender', title: `${TAG}-tender` }
-		const id = uuidOf(await createObject(admin, ledger, 'public-consultation', { ...fields, status: 'published' }))
+		const id = uuidOf(
+			await createObject(admin, ledger, 'public-consultation', {
+				...fields,
+				status: 'published',
+			}),
+		)
 
 		// A jump over the phases is refused, so the steps below are the
 		// lifecycle's doing and not an unguarded field write.
 		const jump = await advance(id, fields, 'awarded')
-		expect(jump.status(), `published -> awarded: ${await describeResponse(jump)}`).toBe(422)
+		expect(
+			jump.status(),
+			`published -> awarded: ${await describeResponse(jump)}`,
+		).toBe(422)
 
 		for (const status of ['questions', 'submission', 'evaluation']) {
 			const step = await advance(id, fields, status)
-			expect(step.status(), `-> ${status}: ${await describeResponse(step)}`).toBe(200)
-			const stored = await (await readObject(admin, 'public-consultation', id)).json()
+			expect(
+				step.status(),
+				`-> ${status}: ${await describeResponse(step)}`,
+			).toBe(200)
+			const stored = await (
+				await readObject(admin, 'public-consultation', id)
+			).json()
 			expect(stored.status).toBe(status)
 			// The stored phase is what the hub's status filter and badge read.
-			const { results } = await listObjects(admin, 'public-consultation', { _search: fields.title, status })
+			const { results } = await listObjects(admin, 'public-consultation', {
+				_search: fields.title,
+				status,
+			})
 			expect(results.map(uuidOf)).toContain(id)
 		}
 	})
@@ -482,14 +639,25 @@ test.describe('Consultation types and the tender lifecycle', () => {
 	// @e2e p3-citizen-participation::award-is-recorded-as-a-decision-outcome
 	test('recording the winning party on a tender in evaluation awards it', async () => {
 		const fields = { consultationType: 'tender', title: `${TAG}-award` }
-		const id = uuidOf(await createObject(admin, ledger, 'public-consultation', { ...fields, status: 'submission' }))
+		const id = uuidOf(
+			await createObject(admin, ledger, 'public-consultation', {
+				...fields,
+				status: 'submission',
+			}),
+		)
 		const toEvaluation = await advance(id, fields, 'evaluation')
 		expect(toEvaluation.status(), await describeResponse(toEvaluation)).toBe(200)
 
-		const awarded = await advance(id, { ...fields, awardedTo: `${TAG} Bidder BV` }, 'awarded')
+		const awarded = await advance(
+			id,
+			{ ...fields, awardedTo: `${TAG} Bidder BV` },
+			'awarded',
+		)
 		expect(awarded.status(), await describeResponse(awarded)).toBe(200)
 
-		const stored = await (await readObject(admin, 'public-consultation', id)).json()
+		const stored = await (
+			await readObject(admin, 'public-consultation', id)
+		).json()
 		expect(stored.awardedTo).toBe(`${TAG} Bidder BV`)
 		expect(stored.status).toBe('awarded')
 	})

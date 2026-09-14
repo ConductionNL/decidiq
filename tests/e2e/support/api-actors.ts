@@ -165,7 +165,9 @@ export async function provisionAccount(
 export async function removeAccounts(admin: Actor, uids: string[]): Promise<void> {
 	for (const uid of uids) {
 		await admin.ctx
-			.delete(`${BASE}/ocs/v2.php/cloud/users/${encodeURIComponent(uid)}?format=json`)
+			.delete(
+				`${BASE}/ocs/v2.php/cloud/users/${encodeURIComponent(uid)}?format=json`,
+			)
 			.catch(() => undefined)
 	}
 }
@@ -176,7 +178,9 @@ export async function removeAccounts(admin: Actor, uids: string[]): Promise<void
  * @param actors The actors to dispose.
  * @return Resolves once all are disposed.
  */
-export async function disposeActors(...actors: Array<Actor | undefined>): Promise<void> {
+export async function disposeActors(
+	...actors: Array<Actor | undefined>
+): Promise<void> {
 	for (const actor of actors) {
 		await actor?.ctx.dispose().catch(() => undefined)
 	}
@@ -287,7 +291,11 @@ export async function createObject(
  * @param id     The object UUID.
  * @return The raw response, so a caller can assert a refusal.
  */
-export function readObject(actor: Actor, schema: string, id: string): Promise<APIResponse> {
+export function readObject(
+	actor: Actor,
+	schema: string,
+	id: string,
+): Promise<APIResponse> {
 	return actor.ctx.get(`${OR}/${schema}/${id}`)
 }
 
@@ -303,7 +311,7 @@ export async function listObjects(
 	actor: Actor,
 	schema: string,
 	query: Record<string, string | number> = {},
-): Promise<{ status: number, results: any[] }> {
+): Promise<{ status: number; results: any[] }> {
 	const resp = await actor.ctx.get(`${OR}/${schema}`, {
 		params: { _limit: 200, ...query },
 	})
