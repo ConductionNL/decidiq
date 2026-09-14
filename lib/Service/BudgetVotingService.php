@@ -139,16 +139,16 @@ class BudgetVotingService {
 		$round = $roundEntity->jsonSerialize();
 
 		if ($this->lifecycleService->budgetAcceptsProposals(round: $round) === false) {
-			throw new ParticipationWindowClosedException('This budget round is not open for proposal submission');
+			throw new ParticipationWindowClosedException(message: 'This budget round is not open for proposal submission');
 		}
 
 		if ($requested <= 0) {
-			throw new ParticipationValidationException('requestedAmount must be a positive number');
+			throw new ParticipationValidationException(message: 'requestedAmount must be a positive number');
 		}
 
 		$total = (float)($round['totalAmount'] ?? 0);
 		if ($total > 0 && $requested > $total) {
-			throw new ParticipationValidationException('requestedAmount exceeds the round total amount');
+			throw new ParticipationValidationException(message: 'requestedAmount exceeds the round total amount');
 		}
 
 		$proposal = [
@@ -262,17 +262,17 @@ class BudgetVotingService {
 		// established" is not "the round is open".
 		$budgetId = $this->resolveBudgetId(proposal: $proposal);
 		if ($budgetId === null) {
-			throw new ParticipationWindowClosedException('Voting is closed for this budget round');
+			throw new ParticipationWindowClosedException(message: 'Voting is closed for this budget round');
 		}
 
 		$roundEntity = $objectService->find(id: $budgetId, register: 'decidiq', schema: 'participatory-budget');
 		if ($roundEntity === null) {
-			throw new ParticipationWindowClosedException('Voting is closed for this budget round');
+			throw new ParticipationWindowClosedException(message: 'Voting is closed for this budget round');
 		}
 
 		$round = $roundEntity->jsonSerialize();
 		if ($this->lifecycleService->budgetAcceptsVotes(round: $round) === false) {
-			throw new ParticipationWindowClosedException('Voting is closed for this budget round');
+			throw new ParticipationWindowClosedException(message: 'Voting is closed for this budget round');
 		}
 
 		return $this->advisoryVoteService->applyAdvisoryTally(proposalId: $proposalId, voterId: $voterId, value: $value);

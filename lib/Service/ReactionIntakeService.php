@@ -28,7 +28,6 @@ namespace OCA\Decidiq\Service;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Exception\ParticipationWindowClosedException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
@@ -121,8 +120,9 @@ class ReactionIntakeService {
 	 *
 	 * @return array<string, mixed> The created ConsultationReaction object.
 	 *
-	 * @throws RuntimeException When the consultation is not found.
-	 * @throws ParticipationWindowClosedException When the consultation is closed or past its deadline.
+	 * @throws RuntimeException When the consultation is not found, or closed or past its
+	 *                          deadline (then the lifecycle service's window exception, a
+	 *                          RuntimeException the responder answers with 400).
 	 * @throws InvalidArgumentException When the body is empty/oversized or anonymous intake is not enabled.
 	 *
 	 * @spec openspec/specs/citizen-participation/spec.md
@@ -149,9 +149,7 @@ class ReactionIntakeService {
 		$consultation = $entity->jsonSerialize();
 
 		// Server-side window guard (open + future deadline), independent of stored status.
-		if ($this->lifecycleService->consultationAcceptsSubmissions(consultation: $consultation) === false) {
-			throw new ParticipationWindowClosedException('This consultation is not open for submissions');
-		}
+		$this->lifecycleService->assertConsultationAcceptsSubmissions(consultation: $consultation);
 
 		$isAnonymous = ($ncUid === null || $ncUid === '');
 
