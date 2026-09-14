@@ -46,6 +46,33 @@ hole. The cluster's own mechanism line reads "extend decidiq's decision
 and approval specs; dossiq consumes the outcome onto the case", and the
 change above does exactly that.
 
+## The pending-proposal rows, added 2026-09-14
+
+The corpus batch file
+`procest/_round4/compare/proposed-rows-dossiq-2026-09-10.md` proposes 98 rows
+under decision D1. Two of them are decidiq's, both in the tasks and phases
+area, both rated `partial` for dossiq. Neither is covered by an existing
+change: `approval-routes`, `approval-route-events`,
+`document-approval-chain-leaf`, `parafering-route-runtime` and
+`the-decision-as-a-walked-process` were all read in full, and none carries a
+manager resolved from the organisation record or a declared meaning for
+silence.
+
+Every competitor column on these rows is `unread`, and the corpus says so
+itself: "`no` is a reading of a product somebody opened, and filling these
+cells with it would fabricate thirty readings per row." So no competitor claim
+rests on them.
+
+| change | rows | size | dossiq consumer |
+|---|---|---|---|
+| `approval-routes-resolve-a-manager-and-declare-silence` | 3.24, 3.31 | M | the raise exists in dossiq `parafering-to-decidiq`; the closure gate is to be specified in dossiq |
+
+One change rather than two: both rows are the same missing piece of a route
+step. A step names a person and has no clock, so it cannot be raised for
+whoever manages the owner and cannot end when nobody answers. The substitute
+asked before a deadline (3.31) is resolved by the same rule mechanism as the
+manager (3.24), and splitting them would build that mechanism twice.
+
 ## Why decidiq and not dossiq
 
 dossiq deleted its parafeerroute surface on 2026-09-03 (`src/manifest.json`
