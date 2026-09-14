@@ -58,7 +58,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
         row (the code fallback keeps them working, but the admin would have
         nothing to edit).
     -->
-    <version>1.2.5-unstable.20260911080416</version>
+    <version>1.2.6-unstable.20260912210201</version>
     <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidiq</namespace>
@@ -128,6 +128,11 @@ Vrij en open source onder de EUPL-1.2-licentie.
         <job>OCA\Decidiq\BackgroundJob\ConsultationAutoCloseJob</job>
         <!-- @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\TranscriptRetentionJob</job>
+        <!-- adopt-connection-registry: once a day, tells integriq which eIDAS
+             signing service and translation adapter answer. Sends nothing
+             when integriq is not installed.
+             @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md -->
+        <job>OCA\Decidiq\BackgroundJob\ConnectionReportJob</job>
     </background-jobs>
 
     <repair-steps>

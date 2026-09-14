@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\ConnectionReportService;
 use OCA\Decidiq\Service\PublicationConfigService;
 use OCA\Decidiq\Service\SettingsService;
 use OCA\Decidiq\Settings\AdminSettings;
@@ -48,6 +49,7 @@ class SettingsController extends Controller {
 	 * @param SettingsService $settingsService The settings service
 	 * @param IUserSession $userSession The user session
 	 * @param PublicationConfigService $publicationConfig The publication configuration service
+	 * @param ConnectionReportService|null $connectionReports Sends integriq the connection events after a save
 	 *
 	 * @return void
 	 */
@@ -56,6 +58,7 @@ class SettingsController extends Controller {
 		private SettingsService $settingsService,
 		private IUserSession $userSession,
 		private \OCA\Decidiq\Service\PublicationConfigService $publicationConfig,
+		private ?ConnectionReportService $connectionReports = null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -104,8 +107,14 @@ class SettingsController extends Controller {
 	 * config, so the posture is deliberately identical to the POST alias
 	 * below; it is NOT the `#[NoAdminRequired]` posture of the read routes.
 	 *
+	 * After the write it asks integriq to resolve every connection whose keys
+	 * the save named, and reports the signing and translation bindings
+	 * (adopt-connection-registry). Both never throw, and both do nothing
+	 * without integriq.
+	 *
 	 * @spec openspec/specs/apphost-adoption/spec.md#requirement-boilerplate-delegation
 	 * @spec openspec/specs/admin-settings/spec.md#requirement-organization-configuration
+	 * @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md#requirement-req-adm-conn-001-decidiq-declares-its-outside-connections-in-one-static-file
 	 *
 	 * @return JSONResponse
 	 */
@@ -113,6 +122,9 @@ class SettingsController extends Controller {
 	public function update(): JSONResponse {
 		$data = $this->request->getParams();
 		$config = $this->settingsService->updateSettings($data);
+
+		$this->connectionReports?->refreshFromSave(saved: $data);
+		$this->connectionReports?->reportBindings();
 
 		return new JSONResponse(
 			[
