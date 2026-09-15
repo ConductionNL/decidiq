@@ -13,12 +13,12 @@
  * @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md#requirement-req-adm-conn-003-an-admin-reads-decidiqs-connections-on-an-integrations-page
  */
 
+import { BUILT_IN_FORMATTERS } from '@conduction/nextcloud-vue/src/utils/builtInFormatters.js'
 import * as fs from 'fs'
 import * as path from 'path'
 import { describe, expect, it } from 'vitest'
+import cellFormatters from '../../src/utils/cellFormatters.js'
 import {
-	CONNECTION_STATUS_LABELS,
-	createConnectionFormatters,
 	createConnectionHandlers,
 	INTEGRIQ_CONNECTIONS_PATH,
 } from '../../src/utils/connectionRegistry.js'
@@ -28,45 +28,23 @@ const fragment = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/manifest.d/conn
 const page = fragment.pages.find((p) => p.id === 'ConnectionRegistry')
 const menu = fragment.menu.find((m) => m.id === 'ConnectionRegistryMenu')
 
-/** A translator that marks what it translated, so a missing call shows. */
-const translate = (source) => `t:${source}`
+/**
+ * The registry the Integrations page resolves a formatter name against,
+ * merged the way CnAppRoot merges it: the app's own formatters win over the
+ * built-ins, so a stale local copy would shadow the library's.
+ */
+const registry = { ...BUILT_IN_FORMATTERS, ...cellFormatters }
 
 describe('connection formatters', () => {
-	const formatters = createConnectionFormatters(translate)
-
-	it('labels all six statuses, limited included', () => {
-		expect(Object.keys(CONNECTION_STATUS_LABELS).sort()).toEqual(
-			['configured', 'error', 'limited', 'simulated', 'unavailable', 'unconfigured'],
-		)
-		expect(formatters.connectionStatus('limited')).toBe('t:Limited')
-		expect(formatters.connectionStatus('unconfigured')).toBe('t:Not configured')
-		expect(formatters.connectionStatus('unavailable')).toBe('t:Not available')
-		expect(formatters.connectionStatus('simulated')).toBe('t:Simulated')
-		expect(formatters.connectionStatus('configured')).toBe('t:Configured')
-		expect(formatters.connectionStatus('error')).toBe('t:Error')
+	it('labels a switched-off connection through the nextcloud-vue built-in', () => {
+		expect(registry.connectionStatus('disabled')).toBe('Switched off')
 	})
 
-	it('renders an unknown status as itself and a missing one as empty', () => {
-		expect(formatters.connectionStatus('degraded')).toBe('degraded')
-		expect(formatters.connectionStatus('toString')).toBe('toString')
-		expect(formatters.connectionStatus(null)).toBe('')
-		expect(formatters.connectionStatus(undefined)).toBe('')
-	})
-
-	it('offers Open settings only when the row has a settings link', () => {
-		expect(formatters.connectionSettingsLabel('/settings/admin/decidiq#section-ori')).toBe('t:Open settings')
-		expect(formatters.connectionSettingsLabel('')).toBe('')
-		expect(formatters.connectionSettingsLabel(undefined)).toBe('')
-	})
-
-	it('ships an English and a Dutch label for every status', () => {
+	it('ships the Add integration label in English and Dutch', () => {
 		const en = JSON.parse(fs.readFileSync(path.join(ROOT, 'l10n/en.json'), 'utf8')).translations
 		const nl = JSON.parse(fs.readFileSync(path.join(ROOT, 'l10n/nl.json'), 'utf8')).translations
-		for (const label of [...Object.values(CONNECTION_STATUS_LABELS), 'Open settings', 'Add integration']) {
-			expect(en[label], `en: ${label}`).toBe(label)
-			expect(nl[label], `nl: ${label}`).toBeTruthy()
-		}
-		expect(nl.Limited).toBe('Beperkt')
+		expect(en['Add integration']).toBe('Add integration')
+		expect(nl['Add integration']).toBeTruthy()
 	})
 })
 
@@ -105,11 +83,10 @@ describe('the Integrations page declaration', () => {
 	})
 
 	it('names only formatters and handlers that exist', () => {
-		const formatters = createConnectionFormatters(translate)
 		const handlers = createConnectionHandlers({ generateUrl: (p) => p, assign: () => {} })
 
 		for (const column of page.config.columns.filter((c) => c.formatter)) {
-			expect(typeof formatters[column.formatter], column.formatter).toBe('function')
+			expect(typeof registry[column.formatter], column.formatter).toBe('function')
 		}
 		for (const action of page.config.headerActions) {
 			expect(typeof handlers[action.handler], action.handler).toBe('function')
