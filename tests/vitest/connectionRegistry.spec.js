@@ -13,10 +13,10 @@
  * @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md#requirement-req-adm-conn-003-an-admin-reads-decidiqs-connections-on-an-integrations-page
  */
 
+import { BUILT_IN_FORMATTERS } from '@conduction/nextcloud-vue/src/utils/builtInFormatters.js'
 import * as fs from 'fs'
 import * as path from 'path'
 import { describe, expect, it } from 'vitest'
-import { BUILT_IN_FORMATTERS } from '@conduction/nextcloud-vue/src/utils/builtInFormatters.js'
 import cellFormatters from '../../src/utils/cellFormatters.js'
 import {
 	createConnectionHandlers,
