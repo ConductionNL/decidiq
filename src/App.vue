@@ -49,7 +49,7 @@ import { reactive } from 'vue'
 import { DEFAULT_MODE, MODE_LABELS } from './config/modeLabels.js'
 import { initializeStores, useSettingsStore } from './store/store.js'
 import cellFormatters from './utils/cellFormatters.js'
-import { createConnectionFormatters, createConnectionHandlers } from './utils/connectionRegistry.js'
+import { createConnectionHandlers } from './utils/connectionRegistry.js'
 
 export default {
 	name: 'App',
@@ -133,15 +133,11 @@ export default {
 			/**
 			 * Cell-formatter registry passed to CnAppRoot's `formatters`
 			 * prop (see src/utils/cellFormatters.js). Static — no need to
-			 * be reactive.
+			 * be reactive. The Integrations page's connectionStatus and
+			 * connectionSettingsLabel are nextcloud-vue built-ins, which
+			 * CnAppRoot merges under this registry.
 			 */
-			cellFormatters: {
-				...cellFormatters,
-				// connectionStatus + connectionSettingsLabel for the Integrations
-				// page (adopt-connection-registry). nextcloud-vue 2.39.0 ships
-				// neither as a built-in.
-				...createConnectionFormatters((source) => ncT('decidiq', source)),
-			},
+			cellFormatters,
 
 			/**
 			 * Header-action handlers resolved by name. CnIndexPage looks a
