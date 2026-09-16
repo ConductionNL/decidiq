@@ -33,7 +33,8 @@ import { expect, test } from '@playwright/test'
 import { writeHeaders } from './governance-fixture.ts'
 
 /** Integriq's objects endpoint for decidiq's connection rows. */
-const CONNECTIONS_API = '/index.php/apps/openregister/api/objects/integriq/app_connection?app=decidiq&_limit=50'
+const CONNECTIONS_API =
+	'/index.php/apps/openregister/api/objects/integriq/app_connection?app=decidiq&_limit=50'
 
 /** Decidiq's settings endpoint. */
 const SETTINGS_API = '/index.php/apps/decidiq/api/settings'
@@ -51,8 +52,12 @@ const DECLARED = [
  * @param request An admin request context.
  * @return The rows by key.
  */
-async function rowsByKey(request: APIRequestContext): Promise<Record<string, Record<string, unknown>>> {
-	const res = await request.get(CONNECTIONS_API, { headers: { Accept: 'application/json' } })
+async function rowsByKey(
+	request: APIRequestContext,
+): Promise<Record<string, Record<string, unknown>>> {
+	const res = await request.get(CONNECTIONS_API, {
+		headers: { Accept: 'application/json' },
+	})
 	expect(res.ok(), `list integriq/app_connection -> ${res.status()}`).toBeTruthy()
 	const body = await res.json()
 	const byKey: Record<string, Record<string, unknown>> = {}
@@ -70,18 +75,24 @@ async function rowsByKey(request: APIRequestContext): Promise<Record<string, Rec
  * @param page The Playwright page.
  */
 async function openIntegrations(page: Page): Promise<void> {
-	await page.goto('/apps/decidiq/settings/integrations?app=decidiq', { timeout: 60_000 })
+	await page.goto('/apps/decidiq/settings/integrations?app=decidiq', {
+		timeout: 60_000,
+	})
 	await expect(page.locator('.cn-index-page')).toBeVisible({ timeout: 30_000 })
 }
 
 test.describe('Integrations over the connection registry', () => {
-	test('lists the three declared connections, all of them decidiq\'s', async ({ page }) => {
+	test("lists the three declared connections, all of them decidiq's", async ({
+		page,
+	}) => {
 		const byKey = await rowsByKey(page.request)
 		expect(Object.keys(byKey).sort()).toEqual(DECLARED.map((d) => d.key).sort())
 
 		await openIntegrations(page)
 		for (const { title } of DECLARED) {
-			await expect(page.getByRole('row', { name: new RegExp(title, 'i') })).toHaveCount(1)
+			await expect(
+				page.getByRole('row', { name: new RegExp(title, 'i') }),
+			).toHaveCount(1)
 		}
 	})
 
@@ -106,19 +117,34 @@ test.describe('Integrations over the connection registry', () => {
 			// The poll reads without asserting: a throw inside `expect.poll` ends
 			// the poll instead of retrying it.
 			await expect
-				.poll(async () => {
-					const list = await page.request.get(CONNECTIONS_API, { headers: { Accept: 'application/json' } })
-					const rows = list.ok() ? ((await list.json()).results ?? []) : []
-					const ori = rows.find((row: Record<string, unknown>) => row.key === 'ori' && row.app === 'decidiq')
-					return String(ori?.status ?? '')
-				}, { timeout: 15_000 })
+				.poll(
+					async () => {
+						const list = await page.request.get(CONNECTIONS_API, {
+							headers: { Accept: 'application/json' },
+						})
+						const rows = list.ok()
+							? ((await list.json()).results ?? [])
+							: []
+						const ori = rows.find(
+							(row: Record<string, unknown>) =>
+								row.key === 'ori' && row.app === 'decidiq',
+						)
+						return String(ori?.status ?? '')
+					},
+					{ timeout: 15_000 },
+				)
 				.toBe('configured')
 		} finally {
-			await page.request.post(SETTINGS_API, { headers, data: { ori_endpoint: previous } })
+			await page.request.post(SETTINGS_API, {
+				headers,
+				data: { ori_endpoint: previous },
+			})
 		}
 	})
 
-	test('sends Add integration to integriq instead of offering a form', async ({ page }) => {
+	test('sends Add integration to integriq instead of offering a form', async ({
+		page,
+	}) => {
 		await openIntegrations(page)
 
 		// No generic Add button: a row nothing declared has nothing to check.
@@ -128,8 +154,14 @@ test.describe('Integrations over the connection registry', () => {
 		// catalogues this change ships, and nothing forces the E2E locale.
 		await page.locator('[data-testid="cn-actions"] button').first().click()
 		await Promise.all([
-			page.waitForURL(/\/apps\/integriq\/connections\?app=decidiq&link=1$/, { timeout: 30_000 }),
-			page.getByRole('menuitem', { name: /Add integration|Integratie toevoegen/i }).click(),
+			page.waitForURL(/\/apps\/integriq\/connections\?app=decidiq&link=1$/, {
+				timeout: 30_000,
+			}),
+			page
+				.getByRole('menuitem', {
+					name: /Add integration|Integratie toevoegen/i,
+				})
+				.click(),
 		])
 	})
 })

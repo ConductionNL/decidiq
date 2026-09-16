@@ -24,7 +24,12 @@ import {
 } from '../../src/utils/connectionRegistry.js'
 
 const ROOT = path.resolve(__dirname, '../..')
-const fragment = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/manifest.d/connection-registry.json'), 'utf8'))
+const fragment = JSON.parse(
+	fs.readFileSync(
+		path.join(ROOT, 'src/manifest.d/connection-registry.json'),
+		'utf8',
+	),
+)
 const page = fragment.pages.find((p) => p.id === 'ConnectionRegistry')
 const menu = fragment.menu.find((m) => m.id === 'ConnectionRegistryMenu')
 
@@ -41,8 +46,12 @@ describe('connection formatters', () => {
 	})
 
 	it('ships the Add integration label in English and Dutch', () => {
-		const en = JSON.parse(fs.readFileSync(path.join(ROOT, 'l10n/en.json'), 'utf8')).translations
-		const nl = JSON.parse(fs.readFileSync(path.join(ROOT, 'l10n/nl.json'), 'utf8')).translations
+		const en = JSON.parse(
+			fs.readFileSync(path.join(ROOT, 'l10n/en.json'), 'utf8'),
+		).translations
+		const nl = JSON.parse(
+			fs.readFileSync(path.join(ROOT, 'l10n/nl.json'), 'utf8'),
+		).translations
 		expect(en['Add integration']).toBe('Add integration')
 		expect(nl['Add integration']).toBeTruthy()
 	})
@@ -58,8 +67,12 @@ describe('Add integration handler', () => {
 
 		handlers.openIntegriqConnections()
 
-		expect(INTEGRIQ_CONNECTIONS_PATH).toBe('/apps/integriq/connections?app=decidiq&link=1')
-		expect(opened).toEqual(['/index.php/apps/integriq/connections?app=decidiq&link=1'])
+		expect(INTEGRIQ_CONNECTIONS_PATH).toBe(
+			'/apps/integriq/connections?app=decidiq&link=1',
+		)
+		expect(opened).toEqual([
+			'/index.php/apps/integriq/connections?app=decidiq&link=1',
+		])
 	})
 })
 
@@ -83,10 +96,15 @@ describe('the Integrations page declaration', () => {
 	})
 
 	it('names only formatters and handlers that exist', () => {
-		const handlers = createConnectionHandlers({ generateUrl: (p) => p, assign: () => {} })
+		const handlers = createConnectionHandlers({
+			generateUrl: (p) => p,
+			assign: () => {},
+		})
 
 		for (const column of page.config.columns.filter((c) => c.formatter)) {
-			expect(typeof registry[column.formatter], column.formatter).toBe('function')
+			expect(typeof registry[column.formatter], column.formatter).toBe(
+				'function',
+			)
 		}
 		for (const action of page.config.headerActions) {
 			expect(typeof handlers[action.handler], action.handler).toBe('function')
@@ -94,7 +112,9 @@ describe('the Integrations page declaration', () => {
 	})
 
 	it('keeps its own id apart from the per-object integration pages', () => {
-		const base = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/manifest.json'), 'utf8'))
+		const base = JSON.parse(
+			fs.readFileSync(path.join(ROOT, 'src/manifest.json'), 'utf8'),
+		)
 		const ids = base.pages.map((p) => p.id)
 		expect(ids).toContain('MotionIntegrations')
 		expect(ids).not.toContain(page.id)
