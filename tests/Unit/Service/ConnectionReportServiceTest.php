@@ -53,6 +53,10 @@ use RuntimeException;
  * Unit tests for ConnectionReportService.
  *
  * @covers \OCA\Decidiq\Service\ConnectionReportService
+ * @uses   \OCA\Decidiq\Service\LogEIDASSignatureService
+ * @uses   \OCA\Decidiq\Service\LogTranslationAdapter
+ * @uses   \OCA\Decidiq\Service\EIDASSignatureService
+ * @uses   \OCA\Decidiq\Support\FleetAppId
  */
 class ConnectionReportServiceTest extends TestCase {
 
