@@ -89,9 +89,14 @@ test.describe('Integrations over the connection registry', () => {
 		expect(Object.keys(byKey).sort()).toEqual(DECLARED.map((d) => d.key).sort())
 
 		await openIntegrations(page)
+		// Match a row through its Connection cell, by the exact declared title.
+		// An unanchored name also matches a row whose status message mentions
+		// the title, and a row's accessible name starts with its checkbox.
 		for (const { title } of DECLARED) {
 			await expect(
-				page.getByRole('row', { name: new RegExp(title, 'i') }),
+				page.getByRole('row').filter({
+					has: page.getByRole('cell', { name: title, exact: true }),
+				}),
 			).toHaveCount(1)
 		}
 	})
@@ -101,7 +106,9 @@ test.describe('Integrations over the connection registry', () => {
 
 		// Snapshot the one key this test writes, and put the VALUE back, so the
 		// next run starts from a page that claims nothing it has not checked.
-		const before = await page.request.get(SETTINGS_API)
+		// settings#index is not NoCSRFRequired, so the read needs the same
+		// headers as the write. Without them Nextcloud answers 412.
+		const before = await page.request.get(SETTINGS_API, { headers })
 		expect(before.ok(), `settings read -> ${before.status()}`).toBeTruthy()
 		const previous = String((await before.json())?.ori_endpoint ?? '')
 
