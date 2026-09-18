@@ -1,0 +1,132 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment - approval-routes-resolve-a-manager-and-declare-silence. Patches ApprovalRoute and DecisionStage by key union. A step can name a RULE instead of a person, resolved when the step becomes live rather than when the route is instantiated. A route says whether it is required, which is what lets a consuming app ask whether a subject is cleared. A step declares what its silence means once its due date has passed, defaulting to hold so no stored route changes meaning. And a step can ask the actor's substitute part-way through its window, before the deadline rather than after it. See openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md, REQ-AR-012 through REQ-AR-017.",
+  "components": {
+    "schemas": {
+      "ApprovalRoute": {
+        "slug": "approval-route",
+        "version": "1.2.0",
+        "description": "Patched by approval-routes-resolve-a-manager-and-declare-silence: a route says whether it is required, and its steps can name a rule instead of a person, declare what their silence means and ask a substitute before the deadline.",
+        "properties": {
+          "required": {
+            "title": "Required",
+            "type": "boolean",
+            "default": true,
+            "example": true,
+            "description": "Whether this route has to conclude before its subject counts as cleared. Defaults to true, because a route somebody bothered to start is a route somebody is waiting on, and the safe default for a clearance question is the one that blocks (REQ-AR-014)."
+          },
+          "steps": {
+            "title": "Steps",
+            "type": "array",
+            "description": "The ordered steps, with the rule, silence and substitute additions. Every addition defaults to today's behaviour, so no stored route changes meaning.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "actorRule": {
+                  "title": "Actor rule",
+                  "type": "string",
+                  "enum": [
+                    "manager-of-actor",
+                    "manager-of-subject-owner",
+                    "substitute-of-actor"
+                  ],
+                  "example": "manager-of-actor",
+                  "description": "A rule that resolves to a person when the step becomes live, instead of a person named now. A step carries `actor` or `actorRule` and never both: a step carrying both has two answers to the same question and whichever the engine happens to read first wins, which is a bug nobody can reproduce. Resolved at ACTIVATION rather than at instantiation, so a manager who changes next week reaches the steps that have not been asked yet and leaves the ones already signed alone (REQ-AR-012)."
+                },
+                "actorRuleSubject": {
+                  "title": "Actor rule subject",
+                  "type": "string",
+                  "example": "j.jansen",
+                  "description": "The person the rule is read against, for the rules that need one. `manager-of-subject-owner` reads the subject's own owner instead and needs none."
+                },
+                "onSilence": {
+                  "title": "On silence",
+                  "type": "string",
+                  "enum": [
+                    "hold",
+                    "approve",
+                    "refuse",
+                    "escalate"
+                  ],
+                  "default": "hold",
+                  "example": "escalate",
+                  "description": "What this step's silence means once its due date has passed. `hold` is the default and is what every stored route means today: nothing happens and the stage stays active. `approve` is a signature nobody gave, so only an administrator may set it and a route carrying it says so on its own surface (REQ-AR-015)."
+                },
+                "askSubstituteAfter": {
+                  "title": "Ask substitute after",
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "example": 0.5,
+                  "description": "How far into the step's window to ask the actor's substitute as well, as a fraction between 0 and 1. Asking BEFORE the deadline rather than after it is the whole point: a substitute asked after the term has run is a substitute asked too late to help. Unset means no substitute is asked (REQ-AR-016)."
+                }
+              }
+            }
+          }
+        }
+      },
+      "DecisionStage": {
+        "slug": "decision-stage",
+        "version": "1.1.0",
+        "description": "Patched by approval-routes-resolve-a-manager-and-declare-silence: a stage records which rule produced its actor and when, what its silence means, whether a substitute was asked or looked for, and whether a lapse has already been applied to it.",
+        "properties": {
+          "actorResolvedBy": {
+            "title": "Actor resolved by",
+            "type": "string",
+            "example": "manager-of-actor",
+            "description": "Which rule produced this stage's actor, when a rule did. Kept so the stage can answer why this person was asked, which a resolved name on its own cannot (REQ-AR-012)."
+          },
+          "actorResolvedAt": {
+            "title": "Actor resolved at",
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-18T09:00:00Z",
+            "description": "When the rule was resolved."
+          },
+          "onSilence": {
+            "title": "On silence",
+            "type": "string",
+            "enum": [
+              "hold",
+              "approve",
+              "refuse",
+              "escalate"
+            ],
+            "default": "hold",
+            "example": "hold",
+            "description": "Copied from the step at instantiation, so editing a route never changes what the silence of a stage already in flight means."
+          },
+          "substituteAskedAt": {
+            "title": "Substitute asked at",
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-23T09:00:00Z",
+            "description": "When the substitute was also asked."
+          },
+          "substituteActor": {
+            "title": "Substitute actor",
+            "type": "string",
+            "example": "p.peters",
+            "description": "Who the substitute is. Both they and the original actor may act, and whichever acts first closes the stage."
+          },
+          "substituteSearchedAt": {
+            "title": "Substitute searched at",
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-23T09:00:00Z",
+            "description": "When a substitute was looked for and none was found. A NOTE on the stage rather than a refusal: no substitute is a normal state of affairs and must not stop the original actor from signing (REQ-AR-016)."
+          },
+          "lapsedAt": {
+            "title": "Lapsed at",
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-26T03:00:00Z",
+            "description": "When a lapse policy was applied to this stage. Written once, and the sweep skips a stage that already carries it, which is what makes running the sweep twice harmless (REQ-AR-017)."
+          }
+        }
+      }
+    }
+  }
+}
