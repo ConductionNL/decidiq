@@ -22,6 +22,7 @@ use OCA\Decidiq\Service\ApprovalStageGuard;
 use OCA\Decidiq\Service\DecisionStageLabelRepair;
 use OCA\Decidiq\Service\MandateDirectory;
 use OCA\Decidiq\Service\RegisterObjectStore;
+use OCA\Decidiq\Service\WorkingDayDeadlineSplitter;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
@@ -206,8 +207,178 @@ class ApprovalRouteServiceTest extends TestCase {
 	private function service(): ApprovalRouteService {
 		$store = $this->store();
 
-		return new ApprovalRouteService($store, new ApprovalStageGuard(new MandateDirectory($store)), new ApprovalRouteStepMapper());
+		// NAMED arguments, not positional. The two nullable tail parameters were
+		// added by two different changes, and the second to merge takes the
+		// position the first one had: a positional call would then hand the
+		// splitter to the activator's slot and fail on a type nobody changed.
+		return new ApprovalRouteService(
+			store: $store,
+			guard: new ApprovalStageGuard(new MandateDirectory($store)),
+			mapper: new ApprovalRouteStepMapper(),
+			projector: null,
+			activator: null,
+			splitter: new WorkingDayDeadlineSplitter(),
+		);
 	}
+
+	/**
+	 * Three colleagues, in order, on a document with a deadline.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
+	 */
+	public function testARouteIsHeldFromNamedPeopleInOrder(): void {
+		$stages = $this->service()->holdFor(
+			subject: 'document-1',
+			actors: ['j.jansen', 'd.devries', 'b.bakker'],
+			subjectSchema: 'decision',
+		);
+
+		$this->assertCount(3, $stages);
+		$this->assertSame(
+			['j.jansen', 'd.devries', 'b.bakker'],
+			array_map(static fn (array $stage): string => (string)$stage['assignedPerson'], $stages)
+		);
+		$this->assertSame([1, 2, 3], array_map(static fn (array $stage): int => (int)$stage['sequence'], $stages));
+
+		// Only the first step is live: a route whose every step is live is not a
+		// sequence, it is three people asked at once.
+		$this->assertSame('active', (string)$stages[0]['status']);
+		$this->assertSame('pending', (string)$stages[1]['status']);
+		$this->assertSame('pending', (string)$stages[2]['status']);
+	}//end testARouteIsHeldFromNamedPeopleInOrder()
+
+	/**
+	 * A held route says it had no template, so a surface that finds no route row
+	 * can tell that from one somebody deleted.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
+	 */
+	public function testAHeldRouteIsMarkedAdhoc(): void {
+		$stages = $this->service()->holdFor(
+			subject: 'document-2',
+			actors: ['j.jansen'],
+			subjectSchema: 'decision',
+		);
+
+		$this->assertSame('adhoc', (string)$stages[0]['origin']);
+	}//end testAHeldRouteIsMarkedAdhoc()
+
+	/**
+	 * One deadline is divided over the steps, the last landing on it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-009)
+	 */
+	public function testOneDeadlineIsDividedOverTheSteps(): void {
+		$deadline = (new \DateTimeImmutable('+30 days'))->format(\DateTimeImmutable::ATOM);
+
+		$stages = $this->service()->holdFor(
+			subject: 'document-3',
+			actors: ['j.jansen', 'd.devries', 'b.bakker'],
+			subjectSchema: 'decision',
+			deadline: $deadline,
+		);
+
+		$dueDates = array_map(static fn (array $stage): string => (string)$stage['dueAt'], $stages);
+
+		$this->assertCount(3, array_filter($dueDates));
+		$this->assertSame($deadline, $dueDates[2], 'The last step must land on the deadline itself.');
+		$this->assertLessThan($dueDates[1], $dueDates[0]);
+		$this->assertLessThan($dueDates[2], $dueDates[1]);
+	}//end testOneDeadlineIsDividedOverTheSteps()
+
+	/**
+	 * No deadline means no due dates, which means a route that never lapses.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-009)
+	 */
+	public function testNoDeadlineWritesNoDueDates(): void {
+		$stages = $this->service()->holdFor(
+			subject: 'document-4',
+			actors: ['j.jansen', 'd.devries'],
+			subjectSchema: 'decision',
+		);
+
+		foreach ($stages as $stage) {
+			$this->assertSame('', (string)($stage['dueAt'] ?? ''));
+		}
+	}//end testNoDeadlineWritesNoDueDates()
+
+	/**
+	 * A person named twice is asked once. The second ask would be refused by the
+	 * guard anyway, because the first sign-off already advanced past their step.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
+	 */
+	public function testAPersonNamedTwiceIsAskedOnce(): void {
+		$stages = $this->service()->holdFor(
+			subject: 'document-5',
+			actors: ['j.jansen', 'd.devries', 'j.jansen', ''],
+			subjectSchema: 'decision',
+		);
+
+		$this->assertCount(2, $stages);
+	}//end testAPersonNamedTwiceIsAskedOnce()
+
+	/**
+	 * A route with nobody on it is refused, not created empty.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
+	 */
+	public function testAHeldRouteWithNobodyOnItIsRefused(): void {
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessage('needs at least one person');
+
+		$this->service()->holdFor(subject: 'document-6', actors: ['', '  '], subjectSchema: 'decision');
+	}//end testAHeldRouteWithNobodyOnItIsRefused()
+
+	/**
+	 * An unreadable deadline refuses rather than inventing a term.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-009)
+	 */
+	public function testAnUnreadableDeadlineIsRefused(): void {
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessage('could not be read as a date');
+
+		$this->service()->holdFor(
+			subject: 'document-7',
+			actors: ['j.jansen'],
+			subjectSchema: 'decision',
+			deadline: 'end of the month',
+		);
+	}//end testAnUnreadableDeadlineIsRefused()
+
+	/**
+	 * Overdue is COMPUTED, and only for a step that is still waiting.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-009)
+	 */
+	public function testOverdueIsComputedAndOnlyForAWaitingStep(): void {
+		$service = $this->service();
+		$past = ['status' => 'active', 'dueAt' => '2026-01-01T09:00:00+00:00'];
+
+		$this->assertTrue($service->isOverdue($past));
+		$this->assertFalse($service->isOverdue(['status' => 'decided', 'dueAt' => '2026-01-01T09:00:00+00:00']));
+		$this->assertFalse($service->isOverdue(['status' => 'active', 'dueAt' => '']));
+		$this->assertFalse($service->isOverdue(['status' => 'active', 'dueAt' => 'not a date']));
+		$this->assertFalse($service->isOverdue(['status' => 'active', 'dueAt' => '2099-01-01T09:00:00+00:00']));
+	}//end testOverdueIsComputedAndOnlyForAWaitingStep()
 
 	/**
 	 * A store over the stateful fake.
