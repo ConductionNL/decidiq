@@ -186,6 +186,19 @@ class RegisterDecisionsLeafListener implements IEventListener {
 				// so the server descriptor MUST declare the SAME render mode under the
 				// shared id or the surface blanks (gate-24 R3).
 				renderMode: LeafDescriptor::RENDER_MODE_MOUNT,
+				// 🔴 SAID OUT LOUD BECAUSE IT WAS NEARLY INFERRED WRONGLY.
+				// decidiq ships no `decidiq-leaves.js` and does not need one: it
+				// loads `decidiq-integration-init.js` itself, on EVERY Nextcloud
+				// page, via `Util::addInitScript` in `Application::boot()`, so
+				// this leaf registers on the shared registry wherever a host
+				// object renders rather than only on decidiq's own pages.
+				//
+				// openregister#3954 read the missing `decidiq-leaves.js` as
+				// proof the surface was dark and refused the registration;
+				// #3955 reverted that and #3956 replaced the inference with this
+				// declaration. Declaring it is what stops the next reader
+				// re-deriving the wrong answer from the filesystem.
+				loadStrategy: LeafDescriptor::LOADS_VIA_OWN_SCRIPT,
 			);
 
 			// Render-only leaf: no IntegrationProvider (null). The tab and widget read
