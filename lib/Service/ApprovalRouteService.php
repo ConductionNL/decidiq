@@ -97,6 +97,12 @@ class ApprovalRouteService {
 	 *        the steps. Nullable and last, so a caller built before deadlines
 	 *        existed keeps working: without it a held route simply carries no
 	 *        due dates, which is what it carries today.
+	 * @param StageLapsePolicy $policy Refuses a silence nobody may declare.
+	 *        Deliberately NOT nullable, unlike its neighbours: a null collaborator
+	 *        would mean the guard quietly does not run, and a guard that quietly
+	 *        does not run is the state this parameter exists to end. It defaults
+	 *        to a real instance because the policy is a pure value object with
+	 *        no dependencies of its own, so there is nothing to inject.
 	 */
 	public function __construct(
 		private readonly RegisterObjectStore $store,
@@ -105,6 +111,7 @@ class ApprovalRouteService {
 		private readonly ?ApprovalStageTaskProjector $projector = null,
 		private readonly ?ApprovalStageActivator $activator = null,
 		private readonly ?WorkingDayDeadlineSplitter $splitter = null,
+		private readonly StageLapsePolicy $policy = new StageLapsePolicy(),
 	) {
 	}//end __construct()
 
@@ -336,15 +343,25 @@ class ApprovalRouteService {
 	 * @param array<string, mixed> $route The ApprovalRoute object.
 	 * @param string $subject The subject's uuid.
 	 * @param string $subjectSchema The subject's schema.
+	 * @param ApprovalPrincipal $principal Who is asking. Defaults to Ordinary,
+	 *        which is the fail-closed answer: a caller that says nothing about
+	 *        who it is does not get to declare that silence approves.
 	 *
 	 * @return array<int, array<string, mixed>> The stages, existing or created.
 	 *
-	 * @throws RuntimeException When the route declares no usable steps.
+	 * @throws RuntimeException When the route declares no usable steps, or
+	 *         declares a silence this principal may not set.
 	 *
 	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
 	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
-	public function instantiate(array $route, string $subject, string $subjectSchema): array {
+	public function instantiate(
+		array $route,
+		string $subject,
+		string $subjectSchema,
+		ApprovalPrincipal $principal = ApprovalPrincipal::Ordinary,
+	): array {
 		$existing = $this->stagesFor(subject: $subject);
 		if ($existing !== []) {
 			return $existing;
@@ -354,6 +371,14 @@ class ApprovalRouteService {
 		if ($steps === []) {
 			throw new RuntimeException('This route declares no steps, so there is nothing to travel.');
 		}
+
+		// BEFORE any write, for every step at once. A route refused half way
+		// through would leave the stages it had already written behind, and a
+		// subject carrying half a route is worse than one carrying none.
+		$this->policy->assertEverySilenceIsSettable(
+			steps: $steps,
+			isAdministrator: $principal->isAdministrator(),
+		);
 
 		$routeId = (string)($route['id'] ?? ($route['@self']['id'] ?? ''));
 		$firstSequence = $this->mapper->sequenceOf(step: $steps[0], index: 0);
@@ -401,6 +426,7 @@ class ApprovalRouteService {
 
 		return $created;
 	}//end instantiate()
+
 
 	/**
 	 * Resolve the actor rule of every stage that is already live.

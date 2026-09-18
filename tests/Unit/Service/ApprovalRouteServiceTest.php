@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\ApprovalPrincipal;
 use OCA\Decidiq\Service\ApprovalRouteService;
 use OCA\Decidiq\Service\ApprovalRouteStepMapper;
 use OCA\Decidiq\Service\ApprovalStageGuard;
@@ -858,4 +859,117 @@ class ApprovalRouteServiceTest extends TestCase {
 
 		$this->assertSame(0, $repair->repair(), 'A re-run repairs nothing.');
 	}
+
+	/**
+	 * A route step whose silence APPROVES is refused when the person asking is
+	 * not an administrator.
+	 *
+	 * REQ-AR-015 says silence that approves is a signature nobody gave. The
+	 * policy that says so has always been right and, until the engine called it,
+	 * enforced nothing: this asserts the WIRING, so deleting the call in
+	 * instantiate() reddens here rather than somewhere nobody looks.
+	 *
+	 * The principal is an ordinary signed-in user, which is the least privileged
+	 * one that should be refused. An anonymous caller never reaches the engine.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 */
+	public function testAnOrdinaryUserCannotDeclareThatSilenceApproves(): void {
+		$route = $this->route();
+		$route['steps'][1]['onSilence'] = 'approve';
+
+		// expectException, NOT try/fail/catch: PHPUnit's AssertionFailedError
+		// extends RuntimeException, so a catch of RuntimeException swallows the
+		// fail() that is supposed to end the test and reports the wrong thing.
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessageMatches('/administrator/');
+
+		$this->service()->instantiate(
+			route: $route,
+			subject: 'subj-1',
+			subjectSchema: 'proposal',
+			principal: ApprovalPrincipal::Ordinary,
+		);
+	}
+
+	/**
+	 * And the refusal lands BEFORE any stage is written, so the subject is not
+	 * left carrying half a route.
+	 *
+	 * The offending step is the SECOND one deliberately: a guard inside the
+	 * write loop would already have written the first stage by the time it threw,
+	 * and this is the assertion that tells those two designs apart.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 */
+	public function testTheRefusedRouteWritesNoStageAtAll(): void {
+		$route = $this->route();
+		$route['steps'][1]['onSilence'] = 'approve';
+
+		try {
+			$this->service()->instantiate(
+				route: $route,
+				subject: 'subj-1',
+				subjectSchema: 'proposal',
+				principal: ApprovalPrincipal::Ordinary,
+			);
+		} catch (RuntimeException) {
+			// The refusal is the other test's subject; this one is about what
+			// it left behind.
+		}
+
+		$this->assertSame([], $this->stages(), 'A refused route left stages behind.');
+	}
+
+	/**
+	 * An administrator may declare it, and the stage carries it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 */
+	public function testAnAdministratorMayDeclareThatSilenceApproves(): void {
+		$route = $this->route();
+		$route['steps'][1]['onSilence'] = 'approve';
+
+		$this->service()->instantiate(
+			route: $route,
+			subject: 'subj-1',
+			subjectSchema: 'proposal',
+			principal: ApprovalPrincipal::Administrator,
+		);
+
+		$this->assertSame('approve', (string)($this->stages()[1]['onSilence'] ?? ''));
+	}
+
+	/**
+	 * Every stored route is unaffected: a step that declares no silence, or
+	 * declares one anybody may set, still instantiates for an ordinary user.
+	 *
+	 * This is the compatibility half. A guard that also refused `hold` would
+	 * have stopped every route already in flight, and nothing would have said so
+	 * until somebody tried to sign one.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 */
+	public function testAStoredRouteWithoutAnApprovingSilenceStillInstantiates(): void {
+		$route = $this->route();
+		$route['steps'][1]['onSilence'] = 'escalate';
+
+		$this->service()->instantiate(
+			route: $route,
+			subject: 'subj-1',
+			subjectSchema: 'proposal',
+			principal: ApprovalPrincipal::Ordinary,
+		);
+
+		$this->assertCount(3, $this->stages(), 'An ordinary route stopped instantiating.');
+	}
+
 }
