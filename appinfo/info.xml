@@ -133,6 +133,12 @@ Vrij en open source onder de EUPL-1.2-licentie.
              when integriq is not installed.
              @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\ConnectionReportJob</job>
+        <!-- approval-routes-resolve-a-manager-and-declare-silence: hourly, applies
+             what a sign-off step declared its own silence to mean once its term
+             has passed, and asks a stand-in part-way through the term. Safe to
+             run twice; a stage carries the stamp that says it already lapsed.
+             @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md -->
+        <job>OCA\Decidiq\BackgroundJob\ApprovalStageLapseJob</job>
     </background-jobs>
 
     <repair-steps>

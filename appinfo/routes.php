@@ -57,6 +57,11 @@ $extra = [
         // @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
         ['name' => 'approvalRoute#instantiate', 'url' => '/api/approval-routes/instantiate', 'verb' => 'POST'],
         ['name' => 'approvalRoute#record',      'url' => '/api/approval-routes/actions',     'verb' => 'POST'],
+        // The one question a sibling app gates closure on: has everything that
+        // had to sign off signed off. A consumer that cannot reach this reads
+        // the subject as NOT cleared; absence of an engine is not an approval.
+        // @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md
+        ['name' => 'approvalRoute#clearance',   'url' => '/api/approval-routes/clearance',   'verb' => 'GET'],
 
         // Process template management (admin-only — AuthorizedAdminSetting on every method).
         // @spec openspec/specs/process-configuration/spec.md

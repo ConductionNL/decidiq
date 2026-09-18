@@ -202,4 +202,45 @@ class ApprovalRouteStepMapper {
 		return 'pending';
 	}//end initialStatus()
 
+	/**
+	 * The fields a step declares about its own rule, its silence and its
+	 * stand-in, copied onto the stage.
+	 *
+	 * Copied and not read back off the route: editing a route must never change
+	 * what the silence of a stage already in flight means. Someone who lowers a
+	 * step to `approve` on Friday would otherwise have approved, retroactively,
+	 * every stage that went quiet that week.
+	 *
+	 * Only keys the step actually declares are returned, so a step that says
+	 * nothing writes nothing and the schema default (`hold`) stands.
+	 *
+	 * @param array<string, mixed> $step The route step.
+	 *
+	 * @return array<string, mixed> The stage fields.
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-015, REQ-AR-016)
+	 */
+	public function silenceFields(array $step): array {
+		$fields = [];
+
+		foreach (['actorRule', 'actorRuleSubject', 'onSilence'] as $key) {
+			$value = trim((string)($step[$key] ?? ''));
+			if ($value !== '') {
+				$fields[$key] = $value;
+			}
+		}
+
+		$fraction = ($step['askSubstituteAfter'] ?? null);
+		if (is_numeric($fraction) === true) {
+			$fields['askSubstituteAfter'] = (float)$fraction;
+		}
+
+		$dueAt = trim((string)($step['dueAt'] ?? ''));
+		if ($dueAt !== '') {
+			$fields['dueAt'] = $dueAt;
+		}
+
+		return $fields;
+	}//end silenceFields()
+
 }//end class

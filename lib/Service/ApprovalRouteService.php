@@ -86,12 +86,18 @@ class ApprovalRouteService {
 	 *        onto OpenRegister's task surface. Nullable so the engine's rules
 	 *        never depend on the projection: a missing task surface changes
 	 *        where the ask is SEEN, never whether the route advances.
+	 * @param ApprovalStageActivator|null $activator Resolves a stage's actor rule
+	 *        at the moment it becomes live. Nullable and LAST, because the
+	 *        constructor is reached by tests and by callers built before rules
+	 *        existed; a missing activator means a step naming a rule keeps the
+	 *        actor it was given, never that the rule silently resolved.
 	 */
 	public function __construct(
 		private readonly RegisterObjectStore $store,
 		private readonly ApprovalStageGuard $guard,
 		private readonly ApprovalRouteStepMapper $mapper,
 		private readonly ?ApprovalStageTaskProjector $projector = null,
+		private readonly ?ApprovalStageActivator $activator = null,
 	) {
 	}//end __construct()
 
@@ -164,13 +170,20 @@ class ApprovalRouteService {
 
 		$routeId = (string)($route['id'] ?? ($route['@self']['id'] ?? ''));
 		$firstSequence = $this->mapper->sequenceOf(step: $steps[0], index: 0);
+		$owner = $this->ownerOf(subject: $subject, subjectSchema: $subjectSchema);
 
 		$created = [];
 		foreach ($steps as $index => $step) {
 			$sequence = $this->mapper->sequenceOf(step: $step, index: $index);
+			// A step that names a RULE cannot be resolved here: it is resolved
+			// when its stage becomes live, which for anything past the first
+			// group is weeks away. So the rule travels onto the stage, copied
+			// like every other step field, and editing the route afterwards
+			// leaves a route already in flight alone.
+			$declared = $this->mapper->silenceFields(step: $step);
 			$created[] = $this->store->save(
 				schema: 'decision-stage',
-				object: [
+				object: $declared + [
 					'sequence' => $sequence,
 					'stageType' => (string)$step['stageType'],
 					// Every stage in the FIRST parallel group is active
@@ -195,10 +208,73 @@ class ApprovalRouteService {
 			);
 		}
 
+		$created = $this->resolveLiveStages(stages: $created, owner: $owner);
+
 		$this->projectTasks(subject: $subject);
 
 		return $created;
 	}//end instantiate()
+
+	/**
+	 * Resolve the actor rule of every stage that is already live.
+	 *
+	 * The first group activates at instantiation, so its rules resolve now; the
+	 * rest resolve when their turn comes.
+	 *
+	 * @param array<int, array<string, mixed>> $stages The freshly created stages.
+	 * @param string $owner Who owns the subject the route travels.
+	 *
+	 * @return array<int, array<string, mixed>> The stages, with resolved actors.
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012)
+	 */
+	private function resolveLiveStages(array $stages, string $owner): array {
+		if ($this->activator === null) {
+			return $stages;
+		}
+
+		foreach ($stages as $index => $stage) {
+			if ((string)($stage['status'] ?? '') !== 'active') {
+				continue;
+			}
+
+			// A refusal here THROWS, and that is the design: an unresolvable
+			// rule must not leave a stage that anybody may sign.
+			$patch = $this->activator->activationPatch(stage: $stage, subjectOwner: $owner);
+			$stages[$index] = $this->store->patch(
+				schema: 'decision-stage',
+				data: $patch,
+				uuid: (string)$stage['id'],
+			);
+		}
+
+		return $stages;
+	}//end resolveLiveStages()
+
+	/**
+	 * Who owns the subject, for the rule that reads the owner's manager.
+	 *
+	 * Best effort: a subject with no readable owner makes
+	 * `manager-of-subject-owner` refuse by name, which is the intended
+	 * behaviour, and leaves every other rule untouched.
+	 *
+	 * @param string $subject The subject uuid.
+	 * @param string $subjectSchema The subject's schema slug.
+	 *
+	 * @return string The owner, or an empty string.
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012)
+	 */
+	private function ownerOf(string $subject, string $subjectSchema): string {
+		$object = $this->store->find(schema: $subjectSchema, uuid: $subject);
+		if (is_array($object) === false) {
+			return '';
+		}
+
+		$self = ($object['@self'] ?? []);
+
+		return (string)($object['owner'] ?? (is_array($self) === true ? ($self['owner'] ?? '') : ''));
+	}//end ownerOf()
 
 	/**
 	 * Record an action and advance the route.
@@ -384,9 +460,19 @@ class ApprovalRouteService {
 			return;
 		}
 
+		$owner = $this->ownerOf(
+			subject: (string)($active['decision'] ?? ''),
+			subjectSchema: (string)($active['note'] ?? ''),
+		);
+
 		foreach ($stages as $stage) {
 			if ((int)$stage['sequence'] === $nextSequence && (string)($stage['status'] ?? '') === 'pending') {
-				$this->store->patch(schema: 'decision-stage', data: ['status' => 'active'], uuid: (string)$stage['id']);
+				// The rule on this step resolves NOW, against today's
+				// organisation record, not against the one the route started
+				// under. That is the whole reason the rule travelled onto the
+				// stage instead of being resolved at instantiation.
+				$patch = ($this->activator?->activationPatch(stage: $stage, subjectOwner: $owner) ?? ['status' => 'active']);
+				$this->store->patch(schema: 'decision-stage', data: $patch, uuid: (string)$stage['id']);
 			}
 		}
 	}//end completeAndAdvance()
@@ -503,6 +589,49 @@ class ApprovalRouteService {
 
 		return $rows;
 	}//end stagesFor()
+
+	/**
+	 * The routes on a subject, each with its stages, shaped for the clearance
+	 * question.
+	 *
+	 * A stage whose `route` is empty is a route in its own right: cross-app
+	 * routes are held without a stored template, and dropping them here would
+	 * make a subject with only such a route read as cleared while somebody is
+	 * still waiting on it.
+	 *
+	 * @param string $subject The subject uuid.
+	 *
+	 * @return array<int, array<string, mixed>> The routes with their stages.
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+	 */
+	public function routesWithStagesFor(string $subject): array {
+		$grouped = [];
+		foreach ($this->stagesFor(subject: $subject) as $stage) {
+			$routeId = (string)($stage['route'] ?? '');
+			if (isset($grouped[$routeId]) === false) {
+				$grouped[$routeId] = [];
+			}
+
+			$grouped[$routeId][] = $stage;
+		}
+
+		$routes = [];
+		foreach ($grouped as $routeId => $stages) {
+			$route = ($routeId === '' ? null : $this->store->find(schema: 'approval-route', uuid: $routeId));
+			$routes[] = [
+				'id' => $routeId,
+				'name' => (string)($route['name'] ?? ''),
+				// Unset reads as required, here as in the clearance service: a
+				// route somebody bothered to start is one somebody is waiting
+				// on, and a route we could not read must not clear a subject.
+				'required' => (($route['required'] ?? true) !== false),
+				'stages' => $stages,
+			];
+		}
+
+		return $routes;
+	}//end routesWithStagesFor()
 
 	/**
 	 * Every active stage — one ordinarily, several in a parallel group.
