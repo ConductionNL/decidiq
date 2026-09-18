@@ -51,6 +51,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
+use OCP\IL10N;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -92,6 +93,9 @@ class ApprovalStageLapseService {
 	 *        involved. Nullable: whether anybody is NOTIFIED must never decide
 	 *        whether the route moved, so a missing notifier is logged and the
 	 *        sweep carries on.
+	 * @param IL10N|null $l10n Translates what the people involved are told. The
+	 *        sweep runs out of cron with no user session, so a missing
+	 *        translator falls back to the source string rather than throwing.
 	 */
 	public function __construct(
 		private readonly RegisterObjectStore $store,
@@ -99,8 +103,20 @@ class ApprovalStageLapseService {
 		private readonly ApprovalStageActivator $activator,
 		private readonly LoggerInterface $logger,
 		private readonly ?NotificationPreferenceService $notifier = null,
+		private readonly ?IL10N $l10n = null,
 	) {
 	}//end __construct()
+
+	/**
+	 * Translate, falling back to the source string.
+	 *
+	 * @param string $text The source string.
+	 *
+	 * @return string The translation.
+	 */
+	private function t(string $text): string {
+		return ($this->l10n?->t($text) ?? $text);
+	}//end t()
 
 	/**
 	 * Sweep every waiting stage.
@@ -168,8 +184,8 @@ class ApprovalStageLapseService {
 			);
 			$this->tell(
 				$actor,
-				'No stand-in was found for your sign-off',
-				'Nobody is recorded as your substitute, so this sign-off is still waiting on you. Its deadline has not moved.'
+				$this->t('No stand-in was found for your sign-off'),
+				$this->t('Nobody is recorded as your substitute, so this sign-off is still waiting on you. Its deadline has not moved.')
 			);
 			return false;
 		}
@@ -185,8 +201,16 @@ class ApprovalStageLapseService {
 
 		// BOTH are told, because both may act. Telling only the substitute
 		// reads to the original actor as if the step had been taken off them.
-		$this->tell($substitute, 'A sign-off is waiting, on behalf of a colleague', 'You have been asked to stand in on a sign-off that is part-way through its term. Whoever acts first closes it.');
-		$this->tell($actor, 'Your stand-in has been asked as well', 'This sign-off is part-way through its term, so your substitute has been asked too. You can still sign it yourself.');
+		$this->tell(
+			$substitute,
+			$this->t('A sign-off is waiting, on behalf of a colleague'),
+			$this->t('You have been asked to stand in on a sign-off that is part-way through its term. Whoever acts first closes it.')
+		);
+		$this->tell(
+			$actor,
+			$this->t('Your stand-in has been asked as well'),
+			$this->t('This sign-off is part-way through its term, so your substitute has been asked too. You can still sign it yourself.')
+		);
 
 		return true;
 	}//end askSubstituteIfDue()
@@ -245,8 +269,16 @@ class ApprovalStageLapseService {
 			);
 
 			$this->recordLapse(stage: $stage, effect: $effect, now: $now);
-			$this->tell($actor, 'Your sign-off has moved up', 'The term on this sign-off passed without an answer, and the step declares that silence escalates, so it is now with your manager.');
-			$this->tell($manager, 'A sign-off has escalated to you', 'A step your colleague was asked to sign passed its term without an answer. The step declares that silence escalates, so it is now yours, with a fresh term.');
+			$this->tell(
+				$actor,
+				$this->t('Your sign-off has moved up'),
+				$this->t('The term on this sign-off passed without an answer, and the step declares that silence escalates, so it is now with your manager.')
+			);
+			$this->tell(
+				$manager,
+				$this->t('A sign-off has escalated to you'),
+				$this->t('A step your colleague was asked to sign passed its term without an answer. The step declares that silence escalates, so it is now yours, with a fresh term.')
+			);
 
 			return true;
 		}
@@ -266,11 +298,19 @@ class ApprovalStageLapseService {
 
 		if ($effect['effect'] === StageLapsePolicy::EFFECT_ADVANCE) {
 			$this->activateNext(stage: $stage, now: $now);
-			$this->tell($actor, 'A sign-off passed its term and was taken as approved', 'The term on this sign-off passed without an answer. The step declares that silence approves, so it has been recorded as approved by the system and the next step is now live.');
+			$this->tell(
+				$actor,
+				$this->t('A sign-off passed its term and was taken as approved'),
+				$this->t('The term on this sign-off passed without an answer. The step declares that silence approves, so it has been recorded as approved by the system and the next step is now live.')
+			);
 			return true;
 		}
 
-		$this->tell($actor, 'A sign-off passed its term and was taken as refused', 'The term on this sign-off passed without an answer. The step declares that silence refuses, so the route has been concluded as rejected.');
+		$this->tell(
+			$actor,
+			$this->t('A sign-off passed its term and was taken as refused'),
+			$this->t('The term on this sign-off passed without an answer. The step declares that silence refuses, so the route has been concluded as rejected.')
+		);
 
 		return true;
 	}//end applyLapse()
