@@ -73,7 +73,7 @@ test.describe('approval routes: a rule, a declared silence and a clearance answe
 
 		for (const [slug, properties] of Object.entries(ADDED)) {
 			const schema = schemas.find(
-				candidate => String(candidate.slug ?? '') === slug,
+				(candidate) => String(candidate.slug ?? '') === slug,
 			)
 
 			// A stack that never imported decidiq's register at all is a skip,
@@ -102,7 +102,7 @@ test.describe('approval routes: a rule, a declared silence and a clearance answe
 			Record<string, any>
 		>
 		const action = schemas.find(
-			candidate => String(candidate.slug ?? '') === 'approval-action',
+			(candidate) => String(candidate.slug ?? '') === 'approval-action',
 		)
 		test.skip(!action, 'decidiq has not imported its register here')
 

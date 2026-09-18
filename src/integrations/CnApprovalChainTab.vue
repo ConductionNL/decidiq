@@ -63,7 +63,9 @@
 						<span class="cn-approval-chain-tab__verb">{{
 							verbLabel(action)
 						}}</span>
-						<span v-if="reasonOf(action)" class="cn-approval-chain-tab__reason">
+						<span
+							v-if="reasonOf(action)"
+							class="cn-approval-chain-tab__reason">
 							{{ reasonOf(action) }}
 						</span>
 					</li>
@@ -156,6 +158,7 @@ export default {
 		 * Read the route travelling the host object.
 		 *
 		 * @return {Promise<void>} Nothing.
+		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 		 */
 		async load() {
 			if (!this.hostObjectId) {
@@ -183,6 +186,7 @@ export default {
 		 *
 		 * @param {object} stage The stage.
 		 * @return {object[]} The actions.
+		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 		 */
 		actionsFor(stage) {
 			return this.byStep[String(Number(stage.sequence || 0))] || []
@@ -197,6 +201,7 @@ export default {
 		 *
 		 * @param {object} action The action.
 		 * @return {string} The line.
+		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 		 */
 		verbLabel(action) {
 			const verb = String(action.action || '')
@@ -220,6 +225,7 @@ export default {
 		 *
 		 * @param {object} stage The stage.
 		 * @return {string} The key.
+		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 		 */
 		rowKey(stage) {
 			return objId(stage) || `step-${stage.sequence}`
@@ -230,6 +236,7 @@ export default {
 		 *
 		 * @param {object} stage The stage.
 		 * @return {string} The label.
+		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 		 */
 		stepFallback(stage) {
 			return t('decidiq', 'Step {step}', { step: Number(stage.sequence || 0) })
@@ -240,6 +247,7 @@ export default {
 		 *
 		 * @param {object} stage The stage.
 		 * @return {string} The line.
+		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 		 */
 		actorLabel(stage) {
 			const actor = String(stage.assignedPerson || stage.assignedBody || '')
@@ -260,6 +268,7 @@ export default {
 		 *
 		 * @param {object} stage The stage.
 		 * @return {string} The line.
+		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 		 */
 		dueLabel(stage) {
 			const date = new Date(String(stage.dueAt)).toLocaleDateString()
@@ -278,6 +287,7 @@ export default {
 		 *
 		 * @param {object} action The action.
 		 * @return {string} The reason, or ''.
+		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 		 */
 		reasonOf(action) {
 			return String(action.comment || action.advice || '')
@@ -288,6 +298,7 @@ export default {
 		 *
 		 * @param {object} stage The stage.
 		 * @return {string} The label.
+		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 		 */
 		statusLabel(stage) {
 			const status = String(stage.status || '')
@@ -312,6 +323,7 @@ export default {
 		 *
 		 * @param {object} stage The stage.
 		 * @return {string} The variant.
+		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 		 */
 		variantOf(stage) {
 			const status = String(stage.status || '')

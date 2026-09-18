@@ -459,8 +459,12 @@ class ApprovalRouteService {
 		}
 
 		$self = ($object['@self'] ?? []);
+		$selfOwner = '';
+		if (is_array($self) === true) {
+			$selfOwner = (string)($self['owner'] ?? '');
+		}
 
-		return (string)($object['owner'] ?? (is_array($self) === true ? ($self['owner'] ?? '') : ''));
+		return (string)($object['owner'] ?? $selfOwner);
 	}//end ownerOf()
 
 	/**
@@ -805,7 +809,11 @@ class ApprovalRouteService {
 
 		$routes = [];
 		foreach ($grouped as $routeId => $stages) {
-			$route = ($routeId === '' ? null : $this->store->find(schema: 'approval-route', uuid: $routeId));
+			$route = null;
+			if ($routeId !== '') {
+				$route = $this->store->find(schema: 'approval-route', uuid: $routeId);
+			}
+
 			$routes[] = [
 				'id' => $routeId,
 				'name' => (string)($route['name'] ?? ''),

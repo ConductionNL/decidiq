@@ -47,7 +47,9 @@ async function waitForRegistry(page: Page): Promise<void> {
 				!!(
 					window as Window & {
 						OCA?: {
-							OpenRegister?: { integrations?: { list?: () => unknown[] } }
+							OpenRegister?: {
+								integrations?: { list?: () => unknown[] }
+							}
 						}
 					}
 				).OCA?.OpenRegister?.integrations?.list,
@@ -70,7 +72,9 @@ test.describe('the decisions leaf names its own tab', () => {
 				window as Window & {
 					OCA?: {
 						OpenRegister?: {
-							integrations?: { list?: () => Array<Record<string, unknown>> }
+							integrations?: {
+								list?: () => Array<Record<string, unknown>>
+							}
 						}
 					}
 				}
@@ -84,7 +88,7 @@ test.describe('the decisions leaf names its own tab', () => {
 		)
 
 		const decisions = registered.find(
-			entry => String(entry.id) === DECISIONS_LEAF_ID,
+			(entry) => String(entry.id) === DECISIONS_LEAF_ID,
 		)
 		expect(
 			decisions,

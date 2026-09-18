@@ -137,12 +137,17 @@ class ApprovalRouteRequestedListener implements IEventListener {
 	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
 	 */
 	private function handleAdhoc(ApprovalRouteRequestedEvent $event): void {
+		$routeName = $event->getName();
+		if ($routeName === '') {
+			$routeName = 'Review';
+		}
+
 		$stages = $this->engine->holdFor(
 			subject: $event->getSubject(),
 			actors: $event->getActors(),
 			subjectSchema: $event->getSubjectSchema(),
 			deadline: $event->getDeadline(),
-			name: ($event->getName() !== '' ? $event->getName() : 'Review'),
+			name: $routeName,
 		);
 
 		// No route id, because there is no route row. Carrying the producer's

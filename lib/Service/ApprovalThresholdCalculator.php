@@ -164,6 +164,30 @@ final class ApprovalThresholdCalculator {
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
 	 */
 	public function outcome(array $step, array $actions, ?int $approverCount = null): array {
+		$tally = $this->tally(actions: $actions);
+		$granted = $tally['granted'];
+		$refused = $tally['refused'];
+
+		$approvers = ($approverCount ?? max(count($actions), 1));
+		$required = $this->required(step: $step, approverCount: $approvers);
+
+		return [
+			'outcome' => $this->verdict(granted: $granted, refused: $refused, approvers: $approvers, required: $required),
+			'granted' => $granted,
+			'refused' => $refused,
+			'required' => $required,
+			'approvers' => $approvers,
+		];
+	}//end outcome()
+
+	/**
+	 * Count the grants and the refusals that still stand.
+	 *
+	 * @param array<int, mixed> $actions The actions recorded against the step.
+	 *
+	 * @return array{granted: int, refused: int} The counts.
+	 */
+	private function tally(array $actions): array {
 		$granted = 0;
 		$refused = 0;
 
@@ -189,28 +213,33 @@ final class ApprovalThresholdCalculator {
 			}
 		}
 
-		$approvers = ($approverCount ?? max(count($actions), 1));
-		$required = $this->required(step: $step, approverCount: $approvers);
+		return ['granted' => $granted, 'refused' => $refused];
+	}//end tally()
 
+	/**
+	 * The verdict the counts add up to.
+	 *
+	 * @param int $granted How many grants stand.
+	 * @param int $refused How many refusals stand.
+	 * @param int $approvers How many people can answer.
+	 * @param int $required How many grants the step needs.
+	 *
+	 * @return string The outcome.
+	 */
+	private function verdict(int $granted, int $refused, int $approvers, int $required): string {
 		if ($granted >= $required) {
-			$outcome = self::OUTCOME_GRANTED;
-		} elseif (($approvers - $refused) < $required) {
+			return self::OUTCOME_GRANTED;
+		}
+
+		if (($approvers - $refused) < $required) {
 			// Enough people have refused that the required grants can no longer
 			// arrive. Deciding now beats chasing approvals that cannot change
 			// the answer.
-			$outcome = self::OUTCOME_REFUSED;
-		} else {
-			$outcome = self::OUTCOME_OPEN;
+			return self::OUTCOME_REFUSED;
 		}
 
-		return [
-			'outcome' => $outcome,
-			'granted' => $granted,
-			'refused' => $refused,
-			'required' => $required,
-			'approvers' => $approvers,
-		];
-	}//end outcome()
+		return self::OUTCOME_OPEN;
+	}//end verdict()
 
 	/**
 	 * The action that records an administrator changing a threshold.
@@ -242,6 +271,11 @@ final class ApprovalThresholdCalculator {
 			throw new InvalidArgumentException('A threshold change has to name the actor who made it.');
 		}
 
+		$stampedAt = $recordedAt;
+		if ($stampedAt === '') {
+			$stampedAt = (new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
+		}
+
 		return [
 			'step' => (int)($step['order'] ?? 0),
 			'actor' => $actor,
@@ -249,7 +283,7 @@ final class ApprovalThresholdCalculator {
 			'state' => 'granted',
 			'thresholdBefore' => $before,
 			'thresholdAfter' => $after,
-			'recordedAt' => ($recordedAt === '' ? (new DateTimeImmutable())->format(DateTimeImmutable::ATOM) : $recordedAt),
+			'recordedAt' => $stampedAt,
 		];
 	}//end recomputationAction()
 }//end class

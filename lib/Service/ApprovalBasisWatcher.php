@@ -80,7 +80,7 @@ final class ApprovalBasisWatcher {
 				continue;
 			}
 
-			if ($this->valueAt($before, $path) !== $this->valueAt($after, $path)) {
+			if ($this->valueAt(subject: $before, path: $path) !== $this->valueAt(subject: $after, path: $path)) {
 				$changed[] = $path;
 			}
 		}
@@ -117,11 +117,14 @@ final class ApprovalBasisWatcher {
 			return [];
 		}
 
-		$when = ($withdrawnAt === '' ? (new DateTimeImmutable())->format(DateTimeImmutable::ATOM) : $withdrawnAt);
+		$when = $withdrawnAt;
+		if ($when === '') {
+			$when = (new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
+		}
 
 		$withdrawn = [];
 		foreach ($actions as $action) {
-			if (is_array($action) === false || $this->isGrant($action) === false) {
+			if (is_array($action) === false || $this->isGrant(action: $action) === false) {
 				continue;
 			}
 
@@ -145,6 +148,8 @@ final class ApprovalBasisWatcher {
 	 * @param array<string, mixed> $after The subject as it now is.
 	 *
 	 * @return bool True when at least one grant is withdrawn.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
 	 */
 	public function reopens(array $step, array $actions, array $before, array $after): bool {
 		return ($this->withdrawals(step: $step, actions: $actions, before: $before, after: $after) !== []);

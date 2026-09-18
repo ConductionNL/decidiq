@@ -94,7 +94,9 @@ final class AdmissibilityVerdictService {
 	 * @param string $decidedBy Who gave it.
 	 * @param string $decidedAt When, as an ISO-8601 instant; now when empty.
 	 *
-	 * @return array{verdict: string, ground: string, decidedBy: string, decidedAt: string, routeOutcome: ?string, advances: bool} The verdict and what the route does.
+	 * @return array{verdict: string, ground: string, decidedBy: string,
+	 *         decidedAt: string, routeOutcome: ?string, advances: bool} The
+	 *         verdict and what the route does.
 	 *
 	 * @throws InvalidArgumentException When the step is not an intake step, the verdict is unknown, or a refusal names no ground.
 	 *
@@ -133,12 +135,22 @@ final class AdmissibilityVerdictService {
 
 		$inadmissible = ($verdict === self::NIET_ONTVANKELIJK);
 
+		$decidedWhen = $decidedAt;
+		if ($decidedWhen === '') {
+			$decidedWhen = (new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
+		}
+
+		$routeOutcome = null;
+		if ($inadmissible === true) {
+			$routeOutcome = self::OUTCOME_ENDED_AT_INTAKE;
+		}
+
 		return [
 			'verdict' => $verdict,
 			'ground' => trim($ground),
 			'decidedBy' => $decidedBy,
-			'decidedAt' => ($decidedAt === '' ? (new DateTimeImmutable())->format(DateTimeImmutable::ATOM) : $decidedAt),
-			'routeOutcome' => ($inadmissible === true ? self::OUTCOME_ENDED_AT_INTAKE : null),
+			'decidedAt' => $decidedWhen,
+			'routeOutcome' => $routeOutcome,
 			'advances' => ($inadmissible === false),
 		];
 	}//end record()

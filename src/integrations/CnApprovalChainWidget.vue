@@ -191,6 +191,7 @@ export default {
 		 * Spec: openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 		 *
 		 * @return {boolean} True when it is this user's turn.
+		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 		 */
 		mayAct() {
 			const user = getCurrentUser()
@@ -272,6 +273,7 @@ export default {
 		 * Read the route travelling the host object.
 		 *
 		 * @return {Promise<void>} Nothing.
+		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 		 */
 		async load() {
 			if (!this.hostObjectId) {
@@ -294,6 +296,7 @@ export default {
 		 *
 		 * @param {string} verb The action, `approved` or `rejected`.
 		 * @return {Promise<void>} Nothing.
+		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 		 */
 		async act(verb) {
 			if (!this.current || this.busy) return
@@ -320,7 +323,7 @@ export default {
 						&& refusal.response
 						&& refusal.response.data
 						&& refusal.response.data.message)
-					|| t('decidiq', 'That action was refused.'),
+						|| t('decidiq', 'That action was refused.'),
 				)
 			} finally {
 				this.busy = false

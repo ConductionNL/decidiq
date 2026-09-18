@@ -101,6 +101,8 @@ final class WorkingDayDeadlineSplitter {
 	 * @param DateTimeImmutable $to The end.
 	 *
 	 * @return int The count, never negative.
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-009)
 	 */
 	public function workingDaysBetween(DateTimeImmutable $from, DateTimeImmutable $to): int {
 		if ($to <= $from) {
@@ -113,7 +115,7 @@ final class WorkingDayDeadlineSplitter {
 
 		while ($cursor < $end) {
 			$cursor = $cursor->modify('+1 day');
-			if ($this->isWorkingDay($cursor) === true) {
+			if ($this->isWorkingDay(day: $cursor) === true) {
 				$days++;
 			}
 		}
@@ -128,6 +130,8 @@ final class WorkingDayDeadlineSplitter {
 	 * @param int $days How many working days to add.
 	 *
 	 * @return DateTimeImmutable The result.
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-009)
 	 */
 	public function addWorkingDays(DateTimeImmutable $to, int $days): DateTimeImmutable {
 		$cursor = $to;
@@ -135,7 +139,7 @@ final class WorkingDayDeadlineSplitter {
 
 		while ($added < $days) {
 			$cursor = $cursor->modify('+1 day');
-			if ($this->isWorkingDay($cursor) === true) {
+			if ($this->isWorkingDay(day: $cursor) === true) {
 				$added++;
 			}
 		}

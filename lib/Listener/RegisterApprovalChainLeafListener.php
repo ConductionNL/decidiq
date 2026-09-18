@@ -149,7 +149,7 @@ class RegisterApprovalChainLeafListener implements IEventListener {
 				// this MUST declare the same mode under the shared id or the
 				// surface blanks.
 				renderMode: LeafDescriptor::RENDER_MODE_MOUNT,
-				// decidiq loads its own leaf bundle (decidiq#1345): the
+				// This app loads its own leaf bundle (decidiq#1345): the
 				// registration ships in `decidiq-integration-init.js`, added on
 				// every page by `Util::addInitScript` in Application::boot. There
 				// is no `decidiq-leaves.js` and the absence of one is not evidence

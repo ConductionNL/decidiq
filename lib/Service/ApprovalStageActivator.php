@@ -98,8 +98,8 @@ class ApprovalStageActivator {
 	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-013)
 	 */
 	public function activationPatch(array $stage, string $subjectOwner = '', ?DateTimeImmutable $now = null): array {
-		$at = ($now ?? new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
-		$patch = ['status' => 'active', 'activatedAt' => $at];
+		$stampedAt = ($now ?? new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
+		$patch = ['status' => 'active', 'activatedAt' => $stampedAt];
 
 		$rule = trim((string)($stage['actorRule'] ?? ''));
 		if ($rule === '') {
@@ -115,7 +115,7 @@ class ApprovalStageActivator {
 			people: $this->people(),
 			subjectOwner: $subjectOwner,
 			hasAccount: $this->accountCheck(),
-			resolvedAt: $at,
+			resolvedAt: $stampedAt,
 		);
 
 		$patch['assignedPerson'] = $resolved['actor'];

@@ -51,6 +51,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use DateInterval;
 use DateTimeImmutable;
 use RuntimeException;
 
@@ -172,23 +173,23 @@ final class StageLapsePolicy {
 		if ((string)($stage['status'] ?? '') !== 'active') {
 			// A stage the actor decided before the sweep ran is not silent, it
 			// is finished.
-			return $this->nothing('This stage is no longer active.');
+			return $this->nothing(reason: 'This stage is no longer active.');
 		}
 
 		if ((string)($stage['lapsedAt'] ?? '') !== '') {
 			// Already lapsed once. Applying a policy twice is how running the
 			// sweep after a failed run double-advances a route.
-			return $this->nothing('A lapse has already been applied to this stage.');
+			return $this->nothing(reason: 'A lapse has already been applied to this stage.');
 		}
 
 		$dueAt = trim((string)($stage['dueAt'] ?? ''));
 		if ($dueAt === '') {
 			// A missing deadline is not a deadline that has passed.
-			return $this->nothing('This stage has no due date, so it cannot lapse.');
+			return $this->nothing(reason: 'This stage has no due date, so it cannot lapse.');
 		}
 
 		if ($this->hasPassed(instant: $dueAt, now: $now) === false) {
-			return $this->nothing('This stage is not due yet.');
+			return $this->nothing(reason: 'This stage is not due yet.');
 		}
 
 		$onSilence = (string)($stage['onSilence'] ?? self::ON_SILENCE_HOLD);
@@ -196,7 +197,7 @@ final class StageLapsePolicy {
 		if ($onSilence === self::ON_SILENCE_ESCALATE && (string)($stage['actorResolvedBy'] ?? '') === ApprovalActorResolver::RULE_MANAGER_OF_ACTOR) {
 			// Escalated once already. A quiet fortnight must not walk a decision
 			// up an entire hierarchy to somebody with no idea why it is theirs.
-			return $this->nothing('This stage has already been escalated once and now holds.');
+			return $this->nothing(reason: 'This stage has already been escalated once and now holds.');
 		}
 
 		return match ($onSilence) {
@@ -215,7 +216,7 @@ final class StageLapsePolicy {
 				'outcome' => null,
 				'reason' => 'The step declares that silence escalates, and its due date has passed.',
 			],
-			default => $this->nothing('The step holds on silence, which is the default.'),
+			default => $this->nothing(reason: 'The step holds on silence, which is the default.'),
 		};
 	}//end effectFor()
 
@@ -237,6 +238,11 @@ final class StageLapsePolicy {
 		// `note` and its step number under `sequence`. Reading `subject` and
 		// `order` here is how a lapse row ends up with an empty subject and step
 		// zero, which validates, stores, and is unreadable afterwards.
+		$state = 'granted';
+		if ($effect['outcome'] === 'rejected') {
+			$state = 'refused';
+		}
+
 		return [
 			'subject' => (string)($stage['decision'] ?? ($stage['subject'] ?? '')),
 			'subjectSchema' => (string)($stage['note'] ?? ($stage['subjectSchema'] ?? '')),
@@ -246,7 +252,7 @@ final class StageLapsePolicy {
 			'actor' => 'system',
 			'actorType' => 'system',
 			'action' => 'lapsed',
-			'state' => ($effect['outcome'] === 'rejected' ? 'refused' : 'granted'),
+			'state' => $state,
 			'comment' => $effect['reason'],
 			'onSilencePolicy' => (string)($stage['onSilence'] ?? self::ON_SILENCE_HOLD),
 			'recordedAt' => $now->format(DateTimeImmutable::ATOM),
@@ -281,7 +287,7 @@ final class StageLapsePolicy {
 			return false;
 		}
 
-		$askPoint = $this->askPointFor($stage);
+		$askPoint = $this->askPointFor(stage: $stage);
 
 		return ($askPoint !== null && $askPoint <= $now);
 	}//end shouldAskSubstitute()
@@ -310,8 +316,8 @@ final class StageLapsePolicy {
 			return null;
 		}
 
-		$start = $this->parse($startedAt);
-		$due = $this->parse($dueAt);
+		$start = $this->parse(instant: $startedAt);
+		$due = $this->parse(instant: $dueAt);
 		if ($start === null || $due === null || $due <= $start) {
 			return null;
 		}
@@ -319,7 +325,11 @@ final class StageLapsePolicy {
 		$window = ($due->getTimestamp() - $start->getTimestamp());
 		$offset = (int)round(($window * $share));
 
-		return $start->modify(sprintf('+%d seconds', $offset));
+		// An interval passed to add(), rather than a relative string passed to
+		// modify(): modify() reports a format it rejects as false, and that
+		// false would travel on as if it were an instant. The offset is a whole
+		// number of seconds and never negative, so the interval is well formed.
+		return $start->add(new DateInterval(sprintf('PT%dS', $offset)));
 	}//end askPointFor()
 
 	/**
@@ -342,7 +352,7 @@ final class StageLapsePolicy {
 	 * @return bool True when it has passed.
 	 */
 	private function hasPassed(string $instant, DateTimeImmutable $now): bool {
-		$parsed = $this->parse($instant);
+		$parsed = $this->parse(instant: $instant);
 
 		return ($parsed !== null && $parsed <= $now);
 	}//end hasPassed()

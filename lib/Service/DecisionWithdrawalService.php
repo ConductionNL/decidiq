@@ -108,7 +108,10 @@ final class DecisionWithdrawalService {
 			throw new InvalidArgumentException('A decision that was never taken cannot be withdrawn.');
 		}
 
-		$when = ($withdrawnAt === '' ? (new DateTimeImmutable())->format(DateTimeImmutable::ATOM) : $withdrawnAt);
+		$when = $withdrawnAt;
+		if ($when === '') {
+			$when = (new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
+		}
 
 		// Deliberately NOT touching `outcome`. What was decided stays readable
 		// beside the withdrawal, because somebody relied on it in between.

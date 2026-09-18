@@ -158,7 +158,7 @@ final class ApprovalActorResolver {
 		?callable $hasAccount = null,
 		string $resolvedAt = '',
 	): array {
-		$this->assertStepIsResolvable($step);
+		$this->assertStepIsResolvable(step: $step);
 
 		$rule = trim((string)($step['actorRule'] ?? ''));
 		if ($rule === '') {
@@ -177,9 +177,49 @@ final class ApprovalActorResolver {
 			);
 		}
 
-		$readAgainst = ($rule === self::RULE_MANAGER_OF_SUBJECT_OWNER
-			? trim($subjectOwner)
-			: trim((string)($step['actorRuleSubject'] ?? '')));
+		$readAgainst = $this->readAgainstFor(step: $step, rule: $rule, subjectOwner: $subjectOwner);
+		$property = $this->propertyFor(rule: $rule);
+		$resolved = $this->soleCandidate(
+			people: $people,
+			readAgainst: $readAgainst,
+			property: $property,
+			rule: $rule,
+		);
+
+		if ($hasAccount !== null && $hasAccount($resolved) === false) {
+			throw new RuntimeException(
+				sprintf('The rule "%s" resolved to %s, who has no account on this instance and cannot sign anything.', $rule, $resolved)
+			);
+		}
+
+		$resolvedWhen = $resolvedAt;
+		if ($resolvedWhen === '') {
+			$resolvedWhen = (new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
+		}
+
+		return [
+			'actor' => $resolved,
+			'actorResolvedBy' => $rule,
+			'actorResolvedAt' => $resolvedWhen,
+		];
+	}//end resolve()
+
+	/**
+	 * The person the rule is read against.
+	 *
+	 * @param array<string, mixed> $step The step carrying the rule.
+	 * @param string $rule The rule being resolved.
+	 * @param string $subjectOwner The subject's owner, for the rule that reads it.
+	 *
+	 * @return string The person to read the organisation record against.
+	 *
+	 * @throws RuntimeException When there is nobody to read against.
+	 */
+	private function readAgainstFor(array $step, string $rule, string $subjectOwner): string {
+		$readAgainst = trim((string)($step['actorRuleSubject'] ?? ''));
+		if ($rule === self::RULE_MANAGER_OF_SUBJECT_OWNER) {
+			$readAgainst = trim($subjectOwner);
+		}
 
 		if ($readAgainst === '') {
 			throw new RuntimeException(
@@ -187,7 +227,37 @@ final class ApprovalActorResolver {
 			);
 		}
 
-		$property = ($rule === self::RULE_SUBSTITUTE_OF_ACTOR ? 'substitute' : 'manager');
+		return $readAgainst;
+	}//end readAgainstFor()
+
+	/**
+	 * The organisation-record property a rule reads.
+	 *
+	 * @param string $rule The rule being resolved.
+	 *
+	 * @return string The property name.
+	 */
+	private function propertyFor(string $rule): string {
+		if ($rule === self::RULE_SUBSTITUTE_OF_ACTOR) {
+			return 'substitute';
+		}
+
+		return 'manager';
+	}//end propertyFor()
+
+	/**
+	 * The one person a rule resolves to, or a refusal.
+	 *
+	 * @param array<int, mixed> $people The organisation records.
+	 * @param string $readAgainst The person the rule is read against.
+	 * @param string $property The property the rule reads.
+	 * @param string $rule The rule being resolved, for the refusals.
+	 *
+	 * @return string The resolved person.
+	 *
+	 * @throws RuntimeException When the rule resolves to nobody, or to more than one.
+	 */
+	private function soleCandidate(array $people, string $readAgainst, string $property, string $rule): string {
 		$candidates = $this->candidatesFor(people: $people, person: $readAgainst, property: $property);
 
 		if ($candidates === []) {
@@ -209,20 +279,8 @@ final class ApprovalActorResolver {
 			);
 		}
 
-		$resolved = $candidates[0];
-
-		if ($hasAccount !== null && $hasAccount($resolved) === false) {
-			throw new RuntimeException(
-				sprintf('The rule "%s" resolved to %s, who has no account on this instance and cannot sign anything.', $rule, $resolved)
-			);
-		}
-
-		return [
-			'actor' => $resolved,
-			'actorResolvedBy' => $rule,
-			'actorResolvedAt' => ($resolvedAt === '' ? (new DateTimeImmutable())->format(DateTimeImmutable::ATOM) : $resolvedAt),
-		];
-	}//end resolve()
+		return $candidates[0];
+	}//end soleCandidate()
 
 	/**
 	 * Resolve the substitute of a person, returning null rather than throwing.
@@ -242,7 +300,11 @@ final class ApprovalActorResolver {
 		$candidates = $this->candidatesFor(people: $people, person: $person, property: 'substitute');
 
 		// More than one is as unusable as none: there is no basis to pick.
-		return (count($candidates) === 1 ? $candidates[0] : null);
+		if (count($candidates) === 1) {
+			return $candidates[0];
+		}
+
+		return null;
 	}//end substituteOf()
 
 	/**
@@ -262,11 +324,11 @@ final class ApprovalActorResolver {
 				continue;
 			}
 
-			if ($this->identifies($record, $person) === false) {
+			if ($this->identifies(record: $record, person: $person) === false) {
 				continue;
 			}
 
-			foreach ($this->referencesOf($record, $property) as $reference) {
+			foreach ($this->referencesOf(record: $record, property: $property) as $reference) {
 				if ($reference !== '' && in_array($reference, $candidates, true) === false) {
 					$candidates[] = $reference;
 				}
@@ -307,7 +369,11 @@ final class ApprovalActorResolver {
 		$value = ($record[$property] ?? null);
 
 		if (is_string($value) === true) {
-			return ($value === '' ? [] : [$value]);
+			if ($value === '') {
+				return [];
+			}
+
+			return [$value];
 		}
 
 		if (is_array($value) === false) {

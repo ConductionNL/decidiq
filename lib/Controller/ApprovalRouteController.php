@@ -97,22 +97,9 @@ class ApprovalRouteController extends Controller {
 			// RBAC answers as the acting user.
 			$this->service->assertSubjectAccessible(subject: $subject, subjectSchema: $subjectSchema);
 
-			// A route the caller marked `adhoc` is held from the people its
-			// steps name, with no template row written. A review of one document
-			// by three colleagues is not a template anybody reuses, and storing
-			// one per review fills the register with routes nobody will read
-			// again (REQ-AR-008).
-			if ((string)($route['origin'] ?? '') === 'adhoc') {
-				$stages = $this->service->holdFor(
-					subject: $subject,
-					actors: $this->actorsOf(route: $route),
-					subjectSchema: $subjectSchema,
-					deadline: (string)$this->request->getParam('deadline', ''),
-					name: (string)($route['name'] ?? 'Review'),
-				);
-			} else {
-				$stages = $this->service->instantiate(route: $route, subject: $subject, subjectSchema: $subjectSchema);
-			}
+			// Held or instantiated, depending on the route's origin. See
+			// stagesFor() for why an adhoc route writes no template row.
+			$stages = $this->stagesFor(route: $route, subject: $subject, subjectSchema: $subjectSchema);
 		} catch (Throwable $e) {
 			// The engine's refusals are the point of the engine, so the caller
 			// gets the reason rather than a generic failure.
@@ -125,6 +112,34 @@ class ApprovalRouteController extends Controller {
 
 		return new JSONResponse(['stages' => $stages], Http::STATUS_CREATED);
 	}//end instantiate()
+
+	/**
+	 * The stages this route produces, held or instantiated.
+	 *
+	 * A route the caller marked `adhoc` is held from the people its steps name,
+	 * with no template row written. A review of one document by three colleagues
+	 * is not a template anybody reuses, and storing one per review fills the
+	 * register with routes nobody will read again (REQ-AR-008).
+	 *
+	 * @param array<string, mixed> $route The route as the caller sent it.
+	 * @param string $subject The subject's UUID.
+	 * @param string $subjectSchema The subject's schema slug.
+	 *
+	 * @return array<int, array<string, mixed>> The stages.
+	 */
+	private function stagesFor(array $route, string $subject, string $subjectSchema): array {
+		if ((string)($route['origin'] ?? '') === 'adhoc') {
+			return $this->service->holdFor(
+				subject: $subject,
+				actors: $this->actorsOf(route: $route),
+				subjectSchema: $subjectSchema,
+				deadline: (string)$this->request->getParam('deadline', ''),
+				name: (string)($route['name'] ?? 'Review'),
+			);
+		}
+
+		return $this->service->instantiate(route: $route, subject: $subject, subjectSchema: $subjectSchema);
+	}//end stagesFor()
 
 	/**
 	 * The people an ad-hoc route's steps name, in step order.
@@ -143,8 +158,19 @@ class ApprovalRouteController extends Controller {
 
 		usort(
 			$steps,
-			static fn (mixed $a, mixed $b): int => ((int)((is_array($a) === true ? $a['order'] : 0) ?? 0)
-				<=> (int)((is_array($b) === true ? $b['order'] : 0) ?? 0))
+			static function (mixed $first, mixed $second): int {
+				$orderOfFirst = 0;
+				if (is_array($first) === true) {
+					$orderOfFirst = (int)($first['order'] ?? 0);
+				}
+
+				$orderOfSecond = 0;
+				if (is_array($second) === true) {
+					$orderOfSecond = (int)($second['order'] ?? 0);
+				}
+
+				return ($orderOfFirst <=> $orderOfSecond);
+			}
 		);
 
 		$actors = [];

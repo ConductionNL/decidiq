@@ -78,7 +78,7 @@ final class SubjectClearanceService {
 				continue;
 			}
 
-			$stage = $this->liveStageOf($route);
+			$stage = $this->liveStageOf(route: $route);
 			if ($stage === null) {
 				continue;
 			}
@@ -107,6 +107,8 @@ final class SubjectClearanceService {
 	 * @param array{cleared: bool, waitingOn: array<int, array<string, mixed>>} $clearance The answer.
 	 *
 	 * @return string The sentence.
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
 	 */
 	public function describe(array $clearance): string {
 		if (($clearance['cleared'] ?? false) === true) {
@@ -118,9 +120,12 @@ final class SubjectClearanceService {
 			$actor = (string)($waiting['actor'] ?? '');
 			$route = (string)($waiting['routeName'] ?? ($waiting['route'] ?? 'a route'));
 
-			$parts[] = ($actor === ''
-				? sprintf('%s, at a step with no actor assigned', $route)
-				: sprintf('%s, waiting on %s', $route, $actor));
+			if ($actor === '') {
+				$parts[] = sprintf('%s, at a step with no actor assigned', $route);
+				continue;
+			}
+
+			$parts[] = sprintf('%s, waiting on %s', $route, $actor);
 		}
 
 		return sprintf('Still waiting on %s.', implode('; ', $parts));

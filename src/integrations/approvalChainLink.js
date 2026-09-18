@@ -71,7 +71,9 @@ export async function listStages(subjectId, limit = 100) {
 	const data = res && res.data
 	const rows = Array.isArray(data)
 		? data
-		: (data && Array.isArray(data.results) ? data.results : [])
+		: data && Array.isArray(data.results)
+			? data.results
+			: []
 	return rows
 		.slice()
 		.sort((a, b) => Number(a.sequence || 0) - Number(b.sequence || 0))
@@ -110,10 +112,14 @@ export async function listActions(subjectId, limit = 200) {
 	const data = res && res.data
 	const rows = Array.isArray(data)
 		? data
-		: (data && Array.isArray(data.results) ? data.results : [])
+		: data && Array.isArray(data.results)
+			? data.results
+			: []
 	return rows
 		.slice()
-		.sort((a, b) => String(a.recordedAt || '').localeCompare(String(b.recordedAt || '')))
+		.sort((a, b) =>
+			String(a.recordedAt || '').localeCompare(String(b.recordedAt || '')),
+		)
 }
 
 /**
@@ -124,7 +130,7 @@ export async function listActions(subjectId, limit = 200) {
  */
 export function actionsByStep(actions) {
 	const byStep = {}
-	for (const action of (actions || [])) {
+	for (const action of actions || []) {
 		const step = String(Number(action.step || 0))
 		if (byStep[step] === undefined) byStep[step] = []
 		byStep[step].push(action)
@@ -141,8 +147,8 @@ export function actionsByStep(actions) {
 export function liveStage(stages) {
 	if (!Array.isArray(stages) || stages.length === 0) return null
 	return (
-		stages.find(stage => String(stage.status || '') === 'active')
-		|| stages.find(stage => String(stage.status || '') === 'pending')
+		stages.find((stage) => String(stage.status || '') === 'active')
+		|| stages.find((stage) => String(stage.status || '') === 'pending')
 		|| null
 	)
 }
@@ -203,7 +209,13 @@ export function isCurrentActor(stage, uid) {
  * @param {string} [params.comment] The reason, required on a rejection.
  * @return {Promise<object>} The recorded action.
  */
-export async function recordAction({ subject, subjectSchema, step, action, comment }) {
+export async function recordAction({
+	subject,
+	subjectSchema,
+	step,
+	action,
+	comment,
+}) {
 	const res = await axios.post(
 		generateUrl('/apps/decidiq/api/approval-routes/actions'),
 		{ subject, subjectSchema, step, action, comment: comment || '' },

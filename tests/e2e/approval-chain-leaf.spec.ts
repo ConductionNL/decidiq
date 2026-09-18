@@ -66,7 +66,9 @@ async function waitForRegistry(page: Page): Promise<void> {
 				!!(
 					window as Window & {
 						OCA?: {
-							OpenRegister?: { integrations?: { list?: () => unknown[] } }
+							OpenRegister?: {
+								integrations?: { list?: () => unknown[] }
+							}
 						}
 					}
 				).OCA?.OpenRegister?.integrations?.list,
@@ -88,7 +90,9 @@ async function providers(page: Page): Promise<Array<Record<string, unknown>>> {
 			window as Window & {
 				OCA?: {
 					OpenRegister?: {
-						integrations?: { list?: () => Array<Record<string, unknown>> }
+						integrations?: {
+							list?: () => Array<Record<string, unknown>>
+						}
 					}
 				}
 			}
@@ -110,7 +114,7 @@ test.describe('the document approval chain leaf', () => {
 			'integration registry not initialised on this build',
 		)
 
-		const leaf = registered.find(entry => String(entry.id) === LEAF_ID)
+		const leaf = registered.find((entry) => String(entry.id) === LEAF_ID)
 		expect(
 			leaf,
 			`${LEAF_ID} did not register, so the surface is dark wherever a host object renders`,
@@ -155,7 +159,7 @@ test.describe('the document approval chain leaf', () => {
 
 		for (const [slug, properties] of Object.entries(ADDED)) {
 			const schema = schemas.find(
-				candidate => String(candidate.slug ?? '') === slug,
+				(candidate) => String(candidate.slug ?? '') === slug,
 			)
 			// A stack that never imported decidiq's register is a skip, not a
 			// failure: this asserts the fragment's CONTENT.

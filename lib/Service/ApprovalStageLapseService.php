@@ -114,9 +114,9 @@ class ApprovalStageLapseService {
 	 *
 	 * @return string The translation.
 	 */
-	private function t(string $text): string {
+	private function translate(string $text): string {
 		return ($this->l10n?->t($text) ?? $text);
-	}//end t()
+	}//end translate()
 
 	/**
 	 * Sweep every waiting stage.
@@ -183,9 +183,9 @@ class ApprovalStageLapseService {
 				uuid: $uuid,
 			);
 			$this->tell(
-				$actor,
-				$this->t('No stand-in was found for your sign-off'),
-				$this->t('Nobody is recorded as your substitute, so this sign-off is still waiting on you. Its deadline has not moved.')
+				person: $actor,
+				title: $this->translate(text: 'No stand-in was found for your sign-off'),
+				message: $this->translate(text: 'Nobody is recorded as your substitute, so this sign-off is still waiting on you. Its deadline has not moved.')
 			);
 			return false;
 		}
@@ -202,14 +202,16 @@ class ApprovalStageLapseService {
 		// BOTH are told, because both may act. Telling only the substitute
 		// reads to the original actor as if the step had been taken off them.
 		$this->tell(
-			$substitute,
-			$this->t('A sign-off is waiting, on behalf of a colleague'),
-			$this->t('You have been asked to stand in on a sign-off that is part-way through its term. Whoever acts first closes it.')
+			person: $substitute,
+			title: $this->translate(text: 'A sign-off is waiting, on behalf of a colleague'),
+			message: $this->translate(text: 'You have been asked to stand in on a sign-off that is part-way through its term. Whoever acts first closes it.')
 		);
 		$this->tell(
-			$actor,
-			$this->t('Your stand-in has been asked as well'),
-			$this->t('This sign-off is part-way through its term, so your substitute has been asked too. You can still sign it yourself.')
+			person: $actor,
+			title: $this->translate(text: 'Your stand-in has been asked as well'),
+			message: $this->translate(
+				text: 'This sign-off is part-way through its term, so your substitute has been asked too. You can still sign it yourself.'
+			)
 		);
 
 		return true;
@@ -232,7 +234,7 @@ class ApprovalStageLapseService {
 		}
 
 		$uuid = (string)($stage['id'] ?? '');
-		$at = $now->format(DateTimeImmutable::ATOM);
+		$stampedAt = $now->format(DateTimeImmutable::ATOM);
 		$actor = (string)($stage['assignedPerson'] ?? '');
 
 		if ($effect['effect'] === StageLapsePolicy::EFFECT_REASSIGN) {
@@ -254,10 +256,10 @@ class ApprovalStageLapseService {
 					'assignedPerson' => $manager,
 					'decisionMakerType' => 'person',
 					'actorResolvedBy' => ApprovalActorResolver::RULE_MANAGER_OF_ACTOR,
-					'actorResolvedAt' => $at,
-					'activatedAt' => $at,
+					'actorResolvedAt' => $stampedAt,
+					'activatedAt' => $stampedAt,
 					'dueAt' => $this->restartedWindow(stage: $stage, now: $now),
-					'lapsedAt' => $at,
+					'lapsedAt' => $stampedAt,
 					// The stand-in fields belong to the person who has just been
 					// replaced; carrying them onto the manager would ask their
 					// predecessor's substitute.
@@ -270,14 +272,18 @@ class ApprovalStageLapseService {
 
 			$this->recordLapse(stage: $stage, effect: $effect, now: $now);
 			$this->tell(
-				$actor,
-				$this->t('Your sign-off has moved up'),
-				$this->t('The term on this sign-off passed without an answer, and the step declares that silence escalates, so it is now with your manager.')
+				person: $actor,
+				title: $this->translate(text: 'Your sign-off has moved up'),
+				message: $this->translate(
+					text: 'The term on this sign-off passed without an answer, and the step declares that silence escalates, so it is now with your manager.'
+				)
 			);
 			$this->tell(
-				$manager,
-				$this->t('A sign-off has escalated to you'),
-				$this->t('A step your colleague was asked to sign passed its term without an answer. The step declares that silence escalates, so it is now yours, with a fresh term.')
+				person: $manager,
+				title: $this->translate(text: 'A sign-off has escalated to you'),
+				message: $this->translate(
+					text: 'A step your colleague was asked to sign passed its term without an answer. Silence escalates there, so it is now yours, with a new term.'
+				)
 			);
 
 			return true;
@@ -288,8 +294,8 @@ class ApprovalStageLapseService {
 			data: [
 				'status' => 'decided',
 				'outcome' => $effect['outcome'],
-				'decidedAt' => $at,
-				'lapsedAt' => $at,
+				'decidedAt' => $stampedAt,
+				'lapsedAt' => $stampedAt,
 			],
 			uuid: $uuid,
 		);
@@ -299,17 +305,21 @@ class ApprovalStageLapseService {
 		if ($effect['effect'] === StageLapsePolicy::EFFECT_ADVANCE) {
 			$this->activateNext(stage: $stage, now: $now);
 			$this->tell(
-				$actor,
-				$this->t('A sign-off passed its term and was taken as approved'),
-				$this->t('The term on this sign-off passed without an answer. The step declares that silence approves, so it has been recorded as approved by the system and the next step is now live.')
+				person: $actor,
+				title: $this->translate(text: 'A sign-off passed its term and was taken as approved'),
+				message: $this->translate(
+					text: 'The term passed without an answer. Silence approves here, so the system recorded it as approved and the next step is live.'
+				)
 			);
 			return true;
 		}
 
 		$this->tell(
-			$actor,
-			$this->t('A sign-off passed its term and was taken as refused'),
-			$this->t('The term on this sign-off passed without an answer. The step declares that silence refuses, so the route has been concluded as rejected.')
+			person: $actor,
+			title: $this->translate(text: 'A sign-off passed its term and was taken as refused'),
+			message: $this->translate(
+				text: 'The term on this sign-off passed without an answer. The step declares that silence refuses, so the route has been concluded as rejected.'
+			)
 		);
 
 		return true;
@@ -335,19 +345,7 @@ class ApprovalStageLapseService {
 		$siblings = $this->store->findAll(schema: self::STAGE_SCHEMA, filters: ['decision' => $subject]);
 		usort($siblings, static fn (array $a, array $b): int => ((int)$a['sequence'] <=> (int)$b['sequence']));
 
-		$next = null;
-		foreach ($siblings as $sibling) {
-			if ((int)$sibling['sequence'] === $sequence && (string)($sibling['status'] ?? '') === 'active') {
-				// A parallel sibling at the same step is still signing, so the
-				// group is not done and nothing after it becomes live.
-				return;
-			}
-
-			if ($next === null && (int)$sibling['sequence'] > $sequence && (string)($sibling['status'] ?? '') === 'pending') {
-				$next = (int)$sibling['sequence'];
-			}
-		}
-
+		$next = $this->nextLiveSequence(siblings: $siblings, sequence: $sequence);
 		if ($next === null) {
 			return;
 		}
@@ -364,6 +362,34 @@ class ApprovalStageLapseService {
 			);
 		}
 	}//end activateNext()
+
+	/**
+	 * The step number that becomes live once this one has completed.
+	 *
+	 * A sibling still signing at the same step means the group is not done, so
+	 * nothing after it becomes live and the answer is null. That is the same
+	 * answer as "there is no later pending step", because both mean the sweep
+	 * activates nothing.
+	 *
+	 * @param array<int, array<string, mixed>> $siblings Every stage of the subject, by step.
+	 * @param int $sequence The step that just completed.
+	 *
+	 * @return int|null The step to make live, or null when none does.
+	 */
+	private function nextLiveSequence(array $siblings, int $sequence): ?int {
+		$next = null;
+		foreach ($siblings as $sibling) {
+			if ((int)$sibling['sequence'] === $sequence && (string)($sibling['status'] ?? '') === 'active') {
+				return null;
+			}
+
+			if ($next === null && (int)$sibling['sequence'] > $sequence && (string)($sibling['status'] ?? '') === 'pending') {
+				$next = (int)$sibling['sequence'];
+			}
+		}
+
+		return $next;
+	}//end nextLiveSequence()
 
 	/**
 	 * Append the action that says the step moved, and under which policy.

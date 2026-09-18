@@ -54,7 +54,7 @@ test.describe('the decision as a walked process', () => {
 
 		for (const [slug, properties] of Object.entries(ADDED)) {
 			const schema = schemas.find(
-				candidate => String(candidate.slug ?? '') === slug,
+				(candidate) => String(candidate.slug ?? '') === slug,
 			)
 
 			// A stack that never imported decidiq's register at all is a skip,
