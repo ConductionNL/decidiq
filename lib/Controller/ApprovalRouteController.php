@@ -94,7 +94,22 @@ class ApprovalRouteController extends Controller {
 			// RBAC answers as the acting user.
 			$this->service->assertSubjectAccessible(subject: $subject, subjectSchema: $subjectSchema);
 
-			$stages = $this->service->instantiate(route: $route, subject: $subject, subjectSchema: $subjectSchema);
+			// A route the caller marked `adhoc` is held from the people its
+			// steps name, with no template row written. A review of one document
+			// by three colleagues is not a template anybody reuses, and storing
+			// one per review fills the register with routes nobody will read
+			// again (REQ-AR-008).
+			if ((string)($route['origin'] ?? '') === 'adhoc') {
+				$stages = $this->service->holdFor(
+					subject: $subject,
+					actors: $this->actorsOf(route: $route),
+					subjectSchema: $subjectSchema,
+					deadline: (string)$this->request->getParam('deadline', ''),
+					name: (string)($route['name'] ?? 'Review'),
+				);
+			} else {
+				$stages = $this->service->instantiate(route: $route, subject: $subject, subjectSchema: $subjectSchema);
+			}
 		} catch (Throwable $e) {
 			// The engine's refusals are the point of the engine, so the caller
 			// gets the reason rather than a generic failure.
@@ -107,6 +122,37 @@ class ApprovalRouteController extends Controller {
 
 		return new JSONResponse(['stages' => $stages], Http::STATUS_CREATED);
 	}//end instantiate()
+
+	/**
+	 * The people an ad-hoc route's steps name, in step order.
+	 *
+	 * @param array<string, mixed> $route The route as the caller sent it.
+	 *
+	 * @return array<int, string> The people.
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
+	 */
+	private function actorsOf(array $route): array {
+		$steps = ($route['steps'] ?? []);
+		if (is_array($steps) === false) {
+			return [];
+		}
+
+		usort(
+			$steps,
+			static fn (mixed $a, mixed $b): int => ((int)((is_array($a) === true ? $a['order'] : 0) ?? 0)
+				<=> (int)((is_array($b) === true ? $b['order'] : 0) ?? 0))
+		);
+
+		$actors = [];
+		foreach ($steps as $step) {
+			if (is_array($step) === true && trim((string)($step['actor'] ?? '')) !== '') {
+				$actors[] = trim((string)$step['actor']);
+			}
+		}
+
+		return $actors;
+	}//end actorsOf()
 
 	/**
 	 * Record an action on a subject's active stage.

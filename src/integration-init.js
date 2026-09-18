@@ -18,6 +18,8 @@
 // Kept deliberately tiny: it imports only the leaf components +
 // registration helper, no router / store boot / app shell.
 
+import { registerApprovalChainLeaf } from './integrations/registerApprovalChainLeaf.js'
 import { registerDecisionsLeaf } from './integrations/registerDecisionsLeaf.js'
 
 registerDecisionsLeaf()
+registerApprovalChainLeaf()

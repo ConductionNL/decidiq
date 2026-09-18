@@ -86,14 +86,199 @@ class ApprovalRouteService {
 	 *        onto OpenRegister's task surface. Nullable so the engine's rules
 	 *        never depend on the projection: a missing task surface changes
 	 *        where the ask is SEEN, never whether the route advances.
+	 * @param WorkingDayDeadlineSplitter|null $splitter Divides one deadline over
+	 *        the steps. Nullable and last, so a caller built before deadlines
+	 *        existed keeps working: without it a held route simply carries no
+	 *        due dates, which is what it carries today.
 	 */
 	public function __construct(
 		private readonly RegisterObjectStore $store,
 		private readonly ApprovalStageGuard $guard,
 		private readonly ApprovalRouteStepMapper $mapper,
 		private readonly ?ApprovalStageTaskProjector $projector = null,
+		private readonly ?WorkingDayDeadlineSplitter $splitter = null,
 	) {
 	}//end __construct()
+
+	/**
+	 * Hold a route on a subject from a list of named people, with no stored
+	 * template.
+	 *
+	 * The everyday case a template cannot serve: a clerk with a document in
+	 * front of them and three colleagues who have to look at it, in that order,
+	 * before the end of the month. Writing an `ApprovalRoute` row first would
+	 * leave a template nobody reuses on every such review.
+	 *
+	 * The stages are the engine's ordinary ones, so everything that already
+	 * works on a route works on this one: the guard, the return verbs, the
+	 * parallel groups, the conclusion announcement.
+	 *
+	 * @param string $subject The subject's uuid.
+	 * @param array<int, string> $actors The people to ask, in order.
+	 * @param string $subjectSchema The subject's schema slug.
+	 * @param string $deadline The deadline for the whole route, as an ISO-8601
+	 *        instant. Empty means no due dates at all.
+	 * @param string $kind The stage type every step carries.
+	 * @param string $name What to call the route on a surface.
+	 *
+	 * @return array<int, array<string, mixed>> The stages.
+	 *
+	 * @throws RuntimeException When no actor is named.
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008, REQ-AR-009)
+	 */
+	public function holdFor(
+		string $subject,
+		array $actors,
+		string $subjectSchema,
+		string $deadline = '',
+		string $kind = 'endorsement',
+		string $name = 'Review',
+	): array {
+		$named = [];
+		foreach ($actors as $actor) {
+			$actor = trim((string)$actor);
+			if ($actor !== '' && in_array($actor, $named, true) === false) {
+				// A person named twice would be asked twice on the same
+				// document, and the second ask would refuse: the first sign-off
+				// already advanced past their step.
+				$named[] = $actor;
+			}
+		}
+
+		if ($named === []) {
+			throw new RuntimeException('A route held from named people needs at least one person.');
+		}
+
+		$steps = [];
+		foreach ($named as $index => $actor) {
+			$steps[] = [
+				'order' => ($index + 1),
+				'stageType' => $kind,
+				'actorType' => 'person',
+				'actor' => $actor,
+				'mandatory' => true,
+			];
+		}
+
+		$stages = $this->instantiate(
+			route: [
+				'id' => '',
+				'name' => $name,
+				// `adhoc` and not a route id: this route has no template, and a
+				// surface that went looking for one would find nothing and have
+				// no way to tell that from a template that was deleted.
+				'origin' => 'adhoc',
+				'steps' => $steps,
+			],
+			subject: $subject,
+			subjectSchema: $subjectSchema,
+		);
+
+		return $this->stampHeldRoute(stages: $stages, deadline: $deadline);
+	}//end holdFor()
+
+	/**
+	 * Mark the stages as ad-hoc and divide one deadline over them.
+	 *
+	 * Applied AFTER the stages exist rather than folded into their creation:
+	 * the split is arithmetic over the number of stages, and the number of
+	 * stages is only certain once they are written.
+	 *
+	 * @param array<int, array<string, mixed>> $stages The stages, in order.
+	 * @param string $deadline The deadline, as an ISO-8601 instant.
+	 *
+	 * @return array<int, array<string, mixed>> The stages, stamped.
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008, REQ-AR-009)
+	 */
+	private function stampHeldRoute(array $stages, string $deadline): array {
+		$dueDates = $this->dueDatesFor(stages: $stages, deadline: $deadline);
+
+		foreach ($stages as $index => $stage) {
+			// `origin` says the route has no template, so a surface that finds
+			// no ApprovalRoute row can tell that from a template somebody
+			// deleted under a route still in flight.
+			$patch = ['origin' => 'adhoc'];
+			if (isset($dueDates[$index]) === true) {
+				$patch['dueAt'] = $dueDates[$index];
+			}
+
+			$stages[$index] = $this->store->patch(
+				schema: 'decision-stage',
+				data: $patch,
+				uuid: (string)$stage['id'],
+			);
+		}
+
+		return $stages;
+	}//end stampHeldRoute()
+
+	/**
+	 * One due date per stage, or none at all.
+	 *
+	 * @param array<int, array<string, mixed>> $stages The stages, in order.
+	 * @param string $deadline The deadline, as an ISO-8601 instant.
+	 *
+	 * @return array<int, string> The due dates.
+	 *
+	 * @throws RuntimeException When the deadline cannot be read as a date.
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-009)
+	 */
+	private function dueDatesFor(array $stages, string $deadline): array {
+		if ($this->splitter === null || trim($deadline) === '' || $stages === []) {
+			return [];
+		}
+
+		try {
+			$end = new DateTimeImmutable($deadline);
+		} catch (\Throwable $e) {
+			// An unreadable deadline leaves the route without due dates, which
+			// is a route that never lapses. Inventing one would give every step
+			// a term nobody asked for.
+			throw new RuntimeException('That deadline could not be read as a date.');
+		}
+
+		return $this->splitter->split(
+			from: new DateTimeImmutable(),
+			deadline: $end,
+			steps: count($stages),
+		);
+	}//end dueDatesFor()
+
+	/**
+	 * Whether a stage is past its due date with nothing recorded on it.
+	 *
+	 * A COMPUTED view, not a lifecycle state: nothing writes "overdue" anywhere,
+	 * because a stored flag would need somebody to unset it the moment the step
+	 * is signed, and the moment it is not unset the timeline lies.
+	 *
+	 * @param array<string, mixed> $stage The stage.
+	 * @param DateTimeImmutable|null $now The clock; the real one when null.
+	 *
+	 * @return bool True when the stage renders overdue.
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-009)
+	 */
+	public function isOverdue(array $stage, ?DateTimeImmutable $now = null): bool {
+		if ((string)($stage['status'] ?? '') !== 'active') {
+			return false;
+		}
+
+		$dueAt = trim((string)($stage['dueAt'] ?? ''));
+		if ($dueAt === '') {
+			return false;
+		}
+
+		try {
+			$due = new DateTimeImmutable($dueAt);
+		} catch (\Throwable $e) {
+			return false;
+		}
+
+		return ($due < ($now ?? new DateTimeImmutable()));
+	}//end isOverdue()
 
 	/**
 	 * Refuse a caller who cannot reach the subject.
