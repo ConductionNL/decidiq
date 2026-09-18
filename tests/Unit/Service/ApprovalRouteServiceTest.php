@@ -972,4 +972,70 @@ class ApprovalRouteServiceTest extends TestCase {
 		$this->assertCount(3, $this->stages(), 'An ordinary route stopped instantiating.');
 	}
 
+
+	/**
+	 * A stage carries the step configuration it is running under.
+	 *
+	 * These four lived only on the ApprovalRoute step, which is the template, so
+	 * the three services that read a step's configuration had nothing to read at
+	 * runtime even once they were called. The stage is what the engine and the
+	 * sweeps actually hold, so the configuration has to travel onto it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002, REQ-DWP-003, REQ-DWP-004)
+	 */
+	public function testAStageCarriesItsStepConfiguration(): void {
+		$route = $this->route();
+		$route['steps'][0]['thresholdKind'] = 'share';
+		$route['steps'][0]['thresholdValue'] = 0.6;
+		$route['steps'][0]['approvalBasis'] = ['body', 'attachments'];
+		$route['steps'][0]['stepKind'] = 'intake';
+
+		$this->service()->instantiate(route: $route, subject: 'subj-1', subjectSchema: 'proposal');
+
+		$stage = $this->stages()[0];
+		$this->assertSame('share', $stage['thresholdKind']);
+		$this->assertSame(0.6, $stage['thresholdValue']);
+		$this->assertSame(['body', 'attachments'], $stage['approvalBasis']);
+		$this->assertSame('intake', $stage['stepKind']);
+	}
+
+	/**
+	 * A step that declares none of them writes none of them, so every stored
+	 * route keeps its meaning and each schema default stands.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function testAStageDeclaringNoStepConfigurationCarriesNone(): void {
+		$this->service()->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+
+		$stage = $this->stages()[0];
+		foreach (['thresholdKind', 'thresholdValue', 'approvalBasis', 'stepKind'] as $key) {
+			$this->assertArrayNotHasKey($key, $stage, sprintf('%s was written for a step that declared nothing.', $key));
+		}
+	}
+
+	/**
+	 * An EMPTY approval basis is dropped rather than stored.
+	 *
+	 * An empty basis never withdraws anything, which is what keeps staleness
+	 * opt-in. Storing `[]` would read as declared-and-empty to the next person,
+	 * which is a different claim from "this step named no basis".
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
+	 */
+	public function testAnEmptyApprovalBasisIsNotStored(): void {
+		$route = $this->route();
+		$route['steps'][0]['approvalBasis'] = [];
+
+		$this->service()->instantiate(route: $route, subject: 'subj-1', subjectSchema: 'proposal');
+
+		$this->assertArrayNotHasKey('approvalBasis', $this->stages()[0]);
+	}
+
 }

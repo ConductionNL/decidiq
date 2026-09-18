@@ -392,7 +392,7 @@ class ApprovalRouteService {
 			// group is weeks away. So the rule travels onto the stage, copied
 			// like every other step field, and editing the route afterwards
 			// leaves a route already in flight alone.
-			$declared = $this->mapper->silenceFields(step: $step);
+			$declared = $this->mapper->declaredStepFields(step: $step);
 			$created[] = $this->store->save(
 				schema: 'decision-stage',
 				object: $declared + [

@@ -49,10 +49,16 @@ class DecisionPublicationService {
 	 *
 	 * @param ContainerInterface $container DI container (lazy-loads OpenRegister services)
 	 * @param LoggerInterface $logger The logger
+	 * @param LegalRemedyResolver $remedies Refuses a type that declares no legal
+	 *        remedies, and stamps the clause onto what the reader receives.
+	 *        Deliberately NOT nullable: a null collaborator would mean the guard
+	 *        quietly does not run, which is the state this parameter ends. It has
+	 *        a real default because the resolver is pure and has nothing to inject.
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
+		private readonly LegalRemedyResolver $remedies = new LegalRemedyResolver(),
 	) {
 	}//end __construct()
 
@@ -94,6 +100,27 @@ class DecisionPublicationService {
 			return $this->envelope(status: Http::STATUS_UNPROCESSABLE_ENTITY, message: $rejection);
 		}
 
+		// REQ-DWP-007. A published besluit that does not carry its remedy clause
+		// tells nobody how to contest it, and the clause is the part a person
+		// needs in order to disagree. Refused BEFORE the write, so a decision
+		// whose type declares nothing is never published half-informed.
+		$type = $this->typeOf(objectService: $objectService, decision: $decision);
+		if ($type !== null) {
+			try {
+				$this->remedies->assertPublishable(type: $type);
+			} catch (\Throwable $e) {
+				return $this->envelope(
+					status: Http::STATUS_UNPROCESSABLE_ENTITY,
+					message: $e->getMessage()
+				);
+			}
+
+			// Stamped onto what is persisted, so the reader receives it rather
+			// than the clause living only in the type. stamp() leaves an
+			// already-stamped decision alone.
+			$decision = $this->remedies->stamp(decision: $decision, type: $type);
+		}
+
 		return $this->persistPublication(
 			objectService: $objectService,
 			decision: $decision,
@@ -102,6 +129,54 @@ class DecisionPublicationService {
 		);
 
 	}//end publish()
+
+	/**
+	 * The decision type this decision is an instance of, or null.
+	 *
+	 * `Decision.type` is a uuid reference to a `decision-template`. It is
+	 * NULLABLE, and a decision that names no type is left alone rather than
+	 * refused: we cannot read remedies off a type that was never chosen, and
+	 * refusing would stop every untyped decision from publishing, which is a
+	 * break rather than a guard. Those decisions still publish with no clause,
+	 * and that gap is named in the change's reachability scope.
+	 *
+	 * @param object $objectService OpenRegister ObjectService instance
+	 * @param array<string, mixed> $decision The Decision object array
+	 *
+	 * @return array<string, mixed>|null The type, or null when there is none to read.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-007)
+	 */
+	private function typeOf(object $objectService, array $decision): ?array {
+		$typeId = trim((string)($decision['type'] ?? ''));
+		if ($typeId === '') {
+			return null;
+		}
+
+		try {
+			$objectService->setSchema('decision-template');
+			$found = $objectService->find(id: $typeId);
+		} catch (\Throwable $e) {
+			// An unreadable type must not take publication down; it means we
+			// cannot answer the remedy question, not that the answer is no.
+			$this->logger->warning(
+				'Decidiq: could not read a decision type for the remedy clause',
+				['type' => $typeId, 'reason' => $e->getMessage()]
+			);
+			$found = null;
+		} finally {
+			// The caller set this to `decision` and the persist below depends
+			// on it; leaving it pointed at the template schema would save the
+			// decision into the wrong one.
+			$objectService->setSchema('decision');
+		}
+
+		if ($found === null) {
+			return null;
+		}
+
+		return (array)$found->getObject();
+	}//end typeOf()
 
 	/**
 	 * Load the Decision object as a plain array, or null when it does not exist.

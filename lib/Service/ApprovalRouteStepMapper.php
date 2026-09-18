@@ -203,8 +203,13 @@ class ApprovalRouteStepMapper {
 	}//end initialStatus()
 
 	/**
-	 * The fields a step declares about its own rule, its silence and its
-	 * stand-in, copied onto the stage.
+	 * The configuration a step declares, copied onto the stage.
+	 *
+	 * Named `silenceFields()` until 2026-09-18, when it grew the four fields
+	 * that decide how a step CLOSES rather than what its silence means. The old
+	 * name would have sent the next reader looking for the threshold somewhere
+	 * else, which is how thresholdKind came to live only on the template in the
+	 * first place.
 	 *
 	 * Copied and not read back off the route: editing a route must never change
 	 * what the silence of a stage already in flight means. Someone who lowers a
@@ -212,7 +217,7 @@ class ApprovalRouteStepMapper {
 	 * every stage that went quiet that week.
 	 *
 	 * Only keys the step actually declares are returned, so a step that says
-	 * nothing writes nothing and the schema default (`hold`) stands.
+	 * nothing writes nothing and each schema default stands.
 	 *
 	 * @param array<string, mixed> $step The route step.
 	 *
@@ -220,19 +225,35 @@ class ApprovalRouteStepMapper {
 	 *
 	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-015, REQ-AR-016)
 	 */
-	public function silenceFields(array $step): array {
+	public function declaredStepFields(array $step): array {
 		$fields = [];
 
-		foreach (['actorRule', 'actorRuleSubject', 'onSilence'] as $key) {
+		foreach (['actorRule', 'actorRuleSubject', 'onSilence', 'thresholdKind', 'stepKind'] as $key) {
 			$value = trim((string)($step[$key] ?? ''));
 			if ($value !== '') {
 				$fields[$key] = $value;
 			}
 		}
 
-		$fraction = ($step['askSubstituteAfter'] ?? null);
-		if (is_numeric($fraction) === true) {
-			$fields['askSubstituteAfter'] = (float)$fraction;
+		foreach (['askSubstituteAfter', 'thresholdValue'] as $key) {
+			$number = ($step[$key] ?? null);
+			if (is_numeric($number) === true) {
+				$fields[$key] = (float)$number;
+			}
+		}
+
+		// An EMPTY basis is not the same as no basis: an empty one never
+		// withdraws anything, which is what keeps staleness opt-in, so an empty
+		// array is dropped here and the stage carries nothing rather than a
+		// basis that reads as declared-and-empty.
+		$basis = ($step['approvalBasis'] ?? null);
+		if (is_array($basis) === true && $basis !== []) {
+			$fields['approvalBasis'] = array_values(
+				array_filter(
+					array_map(static fn (mixed $path): string => trim((string)$path), $basis),
+					static fn (string $path): bool => ($path !== '')
+				)
+			);
 		}
 
 		$dueAt = trim((string)($step['dueAt'] ?? ''));
@@ -241,6 +262,6 @@ class ApprovalRouteStepMapper {
 		}
 
 		return $fields;
-	}//end silenceFields()
+	}//end declaredStepFields()
 
 }//end class
