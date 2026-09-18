@@ -207,12 +207,17 @@ class ApprovalRouteServiceTest extends TestCase {
 	private function service(): ApprovalRouteService {
 		$store = $this->store();
 
+		// NAMED arguments, not positional. The two nullable tail parameters were
+		// added by two different changes, and the second to merge takes the
+		// position the first one had: a positional call would then hand the
+		// splitter to the activator's slot and fail on a type nobody changed.
 		return new ApprovalRouteService(
-			$store,
-			new ApprovalStageGuard(new MandateDirectory($store)),
-			new ApprovalRouteStepMapper(),
-			null,
-			new WorkingDayDeadlineSplitter(),
+			store: $store,
+			guard: new ApprovalStageGuard(new MandateDirectory($store)),
+			mapper: new ApprovalRouteStepMapper(),
+			projector: null,
+			activator: null,
+			splitter: new WorkingDayDeadlineSplitter(),
 		);
 	}
 
