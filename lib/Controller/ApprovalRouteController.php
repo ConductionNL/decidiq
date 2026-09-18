@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\ApprovalPrincipal;
 use OCA\Decidiq\Service\ApprovalRouteConclusionAnnouncer;
 use OCA\Decidiq\Service\ApprovalRouteService;
 use OCA\Decidiq\Service\SubjectClearanceService;
@@ -36,6 +37,7 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use OCP\IGroupManager;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -54,6 +56,9 @@ class ApprovalRouteController extends Controller {
 	 * @param ApprovalRouteConclusionAnnouncer $announcer The one door a conclusion leaves by.
 	 * @param SubjectClearanceService $clearanceService Answers whether a subject is cleared.
 	 * @param IUserSession $userSession The session.
+	 * @param IGroupManager $groupManager Group manager, used only to answer
+	 *        whether the caller may declare that a step's silence approves
+	 *        (REQ-AR-015).
 	 * @param LoggerInterface $logger Logger.
 	 */
 	public function __construct(
@@ -62,6 +67,7 @@ class ApprovalRouteController extends Controller {
 		private readonly ApprovalRouteConclusionAnnouncer $announcer,
 		private readonly SubjectClearanceService $clearanceService,
 		private readonly IUserSession $userSession,
+		private readonly IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
@@ -138,8 +144,38 @@ class ApprovalRouteController extends Controller {
 			);
 		}
 
-		return $this->service->instantiate(route: $route, subject: $subject, subjectSchema: $subjectSchema);
+		return $this->service->instantiate(
+			route: $route,
+			subject: $subject,
+			subjectSchema: $subjectSchema,
+			principal: $this->callerPrincipal(),
+		);
 	}//end stagesFor()
+
+	/**
+	 * Who the signed-in caller is, as the route rules see them.
+	 *
+	 * Only used to answer REQ-AR-015: a step whose silence APPROVES is a
+	 * signature nobody gave, so only an administrator may declare one. Anybody
+	 * else, including an ordinary signed-in user, gets false and is refused by
+	 * the engine.
+	 *
+	 * @return ApprovalPrincipal The caller, as the route rules see them.
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 */
+	private function callerPrincipal(): ApprovalPrincipal {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return ApprovalPrincipal::Ordinary;
+		}
+
+		if ($this->groupManager->isAdmin($user->getUID()) === true) {
+			return ApprovalPrincipal::Administrator;
+		}
+
+		return ApprovalPrincipal::Ordinary;
+	}//end callerPrincipal()
 
 	/**
 	 * The people an ad-hoc route's steps name, in step order.

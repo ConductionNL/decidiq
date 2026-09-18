@@ -160,6 +160,39 @@ final class StageLapsePolicy {
 	}//end assertSettable()
 
 	/**
+	 * Refuse a route whose steps declare a silence this principal may not set.
+	 *
+	 * The loop lives HERE and not in the engine for two reasons. Which silences
+	 * a principal may declare is this class's subject, and putting the walk in
+	 * the engine would have added a branch to a class already over its
+	 * complexity threshold, so the guard would have cost the engine something
+	 * every time it was read.
+	 *
+	 * A step that declares nothing is skipped rather than defaulted: the schema
+	 * default (`hold`) then stands, which is what every stored route means, and
+	 * a route written before this rule existed must keep instantiating.
+	 *
+	 * @param array<int, array<string, mixed>> $steps The route's steps.
+	 * @param bool $isAdministrator Whether the principal is an administrator.
+	 *
+	 * @return void
+	 *
+	 * @throws RuntimeException When a step declares a silence this principal may not set.
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 */
+	public function assertEverySilenceIsSettable(array $steps, bool $isAdministrator): void {
+		foreach ($steps as $step) {
+			$onSilence = trim((string)($step['onSilence'] ?? ''));
+			if ($onSilence === '') {
+				continue;
+			}
+
+			$this->assertSettable(onSilence: $onSilence, isAdministrator: $isAdministrator);
+		}
+	}//end assertEverySilenceIsSettable()
+
+	/**
 	 * What should happen to a stage, given the clock.
 	 *
 	 * @param array<string, mixed> $stage The stage.
