@@ -41,9 +41,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Listener;
 
+use OCA\Decidiq\AppInfo\Registrar\IntegrationLeafRegistrar;
 use OCA\Decidiq\Listener\RegisterApprovalChainLeafListener;
 use OCA\OpenRegister\Event\RegisterLeafProvidersEvent;
 use OCA\OpenRegister\Service\Integration\LeafDescriptor;
+use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\IL10N;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -218,6 +220,47 @@ class ApprovalChainLeafParityTest extends TestCase {
 		$this->assertMatchesRegularExpression('/\n\tmount,/', $source);
 		$this->assertMatchesRegularExpression('/\n\tunmount,/', $source);
 	}//end testTheMountModeRenderPairIsComplete()
+
+	/**
+	 * The PHP half is actually SUBSCRIBED, and the JS half is actually loaded.
+	 *
+	 * A listener class that exists and is never registered contributes nothing,
+	 * and a JS descriptor that no bundle imports registers nothing. Both halves
+	 * can be perfectly correct and perfectly invisible; this asserts each one is
+	 * wired to the thing that runs it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
+	 */
+	public function testBothHalvesAreWiredToSomethingThatRunsThem(): void {
+		$subscriptions = [];
+
+		$context = $this->createMock(IRegistrationContext::class);
+		$context->method('registerEventListener')
+			->willReturnCallback(
+				static function (string $event, string $listener) use (&$subscriptions): void {
+					$subscriptions[$event][] = $listener;
+				}
+			);
+
+		(new IntegrationLeafRegistrar())->register($context);
+
+		$this->assertContains(
+			RegisterApprovalChainLeafListener::class,
+			($subscriptions[RegisterLeafProvidersEvent::class] ?? []),
+			'The approval-chain listener must be subscribed to the leaf collect event, '
+				. 'or the server half contributes nothing however correct it is.'
+		);
+
+		// The JS half reaches the page through decidiq's own init bundle, which
+		// is the `own-script` strategy both halves declare. An import that is
+		// not there is a leaf registered nowhere.
+		$init = file_get_contents(__DIR__ . '/../../../src/integration-init.js');
+		$this->assertIsString($init);
+		$this->assertStringContainsString('registerApprovalChainLeaf', $init);
+		$this->assertMatchesRegularExpression('/\nregisterApprovalChainLeaf\(\)/', $init);
+	}//end testBothHalvesAreWiredToSomethingThatRunsThem()
 
 	/**
 	 * Both halves say the same thing about how the bundle reaches the page.

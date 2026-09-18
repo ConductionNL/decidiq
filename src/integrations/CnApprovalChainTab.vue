@@ -171,7 +171,7 @@ export default {
 				])
 				this.stages = stages
 				this.byStep = actionsByStep(actions)
-			} catch (e) {
+			} catch {
 				this.error = t('decidiq', 'The sign-off route could not be read.')
 			} finally {
 				this.loading = false

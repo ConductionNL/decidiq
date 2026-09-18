@@ -130,7 +130,12 @@ export default {
 		integrationContext: { type: Object, default: () => ({}) },
 		/** Rendering surface (AD-19). */
 		surface: { type: String, default: 'detail-page' },
-		/** Whether the card body is collapsible. */
+		/**
+		 * Whether the card body is collapsible. Defaulted TRUE deliberately,
+		 * matching the decisions leaf beside it: a card that cannot be folded
+		 * away is a card that pushes the host's own content off the screen.
+		 */
+		// eslint-disable-next-line vue/no-boolean-default
 		collapsible: { type: Boolean, default: true },
 	},
 
@@ -165,7 +170,11 @@ export default {
 			return String(this.schema || this.integrationContext.schema || '')
 		},
 
-		/** The step the route is on. @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010) */
+		/**
+		 * The step the route is on.
+		 *
+		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
+		 */
 		current() {
 			return liveStage(this.stages)
 		},
@@ -179,7 +188,9 @@ export default {
 		 * Whether to draw the actions. Not the authorisation: see the file
 		 * docblock.
 		 *
-		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
+		 * Spec: openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
+		 *
+		 * @return {boolean} True when it is this user's turn.
 		 */
 		mayAct() {
 			const user = getCurrentUser()
@@ -271,7 +282,7 @@ export default {
 			this.error = ''
 			try {
 				this.stages = await listStages(this.hostObjectId)
-			} catch (e) {
+			} catch {
 				this.error = t('decidiq', 'The sign-off route could not be read.')
 			} finally {
 				this.loading = false
@@ -301,11 +312,14 @@ export default {
 				// which step becomes live next, and guessing it here is how a
 				// widget starts disagreeing with the register it is showing.
 				await this.load()
-			} catch (e) {
+			} catch (refusal) {
 				// The engine's refusals are the point of the engine, so the
 				// signer sees the reason rather than a generic failure.
 				this.error = String(
-					(e && e.response && e.response.data && e.response.data.message)
+					(refusal
+						&& refusal.response
+						&& refusal.response.data
+						&& refusal.response.data.message)
 					|| t('decidiq', 'That action was refused.'),
 				)
 			} finally {
