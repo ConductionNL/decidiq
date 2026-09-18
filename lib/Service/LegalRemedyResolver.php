@@ -202,7 +202,12 @@ final class LegalRemedyResolver {
 	}//end compose()
 
 	/**
-	 * A term in weeks where it divides evenly, and in days otherwise.
+	 * A term in weeks where it divides evenly, and in days otherwise, with small
+	 * numbers written out.
+	 *
+	 * Written out because that is how a term is given in a Dutch besluit and how
+	 * the person reading it will read it back. "6 weken" in a sentence somebody
+	 * has six weeks to act on reads like a field that was not filled in.
 	 *
 	 * @param int $termDays The term.
 	 *
@@ -212,9 +217,34 @@ final class LegalRemedyResolver {
 		if ($termDays > 0 && ($termDays % 7) === 0) {
 			$weeks = intdiv($termDays, 7);
 
-			return ($weeks === 1 ? 'een week' : sprintf('%d weken', $weeks));
+			return ($weeks === 1 ? 'een week' : sprintf('%s weken', $this->inWords($weeks)));
 		}
 
-		return ($termDays === 1 ? 'een dag' : sprintf('%d dagen', $termDays));
+		return ($termDays === 1 ? 'een dag' : sprintf('%s dagen', $this->inWords($termDays)));
 	}//end describeTerm()
+
+	/**
+	 * Small numbers in words, larger ones as digits.
+	 *
+	 * @param int $number The number.
+	 *
+	 * @return string The number as it is read.
+	 */
+	private function inWords(int $number): string {
+		$words = [
+			2 => 'twee',
+			3 => 'drie',
+			4 => 'vier',
+			5 => 'vijf',
+			6 => 'zes',
+			7 => 'zeven',
+			8 => 'acht',
+			9 => 'negen',
+			10 => 'tien',
+			11 => 'elf',
+			12 => 'twaalf',
+		];
+
+		return ($words[$number] ?? (string)$number);
+	}//end inWords()
 }//end class
