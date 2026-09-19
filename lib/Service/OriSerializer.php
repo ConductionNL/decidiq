@@ -88,6 +88,12 @@ class OriSerializer {
 		'outcome' => ['outcome'],
 		'decision_date' => ['decisionDate'],
 		'legal_basis' => ['legalBasis'],
+		// 🔴 THE SECOND WHITELIST. Widening the payload builder alone is not
+		// enough: this table is what an ANONYMOUS reader receives from the ORI
+		// harvest feed, and a field the payload carries but this table omits
+		// never reaches them. A besluit that names its legal ground and not the
+		// way to object to it is the gap REQ-DWP-007 exists to close.
+		'legal_remedy_clause' => ['legalRemedyClause'],
 		'vote_totals' => ['voteTotals'],
 		'meeting_date' => ['meetingDate'],
 		'agenda_items' => ['agendaItems'],
