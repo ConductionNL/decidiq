@@ -236,9 +236,21 @@ class LeafLoadStrategyCapabilityTest extends TestCase {
 	 * 🔴 An OpenRegister without the load strategy still gets the approval-chain leaf.
 	 *
 	 * Degrading to "registers, and says nothing about how it loads" is the whole
-	 * point. Degrading to "does not register" is the bug: the paraferen tab and
-	 * the approval-chain timeline are absent on every host object, and nothing
-	 * anywhere reports a fault.
+	 * point. Degrading to "does not register" is the bug.
+	 *
+	 * WHAT IT ACTUALLY COSTS, stated precisely rather than dramatically, because
+	 * an overstated failure message is the next reader's wrong lead. decidiq puts
+	 * `decidiq-integration-init.js` on EVERY Nextcloud page itself
+	 * (`Util::addInitScript` in `Application::boot()`), and OpenRegister's render
+	 * path resolves surfaces from the CLIENT registry, so the Parafering tab and
+	 * widget still render. What a missing server half costs is everything on the
+	 * server side: the leaf is absent from `LeafRegistry`, so it never appears in
+	 * the `openregister.integrations.leaves` capability, never enters
+	 * `LeafScriptListener`'s bundle catalogue, and is an ADR-066 orphan
+	 * registration that gate-24 exists to refuse. None of those say anything.
+	 *
+	 * An app that does NOT self-inject its bundle loses the render too, which is
+	 * what hermiq measured. The guard is the same either way.
 	 *
 	 * @return void
 	 *
@@ -425,9 +437,10 @@ class LeafLoadStrategyCapabilityTest extends TestCase {
 			2,
 			$report['registered'],
 			sprintf(
-				'Both leaves must register beside a "%s" LeafDescriptor. A leaf that does not register is '
-					. 'absent from every host object with nothing reporting a fault. What the listeners '
-					. 'swallowed: %s',
+				'Both leaves must register beside a "%s" LeafDescriptor. A leaf that never reaches '
+					. 'LeafRegistry is missing from the openregister.integrations.leaves capability, from '
+					. 'LeafScriptListener\'s bundle catalogue and from every other server-side consumer, '
+					. 'and not one of them reports a fault. What the listeners swallowed: %s',
 				$mode,
 				$swallowed
 			)
