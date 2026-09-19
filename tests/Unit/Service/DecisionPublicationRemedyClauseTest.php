@@ -14,6 +14,18 @@
  * actually saved. Deleting either call in publish() reddens a named assertion
  * here.
  *
+ * 🔴 AND THEY STILL COULD NOT FAIL, FOR A SECOND REASON, FOR A DAY.
+ * The fake ObjectService this file used to carry accepted any slug from
+ * `setSchema()`. The shipped register carried no `decision-template` at all —
+ * declared in `components.schemas`, absent from
+ * `components.registers.decidiq.schemas` — so in production that call threw,
+ * `typeOf()`'s `catch (\Throwable)` logged a warning and returned null, and
+ * BOTH the guard and the stamp below were skipped. Green here, no clause there.
+ *
+ * The fake is now `RegisterScopedObjectServiceFake`, which resolves slugs
+ * against the register the app actually ships. Detach `decision-template` from
+ * that list and these tests go red, which is the only reason to trust them.
+ *
  * @category Test
  * @package  OCA\Decidiq\Tests\Unit\Service
  *
@@ -32,6 +44,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\DecisionPublicationService;
+use OCA\Decidiq\Tests\Unit\Support\RegisterScopedObjectServiceFake;
 use OCP\AppFramework\Http;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -49,11 +62,11 @@ class DecisionPublicationRemedyClauseTest extends TestCase {
 	private array $rows = [];
 
 	/**
-	 * What was saved, or null when nothing was.
+	 * The register the service publishes into.
 	 *
-	 * @var array<string, mixed>|null
+	 * @var RegisterScopedObjectServiceFake
 	 */
-	private ?array $saved = null;
+	private RegisterScopedObjectServiceFake $register;
 
 	/**
 	 * An adopted, unpublished decision naming a type.
@@ -86,93 +99,10 @@ class DecisionPublicationRemedyClauseTest extends TestCase {
 			$this->rows['decision-template'] = ['type-1' => $type];
 		}
 
-		$test = $this;
-		$objectService = new class ($test) {
-			/**
-			 * @param object $test The test holding the rows.
-			 */
-			public function __construct(private readonly object $test) {
-			}
-
-			/**
-			 * @var string
-			 */
-			private string $schema = 'decision';
-
-			/**
-			 * @param string $register The register.
-			 *
-			 * @return void
-			 */
-			public function setRegister(string $register): void {
-			}
-
-			/**
-			 * @param string $schema The schema.
-			 *
-			 * @return void
-			 */
-			public function setSchema(string $schema): void {
-				$this->schema = $schema;
-			}
-
-			/**
-			 * @param string $id The uuid.
-			 *
-			 * @return object|null The entity.
-			 */
-			public function find(string $id): ?object {
-				$row = ($this->test->rowFor(schema: $this->schema, id: $id));
-				if ($row === null) {
-					return null;
-				}
-
-				return new class ($row) {
-					/**
-					 * @param array<string, mixed> $row The row.
-					 */
-					public function __construct(private readonly array $row) {
-					}
-
-					/**
-					 * @return array<string, mixed> The row.
-					 */
-					public function getObject(): array {
-						return $this->row;
-					}
-				};
-			}
-
-			/**
-			 * @param array<string, mixed> $object The object.
-			 * @param string $register The register.
-			 * @param string $schema The schema.
-			 * @param string|null $uuid The uuid.
-			 *
-			 * @return object The stored entity.
-			 */
-			public function saveObject(array $object, string $register, string $schema, ?string $uuid = null): object {
-				$this->test->recordSave(object: $object);
-
-				return new class ($object) {
-					/**
-					 * @param array<string, mixed> $row The row.
-					 */
-					public function __construct(private readonly array $row) {
-					}
-
-					/**
-					 * @return array<string, mixed> The row.
-					 */
-					public function getObject(): array {
-						return $this->row;
-					}
-				};
-			}
-		};
+		$this->register = new RegisterScopedObjectServiceFake(rows: $this->rows);
 
 		$container = $this->createMock(ContainerInterface::class);
-		$container->method('get')->willReturn($objectService);
+		$container->method('get')->willReturn($this->register);
 
 		return new DecisionPublicationService(
 			container: $container,
@@ -181,26 +111,12 @@ class DecisionPublicationRemedyClauseTest extends TestCase {
 	}
 
 	/**
-	 * A stored row, or null.
+	 * The decision as it was actually stored, or null when nothing was stored.
 	 *
-	 * @param string $schema The schema.
-	 * @param string $id The uuid.
-	 *
-	 * @return array<string, mixed>|null The row.
+	 * @return array<string, mixed>|null The saved decision.
 	 */
-	public function rowFor(string $schema, string $id): ?array {
-		return ($this->rows[$schema][$id] ?? null);
-	}
-
-	/**
-	 * Remember what was saved.
-	 *
-	 * @param array<string, mixed> $object The saved object.
-	 *
-	 * @return void
-	 */
-	public function recordSave(array $object): void {
-		$this->saved = $object;
+	private function saved(): ?array {
+		return $this->register->lastWriteTo(schema: 'decision');
 	}
 
 	/**
@@ -233,7 +149,7 @@ class DecisionPublicationRemedyClauseTest extends TestCase {
 
 		$this->assertArrayHasKey(
 			'legalRemedyClause',
-			(array)$this->saved,
+			(array)$this->saved(),
 			'The clause reached the response but was never stored.'
 		);
 	}
@@ -259,7 +175,7 @@ class DecisionPublicationRemedyClauseTest extends TestCase {
 			(string)($result['data']['message'] ?? ''),
 			'The refusal did not say what was missing.'
 		);
-		$this->assertNull($this->saved, 'A decision with no declared remedies was published anyway.');
+		$this->assertNull($this->saved(), 'A decision with no declared remedies was published anyway.');
 	}
 
 	/**

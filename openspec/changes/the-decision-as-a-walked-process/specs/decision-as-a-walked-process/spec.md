@@ -177,6 +177,25 @@ Candidate C-decisions-25, `must`, matrix hole, two driven passers
 - **WHEN** an administrator publishes it
 - **THEN** publication is refused and names the missing declaration
 
+The clause SHALL reach the person the decision affects, which means it SHALL
+survive every hop between the decision and the public publication: the stamp on
+the decision, the allow-list the payload is built from, and the field set the
+anonymous harvest feed serves. A besluit that names the legal ground it rests on
+and not the way to object to it fails this requirement even though every one of
+those hops reports success.
+
+#### Scenario: A published besluit reaches an anonymous reader carrying its remedy clause
+
+- **GIVEN** a decision of a type declaring bezwaar, six weeks, at the college
+- **WHEN** it is published and an anonymous caller reads the publication
+- **THEN** the caller receives the clause naming bezwaar, six weeks and the college
+
+#### Scenario: The register carries the decision-type schema the guard reads
+
+- **GIVEN** the decidiq register as the app ships it
+- **WHEN** the schemas the register carries are listed
+- **THEN** `decision-template` is among them, so reading a decision's type does not throw
+
 ### Requirement: REQ-DWP-008 A risk score is computed before approval
 
 A decision type MAY declare `riskScore`, a declarative expression over the

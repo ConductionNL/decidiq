@@ -24,17 +24,24 @@
  * is what makes the refusal of an UNSET declaration safe to enforce.
  *
  *
- * NOT REACHABLE YET, AND THAT IS THE FIRST THING TO KNOW ABOUT THIS CLASS
- * ------------------------------------------------------------------------
- * Measured 2026-09-18 with `git grep -l`: this class is named by exactly two
- * files, its own and its own unit test. Nothing in lib/ constructs it, no DI
- * registration mentions it, no route reaches it. Everything below describes what
- * it WOULD do; none of it runs today, and the green suite beside it tests the
- * class in isolation, so it cannot tell you otherwise.
+ * REACHABLE SINCE 2026-09-19, AND IT TOOK TWO FIXES, NOT ONE
+ * ------------------------------------------------------------
+ * `DecisionPublicationService::publish()` calls `assertPublishable()` and
+ * `stamp()`. That call site landed first and still ran nothing, because
+ * `typeOf()` reads the type through `setSchema('decision-template')` and the
+ * register never carried that schema: it was declared in `components.schemas`
+ * and missing from `components.registers.decidiq.schemas`, so OpenRegister
+ * created it and linked it to nothing. A register-scoped miss throws, the
+ * `catch (\Throwable)` there logged a warning and returned null, and both calls
+ * below were skipped on every publish. `lib/Settings/register.d/90-attach-every-
+ * declared-schema.json` attaches it, along with ten other schemas in the same
+ * state.
  *
- * Read this before believing a present-tense sentence further down. Scope for
- * making it reachable is in
- * openspec/changes/the-decision-as-a-walked-process/reachability-scope.md.
+ * The lesson worth keeping: a caller is not reachability. Declaring a schema is
+ * not attaching it, and the difference is invisible from inside this class.
+ * `tests/Unit/Settings/RegisterDescriptorTest.php` now fails when the two lists
+ * disagree, and `DecisionPublicationRemedyClauseTest` resolves its fake schemas
+ * against the shipped register, so detaching one reddens the publish tests.
  * @category Service
  * @package  OCA\Decidiq\Service
  *
