@@ -173,22 +173,7 @@ class RegisterDecisionsLeafListener implements IEventListener {
 		}
 
 		try {
-			$arguments = [
-				'id' => self::LEAF_ID,
-				'label' => $this->l10n->t(self::LABEL_SOURCE),
-				'icon' => self::ICON,
-				'kinds' => [LeafDescriptor::KIND_RENDER_SURFACE],
-				'requiredApp' => Application::APP_ID,
-				'group' => self::GROUP,
-				'surfaces' => self::SURFACES,
-				'referenceType' => self::REFERENCE_TYPE,
-				// Vue 3 leaf under a possibly-Vue-2.7 host: the JS half renders via a
-				// `mount`/`unmount` DOM hand-off (openregister#2127, ADR-066 decision 7),
-				// so the server descriptor MUST declare the SAME render mode under the
-				// shared id or the surface blanks (gate-24 R3).
-				'renderMode' => LeafDescriptor::RENDER_MODE_MOUNT,
-			];
-
+			$optional = [];
 			if ($this->descriptorSupportsLoadStrategy() === true) {
 				// 🔴 SAID OUT LOUD BECAUSE IT WAS NEARLY INFERRED WRONGLY.
 				// decidiq ships no `decidiq-leaves.js` and does not need one: it
@@ -202,10 +187,34 @@ class RegisterDecisionsLeafListener implements IEventListener {
 				// #3955 reverted that and #3956 replaced the inference with this
 				// declaration. Declaring it is what stops the next reader
 				// re-deriving the wrong answer from the filesystem.
-				$arguments['loadStrategy'] = LeafDescriptor::LOADS_VIA_OWN_SCRIPT;
+				$optional['loadStrategy'] = LeafDescriptor::LOADS_VIA_OWN_SCRIPT;
 			}
 
-			$descriptor = new LeafDescriptor(...$arguments);
+			// The optional half is UNPACKED FIRST and every agreed field stays a
+			// written-out named argument, for two reasons that pull the same way.
+			// PHP refuses unpacking after a named argument, and
+			// `scripts/check-integration-parity.js` reads this call as SOURCE: it
+			// correlates the two halves of the leaf by matching `name: value`
+			// arguments here against the JS registration. Building the whole
+			// argument list as an array leaves the gate nothing to read: measured,
+			// it dropped from 8 field assertions to 0 and reported the leaf as
+			// having no id at all.
+			$descriptor = new LeafDescriptor(
+				...$optional,
+				id: self::LEAF_ID,
+				label: $this->l10n->t(self::LABEL_SOURCE),
+				icon: self::ICON,
+				kinds: [LeafDescriptor::KIND_RENDER_SURFACE],
+				requiredApp: Application::APP_ID,
+				group: self::GROUP,
+				surfaces: self::SURFACES,
+				referenceType: self::REFERENCE_TYPE,
+				// Vue 3 leaf under a possibly-Vue-2.7 host: the JS half renders via a
+				// `mount`/`unmount` DOM hand-off (openregister#2127, ADR-066 decision 7),
+				// so the server descriptor MUST declare the SAME render mode under the
+				// shared id or the surface blanks (gate-24 R3).
+				renderMode: LeafDescriptor::RENDER_MODE_MOUNT,
+			);
 
 			// Render-only leaf: no IntegrationProvider (null). The tab and widget read
 			// and append decisions through OpenRegister's own object API in the
