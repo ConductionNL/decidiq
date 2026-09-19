@@ -54,6 +54,11 @@ class ApprovalRouteConcludedEvent extends Event {
 	 *        so the producer can keep who-signed-what-when — actor, onBehalfOf,
 	 *        mandate, comment, advice — as case data without reading this app's
 	 *        register back (ADR-022).
+	 * @param array<string, mixed> $clearance The clearance answer at the moment
+	 *        the route concluded: whether the subject's required routes have all
+	 *        finished, and what is still waiting if not. Carried so a consumer
+	 *        can project the answer rather than call back for it, and DEFAULTED
+	 *        so a producer built against the eight-argument shape keeps working.
 	 *
 	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
 	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
@@ -67,6 +72,7 @@ class ApprovalRouteConcludedEvent extends Event {
 		private readonly string $subjectSchema = '',
 		private readonly string $externalReference = '',
 		private readonly array $actions = [],
+		private readonly array $clearance = [],
 	) {
 		parent::__construct();
 
@@ -167,5 +173,22 @@ class ApprovalRouteConcludedEvent extends Event {
 		return $this->actions;
 
 	}//end getActions()
+
+	/**
+	 * Get the clearance answer as it stood when the route concluded.
+	 *
+	 * An EMPTY array means the producer of this event carried no answer, not
+	 * that the subject is cleared. A consumer that reads an absent answer as a
+	 * clearance would let a case close past a sign-off it never looked at
+	 * (ADR-041, fail closed).
+	 *
+	 * @return array<string, mixed> The clearance answer
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+	 */
+	public function getClearance(): array {
+		return $this->clearance;
+
+	}//end getClearance()
 
 }//end class

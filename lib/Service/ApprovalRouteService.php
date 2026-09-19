@@ -86,14 +86,214 @@ class ApprovalRouteService {
 	 *        onto OpenRegister's task surface. Nullable so the engine's rules
 	 *        never depend on the projection: a missing task surface changes
 	 *        where the ask is SEEN, never whether the route advances.
+	 * @param ApprovalStageActivator|null $activator Resolves a stage's actor rule
+	 *        at the moment it becomes live. Nullable, because the constructor is
+	 *        reached by tests and by callers built before rules existed; a
+	 *        missing activator means a step naming a rule keeps the actor it was
+	 *        given, never that the rule silently resolved. It keeps position 5,
+	 *        which is where #1346 put it, so nothing that already passes it
+	 *        positionally starts handing it to a different parameter.
+	 * @param WorkingDayDeadlineSplitter|null $splitter Divides one deadline over
+	 *        the steps. Nullable and last, so a caller built before deadlines
+	 *        existed keeps working: without it a held route simply carries no
+	 *        due dates, which is what it carries today.
+	 * @param StageLapsePolicy $policy Refuses a silence nobody may declare.
+	 *        Deliberately NOT nullable, unlike its neighbours: a null collaborator
+	 *        would mean the guard quietly does not run, and a guard that quietly
+	 *        does not run is the state this parameter exists to end. It defaults
+	 *        to a real instance because the policy is a pure value object with
+	 *        no dependencies of its own, so there is nothing to inject.
 	 */
 	public function __construct(
 		private readonly RegisterObjectStore $store,
 		private readonly ApprovalStageGuard $guard,
 		private readonly ApprovalRouteStepMapper $mapper,
 		private readonly ?ApprovalStageTaskProjector $projector = null,
+		private readonly ?ApprovalStageActivator $activator = null,
+		private readonly ?WorkingDayDeadlineSplitter $splitter = null,
+		private readonly StageLapsePolicy $policy = new StageLapsePolicy(),
 	) {
 	}//end __construct()
+
+	/**
+	 * Hold a route on a subject from a list of named people, with no stored
+	 * template.
+	 *
+	 * The everyday case a template cannot serve: a clerk with a document in
+	 * front of them and three colleagues who have to look at it, in that order,
+	 * before the end of the month. Writing an `ApprovalRoute` row first would
+	 * leave a template nobody reuses on every such review.
+	 *
+	 * The stages are the engine's ordinary ones, so everything that already
+	 * works on a route works on this one: the guard, the return verbs, the
+	 * parallel groups, the conclusion announcement.
+	 *
+	 * @param string $subject The subject's uuid.
+	 * @param array<int, string> $actors The people to ask, in order.
+	 * @param string $subjectSchema The subject's schema slug.
+	 * @param string $deadline The deadline for the whole route, as an ISO-8601
+	 *        instant. Empty means no due dates at all.
+	 * @param string $kind The stage type every step carries.
+	 * @param string $name What to call the route on a surface.
+	 *
+	 * @return array<int, array<string, mixed>> The stages.
+	 *
+	 * @throws RuntimeException When no actor is named.
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008, REQ-AR-009)
+	 */
+	public function holdFor(
+		string $subject,
+		array $actors,
+		string $subjectSchema,
+		string $deadline = '',
+		string $kind = 'endorsement',
+		string $name = 'Review',
+	): array {
+		$named = [];
+		foreach ($actors as $actor) {
+			$actor = trim((string)$actor);
+			if ($actor !== '' && in_array($actor, $named, true) === false) {
+				// A person named twice would be asked twice on the same
+				// document, and the second ask would refuse: the first sign-off
+				// already advanced past their step.
+				$named[] = $actor;
+			}
+		}
+
+		if ($named === []) {
+			throw new RuntimeException('A route held from named people needs at least one person.');
+		}
+
+		$steps = [];
+		foreach ($named as $index => $actor) {
+			$steps[] = [
+				'order' => ($index + 1),
+				'stageType' => $kind,
+				'actorType' => 'person',
+				'actor' => $actor,
+				'mandatory' => true,
+			];
+		}
+
+		$stages = $this->instantiate(
+			route: [
+				'id' => '',
+				'name' => $name,
+				// `adhoc` and not a route id: this route has no template, and a
+				// surface that went looking for one would find nothing and have
+				// no way to tell that from a template that was deleted.
+				'origin' => 'adhoc',
+				'steps' => $steps,
+			],
+			subject: $subject,
+			subjectSchema: $subjectSchema,
+		);
+
+		return $this->stampHeldRoute(stages: $stages, deadline: $deadline);
+	}//end holdFor()
+
+	/**
+	 * Mark the stages as ad-hoc and divide one deadline over them.
+	 *
+	 * Applied AFTER the stages exist rather than folded into their creation:
+	 * the split is arithmetic over the number of stages, and the number of
+	 * stages is only certain once they are written.
+	 *
+	 * @param array<int, array<string, mixed>> $stages The stages, in order.
+	 * @param string $deadline The deadline, as an ISO-8601 instant.
+	 *
+	 * @return array<int, array<string, mixed>> The stages, stamped.
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008, REQ-AR-009)
+	 */
+	private function stampHeldRoute(array $stages, string $deadline): array {
+		$dueDates = $this->dueDatesFor(stages: $stages, deadline: $deadline);
+
+		foreach ($stages as $index => $stage) {
+			// `origin` says the route has no template, so a surface that finds
+			// no ApprovalRoute row can tell that from a template somebody
+			// deleted under a route still in flight.
+			$patch = ['origin' => 'adhoc'];
+			if (isset($dueDates[$index]) === true) {
+				$patch['dueAt'] = $dueDates[$index];
+			}
+
+			$stages[$index] = $this->store->patch(
+				schema: 'decision-stage',
+				data: $patch,
+				uuid: (string)$stage['id'],
+			);
+		}
+
+		return $stages;
+	}//end stampHeldRoute()
+
+	/**
+	 * One due date per stage, or none at all.
+	 *
+	 * @param array<int, array<string, mixed>> $stages The stages, in order.
+	 * @param string $deadline The deadline, as an ISO-8601 instant.
+	 *
+	 * @return array<int, string> The due dates.
+	 *
+	 * @throws RuntimeException When the deadline cannot be read as a date.
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-009)
+	 */
+	private function dueDatesFor(array $stages, string $deadline): array {
+		if ($this->splitter === null || trim($deadline) === '' || $stages === []) {
+			return [];
+		}
+
+		try {
+			$end = new DateTimeImmutable($deadline);
+		} catch (\Throwable $e) {
+			// An unreadable deadline leaves the route without due dates, which
+			// is a route that never lapses. Inventing one would give every step
+			// a term nobody asked for.
+			throw new RuntimeException('That deadline could not be read as a date.');
+		}
+
+		return $this->splitter->split(
+			from: new DateTimeImmutable(),
+			deadline: $end,
+			steps: count($stages),
+		);
+	}//end dueDatesFor()
+
+	/**
+	 * Whether a stage is past its due date with nothing recorded on it.
+	 *
+	 * A COMPUTED view, not a lifecycle state: nothing writes "overdue" anywhere,
+	 * because a stored flag would need somebody to unset it the moment the step
+	 * is signed, and the moment it is not unset the timeline lies.
+	 *
+	 * @param array<string, mixed> $stage The stage.
+	 * @param DateTimeImmutable|null $now The clock; the real one when null.
+	 *
+	 * @return bool True when the stage renders overdue.
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-009)
+	 */
+	public function isOverdue(array $stage, ?DateTimeImmutable $now = null): bool {
+		if ((string)($stage['status'] ?? '') !== 'active') {
+			return false;
+		}
+
+		$dueAt = trim((string)($stage['dueAt'] ?? ''));
+		if ($dueAt === '') {
+			return false;
+		}
+
+		try {
+			$due = new DateTimeImmutable($dueAt);
+		} catch (\Throwable $e) {
+			return false;
+		}
+
+		return ($due < ($now ?? new DateTimeImmutable()));
+	}//end isOverdue()
 
 	/**
 	 * Refuse a caller who cannot reach the subject.
@@ -143,15 +343,25 @@ class ApprovalRouteService {
 	 * @param array<string, mixed> $route The ApprovalRoute object.
 	 * @param string $subject The subject's uuid.
 	 * @param string $subjectSchema The subject's schema.
+	 * @param ApprovalPrincipal $principal Who is asking. Defaults to Ordinary,
+	 *        which is the fail-closed answer: a caller that says nothing about
+	 *        who it is does not get to declare that silence approves.
 	 *
 	 * @return array<int, array<string, mixed>> The stages, existing or created.
 	 *
-	 * @throws RuntimeException When the route declares no usable steps.
+	 * @throws RuntimeException When the route declares no usable steps, or
+	 *         declares a silence this principal may not set.
 	 *
 	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
 	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
-	public function instantiate(array $route, string $subject, string $subjectSchema): array {
+	public function instantiate(
+		array $route,
+		string $subject,
+		string $subjectSchema,
+		ApprovalPrincipal $principal = ApprovalPrincipal::Ordinary,
+	): array {
 		$existing = $this->stagesFor(subject: $subject);
 		if ($existing !== []) {
 			return $existing;
@@ -162,15 +372,30 @@ class ApprovalRouteService {
 			throw new RuntimeException('This route declares no steps, so there is nothing to travel.');
 		}
 
+		// BEFORE any write, for every step at once. A route refused half way
+		// through would leave the stages it had already written behind, and a
+		// subject carrying half a route is worse than one carrying none.
+		$this->policy->assertEverySilenceIsSettable(
+			steps: $steps,
+			isAdministrator: $principal->isAdministrator(),
+		);
+
 		$routeId = (string)($route['id'] ?? ($route['@self']['id'] ?? ''));
 		$firstSequence = $this->mapper->sequenceOf(step: $steps[0], index: 0);
+		$owner = $this->ownerOf(subject: $subject, subjectSchema: $subjectSchema);
 
 		$created = [];
 		foreach ($steps as $index => $step) {
 			$sequence = $this->mapper->sequenceOf(step: $step, index: $index);
+			// A step that names a RULE cannot be resolved here: it is resolved
+			// when its stage becomes live, which for anything past the first
+			// group is weeks away. So the rule travels onto the stage, copied
+			// like every other step field, and editing the route afterwards
+			// leaves a route already in flight alone.
+			$declared = $this->mapper->declaredStepFields(step: $step);
 			$created[] = $this->store->save(
 				schema: 'decision-stage',
-				object: [
+				object: $declared + [
 					'sequence' => $sequence,
 					'stageType' => (string)$step['stageType'],
 					// Every stage in the FIRST parallel group is active
@@ -195,10 +420,78 @@ class ApprovalRouteService {
 			);
 		}
 
+		$created = $this->resolveLiveStages(stages: $created, owner: $owner);
+
 		$this->projectTasks(subject: $subject);
 
 		return $created;
 	}//end instantiate()
+
+
+	/**
+	 * Resolve the actor rule of every stage that is already live.
+	 *
+	 * The first group activates at instantiation, so its rules resolve now; the
+	 * rest resolve when their turn comes.
+	 *
+	 * @param array<int, array<string, mixed>> $stages The freshly created stages.
+	 * @param string $owner Who owns the subject the route travels.
+	 *
+	 * @return array<int, array<string, mixed>> The stages, with resolved actors.
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012)
+	 */
+	private function resolveLiveStages(array $stages, string $owner): array {
+		if ($this->activator === null) {
+			return $stages;
+		}
+
+		foreach ($stages as $index => $stage) {
+			if ((string)($stage['status'] ?? '') !== 'active') {
+				continue;
+			}
+
+			// A refusal here THROWS, and that is the design: an unresolvable
+			// rule must not leave a stage that anybody may sign.
+			$patch = $this->activator->activationPatch(stage: $stage, subjectOwner: $owner);
+			$stages[$index] = $this->store->patch(
+				schema: 'decision-stage',
+				data: $patch,
+				uuid: (string)$stage['id'],
+			);
+		}
+
+		return $stages;
+	}//end resolveLiveStages()
+
+	/**
+	 * Who owns the subject, for the rule that reads the owner's manager.
+	 *
+	 * Best effort: a subject with no readable owner makes
+	 * `manager-of-subject-owner` refuse by name, which is the intended
+	 * behaviour, and leaves every other rule untouched.
+	 *
+	 * @param string $subject The subject uuid.
+	 * @param string $subjectSchema The subject's schema slug.
+	 *
+	 * @return string The owner, or an empty string.
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012)
+	 */
+	private function ownerOf(string $subject, string $subjectSchema): string {
+		$object = $this->store->find(schema: $subjectSchema, uuid: $subject);
+		if (is_array($object) === false) {
+			return '';
+		}
+
+		$self = ($object['@self'] ?? []);
+		$selfOwner = '';
+		if (is_array($self) === true) {
+			$selfOwner = (string)($self['owner'] ?? '');
+		}
+
+		return (string)($object['owner'] ?? $selfOwner);
+	}//end ownerOf()
 
 	/**
 	 * Record an action and advance the route.
@@ -384,9 +677,19 @@ class ApprovalRouteService {
 			return;
 		}
 
+		$owner = $this->ownerOf(
+			subject: (string)($active['decision'] ?? ''),
+			subjectSchema: (string)($active['note'] ?? ''),
+		);
+
 		foreach ($stages as $stage) {
 			if ((int)$stage['sequence'] === $nextSequence && (string)($stage['status'] ?? '') === 'pending') {
-				$this->store->patch(schema: 'decision-stage', data: ['status' => 'active'], uuid: (string)$stage['id']);
+				// The rule on this step resolves NOW, against today's
+				// organisation record, not against the one the route started
+				// under. That is the whole reason the rule travelled onto the
+				// stage instead of being resolved at instantiation.
+				$patch = ($this->activator?->activationPatch(stage: $stage, subjectOwner: $owner) ?? ['status' => 'active']);
+				$this->store->patch(schema: 'decision-stage', data: $patch, uuid: (string)$stage['id']);
 			}
 		}
 	}//end completeAndAdvance()
@@ -503,6 +806,53 @@ class ApprovalRouteService {
 
 		return $rows;
 	}//end stagesFor()
+
+	/**
+	 * The routes on a subject, each with its stages, shaped for the clearance
+	 * question.
+	 *
+	 * A stage whose `route` is empty is a route in its own right: cross-app
+	 * routes are held without a stored template, and dropping them here would
+	 * make a subject with only such a route read as cleared while somebody is
+	 * still waiting on it.
+	 *
+	 * @param string $subject The subject uuid.
+	 *
+	 * @return array<int, array<string, mixed>> The routes with their stages.
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+	 */
+	public function routesWithStagesFor(string $subject): array {
+		$grouped = [];
+		foreach ($this->stagesFor(subject: $subject) as $stage) {
+			$routeId = (string)($stage['route'] ?? '');
+			if (isset($grouped[$routeId]) === false) {
+				$grouped[$routeId] = [];
+			}
+
+			$grouped[$routeId][] = $stage;
+		}
+
+		$routes = [];
+		foreach ($grouped as $routeId => $stages) {
+			$route = null;
+			if ($routeId !== '') {
+				$route = $this->store->find(schema: 'approval-route', uuid: $routeId);
+			}
+
+			$routes[] = [
+				'id' => $routeId,
+				'name' => (string)($route['name'] ?? ''),
+				// Unset reads as required, here as in the clearance service: a
+				// route somebody bothered to start is one somebody is waiting
+				// on, and a route we could not read must not clear a subject.
+				'required' => (($route['required'] ?? true) !== false),
+				'stages' => $stages,
+			];
+		}
+
+		return $routes;
+	}//end routesWithStagesFor()
 
 	/**
 	 * Every active stage — one ordinarily, several in a parallel group.

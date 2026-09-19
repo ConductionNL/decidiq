@@ -20,6 +20,18 @@
  * route sits still for a week with nothing to show for it, and treating it as
  * absent would let the subject walk past an approval that was meant to happen.
  *
+ *
+ * NOT REACHABLE YET, AND THAT IS THE FIRST THING TO KNOW ABOUT THIS CLASS
+ * ------------------------------------------------------------------------
+ * Measured 2026-09-18 with `git grep -l`: this class is named by exactly two
+ * files, its own and its own unit test. Nothing in lib/ constructs it, no DI
+ * registration mentions it, no route reaches it. Everything below describes what
+ * it WOULD do; none of it runs today, and the green suite beside it tests the
+ * class in isolation, so it cannot tell you otherwise.
+ *
+ * Read this before believing a present-tense sentence further down. Scope for
+ * making it reachable is in
+ * openspec/changes/the-decision-as-a-walked-process/reachability-scope.md.
  * @category Service
  * @package  OCA\Decidiq\Service
  *
@@ -109,15 +121,23 @@ final class OpenApprovalGuard {
 		$named = [];
 		foreach ($blocking as $action) {
 			$assignee = (string)($action['assignee'] ?? '');
-			$named[] = ($assignee === ''
-				? sprintf('an approval at step %d that has not been assigned to anybody', (int)($action['step'] ?? 0))
-				: sprintf('%s at step %d', $assignee, (int)($action['step'] ?? 0)));
+			if ($assignee === '') {
+				$named[] = sprintf('an approval at step %d that has not been assigned to anybody', (int)($action['step'] ?? 0));
+				continue;
+			}
+
+			$named[] = sprintf('%s at step %d', $assignee, (int)($action['step'] ?? 0));
+		}
+
+		$howMany = sprintf('%d approvals', count($named));
+		if (count($named) === 1) {
+			$howMany = 'an approval';
 		}
 
 		throw new RuntimeException(
 			sprintf(
 				'This subject is waiting on %s: %s.',
-				(count($named) === 1 ? 'an approval' : count($named) . ' approvals'),
+				$howMany,
 				implode(', ', $named)
 			)
 		);
@@ -130,6 +150,8 @@ final class OpenApprovalGuard {
 	 * @param array<int, array<string, mixed>> $actions The actions recorded against it.
 	 *
 	 * @return bool True when it cannot advance.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
 	 */
 	public function isBlocked(array $step, array $actions): bool {
 		return ($this->blockingActions(step: $step, actions: $actions) !== []);
@@ -170,11 +192,20 @@ final class OpenApprovalGuard {
 
 		usort(
 			$mine,
-			static function (array $a, array $b): int {
-				$dueA = ($a['dueAt'] === '' ? '9999-12-31' : $a['dueAt']);
-				$dueB = ($b['dueAt'] === '' ? '9999-12-31' : $b['dueAt']);
+			static function (array $first, array $second): int {
+				// An item with no due date sorts last rather than first, which
+				// is where an empty string would otherwise put it.
+				$dueOfFirst = $first['dueAt'];
+				if ($dueOfFirst === '') {
+					$dueOfFirst = '9999-12-31';
+				}
 
-				return ($dueA <=> $dueB);
+				$dueOfSecond = $second['dueAt'];
+				if ($dueOfSecond === '') {
+					$dueOfSecond = '9999-12-31';
+				}
+
+				return ($dueOfFirst <=> $dueOfSecond);
 			}
 		);
 

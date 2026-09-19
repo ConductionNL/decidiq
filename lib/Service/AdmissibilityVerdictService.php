@@ -22,6 +22,18 @@
  * route that ran on would put an approval on somebody's task list for a request
  * that was never admissible, and somebody would eventually grant it.
  *
+ *
+ * NOT REACHABLE YET, AND THAT IS THE FIRST THING TO KNOW ABOUT THIS CLASS
+ * ------------------------------------------------------------------------
+ * Measured 2026-09-18 with `git grep -l`: this class is named by exactly two
+ * files, its own and its own unit test. Nothing in lib/ constructs it, no DI
+ * registration mentions it, no route reaches it. Everything below describes what
+ * it WOULD do; none of it runs today, and the green suite beside it tests the
+ * class in isolation, so it cannot tell you otherwise.
+ *
+ * Read this before believing a present-tense sentence further down. Scope for
+ * making it reachable is in
+ * openspec/changes/the-decision-as-a-walked-process/reachability-scope.md.
  * @category Service
  * @package  OCA\Decidiq\Service
  *
@@ -94,7 +106,9 @@ final class AdmissibilityVerdictService {
 	 * @param string $decidedBy Who gave it.
 	 * @param string $decidedAt When, as an ISO-8601 instant; now when empty.
 	 *
-	 * @return array{verdict: string, ground: string, decidedBy: string, decidedAt: string, routeOutcome: ?string, advances: bool} The verdict and what the route does.
+	 * @return array{verdict: string, ground: string, decidedBy: string,
+	 *         decidedAt: string, routeOutcome: ?string, advances: bool} The
+	 *         verdict and what the route does.
 	 *
 	 * @throws InvalidArgumentException When the step is not an intake step, the verdict is unknown, or a refusal names no ground.
 	 *
@@ -133,12 +147,22 @@ final class AdmissibilityVerdictService {
 
 		$inadmissible = ($verdict === self::NIET_ONTVANKELIJK);
 
+		$decidedWhen = $decidedAt;
+		if ($decidedWhen === '') {
+			$decidedWhen = (new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
+		}
+
+		$routeOutcome = null;
+		if ($inadmissible === true) {
+			$routeOutcome = self::OUTCOME_ENDED_AT_INTAKE;
+		}
+
 		return [
 			'verdict' => $verdict,
 			'ground' => trim($ground),
 			'decidedBy' => $decidedBy,
-			'decidedAt' => ($decidedAt === '' ? (new DateTimeImmutable())->format(DateTimeImmutable::ATOM) : $decidedAt),
-			'routeOutcome' => ($inadmissible === true ? self::OUTCOME_ENDED_AT_INTAKE : null),
+			'decidedAt' => $decidedWhen,
+			'routeOutcome' => $routeOutcome,
 			'advances' => ($inadmissible === false),
 		];
 	}//end record()

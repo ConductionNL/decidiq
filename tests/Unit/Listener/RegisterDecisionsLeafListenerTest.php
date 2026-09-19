@@ -213,8 +213,13 @@ class RegisterDecisionsLeafListenerTest extends TestCase {
 		$context = $this->createMock(IRegistrationContext::class);
 		$context->method('registerEventListener')
 			->willReturnCallback(
+				// A LIST per event, not one entry per event. Several leaves
+				// subscribe to the same collect event, and a map keyed by event
+				// keeps only the last of them — which would let this test report
+				// a leaf as unsubscribed the moment a sibling was added beside
+				// it, and would equally hide a leaf that stopped subscribing.
 				static function (string $event, string $listener) use (&$subscriptions): void {
-					$subscriptions[$event] = $listener;
+					$subscriptions[$event][] = $listener;
 				}
 			);
 
@@ -227,8 +232,12 @@ class RegisterDecisionsLeafListenerTest extends TestCase {
 				. 'or decidiq contributes no leaf and the JS registration is an ADR-066 orphan again.'
 		);
 
-		$subscribed = $subscriptions[RegisterLeafProvidersEvent::class];
-		$this->assertSame(RegisterDecisionsLeafListener::class, $subscribed);
+		$this->assertContains(
+			RegisterDecisionsLeafListener::class,
+			$subscriptions[RegisterLeafProvidersEvent::class]
+		);
+
+		$subscribed = RegisterDecisionsLeafListener::class;
 
 		$this->assertTrue(
 			class_exists($subscribed),

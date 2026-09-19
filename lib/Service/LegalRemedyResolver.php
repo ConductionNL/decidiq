@@ -23,6 +23,18 @@
  * legitimate declaration and is how a type says "no remedy" on purpose, which
  * is what makes the refusal of an UNSET declaration safe to enforce.
  *
+ *
+ * NOT REACHABLE YET, AND THAT IS THE FIRST THING TO KNOW ABOUT THIS CLASS
+ * ------------------------------------------------------------------------
+ * Measured 2026-09-18 with `git grep -l`: this class is named by exactly two
+ * files, its own and its own unit test. Nothing in lib/ constructs it, no DI
+ * registration mentions it, no route reaches it. Everything below describes what
+ * it WOULD do; none of it runs today, and the green suite beside it tests the
+ * class in isolation, so it cannot tell you otherwise.
+ *
+ * Read this before believing a present-tense sentence further down. Scope for
+ * making it reachable is in
+ * openspec/changes/the-decision-as-a-walked-process/reachability-scope.md.
  * @category Service
  * @package  OCA\Decidiq\Service
  *
@@ -84,40 +96,56 @@ final class LegalRemedyResolver {
 
 		if (is_array($remedies) === false || $remedies === []) {
 			throw new InvalidArgumentException(
-				'This decision type does not declare its legal remedies, so a decision taken under it would tell nobody how to contest it. Declare a remedy, or declare "geen" if none is open.'
+				'This decision type does not declare its legal remedies, so a decision taken under it '
+				.'would tell nobody how to contest it. Declare a remedy, or declare "geen" if none is open.'
 			);
 		}
 
 		foreach ($remedies as $remedy) {
-			if (is_array($remedy) === false) {
-				throw new InvalidArgumentException('Each declared remedy is an object with at least a kind.');
-			}
-
-			$kind = (string)($remedy['kind'] ?? '');
-			if (in_array($kind, self::KINDS, true) === false) {
-				throw new InvalidArgumentException(
-					sprintf('Unknown remedy "%s"; expected one of %s.', $kind, implode(', ', self::KINDS))
-				);
-			}
-
-			if ($kind === 'geen') {
-				continue;
-			}
-
-			$term = ($remedy['termDays'] ?? null);
-			if (is_numeric($term) === false || (int)$term < 1) {
-				throw new InvalidArgumentException(
-					sprintf('The %s remedy needs the term in days; a remedy with no term cannot be acted on in time.', $kind)
-				);
-			}
-
-			if (trim((string)($remedy['body'] ?? '')) === '') {
-				throw new InvalidArgumentException(
-					sprintf('The %s remedy needs the body it is lodged with.', $kind)
-				);
-			}
+			$this->assertRemedyIsUsable(remedy: $remedy);
 		}
 	}//end assertPublishable()
+
+	/**
+	 * Refuse one declared remedy that could not be acted on.
+	 *
+	 * @param mixed $remedy The declared remedy.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the remedy is malformed or incomplete.
+	 */
+	private function assertRemedyIsUsable(mixed $remedy): void {
+		if (is_array($remedy) === false) {
+			throw new InvalidArgumentException('Each declared remedy is an object with at least a kind.');
+		}
+
+		$kind = (string)($remedy['kind'] ?? '');
+		if (in_array($kind, self::KINDS, true) === false) {
+			throw new InvalidArgumentException(
+				sprintf('Unknown remedy "%s"; expected one of %s.', $kind, implode(', ', self::KINDS))
+			);
+		}
+
+		if ($kind === 'geen') {
+			// Nothing else to declare: "geen" is the statement that no remedy
+			// is open, so a term and a body would have nothing to describe.
+			return;
+		}
+
+		$term = ($remedy['termDays'] ?? null);
+		if (is_numeric($term) === false || (int)$term < 1) {
+			throw new InvalidArgumentException(
+				sprintf('The %s remedy needs the term in days; a remedy with no term cannot be acted on in time.', $kind)
+			);
+		}
+
+		if (trim((string)($remedy['body'] ?? '')) === '') {
+			throw new InvalidArgumentException(
+				sprintf('The %s remedy needs the body it is lodged with.', $kind)
+			);
+		}
+	}//end assertRemedyIsUsable()
 
 	/**
 	 * The clause to stamp on a decision of this type, at the moment it is taken.
@@ -131,7 +159,7 @@ final class LegalRemedyResolver {
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-007)
 	 */
 	public function resolve(array $type): array {
-		$this->assertPublishable($type);
+		$this->assertPublishable(type: $type);
 
 		$remedy = $type['legalRemedies'][0];
 		$kind = (string)$remedy['kind'];
@@ -139,11 +167,16 @@ final class LegalRemedyResolver {
 		$body = trim((string)($remedy['body'] ?? ''));
 		$text = trim((string)($remedy['text'] ?? ''));
 
+		$clause = $text;
+		if ($clause === '') {
+			$clause = $this->compose(kind: $kind, termDays: $term, body: $body);
+		}
+
 		return [
 			'kind' => $kind,
 			'termDays' => $term,
 			'body' => $body,
-			'text' => ($text === '' ? $this->compose(kind: $kind, termDays: $term, body: $body) : $text),
+			'text' => $clause,
 		];
 	}//end resolve()
 
@@ -166,7 +199,7 @@ final class LegalRemedyResolver {
 			return $decision;
 		}
 
-		$decision['legalRemedyClause'] = $this->resolve($type);
+		$decision['legalRemedyClause'] = $this->resolve(type: $type);
 
 		return $decision;
 	}//end stamp()
@@ -191,7 +224,7 @@ final class LegalRemedyResolver {
 		}
 
 		$verb = (self::DUTCH_NAMES[$kind] ?? 'bezwaar maken');
-		$term = $this->describeTerm($termDays);
+		$term = $this->describeTerm(termDays: $termDays);
 
 		return sprintf(
 			'Bent u het niet eens met dit besluit? Dan kunt u binnen %s %s bij %s.',
@@ -217,10 +250,18 @@ final class LegalRemedyResolver {
 		if ($termDays > 0 && ($termDays % 7) === 0) {
 			$weeks = intdiv($termDays, 7);
 
-			return ($weeks === 1 ? 'een week' : sprintf('%s weken', $this->inWords($weeks)));
+			if ($weeks === 1) {
+				return 'een week';
+			}
+
+			return sprintf('%s weken', $this->inWords(number: $weeks));
 		}
 
-		return ($termDays === 1 ? 'een dag' : sprintf('%s dagen', $this->inWords($termDays)));
+		if ($termDays === 1) {
+			return 'een dag';
+		}
+
+		return sprintf('%s dagen', $this->inWords(number: $termDays));
 	}//end describeTerm()
 
 	/**

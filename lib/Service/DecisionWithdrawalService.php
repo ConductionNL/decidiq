@@ -21,6 +21,18 @@
  * its mind, the other is somebody dropping their own request. A record that
  * does not say which is not a record.
  *
+ *
+ * NOT REACHABLE YET, AND THAT IS THE FIRST THING TO KNOW ABOUT THIS CLASS
+ * ------------------------------------------------------------------------
+ * Measured 2026-09-18 with `git grep -l`: this class is named by exactly two
+ * files, its own and its own unit test. Nothing in lib/ constructs it, no DI
+ * registration mentions it, no route reaches it. Everything below describes what
+ * it WOULD do; none of it runs today, and the green suite beside it tests the
+ * class in isolation, so it cannot tell you otherwise.
+ *
+ * Read this before believing a present-tense sentence further down. Scope for
+ * making it reachable is in
+ * openspec/changes/the-decision-as-a-walked-process/reachability-scope.md.
  * @category Service
  * @package  OCA\Decidiq\Service
  *
@@ -108,7 +120,10 @@ final class DecisionWithdrawalService {
 			throw new InvalidArgumentException('A decision that was never taken cannot be withdrawn.');
 		}
 
-		$when = ($withdrawnAt === '' ? (new DateTimeImmutable())->format(DateTimeImmutable::ATOM) : $withdrawnAt);
+		$when = $withdrawnAt;
+		if ($when === '') {
+			$when = (new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
+		}
 
 		// Deliberately NOT touching `outcome`. What was decided stays readable
 		// beside the withdrawal, because somebody relied on it in between.
