@@ -111,6 +111,17 @@ final class OpenApprovalGuard {
 	 * @throws RuntimeException When an open mandatory action stands.
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 *
+	 * @orphan-auth exclude Dormant on purpose and cannot be called yet. The
+	 * schema defaults an action's state to open and nothing ever writes a
+	 * terminal value, so calling this today would block every subject on every
+	 * action ever recorded. Reaching it needs appendAction() to write state
+	 * plus a backfill migration for stored rows, scoped as item 4 of
+	 * openspec/changes/the-decision-as-a-walked-process/reachability-scope.md
+	 * and deliberately held back so the migration does not ride along with a
+	 * guard. Covered in isolation by tests/Unit/Service/DecisionWalkedProcessTest.php
+	 * at lines 336, 353 and 371, which is coverage of the method and not of any
+	 * call site, because there is none.
 	 */
 	public function assertCanAdvance(array $step, array $actions): void {
 		$blocking = $this->blockingActions(step: $step, actions: $actions);
