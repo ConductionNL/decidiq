@@ -41,10 +41,15 @@
 import type { Page } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
+import {
+	anonymousActor,
+	APP_API,
+	describe,
+	disposeActors,
+} from './support/api-actors.ts'
 
 const LEAF_ID = 'decidiq-approval-chain'
 const SCHEMAS = '/index.php/apps/openregister/api/schemas'
-const ACTIONS = '/index.php/apps/decidiq/api/approval-routes/actions'
 const HEADERS = { 'OCS-APIRequest': 'true' }
 
 /**
@@ -80,12 +85,51 @@ async function waitForRegistry(page: Page): Promise<void> {
 }
 
 /**
- * Every descriptor the registry holds.
+ * What one registered leaf looks like, once it has crossed into node.
+ */
+interface LeafReading {
+	/** How many leaves the registry holds at all. */
+	total: number
+	/** Whether the wanted id is among them. */
+	found: boolean
+	label: string
+	icon: string
+	renderMode: string
+	/** `typeof descriptor.mount`, TAKEN IN THE PAGE. See readLeaf. */
+	mountType: string
+	/** `typeof descriptor.unmount`, taken in the page. */
+	unmountType: string
+	surfaces: string[] | null
+}
+
+/**
+ * Read one leaf's registration, resolving every claim INSIDE the page.
+ *
+ * 🔴 A FUNCTION DOES NOT SURVIVE `page.evaluate`, AND ITS KEY DOES.
+ * Playwright serialises the return value, and a function member arrives as
+ * `undefined` on the node side while `Object.keys` still lists it. Measured on
+ * this Playwright version against a hand-built registry on `about:blank`:
+ *
+ *     ACROSS THE BRIDGE  typeof mount = undefined | keys: id,renderMode,mount,unmount
+ *     INSIDE THE PAGE    typeof mount = function  | typeof unmount = function
+ *
+ * So the earlier shape of this test, returning the descriptor and then
+ * asserting `typeof leaf.mount === 'function'` in node, could not pass whatever
+ * the app shipped, and it reported a dark leaf on an instance where the leaf
+ * renders.
+ * The registry says the same thing from the other side: `register()` refuses a
+ * `renderMode: 'mount'` descriptor that has no pair, so a leaf missing its
+ * `mount` is ABSENT from `list()`, never present-but-crippled. An entry that is
+ * in the list has already proved the pair exists.
+ *
+ * Every `typeof` below is therefore taken in the browser and crosses as a
+ * string, which is a value serialisation cannot quietly change.
  *
  * @param page Playwright Page.
+ * @param id   The leaf id to read.
  */
-async function providers(page: Page): Promise<Array<Record<string, unknown>>> {
-	return await page.evaluate(() => {
+async function readLeaf(page: Page, id: string): Promise<LeafReading> {
+	return await page.evaluate((leafId) => {
 		const reg = (
 			window as Window & {
 				OCA?: {
@@ -97,8 +141,22 @@ async function providers(page: Page): Promise<Array<Record<string, unknown>>> {
 				}
 			}
 		).OCA?.OpenRegister?.integrations
-		return reg && reg.list ? reg.list() : []
-	})
+		const all = reg && reg.list ? reg.list() : []
+		const leaf = all.find((entry) => String(entry.id) === leafId)
+
+		return {
+			total: all.length,
+			found: leaf !== undefined,
+			label: String(leaf?.label ?? ''),
+			icon: String(leaf?.icon ?? ''),
+			renderMode: String(leaf?.renderMode ?? ''),
+			mountType: typeof leaf?.mount,
+			unmountType: typeof leaf?.unmount,
+			surfaces: Array.isArray(leaf?.surfaces)
+				? (leaf?.surfaces as string[])
+				: null,
+		}
+	}, id)
 }
 
 test.describe('the document approval chain leaf', () => {
@@ -108,40 +166,50 @@ test.describe('the document approval chain leaf', () => {
 		await page.goto('/apps/decidiq/')
 		await waitForRegistry(page)
 
-		const registered = await providers(page)
+		const leaf = await readLeaf(page, LEAF_ID)
 		test.skip(
-			registered.length === 0,
+			leaf.total === 0,
 			'integration registry not initialised on this build',
 		)
 
-		const leaf = registered.find((entry) => String(entry.id) === LEAF_ID)
 		expect(
-			leaf,
+			leaf.found,
 			`${LEAF_ID} did not register, so the surface is dark wherever a host object renders`,
-		).toBeTruthy()
+		).toBe(true)
 
 		// The tab's name and icon, read straight off the descriptor by
 		// CnObjectSidebar. A missing label shows the host's fallback and errors
 		// nowhere.
-		expect(String(leaf?.label ?? '')).not.toBe('')
-		expect(String(leaf?.label ?? '')).not.toContain(LEAF_ID)
-		expect(String(leaf?.icon ?? '')).toBe('Signature')
+		expect(leaf.label).not.toBe('')
+		expect(leaf.label).not.toContain(LEAF_ID)
+		expect(leaf.icon).toBe('Signature')
 
 		// The render PAIR the declared mode needs. `mount` with only one half
-		// renders once and then leaks its Vue app on every teardown.
-		expect(String(leaf?.renderMode ?? '')).toBe('mount')
-		expect(typeof leaf?.mount).toBe('function')
-		expect(typeof leaf?.unmount).toBe('function')
+		// renders once and then leaks its Vue app on every teardown. Both reads
+		// happen in the page; see readLeaf for why that is load-bearing.
+		expect(leaf.renderMode).toBe('mount')
+		expect(leaf.mountType).toBe('function')
+		expect(leaf.unmountType).toBe('function')
 
 		// Declared explicitly, which is what gives the parity check two sets to
 		// compare rather than one and a default.
-		expect(leaf?.surfaces).toEqual([
+		expect(leaf.surfaces).toEqual([
 			'user-dashboard',
 			'app-dashboard',
 			'detail-page',
 			'single-entity',
 		])
-		expect(String(leaf?.loadStrategy ?? '')).toBe('own-script')
+
+		// `loadStrategy` is NOT asserted here, and its absence is deliberate.
+		// The registry's normaliser copies a fixed key list and drops every
+		// other key, and `loadStrategy` is not on that list, so reading it off
+		// a registered entry answers about the normaliser, not about decidiq.
+		// The two halves' declared strategy is compared for real in
+		// tests/Unit/Listener/ApprovalChainLeafParityTest.php
+		// (testBothHalvesDeclareTheOwnScriptLoadStrategy). What THIS page can
+		// prove about `own-script` it has already proved above: the leaf is in
+		// the registry, which only happens because decidiq's own init bundle
+		// loaded and registered it.
 	})
 
 	test('the stage schema carries the fields a held route writes', async ({
@@ -178,31 +246,50 @@ test.describe('the document approval chain leaf', () => {
 	})
 
 	test('an anonymous caller cannot sign off a step', async ({ playwright }) => {
-		// The LEAST privileged principal that should be refused: no session at
-		// all. The widget draws its buttons only for the step's actor, but that
-		// is a courtesy; this asserts the refusal that is the actual guard.
-		const anonymous = await playwright.request.newContext()
+		// 🔴 THE PROBE HAS TO BE BUILT, NOT ASSUMED. `playwright.request
+		// .newContext()` inherits `use.storageState` from playwright.config.ts,
+		// which is the ADMINISTRATOR's session, so the version of this test
+		// that called it "no session at all" was signed in as a superuser.
+		// Measured against a live instance on 2026-09-19: this endpoint answers
+		// a real anonymous caller 401 "Current user is not logged in" and
+		// answers admin 400 "This subject has no active stage", and the test
+		// received the 400. It failed, so the escalation was visible this time.
+		// Pointed the other way it is silent: make the route public and the
+		// same probe keeps passing while an anonymous caller walks in.
+		//
+		// `anonymousActor` starts from an EMPTY storage state and carries no
+		// credentials, which is the only way to get the principal this test
+		// names. Its context has no baseURL, so the URL is absolute.
+		const anonymous = await anonymousActor(playwright)
 
 		try {
-			const response = await anonymous.post(ACTIONS, {
-				headers: HEADERS,
-				data: {
-					subject: 'does-not-exist',
-					subjectSchema: 'decision',
-					step: 1,
-					action: 'approved',
+			const response = await anonymous.ctx.post(
+				`${APP_API}/approval-routes/actions`,
+				{
+					headers: HEADERS,
+					data: {
+						subject: 'does-not-exist',
+						subjectSchema: 'decision',
+						step: 1,
+						action: 'approved',
+					},
+					failOnStatusCode: false,
 				},
-				failOnStatusCode: false,
-			})
+			)
 
 			test.skip(response.status() === 404, 'decidiq is not installed here')
 
+			// 401, exactly: the session guard turned the caller away before the
+			// controller looked at the body. A 403 would mean the request got
+			// past that guard and was refused on something else, and any 4xx
+			// that admin also produces (400 here) proves nothing about who was
+			// asking, which is the whole failure this assertion replaces.
 			expect(
-				[401, 403],
-				`an anonymous caller got ${response.status()} when signing off a step`,
-			).toContain(response.status())
+				response.status(),
+				`an anonymous caller got ${response.status()} when signing off a step: ${await describe(response)}`,
+			).toBe(401)
 		} finally {
-			await anonymous.dispose()
+			await disposeActors(anonymous)
 		}
 	})
 })
