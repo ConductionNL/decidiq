@@ -53,8 +53,7 @@ import { expect, test } from '@playwright/test'
  * instance whether or not any register carries it, so a schema that is
  * declared and unattached looks identical there to one that works.
  */
-const REGISTER_SCHEMAS
-	= '/index.php/apps/openregister/api/registers/decidiq/schemas'
+const REGISTER_SCHEMAS = '/index.php/apps/openregister/api/registers/decidiq/schemas'
 const HEADERS = { 'OCS-APIRequest': 'true' }
 
 /**
@@ -124,7 +123,7 @@ test.describe('the decision as a walked process', () => {
 
 		test.skip(
 			schemas === null,
-			'OpenRegister is not installed here, or decidiq\'s register was never imported',
+			"OpenRegister is not installed here, or decidiq's register was never imported",
 		)
 
 		const carried = (schemas ?? []).map((schema) => String(schema.slug ?? ''))
@@ -149,7 +148,7 @@ test.describe('the decision as a walked process', () => {
 
 		test.skip(
 			schemas === null,
-			'OpenRegister is not installed here, or decidiq\'s register was never imported',
+			"OpenRegister is not installed here, or decidiq's register was never imported",
 		)
 
 		for (const [slug, properties] of Object.entries(ADDED)) {

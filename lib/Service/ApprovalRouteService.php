@@ -60,21 +60,15 @@ use RuntimeException;
  */
 class ApprovalRouteService {
 	/**
-	 * Actions that COMPLETE the active stage, mapped to the outcome they record.
+	 * Where the stage rows move when an action lands.
 	 *
-	 * `returned` is deliberately absent: it does not complete a stage, it
-	 * re-opens an earlier one or concludes the route back to its sender, and
-	 * treating it as a completion is precisely the mistake `rejected` and
-	 * `deferred` invite.
+	 * Built here rather than taken as a parameter, so every caller and test
+	 * written against the seven-parameter constructor keeps working unchanged.
+	 * It has no dependency this class does not already hold.
 	 *
-	 * @var array<string, string>
+	 * @var ApprovalRouteAdvancer
 	 */
-	private const COMPLETING_ACTIONS = [
-		'approved' => 'approved',
-		'endorsed' => 'endorsed',
-		'advised' => 'advised',
-		'skipped' => 'skipped',
-	];
+	private readonly ApprovalRouteAdvancer $advancer;
 
 	/**
 	 * Constructor.
@@ -113,6 +107,7 @@ class ApprovalRouteService {
 		private readonly ?WorkingDayDeadlineSplitter $splitter = null,
 		private readonly StageLapsePolicy $policy = new StageLapsePolicy(),
 	) {
+		$this->advancer = new ApprovalRouteAdvancer(store: $store, activator: $activator);
 	}//end __construct()
 
 	/**
@@ -382,7 +377,7 @@ class ApprovalRouteService {
 
 		$routeId = (string)($route['id'] ?? ($route['@self']['id'] ?? ''));
 		$firstSequence = $this->mapper->sequenceOf(step: $steps[0], index: 0);
-		$owner = $this->ownerOf(subject: $subject, subjectSchema: $subjectSchema);
+		$owner = $this->advancer->ownerOf(subject: $subject, subjectSchema: $subjectSchema);
 
 		$created = [];
 		foreach ($steps as $index => $step) {
@@ -465,35 +460,6 @@ class ApprovalRouteService {
 	}//end resolveLiveStages()
 
 	/**
-	 * Who owns the subject, for the rule that reads the owner's manager.
-	 *
-	 * Best effort: a subject with no readable owner makes
-	 * `manager-of-subject-owner` refuse by name, which is the intended
-	 * behaviour, and leaves every other rule untouched.
-	 *
-	 * @param string $subject The subject uuid.
-	 * @param string $subjectSchema The subject's schema slug.
-	 *
-	 * @return string The owner, or an empty string.
-	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012)
-	 */
-	private function ownerOf(string $subject, string $subjectSchema): string {
-		$object = $this->store->find(schema: $subjectSchema, uuid: $subject);
-		if (is_array($object) === false) {
-			return '';
-		}
-
-		$self = ($object['@self'] ?? []);
-		$selfOwner = '';
-		if (is_array($self) === true) {
-			$selfOwner = (string)($self['owner'] ?? '');
-		}
-
-		return (string)($object['owner'] ?? $selfOwner);
-	}//end ownerOf()
-
-	/**
 	 * Record an action and advance the route.
 	 *
 	 * THE STAGE WRITE COMES FIRST, the action row after. The old order appended
@@ -523,7 +489,7 @@ class ApprovalRouteService {
 		}
 
 		$stages = $this->stagesFor(subject: $subject);
-		$actives = $this->activeStages(stages: $stages);
+		$actives = $this->advancer->activeStages(stages: $stages);
 		if ($actives === []) {
 			throw new RuntimeException('This subject has no active stage; there is nothing to act on.');
 		}
@@ -535,14 +501,14 @@ class ApprovalRouteService {
 			// Validated BEFORE any write: a refused return must leave no
 			// action row, the same promise every other refusal keeps.
 			$this->guard->assertReturnTargetValid(action: $action, active: $active);
-			$this->applyReturnVerb(action: $action, stages: $stages, active: $active);
+			$this->advancer->applyReturnVerb(action: $action, stages: $stages, active: $active);
 			$recorded = $this->appendAction(action: $action, stage: $active);
 			$this->projectTasks(subject: $subject);
 
 			return $recorded;
 		}
 
-		if (isset(self::COMPLETING_ACTIONS[$verb]) === false) {
+		if (isset(ApprovalRouteAdvancer::COMPLETING_ACTIONS[$verb]) === false) {
 			throw new RuntimeException('Unknown action: ' . $verb);
 		}
 
@@ -553,210 +519,12 @@ class ApprovalRouteService {
 		$this->guard->assertVerbFitsStage(stage: $active, verb: $verb);
 		$this->guard->assertRequiredFields(verb: $verb, action: $action);
 
-		$this->completeAndAdvance(stages: $stages, active: $active, verb: $verb);
+		$this->advancer->completeAndAdvance(stages: $stages, active: $active, verb: $verb);
 		$recorded = $this->appendAction(action: $action, stage: $active);
 		$this->projectTasks(subject: $subject);
 
 		return $recorded;
 	}//end record()
-
-	/**
-	 * Route a `returned` action to its meaning.
-	 *
-	 * Naming a step rewinds the route to it. Naming none concludes the route
-	 * back to its sender: that is what dossiq's terugsturen has always meant —
-	 * the voorstel goes back to the steller, and the approvers after this one
-	 * are never asked.
-	 *
-	 * @param array<string, mixed> $action The returned action.
-	 * @param array<int, array<string, mixed>> $stages All stages, in order.
-	 * @param array<string, mixed> $active The addressed active stage.
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
-	 */
-	private function applyReturnVerb(array $action, array $stages, array $active): void {
-		$target = (int)($action['returnToStep'] ?? 0);
-		if ($target > 0) {
-			$this->applyReturn(action: $action, stages: $stages, active: $active);
-
-			return;
-		}
-
-		$this->applyTerminalReturn(stages: $stages, active: $active);
-	}//end applyReturnVerb()
-
-	/**
-	 * Conclude the route back to its sender.
-	 *
-	 * The addressed stage records the `returned` outcome. Every OTHER stage
-	 * that is still active or pending goes back to `pending` with its outcome
-	 * cleared — never `skipped`, because nobody chose to skip it; the route
-	 * simply ended before it. No stage is left active, which is the engine's
-	 * own definition of a concluded route, and `finalOutcomeOf` then reads
-	 * `returned` off the last decided stage.
-	 *
-	 * @param array<int, array<string, mixed>> $stages All stages, in order.
-	 * @param array<string, mixed> $active The stage whose actor returned it.
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
-	 */
-	private function applyTerminalReturn(array $stages, array $active): void {
-		$this->store->patch(
-			schema: 'decision-stage',
-			data: [
-				'status' => 'decided',
-				'outcome' => 'returned',
-				'decidedAt' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
-			],
-			uuid: (string)$active['id'],
-		);
-
-		foreach ($stages as $stage) {
-			if ((string)$stage['id'] === (string)$active['id']) {
-				continue;
-			}
-
-			$status = (string)($stage['status'] ?? '');
-			if ($status !== 'active' && $status !== 'pending') {
-				continue;
-			}
-
-			$this->store->patch(
-				schema: 'decision-stage',
-				data: ['status' => 'pending', 'outcome' => null, 'decidedAt' => null],
-				uuid: (string)$stage['id'],
-			);
-		}
-	}//end applyTerminalReturn()
-
-	/**
-	 * Complete the addressed stage and make the next group active.
-	 *
-	 * A PARALLEL group advances only when its last live member completes: a
-	 * group with a sibling still active stays where it is. When no later stage
-	 * remains the route is finished, and NO stage is left active — a completed
-	 * route that still shows an active stage would keep inviting actions on a
-	 * decision already taken.
-	 *
-	 * @param array<int, array<string, mixed>> $stages All stages, in order.
-	 * @param array<string, mixed> $active The addressed stage.
-	 * @param string $verb The action verb.
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
-	 */
-	private function completeAndAdvance(array $stages, array $active, string $verb): void {
-		$status = 'decided';
-		if ($verb === 'skipped') {
-			$status = 'skipped';
-		}
-
-		$this->store->patch(
-			schema: 'decision-stage',
-			data: [
-				'status' => $status,
-				'outcome' => self::COMPLETING_ACTIONS[$verb],
-				'decidedAt' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
-			],
-			uuid: (string)$active['id'],
-		);
-
-		$sequence = (int)$active['sequence'];
-		if ($this->groupStillSigning(stages: $stages, active: $active) === true) {
-			// A parallel sibling is still signing; the group is not done.
-			return;
-		}
-
-		$nextSequence = $this->nextPendingSequence(stages: $stages, after: $sequence);
-		if ($nextSequence === null) {
-			return;
-		}
-
-		$owner = $this->ownerOf(
-			subject: (string)($active['decision'] ?? ''),
-			subjectSchema: (string)($active['note'] ?? ''),
-		);
-
-		foreach ($stages as $stage) {
-			if ((int)$stage['sequence'] === $nextSequence && (string)($stage['status'] ?? '') === 'pending') {
-				// The rule on this step resolves NOW, against today's
-				// organisation record, not against the one the route started
-				// under. That is the whole reason the rule travelled onto the
-				// stage instead of being resolved at instantiation.
-				$patch = ($this->activator?->activationPatch(stage: $stage, subjectOwner: $owner) ?? ['status' => 'active']);
-				$this->store->patch(schema: 'decision-stage', data: $patch, uuid: (string)$stage['id']);
-			}
-		}
-	}//end completeAndAdvance()
-
-	/**
-	 * Whether the addressed stage's parallel group still has a live signer.
-	 *
-	 * @param array<int, array<string, mixed>> $stages All stages, in order.
-	 * @param array<string, mixed> $active The addressed stage.
-	 *
-	 * @return boolean True when a sibling at the same sequence is still active.
-	 */
-	private function groupStillSigning(array $stages, array $active): bool {
-		$sequence = (int)$active['sequence'];
-		foreach ($stages as $stage) {
-			$sibling = ((int)$stage['sequence'] === $sequence && (string)$stage['id'] !== (string)$active['id']);
-			if ($sibling === true && (string)($stage['status'] ?? '') === 'active') {
-				return true;
-			}
-		}
-
-		return false;
-	}//end groupStillSigning()
-
-	/**
-	 * Re-open an earlier stage and reset everything after it.
-	 *
-	 * The outcomes of the reset stages are CLEARED, because a stage that is
-	 * pending again while still showing an outcome reads as decided to every
-	 * consumer that looks at the outcome rather than the status.
-	 *
-	 * The ApprovalActions are NOT touched. They are what happened; the stages
-	 * are where the route is.
-	 *
-	 * @param array<string, mixed> $action The returned action.
-	 * @param array<int, array<string, mixed>> $stages All stages, in order.
-	 * @param array<string, mixed> $active The active stage.
-	 *
-	 * @return void
-	 *
-	 * @throws RuntimeException When the target step is not before the active one.
-	 */
-	private function applyReturn(array $action, array $stages, array $active): void {
-		$target = (int)($action['returnToStep'] ?? 0);
-		$activeSequence = (int)$active['sequence'];
-		if ($target < 1 || $target >= $activeSequence) {
-			throw new RuntimeException('A return must name a step BEFORE the active one.');
-		}
-
-		foreach ($stages as $stage) {
-			$sequence = (int)$stage['sequence'];
-			if ($sequence < $target) {
-				continue;
-			}
-
-			$status = 'pending';
-			if ($sequence === $target) {
-				$status = 'active';
-			}
-
-			$this->store->patch(
-				schema: 'decision-stage',
-				data: ['status' => $status, 'outcome' => null, 'decidedAt' => null],
-				uuid: (string)$stage['id'],
-			);
-		}
-	}//end applyReturn()
 
 	/**
 	 * Append the action as a new object.
@@ -853,42 +621,6 @@ class ApprovalRouteService {
 
 		return $routes;
 	}//end routesWithStagesFor()
-
-	/**
-	 * Every active stage — one ordinarily, several in a parallel group.
-	 *
-	 * @param array<int, array<string, mixed>> $stages The stages.
-	 *
-	 * @return array<int, array<string, mixed>> The active stages.
-	 */
-	private function activeStages(array $stages): array {
-		$actives = [];
-		foreach ($stages as $stage) {
-			if ((string)($stage['status'] ?? '') === 'active') {
-				$actives[] = $stage;
-			}
-		}
-
-		return $actives;
-	}//end activeStages()
-
-	/**
-	 * The lowest pending sequence after the given one.
-	 *
-	 * @param array<int, array<string, mixed>> $stages The stages.
-	 * @param int $after The sequence to search past.
-	 *
-	 * @return int|null The next sequence, or null when none remains.
-	 */
-	private function nextPendingSequence(array $stages, int $after): ?int {
-		foreach ($stages as $stage) {
-			if ((int)$stage['sequence'] > $after && (string)($stage['status'] ?? '') === 'pending') {
-				return (int)$stage['sequence'];
-			}
-		}
-
-		return null;
-	}//end nextPendingSequence()
 
 	/**
 	 * Mirror the subject's stages onto the task surface, best effort.
