@@ -34,9 +34,15 @@
  *      facts around them instead.
  */
 import { expect, test } from '@playwright/test'
+import {
+	anonymousActor,
+	APP_API,
+	describe as describeResponse,
+	disposeActors,
+} from './support/api-actors.ts'
 
 const SCHEMAS = '/index.php/apps/openregister/api/schemas'
-const CLEARANCE = '/index.php/apps/decidiq/api/approval-routes/clearance'
+const CLEARANCE = `${APP_API}/approval-routes/clearance`
 const HEADERS = { 'OCS-APIRequest': 'true' }
 
 /**
@@ -124,25 +130,40 @@ test.describe('approval routes: a rule, a declared silence and a clearance answe
 	test('an anonymous caller is refused the clearance answer', async ({
 		playwright,
 	}) => {
-		// The LEAST privileged principal that should be refused: no session at
-		// all. Who is holding up somebody else's file is not public information,
-		// and a signed-in user still has to be able to reach the subject.
-		const anonymous = await playwright.request.newContext()
+		// 🔴 THE PROBE HAS TO BE BUILT, NOT ASSUMED. `playwright.request
+		// .newContext()` inherits `use.storageState` from playwright.config.ts,
+		// which is the ADMINISTRATOR's session, so the version of this test
+		// that called it "no session at all" was signed in as a superuser.
+		// Measured against a live instance on 2026-09-19: a real anonymous
+		// caller gets 401 "Current user is not logged in" here and admin gets
+		// 400 "Object not found in magic table", and the test received the 400.
+		// It failed, so the escalation showed. Pointed the other way, with the
+		// route made public, the same probe would keep passing over an endpoint any
+		// passer-by could read.
+		//
+		// `anonymousActor` starts from an EMPTY storage state and carries no
+		// credentials. Its context has no baseURL, so the URL is absolute.
+		const anonymous = await anonymousActor(playwright)
 
 		try {
-			const response = await anonymous.get(
+			const response = await anonymous.ctx.get(
 				`${CLEARANCE}?subject=does-not-exist&subjectSchema=decision`,
 				{ headers: HEADERS },
 			)
 
 			test.skip(response.status() === 404, 'decidiq is not installed here')
 
+			// 401, exactly. Who is holding up somebody else's file is not public
+			// information, so the session guard has to turn the caller away
+			// before the controller reads the subject at all. Accepting any 4xx
+			// accepts the answer admin gets too, which says nothing about who
+			// was asking.
 			expect(
-				[401, 403],
-				`an anonymous caller got ${response.status()} from the clearance endpoint`,
-			).toContain(response.status())
+				response.status(),
+				`an anonymous caller got ${response.status()} from the clearance endpoint: ${await describeResponse(response)}`,
+			).toBe(401)
 		} finally {
-			await anonymous.dispose()
+			await disposeActors(anonymous)
 		}
 	})
 })
