@@ -295,7 +295,7 @@ class SettingsService {
 	 * @return array{0: array<string,mixed>, 1: array<string,mixed>|null} [configData, failureResult]
 	 */
 	private function readBaseRegisterConfig(): array {
-		$configPath = __DIR__ . '/../Settings/decidesk_register.json';
+		$configPath = self::baseDescriptorPath();
 		if (file_exists($configPath) === false) {
 			$this->logger->error('Decidiq: decidesk_register.json not found at ' . $configPath);
 			return [
@@ -349,13 +349,99 @@ class SettingsService {
 	 * @return array{0: array<string,mixed>, 1: string} [mergedConfig, fragmentSignature]
 	 */
 	private function mergeRegisterFragments(array $configData): array {
-		$fragmentDir = __DIR__ . '/../Settings/register.d';
+		$logger = $this->logger;
+
+		return self::mergeFragmentDirectory(
+			configData: $configData,
+			fragmentDir: self::fragmentDirectory(),
+			onMalformed: static function (string $fragment, string $reason) use ($logger): void {
+				$logger->warning('Decidiq: skipping malformed register fragment ' . $fragment . ': ' . $reason);
+			}
+		);
+	}//end mergeRegisterFragments()
+
+	/**
+	 * Where the base descriptor lives.
+	 *
+	 * Named rather than inlined so a caller that wants to read what this app
+	 * SHIPS cannot drift from what this service IMPORTS.
+	 *
+	 * @return string Absolute path to decidesk_register.json.
+	 *
+	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 */
+	public static function baseDescriptorPath(): string {
+		return __DIR__ . '/../Settings/decidesk_register.json';
+	}//end baseDescriptorPath()
+
+	/**
+	 * Where the ADR-037 fragments live.
+	 *
+	 * @return string Absolute path to lib/Settings/register.d.
+	 *
+	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 */
+	public static function fragmentDirectory(): string {
+		return __DIR__ . '/../Settings/register.d';
+	}//end fragmentDirectory()
+
+	/**
+	 * The descriptor this app ships, base plus every fragment, merged.
+	 *
+	 * 🔴 ONE MERGE, NOT TWO. A guard that re-implements the merge is answering
+	 * about something adjacent: it can read a register the importer never sees
+	 * and pass while the instance is wrong. This is the same code path
+	 * importConfiguration() hands to OpenRegister, so a test built on it is
+	 * asking the authority.
+	 *
+	 * Static and dependency-free on purpose: reading the shipped JSON needs no
+	 * container, no logger and no OpenRegister, so a unit test can call it.
+	 *
+	 * @return array<string,mixed> The merged configuration.
+	 *
+	 * @throws \JsonException When the base descriptor does not parse.
+	 *
+	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 */
+	public static function shippedRegisterDescriptor(): array {
+		$base = json_decode(
+			(string)file_get_contents(self::baseDescriptorPath()),
+			true,
+			512,
+			JSON_THROW_ON_ERROR
+		);
+
+		[$merged] = self::mergeFragmentDirectory(
+			configData: $base,
+			fragmentDir: self::fragmentDirectory(),
+			onMalformed: null
+		);
+
+		return $merged;
+	}//end shippedRegisterDescriptor()
+
+	/**
+	 * Merge every fragment in a directory over a base configuration.
+	 *
+	 * @param array<string,mixed> $configData The base configuration.
+	 * @param string $fragmentDir The directory holding the fragments.
+	 * @param callable|null $onMalformed Called with (basename, reason) for a fragment that does not parse.
+	 *
+	 * @return array{0: array<string,mixed>, 1: string} [mergedConfig, fragmentSignature]
+	 *
+	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 */
+	private static function mergeFragmentDirectory(array $configData, string $fragmentDir, ?callable $onMalformed): array {
 		$fragmentSig = '';
 		if (is_dir($fragmentDir) === false) {
 			return [$configData, $fragmentSig];
 		}
 
 		$fragmentFiles = glob($fragmentDir . '/*.json');
+		if (is_array($fragmentFiles) === false) {
+			return [$configData, $fragmentSig];
+		}
+
 		sort($fragmentFiles);
 		foreach ($fragmentFiles as $fragmentFile) {
 			$fragmentContent = file_get_contents($fragmentFile);
@@ -365,10 +451,10 @@ class SettingsService {
 
 			$fragmentData = json_decode($fragmentContent, true);
 			if (json_last_error() !== JSON_ERROR_NONE) {
-				$this->logger->warning(
-					'Decidiq: skipping malformed register fragment ' . basename($fragmentFile)
-					. ': ' . json_last_error_msg()
-				);
+				if ($onMalformed !== null) {
+					$onMalformed(basename($fragmentFile), json_last_error_msg());
+				}
+
 				continue;
 			}
 
@@ -377,7 +463,7 @@ class SettingsService {
 		}//end foreach
 
 		return [$configData, $fragmentSig];
-	}//end mergeRegisterFragments()
+	}//end mergeFragmentDirectory()
 
 	/**
 	 * Hand the merged configuration to OpenRegister's version-gated importer.
