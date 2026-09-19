@@ -61,6 +61,7 @@ use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\IL10N;
 use Psr\Log\LoggerInterface;
+use ReflectionClass;
 use Throwable;
 
 /**
@@ -172,20 +173,23 @@ class RegisterDecisionsLeafListener implements IEventListener {
 		}
 
 		try {
-			$descriptor = new LeafDescriptor(
-				id: self::LEAF_ID,
-				label: $this->l10n->t(self::LABEL_SOURCE),
-				icon: self::ICON,
-				kinds: [LeafDescriptor::KIND_RENDER_SURFACE],
-				requiredApp: Application::APP_ID,
-				group: self::GROUP,
-				surfaces: self::SURFACES,
-				referenceType: self::REFERENCE_TYPE,
+			$arguments = [
+				'id' => self::LEAF_ID,
+				'label' => $this->l10n->t(self::LABEL_SOURCE),
+				'icon' => self::ICON,
+				'kinds' => [LeafDescriptor::KIND_RENDER_SURFACE],
+				'requiredApp' => Application::APP_ID,
+				'group' => self::GROUP,
+				'surfaces' => self::SURFACES,
+				'referenceType' => self::REFERENCE_TYPE,
 				// Vue 3 leaf under a possibly-Vue-2.7 host: the JS half renders via a
 				// `mount`/`unmount` DOM hand-off (openregister#2127, ADR-066 decision 7),
 				// so the server descriptor MUST declare the SAME render mode under the
 				// shared id or the surface blanks (gate-24 R3).
-				renderMode: LeafDescriptor::RENDER_MODE_MOUNT,
+				'renderMode' => LeafDescriptor::RENDER_MODE_MOUNT,
+			];
+
+			if ($this->descriptorSupportsLoadStrategy() === true) {
 				// 🔴 SAID OUT LOUD BECAUSE IT WAS NEARLY INFERRED WRONGLY.
 				// decidiq ships no `decidiq-leaves.js` and does not need one: it
 				// loads `decidiq-integration-init.js` itself, on EVERY Nextcloud
@@ -198,8 +202,10 @@ class RegisterDecisionsLeafListener implements IEventListener {
 				// #3955 reverted that and #3956 replaced the inference with this
 				// declaration. Declaring it is what stops the next reader
 				// re-deriving the wrong answer from the filesystem.
-				loadStrategy: LeafDescriptor::LOADS_VIA_OWN_SCRIPT,
-			);
+				$arguments['loadStrategy'] = LeafDescriptor::LOADS_VIA_OWN_SCRIPT;
+			}
+
+			$descriptor = new LeafDescriptor(...$arguments);
 
 			// Render-only leaf: no IntegrationProvider (null). The tab and widget read
 			// and append decisions through OpenRegister's own object API in the
@@ -214,4 +220,49 @@ class RegisterDecisionsLeafListener implements IEventListener {
 		}//end try
 
 	}//end handle()
+
+	/**
+	 * Whether the OpenRegister beside us understands the `loadStrategy` argument.
+	 *
+	 * 🔴 A DECLARATION ABOUT HOW A LEAF LOADS MUST NEVER BE WHY IT DOES NOT LOAD.
+	 *
+	 * `loadStrategy` and the `LOADS_*` constants arrived together in
+	 * openregister#3956. Decidiq does not choose which OpenRegister an admin runs
+	 * it beside, and reading a constant that version does not declare is an
+	 * `Error`. The catch in `handle()` then swallows it, the leaf is simply
+	 * absent, and a warning in nextcloud.log is the only trace. hermiq measured
+	 * exactly that on a live instance: seven occurrences in the log and the leaf
+	 * never registered at all.
+	 *
+	 * Both halves are checked rather than one standing in for the other: the
+	 * constant is what this listener reads, the parameter is what it passes, and
+	 * a stub or a partial backport can carry one without the other.
+	 *
+	 * `protected` so a test can drive the negative branch. Two versions of one
+	 * class cannot both be loaded to be compared directly, so the seam is the
+	 * only way to assert what happens beside the older one.
+	 *
+	 * @return bool Whether the descriptor accepts a load strategy.
+	 *
+	 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-008-the-decidesk-decisions-leaf-is-declared-on-both-layers
+	 */
+	protected function descriptorSupportsLoadStrategy(): bool {
+		if (defined(LeafDescriptor::class . '::LOADS_VIA_OWN_SCRIPT') === false) {
+			return false;
+		}
+
+		$constructor = (new ReflectionClass(LeafDescriptor::class))->getConstructor();
+		if ($constructor === null) {
+			return false;
+		}
+
+		foreach ($constructor->getParameters() as $parameter) {
+			if ($parameter->getName() === 'loadStrategy') {
+				return true;
+			}
+		}
+
+		return false;
+
+	}//end descriptorSupportsLoadStrategy()
 }//end class
