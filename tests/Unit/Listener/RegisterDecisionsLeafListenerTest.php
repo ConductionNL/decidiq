@@ -55,7 +55,23 @@ use ReflectionMethod;
 class RegisterDecisionsLeafListenerTest extends TestCase {
 
 	/**
-	 * Build the listener with an identity l10n and a null logger.
+	 * Everything the listener logged and swallowed during the current test.
+	 *
+	 * @var array<int, string>
+	 */
+	private array $swallowed = [];
+
+	/**
+	 * Start each test with an empty record of swallowed warnings.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		$this->swallowed = [];
+	}//end setUp()
+
+	/**
+	 * Build the listener with an identity l10n and a recording logger.
 	 *
 	 * The identity `t()` is deliberate: what both halves have to agree on is the
 	 * l10n SOURCE key, because that is what each side hands to its own translator.
@@ -67,8 +83,34 @@ class RegisterDecisionsLeafListenerTest extends TestCase {
 		$l10n = $this->createMock(IL10N::class);
 		$l10n->method('t')->willReturnCallback(static fn (string $text): string => $text);
 
-		return new RegisterDecisionsLeafListener($l10n, $this->createMock(LoggerInterface::class));
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->method('warning')->willReturnCallback(
+			function (string|\Stringable $message): void {
+				$this->swallowed[] = (string) $message;
+			}
+		);
+
+		return new RegisterDecisionsLeafListener($l10n, $logger);
 	}//end listener()
+
+	/**
+	 * Why the leaf is missing, for the count assertion below to say out loud.
+	 *
+	 * The listener catches Throwable so one bad leaf cannot take the catalogue
+	 * down, and with a plain mock logger that catch is also what hides the
+	 * reason. `actual size 0 matches expected size 1` is what planninq stared at
+	 * for three days while an `Error` naming a constant sat in a warning nobody
+	 * captured.
+	 *
+	 * @return string The recorded warnings, or a note that there were none.
+	 */
+	private function whyTheLeafIsMissing(): string {
+		if ($this->swallowed === []) {
+			return 'The listener logged no warning, so it did not throw: the leaf was never contributed.';
+		}
+
+		return 'The listener swallowed: ' . implode(' | ', $this->swallowed);
+	}//end whyTheLeafIsMissing()
 
 	/**
 	 * Run the listener and return the single descriptor it contributed.
@@ -83,7 +125,8 @@ class RegisterDecisionsLeafListenerTest extends TestCase {
 		$this->assertCount(
 			1,
 			$leaves,
-			'decidiq must contribute exactly one leaf to the OpenRegister catalogue.'
+			'decidiq must contribute exactly one leaf to the OpenRegister catalogue. '
+				. $this->whyTheLeafIsMissing()
 		);
 
 		return $leaves[0];

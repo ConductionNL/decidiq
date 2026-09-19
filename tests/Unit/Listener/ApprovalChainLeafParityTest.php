@@ -94,12 +94,30 @@ class ApprovalChainLeafParityTest extends TestCase {
 		$l10n = $this->createMock(IL10N::class);
 		$l10n->method('t')->willReturnCallback(static fn (string $text): string => $text);
 
+		// The listener catches Throwable so one bad leaf cannot take the whole
+		// catalogue down, and a plain mock logger is then also what hides the
+		// reason. Recorded and read back as the failure message below, because
+		// `actual size 0 matches expected size 1` told planninq nothing for three
+		// days while the reason sat in a warning nobody captured.
+		$swallowed = [];
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->method('warning')->willReturnCallback(
+			function (string|\Stringable $message) use (&$swallowed): void {
+				$swallowed[] = (string) $message;
+			}
+		);
+
 		$event = new RegisterLeafProvidersEvent();
-		(new RegisterApprovalChainLeafListener($l10n, $this->createMock(LoggerInterface::class)))
-			->handle($event);
+		(new RegisterApprovalChainLeafListener($l10n, $logger))->handle($event);
 
 		$leaves = $event->getLeaves();
-		$this->assertCount(1, $leaves);
+		$this->assertCount(
+			1,
+			$leaves,
+			$swallowed === []
+				? 'The listener logged no warning, so it did not throw: the leaf was never contributed.'
+				: 'The listener swallowed: ' . implode(' | ', $swallowed)
+		);
 
 		return $leaves[0]['descriptor'];
 	}//end serverDescriptor()
