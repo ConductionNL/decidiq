@@ -1,0 +1,3927 @@
+{
+	"comparedOn": "2026-09-25",
+	"category": "Decidiq competes as a meeting and decision-management system for governance bodies: it prepares and runs the meetings of a council, board, committee or members' assembly (agenda, papers, motions and amendments, voting including proxies, minutes, decision records and their follow-up) and publishes the outcome. Its deepest fit, going by the code, is the Dutch municipal council and its griffie, which buys a raadsinformatiesysteem (NotuBiz, iBabs, GO.); the same core also serves association general meetings, works councils and company boards, where the comparison is a board portal (Diligent) or an assembly tool (OpenSlides). Citizen participation ships as a module, but it is not what a buyer selects decidiq for. Written by the parity-new cold start on 2026-09-25; correct it here if it is wrong, since the areas, rows and columns all follow from it.",
+	"corpus": {
+		"repo": "ConductionNL/decidiq",
+		"file": "openspec/parity/capabilities.json"
+	},
+	"systems": [
+		{
+			"key": "decidiq",
+			"name": "Decidiq",
+			"vendor": "Conduction",
+			"isSelf": true,
+			"readOn": "2026-09-25",
+			"columnAddedOn": "2026-09-25"
+		},
+		{
+			"key": "notubiz",
+			"name": "NotuBiz",
+			"vendor": "NotuBiz Nederland B.V.",
+			"readOn": "2026-04-18",
+			"columnAddedOn": "2026-09-25",
+			"evidenceGrade": "docs-only",
+			"unknownReason": "Not covered by the research read: the intelligence database's competitor_features rows for this vendor (captured 2026-03-26 to 2026-04-18) and concurrentie-analyse/raadsinformatie/README.md (2026-03-27) do not mention it. Nobody has driven the product."
+		},
+		{
+			"key": "ibabs",
+			"name": "iBabs",
+			"vendor": "iBabs (MSI)",
+			"readOn": "2026-04-18",
+			"columnAddedOn": "2026-09-25",
+			"evidenceGrade": "docs-only",
+			"unknownReason": "Not covered by the research read: the intelligence database's competitor_features rows for this vendor (captured 2026-03-26 to 2026-04-18) and concurrentie-analyse/raadsinformatie/README.md (2026-03-27) do not mention it. Nobody has driven the product."
+		},
+		{
+			"key": "go-raadsinformatie",
+			"name": "GO. Raadsinformatie",
+			"vendor": "GemeenteOplossingen",
+			"readOn": "2026-04-10",
+			"columnAddedOn": "2026-09-25",
+			"evidenceGrade": "docs-only",
+			"unknownReason": "Not covered by the research read: the intelligence database's competitor_features rows for this vendor (captured 2026-03-26 to 2026-04-10) and concurrentie-analyse/raadsinformatie/README.md (2026-03-27) do not mention it. Nobody has driven the product."
+		},
+		{
+			"key": "diligent-boards",
+			"name": "Diligent Boards",
+			"vendor": "Diligent",
+			"readOn": "2026-04-10",
+			"columnAddedOn": "2026-09-25",
+			"evidenceGrade": "docs-only",
+			"unknownReason": "Not covered by the intelligence database's competitor_features rows for Diligent Boards (captured 2026-03-26 to 2026-04-10). Nobody has driven the product."
+		},
+		{
+			"key": "openslides",
+			"name": "OpenSlides",
+			"vendor": "Intevation / OpenSlides community",
+			"readOn": "2026-04-10",
+			"columnAddedOn": "2026-09-25",
+			"evidenceGrade": "docs-only",
+			"unknownReason": "Not covered by the intelligence database's competitor_features rows for OpenSlides (feature summaries 2026-03-26 and 2026-04-10, release notes 4.2.20 to 4.2.29 captured 2026-04-04). OpenSlides is open source and could be driven; nobody has yet."
+		}
+	],
+	"areas": [
+		{
+			"key": "bodies",
+			"name": "Governance bodies and members",
+			"name_nl": "Bestuursorganen en leden"
+		},
+		{
+			"key": "planning",
+			"name": "Planning meetings",
+			"name_nl": "Vergaderingen plannen"
+		},
+		{
+			"key": "agenda",
+			"name": "Agenda and meeting papers",
+			"name_nl": "Agenda en vergaderstukken"
+		},
+		{
+			"key": "live",
+			"name": "Running the meeting",
+			"name_nl": "De vergadering leiden"
+		},
+		{
+			"key": "motions",
+			"name": "Motions, amendments and questions",
+			"name_nl": "Moties, amendementen en vragen"
+		},
+		{
+			"key": "voting",
+			"name": "Voting",
+			"name_nl": "Stemmen"
+		},
+		{
+			"key": "minutes",
+			"name": "Minutes and decision records",
+			"name_nl": "Notulen en besluitvastlegging"
+		},
+		{
+			"key": "followup",
+			"name": "Follow-up and commitments",
+			"name_nl": "Opvolging en toezeggingen"
+		},
+		{
+			"key": "routes",
+			"name": "Approval routes, mandates and procedures",
+			"name_nl": "Parafeerroutes, mandaten en procedures"
+		},
+		{
+			"key": "publication",
+			"name": "Publication, transparency and archiving",
+			"name_nl": "Publicatie, openbaarheid en archivering"
+		},
+		{
+			"key": "participation",
+			"name": "Citizen and member participation",
+			"name_nl": "Burger- en ledenparticipatie"
+		},
+		{
+			"key": "insight",
+			"name": "Reporting, evaluation and oversight",
+			"name_nl": "Rapportage, evaluatie en toezicht"
+		},
+		{
+			"key": "platform",
+			"name": "Access, integration and platform",
+			"name_nl": "Toegang, koppelingen en platform"
+		}
+	],
+	"providers": [
+		{
+			"key": "decidiq",
+			"name": "Decidiq",
+			"kind": "self"
+		},
+		{
+			"key": "openregister",
+			"name": "OpenRegister",
+			"kind": "app"
+		},
+		{
+			"key": "opencatalogi",
+			"name": "OpenCatalogi",
+			"kind": "app"
+		},
+		{
+			"key": "integriq",
+			"name": "Integriq",
+			"kind": "app"
+		},
+		{
+			"key": "filinq",
+			"name": "Filinq",
+			"kind": "app"
+		},
+		{
+			"key": "portaliq",
+			"name": "Portaliq",
+			"kind": "app"
+		},
+		{
+			"key": "thematiq",
+			"name": "Thematiq",
+			"kind": "app"
+		},
+		{
+			"key": "hermiq",
+			"name": "Hermiq",
+			"kind": "app"
+		},
+		{
+			"key": "nextcloud",
+			"name": "Nextcloud server",
+			"kind": "platform"
+		},
+		{
+			"key": "talk",
+			"name": "Nextcloud Talk",
+			"kind": "external"
+		},
+		{
+			"key": "deck",
+			"name": "Nextcloud Deck",
+			"kind": "external"
+		},
+		{
+			"key": "collectives",
+			"name": "Nextcloud Collectives",
+			"kind": "external"
+		},
+		{
+			"key": "calendar",
+			"name": "Nextcloud Calendar",
+			"kind": "external"
+		}
+	],
+	"capabilities": [
+		{
+			"id": "bod-01",
+			"area": "bodies",
+			"name": "Register a governance body such as a council, board, committee or assembly, with its type.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #19631 'Commissiebeheer: Committee management and scheduling' (captured 2026-04-10)",
+				"ibabs": "docs-only, intelligence DB competitor_features #19657 'Committee Management: Multi-committee management' (captured 2026-04-10)",
+				"openslides": "docs-only, intelligence DB competitor_features #708 'Committee Structure: Model boards, sub-groups, working groups with access rights' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19518 'Committee Management: Committee and working group management' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "bod-02",
+			"area": "bodies",
+			"name": "Record who sits on a body, in which role, and from when to when.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #19517 'Participant Management: Delegate and guest management' (captured 2026-04-10); docs-only, intelligence DB competitor_features #708 'Committee Structure: Model boards, sub-groups, working groups with access rights' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "bod-03",
+			"area": "bodies",
+			"name": "Import the members of a body from an existing Nextcloud group instead of typing them in.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "bod-04",
+			"area": "bodies",
+			"name": "Define the positions in a body, such as chair, secretary or treasurer, and record who holds each one.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "bod-05",
+			"area": "bodies",
+			"name": "Give every member a profile page with party, photo, committees and portfolio.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"go-raadsinformatie": "docs-only, concurrentie-analyse/raadsinformatie/README.md (2026-03-27) §5.3 GO strengths: 'Comprehensive profile features for council members'"
+			}
+		},
+		{
+			"id": "bod-06",
+			"area": "bodies",
+			"name": "Group council members by faction and give each faction its own shared workspace.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #19635 'Fractietools: Political party/faction workspace' (captured 2026-04-10)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19649 'Fractiewerkruimte: Party faction workspace' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "bod-07",
+			"area": "bodies",
+			"name": "Keep track of each member's term of office and who is due to step down when.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "partial",
+			"openslides": "unknown",
+			"evidence": {
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19468 'Succession Planning: Board succession planning' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "bod-08",
+			"area": "bodies",
+			"name": "Walk a new member through an onboarding checklist, and a leaving member through offboarding.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "bod-09",
+			"area": "bodies",
+			"name": "Let members declare their other positions and gifts received, and keep that register up to date.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "partial",
+			"openslides": "unknown",
+			"evidence": {
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19461 'D&O Questionnaires: Director and Officer annual questionnaires' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "bod-10",
+			"area": "bodies",
+			"name": "Declare a conflict of interest on a topic and keep that member out of the vote on it.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "bod-11",
+			"area": "bodies",
+			"name": "See the board's skills matrix and which expertise is missing.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "unknown",
+			"evidence": {
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19469 'Skills Matrix: Board member skills gap analysis' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "bod-12",
+			"area": "bodies",
+			"name": "Track diversity figures for the board.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "unknown",
+			"evidence": {
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19470 'Diversity Tracking: Board diversity metrics' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "bod-13",
+			"area": "bodies",
+			"name": "Share one body between several organisations, such as a joint arrangement of municipalities.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "bod-14",
+			"area": "bodies",
+			"name": "Set a body's rules once, such as quorum, majority and allowed voting methods, and have its meetings follow them.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "bod-15",
+			"area": "bodies",
+			"name": "Start a new installation from a ready profile for a municipality, association, company or works council.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "bod-16",
+			"area": "bodies",
+			"name": "Keep contact details for members and bodies.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "bod-17",
+			"area": "bodies",
+			"name": "Manage what directors are paid.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "unknown",
+			"evidence": {
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19464 'Compensation Module: Director compensation management' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "pla-01",
+			"area": "planning",
+			"name": "Schedule a meeting of a body with a date, time and location.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "yes",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "yes",
+			"openslides": "yes",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #19631 'Commissiebeheer: Committee management and scheduling' (captured 2026-04-10)",
+				"ibabs": "docs-only, intelligence DB competitor_features #19661 'Meeting Calendar: Integrated meeting calendar' (captured 2026-04-10)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19651 'Kalender: Council meeting calendar' (captured 2026-04-10)",
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19477 'Board Calendar: Governance calendar with regulatory deadlines' (captured 2026-04-10)",
+				"openslides": "docs-only, intelligence DB competitor_features #19510 'Assembly Management: Complete assembly and congress management' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "pla-02",
+			"area": "planning",
+			"name": "See all meetings in a calendar view.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "yes",
+			"openslides": "unknown",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #19661 'Meeting Calendar: Integrated meeting calendar' (captured 2026-04-10)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19651 'Kalender: Council meeting calendar' (captured 2026-04-10)",
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19477 'Board Calendar: Governance calendar with regulatory deadlines' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "pla-03",
+			"area": "planning",
+			"name": "Create a recurring series of meetings in one step.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "pla-04",
+			"area": "planning",
+			"name": "Have meetings appear in members' own calendars, such as Nextcloud Calendar or Outlook.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #610 'Microsoft 365 Integration: Outlook, Teams integration' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "pla-05",
+			"area": "planning",
+			"name": "Send members an invitation with the agenda when a meeting is convened.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "pla-06",
+			"area": "planning",
+			"name": "Remind people before a deadline, such as the last day to submit agenda items.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "pla-07",
+			"area": "planning",
+			"name": "Keep a long-term agenda of topics planned for future meetings.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "pla-08",
+			"area": "planning",
+			"name": "Hold a meeting online or hybrid with a video call attached to it.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "partial",
+			"openslides": "unknown",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #608 'Video Conferencing: Integrated video meetings (hybrid/virtual)' (captured 2026-03-26)",
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19471 'Virtual AGM: Virtual annual general meeting support' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "pla-09",
+			"area": "planning",
+			"name": "Record who attended, who was absent and who sent apologies.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #19659 'Attendance Tracking: Meeting attendance tracking' (captured 2026-04-10)",
+				"openslides": "docs-only, intelligence DB competitor_features #8383 'Mandate check: New function integrated into the participant menu for mandate check. The function offers the option to statistically evaluate presence/absence in one or more groups.: From 4.2.27 (2025-11-20)' (captured 2026-04-04)"
+			}
+		},
+		{
+			"id": "pla-10",
+			"area": "planning",
+			"name": "See what a meeting costs in the time of the people attending.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "pla-11",
+			"area": "planning",
+			"name": "Define meeting types, each with its own default settings.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "pla-12",
+			"area": "planning",
+			"name": "Plan the yearly planning and control cycle, such as budget, spring memo and annual accounts, as a sequence of steps.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "pla-13",
+			"area": "planning",
+			"name": "Get a folder in Files for each meeting, holding its documents.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "pla-14",
+			"area": "planning",
+			"name": "Copy agenda items or a whole meeting from an earlier one.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #8373 'Agenda: Meeting admins can copy agenda items to another meeting that they administer. Optionally, the list of speakers with completed and open speeches, moderation notes, and attachments can be copied: From 4.2.28 (2025-12-11)' (captured 2026-04-04); docs-only, intelligence DB competitor_features #8398 'Meetings > Duplicate: Meetings can be duplicated again.: From 4.2.25 (2025-11-11)' (captured 2026-04-04)"
+			}
+		},
+		{
+			"id": "pla-15",
+			"area": "planning",
+			"name": "Move a meeting through its stages, from draft to convened, in progress and closed.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "age-01",
+			"area": "agenda",
+			"name": "Build an agenda of ordered, numbered items.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "yes",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "yes",
+			"openslides": "yes",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #19628 'Agendabeheer: Meeting agenda creation and management' (captured 2026-04-10)",
+				"ibabs": "docs-only, intelligence DB competitor_features #604 'Board Book Management: Digital board books with agenda, documents, annotations' (captured 2026-03-26)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #584 'Agenda Management: Create and manage meeting agendas with automatic numbering' (captured 2026-03-26)",
+				"diligent-boards": "docs-only, intelligence DB competitor_features #637 'Agenda Management: Efficient agenda setting with templates' (captured 2026-03-26)",
+				"openslides": "docs-only, intelligence DB competitor_features #713 'Agenda (Drag & Drop): Auto-numbered agenda items with drag-and-drop ordering' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19511 'Agenda Management: Multi-level agenda management' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "age-02",
+			"area": "agenda",
+			"name": "Reorder agenda items by dragging them.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #713 'Agenda (Drag & Drop): Auto-numbered agenda items with drag-and-drop ordering' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "age-03",
+			"area": "agenda",
+			"name": "Attach documents to an agenda item.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #604 'Board Book Management: Digital board books with agenda, documents, annotations' (captured 2026-03-26)",
+				"openslides": "docs-only, intelligence DB competitor_features #19515 'Document Management: Assembly document management' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "age-04",
+			"area": "agenda",
+			"name": "Start an agenda from a template.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "unknown",
+			"evidence": {
+				"diligent-boards": "docs-only, intelligence DB competitor_features #637 'Agenda Management: Efficient agenda setting with templates' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "age-05",
+			"area": "agenda",
+			"name": "Publish the agenda so members and the public can see it.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #28374 'NotuBiz RIS-portaal: Publiek raadsinformatiesysteem met agendas, stukken en besluiten' (captured 2026-04-18)",
+				"ibabs": "docs-only, intelligence DB competitor_features #28362 'Raadsagenda publicatie: Publiceer agendas en vergaderstukken automatisch op publieke raadsinformatie-portal' (captured 2026-04-18)"
+			}
+		},
+		{
+			"id": "age-06",
+			"area": "agenda",
+			"name": "Revise a published agenda and keep the earlier version visible.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "age-07",
+			"area": "agenda",
+			"name": "Mark items as formalities and adopt them together without debate.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "age-08",
+			"area": "agenda",
+			"name": "Track an item through the phases of forming a picture, forming an opinion and deciding.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "age-09",
+			"area": "agenda",
+			"name": "Mark an agenda item as confidential so only authorised people see its papers.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #28382 'Besloten stuk-embargo: Embargo-beheer voor vertrouwelijke raadsstukken' (captured 2026-04-18)",
+				"ibabs": "docs-only, intelligence DB competitor_features #28366 'Documentpublicatie naar publiek portaal: Selectieve publicatie van stukken met embargo en gereedheidsdatum' (captured 2026-04-18)"
+			}
+		},
+		{
+			"id": "age-10",
+			"area": "agenda",
+			"name": "Assemble all papers for a meeting into one meeting pack.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "unknown",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #604 'Board Book Management: Digital board books with agenda, documents, annotations' (captured 2026-03-26)",
+				"diligent-boards": "docs-only, intelligence DB competitor_features #631 'AI Smart Book Builder: Automates board book creation, saves 80% prep time' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "age-11",
+			"area": "agenda",
+			"name": "Make notes on meeting papers and share them with others.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "unknown",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #19660 'Document Annotation: PDF annotation and bookmarking' (captured 2026-04-10)",
+				"diligent-boards": "docs-only, intelligence DB competitor_features #635 'Real-time Collaboration: Document annotation and discussion tools' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "age-12",
+			"area": "agenda",
+			"name": "Read meeting papers offline on a tablet.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "partial",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #611 'Offline Access: Work with documents offline on mobile devices' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19667 'Offline Mode: Offline document access on iPad' (captured 2026-04-10)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #587 'Paperless Meetings: Digital meeting support for council members on tablets' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "age-13",
+			"area": "agenda",
+			"name": "Put incoming letters and documents on the agenda to be dealt with.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "age-14",
+			"area": "agenda",
+			"name": "Give each agenda item a time slot and see where the meeting will run over.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "age-15",
+			"area": "agenda",
+			"name": "Check that documents are accessible before they are published with the agenda.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "age-16",
+			"area": "agenda",
+			"name": "Get an AI summary of long meeting papers.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "unknown",
+			"evidence": {
+				"diligent-boards": "docs-only, intelligence DB competitor_features #631 'AI Smart Book Builder: Automates board book creation, saves 80% prep time' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "liv-01",
+			"area": "live",
+			"name": "Run a meeting from a live view that shows the chair and members the current item.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #712 'Projector Management: Multiple projectors showing different content' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19520 'Live Updates: Real-time updates for all participants' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "liv-02",
+			"area": "live",
+			"name": "See during the meeting whether a quorum is present.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "liv-03",
+			"area": "live",
+			"name": "Keep a list of speakers and track each speaker's time.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #711 'Speaker Lists: Manage speaking order and speaking times' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19514 'Speaker Management: Speaker list management with time tracking' (captured 2026-04-10); docs-only, intelligence DB competitor_features #8389 'Parliament mode > Speaking time projection: The correct speaking time is always displayed when changing the projection.: From 4.2.27 (2025-11-20)' (captured 2026-04-04)"
+			}
+		},
+		{
+			"id": "liv-04",
+			"area": "live",
+			"name": "Show the current item or vote on a screen in the room.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #712 'Projector Management: Multiple projectors showing different content' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19516 'Projector Control: Multi-projector control for assemblies' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "liv-05",
+			"area": "live",
+			"name": "Record a decision the moment it is taken during the meeting.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "liv-06",
+			"area": "live",
+			"name": "Stream the meeting live to the public.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "yes",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #595 'Live Broadcasting (NotuCast): Live streaming of council meetings' (captured 2026-03-26); docs-only, intelligence DB competitor_features #28375 'NotuCast live streaming: Live webcast + archief van raads- en commissievergaderingen' (captured 2026-04-18)",
+				"ibabs": "docs-only, intelligence DB competitor_features #28364 'Livestream & video-archief: Live streaming van vergaderingen en doorzoekbaar archief via iBabs Portal' (captured 2026-04-18)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #586 'Webcasting (GO Raad Direct): Live audio/video broadcasting and archiving of meetings' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "liv-07",
+			"area": "live",
+			"name": "Record the meeting and keep the video in a searchable archive.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "yes",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #596 'Recording (NotuRecord): Audio/video recording and archiving' (captured 2026-03-26); docs-only, intelligence DB competitor_features #28375 'NotuCast live streaming: Live webcast + archief van raads- en commissievergaderingen' (captured 2026-04-18)",
+				"ibabs": "docs-only, intelligence DB competitor_features #28364 'Livestream & video-archief: Live streaming van vergaderingen en doorzoekbaar archief via iBabs Portal' (captured 2026-04-18)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #586 'Webcasting (GO Raad Direct): Live audio/video broadcasting and archiving of meetings' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "liv-08",
+			"area": "live",
+			"name": "Jump from an agenda item to the moment it was discussed in the recording.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #28367 'Webcast streaming: Video-webcast met synchrone agenda-navigatie (jump-to-point)' (captured 2026-04-18)"
+			}
+		},
+		{
+			"id": "liv-09",
+			"area": "live",
+			"name": "Transcribe the meeting recording automatically.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #600 'Speech-to-Text: Automatic transcription of meeting recordings' (captured 2026-03-26)",
+				"ibabs": "docs-only, intelligence DB competitor_features #606 'AI Transcription: AI-generated meeting transcripts and summaries' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "liv-10",
+			"area": "live",
+			"name": "Show subtitles on the livestream or the recording.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "liv-11",
+			"area": "live",
+			"name": "Log who spoke on which item and which questions were raised.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "liv-12",
+			"area": "live",
+			"name": "Handle interruptions and interposed questions during a debate.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #8411 'Parliament mode: Integration of intervention button and new answer to interposed questions and answer to intervention logic.: From 4.2.23 (2025-10-08)' (captured 2026-04-04)"
+			}
+		},
+		{
+			"id": "liv-13",
+			"area": "live",
+			"name": "Chat with other participants during the meeting.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "partial",
+			"openslides": "yes",
+			"evidence": {
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19460 'Secure Messaging: End-to-end encrypted board messaging' (captured 2026-04-10)",
+				"openslides": "docs-only, intelligence DB competitor_features #8417 'Chat: Line breaks within messages using Shift+Enter are supported.: From 4.2.23 (2025-10-08)' (captured 2026-04-04)"
+			}
+		},
+		{
+			"id": "liv-14",
+			"area": "live",
+			"name": "Delete recordings and transcripts automatically after a retention period.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "mot-01",
+			"area": "motions",
+			"name": "Submit a motion and link it to an agenda item.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #601 'Council Instruments: Support for motions, amendments, votes' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19630 'Moties & Amendementen: Motion and amendment tracking' (captured 2026-04-10)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #592 'Council Instruments: Support for motions, amendments, interpellations' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19644 'Moties Tracking: Motion submission and tracking' (captured 2026-04-10)",
+				"openslides": "docs-only, intelligence DB competitor_features #707 'Motion Management: Create, amend, discuss, and vote on motions' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "mot-02",
+			"area": "motions",
+			"name": "Submit an amendment to a motion or proposal.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #601 'Council Instruments: Support for motions, amendments, votes' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19630 'Moties & Amendementen: Motion and amendment tracking' (captured 2026-04-10)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19645 'Amendementen: Amendment workflow management' (captured 2026-04-10)",
+				"openslides": "docs-only, intelligence DB competitor_features #707 'Motion Management: Create, amend, discuss, and vote on motions' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "mot-03",
+			"area": "motions",
+			"name": "See an amendment as tracked changes against the original text.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #8421 'Motions > Amendments: An amendment with change recommendations is displayed in full in the diff version.: From 4.2.23 (2025-10-08)' (captured 2026-04-04); docs-only, intelligence DB competitor_features #8435 'Motions > Amendment: Diff version visualization with sorted lists is working correctly.: From 4.2.21 (2025-08-29)' (captured 2026-04-04)"
+			}
+		},
+		{
+			"id": "mot-04",
+			"area": "motions",
+			"name": "Ask other members to co-sign a motion and file it only once they confirm.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "partial",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #8377 'Deletion concept for participants: Users who were registered as supporters and have been deleted are listed as “Deleted users.”: From 4.2.28 (2025-12-11)' (captured 2026-04-04)"
+			}
+		},
+		{
+			"id": "mot-05",
+			"area": "motions",
+			"name": "Write a motion together with co-authors and see the history of its text.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "mot-06",
+			"area": "motions",
+			"name": "Work out the order in which amendments are voted on.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "mot-07",
+			"area": "motions",
+			"name": "Record what a motion or amendment would cost from the budget.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "mot-08",
+			"area": "motions",
+			"name": "Move a motion through its stages, such as submitted, adopted, rejected or withdrawn.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #8404 'Motions > Metadata: New button for changing status integrated into metadata. The configuration, label, and visibility of the button are set in the workflow.: From 4.2.24 (2025-10-27)' (captured 2026-04-04)"
+			}
+		},
+		{
+			"id": "mot-09",
+			"area": "motions",
+			"name": "Forward a motion to another body or meeting.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #8364 'Organization level > Settings: New configuration option ‘Restrict definition of motion forwarding to organization admins’ integrated. This can be used to specify whether only organization admins or also committee admins can set up forwarding between committees.: From 4.2.29 (2026-01-17)' (captured 2026-04-04); docs-only, intelligence DB competitor_features #8390 'New orga wide setting to toggle forwarding of motions with attachements: From 4.2.26 (2025-11-12)' (captured 2026-04-04)"
+			}
+		},
+		{
+			"id": "mot-10",
+			"area": "motions",
+			"name": "Register oral questions for question time and requests for an interpellation.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #592 'Council Instruments: Support for motions, amendments, interpellations' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "mot-11",
+			"area": "motions",
+			"name": "Handle written questions from members and watch the deadline for the answer.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #19637 'Schriftelijke Vragen: Written question workflow' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "mot-12",
+			"area": "motions",
+			"name": "Check whether a motion is admissible before it goes on the agenda.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "mot-13",
+			"area": "motions",
+			"name": "Follow what happened to an adopted motion afterwards.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #28385 'Openbare motie-tracker: Publieke motie- en toezeggingen-tracker met status' (captured 2026-04-18)",
+				"ibabs": "docs-only, intelligence DB competitor_features #28365 'Motie en amendement register: Openbaar register van moties/amendementen met status-tracking' (captured 2026-04-18)"
+			}
+		},
+		{
+			"id": "mot-14",
+			"area": "motions",
+			"name": "Anonymise a motion's personal data before it is published.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "partial",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #28381 'Automatische anonimisatie: AVG/Woo anonimisatie (namen, BSN) voor publicatie' (captured 2026-04-18)"
+			}
+		},
+		{
+			"id": "mot-15",
+			"area": "motions",
+			"name": "Tag motions by theme and filter on those tags.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #715 'Tags & Filtering: Tag motions, agenda items, files for quick filtering' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "mot-16",
+			"area": "motions",
+			"name": "Export motions with their attachments to PDF.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #716 'PDF Export: Export agendas, motions, results to PDF' (captured 2026-03-26); docs-only, intelligence DB competitor_features #8374 'Motions > Export: Attachments to motions can be included in the export of motions.: From 4.2.28 (2025-12-11)' (captured 2026-04-04)"
+			}
+		},
+		{
+			"id": "vot-01",
+			"area": "voting",
+			"name": "Open a vote on a motion or amendment and close it.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "yes",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "yes",
+			"openslides": "yes",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #19629 'Stemprocedure: Voting procedure management' (captured 2026-04-10)",
+				"ibabs": "docs-only, intelligence DB competitor_features #605 'Digital Voting: In-app voting and ballot tracking' (captured 2026-03-26)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19643 'Stemprocedure: Electronic voting with faction view' (captured 2026-04-10)",
+				"diligent-boards": "docs-only, intelligence DB competitor_features #642 'Voting & Resolutions: Digital voting and resolution tracking' (captured 2026-03-26)",
+				"openslides": "docs-only, intelligence DB competitor_features #709 'Electronic Voting: Secure in-platform voting with result tallying' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "vot-02",
+			"area": "voting",
+			"name": "Let members cast their vote electronically from their own device.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "yes",
+			"openslides": "yes",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #605 'Digital Voting: In-app voting and ballot tracking' (captured 2026-03-26)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19643 'Stemprocedure: Electronic voting with faction view' (captured 2026-04-10)",
+				"diligent-boards": "docs-only, intelligence DB competitor_features #642 'Voting & Resolutions: Digital voting and resolution tracking' (captured 2026-03-26)",
+				"openslides": "docs-only, intelligence DB competitor_features #709 'Electronic Voting: Secure in-platform voting with result tallying' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "vot-03",
+			"area": "voting",
+			"name": "Show the result of a vote per faction and per member.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19643 'Stemprocedure: Electronic voting with faction view' (captured 2026-04-10)",
+				"openslides": "docs-only, intelligence DB competitor_features #8416 'Motions > Live voting > Projection: Results are also displayed per structure level: From 4.2.23 (2025-10-08)' (captured 2026-04-04)"
+			}
+		},
+		{
+			"id": "vot-04",
+			"area": "voting",
+			"name": "Hold a secret ballot.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #19513 'Election Module: Secret and named elections' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "vot-05",
+			"area": "voting",
+			"name": "Hold a roll-call vote where every member's vote is recorded by name.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #8380 'Motions > Voting: Simultaneously ending, publishing, and anonymizing roll-call votes is working again.: From 4.2.28 (2025-12-11)' (captured 2026-04-04); docs-only, intelligence DB competitor_features #8424 'Motions > Nominal votes: Nominal votes can be anonymized directly in the motion details view after stopping.: From 4.2.22 (2025-09-29)' (captured 2026-04-04)"
+			}
+		},
+		{
+			"id": "vot-06",
+			"area": "voting",
+			"name": "Elect a person to a position by vote.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #710 'Election Management: Run elections for board positions' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19513 'Election Module: Secret and named elections' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "vot-07",
+			"area": "voting",
+			"name": "Rank options or candidates in order of preference.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "vot-08",
+			"area": "voting",
+			"name": "Choose the majority rule per vote, such as simple, absolute, two-thirds or unanimous.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "vot-09",
+			"area": "voting",
+			"name": "Weight votes, such as by share in an owners' association.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #8379 'Agenda > Poll: All vote weights are displayed correctly when exporting polls.: From 4.2.28 (2025-12-11)' (captured 2026-04-04)"
+			}
+		},
+		{
+			"id": "vot-10",
+			"area": "voting",
+			"name": "Let a member authorise another member to vote on their behalf.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "vot-11",
+			"area": "voting",
+			"name": "Limit how many proxies one member may hold, and let the chair check them.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "vot-12",
+			"area": "voting",
+			"name": "Count the result automatically, applying the quorum and majority rules.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #709 'Electronic Voting: Secure in-platform voting with result tallying' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "vot-13",
+			"area": "voting",
+			"name": "Review or recount a vote after it has closed.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "vot-14",
+			"area": "voting",
+			"name": "Show the live count on a screen while the vote is open.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #8415 'Motions > Live voting: In the projection dialog, single votes are preselected when live voting is active.: From 4.2.23 (2025-10-08)' (captured 2026-04-04); docs-only, intelligence DB competitor_features #8430 'Motions > Live voting: Improved projection when publishing results.: From 4.2.22 (2025-09-29)' (captured 2026-04-04)"
+			}
+		},
+		{
+			"id": "vot-15",
+			"area": "voting",
+			"name": "Vote by replying to an email.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "vot-16",
+			"area": "voting",
+			"name": "Adopt a resolution in writing, without a meeting.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "partial",
+			"openslides": "unknown",
+			"evidence": {
+				"diligent-boards": "docs-only, intelligence DB competitor_features #642 'Voting & Resolutions: Digital voting and resolution tracking' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "vot-17",
+			"area": "voting",
+			"name": "Remind members who have not voted yet before the deadline.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "vot-18",
+			"area": "voting",
+			"name": "See how a member has voted across meetings.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "min-01",
+			"area": "minutes",
+			"name": "Draft the minutes automatically from the agenda, attendance and decisions.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "partial",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #594 'Meeting Minutes (NotuBiz): Digital minutes creation and publication' (captured 2026-03-26)",
+				"ibabs": "docs-only, intelligence DB competitor_features #607 'AI Minutes: Automated meeting minutes generation' (captured 2026-03-26)",
+				"diligent-boards": "docs-only, intelligence DB competitor_features #632 'AI Smart Minutes: Automated meeting minutes generation' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "min-02",
+			"area": "minutes",
+			"name": "Draft the minutes from the meeting transcript with AI.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "unknown",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #606 'AI Transcription: AI-generated meeting transcripts and summaries' (captured 2026-03-26); docs-only, intelligence DB competitor_features #607 'AI Minutes: Automated meeting minutes generation' (captured 2026-03-26)",
+				"diligent-boards": "docs-only, intelligence DB competitor_features #632 'AI Smart Minutes: Automated meeting minutes generation' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "min-03",
+			"area": "minutes",
+			"name": "Edit the minutes per agenda item in a structured editor.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "partial",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #594 'Meeting Minutes (NotuBiz): Digital minutes creation and publication' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "min-04",
+			"area": "minutes",
+			"name": "Submit draft minutes for approval, collect corrections, and have them approved.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "min-05",
+			"area": "minutes",
+			"name": "Sign approved minutes with a qualified electronic signature.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "partial",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #609 'Digital Signatures: Sign documents digitally within the platform' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "min-06",
+			"area": "minutes",
+			"name": "Produce the minutes as a PDF document.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "partial",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #716 'PDF Export: Export agendas, motions, results to PDF' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "min-07",
+			"area": "minutes",
+			"name": "Send the approved minutes to the members.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "min-08",
+			"area": "minutes",
+			"name": "Keep a list of the decisions taken at each meeting.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #597 'Decision Tracking: Track administrative decision-making processes' (captured 2026-03-26)",
+				"ibabs": "docs-only, intelligence DB competitor_features #28363 'Openbare besluitenlijst: Gepubliceerde besluitenlijsten per commissie/raad met zoekbaarheid' (captured 2026-04-18); docs-only, intelligence DB competitor_features #19663 'Resolution Management: Track resolutions and decisions' (captured 2026-04-10)",
+				"diligent-boards": "docs-only, intelligence DB competitor_features #642 'Voting & Resolutions: Digital voting and resolution tracking' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "min-09",
+			"area": "minutes",
+			"name": "Record a decision with its legal basis, how to object to it, and when it takes effect.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "min-10",
+			"area": "minutes",
+			"name": "Move a decision through its stages, from draft to taken, published or withdrawn, with checks on each step.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "min-11",
+			"area": "minutes",
+			"name": "Withdraw or replace an earlier decision and keep the two linked.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "min-12",
+			"area": "minutes",
+			"name": "Translate minutes into another language.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "min-13",
+			"area": "minutes",
+			"name": "Keep a tamper-evident record of every change to a decision and check it has not been altered.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "partial",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #19521 'History Log: Complete history log of all changes' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "min-14",
+			"area": "minutes",
+			"name": "Bundle a meeting's evidence, such as minutes, votes, attendance and signatures, into one proof package.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "min-15",
+			"area": "minutes",
+			"name": "Search across all past decisions and minutes.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #19664 'Search: Full-text search across all documents' (captured 2026-04-10)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #593 'Search & Archive: Full-text search across all council documents and decisions' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19653 'Zoekfunctie: Advanced full-text search' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "min-16",
+			"area": "minutes",
+			"name": "Produce the minutes of an association's general meeting in the form its rules require.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "fol-01",
+			"area": "followup",
+			"name": "Turn a decision into action items, each with an owner and a due date.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "unknown",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #614 'Decision Tracking: Track decisions with action items and follow-up' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19662 'Action Items: Action item tracking' (captured 2026-04-10)",
+				"diligent-boards": "docs-only, intelligence DB competitor_features #638 'Action Item Tracking: Track and follow up on meeting outcomes' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "fol-02",
+			"area": "followup",
+			"name": "Pull proposed action items out of the minutes automatically.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "fol-03",
+			"area": "followup",
+			"name": "See all my own open action items across meetings.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "fol-04",
+			"area": "followup",
+			"name": "Work on action items on a Deck board.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "fol-05",
+			"area": "followup",
+			"name": "Register a commitment the executive made to the council and track it until it is met.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #19636 'Toezeggingen: Track government promises' (captured 2026-04-10)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19646 'Toezeggingen: Promise tracking from executive to council' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "fol-06",
+			"area": "followup",
+			"name": "Show the public how commitments and motions are progressing.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #28385 'Openbare motie-tracker: Publieke motie- en toezeggingen-tracker met status' (captured 2026-04-18)"
+			}
+		},
+		{
+			"id": "fol-07",
+			"area": "followup",
+			"name": "Send the council an information letter and link it to the commitment it answers.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "fol-08",
+			"area": "followup",
+			"name": "Flag action items that are past their due date.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "fol-09",
+			"area": "followup",
+			"name": "Link decisions to the organisation's goals and see progress per goal.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "fol-10",
+			"area": "followup",
+			"name": "Record how far the implementation of a decision has got.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "partial",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #597 'Decision Tracking: Track administrative decision-making processes' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "rou-01",
+			"area": "routes",
+			"name": "Send a proposal along a route of named people who must approve it before it goes to the body.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "partial",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #598 'Document Workflow: Digital submission, tracking, approval of decision documents' (captured 2026-03-26)",
+				"ibabs": "docs-only, intelligence DB competitor_features #19668 'Custom Workflows: Configurable approval workflows' (captured 2026-04-10)",
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19473 'Custom Workflows: Configurable governance workflows' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "rou-02",
+			"area": "routes",
+			"name": "Have an approval step find its approver from the organisation, such as the owner's manager.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "rou-03",
+			"area": "routes",
+			"name": "Decide in advance what it means when an approver does not answer in time.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "rou-04",
+			"area": "routes",
+			"name": "See the approval route and where it stands on the document itself.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "rou-05",
+			"area": "routes",
+			"name": "Record which body or official holds which delegated powers.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "rou-06",
+			"area": "routes",
+			"name": "Take an urgent decision outside the normal meeting cycle and have it confirmed afterwards.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "rou-07",
+			"area": "routes",
+			"name": "Configure the process a decision follows per type of decision.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "partial",
+			"openslides": "unknown",
+			"evidence": {
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19473 'Custom Workflows: Configurable governance workflows' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "rou-08",
+			"area": "routes",
+			"name": "Ask an advisory body for its opinion and record it before deciding.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "rou-09",
+			"area": "routes",
+			"name": "Consult the works council on a proposed decision within the legal terms.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "rou-10",
+			"area": "routes",
+			"name": "Consult member bodies or the constituency before a vote.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "rou-11",
+			"area": "routes",
+			"name": "Collect the views of participating councils on a proposal from a joint arrangement.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "rou-12",
+			"area": "routes",
+			"name": "Handle an objection to a decision with an advisory committee.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "rou-13",
+			"area": "routes",
+			"name": "Let another app start a decision and read back its outcome.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "rou-14",
+			"area": "routes",
+			"name": "Keep a register of governing documents, such as statutes and regulations, with every version.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "partial",
+			"openslides": "unknown",
+			"evidence": {
+				"diligent-boards": "docs-only, intelligence DB competitor_features #636 'Resource Library: Centralized storage for governance documents' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "rou-15",
+			"area": "routes",
+			"name": "Adopt a new version of a regulation that takes effect on a later date.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "pub-01",
+			"area": "publication",
+			"name": "Publish meetings, agendas and papers on a public website.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "yes",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #599 'Public Portal: Citizen-facing portal for council information' (captured 2026-03-26); docs-only, intelligence DB competitor_features #28374 'NotuBiz RIS-portaal: Publiek raadsinformatiesysteem met agendas, stukken en besluiten' (captured 2026-04-18)",
+				"ibabs": "docs-only, intelligence DB competitor_features #19658 'Public Portal: Public-facing meeting information' (captured 2026-04-10); docs-only, intelligence DB competitor_features #28362 'Raadsagenda publicatie: Publiceer agendas en vergaderstukken automatisch op publieke raadsinformatie-portal' (captured 2026-04-18)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19648 'Burgerportaal: Public-facing information portal' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "pub-02",
+			"area": "publication",
+			"name": "Publish a decision to the public, and withdraw or correct it later.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #28363 'Openbare besluitenlijst: Gepubliceerde besluitenlijsten per commissie/raad met zoekbaarheid' (captured 2026-04-18)"
+			}
+		},
+		{
+			"id": "pub-03",
+			"area": "publication",
+			"name": "Offer council data through the Open Raadsinformatie API.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #602 'Open Data API: Support for Open Raadsinformatie standard' (captured 2026-03-26); docs-only, intelligence DB competitor_features #28376 'Open Raadsinformatie API: Levert data conform VNG Open Raadsinformatie API spec naar openraadsinformatie.nl' (captured 2026-04-18)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #589 'Open Raadsinformatie API: API for publishing council data as open data' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "pub-04",
+			"area": "publication",
+			"name": "Push voting results to an external Open Raadsinformatie endpoint when a vote closes.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "pub-05",
+			"area": "publication",
+			"name": "Publish documents under the Woo categories and deliver them to the national Woo index.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #28378 'Woo-publicatie module: Actieve publicatie van Woo-categorieen vanuit NotuBiz naar publiek portaal' (captured 2026-04-18); docs-only, intelligence DB competitor_features #28380 'DiWoo Woo-index koppeling: Automatische aanlevering naar KOOP Woo-index via sitemap/API' (captured 2026-04-18)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19654 'Woo Module: Wet open overheid compliance' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "pub-06",
+			"area": "publication",
+			"name": "Put a confidentiality restriction on a document with its legal ground and end date.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #28382 'Besloten stuk-embargo: Embargo-beheer voor vertrouwelijke raadsstukken' (captured 2026-04-18)",
+				"ibabs": "docs-only, intelligence DB competitor_features #28366 'Documentpublicatie naar publiek portaal: Selectieve publicatie van stukken met embargo en gereedheidsdatum' (captured 2026-04-18)"
+			}
+		},
+		{
+			"id": "pub-07",
+			"area": "publication",
+			"name": "Lift a confidentiality restriction automatically when it expires.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "pub-08",
+			"area": "publication",
+			"name": "Remove personal data such as names from documents before they are published.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #28381 'Automatische anonimisatie: AVG/Woo anonimisatie (namen, BSN) voor publicatie' (captured 2026-04-18)"
+			}
+		},
+		{
+			"id": "pub-09",
+			"area": "publication",
+			"name": "Let citizens search public council documents with filters.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #28368 'Burger-zoekportaal: Vrijtekst-zoekmachine in publieke raadsstukken en historie' (captured 2026-04-18)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #593 'Search & Archive: Full-text search across all council documents and decisions' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19653 'Zoekfunctie: Advanced full-text search' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "pub-10",
+			"area": "publication",
+			"name": "Follow new publications through an RSS feed or email alert.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #28373 'RSS-feeds agenda: RSS voor vergaderagenda en publicaties' (captured 2026-04-18)"
+			}
+		},
+		{
+			"id": "pub-11",
+			"area": "publication",
+			"name": "Archive decisions and documents with MDTO metadata and transfer them to an e-depot.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "partial",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #19641 'MDTO Compliance: MDTO metadata standard support' (captured 2026-04-10); docs-only, concurrentie-analyse/raadsinformatie/README.md (2026-03-27) §5.1 NotuBiz strengths: 'E-Depot integration partnerships'",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19655 'Archivering: Long-term document archiving' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "pub-12",
+			"area": "publication",
+			"name": "Let archives and harvesters collect council data over OAI-PMH.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #28377 'OAI-PMH harvesting: OAI-PMH endpoint voor harvesters en archieven' (captured 2026-04-18)"
+			}
+		},
+		{
+			"id": "pub-13",
+			"area": "publication",
+			"name": "Tag publications with the TOOI value lists for theme and organisation.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #28379 'TOOI thesaurus-binding: Metadata-tagging via TOOI waardelijsten (thema, organisatie)' (captured 2026-04-18)"
+			}
+		},
+		{
+			"id": "pub-14",
+			"area": "publication",
+			"name": "Publish each member's voting record for citizens to see.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "pub-15",
+			"area": "publication",
+			"name": "Take all your data with you when you leave the supplier.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "no",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"notubiz": "docs-only, concurrentie-analyse/raadsinformatie/README.md (2026-03-27) §5.1 NotuBiz weaknesses: 'Vendor lock-in with proprietary data formats'",
+				"openslides": "docs-only, intelligence DB competitor_features #717 'Self-Hosted (MIT): Fully self-hosted under permissive MIT license' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "par-01",
+			"area": "participation",
+			"name": "Run a public consultation that opens and closes on set dates.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "partial",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #19633 'Burgerparticipatie: Citizen participation module' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "par-02",
+			"area": "participation",
+			"name": "Let citizens respond to a consultation without an account.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "par-03",
+			"area": "participation",
+			"name": "Moderate citizen reactions before they are published.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "par-04",
+			"area": "participation",
+			"name": "Publish the outcome of a consultation.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "par-05",
+			"area": "participation",
+			"name": "Run a participatory budget round in which citizens propose projects.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "par-06",
+			"area": "participation",
+			"name": "Let citizens vote on the projects in a budget round.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "par-07",
+			"area": "participation",
+			"name": "Set up a citizen panel with fixed members and a term.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "par-08",
+			"area": "participation",
+			"name": "Let citizens cast an advisory vote on a motion.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "par-09",
+			"area": "participation",
+			"name": "Let a citizen register to speak at a council meeting.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "par-10",
+			"area": "participation",
+			"name": "Let citizens submit a contribution through the public portal.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "par-11",
+			"area": "participation",
+			"name": "Discuss a topic in a threaded forum linked to a motion.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "par-12",
+			"area": "participation",
+			"name": "Consult the members of an association before its general meeting.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "ins-01",
+			"area": "insight",
+			"name": "Open a dashboard of upcoming meetings, open decisions and my own tasks.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #19632 'Griffie Dashboard: Clerk office workflow dashboard' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "ins-02",
+			"area": "insight",
+			"name": "Report on the decisions taken per period and per body.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #19638 'Rapportage Module: Council activity analytics and reports' (captured 2026-04-10)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19650 'Rapportages: Council statistics and reports' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "ins-03",
+			"area": "insight",
+			"name": "Report on voting and attendance.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "ins-04",
+			"area": "insight",
+			"name": "Generate a yearly governance report per body.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "ins-05",
+			"area": "insight",
+			"name": "Export a package of governance records for a regulator or supervisor.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "ins-06",
+			"area": "insight",
+			"name": "Run an anonymous board self-evaluation and report the scores.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "unknown",
+			"evidence": {
+				"diligent-boards": "docs-only, intelligence DB competitor_features #641 'Board Evaluations: Templatized committee and board evaluations' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19462 'Board Evaluation: Comprehensive board effectiveness evaluation' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "ins-07",
+			"area": "insight",
+			"name": "See how efficiently meetings run, such as time spent per item.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "ins-08",
+			"area": "insight",
+			"name": "See how actively each member takes part, such as speeches and questions.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "ins-09",
+			"area": "insight",
+			"name": "Report on environmental, social and governance matters to the board.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "unknown",
+			"evidence": {
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19463 'ESG Module: Environmental, Social, Governance reporting' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "ins-10",
+			"area": "insight",
+			"name": "Keep track of the organisation's risks at board level.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "unknown",
+			"evidence": {
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19466 'Risk Management: Enterprise risk oversight' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "ins-11",
+			"area": "insight",
+			"name": "Get AI-suggested questions and points to raise before a meeting.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "unknown",
+			"evidence": {
+				"diligent-boards": "docs-only, intelligence DB competitor_features #634 'AI Smart Prep Insights: Generates pointed questions and citations for directors' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "ins-12",
+			"area": "insight",
+			"name": "Have AI flag legal risks in meeting documents.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "unknown",
+			"evidence": {
+				"diligent-boards": "docs-only, intelligence DB competitor_features #633 'AI Smart Risk Scanner: Flags potential legal issues in documents' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "ins-13",
+			"area": "insight",
+			"name": "See upcoming meetings in a widget on the Nextcloud dashboard.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "ins-14",
+			"area": "insight",
+			"name": "Record the audit committee's statement on the accounts.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "plt-01",
+			"area": "platform",
+			"name": "Sign in with the organisation's single sign-on.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #19670 'SSO: Single sign-on support' (captured 2026-04-10)",
+				"openslides": "docs-only, intelligence DB competitor_features #8363 'Fixed security issue when using SAML. We highly recommend to update to newest version.: From 4.2.29 (2026-01-17)' (captured 2026-04-04)"
+			}
+		},
+		{
+			"id": "plt-02",
+			"area": "platform",
+			"name": "Open confidential papers after signing in with DigiD or eHerkenning.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #28384 'DigiD koppeling besloten stukken: DigiD auth voor raadsleden bij vertrouwelijke stukken' (captured 2026-04-18)",
+				"ibabs": "docs-only, intelligence DB competitor_features #28369 'DigiD/eHerkenning integratie: Authenticatie voor besloten raads-/commissie-omgevingen' (captured 2026-04-18)"
+			}
+		},
+		{
+			"id": "plt-03",
+			"area": "platform",
+			"name": "Limit what each role may see and change per kind of record.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "docs-only, intelligence DB competitor_features #708 'Committee Structure: Model boards, sub-groups, working groups with access rights' (captured 2026-03-26); docs-only, intelligence DB competitor_features #8425 'Participants > Group rights: New and improved group rights for managing polls and ballots.: From 4.2.22 (2025-09-29)' (captured 2026-04-04)"
+			}
+		},
+		{
+			"id": "plt-04",
+			"area": "platform",
+			"name": "Use the app in Dutch, English and other languages.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #613 'Multi-language Support: Available in Dutch, English, German, French' (captured 2026-03-26)",
+				"openslides": "docs-only, intelligence DB competitor_features #19522 'Multi-language: German, English, French, Spanish' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "plt-05",
+			"area": "platform",
+			"name": "Use the app on a phone.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #611 'Offline Access: Work with documents offline on mobile devices' (captured 2026-03-26)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19656 'Mobile Toegang: Mobile access for council members' (captured 2026-04-10)",
+				"openslides": "docs-only, intelligence DB competitor_features #714 'PWA Support: Installable progressive web app for mobile' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "plt-06",
+			"area": "platform",
+			"name": "Run it on your own servers.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "no",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"notubiz": "docs-only, concurrentie-analyse/raadsinformatie/README.md (2026-03-27) §5.1 NotuBiz weaknesses: 'Proprietary SaaS only -- no self-hosted option'",
+				"openslides": "docs-only, intelligence DB competitor_features #717 'Self-Hosted (MIT): Fully self-hosted under permissive MIT license' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19523 'Docker Deployment: Docker-based deployment' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "plt-07",
+			"area": "platform",
+			"name": "Get the source code under an open-source licence.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "no",
+			"ibabs": "no",
+			"go-raadsinformatie": "no",
+			"diligent-boards": "no",
+			"openslides": "yes",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitors.license = 'proprietary'",
+				"ibabs": "docs-only, intelligence DB competitors.license = 'proprietary'",
+				"go-raadsinformatie": "docs-only, intelligence DB competitors.license = 'Proprietary'",
+				"diligent-boards": "docs-only, intelligence DB competitors.license = 'Proprietary'",
+				"openslides": "docs-only, intelligence DB competitors.license = 'MIT'"
+			}
+		},
+		{
+			"id": "plt-08",
+			"area": "platform",
+			"name": "Ask an AI assistant about meetings, decisions and action items, limited to what my own role may see.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "plt-09",
+			"area": "platform",
+			"name": "Get notified about meetings, votes and deadlines, and choose which notifications I get.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "plt-10",
+			"area": "platform",
+			"name": "Link decisions to cases in a case management system.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #590 'Zaaksysteem Integration: Link to case management systems' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "plt-11",
+			"area": "platform",
+			"name": "Pull source documents from the document management system.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "yes",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "docs-only, intelligence DB competitor_features #28386 'DMS-koppelingen (SharePoint, Corsa, JOIN): Koppelingen met gemeentelijke DMSen voor bronstukken' (captured 2026-04-18)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #588 'DMS Integration: Connects with document management systems (Decos JOIN)' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "plt-12",
+			"area": "platform",
+			"name": "Work from Microsoft 365, such as Outlook and Teams.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #610 'Microsoft 365 Integration: Outlook, Teams integration' (captured 2026-03-26)"
+			}
+		},
+		{
+			"id": "plt-13",
+			"area": "platform",
+			"name": "Read and write the data through a REST API.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #19666 'API: REST API for integration' (captured 2026-04-10)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19652 'API: Integration API for third-party systems' (captured 2026-04-10)",
+				"openslides": "docs-only, intelligence DB competitor_features #19524 'REST API: Full REST API for integration' (captured 2026-04-10)"
+			}
+		},
+		{
+			"id": "plt-14",
+			"area": "platform",
+			"name": "See on one admin page which integrations work and which do not.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "plt-15",
+			"area": "platform",
+			"name": "Apply the organisation's house style or NL Design System theme.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "plt-16",
+			"area": "platform",
+			"name": "Follow changes to meetings and decisions in the Nextcloud activity stream.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "plt-17",
+			"area": "platform",
+			"name": "Find meetings and decisions from the Nextcloud search bar.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "plt-18",
+			"area": "platform",
+			"name": "Let another system subscribe to changes in a decision.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		},
+		{
+			"id": "plt-19",
+			"area": "platform",
+			"name": "Configure the app through a guided setup when it is first installed.",
+			"origin": "code",
+			"decidiq": "unknown",
+			"built": {
+				"state": "none",
+				"evidence": "not yet read"
+			},
+			"note": "decidiq cell not yet read from code (work in progress)",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown"
+		}
+	],
+	"pending": []
+}
