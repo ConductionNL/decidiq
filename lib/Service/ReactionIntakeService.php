@@ -120,10 +120,13 @@ class ReactionIntakeService {
 	 *
 	 * @return array<string, mixed> The created ConsultationReaction object.
 	 *
-	 * @throws RuntimeException When the consultation is not found or closed.
+	 * @throws RuntimeException When the consultation is not found, or closed or past its
+	 *                          deadline (then the lifecycle service's window exception, a
+	 *                          RuntimeException the responder answers with 400).
 	 * @throws InvalidArgumentException When the body is empty/oversized or anonymous intake is not enabled.
 	 *
 	 * @spec openspec/specs/citizen-participation/spec.md
+	 * @spec openspec/specs/p3-citizen-participation/spec.md
 	 */
 	public function submitReaction(string $consultationId, string $body, ?string $ncUid, ?string $clientSeed = null): array {
 		$body = trim($body);
@@ -146,9 +149,7 @@ class ReactionIntakeService {
 		$consultation = $entity->jsonSerialize();
 
 		// Server-side window guard (open + future deadline), independent of stored status.
-		if ($this->lifecycleService->consultationAcceptsSubmissions(consultation: $consultation) === false) {
-			throw new RuntimeException('This consultation is not open for submissions');
-		}
+		$this->lifecycleService->assertConsultationAcceptsSubmissions(consultation: $consultation);
 
 		$isAnonymous = ($ncUid === null || $ncUid === '');
 

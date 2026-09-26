@@ -85,15 +85,28 @@ class PublicationPayloadService {
 	/**
 	 * Build a Besluit (decision) payload — totals only, never voters.
 	 *
+	 * 🔴 AN ALLOW-LIST OMITS BY DEFAULT, WHICH IS THE POINT AND ALSO THE RISK.
+	 * This list carried `legalBasis` and not `legalRemedyClause`, so once the
+	 * clause was finally stamped onto the decision the citizen reading the
+	 * public publication was still told the legal ground the besluit rests on
+	 * and not how to object to it. Nothing failed: the payload was valid, the
+	 * publication succeeded, and the one field a person needs in order to
+	 * disagree was simply not copied across.
+	 *
+	 * The clause is safe here by the same construction as the rest: it holds a
+	 * remedy kind, a term, a body and a sentence, all of them written to be read
+	 * by the public. It carries no identity of any kind.
+	 *
 	 * @param array<string,mixed> $source Decision object data.
 	 * @param int $version Payload version.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-007)
 	 *
 	 * @return array<string,mixed>
 	 */
 	private function buildDecisionPayload(array $source, int $version): array {
-		return [
+		$payload = [
 			'oriType' => 'Besluit',
 			'schemaOrgType' => 'ChooseAction',
 			'payloadVersion' => $version,
@@ -106,7 +119,50 @@ class PublicationPayloadService {
 			'voteTotals' => $this->extractVoteTotals(source: $source),
 		];
 
+		$clause = $this->extractRemedyClause(source: $source);
+		if ($clause !== null) {
+			$payload['legalRemedyClause'] = $clause;
+		}
+
+		return $payload;
+
 	}//end buildDecisionPayload()
+
+	/**
+	 * The remedy clause to publish, or null when the decision carries none.
+	 *
+	 * Copied field by field rather than passed through, so a clause that grew
+	 * an internal field upstream cannot arrive on the public feed by accident.
+	 * Omitted entirely when the decision was never stamped: an empty clause on
+	 * a publication would read as "no remedy is open", which is a statement
+	 * `geen` exists to make deliberately.
+	 *
+	 * @param array<string,mixed> $source Decision object data.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-007)
+	 *
+	 * @return array<string,mixed>|null The clause, or null.
+	 */
+	private function extractRemedyClause(array $source): ?array {
+		$clause = ($source['legalRemedyClause'] ?? null);
+		if (is_array($clause) === false || $clause === []) {
+			return null;
+		}
+
+		$kind = trim((string)($clause['kind'] ?? ''));
+		$text = trim((string)($clause['text'] ?? ''));
+		if ($kind === '' && $text === '') {
+			return null;
+		}
+
+		return [
+			'kind' => $kind,
+			'termDays' => (int)($clause['termDays'] ?? 0),
+			'body' => trim((string)($clause['body'] ?? '')),
+			'text' => $text,
+		];
+
+	}//end extractRemedyClause()
 
 	/**
 	 * Build a Vergadering (agenda) payload — confidential items stripped.

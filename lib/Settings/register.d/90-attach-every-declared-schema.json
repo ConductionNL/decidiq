@@ -1,0 +1,71 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment - declaring a schema is not attaching it. Replicating SettingsService::mergeRegisterFragments over the shipped descriptor gave 106 schemas declared in components.schemas and 95 listed in components.registers.decidiq.schemas. The eleven below were never in that list, on development or on any branch before it. ImportHandler builds the register's schema ids from the register's own list, so an unlisted schema is created on the instance and linked to no register, and ObjectService::setSchema() under a named register resolves register-scoped and throws on a scoped miss by design. That is why DecisionPublicationService::typeOf() could never read a decision-template: setSchema('decision-template') threw, the catch(Throwable) logged a warning and returned null, and both assertPublishable() and stamp() were skipped, so every decision published with no remedy clause and a 200 OK. approval-route, approval-action, meeting-type, agenda-item-type, position-type, position-hold, governance-body-composition, body-governance-configuration, audit-statement and goal are addressed by slug from controllers, services, migrations and manifest pages in exactly the same way. Attaching them costs one table per link on install, which is what makes the data reachable at all. tests/Unit/Settings/RegisterDescriptorTest.php now fails when this list and components.schemas disagree in either direction.",
+  "components": {
+    "registers": {
+      "decidiq": {
+        "schemas": [
+          "decision-template",
+          "approval-route",
+          "approval-action",
+          "meeting-type",
+          "agenda-item-type",
+          "position-type",
+          "position-hold",
+          "governance-body-composition",
+          "body-governance-configuration",
+          "audit-statement",
+          "goal"
+        ]
+      }
+    },
+    "schemas": {
+      "PublicationPayload": {
+        "slug": "publication-payload",
+        "version": "0.2.0",
+        "description": "Derived, immutable public payload (publish-decisions-via-opencatalogi). Constructed ALLOW-LIST style by PublicationPayloadService: one polymorphic shape discriminated by oriType (Besluit / Vergadering / Verslag). Carries OpenRaadsinformatie-mapped fields alongside schema.org annotations so OpenCatalogi/OR public-API consumers receive ORI-compatible data without a bespoke harvester. By construction this schema contains NO UID fields, NO contact details, NO individual vote records, and NO voter identities: decision payloads carry vote TOTALS only, agenda payloads omit confidential items, minutes payloads render attendance per the body's policy. Anonymous visibility is governed by the OpenRegister RBAC published-predicate: the authorization.read rule grants the public group read access when publicationDate <= $now; publishing sets publicationDate on the payload instance, withdraw sets depublicationDate. The live source object is never published. Patched by the-decision-as-a-walked-process (REQ-DWP-007): the payload also carries legalRemedyClause, because the payload is what an anonymous reader receives and the clause is the part a person needs in order to disagree. The allow-list carried legalBasis and not this, so a citizen was told the legal ground the besluit rests on and not how to object to it.",
+        "properties": {
+          "legalRemedyClause": {
+            "title": "Legal remedy clause",
+            "type": "object",
+            "description": "How to contest this besluit, copied from the decision at the moment it was published. A reader was told the legal ground the besluit rests on and not how to object to it, because the allow-list carried legalBasis and not this (REQ-DWP-007). Stamped, never read live: a term that changes next year must not change what this publication told someone last year.",
+            "properties": {
+              "kind": {
+                "title": "Kind",
+                "type": "string",
+                "enum": [
+                  "bezwaar",
+                  "beroep",
+                  "administratief-beroep",
+                  "geen"
+                ],
+                "example": "bezwaar",
+                "description": "Which remedy is open."
+              },
+              "termDays": {
+                "title": "Term in days",
+                "type": "integer",
+                "example": 42,
+                "description": "How long the party has, in days."
+              },
+              "body": {
+                "title": "Body",
+                "type": "string",
+                "example": "het college van burgemeester en wethouders",
+                "description": "Where it is lodged."
+              },
+              "text": {
+                "title": "Text",
+                "type": "string",
+                "example": "Bent u het niet eens met dit besluit? Dan kunt u binnen zes weken bezwaar maken bij het college van burgemeester en wethouders.",
+                "description": "The sentence the reader sees."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

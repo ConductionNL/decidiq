@@ -230,6 +230,17 @@ if (class_exists(\OCA\OpenRegister\Event\ObjectUpdatedEvent::class) === false) {
 	require_once __DIR__ . '/Stubs/Event/ObjectUpdatedEvent.php';
 }
 
+// Integriq's connection-registry events (adopt-connection-registry).
+// ConnectionReportService sends them by string class name behind class_exists
+// (ADR-041), so decidiq stays installable without integriq. The stubs mirror
+// hydra connection-registry design D6 verbatim and load only when integriq's
+// real classes are absent.
+foreach (['ConnectionStatusReportedEvent', 'ConnectionRefreshRequestedEvent'] as $integriqStubEvent) {
+	if (class_exists('\\OCA\\Integriq\\Event\\' . $integriqStubEvent) === false) {
+		require_once __DIR__ . '/Stubs/Integriq/Event/' . $integriqStubEvent . '.php';
+	}
+}
+
 // ObjectService, ObjectEntity, Register and Schema need no require_once: the
 // PSR-4 root registered above resolves them to tests/Stubs/Service/ and
 // tests/Stubs/Db/ whenever the real OpenRegister app is absent, and to the real

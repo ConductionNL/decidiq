@@ -28,13 +28,16 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\ApprovalPrincipal;
 use OCA\Decidiq\Service\ApprovalRouteConclusionAnnouncer;
 use OCA\Decidiq\Service\ApprovalRouteService;
+use OCA\Decidiq\Service\SubjectClearanceService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use OCP\IGroupManager;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -51,14 +54,20 @@ class ApprovalRouteController extends Controller {
 	 * @param IRequest $request The request.
 	 * @param ApprovalRouteService $service The route engine.
 	 * @param ApprovalRouteConclusionAnnouncer $announcer The one door a conclusion leaves by.
+	 * @param SubjectClearanceService $clearanceService Answers whether a subject is cleared.
 	 * @param IUserSession $userSession The session.
+	 * @param IGroupManager $groupManager Group manager, used only to answer
+	 *        whether the caller may declare that a step's silence approves
+	 *        (REQ-AR-015).
 	 * @param LoggerInterface $logger Logger.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly ApprovalRouteService $service,
 		private readonly ApprovalRouteConclusionAnnouncer $announcer,
+		private readonly SubjectClearanceService $clearanceService,
 		private readonly IUserSession $userSession,
+		private readonly IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
@@ -94,7 +103,9 @@ class ApprovalRouteController extends Controller {
 			// RBAC answers as the acting user.
 			$this->service->assertSubjectAccessible(subject: $subject, subjectSchema: $subjectSchema);
 
-			$stages = $this->service->instantiate(route: $route, subject: $subject, subjectSchema: $subjectSchema);
+			// Held or instantiated, depending on the route's origin. See
+			// stagesFor() for why an adhoc route writes no template row.
+			$stages = $this->stagesFor(route: $route, subject: $subject, subjectSchema: $subjectSchema);
 		} catch (Throwable $e) {
 			// The engine's refusals are the point of the engine, so the caller
 			// gets the reason rather than a generic failure.
@@ -107,6 +118,106 @@ class ApprovalRouteController extends Controller {
 
 		return new JSONResponse(['stages' => $stages], Http::STATUS_CREATED);
 	}//end instantiate()
+
+	/**
+	 * The stages this route produces, held or instantiated.
+	 *
+	 * A route the caller marked `adhoc` is held from the people its steps name,
+	 * with no template row written. A review of one document by three colleagues
+	 * is not a template anybody reuses, and storing one per review fills the
+	 * register with routes nobody will read again (REQ-AR-008).
+	 *
+	 * @param array<string, mixed> $route The route as the caller sent it.
+	 * @param string $subject The subject's UUID.
+	 * @param string $subjectSchema The subject's schema slug.
+	 *
+	 * @return array<int, array<string, mixed>> The stages.
+	 */
+	private function stagesFor(array $route, string $subject, string $subjectSchema): array {
+		if ((string)($route['origin'] ?? '') === 'adhoc') {
+			return $this->service->holdFor(
+				subject: $subject,
+				actors: $this->actorsOf(route: $route),
+				subjectSchema: $subjectSchema,
+				deadline: (string)$this->request->getParam('deadline', ''),
+				name: (string)($route['name'] ?? 'Review'),
+			);
+		}
+
+		return $this->service->instantiate(
+			route: $route,
+			subject: $subject,
+			subjectSchema: $subjectSchema,
+			principal: $this->callerPrincipal(),
+		);
+	}//end stagesFor()
+
+	/**
+	 * Who the signed-in caller is, as the route rules see them.
+	 *
+	 * Only used to answer REQ-AR-015: a step whose silence APPROVES is a
+	 * signature nobody gave, so only an administrator may declare one. Anybody
+	 * else, including an ordinary signed-in user, gets false and is refused by
+	 * the engine.
+	 *
+	 * @return ApprovalPrincipal The caller, as the route rules see them.
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 */
+	private function callerPrincipal(): ApprovalPrincipal {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return ApprovalPrincipal::Ordinary;
+		}
+
+		if ($this->groupManager->isAdmin($user->getUID()) === true) {
+			return ApprovalPrincipal::Administrator;
+		}
+
+		return ApprovalPrincipal::Ordinary;
+	}//end callerPrincipal()
+
+	/**
+	 * The people an ad-hoc route's steps name, in step order.
+	 *
+	 * @param array<string, mixed> $route The route as the caller sent it.
+	 *
+	 * @return array<int, string> The people.
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
+	 */
+	private function actorsOf(array $route): array {
+		$steps = ($route['steps'] ?? []);
+		if (is_array($steps) === false) {
+			return [];
+		}
+
+		usort(
+			$steps,
+			static function (mixed $first, mixed $second): int {
+				$orderOfFirst = 0;
+				if (is_array($first) === true) {
+					$orderOfFirst = (int)($first['order'] ?? 0);
+				}
+
+				$orderOfSecond = 0;
+				if (is_array($second) === true) {
+					$orderOfSecond = (int)($second['order'] ?? 0);
+				}
+
+				return ($orderOfFirst <=> $orderOfSecond);
+			}
+		);
+
+		$actors = [];
+		foreach ($steps as $step) {
+			if (is_array($step) === true && trim((string)($step['actor'] ?? '')) !== '') {
+				$actors[] = trim((string)$step['actor']);
+			}
+		}
+
+		return $actors;
+	}//end actorsOf()
 
 	/**
 	 * Record an action on a subject's active stage.
@@ -157,4 +268,55 @@ class ApprovalRouteController extends Controller {
 
 		return new JSONResponse($recorded, Http::STATUS_CREATED);
 	}//end record()
+
+	/**
+	 * Whether a subject's required sign-offs have all been given.
+	 *
+	 * The one question a sibling app gates closure on. It answers yes or no, and
+	 * when it is no it names the route, the step and the person it waits on,
+	 * because "not cleared" on its own makes somebody open this app and read
+	 * three screens to learn one name.
+	 *
+	 * AUTHORISATION FIRST, as on every other method here: being signed in is
+	 * not permission to read who is holding up somebody else's file. The check
+	 * is the same reachability question OpenRegister's RBAC answers for the
+	 * subject itself, so a user who cannot see the subject cannot see its
+	 * sign-off state either.
+	 *
+	 * @return JSONResponse The clearance answer, or an error.
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+	 */
+	#[NoAdminRequired]
+	public function clearance(): JSONResponse {
+		if ($this->userSession->getUser() === null) {
+			return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		$subject = (string)$this->request->getParam('subject', '');
+		$subjectSchema = (string)$this->request->getParam('subjectSchema', '');
+		if ($subject === '' || $subjectSchema === '') {
+			return new JSONResponse(
+				['message' => 'subject and subjectSchema are required'],
+				Http::STATUS_BAD_REQUEST
+			);
+		}
+
+		try {
+			$this->service->assertSubjectAccessible(subject: $subject, subjectSchema: $subjectSchema);
+			$clearance = $this->clearanceService->clearanceFor(
+				routes: $this->service->routesWithStagesFor(subject: $subject)
+			);
+		} catch (Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: could not answer a clearance question',
+				['app' => Application::APP_ID, 'subject' => $subject, 'reason' => $e->getMessage()]
+			);
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+		}
+
+		$clearance['reason'] = $this->clearanceService->describe(clearance: $clearance);
+
+		return new JSONResponse($clearance, Http::STATUS_OK);
+	}//end clearance()
 }//end class

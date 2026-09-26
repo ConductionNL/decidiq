@@ -72,6 +72,14 @@
             route table and carry the same call.
         -->
         <file name="vendor/conduction/hydra-gates/hydra-gates/stubs/openregister-apphost-bootstrap.stub.php" />
+        <!--
+            Integriq's connection-registry events (adopt-connection-registry).
+            ConnectionReportService names them by string behind class_exists
+            (ADR-041). Declaration-only stubs, so psalm sees the constructor the
+            service builds instead of reading the guarded branch as dead.
+        -->
+        <file name="tests/Stubs/Integriq/Event/ConnectionStatusReportedEvent.php" />
+        <file name="tests/Stubs/Integriq/Event/ConnectionRefreshRequestedEvent.php" />
     </stubs>
     <issueHandlers>
         <!--
