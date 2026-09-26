@@ -273,6 +273,10 @@
 					"jobPostings": "https://openslides.com/de/karriere/ states no positions at Intevation GmbH are currently advertised (read 2026-09-26).",
 					"tenders": "the intelligence database holds no tender naming OpenSlides or Intevation for a meeting system (searched tenders.winner, name and description and requirements.text_nl on 2026-09-26; Intevation's hits are waterway monitoring software)"
 				}
+			},
+			"readVersion": {
+				"tag": "4.3.4",
+				"commit": "7f10ed8"
 			}
 		}
 	],
