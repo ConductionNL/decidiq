@@ -7384,6 +7384,383 @@
 				"notubiz": "https://www.kennisbank.notubiz.nl/kennisclips/moties-amendementen-en-ingekomen-stukken-inzien states a copied module link shows a colleague with the same rights exactly the same filtered overview; redirect after login is not stated",
 				"ibabs": "https://support.ibabs.com/docs/geavanceerde-mail-notificaties.md states the bulk mail holds hyperlinks to published agendas and overviews; landing on the item after login is not stated"
 			}
+		},
+		{
+			"id": "age-18",
+			"area": "agenda",
+			"name": "Notify members automatically when the agenda of a published meeting changes.",
+			"origin": "changelog",
+			"originUrl": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/release_notes/release-notes-bwa.htm",
+			"decidiq": "no",
+			"built": {
+				"state": "none",
+				"evidence": "lib/Service/AgendaService.php:108 publishAgenda() notifies active participants once on publish, and :352 reviseAgenda() only sets the meeting back to 'scheduled' with no notification; both reached only by API (appinfo/routes.php:153-154, no src/ caller, matrix rows pla-05 and age-06); nothing watches agenda item changes on a published meeting",
+				"owner": "ConductionNL/decidiq"
+			},
+			"reachedOn": "nothing reaches it: publish and revise are API only and a change sends nothing",
+			"provider": "decidiq",
+			"providerHow": "read-from-code",
+			"feature": "agenda-publication",
+			"featureConfidence": "high",
+			"note": "Changing the agenda of a published meeting sends no notification. A notice goes out only when an agenda is published, and that step is API only.",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "partial",
+			"diligent-boards": "yes",
+			"openslides": "no",
+			"evidence": {
+				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/release_notes/release-notes-bwa.htm (Dec 12, 2025) states admins can manage email notifications to users for auto-agenda updates with a new Send notification option",
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/mijn_vergaderingen/ states participants receive notifications of invitations and changes to the meeting in Mijn Vergaderingen; for formal council meetings this is not described",
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/mixins/send_email_mixin.py is used only by account actions (user.send_invitation_email, forget_password, create, update) and grep for subscri and notify_email across meta/collections returns nothing; agenda changes only appear live in the open client through the autoupdate service. No agenda change notifications."
+			}
+		},
+		{
+			"id": "plt-27",
+			"area": "platform",
+			"name": "Review, edit or hide AI generated summaries of meeting papers before members see them.",
+			"origin": "changelog",
+			"originUrl": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/release_notes/release-notes-bwa.htm",
+			"decidiq": "no",
+			"built": {
+				"state": "none",
+				"evidence": "grep -rniE 'summar|ITextProcessing|TaskProcessing|LLM' lib src: no AI summary of meeting papers (matrix row age-16)",
+				"owner": "ConductionNL/decidiq"
+			},
+			"reachedOn": "nothing reaches it: no AI summaries exist to review",
+			"provider": "decidiq",
+			"providerHow": "read-from-code",
+			"feature": "ai-assist",
+			"featureConfidence": "high",
+			"note": "decidiq makes no AI summaries of meeting papers, so there is nothing to review, edit or hide.",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "no",
+			"evidence": {
+				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/release_notes/release-notes-bwa.htm (Dec 12, 2025) adds deleting generated AI content, and https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/managing-ai-content-for-a-book-bwa.htm describes a Show to directors toggle and editing the Smart Summary",
+				"go-raadsinformatie": "not checked: looked, not settled: https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._digitale_assistent/ describes the assistant for individual users; admin review of AI output before members see it is not described",
+				"openslides": "source read at 4.3.4, not driven: grep for openai, llm, chatgpt, ollama and anthropic across all Python, TypeScript and Go sources returns only unrelated identifiers. There are no AI summaries to review."
+			}
+		},
+		{
+			"id": "plt-28",
+			"area": "platform",
+			"name": "Require a second sign-in factor, such as an authenticator app, when members sign in.",
+			"origin": "changelog",
+			"originUrl": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/release_notes/release-notes-bwd.htm",
+			"decidiq": "yes",
+			"built": {
+				"state": "built",
+				"evidence": "decidiq has no login of its own and relies on the Nextcloud session (matrix row plt-01, e.g. lib/Controller/VotingBehaviourController.php:108 IUserSession); grep -rniE 'mfa|two.?factor|2fa|totp' lib src: none in decidiq; second factors and their enforcement come from Nextcloud's two-factor providers (twofactor_totp, WebAuthn) and the admin Security setting",
+				"owner": "nextcloud/server"
+			},
+			"reachedOn": "Nextcloud login, with two-factor enforced under Administration settings > Security",
+			"provider": "nextcloud",
+			"providerHow": "read-from-code",
+			"feature": "platform-auth",
+			"featureConfidence": "high",
+			"note": "Any second factor Nextcloud enforces, such as an authenticator app, applies to decidiq because it uses the normal Nextcloud sign-in.",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "yes",
+			"openslides": "partial",
+			"evidence": {
+				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/release_notes/release-notes-bwd.htm (Nov 28, 2025) introduces an authenticator app as an alternative to SMS based two factor sign-in; https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-faq/authenticator-app.htm explains it",
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/blogs/nis_2_en_de_nieuwste_ontwikkeling_rond_cybersecuritywetgeving/ states two factor authentication (2FA) can be used in the products and https://www.gemeenteoplossingen.nl/producten/integratie/single_sign-on/ supports MFA through Microsoft sign-in",
+				"openslides": "source read at 4.3.4, not driven: grep for totp, otp, 2fa, two factor, mfa and webauthn across openslides-auth-service/auth/src and meta/collections returns nothing, so the built-in login is password only; with SAML (openslides-auth-service/auth/src/api/services/saml-service.ts, organization.yml:74 saml_enabled) the identity provider can require a second factor. Native 2FA no, via the IdP yes."
+			}
+		},
+		{
+			"id": "age-19",
+			"area": "agenda",
+			"name": "Watermark meeting papers on screen and in exports with the viewer's name and the date.",
+			"origin": "featurePage",
+			"originUrl": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/watermarking-documents-bwa.htm",
+			"decidiq": "no",
+			"built": {
+				"state": "none",
+				"evidence": "grep -rli 'watermark' lib src: no hits; papers are plain Nextcloud files in the meeting folder (matrix row pla-13); lib/Service/MeetingPackageService.php assembles packages without marking them",
+				"owner": "ConductionNL/decidiq"
+			},
+			"reachedOn": "nothing reaches it",
+			"provider": "decidiq",
+			"providerHow": "read-from-code",
+			"feature": "confidentiality",
+			"featureConfidence": "high",
+			"note": "decidiq puts no watermark on papers or exports. Nextcloud Office has a secure view with watermarks of its own, which decidiq neither sets up nor was checked here.",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "no",
+			"evidence": {
+				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/watermarking-documents-bwa.htm states watermarks show the viewer's name and view date on the page view and on exported documents, with optional custom text",
+				"go-raadsinformatie": "not checked: looked, not settled: watermarking is not described on the vendor pages",
+				"openslides": "source read at 4.3.4, not driven: grep for watermark across the client app and openslides-media-service returns nothing; PDF exports (gateways/export/pdf-document.service) carry header and footer logos only. No viewer watermark."
+			}
+		},
+		{
+			"id": "vot-24",
+			"area": "voting",
+			"name": "Require a minimum number of votes from independent members for a resolution to pass.",
+			"origin": "featurePage",
+			"originUrl": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/approval/creating-a-custom-approval-bwa.htm",
+			"decidiq": "no",
+			"built": {
+				"state": "none",
+				"evidence": "lib/Settings/decidesk_register.json:398 Membership.independenceStatus is stored, and used only for the independence ratio in lib/Service/GovernanceReportingService.php:116; grep -rniE 'independent|independence' lib/Service/Voting*.php lib/Service/Quorum*.php: none, so no voting rule counts independent members",
+				"owner": "ConductionNL/decidiq"
+			},
+			"reachedOn": "nothing reaches it: independence is recorded on a membership but voting ignores it",
+			"provider": "decidiq",
+			"providerHow": "read-from-code",
+			"feature": "voting",
+			"featureConfidence": "high",
+			"note": "Members can be marked independent, which feeds the governance report, but no vote can require a minimum number of votes from independent members.",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "no",
+			"evidence": {
+				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/approval/creating-a-custom-approval-bwa.htm lets admins set how many approvals must come from independent directors, and https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/approval/creating-a-signature-approval-bwa.htm has an Independent directors required field",
+				"go-raadsinformatie": "not checked: looked, not settled: not described on https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._stemgedrag/",
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/poll.yml has no quorum or majority rule field at all (collection-meta.yml:17 only sets a percentage base), and grep for independent across meta/collections returns nothing. No minimum of independent votes."
+			}
+		},
+		{
+			"id": "plt-29",
+			"area": "platform",
+			"name": "Share selected meeting papers with outside parties such as auditors in a separate secure data room.",
+			"origin": "featurePage",
+			"originUrl": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/basic-navigation/sharing-files-to-sfs-bwa.htm",
+			"decidiq": "partial",
+			"built": {
+				"state": "built",
+				"evidence": "grep -rniE 'data ?room|publicShare|IShare|ShareManager' lib src: none in decidiq; papers sit in the meeting's Nextcloud Files folder (lib/Listener/MeetingFolderListener.php, matrix row pla-13), which Nextcloud can share by link with a password and expiry date",
+				"owner": "nextcloud/server"
+			},
+			"reachedOn": "Nextcloud Files, the meeting folder's share link (outside decidiq); MeetingDetail Documents widget to find the folder",
+			"provider": "nextcloud",
+			"providerHow": "read-from-code",
+			"feature": "meeting-folders",
+			"featureConfidence": "medium",
+			"note": "Selected papers can be shared with an auditor through Nextcloud's own password-protected, expiring share links. There is no separate data room in decidiq that tracks who outside received what.",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "partial",
+			"diligent-boards": "yes",
+			"openslides": "partial",
+			"evidence": {
+				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/basic-navigation/sharing-files-to-sfs-bwa.htm sends a whole book or selected content to the Data Room with security level, recipients and optional watermark",
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/mijn_vergaderingen/ lets users invite external participants to a meeting with its documents; a separate data room is not described",
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting_mediafile.yml:32 access_group_ids can restrict chosen files to a group, and user.yml:71 external marks outside accounts that can be put in such a group; there is no separate data room with its own terms, expiry or download controls. Restricted sharing to outsiders yes, a data room no."
+			}
+		},
+		{
+			"id": "plt-30",
+			"area": "platform",
+			"name": "Approve each request from the supplier's support staff to access the site, for a limited time.",
+			"origin": "featurePage",
+			"originUrl": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/user-management/granting-temporary-site-access-bwa.htm",
+			"decidiq": "no",
+			"built": {
+				"state": "none",
+				"evidence": "grep -rniE 'support access|temporary access|supportAccess' lib src: none; decidiq runs on the customer's own Nextcloud (matrix row plt-06, appinfo/info.xml), so the supplier has no standing access to approve or refuse",
+				"owner": "ConductionNL/decidiq"
+			},
+			"reachedOn": "nothing reaches it",
+			"provider": "decidiq",
+			"providerHow": "read-from-code",
+			"feature": "deployment",
+			"featureConfidence": "medium",
+			"note": "There is no flow to approve time-limited supplier support access. On a self-hosted install the supplier only gets in with an account the organisation creates, and ending it is a manual step.",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "no",
+			"evidence": {
+				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/user-management/granting-temporary-site-access-bwa.htm states administrators must approve temporary access for Diligent staff before they can access a site for support or implementation",
+				"go-raadsinformatie": "not checked: looked, not settled: https://www.gemeenteoplossingen.nl/blogs/cloud_op_eigen_bodem/ describes a four eyes principle for critical changes by GO staff; customer approval of support access is not described",
+				"openslides": "source read at 4.3.4, not driven: grep for support_access and impersonat across openslides-backend/meta/collections, openslides_backend and the auth service returns nothing; access is only through ordinary accounts and the superadmin (user.yml:80 organization_management_level). No time limited supplier access approval."
+			}
+		},
+		{
+			"id": "plt-31",
+			"area": "platform",
+			"name": "Authorise the devices that may open meeting papers and block a lost device.",
+			"origin": "featurePage",
+			"originUrl": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/device-authorization/device-authorization-bwa.htm",
+			"decidiq": "partial",
+			"built": {
+				"state": "built",
+				"evidence": "grep -rniE 'device' lib src: only preferences and eIDAS hits, nothing in decidiq; Nextcloud's personal Security settings list connected devices and sessions, revoke them and offer remote wipe for a lost device; no allowlist of devices that may open papers",
+				"owner": "nextcloud/server"
+			},
+			"reachedOn": "Nextcloud Personal settings > Security, Devices and sessions (outside decidiq)",
+			"provider": "nextcloud",
+			"providerHow": "read-from-code",
+			"feature": "platform-auth",
+			"featureConfidence": "medium",
+			"note": "A lost device can be signed out and wiped through Nextcloud's device list. There is no step that authorises a device before it may open meeting papers.",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "yes",
+			"openslides": "no",
+			"evidence": {
+				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/device-authorization/device-authorization-bwa.htm describes device authorization and https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/device-authorization/blocking-a-device-from-all-sites-bwa.htm blocks a compromised device from all sites",
+				"go-raadsinformatie": "not checked: looked, not settled: device authorisation is not described on https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._app/",
+				"openslides": "source read at 4.3.4, not driven: grep for device across openslides-backend/meta/collections returns nothing and sessions in openslides-auth-service/auth/src/api/services/session-service.ts are not bound to registered devices. No device authorisation."
+			}
+		},
+		{
+			"id": "pub-21",
+			"area": "publication",
+			"name": "Publish how each faction spends its budget, down to the receipt, after the treasurer approves each claim.",
+			"origin": "featurePage",
+			"originUrl": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/publieke_verantwoording/",
+			"decidiq": "no",
+			"built": {
+				"state": "none",
+				"evidence": "grep -rliE 'fractiebudget|factionBudget|expense|receipt|declaratie|bonnetje' lib src: only src/icons.js and gifts in src/manifest.d/interests-and-integrity.json; factions are GovernanceBodies with no budget (matrix row bod-06)",
+				"owner": "ConductionNL/decidiq"
+			},
+			"reachedOn": "nothing reaches it",
+			"provider": "decidiq",
+			"providerHow": "read-from-code",
+			"feature": "factions",
+			"featureConfidence": "high",
+			"note": "decidiq keeps no faction budget, expense claims or receipts, so there is nothing to approve or publish.",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "no",
+			"evidence": {
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/publieke_verantwoording/ states politicians submit claims with a photo of the receipt, the treasurer checks and approves them and spending is published per party and category",
+				"diligent-boards": "not checked: looked, not settled: not described in the Boards help",
+				"openslides": "source read at 4.3.4, not driven: grep for expense, receipt, claim and budget across openslides-backend/meta/collections returns nothing. No faction budget accounting."
+			}
+		},
+		{
+			"id": "liv-22",
+			"area": "live",
+			"name": "Exchange the agenda, speakers and vote results with the room's conference and voting system.",
+			"origin": "featurePage",
+			"originUrl": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._av-koppeling/",
+			"decidiq": "no",
+			"built": {
+				"state": "none",
+				"evidence": "grep -rliE 'conference system|microphone|delegate system|bosch|televic|speakerSystem' lib src: only an icon name (lib/Settings/decidesk_register.json:3279 'Microphone') and the video-conference link field (:937); the room display endpoint GET /api/voting-rounds/{id}/public-state is API only (liv-04)",
+				"owner": "ConductionNL/decidiq"
+			},
+			"reachedOn": "nothing reaches it",
+			"provider": "decidiq",
+			"providerHow": "read-from-code",
+			"feature": "live-meeting",
+			"featureConfidence": "high",
+			"note": "There is no link with a room's conference or voting hardware. Speakers and votes are handled in decidiq only.",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "no",
+			"evidence": {
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._av-koppeling/ states the two way link sends the agenda to the AV system and takes vote results and speaker information back; https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._stemgedrag/ reads out voting units",
+				"diligent-boards": "not checked: looked, not settled: no link with room conference or voting systems in the Boards help",
+				"openslides": "source read at 4.3.4, not driven: grep for conference system and external voting hardware across openslides_backend and openslides-vote-service finds only the vote service's own external route (openslides-vote-service/vote/http/http.go:106 /system/vote for the OpenSlides client); agenda, speakers and results could only be read or written through the generic action API (openslides_backend/http/views/action_view.py:31). No integration with room systems."
+			}
+		},
+		{
+			"id": "pla-20",
+			"area": "planning",
+			"name": "Let any user set up an ad hoc meeting with its own agenda and papers and invite people from outside the organisation.",
+			"origin": "featurePage",
+			"originUrl": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/mijn_vergaderingen/",
+			"decidiq": "partial",
+			"built": {
+				"state": "building",
+				"evidence": "lib/Settings/decidesk_register.json:62 register authorization lets any authenticated user create objects (create: authenticated) while update and delete are for decidiq-administrators; Meetings index (/meetings) create form, agenda and Documents widgets on MeetingDetail; src/dialogs/MeetingParticipantAddDialog.vue:23 picks participants from existing participant records only, no invite for people outside the organisation",
+				"owner": "ConductionNL/decidiq"
+			},
+			"reachedOn": "Meetings index (/meetings) create, then MeetingDetail (/meetings/:id) Agenda, Participants and Documents widgets",
+			"provider": "decidiq",
+			"providerHow": "read-from-code",
+			"feature": "meetings",
+			"featureConfidence": "low",
+			"note": "Any signed-in user can create a meeting, but the register lets only administrators change it afterwards, and invitees come from the existing participant list, not from outside. Whether OpenRegister lets the creator edit their own meeting was not checked.",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "partial",
+			"evidence": {
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/mijn_vergaderingen/ states everyone in the organisation can create a meeting with agenda items and documents and invite external participants",
+				"diligent-boards": "not checked: looked, not settled: books and meetings are created by administrators (https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/creating-a-new-book-bwa.htm); ad hoc meetings by any user are not described",
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/meeting/mixins.py:43 only committee managers may create a meeting (CommitteeManagementLevel.CAN_MANAGE), which then gets its own agenda and files, and outside people can be added as accounts flagged user.yml:71 external; ordinary users cannot set one up. Ad hoc meeting with outsiders yes, by any user no."
+			}
+		},
+		{
+			"id": "age-20",
+			"area": "agenda",
+			"name": "Compare two documents or two versions of a paper with AI and see the main differences.",
+			"origin": "featurePage",
+			"originUrl": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._digitale_assistent/",
+			"decidiq": "no",
+			"built": {
+				"state": "none",
+				"evidence": "grep -rniE 'summar|ITextProcessing|TaskProcessing|LLM' lib src: no AI; the only text comparison is the amendment-against-motion diff (src/components/tabs/AmendmentDiffTab.vue, src/manifest.json:970), which is not AI and does not compare two arbitrary documents or versions",
+				"owner": "ConductionNL/decidiq"
+			},
+			"reachedOn": "nothing reaches it: only AmendmentDetail (/amendments/:id) shows a plain text diff of an amendment",
+			"provider": "decidiq",
+			"providerHow": "read-from-code",
+			"feature": "ai-assist",
+			"featureConfidence": "high",
+			"note": "There is no AI comparison of documents or versions. An amendment is shown as tracked changes against its motion, which is a plain diff and not AI.",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "yes",
+			"openslides": "no",
+			"evidence": {
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._digitale_assistent/ states the assistant gives insight into the main differences between documents and answers what changed compared with last year",
+				"diligent-boards": "https://www.diligent.com/platform/diligent-ai-for-directors states directors can instantly pinpoint key changes to board materials with comparisons to earlier meetings",
+				"openslides": "source read at 4.3.4, not driven: grep for openai, llm, chatgpt, ollama and anthropic returns only unrelated identifiers; the only comparison is the non-AI line diff of a motion against its amendments and change recommendations (packages/openslides-motion-diff, motion-detail-diff component). No AI document comparison."
+			}
+		},
+		{
+			"id": "plt-32",
+			"area": "platform",
+			"name": "Keep all data in data centres in the Netherlands or elsewhere in the EU.",
+			"origin": "featurePage",
+			"originUrl": "https://www.gemeenteoplossingen.nl/blogs/cloud_op_eigen_bodem/",
+			"decidiq": "yes",
+			"built": {
+				"state": "built",
+				"evidence": "appinfo/info.xml Nextcloud app on the customer's own Nextcloud with OpenRegister as the store (matrix row plt-06, decidiq-compose.yaml:67); grep -rnoE 'https?://' lib: no hardcoded outbound host (lib/Service/OriSerializer.php:49 argu.co is a JSON-LD context name, not a call); outbound traffic only to endpoints the admin sets (ORI endpoint, lib/Settings/connections.json:4-11; integriq sources)",
+				"owner": "ConductionNL/decidiq"
+			},
+			"reachedOn": "Wherever the organisation hosts its Nextcloud; outbound endpoints set on the admin settings page",
+			"provider": "decidiq",
+			"providerHow": "read-from-code",
+			"feature": "deployment",
+			"featureConfidence": "high",
+			"note": "All data stays on the organisation's own Nextcloud, so it is in the Netherlands or the EU when the organisation hosts it there. decidiq sends data out only to endpoints the administrator configures.",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "yes",
+			"openslides": "yes",
+			"evidence": {
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/blogs/cloud_op_eigen_bodem/ states GO runs its own servers in Dutch data centres under Dutch and EU law, and https://www.gemeenteoplossingen.nl/producten/diensten/hosting/ states hosting in professional data centres in the Netherlands",
+				"diligent-boards": "https://www.diligent.com/trust lists supported storage regions including Europe (Frankfurt) and states all customer data including backups stays in the single chosen region",
+				"openslides": "source read at 4.3.4, not driven: INSTALL.md:1 the whole system is installed with Docker Compose on your own servers, so data stays in whatever Dutch or EU data centre you run it in; the hosted service is run by Intevation GmbH (https://openslides.com/de/karriere/ names Intevation, read 2026-09-26), a German company."
+			}
 		}
 	],
 	"pending": [
