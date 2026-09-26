@@ -54,10 +54,52 @@
 			"key": "openslides",
 			"name": "OpenSlides",
 			"vendor": "Intevation / OpenSlides community",
-			"readOn": "2026-04-10",
+			"readOn": "2026-09-26",
 			"columnAddedOn": "2026-09-25",
-			"evidenceGrade": "docs-only",
-			"unknownReason": "Not covered by the intelligence database's competitor_features rows for OpenSlides (feature summaries 2026-03-26 and 2026-04-10, release notes 4.2.20 to 4.2.29 captured 2026-04-04). OpenSlides is open source and could be driven; nobody has yet."
+			"evidenceGrade": "driven",
+			"unknownReason": "Rows added after the source read and drive (wave-5 demand rows) that no reader rated yet stay unknown; not checked for OpenSlides.",
+			"version": "4.3.4",
+			"sourceRepo": "https://github.com/OpenSlides/OpenSlides/tree/4.3.4",
+			"sourceCommit": "7f10ed8",
+			"readHow": "Source read at the 4.3.4 release tag (meta repo 7f10ed8 with all submodules: backend meta/collections, actions, presenters and permissions, client routes, components, gateways and i18n, vote, projector and auth services, patchnotes). Every row was rated from the code with path:line; the rows the code could not settle as a user experience (public guest view, live projector results, presence, named votes, meeting language) were then driven on a 4.3.4 lab instance on 2026-09-26 and say so in the cell. Decision-oriented rows are rated against OpenSlides motions, which carry its decisions. OpenSlides is MIT licensed.",
+			"sources": {
+				"docs": "https://support.openslides.com/help/de-de",
+				"sourceRepo": {
+					"url": "https://github.com/OpenSlides/OpenSlides",
+					"tag": "4.3.4"
+				},
+				"featurePage": "https://openslides.com/de/funktionen/",
+				"featureRequests": "https://github.com/search?q=org%3AOpenSlides+is%3Aissue+is%3Aopen+label%3Afeature&type=issues",
+				"issueTracker": {
+					"url": "https://github.com/OpenSlides/OpenSlides/issues",
+					"featureLabel": "feature"
+				},
+				"roadmap": "https://github.com/OpenSlides/OpenSlides/milestones",
+				"changelog": "https://github.com/OpenSlides/OpenSlides/releases",
+				"apiReference": "https://github.com/OpenSlides/openslides-backend/blob/main/docs/Actions-Overview.md",
+				"marketplace": null,
+				"pricing": "https://openslides.com/de/preise/",
+				"accessibilityStatement": null,
+				"securityDocs": "https://github.com/OpenSlides/OpenSlides/blob/main/SECURITY.md",
+				"demoInstance": "https://demo.openslides.org/",
+				"community": "https://github.com/OpenSlides/OpenSlides/discussions",
+				"reviews": null,
+				"videos": "https://www.youtube.com/channel/UCy3FMSayRZkxIfWgFHqhlug",
+				"caseStudies": "https://openslides.com/de/referenzen/",
+				"partnerDirectory": null,
+				"trainingCurriculum": null,
+				"jobPostings": null,
+				"tenders": null,
+				"nullReasons": {
+					"marketplace": "OpenSlides is a standalone system, not an app in a marketplace; openslides.com and the pricing page link none.",
+					"accessibilityStatement": "not linked from openslides.com, the pricing page, the references page or support.openslides.com (read 2026-09-26); the client repo only has an accessibility issue label.",
+					"reviews": "web search for OpenSlides on Capterra, G2 and OMR Reviews returned no OpenSlides listing.",
+					"partnerDirectory": "openslides.com and its references page have no partner section; hosting is by Intevation GmbH itself.",
+					"trainingCurriculum": "no training or webinar programme linked from openslides.com, the pricing page or support.openslides.com.",
+					"jobPostings": "https://openslides.com/de/karriere/ states no positions at Intevation GmbH are currently advertised (read 2026-09-26).",
+					"tenders": "the intelligence database holds no tender naming OpenSlides or Intevation for a meeting system (searched tenders.winner, name and description and requirements.text_nl on 2026-09-26; Intevation's hits are waterway monitoring software)"
+				}
+			}
 		}
 	],
 	"areas": [
