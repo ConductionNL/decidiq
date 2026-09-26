@@ -7403,14 +7403,16 @@
 			"feature": "agenda-publication",
 			"featureConfidence": "high",
 			"note": "Changing the agenda of a published meeting sends no notification. A notice goes out only when an agenda is published, and that step is API only.",
-			"notubiz": "unknown",
-			"ibabs": "unknown",
+			"notubiz": "yes",
+			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
 			"diligent-boards": "yes",
 			"openslides": "no",
 			"evidence": {
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/release_notes/release-notes-bwa.htm (Dec 12, 2025) states admins can manage email notifications to users for auto-agenda updates with a new Send notification option",
 				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/mijn_vergaderingen/ states participants receive notifications of invitations and changes to the meeting in Mijn Vergaderingen; for formal council meetings this is not described",
+				"notubiz": "https://www.kennisbank.notubiz.nl/handleidingen/attenderingen-instellen states alert profiles can cover meetings and agendas and fire on edited items, new items or all changes, by email; https://www.kennisbank.notubiz.nl/kennisclips/attenderingen-in-politiek-portaal shows selecting vergaderingen en agenda's",
+				"ibabs": "https://support.ibabs.com/docs/overview-of-the-settings-for-an-agenda.md states participants can get a notification on publication or when changes are made to the agenda; https://support.ibabs.com/docs/integratie-met-outlook-en-google-agenda.md states a republished agenda mail carries the updated iCal",
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/mixins/send_email_mixin.py is used only by account actions (user.send_invitation_email, forget_password, create, update) and grep for subscri and notify_email across meta/collections returns nothing; agenda changes only appear live in the open client through the autoupdate service. No agenda change notifications."
 			}
 		},
@@ -7440,6 +7442,8 @@
 			"evidence": {
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/release_notes/release-notes-bwa.htm (Dec 12, 2025) adds deleting generated AI content, and https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/managing-ai-content-for-a-book-bwa.htm describes a Show to directors toggle and editing the Smart Summary",
 				"go-raadsinformatie": "not checked: looked, not settled: https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._digitale_assistent/ describes the assistant for individual users; admin review of AI output before members see it is not described",
+				"notubiz": "not checked: looked, not settled: https://www.kennisbank.notubiz.nl/kennisclips/ai-videosearch generates summaries of meeting recordings for the searcher; AI summaries of meeting papers with a review step are not described",
+				"ibabs": "not checked: looked, not settled: https://support.ibabs.com/docs/probleemoplossing-1.md states Debrief minutes and summaries of recordings can be edited before export; summaries of meeting papers are not described",
 				"openslides": "source read at 4.3.4, not driven: grep for openai, llm, chatgpt, ollama and anthropic across all Python, TypeScript and Go sources returns only unrelated identifiers. There are no AI summaries to review."
 			}
 		},
@@ -7461,14 +7465,16 @@
 			"feature": "platform-auth",
 			"featureConfidence": "high",
 			"note": "Any second factor Nextcloud enforces, such as an authenticator app, applies to decidiq because it uses the normal Nextcloud sign-in.",
-			"notubiz": "unknown",
-			"ibabs": "unknown",
+			"notubiz": "yes",
+			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
 			"diligent-boards": "yes",
 			"openslides": "partial",
 			"evidence": {
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/release_notes/release-notes-bwd.htm (Nov 28, 2025) introduces an authenticator app as an alternative to SMS based two factor sign-in; https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-faq/authenticator-app.htm explains it",
 				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/blogs/nis_2_en_de_nieuwste_ontwikkeling_rond_cybersecuritywetgeving/ states two factor authentication (2FA) can be used in the products and https://www.gemeenteoplossingen.nl/producten/integratie/single_sign-on/ supports MFA through Microsoft sign-in",
+				"notubiz": "https://www.kennisbank.notubiz.nl/handleidingen/instellen-van-twee-staps-verificatie states 2FA with an authenticator app is mandatory for Politiek Portaal and NotuBox",
+				"ibabs": "https://support.ibabs.com/docs/set-up-two-factor-authentication.md states the functional administrator enables 2FA per user and sign in then requires an authenticator code",
 				"openslides": "source read at 4.3.4, not driven: grep for totp, otp, 2fa, two factor, mfa and webauthn across openslides-auth-service/auth/src and meta/collections returns nothing, so the built-in login is password only; with SAML (openslides-auth-service/auth/src/api/services/saml-service.ts, organization.yml:74 saml_enabled) the identity provider can require a second factor. Native 2FA no, via the IdP yes."
 			}
 		},
@@ -7498,6 +7504,8 @@
 			"evidence": {
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/watermarking-documents-bwa.htm states watermarks show the viewer's name and view date on the page view and on exported documents, with optional custom text",
 				"go-raadsinformatie": "not checked: looked, not settled: watermarking is not described on the vendor pages",
+				"notubiz": "not checked: looked, not settled: no watermarking described",
+				"ibabs": "not checked: looked, not settled: no watermarking described in support docs",
 				"openslides": "source read at 4.3.4, not driven: grep for watermark across the client app and openslides-media-service returns nothing; PDF exports (gateways/export/pdf-document.service) carry header and footer logos only. No viewer watermark."
 			}
 		},
@@ -7527,6 +7535,8 @@
 			"evidence": {
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/approval/creating-a-custom-approval-bwa.htm lets admins set how many approvals must come from independent directors, and https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/approval/creating-a-signature-approval-bwa.htm has an Independent directors required field",
 				"go-raadsinformatie": "not checked: looked, not settled: not described on https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._stemgedrag/",
+				"notubiz": "not checked: looked, not settled: no such voting rule described",
+				"ibabs": "not checked: looked, not settled: no such voting rule described",
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/poll.yml has no quorum or majority rule field at all (collection-meta.yml:17 only sets a percentage base), and grep for independent across meta/collections returns nothing. No minimum of independent votes."
 			}
 		},
@@ -7556,6 +7566,8 @@
 			"evidence": {
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/basic-navigation/sharing-files-to-sfs-bwa.htm sends a whole book or selected content to the Data Room with security level, recipients and optional watermark",
 				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/mijn_vergaderingen/ lets users invite external participants to a meeting with its documents; a separate data room is not described",
+				"notubiz": "not checked: looked, not settled: no external data room described",
+				"ibabs": "not checked: looked, not settled: https://support.ibabs.com/docs/basic-functions-for-agenda-items.md invites iBabs users of other organisations to a meeting; a separate data room for auditors is not described",
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting_mediafile.yml:32 access_group_ids can restrict chosen files to a group, and user.yml:71 external marks outside accounts that can be put in such a group; there is no separate data room with its own terms, expiry or download controls. Restricted sharing to outsiders yes, a data room no."
 			}
 		},
@@ -7585,6 +7597,8 @@
 			"evidence": {
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/user-management/granting-temporary-site-access-bwa.htm states administrators must approve temporary access for Diligent staff before they can access a site for support or implementation",
 				"go-raadsinformatie": "not checked: looked, not settled: https://www.gemeenteoplossingen.nl/blogs/cloud_op_eigen_bodem/ describes a four eyes principle for critical changes by GO staff; customer approval of support access is not described",
+				"notubiz": "not checked: looked, not settled: no supplier access approval described",
+				"ibabs": "not checked: looked, not settled: no supplier access approval described",
 				"openslides": "source read at 4.3.4, not driven: grep for support_access and impersonat across openslides-backend/meta/collections, openslides_backend and the auth service returns nothing; access is only through ordinary accounts and the superadmin (user.yml:80 organization_management_level). No time limited supplier access approval."
 			}
 		},
@@ -7607,13 +7621,15 @@
 			"featureConfidence": "medium",
 			"note": "A lost device can be signed out and wiped through Nextcloud's device list. There is no step that authorises a device before it may open meeting papers.",
 			"notubiz": "unknown",
-			"ibabs": "unknown",
+			"ibabs": "partial",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "yes",
 			"openslides": "no",
 			"evidence": {
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/device-authorization/device-authorization-bwa.htm describes device authorization and https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/device-authorization/blocking-a-device-from-all-sites-bwa.htm blocks a compromised device from all sites",
 				"go-raadsinformatie": "not checked: looked, not settled: device authorisation is not described on https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._app/",
+				"notubiz": "not checked: looked, not settled: https://www.kennisbank.notubiz.nl/handleidingen/raadplegen-van-documenten restricts confidential documents to the NotuBox reader; device authorisation and blocking a lost device are not described",
+				"ibabs": "https://support.ibabs.com/docs/ibabs-voor-intune-application.md and the Intune setup articles in llms.txt state an iBabs app for Microsoft Intune, so device policies come from the customer's MDM; device authorisation inside iBabs is not described",
 				"openslides": "source read at 4.3.4, not driven: grep for device across openslides-backend/meta/collections returns nothing and sessions in openslides-auth-service/auth/src/api/services/session-service.ts are not bound to registered devices. No device authorisation."
 			}
 		},
@@ -7643,6 +7659,8 @@
 			"evidence": {
 				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/publieke_verantwoording/ states politicians submit claims with a photo of the receipt, the treasurer checks and approves them and spending is published per party and category",
 				"diligent-boards": "not checked: looked, not settled: not described in the Boards help",
+				"notubiz": "not checked: looked, not settled: no faction budget publication described",
+				"ibabs": "not checked: looked, not settled: no faction budget publication described",
 				"openslides": "source read at 4.3.4, not driven: grep for expense, receipt, claim and budget across openslides-backend/meta/collections returns nothing. No faction budget accounting."
 			}
 		},
@@ -7664,14 +7682,16 @@
 			"feature": "live-meeting",
 			"featureConfidence": "high",
 			"note": "There is no link with a room's conference or voting hardware. Speakers and votes are handled in decidiq only.",
-			"notubiz": "unknown",
-			"ibabs": "unknown",
+			"notubiz": "yes",
+			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
 			"diligent-boards": "unknown",
 			"openslides": "no",
 			"evidence": {
 				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._av-koppeling/ states the two way link sends the agenda to the AV system and takes vote results and speaker information back; https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._stemgedrag/ reads out voting units",
 				"diligent-boards": "not checked: looked, not settled: no link with room conference or voting systems in the Boards help",
+				"notubiz": "https://www.notubiz.nl/onze-diensten/gekoppelde-modules states the live AV link imports speaker markings and votes in real time and exports agendas; https://www.notubiz.nl/over-ons/onze-partners names MVI, Arbor Media (Cmeets) and AVEX with two-way exchange",
+				"ibabs": "https://support.ibabs.com/docs/koppeling.md states the link between iBabs, Company Webcast and the AV installation (MVI) carries vote results from delegate units, name display and speaker indexing",
 				"openslides": "source read at 4.3.4, not driven: grep for conference system and external voting hardware across openslides_backend and openslides-vote-service finds only the vote service's own external route (openslides-vote-service/vote/http/http.go:106 /system/vote for the OpenSlides client); agenda, speakers and results could only be read or written through the generic action API (openslides_backend/http/views/action_view.py:31). No integration with room systems."
 			}
 		},
@@ -7694,13 +7714,15 @@
 			"featureConfidence": "low",
 			"note": "Any signed-in user can create a meeting, but the register lets only administrators change it afterwards, and invitees come from the existing participant list, not from outside. Whether OpenRegister lets the creator edit their own meeting was not checked.",
 			"notubiz": "unknown",
-			"ibabs": "unknown",
+			"ibabs": "partial",
 			"go-raadsinformatie": "yes",
 			"diligent-boards": "unknown",
 			"openslides": "partial",
 			"evidence": {
 				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/mijn_vergaderingen/ states everyone in the organisation can create a meeting with agenda items and documents and invite external participants",
 				"diligent-boards": "not checked: looked, not settled: books and meetings are created by administrators (https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/creating-a-new-book-bwa.htm); ad hoc meetings by any user are not described",
+				"notubiz": "not checked: looked, not settled: meetings are planned by administrators in the beheeromgeving (https://www.notubiz.nl/onze-diensten/vergadermanagement); user-created ad hoc meetings are not described",
+				"ibabs": "https://support.ibabs.com/docs/integratie-met-outlook-en-google-agenda.md refers to creating a new overleg with notification mails and https://support.ibabs.com/docs/basic-functions-for-agenda-items.md invites iBabs users from other organisations; whether any user can set one up, and guests without an iBabs account, is not described",
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/meeting/mixins.py:43 only committee managers may create a meeting (CommitteeManagementLevel.CAN_MANAGE), which then gets its own agenda and files, and outside people can be added as accounts flagged user.yml:71 external; ordinary users cannot set one up. Ad hoc meeting with outsiders yes, by any user no."
 			}
 		},
@@ -7730,6 +7752,8 @@
 			"evidence": {
 				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._digitale_assistent/ states the assistant gives insight into the main differences between documents and answers what changed compared with last year",
 				"diligent-boards": "https://www.diligent.com/platform/diligent-ai-for-directors states directors can instantly pinpoint key changes to board materials with comparisons to earlier meetings",
+				"notubiz": "not checked: looked, not settled: no document comparison described",
+				"ibabs": "not checked: looked, not settled: no document comparison described",
 				"openslides": "source read at 4.3.4, not driven: grep for openai, llm, chatgpt, ollama and anthropic returns only unrelated identifiers; the only comparison is the non-AI line diff of a motion against its amendments and change recommendations (packages/openslides-motion-diff, motion-detail-diff component). No AI document comparison."
 			}
 		},
@@ -7752,13 +7776,15 @@
 			"featureConfidence": "high",
 			"note": "All data stays on the organisation's own Nextcloud, so it is in the Netherlands or the EU when the organisation hosts it there. decidiq sends data out only to endpoints the administrator configures.",
 			"notubiz": "unknown",
-			"ibabs": "unknown",
+			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
 			"diligent-boards": "yes",
 			"openslides": "yes",
 			"evidence": {
 				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/blogs/cloud_op_eigen_bodem/ states GO runs its own servers in Dutch data centres under Dutch and EU law, and https://www.gemeenteoplossingen.nl/producten/diensten/hosting/ states hosting in professional data centres in the Netherlands",
 				"diligent-boards": "https://www.diligent.com/trust lists supported storage regions including Europe (Frankfurt) and states all customer data including backups stays in the single chosen region",
+				"notubiz": "not checked: looked, not settled: https://www.notubiz.nl/over-ons/iso-certificering describes redundant servers and a secure environment but does not name the data centre location",
+				"ibabs": "https://support.ibabs.com/docs/ibabs-debrief-veelgestelde-vragen.md states iBabs systems are hosted in Microsoft Azure West Europe (Netherlands) with fallback to North Europe (Ireland)",
 				"openslides": "source read at 4.3.4, not driven: INSTALL.md:1 the whole system is installed with Docker Compose on your own servers, so data stays in whatever Dutch or EU data centre you run it in; the hosted service is run by Intevation GmbH (https://openslides.com/de/karriere/ names Intevation, read 2026-09-26), a German company."
 			}
 		}
