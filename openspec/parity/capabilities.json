@@ -1103,7 +1103,7 @@
 			"openslides": "partial",
 			"evidence": {
 				"ibabs": "https://support.ibabs.com/docs/inrichting-2.md states attendance registration per agendatype, marking present and absent per agenda and per agenda item",
-				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting.yml:1045 present_user_ids, set via user.set_present (openslides-client/client/src/app/gateways/repositories/users/user-action.ts:10) from the participants/presence page; grep for excused, apolog and absent in meta/collections returns nothing. Present and not present yes, apologies not recorded.",
+				"openslides": "source read and driven at 4.3.4 on 2026-09-26 (lab-decidiq-openslides): user.set_present marked members present and the vote service then accepted their ballots; no absent-with-apologies status was offered. Source: openslides-backend/meta/collections/meeting.yml:1045 present_user_ids, set via user.set_present (openslides-client/client/src/app/gateways/repositories/users/user-action.ts:10) from the participants/presence page; grep for excused, apolog and absent in meta/collections returns nothing. Present and not present yes, apologies not recorded.",
 				"notubiz": "https://www.kennisbank.notubiz.nl/handleidingen/digitaal-stemmen states participants report present during a meeting to be able to vote; registering absentees and apologies is not described",
 				"go-raadsinformatie": "not checked: looked, not settled: https://www.gemeenteoplossingen.nl/blogs/webcasting_van_virtuele_commissie-_en_raadsvergaderingen/ mentions an overview of the number of participants in a virtual meeting; recording who was absent or sent apologies is not described",
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-add-ons/minutes/record-meeting-attendance.htm records Present, Attending and Apologies with full, partial, in-person or remote status"
@@ -1852,7 +1852,7 @@
 			"diligent-boards": "unknown",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/projector.yml:2 projectors with current, preview and history projections (projection.yml:42 content_object_id covers agenda, motions, polls, lists of speakers), shown full screen at openslides-client/client/src/app/site/pages/meetings/pages/projectors/modules/fullscreen-projector/fullscreen-projector-routing.module.ts:9.",
+				"openslides": "source read and driven at 4.3.4 on 2026-09-26 (lab-decidiq-openslides): projector 1 (/1/projectors/1, stream /system/projector/subscribe/1) showed the projected poll slide with meeting name and clock. Source: openslides-backend/meta/collections/projector.yml:2 projectors with current, preview and history projections (projection.yml:42 content_object_id covers agenda, motions, polls, lists of speakers), shown full screen at openslides-client/client/src/app/site/pages/meetings/pages/projectors/modules/fullscreen-projector/fullscreen-projector-routing.module.ts:9.",
 				"notubiz": "not checked: looked, not settled: no room screen output described; AV integration exchanges agenda and votes (https://www.notubiz.nl/over-ons/onze-partners)",
 				"ibabs": "not checked: looked, not settled: https://support.ibabs.com/docs/koppeling.md covers voting via delegate units through MVI, not a room display",
 				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._stemgedrag/ states the griffie closes the vote and publishes the result on a screen in the room and on the website",
@@ -2695,7 +2695,7 @@
 				"ibabs": "https://support.ibabs.com/docs/live-stemmen-door-deelnemers.md states every eligible participant votes once via the pencil next to the item",
 				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._stemgedrag/ states members cast their vote through the meeting app or the website; https://www.gemeenteoplossingen.nl/blogs/ondersteuning_stemproces_vanuit_huis/ states this works from home",
 				"diligent-boards": "https://www.diligent.com/features/boards/boards-voting states votes are cast from any device; https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-ios/board-resources/view-approval-items-and-submit-response-bios.htm describes submitting a response in the app",
-				"openslides": "source read at 4.3.4, not driven: openslides-vote-service/vote/vote.go:200 the vote service accepts a ballot from a logged in, present user at /system/vote, called by openslides-client/client/src/app/gateways/repositories/polls/vote-repository.service/vote-repository.service.ts:11 from the poll vote components on the member's own device.",
+				"openslides": "source read and driven at 4.3.4 on 2026-09-26 (lab-decidiq-openslides): three members cast Yes, Yes, No through POST /system/vote; before they were marked present the vote service refused each ballot with 'You have to be present in meeting 1'. Source: openslides-vote-service/vote/vote.go:200 the vote service accepts a ballot from a logged in, present user at /system/vote, called by openslides-client/client/src/app/gateways/repositories/polls/vote-repository.service/vote-repository.service.ts:11 from the poll vote components on the member's own device.",
 				"notubiz": "https://www.kennisbank.notubiz.nl/handleidingen/digitaal-stemmen states participants cast voor, tegen or onthouden in the vote bar of the meeting page"
 			}
 		},
@@ -2723,7 +2723,7 @@
 			"openslides": "yes",
 			"evidence": {
 				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._stemgedrag/ states results show per agenda item and in the personal profiles of members, and https://www.gemeenteoplossingen.nl/blogs/ondersteuning_stemproces_vanuit_huis/ states results are published on the profile of fractie and raadslid",
-				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/motions/pages/motion-polls/components/motion-poll-detail/motion-poll-detail.component.html:62 votes table per member for named polls, filterable by structure level (faction) in openslides-client/client/src/app/site/pages/meetings/modules/poll/services/votes-filter.service.ts:19, with a filtered votes chart (modules/poll/components/poll-filtered-votes-chart).",
+				"openslides": "source read and driven at 4.3.4 on 2026-09-26 (lab-decidiq-openslides): after poll.stop and poll.publish the poll page showed Yes 2 (66.667 %), No 1, Abstain 0 and a single-votes list, and the projector slide listed each member with their ballot. Source: openslides-client/client/src/app/site/pages/meetings/pages/motions/pages/motion-polls/components/motion-poll-detail/motion-poll-detail.component.html:62 votes table per member for named polls, filterable by structure level (faction) in openslides-client/client/src/app/site/pages/meetings/modules/poll/services/votes-filter.service.ts:19, with a filtered votes chart (modules/poll/components/poll-filtered-votes-chart).",
 				"notubiz": "https://www.kennisbank.notubiz.nl/handleidingen/digitaal-stemmen states after closing the voting behaviour per party and of individual members is shown; https://www.notubiz.nl/onze-diensten/videotulen pie charts per fractie and raadslid",
 				"ibabs": "https://support.ibabs.com/docs/stemregistratie-door-de-agendabeheerder.md registers votes per fractie or per participant; https://support.ibabs.com/docs/inrichting-2.md groups per party to show results per group and per individual",
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/approval/managing-custom-approvals-bwa.htm Result details show each participant's name and decision; there is no faction breakdown"
@@ -2782,7 +2782,7 @@
 			"diligent-boards": "yes",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/poll.yml:14 type named keeps each ballot with its user (openslides-vote-service/vote/vote.go:303), shown per member in the votes table and on the projector's single votes slide (openslides-projector-service/pkg/projector/slide/poll_single_votes.go:193).",
+				"openslides": "source read and driven at 4.3.4 on 2026-09-26 (lab-decidiq-openslides): a named poll kept each member's ballot and the published projector slide listed members 2 to 5 with their choice. Source: openslides-backend/meta/collections/poll.yml:14 type named keeps each ballot with its user (openslides-vote-service/vote/vote.go:303), shown per member in the votes table and on the projector's single votes slide (openslides-projector-service/pkg/projector/slide/poll_single_votes.go:193).",
 				"notubiz": "https://www.kennisbank.notubiz.nl/handleidingen/digitaal-stemmen shows each member's vote by name after closing; https://amsterdam.raadsinformatie.nl/modules/6/moties_en_amendementen/view records who voted for",
 				"ibabs": "https://support.ibabs.com/docs/stemregistratie-door-de-agendabeheerder.md registers votes per participant; https://utrecht.bestuurlijkeinformatie.nl member pages show Stemgedrag per vote",
 				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._stemgedrag/ states the griffie sees live who voted and results are published per member",
@@ -3052,7 +3052,7 @@
 			"diligent-boards": "partial",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: openslides-projector-service/pkg/projector/slide/poll_single_votes.go:261 the single votes slide shows live voting while a poll is started with meeting.yml:750 poll_default_live_voting_enabled or poll.yml:95 live_voting_enabled, reading live_votes (line 349), plus the count of members not yet voted (line 269).",
+				"openslides": "source read and driven at 4.3.4 on 2026-09-26 (lab-decidiq-openslides): a second named poll projected with the single_votes option showed 'Received votes: 0, Entitled users: 4, Please vote now!' and moved to 'Received votes: 1' in the projector stream seconds after one member voted, before the poll closed. Source: openslides-projector-service/pkg/projector/slide/poll_single_votes.go:261 the single votes slide shows live voting while a poll is started with meeting.yml:750 poll_default_live_voting_enabled or poll.yml:95 live_voting_enabled, reading live_votes (line 349), plus the count of members not yet voted (line 269).",
 				"notubiz": "https://www.kennisbank.notubiz.nl/handleidingen/digitaal-stemmen states during a vote the participant list shows who has already voted; a live count on a room screen is not described",
 				"ibabs": "https://support.ibabs.com/docs/live-stemmen-door-deelnemers.md states the agenda manager watches the vote refresh every 2 seconds; a room screen is not described",
 				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._stemgedrag/ states the griffie sees a live count of cast votes and the result goes to a screen in the room after closing; a live count on the room screen is not described",
@@ -4435,8 +4435,8 @@
 				"notubiz": "https://amsterdam.raadsinformatie.nl/vergadering/1528626 is a public meeting page with agenda, documents and recording; https://www.notubiz.nl/onze-diensten/vergadermanagement states information is published on the Politiek Portaal",
 				"ibabs": "https://support.ibabs.com/docs/introductie-5.md states the Publieksportaal publishes public agendas and list items at sitenaam.bestuurlijkeinformatie.nl; https://utrecht.bestuurlijkeinformatie.nl shows meetings and papers",
 				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._raadsinformatie/ states agendas, meetings, documents and webcasts are published on the organisation's own council portal; https://gemeenteraad.groningen.nl/api/v2/meetings serves the Groningen portal data publicly",
-				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/organization/pages/settings/modules/settings-detail/components/organization-settings/organization-settings.component.html:162 organization public access plus meeting.yml:82 enable_anonymous let visitors enter as guests (login-mask.component.html:43 guestLogin) and see the agenda, motions and files their anonymous group may see (meeting.yml:1167 anonymous_group_id). Public, but inside the OpenSlides app, not a separate website.",
-				"diligent-boards": "not checked: looked, not settled: Boards publishes books to directors only (https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/publishing-and-hiding-books-bwa.htm); a public website is not part of the Boards help"
+				"diligent-boards": "not checked: looked, not settled: Boards publishes books to directors only (https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/publishing-and-hiding-books-bwa.htm); a public website is not part of the Boards help",
+				"openslides": "source read and driven at 4.3.4 on 2026-09-26 (lab-decidiq-openslides): with organization and meeting public access switched on, the login page's 'Public access' button opened the meeting as a guest and showed motion 1 and its poll status without an account; the Public group starts with no permissions, so staff must grant them first (group_t id 5 was empty). Source: openslides-client/client/src/app/site/pages/organization/pages/settings/modules/settings-detail/components/organization-settings/organization-settings.component.html:162 organization public access plus meeting.yml:82 enable_anonymous let visitors enter as guests (login-mask.component.html:43 guestLogin) and see the agenda, motions and files their anonymous group may see (meeting.yml:1167 anonymous_group_id). Public, but inside the OpenSlides app, not a separate website."
 			}
 		},
 		{
@@ -5570,13 +5570,13 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "no",
+			"openslides": "partial",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: grep for nextcloud across all services returns nothing; OpenSlides has only its own start page (openslides-client/client/src/app/site/pages/organization/pages/dashboard). No Nextcloud dashboard widget.",
 				"notubiz": "not checked: looked, not settled: no Nextcloud integration in public material",
 				"ibabs": "not checked: looked, not settled: no Nextcloud integration in support docs",
 				"go-raadsinformatie": "not checked: looked, not settled: no Nextcloud integration in public material",
-				"diligent-boards": "not checked: looked, not settled: no Nextcloud integration in the Boards help"
+				"diligent-boards": "not checked: looked, not settled: no Nextcloud integration in the Boards help",
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/organization/pages/dashboard/pages/dashboard-detail/components/dashboard/dashboard.component.html:64 the start page lists the user's current and future meetings; no Nextcloud dashboard widget (grep nextcloud across all services returns nothing). Partial by the column rule: an own equivalent of a Nextcloud-phrased capability."
 			}
 		},
 		{
@@ -5721,10 +5721,10 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "yes",
-			"openslides": "yes",
+			"openslides": "partial",
 			"evidence": {
 				"ibabs": "https://support.ibabs.com/docs/application-settings.md states the application language is set per site and can follow the user's computer; https://support.ibabs.com/docs/zoeken-in-ibabs.md mentions Dutch, French and English sites",
-				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/assets/i18n has nl.po, de.po, fr.po, it.po, es.po, cs.po and ru.po besides the English template; meeting.yml:60 language per meeting and meeting.yml:86 custom_translations to override strings.",
+				"openslides": "source read and driven at 4.3.4 on 2026-09-26 (lab-decidiq-openslides): the interface ships Dutch (client i18n nl.po, 1983 msgids), but meeting.create refused language 'nl': the meeting language, which drives projector and PDF export texts, must be one of en, de, it, es, ru, cs, fr. Dutch screens, not Dutch meeting output. Source: openslides-client/client/src/assets/i18n has nl.po, de.po, fr.po, it.po, es.po, cs.po and ru.po besides the English template; meeting.yml:60 language per meeting and meeting.yml:86 custom_translations to override strings.",
 				"notubiz": "not checked: looked, not settled: no language options in kennisbank or product pages",
 				"go-raadsinformatie": "not checked: looked, not settled: the vendor site and products are presented in Dutch only; other interface languages are not stated",
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/basic-navigation/changing-the-interface-language-bwa.htm lets users pick the interface language and https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-ios/security-and-settings/settings-language-settings-bios.htm lists English, German, French, Spanish, Italian, Portuguese and Dutch"
