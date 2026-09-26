@@ -1,5 +1,5 @@
 {
-	"comparedOn": "2026-09-25",
+	"comparedOn": "2026-09-26",
 	"category": "Decidiq competes as a meeting and decision-management system for governance bodies: it prepares and runs the meetings of a council, board, committee or members' assembly (agenda, papers, motions and amendments, voting including proxies, minutes, decision records and their follow-up) and publishes the outcome. Its deepest fit, going by the code, is the Dutch municipal council and its griffie, which buys a raadsinformatiesysteem (NotuBiz, iBabs, GO.); the same core also serves association general meetings, works councils and company boards, where the comparison is a board portal (Diligent) or an assembly tool (OpenSlides). Citizen participation ships as a module, but it is not what a buyer selects decidiq for. Written by the parity-new cold start on 2026-09-25; correct it here if it is wrong, since the areas, rows and columns all follow from it.",
 	"corpus": {
 		"repo": "ConductionNL/decidiq",
@@ -216,11 +216,11 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "yes",
+			"openslides": "partial",
 			"evidence": {
 				"notubiz": "docs-only, intelligence DB competitor_features #19631 'Commissiebeheer: Committee management and scheduling' (captured 2026-04-10)",
 				"ibabs": "docs-only, intelligence DB competitor_features #19657 'Committee Management: Multi-committee management' (captured 2026-04-10)",
-				"openslides": "docs-only, intelligence DB competitor_features #708 'Committee Structure: Model boards, sub-groups, working groups with access rights' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19518 'Committee Management: Committee and working group management' (captured 2026-04-10)"
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/committee.yml:7 committee has name, description, parent_id (line 74) and organization_tag_ids (line 103) but no type field; created from openslides-client/client/src/app/gateways/repositories/committees/committee.action.ts:2 committee.create via the organization committees pages. The body is registered, its type only as a free organization tag."
 			}
 		},
 		{
@@ -244,9 +244,9 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "yes",
+			"openslides": "partial",
 			"evidence": {
-				"openslides": "docs-only, intelligence DB competitor_features #19517 'Participant Management: Delegate and guest management' (captured 2026-04-10); docs-only, intelligence DB competitor_features #708 'Committee Structure: Model boards, sub-groups, working groups with access rights' (captured 2026-03-26)"
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting_user.yml:91 group_ids per meeting user gives the role, committee.yml:28 user_ids is calculated from meeting membership plus manager_ids (line 70); no from/to dates on membership anywhere in meeting_user.yml or committee.yml. Who and which role yes, when to when missing."
 			}
 		},
 		{
@@ -270,7 +270,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "partial",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/user/save_saml_account.py:253 SAML meeting_mappers assign accounts to meetings, groups and structure levels (line 382) from identity provider attributes at login, plus CSV import at participants/import; grep for nextcloud across all services returns nothing. Members come from the IdP, not from a Nextcloud group."
+			}
 		},
 		{
 			"id": "bod-04",
@@ -293,7 +296,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "partial",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/group.yml:12 meeting groups have a free name and a permission set (line 16), committee.yml:70 manager_ids; there is no position or office model with a holder in any collection. Positions can only be modelled as permission groups."
+			}
 		},
 		{
 			"id": "bod-05",
@@ -316,9 +322,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "yes",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "partial",
 			"evidence": {
-				"go-raadsinformatie": "docs-only, concurrentie-analyse/raadsinformatie/README.md (2026-03-27) §5.3 GO strengths: 'Comprehensive profile features for council members'"
+				"go-raadsinformatie": "docs-only, concurrentie-analyse/raadsinformatie/README.md (2026-03-27) §5.3 GO strengths: 'Comprehensive profile features for council members'",
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/participants/pages/participant-detail/components/participant-detail-view/participant-detail-view.component.html:105 shows structure levels, groups (114), about_me (160) and home committee (198); user.yml and meeting_user.yml have no photo or portfolio field. Profile with party and bio yes, photo and portfolio missing."
 			}
 		},
 		{
@@ -342,10 +349,11 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "yes",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "partial",
 			"evidence": {
 				"notubiz": "docs-only, intelligence DB competitor_features #19635 'Fractietools: Political party/faction workspace' (captured 2026-04-10)",
-				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19649 'Fractiewerkruimte: Party faction workspace' (captured 2026-04-10)"
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19649 'Fractiewerkruimte: Party faction workspace' (captured 2026-04-10)",
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/structure_level.yml:9 structure levels (name, color, default speaking time) group members as factions, managed from participants/structure-levels; chat_group.yml:23 chat groups with read and write groups could serve one faction but there is no faction workspace model. Grouping yes, shared workspace only via a chat group."
 			}
 		},
 		{
@@ -369,9 +377,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "partial",
-			"openslides": "unknown",
+			"openslides": "no",
 			"evidence": {
-				"diligent-boards": "docs-only, intelligence DB competitor_features #19468 'Succession Planning: Board succession planning' (captured 2026-04-10)"
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19468 'Succession Planning: Board succession planning' (captured 2026-04-10)",
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/user.yml:7 and meeting_user.yml:9 hold no term, mandate start or end field; grep for term_of_office, term_end, mandate_start and mandate_end across meta/collections and action/actions returns nothing. Terms of office are not modelled."
 			}
 		},
 		{
@@ -395,7 +404,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "no",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: grep for onboard and checklist across openslides-backend/meta/collections and openslides_backend/action/actions returns nothing; new accounts only get openslides-client/client/src/app/gateways/repositories/users/user-action.ts user.send_invitation_email with access data. No onboarding or offboarding checklist."
+			}
 		},
 		{
 			"id": "bod-09",
@@ -418,9 +430,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "partial",
-			"openslides": "unknown",
+			"openslides": "no",
 			"evidence": {
-				"diligent-boards": "docs-only, intelligence DB competitor_features #19461 'D&O Questionnaires: Director and Officer annual questionnaires' (captured 2026-04-10)"
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19461 'D&O Questionnaires: Director and Officer annual questionnaires' (captured 2026-04-10)",
+				"openslides": "source read at 4.3.4, not driven: grep for declaration, gift and interest across openslides-backend/meta/collections returns nothing; user.yml:7 and meeting_user.yml:9 carry no ancillary position fields. No register of other positions or gifts."
 			}
 		},
 		{
@@ -444,7 +457,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "no",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: grep for conflict and declaration across openslides-backend/meta/collections and action/actions returns nothing; exclusion from a vote is only possible by leaving the member out of poll.yml:148 entitled_group_ids or locking them out via meeting_user.yml:22 locked_out for the whole meeting. No conflict of interest declaration tied to a vote."
+			}
 		},
 		{
 			"id": "bod-11",
@@ -467,9 +483,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "yes",
-			"openslides": "unknown",
+			"openslides": "no",
 			"evidence": {
-				"diligent-boards": "docs-only, intelligence DB competitor_features #19469 'Skills Matrix: Board member skills gap analysis' (captured 2026-04-10)"
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19469 'Skills Matrix: Board member skills gap analysis' (captured 2026-04-10)",
+				"openslides": "source read at 4.3.4, not driven: grep for skill and expertise across openslides-backend/meta/collections and action/actions returns nothing. No skills matrix."
 			}
 		},
 		{
@@ -493,9 +510,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "yes",
-			"openslides": "unknown",
+			"openslides": "partial",
 			"evidence": {
-				"diligent-boards": "docs-only, intelligence DB competitor_features #19470 'Diversity Tracking: Board diversity metrics' (captured 2026-04-10)"
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19470 'Diversity Tracking: Board diversity metrics' (captured 2026-04-10)",
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/participants/pages/mandate-check/components/mandate-check-list/mandate-check-list.component.html:78 the mandate check page (routed at participants-routing.module.ts:62) breaks present and total members per group down by gender with percentages; gender comes from openslides-backend/meta/collections/gender.yml:7. Gender figures only, no wider diversity tracking."
 			}
 		},
 		{
@@ -519,7 +537,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "no",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/shared/util.py:159 ONE_ORGANIZATION_ID = 1, every committee belongs to that one organization (meta/collections/committee.yml:107); there is no tenant or multi-organization model. Members from several municipalities can share a committee only as accounts inside one instance, not as organisations."
+			}
 		},
 		{
 			"id": "bod-14",
@@ -542,7 +563,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "partial",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/services/meeting-settings-definition.service/meeting-settings-definitions.ts:798 per meeting defaults for poll type, method (822), 100 percent base (828) and entitled groups (817), carried into new meetings through templates (meeting-edit.component.html:117 set as template) and meeting.clone; no quorum field anywhere in meta/collections (grep quorum returns nothing). Voting method and majority base yes, quorum missing, and rules sit on the meeting, not the committee."
+			}
 		},
 		{
 			"id": "bod-15",
@@ -565,7 +589,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "partial",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/meeting/create.py:113 every new meeting gets Default, Admin, Delegates and Staff groups and a simple and complex motion workflow (line 236); meetings can be set as templates (meeting-edit.component.html:117) and new ones are duplicated from them via meeting.clone (openslides-client/client/src/app/gateways/repositories/meeting-repository.service.ts:243, called from meeting-edit.component.ts:375). One generic default, no sector profiles such as municipality or works council."
+			}
 		},
 		{
 			"id": "bod-16",
@@ -588,7 +615,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "partial",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/user.yml:53 email is the only contact field; grep for phone and address in meta/collections returns nothing and committee.yml has no contact fields. Email only."
+			}
 		},
 		{
 			"id": "bod-17",
@@ -611,9 +641,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "yes",
-			"openslides": "unknown",
+			"openslides": "no",
 			"evidence": {
-				"diligent-boards": "docs-only, intelligence DB competitor_features #19464 'Compensation Module: Director compensation management' (captured 2026-04-10)"
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19464 'Compensation Module: Director compensation management' (captured 2026-04-10)",
+				"openslides": "source read at 4.3.4, not driven: grep for salary, remuneration, compensation and payment across openslides-backend/meta/collections returns nothing. Director pay is not modelled."
 			}
 		},
 		{
@@ -637,13 +668,13 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
 			"diligent-boards": "yes",
-			"openslides": "yes",
+			"openslides": "partial",
 			"evidence": {
 				"notubiz": "docs-only, intelligence DB competitor_features #19631 'Commissiebeheer: Committee management and scheduling' (captured 2026-04-10)",
 				"ibabs": "docs-only, intelligence DB competitor_features #19661 'Meeting Calendar: Integrated meeting calendar' (captured 2026-04-10)",
 				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19651 'Kalender: Council meeting calendar' (captured 2026-04-10)",
 				"diligent-boards": "docs-only, intelligence DB competitor_features #19477 'Board Calendar: Governance calendar with regulatory deadlines' (captured 2026-04-10)",
-				"openslides": "docs-only, intelligence DB competitor_features #19510 'Assembly Management: Complete assembly and congress management' (captured 2026-04-10)"
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/services/meeting-settings-definition.service/meeting-settings-definitions.ts:175 location and a start and end date (line 179, type daterange; ui/modules/datepicker/components/daterangepicker has no time input), saved through meeting.create from the committee meeting form (meeting-edit.component.html:86). Date and location yes, time of day not captured."
 			}
 		},
 		{
@@ -667,11 +698,12 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
 			"diligent-boards": "yes",
-			"openslides": "unknown",
+			"openslides": "partial",
 			"evidence": {
 				"ibabs": "docs-only, intelligence DB competitor_features #19661 'Meeting Calendar: Integrated meeting calendar' (captured 2026-04-10)",
 				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19651 'Kalender: Council meeting calendar' (captured 2026-04-10)",
-				"diligent-boards": "docs-only, intelligence DB competitor_features #19477 'Board Calendar: Governance calendar with regulatory deadlines' (captured 2026-04-10)"
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19477 'Board Calendar: Governance calendar with regulatory deadlines' (captured 2026-04-10)",
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/organization/pages/dashboard/pages/dashboard-detail/components/dashboard/dashboard.component.html:4 the organization start page titled Calendar lists current, future (line 64) and ended (line 82) meetings. A dated list, not a month or week calendar grid."
 			}
 		},
 		{
@@ -695,7 +727,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "no",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: grep for recurr and rrule across backend, client and Go services returns nothing; openslides-backend/openslides_backend/action/actions/meeting/clone.py copies one meeting at a time. No recurring series."
+			}
 		},
 		{
 			"id": "pla-04",
@@ -718,9 +753,10 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "no",
 			"evidence": {
-				"ibabs": "docs-only, intelligence DB competitor_features #610 'Microsoft 365 Integration: Outlook, Teams integration' (captured 2026-03-26)"
+				"ibabs": "docs-only, intelligence DB competitor_features #610 'Microsoft 365 Integration: Outlook, Teams integration' (captured 2026-03-26)",
+				"openslides": "source read at 4.3.4, not driven: grep for ical, .ics, vcalendar and text/calendar across all services returns nothing; meetings are only listed inside OpenSlides (dashboard.component.html:64). No calendar feed or invite."
 			}
 		},
 		{
@@ -744,7 +780,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "partial",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting.yml:632 users_email_body default text is a personal login with {url}, {username} and {password}, sent by user.send_invitation_email (openslides-client/client/src/app/gateways/repositories/users/user-action.ts). An access invitation, the agenda is not included."
+			}
 		},
 		{
 			"id": "pla-06",
@@ -767,7 +806,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "no",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: grep for reminder and deadline across openslides-backend/meta/collections and openslides_backend/action returns nothing. No deadline reminders."
+			}
 		},
 		{
 			"id": "pla-07",
@@ -790,7 +832,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "no",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/agenda_item.yml:88 every agenda item belongs to one meeting; grep for long term and planned topics across meta/collections returns nothing. Items can only move between meetings as forwarded motions (motion.yml:110 origin_id). No long-term agenda."
+			}
 		},
 		{
 			"id": "pla-08",
@@ -813,10 +858,11 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "partial",
-			"openslides": "unknown",
+			"openslides": "yes",
 			"evidence": {
 				"ibabs": "docs-only, intelligence DB competitor_features #608 'Video Conferencing: Integrated video meetings (hybrid/virtual)' (captured 2026-03-26)",
-				"diligent-boards": "docs-only, intelligence DB competitor_features #19471 'Virtual AGM: Virtual annual general meeting support' (captured 2026-04-10)"
+				"diligent-boards": "docs-only, intelligence DB competitor_features #19471 'Virtual AGM: Virtual annual general meeting support' (captured 2026-04-10)",
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting.yml:67 jitsi_domain, jitsi_room_name and conference_show (line 90) attach a Jitsi call to the meeting, conference_stream_url (line 102) adds a livestream; the client joins it in openslides-client/client/src/app/site/pages/meetings/pages/interaction/modules/interaction-container/components/call/call.component.ts and interaction.service.ts:83. Hybrid meeting with video call."
 			}
 		},
 		{
@@ -840,10 +886,10 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "yes",
+			"openslides": "partial",
 			"evidence": {
 				"ibabs": "docs-only, intelligence DB competitor_features #19659 'Attendance Tracking: Meeting attendance tracking' (captured 2026-04-10)",
-				"openslides": "docs-only, intelligence DB competitor_features #8383 'Mandate check: New function integrated into the participant menu for mandate check. The function offers the option to statistically evaluate presence/absence in one or more groups.: From 4.2.27 (2025-11-20)' (captured 2026-04-04)"
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting.yml:1045 present_user_ids, set via user.set_present (openslides-client/client/src/app/gateways/repositories/users/user-action.ts:10) from the participants/presence page; grep for excused, apolog and absent in meta/collections returns nothing. Present and not present yes, apologies not recorded."
 			}
 		},
 		{
@@ -867,7 +913,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "no",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: grep for cost and hourly across openslides-backend/meta/collections returns nothing; no rate field on user.yml or meeting_user.yml. Meeting cost is not computed."
+			}
 		},
 		{
 			"id": "pla-11",
@@ -890,7 +939,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/organization/pages/committees/pages/committee-detail/modules/committee-detail-meeting/components/meeting-edit/meeting-edit.component.html:117 a meeting can be set as template (meeting.yml:77 template_for_organization_id) and new meetings are duplicated from it through meeting.clone (openslides-client/client/src/app/gateways/repositories/meeting-repository.service.ts:243, called from meeting-edit.component.ts:375), carrying all its settings."
+			}
 		},
 		{
 			"id": "pla-12",
@@ -913,7 +965,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "no",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: grep for budget, annual accounts and planning cycle across openslides-backend/meta/collections and action/actions returns nothing. No planning and control cycle."
+			}
 		},
 		{
 			"id": "pla-13",
@@ -936,7 +991,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "partial",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/mediafile.yml:14 is_directory with parent_id (line 44) gives each meeting its own folder tree, shown in openslides-client/client/src/app/site/pages/meetings/pages/mediafiles/modules/mediafile-list/components/mediafile-list/mediafile-list.component.html:43. A per meeting file area inside OpenSlides, not a folder in Nextcloud Files."
+			}
 		},
 		{
 			"id": "pla-14",
@@ -961,7 +1019,7 @@
 			"diligent-boards": "unknown",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "docs-only, intelligence DB competitor_features #8373 'Agenda: Meeting admins can copy agenda items to another meeting that they administer. Optionally, the list of speakers with completed and open speeches, moderation notes, and attachments can be copied: From 4.2.28 (2025-12-11)' (captured 2026-04-04); docs-only, intelligence DB competitor_features #8398 'Meetings > Duplicate: Meetings can be duplicated again.: From 4.2.25 (2025-11-11)' (captured 2026-04-04)"
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/gateways/repositories/meeting-repository.service.ts:232 duplicate and duplicateFrom (line 243) send meeting.clone, which openslides-backend/openslides_backend/action/actions/meeting/clone.py:40 implements as a full meeting export and import including agenda; called from the committee meeting form (meeting-edit.component.ts:375). Topics can also be imported from CSV at agenda/topics/import."
 			}
 		},
 		{
@@ -985,7 +1043,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "partial",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting.yml:26 is_active_in_organization_id and is_archived_in_organization_id (line 32) with meeting.archive and meeting.unarchive (meeting-repository.service.ts), plus locked_from_inside (line 54); no draft, convened or in progress state field. Active and archived only."
+			}
 		},
 		{
 			"id": "age-01",
@@ -1014,7 +1075,7 @@
 				"ibabs": "docs-only, intelligence DB competitor_features #604 'Board Book Management: Digital board books with agenda, documents, annotations' (captured 2026-03-26)",
 				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #584 'Agenda Management: Create and manage meeting agendas with automatic numbering' (captured 2026-03-26)",
 				"diligent-boards": "docs-only, intelligence DB competitor_features #637 'Agenda Management: Efficient agenda setting with templates' (captured 2026-03-26)",
-				"openslides": "docs-only, intelligence DB competitor_features #713 'Agenda (Drag & Drop): Auto-numbered agenda items with drag-and-drop ordering' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19511 'Agenda Management: Multi-level agenda management' (captured 2026-04-10)"
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/agenda_item.yml:7 item_number, weight (line 45) and parent_id (line 66) for a nested ordered agenda, numbered automatically when meeting.yml:232 agenda_enable_numbering is on; edited in openslides-client/client/src/app/site/pages/meetings/pages/agenda/pages/agenda-item-list/components/agenda-item-info-dialog/agenda-item-info-dialog.component.html:46."
 			}
 		},
 		{
@@ -1040,7 +1101,7 @@
 			"diligent-boards": "unknown",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "docs-only, intelligence DB competitor_features #713 'Agenda (Drag & Drop): Auto-numbered agenda items with drag-and-drop ordering' (captured 2026-03-26)"
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/agenda/pages/agenda-sort/components/agenda-sort/agenda-sort.component.html:53 os-sorting-tree drag and drop on the agenda/sort route, saved via agenda_item.sort (gateways/repositories/agenda/agenda-item-repository.service.ts:130)."
 			}
 		},
 		{
@@ -1067,7 +1128,7 @@
 			"openslides": "yes",
 			"evidence": {
 				"ibabs": "docs-only, intelligence DB competitor_features #604 'Board Book Management: Digital board books with agenda, documents, annotations' (captured 2026-03-26)",
-				"openslides": "docs-only, intelligence DB competitor_features #19515 'Document Management: Assembly document management' (captured 2026-04-10)"
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/agenda/modules/topics/pages/topic-detail/components/topic-detail/topic-detail.component.html:113 attachment control on the agenda topic, stored as openslides-backend/meta/collections/topic.yml:22 attachment_meeting_mediafile_ids and listed at line 82."
 			}
 		},
 		{
@@ -1091,9 +1152,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "yes",
-			"openslides": "unknown",
+			"openslides": "partial",
 			"evidence": {
-				"diligent-boards": "docs-only, intelligence DB competitor_features #637 'Agenda Management: Efficient agenda setting with templates' (captured 2026-03-26)"
+				"diligent-boards": "docs-only, intelligence DB competitor_features #637 'Agenda Management: Efficient agenda setting with templates' (captured 2026-03-26)",
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/meeting/clone.py:40 cloning a template meeting (meeting-edit.component.html:117 set as template) copies its whole agenda into the new meeting, and topics can be imported from CSV at agenda/topics/import; there is no agenda template separate from a whole meeting."
 			}
 		},
 		{
@@ -1117,10 +1179,11 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "yes",
 			"evidence": {
 				"notubiz": "docs-only, intelligence DB competitor_features #28374 'NotuBiz RIS-portaal: Publiek raadsinformatiesysteem met agendas, stukken en besluiten' (captured 2026-04-18)",
-				"ibabs": "docs-only, intelligence DB competitor_features #28362 'Raadsagenda publicatie: Publiceer agendas en vergaderstukken automatisch op publieke raadsinformatie-portal' (captured 2026-04-18)"
+				"ibabs": "docs-only, intelligence DB competitor_features #28362 'Raadsagenda publicatie: Publiceer agendas en vergaderstukken automatisch op publieke raadsinformatie-portal' (captured 2026-04-18)",
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/agenda_item.yml:17 type common, internal or hidden controls who sees each item, and meeting.yml:82 enable_anonymous (with organization.yml:67) opens the meeting to the public without login; the agenda list is routed at openslides-client/client/src/app/site/pages/meetings/pages/agenda/agenda-routing.module.ts:10."
 			}
 		},
 		{
@@ -1144,7 +1207,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "no",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/history_entry.yml:15 the history only records user, motion and assignment models; agenda_item.yml and topic.yml keep no versions. Revisions to the agenda overwrite in place with no earlier version shown."
+			}
 		},
 		{
 			"id": "age-07",
@@ -1167,7 +1233,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/motions/pages/motion-blocks/components/motion-block-detail/motion-block-detail.component.html:50 a motion block groups motions under one agenda item (motion_block.yml:27) and Follow recommendations for all motions sets them all at once, routed at motions/blocks."
+			}
 		},
 		{
 			"id": "age-09",
@@ -1190,10 +1259,11 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "yes",
 			"evidence": {
 				"notubiz": "docs-only, intelligence DB competitor_features #28382 'Besloten stuk-embargo: Embargo-beheer voor vertrouwelijke raadsstukken' (captured 2026-04-18)",
-				"ibabs": "docs-only, intelligence DB competitor_features #28366 'Documentpublicatie naar publiek portaal: Selectieve publicatie van stukken met embargo en gereedheidsdatum' (captured 2026-04-18)"
+				"ibabs": "docs-only, intelligence DB competitor_features #28366 'Documentpublicatie naar publiek portaal: Selectieve publicatie van stukken met embargo en gereedheidsdatum' (captured 2026-04-18)",
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/agenda_item.yml:17 internal items are only visible with agenda_item.can_see_internal (group.yml:16 permissions), and meeting_mediafile.yml:32 access_group_ids limits each file to chosen groups."
 			}
 		},
 		{
@@ -1217,10 +1287,11 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "yes",
-			"openslides": "unknown",
+			"openslides": "partial",
 			"evidence": {
 				"ibabs": "docs-only, intelligence DB competitor_features #604 'Board Book Management: Digital board books with agenda, documents, annotations' (captured 2026-03-26)",
-				"diligent-boards": "docs-only, intelligence DB competitor_features #631 'AI Smart Book Builder: Automates board book creation, saves 80% prep time' (captured 2026-03-26)"
+				"diligent-boards": "docs-only, intelligence DB competitor_features #631 'AI Smart Book Builder: Automates board book creation, saves 80% prep time' (captured 2026-03-26)",
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/motions/services/export/motion-pdf-export.service/motion-pdf-export.service.ts:49 the motion catalog export can merge every motion and its PDF attachments into one PDF (line 127, pdf-lib); agenda topics and their files are exported separately at agenda-export. A motions pack, not one pack for all meeting papers."
 			}
 		},
 		{
@@ -1244,10 +1315,11 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "yes",
-			"openslides": "unknown",
+			"openslides": "partial",
 			"evidence": {
 				"ibabs": "docs-only, intelligence DB competitor_features #19660 'Document Annotation: PDF annotation and bookmarking' (captured 2026-04-10)",
-				"diligent-boards": "docs-only, intelligence DB competitor_features #635 'Real-time Collaboration: Document annotation and discussion tools' (captured 2026-03-26)"
+				"diligent-boards": "docs-only, intelligence DB competitor_features #635 'Real-time Collaboration: Document annotation and discussion tools' (captured 2026-03-26)",
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/personal_note.yml:23 private notes attach to motions only, and motion_comment_section.yml:32 read_group_ids and write_group_ids give shared comment fields per motion; there is no annotation on the documents themselves. Private and shared notes on motions, not on papers."
 			}
 		},
 		{
@@ -1271,10 +1343,11 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "no",
 			"evidence": {
 				"ibabs": "docs-only, intelligence DB competitor_features #611 'Offline Access: Work with documents offline on mobile devices' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19667 'Offline Mode: Offline document access on iPad' (captured 2026-04-10)",
-				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #587 'Paperless Meetings: Digital meeting support for council members on tablets' (captured 2026-03-26)"
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #587 'Paperless Meetings: Digital meeting support for council members on tablets' (captured 2026-03-26)",
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/ngsw-config.json caches only the app shell (assetGroups), the /system data group has maxSize 0, and src/app/site/services/connection-status.service.ts:58 shows a Connection lost banner when the browser goes offline. Papers can be downloaded as PDF, but the app does not work offline."
 			}
 		},
 		{
@@ -1298,7 +1371,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "no",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: grep for inbox, incoming, letter and correspondence across openslides-backend/meta/collections returns nothing; agenda content objects are only topics, motions, motion blocks and assignments (agenda_item.yml:48). No intake of incoming letters."
+			}
 		},
 		{
 			"id": "age-14",
@@ -1321,7 +1397,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "partial",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/agenda_item.yml:25 duration per item, shown in openslides-client/client/src/app/site/pages/meetings/pages/agenda/pages/agenda-item-list/components/agenda-item-list/agenda-item-list.component.html:107; the estimated end calculation getDurationEndString (agenda-item-list.component.ts:385) is not referenced from any template. Time slot per item yes, running over not shown."
+			}
 		},
 		{
 			"id": "age-15",
@@ -1344,7 +1423,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "no",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: grep for accessib, pdf/ua and a11y across openslides-media-service and openslides_backend returns nothing; uploads go straight to mediafile.upload with only mimetype and pdf_information (mediafile.yml:26). No accessibility check on documents."
+			}
 		},
 		{
 			"id": "age-16",
@@ -1367,9 +1449,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "yes",
-			"openslides": "unknown",
+			"openslides": "no",
 			"evidence": {
-				"diligent-boards": "docs-only, intelligence DB competitor_features #631 'AI Smart Book Builder: Automates board book creation, saves 80% prep time' (captured 2026-03-26)"
+				"diligent-boards": "docs-only, intelligence DB competitor_features #631 'AI Smart Book Builder: Automates board book creation, saves 80% prep time' (captured 2026-03-26)",
+				"openslides": "source read at 4.3.4, not driven: grep for openai, llm, chatgpt, summarize, ollama and anthropic across all Python, TypeScript and Go sources returns only unrelated identifiers. No AI summaries."
 			}
 		},
 		{
@@ -1395,7 +1478,7 @@
 			"diligent-boards": "unknown",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "docs-only, intelligence DB competitor_features #712 'Projector Management: Multiple projectors showing different content' (captured 2026-03-26); docs-only, intelligence DB competitor_features #19520 'Live Updates: Real-time updates for all participants' (captured 2026-04-10)"
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/autopilot/components/autopilot/autopilot.component.html:63 the autopilot view (routed at meetings/autopilot, meeting.can_see_autopilot) follows the current projection with its list of speakers, moderation note (line 148), running polls (line 160) and the live projector (line 184)."
 			}
 		},
 		{
