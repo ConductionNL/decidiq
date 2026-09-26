@@ -5141,9 +5141,9 @@
 			"diligent-boards": "unknown",
 			"openslides": "no",
 			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: grep for nextcloud across all services returns nothing; OpenSlides has only its own start page (openslides-client/client/src/app/site/pages/organization/pages/dashboard). No Nextcloud dashboard widget.",
 				"notubiz": "not checked: looked, not settled: no Nextcloud integration in public material",
-				"ibabs": "not checked: looked, not settled: no Nextcloud integration in support docs",
-				"openslides": "source read at 4.3.4, not driven: grep for nextcloud across all services returns nothing; OpenSlides has only its own start page (openslides-client/client/src/app/site/pages/organization/pages/dashboard). No Nextcloud dashboard widget."
+				"ibabs": "not checked: looked, not settled: no Nextcloud integration in support docs"
 			}
 		},
 		{
@@ -5810,5 +5810,6 @@
 			"diligent-boards": "unknown",
 			"openslides": "unknown"
 		}
-	]
+	],
+	"_comment": "Competitor rating rule (wave 5, 2026-09-26): a row phrased in Nextcloud terms (a Nextcloud dashboard widget, Nextcloud Files, Deck, Calendar, activity stream, search bar) rates a competitor partial when the competitor has its own equivalent, and no only when nothing equivalent exists. Decision-oriented rows are rated against OpenSlides motions, which carry its decisions."
 }
