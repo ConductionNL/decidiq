@@ -6142,7 +6142,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "partial",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/organization/pages/orga-meetings/pages/meeting-list/services/meeting-list-filter/meeting-list-filter.service.ts:16 the organization meeting list filters by organization tags (usable per audience), time (line 39) and status (line 54), and the dashboard (dashboard.component.html:4, titled Calendar) lists future meetings; only formal meetings exist as a model (openslides-backend/meta/collections has no event or activity collection). Meetings filterable, other activities no."
+			}
 		},
 		{
 			"id": "pla-17",
@@ -6166,10 +6169,11 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "no",
 			"evidence": {
 				"notubiz": "https://www.notubiz.nl/onze-diensten/gekoppelde-modules states parallel sessions are shown side by side on web and app",
-				"ibabs": "https://support.ibabs.com/docs/parallelle-sessies.md states parallel meetings under one parent meeting, each with its own location and streaming profile"
+				"ibabs": "https://support.ibabs.com/docs/parallelle-sessies.md states parallel meetings under one parent meeting, each with its own location and streaming profile",
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/agenda_item.yml:88 each agenda belongs to one meeting and meeting.yml has no parent meeting or session field; grep for session and parallel across meta/collections returns nothing, and there are no recordings or subtitles (grep recording returns nothing). No parallel sessions."
 			}
 		},
 		{
@@ -6194,7 +6198,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "no",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/mixins/send_email_mixin.py is used only by account actions (user.send_invitation_email, forget_password, create, update); grep for subscri, digest and notify_email across meta/collections returns nothing. No email subscriptions."
+			}
 		},
 		{
 			"id": "pub-17",
@@ -6218,7 +6225,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "partial",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/motions/pages/motion-list/components/motion-list/motion-list.component.ts:388 export takes the currently filtered list or the selected rows into PDF, CSV or XLSX; filters are state, category, block, tags, editors and others (motion-list-filter.service.ts:65 to 173) but not submitter party or date period. A filtered set in one go yes, party and period filters no."
+			}
 		},
 		{
 			"id": "plt-20",
@@ -6242,7 +6252,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "partial",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/motion_comment_section.yml:7 admins create extra named text fields on motions with read and write groups (motion_comment_section.create from motions/comment-sections); openslides-backend/meta/collections/mediafile.yml has fixed fields only (title, filename, mimetype). Extra fields on motions yes, on documents no."
+			}
 		},
 		{
 			"id": "age-17",
@@ -6266,7 +6279,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "no",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: grep for libreoffice, unoconv, soffice, gotenberg and convert across openslides-media-service returns nothing; mediafile.yml:26 stores the uploaded mimetype as is and pdf_information (line 29) only describes PDFs. No Office to PDF conversion."
+			}
 		},
 		{
 			"id": "pub-18",
@@ -6290,7 +6306,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "no",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: grep for retention, destroy and destruction across openslides-backend/meta/collections and action/actions returns nothing; files are removed only by mediafile.delete with no approval step or record. No approved destruction."
+			}
 		},
 		{
 			"id": "ins-15",
@@ -6314,7 +6333,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "partial",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/history_entry.yml:15 the history records changes to users, motions and elections with who and when (history_position.yml:7), viewable with meeting.can_see_history at meetings/history; mediafile and agenda changes are not in the history (history_entry model_id lists only user, motion, assignment). A log for motions yes, for every document no."
+			}
 		},
 		{
 			"id": "plt-21",
@@ -6338,7 +6360,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "yes",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/gateways/repositories/groups group.create and group.update let a meeting admin create and name groups with permissions (participants/groups), and user.create adds accounts from the participant and account pages; organization.yml management levels (user.yml:80 can_manage_users) cover it at organization level. No supplier needed."
+			}
 		},
 		{
 			"id": "plt-22",
@@ -6362,7 +6387,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "unknown",
+			"evidence": {
+				"openslides": "not checked: looked, not settled: openslides.com, its pricing and references pages and support.openslides.com link no accessibility statement or audit (read 2026-09-26); the code has ARIA work (patchnotes/4.3.1.md new ARIA label on motion text) and an accessibility label in the client repo, but no WCAG 2.1 AA report was found."
+			}
 		},
 		{
 			"id": "plt-23",
@@ -6386,7 +6414,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "no",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: grep for stuf, zgw and zaak across all Python, TypeScript and Go sources returns nothing. No case management exchange."
+			}
 		},
 		{
 			"id": "mot-17",
@@ -6410,10 +6441,11 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "no",
 			"evidence": {
 				"notubiz": "https://www.notubiz.nl/nieuws/raadsinstrumenten-zo-geef-je-richting-en-houd-je-controle states the griffie keeps Technische vragen in a list module; routing to an official with a deadline is not described",
-				"ibabs": "https://support.ibabs.com/docs/technische-vragen.md (updated 2025-12-02) states questions are raised from an agenda item, assigned to an official who can only answer, with deadline, notification and status colours"
+				"ibabs": "https://support.ibabs.com/docs/technische-vragen.md (updated 2025-12-02) states questions are raised from an agenda item, assigned to an official who can only answer, with deadline, notification and status colours",
+				"openslides": "source read at 4.3.4, not driven: grep for question across openslides-backend/meta/collections finds only speaker.yml:34 interposed_question and speaker.yml:36 answer in lists of speakers; there is no model for written or technical questions with answers. Not supported."
 			}
 		},
 		{
@@ -6438,7 +6470,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "no",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: grep for signature, esign, pades and signing across openslides_backend, the client app and openslides-media-service returns nothing; there is no outbound document integration. No external signing."
+			}
 		},
 		{
 			"id": "rou-16",
@@ -6462,7 +6497,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "no",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/motion_state.yml has no approver field, so there is no approver to substitute; the only stand-in is vote delegation (meeting_user.yml:75 vote_delegated_to_id), which covers voting, not approval. No approval substitute."
+			}
 		},
 		{
 			"id": "pub-19",
@@ -6486,7 +6524,10 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "partial",
+			"evidence": {
+				"openslides": "source read at 4.3.4, not driven: openslides-search-service/pkg/search/textindex.go:435 builds a bleve query string query (supports + and - operators and quoted phrases), a wildcard and a fuzzy match (line 438); the analyzer lowercases and applies German normalisation (line 94 to 105); results come back with <mark> highlights rendered in openslides-client/client/src/app/site/modules/global-headbar/components/global-search/global-search.component.ts:198. Case insensitive and highlighted yes, AND/OR boolean words and general accent folding beyond German normalisation not shown."
+			}
 		},
 		{
 			"id": "pla-18",
@@ -6510,10 +6551,11 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "no",
 			"evidence": {
 				"notubiz": "https://www.notubiz.nl/nieuws/van-feedback-naar-vooruitgang-dit-is-de-nieuwe-lta (29/4/2026) states the LTA now shows parallel trajectories within one topic",
-				"ibabs": "not checked: looked, not settled: https://support.ibabs.com/docs/bestuurlijke-planning.md plans dossiers per agendatype; parallel tracks within one topic are not described"
+				"ibabs": "not checked: looked, not settled: https://support.ibabs.com/docs/bestuurlijke-planning.md plans dossiers per agendatype; parallel tracks within one topic are not described",
+				"openslides": "source read at 4.3.4, not driven: there is no long-term agenda: openslides-backend/meta/collections/agenda_item.yml:88 ties every item to one meeting, and grep for track and long term across meta/collections returns nothing."
 			}
 		},
 		{
@@ -6538,10 +6580,11 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "no",
 			"evidence": {
 				"notubiz": "https://www.notubiz.nl/nieuws/van-feedback-naar-vooruitgang-dit-is-de-nieuwe-lta states search and filters on status, portefeuillehouder, steller and fasering plus an export for reporting or archiving",
-				"ibabs": "https://support.ibabs.com/docs/bestuurlijke-planning.md states dossiers are selected by owner, organisation unit, agendatype or planned date and exported as a list"
+				"ibabs": "https://support.ibabs.com/docs/bestuurlijke-planning.md states dossiers are selected by owner, organisation unit, agendatype or planned date and exported as a list",
+				"openslides": "source read at 4.3.4, not driven: there is no long-term agenda to filter: agenda_item.yml:88 ties every item to one meeting and no portfolio holder field exists in meta/collections."
 			}
 		},
 		{
@@ -6566,10 +6609,11 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "no",
 			"evidence": {
 				"notubiz": "https://www.kennisbank.notubiz.nl/kennisclips/ai-videosearch (posted 9/3/2026) states natural language questions over transcribed meetings, video fragments with timestamps and a generated summary with references to the moments",
-				"ibabs": "not checked: looked, not settled: https://support.ibabs.com/docs/ibabs-stream-release-notes-2025-november.md offers a transcript download; searching recordings with AI is not described"
+				"ibabs": "not checked: looked, not settled: https://support.ibabs.com/docs/ibabs-stream-release-notes-2025-november.md offers a transcript download; searching recordings with AI is not described",
+				"openslides": "source read at 4.3.4, not driven: grep for recording and transcri across meta/collections, action and client returns nothing, and no AI code exists (grep for openai, llm, anthropic returns only unrelated identifiers). No searchable recordings."
 			}
 		},
 		{
@@ -6594,10 +6638,11 @@
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "no",
 			"evidence": {
 				"notubiz": "https://www.kennisbank.notubiz.nl/kennisclips/basistraining (updated 11/3/2026) states viewers toggle between a planned and a chronological agenda and indexing follows the chronological order",
-				"ibabs": "not checked: looked, not settled: https://support.ibabs.com/docs/na-de-uitzending.md lets topics be reordered on the timeline; a viewer toggle is not described"
+				"ibabs": "not checked: looked, not settled: https://support.ibabs.com/docs/na-de-uitzending.md lets topics be reordered on the timeline; a viewer toggle is not described",
+				"openslides": "source read at 4.3.4, not driven: no recordings exist (grep for recording across meta/collections, action and client returns nothing); the only actual order data is speaker begin_time per list of speakers (speaker.yml:7). No recording order switch."
 			}
 		},
 		{
@@ -6622,10 +6667,11 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "partial",
 			"evidence": {
 				"notubiz": "not checked: looked, not settled: no slides in the NotuBiz player described on https://www.notubiz.nl/onze-diensten/live-uitzenden",
-				"ibabs": "https://support.ibabs.com/docs/ibabs-stream-release-notes-februari-2026.md (13 February 2026) states slides can be shown in the Player, uploaded before or during the stream, at extra cost"
+				"ibabs": "https://support.ibabs.com/docs/ibabs-stream-release-notes-februari-2026.md (13 February 2026) states slides can be shown in the Player, uploaded before or during the stream, at extra cost",
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/interaction/modules/interaction-container/components/stream/stream.component.html:1 the livestream plays in a floating container over the meeting pages, so a viewer can watch it next to the live projector with the current slide on the autopilot page (autopilot.component.html:184); the slides are not inside the stream player itself, which plays an external URL (meeting.yml:102)."
 			}
 		},
 		{
@@ -6650,10 +6696,11 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "partial",
 			"evidence": {
 				"notubiz": "not checked: looked, not settled: not described on https://www.notubiz.nl/onze-diensten/live-uitzenden or in the kennisbank",
-				"ibabs": "https://support.ibabs.com/docs/tijdens-de-uitzending.md (updated 2025-11-27) states the Live Event Manager shows short text notices in the player for a chosen duration"
+				"ibabs": "https://support.ibabs.com/docs/tijdens-de-uitzending.md (updated 2025-11-27) states the Live Event Manager shows short text notices in the player for a chosen duration",
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/projector_message.yml:7 projector messages are shown on the projector (openslides-projector-service/pkg/projector/slide/projector_message.go:20) and so to anyone watching the projector or autopilot; the livestream player (stream.component.html) has no notice overlay. Notice on the projector yes, in the stream player no."
 			}
 		},
 		{
@@ -6678,10 +6725,11 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "no",
 			"evidence": {
 				"notubiz": "not checked: looked, not settled: https://www.notubiz.nl/nieuws/dag-van-de-democratie-2026-toegankelijkheid-vertrouwen quotes 300,000 unique viewers for an Amsterdam debate, but customer-facing viewer statistics are not described",
-				"ibabs": "https://support.ibabs.com/docs/na-de-uitzending.md (updated 2025-11-27) states Stream Analytics shows total viewers, average watch time and share of content watched"
+				"ibabs": "https://support.ibabs.com/docs/na-de-uitzending.md (updated 2025-11-27) states Stream Analytics shows total viewers, average watch time and share of content watched",
+				"openslides": "source read at 4.3.4, not driven: meeting.yml:102 the stream is an external URL played in the client; grep for viewer, watch time and analytics across meta/collections and the stream component returns nothing. No viewer statistics."
 			}
 		},
 		{
@@ -6706,10 +6754,11 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "no",
 			"evidence": {
 				"notubiz": "https://www.notubiz.nl/nieuws/samen-werken-aan-een-geintegreerd-systeem-voor-raad-en-college (3/11/2025) states the griffie of Schagen hopes soon to be able to test broadcasts themselves, so it is not there yet",
-				"ibabs": "https://support.ibabs.com/docs/ibabs-stream-veelgestelde-vragen.md states a test broadcast checking picture, sound and connection is possible beforehand"
+				"ibabs": "https://support.ibabs.com/docs/ibabs-stream-veelgestelde-vragen.md states a test broadcast checking picture, sound and connection is possible beforehand",
+				"openslides": "source read at 4.3.4, not driven: grep for test broadcast and preview stream across the client and meta/collections returns nothing; stream.component.html:12 only offers Restart livestream. No test broadcast."
 			}
 		},
 		{
@@ -6734,10 +6783,11 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "no",
 			"evidence": {
 				"notubiz": "https://www.notubiz.nl/onze-diensten/digitale-archivering transfers meetings to an e-Depot via SIP files; https://www.notubiz.nl/nieuws/samen-werken-aan-een-geintegreerd-systeem-voor-raad-en-college says returning decisions to the case system is still being refined",
-				"ibabs": "https://support.ibabs.com/docs/introductie-9.md (updated 2026-03-24) states the agenda with items, documents, signed agenda, decision list and minutes is returned to SharePoint Online; https://support.ibabs.com/docs/introductie-8.md does the same into a vergaderzaak in the case system"
+				"ibabs": "https://support.ibabs.com/docs/introductie-9.md (updated 2026-03-24) states the agenda with items, documents, signed agenda, decision list and minutes is returned to SharePoint Online; https://support.ibabs.com/docs/introductie-8.md does the same into a vergaderzaak in the case system",
+				"openslides": "source read at 4.3.4, not driven: grep for dms, cmis and sharepoint across meta/collections and the client strings returns nothing and there are no minutes (no minutes collection); the only full dump is the export_meeting presenter JSON download. No write back to a document store."
 			}
 		},
 		{
@@ -6762,10 +6812,11 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "no",
 			"evidence": {
 				"notubiz": "https://www.notubiz.nl/onze-diensten/themadossiers states Themadossiers pages with text blocks, a timeline of meetings and documents and linked motions, questions and commitments",
-				"ibabs": "https://support.ibabs.com/docs/themapaginas.md (updated 2026-02-27) states theme pages link agenda items and list items such as motions and are shown on the Publieksportaal"
+				"ibabs": "https://support.ibabs.com/docs/themapaginas.md (updated 2026-02-27) states theme pages link agenda items and list items such as motions and are shown on the Publieksportaal",
+				"openslides": "source read at 4.3.4, not driven: grep for theme page, dossier and timeline across openslides-backend/meta/collections returns nothing; the closest grouping is tags within one meeting (tag.yml:7) and organization tags on meetings and committees (organization_tag.yml:15). No theme page."
 			}
 		},
 		{
@@ -6790,10 +6841,11 @@
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown",
+			"openslides": "no",
 			"evidence": {
 				"notubiz": "not checked: looked, not settled: no delegate access described in the kennisbank",
-				"ibabs": "https://support.ibabs.com/docs/working-with-users-1.md states impersonation gives a secretary access to a director's account without logging in as that person"
+				"ibabs": "https://support.ibabs.com/docs/working-with-users-1.md states impersonation gives a secretary access to a director's account without logging in as that person",
+				"openslides": "source read at 4.3.4, not driven: grep for impersonat, act_as, login_as and switch_user across openslides_backend, the auth service and the client returns nothing; the only acting for someone else is vote delegation (meeting_user.yml:75). No working in another member's account."
 			}
 		},
 		{
@@ -6820,7 +6872,7 @@
 			"diligent-boards": "unknown",
 			"openslides": "no",
 			"evidence": {
-				"openslides": "open request https://github.com/OpenSlides/openslides-client/issues/1913 (read 2026-09-26) asks for a new time_limit model; source read at 4.3.4, not driven: grep for time_limit and deadline across openslides-backend/meta/collections returns nothing."
+				"openslides": "source read at 4.3.4, not driven: grep for time_limit and deadline across openslides-backend/meta/collections returns nothing; submission is gated only by motion.can_create and the workflow state. Open request https://github.com/OpenSlides/openslides-client/issues/1913 asks for a new time_limit model."
 			}
 		},
 		{
@@ -6847,7 +6899,7 @@
 			"diligent-boards": "unknown",
 			"openslides": "no",
 			"evidence": {
-				"openslides": "open request https://github.com/OpenSlides/OpenSlides/issues/6963 (read 2026-09-26) asks for splitting weighted votes; source read at 4.3.4, not driven: openslides-vote-service/vote/vote.go:265 stores one ballot with one weight per voter."
+				"openslides": "source read at 4.3.4, not driven: openslides-vote-service/vote/vote.go:265 stores one ballot with one weight per voter, so held votes cannot be split across answers. Open request https://github.com/OpenSlides/OpenSlides/issues/6963 asks for it."
 			}
 		},
 		{
@@ -6874,7 +6926,7 @@
 			"diligent-boards": "unknown",
 			"openslides": "no",
 			"evidence": {
-				"openslides": "open request https://github.com/OpenSlides/OpenSlides/issues/6766 (read 2026-09-26) describes the BSI certification for non-political online elections as a process still to be started."
+				"openslides": "source read at 4.3.4, not driven: nothing in the code refers to a certification; open request https://github.com/OpenSlides/OpenSlides/issues/6766 (read 2026-09-26) describes BSI certification for non-political online elections as a process still to be started."
 			}
 		},
 		{
@@ -6901,7 +6953,7 @@
 			"diligent-boards": "unknown",
 			"openslides": "no",
 			"evidence": {
-				"openslides": "open request https://github.com/OpenSlides/OpenSlides/issues/6591 (read 2026-09-26) states analog votes can never be nominal; source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/poll/update.py:115 analog polls only take totals (votesvalid, votesinvalid, votescast)."
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/poll/update.py:115 analog polls only take totals (votesvalid, votesinvalid, votescast), never per member choices. Open request https://github.com/OpenSlides/OpenSlides/issues/6591 asks for analog nominal voting."
 			}
 		},
 		{
@@ -7009,7 +7061,7 @@
 			"diligent-boards": "unknown",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting.yml:124 applause_enable, applause_type, show_level and min and max amount, carried by openslides-icc-service/internal/applause and shown in the client interaction container."
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting.yml:124 applause_enable, applause_type, show_level and min and max amount, carried by openslides-icc-service/internal/applause and shown in the client interaction container (applause-bar-display, applause-particle-display)."
 			}
 		},
 		{
@@ -7090,7 +7142,7 @@
 			"diligent-boards": "unknown",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/participants/pages/participant-list/components/participant-list/participant-list.component.ts:537 switchParticipants exchanges group_ids and number between two participants via the Swap mandates dialog (participant-switch-dialog.component.html:1); open request client#5760 asks for settings to limit it."
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/participants/pages/participant-list/components/participant-list/participant-list.component.ts:537 switchParticipants exchanges group_ids and number between two participants via the Swap mandates dialog (participant-switch-dialog.component.html:1)."
 			}
 		},
 		{
@@ -7117,7 +7169,7 @@
 			"diligent-boards": "unknown",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/motion/mixins.py:65 set_text_hash hashes the text on create and update and links matches in motion.yml:132 identical_motion_ids."
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/motion/mixins.py:65 set_text_hash hashes the text on create and update and links matches in motion.yml:132 identical_motion_ids, filterable in motion-list-filter.service.ts:122 hasIdenticalMotions."
 			}
 		},
 		{
@@ -7144,7 +7196,7 @@
 			"diligent-boards": "unknown",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "release note https://github.com/OpenSlides/OpenSlides/releases/tag/4.3.1 and source read at 4.3.4, not driven: patchnotes/4.3.1.md deep link feature, e.g. demo.openslides.org/18/motions/1 opens the motion after login."
+				"openslides": "source read at 4.3.4, not driven: patchnotes/4.3.1.md deep link feature: a link such as demo.openslides.org/18/motions/1 opens the motion directly after login; the client routes meetings/:id/motions/:id (motion-detail-routing.module.ts:16)."
 			}
 		}
 	],
