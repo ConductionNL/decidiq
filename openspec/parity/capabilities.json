@@ -128,19 +128,101 @@
 			"key": "go-raadsinformatie",
 			"name": "GO. Raadsinformatie",
 			"vendor": "GemeenteOplossingen",
-			"readOn": "2026-04-10",
+			"readOn": "2026-09-26",
 			"columnAddedOn": "2026-09-25",
 			"evidenceGrade": "docs-only",
-			"unknownReason": "Not covered by the research read: the intelligence database's competitor_features rows for this vendor (captured 2026-03-26 to 2026-04-10) and concurrentie-analyse/raadsinformatie/README.md (2026-03-27) do not mention it. Nobody has driven the product."
+			"unknownReason": "Rows the public documentation does not settle carry their own 'not checked:' reason; wave-5 demand rows not yet rated for this system were not checked.",
+			"readHow": "Re-read on 2026-09-26 from public material only, no trial account. The GO. council portals answered a bot challenge to automated reading, so the column rests on the GemeenteOplossingen product pages, the public GO. API as served by a live council (gemeenteraad.groningen.nl/api/v2), LTA.nu and the Open Raadsinformatie index and its GO. transformer. Cells that would need the public portal screens are kept partial rather than yes. April ratings resting only on intelligence DB feature rows (no source URL) that today's material does not support were downgraded to unknown with the reason on the cell.",
+			"sources": {
+				"docs": null,
+				"sourceRepo": null,
+				"featurePage": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/",
+				"featureRequests": null,
+				"issueTracker": null,
+				"roadmap": null,
+				"changelog": null,
+				"apiReference": "https://gemeenteraad.groningen.nl/api/v2/",
+				"marketplace": null,
+				"pricing": null,
+				"accessibilityStatement": null,
+				"securityDocs": "https://www.gemeenteoplossingen.nl/security/coordinated_vulnerability_disclosure_(cvd)_beleid/",
+				"demoInstance": null,
+				"community": null,
+				"reviews": null,
+				"videos": "https://youtu.be/HPjW7uJFZJI",
+				"caseStudies": "https://www.gemeenteoplossingen.nl/blogs/vergaderen__makkelijk_voor_gebruikers_en_goed_voor_het_archief,_kan_het_eigenlijk_/",
+				"partnerDirectory": "https://www.gemeenteoplossingen.nl/over_ons/partners/",
+				"trainingCurriculum": "https://www.gemeenteoplossingen.nl/producten/diensten/training_en_opleiding/",
+				"jobPostings": "https://www.gemeenteoplossingen.nl/over_ons/vacatures/",
+				"tenders": [
+					"TenderNed 427322 Gooise Meren RIS 2026, won by Gemeenteoplossingen",
+					"TenderNed 405375 SED (Stede Broec, Enkhuizen, Drechterland) RIS 2025, won",
+					"TenderNed 348512 Halderberge RIS 2024, won",
+					"TenderNed 396488 West Betuwe RIS/BIS 2025, framework shared with NotuBiz and iBabs"
+				],
+				"nullReasons": {
+					"docs": "no public user documentation; the GO. servicedesk at https://servicedesk.gemeenteoplossingen.nl/ is a Redmine that needs a login",
+					"sourceRepo": "closed source; the API page header at https://gemeenteraad.groningen.nl/api/v2/ states Proprietary and confidential",
+					"featureRequests": "no public feature request list; customer input runs through the GO. klantenpanel (https://www.gemeenteoplossingen.nl/over_ons/go._klantenpanel/), a sign-up form",
+					"issueTracker": "the servicedesk Redmine (https://servicedesk.gemeenteoplossingen.nl/) needs a login",
+					"roadmap": "no public roadmap on gemeenteoplossingen.nl (site crawled, 241 pages)",
+					"changelog": "no release notes; https://www.gemeenteoplossingen.nl/over_ons/actueel lists news items from the corona period only",
+					"marketplace": "no marketplace listing found; products are sold directly",
+					"pricing": "no public prices; product pages point to demo and information request forms",
+					"accessibilityStatement": "https://www.gemeenteoplossingen.nl/toegankelijkheid returns 404 today; no statement found for the council portals, which refuse automated readers",
+					"demoInstance": "https://raadsinformatie-frontoffice.gemeenteoplossingen.nl/vergaderingen looks like a demo front office but answers with a bot challenge; demos are otherwise by request form",
+					"community": "no public user community found",
+					"reviews": "no public review listing found for GO. raadsinformatie"
+				}
+			}
 		},
 		{
 			"key": "diligent-boards",
 			"name": "Diligent Boards",
 			"vendor": "Diligent",
-			"readOn": "2026-04-10",
+			"readOn": "2026-09-26",
 			"columnAddedOn": "2026-09-25",
 			"evidenceGrade": "docs-only",
-			"unknownReason": "Not covered by the intelligence database's competitor_features rows for Diligent Boards (captured 2026-03-26 to 2026-04-10). Nobody has driven the product."
+			"unknownReason": "Rows the public documentation does not settle carry their own 'not checked:' reason; wave-5 demand rows not yet rated for this system were not checked.",
+			"readHow": "Re-read on 2026-09-26 from public material only, no trial account: diligent.com product pages, the public Diligent One help documentation for Boards (help.diligentoneplatform.com) including its release notes, and the trust and accessibility pages. The column covers Diligent Boards only; Diligent Community, Diligent's public-sector agenda product, is out of scope here, so council-specific rows rated unknown or no for Boards are not a reading of Community. April ratings resting only on intelligence DB feature rows (no source URL) that today's material does not support were downgraded to unknown with the reason on the cell.",
+			"sources": {
+				"docs": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Default.htm",
+				"sourceRepo": null,
+				"featurePage": "https://www.diligent.com/products/boards",
+				"featureRequests": null,
+				"issueTracker": null,
+				"roadmap": null,
+				"changelog": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/release_notes/release-notes-bwa.htm",
+				"apiReference": null,
+				"marketplace": null,
+				"pricing": null,
+				"accessibilityStatement": "https://www.diligent.com/accessibility-statement",
+				"securityDocs": "https://www.diligent.com/trust",
+				"demoInstance": null,
+				"community": null,
+				"reviews": null,
+				"videos": "https://www.youtube.com/user/diligentboardbooks",
+				"caseStudies": "https://www.diligent.com/lp/customer-stories-boards",
+				"partnerDirectory": "https://www.diligent.com/partners/showcase",
+				"trainingCurriculum": null,
+				"jobPostings": "https://www.diligent.com/company/careers",
+				"tenders": [
+					"AusTender prod-4089547c85fc4f3cb86685ed3a6ed127 Department of Home Affairs 2026-03-05, awarded to Diligent Board Services Australia (intelligence DB tenders.id 61479)"
+				],
+				"nullReasons": {
+					"sourceRepo": "closed source SaaS",
+					"featureRequests": "no public feature request board; the only documented channel is an in-app request in News & Analytics (https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-add-ons/news-analytics-web/requesting-new-features-na-bwd.htm)",
+					"issueTracker": "support runs through https://connect.diligent.com, which needs a login",
+					"roadmap": "no public roadmap found on diligent.com or the help centre",
+					"apiReference": "https://developer.diligent.com/ lists One platform, Entities, ESG and Workflow APIs; none for Boards",
+					"marketplace": "no marketplace listing checked; the Teams app is described in the help but no store URL was read",
+					"pricing": "https://www.diligent.com/pricing is a request form without prices or packages",
+					"demoInstance": "demos only through the request form at https://www.diligent.com/request-a-demo",
+					"community": "customer community sits behind the Diligent login; no open forum found",
+					"reviews": "https://www.g2.com/products/diligent-boards/reviews and https://www.softwareadvice.com/board-management/diligent-boards-profile/ both return 403 to reads today",
+					"trainingCurriculum": "Diligent Academy is reached from inside the product (release notes Sep 05, 2025); no public curriculum page read"
+				}
+			}
 		},
 		{
 			"key": "openslides",
@@ -1428,13 +1510,13 @@
 			"note": "Members with access can read the agenda inside the app, but there is no working publish step. Public publication through OpenCatalogi is gated on a 'convocation sent' field nothing sets or declares, so the button never appears; the member-notifying publish is API only.",
 			"notubiz": "yes",
 			"ibabs": "yes",
-			"go-raadsinformatie": "yes",
+			"go-raadsinformatie": "partial",
 			"diligent-boards": "partial",
 			"openslides": "yes",
 			"evidence": {
 				"notubiz": "https://www.notubiz.nl/onze-diensten/vergadermanagement states the right information is published and distributed; https://amsterdam.raadsinformatie.nl/vergadering/1528626 is a public agenda page",
 				"ibabs": "https://support.ibabs.com/docs/werken-met-agendas.md states changes are visible to participants after Publiceer; https://support.ibabs.com/docs/introductie-5.md states public agendas appear on the Publieksportaal",
-				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._raadsinformatie/ states agendas, meetings and documents are published on the council portal and the GO. app; https://gemeenteraad.groningen.nl/api/v2/meetings serves them publicly",
+				"go-raadsinformatie": "partial by the lane's ruling: GO council portals answered a bot challenge on 2026-09-26, so the public screens were not seen; the vendor page and the public API show the data is published, not how a citizen finds it. https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._raadsinformatie/ states agendas, meetings and documents are published on the council portal and the GO. app; https://gemeenteraad.groningen.nl/api/v2/meetings serves them publicly",
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/publishing-and-hiding-books-bwa.htm publishes the book and its agenda to directors with access; publication to the public is not part of Boards",
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/agenda_item.yml:17 type common, internal or hidden controls who sees each item, and meeting.yml:82 enable_anonymous (with organization.yml:67) opens the meeting to the public without login; the agenda list is routed at openslides-client/client/src/app/site/pages/meetings/pages/agenda/agenda-routing.module.ts:10."
 			}
@@ -4428,13 +4510,13 @@
 			"note": "Meeting agendas (titles and order) and minutes are published to a per-body OpenCatalogi catalog set in admin PublicationSettings. The papers themselves are not published: the agenda payload carries no documents, and the public website is OpenCatalogi's, not decidiq's.",
 			"notubiz": "yes",
 			"ibabs": "yes",
-			"go-raadsinformatie": "yes",
+			"go-raadsinformatie": "partial",
 			"diligent-boards": "unknown",
 			"openslides": "yes",
 			"evidence": {
 				"notubiz": "https://amsterdam.raadsinformatie.nl/vergadering/1528626 is a public meeting page with agenda, documents and recording; https://www.notubiz.nl/onze-diensten/vergadermanagement states information is published on the Politiek Portaal",
 				"ibabs": "https://support.ibabs.com/docs/introductie-5.md states the Publieksportaal publishes public agendas and list items at sitenaam.bestuurlijkeinformatie.nl; https://utrecht.bestuurlijkeinformatie.nl shows meetings and papers",
-				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._raadsinformatie/ states agendas, meetings, documents and webcasts are published on the organisation's own council portal; https://gemeenteraad.groningen.nl/api/v2/meetings serves the Groningen portal data publicly",
+				"go-raadsinformatie": "partial by the lane's ruling: GO council portals answered a bot challenge on 2026-09-26, so the public screens were not seen; the vendor page and the public API show the data is published, not how a citizen finds it. https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._raadsinformatie/ states agendas, meetings, documents and webcasts are published on the organisation's own council portal; https://gemeenteraad.groningen.nl/api/v2/meetings serves the Groningen portal data publicly",
 				"diligent-boards": "not checked: looked, not settled: Boards publishes books to directors only (https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/publishing-and-hiding-books-bwa.htm); a public website is not part of the Boards help",
 				"openslides": "source read and driven at 4.3.4 on 2026-09-26 (lab-decidiq-openslides): with organization and meeting public access switched on, the login page's 'Public access' button opened the meeting as a guest and showed motion 1 and its poll status without an account; the Public group starts with no permissions, so staff must grant them first (group_t id 5 was empty). Source: openslides-client/client/src/app/site/pages/organization/pages/settings/modules/settings-detail/components/organization-settings/organization-settings.component.html:162 organization public access plus meeting.yml:82 enable_anonymous let visitors enter as guests (login-mask.component.html:43 guestLogin) and see the agenda, motions and files their anonymous group may see (meeting.yml:1167 anonymous_group_id). Public, but inside the OpenSlides app, not a separate website."
 			}
@@ -4668,12 +4750,12 @@
 			"note": "Search and filters are OpenCatalogi's and were not checked here. decidiq only feeds it title-level publications of decisions, agendas and minutes, without the documents.",
 			"notubiz": "yes",
 			"ibabs": "yes",
-			"go-raadsinformatie": "yes",
+			"go-raadsinformatie": "partial",
 			"diligent-boards": "unknown",
 			"openslides": "partial",
 			"evidence": {
 				"ibabs": "https://support.ibabs.com/docs/introductie-5.md states the Publieksportaal search with advanced filters on date, agendatype and type of overview",
-				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._search/ states GO. search searches documents and video with filters chosen by the griffie and transparent weighting; https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._raadsinformatie/ states geavanceerde zoektechnologie on the public portal",
+				"go-raadsinformatie": "partial by the lane's ruling: GO council portals answered a bot challenge on 2026-09-26, so the public screens were not seen; the vendor page and the public API show the data is published, not how a citizen finds it. https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._search/ states GO. search searches documents and video with filters chosen by the griffie and transparent weighting; https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._raadsinformatie/ states geavanceerde zoektechnologie on the public portal",
 				"notubiz": "https://www.kennisbank.notubiz.nl/handleidingen/zoeken-in-politiek-portaal states public search with filters on object, period, module, vergadercategorie, document type, party, beleidsveld and rubriek",
 				"diligent-boards": "not checked: looked, not settled: Boards is not public",
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/motions/services/list/motion-list-filter.service/motion-list-filter.service.ts:64 guests admitted by meeting.yml:82 enable_anonymous can filter the motion list by state, category and tags (line 95) within one meeting; organization-wide search (global-search.component.html:29) runs through the search service's permission check for the logged in user. Filtered lists per meeting yes, a public document search across meetings not shown."
@@ -6138,12 +6220,16 @@
 			"feature": "meetings",
 			"featureConfidence": "high",
 			"note": "One staff calendar shows every meeting of any meeting type, so informal sessions can appear if they are entered as meetings. It cannot be filtered by audience or body, and there is no calendar for residents.",
-			"notubiz": "unknown",
-			"ibabs": "unknown",
-			"go-raadsinformatie": "unknown",
-			"diligent-boards": "unknown",
+			"notubiz": "partial",
+			"ibabs": "partial",
+			"go-raadsinformatie": "partial",
+			"diligent-boards": "partial",
 			"openslides": "partial",
 			"evidence": {
+				"go-raadsinformatie": "https://gemeenteraad.groningen.nl/api/v2/events lists council events besides meetings and https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._app/ shows meetings, events and activities in one overview; filtering by audience such as residents or joint arrangements is not described",
+				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/basic-navigation/the-calendar-hub-bwa.htm shows all board meetings and events in day to year views and https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/agenda-builder/managing-agendas-using-Forward-Planner.htm filters by committee; audiences outside the board are not covered",
+				"notubiz": "https://www.kennisbank.notubiz.nl/kennisclips/basistraining states the start calendar shows all upcoming events the user has rights to, with an uitgebreide kalender and an overview per gremium; filtering by audience such as residents or joint arrangements is not described",
+				"ibabs": "https://support.ibabs.com/docs/main-menu-web.md states month, week and day calendars of the user's meetings; only meetings of agendatypes the user may see, filtering by audience is not described",
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/organization/pages/orga-meetings/pages/meeting-list/services/meeting-list-filter/meeting-list-filter.service.ts:16 the organization meeting list filters by organization tags (usable per audience), time (line 39) and status (line 54), and the dashboard (dashboard.component.html:4, titled Calendar) lists future meetings; only formal meetings exist as a model (openslides-backend/meta/collections has no event or activity collection). Meetings filterable, other activities no."
 			}
 		},
@@ -6167,12 +6253,14 @@
 			"note": "A meeting has one agenda and no parent or child sessions. Two meetings on the same evening can be created, but nothing groups them or shows them side by side, and there is no recording or subtitle output.",
 			"notubiz": "yes",
 			"ibabs": "yes",
-			"go-raadsinformatie": "unknown",
+			"go-raadsinformatie": "partial",
 			"diligent-boards": "unknown",
 			"openslides": "no",
 			"evidence": {
 				"notubiz": "https://www.notubiz.nl/onze-diensten/gekoppelde-modules states parallel sessions are shown side by side on web and app",
 				"ibabs": "https://support.ibabs.com/docs/parallelle-sessies.md states parallel meetings under one parent meeting, each with its own location and streaming profile",
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/webcasting/ supports parallel sessions in webcasting; separate agendas per room are not described",
+				"diligent-boards": "not checked: looked, not settled: not described",
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/agenda_item.yml:88 each agenda belongs to one meeting and meeting.yml has no parent meeting or session field; grep for session and parallel across meta/collections returns nothing, and there are no recordings or subtitles (grep recording returns nothing). No parallel sessions."
 			}
 		},
@@ -6194,12 +6282,16 @@
 			"feature": "notifications",
 			"featureConfidence": "high",
 			"note": "Nobody can subscribe to new or changed agendas or documents, and there is no daily digest. The nearest thing is a declared 'new meeting scheduled' Nextcloud notification that OpenRegister has to send, and email goes out only for a few events such as a vote opening.",
-			"notubiz": "unknown",
-			"ibabs": "unknown",
-			"go-raadsinformatie": "unknown",
-			"diligent-boards": "unknown",
+			"notubiz": "yes",
+			"ibabs": "yes",
+			"go-raadsinformatie": "partial",
+			"diligent-boards": "partial",
 			"openslides": "no",
 			"evidence": {
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._raadsinstrumenten/ sends e-notifications on each change to followed council instruments and https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._dossiers/ keeps visitors informed on followed topics; agendas and a daily digest are not described",
+				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/publishing-and-hiding-books-bwa.htm notifies users of new books and https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/release_notes/release-notes-bwa.htm (Dec 12, 2025) adds auto-agenda update notifications; a daily digest is not described",
+				"notubiz": "https://www.kennisbank.notubiz.nl/handleidingen/attenderingen-instellen states alert profiles on new or changed items by email, daily, weekly or monthly; https://www.kennisbank.notubiz.nl/kennisclips/openbaar-publiek-account-instellen states residents can set them too",
+				"ibabs": "https://support.ibabs.com/docs/geavanceerde-mail-notificaties.md states each iBabs user chooses per agendatype and overview between a direct mail on publication or a daily bulk mail",
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/mixins/send_email_mixin.py is used only by account actions (user.send_invitation_email, forget_password, create, update); grep for subscri, digest and notify_email across meta/collections returns nothing. No email subscriptions."
 			}
 		},
@@ -6221,12 +6313,16 @@
 			"feature": "reports",
 			"featureConfidence": "medium",
 			"note": "A filtered selection of motions, decisions or other records can be exported in one go as a spreadsheet of their fields. The documents themselves are not exported: only one meeting's papers can be bundled, through the meeting package.",
-			"notubiz": "unknown",
-			"ibabs": "unknown",
+			"notubiz": "yes",
+			"ibabs": "partial",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
 			"openslides": "partial",
 			"evidence": {
+				"go-raadsinformatie": "not checked: looked, not settled: https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._raadsinstrumenten/ exports the list of instruments, not the documents themselves",
+				"diligent-boards": "not checked: looked, not settled: https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/exporting-printing-books-pages-tabs-bwa.htm exports a book, pages or tabs to PDF; selection by filter is not described",
+				"notubiz": "https://amsterdam.raadsinformatie.nl/modules/6/moties_en_amendementen/view offers Exporteer overzicht and Exporteer selectie as PDF or Excel with attachments after filtering by party, period and type",
+				"ibabs": "https://support.ibabs.com/docs/besluiten.md and https://support.ibabs.com/docs/overzichtsscherm.md state filtered search results export as a Word or Excel list; exporting the documents themselves in one go is not described",
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/motions/pages/motion-list/components/motion-list/motion-list.component.ts:388 export takes the currently filtered list or the selected rows into PDF, CSV or XLSX; filters are state, category, block, tags, editors and others (motion-list-filter.service.ts:65 to 173) but not submitter party or date period. A filtered set in one go yes, party and period filters no."
 			}
 		},
@@ -6249,11 +6345,15 @@
 			"featureConfidence": "medium",
 			"note": "An administrator can declare extra fields per agenda item type, but no screen renders those fields, so they cannot be filled in; files attached to meetings carry no extra metadata at all.",
 			"notubiz": "unknown",
-			"ibabs": "unknown",
+			"ibabs": "no",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
 			"openslides": "partial",
 			"evidence": {
+				"go-raadsinformatie": "not checked: looked, not settled: not described on the vendor pages",
+				"diligent-boards": "not checked: looked, not settled: agenda items take tags (https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/agenda-builder/adding-agenda-items-bwa.htm) but custom metadata fields on documents are not described",
+				"notubiz": "not checked: looked, not settled: https://www.kennisbank.notubiz.nl/handleidingen/zoeken-in-politiek-portaal mentions document types set by the administrator; adding metadata fields without NotuBiz is not described",
+				"ibabs": "https://support.ibabs.com/docs/inrichting-7.md states custom fields on overviews are added via support@ibabs.eu and https://support.ibabs.com/docs/dossier-voorblad.md states custom cover sheet fields require contacting support; administrators can only rename and order fields (https://support.ibabs.com/docs/overzichtsvelden-weergave-en-exports-bewerken.md)",
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/motion_comment_section.yml:7 admins create extra named text fields on motions with read and write groups (motion_comment_section.create from motions/comment-sections); openslides-backend/meta/collections/mediafile.yml has fixed fields only (title, filename, mimetype). Extra fields on motions yes, on documents no."
 			}
 		},
@@ -6276,11 +6376,15 @@
 			"featureConfidence": "high",
 			"note": "Word, Excel and PowerPoint files attached to a meeting or agenda item are not converted. decidiq only turns its own generated documents into PDF, through filinq when it is installed.",
 			"notubiz": "unknown",
-			"ibabs": "unknown",
+			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
-			"diligent-boards": "unknown",
+			"diligent-boards": "yes",
 			"openslides": "no",
 			"evidence": {
+				"go-raadsinformatie": "not checked: looked, not settled: conversion to PDF is not described",
+				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/adding-a-document-word-excel-powerpoint-bwa.htm states a document uploaded from Word, Excel or PowerPoint is converted and then appears in the book",
+				"notubiz": "not checked: looked, not settled: https://www.kennisbank.notubiz.nl/handleidingen/gebruik-van-persoonlijke-mappen states only PDF files can be added to personal folders; conversion of agenda documents on upload is not described",
+				"ibabs": "https://support.ibabs.com/docs/attachments-to-an-agenda-item.md states uploaded Word, Excel, PowerPoint and other files are automatically saved as PDF",
 				"openslides": "source read at 4.3.4, not driven: grep for libreoffice, unoconv, soffice, gotenberg and convert across openslides-media-service returns nothing; mediafile.yml:26 stores the uploaded mimetype as is and pdf_information (line 29) only describes PDFs. No Office to PDF conversion."
 			}
 		},
@@ -6302,12 +6406,16 @@
 			"feature": "archiving",
 			"featureConfidence": "medium",
 			"note": "Only recordings and transcripts are destroyed after a retention period, automatically on the body's standing policy rather than on a per-batch approval, and each deletion is logged. Other documents have no retention period, no destruction approval and no transfer record.",
-			"notubiz": "unknown",
+			"notubiz": "yes",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
 			"openslides": "no",
 			"evidence": {
+				"go-raadsinformatie": "not checked: looked, not settled: https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/archivering_naar_e-depot/ covers transfer to an e-depot with metadata; approved destruction with a record is not described",
+				"diligent-boards": "not checked: looked, not settled: https://www.diligent.com/trust leaves retention and deletion to the customer; approved destruction records are not described",
+				"notubiz": "https://www.notubiz.nl/onze-diensten/digitale-archivering states records are destroyed or transferred with the archivist's approval once the retention period nears or has passed, and the required deeds and statements are generated",
+				"ibabs": "not checked: looked, not settled: https://support.ibabs.com/docs/werken-met-agendas.md only describes a 30 day bin for deleted agendas; retention based destruction is not described",
 				"openslides": "source read at 4.3.4, not driven: grep for retention, destroy and destruction across openslides-backend/meta/collections and action/actions returns nothing; files are removed only by mediafile.delete with no approval step or record. No approved destruction."
 			}
 		},
@@ -6330,11 +6438,15 @@
 			"featureConfidence": "medium",
 			"note": "Every record has a change history in its sidebar, kept by OpenRegister. There is no single log across all documents, and the history tab is shown to anyone who can open the record rather than to authorised staff only.",
 			"notubiz": "unknown",
-			"ibabs": "unknown",
+			"ibabs": "partial",
 			"go-raadsinformatie": "unknown",
-			"diligent-boards": "unknown",
+			"diligent-boards": "partial",
 			"openslides": "partial",
 			"evidence": {
+				"go-raadsinformatie": "not checked: looked, not settled: an action log per document is not described",
+				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/user-management/exporting-an-activity-report-bwa.htm exports sign-in and module access events with time, IP address and row hash; actions on individual documents are not listed",
+				"notubiz": "not checked: looked, not settled: no audit log for document actions in product pages or kennisbank",
+				"ibabs": "https://support.ibabs.com/docs/inrichting-7.md states the change history of an overview item shows who changed what and when; a log of every action on every document is not described",
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/history_entry.yml:15 the history records changes to users, motions and elections with who and when (history_position.yml:7), viewable with meeting.can_see_history at meetings/history; mediafile and agenda changes are not in the history (history_entry model_id lists only user, motion, assignment). A log for motions yes, for every document no."
 			}
 		},
@@ -6356,12 +6468,16 @@
 			"feature": "membership",
 			"featureConfidence": "high",
 			"note": "A functional administrator creates and names users and groups in Nextcloud's own user management, without the supplier. The role groups decidiq creates for chairs and signatories carry fixed names.",
-			"notubiz": "unknown",
-			"ibabs": "unknown",
-			"go-raadsinformatie": "unknown",
-			"diligent-boards": "unknown",
+			"notubiz": "partial",
+			"ibabs": "yes",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "partial",
 			"openslides": "yes",
 			"evidence": {
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/diensten/training_en_opleiding/ states the admin training covers creating users, and https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._vergaderclusters/ states the customer names its own clusters",
+				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/user-management/creating-new-users-bwa.htm lets admins create users and https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/user-management/managing-committees-bwa.htm lets a Contacts Admin create committees within the licence; https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/user-management/managing-user-committees-and-roles-bwa.htm notes some user creation still needs the Customer Success Manager",
+				"notubiz": "https://www.kennisbank.notubiz.nl/handleidingen/veelgestelde-vragen-inloggen-met-tweestapsverificatie states organisation account administrators send activation mails and reset 2FA; creating and naming user groups for rights is not described (groups in https://www.kennisbank.notubiz.nl/kennisclips/groepen-aanmaken are personal note sharing lists)",
+				"ibabs": "https://support.ibabs.com/docs/working-with-users-1.md states only the functioneel beheerder creates users; https://support.ibabs.com/docs/working-with-groups-1.md states groups are created and named with agendatype rights",
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/gateways/repositories/groups group.create and group.update let a meeting admin create and name groups with permissions (participants/groups), and user.create adds accounts from the participant and account pages; organization.yml management levels (user.yml:80 can_manage_users) cover it at organization level. No supplier needed."
 			}
 		},
@@ -6384,11 +6500,15 @@
 			"featureConfidence": "medium",
 			"note": "There is no audit report showing WCAG 2.1 AA conformance. The public face of decidiq's publications is OpenCatalogi, whose accessibility was not checked here.",
 			"notubiz": "unknown",
-			"ibabs": "unknown",
+			"ibabs": "partial",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
 			"openslides": "unknown",
 			"evidence": {
+				"go-raadsinformatie": "not checked: looked, not settled: https://www.gemeenteoplossingen.nl/toegankelijkheid returns 404 today and the portals refuse automated readers",
+				"diligent-boards": "not checked: looked, not settled: https://www.diligent.com/accessibility-statement names no conformance level or audit report, and Boards has no public website",
+				"notubiz": "not checked: looked, not settled: https://amsterdam.raadsinformatie.nl links a Digitale Toegankelijkheid Rapportage PDF (assets.amsterdam.nl, deelonderzoek content raadsinformatie) that I downloaded but could not parse; no vendor audit statement found",
+				"ibabs": "https://support.ibabs.com/docs/toegankelijkheid.md states the Publieksportaal was audited against WCAG 2.2 in June 2025 and links the full report; the conformance outcome is not stated in the article",
 				"openslides": "not checked: looked, not settled: openslides.com, its pricing and references pages and support.openslides.com link no accessibility statement or audit (read 2026-09-26); the code has ARIA work (patchnotes/4.3.1.md new ARIA label on motion text) and an accessibility label in the client repo, but no WCAG 2.1 AA report was found."
 			}
 		},
@@ -6410,12 +6530,16 @@
 			"feature": "documents",
 			"featureConfidence": "high",
 			"note": "decidiq exchanges no documents with a case system over StUF-ZKN or the ZGW APIs. A case app on OpenRegister such as dossiq can link its case to a decision, and any ZGW traffic would be that app's or integriq's, not checked here.",
-			"notubiz": "unknown",
-			"ibabs": "unknown",
-			"go-raadsinformatie": "unknown",
+			"notubiz": "partial",
+			"ibabs": "yes",
+			"go-raadsinformatie": "yes",
 			"diligent-boards": "unknown",
 			"openslides": "no",
 			"evidence": {
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/integratie/go._koppelvlak/ lists StUF-ZKN and StUF-ZDS among supported standards for case and DMS links",
+				"diligent-boards": "not checked: looked, not settled: not described in the Boards help",
+				"notubiz": "https://www.notubiz.nl/over-ons/onze-partners lists automated exchange with Corsa, JOIN, Djuma and Zaaksysteem.nl and https://www.notubiz.nl/onze-diensten/bestuurlijke-besluitvorming a koppelvlak with DMS or zaaksysteem; StUF-ZKN or ZGW is not named",
+				"ibabs": "https://support.ibabs.com/docs/introductie-8.md states the link is based on the Zaak- en documentservices (StUF-ZKN) versions 1.1 and 1.2; https://support.ibabs.com/docs/techniek-1.md lists the messages used",
 				"openslides": "source read at 4.3.4, not driven: grep for stuf, zgw and zaak across all Python, TypeScript and Go sources returns nothing. No case management exchange."
 			}
 		},
@@ -6445,6 +6569,8 @@
 			"evidence": {
 				"notubiz": "https://www.notubiz.nl/nieuws/raadsinstrumenten-zo-geef-je-richting-en-houd-je-controle states the griffie keeps Technische vragen in a list module; routing to an official with a deadline is not described",
 				"ibabs": "https://support.ibabs.com/docs/technische-vragen.md (updated 2025-12-02) states questions are raised from an agenda item, assigned to an official who can only answer, with deadline, notification and status colours",
+				"go-raadsinformatie": "not checked: looked, not settled: not described on the vendor pages",
+				"diligent-boards": "not checked: looked, not settled: not described in the Boards help",
 				"openslides": "source read at 4.3.4, not driven: grep for question across openslides-backend/meta/collections finds only speaker.yml:34 interposed_question and speaker.yml:36 answer in lists of speakers; there is no model for written or technical questions with answers. Not supported."
 			}
 		},
@@ -6466,12 +6592,16 @@
 			"feature": "signatures",
 			"featureConfidence": "medium",
 			"note": "Signers can be chosen for minutes, and a backend exists to send minutes to a signing service through integriq and store the result, but no screen starts it and there is no signing order. Decision lists, proposals and motions cannot be sent for signature.",
-			"notubiz": "unknown",
-			"ibabs": "unknown",
-			"go-raadsinformatie": "unknown",
-			"diligent-boards": "unknown",
+			"notubiz": "yes",
+			"ibabs": "partial",
+			"go-raadsinformatie": "partial",
+			"diligent-boards": "partial",
 			"openslides": "no",
 			"evidence": {
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._digitaal_ondertekenen/ sends documents from GO. vergaderen to ValidSign for signing and shows the signing status; choosing signing order and storing the signed copy back are not described",
+				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/approval/requesting-signatures-docusign-bwa.htm builds a DocuSign envelope with chosen recipients and signature fields and shows Completed when all signed; signing order and automatic storage of the signed copy are not described",
+				"notubiz": "https://www.notubiz.nl/nieuws/hoe-richt-je-veilig-en-efficient-een-ondertekenproces-in states a document is offered from NotuBiz to ValidSign with one or more signers and an optional signing order, and returns signed automatically; https://www.notubiz.nl/over-ons/onze-partners names besluitenlijsten",
+				"ibabs": "https://support.ibabs.com/docs/validsign.md states documents are offered from iBabs to ValidSign and signing returns to iBabs, but the signing order cannot be set in iBabs",
 				"openslides": "source read at 4.3.4, not driven: grep for signature, esign, pades and signing across openslides_backend, the client app and openslides-media-service returns nothing; there is no outbound document integration. No external signing."
 			}
 		},
@@ -6499,6 +6629,10 @@
 			"diligent-boards": "unknown",
 			"openslides": "no",
 			"evidence": {
+				"go-raadsinformatie": "not checked: looked, not settled: substitutes are not described",
+				"diligent-boards": "not checked: looked, not settled: not described in the Boards help",
+				"notubiz": "not checked: looked, not settled: no substitute approver described",
+				"ibabs": "not checked: looked, not settled: https://support.ibabs.com/docs/goedkeuring-wijzigen.md lets the route be changed; a standing substitute is not described",
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/motion_state.yml has no approver field, so there is no approver to substitute; the only stand-in is vote delegation (meeting_user.yml:75 vote_delegated_to_id), which covers voting, not approval. No approval substitute."
 			}
 		},
@@ -6520,12 +6654,16 @@
 			"feature": "search",
 			"featureConfidence": "low",
 			"note": "Meetings and decisions can be searched by a plain term through OpenRegister. Boolean operators, accent handling and highlighted terms are not offered by decidiq, and whether OpenRegister's search ignores accents and case was not checked.",
-			"notubiz": "unknown",
-			"ibabs": "unknown",
+			"notubiz": "partial",
+			"ibabs": "partial",
 			"go-raadsinformatie": "unknown",
-			"diligent-boards": "unknown",
+			"diligent-boards": "partial",
 			"openslides": "partial",
 			"evidence": {
+				"go-raadsinformatie": "not checked: looked, not settled: https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._search/ describes weighting and filters, not boolean operators or highlighting",
+				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-director/book-navigation/search-bwd.htm offers All terms, Any term and exact phrase style filters and highlights the term on the page; accent and case handling is not stated",
+				"notubiz": "https://www.kennisbank.notubiz.nl/handleidingen/zoeken-in-politiek-portaal states +, - , exact phrase and wildcard operators and shows the search term in bold in context; accent and case insensitivity are not stated",
+				"ibabs": "https://support.ibabs.com/docs/zoeken-in-ibabs.md states AND, OR, NOT, wildcards, phrases and word form recognition; highlighting and accent handling are not stated",
 				"openslides": "source read at 4.3.4, not driven: openslides-search-service/pkg/search/textindex.go:435 builds a bleve query string query (supports + and - operators and quoted phrases), a wildcard and a fuzzy match (line 438); the analyzer lowercases and applies German normalisation (line 94 to 105); results come back with <mark> highlights rendered in openslides-client/client/src/app/site/modules/global-headbar/components/global-search/global-search.component.ts:198. Case insensitive and highlighted yes, AND/OR boolean words and general accent folding beyond German normalisation not shown."
 			}
 		},
@@ -6555,6 +6693,8 @@
 			"evidence": {
 				"notubiz": "https://www.notubiz.nl/nieuws/van-feedback-naar-vooruitgang-dit-is-de-nieuwe-lta (29/4/2026) states the LTA now shows parallel trajectories within one topic",
 				"ibabs": "not checked: looked, not settled: https://support.ibabs.com/docs/bestuurlijke-planning.md plans dossiers per agendatype; parallel tracks within one topic are not described",
+				"go-raadsinformatie": "not checked: looked, not settled: https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._termijnagenda/ and https://lta.nu/woerden show topics with planning; parallel tracks within a topic are not described",
+				"diligent-boards": "not checked: looked, not settled: not described in the Boards help",
 				"openslides": "source read at 4.3.4, not driven: there is no long-term agenda: openslides-backend/meta/collections/agenda_item.yml:88 ties every item to one meeting, and grep for track and long term across meta/collections returns nothing."
 			}
 		},
@@ -6578,12 +6718,14 @@
 			"note": "The long-term agenda can be filtered by status and by kind of owner, and the rows exported as a spreadsheet. It cannot be filtered by the named portfolio holder or by author, and the export is a data file rather than a formatted report.",
 			"notubiz": "yes",
 			"ibabs": "yes",
-			"go-raadsinformatie": "unknown",
-			"diligent-boards": "unknown",
+			"go-raadsinformatie": "partial",
+			"diligent-boards": "partial",
 			"openslides": "no",
 			"evidence": {
 				"notubiz": "https://www.notubiz.nl/nieuws/van-feedback-naar-vooruitgang-dit-is-de-nieuwe-lta states search and filters on status, portefeuillehouder, steller and fasering plus an export for reporting or archiving",
 				"ibabs": "https://support.ibabs.com/docs/bestuurlijke-planning.md states dossiers are selected by owner, organisation unit, agendatype or planned date and exported as a list",
+				"go-raadsinformatie": "https://lta.nu/woerden lists motions and commitments with planning and portefeuillehouder and month filters, and https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._raadsinstrumenten/ filters on actiehouder, date and status with export to Word, Excel and PDF; author filtering is not described",
+				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/agenda-builder/managing-agendas-using-Forward-Planner.htm searches and filters planned agendas by committee and connection status; export as a report is not described",
 				"openslides": "source read at 4.3.4, not driven: there is no long-term agenda to filter: agenda_item.yml:88 ties every item to one meeting and no portfolio holder field exists in meta/collections."
 			}
 		},
@@ -6607,12 +6749,14 @@
 			"note": "Transcripts can be read per meeting, but nothing searches across recordings in natural language or produces a summary that cites fragments.",
 			"notubiz": "yes",
 			"ibabs": "unknown",
-			"go-raadsinformatie": "unknown",
+			"go-raadsinformatie": "partial",
 			"diligent-boards": "unknown",
 			"openslides": "no",
 			"evidence": {
 				"notubiz": "https://www.kennisbank.notubiz.nl/kennisclips/ai-videosearch (posted 9/3/2026) states natural language questions over transcribed meetings, video fragments with timestamps and a generated summary with references to the moments",
 				"ibabs": "not checked: looked, not settled: https://support.ibabs.com/docs/ibabs-stream-release-notes-2025-november.md offers a transcript download; searching recordings with AI is not described",
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._search/ returns video fragments with the speaker when searching words spoken in recordings; natural language questions and summaries are not described",
+				"diligent-boards": "not checked: looked, not settled: no recording search in the Boards help",
 				"openslides": "source read at 4.3.4, not driven: grep for recording and transcri across meta/collections, action and client returns nothing, and no AI code exists (grep for openai, llm, anthropic returns only unrelated identifiers). No searchable recordings."
 			}
 		},
@@ -6642,6 +6786,8 @@
 			"evidence": {
 				"notubiz": "https://www.kennisbank.notubiz.nl/kennisclips/basistraining (updated 11/3/2026) states viewers toggle between a planned and a chronological agenda and indexing follows the chronological order",
 				"ibabs": "not checked: looked, not settled: https://support.ibabs.com/docs/na-de-uitzending.md lets topics be reordered on the timeline; a viewer toggle is not described",
+				"go-raadsinformatie": "not checked: looked, not settled: not described",
+				"diligent-boards": "not checked: looked, not settled: not described",
 				"openslides": "source read at 4.3.4, not driven: no recordings exist (grep for recording across meta/collections, action and client returns nothing); the only actual order data is speaker begin_time per list of speakers (speaker.yml:7). No recording order switch."
 			}
 		},
@@ -6665,12 +6811,14 @@
 			"note": "There is no public livestream player, so slides cannot be shown next to the speaker.",
 			"notubiz": "unknown",
 			"ibabs": "yes",
-			"go-raadsinformatie": "unknown",
+			"go-raadsinformatie": "partial",
 			"diligent-boards": "unknown",
 			"openslides": "partial",
 			"evidence": {
 				"notubiz": "not checked: looked, not settled: no slides in the NotuBiz player described on https://www.notubiz.nl/onze-diensten/live-uitzenden",
 				"ibabs": "https://support.ibabs.com/docs/ibabs-stream-release-notes-februari-2026.md (13 February 2026) states slides can be shown in the Player, uploaded before or during the stream, at extra cost",
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/blogs/webcasting_van_virtuele_commissie-_en_raadsvergaderingen/ states a speaker can share the screen, for example a PowerPoint presentation, in the streamed virtual meeting; a slide panel next to the speaker in the public player is not described",
+				"diligent-boards": "not checked: looked, not settled: not described",
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/interaction/modules/interaction-container/components/stream/stream.component.html:1 the livestream plays in a floating container over the meeting pages, so a viewer can watch it next to the live projector with the current slide on the autopilot page (autopilot.component.html:184); the slides are not inside the stream player itself, which plays an external URL (meeting.yml:102)."
 			}
 		},
@@ -6700,6 +6848,8 @@
 			"evidence": {
 				"notubiz": "not checked: looked, not settled: not described on https://www.notubiz.nl/onze-diensten/live-uitzenden or in the kennisbank",
 				"ibabs": "https://support.ibabs.com/docs/tijdens-de-uitzending.md (updated 2025-11-27) states the Live Event Manager shows short text notices in the player for a chosen duration",
+				"go-raadsinformatie": "not checked: looked, not settled: not described",
+				"diligent-boards": "not checked: looked, not settled: not described",
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/projector_message.yml:7 projector messages are shown on the projector (openslides-projector-service/pkg/projector/slide/projector_message.go:20) and so to anyone watching the projector or autopilot; the livestream player (stream.component.html) has no notice overlay. Notice on the projector yes, in the stream player no."
 			}
 		},
@@ -6729,6 +6879,8 @@
 			"evidence": {
 				"notubiz": "not checked: looked, not settled: https://www.notubiz.nl/nieuws/dag-van-de-democratie-2026-toegankelijkheid-vertrouwen quotes 300,000 unique viewers for an Amsterdam debate, but customer-facing viewer statistics are not described",
 				"ibabs": "https://support.ibabs.com/docs/na-de-uitzending.md (updated 2025-11-27) states Stream Analytics shows total viewers, average watch time and share of content watched",
+				"go-raadsinformatie": "not checked: looked, not settled: not described",
+				"diligent-boards": "not checked: looked, not settled: not described",
 				"openslides": "source read at 4.3.4, not driven: meeting.yml:102 the stream is an external URL played in the client; grep for viewer, watch time and analytics across meta/collections and the stream component returns nothing. No viewer statistics."
 			}
 		},
@@ -6752,12 +6904,14 @@
 			"note": "There is no broadcast to test. A hybrid meeting's video call is Nextcloud Talk, which decidiq only links to.",
 			"notubiz": "no",
 			"ibabs": "yes",
-			"go-raadsinformatie": "unknown",
+			"go-raadsinformatie": "partial",
 			"diligent-boards": "unknown",
 			"openslides": "no",
 			"evidence": {
 				"notubiz": "https://www.notubiz.nl/nieuws/samen-werken-aan-een-geintegreerd-systeem-voor-raad-en-college (3/11/2025) states the griffie of Schagen hopes soon to be able to test broadcasts themselves, so it is not there yet",
 				"ibabs": "https://support.ibabs.com/docs/ibabs-stream-veelgestelde-vragen.md states a test broadcast checking picture, sound and connection is possible beforehand",
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/blogs/terug_naar_de_digitale_vergaderzaal_-_checklist_voor_een_goede_voorbereiding/ states customers can ask GO for a test broadcast after changes; the clerk running a test alone is not described",
+				"diligent-boards": "not checked: looked, not settled: not described",
 				"openslides": "source read at 4.3.4, not driven: grep for test broadcast and preview stream across the client and meta/collections returns nothing; stream.component.html:12 only offers Restart livestream. No test broadcast."
 			}
 		},
@@ -6781,12 +6935,14 @@
 			"note": "After the meeting the minutes PDF and a sealed proof package with votes and decisions are written into the meeting's Nextcloud Files folder, by hand from the minutes page. Nothing writes the file to an external document management system, and the signed decision list is not a separate document.",
 			"notubiz": "partial",
 			"ibabs": "yes",
-			"go-raadsinformatie": "unknown",
+			"go-raadsinformatie": "yes",
 			"diligent-boards": "unknown",
 			"openslides": "no",
 			"evidence": {
 				"notubiz": "https://www.notubiz.nl/onze-diensten/digitale-archivering transfers meetings to an e-Depot via SIP files; https://www.notubiz.nl/nieuws/samen-werken-aan-een-geintegreerd-systeem-voor-raad-en-college says returning decisions to the case system is still being refined",
 				"ibabs": "https://support.ibabs.com/docs/introductie-9.md (updated 2026-03-24) states the agenda with items, documents, signed agenda, decision list and minutes is returned to SharePoint Online; https://support.ibabs.com/docs/introductie-8.md does the same into a vergaderzaak in the case system",
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/integratie/koppeling_zaaksysteem_go._raadsinformatie/ states after the council cycle the handled cases and a new case per meeting with agenda and bundle of papers are archived in the case system, and https://www.gemeenteoplossingen.nl/blogs/vergaderen__makkelijk_voor_gebruikers_en_goed_voor_het_archief,_kan_het_eigenlijk_/ states Mijn Vergaderingen archives documents and agenda items in Corsa within 48 hours",
+				"diligent-boards": "not checked: looked, not settled: not described in the Boards help",
 				"openslides": "source read at 4.3.4, not driven: grep for dms, cmis and sharepoint across meta/collections and the client strings returns nothing and there are no minutes (no minutes collection); the only full dump is the export_meeting presenter JSON download. No write back to a document store."
 			}
 		},
@@ -6810,12 +6966,14 @@
 			"note": "There is no public page that gathers meetings, documents and motions on one topic with a timeline. Staff can relate decisions to an organisation goal, which is a record with a Related list, not a published theme page.",
 			"notubiz": "yes",
 			"ibabs": "yes",
-			"go-raadsinformatie": "unknown",
+			"go-raadsinformatie": "yes",
 			"diligent-boards": "unknown",
 			"openslides": "no",
 			"evidence": {
 				"notubiz": "https://www.notubiz.nl/onze-diensten/themadossiers states Themadossiers pages with text blocks, a timeline of meetings and documents and linked motions, questions and commitments",
 				"ibabs": "https://support.ibabs.com/docs/themapaginas.md (updated 2026-02-27) states theme pages link agenda items and list items such as motions and are shown on the Publieksportaal",
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._dossiers/ gathers documents, votes, meetings and council instruments per topic with a timeline view",
+				"diligent-boards": "not checked: looked, not settled: not described",
 				"openslides": "source read at 4.3.4, not driven: grep for theme page, dossier and timeline across openslides-backend/meta/collections returns nothing; the closest grouping is tags within one meeting (tag.yml:7) and organization tags on meetings and committees (organization_tag.yml:15). No theme page."
 			}
 		},
@@ -6823,7 +6981,7 @@
 			"id": "plt-25",
 			"area": "platform",
 			"name": "Let a secretary work in a board member's account on their behalf without sharing the password.",
-			"origin": "competitor",
+			"origin": "featurePage",
 			"originUrl": "https://support.ibabs.com/docs/working-with-users-1.md",
 			"decidiq": "no",
 			"built": {
@@ -6839,12 +6997,14 @@
 			"note": "A secretary cannot work in a board member's account. A member can forward notifications to a delegate, and the approval engine accepts a mandated action on someone's behalf through the API, but no screen offers it.",
 			"notubiz": "unknown",
 			"ibabs": "yes",
-			"go-raadsinformatie": "unknown",
-			"diligent-boards": "unknown",
+			"go-raadsinformatie": "partial",
+			"diligent-boards": "partial",
 			"openslides": "no",
 			"evidence": {
 				"notubiz": "not checked: looked, not settled: no delegate access described in the kennisbank",
 				"ibabs": "https://support.ibabs.com/docs/working-with-users-1.md states impersonation gives a secretary access to a director's account without logging in as that person",
+				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/mijn_vergaderingen/ states the secretariat can create meetings for someone else such as the mayor; working inside that person's account is not described",
+				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-add-ons/questionnaires/do-questionnaires/answering-on-behalf-of-a-single-participant.htm lets an admin answer a questionnaire on behalf of a participant; working in a board member's account in general is not described",
 				"openslides": "source read at 4.3.4, not driven: grep for impersonat, act_as, login_as and switch_user across openslides_backend, the auth service and the client returns nothing; the only acting for someone else is vote delegation (meeting_user.yml:75). No working in another member's account."
 			}
 		},
@@ -6872,7 +7032,9 @@
 			"diligent-boards": "unknown",
 			"openslides": "no",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: grep for time_limit and deadline across openslides-backend/meta/collections returns nothing; submission is gated only by motion.can_create and the workflow state. Open request https://github.com/OpenSlides/openslides-client/issues/1913 asks for a new time_limit model."
+				"openslides": "source read at 4.3.4, not driven: grep for time_limit and deadline across openslides-backend/meta/collections returns nothing; submission is gated only by motion.can_create and the workflow state. Open request https://github.com/OpenSlides/openslides-client/issues/1913 asks for a new time_limit model.",
+				"notubiz": "not checked: looked, not settled: no submission window for motions described",
+				"ibabs": "not checked: looked, not settled: no submission window described"
 			}
 		},
 		{
@@ -6899,7 +7061,9 @@
 			"diligent-boards": "unknown",
 			"openslides": "no",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: openslides-vote-service/vote/vote.go:265 stores one ballot with one weight per voter, so held votes cannot be split across answers. Open request https://github.com/OpenSlides/OpenSlides/issues/6963 asks for it."
+				"openslides": "source read at 4.3.4, not driven: openslides-vote-service/vote/vote.go:265 stores one ballot with one weight per voter, so held votes cannot be split across answers. Open request https://github.com/OpenSlides/OpenSlides/issues/6963 asks for it.",
+				"notubiz": "not checked: looked, not settled: no split votes described",
+				"ibabs": "not checked: looked, not settled: no split votes described"
 			}
 		},
 		{
@@ -6926,7 +7090,9 @@
 			"diligent-boards": "unknown",
 			"openslides": "no",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: nothing in the code refers to a certification; open request https://github.com/OpenSlides/OpenSlides/issues/6766 (read 2026-09-26) describes BSI certification for non-political online elections as a process still to be started."
+				"openslides": "source read at 4.3.4, not driven: nothing in the code refers to a certification; open request https://github.com/OpenSlides/OpenSlides/issues/6766 (read 2026-09-26) describes BSI certification for non-political online elections as a process still to be started.",
+				"notubiz": "not checked: looked, not settled: no certified online election described",
+				"ibabs": "not checked: looked, not settled: no certified online election described"
 			}
 		},
 		{
@@ -6947,13 +7113,15 @@
 			"feature": "voting",
 			"featureConfidence": "high",
 			"note": "A vote held outside the system can be entered afterwards, but only as totals for, against and abstain. Each member's choice cannot be recorded by name.",
-			"notubiz": "unknown",
-			"ibabs": "unknown",
+			"notubiz": "partial",
+			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
 			"openslides": "no",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/poll/update.py:115 analog polls only take totals (votesvalid, votesinvalid, votescast), never per member choices. Open request https://github.com/OpenSlides/OpenSlides/issues/6591 asks for analog nominal voting."
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/poll/update.py:115 analog polls only take totals (votesvalid, votesinvalid, votescast), never per member choices. Open request https://github.com/OpenSlides/OpenSlides/issues/6591 asks for analog nominal voting.",
+				"notubiz": "https://www.notubiz.nl/onze-diensten/bestuurlijke-besluitvorming states the decision list records the voting result per agenda item; entering each member's choice afterwards is not described, though https://www.kennisbank.notubiz.nl/kennisclips/navigeren-door-het-politiek-portret shows per member votes",
+				"ibabs": "https://support.ibabs.com/docs/stemregistratie-door-de-agendabeheerder.md states the agenda manager enters votes afterwards for all participants, per fractie or per participant"
 			}
 		},
 		{
@@ -6980,7 +7148,9 @@
 			"diligent-boards": "unknown",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/structure_level_list_of_speakers.yml:28 initial_time, additional_time and remaining_time per structure level and list of speakers, with a meeting default (meeting.yml:339 list_of_speakers_default_structure_level_time)."
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/structure_level_list_of_speakers.yml:28 initial_time, additional_time and remaining_time per structure level and list of speakers, with a meeting default (meeting.yml:339 list_of_speakers_default_structure_level_time).",
+				"notubiz": "not checked: looked, not settled: no speaking time budget described",
+				"ibabs": "not checked: looked, not settled: no speaking time budget described"
 			}
 		},
 		{
@@ -7007,7 +7177,9 @@
 			"diligent-boards": "unknown",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/motion_change_recommendation.yml:7 rejected, type, line_from, line_to and text, created and updated via motion_change_recommendation.create and update from the motion view (motion-detail-original-change-recommendations); 4.2.25 added extending and shortening them."
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/motion_change_recommendation.yml:7 rejected, type, line_from, line_to and text, created and updated via motion_change_recommendation.create and update from the motion view (motion-detail-original-change-recommendations); 4.2.25 added extending and shortening them.",
+				"notubiz": "not checked: looked, not settled: no line by line change recommendations described",
+				"ibabs": "not checked: looked, not settled: not described"
 			}
 		},
 		{
@@ -7034,7 +7206,9 @@
 			"diligent-boards": "unknown",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/motion_state.yml:68 merge_amendment_into_final per state and motion.yml:41 modified_final_version, shown and edited in openslides-client/client/src/app/site/pages/meetings/pages/motions/pages/motion-detail/pages/motion-view/components/motion-final-version."
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/motion_state.yml:68 merge_amendment_into_final per state and motion.yml:41 modified_final_version, shown and edited in openslides-client/client/src/app/site/pages/meetings/pages/motions/pages/motion-detail/pages/motion-view/components/motion-final-version.",
+				"notubiz": "not checked: looked, not settled: no merged final motion text described",
+				"ibabs": "not checked: looked, not settled: not described"
 			}
 		},
 		{
@@ -7061,7 +7235,9 @@
 			"diligent-boards": "unknown",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting.yml:124 applause_enable, applause_type, show_level and min and max amount, carried by openslides-icc-service/internal/applause and shown in the client interaction container (applause-bar-display, applause-particle-display)."
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting.yml:124 applause_enable, applause_type, show_level and min and max amount, carried by openslides-icc-service/internal/applause and shown in the client interaction container (applause-bar-display, applause-particle-display).",
+				"notubiz": "not checked: looked, not settled: no virtual applause described",
+				"ibabs": "not checked: looked, not settled: https://support.ibabs.com/docs/ibabs-connect.md offers raise hand, not applause"
 			}
 		},
 		{
@@ -7088,7 +7264,9 @@
 			"diligent-boards": "unknown",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/motions/modules/motion-poll/services/motion-poll-pdf.service/motion-poll-pdf.service.ts builds ballot paper PDFs (base-poll-pdf.service.ts), with meeting.yml:525 motion_poll_ballot_paper_selection and number and a ballot logo (meeting.yml:984)."
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/motions/modules/motion-poll/services/motion-poll-pdf.service/motion-poll-pdf.service.ts builds ballot paper PDFs (base-poll-pdf.service.ts), with meeting.yml:525 motion_poll_ballot_paper_selection and number and a ballot logo (meeting.yml:984).",
+				"notubiz": "not checked: looked, not settled: no ballot printing described",
+				"ibabs": "not checked: looked, not settled: no ballot printing described"
 			}
 		},
 		{
@@ -7115,7 +7293,9 @@
 			"diligent-boards": "unknown",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/poll/create.py:89 list polls with poll_candidate_user_ids stored as poll_candidate_list.yml, set up in openslides-client/client/src/app/site/pages/meetings/pages/assignments/modules/assignment-poll/components/assignment-poll-dialog/assignment-poll-dialog.component.ts:73; 4.3.0 added live projection of list votes."
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/poll/create.py:89 list polls with poll_candidate_user_ids stored as poll_candidate_list.yml, set up in openslides-client/client/src/app/site/pages/meetings/pages/assignments/modules/assignment-poll/components/assignment-poll-dialog/assignment-poll-dialog.component.ts:73; 4.3.0 added live projection of list votes.",
+				"notubiz": "not checked: looked, not settled: no list voting described",
+				"ibabs": "not checked: looked, not settled: no list voting described"
 			}
 		},
 		{
@@ -7142,7 +7322,9 @@
 			"diligent-boards": "unknown",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/participants/pages/participant-list/components/participant-list/participant-list.component.ts:537 switchParticipants exchanges group_ids and number between two participants via the Swap mandates dialog (participant-switch-dialog.component.html:1)."
+				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/participants/pages/participant-list/components/participant-list/participant-list.component.ts:537 switchParticipants exchanges group_ids and number between two participants via the Swap mandates dialog (participant-switch-dialog.component.html:1).",
+				"notubiz": "not checked: looked, not settled: no mandate swap described",
+				"ibabs": "not checked: looked, not settled: https://support.ibabs.com/docs/fix-meerdere-rollen-op-%C3%A9%C3%A9n-ibabs-account.md links several cards and roles to one profile, not a substitute swap"
 			}
 		},
 		{
@@ -7169,7 +7351,9 @@
 			"diligent-boards": "unknown",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/motion/mixins.py:65 set_text_hash hashes the text on create and update and links matches in motion.yml:132 identical_motion_ids, filterable in motion-list-filter.service.ts:122 hasIdenticalMotions."
+				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/motion/mixins.py:65 set_text_hash hashes the text on create and update and links matches in motion.yml:132 identical_motion_ids, filterable in motion-list-filter.service.ts:122 hasIdenticalMotions.",
+				"notubiz": "not checked: looked, not settled: no duplicate motion detection described",
+				"ibabs": "not checked: looked, not settled: not described"
 			}
 		},
 		{
@@ -7190,13 +7374,15 @@
 			"feature": "platform-auth",
 			"featureConfidence": "medium",
 			"note": "A link to a motion or any other record opens that record, after the Nextcloud login when the user was signed out. Not driven live here.",
-			"notubiz": "unknown",
-			"ibabs": "unknown",
+			"notubiz": "partial",
+			"ibabs": "partial",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
 			"openslides": "yes",
 			"evidence": {
-				"openslides": "source read at 4.3.4, not driven: patchnotes/4.3.1.md deep link feature: a link such as demo.openslides.org/18/motions/1 opens the motion directly after login; the client routes meetings/:id/motions/:id (motion-detail-routing.module.ts:16)."
+				"openslides": "source read at 4.3.4, not driven: patchnotes/4.3.1.md deep link feature: a link such as demo.openslides.org/18/motions/1 opens the motion directly after login; the client routes meetings/:id/motions/:id (motion-detail-routing.module.ts:16).",
+				"notubiz": "https://www.kennisbank.notubiz.nl/kennisclips/moties-amendementen-en-ingekomen-stukken-inzien states a copied module link shows a colleague with the same rights exactly the same filtered overview; redirect after login is not stated",
+				"ibabs": "https://support.ibabs.com/docs/geavanceerde-mail-notificaties.md states the bulk mail holds hyperlinks to published agendas and overviews; landing on the item after login is not stated"
 			}
 		}
 	],
