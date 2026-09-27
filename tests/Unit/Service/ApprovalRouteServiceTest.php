@@ -294,6 +294,30 @@ class ApprovalRouteServiceTest extends TestCase {
 	}//end testOneDeadlineIsDividedOverTheSteps()
 
 	/**
+	 * A route held from named people can ask each approver's substitute part
+	 * way through the step, which the lapse sweep reads off the stage (#1397).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
+	 */
+	public function testAHeldRouteCanAskTheSubstitute(): void {
+		$stages = $this->service()->holdFor(
+			subject: 'document-3b',
+			actors: ['j.jansen', 'd.devries'],
+			subjectSchema: 'decision',
+			deadline: (new \DateTimeImmutable('+30 days'))->format(\DateTimeImmutable::ATOM),
+			askSubstituteAfter: 0.5,
+		);
+
+		foreach ($this->stages() as $stage) {
+			$this->assertSame(0.5, $stage['askSubstituteAfter'] ?? null, 'Every held step must carry askSubstituteAfter');
+		}
+
+		$this->assertCount(2, $stages);
+	}//end testAHeldRouteCanAskTheSubstitute()
+
+	/**
 	 * No deadline means no due dates, which means a route that never lapses.
 	 *
 	 * @return void

@@ -141,6 +141,7 @@ class ApprovalRouteController extends Controller {
 				subjectSchema: $subjectSchema,
 				deadline: (string)$this->request->getParam('deadline', ''),
 				name: (string)($route['name'] ?? 'Review'),
+				askSubstituteAfter: $this->askSubstituteAfter(),
 			);
 		}
 
@@ -151,6 +152,28 @@ class ApprovalRouteController extends Controller {
 			principal: $this->callerPrincipal(),
 		);
 	}//end stagesFor()
+
+	/**
+	 * When a held route asks each approver's substitute too, as a fraction of
+	 * the step's term, or null when the request asks none (#1397).
+	 *
+	 * @return float|null
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
+	 */
+	private function askSubstituteAfter(): ?float {
+		$value = $this->request->getParam('askSubstituteAfter');
+		if (is_numeric($value) === false) {
+			return null;
+		}
+
+		$fraction = (float)$value;
+		if ($fraction <= 0.0 || $fraction > 1.0) {
+			return null;
+		}
+
+		return $fraction;
+	}//end askSubstituteAfter()
 
 	/**
 	 * Who the signed-in caller is, as the route rules see them.
