@@ -40,6 +40,7 @@ const INPUT_BY_FIELD_TYPE = {
  *
  * @param {?object} type The AgendaItemType object.
  * @return {Array<{key: string, label: string, fieldType: string, input: string, required: boolean, options: string[]}>} The inputs.
+ * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
  */
 export function typeFieldInputs(type) {
 	const fields = Array.isArray(type?.fields) ? type.fields : []
@@ -64,6 +65,7 @@ export function typeFieldInputs(type) {
  * @param {?Array<object>} types The configured AgendaItemType objects.
  * @param {?(string|object)} ref The item's `type` value, or a picker option carrying it.
  * @return {?object} The type, or null.
+ * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
  */
 export function findItemType(types, ref) {
 	// A reference picker may hand over its option object instead of the id.
@@ -90,6 +92,7 @@ export function findItemType(types, ref) {
  * @param {{key: string, input: string}} input The input being written.
  * @param {unknown} raw The value the control produced.
  * @return {object} The new typeFields object.
+ * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
  */
 export function setTypeFieldValue(values, input, raw) {
 	const next = { ...(values || {}) }
@@ -117,6 +120,7 @@ export function setTypeFieldValue(values, input, raw) {
  * @param {Array<{key: string, label: string, required: boolean}>} inputs The inputs.
  * @param {?object} values The item's typeFields.
  * @return {string[]} Labels of the missing answers.
+ * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
  */
 export function missingRequiredTypeFields(inputs, values) {
 	return inputs
