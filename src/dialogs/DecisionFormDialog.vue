@@ -37,6 +37,7 @@
 		ref="dialog"
 		:schema="typedSchema"
 		:item="item"
+		:excludeFields="serverWrittenFields"
 		register="decidiq"
 		@confirm="onConfirm"
 		@close="close" />
@@ -87,6 +88,19 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Motion fields the server writes when an amendment is adopted
+		 * (#1394): the original wording and the before/after history. They
+		 * are not a choice for whoever edits the decision, and the edit form
+		 * keeps their stored values because it starts from a clone of the item.
+		 *
+		 * @spec openspec/specs/motion-amendment/spec.md
+		 * @return {string[]} Field keys the form leaves out.
+		 */
+		serverWrittenFields() {
+			return ['originalText', 'amendmentHistory']
+		},
+
 		/**
 		 * The form schema with the registry vocabulary spliced into
 		 * `properties.decisionType`.

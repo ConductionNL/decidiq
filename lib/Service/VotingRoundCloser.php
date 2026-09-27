@@ -515,7 +515,7 @@ class VotingRoundCloser {
 	 *
 	 * Resolves the amendment's parent motion (flat `amends` property or
 	 * structured relation) and delegates to MotionService::applyAmendment(),
-	 * which appends the amendment as an annotated section of the motion text.
+	 * which works the amendment's change into the motion text (#1394).
 	 * Failures are logged and never undo the recorded vote result.
 	 *
 	 * @param string $amendmentId The adopted amendment UUID
