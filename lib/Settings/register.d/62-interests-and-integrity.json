@@ -77,8 +77,8 @@
               }
             ],
             "subject": {
-              "nl": "Nieuwe nevenfunctie gemeld: {{organisatie}}",
-              "en": "New other-position declared: {{organisatie}}"
+              "nl": "Nieuwe nevenfunctie gemeld: {{organisation}}",
+              "en": "New other-position declared: {{organisation}}"
             },
             "_note": "Integrity notification on a new declaration (REQ-INT-009). Recipient SHOULD be the body's configured integrity group (Integriteitsbeleid.integriteitsNotificatieGroep — burgemeester/voorzitter/compliance). The notification dialect cannot read a recipient group from a RELATED policy object, so per design D3 / Risk 3 this uses one literal integrity group ('decidesk-integriteit') with per-body routing handled by group membership (documented, never silent); verify against OR during apply whether a policy-object lookup is supported."
           },
@@ -99,8 +99,8 @@
               }
             ],
             "subject": {
-              "nl": "Nevenfunctie gewijzigd: {{organisatie}}",
-              "en": "Other-position declaration updated: {{organisatie}}"
+              "nl": "Nevenfunctie gewijzigd: {{organisation}}",
+              "en": "Other-position declaration updated: {{organisation}}"
             },
             "_note": "Integrity notification on a changed declaration (REQ-INT-009 updated trigger). Same literal-group fallback as nevenfunctieGemeld."
           },
@@ -110,9 +110,9 @@
               "intervalSec": 2592000,
               "filter": {
                 "lifecycle": [
-                  "gemeld",
-                  "openbaar",
-                  "intern"
+                  "reported",
+                  "public",
+                  "internal"
                 ]
               }
             },
@@ -300,8 +300,8 @@
               }
             ],
             "subject": {
-              "nl": "Geschenk boven drempelbedrag geregistreerd: {{omschrijving}}",
-              "en": "Above-threshold gift registered: {{omschrijving}}"
+              "nl": "Geschenk boven drempelbedrag geregistreerd: {{description}}",
+              "en": "Above-threshold gift registered: {{description}}"
             },
             "_note": "Integrity notification on a boven-drempel gift registration (REQ-INT-009, scoped by REQ-INT-006). The 'geschatteWaarde at or above the body's geschenkDrempelbedrag (policy or EUR 50)' condition is a per-body threshold comparison the simple created-trigger filter cannot express (the threshold lives on a related Integriteitsbeleid object) — per design D3 / Risk 3 this fires on every created Geschenk to the literal integrity group ('decidesk-integriteit'); the boven-drempel badge (frontend render rule) is the authoritative visual scoping and the below-threshold-stays-quiet guarantee is enforced there. Verify against OR during apply whether a threshold-from-policy filter is expressible; fallback documented, never silent."
           }

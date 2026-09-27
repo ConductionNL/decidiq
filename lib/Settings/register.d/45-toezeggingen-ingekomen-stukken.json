@@ -116,7 +116,7 @@
               "filter": {
                 "lifecycle": [
                   "open",
-                  "in-uitvoering"
+                  "in-execution"
                 ]
               }
             },
@@ -149,7 +149,7 @@
               "filter": {
                 "lifecycle": [
                   "open",
-                  "in-uitvoering"
+                  "in-execution"
                 ]
               }
             },

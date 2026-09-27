@@ -359,20 +359,20 @@ class MotionServiceTest extends TestCase {
 	}//end testDetectConflictsWithOverlap()
 
 	/**
-	 * Test that applyAmendment appends amendment text to the motion text.
+	 * An adopted amendment with a target passage replaces that passage in the
+	 * motion text, instead of being pasted under a `---` separator (#1394).
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.5
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 *
 	 * @return void
 	 */
-	public function testApplyAmendmentUpdatesMotionText(): void {
+	public function testApplyAmendmentReplacesTheTargetPassage(): void {
 		$service = $this->buildService(
 			[
-				'motion-uuid' => self::motion(['title' => 'Originele Motie']),
+				'motion-uuid' => self::motion(['text' => 'De raad verhoogt het budget met 10% in 2027.']),
 				'amendment-uuid' => self::amendment(
 					'amendment-uuid',
-					['title' => 'Amendement A', 'text' => 'Vervangende tekst voor artikel 2.']
+					['title' => 'Amendement A', 'targetPassage' => '10%', 'proposedText' => '5%']
 				),
 			]
 		);
@@ -382,10 +382,144 @@ class MotionServiceTest extends TestCase {
 		self::assertCount(1, $this->saves);
 		self::assertSame('motion-uuid', $this->saves[0]['uuid'], 'The MOTION is updated, not the amendment');
 
-		$text = $this->saves[0]['object']['text'];
-		self::assertStringStartsWith('Originele motietekst.', $text, 'The original motion text is kept');
-		self::assertStringContainsString('Amendement A', $text);
-		self::assertStringContainsString('Vervangende tekst voor artikel 2.', $text);
+		$saved = $this->saves[0]['object'];
+		self::assertSame('De raad verhoogt het budget met 5% in 2027.', $saved['text'], 'The passage is worked into the wording');
+		self::assertStringNotContainsString('---', $saved['text']);
+		self::assertStringNotContainsString('Amendement A', $saved['text']);
+		self::assertSame('De raad verhoogt het budget met 10% in 2027.', $saved['originalText'], 'The original wording is kept in its own field');
 
-	}//end testApplyAmendmentUpdatesMotionText()
+		self::assertCount(1, $saved['amendmentHistory']);
+		$entry = $saved['amendmentHistory'][0];
+		self::assertSame('amendment-uuid', $entry['amendment']);
+		self::assertSame('De raad verhoogt het budget met 10% in 2027.', $entry['before']);
+		self::assertSame('De raad verhoogt het budget met 5% in 2027.', $entry['after']);
+		self::assertSame('passage', $entry['mode']);
+		self::assertNotEmpty($entry['appliedAt']);
+
+	}//end testApplyAmendmentReplacesTheTargetPassage()
+
+	/**
+	 * Without a target passage the proposed text replaces the whole wording.
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return void
+	 */
+	public function testApplyAmendmentWithoutPassageReplacesTheWholeText(): void {
+		$service = $this->buildService(
+			[
+				'motion-uuid' => self::motion(),
+				'amendment-uuid' => self::amendment(
+					'amendment-uuid',
+					['title' => 'Amendement A', 'proposedText' => 'Vervangende motietekst.']
+				),
+			]
+		);
+
+		$service->applyAmendment('motion-uuid', 'amendment-uuid');
+
+		$saved = $this->saves[0]['object'];
+		self::assertSame('Vervangende motietekst.', $saved['text']);
+		self::assertSame('Originele motietekst.', $saved['originalText']);
+		self::assertSame('full', $saved['amendmentHistory'][0]['mode']);
+
+	}//end testApplyAmendmentWithoutPassageReplacesTheWholeText()
+
+	/**
+	 * A legacy amendment that only carries `text` is read as the full
+	 * replacement, the same way the amendment diff view reads it.
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return void
+	 */
+	public function testApplyLegacyAmendmentUsesItsTextAsTheReplacement(): void {
+		$service = $this->buildService(
+			[
+				'motion-uuid' => self::motion(),
+				'amendment-uuid' => self::amendment(
+					'amendment-uuid',
+					['title' => 'Amendement A', 'text' => 'Vervangende tekst voor artikel 2.']
+				),
+			]
+		);
+
+		$service->applyAmendment('motion-uuid', 'amendment-uuid');
+
+		$saved = $this->saves[0]['object'];
+		self::assertSame('Vervangende tekst voor artikel 2.', $saved['text']);
+		self::assertSame('Originele motietekst.', $saved['originalText']);
+
+	}//end testApplyLegacyAmendmentUsesItsTextAsTheReplacement()
+
+	/**
+	 * A second amendment builds on the consolidated text, never overwrites the
+	 * original wording, and extends the history; re-applying one is a no-op.
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return void
+	 */
+	public function testSecondAmendmentKeepsTheOriginalAndExtendsTheHistory(): void {
+		$service = $this->buildService(
+			[
+				'motion-uuid' => self::motion(
+					[
+						'text' => 'De raad verhoogt het budget met 5% in 2027.',
+						'originalText' => 'De raad verhoogt het budget met 10% in 2027.',
+						'amendmentHistory' => [
+							[
+								'amendment' => 'amendment-a',
+								'before' => 'De raad verhoogt het budget met 10% in 2027.',
+								'after' => 'De raad verhoogt het budget met 5% in 2027.',
+								'mode' => 'passage',
+								'appliedAt' => '2026-09-01T10:00:00+00:00',
+							],
+						],
+					]
+				),
+				'amendment-a' => self::amendment('amendment-a', ['targetPassage' => '10%', 'proposedText' => '5%']),
+				'amendment-b' => self::amendment('amendment-b', ['targetPassage' => '2027', 'proposedText' => '2028']),
+			]
+		);
+
+		$service->applyAmendment('motion-uuid', 'amendment-b');
+
+		$saved = $this->saves[0]['object'];
+		self::assertSame('De raad verhoogt het budget met 5% in 2028.', $saved['text']);
+		self::assertSame('De raad verhoogt het budget met 10% in 2027.', $saved['originalText'], 'The original is set once and never overwritten');
+		self::assertCount(2, $saved['amendmentHistory']);
+		self::assertSame('amendment-b', $saved['amendmentHistory'][1]['amendment']);
+
+		$service->applyAmendment('motion-uuid', 'amendment-b');
+		self::assertCount(1, $this->saves, 'An amendment already in the history is not applied twice');
+
+	}//end testSecondAmendmentKeepsTheOriginalAndExtendsTheHistory()
+
+	/**
+	 * A target passage that no longer occurs in the motion is refused, and the
+	 * wording stays as it is rather than being guessed at.
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return void
+	 */
+	public function testApplyAmendmentRefusesAPassageThatIsNotInTheText(): void {
+		$service = $this->buildService(
+			[
+				'motion-uuid' => self::motion(),
+				'amendment-uuid' => self::amendment('amendment-uuid', ['targetPassage' => 'artikel 9', 'proposedText' => 'artikel 10']),
+			]
+		);
+
+		try {
+			$service->applyAmendment('motion-uuid', 'amendment-uuid');
+			self::fail('Expected a RuntimeException for a passage that is not in the motion text');
+		} catch (\RuntimeException $e) {
+			self::assertStringContainsString('passage', $e->getMessage());
+		}
+
+		self::assertCount(0, $this->saves, 'Nothing is written when the passage is not found');
+
+	}//end testApplyAmendmentRefusesAPassageThatIsNotInTheText()
 }//end class

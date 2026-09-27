@@ -67,8 +67,8 @@
               "intervalSec": 604800,
               "filter": {
                 "lifecycle": [
-                  "gepland",
-                  "verschoven"
+                  "planned",
+                  "postponed"
                 ]
               }
             },
@@ -89,8 +89,8 @@
               }
             ],
             "subject": {
-              "nl": "Rappel: termijnagenda-onderwerp over termijn — {{onderwerp}}",
-              "en": "Reminder: termijnagenda item past its planned period — {{onderwerp}}"
+              "nl": "Rappel: termijnagenda-onderwerp over termijn — {{subject}}",
+              "en": "Reminder: termijnagenda item past its planned period — {{subject}}"
             },
             "_note": "Period-arrival rappel (REQ-LTA-008). intervalSec 604800 (weekly) is PROVISIONAL (design open question — provisional 'once at period arrival + weekly while overdue'; griffie-configurable tuning deferred to a future admin-settings change). Filter targets non-terminal lifecycle only (gepland/verschoven) so gerealiseerd and vervallen items never rappel. DIALECT CAVEAT (mirrors the toezeggingen rappel): the 'planned period has arrived AND no realisation link' distinction is a period-last-day-vs-now comparison plus a realisedAgendaItem/realisedDecision null-check that the simple equality filter shape shown here cannot express; the scheduled-notification engine's window semantics must interpret it — verify OR's scheduled-notification engine during live import (open question: exact relative-date token for 'period last day vs now'). Recipients approximate 'owner + griffie' via object-acl (read) + the decidesk-members group, because no recipient kind targets the owner Person reference directly."
           }

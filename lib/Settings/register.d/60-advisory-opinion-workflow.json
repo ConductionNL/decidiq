@@ -105,8 +105,8 @@
               "intervalSec": 1209600,
               "filter": {
                 "lifecycle": [
-                  "verzonden",
-                  "in-behandeling"
+                  "sent",
+                  "in-progress"
                 ]
               }
             },
@@ -138,8 +138,8 @@
               "intervalSec": 604800,
               "filter": {
                 "lifecycle": [
-                  "verzonden",
-                  "in-behandeling"
+                  "sent",
+                  "in-progress"
                 ]
               }
             },
@@ -341,8 +341,8 @@
               }
             ],
             "subject": {
-              "nl": "Advies uitgebracht ({{strekking}}): {{samenvatting}}",
-              "en": "Advice issued ({{strekking}}): {{samenvatting}}"
+              "nl": "Advies uitgebracht ({{tenor}}): {{summary}}",
+              "en": "Advice issued ({{tenor}}): {{summary}}"
             },
             "_note": "Advies-recorded notification (REQ-AOW-003). Event-shaped 'created' trigger firing when the advisory body's secretary records the Advies, which accompanies the aanvraag transition to advies-uitgebracht. Declarative only; never an imperative dispatch path (notification-dialect gate)."
           }

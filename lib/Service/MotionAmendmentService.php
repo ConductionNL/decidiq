@@ -398,10 +398,12 @@ class MotionAmendmentService {
 	}//end significantWords()
 
 	/**
-	 * Apply an amendment to its parent motion by appending the amendment text.
+	 * Apply an adopted amendment to its parent motion's wording.
 	 *
-	 * Reads the Amendment text and appends it as an annotation to the Motion
-	 * `text` field. Saves the updated Motion via ObjectService.
+	 * Replaces the amendment's `targetPassage` with its `proposedText`, or,
+	 * without a passage, replaces the whole text (AmendmentTextMerger). The
+	 * motion keeps its first wording in `originalText` and a before/after
+	 * entry per amendment in `amendmentHistory`. Saves via ObjectService.
 	 *
 	 * @param string $motionId UUID of the parent Motion
 	 * @param string $amendmentId UUID of the Amendment to apply
@@ -429,9 +431,6 @@ class MotionAmendmentService {
 			throw new RuntimeException("Amendment $amendmentId not found");
 		}
 
-		$amendTitle = $amendmentData['title'] ?? 'Amendement';
-		$amendText = $amendmentData['text'] ?? '';
-
 		$objectService->setRegister('decidiq');
 		$objectService->setSchema('decision');
 		$motionObject = $objectService->find($motionId);
@@ -446,11 +445,20 @@ class MotionAmendmentService {
 			throw new RuntimeException("Motion $motionId not found");
 		}
 
-		$currentText = $motionData['text'] ?? '';
-		$updatedText = $currentText . "\n\n---\n**Amendement: $amendTitle**\n$amendText";
+		// #1394: work the amendment's structured change into the wording and
+		// keep the original plus a before/after history, instead of pasting the
+		// amendment under a `---` line. Null means it was already applied.
+		$merged = (new AmendmentTextMerger())->merge(
+			motionData: $motionData,
+			amendmentData: $amendmentData,
+			amendmentId: $amendmentId
+		);
+		if ($merged === null) {
+			return;
+		}
 
 		$objectService->saveObject(
-			object: array_merge($motionData, ['text' => $updatedText]),
+			object: array_merge($motionData, $merged),
 			register: 'decidiq',
 			schema: 'decision',
 			uuid: $motionId,
