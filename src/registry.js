@@ -24,6 +24,7 @@
  */
 
 import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
+import AgendaItemTypeFieldsTab from './components/tabs/AgendaItemTypeFieldsTab.vue'
 import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
 import AgendaPublicationTab from './components/tabs/AgendaPublicationTab.vue'
 import AmendmentDiffTab from './components/tabs/AmendmentDiffTab.vue'
@@ -223,6 +224,7 @@ export default {
 	// kascommissie facet + the routed-incoming-documents two-hop join.
 	MeetingAuditStatementTab: page(MeetingAuditStatementTab),
 	MeetingRoutedDocumentsTab: page(MeetingRoutedDocumentsTab),
+	AgendaItemTypeFieldsTab: page(AgendaItemTypeFieldsTab),
 	AgendaMotionsTab: page(AgendaMotionsTab),
 	MotionAmendmentsTab: page(MotionAmendmentsTab),
 	// Chair-controlled amendment voting order (motion-amendment spec).
