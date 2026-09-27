@@ -542,7 +542,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "Searched: no manifest page for schema 'person' (src/manifest.json, src/manifest.d/*); Person schema at lib/Settings/decidesk_register.json:183 has image/biography but no page renders it; members tab rows (src/components/tabs/GovernanceBodyMembersTab.vue) have no row link; 'portfolio' appears nowhere in schemas or src. Only the deprecated Participant has a detail page (src/manifest.json:751, /participants/:id, no menu entry) with party but no photo/committees/portfolio",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -551,7 +551,7 @@
 			"providerHow": "read-from-code",
 			"feature": "member-profiles",
 			"featureConfidence": "medium",
-			"note": "The data for a profile partly exists (Person.image, biography; Membership.party), but no page shows a member profile. There is no committees overview per person and no portfolio field.",
+			"note": "The data for a profile partly exists (Person.image, biography; Membership.party), but no page shows a member profile. There is no committees overview per person and no portfolio field. Specified in openspec/changes/bodies-member-profile-and-voting-record (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
@@ -722,7 +722,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "Searched 'skill', 'expertise', 'competenc' in schemas, src and services: no skills/expertise schema or matrix. Only hit: a seeded self-evaluation question 'What skills or perspectives is the board missing?' in lib/Settings/profiles/corporate.json:1123",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -731,7 +731,7 @@
 			"providerHow": "read-from-code",
 			"feature": "board-composition",
 			"featureConfidence": "high",
-			"note": "No skills or expertise data is kept per member, so no matrix or gap view exists. The self-evaluation can ask about missing skills as a survey question.",
+			"note": "No skills or expertise data is kept per member, so no matrix or gap view exists. The self-evaluation can ask about missing skills as a survey question. Specified in openspec/changes/bodies-board-composition-skills-and-diversity (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -752,7 +752,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "Searched 'diversity', 'gender' in lib/Service, src: Person.gender exists (lib/Settings/decidesk_register.json:183 Person) and seed data fills it, but nothing aggregates it; GovernanceReportingService computes independenceRatio only and no frontend calls /api/governance-reports (grep under src/: none)",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -761,7 +761,7 @@
 			"providerHow": "read-from-code",
 			"feature": "board-composition",
 			"featureConfidence": "high",
-			"note": "No diversity figures. Gender sits on the Person record and an independence ratio exists in an API-only governance report.",
+			"note": "No diversity figures. Gender sits on the Person record and an independence ratio exists in an API-only governance report. Specified in openspec/changes/bodies-board-composition-skills-and-diversity (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -902,7 +902,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "Searched 'salary', 'director pay', 'WNT', 'remunerat' in schemas and src: only AncillaryPosition.remunerated (boolean, lib/Settings/register.d/81-integrity-disclosures-in-plain-words.json) whose description says it deliberately carries no remuneration amount",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -911,7 +911,7 @@
 			"providerHow": "read-from-code",
 			"feature": "director-remuneration",
 			"featureConfidence": "high",
-			"note": "decidiq does not manage director pay. The only related field records whether an outside position is paid, deliberately without an amount.",
+			"note": "decidiq does not manage director pay. The only related field records whether an outside position is paid, deliberately without an amount. Specified in openspec/changes/bodies-director-remuneration (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -1031,7 +1031,7 @@
 			"providerHow": "read-from-code",
 			"feature": "calendar-sync",
 			"featureConfidence": "medium",
-			"note": "Meetings do not appear in Nextcloud Calendar or Outlook. The one code path is a forward-compatible stub behind method_exists() on an API-only route. Specified in ConductionNL/openregister openspec/changes/object-dates-as-a-calendar-feed (OpenSpec pass 2026-09-27).",
+			"note": "Meetings do not appear in Nextcloud Calendar or Outlook. The one code path is a forward-compatible stub behind method_exists() on an API-only route. Specified in ConductionNL/openregister openspec/changes/object-dates-as-a-calendar-feed (OpenSpec pass 2026-09-27). decidiq's own half, replacing the method_exists() stub in AgendaService with the feed declaration, is specified in openspec/changes/platform-microsoft-365-calendar-and-teams.",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
@@ -4892,7 +4892,7 @@
 			"origin": "code",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "lib/Controller/VotingBehaviourController.php:106 getStats() is #[NoAdminRequired], own participant or admin only, no src caller; lib/Service/OriPublicationService.php:232 buildJsonLd() pushes totals only; lib/Controller/OriController.php:70 'votes' resource filters lifecycle=published but the vote schema (decidesk_register.json Vote) has no lifecycle field",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -4901,7 +4901,7 @@
 			"providerHow": "read-from-code",
 			"feature": "ori-api",
 			"featureConfidence": "medium",
-			"note": "No citizen-facing per-member voting record. Whether the public ORI /votes resource returns anything depends on how OpenRegister treats a filter on a field the vote schema lacks; not settled by reading.",
+			"note": "No citizen-facing per-member voting record. Whether the public ORI /votes resource returns anything depends on how OpenRegister treats a filter on a field the vote schema lacks; not settled by reading. Specified in openspec/changes/bodies-member-profile-and-voting-record (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -5162,7 +5162,7 @@
 			"origin": "code",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "lib/Settings/decidesk_register.json:3742 CitizenVote.motionId exists as a field, but the only citizen vote path is lib/Service/AdvisoryVoteService.php:97 applyAdvisoryTally() on a BudgetProposal; grep motionId in lib finds no citizen-vote writer",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -5171,7 +5171,7 @@
 			"providerHow": "read-from-code",
 			"feature": "citizen-participation",
 			"featureConfidence": "high",
-			"note": "The schema has a motion reference, but nothing lets a citizen vote on a motion.",
+			"note": "The schema has a motion reference, but nothing lets a citizen vote on a motion. Specified in openspec/changes/participation-citizen-advisory-vote-on-motions (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -6003,7 +6003,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "grep microsoft/outlook/teams/graph/m365 across lib and src: no hits; meetings and action items use Nextcloud CalDAV, Talk, Deck and Mail leaves only",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6012,7 +6012,7 @@
 			"providerHow": "read-from-code",
 			"feature": "m365",
 			"featureConfidence": "high",
-			"note": "No Outlook, Teams or Graph integration. Action items are CalDAV tasks, which an Outlook client could only reach through generic CalDAV sync, not verified.",
+			"note": "No Outlook, Teams or Graph integration. Action items are CalDAV tasks, which an Outlook client could only reach through generic CalDAV sync, not verified. Specified in openspec/changes/platform-microsoft-365-calendar-and-teams (OpenSpec pass 2026-09-27).",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
@@ -6214,7 +6214,7 @@
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/384605",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "src/manifest.json:546 MeetingsCalendar page (/meetings/calendar); src/views/meetings/MeetingCalendarView.vue:274 fetches every meeting with getMeetings({ _limit: 500 }) and has no filter control (its only filter, :204, lists undated meetings); lib/Settings/register.d/70-configurable-types.json:12 configurable MeetingType, so informal sessions can be modelled as a meeting type; grep 'audience|filter' in MeetingCalendarView.vue: no audience or body filter",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6223,7 +6223,7 @@
 			"providerHow": "read-from-code",
 			"feature": "meetings",
 			"featureConfidence": "high",
-			"note": "One staff calendar shows every meeting of any meeting type, so informal sessions can appear if they are entered as meetings. It cannot be filtered by audience or body, and there is no calendar for residents.",
+			"note": "One staff calendar shows every meeting of any meeting type, so informal sessions can appear if they are entered as meetings. It cannot be filtered by audience or body, and there is no calendar for residents. Specified in openspec/changes/planning-activity-calendar-by-audience (OpenSpec pass 2026-09-27).",
 			"notubiz": "partial",
 			"ibabs": "partial",
 			"go-raadsinformatie": "partial",
@@ -6245,7 +6245,7 @@
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/408309",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "grep -riE 'parallel ?session|parallelSession|subSession|sub-session|parentMeeting|breakout' lib src: no hits; Meeting schema (lib/Settings/decidesk_register.json, Meeting properties) has series but no parent meeting or session; no recording or subtitle output (grep -ri subtitle lib src: only the dashboard widget subtitle, lib/Dashboard/DecidiqDashboardWidget.php:284)",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6254,7 +6254,7 @@
 			"providerHow": "read-from-code",
 			"feature": "meetings",
 			"featureConfidence": "high",
-			"note": "A meeting has one agenda and no parent or child sessions. Two meetings on the same evening can be created, but nothing groups them or shows them side by side, and there is no recording or subtitle output.",
+			"note": "A meeting has one agenda and no parent or child sessions. Two meetings on the same evening can be created, but nothing groups them or shows them side by side, and there is no recording or subtitle output. Specified in openspec/changes/planning-parallel-sessions (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
@@ -6276,7 +6276,7 @@
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/408309",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "grep -riE 'digest|subscri' lib src: no agenda or document subscription (hits are OpenRegister event listeners, the live-meeting refresh and the consultation reaction digest); lib/Service/NotificationPreferenceService.php:46 DEFAULTS has per-event toggles and :372 dispatch() sends in-app or email per event, called only for votingOpened (lib/Service/VotingOpenedNotifier.php:144) and approval lapses (lib/Service/ApprovalStageLapseService.php:476); lib/Settings/decidesk_register.json:666 declares a meetingScheduled nc-notification for OpenRegister to send",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6285,7 +6285,7 @@
 			"providerHow": "read-from-code",
 			"feature": "notifications",
 			"featureConfidence": "high",
-			"note": "Nobody can subscribe to new or changed agendas or documents, and there is no daily digest. The nearest thing is a declared 'new meeting scheduled' Nextcloud notification that OpenRegister has to send, and email goes out only for a few events such as a vote opening.",
+			"note": "Nobody can subscribe to new or changed agendas or documents, and there is no daily digest. The nearest thing is a declared 'new meeting scheduled' Nextcloud notification that OpenRegister has to send, and email goes out only for a few events such as a vote opening. Specified in openspec/changes/publication-subscriptions-and-daily-digest (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
@@ -6338,7 +6338,7 @@
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/384605",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "lib/Settings/register.d/70-configurable-types.json:215 AgendaItemType.fields lets an administrator declare extra fields per agenda item type, editable on AgendaItemTypes (src/manifest.d/configurable-types.json:167); src/components/AgendaItemTypeFields.vue renders them (input by fieldType, caption from label, logic in src/utils/agendaItemTypeFields.js, tests/vitest/agendaItemTypeFields.spec.js) on the agenda item form (src/components/tabs/MeetingAgendaTab.vue after-fields slot) and on AgendaItemDetail (src/components/tabs/AgendaItemTypeFieldsTab.vue, widget agenda-type-fields), writing AgendaItem.typeFields (#1393); letters and incoming documents are agenda items since documents-as-agenda-items, so they carry these fields; files themselves are Nextcloud files with no decidiq metadata",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6347,7 +6347,7 @@
 			"providerHow": "read-from-code",
 			"feature": "meeting-types",
 			"featureConfidence": "medium",
-			"note": "An administrator can declare extra fields per agenda item type, and they appear as inputs on the agenda item form and its detail page, so letters, incoming documents and questions carry them. Files attached to meetings carry no extra metadata.",
+			"note": "An administrator can declare extra fields per agenda item type, and they appear as inputs on the agenda item form and its detail page, so letters, incoming documents and questions carry them. Files attached to meetings carry no extra metadata. Specified in openspec/changes/platform-document-metadata-fields (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "no",
 			"go-raadsinformatie": "unknown",
@@ -6493,7 +6493,7 @@
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/384605",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "decidiq has no public website of its own (public reading goes through OpenCatalogi, src/views/settings/PublicationSettings.vue:25); grep -rliE 'toegankelijkheidsverklaring|accessibility statement|wcag.*(audit|report)' outside openspec: only a manifest note; docs/compliance/ holds board-portal-compliance.md only; no axe or audit report in tests/e2e",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6502,7 +6502,7 @@
 			"providerHow": "read-from-code",
 			"feature": "document-accessibility",
 			"featureConfidence": "medium",
-			"note": "There is no audit report showing WCAG 2.1 AA conformance. The public face of decidiq's publications is OpenCatalogi, whose accessibility was not checked here.",
+			"note": "There is no audit report showing WCAG 2.1 AA conformance. The public face of decidiq's publications is OpenCatalogi, whose accessibility was not checked here. Specified in openspec/changes/platform-accessibility-audit-report (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "partial",
 			"go-raadsinformatie": "unknown",
@@ -6524,7 +6524,7 @@
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/415915",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "grep -rniE 'stuf|zgw|zaken ?api|documenten ?api|drc|zrc|enkelvoudiginformatieobject' lib src: only a comment in lib/Event/DecisionConcludedEvent.php:9 naming a consumer's ZGW step; decisions link to cases only inside OpenRegister (lib/Service/DecisionIntegrationService.php:60 provenance fields)",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6533,7 +6533,7 @@
 			"providerHow": "read-from-code",
 			"feature": "documents",
 			"featureConfidence": "high",
-			"note": "decidiq exchanges no documents with a case system over StUF-ZKN or the ZGW APIs. A case app on OpenRegister such as dossiq can link its case to a decision, and any ZGW traffic would be that app's or integriq's, not checked here.",
+			"note": "decidiq exchanges no documents with a case system over StUF-ZKN or the ZGW APIs. A case app on OpenRegister such as dossiq can link its case to a decision, and any ZGW traffic would be that app's or integriq's, not checked here. Specified in openspec/changes/platform-case-system-document-exchange (OpenSpec pass 2026-09-27).",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -6679,7 +6679,7 @@
 			"originUrl": "https://www.notubiz.nl/nieuws/van-feedback-naar-vooruitgang-dit-is-de-nieuwe-lta",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "lib/Settings/register.d/86-the-last-two-dutch-names.json PlannedAgendaItem properties (subject, plannedPeriod, governanceBody, owner, lifecycle, shiftHistory, origin and realised links) have no parent item or track; grep -n 'parent|track' in that file: only AuthorityDelegation.parentAllocation (:542); src/manifest.d/termijnagenda.json:35-42 flat list columns",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6688,7 +6688,7 @@
 			"providerHow": "read-from-code",
 			"feature": "long-term-agenda",
 			"featureConfidence": "high",
-			"note": "Each long-term agenda item stands alone. A topic cannot be split into parallel tracks under one heading.",
+			"note": "Each long-term agenda item stands alone. A topic cannot be split into parallel tracks under one heading. Specified in openspec/changes/planning-long-term-agenda-tracks-and-report (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -6710,7 +6710,7 @@
 			"originUrl": "https://www.notubiz.nl/nieuws/van-feedback-naar-vooruitgang-dit-is-de-nieuwe-lta",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "src/manifest.d/termijnagenda.json:28-34 quick filters by status, :40 ownerType column (facetable), :46 showMassExport true for export of the selected rows; lib/Settings/register.d/86-the-last-two-dutch-names.json PlannedAgendaItem.owner (the portfolio holder, a Person reference) is not facetable and not a column; no author field",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6719,7 +6719,7 @@
 			"providerHow": "read-from-code",
 			"feature": "long-term-agenda",
 			"featureConfidence": "medium",
-			"note": "The long-term agenda can be filtered by status and by kind of owner, and the rows exported as a spreadsheet. It cannot be filtered by the named portfolio holder or by author, and the export is a data file rather than a formatted report.",
+			"note": "The long-term agenda can be filtered by status and by kind of owner, and the rows exported as a spreadsheet. It cannot be filtered by the named portfolio holder or by author, and the export is a data file rather than a formatted report. Specified in openspec/changes/planning-long-term-agenda-tracks-and-report (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
@@ -6927,7 +6927,7 @@
 			"originUrl": "https://support.ibabs.com/docs/introductie-9.md",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "src/components/tabs/MinutesDocumentTab.vue:280 calls POST /api/meetings/{id}/proof-package (appinfo/routes.php:124) -> lib/Service/ProofPackageService.php bundles convocation, quorum, votes and adopted decision texts, sealed with a SHA-256 hash, into the meeting's Files folder; the same tab generates the minutes PDF into that folder (lib/Service/MinutesDocumentService.php); the meeting package of agenda papers comes from the Agenda widget (MeetingPackageService); no connector to an external document store (plt-11)",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6936,7 +6936,7 @@
 			"providerHow": "read-from-code",
 			"feature": "proof-package",
 			"featureConfidence": "medium",
-			"note": "After the meeting the minutes PDF and a sealed proof package with votes and decisions are written into the meeting's Nextcloud Files folder, by hand from the minutes page. Nothing writes the file to an external document management system, and the signed decision list is not a separate document.",
+			"note": "After the meeting the minutes PDF and a sealed proof package with votes and decisions are written into the meeting's Nextcloud Files folder, by hand from the minutes page. Nothing writes the file to an external document management system, and the signed decision list is not a separate document. Specified in openspec/changes/platform-case-system-document-exchange (OpenSpec pass 2026-09-27).",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -6958,7 +6958,7 @@
 			"originUrl": "https://support.ibabs.com/docs/themapaginas.md",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "grep -rniE '\"(theme|thema|topic|dossier)\"|themePage|topicPage' lib/Settings src/manifest.json src/manifest.d: no theme schema or page; decidiq has no public pages (public reading goes through OpenCatalogi, pub-09); the nearest staff view is GoalDetail (src/manifest.d/organisation-goals.json:62-63, data and Related widgets, no timeline)",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6967,7 +6967,7 @@
 			"providerHow": "read-from-code",
 			"feature": "public-publication",
 			"featureConfidence": "medium",
-			"note": "There is no public page that gathers meetings, documents and motions on one topic with a timeline. Staff can relate decisions to an organisation goal, which is a record with a Related list, not a published theme page.",
+			"note": "There is no public page that gathers meetings, documents and motions on one topic with a timeline. Staff can relate decisions to an organisation goal, which is a record with a Related list, not a published theme page. Specified in openspec/changes/publication-theme-pages (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -7310,7 +7310,7 @@
 			"originUrl": "https://github.com/OpenSlides/OpenSlides/blob/4.3.4/CHANGELOG.md#L20",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "grep -rniE 'substitute|plaatsvervang|seatNumber|replaceMember|swapMandate' in the register files and src: only approval-route substitutes (lib/Settings/register.d/81-resolve-a-manager-and-declare-silence.json:57); PositionHold.holdType (lib/Settings/register.d/70-configurable-types.json:514) can record an 'acting' hold, but nothing swaps a mandate during a meeting or moves groups and seat",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -7319,7 +7319,7 @@
 			"providerHow": "read-from-code",
 			"feature": "membership",
 			"featureConfidence": "medium",
-			"note": "A substitute can be recorded as an acting holder of a position, but there is no action that swaps a member for a substitute during a meeting and carries over their groups and seat.",
+			"note": "A substitute can be recorded as an acting holder of a position, but there is no action that swaps a member for a substitute during a meeting and carries over their groups and seat. Specified in openspec/changes/bodies-substitute-mandate-swap (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -7676,7 +7676,7 @@
 			"originUrl": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._av-koppeling/",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "grep -rliE 'conference system|microphone|delegate system|bosch|televic|speakerSystem' lib src: only an icon name (lib/Settings/decidesk_register.json:3279 'Microphone') and the video-conference link field (:937); the room display endpoint GET /api/voting-rounds/{id}/public-state is API only (liv-04)",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -7685,7 +7685,7 @@
 			"providerHow": "read-from-code",
 			"feature": "live-meeting",
 			"featureConfidence": "high",
-			"note": "There is no link with a room's conference or voting hardware. Speakers and votes are handled in decidiq only.",
+			"note": "There is no link with a room's conference or voting hardware. Speakers and votes are handled in decidiq only. Specified in openspec/changes/live-room-conference-system-link (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",

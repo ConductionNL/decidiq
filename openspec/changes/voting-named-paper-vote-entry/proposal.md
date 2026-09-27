@@ -52,6 +52,10 @@ A roll call vote (hoofdelijke stemming) is the vote where each member's choice i
 - Weighted roll calls. A recorded vote carries weight 1, as a cast vote does today (`VoteBallotFactory.php`), and the weighted method stays as it is.
 - Scanning paper ballots.
 
+## Supersedes
+
+The per-member roll call part of open change `motie-amendement-administratie` (its `stemming-administratie` capability, "hoofdelijke stemming per raadslid met fractie-snapshot"). That change proposes its own Motion schema beside the universal decision and cannot be applied as written.
+
 ## Builds on
 
 - `vote-casting` REQ-VCT-003 (show-of-hands totals entered by the chair). That stays for votes where names are not recorded.
