@@ -121,7 +121,16 @@
 			"
 			:excludeFields="excludedFields"
 			@confirm="onConfirm"
-			@close="formOpen = false" />
+			@close="closeForm">
+			<!-- #1393: the fields the selected type declares, written into
+			     typeFields. The schema form skips `typeFields` (a free object),
+			     so the inputs come from the type, not the schema. -->
+			<template #after-fields>
+				<AgendaItemTypeFields
+					v-model="formTypeFields"
+					:type="formItemType" />
+			</template>
+		</CnFormDialog>
 
 		<CnDeleteDialog
 			v-if="deleteTarget"
@@ -147,16 +156,23 @@ import { NcButton } from '@nextcloud/vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
+import AgendaItemTypeFields from '../AgendaItemTypeFields.vue'
 import {
 	buildAgendaTree,
 	flattenTree,
 	missingStatutoryItems,
 } from '../../services/agendaRules.js'
+import {
+	findItemType,
+	missingRequiredTypeFields,
+	typeFieldInputs,
+} from '../../utils/agendaItemTypeFields.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'MeetingAgendaTab',
 	components: {
+		AgendaItemTypeFields,
 		CnDataTable,
 		CnDeleteDialog,
 		CnFormDialog,
@@ -181,6 +197,12 @@ export default {
 			// Empty is a valid state, not a failure: an instance that seeds no
 			// types shows the coarse enum and nothing breaks.
 			itemTypeNames: {},
+			// The configured agenda-item types themselves, for their `fields`.
+			itemTypes: [],
+			// The type picked in the open form, and the answers to its fields.
+			formType: null,
+			formTypeFields: {},
+			unwatchFormType: null,
 			formOpen: false,
 			editTarget: null,
 			deleteTarget: null,
@@ -266,6 +288,16 @@ export default {
 					},
 				},
 			]
+		},
+
+		/**
+		 * The type picked in the open form, whose `fields` the form renders.
+		 *
+		 * @return {?object} The AgendaItemType, or null.
+		 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+		 */
+		formItemType() {
+			return findItemType(this.itemTypes, this.formType)
 		},
 
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
@@ -355,8 +387,10 @@ export default {
 					if (slug) names[slug] = type.name
 				}
 				this.itemTypeNames = names
+				this.itemTypes = types || []
 			} catch {
 				this.itemTypeNames = {}
+				this.itemTypes = []
 			}
 		},
 
@@ -424,7 +458,7 @@ export default {
 			if (!this.agendaSchema)
 				this.agendaSchema = await store.fetchSchema('agenda-item')
 			this.editTarget = null
-			this.formOpen = true
+			this.openForm()
 		},
 
 		/**
@@ -439,7 +473,38 @@ export default {
 
 			const { titleDisplay, ...item } = row
 			this.editTarget = item
+			this.openForm()
+		},
+
+		/**
+		 * Open the form and follow the type picked in it, so the fields that
+		 * type declares appear as soon as it is chosen.
+		 *
+		 * The dialog keeps its values internally and emits no change event, so
+		 * its reactive `formData.type` is watched once it has mounted.
+		 *
+		 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+		 */
+		openForm() {
+			this.formType = this.editTarget?.type || null
+			this.formTypeFields = { ...(this.editTarget?.typeFields || {}) }
 			this.formOpen = true
+			this.$nextTick(() => {
+				this.unwatchFormType?.()
+				this.unwatchFormType = this.$watch(
+					() => this.$refs.formDialog?.formData?.type,
+					(value) => {
+						if (value !== undefined) this.formType = value || null
+					},
+				)
+			})
+		},
+
+		/** @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md */
+		closeForm() {
+			this.unwatchFormType?.()
+			this.unwatchFormType = null
+			this.formOpen = false
 		},
 
 		/**
@@ -447,10 +512,23 @@ export default {
 		 * @spec openspec/specs/relation-tab-ui/spec.md
 		 */
 		async onConfirm(formData) {
+			const missing = missingRequiredTypeFields(
+				typeFieldInputs(this.formItemType),
+				this.formTypeFields,
+			)
+			if (missing.length > 0) {
+				this.$refs.formDialog?.setResult({
+					error: this.t('decidiq', 'Fill in: {fields}', {
+						fields: missing.join(', '),
+					}),
+				})
+				return
+			}
 			const store = ensureRelationType('agenda-item')
 			try {
 				await store.saveObject('agenda-item', {
 					...formData,
+					typeFields: this.formTypeFields,
 					meeting: this.objectId,
 				})
 				this.$refs.formDialog?.setResult({ success: true })
