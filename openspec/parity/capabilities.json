@@ -5914,7 +5914,7 @@
 			"decidiq": "partial",
 			"built": {
 				"state": "building",
-				"evidence": "src/components/userSettings/NotificationPreferencesSection.vue:168-185 per-event toggles + deliveryMethod, saved via src/components/userSettings/userPreferences.js:189 /api/notification-preference; lib/Service/NotificationPreferenceService.php:372 dispatch() honours shouldNotify(); callers: lib/Service/VotingOpenedNotifier.php:144 (voting opened), lib/Service/ApprovalStageLapseService.php:476; lib/Service/VotingDeadlineReminderService.php:241 vote deadline reminder (job registered in appinfo/info.xml); grep meetingCreated/meetingReminder in lib finds only the validator and defaults",
+				"evidence": "src/components/userSettings/NotificationPreferencesSection.vue:168-185 per-event toggles + deliveryMethod, saved via src/components/userSettings/userPreferences.js:189 /api/notification-preference; lib/Service/NotificationPreferenceService.php:372 dispatch() honours shouldNotify(); callers: lib/Service/VotingOpenedNotifier.php:144 (voting opened), lib/Service/ApprovalStageLapseService.php:476 (approval lapse, escalation and substitute notices, which pass the filter for everyone since lib/Service/NotificationPreferenceService.php ALWAYS_ON_EVENTS, #1395); lib/Service/VotingDeadlineReminderService.php:241 vote deadline reminder (job registered in appinfo/info.xml); grep meetingCreated/meetingReminder in lib finds only the validator and defaults",
 				"owner": "ConductionNL/decidiq"
 			},
 			"reachedOn": "User settings page (/user-settings), notification section; notifications arrive in Nextcloud's bell and by email",
@@ -6618,7 +6618,7 @@
 			"decidiq": "partial",
 			"built": {
 				"state": "building",
-				"evidence": "lib/Service/ApprovalActorResolver.php:80 rule substitute-of-actor and :299 substituteOf() read the substitute from the organisation record; lib/Service/StageLapsePolicy.php:305 shouldAskSubstitute() asks the substitute part-way through a step's window, both may act; lib/Service/ApprovalStageLapseService.php:168 askSubstituteIfDue() in the lapse sweep; routes are started only by API or another app (rou-01); lib/Service/NotificationPreferenceService.php:53-55 delegate/delegationFrom/delegationUntil forwards notifications only",
+				"evidence": "lib/Service/ApprovalActorResolver.php:80 rule substitute-of-actor and :299 substituteOf() read the substitute from the organisation record; lib/Service/StageLapsePolicy.php:305 shouldAskSubstitute() asks the substitute part-way through a step's window, both may act; lib/Service/ApprovalStageLapseService.php:168 askSubstituteIfDue() in the lapse sweep, which tells the substitute and the original actor through NotificationPreferenceService::dispatch() (event type approval-stage-lapse is always on, #1395); routes are started only by API or another app (rou-01); lib/Service/NotificationPreferenceService.php:53-55 delegate/delegationFrom/delegationUntil forwards notifications only",
 				"owner": "ConductionNL/decidiq"
 			},
 			"reachedOn": "API only: askSubstituteAfter and substitute-of-actor in the steps of POST /api/approval-routes/instantiate; the substitute acts through the approval-chain leaf; notification delegate on User settings (/user-settings)",

@@ -61,6 +61,22 @@ class NotificationPreferenceService {
 	];
 
 	/**
+	 * Event types addressed to one person about their own work.
+	 *
+	 * These pass the per-event filter for everyone: a lapsed sign-off, an
+	 * escalation or a substitute request is the recipient's own task, not a
+	 * broadcast they can opt out of. The delivery method still applies.
+	 * Before this list the lapse notices of ApprovalStageLapseService were
+	 * dropped for every person, because no default or toggle named them
+	 * (issue #1395).
+	 *
+	 * @var string[]
+	 */
+	public const ALWAYS_ON_EVENTS = [
+		ApprovalStageLapseService::EVENT_TYPE,
+	];
+
+	/**
 	 * Construct the NotificationPreferenceService.
 	 *
 	 * @param ContainerInterface $container DI container (lazy-loads OR services)
@@ -179,14 +195,18 @@ class NotificationPreferenceService {
 	 * Determine if a given event type should produce a notification for the person.
 	 *
 	 * @param string $personId Person UUID or user ID
-	 * @param string $eventType One of: meetingCreated, votingOpened, decisionPublished,
-	 *                          taskAssigned, commentMention
+	 * @param string $eventType A DEFAULTS toggle key, or one of ALWAYS_ON_EVENTS
+	 *                          (always true, the notice is the recipient's own task)
 	 *
 	 * @return bool
 	 *
 	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
 	 */
 	public function shouldNotify(string $personId, string $eventType): bool {
+		if (in_array($eventType, self::ALWAYS_ON_EVENTS, true) === true) {
+			return true;
+		}
+
 		$pref = $this->findPreference(personId: $personId);
 		$merged = array_merge(self::DEFAULTS, ($pref ?? []));
 
@@ -371,6 +391,10 @@ class NotificationPreferenceService {
 	 */
 	public function dispatch(string $personId, string $eventType, string $title, string $message, string $deepLink = ''): int {
 		if ($this->shouldNotify(personId: $personId, eventType: $eventType) === false) {
+			$this->logger->info(
+				'Decidiq: notification not sent, the event type is switched off or unknown',
+				['personId' => $personId, 'eventType' => $eventType]
+			);
 			return 0;
 		}
 
