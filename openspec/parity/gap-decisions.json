@@ -56,6 +56,46 @@
     "decidedOn": "2026-09-27"
   },
   {
+    "row": "bod-05",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Core area (bodies) and two competitors rated yes (notubiz, ibabs); archived 2026-05-11-p4-collaboration specified participant profiles with photo and party and none is built.",
+    "change": "bodies-member-profile-and-voting-record",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "bod-11",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Core area (bodies); no competitor rated yes and no demand.",
+    "change": "bodies-board-composition-skills-and-diversity",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "bod-12",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Core area (bodies); one competitor partial and no demand. Clustered with bod-11 on the board composition view.",
+    "change": "bodies-board-composition-skills-and-diversity",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "bod-17",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Core area (bodies); no competitor rated yes and no demand.",
+    "change": "bodies-director-remuneration",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "bod-18",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Core area (bodies) with one competitor rated yes (openslides). The only other spec naming substitutes, commissievergaderingen, proposes its own entities and tables and cannot be applied.",
+    "change": "bodies-substitute-mandate-swap",
+    "decidedOn": "2026-09-27"
+  },
+  {
     "row": "fol-10",
     "matrix": "decidiq",
     "decision": "build",
@@ -93,6 +133,14 @@
     "decision": "build",
     "reason": "featureRequest demand (notubiz.nl news of 2025-11-03, the Schagen griffie) plus one competitor rated yes (ibabs). Clustered with liv-06 on the livestream.",
     "change": "live-public-livestream",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "liv-22",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Three competitors rated yes (notubiz, ibabs, go-raadsinformatie).",
+    "change": "live-room-conference-system-link",
     "decidedOn": "2026-09-27"
   },
   {
@@ -136,6 +184,86 @@
     "decidedOn": "2026-09-27"
   },
   {
+    "row": "par-08",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Archived 2026-05-11-p3-citizen-participation specified citizen votes on motions (citizenVotingAllowed, CitizenVotingController); nothing writes a CitizenVote with a motionId, so the capability never shipped. Treated as build per the rule.",
+    "change": "participation-citizen-advisory-vote-on-motions",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "pla-16",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Tender demand (TenderNed 384605); partial and built, the missing half is filtering by audience and a calendar residents can read.",
+    "change": "planning-activity-calendar-by-audience",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "pla-17",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Tender demand (TenderNed 408309), two competitors rated yes (notubiz, ibabs) and core area (planning).",
+    "change": "planning-parallel-sessions",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "pla-18",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Core area (planning) with one competitor rated yes (notubiz). Parallel tracks group what the council will receive under one topic; the termijnagenda non-goal excludes college-internal subtasks, not this.",
+    "change": "planning-long-term-agenda-tracks-and-report",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "pla-19",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Partial and built, two competitors rated yes (notubiz, ibabs): termijnagenda REQ-LTA-007 filters on body and lifecycle only. Filtering by the named portfolio holder and author and a formatted report are specified; clustered with pla-18 on the same page.",
+    "change": "planning-long-term-agenda-tracks-and-report",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "plt-12",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Two competitors rated yes (ibabs, diligent-boards).",
+    "change": "platform-microsoft-365-calendar-and-teams",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "plt-20",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Tender demand (TenderNed 384605); partial and built, the missing half is extra metadata on the files attached to meetings and agenda items.",
+    "change": "platform-document-metadata-fields",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "plt-22",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Tender demand (TenderNed 384605).",
+    "change": "platform-accessibility-audit-report",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "plt-23",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Tender demand (TenderNed 415915) and two competitors rated yes (ibabs, go-raadsinformatie).",
+    "change": "platform-case-system-document-exchange",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "plt-24",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Partial and built, two competitors rated yes (ibabs, go-raadsinformatie): the file lands in Nextcloud Files only. Writing it to the case system or document store is specified; clustered with plt-23 on the same exchange.",
+    "change": "platform-case-system-document-exchange",
+    "decidedOn": "2026-09-27"
+  },
+  {
     "row": "plt-27",
     "matrix": "decidiq",
     "decision": "build",
@@ -144,11 +272,35 @@
     "decidedOn": "2026-09-27"
   },
   {
+    "row": "pub-14",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Three competitors rated yes (notubiz, ibabs, go-raadsinformatie). Archived member-voting-behaviour-tracking keeps statistics private to the member and chair, and motie-amendement-administratie cannot be applied (parallel Motion schema), so nothing publishes a member's record. Clustered with bod-05 on the member profile.",
+    "change": "bodies-member-profile-and-voting-record",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "pub-16",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Tender demand (TenderNed 408309) and two competitors rated yes (notubiz, ibabs).",
+    "change": "publication-subscriptions-and-daily-digest",
+    "decidedOn": "2026-09-27"
+  },
+  {
     "row": "pub-17",
     "matrix": "decidiq",
     "decision": "build",
     "reason": "Tender demand (TenderNed 384605); partial and built, the missing half is exporting the documents themselves for a filtered set. Clustered with mot-16 on the same export service.",
     "change": "motions-export-with-attachments",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "pub-20",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Three competitors rated yes (notubiz, ibabs, go-raadsinformatie).",
+    "change": "publication-theme-pages",
     "decidedOn": "2026-09-27"
   },
   {
