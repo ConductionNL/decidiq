@@ -203,4 +203,59 @@ class ApprovalRouteControllerSilenceAuthorizationTest extends TestCase {
 
 		$this->assertSame(Http::STATUS_CREATED, $response->getStatus());
 	}
+
+	/**
+	 * "Start review" in the approval chain leaf asks the substitute part way
+	 * through each step: the controller hands askSubstituteAfter to the held
+	 * route, so every stage carries it for the lapse sweep (#1397).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
+	 */
+	public function testAHeldRouteFromTheLeafCarriesAskSubstituteAfter(): void {
+		$controller = $this->controller(
+			isAdministrator: false,
+			params: [
+				'route' => [
+					'name' => 'Review',
+					'origin' => 'adhoc',
+					'steps' => [
+						['order' => 1, 'stageType' => 'endorsement', 'actorType' => 'person', 'actor' => 'alice', 'askSubstituteAfter' => 0.5],
+						['order' => 2, 'stageType' => 'endorsement', 'actorType' => 'person', 'actor' => 'bob', 'askSubstituteAfter' => 0.5],
+					],
+				],
+				'subject' => 'subj-1',
+				'subjectSchema' => 'decision',
+				'deadline' => (new \DateTimeImmutable('+20 days'))->format(\DateTimeImmutable::ATOM),
+				'askSubstituteAfter' => 0.5,
+			],
+		);
+
+		$saved = new \ArrayObject();
+		$this->facade->method('saveObject')->willReturnCallback(
+			function (array $object) use ($saved): ObjectEntityInterface {
+				$saved->append($object);
+				$entity = $this->createMock(ObjectEntityInterface::class);
+				$entity->method('jsonSerialize')->willReturn($object + ['id' => 'stage-' . count($saved)]);
+				return $entity;
+			}
+		);
+		$this->facade->method('patchObject')->willReturnCallback(
+			function (string $objectId, array $data): ObjectEntityInterface {
+				$entity = $this->createMock(ObjectEntityInterface::class);
+				$entity->method('jsonSerialize')->willReturn($data + ['id' => $objectId]);
+				return $entity;
+			}
+		);
+
+		$response = $controller->instantiate();
+
+		$this->assertSame(Http::STATUS_CREATED, $response->getStatus(), (string)json_encode($response->getData()));
+		$stages = array_values(array_filter((array)$saved, static fn (array $row): bool => isset($row['sequence'])));
+		$this->assertCount(2, $stages);
+		foreach ($stages as $stage) {
+			$this->assertSame(0.5, $stage['askSubstituteAfter'] ?? null);
+		}
+	}
 }

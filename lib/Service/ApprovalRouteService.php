@@ -130,12 +130,16 @@ class ApprovalRouteService {
 	 *        instant. Empty means no due dates at all.
 	 * @param string $kind The stage type every step carries.
 	 * @param string $name What to call the route on a surface.
+	 * @param float|null $askSubstituteAfter When to ask each approver's
+	 *        substitute too, as a fraction of the step's term (0 to 1). Null
+	 *        asks no substitute (REQ-AR-016, #1397).
 	 *
 	 * @return array<int, array<string, mixed>> The stages.
 	 *
 	 * @throws RuntimeException When no actor is named.
 	 *
 	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008, REQ-AR-009)
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
 	public function holdFor(
 		string $subject,
@@ -144,6 +148,7 @@ class ApprovalRouteService {
 		string $deadline = '',
 		string $kind = 'endorsement',
 		string $name = 'Review',
+		?float $askSubstituteAfter = null,
 	): array {
 		$named = [];
 		foreach ($actors as $actor) {
@@ -169,6 +174,9 @@ class ApprovalRouteService {
 				'actor' => $actor,
 				'mandatory' => true,
 			];
+			if ($askSubstituteAfter !== null) {
+				$steps[$index]['askSubstituteAfter'] = $askSubstituteAfter;
+			}
 		}
 
 		$stages = $this->instantiate(

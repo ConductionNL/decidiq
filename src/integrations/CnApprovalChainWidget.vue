@@ -31,7 +31,40 @@
 		</div>
 
 		<div v-else-if="stages.length === 0" class="cn-approval-chain__empty">
-			{{ emptyLabel }}
+			<p class="cn-approval-chain__empty-text">
+				{{ emptyLabel }}
+			</p>
+			<form class="cn-approval-chain__start" @submit.prevent="startReview">
+				<NcTextField
+					v-model="startPeople"
+					:label="peopleLabel"
+					:helperText="peopleHelp"
+					data-testid="cn-approval-chain-people" />
+				<NcDateTimePickerNative
+					id="cn-approval-chain-deadline"
+					v-model="startDeadline"
+					type="date"
+					:label="deadlineLabel" />
+				<NcSelect
+					v-model="startSubstitute"
+					:options="substituteOptions"
+					:inputLabel="substituteLabel"
+					:clearable="false"
+					label="label"
+					data-testid="cn-approval-chain-substitute" />
+				<p v-if="substituteNeedsDeadline" class="cn-approval-chain__hint">
+					{{ substituteDeadlineHint }}
+				</p>
+				<NcButton
+					type="submit"
+					variant="primary"
+					:disabled="
+						busy || startActors.length === 0 || substituteNeedsDeadline
+					"
+					data-testid="cn-approval-chain-start">
+					{{ startLabel }}
+				</NcButton>
+			</form>
 		</div>
 
 		<div v-else-if="!current" class="cn-approval-chain__done">
@@ -80,6 +113,45 @@
 					{{ rejectLabel }}
 				</NcButton>
 			</div>
+
+			<div
+				v-else-if="mayActForAssignee"
+				class="cn-approval-chain__actions cn-approval-chain__on-behalf">
+				<p class="cn-approval-chain__actor">
+					{{ onBehalfLabel }}
+				</p>
+				<NcSelect
+					v-model="mandate"
+					:options="mandates"
+					:inputLabel="mandateLabel"
+					:getOptionLabel="mandateOptionLabel"
+					data-testid="cn-approval-chain-mandate" />
+				<NcTextField
+					v-model="reason"
+					:label="reasonLabel"
+					:placeholder="reasonLabel"
+					class="cn-approval-chain__reason" />
+				<NcButton
+					variant="primary"
+					:disabled="busy || !mandate"
+					data-testid="cn-approval-chain-approve-on-behalf"
+					@click="act('approved', true)">
+					<template #icon>
+						<Check :size="18" />
+					</template>
+					{{ approveLabel }}
+				</NcButton>
+				<NcButton
+					variant="error"
+					:disabled="busy || !mandate || reason.trim() === ''"
+					data-testid="cn-approval-chain-reject-on-behalf"
+					@click="act('rejected', true)">
+					<template #icon>
+						<Close :size="18" />
+					</template>
+					{{ rejectLabel }}
+				</NcButton>
+			</div>
 		</template>
 	</CnDetailCard>
 </template>
@@ -88,15 +160,25 @@
 import { CnDetailCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { getCurrentUser } from '@nextcloud/auth'
 import { translate as t } from '@nextcloud/l10n'
-import { NcButton, NcLoadingIcon, NcTextField } from '@nextcloud/vue'
+import {
+	NcButton,
+	NcDateTimePickerNative,
+	NcLoadingIcon,
+	NcSelect,
+	NcTextField,
+} from '@nextcloud/vue'
 import Check from 'vue-material-design-icons/Check.vue'
 import Close from 'vue-material-design-icons/Close.vue'
 import Signature from 'vue-material-design-icons/Signature.vue'
 import {
+	holdRoute,
 	isCurrentActor,
 	isOverdue,
+	listMandates,
 	listStages,
 	liveStage,
+	mayActOnBehalf,
+	parseActors,
 	recordAction,
 } from './approvalChainLink.js'
 
@@ -111,7 +193,9 @@ export default {
 		CnDetailCard,
 		CnStatusBadge,
 		NcButton,
+		NcDateTimePickerNative,
 		NcLoadingIcon,
+		NcSelect,
 		NcTextField,
 		Check,
 		Close,
@@ -146,6 +230,11 @@ export default {
 			busy: false,
 			error: '',
 			reason: '',
+			mandates: [],
+			mandate: null,
+			startPeople: '',
+			startDeadline: null,
+			startSubstitute: null,
 		}
 	},
 
@@ -199,6 +288,97 @@ export default {
 				String(this.current?.status || '') === 'active'
 				&& isCurrentActor(this.current, user && user.uid)
 			)
+		},
+
+		/**
+		 * Whether to offer signing for the step's assignee under a mandate
+		 * (#1397). Not the authorisation: ApprovalStageGuard decides that.
+		 *
+		 * @return {boolean} True when someone else holds the step and this user has a mandate.
+		 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+		 */
+		mayActForAssignee() {
+			const user = getCurrentUser()
+			return mayActOnBehalf(this.current, user && user.uid, this.mandates)
+		},
+
+		/** @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md */
+		onBehalfLabel() {
+			return t('decidiq', 'You may sign for {actor} under a mandate.', {
+				actor: String(this.current?.assignedPerson || ''),
+			})
+		},
+
+		/** @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md */
+		mandateLabel() {
+			return t('decidiq', 'Mandate')
+		},
+
+		/** @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008) */
+		startActors() {
+			return parseActors(this.startPeople)
+		},
+
+		/** @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016) */
+		substituteOptions() {
+			return [
+				{
+					id: 'never',
+					label: t('decidiq', 'Do not ask a substitute'),
+					value: null,
+				},
+				{
+					id: 'half',
+					label: t('decidiq', 'Halfway through each step'),
+					value: 0.5,
+				},
+				{
+					id: 'three-quarters',
+					label: t('decidiq', 'Three quarters through each step'),
+					value: 0.75,
+				},
+			]
+		},
+
+		/** @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016) */
+		substituteNeedsDeadline() {
+			return (
+				Boolean(this.startSubstitute && this.startSubstitute.value)
+				&& !this.startDeadline
+			)
+		},
+
+		/** @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008) */
+		peopleLabel() {
+			return t('decidiq', 'People to ask, in order')
+		},
+
+		/** @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008) */
+		peopleHelp() {
+			return t('decidiq', 'User names, separated by commas')
+		},
+
+		/** @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-009) */
+		deadlineLabel() {
+			return t('decidiq', 'Deadline')
+		},
+
+		/** @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016) */
+		substituteLabel() {
+			return t('decidiq', 'Also ask the substitute')
+		},
+
+		/** @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016) */
+		substituteDeadlineHint() {
+			return t(
+				'decidiq',
+				'Set a deadline to ask a substitute part way through a step.',
+			)
+		},
+
+		/** @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008) */
+		startLabel() {
+			return t('decidiq', 'Start review')
 		},
 
 		/** @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010) */
@@ -284,6 +464,7 @@ export default {
 			this.error = ''
 			try {
 				this.stages = await listStages(this.hostObjectId)
+				await this.loadMandates()
 			} catch {
 				this.error = t('decidiq', 'The sign-off route could not be read.')
 			} finally {
@@ -295,10 +476,11 @@ export default {
 		 * Record an action on the live step, through decidiq's controller.
 		 *
 		 * @param {string} verb The action, `approved` or `rejected`.
+		 * @param {boolean} [forAssignee] Sign for the assignee under the chosen mandate.
 		 * @return {Promise<void>} Nothing.
 		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 		 */
-		async act(verb) {
+		async act(verb, forAssignee = false) {
 			if (!this.current || this.busy) return
 			this.busy = true
 			this.error = ''
@@ -309,8 +491,17 @@ export default {
 					step: Number(this.current.sequence || 0),
 					action: verb,
 					comment: this.reason,
+					...(forAssignee && this.mandate
+						? {
+								onBehalfOf: String(
+									this.current.assignedPerson || '',
+								),
+								mandate: String(this.mandate.id || ''),
+							}
+						: {}),
 				})
 				this.reason = ''
+				this.mandate = null
 				// Re-read rather than patch the local copy: the engine decides
 				// which step becomes live next, and guessing it here is how a
 				// widget starts disagreeing with the register it is showing.
@@ -324,6 +515,89 @@ export default {
 						&& refusal.response.data
 						&& refusal.response.data.message)
 						|| t('decidiq', 'That action was refused.'),
+				)
+			} finally {
+				this.busy = false
+			}
+		},
+
+		/**
+		 * Read the mandates the current user may sign under, only when the
+		 * live step belongs to someone else.
+		 *
+		 * @return {Promise<void>} Nothing.
+		 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+		 */
+		async loadMandates() {
+			const user = getCurrentUser()
+			const uid = user && user.uid
+			const stage = this.current
+			if (
+				!stage
+				|| String(stage.status || '') !== 'active'
+				|| isCurrentActor(stage, uid)
+			) {
+				this.mandates = []
+				return
+			}
+			try {
+				this.mandates = await listMandates(uid)
+			} catch {
+				// No mandates readable means nothing to offer; the step itself
+				// still renders.
+				this.mandates = []
+			}
+		},
+
+		/**
+		 * How a mandate reads in the picker.
+		 *
+		 * @param {object} option The mandate row.
+		 * @return {string} Its subject, or its id.
+		 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+		 */
+		mandateOptionLabel(option) {
+			return String((option && (option.subject || option.id)) || '')
+		},
+
+		/**
+		 * Start a review route on the host object from the named people.
+		 *
+		 * @return {Promise<void>} Nothing.
+		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
+		 */
+		async startReview() {
+			if (
+				this.busy
+				|| this.startActors.length === 0
+				|| this.substituteNeedsDeadline
+			)
+				return
+			this.busy = true
+			this.error = ''
+			try {
+				await holdRoute({
+					subject: this.hostObjectId,
+					subjectSchema: this.hostSchema,
+					actors: this.startActors,
+					deadline: this.startDeadline
+						? new Date(this.startDeadline).toISOString()
+						: '',
+					askSubstituteAfter:
+						(this.startSubstitute && this.startSubstitute.value)
+						|| undefined,
+				})
+				this.startPeople = ''
+				this.startDeadline = null
+				this.startSubstitute = null
+				await this.load()
+			} catch (refusal) {
+				this.error = String(
+					(refusal
+						&& refusal.response
+						&& refusal.response.data
+						&& refusal.response.data.message)
+						|| t('decidiq', 'The review could not be started.'),
 				)
 			} finally {
 				this.busy = false
@@ -366,5 +640,25 @@ export default {
 
 .cn-approval-chain__reason {
 	flex: 1 1 200px;
+}
+
+.cn-approval-chain__empty-text {
+	margin: 0 0 8px 0;
+}
+
+.cn-approval-chain__start {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	max-width: 480px;
+}
+
+.cn-approval-chain__hint {
+	color: var(--color-text-maxcontrast);
+	margin: 0;
+}
+
+.cn-approval-chain__on-behalf {
+	margin-top: 8px;
 }
 </style>
