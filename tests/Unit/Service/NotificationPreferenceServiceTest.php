@@ -65,10 +65,11 @@ class NotificationPreferenceServiceTest extends TestCase {
 	 *
 	 * @param array<string, array<string, mixed>> $preferenceRows Preference row per person id.
 	 * @param string|null $accountEmail Account email returned by IUserManager.
+	 * @param \Psr\Log\LoggerInterface|null $logger Logger (defaults to a NullLogger).
 	 *
 	 * @return NotificationPreferenceService
 	 */
-	private function buildService(array $preferenceRows = [], ?string $accountEmail = null): NotificationPreferenceService {
+	private function buildService(array $preferenceRows = [], ?string $accountEmail = null, ?\Psr\Log\LoggerInterface $logger = null): NotificationPreferenceService {
 		$this->inAppSends = [];
 		$this->emailSends = [];
 
@@ -216,7 +217,7 @@ class NotificationPreferenceServiceTest extends TestCase {
 			}
 		);
 
-		return new NotificationPreferenceService(container: $container, logger: new NullLogger());
+		return new NotificationPreferenceService(container: $container, logger: ($logger ?? new NullLogger()));
 	}//end buildService()
 
 	/**
@@ -522,4 +523,74 @@ class NotificationPreferenceServiceTest extends TestCase {
 		self::assertCount(1, $this->emailSends, 'memberB (delegate) receives email');
 
 	}//end testDispatchFansOutToDelegateWithOwnChannels()
+
+	/**
+	 * Approval-stage lapse notices are addressed to one person about their
+	 * own sign-off, so they pass the per-event filter on default preferences
+	 * and cannot be switched off by an unrelated toggle (issue #1395).
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 *
+	 * @return void
+	 */
+	public function testApprovalStageLapseNoticeIsDeliveredOnDefaultPreferences(): void {
+		$service = $this->buildService(preferenceRows: [], accountEmail: 'sub@example.com');
+
+		$sent = $service->dispatch(
+			personId: 'substitute',
+			eventType: \OCA\Decidiq\Service\ApprovalStageLapseService::EVENT_TYPE,
+			title: 'A sign-off is waiting, on behalf of a colleague',
+			message: 'Please act on the step.'
+		);
+
+		self::assertSame(1, $sent, 'A lapse notice MUST be delivered on default preferences');
+		self::assertCount(1, $this->inAppSends);
+		self::assertSame('substitute', $this->inAppSends[0]['userId']);
+
+		$emailUser = $this->buildService(
+			preferenceRows: ['substitute' => ['person' => 'substitute', 'deliveryMethod' => 'email', 'votingOpened' => false, 'meetingReminder' => false]],
+			accountEmail: 'sub@example.com'
+		);
+		self::assertSame(
+			1,
+			$emailUser->dispatch(personId: 'substitute', eventType: \OCA\Decidiq\Service\ApprovalStageLapseService::EVENT_TYPE, title: 'T', message: 'M'),
+			'A lapse notice follows the delivery method and ignores the event toggles'
+		);
+		self::assertCount(1, $this->emailSends);
+
+	}//end testApprovalStageLapseNoticeIsDeliveredOnDefaultPreferences()
+
+	/**
+	 * An event type nobody declared is still dropped, and the drop is logged
+	 * so a silent filter can be found in the log (issue #1395).
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 *
+	 * @return void
+	 */
+	public function testUnknownEventTypeIsDroppedWithALogLine(): void {
+		$logger = new class extends \Psr\Log\AbstractLogger {
+			/** @var array<int, string> */
+			public array $lines = [];
+
+			/**
+			 * Record a log line.
+			 *
+			 * @param mixed $level Level
+			 * @param string|\Stringable $message Message
+			 * @param array<string, mixed> $context Context
+			 *
+			 * @return void
+			 */
+			public function log($level, string|\Stringable $message, array $context = []): void {
+				$this->lines[] = (string)$message;
+			}
+		};
+		$service = $this->buildService(preferenceRows: [], accountEmail: 'a@example.com', logger: $logger);
+
+		self::assertSame(0, $service->dispatch(personId: 'alice', eventType: 'no-such-event', title: 'T', message: 'M'));
+		self::assertCount(0, $this->inAppSends);
+		self::assertNotEmpty($logger->lines, 'A dropped notice MUST leave a log line');
+
+	}//end testUnknownEventTypeIsDroppedWithALogLine()
 }//end class
