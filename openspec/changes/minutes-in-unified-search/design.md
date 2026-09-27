@@ -16,7 +16,7 @@ Read at decidiq development `4d7430ff`.
 
 1. Add `'minutes' => 'minutes'` to `SCHEMAS`.
 2. `buildEntry()` takes the subline date per schema: `decisionDate` for a decision, `scheduledDate` for a meeting, `approvedAt` for minutes (left out when empty). The label map gains `'minutes' => $this->l10n->t('Minutes')`.
-3. Replace the `' — '` separator with `' · '`.
+3. Replace the em-dash that `implode()` puts between subline parts with a middle dot (`' · '`).
 4. Read rules: `findAll()` runs under the caller's session, so OpenRegister's `authorization.read` on `Minutes` decides what is returned; the provider adds no filtering of its own.
 
 ## Declarative or imperative
