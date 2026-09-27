@@ -92,7 +92,7 @@ class AgendaController extends Controller {
 	/**
 	 * Publish the agenda for a meeting.
 	 *
-	 * Validates items exist, notifies participants, transitions Meeting to 'opened'.
+	 * Validates items exist, records the agenda version and notifies participants; the Meeting lifecycle is left alone.
 	 *
 	 * @param string $meetingId UUID of the Meeting
 	 *
@@ -198,10 +198,11 @@ class AgendaController extends Controller {
 	}//end processHamerstukken()
 
 	/**
-	 * Revert a published agenda to draft (scheduled) state.
+	 * Open a published agenda for revision.
 	 *
-	 * Reverts the Meeting lifecycle back to 'scheduled', allowing further
-	 * edits before a subsequent publish. Requires chair or secretary role.
+	 * Marks the agenda as under revision and tells the participants, allowing
+	 * further edits before the next publish; the Meeting lifecycle is left
+	 * alone. Requires chair or secretary role.
 	 *
 	 * @param string $meetingId UUID of the Meeting
 	 *

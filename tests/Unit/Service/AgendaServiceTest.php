@@ -419,6 +419,232 @@ class AgendaServiceTest extends TestCase {
 	}//end testReorderItemsAssignsSequentialNumbers()
 
 	// -----------------------------------------------------------------------
+	// agenda publication state and change notices (#1396)
+	// -----------------------------------------------------------------------
+
+	/**
+	 * Publishing records version 1 and a snapshot, notifies, and leaves the
+	 * meeting lifecycle alone: a published agenda is not a meeting in session.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 */
+	public function testPublishAgendaRecordsAVersionAndLeavesTheLifecycleAlone(): void {
+		$saved = $this->wirePublishedMeeting(meeting: ['lifecycle' => 'scheduled']);
+		$subjects = $this->captureNotifications();
+
+		$this->service->publishAgenda('meeting-uuid-1');
+
+		self::assertCount(1, $saved);
+		self::assertSame('scheduled', $saved[0]['lifecycle'], 'Publishing an agenda MUST NOT open the meeting');
+		self::assertSame(1, $saved[0]['agendaVersion']);
+		self::assertNotEmpty($saved[0]['agendaPublishedAt']);
+		self::assertFalse($saved[0]['agendaUnderRevision']);
+		self::assertCount(1, $saved[0]['agendaVersions']);
+		self::assertSame(['item-1', 'item-2'], array_column($saved[0]['agendaVersions'][0]['items'], 'id'));
+		self::assertSame(['alice' => 'agenda_published'], $subjects->getArrayCopy());
+
+	}//end testPublishAgendaRecordsAVersionAndLeavesTheLifecycleAlone()
+
+	/**
+	 * Publishing again after a revision tells members the agenda was revised.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 */
+	public function testRepublishAfterRevisionNotifiesARevisedAgenda(): void {
+		$saved = $this->wirePublishedMeeting(
+			meeting: [
+				'lifecycle' => 'scheduled',
+				'agendaPublishedAt' => '2026-09-01T10:00:00+00:00',
+				'agendaVersion' => 1,
+				'agendaUnderRevision' => true,
+				'agendaVersions' => [['version' => 1, 'publishedAt' => '2026-09-01T10:00:00+00:00', 'items' => []]],
+			]
+		);
+		$subjects = $this->captureNotifications();
+
+		$this->service->publishAgenda('meeting-uuid-1');
+
+		self::assertSame(2, $saved[0]['agendaVersion']);
+		self::assertFalse($saved[0]['agendaUnderRevision']);
+		self::assertCount(2, $saved[0]['agendaVersions'], 'The earlier version MUST be kept');
+		self::assertSame(['alice' => 'agenda_revised'], $subjects->getArrayCopy());
+
+	}//end testRepublishAfterRevisionNotifiesARevisedAgenda()
+
+	/**
+	 * Revising tells members and never moves a running meeting back to scheduled.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 */
+	public function testReviseAgendaNotifiesAndKeepsTheLifecycle(): void {
+		$saved = $this->wirePublishedMeeting(
+			meeting: ['lifecycle' => 'opened', 'agendaPublishedAt' => '2026-09-01T10:00:00+00:00', 'agendaVersion' => 1]
+		);
+		$subjects = $this->captureNotifications();
+
+		$this->service->reviseAgenda('meeting-uuid-1');
+
+		self::assertCount(1, $saved);
+		self::assertSame('opened', $saved[0]['lifecycle'], 'Revising MUST NOT move a running meeting back to scheduled');
+		self::assertTrue($saved[0]['agendaUnderRevision']);
+		self::assertSame(['alice' => 'agenda_revision_started'], $subjects->getArrayCopy());
+
+	}//end testReviseAgendaNotifiesAndKeepsTheLifecycle()
+
+	/**
+	 * A change to the agenda of a published meeting records a version and notifies.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 */
+	public function testAgendaChangeOnAPublishedMeetingNotifiesAndRecordsAVersion(): void {
+		$saved = $this->wirePublishedMeeting(
+			meeting: ['lifecycle' => 'scheduled', 'agendaPublishedAt' => '2026-09-01T10:00:00+00:00', 'agendaVersion' => 1]
+		);
+		$subjects = $this->captureNotifications();
+
+		$this->service->notifyAgendaChanged('meeting-uuid-1');
+
+		self::assertCount(1, $saved);
+		self::assertSame(2, $saved[0]['agendaVersion']);
+		self::assertSame('scheduled', $saved[0]['lifecycle']);
+		self::assertSame(['alice' => 'agenda_changed'], $subjects->getArrayCopy());
+
+	}//end testAgendaChangeOnAPublishedMeetingNotifiesAndRecordsAVersion()
+
+	/**
+	 * Before publication, or while a revision is open, an agenda edit is silent.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 */
+	public function testAgendaChangeIsSilentWhenUnpublishedOrUnderRevision(): void {
+		foreach ([['lifecycle' => 'scheduled'], ['agendaPublishedAt' => '2026-09-01T10:00:00+00:00', 'agendaUnderRevision' => true]] as $meeting) {
+			$this->setUp();
+			$saved = $this->wirePublishedMeeting(meeting: $meeting);
+			$subjects = $this->captureNotifications();
+
+			$this->service->notifyAgendaChanged('meeting-uuid-1');
+
+			self::assertCount(0, $saved);
+			self::assertCount(0, $subjects);
+		}
+
+	}//end testAgendaChangeIsSilentWhenUnpublishedOrUnderRevision()
+
+	/**
+	 * Reordering a published agenda sends one notice per member, not one per item.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 */
+	public function testReorderOnAPublishedAgendaNotifiesOnce(): void {
+		$saved = $this->wirePublishedMeeting(
+			meeting: ['agendaPublishedAt' => '2026-09-01T10:00:00+00:00', 'agendaVersion' => 3]
+		);
+		$subjects = $this->captureNotifications();
+		$this->capturePatches();
+
+		$this->service->reorderItems('meeting-uuid-1', ['item-2', 'item-1']);
+
+		self::assertTrue($this->service->isSuppressingItemNotices() === false);
+		self::assertSame(['alice' => 'agenda_changed'], $subjects->getArrayCopy());
+		self::assertSame(4, $saved[0]['agendaVersion']);
+
+	}//end testReorderOnAPublishedAgendaNotifiesOnce()
+
+	/**
+	 * Wire a meeting, two agenda items and two participants (one left).
+	 *
+	 * @param array<string, mixed> $meeting Meeting fields over the defaults.
+	 *
+	 * @return \ArrayObject<int, array<string, mixed>> Every meeting object handed to saveObject().
+	 */
+	private function wirePublishedMeeting(array $meeting): \ArrayObject {
+		$meetingData = array_merge(['id' => 'meeting-uuid-1', 'title' => 'Council', 'lifecycle' => 'scheduled'], $meeting);
+		$this->objectService->method('find')->willReturn($this->entity($meetingData));
+		$this->objectService->method('findAll')->willReturnCallback(
+			function (array $config) {
+				if (($config['filters']['schema'] ?? '') === 'agenda-item') {
+					return [
+						$this->entity(['id' => 'item-1', 'title' => 'Opening', 'orderNumber' => 1]),
+						$this->entity(['id' => 'item-2', 'title' => 'Budget', 'orderNumber' => 2]),
+					];
+				}
+
+				return [];
+			}
+		);
+		$this->participantResolver->method('resolveMeetingParticipants')->willReturn(
+			[
+				['owner' => 'alice', 'leftAt' => null],
+				['owner' => 'bob', 'leftAt' => '2025-01-01T00:00:00Z'],
+			]
+		);
+
+		$saved = new \ArrayObject();
+		$this->objectService->method('saveObject')->willReturnCallback(
+			function (array $object) use ($saved): ObjectEntity {
+				$saved->append($object);
+				return $this->entity($object);
+			}
+		);
+
+		return $saved;
+
+	}//end wirePublishedMeeting()
+
+	/**
+	 * Record the subject of every notification sent, keyed by user.
+	 *
+	 * @return \ArrayObject<string, string> user => subject
+	 */
+	private function captureNotifications(): \ArrayObject {
+		$subjects = new \ArrayObject();
+		$this->notificationManager->method('createNotification')->willReturnCallback(
+			function () use ($subjects): INotification {
+				$state = new \ArrayObject();
+				$notification = $this->createMock(INotification::class);
+				$notification->method('setApp')->willReturnSelf();
+				$notification->method('setDateTime')->willReturnSelf();
+				$notification->method('setObject')->willReturnSelf();
+				$notification->method('setUser')->willReturnCallback(
+					function (string $user) use ($state, $notification): INotification {
+						$state['user'] = $user;
+						return $notification;
+					}
+				);
+				$notification->method('setSubject')->willReturnCallback(
+					function (string $subject) use ($state, $notification): INotification {
+						$state['subject'] = $subject;
+						return $notification;
+					}
+				);
+				$notification->method('getUser')->willReturnCallback(fn () => (string)($state['user'] ?? ''));
+				$notification->method('getSubject')->willReturnCallback(fn () => (string)($state['subject'] ?? ''));
+				return $notification;
+			}
+		);
+		$this->notificationManager->method('notify')->willReturnCallback(
+			function (INotification $notification) use ($subjects): void {
+				$subjects[$notification->getUser()] = $notification->getSubject();
+			}
+		);
+
+		return $subjects;
+
+	}//end captureNotifications()
+
+	// -----------------------------------------------------------------------
 	// helpers
 	// -----------------------------------------------------------------------
 
