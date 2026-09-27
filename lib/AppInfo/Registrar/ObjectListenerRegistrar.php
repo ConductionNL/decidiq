@@ -33,6 +33,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\AppInfo\Registrar;
 
 use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Listener\AgendaItemChangeListener;
 use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
 use OCA\Decidiq\Listener\MeetingFolderListener;
 use OCA\Decidiq\Listener\SubmissionDeadlineListener;
@@ -119,6 +120,18 @@ class ObjectListenerRegistrar {
 				listener: GovernanceRoleProjectionListener::class,
 				registers: null,
 				schemas: ['participant', 'membership']
+			);
+		}
+
+		// Agenda change notices (#1396). Declared interest is the handler's
+		// own schema guard verbatim, AgendaItemChangeListener::SCHEMA_AGENDA_ITEM.
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class, ObjectDeletedEvent::class] as $agendaEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $agendaEvent,
+				listener: AgendaItemChangeListener::class,
+				registers: null,
+				schemas: [AgendaItemChangeListener::SCHEMA_AGENDA_ITEM]
 			);
 		}
 
