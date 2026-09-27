@@ -69,6 +69,13 @@ class AgendaService {
 	private const HAMERSTUK_TAG = 'hamerstuk';
 
 	/**
+	 * True while this service writes several agenda items as one change.
+	 *
+	 * @var boolean
+	 */
+	private bool $suppressItemNotices = false;
+
+	/**
 	 * Constructor for AgendaService.
 	 *
 	 * @param ObjectServiceInterface $objectService OpenRegister object service
@@ -93,9 +100,10 @@ class AgendaService {
 	/**
 	 * Publish an agenda for a meeting.
 	 *
-	 * Validates that at least one AgendaItem exists for the meeting,
-	 * then sends Nextcloud notifications to all active participants
-	 * and updates the Meeting lifecycle to 'opened'.
+	 * Validates that at least one AgendaItem exists for the meeting, records
+	 * the publication (agendaPublishedAt, agendaVersion and a snapshot in
+	 * agendaVersions) and notifies all active participants. The Meeting
+	 * lifecycle is left alone (#1396).
 	 *
 	 * @param string $meetingId UUID of the Meeting to publish
 	 *
@@ -121,29 +129,6 @@ class AgendaService {
 			throw new InvalidArgumentException('Cannot publish agenda: no agenda items exist for this meeting.');
 		}
 
-		// Fetch participants for this specific meeting via the canonical path
-		// (participant → governance-body → meeting; participants carry no direct meeting relation).
-		$participants = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
-
-		// Notify each active participant (leftAt is null = still active).
-		foreach ($participants as $participant) {
-			$participantData = $this->toArray(item: $participant);
-			$leftAt = $participantData['leftAt'] ?? null;
-			if ($leftAt !== null) {
-				continue;
-			}
-
-			$userId = $participantData['owner'] ?? null;
-			if ($userId === null) {
-				continue;
-			}
-
-			$this->sendAgendaPublishedNotification(
-				userId: (string)$userId,
-				meetingId: $meetingId
-			);
-		}
-
 		// Update the meeting calendar entry to reflect the published agenda
 		// (method guard for forward-compatibility until CalendarEventService
 		// exposes updateMeetingEvent).
@@ -153,43 +138,49 @@ class AgendaService {
 
 		// #315: Read the full meeting object before saving so that a partial payload cannot
 		// silently wipe required fields that are not included in the update.
-		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
-		if ($meetingEntity === null) {
-			throw new NotFoundException(message: "Meeting {$meetingId} not found");
+		$meetingData = $this->readMeeting(meetingId: $meetingId);
+
+		// A first publication is "published"; publishing again after a
+		// revision is "revised". Either way the meeting's lifecycle is left
+		// alone: publishing an agenda days ahead is not a meeting in session,
+		// and LiveDecisionService only records live decisions on an `opened`
+		// meeting (#1396). Publication has its own fields instead.
+		$subject = 'agenda_published';
+		if ((int)($meetingData['agendaVersion'] ?? 0) > 0) {
+			$subject = 'agenda_revised';
 		}
 
-		$meetingData = $this->toArray(item: $meetingEntity);
-
-		// Update meeting lifecycle to 'opened' using a full-object merge.
-		$this->objectService->saveObject(
-			object: array_merge($meetingData, ['lifecycle' => 'opened']),
-			register: 'decidiq',
-			schema: 'meeting',
-			uuid: $meetingId,
+		$this->saveMeeting(
+			meetingId: $meetingId,
+			meetingData: $this->withNewAgendaVersion(meetingData: $meetingData, items: $items),
+			changes: ['agendaUnderRevision' => false]
 		);
+
+		$this->notifyParticipants(meetingId: $meetingId, subject: $subject);
 
 		$this->logger->info('Agenda published for meeting {meetingId}', ['meetingId' => $meetingId]);
 
 	}//end publishAgenda()
 
 	/**
-	 * Send an agenda-published Nextcloud notification to a single user.
+	 * Send an agenda Nextcloud notification to a single user.
 	 *
 	 * @param string $userId The Nextcloud user ID to notify
 	 * @param string $meetingId The meeting UUID for deep-link context
+	 * @param string $subject agenda_published, agenda_revised, agenda_revision_started or agenda_changed
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
 	 */
-	private function sendAgendaPublishedNotification(string $userId, string $meetingId): void {
+	private function sendAgendaNotification(string $userId, string $meetingId, string $subject): void {
 		try {
 			$notification = $this->notificationManager->createNotification();
 			$notification->setApp('decidiq')
 				->setUser($userId)
 				->setDateTime(new DateTime())
 				->setObject('meeting', $meetingId)
-				->setSubject('agenda_published', ['meetingId' => $meetingId]);
+				->setSubject($subject, ['meetingId' => $meetingId]);
 
 			$this->notificationManager->notify($notification);
 		} catch (Throwable $e) {
@@ -199,7 +190,7 @@ class AgendaService {
 			);
 		}
 
-	}//end sendAgendaPublishedNotification()
+	}//end sendAgendaNotification()
 
 	/**
 	 * Normalise an OpenRegister object to a plain PHP array.
@@ -338,10 +329,11 @@ class AgendaService {
 	}//end processHamerstukken()
 
 	/**
-	 * Revert a published agenda back to draft (scheduled) state.
+	 * Open a published agenda for revision.
 	 *
-	 * Updates the Meeting lifecycle to 'scheduled', allowing chair/secretary to
-	 * continue editing before a subsequent publish. Symmetric with publishAgenda().
+	 * Marks the agenda as under revision and tells the participants, so the
+	 * chair or secretary can edit it before publishing the next version. The
+	 * Meeting lifecycle is left alone (#1396).
 	 *
 	 * @param string $meetingId UUID of the Meeting to revert
 	 *
@@ -351,21 +343,17 @@ class AgendaService {
 	 */
 	public function reviseAgenda(string $meetingId): void {
 		// #315: Read the full meeting object before saving to avoid wiping required fields.
-		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
-		if ($meetingEntity === null) {
-			throw new NotFoundException(message: "Meeting {$meetingId} not found");
+		$meetingData = $this->readMeeting(meetingId: $meetingId);
+
+		// The lifecycle is NOT touched: a meeting that is running stays
+		// running while its agenda is revised (#1396).
+		$this->saveMeeting(meetingId: $meetingId, meetingData: $meetingData, changes: ['agendaUnderRevision' => true]);
+
+		if (($meetingData['agendaPublishedAt'] ?? null) !== null) {
+			$this->notifyParticipants(meetingId: $meetingId, subject: 'agenda_revision_started');
 		}
 
-		$meetingData = $this->toArray(item: $meetingEntity);
-
-		$this->objectService->saveObject(
-			object: array_merge($meetingData, ['lifecycle' => 'scheduled']),
-			register: 'decidiq',
-			schema: 'meeting',
-			uuid: $meetingId,
-		);
-
-		$this->logger->info('Agenda reverted to draft for meeting {meetingId}', ['meetingId' => $meetingId]);
+		$this->logger->info('Agenda opened for revision for meeting {meetingId}', ['meetingId' => $meetingId]);
 
 	}//end reviseAgenda()
 
@@ -404,6 +392,9 @@ class AgendaService {
 		}
 
 		$orderNumber = 1;
+		// One notice for the whole reorder, not one per patched item: the
+		// item listener checks isSuppressingItemNotices() (#1396).
+		$this->suppressItemNotices = true;
 		foreach ($orderedIds as $itemId) {
 			if (isset($validIds[(string)$itemId]) === false) {
 				$this->logger->warning(
@@ -425,10 +416,174 @@ class AgendaService {
 			$orderNumber++;
 		}//end foreach
 
+		$this->suppressItemNotices = false;
+		$this->notifyAgendaChanged(meetingId: $meetingId);
+
 		$this->logger->info(
 			'Reordered {count} agenda items for meeting {meetingId}',
 			['count' => count($orderedIds), 'meetingId' => $meetingId]
 		);
 
 	}//end reorderItems()
+
+	/**
+	 * Tell members that the agenda of a published meeting changed.
+	 *
+	 * Called for every agenda item created, edited, moved or withdrawn on a
+	 * meeting whose agenda was published (AgendaItemChangeListener), and
+	 * once after a reorder. It records a new agenda version with a snapshot
+	 * of the items, so the version members were sent stays visible, and
+	 * notifies the active participants through the same channel as the
+	 * publish notice. Silent before publication and while a revision is
+	 * open: the republish at the end of a revision is the notice then.
+	 *
+	 * @param string $meetingId UUID of the Meeting
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 */
+	public function notifyAgendaChanged(string $meetingId): void {
+		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+		if ($meetingEntity === null) {
+			return;
+		}
+
+		$meetingData = $this->toArray(item: $meetingEntity);
+		if (($meetingData['agendaPublishedAt'] ?? null) === null || ($meetingData['agendaUnderRevision'] ?? false) === true) {
+			return;
+		}
+
+		$items = $this->objectService->findAll(
+			[
+				'filters' => [
+					'register' => 'decidiq',
+					'schema' => 'agenda-item',
+					'_relations.meeting' => $meetingId,
+				],
+			]
+		);
+
+		$this->saveMeeting(
+			meetingId: $meetingId,
+			meetingData: $this->withNewAgendaVersion(meetingData: $meetingData, items: $items),
+			changes: []
+		);
+		$this->notifyParticipants(meetingId: $meetingId, subject: 'agenda_changed');
+
+	}//end notifyAgendaChanged()
+
+	/**
+	 * Whether this service is writing several agenda items as one change.
+	 *
+	 * @return boolean
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 */
+	public function isSuppressingItemNotices(): bool {
+		return $this->suppressItemNotices;
+	}//end isSuppressingItemNotices()
+
+	/**
+	 * Read a meeting as a plain array, or refuse when it does not exist.
+	 *
+	 * @param string $meetingId UUID of the Meeting
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @throws NotFoundException When the meeting does not exist
+	 */
+	private function readMeeting(string $meetingId): array {
+		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+		if ($meetingEntity === null) {
+			throw new NotFoundException(message: "Meeting {$meetingId} not found");
+		}
+
+		return $this->toArray(item: $meetingEntity);
+	}//end readMeeting()
+
+	/**
+	 * Save a meeting as a full-object merge (#315).
+	 *
+	 * @param string               $meetingId   UUID of the Meeting
+	 * @param array<string, mixed> $meetingData The full meeting
+	 * @param array<string, mixed> $changes     Fields to set over it
+	 *
+	 * @return void
+	 */
+	private function saveMeeting(string $meetingId, array $meetingData, array $changes): void {
+		$this->objectService->saveObject(
+			object: array_merge($meetingData, $changes),
+			register: 'decidiq',
+			schema: 'meeting',
+			uuid: $meetingId,
+		);
+	}//end saveMeeting()
+
+	/**
+	 * The meeting with its next agenda version recorded.
+	 *
+	 * @param array<string, mixed> $meetingData The full meeting
+	 * @param iterable<mixed>      $items       The meeting's agenda items
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function withNewAgendaVersion(array $meetingData, iterable $items): array {
+		$now = (new DateTime())->format(DATE_ATOM);
+		$version = ((int)($meetingData['agendaVersion'] ?? 0) + 1);
+
+		$snapshot = [];
+		foreach ($items as $item) {
+			$itemData = $this->toArray(item: $item);
+			$snapshot[] = [
+				'id' => (string)($itemData['id'] ?? ($itemData['@self']['id'] ?? '')),
+				'title' => (string)($itemData['title'] ?? ''),
+				'orderNumber' => ($itemData['orderNumber'] ?? null),
+			];
+		}
+
+		$versions = $meetingData['agendaVersions'] ?? [];
+		if (is_array($versions) === false) {
+			$versions = [];
+		}
+
+		$versions[] = ['version' => $version, 'publishedAt' => $now, 'items' => $snapshot];
+
+		return array_merge(
+			$meetingData,
+			[
+				'agendaPublishedAt' => $now,
+				'agendaVersion' => $version,
+				'agendaVersions' => $versions,
+			]
+		);
+	}//end withNewAgendaVersion()
+
+	/**
+	 * Notify every active participant of a meeting (leftAt is null).
+	 *
+	 * @param string $meetingId UUID of the Meeting
+	 * @param string $subject   Notification subject key
+	 *
+	 * @return void
+	 */
+	private function notifyParticipants(string $meetingId, string $subject): void {
+		// Participants come from the canonical path (participant → governance-body
+		// → meeting; participants carry no direct meeting relation).
+		$participants = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
+
+		foreach ($participants as $participant) {
+			$participantData = $this->toArray(item: $participant);
+			if (($participantData['leftAt'] ?? null) !== null) {
+				continue;
+			}
+
+			$userId = $participantData['owner'] ?? null;
+			if ($userId === null) {
+				continue;
+			}
+
+			$this->sendAgendaNotification(userId: (string)$userId, meetingId: $meetingId, subject: $subject);
+		}
+	}//end notifyParticipants()
 }//end class
