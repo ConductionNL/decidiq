@@ -800,6 +800,29 @@
 						"slug": "type-technische-vraag",
 						"name": "Technische vraag",
 						"description": "Een technische vraag van een raadslid over een raadsinformatiebrief, met het antwoord erbij.",
+						"fields": [
+							{
+								"key": "question",
+								"label": "Vraag",
+								"fieldType": "text",
+								"required": true
+							},
+							{
+								"key": "answer",
+								"label": "Antwoord",
+								"fieldType": "text"
+							},
+							{
+								"key": "answeredBy",
+								"label": "Beantwoord door",
+								"fieldType": "reference"
+							},
+							{
+								"key": "answeredOn",
+								"label": "Beantwoord op",
+								"fieldType": "date"
+							}
+						],
 						"owningBody": "gemeenteraad-amsterdam",
 						"votable": false,
 						"order": 40,

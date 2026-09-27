@@ -822,22 +822,25 @@
 			"route": "/agenda-items/:id",
 			"type": "detail",
 			"slots": {
-				"widget-agenda-motions": "AgendaMotionsTab"
+				"widget-agenda-motions": "AgendaMotionsTab",
+				"widget-agenda-type-fields": "AgendaItemTypeFieldsTab"
 			},
 			"title": "Agenda item",
 			"config": {
 				"register": "decidiq",
 				"schema": "agenda-item",
-				"_note": "Agenda item — one ordered line of a meeting's agenda (type, order number, estimated/actual duration, description, recurrence, parent item). Bespoke layout: item details lead 8-wide with a Documents leaf right for the supporting stukken (memo, annex) that back the item; the Motions tabled under this item (AgendaMotionsTab — decisions of decisionType=motion keyed on `agendaItem`) render full-width below because debating/voting motions is the whole point of an agenda item. Audit trail stays a sidebar tab; email/files linking lives on the dedicated AgendaItemIntegrations surface. AUDIT FIX: `agenda-data` shows all 10 AgendaItem fields at 2 columns — ceil(10/2)=5 rows left zero spare row for the card's own title/header, clipping the bottom field row; bumped to gridHeight 6 (and `agenda-files` matched to stay level in the same row) with `agenda-motions` recomputed to stay flush below.",
+				"_note": "Agenda item — one ordered line of a meeting's agenda (type, order number, estimated/actual duration, description, recurrence, parent item). Bespoke layout: item details lead 8-wide with a Documents leaf right for the supporting stukken (memo, annex) that back the item; the Motions tabled under this item (AgendaMotionsTab — decisions of decisionType=motion keyed on `agendaItem`) render full-width below because debating/voting motions is the whole point of an agenda item. Audit trail stays a sidebar tab; email/files linking lives on the dedicated AgendaItemIntegrations surface. AUDIT FIX: `agenda-data` shows all 10 AgendaItem fields at 2 columns — ceil(10/2)=5 rows left zero spare row for the card's own title/header, clipping the bottom field row; bumped to gridHeight 6 (and `agenda-files` matched to stay level in the same row) with `agenda-motions` recomputed to stay flush below. #1393: `agenda-type-fields` (AgendaItemTypeFieldsTab) sits between them full-width and renders the fields the item's type declares, writing `typeFields`, which the generic data widget skips because it is a free object.",
 				"widgets": [
 					{ "id": "agenda-data", "type": "data", "title": "Agenda item", "icon": "ClipboardList", "content": { "columns": 2 } },
 					{ "id": "agenda-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
+					{ "id": "agenda-type-fields", "type": "custom", "component": "AgendaItemTypeFieldsTab", "title": "Type-specific fields", "icon": "FormatListChecks" },
 					{ "id": "agenda-motions", "type": "custom", "component": "AgendaMotionsTab", "title": "Motions", "icon": "Gavel" }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "agenda-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
 					{ "id": "2", "widgetId": "agenda-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
-					{ "id": "3", "widgetId": "agenda-motions", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 6 }
+					{ "id": "4", "widgetId": "agenda-type-fields", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 5 },
+					{ "id": "3", "widgetId": "agenda-motions", "gridX": 0, "gridY": 11, "gridWidth": 12, "gridHeight": 6 }
 				],
 				"sidebar": {
 					"enabled": true,
