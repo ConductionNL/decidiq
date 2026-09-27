@@ -1022,7 +1022,7 @@
 			"origin": "code",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "lib/Service/AgendaService.php:150-151 calls OpenRegister CalendarEventService::updateMeetingEvent() only behind method_exists() and only from publishAgenda(), which no frontend calls (grep 'api/agendas' under src/: none); a local openregister checkout has no updateMeetingEvent (grep); no ICS/CalDAV code in lib/; MeetingIntegrations (src/manifest.json:628) has deck/talk/files/notes but no calendar widget",
 				"owner": "ConductionNL/openregister"
 			},
@@ -1031,7 +1031,7 @@
 			"providerHow": "read-from-code",
 			"feature": "calendar-sync",
 			"featureConfidence": "medium",
-			"note": "Meetings do not appear in Nextcloud Calendar or Outlook. The one code path is a forward-compatible stub behind method_exists() on an API-only route.",
+			"note": "Meetings do not appear in Nextcloud Calendar or Outlook. The one code path is a forward-compatible stub behind method_exists() on an API-only route. Specified in ConductionNL/openregister openspec/changes/object-dates-as-a-calendar-feed (OpenSpec pass 2026-09-27).",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
@@ -1412,7 +1412,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "src/components/AgendaBuilder.vue:112-128 draggable rows (chair only), :592 renumbers, :604-606 PUT /api/agendas/{meetingId}/reorder -> lib/Service/AgendaService.php reorderItems(); AgendaBuilder mounted only in src/views/LiveMeeting.vue:93 when isChair; no link to /meetings/:id/live anywhere in src/ (grep); MeetingAgendaTab.vue:12-14 says drag-reorder is not on the meeting page",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -1421,7 +1421,7 @@
 			"providerHow": "read-from-code",
 			"feature": "agenda",
 			"featureConfidence": "high",
-			"note": "Drag-to-reorder works and persists, but only for the chair on the live meeting screen, which no button or menu entry opens. The meeting page's agenda widget has no drag.",
+			"note": "Drag-to-reorder works and persists, but only for the chair on the live meeting screen, which no button or menu entry opens. The meeting page's agenda widget has no drag. Specified in openspec/changes/agenda-meeting-page-item-tools (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "partial",
 			"go-raadsinformatie": "unknown",
@@ -1442,16 +1442,16 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "src/manifest.json:834 agenda-files integration widget (files) on AgendaItemDetail (/agenda-items/:id); AgendaItemDetail is not linked from the meeting agenda (src/components/tabs/MeetingAgendaTab.vue:106 row click opens the edit form, row actions Edit/Delete only :253-263) and AgendaItems has no menu entry; MeetingDetail has a meeting-level Documents widget (src/manifest.json:578)",
-				"owner": "ConductionNL/openregister"
+				"owner": "ConductionNL/decidiq"
 			},
 			"reachedOn": "AgendaItemDetail (/agenda-items/:id) Documents widget, reached by typed URL or Nextcloud search; MeetingDetail Documents widget for meeting-level files",
 			"provider": "openregister",
 			"providerHow": "read-from-code",
 			"feature": "agenda",
 			"featureConfidence": "medium",
-			"note": "Files can be attached per agenda item through OpenRegister's files integration, but the agenda item page is not linked from the meeting's agenda, so most users will attach papers at meeting level instead.",
+			"note": "Files can be attached per agenda item through OpenRegister's files integration, but the agenda item page is not linked from the meeting's agenda, so most users will attach papers at meeting level instead. Specified in openspec/changes/agenda-meeting-page-item-tools (OpenSpec pass 2026-09-27). Owner moved from ConductionNL/openregister: per-object files are OpenRegister's file-actions, and opening the agenda item page from the meeting agenda is decidiq's.",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -1802,7 +1802,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "Searched 'summar', 'TaskProcessing', 'llm' in lib/Service, src: TaskProcessing is used only for minutes drafts from transcripts (lib/Service/MinutesDraftService.php, MinutesDraftComposer.php); no paper-summary feature or openspec change found",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -1811,7 +1811,7 @@
 			"providerHow": "read-from-code",
 			"feature": "ai-assist",
 			"featureConfidence": "high",
-			"note": "decidiq uses Nextcloud's AI task processing to draft minutes from a transcript, but not to summarise meeting papers.",
+			"note": "decidiq uses Nextcloud's AI task processing to draft minutes from a transcript, but not to summarise meeting papers. Specified in openspec/changes/agenda-ai-paper-summaries (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "yes",
@@ -1982,7 +1982,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "grep -i livestream/stream/broadcast in src/ and lib/: only file StreamResponse hits (exports), no streaming code, page or integration",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -1991,7 +1991,7 @@
 			"providerHow": "read-from-code",
 			"feature": "livestream",
 			"featureConfidence": "high",
-			"note": "No public livestream capability found.",
+			"note": "No public livestream capability found. Specified in openspec/changes/live-public-livestream (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -2012,7 +2012,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "lib/Service/TranscriptionSourceResolver.php:173 listTalkRecordings() only discovers Talk call recordings / meeting-folder audio as transcription sources; no recording capture, video archive page or recording search in src/manifest.json",
 				"owner": "nextcloud/spreed"
 			},
@@ -2021,7 +2021,7 @@
 			"providerHow": "read-from-code",
 			"feature": "recording",
 			"featureConfidence": "medium",
-			"note": "decidiq does not record or archive video. Talk recordings and uploaded audio can be picked up for transcription only.",
+			"note": "decidiq does not record or archive video. Talk recordings and uploaded audio can be picked up for transcription only. Decided no (OpenSpec pass 2026-09-27): Owned by nextcloud/spreed: recording is Nextcloud Talk's, outside the fleet. decidiq only picks recordings up for transcription.",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -2102,7 +2102,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "grep -i subtitle/caption/webvtt/.vtt/.srt in src/ and lib/: no hits",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -2111,7 +2111,7 @@
 			"providerHow": "read-from-code",
 			"feature": "transcription",
 			"featureConfidence": "high",
-			"note": "Transcripts are not turned into subtitles; no stream or player exists to show them on.",
+			"note": "Transcripts are not turned into subtitles; no stream or player exists to show them on. Specified in openspec/changes/live-public-livestream (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -2192,7 +2192,7 @@
 			"origin": "competitor",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "decided-no",
 				"evidence": "src/manifest.json:628 MeetingIntegrations page widget mi-talk (integrationId talk) and src/manifest.json:942 MotionIntegrations (Talk leaf); Motions index 'Discussion' action navigates to MotionIntegrations; no link to /meetings/:id/integrations found in src/",
 				"owner": "nextcloud/spreed"
 			},
@@ -2201,7 +2201,7 @@
 			"providerHow": "read-from-code",
 			"feature": "discussion",
 			"featureConfidence": "medium",
-			"note": "Chat is Nextcloud Talk bound to the motion or meeting through the OpenRegister integration leaf. The meeting-level Talk surface is not linked from the meeting page, and the live view has no chat.",
+			"note": "Chat is Nextcloud Talk bound to the motion or meeting through the OpenRegister integration leaf. The meeting-level Talk surface is not linked from the meeting page, and the live view has no chat. Decided no (OpenSpec pass 2026-09-27): Owned by nextcloud/spreed: chat is Nextcloud Talk's, outside the fleet. Linking the meeting's Talk surface from the meeting page is decidiq's and is a defect, not a gap row.",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
@@ -2612,7 +2612,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "DecisionDetail (src/manifest.json:1158) widgets decision-commitments (object-list governance-commitment filter relatedMotion=@objectId) and decision-actions (ActionItemsSurface, action items keyed on decision); Toezegging schema has deadline+lifecycle (register.d/45-toezeggingen-ingekomen-stukken.json)",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -2621,7 +2621,7 @@
 			"providerHow": "read-from-code",
 			"feature": "motion-follow-up",
 			"featureConfidence": "medium",
-			"note": "Commitments and action items tied to the motion can be tracked from its Decision page. There is no motion execution status and MotionDetail shows none of it.",
+			"note": "Commitments and action items tied to the motion can be tracked from its Decision page. There is no motion execution status and MotionDetail shows none of it. Specified in openspec/changes/followup-implementation-progress (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -2702,7 +2702,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "grep pdf in lib/Service, lib/Controller, src/: only minutes, regulator export, board evaluation and eIDAS; lib/Service/MeetingPackageService.php:95 assemble() copies agenda-item documents into a Files folder with a markdown TOC, no PDF and no motions",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -2711,7 +2711,7 @@
 			"providerHow": "read-from-code",
 			"feature": "motions",
 			"featureConfidence": "high",
-			"note": "Motions cannot be exported to PDF with their attachments.",
+			"note": "Motions cannot be exported to PDF with their attachments. Specified in openspec/changes/motions-export-with-attachments (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "partial",
 			"go-raadsinformatie": "partial",
@@ -2732,7 +2732,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "src/components/VotingRoundPanel.vue:35 'Open voting round' (only when motion lifecycle is 'deliberating' and a meeting is linked) -> POST /api/voting-rounds (lib/Controller/VotingController.php:100 open); close -> POST /api/voting-rounds/{id}/close (VotingController.php:199), but the close button is gated on isChairOrSecretary() which returns settingsStore.isAdmin (VotingRoundPanel.vue:549); panel mounted only on MotionDetail via MotionVotingRoundTab, not on AmendmentDetail",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -2741,7 +2741,7 @@
 			"providerHow": "read-from-code",
 			"feature": "voting",
 			"featureConfidence": "high",
-			"note": "Opening and closing a round on a motion works. The close control only renders for Nextcloud admins, not for a non-admin chair, and amendments have no voting-round surface.",
+			"note": "Opening and closing a round on a motion works. The close control only renders for Nextcloud admins, not for a non-admin chair, and amendments have no voting-round surface. Specified in openspec/changes/voting-chair-close-and-amendment-rounds (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -2912,7 +2912,7 @@
 			"origin": "code",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "'ranked-choice' appears only in the VotingRound.votingMethod enum (decidesk_register.json); VotingRoundPanel.vue open dialog offers for-against-abstain/show-of-hands/weighted only; grep ranked in lib/Service: only BudgetVotingService ranking proposals by votesFor",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -2921,7 +2921,7 @@
 			"providerHow": "read-from-code",
 			"feature": "voting",
 			"featureConfidence": "high",
-			"note": "Ranked voting is an enum value with no implementation.",
+			"note": "Ranked voting is an enum value with no implementation. Specified in openspec/changes/voting-ranked-preference-ballot (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -3182,7 +3182,7 @@
 			"origin": "code",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "grep written resolution/buiten vergadering/circular resolution in lib/, src/, openspec/specs: none; voting rounds require a linked meeting (VotingRoundPanel disables open without meetingId); approval-route threshold class lib/Service/ApprovalThresholdCalculator.php is self-declared unreachable",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -3191,7 +3191,7 @@
 			"providerHow": "read-from-code",
 			"feature": "voting",
 			"featureConfidence": "medium",
-			"note": "A decision can be recorded without a meeting, but members cannot adopt it by written consent in the app.",
+			"note": "A decision can be recorded without a meeting, but members cannot adopt it by written consent in the app. Specified in openspec/changes/voting-written-resolution (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -3332,7 +3332,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "src/components/minutesEditor/MinutesPanel.vue:1-15 per-agenda-item notes and decisions, debounced autosave into minutes.itemNotes (persist() :304); mounted only in src/views/LiveMeeting.vue:191. LiveMeeting page is manifest.json:720 route /meetings/:id/live; no router.push, href or menu entry to it found in src/ (grep 'LiveMeeting' and '/live').",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -3341,7 +3341,7 @@
 			"providerHow": "read-from-code",
 			"feature": "minutes",
 			"featureConfidence": "high",
-			"note": "The structured per-item editor works, but the only page that mounts it has no navigation entry, so a user reaches it only by typing the URL. The MinutesDetail page shows the minutes as a generic data widget.",
+			"note": "The structured per-item editor works, but the only page that mounts it has no navigation entry, so a user reaches it only by typing the URL. The MinutesDetail page shows the minutes as a generic data widget. Specified in openspec/changes/agenda-meeting-page-item-tools (OpenSpec pass 2026-09-27).",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
@@ -3692,7 +3692,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "lib/Search/DecidiqSearchProvider.php:59-62 SCHEMAS = decision, meeting (registered lib/AppInfo/Registrar/PlatformIntegrationRegistrar.php:105). Minutes are not searched there; the Minutes index page (/minutes) has the generic per-schema list search.",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -3701,7 +3701,7 @@
 			"providerHow": "read-from-code",
 			"feature": "search",
 			"featureConfidence": "medium",
-			"note": "Decisions are searchable across meetings from Nextcloud search, minutes are not; minutes can only be searched on their own index.",
+			"note": "Decisions are searchable across meetings from Nextcloud search, minutes are not; minutes can only be searched on their own index. Specified in openspec/changes/minutes-in-unified-search (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -4022,7 +4022,7 @@
 			"origin": "competitor",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "DecisionDetail Lifecycle widget (DecisionLifecycleTab) moves a decision to 'enacted' (lib/Lifecycle/DecisionTransitionGuard.php:133); per-decision action items with status lanes open/in-progress/done (src/services/deckProjection.js LANES, DecisionActionItemsTab). No implementation-progress or percentage field on Decision (property list in lib/Settings/decidesk_register.json).",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -4031,7 +4031,7 @@
 			"providerHow": "read-from-code",
 			"feature": "decision-lifecycle",
 			"featureConfidence": "medium",
-			"note": "Implementation progress is only readable from the decision's action item statuses and the enacted state; there is no progress record of its own.",
+			"note": "Implementation progress is only readable from the decision's action item statuses and the enacted state; there is no progress record of its own. Specified in openspec/changes/followup-implementation-progress (OpenSpec pass 2026-09-27).",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -4292,7 +4292,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "src/manifest.d/works-council-consultation.json WorksCouncilConsultations (/works-council-consultations) and detail; schema ConsultationRequest in lib/Settings/register.d/47-works-council-consultation.json with worArticle, receivedDate, requestedResponseDate, suspensionTo, response and decision fields; lifecycle and notifications are x-openregister declarations; no PHP under lib/ computes WOR terms (grep consultation-request: none). Also on DecisionDetail widget decision-wor-consultations.",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -4301,7 +4301,7 @@
 			"providerHow": "read-from-code",
 			"feature": "consultations",
 			"featureConfidence": "medium",
-			"note": "The WOR trajectory is recorded with its dates and response, but the legal terms are typed in, not calculated or watched, and the lifecycle rules are declarations only.",
+			"note": "The WOR trajectory is recorded with its dates and response, but the legal terms are typed in, not calculated or watched, and the lifecycle rules are declarations only. Specified in openspec/changes/works-council-consultation (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -4391,7 +4391,7 @@
 			"providerHow": "read-from-code",
 			"feature": "objections",
 			"featureConfidence": "low",
-			"note": "Only generic pieces exist: a decision type for the ruling on an objection and a consultation for the committee's advice. There is no objection case handling.",
+			"note": "Only generic pieces exist: a decision type for the ruling on an objection and a consultation for the committee's advice. There is no objection case handling. Specified in openspec/changes/objection-advisory-committee (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -4472,7 +4472,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "GoverningDocumentVersie.effectiveDate and status draft/adopted/in-effect (register.d/55-governing-documents-register.json); the adopted->in-effect move and the approaching-effect reminder are x-openregister-lifecycle / x-openregister-notifications declarations; no background job or PHP under lib/ switches a version to in-effect on its date (appinfo/info.xml jobs list has none).",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -4481,7 +4481,7 @@
 			"providerHow": "read-from-code",
 			"feature": "governing-documents",
 			"featureConfidence": "medium",
-			"note": "A version can be adopted with a future effective date and the timeline shows it, but nothing makes it take effect on that date; status is changed by hand.",
+			"note": "A version can be adopted with a future effective date and the timeline shows it, but nothing makes it take effect on that date; status is changed by hand. Specified in openspec/changes/governing-documents-register (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -4682,7 +4682,7 @@
 			"origin": "code",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "searched lib/BackgroundJob (no confidentiality job), grep 'dissolved'/'liftingDate' in lib/*.php finds only a Dutch-value rename repair; lifecycle map in 83-confidentiality-in-plain-words.json is declarative and has no time trigger; the only scheduled notification is geheimhoudingBekrachtigingDue (ratification reminder)",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -4691,7 +4691,7 @@
 			"providerHow": "read-from-code",
 			"feature": "confidentiality",
 			"featureConfidence": "high",
-			"note": "Lifting is a manual transition to dissolved. Nothing lifts automatically.",
+			"note": "Lifting is a manual transition to dissolved. Nothing lifts automatically. Specified in openspec/changes/embargo-geheimhouding (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "partial",
 			"go-raadsinformatie": "unknown",
@@ -4772,7 +4772,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "grep rss/atom/feed/subscribe across lib and src: no feed endpoint; IntegrationController subscribe is a system webhook, NotificationPreference is for logged-in users",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -4781,7 +4781,7 @@
 			"providerHow": "read-from-code",
 			"feature": "public-publication",
 			"featureConfidence": "high",
-			"note": "No RSS or email alert for citizens. The ORI publications feed is pollable JSON-LD, not RSS.",
+			"note": "No RSS or email alert for citizens. The ORI publications feed is pollable JSON-LD, not RSS. Specified in openspec/changes/ori-adoption (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "partial",
 			"go-raadsinformatie": "partial",
@@ -5312,16 +5312,16 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "src/manifest.json DecisionsReport (/reports/decisions): stat and donut widgets over the decision schema (dec-adopted, dec-by-outcome, dec-by-type, dec-by-lifecycle, dec-recent); all filters are scalar equality with no date range or body filter (page _note: 'Every filter is scalar equality, the only kind OpenRegister's aggregation endpoint can evaluate').",
-				"owner": "ConductionNL/openregister"
+				"owner": "ConductionNL/decidiq"
 			},
 			"reachedOn": "Reports (/reports) > Decisions report (/reports/decisions)",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "reports",
 			"featureConfidence": "high",
-			"note": "A decisions report exists but only for all time and all bodies; it cannot be cut per period or per body.",
+			"note": "A decisions report exists but only for all time and all bodies; it cannot be cut per period or per body. Specified in openspec/changes/insight-decisions-report-by-period-and-body (OpenSpec pass 2026-09-27). Owner moved from ConductionNL/openregister: the DecisionsReport page note says OpenRegister's aggregation evaluates scalar equality only, but openregister lib/Service/Aggregation/AggregationQuery.php:12-13 supports in, notIn, gt, gte, lt, lte and ne, so the per-period and per-body cut is decidiq's configuration.",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
@@ -5732,7 +5732,7 @@
 			"origin": "competitor",
 			"decidiq": "partial",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "portaliq lib/Controller/SessionController.php:284 oidcStart() and :370 oidcCallback() (appinfo/routes.php:153-154, GET /portal/api/session/oidc/start and /oidc/callback) are a working generic OIDC relying party, and lib/Service/OidcClaimMapperService.php:74-91 ships digid, eherkenning and eidas presets (portaliq commit eb85956). The class docblock at SessionController.php:6-11 still calls the DigiD/eHerkenning broker dormant; that docblock is stale. decidiq's own lib/Portal/PortalContributionProvider.php:18 still describes DigiD/eHerkenning as deferred, and decidiq adds no per-paper DigiD gate of its own.",
 				"owner": "ConductionNL/portaliq",
 				"readOn": "2026-09-26"
@@ -5742,7 +5742,7 @@
 			"providerHow": "read-from-code",
 			"feature": "platform-auth",
 			"featureConfidence": "high",
-			"note": "Re-rated no to partial on 2026-09-26. A council member or citizen can sign in with DigiD or eHerkenning through portaliq's generic OIDC broker, but only when the organisation fronts it with its own OIDC identity provider. Nothing ships a direct DigiD or eHerkenning connection, and decidiq's own contribution still describes the login as deferred. The earlier no rested on portaliq's stale SessionController docblock.",
+			"note": "Re-rated no to partial on 2026-09-26. A council member or citizen can sign in with DigiD or eHerkenning through portaliq's generic OIDC broker, but only when the organisation fronts it with its own OIDC identity provider. Nothing ships a direct DigiD or eHerkenning connection, and decidiq's own contribution still describes the login as deferred. The earlier no rested on portaliq's stale SessionController docblock. Specified in ConductionNL/portaliq openspec/changes/signin-integriq-broker-login (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -5883,7 +5883,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "lib/AppInfo/Registrar/DomainServiceRegistrar.php:101 registers IMcpToolProvider::decidiq -> lib/Mcp/DecidiqToolProvider.php:77-162 five tools (list open action items, list recent meetings, get meeting details, start meeting, add action item); lib/Mcp/McpMeetingTools.php:317 inlines a meeting's decisions; lib/Mcp/McpMeetingScopeResolver.php narrows scope=all to the caller's own meetings",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -5892,7 +5892,7 @@
 			"providerHow": "read-from-code",
 			"feature": "ai-assistant",
 			"featureConfidence": "medium",
-			"note": "The assistant can list and read meetings and action items, scoped to meetings the caller takes part in, and sees decisions only inlined in a meeting. There is no tool to search or ask about decisions on their own, and the chat surface is OpenRegister's, whose discovery of these tools was not verified.",
+			"note": "The assistant can list and read meetings and action items, scoped to meetings the caller takes part in, and sees decisions only inlined in a meeting. There is no tool to search or ask about decisions on their own, and the chat surface is OpenRegister's, whose discovery of these tools was not verified. Specified in openspec/changes/decidiq-mcp-adoption (OpenSpec pass 2026-09-27).",
 			"notubiz": "partial",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "partial",
@@ -6307,7 +6307,7 @@
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/384605",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "src/manifest.json:853 Motions index and :1058 Decisions index rendered by CnIndexPage, whose built-in mass Export action is on by default (@conduction/nextcloud-vue CnIndexPage.vue:1605 showMassExport default true, CnMassExportDialog format choice) and exports the selected rows' fields; lib/Service/MeetingPackageService.php bundles the papers of one meeting only; grep -riE 'zip|bulk.?export|download.?all' lib src: no document bundle export",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6316,7 +6316,7 @@
 			"providerHow": "read-from-code",
 			"feature": "reports",
 			"featureConfidence": "medium",
-			"note": "A filtered selection of motions, decisions or other records can be exported in one go as a spreadsheet of their fields. The documents themselves are not exported: only one meeting's papers can be bundled, through the meeting package.",
+			"note": "A filtered selection of motions, decisions or other records can be exported in one go as a spreadsheet of their fields. The documents themselves are not exported: only one meeting's papers can be bundled, through the meeting package. Specified in openspec/changes/motions-export-with-attachments (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "partial",
 			"go-raadsinformatie": "unknown",
@@ -6369,7 +6369,7 @@
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/384605",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "grep -rniE 'IConversionManager|convert.*pdf|libreoffice|docx|toPdf|richdocuments|gotenberg' lib src: no hits; lib/Support/FilinqPdf.php:97 fromHtml() renders decidiq's own generated HTML (minutes, evaluation reports) to PDF through filinq, not uploaded files",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6378,7 +6378,7 @@
 			"providerHow": "read-from-code",
 			"feature": "documents",
 			"featureConfidence": "high",
-			"note": "Word, Excel and PowerPoint files attached to a meeting or agenda item are not converted. decidiq only turns its own generated documents into PDF, through filinq when it is installed.",
+			"note": "Word, Excel and PowerPoint files attached to a meeting or agenda item are not converted. decidiq only turns its own generated documents into PDF, through filinq when it is installed. Specified in openspec/changes/agenda-office-files-to-pdf (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
@@ -6400,7 +6400,7 @@
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/384605",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "lib/BackgroundJob/TranscriptRetentionJob.php:154 enforceForTranscript() deletes meeting recordings and raw transcripts once the body's retention window after minutes approval has passed, :398 appendAudit() records each deletion in the meeting's audit trail; job registered appinfo/info.xml:130; policy set per body in the Recording retention widget (src/manifest.json:476, PUT /api/governance-bodies/{id}/retention-config); grep -rliE 'destruct|vernietig|selectielijst|e-depot' lib src: nothing for other documents",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6409,7 +6409,7 @@
 			"providerHow": "read-from-code",
 			"feature": "archiving",
 			"featureConfidence": "medium",
-			"note": "Only recordings and transcripts are destroyed after a retention period, automatically on the body's standing policy rather than on a per-batch approval, and each deletion is logged. Other documents have no retention period, no destruction approval and no transfer record.",
+			"note": "Only recordings and transcripts are destroyed after a retention period, automatically on the body's standing policy rather than on a per-batch approval, and each deletion is logged. Other documents have no retention period, no destruction approval and no transfer record. Specified in openspec/changes/records-management-archiving (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -6431,7 +6431,7 @@
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/384605",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "src/manifest.json:609 (MeetingDetail), :935 (MotionDetail), :1051 (MinutesDetail) and other detail pages carry a sidebar 'History' tab (widget type audit, CnAuditTrailTab) showing OpenRegister's per-object audit trail; lib/Service/AuditLogService.php:157 append() adds decidiq's own action entries; no page lists actions across all records, and files attached in Nextcloud Files are logged by Nextcloud Activity, not here",
 				"owner": "ConductionNL/openregister"
 			},
@@ -6440,7 +6440,7 @@
 			"providerHow": "read-from-code",
 			"feature": "audit-trail",
 			"featureConfidence": "medium",
-			"note": "Every record has a change history in its sidebar, kept by OpenRegister. There is no single log across all documents, and the history tab is shown to anyone who can open the record rather than to authorised staff only.",
+			"note": "Every record has a change history in its sidebar, kept by OpenRegister. There is no single log across all documents, and the history tab is shown to anyone who can open the record rather than to authorised staff only. Specified in ConductionNL/openregister openspec/changes/audit-log-page (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "partial",
 			"go-raadsinformatie": "unknown",
@@ -6648,7 +6648,7 @@
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/408309",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "lib/Search/DecidiqSearchProvider.php:59 SCHEMAS decision and meeting, :157 search() passes the plain term to OpenRegister findAll 'search' with LIMIT_PER_SCHEMA 5 (:69); index pages use OpenRegister's list search; grep -rniE 'boolean operator|highlight|unaccent' lib/Search src: no search-related hit (only UI highlight comments), so no query syntax or result highlighting in decidiq; document contents in Nextcloud Files are not searched by decidiq",
 				"owner": "ConductionNL/openregister"
 			},
@@ -6657,7 +6657,7 @@
 			"providerHow": "read-from-code",
 			"feature": "search",
 			"featureConfidence": "low",
-			"note": "Meetings and decisions can be searched by a plain term through OpenRegister. Boolean operators, accent handling and highlighted terms are not offered by decidiq, and whether OpenRegister's search ignores accents and case was not checked.",
+			"note": "Meetings and decisions can be searched by a plain term through OpenRegister. Boolean operators, accent handling and highlighted terms are not offered by decidiq, and whether OpenRegister's search ignores accents and case was not checked. Specified in ConductionNL/openregister openspec/changes/search-accent-insensitive (OpenSpec pass 2026-09-27). Accent handling was checked by the openregister lane: its zoeken-filteren spec claims ILIKE ignores diacritics, which it does not (no unaccent in openregister lib), so accent folding is specified separately there. Boolean operators are its search-quality-operators-and-facets and highlighting is zoeken-filteren.",
 			"notubiz": "partial",
 			"ibabs": "partial",
 			"go-raadsinformatie": "unknown",
@@ -6896,7 +6896,7 @@
 			"originUrl": "https://www.notubiz.nl/nieuws/samen-werken-aan-een-geintegreerd-systeem-voor-raad-en-college",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "grep -rniE 'livestream|broadcast|test ?stream|rtmp|hls' lib src: no hits",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6905,7 +6905,7 @@
 			"providerHow": "read-from-code",
 			"feature": "livestream",
 			"featureConfidence": "high",
-			"note": "There is no broadcast to test. A hybrid meeting's video call is Nextcloud Talk, which decidiq only links to.",
+			"note": "There is no broadcast to test. A hybrid meeting's video call is Nextcloud Talk, which decidiq only links to. Specified in openspec/changes/live-public-livestream (OpenSpec pass 2026-09-27).",
 			"notubiz": "no",
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
@@ -7020,7 +7020,7 @@
 			"originUrl": "https://github.com/OpenSlides/openslides-client/issues/1913",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "lib/Listener/SubmissionDeadlineListener.php:35-38 rejects creating a motion or amendment when its meeting's submissionDeadline has passed (REJECTION_MESSAGE :59), registered lib/AppInfo/Registrar/ObjectListenerRegistrar.php:136; Meeting.submissionDeadline set on the meeting form and shown in the MeetingDetail Planning widget; no opening time for the window",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -7029,7 +7029,7 @@
 			"providerHow": "read-from-code",
 			"feature": "motions",
 			"featureConfidence": "high",
-			"note": "Each meeting can have a closing time for motions and amendments, and later submissions are refused. There is no opening time, so the window is not a full period.",
+			"note": "Each meeting can have a closing time for motions and amendments, and later submissions are refused. There is no opening time, so the window is not a full period. Specified in openspec/changes/motions-submission-window (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -7107,7 +7107,7 @@
 			"originUrl": "https://github.com/OpenSlides/OpenSlides/issues/6591",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "src/components/VotingRoundPanel.vue:50 'Show of hands' voting method, :859 posts totals to /api/voting-rounds/{id}/tally -> lib/Controller/VotingController.php:327 tally() (chair or secretary) saves only votesFor, votesAgainst and votesAbstain via saveShowOfHandsTally; no endpoint records a choice per named member afterwards",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -7116,7 +7116,7 @@
 			"providerHow": "read-from-code",
 			"feature": "voting",
 			"featureConfidence": "high",
-			"note": "A vote held outside the system can be entered afterwards, but only as totals for, against and abstain. Each member's choice cannot be recorded by name.",
+			"note": "A vote held outside the system can be entered afterwards, but only as totals for, against and abstain. Each member's choice cannot be recorded by name. Specified in openspec/changes/voting-named-paper-vote-entry (OpenSpec pass 2026-09-27).",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
@@ -7397,7 +7397,7 @@
 			"originUrl": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/release_notes/release-notes-bwa.htm",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "lib/Listener/AgendaItemChangeListener.php:86 reacts to agenda item creates, deletes and updates of title, description, order, meeting, parent or type (subscribed in lib/AppInfo/Registrar/ObjectListenerRegistrar.php:132) and calls lib/Service/AgendaService.php:446 notifyAgendaChanged(), which records a new agenda version with a snapshot (Meeting agendaVersion, agendaVersions, lib/Settings/register.d/91-agenda-publication-has-its-own-fields.json) and notifies the active participants; :344 reviseAgenda() notifies too and a republish sends 'agenda_revised'; a reorder sends one notice (:420). Publishing itself is still API only (appinfo/routes.php:153-154, row age-05, #1385), and the notices go out as app decidiq without a registered notifier (#1381)",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -7406,7 +7406,7 @@
 			"providerHow": "read-from-code",
 			"feature": "agenda-publication",
 			"featureConfidence": "high",
-			"note": "Once an agenda is published, every change to its items records a new agenda version and notifies the meeting's active participants, and so do revising and republishing. The first publication is still API only, and the notices may not render in the bell until decidiq registers a notifier (#1381).",
+			"note": "Once an agenda is published, every change to its items records a new agenda version and notifies the meeting's active participants, and so do revising and republishing. The first publication is still API only, and the notices may not render in the bell until decidiq registers a notifier (#1381). Specified in openspec/changes/agenda-change-notices-reach-members (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
@@ -7428,7 +7428,7 @@
 			"originUrl": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/release_notes/release-notes-bwa.htm",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "grep -rniE 'summar|ITextProcessing|TaskProcessing|LLM' lib src: no AI summary of meeting papers (matrix row age-16)",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -7437,7 +7437,7 @@
 			"providerHow": "read-from-code",
 			"feature": "ai-assist",
 			"featureConfidence": "high",
-			"note": "decidiq makes no AI summaries of meeting papers, so there is nothing to review, edit or hide.",
+			"note": "decidiq makes no AI summaries of meeting papers, so there is nothing to review, edit or hide. Specified in openspec/changes/agenda-ai-paper-summaries (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -7490,7 +7490,7 @@
 			"originUrl": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/watermarking-documents-bwa.htm",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "grep -rli 'watermark' lib src: no hits; papers are plain Nextcloud files in the meeting folder (matrix row pla-13); lib/Service/MeetingPackageService.php assembles packages without marking them",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -7499,7 +7499,7 @@
 			"providerHow": "read-from-code",
 			"feature": "confidentiality",
 			"featureConfidence": "high",
-			"note": "decidiq puts no watermark on papers or exports. Nextcloud Office has a secure view with watermarks of its own, which decidiq neither sets up nor was checked here.",
+			"note": "decidiq puts no watermark on papers or exports. Nextcloud Office has a secure view with watermarks of its own, which decidiq neither sets up nor was checked here. Specified in openspec/changes/agenda-paper-watermark (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -7552,7 +7552,7 @@
 			"originUrl": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/basic-navigation/sharing-files-to-sfs-bwa.htm",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "decided-no",
 				"evidence": "grep -rniE 'data ?room|publicShare|IShare|ShareManager' lib src: none in decidiq; papers sit in the meeting's Nextcloud Files folder (lib/Listener/MeetingFolderListener.php, matrix row pla-13), which Nextcloud can share by link with a password and expiry date",
 				"owner": "nextcloud/server"
 			},
@@ -7561,7 +7561,7 @@
 			"providerHow": "read-from-code",
 			"feature": "meeting-folders",
 			"featureConfidence": "medium",
-			"note": "Selected papers can be shared with an auditor through Nextcloud's own password-protected, expiring share links. There is no separate data room in decidiq that tracks who outside received what.",
+			"note": "Selected papers can be shared with an auditor through Nextcloud's own password-protected, expiring share links. There is no separate data room in decidiq that tracks who outside received what. Decided no (OpenSpec pass 2026-09-27): Owned by nextcloud/server: platform provided through Nextcloud's password-protected, expiring share links, outside the fleet.",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "partial",
@@ -7614,7 +7614,7 @@
 			"originUrl": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/device-authorization/device-authorization-bwa.htm",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "decided-no",
 				"evidence": "grep -rniE 'device' lib src: only preferences and eIDAS hits, nothing in decidiq; Nextcloud's personal Security settings list connected devices and sessions, revoke them and offer remote wipe for a lost device; no allowlist of devices that may open papers",
 				"owner": "nextcloud/server"
 			},
@@ -7623,7 +7623,7 @@
 			"providerHow": "read-from-code",
 			"feature": "platform-auth",
 			"featureConfidence": "medium",
-			"note": "A lost device can be signed out and wiped through Nextcloud's device list. There is no step that authorises a device before it may open meeting papers.",
+			"note": "A lost device can be signed out and wiped through Nextcloud's device list. There is no step that authorises a device before it may open meeting papers. Decided no (OpenSpec pass 2026-09-27): Owned by nextcloud/server: device sessions, revocation and remote wipe are Nextcloud's own security settings, outside the fleet.",
 			"notubiz": "unknown",
 			"ibabs": "partial",
 			"go-raadsinformatie": "unknown",
@@ -7738,7 +7738,7 @@
 			"originUrl": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._digitale_assistent/",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"evidence": "grep -rniE 'summar|ITextProcessing|TaskProcessing|LLM' lib src: no AI; the only text comparison is the amendment-against-motion diff (src/components/tabs/AmendmentDiffTab.vue, src/manifest.json:970), which is not AI and does not compare two arbitrary documents or versions",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -7747,7 +7747,7 @@
 			"providerHow": "read-from-code",
 			"feature": "ai-assist",
 			"featureConfidence": "high",
-			"note": "There is no AI comparison of documents or versions. An amendment is shown as tracked changes against its motion, which is a plain diff and not AI.",
+			"note": "There is no AI comparison of documents or versions. An amendment is shown as tracked changes against its motion, which is a plain diff and not AI. Specified in openspec/changes/agenda-ai-paper-summaries (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "yes",

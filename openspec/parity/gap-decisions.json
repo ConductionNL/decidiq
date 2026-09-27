@@ -1,0 +1,562 @@
+[
+  {
+    "row": "age-02",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Partial and built, with two competitors rated yes (diligent-boards, openslides): drag to reorder works only on the live meeting screen, which nothing links to. The missing half, reordering from the meeting page, is specified.",
+    "change": "agenda-meeting-page-item-tools",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "age-03",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Partial and built, all five competitors rated yes. The openregister lane recorded that per-object files are OpenRegister's file-actions and that the unlinked agenda item page is decidiq's, so the owner moves to ConductionNL/decidiq and the missing half, opening an agenda item from the meeting agenda, is specified here.",
+    "change": "agenda-meeting-page-item-tools",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "age-16",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Two competitors rated yes (go-raadsinformatie, diligent-boards).",
+    "change": "agenda-ai-paper-summaries",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "age-17",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Tender demand (TenderNed 384605) and two competitors rated yes (ibabs, diligent-boards).",
+    "change": "agenda-office-files-to-pdf",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "age-18",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Partial and built, three competitors rated yes (notubiz, ibabs, diligent-boards): agenda change notices are sent, but without a registered notifier they do not reach the bell and nothing mails them (decidiq#1381). That missing half is specified.",
+    "change": "agenda-change-notices-reach-members",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "age-19",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Archived change 2026-06-12-board-meeting-resolutions specified watermarking of board papers with the member's name; 2026-06-14-retire-board-portal deleted BoardMaterial with it and the row is still none (grep watermark in lib and src: no hits), so the capability shipped and was removed. Treated as build per the rule.",
+    "change": "agenda-paper-watermark",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "age-20",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Two competitors rated yes (go-raadsinformatie, diligent-boards).",
+    "change": "agenda-ai-paper-summaries",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "fol-10",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Partial and built, two competitors rated yes (ibabs, go-raadsinformatie): progress is only readable from action item lanes. A dated progress record on the decision is specified.",
+    "change": "followup-implementation-progress",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "ins-02",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "The openregister lane found the aggregation query already takes gt, gte, lt and lte (openregister lib/Service/Aggregation/AggregationQuery.php:12-13), so the per-period cut is decidiq's report configuration and the owner moves to ConductionNL/decidiq. Partial and built with two competitors rated yes (notubiz, ibabs): the per-period and per-body cut is specified.",
+    "change": "insight-decisions-report-by-period-and-body",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "liv-06",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Three competitors rated yes. The open raadsvergadering-livestream-transcript names a livestream, but it proposes lib/Entity classes, lib/Migration and four new database tables against the thin-client rule and has 0 of 67 tasks, so it cannot be applied to the current model.",
+    "change": "live-public-livestream",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "liv-10",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Three competitors rated yes; same stale change as liv-06. Subtitles are produced from the transcripts decidiq already has.",
+    "change": "live-public-livestream",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "liv-19",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "featureRequest demand (notubiz.nl news of 2025-11-03, the Schagen griffie) plus one competitor rated yes (ibabs). Clustered with liv-06 on the livestream.",
+    "change": "live-public-livestream",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "min-03",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Partial and built, with two competitors rated yes (ibabs, diligent-boards): the per-item minutes editor mounts only on the unlinked live meeting screen. Reaching it from the meeting and minutes pages is specified; clustered with age-02 and age-03 on the same screen.",
+    "change": "agenda-meeting-page-item-tools",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "min-15",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Partial and built, four competitors rated yes. Archived 2026-05-11-p2-minutes-and-decisions-core-t2 REQ-NSP-002 specified minutes in unified search and DecidiqSearchProvider still searches decisions and meetings only.",
+    "change": "minutes-in-unified-search",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "mot-13",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Partial and built, three competitors rated yes. The open change motie-amendement-administratie names execution tracking, but it declares a new Motion schema beside the one the register holds (ADR-006) and has 0 of 80 tasks, so it cannot be applied to the current model; archived 2026-05-11-p2-motion-and-voting-core-t3 specified an Uitvoering panel that is not built. Clustered with fol-10 because a motion is a decision.",
+    "change": "followup-implementation-progress",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "mot-16",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Two competitors rated yes (notubiz, openslides).",
+    "change": "motions-export-with-attachments",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "mot-18",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Partial and built with featureRequest demand (openslides-client#1913) for a submission period: only the closing time exists. The opening time is specified.",
+    "change": "motions-submission-window",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "plt-27",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Clustered with age-16: a clerk reviewing, editing or hiding an AI summary before members see it is part of the same screen and service. On its own one competitor (diligent-boards) with a changelog origin.",
+    "change": "agenda-ai-paper-summaries",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "pub-17",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Tender demand (TenderNed 384605); partial and built, the missing half is exporting the documents themselves for a filtered set. Clustered with mot-16 on the same export service.",
+    "change": "motions-export-with-attachments",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "vot-01",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Partial and built, five competitors rated yes: the close control renders for Nextcloud admins only (decidiq#1379) and amendments have no voting round surface. Both halves are specified.",
+    "change": "voting-chair-close-and-amendment-rounds",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "vot-07",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Archived 2026-05-11-p2-motion-and-voting-other-t1 specified a ranked-choice ballot (REQ-PRF-001, REQ-PRF-002); ranked-choice is only an enum value today. Treated as build per the rule.",
+    "change": "voting-ranked-preference-ballot",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "vot-16",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Archived 2026-05-11-p2-motion-and-voting-core-t3 specified written resolution approval and 2026-06-12-board-meeting-resolutions shipped a WrittenResolutionService that 2026-06-14-retire-board-portal deleted; the row is still none. Treated as build per the rule.",
+    "change": "voting-written-resolution",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "vot-21",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Partial and built with featureRequest demand (OpenSlides#6591) and one competitor rated yes (ibabs): a paper vote can be entered as totals only. Entering each named member's choice is specified.",
+    "change": "voting-named-paper-vote-entry",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "ins-15",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Owned by openregister; its lane recorded audit-log-page (one log across records) with 2026-09-22-audit-trail-readable-scope limiting it to the caller's scope.",
+    "change": "audit-log-page",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "pla-04",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Owned by openregister; its lane recorded object-dates-as-a-calendar-feed. decidiq's own half, replacing the method_exists() stub in AgendaService with the feed declaration, is in platform-microsoft-365-calendar-and-teams.",
+    "change": "object-dates-as-a-calendar-feed",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "plt-02",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Owned by portaliq; the portaliq lane specified it in ConductionNL/portaliq openspec/changes/signin-integriq-broker-login (portaliq#761).",
+    "change": "signin-integriq-broker-login",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "plt-08",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Partial and built. The open decidiq-mcp-adoption gives the assistant search and get tools on decisions and the other curated schemas, scoped by the caller's rights.",
+    "change": "decidiq-mcp-adoption",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "pub-07",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "The open embargo-geheimhouding specifies a timed release job for embargoes (REQ-EMB-005) and records on purpose that a geheimhouding is never lifted automatically, because Gemeentewet art. 89 needs an opheffingsbesluit (REQ-EMB-004).",
+    "change": "embargo-geheimhouding",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "pub-10",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "The open ori-adoption specifies public RSS feeds for meetings, agenda items and documents (/feed/ori/*.rss).",
+    "change": "ori-adoption",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "pub-18",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Partial and built with tender demand. The open records-management-archiving specifies destruction on OpenRegister's approved destruction lists with a verklaring van vernietiging, and transfer to an e-depot.",
+    "change": "records-management-archiving",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "pub-19",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Owned by openregister. Boolean operators are its search-quality-operators-and-facets and highlighting its zoeken-filteren; the openregister lane found the zoeken-filteren claim that ILIKE ignores diacritics is false (no unaccent in lib) and specified accent folding in search-accent-insensitive.",
+    "change": "search-accent-insensitive",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "rou-09",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Partial and built. The open works-council-consultation specifies the missing half: the art. 25 lid 6 suspension term derived from the decision (REQ-WCC-006) and deadline reminders (REQ-WCC-007).",
+    "change": "works-council-consultation",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "rou-12",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Specified with no change named. The decidiq half is openspec/changes/objection-advisory-committee: the Awb 7:13 committee as a governance body with its fields and a write seam. The objection itself (objector, grounds, hearing) is dossiq's bezwaar handling, as that change's out of scope records.",
+    "change": "objection-advisory-committee",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "rou-15",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Partial and built. The open governing-documents-register resolves the version in force on any date from its effective date (REQ-GDR-004), so a later effective date needs no manual status change.",
+    "change": "governing-documents-register",
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "liv-07",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Owned by nextcloud/spreed: recording is Nextcloud Talk's, outside the fleet. decidiq only picks recordings up for transcription.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "liv-13",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Owned by nextcloud/spreed: chat is Nextcloud Talk's, outside the fleet. Linking the meeting's Talk surface from the meeting page is decidiq's and is a defect, not a gap row.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "plt-29",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Owned by nextcloud/server: platform provided through Nextcloud's password-protected, expiring share links, outside the fleet.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "plt-31",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Owned by nextcloud/server: device sessions, revocation and remote wipe are Nextcloud's own security settings, outside the fleet.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "bod-15",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "Partial, built, no demand and no competitor rated yes; the example sets of seed-profiles are the built half.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "ins-09",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "One competitor rated yes (diligent-boards), no demand, outside the core area.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "ins-10",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "One competitor rated yes (diligent-boards), no demand, outside the core area.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "ins-11",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "One competitor rated yes (diligent-boards), no demand, outside the core area.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "ins-12",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "One competitor rated yes (diligent-boards), no demand, outside the core area.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "ins-13",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "Partial, built, no demand and no competitor rated yes.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "ins-16",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "One competitor rated yes (ibabs) and a changelog origin only, outside the core area; it also needs the livestream first.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "liv-12",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "One competitor rated yes (openslides), no demand. Archived meeting-efficiency-v1 only pauses the item timer, which is built.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "liv-15",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "One competitor rated yes (notubiz) and a changelog origin only.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "liv-16",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "One competitor rated yes (notubiz) and a changelog origin only; there is no recording player to switch.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "liv-17",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "One competitor rated yes (ibabs) and a changelog origin only.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "liv-18",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "One competitor rated yes (ibabs) and a changelog origin only.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "liv-20",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "One competitor rated yes (openslides), no demand. Archived p2-meeting-management-other-t1 budgets time per agenda item, not per faction.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "liv-21",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "One competitor rated yes (openslides), no demand.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "min-14",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "Partial, built, no demand and no competitor rated yes.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "mot-11",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "One competitor rated yes (ibabs), no demand. The only spec of written questions, SchriftelijkeVraag, sits in fractievoorzitter-fractie-koppeling, which is marked superseded.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "mot-14",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "No competitor rated yes, no demand. Archived core-t3 anonymises votes, not motion text.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "mot-19",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "Partial and built. Its only demand is a changelog entry of the one competitor rated yes (OpenSlides 4.2.25 patch notes), which the rule does not count as demand.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "mot-21",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "One competitor rated yes (openslides), no demand.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "pla-13",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "Partial, built, no demand and no competitor rated yes.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "plt-19",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "Partial, built, no demand and no competitor rated yes; the wizard stops at the example set on purpose.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "plt-30",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "One competitor rated yes (diligent-boards), no demand; on a self-hosted install the supplier has no standing access.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "pub-08",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "No competitor rated yes, no demand. decidiq minimises its own payloads; redacting documents would be filinq's.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "pub-12",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "No competitor rated yes, no demand. Archived publish-decisions-via-opencatalogi put an OAI-PMH harvester endpoint out of scope as an OpenConnector (integriq) follow-up.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "pub-21",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "One competitor rated yes (go-raadsinformatie), no demand.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "rou-08",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "Partial, built, no demand, one competitor rated yes (openslides). The open advisory-opinion-workflow declares Adviesaanvraag, which one-consultation-schema retired into Consultation, so it does not cover the row on the current model.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "rou-10",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "Partial, built, no demand and no competitor rated yes. The open constituency-consultation declares MemberConsultation, which one-consultation-schema retired.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "rou-11",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "Partial, built, no demand and no competitor rated yes.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "vot-19",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "featureRequest demand (OpenSlides#6963) but no competitor rated yes.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "vot-20",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "featureRequest demand (OpenSlides#6766) but no competitor rated yes; the request itself calls certification a process still to start.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "vot-22",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "One competitor rated yes (openslides), no demand.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "vot-24",
+    "matrix": "decidiq",
+    "decision": "defer",
+    "reason": "One competitor rated yes (diligent-boards), no demand.",
+    "change": null,
+    "decidedOn": "2026-09-27"
+  }
+]
