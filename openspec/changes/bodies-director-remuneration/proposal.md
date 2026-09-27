@@ -43,4 +43,4 @@ Remuneration is a governance decision: the general meeting sets the supervisory 
 ## Risks
 
 - Pay is sensitive. The read rule grants the secretariat and administrators only, and public read needs both `disclosed` and a past `publicationDate`, the same pattern outside positions use.
-- A total per year mixes currencies if a body pays in two. The aggregation totals per currency.
+- A plain total mixes currencies if a body pays in two. The total tile filters on the body's currency (EUR by default), and a body that pays in two currencies reads the list.

@@ -38,7 +38,7 @@ Fragment `lib/Settings/register.d/92-mandate-remuneration.json`, schema `Mandate
 
 ### Screens
 
-- `GovernanceBodyDetail` gets two widgets in the layout's last row: `body-remuneration` (object-list on `mandate-remuneration`, filter `governanceBody = @objectId` and `year = @currentFiscalYear`, columns person, fixedFee, meetingFee, expenseAllowance, currency, disclosed (badge), `allowCreate: true`) and `body-remuneration-total` (stat, sum of `fixedFee` with the same filter, format currency). The page's widgets render only what the reader's rights return, so members see an empty list, not someone's pay.
+- `GovernanceBodyDetail` gets two widgets in the layout's last row: `body-remuneration` (object-list on `mandate-remuneration`, filter `governanceBody = @objectId` and `year = @currentFiscalYear`, columns person, fixedFee, meetingFee, expenseAllowance, currency, disclosed (badge), `allowCreate: true`) and `body-remuneration-total` (stat, sum of `fixedFee` with the same filter plus `currency = EUR`, format currency EUR). The page's widgets render only what the reader's rights return, so members see an empty list, not someone's pay.
 - `PositionHoldDetail` (`src/manifest.d/configurable-types.json:668`) gets `hold-remuneration` (object-list on `mandate-remuneration`, filter `positionHold = @objectId`, sorted by year).
 - Disclosed records reach the public through OpenRegister's anonymous read on the `public` rule, and through portaliq only if a later change adds them to decidiq's contribution.
 
