@@ -1,0 +1,46 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, issue #1396. Publishing an agenda used to set the meeting lifecycle to `opened`, the in-session state LiveDecisionService checks, and revising set it back to `scheduled` even while the meeting was running. Agenda publication now has its own fields, and every published version keeps a snapshot so the agenda members were sent stays readable after a change.",
+  "components": {
+    "schemas": {
+      "Meeting": {
+        "slug": "meeting",
+        "version": "1.2.0",
+        "properties": {
+          "agendaPublishedAt": {
+            "title": "Agenda published at",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the current version of the agenda was published or last changed after publication.",
+            "x-notes": "Set by AgendaService::publishAgenda() and notifyAgendaChanged(). Empty until the agenda is published for the first time; never the meeting lifecycle."
+          },
+          "agendaVersion": {
+            "title": "Agenda version",
+            "type": "integer",
+            "minimum": 0,
+            "description": "The number of the published agenda version members last received.",
+            "x-notes": "1 on the first publication, one higher on every republish and on every change to a published agenda."
+          },
+          "agendaUnderRevision": {
+            "title": "Agenda under revision",
+            "type": "boolean",
+            "default": false,
+            "description": "Whether the published agenda has been opened for revision and a new version is being prepared.",
+            "x-notes": "Set by AgendaService::reviseAgenda(), cleared by the next publishAgenda(). While it is set, item edits send no notice: the republish is the notice."
+          },
+          "agendaVersions": {
+            "title": "Agenda versions",
+            "type": "array",
+            "description": "Every published version of the agenda, with the items it held.",
+            "x-notes": "Append-only snapshots written by AgendaService: version, publishedAt and items (id, title, orderNumber).",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  }
+}
