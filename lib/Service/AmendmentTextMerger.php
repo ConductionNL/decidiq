@@ -61,32 +61,12 @@ class AmendmentTextMerger {
 	 */
 	public function merge(array $motionData, array $amendmentData, string $amendmentId): ?array {
 		$history = array_values((array) ($motionData['amendmentHistory'] ?? []));
-		foreach ($history as $entry) {
-			if (is_array($entry) === true && ($entry['amendment'] ?? null) === $amendmentId) {
-				return null;
-			}
+		if ($this->isApplied(history: $history, amendmentId: $amendmentId) === true) {
+			return null;
 		}
 
-		$before  = (string) ($motionData['text'] ?? '');
-		$passage = (string) ($amendmentData['targetPassage'] ?? '');
-		$replace = (string) ($amendmentData['proposedText'] ?? '');
-		if ($replace === '' && $passage === '') {
-			$replace = (string) ($amendmentData['text'] ?? '');
-		}
-
-		$mode  = 'full';
-		$after = $replace;
-		if ($passage !== '') {
-			$position = mb_strpos($before, $passage);
-			if ($position === false) {
-				throw new RuntimeException("Amendment $amendmentId: the passage to replace does not occur in the motion text");
-			}
-
-			$mode  = 'passage';
-			$after = mb_substr($before, 0, $position).$replace.mb_substr($before, ($position + mb_strlen($passage)));
-		} else if ($replace === '') {
-			throw new RuntimeException("Amendment $amendmentId carries no replacement text");
-		}
+		$before = (string) ($motionData['text'] ?? '');
+		[$mode, $after] = $this->applyChange(before: $before, amendmentData: $amendmentData, amendmentId: $amendmentId);
 
 		$original = (string) ($motionData['originalText'] ?? '');
 		if ($original === '') {
@@ -108,4 +88,61 @@ class AmendmentTextMerger {
 		];
 
 	}//end merge()
+
+	/**
+	 * Whether the amendment already has an entry in the motion's history.
+	 *
+	 * @param array<int, mixed> $history The motion's amendmentHistory
+	 * @param string $amendmentId UUID of the amendment
+	 *
+	 * @return bool
+	 */
+	private function isApplied(array $history, string $amendmentId): bool {
+		foreach ($history as $entry) {
+			if (is_array($entry) === true && ($entry['amendment'] ?? null) === $amendmentId) {
+				return true;
+			}
+		}
+
+		return false;
+
+	}//end isApplied()
+
+	/**
+	 * Apply the amendment's change to a text.
+	 *
+	 * @param string $before The motion text before this amendment
+	 * @param array<string, mixed> $amendmentData The amendment's object data
+	 * @param string $amendmentId UUID of the amendment, for the error message
+	 *
+	 * @throws RuntimeException When there is no replacement, or the passage is not in the text
+	 *
+	 * @return array{0: string, 1: string} The mode (passage or full) and the new text
+	 */
+	private function applyChange(string $before, array $amendmentData, string $amendmentId): array {
+		$passage = (string) ($amendmentData['targetPassage'] ?? '');
+		$replace = (string) ($amendmentData['proposedText'] ?? '');
+
+		if ($passage === '') {
+			if ($replace === '') {
+				$replace = (string) ($amendmentData['text'] ?? '');
+			}
+
+			if ($replace === '') {
+				throw new RuntimeException("Amendment $amendmentId carries no replacement text");
+			}
+
+			return ['full', $replace];
+		}
+
+		$position = mb_strpos($before, $passage);
+		if ($position === false) {
+			throw new RuntimeException("Amendment $amendmentId: the passage to replace does not occur in the motion text");
+		}
+
+		$after = mb_substr($before, 0, $position).$replace.mb_substr($before, ($position + mb_strlen($passage)));
+
+		return ['passage', $after];
+
+	}//end applyChange()
 }//end class
