@@ -7192,10 +7192,10 @@
 			"name": "Produce the final text of a motion with all adopted amendments merged in.",
 			"origin": "competitor",
 			"originUrl": "https://github.com/OpenSlides/OpenSlides/blob/4.3.4/CHANGELOG.md#L100",
-			"decidiq": "partial",
+			"decidiq": "yes",
 			"built": {
 				"state": "built",
-				"evidence": "lib/Service/VotingRoundCloser.php:542 on an adopted amendment calls applyAmendment(); lib/Service/MotionAmendmentService.php:450 appends the amendment title and text under a '---' separator to the motion text rather than merging the change into it",
+				"evidence": "lib/Service/VotingRoundCloser.php:542 on an adopted amendment calls applyAmendment(); lib/Service/MotionAmendmentService.php:451 hands it to lib/Service/AmendmentTextMerger.php:62, which replaces the amendment's targetPassage with its proposedText (or replaces the whole wording when no passage is given), keeps the first wording in originalText and appends a before/after entry to amendmentHistory (lib/Settings/register.d/91-an-adopted-amendment-changes-the-motion-text.json); proven by tests/Unit/Service/MotionServiceTest.php testApplyAmendmentReplacesTheTargetPassage and testSecondAmendmentKeepsTheOriginalAndExtendsTheHistory (#1394)",
 				"owner": "ConductionNL/decidiq"
 			},
 			"reachedOn": "Automatic when a voting round adopts an amendment (MotionDetail Voting round widget); result visible in the motion text on MotionDetail",
@@ -7203,7 +7203,7 @@
 			"providerHow": "read-from-code",
 			"feature": "motions",
 			"featureConfidence": "high",
-			"note": "Adopted amendments are added to the motion automatically, but they are appended below the original text instead of merged into it, so no clean final text is produced.",
+			"note": "An amendment names the passage it replaces and the new words, or gives a whole new text. When a vote adopts it, the change is worked into the motion's wording, so the motion text is the final text. The original wording and each step before and after are kept on the motion.",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
