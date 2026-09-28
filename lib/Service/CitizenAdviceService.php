@@ -111,24 +111,24 @@ class CitizenAdviceService {
 		$motion = $this->motion(motionId: $motionId);
 
 		if (($motion['isPublished'] ?? null) !== 'public') {
-			throw new ParticipationValidationException('The motion must be published before residents can give their advice');
+			throw new ParticipationValidationException(message: 'The motion must be published before residents can give their advice');
 		}
 
 		if (($motion['citizenVotingAllowed'] ?? false) !== true) {
-			throw new ParticipationValidationException('Citizen voting is not allowed on this motion');
+			throw new ParticipationValidationException(message: 'Citizen voting is not allowed on this motion');
 		}
 
 		if ((string)($motion['citizenVotingMethod'] ?? 'simple') !== 'simple') {
-			throw new ParticipationValidationException('An advisory vote by residents supports the simple method only');
+			throw new ParticipationValidationException(message: 'An advisory vote by residents supports the simple method only');
 		}
 
 		$status = $this->status(motion: $motion);
 		if ($status === self::STATUS_OPEN) {
-			throw new ParticipationValidationException('The advisory vote on this motion is already open');
+			throw new ParticipationValidationException(message: 'The advisory vote on this motion is already open');
 		}
 
 		if ($status === self::STATUS_CLOSED) {
-			throw new ParticipationValidationException('The advisory vote on this motion has closed and cannot open again');
+			throw new ParticipationValidationException(message: 'The advisory vote on this motion has closed and cannot open again');
 		}
 
 		return $this->patch(motionId: $motionId, data: ['citizenVotingStatus' => self::STATUS_OPEN]);
@@ -149,7 +149,7 @@ class CitizenAdviceService {
 	public function close(string $motionId): array {
 		$motion = $this->motion(motionId: $motionId);
 		if ($this->status(motion: $motion) !== self::STATUS_OPEN) {
-			throw new ParticipationValidationException('The advisory vote on this motion is not open');
+			throw new ParticipationValidationException(message: 'The advisory vote on this motion is not open');
 		}
 
 		$tally = $this->tally(motionId: $motionId);
@@ -232,7 +232,7 @@ class CitizenAdviceService {
 		}
 
 		if (($motion['decisionType'] ?? null) !== 'motion') {
-			throw new NotFoundException('Motion ' . $motionId . ' not found');
+			throw new NotFoundException(message: 'Motion ' . $motionId . ' not found');
 		}
 
 		return $motion;
