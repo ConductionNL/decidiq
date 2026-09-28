@@ -34,8 +34,8 @@
   - GIVEN it returns all false WHEN the panel renders THEN no open, close, split or publish control shows
   - GIVEN the panel source WHEN searched THEN no control reads `settingsStore.isAdmin`
   - Verification: vitest red-then-green with a mocked fetch; Playwright logs in as a seeded non-admin chair and closes a round
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 4: A voting round widget on the amendment page
 
@@ -47,5 +47,12 @@
   - GIVEN a parent motion with no meeting WHEN the amendment page renders THEN the open button is disabled with its explanation
   - GIVEN the manifest WHEN validated (`tests/validate-manifest.js`) THEN the new widget has a layout cell and a slot, so it does not render blank
   - Verification: Playwright on a seeded motion with two amendments, red first (no widget), then green
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+
+## Notes from the build (2026-09-28)
+
+- The permissions read has a sibling, `GET /api/voting-permissions`, for a subject without a meeting: it answers through the guard's global fallback, which is what REQ-VCR-001's third scenario needs and what "an unknown meeting returns four false values" alone cannot give.
+- An admin who holds no role in a meeting now sees no controls for that meeting's rounds, because the server's per-meeting check has no admin fallback (close() already refused them). The page now agrees with the server.
+- The panel is not mounted in vitest (the repo has no component test harness); `tests/vitest/votingRoundPanelPermissions.spec.js` tests the helpers the panel uses and asserts on the panel source that no control reads `settingsStore.isAdmin`. The Playwright spec `tests/e2e/voting-chair-close-and-amendment-rounds.spec.ts` covers every scenario but was not run on this branch.
+
