@@ -101,7 +101,15 @@ class BordaCount {
 			return false;
 		}
 
-		$named = array_map(static fn (mixed $key): string => (is_scalar($key) === true ? (string)$key : ''), array_values($ranking));
+		$named = [];
+		foreach (array_values($ranking) as $key) {
+			if (is_scalar($key) === false) {
+				return false;
+			}
+
+			$named[] = (string)$key;
+		}
+
 		if (count(array_unique($named)) !== count($named)) {
 			return false;
 		}
@@ -127,11 +135,19 @@ class BordaCount {
 	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
 	 */
 	private function result(array $labels, array $points, int $counted): array {
-		$order = array_keys($points);
 		// Stable: equal points keep the order the options were declared in.
+		$declared = array_flip(array_keys($points));
+		$order = array_keys($points);
 		usort(
 			$order,
-			static fn (string $left, string $right): int => (($points[$right] <=> $points[$left]) ?: (array_search($left, array_keys($points), true) <=> array_search($right, array_keys($points), true)))
+			static function (string $left, string $right) use ($points, $declared): int {
+				$byPoints = ($points[$right] <=> $points[$left]);
+				if ($byPoints !== 0) {
+					return $byPoints;
+				}
+
+				return ($declared[$left] <=> $declared[$right]);
+			}
 		);
 
 		$ranking = [];

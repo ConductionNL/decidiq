@@ -141,10 +141,13 @@ class RankedBallotRules {
 			return $value;
 		}
 
-		$keys = array_map(
-			static fn (mixed $option): string => (string)(is_array($option) === true ? ($option['key'] ?? '') : ''),
-			(array)($round['options'] ?? [])
-		);
+		$keys = [];
+		foreach ((array)($round['options'] ?? []) as $option) {
+			if (is_array($option) === true) {
+				$keys[] = (string)($option['key'] ?? '');
+			}
+		}
+
 		if ($ranking === null || BordaCount::isFullRanking(ranking: $ranking, keys: $keys) === false) {
 			throw new InvalidArgumentException(message: 'Every option must be ranked exactly once');
 		}
