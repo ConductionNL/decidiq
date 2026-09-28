@@ -125,6 +125,7 @@ class VotingController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 * @spec openspec/specs/voting-system/spec.md
 	 * @spec openspec/specs/user-settings/spec.md
 	 *
@@ -152,11 +153,19 @@ class VotingController extends Controller {
 			$delegatorId = $params['delegatorId'];
 		}
 
+		// A ranked ballot sends its ordering instead of a value (REQ-PRF-002);
+		// the caster checks it against the round's options and stores `ranked`.
+		$ranking = null;
+		if (is_array($params['ranking'] ?? null) === true) {
+			$ranking = $params['ranking'];
+			$value = 'ranked';
+		}
+
 		if ($value === '') {
 			return new JSONResponse(['message' => 'value is required'], Http::STATUS_BAD_REQUEST);
 		}
 
-		if (in_array($value, ['for', 'against', 'abstain'], true) === false) {
+		if ($ranking === null && in_array($value, ['for', 'against', 'abstain'], true) === false) {
 			return new JSONResponse(['message' => 'value must be for, against, or abstain'], Http::STATUS_BAD_REQUEST);
 		}
 
@@ -168,7 +177,8 @@ class VotingController extends Controller {
 					value: $value,
 					isProxy: $isProxy,
 					delegatorId: $delegatorId,
-					callerUid: $nextcloudUid
+					callerUid: $nextcloudUid,
+					ranking: $ranking
 				),
 				Http::STATUS_CREATED
 			)

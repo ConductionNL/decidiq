@@ -65,6 +65,7 @@ class VotingOpenRequestParser {
 	 * @spec openspec/specs/voting-system/spec.md
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 * @spec openspec/specs/process-configuration/spec.md
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
 	 *
 	 * @return array<string,mixed> Keys: `error` (message or null) and `payload` (the arguments).
 	 */
@@ -113,6 +114,7 @@ class VotingOpenRequestParser {
 				'revoteOfRoundId' => $this->strictString(params: $params, key: 'revoteOfRound'),
 				'subjectType' => $subjectType,
 				'governanceBodyId' => $this->strictString(params: $params, key: 'governanceBody'),
+				'options' => $this->listValue(params: $params, key: 'options'),
 			],
 		];
 
