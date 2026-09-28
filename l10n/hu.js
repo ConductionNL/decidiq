@@ -1083,7 +1083,15 @@ OC.L10N.register(
         "What was decided, how it was framed, and what reached the public.": "Mit döntöttek, hogyan fogalmazták meg, és mi jutott el a nyilvánossághoz.",
         "How rounds ended, and how the votes fell.": "Hogyan végződtek a fordulók, és hogyan oszlottak a szavazatok.",
         "Where meetings stand, how they are held, and who turned up.": "Hol tartanak az ülések, hogyan zajlanak, és ki jelent meg.",
-        "Who spoke, for how long, and how engaged the room was.": "Ki beszélt, mennyi ideig, és mennyire volt aktív a terem."
+        "Who spoke, for how long, and how engaged the room was.": "Ki beszélt, mennyi ideig, és mennyire volt aktív a terem.",
+        "Open live meeting": "Élő ülés megnyitása",
+        "Could not save the new order": "Az új sorrendet nem sikerült menteni",
+        "Move up": "Mozgatás fel",
+        "Move down": "Mozgatás le",
+        "The new order was not saved.": "Az új sorrend nem lett mentve.",
+        "Could not load the agenda of these minutes": "A jegyzőkönyv napirendjét nem sikerült betölteni",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Ez a jegyzőkönyv nincs üléshez kapcsolva, így nincsenek napirendi pontok a jegyzetekhez.",
+        "Minutes per agenda item": "Jegyzőkönyv napirendi pontonként"
     },
     "nplurals=2; plural=(n != 1);"
 )

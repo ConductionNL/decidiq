@@ -1082,7 +1082,15 @@
         "What was decided, how it was framed, and what reached the public.": "Mitä päätettiin, miten se muotoiltiin ja mikä tavoitti yleisön.",
         "How rounds ended, and how the votes fell.": "Miten kierrokset päättyivät ja miten äänet jakautuivat.",
         "Where meetings stand, how they are held, and who turned up.": "Missä kokoukset ovat, miten ne pidetään ja kuka saapui.",
-        "Who spoke, for how long, and how engaged the room was.": "Kuka puhui, kuinka kauan ja kuinka osallistuva sali oli."
+        "Who spoke, for how long, and how engaged the room was.": "Kuka puhui, kuinka kauan ja kuinka osallistuva sali oli.",
+        "Open live meeting": "Avaa kokous suorana",
+        "Could not save the new order": "Uutta järjestystä ei voitu tallentaa",
+        "Move up": "Siirrä ylös",
+        "Move down": "Siirrä alas",
+        "The new order was not saved.": "Uutta järjestystä ei tallennettu.",
+        "Could not load the agenda of these minutes": "Tämän pöytäkirjan esityslistaa ei voitu ladata",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Tätä pöytäkirjaa ei ole liitetty kokoukseen, joten muistiinpanoille ei ole esityslistan kohtia.",
+        "Minutes per agenda item": "Pöytäkirja esityslistan kohdittain"
     },
     "plurals": null
 }

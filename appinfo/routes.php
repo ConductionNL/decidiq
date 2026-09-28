@@ -148,6 +148,7 @@ $extra = [
         // (meeting-agenda-gaps-v1). @spec openspec/specs/meeting-management/spec.md
         ['name' => 'meeting#createSeries',    'url' => '/api/meetings/{id}/series',  'verb' => 'POST'],
         ['name' => 'meeting#assemblePackage', 'url' => '/api/meetings/{id}/package', 'verb' => 'POST'],
+        ['name' => 'meeting#myRoles',         'url' => '/api/meetings/{meetingId}/my-roles', 'verb' => 'GET'],
 
         // Agenda lifecycle routes (task-1.3) — specific routes BEFORE wildcard catch-all.
         ['name' => 'agenda#publish',             'url' => '/api/agendas/{meetingId}/publish',      'verb' => 'POST'],

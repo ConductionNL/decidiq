@@ -1082,7 +1082,15 @@
         "What was decided, how it was framed, and what reached the public.": "Hvað var ákveðið, hvernig það var orðað og hvað náði til almennings.",
         "How rounds ended, and how the votes fell.": "Hvernig umferðirnar enduðu og hvernig atkvæðin féllu.",
         "Where meetings stand, how they are held, and who turned up.": "Hvar fundirnir standa, hvernig þeir eru haldnir og hverjir mættu.",
-        "Who spoke, for how long, and how engaged the room was.": "Hver talaði, hversu lengi og hversu virkur salurinn var."
+        "Who spoke, for how long, and how engaged the room was.": "Hver talaði, hversu lengi og hversu virkur salurinn var.",
+        "Open live meeting": "Opna fundinn í beinni",
+        "Could not save the new order": "Ekki tókst að vista nýju röðina",
+        "Move up": "Færa upp",
+        "Move down": "Færa niður",
+        "The new order was not saved.": "Nýja röðin var ekki vistuð.",
+        "Could not load the agenda of these minutes": "Ekki tókst að hlaða dagskrá þessarar fundargerðar",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Þessi fundargerð er ekki tengd fundi, svo engir dagskrárliðir eru til að skrifa við.",
+        "Minutes per agenda item": "Fundargerð eftir dagskrárlið"
     },
     "plurals": null
 }

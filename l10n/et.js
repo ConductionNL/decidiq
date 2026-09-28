@@ -1083,7 +1083,15 @@ OC.L10N.register(
         "What was decided, how it was framed, and what reached the public.": "Mida otsustati, kuidas see sõnastati ja mis jõudis avalikkuseni.",
         "How rounds ended, and how the votes fell.": "Kuidas voorud lõppesid ja kuidas hääled jagunesid.",
         "Where meetings stand, how they are held, and who turned up.": "Kus koosolekud on, kuidas neid peetakse ja kes kohale tuli.",
-        "Who spoke, for how long, and how engaged the room was.": "Kes rääkis, kui kaua ja kui kaasatud oli saal."
+        "Who spoke, for how long, and how engaged the room was.": "Kes rääkis, kui kaua ja kui kaasatud oli saal.",
+        "Open live meeting": "Ava koosolek otse",
+        "Could not save the new order": "Uut järjekorda ei õnnestunud salvestada",
+        "Move up": "Liiguta üles",
+        "Move down": "Liiguta alla",
+        "The new order was not saved.": "Uut järjekorda ei salvestatud.",
+        "Could not load the agenda of these minutes": "Selle protokolli päevakorda ei õnnestunud laadida",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "See protokoll pole koosolekuga seotud, seega pole päevakorrapunkte, mille kohta märkmeid teha.",
+        "Minutes per agenda item": "Protokoll päevakorrapunktide kaupa"
     },
     "nplurals=2; plural=(n != 1);"
 )

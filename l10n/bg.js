@@ -1083,7 +1083,15 @@ OC.L10N.register(
         "What was decided, how it was framed, and what reached the public.": "Какво е решено, как е формулирано и какво е достигнало до обществото.",
         "How rounds ended, and how the votes fell.": "Как завършиха кръговете и как паднаха гласовете.",
         "Where meetings stand, how they are held, and who turned up.": "Докъде са заседанията, как се провеждат и кой е дошъл.",
-        "Who spoke, for how long, and how engaged the room was.": "Кой е говорил, колко дълго и колко ангажирана е била залата."
+        "Who spoke, for how long, and how engaged the room was.": "Кой е говорил, колко дълго и колко ангажирана е била залата.",
+        "Open live meeting": "Отвори заседанието на живо",
+        "Could not save the new order": "Новият ред не можа да бъде запазен",
+        "Move up": "Премести нагоре",
+        "Move down": "Премести надолу",
+        "The new order was not saved.": "Новият ред не беше запазен.",
+        "Could not load the agenda of these minutes": "Дневният ред на този протокол не можа да бъде зареден",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Този протокол не е свързан със заседание, затова няма точки от дневния ред за бележки.",
+        "Minutes per agenda item": "Протокол по точки от дневния ред"
     },
     "nplurals=2; plural=(n != 1);"
 )

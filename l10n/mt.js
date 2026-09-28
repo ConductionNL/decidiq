@@ -1083,7 +1083,15 @@ OC.L10N.register(
         "What was decided, how it was framed, and what reached the public.": "X'ġie deċiż, kif ġie fformulat, u x'wasal għand il-pubbliku.",
         "How rounds ended, and how the votes fell.": "Kif spiċċaw ir-rawnds, u kif waqgħu l-voti.",
         "Where meetings stand, how they are held, and who turned up.": "Fejn qegħdin il-laqgħat, kif isiru, u min ġie.",
-        "Who spoke, for how long, and how engaged the room was.": "Min tkellem, għal kemm żmien, u kemm kienet involuta s-sala."
+        "Who spoke, for how long, and how engaged the room was.": "Min tkellem, għal kemm żmien, u kemm kienet involuta s-sala.",
+        "Open live meeting": "Iftaħ il-laqgħa diretta",
+        "Could not save the new order": "L-ordni l-ġdid ma setax jiġi ssejvjat",
+        "Move up": "Mexxi 'l fuq",
+        "Move down": "Mexxi 'l isfel",
+        "The new order was not saved.": "L-ordni l-ġdid ma ġiex issejvjat.",
+        "Could not load the agenda of these minutes": "L-aġenda ta' dan il-minuti ma setgħetx titgħabba",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Dan il-minuti mhumiex marbuta ma' laqgħa, għalhekk m'hemmx punti fuq l-aġenda biex tieħu noti fuqhom.",
+        "Minutes per agenda item": "Minuti għal kull punt fuq l-aġenda"
     },
     "nplurals=2; plural=(n != 1);"
 )

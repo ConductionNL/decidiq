@@ -1083,7 +1083,15 @@ OC.L10N.register(
         "What was decided, how it was framed, and what reached the public.": "Co postanowiono, jak to sformułowano i co dotarło do opinii publicznej.",
         "How rounds ended, and how the votes fell.": "Jak zakończyły się tury i jak rozłożyły się głosy.",
         "Where meetings stand, how they are held, and who turned up.": "Na jakim etapie są posiedzenia, jak się odbywają i kto się pojawił.",
-        "Who spoke, for how long, and how engaged the room was.": "Kto mówił, jak długo i jak zaangażowana była sala."
+        "Who spoke, for how long, and how engaged the room was.": "Kto mówił, jak długo i jak zaangażowana była sala.",
+        "Open live meeting": "Otwórz posiedzenie na żywo",
+        "Could not save the new order": "Nie udało się zapisać nowej kolejności",
+        "Move up": "Przenieś w górę",
+        "Move down": "Przenieś w dół",
+        "The new order was not saved.": "Nowa kolejność nie została zapisana.",
+        "Could not load the agenda of these minutes": "Nie udało się wczytać porządku obrad tego protokołu",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Ten protokół nie jest powiązany z posiedzeniem, więc nie ma punktów porządku obrad do notatek.",
+        "Minutes per agenda item": "Protokół według punktów porządku obrad"
     },
     "nplurals=2; plural=(n != 1);"
 )

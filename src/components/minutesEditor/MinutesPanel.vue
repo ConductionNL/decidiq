@@ -140,7 +140,12 @@
 import { NcButton, NcLoadingIcon, NcTextArea } from '@nextcloud/vue'
 import ActionItemCaptureModal from '../../modals/ActionItemCaptureModal.vue'
 import { ensureRelationType } from '../tabs/useRelationStore.js'
-import { createAutosaver, getItemNote, mergeItemNote } from './minutesEditor.js'
+import {
+	createAutosaver,
+	getItemNote,
+	mergeItemNote,
+	pickMinutesRecord,
+} from './minutesEditor.js'
 
 export default {
 	name: 'MinutesPanel',
@@ -149,6 +154,10 @@ export default {
 		meetingId: { type: String, required: true },
 		agendaItems: { type: Array, default: () => [] },
 		participants: { type: Array, default: () => [] },
+		// The minutes record to edit. The minutes page passes its own id so
+		// the panel writes to that record; the live screen passes none and
+		// gets the meeting's draft (agenda-meeting-page-item-tools).
+		minutesId: { type: String, default: '' },
 	},
 
 	data() {
@@ -228,8 +237,7 @@ export default {
 					_limit: 100,
 				})
 				const list = items || []
-				this.minutes =
-					list.find((m) => m.lifecycle === 'draft') || list[0] || null
+				this.minutes = pickMinutesRecord(list, this.minutesId)
 				this.itemNotes = Array.isArray(this.minutes?.itemNotes)
 					? this.minutes.itemNotes
 					: []

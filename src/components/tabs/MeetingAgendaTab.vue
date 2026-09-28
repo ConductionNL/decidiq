@@ -9,9 +9,12 @@
  their parent via the additive `parentItem` field), and lets
  chair/secretary add, edit, and delete items inline. It also warns
  about missing statutory ALV items for `general_assembly` meetings and
- assembles the meeting document package (vergaderstukken). Drag-reorder
- from the deleted MeetingDetail/AgendaBuilder is left to the standalone
- /agenda-items index — out of scope for the sidebar tab.
+ assembles the meeting document package (vergaderstukken). A chair,
+ secretary or admin (asked of GET /api/meetings/{id}/my-roles, the same
+ resolver the reorder endpoint's guard uses) can also drag rows or use
+ Move up and Move down to reorder, and opens the live meeting screen from
+ here. Every row opens its agenda item page, where its documents live
+ (agenda-meeting-page-item-tools).
 -->
 <template>
 	<div class="decidiq-tab decidiq-tab--agenda" data-testid="agenda-tab">
@@ -23,6 +26,15 @@
 				>
 			</h3>
 			<div class="decidiq-tab__header-actions">
+				<NcButton
+					v-if="canManage"
+					data-testid="agenda-open-live"
+					@click="openLive">
+					<template #icon>
+						<Presentation :size="20" />
+					</template>
+					{{ t('decidiq', 'Open live meeting') }}
+				</NcButton>
 				<NcButton
 					data-testid="agenda-assemble-package"
 					:disabled="assembling"
@@ -75,6 +87,14 @@
 		</CnNoteCard>
 
 		<CnNoteCard
+			v-if="reorderError"
+			type="error"
+			data-testid="agenda-reorder-error"
+			:title="t('decidiq', 'Could not save the new order')">
+			{{ reorderError }}
+		</CnNoteCard>
+
+		<CnNoteCard
 			v-if="packageError"
 			type="error"
 			:title="t('decidiq', 'Package assembly failed')">
@@ -104,6 +124,28 @@
 			:emptyText="t('decidiq', 'No agenda items yet for this meeting.')"
 			:loadingText="t('decidiq', 'Loading agenda…')"
 			@rowClick="openEdit">
+			<template #column-orderNumber="{ row, value }">
+				<span
+					class="decidiq-tab__order"
+					:class="{ 'decidiq-tab__order--draggable': canManage }"
+					:draggable="canManage"
+					:data-testid="`agenda-drag-${row.id}`"
+					@click.stop
+					@dragstart="onDragStart($event, row)"
+					@dragover.prevent
+					@drop.prevent="onDrop(row)">
+					<DragVertical
+						v-if="canManage"
+						:size="16"
+						class="decidiq-tab__drag-handle" />
+					{{ value }}
+				</span>
+			</template>
+			<template #column-titleDisplay="{ row, value }">
+				<span @dragover.prevent @drop.prevent="onDrop(row)">{{
+					value
+				}}</span>
+			</template>
 			<template #row-actions="{ row }">
 				<CnRowActions :row="row" :actions="rowActions" />
 			</template>
@@ -153,14 +195,22 @@ import {
 } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { NcButton } from '@nextcloud/vue'
+import ArrowDown from 'vue-material-design-icons/ArrowDown.vue'
+import ArrowUp from 'vue-material-design-icons/ArrowUp.vue'
+import DragVertical from 'vue-material-design-icons/DragVertical.vue'
+import EyeOutline from 'vue-material-design-icons/EyeOutline.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
+import Presentation from 'vue-material-design-icons/Presentation.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import AgendaItemTypeFields from '../AgendaItemTypeFields.vue'
 import {
 	buildAgendaTree,
+	canManageAgenda,
+	dropAgendaItem,
 	flattenTree,
 	missingStatutoryItems,
+	moveAgendaItem,
 } from '../../services/agendaRules.js'
 import {
 	findItemType,
@@ -178,8 +228,10 @@ export default {
 		CnFormDialog,
 		CnNoteCard,
 		CnRowActions,
+		DragVertical,
 		NcButton,
 		Plus,
+		Presentation,
 	},
 
 	props: {
@@ -209,6 +261,11 @@ export default {
 			assembling: false,
 			packageResult: null,
 			packageError: '',
+			// The caller's presiding roles on this meeting, from the server.
+			// Null until answered: the tools stay hidden rather than flash.
+			myRoles: null,
+			dragId: null,
+			reorderError: '',
 		}
 	},
 
@@ -256,6 +313,16 @@ export default {
 			]
 		},
 
+		/**
+		 * Whether the caller may reorder and open the live screen.
+		 *
+		 * @return {boolean} True for chair, secretary or admin.
+		 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+		 */
+		canManage() {
+			return canManageAgenda(this.myRoles)
+		},
+
 		/** @spec openspec/specs/agenda-management/spec.md */
 		missingStatutory() {
 			return missingStatutoryItems(this.meeting?.meetingType || '', this.rows)
@@ -274,6 +341,23 @@ export default {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		rowActions() {
 			return [
+				{
+					label: this.t('decidiq', 'Open'),
+					icon: EyeOutline,
+					handler: (row) => this.openItem(row),
+				},
+				{
+					label: this.t('decidiq', 'Move up'),
+					icon: ArrowUp,
+					visible: () => this.canManage,
+					handler: (row) => this.moveItem(row, -1),
+				},
+				{
+					label: this.t('decidiq', 'Move down'),
+					icon: ArrowDown,
+					visible: () => this.canManage,
+					handler: (row) => this.moveItem(row, 1),
+				},
 				{
 					label: this.t('decidiq', 'Edit'),
 					icon: Pencil,
@@ -313,6 +397,7 @@ export default {
 			/** @spec openspec/specs/relation-tab-ui/spec.md */
 			handler() {
 				this.refresh()
+				this.loadMyRoles()
 			},
 		},
 	},
@@ -452,6 +537,118 @@ export default {
 			}
 		},
 
+		/**
+		 * Ask the server which presiding roles the caller holds on this
+		 * meeting. Fail-closed: any error leaves the tools hidden, and the
+		 * reorder endpoint would refuse the call anyway.
+		 *
+		 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+		 */
+		async loadMyRoles() {
+			this.myRoles = null
+			if (!this.objectId) return
+			try {
+				const response = await fetch(
+					generateUrl(
+						`/apps/decidiq/api/meetings/${this.objectId}/my-roles`,
+					),
+					{ headers: { Accept: 'application/json' } },
+				)
+				if (!response.ok) return
+				this.myRoles = await response.json()
+			} catch {
+				// Fail closed: without an answer the tools stay hidden.
+				this.myRoles = null
+			}
+		},
+
+		/**
+		 * @param {object} row Agenda row.
+		 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-003-every-agenda-row-opens-its-item-page
+		 */
+		openItem(row) {
+			this.$router.push({ name: 'AgendaItemDetail', params: { id: row.id } })
+		},
+
+		/** @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-004-the-meeting-page-links-the-live-meeting-screen */
+		openLive() {
+			this.$router.push({ name: 'LiveMeeting', params: { id: this.objectId } })
+		},
+
+		/**
+		 * @param {object} row Agenda row.
+		 * @param {number} delta -1 for up, 1 for down.
+		 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+		 */
+		moveItem(row, delta) {
+			const ids = moveAgendaItem(buildAgendaTree(this.rawRows), row.id, delta)
+			if (ids) this.persistOrder(ids)
+		},
+
+		/**
+		 * @param {DragEvent} event The drag event.
+		 * @param {object} row Agenda row being dragged.
+		 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+		 */
+		onDragStart(event, row) {
+			if (!this.canManage) return
+			this.dragId = row.id
+			if (event?.dataTransfer) {
+				event.dataTransfer.effectAllowed = 'move'
+				event.dataTransfer.setData('text/plain', String(row.id))
+			}
+		},
+
+		/**
+		 * @param {object} row Agenda row the dragged item was dropped on.
+		 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+		 */
+		onDrop(row) {
+			const dragId = this.dragId
+			this.dragId = null
+			if (!this.canManage || !dragId) return
+			const ids = dropAgendaItem(buildAgendaTree(this.rawRows), dragId, row.id)
+			if (ids) this.persistOrder(ids)
+		},
+
+		/**
+		 * Save the new order in one call to the existing reorder endpoint,
+		 * which renumbers every item, then reload the rows.
+		 *
+		 * @param {Array<string>} ids Agenda item ids in the new order.
+		 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+		 */
+		async persistOrder(ids) {
+			this.reorderError = ''
+			try {
+				const response = await fetch(
+					generateUrl(
+						`/apps/decidiq/api/agendas/${this.objectId}/reorder`,
+					),
+					{
+						method: 'PUT',
+						headers: {
+							'Content-Type': 'application/json',
+							Accept: 'application/json',
+							requesttoken: OC.requestToken,
+						},
+						body: JSON.stringify({ ids }),
+					},
+				)
+				if (!response.ok) {
+					const payload = await response.json().catch(() => ({}))
+					this.reorderError =
+						payload?.message
+						|| this.t('decidiq', 'The new order was not saved.')
+					return
+				}
+				await this.refresh()
+			} catch (e) {
+				this.reorderError =
+					e?.message || this.t('decidiq', 'The new order was not saved.')
+			}
+		},
+
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async openCreate() {
 			const store = ensureRelationType('agenda-item')
@@ -588,6 +785,20 @@ export default {
 	display: flex;
 	gap: var(--default-grid-baseline);
 	flex-wrap: wrap;
+}
+
+.decidiq-tab__order {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+}
+
+.decidiq-tab__order--draggable {
+	cursor: grab;
+}
+
+.decidiq-tab__drag-handle {
+	color: var(--color-text-maxcontrast);
 }
 
 .decidiq-tab__statutory-list {

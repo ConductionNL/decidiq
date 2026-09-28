@@ -1083,7 +1083,15 @@ OC.L10N.register(
         "What was decided, how it was framed, and what reached the public.": "Hvad der blev besluttet, hvordan det blev formuleret, og hvad der nåede offentligheden.",
         "How rounds ended, and how the votes fell.": "Hvordan runderne endte, og hvordan stemmerne faldt.",
         "Where meetings stand, how they are held, and who turned up.": "Hvor møderne står, hvordan de afholdes, og hvem der mødte op.",
-        "Who spoke, for how long, and how engaged the room was.": "Hvem der talte, hvor længe, og hvor engageret salen var."
+        "Who spoke, for how long, and how engaged the room was.": "Hvem der talte, hvor længe, og hvor engageret salen var.",
+        "Open live meeting": "Åbn mødet live",
+        "Could not save the new order": "Den nye rækkefølge kunne ikke gemmes",
+        "Move up": "Flyt op",
+        "Move down": "Flyt ned",
+        "The new order was not saved.": "Den nye rækkefølge blev ikke gemt.",
+        "Could not load the agenda of these minutes": "Dagsordenen for dette referat kunne ikke indlæses",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Dette referat er ikke knyttet til et møde, så der er ingen dagsordenspunkter at tage noter til.",
+        "Minutes per agenda item": "Referat pr. dagsordenspunkt"
     },
     "nplurals=2; plural=(n != 1);"
 )

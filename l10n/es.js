@@ -1083,7 +1083,15 @@ OC.L10N.register(
         "What was decided, how it was framed, and what reached the public.": "Qué se decidió, cómo se formuló y qué llegó al público.",
         "How rounds ended, and how the votes fell.": "Cómo terminaron las rondas y cómo se repartieron los votos.",
         "Where meetings stand, how they are held, and who turned up.": "En qué punto están las reuniones, cómo se celebran y quién asistió.",
-        "Who spoke, for how long, and how engaged the room was.": "Quién habló, cuánto tiempo y cuán implicada estaba la sala."
+        "Who spoke, for how long, and how engaged the room was.": "Quién habló, cuánto tiempo y cuán implicada estaba la sala.",
+        "Open live meeting": "Abrir la reunión en directo",
+        "Could not save the new order": "No se pudo guardar el nuevo orden",
+        "Move up": "Subir",
+        "Move down": "Bajar",
+        "The new order was not saved.": "El nuevo orden no se ha guardado.",
+        "Could not load the agenda of these minutes": "No se pudo cargar el orden del día de esta acta",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Esta acta no está vinculada a una reunión, así que no hay puntos del orden del día sobre los que tomar notas.",
+        "Minutes per agenda item": "Acta por punto del orden del día"
     },
     "nplurals=2; plural=(n != 1);"
 )

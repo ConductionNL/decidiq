@@ -1082,7 +1082,15 @@
         "What was decided, how it was framed, and what reached the public.": "Çfarë u vendos, si u formulua dhe çfarë arriti te publiku.",
         "How rounds ended, and how the votes fell.": "Si përfunduan raundet dhe si ranë votat.",
         "Where meetings stand, how they are held, and who turned up.": "Ku qëndrojnë mbledhjet, si mbahen dhe kush erdhi.",
-        "Who spoke, for how long, and how engaged the room was.": "Kush foli, sa gjatë dhe sa e angazhuar ishte salla."
+        "Who spoke, for how long, and how engaged the room was.": "Kush foli, sa gjatë dhe sa e angazhuar ishte salla.",
+        "Open live meeting": "Hap mbledhjen drejtpërdrejt",
+        "Could not save the new order": "Rendi i ri nuk mund të ruhej",
+        "Move up": "Lëviz lart",
+        "Move down": "Lëviz poshtë",
+        "The new order was not saved.": "Rendi i ri nuk u ruajt.",
+        "Could not load the agenda of these minutes": "Rendi i ditës i këtij procesverbali nuk mund të ngarkohej",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Ky procesverbal nuk është i lidhur me një mbledhje, prandaj nuk ka pika të rendit të ditës për shënime.",
+        "Minutes per agenda item": "Procesverbal sipas pikave të rendit të ditës"
     },
     "plurals": null
 }

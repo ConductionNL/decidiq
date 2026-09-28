@@ -1083,7 +1083,15 @@ OC.L10N.register(
         "What was decided, how it was framed, and what reached the public.": "Ce s-a decis, cum a fost formulat și ce a ajuns la public.",
         "How rounds ended, and how the votes fell.": "Cum s-au încheiat rundele și cum au căzut voturile.",
         "Where meetings stand, how they are held, and who turned up.": "Unde se află ședințele, cum se desfășoară și cine s-a prezentat.",
-        "Who spoke, for how long, and how engaged the room was.": "Cine a vorbit, cât timp și cât de implicată a fost sala."
+        "Who spoke, for how long, and how engaged the room was.": "Cine a vorbit, cât timp și cât de implicată a fost sala.",
+        "Open live meeting": "Deschide ședința în direct",
+        "Could not save the new order": "Noua ordine nu a putut fi salvată",
+        "Move up": "Mută în sus",
+        "Move down": "Mută în jos",
+        "The new order was not saved.": "Noua ordine nu a fost salvată.",
+        "Could not load the agenda of these minutes": "Ordinea de zi a acestui proces-verbal nu a putut fi încărcată",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Acest proces-verbal nu este legat de o ședință, deci nu există puncte pe ordinea de zi pentru notițe.",
+        "Minutes per agenda item": "Proces-verbal pe puncte de pe ordinea de zi"
     },
     "nplurals=2; plural=(n != 1);"
 )

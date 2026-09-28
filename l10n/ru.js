@@ -1083,7 +1083,15 @@ OC.L10N.register(
         "What was decided, how it was framed, and what reached the public.": "Что решено, как это сформулировано и что дошло до общественности.",
         "How rounds ended, and how the votes fell.": "Как завершились раунды и как распределились голоса.",
         "Where meetings stand, how they are held, and who turned up.": "На каком этапе заседания, как они проходят и кто пришёл.",
-        "Who spoke, for how long, and how engaged the room was.": "Кто говорил, как долго и насколько вовлечён был зал."
+        "Who spoke, for how long, and how engaged the room was.": "Кто говорил, как долго и насколько вовлечён был зал.",
+        "Open live meeting": "Открыть заседание в прямом эфире",
+        "Could not save the new order": "Не удалось сохранить новый порядок",
+        "Move up": "Переместить вверх",
+        "Move down": "Переместить вниз",
+        "The new order was not saved.": "Новый порядок не сохранён.",
+        "Could not load the agenda of these minutes": "Не удалось загрузить повестку этого протокола",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Этот протокол не связан с заседанием, поэтому нет пунктов повестки для заметок.",
+        "Minutes per agenda item": "Протокол по пунктам повестки"
     },
     "nplurals=2; plural=(n != 1);"
 )

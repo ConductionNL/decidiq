@@ -1082,7 +1082,15 @@
         "What was decided, how it was framed, and what reached the public.": "Τι αποφασίστηκε, πώς διατυπώθηκε και τι έφτασε στο κοινό.",
         "How rounds ended, and how the votes fell.": "Πώς τελείωσαν οι γύροι και πώς έπεσαν οι ψήφοι.",
         "Where meetings stand, how they are held, and who turned up.": "Πού βρίσκονται οι συνεδριάσεις, πώς διεξάγονται και ποιος ήρθε.",
-        "Who spoke, for how long, and how engaged the room was.": "Ποιος μίλησε, για πόσο, και πόσο ενεργή ήταν η αίθουσα."
+        "Who spoke, for how long, and how engaged the room was.": "Ποιος μίλησε, για πόσο, και πόσο ενεργή ήταν η αίθουσα.",
+        "Open live meeting": "Άνοιγμα ζωντανής συνεδρίασης",
+        "Could not save the new order": "Δεν ήταν δυνατή η αποθήκευση της νέας σειράς",
+        "Move up": "Μετακίνηση πάνω",
+        "Move down": "Μετακίνηση κάτω",
+        "The new order was not saved.": "Η νέα σειρά δεν αποθηκεύτηκε.",
+        "Could not load the agenda of these minutes": "Δεν ήταν δυνατή η φόρτωση της ημερήσιας διάταξης αυτών των πρακτικών",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Αυτά τα πρακτικά δεν συνδέονται με συνεδρίαση, οπότε δεν υπάρχουν θέματα ημερήσιας διάταξης για σημειώσεις.",
+        "Minutes per agenda item": "Πρακτικά ανά θέμα ημερήσιας διάταξης"
     },
     "plurals": null
 }

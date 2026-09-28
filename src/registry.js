@@ -58,6 +58,7 @@ import MeetingTranscriptionTab from './components/tabs/MeetingTranscriptionTab.v
 import MeetingVotesTab from './components/tabs/MeetingVotesTab.vue'
 import MinutesApprovalTab from './components/tabs/MinutesApprovalTab.vue'
 import MinutesDocumentTab from './components/tabs/MinutesDocumentTab.vue'
+import MinutesItemNotesTab from './components/tabs/MinutesItemNotesTab.vue'
 import MinutesPublicationTab from './components/tabs/MinutesPublicationTab.vue'
 import MinutesSignersTab from './components/tabs/MinutesSignersTab.vue'
 import MotionAmendmentOrderTab from './components/tabs/MotionAmendmentOrderTab.vue'
@@ -237,6 +238,7 @@ export default {
 	// Visual diff against the parent motion text (motion-amendment spec).
 	AmendmentDiffTab: page(AmendmentDiffTab),
 	MinutesSignersTab: page(MinutesSignersTab),
+	MinutesItemNotesTab: page(MinutesItemNotesTab),
 	// Minutes approval workflow + document generation (minutes-ui-v1):
 	// lifecycle timeline with guarded submit/approve/reject actions and
 	// participant correction suggestions; document generation into the
