@@ -1110,7 +1110,8 @@ OC.L10N.register(
         "Agenda published or changed": "Napirend közzétéve vagy módosítva",
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Értesítés, ha egy olyan ülés napirendjét, amelyen részt vesz, közzéteszik, átdolgozzák vagy módosítják.",
         "Agenda notice sent at": "Napirendi értesítés elküldve",
-        "When each member last received an agenda change notice for this meeting.": "Mikor kapott utoljára az egyes tagok értesítést az ülés napirendjének változásáról."
+        "When each member last received an agenda change notice for this meeting.": "Mikor kapott utoljára az egyes tagok értesítést az ülés napirendjének változásáról.",
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Az ebben az időszakban Önhöz érkező jóváhagyásokat a helyettese is megkapja, aki az Ön nevében aláírhatja őket."
     },
     "nplurals=2; plural=(n != 1);"
 )

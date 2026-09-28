@@ -4,11 +4,11 @@
 
 ### Task 1: Absence period hands over approvals
 - **spec_ref**: `openspec/changes/routes-absence-substitute/specs/decision-route/spec.md#requirement-req-ras-001-a-substitute-approves-while-someone-is-away`
-- **files**: `lib/Service/ApprovalActorResolver.php`, `src/components/userSettings/NotificationPreferencesSection.vue`
+- **files**: `lib/Service/ApprovalStageActivator.php`, `lib/Service/ApprovalStageGuard.php`, `src/components/userSettings/DelegationSection.vue`
 - **acceptance_criteria**:
-  - GIVEN Anna away 1 to 14 August with substitute Pieter WHEN a step for Anna starts on 5 August THEN Pieter is the approver on behalf of Anna
-- [ ] Implement
-- [ ] Test (red first)
+  - GIVEN Anna away 1 to 14 August with substitute Pieter WHEN a step for Anna starts on 5 August THEN the step names Pieter as substitute and Pieter can approve it
+- [x] Implement
+- [x] Test (red first)
 
 ## Verification
 

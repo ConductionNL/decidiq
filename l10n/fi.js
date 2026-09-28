@@ -1110,7 +1110,8 @@ OC.L10N.register(
         "Agenda published or changed": "Esityslista julkaistu tai muuttunut",
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Ilmoita, kun kokouksen, johon osallistut, esityslista julkaistaan, sitä muutetaan tai se muuttuu.",
         "Agenda notice sent at": "Esityslistailmoitus lähetetty",
-        "When each member last received an agenda change notice for this meeting.": "Milloin kukin jäsen viimeksi sai ilmoituksen tämän kokouksen esityslistan muutoksesta."
+        "When each member last received an agenda change notice for this meeting.": "Milloin kukin jäsen viimeksi sai ilmoituksen tämän kokouksen esityslistan muutoksesta.",
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Tänä aikana sinulle tulevat hyväksynnät annetaan myös sijaisellesi, joka voi hyväksyä ne puolestasi."
     },
     "nplurals=2; plural=(n != 1);"
 )

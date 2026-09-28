@@ -1110,7 +1110,8 @@ OC.L10N.register(
         "Agenda published or changed": "Aġenda ppubblikata jew mibdula",
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Innotifika meta l-aġenda ta' laqgħa li tieħu sehem fiha tiġi ppubblikata, riveduta jew mibdula.",
         "Agenda notice sent at": "Avviż dwar l-aġenda mibgħut fi",
-        "When each member last received an agenda change notice for this meeting.": "Meta kull membru rċieva l-aħħar avviż ta' bidla fl-aġenda għal din il-laqgħa."
+        "When each member last received an agenda change notice for this meeting.": "Meta kull membru rċieva l-aħħar avviż ta' bidla fl-aġenda għal din il-laqgħa.",
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "L-approvazzjonijiet li jaslulek f'dan il-perjodu jingħataw ukoll lid-delegat tiegħek, li jista' jiffirmahom f'ismek."
     },
     "nplurals=2; plural=(n != 1);"
 )

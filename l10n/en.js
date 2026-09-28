@@ -1592,6 +1592,7 @@ OC.L10N.register(
         "Show of hands": "Show of hands",
         "Sign": "Sign",
         "Sign now": "Sign now",
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.",
         "Signatures": "Signatures",
         "Signed": "Signed",
         "Signers": "Signers",

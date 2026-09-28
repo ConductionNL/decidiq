@@ -1831,6 +1831,7 @@ OC.L10N.register(
         "Show of hands": "Handopsteking",
         "Sign": "Ondertekenen",
         "Sign now": "Nu ondertekenen",
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Parafen die u in deze periode bereiken, gaan ook naar uw gedelegeerde, die ze namens u kan tekenen.",
         "Signature": "Handtekening",
         "Signatures": "Handtekeningen",
         "Signed": "Ondertekend",

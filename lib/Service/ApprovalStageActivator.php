@@ -72,12 +72,16 @@ class ApprovalStageActivator {
 	 *        at all. Nullable so a unit test can leave the account check out; a
 	 *        missing manager means the check is SKIPPED, never that it passed.
 	 * @param LoggerInterface|null $logger Logger.
+	 * @param NotificationPreferenceService|null $preferences Answers who stands in for somebody who
+	 *        set an absence period. Nullable so the older unit tests keep constructing without it;
+	 *        a missing service means nobody is treated as away.
 	 */
 	public function __construct(
 		private readonly RegisterObjectStore $store,
 		private readonly ApprovalActorResolver $resolver,
 		private readonly ?IUserManager $userManager = null,
 		private readonly ?LoggerInterface $logger = null,
+		private readonly ?NotificationPreferenceService $preferences = null,
 	) {
 	}//end __construct()
 
@@ -98,12 +102,17 @@ class ApprovalStageActivator {
 	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-013)
 	 */
 	public function activationPatch(array $stage, string $subjectOwner = '', ?DateTimeImmutable $now = null): array {
-		$stampedAt = ($now ?? new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
+		$clock = ($now ?? new DateTimeImmutable());
+		$stampedAt = $clock->format(DateTimeImmutable::ATOM);
 		$patch = ['status' => 'active', 'activatedAt' => $stampedAt];
 
 		$rule = trim((string)($stage['actorRule'] ?? ''));
 		if ($rule === '') {
-			return $patch;
+			return $this->withAbsenceSubstitute(
+				patch: $patch,
+				actor: (string)($stage['assignedPerson'] ?? ''),
+				now: $clock
+			);
 		}
 
 		$resolved = $this->resolver->resolve(
@@ -123,8 +132,52 @@ class ApprovalStageActivator {
 		$patch['actorResolvedAt'] = $resolved['actorResolvedAt'];
 		$patch['decisionMakerType'] = 'person';
 
-		return $patch;
+		return $this->withAbsenceSubstitute(patch: $patch, actor: $resolved['actor'], now: $clock);
 	}//end activationPatch()
+
+	/**
+	 * Name the actor's delegate as the stage's substitute when the actor is
+	 * away on the day the stage becomes live.
+	 *
+	 * The stage stays assigned to the absent person, who may still sign; the
+	 * delegate may sign on their behalf, and whoever signs first closes it.
+	 * That is the same arrangement the lapse sweep makes part way through a
+	 * window (REQ-AR-016), made at the start because the absence is known.
+	 *
+	 * @param array<string, mixed> $patch The activation patch so far.
+	 * @param string $actor Who the stage is assigned to.
+	 * @param DateTimeImmutable $now The activation moment.
+	 *
+	 * @return array<string, mixed> The patch, with the substitute when one applies.
+	 *
+	 * @spec openspec/specs/decision-route/spec.md#requirement-req-ras-001-a-substitute-approves-while-someone-is-away
+	 */
+	private function withAbsenceSubstitute(array $patch, string $actor, DateTimeImmutable $now): array {
+		if ($this->preferences === null || trim($actor) === '') {
+			return $patch;
+		}
+
+		try {
+			$delegate = $this->preferences->getActiveDelegate(personId: $actor, today: $now);
+		} catch (\Throwable $e) {
+			// An unreadable preference is not an absence: the stage waits on
+			// the person it names, as it did before this rule existed.
+			$this->logger?->warning(
+				'Decidiq: could not read the absence of an approval stage actor',
+				['actor' => $actor, 'reason' => $e->getMessage()]
+			);
+			return $patch;
+		}
+
+		if ($delegate === null || $delegate === '' || $delegate === $actor) {
+			return $patch;
+		}
+
+		$patch['substituteActor'] = $delegate;
+		$patch['substituteAskedAt'] = $now->format(DateTimeImmutable::ATOM);
+
+		return $patch;
+	}//end withAbsenceSubstitute()
 
 	/**
 	 * The substitute of a person, or null when the record does not name exactly

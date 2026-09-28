@@ -1110,7 +1110,8 @@ OC.L10N.register(
         "Agenda published or changed": "Gündem yayımlandı veya değişti",
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Katıldığınız bir toplantının gündemi yayımlandığında, gözden geçirildiğinde veya değiştiğinde bildir.",
         "Agenda notice sent at": "Gündem bildirimi gönderilme zamanı",
-        "When each member last received an agenda change notice for this meeting.": "Her üyenin bu toplantının gündem değişikliği bildirimini en son ne zaman aldığı."
+        "When each member last received an agenda change notice for this meeting.": "Her üyenin bu toplantının gündem değişikliği bildirimini en son ne zaman aldığı.",
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Bu dönemde size ulaşan onaylar vekilinize de verilir; vekiliniz bunları sizin adınıza imzalayabilir."
     },
     "nplurals=2; plural=(n != 1);"
 )

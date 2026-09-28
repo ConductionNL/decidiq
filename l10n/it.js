@@ -1110,7 +1110,8 @@ OC.L10N.register(
         "Agenda published or changed": "Ordine del giorno pubblicato o modificato",
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Avvisa quando l'ordine del giorno di una riunione a cui partecipa viene pubblicato, rivisto o modificato.",
         "Agenda notice sent at": "Avviso sull'ordine del giorno inviato il",
-        "When each member last received an agenda change notice for this meeting.": "Quando ogni membro ha ricevuto l'ultimo avviso di modifica dell'ordine del giorno di questa riunione."
+        "When each member last received an agenda change notice for this meeting.": "Quando ogni membro ha ricevuto l'ultimo avviso di modifica dell'ordine del giorno di questa riunione.",
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Le approvazioni che ti arrivano in questo periodo vengono affidate anche al tuo delegato, che può firmarle per tuo conto."
     },
     "nplurals=2; plural=(n != 1);"
 )

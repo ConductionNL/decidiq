@@ -1110,7 +1110,8 @@ OC.L10N.register(
         "Agenda published or changed": "Päevakord avaldatud või muudetud",
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Teavita, kui koosoleku, milles osalete, päevakord avaldatakse, vaadatakse üle või muutub.",
         "Agenda notice sent at": "Päevakorrateade saadetud",
-        "When each member last received an agenda change notice for this meeting.": "Millal iga liige viimati sai selle koosoleku päevakorra muutmise teate."
+        "When each member last received an agenda change notice for this meeting.": "Millal iga liige viimati sai selle koosoleku päevakorra muutmise teate.",
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Selle perioodi jooksul teieni jõudvad kinnitused suunatakse ka teie asendajale, kes saab need teie nimel allkirjastada."
     },
     "nplurals=2; plural=(n != 1);"
 )

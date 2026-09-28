@@ -1109,7 +1109,8 @@
         "Agenda published or changed": "Ημερήσια διάταξη δημοσιεύθηκε ή άλλαξε",
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Ειδοποίηση όταν η ημερήσια διάταξη μιας συνεδρίασης στην οποία συμμετέχετε δημοσιεύεται, αναθεωρείται ή αλλάζει.",
         "Agenda notice sent at": "Ειδοποίηση ημερήσιας διάταξης στάλθηκε στις",
-        "When each member last received an agenda change notice for this meeting.": "Πότε κάθε μέλος έλαβε τελευταία ειδοποίηση αλλαγής ημερήσιας διάταξης για αυτή τη συνεδρίαση."
+        "When each member last received an agenda change notice for this meeting.": "Πότε κάθε μέλος έλαβε τελευταία ειδοποίηση αλλαγής ημερήσιας διάταξης για αυτή τη συνεδρίαση.",
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Οι εγκρίσεις που σας φτάνουν σε αυτή την περίοδο ανατίθενται και στον αναπληρωτή σας, ο οποίος μπορεί να τις υπογράψει εκ μέρους σας."
     },
     "plurals": null
 }
