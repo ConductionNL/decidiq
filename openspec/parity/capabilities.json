@@ -7033,7 +7033,7 @@
 			"decidiq": "yes",
 			"built": {
 				"state": "built",
-				"evidence": "lib/Settings/register.d/94-motion-submission-window.json Meeting.submissionOpensAt; lib/Listener/SubmissionDeadlineListener.php:72 NOT_YET_OPEN_MESSAGE refuses a motion or amendment created before the opening time, :214 refuseInvertedWindow() refuses a meeting whose window opens at or after its deadline, subscribed for meeting creates and updates at lib/AppInfo/Registrar/ObjectListenerRegistrar.php:165; src/manifest.json MeetingDetail meeting-planning includes submissionOpensAt",
+				"evidence": "lib/Settings/register.d/94-motion-submission-window.json Meeting.submissionOpensAt; lib/Listener/SubmissionDeadlineListener.php:170 checkSubmission() refuses a motion or amendment outside the window through lib/Listener/SubmissionWindow.php:127 refusal() (before the opening time, with a message naming it, or after the deadline); SubmissionDeadlineListener.php:117 refuses a meeting whose window is inverted (SubmissionWindow.php:108 isInverted()), subscribed for meeting creates and updates at lib/AppInfo/Registrar/ObjectListenerRegistrar.php:165; src/manifest.json MeetingDetail meeting-planning includes submissionOpensAt",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-28-motions-submission-window",
 				"readOn": "2026-09-28"
