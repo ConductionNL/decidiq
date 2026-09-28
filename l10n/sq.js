@@ -1111,7 +1111,15 @@ OC.L10N.register(
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Njofto kur rendi i ditës i një mbledhjeje ku merrni pjesë publikohet, rishikohet ose ndryshon.",
         "Agenda notice sent at": "Njoftimi për rendin e ditës u dërgua më",
         "When each member last received an agenda change notice for this meeting.": "Kur mori secili anëtar njoftimin e fundit për ndryshimin e rendit të ditës për këtë mbledhje.",
-        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Miratimet që ju vijnë në këtë periudhë i jepen edhe të deleguarit tuaj, i cili mund t'i nënshkruajë në emrin tuaj."
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Miratimet që ju vijnë në këtë periudhë i jepen edhe të deleguarit tuaj, i cili mund t'i nënshkruajë në emrin tuaj.",
+        "This meeting has no technical questions.": "Kjo mbledhje nuk ka pyetje teknike.",
+        "A technical question was assigned to you": "Ju është caktuar një pyetje teknike",
+        "Please answer by %1$s: %2$s": "Ju lutemi përgjigjuni deri më %1$s: %2$s",
+        "Your technical question was answered": "Pyetjes suaj teknike iu dha përgjigje",
+        "The answer is on the agenda item: %1$s": "Përgjigjja është te pika e rendit të ditës: %1$s",
+        "no deadline set": "nuk është caktuar afat",
+        "Question": "Pyetje",
+        "Technical questions": "Pyetje teknike"
     },
     "nplurals=2; plural=(n != 1);"
 )

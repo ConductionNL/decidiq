@@ -40,6 +40,15 @@
 				:options="input.options"
 				:disabled="disabled"
 				@update:modelValue="write(input, $event)" />
+			<NcSelect
+				v-else-if="input.input === 'user'"
+				:modelValue="userOption(input)"
+				:inputLabel="caption(input)"
+				:options="userOptions"
+				:filterable="false"
+				:disabled="disabled"
+				@search="searchUsers"
+				@update:modelValue="write(input, $event)" />
 			<NcTextArea
 				v-else-if="input.input === 'textarea'"
 				:modelValue="text(input)"
@@ -68,6 +77,7 @@ import {
 	NcTextField,
 } from '@nextcloud/vue'
 import { setTypeFieldValue, typeFieldInputs } from '../utils/agendaItemTypeFields.js'
+import { searchDelegateUsers } from './userSettings/userPreferences.js'
 
 export default {
 	name: 'AgendaItemTypeFields',
@@ -90,6 +100,12 @@ export default {
 	},
 
 	emits: ['update:modelValue'],
+
+	data() {
+		return {
+			userOptions: [],
+		}
+	},
 
 	computed: {
 		/** @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md */
@@ -132,6 +148,40 @@ export default {
 			if (input.input === 'number') return 'number'
 			if (input.input === 'date') return 'date'
 			return 'text'
+		},
+
+		/**
+		 * The picked person as a picker option; the stored user id stands in
+		 * for the name until a search returns it.
+		 *
+		 * @param {object} input The input definition.
+		 * @return {?{id: string, label: string}} The option, or null.
+		 * @spec openspec/specs/motion-management/spec.md#requirement-req-mtq-001-technical-questions-go-to-an-official-with-a-deadline
+		 */
+		userOption(input) {
+			const id = this.current[input.key]
+			if (!id) return null
+			return (
+				this.userOptions.find((option) => option.id === id) || {
+					id,
+					label: String(id),
+				}
+			)
+		},
+
+		/**
+		 * Search the instance's users by name.
+		 *
+		 * @param {string} search What was typed.
+		 * @spec openspec/specs/motion-management/spec.md#requirement-req-mtq-001-technical-questions-go-to-an-official-with-a-deadline
+		 */
+		async searchUsers(search) {
+			if (!search || search.length < 2) return
+			try {
+				this.userOptions = await searchDelegateUsers(search)
+			} catch {
+				this.userOptions = []
+			}
 		},
 
 		/**

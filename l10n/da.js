@@ -1111,7 +1111,15 @@ OC.L10N.register(
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Giv besked, når dagsordenen for et møde, du deltager i, offentliggøres, revideres eller ændres.",
         "Agenda notice sent at": "Dagsordensbesked sendt",
         "When each member last received an agenda change notice for this meeting.": "Hvornår hvert medlem sidst fik besked om en ændring i dagsordenen for dette møde.",
-        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Godkendelser, der når dig i denne periode, sendes også til din stedfortræder, som kan godkende dem på dine vegne."
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Godkendelser, der når dig i denne periode, sendes også til din stedfortræder, som kan godkende dem på dine vegne.",
+        "This meeting has no technical questions.": "Dette møde har ingen tekniske spørgsmål.",
+        "A technical question was assigned to you": "Et teknisk spørgsmål er tildelt dig",
+        "Please answer by %1$s: %2$s": "Svar venligst senest %1$s: %2$s",
+        "Your technical question was answered": "Dit tekniske spørgsmål er besvaret",
+        "The answer is on the agenda item: %1$s": "Svaret står på dagsordenspunktet: %1$s",
+        "no deadline set": "ingen frist angivet",
+        "Question": "Spørgsmål",
+        "Technical questions": "Tekniske spørgsmål"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -9,7 +9,9 @@ openspec-changes:
 
 ## Purpose
 Manages the motion lifecycle with role-controlled transitions (submitted, debating, voting, adopted, rejected, withdrawn), allowing a proposer to withdraw their own motion before voting begins. Displays the lifecycle as a timeline, supports digital co-signatory collection, attaches budget impact data to amendment motions, and provides a per-meeting motion index filterable by lifecycle and motion type.
+
 ## Requirements
+
 ### Requirement: REQ-MOT-002 Motion lifecycle transitions are controlled by role
 The app SHALL enforce that only the chair or secretary can advance a Motion's lifecycle from `submitted` → `debating` → `voting` → `adopted` / `rejected`. A proposer may withdraw their own Motion (transition to `withdrawn`) at any time before lifecycle reaches `voting`.
 
@@ -93,3 +95,11 @@ The app SHALL provide a Motion index view accessible from MeetingDetail, showing
 - **WHEN** the user opens the index
 - **THEN** each Motion row shows a `CnStatusBadge` with the current lifecycle value
 
+### Requirement: REQ-MTQ-001 Technical questions go to an official with a deadline
+
+An agenda item type SHALL be able to declare a person field, so a technical question can be assigned to an official by name with an answer deadline. Assigning SHALL notify the official with the deadline and a link, answering SHALL notify the member who asked, both under the member's task assigned switch, and the meeting page SHALL list its technical questions as open, answered or overdue.
+
+#### Scenario: The official answers in time
+- GIVEN member Anna asked a technical question about information letter 2026-14
+- WHEN the griffier assigns it to official Jan with a deadline of Friday
+- THEN Jan is notified, and after he answers Anna is notified and the list shows it answered

@@ -1111,7 +1111,15 @@ OC.L10N.register(
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Értesítés, ha egy olyan ülés napirendjét, amelyen részt vesz, közzéteszik, átdolgozzák vagy módosítják.",
         "Agenda notice sent at": "Napirendi értesítés elküldve",
         "When each member last received an agenda change notice for this meeting.": "Mikor kapott utoljára az egyes tagok értesítést az ülés napirendjének változásáról.",
-        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Az ebben az időszakban Önhöz érkező jóváhagyásokat a helyettese is megkapja, aki az Ön nevében aláírhatja őket."
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Az ebben az időszakban Önhöz érkező jóváhagyásokat a helyettese is megkapja, aki az Ön nevében aláírhatja őket.",
+        "This meeting has no technical questions.": "Ennek az ülésnek nincsenek technikai kérdései.",
+        "A technical question was assigned to you": "Technikai kérdést rendeltek Önhöz",
+        "Please answer by %1$s: %2$s": "Kérjük, válaszoljon eddig: %1$s: %2$s",
+        "Your technical question was answered": "Technikai kérdésére válasz érkezett",
+        "The answer is on the agenda item: %1$s": "A válasz a napirendi pontnál található: %1$s",
+        "no deadline set": "nincs határidő megadva",
+        "Question": "Kérdés",
+        "Technical questions": "Technikai kérdések"
     },
     "nplurals=2; plural=(n != 1);"
 )

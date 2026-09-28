@@ -1111,7 +1111,15 @@ OC.L10N.register(
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Cuir in iúl nuair a fhoilsítear, a athbhreithnítear nó a athraítear clár oibre cruinnithe a nglacann tú páirt ann.",
         "Agenda notice sent at": "Fógra clár oibre seolta ag",
         "When each member last received an agenda change notice for this meeting.": "Cathain a fuair gach comhalta fógra deireanach faoi athrú ar chlár oibre an chruinnithe seo.",
-        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Cuirtear faomhanna a thagann chugat le linn na tréimhse seo chuig d'ionadaí freisin, ar féidir leis iad a shíniú thar do cheann."
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Cuirtear faomhanna a thagann chugat le linn na tréimhse seo chuig d'ionadaí freisin, ar féidir leis iad a shíniú thar do cheann.",
+        "This meeting has no technical questions.": "Níl aon cheisteanna teicniúla ag an gcruinniú seo.",
+        "A technical question was assigned to you": "Sannadh ceist theicniúil duit",
+        "Please answer by %1$s: %2$s": "Freagair faoi %1$s, le do thoil: %2$s",
+        "Your technical question was answered": "Freagraíodh do cheist theicniúil",
+        "The answer is on the agenda item: %1$s": "Tá an freagra ar an mír ar an gclár: %1$s",
+        "no deadline set": "níl aon spriocdháta socraithe",
+        "Question": "Ceist",
+        "Technical questions": "Ceisteanna teicniúla"
     },
     "nplurals=2; plural=(n != 1);"
 )

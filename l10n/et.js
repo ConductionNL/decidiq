@@ -1111,7 +1111,15 @@ OC.L10N.register(
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Teavita, kui koosoleku, milles osalete, päevakord avaldatakse, vaadatakse üle või muutub.",
         "Agenda notice sent at": "Päevakorrateade saadetud",
         "When each member last received an agenda change notice for this meeting.": "Millal iga liige viimati sai selle koosoleku päevakorra muutmise teate.",
-        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Selle perioodi jooksul teieni jõudvad kinnitused suunatakse ka teie asendajale, kes saab need teie nimel allkirjastada."
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Selle perioodi jooksul teieni jõudvad kinnitused suunatakse ka teie asendajale, kes saab need teie nimel allkirjastada.",
+        "This meeting has no technical questions.": "Sellel koosolekul ei ole tehnilisi küsimusi.",
+        "A technical question was assigned to you": "Teile määrati tehniline küsimus",
+        "Please answer by %1$s: %2$s": "Palun vastake hiljemalt %1$s: %2$s",
+        "Your technical question was answered": "Teie tehnilisele küsimusele vastati",
+        "The answer is on the agenda item: %1$s": "Vastus on päevakorrapunkti juures: %1$s",
+        "no deadline set": "tähtaega pole määratud",
+        "Question": "Küsimus",
+        "Technical questions": "Tehnilised küsimused"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -10,6 +10,13 @@ Read at decidiq development `759d044c`.
 | Fields tab | `src/components/tabs/AgendaItemTypeFieldsTab.vue` |
 | Window | `lib/Settings/register.d/82-planning-cycle-in-plain-words.json:385` |
 
+## Design correction at build time
+
+- No default deadline: an agenda item save cannot write back into the item it was fired for without a second save, and the griffier sets the deadline when assigning. The spec no longer promises five working days.
+- The list is a widget on the meeting page (`MeetingTechnicalQuestionsTab`), which is the per-meeting filter the proposal asked for, instead of a new index page and menu entry.
+- An agenda item type field could only hold text, a date, a choice or a free reference. Register fragment 96 adds the field type `user`: a person with an account, picked by name through the sharee search and stored as the user id, so the notice reaches the right account.
+- The notices ride the existing task assigned switch rather than a new one.
+
 ## Approach
 
 1. Add the two fields to the seeded type; a listener on agenda item update notifies on assignment and on answer through NotificationPreferenceService.

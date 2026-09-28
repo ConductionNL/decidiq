@@ -1110,7 +1110,15 @@
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Notificare când ordinea de zi a unei ședințe la care participați este publicată, revizuită sau modificată.",
         "Agenda notice sent at": "Notificare privind ordinea de zi trimisă la",
         "When each member last received an agenda change notice for this meeting.": "Când a primit fiecare membru ultima notificare de modificare a ordinii de zi pentru această ședință.",
-        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Aprobările care vă parvin în această perioadă sunt atribuite și delegatului dumneavoastră, care le poate semna în numele dumneavoastră."
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Aprobările care vă parvin în această perioadă sunt atribuite și delegatului dumneavoastră, care le poate semna în numele dumneavoastră.",
+        "This meeting has no technical questions.": "Această ședință nu are întrebări tehnice.",
+        "A technical question was assigned to you": "V-a fost atribuită o întrebare tehnică",
+        "Please answer by %1$s: %2$s": "Vă rugăm să răspundeți până la %1$s: %2$s",
+        "Your technical question was answered": "Întrebarea dumneavoastră tehnică a primit răspuns",
+        "The answer is on the agenda item: %1$s": "Răspunsul se află la punctul de pe ordinea de zi: %1$s",
+        "no deadline set": "niciun termen stabilit",
+        "Question": "Întrebare",
+        "Technical questions": "Întrebări tehnice"
     },
     "plurals": null
 }

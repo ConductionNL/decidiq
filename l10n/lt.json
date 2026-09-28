@@ -1110,7 +1110,15 @@
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Pranešti, kai posėdžio, kuriame dalyvaujate, darbotvarkė paskelbiama, taisoma arba pakeičiama.",
         "Agenda notice sent at": "Pranešimas apie darbotvarkę išsiųstas",
         "When each member last received an agenda change notice for this meeting.": "Kada kiekvienas narys paskutinį kartą gavo pranešimą apie šio posėdžio darbotvarkės pakeitimą.",
-        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Šiuo laikotarpiu jus pasiekiantys patvirtinimai pateikiami ir jūsų pavaduotojui, kuris gali juos pasirašyti jūsų vardu."
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Šiuo laikotarpiu jus pasiekiantys patvirtinimai pateikiami ir jūsų pavaduotojui, kuris gali juos pasirašyti jūsų vardu.",
+        "This meeting has no technical questions.": "Šis posėdis neturi techninių klausimų.",
+        "A technical question was assigned to you": "Jums priskirtas techninis klausimas",
+        "Please answer by %1$s: %2$s": "Atsakykite iki %1$s: %2$s",
+        "Your technical question was answered": "Į jūsų techninį klausimą atsakyta",
+        "The answer is on the agenda item: %1$s": "Atsakymas pateiktas darbotvarkės klausime: %1$s",
+        "no deadline set": "terminas nenustatytas",
+        "Question": "Klausimas",
+        "Technical questions": "Techniniai klausimai"
     },
     "plurals": null
 }

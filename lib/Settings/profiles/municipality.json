@@ -821,6 +821,16 @@
 								"key": "answeredOn",
 								"label": "Beantwoord op",
 								"fieldType": "date"
+							},
+							{
+								"key": "assignedTo",
+								"label": "Ambtenaar",
+								"fieldType": "user"
+							},
+							{
+								"key": "answerDeadline",
+								"label": "Antwoord uiterlijk",
+								"fieldType": "date"
 							}
 						],
 						"owningBody": "gemeenteraad-amsterdam",

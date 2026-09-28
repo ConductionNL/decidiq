@@ -1111,7 +1111,15 @@ OC.L10N.register(
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Ilmoita, kun kokouksen, johon osallistut, esityslista julkaistaan, sitä muutetaan tai se muuttuu.",
         "Agenda notice sent at": "Esityslistailmoitus lähetetty",
         "When each member last received an agenda change notice for this meeting.": "Milloin kukin jäsen viimeksi sai ilmoituksen tämän kokouksen esityslistan muutoksesta.",
-        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Tänä aikana sinulle tulevat hyväksynnät annetaan myös sijaisellesi, joka voi hyväksyä ne puolestasi."
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Tänä aikana sinulle tulevat hyväksynnät annetaan myös sijaisellesi, joka voi hyväksyä ne puolestasi.",
+        "This meeting has no technical questions.": "Tässä kokouksessa ei ole teknisiä kysymyksiä.",
+        "A technical question was assigned to you": "Sinulle on annettu tekninen kysymys",
+        "Please answer by %1$s: %2$s": "Vastaa viimeistään %1$s: %2$s",
+        "Your technical question was answered": "Tekniseen kysymykseesi on vastattu",
+        "The answer is on the agenda item: %1$s": "Vastaus on asialistan kohdassa: %1$s",
+        "no deadline set": "määräaikaa ei ole asetettu",
+        "Question": "Kysymys",
+        "Technical questions": "Tekniset kysymykset"
     },
     "nplurals=2; plural=(n != 1);"
 )

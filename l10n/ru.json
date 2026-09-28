@@ -1110,7 +1110,15 @@
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Уведомлять, когда повестка заседания, в котором вы участвуете, опубликована, пересмотрена или изменена.",
         "Agenda notice sent at": "Уведомление о повестке отправлено",
         "When each member last received an agenda change notice for this meeting.": "Когда каждый участник последний раз получил уведомление об изменении повестки этого заседания.",
-        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Согласования, поступающие вам в этот период, передаются и вашему заместителю, который может подписать их от вашего имени."
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Согласования, поступающие вам в этот период, передаются и вашему заместителю, который может подписать их от вашего имени.",
+        "This meeting has no technical questions.": "У этого заседания нет технических вопросов.",
+        "A technical question was assigned to you": "Вам назначен технический вопрос",
+        "Please answer by %1$s: %2$s": "Пожалуйста, ответьте до %1$s: %2$s",
+        "Your technical question was answered": "На ваш технический вопрос дан ответ",
+        "The answer is on the agenda item: %1$s": "Ответ находится в пункте повестки дня: %1$s",
+        "no deadline set": "срок не установлен",
+        "Question": "Вопрос",
+        "Technical questions": "Технические вопросы"
     },
     "plurals": null
 }

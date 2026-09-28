@@ -34,6 +34,7 @@ namespace OCA\Decidiq\AppInfo\Registrar;
 
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
+use OCA\Decidiq\Listener\TechnicalQuestionListener;
 use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
 use OCA\Decidiq\Listener\MeetingFolderListener;
 use OCA\Decidiq\Listener\SubmissionDeadlineListener;
@@ -121,6 +122,18 @@ class ObjectListenerRegistrar {
 				listener: GovernanceRoleProjectionListener::class,
 				registers: null,
 				schemas: ['participant', 'membership']
+			);
+		}
+
+		// Technical questions (motions-technical-questions-to-officials, mot-17):
+		// assigning tells the official, answering tells the member who asked.
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $questionEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $questionEvent,
+				listener: TechnicalQuestionListener::class,
+				registers: null,
+				schemas: [TechnicalQuestionListener::SCHEMA_AGENDA_ITEM]
 			);
 		}
 

@@ -13,7 +13,7 @@ A technical question can be put on the agenda as an item with fields for questio
 
 ### Requirement: REQ-MTQ-001 Technical questions go to an official with a deadline
 
-A technical question SHALL be assignable to an official with an answer deadline; the official SHALL be notified, and open and overdue questions SHALL be listed.
+An agenda item type SHALL be able to declare a person field, so a technical question can be assigned to an official by name with an answer deadline. Assigning SHALL notify the official with the deadline and a link, answering SHALL notify the member who asked, both under the member's task assigned switch, and the meeting page SHALL list its technical questions as open, answered or overdue.
 
 #### Scenario: The official answers in time
 - GIVEN member Anna asked a technical question about information letter 2026-14
