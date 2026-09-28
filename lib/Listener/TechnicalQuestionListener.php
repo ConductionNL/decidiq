@@ -105,32 +105,63 @@ class TechnicalQuestionListener implements IEventListener {
 			$link = '/agenda-items/' . (string)$entity->getUuid();
 			$question = trim((string)($fields['question'] ?? ($row['title'] ?? '')));
 
-			$assignee = trim((string)($fields['assignedTo'] ?? ''));
-			if ($assignee !== '' && $assignee !== trim((string)($oldFields['assignedTo'] ?? ''))) {
-				$this->notifications->dispatch(
-					$assignee,
-					self::EVENT_TYPE,
-					$this->l10n->t('A technical question was assigned to you'),
-					$this->l10n->t('Please answer by %1$s: %2$s', [$this->deadline(fields: $fields), $question]),
-					$link
-				);
-			}
-
-			$answer = trim((string)($fields['answer'] ?? ''));
-			$asker = (string)($entity->getOwner() ?? '');
-			if ($answer !== '' && trim((string)($oldFields['answer'] ?? '')) === '' && $asker !== '') {
-				$this->notifications->dispatch(
-					$asker,
-					self::EVENT_TYPE,
-					$this->l10n->t('Your technical question was answered'),
-					$this->l10n->t('The answer is on the agenda item: %1$s', [$question]),
-					$link
-				);
-			}
+			$this->tellAssignee(fields: $fields, oldFields: $oldFields, question: $question, link: $link);
+			$this->tellAsker(fields: $fields, oldFields: $oldFields, asker: (string)($entity->getOwner() ?? ''), question: $question, link: $link);
 		} catch (\Throwable $e) {
 			$this->logger->warning('Decidiq: technical question notice failed', ['exception' => $e->getMessage()]);
 		}//end try
 	}//end handle()
+
+	/**
+	 * Tell the official a question was assigned to them, once per assignment.
+	 *
+	 * @param array<string, mixed> $fields    The new type field values.
+	 * @param array<string, mixed> $oldFields The previous type field values.
+	 * @param string               $question  The question text.
+	 * @param string               $link      The agenda item link.
+	 *
+	 * @return void
+	 */
+	private function tellAssignee(array $fields, array $oldFields, string $question, string $link): void {
+		$assignee = trim((string)($fields['assignedTo'] ?? ''));
+		if ($assignee === '' || $assignee === trim((string)($oldFields['assignedTo'] ?? ''))) {
+			return;
+		}
+
+		$this->notifications->dispatch(
+			$assignee,
+			self::EVENT_TYPE,
+			$this->l10n->t('A technical question was assigned to you'),
+			$this->l10n->t('Please answer by %1$s: %2$s', [$this->deadline(fields: $fields), $question]),
+			$link
+		);
+	}//end tellAssignee()
+
+	/**
+	 * Tell the member who asked that the answer is in, once.
+	 *
+	 * @param array<string, mixed> $fields    The new type field values.
+	 * @param array<string, mixed> $oldFields The previous type field values.
+	 * @param string               $asker     The item's owner.
+	 * @param string               $question  The question text.
+	 * @param string               $link      The agenda item link.
+	 *
+	 * @return void
+	 */
+	private function tellAsker(array $fields, array $oldFields, string $asker, string $question, string $link): void {
+		$answer = trim((string)($fields['answer'] ?? ''));
+		if ($answer === '' || $asker === '' || trim((string)($oldFields['answer'] ?? '')) !== '') {
+			return;
+		}
+
+		$this->notifications->dispatch(
+			$asker,
+			self::EVENT_TYPE,
+			$this->l10n->t('Your technical question was answered'),
+			$this->l10n->t('The answer is on the agenda item: %1$s', [$question]),
+			$link
+		);
+	}//end tellAsker()
 
 	/**
 	 * The answer deadline as written, or a note that none was set.
@@ -157,8 +188,11 @@ class TechnicalQuestionListener implements IEventListener {
 	 */
 	private function typeFields(array $row): array {
 		$fields = ($row['typeFields'] ?? []);
+		if (is_array($fields) === false) {
+			return [];
+		}
 
-		return is_array($fields) === true ? $fields : [];
+		return $fields;
 	}//end typeFields()
 
 	/**
