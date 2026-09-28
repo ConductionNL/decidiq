@@ -1082,7 +1082,12 @@
         "What was decided, how it was framed, and what reached the public.": "Ce qui a été décidé, comment c'était formulé, et ce qui est parvenu au public.",
         "How rounds ended, and how the votes fell.": "Comment les tours se sont terminés et comment les voix se sont réparties.",
         "Where meetings stand, how they are held, and who turned up.": "Où en sont les réunions, comment elles se tiennent et qui est venu.",
-        "Who spoke, for how long, and how engaged the room was.": "Qui a parlé, combien de temps, et à quel point la salle était engagée."
+        "Who spoke, for how long, and how engaged the room was.": "Qui a parlé, combien de temps, et à quel point la salle était engagée.",
+        "Open live meeting": "Ouvrir la réunion en direct",
+        "Could not save the new order": "Impossible d'enregistrer le nouvel ordre",
+        "Move up": "Monter",
+        "Move down": "Descendre",
+        "The new order was not saved.": "Le nouvel ordre n'a pas été enregistré."
     },
     "plurals": null
 }

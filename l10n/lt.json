@@ -1082,7 +1082,12 @@
         "What was decided, how it was framed, and what reached the public.": "Kas buvo nuspręsta, kaip tai suformuluota ir kas pasiekė visuomenę.",
         "How rounds ended, and how the votes fell.": "Kaip baigėsi turai ir kaip pasiskirstė balsai.",
         "Where meetings stand, how they are held, and who turned up.": "Kur yra posėdžiai, kaip jie vyksta ir kas atvyko.",
-        "Who spoke, for how long, and how engaged the room was.": "Kas kalbėjo, kiek ilgai ir kiek įsitraukusi buvo salė."
+        "Who spoke, for how long, and how engaged the room was.": "Kas kalbėjo, kiek ilgai ir kiek įsitraukusi buvo salė.",
+        "Open live meeting": "Atidaryti tiesioginį posėdį",
+        "Could not save the new order": "Nepavyko išsaugoti naujos tvarkos",
+        "Move up": "Perkelti aukštyn",
+        "Move down": "Perkelti žemyn",
+        "The new order was not saved.": "Nauja tvarka neišsaugota."
     },
     "plurals": null
 }

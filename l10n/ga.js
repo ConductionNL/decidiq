@@ -1083,7 +1083,12 @@ OC.L10N.register(
         "What was decided, how it was framed, and what reached the public.": "Cad a socraíodh, conas a cuireadh é, agus cad a shroich an pobal.",
         "How rounds ended, and how the votes fell.": "Conas a chríochnaigh na babhtaí, agus conas a thit na vótaí.",
         "Where meetings stand, how they are held, and who turned up.": "Cá bhfuil na cruinnithe, conas a reáchtáiltear iad, agus cé a tháinig.",
-        "Who spoke, for how long, and how engaged the room was.": "Cé a labhair, cé chomh fada, agus cé chomh rannpháirteach a bhí an seomra."
+        "Who spoke, for how long, and how engaged the room was.": "Cé a labhair, cé chomh fada, agus cé chomh rannpháirteach a bhí an seomra.",
+        "Open live meeting": "Oscail an cruinniú beo",
+        "Could not save the new order": "Níorbh fhéidir an t-ord nua a shábháil",
+        "Move up": "Bog suas",
+        "Move down": "Bog síos",
+        "The new order was not saved.": "Níor sábháladh an t-ord nua."
     },
     "nplurals=2; plural=(n != 1);"
 )

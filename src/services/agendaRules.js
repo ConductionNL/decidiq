@@ -160,6 +160,104 @@ export function flattenTree(tree) {
 }
 
 /**
+ * Find the sibling list that holds an agenda item, top level or sub-items.
+ *
+ * @param {Array<object>} tree Tree from buildAgendaTree().
+ * @param {string} id Agenda item id.
+ *
+ * @return {?{list: Array<object>, index: number}} The list of nodes or items and the index, or null.
+ *
+ * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+ */
+function locateAgendaItem(tree, id) {
+	const key = String(id)
+	const top = tree.findIndex((node) => String(node.item.id) === key)
+	if (top !== -1) return { list: tree, index: top }
+	for (const node of tree) {
+		const child = node.children.findIndex((item) => String(item.id) === key)
+		if (child !== -1) return { list: node.children, index: child }
+	}
+	return null
+}
+
+/**
+ * Copy a tree so a move never mutates the rendered rows.
+ *
+ * @param {Array<object>} tree Tree from buildAgendaTree().
+ *
+ * @return {Array<object>} A copy with fresh sibling arrays.
+ *
+ * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+ */
+function copyTree(tree) {
+	return (tree || []).map((node) => ({
+		item: node.item,
+		children: node.children.slice(),
+	}))
+}
+
+/**
+ * Move one agenda item a step up or down among its siblings. A parent takes
+ * its sub-items along; a sub-item stays under its parent.
+ *
+ * @param {Array<object>} tree Tree from buildAgendaTree().
+ * @param {string} id Agenda item id to move.
+ * @param {number} delta -1 for up, 1 for down.
+ *
+ * @return {?Array<string>} The full id order for the reorder endpoint, or null when nothing moves.
+ *
+ * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+ */
+export function moveAgendaItem(tree, id, delta) {
+	const copy = copyTree(tree)
+	const found = locateAgendaItem(copy, id)
+	if (!found) return null
+	const target = found.index + delta
+	if (target < 0 || target >= found.list.length) return null
+	const [moved] = found.list.splice(found.index, 1)
+	found.list.splice(target, 0, moved)
+	return flattenTree(copy).map((item) => item.id)
+}
+
+/**
+ * Put a dragged agenda item in the place of the item it was dropped on. Only
+ * a drop on a sibling (same level, same parent) moves anything.
+ *
+ * @param {Array<object>} tree Tree from buildAgendaTree().
+ * @param {string} dragId Id of the dragged item.
+ * @param {string} dropId Id of the item it was dropped on.
+ *
+ * @return {?Array<string>} The full id order for the reorder endpoint, or null when nothing moves.
+ *
+ * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+ */
+export function dropAgendaItem(tree, dragId, dropId) {
+	if (String(dragId) === String(dropId)) return null
+	const copy = copyTree(tree)
+	const from = locateAgendaItem(copy, dragId)
+	const to = locateAgendaItem(copy, dropId)
+	if (!from || !to || from.list !== to.list) return null
+	const [moved] = from.list.splice(from.index, 1)
+	from.list.splice(to.index, 0, moved)
+	return flattenTree(copy).map((item) => item.id)
+}
+
+/**
+ * Whether the caller may reorder the agenda and open the live screen: chair,
+ * secretary or admin, as answered by GET /api/meetings/{id}/my-roles. This is
+ * the same set AgendaAuthorizationGuard::requireChairOrAdmin() accepts.
+ *
+ * @param {?{chair: boolean, secretary: boolean, admin: boolean}} roles The server's answer.
+ *
+ * @return {boolean} True when the agenda tools should show.
+ *
+ * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+ */
+export function canManageAgenda(roles) {
+	return Boolean(roles && (roles.chair || roles.secretary || roles.admin))
+}
+
+/**
  * Frontend mirror of MeetingSeriesService::expandPattern() — used for the
  * live preview count in the Series tab. Returns ISO dates (date part only;
  * the server preserves the template time).

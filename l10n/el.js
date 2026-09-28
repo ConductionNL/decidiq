@@ -1083,7 +1083,12 @@ OC.L10N.register(
         "What was decided, how it was framed, and what reached the public.": "Τι αποφασίστηκε, πώς διατυπώθηκε και τι έφτασε στο κοινό.",
         "How rounds ended, and how the votes fell.": "Πώς τελείωσαν οι γύροι και πώς έπεσαν οι ψήφοι.",
         "Where meetings stand, how they are held, and who turned up.": "Πού βρίσκονται οι συνεδριάσεις, πώς διεξάγονται και ποιος ήρθε.",
-        "Who spoke, for how long, and how engaged the room was.": "Ποιος μίλησε, για πόσο, και πόσο ενεργή ήταν η αίθουσα."
+        "Who spoke, for how long, and how engaged the room was.": "Ποιος μίλησε, για πόσο, και πόσο ενεργή ήταν η αίθουσα.",
+        "Open live meeting": "Άνοιγμα ζωντανής συνεδρίασης",
+        "Could not save the new order": "Δεν ήταν δυνατή η αποθήκευση της νέας σειράς",
+        "Move up": "Μετακίνηση πάνω",
+        "Move down": "Μετακίνηση κάτω",
+        "The new order was not saved.": "Η νέα σειρά δεν αποθηκεύτηκε."
     },
     "nplurals=2; plural=(n != 1);"
 )

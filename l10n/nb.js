@@ -1083,7 +1083,12 @@ OC.L10N.register(
         "What was decided, how it was framed, and what reached the public.": "Hva som ble besluttet, hvordan det ble formulert, og hva som nådde offentligheten.",
         "How rounds ended, and how the votes fell.": "Hvordan rundene endte, og hvordan stemmene falt.",
         "Where meetings stand, how they are held, and who turned up.": "Hvor møtene står, hvordan de holdes, og hvem som møtte opp.",
-        "Who spoke, for how long, and how engaged the room was.": "Hvem som snakket, hvor lenge, og hvor engasjert salen var."
+        "Who spoke, for how long, and how engaged the room was.": "Hvem som snakket, hvor lenge, og hvor engasjert salen var.",
+        "Open live meeting": "Åpne møtet direkte",
+        "Could not save the new order": "Kunne ikke lagre den nye rekkefølgen",
+        "Move up": "Flytt opp",
+        "Move down": "Flytt ned",
+        "The new order was not saved.": "Den nye rekkefølgen ble ikke lagret."
     },
     "nplurals=2; plural=(n != 1);"
 )

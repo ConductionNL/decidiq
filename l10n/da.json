@@ -1082,7 +1082,12 @@
         "What was decided, how it was framed, and what reached the public.": "Hvad der blev besluttet, hvordan det blev formuleret, og hvad der nåede offentligheden.",
         "How rounds ended, and how the votes fell.": "Hvordan runderne endte, og hvordan stemmerne faldt.",
         "Where meetings stand, how they are held, and who turned up.": "Hvor møderne står, hvordan de afholdes, og hvem der mødte op.",
-        "Who spoke, for how long, and how engaged the room was.": "Hvem der talte, hvor længe, og hvor engageret salen var."
+        "Who spoke, for how long, and how engaged the room was.": "Hvem der talte, hvor længe, og hvor engageret salen var.",
+        "Open live meeting": "Åbn mødet live",
+        "Could not save the new order": "Den nye rækkefølge kunne ikke gemmes",
+        "Move up": "Flyt op",
+        "Move down": "Flyt ned",
+        "The new order was not saved.": "Den nye rækkefølge blev ikke gemt."
     },
     "plurals": null
 }

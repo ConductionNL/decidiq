@@ -1082,7 +1082,12 @@
         "What was decided, how it was framed, and what reached the public.": "Neye karar verildiği, nasıl ifade edildiği ve kamuya ne ulaştığı.",
         "How rounds ended, and how the votes fell.": "Turların nasıl sonuçlandığı ve oyların nasıl dağıldığı.",
         "Where meetings stand, how they are held, and who turned up.": "Toplantıların nerede olduğu, nasıl yapıldığı ve kimin geldiği.",
-        "Who spoke, for how long, and how engaged the room was.": "Kimin konuştuğu, ne kadar süre ve salonun ne kadar katıldığı."
+        "Who spoke, for how long, and how engaged the room was.": "Kimin konuştuğu, ne kadar süre ve salonun ne kadar katıldığı.",
+        "Open live meeting": "Canlı toplantıyı aç",
+        "Could not save the new order": "Yeni sıra kaydedilemedi",
+        "Move up": "Yukarı taşı",
+        "Move down": "Aşağı taşı",
+        "The new order was not saved.": "Yeni sıra kaydedilmedi."
     },
     "plurals": null
 }

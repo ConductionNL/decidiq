@@ -20,7 +20,7 @@
   - GIVEN a secretary WHEN they use Move up on a row THEN the same call is sent (keyboard alternative, WCAG 2.5.7)
   - GIVEN a member without either role WHEN the widget renders THEN no drag handle and no move actions show
   - GIVEN a parent item with sub-items WHEN the parent moves THEN its sub-items move with it
-- [ ] Implement
+- [x] Implement
 - [ ] Test (vitest on the tree order, Playwright drag and keyboard move)
 
 ### Task 3: Open an agenda item and the live screen from the meeting page
@@ -30,7 +30,7 @@
   - GIVEN any user who can read the meeting WHEN they choose Open on an agenda row THEN the agenda item page opens with its Documents widget
   - GIVEN a chair, secretary or admin WHEN the agenda widget renders THEN an Open live meeting button routes to `/meetings/{id}/live`
   - GIVEN a member without those roles WHEN the widget renders THEN the button is absent
-- [ ] Implement
+- [x] Implement
 - [ ] Test (Playwright: open item, attach a file on the item page, see it listed)
 
 ### Task 4: Per-item minutes on the minutes page

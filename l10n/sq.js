@@ -1083,7 +1083,12 @@ OC.L10N.register(
         "What was decided, how it was framed, and what reached the public.": "Çfarë u vendos, si u formulua dhe çfarë arriti te publiku.",
         "How rounds ended, and how the votes fell.": "Si përfunduan raundet dhe si ranë votat.",
         "Where meetings stand, how they are held, and who turned up.": "Ku qëndrojnë mbledhjet, si mbahen dhe kush erdhi.",
-        "Who spoke, for how long, and how engaged the room was.": "Kush foli, sa gjatë dhe sa e angazhuar ishte salla."
+        "Who spoke, for how long, and how engaged the room was.": "Kush foli, sa gjatë dhe sa e angazhuar ishte salla.",
+        "Open live meeting": "Hap mbledhjen drejtpërdrejt",
+        "Could not save the new order": "Rendi i ri nuk mund të ruhej",
+        "Move up": "Lëviz lart",
+        "Move down": "Lëviz poshtë",
+        "The new order was not saved.": "Rendi i ri nuk u ruajt."
     },
     "nplurals=2; plural=(n != 1);"
 )
