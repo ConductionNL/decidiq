@@ -1,7 +1,11 @@
 ---
 kind: code
 depends_on: [decidesk-base, decidesk-besluitvorming-workflow]
+status: superseded
+superseded-by: followup-implementation-progress, bodies-member-profile-and-voting-record
 ---
+
+> **ARCHIVED UNBUILT (2026-09-28, issue #1420).** This change adds a Motion schema beside the decision schema, which already holds motions (`decisionType: motion`, folded from the retired Motion schema), so it would create a parallel schema ADR-006 forbids. None of its 80 tasks was started. Execution tracking (mot-13) belongs to `followup-implementation-progress` and a member's public voting record (pub-14) to `bodies-member-profile-and-voting-record`. Its spec deltas were not synced into `openspec/specs/`.
 
 # Decidiq — Motie en Amendement Administratie
 

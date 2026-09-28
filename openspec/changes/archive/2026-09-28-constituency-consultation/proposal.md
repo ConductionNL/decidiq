@@ -1,6 +1,10 @@
 ---
 kind: code
+status: superseded
+superseded-by: one-consultation-schema
 ---
+
+> **ARCHIVED UNBUILT (2026-09-28, issue #1420).** This change specifies a MemberConsultation schema that `one-consultation-schema` retired into the one consultation schema (`governance-consultation`). None of its 14 tasks was started, and it cannot be applied to the current model. Its spec deltas were not synced into `openspec/specs/`.
 
 # Proposal: constituency-consultation
 
