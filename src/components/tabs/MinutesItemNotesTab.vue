@@ -64,7 +64,7 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/agenda-meeting-page-item-tools/specs/resolution-minutes/spec.md#requirement-req-amp-005-the-minutes-page-carries-the-per-item-minutes-editor */
+			/** @spec openspec/specs/resolution-minutes/spec.md#requirement-req-amp-005-the-minutes-page-carries-the-per-item-minutes-editor */
 			handler() {
 				this.refresh()
 			},
@@ -76,7 +76,7 @@ export default {
 		 * Load the minutes' meeting, its regular agenda items and its
 		 * participants.
 		 *
-		 * @spec openspec/changes/agenda-meeting-page-item-tools/specs/resolution-minutes/spec.md#requirement-req-amp-005-the-minutes-page-carries-the-per-item-minutes-editor
+		 * @spec openspec/specs/resolution-minutes/spec.md#requirement-req-amp-005-the-minutes-page-carries-the-per-item-minutes-editor
 		 */
 		async refresh() {
 			if (!this.objectId) return

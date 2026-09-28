@@ -6,7 +6,7 @@
 // items, not hamerstukken, in agenda order), the meeting's own participants, and
 // edits the minutes record the page is about rather than any draft of the meeting.
 //
-// @spec openspec/changes/agenda-meeting-page-item-tools/specs/resolution-minutes/spec.md#requirement-req-amp-005-the-minutes-page-carries-the-per-item-minutes-editor
+// @spec openspec/specs/resolution-minutes/spec.md#requirement-req-amp-005-the-minutes-page-carries-the-per-item-minutes-editor
 
 import { describe, expect, it } from 'vitest'
 import {

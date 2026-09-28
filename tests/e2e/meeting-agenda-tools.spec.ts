@@ -10,8 +10,8 @@
  * approved). A second account is provisioned without a role for the member
  * scenarios, and given the secretary role for the role endpoint scenario.
  *
- * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md
- * @spec openspec/changes/agenda-meeting-page-item-tools/specs/resolution-minutes/spec.md
+ * @spec openspec/specs/agenda-management/spec.md
+ * @spec openspec/specs/resolution-minutes/spec.md
  */
 import type { Page } from '@playwright/test'
 

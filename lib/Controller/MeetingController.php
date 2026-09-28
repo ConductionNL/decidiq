@@ -309,7 +309,7 @@ class MeetingController extends Controller {
 	 *
 	 * @return JSONResponse 200 with { chair, secretary, admin } booleans; 401 when anonymous
 	 *
-	 * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
 	 */
 	#[NoAdminRequired]
 	public function myRoles(string $meetingId): JSONResponse {

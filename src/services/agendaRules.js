@@ -167,7 +167,7 @@ export function flattenTree(tree) {
  *
  * @return {?{list: Array<object>, index: number}} The list of nodes or items and the index, or null.
  *
- * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+ * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
  */
 function locateAgendaItem(tree, id) {
 	const key = String(id)
@@ -187,7 +187,7 @@ function locateAgendaItem(tree, id) {
  *
  * @return {Array<object>} A copy with fresh sibling arrays.
  *
- * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+ * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
  */
 function copyTree(tree) {
 	return (tree || []).map((node) => ({
@@ -206,7 +206,7 @@ function copyTree(tree) {
  *
  * @return {?Array<string>} The full id order for the reorder endpoint, or null when nothing moves.
  *
- * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+ * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
  */
 export function moveAgendaItem(tree, id, delta) {
 	const copy = copyTree(tree)
@@ -229,7 +229,7 @@ export function moveAgendaItem(tree, id, delta) {
  *
  * @return {?Array<string>} The full id order for the reorder endpoint, or null when nothing moves.
  *
- * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+ * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
  */
 export function dropAgendaItem(tree, dragId, dropId) {
 	if (String(dragId) === String(dropId)) return null
@@ -251,7 +251,7 @@ export function dropAgendaItem(tree, dragId, dropId) {
  *
  * @return {boolean} True when the agenda tools should show.
  *
- * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+ * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
  */
 export function canManageAgenda(roles) {
 	return Boolean(roles && (roles.chair || roles.secretary || roles.admin))

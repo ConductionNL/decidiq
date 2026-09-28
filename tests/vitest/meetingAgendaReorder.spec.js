@@ -6,7 +6,7 @@
 // id list the reorder endpoint takes, and only chair, secretary or admin may
 // reorder.
 //
-// @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+// @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
 
 import { describe, expect, it } from 'vitest'
 import {

@@ -211,7 +211,7 @@ export function availableWorkflowActions(lifecycle) {
  *
  * @return {Array<object>} Regular items sorted by orderNumber.
  *
- * @spec openspec/changes/agenda-meeting-page-item-tools/specs/resolution-minutes/spec.md#requirement-req-amp-005-the-minutes-page-carries-the-per-item-minutes-editor
+ * @spec openspec/specs/resolution-minutes/spec.md#requirement-req-amp-005-the-minutes-page-carries-the-per-item-minutes-editor
  */
 export function regularAgendaItems(items) {
 	return (items || [])
@@ -229,7 +229,7 @@ export function regularAgendaItems(items) {
  *
  * @return {Array<object>} The meeting's participants.
  *
- * @spec openspec/changes/agenda-meeting-page-item-tools/specs/resolution-minutes/spec.md#requirement-req-amp-005-the-minutes-page-carries-the-per-item-minutes-editor
+ * @spec openspec/specs/resolution-minutes/spec.md#requirement-req-amp-005-the-minutes-page-carries-the-per-item-minutes-editor
  */
 export function meetingParticipants(list, meetingId) {
 	return (list || []).filter(
@@ -249,7 +249,7 @@ export function meetingParticipants(list, meetingId) {
  *
  * @return {?object} The minutes record, or null.
  *
- * @spec openspec/changes/agenda-meeting-page-item-tools/specs/resolution-minutes/spec.md#requirement-req-amp-005-the-minutes-page-carries-the-per-item-minutes-editor
+ * @spec openspec/specs/resolution-minutes/spec.md#requirement-req-amp-005-the-minutes-page-carries-the-per-item-minutes-editor
  */
 export function pickMinutesRecord(list, minutesId) {
 	const records = list || []

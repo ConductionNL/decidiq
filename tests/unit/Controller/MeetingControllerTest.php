@@ -671,7 +671,7 @@ class MeetingControllerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
 	 */
 	public function testMyRolesAnswersSecretary(): void {
 		$controller = $this->controllerWithParticipants(
@@ -696,7 +696,7 @@ class MeetingControllerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
 	 */
 	public function testMyRolesAnswersNoRoleForAMember(): void {
 		$controller = $this->controllerWithParticipants(
@@ -719,7 +719,7 @@ class MeetingControllerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
 	 */
 	public function testMyRolesAnswersAdmin(): void {
 		$controller = $this->controllerWithParticipants(participants: [], isAdmin: true);
@@ -738,7 +738,7 @@ class MeetingControllerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
 	 */
 	public function testMyRolesReturnsUnauthorizedWhenNotAuthenticated(): void {
 		$unauthSession = $this->createMock(originalClassName: IUserSession::class);

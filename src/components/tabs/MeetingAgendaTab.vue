@@ -315,7 +315,7 @@ export default {
 		 * Whether the caller may reorder and open the live screen.
 		 *
 		 * @return {boolean} True for chair, secretary or admin.
-		 * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+		 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
 		 */
 		canManage() {
 			return canManageAgenda(this.myRoles)
@@ -540,7 +540,7 @@ export default {
 		 * meeting. Fail-closed: any error leaves the tools hidden, and the
 		 * reorder endpoint would refuse the call anyway.
 		 *
-		 * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+		 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
 		 */
 		async loadMyRoles() {
 			this.myRoles = null
@@ -562,13 +562,13 @@ export default {
 
 		/**
 		 * @param {object} row Agenda row.
-		 * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-003-every-agenda-row-opens-its-item-page
+		 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-003-every-agenda-row-opens-its-item-page
 		 */
 		openItem(row) {
 			this.$router.push({ name: 'AgendaItemDetail', params: { id: row.id } })
 		},
 
-		/** @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-004-the-meeting-page-links-the-live-meeting-screen */
+		/** @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-004-the-meeting-page-links-the-live-meeting-screen */
 		openLive() {
 			this.$router.push({ name: 'LiveMeeting', params: { id: this.objectId } })
 		},
@@ -576,7 +576,7 @@ export default {
 		/**
 		 * @param {object} row Agenda row.
 		 * @param {number} delta -1 for up, 1 for down.
-		 * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+		 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
 		 */
 		moveItem(row, delta) {
 			const ids = moveAgendaItem(buildAgendaTree(this.rawRows), row.id, delta)
@@ -586,7 +586,7 @@ export default {
 		/**
 		 * @param {DragEvent} event The drag event.
 		 * @param {object} row Agenda row being dragged.
-		 * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+		 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
 		 */
 		onDragStart(event, row) {
 			if (!this.canManage) return
@@ -599,7 +599,7 @@ export default {
 
 		/**
 		 * @param {object} row Agenda row the dragged item was dropped on.
-		 * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+		 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
 		 */
 		onDrop(row) {
 			const dragId = this.dragId
@@ -614,7 +614,7 @@ export default {
 		 * which renumbers every item, then reload the rows.
 		 *
 		 * @param {Array<string>} ids Agenda item ids in the new order.
-		 * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+		 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
 		 */
 		async persistOrder(ids) {
 			this.reorderError = ''
