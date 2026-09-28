@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Search;
 
 use OCA\Decidiq\AppInfo\Application;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\IUser;
@@ -33,7 +34,6 @@ use OCP\Search\IProvider;
 use OCP\Search\ISearchQuery;
 use OCP\Search\SearchResult;
 use OCP\Search\SearchResultEntry;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -83,13 +83,13 @@ class DecidiqSearchProvider implements IProvider {
 	/**
 	 * Constructor for DecidiqSearchProvider.
 	 *
-	 * @param ContainerInterface $container DI container (lazy-loads OpenRegister's ObjectService)
+	 * @param ObjectServiceInterface $objectService OpenRegister object service (ADR-083: injected, typed)
 	 * @param IURLGenerator $urlGenerator URL generator for deep links + icon
 	 * @param IL10N $l10n Translations for the provider name and sublines
 	 * @param LoggerInterface $logger The logger
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
+		private readonly ObjectServiceInterface $objectService,
 		private readonly IURLGenerator $urlGenerator,
 		private readonly IL10N $l10n,
 		private readonly LoggerInterface $logger,
@@ -174,15 +174,13 @@ class DecidiqSearchProvider implements IProvider {
 
 		$entries = [];
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
 			foreach (self::SCHEMAS as $schema => $segment) {
 				// Register and schema go in 'filters': ObjectService::findAll()
 				// sets its context from there only, and top-level keys were
 				// silently ignored, so no schema was ever searched. The call
 				// keeps OpenRegister's RBAC on (its default), so a searcher only
 				// gets objects they may read.
-				$rows = $objectService->findAll(
+				$rows = $this->objectService->findAll(
 					[
 						'filters' => ['register' => 'decidiq', 'schema' => $schema],
 						'search' => $term,

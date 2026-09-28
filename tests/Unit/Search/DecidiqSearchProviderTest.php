@@ -23,12 +23,12 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Search;
 
 use OCA\Decidiq\Search\DecidiqSearchProvider;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\IUser;
 use OCP\Search\ISearchQuery;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -40,66 +40,40 @@ use Psr\Log\LoggerInterface;
 class DecidiqSearchProviderTest extends TestCase {
 
 	/**
-	 * The object-service double the last makeProvider() built.
+	 * The `_rbac` argument of every findAll() call, in order.
 	 *
-	 * @var object|null
+	 * @var array<int, bool>
 	 */
-	private ?object $lastObjectService = null;
+	private array $rbacArgs = [];
 
 	/**
-	 * Build the provider over a schema-routed fake ObjectService.
+	 * Build the provider over a mock of OpenRegister's ObjectServiceInterface.
 	 *
-	 * @param array<string, array<int, array<string, mixed>>> $rowsBySchema schema → rows
-	 * @param bool $broken True = ObjectService unavailable
+	 * The mock answers the way ObjectService::findAll() does: register and
+	 * schema are read ONLY from $config['filters'] (prepareFindAllConfig()),
+	 * top-level keys are ignored.
+	 *
+	 * @param array<string, array<int, array<string, mixed>>> $rowsBySchema schema to rows
+	 * @param bool $broken True = the object service throws
 	 *
 	 * @return DecidiqSearchProvider
 	 */
 	private function makeProvider(array $rowsBySchema = [], bool $broken = false): DecidiqSearchProvider {
-		$objectService = new class($rowsBySchema) {
-
-			/**
-			 * @param array<string, array<int, array<string, mixed>>> $rowsBySchema schema → rows
-			 */
-			public function __construct(
-				private array $rowsBySchema,
-			) {
-			}
-
-			/**
-			 * Schema-routed findAll fixture.
-			 *
-			 * @param array<string, mixed> $config Query config
-			 *
-			 * @return array<int, array<string, mixed>>
-			 */
-			/**
-			 * Argument counts of every findAll() call.
-			 *
-			 * @var array<int, int>
-			 */
-			public array $argCounts = [];
-
-			public function findAll(array $config = []): array {
-				$this->argCounts[] = func_num_args();
-				// OpenRegister's ObjectService::findAll() reads the register and
-				// schema ONLY from $config['filters'] (prepareFindAllConfig());
-				// top-level 'register'/'schema' keys are ignored. The double
-				// answers the same way, or it would pass a query the real
-				// service runs against no schema at all.
-				if (($config['filters']['register'] ?? null) !== 'decidiq') {
-					return [];
-				}
-
-				return ($this->rowsBySchema[$config['filters']['schema'] ?? ''] ?? []);
-			}//end findAll()
-		};
-
-		$this->lastObjectService = $objectService;
-		$container = $this->createMock(ContainerInterface::class);
+		$this->rbacArgs = [];
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		if ($broken === true) {
-			$container->method('get')->willThrowException(new \RuntimeException('OR missing'));
+			$objectService->method('findAll')->willThrowException(new \RuntimeException('OR missing'));
 		} else {
-			$container->method('get')->willReturn($objectService);
+			$objectService->method('findAll')->willReturnCallback(
+				function (array $config = [], bool $_rbac = true) use ($rowsBySchema): array {
+					$this->rbacArgs[] = $_rbac;
+					if (($config['filters']['register'] ?? null) !== 'decidiq') {
+						return [];
+					}
+
+					return ($rowsBySchema[$config['filters']['schema'] ?? ''] ?? []);
+				}
+			);
 		}
 
 		$urlGenerator = $this->createMock(IURLGenerator::class);
@@ -110,7 +84,7 @@ class DecidiqSearchProviderTest extends TestCase {
 		$l10n->method('t')->willReturnArgument(0);
 
 		return new DecidiqSearchProvider(
-			container: $container,
+			objectService: $objectService,
 			urlGenerator: $urlGenerator,
 			l10n: $l10n,
 			logger: $this->createMock(LoggerInterface::class),
@@ -286,7 +260,7 @@ class DecidiqSearchProviderTest extends TestCase {
 		$provider = $this->makeProvider(rowsBySchema: []);
 		$provider->search($this->createMock(IUser::class), $this->query('woningbouw'));
 
-		self::assertSame([1, 1, 1], $this->lastObjectService->argCounts, 'one findAll per schema, config only, RBAC left on');
+		self::assertSame([true, true, true], $this->rbacArgs, 'one findAll per schema, RBAC left on');
 
 	}//end testSearchKeepsOpenRegisterReadRules()
 }//end class
