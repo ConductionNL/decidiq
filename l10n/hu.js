@@ -1117,7 +1117,9 @@ OC.L10N.register(
         "Please answer by %1$s: %2$s": "Kérjük, válaszoljon eddig: %1$s: %2$s",
         "Your technical question was answered": "Technikai kérdésére válasz érkezett",
         "The answer is on the agenda item: %1$s": "A válasz a napirendi pontnál található: %1$s",
-        "no deadline set": "nincs határidő megadva"
+        "no deadline set": "nincs határidő megadva",
+        "Question": "Kérdés",
+        "Technical questions": "Technikai kérdések"
     },
     "nplurals=2; plural=(n != 1);"
 )

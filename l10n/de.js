@@ -1117,7 +1117,9 @@ OC.L10N.register(
         "Please answer by %1$s: %2$s": "Bitte antworten Sie bis %1$s: %2$s",
         "Your technical question was answered": "Ihre technische Frage wurde beantwortet",
         "The answer is on the agenda item: %1$s": "Die Antwort steht beim Tagesordnungspunkt: %1$s",
-        "no deadline set": "keine Frist festgelegt"
+        "no deadline set": "keine Frist festgelegt",
+        "Question": "Frage",
+        "Technical questions": "Technische Fragen"
     },
     "nplurals=2; plural=(n != 1);"
 )

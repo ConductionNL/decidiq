@@ -1116,7 +1116,9 @@
         "Please answer by %1$s: %2$s": "Svar innen %1$s: %2$s",
         "Your technical question was answered": "Det tekniske spørsmålet ditt er besvart",
         "The answer is on the agenda item: %1$s": "Svaret står på sakslistepunktet: %1$s",
-        "no deadline set": "ingen frist satt"
+        "no deadline set": "ingen frist satt",
+        "Question": "Spørsmål",
+        "Technical questions": "Tekniske spørsmål"
     },
     "plurals": null
 }

@@ -1116,7 +1116,9 @@
         "Please answer by %1$s: %2$s": "Responda até %1$s: %2$s",
         "Your technical question was answered": "A sua pergunta técnica foi respondida",
         "The answer is on the agenda item: %1$s": "A resposta está no ponto da ordem de trabalhos: %1$s",
-        "no deadline set": "sem prazo definido"
+        "no deadline set": "sem prazo definido",
+        "Question": "Pergunta",
+        "Technical questions": "Perguntas técnicas"
     },
     "plurals": null
 }

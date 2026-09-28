@@ -1117,7 +1117,9 @@ OC.L10N.register(
         "Please answer by %1$s: %2$s": "Freagair faoi %1$s, le do thoil: %2$s",
         "Your technical question was answered": "Freagraíodh do cheist theicniúil",
         "The answer is on the agenda item: %1$s": "Tá an freagra ar an mír ar an gclár: %1$s",
-        "no deadline set": "níl aon spriocdháta socraithe"
+        "no deadline set": "níl aon spriocdháta socraithe",
+        "Question": "Ceist",
+        "Technical questions": "Ceisteanna teicniúla"
     },
     "nplurals=2; plural=(n != 1);"
 )

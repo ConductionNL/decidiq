@@ -161,7 +161,12 @@ export default {
 		userOption(input) {
 			const id = this.current[input.key]
 			if (!id) return null
-			return this.userOptions.find((option) => option.id === id) || { id, label: String(id) }
+			return (
+				this.userOptions.find((option) => option.id === id) || {
+					id,
+					label: String(id),
+				}
+			)
 		},
 
 		/**
@@ -174,7 +179,7 @@ export default {
 			if (!search || search.length < 2) return
 			try {
 				this.userOptions = await searchDelegateUsers(search)
-			} catch (error) {
+			} catch {
 				this.userOptions = []
 			}
 		},

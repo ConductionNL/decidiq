@@ -1117,7 +1117,9 @@ OC.L10N.register(
         "Please answer by %1$s: %2$s": "Απαντήστε έως %1$s: %2$s",
         "Your technical question was answered": "Η τεχνική σας ερώτηση απαντήθηκε",
         "The answer is on the agenda item: %1$s": "Η απάντηση βρίσκεται στο θέμα της ημερήσιας διάταξης: %1$s",
-        "no deadline set": "δεν έχει οριστεί προθεσμία"
+        "no deadline set": "δεν έχει οριστεί προθεσμία",
+        "Question": "Ερώτηση",
+        "Technical questions": "Τεχνικές ερωτήσεις"
     },
     "nplurals=2; plural=(n != 1);"
 )

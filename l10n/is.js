@@ -1117,7 +1117,9 @@ OC.L10N.register(
         "Please answer by %1$s: %2$s": "Vinsamlegast svaraðu fyrir %1$s: %2$s",
         "Your technical question was answered": "Tæknilegu spurningunni þinni var svarað",
         "The answer is on the agenda item: %1$s": "Svarið er á dagskrárliðnum: %1$s",
-        "no deadline set": "enginn frestur settur"
+        "no deadline set": "enginn frestur settur",
+        "Question": "Spurning",
+        "Technical questions": "Tæknilegar spurningar"
     },
     "nplurals=2; plural=(n != 1);"
 )

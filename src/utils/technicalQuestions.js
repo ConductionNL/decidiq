@@ -43,7 +43,10 @@ export function technicalQuestionRows(items, types, today) {
 	return (items || [])
 		.filter((item) => {
 			const type = findItemType(types, item?.type)
-			return Array.isArray(type?.fields) && type.fields.some((field) => field?.key === 'assignedTo')
+			return (
+				Array.isArray(type?.fields)
+				&& type.fields.some((field) => field?.key === 'assignedTo')
+			)
 		})
 		.map((item) => {
 			const fields = item.typeFields || {}

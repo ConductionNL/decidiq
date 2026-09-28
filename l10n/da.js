@@ -1117,7 +1117,9 @@ OC.L10N.register(
         "Please answer by %1$s: %2$s": "Svar venligst senest %1$s: %2$s",
         "Your technical question was answered": "Dit tekniske spørgsmål er besvaret",
         "The answer is on the agenda item: %1$s": "Svaret står på dagsordenspunktet: %1$s",
-        "no deadline set": "ingen frist angivet"
+        "no deadline set": "ingen frist angivet",
+        "Question": "Spørgsmål",
+        "Technical questions": "Tekniske spørgsmål"
     },
     "nplurals=2; plural=(n != 1);"
 )

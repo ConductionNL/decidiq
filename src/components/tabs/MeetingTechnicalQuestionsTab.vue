@@ -13,7 +13,10 @@
 -->
 <template>
 	<div class="decidiq-tab" data-testid="meeting-technical-questions-tab">
-		<CnNoteCard v-if="error" type="error" :title="t('decidiq', 'Technical questions')">
+		<CnNoteCard
+			v-if="error"
+			type="error"
+			:title="t('decidiq', 'Technical questions')">
 			{{ error }}
 		</CnNoteCard>
 		<p v-else-if="loading" class="decidiq-tab__muted">
@@ -53,7 +56,8 @@
 					<td>{{ row.assignee || '-' }}</td>
 					<td>{{ row.deadline || '-' }}</td>
 					<td>
-						<span :class="`decidiq-tq-status decidiq-tq-status--${row.status}`">
+						<span
+							:class="`decidiq-tq-status decidiq-tq-status--${row.status}`">
 							{{ statusLabel(row.status) }}
 						</span>
 					</td>
@@ -88,7 +92,11 @@ export default {
 	computed: {
 		/** @spec openspec/specs/motion-management/spec.md#requirement-req-mtq-001-technical-questions-go-to-an-official-with-a-deadline */
 		rows() {
-			return technicalQuestionRows(this.items, this.types, new Date().toISOString().slice(0, 10))
+			return technicalQuestionRows(
+				this.items,
+				this.types,
+				new Date().toISOString().slice(0, 10),
+			)
 		},
 	},
 
@@ -116,13 +124,17 @@ export default {
 				const store = ensureRelationType('agenda-item')
 				const typeStore = ensureRelationType('agenda-item-type')
 				const [items, types] = await Promise.all([
-					store.fetchCollection('agenda-item', { meeting: this.objectId, _limit: 200 }),
+					store.fetchCollection('agenda-item', {
+						meeting: this.objectId,
+						_limit: 200,
+					}),
 					typeStore.fetchCollection('agenda-item-type', { _limit: 200 }),
 				])
 				this.items = items || []
 				this.types = types || []
 			} catch (e) {
-				this.error = e?.message || this.t('decidiq', 'Failed to load agenda.')
+				this.error =
+					e?.message || this.t('decidiq', 'Failed to load agenda.')
 			} finally {
 				this.loading = false
 			}

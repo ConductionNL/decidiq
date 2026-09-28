@@ -1117,7 +1117,9 @@ OC.L10N.register(
         "Please answer by %1$s: %2$s": "Vă rugăm să răspundeți până la %1$s: %2$s",
         "Your technical question was answered": "Întrebarea dumneavoastră tehnică a primit răspuns",
         "The answer is on the agenda item: %1$s": "Răspunsul se află la punctul de pe ordinea de zi: %1$s",
-        "no deadline set": "niciun termen stabilit"
+        "no deadline set": "niciun termen stabilit",
+        "Question": "Întrebare",
+        "Technical questions": "Întrebări tehnice"
     },
     "nplurals=2; plural=(n != 1);"
 )

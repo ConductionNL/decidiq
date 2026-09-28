@@ -1117,7 +1117,9 @@ OC.L10N.register(
         "Please answer by %1$s: %2$s": "Jekk jogħġbok wieġeb sa %1$s: %2$s",
         "Your technical question was answered": "Il-mistoqsija teknika tiegħek ġiet imwieġba",
         "The answer is on the agenda item: %1$s": "It-tweġiba tinsab fuq il-punt tal-aġenda: %1$s",
-        "no deadline set": "ebda skadenza stabbilita"
+        "no deadline set": "ebda skadenza stabbilita",
+        "Question": "Mistoqsija",
+        "Technical questions": "Mistoqsijiet tekniċi"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1117,7 +1117,9 @@ OC.L10N.register(
         "Please answer by %1$s: %2$s": "Lütfen %1$s tarihine kadar yanıtlayın: %2$s",
         "Your technical question was answered": "Teknik sorunuz yanıtlandı",
         "The answer is on the agenda item: %1$s": "Yanıt gündem maddesinde: %1$s",
-        "no deadline set": "son tarih belirlenmedi"
+        "no deadline set": "son tarih belirlenmedi",
+        "Question": "Soru",
+        "Technical questions": "Teknik sorular"
     },
     "nplurals=2; plural=(n != 1);"
 )

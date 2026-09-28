@@ -29,14 +29,20 @@ test.afterAll(async ({ browser }) => {
 })
 
 // @e2e motion-management::the-official-answers-in-time
-test('an assigned question shows as overdue, and as answered once answered', async ({ page }) => {
+test('an assigned question shows as overdue, and as answered once answered', async ({
+	page,
+}) => {
 	const type = await createObject(page, ledger, 'agenda-item-type', {
 		name: `${tag}-technische-vraag`,
 		fields: [
 			{ key: 'question', label: 'Vraag', fieldType: 'text', required: true },
 			{ key: 'answer', label: 'Antwoord', fieldType: 'text' },
 			{ key: 'assignedTo', label: 'Ambtenaar', fieldType: 'user' },
-			{ key: 'answerDeadline', label: 'Antwoord uiterlijk', fieldType: 'date' },
+			{
+				key: 'answerDeadline',
+				label: 'Antwoord uiterlijk',
+				fieldType: 'date',
+			},
 		],
 	})
 	const meeting = await createObject(page, ledger, 'meeting', {
@@ -49,18 +55,27 @@ test('an assigned question shows as overdue, and as answered once answered', asy
 		title: `${tag}-question`,
 		meeting: meetingId,
 		type: type.id ?? type['@self']?.id,
-		typeFields: { question: `${tag} klopt de planning?`, assignedTo: 'admin', answerDeadline: '2020-01-01' },
+		typeFields: {
+			question: `${tag} klopt de planning?`,
+			assignedTo: 'admin',
+			answerDeadline: '2020-01-01',
+		},
 	})
 
 	await page.goto(`${BASE}/index.php/apps/decidiq/meetings/${meetingId}`)
-	const row = page.getByTestId('technical-question-row').filter({ hasText: `${tag} klopt de planning?` })
+	const row = page
+		.getByTestId('technical-question-row')
+		.filter({ hasText: `${tag} klopt de planning?` })
 	await expect(row).toHaveAttribute('data-status', 'overdue', { timeout: 20_000 })
 
 	const headers = await writeHeaders(page)
 	const itemId = item.id ?? item['@self']?.id
 	const saved = await page.request.put(`${OR}/agenda-item/${itemId}`, {
 		headers,
-		data: { ...item, typeFields: { ...item.typeFields, answer: 'Ja, de planning klopt.' } },
+		data: {
+			...item,
+			typeFields: { ...item.typeFields, answer: 'Ja, de planning klopt.' },
+		},
 	})
 	expect(saved.ok()).toBe(true)
 

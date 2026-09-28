@@ -1117,7 +1117,9 @@ OC.L10N.register(
         "Please answer by %1$s: %2$s": "Molimo odgovorite do %1$s: %2$s",
         "Your technical question was answered": "Na vaše tehničko pitanje odgovoreno je",
         "The answer is on the agenda item: %1$s": "Odgovor je na točki dnevnog reda: %1$s",
-        "no deadline set": "rok nije postavljen"
+        "no deadline set": "rok nije postavljen",
+        "Question": "Pitanje",
+        "Technical questions": "Tehnička pitanja"
     },
     "nplurals=2; plural=(n != 1);"
 )

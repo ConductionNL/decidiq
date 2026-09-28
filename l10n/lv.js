@@ -1117,7 +1117,9 @@ OC.L10N.register(
         "Please answer by %1$s: %2$s": "Lūdzu, atbildiet līdz %1$s: %2$s",
         "Your technical question was answered": "Uz jūsu tehnisko jautājumu ir atbildēts",
         "The answer is on the agenda item: %1$s": "Atbilde ir pie darba kārtības punkta: %1$s",
-        "no deadline set": "termiņš nav noteikts"
+        "no deadline set": "termiņš nav noteikts",
+        "Question": "Jautājums",
+        "Technical questions": "Tehniski jautājumi"
     },
     "nplurals=2; plural=(n != 1);"
 )
