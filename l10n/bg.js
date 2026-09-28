@@ -1091,7 +1091,9 @@ OC.L10N.register(
         "The new order was not saved.": "Новият ред не беше запазен.",
         "Could not load the agenda of these minutes": "Дневният ред на този протокол не можа да бъде зареден",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Този протокол не е свързан със заседание, затова няма точки от дневния ред за бележки.",
-        "Minutes per agenda item": "Протокол по точки от дневния ред"
+        "Minutes per agenda item": "Протокол по точки от дневния ред",
+        "Submission opens": "Подаването започва",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Кога членовете могат да започнат да подават предложения и изменения за това заседание. Празно означава, че подаването е отворено от момента, в който заседанието съществува."
     },
     "nplurals=2; plural=(n != 1);"
 )

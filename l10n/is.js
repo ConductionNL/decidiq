@@ -1091,7 +1091,9 @@ OC.L10N.register(
         "The new order was not saved.": "Nýja röðin var ekki vistuð.",
         "Could not load the agenda of these minutes": "Ekki tókst að hlaða dagskrá þessarar fundargerðar",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Þessi fundargerð er ekki tengd fundi, svo engir dagskrárliðir eru til að skrifa við.",
-        "Minutes per agenda item": "Fundargerð eftir dagskrárlið"
+        "Minutes per agenda item": "Fundargerð eftir dagskrárlið",
+        "Submission opens": "Innsending opnar",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Hvenær félagar geta byrjað að leggja fram tillögur og breytingartillögur fyrir þennan fund. Autt þýðir að innsending er opin frá því að fundurinn er til."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1091,7 +1091,9 @@ OC.L10N.register(
         "The new order was not saved.": "Rendi i ri nuk u ruajt.",
         "Could not load the agenda of these minutes": "Rendi i ditës i këtij procesverbali nuk mund të ngarkohej",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Ky procesverbal nuk është i lidhur me një mbledhje, prandaj nuk ka pika të rendit të ditës për shënime.",
-        "Minutes per agenda item": "Procesverbal sipas pikave të rendit të ditës"
+        "Minutes per agenda item": "Procesverbal sipas pikave të rendit të ditës",
+        "Submission opens": "Dorëzimi hapet",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Kur anëtarët mund të fillojnë të dorëzojnë mocione dhe amendamente për këtë mbledhje. Bosh do të thotë se dorëzimi është i hapur që nga momenti që mbledhja ekziston."
     },
     "nplurals=2; plural=(n != 1);"
 )

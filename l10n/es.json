@@ -1090,7 +1090,9 @@
         "The new order was not saved.": "El nuevo orden no se ha guardado.",
         "Could not load the agenda of these minutes": "No se pudo cargar el orden del día de esta acta",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Esta acta no está vinculada a una reunión, así que no hay puntos del orden del día sobre los que tomar notas.",
-        "Minutes per agenda item": "Acta por punto del orden del día"
+        "Minutes per agenda item": "Acta por punto del orden del día",
+        "Submission opens": "Apertura de presentación",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Cuándo pueden los miembros empezar a presentar mociones y enmiendas para esta reunión. Vacío significa que la presentación está abierta desde que existe la reunión."
     },
     "plurals": null
 }

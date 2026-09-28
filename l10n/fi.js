@@ -1091,7 +1091,9 @@ OC.L10N.register(
         "The new order was not saved.": "Uutta järjestystä ei tallennettu.",
         "Could not load the agenda of these minutes": "Tämän pöytäkirjan esityslistaa ei voitu ladata",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Tätä pöytäkirjaa ei ole liitetty kokoukseen, joten muistiinpanoille ei ole esityslistan kohtia.",
-        "Minutes per agenda item": "Pöytäkirja esityslistan kohdittain"
+        "Minutes per agenda item": "Pöytäkirja esityslistan kohdittain",
+        "Submission opens": "Jättäminen alkaa",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Milloin jäsenet voivat alkaa jättää aloitteita ja muutosehdotuksia tähän kokoukseen. Tyhjä tarkoittaa, että jättäminen on auki kokouksen luomisesta lähtien."
     },
     "nplurals=2; plural=(n != 1);"
 )

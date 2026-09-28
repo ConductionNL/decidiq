@@ -1091,7 +1091,9 @@ OC.L10N.register(
         "The new order was not saved.": "Nowa kolejność nie została zapisana.",
         "Could not load the agenda of these minutes": "Nie udało się wczytać porządku obrad tego protokołu",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Ten protokół nie jest powiązany z posiedzeniem, więc nie ma punktów porządku obrad do notatek.",
-        "Minutes per agenda item": "Protokół według punktów porządku obrad"
+        "Minutes per agenda item": "Protokół według punktów porządku obrad",
+        "Submission opens": "Otwarcie składania",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Od kiedy członkowie mogą składać wnioski i poprawki na to posiedzenie. Puste oznacza, że składanie jest otwarte od chwili utworzenia posiedzenia."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1090,7 +1090,9 @@
         "The new order was not saved.": "Noua ordine nu a fost salvată.",
         "Could not load the agenda of these minutes": "Ordinea de zi a acestui proces-verbal nu a putut fi încărcată",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Acest proces-verbal nu este legat de o ședință, deci nu există puncte pe ordinea de zi pentru notițe.",
-        "Minutes per agenda item": "Proces-verbal pe puncte de pe ordinea de zi"
+        "Minutes per agenda item": "Proces-verbal pe puncte de pe ordinea de zi",
+        "Submission opens": "Depunerea începe",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Când pot membrii începe să depună moțiuni și amendamente pentru această ședință. Gol înseamnă că depunerea este deschisă din momentul în care ședința există."
     },
     "plurals": null
 }

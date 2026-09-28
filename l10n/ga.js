@@ -1091,7 +1091,9 @@ OC.L10N.register(
         "The new order was not saved.": "Níor sábháladh an t-ord nua.",
         "Could not load the agenda of these minutes": "Níorbh fhéidir clár oibre na miontuairiscí seo a lódáil",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Níl na miontuairiscí seo nasctha le cruinniú, mar sin níl aon mhíreanna clár oibre ann le nótaí a thógáil orthu.",
-        "Minutes per agenda item": "Miontuairiscí de réir míre den chlár oibre"
+        "Minutes per agenda item": "Miontuairiscí de réir míre den chlár oibre",
+        "Submission opens": "Osclaíonn aighneachtaí",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Cathain is féidir le comhaltaí tús a chur le rúin agus leasuithe a chur isteach don chruinniú seo. Ciallaíonn folamh go bhfuil aighneachtaí oscailte ón nóiméad a bhíonn an cruinniú ann."
     },
     "nplurals=2; plural=(n != 1);"
 )

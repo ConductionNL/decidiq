@@ -41,6 +41,7 @@ use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
+use OCA\OpenRegister\Event\ObjectUpdatingEvent;
 use OCP\EventDispatcher\IEventDispatcher;
 use Psr\Log\LoggerInterface;
 
@@ -150,6 +151,20 @@ class ObjectListenerRegistrar {
 			registers: null,
 			schemas: ['decision']
 		);
+
+		// Submission window sanity (motions-submission-window, REQ-SUBW-003):
+		// the same listener refuses a meeting whose window opens after it
+		// closes, on create and on update. Declared interest is the handler's
+		// literal `$slug === 'meeting'` branch.
+		foreach ([ObjectCreatingEvent::class, ObjectUpdatingEvent::class] as $meetingEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $meetingEvent,
+				listener: SubmissionDeadlineListener::class,
+				registers: null,
+				schemas: ['meeting']
+			);
+		}
 
 	}//end register()
 

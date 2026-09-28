@@ -1090,7 +1090,9 @@
         "The new order was not saved.": "Den nye rækkefølge blev ikke gemt.",
         "Could not load the agenda of these minutes": "Dagsordenen for dette referat kunne ikke indlæses",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Dette referat er ikke knyttet til et møde, så der er ingen dagsordenspunkter at tage noter til.",
-        "Minutes per agenda item": "Referat pr. dagsordenspunkt"
+        "Minutes per agenda item": "Referat pr. dagsordenspunkt",
+        "Submission opens": "Indsendelse åbner",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Hvornår medlemmer kan begynde at indsende forslag og ændringsforslag til dette møde. Tom betyder, at indsendelse er åben, fra mødet findes."
     },
     "plurals": null
 }

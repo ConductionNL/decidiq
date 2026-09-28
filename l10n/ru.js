@@ -1091,7 +1091,9 @@ OC.L10N.register(
         "The new order was not saved.": "Новый порядок не сохранён.",
         "Could not load the agenda of these minutes": "Не удалось загрузить повестку этого протокола",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Этот протокол не связан с заседанием, поэтому нет пунктов повестки для заметок.",
-        "Minutes per agenda item": "Протокол по пунктам повестки"
+        "Minutes per agenda item": "Протокол по пунктам повестки",
+        "Submission opens": "Начало подачи",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Когда участники могут начать подавать предложения и поправки к этому заседанию. Пусто означает, что подача открыта с момента создания заседания."
     },
     "nplurals=2; plural=(n != 1);"
 )

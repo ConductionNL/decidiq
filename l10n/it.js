@@ -1091,7 +1091,9 @@ OC.L10N.register(
         "The new order was not saved.": "Il nuovo ordine non è stato salvato.",
         "Could not load the agenda of these minutes": "Impossibile caricare l'ordine del giorno di questo verbale",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Questo verbale non è collegato a una riunione, quindi non ci sono punti all'ordine del giorno su cui prendere appunti.",
-        "Minutes per agenda item": "Verbale per punto all'ordine del giorno"
+        "Minutes per agenda item": "Verbale per punto all'ordine del giorno",
+        "Submission opens": "Apertura presentazione",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Quando i membri possono iniziare a presentare mozioni ed emendamenti per questa riunione. Vuoto significa che la presentazione è aperta da quando la riunione esiste."
     },
     "nplurals=2; plural=(n != 1);"
 )
