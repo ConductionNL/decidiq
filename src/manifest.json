@@ -908,7 +908,8 @@
 				"widget-motion-amendments": "MotionAmendmentsTab",
 				"widget-motion-votes": "MotionVotesTab",
 				"widget-motion-amendment-order": "MotionAmendmentOrderTab",
-				"widget-motion-voting-round": "MotionVotingRoundTab"
+				"widget-motion-voting-round": "MotionVotingRoundTab",
+				"widget-motion-citizen-advice": "MotionCitizenAdviceTab"
 			},
 			"title": "Motion",
 			"config": {
@@ -921,7 +922,8 @@
 					{ "id": "motion-amendments", "type": "custom", "component": "MotionAmendmentsTab", "title": "Amendments", "icon": "FileSign" },
 					{ "id": "motion-votes", "type": "custom", "component": "MotionVotesTab", "title": "Votes", "icon": "CheckCircleOutline" },
 					{ "id": "motion-amendment-order", "type": "custom", "component": "MotionAmendmentOrderTab", "title": "Voting order", "icon": "TableColumn" },
-					{ "id": "motion-voting-round", "type": "custom", "component": "MotionVotingRoundTab", "title": "Voting round", "icon": "Gavel" }
+					{ "id": "motion-voting-round", "type": "custom", "component": "MotionVotingRoundTab", "title": "Voting round", "icon": "Gavel" },
+					{ "id": "motion-citizen-advice", "type": "custom", "component": "MotionCitizenAdviceTab", "title": "Advisory vote by residents", "icon": "AccountVoice" }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "motion-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 5 },
@@ -929,7 +931,8 @@
 					{ "id": "3", "widgetId": "motion-amendments", "gridX": 0, "gridY": 5, "gridWidth": 12, "gridHeight": 6 },
 					{ "id": "4", "widgetId": "motion-votes", "gridX": 0, "gridY": 11, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "5", "widgetId": "motion-amendment-order", "gridX": 0, "gridY": 16, "gridWidth": 6, "gridHeight": 5 },
-					{ "id": "6", "widgetId": "motion-voting-round", "gridX": 6, "gridY": 16, "gridWidth": 6, "gridHeight": 5 }
+					{ "id": "6", "widgetId": "motion-voting-round", "gridX": 6, "gridY": 16, "gridWidth": 6, "gridHeight": 5 },
+					{ "id": "7", "widgetId": "motion-citizen-advice", "gridX": 6, "gridY": 21, "gridWidth": 6, "gridHeight": 4 }
 				],
 				"sidebar": {
 					"enabled": true,

@@ -36,6 +36,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Portal;
 
 use OCA\Decidiq\Portal\PortalContributionProvider;
+use OCA\Decidiq\Service\SettingsService;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -135,7 +136,7 @@ final class PortalContributionProviderTest extends TestCase {
 
 		self::assertIsArray(actual: $manifest);
 		self::assertSame(expected: 'Decidiq', actual: $manifest['label']);
-		self::assertCount(expectedCount: 2, haystack: $manifest['actions'], message: 'Exactly createReaction + createBudgetProposal this wave');
+		self::assertCount(expectedCount: 3, haystack: $manifest['actions'], message: 'Exactly createReaction, createBudgetProposal and castMotionAdvice');
 		self::assertSame(expected: [], actual: $manifest['notifications'], message: 'No manifest-level notification dispatch this wave');
 
 		$byId = [];
@@ -220,27 +221,68 @@ final class PortalContributionProviderTest extends TestCase {
 
 	/**
 	 * The citizen manifest declares exactly `createReaction` and
-	 * `createBudgetProposal`, both `type: create`, both `minTrust: low`
-	 * (REQ-DKPCA-004).
+	 * `createBudgetProposal`, both `minTrust: low` (REQ-DKPCA-004), and
+	 * `castMotionAdvice` at `minTrust: substantial` (REQ-CAV-002), all
+	 * `type: create`.
 	 *
 	 * @return void
 	 */
-	public function testCitizenManifestDeclaresExactlyTheTwoCreateActions(): void {
+	public function testCitizenManifestDeclaresExactlyTheThreeCreateActions(): void {
 		$actionsById = $this->actionsById();
 
 		self::assertSame(
-			expected: ['createReaction', 'createBudgetProposal'],
+			expected: ['createReaction', 'createBudgetProposal', 'castMotionAdvice'],
 			actual: array_keys($actionsById),
-			message: 'Exactly the two documented citizen create actions, in order'
+			message: 'Exactly the three documented citizen create actions, in order'
 		);
 
-		foreach ($actionsById as $action) {
+		$minTrust = [
+			'createReaction' => 'low',
+			'createBudgetProposal' => 'low',
+			'castMotionAdvice' => 'substantial',
+		];
+		foreach ($actionsById as $actionId => $action) {
 			self::assertSame(expected: 'create', actual: $action['type']);
-			self::assertSame(expected: 'low', actual: $action['minTrust'], message: 'Account-less participation is the point');
+			self::assertSame(expected: $minTrust[$actionId], actual: $action['minTrust'], message: "{$actionId}: minimum trust level");
 			self::assertSame(expected: 'decidiq', actual: $action['register']);
 		}
 
-	}//end testCitizenManifestDeclaresExactlyTheTwoCreateActions()
+	}//end testCitizenManifestDeclaresExactlyTheThreeCreateActions()
+
+	/**
+	 * `castMotionAdvice` (REQ-CAV-002, issue #1418): a resident signed in at
+	 * trust level substantial gives voor, tegen or onthoud on a motion, and
+	 * only while the motion's advisory vote is open. The voter id is stamped
+	 * from the subject, never sent by the client.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md#requirement-req-cav-002-a-verified-resident-gives-one-advisory-vote-while-it-is-open
+	 */
+	public function testCastMotionAdviceActionShape(): void {
+		$actions = $this->actionsById();
+		self::assertArrayHasKey(key: 'castMotionAdvice', array: $actions, message: 'A resident has no way to vote on a motion (#1418)');
+		$action = $actions['castMotionAdvice'];
+
+		self::assertSame(expected: 'citizen-vote', actual: $action['schema']);
+		self::assertSame(expected: 'voterId', actual: $action['scopeField'], message: 'The voter is stamped from subjectRef, never client-writable');
+		self::assertSame(expected: 'substantial', actual: $action['minTrust'], message: 'One vote per person needs a verified identity');
+		self::assertSame(expected: ['motionId', 'voteValue'], actual: $action['fields']);
+		self::assertArrayHasKey(key: 'castAt', array: $action['defaults']);
+		self::assertSame(expected: 1, actual: $action['defaults']['weight']);
+		self::assertFalse(condition: $action['defaults']['isProxy']);
+
+		self::assertSame(
+			expected: [
+				'field' => 'motionId',
+				'parentSchema' => 'decision',
+				'statusField' => 'citizenVotingStatus',
+				'statusValue' => 'open',
+			],
+			actual: $action['parentConstraint']
+		);
+
+	}//end testCastMotionAdviceActionShape()
 
 	/**
 	 * `createReaction` (REQ-DKPCA-001): exact client whitelist, scope field +
@@ -457,17 +499,13 @@ final class PortalContributionProviderTest extends TestCase {
 	}//end actionsById()
 
 	/**
-	 * Build a map of schema slug => property-name => property, from the shipped
-	 * register JSON at HEAD.
+	 * Build a map of schema slug => property-name => property, from the register as
+	 * the importer merges it (base plus register.d fragments).
 	 *
 	 * @return array<string, array<string, mixed>>
 	 */
 	private function schemaPropertiesBySlug(): array {
-		$path = __DIR__ . '/../../../lib/Settings/decidesk_register.json';
-		$json = file_get_contents(filename: $path);
-		self::assertNotFalse(condition: $json, message: 'Register JSON file must exist');
-
-		$register = json_decode(json: $json, associative: true, depth: 512, flags: JSON_THROW_ON_ERROR);
+		$register = SettingsService::shippedRegisterDescriptor();
 
 		$bySlug = [];
 		foreach (($register['components']['schemas'] ?? []) as $schema) {
@@ -484,16 +522,13 @@ final class PortalContributionProviderTest extends TestCase {
 
 	/**
 	 * Build a map of schema slug => full schema definition (properties + enum
-	 * metadata), from the shipped register JSON at HEAD.
+	 * metadata), from the register as the importer merges it (base plus
+	 * register.d fragments).
 	 *
 	 * @return array<string, array<string, mixed>>
 	 */
 	private function schemasBySlug(): array {
-		$path = __DIR__ . '/../../../lib/Settings/decidesk_register.json';
-		$json = file_get_contents(filename: $path);
-		self::assertNotFalse(condition: $json, message: 'Register JSON file must exist');
-
-		$register = json_decode(json: $json, associative: true, depth: 512, flags: JSON_THROW_ON_ERROR);
+		$register = SettingsService::shippedRegisterDescriptor();
 
 		$bySlug = [];
 		foreach (($register['components']['schemas'] ?? []) as $schema) {

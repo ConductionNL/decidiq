@@ -62,6 +62,7 @@ import MinutesPublicationTab from './components/tabs/MinutesPublicationTab.vue'
 import MinutesSignersTab from './components/tabs/MinutesSignersTab.vue'
 import MotionAmendmentOrderTab from './components/tabs/MotionAmendmentOrderTab.vue'
 import MotionAmendmentsTab from './components/tabs/MotionAmendmentsTab.vue'
+import MotionCitizenAdviceTab from './components/tabs/MotionCitizenAdviceTab.vue'
 import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
 import MotionVotingRoundTab from './components/tabs/MotionVotingRoundTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
@@ -231,6 +232,7 @@ export default {
 	MotionAmendmentOrderTab: page(MotionAmendmentOrderTab),
 	MotionVotesTab: page(MotionVotesTab),
 	MotionVotingRoundTab: page(MotionVotingRoundTab),
+	MotionCitizenAdviceTab: page(MotionCitizenAdviceTab),
 	AmendmentParentMotionTab: page(AmendmentParentMotionTab),
 	// Visual diff against the parent motion text (motion-amendment spec).
 	AmendmentDiffTab: page(AmendmentDiffTab),

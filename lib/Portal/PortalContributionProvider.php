@@ -163,8 +163,10 @@ class PortalContributionProvider {
 	 * - `citizenNotifications` (`notification`, scope `recipientId`,
 	 *   `kind: 'inbox'`) — the citizen's own notification inbox.
 	 *
-	 * `actions` carries two `type: create` entries (portal-citizen-create-actions,
-	 * REQ-DKPCA-001/002/003/004), each `minTrust: low`:
+	 * `actions` carries three `type: create` entries. The first two
+	 * (portal-citizen-create-actions, REQ-DKPCA-001/002/003/004) are
+	 * `minTrust: low`; the third, `castMotionAdvice`, is described on
+	 * {@see citizenActions()}:
 	 *
 	 * - `createReaction` (`consultation-reaction`) — client whitelist
 	 *   `{consultation, body}`; the scope field `submitterId` is stamped from the
@@ -296,14 +298,23 @@ class PortalContributionProvider {
 	}//end citizenCollections()
 
 	/**
-	 * The two `type: create` actions on the `citizen` manifest (see
+	 * The three `type: create` actions on the `citizen` manifest (see
 	 * {@see citizenContribution()} for the documented whitelist/stamp/
 	 * parentConstraint rationale, portal-citizen-create-actions
 	 * REQ-DKPCA-001/002).
 	 *
+	 * `castMotionAdvice` (issue #1418, REQ-CAV-002) lets a resident give
+	 * voor, tegen or onthoud on a motion whose advisory vote the griffie has
+	 * opened. It asks for trust level substantial (DigiD or an equivalent),
+	 * because one vote per person needs a verified person; the voter id is
+	 * stamped from the subject and never sent by the client. The open motion,
+	 * the value and the one vote per resident are enforced server side by
+	 * PortalCreateOpenParentGuardListener, whatever path the vote arrives by.
+	 *
 	 * @return array<int, array<string, mixed>>
 	 *
 	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
+	 * @spec openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md#requirement-req-cav-002-a-verified-resident-gives-one-advisory-vote-while-it-is-open
 	 */
 	private function citizenActions(): array {
 		return [
@@ -353,6 +364,30 @@ class PortalContributionProvider {
 					'parentSchema' => 'participatory-budget',
 					'statusField' => 'status',
 					'statusValue' => 'submission',
+				],
+			],
+			[
+				'id' => 'castMotionAdvice',
+				'type' => 'create',
+				'label' => 'Give your advice on this motion',
+				'register' => self::REGISTER,
+				'schema' => 'citizen-vote',
+				'scopeField' => 'voterId',
+				'minTrust' => 'substantial',
+				'fields' => [
+					'motionId',
+					'voteValue',
+				],
+				'defaults' => [
+					'weight' => 1,
+					'isProxy' => false,
+					'castAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
+				],
+				'parentConstraint' => [
+					'field' => 'motionId',
+					'parentSchema' => 'decision',
+					'statusField' => 'citizenVotingStatus',
+					'statusValue' => 'open',
 				],
 			],
 		];
