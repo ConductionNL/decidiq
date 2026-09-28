@@ -1092,7 +1092,24 @@
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Dieses Protokoll ist mit keiner Sitzung verknüpft, daher gibt es keine Tagesordnungspunkte für Notizen.",
         "Minutes per agenda item": "Protokoll je Tagesordnungspunkt",
         "Submission opens": "Einreichung öffnet",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Ab wann Mitglieder Anträge und Änderungsanträge für diese Sitzung einreichen können. Leer bedeutet, dass die Einreichung ab dem Anlegen der Sitzung offen ist."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Ab wann Mitglieder Anträge und Änderungsanträge für diese Sitzung einreichen können. Leer bedeutet, dass die Einreichung ab dem Anlegen der Sitzung offen ist.",
+        "The agenda of %s was published": "Die Tagesordnung von %s wurde veröffentlicht",
+        "A revised agenda of %s was published": "Eine überarbeitete Tagesordnung von %s wurde veröffentlicht",
+        "The agenda of %s is being revised": "Die Tagesordnung von %s wird überarbeitet",
+        "The agenda of %s changed": "Die Tagesordnung von %s wurde geändert",
+        "You are asked to co-sign the motion %s": "Sie werden gebeten, den Antrag %s mitzuzeichnen",
+        "The motion %s was forwarded to you for approval": "Der Antrag %s wurde Ihnen zur Genehmigung weitergeleitet",
+        "You received a proxy to vote for another member": "Sie haben eine Vollmacht erhalten, für ein anderes Mitglied abzustimmen",
+        "Your vote by email was recorded": "Ihre Stimme per E-Mail wurde erfasst",
+        "Your vote by email could not be read and was not counted": "Ihre Stimme per E-Mail konnte nicht gelesen werden und wurde nicht gezählt",
+        "Your vote by email could not be read, please reply again": "Ihre Stimme per E-Mail konnte nicht gelesen werden, bitte antworten Sie erneut",
+        "this meeting": "diese Sitzung",
+        "this motion": "dieser Antrag",
+        "Open the meeting in Decidiq to see the agenda.": "Öffnen Sie die Sitzung in Decidiq, um die Tagesordnung zu sehen.",
+        "Agenda published or changed": "Tagesordnung veröffentlicht oder geändert",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Benachrichtigen, wenn die Tagesordnung einer Sitzung, an der Sie teilnehmen, veröffentlicht, überarbeitet oder geändert wird.",
+        "Agenda notice sent at": "Tagesordnungshinweis gesendet am",
+        "When each member last received an agenda change notice for this meeting.": "Wann jedes Mitglied zuletzt einen Hinweis auf eine Tagesordnungsänderung für diese Sitzung erhalten hat."
     },
     "plurals": null
 }

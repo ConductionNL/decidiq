@@ -1092,7 +1092,24 @@
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "See protokoll pole koosolekuga seotud, seega pole päevakorrapunkte, mille kohta märkmeid teha.",
         "Minutes per agenda item": "Protokoll päevakorrapunktide kaupa",
         "Submission opens": "Esitamine algab",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Millal saavad liikmed hakata sellele koosolekule ettepanekuid ja muudatusettepanekuid esitama. Tühi tähendab, et esitamine on avatud koosoleku loomisest alates."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Millal saavad liikmed hakata sellele koosolekule ettepanekuid ja muudatusettepanekuid esitama. Tühi tähendab, et esitamine on avatud koosoleku loomisest alates.",
+        "The agenda of %s was published": "Koosoleku %s päevakord avaldati",
+        "A revised agenda of %s was published": "Koosoleku %s muudetud päevakord avaldati",
+        "The agenda of %s is being revised": "Koosoleku %s päevakorda muudetakse",
+        "The agenda of %s changed": "Koosoleku %s päevakord muutus",
+        "You are asked to co-sign the motion %s": "Teil palutakse ettepanekule %s kaasallkirja anda",
+        "The motion %s was forwarded to you for approval": "Ettepanek %s edastati teile kinnitamiseks",
+        "You received a proxy to vote for another member": "Saite volituse hääletada teise liikme eest",
+        "Your vote by email was recorded": "Teie e-posti teel antud hääl registreeriti",
+        "Your vote by email could not be read and was not counted": "Teie e-posti teel antud häält ei õnnestunud lugeda ja seda ei arvestatud",
+        "Your vote by email could not be read, please reply again": "Teie e-posti teel antud häält ei õnnestunud lugeda, palun vastake uuesti",
+        "this meeting": "see koosolek",
+        "this motion": "see ettepanek",
+        "Open the meeting in Decidiq to see the agenda.": "Päevakorra nägemiseks avage koosolek Decidiqis.",
+        "Agenda published or changed": "Päevakord avaldatud või muudetud",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Teavita, kui koosoleku, milles osalete, päevakord avaldatakse, vaadatakse üle või muutub.",
+        "Agenda notice sent at": "Päevakorrateade saadetud",
+        "When each member last received an agenda change notice for this meeting.": "Millal iga liige viimati sai selle koosoleku päevakorra muutmise teate."
     },
     "plurals": null
 }

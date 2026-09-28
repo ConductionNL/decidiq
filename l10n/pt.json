@@ -1092,7 +1092,24 @@
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Esta ata não está ligada a uma reunião, por isso não há pontos da ordem de trabalhos para anotar.",
         "Minutes per agenda item": "Ata por ponto da ordem de trabalhos",
         "Submission opens": "Abertura da submissão",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Quando os membros podem começar a submeter moções e emendas para esta reunião. Vazio significa que a submissão está aberta desde que a reunião existe."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Quando os membros podem começar a submeter moções e emendas para esta reunião. Vazio significa que a submissão está aberta desde que a reunião existe.",
+        "The agenda of %s was published": "A ordem de trabalhos de %s foi publicada",
+        "A revised agenda of %s was published": "Foi publicada uma ordem de trabalhos revista de %s",
+        "The agenda of %s is being revised": "A ordem de trabalhos de %s está a ser revista",
+        "The agenda of %s changed": "A ordem de trabalhos de %s mudou",
+        "You are asked to co-sign the motion %s": "É-lhe pedido que coassine a moção %s",
+        "The motion %s was forwarded to you for approval": "A moção %s foi-lhe reencaminhada para aprovação",
+        "You received a proxy to vote for another member": "Recebeu uma procuração para votar por outro membro",
+        "Your vote by email was recorded": "O seu voto por email foi registado",
+        "Your vote by email could not be read and was not counted": "O seu voto por email não pôde ser lido e não foi contado",
+        "Your vote by email could not be read, please reply again": "O seu voto por email não pôde ser lido, responda novamente",
+        "this meeting": "esta reunião",
+        "this motion": "esta moção",
+        "Open the meeting in Decidiq to see the agenda.": "Abra a reunião no Decidiq para ver a ordem de trabalhos.",
+        "Agenda published or changed": "Ordem de trabalhos publicada ou alterada",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Notificar quando a ordem de trabalhos de uma reunião em que participa for publicada, revista ou alterada.",
+        "Agenda notice sent at": "Aviso da ordem de trabalhos enviado em",
+        "When each member last received an agenda change notice for this meeting.": "Quando cada membro recebeu o último aviso de alteração da ordem de trabalhos desta reunião."
     },
     "plurals": null
 }

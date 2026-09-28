@@ -1093,7 +1093,24 @@ OC.L10N.register(
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Tätä pöytäkirjaa ei ole liitetty kokoukseen, joten muistiinpanoille ei ole esityslistan kohtia.",
         "Minutes per agenda item": "Pöytäkirja esityslistan kohdittain",
         "Submission opens": "Jättäminen alkaa",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Milloin jäsenet voivat alkaa jättää aloitteita ja muutosehdotuksia tähän kokoukseen. Tyhjä tarkoittaa, että jättäminen on auki kokouksen luomisesta lähtien."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Milloin jäsenet voivat alkaa jättää aloitteita ja muutosehdotuksia tähän kokoukseen. Tyhjä tarkoittaa, että jättäminen on auki kokouksen luomisesta lähtien.",
+        "The agenda of %s was published": "Kokouksen %s esityslista julkaistiin",
+        "A revised agenda of %s was published": "Kokouksen %s muutettu esityslista julkaistiin",
+        "The agenda of %s is being revised": "Kokouksen %s esityslistaa muutetaan",
+        "The agenda of %s changed": "Kokouksen %s esityslista muuttui",
+        "You are asked to co-sign the motion %s": "Sinua pyydetään allekirjoittamaan aloite %s",
+        "The motion %s was forwarded to you for approval": "Aloite %s välitettiin sinulle hyväksyttäväksi",
+        "You received a proxy to vote for another member": "Sait valtakirjan äänestää toisen jäsenen puolesta",
+        "Your vote by email was recorded": "Sähköpostilla antamasi ääni kirjattiin",
+        "Your vote by email could not be read and was not counted": "Sähköpostilla antamaasi ääntä ei voitu lukea, eikä sitä laskettu",
+        "Your vote by email could not be read, please reply again": "Sähköpostilla antamaasi ääntä ei voitu lukea, vastaa uudelleen",
+        "this meeting": "tämä kokous",
+        "this motion": "tämä aloite",
+        "Open the meeting in Decidiq to see the agenda.": "Avaa kokous Decidiqissa nähdäksesi esityslistan.",
+        "Agenda published or changed": "Esityslista julkaistu tai muuttunut",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Ilmoita, kun kokouksen, johon osallistut, esityslista julkaistaan, sitä muutetaan tai se muuttuu.",
+        "Agenda notice sent at": "Esityslistailmoitus lähetetty",
+        "When each member last received an agenda change notice for this meeting.": "Milloin kukin jäsen viimeksi sai ilmoituksen tämän kokouksen esityslistan muutoksesta."
     },
     "nplurals=2; plural=(n != 1);"
 )

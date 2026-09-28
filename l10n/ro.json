@@ -1092,7 +1092,24 @@
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Acest proces-verbal nu este legat de o ședință, deci nu există puncte pe ordinea de zi pentru notițe.",
         "Minutes per agenda item": "Proces-verbal pe puncte de pe ordinea de zi",
         "Submission opens": "Depunerea începe",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Când pot membrii începe să depună moțiuni și amendamente pentru această ședință. Gol înseamnă că depunerea este deschisă din momentul în care ședința există."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Când pot membrii începe să depună moțiuni și amendamente pentru această ședință. Gol înseamnă că depunerea este deschisă din momentul în care ședința există.",
+        "The agenda of %s was published": "Ordinea de zi a %s a fost publicată",
+        "A revised agenda of %s was published": "A fost publicată o ordine de zi revizuită a %s",
+        "The agenda of %s is being revised": "Ordinea de zi a %s este în curs de revizuire",
+        "The agenda of %s changed": "Ordinea de zi a %s s-a schimbat",
+        "You are asked to co-sign the motion %s": "Vi se cere să cosemnați moțiunea %s",
+        "The motion %s was forwarded to you for approval": "Moțiunea %s v-a fost transmisă spre aprobare",
+        "You received a proxy to vote for another member": "Ați primit o împuternicire de a vota pentru alt membru",
+        "Your vote by email was recorded": "Votul dvs. prin e-mail a fost înregistrat",
+        "Your vote by email could not be read and was not counted": "Votul dvs. prin e-mail nu a putut fi citit și nu a fost numărat",
+        "Your vote by email could not be read, please reply again": "Votul dvs. prin e-mail nu a putut fi citit, vă rugăm să răspundeți din nou",
+        "this meeting": "această ședință",
+        "this motion": "această moțiune",
+        "Open the meeting in Decidiq to see the agenda.": "Deschideți ședința în Decidiq pentru a vedea ordinea de zi.",
+        "Agenda published or changed": "Ordine de zi publicată sau modificată",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Notificare când ordinea de zi a unei ședințe la care participați este publicată, revizuită sau modificată.",
+        "Agenda notice sent at": "Notificare privind ordinea de zi trimisă la",
+        "When each member last received an agenda change notice for this meeting.": "Când a primit fiecare membru ultima notificare de modificare a ordinii de zi pentru această ședință."
     },
     "plurals": null
 }

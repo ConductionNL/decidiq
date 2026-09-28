@@ -1092,7 +1092,24 @@
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Níl na miontuairiscí seo nasctha le cruinniú, mar sin níl aon mhíreanna clár oibre ann le nótaí a thógáil orthu.",
         "Minutes per agenda item": "Miontuairiscí de réir míre den chlár oibre",
         "Submission opens": "Osclaíonn aighneachtaí",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Cathain is féidir le comhaltaí tús a chur le rúin agus leasuithe a chur isteach don chruinniú seo. Ciallaíonn folamh go bhfuil aighneachtaí oscailte ón nóiméad a bhíonn an cruinniú ann."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Cathain is féidir le comhaltaí tús a chur le rúin agus leasuithe a chur isteach don chruinniú seo. Ciallaíonn folamh go bhfuil aighneachtaí oscailte ón nóiméad a bhíonn an cruinniú ann.",
+        "The agenda of %s was published": "Foilsíodh clár oibre %s",
+        "A revised agenda of %s was published": "Foilsíodh clár oibre athbhreithnithe %s",
+        "The agenda of %s is being revised": "Tá clár oibre %s á athbhreithniú",
+        "The agenda of %s changed": "Athraíodh clár oibre %s",
+        "You are asked to co-sign the motion %s": "Iarrtar ort an rún %s a chomhshíniú",
+        "The motion %s was forwarded to you for approval": "Cuireadh an rún %s ar aghaidh chugat lena cheadú",
+        "You received a proxy to vote for another member": "Fuair tú seachvótáil chun vótáil thar ceann comhalta eile",
+        "Your vote by email was recorded": "Taifeadadh do vóta trí ríomhphost",
+        "Your vote by email could not be read and was not counted": "Níorbh fhéidir do vóta trí ríomhphost a léamh agus níor comhaireadh é",
+        "Your vote by email could not be read, please reply again": "Níorbh fhéidir do vóta trí ríomhphost a léamh, freagair arís le do thoil",
+        "this meeting": "an cruinniú seo",
+        "this motion": "an rún seo",
+        "Open the meeting in Decidiq to see the agenda.": "Oscail an cruinniú in Decidiq chun an clár oibre a fheiceáil.",
+        "Agenda published or changed": "Clár oibre foilsithe nó athraithe",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Cuir in iúl nuair a fhoilsítear, a athbhreithnítear nó a athraítear clár oibre cruinnithe a nglacann tú páirt ann.",
+        "Agenda notice sent at": "Fógra clár oibre seolta ag",
+        "When each member last received an agenda change notice for this meeting.": "Cathain a fuair gach comhalta fógra deireanach faoi athrú ar chlár oibre an chruinnithe seo."
     },
     "plurals": null
 }

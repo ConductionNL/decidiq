@@ -31,7 +31,7 @@ use InvalidArgumentException;
 use OCA\Decidiq\Exception\NotFoundException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\CalendarEventService;
-use OCP\Notification\IManager as INotificationManager;
+use OCP\L10N\IFactory;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -76,13 +76,34 @@ class AgendaService {
 	private bool $suppressItemNotices = false;
 
 	/**
+	 * A member gets at most one agenda change notice per meeting in this many seconds.
+	 *
+	 * @var int
+	 */
+	private const AGENDA_NOTICE_WINDOW_SECONDS = 300;
+
+	/**
+	 * Notice titles per agenda subject; `%s` is the meeting title. The same
+	 * sentences the notifier shows in the bell.
+	 *
+	 * @var array<string, string>
+	 */
+	private const AGENDA_SENTENCES = [
+		'agenda_published'        => 'The agenda of %s was published',
+		'agenda_revised'          => 'A revised agenda of %s was published',
+		'agenda_revision_started' => 'The agenda of %s is being revised',
+		'agenda_changed'          => 'The agenda of %s changed',
+	];
+
+	/**
 	 * Constructor for AgendaService.
 	 *
 	 * @param ObjectServiceInterface $objectService OpenRegister object service
 	 * @param CalendarEventService $calendarEventService OpenRegister calendar event service
-	 * @param INotificationManager $notificationManager Nextcloud notification manager
+	 * @param NotificationPreferenceService $preferences Each member's delivery choice (bell, email, both, off)
 	 * @param LoggerInterface $logger PSR-3 logger
 	 * @param ParticipantResolver $participantResolver Canonical participant resolver
+	 * @param IFactory $l10nFactory Translations for the notice title and body
 	 *
 	 * @return void
 	 *
@@ -91,9 +112,10 @@ class AgendaService {
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
 		private readonly CalendarEventService $calendarEventService,
-		private readonly INotificationManager $notificationManager,
+		private readonly NotificationPreferenceService $preferences,
 		private readonly LoggerInterface $logger,
 		private readonly ParticipantResolver $participantResolver,
+		private readonly IFactory $l10nFactory,
 	) {
 	}//end __construct()
 
@@ -156,41 +178,11 @@ class AgendaService {
 			changes: ['agendaUnderRevision' => false]
 		);
 
-		$this->notifyParticipants(meetingId: $meetingId, subject: $subject);
+		$this->notifyParticipants(meetingData: $meetingData, meetingId: $meetingId, subject: $subject);
 
 		$this->logger->info('Agenda published for meeting {meetingId}', ['meetingId' => $meetingId]);
 
 	}//end publishAgenda()
-
-	/**
-	 * Send an agenda Nextcloud notification to a single user.
-	 *
-	 * @param string $userId The Nextcloud user ID to notify
-	 * @param string $meetingId The meeting UUID for deep-link context
-	 * @param string $subject agenda_published, agenda_revised, agenda_revision_started or agenda_changed
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
-	 */
-	private function sendAgendaNotification(string $userId, string $meetingId, string $subject): void {
-		try {
-			$notification = $this->notificationManager->createNotification();
-			$notification->setApp('decidiq')
-				->setUser($userId)
-				->setDateTime(new DateTime())
-				->setObject('meeting', $meetingId)
-				->setSubject($subject, ['meetingId' => $meetingId]);
-
-			$this->notificationManager->notify($notification);
-		} catch (Throwable $e) {
-			$this->logger->warning(
-				'Failed to send agenda notification to user {userId}: {error}',
-				['userId' => $userId, 'error' => $e->getMessage()]
-			);
-		}
-
-	}//end sendAgendaNotification()
 
 	/**
 	 * Normalise an OpenRegister object to a plain PHP array.
@@ -350,7 +342,7 @@ class AgendaService {
 		$this->saveMeeting(meetingId: $meetingId, meetingData: $meetingData, changes: ['agendaUnderRevision' => true]);
 
 		if (($meetingData['agendaPublishedAt'] ?? null) !== null) {
-			$this->notifyParticipants(meetingId: $meetingId, subject: 'agenda_revision_started');
+			$this->notifyParticipants(meetingData: $meetingData, meetingId: $meetingId, subject: 'agenda_revision_started');
 		}
 
 		$this->logger->info('Agenda opened for revision for meeting {meetingId}', ['meetingId' => $meetingId]);
@@ -464,12 +456,27 @@ class AgendaService {
 			]
 		);
 
+		// REQ-ACN-004: every change is a version, but a member hears about a
+		// burst of edits once. Who is due is decided before the save, so the
+		// new notice times go out with the version in one write.
+		$sentAt = (array)($meetingData['agendaNoticeSentAt'] ?? []);
+		$due = [];
+		foreach ($this->activeRecipients(meetingId: $meetingId) as $uid) {
+			$last = strtotime((string)($sentAt[$uid] ?? ''));
+			if ($last !== false && (time() - $last) < self::AGENDA_NOTICE_WINDOW_SECONDS) {
+				continue;
+			}
+
+			$due[] = $uid;
+			$sentAt[$uid] = date(DATE_ATOM);
+		}
+
 		$this->saveMeeting(
 			meetingId: $meetingId,
 			meetingData: $this->withNewAgendaVersion(meetingData: $meetingData, items: $items),
-			changes: []
+			changes: ['agendaNoticeSentAt' => $sentAt]
 		);
-		$this->notifyParticipants(meetingId: $meetingId, subject: 'agenda_changed');
+		$this->notifyParticipants(meetingData: $meetingData, meetingId: $meetingId, subject: 'agenda_changed', recipients: $due);
 
 	}//end notifyAgendaChanged()
 
@@ -560,30 +567,82 @@ class AgendaService {
 	}//end withNewAgendaVersion()
 
 	/**
-	 * Notify every active participant of a meeting (leftAt is null).
+	 * The Nextcloud users of the meeting's active participants: the linked
+	 * `nextcloudUserId`, or `owner` for records made before that field, as
+	 * ParticipantResolver::hasRole() reads them. Participants who left are skipped.
 	 *
-	 * @param string $meetingId UUID of the Meeting
-	 * @param string $subject   Notification subject key
+	 * @param string $meetingId The meeting UUID
 	 *
-	 * @return void
+	 * @return array<int, string> Unique user ids
+	 *
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
 	 */
-	private function notifyParticipants(string $meetingId, string $subject): void {
-		// Participants come from the canonical path (participant → governance-body
-		// → meeting; participants carry no direct meeting relation).
-		$participants = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
-
-		foreach ($participants as $participant) {
+	private function activeRecipients(string $meetingId): array {
+		// Participants come from the canonical path (participant -> governance-body
+		// -> meeting; participants carry no direct meeting relation).
+		$uids = [];
+		foreach ($this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId) as $participant) {
 			$participantData = $this->toArray(item: $participant);
 			if (($participantData['leftAt'] ?? null) !== null) {
 				continue;
 			}
 
-			$userId = $participantData['owner'] ?? null;
-			if ($userId === null) {
-				continue;
+			$uid = (string)($participantData['nextcloudUserId'] ?? $participantData['owner'] ?? '');
+			if ($uid !== '') {
+				$uids[$uid] = true;
 			}
-
-			$this->sendAgendaNotification(userId: (string)$userId, meetingId: $meetingId, subject: $subject);
 		}
-	}//end notifyParticipants()
+
+		return array_keys($uids);
+	}//end activeRecipients()
+
+	/**
+	 * Tell the meeting's members about its agenda, each through their own
+	 * notification preferences (event type `agendaChanged`): in the bell, by
+	 * email, both, or not at all.
+	 *
+	 * @param array<string, mixed>   $meetingData The meeting as read before the save
+	 * @param string                 $meetingId   The meeting UUID
+	 * @param string                 $subject     agenda_published, agenda_revised, agenda_revision_started or agenda_changed
+	 * @param array<int, string>|null $recipients The users to tell, or null for every active participant
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
+	 */
+	private function notifyParticipants(array $meetingData, string $meetingId, string $subject, ?array $recipients=null): void {
+		$l10n = $this->l10nFactory->get('decidiq');
+		$meetingTitle = (string)($meetingData['title'] ?? '');
+		$named = $meetingTitle;
+		if ($named === '') {
+			$named = $l10n->t('this meeting');
+		}
+
+		$title = $l10n->t(self::AGENDA_SENTENCES[$subject] ?? self::AGENDA_SENTENCES['agenda_changed'], [$named]);
+		$message = $l10n->t('Open the meeting in Decidiq to see the agenda.');
+		$inApp = [
+			'subject'    => $subject,
+			'parameters' => ['meetingId' => $meetingId, 'meetingTitle' => $meetingTitle],
+			'objectType' => 'meeting',
+			'objectId'   => $meetingId,
+		];
+
+		foreach (($recipients ?? $this->activeRecipients(meetingId: $meetingId)) as $uid) {
+			try {
+				$this->preferences->dispatch(
+					personId: $uid,
+					eventType: 'agendaChanged',
+					title: $title,
+					message: $message,
+					deepLink: '/meetings/' . $meetingId,
+					inApp: $inApp
+				);
+			} catch (Throwable $e) {
+				$this->logger->warning(
+					'Failed to send agenda notification to user {userId}: {error}',
+					['userId' => $uid, 'error' => $e->getMessage()]
+				);
+			}
+		}
+		}//end notifyParticipants()
 }//end class

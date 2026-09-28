@@ -1092,7 +1092,24 @@
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Šis protokolas nesusietas su posėdžiu, todėl nėra darbotvarkės klausimų užrašams.",
         "Minutes per agenda item": "Protokolas pagal darbotvarkės klausimą",
         "Submission opens": "Pateikimas prasideda",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Kada nariai gali pradėti teikti pasiūlymus ir pataisas šiam posėdžiui. Tuščia reiškia, kad teikimas atviras nuo posėdžio sukūrimo."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Kada nariai gali pradėti teikti pasiūlymus ir pataisas šiam posėdžiui. Tuščia reiškia, kad teikimas atviras nuo posėdžio sukūrimo.",
+        "The agenda of %s was published": "Paskelbta %s darbotvarkė",
+        "A revised agenda of %s was published": "Paskelbta pataisyta %s darbotvarkė",
+        "The agenda of %s is being revised": "%s darbotvarkė taisoma",
+        "The agenda of %s changed": "%s darbotvarkė pasikeitė",
+        "You are asked to co-sign the motion %s": "Jūsų prašoma bendrai pasirašyti pasiūlymą %s",
+        "The motion %s was forwarded to you for approval": "Pasiūlymas %s persiųstas jums patvirtinti",
+        "You received a proxy to vote for another member": "Gavote įgaliojimą balsuoti už kitą narį",
+        "Your vote by email was recorded": "Jūsų balsas el. paštu užregistruotas",
+        "Your vote by email could not be read and was not counted": "Jūsų balso el. paštu nepavyko perskaityti, todėl jis neįskaitytas",
+        "Your vote by email could not be read, please reply again": "Jūsų balso el. paštu nepavyko perskaityti, atsakykite dar kartą",
+        "this meeting": "šis posėdis",
+        "this motion": "šis pasiūlymas",
+        "Open the meeting in Decidiq to see the agenda.": "Atidarykite posėdį Decidiq, kad pamatytumėte darbotvarkę.",
+        "Agenda published or changed": "Darbotvarkė paskelbta arba pakeista",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Pranešti, kai posėdžio, kuriame dalyvaujate, darbotvarkė paskelbiama, taisoma arba pakeičiama.",
+        "Agenda notice sent at": "Pranešimas apie darbotvarkę išsiųstas",
+        "When each member last received an agenda change notice for this meeting.": "Kada kiekvienas narys paskutinį kartą gavo pranešimą apie šio posėdžio darbotvarkės pakeitimą."
     },
     "plurals": null
 }

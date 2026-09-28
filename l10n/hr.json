@@ -1092,7 +1092,24 @@
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Ovaj zapisnik nije povezan sa sastankom, pa nema točaka dnevnog reda za bilješke.",
         "Minutes per agenda item": "Zapisnik po točki dnevnog reda",
         "Submission opens": "Podnošenje počinje",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Kada članovi mogu početi podnositi prijedloge i amandmane za ovaj sastanak. Prazno znači da je podnošenje otvoreno od trenutka kada sastanak postoji."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Kada članovi mogu početi podnositi prijedloge i amandmane za ovaj sastanak. Prazno znači da je podnošenje otvoreno od trenutka kada sastanak postoji.",
+        "The agenda of %s was published": "Dnevni red za %s je objavljen",
+        "A revised agenda of %s was published": "Objavljen je izmijenjeni dnevni red za %s",
+        "The agenda of %s is being revised": "Dnevni red za %s se mijenja",
+        "The agenda of %s changed": "Dnevni red za %s je promijenjen",
+        "You are asked to co-sign the motion %s": "Zamoljeni ste da supotpišete prijedlog %s",
+        "The motion %s was forwarded to you for approval": "Prijedlog %s proslijeđen vam je na odobrenje",
+        "You received a proxy to vote for another member": "Dobili ste punomoć za glasanje umjesto drugog člana",
+        "Your vote by email was recorded": "Vaš glas e-poštom je zabilježen",
+        "Your vote by email could not be read and was not counted": "Vaš glas e-poštom nije se mogao pročitati i nije ubrojen",
+        "Your vote by email could not be read, please reply again": "Vaš glas e-poštom nije se mogao pročitati, molimo odgovorite ponovno",
+        "this meeting": "ovaj sastanak",
+        "this motion": "ovaj prijedlog",
+        "Open the meeting in Decidiq to see the agenda.": "Otvorite sastanak u Decidiqu da biste vidjeli dnevni red.",
+        "Agenda published or changed": "Dnevni red objavljen ili promijenjen",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Obavijesti kada se dnevni red sastanka na kojem sudjelujete objavi, izmijeni ili promijeni.",
+        "Agenda notice sent at": "Obavijest o dnevnom redu poslana",
+        "When each member last received an agenda change notice for this meeting.": "Kada je svaki član posljednji put primio obavijest o promjeni dnevnog reda ovog sastanka."
     },
     "plurals": null
 }
