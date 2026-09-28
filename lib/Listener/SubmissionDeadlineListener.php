@@ -62,21 +62,21 @@ class SubmissionDeadlineListener implements IEventListener {
 	 *
 	 * @var string
 	 */
-	public const REJECTION_MESSAGE = 'The submission deadline for this meeting has passed; new motions and amendments can no longer be submitted.';
-
-	/**
-	 * The message for a submission before the window opens; `%s` is the opening time.
-	 *
-	 * @var string
-	 */
-	public const NOT_YET_OPEN_MESSAGE = 'Submission of motions and amendments for this meeting opens on %s.';
+	public const REJECTION_MESSAGE = SubmissionWindow::DEADLINE_PASSED_MESSAGE;
 
 	/**
 	 * The message for a meeting whose window opens after it closes.
 	 *
 	 * @var string
 	 */
-	public const INVERTED_WINDOW_MESSAGE = 'The submission window opens after it closes.';
+	public const INVERTED_WINDOW_MESSAGE = SubmissionWindow::INVERTED_WINDOW_MESSAGE;
+
+	/**
+	 * The window rules.
+	 *
+	 * @var SubmissionWindow
+	 */
+	private readonly SubmissionWindow $window;
 
 	/**
 	 * Constructor.
@@ -88,6 +88,7 @@ class SubmissionDeadlineListener implements IEventListener {
 		private readonly LoggerInterface $logger,
 		private readonly ObjectServiceInterface $objectService,
 	) {
+		$this->window = new SubmissionWindow();
 	}//end __construct()
 
 	/**
@@ -113,63 +114,18 @@ class SubmissionDeadlineListener implements IEventListener {
 			$row = $this->extractRow(entity: $entity);
 			$slug = $this->resolveSchemaSlug(entity: $entity, row: $row);
 			if ($slug === 'meeting') {
-				$this->refuseInvertedWindow(event: $event, row: $row);
+				if ($this->window->isInverted(meeting: $row) === true) {
+					$event->setErrors(['message' => self::INVERTED_WINDOW_MESSAGE]);
+					$event->stopPropagation();
+				}
+
 				return;
 			}
 
 			// Motions and amendments are only checked when they are created:
 			// a motion submitted inside the window may be edited afterwards.
-			if ($slug !== 'decision' || $event instanceof ObjectCreatingEvent === false) {
-				return;
-			}
-
-			// ADR-005: motions and amendments are `decision` objects; the
-			// discriminator — not the schema slug — says which. Every other
-			// decisionType (resolution, contract, policy, …) carries no
-			// submission deadline rule and is left alone.
-			$decisionType = (string)($row['decisionType'] ?? '');
-			if (in_array($decisionType, ['motion', 'amendment'], true) === false) {
-				return;
-			}
-
-			$meetingId = $this->resolveMeetingId(decisionType: $decisionType, row: $row);
-			if ($meetingId === null) {
-				return;
-			}
-
-			$window = $this->resolveSubmissionWindow(meetingId: $meetingId);
-			if ($window['opensAt'] !== null && $window['opensAt'] > time()) {
-				$event->setErrors(
-					[
-						'message'           => sprintf(self::NOT_YET_OPEN_MESSAGE, date('j F Y H:i', $window['opensAt'])),
-						'submissionOpensAt' => date(DATE_ATOM, $window['opensAt']),
-					]
-				);
-				$event->stopPropagation();
-				$this->logger->info(
-					'Decidiq: rejected early submission',
-					['schema' => $slug, 'decisionType' => $decisionType, 'meetingId' => $meetingId]
-				);
-				return;
-			}
-
-			$deadline = $window['deadline'];
-			if ($deadline === null) {
-				return;
-			}
-
-			if ($deadline < time()) {
-				$event->setErrors(
-					[
-						'message' => self::REJECTION_MESSAGE,
-						'submissionDeadline' => date(DATE_ATOM, $deadline),
-					]
-				);
-				$event->stopPropagation();
-				$this->logger->info(
-					'Decidiq: rejected late submission',
-					['schema' => $slug, 'decisionType' => $decisionType, 'meetingId' => $meetingId]
-				);
+			if ($slug === 'decision' && $event instanceof ObjectCreatingEvent) {
+				$this->checkSubmission(event: $event, row: $row);
 			}
 		} catch (\Throwable $e) {
 			// Fail soft on infrastructure errors: the deadline rule must never
@@ -202,47 +158,42 @@ class SubmissionDeadlineListener implements IEventListener {
 	}//end eventObject()
 
 	/**
-	 * Refuse a meeting whose submission window opens at or after its deadline.
+	 * Refuse a motion or amendment created outside its meeting's window.
 	 *
-	 * @param ObjectCreatingEvent|ObjectUpdatingEvent $event The pre-save event
-	 * @param array<string, mixed>                    $row   The meeting payload being saved
+	 * @param ObjectCreatingEvent  $event The creating event
+	 * @param array<string, mixed> $row   The decision payload being created
 	 *
-	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-003-a-window-that-opens-after-it-closes-is-refused
+	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
 	 *
 	 * @return void
 	 */
-	private function refuseInvertedWindow(ObjectCreatingEvent|ObjectUpdatingEvent $event, array $row): void {
-		$opensAt = $this->parseTime(value: ($row['submissionOpensAt'] ?? null));
-		$deadline = $this->parseTime(value: ($row['submissionDeadline'] ?? null));
-		if ($opensAt === null || $deadline === null || $opensAt < $deadline) {
+	private function checkSubmission(ObjectCreatingEvent $event, array $row): void {
+		// ADR-005: motions and amendments are `decision` objects; the
+		// discriminator, not the schema slug, says which. Every other
+		// decisionType (resolution, contract, policy, ...) carries no
+		// submission window and is left alone.
+		$decisionType = (string)($row['decisionType'] ?? '');
+		if (in_array($decisionType, ['motion', 'amendment'], true) === false) {
 			return;
 		}
 
-		$event->setErrors(['message' => self::INVERTED_WINDOW_MESSAGE]);
+		$meetingId = $this->resolveMeetingId(decisionType: $decisionType, row: $row);
+		if ($meetingId === null) {
+			return;
+		}
+
+		$refusal = $this->window->refusal(window: $this->resolveSubmissionWindow(meetingId: $meetingId), now: time());
+		if ($refusal === null) {
+			return;
+		}
+
+		$event->setErrors($refusal);
 		$event->stopPropagation();
-	}//end refuseInvertedWindow()
-
-	/**
-	 * Parse a stored date-time into a unix timestamp.
-	 *
-	 * @param mixed $value The stored value
-	 *
-	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-001-a-meeting-can-open-submission-at-a-set-time
-	 *
-	 * @return int|null The timestamp, or null when empty or unparseable
-	 */
-	private function parseTime(mixed $value): ?int {
-		if (is_string($value) === false || $value === '') {
-			return null;
-		}
-
-		$timestamp = strtotime($value);
-		if ($timestamp === false) {
-			return null;
-		}
-
-		return $timestamp;
-	}//end parseTime()
+		$this->logger->info(
+			'Decidiq: rejected submission outside the window',
+			['decisionType' => $decisionType, 'meetingId' => $meetingId]
+		);
+	}//end checkSubmission()
 
 	/**
 	 * Extract the serialized payload from an OR object entity.
@@ -389,24 +340,11 @@ class SubmissionDeadlineListener implements IEventListener {
 	 * @return array{opensAt: int|null, deadline: int|null} Each null when unset, unparseable or the meeting is missing
 	 */
 	private function resolveSubmissionWindow(string $meetingId): array {
-		$window = ['opensAt' => null, 'deadline' => null];
 		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		if ($meetingEntity === null) {
-			return $window;
+			return ['opensAt' => null, 'deadline' => null];
 		}
 
-		$meeting = (array)$meetingEntity->jsonSerialize();
-		foreach (['opensAt' => 'submissionOpensAt', 'deadline' => 'submissionDeadline'] as $key => $property) {
-			$raw = ($meeting[$property] ?? null);
-			$window[$key] = $this->parseTime(value: $raw);
-			if ($window[$key] === null && is_string($raw) === true && $raw !== '') {
-				$this->logger->warning(
-					'Decidiq: unparseable submission window time on meeting',
-					['meetingId' => $meetingId, $property => $raw]
-				);
-			}
-		}
-
-		return $window;
+		return $this->window->fromMeeting(meeting: (array)$meetingEntity->jsonSerialize());
 	}//end resolveSubmissionWindow()
 }//end class
