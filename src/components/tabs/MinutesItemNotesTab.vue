@@ -13,7 +13,9 @@
  editable while the minutes are in draft and read-only after that.
 -->
 <template>
-	<div class="decidiq-tab decidiq-tab--item-notes" data-testid="minutes-item-notes-tab">
+	<div
+		class="decidiq-tab decidiq-tab--item-notes"
+		data-testid="minutes-item-notes-tab">
 		<CnNoteCard
 			v-if="error"
 			type="error"
@@ -22,7 +24,12 @@
 		</CnNoteCard>
 		<NcLoadingIcon v-else-if="loading" :size="32" />
 		<p v-else-if="!meetingId" class="decidiq-tab__empty">
-			{{ t('decidiq', 'These minutes are not linked to a meeting, so there are no agenda items to take notes on.') }}
+			{{
+				t(
+					'decidiq',
+					'These minutes are not linked to a meeting, so there are no agenda items to take notes on.',
+				)
+			}}
 		</p>
 		<MinutesPanel
 			v-else
@@ -90,13 +97,19 @@ export default {
 				this.meetingId = minutes?.meeting ? String(minutes.meeting) : ''
 				if (!this.meetingId) return
 				const [items, participants] = await Promise.all([
-					ensureRelationType('agenda-item').fetchCollection('agenda-item', {
-						meeting: this.meetingId,
-						_limit: 200,
-					}),
-					ensureRelationType('participant').fetchCollection('participant', {
-						_limit: 200,
-					}),
+					ensureRelationType('agenda-item').fetchCollection(
+						'agenda-item',
+						{
+							meeting: this.meetingId,
+							_limit: 200,
+						},
+					),
+					ensureRelationType('participant').fetchCollection(
+						'participant',
+						{
+							_limit: 200,
+						},
+					),
 				])
 				this.agendaItems = regularAgendaItems(items)
 				this.participants = meetingParticipants(participants, this.meetingId)

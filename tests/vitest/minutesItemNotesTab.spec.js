@@ -36,7 +36,10 @@ describe('meetingParticipants', () => {
 			{ id: 'p3', '@self': { relations: { meeting: 'm2' } } },
 			{ id: 'p4' },
 		]
-		expect(meetingParticipants(list, 'm1').map((p) => p.id)).toEqual(['p1', 'p2'])
+		expect(meetingParticipants(list, 'm1').map((p) => p.id)).toEqual([
+			'p1',
+			'p2',
+		])
 	})
 })
 

@@ -44,7 +44,7 @@ let approvedMinutesId = ''
  *
  * @param o The object.
  */
-function idOf(o: { id?: string, '@self'?: { id?: string } }): string {
+function idOf(o: { id?: string; '@self'?: { id?: string } }): string {
 	return o?.id ?? o?.['@self']?.id ?? ''
 }
 
@@ -154,12 +154,16 @@ test.afterAll(async ({ browser }) => {
 })
 
 // @e2e agenda-management::the-chair-drags-an-item-to-the-top
-test('the chair drags Budget above Opening and the order is saved', async ({ page }) => {
+test('the chair drags Budget above Opening and the order is saved', async ({
+	page,
+}) => {
 	await openMeeting(page)
 	const handle = page.getByTestId(`agenda-drag-${itemIds.Budget}`)
 	await expect(handle).toBeVisible()
 	await handle.dragTo(page.getByTestId(`agenda-drag-${itemIds.Opening}`))
-	await expect.poll(() => agendaTitles(page)).toEqual(['Budget', 'Opening', 'Minutes'])
+	await expect
+		.poll(() => agendaTitles(page))
+		.toEqual(['Budget', 'Opening', 'Minutes'])
 })
 
 // @e2e agenda-management::a-secretary-moves-an-item-with-the-keyboard
@@ -168,7 +172,9 @@ test('Move up puts Minutes above Opening and saves the order', async ({ page }) 
 	const row = page.locator('tr', { hasText: `${tag}-Minutes` })
 	await row.getByTestId('cn-row-actions').getByRole('button').first().click()
 	await page.getByTestId('cn-action-item-move-up').click()
-	await expect.poll(() => agendaTitles(page)).toEqual(['Budget', 'Minutes', 'Opening'])
+	await expect
+		.poll(() => agendaTitles(page))
+		.toEqual(['Budget', 'Minutes', 'Opening'])
 })
 
 // @e2e agenda-management::a-clerk-attaches-a-paper-to-one-item
@@ -182,7 +188,9 @@ test('Open on an agenda row opens the agenda item page', async ({ page }) => {
 })
 
 // @e2e agenda-management::the-chair-starts-running-the-meeting
-test('the chair opens the live meeting screen from the meeting page', async ({ page }) => {
+test('the chair opens the live meeting screen from the meeting page', async ({
+	page,
+}) => {
 	await openMeeting(page)
 	await page.getByTestId('agenda-open-live').click()
 	await expect(page).toHaveURL(new RegExp(`/meetings/${meetingId}/live`))
@@ -190,9 +198,15 @@ test('the chair opens the live meeting screen from the meeting page', async ({ p
 
 // @e2e agenda-management::a-member-cannot-reorder
 // @e2e agenda-management::a-member-does-not-see-the-button
-test('a member without a presiding role sees no reorder tools and no live button', async ({ browser }) => {
+test('a member without a presiding role sees no reorder tools and no live button', async ({
+	browser,
+}) => {
 	const context = await browser.newContext({
-		httpCredentials: { username: memberUid, password: memberPass, send: 'always' },
+		httpCredentials: {
+			username: memberUid,
+			password: memberPass,
+			send: 'always',
+		},
 		storageState: { cookies: [], origins: [] },
 	})
 	const page = await context.newPage()
@@ -200,7 +214,11 @@ test('a member without a presiding role sees no reorder tools and no live button
 		`${BASE}/index.php/apps/decidiq/api/meetings/${meetingId}/my-roles`,
 		{ headers: { Accept: 'application/json' } },
 	)
-	expect(await roles.json()).toEqual({ chair: false, secretary: false, admin: false })
+	expect(await roles.json()).toEqual({
+		chair: false,
+		secretary: false,
+		admin: false,
+	})
 	await page.goto(`${BASE}/index.php/apps/decidiq/meetings/${meetingId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 20_000 })
 	await expect(page.getByTestId('agenda-open-live')).toHaveCount(0)
@@ -210,7 +228,10 @@ test('a member without a presiding role sees no reorder tools and no live button
 
 // @e2e agenda-management::a-secretary-is-recognised-on-the-meeting-page
 // @e2e agenda-management::nobody-is-answered-for-someone-else
-test('the role endpoint recognises a secretary and refuses anonymous callers', async ({ browser, playwright }) => {
+test('the role endpoint recognises a secretary and refuses anonymous callers', async ({
+	browser,
+	playwright,
+}) => {
 	const page = await browser.newPage()
 	await createObject(page, ledger, 'participant', {
 		displayName: `${tag}-secretary`,
@@ -220,7 +241,11 @@ test('the role endpoint recognises a secretary and refuses anonymous callers', a
 	})
 	await page.close()
 	const member = await playwright.request.newContext({
-		httpCredentials: { username: memberUid, password: memberPass, send: 'always' },
+		httpCredentials: {
+			username: memberUid,
+			password: memberPass,
+			send: 'always',
+		},
 		storageState: { cookies: [], origins: [] },
 	})
 	const resp = await member.get(
@@ -228,7 +253,11 @@ test('the role endpoint recognises a secretary and refuses anonymous callers', a
 		{ headers: { Accept: 'application/json' } },
 	)
 	expect(resp.status()).toBe(200)
-	expect(await resp.json()).toEqual({ chair: false, secretary: true, admin: false })
+	expect(await resp.json()).toEqual({
+		chair: false,
+		secretary: true,
+		admin: false,
+	})
 	await member.dispose()
 
 	const anonymous = await playwright.request.newContext({
@@ -243,7 +272,9 @@ test('the role endpoint recognises a secretary and refuses anonymous callers', a
 })
 
 // @e2e resolution-minutes::the-secretary-writes-the-minutes-after-the-meeting
-test('a note typed on the minutes page is saved per agenda item', async ({ page }) => {
+test('a note typed on the minutes page is saved per agenda item', async ({
+	page,
+}) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/minutes/${draftMinutesId}`)
 	const panel = page.getByTestId(`minutes-panel-item-${itemIds.Budget}`)
 	await expect(panel).toBeVisible({ timeout: 20_000 })
@@ -254,7 +285,10 @@ test('a note typed on the minutes page is saved per agenda item', async ({ page 
 	)
 	await page.reload()
 	await expect(
-		page.getByTestId(`minutes-panel-item-${itemIds.Budget}`).locator('textarea').first(),
+		page
+			.getByTestId(`minutes-panel-item-${itemIds.Budget}`)
+			.locator('textarea')
+			.first(),
 	).toHaveValue('Adopted without a vote', { timeout: 20_000 })
 })
 

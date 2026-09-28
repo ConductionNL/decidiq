@@ -142,7 +142,9 @@
 				</span>
 			</template>
 			<template #column-titleDisplay="{ row, value }">
-				<span @dragover.prevent @drop.prevent="onDrop(row)">{{ value }}</span>
+				<span @dragover.prevent @drop.prevent="onDrop(row)">{{
+					value
+				}}</span>
 			</template>
 			<template #row-actions="{ row }">
 				<CnRowActions :row="row" :actions="rowActions" />
@@ -620,7 +622,9 @@ export default {
 			this.reorderError = ''
 			try {
 				const response = await fetch(
-					generateUrl(`/apps/decidiq/api/agendas/${this.objectId}/reorder`),
+					generateUrl(
+						`/apps/decidiq/api/agendas/${this.objectId}/reorder`,
+					),
 					{
 						method: 'PUT',
 						headers: {
