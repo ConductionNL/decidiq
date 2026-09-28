@@ -630,4 +630,130 @@ class MeetingControllerTest extends TestCase {
 
 	}//end testAssemblePackageReturnsUnauthorizedWhenNotAuthenticated()
 
+	/**
+	 * Build a controller whose role gate runs the REAL ParticipantResolver::hasRole()
+	 * over the given participant rows, so the answer comes from the same code the
+	 * server guards use.
+	 *
+	 * @param array<int, array<string, mixed>> $participants Participant rows of the meeting
+	 * @param bool                             $isAdmin      Whether the caller is an NC admin
+	 * @param IUserSession|null                $session      Session override (null keeps the default)
+	 *
+	 * @return MeetingController
+	 */
+	private function controllerWithParticipants(array $participants, bool $isAdmin=false, ?IUserSession $session=null): MeetingController {
+		$resolver = $this->getMockBuilder(className: ParticipantResolver::class)
+			->disableOriginalConstructor()
+			->onlyMethods(methods: ['resolveMeetingParticipants'])
+			->getMock();
+		$resolver->method('resolveMeetingParticipants')->willReturn($participants);
+
+		$groupManager = $this->createMock(originalClassName: IGroupManager::class);
+		$groupManager->method('isAdmin')->willReturn($isAdmin);
+
+		return new MeetingController(
+			request: $this->request,
+			meetingService: $this->meetingService,
+			meetingSeriesService: $this->seriesService,
+			packageService: $this->packageService,
+			userSession: ($session ?? $this->userSession),
+			roleGate: new MeetingRoleGate(
+				groupManager: $groupManager,
+				participantResolver: $resolver
+			),
+			proofPackageService: $this->proofPackageService,
+		);
+
+	}//end controllerWithParticipants()
+
+	/**
+	 * My roles: a secretary of the meeting is answered as secretary, not chair.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+	 */
+	public function testMyRolesAnswersSecretary(): void {
+		$controller = $this->controllerWithParticipants(
+			participants: [
+				['nextcloudUserId' => 'someone-else', 'role' => 'chair'],
+				['nextcloudUserId' => 'testuser', 'role' => 'secretary'],
+			]
+		);
+
+		$result = $controller->myRoles(meetingId: 'meeting-1');
+
+		self::assertSame(expected: Http::STATUS_OK, actual: $result->getStatus());
+		self::assertSame(
+			expected: ['chair' => false, 'secretary' => true, 'admin' => false],
+			actual: $result->getData()
+		);
+
+	}//end testMyRolesAnswersSecretary()
+
+	/**
+	 * My roles: a plain member holds none of the roles.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+	 */
+	public function testMyRolesAnswersNoRoleForAMember(): void {
+		$controller = $this->controllerWithParticipants(
+			participants: [
+				['nextcloudUserId' => 'testuser', 'role' => 'member'],
+			]
+		);
+
+		$result = $controller->myRoles(meetingId: 'meeting-1');
+
+		self::assertSame(
+			expected: ['chair' => false, 'secretary' => false, 'admin' => false],
+			actual: $result->getData()
+		);
+
+	}//end testMyRolesAnswersNoRoleForAMember()
+
+	/**
+	 * My roles: an NC admin is answered as admin (the reorder endpoint accepts admins).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+	 */
+	public function testMyRolesAnswersAdmin(): void {
+		$controller = $this->controllerWithParticipants(participants: [], isAdmin: true);
+
+		$result = $controller->myRoles(meetingId: 'meeting-1');
+
+		self::assertSame(
+			expected: ['chair' => false, 'secretary' => false, 'admin' => true],
+			actual: $result->getData()
+		);
+
+	}//end testMyRolesAnswersAdmin()
+
+	/**
+	 * My roles: an anonymous request gets 401 and no roles.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+	 */
+	public function testMyRolesReturnsUnauthorizedWhenNotAuthenticated(): void {
+		$unauthSession = $this->createMock(originalClassName: IUserSession::class);
+		$unauthSession->method('getUser')->willReturn(null);
+
+		$controller = $this->controllerWithParticipants(
+			participants: [['nextcloudUserId' => 'testuser', 'role' => 'chair']],
+			session: $unauthSession
+		);
+
+		$result = $controller->myRoles(meetingId: 'meeting-1');
+
+		self::assertSame(expected: Http::STATUS_UNAUTHORIZED, actual: $result->getStatus());
+		self::assertArrayNotHasKey(key: 'chair', array: $result->getData());
+
+	}//end testMyRolesReturnsUnauthorizedWhenNotAuthenticated()
+
 }//end class

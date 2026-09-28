@@ -9,8 +9,8 @@
   - GIVEN a user holding the secretary role on a meeting WHEN `GET /api/meetings/{meetingId}/my-roles` THEN 200 with `secretary: true`, `chair: false`
   - GIVEN an anonymous request WHEN the endpoint is called THEN 401
   - GIVEN the route file WHEN the route-reachability and route-auth gates run THEN both pass
-- [ ] Implement
-- [ ] Test (PHPUnit with a real `ParticipantResolver` double built with `onlyMethods`, red before the method exists)
+- [x] Implement
+- [x] Test (PHPUnit with a real `ParticipantResolver` double built with `onlyMethods`, red before the method exists)
 
 ### Task 2: Reorder from the meeting page
 - **spec_ref**: `openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page`
