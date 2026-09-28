@@ -1109,7 +1109,8 @@
         "Agenda published or changed": "Darba kārtība publicēta vai mainīta",
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Paziņot, kad sēdes, kurā piedalāties, darba kārtība tiek publicēta, pārskatīta vai mainīta.",
         "Agenda notice sent at": "Paziņojums par darba kārtību nosūtīts",
-        "When each member last received an agenda change notice for this meeting.": "Kad katrs loceklis pēdējo reizi saņēma paziņojumu par šīs sēdes darba kārtības izmaiņām."
+        "When each member last received an agenda change notice for this meeting.": "Kad katrs loceklis pēdējo reizi saņēma paziņojumu par šīs sēdes darba kārtības izmaiņām.",
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Apstiprinājumi, kas jūs sasniedz šajā periodā, tiek nodoti arī jūsu aizvietotājam, kurš var tos parakstīt jūsu vārdā."
     },
     "plurals": null
 }

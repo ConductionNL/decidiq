@@ -1110,7 +1110,8 @@ OC.L10N.register(
         "Agenda published or changed": "Dnevni red objavljen ili promijenjen",
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Obavijesti kada se dnevni red sastanka na kojem sudjelujete objavi, izmijeni ili promijeni.",
         "Agenda notice sent at": "Obavijest o dnevnom redu poslana",
-        "When each member last received an agenda change notice for this meeting.": "Kada je svaki član posljednji put primio obavijest o promjeni dnevnog reda ovog sastanka."
+        "When each member last received an agenda change notice for this meeting.": "Kada je svaki član posljednji put primio obavijest o promjeni dnevnog reda ovog sastanka.",
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Odobrenja koja vam stignu u tom razdoblju dodjeljuju se i vašem zamjeniku, koji ih može potpisati u vaše ime."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1110,7 +1110,8 @@ OC.L10N.register(
         "Agenda published or changed": "Повестка опубликована или изменена",
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Уведомлять, когда повестка заседания, в котором вы участвуете, опубликована, пересмотрена или изменена.",
         "Agenda notice sent at": "Уведомление о повестке отправлено",
-        "When each member last received an agenda change notice for this meeting.": "Когда каждый участник последний раз получил уведомление об изменении повестки этого заседания."
+        "When each member last received an agenda change notice for this meeting.": "Когда каждый участник последний раз получил уведомление об изменении повестки этого заседания.",
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Согласования, поступающие вам в этот период, передаются и вашему заместителю, который может подписать их от вашего имени."
     },
     "nplurals=2; plural=(n != 1);"
 )

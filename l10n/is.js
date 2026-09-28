@@ -1110,7 +1110,8 @@ OC.L10N.register(
         "Agenda published or changed": "Dagskrá birt eða breytt",
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Láta vita þegar dagskrá fundar sem þú tekur þátt í er birt, endurskoðuð eða breytt.",
         "Agenda notice sent at": "Tilkynning um dagskrá send",
-        "When each member last received an agenda change notice for this meeting.": "Hvenær hver félagi fékk síðast tilkynningu um breytingu á dagskrá þessa fundar."
+        "When each member last received an agenda change notice for this meeting.": "Hvenær hver félagi fékk síðast tilkynningu um breytingu á dagskrá þessa fundar.",
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Samþykktir sem berast þér á þessu tímabili fara einnig til staðgengils þíns, sem getur samþykkt þær fyrir þína hönd."
     },
     "nplurals=2; plural=(n != 1);"
 )

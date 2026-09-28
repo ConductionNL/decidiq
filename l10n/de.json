@@ -1109,7 +1109,8 @@
         "Agenda published or changed": "Tagesordnung veröffentlicht oder geändert",
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Benachrichtigen, wenn die Tagesordnung einer Sitzung, an der Sie teilnehmen, veröffentlicht, überarbeitet oder geändert wird.",
         "Agenda notice sent at": "Tagesordnungshinweis gesendet am",
-        "When each member last received an agenda change notice for this meeting.": "Wann jedes Mitglied zuletzt einen Hinweis auf eine Tagesordnungsänderung für diese Sitzung erhalten hat."
+        "When each member last received an agenda change notice for this meeting.": "Wann jedes Mitglied zuletzt einen Hinweis auf eine Tagesordnungsänderung für diese Sitzung erhalten hat.",
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Freigaben, die Sie in diesem Zeitraum erreichen, gehen auch an Ihre Vertretung, die sie in Ihrem Namen abzeichnen kann."
     },
     "plurals": null
 }

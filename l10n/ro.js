@@ -1110,7 +1110,8 @@ OC.L10N.register(
         "Agenda published or changed": "Ordine de zi publicată sau modificată",
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Notificare când ordinea de zi a unei ședințe la care participați este publicată, revizuită sau modificată.",
         "Agenda notice sent at": "Notificare privind ordinea de zi trimisă la",
-        "When each member last received an agenda change notice for this meeting.": "Când a primit fiecare membru ultima notificare de modificare a ordinii de zi pentru această ședință."
+        "When each member last received an agenda change notice for this meeting.": "Când a primit fiecare membru ultima notificare de modificare a ordinii de zi pentru această ședință.",
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Aprobările care vă parvin în această perioadă sunt atribuite și delegatului dumneavoastră, care le poate semna în numele dumneavoastră."
     },
     "nplurals=2; plural=(n != 1);"
 )

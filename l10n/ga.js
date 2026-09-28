@@ -1110,7 +1110,8 @@ OC.L10N.register(
         "Agenda published or changed": "Clár oibre foilsithe nó athraithe",
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Cuir in iúl nuair a fhoilsítear, a athbhreithnítear nó a athraítear clár oibre cruinnithe a nglacann tú páirt ann.",
         "Agenda notice sent at": "Fógra clár oibre seolta ag",
-        "When each member last received an agenda change notice for this meeting.": "Cathain a fuair gach comhalta fógra deireanach faoi athrú ar chlár oibre an chruinnithe seo."
+        "When each member last received an agenda change notice for this meeting.": "Cathain a fuair gach comhalta fógra deireanach faoi athrú ar chlár oibre an chruinnithe seo.",
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Cuirtear faomhanna a thagann chugat le linn na tréimhse seo chuig d'ionadaí freisin, ar féidir leis iad a shíniú thar do cheann."
     },
     "nplurals=2; plural=(n != 1);"
 )
