@@ -123,11 +123,16 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 	private const SCHEMA_CITIZEN_VOTE = 'citizen-vote';
 
 	/**
-	 * The values a resident's advice on a motion may take (REQ-CAV-002).
+	 * The required, jointly distinctive fields that identify each guarded
+	 * schema on a raw row (tier 2, see the class docblock).
 	 *
-	 * @var array<int, string>
+	 * @var array<string, array<int, string>>
 	 */
-	private const ADVICE_VALUES = ['voor', 'tegen', 'onthoud'];
+	private const SIGNATURES = [
+		self::SCHEMA_CONSULTATION_REACTION => ['moderationStatus', 'submitterId', 'body'],
+		self::SCHEMA_BUDGET_PROPOSAL => ['submitter', 'requestedAmount', 'status'],
+		self::SCHEMA_CITIZEN_VOTE => ['voterId', 'voteValue', 'motionId'],
+	];
 
 	/**
 	 * OpenRegister's object service FQCN (lazily resolved from the container).
@@ -135,6 +140,14 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 	 * @var string
 	 */
 	private const OBJECT_SERVICE = 'OCA\\OpenRegister\\Service\\ObjectService';
+
+	/**
+	 * The rules a resident's advice on a motion answers to beyond its open
+	 * parent: value, voter and one vote per resident.
+	 *
+	 * @var MotionAdviceGuard
+	 */
+	private MotionAdviceGuard $motionAdvice;
 
 	/**
 	 * Constructor.
@@ -146,6 +159,7 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 	) {
+		$this->motionAdvice = new MotionAdviceGuard();
 	}//end __construct()
 
 	/**
@@ -204,23 +218,8 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 			$row = (array)$entity->getObject();
 		}
 
-		$schema = $this->schemaSlugFromRow(row: $row);
+		$schema = $this->identifySchema(entity: $entity, row: $row);
 		if ($schema === '') {
-			$schema = $this->schemaSlugFromEntity(entity: $entity);
-		}
-
-		if (in_array($schema, [self::SCHEMA_CONSULTATION_REACTION, self::SCHEMA_BUDGET_PROPOSAL, self::SCHEMA_CITIZEN_VOTE], true) === false) {
-			$schema = $this->detectSchemaBySignature(row: $row);
-		}
-
-		if ($schema === '') {
-			return;
-		}
-
-		// A citizen vote without a motion is an advisory vote on a budget
-		// proposal, which AdvisoryVoteService guards itself. Only a vote on a
-		// motion answers to the castMotionAdvice constraint.
-		if ($schema === self::SCHEMA_CITIZEN_VOTE && $this->scalar(row: $row, field: 'motionId') === '') {
 			return;
 		}
 
@@ -240,7 +239,7 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 			return;
 		}
 
-		$refusal = $this->motionAdviceRefusal(row: $row);
+		$refusal = $this->motionAdvice->refusal(row: $row, objectService: $this->container->get(self::OBJECT_SERVICE));
 		if ($refusal !== null) {
 			$event->setErrors(['message' => $refusal]);
 			$event->stopPropagation();
@@ -249,79 +248,34 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 	}//end evaluate()
 
 	/**
-	 * The reason a resident's advice on an open motion is refused, or null
-	 * when it may be stored (REQ-CAV-002): the value must be voor, tegen or
-	 * onthoud, the vote must name its voter, and the same voter may advise on
-	 * a motion only once. The duplicate lookup runs without RBAC, because a
-	 * guard that cannot see the earlier vote would let the second one through.
+	 * Which guarded schema a row belongs to, or '' when none: the row's own
+	 * schema hint, then the entity's, then the field signature. A citizen
+	 * vote without a motion is an advisory vote on a budget proposal, which
+	 * AdvisoryVoteService guards itself, so it is not one of ours.
 	 *
-	 * @param array<string, mixed> $row The raw citizen-vote being created.
+	 * @param object $entity The OR object entity.
+	 * @param array<string, mixed> $row The raw object data.
 	 *
-	 * @return string|null The refusal, or null when the vote is accepted.
+	 * @return string The schema slug, or ''.
 	 *
-	 * @spec openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md#requirement-req-cav-002-a-verified-resident-gives-one-advisory-vote-while-it-is-open
+	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
 	 */
-	private function motionAdviceRefusal(array $row): ?string {
-		if (in_array($row['voteValue'] ?? null, self::ADVICE_VALUES, true) === false) {
-			return 'Your advice on a motion must be voor, tegen or onthoud';
+	private function identifySchema(object $entity, array $row): string {
+		$schema = $this->schemaSlugFromRow(row: $row);
+		if ($schema === '') {
+			$schema = $this->schemaSlugFromEntity(entity: $entity);
 		}
 
-		$voterId = $this->scalar(row: $row, field: 'voterId');
-		if ($voterId === '') {
-			return 'A vote on a motion must name its voter';
+		if (array_key_exists($schema, self::SIGNATURES) === false) {
+			$schema = $this->detectSchemaBySignature(row: $row);
 		}
 
-		$motionId = $this->scalar(row: $row, field: 'motionId');
-		$objectService = $this->container->get(self::OBJECT_SERVICE);
-		$earlier = $objectService->findAll(
-			config: [
-				'filters' => [
-					'register' => self::REGISTER,
-					'schema' => self::SCHEMA_CITIZEN_VOTE,
-					'motionId' => $motionId,
-					'voterId' => $voterId,
-				],
-			],
-			_rbac: false,
-			_multitenancy: false
-		);
-
-		foreach ($earlier as $entity) {
-			$vote = [];
-			if (is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true) {
-				$vote = (array)$entity->jsonSerialize();
-			} elseif (is_array($entity) === true) {
-				$vote = $entity;
-			}
-
-			if ($this->scalar(row: $vote, field: 'voterId') === $voterId
-				&& $this->scalar(row: $vote, field: 'motionId') === $motionId
-			) {
-				return 'You have already given your advice on this motion';
-			}
-		}
-
-		return null;
-	}//end motionAdviceRefusal()
-
-	/**
-	 * Read a field as a trimmed string, or '' when it is absent or not a scalar.
-	 *
-	 * @param array<string, mixed> $row The row.
-	 * @param string $field The field name.
-	 *
-	 * @return string The value.
-	 *
-	 * @spec openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md#requirement-req-cav-002-a-verified-resident-gives-one-advisory-vote-while-it-is-open
-	 */
-	private function scalar(array $row, string $field): string {
-		$value = ($row[$field] ?? null);
-		if (is_string($value) === false && is_int($value) === false) {
+		if ($schema === self::SCHEMA_CITIZEN_VOTE && $this->motionAdvice->appliesTo(row: $row) === false) {
 			return '';
 		}
 
-		return trim((string)$value);
-	}//end scalar()
+		return $schema;
+	}//end identifySchema()
 
 	/**
 	 * Reject the create: set a descriptive error and stop propagation so
@@ -415,37 +369,22 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 	}//end schemaSlugFromEntity()
 
 	/**
-	 * Tier 2: identify whether a row is a `consultation-reaction` or
-	 * `budget-proposal` create by its required, jointly-distinctive field
-	 * signature (see class docblock for why schema slugs are usually
-	 * unavailable at this lifecycle point).
+	 * Tier 2: identify whether a row is a `consultation-reaction`,
+	 * `budget-proposal` or `citizen-vote` create by its required,
+	 * jointly-distinctive field signature (see class docblock for why schema
+	 * slugs are usually unavailable at this lifecycle point).
 	 *
 	 * @param array<string, mixed> $row The raw (pre-render) object data.
 	 *
-	 * @return string The recognised schema slug, or '' when neither matches.
+	 * @return string The recognised schema slug, or '' when none matches.
 	 *
 	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
 	 */
 	private function detectSchemaBySignature(array $row): string {
-		if (array_key_exists('moderationStatus', $row) === true
-			&& array_key_exists('submitterId', $row) === true
-			&& array_key_exists('body', $row) === true
-		) {
-			return self::SCHEMA_CONSULTATION_REACTION;
-		}
-
-		if (array_key_exists('submitter', $row) === true
-			&& array_key_exists('requestedAmount', $row) === true
-			&& array_key_exists('status', $row) === true
-		) {
-			return self::SCHEMA_BUDGET_PROPOSAL;
-		}
-
-		if (array_key_exists('voterId', $row) === true
-			&& array_key_exists('voteValue', $row) === true
-			&& array_key_exists('motionId', $row) === true
-		) {
-			return self::SCHEMA_CITIZEN_VOTE;
+		foreach (self::SIGNATURES as $schema => $fields) {
+			if (array_diff_key(array_flip($fields), $row) === []) {
+				return $schema;
+			}
 		}
 
 		return '';
