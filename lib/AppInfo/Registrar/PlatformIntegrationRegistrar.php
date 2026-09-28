@@ -33,6 +33,7 @@ namespace OCA\Decidiq\AppInfo\Registrar;
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Dashboard\DecidiqDashboardWidget;
 use OCA\Decidiq\Listener\PortalCreateOpenParentGuardListener;
+use OCA\Decidiq\Notification\Notifier;
 use OCA\Decidiq\Search\DecidiqSearchProvider;
 use OCA\Decidiq\Service\DashboardWidgetService;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
@@ -75,6 +76,9 @@ class PlatformIntegrationRegistrar {
 		$this->registerSearch(context: $context);
 		$this->registerObjectWriteGuards(context: $context);
 		$this->registerDashboardWidget(context: $context);
+		// decidiq's only notifier: without it no notice decidiq sends can be
+		// rendered in the bell (agenda-change-notices-reach-members, #1381).
+		$context->registerNotifierService(Notifier::class);
 
 	}//end register()
 

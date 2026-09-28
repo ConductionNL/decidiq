@@ -9,8 +9,8 @@
   - GIVEN a notification with app `decidiq` and subject `agenda_changed` WHEN prepared THEN it has a translated subject and a link to `/meetings/{id}`
   - GIVEN app `openregister` WHEN prepared THEN `UnknownNotificationException` is thrown
   - GIVEN an unknown decidiq subject WHEN prepared THEN `UnknownNotificationException` is thrown
-- [ ] Implement
-- [ ] Test (red before the notifier exists: the prepare call throws `IncompleteParsedNotificationException` in the server harness)
+- [x] Implement
+- [x] Test (red before the notifier exists: the prepare call throws `IncompleteParsedNotificationException` in the server harness)
 
 ### Task 2: In-app delivery through decidiq, not a service that does not exist
 - **spec_ref**: `openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq`
