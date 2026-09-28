@@ -1091,7 +1091,9 @@ OC.L10N.register(
         "The new order was not saved.": "Yeni sıra kaydedilmedi.",
         "Could not load the agenda of these minutes": "Bu tutanağın gündemi yüklenemedi",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Bu tutanak bir toplantıya bağlı değil, bu yüzden not alınacak gündem maddesi yok.",
-        "Minutes per agenda item": "Gündem maddesine göre tutanak"
+        "Minutes per agenda item": "Gündem maddesine göre tutanak",
+        "Submission opens": "Sunum açılışı",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Üyelerin bu toplantı için önerge ve değişiklik önergesi sunmaya ne zaman başlayabileceği. Boş, sunumun toplantı oluşturulduğu andan itibaren açık olduğu anlamına gelir."
     },
     "nplurals=2; plural=(n != 1);"
 )

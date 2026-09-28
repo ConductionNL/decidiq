@@ -1091,7 +1091,9 @@ OC.L10N.register(
         "The new order was not saved.": "A nova ordem não foi guardada.",
         "Could not load the agenda of these minutes": "Não foi possível carregar a ordem de trabalhos desta ata",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Esta ata não está ligada a uma reunião, por isso não há pontos da ordem de trabalhos para anotar.",
-        "Minutes per agenda item": "Ata por ponto da ordem de trabalhos"
+        "Minutes per agenda item": "Ata por ponto da ordem de trabalhos",
+        "Submission opens": "Abertura da submissão",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Quando os membros podem começar a submeter moções e emendas para esta reunião. Vazio significa que a submissão está aberta desde que a reunião existe."
     },
     "nplurals=2; plural=(n != 1);"
 )

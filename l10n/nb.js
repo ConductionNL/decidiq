@@ -1091,7 +1091,9 @@ OC.L10N.register(
         "The new order was not saved.": "Den nye rekkefølgen ble ikke lagret.",
         "Could not load the agenda of these minutes": "Kunne ikke laste inn sakslisten for dette referatet",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Dette referatet er ikke knyttet til et møte, så det finnes ingen saker å ta notater til.",
-        "Minutes per agenda item": "Referat per sak"
+        "Minutes per agenda item": "Referat per sak",
+        "Submission opens": "Innsending åpner",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Når medlemmer kan begynne å sende inn forslag og endringsforslag til dette møtet. Tomt betyr at innsending er åpen fra møtet finnes."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1091,7 +1091,9 @@ OC.L10N.register(
         "The new order was not saved.": "Nauja tvarka neišsaugota.",
         "Could not load the agenda of these minutes": "Nepavyko įkelti šio protokolo darbotvarkės",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Šis protokolas nesusietas su posėdžiu, todėl nėra darbotvarkės klausimų užrašams.",
-        "Minutes per agenda item": "Protokolas pagal darbotvarkės klausimą"
+        "Minutes per agenda item": "Protokolas pagal darbotvarkės klausimą",
+        "Submission opens": "Pateikimas prasideda",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Kada nariai gali pradėti teikti pasiūlymus ir pataisas šiam posėdžiui. Tuščia reiškia, kad teikimas atviras nuo posėdžio sukūrimo."
     },
     "nplurals=2; plural=(n != 1);"
 )

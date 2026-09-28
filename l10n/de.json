@@ -1090,7 +1090,9 @@
         "The new order was not saved.": "Die neue Reihenfolge wurde nicht gespeichert.",
         "Could not load the agenda of these minutes": "Die Tagesordnung dieses Protokolls konnte nicht geladen werden",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Dieses Protokoll ist mit keiner Sitzung verknüpft, daher gibt es keine Tagesordnungspunkte für Notizen.",
-        "Minutes per agenda item": "Protokoll je Tagesordnungspunkt"
+        "Minutes per agenda item": "Protokoll je Tagesordnungspunkt",
+        "Submission opens": "Einreichung öffnet",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Ab wann Mitglieder Anträge und Änderungsanträge für diese Sitzung einreichen können. Leer bedeutet, dass die Einreichung ab dem Anlegen der Sitzung offen ist."
     },
     "plurals": null
 }

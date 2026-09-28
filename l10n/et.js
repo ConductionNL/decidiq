@@ -1091,7 +1091,9 @@ OC.L10N.register(
         "The new order was not saved.": "Uut järjekorda ei salvestatud.",
         "Could not load the agenda of these minutes": "Selle protokolli päevakorda ei õnnestunud laadida",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "See protokoll pole koosolekuga seotud, seega pole päevakorrapunkte, mille kohta märkmeid teha.",
-        "Minutes per agenda item": "Protokoll päevakorrapunktide kaupa"
+        "Minutes per agenda item": "Protokoll päevakorrapunktide kaupa",
+        "Submission opens": "Esitamine algab",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Millal saavad liikmed hakata sellele koosolekule ettepanekuid ja muudatusettepanekuid esitama. Tühi tähendab, et esitamine on avatud koosoleku loomisest alates."
     },
     "nplurals=2; plural=(n != 1);"
 )

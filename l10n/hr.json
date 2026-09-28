@@ -1090,7 +1090,9 @@
         "The new order was not saved.": "Novi redoslijed nije spremljen.",
         "Could not load the agenda of these minutes": "Dnevni red ovog zapisnika nije moguće učitati",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Ovaj zapisnik nije povezan sa sastankom, pa nema točaka dnevnog reda za bilješke.",
-        "Minutes per agenda item": "Zapisnik po točki dnevnog reda"
+        "Minutes per agenda item": "Zapisnik po točki dnevnog reda",
+        "Submission opens": "Podnošenje počinje",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Kada članovi mogu početi podnositi prijedloge i amandmane za ovaj sastanak. Prazno znači da je podnošenje otvoreno od trenutka kada sastanak postoji."
     },
     "plurals": null
 }

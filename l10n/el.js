@@ -1091,7 +1091,9 @@ OC.L10N.register(
         "The new order was not saved.": "Η νέα σειρά δεν αποθηκεύτηκε.",
         "Could not load the agenda of these minutes": "Δεν ήταν δυνατή η φόρτωση της ημερήσιας διάταξης αυτών των πρακτικών",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Αυτά τα πρακτικά δεν συνδέονται με συνεδρίαση, οπότε δεν υπάρχουν θέματα ημερήσιας διάταξης για σημειώσεις.",
-        "Minutes per agenda item": "Πρακτικά ανά θέμα ημερήσιας διάταξης"
+        "Minutes per agenda item": "Πρακτικά ανά θέμα ημερήσιας διάταξης",
+        "Submission opens": "Έναρξη υποβολής",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Πότε τα μέλη μπορούν να αρχίσουν να υποβάλλουν προτάσεις και τροπολογίες για αυτή τη συνεδρίαση. Κενό σημαίνει ότι η υποβολή είναι ανοιχτή από τη στιγμή που υπάρχει η συνεδρίαση."
     },
     "nplurals=2; plural=(n != 1);"
 )

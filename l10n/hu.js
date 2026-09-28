@@ -1091,7 +1091,9 @@ OC.L10N.register(
         "The new order was not saved.": "Az új sorrend nem lett mentve.",
         "Could not load the agenda of these minutes": "A jegyzőkönyv napirendjét nem sikerült betölteni",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Ez a jegyzőkönyv nincs üléshez kapcsolva, így nincsenek napirendi pontok a jegyzetekhez.",
-        "Minutes per agenda item": "Jegyzőkönyv napirendi pontonként"
+        "Minutes per agenda item": "Jegyzőkönyv napirendi pontonként",
+        "Submission opens": "Benyújtás kezdete",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Mikortól nyújthatnak be a tagok indítványokat és módosító javaslatokat erre az ülésre. Üresen hagyva a benyújtás az ülés létrehozásától nyitva áll."
     },
     "nplurals=2; plural=(n != 1);"
 )

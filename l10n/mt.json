@@ -1090,7 +1090,9 @@
         "The new order was not saved.": "L-ordni l-ġdid ma ġiex issejvjat.",
         "Could not load the agenda of these minutes": "L-aġenda ta' dan il-minuti ma setgħetx titgħabba",
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Dan il-minuti mhumiex marbuta ma' laqgħa, għalhekk m'hemmx punti fuq l-aġenda biex tieħu noti fuqhom.",
-        "Minutes per agenda item": "Minuti għal kull punt fuq l-aġenda"
+        "Minutes per agenda item": "Minuti għal kull punt fuq l-aġenda",
+        "Submission opens": "Is-sottomissjoni tiftaħ",
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Meta l-membri jistgħu jibdew jissottomettu mozzjonijiet u emendi għal din il-laqgħa. Vojt ifisser li s-sottomissjoni hija miftuħa mill-mument li l-laqgħa teżisti."
     },
     "plurals": null
 }
