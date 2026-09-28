@@ -10,8 +10,8 @@
   - GIVEN a member of M, or an unknown meeting id WHEN called THEN all four values are false and the status is 200
   - GIVEN the controller source WHEN read THEN every value is computed through `VotingRoundGuard`, not a copied rule
   - Verification: PHPUnit `VotingControllerTest` cases written red first (method missing), then green; the route table still resolves every existing route (route-reachability gate)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 2: Tally and publish check the round's meeting
 
@@ -22,8 +22,8 @@
   - GIVEN a secretary of another meeting WHEN they post a tally or publish THEN it returns 403 and nothing is saved
   - GIVEN a round with no resolvable meeting WHEN an admin posts THEN the global fallback still accepts
   - Verification: PHPUnit red-then-green on the other-meeting secretary case, which passes today only by accident of the global check
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 3: The panel reads the server's answer
 
