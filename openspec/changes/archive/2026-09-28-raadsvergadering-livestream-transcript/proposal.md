@@ -1,7 +1,11 @@
 ---
 kind: code
 depends_on: []
+status: superseded
+superseded-by: live-public-livestream
 ---
+
+> **ARCHIVED UNBUILT (2026-09-28, issue #1420).** This change proposes lib/Entity classes, migrations and four new database tables, which the thin-client rule and ADR-006 do not allow, and none of its 67 tasks was started. The livestream row (liv-06) is built by `live-public-livestream` instead, on the meeting schema the register already holds. Its spec deltas were not synced into `openspec/specs/`.
 
 # Raadsvergadering Livestream met Automatische Transcriptie
 

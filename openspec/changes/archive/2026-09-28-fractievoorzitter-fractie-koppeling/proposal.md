@@ -5,6 +5,8 @@ status: superseded
 superseded-by: organisation-facet-composition
 ---
 
+> **ARCHIVED UNBUILT (2026-09-28, issue #1420).** Archived without applying its specs: it was already marked superseded by `organisation-facet-composition` (archived 2026-08-19) and none of its 53 tasks was started. Its spec deltas were not synced into `openspec/specs/`.
+
 > **SUPERSEDED (2026-08-19).** This draft pre-dates ADR-006 (one universal
 > `GovernanceBody` schema — no parallel per-domain schema families) and
 > proposes exactly the parallel schema set ADR-006 forbids: `PolitiekePartij`,
