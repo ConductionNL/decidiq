@@ -69,9 +69,11 @@ class VoteBallotFactory {
 	 * @param string|null $delegatorId The delegator UUID for a proxy vote
 	 * @param bool $isSecret Whether the round is a secret ballot
 	 * @param array<string,mixed>|null $existingVote The ballot being overwritten, when any
+	 * @param array<int, mixed>|null $ranking The checked ranking of a ranked ballot, or null
 	 *
 	 * @return array<string,mixed> The vote payload to persist.
 	 *
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function buildVote(
@@ -82,6 +84,7 @@ class VoteBallotFactory {
 		?string $delegatorId,
 		bool $isSecret,
 		?array $existingVote,
+		?array $ranking = null,
 	): array {
 		$relations = $this->voteRelations(
 			votingRoundId: $votingRoundId,
@@ -108,6 +111,11 @@ class VoteBallotFactory {
 			'castAs' => $this->resolveCastAs(participantId: $participantId),
 			'relations' => $relations,
 		];
+
+		// A ranked ballot carries the member's order in its own field (REQ-PRF-002).
+		if ($ranking !== null) {
+			$vote['ranking'] = array_values(array_map(static fn (mixed $key): string => (string)$key, $ranking));
+		}
 
 		// Store opaque dedup token for secret rounds (never contains participant identity).
 		if ($isSecret === true) {

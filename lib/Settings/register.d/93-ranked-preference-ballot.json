@@ -1,0 +1,64 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, issue #1419 (voting-ranked-preference-ballot, REQ-PRF-001 to REQ-PRF-005). ranked-choice was a votingMethod enum value nothing read. A ranked round now carries its options, a ranked vote carries the member's full ordering in its own field, and closing the round stores the Borda count. Vote.value gains `ranked` (fragments union enum lists), so the required field stays valid on a ranked ballot without pretending to be for or against.",
+  "components": {
+    "schemas": {
+      "VotingRound": {
+        "slug": "voting-round",
+        "version": "0.3.0",
+        "properties": {
+          "options": {
+            "title": "Options",
+            "type": "array",
+            "description": "The options members rank in a ranked preference round.",
+            "x-notes": "Set when a ranked-choice round opens and never changed afterwards (VotingRoundOpener via RankedBallotRules): two to twenty entries, each with a unique key, a label and optionally a Person uuid. Empty on every other voting method.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": { "type": "string" },
+                "label": { "type": "string" },
+                "person": { "type": "string" }
+              },
+              "required": ["key", "label"]
+            }
+          },
+          "rankingResult": {
+            "title": "Ranking",
+            "type": "array",
+            "description": "The options in order of their Borda count points, with rank and points.",
+            "x-notes": "Written by VotingRoundResults::tally() through BordaCount when a ranked round closes: key, label, points and rank per option. With N options a first place earns N minus 1 points.",
+            "items": {
+              "type": "object"
+            }
+          },
+          "winningOption": {
+            "title": "Winning option",
+            "type": "string",
+            "description": "The key of the option that won the ranked vote.",
+            "x-notes": "Empty when the round is tied or had no ballots."
+          }
+        }
+      },
+      "Vote": {
+        "slug": "vote",
+        "version": "0.3.0",
+        "properties": {
+          "value": {
+            "enum": ["ranked"]
+          },
+          "ranking": {
+            "title": "Ranking",
+            "type": "array",
+            "description": "The options in the order this member prefers them, first preference first.",
+            "x-notes": "Only on a ranked-choice round, where value is `ranked`. The cast endpoint refuses a ranking that leaves an option out or names one twice.",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

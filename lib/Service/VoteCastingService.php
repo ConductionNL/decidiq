@@ -114,15 +114,18 @@ class VoteCastingService {
 	 * @param bool $isProxy True when the participant is voting as proxy for another
 	 * @param string|null $delegatorId The participant UUID being delegated (required when isProxy=true)
 	 * @param string|null $callerUid The authenticated Nextcloud UID of the casting user
+	 * @param array<int, mixed>|null $ranking The member's ranking on a ranked-choice round, first preference first
 	 *
 	 * @return array<string,mixed> The created/updated Vote object
 	 *
 	 * @throws \RuntimeException When the round is not open, the caller is not a meeting member,
 	 *                           or proxy rules are violated
+	 * @throws \InvalidArgumentException When the ballot does not fit the round's voting method
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
 	 * @spec openspec/specs/user-settings/spec.md
 	 * @spec openspec/specs/motion-amendment/spec.md
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 */
 	public function castVote(
 		string $votingRoundId,
@@ -131,8 +134,18 @@ class VoteCastingService {
 		bool $isProxy,
 		?string $delegatorId,
 		?string $callerUid = null,
+		?array $ranking = null,
 	): array {
 		$round = $this->guard->loadOpenRound(votingRoundId: $votingRoundId);
+
+		// A ranked-choice round takes a full ranking and stores value `ranked`;
+		// any other round refuses a ranking (REQ-PRF-002). Checked before
+		// anything is read or written for the ballot.
+		$value = (new RankedBallotRules())->ballotValue(round: $round, value: $value, ranking: $ranking);
+		if ($value !== RankedBallotRules::VALUE) {
+			$ranking = null;
+		}
+
 		$this->guard->assertMeetingMembership(round: $round, participantId: $participantId);
 
 		$isSecret = (bool)($round['isSecret'] ?? false);
@@ -162,7 +175,8 @@ class VoteCastingService {
 				votingRoundId: $votingRoundId,
 				participantId: $participantId,
 				isSecret: $isSecret
-			)
+			),
+			ranking: $ranking
 		);
 
 		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'vote', object: $vote);

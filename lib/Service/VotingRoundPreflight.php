@@ -181,6 +181,43 @@ class VotingRoundPreflight {
 	}//end assertRevoteAllowed()
 
 	/**
+	 * The options a revote of a tied ranked round offers: the tied ones only
+	 * (REQ-RPB-001). Null when the tied round is not a ranked round, so the
+	 * caller keeps the options it was given.
+	 *
+	 * @param string $revoteOfRoundId The tied round's UUID.
+	 *
+	 * @return array<int, array<string, mixed>>|null The tied options, or null.
+	 *
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-rpb-001-a-tie-in-a-ranked-round-follows-the-rounds-tie-break-rule
+	 */
+	public function tiedOptionsOf(string $revoteOfRoundId): ?array {
+		$entity = $this->objectService->find(id: $revoteOfRoundId, register: 'decidiq', schema: 'voting-round');
+		$original = [];
+		if ($entity !== null) {
+			$original = $entity->jsonSerialize();
+		}
+
+		if (($original['votingMethod'] ?? '') !== RankedBallotRules::METHOD) {
+			return null;
+		}
+
+		$tiedKeys = [];
+		foreach ((array)($original['rankingResult'] ?? []) as $row) {
+			if (is_array($row) === true && (int)($row['rank'] ?? 0) === 1) {
+				$tiedKeys[] = (string)($row['key'] ?? '');
+			}
+		}
+
+		return array_values(
+			array_filter(
+				(array)($original['options'] ?? []),
+				static fn (mixed $option): bool => is_array($option) === true && in_array((string)($option['key'] ?? ''), $tiedKeys, true) === true
+			)
+		);
+	}//end tiedOptionsOf()
+
+	/**
 	 * Split preset participant UUIDs into the eligible ones (active members of
 	 * the meeting) and the excluded ones.
 	 *
@@ -225,10 +262,12 @@ class VotingRoundPreflight {
 	 * @param array<string> $rules The effective voting rules
 	 * @param string|null $revoteOfRoundId UUID of the tied round this round revotes, or null
 	 * @param array<string> $participantIds Eligible preset participant UUIDs
+	 * @param array<int, array<string, string>> $options The checked options of a ranked-choice round, empty otherwise
 	 *
 	 * @return array<string,mixed> The voting-round payload
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
 	 */
 	public function buildRoundPayload(
 		string $motionId,
@@ -240,6 +279,7 @@ class VotingRoundPreflight {
 		array $rules,
 		?string $revoteOfRoundId,
 		array $participantIds,
+		array $options = [],
 	): array {
 		$relations = [['register' => 'decidiq', 'schema' => $subjectType, 'id' => $motionId]];
 		foreach ($participantIds as $uuid) {
@@ -264,6 +304,10 @@ class VotingRoundPreflight {
 
 		if ($revoteOfRoundId !== null) {
 			$round['revoteOfRound'] = $revoteOfRoundId;
+		}
+
+		if ($options !== []) {
+			$round['options'] = $options;
 		}
 
 		return $round;

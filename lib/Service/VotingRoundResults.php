@@ -120,10 +120,15 @@ class VotingRoundResults {
 	 * @return array<string,mixed> Tally with votesFor, votesAgainst, votesAbstain, total, base, result and applied rules
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
 	 */
 	public function tally(string $votingRoundId): array {
 		// Load the round first — the configured rules drive the result computation.
 		$round = $this->loadRound(votingRoundId: $votingRoundId);
+		if ($round !== null && ($round['votingMethod'] ?? '') === RankedBallotRules::METHOD) {
+			return $this->rankedTally(round: $round, votingRoundId: $votingRoundId);
+		}
+
 		$counts = $this->countVotes(voteEntities: $this->ballotsInRound(votingRoundId: $votingRoundId));
 
 		$computed = $this->compute(
@@ -149,6 +154,56 @@ class VotingRoundResults {
 		];
 
 	}//end tally()
+
+	/**
+	 * Count a ranked-choice round with a Borda count and store the ranking.
+	 *
+	 * The for, against and abstain counts stay at zero: a ranked ballot is
+	 * none of those. `result` is adopted with one winner, tied when two or
+	 * more options share the top score, and invalid with no ballots, so the
+	 * closer moves the motion exactly as it does for any other round.
+	 *
+	 * @param array<string, mixed> $round The round.
+	 * @param string $votingRoundId The round's UUID.
+	 *
+	 * @return array<string,mixed> The tally, with rankingResult and winningOption.
+	 *
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
+	 */
+	private function rankedTally(array $round, string $votingRoundId): array {
+		$ballots = [];
+		foreach ($this->ballotsInRound(votingRoundId: $votingRoundId) as $voteEntity) {
+			$vote = $voteEntity->jsonSerialize();
+			if (($vote['value'] ?? '') === RankedBallotRules::VALUE && is_array($vote['ranking'] ?? null) === true) {
+				$ballots[] = $vote['ranking'];
+			}
+		}
+
+		$outcome = (new BordaCount())->count(options: (array)($round['options'] ?? []), ballots: $ballots);
+
+		$round['votesFor'] = 0;
+		$round['votesAgainst'] = 0;
+		$round['votesAbstain'] = 0;
+		$round['result'] = $outcome['result'];
+		$round['rankingResult'] = $outcome['rankingResult'];
+		$round['winningOption'] = $outcome['winningOption'];
+		$this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
+
+		return [
+			'votesFor' => 0,
+			'votesAgainst' => 0,
+			'votesAbstain' => 0,
+			'total' => $outcome['counted'],
+			'base' => $outcome['counted'],
+			'voteThreshold' => ($round['voteThreshold'] ?? null),
+			'abstentionHandling' => ($round['abstentionHandling'] ?? null),
+			'tieBreakRule' => ($round['tieBreakRule'] ?? null),
+			'result' => $outcome['result'],
+			'rankingResult' => $outcome['rankingResult'],
+			'winningOption' => $outcome['winningOption'],
+			'tiedOptions' => $outcome['tiedOptions'],
+		];
+	}//end rankedTally()
 
 	/**
 	 * Record a show-of-hands tally for an open VotingRound.

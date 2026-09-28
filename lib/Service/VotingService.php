@@ -182,6 +182,7 @@ class VotingService {
 	 * @param string|null $callerUid The authenticated Nextcloud UID of the casting user (used only
 	 *                               to detect an absence delegation when no formal proxy exists —
 	 *                               delegations are configured by NC UID in the user settings)
+	 * @param array<int, mixed>|null $ranking The member's ranking on a ranked-choice round, first preference first
 	 *
 	 * @return array<string,mixed> The created/updated Vote object
 	 *
@@ -191,6 +192,7 @@ class VotingService {
 	 * @spec openspec/specs/voting-system/spec.md
 	 * @spec openspec/specs/user-settings/spec.md
 	 * @spec openspec/specs/motion-amendment/spec.md
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 */
 	public function castVote(
 		string $votingRoundId,
@@ -199,6 +201,7 @@ class VotingService {
 		bool $isProxy,
 		?string $delegatorId,
 		?string $callerUid = null,
+		?array $ranking = null,
 	): array {
 		return $this->caster->castVote(
 			votingRoundId: $votingRoundId,
@@ -206,7 +209,8 @@ class VotingService {
 			value: $value,
 			isProxy: $isProxy,
 			delegatorId: $delegatorId,
-			callerUid: $callerUid
+			callerUid: $callerUid,
+			ranking: $ranking
 		);
 
 	}//end castVote()

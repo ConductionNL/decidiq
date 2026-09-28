@@ -56,6 +56,13 @@ class VotingRoundOpener {
 	private readonly SavedObjectNormaliser $normaliser;
 
 	/**
+	 * The shape of a ranked-choice round's options.
+	 *
+	 * @var RankedBallotRules
+	 */
+	private readonly RankedBallotRules $rankedRules;
+
+	/**
 	 * Constructor for VotingRoundOpener.
 	 *
 	 * @param MotionService $motionService The motion service for lifecycle transitions
@@ -88,6 +95,7 @@ class VotingRoundOpener {
 		);
 
 		$this->normaliser = new SavedObjectNormaliser();
+		$this->rankedRules = new RankedBallotRules();
 
 	}//end __construct()
 
@@ -169,6 +177,7 @@ class VotingRoundOpener {
 	 * @spec openspec/specs/voting-system/spec.md
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 * @spec openspec/specs/process-configuration/spec.md
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
 	 */
 	public function openVotingRound(
 		string $motionId,
@@ -206,6 +215,20 @@ class VotingRoundOpener {
 			$this->preflight->assertRevoteAllowed(revoteOfRoundId: $revoteOfRoundId);
 		}
 
+		// A ranked-choice round opens with its options (REQ-PRF-001); a revote
+		// of a tied ranked round offers the tied options only (REQ-RPB-001).
+		// Checked here, before anything is written, so a refusal leaves no round.
+		$requestedOptions = $roundRules->options;
+		if ($revoteOfRoundId !== null && $votingMethod === RankedBallotRules::METHOD) {
+			$requestedOptions = ($this->preflight->tiedOptionsOf(revoteOfRoundId: $revoteOfRoundId) ?? $requestedOptions);
+		}
+
+		$options = $this->rankedRules->openingOptions(
+			votingMethod: $votingMethod,
+			options: $requestedOptions,
+			tieBreakRule: (string)$rules['tieBreakRule']
+		);
+
 		// Parliamentary ordering (motion-amendment spec) and the lifecycle
 		// transition below apply to fresh rounds only: a revote re-opens a
 		// question that was already in order and never left 'voting'.
@@ -226,7 +249,8 @@ class VotingRoundOpener {
 			quorumWith: $quorumWith,
 			rules: $rules,
 			revoteOfRoundId: $revoteOfRoundId,
-			participantIds: $presets['eligible']
+			participantIds: $presets['eligible'],
+			options: $options
 		);
 
 		$created = $this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $votingRound);
