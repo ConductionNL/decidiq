@@ -1654,14 +1654,15 @@
 			"built": {
 				"state": "specified",
 				"evidence": "openspec/changes/document-annotations/ (proposal, design, tasks, specs) proposes an Annotation schema and overlay; no Annotation schema in lib/Settings and no annotation code in src/ (grep 'annotation')",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "openspec/changes/document-annotations"
 			},
 			"reachedOn": "nothing reaches it: only an openspec change",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "document-annotations",
 			"featureConfidence": "high",
-			"note": "Annotating and sharing notes on meeting papers is specified but not built.",
+			"note": "Annotating and sharing notes on meeting papers is specified but not built. corrections round 9 (2026-09-28): carried by openspec/changes/document-annotations (open, 0 of 17 tasks), which specifies annotations on meeting documents, private by default and shareable with a faction or the whole body.",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -1684,14 +1685,15 @@
 			"built": {
 				"state": "specified",
 				"evidence": "No offline/service-worker/PWA code in src/ (grep 'offline', 'serviceWorker', 'PWA'); openspec/changes/meeting-pack-board-book/proposal.md:29 plans delivering a compiled pack into each attendee's Files for offline sync via Nextcloud clients; not built",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "openspec/changes/meeting-pack-board-book"
 			},
 			"reachedOn": "nothing reaches it: no offline mode; only a planned per-attendee pack delivery",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "meeting-pack",
 			"featureConfidence": "medium",
-			"note": "No offline reading in decidiq. The plan is to lean on Nextcloud's own sync clients by sharing a compiled pack into each member's Files, which is only specified.",
+			"note": "No offline reading in decidiq. The plan is to lean on Nextcloud's own sync clients by sharing a compiled pack into each member's Files, which is only specified. corrections round 9 (2026-09-28): carried by openspec/changes/meeting-pack-board-book (open, 0 of 18 tasks): proposal.md:29 and its REQ-006 deliver the compiled pack into each attendee's own Files so the Nextcloud mobile client syncs it for offline reading.",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
@@ -1774,14 +1776,15 @@
 			"built": {
 				"state": "specified",
 				"evidence": "openspec/changes/document-accessibility-check/ (proposal, design, tasks, specs) describes a PDF accessibility scan and publication gate; no code in lib/ or src/ (grep 'accessibility-check', 'pdf/ua')",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "openspec/changes/document-accessibility-check"
 			},
 			"reachedOn": "nothing reaches it: only an openspec change",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "document-accessibility",
 			"featureConfidence": "high",
-			"note": "Checking documents for accessibility before publication is specified but not built.",
+			"note": "Checking documents for accessibility before publication is specified but not built. corrections round 9 (2026-09-28): carried by openspec/changes/document-accessibility-check (open, 0 of 18 tasks), which specifies the heuristic PDF scan and the publication gate.",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -4804,14 +4807,15 @@
 			"built": {
 				"state": "specified",
 				"evidence": "openspec/changes/records-management-archiving/proposal.md (ArchivalDossier, MDTO via OpenRegister, e-depot transfer); grep ArchivalDossier/MDTO/e-depot in lib/src finds only a forward reference in lib/Settings/register.d/51-raadsinformatiebrieven.json:176",
-				"owner": "ConductionNL/openregister"
+				"owner": "ConductionNL/openregister",
+				"change": "openspec/changes/records-management-archiving"
 			},
 			"reachedOn": "nothing reaches it: change is specified only",
 			"provider": "openregister",
 			"providerHow": "read-from-code",
 			"feature": "archiving",
 			"featureConfidence": "high",
-			"note": "The change plans to consume OpenRegister's MDTO and e-depot stack and add a dossier schema; none of it is built in decidiq.",
+			"note": "The change plans to consume OpenRegister's MDTO and e-depot stack and add a dossier schema; none of it is built in decidiq. corrections round 9 (2026-09-28): carried by decidiq's openspec/changes/records-management-archiving (open, 0 of 12 tasks: the ArchivalDossier, MDTO through OpenRegister's fields, transfer through OpenRegister's transfer lists). Neither OpenRegister's gap-decisions.json nor its changes name this row; its MDTO and e-Depot services exist at openregister development 5cda2f0434 (lib/Service/Edepot/MdtoXmlGenerator.php, EdepotTransferService.php, SipPackageBuilder.php), and their durable-execution gap is the open openregister change archival-transfer-hardening.",
 			"notubiz": "partial",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "yes",
@@ -5194,14 +5198,15 @@
 			"built": {
 				"state": "specified",
 				"evidence": "openspec/changes/inspreekrecht-plenair/ (proposal, design, specs, tasks); grep inspreek/speaking/spreekrecht in lib/Settings and src/manifest finds only speakingDuration (participant statistic) and transcript speaker labels",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "openspec/changes/inspreekrecht-plenair"
 			},
 			"reachedOn": "nothing reaches it: change specified only, no schema or page",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "citizen-participation",
 			"featureConfidence": "high",
-			"note": "Speaking registration is an open OpenSpec change with no code.",
+			"note": "Speaking registration is an open OpenSpec change with no code. corrections round 9 (2026-09-28): carried by openspec/changes/inspreekrecht-plenair (open, 0 of 16 tasks), which specifies the registration API, griffie moderation and speaking slots for any meeting type; the public form itself is portaliq's (the proposal's Out of Scope).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "partial",
@@ -6960,14 +6965,15 @@
 			"built": {
 				"state": "specified",
 				"evidence": "grep -rniE '\"(theme|thema|topic|dossier)\"|themePage|topicPage' lib/Settings src/manifest.json src/manifest.d: no theme schema or page; decidiq has no public pages (public reading goes through OpenCatalogi, pub-09); the nearest staff view is GoalDetail (src/manifest.d/organisation-goals.json:62-63, data and Related widgets, no timeline)",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/portaliq",
+				"change": "openspec/changes/publication-theme-pages"
 			},
 			"reachedOn": "nothing reaches it: no theme page; staff can link decisions to a goal on GoalDetail (/goals/:id)",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "public-publication",
 			"featureConfidence": "medium",
-			"note": "There is no public page that gathers meetings, documents and motions on one topic with a timeline. Staff can relate decisions to an organisation goal, which is a record with a Related list, not a published theme page. Specified in openspec/changes/publication-theme-pages (OpenSpec pass 2026-09-27).",
+			"note": "There is no public page that gathers meetings, documents and motions on one topic with a timeline. Staff can relate decisions to an organisation goal, which is a record with a Related list, not a published theme page. Specified in openspec/changes/publication-theme-pages (OpenSpec pass 2026-09-27). corrections round 9 (2026-09-28): owner moved to ConductionNL/portaliq, which draws the public publication page (opencatalogi decided no in opencatalogi#1657). At portaliq development 8934e73be3, src/site/components/PublicationDetailBlock.vue:38-90 lists every field of the OpenCatalogi publication as a label and a value, and an array as plain list items (:57-64, each object JSON-stringified by src/site/lib/publicationDetail.js:166-175), so a theme's timeline array would show as raw text; no portaliq change draws a publication timeline. The decidiq half (the Theme record, the staff page and the published payload with its timeline) stays specified in openspec/changes/publication-theme-pages.",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
