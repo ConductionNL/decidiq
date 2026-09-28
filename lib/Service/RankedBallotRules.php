@@ -133,7 +133,7 @@ class RankedBallotRules {
 	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 */
 	public function ballotValue(array $round, string $value, ?array $ranking): string {
-		if (($round['votingMethod'] ?? '') !== self::METHOD) {
+		if ($this->isRanked(round: $round) === false) {
 			if ($ranking !== null || $value === self::VALUE) {
 				throw new InvalidArgumentException(message: 'A ranking can only be cast on a ranked-choice round');
 			}
@@ -154,6 +154,22 @@ class RankedBallotRules {
 
 		return self::VALUE;
 	}//end ballotValue()
+
+	/**
+	 * Whether a round is counted as a ranked ballot: a ranked-choice round
+	 * that carries its options. A ranked-choice round opened before rounds
+	 * had options holds for, against and abstain votes, and keeps being
+	 * cast and counted that way.
+	 *
+	 * @param array<string, mixed> $round The round.
+	 *
+	 * @return bool True for a ranked ballot round.
+	 *
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+	 */
+	public function isRanked(array $round): bool {
+		return ($round['votingMethod'] ?? '') === self::METHOD && (array)($round['options'] ?? []) !== [];
+	}//end isRanked()
 
 	/**
 	 * Clean one option.

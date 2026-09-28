@@ -654,7 +654,10 @@ export default {
 		 * @return {boolean} Whether the displayed round is a ranked preference round
 		 */
 		isRankedRound() {
-			return this.currentRound?.votingMethod === 'ranked-choice'
+			return (
+				this.currentRound?.votingMethod === 'ranked-choice'
+				&& (this.currentRound?.options || []).length > 0
+			)
 		},
 
 		/** Translated labels per rule enum value. @spec openspec/specs/voting-system/spec.md */

@@ -613,4 +613,23 @@ class VotingServiceRankedBallotTest extends TestCase {
 		self::assertSame('round-1', $round['revoteOfRound']);
 		self::assertSame(['renoveren', 'nieuwbouw'], array_column($round['options'] ?? [], 'key'));
 	}//end testARevoteOffersTheTiedOptionsOnly()
+	/**
+	 * A ranked-choice round opened before rounds had options holds for,
+	 * against and abstain votes, and is still cast and counted that way.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+	 */
+	public function testARankedChoiceRoundWithoutOptionsKeepsItsForAndAgainstVotes(): void {
+		$legacy = self::rankedRound(['relations' => []]);
+		unset($legacy['object']['options']);
+		$service = $this->buildService(self::store(['round-1' => $legacy]));
+
+		$service->castVote(votingRoundId: 'round-1', participantId: 'part-1', value: 'for', isProxy: false, delegatorId: null);
+		self::assertSame('for', $this->lastSaved(schema: 'vote')['value'] ?? null);
+
+		$service->closeVotingRound(votingRoundId: 'round-1');
+		self::assertSame('adopted', $this->lastSaved(schema: 'voting-round')['result'] ?? null, 'One for vote adopts under the ordinary count');
+	}//end testARankedChoiceRoundWithoutOptionsKeepsItsForAndAgainstVotes()
 }//end class

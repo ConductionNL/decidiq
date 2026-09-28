@@ -120,7 +120,6 @@ class VoteCastingService {
 	 *
 	 * @throws \RuntimeException When the round is not open, the caller is not a meeting member,
 	 *                           or proxy rules are violated
-	 * @throws \InvalidArgumentException When the ballot does not fit the round's voting method
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
 	 * @spec openspec/specs/user-settings/spec.md

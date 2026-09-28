@@ -125,7 +125,7 @@ class VotingRoundResults {
 	public function tally(string $votingRoundId): array {
 		// Load the round first — the configured rules drive the result computation.
 		$round = $this->loadRound(votingRoundId: $votingRoundId);
-		if ($round !== null && ($round['votingMethod'] ?? '') === RankedBallotRules::METHOD) {
+		if ($round !== null && (new RankedBallotRules())->isRanked(round: $round) === true) {
 			return $this->rankedTally(round: $round, votingRoundId: $votingRoundId);
 		}
 
