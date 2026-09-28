@@ -34,4 +34,4 @@
 - [x] Implement
 
 ### Task 6: Verify
-- [ ] `composer check:strict` once, `npm run lint`, `npm run format`, `npm run test:l10n`
+- [x] `composer check:strict`, `npm run lint`, `npm run format`, `npm run test:l10n`, diff-scoped hydra gates
