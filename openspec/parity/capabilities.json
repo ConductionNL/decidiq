@@ -2165,7 +2165,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "grep interrupt/interruptie/point of order in src/ and lib/: only src/utils/meetingTimer.js:69 pause of the agenda-item timer for a procedural interruption",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -2174,7 +2174,7 @@
 			"providerHow": "read-from-code",
 			"feature": "live-meeting",
 			"featureConfidence": "medium",
-			"note": "The item timer can be paused, but the speaker queue has no interruption or interposed-question entries.",
+			"note": "The item timer can be paused, but the speaker queue has no interruption or interposed-question entries. Decided no (build-all 2026-09-28): single competitor (OpenSlides), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (openslides), no demand. Archived meeting-efficiency-v1 only pauses the item timer, which is built).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -2555,7 +2555,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "grep SchriftelijkeVraag/WrittenQuestion/written-question in lib/ and src/: only references from the retired oral-question schema (49-vragenuur-interpellatie.json:324-332) and a migration; no schema, page or deadline job for written questions",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -2564,7 +2564,7 @@
 			"providerHow": "read-from-code",
 			"feature": "questions",
 			"featureConfidence": "high",
-			"note": "Written questions are not modelled; commitments (toezeggingen) have deadlines but are a different thing.",
+			"note": "Written questions are not modelled; commitments (toezeggingen) have deadlines but are a different thing. Decided no (build-all 2026-09-28): single competitor (iBabs), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (ibabs), no demand. The only spec of written questions, SchriftelijkeVraag, sits in fractievoorzitter-fractie-koppeling, which is marked superseded).",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
@@ -2645,7 +2645,7 @@
 			"origin": "code",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "grep anonymi/redact/pseudonym in lib/ and src/: only vote anonymisation on close (lib/Service/VotingRoundCloser.php:114), board evaluation and citizen-participation reactions; nothing on motions or publication payloads",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -2654,7 +2654,7 @@
 			"providerHow": "read-from-code",
 			"feature": "publication",
 			"featureConfidence": "medium",
-			"note": "No redaction of personal data in motions. Did not check whether filinq could be wired in.",
+			"note": "No redaction of personal data in motions. Did not check whether filinq could be wired in. Decided no (build-all 2026-09-28): no competitor rated yes, no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (No competitor rated yes, no demand. Archived core-t3 anonymises votes, not motion text).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -4715,7 +4715,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "grep redact/anonymi/pseudonym across lib and src: hits are vote anonymisation, participation pseudonyms and portal tokens, none on documents; lib/Service/PublicationPayloadService.php:278 renderAttendance() only minimises attendee names in the minutes payload",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -4724,7 +4724,7 @@
 			"providerHow": "read-from-code",
 			"feature": "public-publication",
 			"featureConfidence": "medium",
-			"note": "decidiq minimises personal data in its own publication payloads (attendance as counts or role holders) but does not redact names from documents. Any redaction would have to come from filinq, which this repo does not call for publication.",
+			"note": "decidiq minimises personal data in its own publication payloads (attendance as counts or role holders) but does not redact names from documents. Any redaction would have to come from filinq, which this repo does not call for publication. Decided no (build-all 2026-09-28): no competitor rated yes, no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (No competitor rated yes, no demand. decidiq minimises its own payloads; redacting documents would be filinq's).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -4836,7 +4836,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "grep oai-pmh/oaipmh: only a comment at lib/Controller/OriController.php:75 calling the ORI publications feed harvest-able; no OAI-PMH verbs (Identify, ListRecords) anywhere",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -4845,7 +4845,7 @@
 			"providerHow": "read-from-code",
 			"feature": "ori-api",
 			"featureConfidence": "high",
-			"note": "Harvesters can poll the ORI JSON-LD publications feed, but there is no OAI-PMH protocol endpoint.",
+			"note": "Harvesters can poll the ORI JSON-LD publications feed, but there is no OAI-PMH protocol endpoint. Decided no (build-all 2026-09-28): no competitor rated yes, no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (No competitor rated yes, no demand. Archived publish-decisions-via-opencatalogi put an OAI-PMH harvester endpoint out of scope as an OpenConnector (integriq) follow-up).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -5527,7 +5527,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "Searched lib/, src/manifest*.json, src/components, src/views and openspec/changes for ESG, CSRD, sustainab*, environmental: only an ESG adviser mention in seed data lib/Settings/profiles/corporate.json:341.",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -5536,7 +5536,7 @@
 			"providerHow": "read-from-code",
 			"feature": "esg",
 			"featureConfidence": "high",
-			"note": "No ESG reporting in decidiq.",
+			"note": "No ESG reporting in decidiq. Decided no (build-all 2026-09-28): single competitor (Diligent Boards), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (diligent-boards), no demand, outside the core area).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -5557,7 +5557,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "Searched lib/Settings, src/manifest.json, src/manifest.d for risk register, risico, Risk schema: none. 'risk' hits are in code comments and other schemas' descriptions only.",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -5566,7 +5566,7 @@
 			"providerHow": "read-from-code",
 			"feature": "risk",
 			"featureConfidence": "high",
-			"note": "No board-level risk register.",
+			"note": "No board-level risk register. Decided no (build-all 2026-09-28): single competitor (Diligent Boards), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (diligent-boards), no demand, outside the core area).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -5587,7 +5587,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "Searched for TextToText/TaskProcessing use: only lib/Service/MinutesDraftService.php (minutes drafting). No prep-question or briefing feature in lib/, src/ or openspec/changes. MCP read tools (lib/Mcp/McpMeetingTools.php) let an external agent read meetings, which is not this feature.",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -5596,7 +5596,7 @@
 			"providerHow": "read-from-code",
 			"feature": "ai-assist",
 			"featureConfidence": "medium",
-			"note": "No AI-suggested questions. An agent could read meetings through decidiq's MCP tools, but decidiq itself offers nothing for this.",
+			"note": "No AI-suggested questions. An agent could read meetings through decidiq's MCP tools, but decidiq itself offers nothing for this. Decided no (build-all 2026-09-28): single competitor (Diligent Boards), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (diligent-boards), no demand, outside the core area).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "partial",
@@ -5617,7 +5617,7 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "Searched lib/, src/ and openspec/changes for legal risk, risk scan, TextToText beyond MinutesDraftService.php: none.",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -5626,7 +5626,7 @@
 			"providerHow": "read-from-code",
 			"feature": "ai-assist",
 			"featureConfidence": "high",
-			"note": "No AI legal-risk flagging of meeting documents.",
+			"note": "No AI legal-risk flagging of meeting documents. Decided no (build-all 2026-09-28): single competitor (Diligent Boards), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (diligent-boards), no demand, outside the core area).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "partial",
@@ -6746,7 +6746,7 @@
 			"originUrl": "https://www.kennisbank.notubiz.nl/kennisclips/ai-videosearch",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "grep -rniE 'summar|semantic|embedding|vector|ITextProcessing|TaskProcessing|LLM' lib src: no transcript search or summary; lib/Mcp/DecidiqToolProvider.php:77-162 exposes action item and meeting tools to the AI chat, none reads transcripts; transcripts shown per item in the MeetingDetail Transcription widget (liv-09)",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6755,7 +6755,7 @@
 			"providerHow": "read-from-code",
 			"feature": "transcription",
 			"featureConfidence": "high",
-			"note": "Transcripts can be read per meeting, but nothing searches across recordings in natural language or produces a summary that cites fragments.",
+			"note": "Transcripts can be read per meeting, but nothing searches across recordings in natural language or produces a summary that cites fragments. Decided no (build-all 2026-09-28): single competitor (NotuBiz), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (notubiz) and a changelog origin only).",
 			"notubiz": "yes",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "partial",
@@ -6777,7 +6777,7 @@
 			"originUrl": "https://www.kennisbank.notubiz.nl/kennisclips/basistraining",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "grep -rliE 'livestream|broadcast|viewer|<video|video ?player' lib src: only unrelated 'reviewer' text; no recording player page; lib/Service/TranscriptAlignmentService.php:224 aligns transcript segments to agenda items by actualStart, shown as text in the MeetingDetail Transcription widget without playback",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6786,7 +6786,7 @@
 			"providerHow": "read-from-code",
 			"feature": "recording",
 			"featureConfidence": "high",
-			"note": "decidiq has no player for a recorded meeting, so there is no order to switch. Transcript text is matched to agenda items by their actual start time.",
+			"note": "decidiq has no player for a recorded meeting, so there is no order to switch. Transcript text is matched to agenda items by their actual start time. Decided no (build-all 2026-09-28): single competitor (NotuBiz), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (notubiz) and a changelog origin only; there is no recording player to switch).",
 			"notubiz": "yes",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -6808,7 +6808,7 @@
 			"originUrl": "https://support.ibabs.com/docs/ibabs-stream-release-notes-februari-2026.md",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "grep -rniE 'livestream|live-stream|broadcast|video ?player|<video|hls|rtmp|slides?' lib src (php, vue, js, excluding comments): no hits; matrix row liv-06 (no streaming feature)",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6817,7 +6817,7 @@
 			"providerHow": "read-from-code",
 			"feature": "livestream",
 			"featureConfidence": "high",
-			"note": "There is no public livestream player, so slides cannot be shown next to the speaker.",
+			"note": "There is no public livestream player, so slides cannot be shown next to the speaker. Decided no (build-all 2026-09-28): single competitor (iBabs), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (ibabs) and a changelog origin only).",
 			"notubiz": "unknown",
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
@@ -6839,7 +6839,7 @@
 			"originUrl": "https://support.ibabs.com/docs/tijdens-de-uitzending.md",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "grep -rniE 'livestream|live-stream|broadcast|viewer' lib src: no livestream code (only 'reviewer' text); the room display projection GET /api/voting-rounds/{id}/public-state is API only (liv-04)",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6848,7 +6848,7 @@
 			"providerHow": "read-from-code",
 			"feature": "livestream",
 			"featureConfidence": "high",
-			"note": "Without a livestream there is nothing to show a notice to viewers on.",
+			"note": "Without a livestream there is nothing to show a notice to viewers on. Decided no (build-all 2026-09-28): single competitor (iBabs), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (ibabs) and a changelog origin only).",
 			"notubiz": "unknown",
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
@@ -6870,7 +6870,7 @@
 			"originUrl": "https://support.ibabs.com/docs/na-de-uitzending.md",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "grep -rniE 'livestream|broadcast|viewer|watch' lib src: no viewing statistics; lib/Controller/AnalyticsController.php and MetricsController.php cover meeting efficiency and app metrics, not viewers",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -6879,7 +6879,7 @@
 			"providerHow": "read-from-code",
 			"feature": "livestream",
 			"featureConfidence": "high",
-			"note": "decidiq does not broadcast meetings, so it has no viewer counts or watch times.",
+			"note": "decidiq does not broadcast meetings, so it has no viewer counts or watch times. Decided no (build-all 2026-09-28): single competitor (iBabs), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (ibabs) and a changelog origin only, outside the core area; it also needs the livestream first).",
 			"notubiz": "unknown",
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
@@ -7055,7 +7055,7 @@
 			"originUrl": "https://github.com/OpenSlides/OpenSlides/issues/6963",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "lib/Service/VoteBallotFactory.php:104-105 one ballot per voter with a single value (for, against or abstain) and weight 1; grep -rniE 'split|multipleVotes|votesHeld' lib/Service/Vot*.php lib/Service/VoteBallotFactory.php: none",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -7064,7 +7064,7 @@
 			"providerHow": "read-from-code",
 			"feature": "voting",
 			"featureConfidence": "high",
-			"note": "Every ballot carries one choice with weight 1, so a member cannot spread several votes over different answers.",
+			"note": "Every ballot carries one choice with weight 1, so a member cannot spread several votes over different answers. Decided no (build-all 2026-09-28): no competitor rated yes, feature request without a competitor offering it, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (featureRequest demand (OpenSlides#6963) but no competitor rated yes).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -7084,7 +7084,7 @@
 			"originUrl": "https://github.com/OpenSlides/OpenSlides/issues/6766",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "grep -rniE 'bsi|certif' lib/Service/Vot*.php: none; voting runs inside decidiq (lib/Service/VoteCastingService.php) on the customer's Nextcloud with no certification claim in docs/compliance/",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -7093,7 +7093,7 @@
 			"providerHow": "read-from-code",
 			"feature": "voting",
 			"featureConfidence": "medium",
-			"note": "decidiq's voting is not certified by a national information security office and does not hand elections to a certified system.",
+			"note": "decidiq's voting is not certified by a national information security office and does not hand elections to a certified system. Decided no (build-all 2026-09-28): no competitor rated yes, feature request without a competitor offering it, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (featureRequest demand (OpenSlides#6766) but no competitor rated yes; the request itself calls certification a process still to start).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -7142,7 +7142,7 @@
 			"originUrl": "https://github.com/OpenSlides/OpenSlides/blob/4.3.4/CHANGELOG.md#L11",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "grep -rniE 'faction|fractie|timeBudget|speakingTime|allotted|countdown' src/components/liveMeeting src/views/LiveMeeting.vue: only src/components/liveMeeting/AgendaItemTimer.vue:7 counting down the agenda item's estimatedDuration; src/components/liveMeeting/SpeakerQueuePanel.vue times each speaker without a faction budget",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -7151,7 +7151,7 @@
 			"providerHow": "read-from-code",
 			"feature": "live-meeting",
 			"featureConfidence": "high",
-			"note": "The live meeting page counts down the time for the agenda item and times each speaker, but no faction has a speaking time budget.",
+			"note": "The live meeting page counts down the time for the agenda item and times each speaker, but no faction has a speaking time budget. Decided no (build-all 2026-09-28): single competitor (OpenSlides), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (openslides), no demand. Archived p2-meeting-management-other-t1 budgets time per agenda item, not per faction).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -7229,7 +7229,7 @@
 			"originUrl": "https://github.com/OpenSlides/OpenSlides/blob/4.3.4/CHANGELOG.md#L246",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "grep -rniE 'applause|clap|reaction|emoji' src/views/LiveMeeting.vue src/components/liveMeeting lib/Controller/LiveMeetingController.php: none",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -7238,7 +7238,7 @@
 			"providerHow": "read-from-code",
 			"feature": "live-meeting",
 			"featureConfidence": "high",
-			"note": "The live meeting page has no virtual applause.",
+			"note": "The live meeting page has no virtual applause. Decided no (build-all 2026-09-28): single competitor (OpenSlides), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (openslides), no demand).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -7258,7 +7258,7 @@
 			"originUrl": "https://github.com/OpenSlides/OpenSlides/blob/4.3.4/patchnotes/4.2.0.md#L25",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "grep -rniE 'ballot ?paper|stembiljet|print' src lib (vue, php, js): only unrelated 'prints' comments (src/integrations/CnApprovalChainTab.vue:285, lib/Repair/InitializeSettings.php:100)",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -7267,7 +7267,7 @@
 			"providerHow": "read-from-code",
 			"feature": "voting",
 			"featureConfidence": "high",
-			"note": "decidiq cannot print ballot papers for a vote on paper.",
+			"note": "decidiq cannot print ballot papers for a vote on paper. Decided no (build-all 2026-09-28): single competitor (OpenSlides), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (openslides), no demand).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -7345,7 +7345,7 @@
 			"originUrl": "https://github.com/OpenSlides/OpenSlides/blob/4.3.4/CHANGELOG.md#L29",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "grep -rniE 'duplicate|identical|similar' lib/Service/Motion*.php lib/Listener/*.php: only amendment-order and co-author version checks (lib/Service/MotionAmendmentService.php:209, lib/Service/MotionCoauthorService.php:425), no comparison between motions",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -7354,7 +7354,7 @@
 			"providerHow": "read-from-code",
 			"feature": "motions",
 			"featureConfidence": "high",
-			"note": "Motions with identical text are not flagged.",
+			"note": "Motions with identical text are not flagged. Decided no (build-all 2026-09-28): single competitor (OpenSlides), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (openslides), no demand).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -7527,7 +7527,7 @@
 			"originUrl": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/approval/creating-a-custom-approval-bwa.htm",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "lib/Settings/decidesk_register.json:398 Membership.independenceStatus is stored, and used only for the independence ratio in lib/Service/GovernanceReportingService.php:116; grep -rniE 'independent|independence' lib/Service/Voting*.php lib/Service/Quorum*.php: none, so no voting rule counts independent members",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -7536,7 +7536,7 @@
 			"providerHow": "read-from-code",
 			"feature": "voting",
 			"featureConfidence": "high",
-			"note": "Members can be marked independent, which feeds the governance report, but no vote can require a minimum number of votes from independent members.",
+			"note": "Members can be marked independent, which feeds the governance report, but no vote can require a minimum number of votes from independent members. Decided no (build-all 2026-09-28): single competitor (Diligent Boards), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (diligent-boards), no demand).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -7589,7 +7589,7 @@
 			"originUrl": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/user-management/granting-temporary-site-access-bwa.htm",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "grep -rniE 'support access|temporary access|supportAccess' lib src: none; decidiq runs on the customer's own Nextcloud (matrix row plt-06, appinfo/info.xml), so the supplier has no standing access to approve or refuse",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -7598,7 +7598,7 @@
 			"providerHow": "read-from-code",
 			"feature": "deployment",
 			"featureConfidence": "medium",
-			"note": "There is no flow to approve time-limited supplier support access. On a self-hosted install the supplier only gets in with an account the organisation creates, and ending it is a manual step.",
+			"note": "There is no flow to approve time-limited supplier support access. On a self-hosted install the supplier only gets in with an account the organisation creates, and ending it is a manual step. Decided no (build-all 2026-09-28): single competitor (Diligent Boards), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (diligent-boards), no demand; on a self-hosted install the supplier has no standing access).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -7651,7 +7651,7 @@
 			"originUrl": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/publieke_verantwoording/",
 			"decidiq": "no",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"evidence": "grep -rliE 'fractiebudget|factionBudget|expense|receipt|declaratie|bonnetje' lib src: only src/icons.js and gifts in src/manifest.d/interests-and-integrity.json; factions are GovernanceBodies with no budget (matrix row bod-06)",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -7660,7 +7660,7 @@
 			"providerHow": "read-from-code",
 			"feature": "factions",
 			"featureConfidence": "high",
-			"note": "decidiq keeps no faction budget, expense claims or receipts, so there is nothing to approve or publish.",
+			"note": "decidiq keeps no faction budget, expense claims or receipts, so there is nothing to approve or publish. Decided no (build-all 2026-09-28): single competitor (GO. Raadsinformatie), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (go-raadsinformatie), no demand).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "yes",

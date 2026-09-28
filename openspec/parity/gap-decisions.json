@@ -710,5 +710,189 @@
     "reason": "One competitor rated yes (diligent-boards), no demand.",
     "change": null,
     "decidedOn": "2026-09-27"
+  },
+  {
+    "row": "liv-12",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Single competitor (OpenSlides), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (openslides), no demand. Archived meeting-efficiency-v1 only pauses the item timer, which is built).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "mot-11",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Single competitor (iBabs), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (ibabs), no demand. The only spec of written questions, SchriftelijkeVraag, sits in fractievoorzitter-fractie-koppeling, which is marked superseded).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "mot-14",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "No competitor rated yes, no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (No competitor rated yes, no demand. Archived core-t3 anonymises votes, not motion text).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "pub-08",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "No competitor rated yes, no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (No competitor rated yes, no demand. decidiq minimises its own payloads; redacting documents would be filinq's).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "pub-12",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "No competitor rated yes, no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (No competitor rated yes, no demand. Archived publish-decisions-via-opencatalogi put an OAI-PMH harvester endpoint out of scope as an OpenConnector (integriq) follow-up).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "ins-09",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Single competitor (Diligent Boards), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (diligent-boards), no demand, outside the core area).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "ins-10",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Single competitor (Diligent Boards), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (diligent-boards), no demand, outside the core area).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "ins-11",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Single competitor (Diligent Boards), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (diligent-boards), no demand, outside the core area).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "ins-12",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Single competitor (Diligent Boards), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (diligent-boards), no demand, outside the core area).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "liv-15",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Single competitor (NotuBiz), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (notubiz) and a changelog origin only).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "liv-16",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Single competitor (NotuBiz), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (notubiz) and a changelog origin only; there is no recording player to switch).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "liv-17",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Single competitor (iBabs), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (ibabs) and a changelog origin only).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "liv-18",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Single competitor (iBabs), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (ibabs) and a changelog origin only).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "ins-16",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Single competitor (iBabs), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (ibabs) and a changelog origin only, outside the core area; it also needs the livestream first).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "vot-19",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "No competitor rated yes, feature request without a competitor offering it, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (featureRequest demand (OpenSlides#6963) but no competitor rated yes).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "vot-20",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "No competitor rated yes, feature request without a competitor offering it, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (featureRequest demand (OpenSlides#6766) but no competitor rated yes; the request itself calls certification a process still to start).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "liv-20",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Single competitor (OpenSlides), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (openslides), no demand. Archived p2-meeting-management-other-t1 budgets time per agenda item, not per faction).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "liv-21",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Single competitor (OpenSlides), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (openslides), no demand).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "vot-22",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Single competitor (OpenSlides), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (openslides), no demand).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "mot-21",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Single competitor (OpenSlides), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (openslides), no demand).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "vot-24",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Single competitor (Diligent Boards), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (diligent-boards), no demand).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "plt-30",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Single competitor (Diligent Boards), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (diligent-boards), no demand; on a self-hosted install the supplier has no standing access).",
+    "change": null,
+    "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "pub-21",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Single competitor (GO. Raadsinformatie), no demand, outside the core area (bodies, planning). Reversible: the 2026-09-27 pass deferred it (One competitor rated yes (go-raadsinformatie), no demand).",
+    "change": null,
+    "decidedOn": "2026-09-28"
   }
 ]
