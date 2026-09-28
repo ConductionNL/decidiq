@@ -6,7 +6,7 @@
  * minutes-in-unified-search). Reads decidiq's provider through Nextcloud's
  * OCS search API, the same call the search bar makes.
  *
- * @spec openspec/changes/minutes-in-unified-search/specs/nextcloud-integration/spec.md
+ * @spec openspec/specs/nextcloud-integration/spec.md
  */
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'

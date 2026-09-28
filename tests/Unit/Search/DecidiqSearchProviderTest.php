@@ -222,7 +222,7 @@ class DecidiqSearchProviderTest extends TestCase {
 	 * Minutes are searched, and a hit names Minutes, its lifecycle and its
 	 * approval date, opens the minutes page, and uses no em-dash.
 	 *
-	 * @spec openspec/changes/minutes-in-unified-search/specs/nextcloud-integration/spec.md#requirement-req-mus-001-minutes-appear-in-nextclouds-unified-search
+	 * @spec openspec/specs/nextcloud-integration/spec.md#requirement-req-mus-001-minutes-appear-in-nextclouds-unified-search
 	 *
 	 * @return void
 	 */
@@ -249,7 +249,7 @@ class DecidiqSearchProviderTest extends TestCase {
 	 * Every hit opens its detail page under the history router, never a
 	 * `#/` hash the router ignores, and no subline carries an em-dash.
 	 *
-	 * @spec openspec/changes/minutes-in-unified-search/specs/nextcloud-integration/spec.md#requirement-req-mus-001-minutes-appear-in-nextclouds-unified-search
+	 * @spec openspec/specs/nextcloud-integration/spec.md#requirement-req-mus-001-minutes-appear-in-nextclouds-unified-search
 	 *
 	 * @return void
 	 */
@@ -278,7 +278,7 @@ class DecidiqSearchProviderTest extends TestCase {
 	 * passes only its config, so findAll() keeps its default `_rbac = true` and
 	 * a searcher gets only what they may read.
 	 *
-	 * @spec openspec/changes/minutes-in-unified-search/specs/nextcloud-integration/spec.md#requirement-req-mus-002-search-shows-only-minutes-the-searcher-may-read
+	 * @spec openspec/specs/nextcloud-integration/spec.md#requirement-req-mus-002-search-shows-only-minutes-the-searcher-may-read
 	 *
 	 * @return void
 	 */
