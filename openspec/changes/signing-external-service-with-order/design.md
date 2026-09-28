@@ -10,6 +10,12 @@ Read at decidiq development `759d044c`.
 | Signers | `src/components/tabs/MinutesSignersTab.vue` |
 | Connections | `lib/Settings/connections.json:14-19` eidas reportedOnly |
 
+## Found while building task 1 (fix/eidas-integriq-source-lookup)
+
+- integriq has no `Db\SourceMapper`: its sources are OpenRegister objects (register `integriq`, schema `source`), found by slug through ObjectService, as integriq's own `ConnectionStore::findSourceBySlug()` does. Both lookups (eidas-qes and docudesk-signing) now go that way.
+- `CallService::call()` returns the call log as an OpenRegister object whose data holds `response.body`; decidiq read `getResponse()`, which that object does not have, so every answer would have decoded as empty. The body is now read from `getObject()['response']['body']`, with `getResponse()` kept as a fallback.
+- For task 2: `finalizeMinutes()` writes `pdfArchiveReference`, `hashSha256`, `signingCompletionDate`, `eidasSignatureLevel` and `version` onto the minutes, and the Minutes schema declares only `signedBy`. Task 2 has to declare them (or a signing record) before a signed copy can be stored back.
+
 ## Approach
 
 1. Read integriq development for the call service it ships today and use it; a test against the real integriq interface name.

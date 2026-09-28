@@ -3,7 +3,11 @@
 /**
  * Unit tests for EIDASSignatureService (openconnector-delegating QES adapter).
  *
- * The tests stub openconnector's CallService + SourceMapper via the DI container
+ * The tests wire integriq the way a real instance has it: sources are
+ * OpenRegister objects found by slug, and the call log is an ObjectEntity.
+ * They were written against an openconnector SourceMapper that no current
+ * instance has, so the service never resolved in production (EIDAS defect).
+ * Original note: the tests stub the CallService via the DI container
  * to verify each delegated method's success / failure surface without requiring
  * the real openconnector app at test time.
  *
@@ -29,6 +33,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\EIDASSignatureService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -41,126 +46,76 @@ use Psr\Log\LoggerInterface;
 class EIDASSignatureServiceTest extends TestCase {
 
 	/**
-	 * Build a service wired to a programmable openconnector stub. The
-	 * openconnector::CallService::call() response is built from $responseBody
-	 * to validate the JSON-decoding path.
+	 * Build a service wired the way integriq is on a real instance.
 	 *
-	 * @param array<string, mixed> $responseBody Body the stubbed source returns
-	 * @param object|null $sourceObject What SourceMapper::findBySlug returns
+	 * integriq keeps its sources as OpenRegister objects (register `integriq`,
+	 * schema `source`), found by slug through ObjectService; there is no
+	 * `Db\SourceMapper` under any namespace, so the container here answers
+	 * only the CallService. `CallService::call()` returns the call log as an
+	 * ObjectEntity whose object holds `response.body`, which is what the
+	 * double returns.
+	 *
+	 * @param array<string, mixed> $responseBody Body the source answers with
+	 * @param object|null          $sourceObject Non-null when the `eidas-qes` source is configured
 	 *
 	 * @return EIDASSignatureService
 	 */
 	private function makeService(array $responseBody, ?object $sourceObject = null): EIDASSignatureService {
-		$sourceMapper = new class($sourceObject) {
+		$callLog = new ObjectEntity();
+		$callLog->setUuid('call-log-1');
+		$callLog->setObject(['response' => ['statusCode' => 200, 'body' => json_encode($responseBody)]]);
 
-			/**
-			 * Backing source object the test wants returned.
-			 *
-			 * @var object|null
-			 */
-			private ?object $source;
-
+		$callService = new class($callLog) {
 			/**
 			 * Constructor.
 			 *
-			 * @param object|null $source The source double or null
+			 * @param ObjectEntity $result The call log returned from call()
 			 */
-			public function __construct(?object $source) {
-				$this->source = $source;
+			public function __construct(private readonly ObjectEntity $result) {
 			}
 
 			/**
-			 * Mirror openconnector's SourceMapper::findBySlug shape.
+			 * The shape of integriq's CallService::call(): a source object in,
+			 * the call log out.
 			 *
-			 * @param string $slug Source slug
+			 * @param ObjectEntity         $source   The source object
+			 * @param string               $endpoint Endpoint path
+			 * @param string               $method   HTTP method
+			 * @param array<string, mixed> $config   Call config
 			 *
-			 * @return object|null
+			 * @return ObjectEntity
 			 */
-			public function findBySlug(string $slug): ?object {
-				if ($slug === EIDASSignatureService::ESIGN_SOURCE_SLUG) {
-					return $this->source;
-				}
-
-				return null;
-			}
-
-		};
-
-		$callResult = new class($responseBody) {
-
-			/**
-			 * JSON body returned via getResponse().
-			 *
-			 * @var array<string, mixed>
-			 */
-			private array $body;
-
-			/**
-			 * Constructor.
-			 *
-			 * @param array<string, mixed> $body Response body
-			 */
-			public function __construct(array $body) {
-				$this->body = $body;
-			}
-
-			/**
-			 * Mirror openconnector CallLog::getResponse shape.
-			 *
-			 * @return array<string, mixed>
-			 */
-			public function getResponse(): array {
-				return ['body' => json_encode($this->body)];
-			}
-
-		};
-
-		$callService = new class($callResult) {
-
-			/**
-			 * The fixed CallLog double returned from call().
-			 *
-			 * @var object
-			 */
-			private object $result;
-
-			/**
-			 * Constructor.
-			 *
-			 * @param object $result Pre-baked CallLog double
-			 */
-			public function __construct(object $result) {
-				$this->result = $result;
-			}
-
-			/**
-			 * Mirror openconnector CallService::call shape.
-			 *
-			 * @param object $source Source row
-			 * @param string $endpoint Endpoint path
-			 * @param string $method HTTP method
-			 * @param array<string, mixed> $config Call config
-			 *
-			 * @return object
-			 */
-			public function call(object $source, string $endpoint, string $method, array $config): object {
+			public function call(ObjectEntity $source, string $endpoint = '', string $method = 'GET', array $config = []): ObjectEntity {
 				return $this->result;
 			}
-
 		};
 
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
-			function (string $id) use ($callService, $sourceMapper) {
-				if ($id === 'OCA\\OpenConnector\\Service\\CallService') {
+			function (string $id) use ($callService) {
+				if ($id === 'OCA\\Integriq\\Service\\CallService') {
 					return $callService;
 				}
 
-				if ($id === 'OCA\\OpenConnector\\Db\\SourceMapper') {
-					return $sourceMapper;
+				throw new \RuntimeException('Service ' . $id . ' is not registered');
+			}
+		);
+
+		$source = new ObjectEntity();
+		$source->setUuid('source-1');
+		$source->setObject(['slug' => EIDASSignatureService::ESIGN_SOURCE_SLUG, 'location' => 'https://sign.example.org']);
+
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('findAll')->willReturnCallback(
+			static function (array $config) use ($source, $sourceObject): array {
+				$filters = ($config['filters'] ?? []);
+				if (($filters['register'] ?? '') === 'integriq' && ($filters['schema'] ?? '') === 'source'
+					&& ($filters['slug'] ?? '') === EIDASSignatureService::ESIGN_SOURCE_SLUG && $sourceObject !== null
+				) {
+					return [$source];
 				}
 
-				return null;
+				return [];
 			}
 		);
 
@@ -168,9 +123,7 @@ class EIDASSignatureServiceTest extends TestCase {
 		$audit = $this->createMock(AuditLogService::class);
 		$audit->method('append')->willReturn(['success' => true, 'entry' => [], 'message' => 'ok']);
 
-		return new EIDASSignatureService(container: $container, logger: $logger, auditLogService: $audit,
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		);
+		return new EIDASSignatureService(container: $container, logger: $logger, auditLogService: $audit, objectService: $objectService);
 	}//end makeService()
 
 	/**
