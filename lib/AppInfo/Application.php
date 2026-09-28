@@ -26,6 +26,7 @@ namespace OCA\Decidiq\AppInfo;
 use OCA\Decidiq\AppInfo\Registrar\AppHostRegistrar;
 use OCA\Decidiq\AppInfo\Registrar\CrossAppEventRegistrar;
 use OCA\Decidiq\AppInfo\Registrar\DomainServiceRegistrar;
+use OCA\Decidiq\AppInfo\Registrar\FlowNodeRegistrar;
 use OCA\Decidiq\AppInfo\Registrar\IntegrationLeafRegistrar;
 use OCA\Decidiq\AppInfo\Registrar\ObjectListenerRegistrar;
 use OCA\Decidiq\AppInfo\Registrar\OpenRegisterContractRegistrar;
@@ -163,6 +164,12 @@ class Application extends App implements IBootstrap {
 		// @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-008-the-decidesk-decisions-leaf-is-declared-on-both-layers
 		// IntegrationLeafRegistrar owns that server-side registration.
 		(new IntegrationLeafRegistrar())->register(context: $context);
+
+		// OpenRegister flow engine (ADR-065): contribute `decidiq.request-decision`
+		// and wake a run when the decision it asked for concludes. Guarded on the
+		// engine's RegisterFlowNodesEvent, so decidiq boots without OpenRegister.
+		// @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
+		(new FlowNodeRegistrar())->register(context: $context);
 
 	}//end register()
 
