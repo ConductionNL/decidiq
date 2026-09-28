@@ -59,6 +59,18 @@ class DecidiqSearchProvider implements IProvider {
 	private const SCHEMAS = [
 		'decision' => 'decisions',
 		'meeting' => 'meetings',
+		'minutes' => 'minutes',
+	];
+
+	/**
+	 * The date each schema shows on its subline.
+	 *
+	 * @var array<string, string>
+	 */
+	private const SUBLINE_DATE = [
+		'decision' => 'decisionDate',
+		'meeting' => 'scheduledDate',
+		'minutes' => 'approvedAt',
 	];
 
 	/**
@@ -165,10 +177,14 @@ class DecidiqSearchProvider implements IProvider {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
 			foreach (self::SCHEMAS as $schema => $segment) {
+				// Register and schema go in 'filters': ObjectService::findAll()
+				// sets its context from there only, and top-level keys were
+				// silently ignored, so no schema was ever searched. The call
+				// keeps OpenRegister's RBAC on (its default), so a searcher only
+				// gets objects they may read.
 				$rows = $objectService->findAll(
 					[
-						'register' => 'decidiq',
-						'schema' => $schema,
+						'filters' => ['register' => 'decidiq', 'schema' => $schema],
 						'search' => $term,
 						'limit' => self::LIMIT_PER_SCHEMA,
 					]
@@ -225,11 +241,19 @@ class DecidiqSearchProvider implements IProvider {
 			$sublineParts[] = $status;
 		}
 
+		// The date part only (Y-m-d) of the schema's own date, when it has one.
+		$date = (string)($row[self::SUBLINE_DATE[$schema] ?? ''] ?? '');
+		if ($date !== '') {
+			$sublineParts[] = substr($date, 0, 10);
+		}
+
 		return new SearchResultEntry(
 			$this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg'),
 			$title,
-			implode(' — ', $sublineParts),
-			$this->urlGenerator->linkToRoute('decidiq.dashboard.page') . '#/' . $segment . '/' . $uuid,
+			implode(' · ', $sublineParts),
+			// The app router is a history router (src/main.js createWebHistory),
+			// so the detail page is a path, not a `#/` hash it would ignore.
+			rtrim($this->urlGenerator->linkToRoute('decidiq.dashboard.page'), '/') . '/' . $segment . '/' . rawurlencode($uuid),
 			'icon-decidiq',
 			true
 		);
@@ -249,6 +273,7 @@ class DecidiqSearchProvider implements IProvider {
 		return match ($schema) {
 			'decision' => $this->l10n->t('Decision'),
 			'meeting' => $this->l10n->t('Meeting'),
+			'minutes' => $this->l10n->t('Minutes'),
 			default => $schema,
 		};
 

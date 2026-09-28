@@ -40,6 +40,13 @@ use Psr\Log\LoggerInterface;
 class DecidiqSearchProviderTest extends TestCase {
 
 	/**
+	 * The object-service double the last makeProvider() built.
+	 *
+	 * @var object|null
+	 */
+	private ?object $lastObjectService = null;
+
+	/**
 	 * Build the provider over a schema-routed fake ObjectService.
 	 *
 	 * @param array<string, array<int, array<string, mixed>>> $rowsBySchema schema → rows
@@ -65,11 +72,29 @@ class DecidiqSearchProviderTest extends TestCase {
 			 *
 			 * @return array<int, array<string, mixed>>
 			 */
+			/**
+			 * Argument counts of every findAll() call.
+			 *
+			 * @var array<int, int>
+			 */
+			public array $argCounts = [];
+
 			public function findAll(array $config = []): array {
-				return ($this->rowsBySchema[$config['schema'] ?? ''] ?? []);
+				$this->argCounts[] = func_num_args();
+				// OpenRegister's ObjectService::findAll() reads the register and
+				// schema ONLY from $config['filters'] (prepareFindAllConfig());
+				// top-level 'register'/'schema' keys are ignored. The double
+				// answers the same way, or it would pass a query the real
+				// service runs against no schema at all.
+				if (($config['filters']['register'] ?? null) !== 'decidiq') {
+					return [];
+				}
+
+				return ($this->rowsBySchema[$config['filters']['schema'] ?? ''] ?? []);
 			}//end findAll()
 		};
 
+		$this->lastObjectService = $objectService;
 		$container = $this->createMock(ContainerInterface::class);
 		if ($broken === true) {
 			$container->method('get')->willThrowException(new \RuntimeException('OR missing'));
@@ -192,4 +217,76 @@ class DecidiqSearchProviderTest extends TestCase {
 		self::assertSame(expected: [], actual: $result->jsonSerialize()['entries']);
 
 	}//end testFailsSoftOnBrokenRegister()
+
+	/**
+	 * Minutes are searched, and a hit names Minutes, its lifecycle and its
+	 * approval date, opens the minutes page, and uses no em-dash.
+	 *
+	 * @spec openspec/changes/minutes-in-unified-search/specs/nextcloud-integration/spec.md#requirement-req-mus-001-minutes-appear-in-nextclouds-unified-search
+	 *
+	 * @return void
+	 */
+	public function testMinutesAreFoundAndOpenTheMinutesPage(): void {
+		$provider = $this->makeProvider(
+			rowsBySchema: [
+				'minutes' => [
+					['id' => 'min-1', 'title' => 'Notulen raad 14 oktober', 'lifecycle' => 'approved', 'approvedAt' => '2026-11-01T10:00:00+00:00'],
+				],
+			]
+		);
+
+		$entries = $provider->search($this->createMock(IUser::class), $this->query('woningbouw'))->jsonSerialize()['entries'];
+
+		self::assertCount(1, $entries);
+		$entry = $entries[0]->jsonSerialize();
+		self::assertSame('Notulen raad 14 oktober', $entry['title']);
+		self::assertSame('Minutes · approved · 2026-11-01', $entry['subline']);
+		self::assertSame('/apps/decidiq/minutes/min-1', $entry['resourceUrl']);
+
+	}//end testMinutesAreFoundAndOpenTheMinutesPage()
+
+	/**
+	 * Every hit opens its detail page under the history router, never a
+	 * `#/` hash the router ignores, and no subline carries an em-dash.
+	 *
+	 * @spec openspec/changes/minutes-in-unified-search/specs/nextcloud-integration/spec.md#requirement-req-mus-001-minutes-appear-in-nextclouds-unified-search
+	 *
+	 * @return void
+	 */
+	public function testEveryHitOpensItsPageWithoutAnEmDash(): void {
+		$provider = $this->makeProvider(
+			rowsBySchema: [
+				'decision' => [['id' => 'd-1', 'title' => 'Budget 2026', 'lifecycle' => 'enacted', 'decisionDate' => '2026-06-01']],
+				'meeting' => [['id' => 'm-1', 'title' => 'Raad', 'lifecycle' => 'scheduled', 'scheduledDate' => '2026-10-14T19:30:00Z']],
+			]
+		);
+
+		$entries = $provider->search($this->createMock(IUser::class), $this->query('raad'))->jsonSerialize()['entries'];
+		$urls = [];
+		foreach ($entries as $entry) {
+			$data = $entry->jsonSerialize();
+			$urls[] = $data['resourceUrl'];
+			self::assertStringNotContainsString('—', $data['subline']);
+		}
+
+		self::assertSame(['/apps/decidiq/decisions/d-1', '/apps/decidiq/meetings/m-1'], $urls);
+
+	}//end testEveryHitOpensItsPageWithoutAnEmDash()
+
+	/**
+	 * The provider never switches OpenRegister's read rules off: every query
+	 * passes only its config, so findAll() keeps its default `_rbac = true` and
+	 * a searcher gets only what they may read.
+	 *
+	 * @spec openspec/changes/minutes-in-unified-search/specs/nextcloud-integration/spec.md#requirement-req-mus-002-search-shows-only-minutes-the-searcher-may-read
+	 *
+	 * @return void
+	 */
+	public function testSearchKeepsOpenRegisterReadRules(): void {
+		$provider = $this->makeProvider(rowsBySchema: []);
+		$provider->search($this->createMock(IUser::class), $this->query('woningbouw'));
+
+		self::assertSame([1, 1, 1], $this->lastObjectService->argCounts, 'one findAll per schema, config only, RBAC left on');
+
+	}//end testSearchKeepsOpenRegisterReadRules()
 }//end class
