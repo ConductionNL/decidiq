@@ -29,6 +29,20 @@ parameters:
         # phpunit bootstrap uses instead of muting it — this analyses the contract
         # for real rather than suppressing it.
         - tests/Stubs/Mcp/IMcpToolProvider.php
+        # OpenRegister's flow engine (flow-request-decision-node): decidiq's
+        # request-decision node implements IFlowNode, so the same reason applies.
+        - tests/Stubs/Service/Flow/IFlowNode.php
+        - tests/Stubs/Service/Flow/IFlowNodeConfigKeys.php
+        - tests/Stubs/Service/Flow/FlowNodeRegistry.php
+        - tests/Stubs/Service/Flow/RegisterFlowNodesEvent.php
+        - tests/Stubs/Service/Flow/FlowResumeState.php
+        - tests/Stubs/Service/Flow/FlowNodeResumeState.php
+        - tests/Stubs/Service/Flow/FlowSuspension.php
+        - tests/Stubs/Service/Flow/FlowRunService.php
+        - tests/Stubs/Service/Flow/FlowRunSignalService.php
+        - tests/Stubs/Db/FlowRun.php
+        - tests/Stubs/Db/FlowRunMapper.php
+        - tests/Stubs/Exception/FlowSignalRefused.php
 
     # ignoreErrors: none app-local. Removed 2026-09-11 after
     # `reportUnmatchedIgnoredErrors: true` showed both matched nothing:
