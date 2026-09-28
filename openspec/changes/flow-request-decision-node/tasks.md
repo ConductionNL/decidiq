@@ -25,7 +25,7 @@
 
 ### Task 4: Guarded registration
 - **spec_ref**: `.../spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node`
-- **files**: `lib/Flow/DecidiqFlowNodeListener.php`, `lib/AppInfo/Registrar/FlowNodeRegistrar.php`, `lib/AppInfo/Application.php`
+- **files**: `lib/Flow/DecidiqFlowNodeListener.php`, `lib/AppInfo/Registrar/FlowNodeRegistrar.php`, `lib/AppInfo/Registrar/CrossAppEventRegistrar.php`
 - [x] Implement
 - [x] Test (`tests/Unit/Flow/DecidiqFlowNodeListenerTest.php`, `tests/Unit/AppInfo/FlowNodeRegistrarTest.php`)
 

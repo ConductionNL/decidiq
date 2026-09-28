@@ -67,7 +67,7 @@ not a run was listening, and the heartbeat recovers the run.
 
 ### D5. Guarded registration
 
-`FlowNodeRegistrar` runs from `Application::register()`. It calls
+`FlowNodeRegistrar` runs from `Application::register()` by way of `CrossAppEventRegistrar` (calling it from `Application` directly pushed that class to phpmd's coupling limit). It calls
 `OpenRegisterAutoloader::register()` (OpenRegister sorts after decidiq, so its
 classes are not autoloadable yet during register) and registers the node
 listener and the conclusion listener only when

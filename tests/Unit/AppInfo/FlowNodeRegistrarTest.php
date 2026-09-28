@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\AppInfo;
 
+use OCA\Decidiq\AppInfo\Registrar\CrossAppEventRegistrar;
 use OCA\Decidiq\AppInfo\Registrar\FlowNodeRegistrar;
 use OCA\Decidiq\Event\DecisionConcludedEvent;
 use OCA\Decidiq\Flow\DecidiqFlowNodeListener;
@@ -31,10 +32,10 @@ use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use PHPUnit\Framework\TestCase;
 
 /**
- * The wiring is asserted from the CALLER: what Application::register() hands
- * the registration context. Application.php itself is excluded from unit
- * coverage (it extends the server's App), so the source check below pins that
- * it calls this registrar.
+ * The wiring is asserted from the CALLER: what CrossAppEventRegistrar, which
+ * Application::register() calls, hands the registration context.
+ * Application.php itself is excluded from unit coverage (it extends the
+ * server's App), so a source check pins that it calls that registrar.
  *
  * @covers \OCA\Decidiq\AppInfo\Registrar\FlowNodeRegistrar
  *
@@ -80,9 +81,21 @@ class FlowNodeRegistrarTest extends TestCase {
 		);
 	}//end testWithoutTheEngineNothingIsRegisteredAndNothingThrows()
 
-	public function testTheApplicationCallsTheRegistrar(): void {
-		$source = (string)file_get_contents(__DIR__ . '/../../../lib/AppInfo/Application.php');
+	public function testTheCrossAppRegistrarCallsItFromTheApplication(): void {
+		$registered = [];
+		$context = $this->createMock(IRegistrationContext::class);
+		$context->method('registerEventListener')->willReturnCallback(
+			static function (string $event, string $listener) use (&$registered): void {
+				$registered[] = [$event, $listener];
+			}
+		);
 
-		self::assertStringContainsString('(new FlowNodeRegistrar())->register(context: $context);', $source);
-	}//end testTheApplicationCallsTheRegistrar()
+		(new CrossAppEventRegistrar())->register(context: $context);
+
+		self::assertContains([RegisterFlowNodesEvent::class, DecidiqFlowNodeListener::class], $registered);
+		self::assertContains([DecisionConcludedEvent::class, FlowDecisionConcludedListener::class], $registered);
+
+		$application = (string)file_get_contents(__DIR__ . '/../../../lib/AppInfo/Application.php');
+		self::assertStringContainsString('(new CrossAppEventRegistrar())->register(context: $context);', $application);
+	}//end testTheCrossAppRegistrarCallsItFromTheApplication()
 }//end class
