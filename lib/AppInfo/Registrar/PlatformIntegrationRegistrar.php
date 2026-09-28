@@ -42,7 +42,6 @@ use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IURLGenerator;
 use OCP\L10N\IFactory;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
