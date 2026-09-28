@@ -5,7 +5,7 @@ status: superseded
 superseded-by: bodies-substitute-mandate-swap, generic-body-configuration
 ---
 
-> **ARCHIVED UNBUILT (2026-09-28, issue #1420).** This change adds eight committee schemas, including an agenda item schema beside AgendaItem. A committee is a governance body with its own meetings on the current model (`generic-body-configuration`), and none of its 65 tasks was started. Committee substitutes (bod-18) are built by `bodies-substitute-mandate-swap`. Its spec deltas were not synced into `openspec/specs/`.
+> **ARCHIVED UNBUILT (2026-09-28, issue #1420).** This change adds eight committee schemas, including an agenda item schema beside AgendaItem. A committee is a governance body with its own meetings on the current model (`generic-body-configuration`), and none of its 65 tasks was started. Committee substitutes (bod-18) belong to `bodies-substitute-mandate-swap`. Its spec deltas were not synced into `openspec/specs/`.
 
 # Commissievergaderingen
 
