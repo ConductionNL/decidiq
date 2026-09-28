@@ -343,7 +343,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	/**
 	 * The identity the read back is scoped to: the one that raised it.
 	 *
-	 * decidiq stamps a decision's owner from the uid that saved it, so reading
+	 * Decidiq stamps a decision's owner from the uid that saved it, so reading
 	 * as anybody else is refused. The run's current identity is the fallback
 	 * for a slot that recorded none.
 	 *

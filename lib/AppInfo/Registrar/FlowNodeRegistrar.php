@@ -43,8 +43,8 @@ class FlowNodeRegistrar {
 	/**
 	 * Constructor.
 	 *
-	 * @param string $engineEvent The engine's node-registration event; its
-	 *                            existence is the guard. A parameter so a test
+	 * @param string $engineEvent The class whose existence is the guard: the
+	 *                            engine's node-registration event. A parameter so a test
 	 *                            can name an absent class and prove the guard.
 	 *
 	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
@@ -81,7 +81,7 @@ class FlowNodeRegistrar {
 			return;
 		}
 
-		$context->registerEventListener(event: $this->engineEvent, listener: DecidiqFlowNodeListener::class);
+		$context->registerEventListener(event: RegisterFlowNodesEvent::class, listener: DecidiqFlowNodeListener::class);
 		$context->registerEventListener(event: DecisionConcludedEvent::class, listener: FlowDecisionConcludedListener::class);
 	}//end register()
 }//end class

@@ -80,6 +80,32 @@
         -->
         <file name="tests/Stubs/Integriq/Event/ConnectionStatusReportedEvent.php" />
         <file name="tests/Stubs/Integriq/Event/ConnectionRefreshRequestedEvent.php" />
+        <!--
+            OpenRegister's flow engine (flow-request-decision-node). decidiq
+            contributes a node to it and wakes a run through its signal seam.
+            The value classes the node drives are verbatim copies of
+            openregister development; the services are declaration stubs.
+            Stubs, not referencedClass suppressions, so the node's calls into
+            the engine stay type-checked.
+
+            preloadClasses is load-bearing. Without it psalm reads the node,
+            which implements the stubbed IFlowNode, as never analysed once the
+            listener names it: every private method and property came back
+            "unused" (measured 2026-09-28, 17 false errors). Preloaded, the
+            node is analysed like any other class.
+        -->
+        <file name="tests/Stubs/Service/Flow/IFlowNode.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/IFlowNodeConfigKeys.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/FlowNodeRegistry.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/RegisterFlowNodesEvent.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/FlowResumeState.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/FlowNodeResumeState.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/FlowSuspension.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/FlowRunService.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/FlowRunSignalService.php" preloadClasses="true" />
+        <file name="tests/Stubs/Db/FlowRun.php" preloadClasses="true" />
+        <file name="tests/Stubs/Db/FlowRunMapper.php" preloadClasses="true" />
+        <file name="tests/Stubs/Exception/FlowSignalRefused.php" preloadClasses="true" />
     </stubs>
     <issueHandlers>
         <!--
