@@ -7,7 +7,7 @@
  * itself: GET /api/meetings/{meetingId}/voting-permissions answers through the
  * same VotingRoundGuard the endpoints enforce.
  *
- * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-001-the-meetings-chair-and-secretary-see-the-voting-controls
+ * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-001-the-meetings-chair-and-secretary-see-the-voting-controls
  */
 
 /** Every control hidden: the state before the answer arrives, and after an error. */
@@ -26,7 +26,7 @@ export const NO_VOTING_PERMISSIONS = Object.freeze({
  *
  * @return {string} The path to pass to generateUrl().
  *
- * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
+ * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
  */
 export function votingPermissionsPath(meetingId) {
 	if (!meetingId) return '/apps/decidiq/api/voting-permissions'
@@ -41,7 +41,7 @@ export function votingPermissionsPath(meetingId) {
  *
  * @return {{canOpen: boolean, canClose: boolean, canEnterTally: boolean, canCastChairVote: boolean}} The permissions.
  *
- * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
+ * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
  */
 export function readVotingPermissions(payload) {
 	const out = { ...NO_VOTING_PERMISSIONS }
@@ -59,7 +59,7 @@ export function readVotingPermissions(payload) {
  *
  * @return {{motionId: string, subjectType: string, meetingId: string}} The body fields.
  *
- * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-004-a-chair-opens-and-closes-a-vote-on-an-amendment-from-the-amendment-page
+ * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-004-a-chair-opens-and-closes-a-vote-on-an-amendment-from-the-amendment-page
  */
 export function votingRoundBody({ subjectId, subjectType, meetingId }) {
 	return {
@@ -76,7 +76,7 @@ export function votingRoundBody({ subjectId, subjectType, meetingId }) {
  *
  * @return {string} The id, or ''.
  *
- * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-004-a-chair-opens-and-closes-a-vote-on-an-amendment-from-the-amendment-page
+ * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-004-a-chair-opens-and-closes-a-vote-on-an-amendment-from-the-amendment-page
  */
 function referenceId(ref) {
 	if (!ref) return ''
@@ -92,7 +92,7 @@ function referenceId(ref) {
  *
  * @return {string} The parent motion id, or ''.
  *
- * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-004-a-chair-opens-and-closes-a-vote-on-an-amendment-from-the-amendment-page
+ * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-004-a-chair-opens-and-closes-a-vote-on-an-amendment-from-the-amendment-page
  */
 export function parentMotionIdOf(amendment) {
 	return referenceId(amendment?.amends ?? amendment?.parentMotion)
@@ -105,7 +105,7 @@ export function parentMotionIdOf(amendment) {
  *
  * @return {string} The meeting id, or ''.
  *
- * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-004-a-chair-opens-and-closes-a-vote-on-an-amendment-from-the-amendment-page
+ * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-004-a-chair-opens-and-closes-a-vote-on-an-amendment-from-the-amendment-page
  */
 export function meetingIdOf(decision) {
 	return referenceId(decision?.meeting)

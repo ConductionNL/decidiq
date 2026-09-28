@@ -4,7 +4,7 @@
 // The voting round panel takes its controls from the server's answer
 // (voting-chair-close-and-amendment-rounds, REQ-VCR-001 and REQ-VCR-004).
 //
-// @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-001-the-meetings-chair-and-secretary-see-the-voting-controls
+// @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-001-the-meetings-chair-and-secretary-see-the-voting-controls
 
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'

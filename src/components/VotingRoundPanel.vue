@@ -635,7 +635,7 @@ export default {
 		 * Chair or secretary of this round's meeting, as the server answers it.
 		 *
 		 * @return {boolean} True when the close, split, revote and publish controls show.
-		 * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-001-the-meetings-chair-and-secretary-see-the-voting-controls
+		 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-001-the-meetings-chair-and-secretary-see-the-voting-controls
 		 */
 		isChairOrSecretary() {
 			return this.permissions.canClose
@@ -724,7 +724,7 @@ export default {
 	},
 
 	watch: {
-		/** @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-001-the-meetings-chair-and-secretary-see-the-voting-controls */
+		/** @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-001-the-meetings-chair-and-secretary-see-the-voting-controls */
 		meetingId() {
 			this.loadPermissions()
 		},
@@ -767,7 +767,7 @@ export default {
 		 * Ask the server once per meeting which voting controls this user may
 		 * use. Fail closed: an error leaves every control hidden.
 		 *
-		 * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
+		 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
 		 */
 		async loadPermissions() {
 			try {

@@ -52,7 +52,7 @@ use Psr\Log\NullLogger;
  * participant lookup is replaced. Meetings: M has chair1 (chair), griffier1
  * (secretary) and member1 (member); N has griffier2 (secretary).
  *
- * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md
+ * @spec openspec/specs/voting-round-management/spec.md
  */
 class VotingPermissionsTest extends TestCase {
 
@@ -170,7 +170,7 @@ class VotingPermissionsTest extends TestCase {
 	/**
 	 * The chair may use every control.
 	 *
-	 * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
+	 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
 	 *
 	 * @return void
 	 */
@@ -188,7 +188,7 @@ class VotingPermissionsTest extends TestCase {
 	/**
 	 * A secretary may close but may not cast the chair's vote.
 	 *
-	 * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
+	 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
 	 *
 	 * @return void
 	 */
@@ -207,7 +207,7 @@ class VotingPermissionsTest extends TestCase {
 	 * an unknown meeting get four false values and a 200: the per-meeting guard
 	 * has no admin fallback, so the page must not offer admins what close() refuses.
 	 *
-	 * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
+	 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
 	 *
 	 * @return void
 	 */
@@ -224,7 +224,7 @@ class VotingPermissionsTest extends TestCase {
 	/**
 	 * Without a meeting the global fallback answers: an admin keeps every control.
 	 *
-	 * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-001-the-meetings-chair-and-secretary-see-the-voting-controls
+	 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-001-the-meetings-chair-and-secretary-see-the-voting-controls
 	 *
 	 * @return void
 	 */
@@ -243,7 +243,7 @@ class VotingPermissionsTest extends TestCase {
 	/**
 	 * Anonymous callers get 401 from both reads.
 	 *
-	 * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
+	 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
 	 *
 	 * @return void
 	 */
@@ -256,7 +256,7 @@ class VotingPermissionsTest extends TestCase {
 	/**
 	 * A secretary of the round's meeting who is not an admin enters a tally.
 	 *
-	 * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-003-tally-entry-and-publication-check-the-role-in-the-rounds-own-meeting
+	 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-003-tally-entry-and-publication-check-the-role-in-the-rounds-own-meeting
 	 *
 	 * @return void
 	 */
@@ -273,7 +273,7 @@ class VotingPermissionsTest extends TestCase {
 	 * The secretary of another meeting is refused on tally and publish, and
 	 * nothing is saved or published.
 	 *
-	 * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-003-tally-entry-and-publication-check-the-role-in-the-rounds-own-meeting
+	 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-003-tally-entry-and-publication-check-the-role-in-the-rounds-own-meeting
 	 *
 	 * @return void
 	 */
@@ -289,7 +289,7 @@ class VotingPermissionsTest extends TestCase {
 	/**
 	 * A round with no resolvable meeting still falls back to the global check.
 	 *
-	 * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-003-tally-entry-and-publication-check-the-role-in-the-rounds-own-meeting
+	 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-003-tally-entry-and-publication-check-the-role-in-the-rounds-own-meeting
 	 *
 	 * @return void
 	 */
@@ -304,7 +304,7 @@ class VotingPermissionsTest extends TestCase {
 	/**
 	 * Both reads carry #[NoAdminRequired], or no member could ever ask.
 	 *
-	 * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
+	 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
 	 *
 	 * @return void
 	 */

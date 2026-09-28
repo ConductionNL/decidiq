@@ -56,7 +56,7 @@ export default {
 		 * passes it, else the route id the page was resolved from.
 		 *
 		 * @return {string} The amendment (Decision) UUID, or ''.
-		 * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-004-a-chair-opens-and-closes-a-vote-on-an-amendment-from-the-amendment-page
+		 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-004-a-chair-opens-and-closes-a-vote-on-an-amendment-from-the-amendment-page
 		 */
 		amendmentId() {
 			return String(this.objectId || this.$route?.params?.id || '')
@@ -66,7 +66,7 @@ export default {
 	watch: {
 		amendmentId: {
 			immediate: true,
-			/** @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-004-a-chair-opens-and-closes-a-vote-on-an-amendment-from-the-amendment-page */
+			/** @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-004-a-chair-opens-and-closes-a-vote-on-an-amendment-from-the-amendment-page */
 			handler() {
 				this.refresh()
 			},
@@ -77,7 +77,7 @@ export default {
 		/**
 		 * Read the amendment's lifecycle and its parent motion's meeting.
 		 *
-		 * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md#requirement-req-vcr-004-a-chair-opens-and-closes-a-vote-on-an-amendment-from-the-amendment-page
+		 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-004-a-chair-opens-and-closes-a-vote-on-an-amendment-from-the-amendment-page
 		 */
 		async refresh() {
 			if (!this.amendmentId) return

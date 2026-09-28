@@ -11,7 +11,7 @@
  * (secretary); motion "Groen dak" in M with amendments A1 (order 1) and A2
  * (order 2); a motion without a meeting with one amendment.
  *
- * @spec openspec/changes/voting-chair-close-and-amendment-rounds/specs/voting-round-management/spec.md
+ * @spec openspec/specs/voting-round-management/spec.md
  */
 import type { APIRequestContext, Browser, Playwright } from '@playwright/test'
 
