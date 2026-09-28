@@ -4807,7 +4807,7 @@
 			"built": {
 				"state": "specified",
 				"evidence": "openspec/changes/records-management-archiving/proposal.md (ArchivalDossier, MDTO via OpenRegister, e-depot transfer); grep ArchivalDossier/MDTO/e-depot in lib/src finds only a forward reference in lib/Settings/register.d/51-raadsinformatiebrieven.json:176",
-				"owner": "ConductionNL/openregister",
+				"owner": "ConductionNL/decidiq",
 				"change": "openspec/changes/records-management-archiving"
 			},
 			"reachedOn": "nothing reaches it: change is specified only",
@@ -4815,7 +4815,7 @@
 			"providerHow": "read-from-code",
 			"feature": "archiving",
 			"featureConfidence": "high",
-			"note": "The change plans to consume OpenRegister's MDTO and e-depot stack and add a dossier schema; none of it is built in decidiq. corrections round 9 (2026-09-28): carried by decidiq's openspec/changes/records-management-archiving (open, 0 of 12 tasks: the ArchivalDossier, MDTO through OpenRegister's fields, transfer through OpenRegister's transfer lists). Neither OpenRegister's gap-decisions.json nor its changes name this row; its MDTO and e-Depot services exist at openregister development 5cda2f0434 (lib/Service/Edepot/MdtoXmlGenerator.php, EdepotTransferService.php, SipPackageBuilder.php), and their durable-execution gap is the open openregister change archival-transfer-hardening.",
+			"note": "The change plans to consume OpenRegister's MDTO and e-depot stack and add a dossier schema; none of it is built in decidiq. corrections round 9 (2026-09-28): carried by decidiq's openspec/changes/records-management-archiving (open, 0 of 12 tasks: the ArchivalDossier, MDTO through OpenRegister's fields, transfer through OpenRegister's transfer lists). Neither OpenRegister's gap-decisions.json nor its changes name this row; its MDTO and e-Depot services exist at openregister development 5cda2f0434 (lib/Service/Edepot/MdtoXmlGenerator.php, EdepotTransferService.php, SipPackageBuilder.php), and their durable-execution gap is the open openregister change archival-transfer-hardening. Owner correction (2026-09-28): built.owner moved from ConductionNL/openregister to ConductionNL/decidiq, state unchanged. The carrying change is decidiq's own, and its proposal makes no OpenRegister changes: openspec/changes/records-management-archiving/proposal.md:20 lists openregister as \"consumed only: `RetentionService`, `Archival/*`, `Edepot/*`, `SelectionList`, `DestructionList`, archival + e-depot routes. No OR changes in this change\", and :41 puts \"Changes to OpenRegister, OpenConnector, or Docudesk code\" out of scope. Its four proposed OpenRegister follow-ups (specs/records-management-archiving/spec.md:224-227) are upstream enhancements the change ships without (design.md:178), so the remaining work is decidiq's.",
 			"notubiz": "partial",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "yes",
@@ -6964,7 +6964,7 @@
 			"decidiq": "no",
 			"built": {
 				"state": "specified",
-				"evidence": "grep -rniE '\"(theme|thema|topic|dossier)\"|themePage|topicPage' lib/Settings src/manifest.json src/manifest.d: no theme schema or page; decidiq has no public pages (public reading goes through OpenCatalogi, pub-09); the nearest staff view is GoalDetail (src/manifest.d/organisation-goals.json:62-63, data and Related widgets, no timeline)",
+				"evidence": "grep -rniE '\"(theme|thema|topic|dossier)\"|themePage|topicPage' lib/Settings src/manifest.json src/manifest.d: no theme schema or page; decidiq has no public pages, and the public publication page is portaliq's: at portaliq development e6eb380ed5, src/site/components/PublicationDetailBlock.vue:38-90 draws every field as a label and a value (:38 `<dl class=\"pq-detail__fields\" data-testid=\"publication-detail-fields\">`, :40 `v-for=\"field in fields\"`, :44 `<strong>{{ field.label }}:</strong>`) and an array as plain list items (:57 `<!-- An array is a list, one item per line. -->`, :61-62 `<li v-for=\"(item, index) in field.value\" :key=\"index\">{{ item }}`), so there is no timeline; the nearest staff view is GoalDetail (src/manifest.d/organisation-goals.json:62-63, data and Related widgets, no timeline)",
 				"owner": "ConductionNL/portaliq",
 				"change": "openspec/changes/publication-theme-pages"
 			},
