@@ -40,7 +40,7 @@ use Psr\Log\NullLogger;
  * window payload against the merged Meeting properties with Opis, the
  * validator OpenRegister uses.
  *
- * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md
+ * @spec openspec/specs/motion-amendment/spec.md
  */
 class MotionSubmissionWindowTest extends TestCase {
 
@@ -99,7 +99,7 @@ class MotionSubmissionWindowTest extends TestCase {
 	 * A member who submits before the window opens is refused, and the
 	 * message names the opening time.
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
 	 *
 	 * @return void
 	 */
@@ -129,7 +129,7 @@ class MotionSubmissionWindowTest extends TestCase {
 	/**
 	 * An amendment before the window opens is refused too, through its motion.
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
 	 *
 	 * @return void
 	 */
@@ -151,7 +151,7 @@ class MotionSubmissionWindowTest extends TestCase {
 	/**
 	 * Inside the window a motion is created.
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
 	 *
 	 * @return void
 	 */
@@ -177,7 +177,7 @@ class MotionSubmissionWindowTest extends TestCase {
 	/**
 	 * A window that opens after it closes is refused when a meeting is created.
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-003-a-window-that-opens-after-it-closes-is-refused
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-003-a-window-that-opens-after-it-closes-is-refused
 	 *
 	 * @return void
 	 */
@@ -203,7 +203,7 @@ class MotionSubmissionWindowTest extends TestCase {
 	/**
 	 * The same check runs when a meeting is updated, reading the NEW object.
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-003-a-window-that-opens-after-it-closes-is-refused
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-003-a-window-that-opens-after-it-closes-is-refused
 	 *
 	 * @return void
 	 */
@@ -229,7 +229,7 @@ class MotionSubmissionWindowTest extends TestCase {
 	/**
 	 * A sane window, or a meeting with only one of the two times, saves.
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-003-a-window-that-opens-after-it-closes-is-refused
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-003-a-window-that-opens-after-it-closes-is-refused
 	 *
 	 * @return void
 	 */
@@ -251,7 +251,7 @@ class MotionSubmissionWindowTest extends TestCase {
 	 * The merged register declares submissionOpensAt on Meeting, and the
 	 * window a griffier sets validates against the merged schema with Opis.
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-001-a-meeting-can-open-submission-at-a-set-time
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-001-a-meeting-can-open-submission-at-a-set-time
 	 *
 	 * @return void
 	 */
@@ -315,7 +315,7 @@ class MotionSubmissionWindowTest extends TestCase {
 	 * The listener is actually subscribed to meeting creates and updates, not
 	 * only to decision creates: a guard with tests and no subscription never runs.
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-003-a-window-that-opens-after-it-closes-is-refused
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-003-a-window-that-opens-after-it-closes-is-refused
 	 *
 	 * @return void
 	 */

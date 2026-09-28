@@ -6,7 +6,7 @@
  * motions-submission-window). Writes go through the OpenRegister object API,
  * which is where SubmissionDeadlineListener refuses them with a 422.
  *
- * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md
+ * @spec openspec/specs/motion-amendment/spec.md
  */
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'

@@ -189,7 +189,7 @@ class SubmissionDeadlineListener implements IEventListener {
 	 *
 	 * @param ObjectCreatingEvent|ObjectUpdatingEvent $event The pre-save event
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-003-a-window-that-opens-after-it-closes-is-refused
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-003-a-window-that-opens-after-it-closes-is-refused
 	 *
 	 * @return object|null The entity, or null
 	 */
@@ -207,7 +207,7 @@ class SubmissionDeadlineListener implements IEventListener {
 	 * @param ObjectCreatingEvent|ObjectUpdatingEvent $event The pre-save event
 	 * @param array<string, mixed>                    $row   The meeting payload being saved
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-003-a-window-that-opens-after-it-closes-is-refused
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-003-a-window-that-opens-after-it-closes-is-refused
 	 *
 	 * @return void
 	 */
@@ -227,7 +227,7 @@ class SubmissionDeadlineListener implements IEventListener {
 	 *
 	 * @param mixed $value The stored value
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-001-a-meeting-can-open-submission-at-a-set-time
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-001-a-meeting-can-open-submission-at-a-set-time
 	 *
 	 * @return int|null The timestamp, or null when empty or unparseable
 	 */
@@ -384,7 +384,7 @@ class SubmissionDeadlineListener implements IEventListener {
 	 *
 	 * @param string $meetingId The meeting UUID
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
 	 *
 	 * @return array{opensAt: int|null, deadline: int|null} Each null when unset, unparseable or the meeting is missing
 	 */
