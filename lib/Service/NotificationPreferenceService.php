@@ -392,10 +392,7 @@ class NotificationPreferenceService {
 	 * @param string $title Notification title
 	 * @param string $message Notification body
 	 * @param string $deepLink In-app deep link (app-relative, e.g. /decisions/{id})
-	 * @param array{subject?: string, parameters?: array<string, mixed>, objectType?: string, objectId?: string}|null $inApp
-	 *        The bell notice's own subject, when the caller has one the notifier
-	 *        renders in the recipient's language; null sends the generic
-	 *        `decidiq_message` built from $title, $message and $deepLink
+	 * @param array<string, mixed>|null $inApp The bell notice (subject, parameters, objectType, objectId), or null for decidiq_message
 	 *
 	 * @return int Number of channel deliveries performed
 	 *
