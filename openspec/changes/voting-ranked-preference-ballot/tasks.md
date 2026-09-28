@@ -9,8 +9,8 @@
   - GIVEN `vote.value` WHEN read THEN its enum is `for`, `against`, `abstain`, `ranked`
   - GIVEN the association example set WHEN imported THEN the ranked round and its three ballots exist, and recomputing the seed ballots gives the seeded points
   - Verification: `RegisterJsonTest` red first, then green
-- [ ] Implement
-- [ ] Test
+- [x] Implement (fragment `93-ranked-preference-ballot.json`; the association example set does not seed the ranked round yet)
+- [x] Test (`RankedPreferenceBallotRegisterTest`, not `RegisterJsonTest`; red first)
 
 ### Task 2: Open a ranked round with options
 
@@ -21,8 +21,8 @@
   - GIVEN one option, twenty-one options or a duplicate key WHEN parsed THEN 400 with the reason
   - GIVEN `options` on a for-against-abstain request, or `chair-decides` on a ranked one WHEN parsed THEN 400
   - Verification: PHPUnit, one case per refusal, written red first
-- [ ] Implement
-- [ ] Test
+- [x] Implement (the parser passes `options` through; `RankedBallotRules` refuses the bad cases in `VotingRoundOpener`, so the 400 comes from the opener)
+- [x] Test (`VotingServiceRankedBallotTest`, red first)
 
 ### Task 3: Cast a ranked ballot
 
@@ -34,8 +34,8 @@
   - GIVEN a second full ranking by the same member WHEN posted THEN the round still holds one ballot for that member
   - GIVEN a secret ranked round WHEN a ballot is stored THEN it carries no participant relation
   - Verification: PHPUnit red-then-green
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test (`VotingServiceRankedBallotTest`, red first)
 
 ### Task 4: Count with Borda on close
 
@@ -47,8 +47,8 @@
   - GIVEN no ballots WHEN counted THEN result `invalid`
   - GIVEN a for-against-abstain round WHEN closed THEN its tally is unchanged
   - Verification: `BordaCountTest` on plain arrays; one tally matrix case for the ranked branch, red first
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test (`BordaCountTest` and `VotingServiceRankedBallotTest`, red first)
 
 ### Task 5: Revote between tied options
 
@@ -58,8 +58,8 @@
   - GIVEN a tied ranked round under `revote` WHEN the chair starts the revote THEN the new round's options are exactly the tied ones
   - GIVEN the revote ties again WHEN closed THEN it stays `tied` and no further revote is allowed
   - Verification: PHPUnit on the preflight; the panel path is covered by the Playwright spec in task 6
-- [ ] Implement
-- [ ] Test
+- [x] Implement (server side: the revote takes the tied options from the tied round, whatever the request sends)
+- [x] Test (`VotingServiceRankedBallotTest::testARevoteOffersTheTiedOptionsOnly`)
 
 ### Task 6: Ballot, option editor, results table and vote lists
 
@@ -71,5 +71,5 @@
   - GIVEN a closed ranked round WHEN the motion page opens THEN the ranking table shows rank, option and points and the winner badge (REQ-PRF-004); a secret round shows points only (REQ-PRF-005)
   - GIVEN a ranked ballot in the "Votes" widget WHEN listed THEN it reads as its ordered options (REQ-RPB-002)
   - Verification: Playwright red first (no ranked option in the dialog), then green, including a keyboard-only ranking; vitest for the ballot's move controls
-- [ ] Implement
-- [ ] Test
+- [ ] Implement (partly, #1419: method, option editor with labels, keyboard ballot, results table and the ranking in both vote lists are built; Person picks are not)
+- [ ] Test (vitest for the ranking text only; the Playwright spec is still to write)
