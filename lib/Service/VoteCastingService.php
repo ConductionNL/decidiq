@@ -141,8 +141,8 @@ class VoteCastingService {
 		// A ranked-choice round takes a full ranking and stores value `ranked`;
 		// any other round refuses a ranking (REQ-PRF-002). Checked before
 		// anything is read or written for the ballot.
-		$value = (new RankedBallotRules())->ballotValue(round: $round, value: $value, ranking: $ranking);
-		if ($value !== RankedBallotRules::VALUE) {
+		$value = $this->guard->ballotValue(round: $round, value: $value, ranking: $ranking);
+		if ($value !== 'ranked') {
 			$ranking = null;
 		}
 

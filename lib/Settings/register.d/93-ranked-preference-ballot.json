@@ -17,11 +17,26 @@
             "items": {
               "type": "object",
               "properties": {
-                "key": { "type": "string" },
-                "label": { "type": "string" },
-                "person": { "type": "string" }
+                "key": {
+                  "title": "Key",
+                  "type": "string",
+                  "description": "A short name for the option that stays the same for the whole round."
+                },
+                "label": {
+                  "title": "Label",
+                  "type": "string",
+                  "description": "What members see for this option."
+                },
+                "person": {
+                  "title": "Person",
+                  "type": "string",
+                  "description": "The person this option stands for, when it is a candidate."
+                }
               },
-              "required": ["key", "label"]
+              "required": [
+                "key",
+                "label"
+              ]
             }
           },
           "rankingResult": {
@@ -46,7 +61,11 @@
         "version": "0.3.0",
         "properties": {
           "value": {
-            "enum": ["ranked"]
+            "title": "Vote",
+            "description": "Vote value",
+            "enum": [
+              "ranked"
+            ]
           },
           "ranking": {
             "title": "Ranking",

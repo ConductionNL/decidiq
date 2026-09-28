@@ -73,7 +73,7 @@ class BordaCount {
 		$optionCount = count($points);
 		$counted = 0;
 		foreach ($ballots as $ranking) {
-			if (self::isFullRanking(ranking: $ranking, keys: array_keys($points)) === false) {
+			if ($this->isFullRanking(ranking: $ranking, keys: array_keys($points)) === false) {
 				continue;
 			}
 
@@ -96,7 +96,7 @@ class BordaCount {
 	 *
 	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 */
-	public static function isFullRanking(mixed $ranking, array $keys): bool {
+	public function isFullRanking(mixed $ranking, array $keys): bool {
 		if (is_array($ranking) === false || count($ranking) !== count($keys)) {
 			return false;
 		}

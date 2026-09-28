@@ -148,7 +148,7 @@ class RankedBallotRules {
 			}
 		}
 
-		if ($ranking === null || BordaCount::isFullRanking(ranking: $ranking, keys: $keys) === false) {
+		if ($ranking === null || (new BordaCount())->isFullRanking(ranking: $ranking, keys: $keys) === false) {
 			throw new InvalidArgumentException(message: 'Every option must be ranked exactly once');
 		}
 

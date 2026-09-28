@@ -215,17 +215,11 @@ class VotingRoundOpener {
 			$this->preflight->assertRevoteAllowed(revoteOfRoundId: $revoteOfRoundId);
 		}
 
-		// A ranked-choice round opens with its options (REQ-PRF-001); a revote
-		// of a tied ranked round offers the tied options only (REQ-RPB-001).
-		// Checked here, before anything is written, so a refusal leaves no round.
-		$requestedOptions = $roundRules->options;
-		if ($revoteOfRoundId !== null && $votingMethod === RankedBallotRules::METHOD) {
-			$requestedOptions = ($this->preflight->tiedOptionsOf(revoteOfRoundId: $revoteOfRoundId) ?? $requestedOptions);
-		}
-
-		$options = $this->rankedRules->openingOptions(
+		// Checked before anything is written, so a refusal leaves no round.
+		$options = $this->roundOptions(
 			votingMethod: $votingMethod,
-			options: $requestedOptions,
+			requested: $roundRules->options,
+			revoteOfRoundId: $revoteOfRoundId,
 			tieBreakRule: (string)$rules['tieBreakRule']
 		);
 
@@ -249,9 +243,11 @@ class VotingRoundOpener {
 			quorumWith: $quorumWith,
 			rules: $rules,
 			revoteOfRoundId: $revoteOfRoundId,
-			participantIds: $presets['eligible'],
-			options: $options
+			participantIds: $presets['eligible']
 		);
+		if ($options !== []) {
+			$votingRound['options'] = $options;
+		}
 
 		$created = $this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $votingRound);
 
@@ -280,6 +276,34 @@ class VotingRoundOpener {
 
 		return $result;
 	}//end openVotingRound()
+
+	/**
+	 * The options a round opens with: the requested ones for a ranked-choice
+	 * round (REQ-PRF-001), or the tied options of the round a ranked revote
+	 * repeats (REQ-RPB-001); none for any other method.
+	 *
+	 * @param string $votingMethod The round's voting method.
+	 * @param array<int, mixed> $requested The options as requested.
+	 * @param string|null $revoteOfRoundId The tied round this round revotes, or null.
+	 * @param string $tieBreakRule The round's resolved tie-break rule.
+	 *
+	 * @return array<int, array<string, string>> The checked options.
+	 *
+	 * @throws \InvalidArgumentException When the options do not fit the method.
+	 *
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+	 */
+	private function roundOptions(string $votingMethod, array $requested, ?string $revoteOfRoundId, string $tieBreakRule): array {
+		if ($revoteOfRoundId !== null && $votingMethod === RankedBallotRules::METHOD) {
+			$requested = ($this->preflight->tiedOptionsOf(revoteOfRoundId: $revoteOfRoundId) ?? $requested);
+		}
+
+		return $this->rankedRules->openingOptions(
+			votingMethod: $votingMethod,
+			options: $requested,
+			tieBreakRule: $tieBreakRule
+		);
+	}//end roundOptions()
 
 	/**
 	 * Resolve OpenRegister ObjectService.

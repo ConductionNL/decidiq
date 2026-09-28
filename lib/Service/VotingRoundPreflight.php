@@ -262,12 +262,10 @@ class VotingRoundPreflight {
 	 * @param array<string> $rules The effective voting rules
 	 * @param string|null $revoteOfRoundId UUID of the tied round this round revotes, or null
 	 * @param array<string> $participantIds Eligible preset participant UUIDs
-	 * @param array<int, array<string, string>> $options The checked options of a ranked-choice round, empty otherwise
 	 *
 	 * @return array<string,mixed> The voting-round payload
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
 	 */
 	public function buildRoundPayload(
 		string $motionId,
@@ -279,7 +277,6 @@ class VotingRoundPreflight {
 		array $rules,
 		?string $revoteOfRoundId,
 		array $participantIds,
-		array $options = [],
 	): array {
 		$relations = [['register' => 'decidiq', 'schema' => $subjectType, 'id' => $motionId]];
 		foreach ($participantIds as $uuid) {
@@ -304,10 +301,6 @@ class VotingRoundPreflight {
 
 		if ($revoteOfRoundId !== null) {
 			$round['revoteOfRound'] = $revoteOfRoundId;
-		}
-
-		if ($options !== []) {
-			$round['options'] = $options;
 		}
 
 		return $round;

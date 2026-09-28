@@ -123,7 +123,7 @@ class BordaCountTest extends TestCase {
 
 		self::assertSame(1, $outcome['counted']);
 		self::assertSame('huren', $outcome['winningOption']);
-		self::assertFalse(BordaCount::isFullRanking(ranking: ['a', 'b'], keys: ['a', 'b', 'c']));
-		self::assertTrue(BordaCount::isFullRanking(ranking: ['c', 'a', 'b'], keys: ['a', 'b', 'c']));
+		self::assertFalse((new BordaCount())->isFullRanking(ranking: ['a', 'b'], keys: ['a', 'b', 'c']));
+		self::assertTrue((new BordaCount())->isFullRanking(ranking: ['c', 'a', 'b'], keys: ['a', 'b', 'c']));
 	}//end testIncompleteBallotsAreNotCounted()
 }//end class
