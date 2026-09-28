@@ -10,9 +10,14 @@
         "version": "0.2.0",
         "properties": {
           "fields": {
+            "title": "Type-specific fields",
+            "type": "array",
+            "description": "Additional fields items of this kind carry.",
             "items": {
               "properties": {
                 "fieldType": {
+                  "title": "Field type",
+                  "type": "string",
                   "description": "What kind of answer the field takes, which decides how it is shown and what is accepted: a single line of text, a longer text, a number, a yes/no tick, a date, a pick from the list of choices below, a link to another record, or a person with an account here (picked by name, stored as their user id).",
                   "enum": [
                     "string",
@@ -25,7 +30,8 @@
                     "user"
                   ]
                 }
-              }
+              },
+              "type": "object"
             }
           }
         }
