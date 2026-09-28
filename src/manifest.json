@@ -582,7 +582,8 @@
 					{ "id": "meeting-transcription", "type": "custom", "component": "MeetingTranscriptionTab", "title": "Transcription", "icon": "BookOpenVariant" },
 					{ "id": "meeting-proxy-authorizations", "type": "object-list", "title": "Proxy authorizations", "icon": "AccountBoxOutline", "content": { "register": "decidiq", "schema": "proxy-authorization", "filter": { "meeting": "@objectId" }, "sort": { "field": "signedAt", "dir": "desc" }, "columns": [ { "key": "signatureStatus", "label": "Signature", "widget": "badge" }, { "key": "countersignStatus", "label": "Countersign", "widget": "badge" }, { "key": "signedAt", "label": "Signed" } ], "limit": 25, "allowCreate": true, "viewAllRoute": "ProxyAuthorizations", "viewAllQuery": { "meeting": "@objectId" }, "rowRoute": "ProxyAuthorizationDetail", "emptyText": "No proxy authorizations registered for this meeting yet." } },
 					{ "id": "meeting-audit-statements", "type": "custom", "component": "MeetingAuditStatementTab", "title": "Audit statements", "icon": "ClipboardCheckOutline" },
-					{ "id": "meeting-routed-documents", "type": "custom", "component": "MeetingRoutedDocumentsTab", "title": "Incoming documents", "icon": "Email" }
+					{ "id": "meeting-routed-documents", "type": "custom", "component": "MeetingRoutedDocumentsTab", "title": "Incoming documents", "icon": "Email" },
+					{ "id": "meeting-technical-questions", "type": "custom", "component": "MeetingTechnicalQuestionsTab", "title": "Technical questions", "icon": "CommentQuestionOutline", "_note": "motions-technical-questions-to-officials (mot-17): the meeting's technical questions with their official, answer deadline and open, answered or overdue status." }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "meeting-planning", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 8 },
@@ -600,7 +601,8 @@
 					{ "id": "11", "widgetId": "meeting-transcription", "gridX": 6, "gridY": 31, "gridWidth": 6, "gridHeight": 4 },
 					{ "id": "17", "widgetId": "meeting-proxy-authorizations", "gridX": 0, "gridY": 35, "gridWidth": 6, "gridHeight": 5 },
 					{ "id": "18", "widgetId": "meeting-audit-statements", "gridX": 6, "gridY": 35, "gridWidth": 6, "gridHeight": 5 },
-					{ "id": "19", "widgetId": "meeting-routed-documents", "gridX": 0, "gridY": 40, "gridWidth": 12, "gridHeight": 5 }
+					{ "id": "19", "widgetId": "meeting-routed-documents", "gridX": 0, "gridY": 40, "gridWidth": 12, "gridHeight": 5 },
+					{ "id": "20", "widgetId": "meeting-technical-questions", "gridX": 0, "gridY": 45, "gridWidth": 12, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -621,7 +623,8 @@
 				"widget-meeting-series": "MeetingSeriesTab",
 				"widget-meeting-transcription": "MeetingTranscriptionTab",
 				"widget-meeting-audit-statements": "MeetingAuditStatementTab",
-				"widget-meeting-routed-documents": "MeetingRoutedDocumentsTab"
+				"widget-meeting-routed-documents": "MeetingRoutedDocumentsTab",
+				"widget-meeting-technical-questions": "MeetingTechnicalQuestionsTab"
 			}
 		},
 		{

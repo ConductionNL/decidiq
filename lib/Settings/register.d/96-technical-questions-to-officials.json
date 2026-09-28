@@ -1,0 +1,35 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change motions-technical-questions-to-officials (REQ-MTQ-001, matrix row mot-17). An agenda item type can declare a field that holds a person with an account on this instance, so a technical question can be assigned to an official who is then told.",
+  "components": {
+    "schemas": {
+      "AgendaItemType": {
+        "slug": "agenda-item-type",
+        "version": "0.2.0",
+        "properties": {
+          "fields": {
+            "items": {
+              "properties": {
+                "fieldType": {
+                  "description": "What kind of answer the field takes, which decides how it is shown and what is accepted: a single line of text, a longer text, a number, a yes/no tick, a date, a pick from the list of choices below, a link to another record, or a person with an account here (picked by name, stored as their user id).",
+                  "enum": [
+                    "string",
+                    "text",
+                    "number",
+                    "boolean",
+                    "date",
+                    "enum",
+                    "reference",
+                    "user"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

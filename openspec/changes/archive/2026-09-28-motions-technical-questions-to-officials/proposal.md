@@ -39,9 +39,9 @@ A tender demand row (TenderNed 384605) asks for it; iBabs has it.
 
 ## What changes
 
-1. The technical question type gains assignedTo (a Nextcloud user) and answerDeadline (default five working days).
+1. The technical question type gains assignedTo (a person with an account, picked by name) and answerDeadline.
 2. Assigning notifies the official with a link; the official can fill only the answer.
-3. A Technical questions list shows open, answered and overdue questions with status colours, filterable per meeting.
+3. The meeting page lists its technical questions as open, answered or overdue, with status colours.
 4. When answered, the member who asked is notified.
 
 ## Out of scope

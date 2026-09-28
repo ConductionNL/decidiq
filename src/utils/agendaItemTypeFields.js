@@ -33,6 +33,9 @@ const INPUT_BY_FIELD_TYPE = {
 	enum: 'select',
 	choice: 'select',
 	reference: 'text',
+	// A person with an account on this instance, picked by name and stored as
+	// their user id (motions-technical-questions-to-officials).
+	user: 'user',
 }
 
 /**
@@ -102,6 +105,12 @@ export function setTypeFieldValue(values, input, raw) {
 	}
 	if (raw === null || raw === undefined || raw === '') {
 		delete next[input.key]
+		return next
+	}
+	if (input.input === 'user' && typeof raw === 'object') {
+		const id = raw.id || raw.value || ''
+		if (id === '') delete next[input.key]
+		else next[input.key] = String(id)
 		return next
 	}
 	if (input.input === 'number') {

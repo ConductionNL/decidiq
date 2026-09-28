@@ -1110,7 +1110,13 @@
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Innotifika meta l-aġenda ta' laqgħa li tieħu sehem fiha tiġi ppubblikata, riveduta jew mibdula.",
         "Agenda notice sent at": "Avviż dwar l-aġenda mibgħut fi",
         "When each member last received an agenda change notice for this meeting.": "Meta kull membru rċieva l-aħħar avviż ta' bidla fl-aġenda għal din il-laqgħa.",
-        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "L-approvazzjonijiet li jaslulek f'dan il-perjodu jingħataw ukoll lid-delegat tiegħek, li jista' jiffirmahom f'ismek."
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "L-approvazzjonijiet li jaslulek f'dan il-perjodu jingħataw ukoll lid-delegat tiegħek, li jista' jiffirmahom f'ismek.",
+        "This meeting has no technical questions.": "Din il-laqgħa m'għandhiex mistoqsijiet tekniċi.",
+        "A technical question was assigned to you": "Ġiet assenjata lilek mistoqsija teknika",
+        "Please answer by %1$s: %2$s": "Jekk jogħġbok wieġeb sa %1$s: %2$s",
+        "Your technical question was answered": "Il-mistoqsija teknika tiegħek ġiet imwieġba",
+        "The answer is on the agenda item: %1$s": "It-tweġiba tinsab fuq il-punt tal-aġenda: %1$s",
+        "no deadline set": "ebda skadenza stabbilita"
     },
     "plurals": null
 }

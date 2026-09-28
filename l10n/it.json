@@ -1110,7 +1110,13 @@
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Avvisa quando l'ordine del giorno di una riunione a cui partecipa viene pubblicato, rivisto o modificato.",
         "Agenda notice sent at": "Avviso sull'ordine del giorno inviato il",
         "When each member last received an agenda change notice for this meeting.": "Quando ogni membro ha ricevuto l'ultimo avviso di modifica dell'ordine del giorno di questa riunione.",
-        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Le approvazioni che ti arrivano in questo periodo vengono affidate anche al tuo delegato, che può firmarle per tuo conto."
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Le approvazioni che ti arrivano in questo periodo vengono affidate anche al tuo delegato, che può firmarle per tuo conto.",
+        "This meeting has no technical questions.": "Questa riunione non ha domande tecniche.",
+        "A technical question was assigned to you": "Ti è stata assegnata una domanda tecnica",
+        "Please answer by %1$s: %2$s": "Rispondi entro il %1$s: %2$s",
+        "Your technical question was answered": "La tua domanda tecnica ha ricevuto risposta",
+        "The answer is on the agenda item: %1$s": "La risposta è sul punto all'ordine del giorno: %1$s",
+        "no deadline set": "nessuna scadenza impostata"
     },
     "plurals": null
 }

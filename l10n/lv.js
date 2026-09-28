@@ -1111,7 +1111,13 @@ OC.L10N.register(
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Paziņot, kad sēdes, kurā piedalāties, darba kārtība tiek publicēta, pārskatīta vai mainīta.",
         "Agenda notice sent at": "Paziņojums par darba kārtību nosūtīts",
         "When each member last received an agenda change notice for this meeting.": "Kad katrs loceklis pēdējo reizi saņēma paziņojumu par šīs sēdes darba kārtības izmaiņām.",
-        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Apstiprinājumi, kas jūs sasniedz šajā periodā, tiek nodoti arī jūsu aizvietotājam, kurš var tos parakstīt jūsu vārdā."
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Apstiprinājumi, kas jūs sasniedz šajā periodā, tiek nodoti arī jūsu aizvietotājam, kurš var tos parakstīt jūsu vārdā.",
+        "This meeting has no technical questions.": "Šai sēdei nav tehnisku jautājumu.",
+        "A technical question was assigned to you": "Jums piešķirts tehnisks jautājums",
+        "Please answer by %1$s: %2$s": "Lūdzu, atbildiet līdz %1$s: %2$s",
+        "Your technical question was answered": "Uz jūsu tehnisko jautājumu ir atbildēts",
+        "The answer is on the agenda item: %1$s": "Atbilde ir pie darba kārtības punkta: %1$s",
+        "no deadline set": "termiņš nav noteikts"
     },
     "nplurals=2; plural=(n != 1);"
 )

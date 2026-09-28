@@ -1111,7 +1111,13 @@ OC.L10N.register(
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Obavijesti kada se dnevni red sastanka na kojem sudjelujete objavi, izmijeni ili promijeni.",
         "Agenda notice sent at": "Obavijest o dnevnom redu poslana",
         "When each member last received an agenda change notice for this meeting.": "Kada je svaki član posljednji put primio obavijest o promjeni dnevnog reda ovog sastanka.",
-        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Odobrenja koja vam stignu u tom razdoblju dodjeljuju se i vašem zamjeniku, koji ih može potpisati u vaše ime."
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Odobrenja koja vam stignu u tom razdoblju dodjeljuju se i vašem zamjeniku, koji ih može potpisati u vaše ime.",
+        "This meeting has no technical questions.": "Ova sjednica nema tehničkih pitanja.",
+        "A technical question was assigned to you": "Dodijeljeno vam je tehničko pitanje",
+        "Please answer by %1$s: %2$s": "Molimo odgovorite do %1$s: %2$s",
+        "Your technical question was answered": "Na vaše tehničko pitanje odgovoreno je",
+        "The answer is on the agenda item: %1$s": "Odgovor je na točki dnevnog reda: %1$s",
+        "no deadline set": "rok nije postavljen"
     },
     "nplurals=2; plural=(n != 1);"
 )

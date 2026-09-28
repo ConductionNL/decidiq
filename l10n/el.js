@@ -1111,7 +1111,13 @@ OC.L10N.register(
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Ειδοποίηση όταν η ημερήσια διάταξη μιας συνεδρίασης στην οποία συμμετέχετε δημοσιεύεται, αναθεωρείται ή αλλάζει.",
         "Agenda notice sent at": "Ειδοποίηση ημερήσιας διάταξης στάλθηκε στις",
         "When each member last received an agenda change notice for this meeting.": "Πότε κάθε μέλος έλαβε τελευταία ειδοποίηση αλλαγής ημερήσιας διάταξης για αυτή τη συνεδρίαση.",
-        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Οι εγκρίσεις που σας φτάνουν σε αυτή την περίοδο ανατίθενται και στον αναπληρωτή σας, ο οποίος μπορεί να τις υπογράψει εκ μέρους σας."
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "Οι εγκρίσεις που σας φτάνουν σε αυτή την περίοδο ανατίθενται και στον αναπληρωτή σας, ο οποίος μπορεί να τις υπογράψει εκ μέρους σας.",
+        "This meeting has no technical questions.": "Αυτή η συνεδρίαση δεν έχει τεχνικές ερωτήσεις.",
+        "A technical question was assigned to you": "Σας ανατέθηκε μια τεχνική ερώτηση",
+        "Please answer by %1$s: %2$s": "Απαντήστε έως %1$s: %2$s",
+        "Your technical question was answered": "Η τεχνική σας ερώτηση απαντήθηκε",
+        "The answer is on the agenda item: %1$s": "Η απάντηση βρίσκεται στο θέμα της ημερήσιας διάταξης: %1$s",
+        "no deadline set": "δεν έχει οριστεί προθεσμία"
     },
     "nplurals=2; plural=(n != 1);"
 )

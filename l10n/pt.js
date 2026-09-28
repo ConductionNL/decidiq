@@ -1111,7 +1111,13 @@ OC.L10N.register(
         "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Notificar quando a ordem de trabalhos de uma reunião em que participa for publicada, revista ou alterada.",
         "Agenda notice sent at": "Aviso da ordem de trabalhos enviado em",
         "When each member last received an agenda change notice for this meeting.": "Quando cada membro recebeu o último aviso de alteração da ordem de trabalhos desta reunião.",
-        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "As aprovações que lhe chegarem neste período também são atribuídas ao seu delegado, que as pode assinar em seu nome."
+        "Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.": "As aprovações que lhe chegarem neste período também são atribuídas ao seu delegado, que as pode assinar em seu nome.",
+        "This meeting has no technical questions.": "Esta reunião não tem perguntas técnicas.",
+        "A technical question was assigned to you": "Foi-lhe atribuída uma pergunta técnica",
+        "Please answer by %1$s: %2$s": "Responda até %1$s: %2$s",
+        "Your technical question was answered": "A sua pergunta técnica foi respondida",
+        "The answer is on the agenda item: %1$s": "A resposta está no ponto da ordem de trabalhos: %1$s",
+        "no deadline set": "sem prazo definido"
     },
     "nplurals=2; plural=(n != 1);"
 )
