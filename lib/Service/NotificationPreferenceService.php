@@ -400,7 +400,7 @@ class NotificationPreferenceService {
 	 * @return int Number of channel deliveries performed
 	 *
 	 * @spec openspec/specs/user-settings/spec.md
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
 	 */
 	public function dispatch(string $personId, string $eventType, string $title, string $message, string $deepLink = '', ?array $inApp = null): int {
 		if ($this->shouldNotify(personId: $personId, eventType: $eventType) === false) {
@@ -439,7 +439,7 @@ class NotificationPreferenceService {
 	 *
 	 * @return array{subject: string, parameters: array<string, string>, objectType: string, objectId: string}
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
 	 */
 	private function genericInApp(string $title, string $message, string $deepLink): array {
 		return [
@@ -459,7 +459,7 @@ class NotificationPreferenceService {
 	 *
 	 * @return int 1 on success, 0 on failure
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
 	 */
 	private function sendInApp(string $recipientId, array $inApp): int {
 		try {
@@ -528,7 +528,7 @@ class NotificationPreferenceService {
 	 *
 	 * @return string The body, with the link on its own line when there is one
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
 	 */
 	private function withLink(string $message, string $deepLink): string {
 		if ($deepLink === '') {

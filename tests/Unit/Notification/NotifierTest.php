@@ -37,7 +37,7 @@ use PHPUnit\Framework\TestCase;
  * (createMock of the interface adds no method it lacks) and records what the
  * notifier parses into it.
  *
- * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
+ * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
  */
 class NotifierTest extends TestCase {
 
@@ -105,7 +105,7 @@ class NotifierTest extends TestCase {
 	/**
 	 * An agenda change reads as a sentence naming the meeting and links to it.
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
 	 *
 	 * @return void
 	 */
@@ -124,7 +124,7 @@ class NotifierTest extends TestCase {
 	/**
 	 * Every subject decidiq sends is prepared, not refused.
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
 	 *
 	 * @return void
 	 */
@@ -153,7 +153,7 @@ class NotifierTest extends TestCase {
 	/**
 	 * The generic message carries its own title, text and link.
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
 	 *
 	 * @return void
 	 */
@@ -172,7 +172,7 @@ class NotifierTest extends TestCase {
 	/**
 	 * Another app's notice is declined.
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
 	 *
 	 * @return void
 	 */
@@ -185,7 +185,7 @@ class NotifierTest extends TestCase {
 	/**
 	 * An unknown decidiq subject is declined too.
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
 	 *
 	 * @return void
 	 */
@@ -199,7 +199,7 @@ class NotifierTest extends TestCase {
 	 * The notifier is registered, or Nextcloud never asks it (a notifier with
 	 * tests and no registration renders nothing).
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
 	 *
 	 * @return void
 	 */

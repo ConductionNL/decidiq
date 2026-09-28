@@ -575,7 +575,7 @@ class AgendaService {
 	 *
 	 * @return array<int, string> Unique user ids
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
 	 */
 	private function activeRecipients(string $meetingId): array {
 		// Participants come from the canonical path (participant -> governance-body
@@ -608,7 +608,7 @@ class AgendaService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
 	 */
 	private function notifyParticipants(array $meetingData, string $meetingId, string $subject, ?array $recipients=null): void {
 		$l10n = $this->l10nFactory->get('decidiq');

@@ -626,7 +626,7 @@ class NotificationPreferenceServiceTest extends TestCase {
 	 * notification manager, with the generic subject the notifier renders, and
 	 * no service outside decidiq is needed for it.
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
 	 *
 	 * @return void
 	 */
@@ -648,7 +648,7 @@ class NotificationPreferenceServiceTest extends TestCase {
 	 * A caller can hand its own subject for the bell, so the notifier renders
 	 * it in each recipient's language (agenda notices do this).
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
 	 *
 	 * @return void
 	 */
@@ -673,7 +673,7 @@ class NotificationPreferenceServiceTest extends TestCase {
 	 * A member who reads email gets the agenda change by email, and the email
 	 * carries an absolute link to the meeting.
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
 	 *
 	 * @return void
 	 */
@@ -692,7 +692,7 @@ class NotificationPreferenceServiceTest extends TestCase {
 	/**
 	 * A member who switched agenda changes off gets nothing.
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
 	 *
 	 * @return void
 	 */

@@ -686,7 +686,7 @@ class AgendaServiceTest extends TestCase {
 	 * Agenda notices go through the member's preferences as agendaChanged, with
 	 * the agenda subject for the bell and the meeting's title and link.
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
 	 *
 	 * @return void
 	 */
@@ -711,7 +711,7 @@ class AgendaServiceTest extends TestCase {
 	 * The recipient is the participant's linked Nextcloud user, not whoever
 	 * created the participant record.
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
 	 *
 	 * @return void
 	 */
@@ -735,7 +735,7 @@ class AgendaServiceTest extends TestCase {
 	 * A burst of edits records a version each time but tells a member once in
 	 * five minutes; after that window the next edit notifies again.
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-004-a-burst-of-agenda-edits-sends-one-notice
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-004-a-burst-of-agenda-edits-sends-one-notice
 	 *
 	 * @return void
 	 */

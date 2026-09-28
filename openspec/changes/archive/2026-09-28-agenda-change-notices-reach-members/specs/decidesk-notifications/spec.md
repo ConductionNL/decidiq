@@ -36,6 +36,7 @@ The app SHALL register a Nextcloud notifier that prepares every notification sen
 - GIVEN council member Aisha chose delivery in the app
 - WHEN a voting round opens on a motion she can vote on
 - THEN her bell shows the vote-opened notice
+@e2e exclude the in-app channel every dispatch() caller shares is proven by tests/Unit/Service/NotificationPreferenceServiceTest.php testInAppIsSentAsADecidiqNotification; the bell rendering by tests/e2e/agenda-change-notices.spec.ts
 
 ### Requirement: REQ-ACN-003 Agenda notices follow the member's delivery choice
 

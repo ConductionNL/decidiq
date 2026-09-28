@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md
+ * @spec openspec/specs/decidesk-notifications/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -44,7 +44,7 @@ use OCP\Notification\UnknownNotificationException;
  * declines other apps and unknown subjects with UnknownNotificationException,
  * as the interface requires, and throws nothing else.
  *
- * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
+ * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
  */
 class Notifier implements INotifier {
 
@@ -86,7 +86,7 @@ class Notifier implements INotifier {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
 	 */
 	public function getID(): string {
 		return Application::APP_ID;
@@ -97,7 +97,7 @@ class Notifier implements INotifier {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
 	 */
 	public function getName(): string {
 		return $this->l10nFactory->get(Application::APP_ID)->t('Decidiq');
@@ -113,7 +113,7 @@ class Notifier implements INotifier {
 	 *
 	 * @throws UnknownNotificationException For another app or an unknown subject
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
 	 */
 	public function prepare(INotification $notification, string $languageCode): INotification {
 		if ($notification->getApp() !== Application::APP_ID) {
@@ -166,7 +166,7 @@ class Notifier implements INotifier {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
 	 */
 	private function appLink(string $path): string {
 		return rtrim($this->urlGenerator->linkToRouteAbsolute(Application::APP_ID . '.dashboard.page'), '/') . '/' . $path;

@@ -7,7 +7,7 @@
  * is published gets a bell notice when the clerk adds an item, rendered by
  * decidiq's notifier and linking the meeting.
  *
- * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md
+ * @spec openspec/specs/decidesk-notifications/spec.md
  */
 import { expect, test } from '@playwright/test'
 import { randomBytes } from 'node:crypto'
@@ -96,7 +96,6 @@ test.afterAll(async ({ browser }) => {
 })
 
 // @e2e decidesk-notifications::a-member-sees-that-the-agenda-changed
-// @e2e decidesk-notifications::a-vote-opening-reaches-the-bell
 test('a member sees in the bell that the agenda changed, linking the meeting', async ({
 	page,
 	playwright,
