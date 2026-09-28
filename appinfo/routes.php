@@ -185,6 +185,9 @@ $extra = [
 
         // Motion forwarding routes — @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
         ['name' => 'motion#forward', 'url' => '/api/motions/{id}/forward', 'verb' => 'POST'],
+        // Residents' advisory vote on a motion (#1418) — @spec openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md
+        ['name' => 'citizenAdvice#open',  'url' => '/api/motions/{id}/citizen-advice/open',  'verb' => 'POST'],
+        ['name' => 'citizenAdvice#close', 'url' => '/api/motions/{id}/citizen-advice/close', 'verb' => 'POST'],
 
         // Governance services (retained from the retired board portal,
         // retargeted onto the unified entities per ADR-006).

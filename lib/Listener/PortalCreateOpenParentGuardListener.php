@@ -42,6 +42,14 @@
  * deliberately stricter, defence-in-depth posture (design.md "Open
  * questions", apply-time resolution of Open Q1).
  *
+ * A third create is guarded the same way (issue #1418, REQ-CAV-002): a
+ * resident's `citizen-vote` on a motion (signature `voterId` + `voteValue` +
+ * `motionId`) is refused unless the motion's `citizenVotingStatus` is `open`,
+ * and then also when its value is not voor, tegen or onthoud or the same voter
+ * already advised on that motion. A citizen vote without a `motionId` is an
+ * advisory vote on a budget proposal, which AdvisoryVoteService guards, and
+ * passes untouched.
+ *
  * The open-parent constraint itself is read from
  * `PortalContributionProvider`'s own manifest (`parentConstraint` on each
  * `type: create` action) rather than duplicated here, so the manifest stays
@@ -58,6 +66,7 @@
  * @link https://conduction.nl
  *
  * @spec openspec/specs/portal-citizen-create-actions/spec.md
+ * @spec openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md#requirement-req-cav-002-a-verified-resident-gives-one-advisory-vote-while-it-is-open
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -75,8 +84,9 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Rejects a citizen `createReaction` / `createBudgetProposal` write whose
- * parent is not open, before the row is ever persisted.
+ * Rejects a citizen `createReaction` / `createBudgetProposal` /
+ * `castMotionAdvice` write whose parent is not open, before the row is ever
+ * persisted.
  *
  * @implements IEventListener<Event>
  *
@@ -104,6 +114,20 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 	 * @var string
 	 */
 	private const SCHEMA_BUDGET_PROPOSAL = 'budget-proposal';
+
+	/**
+	 * The schema slug this listener recognises as a resident's advisory vote.
+	 *
+	 * @var string
+	 */
+	private const SCHEMA_CITIZEN_VOTE = 'citizen-vote';
+
+	/**
+	 * The values a resident's advice on a motion may take (REQ-CAV-002).
+	 *
+	 * @var array<int, string>
+	 */
+	private const ADVICE_VALUES = ['voor', 'tegen', 'onthoud'];
 
 	/**
 	 * OpenRegister's object service FQCN (lazily resolved from the container).
@@ -185,11 +209,18 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 			$schema = $this->schemaSlugFromEntity(entity: $entity);
 		}
 
-		if (in_array($schema, [self::SCHEMA_CONSULTATION_REACTION, self::SCHEMA_BUDGET_PROPOSAL], true) === false) {
+		if (in_array($schema, [self::SCHEMA_CONSULTATION_REACTION, self::SCHEMA_BUDGET_PROPOSAL, self::SCHEMA_CITIZEN_VOTE], true) === false) {
 			$schema = $this->detectSchemaBySignature(row: $row);
 		}
 
 		if ($schema === '') {
+			return;
+		}
+
+		// A citizen vote without a motion is an advisory vote on a budget
+		// proposal, which AdvisoryVoteService guards itself. Only a vote on a
+		// motion answers to the castMotionAdvice constraint.
+		if ($schema === self::SCHEMA_CITIZEN_VOTE && $this->scalar(row: $row, field: 'motionId') === '') {
 			return;
 		}
 
@@ -202,9 +233,95 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 		$satisfied = ($parentId !== '' && $this->parentSatisfiesConstraint(parentId: $parentId, constraint: $constraint) === true);
 		if ($satisfied === false) {
 			$this->reject(event: $event, schema: $schema, constraint: $constraint);
+			return;
+		}
+
+		if ($schema !== self::SCHEMA_CITIZEN_VOTE) {
+			return;
+		}
+
+		$refusal = $this->motionAdviceRefusal(row: $row);
+		if ($refusal !== null) {
+			$event->setErrors(['message' => $refusal]);
+			$event->stopPropagation();
 		}
 
 	}//end evaluate()
+
+	/**
+	 * The reason a resident's advice on an open motion is refused, or null
+	 * when it may be stored (REQ-CAV-002): the value must be voor, tegen or
+	 * onthoud, the vote must name its voter, and the same voter may advise on
+	 * a motion only once. The duplicate lookup runs without RBAC, because a
+	 * guard that cannot see the earlier vote would let the second one through.
+	 *
+	 * @param array<string, mixed> $row The raw citizen-vote being created.
+	 *
+	 * @return string|null The refusal, or null when the vote is accepted.
+	 *
+	 * @spec openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md#requirement-req-cav-002-a-verified-resident-gives-one-advisory-vote-while-it-is-open
+	 */
+	private function motionAdviceRefusal(array $row): ?string {
+		if (in_array($row['voteValue'] ?? null, self::ADVICE_VALUES, true) === false) {
+			return 'Your advice on a motion must be voor, tegen or onthoud';
+		}
+
+		$voterId = $this->scalar(row: $row, field: 'voterId');
+		if ($voterId === '') {
+			return 'A vote on a motion must name its voter';
+		}
+
+		$motionId = $this->scalar(row: $row, field: 'motionId');
+		$objectService = $this->container->get(self::OBJECT_SERVICE);
+		$earlier = $objectService->findAll(
+			config: [
+				'filters' => [
+					'register' => self::REGISTER,
+					'schema' => self::SCHEMA_CITIZEN_VOTE,
+					'motionId' => $motionId,
+					'voterId' => $voterId,
+				],
+			],
+			_rbac: false,
+			_multitenancy: false
+		);
+
+		foreach ($earlier as $entity) {
+			$vote = [];
+			if (is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true) {
+				$vote = (array)$entity->jsonSerialize();
+			} elseif (is_array($entity) === true) {
+				$vote = $entity;
+			}
+
+			if ($this->scalar(row: $vote, field: 'voterId') === $voterId
+				&& $this->scalar(row: $vote, field: 'motionId') === $motionId
+			) {
+				return 'You have already given your advice on this motion';
+			}
+		}
+
+		return null;
+	}//end motionAdviceRefusal()
+
+	/**
+	 * Read a field as a trimmed string, or '' when it is absent or not a scalar.
+	 *
+	 * @param array<string, mixed> $row The row.
+	 * @param string $field The field name.
+	 *
+	 * @return string The value.
+	 *
+	 * @spec openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md#requirement-req-cav-002-a-verified-resident-gives-one-advisory-vote-while-it-is-open
+	 */
+	private function scalar(array $row, string $field): string {
+		$value = ($row[$field] ?? null);
+		if (is_string($value) === false && is_int($value) === false) {
+			return '';
+		}
+
+		return trim((string)$value);
+	}//end scalar()
 
 	/**
 	 * Reject the create: set a descriptive error and stop propagation so
@@ -322,6 +439,13 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 			&& array_key_exists('status', $row) === true
 		) {
 			return self::SCHEMA_BUDGET_PROPOSAL;
+		}
+
+		if (array_key_exists('voterId', $row) === true
+			&& array_key_exists('voteValue', $row) === true
+			&& array_key_exists('motionId', $row) === true
+		) {
+			return self::SCHEMA_CITIZEN_VOTE;
 		}
 
 		return '';
