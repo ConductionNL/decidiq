@@ -1,9 +1,11 @@
 <?php
 
-// VERBATIM COPY of openregister lib/Exception/FlowSignalRefused.php at ConductionNL/openregister@ecaba04a
+// VERBATIM COPY (minus its spec-traceability tags) of openregister lib/Exception/FlowSignalRefused.php at ConductionNL/openregister@ecaba04a
 // (development), for standalone unit runs and static analysis. OpenRegister
 // is a sibling app, not a composer dependency; the real class wins whenever
-// OpenRegister is loaded. Refresh by copying, never by editing.
+// OpenRegister is loaded. Refresh by copying, never by editing. The spec
+// tags are dropped because they name OpenRegister's own openspec, which this
+// repo does not hold (gate-46 resolves anchors in this repo only).
 
 /**
  * A server-side signal was refused before anything was delivered.
@@ -26,8 +28,6 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * @link https://OpenRegister.app
- *
- * @spec openspec/changes/flow-engine-consumer-seams/specs/flow-engine-consumer-seams/spec.md#requirement-a-server-side-signal-passes-the-same-guard-as-the-http-resume
  */
 
 declare(strict_types=1);

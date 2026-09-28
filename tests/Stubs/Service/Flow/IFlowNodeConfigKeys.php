@@ -1,9 +1,11 @@
 <?php
 
-// VERBATIM COPY of openregister lib/Service/Flow/IFlowNodeConfigKeys.php at ConductionNL/openregister@ecaba04a
+// VERBATIM COPY (minus its spec-traceability tags) of openregister lib/Service/Flow/IFlowNodeConfigKeys.php at ConductionNL/openregister@ecaba04a
 // (development), for standalone unit runs and static analysis. OpenRegister
 // is a sibling app, not a composer dependency; the real class wins whenever
-// OpenRegister is loaded. Refresh by copying, never by editing.
+// OpenRegister is loaded. Refresh by copying, never by editing. The spec
+// tags are dropped because they name OpenRegister's own openspec, which this
+// repo does not hold (gate-46 resolves anchors in this repo only).
 
 /**
  * A node that can name the config keys it reads.
@@ -66,8 +68,6 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * @link https://OpenRegister.app
- *
- * @spec openspec/changes/or-flow-preflight/specs/flow-preflight/spec.md
  */
 
 declare(strict_types=1);
@@ -104,8 +104,6 @@ interface IFlowNodeConfigKeys {
 	 * that — its conditions live on its outgoing edges, never in its config.
 	 *
 	 * @return array<int, string> The accepted top-level config keys.
-	 *
-	 * @spec openspec/changes/or-flow-preflight/specs/flow-preflight/spec.md
 	 */
 	public function configKeys(): array;
 }//end interface

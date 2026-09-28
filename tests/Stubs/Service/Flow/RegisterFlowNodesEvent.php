@@ -1,9 +1,11 @@
 <?php
 
-// VERBATIM COPY of openregister lib/Service/Flow/RegisterFlowNodesEvent.php at ConductionNL/openregister@ecaba04a
+// VERBATIM COPY (minus its spec-traceability tags) of openregister lib/Service/Flow/RegisterFlowNodesEvent.php at ConductionNL/openregister@ecaba04a
 // (development), for standalone unit runs and static analysis. OpenRegister
 // is a sibling app, not a composer dependency; the real class wins whenever
-// OpenRegister is loaded. Refresh by copying, never by editing.
+// OpenRegister is loaded. Refresh by copying, never by editing. The spec
+// tags are dropped because they name OpenRegister's own openspec, which this
+// repo does not hold (gate-46 resolves anchors in this repo only).
 
 /**
  * Dispatched so apps can contribute their flow node types.
@@ -38,8 +40,6 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * @link https://OpenRegister.app
- *
- * @spec openspec/changes/or-flow-nodes/specs/flow-nodes/spec.md
  */
 
 declare(strict_types=1);
@@ -70,8 +70,6 @@ class RegisterFlowNodesEvent extends Event {
 	 * @param IFlowNode $node The node type.
 	 *
 	 * @return void
-	 *
-	 * @spec openspec/changes/or-flow-nodes/specs/flow-nodes/spec.md
 	 */
 	public function registerNode(IFlowNode $node): void {
 		$this->registry->register(node: $node);

@@ -1,9 +1,11 @@
 <?php
 
-// VERBATIM COPY of openregister lib/Service/Flow/IFlowNode.php at ConductionNL/openregister@ecaba04a
+// VERBATIM COPY (minus its spec-traceability tags) of openregister lib/Service/Flow/IFlowNode.php at ConductionNL/openregister@ecaba04a
 // (development), for standalone unit runs and static analysis. OpenRegister
 // is a sibling app, not a composer dependency; the real class wins whenever
-// OpenRegister is loaded. Refresh by copying, never by editing.
+// OpenRegister is loaded. Refresh by copying, never by editing. The spec
+// tags are dropped because they name OpenRegister's own openspec, which this
+// repo does not hold (gate-46 resolves anchors in this repo only).
 
 /**
  * A node type contributed to the flow palette by an app.
@@ -55,8 +57,6 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * @link https://OpenRegister.app
- *
- * @spec openspec/changes/or-flow-nodes/specs/flow-nodes/spec.md
  */
 
 declare(strict_types=1);
@@ -75,8 +75,6 @@ interface IFlowNode {
 	 * not resolved by load order.
 	 *
 	 * @return string The type identifier.
-	 *
-	 * @spec openspec/changes/or-flow-nodes/specs/flow-nodes/spec.md
 	 */
 	public function getId(): string;
 
@@ -84,8 +82,6 @@ interface IFlowNode {
 	 * Human-readable name for the palette. Mirrors `IOperation`.
 	 *
 	 * @return string The display name.
-	 *
-	 * @spec openspec/changes/or-flow-nodes/specs/flow-nodes/spec.md
 	 */
 	public function getDisplayName(): string;
 
@@ -93,8 +89,6 @@ interface IFlowNode {
 	 * What this node does, in one sentence. Mirrors `IOperation`.
 	 *
 	 * @return string The description.
-	 *
-	 * @spec openspec/changes/or-flow-nodes/specs/flow-nodes/spec.md
 	 */
 	public function getDescription(): string;
 
@@ -102,8 +96,6 @@ interface IFlowNode {
 	 * Absolute URL of the palette icon. Mirrors `IOperation`.
 	 *
 	 * @return string The icon URL.
-	 *
-	 * @spec openspec/changes/or-flow-nodes/specs/flow-nodes/spec.md
 	 */
 	public function getIcon(): string;
 
@@ -117,8 +109,6 @@ interface IFlowNode {
 	 * @param int $scope The scope constant.
 	 *
 	 * @return bool Whether it is available.
-	 *
-	 * @spec openspec/changes/or-flow-nodes/specs/flow-nodes/spec.md
 	 */
 	public function isAvailableForScope(int $scope): bool;
 
@@ -134,8 +124,6 @@ interface IFlowNode {
 	 * @return void
 	 *
 	 * @throws \UnexpectedValueException When the configuration is unusable.
-	 *
-	 * @spec openspec/changes/or-flow-nodes/specs/flow-nodes/spec.md
 	 */
 	public function validateConfig(array $config): void;
 
@@ -158,8 +146,6 @@ interface IFlowNode {
 	 * @param array $context Run-level metadata — NOT the data channel.
 	 *
 	 * @return array The output items.
-	 *
-	 * @spec openspec/changes/or-flow-nodes/specs/flow-nodes/spec.md
 	 */
 	public function execute(array $items, array $config, array $context): array;
 }//end interface

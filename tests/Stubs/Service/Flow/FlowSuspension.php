@@ -1,9 +1,11 @@
 <?php
 
-// VERBATIM COPY of openregister lib/Service/Flow/FlowSuspension.php at ConductionNL/openregister@ecaba04a
+// VERBATIM COPY (minus its spec-traceability tags) of openregister lib/Service/Flow/FlowSuspension.php at ConductionNL/openregister@ecaba04a
 // (development), for standalone unit runs and static analysis. OpenRegister
 // is a sibling app, not a composer dependency; the real class wins whenever
-// OpenRegister is loaded. Refresh by copying, never by editing.
+// OpenRegister is loaded. Refresh by copying, never by editing. The spec
+// tags are dropped because they name OpenRegister's own openspec, which this
+// repo does not hold (gate-46 resolves anchors in this repo only).
 
 /**
  * Thrown by a step that wants the run paused rather than finished.
@@ -30,8 +32,6 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * @link https://OpenRegister.app
- *
- * @spec openspec/changes/or-flow-runs/specs/flow-runs/spec.md
  */
 
 declare(strict_types=1);
@@ -66,8 +66,6 @@ class FlowSuspension extends RuntimeException {
 	 * When this run may resume.
 	 *
 	 * @return DateTime|null The resume time, or null when waiting on a signal.
-	 *
-	 * @spec openspec/changes/or-flow-runs/specs/flow-runs/spec.md
 	 */
 	public function getResumeAt(): ?DateTime {
 		return $this->resumeAt;
