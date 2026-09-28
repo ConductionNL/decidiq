@@ -1093,7 +1093,24 @@ OC.L10N.register(
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Þessi fundargerð er ekki tengd fundi, svo engir dagskrárliðir eru til að skrifa við.",
         "Minutes per agenda item": "Fundargerð eftir dagskrárlið",
         "Submission opens": "Innsending opnar",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Hvenær félagar geta byrjað að leggja fram tillögur og breytingartillögur fyrir þennan fund. Autt þýðir að innsending er opin frá því að fundurinn er til."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Hvenær félagar geta byrjað að leggja fram tillögur og breytingartillögur fyrir þennan fund. Autt þýðir að innsending er opin frá því að fundurinn er til.",
+        "The agenda of %s was published": "Dagskrá %s var birt",
+        "A revised agenda of %s was published": "Endurskoðuð dagskrá %s var birt",
+        "The agenda of %s is being revised": "Verið er að endurskoða dagskrá %s",
+        "The agenda of %s changed": "Dagskrá %s breyttist",
+        "You are asked to co-sign the motion %s": "Þú ert beðin(n) um að meðundirrita tillöguna %s",
+        "The motion %s was forwarded to you for approval": "Tillagan %s var send þér til samþykktar",
+        "You received a proxy to vote for another member": "Þú fékkst umboð til að kjósa fyrir annan félaga",
+        "Your vote by email was recorded": "Atkvæði þitt í tölvupósti var skráð",
+        "Your vote by email could not be read and was not counted": "Ekki tókst að lesa atkvæði þitt í tölvupósti og það var ekki talið",
+        "Your vote by email could not be read, please reply again": "Ekki tókst að lesa atkvæði þitt í tölvupósti, vinsamlegast svaraðu aftur",
+        "this meeting": "þessi fundur",
+        "this motion": "þessi tillaga",
+        "Open the meeting in Decidiq to see the agenda.": "Opnaðu fundinn í Decidiq til að sjá dagskrána.",
+        "Agenda published or changed": "Dagskrá birt eða breytt",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Láta vita þegar dagskrá fundar sem þú tekur þátt í er birt, endurskoðuð eða breytt.",
+        "Agenda notice sent at": "Tilkynning um dagskrá send",
+        "When each member last received an agenda change notice for this meeting.": "Hvenær hver félagi fékk síðast tilkynningu um breytingu á dagskrá þessa fundar."
     },
     "nplurals=2; plural=(n != 1);"
 )

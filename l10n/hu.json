@@ -1092,7 +1092,24 @@
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Ez a jegyzőkönyv nincs üléshez kapcsolva, így nincsenek napirendi pontok a jegyzetekhez.",
         "Minutes per agenda item": "Jegyzőkönyv napirendi pontonként",
         "Submission opens": "Benyújtás kezdete",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Mikortól nyújthatnak be a tagok indítványokat és módosító javaslatokat erre az ülésre. Üresen hagyva a benyújtás az ülés létrehozásától nyitva áll."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Mikortól nyújthatnak be a tagok indítványokat és módosító javaslatokat erre az ülésre. Üresen hagyva a benyújtás az ülés létrehozásától nyitva áll.",
+        "The agenda of %s was published": "Közzétették a(z) %s napirendjét",
+        "A revised agenda of %s was published": "Közzétették a(z) %s átdolgozott napirendjét",
+        "The agenda of %s is being revised": "A(z) %s napirendjét átdolgozzák",
+        "The agenda of %s changed": "A(z) %s napirendje megváltozott",
+        "You are asked to co-sign the motion %s": "Felkérték, hogy társaláírja a(z) %s indítványt",
+        "The motion %s was forwarded to you for approval": "A(z) %s indítványt jóváhagyásra továbbították Önnek",
+        "You received a proxy to vote for another member": "Meghatalmazást kapott, hogy egy másik tag helyett szavazzon",
+        "Your vote by email was recorded": "E-mailben leadott szavazatát rögzítették",
+        "Your vote by email could not be read and was not counted": "E-mailben leadott szavazatát nem sikerült beolvasni, ezért nem számolták",
+        "Your vote by email could not be read, please reply again": "E-mailben leadott szavazatát nem sikerült beolvasni, kérjük, válaszoljon újra",
+        "this meeting": "ez az ülés",
+        "this motion": "ez az indítvány",
+        "Open the meeting in Decidiq to see the agenda.": "Nyissa meg az ülést a Decidiqben a napirend megtekintéséhez.",
+        "Agenda published or changed": "Napirend közzétéve vagy módosítva",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Értesítés, ha egy olyan ülés napirendjét, amelyen részt vesz, közzéteszik, átdolgozzák vagy módosítják.",
+        "Agenda notice sent at": "Napirendi értesítés elküldve",
+        "When each member last received an agenda change notice for this meeting.": "Mikor kapott utoljára az egyes tagok értesítést az ülés napirendjének változásáról."
     },
     "plurals": null
 }

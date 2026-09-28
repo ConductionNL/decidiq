@@ -1092,7 +1092,24 @@
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Этот протокол не связан с заседанием, поэтому нет пунктов повестки для заметок.",
         "Minutes per agenda item": "Протокол по пунктам повестки",
         "Submission opens": "Начало подачи",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Когда участники могут начать подавать предложения и поправки к этому заседанию. Пусто означает, что подача открыта с момента создания заседания."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Когда участники могут начать подавать предложения и поправки к этому заседанию. Пусто означает, что подача открыта с момента создания заседания.",
+        "The agenda of %s was published": "Повестка %s опубликована",
+        "A revised agenda of %s was published": "Опубликована пересмотренная повестка %s",
+        "The agenda of %s is being revised": "Повестка %s пересматривается",
+        "The agenda of %s changed": "Повестка %s изменилась",
+        "You are asked to co-sign the motion %s": "Вас просят подписать предложение %s",
+        "The motion %s was forwarded to you for approval": "Предложение %s передано вам на утверждение",
+        "You received a proxy to vote for another member": "Вы получили доверенность голосовать за другого участника",
+        "Your vote by email was recorded": "Ваш голос по электронной почте учтён",
+        "Your vote by email could not be read and was not counted": "Ваш голос по электронной почте не удалось прочитать, он не учтён",
+        "Your vote by email could not be read, please reply again": "Ваш голос по электронной почте не удалось прочитать, ответьте ещё раз",
+        "this meeting": "это заседание",
+        "this motion": "это предложение",
+        "Open the meeting in Decidiq to see the agenda.": "Откройте заседание в Decidiq, чтобы увидеть повестку.",
+        "Agenda published or changed": "Повестка опубликована или изменена",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Уведомлять, когда повестка заседания, в котором вы участвуете, опубликована, пересмотрена или изменена.",
+        "Agenda notice sent at": "Уведомление о повестке отправлено",
+        "When each member last received an agenda change notice for this meeting.": "Когда каждый участник последний раз получил уведомление об изменении повестки этого заседания."
     },
     "plurals": null
 }

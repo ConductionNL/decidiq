@@ -1093,7 +1093,24 @@ OC.L10N.register(
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Dan il-minuti mhumiex marbuta ma' laqgħa, għalhekk m'hemmx punti fuq l-aġenda biex tieħu noti fuqhom.",
         "Minutes per agenda item": "Minuti għal kull punt fuq l-aġenda",
         "Submission opens": "Is-sottomissjoni tiftaħ",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Meta l-membri jistgħu jibdew jissottomettu mozzjonijiet u emendi għal din il-laqgħa. Vojt ifisser li s-sottomissjoni hija miftuħa mill-mument li l-laqgħa teżisti."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Meta l-membri jistgħu jibdew jissottomettu mozzjonijiet u emendi għal din il-laqgħa. Vojt ifisser li s-sottomissjoni hija miftuħa mill-mument li l-laqgħa teżisti.",
+        "The agenda of %s was published": "L-aġenda ta' %s ġiet ippubblikata",
+        "A revised agenda of %s was published": "Ġiet ippubblikata aġenda riveduta ta' %s",
+        "The agenda of %s is being revised": "L-aġenda ta' %s qed tiġi riveduta",
+        "The agenda of %s changed": "L-aġenda ta' %s inbidlet",
+        "You are asked to co-sign the motion %s": "Qed tintalab tiffirma wkoll il-mozzjoni %s",
+        "The motion %s was forwarded to you for approval": "Il-mozzjoni %s intbagħtet lilek għall-approvazzjoni",
+        "You received a proxy to vote for another member": "Irċevejt prokura biex tivvota għal membru ieħor",
+        "Your vote by email was recorded": "Il-vot tiegħek bl-email ġie rreġistrat",
+        "Your vote by email could not be read and was not counted": "Il-vot tiegħek bl-email ma setax jinqara u ma ngħaddx",
+        "Your vote by email could not be read, please reply again": "Il-vot tiegħek bl-email ma setax jinqara, jekk jogħġbok erġa' wieġeb",
+        "this meeting": "din il-laqgħa",
+        "this motion": "din il-mozzjoni",
+        "Open the meeting in Decidiq to see the agenda.": "Iftaħ il-laqgħa f'Decidiq biex tara l-aġenda.",
+        "Agenda published or changed": "Aġenda ppubblikata jew mibdula",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Innotifika meta l-aġenda ta' laqgħa li tieħu sehem fiha tiġi ppubblikata, riveduta jew mibdula.",
+        "Agenda notice sent at": "Avviż dwar l-aġenda mibgħut fi",
+        "When each member last received an agenda change notice for this meeting.": "Meta kull membru rċieva l-aħħar avviż ta' bidla fl-aġenda għal din il-laqgħa."
     },
     "nplurals=2; plural=(n != 1);"
 )

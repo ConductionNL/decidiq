@@ -1092,7 +1092,24 @@
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Dette referat er ikke knyttet til et møde, så der er ingen dagsordenspunkter at tage noter til.",
         "Minutes per agenda item": "Referat pr. dagsordenspunkt",
         "Submission opens": "Indsendelse åbner",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Hvornår medlemmer kan begynde at indsende forslag og ændringsforslag til dette møde. Tom betyder, at indsendelse er åben, fra mødet findes."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Hvornår medlemmer kan begynde at indsende forslag og ændringsforslag til dette møde. Tom betyder, at indsendelse er åben, fra mødet findes.",
+        "The agenda of %s was published": "Dagsordenen for %s er offentliggjort",
+        "A revised agenda of %s was published": "En revideret dagsorden for %s er offentliggjort",
+        "The agenda of %s is being revised": "Dagsordenen for %s bliver revideret",
+        "The agenda of %s changed": "Dagsordenen for %s er ændret",
+        "You are asked to co-sign the motion %s": "Du bliver bedt om at medunderskrive forslaget %s",
+        "The motion %s was forwarded to you for approval": "Forslaget %s er sendt videre til dig til godkendelse",
+        "You received a proxy to vote for another member": "Du har fået en fuldmagt til at stemme for et andet medlem",
+        "Your vote by email was recorded": "Din stemme pr. e-mail er registreret",
+        "Your vote by email could not be read and was not counted": "Din stemme pr. e-mail kunne ikke læses og blev ikke talt med",
+        "Your vote by email could not be read, please reply again": "Din stemme pr. e-mail kunne ikke læses, svar venligst igen",
+        "this meeting": "dette møde",
+        "this motion": "dette forslag",
+        "Open the meeting in Decidiq to see the agenda.": "Åbn mødet i Decidiq for at se dagsordenen.",
+        "Agenda published or changed": "Dagsorden offentliggjort eller ændret",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Giv besked, når dagsordenen for et møde, du deltager i, offentliggøres, revideres eller ændres.",
+        "Agenda notice sent at": "Dagsordensbesked sendt",
+        "When each member last received an agenda change notice for this meeting.": "Hvornår hvert medlem sidst fik besked om en ændring i dagsordenen for dette møde."
     },
     "plurals": null
 }

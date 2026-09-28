@@ -1092,7 +1092,24 @@
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Šis protokols nav saistīts ar sēdi, tāpēc nav darba kārtības punktu, par kuriem veikt piezīmes.",
         "Minutes per agenda item": "Protokols pa darba kārtības punktiem",
         "Submission opens": "Iesniegšana sākas",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Kad locekļi var sākt iesniegt priekšlikumus un grozījumus šai sēdei. Tukšs nozīmē, ka iesniegšana ir atvērta no brīža, kad sēde pastāv."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Kad locekļi var sākt iesniegt priekšlikumus un grozījumus šai sēdei. Tukšs nozīmē, ka iesniegšana ir atvērta no brīža, kad sēde pastāv.",
+        "The agenda of %s was published": "Sēdes %s darba kārtība ir publicēta",
+        "A revised agenda of %s was published": "Sēdes %s pārskatītā darba kārtība ir publicēta",
+        "The agenda of %s is being revised": "Sēdes %s darba kārtība tiek pārskatīta",
+        "The agenda of %s changed": "Sēdes %s darba kārtība ir mainījusies",
+        "You are asked to co-sign the motion %s": "Jums lūdz līdzparakstīt priekšlikumu %s",
+        "The motion %s was forwarded to you for approval": "Priekšlikums %s jums pārsūtīts apstiprināšanai",
+        "You received a proxy to vote for another member": "Jūs saņēmāt pilnvaru balsot cita locekļa vietā",
+        "Your vote by email was recorded": "Jūsu balss pa e-pastu ir reģistrēta",
+        "Your vote by email could not be read and was not counted": "Jūsu balsi pa e-pastu nevarēja nolasīt, un tā netika ieskaitīta",
+        "Your vote by email could not be read, please reply again": "Jūsu balsi pa e-pastu nevarēja nolasīt, lūdzu, atbildiet vēlreiz",
+        "this meeting": "šī sēde",
+        "this motion": "šis priekšlikums",
+        "Open the meeting in Decidiq to see the agenda.": "Atveriet sēdi Decidiq, lai redzētu darba kārtību.",
+        "Agenda published or changed": "Darba kārtība publicēta vai mainīta",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Paziņot, kad sēdes, kurā piedalāties, darba kārtība tiek publicēta, pārskatīta vai mainīta.",
+        "Agenda notice sent at": "Paziņojums par darba kārtību nosūtīts",
+        "When each member last received an agenda change notice for this meeting.": "Kad katrs loceklis pēdējo reizi saņēma paziņojumu par šīs sēdes darba kārtības izmaiņām."
     },
     "plurals": null
 }

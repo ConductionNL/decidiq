@@ -23,12 +23,13 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\AgendaService;
+use OCA\Decidiq\Service\NotificationPreferenceService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\CalendarEventService;
-use OCP\Notification\IManager as INotificationManager;
-use OCP\Notification\INotification;
+use OCP\IL10N;
+use OCP\L10N\IFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -63,11 +64,19 @@ class AgendaServiceTest extends TestCase {
 	private CalendarEventService&MockObject $calendarEventService;
 
 	/**
-	 * Mock INotificationManager.
+	 * Mock NotificationPreferenceService: the one place a member's delivery
+	 * choice is applied (agenda-change-notices-reach-members).
 	 *
-	 * @var INotificationManager&MockObject
+	 * @var NotificationPreferenceService&MockObject
 	 */
-	private INotificationManager&MockObject $notificationManager;
+	private NotificationPreferenceService&MockObject $preferences;
+
+	/**
+	 * Every dispatch() call, in order.
+	 *
+	 * @var array<int, array<string, mixed>>
+	 */
+	private array $dispatched = [];
 
 	/**
 	 * Mock LoggerInterface.
@@ -75,6 +84,13 @@ class AgendaServiceTest extends TestCase {
 	 * @var LoggerInterface&MockObject
 	 */
 	private LoggerInterface&MockObject $logger;
+
+	/**
+	 * Translations (English, %s filled).
+	 *
+	 * @var IFactory&MockObject
+	 */
+	private IFactory&MockObject $l10nFactory;
 
 	/**
 	 * Mock ParticipantResolver.
@@ -93,16 +109,24 @@ class AgendaServiceTest extends TestCase {
 
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->calendarEventService = $this->createMock(CalendarEventService::class);
-		$this->notificationManager = $this->createMock(INotificationManager::class);
+		$this->preferences = $this->createMock(NotificationPreferenceService::class);
+		$this->dispatched = [];
+		$l10n = $this->createMock(IL10N::class);
+		$l10n->method('t')->willReturnCallback(
+			fn (string $text, array|string $params = []): string => vsprintf($text, (array)$params)
+		);
+		$this->l10nFactory = $this->createMock(IFactory::class);
+		$this->l10nFactory->method('get')->willReturn($l10n);
 		$this->logger = $this->createMock(LoggerInterface::class);
 		$this->participantResolver = $this->createMock(ParticipantResolver::class);
 
 		$this->service = new AgendaService(
 			objectService: $this->objectService,
 			calendarEventService: $this->calendarEventService,
-			notificationManager: $this->notificationManager,
+			preferences: $this->preferences,
 			logger: $this->logger,
 			participantResolver: $this->participantResolver,
+			l10nFactory: $this->l10nFactory,
 		);
 
 	}//end setUp()
@@ -179,21 +203,11 @@ class AgendaServiceTest extends TestCase {
 			->with($meetingId)
 			->willReturn($participants);
 
-		$notification = $this->createMock(INotification::class);
-		$notification->method('setApp')->willReturnSelf();
-		$notification->method('setUser')->willReturnSelf();
-		$notification->method('setDateTime')->willReturnSelf();
-		$notification->method('setObject')->willReturnSelf();
-		$notification->method('setSubject')->willReturnSelf();
-
-		$this->notificationManager
-			->method('createNotification')
-			->willReturn($notification);
-
-		// Only 2 active participants → notify() called exactly 2 times.
-		$this->notificationManager
+		// Only 2 active participants: dispatch() is called exactly 2 times.
+		$this->preferences
 			->expects($this->exactly(2))
-			->method('notify');
+			->method('dispatch')
+			->willReturn(1);
 
 		$this->objectService
 			->expects($this->atLeastOnce())
@@ -251,9 +265,10 @@ class AgendaServiceTest extends TestCase {
 			$freshService = new AgendaService(
 				objectService: $objectService,
 				calendarEventService: $this->calendarEventService,
-				notificationManager: $this->notificationManager,
+				preferences: $this->preferences,
 				logger: $this->logger,
 				participantResolver: $this->participantResolver,
+				l10nFactory: $this->l10nFactory,
 			);
 
 			$freshService->advanceBobPhase($itemId);
@@ -610,33 +625,11 @@ class AgendaServiceTest extends TestCase {
 	 */
 	private function captureNotifications(): \ArrayObject {
 		$subjects = new \ArrayObject();
-		$this->notificationManager->method('createNotification')->willReturnCallback(
-			function () use ($subjects): INotification {
-				$state = new \ArrayObject();
-				$notification = $this->createMock(INotification::class);
-				$notification->method('setApp')->willReturnSelf();
-				$notification->method('setDateTime')->willReturnSelf();
-				$notification->method('setObject')->willReturnSelf();
-				$notification->method('setUser')->willReturnCallback(
-					function (string $user) use ($state, $notification): INotification {
-						$state['user'] = $user;
-						return $notification;
-					}
-				);
-				$notification->method('setSubject')->willReturnCallback(
-					function (string $subject) use ($state, $notification): INotification {
-						$state['subject'] = $subject;
-						return $notification;
-					}
-				);
-				$notification->method('getUser')->willReturnCallback(fn () => (string)($state['user'] ?? ''));
-				$notification->method('getSubject')->willReturnCallback(fn () => (string)($state['subject'] ?? ''));
-				return $notification;
-			}
-		);
-		$this->notificationManager->method('notify')->willReturnCallback(
-			function (INotification $notification) use ($subjects): void {
-				$subjects[$notification->getUser()] = $notification->getSubject();
+		$this->preferences->method('dispatch')->willReturnCallback(
+			function (string $personId, string $eventType, string $title, string $message, string $deepLink='', ?array $inApp=null) use ($subjects): int {
+				$subjects[$personId] = (string)($inApp['subject'] ?? '');
+				$this->dispatched[] = compact('personId', 'eventType', 'title', 'message', 'deepLink', 'inApp');
+				return 1;
 			}
 		);
 
@@ -688,4 +681,89 @@ class AgendaServiceTest extends TestCase {
 		return $entity;
 
 	}//end entity()
+
+	/**
+	 * Agenda notices go through the member's preferences as agendaChanged, with
+	 * the agenda subject for the bell and the meeting's title and link.
+	 *
+	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
+	 *
+	 * @return void
+	 */
+	public function testAgendaNoticeGoesThroughThePreferences(): void {
+		$this->wirePublishedMeeting(meeting: ['agendaPublishedAt' => '2026-09-01T10:00:00+00:00', 'agendaVersion' => 1]);
+		$this->captureNotifications();
+
+		$this->service->notifyAgendaChanged('meeting-uuid-1');
+
+		self::assertCount(1, $this->dispatched);
+		$call = $this->dispatched[0];
+		self::assertSame('agendaChanged', $call['eventType']);
+		self::assertSame('The agenda of Council changed', $call['title']);
+		self::assertSame('/meetings/meeting-uuid-1', $call['deepLink']);
+		self::assertSame('agenda_changed', $call['inApp']['subject']);
+		self::assertSame(['meetingId' => 'meeting-uuid-1', 'meetingTitle' => 'Council'], $call['inApp']['parameters']);
+		self::assertSame(['meeting', 'meeting-uuid-1'], [$call['inApp']['objectType'], $call['inApp']['objectId']]);
+
+	}//end testAgendaNoticeGoesThroughThePreferences()
+
+	/**
+	 * The recipient is the participant's linked Nextcloud user, not whoever
+	 * created the participant record.
+	 *
+	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
+	 *
+	 * @return void
+	 */
+	public function testTheLinkedNextcloudUserIsTheRecipient(): void {
+		$this->participantResolver->method('resolveMeetingParticipants')->willReturn(
+			[
+				['nextcloudUserId' => 'pieter', 'owner' => 'admin', 'leftAt' => null],
+				['owner' => 'legacy-owner', 'leftAt' => null],
+			]
+		);
+		$this->wirePublishedMeeting(meeting: ['agendaPublishedAt' => '2026-09-01T10:00:00+00:00', 'agendaVersion' => 1]);
+		$subjects = $this->captureNotifications();
+
+		$this->service->notifyAgendaChanged('meeting-uuid-1');
+
+		self::assertSame(['pieter' => 'agenda_changed', 'legacy-owner' => 'agenda_changed'], $subjects->getArrayCopy());
+
+	}//end testTheLinkedNextcloudUserIsTheRecipient()
+
+	/**
+	 * A burst of edits records a version each time but tells a member once in
+	 * five minutes; after that window the next edit notifies again.
+	 *
+	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-004-a-burst-of-agenda-edits-sends-one-notice
+	 *
+	 * @return void
+	 */
+	public function testABurstOfEditsSendsOneNotice(): void {
+		$recent = (new \DateTimeImmutable('-2 minutes'))->format(DATE_ATOM);
+		$saved = $this->wirePublishedMeeting(
+			meeting: ['agendaPublishedAt' => '2026-09-01T10:00:00+00:00', 'agendaVersion' => 3, 'agendaNoticeSentAt' => ['alice' => $recent]]
+		);
+		$subjects = $this->captureNotifications();
+
+		$this->service->notifyAgendaChanged('meeting-uuid-1');
+
+		self::assertCount(1, $saved, 'The version is recorded even without a notice');
+		self::assertSame(4, $saved[0]['agendaVersion']);
+		self::assertCount(0, $subjects, 'alice was told two minutes ago');
+		self::assertSame($recent, $saved[0]['agendaNoticeSentAt']['alice']);
+
+		$this->setUp();
+		$old = (new \DateTimeImmutable('-6 minutes'))->format(DATE_ATOM);
+		$saved = $this->wirePublishedMeeting(
+			meeting: ['agendaPublishedAt' => '2026-09-01T10:00:00+00:00', 'agendaVersion' => 4, 'agendaNoticeSentAt' => ['alice' => $old]]
+		);
+		$subjects = $this->captureNotifications();
+
+		$this->service->notifyAgendaChanged('meeting-uuid-1');
+
+		self::assertSame(['alice' => 'agenda_changed'], $subjects->getArrayCopy());
+		self::assertGreaterThan(strtotime($old), strtotime($saved[0]['agendaNoticeSentAt']['alice']));
+
+	}//end testABurstOfEditsSendsOneNotice()
 }//end class

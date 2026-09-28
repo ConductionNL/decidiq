@@ -1093,7 +1093,24 @@ OC.L10N.register(
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Questo verbale non è collegato a una riunione, quindi non ci sono punti all'ordine del giorno su cui prendere appunti.",
         "Minutes per agenda item": "Verbale per punto all'ordine del giorno",
         "Submission opens": "Apertura presentazione",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Quando i membri possono iniziare a presentare mozioni ed emendamenti per questa riunione. Vuoto significa che la presentazione è aperta da quando la riunione esiste."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Quando i membri possono iniziare a presentare mozioni ed emendamenti per questa riunione. Vuoto significa che la presentazione è aperta da quando la riunione esiste.",
+        "The agenda of %s was published": "L'ordine del giorno di %s è stato pubblicato",
+        "A revised agenda of %s was published": "È stato pubblicato un ordine del giorno rivisto di %s",
+        "The agenda of %s is being revised": "L'ordine del giorno di %s è in revisione",
+        "The agenda of %s changed": "L'ordine del giorno di %s è cambiato",
+        "You are asked to co-sign the motion %s": "Le viene chiesto di cofirmare la mozione %s",
+        "The motion %s was forwarded to you for approval": "La mozione %s le è stata inoltrata per l'approvazione",
+        "You received a proxy to vote for another member": "Ha ricevuto una delega per votare per un altro membro",
+        "Your vote by email was recorded": "Il suo voto via email è stato registrato",
+        "Your vote by email could not be read and was not counted": "Il suo voto via email non è stato leggibile e non è stato conteggiato",
+        "Your vote by email could not be read, please reply again": "Il suo voto via email non è stato leggibile, risponda di nuovo",
+        "this meeting": "questa riunione",
+        "this motion": "questa mozione",
+        "Open the meeting in Decidiq to see the agenda.": "Apra la riunione in Decidiq per vedere l'ordine del giorno.",
+        "Agenda published or changed": "Ordine del giorno pubblicato o modificato",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Avvisa quando l'ordine del giorno di una riunione a cui partecipa viene pubblicato, rivisto o modificato.",
+        "Agenda notice sent at": "Avviso sull'ordine del giorno inviato il",
+        "When each member last received an agenda change notice for this meeting.": "Quando ogni membro ha ricevuto l'ultimo avviso di modifica dell'ordine del giorno di questa riunione."
     },
     "nplurals=2; plural=(n != 1);"
 )

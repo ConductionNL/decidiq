@@ -1093,7 +1093,24 @@ OC.L10N.register(
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Αυτά τα πρακτικά δεν συνδέονται με συνεδρίαση, οπότε δεν υπάρχουν θέματα ημερήσιας διάταξης για σημειώσεις.",
         "Minutes per agenda item": "Πρακτικά ανά θέμα ημερήσιας διάταξης",
         "Submission opens": "Έναρξη υποβολής",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Πότε τα μέλη μπορούν να αρχίσουν να υποβάλλουν προτάσεις και τροπολογίες για αυτή τη συνεδρίαση. Κενό σημαίνει ότι η υποβολή είναι ανοιχτή από τη στιγμή που υπάρχει η συνεδρίαση."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Πότε τα μέλη μπορούν να αρχίσουν να υποβάλλουν προτάσεις και τροπολογίες για αυτή τη συνεδρίαση. Κενό σημαίνει ότι η υποβολή είναι ανοιχτή από τη στιγμή που υπάρχει η συνεδρίαση.",
+        "The agenda of %s was published": "Η ημερήσια διάταξη της %s δημοσιεύθηκε",
+        "A revised agenda of %s was published": "Δημοσιεύθηκε αναθεωρημένη ημερήσια διάταξη της %s",
+        "The agenda of %s is being revised": "Η ημερήσια διάταξη της %s αναθεωρείται",
+        "The agenda of %s changed": "Η ημερήσια διάταξη της %s άλλαξε",
+        "You are asked to co-sign the motion %s": "Σας ζητείται να συνυπογράψετε την πρόταση %s",
+        "The motion %s was forwarded to you for approval": "Η πρόταση %s σας διαβιβάστηκε προς έγκριση",
+        "You received a proxy to vote for another member": "Λάβατε εξουσιοδότηση να ψηφίσετε για άλλο μέλος",
+        "Your vote by email was recorded": "Η ψήφος σας μέσω email καταγράφηκε",
+        "Your vote by email could not be read and was not counted": "Η ψήφος σας μέσω email δεν ήταν δυνατό να διαβαστεί και δεν μετρήθηκε",
+        "Your vote by email could not be read, please reply again": "Η ψήφος σας μέσω email δεν ήταν δυνατό να διαβαστεί, απαντήστε ξανά",
+        "this meeting": "αυτή τη συνεδρίαση",
+        "this motion": "αυτή η πρόταση",
+        "Open the meeting in Decidiq to see the agenda.": "Ανοίξτε τη συνεδρίαση στο Decidiq για να δείτε την ημερήσια διάταξη.",
+        "Agenda published or changed": "Ημερήσια διάταξη δημοσιεύθηκε ή άλλαξε",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Ειδοποίηση όταν η ημερήσια διάταξη μιας συνεδρίασης στην οποία συμμετέχετε δημοσιεύεται, αναθεωρείται ή αλλάζει.",
+        "Agenda notice sent at": "Ειδοποίηση ημερήσιας διάταξης στάλθηκε στις",
+        "When each member last received an agenda change notice for this meeting.": "Πότε κάθε μέλος έλαβε τελευταία ειδοποίηση αλλαγής ημερήσιας διάταξης για αυτή τη συνεδρίαση."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1093,7 +1093,24 @@ OC.L10N.register(
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Този протокол не е свързан със заседание, затова няма точки от дневния ред за бележки.",
         "Minutes per agenda item": "Протокол по точки от дневния ред",
         "Submission opens": "Подаването започва",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Кога членовете могат да започнат да подават предложения и изменения за това заседание. Празно означава, че подаването е отворено от момента, в който заседанието съществува."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Кога членовете могат да започнат да подават предложения и изменения за това заседание. Празно означава, че подаването е отворено от момента, в който заседанието съществува.",
+        "The agenda of %s was published": "Дневният ред на %s е публикуван",
+        "A revised agenda of %s was published": "Публикуван е преработен дневен ред на %s",
+        "The agenda of %s is being revised": "Дневният ред на %s се преработва",
+        "The agenda of %s changed": "Дневният ред на %s е променен",
+        "You are asked to co-sign the motion %s": "Помолени сте да подпишете предложението %s",
+        "The motion %s was forwarded to you for approval": "Предложението %s ви е препратено за одобрение",
+        "You received a proxy to vote for another member": "Получихте пълномощно да гласувате за друг член",
+        "Your vote by email was recorded": "Гласът ви по имейл е записан",
+        "Your vote by email could not be read and was not counted": "Гласът ви по имейл не можа да бъде прочетен и не е отчетен",
+        "Your vote by email could not be read, please reply again": "Гласът ви по имейл не можа да бъде прочетен, моля, отговорете отново",
+        "this meeting": "това заседание",
+        "this motion": "това предложение",
+        "Open the meeting in Decidiq to see the agenda.": "Отворете заседанието в Decidiq, за да видите дневния ред.",
+        "Agenda published or changed": "Дневният ред е публикуван или променен",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Известяване, когато дневният ред на заседание, в което участвате, е публикуван, преработен или променен.",
+        "Agenda notice sent at": "Известие за дневния ред изпратено на",
+        "When each member last received an agenda change notice for this meeting.": "Кога всеки член за последно е получил известие за промяна в дневния ред на това заседание."
     },
     "nplurals=2; plural=(n != 1);"
 )

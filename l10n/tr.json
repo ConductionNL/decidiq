@@ -1092,7 +1092,24 @@
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Bu tutanak bir toplantıya bağlı değil, bu yüzden not alınacak gündem maddesi yok.",
         "Minutes per agenda item": "Gündem maddesine göre tutanak",
         "Submission opens": "Sunum açılışı",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Üyelerin bu toplantı için önerge ve değişiklik önergesi sunmaya ne zaman başlayabileceği. Boş, sunumun toplantı oluşturulduğu andan itibaren açık olduğu anlamına gelir."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Üyelerin bu toplantı için önerge ve değişiklik önergesi sunmaya ne zaman başlayabileceği. Boş, sunumun toplantı oluşturulduğu andan itibaren açık olduğu anlamına gelir.",
+        "The agenda of %s was published": "%s gündemi yayımlandı",
+        "A revised agenda of %s was published": "%s için gözden geçirilmiş gündem yayımlandı",
+        "The agenda of %s is being revised": "%s gündemi gözden geçiriliyor",
+        "The agenda of %s changed": "%s gündemi değişti",
+        "You are asked to co-sign the motion %s": "%s önergesini ortak imzalamanız isteniyor",
+        "The motion %s was forwarded to you for approval": "%s önergesi onayınız için size iletildi",
+        "You received a proxy to vote for another member": "Başka bir üye adına oy kullanmak için vekâlet aldınız",
+        "Your vote by email was recorded": "E-postayla verdiğiniz oy kaydedildi",
+        "Your vote by email could not be read and was not counted": "E-postayla verdiğiniz oy okunamadı ve sayılmadı",
+        "Your vote by email could not be read, please reply again": "E-postayla verdiğiniz oy okunamadı, lütfen yeniden yanıtlayın",
+        "this meeting": "bu toplantı",
+        "this motion": "bu önerge",
+        "Open the meeting in Decidiq to see the agenda.": "Gündemi görmek için toplantıyı Decidiq'te açın.",
+        "Agenda published or changed": "Gündem yayımlandı veya değişti",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Katıldığınız bir toplantının gündemi yayımlandığında, gözden geçirildiğinde veya değiştiğinde bildir.",
+        "Agenda notice sent at": "Gündem bildirimi gönderilme zamanı",
+        "When each member last received an agenda change notice for this meeting.": "Her üyenin bu toplantının gündem değişikliği bildirimini en son ne zaman aldığı."
     },
     "plurals": null
 }

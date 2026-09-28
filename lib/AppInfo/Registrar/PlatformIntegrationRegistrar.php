@@ -76,7 +76,7 @@ class PlatformIntegrationRegistrar {
 		$this->registerSearch(context: $context);
 		$this->registerObjectWriteGuards(context: $context);
 		$this->registerDashboardWidget(context: $context);
-		// decidiq's only notifier: without it no notice decidiq sends can be
+		// Decidiq's only notifier: without it no notice decidiq sends can be
 		// rendered in the bell (agenda-change-notices-reach-members, #1381).
 		$context->registerNotifierService(Notifier::class);
 

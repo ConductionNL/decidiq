@@ -18,8 +18,8 @@
 - **acceptance_criteria**:
   - GIVEN a member with delivery in-app WHEN `dispatch()` runs THEN `IManager::notify()` receives a decidiq notification with subject `decidiq_message`
   - GIVEN the container has no `OpenRegisterNotificationService` WHEN `dispatch()` runs THEN the in-app count is 1, not 0
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 3: Agenda notices honour each member's choice
 - **spec_ref**: `openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice`
@@ -28,8 +28,8 @@
   - GIVEN a member with delivery email WHEN an item of a published agenda is edited THEN he gets an email and no bell notice
   - GIVEN a member who switched agenda changes off WHEN the agenda changes THEN he gets nothing
   - GIVEN a participant with `nextcloudUserId` and a different `owner` WHEN notified THEN the `nextcloudUserId` user receives it
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 4: One notice for a burst of edits
 - **spec_ref**: `openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-004-a-burst-of-agenda-edits-sends-one-notice`
@@ -37,17 +37,26 @@
 - **acceptance_criteria**:
   - GIVEN three edits within five minutes WHEN each is saved THEN three agenda versions exist and each member got one notice
   - GIVEN an edit six minutes after the last notice WHEN saved THEN a second notice goes out
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 5: End to end
 - **spec_ref**: `openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown`
 - **files**: `tests/e2e/agenda-change-notices.spec.ts`
 - **acceptance_criteria**:
   - GIVEN a published agenda and a member signed in WHEN the clerk adds an item THEN the member's bell shows "The agenda of <meeting> changed" linking the meeting
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ## Verification
 
 - `composer check:strict` and `npm run lint` once before push; `npm run test:l10n` for the new keys.
+
+## Notes from the build (2026-09-28)
+
+- The notice times live in a new fragment, `95-agenda-change-notices.json`, together with the `agendaChanged` preference, instead of in `91-agenda-publication-has-its-own-fields.json`: one fragment per change keeps the register history readable.
+- `AgendaService` no longer takes `INotificationManager`; it takes `NotificationPreferenceService` and `IFactory`. Every agenda subject, including `agenda_revision_started`, goes through `dispatch()` under `agendaChanged`, with the agenda subject passed for the bell so the notifier renders it in the recipient's language.
+- `dispatch()` gained an optional `inApp` argument (subject, parameters, object) and its e-mail channel now appends the absolute link, which every caller benefits from.
+- The notifier also renders the three `email_vote_*` subjects `MailVoteReplyProcessor` sends as decidiq, which the spec's list did not name but which had the same defect.
+- The Playwright test for the bell was written but not run on this branch; the other scenarios carry `@e2e exclude` with the unit test that proves them.
+

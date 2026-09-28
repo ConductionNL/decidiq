@@ -26,6 +26,7 @@ The app SHALL register a Nextcloud notifier that prepares every notification sen
 - GIVEN a notification sent by OpenRegister
 - WHEN Nextcloud asks decidiq's notifier to prepare it
 - THEN the notifier declines and OpenRegister's own notifier handles it
+@e2e exclude no screen: the declining happens between Nextcloud and the notifier; covered by tests/Unit/Notification/NotifierTest.php testAnotherAppIsDeclined
 
 ### Requirement: REQ-ACN-002 Preference-aware in-app notices are sent as decidiq
 
@@ -44,11 +45,13 @@ Agenda publication, revision and change notices SHALL be sent through the member
 - GIVEN council member Jan chose delivery by email
 - WHEN the griffier moves an item on the published agenda
 - THEN Jan receives an email that the agenda changed, with a link to the meeting
+@e2e exclude a browser cannot read the member's mailbox; covered by tests/Unit/Service/NotificationPreferenceServiceTest.php testAnEmailReaderGetsTheAgendaChangeWithALink
 
 #### Scenario: A member who switched agenda changes off
 - GIVEN council member Els switched agenda changes off in her settings
 - WHEN the agenda changes
 - THEN Els receives no notice
+@e2e exclude proving an absence in another user's bell is the unit test's job; covered by tests/Unit/Service/NotificationPreferenceServiceTest.php testAMemberWhoSwitchedAgendaChangesOffGetsNothing
 
 ### Requirement: REQ-ACN-004 A burst of agenda edits sends one notice
 
@@ -58,3 +61,4 @@ The app SHALL send a member at most one agenda change notice per meeting within 
 - GIVEN a published agenda
 - WHEN the griffier edits three items within two minutes
 - THEN three agenda versions are recorded and each member receives one notice
+@e2e exclude the five minute window cannot be waited out in a browser run; covered by tests/Unit/Service/AgendaServiceTest.php testABurstOfEditsSendsOneNotice

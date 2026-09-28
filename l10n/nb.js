@@ -1093,7 +1093,24 @@ OC.L10N.register(
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Dette referatet er ikke knyttet til et møte, så det finnes ingen saker å ta notater til.",
         "Minutes per agenda item": "Referat per sak",
         "Submission opens": "Innsending åpner",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Når medlemmer kan begynne å sende inn forslag og endringsforslag til dette møtet. Tomt betyr at innsending er åpen fra møtet finnes."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Når medlemmer kan begynne å sende inn forslag og endringsforslag til dette møtet. Tomt betyr at innsending er åpen fra møtet finnes.",
+        "The agenda of %s was published": "Sakslisten for %s er publisert",
+        "A revised agenda of %s was published": "En revidert saksliste for %s er publisert",
+        "The agenda of %s is being revised": "Sakslisten for %s blir revidert",
+        "The agenda of %s changed": "Sakslisten for %s er endret",
+        "You are asked to co-sign the motion %s": "Du blir bedt om å medsignere forslaget %s",
+        "The motion %s was forwarded to you for approval": "Forslaget %s er videresendt til deg for godkjenning",
+        "You received a proxy to vote for another member": "Du har fått fullmakt til å stemme for et annet medlem",
+        "Your vote by email was recorded": "Stemmen din per e-post er registrert",
+        "Your vote by email could not be read and was not counted": "Stemmen din per e-post kunne ikke leses og ble ikke telt",
+        "Your vote by email could not be read, please reply again": "Stemmen din per e-post kunne ikke leses, svar på nytt",
+        "this meeting": "dette møtet",
+        "this motion": "dette forslaget",
+        "Open the meeting in Decidiq to see the agenda.": "Åpne møtet i Decidiq for å se sakslisten.",
+        "Agenda published or changed": "Saksliste publisert eller endret",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Varsle når sakslisten for et møte du deltar i publiseres, revideres eller endres.",
+        "Agenda notice sent at": "Sakslistevarsel sendt",
+        "When each member last received an agenda change notice for this meeting.": "Når hvert medlem sist fikk varsel om endring i sakslisten for dette møtet."
     },
     "nplurals=2; plural=(n != 1);"
 )

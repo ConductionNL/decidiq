@@ -31,7 +31,10 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\NotificationPreferenceService;
 use OCP\IUser;
+use OCP\IURLGenerator;
 use OCP\IUserManager;
+use OCP\Notification\IManager as INotificationManager;
+use OCP\Notification\INotification;
 use OCP\Mail\IMailer;
 use OCP\Mail\IMessage;
 use PHPUnit\Framework\TestCase;
@@ -52,6 +55,13 @@ class NotificationPreferenceServiceTest extends TestCase {
 	 * @var array<int, array<string, string>>
 	 */
 	public array $inAppSends = [];
+
+	/**
+	 * Plain-text bodies of the e-mails sent.
+	 *
+	 * @var array<int, string>
+	 */
+	public array $emailBodies = [];
 
 	/**
 	 * Recorded e-mail sends (public so the mailer double can append).
@@ -146,44 +156,57 @@ class NotificationPreferenceServiceTest extends TestCase {
 			}
 		};
 
-		// Recorder double for the in-app notification service.
-		$inAppRecorder = new class($this) {
+		// The in-app channel is Nextcloud's own notification manager
+		// (agenda-change-notices-reach-members, REQ-ACN-002). Each notify()
+		// records what was sent, read back off the real INotification setters.
+		$test = $this;
+		$notificationManager = $this->createMock(INotificationManager::class);
+		$notificationManager->method('createNotification')->willReturnCallback(
+			function () use ($test): INotification {
+				$state = new \ArrayObject();
+				$n = $test->createMock(INotification::class);
+				foreach (['setApp', 'setUser', 'setObject', 'setSubject', 'setDateTime'] as $setter) {
+					$n->method($setter)->willReturnCallback(
+						function (...$args) use ($n, $state, $setter): INotification {
+							$state[$setter] = $args;
+							return $n;
+						}
+					);
+				}
 
-			/**
-			 * Constructor.
-			 *
-			 * @param NotificationPreferenceServiceTest $test The owning test (public sink arrays).
-			 */
-			public function __construct(
-				private object $test,
-			) {
+				$n->method('getApp')->willReturnCallback(fn () => ($state['setApp'][0] ?? ''));
+				$n->method('getUser')->willReturnCallback(fn () => ($state['setUser'][0] ?? ''));
+				$n->method('getSubject')->willReturnCallback(fn () => ($state['setSubject'][0] ?? ''));
+				$n->method('getSubjectParameters')->willReturnCallback(fn () => ($state['setSubject'][1] ?? []));
+				return $n;
 			}
-
-			/**
-			 * Record one send.
-			 *
-			 * @param string $userId Recipient.
-			 * @param string $title Title.
-			 * @param string $message Message.
-			 * @param string $deepLink Deep link.
-			 *
-			 * @return void
-			 */
-			public function sendNotification(string $userId, string $title, string $message, string $deepLink = ''): void {
-				$this->test->inAppSends[] = [
-					'userId' => $userId,
-					'title' => $title,
-					'message' => $message,
-					'deepLink' => $deepLink,
+		);
+		$notificationManager->method('notify')->willReturnCallback(
+			function (INotification $n) use ($test): void {
+				$params = $n->getSubjectParameters();
+				$test->inAppSends[] = [
+					'userId'     => $n->getUser(),
+					'app'        => $n->getApp(),
+					'subject'    => $n->getSubject(),
+					'parameters' => $params,
+					'title'      => (string)($params['title'] ?? ''),
+					'message'    => (string)($params['message'] ?? ''),
+					'deepLink'   => (string)($params['link'] ?? ''),
 				];
 			}
-		};
+		);
 
-		$test = $this;
 		$mailer = $this->createMock(IMailer::class);
 		$mailer->method('createMessage')->willReturnCallback(
-			function () {
-				return $this->createMock(IMessage::class);
+			function () use ($test) {
+				$message = $this->createMock(IMessage::class);
+				$message->method('setPlainBody')->willReturnCallback(
+					function (string $body) use ($test, $message): IMessage {
+						$test->emailBodies[] = $body;
+						return $message;
+					}
+				);
+				return $message;
 			}
 		);
 		$mailer->method('send')->willReturnCallback(
@@ -193,6 +216,9 @@ class NotificationPreferenceServiceTest extends TestCase {
 			}
 		);
 
+		$urls = $this->createMock(IURLGenerator::class);
+		$urls->method('linkToRouteAbsolute')->willReturn('https://cloud.example/apps/decidiq/');
+
 		$user = $this->createMock(IUser::class);
 		$user->method('getEMailAddress')->willReturn($accountEmail);
 		$userManager = $this->createMock(IUserManager::class);
@@ -200,9 +226,10 @@ class NotificationPreferenceServiceTest extends TestCase {
 
 		$services = [
 			'OCA\OpenRegister\Service\ObjectService' => $objectService,
-			'OpenRegisterNotificationService' => $inAppRecorder,
+			INotificationManager::class => $notificationManager,
 			IMailer::class => $mailer,
 			IUserManager::class => $userManager,
+			IURLGenerator::class => $urls,
 		];
 
 		$container = $this->createMock(ContainerInterface::class);
@@ -593,4 +620,91 @@ class NotificationPreferenceServiceTest extends TestCase {
 		self::assertNotEmpty($logger->lines, 'A dropped notice MUST leave a log line');
 
 	}//end testUnknownEventTypeIsDroppedWithALogLine()
+
+	/**
+	 * The in-app channel is a decidiq notification sent through Nextcloud's
+	 * notification manager, with the generic subject the notifier renders, and
+	 * no service outside decidiq is needed for it.
+	 *
+	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
+	 *
+	 * @return void
+	 */
+	public function testInAppIsSentAsADecidiqNotification(): void {
+		$service = $this->buildService(preferenceRows: [], accountEmail: null);
+
+		self::assertSame(
+			1,
+			$service->dispatch(personId: 'aisha', eventType: 'votingOpened', title: 'Voting opened', message: 'Vote now.', deepLink: '/motions/m1')
+		);
+		self::assertSame('decidiq', $this->inAppSends[0]['app']);
+		self::assertSame('decidiq_message', $this->inAppSends[0]['subject']);
+		self::assertSame('aisha', $this->inAppSends[0]['userId']);
+		self::assertSame('/motions/m1', $this->inAppSends[0]['deepLink']);
+
+	}//end testInAppIsSentAsADecidiqNotification()
+
+	/**
+	 * A caller can hand its own subject for the bell, so the notifier renders
+	 * it in each recipient's language (agenda notices do this).
+	 *
+	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
+	 *
+	 * @return void
+	 */
+	public function testACallerCanNameItsOwnSubject(): void {
+		$service = $this->buildService(preferenceRows: [], accountEmail: null);
+
+		$service->dispatch(
+			personId: 'pieter',
+			eventType: 'agendaChanged',
+			title: 'The agenda changed',
+			message: 'See the meeting.',
+			deepLink: '/meetings/m-1',
+			inApp: ['subject' => 'agenda_changed', 'parameters' => ['meetingId' => 'm-1'], 'objectType' => 'meeting', 'objectId' => 'm-1']
+		);
+
+		self::assertSame('agenda_changed', $this->inAppSends[0]['subject']);
+		self::assertSame(['meetingId' => 'm-1'], $this->inAppSends[0]['parameters']);
+
+	}//end testACallerCanNameItsOwnSubject()
+
+	/**
+	 * A member who reads email gets the agenda change by email, and the email
+	 * carries an absolute link to the meeting.
+	 *
+	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
+	 *
+	 * @return void
+	 */
+	public function testAnEmailReaderGetsTheAgendaChangeWithALink(): void {
+		$service = $this->buildService(
+			preferenceRows: ['jan' => ['person' => 'jan', 'deliveryMethod' => 'email']],
+			accountEmail: 'jan@example.com'
+		);
+
+		self::assertSame(1, $service->dispatch(personId: 'jan', eventType: 'agendaChanged', title: 'The agenda of Raad changed', message: 'Open the meeting.', deepLink: '/meetings/m-1'));
+		self::assertCount(0, $this->inAppSends);
+		self::assertStringContainsString('https://cloud.example/apps/decidiq/meetings/m-1', $this->emailBodies[0]);
+
+	}//end testAnEmailReaderGetsTheAgendaChangeWithALink()
+
+	/**
+	 * A member who switched agenda changes off gets nothing.
+	 *
+	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
+	 *
+	 * @return void
+	 */
+	public function testAMemberWhoSwitchedAgendaChangesOffGetsNothing(): void {
+		$service = $this->buildService(
+			preferenceRows: ['els' => ['person' => 'els', 'agendaChanged' => false, 'deliveryMethod' => 'both']],
+			accountEmail: 'els@example.com'
+		);
+
+		self::assertSame(0, $service->dispatch(personId: 'els', eventType: 'agendaChanged', title: 'T', message: 'M'));
+		self::assertCount(0, $this->inAppSends);
+		self::assertCount(0, $this->emailSends);
+
+	}//end testAMemberWhoSwitchedAgendaChangesOffGetsNothing()
 }//end class

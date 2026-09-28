@@ -1093,7 +1093,24 @@ OC.L10N.register(
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Ky procesverbal nuk është i lidhur me një mbledhje, prandaj nuk ka pika të rendit të ditës për shënime.",
         "Minutes per agenda item": "Procesverbal sipas pikave të rendit të ditës",
         "Submission opens": "Dorëzimi hapet",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Kur anëtarët mund të fillojnë të dorëzojnë mocione dhe amendamente për këtë mbledhje. Bosh do të thotë se dorëzimi është i hapur që nga momenti që mbledhja ekziston."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Kur anëtarët mund të fillojnë të dorëzojnë mocione dhe amendamente për këtë mbledhje. Bosh do të thotë se dorëzimi është i hapur që nga momenti që mbledhja ekziston.",
+        "The agenda of %s was published": "Rendi i ditës i %s u publikua",
+        "A revised agenda of %s was published": "U publikua një rend dite i rishikuar i %s",
+        "The agenda of %s is being revised": "Rendi i ditës i %s po rishikohet",
+        "The agenda of %s changed": "Rendi i ditës i %s ndryshoi",
+        "You are asked to co-sign the motion %s": "Ju kërkohet të bashkënënshkruani mocionin %s",
+        "The motion %s was forwarded to you for approval": "Mocioni %s ju përcoll për miratim",
+        "You received a proxy to vote for another member": "Morët një prokurë për të votuar për një anëtar tjetër",
+        "Your vote by email was recorded": "Vota juaj me email u regjistrua",
+        "Your vote by email could not be read and was not counted": "Vota juaj me email nuk u lexua dot dhe nuk u numërua",
+        "Your vote by email could not be read, please reply again": "Vota juaj me email nuk u lexua dot, ju lutemi përgjigjuni sërish",
+        "this meeting": "kjo mbledhje",
+        "this motion": "ky mocion",
+        "Open the meeting in Decidiq to see the agenda.": "Hapni mbledhjen në Decidiq për të parë rendin e ditës.",
+        "Agenda published or changed": "Rendi i ditës u publikua ose ndryshoi",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Njofto kur rendi i ditës i një mbledhjeje ku merrni pjesë publikohet, rishikohet ose ndryshon.",
+        "Agenda notice sent at": "Njoftimi për rendin e ditës u dërgua më",
+        "When each member last received an agenda change notice for this meeting.": "Kur mori secili anëtar njoftimin e fundit për ndryshimin e rendit të ditës për këtë mbledhje."
     },
     "nplurals=2; plural=(n != 1);"
 )

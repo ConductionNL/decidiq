@@ -27,7 +27,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use DateTime;
 use DateTimeImmutable;
+use OCA\Decidiq\AppInfo\Application;
+use OCP\IURLGenerator;
+use OCP\Notification\IManager as INotificationManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -50,6 +54,8 @@ class NotificationPreferenceService {
 		'taskAssigned' => true,
 		'commentMention' => true,
 		'meetingReminder' => true,
+		// Agenda published, revised or changed (agenda-change-notices-reach-members).
+		'agendaChanged' => true,
 		'reminderTimes' => ['24h', '1h'],
 		'deliveryMethod' => 'in-app',
 		'delegate' => null,
@@ -372,8 +378,10 @@ class NotificationPreferenceService {
 	 *    absent member would have received).
 	 * 2. Recipient expansion — the person plus their active delegate.
 	 * 3. Channel selection per recipient — each recipient's own
-	 *    `deliveryMethod` decides in-app (OpenRegister notification service)
-	 *    and/or e-mail (IMailer, to governanceEmail ?? account email).
+	 *    `deliveryMethod` decides in-app (a decidiq notification through
+	 *    Nextcloud's notification manager, rendered by
+	 *    OCA\Decidiq\Notification\Notifier) and/or e-mail (IMailer, to
+	 *    governanceEmail ?? account email).
 	 *
 	 * Fail-soft by design: a failing channel is logged and never breaks the
 	 * calling flow (publishing a decision / opening a voting round must not
@@ -384,12 +392,17 @@ class NotificationPreferenceService {
 	 * @param string $title Notification title
 	 * @param string $message Notification body
 	 * @param string $deepLink In-app deep link (app-relative, e.g. /decisions/{id})
+	 * @param array{subject?: string, parameters?: array<string, mixed>, objectType?: string, objectId?: string}|null $inApp
+	 *        The bell notice's own subject, when the caller has one the notifier
+	 *        renders in the recipient's language; null sends the generic
+	 *        `decidiq_message` built from $title, $message and $deepLink
 	 *
 	 * @return int Number of channel deliveries performed
 	 *
 	 * @spec openspec/specs/user-settings/spec.md
+	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
 	 */
-	public function dispatch(string $personId, string $eventType, string $title, string $message, string $deepLink = ''): int {
+	public function dispatch(string $personId, string $eventType, string $title, string $message, string $deepLink = '', ?array $inApp = null): int {
 		if ($this->shouldNotify(personId: $personId, eventType: $eventType) === false) {
 			$this->logger->info(
 				'Decidiq: notification not sent, the event type is switched off or unknown',
@@ -403,11 +416,14 @@ class NotificationPreferenceService {
 			$method = (string)($this->getPreferenceWithDefaults(personId: $recipientId)['deliveryMethod'] ?? 'in-app');
 
 			if ($method === 'in-app' || $method === 'both') {
-				$sent += $this->sendInApp(recipientId: $recipientId, title: $title, message: $message, deepLink: $deepLink);
+				$sent += $this->sendInApp(
+					recipientId: $recipientId,
+					inApp: ($inApp ?? $this->genericInApp(title: $title, message: $message, deepLink: $deepLink))
+				);
 			}
 
 			if ($method === 'email' || $method === 'both') {
-				$sent += $this->sendEmail(recipientId: $recipientId, title: $title, message: $message);
+				$sent += $this->sendEmail(recipientId: $recipientId, title: $title, message: $message, deepLink: $deepLink);
 			}
 		}
 
@@ -415,26 +431,46 @@ class NotificationPreferenceService {
 	}//end dispatch()
 
 	/**
-	 * Send one in-app Nextcloud notification (fail-soft).
+	 * The generic bell notice: the notifier shows its title, message and link.
+	 *
+	 * @param string $title    Notification title
+	 * @param string $message  Notification body
+	 * @param string $deepLink App-relative deep link
+	 *
+	 * @return array{subject: string, parameters: array<string, string>, objectType: string, objectId: string}
+	 *
+	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
+	 */
+	private function genericInApp(string $title, string $message, string $deepLink): array {
+		return [
+			'subject'    => 'decidiq_message',
+			'parameters' => ['title' => $title, 'message' => $message, 'link' => $deepLink],
+			'objectType' => 'decidiq',
+			'objectId'   => md5($title . "\n" . $deepLink),
+		];
+	}//end genericInApp()
+
+	/**
+	 * Send one in-app notification as decidiq through Nextcloud's
+	 * notification manager (fail-soft). decidiq's notifier renders it.
 	 *
 	 * @param string $recipientId Recipient NC UID
-	 * @param string $title Notification title
-	 * @param string $message Notification body
-	 * @param string $deepLink App-relative deep link
+	 * @param array{subject?: string, parameters?: array<string, mixed>, objectType?: string, objectId?: string} $inApp The notice
 	 *
 	 * @return int 1 on success, 0 on failure
 	 *
-	 * @spec openspec/specs/user-settings/spec.md
+	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
 	 */
-	private function sendInApp(string $recipientId, string $title, string $message, string $deepLink): int {
+	private function sendInApp(string $recipientId, array $inApp): int {
 		try {
-			$notificationService = $this->container->get('OpenRegisterNotificationService');
-			$notificationService->sendNotification(
-				userId: $recipientId,
-				title: $title,
-				message: $message,
-				deepLink: $deepLink
-			);
+			$manager = $this->container->get(INotificationManager::class);
+			$notification = $manager->createNotification();
+			$notification->setApp(Application::APP_ID)
+				->setUser($recipientId)
+				->setDateTime(new DateTime())
+				->setObject((string)($inApp['objectType'] ?? 'decidiq'), (string)($inApp['objectId'] ?? $recipientId))
+				->setSubject((string)($inApp['subject'] ?? 'decidiq_message'), (array)($inApp['parameters'] ?? []));
+			$manager->notify($notification);
 			return 1;
 		} catch (\Throwable $e) {
 			$this->logger->warning(
@@ -452,12 +488,13 @@ class NotificationPreferenceService {
 	 * @param string $recipientId Recipient NC UID
 	 * @param string $title E-mail subject
 	 * @param string $message E-mail plain-text body
+	 * @param string $deepLink App-relative link, appended as an absolute URL when set
 	 *
 	 * @return int 1 on success, 0 on failure (or no address available)
 	 *
 	 * @spec openspec/specs/user-settings/spec.md
 	 */
-	private function sendEmail(string $recipientId, string $title, string $message): int {
+	private function sendEmail(string $recipientId, string $title, string $message, string $deepLink = ''): int {
 		try {
 			$address = $this->getGovernanceEmail(personId: $recipientId);
 			if ($address === null) {
@@ -469,7 +506,7 @@ class NotificationPreferenceService {
 			$emailMessage = $mailer->createMessage();
 			$emailMessage->setTo([$address]);
 			$emailMessage->setSubject($title);
-			$emailMessage->setPlainBody($message);
+			$emailMessage->setPlainBody($this->withLink(message: $message, deepLink: $deepLink));
 			$mailer->send($emailMessage);
 			return 1;
 		} catch (\Throwable $e) {
@@ -481,4 +518,24 @@ class NotificationPreferenceService {
 		}//end try
 
 	}//end sendEmail()
+
+	/**
+	 * Append the absolute link to an e-mail body, so the reader can open the
+	 * object the notice is about.
+	 *
+	 * @param string $message  Plain-text body
+	 * @param string $deepLink App-relative link, or ''
+	 *
+	 * @return string The body, with the link on its own line when there is one
+	 *
+	 * @spec openspec/changes/agenda-change-notices-reach-members/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
+	 */
+	private function withLink(string $message, string $deepLink): string {
+		if ($deepLink === '') {
+			return $message;
+		}
+
+		$base = $this->container->get(IURLGenerator::class)->linkToRouteAbsolute(Application::APP_ID . '.dashboard.page');
+		return $message . "\n\n" . rtrim($base, '/') . '/' . ltrim($deepLink, '/');
+	}//end withLink()
 }//end class

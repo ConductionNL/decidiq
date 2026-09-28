@@ -1092,7 +1092,24 @@
         "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Ten protokół nie jest powiązany z posiedzeniem, więc nie ma punktów porządku obrad do notatek.",
         "Minutes per agenda item": "Protokół według punktów porządku obrad",
         "Submission opens": "Otwarcie składania",
-        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Od kiedy członkowie mogą składać wnioski i poprawki na to posiedzenie. Puste oznacza, że składanie jest otwarte od chwili utworzenia posiedzenia."
+        "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.": "Od kiedy członkowie mogą składać wnioski i poprawki na to posiedzenie. Puste oznacza, że składanie jest otwarte od chwili utworzenia posiedzenia.",
+        "The agenda of %s was published": "Opublikowano porządek obrad %s",
+        "A revised agenda of %s was published": "Opublikowano zmieniony porządek obrad %s",
+        "The agenda of %s is being revised": "Porządek obrad %s jest zmieniany",
+        "The agenda of %s changed": "Porządek obrad %s zmienił się",
+        "You are asked to co-sign the motion %s": "Poproszono Cię o współpodpisanie wniosku %s",
+        "The motion %s was forwarded to you for approval": "Wniosek %s został przekazany Ci do zatwierdzenia",
+        "You received a proxy to vote for another member": "Otrzymano pełnomocnictwo do głosowania za innego członka",
+        "Your vote by email was recorded": "Twój głos oddany e-mailem został zapisany",
+        "Your vote by email could not be read and was not counted": "Nie udało się odczytać Twojego głosu z e-maila, więc nie został policzony",
+        "Your vote by email could not be read, please reply again": "Nie udało się odczytać Twojego głosu z e-maila, odpowiedz ponownie",
+        "this meeting": "to posiedzenie",
+        "this motion": "ten wniosek",
+        "Open the meeting in Decidiq to see the agenda.": "Otwórz posiedzenie w Decidiq, aby zobaczyć porządek obrad.",
+        "Agenda published or changed": "Porządek obrad opublikowany lub zmieniony",
+        "Notify when the agenda of a meeting you take part in is published, revised or changed.": "Powiadamiaj, gdy porządek obrad posiedzenia, w którym uczestniczysz, zostanie opublikowany, zmieniony lub zaktualizowany.",
+        "Agenda notice sent at": "Powiadomienie o porządku obrad wysłane",
+        "When each member last received an agenda change notice for this meeting.": "Kiedy każdy członek ostatnio otrzymał powiadomienie o zmianie porządku obrad tego posiedzenia."
     },
     "plurals": null
 }
