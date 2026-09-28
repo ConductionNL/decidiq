@@ -201,3 +201,61 @@ export function availableWorkflowActions(lifecycle) {
 			return []
 	}
 }
+
+/**
+ * The agenda items that get minutes: regular items in agenda order. Hamerstukken
+ * (tag `hamerstuk`) are adopted without debate and carry no per-item notes, the
+ * same filter the live screen applies.
+ *
+ * @param {Array<object>|null} items Agenda items of one meeting.
+ *
+ * @return {Array<object>} Regular items sorted by orderNumber.
+ *
+ * @spec openspec/changes/agenda-meeting-page-item-tools/specs/resolution-minutes/spec.md#requirement-req-amp-005-the-minutes-page-carries-the-per-item-minutes-editor
+ */
+export function regularAgendaItems(items) {
+	return (items || [])
+		.filter((item) => !(item.tags ?? []).includes('hamerstuk'))
+		.sort((a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0))
+}
+
+/**
+ * The participants of one meeting. Participant carries the meeting as an
+ * OpenRegister relation, not as a queryable property, so the list is filtered
+ * here exactly as the live screen does.
+ *
+ * @param {Array<object>|null} list Participant objects.
+ * @param {string} meetingId Meeting UUID.
+ *
+ * @return {Array<object>} The meeting's participants.
+ *
+ * @spec openspec/changes/agenda-meeting-page-item-tools/specs/resolution-minutes/spec.md#requirement-req-amp-005-the-minutes-page-carries-the-per-item-minutes-editor
+ */
+export function meetingParticipants(list, meetingId) {
+	return (list || []).filter(
+		(p) =>
+			p?.['@self']?.relations?.meeting === meetingId
+			|| p?.relations?.meeting === meetingId,
+	)
+}
+
+/**
+ * Choose the minutes record the editor writes to. On the minutes page that is
+ * the record the page shows (by id), whatever its lifecycle; on the live screen,
+ * which passes no id, it is the meeting's draft, else the first record.
+ *
+ * @param {Array<object>|null} list Minutes records of one meeting.
+ * @param {string} minutesId Id of the record the page is about, or ''.
+ *
+ * @return {?object} The minutes record, or null.
+ *
+ * @spec openspec/changes/agenda-meeting-page-item-tools/specs/resolution-minutes/spec.md#requirement-req-amp-005-the-minutes-page-carries-the-per-item-minutes-editor
+ */
+export function pickMinutesRecord(list, minutesId) {
+	const records = list || []
+	if (minutesId) {
+		const exact = records.find((m) => String(m.id) === String(minutesId))
+		if (exact) return exact
+	}
+	return records.find((m) => m.lifecycle === 'draft') || records[0] || null
+}

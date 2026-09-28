@@ -1088,7 +1088,10 @@ OC.L10N.register(
         "Could not save the new order": "L-ordni l-ġdid ma setax jiġi ssejvjat",
         "Move up": "Mexxi 'l fuq",
         "Move down": "Mexxi 'l isfel",
-        "The new order was not saved.": "L-ordni l-ġdid ma ġiex issejvjat."
+        "The new order was not saved.": "L-ordni l-ġdid ma ġiex issejvjat.",
+        "Could not load the agenda of these minutes": "L-aġenda ta' dan il-minuti ma setgħetx titgħabba",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Dan il-minuti mhumiex marbuta ma' laqgħa, għalhekk m'hemmx punti fuq l-aġenda biex tieħu noti fuqhom.",
+        "Minutes per agenda item": "Minuti għal kull punt fuq l-aġenda"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1088,7 +1088,10 @@ OC.L10N.register(
         "Could not save the new order": "Noua ordine nu a putut fi salvată",
         "Move up": "Mută în sus",
         "Move down": "Mută în jos",
-        "The new order was not saved.": "Noua ordine nu a fost salvată."
+        "The new order was not saved.": "Noua ordine nu a fost salvată.",
+        "Could not load the agenda of these minutes": "Ordinea de zi a acestui proces-verbal nu a putut fi încărcată",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Acest proces-verbal nu este legat de o ședință, deci nu există puncte pe ordinea de zi pentru notițe.",
+        "Minutes per agenda item": "Proces-verbal pe puncte de pe ordinea de zi"
     },
     "nplurals=2; plural=(n != 1);"
 )

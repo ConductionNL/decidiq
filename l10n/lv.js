@@ -1088,7 +1088,10 @@ OC.L10N.register(
         "Could not save the new order": "Neizdevās saglabāt jauno secību",
         "Move up": "Pārvietot uz augšu",
         "Move down": "Pārvietot uz leju",
-        "The new order was not saved.": "Jaunā secība netika saglabāta."
+        "The new order was not saved.": "Jaunā secība netika saglabāta.",
+        "Could not load the agenda of these minutes": "Neizdevās ielādēt šī protokola darba kārtību",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Šis protokols nav saistīts ar sēdi, tāpēc nav darba kārtības punktu, par kuriem veikt piezīmes.",
+        "Minutes per agenda item": "Protokols pa darba kārtības punktiem"
     },
     "nplurals=2; plural=(n != 1);"
 )

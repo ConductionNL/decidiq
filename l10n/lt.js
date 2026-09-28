@@ -1088,7 +1088,10 @@ OC.L10N.register(
         "Could not save the new order": "Nepavyko išsaugoti naujos tvarkos",
         "Move up": "Perkelti aukštyn",
         "Move down": "Perkelti žemyn",
-        "The new order was not saved.": "Nauja tvarka neišsaugota."
+        "The new order was not saved.": "Nauja tvarka neišsaugota.",
+        "Could not load the agenda of these minutes": "Nepavyko įkelti šio protokolo darbotvarkės",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Šis protokolas nesusietas su posėdžiu, todėl nėra darbotvarkės klausimų užrašams.",
+        "Minutes per agenda item": "Protokolas pagal darbotvarkės klausimą"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1088,7 +1088,10 @@ OC.L10N.register(
         "Could not save the new order": "Uutta järjestystä ei voitu tallentaa",
         "Move up": "Siirrä ylös",
         "Move down": "Siirrä alas",
-        "The new order was not saved.": "Uutta järjestystä ei tallennettu."
+        "The new order was not saved.": "Uutta järjestystä ei tallennettu.",
+        "Could not load the agenda of these minutes": "Tämän pöytäkirjan esityslistaa ei voitu ladata",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Tätä pöytäkirjaa ei ole liitetty kokoukseen, joten muistiinpanoille ei ole esityslistan kohtia.",
+        "Minutes per agenda item": "Pöytäkirja esityslistan kohdittain"
     },
     "nplurals=2; plural=(n != 1);"
 )

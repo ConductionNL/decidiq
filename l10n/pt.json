@@ -1087,7 +1087,10 @@
         "Could not save the new order": "Não foi possível guardar a nova ordem",
         "Move up": "Mover para cima",
         "Move down": "Mover para baixo",
-        "The new order was not saved.": "A nova ordem não foi guardada."
+        "The new order was not saved.": "A nova ordem não foi guardada.",
+        "Could not load the agenda of these minutes": "Não foi possível carregar a ordem de trabalhos desta ata",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Esta ata não está ligada a uma reunião, por isso não há pontos da ordem de trabalhos para anotar.",
+        "Minutes per agenda item": "Ata por ponto da ordem de trabalhos"
     },
     "plurals": null
 }

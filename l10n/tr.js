@@ -1088,7 +1088,10 @@ OC.L10N.register(
         "Could not save the new order": "Yeni sıra kaydedilemedi",
         "Move up": "Yukarı taşı",
         "Move down": "Aşağı taşı",
-        "The new order was not saved.": "Yeni sıra kaydedilmedi."
+        "The new order was not saved.": "Yeni sıra kaydedilmedi.",
+        "Could not load the agenda of these minutes": "Bu tutanağın gündemi yüklenemedi",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Bu tutanak bir toplantıya bağlı değil, bu yüzden not alınacak gündem maddesi yok.",
+        "Minutes per agenda item": "Gündem maddesine göre tutanak"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1088,7 +1088,10 @@ OC.L10N.register(
         "Could not save the new order": "Rendi i ri nuk mund të ruhej",
         "Move up": "Lëviz lart",
         "Move down": "Lëviz poshtë",
-        "The new order was not saved.": "Rendi i ri nuk u ruajt."
+        "The new order was not saved.": "Rendi i ri nuk u ruajt.",
+        "Could not load the agenda of these minutes": "Rendi i ditës i këtij procesverbali nuk mund të ngarkohej",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Ky procesverbal nuk është i lidhur me një mbledhje, prandaj nuk ka pika të rendit të ditës për shënime.",
+        "Minutes per agenda item": "Procesverbal sipas pikave të rendit të ditës"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1088,7 +1088,10 @@ OC.L10N.register(
         "Could not save the new order": "Ekki tókst að vista nýju röðina",
         "Move up": "Færa upp",
         "Move down": "Færa niður",
-        "The new order was not saved.": "Nýja röðin var ekki vistuð."
+        "The new order was not saved.": "Nýja röðin var ekki vistuð.",
+        "Could not load the agenda of these minutes": "Ekki tókst að hlaða dagskrá þessarar fundargerðar",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Þessi fundargerð er ekki tengd fundi, svo engir dagskrárliðir eru til að skrifa við.",
+        "Minutes per agenda item": "Fundargerð eftir dagskrárlið"
     },
     "nplurals=2; plural=(n != 1);"
 )

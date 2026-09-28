@@ -1088,7 +1088,10 @@ OC.L10N.register(
         "Could not save the new order": "Uut järjekorda ei õnnestunud salvestada",
         "Move up": "Liiguta üles",
         "Move down": "Liiguta alla",
-        "The new order was not saved.": "Uut järjekorda ei salvestatud."
+        "The new order was not saved.": "Uut järjekorda ei salvestatud.",
+        "Could not load the agenda of these minutes": "Selle protokolli päevakorda ei õnnestunud laadida",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "See protokoll pole koosolekuga seotud, seega pole päevakorrapunkte, mille kohta märkmeid teha.",
+        "Minutes per agenda item": "Protokoll päevakorrapunktide kaupa"
     },
     "nplurals=2; plural=(n != 1);"
 )

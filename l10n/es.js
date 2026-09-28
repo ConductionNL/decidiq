@@ -1088,7 +1088,10 @@ OC.L10N.register(
         "Could not save the new order": "No se pudo guardar el nuevo orden",
         "Move up": "Subir",
         "Move down": "Bajar",
-        "The new order was not saved.": "El nuevo orden no se ha guardado."
+        "The new order was not saved.": "El nuevo orden no se ha guardado.",
+        "Could not load the agenda of these minutes": "No se pudo cargar el orden del día de esta acta",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Esta acta no está vinculada a una reunión, así que no hay puntos del orden del día sobre los que tomar notas.",
+        "Minutes per agenda item": "Acta por punto del orden del día"
     },
     "nplurals=2; plural=(n != 1);"
 )

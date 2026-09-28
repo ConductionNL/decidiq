@@ -1087,7 +1087,10 @@
         "Could not save the new order": "Δεν ήταν δυνατή η αποθήκευση της νέας σειράς",
         "Move up": "Μετακίνηση πάνω",
         "Move down": "Μετακίνηση κάτω",
-        "The new order was not saved.": "Η νέα σειρά δεν αποθηκεύτηκε."
+        "The new order was not saved.": "Η νέα σειρά δεν αποθηκεύτηκε.",
+        "Could not load the agenda of these minutes": "Δεν ήταν δυνατή η φόρτωση της ημερήσιας διάταξης αυτών των πρακτικών",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Αυτά τα πρακτικά δεν συνδέονται με συνεδρίαση, οπότε δεν υπάρχουν θέματα ημερήσιας διάταξης για σημειώσεις.",
+        "Minutes per agenda item": "Πρακτικά ανά θέμα ημερήσιας διάταξης"
     },
     "plurals": null
 }

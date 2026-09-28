@@ -1087,7 +1087,10 @@
         "Could not save the new order": "Новият ред не можа да бъде запазен",
         "Move up": "Премести нагоре",
         "Move down": "Премести надолу",
-        "The new order was not saved.": "Новият ред не беше запазен."
+        "The new order was not saved.": "Новият ред не беше запазен.",
+        "Could not load the agenda of these minutes": "Дневният ред на този протокол не можа да бъде зареден",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Този протокол не е свързан със заседание, затова няма точки от дневния ред за бележки.",
+        "Minutes per agenda item": "Протокол по точки от дневния ред"
     },
     "plurals": null
 }

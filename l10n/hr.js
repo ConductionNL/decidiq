@@ -1088,7 +1088,10 @@ OC.L10N.register(
         "Could not save the new order": "Novi redoslijed nije moguće spremiti",
         "Move up": "Pomakni gore",
         "Move down": "Pomakni dolje",
-        "The new order was not saved.": "Novi redoslijed nije spremljen."
+        "The new order was not saved.": "Novi redoslijed nije spremljen.",
+        "Could not load the agenda of these minutes": "Dnevni red ovog zapisnika nije moguće učitati",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Ovaj zapisnik nije povezan sa sastankom, pa nema točaka dnevnog reda za bilješke.",
+        "Minutes per agenda item": "Zapisnik po točki dnevnog reda"
     },
     "nplurals=2; plural=(n != 1);"
 )

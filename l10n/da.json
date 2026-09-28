@@ -1087,7 +1087,10 @@
         "Could not save the new order": "Den nye rækkefølge kunne ikke gemmes",
         "Move up": "Flyt op",
         "Move down": "Flyt ned",
-        "The new order was not saved.": "Den nye rækkefølge blev ikke gemt."
+        "The new order was not saved.": "Den nye rækkefølge blev ikke gemt.",
+        "Could not load the agenda of these minutes": "Dagsordenen for dette referat kunne ikke indlæses",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Dette referat er ikke knyttet til et møde, så der er ingen dagsordenspunkter at tage noter til.",
+        "Minutes per agenda item": "Referat pr. dagsordenspunkt"
     },
     "plurals": null
 }

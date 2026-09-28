@@ -1088,7 +1088,10 @@ OC.L10N.register(
         "Could not save the new order": "Die neue Reihenfolge konnte nicht gespeichert werden",
         "Move up": "Nach oben verschieben",
         "Move down": "Nach unten verschieben",
-        "The new order was not saved.": "Die neue Reihenfolge wurde nicht gespeichert."
+        "The new order was not saved.": "Die neue Reihenfolge wurde nicht gespeichert.",
+        "Could not load the agenda of these minutes": "Die Tagesordnung dieses Protokolls konnte nicht geladen werden",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Dieses Protokoll ist mit keiner Sitzung verknüpft, daher gibt es keine Tagesordnungspunkte für Notizen.",
+        "Minutes per agenda item": "Protokoll je Tagesordnungspunkt"
     },
     "nplurals=2; plural=(n != 1);"
 )

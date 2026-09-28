@@ -1088,7 +1088,10 @@ OC.L10N.register(
         "Could not save the new order": "Не удалось сохранить новый порядок",
         "Move up": "Переместить вверх",
         "Move down": "Переместить вниз",
-        "The new order was not saved.": "Новый порядок не сохранён."
+        "The new order was not saved.": "Новый порядок не сохранён.",
+        "Could not load the agenda of these minutes": "Не удалось загрузить повестку этого протокола",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Этот протокол не связан с заседанием, поэтому нет пунктов повестки для заметок.",
+        "Minutes per agenda item": "Протокол по пунктам повестки"
     },
     "nplurals=2; plural=(n != 1);"
 )

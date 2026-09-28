@@ -1087,7 +1087,10 @@
         "Could not save the new order": "Kunne ikke lagre den nye rekkefølgen",
         "Move up": "Flytt opp",
         "Move down": "Flytt ned",
-        "The new order was not saved.": "Den nye rekkefølgen ble ikke lagret."
+        "The new order was not saved.": "Den nye rekkefølgen ble ikke lagret.",
+        "Could not load the agenda of these minutes": "Kunne ikke laste inn sakslisten for dette referatet",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Dette referatet er ikke knyttet til et møte, så det finnes ingen saker å ta notater til.",
+        "Minutes per agenda item": "Referat per sak"
     },
     "plurals": null
 }

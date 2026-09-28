@@ -21,7 +21,7 @@
   - GIVEN a member without either role WHEN the widget renders THEN no drag handle and no move actions show
   - GIVEN a parent item with sub-items WHEN the parent moves THEN its sub-items move with it
 - [x] Implement
-- [ ] Test (vitest on the tree order, Playwright drag and keyboard move)
+- [x] Test (vitest on the tree order, Playwright drag and keyboard move)
 
 ### Task 3: Open an agenda item and the live screen from the meeting page
 - **spec_ref**: `openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-003-every-agenda-row-opens-its-item-page`, `openspec/changes/agenda-meeting-page-item-tools/specs/agenda-management/spec.md#requirement-req-amp-004-the-meeting-page-links-the-live-meeting-screen`
@@ -31,7 +31,7 @@
   - GIVEN a chair, secretary or admin WHEN the agenda widget renders THEN an Open live meeting button routes to `/meetings/{id}/live`
   - GIVEN a member without those roles WHEN the widget renders THEN the button is absent
 - [x] Implement
-- [ ] Test (Playwright: open item, attach a file on the item page, see it listed)
+- [x] Test (Playwright: open item, attach a file on the item page, see it listed)
 
 ### Task 4: Per-item minutes on the minutes page
 - **spec_ref**: `openspec/changes/agenda-meeting-page-item-tools/specs/resolution-minutes/spec.md#requirement-req-amp-005-the-minutes-page-carries-the-per-item-minutes-editor`
@@ -40,8 +40,8 @@
   - GIVEN draft minutes of a meeting with four regular agenda items WHEN the secretary opens the minutes page THEN four per-item note fields show and a typed note autosaves into `itemNotes`
   - GIVEN minutes past the draft stage WHEN anyone opens the page THEN the notes show read-only
   - GIVEN the manifest WHEN `tests/validate-manifest.js` runs THEN it passes
-- [ ] Implement
-- [ ] Test (Playwright: type a note, reload, note is still there)
+- [x] Implement
+- [x] Test (Playwright: type a note, reload, note is still there)
 
 ## Verification
 

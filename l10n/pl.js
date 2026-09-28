@@ -1088,7 +1088,10 @@ OC.L10N.register(
         "Could not save the new order": "Nie udało się zapisać nowej kolejności",
         "Move up": "Przenieś w górę",
         "Move down": "Przenieś w dół",
-        "The new order was not saved.": "Nowa kolejność nie została zapisana."
+        "The new order was not saved.": "Nowa kolejność nie została zapisana.",
+        "Could not load the agenda of these minutes": "Nie udało się wczytać porządku obrad tego protokołu",
+        "These minutes are not linked to a meeting, so there are no agenda items to take notes on.": "Ten protokół nie jest powiązany z posiedzeniem, więc nie ma punktów porządku obrad do notatek.",
+        "Minutes per agenda item": "Protokół według punktów porządku obrad"
     },
     "nplurals=2; plural=(n != 1);"
 )

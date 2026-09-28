@@ -1029,7 +1029,8 @@
 				"widget-minutes-approval": "MinutesApprovalTab",
 				"widget-minutes-documents": "MinutesDocumentTab",
 				"widget-minutes-signers": "MinutesSignersTab",
-				"widget-minutes-publication": "MinutesPublicationTab"
+				"widget-minutes-publication": "MinutesPublicationTab",
+				"widget-minutes-item-notes": "MinutesItemNotesTab"
 			},
 			"title": "Minutes detail",
 			"config": {
@@ -1039,6 +1040,7 @@
 				"widgets": [
 					{ "id": "minutes-data", "type": "data", "title": "Minutes", "icon": "FileDocument", "content": { "columns": 2 } },
 					{ "id": "minutes-approval", "type": "custom", "component": "MinutesApprovalTab", "title": "Approval", "icon": "CheckCircleOutline" },
+					{ "id": "minutes-item-notes", "type": "custom", "component": "MinutesItemNotesTab", "title": "Minutes per agenda item", "icon": "FormatListNumbered" },
 					{ "id": "minutes-documents", "type": "custom", "component": "MinutesDocumentTab", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "minutes-signers", "type": "custom", "component": "MinutesSignersTab", "title": "Signers", "icon": "AccountGroup" },
 					{ "id": "minutes-publication", "type": "custom", "component": "MinutesPublicationTab", "title": "Publication", "icon": "Web" }
@@ -1046,9 +1048,10 @@
 				"layout": [
 					{ "id": "1", "widgetId": "minutes-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
 					{ "id": "2", "widgetId": "minutes-approval", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
-					{ "id": "3", "widgetId": "minutes-documents", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 6 },
-					{ "id": "4", "widgetId": "minutes-signers", "gridX": 0, "gridY": 12, "gridWidth": 6, "gridHeight": 4 },
-					{ "id": "5", "widgetId": "minutes-publication", "gridX": 6, "gridY": 12, "gridWidth": 6, "gridHeight": 4 }
+					{ "id": "6", "widgetId": "minutes-item-notes", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 8 },
+					{ "id": "3", "widgetId": "minutes-documents", "gridX": 0, "gridY": 14, "gridWidth": 12, "gridHeight": 6 },
+					{ "id": "4", "widgetId": "minutes-signers", "gridX": 0, "gridY": 20, "gridWidth": 6, "gridHeight": 4 },
+					{ "id": "5", "widgetId": "minutes-publication", "gridX": 6, "gridY": 20, "gridWidth": 6, "gridHeight": 4 }
 				],
 				"sidebar": {
 					"enabled": true,
