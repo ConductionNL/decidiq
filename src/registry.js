@@ -29,6 +29,7 @@ import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
 import AgendaPublicationTab from './components/tabs/AgendaPublicationTab.vue'
 import AmendmentDiffTab from './components/tabs/AmendmentDiffTab.vue'
 import AmendmentParentMotionTab from './components/tabs/AmendmentParentMotionTab.vue'
+import AmendmentVotingRoundTab from './components/tabs/AmendmentVotingRoundTab.vue'
 import ConsultationReactionsTab from './components/tabs/ConsultationReactionsTab.vue'
 import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue'
 import DecisionLifecycleTab from './components/tabs/DecisionLifecycleTab.vue'
@@ -233,6 +234,7 @@ export default {
 	MotionAmendmentOrderTab: page(MotionAmendmentOrderTab),
 	MotionVotesTab: page(MotionVotesTab),
 	MotionVotingRoundTab: page(MotionVotingRoundTab),
+	AmendmentVotingRoundTab: page(AmendmentVotingRoundTab),
 	MotionCitizenAdviceTab: page(MotionCitizenAdviceTab),
 	AmendmentParentMotionTab: page(AmendmentParentMotionTab),
 	// Visual diff against the parent motion text (motion-amendment spec).

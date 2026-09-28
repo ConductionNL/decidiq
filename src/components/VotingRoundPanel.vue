@@ -20,7 +20,7 @@
 				{{ t('decidiq', 'No active voting round.') }}
 			</p>
 			<NcButton
-				v-if="motionLifecycle === 'deliberating'"
+				v-if="motionLifecycle === 'deliberating' && permissions.canOpen"
 				variant="primary"
 				:disabled="!meetingId"
 				:title="
@@ -425,7 +425,7 @@
 					v-if="
 						currentRound.result === 'tied'
 						&& activeRules.tieBreakRule === 'chair-decides'
-						&& isChairOrSecretary
+						&& permissions.canCastChairVote
 					"
 					class="decidiq-chair-casting"
 					data-testid="chair-casting-controls">
@@ -522,8 +522,14 @@ import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcTextField } from '@nextcloud/vue'
 import RankedBallot from './RankedBallot.vue'
 import RankedResultsCard from './RankedResultsCard.vue'
-import { useObjectStore, useSettingsStore } from '../store/store.js'
+import { useObjectStore } from '../store/store.js'
 import { matching, relationFilterFor } from '../utils/objectRelations.js'
+import {
+	NO_VOTING_PERMISSIONS,
+	readVotingPermissions,
+	votingPermissionsPath,
+	votingRoundBody,
+} from '../utils/votingPermissions.js'
 import {
 	ABSTENTION_MODES,
 	computeBase,
@@ -545,16 +551,22 @@ export default {
 	},
 
 	props: {
+		// The subject's id: a motion, or an amendment when subjectType is
+		// 'amendment' (the server names it motionId for both).
 		motionId: { type: String, required: true },
 		motionLifecycle: { type: String, default: '' },
 		meetingId: { type: String, default: '' },
+		subjectType: {
+			type: String,
+			default: 'motion',
+			validator: (value) => ['motion', 'amendment'].includes(value),
+		},
 	},
 
 	/** @spec exclude setup() only wires the shared object + settings store refs; no domain logic */
 	setup() {
 		const objectStore = useObjectStore()
-		const settingsStore = useSettingsStore()
-		return { objectStore, settingsStore }
+		return { objectStore }
 	},
 
 	data() {
@@ -587,6 +599,9 @@ export default {
 			chairCastingError: null,
 			pollInterval: null,
 			participantCount: 0,
+			// The server's answer on which controls this user may use
+			// (REQ-VCR-002); every control hidden until it arrives.
+			permissions: { ...NO_VOTING_PERMISSIONS },
 		}
 	},
 
@@ -616,8 +631,14 @@ export default {
 			)
 		},
 
+		/**
+		 * Chair or secretary of this round's meeting, as the server answers it.
+		 *
+		 * @return {boolean} True when the close, split, revote and publish controls show.
+		 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-001-the-meetings-chair-and-secretary-see-the-voting-controls
+		 */
 		isChairOrSecretary() {
-			return this.settingsStore.isAdmin === true
+			return this.permissions.canClose
 		},
 
 		/** Rule enum option lists for the open-round dialog. @spec openspec/specs/voting-system/spec.md */
@@ -703,6 +724,11 @@ export default {
 	},
 
 	watch: {
+		/** @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-001-the-meetings-chair-and-secretary-see-the-voting-controls */
+		meetingId() {
+			this.loadPermissions()
+		},
+
 		/**
 		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
 		 * @param {string} method The picked voting method
@@ -719,6 +745,7 @@ export default {
 
 	/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 */
 	async mounted() {
+		this.loadPermissions()
 		await this.fetchCurrentRound()
 		// Poll every 5 seconds when round is open.
 		this.pollInterval = setInterval(async () => {
@@ -736,6 +763,26 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Ask the server once per meeting which voting controls this user may
+		 * use. Fail closed: an error leaves every control hidden.
+		 *
+		 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
+		 */
+		async loadPermissions() {
+			try {
+				const resp = await fetch(
+					OC.generateUrl(votingPermissionsPath(this.meetingId)),
+					{ headers: { Accept: 'application/json' } },
+				)
+				this.permissions = resp.ok
+					? readVotingPermissions(await resp.json())
+					: { ...NO_VOTING_PERMISSIONS }
+			} catch {
+				this.permissions = { ...NO_VOTING_PERMISSIONS }
+			}
+		},
+
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
 		async fetchCurrentRound() {
 			this.loading = true
@@ -840,8 +887,11 @@ export default {
 							requesttoken: OC.requestToken,
 						},
 						body: JSON.stringify({
-							motionId: this.motionId,
-							meetingId: this.meetingId,
+							...votingRoundBody({
+								subjectId: this.motionId,
+								subjectType: this.subjectType,
+								meetingId: this.meetingId,
+							}),
 							votingMethod: this.newRound.votingMethod,
 							isSecret: this.newRound.isSecret,
 							closedAt: this.newRound.closedAt || null,

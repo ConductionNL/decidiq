@@ -975,12 +975,14 @@
 				"widgets": [
 					{ "id": "amend-diff", "type": "custom", "component": "AmendmentDiffTab", "title": "Text changes", "icon": "FileSign" },
 					{ "id": "amend-data", "type": "data", "title": "Amendment", "icon": "FileSign", "content": { "columns": 2, "include": ["title", "text", "targetPassage", "proposedText", "proposer", "lifecycle", "submittedAt", "votingOrder"], "overrides": { "lifecycle": { "editable": false }, "submittedAt": { "editable": false } } } },
-					{ "id": "amend-parent", "type": "custom", "component": "AmendmentParentMotionTab", "title": "Parent motion", "icon": "LinkVariant" }
+					{ "id": "amend-parent", "type": "custom", "component": "AmendmentParentMotionTab", "title": "Parent motion", "icon": "LinkVariant" },
+					{ "id": "amend-voting-round", "type": "custom", "component": "AmendmentVotingRoundTab", "title": "Voting round", "icon": "VoteOutline" }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "amend-diff", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 6 },
 					{ "id": "2", "widgetId": "amend-data", "gridX": 0, "gridY": 6, "gridWidth": 8, "gridHeight": 4 },
-					{ "id": "3", "widgetId": "amend-parent", "gridX": 8, "gridY": 6, "gridWidth": 4, "gridHeight": 4 }
+					{ "id": "3", "widgetId": "amend-parent", "gridX": 8, "gridY": 6, "gridWidth": 4, "gridHeight": 4 },
+					{ "id": "4", "widgetId": "amend-voting-round", "gridX": 0, "gridY": 10, "gridWidth": 12, "gridHeight": 6 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -995,7 +997,8 @@
 			"slots": {
 				"form-dialog": "DecisionFormDialog",
 				"widget-amend-diff": "AmendmentDiffTab",
-				"widget-amend-parent": "AmendmentParentMotionTab"
+				"widget-amend-parent": "AmendmentParentMotionTab",
+				"widget-amend-voting-round": "AmendmentVotingRoundTab"
 			}
 		},
 		{
