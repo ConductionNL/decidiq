@@ -30,3 +30,4 @@ The provider SHALL return only minutes the searcher may read under OpenRegister'
 - GIVEN minutes of a closed session that council member Pieter may not read
 - WHEN he searches a word that appears in them
 - THEN those minutes are not listed
+@e2e exclude which minutes a member may read is OpenRegister's read rule, not the provider's; the provider keeps that rule on, proven by tests/Unit/Search/DecidiqSearchProviderTest.php testSearchKeepsOpenRegisterReadRules

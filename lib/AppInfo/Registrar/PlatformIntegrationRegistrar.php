@@ -36,12 +36,12 @@ use OCA\Decidiq\Listener\PortalCreateOpenParentGuardListener;
 use OCA\Decidiq\Notification\Notifier;
 use OCA\Decidiq\Search\DecidiqSearchProvider;
 use OCA\Decidiq\Service\DashboardWidgetService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IURLGenerator;
 use OCP\L10N\IFactory;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -99,7 +99,7 @@ class PlatformIntegrationRegistrar {
 			DecidiqSearchProvider::class,
 			static function ($c): DecidiqSearchProvider {
 				return new DecidiqSearchProvider(
-					container: $c->get(ContainerInterface::class),
+					objectService: $c->get(ObjectServiceInterface::class),
 					urlGenerator: $c->get(IURLGenerator::class),
 					l10n: $c->get(IFactory::class)->get(Application::APP_ID),
 					logger: $c->get(LoggerInterface::class),
