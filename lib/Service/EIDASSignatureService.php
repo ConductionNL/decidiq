@@ -444,8 +444,8 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	/**
 	 * Find an integriq source by slug.
 	 *
-	 * integriq keeps its sources as OpenRegister objects (register `integriq`,
-	 * schema `source`); its own controllers find them this way. There is no
+	 * The integriq app keeps its sources as OpenRegister objects (register
+	 * `integriq`, schema `source`); its own controllers find them this way. There is no
 	 * `Db\SourceMapper` under any namespace integriq has shipped since the
 	 * sources moved into OpenRegister, so the lookup this replaces threw on
 	 * every instance and no signing request ever left decidiq.
@@ -477,7 +477,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	/**
 	 * The response body of an integriq call.
 	 *
-	 * integriq's CallService::call() returns the call log as an OpenRegister
+	 * The integriq CallService::call() returns the call log as an OpenRegister
 	 * object whose data holds `response.body`. An older call log exposed
 	 * `getResponse()`; both are read.
 	 *
