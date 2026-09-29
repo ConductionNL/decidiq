@@ -103,7 +103,8 @@ class LiveMeetingController extends Controller {
 	 *
 	 * POST /api/meetings/{meetingId}/live-decisions
 	 *
-	 * Body: { "title": string, "text": string, "outcome": string, "legalBasis"?: string }
+	 * Body: { "title": string, "text": string, "outcome": string, "legalBasis"?: string,
+	 *        "decisionType"?: string, "agendaItem"?: string }
 	 *
 	 * Returns 200 with the created Decision object on success.
 	 * Returns 400 when required fields are missing.
@@ -117,6 +118,7 @@ class LiveMeetingController extends Controller {
 	 * @return JSONResponse The created Decision object
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
+	 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
 	 */
 	#[NoAdminRequired]
 	public function recordLiveDecision(string $meetingId): JSONResponse {
@@ -142,6 +144,8 @@ class LiveMeetingController extends Controller {
 				'text' => $text,
 				'outcome' => $outcome,
 				'legalBasis' => $this->request->getParam('legalBasis'),
+				'decisionType' => $this->request->getParam('decisionType'),
+				'agendaItem' => $this->request->getParam('agendaItem'),
 			];
 
 			$decisionSlug = $this->liveDecisionService->recordDecision(
