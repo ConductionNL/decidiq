@@ -43,3 +43,5 @@ The chair or secretary of the meeting a commitment was made in, or an administra
 - GIVEN a council member who is not chair or secretary of that meeting
 - WHEN she tries to add a progress entry
 - THEN the request is refused and the commitment is unchanged
+
+@e2e exclude the e2e session is an administrator, who may add progress; the refusal is proven by tests/Unit/Controller/CommitmentProgressTest.php::testMemberIsRefused over the real MeetingRoleGate.
