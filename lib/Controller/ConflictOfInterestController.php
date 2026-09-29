@@ -197,7 +197,12 @@ class ConflictOfInterestController extends Controller {
 			return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
 		}
 
-		$conflict = $this->conflictService->getActiveConflicts($id, $agendaItemId);
+		try {
+			$conflict = $this->conflictService->getActiveConflicts($id, $agendaItemId);
+		} catch (\RuntimeException $e) {
+			return new JSONResponse(['message' => 'The declarations could not be read. Try again in a moment.'], Http::STATUS_SERVICE_UNAVAILABLE);
+		}
+
 		return new JSONResponse(['conflict' => $conflict]);
 	}//end forMember()
 

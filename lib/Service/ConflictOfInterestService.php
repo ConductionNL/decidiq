@@ -408,6 +408,8 @@ class ConflictOfInterestService {
 	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
 	 *
 	 * @return array<string, mixed>|null
+	 *
+	 * @throws \RuntimeException When the declarations cannot be read (fail closed).
 	 */
 	public function getActiveConflicts(string $membershipId, string $agendaItemId): ?array {
 		$matches = $this->findDeclarations(membershipId: $membershipId, agendaItemId: $agendaItemId);
@@ -439,6 +441,8 @@ class ConflictOfInterestService {
 	 * @param string $agendaItemId UUID of the agenda item
 	 *
 	 * @return array<int, array<string, mixed>>
+	 *
+	 * @throws \RuntimeException When the declarations cannot be read (fail closed).
 	 */
 	private function findDeclarations(string $membershipId, string $agendaItemId): array {
 		try {
@@ -460,11 +464,14 @@ class ConflictOfInterestService {
 				]
 			);
 		} catch (\Throwable $e) {
+			// Fail closed: an empty answer here would read as "no declaration"
+			// and let a recused member vote (RecusalGuard), so the failure
+			// travels to the caller instead.
 			$this->logger->error(
 				'Decidiq: failed to query conflict declarations',
 				['exception' => $e->getMessage()]
 			);
-			return [];
+			throw new \RuntimeException('Conflict-of-interest declarations could not be read.', 0, $e);
 		}//end try
 
 		$out = [];
