@@ -381,7 +381,7 @@ class AgendaService {
 	 *
 	 * @throws InvalidArgumentException When the item is not on this meeting.
 	 *
-	 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
 	 */
 	public function setCurrentItem(string $meetingId, string $itemId): void {
 		$entity = $this->objectService->find(id: $itemId, register: 'decidiq', schema: 'agenda-item');

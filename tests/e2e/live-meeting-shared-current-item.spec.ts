@@ -14,6 +14,7 @@ import {
 	cleanupAll,
 	createObject,
 	newLedger,
+	writeHeaders,
 } from './workflows/governance-fixture.ts'
 
 const ledger = newLedger()
@@ -58,4 +59,45 @@ test('the chair makes an item current, the room screen follows and a decision is
 	await page.getByTestId('live-decision-submit').click()
 	await expect(page.getByText('Decision recorded.')).toBeVisible()
 	expect(idOf(item)).toBeTruthy()
+})
+
+// @e2e agenda-live-management::who-spoke-on-which-item
+test('a question raised on the current item is listed under that item', async ({ page }) => {
+	const meeting = await createObject(page, ledger, 'meeting', {
+		title: `${tag}-commissie`,
+		meetingType: 'regular',
+		meetingMode: 'in-person',
+		lifecycle: 'opened',
+		scheduledDate: '2026-10-14T19:30:00Z',
+	})
+	const item = await createObject(page, ledger, 'agenda-item', {
+		title: `${tag}-begroting`,
+		meeting: idOf(meeting),
+		orderNumber: 5,
+		itemType: 'decision',
+	})
+	const pieter = await createObject(page, ledger, 'participant', {
+		displayName: `${tag}-Pieter`,
+		role: 'member',
+	})
+	await page.goto(`${BASE}/index.php/apps/decidiq/`)
+	const headers = { ...(await writeHeaders(page)), 'Content-Type': 'application/json' }
+	const current = await page.request.put(
+		`${BASE}/index.php/apps/decidiq/api/agendas/${idOf(meeting)}/current-item`,
+		{ headers, data: { agendaItem: idOf(item) } },
+	)
+	expect(current.ok()).toBeTruthy()
+	const logged = await page.request.post(`${BASE}/index.php/apps/decidiq/api/engagement`, {
+		headers,
+		data: {
+			meeting: idOf(meeting),
+			participant: idOf(pieter),
+			eventType: 'question',
+			eventData: { agendaItem: idOf(item) },
+		},
+	})
+	expect(logged.ok()).toBeTruthy()
+
+	await page.goto(`${BASE}/index.php/apps/decidiq/meetings/${idOf(meeting)}/live`)
+	await expect(page.getByTestId('speaker-queue-contributions')).toContainText('raised a question')
 })

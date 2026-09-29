@@ -118,7 +118,7 @@ class LiveMeetingController extends Controller {
 	 * @return JSONResponse The created Decision object
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
-	 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
 	 */
 	#[NoAdminRequired]
 	public function recordLiveDecision(string $meetingId): JSONResponse {

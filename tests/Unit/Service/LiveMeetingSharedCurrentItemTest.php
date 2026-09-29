@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
+ * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\EngagementService;
 use OCA\Decidiq\Service\LiveDecisionService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -190,4 +191,37 @@ class LiveMeetingSharedCurrentItemTest extends TestCase {
 		$this->assertArrayNotHasKey('outcome', $saved[0]);
 		$this->assertTrue($this->validates($saved[0], $this->mergedSchema(slug: 'decision')));
 	}//end testALiveDecisionWithoutTypeOrOutcomeStillValidates()
+
+	/**
+	 * Scenario "Who spoke on which item": a speech and a question sent from
+	 * the live screen keep the agenda item, and the record passes the
+	 * EngagementRecord schema.
+	 *
+	 * @return void
+	 */
+	public function testSpeechesAndQuestionsKeepTheirItem(): void {
+		$stored = null;
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('setRegister')->willReturnSelf();
+		$objectService->method('setSchema')->willReturnSelf();
+		$objectService->method('findAll')->willReturnCallback(
+			function () use (&$stored): array {
+				return $stored === null ? [] : [$this->entity($stored)];
+			}
+		);
+		$objectService->method('saveObject')->willReturnCallback(
+			function (array $object) use (&$stored): ObjectEntity {
+				$stored = $object;
+				return $this->entity($object);
+			}
+		);
+
+		$service = new EngagementService(logger: new NullLogger(), objectService: $objectService);
+		$service->captureEngagement('m-14', 'p-anna', 'speech', ['duration' => 90, 'agendaItem' => 'item-5']);
+		$service->captureEngagement('m-14', 'p-anna', 'question', ['agendaItem' => 'item-5']);
+
+		$this->assertSame('item-5', ($stored['speeches'][0]['agendaItem'] ?? null));
+		$this->assertSame('item-5', ($stored['questionsRaised'][0]['agendaItem'] ?? null));
+		$this->assertTrue($this->validates($stored, $this->mergedSchema(slug: 'engagement-record')));
+	}//end testSpeechesAndQuestionsKeepTheirItem()
 }//end class

@@ -364,7 +364,7 @@ class LiveMeetingControllerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
 	 */
 	public function testRecordLiveDecisionPassesTheTypeAndTheCurrentItem(): void {
 		$this->signIn(uid: 'admin', isAdmin: true);

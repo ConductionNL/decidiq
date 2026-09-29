@@ -1268,7 +1268,10 @@
         "Voting is open": "Avstemningen er åpen",
         "No agenda item is being dealt with yet.": "Ingen sak på dagsordenen behandles ennå.",
         "Current agenda item": "Gjeldende sak på dagsordenen",
-        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Saken lederen behandler nå. Medlemmenes skjermer og skjermen i salen følger den."
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Saken lederen behandler nå. Medlemmenes skjermer og skjermen i salen følger den.",
+        "Contributions on this item": "Innlegg om dette punktet",
+        "{name} spoke for {time}": "{name} snakket i {time}",
+        "{name} raised a question": "{name} stilte et spørsmål"
     },
     "plurals": null
 }

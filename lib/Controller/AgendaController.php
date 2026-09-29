@@ -325,7 +325,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
 	 */
 	#[NoAdminRequired]
 	public function currentItem(string $meetingId): JSONResponse {

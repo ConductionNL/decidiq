@@ -1269,7 +1269,10 @@ OC.L10N.register(
         "Voting is open": "Afstemningen er åben",
         "No agenda item is being dealt with yet.": "Der behandles endnu ikke et dagsordenspunkt.",
         "Current agenda item": "Aktuelt dagsordenspunkt",
-        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Det punkt, formanden behandler nu. Medlemmernes skærme og skærmen i salen følger det."
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Det punkt, formanden behandler nu. Medlemmernes skærme og skærmen i salen følger det.",
+        "Contributions on this item": "Indlæg om dette punkt",
+        "{name} spoke for {time}": "{name} talte i {time}",
+        "{name} raised a question": "{name} stillede et spørgsmål"
     },
     "nplurals=2; plural=(n != 1);"
 )

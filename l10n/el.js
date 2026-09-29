@@ -1269,7 +1269,10 @@ OC.L10N.register(
         "Voting is open": "Η ψηφοφορία είναι ανοιχτή",
         "No agenda item is being dealt with yet.": "Δεν συζητείται ακόμη κανένα θέμα.",
         "Current agenda item": "Τρέχον θέμα ημερήσιας διάταξης",
-        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Το θέμα που χειρίζεται τώρα ο πρόεδρος. Οι οθόνες των μελών και η οθόνη της αίθουσας το ακολουθούν."
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Το θέμα που χειρίζεται τώρα ο πρόεδρος. Οι οθόνες των μελών και η οθόνη της αίθουσας το ακολουθούν.",
+        "Contributions on this item": "Τοποθετήσεις σε αυτό το θέμα",
+        "{name} spoke for {time}": "{name} μίλησε για {time}",
+        "{name} raised a question": "{name} έθεσε μια ερώτηση"
     },
     "nplurals=2; plural=(n != 1);"
 )

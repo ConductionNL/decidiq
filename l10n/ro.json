@@ -1268,7 +1268,10 @@
         "Voting is open": "Votul este deschis",
         "No agenda item is being dealt with yet.": "Încă nu se dezbate niciun punct de pe ordinea de zi.",
         "Current agenda item": "Punctul curent de pe ordinea de zi",
-        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Punctul pe care îl tratează acum președintele. Ecranele membrilor și ecranul sălii îl urmează."
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Punctul pe care îl tratează acum președintele. Ecranele membrilor și ecranul sălii îl urmează.",
+        "Contributions on this item": "Intervenții la acest punct",
+        "{name} spoke for {time}": "{name} a vorbit {time}",
+        "{name} raised a question": "{name} a pus o întrebare"
     },
     "plurals": null
 }

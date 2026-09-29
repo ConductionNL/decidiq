@@ -7,7 +7,7 @@
  chair made current and, while a vote on it is open, that voting is open.
  Follows the meeting every few seconds; it has no controls.
 
- @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-002-a-room-screen-shows-the-current-item-and-vote
+ @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-002-a-room-screen-shows-the-current-item-and-vote
 -->
 <template>
 	<section
@@ -69,25 +69,25 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-002-a-room-screen-shows-the-current-item-and-vote */
+		/** @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-002-a-room-screen-shows-the-current-item-and-vote */
 		meeting() {
 			return this.objectStore.objects?.meeting?.[this.id] ?? {}
 		},
 
-		/** @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-002-a-room-screen-shows-the-current-item-and-vote */
+		/** @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-002-a-room-screen-shows-the-current-item-and-vote */
 		currentItem() {
 			const itemId = sharedCurrentItemId(this.meeting)
 			if (!itemId) return null
 			return this.objectStore.objects?.['agenda-item']?.[itemId] ?? null
 		},
 
-		/** @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-002-a-room-screen-shows-the-current-item-and-vote */
+		/** @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-002-a-room-screen-shows-the-current-item-and-vote */
 		openRound() {
 			return openRoundFor(this.rounds, this.currentItem, this.motions)
 		},
 	},
 
-	/** @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-002-a-room-screen-shows-the-current-item-and-vote */
+	/** @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-002-a-room-screen-shows-the-current-item-and-vote */
 	async created() {
 		await this.refresh()
 		this.timer = setInterval(() => this.refresh(), FOLLOW_INTERVAL_MS)
@@ -103,7 +103,7 @@ export default {
 		/**
 		 * Re-read the meeting, its current item and the votes on it.
 		 *
-		 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-002-a-room-screen-shows-the-current-item-and-vote
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-002-a-room-screen-shows-the-current-item-and-vote
 		 */
 		async refresh() {
 			try {

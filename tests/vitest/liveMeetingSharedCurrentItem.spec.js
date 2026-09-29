@@ -6,7 +6,7 @@
 // live screen and the room screen follow it; a decision is recorded on the
 // current item; speeches and questions carry the item.
 //
-// @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md
+// @spec openspec/specs/agenda-live-management/spec.md
 // @e2e tests/e2e/live-meeting-shared-current-item.spec.ts
 
 import { readFileSync } from 'node:fs'
@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import {
 	FOLLOW_INTERVAL_MS,
+	contributionsOn,
 	engagementBody,
 	isOpenRound,
 	liveDecisionBody,
@@ -149,5 +150,25 @@ describe('speeches and questions are logged per item (REQ-LSC-004)', () => {
 		expect(source).toMatch(/currentItemId/)
 		expect(source).toMatch(/'question'/)
 		expect(read('src/views/LiveMeeting.vue')).toMatch(/:currentItemId=/)
+	})
+
+	it('lists who spoke and who asked a question on the current item, and nothing from other items', () => {
+		const records = [
+			{ participant: 'P-anna', speeches: [{ duration: 90, agendaItem: ITEM5 }, { duration: 30, agendaItem: 'item-4' }], questionsRaised: [] },
+			{ participant: 'P-pieter', speeches: [], questionsRaised: [{ agendaItem: ITEM5 }] },
+			{ participant: 'P-kees', speeches: [{ duration: 60 }], questionsRaised: [] },
+		]
+		const participants = [{ id: 'P-anna', displayName: 'Anna' }, { id: 'P-pieter', name: 'Pieter' }]
+		expect(contributionsOn(records, ITEM5, participants)).toEqual([
+			{ participantId: 'P-anna', name: 'Anna', kind: 'speech', duration: 90 },
+			{ participantId: 'P-pieter', name: 'Pieter', kind: 'question', duration: 0 },
+		])
+		expect(contributionsOn(records, null, participants)).toEqual([])
+	})
+
+	it('the speaker queue shows the contributions on the current item', () => {
+		const source = read('src/components/liveMeeting/SpeakerQueuePanel.vue')
+		expect(source).toMatch(/contributionsOn\(/)
+		expect(source).toMatch(/speaker-queue-contributions/)
 	})
 })

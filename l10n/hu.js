@@ -1269,7 +1269,10 @@ OC.L10N.register(
         "Voting is open": "A szavazás nyitva van",
         "No agenda item is being dealt with yet.": "Még egyetlen napirendi pontot sem tárgyalnak.",
         "Current agenda item": "Aktuális napirendi pont",
-        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Az a pont, amelyet az elnök most tárgyal. A tagok és a terem kijelzője ezt követi."
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Az a pont, amelyet az elnök most tárgyal. A tagok és a terem kijelzője ezt követi.",
+        "Contributions on this item": "Hozzászólások ehhez a ponthoz",
+        "{name} spoke for {time}": "{name} {time} ideig beszélt",
+        "{name} raised a question": "{name} kérdést tett fel"
     },
     "nplurals=2; plural=(n != 1);"
 )

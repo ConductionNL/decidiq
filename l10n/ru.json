@@ -1268,7 +1268,10 @@
         "Voting is open": "Голосование открыто",
         "No agenda item is being dealt with yet.": "Ни один пункт повестки ещё не рассматривается.",
         "Current agenda item": "Текущий пункт повестки",
-        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Пункт, который сейчас рассматривает председатель. Экраны участников и зала следуют за ним."
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Пункт, который сейчас рассматривает председатель. Экраны участников и зала следуют за ним.",
+        "Contributions on this item": "Выступления по этому пункту",
+        "{name} spoke for {time}": "{name} выступал(а) {time}",
+        "{name} raised a question": "{name} задал(а) вопрос"
     },
     "plurals": null
 }

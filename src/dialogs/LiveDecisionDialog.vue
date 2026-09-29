@@ -7,7 +7,7 @@
  POST /api/meetings/{id}/live-decisions with the item, the outcome and the
  decision type (modal isolation, ADR-004).
 
- @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
+ @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
 -->
 <template>
 	<NcDialog
@@ -106,7 +106,7 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken */
+		/** @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken */
 		async submit() {
 			this.busy = true
 			this.error = ''

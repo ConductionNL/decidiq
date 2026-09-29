@@ -14,8 +14,11 @@ Read at decidiq development `759d044c`.
 
 ## Approach
 
-1. Register fragment: Meeting.currentAgendaItem, EngagementRecord.agendaItem.
-2. LiveMeeting saves activateItem() and polls the meeting every 5 seconds for members; isChair from my-roles.
+1. Register fragment 105: Meeting.currentAgendaItem. EngagementRecord keeps one record per meeting and participant with free `speeches` and `questionsRaised` event lists, so the agenda item goes on each event (`agendaItem`), not on the record.
+2. LiveMeeting's activateItem() calls PUT /api/agendas/{meetingId}/current-item (AgendaController::currentItem, chair, secretary or admin; AgendaService::setCurrentItem checks the item is on the meeting and patches the meeting). Every live screen re-reads the meeting every 5 seconds; isChair from my-roles.
+5. The speaker queue lists the contributions on the current item (speeches with their length, questions), read from GET /api/engagement?meeting=.
+
+Design corrected at build (29 Sep): a meeting save from the browser would need write access to the whole meeting for the chair and would let any member with that access move the meeting on, so the current item goes through a guarded endpoint. LiveDecisionService saved to schema `Decision` with an undeclared `relations` key and no required `decisionType`; it now writes `meeting`, `agendaItem`, `decisionType` (default resolution) and an outcome only when one was taken.
 3. A manifest page for the screen view reading the meeting and the projection state.
 4. Record decision dialog posting to the existing live decision route.
 

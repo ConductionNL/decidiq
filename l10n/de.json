@@ -1268,7 +1268,10 @@
         "Voting is open": "Die Abstimmung läuft",
         "No agenda item is being dealt with yet.": "Es wird noch kein Tagesordnungspunkt behandelt.",
         "Current agenda item": "Aktueller Tagesordnungspunkt",
-        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Der Punkt, den der Vorsitz gerade behandelt. Die Bildschirme der Mitglieder und der Saalbildschirm folgen ihm."
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Der Punkt, den der Vorsitz gerade behandelt. Die Bildschirme der Mitglieder und der Saalbildschirm folgen ihm.",
+        "Contributions on this item": "Wortbeiträge zu diesem Punkt",
+        "{name} spoke for {time}": "{name} sprach {time}",
+        "{name} raised a question": "{name} hat eine Frage gestellt"
     },
     "plurals": null
 }

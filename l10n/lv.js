@@ -1269,7 +1269,10 @@ OC.L10N.register(
         "Voting is open": "Balsošana ir atvērta",
         "No agenda item is being dealt with yet.": "Vēl netiek izskatīts neviens darba kārtības punkts.",
         "Current agenda item": "Pašreizējais darba kārtības punkts",
-        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Punkts, ko priekšsēdētājs izskata tagad. Locekļu un zāles ekrāni tam seko."
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Punkts, ko priekšsēdētājs izskata tagad. Locekļu un zāles ekrāni tam seko.",
+        "Contributions on this item": "Runas par šo punktu",
+        "{name} spoke for {time}": "{name} runāja {time}",
+        "{name} raised a question": "{name} uzdeva jautājumu"
     },
     "nplurals=2; plural=(n != 1);"
 )

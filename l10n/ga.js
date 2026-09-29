@@ -1269,7 +1269,10 @@ OC.L10N.register(
         "Voting is open": "Tá an vótáil oscailte",
         "No agenda item is being dealt with yet.": "Níl aon mhír den chlár á plé fós.",
         "Current agenda item": "Mír reatha den chlár",
-        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "An mhír atá an cathaoirleach a phlé anois. Leanann scáileáin na gcomhaltaí agus scáileán an tseomra í."
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "An mhír atá an cathaoirleach a phlé anois. Leanann scáileáin na gcomhaltaí agus scáileán an tseomra í.",
+        "Contributions on this item": "Ranníocaíochtaí ar an mír seo",
+        "{name} spoke for {time}": "Labhair {name} ar feadh {time}",
+        "{name} raised a question": "Chuir {name} ceist"
     },
     "nplurals=2; plural=(n != 1);"
 )

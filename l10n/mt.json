@@ -1268,7 +1268,10 @@
         "Voting is open": "Il-votazzjoni hija miftuħa",
         "No agenda item is being dealt with yet.": "L-ebda punt tal-aġenda għadu mhu qed jiġi ttrattat.",
         "Current agenda item": "Punt kurrenti tal-aġenda",
-        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Il-punt li l-president qed jittratta issa. L-iskrins tal-membri u tal-kamra jsegwuh."
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Il-punt li l-president qed jittratta issa. L-iskrins tal-membri u tal-kamra jsegwuh.",
+        "Contributions on this item": "Kontribuzzjonijiet fuq dan il-punt",
+        "{name} spoke for {time}": "{name} tkellem għal {time}",
+        "{name} raised a question": "{name} għamel mistoqsija"
     },
     "plurals": null
 }

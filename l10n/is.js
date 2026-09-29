@@ -1269,7 +1269,10 @@ OC.L10N.register(
         "Voting is open": "Atkvæðagreiðsla er opin",
         "No agenda item is being dealt with yet.": "Enginn dagskrárliður er enn til umræðu.",
         "Current agenda item": "Núverandi dagskrárliður",
-        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Liðurinn sem formaður fjallar um núna. Skjáir fundarmanna og salarins fylgja honum."
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Liðurinn sem formaður fjallar um núna. Skjáir fundarmanna og salarins fylgja honum.",
+        "Contributions on this item": "Innlegg um þennan lið",
+        "{name} spoke for {time}": "{name} talaði í {time}",
+        "{name} raised a question": "{name} bar fram spurningu"
     },
     "nplurals=2; plural=(n != 1);"
 )

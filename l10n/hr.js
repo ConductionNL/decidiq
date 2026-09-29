@@ -1269,7 +1269,10 @@ OC.L10N.register(
         "Voting is open": "Glasovanje je otvoreno",
         "No agenda item is being dealt with yet.": "Još se ne raspravlja nijedna točka dnevnog reda.",
         "Current agenda item": "Trenutna točka dnevnog reda",
-        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Točka kojom se predsjedatelj sada bavi. Zasloni članova i zaslon dvorane je prate."
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Točka kojom se predsjedatelj sada bavi. Zasloni članova i zaslon dvorane je prate.",
+        "Contributions on this item": "Izlaganja o ovoj točki",
+        "{name} spoke for {time}": "{name} je govorio {time}",
+        "{name} raised a question": "{name} je postavio pitanje"
     },
     "nplurals=2; plural=(n != 1);"
 )

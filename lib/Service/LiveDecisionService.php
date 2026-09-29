@@ -136,7 +136,7 @@ class LiveDecisionService {
 	 *
 	 * @return array<string, mixed> The decision to save
 	 *
-	 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
 	 */
 	private function decisionFor(string $meetingId, array $decisionData): array {
 		$decision = [

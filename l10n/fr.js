@@ -1269,7 +1269,10 @@ OC.L10N.register(
         "Voting is open": "Le vote est ouvert",
         "No agenda item is being dealt with yet.": "Aucun point de l'ordre du jour n'est encore traité.",
         "Current agenda item": "Point en cours de l'ordre du jour",
-        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Le point que la présidence traite maintenant. Les écrans des membres et l'écran de la salle le suivent."
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Le point que la présidence traite maintenant. Les écrans des membres et l'écran de la salle le suivent.",
+        "Contributions on this item": "Interventions sur ce point",
+        "{name} spoke for {time}": "{name} a parlé pendant {time}",
+        "{name} raised a question": "{name} a posé une question"
     },
     "nplurals=2; plural=(n != 1);"
 )

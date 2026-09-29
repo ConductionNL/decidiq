@@ -319,7 +319,7 @@ class AgendaControllerTest extends TestCase {
 	/**
 	 * The chair makes an item current; the choice is saved on the meeting.
 	 *
-	 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
 	 *
 	 * @return void
 	 */
@@ -336,7 +336,7 @@ class AgendaControllerTest extends TestCase {
 	/**
 	 * A member who is not chair or secretary cannot move the meeting on.
 	 *
-	 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
 	 *
 	 * @return void
 	 */
@@ -351,7 +351,7 @@ class AgendaControllerTest extends TestCase {
 	/**
 	 * An item of another meeting cannot be made current here.
 	 *
-	 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
 	 *
 	 * @return void
 	 */

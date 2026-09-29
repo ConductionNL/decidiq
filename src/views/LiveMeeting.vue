@@ -382,7 +382,7 @@ export default {
 		 * it names its body (governanceBody), so the meeting's body scopes it.
 		 * The old meeting relation stays as a fallback for older records.
 		 *
-		 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
 		 */
 		participants() {
 			const collection = this.objectStore.collections?.participant ?? []
@@ -419,7 +419,7 @@ export default {
 		 * (GET /api/meetings/{id}/my-roles), the same answer the live decision
 		 * endpoint's guard gives.
 		 *
-		 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
 		 */
 		isChair() {
 			return runsTheMeeting(this.myRoles)
@@ -429,7 +429,7 @@ export default {
 		 * Whether the caller may take live minutes and record decisions:
 		 * secretary, chair or admin, as the server answers.
 		 *
-		 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
 		 */
 		canTakeMinutes() {
 			return runsTheMeeting(this.myRoles)
@@ -463,7 +463,7 @@ export default {
 		/**
 		 * The current item as saved on the meeting.
 		 *
-		 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
 		 */
 		sharedItemId() {
 			return sharedCurrentItemId(this.meeting)
@@ -475,7 +475,7 @@ export default {
 		 * Follow the item the chair made current.
 		 *
 		 * @param {?string} itemId The shared current item.
-		 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
 		 */
 		sharedItemId(itemId) {
 			if (itemId) this.activeItemId = itemId
@@ -555,7 +555,7 @@ export default {
 		/**
 		 * @param item
 		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.2
-		 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
 		 */
 		async activateItem(item) {
 			this.activeItemId = item.id
@@ -582,7 +582,7 @@ export default {
 		/**
 		 * Re-read the meeting so this screen follows the current item.
 		 *
-		 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
 		 */
 		async followMeeting() {
 			try {
@@ -595,7 +595,7 @@ export default {
 		/**
 		 * Ask the server which roles the caller holds in this meeting.
 		 *
-		 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
 		 */
 		async fetchMyRoles() {
 			try {
@@ -612,7 +612,7 @@ export default {
 		/**
 		 * The decision dialog saved a decision on the current item.
 		 *
-		 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
 		 */
 		onDecisionRecorded() {
 			this.decisionOpen = false

@@ -853,7 +853,7 @@ class AgendaServiceTest extends TestCase {
 	/**
 	 * Making an item current saves it on the meeting, and only that.
 	 *
-	 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
 	 *
 	 * @return void
 	 */
@@ -870,7 +870,7 @@ class AgendaServiceTest extends TestCase {
 	/**
 	 * An item of another meeting is not made current.
 	 *
-	 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
 	 *
 	 * @return void
 	 */

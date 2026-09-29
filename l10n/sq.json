@@ -1268,7 +1268,10 @@
         "Voting is open": "Votimi është i hapur",
         "No agenda item is being dealt with yet.": "Ende nuk po trajtohet asnjë pikë e rendit të ditës.",
         "Current agenda item": "Pika aktuale e rendit të ditës",
-        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Pika që kryesuesi po trajton tani. Ekranet e anëtarëve dhe ekrani i sallës e ndjekin."
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Pika që kryesuesi po trajton tani. Ekranet e anëtarëve dhe ekrani i sallës e ndjekin.",
+        "Contributions on this item": "Ndërhyrjet në këtë pikë",
+        "{name} spoke for {time}": "{name} foli për {time}",
+        "{name} raised a question": "{name} ngriti një pyetje"
     },
     "plurals": null
 }
