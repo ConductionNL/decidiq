@@ -155,6 +155,10 @@ class Notifier implements INotifier {
 			return $notification;
 		}
 
+		if ($subject === 'export_bundle_ready' || $subject === 'export_bundle_failed') {
+			return $this->prepareExportBundle(notification: $notification, l10n: $l10n, subject: $subject, params: $params);
+		}
+
 		if (isset(self::SUBJECTS[$subject]) === false) {
 			throw new UnknownNotificationException();
 		}
@@ -178,6 +182,38 @@ class Notifier implements INotifier {
 		$notification->setLink($this->appLink(path: $path));
 		return $notification;
 	}//end prepare()
+
+	/**
+	 * The notice for a queued export with attachments: ready links the file in
+	 * Files, failed says so.
+	 *
+	 * @param INotification        $notification The notification
+	 * @param IL10N                $l10n         Translations in the recipient's language
+	 * @param string               $subject      export_bundle_ready or export_bundle_failed
+	 * @param array<string, mixed> $params       `title` (the file name) and `fileId`
+	 *
+	 * @return INotification
+	 *
+	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-003-a-large-export-runs-in-the-background-and-says-when-it-is-ready
+	 */
+	private function prepareExportBundle(INotification $notification, IL10N $l10n, string $subject, array $params): INotification {
+		$name = (string)($params['title'] ?? '');
+		if ($subject === 'export_bundle_failed') {
+			$notification->setParsedSubject($l10n->t('%s could not be made. Try again, or export a ZIP.', [$name]));
+			$notification->setLink($this->appLink(path: ''));
+			return $notification;
+		}
+
+		$notification->setParsedSubject($l10n->t('%s is ready in your Decidiq exports folder', [$name]));
+		$fileId = (string)($params['fileId'] ?? '');
+		$link   = '/index.php/apps/files/?dir=' . rawurlencode('/Decidiq exports');
+		if ($fileId !== '') {
+			$link = '/index.php/f/' . rawurlencode($fileId);
+		}
+
+		$notification->setLink($this->urlGenerator->getAbsoluteURL($link));
+		return $notification;
+	}//end prepareExportBundle()
 
 	/**
 	 * Set the second line of a meeting notice when its parameter is known.
