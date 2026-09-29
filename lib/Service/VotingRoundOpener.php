@@ -84,7 +84,7 @@ class VotingRoundOpener {
 	 */
 	public function __construct(
 		MotionService $motionService,
-		private readonly ParticipantResolver $participantResolver,
+		ParticipantResolver $participantResolver,
 		private readonly VotingRoundPreflight $preflight,
 		private readonly VotingOpenedNotifier $notifier,
 		private readonly ObjectServiceInterface $objectService,

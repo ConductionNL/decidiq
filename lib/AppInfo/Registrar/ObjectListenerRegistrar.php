@@ -32,7 +32,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\AppInfo\Registrar;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
 use OCA\Decidiq\Listener\TechnicalQuestionListener;
 use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
@@ -238,7 +237,7 @@ class ObjectListenerRegistrar {
 			'OpenRegister ObjectEventSubscription unavailable: ' . $listener
 			. ' fell back to an UNFILTERED registration for ' . $event
 			. ' and will be invoked on every object write instance-wide.',
-			['app' => Application::APP_ID]
+			['app' => 'decidiq']
 		);
 
 		$dispatcher->addServiceListener($event, $listener);

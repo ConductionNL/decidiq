@@ -238,7 +238,7 @@ class MeetingDefaultsListener implements IEventListener {
 			return null;
 		}
 
-		return (array)$entity->getObject();
+		return $entity->getObject();
 
 	}//end load()
 
