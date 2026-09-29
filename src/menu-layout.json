@@ -31,6 +31,7 @@
 		"PositionTypes",
 		"PositionHolds",
 		"AgendaItemTypes",
+		"DocumentTypes",
 		"MeetingTypes",
 		"AgendaTemplates",
 		"BodyConfigurations",

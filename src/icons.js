@@ -81,6 +81,7 @@ import FileChartOutline from 'vue-material-design-icons/FileChartOutline.vue'
 import FileDocument from 'vue-material-design-icons/FileDocument.vue'
 import FileDocumentCheckOutline from 'vue-material-design-icons/FileDocumentCheckOutline.vue'
 import FileDocumentMultipleOutline from 'vue-material-design-icons/FileDocumentMultipleOutline.vue'
+import FileCogOutline from 'vue-material-design-icons/FileCogOutline.vue'
 import FileDocumentOutline from 'vue-material-design-icons/FileDocumentOutline.vue'
 import FileLockOutline from 'vue-material-design-icons/FileLockOutline.vue'
 import FilePdfBox from 'vue-material-design-icons/FilePdfBox.vue'
@@ -203,6 +204,7 @@ export default {
 	FileDocument,
 	FileDocumentCheckOutline,
 	FileDocumentMultipleOutline,
+	FileCogOutline,
 	FileDocumentOutline,
 	FileLockOutline,
 	FilePdfBox,

@@ -581,6 +581,7 @@
 					{ "id": "meeting-decisions", "type": "custom", "component": "MeetingDecisionsTab", "title": "Decisions", "icon": "ScaleBalance" },
 					{ "id": "meeting-minutes", "type": "custom", "component": "MeetingMinutesTab", "title": "Minutes", "icon": "FileDocument" },
 					{ "id": "meeting-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
+					{ "id": "meeting-document-details", "type": "custom", "component": "DocumentMetadataTab", "title": "Document details", "icon": "FileDocumentOutline", "_note": "platform-document-metadata-fields (plt-20): each file with its document type and extra fields, and a Details dialog to fill them in." },
 					{ "id": "meeting-votes", "type": "custom", "component": "MeetingVotesTab", "title": "Votes", "icon": "CheckCircleOutline" },
 					{ "id": "meeting-publication", "type": "custom", "component": "AgendaPublicationTab", "title": "Publication", "icon": "Web" },
 					{ "id": "meeting-series", "type": "custom", "component": "MeetingSeriesTab", "title": "Series", "icon": "Timeline" },
@@ -611,7 +612,8 @@
 					{ "id": "18", "widgetId": "meeting-audit-statements", "gridX": 6, "gridY": 38, "gridWidth": 6, "gridHeight": 5 },
 					{ "id": "19", "widgetId": "meeting-routed-documents", "gridX": 0, "gridY": 43, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "20", "widgetId": "meeting-technical-questions", "gridX": 0, "gridY": 48, "gridWidth": 12, "gridHeight": 5 },
-					{ "id": "21", "widgetId": "meeting-decision-list-signers", "gridX": 0, "gridY": 53, "gridWidth": 12, "gridHeight": 5 }
+					{ "id": "21", "widgetId": "meeting-decision-list-signers", "gridX": 0, "gridY": 53, "gridWidth": 12, "gridHeight": 5 },
+					{ "id": "24", "widgetId": "meeting-document-details", "gridX": 0, "gridY": 58, "gridWidth": 12, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -849,6 +851,7 @@
 				"widgets": [
 					{ "id": "agenda-data", "type": "data", "title": "Agenda item", "icon": "ClipboardList", "content": { "columns": 2 } },
 					{ "id": "agenda-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
+					{ "id": "agenda-document-details", "type": "custom", "component": "DocumentMetadataTab", "title": "Document details", "icon": "FileDocumentOutline", "_note": "platform-document-metadata-fields (plt-20): each file with its document type and extra fields, and a Details dialog to fill them in." },
 					{ "id": "agenda-type-fields", "type": "custom", "component": "AgendaItemTypeFieldsTab", "title": "Type-specific fields", "icon": "FormatListChecks" },
 					{ "id": "agenda-motions", "type": "custom", "component": "AgendaMotionsTab", "title": "Motions", "icon": "Gavel" },
 					{ "id": "agenda-conflicts", "type": "custom", "component": "AgendaItemConflictsTab", "title": "Conflicts of interest", "icon": "AlertOctagonOutline", "_note": "bodies-conflict-of-interest-recusal (bod-10): declarations on this agenda item; a member declares here and may keep herself out of the vote on it and its motions." }
@@ -858,7 +861,8 @@
 					{ "id": "2", "widgetId": "agenda-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
 					{ "id": "4", "widgetId": "agenda-type-fields", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "3", "widgetId": "agenda-motions", "gridX": 0, "gridY": 11, "gridWidth": 12, "gridHeight": 6 },
-					{ "id": "5", "widgetId": "agenda-conflicts", "gridX": 0, "gridY": 17, "gridWidth": 12, "gridHeight": 4 }
+					{ "id": "5", "widgetId": "agenda-conflicts", "gridX": 0, "gridY": 17, "gridWidth": 12, "gridHeight": 4 },
+					{ "id": "6", "widgetId": "agenda-document-details", "gridX": 0, "gridY": 21, "gridWidth": 12, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,

@@ -28,6 +28,7 @@ import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue
 import AgendaItemTypeFieldsTab from './components/tabs/AgendaItemTypeFieldsTab.vue'
 import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
 import AgendaPublicationTab from './components/tabs/AgendaPublicationTab.vue'
+import DocumentMetadataTab from './components/tabs/DocumentMetadataTab.vue'
 import AmendmentDiffTab from './components/tabs/AmendmentDiffTab.vue'
 import AmendmentParentMotionTab from './components/tabs/AmendmentParentMotionTab.vue'
 import AmendmentVotingRoundTab from './components/tabs/AmendmentVotingRoundTab.vue'
@@ -395,6 +396,10 @@ export default {
 	// Public-publication action tabs (publish-decisions-via-opencatalogi).
 	DecisionPublicationTab: page(DecisionPublicationTab),
 	AgendaPublicationTab: page(AgendaPublicationTab),
+
+	// Document details on meeting and agenda item pages
+	// (platform-document-metadata-fields).
+	DocumentMetadataTab: page(DocumentMetadataTab),
 	MinutesPublicationTab: page(MinutesPublicationTab),
 
 	// --- User settings (user-settings-v1). ---

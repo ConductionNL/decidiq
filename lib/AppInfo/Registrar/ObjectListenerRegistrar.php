@@ -35,6 +35,7 @@ namespace OCA\Decidiq\AppInfo\Registrar;
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
 use OCA\Decidiq\Listener\TechnicalQuestionListener;
 use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
+use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
 use OCA\Decidiq\Listener\MeetingDefaultsListener;
 use OCA\Decidiq\Listener\MeetingFolderListener;
 use OCA\Decidiq\Listener\SubmissionDeadlineListener;
@@ -187,6 +188,19 @@ class ObjectListenerRegistrar {
 				listener: SubmissionDeadlineListener::class,
 				registers: null,
 				schemas: ['meeting']
+			);
+		}
+
+		// Document details (platform-document-metadata-fields, REQ-DMF-002 and
+		// REQ-DMF-004): a record keeps its type's required fields and one
+		// record describes one file, on create and on update.
+		foreach ([ObjectCreatingEvent::class, ObjectUpdatingEvent::class] as $documentEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $documentEvent,
+				listener: DocumentTypeFieldsGuardListener::class,
+				registers: null,
+				schemas: ['digital-document']
 			);
 		}
 
