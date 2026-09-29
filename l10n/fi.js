@@ -1174,7 +1174,22 @@ OC.L10N.register(
         "Does not vote": "Ei äänestä",
         "A member": "Jäsen",
         "Could not load the declarations.": "Ilmoituksia ei voitu ladata.",
-        "Could not record the declaration.": "Ilmoitusta ei voitu tallentaa."
+        "Could not record the declaration.": "Ilmoitusta ei voitu tallentaa.",
+        "Submit motion": "Jätä aloite",
+        "Start the debate": "Aloita keskustelu",
+        "Put to the vote": "Aseta äänestettäväksi",
+        "Record as adopted": "Kirjaa hyväksytyksi",
+        "Record as rejected": "Kirjaa hylätyksi",
+        "Mark as carried out": "Merkitse toteutetuksi",
+        "Archive motion": "Arkistoi aloite",
+        "Withdraw motion": "Peru aloite",
+        "In debate": "Käsittelyssä",
+        "Being voted on": "Äänestyksessä",
+        "Carried out": "Toteutettu",
+        "Decision taken": "Päätetty",
+        "Themes": "Teemat",
+        "Theme": "Teema",
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Teemoja ei vielä ole. Lisää politiikan teemat, joita aloitteenne koskevat, kuten asuminen tai ilmasto."
     },
     "nplurals=2; plural=(n != 1);"
 )

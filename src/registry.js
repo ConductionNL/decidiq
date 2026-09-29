@@ -71,6 +71,7 @@ import MotionAmendmentsTab from './components/tabs/MotionAmendmentsTab.vue'
 import MotionCitizenAdviceTab from './components/tabs/MotionCitizenAdviceTab.vue'
 import MotionConflictsTab from './components/tabs/MotionConflictsTab.vue'
 import MotionSignersTab from './components/tabs/MotionSignersTab.vue'
+import MotionStageTab from './components/tabs/MotionStageTab.vue'
 import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
 import MotionVotingRoundTab from './components/tabs/MotionVotingRoundTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
@@ -250,6 +251,8 @@ export default {
 	// motions and on a meeting's decision list.
 	MotionSignersTab: page(MotionSignersTab),
 	MotionConflictsTab: page(MotionConflictsTab),
+	// motions-stages-and-themes (mot-08): stage buttons on the motion page.
+	MotionStageTab: page(MotionStageTab),
 	AgendaItemConflictsTab: page(AgendaItemConflictsTab),
 	DecisionListSignersTab: page(DecisionListSignersTab),
 	MinutesItemNotesTab: page(MinutesItemNotesTab),

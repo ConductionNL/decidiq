@@ -7,16 +7,16 @@
 - **files**: `src/components/tabs/DecisionLifecycleTab.vue`, `src/manifest.json`
 - **acceptance_criteria**:
   - GIVEN a submitted motion WHEN its submitter presses Withdraw THEN the motion shows withdrawn
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ### Task 2: Themes and filter
 - **spec_ref**: `openspec/changes/motions-stages-and-themes/specs/motion-status-management/spec.md#requirement-req-mst-002-tag-motions-by-theme-and-filter`
 - **files**: `lib/Settings/register.d/`, `src/manifest.json`
 - **acceptance_criteria**:
   - GIVEN motions tagged Housing and Climate WHEN the user filters on Housing THEN only Housing motions are listed
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ## Verification
 

@@ -1173,7 +1173,22 @@
         "Does not vote": "Oy kullanmaz",
         "A member": "Bir üye",
         "Could not load the declarations.": "Bildirimler yüklenemedi.",
-        "Could not record the declaration.": "Bildirim kaydedilemedi."
+        "Could not record the declaration.": "Bildirim kaydedilemedi.",
+        "Submit motion": "Önergeyi sun",
+        "Start the debate": "Görüşmeyi başlat",
+        "Put to the vote": "Oylamaya sun",
+        "Record as adopted": "Kabul edildi olarak kaydet",
+        "Record as rejected": "Reddedildi olarak kaydet",
+        "Mark as carried out": "Uygulandı olarak işaretle",
+        "Archive motion": "Önergeyi arşivle",
+        "Withdraw motion": "Önergeyi geri çek",
+        "In debate": "Görüşülüyor",
+        "Being voted on": "Oylamada",
+        "Carried out": "Uygulandı",
+        "Decision taken": "Karara bağlandı",
+        "Themes": "Temalar",
+        "Theme": "Tema",
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Henüz tema yok. Önergelerinizin konu aldığı politika temalarını ekleyin, örneğin konut veya iklim."
     },
     "plurals": null
 }

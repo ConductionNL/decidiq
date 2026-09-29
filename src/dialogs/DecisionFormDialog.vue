@@ -45,10 +45,12 @@
 
 <script>
 import { CnFormDialog } from '@conduction/nextcloud-vue'
+import { generateUrl } from '@nextcloud/router'
 import {
 	listDecisionTypes,
 	withDecisionTypeVocabulary,
 } from '../integrations/decisionLink.js'
+import { themeNames, withThemeVocabulary } from '../utils/motionStages.js'
 import { settleFormDialogResult } from './formDialogResult.js'
 
 export default {
@@ -84,6 +86,12 @@ export default {
 			 * empty.
 			 */
 			decisionTypes: null,
+			/**
+			 * The configured theme names (mot-15), offered as the choices
+			 * of `themes`; empty until the fetch answers, which leaves the
+			 * field free text rather than an empty picker.
+			 */
+			themes: [],
 		}
 	},
 
@@ -110,7 +118,10 @@ export default {
 		 * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
 		 */
 		typedSchema() {
-			return withDecisionTypeVocabulary(this.schema, this.decisionTypes)
+			return withThemeVocabulary(
+				withDecisionTypeVocabulary(this.schema, this.decisionTypes),
+				this.themes,
+			)
 		},
 	},
 
@@ -123,9 +134,34 @@ export default {
 	 */
 	async mounted() {
 		this.decisionTypes = await listDecisionTypes()
+		this.themes = await this.listThemes()
 	},
 
 	methods: {
+		/**
+		 * The configured theme names. A failed fetch offers none, which
+		 * keeps the field free text.
+		 *
+		 * @return {Promise<string[]>}
+		 *
+		 * @spec openspec/specs/motion-status-management/spec.md#requirement-req-mst-002-tag-motions-by-theme-and-filter
+		 */
+		async listThemes() {
+			try {
+				const response = await fetch(
+					generateUrl(
+						'/apps/openregister/api/objects/decidiq/motion-theme?_limit=500',
+					),
+					{ headers: { Accept: 'application/json' } },
+				)
+				if (!response.ok) return []
+				const body = await response.json()
+				return themeNames(body?.results)
+			} catch {
+				return []
+			}
+		},
+
 		/**
 		 * Save through the page's own persistence path, then hand the
 		 * outcome back to the dialog that submitted it.

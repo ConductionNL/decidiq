@@ -1174,7 +1174,22 @@ OC.L10N.register(
         "Does not vote": "Nuk voton",
         "A member": "Një anëtar",
         "Could not load the declarations.": "Deklaratat nuk u ngarkuan.",
-        "Could not record the declaration.": "Deklarata nuk u regjistrua."
+        "Could not record the declaration.": "Deklarata nuk u regjistrua.",
+        "Submit motion": "Paraqit mocionin",
+        "Start the debate": "Fillo debatin",
+        "Put to the vote": "Hidhe në votë",
+        "Record as adopted": "Regjistro si të miratuar",
+        "Record as rejected": "Regjistro si të refuzuar",
+        "Mark as carried out": "Shëno si të zbatuar",
+        "Archive motion": "Arkivo mocionin",
+        "Withdraw motion": "Tërhiq mocionin",
+        "In debate": "Në debat",
+        "Being voted on": "Në votim",
+        "Carried out": "Zbatuar",
+        "Decision taken": "Vendosur",
+        "Themes": "Temat",
+        "Theme": "Tema",
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Ende nuk ka tema. Shtoni temat e politikave për të cilat janë mocionet tuaja, si strehimi ose klima."
     },
     "nplurals=2; plural=(n != 1);"
 )

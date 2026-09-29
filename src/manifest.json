@@ -885,6 +885,8 @@
 					"motionType",
 					"proposer",
 					"lifecycle",
+					"outcome",
+					"themes",
 					"submittedAt"
 				],
 				"actions": [
@@ -924,7 +926,8 @@
 				"widget-motion-voting-round": "MotionVotingRoundTab",
 				"widget-motion-citizen-advice": "MotionCitizenAdviceTab",
 				"widget-motion-signers": "MotionSignersTab",
-				"widget-motion-conflicts": "MotionConflictsTab"
+				"widget-motion-conflicts": "MotionConflictsTab",
+				"widget-motion-stage": "MotionStageTab"
 			},
 			"title": "Motion",
 			"config": {
@@ -932,7 +935,8 @@
 				"schema": "decision",
 				"_note": "Motion — a deliberative proposal (a Decision of decisionType=motion): proposer, motion type, proposed text, lifecycle, co-signers, submission date. The decision schema is a 42-field polymorphic supertype shared with Decision/Amendment; the data widget scopes to `content.include` of the 9 motion-relevant fields (ADR-062 rule 3) so decision-only fields (legalBasis, publishedAt, resolutionNumber, contract offer/order/product, etc.) that never apply to decisionType=motion don't clip the cell. Bespoke deliberation layout: motion details/text lead 8-wide with a Documents leaf right for the tabled text and annexes; the Amendments proposed against it (MotionAmendmentsTab — decisions keyed on `parentMotion`) render full-width because processing amendments is the core motion workflow; the Votes result (MotionVotesTab, read-only post-ballot aggregate) sits below, followed by the chair's amendment Voting order and the Voting round mechanics (procedural, so placed lowest). Discussion/Talk lives on the dedicated MotionIntegrations surface. Sidebar is audit-trail only.",
 				"widgets": [
-					{ "id": "motion-data", "type": "data", "title": "Motion", "icon": "NoteTextOutline", "content": { "columns": 2, "include": ["title", "text", "proposedText", "motionType", "proposer", "coSigners", "lifecycle", "submittedAt", "votingOrder"], "overrides": { "lifecycle": { "editable": false }, "submittedAt": { "editable": false } } } },
+					{ "id": "motion-data", "type": "data", "title": "Motion", "icon": "NoteTextOutline", "content": { "columns": 2, "include": ["title", "text", "proposedText", "motionType", "proposer", "coSigners", "lifecycle", "themes", "submittedAt", "votingOrder"], "overrides": { "lifecycle": { "editable": false }, "submittedAt": { "editable": false } } } },
+					{ "id": "motion-stage", "type": "custom", "component": "MotionStageTab", "title": "Stage", "icon": "Timeline", "_note": "motions-stages-and-themes (mot-08): the motion's stage and result, and one button per step the server offers the caller: every step of the motion lifecycle for the chair or secretary of its meeting, Withdraw for the member who submitted it (GET /api/motions/{id}/transitions, POST /api/motions/{id}/transition)." },
 					{ "id": "motion-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "motion-amendments", "type": "custom", "component": "MotionAmendmentsTab", "title": "Amendments", "icon": "FileSign" },
 					{ "id": "motion-votes", "type": "custom", "component": "MotionVotesTab", "title": "Votes", "icon": "CheckCircleOutline" },
@@ -945,13 +949,14 @@
 				"layout": [
 					{ "id": "1", "widgetId": "motion-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 5 },
 					{ "id": "2", "widgetId": "motion-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 5 },
-					{ "id": "3", "widgetId": "motion-amendments", "gridX": 0, "gridY": 5, "gridWidth": 12, "gridHeight": 6 },
-					{ "id": "4", "widgetId": "motion-votes", "gridX": 0, "gridY": 11, "gridWidth": 12, "gridHeight": 5 },
-					{ "id": "5", "widgetId": "motion-amendment-order", "gridX": 0, "gridY": 16, "gridWidth": 6, "gridHeight": 5 },
-					{ "id": "6", "widgetId": "motion-voting-round", "gridX": 6, "gridY": 16, "gridWidth": 6, "gridHeight": 5 },
-					{ "id": "7", "widgetId": "motion-citizen-advice", "gridX": 6, "gridY": 21, "gridWidth": 6, "gridHeight": 4 },
-					{ "id": "8", "widgetId": "motion-signers", "gridX": 0, "gridY": 21, "gridWidth": 6, "gridHeight": 4 },
-					{ "id": "9", "widgetId": "motion-conflicts", "gridX": 0, "gridY": 25, "gridWidth": 12, "gridHeight": 4 }
+					{ "id": "10", "widgetId": "motion-stage", "gridX": 0, "gridY": 5, "gridWidth": 12, "gridHeight": 3 },
+					{ "id": "3", "widgetId": "motion-amendments", "gridX": 0, "gridY": 8, "gridWidth": 12, "gridHeight": 6 },
+					{ "id": "4", "widgetId": "motion-votes", "gridX": 0, "gridY": 14, "gridWidth": 12, "gridHeight": 5 },
+					{ "id": "5", "widgetId": "motion-amendment-order", "gridX": 0, "gridY": 19, "gridWidth": 6, "gridHeight": 5 },
+					{ "id": "6", "widgetId": "motion-voting-round", "gridX": 6, "gridY": 19, "gridWidth": 6, "gridHeight": 5 },
+					{ "id": "7", "widgetId": "motion-citizen-advice", "gridX": 6, "gridY": 24, "gridWidth": 6, "gridHeight": 4 },
+					{ "id": "8", "widgetId": "motion-signers", "gridX": 0, "gridY": 24, "gridWidth": 6, "gridHeight": 4 },
+					{ "id": "9", "widgetId": "motion-conflicts", "gridX": 0, "gridY": 28, "gridWidth": 12, "gridHeight": 4 }
 				],
 				"sidebar": {
 					"enabled": true,

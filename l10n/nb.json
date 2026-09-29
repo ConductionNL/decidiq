@@ -1173,7 +1173,22 @@
         "Does not vote": "Stemmer ikke",
         "A member": "Et medlem",
         "Could not load the declarations.": "Meldingene kunne ikke lastes.",
-        "Could not record the declaration.": "Meldingen kunne ikke registreres."
+        "Could not record the declaration.": "Meldingen kunne ikke registreres.",
+        "Submit motion": "Send inn forslaget",
+        "Start the debate": "Start debatten",
+        "Put to the vote": "Sett til avstemning",
+        "Record as adopted": "Registrer som vedtatt",
+        "Record as rejected": "Registrer som forkastet",
+        "Mark as carried out": "Merk som gjennomført",
+        "Archive motion": "Arkiver forslaget",
+        "Withdraw motion": "Trekk forslaget",
+        "In debate": "Under debatt",
+        "Being voted on": "Til avstemning",
+        "Carried out": "Gjennomført",
+        "Decision taken": "Besluttet",
+        "Themes": "Temaer",
+        "Theme": "Tema",
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Ingen temaer ennå. Legg til de politiske temaene forslagene handler om, for eksempel bolig eller klima."
     },
     "plurals": null
 }

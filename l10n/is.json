@@ -1173,7 +1173,22 @@
         "Does not vote": "Greiðir ekki atkvæði",
         "A member": "Fulltrúi",
         "Could not load the declarations.": "Ekki tókst að hlaða tilkynningunum.",
-        "Could not record the declaration.": "Ekki tókst að skrá tilkynninguna."
+        "Could not record the declaration.": "Ekki tókst að skrá tilkynninguna.",
+        "Submit motion": "Leggja fram tillögu",
+        "Start the debate": "Hefja umræðu",
+        "Put to the vote": "Bera undir atkvæði",
+        "Record as adopted": "Skrá sem samþykkta",
+        "Record as rejected": "Skrá sem fellda",
+        "Mark as carried out": "Merkja sem framkvæmda",
+        "Archive motion": "Setja tillögu í skjalasafn",
+        "Withdraw motion": "Draga tillögu til baka",
+        "In debate": "Í umræðu",
+        "Being voted on": "Í atkvæðagreiðslu",
+        "Carried out": "Framkvæmd",
+        "Decision taken": "Ákvörðun tekin",
+        "Themes": "Þemu",
+        "Theme": "Þema",
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Engin þemu enn. Bættu við málaflokkunum sem tillögurnar ykkar fjalla um, t.d. húsnæði eða loftslag."
     },
     "plurals": null
 }

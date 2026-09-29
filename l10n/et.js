@@ -1174,7 +1174,22 @@ OC.L10N.register(
         "Does not vote": "Ei hääleta",
         "A member": "Liige",
         "Could not load the declarations.": "Deklaratsioone ei õnnestunud laadida.",
-        "Could not record the declaration.": "Deklaratsiooni ei õnnestunud salvestada."
+        "Could not record the declaration.": "Deklaratsiooni ei õnnestunud salvestada.",
+        "Submit motion": "Esita ettepanek",
+        "Start the debate": "Alusta arutelu",
+        "Put to the vote": "Pane hääletusele",
+        "Record as adopted": "Märgi vastuvõetuks",
+        "Record as rejected": "Märgi tagasilükatuks",
+        "Mark as carried out": "Märgi täidetuks",
+        "Archive motion": "Arhiveeri ettepanek",
+        "Withdraw motion": "Võta ettepanek tagasi",
+        "In debate": "Arutelul",
+        "Being voted on": "Hääletusel",
+        "Carried out": "Täidetud",
+        "Decision taken": "Otsustatud",
+        "Themes": "Teemad",
+        "Theme": "Teema",
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Teemasid veel pole. Lisage poliitikateemad, millest teie ettepanekud räägivad, näiteks eluase või kliima."
     },
     "nplurals=2; plural=(n != 1);"
 )

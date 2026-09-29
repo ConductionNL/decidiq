@@ -23,3 +23,10 @@ Schema changes go in a new `lib/Settings/register.d/` fragment (ADR-037) and are
 
 - vitest: the motion stage widget posts withdraw to the motion route (red before).
 - PHPUnit: Theme fragment validates; a motion with themes validates.
+
+## Corrections at build (29 Sep, decidiq development f3103afb)
+
+- The stage widget is its own `MotionStageTab.vue` (the shape of `MeetingStageTab.vue`), not a motion mode of DecisionLifecycleTab: the decision widget speaks the decision action vocabulary (propose, deliberate, ...) against another route, while the motion route takes `newState` plus `outcome`. The server decides the buttons: `MotionStages::forCaller()` behind `GET /api/motions/{id}/transitions`.
+- Withdraw by the submitter: `MotionController::transition()` accepted chair or secretary only; it now also accepts `newState: withdrawn` from the motion's owner (`MotionStages::mayWithdraw()`).
+- The theme schema slug is `motion-theme`, not `theme`: opencatalogi owns `theme` on the shared OpenRegister (hydra gate-106).
+- The stage and result filters are the facets of `lifecycle` and `outcome` (made facetable in fragment 102) in the Motions list sidebar, not quick filters.

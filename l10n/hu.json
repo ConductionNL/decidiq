@@ -1173,7 +1173,22 @@
         "Does not vote": "Nem szavaz",
         "A member": "Egy tag",
         "Could not load the declarations.": "A bejelentések nem tölthetők be.",
-        "Could not record the declaration.": "A bejelentés nem rögzíthető."
+        "Could not record the declaration.": "A bejelentés nem rögzíthető.",
+        "Submit motion": "Indítvány benyújtása",
+        "Start the debate": "Vita megkezdése",
+        "Put to the vote": "Szavazásra bocsátás",
+        "Record as adopted": "Rögzítés elfogadottként",
+        "Record as rejected": "Rögzítés elutasítottként",
+        "Mark as carried out": "Megjelölés végrehajtottként",
+        "Archive motion": "Indítvány archiválása",
+        "Withdraw motion": "Indítvány visszavonása",
+        "In debate": "Vita alatt",
+        "Being voted on": "Szavazás alatt",
+        "Carried out": "Végrehajtva",
+        "Decision taken": "Döntés született",
+        "Themes": "Témák",
+        "Theme": "Téma",
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Még nincsenek témák. Adja hozzá a szakpolitikai témákat, amelyekről indítványai szólnak, például lakhatás vagy klíma."
     },
     "plurals": null
 }

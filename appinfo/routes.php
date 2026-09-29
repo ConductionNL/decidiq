@@ -162,6 +162,8 @@ $extra = [
 
         // Motion lifecycle and co-signature routes (specific before wildcard).
         ['name' => 'motion#transition',     'url' => '/api/motions/{id}/transition',      'verb' => 'POST'],
+        // Motion stage buttons (mot-08) — @spec openspec/specs/motion-status-management/spec.md#requirement-req-mst-001-move-a-motion-through-its-stages-on-its-page
+        ['name' => 'motion#transitions',    'url' => '/api/motions/{id}/transitions',     'verb' => 'GET'],
         ['name' => 'motion#coSignRequest',  'url' => '/api/motions/{id}/co-sign-request', 'verb' => 'POST'],
         ['name' => 'motion#coSignConfirm',  'url' => '/api/motions/{id}/co-sign-confirm', 'verb' => 'POST'],
         ['name' => 'motion#budgetImpact',   'url' => '/api/motions/{id}/budget-impact',   'verb' => 'POST'],
