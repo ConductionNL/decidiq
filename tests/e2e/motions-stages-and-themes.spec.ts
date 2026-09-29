@@ -28,9 +28,7 @@ test.afterAll(async ({ browser }) => {
 })
 
 // @e2e motion-status-management::a-member-withdraws-her-motion
-test('the submitter withdraws her motion from the motion page', async ({
-	page,
-}) => {
+test('the submitter withdraws her motion from the motion page', async ({ page }) => {
 	const motion = await createObject(page, ledger, 'decision', {
 		title: `${tag}-M-12`,
 		decisionType: 'motion',

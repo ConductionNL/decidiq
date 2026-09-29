@@ -165,7 +165,7 @@ class MotionStages {
 			return null;
 		}
 
-		return ['object' => $object, 'owner' => (string)($entity->getOwner() ?? '')];
+		return ['object' => $object, 'owner' => ($entity->getOwner() ?? '')];
 	}//end load()
 
 	/**

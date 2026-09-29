@@ -118,9 +118,13 @@ describe('manifest', () => {
 		expect(
 			detail.config.widgets.find((w) => w.id === 'motion-stage'),
 		).toMatchObject({ type: 'custom', component: 'MotionStageTab' })
-		expect(detail.config.layout.some((l) => l.widgetId === 'motion-stage')).toBe(true)
+		expect(detail.config.layout.some((l) => l.widgetId === 'motion-stage')).toBe(
+			true,
+		)
 		expect(detail.slots['widget-motion-stage']).toBe('MotionStageTab')
-		expect(read('src/registry.js')).toMatch(/MotionStageTab: page\(MotionStageTab\)/)
+		expect(read('src/registry.js')).toMatch(
+			/MotionStageTab: page\(MotionStageTab\)/,
+		)
 	})
 
 	it('shows stage, result and themes on the motions list', () => {
@@ -128,17 +132,23 @@ describe('manifest', () => {
 		expect(columns).toEqual(
 			expect.arrayContaining(['lifecycle', 'outcome', 'themes']),
 		)
-		expect(page('MotionDetail').config.widgets[0].content.include).toContain('themes')
+		expect(page('MotionDetail').config.widgets[0].content.include).toContain(
+			'themes',
+		)
 	})
 
 	it('lets an operator keep the list of themes', () => {
 		const themes = themesFragment.pages.find((p) => p.id === 'Themes')
 		expect(themes.config).toMatchObject({ register: 'decidiq', schema: 'theme' })
 		expect(themesFragment.menu.map((m) => m.id)).toContain('Themes')
-		expect(JSON.parse(read('src/menu-layout.json')).settingsSection).toContain('Themes')
+		expect(JSON.parse(read('src/menu-layout.json')).settingsSection).toContain(
+			'Themes',
+		)
 	})
 
 	it('offers the themes on the motion form', () => {
-		expect(read('src/dialogs/DecisionFormDialog.vue')).toMatch(/withThemeVocabulary\(/)
+		expect(read('src/dialogs/DecisionFormDialog.vue')).toMatch(
+			/withThemeVocabulary\(/,
+		)
 	})
 })

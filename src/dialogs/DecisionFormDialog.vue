@@ -50,8 +50,8 @@ import {
 	listDecisionTypes,
 	withDecisionTypeVocabulary,
 } from '../integrations/decisionLink.js'
-import { settleFormDialogResult } from './formDialogResult.js'
 import { themeNames, withThemeVocabulary } from '../utils/motionStages.js'
+import { settleFormDialogResult } from './formDialogResult.js'
 
 export default {
 	name: 'DecisionFormDialog',
@@ -149,7 +149,9 @@ export default {
 		async listThemes() {
 			try {
 				const response = await fetch(
-					generateUrl('/apps/openregister/api/objects/decidiq/theme?_limit=500'),
+					generateUrl(
+						'/apps/openregister/api/objects/decidiq/theme?_limit=500',
+					),
 					{ headers: { Accept: 'application/json' } },
 				)
 				if (!response.ok) return []

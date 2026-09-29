@@ -52,7 +52,9 @@ export function transitionPath(motionId) {
  * @spec openspec/specs/motion-status-management/spec.md#requirement-req-mst-001-move-a-motion-through-its-stages-on-its-page
  */
 export function actionKey(action) {
-	return action?.outcome ? `${action.to}-${action.outcome}` : String(action?.to ?? '')
+	return action?.outcome
+		? `${action.to}-${action.outcome}`
+		: String(action?.to ?? '')
 }
 
 /**
@@ -85,11 +87,15 @@ export function readMotionStageAnswer(answer) {
  */
 export function themeNames(themes) {
 	if (!Array.isArray(themes)) return []
-	return [...new Set(
-		themes
-			.map((theme) => (typeof theme?.name === 'string' ? theme.name.trim() : ''))
-			.filter((name) => name !== ''),
-	)].sort((a, b) => a.localeCompare(b))
+	return [
+		...new Set(
+			themes
+				.map((theme) =>
+					typeof theme?.name === 'string' ? theme.name.trim() : '',
+				)
+				.filter((name) => name !== ''),
+		),
+	].sort((a, b) => a.localeCompare(b))
 }
 
 /**
