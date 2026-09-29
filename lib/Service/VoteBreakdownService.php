@@ -156,6 +156,27 @@ class VoteBreakdownService {
 	 * @return array<string, string> participant and, for a proxy, delegator
 	 */
 	private function voters(array $ballot): array {
+		$found = [];
+		foreach ($this->relationEntries(ballot: $ballot) as $entry) {
+			if (($entry['schema'] ?? '') !== 'participant' || is_string($entry['id'] ?? null) === false) {
+				continue;
+			}
+
+			$found[(string)($entry['type'] ?? 'participant')] = $entry['id'];
+		}
+
+		return $found;
+	}//end voters()
+
+	/**
+	 * The ballot's relations as a list of {id, schema, type} entries, from
+	 * the structured list or from the flattened `relations.N.field` keys.
+	 *
+	 * @param array<string, mixed> $ballot The ballot as stored
+	 *
+	 * @return array<int|string, array<string, mixed>>
+	 */
+	private function relationEntries(array $ballot): array {
 		$entries = [];
 		foreach ([($ballot['relations'] ?? []), ($ballot['@self']['relations'] ?? [])] as $relations) {
 			if (is_array($relations) === false) {
@@ -174,17 +195,8 @@ class VoteBreakdownService {
 			}
 		}
 
-		$found = [];
-		foreach ($entries as $entry) {
-			if (($entry['schema'] ?? '') !== 'participant' || is_string($entry['id'] ?? null) === false) {
-				continue;
-			}
-
-			$found[(string)($entry['type'] ?? 'participant')] = $entry['id'];
-		}
-
-		return $found;
-	}//end voters()
+		return $entries;
+	}//end relationEntries()
 
 	/**
 	 * The name and faction of a participant, read once per request.
