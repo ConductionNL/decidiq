@@ -24,7 +24,12 @@ export const DECLARE_PATH = '/apps/decidiq/api/conflicts'
  * @return {object} The request body
  * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
  */
-export function declarationPayload({ subjectId, declarationType, description, recuseFromVote }) {
+export function declarationPayload({
+	subjectId,
+	declarationType,
+	description,
+	recuseFromVote,
+}) {
 	return {
 		agendaItemId: String(subjectId || ''),
 		declarationType: declarationType || 'financial-interest',
@@ -71,12 +76,17 @@ export function declarationsFor(declarations, subjectIds) {
 	return (declarations || [])
 		.filter((d) => subjects.has(refId(d?.agendaItem)))
 		.filter((d) => {
-			const key = d.id || d.uuid || `${refId(d.boardMember)}|${d.declarationTimestamp}`
+			const key =
+				d.id || d.uuid || `${refId(d.boardMember)}|${d.declarationTimestamp}`
 			if (seen.has(key)) return false
 			seen.add(key)
 			return true
 		})
-		.sort((a, b) => String(b.declarationTimestamp || '').localeCompare(String(a.declarationTimestamp || '')))
+		.sort((a, b) =>
+			String(b.declarationTimestamp || '').localeCompare(
+				String(a.declarationTimestamp || ''),
+			),
+		)
 }
 
 /**
@@ -107,5 +117,8 @@ export function recusedMemberCount(declarations, subjectIds) {
  * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-002-a-recused-member-cannot-vote-on-the-matter
  */
 export function eligibleCount(participantCount, declarations, subjectIds) {
-	return Math.max(0, (participantCount || 0) - recusedMemberCount(declarations, subjectIds))
+	return Math.max(
+		0,
+		(participantCount || 0) - recusedMemberCount(declarations, subjectIds),
+	)
 }

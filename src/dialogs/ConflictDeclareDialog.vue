@@ -27,7 +27,9 @@
 					v-model="description"
 					data-testid="conflict-declare-reason"
 					:label="t('decidiq', 'Reason')"
-					:placeholder="t('decidiq', 'For example: I own land in the plan area')"
+					:placeholder="
+						t('decidiq', 'For example: I own land in the plan area')
+					"
 					resize="vertical" />
 				<NcCheckboxRadioSwitch
 					v-model="recuse"
@@ -85,10 +87,22 @@ export default {
 
 	data() {
 		const typeOptions = [
-			{ id: 'financial-interest', label: this.t('decidiq', 'Financial interest') },
-			{ id: 'personal-relationship', label: this.t('decidiq', 'Personal relationship') },
-			{ id: 'competing-business', label: this.t('decidiq', 'Competing business') },
-			{ id: 'prior-involvement', label: this.t('decidiq', 'Earlier involvement') },
+			{
+				id: 'financial-interest',
+				label: this.t('decidiq', 'Financial interest'),
+			},
+			{
+				id: 'personal-relationship',
+				label: this.t('decidiq', 'Personal relationship'),
+			},
+			{
+				id: 'competing-business',
+				label: this.t('decidiq', 'Competing business'),
+			},
+			{
+				id: 'prior-involvement',
+				label: this.t('decidiq', 'Earlier involvement'),
+			},
 		]
 		return {
 			typeOptions,

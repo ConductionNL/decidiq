@@ -116,7 +116,7 @@ class ConflictOfInterestService {
 	 * @param string|null $callerUid Nextcloud UID of the caller; null bypasses the
 	 *                               authorization check (admin path, mirroring
 	 *                               `ProxyVoteService`'s convention)
-	 * @param bool $recuseFromVote Record the declaration as recused-from-vote (the member keeps herself out of the vote)
+	 * @param string $initialAction 'no-action-needed', or 'recused-from-vote' when the member keeps herself out of the vote
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
 	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
@@ -132,7 +132,7 @@ class ConflictOfInterestService {
 		string $description,
 		string $severity = 'material',
 		?string $callerUid = null,
-		bool $recuseFromVote = false,
+		string $initialAction = 'no-action-needed',
 	): array {
 		$validationFailure = $this->validateDeclarationInput(type: $type, severity: $severity);
 		if ($validationFailure !== null) {
@@ -150,10 +150,10 @@ class ConflictOfInterestService {
 			];
 		}
 
-		// A member who declares may keep herself out of the vote at once; the
-		// chair can still record another action later (bod-10).
+		// A member who declares may keep herself out of the vote at once; any
+		// other action is the chair's to record later (bod-10).
 		$actionTaken = 'no-action-needed';
-		if ($recuseFromVote === true) {
+		if ($initialAction === 'recused-from-vote') {
 			$actionTaken = 'recused-from-vote';
 		}
 
@@ -222,7 +222,14 @@ class ConflictOfInterestService {
 	 *
 	 * @return array{success: bool, declaration: array|null, message: string}
 	 */
-	private function persistDeclaration(string $membershipId, string $agendaItemId, string $type, string $description, string $severity, string $actionTaken): array {
+	private function persistDeclaration(
+		string $membershipId,
+		string $agendaItemId,
+		string $type,
+		string $description,
+		string $severity,
+		string $actionTaken,
+	): array {
 		try {
 			// The ConflictOfInterest schema declares 'boardMember'/'agendaItem'
 			// (decidesk_register.json); this previously wrote 'boardMemberKoppeling'/

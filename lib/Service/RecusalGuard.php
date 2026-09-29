@@ -183,7 +183,7 @@ class RecusalGuard {
 			return;
 		}
 
-		$parent = (string)($this->amendmentOrder->resolveParentMotionId(amendment: $decision) ?? '');
+		$parent = ($this->amendmentOrder->resolveParentMotionId(amendment: $decision) ?? '');
 		if ($parent !== '' && in_array($parent, $subjects, true) === false) {
 			$this->addDecision(decisionId: $parent, subjects: $subjects, followParent: false);
 		}

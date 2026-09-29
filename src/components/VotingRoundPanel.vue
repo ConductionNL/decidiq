@@ -532,9 +532,8 @@ import { NcButton, NcTextField } from '@nextcloud/vue'
 import RankedBallot from './RankedBallot.vue'
 import RankedResultsCard from './RankedResultsCard.vue'
 import { useObjectStore } from '../store/store.js'
-import { matching, relationFilterFor } from '../utils/objectRelations.js'
 import { eligibleCount } from '../utils/conflicts.js'
-import { ensureRelationType } from './tabs/useRelationStore.js'
+import { matching, relationFilterFor } from '../utils/objectRelations.js'
 import {
 	chosenRules,
 	NO_VOTING_PERMISSIONS,
@@ -550,6 +549,7 @@ import {
 	TIE_BREAK_RULES,
 	VOTE_THRESHOLDS,
 } from '../utils/votingRules.js'
+import { ensureRelationType } from './tabs/useRelationStore.js'
 
 export default {
 	name: 'VotingRoundPanel',
@@ -631,7 +631,10 @@ export default {
 		 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-002-a-recused-member-cannot-vote-on-the-matter
 		 */
 		eligibleVoters() {
-			return eligibleCount(this.participantCount, this.declarations, [this.motionId, this.agendaItemId])
+			return eligibleCount(this.participantCount, this.declarations, [
+				this.motionId,
+				this.agendaItemId,
+			])
 		},
 
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
@@ -822,10 +825,15 @@ export default {
 				const store = ensureRelationType('conflict-of-interest')
 				const ids = [this.motionId, this.agendaItemId].filter(Boolean)
 				const lists = await Promise.all(
-					ids.map((id) => store.fetchCollection('conflict-of-interest', { agendaItem: id, _limit: 100 })),
+					ids.map((id) =>
+						store.fetchCollection('conflict-of-interest', {
+							agendaItem: id,
+							_limit: 100,
+						}),
+					),
 				)
 				this.declarations = lists.flat().filter(Boolean)
-			} catch (e) {
+			} catch {
 				this.declarations = []
 			}
 		},
@@ -876,7 +884,7 @@ export default {
 				this.currentRound = open || recent || null
 				this.participantCount = participants?.length ?? 0
 				await this.loadDeclarations()
-			} catch (e) {
+			} catch {
 				this.currentRound = null
 			} finally {
 				this.loading = false
@@ -916,7 +924,7 @@ export default {
 					this.castVoteError =
 						data.message || this.t('decidiq', 'Failed to cast vote')
 				}
-			} catch (e) {
+			} catch {
 				this.castVoteError = this.t('decidiq', 'Failed to cast vote')
 			}
 		},
@@ -960,7 +968,7 @@ export default {
 						data.message
 						|| this.t('decidiq', 'Failed to open voting round')
 				}
-			} catch (e) {
+			} catch {
 				this.openRoundError = this.t(
 					'decidiq',
 					'Failed to open voting round',
@@ -1061,7 +1069,7 @@ export default {
 				if (resp.ok) {
 					await this.fetchCurrentRound()
 				}
-			} catch (e) {
+			} catch {
 				// ignore
 			}
 		},
@@ -1096,7 +1104,7 @@ export default {
 					this.chairCastingError =
 						data.message || this.t('decidiq', 'Casting vote failed')
 				}
-			} catch (e) {
+			} catch {
 				this.chairCastingError = this.t('decidiq', 'Casting vote failed')
 			}
 		},
@@ -1157,7 +1165,7 @@ export default {
 				if (resp.ok) {
 					await this.fetchCurrentRound()
 				}
-			} catch (e) {
+			} catch {
 				// ignore
 			}
 		},
@@ -1185,7 +1193,7 @@ export default {
 					this.activeProxy = this.proxyToId
 					this.showProxyDialog = false
 				}
-			} catch (e) {
+			} catch {
 				// ignore
 			}
 		},
@@ -1209,7 +1217,7 @@ export default {
 				if (resp.ok) {
 					this.activeProxy = null
 				}
-			} catch (e) {
+			} catch {
 				// ignore
 			}
 		},
@@ -1233,7 +1241,7 @@ export default {
 					const data = await resp.json()
 					this.oriStatus = data.status
 				}
-			} catch (e) {
+			} catch {
 				// ignore
 			}
 		},

@@ -130,7 +130,10 @@ class ConflictOfInterestController extends Controller {
 		$type = (string)$this->request->getParam('declarationType', 'none');
 		$description = (string)$this->request->getParam('description', '');
 		$severity = (string)$this->request->getParam('severity', 'material');
-		$recuseFromVote = filter_var($this->request->getParam('recuseFromVote', false), FILTER_VALIDATE_BOOLEAN);
+		$initialAction = 'no-action-needed';
+		if (filter_var($this->request->getParam('recuseFromVote', false), FILTER_VALIDATE_BOOLEAN) === true) {
+			$initialAction = 'recused-from-vote';
+		}
 
 		// A member declaring from a page does not know her Membership id: an
 		// omitted one means "me" (bod-10).
@@ -154,7 +157,7 @@ class ConflictOfInterestController extends Controller {
 		$callerUid = $this->resolveCallerUid();
 
 		return $this->respondFromAuthorizedResult(
-			result: $this->conflictService->declare($membershipId, $agendaItemId, $type, $description, $severity, $callerUid, $recuseFromVote),
+			result: $this->conflictService->declare($membershipId, $agendaItemId, $type, $description, $severity, $callerUid, $initialAction),
 			payloadKey: 'declaration',
 			successCode: Http::STATUS_CREATED
 		);

@@ -137,7 +137,7 @@ class ConflictDeclareFromPageTest extends TestCase {
 	 * @return void
 	 */
 	public function testAMemberCanRecuseHerselfWhenDeclaring(): void {
-		$result = $this->service()->declare('M-anna', 'M-12', 'financial-interest', 'Owns land in the plan area', 'material', 'anna', true);
+		$result = $this->service()->declare('M-anna', 'M-12', 'financial-interest', 'Owns land in the plan area', 'material', 'anna', 'recused-from-vote');
 
 		$this->assertTrue($result['success']);
 		$this->assertSame('recused-from-vote', $this->saved[0]['actionTaken']);

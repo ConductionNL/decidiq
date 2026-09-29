@@ -306,7 +306,7 @@ class VoteCastingService {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function normaliseSaved(mixed $saved, array $fallback): array {
-		if ($saved instanceof \OCA\OpenRegister\Db\ObjectEntity === true) {
+		if (is_object($saved) === true && method_exists($saved, 'jsonSerialize') === true) {
 			return $saved->jsonSerialize();
 		}
 

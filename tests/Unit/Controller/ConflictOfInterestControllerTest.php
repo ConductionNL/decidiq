@@ -163,7 +163,7 @@ class ConflictOfInterestControllerTest extends TestCase {
 		$service->method('membershipForUser')->with('alice')->willReturn('M-alice');
 		$service->expects($this->once())
 			->method('declare')
-			->with('M-alice', 'M-12', 'financial-interest', 'Owns land', 'material', 'alice', true)
+			->with('M-alice', 'M-12', 'financial-interest', 'Owns land', 'material', 'alice', 'recused-from-vote')
 			->willReturn(['success' => true, 'declaration' => ['id' => 'd1'], 'message' => 'ok']);
 
 		$controller = $this->makeController(

@@ -17,9 +17,7 @@
 <template>
 	<div class="decidiq-tab" data-testid="conflicts-tab">
 		<div class="decidiq-tab__actions">
-			<NcButton
-				data-testid="conflict-declare-open"
-				@click="dialogOpen = true">
+			<NcButton data-testid="conflict-declare-open" @click="dialogOpen = true">
 				{{ t('decidiq', 'Declare a conflict of interest') }}
 			</NcButton>
 		</div>
@@ -58,13 +56,13 @@
 </template>
 
 <script>
-import { NcButton } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
+import { NcButton } from '@nextcloud/vue'
 import ConflictDeclareDialog from '../../dialogs/ConflictDeclareDialog.vue'
 import {
-	DECLARE_PATH,
 	declarationPayload,
 	declarationsFor,
+	DECLARE_PATH,
 	isRecusal,
 	refId,
 } from '../../utils/conflicts.js'
@@ -130,19 +128,30 @@ export default {
 			try {
 				const ids = [this.subjectId]
 				if (this.subjectType === 'motion') {
-					const motion = await ensureRelationType('motion').fetchObject('motion', this.subjectId)
+					const motion = await ensureRelationType('motion').fetchObject(
+						'motion',
+						this.subjectId,
+					)
 					const item = refId(motion?.agendaItem)
 					if (item) ids.push(item)
 				}
 				const store = ensureRelationType('conflict-of-interest')
 				const lists = await Promise.all(
-					ids.map((id) => store.fetchCollection('conflict-of-interest', { agendaItem: id, _limit: 100 })),
+					ids.map((id) =>
+						store.fetchCollection('conflict-of-interest', {
+							agendaItem: id,
+							_limit: 100,
+						}),
+					),
 				)
 				this.subjectIds = ids
 				this.declarations = lists.flat().filter(Boolean)
 				this.loadNames()
-			} catch (e) {
-				this.loadError = this.t('decidiq', 'Could not load the declarations.')
+			} catch {
+				this.loadError = this.t(
+					'decidiq',
+					'Could not load the declarations.',
+				)
 			} finally {
 				this.loading = false
 			}
@@ -156,10 +165,15 @@ export default {
 		async loadNames() {
 			const memberships = ensureRelationType('membership')
 			const persons = ensureRelationType('person')
-			for (const id of new Set(this.rows.map((r) => refId(r.boardMember)).filter(Boolean))) {
+			for (const id of new Set(
+				this.rows.map((r) => refId(r.boardMember)).filter(Boolean),
+			)) {
 				if (this.names[id]) continue
 				try {
-					const membership = await memberships.fetchObject('membership', id)
+					const membership = await memberships.fetchObject(
+						'membership',
+						id,
+					)
 					let name = membership?.label || ''
 					const personId = refId(membership?.person)
 					if (personId) {
@@ -167,7 +181,7 @@ export default {
 						name = person?.name || name
 					}
 					if (name) this.names = { ...this.names, [id]: name }
-				} catch (e) {
+				} catch {
 					// The row still shows; only the name is missing.
 				}
 			}
@@ -178,7 +192,9 @@ export default {
 		 * @return {string} Who declared
 		 */
 		memberName(row) {
-			return this.names[refId(row.boardMember)] || this.t('decidiq', 'A member')
+			return (
+				this.names[refId(row.boardMember)] || this.t('decidiq', 'A member')
+			)
 		},
 
 		/**
@@ -211,17 +227,24 @@ export default {
 						'Content-Type': 'application/json',
 						requesttoken: window.OC?.requestToken,
 					},
-					body: JSON.stringify(declarationPayload({ subjectId: this.subjectId, ...values })),
+					body: JSON.stringify(
+						declarationPayload({ subjectId: this.subjectId, ...values }),
+					),
 				})
 				if (!response.ok) {
 					const data = await response.json().catch(() => ({}))
-					this.postError = data.message || this.t('decidiq', 'Could not record the declaration.')
+					this.postError =
+						data.message
+						|| this.t('decidiq', 'Could not record the declaration.')
 					return
 				}
 				this.closeDialog()
 				await this.load()
-			} catch (e) {
-				this.postError = this.t('decidiq', 'Could not record the declaration.')
+			} catch {
+				this.postError = this.t(
+					'decidiq',
+					'Could not record the declaration.',
+				)
 			} finally {
 				this.posting = false
 			}

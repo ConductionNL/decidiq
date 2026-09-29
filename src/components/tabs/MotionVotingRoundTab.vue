@@ -118,8 +118,10 @@ export default {
 				// bare uuid or an expanded object depending on `_extend`.
 				this.meetingId = String(motion?.meeting?.id ?? motion?.meeting ?? '')
 				// Recusals on the agenda item cover its motions (bod-10).
-				this.agendaItemId = String(motion?.agendaItem?.id ?? motion?.agendaItem ?? '')
-			} catch (e) {
+				this.agendaItemId = String(
+					motion?.agendaItem?.id ?? motion?.agendaItem ?? '',
+				)
+			} catch {
 				this.motionLifecycle = ''
 				this.meetingId = ''
 				this.agendaItemId = ''
