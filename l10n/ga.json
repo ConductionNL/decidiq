@@ -1136,7 +1136,16 @@
         "Discuss this item": "Pléigh an mhír seo",
         "Formality": "Foirmiúlacht",
         "Mark as formality": "Marcáil mar fhoirmiúlacht",
-        "The formality mark was not saved.": "Níor sábháladh marc na foirmiúlachta."
+        "The formality mark was not saved.": "Níor sábháladh marc na foirmiúlachta.",
+        "Convened": "Tionólta",
+        "In session": "I seisiún",
+        "Convene meeting": "Tionóil an cruinniú",
+        "Open meeting": "Oscail an cruinniú",
+        "Pause meeting": "Cuir an cruinniú ar sos",
+        "Resume meeting": "Atosaigh an cruinniú",
+        "Adjourn meeting": "Cuir an cruinniú ar atráth",
+        "Close meeting": "Dún an cruinniú",
+        "The stage was not changed.": "Níor athraíodh an chéim."
     },
     "plurals": null
 }

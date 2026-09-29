@@ -1137,7 +1137,16 @@ OC.L10N.register(
         "Discuss this item": "Raspravi ovu točku",
         "Formality": "Formalnost",
         "Mark as formality": "Označi kao formalnost",
-        "The formality mark was not saved.": "Oznaka formalnosti nije spremljena."
+        "The formality mark was not saved.": "Oznaka formalnosti nije spremljena.",
+        "Convened": "Sazvano",
+        "In session": "U tijeku",
+        "Convene meeting": "Sazovi sjednicu",
+        "Open meeting": "Otvori sjednicu",
+        "Pause meeting": "Pauziraj sjednicu",
+        "Resume meeting": "Nastavi sjednicu",
+        "Adjourn meeting": "Odgodi sjednicu",
+        "Close meeting": "Zatvori sjednicu",
+        "The stage was not changed.": "Faza nije promijenjena."
     },
     "nplurals=2; plural=(n != 1);"
 )

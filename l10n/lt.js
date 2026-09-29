@@ -1137,7 +1137,16 @@ OC.L10N.register(
         "Discuss this item": "Aptarti šį klausimą",
         "Formality": "Formalumas",
         "Mark as formality": "Pažymėti kaip formalumą",
-        "The formality mark was not saved.": "Formalumo žymė neišsaugota."
+        "The formality mark was not saved.": "Formalumo žymė neišsaugota.",
+        "Convened": "Sušaukta",
+        "In session": "Posėdis vyksta",
+        "Convene meeting": "Sušaukti posėdį",
+        "Open meeting": "Pradėti posėdį",
+        "Pause meeting": "Pristabdyti posėdį",
+        "Resume meeting": "Tęsti posėdį",
+        "Adjourn meeting": "Atidėti posėdį",
+        "Close meeting": "Uždaryti posėdį",
+        "The stage was not changed.": "Etapas nepakeistas."
     },
     "nplurals=2; plural=(n != 1);"
 )

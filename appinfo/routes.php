@@ -143,6 +143,7 @@ $extra = [
 
         // Meeting lifecycle transitions (CRUD is handled by OpenRegister's object API directly).
         ['name' => 'meeting#lifecycle', 'url' => '/api/meetings/{id}/lifecycle', 'verb' => 'POST'],
+        ['name' => 'meeting#transitions', 'url' => '/api/meetings/{id}/transitions', 'verb' => 'GET'],
 
         // Recurring series generation + document package assembly
         // (meeting-agenda-gaps-v1). @spec openspec/specs/meeting-management/spec.md

@@ -1137,7 +1137,16 @@ OC.L10N.register(
         "Discuss this item": "Discuti questo punto",
         "Formality": "Formalità",
         "Mark as formality": "Segna come formalità",
-        "The formality mark was not saved.": "Il contrassegno di formalità non è stato salvato."
+        "The formality mark was not saved.": "Il contrassegno di formalità non è stato salvato.",
+        "Convened": "Convocata",
+        "In session": "In seduta",
+        "Convene meeting": "Convoca la riunione",
+        "Open meeting": "Apri la riunione",
+        "Pause meeting": "Sospendi la riunione",
+        "Resume meeting": "Riprendi la riunione",
+        "Adjourn meeting": "Aggiorna la riunione",
+        "Close meeting": "Chiudi la riunione",
+        "The stage was not changed.": "La fase non è stata modificata."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1137,7 +1137,16 @@ OC.L10N.register(
         "Discuss this item": "Napirendi pont megvitatása",
         "Formality": "Formalitás",
         "Mark as formality": "Megjelölés formalitásként",
-        "The formality mark was not saved.": "A formalitás jelölése nem lett mentve."
+        "The formality mark was not saved.": "A formalitás jelölése nem lett mentve.",
+        "Convened": "Összehívva",
+        "In session": "Ülésezik",
+        "Convene meeting": "Ülés összehívása",
+        "Open meeting": "Ülés megnyitása",
+        "Pause meeting": "Ülés szüneteltetése",
+        "Resume meeting": "Ülés folytatása",
+        "Adjourn meeting": "Ülés elnapolása",
+        "Close meeting": "Ülés bezárása",
+        "The stage was not changed.": "A szakasz nem változott."
     },
     "nplurals=2; plural=(n != 1);"
 )

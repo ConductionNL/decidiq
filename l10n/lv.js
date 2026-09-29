@@ -1137,7 +1137,16 @@ OC.L10N.register(
         "Discuss this item": "Apspriest šo punktu",
         "Formality": "Formalitāte",
         "Mark as formality": "Atzīmēt kā formalitāti",
-        "The formality mark was not saved.": "Formalitātes atzīme netika saglabāta."
+        "The formality mark was not saved.": "Formalitātes atzīme netika saglabāta.",
+        "Convened": "Sasaukta",
+        "In session": "Sēde notiek",
+        "Convene meeting": "Sasaukt sēdi",
+        "Open meeting": "Atklāt sēdi",
+        "Pause meeting": "Pārtraukt sēdi",
+        "Resume meeting": "Turpināt sēdi",
+        "Adjourn meeting": "Atlikt sēdi",
+        "Close meeting": "Slēgt sēdi",
+        "The stage was not changed.": "Posms netika mainīts."
     },
     "nplurals=2; plural=(n != 1);"
 )

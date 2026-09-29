@@ -109,7 +109,9 @@ class MeetingController extends Controller {
 	 *
 	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.3
 	 *
-	 * @return JSONResponse HTTP 200 with updated meeting on success; 422 if transition is invalid
+	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-001-the-chair-moves-a-meeting-through-its-stages
+	 *
+	 * @return JSONResponse HTTP 200 with updated meeting on success; 403 for a caller who is not chair or secretary; 422 if transition is invalid
 	 */
 	#[NoAdminRequired]
 	public function lifecycle(string $id): JSONResponse {
@@ -127,7 +129,16 @@ class MeetingController extends Controller {
 			);
 		}
 
+		// Only the chair or secretary (or an NC admin) moves a meeting through its
+		// stages: the stage buttons on the meeting page show for exactly them.
 		$userId = $this->userSession->getUser()->getUID();
+		if ($this->roleGate->isChairOrSecretary(meetingId: $id, userId: $userId) === false) {
+			return new JSONResponse(
+				['message' => 'Only the chair or secretary of the meeting may change its stage.'],
+				Http::STATUS_FORBIDDEN
+			);
+		}
+
 		$result = $this->meetingService->transition(meetingId: $id, action: $action, currentUserId: $userId);
 
 		if ($result['success'] === false) {
@@ -139,6 +150,43 @@ class MeetingController extends Controller {
 
 		return new JSONResponse($result);
 	}//end lifecycle()
+
+	/**
+	 * Tell the caller the meeting's stage and the steps they may take.
+	 *
+	 * GET /api/meetings/{id}/transitions
+	 *
+	 * Access control: the meeting is read through ObjectService (OpenRegister
+	 * RBAC), so a caller who cannot read it gets 404. Steps are offered only to
+	 * the chair or secretary of the meeting or an NC admin, the same gate
+	 * lifecycle() applies, and only the steps MeetingService would accept.
+	 *
+	 * @param string $id UUID of the meeting
+	 *
+	 * @return JSONResponse 200 with { lifecycle, actions }; 401 when anonymous; 404 when the meeting cannot be read
+	 *
+	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-001-the-chair-moves-a-meeting-through-its-stages
+	 */
+	#[NoAdminRequired]
+	public function transitions(string $id): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		$userId = $user->getUID();
+		$answer = $this->meetingService->availableActionsFor(meetingId: $id, userId: $userId);
+		if ($answer === null) {
+			return new JSONResponse(['message' => 'Meeting not found.'], Http::STATUS_NOT_FOUND);
+		}
+
+		if ($this->roleGate->isChairOrSecretary(meetingId: $id, userId: $userId) === false) {
+			$answer['actions'] = [];
+		}
+
+		return new JSONResponse($answer);
+
+	}//end transitions()
 
 	/**
 	 * Generate the notarial proof package for a meeting.

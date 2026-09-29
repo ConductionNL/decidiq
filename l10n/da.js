@@ -1137,7 +1137,16 @@ OC.L10N.register(
         "Discuss this item": "Behandl dette punkt",
         "Formality": "Formalitet",
         "Mark as formality": "Markér som formalitet",
-        "The formality mark was not saved.": "Markeringen som formalitet blev ikke gemt."
+        "The formality mark was not saved.": "Markeringen som formalitet blev ikke gemt.",
+        "Convened": "Indkaldt",
+        "In session": "I møde",
+        "Convene meeting": "Indkald mødet",
+        "Open meeting": "Åbn mødet",
+        "Pause meeting": "Sæt mødet på pause",
+        "Resume meeting": "Genoptag mødet",
+        "Adjourn meeting": "Udsæt mødet",
+        "Close meeting": "Afslut mødet",
+        "The stage was not changed.": "Fasen blev ikke ændret."
     },
     "nplurals=2; plural=(n != 1);"
 )
