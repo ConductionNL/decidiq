@@ -1189,7 +1189,18 @@ OC.L10N.register(
         "Decision taken": "Ákvörðun tekin",
         "Themes": "Þemu",
         "Theme": "Þema",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Engin þemu enn. Bættu við málaflokkunum sem tillögurnar ykkar fjalla um, t.d. húsnæði eða loftslag."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Engin þemu enn. Bættu við málaflokkunum sem tillögurnar ykkar fjalla um, t.d. húsnæði eða loftslag.",
+        "Everyone present": "Allir mættir",
+        "Present": "Mætt",
+        "Absent": "Fjarverandi",
+        "Sent apologies": "Boðaði forföll",
+        "Represented by proxy": "Fulltrúi með umboði",
+        "Not recorded": "Ekki skráð",
+        "Mark present": "Merkja mætt",
+        "Mark absent": "Merkja fjarverandi",
+        "Mark as sent apologies": "Merkja sem boðuð forföll",
+        "Mark as represented by proxy": "Merkja með fulltrúa með umboði",
+        "The attendance could not be saved.": "Ekki tókst að vista mætinguna."
     },
     "nplurals=2; plural=(n != 1);"
 )

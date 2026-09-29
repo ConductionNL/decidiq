@@ -1188,7 +1188,18 @@
         "Decision taken": "Lēmums pieņemts",
         "Themes": "Tēmas",
         "Theme": "Tēma",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Tēmu vēl nav. Pievienojiet politikas tēmas, par kurām ir jūsu priekšlikumi, piemēram, mājoklis vai klimats."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Tēmu vēl nav. Pievienojiet politikas tēmas, par kurām ir jūsu priekšlikumi, piemēram, mājoklis vai klimats.",
+        "Everyone present": "Visi klātesoši",
+        "Present": "Klātesošs",
+        "Absent": "Prombūtnē",
+        "Sent apologies": "Atvainojies",
+        "Represented by proxy": "Pārstāvēts ar pilnvaru",
+        "Not recorded": "Nav reģistrēts",
+        "Mark present": "Atzīmēt kā klātesošu",
+        "Mark absent": "Atzīmēt kā prombūtnē",
+        "Mark as sent apologies": "Atzīmēt kā atvainojušos",
+        "Mark as represented by proxy": "Atzīmēt kā pārstāvētu ar pilnvaru",
+        "The attendance could not be saved.": "Klātbūtni neizdevās saglabāt."
     },
     "plurals": null
 }

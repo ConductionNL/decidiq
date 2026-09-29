@@ -1925,10 +1925,10 @@
 							},
 							"source": {
 								"register": "decidiq",
-								"schema": "participant",
+								"schema": "meeting-attendance",
 								"metric": "count",
 								"filter": {
-									"attendanceStatus": "absent"
+									"status": "absent"
 								}
 							}
 						}
@@ -1979,9 +1979,9 @@
 							"emptyLabel": "Nobody has been recorded yet",
 							"dataSource": {
 								"register": "decidiq",
-								"schema": "participant",
+								"schema": "meeting-attendance",
 								"aggregate": {
-									"groupBy": "attendanceStatus",
+									"groupBy": "status",
 									"metric": "count"
 								}
 							}

@@ -1189,7 +1189,18 @@ OC.L10N.register(
         "Decision taken": "Ελήφθη απόφαση",
         "Themes": "Θέματα",
         "Theme": "Θέμα",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Δεν υπάρχουν ακόμη θέματα. Προσθέστε τα θέματα πολιτικής των προτάσεών σας, όπως στέγαση ή κλίμα."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Δεν υπάρχουν ακόμη θέματα. Προσθέστε τα θέματα πολιτικής των προτάσεών σας, όπως στέγαση ή κλίμα.",
+        "Everyone present": "Όλοι παρόντες",
+        "Present": "Παρών",
+        "Absent": "Απών",
+        "Sent apologies": "Δικαιολογημένη απουσία",
+        "Represented by proxy": "Εκπροσωπείται με εξουσιοδότηση",
+        "Not recorded": "Δεν καταγράφηκε",
+        "Mark present": "Σήμανση ως παρών",
+        "Mark absent": "Σήμανση ως απών",
+        "Mark as sent apologies": "Σήμανση ως δικαιολογημένη απουσία",
+        "Mark as represented by proxy": "Σήμανση ως εκπροσωπούμενος με εξουσιοδότηση",
+        "The attendance could not be saved.": "Η παρουσία δεν ήταν δυνατό να αποθηκευτεί."
     },
     "nplurals=2; plural=(n != 1);"
 )

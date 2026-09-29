@@ -61,6 +61,7 @@ final class MeetingRuleSource {
 	 * @return bool False when the meeting cannot be read
 	 *
 	 * @spec openspec/specs/meeting-management/spec.md#requirement-req-mrb-002-votes-follow-the-body-rules
+	 * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 	 */
 	public function quorumMet(string $meetingId): bool {
 		$entity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
@@ -68,10 +69,17 @@ final class MeetingRuleSource {
 			return false;
 		}
 
+		// This meeting's attendance records decide who is present; without
+		// any, the participant's own attendanceStatus does (pla-09).
+		$attendance = new MeetingAttendanceReader(objectService: $this->objectService);
+
 		return (new BodyQuorum())->isMet(
 			meeting: (array)$entity->jsonSerialize(),
 			body: $this->loadBody(bodyId: $this->bodyIdOf(meetingId: $meetingId)),
-			participants: $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId)
+			participants: $attendance->overlay(
+				participants: $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId),
+				statuses: $attendance->statusesFor(meetingId: $meetingId)
+			)
 		);
 
 	}//end quorumMet()

@@ -1189,7 +1189,18 @@ OC.L10N.register(
         "Decision taken": "Vendosur",
         "Themes": "Temat",
         "Theme": "Tema",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Ende nuk ka tema. Shtoni temat e politikave për të cilat janë mocionet tuaja, si strehimi ose klima."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Ende nuk ka tema. Shtoni temat e politikave për të cilat janë mocionet tuaja, si strehimi ose klima.",
+        "Everyone present": "Të gjithë të pranishëm",
+        "Present": "I pranishëm",
+        "Absent": "Mungon",
+        "Sent apologies": "Njoftoi mungesën",
+        "Represented by proxy": "Përfaqësuar me prokurë",
+        "Not recorded": "Pa regjistruar",
+        "Mark present": "Shëno të pranishëm",
+        "Mark absent": "Shëno mungesë",
+        "Mark as sent apologies": "Shëno si njoftoi mungesën",
+        "Mark as represented by proxy": "Shëno si të përfaqësuar me prokurë",
+        "The attendance could not be saved.": "Pjesëmarrja nuk u ruajt dot."
     },
     "nplurals=2; plural=(n != 1);"
 )

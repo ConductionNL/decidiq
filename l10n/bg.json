@@ -1188,7 +1188,18 @@
         "Decision taken": "Взето решение",
         "Themes": "Теми",
         "Theme": "Тема",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Все още няма теми. Добавете темите на политиката, за които са вашите предложения, например жилища или климат."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Все още няма теми. Добавете темите на политиката, за които са вашите предложения, например жилища или климат.",
+        "Everyone present": "Всички присъстват",
+        "Present": "Присъства",
+        "Absent": "Отсъства",
+        "Sent apologies": "Извинил се",
+        "Represented by proxy": "Представляван чрез пълномощник",
+        "Not recorded": "Не е отбелязано",
+        "Mark present": "Отбележи присъствие",
+        "Mark absent": "Отбележи отсъствие",
+        "Mark as sent apologies": "Отбележи като извинил се",
+        "Mark as represented by proxy": "Отбележи като представляван чрез пълномощник",
+        "The attendance could not be saved.": "Присъствието не можа да бъде запазено."
     },
     "plurals": null
 }

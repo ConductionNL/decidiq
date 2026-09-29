@@ -1189,7 +1189,18 @@ OC.L10N.register(
         "Decision taken": "Päätetty",
         "Themes": "Teemat",
         "Theme": "Teema",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Teemoja ei vielä ole. Lisää politiikan teemat, joita aloitteenne koskevat, kuten asuminen tai ilmasto."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Teemoja ei vielä ole. Lisää politiikan teemat, joita aloitteenne koskevat, kuten asuminen tai ilmasto.",
+        "Everyone present": "Kaikki paikalla",
+        "Present": "Paikalla",
+        "Absent": "Poissa",
+        "Sent apologies": "Ilmoitti esteestä",
+        "Represented by proxy": "Edustettu valtakirjalla",
+        "Not recorded": "Ei kirjattu",
+        "Mark present": "Merkitse paikalla olevaksi",
+        "Mark absent": "Merkitse poissaolevaksi",
+        "Mark as sent apologies": "Merkitse esteestä ilmoittaneeksi",
+        "Mark as represented by proxy": "Merkitse valtakirjalla edustetuksi",
+        "The attendance could not be saved.": "Läsnäoloa ei voitu tallentaa."
     },
     "nplurals=2; plural=(n != 1);"
 )

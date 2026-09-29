@@ -8266,6 +8266,37 @@
         },
         "name": "Mobiliteit",
         "description": "Verkeer, openbaar vervoer en fietsbeleid."
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MeetingAttendance",
+          "slug": "meetingattendance-1"
+        },
+        "meeting": "00000000-0000-4000-8000-000000000000",
+        "participant": "00000000-0000-4000-8000-000000000000",
+        "status": "present",
+        "arrivedAt": "2026-03-01T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MeetingAttendance",
+          "slug": "meetingattendance-2"
+        },
+        "meeting": "00000000-0000-4000-8000-000000000000",
+        "participant": "00000000-0000-4000-8000-000000000001",
+        "status": "excused"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MeetingAttendance",
+          "slug": "meetingattendance-3"
+        },
+        "meeting": "00000000-0000-4000-8000-000000000000",
+        "participant": "00000000-0000-4000-8000-000000000002",
+        "status": "absent"
       }
     ]
   }
