@@ -1137,7 +1137,16 @@ OC.L10N.register(
         "Discuss this item": "Aruta seda punkti",
         "Formality": "Formaalsus",
         "Mark as formality": "Märgi formaalsuseks",
-        "The formality mark was not saved.": "Formaalsuse märget ei salvestatud."
+        "The formality mark was not saved.": "Formaalsuse märget ei salvestatud.",
+        "Convened": "Kokku kutsutud",
+        "In session": "Istung käib",
+        "Convene meeting": "Kutsu koosolek kokku",
+        "Open meeting": "Ava koosolek",
+        "Pause meeting": "Peata koosolek",
+        "Resume meeting": "Jätka koosolekut",
+        "Adjourn meeting": "Lükka koosolek edasi",
+        "Close meeting": "Lõpeta koosolek",
+        "The stage was not changed.": "Etappi ei muudetud."
     },
     "nplurals=2; plural=(n != 1);"
 )

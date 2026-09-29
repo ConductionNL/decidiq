@@ -1137,7 +1137,16 @@ OC.L10N.register(
         "Discuss this item": "Iddiskuti dan il-punt",
         "Formality": "Formalità",
         "Mark as formality": "Immarka bħala formalità",
-        "The formality mark was not saved.": "Il-marka tal-formalità ma ġietx salvata."
+        "The formality mark was not saved.": "Il-marka tal-formalità ma ġietx salvata.",
+        "Convened": "Imsejħa",
+        "In session": "Fis-sessjoni",
+        "Convene meeting": "Sejjaħ il-laqgħa",
+        "Open meeting": "Iftaħ il-laqgħa",
+        "Pause meeting": "Waqqaf il-laqgħa",
+        "Resume meeting": "Kompli l-laqgħa",
+        "Adjourn meeting": "Posponi l-laqgħa",
+        "Close meeting": "Agħlaq il-laqgħa",
+        "The stage was not changed.": "L-istadju ma nbidilx."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1136,7 +1136,16 @@
         "Discuss this item": "Bu maddeyi görüş",
         "Formality": "Formalite",
         "Mark as formality": "Formalite olarak işaretle",
-        "The formality mark was not saved.": "Formalite işareti kaydedilmedi."
+        "The formality mark was not saved.": "Formalite işareti kaydedilmedi.",
+        "Convened": "Toplantıya çağrıldı",
+        "In session": "Oturumda",
+        "Convene meeting": "Toplantıyı çağır",
+        "Open meeting": "Toplantıyı aç",
+        "Pause meeting": "Toplantıya ara ver",
+        "Resume meeting": "Toplantıya devam et",
+        "Adjourn meeting": "Toplantıyı ertele",
+        "Close meeting": "Toplantıyı kapat",
+        "The stage was not changed.": "Aşama değiştirilmedi."
     },
     "plurals": null
 }

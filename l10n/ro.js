@@ -1137,7 +1137,16 @@ OC.L10N.register(
         "Discuss this item": "Discută acest punct",
         "Formality": "Formalitate",
         "Mark as formality": "Marchează ca formalitate",
-        "The formality mark was not saved.": "Marcajul de formalitate nu a fost salvat."
+        "The formality mark was not saved.": "Marcajul de formalitate nu a fost salvat.",
+        "Convened": "Convocată",
+        "In session": "În ședință",
+        "Convene meeting": "Convoacă ședința",
+        "Open meeting": "Deschide ședința",
+        "Pause meeting": "Suspendă ședința",
+        "Resume meeting": "Reia ședința",
+        "Adjourn meeting": "Amână ședința",
+        "Close meeting": "Închide ședința",
+        "The stage was not changed.": "Etapa nu a fost schimbată."
     },
     "nplurals=2; plural=(n != 1);"
 )

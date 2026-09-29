@@ -1137,7 +1137,16 @@ OC.L10N.register(
         "Discuss this item": "Diskuto këtë pikë",
         "Formality": "Formalitet",
         "Mark as formality": "Shëno si formalitet",
-        "The formality mark was not saved.": "Shënimi i formalitetit nuk u ruajt."
+        "The formality mark was not saved.": "Shënimi i formalitetit nuk u ruajt.",
+        "Convened": "E thirrur",
+        "In session": "Në seancë",
+        "Convene meeting": "Thirr mbledhjen",
+        "Open meeting": "Hap mbledhjen",
+        "Pause meeting": "Ndërprit mbledhjen",
+        "Resume meeting": "Rifillo mbledhjen",
+        "Adjourn meeting": "Shty mbledhjen",
+        "Close meeting": "Mbyll mbledhjen",
+        "The stage was not changed.": "Faza nuk u ndryshua."
     },
     "nplurals=2; plural=(n != 1);"
 )

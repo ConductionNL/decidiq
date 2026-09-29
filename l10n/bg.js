@@ -1137,7 +1137,16 @@ OC.L10N.register(
         "Discuss this item": "Обсъди тази точка",
         "Formality": "Формалност",
         "Mark as formality": "Отбележи като формалност",
-        "The formality mark was not saved.": "Отбелязването като формалност не беше запазено."
+        "The formality mark was not saved.": "Отбелязването като формалност не беше запазено.",
+        "Convened": "Свикано",
+        "In session": "В заседание",
+        "Convene meeting": "Свикване на заседанието",
+        "Open meeting": "Откриване на заседанието",
+        "Pause meeting": "Прекъсване на заседанието",
+        "Resume meeting": "Възобновяване на заседанието",
+        "Adjourn meeting": "Отлагане на заседанието",
+        "Close meeting": "Закриване на заседанието",
+        "The stage was not changed.": "Етапът не беше променен."
     },
     "nplurals=2; plural=(n != 1);"
 )

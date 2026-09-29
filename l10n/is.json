@@ -1136,7 +1136,16 @@
         "Discuss this item": "Ræða þennan lið",
         "Formality": "Formsatriði",
         "Mark as formality": "Merkja sem formsatriði",
-        "The formality mark was not saved.": "Merkingin sem formsatriði var ekki vistuð."
+        "The formality mark was not saved.": "Merkingin sem formsatriði var ekki vistuð.",
+        "Convened": "Boðað",
+        "In session": "Fundur stendur yfir",
+        "Convene meeting": "Boða fund",
+        "Open meeting": "Setja fund",
+        "Pause meeting": "Gera hlé á fundi",
+        "Resume meeting": "Halda fundi áfram",
+        "Adjourn meeting": "Fresta fundi",
+        "Close meeting": "Slíta fundi",
+        "The stage was not changed.": "Stigi var ekki breytt."
     },
     "plurals": null
 }

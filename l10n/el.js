@@ -1137,7 +1137,16 @@ OC.L10N.register(
         "Discuss this item": "Συζήτηση αυτού του θέματος",
         "Formality": "Τυπικό θέμα",
         "Mark as formality": "Σήμανση ως τυπικό θέμα",
-        "The formality mark was not saved.": "Η σήμανση ως τυπικό θέμα δεν αποθηκεύτηκε."
+        "The formality mark was not saved.": "Η σήμανση ως τυπικό θέμα δεν αποθηκεύτηκε.",
+        "Convened": "Συγκλήθηκε",
+        "In session": "Σε συνεδρίαση",
+        "Convene meeting": "Σύγκληση συνεδρίασης",
+        "Open meeting": "Έναρξη συνεδρίασης",
+        "Pause meeting": "Διακοπή συνεδρίασης",
+        "Resume meeting": "Συνέχιση συνεδρίασης",
+        "Adjourn meeting": "Αναβολή συνεδρίασης",
+        "Close meeting": "Λήξη συνεδρίασης",
+        "The stage was not changed.": "Το στάδιο δεν άλλαξε."
     },
     "nplurals=2; plural=(n != 1);"
 )

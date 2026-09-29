@@ -1136,7 +1136,16 @@
         "Discuss this item": "Omów ten punkt",
         "Formality": "Formalność",
         "Mark as formality": "Oznacz jako formalność",
-        "The formality mark was not saved.": "Nie zapisano oznaczenia formalności."
+        "The formality mark was not saved.": "Nie zapisano oznaczenia formalności.",
+        "Convened": "Zwołane",
+        "In session": "W trakcie posiedzenia",
+        "Convene meeting": "Zwołaj posiedzenie",
+        "Open meeting": "Otwórz posiedzenie",
+        "Pause meeting": "Wstrzymaj posiedzenie",
+        "Resume meeting": "Wznów posiedzenie",
+        "Adjourn meeting": "Odrocz posiedzenie",
+        "Close meeting": "Zamknij posiedzenie",
+        "The stage was not changed.": "Etap nie został zmieniony."
     },
     "plurals": null
 }

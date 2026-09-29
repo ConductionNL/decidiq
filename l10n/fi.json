@@ -1136,7 +1136,16 @@
         "Discuss this item": "Keskustele tästä kohdasta",
         "Formality": "Muodollisuus",
         "Mark as formality": "Merkitse muodollisuudeksi",
-        "The formality mark was not saved.": "Muodollisuusmerkintää ei tallennettu."
+        "The formality mark was not saved.": "Muodollisuusmerkintää ei tallennettu.",
+        "Convened": "Kutsuttu koolle",
+        "In session": "Kokous käynnissä",
+        "Convene meeting": "Kutsu kokous koolle",
+        "Open meeting": "Avaa kokous",
+        "Pause meeting": "Keskeytä kokous",
+        "Resume meeting": "Jatka kokousta",
+        "Adjourn meeting": "Lykkää kokousta",
+        "Close meeting": "Päätä kokous",
+        "The stage was not changed.": "Vaihetta ei muutettu."
     },
     "plurals": null
 }

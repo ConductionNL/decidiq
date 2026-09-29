@@ -1137,7 +1137,16 @@ OC.L10N.register(
         "Discuss this item": "Behandle dette punktet",
         "Formality": "Formalitet",
         "Mark as formality": "Merk som formalitet",
-        "The formality mark was not saved.": "Formalitetsmerket ble ikke lagret."
+        "The formality mark was not saved.": "Formalitetsmerket ble ikke lagret.",
+        "Convened": "Innkalt",
+        "In session": "I møte",
+        "Convene meeting": "Innkall møtet",
+        "Open meeting": "Åpne møtet",
+        "Pause meeting": "Sett møtet på pause",
+        "Resume meeting": "Gjenoppta møtet",
+        "Adjourn meeting": "Utsett møtet",
+        "Close meeting": "Avslutt møtet",
+        "The stage was not changed.": "Fasen ble ikke endret."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1136,7 +1136,16 @@
         "Discuss this item": "Débattre de ce point",
         "Formality": "Formalité",
         "Mark as formality": "Marquer comme formalité",
-        "The formality mark was not saved.": "Le marquage comme formalité n'a pas été enregistré."
+        "The formality mark was not saved.": "Le marquage comme formalité n'a pas été enregistré.",
+        "Convened": "Convoquée",
+        "In session": "En séance",
+        "Convene meeting": "Convoquer la réunion",
+        "Open meeting": "Ouvrir la réunion",
+        "Pause meeting": "Suspendre la réunion",
+        "Resume meeting": "Reprendre la réunion",
+        "Adjourn meeting": "Ajourner la réunion",
+        "Close meeting": "Clore la réunion",
+        "The stage was not changed.": "L'étape n'a pas été modifiée."
     },
     "plurals": null
 }
