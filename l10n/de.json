@@ -1221,7 +1221,26 @@
         "The draft could not be written into the minutes.": "Der Entwurf konnte nicht ins Protokoll geschrieben werden.",
         "The minutes of %s are available": "Das Protokoll von %s ist verfügbar",
         "Open the minutes in Decidiq to read them.": "Öffnen Sie das Protokoll in Decidiq, um es zu lesen.",
-        "Draft and send": "Entwurf und Versand"
+        "Draft and send": "Entwurf und Versand",
+        "Add agenda items": "Tagesordnungspunkte hinzufügen",
+        "Add from template or meeting": "Aus Vorlage oder Sitzung hinzufügen",
+        "Add to the agenda": "Zur Tagesordnung hinzufügen",
+        "Agenda items added: {count}.": "Hinzugefügte Punkte: {count}.",
+        "Agenda template": "Tagesordnungsvorlage",
+        "Could not load that agenda.": "Diese Tagesordnung konnte nicht geladen werden.",
+        "Could not load the templates and meetings.": "Die Vorlagen und Sitzungen konnten nicht geladen werden.",
+        "From a template": "Aus einer Vorlage",
+        "From an earlier meeting": "Aus einer früheren Sitzung",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Wählen Sie die zu kopierenden Punkte. Ohne Auswahl wird die ganze Tagesordnung kopiert.",
+        "Save as template": "Als Vorlage speichern",
+        "Template": "Vorlage",
+        "That meeting has no agenda items.": "Diese Sitzung hat keine Tagesordnungspunkte.",
+        "The agenda items could not be added.": "Die Tagesordnungspunkte konnten nicht hinzugefügt werden.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Die Tagesordnung wurde als Vorlage {name} gespeichert. Benennen Sie sie unter Tagesordnungsvorlagen in den Einstellungen um.",
+        "The template could not be saved.": "Die Vorlage konnte nicht gespeichert werden.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Es gibt noch keine Tagesordnungsvorlagen. Speichern Sie eine Tagesordnung als Vorlage oder fügen Sie eine unter Tagesordnungsvorlagen in den Einstellungen hinzu.",
+        "Agenda templates": "Tagesordnungsvorlagen",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Noch keine Tagesordnungsvorlagen. Öffnen Sie eine Sitzung mit einer guten Tagesordnung und klicken Sie dort auf Als Vorlage speichern."
     },
     "plurals": null
 }

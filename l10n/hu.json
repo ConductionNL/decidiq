@@ -1221,7 +1221,26 @@
         "The draft could not be written into the minutes.": "A tervezetet nem sikerült a jegyzőkönyvbe írni.",
         "The minutes of %s are available": "A(z) %s jegyzőkönyve elérhető",
         "Open the minutes in Decidiq to read them.": "Nyissa meg a jegyzőkönyvet a Decidiqben az elolvasásához.",
-        "Draft and send": "Tervezet és küldés"
+        "Draft and send": "Tervezet és küldés",
+        "Add agenda items": "Napirendi pontok hozzáadása",
+        "Add from template or meeting": "Hozzáadás sablonból vagy ülésből",
+        "Add to the agenda": "Hozzáadás a napirendhez",
+        "Agenda items added: {count}.": "Hozzáadott pontok: {count}.",
+        "Agenda template": "Napirendsablon",
+        "Could not load that agenda.": "Ezt a napirendet nem sikerült betölteni.",
+        "Could not load the templates and meetings.": "A sablonokat és az üléseket nem sikerült betölteni.",
+        "From a template": "Sablonból",
+        "From an earlier meeting": "Egy korábbi ülésből",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Válassza ki a másolandó pontokat. Ha semmit nem választ, a teljes napirend másolódik.",
+        "Save as template": "Mentés sablonként",
+        "Template": "Sablon",
+        "That meeting has no agenda items.": "Ennek az ülésnek nincsenek napirendi pontjai.",
+        "The agenda items could not be added.": "A napirendi pontokat nem sikerült hozzáadni.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "A napirend {name} sablonként lett mentve. Nevezze át a beállítások Napirendsablonok részén.",
+        "The template could not be saved.": "A sablont nem sikerült menteni.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Még nincsenek napirendsablonok. Mentsen egy napirendet sablonként, vagy adjon hozzá egyet a beállítások Napirendsablonok részén.",
+        "Agenda templates": "Napirendsablonok",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Még nincsenek napirendsablonok. Nyisson meg egy jó napirendű ülést, és nyomja meg a napirendjén a Mentés sablonként gombot."
     },
     "plurals": null
 }

@@ -1221,7 +1221,26 @@
         "The draft could not be written into the minutes.": "Δεν ήταν δυνατή η εγγραφή του προσχεδίου στα πρακτικά.",
         "The minutes of %s are available": "Τα πρακτικά της %s είναι διαθέσιμα",
         "Open the minutes in Decidiq to read them.": "Ανοίξτε τα πρακτικά στο Decidiq για να τα διαβάσετε.",
-        "Draft and send": "Προσχέδιο και αποστολή"
+        "Draft and send": "Προσχέδιο και αποστολή",
+        "Add agenda items": "Προσθήκη θεμάτων ημερήσιας διάταξης",
+        "Add from template or meeting": "Προσθήκη από πρότυπο ή συνεδρίαση",
+        "Add to the agenda": "Προσθήκη στην ημερήσια διάταξη",
+        "Agenda items added: {count}.": "Θέματα που προστέθηκαν: {count}.",
+        "Agenda template": "Πρότυπο ημερήσιας διάταξης",
+        "Could not load that agenda.": "Δεν ήταν δυνατή η φόρτωση αυτής της ημερήσιας διάταξης.",
+        "Could not load the templates and meetings.": "Δεν ήταν δυνατή η φόρτωση των προτύπων και των συνεδριάσεων.",
+        "From a template": "Από πρότυπο",
+        "From an earlier meeting": "Από προηγούμενη συνεδρίαση",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Επιλέξτε τα θέματα για αντιγραφή. Χωρίς επιλογή αντιγράφεται όλη η ημερήσια διάταξη.",
+        "Save as template": "Αποθήκευση ως πρότυπο",
+        "Template": "Πρότυπο",
+        "That meeting has no agenda items.": "Αυτή η συνεδρίαση δεν έχει θέματα.",
+        "The agenda items could not be added.": "Δεν ήταν δυνατή η προσθήκη των θεμάτων.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Η ημερήσια διάταξη αποθηκεύτηκε ως πρότυπο {name}. Μετονομάστε το στα Πρότυπα ημερήσιας διάταξης στις ρυθμίσεις.",
+        "The template could not be saved.": "Δεν ήταν δυνατή η αποθήκευση του προτύπου.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Δεν υπάρχουν ακόμη πρότυπα ημερήσιας διάταξης. Αποθηκεύστε μια ημερήσια διάταξη ως πρότυπο ή προσθέστε ένα στις ρυθμίσεις.",
+        "Agenda templates": "Πρότυπα ημερήσιας διάταξης",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Δεν υπάρχουν ακόμη πρότυπα. Ανοίξτε μια συνεδρίαση με καλή ημερήσια διάταξη και πατήστε Αποθήκευση ως πρότυπο."
     },
     "plurals": null
 }

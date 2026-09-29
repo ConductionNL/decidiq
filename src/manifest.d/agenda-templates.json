@@ -1,0 +1,89 @@
+{
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "agenda-templates-and-copy (age-04): the agenda templates a meeting's agenda starts from. The secretary saves an agenda as a template from the meeting Agenda widget and adds items from a template there; here the templates are listed, renamed or removed. A meeting type names its default template (MeetingType.defaultAgendaTemplate).",
+	"_spec": "openspec/specs/agenda-builder/spec.md#requirement-req-atc-001-start-an-agenda-from-a-template",
+	"menu": [
+		{
+			"id": "AgendaTemplates",
+			"label": "Agenda templates",
+			"icon": "FileDocumentMultipleOutline",
+			"route": "AgendaTemplates",
+			"order": 76
+		}
+	],
+	"pages": [
+		{
+			"id": "AgendaTemplates",
+			"route": "/agenda-templates",
+			"type": "index",
+			"title": "Agenda templates",
+			"config": {
+				"register": "decidiq",
+				"schema": "agenda-template",
+				"sortKey": "name",
+				"sortOrder": "asc",
+				"columns": [
+					{
+						"key": "name",
+						"label": "Name",
+						"widget": "link"
+					},
+					{
+						"key": "description",
+						"label": "Description"
+					}
+				],
+				"rowRoute": "AgendaTemplateDetail",
+				"allowCreate": true,
+				"emptyText": "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda."
+			}
+		},
+		{
+			"id": "AgendaTemplateDetail",
+			"route": "/agenda-templates/:id",
+			"type": "detail",
+			"title": "Agenda template",
+			"config": {
+				"register": "decidiq",
+				"schema": "agenda-template",
+				"widgets": [
+					{
+						"id": "agenda-template-data",
+						"type": "data",
+						"title": "Agenda template",
+						"icon": "FileDocumentMultipleOutline",
+						"content": {
+							"columns": 2
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "agenda-template-data",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 8
+					}
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{
+							"id": "audit",
+							"label": "History",
+							"icon": "History",
+							"widgets": [
+								{
+									"type": "audit"
+								}
+							]
+						}
+					]
+				}
+			}
+		}
+	]
+}

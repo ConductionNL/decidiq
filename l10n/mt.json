@@ -1221,7 +1221,26 @@
         "The draft could not be written into the minutes.": "L-abbozz ma setax jinkiteb fil-minuti.",
         "The minutes of %s are available": "Il-minuti ta' %s huma disponibbli",
         "Open the minutes in Decidiq to read them.": "Iftaħ il-minuti f'Decidiq biex taqrahom.",
-        "Draft and send": "Abbozz u bgħit"
+        "Draft and send": "Abbozz u bgħit",
+        "Add agenda items": "Żid punti tal-aġenda",
+        "Add from template or meeting": "Żid minn mudell jew laqgħa",
+        "Add to the agenda": "Żid mal-aġenda",
+        "Agenda items added: {count}.": "Punti miżjuda: {count}.",
+        "Agenda template": "Mudell tal-aġenda",
+        "Could not load that agenda.": "Dik l-aġenda ma setgħetx titgħabba.",
+        "Could not load the templates and meetings.": "Il-mudelli u l-laqgħat ma setgħux jitgħabbew.",
+        "From a template": "Minn mudell",
+        "From an earlier meeting": "Minn laqgħa preċedenti",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Agħżel il-punti li trid tikkopja. Jekk ma tagħżel xejn, tiġi kkupjata l-aġenda kollha.",
+        "Save as template": "Issejvja bħala mudell",
+        "Template": "Mudell",
+        "That meeting has no agenda items.": "Dik il-laqgħa m'għandhiex punti tal-aġenda.",
+        "The agenda items could not be added.": "Il-punti ma setgħux jiżdiedu.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "L-aġenda ġiet issejvjata bħala l-mudell {name}. Ibdel l-isem taħt Mudelli tal-aġenda fis-settings.",
+        "The template could not be saved.": "Il-mudell ma setax jiġi ssejvjat.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Għad m'hemmx mudelli tal-aġenda. Issejvja aġenda bħala mudell, jew żid wieħed taħt Mudelli tal-aġenda fis-settings.",
+        "Agenda templates": "Mudelli tal-aġenda",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Għad m'hemmx mudelli tal-aġenda. Iftaħ laqgħa b'aġenda tajba u agħfas Issejvja bħala mudell fuq l-aġenda tagħha."
     },
     "plurals": null
 }

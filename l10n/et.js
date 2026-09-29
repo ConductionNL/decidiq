@@ -1222,7 +1222,26 @@ OC.L10N.register(
         "The draft could not be written into the minutes.": "Mustandit ei õnnestunud protokolli kirjutada.",
         "The minutes of %s are available": "%s protokoll on saadaval",
         "Open the minutes in Decidiq to read them.": "Ava protokoll Decidiqis, et seda lugeda.",
-        "Draft and send": "Mustand ja saatmine"
+        "Draft and send": "Mustand ja saatmine",
+        "Add agenda items": "Lisa päevakorrapunkte",
+        "Add from template or meeting": "Lisa mallist või koosolekult",
+        "Add to the agenda": "Lisa päevakorda",
+        "Agenda items added: {count}.": "Lisatud punkte: {count}.",
+        "Agenda template": "Päevakorra mall",
+        "Could not load that agenda.": "Seda päevakorda ei õnnestunud laadida.",
+        "Could not load the templates and meetings.": "Malle ja koosolekuid ei õnnestunud laadida.",
+        "From a template": "Mallist",
+        "From an earlier meeting": "Varasemalt koosolekult",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Vali kopeeritavad punktid. Kui ühtki ei vali, kopeeritakse kogu päevakord.",
+        "Save as template": "Salvesta mallina",
+        "Template": "Mall",
+        "That meeting has no agenda items.": "Sellel koosolekul pole päevakorrapunkte.",
+        "The agenda items could not be added.": "Päevakorrapunkte ei õnnestunud lisada.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Päevakord salvestati mallina {name}. Nimeta see ümber seadete all Päevakorra mallid.",
+        "The template could not be saved.": "Malli ei õnnestunud salvestada.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Päevakorra malle veel pole. Salvesta päevakord mallina või lisa mall seadete all Päevakorra mallid.",
+        "Agenda templates": "Päevakorra mallid",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Päevakorra malle veel pole. Ava hea päevakorraga koosolek ja vajuta selle päevakorras Salvesta mallina."
     },
     "nplurals=2; plural=(n != 1);"
 )

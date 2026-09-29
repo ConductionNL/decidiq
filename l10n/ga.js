@@ -1222,7 +1222,26 @@ OC.L10N.register(
         "The draft could not be written into the minutes.": "Níorbh fhéidir an dréacht a scríobh sna miontuairiscí.",
         "The minutes of %s are available": "Tá miontuairiscí %s ar fáil",
         "Open the minutes in Decidiq to read them.": "Oscail na miontuairiscí in Decidiq chun iad a léamh.",
-        "Draft and send": "Dréacht agus seoladh"
+        "Draft and send": "Dréacht agus seoladh",
+        "Add agenda items": "Cuir míreanna leis an gclár",
+        "Add from template or meeting": "Cuir leis ó theimpléad nó ó chruinniú",
+        "Add to the agenda": "Cuir leis an gclár",
+        "Agenda items added: {count}.": "Míreanna curtha leis: {count}.",
+        "Agenda template": "Teimpléad cláir",
+        "Could not load that agenda.": "Níorbh fhéidir an clár sin a lódáil.",
+        "Could not load the templates and meetings.": "Níorbh fhéidir na teimpléid agus na cruinnithe a lódáil.",
+        "From a template": "Ó theimpléad",
+        "From an earlier meeting": "Ó chruinniú níos luaithe",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Roghnaigh na míreanna le cóipeáil. Mura roghnaítear aon cheann, cóipeáiltear an clár ar fad.",
+        "Save as template": "Sábháil mar theimpléad",
+        "Template": "Teimpléad",
+        "That meeting has no agenda items.": "Níl aon mhíreanna ar chlár an chruinnithe sin.",
+        "The agenda items could not be added.": "Níorbh fhéidir na míreanna a chur leis.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Sábháladh an clár mar an teimpléad {name}. Athainmnigh é faoi Theimpléid chláir sna socruithe.",
+        "The template could not be saved.": "Níorbh fhéidir an teimpléad a shábháil.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Níl aon teimpléid chláir ann fós. Sábháil clár mar theimpléad, nó cuir ceann leis faoi Theimpléid chláir sna socruithe.",
+        "Agenda templates": "Teimpléid chláir",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Níl aon teimpléid chláir ann fós. Oscail cruinniú a bhfuil clár maith aige agus brúigh Sábháil mar theimpléad ar a chlár."
     },
     "nplurals=2; plural=(n != 1);"
 )

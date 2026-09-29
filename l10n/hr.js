@@ -1222,7 +1222,26 @@ OC.L10N.register(
         "The draft could not be written into the minutes.": "Nacrt nije moguće upisati u zapisnik.",
         "The minutes of %s are available": "Zapisnik sjednice %s je dostupan",
         "Open the minutes in Decidiq to read them.": "Otvorite zapisnik u Decidiqu da ga pročitate.",
-        "Draft and send": "Nacrt i slanje"
+        "Draft and send": "Nacrt i slanje",
+        "Add agenda items": "Dodaj točke dnevnog reda",
+        "Add from template or meeting": "Dodaj iz predloška ili sjednice",
+        "Add to the agenda": "Dodaj u dnevni red",
+        "Agenda items added: {count}.": "Dodanih točaka: {count}.",
+        "Agenda template": "Predložak dnevnog reda",
+        "Could not load that agenda.": "Taj dnevni red nije moguće učitati.",
+        "Could not load the templates and meetings.": "Predloške i sjednice nije moguće učitati.",
+        "From a template": "Iz predloška",
+        "From an earlier meeting": "Iz ranije sjednice",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Odaberite točke za kopiranje. Ako ništa ne odaberete, kopira se cijeli dnevni red.",
+        "Save as template": "Spremi kao predložak",
+        "Template": "Predložak",
+        "That meeting has no agenda items.": "Ta sjednica nema točaka dnevnog reda.",
+        "The agenda items could not be added.": "Točke nije moguće dodati.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Dnevni red spremljen je kao predložak {name}. Preimenujte ga pod Predlošci dnevnog reda u postavkama.",
+        "The template could not be saved.": "Predložak nije moguće spremiti.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Još nema predložaka dnevnog reda. Spremite dnevni red kao predložak ili ga dodajte pod Predlošci dnevnog reda u postavkama.",
+        "Agenda templates": "Predlošci dnevnog reda",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Još nema predložaka. Otvorite sjednicu s dobrim dnevnim redom i pritisnite Spremi kao predložak na njegovom dnevnom redu."
     },
     "nplurals=2; plural=(n != 1);"
 )

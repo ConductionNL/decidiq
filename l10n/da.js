@@ -1222,7 +1222,26 @@ OC.L10N.register(
         "The draft could not be written into the minutes.": "Udkastet kunne ikke skrives ind i referatet.",
         "The minutes of %s are available": "Referatet fra %s er tilgængeligt",
         "Open the minutes in Decidiq to read them.": "Åbn referatet i Decidiq for at læse det.",
-        "Draft and send": "Udkast og afsendelse"
+        "Draft and send": "Udkast og afsendelse",
+        "Add agenda items": "Tilføj dagsordenspunkter",
+        "Add from template or meeting": "Tilføj fra skabelon eller møde",
+        "Add to the agenda": "Tilføj til dagsordenen",
+        "Agenda items added: {count}.": "Tilføjede punkter: {count}.",
+        "Agenda template": "Dagsordensskabelon",
+        "Could not load that agenda.": "Den dagsorden kunne ikke indlæses.",
+        "Could not load the templates and meetings.": "Skabelonerne og møderne kunne ikke indlæses.",
+        "From a template": "Fra en skabelon",
+        "From an earlier meeting": "Fra et tidligere møde",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Vælg de punkter, der skal kopieres. Vælger du ingen, kopieres hele dagsordenen.",
+        "Save as template": "Gem som skabelon",
+        "Template": "Skabelon",
+        "That meeting has no agenda items.": "Det møde har ingen dagsordenspunkter.",
+        "The agenda items could not be added.": "Dagsordenspunkterne kunne ikke tilføjes.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Dagsordenen blev gemt som skabelonen {name}. Omdøb den under Dagsordensskabeloner i indstillingerne.",
+        "The template could not be saved.": "Skabelonen kunne ikke gemmes.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Der er endnu ingen dagsordensskabeloner. Gem en dagsorden som skabelon, eller tilføj en under Dagsordensskabeloner i indstillingerne.",
+        "Agenda templates": "Dagsordensskabeloner",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Ingen dagsordensskabeloner endnu. Åbn et møde med en god dagsorden, og tryk på Gem som skabelon på dagsordenen."
     },
     "nplurals=2; plural=(n != 1);"
 )

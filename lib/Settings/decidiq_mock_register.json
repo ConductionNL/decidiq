@@ -8297,6 +8297,86 @@
         "meeting": "00000000-0000-4000-8000-000000000000",
         "participant": "00000000-0000-4000-8000-000000000002",
         "status": "absent"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "AgendaTemplate",
+          "slug": "agendatemplate-raadsvergadering-1"
+        },
+        "name": "Raadsvergadering",
+        "description": "De vaste opbouw van een gewone raadsvergadering.",
+        "items": [
+          { "title": "Opening en mededelingen", "itemType": "informational", "isFormality": true },
+          { "title": "Vaststellen van de agenda", "itemType": "decision", "isFormality": true },
+          { "title": "Vragenhalfuur", "itemType": "discussion", "estimatedDuration": 30 },
+          { "title": "Hamerstukken", "itemType": "decision", "isFormality": true },
+          { "title": "Bespreekstukken", "itemType": "decision", "estimatedDuration": 90 },
+          { "title": "Sluiting", "itemType": "informational" }
+        ]
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "AgendaTemplate",
+          "slug": "agendatemplate-commissievergadering-2"
+        },
+        "name": "Commissievergadering",
+        "description": "De vaste opbouw van een commissievergadering.",
+        "items": [
+          { "title": "Opening", "itemType": "informational" },
+          { "title": "Inspreken", "itemType": "discussion" },
+          { "title": "Bespreekpunten", "itemType": "discussion" },
+          { "title": "Sluiting", "itemType": "informational" }
+        ]
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "AgendaTemplate",
+          "slug": "agendatemplate-bestuursvergadering-3"
+        },
+        "name": "Bestuursvergadering",
+        "description": "De vaste opbouw van een bestuursvergadering.",
+        "items": [
+          { "title": "Opening", "itemType": "informational" },
+          { "title": "Notulen vorige vergadering", "itemType": "decision" },
+          { "title": "Besluiten", "itemType": "decision" },
+          { "title": "Rondvraag", "itemType": "informational" }
+        ]
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MeetingType",
+          "slug": "meetingtype-raadsvergadering-1"
+        },
+        "name": "Raadsvergadering",
+        "description": "Een gewone vergadering van de raad.",
+        "governanceBody": "00000000-0000-4000-8000-000000000000",
+        "defaultDurationMinutes": 120
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MeetingType",
+          "slug": "meetingtype-commissievergadering-2"
+        },
+        "name": "Commissievergadering",
+        "description": "Een vergadering van een raadscommissie.",
+        "governanceBody": "00000000-0000-4000-8000-000000000000",
+        "defaultDurationMinutes": 120
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MeetingType",
+          "slug": "meetingtype-bestuursvergadering-3"
+        },
+        "name": "Bestuursvergadering",
+        "description": "Een vergadering van het bestuur.",
+        "governanceBody": "00000000-0000-4000-8000-000000000000",
+        "defaultDurationMinutes": 120
       }
     ]
   }

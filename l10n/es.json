@@ -1221,7 +1221,26 @@
         "The draft could not be written into the minutes.": "No se pudo escribir el borrador en el acta.",
         "The minutes of %s are available": "El acta de %s está disponible",
         "Open the minutes in Decidiq to read them.": "Abra el acta en Decidiq para leerla.",
-        "Draft and send": "Borrador y envío"
+        "Draft and send": "Borrador y envío",
+        "Add agenda items": "Añadir puntos del orden del día",
+        "Add from template or meeting": "Añadir desde plantilla o reunión",
+        "Add to the agenda": "Añadir al orden del día",
+        "Agenda items added: {count}.": "Puntos añadidos: {count}.",
+        "Agenda template": "Plantilla de orden del día",
+        "Could not load that agenda.": "No se pudo cargar ese orden del día.",
+        "Could not load the templates and meetings.": "No se pudieron cargar las plantillas y reuniones.",
+        "From a template": "Desde una plantilla",
+        "From an earlier meeting": "Desde una reunión anterior",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Elija los puntos que copiar. Si no elige ninguno, se copia todo el orden del día.",
+        "Save as template": "Guardar como plantilla",
+        "Template": "Plantilla",
+        "That meeting has no agenda items.": "Esa reunión no tiene puntos en el orden del día.",
+        "The agenda items could not be added.": "No se pudieron añadir los puntos.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "El orden del día se guardó como la plantilla {name}. Cámbiele el nombre en Plantillas de orden del día en la configuración.",
+        "The template could not be saved.": "No se pudo guardar la plantilla.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Aún no hay plantillas de orden del día. Guarde un orden del día como plantilla o añada una en Plantillas de orden del día en la configuración.",
+        "Agenda templates": "Plantillas de orden del día",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Aún no hay plantillas. Abra una reunión con un buen orden del día y pulse Guardar como plantilla en su orden del día."
     },
     "plurals": null
 }

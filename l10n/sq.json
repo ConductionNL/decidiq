@@ -1221,7 +1221,26 @@
         "The draft could not be written into the minutes.": "Drafti nuk u shkrua dot në procesverbal.",
         "The minutes of %s are available": "Procesverbali i %s është i disponueshëm",
         "Open the minutes in Decidiq to read them.": "Hapeni procesverbalin në Decidiq për ta lexuar.",
-        "Draft and send": "Draft dhe dërgim"
+        "Draft and send": "Draft dhe dërgim",
+        "Add agenda items": "Shto pika të rendit të ditës",
+        "Add from template or meeting": "Shto nga shablloni ose mbledhja",
+        "Add to the agenda": "Shto në rendin e ditës",
+        "Agenda items added: {count}.": "Pika të shtuara: {count}.",
+        "Agenda template": "Shabllon i rendit të ditës",
+        "Could not load that agenda.": "Ky rend dite nuk u ngarkua dot.",
+        "Could not load the templates and meetings.": "Shabllonet dhe mbledhjet nuk u ngarkuan dot.",
+        "From a template": "Nga një shabllon",
+        "From an earlier meeting": "Nga një mbledhje e mëparshme",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Zgjidhni pikat për t'u kopjuar. Pa zgjedhje, kopjohet i gjithë rendi i ditës.",
+        "Save as template": "Ruaje si shabllon",
+        "Template": "Shabllon",
+        "That meeting has no agenda items.": "Kjo mbledhje nuk ka pika të rendit të ditës.",
+        "The agenda items could not be added.": "Pikat nuk u shtuan dot.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Rendi i ditës u ruajt si shablloni {name}. Riemërtojeni te Shabllonet e rendit të ditës në cilësime.",
+        "The template could not be saved.": "Shablloni nuk u ruajt dot.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Ende nuk ka shabllone të rendit të ditës. Ruani një rend dite si shabllon ose shtoni një te Shabllonet e rendit të ditës në cilësime.",
+        "Agenda templates": "Shabllonet e rendit të ditës",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Ende nuk ka shabllone. Hapni një mbledhje me një rend dite të mirë dhe shtypni Ruaje si shabllon."
     },
     "plurals": null
 }

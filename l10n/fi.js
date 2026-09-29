@@ -1222,7 +1222,26 @@ OC.L10N.register(
         "The draft could not be written into the minutes.": "Luonnosta ei voitu kirjoittaa pöytäkirjaan.",
         "The minutes of %s are available": "Pöytäkirja kokouksesta %s on saatavilla",
         "Open the minutes in Decidiq to read them.": "Avaa pöytäkirja Decidiqissa lukeaksesi sen.",
-        "Draft and send": "Luonnos ja lähetys"
+        "Draft and send": "Luonnos ja lähetys",
+        "Add agenda items": "Lisää asialistan kohtia",
+        "Add from template or meeting": "Lisää mallista tai kokouksesta",
+        "Add to the agenda": "Lisää asialistalle",
+        "Agenda items added: {count}.": "Kohtia lisätty: {count}.",
+        "Agenda template": "Asialistamalli",
+        "Could not load that agenda.": "Asialistaa ei voitu ladata.",
+        "Could not load the templates and meetings.": "Malleja ja kokouksia ei voitu ladata.",
+        "From a template": "Mallista",
+        "From an earlier meeting": "Aiemmasta kokouksesta",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Valitse kopioitavat kohdat. Jos et valitse mitään, koko asialista kopioidaan.",
+        "Save as template": "Tallenna malliksi",
+        "Template": "Malli",
+        "That meeting has no agenda items.": "Kokouksella ei ole asialistan kohtia.",
+        "The agenda items could not be added.": "Asialistan kohtia ei voitu lisätä.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Asialista tallennettiin malliksi {name}. Nimeä se uudelleen asetusten kohdassa Asialistamallit.",
+        "The template could not be saved.": "Mallia ei voitu tallentaa.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Asialistamalleja ei vielä ole. Tallenna asialista malliksi tai lisää malli asetusten kohdassa Asialistamallit.",
+        "Agenda templates": "Asialistamallit",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Asialistamalleja ei vielä ole. Avaa kokous, jolla on hyvä asialista, ja paina sen asialistassa Tallenna malliksi."
     },
     "nplurals=2; plural=(n != 1);"
 )

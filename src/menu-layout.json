@@ -32,6 +32,7 @@
 		"PositionHolds",
 		"AgendaItemTypes",
 		"MeetingTypes",
+		"AgendaTemplates",
 		"BodyConfigurations",
 		"ConfidentialityGrounds",
 		"Themes",
