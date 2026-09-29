@@ -457,8 +457,13 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 	 */
 	private function integriqSource(string $slug): ?object {
+		// Sources are admin configuration, not the signer's data: integriq reads
+		// them in system context too (ConnectionStore::findSourceBySlug()), so a
+		// griffier without rights on the integriq register still reaches them.
 		$found = $this->objectService->findAll(
-			['filters' => ['register' => 'integriq', 'schema' => 'source', 'slug' => $slug]]
+			config: ['filters' => ['register' => 'integriq', 'schema' => 'source', 'slug' => $slug]],
+			_rbac: false,
+			_multitenancy: false
 		);
 
 		foreach (($found['results'] ?? $found) as $item) {

@@ -46,6 +46,13 @@ use Psr\Log\LoggerInterface;
 class EIDASSignatureServiceTest extends TestCase {
 
 	/**
+	 * The arguments after `config` of the last findAll() call.
+	 *
+	 * @var array<int|string, mixed>
+	 */
+	private array $findAllArgs = [];
+
+	/**
 	 * Build a service wired the way integriq is on a real instance.
 	 *
 	 * integriq keeps its sources as OpenRegister objects (register `integriq`,
@@ -107,7 +114,8 @@ class EIDASSignatureServiceTest extends TestCase {
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('findAll')->willReturnCallback(
-			static function (array $config) use ($source, $sourceObject): array {
+			function (array $config, ...$rest) use ($source, $sourceObject): array {
+				$this->findAllArgs = $rest;
 				$filters = ($config['filters'] ?? []);
 				if (($filters['register'] ?? '') === 'integriq' && ($filters['schema'] ?? '') === 'source'
 					&& ($filters['slug'] ?? '') === EIDASSignatureService::ESIGN_SOURCE_SLUG && $sourceObject !== null
@@ -148,6 +156,22 @@ class EIDASSignatureServiceTest extends TestCase {
 		$this->assertSame('https://qsp.example/sign/42', $result['signingUrl']);
 
 	}//end testInitializeReturnsRequestIdFromOpenconnector()
+
+	/**
+	 * The source is admin configuration, so it is read in system context the
+	 * way integriq reads it: a griffier without rights on the integriq
+	 * register still reaches the signing service.
+	 *
+	 * @return void
+	 */
+	public function testSourceIsReadInSystemContext(): void {
+		$service = $this->makeService(responseBody: ['requestId' => 'r', 'signingUrl' => 'u'], sourceObject: new \stdClass());
+
+		$service->initializeSigningRequest('min-1', ['m-1']);
+
+		$this->assertSame([false, false], array_values($this->findAllArgs));
+
+	}//end testSourceIsReadInSystemContext()
 
 	/**
 	 * Initialize rejects empty signatories.
