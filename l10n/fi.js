@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Osoite",
         "Website": "Verkkosivusto",
         "The contact detail could not be saved.": "Yhteystietoa ei voitu tallentaa.",
-        "The contact detail could not be removed.": "Yhteystietoa ei voitu poistaa."
+        "The contact detail could not be removed.": "Yhteystietoa ei voitu poistaa.",
+        "Progress": "Edistyminen",
+        "No progress has been recorded yet.": "Edistymistä ei ole vielä kirjattu.",
+        "What happened": "Mitä tapahtui",
+        "Add progress": "Lisää edistyminen",
+        "The progress entry was not added.": "Edistymismerkintää ei lisätty."
     },
     "nplurals=2; plural=(n != 1);"
 )

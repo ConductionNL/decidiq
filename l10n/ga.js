@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Seoladh",
         "Website": "Suíomh gréasáin",
         "The contact detail could not be saved.": "Níorbh fhéidir an sonra teagmhála a shábháil.",
-        "The contact detail could not be removed.": "Níorbh fhéidir an sonra teagmhála a bhaint."
+        "The contact detail could not be removed.": "Níorbh fhéidir an sonra teagmhála a bhaint.",
+        "Progress": "Dul chun cinn",
+        "No progress has been recorded yet.": "Níor taifeadadh aon dul chun cinn fós.",
+        "What happened": "Cad a tharla",
+        "Add progress": "Cuir dul chun cinn leis",
+        "The progress entry was not added.": "Níor cuireadh an iontráil dul chun cinn leis."
     },
     "nplurals=2; plural=(n != 1);"
 )

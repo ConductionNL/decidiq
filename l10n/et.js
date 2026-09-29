@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Aadress",
         "Website": "Veebisait",
         "The contact detail could not be saved.": "Kontaktandmeid ei õnnestunud salvestada.",
-        "The contact detail could not be removed.": "Kontaktandmeid ei õnnestunud eemaldada."
+        "The contact detail could not be removed.": "Kontaktandmeid ei õnnestunud eemaldada.",
+        "Progress": "Edenemine",
+        "No progress has been recorded yet.": "Edenemist pole veel kirja pandud.",
+        "What happened": "Mis juhtus",
+        "Add progress": "Lisa edenemine",
+        "The progress entry was not added.": "Edenemise kirjet ei lisatud."
     },
     "nplurals=2; plural=(n != 1);"
 )

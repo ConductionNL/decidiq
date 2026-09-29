@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Adresse",
         "Website": "Websted",
         "The contact detail could not be saved.": "Kontaktoplysningen kunne ikke gemmes.",
-        "The contact detail could not be removed.": "Kontaktoplysningen kunne ikke fjernes."
+        "The contact detail could not be removed.": "Kontaktoplysningen kunne ikke fjernes.",
+        "Progress": "Fremskridt",
+        "No progress has been recorded yet.": "Der er endnu ikke registreret fremskridt.",
+        "What happened": "Hvad der skete",
+        "Add progress": "Tilføj fremskridt",
+        "The progress entry was not added.": "Fremskridtet blev ikke tilføjet."
     },
     "nplurals=2; plural=(n != 1);"
 )

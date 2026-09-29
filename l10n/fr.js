@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Adresse",
         "Website": "Site web",
         "The contact detail could not be saved.": "La coordonnée n'a pas pu être enregistrée.",
-        "The contact detail could not be removed.": "La coordonnée n'a pas pu être retirée."
+        "The contact detail could not be removed.": "La coordonnée n'a pas pu être retirée.",
+        "Progress": "Avancement",
+        "No progress has been recorded yet.": "Aucun avancement n'a encore été enregistré.",
+        "What happened": "Ce qui s'est passé",
+        "Add progress": "Ajouter un avancement",
+        "The progress entry was not added.": "L'avancement n'a pas été ajouté."
     },
     "nplurals=2; plural=(n != 1);"
 )

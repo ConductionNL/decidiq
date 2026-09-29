@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Adres",
         "Website": "Strona internetowa",
         "The contact detail could not be saved.": "Nie udało się zapisać danych kontaktowych.",
-        "The contact detail could not be removed.": "Nie udało się usunąć danych kontaktowych."
+        "The contact detail could not be removed.": "Nie udało się usunąć danych kontaktowych.",
+        "Progress": "Postęp",
+        "No progress has been recorded yet.": "Nie zapisano jeszcze żadnego postępu.",
+        "What happened": "Co się wydarzyło",
+        "Add progress": "Dodaj postęp",
+        "The progress entry was not added.": "Wpis o postępie nie został dodany."
     },
     "nplurals=2; plural=(n != 1);"
 )

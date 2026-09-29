@@ -1289,7 +1289,12 @@
         "Address": "Adresa",
         "Website": "Web stranica",
         "The contact detail could not be saved.": "Kontakt podatak nije moguće spremiti.",
-        "The contact detail could not be removed.": "Kontakt podatak nije moguće ukloniti."
+        "The contact detail could not be removed.": "Kontakt podatak nije moguće ukloniti.",
+        "Progress": "Napredak",
+        "No progress has been recorded yet.": "Napredak još nije zabilježen.",
+        "What happened": "Što se dogodilo",
+        "Add progress": "Dodaj napredak",
+        "The progress entry was not added.": "Unos napretka nije dodan."
     },
     "plurals": null
 }

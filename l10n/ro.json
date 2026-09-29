@@ -1289,7 +1289,12 @@
         "Address": "Adresă",
         "Website": "Site web",
         "The contact detail could not be saved.": "Datele de contact nu au putut fi salvate.",
-        "The contact detail could not be removed.": "Datele de contact nu au putut fi eliminate."
+        "The contact detail could not be removed.": "Datele de contact nu au putut fi eliminate.",
+        "Progress": "Progres",
+        "No progress has been recorded yet.": "Nu a fost înregistrat încă niciun progres.",
+        "What happened": "Ce s-a întâmplat",
+        "Add progress": "Adaugă progres",
+        "The progress entry was not added.": "Înregistrarea de progres nu a fost adăugată."
     },
     "plurals": null
 }

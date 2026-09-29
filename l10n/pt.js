@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Morada",
         "Website": "Sítio web",
         "The contact detail could not be saved.": "Não foi possível guardar o contacto.",
-        "The contact detail could not be removed.": "Não foi possível remover o contacto."
+        "The contact detail could not be removed.": "Não foi possível remover o contacto.",
+        "Progress": "Progresso",
+        "No progress has been recorded yet.": "Ainda não foi registado nenhum progresso.",
+        "What happened": "O que aconteceu",
+        "Add progress": "Adicionar progresso",
+        "The progress entry was not added.": "A entrada de progresso não foi adicionada."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Adresa",
         "Website": "Faqe interneti",
         "The contact detail could not be saved.": "Të dhënat e kontaktit nuk u ruajtën dot.",
-        "The contact detail could not be removed.": "Të dhënat e kontaktit nuk u hoqën dot."
+        "The contact detail could not be removed.": "Të dhënat e kontaktit nuk u hoqën dot.",
+        "Progress": "Ecuria",
+        "No progress has been recorded yet.": "Ende nuk është regjistruar asnjë ecuri.",
+        "What happened": "Çfarë ndodhi",
+        "Add progress": "Shto ecuri",
+        "The progress entry was not added.": "Hyrja e ecurisë nuk u shtua."
     },
     "nplurals=2; plural=(n != 1);"
 )

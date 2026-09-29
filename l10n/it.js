@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Indirizzo",
         "Website": "Sito web",
         "The contact detail could not be saved.": "Impossibile salvare il recapito.",
-        "The contact detail could not be removed.": "Impossibile rimuovere il recapito."
+        "The contact detail could not be removed.": "Impossibile rimuovere il recapito.",
+        "Progress": "Avanzamento",
+        "No progress has been recorded yet.": "Non è ancora stato registrato alcun avanzamento.",
+        "What happened": "Cosa è successo",
+        "Add progress": "Aggiungi avanzamento",
+        "The progress entry was not added.": "L'avanzamento non è stato aggiunto."
     },
     "nplurals=2; plural=(n != 1);"
 )

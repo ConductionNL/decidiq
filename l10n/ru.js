@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Адрес",
         "Website": "Веб-сайт",
         "The contact detail could not be saved.": "Не удалось сохранить контакт.",
-        "The contact detail could not be removed.": "Не удалось удалить контакт."
+        "The contact detail could not be removed.": "Не удалось удалить контакт.",
+        "Progress": "Ход выполнения",
+        "No progress has been recorded yet.": "Ход выполнения пока не записан.",
+        "What happened": "Что произошло",
+        "Add progress": "Добавить ход выполнения",
+        "The progress entry was not added.": "Запись о ходе выполнения не добавлена."
     },
     "nplurals=2; plural=(n != 1);"
 )

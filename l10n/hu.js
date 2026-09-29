@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Cím",
         "Website": "Weboldal",
         "The contact detail could not be saved.": "Az elérhetőséget nem sikerült menteni.",
-        "The contact detail could not be removed.": "Az elérhetőséget nem sikerült eltávolítani."
+        "The contact detail could not be removed.": "Az elérhetőséget nem sikerült eltávolítani.",
+        "Progress": "Előrehaladás",
+        "No progress has been recorded yet.": "Még nincs rögzített előrehaladás.",
+        "What happened": "Mi történt",
+        "Add progress": "Előrehaladás hozzáadása",
+        "The progress entry was not added.": "Az előrehaladási bejegyzés nem lett hozzáadva."
     },
     "nplurals=2; plural=(n != 1);"
 )

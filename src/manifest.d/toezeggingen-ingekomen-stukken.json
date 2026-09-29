@@ -115,6 +115,9 @@
 			"id": "CommitmentDetail",
 			"route": "/commitments/:id",
 			"type": "detail",
+			"slots": {
+				"widget-commitment-progress": "CommitmentProgressTab"
+			},
 			"title": "Commitment",
 			"_note": "spec: openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md",
 			"config": {
@@ -130,6 +133,14 @@
 						"content": {
 							"columns": 2
 						}
+					},
+					{
+						"id": "commitment-progress",
+						"type": "custom",
+						"component": "CommitmentProgressTab",
+						"title": "Progress",
+						"icon": "Timeline",
+						"_note": "followup-public-progress (REQ-FPP-002, fol-06): dated progress entries, newest first; the chair or secretary of the meeting adds one. Public on the ORI commitments resource from the publication date on."
 					},
 					{
 						"id": "toezegging-files",
@@ -163,10 +174,18 @@
 						"gridHeight": 6
 					},
 					{
+						"id": "4",
+						"widgetId": "commitment-progress",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 12,
+						"gridHeight": 5
+					},
+					{
 						"id": "3",
 						"widgetId": "toezegging-related",
 						"gridX": 0,
-						"gridY": 6,
+						"gridY": 11,
 						"gridWidth": 12,
 						"gridHeight": 3
 					}

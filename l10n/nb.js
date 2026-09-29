@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Adresse",
         "Website": "Nettsted",
         "The contact detail could not be saved.": "Kontaktinformasjonen kunne ikke lagres.",
-        "The contact detail could not be removed.": "Kontaktinformasjonen kunne ikke fjernes."
+        "The contact detail could not be removed.": "Kontaktinformasjonen kunne ikke fjernes.",
+        "Progress": "Fremdrift",
+        "No progress has been recorded yet.": "Ingen fremdrift er registrert ennå.",
+        "What happened": "Hva som skjedde",
+        "Add progress": "Legg til fremdrift",
+        "The progress entry was not added.": "Fremdriftsoppføringen ble ikke lagt til."
     },
     "nplurals=2; plural=(n != 1);"
 )

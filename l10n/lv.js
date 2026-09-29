@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Adrese",
         "Website": "Tīmekļa vietne",
         "The contact detail could not be saved.": "Kontaktinformāciju neizdevās saglabāt.",
-        "The contact detail could not be removed.": "Kontaktinformāciju neizdevās noņemt."
+        "The contact detail could not be removed.": "Kontaktinformāciju neizdevās noņemt.",
+        "Progress": "Progress",
+        "No progress has been recorded yet.": "Progress vēl nav reģistrēts.",
+        "What happened": "Kas notika",
+        "Add progress": "Pievienot progresu",
+        "The progress entry was not added.": "Progresa ieraksts netika pievienots."
     },
     "nplurals=2; plural=(n != 1);"
 )

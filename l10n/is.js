@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Heimilisfang",
         "Website": "Vefsíða",
         "The contact detail could not be saved.": "Ekki tókst að vista samskiptaupplýsingarnar.",
-        "The contact detail could not be removed.": "Ekki tókst að fjarlægja samskiptaupplýsingarnar."
+        "The contact detail could not be removed.": "Ekki tókst að fjarlægja samskiptaupplýsingarnar.",
+        "Progress": "Framvinda",
+        "No progress has been recorded yet.": "Engin framvinda hefur verið skráð enn.",
+        "What happened": "Hvað gerðist",
+        "Add progress": "Bæta við framvindu",
+        "The progress entry was not added.": "Framvindufærslunni var ekki bætt við."
     },
     "nplurals=2; plural=(n != 1);"
 )

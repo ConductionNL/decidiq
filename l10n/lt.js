@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Adresas",
         "Website": "Svetainė",
         "The contact detail could not be saved.": "Kontakto išsaugoti nepavyko.",
-        "The contact detail could not be removed.": "Kontakto pašalinti nepavyko."
+        "The contact detail could not be removed.": "Kontakto pašalinti nepavyko.",
+        "Progress": "Eiga",
+        "No progress has been recorded yet.": "Eiga dar neužregistruota.",
+        "What happened": "Kas įvyko",
+        "Add progress": "Pridėti eigą",
+        "The progress entry was not added.": "Eigos įrašas nepridėtas."
     },
     "nplurals=2; plural=(n != 1);"
 )

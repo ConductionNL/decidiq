@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Адрес",
         "Website": "Уебсайт",
         "The contact detail could not be saved.": "Данните за контакт не можаха да бъдат запазени.",
-        "The contact detail could not be removed.": "Данните за контакт не можаха да бъдат премахнати."
+        "The contact detail could not be removed.": "Данните за контакт не можаха да бъдат премахнати.",
+        "Progress": "Напредък",
+        "No progress has been recorded yet.": "Все още няма записан напредък.",
+        "What happened": "Какво се случи",
+        "Add progress": "Добавяне на напредък",
+        "The progress entry was not added.": "Записът за напредък не беше добавен."
     },
     "nplurals=2; plural=(n != 1);"
 )

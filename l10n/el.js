@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Διεύθυνση",
         "Website": "Ιστότοπος",
         "The contact detail could not be saved.": "Το στοιχείο επικοινωνίας δεν ήταν δυνατό να αποθηκευτεί.",
-        "The contact detail could not be removed.": "Το στοιχείο επικοινωνίας δεν ήταν δυνατό να αφαιρεθεί."
+        "The contact detail could not be removed.": "Το στοιχείο επικοινωνίας δεν ήταν δυνατό να αφαιρεθεί.",
+        "Progress": "Πρόοδος",
+        "No progress has been recorded yet.": "Δεν έχει καταγραφεί ακόμη πρόοδος.",
+        "What happened": "Τι συνέβη",
+        "Add progress": "Προσθήκη προόδου",
+        "The progress entry was not added.": "Η καταχώριση προόδου δεν προστέθηκε."
     },
     "nplurals=2; plural=(n != 1);"
 )

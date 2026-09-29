@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Indirizz",
         "Website": "Sit web",
         "The contact detail could not be saved.": "Id-dettall ta' kuntatt ma setax jiġi ssejvjat.",
-        "The contact detail could not be removed.": "Id-dettall ta' kuntatt ma setax jitneħħa."
+        "The contact detail could not be removed.": "Id-dettall ta' kuntatt ma setax jitneħħa.",
+        "Progress": "Progress",
+        "No progress has been recorded yet.": "Għadu ma ġie rreġistrat l-ebda progress.",
+        "What happened": "X'ġara",
+        "Add progress": "Żid progress",
+        "The progress entry was not added.": "L-entrata tal-progress ma ġietx miżjuda."
     },
     "nplurals=2; plural=(n != 1);"
 )

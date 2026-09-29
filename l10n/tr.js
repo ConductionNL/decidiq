@@ -1290,7 +1290,12 @@ OC.L10N.register(
         "Address": "Adres",
         "Website": "Web sitesi",
         "The contact detail could not be saved.": "İletişim bilgisi kaydedilemedi.",
-        "The contact detail could not be removed.": "İletişim bilgisi kaldırılamadı."
+        "The contact detail could not be removed.": "İletişim bilgisi kaldırılamadı.",
+        "Progress": "İlerleme",
+        "No progress has been recorded yet.": "Henüz bir ilerleme kaydedilmedi.",
+        "What happened": "Ne oldu",
+        "Add progress": "İlerleme ekle",
+        "The progress entry was not added.": "İlerleme kaydı eklenmedi."
     },
     "nplurals=2; plural=(n != 1);"
 )
