@@ -77,6 +77,10 @@ class OriController extends Controller {
 		// is gated by the same RBAC published-predicate the payload schema declares
 		// (publicationDate <= $now, not depublished).
 		'publications' => 'publication-payload',
+		// followup-public-progress (fol-06): commitments with their progress.
+		// Public once publicationDate has passed (the schema's own published
+		// predicate); the serializer carries an allow-list of public fields.
+		'commitments' => 'governance-commitment',
 	];
 
 	/**
@@ -125,6 +129,7 @@ class OriController extends Controller {
 		// payload's own `oriType` (Besluit / Vergadering / Verslag); this envelope
 		// label describes the harvest collection.
 		'publications' => 'Publication',
+		'commitments' => OriSerializer::COMMITMENT_TYPE,
 	];
 
 	/**
@@ -240,7 +245,7 @@ class OriController extends Controller {
 			'schema' => $schema,
 		];
 
-		if ($resource === self::PUBLICATIONS) {
+		if (in_array(needle: $resource, haystack: OriSerializer::WINDOWED_RESOURCES, strict: true) === true) {
 			// Publish-decisions-via-opencatalogi task 5.2 — the PublicationPayload
 			// feed has no `lifecycle`/`isPublished` field; its anonymous visibility
 			// is governed solely by the RBAC published-predicate the schema declares
@@ -338,6 +343,16 @@ class OriController extends Controller {
 	 */
 	private function narrowToPublicVisibility(string $resource, ?array $object): ?array {
 		if ($object === null || $resource === self::PUBLICATIONS) {
+			return $object;
+		}
+
+		if ($resource === OriSerializer::COMMITMENTS_RESOURCE) {
+			// A commitment's lifecycle is its progress (open .. disposed), not
+			// its visibility: it is public from its publication date on.
+			if ($this->serializer->isPayloadLive(object: $object) === false) {
+				return null;
+			}
+
 			return $object;
 		}
 
