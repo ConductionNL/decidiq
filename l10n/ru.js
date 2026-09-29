@@ -1241,7 +1241,17 @@ OC.L10N.register(
         "The template could not be saved.": "Не удалось сохранить шаблон.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Шаблонов повестки пока нет. Сохраните повестку как шаблон или добавьте его в разделе Шаблоны повестки в настройках.",
         "Agenda templates": "Шаблоны повестки",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Шаблонов повестки пока нет. Откройте заседание с хорошей повесткой и нажмите Сохранить как шаблон."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Шаблонов повестки пока нет. Откройте заседание с хорошей повесткой и нажмите Сохранить как шаблон.",
+        "Video call": "Видеозвонок",
+        "This meeting has a video call in Talk.": "У этого заседания есть видеозвонок в Talk.",
+        "Join video call": "Присоединиться к видеозвонку",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Создайте комнату Talk для этого заседания и пригласите членов органа или привяжите уже существующую комнату.",
+        "Create video call": "Создать видеозвонок",
+        "Talk room link": "Ссылка на комнату Talk",
+        "Link room": "Привязать комнату",
+        "The video call has not been set up yet.": "Видеозвонок ещё не настроен.",
+        "The video call could not be created.": "Не удалось создать видеозвонок.",
+        "The room could not be linked.": "Не удалось привязать комнату."
     },
     "nplurals=2; plural=(n != 1);"
 )

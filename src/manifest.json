@@ -570,6 +570,7 @@
 				"widgets": [
 					{ "id": "meeting-planning", "type": "data", "title": "Planning", "icon": "Calendar", "content": { "columns": 2, "include": ["title", "type", "meetingType", "governanceBody", "scheduledDate", "endDate", "location", "meetingMode", "virtualLocation", "eventAttendanceMode", "chair", "quorumRequired", "isPublic", "series", "seriesPattern", "submissionOpensAt", "submissionDeadline"] } },
 					{ "id": "meeting-stage", "type": "custom", "component": "MeetingStageTab", "title": "Stage", "icon": "CalendarClock", "_note": "meeting-stage-buttons-and-cost (pla-15, pla-10): the meeting's stage and one button per step the server offers the caller (chair or secretary), through the guarded POST /api/meetings/{id}/lifecycle; closing records the meeting cost, shown here and in Outcome." },
+					{ "id": "meeting-video-call", "type": "custom", "component": "MeetingVideoCallTab", "title": "Video call", "icon": "Video", "_note": "meeting-video-call (pla-08): on a digital or hybrid meeting, Join video call for members once a Talk room is linked; the chair or secretary creates the room (inviting the body's members) or links one. The room is linked through OpenRegister's Talk integration. Empty for an in-person meeting." },
 					{ "id": "meeting-outcome", "type": "data", "title": "Outcome", "icon": "CheckCircleOutline", "content": { "columns": 2, "include": ["lifecycle", "openedAt", "closedAt", "meetingCost"], "overrides": { "lifecycle": { "editable": false }, "openedAt": { "editable": false }, "closedAt": { "editable": false } } } },
 					{ "id": "meeting-stats-agenda-items", "type": "stats-block", "title": "Agenda items", "icon": "ChartBar", "content": { "entries": [ { "title": "Agenda items", "icon": "ClipboardList", "register": "decidiq", "schema": "agenda-item", "metric": "count", "filter": { "meeting": "@objectId" } } ] } },
 					{ "id": "meeting-stats-action-items", "type": "stats-block", "title": "Action items", "icon": "ChartBar", "content": { "entries": [ { "title": "Action items", "icon": "CheckCircleOutline", "register": "decidiq", "schema": "action-item", "metric": "count", "filter": { "meeting": "@objectId" } } ] } },
@@ -595,6 +596,7 @@
 					{ "id": "12", "widgetId": "meeting-participants", "gridX": 8, "gridY": 4, "gridWidth": 4, "gridHeight": 8 },
 					{ "id": "3", "widgetId": "meeting-outcome", "gridX": 0, "gridY": 9, "gridWidth": 8, "gridHeight": 3 },
 					{ "id": "22", "widgetId": "meeting-stage", "gridX": 0, "gridY": 12, "gridWidth": 8, "gridHeight": 3 },
+					{ "id": "23", "widgetId": "meeting-video-call", "gridX": 8, "gridY": 12, "gridWidth": 4, "gridHeight": 3 },
 					{ "id": "4", "widgetId": "meeting-agenda", "gridX": 0, "gridY": 15, "gridWidth": 8, "gridHeight": 6 },
 					{ "id": "5", "widgetId": "meeting-decisions", "gridX": 0, "gridY": 21, "gridWidth": 6, "gridHeight": 5 },
 					{ "id": "6", "widgetId": "meeting-minutes", "gridX": 6, "gridY": 21, "gridWidth": 6, "gridHeight": 5 },
@@ -631,7 +633,8 @@
 				"widget-meeting-routed-documents": "MeetingRoutedDocumentsTab",
 				"widget-meeting-technical-questions": "MeetingTechnicalQuestionsTab",
 				"widget-meeting-decision-list-signers": "DecisionListSignersTab",
-				"widget-meeting-stage": "MeetingStageTab"
+				"widget-meeting-stage": "MeetingStageTab",
+				"widget-meeting-video-call": "MeetingVideoCallTab"
 			}
 		},
 		{

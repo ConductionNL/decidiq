@@ -126,6 +126,7 @@ import ThumbUpOutline from 'vue-material-design-icons/ThumbUpOutline.vue'
 import Timeline from 'vue-material-design-icons/Timeline.vue'
 import TransitConnectionVariant from 'vue-material-design-icons/TransitConnectionVariant.vue'
 import TrayFull from 'vue-material-design-icons/TrayFull.vue'
+import Video from 'vue-material-design-icons/Video.vue'
 import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
 import VoteOutline from 'vue-material-design-icons/VoteOutline.vue'
 import Web from 'vue-material-design-icons/Web.vue'
@@ -245,6 +246,7 @@ export default {
 	Timeline,
 	TransitConnectionVariant,
 	TrayFull,
+	Video,
 	ViewDashboardOutline,
 	VoteOutline,
 	Web,

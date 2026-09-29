@@ -1241,7 +1241,17 @@ OC.L10N.register(
         "The template could not be saved.": "Shablloni nuk u ruajt dot.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Ende nuk ka shabllone të rendit të ditës. Ruani një rend dite si shabllon ose shtoni një te Shabllonet e rendit të ditës në cilësime.",
         "Agenda templates": "Shabllonet e rendit të ditës",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Ende nuk ka shabllone. Hapni një mbledhje me një rend dite të mirë dhe shtypni Ruaje si shabllon."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Ende nuk ka shabllone. Hapni një mbledhje me një rend dite të mirë dhe shtypni Ruaje si shabllon.",
+        "Video call": "Thirrje video",
+        "This meeting has a video call in Talk.": "Kjo mbledhje ka një thirrje video në Talk.",
+        "Join video call": "Bashkohu në thirrjen video",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Krijoni një dhomë Talk për këtë mbledhje dhe ftoni anëtarët e organit, ose lidhni një dhomë që ekziston.",
+        "Create video call": "Krijo thirrje video",
+        "Talk room link": "Lidhja e dhomës Talk",
+        "Link room": "Lidh dhomën",
+        "The video call has not been set up yet.": "Thirrja video nuk është ngritur ende.",
+        "The video call could not be created.": "Thirrja video nuk u krijua dot.",
+        "The room could not be linked.": "Dhoma nuk u lidh dot."
     },
     "nplurals=2; plural=(n != 1);"
 )

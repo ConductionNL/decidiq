@@ -1241,7 +1241,17 @@ OC.L10N.register(
         "The template could not be saved.": "Le modèle n'a pas pu être enregistré.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Il n'y a pas encore de modèle d'ordre du jour. Enregistrez un ordre du jour comme modèle ou ajoutez-en un sous Modèles d'ordre du jour dans les paramètres.",
         "Agenda templates": "Modèles d'ordre du jour",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Pas encore de modèle. Ouvrez une réunion avec un bon ordre du jour et appuyez sur Enregistrer comme modèle."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Pas encore de modèle. Ouvrez une réunion avec un bon ordre du jour et appuyez sur Enregistrer comme modèle.",
+        "Video call": "Appel vidéo",
+        "This meeting has a video call in Talk.": "Cette réunion a un appel vidéo dans Talk.",
+        "Join video call": "Rejoindre l'appel vidéo",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Créez une salle Talk pour cette réunion et invitez les membres de l'instance, ou liez une salle existante.",
+        "Create video call": "Créer un appel vidéo",
+        "Talk room link": "Lien de la salle Talk",
+        "Link room": "Lier la salle",
+        "The video call has not been set up yet.": "L'appel vidéo n'est pas encore configuré.",
+        "The video call could not be created.": "L'appel vidéo n'a pas pu être créé.",
+        "The room could not be linked.": "La salle n'a pas pu être liée."
     },
     "nplurals=2; plural=(n != 1);"
 )

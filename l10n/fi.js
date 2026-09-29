@@ -1241,7 +1241,17 @@ OC.L10N.register(
         "The template could not be saved.": "Mallia ei voitu tallentaa.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Asialistamalleja ei vielä ole. Tallenna asialista malliksi tai lisää malli asetusten kohdassa Asialistamallit.",
         "Agenda templates": "Asialistamallit",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Asialistamalleja ei vielä ole. Avaa kokous, jolla on hyvä asialista, ja paina sen asialistassa Tallenna malliksi."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Asialistamalleja ei vielä ole. Avaa kokous, jolla on hyvä asialista, ja paina sen asialistassa Tallenna malliksi.",
+        "Video call": "Videopuhelu",
+        "This meeting has a video call in Talk.": "Tällä kokouksella on videopuhelu Talkissa.",
+        "Join video call": "Liity videopuheluun",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Luo tälle kokoukselle Talk-huone ja kutsu toimielimen jäsenet, tai linkitä jo olemassa oleva huone.",
+        "Create video call": "Luo videopuhelu",
+        "Talk room link": "Talk-huoneen linkki",
+        "Link room": "Linkitä huone",
+        "The video call has not been set up yet.": "Videopuhelua ei ole vielä järjestetty.",
+        "The video call could not be created.": "Videopuhelua ei voitu luoda.",
+        "The room could not be linked.": "Huonetta ei voitu linkittää."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1240,7 +1240,17 @@
         "The template could not be saved.": "Il-mudell ma setax jiġi ssejvjat.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Għad m'hemmx mudelli tal-aġenda. Issejvja aġenda bħala mudell, jew żid wieħed taħt Mudelli tal-aġenda fis-settings.",
         "Agenda templates": "Mudelli tal-aġenda",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Għad m'hemmx mudelli tal-aġenda. Iftaħ laqgħa b'aġenda tajba u agħfas Issejvja bħala mudell fuq l-aġenda tagħha."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Għad m'hemmx mudelli tal-aġenda. Iftaħ laqgħa b'aġenda tajba u agħfas Issejvja bħala mudell fuq l-aġenda tagħha.",
+        "Video call": "Sejħa bil-vidjo",
+        "This meeting has a video call in Talk.": "Din il-laqgħa għandha sejħa bil-vidjo f'Talk.",
+        "Join video call": "Ingħaqad mas-sejħa bil-vidjo",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Oħloq kamra ta' Talk għal din il-laqgħa u stieden lill-membri tal-korp, jew orbot kamra li diġà teżisti.",
+        "Create video call": "Oħloq sejħa bil-vidjo",
+        "Talk room link": "Link tal-kamra ta' Talk",
+        "Link room": "Orbot kamra",
+        "The video call has not been set up yet.": "Is-sejħa bil-vidjo għadha ma ġietx issettjata.",
+        "The video call could not be created.": "Is-sejħa bil-vidjo ma setgħetx tinħoloq.",
+        "The room could not be linked.": "Il-kamra ma setgħetx tiġi marbuta."
     },
     "plurals": null
 }

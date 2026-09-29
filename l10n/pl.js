@@ -1241,7 +1241,17 @@ OC.L10N.register(
         "The template could not be saved.": "Nie udało się zapisać szablonu.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Nie ma jeszcze szablonów porządku obrad. Zapisz porządek obrad jako szablon lub dodaj go w Szablonach porządku obrad w ustawieniach.",
         "Agenda templates": "Szablony porządku obrad",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Brak szablonów porządku obrad. Otwórz posiedzenie z dobrym porządkiem obrad i naciśnij Zapisz jako szablon."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Brak szablonów porządku obrad. Otwórz posiedzenie z dobrym porządkiem obrad i naciśnij Zapisz jako szablon.",
+        "Video call": "Rozmowa wideo",
+        "This meeting has a video call in Talk.": "To posiedzenie ma rozmowę wideo w Talk.",
+        "Join video call": "Dołącz do rozmowy wideo",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Utwórz pokój Talk dla tego posiedzenia i zaproś członków organu albo powiąż istniejący pokój.",
+        "Create video call": "Utwórz rozmowę wideo",
+        "Talk room link": "Link do pokoju Talk",
+        "Link room": "Powiąż pokój",
+        "The video call has not been set up yet.": "Rozmowa wideo nie została jeszcze skonfigurowana.",
+        "The video call could not be created.": "Nie udało się utworzyć rozmowy wideo.",
+        "The room could not be linked.": "Nie udało się powiązać pokoju."
     },
     "nplurals=2; plural=(n != 1);"
 )

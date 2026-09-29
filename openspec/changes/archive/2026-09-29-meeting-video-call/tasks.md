@@ -8,16 +8,16 @@
 - **acceptance_criteria**:
   - GIVEN a hybrid meeting WHEN a participant opens it THEN the Video call widget shows
   - GIVEN an in-person meeting THEN the widget is hidden
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ### Task 2: Create and join the room
 - **spec_ref**: `openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call`
 - **files**: `src/manifest.json`, `src/components/tabs/`
 - **acceptance_criteria**:
   - GIVEN a digital meeting without a room WHEN the secretary presses Create video call THEN a Talk room with the participants is linked and members see Join video call
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ## Verification
 
