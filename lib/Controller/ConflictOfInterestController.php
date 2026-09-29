@@ -114,6 +114,7 @@ class ConflictOfInterestController extends Controller {
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.3
 	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
+	 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
 	 *
 	 * @return JSONResponse
 	 */
@@ -129,6 +130,19 @@ class ConflictOfInterestController extends Controller {
 		$type = (string)$this->request->getParam('declarationType', 'none');
 		$description = (string)$this->request->getParam('description', '');
 		$severity = (string)$this->request->getParam('severity', 'material');
+		$recuseFromVote = filter_var($this->request->getParam('recuseFromVote', false), FILTER_VALIDATE_BOOLEAN);
+
+		// A member declaring from a page does not know her Membership id: an
+		// omitted one means "me" (bod-10).
+		if ($membershipId === '' && $agendaItemId !== '') {
+			$membershipId = (string)$this->conflictService->membershipForUser((string)$this->userSession->getUser()?->getUID());
+			if ($membershipId === '') {
+				return new JSONResponse(
+					['message' => 'You are not a member of a governance body, so there is no declaration to record.'],
+					Http::STATUS_UNPROCESSABLE_ENTITY
+				);
+			}
+		}
 
 		if ($membershipId === '' || $agendaItemId === '') {
 			return new JSONResponse(
@@ -140,7 +154,7 @@ class ConflictOfInterestController extends Controller {
 		$callerUid = $this->resolveCallerUid();
 
 		return $this->respondFromAuthorizedResult(
-			result: $this->conflictService->declare($membershipId, $agendaItemId, $type, $description, $severity, $callerUid),
+			result: $this->conflictService->declare($membershipId, $agendaItemId, $type, $description, $severity, $callerUid, $recuseFromVote),
 			payloadKey: 'declaration',
 			successCode: Http::STATUS_CREATED
 		);
