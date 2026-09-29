@@ -1127,7 +1127,12 @@ OC.L10N.register(
         "The signing round did not finish. You can send it again.": "Pasirašymo ratas nebaigtas. Galite siųsti dar kartą.",
         "Failed to save the signers.": "Nepavyko išsaugoti pasirašančiųjų.",
         "Could not send it for signature.": "Nepavyko išsiųsti pasirašyti.",
-        "Signing the decision list": "Sprendimų sąrašo pasirašymas"
+        "Signing the decision list": "Sprendimų sąrašo pasirašymas",
+        "{faction}: {for} for, {against} against, {abstain} abstain": "{faction}: {for} už, {against} prieš, {abstain} susilaikė",
+        "{name} (cast by {proxy})": "{name} (balsavo {proxy})",
+        "Per faction": "Pagal frakcijas",
+        "Secret vote": "Slaptas balsavimas",
+        "Secret vote: only the totals are shown.": "Slaptas balsavimas: rodomi tik bendri rezultatai."
     },
     "nplurals=2; plural=(n != 1);"
 )

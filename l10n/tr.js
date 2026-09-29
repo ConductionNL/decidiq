@@ -1127,7 +1127,12 @@ OC.L10N.register(
         "The signing round did not finish. You can send it again.": "İmza turu tamamlanmadı. Yeniden gönderebilirsiniz.",
         "Failed to save the signers.": "İmzacılar kaydedilemedi.",
         "Could not send it for signature.": "İmzaya gönderilemedi.",
-        "Signing the decision list": "Karar listesinin imzalanması"
+        "Signing the decision list": "Karar listesinin imzalanması",
+        "{faction}: {for} for, {against} against, {abstain} abstain": "{faction}: {for} evet, {against} hayır, {abstain} çekimser",
+        "{name} (cast by {proxy})": "{name} ({proxy} tarafından verildi)",
+        "Per faction": "Gruba göre",
+        "Secret vote": "Gizli oylama",
+        "Secret vote: only the totals are shown.": "Gizli oylama: yalnızca toplamlar gösterilir."
     },
     "nplurals=2; plural=(n != 1);"
 )

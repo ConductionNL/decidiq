@@ -1127,7 +1127,12 @@ OC.L10N.register(
         "The signing round did not finish. You can send it again.": "Runda de semnare nu s-a încheiat. Îl puteți trimite din nou.",
         "Failed to save the signers.": "Semnatarii nu au putut fi salvați.",
         "Could not send it for signature.": "Nu a putut fi trimis spre semnare.",
-        "Signing the decision list": "Semnarea listei de decizii"
+        "Signing the decision list": "Semnarea listei de decizii",
+        "{faction}: {for} for, {against} against, {abstain} abstain": "{faction}: {for} pentru, {against} împotrivă, {abstain} abțineri",
+        "{name} (cast by {proxy})": "{name} (exprimat de {proxy})",
+        "Per faction": "Pe grupuri",
+        "Secret vote": "Vot secret",
+        "Secret vote: only the totals are shown.": "Vot secret: sunt afișate doar totalurile."
     },
     "nplurals=2; plural=(n != 1);"
 )

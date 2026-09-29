@@ -1127,7 +1127,12 @@ OC.L10N.register(
         "The signing round did not finish. You can send it again.": "Le circuit de signature n'a pas abouti. Vous pouvez l'envoyer à nouveau.",
         "Failed to save the signers.": "Impossible d'enregistrer les signataires.",
         "Could not send it for signature.": "Impossible de l'envoyer pour signature.",
-        "Signing the decision list": "Signature de la liste des décisions"
+        "Signing the decision list": "Signature de la liste des décisions",
+        "{faction}: {for} for, {against} against, {abstain} abstain": "{faction} : {for} pour, {against} contre, {abstain} abstention",
+        "{name} (cast by {proxy})": "{name} (voté par {proxy})",
+        "Per faction": "Par groupe",
+        "Secret vote": "Vote à bulletin secret",
+        "Secret vote: only the totals are shown.": "Vote à bulletin secret : seuls les totaux sont affichés."
     },
     "nplurals=2; plural=(n != 1);"
 )

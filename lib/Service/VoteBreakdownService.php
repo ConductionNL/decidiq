@@ -62,7 +62,7 @@ class VoteBreakdownService {
 	 *
 	 * @param string $roundId The voting round UUID
 	 *
-	 * @return array{secret: bool, totals: array<string, int>, members: array<int, array<string, ?string>>, factions: array<int, array<string, int|string>>}|null
+	 * @return array<string, mixed>|null secret, totals, members (by name) and factions (counts)
 	 *
 	 * @spec openspec/changes/voting-results-by-faction-and-member/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
 	 */
@@ -110,7 +110,7 @@ class VoteBreakdownService {
 	 *
 	 * @param array<string, mixed> $ballot The ballot as stored
 	 *
-	 * @return array<string, ?string>|null
+	 * @return array<string, mixed>|null
 	 */
 	private function memberRow(array $ballot): ?array {
 		$voters = $this->voters(ballot: $ballot);
@@ -127,7 +127,17 @@ class VoteBreakdownService {
 			'faction' => $member['faction'],
 			'value' => $this->valueOf(ballot: $ballot),
 			'castBy' => null,
+			'castAt' => null,
+			'ranking' => null,
 		];
+
+		if (is_string($ballot['castAt'] ?? null) === true) {
+			$row['castAt'] = $ballot['castAt'];
+		}
+
+		if (is_array($ballot['ranking'] ?? null) === true) {
+			$row['ranking'] = array_values($ballot['ranking']);
+		}
 
 		if ($castBy !== null && $castBy !== $memberId) {
 			$row['castBy'] = $this->person(participantId: $castBy)['name'];
@@ -198,9 +208,13 @@ class VoteBreakdownService {
 			}
 
 			$faction = trim((string)($data['party'] ?? ''));
+			if ($faction === '') {
+				$faction = null;
+			}
+
 			$this->people[$participantId] = [
 				'name' => (string)($data['displayName'] ?? ($data['name'] ?? $participantId)),
-				'faction' => ($faction === '' ? null : $faction),
+				'faction' => $faction,
 			];
 		}
 
@@ -228,7 +242,7 @@ class VoteBreakdownService {
 	 * Members without a faction are left out of this table; they still show
 	 * by name.
 	 *
-	 * @param array<int, array<string, ?string>> $members The member rows
+	 * @param array<int, array<string, mixed>> $members The member rows
 	 *
 	 * @return array<int, array<string, int|string>>
 	 */

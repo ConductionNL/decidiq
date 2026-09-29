@@ -186,6 +186,8 @@ class VoteBreakdownServiceTest extends TestCase {
 			$result['factions']
 		);
 		self::assertSame(['for' => 3, 'against' => 2, 'abstain' => 0], $result['totals']);
+		self::assertNotEmpty($result['members'][0]['castAt']);
+		self::assertNull($result['members'][0]['castBy']);
 	}//end testEachVoterIsNamedAndEachFactionShowsItsCounts()
 
 	/**

@@ -1126,7 +1126,12 @@
         "The signing round did not finish. You can send it again.": "Il giro di firme non si è concluso. Puoi inviarlo di nuovo.",
         "Failed to save the signers.": "Impossibile salvare i firmatari.",
         "Could not send it for signature.": "Impossibile inviarlo per la firma.",
-        "Signing the decision list": "Firma dell'elenco delle decisioni"
+        "Signing the decision list": "Firma dell'elenco delle decisioni",
+        "{faction}: {for} for, {against} against, {abstain} abstain": "{faction}: {for} a favore, {against} contrari, {abstain} astenuti",
+        "{name} (cast by {proxy})": "{name} (espresso da {proxy})",
+        "Per faction": "Per gruppo",
+        "Secret vote": "Voto segreto",
+        "Secret vote: only the totals are shown.": "Voto segreto: sono mostrati solo i totali."
     },
     "plurals": null
 }
