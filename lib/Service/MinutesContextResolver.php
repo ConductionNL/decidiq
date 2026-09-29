@@ -138,18 +138,6 @@ class MinutesContextResolver {
 		return ($this->firstRelation(object: $minutes, relation: 'meeting') ?? $this->firstRelation(object: $minutes, relation: 'Meeting'));
 	}//end linkedMeetingId()
 
-	/**
-	 * Fetch a Meeting record, or null when it does not exist.
-	 *
-	 * @param string $meetingId The Meeting ID
-	 *
-	 * @return array<string,mixed>|null The Meeting data
-	 *
-	 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members
-	 */
-	public function findMeeting(string $meetingId): ?array {
-		return $this->findObject(id: $meetingId, schema: 'meeting');
-	}//end findMeeting()
 
 	/**
 	 * Resolve the GovernanceBody ID a Minutes record ultimately belongs to.

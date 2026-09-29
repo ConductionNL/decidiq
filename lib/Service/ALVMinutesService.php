@@ -195,7 +195,12 @@ TEMPLATE;
 			return 0;
 		}
 
-		$meeting = ($this->context->findMeeting(meetingId: $meetingId) ?? []);
+		try {
+			$meeting = $this->context->requireMeeting(meetingId: $meetingId);
+		} catch (MissingObjectException) {
+			$meeting = [];
+		}
+
 		$meetingTitle = (string)($meeting['title'] ?? '');
 		$l10n = $this->l10nFactory->get('decidiq');
 		$named = $meetingTitle;
