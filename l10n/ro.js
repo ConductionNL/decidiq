@@ -1132,7 +1132,12 @@ OC.L10N.register(
         "{name} (cast by {proxy})": "{name} (exprimat de {proxy})",
         "Per faction": "Pe grupuri",
         "Secret vote": "Vot secret",
-        "Secret vote: only the totals are shown.": "Vot secret: sunt afișate doar totalurile."
+        "Secret vote: only the totals are shown.": "Vot secret: sunt afișate doar totalurile.",
+        "Adopted without debate": "Adoptat fără dezbatere",
+        "Discuss this item": "Discută acest punct",
+        "Formality": "Formalitate",
+        "Mark as formality": "Marchează ca formalitate",
+        "The formality mark was not saved.": "Marcajul de formalitate nu a fost salvat."
     },
     "nplurals=2; plural=(n != 1);"
 )

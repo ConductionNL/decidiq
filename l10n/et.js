@@ -1132,7 +1132,12 @@ OC.L10N.register(
         "{name} (cast by {proxy})": "{name} (hääletas {proxy})",
         "Per faction": "Fraktsiooniti",
         "Secret vote": "Salajane hääletus",
-        "Secret vote: only the totals are shown.": "Salajane hääletus: näidatakse ainult kokkuvõtet."
+        "Secret vote: only the totals are shown.": "Salajane hääletus: näidatakse ainult kokkuvõtet.",
+        "Adopted without debate": "Vastu võetud aruteluta",
+        "Discuss this item": "Aruta seda punkti",
+        "Formality": "Formaalsus",
+        "Mark as formality": "Märgi formaalsuseks",
+        "The formality mark was not saved.": "Formaalsuse märget ei salvestatud."
     },
     "nplurals=2; plural=(n != 1);"
 )

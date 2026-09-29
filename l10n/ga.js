@@ -1132,7 +1132,12 @@ OC.L10N.register(
         "{name} (cast by {proxy})": "{name} (caite ag {proxy})",
         "Per faction": "De réir grúpa",
         "Secret vote": "Vóta rúnda",
-        "Secret vote: only the totals are shown.": "Vóta rúnda: ní thaispeántar ach na hiomláin."
+        "Secret vote: only the totals are shown.": "Vóta rúnda: ní thaispeántar ach na hiomláin.",
+        "Adopted without debate": "Glactha gan díospóireacht",
+        "Discuss this item": "Pléigh an mhír seo",
+        "Formality": "Foirmiúlacht",
+        "Mark as formality": "Marcáil mar fhoirmiúlacht",
+        "The formality mark was not saved.": "Níor sábháladh marc na foirmiúlachta."
     },
     "nplurals=2; plural=(n != 1);"
 )

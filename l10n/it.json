@@ -1131,7 +1131,12 @@
         "{name} (cast by {proxy})": "{name} (espresso da {proxy})",
         "Per faction": "Per gruppo",
         "Secret vote": "Voto segreto",
-        "Secret vote: only the totals are shown.": "Voto segreto: sono mostrati solo i totali."
+        "Secret vote: only the totals are shown.": "Voto segreto: sono mostrati solo i totali.",
+        "Adopted without debate": "Approvato senza discussione",
+        "Discuss this item": "Discuti questo punto",
+        "Formality": "Formalità",
+        "Mark as formality": "Segna come formalità",
+        "The formality mark was not saved.": "Il contrassegno di formalità non è stato salvato."
     },
     "plurals": null
 }

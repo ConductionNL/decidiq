@@ -1132,7 +1132,12 @@ OC.L10N.register(
         "{name} (cast by {proxy})": "{name} (mitfugħ minn {proxy})",
         "Per faction": "Skont il-grupp",
         "Secret vote": "Vot sigriet",
-        "Secret vote: only the totals are shown.": "Vot sigriet: jintwerew it-totali biss."
+        "Secret vote: only the totals are shown.": "Vot sigriet: jintwerew it-totali biss.",
+        "Adopted without debate": "Adottat mingħajr diskussjoni",
+        "Discuss this item": "Iddiskuti dan il-punt",
+        "Formality": "Formalità",
+        "Mark as formality": "Immarka bħala formalità",
+        "The formality mark was not saved.": "Il-marka tal-formalità ma ġietx salvata."
     },
     "nplurals=2; plural=(n != 1);"
 )

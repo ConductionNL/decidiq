@@ -156,6 +156,8 @@ $extra = [
         ['name' => 'agenda#advanceBobPhase',     'url' => '/api/agenda-items/{id}/bob-phase',      'verb' => 'PUT'],
         ['name' => 'agenda#processHamerstukken', 'url' => '/api/agendas/{meetingId}/hamerstukken', 'verb' => 'POST'],
         ['name' => 'agenda#reorder',             'url' => '/api/agendas/{meetingId}/reorder',      'verb' => 'PUT'],
+        // Mark an agenda item as a formality (agenda-formalities-hamerstukken, age-07).
+        ['name' => 'agenda#formality',           'url' => '/api/agendas/{meetingId}/items/{itemId}/formality', 'verb' => 'PUT'],
 
         // Motion lifecycle and co-signature routes (specific before wildcard).
         ['name' => 'motion#transition',     'url' => '/api/motions/{id}/transition',      'verb' => 'POST'],

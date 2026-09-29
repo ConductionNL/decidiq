@@ -1132,7 +1132,12 @@ OC.L10N.register(
         "{name} (cast by {proxy})": "{name} (ψήφισε ο/η {proxy})",
         "Per faction": "Ανά παράταξη",
         "Secret vote": "Μυστική ψηφοφορία",
-        "Secret vote: only the totals are shown.": "Μυστική ψηφοφορία: εμφανίζονται μόνο τα σύνολα."
+        "Secret vote: only the totals are shown.": "Μυστική ψηφοφορία: εμφανίζονται μόνο τα σύνολα.",
+        "Adopted without debate": "Εγκρίθηκε χωρίς συζήτηση",
+        "Discuss this item": "Συζήτηση αυτού του θέματος",
+        "Formality": "Τυπικό θέμα",
+        "Mark as formality": "Σήμανση ως τυπικό θέμα",
+        "The formality mark was not saved.": "Η σήμανση ως τυπικό θέμα δεν αποθηκεύτηκε."
     },
     "nplurals=2; plural=(n != 1);"
 )

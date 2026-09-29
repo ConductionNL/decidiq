@@ -1132,7 +1132,12 @@ OC.L10N.register(
         "{name} (cast by {proxy})": "{name} ({proxy} tarafından verildi)",
         "Per faction": "Gruba göre",
         "Secret vote": "Gizli oylama",
-        "Secret vote: only the totals are shown.": "Gizli oylama: yalnızca toplamlar gösterilir."
+        "Secret vote: only the totals are shown.": "Gizli oylama: yalnızca toplamlar gösterilir.",
+        "Adopted without debate": "Tartışmasız kabul edildi",
+        "Discuss this item": "Bu maddeyi görüş",
+        "Formality": "Formalite",
+        "Mark as formality": "Formalite olarak işaretle",
+        "The formality mark was not saved.": "Formalite işareti kaydedilmedi."
     },
     "nplurals=2; plural=(n != 1);"
 )

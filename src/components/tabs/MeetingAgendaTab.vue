@@ -199,6 +199,7 @@ import ArrowDown from 'vue-material-design-icons/ArrowDown.vue'
 import ArrowUp from 'vue-material-design-icons/ArrowUp.vue'
 import DragVertical from 'vue-material-design-icons/DragVertical.vue'
 import EyeOutline from 'vue-material-design-icons/EyeOutline.vue'
+import Gavel from 'vue-material-design-icons/Gavel.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import Presentation from 'vue-material-design-icons/Presentation.vue'
@@ -217,6 +218,7 @@ import {
 	missingRequiredTypeFields,
 	typeFieldInputs,
 } from '../../utils/agendaItemTypeFields.js'
+import { formalityUrl } from '../../utils/formalities.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -285,6 +287,7 @@ export default {
 			return this.rawRows.map((item) => ({
 				...item,
 				kindDisplay: this.itemTypeNames[item.type] || item.itemType,
+				formalityDisplay: this.formalityLabel(item),
 			}))
 		},
 
@@ -310,6 +313,7 @@ export default {
 					key: 'estimatedDuration',
 					label: this.t('decidiq', 'Duration (min)'),
 				},
+				{ key: 'formalityDisplay', label: this.t('decidiq', 'Formality') },
 			]
 		},
 
@@ -357,6 +361,24 @@ export default {
 					icon: ArrowDown,
 					visible: () => this.canManage,
 					handler: (row) => this.moveItem(row, 1),
+				},
+				{
+					label: this.t('decidiq', 'Mark as formality'),
+					icon: Gavel,
+					visible: (row) =>
+						this.canManage && !row.isFormality && !row.formalityOutcome,
+
+					handler: (row) => this.setFormality(row, true),
+				},
+				{
+					label: this.t('decidiq', 'Discuss this item'),
+					icon: Gavel,
+					visible: (row) =>
+						this.canManage
+						&& row.isFormality === true
+						&& !row.formalityOutcome,
+
+					handler: (row) => this.setFormality(row, false),
 				},
 				{
 					label: this.t('decidiq', 'Edit'),
@@ -609,6 +631,59 @@ export default {
 			if (!this.canManage || !dragId) return
 			const ids = dropAgendaItem(buildAgendaTree(this.rawRows), dragId, row.id)
 			if (ids) this.persistOrder(ids)
+		},
+
+		/**
+		 * The formality label of a row: a formality, adopted without debate,
+		 * or nothing.
+		 *
+		 * @param {object} item The agenda item
+		 * @return {string}
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+		 */
+		formalityLabel(item) {
+			if (item.formalityOutcome === 'adopted-without-debate') {
+				return this.t('decidiq', 'Adopted without debate')
+			}
+			return item.isFormality ? this.t('decidiq', 'Formality') : ''
+		},
+
+		/**
+		 * Mark an item as a formality, or take the mark off, through the
+		 * chair-only endpoint, then reload the rows.
+		 *
+		 * @param {object} row The agenda item row
+		 * @param {boolean} isFormality Whether it is a formality
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+		 */
+		async setFormality(row, isFormality) {
+			this.reorderError = ''
+			try {
+				const response = await fetch(
+					generateUrl(formalityUrl(this.objectId, row.id)),
+					{
+						method: 'PUT',
+						headers: {
+							'Content-Type': 'application/json',
+							Accept: 'application/json',
+							requesttoken: OC.requestToken,
+						},
+						body: JSON.stringify({ isFormality }),
+					},
+				)
+				if (!response.ok) {
+					const payload = await response.json().catch(() => ({}))
+					this.reorderError =
+						payload?.message
+						|| this.t('decidiq', 'The formality mark was not saved.')
+					return
+				}
+				await this.refresh()
+			} catch (e) {
+				this.reorderError =
+					e?.message
+					|| this.t('decidiq', 'The formality mark was not saved.')
+			}
 		},
 
 		/**

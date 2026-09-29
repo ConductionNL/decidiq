@@ -1132,7 +1132,12 @@ OC.L10N.register(
         "{name} (cast by {proxy})": "{name} (greitt af {proxy})",
         "Per faction": "Eftir flokkum",
         "Secret vote": "Leynileg atkvæðagreiðsla",
-        "Secret vote: only the totals are shown.": "Leynileg atkvæðagreiðsla: aðeins samtölur eru sýndar."
+        "Secret vote: only the totals are shown.": "Leynileg atkvæðagreiðsla: aðeins samtölur eru sýndar.",
+        "Adopted without debate": "Samþykkt án umræðu",
+        "Discuss this item": "Ræða þennan lið",
+        "Formality": "Formsatriði",
+        "Mark as formality": "Merkja sem formsatriði",
+        "The formality mark was not saved.": "Merkingin sem formsatriði var ekki vistuð."
     },
     "nplurals=2; plural=(n != 1);"
 )

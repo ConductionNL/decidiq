@@ -1132,7 +1132,12 @@ OC.L10N.register(
         "{name} (cast by {proxy})": "{name} (balsavo {proxy})",
         "Per faction": "Pagal frakcijas",
         "Secret vote": "Slaptas balsavimas",
-        "Secret vote: only the totals are shown.": "Slaptas balsavimas: rodomi tik bendri rezultatai."
+        "Secret vote: only the totals are shown.": "Slaptas balsavimas: rodomi tik bendri rezultatai.",
+        "Adopted without debate": "Priimta be diskusijų",
+        "Discuss this item": "Aptarti šį klausimą",
+        "Formality": "Formalumas",
+        "Mark as formality": "Pažymėti kaip formalumą",
+        "The formality mark was not saved.": "Formalumo žymė neišsaugota."
     },
     "nplurals=2; plural=(n != 1);"
 )

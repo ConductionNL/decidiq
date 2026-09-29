@@ -100,3 +100,12 @@ The live meeting view SHALL indicate which AgendaItem is currently active (being
 #### Scenario: Participants see which item is active
 - **WHEN** a Participant refreshes the live meeting page
 - **THEN** the currently active AgendaItem is visually distinguished with the "Actief" indicator
+
+### Requirement: REQ-AFH-001 Formalities are marked and adopted together
+
+The chair or secretary SHALL be able to mark agenda items as formalities, and the live screen SHALL adopt all formalities in one step, recording the outcome on each item.
+
+#### Scenario: The chair adopts the formalities
+- GIVEN items 3, 4 and 7 are marked as formalities
+- WHEN the chair presses Adopt formalities on the live screen
+- THEN each of the three shows adopted without debate with the time

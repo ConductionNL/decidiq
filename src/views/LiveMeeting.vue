@@ -238,6 +238,11 @@ import SpeakerQueuePanel from '../components/liveMeeting/SpeakerQueuePanel.vue'
 import MinutesPanel from '../components/minutesEditor/MinutesPanel.vue'
 import AdoptConsentAgendaDialog from '../dialogs/AdoptConsentAgendaDialog.vue'
 import { useObjectStore } from '../store/store.js'
+import {
+	formalityUrl,
+	isPendingFormality,
+	pendingFormalities,
+} from '../utils/formalities.js'
 
 const BOB_STAGES = [
 	{ id: 'beeldvorming', label: 'Beeldvorming' },
@@ -395,13 +400,13 @@ export default {
 
 		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4 */
 		hamerstukken() {
-			return this.allItems.filter((i) => (i.tags ?? []).includes('hamerstuk'))
+			return pendingFormalities(this.allItems)
 		},
 
 		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 		regularItems() {
 			return this.allItems
-				.filter((i) => !(i.tags ?? []).includes('hamerstuk'))
+				.filter((i) => !isPendingFormality(i))
 				.sort((a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0))
 		},
 
@@ -537,12 +542,24 @@ export default {
 		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4
 		 */
 		async removeFromHamerstukken(item) {
-			const tags = (item.tags ?? []).filter((t) => t !== 'hamerstuk')
 			try {
-				await this.objectStore.saveObject('agenda-item', { ...item, tags })
+				const response = await fetch(
+					OC.generateUrl(formalityUrl(this.id, item.id)),
+					{
+						method: 'PUT',
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: OC.requestToken,
+						},
+						body: JSON.stringify({ isFormality: false }),
+					},
+				)
+				if (!response.ok) {
+					throw new Error(`HTTP ${response.status}`)
+				}
 				await this.refreshItems()
 			} catch (e) {
-				console.error('Error removing hamerstuk tag:', e)
+				console.error('Error taking the formality mark off:', e)
 			}
 		},
 

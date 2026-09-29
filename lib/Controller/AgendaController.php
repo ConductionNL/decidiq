@@ -46,6 +46,7 @@ use Psr\Log\LoggerInterface;
  *   PUT  /api/agenda-items/{id}/bob-phase      → advanceBobPhase
  *   POST /api/agendas/{meetingId}/hamerstukken → processHamerstukken
  *   PUT  /api/agendas/{meetingId}/reorder      → reorderItems
+ *   PUT  /api/agendas/{meetingId}/items/{itemId}/formality → setFormality
  *
  * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
  */
@@ -167,7 +168,8 @@ class AgendaController extends Controller {
 	/**
 	 * Process all hamerstukken (consent items) for a meeting.
 	 *
-	 * Sets status of all items tagged 'hamerstuk' to 'completed'.
+	 * Every formality not yet adopted records "adopted without debate" and the
+	 * time; answers how many were adopted.
 	 *
 	 * @param string $meetingId UUID of the Meeting
 	 *
@@ -185,8 +187,8 @@ class AgendaController extends Controller {
 		}
 
 		try {
-			$this->agendaService->processHamerstukken($meetingId);
-			return new JSONResponse(['success' => true]);
+			$adopted = $this->agendaService->processHamerstukken($meetingId);
+			return new JSONResponse(['success' => true, 'adopted' => $adopted]);
 		} catch (\Throwable $e) {
 			$this->logger->error(
 				'processHamerstukken failed for meeting {meetingId}: {error}',
@@ -272,4 +274,42 @@ class AgendaController extends Controller {
 		}
 
 	}//end reorder()
+
+	/**
+	 * Mark an agenda item as a formality (hamerstuk), or take the mark off.
+	 *
+	 * PUT /api/agendas/{meetingId}/items/{itemId}/formality, body
+	 * `{ "isFormality": true|false }`. Chair, secretary or admin only.
+	 *
+	 * @param string $meetingId UUID of the Meeting
+	 * @param string $itemId UUID of the agenda item
+	 *
+	 * @NoAdminRequired
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 */
+	#[NoAdminRequired]
+	public function formality(string $meetingId, string $itemId): JSONResponse {
+		$denied = $this->denyUnlessChairOrAdmin(meetingId: $meetingId);
+		if ($denied !== null) {
+			return $denied;
+		}
+
+		$isFormality = filter_var($this->request->getParam('isFormality'), FILTER_VALIDATE_BOOLEAN);
+
+		try {
+			$this->agendaService->setFormality(meetingId: $meetingId, itemId: $itemId, isFormality: $isFormality);
+			return new JSONResponse(['success' => true, 'isFormality' => $isFormality]);
+		} catch (\InvalidArgumentException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+		} catch (\Throwable $e) {
+			$this->logger->error(
+				'setFormality failed for meeting {meetingId}: {error}',
+				['meetingId' => $meetingId, 'error' => $e->getMessage(), 'exception' => $e]
+			);
+			return new JSONResponse(['message' => 'An internal error occurred.'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}//end formality()
 }//end class
