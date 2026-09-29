@@ -25,17 +25,27 @@
 				class="document-details__row"
 				data-testid="document-details-row">
 				<div class="document-details__text">
-					<span class="document-details__name">{{ row.file.name || row.file.title }}</span>
+					<span class="document-details__name">{{
+						row.file.name || row.file.title
+					}}</span>
 					<span class="document-details__meta">
-						{{ typeName(row.record) || t('decidiq', 'No document type') }}
-						<template v-for="value in summaryOf(row.record)" :key="value">
+						{{
+							typeName(row.record) || t('decidiq', 'No document type')
+						}}
+						<template
+							v-for="value in summaryOf(row.record)"
+							:key="value">
 							· {{ value }}
 						</template>
 					</span>
 				</div>
 				<NcButton
 					variant="secondary"
-					:aria-label="t('decidiq', 'Details of {name}', { name: row.file.name || row.file.title })"
+					:aria-label="
+						t('decidiq', 'Details of {name}', {
+							name: row.file.name || row.file.title,
+						})
+					"
 					data-testid="document-details-open"
 					@click="selected = row">
 					{{ t('decidiq', 'Details') }}
@@ -98,7 +108,9 @@ export default {
 		 */
 		target() {
 			if (this.targetType) return this.targetType
-			return String(this.$route?.name || '').startsWith('AgendaItem') ? 'agenda-item' : 'meeting'
+			return String(this.$route?.name || '').startsWith('AgendaItem')
+				? 'agenda-item'
+				: 'meeting'
 		},
 
 		/** @spec openspec/specs/document-metadata-fields/spec.md#requirement-req-dmf-003-the-clerk-fills-in-document-details-on-the-meeting-and-agenda-item-pages */
@@ -136,15 +148,24 @@ export default {
 				const field = TARGETS[this.target].field
 				const [files, records, types] = await Promise.all([
 					axios.get(filesUrl(this.target, this.objectId)),
-					ensureRelationType('digital-document').fetchCollection('digital-document', { [field]: this.objectId, _limit: 200 }),
-					ensureRelationType('document-type').fetchCollection('document-type', { _limit: 200 }),
+					ensureRelationType('digital-document').fetchCollection(
+						'digital-document',
+						{ [field]: this.objectId, _limit: 200 },
+					),
+					ensureRelationType('document-type').fetchCollection(
+						'document-type',
+						{ _limit: 200 },
+					),
 				])
 				const list = files?.data?.results ?? files?.data ?? []
 				this.files = Array.isArray(list) ? list : []
 				this.records = records || []
 				this.types = types || []
 			} catch {
-				this.error = this.t('decidiq', 'The files of this page could not be read.')
+				this.error = this.t(
+					'decidiq',
+					'The files of this page could not be read.',
+				)
 			} finally {
 				this.loading = false
 			}
@@ -181,7 +202,11 @@ export default {
 		 */
 		typeOf(record) {
 			if (!record?.type) return null
-			return this.types.find((type) => (type.id ?? type['@self']?.id) === record.type) || null
+			return (
+				this.types.find(
+					(type) => (type.id ?? type['@self']?.id) === record.type,
+				) || null
+			)
 		},
 
 		/**

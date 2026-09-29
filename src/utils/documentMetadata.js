@@ -33,7 +33,9 @@ export const TARGETS = {
  */
 export function filesUrl(target, objectId) {
 	const { schema } = TARGETS[target]
-	return generateUrl(`/apps/openregister/api/objects/decidiq/${schema}/${objectId}/files`)
+	return generateUrl(
+		`/apps/openregister/api/objects/decidiq/${schema}/${objectId}/files`,
+	)
 }
 
 /**
@@ -48,9 +50,10 @@ export function filesUrl(target, objectId) {
 export function typesFor(types, target) {
 	return (types || []).filter((type) => {
 		if (type.active === false) return false
-		const applies = Array.isArray(type.appliesTo) && type.appliesTo.length > 0
-			? type.appliesTo
-			: Object.keys(TARGETS)
+		const applies =
+			Array.isArray(type.appliesTo) && type.appliesTo.length > 0
+				? type.appliesTo
+				: Object.keys(TARGETS)
 		return applies.includes(target)
 	})
 }
@@ -86,7 +89,12 @@ export function summary(record, type, count = 2) {
 	if (!record || !type) return []
 	const values = record.typeFields || {}
 	return (type.fields || [])
-		.filter((field) => values[field.key] !== undefined && values[field.key] !== null && values[field.key] !== '')
+		.filter(
+			(field) =>
+				values[field.key] !== undefined
+				&& values[field.key] !== null
+				&& values[field.key] !== '',
+		)
 		.slice(0, count)
 		.map((field) => `${field.label || field.key}: ${values[field.key]}`)
 }
@@ -104,7 +112,14 @@ export function summary(record, type, count = 2) {
  * @return {object} The `digital-document` record.
  * @spec openspec/specs/document-metadata-fields/spec.md#requirement-req-dmf-002-a-document-record-links-a-file-to-its-type-and-values
  */
-export function detailsPayload({ file, target, objectId, type, typeFields, existing = null }) {
+export function detailsPayload({
+	file,
+	target,
+	objectId,
+	type,
+	typeFields,
+	existing = null,
+}) {
 	const payload = {
 		name: file.name || file.title || String(file.id),
 		documentType: type?.name || existing?.documentType || 'Document',

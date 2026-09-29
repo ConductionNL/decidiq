@@ -12,7 +12,11 @@
 -->
 <template>
 	<NcDialog
-		:name="t('decidiq', 'Details of {name}', { name: file.name || file.title || '' })"
+		:name="
+			t('decidiq', 'Details of {name}', {
+				name: file.name || file.title || '',
+			})
+		"
 		size="normal"
 		data-testid="document-details-dialog"
 		@closing="$emit('close')">
@@ -25,7 +29,12 @@
 					label="name"
 					data-testid="document-details-type" />
 				<p v-if="types.length === 0" class="document-details-dialog__hint">
-					{{ t('decidiq', 'No document types are offered here yet. An administrator adds them under Document types in the settings.') }}
+					{{
+						t(
+							'decidiq',
+							'No document types are offered here yet. An administrator adds them under Document types in the settings.',
+						)
+					}}
 				</p>
 				<AgendaItemTypeFields
 					v-model="values"
@@ -55,7 +64,10 @@
 import { NcButton, NcDialog, NcSelect } from '@nextcloud/vue'
 import AgendaItemTypeFields from '../components/AgendaItemTypeFields.vue'
 import { ensureRelationType } from '../components/tabs/useRelationStore.js'
-import { missingRequiredTypeFields, typeFieldInputs } from '../utils/agendaItemTypeFields.js'
+import {
+	missingRequiredTypeFields,
+	typeFieldInputs,
+} from '../utils/agendaItemTypeFields.js'
 import { detailsPayload } from '../utils/documentMetadata.js'
 
 export default {
@@ -81,7 +93,9 @@ export default {
 	data() {
 		const typeId = this.record?.type
 		return {
-			type: this.types.find((type) => (type.id ?? type['@self']?.id) === typeId) || null,
+			type:
+				this.types.find((type) => (type.id ?? type['@self']?.id) === typeId)
+				|| null,
 			values: { ...(this.record?.typeFields || {}) },
 			saving: false,
 			error: '',
@@ -96,9 +110,14 @@ export default {
 		 */
 		async save() {
 			this.error = ''
-			const missing = missingRequiredTypeFields(typeFieldInputs(this.type), this.values)
+			const missing = missingRequiredTypeFields(
+				typeFieldInputs(this.type),
+				this.values,
+			)
 			if (missing.length > 0) {
-				this.error = this.t('decidiq', 'Fill in {fields}.', { fields: missing.join(', ') })
+				this.error = this.t('decidiq', 'Fill in {fields}.', {
+					fields: missing.join(', '),
+				})
 				return
 			}
 			this.saving = true
@@ -116,7 +135,9 @@ export default {
 				)
 				this.$emit('saved')
 			} catch (e) {
-				this.error = e?.message || this.t('decidiq', 'The details could not be saved.')
+				this.error =
+					e?.message
+					|| this.t('decidiq', 'The details could not be saved.')
 			} finally {
 				this.saving = false
 			}
