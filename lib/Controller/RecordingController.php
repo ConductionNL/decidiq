@@ -115,7 +115,7 @@ class RecordingController extends Controller {
 		}//end try
 
 		$headers = [
-			'Content-Type' => (string)$file->getMimeType(),
+			'Content-Type' => $file->getMimeType(),
 			'Content-Length' => (string)$length,
 			'Accept-Ranges' => 'bytes',
 		];
