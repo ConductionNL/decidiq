@@ -7,8 +7,8 @@
 - **files**: `lib/Listener/MeetingDefaultsListener.php`, `lib/AppInfo/Registrar/ObjectListenerRegistrar.php`
 - **acceptance_criteria**:
   - GIVEN meeting type Commissie with 90 minutes and quorum 5 WHEN a meeting of that type is created without them THEN it is saved with 90 minutes and quorum 5
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ### Task 2: Votes follow the body rules
 - **spec_ref**: `openspec/changes/meeting-rules-from-body-and-type/specs/meeting-management/spec.md#requirement-req-mrb-002-votes-follow-the-body-rules`
@@ -16,8 +16,8 @@
 - **acceptance_criteria**:
   - GIVEN a body with two-thirds majority WHEN a round opens from the panel THEN the round carries the two-thirds rule
   - GIVEN too few members present for the body quorum rule WHEN the chair opens a round THEN it is refused
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ## Verification
 
