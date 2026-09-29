@@ -124,7 +124,7 @@ class MeetingCostService {
 		}
 
 		$elapsedSeconds = $this->resolveElapsedSeconds(meeting: $meeting);
-		$attendeeCount = $this->resolveAttendeeCount(meetingId: $meetingId);
+		$attendeeCount = $this->resolveAttendeeCount(meetingId: $meetingId, meeting: $meeting);
 
 		return $this->computeCost(
 			elapsedSeconds: $elapsedSeconds,
@@ -244,25 +244,32 @@ class MeetingCostService {
 	}//end resolveElapsedSeconds()
 
 	/**
-	 * Count the meeting's participants via the OpenRegister ObjectService.
+	 * Count the people who attended the meeting.
 	 *
-	 * @param string $meetingId Meeting UUID
+	 * Participant declares no `meeting` property, so a filter on it matched
+	 * the wrong set. The attendees are the members of the meeting's body who
+	 * are marked present; when nobody's attendance was taken, the body's
+	 * roster is the attendance.
 	 *
-	 * @return int Participant count (>= 0)
+	 * @param string              $meetingId Meeting UUID (for the log)
+	 * @param array<string,mixed> $meeting   The meeting object
 	 *
-	 * @spec openspec/specs/meeting-efficiency/spec.md
+	 * @return int Attendee count (>= 0)
+	 *
+	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-002-closing-a-meeting-records-its-cost
 	 */
-	private function resolveAttendeeCount(string $meetingId): int {
+	private function resolveAttendeeCount(string $meetingId, array $meeting): int {
+		$bodyId = $this->resolveGovernanceBodyId(meeting: $meeting);
+		if ($bodyId === null) {
+			return 0;
+		}
+
 		try {
 			$objectService = $this->getObjectService();
 			$objectService->setRegister('decidiq');
 			$objectService->setSchema('participant');
 
-			// Config-array form (matches EngagementController::resolveParticipantUuid
-			// and the OpenRegister ObjectService::findAll(array $config) signature).
-			$results = $objectService->findAll(['filters' => ['meeting' => $meetingId], 'limit' => 500]);
-
-			return count($results);
+			$results = $objectService->findAll(['filters' => ['governanceBody' => $bodyId], 'limit' => 500]);
 		} catch (Throwable $e) {
 			$this->logger->debug(
 				'Decidiq MeetingCostService: attendee count failed',
@@ -270,6 +277,36 @@ class MeetingCostService {
 			);
 			return 0;
 		}
+
+		$members = 0;
+		$present = 0;
+		$attendanceTaken = false;
+		foreach ($results as $result) {
+			$participant = $result;
+			if (is_object($result) === true && method_exists($result, 'getObject') === true) {
+				$participant = $result->getObject();
+			}
+
+			if (is_array($participant) === false || ($participant['governanceBody'] ?? $bodyId) !== $bodyId) {
+				continue;
+			}
+
+			$members++;
+			$status = ($participant['attendanceStatus'] ?? null);
+			if ($status !== null && $status !== '') {
+				$attendanceTaken = true;
+			}
+
+			if ($status === 'present') {
+				$present++;
+			}
+		}//end foreach
+
+		if ($attendanceTaken === true) {
+			return $present;
+		}
+
+		return $members;
 
 	}//end resolveAttendeeCount()
 }//end class
