@@ -8,16 +8,16 @@
 - **acceptance_criteria**:
   - GIVEN a scheduled meeting and its chair WHEN the chair presses Open meeting THEN the stage becomes opened
   - GIVEN a member who is not chair WHEN she opens the page THEN no stage buttons show
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ### Task 2: Close stamps the cost
 - **spec_ref**: `openspec/changes/meeting-stage-buttons-and-cost/specs/meeting-workflow/spec.md#requirement-req-msb-002-closing-a-meeting-records-its-cost`
 - **files**: `src/components/tabs/MeetingStageTab.vue`, `tests/Unit/Service/MeetingServiceTest.php`
 - **acceptance_criteria**:
   - GIVEN an opened meeting of 2 hours with 10 attendees WHEN the chair closes it THEN meetingCost is filled and shown
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ## Verification
 
