@@ -2759,16 +2759,17 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "grep pdf in lib/Service, lib/Controller, src/: only minutes, regulator export, board evaluation and eIDAS; lib/Service/MeetingPackageService.php:95 assemble() copies agenda-item documents into a Files folder with a markdown TOC, no PDF and no motions",
-				"owner": "ConductionNL/decidiq"
+				"state": "built",
+				"evidence": "lib/Service/ExportBundleService.php export() format pdf: per decision a text page through FilinqPdf::fromHtml(), then its attachments from OpenRegister FileService::getFiles(), handed in list order to filinq DocumentMergeService merge() (queue() when shouldQueue() says so) with bookmarks on, into 'Decidiq exports'; src/manifest.json Motions bulkActions export-bundle -> src/modals/ExportBundleModal.vue; tests/Unit/Service/ExportBundleServiceTest.php",
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-09-29-motions-export-with-attachments"
 			},
 			"reachedOn": "nothing reaches it: no motion PDF export",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "motions",
 			"featureConfidence": "high",
-			"note": "Motions cannot be exported to PDF with their attachments. Specified in openspec/changes/motions-export-with-attachments (OpenSpec pass 2026-09-27).",
+			"note": "Motions (and decisions) export to one PDF with each text followed by its attachments, bookmarked per motion, through filinq; built in 2026-09-29-motions-export-with-attachments.",
 			"notubiz": "yes",
 			"ibabs": "partial",
 			"go-raadsinformatie": "partial",
@@ -6397,16 +6398,17 @@
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/384605",
 			"decidiq": "partial",
 			"built": {
-				"state": "specified",
-				"evidence": "src/manifest.json:853 Motions index and :1058 Decisions index rendered by CnIndexPage, whose built-in mass Export action is on by default (@conduction/nextcloud-vue CnIndexPage.vue:1605 showMassExport default true, CnMassExportDialog format choice) and exports the selected rows' fields; lib/Service/MeetingPackageService.php bundles the papers of one meeting only; grep -riE 'zip|bulk.?export|download.?all' lib src: no document bundle export",
-				"owner": "ConductionNL/decidiq"
+				"state": "built",
+				"evidence": "lib/Service/ExportBundleService.php export(): the selected ids, or every decision matching the list filter and search read from the route query (src/utils/exportBundle.js filterFromQuery), up to 500, as a ZIP with one folder per decision (decision.html plus its attachments) or one PDF; POST /api/exports/decision-bundle; Motions and Decisions lists carry the bulk action; tests/Unit/Service/ExportBundleServiceTest.php, tests/vitest/exportBundle.spec.js",
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-09-29-motions-export-with-attachments"
 			},
 			"reachedOn": "Motions (/motions), Decisions (/decisions) and other index pages, select rows then the mass Export action",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "reports",
 			"featureConfidence": "medium",
-			"note": "A filtered selection of motions, decisions or other records can be exported in one go as a spreadsheet of their fields. The documents themselves are not exported: only one meeting's papers can be bundled, through the meeting package. Specified in openspec/changes/motions-export-with-attachments (OpenSpec pass 2026-09-27).",
+			"note": "A filtered set or a selection of motions or decisions exports in one go with its documents, as a ZIP or one PDF, up to 500 at once; built in 2026-09-29-motions-export-with-attachments. A party filter is out of scope (decisions carry the proposer as a name).",
 			"notubiz": "yes",
 			"ibabs": "partial",
 			"go-raadsinformatie": "unknown",
