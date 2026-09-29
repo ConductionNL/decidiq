@@ -61,7 +61,7 @@ class VoteBreakdownController extends Controller {
 	/**
 	 * The breakdown of one round. Whether the round can be read is
 	 * OpenRegister's call: the round is looked up with the user's own rights,
-	 * so a round they cannot see is not found.
+	 * and a round they cannot see is refused before any ballot is read.
 	 *
 	 * @param string $id The voting round UUID
 	 *
@@ -76,6 +76,10 @@ class VoteBreakdownController extends Controller {
 		$auth = $this->requireUserOr401(session: $this->userSession);
 		if ($auth !== null) {
 			return $auth;
+		}
+
+		if ($this->breakdowns->canReadRound(roundId: $id) === false) {
+			return new JSONResponse(['message' => 'You cannot see this voting round.'], Http::STATUS_FORBIDDEN);
 		}
 
 		$result = $this->breakdowns->forRound(roundId: $id);

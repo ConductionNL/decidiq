@@ -57,6 +57,20 @@ class VoteBreakdownService {
 	}//end __construct()
 
 	/**
+	 * Whether the current user can read the round. OpenRegister decides: the
+	 * round is looked up with the user's own rights.
+	 *
+	 * @param string $roundId The voting round UUID
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
+	 */
+	public function canReadRound(string $roundId): bool {
+		return $this->objectService->find(id: $roundId, register: 'decidiq', schema: 'voting-round') !== null;
+	}//end canReadRound()
+
+	/**
 	 * The breakdown of one round, or null when the round cannot be read by
 	 * the current user (OpenRegister's own access rules decide).
 	 *

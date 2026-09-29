@@ -50,6 +50,7 @@ class VoteBreakdownControllerTest extends TestCase {
 		$session->method('getUser')->willReturn($loggedIn ? $this->createMock(IUser::class) : null);
 		$service = $this->createMock(VoteBreakdownService::class);
 		$service->method('forRound')->willReturn($result);
+		$service->method('canReadRound')->willReturn($result !== null);
 
 		return new VoteBreakdownController($this->createMock(IRequest::class), $service, $session);
 	}//end makeController()
@@ -68,15 +69,15 @@ class VoteBreakdownControllerTest extends TestCase {
 	}//end testAMemberReadsTheBreakdown()
 
 	/**
-	 * A round the user cannot read is not found.
+	 * A round the user cannot read is refused.
 	 *
 	 * @return void
 	 */
-	public function testAnUnreadableRoundIsNotFound(): void {
+	public function testAnUnreadableRoundIsRefused(): void {
 		$response = $this->makeController(loggedIn: true, result: null)->show(id: 'round-1');
 
-		self::assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
-	}//end testAnUnreadableRoundIsNotFound()
+		self::assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}//end testAnUnreadableRoundIsRefused()
 
 	/**
 	 * Without a login nothing is shown.
