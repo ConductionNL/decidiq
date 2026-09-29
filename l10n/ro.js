@@ -1272,7 +1272,10 @@ OC.L10N.register(
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Punctul pe care îl tratează acum președintele. Ecranele membrilor și ecranul sălii îl urmează.",
         "Contributions on this item": "Intervenții la acest punct",
         "{name} spoke for {time}": "{name} a vorbit {time}",
-        "{name} raised a question": "{name} a pus o întrebare"
+        "{name} raised a question": "{name} a pus o întrebare",
+        "Meeting recording": "Înregistrarea ședinței",
+        "Play from here": "Redă de aici",
+        "Play the recording from {title}": "Redă înregistrarea de la {title}"
     },
     "nplurals=2; plural=(n != 1);"
 )

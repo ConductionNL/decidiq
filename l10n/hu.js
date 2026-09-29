@@ -1272,7 +1272,10 @@ OC.L10N.register(
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Az a pont, amelyet az elnök most tárgyal. A tagok és a terem kijelzője ezt követi.",
         "Contributions on this item": "Hozzászólások ehhez a ponthoz",
         "{name} spoke for {time}": "{name} {time} ideig beszélt",
-        "{name} raised a question": "{name} kérdést tett fel"
+        "{name} raised a question": "{name} kérdést tett fel",
+        "Meeting recording": "Az ülés felvétele",
+        "Play from here": "Lejátszás innen",
+        "Play the recording from {title}": "A felvétel lejátszása innen: {title}"
     },
     "nplurals=2; plural=(n != 1);"
 )

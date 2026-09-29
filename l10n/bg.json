@@ -1271,7 +1271,10 @@
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Точката, която председателят разглежда сега. Екраните на членовете и екранът в залата я следват.",
         "Contributions on this item": "Изказвания по тази точка",
         "{name} spoke for {time}": "{name} говори {time}",
-        "{name} raised a question": "{name} зададе въпрос"
+        "{name} raised a question": "{name} зададе въпрос",
+        "Meeting recording": "Запис на заседанието",
+        "Play from here": "Пусни оттук",
+        "Play the recording from {title}": "Пусни записа от {title}"
     },
     "plurals": null
 }
