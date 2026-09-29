@@ -8,8 +8,8 @@
 - **acceptance_criteria**:
   - GIVEN an open round with 5 ballots from two factions WHEN the motion page opens THEN each voter is named and each faction shows its counts
   - GIVEN a secret round THEN only totals show
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ## Verification
 

@@ -1127,7 +1127,12 @@ OC.L10N.register(
         "The signing round did not finish. You can send it again.": "Krug potpisivanja nije završen. Možete ga ponovno poslati.",
         "Failed to save the signers.": "Potpisnike nije moguće spremiti.",
         "Could not send it for signature.": "Nije moguće poslati na potpis.",
-        "Signing the decision list": "Potpisivanje popisa odluka"
+        "Signing the decision list": "Potpisivanje popisa odluka",
+        "{faction}: {for} for, {against} against, {abstain} abstain": "{faction}: {for} za, {against} protiv, {abstain} suzdržano",
+        "{name} (cast by {proxy})": "{name} (glasao/la {proxy})",
+        "Per faction": "Po klubu",
+        "Secret vote": "Tajno glasanje",
+        "Secret vote: only the totals are shown.": "Tajno glasanje: prikazuju se samo ukupni rezultati."
     },
     "nplurals=2; plural=(n != 1);"
 )

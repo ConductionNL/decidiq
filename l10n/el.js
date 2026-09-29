@@ -1127,7 +1127,12 @@ OC.L10N.register(
         "The signing round did not finish. You can send it again.": "Ο γύρος υπογραφής δεν ολοκληρώθηκε. Μπορείτε να το στείλετε ξανά.",
         "Failed to save the signers.": "Δεν ήταν δυνατή η αποθήκευση των υπογραφόντων.",
         "Could not send it for signature.": "Δεν ήταν δυνατή η αποστολή για υπογραφή.",
-        "Signing the decision list": "Υπογραφή του καταλόγου αποφάσεων"
+        "Signing the decision list": "Υπογραφή του καταλόγου αποφάσεων",
+        "{faction}: {for} for, {against} against, {abstain} abstain": "{faction}: {for} υπέρ, {against} κατά, {abstain} αποχή",
+        "{name} (cast by {proxy})": "{name} (ψήφισε ο/η {proxy})",
+        "Per faction": "Ανά παράταξη",
+        "Secret vote": "Μυστική ψηφοφορία",
+        "Secret vote: only the totals are shown.": "Μυστική ψηφοφορία: εμφανίζονται μόνο τα σύνολα."
     },
     "nplurals=2; plural=(n != 1);"
 )

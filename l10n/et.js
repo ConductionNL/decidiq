@@ -1127,7 +1127,12 @@ OC.L10N.register(
         "The signing round did not finish. You can send it again.": "Allkirjastamisvoor ei lõppenud. Saate selle uuesti saata.",
         "Failed to save the signers.": "Allkirjastajate salvestamine ebaõnnestus.",
         "Could not send it for signature.": "Allkirjastamiseks saatmine ebaõnnestus.",
-        "Signing the decision list": "Otsuste loetelu allkirjastamine"
+        "Signing the decision list": "Otsuste loetelu allkirjastamine",
+        "{faction}: {for} for, {against} against, {abstain} abstain": "{faction}: {for} poolt, {against} vastu, {abstain} erapooletu",
+        "{name} (cast by {proxy})": "{name} (hääletas {proxy})",
+        "Per faction": "Fraktsiooniti",
+        "Secret vote": "Salajane hääletus",
+        "Secret vote: only the totals are shown.": "Salajane hääletus: näidatakse ainult kokkuvõtet."
     },
     "nplurals=2; plural=(n != 1);"
 )

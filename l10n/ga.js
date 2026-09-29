@@ -1127,7 +1127,12 @@ OC.L10N.register(
         "The signing round did not finish. You can send it again.": "Níor críochnaíodh an babhta sínithe. Is féidir leat é a sheoladh arís.",
         "Failed to save the signers.": "Níorbh fhéidir na sínitheoirí a shábháil.",
         "Could not send it for signature.": "Níorbh fhéidir é a sheoladh le síniú.",
-        "Signing the decision list": "Liosta na gcinntí a shíniú"
+        "Signing the decision list": "Liosta na gcinntí a shíniú",
+        "{faction}: {for} for, {against} against, {abstain} abstain": "{faction}: {for} ar son, {against} i gcoinne, {abstain} staonadh",
+        "{name} (cast by {proxy})": "{name} (caite ag {proxy})",
+        "Per faction": "De réir grúpa",
+        "Secret vote": "Vóta rúnda",
+        "Secret vote: only the totals are shown.": "Vóta rúnda: ní thaispeántar ach na hiomláin."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1127,7 +1127,12 @@ OC.L10N.register(
         "The signing round did not finish. You can send it again.": "Az aláírási kör nem fejeződött be. Újra elküldheti.",
         "Failed to save the signers.": "Az aláírók mentése nem sikerült.",
         "Could not send it for signature.": "Nem sikerült aláírásra küldeni.",
-        "Signing the decision list": "A határozatlista aláírása"
+        "Signing the decision list": "A határozatlista aláírása",
+        "{faction}: {for} for, {against} against, {abstain} abstain": "{faction}: {for} igen, {against} nem, {abstain} tartózkodás",
+        "{name} (cast by {proxy})": "{name} (leadta: {proxy})",
+        "Per faction": "Frakciónként",
+        "Secret vote": "Titkos szavazás",
+        "Secret vote: only the totals are shown.": "Titkos szavazás: csak az összesítés látható."
     },
     "nplurals=2; plural=(n != 1);"
 )

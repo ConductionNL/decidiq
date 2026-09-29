@@ -1127,7 +1127,12 @@ OC.L10N.register(
         "The signing round did not finish. You can send it again.": "Raundi i nënshkrimit nuk përfundoi. Mund ta dërgoni përsëri.",
         "Failed to save the signers.": "Nënshkruesit nuk u ruajtën dot.",
         "Could not send it for signature.": "Nuk u dërgua dot për nënshkrim.",
-        "Signing the decision list": "Nënshkrimi i listës së vendimeve"
+        "Signing the decision list": "Nënshkrimi i listës së vendimeve",
+        "{faction}: {for} for, {against} against, {abstain} abstain": "{faction}: {for} pro, {against} kundër, {abstain} abstenim",
+        "{name} (cast by {proxy})": "{name} (hedhur nga {proxy})",
+        "Per faction": "Sipas grupit",
+        "Secret vote": "Votim i fshehtë",
+        "Secret vote: only the totals are shown.": "Votim i fshehtë: shfaqen vetëm totalet."
     },
     "nplurals=2; plural=(n != 1);"
 )

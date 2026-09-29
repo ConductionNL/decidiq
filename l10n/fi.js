@@ -1127,7 +1127,12 @@ OC.L10N.register(
         "The signing round did not finish. You can send it again.": "Allekirjoituskierros ei päättynyt. Voit lähettää sen uudelleen.",
         "Failed to save the signers.": "Allekirjoittajien tallentaminen epäonnistui.",
         "Could not send it for signature.": "Allekirjoitettavaksi lähettäminen epäonnistui.",
-        "Signing the decision list": "Päätösluettelon allekirjoittaminen"
+        "Signing the decision list": "Päätösluettelon allekirjoittaminen",
+        "{faction}: {for} for, {against} against, {abstain} abstain": "{faction}: {for} puolesta, {against} vastaan, {abstain} tyhjää",
+        "{name} (cast by {proxy})": "{name} (äänesti {proxy})",
+        "Per faction": "Ryhmittäin",
+        "Secret vote": "Suljettu lippuäänestys",
+        "Secret vote: only the totals are shown.": "Suljettu lippuäänestys: vain kokonaismäärät näytetään."
     },
     "nplurals=2; plural=(n != 1);"
 )

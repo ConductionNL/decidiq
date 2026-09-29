@@ -1127,7 +1127,12 @@ OC.L10N.register(
         "The signing round did not finish. You can send it again.": "Ir-rawnd tal-firma ma spiċċatx. Tista' terġa' tibagħtu.",
         "Failed to save the signers.": "Ma kienx possibbli li jiġu salvati l-firmatarji.",
         "Could not send it for signature.": "Ma kienx possibbli li jintbagħat għall-firma.",
-        "Signing the decision list": "L-iffirmar tal-lista tad-deċiżjonijiet"
+        "Signing the decision list": "L-iffirmar tal-lista tad-deċiżjonijiet",
+        "{faction}: {for} for, {against} against, {abstain} abstain": "{faction}: {for} favur, {against} kontra, {abstain} astensjoni",
+        "{name} (cast by {proxy})": "{name} (mitfugħ minn {proxy})",
+        "Per faction": "Skont il-grupp",
+        "Secret vote": "Vot sigriet",
+        "Secret vote: only the totals are shown.": "Vot sigriet: jintwerew it-totali biss."
     },
     "nplurals=2; plural=(n != 1);"
 )

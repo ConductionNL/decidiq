@@ -1127,7 +1127,12 @@ OC.L10N.register(
         "The signing round did not finish. You can send it again.": "Undirritunarlotunni lauk ekki. Þú getur sent hana aftur.",
         "Failed to save the signers.": "Ekki tókst að vista undirritendur.",
         "Could not send it for signature.": "Ekki tókst að senda til undirritunar.",
-        "Signing the decision list": "Undirritun ákvarðanalistans"
+        "Signing the decision list": "Undirritun ákvarðanalistans",
+        "{faction}: {for} for, {against} against, {abstain} abstain": "{faction}: {for} með, {against} á móti, {abstain} sat hjá",
+        "{name} (cast by {proxy})": "{name} (greitt af {proxy})",
+        "Per faction": "Eftir flokkum",
+        "Secret vote": "Leynileg atkvæðagreiðsla",
+        "Secret vote: only the totals are shown.": "Leynileg atkvæðagreiðsla: aðeins samtölur eru sýndar."
     },
     "nplurals=2; plural=(n != 1);"
 )

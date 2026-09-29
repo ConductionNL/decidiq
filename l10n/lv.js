@@ -1127,7 +1127,12 @@ OC.L10N.register(
         "The signing round did not finish. You can send it again.": "Parakstīšanas kārta netika pabeigta. Varat to nosūtīt vēlreiz.",
         "Failed to save the signers.": "Neizdevās saglabāt parakstītājus.",
         "Could not send it for signature.": "Neizdevās nosūtīt parakstīšanai.",
-        "Signing the decision list": "Lēmumu saraksta parakstīšana"
+        "Signing the decision list": "Lēmumu saraksta parakstīšana",
+        "{faction}: {for} for, {against} against, {abstain} abstain": "{faction}: {for} par, {against} pret, {abstain} atturas",
+        "{name} (cast by {proxy})": "{name} (balsoja {proxy})",
+        "Per faction": "Pa frakcijām",
+        "Secret vote": "Aizklāts balsojums",
+        "Secret vote: only the totals are shown.": "Aizklāts balsojums: tiek rādīti tikai kopsavilkumi."
     },
     "nplurals=2; plural=(n != 1);"
 )

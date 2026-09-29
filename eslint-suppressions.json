@@ -152,14 +152,6 @@
       "count": 2
     }
   },
-  "src/components/tabs/MotionVotesTab.vue": {
-    "eqeqeq": {
-      "count": 2
-    },
-    "jsdoc/require-param-type": {
-      "count": 2
-    }
-  },
   "src/components/tabs/MotionVotingRoundTab.vue": {
     "@typescript-eslint/no-unused-vars": {
       "count": 1

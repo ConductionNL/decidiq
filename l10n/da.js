@@ -1127,7 +1127,12 @@ OC.L10N.register(
         "The signing round did not finish. You can send it again.": "Underskriftsrunden blev ikke færdig. Du kan sende den igen.",
         "Failed to save the signers.": "Underskriverne kunne ikke gemmes.",
         "Could not send it for signature.": "Det kunne ikke sendes til underskrift.",
-        "Signing the decision list": "Underskrift af beslutningslisten"
+        "Signing the decision list": "Underskrift af beslutningslisten",
+        "{faction}: {for} for, {against} against, {abstain} abstain": "{faction}: {for} for, {against} imod, {abstain} undlod",
+        "{name} (cast by {proxy})": "{name} (afgivet af {proxy})",
+        "Per faction": "Pr. fraktion",
+        "Secret vote": "Hemmelig afstemning",
+        "Secret vote: only the totals are shown.": "Hemmelig afstemning: kun totalerne vises."
     },
     "nplurals=2; plural=(n != 1);"
 )

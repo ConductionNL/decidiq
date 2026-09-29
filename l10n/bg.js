@@ -1127,7 +1127,12 @@ OC.L10N.register(
         "The signing round did not finish. You can send it again.": "Подписването не завърши. Можете да го изпратите отново.",
         "Failed to save the signers.": "Подписващите не бяха запазени.",
         "Could not send it for signature.": "Не можа да бъде изпратено за подпис.",
-        "Signing the decision list": "Подписване на списъка с решения"
+        "Signing the decision list": "Подписване на списъка с решения",
+        "{faction}: {for} for, {against} against, {abstain} abstain": "{faction}: {for} за, {against} против, {abstain} въздържал се",
+        "{name} (cast by {proxy})": "{name} (гласувано от {proxy})",
+        "Per faction": "По фракции",
+        "Secret vote": "Тайно гласуване",
+        "Secret vote: only the totals are shown.": "Тайно гласуване: показват се само общите резултати."
     },
     "nplurals=2; plural=(n != 1);"
 )
