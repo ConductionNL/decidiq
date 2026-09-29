@@ -833,7 +833,8 @@
 			"type": "detail",
 			"slots": {
 				"widget-agenda-motions": "AgendaMotionsTab",
-				"widget-agenda-type-fields": "AgendaItemTypeFieldsTab"
+				"widget-agenda-type-fields": "AgendaItemTypeFieldsTab",
+				"widget-agenda-conflicts": "AgendaItemConflictsTab"
 			},
 			"title": "Agenda item",
 			"config": {
@@ -844,13 +845,15 @@
 					{ "id": "agenda-data", "type": "data", "title": "Agenda item", "icon": "ClipboardList", "content": { "columns": 2 } },
 					{ "id": "agenda-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "agenda-type-fields", "type": "custom", "component": "AgendaItemTypeFieldsTab", "title": "Type-specific fields", "icon": "FormatListChecks" },
-					{ "id": "agenda-motions", "type": "custom", "component": "AgendaMotionsTab", "title": "Motions", "icon": "Gavel" }
+					{ "id": "agenda-motions", "type": "custom", "component": "AgendaMotionsTab", "title": "Motions", "icon": "Gavel" },
+					{ "id": "agenda-conflicts", "type": "custom", "component": "AgendaItemConflictsTab", "title": "Conflicts of interest", "icon": "AlertOctagonOutline", "_note": "bodies-conflict-of-interest-recusal (bod-10): declarations on this agenda item; a member declares here and may keep herself out of the vote on it and its motions." }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "agenda-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
 					{ "id": "2", "widgetId": "agenda-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
 					{ "id": "4", "widgetId": "agenda-type-fields", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 5 },
-					{ "id": "3", "widgetId": "agenda-motions", "gridX": 0, "gridY": 11, "gridWidth": 12, "gridHeight": 6 }
+					{ "id": "3", "widgetId": "agenda-motions", "gridX": 0, "gridY": 11, "gridWidth": 12, "gridHeight": 6 },
+					{ "id": "5", "widgetId": "agenda-conflicts", "gridX": 0, "gridY": 17, "gridWidth": 12, "gridHeight": 4 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -920,7 +923,8 @@
 				"widget-motion-amendment-order": "MotionAmendmentOrderTab",
 				"widget-motion-voting-round": "MotionVotingRoundTab",
 				"widget-motion-citizen-advice": "MotionCitizenAdviceTab",
-				"widget-motion-signers": "MotionSignersTab"
+				"widget-motion-signers": "MotionSignersTab",
+				"widget-motion-conflicts": "MotionConflictsTab"
 			},
 			"title": "Motion",
 			"config": {
@@ -935,7 +939,8 @@
 					{ "id": "motion-amendment-order", "type": "custom", "component": "MotionAmendmentOrderTab", "title": "Voting order", "icon": "TableColumn" },
 					{ "id": "motion-voting-round", "type": "custom", "component": "MotionVotingRoundTab", "title": "Voting round", "icon": "Gavel" },
 					{ "id": "motion-citizen-advice", "type": "custom", "component": "MotionCitizenAdviceTab", "title": "Advisory vote by residents", "icon": "AccountVoice" },
-					{ "id": "motion-signers", "type": "custom", "component": "MotionSignersTab", "title": "Signers", "icon": "FileSign" }
+					{ "id": "motion-signers", "type": "custom", "component": "MotionSignersTab", "title": "Signers", "icon": "FileSign" },
+					{ "id": "motion-conflicts", "type": "custom", "component": "MotionConflictsTab", "title": "Conflicts of interest", "icon": "AlertOctagonOutline", "_note": "bodies-conflict-of-interest-recusal (bod-10): declarations on this motion and on its agenda item; a member declares here and may keep herself out of the vote." }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "motion-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 5 },
@@ -945,7 +950,8 @@
 					{ "id": "5", "widgetId": "motion-amendment-order", "gridX": 0, "gridY": 16, "gridWidth": 6, "gridHeight": 5 },
 					{ "id": "6", "widgetId": "motion-voting-round", "gridX": 6, "gridY": 16, "gridWidth": 6, "gridHeight": 5 },
 					{ "id": "7", "widgetId": "motion-citizen-advice", "gridX": 6, "gridY": 21, "gridWidth": 6, "gridHeight": 4 },
-					{ "id": "8", "widgetId": "motion-signers", "gridX": 0, "gridY": 21, "gridWidth": 6, "gridHeight": 4 }
+					{ "id": "8", "widgetId": "motion-signers", "gridX": 0, "gridY": 21, "gridWidth": 6, "gridHeight": 4 },
+					{ "id": "9", "widgetId": "motion-conflicts", "gridX": 0, "gridY": 25, "gridWidth": 12, "gridHeight": 4 }
 				],
 				"sidebar": {
 					"enabled": true,

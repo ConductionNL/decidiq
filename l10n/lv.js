@@ -1158,7 +1158,23 @@ OC.L10N.register(
         "The meeting %s is coming up": "Tuvojas sēde %s",
         "The submission deadline of %s is coming up": "Tuvojas %s iesniegšanas termiņš",
         "It starts on %s.": "Sākas %s.",
-        "Motions and amendments can be submitted until %s.": "Priekšlikumus un grozījumus var iesniegt līdz %s."
+        "Motions and amendments can be submitted until %s.": "Priekšlikumus un grozījumus var iesniegt līdz %s.",
+        "Conflicts of interest": "Interešu konflikti",
+        "Declare a conflict of interest": "Deklarēt interešu konfliktu",
+        "Kind of interest": "Intereses veids",
+        "Reason": "Iemesls",
+        "For example: I own land in the plan area": "Piemēram: man pieder zeme plānojuma teritorijā",
+        "I will not vote on this": "Par to es nebalsošu",
+        "Declare": "Deklarēt",
+        "Financial interest": "Finansiāla interese",
+        "Personal relationship": "Personiskas attiecības",
+        "Competing business": "Konkurējošs uzņēmums",
+        "Earlier involvement": "Iepriekšēja iesaiste",
+        "No one has declared a conflict of interest here.": "Šeit neviens nav deklarējis interešu konfliktu.",
+        "Does not vote": "Nebalso",
+        "A member": "Kāds loceklis",
+        "Could not load the declarations.": "Neizdevās ielādēt deklarācijas.",
+        "Could not record the declaration.": "Neizdevās saglabāt deklarāciju."
     },
     "nplurals=2; plural=(n != 1);"
 )

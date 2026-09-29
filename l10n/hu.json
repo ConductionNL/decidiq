@@ -1157,7 +1157,23 @@
         "The meeting %s is coming up": "Közeleg a(z) %s ülés",
         "The submission deadline of %s is coming up": "Közeleg a(z) %s benyújtási határideje",
         "It starts on %s.": "Kezdés: %s.",
-        "Motions and amendments can be submitted until %s.": "Indítványok és módosítók %s-ig nyújthatók be."
+        "Motions and amendments can be submitted until %s.": "Indítványok és módosítók %s-ig nyújthatók be.",
+        "Conflicts of interest": "Összeférhetetlenségek",
+        "Declare a conflict of interest": "Összeférhetetlenség bejelentése",
+        "Kind of interest": "Az érdek fajtája",
+        "Reason": "Indok",
+        "For example: I own land in the plan area": "Például: földem van a tervterületen",
+        "I will not vote on this": "Erről nem szavazok",
+        "Declare": "Bejelentés",
+        "Financial interest": "Pénzügyi érdek",
+        "Personal relationship": "Személyes kapcsolat",
+        "Competing business": "Versengő vállalkozás",
+        "Earlier involvement": "Korábbi érintettség",
+        "No one has declared a conflict of interest here.": "Itt senki nem jelentett be összeférhetetlenséget.",
+        "Does not vote": "Nem szavaz",
+        "A member": "Egy tag",
+        "Could not load the declarations.": "A bejelentések nem tölthetők be.",
+        "Could not record the declaration.": "A bejelentés nem rögzíthető."
     },
     "plurals": null
 }

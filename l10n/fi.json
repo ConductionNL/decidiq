@@ -1157,7 +1157,23 @@
         "The meeting %s is coming up": "Kokous %s lähestyy",
         "The submission deadline of %s is coming up": "Kokouksen %s jättöaika päättyy pian",
         "It starts on %s.": "Alkaa %s.",
-        "Motions and amendments can be submitted until %s.": "Aloitteita ja muutosehdotuksia voi jättää %s asti."
+        "Motions and amendments can be submitted until %s.": "Aloitteita ja muutosehdotuksia voi jättää %s asti.",
+        "Conflicts of interest": "Eturistiriidat",
+        "Declare a conflict of interest": "Ilmoita eturistiriita",
+        "Kind of interest": "Edun laji",
+        "Reason": "Syy",
+        "For example: I own land in the plan area": "Esimerkiksi: omistan maata kaava-alueella",
+        "I will not vote on this": "En äänestä tästä",
+        "Declare": "Ilmoita",
+        "Financial interest": "Taloudellinen etu",
+        "Personal relationship": "Henkilökohtainen suhde",
+        "Competing business": "Kilpaileva yritys",
+        "Earlier involvement": "Aiempi osallisuus",
+        "No one has declared a conflict of interest here.": "Kukaan ei ole ilmoittanut eturistiriitaa tässä.",
+        "Does not vote": "Ei äänestä",
+        "A member": "Jäsen",
+        "Could not load the declarations.": "Ilmoituksia ei voitu ladata.",
+        "Could not record the declaration.": "Ilmoitusta ei voitu tallentaa."
     },
     "plurals": null
 }

@@ -1157,7 +1157,23 @@
         "The meeting %s is coming up": "Il-laqgħa %s qed toqrob",
         "The submission deadline of %s is coming up": "L-iskadenza għas-sottomissjoni ta' %s qed toqrob",
         "It starts on %s.": "Tibda fil-%s.",
-        "Motions and amendments can be submitted until %s.": "Mozzjonijiet u emendi jistgħu jiġu sottomessi sa %s."
+        "Motions and amendments can be submitted until %s.": "Mozzjonijiet u emendi jistgħu jiġu sottomessi sa %s.",
+        "Conflicts of interest": "Kunflitti ta' interess",
+        "Declare a conflict of interest": "Iddikjara kunflitt ta' interess",
+        "Kind of interest": "Tip ta' interess",
+        "Reason": "Raġuni",
+        "For example: I own land in the plan area": "Pereżempju: għandi art fiż-żona tal-pjan",
+        "I will not vote on this": "Mhux se nivvota fuq dan",
+        "Declare": "Iddikjara",
+        "Financial interest": "Interess finanzjarju",
+        "Personal relationship": "Relazzjoni personali",
+        "Competing business": "Negozju kompetittiv",
+        "Earlier involvement": "Involviment preċedenti",
+        "No one has declared a conflict of interest here.": "Ħadd ma ddikjara kunflitt ta' interess hawn.",
+        "Does not vote": "Ma jivvotax",
+        "A member": "Membru",
+        "Could not load the declarations.": "Ma setgħux jitgħabbew id-dikjarazzjonijiet.",
+        "Could not record the declaration.": "Id-dikjarazzjoni ma setgħetx tiġi rreġistrata."
     },
     "plurals": null
 }

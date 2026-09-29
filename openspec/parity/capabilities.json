@@ -692,14 +692,15 @@
 			"area": "bodies",
 			"name": "Declare a conflict of interest on a topic and keep that member out of the vote on it.",
 			"origin": "code",
-			"decidiq": "no",
+			"decidiq": "yes",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Controller/ConflictOfInterestController.php + lib/Service/ConflictOfInterestService.php:126 declare(), :292 recordAction() (recused-from-vote), routes appinfo/routes.php:192-194 POST /api/conflicts; grep '/conflicts' and 'conflict' under src/: no caller; no manifest page for schema conflict-of-interest; getActiveConflicts() (ConflictOfInterestService.php:380) is called only by the controller, not by VoteCastGuard/VoteCastingService/VotingRoundGuard",
+				"state": "built",
+				"evidence": "lib/Service/RecusalGuard.php assertNotRecused() called from VoteCastingService::castVote() refuses the ballot of a member recused (recused-from-vote or recused-from-discussion) on the round's motion, amendment, parent motion or agenda item, naming the declaration; POST /api/conflicts without membershipId declares for the logged-in member, recuseFromVote stores recused-from-vote; src/components/tabs/ConflictsTab.vue + src/dialogs/ConflictDeclareDialog.vue on MotionDetail and AgendaItemDetail; VotingRoundPanel eligible count leaves recused members out (src/utils/conflicts.js)",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/bodies-conflict-of-interest-recusal"
+				"change": "2026-09-29-bodies-conflict-of-interest-recusal",
+				"readOn": "2026-09-29"
 			},
-			"reachedOn": "API only: POST /api/conflicts, PUT /api/conflicts/{id}/action",
+			"reachedOn": "MotionDetail (/motions/:id) and AgendaItemDetail (/agenda-items/:id) Conflicts of interest widget; POST /api/voting-rounds/{id}/cast refuses a recused member",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "conflict-of-interest",

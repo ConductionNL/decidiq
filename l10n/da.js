@@ -1158,7 +1158,23 @@ OC.L10N.register(
         "The meeting %s is coming up": "Mødet %s nærmer sig",
         "The submission deadline of %s is coming up": "Fristen for indsendelse til %s nærmer sig",
         "It starts on %s.": "Det begynder %s.",
-        "Motions and amendments can be submitted until %s.": "Forslag og ændringsforslag kan indsendes indtil %s."
+        "Motions and amendments can be submitted until %s.": "Forslag og ændringsforslag kan indsendes indtil %s.",
+        "Conflicts of interest": "Interessekonflikter",
+        "Declare a conflict of interest": "Meld en interessekonflikt",
+        "Kind of interest": "Type interesse",
+        "Reason": "Begrundelse",
+        "For example: I own land in the plan area": "For eksempel: jeg ejer jord i planområdet",
+        "I will not vote on this": "Jeg stemmer ikke om dette",
+        "Declare": "Meld",
+        "Financial interest": "Økonomisk interesse",
+        "Personal relationship": "Personlig relation",
+        "Competing business": "Konkurrerende virksomhed",
+        "Earlier involvement": "Tidligere involvering",
+        "No one has declared a conflict of interest here.": "Ingen har meldt en interessekonflikt her.",
+        "Does not vote": "Stemmer ikke",
+        "A member": "Et medlem",
+        "Could not load the declarations.": "Meldingerne kunne ikke indlæses.",
+        "Could not record the declaration.": "Meldingen kunne ikke registreres."
     },
     "nplurals=2; plural=(n != 1);"
 )

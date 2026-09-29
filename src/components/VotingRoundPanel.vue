@@ -287,7 +287,7 @@
 					{{
 						t('decidiq', 'Cast: {cast} / {total}', {
 							cast: tallyTotal,
-							total: participantCount,
+							total: eligibleVoters,
 						})
 					}}
 				</p>
@@ -532,6 +532,7 @@ import { NcButton, NcTextField } from '@nextcloud/vue'
 import RankedBallot from './RankedBallot.vue'
 import RankedResultsCard from './RankedResultsCard.vue'
 import { useObjectStore } from '../store/store.js'
+import { eligibleCount } from '../utils/conflicts.js'
 import { matching, relationFilterFor } from '../utils/objectRelations.js'
 import {
 	chosenRules,
@@ -548,6 +549,7 @@ import {
 	TIE_BREAK_RULES,
 	VOTE_THRESHOLDS,
 } from '../utils/votingRules.js'
+import { ensureRelationType } from './tabs/useRelationStore.js'
 
 export default {
 	name: 'VotingRoundPanel',
@@ -566,6 +568,8 @@ export default {
 		motionId: { type: String, required: true },
 		motionLifecycle: { type: String, default: '' },
 		meetingId: { type: String, default: '' },
+		/** The agenda item the motion is tabled under: its recusals count too (bod-10) */
+		agendaItemId: { type: String, default: '' },
 		subjectType: {
 			type: String,
 			default: 'motion',
@@ -611,6 +615,7 @@ export default {
 			chairCastingError: null,
 			pollInterval: null,
 			participantCount: 0,
+			declarations: [],
 			// The server's answer on which controls this user may use
 			// (REQ-VCR-002); every control hidden until it arrives.
 			permissions: { ...NO_VOTING_PERMISSIONS },
@@ -618,6 +623,20 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The members who may vote: participants minus those recused on the
+		 * motion or its agenda item (bod-10).
+		 *
+		 * @return {number}
+		 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-002-a-recused-member-cannot-vote-on-the-matter
+		 */
+		eligibleVoters() {
+			return eligibleCount(this.participantCount, this.declarations, [
+				this.motionId,
+				this.agendaItemId,
+			])
+		},
+
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
 		roundId() {
 			if (!this.currentRound) return null
@@ -795,6 +814,30 @@ export default {
 			}
 		},
 
+		/**
+		 * Load the declarations on the motion and its agenda item; a failure
+		 * leaves the count at all participants.
+		 *
+		 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-002-a-recused-member-cannot-vote-on-the-matter
+		 */
+		async loadDeclarations() {
+			try {
+				const store = ensureRelationType('conflict-of-interest')
+				const ids = [this.motionId, this.agendaItemId].filter(Boolean)
+				const lists = await Promise.all(
+					ids.map((id) =>
+						store.fetchCollection('conflict-of-interest', {
+							agendaItem: id,
+							_limit: 100,
+						}),
+					),
+				)
+				this.declarations = lists.flat().filter(Boolean)
+			} catch {
+				this.declarations = []
+			}
+		},
+
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
 		async fetchCurrentRound() {
 			this.loading = true
@@ -840,7 +883,8 @@ export default {
 					)[0]
 				this.currentRound = open || recent || null
 				this.participantCount = participants?.length ?? 0
-			} catch (e) {
+				await this.loadDeclarations()
+			} catch {
 				this.currentRound = null
 			} finally {
 				this.loading = false
@@ -880,7 +924,7 @@ export default {
 					this.castVoteError =
 						data.message || this.t('decidiq', 'Failed to cast vote')
 				}
-			} catch (e) {
+			} catch {
 				this.castVoteError = this.t('decidiq', 'Failed to cast vote')
 			}
 		},
@@ -924,7 +968,7 @@ export default {
 						data.message
 						|| this.t('decidiq', 'Failed to open voting round')
 				}
-			} catch (e) {
+			} catch {
 				this.openRoundError = this.t(
 					'decidiq',
 					'Failed to open voting round',
@@ -1025,7 +1069,7 @@ export default {
 				if (resp.ok) {
 					await this.fetchCurrentRound()
 				}
-			} catch (e) {
+			} catch {
 				// ignore
 			}
 		},
@@ -1060,7 +1104,7 @@ export default {
 					this.chairCastingError =
 						data.message || this.t('decidiq', 'Casting vote failed')
 				}
-			} catch (e) {
+			} catch {
 				this.chairCastingError = this.t('decidiq', 'Casting vote failed')
 			}
 		},
@@ -1121,7 +1165,7 @@ export default {
 				if (resp.ok) {
 					await this.fetchCurrentRound()
 				}
-			} catch (e) {
+			} catch {
 				// ignore
 			}
 		},
@@ -1149,7 +1193,7 @@ export default {
 					this.activeProxy = this.proxyToId
 					this.showProxyDialog = false
 				}
-			} catch (e) {
+			} catch {
 				// ignore
 			}
 		},
@@ -1173,7 +1217,7 @@ export default {
 				if (resp.ok) {
 					this.activeProxy = null
 				}
-			} catch (e) {
+			} catch {
 				// ignore
 			}
 		},
@@ -1197,7 +1241,7 @@ export default {
 					const data = await resp.json()
 					this.oriStatus = data.status
 				}
-			} catch (e) {
+			} catch {
 				// ignore
 			}
 		},

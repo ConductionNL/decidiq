@@ -1157,7 +1157,23 @@
         "The meeting %s is coming up": "Artėja posėdis %s",
         "The submission deadline of %s is coming up": "Artėja %s pateikimo terminas",
         "It starts on %s.": "Prasideda %s.",
-        "Motions and amendments can be submitted until %s.": "Pasiūlymus ir pataisas galima pateikti iki %s."
+        "Motions and amendments can be submitted until %s.": "Pasiūlymus ir pataisas galima pateikti iki %s.",
+        "Conflicts of interest": "Interesų konfliktai",
+        "Declare a conflict of interest": "Deklaruoti interesų konfliktą",
+        "Kind of interest": "Intereso rūšis",
+        "Reason": "Priežastis",
+        "For example: I own land in the plan area": "Pavyzdžiui: turiu žemės plano teritorijoje",
+        "I will not vote on this": "Dėl to nebalsuosiu",
+        "Declare": "Deklaruoti",
+        "Financial interest": "Finansinis interesas",
+        "Personal relationship": "Asmeninis ryšys",
+        "Competing business": "Konkuruojantis verslas",
+        "Earlier involvement": "Ankstesnis dalyvavimas",
+        "No one has declared a conflict of interest here.": "Čia niekas nedeklaravo interesų konflikto.",
+        "Does not vote": "Nebalsuoja",
+        "A member": "Narys",
+        "Could not load the declarations.": "Nepavyko įkelti deklaracijų.",
+        "Could not record the declaration.": "Nepavyko įrašyti deklaracijos."
     },
     "plurals": null
 }

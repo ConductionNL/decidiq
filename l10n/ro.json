@@ -1157,7 +1157,23 @@
         "The meeting %s is coming up": "Se apropie ședința %s",
         "The submission deadline of %s is coming up": "Se apropie termenul de depunere pentru %s",
         "It starts on %s.": "Începe la %s.",
-        "Motions and amendments can be submitted until %s.": "Moțiunile și amendamentele pot fi depuse până la %s."
+        "Motions and amendments can be submitted until %s.": "Moțiunile și amendamentele pot fi depuse până la %s.",
+        "Conflicts of interest": "Conflicte de interese",
+        "Declare a conflict of interest": "Declarați un conflict de interese",
+        "Kind of interest": "Tipul interesului",
+        "Reason": "Motiv",
+        "For example: I own land in the plan area": "De exemplu: dețin teren în zona planului",
+        "I will not vote on this": "Nu voi vota în această privință",
+        "Declare": "Declarați",
+        "Financial interest": "Interes financiar",
+        "Personal relationship": "Relație personală",
+        "Competing business": "Afacere concurentă",
+        "Earlier involvement": "Implicare anterioară",
+        "No one has declared a conflict of interest here.": "Nimeni nu a declarat aici un conflict de interese.",
+        "Does not vote": "Nu votează",
+        "A member": "Un membru",
+        "Could not load the declarations.": "Declarațiile nu au putut fi încărcate.",
+        "Could not record the declaration.": "Declarația nu a putut fi înregistrată."
     },
     "plurals": null
 }

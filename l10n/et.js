@@ -1158,7 +1158,23 @@ OC.L10N.register(
         "The meeting %s is coming up": "Koosolek %s on tulemas",
         "The submission deadline of %s is coming up": "%s esitamise tähtaeg läheneb",
         "It starts on %s.": "Algab %s.",
-        "Motions and amendments can be submitted until %s.": "Ettepanekuid ja muudatusettepanekuid saab esitada kuni %s."
+        "Motions and amendments can be submitted until %s.": "Ettepanekuid ja muudatusettepanekuid saab esitada kuni %s.",
+        "Conflicts of interest": "Huvide konfliktid",
+        "Declare a conflict of interest": "Deklareeri huvide konflikt",
+        "Kind of interest": "Huvi liik",
+        "Reason": "Põhjus",
+        "For example: I own land in the plan area": "Näiteks: mul on maad planeeringualal",
+        "I will not vote on this": "Ma ei hääleta selle üle",
+        "Declare": "Deklareeri",
+        "Financial interest": "Rahaline huvi",
+        "Personal relationship": "Isiklik suhe",
+        "Competing business": "Konkureeriv ettevõte",
+        "Earlier involvement": "Varasem osalus",
+        "No one has declared a conflict of interest here.": "Keegi pole siin huvide konflikti deklareerinud.",
+        "Does not vote": "Ei hääleta",
+        "A member": "Liige",
+        "Could not load the declarations.": "Deklaratsioone ei õnnestunud laadida.",
+        "Could not record the declaration.": "Deklaratsiooni ei õnnestunud salvestada."
     },
     "nplurals=2; plural=(n != 1);"
 )

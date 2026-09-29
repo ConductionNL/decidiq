@@ -7,8 +7,8 @@
 - **files**: `src/dialogs/ConflictDeclareDialog.vue`, `src/manifest.json`
 - **acceptance_criteria**:
   - GIVEN a member on a motion page WHEN she declares a conflict with a reason THEN a declaration is stored and listed on the page
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ### Task 2: Recusal keeps the member out of the vote
 - **spec_ref**: `openspec/changes/bodies-conflict-of-interest-recusal/specs/conflict-of-interest/spec.md#requirement-req-coir-002-a-recused-member-cannot-vote-on-the-matter`
@@ -16,8 +16,8 @@
 - **acceptance_criteria**:
   - GIVEN an active recusal on a motion WHEN that member casts a ballot THEN the cast is refused with a message
   - GIVEN a recused member WHEN totals are computed THEN she is not in the eligible count
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ## Verification
 

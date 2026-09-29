@@ -24,6 +24,7 @@
  */
 
 import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
+import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
 import AgendaItemTypeFieldsTab from './components/tabs/AgendaItemTypeFieldsTab.vue'
 import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
 import AgendaPublicationTab from './components/tabs/AgendaPublicationTab.vue'
@@ -68,6 +69,7 @@ import MinutesSignersTab from './components/tabs/MinutesSignersTab.vue'
 import MotionAmendmentOrderTab from './components/tabs/MotionAmendmentOrderTab.vue'
 import MotionAmendmentsTab from './components/tabs/MotionAmendmentsTab.vue'
 import MotionCitizenAdviceTab from './components/tabs/MotionCitizenAdviceTab.vue'
+import MotionConflictsTab from './components/tabs/MotionConflictsTab.vue'
 import MotionSignersTab from './components/tabs/MotionSignersTab.vue'
 import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
 import MotionVotingRoundTab from './components/tabs/MotionVotingRoundTab.vue'
@@ -247,6 +249,8 @@ export default {
 	// signing-external-service-with-order (min-17): the same Signers widget on
 	// motions and on a meeting's decision list.
 	MotionSignersTab: page(MotionSignersTab),
+	MotionConflictsTab: page(MotionConflictsTab),
+	AgendaItemConflictsTab: page(AgendaItemConflictsTab),
 	DecisionListSignersTab: page(DecisionListSignersTab),
 	MinutesItemNotesTab: page(MinutesItemNotesTab),
 	MeetingTechnicalQuestionsTab: page(MeetingTechnicalQuestionsTab),
