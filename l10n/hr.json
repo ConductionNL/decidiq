@@ -1173,7 +1173,22 @@
         "Does not vote": "Ne glasuje",
         "A member": "Član",
         "Could not load the declarations.": "Prijave nije bilo moguće učitati.",
-        "Could not record the declaration.": "Prijavu nije bilo moguće spremiti."
+        "Could not record the declaration.": "Prijavu nije bilo moguće spremiti.",
+        "Submit motion": "Podnesi prijedlog",
+        "Start the debate": "Započni raspravu",
+        "Put to the vote": "Stavi na glasovanje",
+        "Record as adopted": "Evidentiraj kao prihvaćeno",
+        "Record as rejected": "Evidentiraj kao odbijeno",
+        "Mark as carried out": "Označi kao provedeno",
+        "Archive motion": "Arhiviraj prijedlog",
+        "Withdraw motion": "Povuci prijedlog",
+        "In debate": "U raspravi",
+        "Being voted on": "Na glasovanju",
+        "Carried out": "Provedeno",
+        "Decision taken": "Odlučeno",
+        "Themes": "Teme",
+        "Theme": "Tema",
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Još nema tema. Dodajte teme politike na koje se odnose vaši prijedlozi, npr. stanovanje ili klima."
     },
     "plurals": null
 }

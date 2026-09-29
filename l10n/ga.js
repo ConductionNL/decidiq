@@ -1174,7 +1174,22 @@ OC.L10N.register(
         "Does not vote": "Ní vótálann",
         "A member": "Ball",
         "Could not load the declarations.": "Níorbh fhéidir na dearbhuithe a luchtú.",
-        "Could not record the declaration.": "Níorbh fhéidir an dearbhú a thaifeadadh."
+        "Could not record the declaration.": "Níorbh fhéidir an dearbhú a thaifeadadh.",
+        "Submit motion": "Cuir an rún isteach",
+        "Start the debate": "Tosaigh an díospóireacht",
+        "Put to the vote": "Cuir chun vótála",
+        "Record as adopted": "Taifead mar glactha",
+        "Record as rejected": "Taifead mar diúltaithe",
+        "Mark as carried out": "Marcáil mar curtha i gcrích",
+        "Archive motion": "Cartlannaigh an rún",
+        "Withdraw motion": "Tarraing siar an rún",
+        "In debate": "Faoi dhíospóireacht",
+        "Being voted on": "Á vótáil",
+        "Carried out": "Curtha i gcrích",
+        "Decision taken": "Cinneadh déanta",
+        "Themes": "Téamaí",
+        "Theme": "Téama",
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Níl aon téamaí fós. Cuir leis na téamaí beartais a bhaineann le do rúin, mar thithíocht nó aeráid."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1174,7 +1174,22 @@ OC.L10N.register(
         "Does not vote": "Nu votează",
         "A member": "Un membru",
         "Could not load the declarations.": "Declarațiile nu au putut fi încărcate.",
-        "Could not record the declaration.": "Declarația nu a putut fi înregistrată."
+        "Could not record the declaration.": "Declarația nu a putut fi înregistrată.",
+        "Submit motion": "Depune moțiunea",
+        "Start the debate": "Începe dezbaterea",
+        "Put to the vote": "Supune la vot",
+        "Record as adopted": "Înregistrează ca adoptată",
+        "Record as rejected": "Înregistrează ca respinsă",
+        "Mark as carried out": "Marchează ca executată",
+        "Archive motion": "Arhivează moțiunea",
+        "Withdraw motion": "Retrage moțiunea",
+        "In debate": "În dezbatere",
+        "Being voted on": "În vot",
+        "Carried out": "Executată",
+        "Decision taken": "Decisă",
+        "Themes": "Teme",
+        "Theme": "Temă",
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Încă nu există teme. Adăugați temele de politică ale moțiunilor, precum locuințe sau climă."
     },
     "nplurals=2; plural=(n != 1);"
 )

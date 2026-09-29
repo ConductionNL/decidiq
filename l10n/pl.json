@@ -1173,7 +1173,22 @@
         "Does not vote": "Nie głosuje",
         "A member": "Członek",
         "Could not load the declarations.": "Nie udało się wczytać zgłoszeń.",
-        "Could not record the declaration.": "Nie udało się zapisać zgłoszenia."
+        "Could not record the declaration.": "Nie udało się zapisać zgłoszenia.",
+        "Submit motion": "Złóż wniosek",
+        "Start the debate": "Rozpocznij debatę",
+        "Put to the vote": "Poddaj pod głosowanie",
+        "Record as adopted": "Zapisz jako przyjęty",
+        "Record as rejected": "Zapisz jako odrzucony",
+        "Mark as carried out": "Oznacz jako wykonany",
+        "Archive motion": "Zarchiwizuj wniosek",
+        "Withdraw motion": "Wycofaj wniosek",
+        "In debate": "W debacie",
+        "Being voted on": "W głosowaniu",
+        "Carried out": "Wykonany",
+        "Decision taken": "Rozstrzygnięty",
+        "Themes": "Tematy",
+        "Theme": "Temat",
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Brak tematów. Dodaj tematy polityki, których dotyczą wnioski, np. mieszkalnictwo lub klimat."
     },
     "plurals": null
 }

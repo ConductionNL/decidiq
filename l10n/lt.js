@@ -1174,7 +1174,22 @@ OC.L10N.register(
         "Does not vote": "Nebalsuoja",
         "A member": "Narys",
         "Could not load the declarations.": "Nepavyko įkelti deklaracijų.",
-        "Could not record the declaration.": "Nepavyko įrašyti deklaracijos."
+        "Could not record the declaration.": "Nepavyko įrašyti deklaracijos.",
+        "Submit motion": "Pateikti pasiūlymą",
+        "Start the debate": "Pradėti diskusiją",
+        "Put to the vote": "Teikti balsavimui",
+        "Record as adopted": "Pažymėti kaip priimtą",
+        "Record as rejected": "Pažymėti kaip atmestą",
+        "Mark as carried out": "Pažymėti kaip įvykdytą",
+        "Archive motion": "Archyvuoti pasiūlymą",
+        "Withdraw motion": "Atšaukti pasiūlymą",
+        "In debate": "Svarstoma",
+        "Being voted on": "Balsuojama",
+        "Carried out": "Įvykdyta",
+        "Decision taken": "Nuspręsta",
+        "Themes": "Temos",
+        "Theme": "Tema",
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Temų dar nėra. Pridėkite politikos temas, apie kurias yra jūsų pasiūlymai, pavyzdžiui, būstas ar klimatas."
     },
     "nplurals=2; plural=(n != 1);"
 )

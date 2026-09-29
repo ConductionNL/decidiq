@@ -1174,7 +1174,22 @@ OC.L10N.register(
         "Does not vote": "Stemmer ikke",
         "A member": "Et medlem",
         "Could not load the declarations.": "Meldingerne kunne ikke indlæses.",
-        "Could not record the declaration.": "Meldingen kunne ikke registreres."
+        "Could not record the declaration.": "Meldingen kunne ikke registreres.",
+        "Submit motion": "Indsend forslaget",
+        "Start the debate": "Start debatten",
+        "Put to the vote": "Sæt til afstemning",
+        "Record as adopted": "Registrer som vedtaget",
+        "Record as rejected": "Registrer som forkastet",
+        "Mark as carried out": "Markér som gennemført",
+        "Archive motion": "Arkivér forslaget",
+        "Withdraw motion": "Træk forslaget tilbage",
+        "In debate": "Under debat",
+        "Being voted on": "Til afstemning",
+        "Carried out": "Gennemført",
+        "Decision taken": "Besluttet",
+        "Themes": "Temaer",
+        "Theme": "Tema",
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Ingen temaer endnu. Tilføj de politiske temaer, jeres forslag handler om, fx bolig eller klima."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1174,7 +1174,22 @@ OC.L10N.register(
         "Does not vote": "Não vota",
         "A member": "Um membro",
         "Could not load the declarations.": "Não foi possível carregar as declarações.",
-        "Could not record the declaration.": "Não foi possível registar a declaração."
+        "Could not record the declaration.": "Não foi possível registar a declaração.",
+        "Submit motion": "Apresentar a moção",
+        "Start the debate": "Iniciar o debate",
+        "Put to the vote": "Pôr à votação",
+        "Record as adopted": "Registar como aprovada",
+        "Record as rejected": "Registar como rejeitada",
+        "Mark as carried out": "Marcar como executada",
+        "Archive motion": "Arquivar a moção",
+        "Withdraw motion": "Retirar a moção",
+        "In debate": "Em debate",
+        "Being voted on": "Em votação",
+        "Carried out": "Executada",
+        "Decision taken": "Decidida",
+        "Themes": "Temas",
+        "Theme": "Tema",
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Ainda não há temas. Adicione os temas políticos das suas moções, como habitação ou clima."
     },
     "nplurals=2; plural=(n != 1);"
 )

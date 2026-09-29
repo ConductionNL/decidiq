@@ -1174,7 +1174,22 @@ OC.L10N.register(
         "Does not vote": "Ma jivvotax",
         "A member": "Membru",
         "Could not load the declarations.": "Ma setgħux jitgħabbew id-dikjarazzjonijiet.",
-        "Could not record the declaration.": "Id-dikjarazzjoni ma setgħetx tiġi rreġistrata."
+        "Could not record the declaration.": "Id-dikjarazzjoni ma setgħetx tiġi rreġistrata.",
+        "Submit motion": "Issottometti l-mozzjoni",
+        "Start the debate": "Ibda d-dibattitu",
+        "Put to the vote": "Poġġi għall-vot",
+        "Record as adopted": "Irreġistra bħala adottata",
+        "Record as rejected": "Irreġistra bħala miċħuda",
+        "Mark as carried out": "Immarka bħala mwettqa",
+        "Archive motion": "Arkivja l-mozzjoni",
+        "Withdraw motion": "Irtira l-mozzjoni",
+        "In debate": "Qed tiġi diskussa",
+        "Being voted on": "Qed tiġi vvotata",
+        "Carried out": "Imwettqa",
+        "Decision taken": "Deċiża",
+        "Themes": "Temi",
+        "Theme": "Tema",
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Għad m'hemmx temi. Żid it-temi tal-politika li jittrattaw il-mozzjonijiet tiegħek, bħad-djar jew il-klima."
     },
     "nplurals=2; plural=(n != 1);"
 )

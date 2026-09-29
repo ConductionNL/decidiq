@@ -1174,7 +1174,22 @@ OC.L10N.register(
         "Does not vote": "Nebalso",
         "A member": "Kāds loceklis",
         "Could not load the declarations.": "Neizdevās ielādēt deklarācijas.",
-        "Could not record the declaration.": "Neizdevās saglabāt deklarāciju."
+        "Could not record the declaration.": "Neizdevās saglabāt deklarāciju.",
+        "Submit motion": "Iesniegt priekšlikumu",
+        "Start the debate": "Sākt debates",
+        "Put to the vote": "Nodot balsošanai",
+        "Record as adopted": "Reģistrēt kā pieņemtu",
+        "Record as rejected": "Reģistrēt kā noraidītu",
+        "Mark as carried out": "Atzīmēt kā izpildītu",
+        "Archive motion": "Arhivēt priekšlikumu",
+        "Withdraw motion": "Atsaukt priekšlikumu",
+        "In debate": "Debatēs",
+        "Being voted on": "Balsošanā",
+        "Carried out": "Izpildīts",
+        "Decision taken": "Lēmums pieņemts",
+        "Themes": "Tēmas",
+        "Theme": "Tēma",
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Tēmu vēl nav. Pievienojiet politikas tēmas, par kurām ir jūsu priekšlikumi, piemēram, mājoklis vai klimats."
     },
     "nplurals=2; plural=(n != 1);"
 )

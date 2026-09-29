@@ -1174,7 +1174,22 @@ OC.L10N.register(
         "Does not vote": "Не гласува",
         "A member": "Член",
         "Could not load the declarations.": "Декларациите не можаха да се заредят.",
-        "Could not record the declaration.": "Декларацията не можа да бъде записана."
+        "Could not record the declaration.": "Декларацията не можа да бъде записана.",
+        "Submit motion": "Внасяне на предложението",
+        "Start the debate": "Започване на обсъждането",
+        "Put to the vote": "Поставяне на гласуване",
+        "Record as adopted": "Отбелязване като прието",
+        "Record as rejected": "Отбелязване като отхвърлено",
+        "Mark as carried out": "Отбелязване като изпълнено",
+        "Archive motion": "Архивиране на предложението",
+        "Withdraw motion": "Оттегляне на предложението",
+        "In debate": "В обсъждане",
+        "Being voted on": "В гласуване",
+        "Carried out": "Изпълнено",
+        "Decision taken": "Взето решение",
+        "Themes": "Теми",
+        "Theme": "Тема",
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Все още няма теми. Добавете темите на политиката, за които са вашите предложения, например жилища или климат."
     },
     "nplurals=2; plural=(n != 1);"
 )
