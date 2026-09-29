@@ -27,7 +27,9 @@ test.afterAll(async ({ browser }) => {
 })
 
 // @e2e meeting-workflow::the-chair-opens-the-meeting
-test('the chair opens a convened meeting from the meeting page', async ({ page }) => {
+test('the chair opens a convened meeting from the meeting page', async ({
+	page,
+}) => {
 	const meeting = await createObject(page, ledger, 'meeting', {
 		title: `${tag}-raad`,
 		meetingType: 'regular',
