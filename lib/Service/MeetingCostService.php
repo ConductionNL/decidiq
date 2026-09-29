@@ -278,9 +278,14 @@ class MeetingCostService {
 			return 0;
 		}
 
-		$statuses = (new MeetingAttendanceReader(objectService: $this->objectService, logger: $this->logger))->statusesFor(meetingId: $meetingId);
+		$attendance = new MeetingAttendanceReader(objectService: $this->objectService, logger: $this->logger);
 
-		return $this->countAttendees(results: $results, bodyId: $bodyId, statuses: $statuses);
+		return $this->countAttendees(
+			results: $results,
+			bodyId: $bodyId,
+			attendance: $attendance,
+			statuses: $attendance->statusesFor(meetingId: $meetingId)
+		);
 
 	}//end resolveAttendeeCount()
 
@@ -290,6 +295,7 @@ class MeetingCostService {
 	 *
 	 * @param iterable<mixed>       $results  Participants as found (entities or arrays)
 	 * @param string                $bodyId   The meeting's governance body
+	 * @param MeetingAttendanceReader $attendance Overlays this meeting's attendance
 	 * @param array<string, string> $statuses This meeting's attendance per participant (pla-09)
 	 *
 	 * @return int Attendee count (>= 0)
@@ -297,7 +303,7 @@ class MeetingCostService {
 	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-002-closing-a-meeting-records-its-cost
 	 * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 	 */
-	private function countAttendees(iterable $results, string $bodyId, array $statuses): int {
+	private function countAttendees(iterable $results, string $bodyId, MeetingAttendanceReader $attendance, array $statuses): int {
 		$members = 0;
 		$present = 0;
 		$attendanceTaken = false;
@@ -308,7 +314,7 @@ class MeetingCostService {
 			}
 
 			$members++;
-			$participant = MeetingAttendanceReader::overlay(participants: [$participant], statuses: $statuses)[0];
+			$participant = $attendance->overlay(participants: [$participant], statuses: $statuses)[0];
 			$status = (string)($participant['attendanceStatus'] ?? '');
 			$attendanceTaken = ($attendanceTaken === true || $status !== '');
 			if ($status === 'present') {
@@ -336,7 +342,7 @@ class MeetingCostService {
 	private function participantData(mixed $result): ?array {
 		$uuid = null;
 		if (is_object($result) === true && method_exists($result, 'getObject') === true) {
-			// getObject() carries the properties only; the id comes from the
+			// The properties come from getObject(); the id comes from the
 			// entity, so this meeting's attendance can be matched to it.
 			if (method_exists($result, 'getUuid') === true) {
 				$uuid = $result->getUuid();

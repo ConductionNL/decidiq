@@ -99,12 +99,12 @@ final class MeetingAttendanceReader {
 
 		$statuses = [];
 		foreach ($rows as $row) {
-			$record = self::data(row: $row);
-			if (self::refId(ref: ($record['meeting'] ?? null)) !== $meetingId) {
+			$record = $this->data(row: $row);
+			if ($this->refId(ref: ($record['meeting'] ?? null)) !== $meetingId) {
 				continue;
 			}
 
-			$participant = self::refId(ref: ($record['participant'] ?? null));
+			$participant = $this->refId(ref: ($record['participant'] ?? null));
 			if ($participant !== '') {
 				$statuses[$participant] = (string)($record['status'] ?? '');
 			}
@@ -126,13 +126,13 @@ final class MeetingAttendanceReader {
 	 *
 	 * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 	 */
-	public static function overlay(array $participants, array $statuses): array {
+	public function overlay(array $participants, array $statuses): array {
 		if ($statuses === []) {
 			return $participants;
 		}
 
 		foreach ($participants as $index => $participant) {
-			$participants[$index]['attendanceStatus'] = ($statuses[self::idOf(row: $participant)] ?? '');
+			$participants[$index]['attendanceStatus'] = ($statuses[$this->idOf(row: $participant)] ?? '');
 		}
 
 		return $participants;
@@ -148,7 +148,7 @@ final class MeetingAttendanceReader {
 	 *
 	 * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 	 */
-	public static function idOf(array $row): string {
+	public function idOf(array $row): string {
 		$self = ($row['@self'] ?? []);
 		if (is_array($self) === false) {
 			$self = [];
@@ -165,7 +165,7 @@ final class MeetingAttendanceReader {
 	 *
 	 * @return array<string, mixed>
 	 */
-	private static function data(mixed $row): array {
+	private function data(mixed $row): array {
 		if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
 			$row = $row->jsonSerialize();
 		}
@@ -185,7 +185,7 @@ final class MeetingAttendanceReader {
 	 *
 	 * @return string
 	 */
-	private static function refId(mixed $ref): string {
+	private function refId(mixed $ref): string {
 		if (is_string($ref) === true) {
 			return $ref;
 		}

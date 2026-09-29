@@ -76,7 +76,7 @@ final class MeetingRuleSource {
 		return (new BodyQuorum())->isMet(
 			meeting: (array)$entity->jsonSerialize(),
 			body: $this->loadBody(bodyId: $this->bodyIdOf(meetingId: $meetingId)),
-			participants: MeetingAttendanceReader::overlay(
+			participants: $attendance->overlay(
 				participants: $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId),
 				statuses: $attendance->statusesFor(meetingId: $meetingId)
 			)
