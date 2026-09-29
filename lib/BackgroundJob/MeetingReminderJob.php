@@ -72,6 +72,9 @@ class MeetingReminderJob extends TimedJob {
 	 * @return void
 	 *
 	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-mrd-001-meeting-notices-follow-the-member-switches
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is mandated by the
+	 * TimedJob::run() signature; this job is registered in info.xml with no argument.
 	 */
 	protected function run(mixed $argument): void {
 		try {
