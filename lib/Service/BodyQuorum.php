@@ -67,7 +67,7 @@ final class BodyQuorum {
 	 */
 	public function isMet(array $meeting, ?array $body, array $participants): bool {
 		$members = array_values(
-			array_filter($participants, static fn (array $p): bool => ($p['leftAt'] ?? null) === null)
+			array_filter($participants, static fn (array $row): bool => ($row['leftAt'] ?? null) === null)
 		);
 
 		$threshold = $this->threshold(meeting: $meeting, body: ($body ?? []), memberCount: count($members));
@@ -123,7 +123,7 @@ final class BodyQuorum {
 	 * @spec openspec/specs/meeting-management/spec.md#requirement-req-mrb-002-votes-follow-the-body-rules
 	 */
 	private function presentCount(array $members): int {
-		$taken = array_filter($members, static fn (array $m): bool => (string)($m['attendanceStatus'] ?? '') !== '');
+		$taken = array_filter($members, static fn (array $row): bool => (string)($row['attendanceStatus'] ?? '') !== '');
 		if ($taken === []) {
 			return count($members);
 		}
@@ -131,7 +131,7 @@ final class BodyQuorum {
 		return count(
 			array_filter(
 				$members,
-				static fn (array $m): bool => in_array(($m['attendanceStatus'] ?? ''), ['present', 'proxy'], true)
+				static fn (array $row): bool => in_array(($row['attendanceStatus'] ?? ''), ['present', 'proxy'], true)
 			)
 		);
 

@@ -54,6 +54,8 @@ class VotingBodyRulesTest extends TestCase {
 
 	private const BODY = '0b6c1d2e-3f40-4a51-8b62-7c83d94ea5f6';
 
+	private const TYPE = '5d7e9a10-2b3c-4d5e-8f60-718293a4b5c6';
+
 	private const MOTION = 'a1b2c3d4-0000-4000-8000-000000000009';
 
 	/**
@@ -105,6 +107,7 @@ class VotingBodyRulesTest extends TestCase {
 			fn (int|string $id): ObjectEntity => match ((string)$id) {
 				self::MEETING => $this->entity($meeting),
 				self::BODY => $this->entity(array_merge(['id' => self::BODY, 'name' => 'Raad van commissarissen'], $body)),
+				self::TYPE => $this->entity(['id' => self::TYPE, 'name' => 'Statutenwijziging', 'defaultVoteThreshold' => 'qualified-majority-three-quarters']),
 				default => $this->entity(['id' => (string)$id, 'decisionType' => 'motion', 'lifecycle' => 'deliberating']),
 			}
 		);
@@ -260,4 +263,18 @@ class VotingBodyRulesTest extends TestCase {
 		self::assertCount(1, $this->saved);
 
 	}//end testTheMeetingsOwnQuorumWins()
+
+	/**
+	 * A meeting type's vote threshold comes before the body's template.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/meeting-management/spec.md#requirement-req-mrb-002-votes-follow-the-body-rules
+	 */
+	public function testTheMeetingTypesThresholdComesBeforeTheBodys(): void {
+		$this->open($this->opener(meeting: ['type' => self::TYPE], body: [], present: 9, absent: 0));
+
+		self::assertSame('qualified-majority-three-quarters', $this->saved[0]['voteThreshold']);
+
+	}//end testTheMeetingTypesThresholdComesBeforeTheBodys()
 }//end class

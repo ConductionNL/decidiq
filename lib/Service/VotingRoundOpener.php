@@ -63,11 +63,11 @@ class VotingRoundOpener {
 	private readonly RankedBallotRules $rankedRules;
 
 	/**
-	 * The quorum a meeting must reach (meeting, then body).
+	 * The meeting's type and body rules (quorum, vote threshold).
 	 *
-	 * @var BodyQuorum
+	 * @var MeetingRuleSource
 	 */
-	private readonly BodyQuorum $bodyQuorum;
+	private readonly MeetingRuleSource $ruleSource;
 
 	/**
 	 * Constructor for VotingRoundOpener.
@@ -103,7 +103,7 @@ class VotingRoundOpener {
 
 		$this->normaliser = new SavedObjectNormaliser();
 		$this->rankedRules = new RankedBallotRules();
-		$this->bodyQuorum = new BodyQuorum();
+		$this->ruleSource = new MeetingRuleSource(objectService: $objectService, participantResolver: $participantResolver);
 
 	}//end __construct()
 
@@ -123,25 +123,7 @@ class VotingRoundOpener {
 	 * @spec openspec/specs/meeting-management/spec.md#requirement-req-mrb-002-votes-follow-the-body-rules
 	 */
 	public function checkQuorum(string $meetingId): bool {
-		$meetingEntity = $this->objectService()->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
-		$meeting = null;
-		if ($meetingEntity !== null) {
-			$meeting = $meetingEntity->jsonSerialize();
-		}
-
-		if ($meeting === null) {
-			return false;
-		}
-
-		// The body's quorum (a member count or a quorum rule) applies when the
-		// meeting sets none of its own (meeting-rules-from-body-and-type). The
-		// participants come from the shared ParticipantResolver, which reads the
-		// meeting -> body link in both relation shapes OpenRegister produces.
-		return $this->bodyQuorum->isMet(
-			meeting: $meeting,
-			body: $this->loadBody(bodyId: $this->bodyIdOf(meetingId: $meetingId)),
-			participants: $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId)
-		);
+		return $this->ruleSource->quorumMet(meetingId: $meetingId);
 	}//end checkQuorum()
 
 	/**
@@ -189,17 +171,12 @@ class VotingRoundOpener {
 		$roundRules = ($roundRules ?? new VotingRoundRules());
 		$subjectType = $roundRules->subjectType;
 
-		// The body's rules apply when the caller names no body: it is the body
-		// of the meeting the round is held in.
-		$governanceBodyId = ($roundRules->governanceBodyId ?? $this->bodyIdOf(meetingId: $meetingId));
-
-		// Process-configuration: resolution order per rule is caller value (non-null) ->
-		// body template default -> built-in default. The caller (controller) always passes
-		// explicit values, so it always wins; the template only fills nulls. Unknown rule
-		// values are rejected, never silently defaulted.
+		// Resolution order per rule: the chair's pick (non-null), then the meeting
+		// type's threshold, then the template of the body (named, else the
+		// meeting's), then the built-in default. Unknown values are rejected.
 		$rules = $this->preflight->resolveRules(
-			governanceBodyId: $governanceBodyId,
-			voteThreshold: $roundRules->voteThreshold,
+			governanceBodyId: ($roundRules->governanceBodyId ?? $this->ruleSource->bodyIdOf(meetingId: $meetingId)),
+			voteThreshold: ($roundRules->voteThreshold ?? $this->ruleSource->meetingTypeThreshold(meetingId: $meetingId)),
 			abstentionHandling: $roundRules->abstentionHandling,
 			tieBreakRule: $roundRules->tieBreakRule,
 			subjectType: $subjectType
@@ -305,56 +282,6 @@ class VotingRoundOpener {
 			tieBreakRule: $tieBreakRule
 		);
 	}//end roundOptions()
-
-	/**
-	 * The governance body of the meeting, or null (fails soft).
-	 *
-	 * @param string $meetingId The meeting
-	 *
-	 * @return string|null
-	 *
-	 * @spec openspec/specs/meeting-management/spec.md#requirement-req-mrb-002-votes-follow-the-body-rules
-	 */
-	private function bodyIdOf(string $meetingId): ?string {
-		if ($meetingId === '') {
-			return null;
-		}
-
-		try {
-			return $this->participantResolver->resolveGovernanceBodyId(meetingId: $meetingId);
-		} catch (\Throwable) {
-			return null;
-		}
-
-	}//end bodyIdOf()
-
-	/**
-	 * The governance body as an array, or null (fails soft).
-	 *
-	 * @param string|null $bodyId The body
-	 *
-	 * @return array<string, mixed>|null
-	 *
-	 * @spec openspec/specs/meeting-management/spec.md#requirement-req-mrb-002-votes-follow-the-body-rules
-	 */
-	private function loadBody(?string $bodyId): ?array {
-		if ($bodyId === null) {
-			return null;
-		}
-
-		try {
-			$entity = $this->objectService()->find(id: $bodyId, register: 'decidiq', schema: 'governance-body');
-		} catch (\Throwable) {
-			return null;
-		}
-
-		if ($entity === null) {
-			return null;
-		}
-
-		return (array)$entity->jsonSerialize();
-
-	}//end loadBody()
 
 	/**
 	 * Resolve OpenRegister ObjectService.
