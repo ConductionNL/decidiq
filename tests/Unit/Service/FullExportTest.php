@@ -331,14 +331,13 @@ class FullExportTest extends TestCase {
 
 		$time = $this->createMock(ITimeFactory::class);
 		$job  = new FullExportJob($time, $this->service(), $manager, $this->createMock(LoggerInterface::class));
-		$job->setArgument(['uid' => 'admin']);
-		$job->start($this->createMock(IJobList::class));
+		$run = new \ReflectionMethod(FullExportJob::class, 'run');
+		$run->invoke($job, ['uid' => 'admin']);
 
 		$broken = $this->createMock(FullExportService::class);
 		$broken->method('build')->willThrowException(new RuntimeException('disk full'));
 		$failing = new FullExportJob($time, $broken, $manager, $this->createMock(LoggerInterface::class));
-		$failing->setArgument(['uid' => 'admin']);
-		$failing->start($this->createMock(IJobList::class));
+		$run->invoke($failing, ['uid' => 'admin']);
 
 		self::assertSame(['object' => 'decidiq-export-20261014-201500.zip', 'subject' => 'full_export_ready'], $sent[0]);
 		self::assertSame('full_export_failed', $sent[1]['subject']);

@@ -72,6 +72,8 @@ class Notifier implements INotifier {
 		'meeting_reminder'          => ['The meeting %s is coming up', 'meetings/'],
 		'submission_deadline'       => ['The submission deadline of %s is coming up', 'meetings/'],
 		'minutes_available'         => ['The minutes of %s are available', 'minutes/'],
+		'full_export_ready'         => ['Your data export is ready to download', 'api/export/full/'],
+		'full_export_failed'        => ['Your data export failed. Try again, or read the Nextcloud log for the cause.', ''],
 	];
 
 	/**
