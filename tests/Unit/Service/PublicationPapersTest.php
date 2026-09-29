@@ -234,7 +234,7 @@ class PublicationPapersTest extends TestCase {
 			$container,
 			$logger,
 			new PublicationConfigService($appConfig),
-			new AgendaPapers($container, $logger),
+			new AgendaPapers($objects, $container, $logger),
 		);
 	}//end service()
 

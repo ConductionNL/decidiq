@@ -209,7 +209,7 @@ class PublicationConfidentialityTest extends TestCase {
 			$container,
 			$logger,
 			new PublicationConfigService($appConfig),
-			new AgendaPapers($container, $logger),
+			new AgendaPapers($objects, $container, $logger),
 		);
 
 		$meeting = [

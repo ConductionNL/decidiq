@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\ConfidentialityUnreadableException;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -49,12 +50,14 @@ class AgendaPapers {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container DI container (lazy OpenRegister services).
+	 * @param ObjectServiceInterface $objectService OpenRegister object service (restrictions).
+	 * @param ContainerInterface $container DI container (OpenRegister FileService, lazily).
 	 * @param LoggerInterface    $logger    Logger.
 	 *
 	 * @spec openspec/specs/agenda-publication/spec.md#requirement-req-pps-001-public-papers-are-published-with-the-agenda
 	 */
 	public function __construct(
+		private readonly ObjectServiceInterface $objectService,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 	) {
@@ -74,8 +77,7 @@ class AgendaPapers {
 	 */
 	public function restrictedItemIds(): array {
 		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$rows = $objectService->findAll(
+			$rows = $this->objectService->findAll(
 				config: [
 					'filters' => [
 						'register' => 'decidiq',
@@ -87,7 +89,10 @@ class AgendaPapers {
 				_multitenancy: false
 			);
 		} catch (\Throwable $e) {
-			throw new ConfidentialityUnreadableException('The agenda was not published: the confidential items could not be checked. Try again in a moment.', 0, $e);
+			throw new ConfidentialityUnreadableException(
+				message: 'The agenda was not published: the confidential items could not be checked. Try again in a moment.',
+				previous: $e
+			);
 		}
 
 		$restricted = [];

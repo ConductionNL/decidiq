@@ -27,6 +27,8 @@
             "facetable": true
           },
           "agendaItems": {
+            "title": "Agenda items",
+            "description": "Ordered, non-confidential agenda items (Vergadering → AgendaPunt). Confidential items and their document references are stripped during construction and never appear here.",
             "items": {
               "properties": {
                 "papers": {

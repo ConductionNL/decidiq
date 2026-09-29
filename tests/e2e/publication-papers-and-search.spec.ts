@@ -80,7 +80,11 @@ test('a published agenda leaves out the confidential items and names what citize
 	expect(response.status()).toBe(201)
 	const { record } = await response.json()
 
-	const payload = await getObject(page, 'publication-payload', record.payloadObject)
+	const payload = await getObject(
+		page,
+		'publication-payload',
+		record.payloadObject,
+	)
 	expect(payload.documentType).toBe('agenda')
 	expect(payload.meetingDate).toBeTruthy()
 	expect(payload.agendaItems.map((i: any) => i.title)).toEqual([

@@ -57,7 +57,7 @@ class PublicationPayloadServiceTest extends TestCase {
 		$container->method('get')->willReturn($objectService);
 		$logger = $this->createMock(LoggerInterface::class);
 
-		return new PublicationPayloadService($container, $logger, $configService, new AgendaPapers($container, $logger));
+		return new PublicationPayloadService($container, $logger, $configService, new AgendaPapers($objectService, $container, $logger));
 	}//end makeService()
 
 	/**

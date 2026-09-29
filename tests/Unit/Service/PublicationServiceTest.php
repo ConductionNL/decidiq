@@ -120,7 +120,7 @@ class PublicationServiceTest extends TestCase {
 		$eligibility = new PublicationEligibilityService($logger,
 			objectService: $objectService,
 		);
-		$payload = new PublicationPayloadService($container, $logger, $configService, new AgendaPapers($container, $logger));
+		$payload = new PublicationPayloadService($container, $logger, $configService, new AgendaPapers($objectService, $container, $logger));
 
 		$catalog = $catalogOverride;
 		if ($catalog === null) {
