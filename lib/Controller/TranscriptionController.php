@@ -30,7 +30,6 @@ namespace OCA\Decidiq\Controller;
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Service\MinutesDraftService;
-use OCA\Decidiq\Service\RecordingRange;
 use OCA\Decidiq\Service\TranscriptionQueue;
 use OCA\Decidiq\Service\TranscriptionService;
 use OCA\Decidiq\Service\TranscriptionStaffGuard;
@@ -38,9 +37,6 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
-use OCP\AppFramework\Http\StreamResponse;
-use OCP\AppFramework\Http\Response;
 use OCP\IRequest;
 
 /**
@@ -62,7 +58,6 @@ class TranscriptionController extends Controller {
 	 * @param MinutesDraftService $minutesDraftService AI draft generation.
 	 * @param TranscriptionStaffGuard $staffGuard Per-object staff authorization.
 	 * @param TranscriptionQueue $queue Asynchronous transcription hand-off.
-	 * @param RecordingRange $range Byte ranges for the recording player.
 	 *
 	 * @spec openspec/specs/meeting-transcription/spec.md
 	 */
@@ -72,7 +67,6 @@ class TranscriptionController extends Controller {
 		private readonly MinutesDraftService $minutesDraftService,
 		private readonly TranscriptionStaffGuard $staffGuard,
 		private readonly TranscriptionQueue $queue,
-		private readonly RecordingRange $range,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 
@@ -228,67 +222,6 @@ class TranscriptionController extends Controller {
 
 		return new JSONResponse($transcript);
 	}//end realign()
-
-	/**
-	 * Play the recording a transcript was made from.
-	 *
-	 * GET /api/transcripts/{transcriptId}/recording
-	 *
-	 * Any participant of the meeting may listen. Answers a Range request with
-	 * 206 and those bytes, so the player can jump to the moment an agenda item
-	 * started.
-	 *
-	 * @param string $transcriptId Transcript UUID.
-	 *
-	 * @return Response
-	 *
-	 * @NoCSRFRequired
-	 *
-	 * @spec openspec/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
-	 */
-	#[NoAdminRequired]
-	#[NoCSRFRequired]
-	public function recording(string $transcriptId): Response {
-		$denied = $this->staffGuard->forTranscriptListener(transcriptId: $transcriptId);
-		if ($denied !== null) {
-			return $denied;
-		}
-
-		try {
-			$file = $this->transcriptionService->recordingFile(transcriptId: $transcriptId);
-			$size = (int)$file->getSize();
-			$range = $this->range->parse(header: $this->request->getHeader('Range'), size: $size);
-			if ($range === false) {
-				return new Response(Http::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE, ['Content-Range' => 'bytes */'.$size]);
-			}
-
-			[$first, $last] = ($range ?? [0, ($size - 1)]);
-			$stream = $file->fopen('r');
-			if ($first > 0) {
-				fseek($stream, $first);
-			}
-
-			$length = ($last - $first + 1);
-			$body = fopen('php://temp', 'w+');
-			stream_copy_to_stream($stream, $body, $length);
-			rewind($body);
-		} catch (MissingObjectException | \RuntimeException | \OCP\Files\NotFoundException $e) {
-			return new JSONResponse(['message' => 'The recording could not be found.'], Http::STATUS_NOT_FOUND);
-		}//end try
-
-		$headers = [
-			'Content-Type' => (string)$file->getMimeType(),
-			'Content-Length' => (string)$length,
-			'Accept-Ranges' => 'bytes',
-		];
-		$status = Http::STATUS_OK;
-		if ($range !== null) {
-			$status = Http::STATUS_PARTIAL_CONTENT;
-			$headers['Content-Range'] = 'bytes '.$first.'-'.$last.'/'.$size;
-		}
-
-		return new StreamResponse($body, $status, $headers);
-	}//end recording()
 
 	/**
 	 * Generate an AI-assisted draft from a Transcript.

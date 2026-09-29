@@ -91,22 +91,6 @@ class TranscriptionService {
 	}//end __construct()
 
 	/**
-	 * The recording a transcript was made from, for the player.
-	 *
-	 * @param string $transcriptId Transcript UUID.
-	 *
-	 * @return \OCP\Files\File The source recording.
-	 *
-	 * @throws \RuntimeException When the transcript names no readable file.
-	 *
-	 * @spec openspec/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
-	 */
-	public function recordingFile(string $transcriptId): \OCP\Files\File {
-		$transcript = $this->repository->fetchTranscript(transcriptId: $transcriptId);
-		return $this->repository->resolveSourceNode(path: (string)($transcript['sourceFilePath'] ?? ''));
-	}//end recordingFile()
-
-	/**
 	 * Whether a SpeechToText provider is available on this instance.
 	 *
 	 * Provider absence is a first-class unavailable state — callers use this to

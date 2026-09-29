@@ -144,7 +144,7 @@ class TranscriptionStaffGuard {
 		return $this->authorize(
 			resolveMeetings: fn (): ?array => $this->meetingsOfTranscript(transcriptId: $transcriptId),
 			roleMessage: 'Forbidden: only participants of this meeting can play its recording.',
-			anyParticipant: true
+			admits: $this->isListener(...)
 		);
 
 	}//end forTranscriptListener()
@@ -185,13 +185,13 @@ class TranscriptionStaffGuard {
 	 *
 	 * @param callable $resolveMeetings Lazily yields the candidate meeting ids, or null.
 	 * @param string $roleMessage Denial message when no staff role matches.
-	 * @param bool $anyParticipant Also admit any participant of the meeting (listening only).
+	 * @param callable|null $admits Whether a user may act on a meeting; staff when null.
 	 *
 	 * @return JSONResponse|null Null when authorised; a 401/403 response otherwise.
 	 *
 	 * @spec openspec/specs/meeting-transcription/spec.md
 	 */
-	private function authorize(callable $resolveMeetings, string $roleMessage, bool $anyParticipant=false): ?JSONResponse {
+	private function authorize(callable $resolveMeetings, string $roleMessage, ?callable $admits=null): ?JSONResponse {
 		$user = $this->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
@@ -207,18 +207,44 @@ class TranscriptionStaffGuard {
 			return new JSONResponse(['message' => self::UNRESOLVED_MESSAGE], Http::STATUS_FORBIDDEN);
 		}
 
+		$admits ??= $this->isStaff(...);
 		foreach ($meetingIds as $meetingId) {
-			if ($this->participantResolver->hasRole(meetingId: $meetingId, nextcloudUid: $userId, roles: self::STAFF_ROLES) === true) {
-				return null;
-			}
-
-			if ($anyParticipant === true && $this->participantResolver->isParticipant(meetingId: $meetingId, nextcloudUid: $userId) === true) {
+			if ($admits($meetingId, $userId) === true) {
 				return null;
 			}
 		}
 
 		return new JSONResponse(['message' => $roleMessage], Http::STATUS_FORBIDDEN);
 	}//end authorize()
+
+	/**
+	 * Whether a user is chair or secretary of a meeting.
+	 *
+	 * @param string $meetingId Meeting UUID.
+	 * @param string $userId Nextcloud user id.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	private function isStaff(string $meetingId, string $userId): bool {
+		return $this->participantResolver->hasRole(meetingId: $meetingId, nextcloudUid: $userId, roles: self::STAFF_ROLES);
+	}//end isStaff()
+
+	/**
+	 * Whether a user may play a meeting's recording: staff or any participant.
+	 *
+	 * @param string $meetingId Meeting UUID.
+	 * @param string $userId Nextcloud user id.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
+	 */
+	private function isListener(string $meetingId, string $userId): bool {
+		return $this->isStaff(meetingId: $meetingId, userId: $userId) === true
+			|| $this->participantResolver->isParticipant(meetingId: $meetingId, nextcloudUid: $userId) === true;
+	}//end isListener()
 
 	/**
 	 * Resolve the meeting a transcript belongs to.
