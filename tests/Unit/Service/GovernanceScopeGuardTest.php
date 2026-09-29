@@ -220,7 +220,7 @@ class GovernanceScopeGuardTest extends TestCase {
 	 * Motions and decision lists are signed by the same people as minutes:
 	 * the signatories of the body whose meeting they belong to.
 	 *
-	 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 	 *
 	 * @return void
 	 */

@@ -97,7 +97,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 * @param string $subjectType What is signed: minutes, decision-list or motion
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
-	 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 	 *
 	 * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}
 	 */
@@ -416,7 +416,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 *
 	 * @param string $requestId The signing service's request reference
 	 *
-	 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 	 *
 	 * @return array{status: string, document: ?string, fileName: ?string, message: string}
 	 */
@@ -544,7 +544,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 *
 	 * @return object|null The source object, or null when none is configured.
 	 *
-	 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 	 */
 	private function integriqSource(string $slug): ?object {
 		// Sources are admin configuration, not the signer's data: integriq reads

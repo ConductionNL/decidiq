@@ -7,7 +7,7 @@
  * and a `signedAt` once signed. Older minutes hold bare participant ids;
  * they read as signers in the order they were added.
  *
- * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+ * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
  */
 
 /**

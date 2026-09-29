@@ -185,12 +185,12 @@ export default {
 			return orderedSigners(this.record?.signers)
 		},
 
-		/** @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy */
+		/** @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy */
 		signingStatus() {
 			return this.record?.signingStatus || ''
 		},
 
-		/** @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy */
+		/** @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy */
 		canSend() {
 			return (
 				this.rawSigners.length > 0
@@ -199,7 +199,7 @@ export default {
 			)
 		},
 
-		/** @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy */
+		/** @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy */
 		signingStatusText() {
 			if (this.signingStatus === 'sent') {
 				return this.t('decidiq', 'Out for signature. The signed copy is stored here once everyone has signed.')
@@ -365,7 +365,7 @@ export default {
 		 *
 		 * @param {Array<object>} signers The signers in signing order
 		 * @param {boolean} rethrow Throw instead of showing the error
-		 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+		 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 		 */
 		async saveSigners(signers, rethrow = false) {
 			const store = ensureRelationType(this.schema)
@@ -385,7 +385,7 @@ export default {
 		/**
 		 * Send the record to the signing service with its signers in order.
 		 *
-		 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+		 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 		 */
 		async sendForSignature() {
 			await this.postSigning('send')
@@ -395,7 +395,7 @@ export default {
 		 * Ask the signing service where the round stands; once signed the
 		 * signed copy is stored on the record.
 		 *
-		 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+		 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 		 */
 		async collectSignedCopy() {
 			await this.postSigning('collect')
@@ -403,7 +403,7 @@ export default {
 
 		/**
 		 * @param {'send'|'collect'} action The signing action
-		 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+		 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 		 */
 		async postSigning(action) {
 			this.signError = ''

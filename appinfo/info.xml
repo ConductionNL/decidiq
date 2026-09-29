@@ -142,7 +142,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
         <!-- signing-external-service-with-order: every fifteen minutes, asks the
              signing service about minutes, decision lists and motions that are
              out for signature and stores the signed copy on the record.
-             @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md -->
+             @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\SignedCopyCollectorJob</job>
     </background-jobs>
 

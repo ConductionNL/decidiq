@@ -108,7 +108,7 @@ class LogEIDASSignatureService implements IEIDASSignatureService {
 	 *
 	 * @param string $requestId The signing service's request reference
 	 *
-	 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 	 *
 	 * @return array{status: string, document: ?string, fileName: ?string, message: string}
 	 */

@@ -16,8 +16,8 @@
 - **acceptance_criteria**:
   - GIVEN a motion with signers Anna then Pieter WHEN the griffier presses Send for signature THEN the request lists Anna first
   - GIVEN the service reports signed THEN the signed PDF is stored and linked on the motion
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ## Verification
 
