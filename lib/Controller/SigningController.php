@@ -141,7 +141,7 @@ class SigningController extends Controller {
 			return $auth;
 		}
 
-		$schema = SigningRoundService::schemaFor(subjectType: $subjectType);
+		$schema = (SigningRoundService::SUBJECTS[$subjectType] ?? null);
 		if ($schema === null) {
 			return new JSONResponse(['message' => 'This record cannot be sent for signature.'], Http::STATUS_NOT_FOUND);
 		}

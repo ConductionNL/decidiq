@@ -62,7 +62,9 @@ interface IEIDASSignatureService {
 	 *
 	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 	 *
-	 * @return array{status: string, document: ?string, fileName: ?string, message: string} status is pending, signed or failed; document holds the raw signed bytes
+	 * Status is pending, signed or failed; document holds the raw signed bytes.
+	 *
+	 * @return array{status: string, document: ?string, fileName: ?string, message: string}
 	 */
 	public function fetchSigningResult(string $requestId): array;
 

@@ -62,6 +62,10 @@ class SignedCopyCollectorJob extends TimedJob {
 	 *
 	 * @return void
 	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is mandated by the
+	 * abstract OCP\BackgroundJob\Job::run() signature; this job is scheduled with
+	 * no argument.
+	 *
 	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 	 */
 	protected function run(mixed $argument): void {

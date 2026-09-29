@@ -208,17 +208,9 @@ class GovernanceScopeGuard {
 		}
 
 		try {
-			$meetingId = $subjectId;
-			if ($schema === 'decision') {
-				$decision = $this->objectService->find(id: $subjectId, register: 'decidiq', schema: 'decision');
-				if ($decision === null) {
-					return false;
-				}
-
-				$meetingId = $this->extractRelation(record: $decision->jsonSerialize(), key: 'Meeting');
-				if ($meetingId === null) {
-					return false;
-				}
+			$meetingId = $this->meetingOf(schema: $schema, subjectId: $subjectId);
+			if ($meetingId === null) {
+				return false;
 			}
 
 			$meeting = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
@@ -240,6 +232,28 @@ class GovernanceScopeGuard {
 			return false;
 		}//end try
 	}//end isSignatoryForSubject()
+
+	/**
+	 * The meeting a meeting or decision record belongs to: a meeting is its
+	 * own, a decision names its meeting.
+	 *
+	 * @param string $schema meeting or decision
+	 * @param string $subjectId UUID of the record
+	 *
+	 * @return string|null
+	 */
+	private function meetingOf(string $schema, string $subjectId): ?string {
+		if ($schema === 'meeting') {
+			return $subjectId;
+		}
+
+		$decision = $this->objectService->find(id: $subjectId, register: 'decidiq', schema: 'decision');
+		if ($decision === null) {
+			return null;
+		}
+
+		return $this->extractRelation(record: $decision->jsonSerialize(), key: 'Meeting');
+	}//end meetingOf()
 
 	/**
 	 * Resolve the owning GovernanceBody UUID for a Minutes record by walking

@@ -77,12 +77,14 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 * @param LoggerInterface $logger Logger
 	 * @param AuditLogService $auditLogService Audit log dependency
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
+	 * @param SigningAnswer $answers Reads the signing service's answers
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly AuditLogService $auditLogService,
 		private readonly ObjectServiceInterface $objectService,
+		private readonly SigningAnswer $answers = new SigningAnswer(),
 	) {
 	}//end __construct()
 
@@ -320,7 +322,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 				'signedCopy' => $archiveReference,
 				'signedCopyHash' => $hash,
 				'signedAt' => gmdate('Y-m-d\TH:i:s\Z'),
-				'signedBy' => $this->signerNames(signatureList: $signatureList),
+				'signedBy' => $this->answers->signerNames(signatureList: $signatureList),
 			]
 		);
 
@@ -440,47 +442,9 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			];
 		}
 
-		$status = $this->signingStatus(raw: strtolower((string)($response['status'] ?? '')));
-		if ($status !== 'signed') {
-			return ['status' => $status, 'document' => null, 'fileName' => null, 'message' => 'The signing request is ' . $status . '.'];
-		}
-
-		$document = base64_decode((string)($response['document'] ?? ''), true);
-		if ($document === false || $document === '') {
-			return [
-				'status' => 'pending',
-				'document' => null,
-				'fileName' => null,
-				'message' => 'The signing service reported signed but sent no readable document.',
-			];
-		}
-
-		return [
-			'status' => 'signed',
-			'document' => $document,
-			'fileName' => $this->nullIfEmpty(value: (string)($response['fileName'] ?? '')),
-			'message' => 'Signed.',
-		];
+		return $this->answers->result(response: $response);
 	}//end fetchSigningResult()
 
-	/**
-	 * Map a signing service status onto pending, signed or failed.
-	 *
-	 * @param string $raw The status as the service sent it, lower-cased
-	 *
-	 * @return string pending, signed or failed
-	 */
-	private function signingStatus(string $raw): string {
-		if (in_array($raw, ['signed', 'completed', 'complete', 'finished'], true) === true) {
-			return 'signed';
-		}
-
-		if (in_array($raw, ['failed', 'declined', 'rejected', 'cancelled', 'canceled', 'expired'], true) === true) {
-			return 'failed';
-		}
-
-		return 'pending';
-	}//end signingStatus()
 
 	/**
 	 * Invoke the openconnector e-sign source via the CallService. The
@@ -517,7 +481,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			]
 		);
 
-		$body = $this->responseBody(response: $response);
+		$body = $this->answers->body(response: $response);
 
 		$decoded = null;
 		if ($body !== '') {
@@ -569,37 +533,6 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		return null;
 	}//end integriqSource()
 
-	/**
-	 * The response body of an integriq call.
-	 *
-	 * The integriq CallService::call() returns the call log as an OpenRegister
-	 * object whose data holds `response.body`. An older call log exposed
-	 * `getResponse()`; both are read.
-	 *
-	 * @param mixed $response The call log.
-	 *
-	 * @return string The raw body, or an empty string.
-	 */
-	private function responseBody(mixed $response): string {
-		if (is_object($response) === false) {
-			return '';
-		}
-
-		if (method_exists($response, 'getObject') === true) {
-			$data = (array)$response->getObject();
-			$body = ($data['response']['body'] ?? null);
-			if (is_string($body) === true && $body !== '') {
-				return $body;
-			}
-		}
-
-		if (method_exists($response, 'getResponse') === true) {
-			$raw = $response->getResponse();
-			return (string)($raw['body'] ?? '');
-		}
-
-		return '';
-	}//end responseBody()
 
 	/**
 	 * Resolve the DecisionStage of method=signature that is linked (via the
@@ -794,7 +727,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 * @return array<string, mixed> The decoded response body
 	 */
 	private function decodeDocudeskResponse(mixed $response): array {
-		$body = $this->responseBody(response: $response);
+		$body = $this->answers->body(response: $response);
 
 		$decoded = null;
 		if ($body !== '') {
@@ -808,28 +741,6 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		return $decoded;
 	}//end decodeDocudeskResponse()
 
-	/**
-	 * The signer of each signature tuple, as the list of names `signedBy` holds.
-	 *
-	 * @param array<int, mixed> $signatureList List of {signer, signature, timestamp} tuples
-	 *
-	 * @return array<int, string>
-	 */
-	private function signerNames(array $signatureList): array {
-		$names = [];
-		foreach ($signatureList as $entry) {
-			$name = $entry;
-			if (is_array($entry) === true) {
-				$name = ($entry['signer'] ?? '');
-			}
-
-			if (is_string($name) === true && $name !== '') {
-				$names[] = $name;
-			}
-		}
-
-		return $names;
-	}//end signerNames()
 
 	/**
 	 * Persist a partial update on a Minutes row. Wrapped in a try/catch so
