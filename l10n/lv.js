@@ -1146,7 +1146,8 @@ OC.L10N.register(
         "Resume meeting": "Turpināt sēdi",
         "Adjourn meeting": "Atlikt sēdi",
         "Close meeting": "Slēgt sēdi",
-        "The stage was not changed.": "Posms netika mainīts."
+        "The stage was not changed.": "Posms netika mainīts.",
+        "The body's rule": "Institūcijas noteikums"
     },
     "nplurals=2; plural=(n != 1);"
 )

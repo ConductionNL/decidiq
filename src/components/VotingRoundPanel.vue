@@ -109,6 +109,9 @@
 					id="voteThreshold"
 					v-model="newRound.voteThreshold"
 					data-testid="vote-threshold-select">
+					<option value="">
+						{{ t('decidiq', "The body's rule") }}
+					</option>
 					<option
 						v-for="value in voteThresholdOptions"
 						:key="value"
@@ -123,6 +126,9 @@
 					id="abstentionHandling"
 					v-model="newRound.abstentionHandling"
 					data-testid="abstention-handling-select">
+					<option value="">
+						{{ t('decidiq', "The body's rule") }}
+					</option>
 					<option
 						v-for="value in abstentionModeOptions"
 						:key="value"
@@ -137,6 +143,9 @@
 					id="tieBreakRule"
 					v-model="newRound.tieBreakRule"
 					data-testid="tie-break-rule-select">
+					<option value="">
+						{{ t('decidiq', "The body's rule") }}
+					</option>
 					<option
 						v-for="value in openTieBreakRuleOptions"
 						:key="value"
@@ -525,6 +534,7 @@ import RankedResultsCard from './RankedResultsCard.vue'
 import { useObjectStore } from '../store/store.js'
 import { matching, relationFilterFor } from '../utils/objectRelations.js'
 import {
+	chosenRules,
 	NO_VOTING_PERMISSIONS,
 	readVotingPermissions,
 	votingPermissionsPath,
@@ -588,9 +598,11 @@ export default {
 				votingMethod: 'for-against-abstain',
 				isSecret: false,
 				closedAt: '',
-				voteThreshold: 'simple-majority',
-				abstentionHandling: 'exclude',
-				tieBreakRule: 'rejected',
+				// Empty means "the body's rule": the server fills it from the
+				// meeting's governance body (meeting-rules-from-body-and-type).
+				voteThreshold: '',
+				abstentionHandling: '',
+				tieBreakRule: '',
 				options: [{ label: '' }, { label: '' }],
 			},
 
@@ -895,9 +907,7 @@ export default {
 							votingMethod: this.newRound.votingMethod,
 							isSecret: this.newRound.isSecret,
 							closedAt: this.newRound.closedAt || null,
-							voteThreshold: this.newRound.voteThreshold,
-							abstentionHandling: this.newRound.abstentionHandling,
-							tieBreakRule: this.newRound.tieBreakRule,
+							...chosenRules(this.newRound),
 							revoteOfRound: this.revoteOfRoundId || null,
 							options: this.rankedOptions(),
 						}),

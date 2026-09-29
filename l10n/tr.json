@@ -1145,7 +1145,8 @@
         "Resume meeting": "Toplantıya devam et",
         "Adjourn meeting": "Toplantıyı ertele",
         "Close meeting": "Toplantıyı kapat",
-        "The stage was not changed.": "Aşama değiştirilmedi."
+        "The stage was not changed.": "Aşama değiştirilmedi.",
+        "The body's rule": "Kurulun kuralı"
     },
     "plurals": null
 }

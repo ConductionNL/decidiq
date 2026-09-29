@@ -1146,7 +1146,8 @@ OC.L10N.register(
         "Resume meeting": "Συνέχιση συνεδρίασης",
         "Adjourn meeting": "Αναβολή συνεδρίασης",
         "Close meeting": "Λήξη συνεδρίασης",
-        "The stage was not changed.": "Το στάδιο δεν άλλαξε."
+        "The stage was not changed.": "Το στάδιο δεν άλλαξε.",
+        "The body's rule": "Ο κανόνας του οργάνου"
     },
     "nplurals=2; plural=(n != 1);"
 )

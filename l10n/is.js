@@ -1146,7 +1146,8 @@ OC.L10N.register(
         "Resume meeting": "Halda fundi áfram",
         "Adjourn meeting": "Fresta fundi",
         "Close meeting": "Slíta fundi",
-        "The stage was not changed.": "Stigi var ekki breytt."
+        "The stage was not changed.": "Stigi var ekki breytt.",
+        "The body's rule": "Regla stofnunarinnar"
     },
     "nplurals=2; plural=(n != 1);"
 )

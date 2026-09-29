@@ -1146,7 +1146,8 @@ OC.L10N.register(
         "Resume meeting": "Ülés folytatása",
         "Adjourn meeting": "Ülés elnapolása",
         "Close meeting": "Ülés bezárása",
-        "The stage was not changed.": "A szakasz nem változott."
+        "The stage was not changed.": "A szakasz nem változott.",
+        "The body's rule": "A testület szabálya"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1146,7 +1146,8 @@ OC.L10N.register(
         "Resume meeting": "Nastavi sjednicu",
         "Adjourn meeting": "Odgodi sjednicu",
         "Close meeting": "Zatvori sjednicu",
-        "The stage was not changed.": "Faza nije promijenjena."
+        "The stage was not changed.": "Faza nije promijenjena.",
+        "The body's rule": "Pravilo tijela"
     },
     "nplurals=2; plural=(n != 1);"
 )

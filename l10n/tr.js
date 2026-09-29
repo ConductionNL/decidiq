@@ -1146,7 +1146,8 @@ OC.L10N.register(
         "Resume meeting": "Toplantıya devam et",
         "Adjourn meeting": "Toplantıyı ertele",
         "Close meeting": "Toplantıyı kapat",
-        "The stage was not changed.": "Aşama değiştirilmedi."
+        "The stage was not changed.": "Aşama değiştirilmedi.",
+        "The body's rule": "Kurulun kuralı"
     },
     "nplurals=2; plural=(n != 1);"
 )

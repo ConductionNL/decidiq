@@ -1776,6 +1776,7 @@ OC.L10N.register(
         "The body putting the question.": "The body putting the question.",
         "The body the membership sits on.": "The body the membership sits on.",
         "The body whose accounts were examined.": "The body whose accounts were examined.",
+        "The body's rule": "The body's rule",
         "The choices someone may pick from, one per entry. Only used when the field type is a pick from a list; leave it empty for every other field type.": "The choices someone may pick from, one per entry. Only used when the field type is a pick from a list; leave it empty for every other field type.",
         "The commitment this letter settles, when it settles one.": "The commitment this letter settles, when it settles one.",
         "The commitment this planned item follows up, when it follows one.": "The commitment this planned item follows up, when it follows one.",

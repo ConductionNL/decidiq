@@ -1145,7 +1145,8 @@
         "Resume meeting": "Jätka koosolekut",
         "Adjourn meeting": "Lükka koosolek edasi",
         "Close meeting": "Lõpeta koosolek",
-        "The stage was not changed.": "Etappi ei muudetud."
+        "The stage was not changed.": "Etappi ei muudetud.",
+        "The body's rule": "Kogu reegel"
     },
     "plurals": null
 }

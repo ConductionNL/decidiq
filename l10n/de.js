@@ -1146,7 +1146,8 @@ OC.L10N.register(
         "Resume meeting": "Sitzung fortsetzen",
         "Adjourn meeting": "Sitzung vertagen",
         "Close meeting": "Sitzung schließen",
-        "The stage was not changed.": "Die Phase wurde nicht geändert."
+        "The stage was not changed.": "Die Phase wurde nicht geändert.",
+        "The body's rule": "Regel des Gremiums"
     },
     "nplurals=2; plural=(n != 1);"
 )

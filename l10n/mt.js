@@ -1146,7 +1146,8 @@ OC.L10N.register(
         "Resume meeting": "Kompli l-laqgħa",
         "Adjourn meeting": "Posponi l-laqgħa",
         "Close meeting": "Agħlaq il-laqgħa",
-        "The stage was not changed.": "L-istadju ma nbidilx."
+        "The stage was not changed.": "L-istadju ma nbidilx.",
+        "The body's rule": "Ir-regola tal-korp"
     },
     "nplurals=2; plural=(n != 1);"
 )

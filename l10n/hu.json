@@ -1145,7 +1145,8 @@
         "Resume meeting": "Ülés folytatása",
         "Adjourn meeting": "Ülés elnapolása",
         "Close meeting": "Ülés bezárása",
-        "The stage was not changed.": "A szakasz nem változott."
+        "The stage was not changed.": "A szakasz nem változott.",
+        "The body's rule": "A testület szabálya"
     },
     "plurals": null
 }

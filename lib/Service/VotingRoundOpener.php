@@ -63,6 +63,13 @@ class VotingRoundOpener {
 	private readonly RankedBallotRules $rankedRules;
 
 	/**
+	 * The quorum a meeting must reach (meeting, then body).
+	 *
+	 * @var BodyQuorum
+	 */
+	private readonly BodyQuorum $bodyQuorum;
+
+	/**
 	 * Constructor for VotingRoundOpener.
 	 *
 	 * @param MotionService $motionService The motion service for lifecycle transitions
@@ -96,20 +103,24 @@ class VotingRoundOpener {
 
 		$this->normaliser = new SavedObjectNormaliser();
 		$this->rankedRules = new RankedBallotRules();
+		$this->bodyQuorum = new BodyQuorum();
 
 	}//end __construct()
 
 	/**
 	 * Check whether quorum is met for a given meeting.
 	 *
-	 * Counts Participants whose leftAt is null (active) in the GovernanceBody, and
-	 * compares against Meeting.quorumRequired.
+	 * The threshold is Meeting.quorumRequired, else the body's quorum, else
+	 * the body's quorumRule over its current members (BodyQuorum). Members
+	 * marked present or proxy count; with no attendance taken, every member
+	 * who has not left counts.
 	 *
 	 * @param string $meetingId The meeting UUID
 	 *
-	 * @return bool True if quorum is met or quorumRequired is null/0
+	 * @return bool True if quorum is met or no quorum is set
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
+	 * @spec openspec/specs/meeting-management/spec.md#requirement-req-mrb-002-votes-follow-the-body-rules
 	 */
 	public function checkQuorum(string $meetingId): bool {
 		$meetingEntity = $this->objectService()->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
@@ -122,29 +133,15 @@ class VotingRoundOpener {
 			return false;
 		}
 
-		$quorumRequired = (int)($meeting['quorumRequired'] ?? 0);
-		if ($quorumRequired === 0) {
-			return true;
-		}
-
-		// Count active participants (leftAt is null) via the shared
-		// ParticipantResolver, which resolves the meeting → governance-body link
-		// and the participant memberships from BOTH the structured relation list
-		// and the flat field-keyed relation map ('@self.relations.governanceBody')
-		// produced by the standard OpenRegister object API. The previous inline
-		// logic read '$meeting["relations"]' as a structured list and filtered on
-		// '_relations.governance-body', neither of which matches OR-object-API
-		// data, so it always counted 0 active participants and failed closed.
-		$participants = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
-
-		$activeCount = 0;
-		foreach ($participants as $participant) {
-			if (($participant['leftAt'] ?? null) === null) {
-				$activeCount++;
-			}
-		}
-
-		return $activeCount >= $quorumRequired;
+		// The body's quorum (a member count or a quorum rule) applies when the
+		// meeting sets none of its own (meeting-rules-from-body-and-type). The
+		// participants come from the shared ParticipantResolver, which reads the
+		// meeting -> body link in both relation shapes OpenRegister produces.
+		return $this->bodyQuorum->isMet(
+			meeting: $meeting,
+			body: $this->loadBody(bodyId: $this->bodyIdOf(meetingId: $meetingId)),
+			participants: $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId)
+		);
 	}//end checkQuorum()
 
 	/**
@@ -192,12 +189,16 @@ class VotingRoundOpener {
 		$roundRules = ($roundRules ?? new VotingRoundRules());
 		$subjectType = $roundRules->subjectType;
 
+		// The body's rules apply when the caller names no body: it is the body
+		// of the meeting the round is held in.
+		$governanceBodyId = ($roundRules->governanceBodyId ?? $this->bodyIdOf(meetingId: $meetingId));
+
 		// Process-configuration: resolution order per rule is caller value (non-null) ->
 		// body template default -> built-in default. The caller (controller) always passes
 		// explicit values, so it always wins; the template only fills nulls. Unknown rule
 		// values are rejected, never silently defaulted.
 		$rules = $this->preflight->resolveRules(
-			governanceBodyId: $roundRules->governanceBodyId,
+			governanceBodyId: $governanceBodyId,
 			voteThreshold: $roundRules->voteThreshold,
 			abstentionHandling: $roundRules->abstentionHandling,
 			tieBreakRule: $roundRules->tieBreakRule,
@@ -304,6 +305,56 @@ class VotingRoundOpener {
 			tieBreakRule: $tieBreakRule
 		);
 	}//end roundOptions()
+
+	/**
+	 * The governance body of the meeting, or null (fails soft).
+	 *
+	 * @param string $meetingId The meeting
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/specs/meeting-management/spec.md#requirement-req-mrb-002-votes-follow-the-body-rules
+	 */
+	private function bodyIdOf(string $meetingId): ?string {
+		if ($meetingId === '') {
+			return null;
+		}
+
+		try {
+			return $this->participantResolver->resolveGovernanceBodyId(meetingId: $meetingId);
+		} catch (\Throwable) {
+			return null;
+		}
+
+	}//end bodyIdOf()
+
+	/**
+	 * The governance body as an array, or null (fails soft).
+	 *
+	 * @param string|null $bodyId The body
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/specs/meeting-management/spec.md#requirement-req-mrb-002-votes-follow-the-body-rules
+	 */
+	private function loadBody(?string $bodyId): ?array {
+		if ($bodyId === null) {
+			return null;
+		}
+
+		try {
+			$entity = $this->objectService()->find(id: $bodyId, register: 'decidiq', schema: 'governance-body');
+		} catch (\Throwable) {
+			return null;
+		}
+
+		if ($entity === null) {
+			return null;
+		}
+
+		return (array)$entity->jsonSerialize();
+
+	}//end loadBody()
 
 	/**
 	 * Resolve OpenRegister ObjectService.

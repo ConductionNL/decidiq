@@ -1146,7 +1146,8 @@ OC.L10N.register(
         "Resume meeting": "Gjenoppta møtet",
         "Adjourn meeting": "Utsett møtet",
         "Close meeting": "Avslutt møtet",
-        "The stage was not changed.": "Fasen ble ikke endret."
+        "The stage was not changed.": "Fasen ble ikke endret.",
+        "The body's rule": "Organets regel"
     },
     "nplurals=2; plural=(n != 1);"
 )
