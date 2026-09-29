@@ -1146,7 +1146,8 @@ OC.L10N.register(
         "Resume meeting": "Reanudar la reunión",
         "Adjourn meeting": "Aplazar la reunión",
         "Close meeting": "Cerrar la reunión",
-        "The stage was not changed.": "La fase no se cambió."
+        "The stage was not changed.": "La fase no se cambió.",
+        "The body's rule": "La regla del órgano"
     },
     "nplurals=2; plural=(n != 1);"
 )

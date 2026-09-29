@@ -1145,7 +1145,8 @@
         "Resume meeting": "Nastavi sjednicu",
         "Adjourn meeting": "Odgodi sjednicu",
         "Close meeting": "Zatvori sjednicu",
-        "The stage was not changed.": "Faza nije promijenjena."
+        "The stage was not changed.": "Faza nije promijenjena.",
+        "The body's rule": "Pravilo tijela"
     },
     "plurals": null
 }

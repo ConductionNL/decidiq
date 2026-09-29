@@ -1146,7 +1146,8 @@ OC.L10N.register(
         "Resume meeting": "Tęsti posėdį",
         "Adjourn meeting": "Atidėti posėdį",
         "Close meeting": "Uždaryti posėdį",
-        "The stage was not changed.": "Etapas nepakeistas."
+        "The stage was not changed.": "Etapas nepakeistas.",
+        "The body's rule": "Organo taisyklė"
     },
     "nplurals=2; plural=(n != 1);"
 )

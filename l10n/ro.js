@@ -1146,7 +1146,8 @@ OC.L10N.register(
         "Resume meeting": "Reia ședința",
         "Adjourn meeting": "Amână ședința",
         "Close meeting": "Închide ședința",
-        "The stage was not changed.": "Etapa nu a fost schimbată."
+        "The stage was not changed.": "Etapa nu a fost schimbată.",
+        "The body's rule": "Regula organului"
     },
     "nplurals=2; plural=(n != 1);"
 )

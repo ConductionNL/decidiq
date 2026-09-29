@@ -1146,7 +1146,8 @@ OC.L10N.register(
         "Resume meeting": "Atosaigh an cruinniú",
         "Adjourn meeting": "Cuir an cruinniú ar atráth",
         "Close meeting": "Dún an cruinniú",
-        "The stage was not changed.": "Níor athraíodh an chéim."
+        "The stage was not changed.": "Níor athraíodh an chéim.",
+        "The body's rule": "Riail an chomhlachta"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1146,7 +1146,8 @@ OC.L10N.register(
         "Resume meeting": "Возобновить заседание",
         "Adjourn meeting": "Отложить заседание",
         "Close meeting": "Закрыть заседание",
-        "The stage was not changed.": "Этап не изменён."
+        "The stage was not changed.": "Этап не изменён.",
+        "The body's rule": "Правило органа"
     },
     "nplurals=2; plural=(n != 1);"
 )

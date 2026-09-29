@@ -63,6 +63,13 @@ class VotingRoundOpener {
 	private readonly RankedBallotRules $rankedRules;
 
 	/**
+	 * The meeting's type and body rules (quorum, vote threshold).
+	 *
+	 * @var MeetingRuleSource
+	 */
+	private readonly MeetingRuleSource $ruleSource;
+
+	/**
 	 * Constructor for VotingRoundOpener.
 	 *
 	 * @param MotionService $motionService The motion service for lifecycle transitions
@@ -77,7 +84,7 @@ class VotingRoundOpener {
 	 */
 	public function __construct(
 		MotionService $motionService,
-		private readonly ParticipantResolver $participantResolver,
+		ParticipantResolver $participantResolver,
 		private readonly VotingRoundPreflight $preflight,
 		private readonly VotingOpenedNotifier $notifier,
 		private readonly ObjectServiceInterface $objectService,
@@ -96,55 +103,27 @@ class VotingRoundOpener {
 
 		$this->normaliser = new SavedObjectNormaliser();
 		$this->rankedRules = new RankedBallotRules();
+		$this->ruleSource = new MeetingRuleSource(objectService: $objectService, participantResolver: $participantResolver);
 
 	}//end __construct()
 
 	/**
 	 * Check whether quorum is met for a given meeting.
 	 *
-	 * Counts Participants whose leftAt is null (active) in the GovernanceBody, and
-	 * compares against Meeting.quorumRequired.
+	 * The threshold is Meeting.quorumRequired, else the body's quorum, else
+	 * the body's quorumRule over its current members (BodyQuorum). Members
+	 * marked present or proxy count; with no attendance taken, every member
+	 * who has not left counts.
 	 *
 	 * @param string $meetingId The meeting UUID
 	 *
-	 * @return bool True if quorum is met or quorumRequired is null/0
+	 * @return bool True if quorum is met or no quorum is set
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
+	 * @spec openspec/specs/meeting-management/spec.md#requirement-req-mrb-002-votes-follow-the-body-rules
 	 */
 	public function checkQuorum(string $meetingId): bool {
-		$meetingEntity = $this->objectService()->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
-		$meeting = null;
-		if ($meetingEntity !== null) {
-			$meeting = $meetingEntity->jsonSerialize();
-		}
-
-		if ($meeting === null) {
-			return false;
-		}
-
-		$quorumRequired = (int)($meeting['quorumRequired'] ?? 0);
-		if ($quorumRequired === 0) {
-			return true;
-		}
-
-		// Count active participants (leftAt is null) via the shared
-		// ParticipantResolver, which resolves the meeting → governance-body link
-		// and the participant memberships from BOTH the structured relation list
-		// and the flat field-keyed relation map ('@self.relations.governanceBody')
-		// produced by the standard OpenRegister object API. The previous inline
-		// logic read '$meeting["relations"]' as a structured list and filtered on
-		// '_relations.governance-body', neither of which matches OR-object-API
-		// data, so it always counted 0 active participants and failed closed.
-		$participants = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
-
-		$activeCount = 0;
-		foreach ($participants as $participant) {
-			if (($participant['leftAt'] ?? null) === null) {
-				$activeCount++;
-			}
-		}
-
-		return $activeCount >= $quorumRequired;
+		return $this->ruleSource->quorumMet(meetingId: $meetingId);
 	}//end checkQuorum()
 
 	/**
@@ -192,13 +171,12 @@ class VotingRoundOpener {
 		$roundRules = ($roundRules ?? new VotingRoundRules());
 		$subjectType = $roundRules->subjectType;
 
-		// Process-configuration: resolution order per rule is caller value (non-null) ->
-		// body template default -> built-in default. The caller (controller) always passes
-		// explicit values, so it always wins; the template only fills nulls. Unknown rule
-		// values are rejected, never silently defaulted.
+		// Resolution order per rule: the chair's pick (non-null), then the meeting
+		// type's threshold, then the template of the body (named, else the
+		// meeting's), then the built-in default. Unknown values are rejected.
 		$rules = $this->preflight->resolveRules(
-			governanceBodyId: $roundRules->governanceBodyId,
-			voteThreshold: $roundRules->voteThreshold,
+			governanceBodyId: ($roundRules->governanceBodyId ?? $this->ruleSource->bodyIdOf(meetingId: $meetingId)),
+			voteThreshold: ($roundRules->voteThreshold ?? $this->ruleSource->meetingTypeThreshold(meetingId: $meetingId)),
 			abstentionHandling: $roundRules->abstentionHandling,
 			tieBreakRule: $roundRules->tieBreakRule,
 			subjectType: $subjectType

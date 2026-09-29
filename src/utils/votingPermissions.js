@@ -70,6 +70,27 @@ export function votingRoundBody({ subjectId, subjectType, meetingId }) {
 }
 
 /**
+ * The rules the chair picked when opening a round. A rule left on "The
+ * body's rule" is sent as null, so the server takes it from the governance
+ * body of the meeting (its process template), then the built-in default.
+ *
+ * @param {object} newRound The open-round form state.
+ *
+ * @return {{voteThreshold: ?string, abstentionHandling: ?string, tieBreakRule: ?string}}
+ *
+ * @spec openspec/specs/meeting-management/spec.md#requirement-req-mrb-002-votes-follow-the-body-rules
+ */
+export function chosenRules(newRound) {
+	const pick = (value) =>
+		typeof value === 'string' && value !== '' ? value : null
+	return {
+		voteThreshold: pick(newRound?.voteThreshold),
+		abstentionHandling: pick(newRound?.abstentionHandling),
+		tieBreakRule: pick(newRound?.tieBreakRule),
+	}
+}
+
+/**
  * The id a reference holds: a bare uuid, or an expanded object.
  *
  * @param {*} ref The stored reference.

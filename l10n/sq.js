@@ -1146,7 +1146,8 @@ OC.L10N.register(
         "Resume meeting": "Rifillo mbledhjen",
         "Adjourn meeting": "Shty mbledhjen",
         "Close meeting": "Mbyll mbledhjen",
-        "The stage was not changed.": "Faza nuk u ndryshua."
+        "The stage was not changed.": "Faza nuk u ndryshua.",
+        "The body's rule": "Rregulli i organit"
     },
     "nplurals=2; plural=(n != 1);"
 )

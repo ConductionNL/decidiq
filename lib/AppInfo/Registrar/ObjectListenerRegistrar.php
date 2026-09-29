@@ -32,10 +32,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\AppInfo\Registrar;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
 use OCA\Decidiq\Listener\TechnicalQuestionListener;
 use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
+use OCA\Decidiq\Listener\MeetingDefaultsListener;
 use OCA\Decidiq\Listener\MeetingFolderListener;
 use OCA\Decidiq\Listener\SubmissionDeadlineListener;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
@@ -165,6 +165,17 @@ class ObjectListenerRegistrar {
 			schemas: ['decision']
 		);
 
+		// Meeting defaults (meeting-rules-from-body-and-type, REQ-MRB-001): a
+		// new meeting takes the empty fields from its type, then its body.
+		// Declared interest is the handler's literal `meeting` guard.
+		$this->subscribe(
+			dispatcher: $dispatcher,
+			event: ObjectCreatingEvent::class,
+			listener: MeetingDefaultsListener::class,
+			registers: null,
+			schemas: ['meeting']
+		);
+
 		// Submission window sanity (motions-submission-window, REQ-SUBW-003):
 		// the same listener refuses a meeting whose window opens after it
 		// closes, on create and on update. Declared interest is the handler's
@@ -226,7 +237,7 @@ class ObjectListenerRegistrar {
 			'OpenRegister ObjectEventSubscription unavailable: ' . $listener
 			. ' fell back to an UNFILTERED registration for ' . $event
 			. ' and will be invoked on every object write instance-wide.',
-			['app' => Application::APP_ID]
+			['app' => 'decidiq']
 		);
 
 		$dispatcher->addServiceListener($event, $listener);

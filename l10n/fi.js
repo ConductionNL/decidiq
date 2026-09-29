@@ -1146,7 +1146,8 @@ OC.L10N.register(
         "Resume meeting": "Jatka kokousta",
         "Adjourn meeting": "Lykkää kokousta",
         "Close meeting": "Päätä kokous",
-        "The stage was not changed.": "Vaihetta ei muutettu."
+        "The stage was not changed.": "Vaihetta ei muutettu.",
+        "The body's rule": "Toimielimen sääntö"
     },
     "nplurals=2; plural=(n != 1);"
 )

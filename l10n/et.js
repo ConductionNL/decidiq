@@ -1146,7 +1146,8 @@ OC.L10N.register(
         "Resume meeting": "Jätka koosolekut",
         "Adjourn meeting": "Lükka koosolek edasi",
         "Close meeting": "Lõpeta koosolek",
-        "The stage was not changed.": "Etappi ei muudetud."
+        "The stage was not changed.": "Etappi ei muudetud.",
+        "The body's rule": "Kogu reegel"
     },
     "nplurals=2; plural=(n != 1);"
 )
