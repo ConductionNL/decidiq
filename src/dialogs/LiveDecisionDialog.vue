@@ -112,7 +112,9 @@ export default {
 			this.error = ''
 			try {
 				const response = await fetch(
-					generateUrl(`/apps/decidiq/api/meetings/${this.meetingId}/live-decisions`),
+					generateUrl(
+						`/apps/decidiq/api/meetings/${this.meetingId}/live-decisions`,
+					),
 					{
 						method: 'POST',
 						headers: {
@@ -133,13 +135,20 @@ export default {
 					},
 				)
 				if (!response.ok) {
-					this.error = response.status === 409
-						? this.t('decidiq', 'A decision can only be recorded while the meeting is in session.')
-						: this.t('decidiq', 'The decision could not be recorded.')
+					this.error =
+						response.status === 409
+							? this.t(
+									'decidiq',
+									'A decision can only be recorded while the meeting is in session.',
+								)
+							: this.t(
+									'decidiq',
+									'The decision could not be recorded.',
+								)
 					return
 				}
 				this.$emit('recorded')
-			} catch (e) {
+			} catch {
 				this.error = this.t('decidiq', 'The decision could not be recorded.')
 			} finally {
 				this.busy = false

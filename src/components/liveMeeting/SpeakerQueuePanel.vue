@@ -186,12 +186,12 @@
 					{{
 						contribution.kind === 'speech'
 							? t('decidiq', '{name} spoke for {time}', {
-								name: contribution.name,
-								time: durationLabel(contribution.duration),
-							})
+									name: contribution.name,
+									time: durationLabel(contribution.duration),
+								})
 							: t('decidiq', '{name} raised a question', {
-								name: contribution.name,
-							})
+									name: contribution.name,
+								})
 					}}
 				</li>
 			</ul>
@@ -256,7 +256,11 @@ export default {
 		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
 		 */
 		contributions() {
-			return contributionsOn(this.records, this.currentItemId, this.participants)
+			return contributionsOn(
+				this.records,
+				this.currentItemId,
+				this.participants,
+			)
 		},
 
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
@@ -275,9 +279,11 @@ export default {
 		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
 		 */
 		currentItemId: {
+			/** @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item */
 			handler() {
 				this.loadRecords()
 			},
+
 			immediate: true,
 		},
 	},
@@ -394,6 +400,7 @@ export default {
 				this.$emit('speech-recorded', stopped)
 				await this.loadRecords()
 			} catch (e) {
+				// eslint-disable-next-line no-console
 				console.error('Failed to record speech:', e)
 			}
 		},
@@ -424,6 +431,7 @@ export default {
 				})
 				await this.loadRecords()
 			} catch (e) {
+				// eslint-disable-next-line no-console
 				console.error('Failed to record question:', e)
 			}
 		},
@@ -451,12 +459,13 @@ export default {
 			try {
 				const response = await fetch(
 					OC.generateUrl('/apps/decidiq/api/engagement')
-						+ '?meeting=' + encodeURIComponent(this.meetingId),
+						+ '?meeting='
+						+ encodeURIComponent(this.meetingId),
 					{ headers: { requesttoken: OC.requestToken } },
 				)
 				const data = response.ok ? await response.json() : {}
 				this.records = Array.isArray(data?.records) ? data.records : []
-			} catch (e) {
+			} catch {
 				this.records = []
 			}
 		},

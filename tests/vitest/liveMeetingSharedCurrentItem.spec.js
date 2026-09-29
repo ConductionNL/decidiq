@@ -14,9 +14,9 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import {
-	FOLLOW_INTERVAL_MS,
 	contributionsOn,
 	engagementBody,
+	FOLLOW_INTERVAL_MS,
 	isOpenRound,
 	liveDecisionBody,
 	openRoundFor,
@@ -73,19 +73,36 @@ describe('everyone follows the current item (REQ-LSC-001)', () => {
 	})
 
 	it('only the chair, secretary or an admin runs the meeting', () => {
-		expect(runsTheMeeting({ chair: true, secretary: false, admin: false })).toBe(true)
-		expect(runsTheMeeting({ chair: false, secretary: true, admin: false })).toBe(true)
-		expect(runsTheMeeting({ chair: false, secretary: false, admin: false })).toBe(false)
+		expect(runsTheMeeting({ chair: true, secretary: false, admin: false })).toBe(
+			true,
+		)
+		expect(runsTheMeeting({ chair: false, secretary: true, admin: false })).toBe(
+			true,
+		)
+		expect(
+			runsTheMeeting({ chair: false, secretary: false, admin: false }),
+		).toBe(false)
 		expect(runsTheMeeting(null)).toBe(false)
 	})
 })
 
 describe('a room screen shows the current item and the vote (REQ-LSC-002)', () => {
 	const rounds = [
-		{ id: 'r-closed', openedAt: '2026-10-14T19:40:00Z', closedAt: '2026-10-14T19:45:00Z', '@self': { relations: { motion: MOTION } } },
-		{ id: 'r-open', openedAt: '2026-10-14T20:00:00Z', '@self': { relations: { motion: MOTION } } },
+		{
+			id: 'r-closed',
+			openedAt: '2026-10-14T19:40:00Z',
+			closedAt: '2026-10-14T19:45:00Z',
+			'@self': { relations: { motion: MOTION } },
+		},
+		{
+			id: 'r-open',
+			openedAt: '2026-10-14T20:00:00Z',
+			'@self': { relations: { motion: MOTION } },
+		},
 	]
-	const motions = [{ id: MOTION, title: 'M-12', '@self': { relations: { agendaItem: ITEM5 } } }]
+	const motions = [
+		{ id: MOTION, title: 'M-12', '@self': { relations: { agendaItem: ITEM5 } } },
+	]
 
 	it('a round is open between opening and closing', () => {
 		expect(isOpenRound(rounds[0])).toBe(false)
@@ -99,14 +116,14 @@ describe('a room screen shows the current item and the vote (REQ-LSC-002)', () =
 		expect(openRoundFor(rounds, null, motions)).toBeNull()
 	})
 
-	it('the screen page is registered and linked from the live screen', () => {
-		const manifest = JSON.parse(read('src/manifest.json'))
-		const page = manifest.pages.find((p) => p.id === 'MeetingScreen')
-		expect(page?.route).toBe('/meetings/:id/screen')
-		expect(page?.component).toBe('MeetingScreenView')
-		expect(read('src/registry.js')).toMatch(/MeetingScreenView/)
-		expect(read('src/views/LiveMeeting.vue')).toMatch(/MeetingScreen/)
-		expect(read('src/views/MeetingScreen.vue')).toMatch(/openRoundFor\(/)
+	it('the live page shows the room screen in projector mode and links to it', () => {
+		const live = read('src/views/LiveMeeting.vue')
+		expect(live).toMatch(/<MeetingScreen v-if="roomView"/)
+		expect(live).toMatch(/query: \{ view: 'screen' \}/)
+		expect(live).toMatch(/query\?\.view === 'screen'/)
+		expect(read('src/components/liveMeeting/MeetingScreen.vue')).toMatch(
+			/openRoundFor\(/,
+		)
 	})
 })
 
@@ -114,7 +131,12 @@ describe('a decision is recorded when it is taken (REQ-LSC-003)', () => {
 	it('sends the decision for the current item with its type', () => {
 		expect(
 			liveDecisionBody(
-				{ title: ' Woningbouwplan ', text: 'De raad stemt in.', outcome: 'adopted', decisionType: 'resolution' },
+				{
+					title: ' Woningbouwplan ',
+					text: 'De raad stemt in.',
+					outcome: 'adopted',
+					decisionType: 'resolution',
+				},
 				ITEM5,
 			),
 		).toEqual({
@@ -129,19 +151,25 @@ describe('a decision is recorded when it is taken (REQ-LSC-003)', () => {
 	it('the live screen opens the decision dialog for the current item', () => {
 		expect(read('src/views/LiveMeeting.vue')).toMatch(/LiveDecisionDialog/)
 		expect(read('src/dialogs/LiveDecisionDialog.vue')).toMatch(/live-decisions/)
-		expect(read('src/dialogs/LiveDecisionDialog.vue')).toMatch(/liveDecisionBody\(/)
+		expect(read('src/dialogs/LiveDecisionDialog.vue')).toMatch(
+			/liveDecisionBody\(/,
+		)
 	})
 })
 
 describe('speeches and questions are logged per item (REQ-LSC-004)', () => {
 	it('a speech and a question carry the current item', () => {
-		expect(engagementBody(MEETING, 'P-anna', 'speech', ITEM5, { duration: 90 })).toEqual({
+		expect(
+			engagementBody(MEETING, 'P-anna', 'speech', ITEM5, { duration: 90 }),
+		).toEqual({
 			meeting: MEETING,
 			participant: 'P-anna',
 			eventType: 'speech',
 			eventData: { duration: 90, agendaItem: ITEM5 },
 		})
-		expect(engagementBody(MEETING, 'P-pieter', 'question', ITEM5).eventData).toEqual({ agendaItem: ITEM5 })
+		expect(
+			engagementBody(MEETING, 'P-pieter', 'question', ITEM5).eventData,
+		).toEqual({ agendaItem: ITEM5 })
 	})
 
 	it('the speaker queue logs with the current item and offers Question raised', () => {
@@ -154,14 +182,37 @@ describe('speeches and questions are logged per item (REQ-LSC-004)', () => {
 
 	it('lists who spoke and who asked a question on the current item, and nothing from other items', () => {
 		const records = [
-			{ participant: 'P-anna', speeches: [{ duration: 90, agendaItem: ITEM5 }, { duration: 30, agendaItem: 'item-4' }], questionsRaised: [] },
-			{ participant: 'P-pieter', speeches: [], questionsRaised: [{ agendaItem: ITEM5 }] },
-			{ participant: 'P-kees', speeches: [{ duration: 60 }], questionsRaised: [] },
+			{
+				participant: 'P-anna',
+				speeches: [
+					{ duration: 90, agendaItem: ITEM5 },
+					{ duration: 30, agendaItem: 'item-4' },
+				],
+				questionsRaised: [],
+			},
+			{
+				participant: 'P-pieter',
+				speeches: [],
+				questionsRaised: [{ agendaItem: ITEM5 }],
+			},
+			{
+				participant: 'P-kees',
+				speeches: [{ duration: 60 }],
+				questionsRaised: [],
+			},
 		]
-		const participants = [{ id: 'P-anna', displayName: 'Anna' }, { id: 'P-pieter', name: 'Pieter' }]
+		const participants = [
+			{ id: 'P-anna', displayName: 'Anna' },
+			{ id: 'P-pieter', name: 'Pieter' },
+		]
 		expect(contributionsOn(records, ITEM5, participants)).toEqual([
 			{ participantId: 'P-anna', name: 'Anna', kind: 'speech', duration: 90 },
-			{ participantId: 'P-pieter', name: 'Pieter', kind: 'question', duration: 0 },
+			{
+				participantId: 'P-pieter',
+				name: 'Pieter',
+				kind: 'question',
+				duration: 0,
+			},
 		])
 		expect(contributionsOn(records, null, participants)).toEqual([])
 	})

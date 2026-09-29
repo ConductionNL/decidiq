@@ -849,38 +849,4 @@ class AgendaServiceTest extends TestCase {
 		self::assertGreaterThan(strtotime($old), strtotime($saved[0]['agendaNoticeSentAt']['alice']));
 
 	}//end testABurstOfEditsSendsOneNotice()
-
-	/**
-	 * Making an item current saves it on the meeting, and only that.
-	 *
-	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
-	 *
-	 * @return void
-	 */
-	public function testMakingAnItemCurrentSavesItOnTheMeeting(): void {
-		$this->objectService->method('find')->willReturn($this->entity(['id' => 'item-5', 'meeting' => 'meeting-uuid-1']));
-		$patches = $this->capturePatches();
-
-		$this->service->setCurrentItem(meetingId: 'meeting-uuid-1', itemId: 'item-5');
-
-		$this->assertSame([['id' => 'meeting-uuid-1', 'data' => ['currentAgendaItem' => 'item-5']]], $patches->getArrayCopy());
-
-	}//end testMakingAnItemCurrentSavesItOnTheMeeting()
-
-	/**
-	 * An item of another meeting is not made current.
-	 *
-	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
-	 *
-	 * @return void
-	 */
-	public function testAnItemOfAnotherMeetingIsNotMadeCurrent(): void {
-		$this->objectService->method('find')->willReturn($this->entity(['id' => 'item-9', 'meeting' => 'other-meeting']));
-		$this->objectService->expects($this->never())->method('patchObject');
-
-		$this->expectException(\InvalidArgumentException::class);
-		$this->service->setCurrentItem(meetingId: 'meeting-uuid-1', itemId: 'item-9');
-
-	}//end testAnItemOfAnotherMeetingIsNotMadeCurrent()
-
 }//end class

@@ -738,14 +738,6 @@
 			"_note": "Realtime meeting shell — WebSocket subscriptions, frame-by-frame UI, per-vote-card animations. No typed primitive analogue; documented as the canonical example for a future type:realtime lib extension. See src/views/LiveMeeting.vue."
 		},
 		{
-			"id": "MeetingScreen",
-			"route": "/meetings/:id/screen",
-			"type": "custom",
-			"title": "Room screen",
-			"component": "MeetingScreenView",
-			"_note": "live-meeting-shared-current-item: the projector view of a live meeting, following Meeting.currentAgendaItem and an open vote on it. See src/views/MeetingScreen.vue."
-		},
-		{
 			"id": "Participants",
 			"route": "/participants",
 			"type": "index",

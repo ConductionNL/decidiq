@@ -19,7 +19,7 @@ Read at decidiq development `759d044c`.
 5. The speaker queue lists the contributions on the current item (speeches with their length, questions), read from GET /api/engagement?meeting=.
 
 Design corrected at build (29 Sep): a meeting save from the browser would need write access to the whole meeting for the chair and would let any member with that access move the meeting on, so the current item goes through a guarded endpoint. LiveDecisionService saved to schema `Decision` with an undeclared `relations` key and no required `decisionType`; it now writes `meeting`, `agendaItem`, `decisionType` (default resolution) and an outcome only when one was taken.
-3. A manifest page for the screen view reading the meeting and the projection state.
+3. The room screen is the live page in projector mode (/meetings/:id/live?view=screen, src/components/liveMeeting/MeetingScreen.vue), not a new manifest page: a fourth type:"custom" page fails the page-type ratchet (gate-69). It reads the meeting, the current item and the voting rounds on the item or its motions.
 4. Record decision dialog posting to the existing live decision route.
 
 ## Declarative or imperative

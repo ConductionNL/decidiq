@@ -1965,12 +1965,12 @@
 			"decidiq": "yes",
 			"built": {
 				"state": "built",
-				"evidence": "src/views/MeetingScreen.vue page MeetingScreen /meetings/:id/screen (src/manifest.json), linked as Room screen from the live page; shows the meeting, the current item and 'Voting is open' while a round on the item or its motion is open (src/utils/liveMeeting.js openRoundFor)",
+				"evidence": "src/components/liveMeeting/MeetingScreen.vue, shown by the live page at /meetings/:id/live?view=screen (Room screen button); shows the meeting, the current item and 'Voting is open' while a round on the item or its motion is open (src/utils/liveMeeting.js openRoundFor)",
 				"owner": "ConductionNL/decidiq",
 				"change": "openspec/changes/archive/2026-09-29-live-meeting-shared-current-item",
 				"readOn": "2026-09-28"
 			},
-			"reachedOn": "Room screen button on the live page opens /meetings/:id/screen",
+			"reachedOn": "Room screen button on the live page opens /meetings/:id/live?view=screen",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "room-display",

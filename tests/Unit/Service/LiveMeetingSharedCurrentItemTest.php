@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\CurrentAgendaItemService;
 use OCA\Decidiq\Service\EngagementService;
 use OCA\Decidiq\Service\LiveDecisionService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -224,4 +225,42 @@ class LiveMeetingSharedCurrentItemTest extends TestCase {
 		$this->assertSame('item-5', ($stored['questionsRaised'][0]['agendaItem'] ?? null));
 		$this->assertTrue($this->validates($stored, $this->mergedSchema(slug: 'engagement-record')));
 	}//end testSpeechesAndQuestionsKeepTheirItem()
+
+	/**
+	 * Scenario "Members follow the chair": making an item current patches
+	 * the meeting with that item, and only that, in a shape the meeting
+	 * schema accepts.
+	 *
+	 * @return void
+	 */
+	public function testMakingAnItemCurrentSavesItOnTheMeeting(): void {
+		$patches = [];
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('find')->willReturn($this->entity(['id' => 'item-5', 'meeting' => 'm-14']));
+		$objectService->method('patchObject')->willReturnCallback(
+			function (string $objectId, array $data, string|int|null $register=null, string|int|null $schema=null) use (&$patches): ObjectEntity {
+				$patches[] = [$objectId, $schema, $data];
+				return $this->entity($data);
+			}
+		);
+
+		(new CurrentAgendaItemService(objectService: $objectService))->setCurrentItem(meetingId: 'm-14', itemId: 'item-5');
+
+		$this->assertSame([['m-14', 'meeting', ['currentAgendaItem' => 'item-5']]], $patches);
+		$this->assertArrayHasKey('currentAgendaItem', $this->mergedSchema(slug: 'meeting')['properties']);
+	}//end testMakingAnItemCurrentSavesItOnTheMeeting()
+
+	/**
+	 * An item of another meeting is not made current.
+	 *
+	 * @return void
+	 */
+	public function testAnItemOfAnotherMeetingIsNotMadeCurrent(): void {
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('find')->willReturn($this->entity(['id' => 'item-9', 'meeting' => 'other-meeting']));
+		$objectService->expects($this->never())->method('patchObject');
+
+		$this->expectException(\InvalidArgumentException::class);
+		(new CurrentAgendaItemService(objectService: $objectService))->setCurrentItem(meetingId: 'm-14', itemId: 'item-9');
+	}//end testAnItemOfAnotherMeetingIsNotMadeCurrent()
 }//end class

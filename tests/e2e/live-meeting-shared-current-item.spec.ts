@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Playwright e2e: the chair's current agenda item is shared with every live
- * screen and the room screen, and a decision is recorded on it (change
+ * screen and the room screen (the live page with ?view=screen),
+ * and a decision is recorded on it (change
  * live-meeting-shared-current-item, matrix rows liv-01 liv-04 liv-05 liv-11).
  *
  * @spec openspec/specs/agenda-live-management/spec.md
@@ -48,21 +49,32 @@ test('the chair makes an item current, the room screen follows and a decision is
 	})
 
 	await page.goto(`${BASE}/index.php/apps/decidiq/meetings/${idOf(meeting)}/live`)
-	await page.getByRole('button', { name: new RegExp(`Activate ${tag}-woningbouwplan`) }).click()
+	await page
+		.getByRole('button', { name: new RegExp(`Activate ${tag}-woningbouwplan`) })
+		.click()
 
-	await page.goto(`${BASE}/index.php/apps/decidiq/meetings/${idOf(meeting)}/screen`)
-	await expect(page.getByTestId('meeting-screen-item')).toContainText(`${tag}-woningbouwplan`)
+	await page.goto(
+		`${BASE}/index.php/apps/decidiq/meetings/${idOf(meeting)}/live?view=screen`,
+	)
+	await expect(page.getByTestId('meeting-screen-item')).toContainText(
+		`${tag}-woningbouwplan`,
+	)
 
 	await page.goto(`${BASE}/index.php/apps/decidiq/meetings/${idOf(meeting)}/live`)
 	await page.getByTestId('meeting-live-record-decision').click()
-	await page.getByTestId('live-decision-text').locator('textarea').fill('De raad stemt in.')
+	await page
+		.getByTestId('live-decision-text')
+		.locator('textarea')
+		.fill('De raad stemt in.')
 	await page.getByTestId('live-decision-submit').click()
 	await expect(page.getByText('Decision recorded.')).toBeVisible()
 	expect(idOf(item)).toBeTruthy()
 })
 
 // @e2e agenda-live-management::who-spoke-on-which-item
-test('a question raised on the current item is listed under that item', async ({ page }) => {
+test('a question raised on the current item is listed under that item', async ({
+	page,
+}) => {
 	const meeting = await createObject(page, ledger, 'meeting', {
 		title: `${tag}-commissie`,
 		meetingType: 'regular',
@@ -81,23 +93,31 @@ test('a question raised on the current item is listed under that item', async ({
 		role: 'member',
 	})
 	await page.goto(`${BASE}/index.php/apps/decidiq/`)
-	const headers = { ...(await writeHeaders(page)), 'Content-Type': 'application/json' }
+	const headers = {
+		...(await writeHeaders(page)),
+		'Content-Type': 'application/json',
+	}
 	const current = await page.request.put(
 		`${BASE}/index.php/apps/decidiq/api/agendas/${idOf(meeting)}/current-item`,
 		{ headers, data: { agendaItem: idOf(item) } },
 	)
 	expect(current.ok()).toBeTruthy()
-	const logged = await page.request.post(`${BASE}/index.php/apps/decidiq/api/engagement`, {
-		headers,
-		data: {
-			meeting: idOf(meeting),
-			participant: idOf(pieter),
-			eventType: 'question',
-			eventData: { agendaItem: idOf(item) },
+	const logged = await page.request.post(
+		`${BASE}/index.php/apps/decidiq/api/engagement`,
+		{
+			headers,
+			data: {
+				meeting: idOf(meeting),
+				participant: idOf(pieter),
+				eventType: 'question',
+				eventData: { agendaItem: idOf(item) },
+			},
 		},
-	})
+	)
 	expect(logged.ok()).toBeTruthy()
 
 	await page.goto(`${BASE}/index.php/apps/decidiq/meetings/${idOf(meeting)}/live`)
-	await expect(page.getByTestId('speaker-queue-contributions')).toContainText('raised a question')
+	await expect(page.getByTestId('speaker-queue-contributions')).toContainText(
+		'raised a question',
+	)
 })

@@ -31,6 +31,7 @@ use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\NotFoundException;
 use OCA\Decidiq\Service\AgendaAuthorizationGuard;
 use OCA\Decidiq\Service\AgendaService;
+use OCA\Decidiq\Service\CurrentAgendaItemService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -56,6 +57,7 @@ class AgendaController extends Controller {
 	 *
 	 * @param IRequest $request The HTTP request
 	 * @param AgendaService $agendaService The agenda service
+	 * @param CurrentAgendaItemService $currentItems The live meeting's current item
 	 * @param AgendaAuthorizationGuard $guard Authentication + chair/secretary authorization
 	 * @param LoggerInterface $logger PSR-3 logger
 	 *
@@ -66,6 +68,7 @@ class AgendaController extends Controller {
 	public function __construct(
 		IRequest $request,
 		private readonly AgendaService $agendaService,
+		private readonly CurrentAgendaItemService $currentItems,
 		private readonly AgendaAuthorizationGuard $guard,
 		private readonly LoggerInterface $logger,
 	) {
@@ -337,7 +340,7 @@ class AgendaController extends Controller {
 		$itemId = (string)($this->request->getParam('agendaItem') ?? '');
 
 		try {
-			$this->agendaService->setCurrentItem(meetingId: $meetingId, itemId: $itemId);
+			$this->currentItems->setCurrentItem(meetingId: $meetingId, itemId: $itemId);
 			return new JSONResponse(['success' => true, 'currentAgendaItem' => $itemId]);
 		} catch (\InvalidArgumentException $e) {
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);

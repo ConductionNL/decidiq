@@ -71,10 +71,17 @@ export function isOpenRound(round) {
  */
 export function openRoundFor(rounds, item, motions = []) {
 	if (!item?.id) return null
-	const targets = [item.id, ...matching(motions, item.id).map((motion) => motion.id)]
-	return (rounds ?? []).find(
-		(round) => isOpenRound(round) && targets.some((target) => references(round, target)),
-	) ?? null
+	const targets = [
+		item.id,
+		...matching(motions, item.id).map((motion) => motion.id),
+	]
+	return (
+		(rounds ?? []).find(
+			(round) =>
+				isOpenRound(round)
+				&& targets.some((target) => references(round, target)),
+		) ?? null
+	)
 }
 
 /**
@@ -112,7 +119,13 @@ export function liveDecisionBody(form, itemId) {
  *
  * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
  */
-export function engagementBody(meetingId, participant, eventType, itemId, extra = {}) {
+export function engagementBody(
+	meetingId,
+	participant,
+	eventType,
+	itemId,
+	extra = {},
+) {
 	const eventData = { ...extra }
 	if (itemId) eventData.agendaItem = itemId
 	return { meeting: meetingId, participant, eventType, eventData }
@@ -141,7 +154,12 @@ export function contributionsOn(records, itemId, participants = []) {
 		const name = names.get(participantId) ?? participantId
 		for (const speech of record?.speeches ?? []) {
 			if (speech?.agendaItem !== itemId) continue
-			result.push({ participantId, name, kind: 'speech', duration: Number(speech.duration) || 0 })
+			result.push({
+				participantId,
+				name,
+				kind: 'speech',
+				duration: Number(speech.duration) || 0,
+			})
 		}
 		for (const question of record?.questionsRaised ?? []) {
 			if (question?.agendaItem !== itemId) continue

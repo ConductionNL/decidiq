@@ -105,7 +105,6 @@ import StartProcessAction from './views/dashboard/widgets/StartProcessAction.vue
 import UpcomingMeetingsKpiWidget from './views/dashboard/widgets/UpcomingMeetingsKpiWidget.vue'
 import UpcomingMeetingsListWidget from './views/dashboard/widgets/UpcomingMeetingsListWidget.vue'
 import LiveMeetingView from './views/LiveMeeting.vue'
-import MeetingScreenView from './views/MeetingScreen.vue'
 import MeetingCalendarView from './views/meetings/MeetingCalendarView.vue'
 import MeetingViewToggle from './views/meetings/MeetingViewToggle.vue'
 import MotionIntegrations from './views/MotionIntegrations.vue'
@@ -172,8 +171,6 @@ export default {
 	// per-vote-card animations. Documented as the canonical example for
 	// a future `type: "realtime"` lib extension.
 	LiveMeetingView: page(LiveMeetingView),
-	// Room screen of a live meeting (live-meeting-shared-current-item).
-	MeetingScreenView: page(MeetingScreenView),
 
 	// --- Meeting calendar (configurable-types-domain-model). ---
 	// A month view alongside the manifest index table. CnIndexPage's

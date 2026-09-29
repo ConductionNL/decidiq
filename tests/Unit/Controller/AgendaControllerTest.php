@@ -23,6 +23,7 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 use OCA\Decidiq\Controller\AgendaController;
 use OCA\Decidiq\Service\AgendaAuthorizationGuard;
 use OCA\Decidiq\Service\AgendaService;
+use OCA\Decidiq\Service\CurrentAgendaItemService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
@@ -56,6 +57,13 @@ class AgendaControllerTest extends TestCase {
 	 * @var AgendaService&MockObject
 	 */
 	private AgendaService&MockObject $agendaService;
+
+	/**
+	 * Mock CurrentAgendaItemService.
+	 *
+	 * @var CurrentAgendaItemService&MockObject
+	 */
+	private CurrentAgendaItemService&MockObject $currentItems;
 
 	/**
 	 * Mock ObjectService.
@@ -102,6 +110,7 @@ class AgendaControllerTest extends TestCase {
 
 		$this->request = $this->createMock(IRequest::class);
 		$this->agendaService = $this->createMock(AgendaService::class);
+		$this->currentItems = $this->createMock(CurrentAgendaItemService::class);
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->groupManager = $this->createMock(IGroupManager::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
@@ -135,6 +144,7 @@ class AgendaControllerTest extends TestCase {
 		return new AgendaController(
 			request: $this->request,
 			agendaService: $this->agendaService,
+			currentItems: $this->currentItems,
 			guard: $guard,
 			logger: $this->logger,
 		);
@@ -325,7 +335,7 @@ class AgendaControllerTest extends TestCase {
 	 */
 	public function testTheChairMakesAnItemCurrent(): void {
 		$this->request->method('getParam')->with('agendaItem')->willReturn('item-5');
-		$this->agendaService->expects($this->once())->method('setCurrentItem')->with('meeting-uuid-001', 'item-5');
+		$this->currentItems->expects($this->once())->method('setCurrentItem')->with('meeting-uuid-001', 'item-5');
 
 		$result = $this->buildController($this->sessionFor(chair: true))->currentItem('meeting-uuid-001');
 
@@ -341,7 +351,7 @@ class AgendaControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testAMemberCannotMakeAnItemCurrent(): void {
-		$this->agendaService->expects($this->never())->method('setCurrentItem');
+		$this->currentItems->expects($this->never())->method('setCurrentItem');
 
 		$result = $this->buildController($this->sessionFor(chair: false))->currentItem('meeting-uuid-001');
 
@@ -357,7 +367,7 @@ class AgendaControllerTest extends TestCase {
 	 */
 	public function testAnItemOfAnotherMeetingCannotBeMadeCurrent(): void {
 		$this->request->method('getParam')->willReturn('item-9');
-		$this->agendaService->method('setCurrentItem')->willThrowException(new \InvalidArgumentException('This agenda item is not on this meeting.'));
+		$this->currentItems->method('setCurrentItem')->willThrowException(new \InvalidArgumentException('This agenda item is not on this meeting.'));
 
 		$result = $this->buildController($this->sessionFor(chair: true))->currentItem('meeting-uuid-001');
 

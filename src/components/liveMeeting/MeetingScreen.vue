@@ -2,7 +2,8 @@
 <!-- Copyright (C) 2026 Conduction B.V. -->
 
 <!--
- The room screen of a live meeting (live-meeting-shared-current-item): for the
+ The room screen of a live meeting (live-meeting-shared-current-item), shown
+ by the live page at /meetings/:id/live?view=screen: for the
  projector in the council chamber. Shows the meeting, the agenda item the
  chair made current and, while a vote on it is open, that voting is open.
  Follows the meeting every few seconds; it has no controls.
@@ -22,7 +23,9 @@
 				{{ t('decidiq', 'Now on the agenda') }}
 			</p>
 			<h2 class="meeting-screen__item" data-testid="meeting-screen-item">
-				<span v-if="currentItem.orderNumber">{{ currentItem.orderNumber }}.</span>
+				<span v-if="currentItem.orderNumber"
+					>{{ currentItem.orderNumber }}.</span
+				>
 				{{ currentItem.title }}
 			</h2>
 			<p
@@ -40,13 +43,13 @@
 </template>
 
 <script>
-import { useObjectStore } from '../store/store.js'
+import { useObjectStore } from '../../store/store.js'
 import {
 	FOLLOW_INTERVAL_MS,
 	openRoundFor,
 	sharedCurrentItemId,
-} from '../utils/liveMeeting.js'
-import { matching, relationFilterFor } from '../utils/objectRelations.js'
+} from '../../utils/liveMeeting.js'
+import { matching, relationFilterFor } from '../../utils/objectRelations.js'
 
 export default {
 	name: 'MeetingScreen',
@@ -127,8 +130,10 @@ export default {
 						}),
 					),
 				)
-				this.rounds = pages.flatMap((page, index) => matching(page, targets[index]))
-			} catch (e) {
+				this.rounds = pages.flatMap((page, index) =>
+					matching(page, targets[index]),
+				)
+			} catch {
 				// The next tick tries again; the screen keeps what it showed.
 			}
 		},

@@ -14,7 +14,9 @@
 		role="main"
 		data-testid="meeting-live"
 		:aria-label="t('decidiq', 'Live meeting view')">
-		<NcLoadingIcon v-if="loading" :size="64" />
+		<!-- The room screen: the same page in projector mode (live-meeting-shared-current-item) -->
+		<MeetingScreen v-if="roomView" :id="id" />
+		<NcLoadingIcon v-else-if="loading" :size="64" />
 
 		<template v-else>
 			<!-- Meeting header -->
@@ -32,7 +34,13 @@
 				<NcButton
 					data-testid="meeting-live-room-screen"
 					:aria-label="t('decidiq', 'Open the room screen')"
-					@click="$router.push({ name: 'MeetingScreen', params: { id } })">
+					@click="
+						$router.push({
+							name: 'LiveMeeting',
+							params: { id },
+							query: { view: 'screen' },
+						})
+					">
 					{{ t('decidiq', 'Room screen') }}
 				</NcButton>
 			</div>
@@ -263,24 +271,25 @@ import { CnStatusBadge, CnTimelineStages } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import AgendaBuilder from '../components/AgendaBuilder.vue'
-import LiveDecisionDialog from '../dialogs/LiveDecisionDialog.vue'
-import { references } from '../utils/objectRelations.js'
-import {
-	FOLLOW_INTERVAL_MS,
-	runsTheMeeting,
-	sharedCurrentItemId,
-} from '../utils/liveMeeting.js'
 import AgendaItemTimer from '../components/liveMeeting/AgendaItemTimer.vue'
 import MeetingCostPanel from '../components/liveMeeting/MeetingCostPanel.vue'
+import MeetingScreen from '../components/liveMeeting/MeetingScreen.vue'
 import SpeakerQueuePanel from '../components/liveMeeting/SpeakerQueuePanel.vue'
 import MinutesPanel from '../components/minutesEditor/MinutesPanel.vue'
 import AdoptConsentAgendaDialog from '../dialogs/AdoptConsentAgendaDialog.vue'
+import LiveDecisionDialog from '../dialogs/LiveDecisionDialog.vue'
 import { useObjectStore } from '../store/store.js'
 import {
 	formalityUrl,
 	isPendingFormality,
 	pendingFormalities,
 } from '../utils/formalities.js'
+import {
+	FOLLOW_INTERVAL_MS,
+	runsTheMeeting,
+	sharedCurrentItemId,
+} from '../utils/liveMeeting.js'
+import { references } from '../utils/objectRelations.js'
 
 const BOB_STAGES = [
 	{ id: 'beeldvorming', label: 'Beeldvorming' },
@@ -308,6 +317,7 @@ export default {
 		SpeakerQueuePanel,
 		MeetingCostPanel,
 		LiveDecisionDialog,
+		MeetingScreen,
 	},
 
 	props: {
@@ -391,7 +401,8 @@ export default {
 				?? this.meeting?.['@self']?.relations?.governanceBody
 			return collection.filter(
 				(p) =>
-					(bodyId && (p?.governanceBody === bodyId || references(p, bodyId)))
+					(bodyId
+						&& (p?.governanceBody === bodyId || references(p, bodyId)))
 					|| p?.['@self']?.relations?.meeting === this.id
 					|| p?.relations?.meeting === this.id,
 			)
@@ -461,6 +472,16 @@ export default {
 		},
 
 		/**
+		 * The page shows the room screen instead of the chair's controls
+		 * (?view=screen), for the projector in the room.
+		 *
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-002-a-room-screen-shows-the-current-item-and-vote
+		 */
+		roomView() {
+			return this.$route?.query?.view === 'screen'
+		},
+
+		/**
 		 * The current item as saved on the meeting.
 		 *
 		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
@@ -512,7 +533,10 @@ export default {
 		// objects only every 60 s, so the meeting is re-read here.
 		this.activeItemId = sharedCurrentItemId(this.meeting) ?? this.activeItemId
 		await this.fetchMyRoles()
-		this.followTimer = setInterval(() => this.followMeeting(), FOLLOW_INTERVAL_MS)
+		this.followTimer = setInterval(
+			() => this.followMeeting(),
+			FOLLOW_INTERVAL_MS,
+		)
 	},
 
 	/** @spec exclude lifecycle teardown; only unsubscribes the live-update handles created in created() */
@@ -522,7 +546,7 @@ export default {
 		for (const handle of this.liveSubs) {
 			try {
 				this.objectStore.unsubscribe(handle)
-			} catch (e) {
+			} catch {
 				// best-effort cleanup
 			}
 		}
@@ -575,6 +599,7 @@ export default {
 					},
 				)
 			} catch (e) {
+				// eslint-disable-next-line no-console
 				console.error('Error saving the current agenda item:', e)
 			}
 		},
@@ -587,7 +612,7 @@ export default {
 		async followMeeting() {
 			try {
 				await this.objectStore.fetchObject('meeting', this.id)
-			} catch (e) {
+			} catch {
 				// The next tick tries again.
 			}
 		},
@@ -604,7 +629,7 @@ export default {
 					{ headers: { requesttoken: OC.requestToken } },
 				)
 				this.myRoles = response.ok ? await response.json() : null
-			} catch (e) {
+			} catch {
 				this.myRoles = null
 			}
 		},
@@ -636,11 +661,13 @@ export default {
 					},
 				)
 				if (!response.ok) {
+					// eslint-disable-next-line no-console
 					console.error('Failed to advance BOB phase')
 					return
 				}
 				await this.refreshItems()
 			} catch (e) {
+				// eslint-disable-next-line no-console
 				console.error('Error advancing BOB phase:', e)
 			} finally {
 				this.advancingBob = false
@@ -662,11 +689,13 @@ export default {
 					},
 				)
 				if (!response.ok) {
+					// eslint-disable-next-line no-console
 					console.error('Failed to process hamerstukken:', response.status)
 					return
 				}
 				await this.refreshItems()
 			} catch (e) {
+				// eslint-disable-next-line no-console
 				console.error('Error processing hamerstukken:', e)
 			} finally {
 				this.processingHamerstukken = false
@@ -695,6 +724,7 @@ export default {
 				}
 				await this.refreshItems()
 			} catch (e) {
+				// eslint-disable-next-line no-console
 				console.error('Error taking the formality mark off:', e)
 			}
 		},
@@ -737,6 +767,7 @@ export default {
 				// panel renders a no-rate hint when the body / rate is absent.
 				await this.fetchGovernanceBody()
 			} catch (e) {
+				// eslint-disable-next-line no-console
 				console.error('Error fetching live meeting data:', e)
 			} finally {
 				this.loading = false
@@ -757,6 +788,7 @@ export default {
 			try {
 				await this.objectStore.fetchObject('governance-body', bodyId)
 			} catch (e) {
+				// eslint-disable-next-line no-console
 				console.error('Error fetching governance body:', e)
 			}
 		},
@@ -771,6 +803,7 @@ export default {
 					_limit: 200,
 				})
 			} catch (e) {
+				// eslint-disable-next-line no-console
 				console.error('Error refreshing items:', e)
 			}
 		},
