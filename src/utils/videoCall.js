@@ -6,7 +6,7 @@
 // integration (/api/objects/{register}/{schema}/{id}/talk), the same link
 // the meeting's Integrations page shows.
 //
-// @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
+// @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
 
 /** Meeting modes that have a video call. */
 export const VIDEO_MODES = ['digital', 'hybrid']
@@ -16,7 +16,7 @@ export const VIDEO_MODES = ['digital', 'hybrid']
  *
  * @param {object|null} meeting The meeting
  * @return {boolean} True for digital or hybrid
- * @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
+ * @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
  */
 export function hasVideoCall(meeting) {
 	return !!meeting && VIDEO_MODES.includes(meeting.meetingMode)
@@ -27,7 +27,7 @@ export function hasVideoCall(meeting) {
  *
  * @param {string} meetingId The meeting UUID
  * @return {string} The app-relative path
- * @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
+ * @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
  */
 export function talkLinksPath(meetingId) {
 	return `/apps/openregister/api/objects/decidiq/meeting/${encodeURIComponent(meetingId)}/talk`
@@ -38,7 +38,7 @@ export function talkLinksPath(meetingId) {
  *
  * @param {Array<object>} rooms The linked rooms
  * @return {string} The room token, or ''
- * @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
+ * @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
  */
 export function roomToken(rooms) {
 	const room = (rooms || [])[0]
@@ -50,7 +50,7 @@ export function roomToken(rooms) {
  *
  * @param {string} token The room token
  * @return {string} The path for generateUrl
- * @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
+ * @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
  */
 export function joinPath(token) {
 	return `/call/${encodeURIComponent(token)}`
@@ -61,7 +61,7 @@ export function joinPath(token) {
  *
  * @param {string} input What the secretary pasted
  * @return {string} The token, or '' when there is none
- * @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
+ * @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
  */
 export function tokenFromInput(input) {
 	const text = String(input || '').trim()
@@ -76,7 +76,7 @@ export function tokenFromInput(input) {
  * @param {Array<object>} participants Participants
  * @param {string} bodyId The meeting's body
  * @return {Array<string>} Unique user ids
- * @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
+ * @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
  */
 export function memberUids(participants, bodyId) {
 	const refOf = (ref) =>

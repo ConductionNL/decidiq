@@ -111,22 +111,22 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
+		/** @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
 		shown() {
 			return hasVideoCall(this.meeting)
 		},
 
-		/** @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
+		/** @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
 		canManage() {
 			return canManageAgenda(this.myRoles)
 		},
 
-		/** @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
+		/** @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
 		joinUrl() {
 			return generateUrl(joinPath(this.token))
 		},
 
-		/** @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
+		/** @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
 		linkToken() {
 			return tokenFromInput(this.linkInput)
 		},
@@ -135,7 +135,7 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
+			/** @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
 			handler() {
 				this.load()
 			},
@@ -149,7 +149,7 @@ export default {
 		 * @param {string} url The absolute or app URL
 		 * @param {object} options fetch options
 		 * @return {Promise<object>} The answer
-		 * @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
+		 * @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
 		 */
 		async request(url, options = {}) {
 			const response = await fetch(url, {
@@ -170,7 +170,7 @@ export default {
 			return payload
 		},
 
-		/** @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
+		/** @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
 		async load() {
 			this.loaded = false
 			if (!this.objectId) return
@@ -187,7 +187,7 @@ export default {
 			this.loaded = true
 		},
 
-		/** @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
+		/** @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
 		async loadRoom() {
 			try {
 				const data = await this.request(
@@ -201,7 +201,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
+		/** @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
 		async loadMyRoles() {
 			try {
 				this.myRoles = await this.request(
@@ -219,7 +219,7 @@ export default {
 		 * Create the Talk room linked to the meeting, then invite the body's
 		 * current members (the creator is in the room already).
 		 *
-		 * @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
+		 * @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
 		 */
 		async createRoom() {
 			this.busy = true
@@ -252,7 +252,7 @@ export default {
 
 		/**
 		 * @param {string} token The room token
-		 * @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
+		 * @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
 		 */
 		async inviteMembers(token) {
 			const bodyId =
@@ -283,7 +283,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
+		/** @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
 		async linkRoom() {
 			this.busy = true
 			this.error = ''

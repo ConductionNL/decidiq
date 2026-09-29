@@ -4,7 +4,7 @@
 // A digital or hybrid meeting has its video call on the meeting page
 // (meeting-video-call, pla-08).
 //
-// @spec openspec/changes/meeting-video-call/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
+// @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
 // @e2e tests/e2e/meeting-video-call.spec.ts
 
 import { readFileSync } from 'node:fs'
