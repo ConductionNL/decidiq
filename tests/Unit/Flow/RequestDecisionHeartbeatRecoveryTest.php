@@ -56,6 +56,11 @@ use RuntimeException;
  * @covers \OCA\Decidiq\Flow\DecidiqRequestDecisionNode
  * @covers \OCA\Decidiq\Listener\FlowDecisionConcludedListener
  * @uses   \OCA\Decidiq\Service\FlowDecisionService
+ * @uses   \OCA\Decidiq\Service\DecisionIntegrationAuthorizationGuard
+ * @uses   \OCA\Decidiq\Service\DecisionIntegrationService
+ * @uses   \OCA\Decidiq\Service\DecisionTypeRegistry
+ * @uses   \OCA\Decidiq\Service\DelegatedDecisionDefaults
+ * @uses   \OCA\Decidiq\Event\DecisionConcludedEvent
  *
  * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md
  */

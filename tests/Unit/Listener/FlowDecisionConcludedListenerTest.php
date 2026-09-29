@@ -43,6 +43,7 @@ use Psr\Log\NullLogger;
  *
  * @covers \OCA\Decidiq\Listener\FlowDecisionConcludedListener
  * @uses   \OCA\Decidiq\Service\FlowDecisionService
+ * @uses   \OCA\Decidiq\Event\DecisionConcludedEvent
  *
  * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-006-a-concluded-decision-wakes-the-run-that-asked
  */
