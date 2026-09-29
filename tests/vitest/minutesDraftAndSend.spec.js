@@ -4,9 +4,9 @@
 // Draft the minutes from the meeting, use the AI draft as the minutes, and
 // send approved minutes to the members (minutes-draft-and-send).
 //
-// @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
-// @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-002-use-the-ai-draft-as-the-minutes
-// @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members
+// @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
+// @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-002-use-the-ai-draft-as-the-minutes
+// @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members
 // @e2e tests/e2e/minutes-draft-and-send.spec.ts
 
 import Ajv from 'ajv'

@@ -55,7 +55,7 @@ class MinutesDraftRenderer {
 	 * @return string The rendered Dutch minutes text
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
-	 * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
+	 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
 	 */
 	public function render(
 		array $minutes,
@@ -149,7 +149,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return array{title:string,body:array<int,string>}|null The section, or null when no attendance was recorded
 	 *
-	 * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
+	 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
 	 */
 	private function attendanceSection(array $attendance): ?array {
 		$labels = [

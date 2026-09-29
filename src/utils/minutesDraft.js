@@ -5,7 +5,7 @@
 // and send approved minutes to the members (minutes-draft-and-send,
 // min-01, min-02, min-07).
 //
-// @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md
+// @spec openspec/specs/p2-minutes-and-decisions/spec.md
 
 /** Lifecycles in which the minutes may be sent to the members (server rule). */
 export const SENDABLE_LIFECYCLES = ['approved', 'signed', 'published']
@@ -15,7 +15,7 @@ export const SENDABLE_LIFECYCLES = ['approved', 'signed', 'published']
  *
  * @param {string} minutesId The minutes UUID
  * @return {string} The app-relative path
- * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
+ * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
  */
 export function draftPath(minutesId) {
 	return `/apps/decidiq/api/minutes/${encodeURIComponent(minutesId)}/generate-draft`
@@ -26,7 +26,7 @@ export function draftPath(minutesId) {
  *
  * @param {string} minutesId The minutes UUID
  * @return {string} The app-relative path
- * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members
+ * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members
  */
 export function distributePath(minutesId) {
 	return `/apps/decidiq/api/minutes/${encodeURIComponent(minutesId)}/distribute`
@@ -37,7 +37,7 @@ export function distributePath(minutesId) {
  *
  * @param {object|null} minutes The minutes record
  * @return {boolean} True in the draft stage
- * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
+ * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
  */
 export function canDraft(minutes) {
 	return !!minutes && (minutes.lifecycle || 'draft') === 'draft'
@@ -48,7 +48,7 @@ export function canDraft(minutes) {
  *
  * @param {object|null} minutes The minutes record
  * @return {boolean} True once approved
- * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members
+ * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members
  */
 export function canSend(minutes) {
 	return !!minutes && SENDABLE_LIFECYCLES.includes(minutes.lifecycle)
@@ -60,7 +60,7 @@ export function canSend(minutes) {
  * @param {object} minutes The minutes record
  * @param {string} preview The draft the server rendered
  * @return {object} The minutes to save
- * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
+ * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
  */
 export function withDraft(minutes, preview) {
 	return { ...minutes, content: String(preview || '') }
@@ -71,7 +71,7 @@ export function withDraft(minutes, preview) {
  *
  * @param {object|null} draft The AI draft with its sections
  * @return {Array<object>} Sections not discarded
- * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-002-use-the-ai-draft-as-the-minutes
+ * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-002-use-the-ai-draft-as-the-minutes
  */
 export function keptSections(draft) {
 	return ((draft && draft.sections) || []).filter((s) => !s.discarded)
@@ -85,7 +85,7 @@ export function keptSections(draft) {
  * @param {object} minutes The minutes record
  * @param {object} draft The AI draft
  * @return {object} The minutes to save
- * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-002-use-the-ai-draft-as-the-minutes
+ * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-002-use-the-ai-draft-as-the-minutes
  */
 export function minutesFromAiDraft(minutes, draft) {
 	const kept = keptSections(draft)
@@ -116,7 +116,7 @@ export function minutesFromAiDraft(minutes, draft) {
  * @param {string} meetingId The meeting UUID
  * @param {string} title The minutes title
  * @return {object} The minutes to create
- * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-002-use-the-ai-draft-as-the-minutes
+ * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-002-use-the-ai-draft-as-the-minutes
  */
 export function newMinutesFor(meetingId, title) {
 	return { title, lifecycle: 'draft', meeting: meetingId }

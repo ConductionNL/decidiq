@@ -162,7 +162,7 @@ class MinutesGenerationService {
 	 *
 	 * @return array<int,array{name:string,status:string}>
 	 *
-	 * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
+	 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
 	 */
 	private function attendance(object $objectService, string $meetingId): array {
 		$statuses = (new MeetingAttendanceReader(objectService: $this->objectService, logger: $this->logger))->statusesFor(meetingId: $meetingId);

@@ -116,7 +116,7 @@ export default {
 		 * The minutes id: the prop, or the one the detail page provides.
 		 *
 		 * @return {string} The minutes UUID
-		 * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
+		 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
 		 */
 		minutesId() {
 			if (this.objectId) return String(this.objectId)
@@ -125,12 +125,12 @@ export default {
 			return String(holder?.objectId || '')
 		},
 
-		/** @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting */
+		/** @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting */
 		canDraft() {
 			return canDraft(this.minutes)
 		},
 
-		/** @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members */
+		/** @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members */
 		canSend() {
 			return canSend(this.minutes)
 		},
@@ -139,7 +139,7 @@ export default {
 	watch: {
 		minutesId: {
 			immediate: true,
-			/** @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting */
+			/** @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting */
 			handler() {
 				this.load()
 			},
@@ -147,7 +147,7 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting */
+		/** @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting */
 		async load() {
 			if (!this.minutesId) return
 			try {
@@ -166,7 +166,7 @@ export default {
 		 *
 		 * @param {string} path The app-relative path
 		 * @return {Promise<object>} The answer
-		 * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
+		 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
 		 */
 		async post(path) {
 			const response = await fetch(generateUrl(path), {
@@ -187,7 +187,7 @@ export default {
 			return payload
 		},
 
-		/** @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting */
+		/** @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting */
 		async draftFromMeeting() {
 			if (
 				String(this.minutes?.content || '').trim() !== ''
@@ -219,7 +219,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members */
+		/** @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members */
 		async sendToMembers() {
 			this.busy = true
 			this.error = ''

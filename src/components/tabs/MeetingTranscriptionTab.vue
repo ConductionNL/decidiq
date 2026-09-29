@@ -346,7 +346,7 @@ export default {
 		 * How many sections of the AI draft the secretary kept.
 		 *
 		 * @return {number} The kept count
-		 * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-002-use-the-ai-draft-as-the-minutes
+		 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-002-use-the-ai-draft-as-the-minutes
 		 */
 		keptCount() {
 			return keptSections(this.draft).length
@@ -615,7 +615,7 @@ export default {
 		 * the draft minutes if there are any, else a new draft record.
 		 * Minutes past the draft stage are not overwritten.
 		 *
-		 * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-002-use-the-ai-draft-as-the-minutes
+		 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-002-use-the-ai-draft-as-the-minutes
 		 */
 		async useAsMinutes() {
 			const meetingId = this.resolvedObjectId

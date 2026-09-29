@@ -145,7 +145,7 @@ class MinutesContextResolver {
 	 *
 	 * @return array<string,mixed>|null The Meeting data
 	 *
-	 * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members
+	 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members
 	 */
 	public function findMeeting(string $meetingId): ?array {
 		return $this->findObject(id: $meetingId, schema: 'meeting');

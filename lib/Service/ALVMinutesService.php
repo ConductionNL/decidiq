@@ -179,7 +179,7 @@ TEMPLATE;
 	 * @throws Exception If lifecycle is not approved, signed or published (403)
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
-	 * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members
+	 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members
 	 */
 	public function distribute(string $minutesId): int {
 		$minutes = $this->context->requireMinutes(minutesId: $minutesId);
@@ -242,7 +242,7 @@ TEMPLATE;
 	 *
 	 * @return array<int, string> Unique user ids
 	 *
-	 * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members
+	 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members
 	 */
 	private function memberUids(string $meetingId): array {
 		$uids = [];
