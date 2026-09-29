@@ -1332,7 +1332,23 @@ OC.L10N.register(
         "Open the file": "Hap skedarin",
         "The export failed. Try again.": "Eksporti dështoi. Provoni përsëri.",
         "%s is ready in your Decidiq exports folder": "%s është gati në dosjen tuaj Decidiq exports",
-        "%s could not be made. Try again, or export a ZIP.": "%s nuk u krijua dot. Provoni përsëri ose eksportoni një ZIP."
+        "%s could not be made. Try again, or export a ZIP.": "%s nuk u krijua dot. Provoni përsëri ose eksportoni një ZIP.",
+        "All audiences": "Të gjitha audiencat",
+        "All bodies": "Të gjitha organet",
+        "Council": "Këshilli",
+        "Executive": "Ekzekutivi",
+        "Joint arrangement": "Marrëveshje e përbashkët",
+        "Residents": "Banorët",
+        "Staff": "Stafi",
+        "No audience set": "Nuk është caktuar audienca",
+        "Public calendar": "Kalendari publik",
+        "Publish to the public calendar": "Publiko në kalendarin publik",
+        "Audiences": "Audiencat",
+        "Who meetings of this kind are for. The meeting calendar filters on it.": "Për kë janë mbledhjet e këtij lloji. Kalendari i mbledhjeve filtron sipas tij.",
+        "Where the meeting takes place, as residents read it on the calendar.": "Ku zhvillohet mbledhja, siç e lexojnë banorët në kalendar.",
+        "Who the meeting is for, taken from its kind of meeting.": "Për kë është mbledhja, marrë nga lloji i mbledhjes.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Lloji i rezultatit të qeverisjes së publikuar, ose një hyrje kalendari për një mbledhje publike.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Çfarë u publikua: një rend dite, një vendim, një procesverbal ose një hyrje kalendari. Qytetarët filtrojnë sipas saj."
     },
     "nplurals=2; plural=(n != 1);"
 )

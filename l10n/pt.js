@@ -1332,7 +1332,23 @@ OC.L10N.register(
         "Open the file": "Abrir o ficheiro",
         "The export failed. Try again.": "A exportação falhou. Tente novamente.",
         "%s is ready in your Decidiq exports folder": "%s está pronto na sua pasta Decidiq exports",
-        "%s could not be made. Try again, or export a ZIP.": "Não foi possível criar %s. Tente novamente ou exporte um ZIP."
+        "%s could not be made. Try again, or export a ZIP.": "Não foi possível criar %s. Tente novamente ou exporte um ZIP.",
+        "All audiences": "Todos os públicos",
+        "All bodies": "Todos os órgãos",
+        "Council": "Assembleia",
+        "Executive": "Executivo",
+        "Joint arrangement": "Acordo conjunto",
+        "Residents": "Residentes",
+        "Staff": "Funcionários",
+        "No audience set": "Sem público definido",
+        "Public calendar": "Calendário público",
+        "Publish to the public calendar": "Publicar no calendário público",
+        "Audiences": "Públicos",
+        "Who meetings of this kind are for. The meeting calendar filters on it.": "A quem se destinam as reuniões deste tipo. O calendário de reuniões filtra por isso.",
+        "Where the meeting takes place, as residents read it on the calendar.": "Onde decorre a reunião, tal como os residentes o leem no calendário.",
+        "Who the meeting is for, taken from its kind of meeting.": "A quem se destina a reunião, retirado do seu tipo de reunião.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "O tipo de resultado de governação publicado, ou uma entrada de calendário para uma reunião pública.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "O que foi publicado: uma ordem de trabalhos, uma decisão, uma ata ou uma entrada de calendário. Os cidadãos filtram por isso."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -37,7 +37,7 @@ source type, one portal collection. Read against decidiq `development` at
 
 `MeetingType.audiences`: an array of enum `council`, `executive`,
 `joint-arrangement`, `residents`, `staff`, `facetable`. A patch in a new
-fragment `lib/Settings/register.d/92-activity-calendar.json`.
+fragment `lib/Settings/register.d/109-activity-calendar.json`.
 
 Why on the type and not on each meeting: the audience of a commissievergadering
 does not change per sitting, and a single source is what a filter can trust.

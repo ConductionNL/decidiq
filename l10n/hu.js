@@ -1332,7 +1332,23 @@ OC.L10N.register(
         "Open the file": "Fájl megnyitása",
         "The export failed. Try again.": "Az exportálás nem sikerült. Próbálja újra.",
         "%s is ready in your Decidiq exports folder": "A(z) %s elkészült a Decidiq exports mappájában",
-        "%s could not be made. Try again, or export a ZIP.": "A(z) %s nem készült el. Próbálja újra, vagy exportáljon ZIP-et."
+        "%s could not be made. Try again, or export a ZIP.": "A(z) %s nem készült el. Próbálja újra, vagy exportáljon ZIP-et.",
+        "All audiences": "Minden célcsoport",
+        "All bodies": "Minden testület",
+        "Council": "Képviselő-testület",
+        "Executive": "Végrehajtó testület",
+        "Joint arrangement": "Közös társulás",
+        "Residents": "Lakosok",
+        "Staff": "Munkatársak",
+        "No audience set": "Nincs megadott célcsoport",
+        "Public calendar": "Nyilvános naptár",
+        "Publish to the public calendar": "Közzététel a nyilvános naptárban",
+        "Audiences": "Célcsoportok",
+        "Who meetings of this kind are for. The meeting calendar filters on it.": "Kinek szólnak az ilyen fajta ülések. Az ülésnaptár ez alapján szűr.",
+        "Where the meeting takes place, as residents read it on the calendar.": "Hol tartják az ülést, ahogy a lakosok a naptárban olvassák.",
+        "Who the meeting is for, taken from its kind of meeting.": "Kinek szól az ülés, az ülés fajtájából véve.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "A közzétett irányítási eredmény fajtája, vagy nyilvános ülés naptárbejegyzése.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Mi jelent meg: napirend, határozat, jegyzőkönyv vagy naptárbejegyzés. A polgárok erre szűrnek."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -87,6 +87,9 @@ class PublicationPayloadService {
 			case 'minutes':
 				$payload = $this->buildMinutesPayload(source: $source, bodyId: $bodyId, version: $version);
 				break;
+			case 'activity':
+				$payload = $this->buildActivityPayload(source: $source, version: $version);
+				break;
 			default:
 				throw new InvalidArgumentException('Unknown publication source type: ' . $sourceType);
 		}
@@ -249,6 +252,70 @@ class PublicationPayloadService {
 		];
 
 	}//end buildAgendaPayload()
+
+	/**
+	 * Build a calendar entry for a public meeting: when, what, who organises
+	 * it, where, and who it is for. Allow-list only: no participant, no chair,
+	 * no agenda item, no UID.
+	 *
+	 * @param array<string,mixed> $source  Meeting object data.
+	 * @param int                 $version Payload version.
+	 *
+	 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-004-staff-publish-a-public-meeting-to-the-residents-calendar
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function buildActivityPayload(array $source, int $version): array {
+		$type      = $this->meetingType(source: $source);
+		$audiences = [];
+		foreach ((array)($type['audiences'] ?? []) as $audience) {
+			if (is_string($audience) === true && $audience !== '') {
+				$audiences[] = $audience;
+			}
+		}
+
+		return [
+			'oriType' => 'Vergadering',
+			'schemaOrgType' => 'Event',
+			'payloadVersion' => $version,
+			'title' => (string)($source['title'] ?? ''),
+			'bodyName' => $this->resolveBodyName(source: $source),
+			'meetingDate' => ($source['scheduledDate'] ?? null),
+			'meetingType' => (string)($type['name'] ?? $source['meetingType'] ?? ''),
+			'location' => (string)($source['location'] ?? ''),
+			'audiences' => $audiences,
+		];
+	}//end buildActivityPayload()
+
+	/**
+	 * The meeting's kind of meeting, or an empty array when it has none or it
+	 * cannot be read (the entry is still published, without type and audiences).
+	 *
+	 * @param array<string,mixed> $source Meeting object data.
+	 *
+	 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-004-staff-publish-a-public-meeting-to-the-residents-calendar
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function meetingType(array $source): array {
+		$typeId = trim((string)($source['type'] ?? ''));
+		if ($typeId === '') {
+			return [];
+		}
+
+		try {
+			$entity = $this->container->get('OCA\OpenRegister\Service\ObjectService')->find(id: $typeId, register: 'decidiq', schema: 'meeting-type');
+		} catch (\Throwable $e) {
+			$this->logger->warning('Decidiq publication: the meeting type could not be read', ['type' => $typeId, 'error' => $e->getMessage()]);
+			return [];
+		}
+
+		if (is_object($entity) === false || method_exists($entity, 'jsonSerialize') === false) {
+			return [];
+		}
+
+		return (array)$entity->jsonSerialize();
+	}//end meetingType()
 
 	/**
 	 * Build a Verslag (minutes) payload — attendance per the body policy.

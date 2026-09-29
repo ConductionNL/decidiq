@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 185,
+			"objectCount": 190,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -2295,6 +2295,18 @@
 						"votingDefault": "for-against-abstain",
 						"termStart": "2023-01-01T00:00:00Z",
 						"termEnd": "2026-12-31T00:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"slug": "college-van-b-en-w-amsterdam",
+						"name": "College van B&W Amsterdam",
+						"bodyType": "executive-board",
+						"domain": "municipality",
+						"workflowTemplate": "legislative"
 					}
 				],
 				"governance-commitment": [
@@ -2709,6 +2721,23 @@
 						"location": "Stadhuis Amsterdam, Raadzaal",
 						"meetingMode": "hybrid",
 						"lifecycle": "closed"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"slug": "informatieavond-windpark-noord",
+						"title": "Informatieavond windpark Noord",
+						"type": "meeting-type-informatieavond",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"scheduledDate": "2027-04-08T19:30:00+02:00",
+						"endDate": "2027-04-08T21:30:00+02:00",
+						"location": "Dorpshuis De Linde",
+						"meetingMode": "in-person",
+						"isPublic": true,
+						"lifecycle": "scheduled"
 					}
 				],
 				"membership": [
@@ -3913,6 +3942,61 @@
 						"votesFor": 28,
 						"votesAgainst": 3,
 						"votesAbstain": 2
+					}
+				],
+				"meeting-type": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting-type"
+						},
+						"slug": "meeting-type-raadsvergadering",
+						"name": "Raadsvergadering",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"isPublic": true,
+						"isDraft": false,
+						"active": true,
+						"audiences": [
+							"council",
+							"residents"
+						],
+						"description": "The formal council meeting. Residents can come and listen."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting-type"
+						},
+						"slug": "meeting-type-collegevergadering",
+						"name": "Collegevergadering",
+						"governanceBody": "college-van-b-en-w-amsterdam",
+						"isPublic": false,
+						"isDraft": false,
+						"active": true,
+						"audiences": [
+							"executive"
+						],
+						"description": "The weekly meeting of the mayor and aldermen."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting-type"
+						},
+						"slug": "meeting-type-informatieavond",
+						"name": "Informatieavond",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"isPublic": true,
+						"isDraft": false,
+						"active": true,
+						"audiences": [
+							"residents",
+							"council"
+						],
+						"description": "An evening where residents hear about a plan and ask questions. No formal agenda."
 					}
 				]
 			}

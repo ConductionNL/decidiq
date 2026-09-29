@@ -1332,7 +1332,23 @@ OC.L10N.register(
         "Open the file": "Iftaħ il-fajl",
         "The export failed. Try again.": "L-esportazzjoni ma rnexxietx. Erġa' pprova.",
         "%s is ready in your Decidiq exports folder": "%s lest fil-folder Decidiq exports tiegħek",
-        "%s could not be made. Try again, or export a ZIP.": "%s ma setax isir. Erġa' pprova, jew esporta ZIP."
+        "%s could not be made. Try again, or export a ZIP.": "%s ma setax isir. Erġa' pprova, jew esporta ZIP.",
+        "All audiences": "L-udjenzi kollha",
+        "All bodies": "Il-korpi kollha",
+        "Council": "Kunsill",
+        "Executive": "Eżekuttiv",
+        "Joint arrangement": "Arranġament konġunt",
+        "Residents": "Residenti",
+        "Staff": "Persunal",
+        "No audience set": "L-ebda udjenza stabbilita",
+        "Public calendar": "Kalendarju pubbliku",
+        "Publish to the public calendar": "Ippubblika fil-kalendarju pubbliku",
+        "Audiences": "Udjenzi",
+        "Who meetings of this kind are for. The meeting calendar filters on it.": "Għal min huma l-laqgħat ta' dan it-tip. Il-kalendarju tal-laqgħat jiffiltra fuqu.",
+        "Where the meeting takes place, as residents read it on the calendar.": "Fejn issir il-laqgħa, kif jaqrawha r-residenti fil-kalendarju.",
+        "Who the meeting is for, taken from its kind of meeting.": "Għal min hija l-laqgħa, meħud mit-tip ta' laqgħa tagħha.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "It-tip ta' riżultat ta' governanza ppubblikat, jew entrata fil-kalendarju għal laqgħa pubblika.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "X'ġie ppubblikat: aġenda, deċiżjoni, minuti jew entrata fil-kalendarju. Iċ-ċittadini jiffiltraw fuqu."
     },
     "nplurals=2; plural=(n != 1);"
 )

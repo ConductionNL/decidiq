@@ -1331,7 +1331,23 @@
         "Open the file": "Opna skrána",
         "The export failed. Try again.": "Útflutningurinn mistókst. Reyndu aftur.",
         "%s is ready in your Decidiq exports folder": "%s er tilbúið í möppunni þinni Decidiq exports",
-        "%s could not be made. Try again, or export a ZIP.": "Ekki tókst að búa til %s. Reyndu aftur eða flyttu út ZIP."
+        "%s could not be made. Try again, or export a ZIP.": "Ekki tókst að búa til %s. Reyndu aftur eða flyttu út ZIP.",
+        "All audiences": "Allir markhópar",
+        "All bodies": "Allar stofnanir",
+        "Council": "Sveitarstjórn",
+        "Executive": "Framkvæmdavald",
+        "Joint arrangement": "Sameiginlegt samstarf",
+        "Residents": "Íbúar",
+        "Staff": "Starfsfólk",
+        "No audience set": "Enginn markhópur valinn",
+        "Public calendar": "Opinbert dagatal",
+        "Publish to the public calendar": "Birta í opinberu dagatali",
+        "Audiences": "Markhópar",
+        "Who meetings of this kind are for. The meeting calendar filters on it.": "Fyrir hverja fundir af þessari gerð eru. Fundadagatalið síar eftir því.",
+        "Where the meeting takes place, as residents read it on the calendar.": "Hvar fundurinn fer fram, eins og íbúar lesa það í dagatalinu.",
+        "Who the meeting is for, taken from its kind of meeting.": "Fyrir hverja fundurinn er, tekið úr fundargerðinni.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Tegund birtrar stjórnarniðurstöðu, eða dagatalsfærsla fyrir opinn fund.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Hvað var birt: dagskrá, ákvörðun, fundargerð eða dagatalsfærsla. Íbúar sía eftir því."
     },
     "plurals": null
 }

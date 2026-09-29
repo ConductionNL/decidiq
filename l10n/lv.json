@@ -1331,7 +1331,23 @@
         "Open the file": "Atvērt failu",
         "The export failed. Try again.": "Eksports neizdevās. Mēģiniet vēlreiz.",
         "%s is ready in your Decidiq exports folder": "%s ir gatavs jūsu mapē Decidiq exports",
-        "%s could not be made. Try again, or export a ZIP.": "%s nevarēja izveidot. Mēģiniet vēlreiz vai eksportējiet ZIP."
+        "%s could not be made. Try again, or export a ZIP.": "%s nevarēja izveidot. Mēģiniet vēlreiz vai eksportējiet ZIP.",
+        "All audiences": "Visas mērķauditorijas",
+        "All bodies": "Visas institūcijas",
+        "Council": "Dome",
+        "Executive": "Izpildvara",
+        "Joint arrangement": "Kopīgs nolīgums",
+        "Residents": "Iedzīvotāji",
+        "Staff": "Darbinieki",
+        "No audience set": "Mērķauditorija nav iestatīta",
+        "Public calendar": "Publiskais kalendārs",
+        "Publish to the public calendar": "Publicēt publiskajā kalendārā",
+        "Audiences": "Mērķauditorijas",
+        "Who meetings of this kind are for. The meeting calendar filters on it.": "Kam paredzētas šāda veida sēdes. Sēžu kalendārs filtrē pēc tā.",
+        "Where the meeting takes place, as residents read it on the calendar.": "Kur notiek sēde, kā iedzīvotāji to redz kalendārā.",
+        "Who the meeting is for, taken from its kind of meeting.": "Kam paredzēta sēde, ņemts no sēdes veida.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Publicētā pārvaldības rezultāta veids vai atklātas sēdes kalendāra ieraksts.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Kas publicēts: darba kārtība, lēmums, protokols vai kalendāra ieraksts. Iedzīvotāji filtrē pēc tā."
     },
     "plurals": null
 }

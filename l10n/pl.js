@@ -1332,7 +1332,23 @@ OC.L10N.register(
         "Open the file": "Otwórz plik",
         "The export failed. Try again.": "Eksport nie powiódł się. Spróbuj ponownie.",
         "%s is ready in your Decidiq exports folder": "%s jest gotowy w folderze Decidiq exports",
-        "%s could not be made. Try again, or export a ZIP.": "Nie udało się utworzyć %s. Spróbuj ponownie lub wyeksportuj ZIP."
+        "%s could not be made. Try again, or export a ZIP.": "Nie udało się utworzyć %s. Spróbuj ponownie lub wyeksportuj ZIP.",
+        "All audiences": "Wszyscy odbiorcy",
+        "All bodies": "Wszystkie organy",
+        "Council": "Rada",
+        "Executive": "Zarząd",
+        "Joint arrangement": "Związek międzygminny",
+        "Residents": "Mieszkańcy",
+        "Staff": "Pracownicy",
+        "No audience set": "Nie ustawiono odbiorców",
+        "Public calendar": "Kalendarz publiczny",
+        "Publish to the public calendar": "Opublikuj w kalendarzu publicznym",
+        "Audiences": "Odbiorcy",
+        "Who meetings of this kind are for. The meeting calendar filters on it.": "Dla kogo są posiedzenia tego rodzaju. Kalendarz posiedzeń filtruje według tego.",
+        "Where the meeting takes place, as residents read it on the calendar.": "Gdzie odbywa się posiedzenie, tak jak mieszkańcy czytają to w kalendarzu.",
+        "Who the meeting is for, taken from its kind of meeting.": "Dla kogo jest posiedzenie, przejęte z rodzaju posiedzenia.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Rodzaj opublikowanego wyniku zarządczego lub wpis w kalendarzu dla posiedzenia jawnego.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Co opublikowano: porządek obrad, uchwałę, protokół lub wpis w kalendarzu. Mieszkańcy filtrują według tego."
     },
     "nplurals=2; plural=(n != 1);"
 )

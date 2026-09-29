@@ -312,6 +312,9 @@ class PublicationEligibilityService {
 			case 'minutes':
 				$this->assertMinutesEligible(data: $data);
 				break;
+			case 'activity':
+				$this->assertActivityEligible(data: $data);
+				break;
 			default:
 				throw new AccessDeniedException(message: 'Unknown publication source type: ' . $sourceType);
 		}
@@ -359,6 +362,26 @@ class PublicationEligibilityService {
 			);
 		}
 	}//end assertDecisionNotRestricted()
+
+	/**
+	 * Assert a meeting may go on the residents' calendar: it is public. No
+	 * convocation or agenda is needed, which is the difference from `agenda`.
+	 *
+	 * @param array<string,mixed> $data Meeting object data.
+	 *
+	 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-004-staff-publish-a-public-meeting-to-the-residents-calendar
+	 *
+	 * @throws AccessDeniedException When the meeting is not public.
+	 *
+	 * @return void
+	 */
+	private function assertActivityEligible(array $data): void {
+		if (($data['isPublic'] ?? false) !== true) {
+			throw new AccessDeniedException(
+				message: 'Only public meetings can be published to the public calendar.'
+			);
+		}
+	}//end assertActivityEligible()
 
 	/**
 	 * Assert a meeting agenda is publishable (isPublic + convocation sent).
@@ -421,6 +444,7 @@ class PublicationEligibilityService {
 		return match ($sourceType) {
 			'decision' => 'decision',
 			'agenda' => 'meeting',
+			'activity' => 'meeting',
 			'minutes' => 'minutes',
 			default => $sourceType,
 		};

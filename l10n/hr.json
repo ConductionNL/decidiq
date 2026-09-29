@@ -1331,7 +1331,23 @@
         "Open the file": "Otvori datoteku",
         "The export failed. Try again.": "Izvoz nije uspio. Pokušajte ponovno.",
         "%s is ready in your Decidiq exports folder": "%s je spreman u vašoj mapi Decidiq exports",
-        "%s could not be made. Try again, or export a ZIP.": "%s nije moguće izraditi. Pokušajte ponovno ili izvezite ZIP."
+        "%s could not be made. Try again, or export a ZIP.": "%s nije moguće izraditi. Pokušajte ponovno ili izvezite ZIP.",
+        "All audiences": "Sve ciljne skupine",
+        "All bodies": "Sva tijela",
+        "Council": "Vijeće",
+        "Executive": "Izvršna vlast",
+        "Joint arrangement": "Zajednički sporazum",
+        "Residents": "Stanovnici",
+        "Staff": "Djelatnici",
+        "No audience set": "Ciljna skupina nije postavljena",
+        "Public calendar": "Javni kalendar",
+        "Publish to the public calendar": "Objavi u javnom kalendaru",
+        "Audiences": "Ciljne skupine",
+        "Who meetings of this kind are for. The meeting calendar filters on it.": "Kome su namijenjene sjednice ove vrste. Kalendar sjednica filtrira prema tome.",
+        "Where the meeting takes place, as residents read it on the calendar.": "Gdje se sjednica održava, kako to stanovnici čitaju u kalendaru.",
+        "Who the meeting is for, taken from its kind of meeting.": "Kome je sjednica namijenjena, preuzeto iz vrste sjednice.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Vrsta objavljenog rezultata upravljanja ili unos u kalendar za javnu sjednicu.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Što je objavljeno: dnevni red, odluka, zapisnik ili unos u kalendar. Građani filtriraju po tome."
     },
     "plurals": null
 }

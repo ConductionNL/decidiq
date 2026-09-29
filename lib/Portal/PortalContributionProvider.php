@@ -293,9 +293,42 @@ class PortalContributionProvider {
 					'readAt',
 				],
 			],
+			$this->publicCalendarCollection(),
 		];
 
 	}//end citizenCollections()
+
+	/**
+	 * The council calendar residents read without an account
+	 * (planning-activity-calendar-by-audience, REQ-ACAL-005). Every publication
+	 * payload is public once published; the whitelist holds calendar fields only.
+	 *
+	 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-005-residents-read-the-calendar-without-an-account
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function publicCalendarCollection(): array {
+		return [
+			'id' => 'publicCalendar',
+			'register' => self::REGISTER,
+			'schema' => 'publication-payload',
+			'anonymous' => true,
+			'label' => 'Council calendar',
+			'listable' => true,
+			'fields' => [
+				'title',
+				'bodyName',
+				'meetingDate',
+				'meetingType',
+				'location',
+				'audiences',
+				'oriType',
+			],
+			'defaultFilters' => ['oriType' => 'Vergadering'],
+			'defaultSort' => ['field' => 'meetingDate', 'direction' => 'asc'],
+		];
+
+	}//end publicCalendarCollection()
 
 	/**
 	 * The three `type: create` actions on the `citizen` manifest (see

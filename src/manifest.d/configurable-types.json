@@ -86,6 +86,10 @@
 						"label": "Duration (min)"
 					},
 					{
+						"key": "audiences",
+						"label": "Audiences"
+					},
+					{
 						"key": "isPublic",
 						"label": "Public",
 						"widget": "boolean"

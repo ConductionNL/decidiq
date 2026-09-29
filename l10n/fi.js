@@ -1332,7 +1332,23 @@ OC.L10N.register(
         "Open the file": "Avaa tiedosto",
         "The export failed. Try again.": "Vienti epäonnistui. Yritä uudelleen.",
         "%s is ready in your Decidiq exports folder": "%s on valmis kansiossasi Decidiq exports",
-        "%s could not be made. Try again, or export a ZIP.": "Tiedostoa %s ei voitu tehdä. Yritä uudelleen tai vie ZIP."
+        "%s could not be made. Try again, or export a ZIP.": "Tiedostoa %s ei voitu tehdä. Yritä uudelleen tai vie ZIP.",
+        "All audiences": "Kaikki kohderyhmät",
+        "All bodies": "Kaikki toimielimet",
+        "Council": "Valtuusto",
+        "Executive": "Hallitus",
+        "Joint arrangement": "Kuntayhtymä",
+        "Residents": "Asukkaat",
+        "Staff": "Henkilöstö",
+        "No audience set": "Kohderyhmää ei ole asetettu",
+        "Public calendar": "Julkinen kalenteri",
+        "Publish to the public calendar": "Julkaise julkisessa kalenterissa",
+        "Audiences": "Kohderyhmät",
+        "Who meetings of this kind are for. The meeting calendar filters on it.": "Kenelle tämän lajin kokoukset on tarkoitettu. Kokouskalenteri suodattaa sen mukaan.",
+        "Where the meeting takes place, as residents read it on the calendar.": "Missä kokous pidetään, kuten asukkaat sen kalenterista lukevat.",
+        "Who the meeting is for, taken from its kind of meeting.": "Kenelle kokous on tarkoitettu, otettu kokouksen lajista.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Julkaistun hallintotuotoksen laji tai julkisen kokouksen kalenterimerkintä.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Mitä julkaistiin: esityslista, päätös, pöytäkirja tai kalenterimerkintä. Asukkaat suodattavat sen mukaan."
     },
     "nplurals=2; plural=(n != 1);"
 )

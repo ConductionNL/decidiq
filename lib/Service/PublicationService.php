@@ -118,7 +118,10 @@ class PublicationService {
 		$publishedAt = $this->now();
 
 		$payload['publicationDate'] = $publishedAt;
-		$payload['depublicationDate'] = null;
+		// No depublicationDate key: the schema types it as a date-time string that
+		// is not nullable, so an explicit null fails the register's validation.
+		// Absent means not withdrawn; withdraw() sets it.
+		unset($payload['depublicationDate']);
 		$payloadId = $this->repository->persistPayload(payload: $payload);
 
 		$warnings = [];
@@ -299,7 +302,7 @@ class PublicationService {
 		$papers  = ($payload['_publishedPapers'] ?? []);
 		unset($payload['_publishedPapers']);
 		$payload['publicationDate'] = $publishedAt;
-		$payload['depublicationDate'] = null;
+		unset($payload['depublicationDate']);
 		$payloadId = $this->repository->persistPayload(payload: $payload);
 
 		$warnings = [];
