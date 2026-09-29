@@ -24,7 +24,9 @@ namespace OCA\Decidiq\Service;
 
 use Exception;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCP\L10N\IFactory;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * Stateless service that generates ALV-specific Dutch minutes templates.
@@ -77,6 +79,7 @@ TEMPLATE;
 	private const DISTRIBUTABLE_LIFECYCLES = [
 		'approved',
 		'signed',
+		'published',
 	];
 
 	/**
@@ -84,14 +87,18 @@ TEMPLATE;
 	 *
 	 * @param LoggerInterface $logger The logger
 	 * @param MinutesContextResolver $context Resolves Minutes/Meeting/Participant context
-	 * @param ParticipantNotifier $notifier Delivers notifications to participants
+	 * @param ParticipantResolver $participantResolver Resolves the meeting's members
+	 * @param NotificationPreferenceService $preferences Delivers each notice through the member's own preferences
+	 * @param IFactory $l10nFactory Translates the notice
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
 	 */
 	public function __construct(
 		private LoggerInterface $logger,
 		private MinutesContextResolver $context,
-		private ParticipantNotifier $notifier,
+		private ParticipantResolver $participantResolver,
+		private NotificationPreferenceService $preferences,
+		private IFactory $l10nFactory,
 	) {
 	}//end __construct()
 
@@ -155,46 +162,104 @@ TEMPLATE;
 	}//end generateALVDraft()
 
 	/**
-	 * Distribute approved minutes to all active members.
+	 * Send approved minutes to the members of the meeting's body.
 	 *
-	 * Fetches the Minutes (must be in approved or signed state), fetches
-	 * active Participants of the linked GovernanceBody, and sends Nextcloud
-	 * notifications to each with minutes title and deep link.
+	 * The minutes must be approved, signed or published. Every current member
+	 * (no leftAt) with a Nextcloud account gets the notice "The minutes of
+	 * <meeting> are available", linking the minutes, through their own
+	 * notification preferences (bell, email or both; event decisionPublished).
+	 * The members come from ParticipantResolver, which reads the body relation
+	 * in both shapes OpenRegister stores it (minutes-draft-and-send, min-07).
 	 *
 	 * @param string $minutesId The Minutes ID
 	 *
-	 * @return int The count of notifications sent
+	 * @return int The count of notices delivered
 	 *
 	 * @throws MissingObjectException If Minutes not found
-	 * @throws Exception If lifecycle is not approved or signed
+	 * @throws Exception If lifecycle is not approved, signed or published (403)
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members
 	 */
 	public function distribute(string $minutesId): int {
-		try {
-			$minutes = $this->context->requireMinutes(minutesId: $minutesId);
-			$this->assertDistributable(minutes: $minutes);
+		$minutes = $this->context->requireMinutes(minutesId: $minutesId);
+		$this->assertDistributable(minutes: $minutes);
 
-			$participants = $this->context->activeParticipants(
-				bodyId: $this->context->governanceBodyIdForMinutes(minutes: $minutes)
-			);
+		$meetingId = ($this->context->linkedMeetingId(minutes: $minutes) ?? '');
+		if ($meetingId === '') {
+			return 0;
+		}
 
-			$sentCount = $this->notifier->notifyAll(
-				participants: $participants,
-				title: 'Notulen gepubliceerd: ' . ($minutes['title'] ?? 'Untitled'),
-				message: 'De notulen zijn nu beschikbaar.',
-				deepLink: "/minutes/$minutesId"
-			);
+		$uids = $this->memberUids(meetingId: $meetingId);
+		if ($uids === []) {
+			return 0;
+		}
 
-			$this->logger->info("ALV minutes distributed to $sentCount participants");
+		$meeting = ($this->context->findMeeting(meetingId: $meetingId) ?? []);
+		$meetingTitle = (string)($meeting['title'] ?? '');
+		$l10n = $this->l10nFactory->get('decidiq');
+		$named = $meetingTitle;
+		if ($named === '') {
+			$named = $l10n->t('this meeting');
+		}
 
-			return $sentCount;
-		} catch (Exception $e) {
-			$this->logger->error('ALVMinutesService::distribute failed: ' . $e->getMessage());
-			throw $e;
-		}//end try
+		$inApp = [
+			'subject'    => 'minutes_available',
+			'parameters' => ['meetingId' => $meetingId, 'meetingTitle' => $meetingTitle],
+			'objectType' => 'minutes',
+			'objectId'   => $minutesId,
+		];
 
+		$sent = 0;
+		foreach ($uids as $uid) {
+			try {
+				$sent += $this->preferences->dispatch(
+					personId: $uid,
+					eventType: 'decisionPublished',
+					title: $l10n->t('The minutes of %s are available', [$named]),
+					message: $l10n->t('Open the minutes in Decidiq to read them.'),
+					deepLink: '/minutes/' . $minutesId,
+					inApp: $inApp
+				);
+			} catch (Throwable $e) {
+				$this->logger->warning(
+					'Decidiq: minutes notice to {userId} failed: {error}',
+					['userId' => $uid, 'error' => $e->getMessage()]
+				);
+			}
+		}
+
+		$this->logger->info("Minutes $minutesId sent to members: $sent notices");
+
+		return $sent;
 	}//end distribute()
+
+	/**
+	 * The Nextcloud users of the meeting's current members: the linked
+	 * nextcloudUserId, or owner for records made before that field.
+	 *
+	 * @param string $meetingId The meeting UUID
+	 *
+	 * @return array<int, string> Unique user ids
+	 *
+	 * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members
+	 */
+	private function memberUids(string $meetingId): array {
+		$uids = [];
+		foreach ($this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId) as $participant) {
+			if (empty($participant['leftAt']) === false) {
+				continue;
+			}
+
+			$uid = (string)($participant['nextcloudUserId'] ?? $participant['owner'] ?? '');
+			if ($uid !== '') {
+				$uids[$uid] = true;
+			}
+		}
+
+		return array_map('strval', array_keys($uids));
+
+	}//end memberUids()
 
 	/**
 	 * Assert that a Meeting is an ALV.

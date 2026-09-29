@@ -71,6 +71,7 @@ class Notifier implements INotifier {
 		'meeting_scheduled'         => ['The meeting %s was scheduled', 'meetings/'],
 		'meeting_reminder'          => ['The meeting %s is coming up', 'meetings/'],
 		'submission_deadline'       => ['The submission deadline of %s is coming up', 'meetings/'],
+		'minutes_available'         => ['The minutes of %s are available', 'minutes/'],
 	];
 
 	/**

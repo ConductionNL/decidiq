@@ -123,8 +123,33 @@ class MinutesContextResolver {
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
 	 */
 	public function linkedMeetingId(array $minutes): ?string {
-		return $this->firstRelation(object: $minutes, relation: 'Meeting');
+		// The Minutes schema declares `meeting` as a property; OpenRegister
+		// keys its relations by that field name. The capitalised relation key
+		// is the older shape.
+		$ref = ($minutes['meeting'] ?? null);
+		if (is_array($ref) === true) {
+			$ref = ($ref['id'] ?? $ref['uuid'] ?? null);
+		}
+
+		if (is_string($ref) === true && $ref !== '') {
+			return $ref;
+		}
+
+		return ($this->firstRelation(object: $minutes, relation: 'meeting') ?? $this->firstRelation(object: $minutes, relation: 'Meeting'));
 	}//end linkedMeetingId()
+
+	/**
+	 * Fetch a Meeting record, or null when it does not exist.
+	 *
+	 * @param string $meetingId The Meeting ID
+	 *
+	 * @return array<string,mixed>|null The Meeting data
+	 *
+	 * @spec openspec/changes/minutes-draft-and-send/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members
+	 */
+	public function findMeeting(string $meetingId): ?array {
+		return $this->findObject(id: $meetingId, schema: 'meeting');
+	}//end findMeeting()
 
 	/**
 	 * Resolve the GovernanceBody ID a Minutes record ultimately belongs to.
