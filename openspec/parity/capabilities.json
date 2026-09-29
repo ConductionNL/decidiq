@@ -636,7 +636,8 @@
 			"built": {
 				"state": "building",
 				"evidence": "lib/Settings/register.d/88-member-onboarding-in-plain-words.json MemberOnboarding/MemberOffboarding with steps[] checklist and lifecycle; src/manifest.d/member-onboarding.json MemberOnboarding/MemberOffboarding index+detail (generic data widget); no PHP service executes steps (grep 'onboarding' in lib/Service, lib/Listener: none); completion guard and created-notification only as x-openregister-lifecycle/x-openregister-notifications declarations",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "bodies-onboarding-checklist-walkthrough"
 			},
 			"reachedOn": "MemberOnboarding (/member-onboarding) and MemberOffboarding (/member-offboarding), nested under 'Organisation' in the menu",
 			"provider": "decidiq",
@@ -788,7 +789,8 @@
 			"built": {
 				"state": "building",
 				"evidence": "lib/Settings/register.d/56-shared-governance-bodies.json BodyParticipation (sharedBody, participant, seats, votingWeight, accessionDate, exitDate) and Membership.onBehalfOf; bodyType 'shared-body' at lib/Settings/decidesk_register.json:553; src/manifest.json:482-483 body-participating-orgs and body-shared-participations object-lists on GovernanceBodyDetail; no BodyParticipation index/detail page",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "bodies-shared-body-participations"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id), 'Participating organisations' and 'Shared-body participations' lists",
 			"provider": "decidiq",
@@ -1283,7 +1285,8 @@
 			"built": {
 				"state": "building",
 				"evidence": "lib/Settings/register.d/82-planning-cycle-in-plain-words.json PlanningCycle, PlanningCycleTemplate (steps), PlanningCycleStep (sequence, stepType, deliveryDeadline, committeeDate, agendaItem, decision, status); src/manifest.d/pc-cyclus.json PlanningCycles/PlanningCycleDetail/PlanningCycleStepDetail; no service generates steps from a template (grep 'planning-cycle', 'PlanningCycle' in lib/Service, lib/Listener, src/components, src/views: none)",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "planning-cycle-generate-from-template"
 			},
 			"reachedOn": "PlanningCycles (/planning-cycles), under 'Tasks & Commitments' in the menu",
 			"provider": "decidiq",
@@ -1688,7 +1691,7 @@
 				"state": "specified",
 				"evidence": "openspec/changes/document-annotations/ (proposal, design, tasks, specs) proposes an Annotation schema and overlay; no Annotation schema in lib/Settings and no annotation code in src/ (grep 'annotation')",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/document-annotations"
+				"change": "document-annotations"
 			},
 			"reachedOn": "nothing reaches it: only an openspec change",
 			"provider": "decidiq",
@@ -1719,7 +1722,7 @@
 				"state": "specified",
 				"evidence": "No offline/service-worker/PWA code in src/ (grep 'offline', 'serviceWorker', 'PWA'); openspec/changes/meeting-pack-board-book/proposal.md:29 plans delivering a compiled pack into each attendee's Files for offline sync via Nextcloud clients; not built",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/meeting-pack-board-book"
+				"change": "meeting-pack-board-book"
 			},
 			"reachedOn": "nothing reaches it: no offline mode; only a planned per-attendee pack delivery",
 			"provider": "decidiq",
@@ -1749,7 +1752,8 @@
 			"built": {
 				"state": "building",
 				"evidence": "Incoming documents are AgendaItems of a configurable type since register.d/85-documents-as-agenda-items.json (IngekomenStuk superseded, x-openregister active:false); seeded type 'Ingekomen stuk' in lib/Settings/profiles/municipality.json:771; migration lib/Migration/MigrateDocumentsToAgendaItems.php:78-81; added through the agenda form (src/components/tabs/MeetingAgendaTab.vue, Type column :229); src/components/tabs/MeetingRoutedDocumentsTab.vue:168-174 still reads the retired raadsinformatiebrief and ingekomen-stuk schemas",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "agenda-incoming-documents-list"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id), Agenda widget, add item with an 'incoming document' type",
 			"provider": "decidiq",
@@ -1810,7 +1814,7 @@
 				"state": "specified",
 				"evidence": "openspec/changes/document-accessibility-check/ (proposal, design, tasks, specs) describes a PDF accessibility scan and publication gate; no code in lib/ or src/ (grep 'accessibility-check', 'pdf/ua')",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/document-accessibility-check"
+				"change": "document-accessibility-check"
 			},
 			"reachedOn": "nothing reaches it: only an openspec change",
 			"provider": "decidiq",
@@ -2565,7 +2569,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "building",
+				"state": "decided-no",
 				"evidence": "lib/Settings/register.d/76-questions-as-agenda-items.json retires MondelingeVraag/Interpellatieverzoek into AgendaItem + configurable AgendaItemType (typeFields); lib/Settings/profiles/municipality.json seeds oral-question agenda items under a vragenuur parent item; AgendaItemTypes page src/manifest.d/configurable-types.json:14",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -2574,7 +2578,7 @@
 			"providerHow": "read-from-code",
 			"feature": "questions",
 			"featureConfidence": "medium",
-			"note": "Oral questions and interpellation requests can be registered as typed agenda items. The admission, submission-deadline and support-threshold behaviour described for the retired schemas has no code.",
+			"note": "Oral questions and interpellation requests can be registered as typed agenda items. The admission, submission-deadline and support-threshold behaviour described for the retired schemas has no code. Decided no (build-all 2026-09-29): No competitor rated yes, no demand row, outside the core area (bodies, planning). Reversible. The built half stays.",
 			"notubiz": "partial",
 			"ibabs": "partial",
 			"go-raadsinformatie": "partial",
@@ -2904,7 +2908,7 @@
 				"state": "building",
 				"evidence": "lib/Service/VoteBallotFactory.php voteRelations() links the participant on non-secret ballots; VotingRound.votingMethod enum (decidesk_register.json) has no roll-call method; src/components/tabs/MotionVotesTab.vue:207 voter names read a non-existent caster field",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/voting-named-paper-vote-entry"
+				"change": "voting-named-paper-vote-entry"
 			},
 			"reachedOn": "MotionDetail (/motions/:id), 'Voting round' widget (open ballot)",
 			"provider": "decidiq",
@@ -3022,7 +3026,7 @@
 			"origin": "code",
 			"decidiq": "no",
 			"built": {
-				"state": "building",
+				"state": "decided-no",
 				"evidence": "lib/Service/VoteBallotFactory.php:105 every ballot is written with 'weight' => 1; Participant/Membership.votingWeight (editable in src/modals/MemberRoleDialog.vue:134) is never read by the voting path; body-governance-configuration declares a weighted-vote denominator (register.d/74-generic-body-configuration.json) that nothing applies",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -3031,7 +3035,7 @@
 			"providerHow": "read-from-code",
 			"feature": "voting",
 			"featureConfidence": "high",
-			"note": "The tally sums weights, but the weight is hard-coded to 1, so share-weighted voting does not happen.",
+			"note": "The tally sums weights, but the weight is hard-coded to 1, so share-weighted voting does not happen. Decided no (build-all 2026-09-29): Single competitor (OpenSlides), no demand row, outside the core area (bodies, planning). Reversible. The built half stays.",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -3052,7 +3056,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "building",
+				"state": "decided-no",
 				"evidence": "src/components/VotingRoundPanel.vue:883 grantProxy() POSTs /api/voting-rounds/{id}/proxy with a typed participant UUID -> lib/Service/ProxyDelegationService.php grantProxy() stores it as a note on the round; the cast call always sends isProxy:false (VotingRoundPanel.vue:701), so a holder cannot cast the proxy vote from the UI; proxy-authorization records via ProxyAuthorizations index (src/manifest.d/member-proxy-authorization.json:7) and the MeetingDetail object-list",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -3061,7 +3065,7 @@
 			"providerHow": "read-from-code",
 			"feature": "proxy-voting",
 			"featureConfidence": "medium",
-			"note": "A proxy can be granted (by pasting a UUID) and a signed authorization recorded, but the UI never casts a vote on someone's behalf; that path is API only.",
+			"note": "A proxy can be granted (by pasting a UUID) and a signed authorization recorded, but the UI never casts a vote on someone's behalf; that path is API only. Decided no (build-all 2026-09-29): Single competitor (OpenSlides), no demand row, outside the core area (bodies, planning). Reversible. The built half stays.",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -3295,7 +3299,7 @@
 				"state": "building",
 				"evidence": "lib/Controller/VotingBehaviourController.php:107 getStats() at GET /api/voting-behaviour/{participantId}; grep 'voting-behaviour' in src/ finds no caller; ParticipantDetail (src/manifest.json:751) has only data/related/files widgets",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/bodies-member-profile-and-voting-record"
+				"change": "bodies-member-profile-and-voting-record"
 			},
 			"reachedOn": "API only: GET /api/voting-behaviour/{participantId}",
 			"provider": "decidiq",
@@ -3994,7 +3998,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "building",
+				"state": "decided-no",
 				"evidence": "Letters from the executive are now AgendaItems with a configurable type; the commitment link is a typeFields entry (seed example lib/Settings/profiles/municipality.json:474-489 typeFields.settledCommitment). The dedicated Raadsinformatiebrief schema with a real settledCommitment relation (register.d/84-commitment-in-plain-words.json:325-327) is SUPERSEDED in register.d/85-documents-as-agenda-items.json. No sending: nothing in lib/ mails or notifies a letter beyond the declared ribRegistered notification on the retired schema.",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -4003,7 +4007,7 @@
 			"providerHow": "read-from-code",
 			"feature": "commitments",
 			"featureConfidence": "medium",
-			"note": "A letter can be registered as an agenda item and carry a commitment reference in its type fields, but it is not a real relation, it does not show on the commitment, and nothing sends the letter.",
+			"note": "A letter can be registered as an agenda item and carry a commitment reference in its type fields, but it is not a real relation, it does not show on the commitment, and nothing sends the letter. Decided no (build-all 2026-09-29): Single competitor (iBabs), no demand row, outside the core area (bodies, planning). Reversible. The built half stays.",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
@@ -4116,7 +4120,8 @@
 			"built": {
 				"state": "building",
 				"evidence": "lib/Service/ApprovalRouteService.php:354 instantiate() and :483 record(), lib/Service/ApprovalRouteAdvancer.php, ApprovalThresholdCalculator; started via routes.php:58 POST /api/approval-routes/instantiate or lib/Listener/ApprovalRouteRequestedListener.php:84 (registered lib/AppInfo/Registrar/CrossAppEventRegistrar.php:83). Frontend: src/integrations/approvalChainLink.js:237 holdRoute() is exported but called by no component; CnApprovalChainWidget.vue:306 recordAction() lets the actor approve/reject. Inside decidiq, src/components/tabs/DecisionRouteTab.vue is read-only and no decidiq screen starts a route (src/dialogs/DecisionFormDialog.vue has no route step).",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "routes-send-proposal-along-route"
 			},
 			"reachedOn": "Acting on a step: another app's detail page through the decidiq-approval-chain integration leaf (src/integrations/registerApprovalChainLeaf.js, CnApprovalChainWidget records actions); starting a route: API only: POST /api/approval-routes/instantiate or ApprovalRouteRequestedEvent from another app",
 			"provider": "decidiq",
@@ -4264,7 +4269,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "building",
+				"state": "decided-no",
 				"evidence": "src/manifest.d/urgent-decision-procedure.json UrgentDecisions (/urgent-decisions) lists decisions with isUrgent; fields isUrgent/urgencyReason/urgencyDeclaredBy/urgencyDeclaredAt and the awaitingRatification calculation are declared in lib/Settings/register.d/46-urgency-policy.json, whose text names an 'UrgencyTriggerGuard' and a guarded trigger endpoint: no PHP file under lib/ mentions 'urgen' outside notification preferences, and no route exists. isUrgent is not in the DecisionDetail data widgets.",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -4273,7 +4278,7 @@
 			"providerHow": "read-from-code",
 			"feature": "urgent-decisions",
 			"featureConfidence": "medium",
-			"note": "There is a list of urgent decisions, but the declare-urgency flow and guard the schema describes were never built, and 'awaiting ratification' is only a declared calculation.",
+			"note": "There is a list of urgent decisions, but the declare-urgency flow and guard the schema describes were never built, and 'awaiting ratification' is only a declared calculation. Decided no (build-all 2026-09-29): No competitor rated yes, no demand row, outside the core area (bodies, planning). Reversible. The built half stays.",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -4356,7 +4361,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "src/manifest.d/works-council-consultation.json WorksCouncilConsultations (/works-council-consultations) and detail; schema ConsultationRequest in lib/Settings/register.d/47-works-council-consultation.json with worArticle, receivedDate, requestedResponseDate, suspensionTo, response and decision fields; lifecycle and notifications are x-openregister declarations; no PHP under lib/ computes WOR terms (grep consultation-request: none). Also on DecisionDetail widget decision-wor-consultations.",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "works-council-consultation"
 			},
 			"reachedOn": "Works-council consultations index (/works-council-consultations) and detail; Works council widget on DecisionDetail",
 			"provider": "decidiq",
@@ -4446,7 +4452,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "lib/Service/DecisionTypeRegistry.php:88 seeds a 'bezwaar-decision' decision type; lib/Settings/register.d/80-decision-as-a-walked-process.json:197-269 legal remedy kind 'bezwaar'; advice from an advisory committee can be recorded as a Consultation (register.d/79). No objection record (objector, grounds, hearing) schema, page or service found (grep bezwaar/objection in lib/Service and manifests).",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "objection-advisory-committee"
 			},
 			"reachedOn": "nothing dedicated reaches it: a 'bezwaar-decision' type Decision on /decisions plus a Consultation on /governance-consultations",
 			"provider": "decidiq",
@@ -4534,7 +4541,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "specified",
+				"state": "decided-no",
 				"evidence": "GoverningDocumentVersie.effectiveDate and status draft/adopted/in-effect (register.d/55-governing-documents-register.json); the adopted->in-effect move and the approaching-effect reminder are x-openregister-lifecycle / x-openregister-notifications declarations; no background job or PHP under lib/ switches a version to in-effect on its date (appinfo/info.xml jobs list has none).",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -4543,7 +4550,7 @@
 			"providerHow": "read-from-code",
 			"feature": "governing-documents",
 			"featureConfidence": "medium",
-			"note": "A version can be adopted with a future effective date and the timeline shows it, but nothing makes it take effect on that date; status is changed by hand. Specified in openspec/changes/governing-documents-register (OpenSpec pass 2026-09-27).",
+			"note": "A version can be adopted with a future effective date and the timeline shows it, but nothing makes it take effect on that date; status is changed by hand. Specified in openspec/changes/governing-documents-register (OpenSpec pass 2026-09-27). Decided no (build-all 2026-09-29): No competitor rated yes, no demand row, outside the core area (bodies, planning). Reversible.",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -4715,7 +4722,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "building",
+				"state": "decided-no",
 				"evidence": "lib/Settings/register.d/83-confidentiality-in-plain-words.json:6 ConfidentialityRestriction with scope, targetDocument/AgendaItem/Decision, ground ($ref confidentiality-ground, :172), liftingDate (:260, date it WAS lifted), liftingConditions (:269, free text); src/manifest.d/embargo-geheimhouding.json:7,70 index + detail pages; ConfidentialityGrounds pages",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -4724,7 +4731,7 @@
 			"providerHow": "read-from-code",
 			"feature": "confidentiality",
 			"featureConfidence": "high",
-			"note": "A restriction with a structured legal ground can be recorded on a document, agenda item or decision. There is no planned end date: liftingDate records when it was lifted and liftingConditions is free text. The publication payload checks agenda-item confidentiality flags, not these restriction objects.",
+			"note": "A restriction with a structured legal ground can be recorded on a document, agenda item or decision. There is no planned end date: liftingDate records when it was lifted and liftingConditions is free text. The publication payload checks agenda-item confidentiality flags, not these restriction objects. Decided no (build-all 2026-09-29): Single competitor (iBabs), no demand row, outside the core area (bodies, planning). Reversible. The built half stays.",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
@@ -4745,7 +4752,7 @@
 			"origin": "code",
 			"decidiq": "no",
 			"built": {
-				"state": "specified",
+				"state": "decided-no",
 				"evidence": "searched lib/BackgroundJob (no confidentiality job), grep 'dissolved'/'liftingDate' in lib/*.php finds only a Dutch-value rename repair; lifecycle map in 83-confidentiality-in-plain-words.json is declarative and has no time trigger; the only scheduled notification is geheimhoudingBekrachtigingDue (ratification reminder)",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -4754,7 +4761,7 @@
 			"providerHow": "read-from-code",
 			"feature": "confidentiality",
 			"featureConfidence": "high",
-			"note": "Lifting is a manual transition to dissolved. Nothing lifts automatically. Specified in openspec/changes/embargo-geheimhouding (OpenSpec pass 2026-09-27).",
+			"note": "Lifting is a manual transition to dissolved. Nothing lifts automatically. Specified in openspec/changes/embargo-geheimhouding (OpenSpec pass 2026-09-27). Decided no (build-all 2026-09-29): A recorded non-goal: openspec/changes/embargo-geheimhouding/tasks.md states a passed deadline flags the restriction overdue and never lifts it automatically, because the body lifts secrecy by decision.",
 			"notubiz": "unknown",
 			"ibabs": "partial",
 			"go-raadsinformatie": "unknown",
@@ -4869,7 +4876,7 @@
 				"state": "specified",
 				"evidence": "openspec/changes/records-management-archiving/proposal.md (ArchivalDossier, MDTO via OpenRegister, e-depot transfer); grep ArchivalDossier/MDTO/e-depot in lib/src finds only a forward reference in lib/Settings/register.d/51-raadsinformatiebrieven.json:176",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/records-management-archiving"
+				"change": "records-management-archiving"
 			},
 			"reachedOn": "nothing reaches it: change is specified only",
 			"provider": "openregister",
@@ -5261,7 +5268,7 @@
 				"state": "specified",
 				"evidence": "openspec/changes/inspreekrecht-plenair/ (proposal, design, specs, tasks); grep inspreek/speaking/spreekrecht in lib/Settings and src/manifest finds only speakingDuration (participant statistic) and transcript speaker labels",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/inspreekrecht-plenair"
+				"change": "inspreekrecht-plenair"
 			},
 			"reachedOn": "nothing reaches it: change specified only, no schema or page",
 			"provider": "decidiq",
@@ -5319,7 +5326,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "building",
+				"state": "decided-no",
 				"evidence": "lib/Settings/register.d/79-one-consultation-schema.json:65 Consultation.audienceType enum bodies/body-members/political-group/user-group, deadline, responseType, results; src/manifest.d/consultations.json:127-168 consultation-responses object-list on the detail page with allowCreate:true; GovernanceConsultations menu entry",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -5328,7 +5335,7 @@
 			"providerHow": "read-from-code",
 			"feature": "consultations",
 			"featureConfidence": "medium",
-			"note": "A consultation of body members with a deadline can be recorded and responses logged against it. No service sends it to the members or collects their answers; responses are entered on the detail page.",
+			"note": "A consultation of body members with a deadline can be recorded and responses logged against it. No service sends it to the members or collects their answers; responses are entered on the detail page. Decided no (build-all 2026-09-29): No competitor rated yes, no demand row, outside the core area (bodies, planning). Reversible. The built half stays.",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -5951,7 +5958,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "specified",
+				"state": "decided-no",
 				"evidence": "lib/AppInfo/Registrar/DomainServiceRegistrar.php:101 registers IMcpToolProvider::decidiq -> lib/Mcp/DecidiqToolProvider.php:77-162 five tools (list open action items, list recent meetings, get meeting details, start meeting, add action item); lib/Mcp/McpMeetingTools.php:317 inlines a meeting's decisions; lib/Mcp/McpMeetingScopeResolver.php narrows scope=all to the caller's own meetings",
 				"owner": "ConductionNL/decidiq"
 			},
@@ -5960,7 +5967,7 @@
 			"providerHow": "read-from-code",
 			"feature": "ai-assistant",
 			"featureConfidence": "medium",
-			"note": "The assistant can list and read meetings and action items, scoped to meetings the caller takes part in, and sees decisions only inlined in a meeting. There is no tool to search or ask about decisions on their own, and the chat surface is OpenRegister's, whose discovery of these tools was not verified. Specified in openspec/changes/decidiq-mcp-adoption (OpenSpec pass 2026-09-27).",
+			"note": "The assistant can list and read meetings and action items, scoped to meetings the caller takes part in, and sees decisions only inlined in a meeting. There is no tool to search or ask about decisions on their own, and the chat surface is OpenRegister's, whose discovery of these tools was not verified. Specified in openspec/changes/decidiq-mcp-adoption (OpenSpec pass 2026-09-27). Decided no (build-all 2026-09-29): No competitor rated yes, no demand row, outside the core area (bodies, planning). Reversible.",
 			"notubiz": "partial",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "partial",
@@ -6474,7 +6481,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "lib/BackgroundJob/TranscriptRetentionJob.php:154 enforceForTranscript() deletes meeting recordings and raw transcripts once the body's retention window after minutes approval has passed, :398 appendAudit() records each deletion in the meeting's audit trail; job registered appinfo/info.xml:130; policy set per body in the Recording retention widget (src/manifest.json:476, PUT /api/governance-bodies/{id}/retention-config); grep -rliE 'destruct|vernietig|selectielijst|e-depot' lib src: nothing for other documents",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "records-management-archiving"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id), Recording retention widget; deletion runs in the daily background job",
 			"provider": "decidiq",

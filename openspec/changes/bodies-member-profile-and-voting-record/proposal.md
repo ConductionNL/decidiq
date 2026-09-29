@@ -79,3 +79,9 @@ A council's residents want to know who represents them and how they voted. Three
 - Publishing a vote is publishing personal data. The rule is off by default, set per body, and only covers rounds that were not secret; the vote of a council member in a public meeting is public by law, a vote of a private board is not.
 - Votes point at participants, not persons. The record uses a read-only lookup from participant to person (Nextcloud user id first, then email) and never creates a person, unlike the migration crosswalk.
 - `/votes` starting to return data is a visible change for any harvester. It is the intended change: today it returns nothing for anyone.
+
+## Matrix rows (build-all, 2026-09-29)
+
+This change also closes these rows of the decidiq matrix (`openspec/parity/capabilities.json`); `built.change` names this change:
+
+- vot-18: See how a member has voted across meetings.
