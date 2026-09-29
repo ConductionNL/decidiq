@@ -287,7 +287,7 @@
 					{{
 						t('decidiq', 'Cast: {cast} / {total}', {
 							cast: tallyTotal,
-							total: participantCount,
+							total: eligibleVoters,
 						})
 					}}
 				</p>
@@ -533,6 +533,8 @@ import RankedBallot from './RankedBallot.vue'
 import RankedResultsCard from './RankedResultsCard.vue'
 import { useObjectStore } from '../store/store.js'
 import { matching, relationFilterFor } from '../utils/objectRelations.js'
+import { eligibleCount } from '../utils/conflicts.js'
+import { ensureRelationType } from './tabs/useRelationStore.js'
 import {
 	chosenRules,
 	NO_VOTING_PERMISSIONS,
@@ -566,6 +568,8 @@ export default {
 		motionId: { type: String, required: true },
 		motionLifecycle: { type: String, default: '' },
 		meetingId: { type: String, default: '' },
+		/** The agenda item the motion is tabled under: its recusals count too (bod-10) */
+		agendaItemId: { type: String, default: '' },
 		subjectType: {
 			type: String,
 			default: 'motion',
@@ -611,6 +615,7 @@ export default {
 			chairCastingError: null,
 			pollInterval: null,
 			participantCount: 0,
+			declarations: [],
 			// The server's answer on which controls this user may use
 			// (REQ-VCR-002); every control hidden until it arrives.
 			permissions: { ...NO_VOTING_PERMISSIONS },
@@ -618,6 +623,17 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The members who may vote: participants minus those recused on the
+		 * motion or its agenda item (bod-10).
+		 *
+		 * @return {number}
+		 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-002-a-recused-member-cannot-vote-on-the-matter
+		 */
+		eligibleVoters() {
+			return eligibleCount(this.participantCount, this.declarations, [this.motionId, this.agendaItemId])
+		},
+
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
 		roundId() {
 			if (!this.currentRound) return null
@@ -795,6 +811,25 @@ export default {
 			}
 		},
 
+		/**
+		 * Load the declarations on the motion and its agenda item; a failure
+		 * leaves the count at all participants.
+		 *
+		 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-002-a-recused-member-cannot-vote-on-the-matter
+		 */
+		async loadDeclarations() {
+			try {
+				const store = ensureRelationType('conflict-of-interest')
+				const ids = [this.motionId, this.agendaItemId].filter(Boolean)
+				const lists = await Promise.all(
+					ids.map((id) => store.fetchCollection('conflict-of-interest', { agendaItem: id, _limit: 100 })),
+				)
+				this.declarations = lists.flat().filter(Boolean)
+			} catch (e) {
+				this.declarations = []
+			}
+		},
+
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
 		async fetchCurrentRound() {
 			this.loading = true
@@ -840,6 +875,7 @@ export default {
 					)[0]
 				this.currentRound = open || recent || null
 				this.participantCount = participants?.length ?? 0
+				await this.loadDeclarations()
 			} catch (e) {
 				this.currentRound = null
 			} finally {

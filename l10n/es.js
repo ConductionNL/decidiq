@@ -1158,7 +1158,23 @@ OC.L10N.register(
         "The meeting %s is coming up": "La reunión %s se acerca",
         "The submission deadline of %s is coming up": "Se acerca el plazo de presentación de %s",
         "It starts on %s.": "Empieza el %s.",
-        "Motions and amendments can be submitted until %s.": "Las mociones y enmiendas pueden presentarse hasta el %s."
+        "Motions and amendments can be submitted until %s.": "Las mociones y enmiendas pueden presentarse hasta el %s.",
+        "Conflicts of interest": "Conflictos de intereses",
+        "Declare a conflict of interest": "Declarar un conflicto de intereses",
+        "Kind of interest": "Tipo de interés",
+        "Reason": "Motivo",
+        "For example: I own land in the plan area": "Por ejemplo: tengo terrenos en la zona del plan",
+        "I will not vote on this": "No votaré sobre esto",
+        "Declare": "Declarar",
+        "Financial interest": "Interés económico",
+        "Personal relationship": "Relación personal",
+        "Competing business": "Negocio competidor",
+        "Earlier involvement": "Participación anterior",
+        "No one has declared a conflict of interest here.": "Nadie ha declarado un conflicto de intereses aquí.",
+        "Does not vote": "No vota",
+        "A member": "Un miembro",
+        "Could not load the declarations.": "No se pudieron cargar las declaraciones.",
+        "Could not record the declaration.": "No se pudo registrar la declaración."
     },
     "nplurals=2; plural=(n != 1);"
 )

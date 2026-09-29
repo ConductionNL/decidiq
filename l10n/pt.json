@@ -1157,7 +1157,23 @@
         "The meeting %s is coming up": "A reunião %s aproxima-se",
         "The submission deadline of %s is coming up": "O prazo de submissão de %s aproxima-se",
         "It starts on %s.": "Começa em %s.",
-        "Motions and amendments can be submitted until %s.": "Moções e emendas podem ser submetidas até %s."
+        "Motions and amendments can be submitted until %s.": "Moções e emendas podem ser submetidas até %s.",
+        "Conflicts of interest": "Conflitos de interesse",
+        "Declare a conflict of interest": "Declarar um conflito de interesse",
+        "Kind of interest": "Tipo de interesse",
+        "Reason": "Motivo",
+        "For example: I own land in the plan area": "Por exemplo: tenho terreno na área do plano",
+        "I will not vote on this": "Não vou votar sobre isto",
+        "Declare": "Declarar",
+        "Financial interest": "Interesse financeiro",
+        "Personal relationship": "Relação pessoal",
+        "Competing business": "Negócio concorrente",
+        "Earlier involvement": "Envolvimento anterior",
+        "No one has declared a conflict of interest here.": "Ninguém declarou um conflito de interesse aqui.",
+        "Does not vote": "Não vota",
+        "A member": "Um membro",
+        "Could not load the declarations.": "Não foi possível carregar as declarações.",
+        "Could not record the declaration.": "Não foi possível registar a declaração."
     },
     "plurals": null
 }

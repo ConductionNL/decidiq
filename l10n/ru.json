@@ -1157,7 +1157,23 @@
         "The meeting %s is coming up": "Скоро заседание %s",
         "The submission deadline of %s is coming up": "Приближается срок подачи для %s",
         "It starts on %s.": "Начало: %s.",
-        "Motions and amendments can be submitted until %s.": "Предложения и поправки принимаются до %s."
+        "Motions and amendments can be submitted until %s.": "Предложения и поправки принимаются до %s.",
+        "Conflicts of interest": "Конфликты интересов",
+        "Declare a conflict of interest": "Заявить о конфликте интересов",
+        "Kind of interest": "Вид интереса",
+        "Reason": "Причина",
+        "For example: I own land in the plan area": "Например: у меня есть земля в зоне плана",
+        "I will not vote on this": "Я не буду голосовать по этому вопросу",
+        "Declare": "Заявить",
+        "Financial interest": "Финансовый интерес",
+        "Personal relationship": "Личные отношения",
+        "Competing business": "Конкурирующий бизнес",
+        "Earlier involvement": "Прежнее участие",
+        "No one has declared a conflict of interest here.": "Здесь никто не заявлял о конфликте интересов.",
+        "Does not vote": "Не голосует",
+        "A member": "Участник",
+        "Could not load the declarations.": "Не удалось загрузить заявления.",
+        "Could not record the declaration.": "Не удалось сохранить заявление."
     },
     "plurals": null
 }

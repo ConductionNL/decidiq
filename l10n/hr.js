@@ -1158,7 +1158,23 @@ OC.L10N.register(
         "The meeting %s is coming up": "Sjednica %s se približava",
         "The submission deadline of %s is coming up": "Rok za podnošenje za %s se približava",
         "It starts on %s.": "Počinje %s.",
-        "Motions and amendments can be submitted until %s.": "Prijedlozi i amandmani mogu se podnijeti do %s."
+        "Motions and amendments can be submitted until %s.": "Prijedlozi i amandmani mogu se podnijeti do %s.",
+        "Conflicts of interest": "Sukobi interesa",
+        "Declare a conflict of interest": "Prijavite sukob interesa",
+        "Kind of interest": "Vrsta interesa",
+        "Reason": "Razlog",
+        "For example: I own land in the plan area": "Na primjer: posjedujem zemljište u području plana",
+        "I will not vote on this": "Neću glasovati o ovome",
+        "Declare": "Prijavi",
+        "Financial interest": "Financijski interes",
+        "Personal relationship": "Osobni odnos",
+        "Competing business": "Konkurentski posao",
+        "Earlier involvement": "Ranije sudjelovanje",
+        "No one has declared a conflict of interest here.": "Nitko ovdje nije prijavio sukob interesa.",
+        "Does not vote": "Ne glasuje",
+        "A member": "Član",
+        "Could not load the declarations.": "Prijave nije bilo moguće učitati.",
+        "Could not record the declaration.": "Prijavu nije bilo moguće spremiti."
     },
     "nplurals=2; plural=(n != 1);"
 )

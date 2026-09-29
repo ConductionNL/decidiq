@@ -1158,7 +1158,23 @@ OC.L10N.register(
         "The meeting %s is coming up": "Tá an cruinniú %s ag teacht",
         "The submission deadline of %s is coming up": "Tá an spriocdháta aighneachta do %s ag teacht",
         "It starts on %s.": "Tosaíonn sé ar %s.",
-        "Motions and amendments can be submitted until %s.": "Is féidir rúin agus leasuithe a chur isteach go dtí %s."
+        "Motions and amendments can be submitted until %s.": "Is féidir rúin agus leasuithe a chur isteach go dtí %s.",
+        "Conflicts of interest": "Coinbhleachtaí leasa",
+        "Declare a conflict of interest": "Dearbhaigh coinbhleacht leasa",
+        "Kind of interest": "Cineál leasa",
+        "Reason": "Cúis",
+        "For example: I own land in the plan area": "Mar shampla: tá talamh agam i limistéar an phlean",
+        "I will not vote on this": "Ní vótálfaidh mé air seo",
+        "Declare": "Dearbhaigh",
+        "Financial interest": "Leas airgeadais",
+        "Personal relationship": "Caidreamh pearsanta",
+        "Competing business": "Gnó iomaíoch",
+        "Earlier involvement": "Rannpháirtíocht níos luaithe",
+        "No one has declared a conflict of interest here.": "Níor dhearbhaigh aon duine coinbhleacht leasa anseo.",
+        "Does not vote": "Ní vótálann",
+        "A member": "Ball",
+        "Could not load the declarations.": "Níorbh fhéidir na dearbhuithe a luchtú.",
+        "Could not record the declaration.": "Níorbh fhéidir an dearbhú a thaifeadadh."
     },
     "nplurals=2; plural=(n != 1);"
 )

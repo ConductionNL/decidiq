@@ -1158,7 +1158,23 @@ OC.L10N.register(
         "The meeting %s is coming up": "Η συνεδρίαση %s πλησιάζει",
         "The submission deadline of %s is coming up": "Η προθεσμία υποβολής για %s πλησιάζει",
         "It starts on %s.": "Ξεκινά στις %s.",
-        "Motions and amendments can be submitted until %s.": "Προτάσεις και τροπολογίες υποβάλλονται έως %s."
+        "Motions and amendments can be submitted until %s.": "Προτάσεις και τροπολογίες υποβάλλονται έως %s.",
+        "Conflicts of interest": "Συγκρούσεις συμφερόντων",
+        "Declare a conflict of interest": "Δηλώστε σύγκρουση συμφερόντων",
+        "Kind of interest": "Είδος συμφέροντος",
+        "Reason": "Αιτία",
+        "For example: I own land in the plan area": "Για παράδειγμα: έχω γη στην περιοχή του σχεδίου",
+        "I will not vote on this": "Δεν θα ψηφίσω για αυτό",
+        "Declare": "Δήλωση",
+        "Financial interest": "Οικονομικό συμφέρον",
+        "Personal relationship": "Προσωπική σχέση",
+        "Competing business": "Ανταγωνιστική επιχείρηση",
+        "Earlier involvement": "Προηγούμενη εμπλοκή",
+        "No one has declared a conflict of interest here.": "Κανείς δεν έχει δηλώσει σύγκρουση συμφερόντων εδώ.",
+        "Does not vote": "Δεν ψηφίζει",
+        "A member": "Ένα μέλος",
+        "Could not load the declarations.": "Δεν ήταν δυνατή η φόρτωση των δηλώσεων.",
+        "Could not record the declaration.": "Δεν ήταν δυνατή η καταγραφή της δήλωσης."
     },
     "nplurals=2; plural=(n != 1);"
 )

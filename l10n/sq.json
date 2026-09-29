@@ -1157,7 +1157,23 @@
         "The meeting %s is coming up": "Mbledhja %s po afron",
         "The submission deadline of %s is coming up": "Afati i dorëzimit për %s po afron",
         "It starts on %s.": "Fillon më %s.",
-        "Motions and amendments can be submitted until %s.": "Mocionet dhe amendamentet mund të dorëzohen deri më %s."
+        "Motions and amendments can be submitted until %s.": "Mocionet dhe amendamentet mund të dorëzohen deri më %s.",
+        "Conflicts of interest": "Konflikte interesi",
+        "Declare a conflict of interest": "Deklaroni një konflikt interesi",
+        "Kind of interest": "Lloji i interesit",
+        "Reason": "Arsyeja",
+        "For example: I own land in the plan area": "Për shembull: kam tokë në zonën e planit",
+        "I will not vote on this": "Nuk do të votoj për këtë",
+        "Declare": "Deklaro",
+        "Financial interest": "Interes financiar",
+        "Personal relationship": "Marrëdhënie personale",
+        "Competing business": "Biznes konkurrues",
+        "Earlier involvement": "Përfshirje e mëparshme",
+        "No one has declared a conflict of interest here.": "Askush nuk ka deklaruar konflikt interesi këtu.",
+        "Does not vote": "Nuk voton",
+        "A member": "Një anëtar",
+        "Could not load the declarations.": "Deklaratat nuk u ngarkuan.",
+        "Could not record the declaration.": "Deklarata nuk u regjistrua."
     },
     "plurals": null
 }

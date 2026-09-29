@@ -1157,7 +1157,23 @@
         "The meeting %s is coming up": "Fundurinn %s nálgast",
         "The submission deadline of %s is coming up": "Skilafrestur fyrir %s nálgast",
         "It starts on %s.": "Hann hefst %s.",
-        "Motions and amendments can be submitted until %s.": "Tillögur og breytingartillögur má leggja fram til %s."
+        "Motions and amendments can be submitted until %s.": "Tillögur og breytingartillögur má leggja fram til %s.",
+        "Conflicts of interest": "Hagsmunaárekstrar",
+        "Declare a conflict of interest": "Tilkynna hagsmunaárekstur",
+        "Kind of interest": "Tegund hagsmuna",
+        "Reason": "Ástæða",
+        "For example: I own land in the plan area": "Til dæmis: ég á land á skipulagssvæðinu",
+        "I will not vote on this": "Ég greiði ekki atkvæði um þetta",
+        "Declare": "Tilkynna",
+        "Financial interest": "Fjárhagslegir hagsmunir",
+        "Personal relationship": "Persónuleg tengsl",
+        "Competing business": "Samkeppnisrekstur",
+        "Earlier involvement": "Fyrri aðkoma",
+        "No one has declared a conflict of interest here.": "Enginn hefur tilkynnt hagsmunaárekstur hér.",
+        "Does not vote": "Greiðir ekki atkvæði",
+        "A member": "Fulltrúi",
+        "Could not load the declarations.": "Ekki tókst að hlaða tilkynningunum.",
+        "Could not record the declaration.": "Ekki tókst að skrá tilkynninguna."
     },
     "plurals": null
 }

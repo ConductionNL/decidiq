@@ -1157,7 +1157,23 @@
         "The meeting %s is coming up": "Møtet %s nærmer seg",
         "The submission deadline of %s is coming up": "Innleveringsfristen for %s nærmer seg",
         "It starts on %s.": "Det starter %s.",
-        "Motions and amendments can be submitted until %s.": "Forslag og endringsforslag kan leveres til %s."
+        "Motions and amendments can be submitted until %s.": "Forslag og endringsforslag kan leveres til %s.",
+        "Conflicts of interest": "Interessekonflikter",
+        "Declare a conflict of interest": "Meld en interessekonflikt",
+        "Kind of interest": "Type interesse",
+        "Reason": "Begrunnelse",
+        "For example: I own land in the plan area": "For eksempel: jeg eier grunn i planområdet",
+        "I will not vote on this": "Jeg stemmer ikke over dette",
+        "Declare": "Meld",
+        "Financial interest": "Økonomisk interesse",
+        "Personal relationship": "Personlig relasjon",
+        "Competing business": "Konkurrerende virksomhet",
+        "Earlier involvement": "Tidligere involvering",
+        "No one has declared a conflict of interest here.": "Ingen har meldt en interessekonflikt her.",
+        "Does not vote": "Stemmer ikke",
+        "A member": "Et medlem",
+        "Could not load the declarations.": "Meldingene kunne ikke lastes.",
+        "Could not record the declaration.": "Meldingen kunne ikke registreres."
     },
     "plurals": null
 }

@@ -1157,7 +1157,23 @@
         "The meeting %s is coming up": "%s toplantısı yaklaşıyor",
         "The submission deadline of %s is coming up": "%s için sunma süresi yaklaşıyor",
         "It starts on %s.": "%s tarihinde başlıyor.",
-        "Motions and amendments can be submitted until %s.": "Önergeler ve değişiklik önergeleri %s tarihine kadar sunulabilir."
+        "Motions and amendments can be submitted until %s.": "Önergeler ve değişiklik önergeleri %s tarihine kadar sunulabilir.",
+        "Conflicts of interest": "Çıkar çatışmaları",
+        "Declare a conflict of interest": "Çıkar çatışması bildir",
+        "Kind of interest": "Çıkar türü",
+        "Reason": "Neden",
+        "For example: I own land in the plan area": "Örneğin: plan alanında arazim var",
+        "I will not vote on this": "Bu konuda oy kullanmayacağım",
+        "Declare": "Bildir",
+        "Financial interest": "Mali çıkar",
+        "Personal relationship": "Kişisel ilişki",
+        "Competing business": "Rakip işletme",
+        "Earlier involvement": "Önceki katılım",
+        "No one has declared a conflict of interest here.": "Burada kimse çıkar çatışması bildirmedi.",
+        "Does not vote": "Oy kullanmaz",
+        "A member": "Bir üye",
+        "Could not load the declarations.": "Bildirimler yüklenemedi.",
+        "Could not record the declaration.": "Bildirim kaydedilemedi."
     },
     "plurals": null
 }

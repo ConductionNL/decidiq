@@ -1158,7 +1158,23 @@ OC.L10N.register(
         "The meeting %s is coming up": "Заседанието %s наближава",
         "The submission deadline of %s is coming up": "Крайният срок за внасяне за %s наближава",
         "It starts on %s.": "Започва на %s.",
-        "Motions and amendments can be submitted until %s.": "Предложения и изменения могат да се внасят до %s."
+        "Motions and amendments can be submitted until %s.": "Предложения и изменения могат да се внасят до %s.",
+        "Conflicts of interest": "Конфликти на интереси",
+        "Declare a conflict of interest": "Декларирайте конфликт на интереси",
+        "Kind of interest": "Вид интерес",
+        "Reason": "Причина",
+        "For example: I own land in the plan area": "Например: притежавам земя в зоната на плана",
+        "I will not vote on this": "Няма да гласувам по това",
+        "Declare": "Декларирай",
+        "Financial interest": "Финансов интерес",
+        "Personal relationship": "Лична връзка",
+        "Competing business": "Конкурентен бизнес",
+        "Earlier involvement": "Предишно участие",
+        "No one has declared a conflict of interest here.": "Никой не е декларирал конфликт на интереси тук.",
+        "Does not vote": "Не гласува",
+        "A member": "Член",
+        "Could not load the declarations.": "Декларациите не можаха да се заредят.",
+        "Could not record the declaration.": "Декларацията не можа да бъде записана."
     },
     "nplurals=2; plural=(n != 1);"
 )
