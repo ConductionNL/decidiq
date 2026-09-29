@@ -54,6 +54,11 @@ use RuntimeException;
  * @covers \OCA\Decidiq\Service\PublicationEligibilityService
  * @covers \OCA\Decidiq\Service\PublicationService
  * @covers \OCA\Decidiq\Service\DecisionPublicationService
+ * @uses   \OCA\Decidiq\Service\AgendaPapers
+ * @uses   \OCA\Decidiq\Service\LegalRemedyResolver
+ * @uses   \OCA\Decidiq\Service\PublicationConfigService
+ * @uses   \OCA\Decidiq\Service\PublicationPayloadService
+ * @uses   \OCA\Decidiq\Service\SettingsService
  *
  * @spec openspec/specs/public-publication/spec.md#requirement-a-decision-under-a-confidentiality-restriction-is-never-published
  */
