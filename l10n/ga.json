@@ -1118,7 +1118,14 @@
         "The answer is on the agenda item: %1$s": "Tá an freagra ar an mír ar an gclár: %1$s",
         "no deadline set": "níl aon spriocdháta socraithe",
         "Question": "Ceist",
-        "Technical questions": "Ceisteanna teicniúla"
+        "Technical questions": "Ceisteanna teicniúla",
+        "Send for signature": "Seol le síniú",
+        "Check signing status": "Seiceáil stádas an tsínithe",
+        "Out for signature. The signed copy is stored here once everyone has signed.": "Seolta le síniú. Stóráiltear an chóip shínithe anseo nuair a bheidh síniú déanta ag gach duine.",
+        "Signed. The signed copy {file} is stored in the files of this record.": "Sínithe. Tá an chóip shínithe {file} stóráilte i gcomhaid an taifid seo.",
+        "The signing round did not finish. You can send it again.": "Níor críochnaíodh an babhta sínithe. Is féidir leat é a sheoladh arís.",
+        "Failed to save the signers.": "Níorbh fhéidir na sínitheoirí a shábháil.",
+        "Could not send it for signature.": "Níorbh fhéidir é a sheoladh le síniú."
     },
     "plurals": null
 }

@@ -1119,7 +1119,14 @@ OC.L10N.register(
         "The answer is on the agenda item: %1$s": "A válasz a napirendi pontnál található: %1$s",
         "no deadline set": "nincs határidő megadva",
         "Question": "Kérdés",
-        "Technical questions": "Technikai kérdések"
+        "Technical questions": "Technikai kérdések",
+        "Send for signature": "Aláírásra küldés",
+        "Check signing status": "Aláírás állapotának ellenőrzése",
+        "Out for signature. The signed copy is stored here once everyone has signed.": "Aláírásra elküldve. Az aláírt példány itt tárolódik, amint mindenki aláírta.",
+        "Signed. The signed copy {file} is stored in the files of this record.": "Aláírva. Az aláírt példány ({file}) ennek a rekordnak a fájljai között található.",
+        "The signing round did not finish. You can send it again.": "Az aláírási kör nem fejeződött be. Újra elküldheti.",
+        "Failed to save the signers.": "Az aláírók mentése nem sikerült.",
+        "Could not send it for signature.": "Nem sikerült aláírásra küldeni."
     },
     "nplurals=2; plural=(n != 1);"
 )

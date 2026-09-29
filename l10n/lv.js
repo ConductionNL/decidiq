@@ -1119,7 +1119,14 @@ OC.L10N.register(
         "The answer is on the agenda item: %1$s": "Atbilde ir pie darba kārtības punkta: %1$s",
         "no deadline set": "termiņš nav noteikts",
         "Question": "Jautājums",
-        "Technical questions": "Tehniski jautājumi"
+        "Technical questions": "Tehniski jautājumi",
+        "Send for signature": "Nosūtīt parakstīšanai",
+        "Check signing status": "Pārbaudīt parakstīšanas statusu",
+        "Out for signature. The signed copy is stored here once everyone has signed.": "Nosūtīts parakstīšanai. Parakstītā kopija tiks saglabāta šeit, kad visi būs parakstījuši.",
+        "Signed. The signed copy {file} is stored in the files of this record.": "Parakstīts. Parakstītā kopija {file} ir saglabāta šī ieraksta failos.",
+        "The signing round did not finish. You can send it again.": "Parakstīšanas kārta netika pabeigta. Varat to nosūtīt vēlreiz.",
+        "Failed to save the signers.": "Neizdevās saglabāt parakstītājus.",
+        "Could not send it for signature.": "Neizdevās nosūtīt parakstīšanai."
     },
     "nplurals=2; plural=(n != 1);"
 )

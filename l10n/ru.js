@@ -1119,7 +1119,14 @@ OC.L10N.register(
         "The answer is on the agenda item: %1$s": "Ответ находится в пункте повестки дня: %1$s",
         "no deadline set": "срок не установлен",
         "Question": "Вопрос",
-        "Technical questions": "Технические вопросы"
+        "Technical questions": "Технические вопросы",
+        "Send for signature": "Отправить на подпись",
+        "Check signing status": "Проверить статус подписания",
+        "Out for signature. The signed copy is stored here once everyone has signed.": "Отправлено на подпись. Подписанная копия сохранится здесь, когда все подпишут.",
+        "Signed. The signed copy {file} is stored in the files of this record.": "Подписано. Подписанная копия {file} сохранена в файлах этой записи.",
+        "The signing round did not finish. You can send it again.": "Подписание не завершено. Можно отправить снова.",
+        "Failed to save the signers.": "Не удалось сохранить подписантов.",
+        "Could not send it for signature.": "Не удалось отправить на подпись."
     },
     "nplurals=2; plural=(n != 1);"
 )

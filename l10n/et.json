@@ -1118,7 +1118,14 @@
         "The answer is on the agenda item: %1$s": "Vastus on päevakorrapunkti juures: %1$s",
         "no deadline set": "tähtaega pole määratud",
         "Question": "Küsimus",
-        "Technical questions": "Tehnilised küsimused"
+        "Technical questions": "Tehnilised küsimused",
+        "Send for signature": "Saada allkirjastamiseks",
+        "Check signing status": "Kontrolli allkirjastamise olekut",
+        "Out for signature. The signed copy is stored here once everyone has signed.": "Allkirjastamisel. Allkirjastatud koopia salvestatakse siia, kui kõik on allkirjastanud.",
+        "Signed. The signed copy {file} is stored in the files of this record.": "Allkirjastatud. Allkirjastatud koopia {file} on salvestatud selle kirje failidesse.",
+        "The signing round did not finish. You can send it again.": "Allkirjastamisvoor ei lõppenud. Saate selle uuesti saata.",
+        "Failed to save the signers.": "Allkirjastajate salvestamine ebaõnnestus.",
+        "Could not send it for signature.": "Allkirjastamiseks saatmine ebaõnnestus."
     },
     "plurals": null
 }

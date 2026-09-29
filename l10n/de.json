@@ -1118,7 +1118,14 @@
         "The answer is on the agenda item: %1$s": "Die Antwort steht beim Tagesordnungspunkt: %1$s",
         "no deadline set": "keine Frist festgelegt",
         "Question": "Frage",
-        "Technical questions": "Technische Fragen"
+        "Technical questions": "Technische Fragen",
+        "Send for signature": "Zur Unterschrift senden",
+        "Check signing status": "Unterschriftsstatus prüfen",
+        "Out for signature. The signed copy is stored here once everyone has signed.": "Zur Unterschrift unterwegs. Die unterschriebene Fassung wird hier gespeichert, sobald alle unterschrieben haben.",
+        "Signed. The signed copy {file} is stored in the files of this record.": "Unterschrieben. Die unterschriebene Fassung {file} ist in den Dateien dieses Eintrags gespeichert.",
+        "The signing round did not finish. You can send it again.": "Die Unterschriftsrunde wurde nicht abgeschlossen. Sie können sie erneut senden.",
+        "Failed to save the signers.": "Die Unterzeichnenden konnten nicht gespeichert werden.",
+        "Could not send it for signature.": "Konnte nicht zur Unterschrift gesendet werden."
     },
     "plurals": null
 }

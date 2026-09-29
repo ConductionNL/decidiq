@@ -1119,7 +1119,14 @@ OC.L10N.register(
         "The answer is on the agenda item: %1$s": "Отговорът е в точката от дневния ред: %1$s",
         "no deadline set": "не е зададен краен срок",
         "Question": "Въпрос",
-        "Technical questions": "Технически въпроси"
+        "Technical questions": "Технически въпроси",
+        "Send for signature": "Изпрати за подпис",
+        "Check signing status": "Провери състоянието на подписването",
+        "Out for signature. The signed copy is stored here once everyone has signed.": "Изпратено за подпис. Подписаното копие се съхранява тук, след като всички подпишат.",
+        "Signed. The signed copy {file} is stored in the files of this record.": "Подписано. Подписаното копие {file} се съхранява във файловете на този запис.",
+        "The signing round did not finish. You can send it again.": "Подписването не завърши. Можете да го изпратите отново.",
+        "Failed to save the signers.": "Подписващите не бяха запазени.",
+        "Could not send it for signature.": "Не можа да бъде изпратено за подпис."
     },
     "nplurals=2; plural=(n != 1);"
 )

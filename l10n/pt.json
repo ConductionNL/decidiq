@@ -1118,7 +1118,14 @@
         "The answer is on the agenda item: %1$s": "A resposta está no ponto da ordem de trabalhos: %1$s",
         "no deadline set": "sem prazo definido",
         "Question": "Pergunta",
-        "Technical questions": "Perguntas técnicas"
+        "Technical questions": "Perguntas técnicas",
+        "Send for signature": "Enviar para assinatura",
+        "Check signing status": "Verificar o estado da assinatura",
+        "Out for signature. The signed copy is stored here once everyone has signed.": "Enviado para assinatura. A cópia assinada é guardada aqui quando todos tiverem assinado.",
+        "Signed. The signed copy {file} is stored in the files of this record.": "Assinado. A cópia assinada {file} está guardada nos ficheiros deste registo.",
+        "The signing round did not finish. You can send it again.": "A ronda de assinaturas não terminou. Pode enviá-lo novamente.",
+        "Failed to save the signers.": "Não foi possível guardar os signatários.",
+        "Could not send it for signature.": "Não foi possível enviar para assinatura."
     },
     "plurals": null
 }

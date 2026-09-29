@@ -2,14 +2,18 @@
 <!-- Copyright (C) 2026 Conduction B.V. -->
 
 <!--
- Sidebar tab: signers / approvers on a Minutes record.
+ Signers of a record that is signed through the external signing service:
+ minutes (the default), a meeting's decision list (DecisionListSignersTab)
+ or a motion (MotionSignersTab).
 
- Posture: add-existing / remove + "Sign now" CTA. The minutes object
- carries a `signers[]` array of participant references with a
- `signedAt` timestamp. Tab renders that list (with names hydrated
- from the participant store), supports linking new signers,
- removing them, and a "Sign now" button that calls the lifecycle
- transition endpoint when the current user matches a pending signer.
+ The record carries a `signers[]` array of participant references, each
+ with an `order` (1 signs first) and a `signedAt` timestamp. The tab
+ renders that list in signing order (names hydrated from the participant
+ store), adds, removes and moves signers, and sends the record for
+ signature (min-17). Once the signing service reports it signed, the
+ signed copy is stored in the record's files and named here. On minutes
+ a "Sign now" button also calls the lifecycle transition when the current
+ user is a pending signer.
 -->
 <template>
 	<div class="decidiq-tab decidiq-tab--signers" data-testid="minutes-signers-tab">
@@ -60,10 +64,28 @@
 			</template>
 		</CnDataTable>
 
-		<div v-if="canSignNow" class="decidiq-tab__cta">
-			<NcButton variant="primary" @click="signNow">
+		<div class="decidiq-tab__cta">
+			<NcButton
+				v-if="canSend"
+				variant="primary"
+				data-testid="signers-send"
+				:disabled="sending"
+				@click="sendForSignature">
+				{{ t('decidiq', 'Send for signature') }}
+			</NcButton>
+			<NcButton
+				v-if="signingStatus === 'sent'"
+				data-testid="signers-collect"
+				:disabled="sending"
+				@click="collectSignedCopy">
+				{{ t('decidiq', 'Check signing status') }}
+			</NcButton>
+			<NcButton v-if="canSignNow" variant="primary" @click="signNow">
 				{{ t('decidiq', 'Sign now') }}
 			</NcButton>
+			<p v-if="signingStatusText" class="decidiq-tab__status" data-testid="signers-status">
+				{{ signingStatusText }}
+			</p>
 			<p v-if="signError" class="decidiq-tab__error" role="alert">
 				{{ signError }}
 			</p>
@@ -98,9 +120,17 @@ import {
 import { getCurrentUser } from '@nextcloud/auth'
 import { generateUrl } from '@nextcloud/router'
 import { NcButton } from '@nextcloud/vue'
+import ArrowDown from 'vue-material-design-icons/ArrowDown.vue'
+import ArrowUp from 'vue-material-design-icons/ArrowUp.vue'
 import LinkOff from 'vue-material-design-icons/LinkOff.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import MinutesSignerAddDialog from '../../dialogs/MinutesSignerAddDialog.vue'
+import {
+	addSigner,
+	moveSigner,
+	orderedSigners,
+	signingUrl,
+} from '../../utils/signingRound.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -118,13 +148,18 @@ export default {
 
 	props: {
 		objectId: { type: [String, Number], default: '' },
+		/** The schema that holds the record: minutes, meeting or decision. */
+		schema: { type: String, default: 'minutes' },
+		/** What is signed: minutes, decision-list or motion. */
+		subjectType: { type: String, default: 'minutes' },
 	},
 
 	data() {
 		return {
 			loading: false,
 			error: '',
-			minutes: null,
+			record: null,
+			sending: false,
 			participantsById: {},
 			addDialogOpen: false,
 			loadingCandidates: false,
@@ -138,6 +173,7 @@ export default {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		columns() {
 			return [
+				{ key: 'order', label: this.t('decidiq', 'Order') },
 				{ key: 'displayName', label: this.t('decidiq', 'Name') },
 				{ key: 'role', label: this.t('decidiq', 'Role') },
 				{ key: 'signedAt', label: this.t('decidiq', 'Status') },
@@ -146,21 +182,49 @@ export default {
 
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		rawSigners() {
-			return Array.isArray(this.minutes?.signers) ? this.minutes.signers : []
+			return orderedSigners(this.record?.signers)
+		},
+
+		/** @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy */
+		signingStatus() {
+			return this.record?.signingStatus || ''
+		},
+
+		/** @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy */
+		canSend() {
+			return (
+				this.rawSigners.length > 0
+				&& this.signingStatus !== 'sent'
+				&& this.signingStatus !== 'signed'
+			)
+		},
+
+		/** @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy */
+		signingStatusText() {
+			if (this.signingStatus === 'sent') {
+				return this.t('decidiq', 'Out for signature. The signed copy is stored here once everyone has signed.')
+			}
+			if (this.signingStatus === 'signed') {
+				return this.t('decidiq', 'Signed. The signed copy {file} is stored in the files of this record.', {
+					file: this.record?.signedCopy || '',
+				})
+			}
+			if (this.signingStatus === 'failed') {
+				return this.t('decidiq', 'The signing round did not finish. You can send it again.')
+			}
+			return ''
 		},
 
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		signersWithName() {
 			return this.rawSigners.map((entry) => {
-				const participantId =
-					typeof entry === 'object'
-						? entry.participant || entry.id || entry.uuid
-						: entry
+				const participantId = entry.participant
 				const p = this.participantsById[participantId] || {}
-				const signedAt = typeof entry === 'object' ? entry.signedAt : null
+				const signedAt = entry.signedAt
 				return {
 					id: participantId,
 					participantId,
+					order: entry.order,
 					displayName: p.displayName || p.name || participantId,
 					role: p.role || '',
 					signedAt: signedAt || null,
@@ -171,7 +235,7 @@ export default {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		canSignNow() {
 			const user = getCurrentUser()
-			if (!user) return false
+			if (!user || this.subjectType !== 'minutes') return false
 			return this.signersWithName.some(
 				(s) =>
 					!s.signedAt
@@ -208,6 +272,18 @@ export default {
 		rowActionsFor(row) {
 			return [
 				{
+					label: this.t('decidiq', 'Move up'),
+					icon: ArrowUp,
+					disabled: row.order === 1,
+					handler: () => this.saveSigners(moveSigner(this.rawSigners, row.participantId, -1)),
+				},
+				{
+					label: this.t('decidiq', 'Move down'),
+					icon: ArrowDown,
+					disabled: row.order === this.rawSigners.length,
+					handler: () => this.saveSigners(moveSigner(this.rawSigners, row.participantId, 1)),
+				},
+				{
 					label: this.t('decidiq', 'Remove signer'),
 					icon: LinkOff,
 					destructive: true,
@@ -224,18 +300,11 @@ export default {
 			this.loading = true
 			this.error = ''
 			try {
-				const minutesStore = ensureRelationType('minutes')
-				this.minutes = await minutesStore.fetchObject(
-					'minutes',
-					this.objectId,
-				)
+				const store = ensureRelationType(this.schema)
+				this.record = await store.fetchObject(this.schema, this.objectId)
 
 				const participantStore = ensureRelationType('participant')
-				const ids = this.rawSigners
-					.map((e) =>
-						typeof e === 'object' ? e.participant || e.id || e.uuid : e,
-					)
-					.filter(Boolean)
+				const ids = this.rawSigners.map((e) => e.participant)
 				if (ids.length) {
 					// Fetch a page wide enough to cover the signer ids and index
 					// by id. Server-side `id IN (...)` filtering varies across
@@ -264,11 +333,7 @@ export default {
 				const items = await store.fetchCollection('participant', {
 					_limit: 200,
 				})
-				const taken = new Set(
-					this.rawSigners.map((e) =>
-						typeof e === 'object' ? e.participant || e.id || e.uuid : e,
-					),
-				)
+				const taken = new Set(this.rawSigners.map((e) => e.participant))
 				this.candidates = (items || []).filter(
 					(p) => !taken.has(p.id || p.uuid),
 				)
@@ -284,38 +349,102 @@ export default {
 		 * @spec openspec/specs/relation-tab-ui/spec.md
 		 */
 		async addSigner(participant) {
-			const minutesStore = ensureRelationType('minutes')
-			const next = this.rawSigners
-				.slice()
-				.concat([{ participant: participant.id || participant.uuid }])
 			try {
-				const updated = await minutesStore.saveObject('minutes', {
-					...this.minutes,
-					signers: next,
-				})
-				this.minutes = updated || this.minutes
+				await this.saveSigners(
+					addSigner(this.rawSigners, participant.id || participant.uuid),
+					true,
+				)
 				this.addDialogOpen = false
-				this.refresh()
 			} catch (e) {
 				this.error = e?.message || this.t('decidiq', 'Failed to add signer.')
+			}
+		},
+
+		/**
+		 * Write the signer list, in order, back onto the record.
+		 *
+		 * @param {Array<object>} signers The signers in signing order
+		 * @param {boolean} rethrow Throw instead of showing the error
+		 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+		 */
+		async saveSigners(signers, rethrow = false) {
+			const store = ensureRelationType(this.schema)
+			try {
+				const updated = await store.saveObject(this.schema, {
+					...this.record,
+					signers,
+				})
+				this.record = updated || this.record
+				this.refresh()
+			} catch (e) {
+				if (rethrow) throw e
+				this.error = e?.message || this.t('decidiq', 'Failed to save the signers.')
+			}
+		},
+
+		/**
+		 * Send the record to the signing service with its signers in order.
+		 *
+		 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+		 */
+		async sendForSignature() {
+			await this.postSigning('send')
+		},
+
+		/**
+		 * Ask the signing service where the round stands; once signed the
+		 * signed copy is stored on the record.
+		 *
+		 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+		 */
+		async collectSignedCopy() {
+			await this.postSigning('collect')
+		},
+
+		/**
+		 * @param {'send'|'collect'} action The signing action
+		 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+		 */
+		async postSigning(action) {
+			this.signError = ''
+			this.sending = true
+			try {
+				const response = await fetch(
+					generateUrl(signingUrl(this.subjectType, this.objectId, action)),
+					{
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: window.OC?.requestToken,
+						},
+					},
+				)
+				if (!response.ok) {
+					const data = await response.json().catch(() => ({}))
+					this.signError = data.message || this.t('decidiq', 'Could not send it for signature.')
+					return
+				}
+				this.refresh()
+			} catch (e) {
+				this.signError = e?.message || this.t('decidiq', 'Could not send it for signature.')
+			} finally {
+				this.sending = false
 			}
 		},
 
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async confirmRemove() {
 			const target = this.removeTarget
-			const next = this.rawSigners.filter((e) => {
-				const id =
-					typeof e === 'object' ? e.participant || e.id || e.uuid : e
-				return id !== target.participantId
-			})
-			const minutesStore = ensureRelationType('minutes')
+			const next = orderedSigners(
+				this.rawSigners.filter((e) => e.participant !== target.participantId),
+			)
+			const store = ensureRelationType(this.schema)
 			try {
-				const updated = await minutesStore.saveObject('minutes', {
-					...this.minutes,
+				const updated = await store.saveObject(this.schema, {
+					...this.record,
 					signers: next,
 				})
-				this.minutes = updated || this.minutes
+				this.record = updated || this.record
 				this.$refs.removeDialog?.setResult({ success: true })
 				this.refresh()
 			} catch (e) {
@@ -388,6 +517,19 @@ export default {
 
 .decidiq-tab__cta {
 	margin-top: var(--default-grid-baseline);
+}
+
+.decidiq-tab__cta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--default-grid-baseline);
+}
+
+.decidiq-tab__status {
+	flex-basis: 100%;
+	margin: 0;
+	color: var(--color-text-maxcontrast);
 }
 
 .decidiq-tab__error {

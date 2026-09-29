@@ -1119,7 +1119,14 @@ OC.L10N.register(
         "The answer is on the agenda item: %1$s": "Răspunsul se află la punctul de pe ordinea de zi: %1$s",
         "no deadline set": "niciun termen stabilit",
         "Question": "Întrebare",
-        "Technical questions": "Întrebări tehnice"
+        "Technical questions": "Întrebări tehnice",
+        "Send for signature": "Trimite spre semnare",
+        "Check signing status": "Verifică starea semnării",
+        "Out for signature. The signed copy is stored here once everyone has signed.": "Trimis spre semnare. Copia semnată este stocată aici după ce semnează toți.",
+        "Signed. The signed copy {file} is stored in the files of this record.": "Semnat. Copia semnată {file} este stocată în fișierele acestei înregistrări.",
+        "The signing round did not finish. You can send it again.": "Runda de semnare nu s-a încheiat. Îl puteți trimite din nou.",
+        "Failed to save the signers.": "Semnatarii nu au putut fi salvați.",
+        "Could not send it for signature.": "Nu a putut fi trimis spre semnare."
     },
     "nplurals=2; plural=(n != 1);"
 )

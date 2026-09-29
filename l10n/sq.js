@@ -1119,7 +1119,14 @@ OC.L10N.register(
         "The answer is on the agenda item: %1$s": "Përgjigjja është te pika e rendit të ditës: %1$s",
         "no deadline set": "nuk është caktuar afat",
         "Question": "Pyetje",
-        "Technical questions": "Pyetje teknike"
+        "Technical questions": "Pyetje teknike",
+        "Send for signature": "Dërgo për nënshkrim",
+        "Check signing status": "Kontrollo gjendjen e nënshkrimit",
+        "Out for signature. The signed copy is stored here once everyone has signed.": "Dërguar për nënshkrim. Kopja e nënshkruar ruhet këtu sapo të kenë nënshkruar të gjithë.",
+        "Signed. The signed copy {file} is stored in the files of this record.": "Nënshkruar. Kopja e nënshkruar {file} ruhet në skedarët e këtij regjistri.",
+        "The signing round did not finish. You can send it again.": "Raundi i nënshkrimit nuk përfundoi. Mund ta dërgoni përsëri.",
+        "Failed to save the signers.": "Nënshkruesit nuk u ruajtën dot.",
+        "Could not send it for signature.": "Nuk u dërgua dot për nënshkrim."
     },
     "nplurals=2; plural=(n != 1);"
 )

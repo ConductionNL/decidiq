@@ -1119,7 +1119,14 @@ OC.L10N.register(
         "The answer is on the agenda item: %1$s": "Svaret står på sakslistepunktet: %1$s",
         "no deadline set": "ingen frist satt",
         "Question": "Spørsmål",
-        "Technical questions": "Tekniske spørsmål"
+        "Technical questions": "Tekniske spørsmål",
+        "Send for signature": "Send til signering",
+        "Check signing status": "Sjekk signeringsstatus",
+        "Out for signature. The signed copy is stored here once everyone has signed.": "Sendt til signering. Den signerte kopien lagres her når alle har signert.",
+        "Signed. The signed copy {file} is stored in the files of this record.": "Signert. Den signerte kopien {file} er lagret i filene til denne posten.",
+        "The signing round did not finish. You can send it again.": "Signeringsrunden ble ikke fullført. Du kan sende den på nytt.",
+        "Failed to save the signers.": "Kunne ikke lagre signatarene.",
+        "Could not send it for signature.": "Kunne ikke sende til signering."
     },
     "nplurals=2; plural=(n != 1);"
 )
