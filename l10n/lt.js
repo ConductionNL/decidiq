@@ -1319,7 +1319,20 @@ OC.L10N.register(
         "Download the export of {date} ({size})": "Atsisiųsti {date} eksportą ({size})",
         "The export could not be started.": "Eksporto nepavyko pradėti.",
         "Your data export is ready to download": "Jūsų duomenų eksportas paruoštas atsisiųsti",
-        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Duomenų eksportas nepavyko. Bandykite dar kartą arba priežastį raskite Nextcloud žurnale."
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Duomenų eksportas nepavyko. Bandykite dar kartą arba priežastį raskite Nextcloud žurnale.",
+        "Export with attachments": "Eksportuoti su priedais",
+        "What to export": "Ką eksportuoti",
+        "Selected rows ({count})": "Pasirinktos eilutės ({count})",
+        "All rows matching the current filter": "Visos dabartinį filtrą atitinkančios eilutės",
+        "One PDF, each text followed by its attachments": "Vienas PDF, po kiekvieno teksto jo priedai",
+        "A ZIP with the documents as they are": "ZIP su dokumentais tokiais, kokie jie yra",
+        "One PDF needs the filinq app, which is not installed.": "Vienam PDF reikia programos filinq, kuri neįdiegta.",
+        "The export is being prepared. You get a notification when {name} is ready.": "Eksportas ruošiamas. Gausite pranešimą, kai {name} bus paruoštas.",
+        "{name} is in your Decidiq exports folder.": "{name} yra jūsų aplanke Decidiq exports.",
+        "Open the file": "Atidaryti failą",
+        "The export failed. Try again.": "Eksportuoti nepavyko. Bandykite dar kartą.",
+        "%s is ready in your Decidiq exports folder": "%s paruoštas jūsų aplanke Decidiq exports",
+        "%s could not be made. Try again, or export a ZIP.": "Nepavyko sukurti %s. Bandykite dar kartą arba eksportuokite ZIP."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -50,6 +50,16 @@ use OCP\Notification\UnknownNotificationException;
 class Notifier implements INotifier {
 
 	/**
+	 * The export notices, rendered by prepareExportBundle(), subject key => method.
+	 *
+	 * @var array<string, string>
+	 */
+	private const OWN_SHAPE = [
+		'export_bundle_ready'  => 'prepareExportBundle',
+		'export_bundle_failed' => 'prepareExportBundle',
+	];
+
+	/**
 	 * Subject key => [English sentence with %s for the named object, object page prefix].
 	 *
 	 * The sentences are the l10n source strings; `%s` is the meeting or motion
@@ -144,15 +154,13 @@ class Notifier implements INotifier {
 		$params = $notification->getSubjectParameters();
 		$notification->setIcon($this->urlGenerator->getAbsoluteURL($this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg')));
 
+		// Subjects with a shape of their own: a free message, and the export notices.
 		if ($subject === 'decidiq_message') {
-			$notification->setParsedSubject((string)($params['title'] ?? $l10n->t('Decidiq')));
-			$message = (string)($params['message'] ?? '');
-			if ($message !== '') {
-				$notification->setParsedMessage($message);
-			}
+			return $this->prepareMessage(notification: $notification, l10n: $l10n, subject: $subject, params: $params);
+		}
 
-			$notification->setLink($this->appLink(path: ltrim((string)($params['link'] ?? ''), '/')));
-			return $notification;
+		if (isset(self::OWN_SHAPE[$subject]) === true) {
+			return $this->prepareExportBundle(notification: $notification, l10n: $l10n, subject: $subject, params: $params);
 		}
 
 		if (isset(self::SUBJECTS[$subject]) === false) {
@@ -178,6 +186,63 @@ class Notifier implements INotifier {
 		$notification->setLink($this->appLink(path: $path));
 		return $notification;
 	}//end prepare()
+
+	/**
+	 * A free message: its own title, sentence and link.
+	 *
+	 * @param INotification        $notification The notification
+	 * @param IL10N                $l10n         Translations in the recipient's language
+	 * @param string               $subject      decidiq_message
+	 * @param array<string, mixed> $params       `title`, `message`, `link`
+	 *
+	 * @return INotification
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) One signature for every OWN_SHAPE renderer; this one does not need the subject.
+	 *
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
+	 */
+	private function prepareMessage(INotification $notification, IL10N $l10n, string $subject, array $params): INotification {
+		$notification->setParsedSubject((string)($params['title'] ?? $l10n->t('Decidiq')));
+		$message = (string)($params['message'] ?? '');
+		if ($message !== '') {
+			$notification->setParsedMessage($message);
+		}
+
+		$notification->setLink($this->appLink(path: ltrim((string)($params['link'] ?? ''), '/')));
+		return $notification;
+	}//end prepareMessage()
+
+	/**
+	 * The notice for a queued export with attachments: ready links the file in
+	 * Files, failed says so.
+	 *
+	 * @param INotification        $notification The notification
+	 * @param IL10N                $l10n         Translations in the recipient's language
+	 * @param string               $subject      export_bundle_ready or export_bundle_failed
+	 * @param array<string, mixed> $params       `title` (the file name) and `fileId`
+	 *
+	 * @return INotification
+	 *
+	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-003-a-large-export-runs-in-the-background-and-says-when-it-is-ready
+	 */
+	private function prepareExportBundle(INotification $notification, IL10N $l10n, string $subject, array $params): INotification {
+		$name = (string)($params['title'] ?? '');
+		if ($subject === 'export_bundle_failed') {
+			$notification->setParsedSubject($l10n->t('%s could not be made. Try again, or export a ZIP.', [$name]));
+			$notification->setLink($this->appLink(path: ''));
+			return $notification;
+		}
+
+		$notification->setParsedSubject($l10n->t('%s is ready in your Decidiq exports folder', [$name]));
+		$fileId = (string)($params['fileId'] ?? '');
+		$link   = '/index.php/apps/files/?dir=' . rawurlencode('/Decidiq exports');
+		if ($fileId !== '') {
+			$link = '/index.php/f/' . rawurlencode($fileId);
+		}
+
+		$notification->setLink($this->urlGenerator->getAbsoluteURL($link));
+		return $notification;
+	}//end prepareExportBundle()
 
 	/**
 	 * Set the second line of a meeting notice when its parameter is known.

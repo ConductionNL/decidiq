@@ -1318,7 +1318,20 @@
         "Download the export of {date} ({size})": "{date} tarihli dışa aktarmayı indir ({size})",
         "The export could not be started.": "Dışa aktarma başlatılamadı.",
         "Your data export is ready to download": "Veri dışa aktarımınız indirilmeye hazır",
-        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Veri dışa aktarımınız başarısız oldu. Yeniden deneyin veya nedeni için Nextcloud günlüğünü okuyun."
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Veri dışa aktarımınız başarısız oldu. Yeniden deneyin veya nedeni için Nextcloud günlüğünü okuyun.",
+        "Export with attachments": "Eklerle birlikte dışa aktar",
+        "What to export": "Ne dışa aktarılacak",
+        "Selected rows ({count})": "Seçili satırlar ({count})",
+        "All rows matching the current filter": "Geçerli filtreyle eşleşen tüm satırlar",
+        "One PDF, each text followed by its attachments": "Tek PDF, her metnin ardından ekleri",
+        "A ZIP with the documents as they are": "Belgelerin olduğu gibi yer aldığı bir ZIP",
+        "One PDF needs the filinq app, which is not installed.": "Tek PDF için filinq uygulaması gerekir ve bu uygulama kurulu değil.",
+        "The export is being prepared. You get a notification when {name} is ready.": "Dışa aktarma hazırlanıyor. {name} hazır olduğunda bildirim alacaksınız.",
+        "{name} is in your Decidiq exports folder.": "{name}, Decidiq exports klasörünüzde.",
+        "Open the file": "Dosyayı aç",
+        "The export failed. Try again.": "Dışa aktarma başarısız oldu. Yeniden deneyin.",
+        "%s is ready in your Decidiq exports folder": "%s, Decidiq exports klasörünüzde hazır",
+        "%s could not be made. Try again, or export a ZIP.": "%s oluşturulamadı. Yeniden deneyin veya ZIP olarak dışa aktarın."
     },
     "plurals": null
 }

@@ -1318,7 +1318,20 @@
         "Download the export of {date} ({size})": "Preuzmi izvoz od {date} ({size})",
         "The export could not be started.": "Izvoz nije moguće pokrenuti.",
         "Your data export is ready to download": "Vaš izvoz podataka spreman je za preuzimanje",
-        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Izvoz podataka nije uspio. Pokušajte ponovno ili pročitajte uzrok u zapisniku Nextclouda."
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Izvoz podataka nije uspio. Pokušajte ponovno ili pročitajte uzrok u zapisniku Nextclouda.",
+        "Export with attachments": "Izvezi s prilozima",
+        "What to export": "Što izvesti",
+        "Selected rows ({count})": "Odabrani retci ({count})",
+        "All rows matching the current filter": "Svi retci koji odgovaraju trenutačnom filtru",
+        "One PDF, each text followed by its attachments": "Jedan PDF, svaki tekst praćen svojim prilozima",
+        "A ZIP with the documents as they are": "ZIP s dokumentima kakvi jesu",
+        "One PDF needs the filinq app, which is not installed.": "Za jedan PDF potrebna je aplikacija filinq, koja nije instalirana.",
+        "The export is being prepared. You get a notification when {name} is ready.": "Izvoz se priprema. Dobit ćete obavijest kada {name} bude spreman.",
+        "{name} is in your Decidiq exports folder.": "{name} je u vašoj mapi Decidiq exports.",
+        "Open the file": "Otvori datoteku",
+        "The export failed. Try again.": "Izvoz nije uspio. Pokušajte ponovno.",
+        "%s is ready in your Decidiq exports folder": "%s je spreman u vašoj mapi Decidiq exports",
+        "%s could not be made. Try again, or export a ZIP.": "%s nije moguće izraditi. Pokušajte ponovno ili izvezite ZIP."
     },
     "plurals": null
 }

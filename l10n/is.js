@@ -1319,7 +1319,20 @@ OC.L10N.register(
         "Download the export of {date} ({size})": "Sækja útflutning frá {date} ({size})",
         "The export could not be started.": "Ekki tókst að hefja útflutninginn.",
         "Your data export is ready to download": "Gagnaútflutningurinn þinn er tilbúinn til niðurhals",
-        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Gagnaútflutningurinn mistókst. Reyndu aftur eða lestu Nextcloud-atvikaskrána til að finna orsökina."
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Gagnaútflutningurinn mistókst. Reyndu aftur eða lestu Nextcloud-atvikaskrána til að finna orsökina.",
+        "Export with attachments": "Flytja út með viðhengjum",
+        "What to export": "Hvað á að flytja út",
+        "Selected rows ({count})": "Valdar línur ({count})",
+        "All rows matching the current filter": "Allar línur sem passa við núverandi síu",
+        "One PDF, each text followed by its attachments": "Ein PDF, hver texti með viðhengjum sínum á eftir",
+        "A ZIP with the documents as they are": "ZIP með skjölunum eins og þau eru",
+        "One PDF needs the filinq app, which is not installed.": "Eitt PDF þarf forritið filinq, sem er ekki uppsett.",
+        "The export is being prepared. You get a notification when {name} is ready.": "Verið er að undirbúa útflutninginn. Þú færð tilkynningu þegar {name} er tilbúið.",
+        "{name} is in your Decidiq exports folder.": "{name} er í möppunni þinni Decidiq exports.",
+        "Open the file": "Opna skrána",
+        "The export failed. Try again.": "Útflutningurinn mistókst. Reyndu aftur.",
+        "%s is ready in your Decidiq exports folder": "%s er tilbúið í möppunni þinni Decidiq exports",
+        "%s could not be made. Try again, or export a ZIP.": "Ekki tókst að búa til %s. Reyndu aftur eða flyttu út ZIP."
     },
     "nplurals=2; plural=(n != 1);"
 )

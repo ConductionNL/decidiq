@@ -1318,7 +1318,20 @@
         "Download the export of {date} ({size})": "A {date} exportálás letöltése ({size})",
         "The export could not be started.": "Az exportálást nem sikerült elindítani.",
         "Your data export is ready to download": "Az adatexportálás letölthető",
-        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Az adatexportálás sikertelen. Próbálja újra, vagy nézze meg az okát a Nextcloud naplójában."
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Az adatexportálás sikertelen. Próbálja újra, vagy nézze meg az okát a Nextcloud naplójában.",
+        "Export with attachments": "Exportálás mellékletekkel",
+        "What to export": "Mit exportáljon",
+        "Selected rows ({count})": "Kijelölt sorok ({count})",
+        "All rows matching the current filter": "Az aktuális szűrőnek megfelelő összes sor",
+        "One PDF, each text followed by its attachments": "Egy PDF, minden szöveg után a mellékletei",
+        "A ZIP with the documents as they are": "ZIP a dokumentumokkal változatlan formában",
+        "One PDF needs the filinq app, which is not installed.": "Egy PDF-hez a filinq alkalmazás kell, amely nincs telepítve.",
+        "The export is being prepared. You get a notification when {name} is ready.": "Az exportálás előkészítés alatt. Értesítést kap, amikor a(z) {name} elkészül.",
+        "{name} is in your Decidiq exports folder.": "A(z) {name} a Decidiq exports mappájában van.",
+        "Open the file": "Fájl megnyitása",
+        "The export failed. Try again.": "Az exportálás nem sikerült. Próbálja újra.",
+        "%s is ready in your Decidiq exports folder": "A(z) %s elkészült a Decidiq exports mappájában",
+        "%s could not be made. Try again, or export a ZIP.": "A(z) %s nem készült el. Próbálja újra, vagy exportáljon ZIP-et."
     },
     "plurals": null
 }

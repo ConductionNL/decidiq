@@ -1319,7 +1319,20 @@ OC.L10N.register(
         "Download the export of {date} ({size})": "Lejupielādēt {date} eksportu ({size})",
         "The export could not be started.": "Eksportu neizdevās sākt.",
         "Your data export is ready to download": "Jūsu datu eksports ir gatavs lejupielādei",
-        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Datu eksports neizdevās. Mēģiniet vēlreiz vai izlasiet cēloni Nextcloud žurnālā."
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Datu eksports neizdevās. Mēģiniet vēlreiz vai izlasiet cēloni Nextcloud žurnālā.",
+        "Export with attachments": "Eksportēt ar pielikumiem",
+        "What to export": "Ko eksportēt",
+        "Selected rows ({count})": "Atlasītās rindas ({count})",
+        "All rows matching the current filter": "Visas rindas, kas atbilst pašreizējam filtram",
+        "One PDF, each text followed by its attachments": "Viens PDF, katram tekstam seko tā pielikumi",
+        "A ZIP with the documents as they are": "ZIP ar dokumentiem to pašreizējā veidā",
+        "One PDF needs the filinq app, which is not installed.": "Vienam PDF vajadzīga lietotne filinq, kas nav instalēta.",
+        "The export is being prepared. You get a notification when {name} is ready.": "Eksports tiek sagatavots. Jūs saņemsiet paziņojumu, kad {name} būs gatavs.",
+        "{name} is in your Decidiq exports folder.": "{name} ir jūsu mapē Decidiq exports.",
+        "Open the file": "Atvērt failu",
+        "The export failed. Try again.": "Eksports neizdevās. Mēģiniet vēlreiz.",
+        "%s is ready in your Decidiq exports folder": "%s ir gatavs jūsu mapē Decidiq exports",
+        "%s could not be made. Try again, or export a ZIP.": "%s nevarēja izveidot. Mēģiniet vēlreiz vai eksportējiet ZIP."
     },
     "nplurals=2; plural=(n != 1);"
 )

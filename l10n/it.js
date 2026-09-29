@@ -1319,7 +1319,20 @@ OC.L10N.register(
         "Download the export of {date} ({size})": "Scarica l'esportazione del {date} ({size})",
         "The export could not be started.": "Impossibile avviare l'esportazione.",
         "Your data export is ready to download": "La tua esportazione dei dati è pronta per il download",
-        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "La tua esportazione dei dati non è riuscita. Riprova, oppure leggi il log di Nextcloud per la causa."
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "La tua esportazione dei dati non è riuscita. Riprova, oppure leggi il log di Nextcloud per la causa.",
+        "Export with attachments": "Esporta con allegati",
+        "What to export": "Cosa esportare",
+        "Selected rows ({count})": "Righe selezionate ({count})",
+        "All rows matching the current filter": "Tutte le righe che corrispondono al filtro attuale",
+        "One PDF, each text followed by its attachments": "Un PDF, ogni testo seguito dai suoi allegati",
+        "A ZIP with the documents as they are": "Un ZIP con i documenti così come sono",
+        "One PDF needs the filinq app, which is not installed.": "Un PDF richiede l'app filinq, che non è installata.",
+        "The export is being prepared. You get a notification when {name} is ready.": "L'esportazione è in preparazione. Riceverai una notifica quando {name} sarà pronto.",
+        "{name} is in your Decidiq exports folder.": "{name} si trova nella tua cartella Decidiq exports.",
+        "Open the file": "Apri il file",
+        "The export failed. Try again.": "L'esportazione non è riuscita. Riprova.",
+        "%s is ready in your Decidiq exports folder": "%s è pronto nella tua cartella Decidiq exports",
+        "%s could not be made. Try again, or export a ZIP.": "Impossibile creare %s. Riprova oppure esporta uno ZIP."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -40,3 +40,10 @@ None: the example sets have motions with attachments.
 - `src/manifest.json` (`Motions`, `Decisions`), `src/modals/ExportBundleModal.vue`, `src/registry.js`
 - `lib/Controller/ExportBundleController.php`, `lib/Service/ExportBundleService.php`, `appinfo/routes.php`
 - `tests/Unit/Service/ExportBundleServiceTest.php`, `tests/Unit/Controller/ExportBundleControllerTest.php`, `tests/e2e/export-bundle.spec.ts`
+
+## Correction at build (29 Sep 2026, decidiq development a4609a15)
+
+- **The bulk action uses a named handler, not `open-modal`.** CnIndexPage emits `open-modal` for a bulk action with `target`, and nothing listens: CnAppRoot renders `<router-view>` without listeners and CnPageRenderer does not catch it. The lists therefore name handlers (`exportMotionsWithAttachments`, `exportDecisionsWithAttachments`), resolved through the `customComponents` map, and `App.vue` renders `ExportBundleModal` from a reactive state those handlers fill. The modal still lives in `src/modals/`.
+- **The ready notice** comes from `ExportBundleNoticeJob`, a queued job that reads filinq's merge job (`MergeJobRepository::find()`) and schedules itself again while the merge waits, for at most 288 looks. filinq emits no event when a merge finishes.
+- **PDF availability**: `GET /api/exports/decision-bundle/formats` answers whether filinq's merge service resolves; the modal disables one PDF when it does not.
+- Endpoint `POST /api/exports/decision-bundle` answers 201 with the file, 202 when queued, 422 for nothing or more than 500, 503 without filinq for a PDF, and filinq's own status (403) when it refuses an attachment.

@@ -44,6 +44,8 @@ $extra = [
         ['name' => 'fullExport#start',    'url' => '/api/export/full',        'verb' => 'POST'],
         ['name' => 'fullExport#latest',   'url' => '/api/export/full',        'verb' => 'GET'],
         ['name' => 'fullExport#download', 'url' => '/api/export/full/{name}', 'verb' => 'GET'],
+        ['name' => 'exportBundle#formats', 'url' => '/api/exports/decision-bundle/formats', 'verb' => 'GET'],
+        ['name' => 'exportBundle#create',  'url' => '/api/exports/decision-bundle',         'verb' => 'POST'],
         ['name' => 'settings#getPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'GET'],
         ['name' => 'settings#setPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'PUT'],
 

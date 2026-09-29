@@ -23,6 +23,8 @@ The Motions and Decisions lists SHALL offer a bulk action Export with attachment
 - THEN "Motions 2026-10-20.pdf" appears in her Decidiq exports folder with each motion's text followed by its attachment, bookmarked per motion
 
 #### Scenario: One attachment is out of reach
+
+@e2e exclude needs a file the signed-in test user may not read and filinq installed; covered by PHPUnit ExportBundleServiceTest::testAnUnreadableAttachmentRefusesTheWholePdf
 - GIVEN one of the selected motions has an attachment the griffier may not read
 - WHEN she asks for the PDF
 - THEN the export is refused, naming that file, and no partial PDF is written
@@ -37,6 +39,8 @@ The export SHALL also offer a ZIP with one folder per decision holding its text 
 - THEN the ZIP holds 120 folders
 
 #### Scenario: Too many at once
+
+@e2e exclude needs 501 seeded decisions; covered by PHPUnit ExportBundleServiceTest::testMoreThanFiveHundredDecisionsIsRefused
 - GIVEN a filter that matches 800 decisions
 - WHEN the griffier asks for an export
 - THEN she is asked to narrow the filter and nothing is built
@@ -46,6 +50,8 @@ The export SHALL also offer a ZIP with one folder per decision holding its text 
 When filinq's merge service says a PDF export should be queued, the app SHALL answer at once that the export is queued and SHALL notify the requester with a link when the file is ready.
 
 #### Scenario: The yearly motions book
+
+@e2e exclude runs through filinq's background merge and a cron run; covered by PHPUnit ExportBundleServiceTest::testALargePdfIsQueuedAndANoticeFollows and ExportBundleNoticeJobTest
 - GIVEN 300 motions with attachments
 - WHEN the griffier asks for one PDF
 - THEN the dialog says the export is being prepared, and later her notification bell links "Motions 2026-10-20.pdf"

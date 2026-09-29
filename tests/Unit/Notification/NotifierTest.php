@@ -249,4 +249,21 @@ class NotifierTest extends TestCase {
 		$this->notifier()->prepare($this->notification(app: 'decidiq', subject: 'full_export_failed', objectType: 'export', objectId: 'failed'), 'en');
 		self::assertSame('Your data export failed. Try again, or read the Nextcloud log for the cause.', $this->parsed['setParsedSubject']);
 	}//end testTheExportNoticeLinksToTheDownload()
+
+	/**
+	 * A queued PDF export's notice names the file and links it in Files; a
+	 * failed one says so.
+	 *
+	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-003-a-large-export-runs-in-the-background-and-says-when-it-is-ready
+	 *
+	 * @return void
+	 */
+	public function testTheExportBundleNoticeLinksTheFileInFiles(): void {
+		$this->notifier()->prepare($this->notification(app: 'decidiq', subject: 'export_bundle_ready', parameters: ['title' => 'Motions 2026-10-20.pdf', 'fileId' => '777'], objectType: 'export-bundle', objectId: '777'), 'en');
+		self::assertSame('Motions 2026-10-20.pdf is ready in your Decidiq exports folder', $this->parsed['setParsedSubject']);
+		self::assertSame('https://cloud.example/index.php/f/777', $this->parsed['setLink']);
+
+		$this->notifier()->prepare($this->notification(app: 'decidiq', subject: 'export_bundle_failed', parameters: ['title' => 'Motions 2026-10-20.pdf'], objectType: 'export-bundle', objectId: 'Motions 2026-10-20.pdf'), 'en');
+		self::assertSame('Motions 2026-10-20.pdf could not be made. Try again, or export a ZIP.', $this->parsed['setParsedSubject']);
+	}//end testTheExportBundleNoticeLinksTheFileInFiles()
 }//end class

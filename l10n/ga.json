@@ -1318,7 +1318,20 @@
         "Download the export of {date} ({size})": "Íoslódáil easpórtáil {date} ({size})",
         "The export could not be started.": "Níorbh fhéidir an easpórtáil a thosú.",
         "Your data export is ready to download": "Tá d'easpórtáil sonraí réidh le híoslódáil",
-        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Theip ar d'easpórtáil sonraí. Bain triail eile as, nó léigh loga Nextcloud don chúis."
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Theip ar d'easpórtáil sonraí. Bain triail eile as, nó léigh loga Nextcloud don chúis.",
+        "Export with attachments": "Easpórtáil le ceangaltáin",
+        "What to export": "Cad atá le heaspórtáil",
+        "Selected rows ({count})": "Rónna roghnaithe ({count})",
+        "All rows matching the current filter": "Gach ró a mheaitseálann an scagaire reatha",
+        "One PDF, each text followed by its attachments": "PDF amháin, gach téacs agus a cheangaltáin ina dhiaidh",
+        "A ZIP with the documents as they are": "ZIP leis na doiciméid mar atá siad",
+        "One PDF needs the filinq app, which is not installed.": "Teastaíonn an aip filinq le haghaidh PDF amháin, agus níl sí suiteáilte.",
+        "The export is being prepared. You get a notification when {name} is ready.": "Tá an t-easpórtáil á hullmhú. Gheobhaidh tú fógra nuair a bheidh {name} réidh.",
+        "{name} is in your Decidiq exports folder.": "Tá {name} i d'fhillteán Decidiq exports.",
+        "Open the file": "Oscail an comhad",
+        "The export failed. Try again.": "Theip ar an easpórtáil. Bain triail eile as.",
+        "%s is ready in your Decidiq exports folder": "Tá %s réidh i d'fhillteán Decidiq exports",
+        "%s could not be made. Try again, or export a ZIP.": "Níorbh fhéidir %s a dhéanamh. Bain triail eile as, nó easpórtáil ZIP."
     },
     "plurals": null
 }

@@ -1319,7 +1319,20 @@ OC.L10N.register(
         "Download the export of {date} ({size})": "Λήψη της εξαγωγής της {date} ({size})",
         "The export could not be started.": "Δεν ήταν δυνατή η έναρξη της εξαγωγής.",
         "Your data export is ready to download": "Η εξαγωγή δεδομένων σας είναι έτοιμη για λήψη",
-        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Η εξαγωγή δεδομένων σας απέτυχε. Δοκιμάστε ξανά ή διαβάστε το αρχείο καταγραφής του Nextcloud για την αιτία."
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Η εξαγωγή δεδομένων σας απέτυχε. Δοκιμάστε ξανά ή διαβάστε το αρχείο καταγραφής του Nextcloud για την αιτία.",
+        "Export with attachments": "Εξαγωγή με συνημμένα",
+        "What to export": "Τι θα εξαχθεί",
+        "Selected rows ({count})": "Επιλεγμένες γραμμές ({count})",
+        "All rows matching the current filter": "Όλες οι γραμμές που ταιριάζουν με το τρέχον φίλτρο",
+        "One PDF, each text followed by its attachments": "Ένα PDF, κάθε κείμενο ακολουθούμενο από τα συνημμένα του",
+        "A ZIP with the documents as they are": "Ένα ZIP με τα έγγραφα όπως είναι",
+        "One PDF needs the filinq app, which is not installed.": "Για ένα PDF χρειάζεται η εφαρμογή filinq, η οποία δεν είναι εγκατεστημένη.",
+        "The export is being prepared. You get a notification when {name} is ready.": "Η εξαγωγή προετοιμάζεται. Θα λάβετε ειδοποίηση όταν το {name} είναι έτοιμο.",
+        "{name} is in your Decidiq exports folder.": "Το {name} βρίσκεται στον φάκελό σας Decidiq exports.",
+        "Open the file": "Άνοιγμα του αρχείου",
+        "The export failed. Try again.": "Η εξαγωγή απέτυχε. Δοκιμάστε ξανά.",
+        "%s is ready in your Decidiq exports folder": "Το %s είναι έτοιμο στον φάκελό σας Decidiq exports",
+        "%s could not be made. Try again, or export a ZIP.": "Δεν ήταν δυνατή η δημιουργία του %s. Δοκιμάστε ξανά ή εξαγάγετε ένα ZIP."
     },
     "nplurals=2; plural=(n != 1);"
 )

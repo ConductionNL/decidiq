@@ -1318,7 +1318,20 @@
         "Download the export of {date} ({size})": "Lataa vienti {date} ({size})",
         "The export could not be started.": "Vientiä ei voitu aloittaa.",
         "Your data export is ready to download": "Tietojen vienti on valmis ladattavaksi",
-        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Tietojen vienti epäonnistui. Yritä uudelleen tai katso syy Nextcloudin lokista."
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Tietojen vienti epäonnistui. Yritä uudelleen tai katso syy Nextcloudin lokista.",
+        "Export with attachments": "Vie liitteineen",
+        "What to export": "Mitä viedään",
+        "Selected rows ({count})": "Valitut rivit ({count})",
+        "All rows matching the current filter": "Kaikki nykyistä suodatinta vastaavat rivit",
+        "One PDF, each text followed by its attachments": "Yksi PDF, jokainen teksti liitteineen",
+        "A ZIP with the documents as they are": "ZIP, jossa asiakirjat sellaisenaan",
+        "One PDF needs the filinq app, which is not installed.": "Yksi PDF vaatii filinq-sovelluksen, jota ei ole asennettu.",
+        "The export is being prepared. You get a notification when {name} is ready.": "Vientiä valmistellaan. Saat ilmoituksen, kun {name} on valmis.",
+        "{name} is in your Decidiq exports folder.": "{name} on kansiossasi Decidiq exports.",
+        "Open the file": "Avaa tiedosto",
+        "The export failed. Try again.": "Vienti epäonnistui. Yritä uudelleen.",
+        "%s is ready in your Decidiq exports folder": "%s on valmis kansiossasi Decidiq exports",
+        "%s could not be made. Try again, or export a ZIP.": "Tiedostoa %s ei voitu tehdä. Yritä uudelleen tai vie ZIP."
     },
     "plurals": null
 }
