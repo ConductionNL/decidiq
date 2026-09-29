@@ -1,20 +1,13 @@
-# document-metadata-fields Specification (delta)
-
-**Status**: planned
-**Scope**: decidiq
-**OpenSpec changes**:
-- [platform-document-metadata-fields](../../) (this delta)
-- follows the pattern of `AgendaItemType.fields` (#1393, configurable-types-domain-model)
+# document-metadata-fields Specification
 
 ## Purpose
-
 Lets an administrator declare document types with extra fields and lets a
 clerk fill them in for each file attached to a meeting or an agenda item.
 Closes the missing half of matrix row plt-20.
 
 **Standards**: Schema.org `DigitalDocument`, `additionalProperty`.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: REQ-DMF-001 An administrator declares document types and their fields
 
@@ -42,7 +35,7 @@ saves details for a file.
 - GIVEN a `digital-document` with `fileId` 4711
 - WHEN a second record with `fileId` 4711 is created through the OpenRegister API
 - THEN the save is refused
-- @e2e exclude uniqueness contract; covered by a Newman request
+- @e2e exclude uniqueness contract; covered by PHPUnit testASecondRecordForOneFileIsRefused on DocumentTypeFieldsGuardListener
 
 ### Requirement: REQ-DMF-003 The clerk fills in document details on the meeting and agenda item pages
 
@@ -73,5 +66,5 @@ the dialog or from the API.
 
 - GIVEN the type "Raadsvoorstel" with "Zaaknummer" required
 - WHEN a record of that type is saved through the API without a zaaknummer
-- THEN the save is refused with "Zaaknummer is required for a Raadsvoorstel"
+- THEN the save is refused with "The details were not saved: fill in Zaaknummer."
 - @e2e exclude save guard; covered by PHPUnit on DocumentTypeFieldsGuardListener with the real ObjectCreatingEvent

@@ -6432,9 +6432,11 @@
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/384605",
 			"decidiq": "partial",
 			"built": {
-				"state": "specified",
-				"evidence": "lib/Settings/register.d/70-configurable-types.json:215 AgendaItemType.fields lets an administrator declare extra fields per agenda item type, editable on AgendaItemTypes (src/manifest.d/configurable-types.json:167); src/components/AgendaItemTypeFields.vue renders them (input by fieldType, caption from label, logic in src/utils/agendaItemTypeFields.js, tests/vitest/agendaItemTypeFields.spec.js) on the agenda item form (src/components/tabs/MeetingAgendaTab.vue after-fields slot) and on AgendaItemDetail (src/components/tabs/AgendaItemTypeFieldsTab.vue, widget agenda-type-fields), writing AgendaItem.typeFields (#1393); letters and incoming documents are agenda items since documents-as-agenda-items, so they carry these fields; files themselves are Nextcloud files with no decidiq metadata",
-				"owner": "ConductionNL/decidiq"
+				"state": "built",
+				"evidence": "lib/Settings/register.d/110-document-metadata-fields.json DocumentType (name, description, fields in the AgendaItemType.fields shape, appliesTo meeting/agenda-item, active) and DigitalDocument fileId/meeting/agendaItem/type/typeFields; Document types page in the settings gear (src/manifest.d/configurable-types.json DocumentTypes); src/components/tabs/DocumentMetadataTab.vue Document details widget on MeetingDetail and AgendaItemDetail with src/modals/DocumentMetadataModal.vue (types filtered by appliesTo, fields rendered by AgendaItemTypeFields.vue), logic in src/utils/documentMetadata.js; lib/Listener/DocumentTypeFieldsGuardListener.php refuses an empty required field and a second record for one file on create and update; tests/Unit/Listener/DocumentTypeFieldsGuardListenerTest.php, tests/vitest/documentMetadata.spec.js",
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-09-29-platform-document-metadata-fields",
+				"readOn": "2026-09-29"
 			},
 			"reachedOn": "AgendaItemTypes (/agenda-item-types) in the settings gear to declare the fields; MeetingDetail Agenda widget (add or edit an item) and AgendaItemDetail (/agenda-items/:id) Type-specific fields widget to fill them in",
 			"provider": "decidiq",
