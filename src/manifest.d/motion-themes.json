@@ -19,7 +19,7 @@
 			"title": "Themes",
 			"config": {
 				"register": "decidiq",
-				"schema": "theme",
+				"schema": "motion-theme",
 				"sortKey": "name",
 				"sortOrder": "asc",
 				"columns": [
@@ -45,7 +45,7 @@
 			"title": "Theme",
 			"config": {
 				"register": "decidiq",
-				"schema": "theme",
+				"schema": "motion-theme",
 				"widgets": [
 					{
 						"id": "theme-data",

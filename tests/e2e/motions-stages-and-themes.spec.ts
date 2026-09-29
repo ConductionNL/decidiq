@@ -43,7 +43,7 @@ test('the submitter withdraws her motion from the motion page', async ({ page })
 
 // @e2e motion-status-management::filter-on-a-theme
 test('the motions list filters on a theme', async ({ page }) => {
-	await createObject(page, ledger, 'theme', { name: `${tag}-Housing` })
+	await createObject(page, ledger, 'motion-theme', { name: `${tag}-Housing` })
 	await createObject(page, ledger, 'decision', {
 		title: `${tag}-wonen`,
 		decisionType: 'motion',

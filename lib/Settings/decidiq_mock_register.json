@@ -8239,6 +8239,33 @@
         "revoteOfRound": "Voorbeeld Revoteofround 3",
         "voteBase": 3,
         "decisionStage": "00000000-0000-4000-8000-000000000002"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MotionTheme",
+          "slug": "motiontheme-wonen-1"
+        },
+        "name": "Wonen",
+        "description": "Woningbouw, huur en de woningmarkt."
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MotionTheme",
+          "slug": "motiontheme-klimaat-2"
+        },
+        "name": "Klimaat",
+        "description": "Energie, duurzaamheid en klimaatadaptatie."
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MotionTheme",
+          "slug": "motiontheme-mobiliteit-3"
+        },
+        "name": "Mobiliteit",
+        "description": "Verkeer, openbaar vervoer en fietsbeleid."
       }
     ]
   }

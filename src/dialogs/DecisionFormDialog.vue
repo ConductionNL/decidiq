@@ -150,7 +150,7 @@ export default {
 			try {
 				const response = await fetch(
 					generateUrl(
-						'/apps/openregister/api/objects/decidiq/theme?_limit=500',
+						'/apps/openregister/api/objects/decidiq/motion-theme?_limit=500',
 					),
 					{ headers: { Accept: 'application/json' } },
 				)

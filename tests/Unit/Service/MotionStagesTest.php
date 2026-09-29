@@ -296,7 +296,7 @@ class MotionStagesTest extends TestCase {
 	 * @return void
 	 */
 	public function testThemesAreAListAndAMotionFacet(): void {
-		$theme = $this->mergedSchema(slug: 'theme');
+		$theme = $this->mergedSchema(slug: 'motion-theme');
 		$this->assertNotSame([], $theme, 'A theme schema is declared');
 		$this->assertTrue($this->validates(['name' => 'Housing'], $theme));
 		$this->assertFalse($this->validates(['description' => 'no name'], $theme));
@@ -315,6 +315,6 @@ class MotionStagesTest extends TestCase {
 			$registerSchemas = array_merge($registerSchemas, ($doc['components']['registers']['decidiq']['schemas'] ?? []));
 		}
 
-		$this->assertContains('theme', $registerSchemas);
+		$this->assertContains('motion-theme', $registerSchemas);
 	}//end testThemesAreAListAndAMotionFacet()
 }//end class

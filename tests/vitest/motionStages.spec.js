@@ -139,7 +139,7 @@ describe('manifest', () => {
 
 	it('lets an operator keep the list of themes', () => {
 		const themes = themesFragment.pages.find((p) => p.id === 'Themes')
-		expect(themes.config).toMatchObject({ register: 'decidiq', schema: 'theme' })
+		expect(themes.config).toMatchObject({ register: 'decidiq', schema: 'motion-theme' })
 		expect(themesFragment.menu.map((m) => m.id)).toContain('Themes')
 		expect(JSON.parse(read('src/menu-layout.json')).settingsSection).toContain(
 			'Themes',

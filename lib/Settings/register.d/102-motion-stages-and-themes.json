@@ -2,18 +2,18 @@
   "x-openregister": {
     "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
   },
-  "_comment": "ADR-037 register fragment, change motions-stages-and-themes (REQ-MST-001 and REQ-MST-002, matrix rows mot-08 and mot-15). Theme is the configurable list of policy themes (beleidsvelden) a motion can be tagged with; Decision.themes stores the theme names, so the motions list can filter on readable values. lifecycle, outcome and themes become facetable, which gives the Motions list its stage, result and theme filters.",
+  "_comment": "ADR-037 register fragment, change motions-stages-and-themes (REQ-MST-001 and REQ-MST-002, matrix rows mot-08 and mot-15). MotionTheme (slug motion-theme, because opencatalogi owns the slug theme) is the configurable list of policy themes (beleidsvelden) a motion can be tagged with; Decision.themes stores the theme names, so the motions list can filter on readable values. lifecycle, outcome and themes become facetable, which gives the Motions list its stage, result and theme filters.",
   "components": {
     "registers": {
       "decidiq": {
         "schemas": [
-          "theme"
+          "motion-theme"
         ]
       }
     },
     "schemas": {
-      "Theme": {
-        "slug": "theme",
+      "MotionTheme": {
+        "slug": "motion-theme",
         "icon": "TagOutline",
         "version": "1.0.0",
         "title": "Theme",
