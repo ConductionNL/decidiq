@@ -1272,7 +1272,10 @@ OC.L10N.register(
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Başkanın şu anda ele aldığı madde. Üyelerin ve salonun ekranları onu izler.",
         "Contributions on this item": "Bu maddedeki katkılar",
         "{name} spoke for {time}": "{name} {time} konuştu",
-        "{name} raised a question": "{name} bir soru sordu"
+        "{name} raised a question": "{name} bir soru sordu",
+        "Meeting recording": "Toplantı kaydı",
+        "Play from here": "Buradan oynat",
+        "Play the recording from {title}": "Kaydı {title} maddesinden oynat"
     },
     "nplurals=2; plural=(n != 1);"
 )

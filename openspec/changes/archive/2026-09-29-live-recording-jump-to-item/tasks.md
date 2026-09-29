@@ -7,8 +7,8 @@
 - **files**: `src/components/tabs/MeetingTranscriptionTab.vue`, `lib/Service/TranscriptionService.php`
 - **acceptance_criteria**:
   - GIVEN a transcribed recording WHEN the user presses Play from here on item 5 THEN the player seeks to the start of item 5
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ## Verification
 

@@ -99,7 +99,7 @@ class TranscriptionService {
 	 *
 	 * @throws \RuntimeException When the transcript names no readable file.
 	 *
-	 * @spec openspec/changes/live-recording-jump-to-item/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
+	 * @spec openspec/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
 	 */
 	public function recordingFile(string $transcriptId): \OCP\Files\File {
 		$transcript = $this->repository->fetchTranscript(transcriptId: $transcriptId);

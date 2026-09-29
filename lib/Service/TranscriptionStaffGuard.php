@@ -138,7 +138,7 @@ class TranscriptionStaffGuard {
 	 *
 	 * @return JSONResponse|null Null when authorised; a 401/403 response otherwise.
 	 *
-	 * @spec openspec/changes/live-recording-jump-to-item/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
+	 * @spec openspec/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
 	 */
 	public function forTranscriptListener(string $transcriptId): ?JSONResponse {
 		return $this->authorize(

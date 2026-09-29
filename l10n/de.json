@@ -1271,7 +1271,10 @@
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Der Punkt, den der Vorsitz gerade behandelt. Die Bildschirme der Mitglieder und der Saalbildschirm folgen ihm.",
         "Contributions on this item": "Wortbeiträge zu diesem Punkt",
         "{name} spoke for {time}": "{name} sprach {time}",
-        "{name} raised a question": "{name} hat eine Frage gestellt"
+        "{name} raised a question": "{name} hat eine Frage gestellt",
+        "Meeting recording": "Aufzeichnung der Sitzung",
+        "Play from here": "Ab hier abspielen",
+        "Play the recording from {title}": "Aufzeichnung ab {title} abspielen"
     },
     "plurals": null
 }

@@ -482,7 +482,7 @@ class TranscriptionControllerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/live-recording-jump-to-item/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
+	 * @spec openspec/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
 	 */
 	public function testTheRecordingPlaysFromTheRequestedByte(): void {
 		$this->request->method('getHeader')->with('Range')->willReturn('bytes=4-');
@@ -504,7 +504,7 @@ class TranscriptionControllerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/live-recording-jump-to-item/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
+	 * @spec openspec/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
 	 */
 	public function testTheWholeRecordingWithoutARange(): void {
 		$this->request->method('getHeader')->willReturn('');
@@ -522,7 +522,7 @@ class TranscriptionControllerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/live-recording-jump-to-item/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
+	 * @spec openspec/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
 	 */
 	public function testTheRecordingIsRefusedToAnOutsider(): void {
 		$this->denyGuard();
