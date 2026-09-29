@@ -1332,7 +1332,21 @@ OC.L10N.register(
         "Open the file": "Άνοιγμα του αρχείου",
         "The export failed. Try again.": "Η εξαγωγή απέτυχε. Δοκιμάστε ξανά.",
         "%s is ready in your Decidiq exports folder": "Το %s είναι έτοιμο στον φάκελό σας Decidiq exports",
-        "%s could not be made. Try again, or export a ZIP.": "Δεν ήταν δυνατή η δημιουργία του %s. Δοκιμάστε ξανά ή εξαγάγετε ένα ZIP."
+        "%s could not be made. Try again, or export a ZIP.": "Δεν ήταν δυνατή η δημιουργία του %s. Δοκιμάστε ξανά ή εξαγάγετε ένα ZIP.",
+        "All audiences": "Όλα τα κοινά",
+        "All bodies": "Όλα τα όργανα",
+        "Council": "Συμβούλιο",
+        "Executive": "Εκτελεστικό όργανο",
+        "Joint arrangement": "Κοινή ρύθμιση",
+        "Residents": "Κάτοικοι",
+        "Staff": "Προσωπικό",
+        "No audience set": "Χωρίς ορισμένο κοινό",
+        "Public calendar": "Δημόσιο ημερολόγιο",
+        "Publish to the public calendar": "Δημοσίευση στο δημόσιο ημερολόγιο",
+        "Audiences": "Κοινά",
+        "Who meetings of this kind are for. The meeting calendar filters on it.": "Για ποιους είναι οι συνεδριάσεις αυτού του είδους. Το ημερολόγιο συνεδριάσεων φιλτράρει με βάση αυτό.",
+        "Where the meeting takes place, as residents read it on the calendar.": "Πού πραγματοποιείται η συνεδρίαση, όπως το διαβάζουν οι κάτοικοι στο ημερολόγιο.",
+        "Who the meeting is for, taken from its kind of meeting.": "Για ποιους είναι η συνεδρίαση, από το είδος της συνεδρίασης."
     },
     "nplurals=2; plural=(n != 1);"
 )

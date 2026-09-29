@@ -1331,7 +1331,21 @@
         "Open the file": "Открыть файл",
         "The export failed. Try again.": "Экспорт не удался. Попробуйте ещё раз.",
         "%s is ready in your Decidiq exports folder": "%s готов в вашей папке Decidiq exports",
-        "%s could not be made. Try again, or export a ZIP.": "Не удалось создать %s. Попробуйте ещё раз или экспортируйте ZIP."
+        "%s could not be made. Try again, or export a ZIP.": "Не удалось создать %s. Попробуйте ещё раз или экспортируйте ZIP.",
+        "All audiences": "Все аудитории",
+        "All bodies": "Все органы",
+        "Council": "Совет",
+        "Executive": "Исполнительная власть",
+        "Joint arrangement": "Совместное соглашение",
+        "Residents": "Жители",
+        "Staff": "Сотрудники",
+        "No audience set": "Аудитория не задана",
+        "Public calendar": "Публичный календарь",
+        "Publish to the public calendar": "Опубликовать в публичном календаре",
+        "Audiences": "Аудитории",
+        "Who meetings of this kind are for. The meeting calendar filters on it.": "Для кого предназначены заседания этого вида. Календарь заседаний фильтрует по этому полю.",
+        "Where the meeting takes place, as residents read it on the calendar.": "Где проходит заседание, как жители видят это в календаре.",
+        "Who the meeting is for, taken from its kind of meeting.": "Для кого заседание, взято из его вида."
     },
     "plurals": null
 }

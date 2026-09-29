@@ -51,6 +51,25 @@
 			<MeetingViewToggle class="meeting-calendar__toggle" />
 		</div>
 
+		<div class="meeting-calendar__filters">
+			<NcSelect
+				v-model="audienceOption"
+				class="meeting-calendar__filter"
+				:options="audienceOptions"
+				:inputLabel="t('decidiq', 'Audience')"
+				:placeholder="t('decidiq', 'All audiences')"
+				label="label"
+				data-testid="meeting-calendar-audience" />
+			<NcSelect
+				v-model="bodyOption"
+				class="meeting-calendar__filter"
+				:options="bodyOptions"
+				:inputLabel="t('decidiq', 'Body')"
+				:placeholder="t('decidiq', 'All bodies')"
+				label="label"
+				data-testid="meeting-calendar-body" />
+		</div>
+
 		<NcLoadingIcon v-if="loading" :size="32" />
 
 		<template v-else>
@@ -111,12 +130,19 @@
 </template>
 
 <script>
-import { NcButton, NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
+import { NcButton, NcEmptyContent, NcLoadingIcon, NcSelect } from '@nextcloud/vue'
 import CalendarBlank from 'vue-material-design-icons/CalendarBlank.vue'
 import ChevronLeft from 'vue-material-design-icons/ChevronLeft.vue'
 import ChevronRight from 'vue-material-design-icons/ChevronRight.vue'
 import MeetingViewToggle from './MeetingViewToggle.vue'
 import { getMeetings } from '../../services/dashboardData.js'
+import { useObjectStore } from '../../store/store.js'
+import {
+	AUDIENCES,
+	calendarParams,
+	NO_AUDIENCE,
+	withoutAudience,
+} from '../../utils/activityCalendar.js'
 
 /** Milliseconds in one day, used to walk the six-week grid. */
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -128,6 +154,7 @@ export default {
 		NcButton,
 		NcEmptyContent,
 		NcLoadingIcon,
+		NcSelect,
 		CalendarBlank,
 		ChevronLeft,
 		ChevronRight,
@@ -141,10 +168,77 @@ export default {
 			meetings: [],
 			year: now.getFullYear(),
 			month: now.getMonth(),
+			types: [],
+			bodies: [],
 		}
 	},
 
 	computed: {
+		/**
+		 * The audience filter's options: the five audiences and "No audience set".
+		 *
+		 * @return {Array<{id: string, label: string}>} Options.
+		 *
+		 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body
+		 */
+		audienceOptions() {
+			const labels = {
+				council: this.t('decidiq', 'Council'),
+				executive: this.t('decidiq', 'Executive'),
+				'joint-arrangement': this.t('decidiq', 'Joint arrangement'),
+				residents: this.t('decidiq', 'Residents'),
+				staff: this.t('decidiq', 'Staff'),
+			}
+			return [
+				...AUDIENCES.map((id) => ({ id, label: labels[id] })),
+				{ id: NO_AUDIENCE, label: this.t('decidiq', 'No audience set') },
+			]
+		},
+
+		/**
+		 * The body filter's options.
+		 *
+		 * @return {Array<{id: string, label: string}>} Options.
+		 *
+		 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body
+		 */
+		bodyOptions() {
+			return this.bodies.map((body) => ({
+				id: body.id ?? body['@self']?.id,
+				label: body.name || body.title || '',
+			}))
+		},
+
+		/**
+		 * The chosen audience, kept in the address so the view can be shared.
+		 *
+		 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body
+		 */
+		audienceOption: {
+			get() {
+				const id = this.$route?.query?.audience || ''
+				return this.audienceOptions.find((o) => o.id === id) || null
+			},
+			set(option) {
+				this.setQuery('audience', option ? option.id : '')
+			},
+		},
+
+		/**
+		 * The chosen body, kept in the address.
+		 *
+		 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body
+		 */
+		bodyOption: {
+			get() {
+				const id = this.$route?.query?.body || ''
+				return this.bodyOptions.find((o) => o.id === id) || null
+			},
+			set(option) {
+				this.setQuery('body', option ? option.id : '')
+			},
+		},
+
 		/**
 		 * Localised weekday headers, Monday first.
 		 *
@@ -234,7 +328,28 @@ export default {
 		},
 	},
 
+	watch: {
+		'$route.query.audience'() {
+			this.load()
+		},
+		'$route.query.body'() {
+			this.load()
+		},
+	},
+
 	async mounted() {
+		const store = useObjectStore()
+		try {
+			const [types, bodies] = await Promise.all([
+				store.fetchCollection('meeting-type', { _limit: 200 }),
+				store.fetchCollection('governance-body', { _limit: 200 }),
+			])
+			this.types = types || []
+			this.bodies = bodies || []
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.error('[decidiq] MeetingCalendarView filters failed to load', e)
+		}
 		await this.load()
 	},
 
@@ -262,16 +377,25 @@ export default {
 		},
 
 		/**
-		 * Fetch every meeting once; the grid filters client-side by month.
+		 * Fetch the visible grid from the server, narrowed by body and audience.
 		 *
 		 * @return {Promise<void>}
 		 *
-		 * @spec openspec/changes/configurable-types-domain-model/tasks.md#task-1.23
+		 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-003-the-calendar-asks-the-server-for-the-visible-month
 		 */
 		async load() {
 			this.loading = true
 			try {
-				this.meetings = await getMeetings({ _limit: 500 })
+				const audience = this.$route?.query?.audience || ''
+				const params = calendarParams({
+					year: this.year,
+					month: this.month,
+					audience,
+					body: this.$route?.query?.body || '',
+					types: this.types,
+				})
+				const meetings = params === null ? [] : await getMeetings(params)
+				this.meetings = withoutAudience(meetings || [], audience, this.types)
 			} catch (e) {
 				// A swallowed fetch error renders an empty calendar that is
 				// indistinguishable from a month with no meetings, so the console
@@ -297,6 +421,26 @@ export default {
 			const next = new Date(this.year, this.month + delta, 1)
 			this.year = next.getFullYear()
 			this.month = next.getMonth()
+			this.load()
+		},
+
+		/**
+		 * Write one filter into the address, or drop it when empty.
+		 *
+		 * @param {string} key The query key.
+		 * @param {string} value The value, empty to drop it.
+		 * @return {void}
+		 *
+		 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body
+		 */
+		setQuery(key, value) {
+			const query = { ...(this.$route?.query || {}) }
+			if (value) {
+				query[key] = value
+			} else {
+				delete query[key]
+			}
+			this.$router?.replace({ query }).catch(() => {})
 		},
 
 		/**
@@ -310,6 +454,7 @@ export default {
 			const now = new Date()
 			this.year = now.getFullYear()
 			this.month = now.getMonth()
+			this.load()
 		},
 
 		/**
@@ -347,6 +492,16 @@ export default {
 
 .meeting-calendar__toggle {
 	margin-inline-start: auto;
+}
+
+.meeting-calendar__filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.meeting-calendar__filter {
+	min-width: 220px;
 }
 
 .meeting-calendar__title {

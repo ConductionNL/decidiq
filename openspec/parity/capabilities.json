@@ -6305,16 +6305,18 @@
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/384605",
 			"decidiq": "partial",
 			"built": {
-				"state": "specified",
-				"evidence": "src/manifest.json:546 MeetingsCalendar page (/meetings/calendar); src/views/meetings/MeetingCalendarView.vue:274 fetches every meeting with getMeetings({ _limit: 500 }) and has no filter control (its only filter, :204, lists undated meetings); lib/Settings/register.d/70-configurable-types.json:12 configurable MeetingType, so informal sessions can be modelled as a meeting type; grep 'audience|filter' in MeetingCalendarView.vue: no audience or body filter",
-				"owner": "ConductionNL/decidiq"
+				"state": "built",
+				"evidence": "lib/Settings/register.d/109-activity-calendar.json MeetingType.audiences (council, executive, joint-arrangement, residents, staff), PublicationRecord.sourceType activity, PublicationPayload.location/audiences; src/utils/activityCalendar.js calendarParams (visible grid scheduledDate range, type ids per audience, governanceBody) used by src/views/meetings/MeetingCalendarView.vue load() with Audience and Body NcSelect filters kept in the route query; PublicationEligibilityService::assertActivityEligible + PublicationPayloadService::buildActivityPayload; AgendaPublicationTab 'Publish to the public calendar'; lib/Portal/PortalContributionProvider.php anonymous publicCalendar collection; tests/Unit/Service/ActivityPublicationTest.php, tests/Unit/Controller/PublicationActivityTest.php, tests/vitest/meetingCalendarLoad.spec.js",
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-09-29-planning-activity-calendar-by-audience",
+				"readOn": "2026-09-28"
 			},
 			"reachedOn": "Meetings index (/meetings) Table/Calendar toggle, MeetingsCalendar (/meetings/calendar)",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "meetings",
 			"featureConfidence": "high",
-			"note": "One staff calendar shows every meeting of any meeting type, so informal sessions can appear if they are entered as meetings. It cannot be filtered by audience or body, and there is no calendar for residents. Specified in openspec/changes/planning-activity-calendar-by-audience (OpenSpec pass 2026-09-27).",
+			"note": "One calendar of every meeting of any meeting type, filterable by audience (from the meeting type) and by body, fetching the visible month only; a public meeting goes on the residents' calendar in the portal without a formal agenda. Built in 2026-09-29-planning-activity-calendar-by-audience.",
 			"notubiz": "partial",
 			"ibabs": "partial",
 			"go-raadsinformatie": "partial",

@@ -9,10 +9,12 @@ openspec-changes:
 
 ## Purpose
 Publishes eligible decisions, public meeting agendas, and approved minutes as derived, PII-stripped payloads through OpenRegister's RBAC published-predicate surface and, when configured, into an OpenCatalogi catalog. It enforces server-side eligibility gates and a type deny-list, builds immutable allow-list payloads carrying vote totals (never individual votes or voter identities), aligns payloads to OpenRaadsinformatie mappings, and supports auditable withdraw and rectify flows so governance data can be opened to the public without exposing confidential material.
+
 ## Requirements
+
 ### Requirement: Publication eligibility gates
 
-The system SHALL allow publication only of: `Decision` objects in status `decided` or `enacted`; meeting agendas whose parent `Meeting` has `isPublic: true` and whose convocation has been sent; and `Minutes` objects in lifecycle `approved`. Eligibility SHALL be enforced server-side on every publish request, independent of UI state. The system SHALL maintain a type-level deny-list — `BoardMeeting`, `BoardMinutes`, `BoardMaterial`, `BoardVote`, `ConflictOfInterest`, `BoardAuditLogEntry`, `Vote`, `VotingRound`, and `Resolution` objects of boards with a confidentiality classification — for which publication payload construction SHALL be structurally refused.
+The system SHALL allow publication only of: `Decision` objects in status `decided` or `enacted`; meeting agendas whose parent `Meeting` has `isPublic: true` and whose convocation has been sent; public activity entries (source type `activity`) for a `Meeting` with `isPublic: true`, which need no convocation and carry no agenda; and `Minutes` objects in lifecycle `approved`. Eligibility SHALL be enforced server-side on every publish request, independent of UI state. The system SHALL maintain a type-level deny-list (`BoardMeeting`, `BoardMinutes`, `BoardMaterial`, `BoardVote`, `ConflictOfInterest`, `BoardAuditLogEntry`, `Vote`, `VotingRound`, and `Resolution` objects of boards with a confidentiality classification) for which publication payload construction SHALL be structurally refused.
 
 #### Scenario: Publish an enacted decision
 
@@ -22,31 +24,43 @@ The system SHALL allow publication only of: `Decision` objects in status `decide
 
 #### Scenario: Draft decision refused
 
-@e2e exclude eligibility-matrix contract — covered by PHPUnit (PublicationEligibilityServiceTest::testDraftDecisionRefused) and Newman against the publish endpoint
+@e2e exclude eligibility-matrix contract, covered by PHPUnit (PublicationEligibilityServiceTest::testDraftDecisionRefused) and Newman against the publish endpoint
 - **GIVEN** a decision in status `draft`
 - **WHEN** a publish request is made for it
 - **THEN** the request is rejected with an eligibility error and no publication payload or `PublicationRecord` is created
 
 #### Scenario: Agenda of a non-public meeting refused
 
-@e2e exclude eligibility-matrix contract — covered by Newman against the publish endpoint
+@e2e exclude eligibility-matrix contract, covered by Newman against the publish endpoint
 - **GIVEN** a meeting with `isPublic: false` and a finalized agenda
 - **WHEN** an agenda publish request is made
 - **THEN** the request is rejected and nothing is published
 
 #### Scenario: Board material structurally refused
 
-@e2e exclude type deny-list contract — covered by PHPUnit on the payload service plus Newman negative test
+@e2e exclude type deny-list contract, covered by PHPUnit on the payload service plus Newman negative test
 - **WHEN** a publish request targets a `BoardMinutes` or `BoardMaterial` object (any status)
 - **THEN** the payload service refuses with a not-publishable error before any eligibility evaluation and no object is created
 
 #### Scenario: Non-staff publish rejected
 
-@e2e exclude API authorization contract — covered by Newman, not a UI flow
+@e2e exclude API authorization contract, covered by Newman, not a UI flow
 - **WHEN** an authenticated user without governance-body authority calls the publish endpoint for an eligible decision
 - **THEN** the request is rejected with HTTP 403 via OpenRegister per-object RBAC and nothing is published
 
----
+#### Scenario: Activity entry of a public meeting without an agenda
+
+@e2e exclude eligibility-matrix contract, covered by PHPUnit (PublicationEligibilityServiceTest) and Newman against the publish endpoint
+- **GIVEN** a meeting with `isPublic: true`, no convocation sent and no agenda
+- **WHEN** an `activity` publish request is made for it
+- **THEN** a `Vergadering` payload is created carrying title, body name, date, meeting type, location and audiences only
+
+#### Scenario: Activity entry of a non-public meeting refused
+
+@e2e exclude eligibility-matrix contract, covered by Newman against the publish endpoint
+- **GIVEN** a meeting with `isPublic: false`
+- **WHEN** an `activity` publish request is made for it
+- **THEN** the request is rejected and nothing is published
 
 ### Requirement: A decision under a confidentiality restriction is never published
 
@@ -189,4 +203,3 @@ Admins SHALL configure, per governance body: the target OpenCatalogi catalog, th
 @e2e exclude static convention — enforced by the notification-dialect hydra gate
 - **WHEN** the notification-dialect gate scans the publication code paths
 - **THEN** no imperative object-notification dispatch exists; all publication notifications are declarative rules in `decidesk_register.json`
-

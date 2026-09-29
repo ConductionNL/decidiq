@@ -1331,7 +1331,21 @@
         "Open the file": "Ava fail",
         "The export failed. Try again.": "Eksport ebaõnnestus. Proovige uuesti.",
         "%s is ready in your Decidiq exports folder": "%s on valmis teie kaustas Decidiq exports",
-        "%s could not be made. Try again, or export a ZIP.": "%s loomine ebaõnnestus. Proovige uuesti või eksportige ZIP."
+        "%s could not be made. Try again, or export a ZIP.": "%s loomine ebaõnnestus. Proovige uuesti või eksportige ZIP.",
+        "All audiences": "Kõik sihtrühmad",
+        "All bodies": "Kõik organid",
+        "Council": "Volikogu",
+        "Executive": "Valitsus",
+        "Joint arrangement": "Ühistegevus",
+        "Residents": "Elanikud",
+        "Staff": "Töötajad",
+        "No audience set": "Sihtrühm määramata",
+        "Public calendar": "Avalik kalender",
+        "Publish to the public calendar": "Avalda avalikus kalendris",
+        "Audiences": "Sihtrühmad",
+        "Who meetings of this kind are for. The meeting calendar filters on it.": "Kellele seda liiki koosolekud on mõeldud. Koosolekute kalender filtreerib selle järgi.",
+        "Where the meeting takes place, as residents read it on the calendar.": "Kus koosolek toimub, nagu elanikud seda kalendrist loevad.",
+        "Who the meeting is for, taken from its kind of meeting.": "Kellele koosolek on mõeldud, võetud koosoleku liigist."
     },
     "plurals": null
 }

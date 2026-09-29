@@ -1332,7 +1332,21 @@ OC.L10N.register(
         "Open the file": "Отвори файла",
         "The export failed. Try again.": "Експортът не бе успешен. Опитайте отново.",
         "%s is ready in your Decidiq exports folder": "%s е готов в папката ви Decidiq exports",
-        "%s could not be made. Try again, or export a ZIP.": "%s не можа да бъде създаден. Опитайте отново или експортирайте ZIP."
+        "%s could not be made. Try again, or export a ZIP.": "%s не можа да бъде създаден. Опитайте отново или експортирайте ZIP.",
+        "All audiences": "Всички аудитории",
+        "All bodies": "Всички органи",
+        "Council": "Съвет",
+        "Executive": "Изпълнителна власт",
+        "Joint arrangement": "Съвместно споразумение",
+        "Residents": "Жители",
+        "Staff": "Служители",
+        "No audience set": "Без зададена аудитория",
+        "Public calendar": "Публичен календар",
+        "Publish to the public calendar": "Публикувай в публичния календар",
+        "Audiences": "Аудитории",
+        "Who meetings of this kind are for. The meeting calendar filters on it.": "За кого са заседанията от този вид. Календарът на заседанията филтрира по това.",
+        "Where the meeting takes place, as residents read it on the calendar.": "Къде се провежда заседанието, както жителите го четат в календара.",
+        "Who the meeting is for, taken from its kind of meeting.": "За кого е заседанието, взето от вида му."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1331,7 +1331,21 @@
         "Open the file": "Oscail an comhad",
         "The export failed. Try again.": "Theip ar an easpórtáil. Bain triail eile as.",
         "%s is ready in your Decidiq exports folder": "Tá %s réidh i d'fhillteán Decidiq exports",
-        "%s could not be made. Try again, or export a ZIP.": "Níorbh fhéidir %s a dhéanamh. Bain triail eile as, nó easpórtáil ZIP."
+        "%s could not be made. Try again, or export a ZIP.": "Níorbh fhéidir %s a dhéanamh. Bain triail eile as, nó easpórtáil ZIP.",
+        "All audiences": "Gach lucht féachana",
+        "All bodies": "Gach comhlacht",
+        "Council": "Comhairle",
+        "Executive": "Feidhmeannas",
+        "Joint arrangement": "Socrú comhpháirteach",
+        "Residents": "Cónaitheoirí",
+        "Staff": "Foireann",
+        "No audience set": "Níl lucht féachana socraithe",
+        "Public calendar": "Féilire poiblí",
+        "Publish to the public calendar": "Foilsigh san fhéilire poiblí",
+        "Audiences": "Lucht féachana",
+        "Who meetings of this kind are for. The meeting calendar filters on it.": "Cé dóibh na cruinnithe den chineál seo. Scagann féilire na gcruinnithe air.",
+        "Where the meeting takes place, as residents read it on the calendar.": "Cá háit a mbíonn an cruinniú, mar a léann cónaitheoirí é ar an bhféilire.",
+        "Who the meeting is for, taken from its kind of meeting.": "Cé dó an cruinniú, bunaithe ar a chineál cruinnithe."
     },
     "plurals": null
 }

@@ -1331,7 +1331,21 @@
         "Open the file": "Datei öffnen",
         "The export failed. Try again.": "Der Export ist fehlgeschlagen. Versuchen Sie es erneut.",
         "%s is ready in your Decidiq exports folder": "%s liegt fertig in Ihrem Ordner Decidiq exports",
-        "%s could not be made. Try again, or export a ZIP.": "%s konnte nicht erstellt werden. Versuchen Sie es erneut oder exportieren Sie ein ZIP."
+        "%s could not be made. Try again, or export a ZIP.": "%s konnte nicht erstellt werden. Versuchen Sie es erneut oder exportieren Sie ein ZIP.",
+        "All audiences": "Alle Zielgruppen",
+        "All bodies": "Alle Gremien",
+        "Council": "Rat",
+        "Executive": "Verwaltungsvorstand",
+        "Joint arrangement": "Zweckverband",
+        "Residents": "Einwohner",
+        "Staff": "Mitarbeitende",
+        "No audience set": "Keine Zielgruppe festgelegt",
+        "Public calendar": "Öffentlicher Kalender",
+        "Publish to the public calendar": "Im öffentlichen Kalender veröffentlichen",
+        "Audiences": "Zielgruppen",
+        "Who meetings of this kind are for. The meeting calendar filters on it.": "Für wen Sitzungen dieser Art sind. Der Sitzungskalender filtert danach.",
+        "Where the meeting takes place, as residents read it on the calendar.": "Wo die Sitzung stattfindet, wie Einwohner es im Kalender lesen.",
+        "Who the meeting is for, taken from its kind of meeting.": "Für wen die Sitzung ist, aus ihrer Sitzungsart übernommen."
     },
     "plurals": null
 }

@@ -1332,7 +1332,21 @@ OC.L10N.register(
         "Open the file": "Deschide fișierul",
         "The export failed. Try again.": "Exportul a eșuat. Încercați din nou.",
         "%s is ready in your Decidiq exports folder": "%s este gata în dosarul dvs. Decidiq exports",
-        "%s could not be made. Try again, or export a ZIP.": "%s nu a putut fi creat. Încercați din nou sau exportați un ZIP."
+        "%s could not be made. Try again, or export a ZIP.": "%s nu a putut fi creat. Încercați din nou sau exportați un ZIP.",
+        "All audiences": "Toate publicurile",
+        "All bodies": "Toate organele",
+        "Council": "Consiliu",
+        "Executive": "Executiv",
+        "Joint arrangement": "Acord comun",
+        "Residents": "Locuitori",
+        "Staff": "Personal",
+        "No audience set": "Niciun public setat",
+        "Public calendar": "Calendar public",
+        "Publish to the public calendar": "Publică în calendarul public",
+        "Audiences": "Publicuri",
+        "Who meetings of this kind are for. The meeting calendar filters on it.": "Cui se adresează ședințele de acest tip. Calendarul ședințelor filtrează după asta.",
+        "Where the meeting takes place, as residents read it on the calendar.": "Unde are loc ședința, așa cum o citesc locuitorii în calendar.",
+        "Who the meeting is for, taken from its kind of meeting.": "Cui se adresează ședința, preluat din tipul ședinței."
     },
     "nplurals=2; plural=(n != 1);"
 )

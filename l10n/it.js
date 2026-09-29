@@ -1332,7 +1332,21 @@ OC.L10N.register(
         "Open the file": "Apri il file",
         "The export failed. Try again.": "L'esportazione non è riuscita. Riprova.",
         "%s is ready in your Decidiq exports folder": "%s è pronto nella tua cartella Decidiq exports",
-        "%s could not be made. Try again, or export a ZIP.": "Impossibile creare %s. Riprova oppure esporta uno ZIP."
+        "%s could not be made. Try again, or export a ZIP.": "Impossibile creare %s. Riprova oppure esporta uno ZIP.",
+        "All audiences": "Tutti i destinatari",
+        "All bodies": "Tutti gli organi",
+        "Council": "Consiglio",
+        "Executive": "Giunta",
+        "Joint arrangement": "Consorzio",
+        "Residents": "Residenti",
+        "Staff": "Personale",
+        "No audience set": "Nessun destinatario impostato",
+        "Public calendar": "Calendario pubblico",
+        "Publish to the public calendar": "Pubblica nel calendario pubblico",
+        "Audiences": "Destinatari",
+        "Who meetings of this kind are for. The meeting calendar filters on it.": "A chi sono destinate le riunioni di questo tipo. Il calendario delle riunioni filtra su questo.",
+        "Where the meeting takes place, as residents read it on the calendar.": "Dove si svolge la riunione, come i residenti lo leggono nel calendario.",
+        "Who the meeting is for, taken from its kind of meeting.": "A chi è destinata la riunione, preso dal suo tipo di riunione."
     },
     "nplurals=2; plural=(n != 1);"
 )
