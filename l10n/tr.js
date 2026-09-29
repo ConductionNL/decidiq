@@ -1275,7 +1275,22 @@ OC.L10N.register(
         "{name} raised a question": "{name} bir soru sordu",
         "Meeting recording": "Toplantı kaydı",
         "Play from here": "Buradan oynat",
-        "Play the recording from {title}": "Kaydı {title} maddesinden oynat"
+        "Play the recording from {title}": "Kaydı {title} maddesinden oynat",
+        "Member from": "Üyelik başlangıcı",
+        "Past members": "Eski üyeler",
+        "Contact details of this body": "Bu kurulun iletişim bilgileri",
+        "Contact details": "İletişim bilgileri",
+        "Contact details of {name}": "{name} iletişim bilgileri",
+        "Remove {value}": "{value} kaldır",
+        "No contact details yet.": "Henüz iletişim bilgisi yok.",
+        "Value": "Değer",
+        "Add contact detail": "İletişim bilgisi ekle",
+        "Phone": "Telefon",
+        "Mobile phone": "Cep telefonu",
+        "Address": "Adres",
+        "Website": "Web sitesi",
+        "The contact detail could not be saved.": "İletişim bilgisi kaydedilemedi.",
+        "The contact detail could not be removed.": "İletişim bilgisi kaldırılamadı."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1274,7 +1274,22 @@
         "{name} raised a question": "{name} задал(а) вопрос",
         "Meeting recording": "Запись заседания",
         "Play from here": "Воспроизвести отсюда",
-        "Play the recording from {title}": "Воспроизвести запись с пункта {title}"
+        "Play the recording from {title}": "Воспроизвести запись с пункта {title}",
+        "Member from": "Член с",
+        "Past members": "Бывшие члены",
+        "Contact details of this body": "Контактные данные этого органа",
+        "Contact details": "Контактные данные",
+        "Contact details of {name}": "Контактные данные: {name}",
+        "Remove {value}": "Удалить {value}",
+        "No contact details yet.": "Контактных данных пока нет.",
+        "Value": "Значение",
+        "Add contact detail": "Добавить контакт",
+        "Phone": "Телефон",
+        "Mobile phone": "Мобильный телефон",
+        "Address": "Адрес",
+        "Website": "Веб-сайт",
+        "The contact detail could not be saved.": "Не удалось сохранить контакт.",
+        "The contact detail could not be removed.": "Не удалось удалить контакт."
     },
     "plurals": null
 }

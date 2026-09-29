@@ -1275,7 +1275,22 @@ OC.L10N.register(
         "{name} raised a question": "{name} bar fram spurningu",
         "Meeting recording": "Upptaka af fundinum",
         "Play from here": "Spila héðan",
-        "Play the recording from {title}": "Spila upptökuna frá {title}"
+        "Play the recording from {title}": "Spila upptökuna frá {title}",
+        "Member from": "Meðlimur frá",
+        "Past members": "Fyrrverandi meðlimir",
+        "Contact details of this body": "Samskiptaupplýsingar þessarar stofnunar",
+        "Contact details": "Samskiptaupplýsingar",
+        "Contact details of {name}": "Samskiptaupplýsingar {name}",
+        "Remove {value}": "Fjarlægja {value}",
+        "No contact details yet.": "Engar samskiptaupplýsingar enn.",
+        "Value": "Gildi",
+        "Add contact detail": "Bæta við samskiptaupplýsingum",
+        "Phone": "Sími",
+        "Mobile phone": "Farsími",
+        "Address": "Heimilisfang",
+        "Website": "Vefsíða",
+        "The contact detail could not be saved.": "Ekki tókst að vista samskiptaupplýsingarnar.",
+        "The contact detail could not be removed.": "Ekki tókst að fjarlægja samskiptaupplýsingarnar."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1275,7 +1275,22 @@ OC.L10N.register(
         "{name} raised a question": "{name} kérdést tett fel",
         "Meeting recording": "Az ülés felvétele",
         "Play from here": "Lejátszás innen",
-        "Play the recording from {title}": "A felvétel lejátszása innen: {title}"
+        "Play the recording from {title}": "A felvétel lejátszása innen: {title}",
+        "Member from": "Tag ettől",
+        "Past members": "Korábbi tagok",
+        "Contact details of this body": "A testület elérhetőségei",
+        "Contact details": "Elérhetőségek",
+        "Contact details of {name}": "{name} elérhetőségei",
+        "Remove {value}": "{value} eltávolítása",
+        "No contact details yet.": "Még nincsenek elérhetőségek.",
+        "Value": "Érték",
+        "Add contact detail": "Elérhetőség hozzáadása",
+        "Phone": "Telefon",
+        "Mobile phone": "Mobiltelefon",
+        "Address": "Cím",
+        "Website": "Weboldal",
+        "The contact detail could not be saved.": "Az elérhetőséget nem sikerült menteni.",
+        "The contact detail could not be removed.": "Az elérhetőséget nem sikerült eltávolítani."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1275,7 +1275,22 @@ OC.L10N.register(
         "{name} raised a question": "Chuir {name} ceist",
         "Meeting recording": "Taifeadadh an chruinnithe",
         "Play from here": "Seinn as seo",
-        "Play the recording from {title}": "Seinn an taifeadadh ó {title}"
+        "Play the recording from {title}": "Seinn an taifeadadh ó {title}",
+        "Member from": "Ball ó",
+        "Past members": "Iarbhaill",
+        "Contact details of this body": "Sonraí teagmhála an chomhlachta seo",
+        "Contact details": "Sonraí teagmhála",
+        "Contact details of {name}": "Sonraí teagmhála {name}",
+        "Remove {value}": "Bain {value}",
+        "No contact details yet.": "Níl aon sonraí teagmhála fós.",
+        "Value": "Luach",
+        "Add contact detail": "Cuir sonra teagmhála leis",
+        "Phone": "Fón",
+        "Mobile phone": "Fón póca",
+        "Address": "Seoladh",
+        "Website": "Suíomh gréasáin",
+        "The contact detail could not be saved.": "Níorbh fhéidir an sonra teagmhála a shábháil.",
+        "The contact detail could not be removed.": "Níorbh fhéidir an sonra teagmhála a bhaint."
     },
     "nplurals=2; plural=(n != 1);"
 )

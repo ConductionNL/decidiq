@@ -1275,7 +1275,22 @@ OC.L10N.register(
         "{name} raised a question": "{name} esitas küsimuse",
         "Meeting recording": "Koosoleku salvestis",
         "Play from here": "Esita siit",
-        "Play the recording from {title}": "Esita salvestis alates punktist {title}"
+        "Play the recording from {title}": "Esita salvestis alates punktist {title}",
+        "Member from": "Liige alates",
+        "Past members": "Endised liikmed",
+        "Contact details of this body": "Selle organi kontaktandmed",
+        "Contact details": "Kontaktandmed",
+        "Contact details of {name}": "Isiku {name} kontaktandmed",
+        "Remove {value}": "Eemalda {value}",
+        "No contact details yet.": "Kontaktandmeid veel pole.",
+        "Value": "Väärtus",
+        "Add contact detail": "Lisa kontaktandmed",
+        "Phone": "Telefon",
+        "Mobile phone": "Mobiiltelefon",
+        "Address": "Aadress",
+        "Website": "Veebisait",
+        "The contact detail could not be saved.": "Kontaktandmeid ei õnnestunud salvestada.",
+        "The contact detail could not be removed.": "Kontaktandmeid ei õnnestunud eemaldada."
     },
     "nplurals=2; plural=(n != 1);"
 )

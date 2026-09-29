@@ -1275,7 +1275,22 @@ OC.L10N.register(
         "{name} raised a question": "{name} έθεσε μια ερώτηση",
         "Meeting recording": "Καταγραφή της συνεδρίασης",
         "Play from here": "Αναπαραγωγή από εδώ",
-        "Play the recording from {title}": "Αναπαραγωγή της καταγραφής από {title}"
+        "Play the recording from {title}": "Αναπαραγωγή της καταγραφής από {title}",
+        "Member from": "Μέλος από",
+        "Past members": "Πρώην μέλη",
+        "Contact details of this body": "Στοιχεία επικοινωνίας αυτού του οργάνου",
+        "Contact details": "Στοιχεία επικοινωνίας",
+        "Contact details of {name}": "Στοιχεία επικοινωνίας του/της {name}",
+        "Remove {value}": "Αφαίρεση {value}",
+        "No contact details yet.": "Δεν υπάρχουν ακόμη στοιχεία επικοινωνίας.",
+        "Value": "Τιμή",
+        "Add contact detail": "Προσθήκη στοιχείου επικοινωνίας",
+        "Phone": "Τηλέφωνο",
+        "Mobile phone": "Κινητό τηλέφωνο",
+        "Address": "Διεύθυνση",
+        "Website": "Ιστότοπος",
+        "The contact detail could not be saved.": "Το στοιχείο επικοινωνίας δεν ήταν δυνατό να αποθηκευτεί.",
+        "The contact detail could not be removed.": "Το στοιχείο επικοινωνίας δεν ήταν δυνατό να αφαιρεθεί."
     },
     "nplurals=2; plural=(n != 1);"
 )

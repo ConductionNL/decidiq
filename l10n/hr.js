@@ -1275,7 +1275,22 @@ OC.L10N.register(
         "{name} raised a question": "{name} je postavio pitanje",
         "Meeting recording": "Snimka sjednice",
         "Play from here": "Reproduciraj odavde",
-        "Play the recording from {title}": "Reproduciraj snimku od {title}"
+        "Play the recording from {title}": "Reproduciraj snimku od {title}",
+        "Member from": "Član od",
+        "Past members": "Bivši članovi",
+        "Contact details of this body": "Kontakt podaci ovog tijela",
+        "Contact details": "Kontakt podaci",
+        "Contact details of {name}": "Kontakt podaci za {name}",
+        "Remove {value}": "Ukloni {value}",
+        "No contact details yet.": "Još nema kontakt podataka.",
+        "Value": "Vrijednost",
+        "Add contact detail": "Dodaj kontakt podatak",
+        "Phone": "Telefon",
+        "Mobile phone": "Mobitel",
+        "Address": "Adresa",
+        "Website": "Web stranica",
+        "The contact detail could not be saved.": "Kontakt podatak nije moguće spremiti.",
+        "The contact detail could not be removed.": "Kontakt podatak nije moguće ukloniti."
     },
     "nplurals=2; plural=(n != 1);"
 )

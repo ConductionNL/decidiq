@@ -1275,7 +1275,22 @@ OC.L10N.register(
         "{name} raised a question": "{name} a pus o întrebare",
         "Meeting recording": "Înregistrarea ședinței",
         "Play from here": "Redă de aici",
-        "Play the recording from {title}": "Redă înregistrarea de la {title}"
+        "Play the recording from {title}": "Redă înregistrarea de la {title}",
+        "Member from": "Membru din",
+        "Past members": "Foști membri",
+        "Contact details of this body": "Datele de contact ale acestui organ",
+        "Contact details": "Date de contact",
+        "Contact details of {name}": "Datele de contact ale lui {name}",
+        "Remove {value}": "Elimină {value}",
+        "No contact details yet.": "Încă nu există date de contact.",
+        "Value": "Valoare",
+        "Add contact detail": "Adaugă date de contact",
+        "Phone": "Telefon",
+        "Mobile phone": "Telefon mobil",
+        "Address": "Adresă",
+        "Website": "Site web",
+        "The contact detail could not be saved.": "Datele de contact nu au putut fi salvate.",
+        "The contact detail could not be removed.": "Datele de contact nu au putut fi eliminate."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1275,7 +1275,22 @@ OC.L10N.register(
         "{name} raised a question": "{name} uždavė klausimą",
         "Meeting recording": "Posėdžio įrašas",
         "Play from here": "Leisti nuo čia",
-        "Play the recording from {title}": "Leisti įrašą nuo {title}"
+        "Play the recording from {title}": "Leisti įrašą nuo {title}",
+        "Member from": "Narys nuo",
+        "Past members": "Buvę nariai",
+        "Contact details of this body": "Šio organo kontaktai",
+        "Contact details": "Kontaktai",
+        "Contact details of {name}": "{name} kontaktai",
+        "Remove {value}": "Pašalinti {value}",
+        "No contact details yet.": "Kontaktų dar nėra.",
+        "Value": "Reikšmė",
+        "Add contact detail": "Pridėti kontaktą",
+        "Phone": "Telefonas",
+        "Mobile phone": "Mobilusis telefonas",
+        "Address": "Adresas",
+        "Website": "Svetainė",
+        "The contact detail could not be saved.": "Kontakto išsaugoti nepavyko.",
+        "The contact detail could not be removed.": "Kontakto pašalinti nepavyko."
     },
     "nplurals=2; plural=(n != 1);"
 )

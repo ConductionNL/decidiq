@@ -1274,7 +1274,22 @@
         "{name} raised a question": "{name} stilte et spørsmål",
         "Meeting recording": "Opptak av møtet",
         "Play from here": "Spill av herfra",
-        "Play the recording from {title}": "Spill av opptaket fra {title}"
+        "Play the recording from {title}": "Spill av opptaket fra {title}",
+        "Member from": "Medlem fra",
+        "Past members": "Tidligere medlemmer",
+        "Contact details of this body": "Kontaktinformasjon for dette organet",
+        "Contact details": "Kontaktinformasjon",
+        "Contact details of {name}": "Kontaktinformasjon for {name}",
+        "Remove {value}": "Fjern {value}",
+        "No contact details yet.": "Ingen kontaktinformasjon ennå.",
+        "Value": "Verdi",
+        "Add contact detail": "Legg til kontaktinformasjon",
+        "Phone": "Telefon",
+        "Mobile phone": "Mobiltelefon",
+        "Address": "Adresse",
+        "Website": "Nettsted",
+        "The contact detail could not be saved.": "Kontaktinformasjonen kunne ikke lagres.",
+        "The contact detail could not be removed.": "Kontaktinformasjonen kunne ikke fjernes."
     },
     "plurals": null
 }

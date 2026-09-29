@@ -1275,7 +1275,22 @@ OC.L10N.register(
         "{name} raised a question": "{name} stillede et spørgsmål",
         "Meeting recording": "Optagelse af mødet",
         "Play from here": "Afspil herfra",
-        "Play the recording from {title}": "Afspil optagelsen fra {title}"
+        "Play the recording from {title}": "Afspil optagelsen fra {title}",
+        "Member from": "Medlem fra",
+        "Past members": "Tidligere medlemmer",
+        "Contact details of this body": "Kontaktoplysninger for dette organ",
+        "Contact details": "Kontaktoplysninger",
+        "Contact details of {name}": "Kontaktoplysninger for {name}",
+        "Remove {value}": "Fjern {value}",
+        "No contact details yet.": "Ingen kontaktoplysninger endnu.",
+        "Value": "Værdi",
+        "Add contact detail": "Tilføj kontaktoplysning",
+        "Phone": "Telefon",
+        "Mobile phone": "Mobiltelefon",
+        "Address": "Adresse",
+        "Website": "Websted",
+        "The contact detail could not be saved.": "Kontaktoplysningen kunne ikke gemmes.",
+        "The contact detail could not be removed.": "Kontaktoplysningen kunne ikke fjernes."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1274,7 +1274,22 @@
         "{name} raised a question": "{name} ngriti një pyetje",
         "Meeting recording": "Regjistrimi i mbledhjes",
         "Play from here": "Luaj nga këtu",
-        "Play the recording from {title}": "Luaj regjistrimin nga {title}"
+        "Play the recording from {title}": "Luaj regjistrimin nga {title}",
+        "Member from": "Anëtar nga",
+        "Past members": "Ish-anëtarët",
+        "Contact details of this body": "Të dhënat e kontaktit të këtij organi",
+        "Contact details": "Të dhënat e kontaktit",
+        "Contact details of {name}": "Të dhënat e kontaktit të {name}",
+        "Remove {value}": "Hiq {value}",
+        "No contact details yet.": "Ende pa të dhëna kontakti.",
+        "Value": "Vlera",
+        "Add contact detail": "Shto të dhënë kontakti",
+        "Phone": "Telefon",
+        "Mobile phone": "Celular",
+        "Address": "Adresa",
+        "Website": "Faqe interneti",
+        "The contact detail could not be saved.": "Të dhënat e kontaktit nuk u ruajtën dot.",
+        "The contact detail could not be removed.": "Të dhënat e kontaktit nuk u hoqën dot."
     },
     "plurals": null
 }

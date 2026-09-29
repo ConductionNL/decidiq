@@ -1275,7 +1275,22 @@ OC.L10N.register(
         "{name} raised a question": "{name} ha posto una domanda",
         "Meeting recording": "Registrazione della riunione",
         "Play from here": "Riproduci da qui",
-        "Play the recording from {title}": "Riproduci la registrazione da {title}"
+        "Play the recording from {title}": "Riproduci la registrazione da {title}",
+        "Member from": "Membro dal",
+        "Past members": "Ex membri",
+        "Contact details of this body": "Recapiti di questo organo",
+        "Contact details": "Recapiti",
+        "Contact details of {name}": "Recapiti di {name}",
+        "Remove {value}": "Rimuovi {value}",
+        "No contact details yet.": "Ancora nessun recapito.",
+        "Value": "Valore",
+        "Add contact detail": "Aggiungi recapito",
+        "Phone": "Telefono",
+        "Mobile phone": "Cellulare",
+        "Address": "Indirizzo",
+        "Website": "Sito web",
+        "The contact detail could not be saved.": "Impossibile salvare il recapito.",
+        "The contact detail could not be removed.": "Impossibile rimuovere il recapito."
     },
     "nplurals=2; plural=(n != 1);"
 )

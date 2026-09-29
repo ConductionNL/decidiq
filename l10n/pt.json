@@ -1274,7 +1274,22 @@
         "{name} raised a question": "{name} fez uma pergunta",
         "Meeting recording": "Gravação da reunião",
         "Play from here": "Reproduzir a partir daqui",
-        "Play the recording from {title}": "Reproduzir a gravação a partir de {title}"
+        "Play the recording from {title}": "Reproduzir a gravação a partir de {title}",
+        "Member from": "Membro desde",
+        "Past members": "Antigos membros",
+        "Contact details of this body": "Contactos deste órgão",
+        "Contact details": "Contactos",
+        "Contact details of {name}": "Contactos de {name}",
+        "Remove {value}": "Remover {value}",
+        "No contact details yet.": "Ainda sem contactos.",
+        "Value": "Valor",
+        "Add contact detail": "Adicionar contacto",
+        "Phone": "Telefone",
+        "Mobile phone": "Telemóvel",
+        "Address": "Morada",
+        "Website": "Sítio web",
+        "The contact detail could not be saved.": "Não foi possível guardar o contacto.",
+        "The contact detail could not be removed.": "Não foi possível remover o contacto."
     },
     "plurals": null
 }

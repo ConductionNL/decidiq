@@ -1274,7 +1274,22 @@
         "{name} raised a question": "{name} uzdeva jautājumu",
         "Meeting recording": "Sēdes ieraksts",
         "Play from here": "Atskaņot no šejienes",
-        "Play the recording from {title}": "Atskaņot ierakstu no {title}"
+        "Play the recording from {title}": "Atskaņot ierakstu no {title}",
+        "Member from": "Biedrs no",
+        "Past members": "Bijušie biedri",
+        "Contact details of this body": "Šīs institūcijas kontaktinformācija",
+        "Contact details": "Kontaktinformācija",
+        "Contact details of {name}": "{name} kontaktinformācija",
+        "Remove {value}": "Noņemt {value}",
+        "No contact details yet.": "Kontaktinformācijas vēl nav.",
+        "Value": "Vērtība",
+        "Add contact detail": "Pievienot kontaktinformāciju",
+        "Phone": "Tālrunis",
+        "Mobile phone": "Mobilais tālrunis",
+        "Address": "Adrese",
+        "Website": "Tīmekļa vietne",
+        "The contact detail could not be saved.": "Kontaktinformāciju neizdevās saglabāt.",
+        "The contact detail could not be removed.": "Kontaktinformāciju neizdevās noņemt."
     },
     "plurals": null
 }

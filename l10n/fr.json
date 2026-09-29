@@ -1274,7 +1274,22 @@
         "{name} raised a question": "{name} a posé une question",
         "Meeting recording": "Enregistrement de la réunion",
         "Play from here": "Lire à partir d'ici",
-        "Play the recording from {title}": "Lire l'enregistrement à partir de {title}"
+        "Play the recording from {title}": "Lire l'enregistrement à partir de {title}",
+        "Member from": "Membre depuis",
+        "Past members": "Anciens membres",
+        "Contact details of this body": "Coordonnées de cet organe",
+        "Contact details": "Coordonnées",
+        "Contact details of {name}": "Coordonnées de {name}",
+        "Remove {value}": "Retirer {value}",
+        "No contact details yet.": "Aucune coordonnée pour l'instant.",
+        "Value": "Valeur",
+        "Add contact detail": "Ajouter une coordonnée",
+        "Phone": "Téléphone",
+        "Mobile phone": "Téléphone mobile",
+        "Address": "Adresse",
+        "Website": "Site web",
+        "The contact detail could not be saved.": "La coordonnée n'a pas pu être enregistrée.",
+        "The contact detail could not be removed.": "La coordonnée n'a pas pu être retirée."
     },
     "plurals": null
 }

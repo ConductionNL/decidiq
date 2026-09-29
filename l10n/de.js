@@ -1275,7 +1275,22 @@ OC.L10N.register(
         "{name} raised a question": "{name} hat eine Frage gestellt",
         "Meeting recording": "Aufzeichnung der Sitzung",
         "Play from here": "Ab hier abspielen",
-        "Play the recording from {title}": "Aufzeichnung ab {title} abspielen"
+        "Play the recording from {title}": "Aufzeichnung ab {title} abspielen",
+        "Member from": "Mitglied seit",
+        "Past members": "Ehemalige Mitglieder",
+        "Contact details of this body": "Kontaktdaten dieses Gremiums",
+        "Contact details": "Kontaktdaten",
+        "Contact details of {name}": "Kontaktdaten von {name}",
+        "Remove {value}": "{value} entfernen",
+        "No contact details yet.": "Noch keine Kontaktdaten.",
+        "Value": "Wert",
+        "Add contact detail": "Kontaktangabe hinzufügen",
+        "Phone": "Telefon",
+        "Mobile phone": "Mobiltelefon",
+        "Address": "Adresse",
+        "Website": "Webseite",
+        "The contact detail could not be saved.": "Die Kontaktangabe konnte nicht gespeichert werden.",
+        "The contact detail could not be removed.": "Die Kontaktangabe konnte nicht entfernt werden."
     },
     "nplurals=2; plural=(n != 1);"
 )
