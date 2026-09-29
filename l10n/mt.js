@@ -1147,7 +1147,13 @@ OC.L10N.register(
         "Adjourn meeting": "Posponi l-laqgħa",
         "Close meeting": "Agħlaq il-laqgħa",
         "The stage was not changed.": "L-istadju ma nbidilx.",
-        "The body's rule": "Ir-regola tal-korp"
+        "The body's rule": "Ir-regola tal-korp",
+        "Agenda published on {date}": "L-aġenda ġiet ippubblikata fil-{date}",
+        "Could not publish the agenda": "Ma setgħetx tiġi ppubblikata l-aġenda",
+        "The agenda was not published.": "L-aġenda ma ġietx ippubblikata.",
+        "When: %s": "Meta: %s",
+        "Where: %s": "Fejn: %s",
+        "Agenda:": "Aġenda:"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1147,7 +1147,13 @@ OC.L10N.register(
         "Adjourn meeting": "Lükka koosolek edasi",
         "Close meeting": "Lõpeta koosolek",
         "The stage was not changed.": "Etappi ei muudetud.",
-        "The body's rule": "Kogu reegel"
+        "The body's rule": "Kogu reegel",
+        "Agenda published on {date}": "Päevakord avaldati {date}",
+        "Could not publish the agenda": "Päevakorda ei õnnestunud avaldada",
+        "The agenda was not published.": "Päevakorda ei avaldatud.",
+        "When: %s": "Millal: %s",
+        "Where: %s": "Kus: %s",
+        "Agenda:": "Päevakord:"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1147,7 +1147,13 @@ OC.L10N.register(
         "Adjourn meeting": "Lykkää kokousta",
         "Close meeting": "Päätä kokous",
         "The stage was not changed.": "Vaihetta ei muutettu.",
-        "The body's rule": "Toimielimen sääntö"
+        "The body's rule": "Toimielimen sääntö",
+        "Agenda published on {date}": "Esityslista julkaistu {date}",
+        "Could not publish the agenda": "Esityslistaa ei voitu julkaista",
+        "The agenda was not published.": "Esityslistaa ei julkaistu.",
+        "When: %s": "Milloin: %s",
+        "Where: %s": "Missä: %s",
+        "Agenda:": "Esityslista:"
     },
     "nplurals=2; plural=(n != 1);"
 )

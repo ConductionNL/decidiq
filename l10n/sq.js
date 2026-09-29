@@ -1147,7 +1147,13 @@ OC.L10N.register(
         "Adjourn meeting": "Shty mbledhjen",
         "Close meeting": "Mbyll mbledhjen",
         "The stage was not changed.": "Faza nuk u ndryshua.",
-        "The body's rule": "Rregulli i organit"
+        "The body's rule": "Rregulli i organit",
+        "Agenda published on {date}": "Rendi i ditës u publikua më {date}",
+        "Could not publish the agenda": "Rendi i ditës nuk mund të publikohej",
+        "The agenda was not published.": "Rendi i ditës nuk u publikua.",
+        "When: %s": "Kur: %s",
+        "Where: %s": "Ku: %s",
+        "Agenda:": "Rendi i ditës:"
     },
     "nplurals=2; plural=(n != 1);"
 )

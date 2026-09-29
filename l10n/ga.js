@@ -1147,7 +1147,13 @@ OC.L10N.register(
         "Adjourn meeting": "Cuir an cruinniú ar atráth",
         "Close meeting": "Dún an cruinniú",
         "The stage was not changed.": "Níor athraíodh an chéim.",
-        "The body's rule": "Riail an chomhlachta"
+        "The body's rule": "Riail an chomhlachta",
+        "Agenda published on {date}": "Foilsíodh an clár oibre ar {date}",
+        "Could not publish the agenda": "Níorbh fhéidir an clár oibre a fhoilsiú",
+        "The agenda was not published.": "Níor foilsíodh an clár oibre.",
+        "When: %s": "Cathain: %s",
+        "Where: %s": "Cá háit: %s",
+        "Agenda:": "Clár oibre:"
     },
     "nplurals=2; plural=(n != 1);"
 )

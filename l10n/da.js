@@ -1147,7 +1147,13 @@ OC.L10N.register(
         "Adjourn meeting": "Udsæt mødet",
         "Close meeting": "Afslut mødet",
         "The stage was not changed.": "Fasen blev ikke ændret.",
-        "The body's rule": "Organets regel"
+        "The body's rule": "Organets regel",
+        "Agenda published on {date}": "Dagsordenen blev offentliggjort {date}",
+        "Could not publish the agenda": "Dagsordenen kunne ikke offentliggøres",
+        "The agenda was not published.": "Dagsordenen blev ikke offentliggjort.",
+        "When: %s": "Hvornår: %s",
+        "Where: %s": "Hvor: %s",
+        "Agenda:": "Dagsorden:"
     },
     "nplurals=2; plural=(n != 1);"
 )

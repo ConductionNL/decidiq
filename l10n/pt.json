@@ -1146,7 +1146,13 @@
         "Adjourn meeting": "Adiar a reunião",
         "Close meeting": "Encerrar a reunião",
         "The stage was not changed.": "A fase não foi alterada.",
-        "The body's rule": "A regra do órgão"
+        "The body's rule": "A regra do órgão",
+        "Agenda published on {date}": "Ordem de trabalhos publicada em {date}",
+        "Could not publish the agenda": "Não foi possível publicar a ordem de trabalhos",
+        "The agenda was not published.": "A ordem de trabalhos não foi publicada.",
+        "When: %s": "Quando: %s",
+        "Where: %s": "Onde: %s",
+        "Agenda:": "Ordem de trabalhos:"
     },
     "plurals": null
 }

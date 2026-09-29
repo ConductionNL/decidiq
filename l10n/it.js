@@ -1147,7 +1147,13 @@ OC.L10N.register(
         "Adjourn meeting": "Aggiorna la riunione",
         "Close meeting": "Chiudi la riunione",
         "The stage was not changed.": "La fase non è stata modificata.",
-        "The body's rule": "La regola dell'organo"
+        "The body's rule": "La regola dell'organo",
+        "Agenda published on {date}": "Ordine del giorno pubblicato il {date}",
+        "Could not publish the agenda": "Impossibile pubblicare l'ordine del giorno",
+        "The agenda was not published.": "L'ordine del giorno non è stato pubblicato.",
+        "When: %s": "Quando: %s",
+        "Where: %s": "Dove: %s",
+        "Agenda:": "Ordine del giorno:"
     },
     "nplurals=2; plural=(n != 1);"
 )

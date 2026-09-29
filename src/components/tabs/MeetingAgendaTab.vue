@@ -36,6 +36,13 @@
 					{{ t('decidiq', 'Open live meeting') }}
 				</NcButton>
 				<NcButton
+					v-if="canManage"
+					data-testid="agenda-publish"
+					:disabled="publishing"
+					@click="publishAgenda">
+					{{ t('decidiq', 'Publish agenda') }}
+				</NcButton>
+				<NcButton
 					data-testid="agenda-assemble-package"
 					:disabled="assembling"
 					:aria-label="t('decidiq', 'Assemble meeting package')"
@@ -84,6 +91,25 @@
 					{{ t('decidiq', required.label) }}
 				</li>
 			</ul>
+		</CnNoteCard>
+
+		<p
+			v-if="agendaPublishedOn"
+			class="decidiq-tab__muted"
+			data-testid="agenda-published-on">
+			{{
+				t('decidiq', 'Agenda published on {date}', {
+					date: agendaPublishedOn,
+				})
+			}}
+		</p>
+
+		<CnNoteCard
+			v-if="publishError"
+			type="error"
+			data-testid="agenda-publish-error"
+			:title="t('decidiq', 'Could not publish the agenda')">
+			{{ publishError }}
 		</CnNoteCard>
 
 		<CnNoteCard
@@ -218,6 +244,7 @@ import {
 	missingRequiredTypeFields,
 	typeFieldInputs,
 } from '../../utils/agendaItemTypeFields.js'
+import { publishAgendaPath, publishedOn } from '../../utils/agendaPublication.js'
 import { formalityUrl } from '../../utils/formalities.js'
 import { ensureRelationType } from './useRelationStore.js'
 
@@ -268,10 +295,22 @@ export default {
 			myRoles: null,
 			dragId: null,
 			reorderError: '',
+			publishing: false,
+			publishError: '',
 		}
 	},
 
 	computed: {
+		/**
+		 * When the current agenda was published, or ''.
+		 *
+		 * @spec openspec/specs/agenda-publication/spec.md#requirement-req-apim-001-publishing-the-agenda-invites-the-members
+		 * @return {string}
+		 */
+		agendaPublishedOn() {
+			return publishedOn(this.meeting)
+		},
+
 		/**
 		 * Agenda rows, with the Type column resolved against the configured
 		 * kinds.
@@ -590,6 +629,44 @@ export default {
 		 */
 		openItem(row) {
 			this.$router.push({ name: 'AgendaItemDetail', params: { id: row.id } })
+		},
+
+		/**
+		 * Publish the agenda: the server records the version and the
+		 * convocation and invites every member. Then reload the meeting so
+		 * the published date shows.
+		 *
+		 * @spec openspec/specs/agenda-publication/spec.md#requirement-req-apim-001-publishing-the-agenda-invites-the-members
+		 */
+		async publishAgenda() {
+			this.publishError = ''
+			this.publishing = true
+			try {
+				const response = await fetch(
+					generateUrl(publishAgendaPath(this.objectId)),
+					{
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							Accept: 'application/json',
+							requesttoken: OC.requestToken,
+						},
+					},
+				)
+				if (!response.ok) {
+					const payload = await response.json().catch(() => ({}))
+					this.publishError =
+						payload?.message
+						|| this.t('decidiq', 'The agenda was not published.')
+					return
+				}
+				await this.loadMeeting()
+			} catch (e) {
+				this.publishError =
+					e?.message || this.t('decidiq', 'The agenda was not published.')
+			} finally {
+				this.publishing = false
+			}
 		},
 
 		/** @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-004-the-meeting-page-links-the-live-meeting-screen */
