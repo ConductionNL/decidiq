@@ -47,6 +47,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 /**
  * Service for managing conflict-of-interest declarations and their effect on
@@ -409,7 +410,7 @@ class ConflictOfInterestService {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @throws \RuntimeException When the declarations cannot be read (fail closed).
+	 * @throws RuntimeException When the declarations cannot be read (fail closed).
 	 */
 	public function getActiveConflicts(string $membershipId, string $agendaItemId): ?array {
 		$matches = $this->findDeclarations(membershipId: $membershipId, agendaItemId: $agendaItemId);
@@ -442,7 +443,7 @@ class ConflictOfInterestService {
 	 *
 	 * @return array<int, array<string, mixed>>
 	 *
-	 * @throws \RuntimeException When the declarations cannot be read (fail closed).
+	 * @throws RuntimeException When the declarations cannot be read (fail closed).
 	 */
 	private function findDeclarations(string $membershipId, string $agendaItemId): array {
 		try {
@@ -471,7 +472,7 @@ class ConflictOfInterestService {
 				'Decidiq: failed to query conflict declarations',
 				['exception' => $e->getMessage()]
 			);
-			throw new \RuntimeException('Conflict-of-interest declarations could not be read.', 0, $e);
+			throw new RuntimeException('Conflict-of-interest declarations could not be read.', 0, $e);
 		}//end try
 
 		$out = [];
