@@ -40,6 +40,7 @@ use RuntimeException;
  * out of it by the id a flow document names.
  *
  * @covers \OCA\Decidiq\Flow\DecidiqFlowNodeListener
+ * @uses   \OCA\Decidiq\Flow\DecidiqRequestDecisionNode
  *
  * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
  */

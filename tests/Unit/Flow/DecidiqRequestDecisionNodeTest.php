@@ -47,6 +47,7 @@ use UnexpectedValueException;
 
 /**
  * @covers \OCA\Decidiq\Flow\DecidiqRequestDecisionNode
+ * @uses   \OCA\Decidiq\Service\FlowDecisionService
  *
  * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md
  */
