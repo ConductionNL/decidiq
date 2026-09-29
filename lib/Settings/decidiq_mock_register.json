@@ -8297,6 +8297,23 @@
         "meeting": "00000000-0000-4000-8000-000000000000",
         "participant": "00000000-0000-4000-8000-000000000002",
         "status": "absent"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "AgendaTemplate",
+          "slug": "agendatemplate-raadsvergadering-1"
+        },
+        "name": "Raadsvergadering",
+        "description": "De vaste opbouw van een gewone raadsvergadering.",
+        "items": [
+          { "title": "Opening en mededelingen", "itemType": "informational", "isFormality": true },
+          { "title": "Vaststellen van de agenda", "itemType": "decision", "isFormality": true },
+          { "title": "Vragenhalfuur", "itemType": "discussion", "estimatedDuration": 30 },
+          { "title": "Hamerstukken", "itemType": "decision", "isFormality": true },
+          { "title": "Bespreekstukken", "itemType": "decision", "estimatedDuration": 90 },
+          { "title": "Sluiting", "itemType": "informational" }
+        ]
       }
     ]
   }
