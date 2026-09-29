@@ -1252,7 +1252,23 @@
         "The video call could not be created.": "Apelul video nu a putut fi creat.",
         "The room could not be linked.": "Camera nu a putut fi legată.",
         "Minutes wait for your approval: %s": "Procesul-verbal așteaptă aprobarea dvs.: %s",
-        "The minutes were submitted for approval.": "Procesul-verbal a fost trimis spre aprobare."
+        "The minutes were submitted for approval.": "Procesul-verbal a fost trimis spre aprobare.",
+        "Open the room screen": "Deschide ecranul sălii",
+        "Room screen": "Ecranul sălii",
+        "Record a decision on {title}": "Înregistrează o decizie privind {title}",
+        "Decision recorded.": "Decizia a fost înregistrată.",
+        "Log a question by {name}": "Înregistrează o întrebare de la {name}",
+        "Question raised": "Întrebare adresată",
+        "Record a decision": "Înregistrează o decizie",
+        "Decision text": "Textul deciziei",
+        "Kind of decision": "Tipul deciziei",
+        "A decision can only be recorded while the meeting is in session.": "O decizie poate fi înregistrată doar în timpul ședinței.",
+        "The decision could not be recorded.": "Decizia nu a putut fi înregistrată.",
+        "Now on the agenda": "Acum pe ordinea de zi",
+        "Voting is open": "Votul este deschis",
+        "No agenda item is being dealt with yet.": "Încă nu se dezbate niciun punct de pe ordinea de zi.",
+        "Current agenda item": "Punctul curent de pe ordinea de zi",
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Punctul pe care îl tratează acum președintele. Ecranele membrilor și ecranul sălii îl urmează."
     },
     "plurals": null
 }

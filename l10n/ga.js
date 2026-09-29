@@ -1253,7 +1253,23 @@ OC.L10N.register(
         "The video call could not be created.": "Níorbh fhéidir an glao físe a chruthú.",
         "The room could not be linked.": "Níorbh fhéidir an seomra a nascadh.",
         "Minutes wait for your approval: %s": "Miontuairiscí ag fanacht le do cheadú: %s",
-        "The minutes were submitted for approval.": "Cuireadh na miontuairiscí isteach lena gceadú."
+        "The minutes were submitted for approval.": "Cuireadh na miontuairiscí isteach lena gceadú.",
+        "Open the room screen": "Oscail scáileán an tseomra",
+        "Room screen": "Scáileán an tseomra",
+        "Record a decision on {title}": "Taifead cinneadh ar {title}",
+        "Decision recorded.": "Taifeadadh an cinneadh.",
+        "Log a question by {name}": "Taifead ceist ó {name}",
+        "Question raised": "Ceist ardaithe",
+        "Record a decision": "Taifead cinneadh",
+        "Decision text": "Téacs an chinnidh",
+        "Kind of decision": "Cineál cinnidh",
+        "A decision can only be recorded while the meeting is in session.": "Ní féidir cinneadh a thaifeadadh ach le linn an chruinnithe.",
+        "The decision could not be recorded.": "Níorbh fhéidir an cinneadh a thaifeadadh.",
+        "Now on the agenda": "Anois ar an gclár",
+        "Voting is open": "Tá an vótáil oscailte",
+        "No agenda item is being dealt with yet.": "Níl aon mhír den chlár á plé fós.",
+        "Current agenda item": "Mír reatha den chlár",
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "An mhír atá an cathaoirleach a phlé anois. Leanann scáileáin na gcomhaltaí agus scáileán an tseomra í."
     },
     "nplurals=2; plural=(n != 1);"
 )

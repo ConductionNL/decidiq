@@ -1252,7 +1252,23 @@
         "The video call could not be created.": "L'appel vidéo n'a pas pu être créé.",
         "The room could not be linked.": "La salle n'a pas pu être liée.",
         "Minutes wait for your approval: %s": "Procès-verbal en attente de votre approbation : %s",
-        "The minutes were submitted for approval.": "Le procès-verbal a été soumis pour approbation."
+        "The minutes were submitted for approval.": "Le procès-verbal a été soumis pour approbation.",
+        "Open the room screen": "Ouvrir l'écran de la salle",
+        "Room screen": "Écran de la salle",
+        "Record a decision on {title}": "Enregistrer une décision sur {title}",
+        "Decision recorded.": "Décision enregistrée.",
+        "Log a question by {name}": "Noter une question de {name}",
+        "Question raised": "Question posée",
+        "Record a decision": "Enregistrer une décision",
+        "Decision text": "Texte de la décision",
+        "Kind of decision": "Type de décision",
+        "A decision can only be recorded while the meeting is in session.": "Une décision ne peut être enregistrée que pendant la séance.",
+        "The decision could not be recorded.": "La décision n'a pas pu être enregistrée.",
+        "Now on the agenda": "Maintenant à l'ordre du jour",
+        "Voting is open": "Le vote est ouvert",
+        "No agenda item is being dealt with yet.": "Aucun point de l'ordre du jour n'est encore traité.",
+        "Current agenda item": "Point en cours de l'ordre du jour",
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Le point que la présidence traite maintenant. Les écrans des membres et l'écran de la salle le suivent."
     },
     "plurals": null
 }

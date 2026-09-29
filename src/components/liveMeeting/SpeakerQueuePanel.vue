@@ -143,6 +143,18 @@
 					</NcButton>
 					<NcButton
 						size="small"
+						variant="secondary"
+						data-testid="speaker-queue-question"
+						:aria-label="
+							t('decidiq', 'Log a question by {name}', {
+								name: entry.displayName,
+							})
+						"
+						@click="recordQuestion(entry)">
+						{{ t('decidiq', 'Question raised') }}
+					</NcButton>
+					<NcButton
+						size="small"
 						variant="tertiary"
 						data-testid="speaker-queue-remove"
 						:aria-label="
@@ -164,6 +176,7 @@
 
 <script>
 import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
+import { engagementBody } from '../../utils/liveMeeting.js'
 import { formatClock } from '../../utils/meetingTimer.js'
 import {
 	addSpeaker,
@@ -185,6 +198,9 @@ export default {
 
 	props: {
 		meetingId: { type: String, required: true },
+		// The agenda item being dealt with; speeches and questions carry it
+		// (live-meeting-shared-current-item).
+		currentItemId: { type: String, default: null },
 		participants: { type: Array, default: () => [] },
 		isChair: { type: Boolean, default: false },
 	},
@@ -303,6 +319,7 @@ export default {
 		 * @param {{participantId: string, durationSeconds: number}} stopped The recorded speech.
 		 *
 		 * @spec openspec/specs/meeting-efficiency/spec.md
+		 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
 		 */
 		async recordSpeech(stopped) {
 			if (!stopped || stopped.durationSeconds <= 0) return
@@ -313,16 +330,48 @@ export default {
 						'Content-Type': 'application/json',
 						requesttoken: OC.requestToken,
 					},
-					body: JSON.stringify({
-						meeting: this.meetingId,
-						participant: stopped.participantId,
-						eventType: 'speech',
-						eventData: { duration: stopped.durationSeconds },
-					}),
+					body: JSON.stringify(
+						engagementBody(
+							this.meetingId,
+							stopped.participantId,
+							'speech',
+							this.currentItemId,
+							{ duration: stopped.durationSeconds },
+						),
+					),
 				})
 				this.$emit('speech-recorded', stopped)
 			} catch (e) {
 				console.error('Failed to record speech:', e)
+			}
+		},
+
+		/**
+		 * Log that a member raised a question on the current item.
+		 *
+		 * @param {{participantId: string}} entry The queue entry.
+		 *
+		 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
+		 */
+		async recordQuestion(entry) {
+			try {
+				await fetch(OC.generateUrl('/apps/decidiq/api/engagement'), {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						requesttoken: OC.requestToken,
+					},
+					body: JSON.stringify(
+						engagementBody(
+							this.meetingId,
+							entry.participantId,
+							'question',
+							this.currentItemId,
+						),
+					),
+				})
+			} catch (e) {
+				console.error('Failed to record question:', e)
 			}
 		},
 	},

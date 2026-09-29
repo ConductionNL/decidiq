@@ -1252,7 +1252,23 @@
         "The video call could not be created.": "Ekki tókst að búa til myndsímtalið.",
         "The room could not be linked.": "Ekki tókst að tengja herbergið.",
         "Minutes wait for your approval: %s": "Fundargerð bíður samþykkis þíns: %s",
-        "The minutes were submitted for approval.": "Fundargerðin var send til samþykktar."
+        "The minutes were submitted for approval.": "Fundargerðin var send til samþykktar.",
+        "Open the room screen": "Opna skjá salarins",
+        "Room screen": "Skjár salarins",
+        "Record a decision on {title}": "Skrá ákvörðun um {title}",
+        "Decision recorded.": "Ákvörðun skráð.",
+        "Log a question by {name}": "Skrá spurningu frá {name}",
+        "Question raised": "Spurning borin upp",
+        "Record a decision": "Skrá ákvörðun",
+        "Decision text": "Texti ákvörðunar",
+        "Kind of decision": "Tegund ákvörðunar",
+        "A decision can only be recorded while the meeting is in session.": "Aðeins er hægt að skrá ákvörðun meðan fundur stendur yfir.",
+        "The decision could not be recorded.": "Ekki tókst að skrá ákvörðunina.",
+        "Now on the agenda": "Nú á dagskrá",
+        "Voting is open": "Atkvæðagreiðsla er opin",
+        "No agenda item is being dealt with yet.": "Enginn dagskrárliður er enn til umræðu.",
+        "Current agenda item": "Núverandi dagskrárliður",
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Liðurinn sem formaður fjallar um núna. Skjáir fundarmanna og salarins fylgja honum."
     },
     "plurals": null
 }

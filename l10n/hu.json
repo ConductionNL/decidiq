@@ -1252,7 +1252,23 @@
         "The video call could not be created.": "A videohívást nem sikerült létrehozni.",
         "The room could not be linked.": "A szobát nem sikerült hozzákapcsolni.",
         "Minutes wait for your approval: %s": "Jegyzőkönyv jóváhagyásra vár: %s",
-        "The minutes were submitted for approval.": "A jegyzőkönyvet jóváhagyásra benyújtották."
+        "The minutes were submitted for approval.": "A jegyzőkönyvet jóváhagyásra benyújtották.",
+        "Open the room screen": "A terem kijelzőjének megnyitása",
+        "Room screen": "Terem kijelzője",
+        "Record a decision on {title}": "Döntés rögzítése: {title}",
+        "Decision recorded.": "A döntés rögzítve.",
+        "Log a question by {name}": "{name} kérdésének rögzítése",
+        "Question raised": "Kérdés elhangzott",
+        "Record a decision": "Döntés rögzítése",
+        "Decision text": "A döntés szövege",
+        "Kind of decision": "A döntés fajtája",
+        "A decision can only be recorded while the meeting is in session.": "Döntést csak az ülés alatt lehet rögzíteni.",
+        "The decision could not be recorded.": "A döntést nem sikerült rögzíteni.",
+        "Now on the agenda": "Most napirenden",
+        "Voting is open": "A szavazás nyitva van",
+        "No agenda item is being dealt with yet.": "Még egyetlen napirendi pontot sem tárgyalnak.",
+        "Current agenda item": "Aktuális napirendi pont",
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Az a pont, amelyet az elnök most tárgyal. A tagok és a terem kijelzője ezt követi."
     },
     "plurals": null
 }

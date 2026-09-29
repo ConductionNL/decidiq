@@ -1252,7 +1252,23 @@
         "The video call could not be created.": "Videopoziv nije moguće stvoriti.",
         "The room could not be linked.": "Sobu nije moguće povezati.",
         "Minutes wait for your approval: %s": "Zapisnik čeka vaše odobrenje: %s",
-        "The minutes were submitted for approval.": "Zapisnik je podnesen na odobrenje."
+        "The minutes were submitted for approval.": "Zapisnik je podnesen na odobrenje.",
+        "Open the room screen": "Otvori zaslon dvorane",
+        "Room screen": "Zaslon dvorane",
+        "Record a decision on {title}": "Zabilježi odluku o {title}",
+        "Decision recorded.": "Odluka je zabilježena.",
+        "Log a question by {name}": "Zabilježi pitanje od {name}",
+        "Question raised": "Postavljeno pitanje",
+        "Record a decision": "Zabilježi odluku",
+        "Decision text": "Tekst odluke",
+        "Kind of decision": "Vrsta odluke",
+        "A decision can only be recorded while the meeting is in session.": "Odluka se može zabilježiti samo dok sjednica traje.",
+        "The decision could not be recorded.": "Odluka se nije mogla zabilježiti.",
+        "Now on the agenda": "Sada na dnevnom redu",
+        "Voting is open": "Glasovanje je otvoreno",
+        "No agenda item is being dealt with yet.": "Još se ne raspravlja nijedna točka dnevnog reda.",
+        "Current agenda item": "Trenutna točka dnevnog reda",
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Točka kojom se predsjedatelj sada bavi. Zasloni članova i zaslon dvorane je prate."
     },
     "plurals": null
 }

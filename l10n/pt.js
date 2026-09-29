@@ -1253,7 +1253,23 @@ OC.L10N.register(
         "The video call could not be created.": "Não foi possível criar a videochamada.",
         "The room could not be linked.": "Não foi possível ligar a sala.",
         "Minutes wait for your approval: %s": "Ata aguarda a sua aprovação: %s",
-        "The minutes were submitted for approval.": "A ata foi submetida para aprovação."
+        "The minutes were submitted for approval.": "A ata foi submetida para aprovação.",
+        "Open the room screen": "Abrir o ecrã da sala",
+        "Room screen": "Ecrã da sala",
+        "Record a decision on {title}": "Registar uma decisão sobre {title}",
+        "Decision recorded.": "Decisão registada.",
+        "Log a question by {name}": "Registar uma pergunta de {name}",
+        "Question raised": "Pergunta colocada",
+        "Record a decision": "Registar uma decisão",
+        "Decision text": "Texto da decisão",
+        "Kind of decision": "Tipo de decisão",
+        "A decision can only be recorded while the meeting is in session.": "Uma decisão só pode ser registada durante a reunião.",
+        "The decision could not be recorded.": "Não foi possível registar a decisão.",
+        "Now on the agenda": "Agora na ordem de trabalhos",
+        "Voting is open": "A votação está aberta",
+        "No agenda item is being dealt with yet.": "Ainda não está a ser tratado nenhum ponto da ordem de trabalhos.",
+        "Current agenda item": "Ponto atual da ordem de trabalhos",
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "O ponto que a presidência está a tratar agora. Os ecrãs dos membros e o da sala acompanham-no."
     },
     "nplurals=2; plural=(n != 1);"
 )
