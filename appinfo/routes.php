@@ -163,6 +163,8 @@ $extra = [
         ['name' => 'agenda#formality',           'url' => '/api/agendas/{meetingId}/items/{itemId}/formality', 'verb' => 'PUT'],
         // The chair's current agenda item on the live meeting (live-meeting-shared-current-item, liv-01).
         ['name' => 'agenda#currentItem',         'url' => '/api/agendas/{meetingId}/current-item', 'verb' => 'PUT'],
+        // The clerk adds a progress entry to a commitment (followup-public-progress, fol-06).
+        ['name' => 'commitment#addProgress',     'url' => '/api/commitments/{id}/progress', 'verb' => 'POST'],
 
         // Motion lifecycle and co-signature routes (specific before wildcard).
         ['name' => 'motion#transition',     'url' => '/api/motions/{id}/transition',      'verb' => 'POST'],
