@@ -278,29 +278,38 @@ class MeetingCostService {
 			return 0;
 		}
 
+		return $this->countAttendees(results: $results, bodyId: $bodyId);
+
+	}//end resolveAttendeeCount()
+
+	/**
+	 * Count the body's members marked present, or the whole roster when
+	 * nobody's attendance was taken.
+	 *
+	 * @param iterable<mixed> $results Participants as found (entities or arrays)
+	 * @param string          $bodyId  The meeting's governance body
+	 *
+	 * @return int Attendee count (>= 0)
+	 *
+	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-002-closing-a-meeting-records-its-cost
+	 */
+	private function countAttendees(iterable $results, string $bodyId): int {
 		$members = 0;
 		$present = 0;
 		$attendanceTaken = false;
 		foreach ($results as $result) {
-			$participant = $result;
-			if (is_object($result) === true && method_exists($result, 'getObject') === true) {
-				$participant = $result->getObject();
-			}
-
-			if (is_array($participant) === false || ($participant['governanceBody'] ?? $bodyId) !== $bodyId) {
+			$participant = $this->participantData(result: $result);
+			if ($participant === null || ($participant['governanceBody'] ?? $bodyId) !== $bodyId) {
 				continue;
 			}
 
 			$members++;
-			$status = ($participant['attendanceStatus'] ?? null);
-			if ($status !== null && $status !== '') {
-				$attendanceTaken = true;
-			}
-
+			$status = (string)($participant['attendanceStatus'] ?? '');
+			$attendanceTaken = ($attendanceTaken === true || $status !== '');
 			if ($status === 'present') {
 				$present++;
 			}
-		}//end foreach
+		}
 
 		if ($attendanceTaken === true) {
 			return $present;
@@ -308,5 +317,27 @@ class MeetingCostService {
 
 		return $members;
 
-	}//end resolveAttendeeCount()
+	}//end countAttendees()
+
+	/**
+	 * The participant's data, from an entity or an already serialised array.
+	 *
+	 * @param mixed $result One findAll() result
+	 *
+	 * @return array<string,mixed>|null
+	 *
+	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-002-closing-a-meeting-records-its-cost
+	 */
+	private function participantData(mixed $result): ?array {
+		if (is_object($result) === true && method_exists($result, 'getObject') === true) {
+			$result = $result->getObject();
+		}
+
+		if (is_array($result) === false) {
+			return null;
+		}
+
+		return $result;
+
+	}//end participantData()
 }//end class
